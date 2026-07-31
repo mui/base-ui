@@ -74,18 +74,13 @@ export function removeFloatingPointErrors(value: number, format?: NumberFormatOp
   return formatter.format(roundedValue) === roundedText ? roundedValue : value;
 }
 
-function snapToStep(
-  value: number,
-  base: number,
-  step: number,
-  mode: 'directional' | 'nearest' = 'directional',
-) {
+function snapToStep(value: number, base: number, step: number, nearest: boolean) {
   const stepSize = Math.abs(step);
   const direction = Math.sign(step);
   const tolerance = stepSize * STEP_EPSILON_FACTOR * direction;
   const rawSteps = value - base + tolerance;
 
-  if (mode === 'nearest') {
+  if (nearest) {
     return base + Math.round(rawSteps / step) * step;
   }
 
@@ -96,25 +91,14 @@ function snapToStep(
 
 export function toValidatedNumber(
   value: number | null,
-  {
-    step,
-    minWithDefault,
-    maxWithDefault,
-    minWithZeroDefault,
-    format,
-    snapOnStep,
-    small,
-    clamp: shouldClamp,
-  }: {
-    step: number | undefined;
-    minWithDefault: number;
-    maxWithDefault: number;
-    minWithZeroDefault: number;
-    format: NumberFormatOptionsWithRounding | undefined;
-    snapOnStep: boolean;
-    small: boolean;
-    clamp: boolean;
-  },
+  step: number | undefined,
+  minWithDefault: number,
+  maxWithDefault: number,
+  minWithZeroDefault: number,
+  format: NumberFormatOptionsWithRounding | undefined,
+  snapOnStep: boolean,
+  small: boolean,
+  shouldClamp: boolean,
 ) {
   if (value === null) {
     return value;
@@ -126,8 +110,9 @@ export function toValidatedNumber(
     const base =
       small || minWithDefault === Number.MIN_SAFE_INTEGER ? minWithZeroDefault : minWithDefault;
 
-    // Snap before clamping so non-step-aligned boundaries stay reachable.
-    nextValue = snapToStep(nextValue, base, step, small ? 'nearest' : 'directional');
+    // Snap before clamping so non-step-aligned boundaries stay reachable. Small (alt-key) steps
+    // snap to the nearest multiple; regular steps snap directionally.
+    nextValue = snapToStep(nextValue, base, step, small);
   }
 
   // Clamp before rounding so a value just outside a fractional boundary (e.g. `0.4` with

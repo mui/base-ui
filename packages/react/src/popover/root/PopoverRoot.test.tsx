@@ -165,6 +165,9 @@ describe('<Popover.Root />', () => {
 
         await user.click(trigger);
         await waitFor(() => {
+          expect(trigger).toHaveAttribute('data-popup-open');
+        });
+        await waitFor(() => {
           expect(screen.queryByRole('dialog')).not.toBe(null);
         });
 
@@ -172,7 +175,7 @@ describe('<Popover.Root />', () => {
         await waitFor(() => {
           expect(trigger).not.toHaveAttribute('data-popup-open');
         });
-        expect(screen.queryByRole('dialog')).not.toBe(null);
+        expect(screen.queryByText('Content')).not.toBe(null);
 
         await user.click(screen.getByRole('button', { name: 'Open externally' }));
         await waitFor(() => {
@@ -181,7 +184,7 @@ describe('<Popover.Root />', () => {
 
         await user.click(trigger);
         await waitFor(() => {
-          expect(screen.queryByRole('dialog')).toBe(null);
+          expect(screen.queryByText('Content')).toBe(null);
         });
       });
 
@@ -660,6 +663,9 @@ describe('<Popover.Root />', () => {
 
         await user.click(trigger);
         await waitFor(() => {
+          expect(trigger).toHaveAttribute('data-popup-open');
+        });
+        await waitFor(() => {
           expect(screen.queryByRole('dialog')).not.toBe(null);
         });
 
@@ -667,7 +673,7 @@ describe('<Popover.Root />', () => {
         await waitFor(() => {
           expect(trigger).not.toHaveAttribute('data-popup-open');
         });
-        expect(screen.queryByRole('dialog')).not.toBe(null);
+        expect(screen.queryByText('Content')).not.toBe(null);
 
         await user.click(trigger);
         await waitFor(() => {
@@ -676,7 +682,7 @@ describe('<Popover.Root />', () => {
 
         await user.click(trigger);
         await waitFor(() => {
-          expect(screen.queryByRole('dialog')).toBe(null);
+          expect(screen.queryByText('Content')).toBe(null);
         });
       });
     });
@@ -869,6 +875,10 @@ describe('<Popover.Root />', () => {
           );
 
           const comboboxInput = screen.getByTestId('combobox-input');
+          await waitFor(() => {
+            expect(comboboxInput).toHaveFocus();
+          });
+
           await user.click(comboboxInput);
           await flushMicrotasks();
 
@@ -915,6 +925,10 @@ describe('<Popover.Root />', () => {
           );
 
           const comboboxInput = screen.getByTestId('combobox-input');
+          await waitFor(() => {
+            expect(comboboxInput).toHaveFocus();
+          });
+
           await user.click(comboboxInput);
           await flushMicrotasks();
 

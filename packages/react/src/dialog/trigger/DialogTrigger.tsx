@@ -34,9 +34,9 @@ export const DialogTrigger = React.forwardRef(function DialogTrigger(
     ...elementProps
   } = componentProps;
 
-  const dialogRootContext = useDialogRootContext(true);
+  const dialogRootStore = useDialogRootContext(true);
   const handleStore = usePopupHandleStore(handle);
-  const store = handleStore ?? dialogRootContext?.store;
+  const store = handleStore ?? dialogRootStore;
   if (!store) {
     throw new Error(
       'Base UI: <Dialog.Trigger> must be used within <Dialog.Root> or provided with a handle.',
@@ -64,7 +64,7 @@ export const DialogTrigger = React.forwardRef(function DialogTrigger(
     native: nativeButton,
   });
 
-  const click = useClick(floatingContext, { enabled: floatingContext != null });
+  const click = useClick(floatingContext);
   const interactionTypeProps = useOpenMethodTriggerProps(
     () => store.select('open'),
     (interactionType) => {

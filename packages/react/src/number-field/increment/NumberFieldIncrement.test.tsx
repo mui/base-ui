@@ -306,6 +306,39 @@ describe('<NumberField.Increment />', () => {
       expect(input).toHaveValue('4');
     });
 
+    it('removes the global release listener when unmounted during a hold', async () => {
+      const addEventListener = vi.spyOn(window, 'addEventListener');
+      const removeEventListener = vi.spyOn(window, 'removeEventListener');
+
+      function App(props: { mounted: boolean }) {
+        return props.mounted ? (
+          <NumberField.Root defaultValue={0}>
+            <NumberField.Increment />
+            <NumberField.Input />
+          </NumberField.Root>
+        ) : null;
+      }
+
+      try {
+        const { setProps } = await render(<App mounted />);
+        fireEvent.pointerDown(screen.getByRole('button'));
+
+        const pointerUpListener = addEventListener.mock.calls.find(
+          ([type]) => type === 'pointerup',
+        );
+        expect(pointerUpListener).toBeDefined();
+
+        await setProps({ mounted: false });
+
+        expect(removeEventListener).toHaveBeenCalledWith('pointerup', pointerUpListener?.[1], {
+          once: true,
+        });
+      } finally {
+        addEventListener.mockRestore();
+        removeEventListener.mockRestore();
+      }
+    });
+
     it('stops calling onValueChange once max is reached', async () => {
       const handleValueChange = vi.fn();
       await render(
@@ -582,6 +615,63 @@ describe('<NumberField.Increment />', () => {
     fireEvent.pointerDown(screen.getByRole('button'));
 
     expect(input).toHaveValue('101');
+  });
+
+  it('ignores non-primary pointer buttons', async () => {
+    const onValueChange = vi.fn();
+
+    // Controlled and pinned to 0, so the typed text stays out of sync with the stored value and
+    // any dirty-text sync from the press would be reported.
+    await render(
+      <NumberField.Root value={0} onValueChange={onValueChange}>
+        <NumberField.Increment />
+        <NumberField.Input />
+      </NumberField.Root>,
+    );
+
+    const input = screen.getByRole('textbox');
+
+    await act(() => input.focus());
+
+    fireEvent.change(input, { target: { value: '100' } });
+    onValueChange.mockClear();
+
+    fireEvent.pointerDown(screen.getByRole('button'), { button: 1 });
+
+    // A middle/right press must not even sync the dirty text, let alone start a hold.
+    expect(onValueChange).not.toHaveBeenCalled();
+    expect(input).toHaveValue('100');
+  });
+
+  it('does not step or commit when the dirty-input sync is canceled', async () => {
+    const onValueChange = vi.fn((_value, details) => details.cancel());
+    const onValueCommitted = vi.fn();
+
+    await render(
+      <NumberField.Root
+        defaultValue={0}
+        onValueChange={onValueChange}
+        onValueCommitted={onValueCommitted}
+      >
+        <NumberField.Increment />
+        <NumberField.Input />
+      </NumberField.Root>,
+    );
+
+    const input = screen.getByRole('textbox');
+
+    await act(() => input.focus());
+
+    fireEvent.change(input, { target: { value: '100' } });
+    // A keyboard/AT activation reaches `onClick` without a preceding `pointerdown`.
+    fireEvent.click(screen.getByRole('button'));
+
+    // Both the dirty-text sync and the step that follows it were vetoed: the step still runs
+    // (from the unchanged stored 0, not the typed 100), the typed text is left alone, and
+    // nothing is committed.
+    expect(onValueChange.mock.calls.map((call) => call[0])).toEqual([100, 100, 1]);
+    expect(input).toHaveValue('100');
+    expect(onValueCommitted).not.toHaveBeenCalled();
   });
 
   it('treats pen pointer as touch-like', async () => {

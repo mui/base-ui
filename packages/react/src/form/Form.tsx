@@ -36,17 +36,38 @@ export const Form = React.forwardRef(function Form<
   const formRef = React.useRef<FormContext['formRef']['current']>({
     fields: new Map(),
   });
+  const elementRef = React.useRef<HTMLFormElement>(null);
   const submittedRef = React.useRef(false);
   const submitAttemptedRef = React.useRef(false);
 
-  const focusControl = useStableCallback((control: HTMLElement | null) => {
-    if (!control) {
-      return;
+  const focusFirstInvalid = useStableCallback(() => {
+    // A field can be invalid without a focusable control (for example a checkbox group whose
+    // custom validation failed while every checkbox is unmounted, disabled, or reassociated).
+    // Keep submission blocked, but move focus to the first invalid field that has a usable control.
+    // Registration order can diverge from DOM order (keyed fields reordered without
+    // remounting, portals), so pick the first control by document position. For controls
+    // in disconnected trees (e.g. separate shadow roots), where document position is
+    // implementation-specific, keep registration order.
+    let hasInvalid = false;
+    let firstControl: HTMLElement | null = null;
+    for (const field of formRef.current.fields.values()) {
+      if (field.validityData.state.valid !== false) {
+        continue;
+      }
+      hasInvalid = true;
+      const control = field.controlRef.current;
+      if (control && (!firstControl || comesBeforeInSameTree(control, firstControl))) {
+        firstControl = control;
+      }
     }
-    control.focus();
-    if (control.tagName === 'INPUT') {
-      (control as HTMLInputElement).select();
+    if (firstControl) {
+      firstControl.focus();
+      if (firstControl.tagName === 'INPUT') {
+        (firstControl as HTMLInputElement).select();
+      }
+      return true;
     }
+    return hasInvalid;
   });
 
   const [errors, setErrors] = React.useState(externalErrors);
@@ -61,73 +82,59 @@ export const Form = React.forwardRef(function Form<
     }
 
     submittedRef.current = false;
+    focusFirstInvalid();
+  }, [errors, focusFirstInvalid]);
 
-    const invalidFields = Array.from(formRef.current.fields.values()).filter(
-      (field) => field.validityData.state.valid === false,
-    );
-
-    if (invalidFields.length) {
-      focusControl(invalidFields[0].controlRef.current);
-    }
-  }, [errors, focusControl]);
-
-  const handleImperativeValidate = React.useCallback((fieldName?: string | undefined) => {
-    const values = Array.from(formRef.current.fields.values());
-
-    if (fieldName) {
-      const namedField = values.find((field) => field.name === fieldName);
-      if (namedField) {
-        namedField.validate();
-      }
-    } else {
-      values.forEach((field) => {
-        field.validate();
-      });
-    }
-  }, []);
-
-  React.useImperativeHandle(actionsRef, () => ({ validate: handleImperativeValidate }), [
-    handleImperativeValidate,
-  ]);
+  React.useImperativeHandle(
+    actionsRef,
+    () => ({
+      validate(fieldName?: string) {
+        if (fieldName) {
+          Array.from(formRef.current.fields.values())
+            .find((field) => field.name === fieldName)
+            ?.validate();
+        } else {
+          formRef.current.fields.forEach((field) => {
+            field.validate();
+          });
+        }
+      },
+    }),
+    [],
+  );
 
   const element = useRenderElement('form', componentProps, {
-    ref: forwardedRef,
+    ref: [forwardedRef, elementRef],
     props: [
       {
         noValidate: true,
         onSubmit(event) {
           submitAttemptedRef.current = true;
 
-          let values = Array.from(formRef.current.fields.values());
-
           // Async validation isn't supported to stop the submit event.
-          values.forEach((field) => {
+          formRef.current.fields.forEach((field) => {
             field.validate();
           });
 
-          values = Array.from(formRef.current.fields.values());
-
-          const invalidField = values.find((field) => field.validityData.state.valid === false);
-
-          if (invalidField) {
+          if (focusFirstInvalid()) {
             event.preventDefault();
-            focusControl(invalidField.controlRef.current);
-          } else {
-            submittedRef.current = true;
-            onSubmit?.(event as any);
+            return;
+          }
 
-            if (onFormSubmit) {
-              event.preventDefault();
+          submittedRef.current = true;
+          onSubmit?.(event as any);
 
-              const formValues = values.reduce((acc, field) => {
-                if (field.name) {
-                  (acc as Record<string, any>)[field.name] = field.getValue();
-                }
-                return acc;
-              }, {} as FormValues);
+          if (onFormSubmit) {
+            event.preventDefault();
 
-              onFormSubmit(formValues, createGenericEventDetails(REASONS.none, event.nativeEvent));
-            }
+            const formValues = {} as FormValues;
+            formRef.current.fields.forEach((field) => {
+              if (field.name) {
+                (formValues as Record<string, any>)[field.name] = field.getValue();
+              }
+            });
+
+            onFormSubmit(formValues, createGenericEventDetails(REASONS.none, event.nativeEvent));
           }
         },
       },
@@ -136,7 +143,7 @@ export const Form = React.forwardRef(function Form<
   });
 
   const clearErrors = useStableCallback((name: string | undefined) => {
-    if (name && errors && EMPTY_OBJECT.hasOwnProperty.call(errors, name)) {
+    if (name && errors && Object.hasOwn(errors, name)) {
       const nextErrors = { ...errors };
       delete nextErrors[name];
       setErrors(nextErrors);
@@ -145,6 +152,7 @@ export const Form = React.forwardRef(function Form<
 
   const contextValue: FormContext = React.useMemo(
     () => ({
+      elementRef,
       formRef,
       validationMode,
       errors: errors ?? EMPTY_OBJECT,
@@ -226,4 +234,13 @@ export namespace Form {
   export type SubmitEventDetails = FormSubmitEventDetails;
 
   export type Values<FormValues extends Record<string, any> = Record<string, any>> = FormValues;
+}
+
+/* eslint-disable no-bitwise */
+function comesBeforeInSameTree(element: Node, reference: Node) {
+  const position = element.compareDocumentPosition(reference);
+  return (
+    (position & Node.DOCUMENT_POSITION_DISCONNECTED) === 0 &&
+    (position & Node.DOCUMENT_POSITION_FOLLOWING) !== 0
+  );
 }

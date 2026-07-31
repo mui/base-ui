@@ -1,8 +1,8 @@
-import { expect } from 'vitest';
+import { expect, vi } from 'vitest';
 import * as React from 'react';
 import { Tooltip } from '@base-ui/react/tooltip';
 import { Toolbar } from '@base-ui/react/toolbar';
-import { screen, waitFor } from '@mui/internal-test-utils';
+import { act, fireEvent, flushMicrotasks, screen, waitFor } from '@mui/internal-test-utils';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 
 describe('<Tooltip.Trigger />', () => {
@@ -14,6 +14,18 @@ describe('<Tooltip.Trigger />', () => {
       return render(<Tooltip.Root>{node}</Tooltip.Root>);
     },
   }));
+
+  it('throws a descriptive error when rendered without a root or a handle', async () => {
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+    try {
+      await expect(render(<Tooltip.Trigger>Trigger</Tooltip.Trigger>)).rejects.toThrow(
+        'Base UI: <Tooltip.Trigger> must be either used within a <Tooltip.Root> component or provided with a handle.',
+      );
+    } finally {
+      errorSpy.mockRestore();
+    }
+  });
 
   it('removes `data-popup-open` as soon as `open` becomes false', async () => {
     function TooltipWithPreventedUnmount() {
@@ -29,7 +41,12 @@ describe('<Tooltip.Trigger />', () => {
             setOpen(nextOpen);
           }}
         >
-          <Tooltip.Trigger data-testid="trigger" delay={0} closeDelay={0}>
+          <Tooltip.Trigger
+            data-testid="trigger"
+            delay={0}
+            closeDelay={0}
+            style={{ pointerEvents: 'none' }}
+          >
             Trigger
           </Tooltip.Trigger>
           <Tooltip.Portal>
@@ -41,19 +58,18 @@ describe('<Tooltip.Trigger />', () => {
       );
     }
 
-    const { user } = await render(<TooltipWithPreventedUnmount />);
+    await render(<TooltipWithPreventedUnmount />);
     const trigger = screen.getByTestId('trigger');
 
-    await user.hover(trigger);
-    await waitFor(() => {
-      expect(trigger).toHaveAttribute('data-popup-open');
-    });
+    fireEvent.mouseEnter(trigger);
+    fireEvent.mouseMove(trigger);
+    await act(async () => flushMicrotasks());
+    expect(trigger).toHaveAttribute('data-popup-open');
+    expect(screen.getByText('Content')).not.toBe(null);
 
-    await user.unhover(trigger);
-    await waitFor(() => {
-      expect(trigger).not.toHaveAttribute('data-popup-open');
-    });
-
+    fireEvent.mouseLeave(trigger);
+    await act(async () => flushMicrotasks());
+    expect(trigger).not.toHaveAttribute('data-popup-open');
     expect(screen.getByText('Content')).not.toBe(null);
   });
 

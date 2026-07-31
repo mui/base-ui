@@ -11,9 +11,6 @@ import type { CompositeGridNavigator } from './gridNavigation';
 import { useDirection } from '../../direction-context/DirectionContext';
 import { StateAttributesMapping } from '../../getStateAttributesProps';
 
-/**
- * @internal
- */
 export function CompositeRoot<Metadata extends {}, State extends Record<string, any>>(
   componentProps: CompositeRoot.Props<Metadata, State>,
 ) {
@@ -123,7 +120,7 @@ export interface CompositeRootProps<Metadata, State extends Record<string, any>>
   highlightedIndex?: number | undefined;
   onHighlightedIndexChange?: ((index: number) => void) | undefined;
   enableHomeAndEndKeys?: boolean | undefined;
-  onMapChange?: ((newMap: Map<Node, CompositeMetadata<Metadata> | null>) => void) | undefined;
+  onMapChange?: ((newMap: Map<Node, CompositeMetadata<Metadata>>) => void) | undefined;
   onKeyDown?: ((event: BaseUIEvent<React.KeyboardEvent>) => void) | undefined;
   stopEventPropagation?: boolean | undefined;
   rootRef?: React.RefObject<HTMLElement | null> | undefined;

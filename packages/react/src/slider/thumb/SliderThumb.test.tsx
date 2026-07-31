@@ -114,6 +114,34 @@ describe('<Slider.Thumb />', () => {
       expect(handleKeyDown).toHaveBeenCalledTimes(1);
       expect(slider).toHaveAttribute('aria-valuenow', '50');
     });
+
+    it('does not commit NaN when more thumbs are rendered than values', async () => {
+      const onValueChange = vi.fn();
+      const onValueCommitted = vi.fn();
+
+      await render(
+        <Slider.Root
+          defaultValue={[10, 20]}
+          onValueChange={onValueChange}
+          onValueCommitted={onValueCommitted}
+        >
+          <Slider.Control>
+            <Slider.Thumb />
+            <Slider.Thumb />
+            <Slider.Thumb />
+          </Slider.Control>
+        </Slider.Root>,
+      );
+
+      const extraThumb = screen.getAllByRole('slider')[2];
+      await act(async () => {
+        extraThumb.focus();
+      });
+      fireEvent.keyDown(extraThumb, { key: 'ArrowRight' });
+
+      expect(onValueChange).not.toHaveBeenCalled();
+      expect(onValueCommitted).not.toHaveBeenCalled();
+    });
   });
 
   // AT (e.g. Android Talkback) may use increase/decrease actions to interact
@@ -283,6 +311,49 @@ describe('<Slider.Thumb />', () => {
           expect(validateSpy).toHaveBeenCalledTimes(1);
         });
       });
+
+      it.skipIf(isJSDOM)(
+        'commits field validation when focus moves from a thumb to an arbitrary Control child',
+        async () => {
+          const validateSpy = vi.fn(() => null);
+          const { user } = await render(
+            <React.Fragment>
+              <Field.Root validationMode="onBlur" validate={validateSpy} data-testid="field">
+                <Slider.Root defaultValue={[20, 50]}>
+                  <Slider.Control>
+                    <Slider.Thumb index={0} />
+                    <Slider.Thumb index={1} />
+                    <button type="button">Help</button>
+                  </Slider.Control>
+                </Slider.Root>
+              </Field.Root>
+              <button type="button">Outside</button>
+            </React.Fragment>,
+          );
+
+          const [thumb0, thumb1] = screen.getAllByRole('slider');
+
+          await user.keyboard('[Tab]');
+          expect(thumb0).toHaveFocus();
+          validateSpy.mockClear();
+
+          await user.keyboard('[Tab]');
+          expect(thumb1).toHaveFocus();
+          expect(validateSpy).not.toHaveBeenCalled();
+
+          await user.keyboard('[Tab]');
+          expect(screen.getByRole('button', { name: 'Help' })).toHaveFocus();
+          await waitFor(() => {
+            expect(validateSpy).toHaveBeenCalledTimes(1);
+          });
+          expect(screen.getByTestId('field')).toHaveAttribute('data-touched');
+          expect(screen.getByTestId('field')).not.toHaveAttribute('data-focused');
+
+          await user.keyboard('[Tab]');
+          expect(screen.getByRole('button', { name: 'Outside' })).toHaveFocus();
+          expect(validateSpy).toHaveBeenCalledTimes(1);
+        },
+      );
     });
 
     describe('change', () => {
@@ -470,6 +541,31 @@ describe('<Slider.Thumb />', () => {
       await user.click(screen.getByText('Button'));
       expect(screen.getByRole('slider')).toHaveFocus();
     });
+  });
+
+  it('preserves the grab offset when dragging a vertical thumb', async () => {
+    const onValueChange = vi.fn();
+
+    await render(
+      <Slider.Root defaultValue={50} orientation="vertical" onValueChange={onValueChange}>
+        <Slider.Control data-testid="control">
+          <Slider.Thumb data-testid="thumb" />
+        </Slider.Control>
+      </Slider.Root>,
+    );
+
+    const control = screen.getByTestId('control');
+    const thumb = screen.getByTestId('thumb');
+    vi.spyOn(control, 'getBoundingClientRect').mockReturnValue(new DOMRect(0, 0, 10, 100));
+    vi.spyOn(thumb, 'getBoundingClientRect').mockReturnValue(new DOMRect(0, 40, 10, 20));
+
+    fireEvent.pointerDown(thumb, { button: 0, buttons: 1, clientX: 5, clientY: 60 });
+    fireEvent.pointerMove(document.body, { buttons: 1, clientX: 5, clientY: 80 });
+
+    expect(onValueChange).toHaveBeenLastCalledWith(
+      30,
+      expect.objectContaining({ activeThumbIndex: 0, reason: 'drag' }),
+    );
   });
 
   describe('stacking order', () => {

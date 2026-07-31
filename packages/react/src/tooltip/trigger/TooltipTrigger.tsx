@@ -22,8 +22,8 @@ import { contains } from '../../floating-ui-react/utils/element';
 import { isMouseLikePointerType } from '../../floating-ui-react/utils/event';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
-import { TooltipTriggerDataAttributes } from './TooltipTriggerDataAttributes';
 import { useHoverInteractionSharedState } from '../../floating-ui-react/hooks/useHoverInteractionSharedState';
+import { getDelay } from '../../floating-ui-react/hooks/useHoverShared';
 
 import { OPEN_DELAY } from '../utils/constants';
 
@@ -51,14 +51,9 @@ function getTargetElement(event: Event): Element | null {
 function closestEnabledTooltipTrigger(element: Element | null): Element | null {
   let current = element;
   while (current) {
-    if (current.hasAttribute(TOOLTIP_TRIGGER_IDENTIFIER)) {
-      return current;
-    }
-
-    const parentElement = current.parentElement;
-    if (parentElement) {
-      current = parentElement;
-      continue;
+    const trigger = current.closest(`[${TOOLTIP_TRIGGER_IDENTIFIER}]`);
+    if (trigger) {
+      return trigger;
     }
 
     const root = current.getRootNode();
@@ -122,7 +117,7 @@ export const TooltipTrigger = fastComponentRef(function TooltipTrigger(
     },
   );
 
-  const providerContext = useTooltipProviderContext();
+  const providerDelay = useTooltipProviderContext();
   const { delayRef, isInstantPhase, hasProvider } = useDelayGroup(floatingRootContext, {
     open: isOpenedByThisTrigger,
   });
@@ -142,19 +137,10 @@ export const TooltipTrigger = fastComponentRef(function TooltipTrigger(
   const pointerTypeRef = React.useRef<string | undefined>(undefined);
 
   function getOpenDelay() {
-    const providerDelay = providerContext?.delay;
-    const groupOpenValue = typeof delayRef.current === 'object' ? delayRef.current.open : undefined;
-
-    let computedOpenDelay = delayWithDefault;
-    if (hasProvider) {
-      if (groupOpenValue !== 0) {
-        computedOpenDelay = delay ?? providerDelay ?? delayWithDefault;
-      } else {
-        computedOpenDelay = 0;
-      }
+    if (!hasProvider) {
+      return delayWithDefault;
     }
-
-    return computedOpenDelay;
+    return getDelay(delayRef.current, 'open') === 0 ? 0 : (delay ?? providerDelay ?? OPEN_DELAY);
   }
 
   function isEnabledNestedTriggerTarget(target: Element | null) {
@@ -189,16 +175,10 @@ export const TooltipTrigger = fastComponentRef(function TooltipTrigger(
     handleClose: !disableHoverablePopup && trackCursorAxis !== 'both' ? safePolygon() : null,
     restMs: getOpenDelay,
     delay() {
-      const closeValue = typeof delayRef.current === 'object' ? delayRef.current.close : undefined;
-
-      let computedCloseDelay: number | undefined = closeDelayWithDefault;
       if (closeDelay == null && hasProvider) {
-        computedCloseDelay = closeValue;
+        return { close: getDelay(delayRef.current, 'close') };
       }
-
-      return {
-        close: computedCloseDelay,
-      };
+      return { close: closeDelayWithDefault };
     },
     triggerElementRef,
     isActiveTrigger: isTriggerActive,
@@ -300,7 +280,7 @@ export const TooltipTrigger = fastComponentRef(function TooltipTrigger(
           }
         },
         id: thisTriggerId,
-        [TooltipTriggerDataAttributes.triggerDisabled]: disabled ? '' : undefined,
+        'data-trigger-disabled': disabled ? '' : undefined,
         [TOOLTIP_TRIGGER_IDENTIFIER]: disabled ? undefined : '',
       } as React.HTMLAttributes<Element>,
       elementProps,

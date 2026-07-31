@@ -25,8 +25,7 @@ export function createCollatorItemFilter(
       return false;
     }
 
-    const itemString = stringifyAsLabel(item, itemToStringLabel);
-    return collatorFilter.contains(itemString, query);
+    return collatorFilter.contains(item, query, itemToStringLabel);
   };
 }
 
@@ -47,7 +46,6 @@ export function createSingleSelectionCollatorFilter(
       return true;
     }
 
-    const itemString = stringifyAsLabel(item, itemToStringLabel);
     const selectedString =
       selectedValue != null ? stringifyAsLabel(selectedValue, itemToStringLabel) : '';
 
@@ -60,6 +58,6 @@ export function createSingleSelectionCollatorFilter(
       return true;
     }
 
-    return collatorFilter.contains(itemString, query);
+    return collatorFilter.contains(item, query, itemToStringLabel);
   };
 }

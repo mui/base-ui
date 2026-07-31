@@ -1,17 +1,13 @@
 'use client';
 import * as React from 'react';
-import { ToastContext } from './provider/ToastProviderContext';
+import { useToastProviderContext } from './provider/ToastProviderContext';
 import type { ToastPositionerProps } from './positioner/ToastPositioner';
 
 /**
  * Returns the array of toasts and methods to manage them.
  */
 export function useToastManager<Data extends object = any>(): UseToastManagerReturnValue<Data> {
-  const store = React.useContext(ToastContext);
-
-  if (!store) {
-    throw new Error('Base UI: useToastManager must be used within <Toast.Provider>.');
-  }
+  const store = useToastProviderContext();
 
   const toasts = store.useState('toasts');
 

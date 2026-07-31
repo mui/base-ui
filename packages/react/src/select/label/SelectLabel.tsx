@@ -37,7 +37,9 @@ export const SelectLabel = React.forwardRef(function SelectLabel(
     id: defaultLabelId,
     fallbackControlId: triggerElement?.id ?? rootId,
     setLabelId(nextLabelId) {
-      store.set('labelId', nextLabelId);
+      const resolvedLabelId =
+        typeof nextLabelId === 'function' ? nextLabelId(store.state.labelId) : nextLabelId;
+      store.set('labelId', resolvedLabelId);
     },
   });
 

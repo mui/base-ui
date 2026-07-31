@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
-import { ReactStore, createSelector } from '@base-ui/utils/store';
+import { ReactStore } from '@base-ui/utils/store';
 import { Timeout } from '@base-ui/utils/useTimeout';
 import { NOOP } from '@base-ui/utils/empty';
 import { type InteractionType } from '@base-ui/utils/useEnhancedClickHandler';
@@ -20,6 +20,7 @@ import {
   setPopupOpenState,
 } from '../../utils/popups';
 import { PATIENT_CLICK_THRESHOLD } from '../../internals/constants';
+import type { AdaptiveOriginMiddleware } from '../../utils/adaptiveOriginConstants';
 
 export type State<Payload> = PopupStoreState<Payload> & {
   disabled: boolean;
@@ -29,18 +30,15 @@ export type State<Payload> = PopupStoreState<Payload> & {
   openMethod: InteractionType | null;
   openChangeReason: PopoverRoot.ChangeEventReason | null;
   stickIfOpen: boolean;
-  nested: boolean;
   titleElementId: string | undefined;
   descriptionElementId: string | undefined;
   openOnHover: boolean;
   closeDelay: number;
-  hasViewport: boolean;
+  adaptiveOrigin: AdaptiveOriginMiddleware | undefined;
 };
 
 type Context = PopupStoreContext<PopoverRoot.ChangeEventDetails> & {
   readonly popupRef: React.RefObject<HTMLElement | null>;
-  readonly backdropRef: React.RefObject<HTMLDivElement | null>;
-  readonly internalBackdropRef: React.RefObject<HTMLDivElement | null>;
   readonly triggerFocusTargetRef: React.RefObject<HTMLElement | null>;
   readonly beforeContentFocusGuardRef: React.RefObject<HTMLElement | null>;
   readonly stickIfOpenTimeout: Timeout;
@@ -48,18 +46,19 @@ type Context = PopupStoreContext<PopoverRoot.ChangeEventDetails> & {
 
 const selectors = {
   ...popupStoreSelectors,
-  disabled: createSelector((state: State<unknown>) => state.disabled),
-  instantType: createSelector((state: State<unknown>) => state.instantType),
-  openMethod: createSelector((state: State<unknown>) => state.openMethod),
-  openChangeReason: createSelector((state: State<unknown>) => state.openChangeReason),
-  modal: createSelector((state: State<unknown>) => state.modal),
-  focusManagerModal: createSelector((state: State<unknown>) => state.focusManagerModal),
-  stickIfOpen: createSelector((state: State<unknown>) => state.stickIfOpen),
-  titleElementId: createSelector((state: State<unknown>) => state.titleElementId),
-  descriptionElementId: createSelector((state: State<unknown>) => state.descriptionElementId),
-  openOnHover: createSelector((state: State<unknown>) => state.openOnHover),
-  closeDelay: createSelector((state: State<unknown>) => state.closeDelay),
-  hasViewport: createSelector((state: State<unknown>) => state.hasViewport),
+  disabled: (state: State<unknown>) => state.disabled,
+  instantType: (state: State<unknown>) => state.instantType,
+  openMethod: (state: State<unknown>) => state.openMethod,
+  openChangeReason: (state: State<unknown>) => state.openChangeReason,
+  modal: (state: State<unknown>) => state.modal,
+  focusManagerModal: (state: State<unknown>) => state.focusManagerModal,
+  stickIfOpen: (state: State<unknown>) => state.stickIfOpen,
+  titleElementId: (state: State<unknown>) => state.titleElementId,
+  descriptionElementId: (state: State<unknown>) => state.descriptionElementId,
+  openOnHover: (state: State<unknown>) => state.openOnHover,
+  closeDelay: (state: State<unknown>) => state.closeDelay,
+  adaptiveOrigin: (state: State<unknown>): AdaptiveOriginMiddleware | undefined =>
+    state.adaptiveOrigin,
 };
 
 type Selectors = typeof selectors;
@@ -82,9 +81,9 @@ export class PopoverStore<Payload> extends ReactStore<
   Selectors
 > {
   constructor(
-    initialState?: Partial<State<Payload>>,
-    floatingId?: string | undefined,
-    nested = false,
+    initialState: Partial<State<Payload>>,
+    floatingId: string | undefined,
+    nested: boolean,
   ) {
     const triggerElements = new PopupTriggerMap();
     super(
@@ -160,13 +159,15 @@ export class PopoverStore<Payload> extends ReactStore<
       changeState();
     }
 
-    if (isKeyboardClick || isDismissClose) {
-      this.set('instantType', isKeyboardClick ? 'click' : 'dismiss');
+    let instantType: State<Payload>['instantType'];
+    if (isKeyboardClick) {
+      instantType = 'click';
+    } else if (isDismissClose) {
+      instantType = 'dismiss';
     } else if (eventDetails.reason === REASONS.focusOut) {
-      this.set('instantType', 'focus');
-    } else {
-      this.set('instantType', undefined);
+      instantType = 'focus';
     }
+    this.set('instantType', instantType);
   };
 }
 
@@ -205,10 +206,9 @@ function createInitialState<Payload>(
     titleElementId: undefined,
     descriptionElementId: undefined,
     stickIfOpen: true,
-    nested: false,
     openOnHover: false,
     closeDelay: 0,
-    hasViewport: false,
+    adaptiveOrigin: undefined,
     ...initialState,
   };
 
@@ -224,8 +224,6 @@ function createInitialState<Payload>(
 function createInitialContext(triggerElements: PopupTriggerMap): Context {
   return {
     popupRef: React.createRef<HTMLElement>(),
-    backdropRef: React.createRef<HTMLDivElement>(),
-    internalBackdropRef: React.createRef<HTMLDivElement>(),
     onOpenChange: undefined,
     onOpenChangeComplete: undefined,
     triggerFocusTargetRef: React.createRef<HTMLElement>(),

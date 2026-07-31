@@ -44,6 +44,31 @@ describe('<Tooltip.Viewport />', () => {
     expect(currentContainer!.textContent).toBe('Content');
   });
 
+  it.skipIf(isJSDOM)('should mirror the instant animation type of the tooltip', async () => {
+    await render(
+      <Tooltip.Root>
+        <Tooltip.Trigger delay={0} closeDelay={0}>
+          Trigger
+        </Tooltip.Trigger>
+        <Tooltip.Portal>
+          <Tooltip.Positioner>
+            <Tooltip.Popup>
+              <Tooltip.Viewport data-testid="viewport">Content</Tooltip.Viewport>
+            </Tooltip.Popup>
+          </Tooltip.Positioner>
+        </Tooltip.Portal>
+      </Tooltip.Root>,
+    );
+
+    const trigger = screen.getByRole('button', { name: 'Trigger' });
+
+    await act(async () => trigger.focus());
+
+    await waitFor(() => {
+      expect(screen.getByTestId('viewport')).toHaveAttribute('data-instant', 'focus');
+    });
+  });
+
   it('should remount the `current` container when the active trigger changes', async () => {
     ignoreActWarnings();
     await render(

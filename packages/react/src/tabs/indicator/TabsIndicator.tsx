@@ -11,7 +11,6 @@ import { useTabsRootContext } from '../root/TabsRootContext';
 import { tabsStateAttributesMapping } from '../root/stateAttributesMapping';
 import { useTabsListContext } from '../list/TabsListContext';
 import type { TabsTab } from '../tab/TabsTab';
-import { TabsIndicatorCssVars } from './TabsIndicatorCssVars';
 
 const stateAttributesMapping = {
   ...tabsStateAttributesMapping,
@@ -69,8 +68,7 @@ export const TabsIndicator = React.forwardRef(function TabsIndicator(
       const tabsListRect = tabsListElement.getBoundingClientRect();
       const scaleX = tabListWidth > 0 ? tabsListRect.width / tabListWidth : 1;
       const scaleY = tabListHeight > 0 ? tabsListRect.height / tabListHeight : 1;
-      const hasNonZeroScale =
-        Math.abs(scaleX) > Number.EPSILON && Math.abs(scaleY) > Number.EPSILON;
+      const hasNonZeroScale = scaleX > Number.EPSILON && scaleY > Number.EPSILON;
 
       if (hasNonZeroScale) {
         const tabLeftDelta = tabRect.left - tabsListRect.left;
@@ -96,12 +94,12 @@ export const TabsIndicator = React.forwardRef(function TabsIndicator(
 
   const style: React.CSSProperties | undefined = isTabSelected
     ? ({
-        [TabsIndicatorCssVars.activeTabLeft]: `${left}px`,
-        [TabsIndicatorCssVars.activeTabRight]: `${right}px`,
-        [TabsIndicatorCssVars.activeTabTop]: `${top}px`,
-        [TabsIndicatorCssVars.activeTabBottom]: `${bottom}px`,
-        [TabsIndicatorCssVars.activeTabWidth]: `${width}px`,
-        [TabsIndicatorCssVars.activeTabHeight]: `${height}px`,
+        '--active-tab-left': `${left}px`,
+        '--active-tab-right': `${right}px`,
+        '--active-tab-top': `${top}px`,
+        '--active-tab-bottom': `${bottom}px`,
+        '--active-tab-width': `${width}px`,
+        '--active-tab-height': `${height}px`,
       } as React.CSSProperties)
     : undefined;
 

@@ -1,5 +1,8 @@
 @import 'docs/src/css/custom-media.css';
 
+/* Keep layer order stable when this file is emitted from a client CSS chunk. */
+@layer all, base, theme, components, utilities;
+
 @layer components {
   .Header {
     font-size: var(--font-size-15);
@@ -47,61 +50,6 @@
     }
   }
 
-  .HeaderLink,
-  .HeaderButton {
-    display: flex;
-    align-items: center;
-    gap: 0.375rem;
-    padding: 0.25rem 0.5rem;
-    margin: -0.25rem -0.5rem;
-    border-radius: var(--radius-6);
-
-    @media not (hover: hover) {
-      &:active {
-        color: var(--gray-p1);
-      }
-    }
-
-    &:focus-visible {
-      z-index: 1;
-      outline: 2px solid var(--gray-t2);
-      outline-offset: -2px;
-    }
-
-    & > * {
-      flex-shrink: 0;
-    }
-  }
-
-  .HeaderButton {
-    height: 1.75rem;
-
-    @media (hover: hover) {
-      &:hover {
-        background-color: var(--gray-c1);
-      }
-    }
-
-    @media not (hover: hover) {
-      &:active {
-        background-color: var(--gray-c1);
-      }
-    }
-  }
-
-  .HeaderLink {
-    flex-shrink: 0;
-
-    @media (hover: hover) {
-      &:hover {
-        text-decoration: underline;
-        text-decoration-color: var(--gray-p1);
-        text-decoration-thickness: 1px;
-        text-underline-offset: 2px;
-      }
-    }
-  }
-
   .HeaderLogoLink {
     display: flex;
     padding: 0.25rem 0.5rem;
@@ -118,13 +66,9 @@
     }
   }
 
-  .HeaderDesktopActions {
-    display: none;
-    gap: 1.5rem;
-
-    @media (--lg) {
-      display: flex;
-    }
+  .HeaderSearch {
+    display: flex;
+    align-items: center;
 
     @media (--show-quick-nav) {
       /* Align the search trigger's text with the right sidebar (quick nav) text.
@@ -134,51 +78,19 @@
     }
   }
 
-  .HeaderMobileActions {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
+  .HeaderSearch .HeaderSearchDesktopTrigger {
+    display: none;
 
-    @media (--lg) {
-      display: none;
+    @media (--show-side-nav) {
+      display: inline-flex;
     }
   }
 
-  .HeaderMobileSearch {
-    display: flex;
-  }
+  .HeaderSearch .HeaderSearchMobileTrigger {
+    display: inline-flex;
 
-  .HeaderNavTrigger {
-    white-space: nowrap;
-  }
-
-  .HeaderNavTriggerBars {
-    display: flex;
-    width: 1rem;
-    flex-direction: column;
-    align-items: center;
-    gap: 0.25rem;
-  }
-
-  .HeaderNavTriggerBars::before,
-  .HeaderNavTriggerBars::after {
-    content: '';
-    display: block;
-    width: 0.875rem;
-    height: 1px;
-    background-color: currentColor;
-  }
-
-  .HeaderResourceRow {
-    display: flex;
-    flex: 1;
-    align-items: baseline;
-    justify-content: space-between;
-  }
-
-  .HeaderVersion {
-    font-size: var(--font-size-15);
-    line-height: 1.375rem;
-    color: var(--gray-t1);
+    @media (--show-side-nav) {
+      display: none;
+    }
   }
 }

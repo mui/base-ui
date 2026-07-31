@@ -23,7 +23,7 @@ export const MenuRadioItemIndicator = React.forwardRef(function MenuRadioItemInd
 
   const indicatorRef = React.useRef<HTMLSpanElement | null>(null);
 
-  const { transitionStatus, setMounted } = useTransitionStatus(item.checked);
+  const { transitionStatus, mounted, setMounted } = useTransitionStatus(item.checked);
 
   useOpenChangeComplete({
     open: item.checked,
@@ -50,7 +50,7 @@ export const MenuRadioItemIndicator = React.forwardRef(function MenuRadioItemInd
       'aria-hidden': true,
       ...elementProps,
     },
-    enabled: keepMounted || item.checked,
+    enabled: keepMounted || mounted,
   });
 
   return element;

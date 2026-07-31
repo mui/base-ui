@@ -52,10 +52,7 @@ export class DialogHandle<Payload> extends BasePopupHandle<
     }
 
     attachedStore.set('payload', payload);
-    attachedStore.setOpen(
-      true,
-      createChangeEventDetails(REASONS.imperativeAction, undefined, undefined),
-    );
+    attachedStore.setOpen(true, createChangeEventDetails(REASONS.imperativeAction));
   }
 
   /**

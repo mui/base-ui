@@ -156,23 +156,13 @@ export function useDelayGroup(
 
   const [isInstantPhase, setIsInstantPhase] = React.useState(false);
   const openRef = React.useRef(open);
-  const isUnmountedRef = React.useRef(false);
 
   useIsoLayoutEffect(() => {
     openRef.current = open;
   }, [open]);
 
   useIsoLayoutEffect(() => {
-    return () => {
-      isUnmountedRef.current = true;
-    };
-  }, []);
-
-  useIsoLayoutEffect(() => {
     function unset() {
-      if (!isUnmountedRef.current) {
-        setIsInstantPhase(false);
-      }
       currentContextRef.current?.setIsInstantPhase(false);
       currentIdRef.current = null;
       currentContextRef.current = null;
