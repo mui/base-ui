@@ -946,44 +946,6 @@ describe('<Select.Root />', () => {
     });
   });
 
-  it('matches browser autofill against rendered ReactNode labels when items are provided', async () => {
-    const items = [
-      { value: 'US', label: <strong>United States</strong> },
-      { value: 'CA', label: <strong>Canada</strong> },
-    ];
-    const { user } = await render(
-      <Select.Root name="country" items={items}>
-        <Select.Trigger data-testid="trigger">
-          <Select.Value />
-        </Select.Trigger>
-        <Select.Portal>
-          <Select.Positioner>
-            <Select.Popup>
-              {items.map((item) => (
-                <Select.Item key={item.value} value={item.value}>
-                  <Select.ItemText>{item.label}</Select.ItemText>
-                </Select.Item>
-              ))}
-            </Select.Popup>
-          </Select.Positioner>
-        </Select.Portal>
-      </Select.Root>,
-    );
-
-    const selectInput = screen.getByRole('textbox', { hidden: true });
-    fireEvent.change(selectInput, { target: { value: 'canada' } });
-    await flushMicrotasks();
-
-    await user.click(screen.getByTestId('trigger'));
-
-    await waitFor(() => {
-      expect(screen.getByRole('option', { name: 'Canada', hidden: false })).toHaveAttribute(
-        'data-selected',
-        '',
-      );
-    });
-  });
-
   it('matches browser autofill by serialized value before an earlier rendered label', async () => {
     const { user } = await render(
       <Select.Root name="country">
@@ -4743,71 +4705,6 @@ describe('<Select.Root />', () => {
     });
   });
 
-  describe('prop: items', () => {
-    it('warns when the rendered item count does not match', async () => {
-      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
-
-      try {
-        await render(
-          <Select.Root
-            defaultOpen
-            items={[
-              { value: 'apple', label: 'Apple' },
-              { value: 'banana', label: 'Banana' },
-              { value: 'cherry', label: 'Cherry' },
-            ]}
-          >
-            <Select.Positioner alignItemWithTrigger={false}>
-              <Select.Popup>
-                <Select.Item value="apple">Apple</Select.Item>
-                <Select.Item value="banana">Banana</Select.Item>
-              </Select.Popup>
-            </Select.Positioner>
-          </Select.Root>,
-        );
-
-        expect(
-          warnSpy.mock.calls.some(([message]) =>
-            String(message).includes('item count does not match the rendered <Select.Item>'),
-          ),
-        ).toBe(true);
-      } finally {
-        warnSpy.mockRestore();
-      }
-    });
-
-    it('warns when the rendered item order does not match', async () => {
-      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
-
-      try {
-        await render(
-          <Select.Root
-            defaultOpen
-            items={[
-              { value: 'apple', label: 'Apple' },
-              { value: 'banana', label: 'Banana' },
-            ]}
-          >
-            <Select.Positioner alignItemWithTrigger={false}>
-              <Select.Popup>
-                <Select.Item value="banana">Banana</Select.Item>
-                <Select.Item value="apple">Apple</Select.Item>
-              </Select.Popup>
-            </Select.Positioner>
-          </Select.Root>,
-        );
-
-        expect(
-          warnSpy.mock.calls.some(([message]) =>
-            String(message).includes('order does not match the rendered <Select.Item>'),
-          ),
-        ).toBe(true);
-      } finally {
-        warnSpy.mockRestore();
-      }
-    });
-  });
-
   describe('typeahead', () => {
     it.skipIf(isJSDOM)(
       'does not trigger selection when Space is pressed during text navigation',
@@ -4886,47 +4783,6 @@ describe('<Select.Root />', () => {
       expect(valueEl.textContent).toBe('avocado');
     });
 
-    it('combines isItemDisabled with rendered item disabled state', async () => {
-      const items = [
-        { value: 'apricot', label: 'apricot' },
-        { value: 'avocado', label: 'avocado' },
-      ];
-
-      function App() {
-        const [value, setValue] = React.useState<string | null>(null);
-        return (
-          <Select.Root
-            items={items}
-            value={value}
-            onValueChange={setValue}
-            isItemDisabled={() => false}
-          >
-            <Select.Trigger data-testid="trigger">
-              <Select.Value data-testid="value" />
-            </Select.Trigger>
-            <Select.Portal>
-              <Select.Positioner>
-                <Select.Popup>
-                  <Select.Item value="apricot" disabled>
-                    apricot
-                  </Select.Item>
-                  <Select.Item value="avocado">avocado</Select.Item>
-                </Select.Popup>
-              </Select.Positioner>
-            </Select.Portal>
-          </Select.Root>
-        );
-      }
-
-      const { user } = await render(<App />);
-      const trigger = screen.getByTestId('trigger');
-
-      await act(async () => trigger.focus());
-      await user.keyboard('a');
-
-      expect(screen.getByTestId('value')).toHaveTextContent('avocado');
-    });
-
     it('commits typeahead on a closed trigger when items are provided', async () => {
       function App() {
         const [value, setValue] = React.useState<string | null>(null);
@@ -4961,43 +4817,6 @@ describe('<Select.Root />', () => {
       await act(async () => trigger.focus());
       await user.keyboard('c');
       expect(valueEl.textContent).toBe('Cherry');
-    });
-
-    it('uses rendered ReactNode labels for typeahead when items are provided', async () => {
-      const items = [
-        { value: 'first', label: <strong>Apple</strong> },
-        { value: 'second', label: <strong>Cherry</strong> },
-      ];
-
-      function App() {
-        const [value, setValue] = React.useState<string | null>(null);
-        return (
-          <Select.Root items={items} value={value} onValueChange={setValue}>
-            <Select.Trigger data-testid="trigger">
-              <Select.Value data-testid="value" />
-            </Select.Trigger>
-            <Select.Portal>
-              <Select.Positioner>
-                <Select.Popup>
-                  {items.map((item) => (
-                    <Select.Item key={item.value} value={item.value}>
-                      <Select.ItemText>{item.label}</Select.ItemText>
-                    </Select.Item>
-                  ))}
-                </Select.Popup>
-              </Select.Positioner>
-            </Select.Portal>
-          </Select.Root>
-        );
-      }
-
-      const { user } = await render(<App />);
-      const trigger = screen.getByTestId('trigger');
-
-      await act(async () => trigger.focus());
-      await user.keyboard('a');
-
-      expect(screen.getByTestId('value')).toHaveTextContent('Apple');
     });
 
     it('commits nothing when the only typeahead match is disabled (closed trigger)', async () => {
@@ -5745,22 +5564,6 @@ describe('<Select.Root />', () => {
   });
 
   describe('prop: isItemEqualToValue', () => {
-    it('does not recompute the initial selected index when the value changes', async () => {
-      const items = ['a', 'b', 'c', 'd'].map((value) => ({ value, label: value }));
-      const isItemEqualToValue = vi.fn((itemValue: string, value: string) => itemValue === value);
-
-      const { setProps } = await render(
-        <Select.Root items={items} value="a" isItemEqualToValue={isItemEqualToValue} />,
-      );
-      isItemEqualToValue.mockClear();
-
-      await setProps({ value: 'd' });
-
-      // Updating the current selected index requires one scan. The initial index is consumed by
-      // store creation and must not perform a second scan after the store already exists.
-      expect(isItemEqualToValue).toHaveBeenCalledTimes(items.length);
-    });
-
     it('matches object values using the provided comparator', async () => {
       const users = [
         { id: 1, name: 'Alice' },

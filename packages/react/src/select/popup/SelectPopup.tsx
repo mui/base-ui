@@ -87,8 +87,6 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
   const triggerElement = useStore(store, selectors.triggerElement);
   const positionerElement = useStore(store, selectors.positionerElement);
   const listElement = useStore(store, selectors.listElement);
-  const virtualizerElement = useStore(store, selectors.virtualizerElement);
-  const selectedIndex = useStore(store, selectors.selectedIndex);
 
   const reachedMaxHeightRef = React.useRef(false);
   const initialPlacedRef = React.useRef(false);
@@ -271,7 +269,6 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
 
     try {
       let textElement = selectedItemTextRef.current;
-      let textIndex = selectedIndex;
 
       if (!textElement?.isConnected) {
         const hasSelectedValue = selectors.hasSelectedValue(store.state);
@@ -279,7 +276,6 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
           !hasSelectedValue && firstItemTextRef.current?.isConnected
             ? firstItemTextRef.current
             : null;
-        textIndex = textElement ? 0 : null;
       }
 
       const valueElement = valueRef.current;
@@ -294,7 +290,7 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
 
       const positionerRect = normalizeRect(positionerElement.getBoundingClientRect(), scale);
       const triggerHeight = triggerRect.height;
-      const scroller = virtualizerElement || listElement || popupElement;
+      const scroller = listElement || popupElement;
       const scrollHeight = scroller.scrollHeight;
 
       const borderBottom = parseFloat(popupStyles.borderBottomWidth);
@@ -321,30 +317,7 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
 
       if (textElement && valueElement) {
         const valueRect = normalizeRect(valueElement.getBoundingClientRect(), scale);
-        const measuredTextRect = normalizeRect(textElement.getBoundingClientRect(), scale);
-        const itemElement = textIndex == null ? null : listRef.current[textIndex];
-        const virtualizer = store.state.virtualizationRegistry.virtualizer;
-        const rowMetrics =
-          virtualizerElement && textIndex != null
-            ? virtualizer?.getRowMetrics(textIndex)
-            : undefined;
-
-        if (virtualizerElement && itemElement && rowMetrics) {
-          const itemRect = normalizeRect(itemElement.getBoundingClientRect(), scale);
-          const virtualizerRect = normalizeRect(virtualizerElement.getBoundingClientRect(), scale);
-
-          // A selected row outside the rendered window is retained as a layout-neutral focus
-          // proxy. Reconstruct the text's unscrolled logical position from virtual row metadata;
-          // measuring the translated proxy directly would place the popup far offscreen.
-          textRect = rectToClientRect({
-            x: virtualizerRect.left + measuredTextRect.left - itemRect.left,
-            y: virtualizerRect.top + rowMetrics.offset + measuredTextRect.top - itemRect.top,
-            width: measuredTextRect.width,
-            height: measuredTextRect.height,
-          });
-        } else {
-          textRect = measuredTextRect;
-        }
+        textRect = normalizeRect(textElement.getBoundingClientRect(), scale);
 
         alignedLeft =
           positionerRect.left +
@@ -436,7 +409,7 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
         store.state.activeIndex === null &&
         listRef.current[0] != null
       ) {
-        store.update({ activeIndex: 0, highlightType: 'none' });
+        store.set('activeIndex', 0);
       }
     } finally {
       restoreTransformStyles();
@@ -455,8 +428,6 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
     setControlledAlignItemWithTrigger,
     scrollArrowFrame,
     listElement,
-    virtualizerElement,
-    selectedIndex,
     listRef,
     highlightItemOnHover,
     direction,

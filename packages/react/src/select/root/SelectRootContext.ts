@@ -5,7 +5,6 @@ import type { SelectStore } from '../store';
 import type { UseFieldValidationReturnValue } from '../../field/root/useFieldValidation';
 import type { HTMLProps } from '../../internals/types';
 import type { SelectRoot } from './SelectRoot';
-import type { SelectItemData } from '../utils/resolveSelectItems';
 
 export interface SelectRootContext {
   store: SelectStore;
@@ -40,24 +39,7 @@ export interface SelectRootContext {
   initialValueRef: React.RefObject<any>;
 }
 
-export interface SelectDerivedItemsContext {
-  flatItems: ReadonlyArray<SelectItemData<any>>;
-  hasItems: boolean;
-  isGrouped: boolean;
-}
-
-export interface SelectItemMetadata {
-  value: any;
-  virtualized: boolean;
-}
-
 export const SelectRootContext = React.createContext<SelectRootContext | null>(null);
-
-export const SelectDerivedItemsContext = React.createContext<SelectDerivedItemsContext>({
-  flatItems: [],
-  hasItems: false,
-  isGrouped: false,
-});
 
 export function useSelectRootContext() {
   const context = React.useContext(SelectRootContext);
@@ -67,8 +49,4 @@ export function useSelectRootContext() {
     );
   }
   return context;
-}
-
-export function useSelectDerivedItemsContext() {
-  return React.useContext(SelectDerivedItemsContext);
 }

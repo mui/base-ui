@@ -4,12 +4,7 @@ import { inertValue } from '@base-ui/utils/inertValue';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useStore } from '@base-ui/utils/store';
-import { warn } from '@base-ui/utils/warn';
-import {
-  useSelectDerivedItemsContext,
-  useSelectRootContext,
-  type SelectItemMetadata,
-} from '../root/SelectRootContext';
+import { useSelectRootContext } from '../root/SelectRootContext';
 import { CompositeList } from '../../internals/composite/list/CompositeList';
 import type { BaseUIComponentProps } from '../../internals/types';
 import {
@@ -25,7 +20,7 @@ import { clearStyles } from '../popup/utils';
 import { selectors } from '../store';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
-import { compareItemEquality, findItemIndex } from '../../internals/itemEquality';
+import { findItemIndex } from '../../internals/itemEquality';
 import { usePositioner } from '../../utils/usePositioner';
 import { useAnchoredPopupScrollLock } from '../../utils/useAnchoredPopupScrollLock';
 
@@ -75,7 +70,6 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
     setValue,
     floatingContext: floatingRootContext,
   } = useSelectRootContext();
-  const { flatItems, hasItems } = useSelectDerivedItemsContext();
 
   const open = useStore(store, selectors.open);
   const mounted = useStore(store, selectors.mounted);
@@ -154,40 +148,7 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
   const prevMapSizeRef = React.useRef(0);
 
   const onMapChange = useStableCallback(
-    (map: Map<Element, SelectItemMetadata & { index: number }>) => {
-      if (
-        process.env.NODE_ENV !== 'production' &&
-        mounted &&
-        hasItems &&
-        // A registered virtualizer intentionally renders a window of the collection.
-        store.state.virtualizationRegistry.virtualizer == null
-      ) {
-        const renderedItems = Array.from(map.values());
-        const hasVirtualizer = renderedItems.some((item) => item.virtualized);
-
-        if (!hasVirtualizer && renderedItems.length !== flatItems.length) {
-          warn(
-            '<Select.Root> received an `items` prop whose item count does not match the ' +
-              'rendered <Select.Item> elements. Keyboard navigation and typeahead may target ' +
-              'the wrong item. Render exactly one <Select.Item> for each item in the same order, ' +
-              'or omit the `items` prop.',
-          );
-        } else if (
-          !hasVirtualizer &&
-          renderedItems.some(
-            (item, index) =>
-              !compareItemEquality(item.value, flatItems[index]?.value, isItemEqualToValue),
-          )
-        ) {
-          warn(
-            '<Select.Root> received an `items` prop whose order does not match the rendered ' +
-              '<Select.Item> elements. Keyboard navigation and typeahead may target the wrong ' +
-              'item. Render one <Select.Item> for each item in the same order, or omit the ' +
-              '`items` prop.',
-          );
-        }
-      }
-
+    (map: Map<Element, { index?: number | null | undefined } | null>) => {
       if (valuesRef.current.length === 0) {
         return;
       }
@@ -259,12 +220,7 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
   );
 
   return (
-    <CompositeList<SelectItemMetadata>
-      elementsRef={listRef}
-      itemCount={hasItems ? flatItems.length : undefined}
-      labelsRef={hasItems ? undefined : labelsRef}
-      onMapChange={onMapChange}
-    >
+    <CompositeList elementsRef={listRef} labelsRef={labelsRef} onMapChange={onMapChange}>
       <SelectPositionerContext.Provider value={contextValue}>
         {mounted && modal && <InternalBackdrop inert={inertValue(!open)} cutout={triggerElement} />}
         {element}

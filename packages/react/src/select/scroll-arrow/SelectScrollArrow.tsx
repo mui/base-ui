@@ -35,7 +35,6 @@ export const SelectScrollArrow = React.forwardRef(function SelectScrollArrow(
 
   const visibleSelector = isUp ? selectors.scrollUpArrowVisible : selectors.scrollDownArrowVisible;
 
-  const virtualizerElement = useStore(store, selectors.virtualizerElement);
   const stateVisible = useStore(store, visibleSelector);
   const openMethod = useStore(store, selectors.openMethod);
 
@@ -88,15 +87,15 @@ export const SelectScrollArrow = React.forwardRef(function SelectScrollArrow(
         return;
       }
 
-      store.update({ activeIndex: null, highlightType: 'pointer' });
+      store.set('activeIndex', null);
 
       function scrollNextItem() {
-        const scroller = virtualizerElement ?? store.state.listElement ?? popupRef.current;
+        const scroller = store.state.listElement ?? popupRef.current;
         if (!scroller) {
           return;
         }
 
-        store.update({ activeIndex: null, highlightType: 'pointer' });
+        store.set('activeIndex', null);
         handleScrollArrowVisibility(scroller);
 
         const maxScrollTop = getMaxScrollOffset(scroller.scrollHeight, scroller.clientHeight);
@@ -113,17 +112,7 @@ export const SelectScrollArrow = React.forwardRef(function SelectScrollArrow(
           return;
         }
 
-        if (virtualizerElement) {
-          const renderedItem = virtualizerElement.querySelector<HTMLElement>('[data-index]');
-          const scrollStep = Math.max(
-            1,
-            renderedItem?.offsetHeight || renderedItem?.getBoundingClientRect().height || 1,
-          );
-          scroller.scrollTop = normalizeScrollOffset(
-            scrollTop + (isUp ? -scrollStep : scrollStep),
-            maxScrollTop,
-          );
-        } else if (items.length > 0) {
+        if (items.length > 0) {
           const scrollArrowHeight = scrollArrowRef.current?.offsetHeight || 0;
           scroller.scrollTop = getTargetScrollTop(
             items,

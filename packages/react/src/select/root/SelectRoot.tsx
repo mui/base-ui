@@ -19,12 +19,12 @@ import {
   useListNavigation,
   useTypeahead,
 } from '../../floating-ui-react';
-import { SelectDerivedItemsContext, SelectRootContext } from './SelectRootContext';
+import { SelectRootContext } from './SelectRootContext';
 import { useFieldRootContext } from '../../internals/field-root-context/FieldRootContext';
 import { useRegisterFieldControl } from '../../internals/field-register-control/useRegisterFieldControl';
 import { useLabelableId } from '../../internals/labelable-provider/useLabelableId';
 import { useTransitionStatus } from '../../internals/useTransitionStatus';
-import { selectors, type HighlightType, type State as StoreState } from '../store';
+import { selectors, type State as StoreState } from '../store';
 import {
   type BaseUIChangeEventDetails,
   createChangeEventDetails,
@@ -32,12 +32,11 @@ import {
 import { REASONS } from '../../internals/reasons';
 import { useOpenChangeComplete } from '../../internals/useOpenChangeComplete';
 import { useFormContext } from '../../internals/form-context/FormContext';
-import { stringifyAsLabel, stringifyAsValue } from '../../internals/resolveValueLabel';
+import { type Group, stringifyAsLabel, stringifyAsValue } from '../../internals/resolveValueLabel';
 import {
   compareItemEquality,
   defaultItemEquality,
   findItemIndex,
-  findSelectionIndex,
 } from '../../internals/itemEquality';
 import { areArraysEqual } from '../../internals/areArraysEqual';
 import { useValueChanged } from '../../internals/useValueChanged';
@@ -45,12 +44,6 @@ import { useOpenInteractionType } from '../../utils/useOpenInteractionType';
 import { getMaxScrollOffset, normalizeScrollOffset } from '../../utils/scrollEdges';
 import { FOCUSABLE_POPUP_PROPS } from '../../utils/popups';
 import { mergeProps } from '../../merge-props';
-import { createListVirtualizationRegistry } from '../../internals/virtualization/ListVirtualizationRegistry';
-import {
-  resolveSelectItems,
-  type ResolvedSelectItems,
-  type SelectItems,
-} from '../utils/resolveSelectItems';
 
 /**
  * Groups all parts of the select.
@@ -83,7 +76,6 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     multiple = false,
     itemToStringLabel,
     itemToStringValue,
-    isItemDisabled,
     isItemEqualToValue = defaultItemEquality,
     highlightItemOnHover = true,
     children,
@@ -140,8 +132,6 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
 
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
   const { openMethod, triggerProps: interactionTypeProps } = useOpenInteractionType(open);
-  const resolvedItems = React.useMemo(() => resolveSelectItems<Value>(items), [items]);
-  const virtualizationRegistry = useRefWithInit(createListVirtualizationRegistry).current;
 
   const store = useRefWithInit(
     () =>
@@ -152,7 +142,6 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
         multiple,
         itemToStringLabel,
         itemToStringValue,
-        isItemDisabled,
         isItemEqualToValue,
         value,
         open,
@@ -162,19 +151,16 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
         forceMount: false,
         openMethod: null,
         activeIndex: null,
-        highlightType: 'none',
-        selectedIndex: getInitialSelectedIndex(resolvedItems, value, multiple, isItemEqualToValue),
+        selectedIndex: null,
         popupProps: {},
         triggerProps: {},
         triggerElement: null,
         positionerElement: null,
         listElement: null,
-        virtualizerElement: null,
         popupSide: null,
         scrollUpArrowVisible: false,
         scrollDownArrowVisible: false,
         hasScrollArrows: false,
-        virtualizationRegistry,
       }),
   ).current;
 
@@ -226,30 +212,6 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     setFilled(hasSelectedValue);
   }, [hasSelectedValue, setFilled]);
 
-  useIsoLayoutEffect(() => {
-    if (!resolvedItems.hasItems) {
-      return;
-    }
-
-    valuesRef.current = resolvedItems.flatItems.map((item) => item.value);
-    const renderedItems = listRef.current;
-    const renderedLabels = labelsRef.current;
-    labelsRef.current = resolvedItems.flatItems.map((item, index) => {
-      const renderedItem = renderedItems[index];
-      if (renderedItem != null) {
-        return renderedLabels[index] !== undefined
-          ? renderedLabels[index]
-          : renderedItem.textContent;
-      }
-
-      if (typeof item.label === 'string' || typeof item.label === 'number') {
-        return String(item.label);
-      }
-
-      return stringifyAsLabel(item.value, itemToStringLabel);
-    });
-  }, [itemToStringLabel, listRef, resolvedItems]);
-
   useIsoLayoutEffect(
     function syncSelectedIndex() {
       let target: unknown = value;
@@ -276,7 +238,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
 
       store.set('selectedIndex', nextIndex);
     },
-    [multiple, open, value, isItemEqualToValue, resolvedItems, store],
+    [multiple, open, value, isItemEqualToValue, store],
   );
 
   function isSelectedValueDirty(currentValue: unknown) {
@@ -326,7 +288,6 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     setMounted(false);
     store.update({
       activeIndex: null,
-      highlightType: 'none',
       openMethod: null,
       scrollUpArrowVisible: false,
       scrollDownArrowVisible: false,
@@ -360,12 +321,8 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
   );
 
   const handleScrollArrowVisibility = useStableCallback((scroller: HTMLElement) => {
-    const resolvedScroller = store.state.virtualizerElement || scroller;
-    const maxScrollTop = getMaxScrollOffset(
-      resolvedScroller.scrollHeight,
-      resolvedScroller.clientHeight,
-    );
-    const scrollTop = normalizeScrollOffset(resolvedScroller.scrollTop, maxScrollTop);
+    const maxScrollTop = getMaxScrollOffset(scroller.scrollHeight, scroller.clientHeight);
+    const scrollTop = normalizeScrollOffset(scroller.scrollTop, maxScrollTop);
     const shouldShowUp = scrollTop > 0;
     const shouldShowDown = scrollTop < maxScrollTop;
 
@@ -389,45 +346,19 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
 
   const dismiss = useDismiss(floatingContext);
 
-  const isIndexDisabled = useStableCallback((index: number) => {
-    const itemElement = listRef.current[index];
-
-    if (isItemDisabled) {
-      const itemValue = resolvedItems.hasItems
-        ? resolvedItems.flatItems[index]?.value
-        : valuesRef.current[index];
-      return (
-        isItemDisabled(itemValue, index) || (itemElement != null && isElementDisabled(itemElement))
-      );
-    }
-
-    if (resolvedItems.hasItems || store.state.virtualizationRegistry.virtualizer != null) {
-      return itemElement != null && isElementDisabled(itemElement);
-    }
-
-    return isElementDisabled(itemElement);
-  });
-
   const listNavigation = useListNavigation(floatingContext, {
     enabled: !readOnly && !disabled,
     listRef,
     activeIndex,
     selectedIndex,
-    disabledIndices: isItemDisabled ? isIndexDisabled : (EMPTY_ARRAY as number[]),
-    // The built-in virtualizer owns the scroll position and scrolls highlighted rows itself.
-    // The DOM scroll here is deferred by a frame, so it can read a stale window layout and drag
-    // the scroll position away from where the virtualizer just placed it.
-    scrollItemIntoView: () => store.state.virtualizationRegistry.virtualizer == null,
-    onNavigate(nextActiveIndex, event) {
+    disabledIndices: EMPTY_ARRAY as number[],
+    onNavigate(nextActiveIndex) {
       // Retain the highlight while transitioning out.
       if (nextActiveIndex === null && !open) {
         return;
       }
 
-      store.update({
-        activeIndex: nextActiveIndex,
-        highlightType: getHighlightType(event, store.state.highlightType),
-      });
+      store.set('activeIndex', nextActiveIndex);
     },
     focusItemOnHover: highlightItemOnHover,
   });
@@ -437,10 +368,15 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     listRef: labelsRef,
     activeIndex,
     selectedIndex,
-    disabledIndices: isIndexDisabled,
+    // Skip disabled items while matching so typeahead advances to the next selectable item
+    // (a click can never select a disabled item and native `<select>` skips them too). Resolve
+    // the disabled state from the element via the attribute-only `isElementDisabled` so the
+    // hidden, force-mounted items used for closed-trigger typeahead aren't dropped by the
+    // `elementsRef`/visibility filter that `disabledIndices` deliberately sidesteps.
+    disabledIndices: (index) => isElementDisabled(listRef.current[index]),
     onMatch(index) {
       if (open) {
-        store.update({ activeIndex: index, highlightType: 'keyboard' });
+        store.set('activeIndex', index);
       } else {
         setValue(valuesRef.current[index], createChangeEventDetails(REASONS.none));
       }
@@ -503,7 +439,6 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     items,
     itemToStringLabel,
     itemToStringValue,
-    isItemDisabled,
     isItemEqualToValue,
     openMethod: renderedOpenMethod,
   });
@@ -580,9 +515,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
 
   return (
     <SelectRootContext.Provider value={contextValue}>
-      <SelectDerivedItemsContext.Provider value={resolvedItems}>
-        {children}
-      </SelectDerivedItemsContext.Provider>
+      {children}
       <input
         {...validation.getValidationProps(disabled, {
           onFocus() {
@@ -653,40 +586,6 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
       {hiddenInputs}
     </SelectRootContext.Provider>
   );
-}
-
-function getInitialSelectedIndex<Value>(
-  resolvedItems: ResolvedSelectItems<Value>,
-  value: unknown,
-  multiple: boolean,
-  isItemEqualToValue: (itemValue: Value, value: Value) => boolean,
-) {
-  if (!resolvedItems.hasItems) {
-    return null;
-  }
-
-  return findSelectionIndex(
-    resolvedItems.flatItems.map((item) => item.value),
-    value as Value | readonly Value[] | null | undefined,
-    isItemEqualToValue,
-    multiple,
-  );
-}
-
-function getHighlightType(
-  event: React.SyntheticEvent | undefined,
-  currentType: HighlightType,
-): HighlightType {
-  if (!event) {
-    return 'none';
-  }
-  if (event.type.startsWith('key')) {
-    return 'keyboard';
-  }
-  if (event.type.startsWith('mouse') || event.type.startsWith('pointer')) {
-    return 'pointer';
-  }
-  return currentType;
 }
 
 type SelectValueType<Value, Multiple extends boolean | undefined> = Multiple extends true
@@ -791,7 +690,11 @@ export interface SelectRootProps<Value, Multiple extends boolean | undefined = f
    * <Select.Root items={items} />
    * ```
    */
-  items?: SelectItems<Value> | undefined;
+  items?:
+    | Record<string, React.ReactNode>
+    | ReadonlyArray<{ label: React.ReactNode; value: any }>
+    | ReadonlyArray<Group<any>>
+    | undefined;
   /**
    * When the item values are objects (`<Select.Item value={object}>`), this function converts the object value to a string representation for display in the trigger.
    * If the shape of the object is `{ value, label }`, the label will be used automatically without needing to specify this prop.
@@ -803,16 +706,7 @@ export interface SelectRootProps<Value, Multiple extends boolean | undefined = f
    */
   itemToStringValue?: ((itemValue: Value) => string) | undefined;
   /**
-   * Determines whether an item is disabled from its value and logical index for keyboard
-   * navigation.
-   *
-   * Use this prop when disabled state must be known before an item is rendered, such as when
-   * virtualizing the list. The `disabled` prop only marks a rendered item.
-   */
-  isItemDisabled?: ((itemValue: Value, index: number) => boolean) | undefined;
-  /**
-   * Custom comparison logic used to determine if a select item value matches the current selected
-   * value. Useful when item values are objects without matching referentially.
+   * Custom comparison logic used to determine if a select item value matches the current selected value. Useful when item values are objects without matching referentially.
    * Defaults to `Object.is` comparison.
    */
   isItemEqualToValue?: ((itemValue: Value, value: Value) => boolean) | undefined;

@@ -2,11 +2,7 @@
 import * as React from 'react';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useStore } from '@base-ui/utils/store';
-import {
-  useSelectDerivedItemsContext,
-  useSelectRootContext,
-  type SelectItemMetadata,
-} from '../root/SelectRootContext';
+import { useSelectRootContext } from '../root/SelectRootContext';
 import { useCompositeListItem } from '../../internals/composite/list/useCompositeListItem';
 import type {
   BaseUIComponentProps,
@@ -22,12 +18,6 @@ import { createChangeEventDetails } from '../../internals/createBaseUIEventDetai
 import { REASONS } from '../../internals/reasons';
 import { compareItemEquality, removeItem } from '../../internals/itemEquality';
 import { isVirtualClick } from '../../floating-ui-react/utils/event';
-import { useSelectVirtualItemContext } from '../virtualizer/SelectVirtualItemContext';
-import { useVirtualizationListContext } from '../../internals/virtualization/VirtualizationListContext';
-import {
-  useNonVirtualizedItemRegistration,
-  useVirtualItemDiagnostics,
-} from '../../internals/virtualization/ListVirtualizerAdapter';
 
 /**
  * An individual option in the select popup.
@@ -52,19 +42,9 @@ export const SelectItem = React.memo(
     } = componentProps;
 
     const textRef = React.useRef<HTMLElement | null>(null);
-    const virtualItem = useSelectVirtualItemContext();
-    const { hasItems } = useSelectDerivedItemsContext();
-    const insideList = useVirtualizationListContext();
-    const virtualized = virtualItem != null;
-    const itemMetadata = React.useMemo<SelectItemMetadata>(
-      () => ({ value: itemValue, virtualized }),
-      [itemValue, virtualized],
-    );
     const listItem = useCompositeListItem({
       guess: true,
-      index: virtualItem?.index,
       label,
-      metadata: itemMetadata,
       textRef,
     });
 
@@ -76,70 +56,31 @@ export const SelectItem = React.memo(
       selectionRef,
       typingRef,
       valuesRef,
-      labelsRef,
       multiple,
       selectedItemTextRef,
       disabled: selectDisabled,
       readOnly,
     } = useSelectRootContext();
 
+    const disabled = selectDisabled || disabledProp;
     const highlighted = useStore(store, selectors.isActive, listItem.index);
     const open = useStore(store, selectors.open);
     const selected = useStore(store, selectors.isSelected, itemValue);
     const selectedByFocus = useStore(store, selectors.isSelectedByFocus, listItem.index);
     const isItemEqualToValue = useStore(store, selectors.isItemEqualToValue);
-    const isItemDisabled = useStore(store, selectors.isItemDisabled);
 
     const index = listItem.index;
-    const hasRegistered = index !== -1;
-    const disabled =
-      selectDisabled || disabledProp || (index >= 0 && isItemDisabled?.(itemValue, index) === true);
-
-    useNonVirtualizedItemRegistration({
-      componentName: 'Select',
-      insideList,
-      registry: store.state.virtualizationRegistry,
-      virtualized,
-    });
-
-    useVirtualItemDiagnostics({
-      componentName: 'Select',
-      disabledProp,
-      hasIsItemDisabled: isItemDisabled != null,
-      virtualItem,
-    });
 
     const itemRef = React.useRef<HTMLDivElement | null>(null);
 
     useIsoLayoutEffect(() => {
-      if (virtualItem && highlighted) {
-        itemRef.current?.focus({ preventScroll: true });
-      }
-    }, [highlighted, virtualItem]);
-
-    useIsoLayoutEffect(() => {
-      if (!hasItems || !hasRegistered) {
-        return;
-      }
-
-      labelsRef.current[index] =
-        label !== undefined
-          ? label
-          : (textRef.current?.textContent ?? itemRef.current?.textContent ?? null);
-    });
-
-    useIsoLayoutEffect(() => {
-      if (!hasRegistered || hasItems) {
-        return undefined;
-      }
-
       const values = valuesRef.current;
       values[index] = itemValue;
 
       return () => {
         delete values[index];
       };
-    }, [hasItems, hasRegistered, index, itemValue, valuesRef]);
+    }, [index, itemValue, valuesRef]);
 
     useIsoLayoutEffect(() => {
       const selectedValue = store.state.value;
@@ -210,7 +151,7 @@ export const SelectItem = React.memo(
       'aria-selected': selected,
       tabIndex: open && highlighted ? 0 : -1,
       onKeyDown(event: BaseUIEvent<React.KeyboardEvent>) {
-        store.update({ activeIndex: index, highlightType: 'keyboard' });
+        store.set('activeIndex', index);
 
         if (event.key === ' ' && typingRef.current) {
           // `useButton` skips Space activation for `role="option"` items when the keydown
@@ -288,7 +229,7 @@ export const SelectItem = React.memo(
     const element = useRenderElement('div', componentProps, {
       ref: [buttonRef, forwardedRef, listItem.ref, itemRef],
       state,
-      props: [itemProps, virtualItem?.props, defaultProps, elementProps, getButtonProps],
+      props: [itemProps, defaultProps, elementProps, getButtonProps],
     });
 
     const contextValue: SelectItemContext = React.useMemo(
