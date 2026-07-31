@@ -84,7 +84,7 @@ function PreviewCardRootComponent<Payload>(props: PreviewCardRoot.Props<Payload>
 
   return (
     <PreviewCardRootContext.Provider value={store as PreviewCardRootContext}>
-      <PopupHandleAttachment handle={handle} store={store} />
+      {handle && <PopupHandleAttachment handle={handle} store={store} />}
       {shouldRenderInteractions && <PreviewCardInteractions store={store} />}
       {typeof children === 'function' ? children({ payload }) : children}
     </PreviewCardRootContext.Provider>
