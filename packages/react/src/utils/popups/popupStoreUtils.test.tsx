@@ -319,6 +319,61 @@ describe('useTriggerRegistration', () => {
     expect(store.state.open).toBe(false);
   });
 
+  it.each([
+    ['a different unresolved id', 'second'],
+    ['no active trigger', null],
+  ] as const)(
+    'keeps the popup open when ownership returns to a pending trigger after %s',
+    async (_description, pendingTriggerId) => {
+      const store = createStore();
+      const first = document.createElement('button');
+      const replacement = document.createElement('button');
+
+      store.update({
+        open: true,
+        activeTriggerId: 'first',
+        activeTriggerElement: first,
+      });
+
+      const { rerender } = render([
+        <TestTrigger key="trigger" id="first" store={store} element={first} />,
+        <CloseOnActiveTriggerUnmountTest key="root" store={store} />,
+      ]);
+
+      act(() => {
+        store.context.triggerElements.delete('first');
+        store.update({
+          activeTriggerId: pendingTriggerId,
+          activeTriggerElement: null,
+          triggerCount: 0,
+        });
+      });
+
+      rerender([<CloseOnActiveTriggerUnmountTest key="root" store={store} />]);
+
+      act(() => {
+        store.update({
+          activeTriggerId: 'first',
+          activeTriggerElement: null,
+        });
+      });
+
+      await flushMicrotasks();
+
+      expect(store.state.open).toBe(true);
+      expect(store.setOpen).not.toHaveBeenCalled();
+
+      rerender([
+        <TestTrigger key="trigger" id="first" store={store} element={replacement} />,
+        <CloseOnActiveTriggerUnmountTest key="root" store={store} />,
+      ]);
+
+      expect(store.context.triggerElements.getById('first')).toBe(replacement);
+      expect(store.state.open).toBe(true);
+      expect(store.setOpen).not.toHaveBeenCalled();
+    },
+  );
+
   it('keeps the popup open when the active trigger is replaced with the same id', async () => {
     const store = createStore();
     const first = document.createElement('button');

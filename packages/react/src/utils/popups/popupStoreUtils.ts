@@ -439,8 +439,12 @@ export function useImplicitActiveTrigger<State extends PopupStoreState<unknown>>
           }
         }
 
-        if (resolvedActiveTriggerIdRef.current === currentActiveTriggerId) {
-          lostActiveTriggerId = currentActiveTriggerId;
+        if (stateUpdates.activeTriggerId === undefined) {
+          if (resolvedActiveTriggerIdRef.current === currentActiveTriggerId) {
+            lostActiveTriggerId = currentActiveTriggerId;
+          } else {
+            resolvedActiveTriggerIdRef.current = null;
+          }
         }
       } else {
         resolvedActiveTriggerIdRef.current = currentActiveTriggerId;
@@ -448,6 +452,8 @@ export function useImplicitActiveTrigger<State extends PopupStoreState<unknown>>
           stateUpdates.activeTriggerElement = activeTriggerElement;
         }
       }
+    } else {
+      resolvedActiveTriggerIdRef.current = null;
     }
 
     if (!lostActiveTriggerId && !currentActiveTriggerId && triggerCount === 1) {
