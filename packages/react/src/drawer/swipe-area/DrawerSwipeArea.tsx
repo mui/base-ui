@@ -127,29 +127,36 @@ export const DrawerSwipeArea = React.forwardRef(function DrawerSwipeArea(
     store.context.outsidePressEnabledRef.current = false;
   }
 
-  function enableDismissAfterRelease() {
+  function enableDismissAfterRelease(event?: PointerEvent | TouchEvent) {
     releaseGuardCleanupRef.current();
+    store.context.outsidePressEnabledRef.current = true;
+
+    if (!event) {
+      return;
+    }
 
     const doc = ownerDocument(swipeAreaRef.current);
 
-    function restore() {
+    function handleReleaseEvent(clickEvent?: MouseEvent) {
       releaseGuardCleanupRef.current = NOOP;
-      doc.removeEventListener('pointerdown', restore, true);
-      store.context.outsidePressEnabledRef.current = true;
+      doc.removeEventListener('click', handleReleaseEvent, true);
+      doc.removeEventListener('pointerdown', handleReleaseEvent, true);
+
+      // A fresh physical interaction starts with `pointerdown`, while keyboard and assistive
+      // technology clicks have zero detail. Only the trailing release click reaches this branch.
+      if (clickEvent?.type !== 'click' || clickEvent.detail === 0) {
+        return;
+      }
+
+      store.context.outsidePressEnabledRef.current = false;
+      queueMicrotask(() => {
+        store.context.outsidePressEnabledRef.current = true;
+      });
     }
 
-    // The pointerup that ends a swipe-open gesture synthesizes a `click`. When the drag released
-    // outside the popup (e.g. it was dragged past the popup's size), that click would be treated as
-    // an outside press and immediately dismiss the drawer that was just opened. Keep outside-press
-    // dismissal disabled until the next *fresh* pointer interaction: the synthesized click has no
-    // pointerdown of its own, so it is ignored, while a deliberate outside press always starts with
-    // a pointerdown and re-enables dismissal in time to close the drawer. This is deterministic,
-    // unlike re-enabling on a timer that can race the synthesized click and dismiss at random.
-    //
-    // `restore` runs in document capture, ahead of floating-ui's own outside-press check (which
-    // happens on the event target, after capture), so the triggering press still dismisses.
-    releaseGuardCleanupRef.current = restore;
-    doc.addEventListener('pointerdown', restore, true);
+    releaseGuardCleanupRef.current = handleReleaseEvent;
+    doc.addEventListener('click', handleReleaseEvent, true);
+    doc.addEventListener('pointerdown', handleReleaseEvent, true);
   }
 
   function getPopupSize(popupElement: HTMLElement) {
@@ -299,9 +306,9 @@ export const DrawerSwipeArea = React.forwardRef(function DrawerSwipeArea(
     setSwipeActive(false);
   }
 
-  function finishSwipeInteraction() {
+  function finishSwipeInteraction(event?: PointerEvent | TouchEvent) {
     resetSwipeInteractionState();
-    enableDismissAfterRelease();
+    enableDismissAfterRelease(event);
     resetDragDelta();
     clearSwipeStyles();
   }
@@ -372,7 +379,7 @@ export const DrawerSwipeArea = React.forwardRef(function DrawerSwipeArea(
         closeDrawer(event);
       }
 
-      finishSwipeInteraction();
+      finishSwipeInteraction(event);
 
       return false;
     },
