@@ -234,7 +234,7 @@ describe('<Tooltip.Viewport />', () => {
       expect(await screen.findByText('Content 1')).toBeVisible();
     });
 
-    it('should handle rapid trigger changes', async () => {
+    it('keeps the latest transition active during rapid trigger changes', async () => {
       ignoreActWarnings();
       function TestComponent() {
         return (
@@ -242,10 +242,10 @@ describe('<Tooltip.Viewport />', () => {
             <style>
               {`
               [data-transitioning] [data-previous] {
-                animation: slide-out 0.2s ease-out forwards;
+                animation: slide-out 10s ease-out forwards;
               }
               [data-transitioning] [data-current] {
-                animation: slide-in 0.2s ease-out forwards;
+                animation: slide-in 10s ease-out forwards;
               }
               @keyframes slide-out {
                 from { transform: translateX(0); opacity: 1; }
@@ -272,7 +272,9 @@ describe('<Tooltip.Viewport />', () => {
                   <Tooltip.Portal>
                     <Tooltip.Positioner>
                       <Tooltip.Popup>
-                        <Tooltip.Viewport>Content {payload as number}</Tooltip.Viewport>
+                        <Tooltip.Viewport data-testid="viewport">
+                          Content {payload as number}
+                        </Tooltip.Viewport>
                       </Tooltip.Popup>
                     </Tooltip.Positioner>
                   </Tooltip.Portal>
@@ -293,14 +295,21 @@ describe('<Tooltip.Viewport />', () => {
       await act(async () => trigger1.focus());
       await waitSingleFrame();
       await act(async () => trigger2.focus());
+
+      await waitFor(() => {
+        const currentContainer = screen.getByText('Content 2').closest('[data-current]');
+        expect(currentContainer?.getAnimations().length).toBe(1);
+      });
+      // Allow `useAnimationsFinished` to begin waiting before replacing the current container.
       await waitSingleFrame();
+
       await act(async () => trigger3.focus());
       await waitSingleFrame();
-      await act(async () => trigger1.focus());
 
-      await waitFor(async () => {
-        expect(await screen.findByText('Content 1')).toBeVisible();
-      });
+      const currentContainer = screen.getByText('Content 3').closest('[data-current]');
+      expect(currentContainer?.getAnimations().length).toBe(1);
+      expect(screen.getByTestId('viewport')).toHaveAttribute('data-transitioning');
+      expect(document.querySelector('[data-previous]')).toHaveTextContent('Content 2');
     });
 
     it.each([
