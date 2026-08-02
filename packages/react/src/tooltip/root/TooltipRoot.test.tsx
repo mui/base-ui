@@ -677,6 +677,62 @@ describe('<Tooltip.Root />', () => {
         });
       });
 
+      it('unmounts an exiting tooltip when another tooltip opens', async () => {
+        globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+
+        const style = `
+          .tooltip[data-ending-style] {
+            transition: opacity 10s;
+            opacity: 0;
+          }
+
+          .tooltip[data-instant] {
+            transition: none;
+          }
+        `;
+
+        const { user } = await render(
+          <Tooltip.Provider timeout={30000}>
+            {/* eslint-disable-next-line react/no-danger */}
+            <style dangerouslySetInnerHTML={{ __html: style }} />
+            {['First', 'Second'].map((name, index) => (
+              <Tooltip.Root key={name}>
+                <Tooltip.Trigger data-testid={`trigger-${index + 1}`} delay={0}>
+                  {name}
+                </Tooltip.Trigger>
+                <Tooltip.Portal>
+                  <Tooltip.Positioner>
+                    <Tooltip.Popup className="tooltip" data-testid={`popup-${index + 1}`}>
+                      {name} tooltip
+                    </Tooltip.Popup>
+                  </Tooltip.Positioner>
+                </Tooltip.Portal>
+              </Tooltip.Root>
+            ))}
+          </Tooltip.Provider>,
+        );
+
+        const firstTrigger = screen.getByTestId('trigger-1');
+        const secondTrigger = screen.getByTestId('trigger-2');
+
+        await user.hover(firstTrigger);
+
+        const firstPopup = await screen.findByTestId('popup-1');
+
+        await user.unhover(firstTrigger);
+
+        await waitFor(() => {
+          expect(firstPopup.getAnimations().length).toBe(1);
+        });
+
+        await user.hover(secondTrigger);
+        await screen.findByTestId('popup-2');
+
+        await waitFor(() => {
+          expect(screen.queryByTestId('popup-1')).toBe(null);
+        });
+      });
+
       it('inline opacity: 0 is removed before user CSS transitions run', async () => {
         globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
 

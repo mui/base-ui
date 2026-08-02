@@ -64,18 +64,18 @@ export function useAnimationsFinished(
             }
           })
           .catch(() => {
+            if (signal?.aborted) {
+              return;
+            }
+
             if (treatAbortedAsFinished) {
-              if (!signal?.aborted) {
-                done();
-              }
+              done();
               return;
             }
 
             const currentAnimations = resolvedElement.getAnimations();
 
             if (
-              !signal?.aborted &&
-              currentAnimations.length > 0 &&
               currentAnimations.some(
                 (animation) => animation.pending || animation.playState !== 'finished',
               )
@@ -83,7 +83,10 @@ export function useAnimationsFinished(
               // Sometimes animations can be aborted because a property they depend on changes while the animation plays.
               // In such cases, we need to re-check if any new animations have started.
               exec();
+              return;
             }
+
+            done();
           });
       }
 
