@@ -98,19 +98,18 @@ export function usePopupRootStore<
  * effects. This lets descendants call the handle during the Root's initial commit without attaching
  * during render, which would leak suspended or abandoned stores. Store subscribers are notified by
  * `attachStore` in this ordinary layout phase, where React permits synchronous updates.
+ *
+ * Popup Roots must render this component only when a handle is present so handle-less Roots avoid
+ * mounting an extra fiber and layout effect.
  */
 export function PopupHandleAttachment<Store>({
   handle,
   store,
 }: {
-  handle: PopupRootStoreHandle<Store> | undefined;
+  handle: PopupRootStoreHandle<Store>;
   store: Store;
 }) {
   useIsoLayoutEffect(() => {
-    if (!handle) {
-      return undefined;
-    }
-
     return handle.attachStore(store);
   }, [handle, store]);
 
