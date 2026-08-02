@@ -82,6 +82,20 @@ describe('PopupTriggerMap', () => {
     expect(map.size).toBe(1);
   });
 
+  it('keeps an unrelated element claim when another id is deleted', () => {
+    const map = new PopupTriggerMap();
+    const first = document.createElement('button');
+    const second = document.createElement('button');
+
+    map.add('first', first);
+    map.add('second', second);
+    map.delete('second');
+
+    expect(() => map.add('other', first)).toThrow(
+      'Base UI: A trigger element cannot be registered under multiple IDs in PopupTriggerMap.',
+    );
+  });
+
   it('allows an element evicted by id reuse to register under a new id', () => {
     const map = new PopupTriggerMap();
     const first = document.createElement('button');

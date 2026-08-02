@@ -22,8 +22,8 @@ function getDevElementIds(map: PopupTriggerMap) {
 /**
  * Data structure to keep track of popup trigger elements by their IDs.
  *
- * Element lookups iterate the id map; trigger counts are single digits, so linear
- * scans on event-frequency paths are cheaper than maintaining a parallel Set.
+ * Element lookups iterate the id map rather than maintaining a parallel Set. Registration is O(1),
+ * while `hasElement` and `hasMatchingElement` are linear in the number of triggers.
  */
 export class PopupTriggerMap {
   private idMap: Map<string, Element>;
