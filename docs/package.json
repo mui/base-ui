@@ -18,6 +18,7 @@
   "dependencies": {
     "@base-ui/react": "workspace:*",
     "@base-ui/utils": "workspace:*",
+    "@formisch/react": "^1.0.0-rc.0",
     "@mdx-js/loader": "^3.1.1",
     "@mdx-js/react": "^3.1.1",
     "@mui/internal-docs-infra": "0.12.1-canary.35",
@@ -53,6 +54,7 @@
     "remark-typography": "0.7.3",
     "scroll-into-view-if-needed": "3.1.0",
     "server-only": "^0.0.1",
+    "valibot": "^1.4.1",
     "unist-util-visit-parents": "^6.0.2"
   },
   "devDependencies": {

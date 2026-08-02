@@ -173,6 +173,9 @@ importers:
       '@base-ui/utils':
         specifier: workspace:*
         version: link:../packages/utils/build
+      '@formisch/react':
+        specifier: ^1.0.0-rc.0
+        version: 1.0.0-rc.0(react-dom@19.2.8(react@19.2.8))(react@19.2.8)(typescript@6.0.3)(valibot@1.4.2(typescript@6.0.3))
       '@mdx-js/loader':
         specifier: ^3.1.1
         version: 3.1.1(supports-color@10.2.2)(webpack@5.109.2(esbuild@0.28.2)(lightningcss@1.33.0)(postcss@8.5.26)(uglify-js@3.19.3))
@@ -281,6 +284,9 @@ importers:
       unist-util-visit-parents:
         specifier: ^6.0.2
         version: 6.0.2
+      valibot:
+        specifier: ^1.4.1
+        version: 1.4.2(typescript@6.0.3)
     devDependencies:
       '@mdx-js/mdx':
         specifier: 3.1.1
@@ -1618,6 +1624,17 @@ packages:
 
   '@floating-ui/utils@0.2.12':
     resolution: {integrity: sha512-HpCo8tmWzLVad5s2d19EhAz5zqrrQ6s69qd6moPMQvkOuSwDT1YgRfWSVuc4ennqrgv3OHppiOGMQ7oC13yIww==}
+
+  '@formisch/react@1.0.0-rc.0':
+    resolution: {integrity: sha512-KLYvwpg1MGubT3JutG/3S+iy7zktkDoLmI1Gl991ZKkKMTttyZBJC+gQet5UwOLTB7XDiuxQ3AaTQqs1o34a4w==}
+    peerDependencies:
+      react: ^16.0.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
+      react-dom: ^16.0.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
+      typescript: '>=5'
+      valibot: ^1.4.1
+    peerDependenciesMeta:
+      typescript:
+        optional: true
 
   '@gar/promise-retry@1.0.3':
     resolution: {integrity: sha512-GmzA9ckNokPypTg10pgpeHNQe7ph+iIKKmhKu3Ob9ANkswreCx7R3cKmY781K8QK3AqVL3xVh9A42JvIAbkkSA==}
@@ -9357,6 +9374,14 @@ packages:
   util@0.12.5:
     resolution: {integrity: sha512-kZf/K6hEIrWHI6XqOFUiiMa+79wE/D8Q+NCNAWclkyg3b4d2k7s0QGepNjiABc+aR3N1PAyHL7p6UcLY6LmrnA==}
 
+  valibot@1.4.2:
+    resolution: {integrity: sha512-gjdCvJ6d3RyHAneqxMYMW9QMCwYMb3jpOO0IyHZV1bnRHFBHrX3VkIILt5XYR0WhwHiH7Mty8ovuPZ/O3gamrg==}
+    peerDependencies:
+      typescript: '>=5'
+    peerDependenciesMeta:
+      typescript:
+        optional: true
+
   validate-npm-package-license@3.0.4:
     resolution: {integrity: sha512-DpKm2Ui/xN7/HQKCtpZxoRWBhZ9Z0kqtygG8XCgNQ8ZlDnxuQmWhj566j8fN4Cu3/JmbhsDo7fcAJq4s9h27Ew==}
 
@@ -10947,6 +10972,14 @@ snapshots:
       react-dom: 19.2.8(react@19.2.8)
 
   '@floating-ui/utils@0.2.12': {}
+
+  '@formisch/react@1.0.0-rc.0(react-dom@19.2.8(react@19.2.8))(react@19.2.8)(typescript@6.0.3)(valibot@1.4.2(typescript@6.0.3))':
+    dependencies:
+      react: 19.2.8
+      react-dom: 19.2.8(react@19.2.8)
+      valibot: 1.4.2(typescript@6.0.3)
+    optionalDependencies:
+      typescript: 6.0.3
 
   '@gar/promise-retry@1.0.3': {}
 
@@ -20350,6 +20383,10 @@ snapshots:
       is-generator-function: 1.1.2
       is-typed-array: 1.1.15
       which-typed-array: 1.1.20
+
+  valibot@1.4.2(typescript@6.0.3):
+    optionalDependencies:
+      typescript: 6.0.3
 
   validate-npm-package-license@3.0.4:
     dependencies:
