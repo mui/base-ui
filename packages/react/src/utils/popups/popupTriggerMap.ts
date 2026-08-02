@@ -2,12 +2,15 @@
  * Development-only reverse index of element to registered id, keyed by the owning map.
  *
  * Registration would otherwise have to scan every entry to detect an element claimed by two ids,
- * making the mount of many triggers sharing one handle quadratic. Kept module-scoped and read only
- * from `process.env.NODE_ENV` guards so production builds drop it along with the checks.
+ * making the mount of many triggers sharing one handle quadratic. Kept module-scoped, lazily
+ * initialized, and read only from `process.env.NODE_ENV` guards so production builds drop it along
+ * with the checks.
  */
-const devElementIdsByMap = new WeakMap<PopupTriggerMap, WeakMap<Element, string>>();
+let devElementIdsByMap: WeakMap<PopupTriggerMap, WeakMap<Element, string>> | undefined;
 
 function getDevElementIds(map: PopupTriggerMap) {
+  devElementIdsByMap ??= new WeakMap();
+
   let elementIds = devElementIdsByMap.get(map);
   if (!elementIds) {
     elementIds = new WeakMap();
@@ -67,7 +70,7 @@ export class PopupTriggerMap {
     if (process.env.NODE_ENV !== 'production') {
       const element = this.idMap.get(id);
       if (element !== undefined) {
-        devElementIdsByMap.get(this)?.delete(element);
+        devElementIdsByMap?.get(this)?.delete(element);
       }
     }
 
