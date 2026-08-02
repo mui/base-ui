@@ -546,6 +546,69 @@ describe('<Dialog.Root />', () => {
       });
     });
 
+    it('attaches and detaches a handle when the prop toggles on a live root', async () => {
+      const handle = Dialog.createHandle();
+      const consoleWarn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+
+      function App() {
+        const [attached, setAttached] = React.useState(false);
+
+        return (
+          <React.Fragment>
+            <Dialog.Trigger handle={handle} id="trigger">
+              Trigger
+            </Dialog.Trigger>
+            <button type="button" onClick={() => setAttached((value) => !value)}>
+              Toggle handle
+            </button>
+            <Dialog.Root
+              handle={attached ? handle : undefined}
+              modal={false}
+              disablePointerDismissal
+            >
+              <Dialog.Portal>
+                <Dialog.Popup>Dialog Content</Dialog.Popup>
+              </Dialog.Portal>
+            </Dialog.Root>
+          </React.Fragment>
+        );
+      }
+
+      const { user } = await render(<App />);
+      const trigger = screen.getByRole('button', { name: 'Trigger' });
+
+      act(() => handle.open('trigger'));
+      expect(handle.isOpen).toBe(false);
+      expect(screen.queryByRole('dialog')).toBe(null);
+
+      await user.click(screen.getByRole('button', { name: 'Toggle handle' }));
+      act(() => handle.open('trigger'));
+
+      await waitFor(() => {
+        expect(screen.getByText('Dialog Content')).toBeVisible();
+      });
+      expect(trigger.getAttribute('aria-controls')).toBe(
+        screen.getByRole('dialog').getAttribute('id'),
+      );
+
+      act(() => handle.close());
+      await waitFor(() => {
+        expect(screen.queryByRole('dialog')).toBe(null);
+      });
+
+      await user.click(screen.getByRole('button', { name: 'Toggle handle' }));
+      act(() => handle.open('trigger'));
+      expect(handle.isOpen).toBe(false);
+      expect(screen.queryByRole('dialog')).toBe(null);
+
+      const detachedWarnings = consoleWarn.mock.calls.filter(
+        ([message]) =>
+          typeof message === 'string' && message.includes('no root using this handle is mounted'),
+      );
+      consoleWarn.mockRestore();
+      expect(detachedWarnings).toHaveLength(2);
+    });
+
     it('registers a detached trigger declared after the root', async () => {
       const handle = Dialog.createHandle();
 
