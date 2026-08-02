@@ -717,7 +717,7 @@ const form = useForm({
 
 ## Formisch
 
-[Formisch](https://formisch.dev) is a schema-based, headless form library that can be integrated with Base UI. It validates with a [Valibot](https://valibot.dev) schema and infers the types of all field values and paths directly from it.
+[Formisch](https://formisch.dev) is a schema-based, headless form library that can be integrated with Base UI. It validates with a [Valibot](https://valibot.dev) schema and infers the types of all field values and paths directly from it.
 
 import { DemoFormisch } from './demos/formisch';
 
@@ -750,7 +750,7 @@ const form = useForm({
 
 ### Integrate components
 
-Use the `<Field>` component from Formisch to integrate with Base UI components, forwarding the field store provided by its render prop to the appropriate part. Since Base UI also exports a `Field` component, import the Formisch one under an alias:
+Use the `<Field>` component from Formisch to integrate with Base UI components, forwarding the field store provided by its render prop to the appropriate part. Since Base UI also exports a `Field` component, import the Formisch one under an alias:
 
 ```tsx title="Integrating Formisch with Base UI components"
 import { Field as FormischField, useForm } from '@formisch/react'; {/* @highlight-text "FormischField" */}
@@ -793,7 +793,7 @@ const form = useForm(/* schema, initialInput */);
 </FormischField>
 ```
 
-The Base UI `<Form>` component is not needed when using Formisch, as Formisch ships its own `<Form>` component that wraps a native `<form>` element.
+The Base UI `<Form>` component is not needed when using Formisch, as Formisch ships its own `<Form>` component that wraps a native `<form>` element.
 
 ### Form validation
 
