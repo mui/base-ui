@@ -57,13 +57,13 @@ export function useAnimationsFinished(
       }
 
       function exec() {
-        Promise.all(resolvedElement.getAnimations().map((animation) => animation.finished))
-          .then(() => {
+        Promise.all(resolvedElement.getAnimations().map((animation) => animation.finished)).then(
+          () => {
             if (!signal?.aborted) {
               done();
             }
-          })
-          .catch(() => {
+          },
+          () => {
             if (signal?.aborted) {
               return;
             }
@@ -87,7 +87,8 @@ export function useAnimationsFinished(
             }
 
             done();
-          });
+          },
+        );
       }
 
       if (waitForStartingStyleRemoved) {
