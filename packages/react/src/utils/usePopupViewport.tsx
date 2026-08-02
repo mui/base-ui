@@ -96,7 +96,7 @@ export function usePopupViewport(parameters: UsePopupViewportParameters): UsePop
   const currentContainerRef = React.useRef<HTMLDivElement>(null);
   const previousContainerRef = React.useRef<HTMLDivElement>(null);
 
-  const onAnimationsFinished = useAnimationsFinished(currentContainerRef, true, false);
+  const onAnimationsFinished = useAnimationsFinished(currentContainerRef, true);
   const cleanupFrame = useAnimationFrame();
 
   const [previousContentDimensions, setPreviousContentDimensions] = React.useState<{

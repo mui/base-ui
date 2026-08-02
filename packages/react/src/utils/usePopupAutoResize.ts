@@ -24,7 +24,7 @@ export function usePopupAutoResize(parameters: UsePopupAutoResizeParameters) {
     direction,
   } = parameters;
 
-  const runOnceAnimationsFinish = useAnimationsFinished(popupElement, true, false);
+  const runOnceAnimationsFinish = useAnimationsFinished(popupElement, true);
 
   const animationFrame = useAnimationFrame();
 
