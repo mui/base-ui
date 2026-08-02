@@ -1,4 +1,22 @@
 /**
+ * Development-only reverse index of element to registered id, keyed by the owning map.
+ *
+ * Registration would otherwise have to scan every entry to detect an element claimed by two ids,
+ * making the mount of many triggers sharing one handle quadratic. Kept module-scoped and read only
+ * from `process.env.NODE_ENV` guards so production builds drop it along with the checks.
+ */
+const devElementIdsByMap = new WeakMap<PopupTriggerMap, WeakMap<Element, string>>();
+
+function getDevElementIds(map: PopupTriggerMap) {
+  let elementIds = devElementIdsByMap.get(map);
+  if (!elementIds) {
+    elementIds = new WeakMap();
+    devElementIdsByMap.set(map, elementIds);
+  }
+  return elementIds;
+}
+
+/**
  * Data structure to keep track of popup trigger elements by their IDs.
  *
  * Element lookups iterate the id map; trigger counts are single digits, so linear
@@ -18,15 +36,25 @@ export class PopupTriggerMap {
    */
   public add(id: string, element: Element) {
     if (process.env.NODE_ENV !== 'production') {
-      for (const [existingId, existingElement] of this.idMap) {
-        if (existingElement === element && existingId !== id) {
-          // TODO: fix mui/no-guarded-throw
-          // eslint-disable-next-line mui/no-guarded-throw
-          throw new Error(
-            'Base UI: A trigger element cannot be registered under multiple IDs in PopupTriggerMap.',
-          );
-        }
+      const elementIds = getDevElementIds(this);
+
+      const existingId = elementIds.get(element);
+      if (existingId !== undefined && existingId !== id) {
+        // TODO: fix mui/no-guarded-throw
+        // eslint-disable-next-line mui/no-guarded-throw
+        throw new Error(
+          'Base UI: A trigger element cannot be registered under multiple IDs in PopupTriggerMap.',
+        );
       }
+
+      // Reusing an id for a different element evicts the previous one, so it must lose its claim
+      // on the id or a later registration under a different id would be reported as a duplicate.
+      const previousElement = this.idMap.get(id);
+      if (previousElement !== undefined && previousElement !== element) {
+        elementIds.delete(previousElement);
+      }
+
+      elementIds.set(element, id);
     }
 
     this.idMap.set(id, element);
@@ -36,6 +64,13 @@ export class PopupTriggerMap {
    * Removes the trigger element with the given ID.
    */
   public delete(id: string) {
+    if (process.env.NODE_ENV !== 'production') {
+      const element = this.idMap.get(id);
+      if (element !== undefined) {
+        devElementIdsByMap.get(this)?.delete(element);
+      }
+    }
+
     this.idMap.delete(id);
   }
 
