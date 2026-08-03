@@ -128,36 +128,38 @@ export const DrawerSwipeArea = React.forwardRef(function DrawerSwipeArea(
     store.context.outsidePressEnabledRef.current = false;
   }
 
-  const enableDismissAfterRelease = useStableCallback((event?: PointerEvent | TouchEvent) => {
+  const enableDismissAfterRelease = useStableCallback(() => {
     releaseGuardCleanupRef.current();
-    store.context.outsidePressEnabledRef.current = true;
-
-    if (!event) {
-      return;
-    }
 
     const doc = ownerDocument(swipeAreaRef.current);
 
-    function handleReleaseEvent(clickEvent?: MouseEvent) {
-      releaseGuardCleanupRef.current = NOOP;
-      doc.removeEventListener('click', handleReleaseEvent, true);
-      doc.removeEventListener('pointerdown', handleReleaseEvent, true);
-
-      // A fresh physical interaction starts with `pointerdown`. Only the trailing physical release
-      // click should temporarily keep outside press dismissal disabled.
-      if (clickEvent?.type !== 'click' || clickEvent.detail === 0 || isVirtualClick(clickEvent)) {
+    function restore(event?: MouseEvent) {
+      // The gesture's trailing release click is the one physical click with no `pointerdown` of
+      // its own. Ignore it and keep waiting, so it cannot dismiss the drawer it just opened,
+      // while a click-only activation (keyboard or assistive tech) still re-enables in time.
+      if (event?.type === 'click' && event.detail !== 0 && !isVirtualClick(event)) {
         return;
       }
 
-      store.context.outsidePressEnabledRef.current = false;
-      queueMicrotask(() => {
-        store.context.outsidePressEnabledRef.current = true;
-      });
+      releaseGuardCleanupRef.current = NOOP;
+      doc.removeEventListener('pointerdown', restore, true);
+      doc.removeEventListener('click', restore, true);
+      store.context.outsidePressEnabledRef.current = true;
     }
 
-    releaseGuardCleanupRef.current = handleReleaseEvent;
-    doc.addEventListener('click', handleReleaseEvent, true);
-    doc.addEventListener('pointerdown', handleReleaseEvent, true);
+    // The pointerup that ends a swipe-open gesture synthesizes a `click`. When the drag released
+    // outside the popup (e.g. it was dragged past the popup's size), that click would be treated as
+    // an outside press and immediately dismiss the drawer that was just opened. Keep outside-press
+    // dismissal disabled until the next interaction that isn't that release click: a deliberate
+    // outside press starts with a `pointerdown`, and a click-only activation (keyboard or
+    // assistive tech) is distinguishable from a physical release. This is deterministic, unlike
+    // re-enabling on a timer that can race the synthesized click and dismiss at random.
+    //
+    // `restore` runs in document capture, ahead of floating-ui's own outside-press check (which
+    // happens on the event target, after capture), so the triggering press still dismisses.
+    releaseGuardCleanupRef.current = restore;
+    doc.addEventListener('pointerdown', restore, true);
+    doc.addEventListener('click', restore, true);
   });
 
   function getPopupSize(popupElement: HTMLElement) {
@@ -307,9 +309,9 @@ export const DrawerSwipeArea = React.forwardRef(function DrawerSwipeArea(
     setSwipeActive(false);
   }
 
-  function finishSwipeInteraction(event?: PointerEvent | TouchEvent) {
+  function finishSwipeInteraction() {
     resetSwipeInteractionState();
-    enableDismissAfterRelease(event);
+    enableDismissAfterRelease();
     resetDragDelta();
     clearSwipeStyles();
   }
@@ -380,7 +382,7 @@ export const DrawerSwipeArea = React.forwardRef(function DrawerSwipeArea(
         closeDrawer(event);
       }
 
-      finishSwipeInteraction(event);
+      finishSwipeInteraction();
 
       return false;
     },
