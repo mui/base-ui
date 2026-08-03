@@ -613,7 +613,7 @@ type SelectGroupLabelState = {};
 
 ### Separator
 
-A visual separator between Select items or groups.
+A visual separator between items or groups.
 Renders a `<div>` element.
 
 **Separator Props:**

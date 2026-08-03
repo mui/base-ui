@@ -22,7 +22,7 @@ export interface ComboboxSeparatorState {
 }
 
 /**
- * A visual separator between Combobox items or groups.
+ * A visual separator between items or groups.
  * Renders a `<div>` element.
  *
  * Documentation: [Base UI Combobox](https://base-ui.com/react/components/combobox)
