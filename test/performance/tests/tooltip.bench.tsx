@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { Tooltip } from '@base-ui/react/tooltip';
-import { benchmark } from '@mui/internal-benchmark';
+import { benchmark } from '../benchmark';
 import { createRows, MountList } from './shared';
 
 const containedTooltipRows = createRows(300, 'Tooltip');

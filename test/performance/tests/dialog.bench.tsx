@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { Dialog } from '@base-ui/react/dialog';
-import { benchmark } from '@mui/internal-benchmark';
+import { benchmark } from '../benchmark';
 import { createRows, MountList } from './shared';
 
 const dialogRows = createRows(300, 'Dialog');

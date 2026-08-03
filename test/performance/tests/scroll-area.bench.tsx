@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { ScrollArea } from '@base-ui/react/scroll-area';
-import { benchmark } from '@mui/internal-benchmark';
+import { benchmark } from '../benchmark';
 import { createRows, MountList } from './shared';
 
 const scrollAreaRows = createRows(300, 'Scroll area');

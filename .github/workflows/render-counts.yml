@@ -1,0 +1,106 @@
+# PR code runs only with the untrusted pull_request token. A separate
+# workflow_run workflow validates the artifact and publishes the visible check.
+name: React render counts
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+    paths:
+      - 'package.json'
+      - 'pnpm-lock.yaml'
+      - 'packages/react/**'
+      - 'packages/utils/**'
+      - 'test/performance/**'
+
+permissions: {}
+
+jobs:
+  collect:
+    name: Collect render counts
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    container: mcr.microsoft.com/playwright:v1.59.1-noble
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout base revision
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+          ref: ${{ github.event.pull_request.base.sha }}
+
+      # Upload immutable PR identity before any code from the PR can run.
+      - name: Record pull request identity
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+        with:
+          script: |
+            const fs = require('fs');
+            fs.mkdirSync('/tmp/render-count-context');
+            fs.writeFileSync(
+              '/tmp/render-count-context/context.json',
+              JSON.stringify({
+                prNumber: context.payload.pull_request.number,
+                headSha: context.payload.pull_request.head.sha,
+              }),
+            );
+
+      - name: Upload pull request identity
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: render-count-context
+          path: /tmp/render-count-context/context.json
+          retention-days: 1
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@8912a9102ac27614460f54aedde9e1e7f9aec20d # v6.0.5
+
+      - name: Use Node.js 22.x
+        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
+        with:
+          node-version: '22.22.3'
+
+      - name: Prepare exact revisions
+        env:
+          EXPECTED_BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          EXPECTED_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          set -euo pipefail
+          git fetch --no-tags origin "pull/$PR_NUMBER/head"
+          HEAD_SHA=$(git rev-parse FETCH_HEAD)
+          if [ "$HEAD_SHA" != "$EXPECTED_HEAD_SHA" ]; then
+            echo "Expected PR head $EXPECTED_HEAD_SHA but fetched $HEAD_SHA" >&2
+            exit 1
+          fi
+          BASE_SHA=$(git merge-base "$HEAD_SHA" "$EXPECTED_BASE_SHA")
+          git worktree add --detach /tmp/render-count-base "$BASE_SHA"
+          git worktree add --detach /tmp/render-count-head "$HEAD_SHA"
+
+      - name: Install dependencies
+        run: |
+          pnpm --dir /tmp/render-count-base install --frozen-lockfile
+          pnpm --dir /tmp/render-count-head install --frozen-lockfile
+
+      - name: Build benchmark packages
+        run: |
+          pnpm --dir /tmp/render-count-base --filter @base-ui/utils --filter @base-ui/react build
+          pnpm --dir /tmp/render-count-head --filter @base-ui/utils --filter @base-ui/react build
+
+      - name: Record render counts
+        run: |
+          BENCHMARK_RENDER_COUNTS=true \
+            BENCHMARK_OUTPUT_PATH=/tmp/base-render-counts.json \
+            pnpm --dir /tmp/render-count-base test:benchmark
+          BENCHMARK_RENDER_COUNTS=true \
+            BENCHMARK_OUTPUT_PATH=/tmp/head-render-counts.json \
+            pnpm --dir /tmp/render-count-head test:benchmark
+
+      - name: Upload render counts
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: render-counts
+          path: |
+            /tmp/base-render-counts.json
+            /tmp/head-render-counts.json
+          retention-days: 1

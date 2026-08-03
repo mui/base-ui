@@ -107,6 +107,9 @@ jobs:
           command: |
             pnpm inline-scripts
             git add -A && git diff --exit-code --staged
+      - run:
+          name: Test benchmark scripts
+          command: pnpm --dir test/performance test:scripts
   test_types:
     <<: *default-job
     resource_class: medium+
@@ -261,6 +264,7 @@ jobs:
       - store_test_results:
           path: test-results
 
+  # full-benchmark-protocol: 1
   test_benchmark:
     <<: *default-job
     executor:
@@ -268,32 +272,63 @@ jobs:
       playwright-img-version: v1.59.1-noble
     steps:
       - checkout
+      - run:
+          name: Check for a full benchmark request
+          command: |
+            set -euo pipefail
+            REQUESTED=$(node test/performance/scripts/isFullBenchmarkRequested.mts)
+            if [ "$REQUESTED" != "true" ]; then
+              echo "No /benchmark request for $CIRCLE_SHA1; skipping the full suite."
+              circleci-agent step halt
+            fi
+            if [ "$(git rev-parse HEAD)" != "$CIRCLE_SHA1" ]; then
+              echo "CircleCI did not check out the requested PR head." >&2
+              exit 1
+            fi
+            echo "Full benchmark requested for $CIRCLE_SHA1."
       - code-infra/install-deps
       - run:
-          name: Build packages
-          command: pnpm release:build
-      - run:
-          name: Run baseline benchmarks at merge-base
+          name: Prepare current master
           command: |
-            set -e
-            if [ "$CIRCLE_BRANCH" = "master" ]; then
-              echo "On master branch; no baseline to compare against. Skipping baseline."
-              exit 0
-            fi
+            set -euo pipefail
             git fetch --no-tags origin master:refs/remotes/origin/master
-            BASE_SHA=$(git merge-base HEAD origin/master)
-            echo "Baseline commit: $BASE_SHA"
-            git worktree add /tmp/base-worktree "$BASE_SHA"
-            cd /tmp/base-worktree
-            pnpm install --frozen-lockfile
-            pnpm release:build
-            BENCHMARK_BRANCH=master pnpm test:benchmark
-            echo 'export BENCHMARK_BASELINE_PATH=/tmp/base-worktree/test/performance/benchmarks/results.json' >> "$BASH_ENV"
+            git worktree add --detach /tmp/benchmark-master origin/master
+            pnpm --dir /tmp/benchmark-master install --frozen-lockfile
       - run:
-          name: Run head benchmarks
-          environment:
-            BENCHMARK_UPLOAD: 'true'
-          command: pnpm test:benchmark
+          name: Build both revisions
+          command: |
+            set -euo pipefail
+            pnpm --dir /tmp/benchmark-master release:build
+            pnpm release:build
+      - run:
+          name: Run full benchmark comparison (ABBA)
+          command: |
+            set -euo pipefail
+
+            BENCHMARK_BRANCH=master \
+              BENCHMARK_OUTPUT_PATH=/tmp/master-1.json \
+              pnpm --dir /tmp/benchmark-master test:benchmark
+            BENCHMARK_OUTPUT_PATH=/tmp/head-1.json pnpm test:benchmark
+            BENCHMARK_OUTPUT_PATH=/tmp/head-2.json pnpm test:benchmark
+            BENCHMARK_BRANCH=master \
+              BENCHMARK_OUTPUT_PATH=/tmp/master-2.json \
+              pnpm --dir /tmp/benchmark-master test:benchmark
+
+            node test/performance/scripts/aggregateBenchmarks.mts \
+              /tmp/master-combined.json \
+              /tmp/master-1.json \
+              /tmp/master-2.json
+            node test/performance/scripts/aggregateBenchmarks.mts \
+              /tmp/head-combined.json \
+              /tmp/head-1.json \
+              /tmp/head-2.json \
+              /tmp/master-combined.json
+      - run:
+          name: Publish benchmark comparison
+          command: node test/performance/scripts/publishBenchmark.mts /tmp/head-combined.json
+      - store_artifacts:
+          path: /tmp/head-combined.json
+          destination: benchmark-comparison.json
 
 workflows:
   pipeline:

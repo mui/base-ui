@@ -1,0 +1,170 @@
+# This workflow never executes PR code. It treats the collector artifact as
+# untrusted data and publishes only validated render counts.
+name: Publish React render counts
+
+on:
+  workflow_run:
+    workflows: ['React render counts']
+    types: [completed]
+
+permissions: {}
+
+jobs:
+  publish:
+    if: >-
+      github.event.workflow_run.event == 'pull_request' &&
+      github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      actions: read
+      checks: write
+      contents: read
+      pull-requests: read
+    steps:
+      - name: Download pull request identity
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          name: render-count-context
+          path: /tmp/render-count-context
+          github-token: ${{ github.token }}
+          run-id: ${{ github.event.workflow_run.id }}
+
+      - name: Download render counts
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          name: render-counts
+          path: /tmp/render-counts
+          github-token: ${{ github.token }}
+          run-id: ${{ github.event.workflow_run.id }}
+
+      - name: Publish PR check
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+        env:
+          RUN_URL: ${{ github.event.workflow_run.html_url }}
+        with:
+          script: |
+            const fs = require('fs');
+
+            const contextPath = '/tmp/render-count-context/context.json';
+            if (fs.statSync(contextPath).size > 1_000) {
+              throw new Error('The pull request identity artifact is too large.');
+            }
+            const collectorContext = JSON.parse(fs.readFileSync(contextPath, 'utf8'));
+            if (
+              !Number.isInteger(collectorContext.prNumber) ||
+              collectorContext.prNumber <= 0 ||
+              !/^[0-9a-f]{40}$/.test(collectorContext.headSha)
+            ) {
+              throw new Error('The pull request identity artifact is invalid.');
+            }
+            const { data: pullRequest } = await github.rest.pulls.get({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: collectorContext.prNumber,
+            });
+            if (pullRequest.state !== 'open' || pullRequest.head.sha !== collectorContext.headSha) {
+              core.notice('The pull request is closed or has advanced past this collector run.');
+              return;
+            }
+            const headSha = pullRequest.head.sha;
+
+            const readReport = (file) => {
+              if (fs.statSync(file).size > 2_000_000) {
+                throw new Error(`Render-count report is too large: ${file}`);
+              }
+              const parsed = JSON.parse(fs.readFileSync(file, 'utf8'));
+              if (!parsed || typeof parsed.report !== 'object' || Array.isArray(parsed.report)) {
+                throw new Error(`Invalid render-count report: ${file}`);
+              }
+              const entries = Object.entries(parsed.report);
+              if (entries.length > 100) {
+                throw new Error(`Too many benchmark entries in ${file}`);
+              }
+              return Object.fromEntries(
+                entries.map(([name, entry]) => {
+                  if (
+                    typeof name !== 'string' ||
+                    name.length > 500 ||
+                    !entry ||
+                    !Array.isArray(entry.renders) ||
+                    entry.renders.length > 1000
+                  ) {
+                    throw new Error(`Invalid benchmark entry in ${file}`);
+                  }
+                  return [name, entry.renders.length];
+                }),
+              );
+            };
+
+            const escapeCell = (value) =>
+              value.replaceAll('|', '\\|').replaceAll('\n', ' ').replaceAll('\r', ' ');
+            const base = readReport('/tmp/render-counts/base-render-counts.json');
+            const head = readReport('/tmp/render-counts/head-render-counts.json');
+            const names = [...new Set([...Object.keys(base), ...Object.keys(head)])].sort();
+            const rows = names.flatMap((name) => {
+              if (!(name in base)) {
+                return [{ name, base: null, head: head[name], change: 'new' }];
+              }
+              if (!(name in head)) {
+                return [{ name, base: base[name], head: null, change: 'removed' }];
+              }
+              const delta = head[name] - base[name];
+              return delta === 0 ? [] : [{ name, base: base[name], head: head[name], change: delta }];
+            });
+
+            const increased = rows
+              .filter((row) => typeof row.change === 'number' && row.change > 0)
+              .reduce((total, row) => total + row.change, 0);
+            const decreased = rows
+              .filter((row) => typeof row.change === 'number' && row.change < 0)
+              .reduce((total, row) => total - row.change, 0);
+            const title =
+              increased && decreased
+                ? `Render counts changed (+${increased} / -${decreased})`
+                : increased
+                  ? `${increased} additional render${increased === 1 ? '' : 's'}`
+                  : decreased
+                    ? `${decreased} fewer render${decreased === 1 ? '' : 's'}`
+                    : rows.length
+                      ? 'Benchmark coverage changed'
+                      : 'No render count changes';
+
+            const summary = rows.length
+              ? [
+                  '| Benchmark | Base | PR | Change |',
+                  '|:--|--:|--:|--:|',
+                  ...rows.map((row) => {
+                    const change =
+                      typeof row.change === 'number' && row.change > 0
+                        ? `+${row.change}`
+                        : String(row.change);
+                    return `| ${escapeCell(row.name)} | ${row.base ?? '—'} | ${row.head ?? '—'} | ${change} |`;
+                  }),
+                ].join('\n')
+              : `All ${names.length} benchmarks produced the same number of renders.`;
+
+            const { data } = await github.rest.checks.listForRef({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              ref: headSha,
+              check_name: 'React render counts',
+              filter: 'latest',
+            });
+            const existing = data.check_runs.find(
+              (check) => check.app?.slug === 'github-actions',
+            );
+            const input = {
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              name: 'React render counts',
+              status: 'completed',
+              conclusion: increased ? 'neutral' : 'success',
+              details_url: process.env.RUN_URL,
+              output: { title, summary },
+            };
+            if (existing) {
+              await github.rest.checks.update({ ...input, check_run_id: existing.id });
+            } else {
+              await github.rest.checks.create({ ...input, head_sha: headSha });
+            }

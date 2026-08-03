@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { Combobox } from '@base-ui/react/combobox';
-import { benchmark, ElementTiming } from '@mui/internal-benchmark';
+import { benchmark, ElementTiming } from '../benchmark';
 import { createRows } from './shared';
 
 const largeItems = createRows(500, 'Row');

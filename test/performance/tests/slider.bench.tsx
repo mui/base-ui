@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { Slider } from '@base-ui/react/slider';
-import { benchmark } from '@mui/internal-benchmark';
+import { benchmark } from '../benchmark';
 import { createRows, MountList } from './shared';
 
 const sliderRows = createRows(300, 'Slider');

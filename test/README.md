@@ -167,6 +167,24 @@ so we also need to take into account the rendering engine.
 
 Check out the [visual regression testing readme](./regressions/README.md) for more information.
 
+#### Performance benchmarks
+
+Pull requests that change React, shared utilities, or the performance fixtures run a short
+`React render counts` check. It compares the merge base with the exact PR head using one measured
+iteration per benchmark and reports only additional or fewer renders, not runtime measurements.
+
+A maintainer with write access can comment `/benchmark` on any open PR to request the full
+performance suite. This is a deterministic CI command and does not invoke Claude. The full suite
+runs the unchanged benchmark settings for current `master` and the exact PR head in ABBA order
+(`master`, PR, PR, `master`) within one CircleCI job. It uploads the combined timing, paint, and
+render comparison and refreshes the existing consolidated MUI performance comment instead of
+creating another PR comment.
+
+CircleCI reruns the PR's original processed configuration, so a PR created before this workflow was
+introduced must first be updated from `master`. GitHub Actions requires a `CIRCLECI_TOKEN` secret,
+and the CircleCI `org-global` context requires a read-only `GITHUB_STATUS_TOKEN` for checking the
+authenticated benchmark request marker.
+
 #### end-to-end tests
 
 Checkout the [end-to-end testing readme](./e2e/README.md) for more information.

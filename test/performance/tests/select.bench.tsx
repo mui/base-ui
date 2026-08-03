@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { Select } from '@base-ui/react/select';
-import { benchmark, ElementTiming } from '@mui/internal-benchmark';
+import { benchmark, ElementTiming } from '../benchmark';
 import { createRows, MountList } from './shared';
 
 const selectRows = createRows(200, 'Select');

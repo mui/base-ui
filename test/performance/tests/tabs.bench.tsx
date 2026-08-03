@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { Tabs } from '@base-ui/react/tabs';
-import { benchmark } from '@mui/internal-benchmark';
+import { benchmark } from '../benchmark';
 import { createRows, MountList } from './shared';
 
 const tabsRows = createRows(200, 'Tabs');

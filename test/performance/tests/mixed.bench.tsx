@@ -8,7 +8,7 @@ import { Select } from '@base-ui/react/select';
 import { Slider } from '@base-ui/react/slider';
 import { Tabs } from '@base-ui/react/tabs';
 import { Tooltip } from '@base-ui/react/tooltip';
-import { benchmark } from '@mui/internal-benchmark';
+import { benchmark } from '../benchmark';
 import { createRows } from './shared';
 
 const tooltipRows = createRows(200, 'Tooltip');
