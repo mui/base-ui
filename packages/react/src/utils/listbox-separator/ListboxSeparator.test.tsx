@@ -24,12 +24,19 @@ describe('<ListboxSeparator />', () => {
   });
 
   describe('prop: orientation', () => {
-    it('vertical', async () => {
-      await render(<ListboxSeparator orientation="vertical" data-testid="separator" />);
+    ['horizontal', 'vertical'].forEach((orientation) => {
+      it(orientation, async () => {
+        await render(
+          <ListboxSeparator
+            orientation={orientation as ListboxSeparator.Props['orientation']}
+            data-testid="separator"
+          />,
+        );
 
-      const separator = screen.getByTestId('separator');
-      expect(separator).toHaveAttribute('data-orientation', 'vertical');
-      expect(separator).not.toHaveAttribute('aria-orientation');
+        const separator = screen.getByTestId('separator');
+        expect(separator).toHaveAttribute('data-orientation', orientation);
+        expect(separator).not.toHaveAttribute('aria-orientation');
+      });
     });
   });
 
@@ -41,7 +48,10 @@ describe('<ListboxSeparator />', () => {
     it('exposes the listbox separator behavior', async () => {
       await render(separator);
 
-      expect(screen.getByTestId('separator')).toHaveAttribute('role', 'presentation');
+      const element = screen.getByTestId('separator');
+      expect(element).toHaveAttribute('role', 'presentation');
+      expect(element).toHaveAttribute('data-orientation', 'horizontal');
+      expect(element).not.toHaveAttribute('aria-orientation');
     });
   });
 });
