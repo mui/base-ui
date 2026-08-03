@@ -72,6 +72,15 @@ type ToggleChangeEventDetails = {
 };
 ```
 
+## Additional Types
+
+### ToggleDataAttributes
+
+| Member   | Value           | Description                                 |
+| :------- | :-------------- | :------------------------------------------ |
+| pressed  | `data-pressed`  | Present when the toggle button is pressed.  |
+| disabled | `data-disabled` | Present when the toggle button is disabled. |
+
 ## Canonical Types
 
 Maps `Canonical`: `Alias` — Use Canonical when its namespace is already imported; otherwise use Alias.

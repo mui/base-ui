@@ -160,11 +160,45 @@ type SwitchThumbState = {
 };
 ```
 
+## Additional Types
+
+### SwitchRootDataAttributes
+
+| Member    | Value            | Description                                                                  |
+| :-------- | :--------------- | :--------------------------------------------------------------------------- |
+| checked   | `data-checked`   | Present when the switch is checked.                                          |
+| unchecked | `data-unchecked` | Present when the switch is not checked.                                      |
+| disabled  | `data-disabled`  | Present when the switch is disabled.                                         |
+| readonly  | `data-readonly`  | Present when the switch is readonly.                                         |
+| required  | `data-required`  | Present when the switch is required.                                         |
+| valid     | `data-valid`     | Present when the switch is in a valid state (when wrapped in Field.Root).    |
+| invalid   | `data-invalid`   | Present when the switch is in an invalid state (when wrapped in Field.Root). |
+| touched   | `data-touched`   | Present when the switch has been touched (when wrapped in Field.Root).       |
+| dirty     | `data-dirty`     | Present when the switch's value has changed (when wrapped in Field.Root).    |
+| filled    | `data-filled`    | Present when the switch is active (when wrapped in Field.Root).              |
+| focused   | `data-focused`   | Present when the switch is focused (when wrapped in Field.Root).             |
+
+### SwitchThumbDataAttributes
+
+| Member    | Value            | Description                                                                  |
+| :-------- | :--------------- | :--------------------------------------------------------------------------- |
+| checked   | `data-checked`   | Present when the switch is checked.                                          |
+| unchecked | `data-unchecked` | Present when the switch is not checked.                                      |
+| disabled  | `data-disabled`  | Present when the switch is disabled.                                         |
+| readonly  | `data-readonly`  | Present when the switch is readonly.                                         |
+| required  | `data-required`  | Present when the switch is required.                                         |
+| valid     | `data-valid`     | Present when the switch is in a valid state (when wrapped in Field.Root).    |
+| invalid   | `data-invalid`   | Present when the switch is in an invalid state (when wrapped in Field.Root). |
+| touched   | `data-touched`   | Present when the switch has been touched (when wrapped in Field.Root).       |
+| dirty     | `data-dirty`     | Present when the switch's value has changed (when wrapped in Field.Root).    |
+| filled    | `data-filled`    | Present when the switch is active (when wrapped in Field.Root).              |
+| focused   | `data-focused`   | Present when the switch is focused (when wrapped in Field.Root).             |
+
 ## Export Groups
 
 - `Switch.Root`: `Switch.Root`, `Switch.Root.State`, `Switch.Root.Props`, `Switch.Root.ChangeEventReason`, `Switch.Root.ChangeEventDetails`
 - `Switch.Thumb`: `Switch.Thumb`, `Switch.Thumb.Props`, `Switch.Thumb.State`
-- `Default`: `SwitchRootState`, `SwitchRootProps`, `SwitchRootChangeEventReason`, `SwitchRootChangeEventDetails`, `SwitchThumbProps`, `SwitchThumbState`
+- `Default`: `SwitchRootDataAttributes`, `SwitchThumbDataAttributes`, `SwitchRootState`, `SwitchRootProps`, `SwitchRootChangeEventReason`, `SwitchRootChangeEventDetails`, `SwitchThumbProps`, `SwitchThumbState`
 
 ## Canonical Types
 

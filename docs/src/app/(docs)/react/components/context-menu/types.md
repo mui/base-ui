@@ -967,6 +967,15 @@ type ContextMenuLinkItemState = {
 };
 ```
 
+## Additional Types
+
+### ContextMenuTriggerDataAttributes
+
+| Member    | Value             | Description                                          |
+| :-------- | :---------------- | :--------------------------------------------------- |
+| popupOpen | `data-popup-open` | Present when the corresponding context menu is open. |
+| pressed   | `data-pressed`    | Present when the trigger is pressed.                 |
+
 ## External Types
 
 ### Orientation
@@ -1031,7 +1040,7 @@ type preventUnmountOnClose = () => void;
 - `ContextMenu.SubmenuRoot`: `ContextMenu.SubmenuRoot`, `ContextMenu.SubmenuRoot.Props`, `ContextMenu.SubmenuRoot.State`, `ContextMenu.SubmenuRoot.ChangeEventReason`, `ContextMenu.SubmenuRoot.ChangeEventDetails`
 - `ContextMenu.SubmenuTrigger`: `ContextMenu.SubmenuTrigger`, `ContextMenu.SubmenuTrigger.Props`, `ContextMenu.SubmenuTrigger.State`
 - `ContextMenu.Separator`: `ContextMenu.Separator`, `ContextMenu.Separator.Props`, `ContextMenu.Separator.State`
-- `Default`: `ContextMenuBackdropProps`, `ContextMenuBackdropState`, `ContextMenuPortalProps`, `ContextMenuPortalState`, `ContextMenuPositionerProps`, `ContextMenuPositionerState`, `ContextMenuPopupProps`, `ContextMenuPopupState`, `ContextMenuArrowProps`, `ContextMenuArrowState`, `ContextMenuGroupProps`, `ContextMenuGroupState`, `ContextMenuGroupLabelProps`, `ContextMenuGroupLabelState`, `ContextMenuItemProps`, `ContextMenuItemState`, `ContextMenuLinkItemProps`, `ContextMenuLinkItemState`, `ContextMenuCheckboxItemProps`, `ContextMenuCheckboxItemState`, `ContextMenuCheckboxItemIndicatorProps`, `ContextMenuCheckboxItemIndicatorState`, `ContextMenuRadioGroupProps`, `ContextMenuRadioGroupState`, `ContextMenuRadioItemProps`, `ContextMenuRadioItemState`, `ContextMenuRadioItemIndicatorProps`, `ContextMenuRadioItemIndicatorState`, `ContextMenuSubmenuRootProps`, `ContextMenuSubmenuRootState`, `ContextMenuSubmenuTriggerProps`, `ContextMenuSubmenuTriggerState`, `ContextMenuRootState`, `ContextMenuRootProps`, `ContextMenuRootActions`, `ContextMenuRootChangeEventReason`, `ContextMenuRootChangeEventDetails`, `ContextMenuTriggerState`, `ContextMenuTriggerProps`
+- `Default`: `ContextMenuBackdropProps`, `ContextMenuBackdropState`, `ContextMenuPortalProps`, `ContextMenuPortalState`, `ContextMenuPositionerProps`, `ContextMenuPositionerState`, `ContextMenuPopupProps`, `ContextMenuPopupState`, `ContextMenuArrowProps`, `ContextMenuArrowState`, `ContextMenuGroupProps`, `ContextMenuGroupState`, `ContextMenuGroupLabelProps`, `ContextMenuGroupLabelState`, `ContextMenuItemProps`, `ContextMenuItemState`, `ContextMenuLinkItemProps`, `ContextMenuLinkItemState`, `ContextMenuCheckboxItemProps`, `ContextMenuCheckboxItemState`, `ContextMenuCheckboxItemIndicatorProps`, `ContextMenuCheckboxItemIndicatorState`, `ContextMenuRadioGroupProps`, `ContextMenuRadioGroupState`, `ContextMenuRadioItemProps`, `ContextMenuRadioItemState`, `ContextMenuRadioItemIndicatorProps`, `ContextMenuRadioItemIndicatorState`, `ContextMenuSubmenuRootProps`, `ContextMenuSubmenuRootState`, `ContextMenuSubmenuTriggerProps`, `ContextMenuSubmenuTriggerState`, `ContextMenuTriggerDataAttributes`, `ContextMenuRootState`, `ContextMenuRootProps`, `ContextMenuRootActions`, `ContextMenuRootChangeEventReason`, `ContextMenuRootChangeEventDetails`, `ContextMenuTriggerState`, `ContextMenuTriggerProps`
 
 ## Canonical Types
 

@@ -534,6 +534,113 @@ type NumberFieldIncrementState = {
 };
 ```
 
+## Additional Types
+
+### NumberFieldDecrementDataAttributes
+
+| Member    | Value            | Description                                                                        |
+| :-------- | :--------------- | :--------------------------------------------------------------------------------- |
+| scrubbing | `data-scrubbing` | Present while scrubbing.                                                           |
+| disabled  | `data-disabled`  | Present when the number field is disabled.                                         |
+| readonly  | `data-readonly`  | Present when the number field is readonly.                                         |
+| required  | `data-required`  | Present when the number field is required.                                         |
+| valid     | `data-valid`     | Present when the number field is in a valid state (when wrapped in Field.Root).    |
+| invalid   | `data-invalid`   | Present when the number field is in an invalid state (when wrapped in Field.Root). |
+| touched   | `data-touched`   | Present when the number field has been touched (when wrapped in Field.Root).       |
+| dirty     | `data-dirty`     | Present when the number field's value has changed (when wrapped in Field.Root).    |
+| filled    | `data-filled`    | Present when the number field is filled (when wrapped in Field.Root).              |
+| focused   | `data-focused`   | Present when the number field is focused (when wrapped in Field.Root).             |
+
+### NumberFieldGroupDataAttributes
+
+| Member    | Value            | Description                                                                        |
+| :-------- | :--------------- | :--------------------------------------------------------------------------------- |
+| scrubbing | `data-scrubbing` | Present while scrubbing.                                                           |
+| disabled  | `data-disabled`  | Present when the number field is disabled.                                         |
+| readonly  | `data-readonly`  | Present when the number field is readonly.                                         |
+| required  | `data-required`  | Present when the number field is required.                                         |
+| valid     | `data-valid`     | Present when the number field is in a valid state (when wrapped in Field.Root).    |
+| invalid   | `data-invalid`   | Present when the number field is in an invalid state (when wrapped in Field.Root). |
+| touched   | `data-touched`   | Present when the number field has been touched (when wrapped in Field.Root).       |
+| dirty     | `data-dirty`     | Present when the number field's value has changed (when wrapped in Field.Root).    |
+| filled    | `data-filled`    | Present when the number field is filled (when wrapped in Field.Root).              |
+| focused   | `data-focused`   | Present when the number field is focused (when wrapped in Field.Root).             |
+
+### NumberFieldIncrementDataAttributes
+
+| Member    | Value            | Description                                                                        |
+| :-------- | :--------------- | :--------------------------------------------------------------------------------- |
+| scrubbing | `data-scrubbing` | Present while scrubbing.                                                           |
+| disabled  | `data-disabled`  | Present when the number field is disabled.                                         |
+| readonly  | `data-readonly`  | Present when the number field is readonly.                                         |
+| required  | `data-required`  | Present when the number field is required.                                         |
+| valid     | `data-valid`     | Present when the number field is in a valid state (when wrapped in Field.Root).    |
+| invalid   | `data-invalid`   | Present when the number field is in an invalid state (when wrapped in Field.Root). |
+| touched   | `data-touched`   | Present when the number field has been touched (when wrapped in Field.Root).       |
+| dirty     | `data-dirty`     | Present when the number field's value has changed (when wrapped in Field.Root).    |
+| filled    | `data-filled`    | Present when the number field is filled (when wrapped in Field.Root).              |
+| focused   | `data-focused`   | Present when the number field is focused (when wrapped in Field.Root).             |
+
+### NumberFieldInputDataAttributes
+
+| Member    | Value            | Description                                                                        |
+| :-------- | :--------------- | :--------------------------------------------------------------------------------- |
+| scrubbing | `data-scrubbing` | Present while scrubbing.                                                           |
+| disabled  | `data-disabled`  | Present when the number field is disabled.                                         |
+| readonly  | `data-readonly`  | Present when the number field is readonly.                                         |
+| required  | `data-required`  | Present when the number field is required.                                         |
+| valid     | `data-valid`     | Present when the number field is in a valid state (when wrapped in Field.Root).    |
+| invalid   | `data-invalid`   | Present when the number field is in an invalid state (when wrapped in Field.Root). |
+| touched   | `data-touched`   | Present when the number field has been touched (when wrapped in Field.Root).       |
+| dirty     | `data-dirty`     | Present when the number field's value has changed (when wrapped in Field.Root).    |
+| filled    | `data-filled`    | Present when the number field is filled (when wrapped in Field.Root).              |
+| focused   | `data-focused`   | Present when the number field is focused (when wrapped in Field.Root).             |
+
+### NumberFieldRootDataAttributes
+
+| Member    | Value            | Description                                                                        |
+| :-------- | :--------------- | :--------------------------------------------------------------------------------- |
+| scrubbing | `data-scrubbing` | Present while scrubbing.                                                           |
+| disabled  | `data-disabled`  | Present when the number field is disabled.                                         |
+| readonly  | `data-readonly`  | Present when the number field is readonly.                                         |
+| required  | `data-required`  | Present when the number field is required.                                         |
+| valid     | `data-valid`     | Present when the number field is in a valid state (when wrapped in Field.Root).    |
+| invalid   | `data-invalid`   | Present when the number field is in an invalid state (when wrapped in Field.Root). |
+| touched   | `data-touched`   | Present when the number field has been touched (when wrapped in Field.Root).       |
+| dirty     | `data-dirty`     | Present when the number field's value has changed (when wrapped in Field.Root).    |
+| filled    | `data-filled`    | Present when the number field is filled (when wrapped in Field.Root).              |
+| focused   | `data-focused`   | Present when the number field is focused (when wrapped in Field.Root).             |
+
+### NumberFieldScrubAreaCursorDataAttributes
+
+| Member    | Value            | Description                                                                        |
+| :-------- | :--------------- | :--------------------------------------------------------------------------------- |
+| scrubbing | `data-scrubbing` | Present while scrubbing.                                                           |
+| disabled  | `data-disabled`  | Present when the number field is disabled.                                         |
+| readonly  | `data-readonly`  | Present when the number field is readonly.                                         |
+| required  | `data-required`  | Present when the number field is required.                                         |
+| valid     | `data-valid`     | Present when the number field is in a valid state (when wrapped in Field.Root).    |
+| invalid   | `data-invalid`   | Present when the number field is in an invalid state (when wrapped in Field.Root). |
+| touched   | `data-touched`   | Present when the number field has been touched (when wrapped in Field.Root).       |
+| dirty     | `data-dirty`     | Present when the number field's value has changed (when wrapped in Field.Root).    |
+| filled    | `data-filled`    | Present when the number field is filled (when wrapped in Field.Root).              |
+| focused   | `data-focused`   | Present when the number field is focused (when wrapped in Field.Root).             |
+
+### NumberFieldScrubAreaDataAttributes
+
+| Member    | Value            | Description                                                                        |
+| :-------- | :--------------- | :--------------------------------------------------------------------------------- |
+| scrubbing | `data-scrubbing` | Present while scrubbing.                                                           |
+| disabled  | `data-disabled`  | Present when the number field is disabled.                                         |
+| readonly  | `data-readonly`  | Present when the number field is readonly.                                         |
+| required  | `data-required`  | Present when the number field is required.                                         |
+| valid     | `data-valid`     | Present when the number field is in a valid state (when wrapped in Field.Root).    |
+| invalid   | `data-invalid`   | Present when the number field is in an invalid state (when wrapped in Field.Root). |
+| touched   | `data-touched`   | Present when the number field has been touched (when wrapped in Field.Root).       |
+| dirty     | `data-dirty`     | Present when the number field's value has changed (when wrapped in Field.Root).    |
+| filled    | `data-filled`    | Present when the number field is filled (when wrapped in Field.Root).              |
+| focused   | `data-focused`   | Present when the number field is focused (when wrapped in Field.Root).             |
+
 ## External Types
 
 ### Direction
@@ -551,7 +658,7 @@ type Direction = -1 | 1;
 - `NumberField.Input`: `NumberField.Input`, `NumberField.Input.State`, `NumberField.Input.Props`
 - `NumberField.ScrubArea`: `NumberField.ScrubArea`, `NumberField.ScrubArea.State`, `NumberField.ScrubArea.Props`
 - `NumberField.ScrubAreaCursor`: `NumberField.ScrubAreaCursor`, `NumberField.ScrubAreaCursor.State`, `NumberField.ScrubAreaCursor.Props`
-- `Default`: `NumberFieldRootProps`, `NumberFieldRootState`, `NumberFieldRootChangeEventReason`, `NumberFieldRootChangeEventDetails`, `NumberFieldRootCommitEventReason`, `NumberFieldRootCommitEventDetails`, `NumberFieldGroupState`, `NumberFieldGroupProps`, `NumberFieldIncrementState`, `NumberFieldIncrementProps`, `NumberFieldDecrementState`, `NumberFieldDecrementProps`, `NumberFieldInputState`, `NumberFieldInputProps`, `NumberFieldScrubAreaState`, `NumberFieldScrubAreaProps`, `NumberFieldScrubAreaCursorState`, `NumberFieldScrubAreaCursorProps`
+- `Default`: `NumberFieldDecrementDataAttributes`, `NumberFieldGroupDataAttributes`, `NumberFieldIncrementDataAttributes`, `NumberFieldInputDataAttributes`, `NumberFieldRootDataAttributes`, `NumberFieldScrubAreaCursorDataAttributes`, `NumberFieldScrubAreaDataAttributes`, `NumberFieldRootProps`, `NumberFieldRootState`, `NumberFieldRootChangeEventReason`, `NumberFieldRootChangeEventDetails`, `NumberFieldRootCommitEventReason`, `NumberFieldRootCommitEventDetails`, `NumberFieldGroupState`, `NumberFieldGroupProps`, `NumberFieldIncrementState`, `NumberFieldIncrementProps`, `NumberFieldDecrementState`, `NumberFieldDecrementProps`, `NumberFieldInputState`, `NumberFieldInputProps`, `NumberFieldScrubAreaState`, `NumberFieldScrubAreaProps`, `NumberFieldScrubAreaCursorState`, `NumberFieldScrubAreaCursorProps`
 
 ## Canonical Types
 

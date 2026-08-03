@@ -95,6 +95,13 @@ type AvatarFallbackState = {
 
 ## Additional Types
 
+### AvatarImageDataAttributes
+
+| Member        | Value                 | Description                                 |
+| :------------ | :-------------------- | :------------------------------------------ |
+| startingStyle | `data-starting-style` | Present when the image begins animating in. |
+| endingStyle   | `data-ending-style`   | Present when the image is animating out.    |
+
 ### ImageLoadingStatus
 
 ```typescript
@@ -106,7 +113,7 @@ type ImageLoadingStatus = 'idle' | 'loading' | 'loaded' | 'error';
 - `Avatar.Root`: `Avatar.Root`, `Avatar.Root.State`, `Avatar.Root.Props`
 - `Avatar.Image`: `Avatar.Image`, `Avatar.Image.State`, `Avatar.Image.Props`
 - `Avatar.Fallback`: `Avatar.Fallback`, `Avatar.Fallback.State`, `Avatar.Fallback.Props`
-- `Default`: `ImageLoadingStatus`, `AvatarRootState`, `AvatarRootProps`, `AvatarImageState`, `AvatarImageProps`, `AvatarFallbackState`, `AvatarFallbackProps`
+- `Default`: `AvatarImageDataAttributes`, `ImageLoadingStatus`, `AvatarRootState`, `AvatarRootProps`, `AvatarImageState`, `AvatarImageProps`, `AvatarFallbackState`, `AvatarFallbackProps`
 
 ## Canonical Types
 

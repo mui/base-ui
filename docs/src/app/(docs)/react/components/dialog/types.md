@@ -407,6 +407,58 @@ Closes the dialog.
 
 This method should only be called in an event handler or an effect (not during rendering).
 
+## Additional Types
+
+### DialogBackdropDataAttributes
+
+| Member        | Value                 | Description                                  |
+| :------------ | :-------------------- | :------------------------------------------- |
+| open          | `data-open`           | Present when the dialog is open.             |
+| closed        | `data-closed`         | Present when the dialog is closed.           |
+| startingStyle | `data-starting-style` | Present when the dialog begins animating in. |
+| endingStyle   | `data-ending-style`   | Present when the dialog is animating out.    |
+
+### DialogCloseDataAttributes
+
+| Member   | Value           | Description                          |
+| :------- | :-------------- | :----------------------------------- |
+| disabled | `data-disabled` | Present when the button is disabled. |
+
+### DialogPopupCssVars
+
+| Member        | Value              | Description                                   |
+| :------------ | :----------------- | :-------------------------------------------- |
+| nestedDialogs | `--nested-dialogs` | Indicates how many dialogs are nested within. |
+
+### DialogPopupDataAttributes
+
+| Member           | Value                     | Description                                                      |
+| :--------------- | :------------------------ | :--------------------------------------------------------------- |
+| open             | `data-open`               | Present when the dialog is open.                                 |
+| closed           | `data-closed`             | Present when the dialog is closed.                               |
+| startingStyle    | `data-starting-style`     | Present when the dialog begins animating in.                     |
+| endingStyle      | `data-ending-style`       | Present when the dialog is animating out.                        |
+| nested           | `data-nested`             | Present when the dialog is nested within another dialog.         |
+| nestedDialogOpen | `data-nested-dialog-open` | Present when the dialog has other open dialogs nested within it. |
+
+### DialogTriggerDataAttributes
+
+| Member    | Value             | Description                                    |
+| :-------- | :---------------- | :--------------------------------------------- |
+| disabled  | `data-disabled`   | Present when the trigger is disabled.          |
+| popupOpen | `data-popup-open` | Present when the corresponding dialog is open. |
+
+### DialogViewportDataAttributes
+
+| Member           | Value                     | Description                                                      |
+| :--------------- | :------------------------ | :--------------------------------------------------------------- |
+| open             | `data-open`               | Present when the dialog is open.                                 |
+| closed           | `data-closed`             | Present when the dialog is closed.                               |
+| startingStyle    | `data-starting-style`     | Present when the dialog begins animating in.                     |
+| endingStyle      | `data-ending-style`       | Present when the dialog is animating out.                        |
+| nested           | `data-nested`             | Present when the dialog is nested within another dialog.         |
+| nestedDialogOpen | `data-nested-dialog-open` | Present when the dialog has other open dialogs nested within it. |
+
 ## External Types
 
 ### InteractionType
@@ -440,7 +492,7 @@ type preventUnmountOnClose = () => void;
 - `Dialog.Trigger`: `Dialog.Trigger`, `Dialog.Trigger.Props`, `Dialog.Trigger.State`
 - `Dialog.createHandle`
 - `Dialog.Handle`
-- `Default`: `DialogRootState`, `DialogRootProps`, `DialogRootActions`, `DialogRootChangeEventReason`, `DialogRootChangeEventDetails`, `DialogTriggerProps`, `DialogTriggerState`, `DialogPortalState`, `DialogPortalProps`, `DialogPopupProps`, `DialogPopupState`, `DialogBackdropProps`, `DialogBackdropState`, `DialogTitleProps`, `DialogTitleState`, `DialogDescriptionProps`, `DialogDescriptionState`, `DialogCloseProps`, `DialogCloseState`, `DialogViewportState`, `DialogViewportProps`
+- `Default`: `DialogPopupCssVars`, `DialogBackdropDataAttributes`, `DialogCloseDataAttributes`, `DialogPopupDataAttributes`, `DialogTriggerDataAttributes`, `DialogViewportDataAttributes`, `DialogRootState`, `DialogRootProps`, `DialogRootActions`, `DialogRootChangeEventReason`, `DialogRootChangeEventDetails`, `DialogTriggerProps`, `DialogTriggerState`, `DialogPortalState`, `DialogPortalProps`, `DialogPopupProps`, `DialogPopupState`, `DialogBackdropProps`, `DialogBackdropState`, `DialogTitleProps`, `DialogTitleState`, `DialogDescriptionProps`, `DialogDescriptionState`, `DialogCloseProps`, `DialogCloseState`, `DialogViewportState`, `DialogViewportProps`
 
 ## Canonical Types
 

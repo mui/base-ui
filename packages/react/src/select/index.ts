@@ -18,3 +18,17 @@ export type * from './scroll-down-arrow/SelectScrollDownArrow';
 export type * from './scroll-up-arrow/SelectScrollUpArrow';
 export type * from './group/SelectGroup';
 export type * from './group-label/SelectGroupLabel';
+
+export { SelectPositionerCssVars } from './positioner/SelectPositionerCssVars';
+
+export { SelectArrowDataAttributes } from './arrow/SelectArrowDataAttributes';
+export { SelectBackdropDataAttributes } from './backdrop/SelectBackdropDataAttributes';
+export { SelectIconDataAttributes } from './icon/SelectIconDataAttributes';
+export { SelectItemIndicatorDataAttributes } from './item-indicator/SelectItemIndicatorDataAttributes';
+export { SelectItemDataAttributes } from './item/SelectItemDataAttributes';
+export { SelectPopupDataAttributes } from './popup/SelectPopupDataAttributes';
+export { SelectPositionerDataAttributes } from './positioner/SelectPositionerDataAttributes';
+export { SelectScrollDownArrowDataAttributes } from './scroll-down-arrow/SelectScrollDownArrowDataAttributes';
+export { SelectScrollUpArrowDataAttributes } from './scroll-up-arrow/SelectScrollUpArrowDataAttributes';
+export { SelectTriggerDataAttributes } from './trigger/SelectTriggerDataAttributes';
+export { SelectValueDataAttributes } from './value/SelectValueDataAttributes';

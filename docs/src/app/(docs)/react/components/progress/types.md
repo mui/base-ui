@@ -190,6 +190,46 @@ type ProgressLabelState = {
 type ProgressStatus = 'indeterminate' | 'progressing' | 'complete';
 ```
 
+### ProgressIndicatorDataAttributes
+
+| Member        | Value                | Description                                          |
+| :------------ | :------------------- | :--------------------------------------------------- |
+| complete      | `data-complete`      | Present when the progress has completed.             |
+| indeterminate | `data-indeterminate` | Present when the progress is in indeterminate state. |
+| progressing   | `data-progressing`   | Present while the progress is progressing.           |
+
+### ProgressLabelDataAttributes
+
+| Member        | Value                | Description                                          |
+| :------------ | :------------------- | :--------------------------------------------------- |
+| complete      | `data-complete`      | Present when the progress has completed.             |
+| indeterminate | `data-indeterminate` | Present when the progress is in indeterminate state. |
+| progressing   | `data-progressing`   | Present while the progress is progressing.           |
+
+### ProgressRootDataAttributes
+
+| Member        | Value                | Description                                          |
+| :------------ | :------------------- | :--------------------------------------------------- |
+| complete      | `data-complete`      | Present when the progress has completed.             |
+| indeterminate | `data-indeterminate` | Present when the progress is in indeterminate state. |
+| progressing   | `data-progressing`   | Present while the progress is progressing.           |
+
+### ProgressTrackDataAttributes
+
+| Member        | Value                | Description                                          |
+| :------------ | :------------------- | :--------------------------------------------------- |
+| complete      | `data-complete`      | Present when the progress has completed.             |
+| indeterminate | `data-indeterminate` | Present when the progress is in indeterminate state. |
+| progressing   | `data-progressing`   | Present while the progress is progressing.           |
+
+### ProgressValueDataAttributes
+
+| Member        | Value                | Description                                          |
+| :------------ | :------------------- | :--------------------------------------------------- |
+| complete      | `data-complete`      | Present when the progress has completed.             |
+| indeterminate | `data-indeterminate` | Present when the progress is in indeterminate state. |
+| progressing   | `data-progressing`   | Present while the progress is progressing.           |
+
 ## Export Groups
 
 - `Progress.Root`: `Progress.Root`, `Progress.Root.State`, `Progress.Root.Props`
@@ -197,7 +237,7 @@ type ProgressStatus = 'indeterminate' | 'progressing' | 'complete';
 - `Progress.Indicator`: `Progress.Indicator`, `Progress.Indicator.State`, `Progress.Indicator.Props`
 - `Progress.Value`: `Progress.Value`, `Progress.Value.State`, `Progress.Value.Props`
 - `Progress.Label`: `Progress.Label`, `Progress.Label.State`, `Progress.Label.Props`
-- `Default`: `Progress.Status`, `ProgressStatus`, `ProgressRootState`, `ProgressRootProps`, `ProgressIndicatorState`, `ProgressIndicatorProps`, `ProgressLabelState`, `ProgressLabelProps`, `ProgressTrackState`, `ProgressTrackProps`, `ProgressValueState`, `ProgressValueProps`
+- `Default`: `Progress.Status`, `ProgressIndicatorDataAttributes`, `ProgressLabelDataAttributes`, `ProgressRootDataAttributes`, `ProgressTrackDataAttributes`, `ProgressValueDataAttributes`, `ProgressStatus`, `ProgressRootState`, `ProgressRootProps`, `ProgressIndicatorState`, `ProgressIndicatorProps`, `ProgressLabelState`, `ProgressLabelProps`, `ProgressTrackState`, `ProgressTrackProps`, `ProgressValueState`, `ProgressValueProps`
 
 ## Canonical Types
 

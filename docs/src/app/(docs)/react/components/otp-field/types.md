@@ -235,6 +235,38 @@ type OTPFieldSeparatorState = {
 };
 ```
 
+## Additional Types
+
+### OTPFieldInputDataAttributes
+
+| Member   | Value           | Description                                                                     |
+| :------- | :-------------- | :------------------------------------------------------------------------------ |
+| complete | `data-complete` | Present when all slots are filled.                                              |
+| filled   | `data-filled`   | Present when the input contains a character.                                    |
+| disabled | `data-disabled` | Present when the OTP field is disabled.                                         |
+| readonly | `data-readonly` | Present when the OTP field is readonly.                                         |
+| required | `data-required` | Present when the OTP field is required.                                         |
+| valid    | `data-valid`    | Present when the OTP field is in a valid state (when wrapped in Field.Root).    |
+| invalid  | `data-invalid`  | Present when the OTP field is in an invalid state (when wrapped in Field.Root). |
+| touched  | `data-touched`  | Present when the OTP field has been touched (when wrapped in Field.Root).       |
+| dirty    | `data-dirty`    | Present when the OTP field's value has changed (when wrapped in Field.Root).    |
+| focused  | `data-focused`  | Present when any OTP field input is focused.                                    |
+
+### OTPFieldRootDataAttributes
+
+| Member   | Value           | Description                                                                     |
+| :------- | :-------------- | :------------------------------------------------------------------------------ |
+| complete | `data-complete` | Present when all slots are filled.                                              |
+| disabled | `data-disabled` | Present when the OTP field is disabled.                                         |
+| readonly | `data-readonly` | Present when the OTP field is readonly.                                         |
+| required | `data-required` | Present when the OTP field is required.                                         |
+| valid    | `data-valid`    | Present when the OTP field is in a valid state (when wrapped in Field.Root).    |
+| invalid  | `data-invalid`  | Present when the OTP field is in an invalid state (when wrapped in Field.Root). |
+| touched  | `data-touched`  | Present when the OTP field has been touched (when wrapped in Field.Root).       |
+| dirty    | `data-dirty`    | Present when the OTP field's value has changed (when wrapped in Field.Root).    |
+| filled   | `data-filled`   | Present when the OTP field contains at least one character.                     |
+| focused  | `data-focused`  | Present when one of the OTP field inputs is focused.                            |
+
 ## External Types
 
 ### ValidationType
@@ -254,7 +286,7 @@ type Orientation = 'horizontal' | 'vertical';
 - `OTPField.Root`: `OTPField.Root`, `OTPField.Root.State`, `OTPField.Root.Props`, `OTPField.Root.ValidationType`, `OTPField.Root.ChangeEventReason`, `OTPField.Root.ChangeEventDetails`, `OTPField.Root.InvalidEventReason`, `OTPField.Root.InvalidEventDetails`, `OTPField.Root.CompleteEventReason`, `OTPField.Root.CompleteEventDetails`
 - `OTPField.Input`: `OTPField.Input`, `OTPField.Input.State`, `OTPField.Input.Props`
 - `OTPField.Separator`: `OTPField.Separator`, `OTPField.Separator.Props`, `OTPField.Separator.State`
-- `Default`: `OTPFieldRootProps`, `OTPFieldRootState`, `OTPFieldRootChangeEventReason`, `OTPFieldRootChangeEventDetails`, `OTPFieldRootInvalidEventReason`, `OTPFieldRootInvalidEventDetails`, `OTPFieldRootCompleteEventReason`, `OTPFieldRootCompleteEventDetails`, `OTPFieldInputState`, `OTPFieldInputProps`
+- `Default`: `OTPFieldInputDataAttributes`, `OTPFieldRootDataAttributes`, `OTPFieldRootProps`, `OTPFieldRootState`, `OTPFieldRootChangeEventReason`, `OTPFieldRootChangeEventDetails`, `OTPFieldRootInvalidEventReason`, `OTPFieldRootInvalidEventDetails`, `OTPFieldRootCompleteEventReason`, `OTPFieldRootCompleteEventDetails`, `OTPFieldInputState`, `OTPFieldInputProps`
 
 ## Canonical Types
 

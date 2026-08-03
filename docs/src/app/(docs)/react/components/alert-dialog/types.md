@@ -405,6 +405,15 @@ Closes the dialog.
 
 This method should only be called in an event handler or an effect (not during rendering).
 
+## Additional Types
+
+### AlertDialogTriggerDataAttributes
+
+| Member    | Value             | Description                                          |
+| :-------- | :---------------- | :--------------------------------------------------- |
+| disabled  | `data-disabled`   | Present when the trigger is disabled.                |
+| popupOpen | `data-popup-open` | Present when the corresponding alert dialog is open. |
+
 ## External Types
 
 ### PayloadChildRenderFunction
@@ -438,7 +447,7 @@ type InteractionType = 'mouse' | 'touch' | 'pen' | 'keyboard' | '';
 - `AlertDialog.Viewport`: `AlertDialog.Viewport`, `AlertDialog.Viewport.State`, `AlertDialog.Viewport.Props`
 - `AlertDialog.Handle`
 - `AlertDialog.createHandle`
-- `Default`: `AlertDialogBackdropProps`, `AlertDialogBackdropState`, `AlertDialogCloseProps`, `AlertDialogCloseState`, `AlertDialogDescriptionProps`, `AlertDialogDescriptionState`, `AlertDialogPopupProps`, `AlertDialogPopupState`, `AlertDialogPortalProps`, `AlertDialogPortalState`, `AlertDialogTitleProps`, `AlertDialogTitleState`, `AlertDialogViewportProps`, `AlertDialogViewportState`, `AlertDialogRootState`, `AlertDialogRootProps`, `AlertDialogRootActions`, `AlertDialogRootChangeEventReason`, `AlertDialogRootChangeEventDetails`, `AlertDialogTriggerProps`, `AlertDialogTriggerState`
+- `Default`: `AlertDialogBackdropProps`, `AlertDialogBackdropState`, `AlertDialogCloseProps`, `AlertDialogCloseState`, `AlertDialogDescriptionProps`, `AlertDialogDescriptionState`, `AlertDialogPopupProps`, `AlertDialogPopupState`, `AlertDialogPortalProps`, `AlertDialogPortalState`, `AlertDialogTitleProps`, `AlertDialogTitleState`, `AlertDialogViewportProps`, `AlertDialogViewportState`, `AlertDialogTriggerDataAttributes`, `AlertDialogRootState`, `AlertDialogRootProps`, `AlertDialogRootActions`, `AlertDialogRootChangeEventReason`, `AlertDialogRootChangeEventDetails`, `AlertDialogTriggerProps`, `AlertDialogTriggerState`
 
 ## Canonical Types
 

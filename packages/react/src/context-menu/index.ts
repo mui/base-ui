@@ -67,3 +67,5 @@ export type {
   MenuSubmenuTriggerProps as ContextMenuSubmenuTriggerProps,
   MenuSubmenuTriggerState as ContextMenuSubmenuTriggerState,
 } from '../menu/submenu-trigger/MenuSubmenuTrigger';
+
+export { ContextMenuTriggerDataAttributes } from './trigger/ContextMenuTriggerDataAttributes';

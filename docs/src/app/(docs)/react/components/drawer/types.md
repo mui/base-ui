@@ -642,6 +642,82 @@ Re-export of [VirtualKeyboardProvider](#virtualkeyboardprovider) props.
 type DrawerVirtualKeyboardProviderState = {};
 ```
 
+## Additional Types
+
+### DRAWER_CONTENT_ATTRIBUTE
+
+```typescript
+type DRAWER_CONTENT_ATTRIBUTE = 'data-drawer-content';
+```
+
+### DrawerBackdropCssVars
+
+| Member        | Value                     | Description                               |
+| :------------ | :------------------------ | :---------------------------------------- |
+| swipeProgress | `--drawer-swipe-progress` | The swipe progress of the drawer gesture. |
+
+### DrawerBackdropDataAttributes
+
+| Member        | Value                 | Description                                  |
+| :------------ | :-------------------- | :------------------------------------------- |
+| open          | `data-open`           | Present when the drawer is open.             |
+| closed        | `data-closed`         | Present when the drawer is closed.           |
+| startingStyle | `data-starting-style` | Present when the drawer begins animating in. |
+| endingStyle   | `data-ending-style`   | Present when the drawer is animating out.    |
+
+### DrawerPopupCssVars
+
+| Member          | Value                        | Description                                                                  |
+| :-------------- | :--------------------------- | :--------------------------------------------------------------------------- |
+| nestedDrawers   | `--nested-drawers`           | The number of nested drawers that are currently open.                        |
+| height          | `--drawer-height`            | The height of the drawer popup.                                              |
+| frontmostHeight | `--drawer-frontmost-height`  | The height of the frontmost open drawer in the current nested drawer stack.  |
+| swipeMovementX  | `--drawer-swipe-movement-x`  | The swipe movement on the X axis.                                            |
+| swipeMovementY  | `--drawer-swipe-movement-y`  | The swipe movement on the Y axis.                                            |
+| snapPointOffset | `--drawer-snap-point-offset` | The snap point offset used for translating the drawer.                       |
+| swipeStrength   | `--drawer-swipe-strength`    | A scalar (0.1-1) used to scale the swipe release transition duration in CSS. |
+
+### DrawerPopupDataAttributes
+
+| Member              | Value                        | Description                                                          |
+| :------------------ | :--------------------------- | :------------------------------------------------------------------- |
+| open                | `data-open`                  | Present when the drawer is open.                                     |
+| closed              | `data-closed`                | Present when the drawer is closed.                                   |
+| startingStyle       | `data-starting-style`        | Present when the drawer begins animating in.                         |
+| endingStyle         | `data-ending-style`          | Present when the drawer is animating out.                            |
+| expanded            | `data-expanded`              | Present when the drawer is at the expanded (full-height) snap point. |
+| nestedDrawerOpen    | `data-nested-drawer-open`    | Present when a nested drawer is open.                                |
+| nestedDrawerSwiping | `data-nested-drawer-swiping` | Present when a nested drawer is being swiped.                        |
+| swipeDismiss        | `data-swipe-dismiss`         | Present when the drawer is dismissed by swiping.                     |
+| swipeDirection      | `data-swipe-direction`       | Indicates the swipe direction.                                       |
+| swiping             | `data-swiping`               | Present when the drawer is being swiped.                             |
+
+### DrawerSwipeAreaDataAttributes
+
+| Member         | Value                  | Description                              |
+| :------------- | :--------------------- | :--------------------------------------- |
+| open           | `data-open`            | Present when the drawer is open.         |
+| closed         | `data-closed`          | Present when the drawer is closed.       |
+| disabled       | `data-disabled`        | Present when the swipe area is disabled. |
+| swipeDirection | `data-swipe-direction` | Indicates the swipe direction.           |
+| swiping        | `data-swiping`         | Present when the drawer is being swiped. |
+
+### DrawerViewportCssVars
+
+| Member        | Value                     | Description                                                                                                                                                         |
+| :------------ | :------------------------ | :------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| keyboardInset | `--drawer-keyboard-inset` | The software keyboard inset, measured from the bottom edge of the layout viewport.&#xA;Present only when the drawer is wrapped in `Drawer.VirtualKeyboardProvider`. |
+
+### DrawerViewportDataAttributes
+
+| Member        | Value                 | Description                                              |
+| :------------ | :-------------------- | :------------------------------------------------------- |
+| open          | `data-open`           | Present when the drawer is open.                         |
+| closed        | `data-closed`         | Present when the drawer is closed.                       |
+| startingStyle | `data-starting-style` | Present when the drawer begins animating in.             |
+| endingStyle   | `data-ending-style`   | Present when the drawer is animating out.                |
+| nested        | `data-nested`         | Present when the drawer is nested within another drawer. |
+
 ## External Types
 
 ### InteractionType
@@ -699,7 +775,7 @@ type SwipeDirection = 'up' | 'down' | 'left' | 'right';
 - `Drawer.VirtualKeyboardProvider`: `Drawer.VirtualKeyboardProvider`, `Drawer.VirtualKeyboardProvider.State`, `Drawer.VirtualKeyboardProvider.Props`
 - `Drawer.createHandle`
 - `Drawer.Handle`
-- `Default`: `DrawerRootState`, `DrawerRootProps`, `DrawerRootActions`, `DrawerRootChangeEventReason`, `DrawerRootChangeEventDetails`, `DrawerRootSnapPointChangeEventReason`, `DrawerRootSnapPointChangeEventDetails`, `DrawerProviderState`, `DrawerProviderProps`, `DrawerIndentState`, `DrawerIndentProps`, `DrawerIndentBackgroundState`, `DrawerIndentBackgroundProps`, `DrawerTriggerProps`, `DrawerTriggerState`, `DrawerPortalState`, `DrawerPortalProps`, `DrawerPopupProps`, `DrawerPopupState`, `DrawerSwipeAreaProps`, `DrawerSwipeAreaState`, `DrawerContentProps`, `DrawerContentState`, `DrawerBackdropProps`, `DrawerBackdropState`, `DrawerViewportState`, `DrawerViewportProps`, `DrawerTitleProps`, `DrawerTitleState`, `DrawerDescriptionProps`, `DrawerDescriptionState`, `DrawerCloseProps`, `DrawerCloseState`, `DrawerVirtualKeyboardProviderState`, `DrawerVirtualKeyboardProviderProps`
+- `Default`: `DrawerBackdropCssVars`, `DrawerPopupCssVars`, `DrawerViewportCssVars`, `DrawerBackdropDataAttributes`, `DRAWER_CONTENT_ATTRIBUTE`, `DrawerPopupDataAttributes`, `DrawerSwipeAreaDataAttributes`, `DrawerViewportDataAttributes`, `DrawerRootState`, `DrawerRootProps`, `DrawerRootActions`, `DrawerRootChangeEventReason`, `DrawerRootChangeEventDetails`, `DrawerRootSnapPointChangeEventReason`, `DrawerRootSnapPointChangeEventDetails`, `DrawerProviderState`, `DrawerProviderProps`, `DrawerIndentState`, `DrawerIndentProps`, `DrawerIndentBackgroundState`, `DrawerIndentBackgroundProps`, `DrawerTriggerProps`, `DrawerTriggerState`, `DrawerPortalState`, `DrawerPortalProps`, `DrawerPopupProps`, `DrawerPopupState`, `DrawerSwipeAreaProps`, `DrawerSwipeAreaState`, `DrawerContentProps`, `DrawerContentState`, `DrawerBackdropProps`, `DrawerBackdropState`, `DrawerViewportState`, `DrawerViewportProps`, `DrawerTitleProps`, `DrawerTitleState`, `DrawerDescriptionProps`, `DrawerDescriptionState`, `DrawerCloseProps`, `DrawerCloseState`, `DrawerVirtualKeyboardProviderState`, `DrawerVirtualKeyboardProviderProps`
 
 ## Canonical Types
 

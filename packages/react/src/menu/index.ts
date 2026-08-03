@@ -19,3 +19,20 @@ export type * from './submenu-root/MenuSubmenuRoot';
 export type * from './trigger/MenuTrigger';
 export type * from './submenu-trigger/MenuSubmenuTrigger';
 export type * from './viewport/MenuViewport';
+
+export { MenuPositionerCssVars } from './positioner/MenuPositionerCssVars';
+export { MenuViewportCssVars } from './viewport/MenuViewportCssVars';
+
+export { MenuArrowDataAttributes } from './arrow/MenuArrowDataAttributes';
+export { MenuBackdropDataAttributes } from './backdrop/MenuBackdropDataAttributes';
+export { MenuCheckboxItemIndicatorDataAttributes } from './checkbox-item-indicator/MenuCheckboxItemIndicatorDataAttributes';
+export { MenuCheckboxItemDataAttributes } from './checkbox-item/MenuCheckboxItemDataAttributes';
+export { MenuItemDataAttributes } from './item/MenuItemDataAttributes';
+export { MenuLinkItemDataAttributes } from './link-item/MenuLinkItemDataAttributes';
+export { MenuPopupDataAttributes } from './popup/MenuPopupDataAttributes';
+export { MenuPositionerDataAttributes } from './positioner/MenuPositionerDataAttributes';
+export { MenuRadioItemIndicatorDataAttributes } from './radio-item-indicator/MenuRadioItemIndicatorDataAttributes';
+export { MenuRadioItemDataAttributes } from './radio-item/MenuRadioItemDataAttributes';
+export { MenuSubmenuTriggerDataAttributes } from './submenu-trigger/MenuSubmenuTriggerDataAttributes';
+export { MenuTriggerDataAttributes } from './trigger/MenuTriggerDataAttributes';
+export { MenuViewportDataAttributes } from './viewport/MenuViewportDataAttributes';

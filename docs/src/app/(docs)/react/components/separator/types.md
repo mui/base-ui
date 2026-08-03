@@ -37,6 +37,14 @@ type SeparatorState = {
 };
 ```
 
+## Additional Types
+
+### SeparatorDataAttributes
+
+| Member      | Value              | Description                                 |
+| :---------- | :----------------- | :------------------------------------------ |
+| orientation | `data-orientation` | Indicates the orientation of the separator. |
+
 ## External Types
 
 ### Orientation

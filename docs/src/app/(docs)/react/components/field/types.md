@@ -415,6 +415,80 @@ type FieldValidityData = {
 };
 ```
 
+### FieldControlDataAttributes
+
+| Member   | Value           | Description                                    |
+| :------- | :-------------- | :--------------------------------------------- |
+| disabled | `data-disabled` | Present when the field is disabled.            |
+| valid    | `data-valid`    | Present when the field is in a valid state.    |
+| invalid  | `data-invalid`  | Present when the field is in an invalid state. |
+| touched  | `data-touched`  | Present when the field has been touched.       |
+| dirty    | `data-dirty`    | Present when the field's value has changed.    |
+| filled   | `data-filled`   | Present when the field is filled.              |
+| focused  | `data-focused`  | Present when the field control is focused.     |
+
+### FieldDescriptionDataAttributes
+
+| Member   | Value           | Description                                    |
+| :------- | :-------------- | :--------------------------------------------- |
+| disabled | `data-disabled` | Present when the field is disabled.            |
+| valid    | `data-valid`    | Present when the field is in a valid state.    |
+| invalid  | `data-invalid`  | Present when the field is in an invalid state. |
+| touched  | `data-touched`  | Present when the field has been touched.       |
+| dirty    | `data-dirty`    | Present when the field's value has changed.    |
+| filled   | `data-filled`   | Present when the field is filled.              |
+| focused  | `data-focused`  | Present when the field control is focused.     |
+
+### FieldErrorDataAttributes
+
+| Member        | Value                 | Description                                         |
+| :------------ | :-------------------- | :-------------------------------------------------- |
+| disabled      | `data-disabled`       | Present when the field is disabled.                 |
+| valid         | `data-valid`          | Present when the field is in a valid state.         |
+| invalid       | `data-invalid`        | Present when the field is in an invalid state.      |
+| touched       | `data-touched`        | Present when the field has been touched.            |
+| dirty         | `data-dirty`          | Present when the field's value has changed.         |
+| filled        | `data-filled`         | Present when the field is filled.                   |
+| focused       | `data-focused`        | Present when the field control is focused.          |
+| startingStyle | `data-starting-style` | Present when the error message begins animating in. |
+| endingStyle   | `data-ending-style`   | Present when the error message is animating out.    |
+
+### FieldItemDataAttributes
+
+| Member   | Value           | Description                                    |
+| :------- | :-------------- | :--------------------------------------------- |
+| disabled | `data-disabled` | Present when the field is disabled.            |
+| valid    | `data-valid`    | Present when the field is in a valid state.    |
+| invalid  | `data-invalid`  | Present when the field is in an invalid state. |
+| touched  | `data-touched`  | Present when the field has been touched.       |
+| dirty    | `data-dirty`    | Present when the field's value has changed.    |
+| filled   | `data-filled`   | Present when the field is filled.              |
+| focused  | `data-focused`  | Present when the field control is focused.     |
+
+### FieldLabelDataAttributes
+
+| Member   | Value           | Description                                    |
+| :------- | :-------------- | :--------------------------------------------- |
+| disabled | `data-disabled` | Present when the field is disabled.            |
+| valid    | `data-valid`    | Present when the field is in a valid state.    |
+| invalid  | `data-invalid`  | Present when the field is in an invalid state. |
+| touched  | `data-touched`  | Present when the field has been touched.       |
+| dirty    | `data-dirty`    | Present when the field's value has changed.    |
+| filled   | `data-filled`   | Present when the field is filled.              |
+| focused  | `data-focused`  | Present when the field control is focused.     |
+
+### FieldRootDataAttributes
+
+| Member   | Value           | Description                                 |
+| :------- | :-------------- | :------------------------------------------ |
+| disabled | `data-disabled` | Present when the field is disabled.         |
+| touched  | `data-touched`  | Present when the field has been touched.    |
+| dirty    | `data-dirty`    | Present when the field's value has changed. |
+| valid    | `data-valid`    | Present when the field is valid.            |
+| invalid  | `data-invalid`  | Present when the field is invalid.          |
+| filled   | `data-filled`   | Present when the field is filled.           |
+| focused  | `data-focused`  | Present when the field control is focused.  |
+
 ## External Types
 
 ### ValidationMode
@@ -432,7 +506,7 @@ type ValidationMode = 'onSubmit' | 'onBlur' | 'onChange';
 - `Field.Control`: `Field.Control`, `Field.Control.State`, `Field.Control.Props`, `Field.Control.ChangeEventReason`, `Field.Control.ChangeEventDetails`
 - `Field.Validity`: `Field.Validity`, `Field.Validity.State`, `Field.Validity.Props`
 - `Field.Item`: `Field.Item`, `Field.Item.State`, `Field.Item.Props`
-- `Default`: `Field.ValidityData`, `FieldValidityData`, `FieldRootActions`, `FieldRootState`, `FieldRootProps`, `FieldLabelState`, `FieldLabelProps`, `FieldDescriptionState`, `FieldDescriptionProps`, `FieldErrorState`, `FieldErrorProps`, `FieldControlState`, `FieldControlProps`, `FieldControlChangeEventReason`, `FieldControlChangeEventDetails`, `FieldValidityState`, `FieldValidityProps`, `FieldItemState`, `FieldItemProps`
+- `Default`: `Field.ValidityData`, `FieldControlDataAttributes`, `FieldDescriptionDataAttributes`, `FieldErrorDataAttributes`, `FieldItemDataAttributes`, `FieldLabelDataAttributes`, `FieldRootDataAttributes`, `FieldValidityData`, `FieldRootActions`, `FieldRootState`, `FieldRootProps`, `FieldLabelState`, `FieldLabelProps`, `FieldDescriptionState`, `FieldDescriptionProps`, `FieldErrorState`, `FieldErrorProps`, `FieldControlState`, `FieldControlProps`, `FieldControlChangeEventReason`, `FieldControlChangeEventDetails`, `FieldValidityState`, `FieldValidityProps`, `FieldItemState`, `FieldItemProps`
 
 ## Canonical Types
 

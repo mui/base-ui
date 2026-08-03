@@ -566,6 +566,98 @@ type NavigationMenuLinkState = {
 };
 ```
 
+## Additional Types
+
+### NavigationMenuArrowDataAttributes
+
+| Member     | Value             | Description                                                           |
+| :--------- | :---------------- | :-------------------------------------------------------------------- |
+| open       | `data-open`       | Present when the popup is open.                                       |
+| closed     | `data-closed`     | Present when the popup is closed.                                     |
+| side       | `data-side`       | Indicates which side the popup is positioned relative to the trigger. |
+| align      | `data-align`      | Indicates how the popup is aligned relative to specified side.        |
+| uncentered | `data-uncentered` | Present when the popup arrow is uncentered.                           |
+
+### NavigationMenuBackdropDataAttributes
+
+| Member        | Value                 | Description                                 |
+| :------------ | :-------------------- | :------------------------------------------ |
+| open          | `data-open`           | Present when the popup is open.             |
+| closed        | `data-closed`         | Present when the popup is closed.           |
+| startingStyle | `data-starting-style` | Present when the popup begins animating in. |
+| endingStyle   | `data-ending-style`   | Present when the popup is animating out.    |
+
+### NavigationMenuContentDataAttributes
+
+| Member              | Value                       | Description                                         |
+| :------------------ | :-------------------------- | :-------------------------------------------------- |
+| open                | `data-open`                 | Present when the popup is open.                     |
+| closed              | `data-closed`               | Present when the popup is closed.                   |
+| startingStyle       | `data-starting-style`       | Present when the content begins animating in.       |
+| endingStyle         | `data-ending-style`         | Present when the content is animating out.          |
+| activationDirection | `data-activation-direction` | Which direction another trigger was activated from. |
+
+### NavigationMenuIconDataAttributes
+
+| Member    | Value             | Description                                                      |
+| :-------- | :---------------- | :--------------------------------------------------------------- |
+| popupOpen | `data-popup-open` | Present when the navigation menu is open and the item is active. |
+
+### NavigationMenuLinkDataAttributes
+
+| Member | Value         | Description                                         |
+| :----- | :------------ | :-------------------------------------------------- |
+| active | `data-active` | Present when the link is the currently active page. |
+
+### NavigationMenuPopupCssVars
+
+| Member      | Value            | Description                            |
+| :---------- | :--------------- | :------------------------------------- |
+| popupWidth  | `--popup-width`  | The fixed width of the popup element.  |
+| popupHeight | `--popup-height` | The fixed height of the popup element. |
+
+### NavigationMenuPopupDataAttributes
+
+| Member        | Value                 | Description                                                           |
+| :------------ | :-------------------- | :-------------------------------------------------------------------- |
+| open          | `data-open`           | Present when the popup is open.                                       |
+| closed        | `data-closed`         | Present when the popup is closed.                                     |
+| startingStyle | `data-starting-style` | Present when the popup begins animating in.                           |
+| endingStyle   | `data-ending-style`   | Present when the popup is animating out.                              |
+| anchorHidden  | `data-anchor-hidden`  | Present when the anchor is hidden.                                    |
+| side          | `data-side`           | Indicates which side the popup is positioned relative to the trigger. |
+| align         | `data-align`          | Indicates how the popup is aligned relative to the specified side.    |
+
+### NavigationMenuPositionerCssVars
+
+| Member           | Value                 | Description                                                                            |
+| :--------------- | :-------------------- | :------------------------------------------------------------------------------------- |
+| availableWidth   | `--available-width`   | The available width between the trigger and the edge of the viewport.                  |
+| availableHeight  | `--available-height`  | The available height between the trigger and the edge of the viewport.                 |
+| anchorWidth      | `--anchor-width`      | The anchor's width.                                                                    |
+| anchorHeight     | `--anchor-height`     | The anchor's height.                                                                   |
+| transformOrigin  | `--transform-origin`  | The coordinates that this element is anchored to. Used for animations and transitions. |
+| positionerWidth  | `--positioner-width`  | The fixed width of the positioner element.                                             |
+| positionerHeight | `--positioner-height` | The fixed height of the positioner element.                                            |
+
+### NavigationMenuPositionerDataAttributes
+
+| Member       | Value                | Description                                                           |
+| :----------- | :------------------- | :-------------------------------------------------------------------- |
+| open         | `data-open`          | Present when the popup is open.                                       |
+| closed       | `data-closed`        | Present when the popup is closed.                                     |
+| anchorHidden | `data-anchor-hidden` | Present when the anchor is hidden.                                    |
+| side         | `data-side`          | Indicates which side the popup is positioned relative to the trigger. |
+| align        | `data-align`         | Indicates how the popup is aligned relative to the specified side.    |
+| instant      | `data-instant`       | Present if animations should be instant.                              |
+
+### NavigationMenuTriggerDataAttributes
+
+| Member    | Value             | Description                                             |
+| :-------- | :---------------- | :------------------------------------------------------ |
+| popupOpen | `data-popup-open` | Present when the corresponding navigation menu is open. |
+| pressed   | `data-pressed`    | Present when the trigger is pressed.                    |
+
 ## External Types
 
 ### Side
@@ -606,7 +698,7 @@ type OffsetFunction = (data: {
 - `NavigationMenu.Arrow`: `NavigationMenu.Arrow`, `NavigationMenu.Arrow.State`, `NavigationMenu.Arrow.Props`
 - `NavigationMenu.Link`: `NavigationMenu.Link`, `NavigationMenu.Link.State`, `NavigationMenu.Link.Props`
 - `NavigationMenu.Icon`: `NavigationMenu.Icon`, `NavigationMenu.Icon.State`, `NavigationMenu.Icon.Props`
-- `Default`: `NavigationMenuRootState`, `NavigationMenuRootProps`, `NavigationMenuRootActions`, `NavigationMenuRootChangeEventReason`, `NavigationMenuRootChangeEventDetails`, `NavigationMenuTriggerState`, `NavigationMenuTriggerProps`, `NavigationMenuPortalState`, `NavigationMenuPortalProps`, `NavigationMenuPositionerState`, `NavigationMenuPositionerProps`, `NavigationMenuViewportState`, `NavigationMenuViewportProps`, `NavigationMenuListState`, `NavigationMenuListProps`, `NavigationMenuItemState`, `NavigationMenuItemProps`, `NavigationMenuContentState`, `NavigationMenuContentProps`, `NavigationMenuPopupState`, `NavigationMenuPopupProps`, `NavigationMenuBackdropState`, `NavigationMenuBackdropProps`, `NavigationMenuArrowState`, `NavigationMenuArrowProps`, `NavigationMenuLinkState`, `NavigationMenuLinkProps`, `NavigationMenuIconState`, `NavigationMenuIconProps`
+- `Default`: `NavigationMenuPopupCssVars`, `NavigationMenuPositionerCssVars`, `NavigationMenuArrowDataAttributes`, `NavigationMenuBackdropDataAttributes`, `NavigationMenuContentDataAttributes`, `NavigationMenuIconDataAttributes`, `NavigationMenuLinkDataAttributes`, `NavigationMenuPopupDataAttributes`, `NavigationMenuPositionerDataAttributes`, `NavigationMenuTriggerDataAttributes`, `NavigationMenuRootState`, `NavigationMenuRootProps`, `NavigationMenuRootActions`, `NavigationMenuRootChangeEventReason`, `NavigationMenuRootChangeEventDetails`, `NavigationMenuTriggerState`, `NavigationMenuTriggerProps`, `NavigationMenuPortalState`, `NavigationMenuPortalProps`, `NavigationMenuPositionerState`, `NavigationMenuPositionerProps`, `NavigationMenuViewportState`, `NavigationMenuViewportProps`, `NavigationMenuListState`, `NavigationMenuListProps`, `NavigationMenuItemState`, `NavigationMenuItemProps`, `NavigationMenuContentState`, `NavigationMenuContentProps`, `NavigationMenuPopupState`, `NavigationMenuPopupProps`, `NavigationMenuBackdropState`, `NavigationMenuBackdropProps`, `NavigationMenuArrowState`, `NavigationMenuArrowProps`, `NavigationMenuLinkState`, `NavigationMenuLinkProps`, `NavigationMenuIconState`, `NavigationMenuIconProps`
 
 ## Canonical Types
 

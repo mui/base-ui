@@ -802,6 +802,123 @@ Re-export of [ScrollDownArrow](#scrolldownarrow) props.
 type SelectScrollDownArrowState = {};
 ```
 
+## Additional Types
+
+### SelectArrowDataAttributes
+
+| Member     | Value             | Description                                                           |
+| :--------- | :---------------- | :-------------------------------------------------------------------- |
+| open       | `data-open`       | Present when the select popup is open.                                |
+| closed     | `data-closed`     | Present when the select popup is closed.                              |
+| side       | `data-side`       | Indicates which side the popup is positioned relative to the trigger. |
+| align      | `data-align`      | Indicates how the popup is aligned relative to specified side.        |
+| uncentered | `data-uncentered` | Present when the select arrow is uncentered.                          |
+
+### SelectBackdropDataAttributes
+
+| Member        | Value                 | Description                                  |
+| :------------ | :-------------------- | :------------------------------------------- |
+| open          | `data-open`           | Present when the select is open.             |
+| closed        | `data-closed`         | Present when the select is closed.           |
+| startingStyle | `data-starting-style` | Present when the select begins animating in. |
+| endingStyle   | `data-ending-style`   | Present when the select is animating out.    |
+
+### SelectIconDataAttributes
+
+| Member    | Value             | Description                                   |
+| :-------- | :---------------- | :-------------------------------------------- |
+| popupOpen | `data-popup-open` | Present when the corresponding popup is open. |
+
+### SelectItemDataAttributes
+
+| Member      | Value              | Description                                  |
+| :---------- | :----------------- | :------------------------------------------- |
+| selected    | `data-selected`    | Present when the select item is selected.    |
+| highlighted | `data-highlighted` | Present when the select item is highlighted. |
+| disabled    | `data-disabled`    | Present when the select item is disabled.    |
+
+### SelectItemIndicatorDataAttributes
+
+| Member        | Value                 | Description                                     |
+| :------------ | :-------------------- | :---------------------------------------------- |
+| startingStyle | `data-starting-style` | Present when the indicator begins animating in. |
+| endingStyle   | `data-ending-style`   | Present when the indicator is animating out.    |
+
+### SelectPopupDataAttributes
+
+| Member        | Value                 | Description                                                           |
+| :------------ | :-------------------- | :-------------------------------------------------------------------- |
+| open          | `data-open`           | Present when the select is open.                                      |
+| closed        | `data-closed`         | Present when the select is closed.                                    |
+| startingStyle | `data-starting-style` | Present when the select begins animating in.                          |
+| endingStyle   | `data-ending-style`   | Present when the select is animating out.                             |
+| side          | `data-side`           | Indicates which side the popup is positioned relative to the trigger. |
+| align         | `data-align`          | Indicates how the popup is aligned relative to specified side.        |
+
+### SelectPositionerCssVars
+
+| Member          | Value                | Description                                                                            |
+| :-------------- | :------------------- | :------------------------------------------------------------------------------------- |
+| availableWidth  | `--available-width`  | The available width between the trigger and the edge of the viewport.                  |
+| availableHeight | `--available-height` | The available height between the trigger and the edge of the viewport.                 |
+| anchorWidth     | `--anchor-width`     | The anchor's width.                                                                    |
+| anchorHeight    | `--anchor-height`    | The anchor's height.                                                                   |
+| transformOrigin | `--transform-origin` | The coordinates that this element is anchored to. Used for animations and transitions. |
+
+### SelectPositionerDataAttributes
+
+| Member       | Value                | Description                                                           |
+| :----------- | :------------------- | :-------------------------------------------------------------------- |
+| open         | `data-open`          | Present when the select popup is open.                                |
+| closed       | `data-closed`        | Present when the select popup is closed.                              |
+| anchorHidden | `data-anchor-hidden` | Present when the anchor is hidden.                                    |
+| side         | `data-side`          | Indicates which side the popup is positioned relative to the trigger. |
+| align        | `data-align`         | Indicates how the popup is aligned relative to specified side.        |
+
+### SelectScrollDownArrowDataAttributes
+
+| Member        | Value                 | Description                                                           |
+| :------------ | :-------------------- | :-------------------------------------------------------------------- |
+| startingStyle | `data-starting-style` | Present when the scroll arrow begins animating in.                    |
+| endingStyle   | `data-ending-style`   | Present when the scroll arrow is animating out.                       |
+| direction     | `data-direction`      | Indicates the direction of the scroll arrow.                          |
+| visible       | `data-visible`        | Present when the scroll arrow is visible.                             |
+| side          | `data-side`           | Indicates which side the popup is positioned relative to the trigger. |
+
+### SelectScrollUpArrowDataAttributes
+
+| Member        | Value                 | Description                                                           |
+| :------------ | :-------------------- | :-------------------------------------------------------------------- |
+| startingStyle | `data-starting-style` | Present when the scroll arrow begins animating in.                    |
+| endingStyle   | `data-ending-style`   | Present when the scroll arrow is animating out.                       |
+| direction     | `data-direction`      | Indicates the direction of the scroll arrow.                          |
+| visible       | `data-visible`        | Present when the scroll arrow is visible.                             |
+| side          | `data-side`           | Indicates which side the popup is positioned relative to the trigger. |
+
+### SelectTriggerDataAttributes
+
+| Member      | Value              | Description                                                                        |
+| :---------- | :----------------- | :--------------------------------------------------------------------------------- |
+| popupOpen   | `data-popup-open`  | Present when the corresponding select is open.                                     |
+| pressed     | `data-pressed`     | Present when the trigger is pressed.                                               |
+| disabled    | `data-disabled`    | Present when the select is disabled.                                               |
+| readonly    | `data-readonly`    | Present when the select is readonly.                                               |
+| popupSide   | `data-popup-side`  | Indicates which side the corresponding popup is positioned relative to its anchor. |
+| required    | `data-required`    | Present when the select is required.                                               |
+| valid       | `data-valid`       | Present when the select is in a valid state (when wrapped in Field.Root).          |
+| invalid     | `data-invalid`     | Present when the select is in an invalid state (when wrapped in Field.Root).       |
+| touched     | `data-touched`     | Present when the select has been touched (when wrapped in Field.Root).             |
+| dirty       | `data-dirty`       | Present when the select's value has changed (when wrapped in Field.Root).          |
+| filled      | `data-filled`      | Present when the select has a value (when wrapped in Field.Root).                  |
+| focused     | `data-focused`     | Present when the select trigger is focused (when wrapped in Field.Root).           |
+| placeholder | `data-placeholder` | Present when the select doesn't have a value.                                      |
+
+### SelectValueDataAttributes
+
+| Member      | Value              | Description                                   |
+| :---------- | :----------------- | :-------------------------------------------- |
+| placeholder | `data-placeholder` | Present when the select doesn't have a value. |
+
 ## External Types
 
 ### Side
@@ -860,7 +977,7 @@ type Orientation = 'horizontal' | 'vertical';
 - `Select.Group`: `Select.Group`, `Select.Group.State`, `Select.Group.Props`
 - `Select.GroupLabel`: `Select.GroupLabel`, `Select.GroupLabel.State`, `Select.GroupLabel.Props`
 - `Select.Separator`: `Select.Separator`, `Select.Separator.Props`, `Select.Separator.State`
-- `Default`: `SelectRootProps`, `SelectRootState`, `SelectRootActions`, `SelectRootChangeEventReason`, `SelectRootChangeEventDetails`, `SelectLabelState`, `SelectLabelProps`, `SelectTriggerState`, `SelectTriggerProps`, `SelectValueState`, `SelectValueProps`, `SelectIconState`, `SelectIconProps`, `SelectPortalState`, `SelectPortalProps`, `SelectBackdropState`, `SelectBackdropProps`, `SelectPositionerState`, `SelectPositionerProps`, `SelectPopupProps`, `SelectPopupState`, `SelectListProps`, `SelectListState`, `SelectItemState`, `SelectItemProps`, `SelectItemIndicatorState`, `SelectItemIndicatorProps`, `SelectItemTextState`, `SelectItemTextProps`, `SelectArrowState`, `SelectArrowProps`, `SelectScrollDownArrowState`, `SelectScrollDownArrowProps`, `SelectScrollUpArrowState`, `SelectScrollUpArrowProps`, `SelectGroupState`, `SelectGroupProps`, `SelectGroupLabelState`, `SelectGroupLabelProps`
+- `Default`: `SelectPositionerCssVars`, `SelectArrowDataAttributes`, `SelectBackdropDataAttributes`, `SelectIconDataAttributes`, `SelectItemIndicatorDataAttributes`, `SelectItemDataAttributes`, `SelectPopupDataAttributes`, `SelectPositionerDataAttributes`, `SelectScrollDownArrowDataAttributes`, `SelectScrollUpArrowDataAttributes`, `SelectTriggerDataAttributes`, `SelectValueDataAttributes`, `SelectRootProps`, `SelectRootState`, `SelectRootActions`, `SelectRootChangeEventReason`, `SelectRootChangeEventDetails`, `SelectLabelState`, `SelectLabelProps`, `SelectTriggerState`, `SelectTriggerProps`, `SelectValueState`, `SelectValueProps`, `SelectIconState`, `SelectIconProps`, `SelectPortalState`, `SelectPortalProps`, `SelectBackdropState`, `SelectBackdropProps`, `SelectPositionerState`, `SelectPositionerProps`, `SelectPopupProps`, `SelectPopupState`, `SelectListProps`, `SelectListState`, `SelectItemState`, `SelectItemProps`, `SelectItemIndicatorState`, `SelectItemIndicatorProps`, `SelectItemTextState`, `SelectItemTextProps`, `SelectArrowState`, `SelectArrowProps`, `SelectScrollDownArrowState`, `SelectScrollDownArrowProps`, `SelectScrollUpArrowState`, `SelectScrollUpArrowProps`, `SelectGroupState`, `SelectGroupProps`, `SelectGroupLabelState`, `SelectGroupLabelProps`
 
 ## Canonical Types
 

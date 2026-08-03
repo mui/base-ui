@@ -15,3 +15,13 @@ export type * from './title/DrawerTitle';
 export type * from './description/DrawerDescription';
 export type * from './close/DrawerClose';
 export type * from './virtual-keyboard-provider/DrawerVirtualKeyboardProvider';
+
+export { DrawerBackdropCssVars } from './backdrop/DrawerBackdropCssVars';
+export { DrawerPopupCssVars } from './popup/DrawerPopupCssVars';
+export { DrawerViewportCssVars } from './viewport/DrawerViewportCssVars';
+
+export { DrawerBackdropDataAttributes } from './backdrop/DrawerBackdropDataAttributes';
+export { DRAWER_CONTENT_ATTRIBUTE } from './content/DrawerContentDataAttributes';
+export { DrawerPopupDataAttributes } from './popup/DrawerPopupDataAttributes';
+export { DrawerSwipeAreaDataAttributes } from './swipe-area/DrawerSwipeAreaDataAttributes';
+export { DrawerViewportDataAttributes } from './viewport/DrawerViewportDataAttributes';
