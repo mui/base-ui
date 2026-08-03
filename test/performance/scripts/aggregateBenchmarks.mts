@@ -80,8 +80,8 @@ function combineEntry(
   first: BenchmarkReportEntry,
   second: BenchmarkReportEntry,
 ): BenchmarkReportEntry {
-  assertFiniteNumber(first.iterations, `${name}.iterations`);
-  assertFiniteNumber(second.iterations, `${name}.iterations`);
+  assertFiniteNumber(first.iterations, `${name}.iterations in the first run`);
+  assertFiniteNumber(second.iterations, `${name}.iterations in the second run`);
   assert(first.iterations > 0 && second.iterations > 0, `${name} has no benchmark iterations.`);
   assert(
     first.renders.length === second.renders.length,

@@ -1,13 +1,12 @@
-import {
-  benchmark as runBenchmark,
-  ElementTiming,
-  type InteractionContext,
-} from '@mui/internal-benchmark';
+import { benchmark as runBenchmark, type InteractionContext } from '@mui/internal-benchmark';
 import type * as React from 'react';
 
-export { ElementTiming };
+// Fixtures resolve this module in place of the package, so it has to stand in for all of it.
+export * from '@mui/internal-benchmark';
 
 type Interaction = (context: InteractionContext) => Promise<void> | void;
+
+// Mirrors the package's own options, which it declares but does not export.
 interface BenchmarkOptions {
   runs?: number;
   warmupRuns?: number;
@@ -16,8 +15,12 @@ interface BenchmarkOptions {
 }
 
 /**
- * Runs a single measured iteration when CI only needs deterministic React render counts.
- * Full performance runs retain the benchmark package's normal warmup and sample counts.
+ * Stands in for the package's `benchmark` when CI only needs deterministic React render counts.
+ * `vitest.config.ts` resolves every fixture here in that mode; a full performance run never loads
+ * this module and keeps the package's normal warmup and sample counts.
+ *
+ * One measured iteration is all a render count needs, and it is what makes the collection job
+ * cheap enough to run on every pull request.
  */
 export function benchmark(
   name: string,
@@ -25,22 +28,11 @@ export function benchmark(
   interactionOrOptions?: Interaction | BenchmarkOptions,
   options?: BenchmarkOptions,
 ) {
-  if (process.env.BENCHMARK_RENDER_COUNTS !== 'true') {
-    runBenchmark(name, render, interactionOrOptions, options);
-    return;
-  }
+  const singleIteration = { runs: 1, warmupRuns: 0 };
 
   if (typeof interactionOrOptions === 'function') {
-    runBenchmark(name, render, interactionOrOptions, {
-      ...options,
-      runs: 1,
-      warmupRuns: 0,
-    });
+    runBenchmark(name, render, interactionOrOptions, { ...options, ...singleIteration });
   } else {
-    runBenchmark(name, render, {
-      ...interactionOrOptions,
-      runs: 1,
-      warmupRuns: 0,
-    });
+    runBenchmark(name, render, { ...interactionOrOptions, ...singleIteration });
   }
 }

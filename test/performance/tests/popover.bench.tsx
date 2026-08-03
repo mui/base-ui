@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { Popover } from '@base-ui/react/popover';
-import { benchmark } from '../benchmark';
+import { benchmark } from '@mui/internal-benchmark';
 import { createRows, MountList } from './shared';
 
 const popoverRows = createRows(300, 'Popover');

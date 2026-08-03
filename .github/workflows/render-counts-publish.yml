@@ -63,6 +63,14 @@ jobs:
               repo: context.repo.repo,
               pull_number: collectorContext.prNumber,
             });
+            // A `pull_request` workflow runs the PR's own copy of the collector, so everything in
+            // the artifact — including the PR number it claims to describe — is attacker-chosen.
+            // `workflow_run.head_sha` comes from the event payload instead, and for a
+            // `pull_request` run it is the head commit of the PR that produced this run. Pinning
+            // the resolved PR to it means a run can only ever publish to its own PR.
+            if (pullRequest.head.sha !== context.payload.workflow_run.head_sha) {
+              throw new Error('The collector artifact does not describe the run that produced it.');
+            }
             if (pullRequest.state !== 'open' || pullRequest.head.sha !== collectorContext.headSha) {
               core.notice('The pull request is closed or has advanced past this collector run.');
               return;
@@ -97,8 +105,11 @@ jobs:
               );
             };
 
+            // Benchmark names come from the PR's own fixtures, and this comment is posted by a
+            // trusted token — so they are rendered as a code span. Escaping the table separator
+            // alone would still let a name carry `@mentions`, links, or images into the comment.
             const escapeCell = (value) =>
-              value.replaceAll('|', '\\|').replaceAll('\n', ' ').replaceAll('\r', ' ');
+              `\`${value.replaceAll('`', '').replaceAll('|', '\\|').replace(/\s+/g, ' ')}\``;
             const base = readReport('/tmp/render-counts/base-render-counts.json');
             const head = readReport('/tmp/render-counts/head-render-counts.json');
             const names = [...new Set([...Object.keys(base), ...Object.keys(head)])].sort();

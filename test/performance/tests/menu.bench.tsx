@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { Menu } from '@base-ui/react/menu';
-import { benchmark, ElementTiming } from '../benchmark';
+import { benchmark, ElementTiming } from '@mui/internal-benchmark';
 import { createRows, MountList } from './shared';
 
 const menuRows = createRows(300, 'Menu');

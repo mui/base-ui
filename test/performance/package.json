@@ -3,7 +3,8 @@
   "description": "Performance benchmark workspace for Base UI",
   "scripts": {
     "benchmark": "vitest run",
-    "test:scripts": "node --test scripts/*.test.mts"
+    "test:scripts": "node --test scripts/*.test.mts",
+    "typescript": "tsgo -p tsconfig.json --noEmit"
   },
   "dependencies": {
     "@base-ui/react": "workspace:*",

@@ -177,6 +177,11 @@ additional or fewer renders, not runtime measurements.
 A PR that changes a render count also gets a comment with the per-benchmark breakdown, since the
 check on its own is easy to miss. A PR that changes nothing is left alone.
 
+Both sides run the head revision's `test/performance` harness against their own fixtures, so a
+merge base that predates the workflow still measures the same way the head does. Only the
+publishing workflow is trusted; it runs from `master` and pins every result it publishes to the
+head commit of the collector run that produced it.
+
 A maintainer with write access can comment `/benchmark` on any open PR to request the full
 performance suite. This is a deterministic CI command and does not invoke Claude. The full suite
 runs the unchanged benchmark settings for the merge base and the exact PR head in ABBA order
@@ -190,7 +195,8 @@ pipeline builds and runs the PR's code with the CircleCI `org-global` context, s
 exposed to whatever that code does, including for a PR from a fork.
 
 A PR created before this workflow was introduced must first be updated from `master`. GitHub
-Actions requires a `CIRCLECI_TOKEN` secret to start the dedicated CircleCI benchmark pipeline.
+Actions requires a `CIRCLECI_TOKEN` secret to start the dedicated CircleCI benchmark pipeline;
+until it is configured, `/benchmark` replies saying so and fails.
 
 #### end-to-end tests
 

@@ -9,7 +9,9 @@ interface RenderCountMeta {
 }
 
 export default class RenderCountReporter implements Reporter {
-  private report: Record<string, { totalDuration: 0; renders: unknown[] }> = {};
+  // Deliberately shaped like the package reporter's output — `totalDuration` is unused here but
+  // keeps `report[name].renders` readable by the same consumer either way.
+  private report: Record<string, { totalDuration: number; renders: unknown[] }> = {};
 
   onTestRunStart() {
     this.report = {};

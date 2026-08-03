@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { Checkbox } from '@base-ui/react/checkbox';
-import { benchmark } from '../benchmark';
+import { benchmark } from '@mui/internal-benchmark';
 import { createRows, MountList } from './shared';
 
 const checkboxRows = createRows(500, 'Checkbox');

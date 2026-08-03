@@ -41,4 +41,16 @@ if (!syncResponse.ok) {
   throw new Error(`PR comment sync failed (${syncResponse.status}): ${await syncResponse.text()}`);
 }
 
+// The dashboard answers 200 with `skipped` when it cannot match the report to an open pull
+// request, which is how a wrong `prNumber` or `branch` in the upload surfaces. Treating that as
+// success would leave the whole run looking green with nothing posted anywhere.
+const syncResult = await syncResponse.json();
+if (syncResult?.skipped) {
+  throw new Error(
+    'The benchmark uploaded but the dashboard found no open pull request to comment on. ' +
+      `It was reported as branch "${report.branch}"` +
+      `${report.prNumber ? ` (#${report.prNumber})` : ' with no PR number'}.`,
+  );
+}
+
 process.stdout.write('Uploaded benchmark and updated the consolidated PR comment.\n');

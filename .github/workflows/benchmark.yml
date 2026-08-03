@@ -5,7 +5,7 @@ name: Full benchmark
 
 on:
   issue_comment:
-    types: [created, edited]
+    types: [created]
 
 permissions: {}
 
@@ -13,11 +13,7 @@ jobs:
   request:
     if: >-
       github.event.issue.pull_request &&
-      startsWith(github.event.comment.body, '/benchmark') &&
-      (
-        github.event.action == 'created' ||
-        !startsWith(github.event.changes.body.from, '/benchmark')
-      )
+      startsWith(github.event.comment.body, '/benchmark')
     runs-on: ubuntu-latest
     timeout-minutes: 5
     concurrency:
@@ -25,6 +21,9 @@ jobs:
       cancel-in-progress: false
     permissions:
       contents: read
+      # Needed to acknowledge the command on the PR. Without it a rejected request or a
+      # missing token is only visible in the Actions tab.
+      pull-requests: write
     steps:
       - name: Verify commenter and request full benchmark
         uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
@@ -32,12 +31,28 @@ jobs:
           CIRCLECI_TOKEN: ${{ secrets.CIRCLECI_TOKEN }}
         with:
           script: |
+            // `startsWith` in the job condition is only a cheap pre-filter; `/benchmarking is
+            // slow` should not start a run.
+            if (context.payload.comment.body.trim() !== '/benchmark') {
+              return;
+            }
+
+            const reply = async (body) => {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body,
+              });
+            };
+
             const { data: permission } = await github.rest.repos.getCollaboratorPermissionLevel({
               owner: context.repo.owner,
               repo: context.repo.repo,
               username: context.payload.comment.user.login,
             });
             if (permission.permission !== 'admin' && permission.permission !== 'write') {
+              await reply('Only maintainers with write access can request a full benchmark.');
               core.setFailed('Only maintainers with write access can request a full benchmark.');
               return;
             }
@@ -48,6 +63,7 @@ jobs:
               pull_number: context.issue.number,
             });
             if (pr.state !== 'open') {
+              await reply('Full benchmarks can only be requested for an open pull request.');
               core.setFailed('Full benchmarks can only be requested for an open pull request.');
               return;
             }
@@ -64,24 +80,17 @@ jobs:
                 ? Buffer.from(circleConfig.content, 'base64').toString('utf8')
                 : '';
             if (!config.includes('# full-benchmark-protocol: 1')) {
-              core.setFailed(
-                'This PR predates the /benchmark workflow. Merge master into it and try again.',
-              );
+              const message =
+                'This PR predates the /benchmark workflow. Merge master into it and try again.';
+              await reply(message);
+              core.setFailed(message);
               return;
             }
 
             if (!process.env.CIRCLECI_TOKEN) {
-              core.setFailed('The CIRCLECI_TOKEN repository secret is not configured.');
-              return;
-            }
-
-            const { data: latestPr } = await github.rest.pulls.get({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              pull_number: context.issue.number,
-            });
-            if (latestPr.state !== 'open' || latestPr.head.sha !== headSha) {
-              core.setFailed('The PR head changed while the benchmark request was being prepared.');
+              const message = 'The CIRCLECI_TOKEN repository secret is not configured.';
+              await reply(message);
+              core.setFailed(message);
               return;
             }
 
@@ -97,17 +106,27 @@ jobs:
                   branch: `pull/${context.issue.number}/head`,
                   parameters: {
                     workflow: 'benchmark',
+                    // CircleCI resolves `pull/N/head` itself, so the job re-checks that it
+                    // landed on the head the maintainer asked for. An API-triggered pipeline
+                    // also carries no PR association, so the report identity has to be
+                    // threaded through explicitly or the dashboard cannot attach it to the PR.
                     'benchmark-sha': headSha,
+                    'benchmark-pr-number': String(context.issue.number),
+                    'benchmark-branch': pr.head.ref,
                   },
                 }),
               },
             );
             if (!pipelineResponse.ok) {
-              core.setFailed(
-                `CircleCI pipeline request failed (${pipelineResponse.status}): ${await pipelineResponse.text()}`,
-              );
+              const message = `CircleCI pipeline request failed (${pipelineResponse.status}): ${await pipelineResponse.text()}`;
+              await reply('Could not start the full benchmark pipeline. See the workflow logs.');
+              core.setFailed(message);
               return;
             }
 
             const pipeline = await pipelineResponse.json();
+            await reply(
+              `Started the full benchmark for \`${headSha}\`. Results replace the consolidated ` +
+                `performance comment when the pipeline finishes.`,
+            );
             core.notice(`Requested CircleCI benchmark pipeline ${pipeline.id} for ${headSha}.`);
