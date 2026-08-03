@@ -17,7 +17,7 @@ vi.mock('@base-ui/utils/platform', async () => {
   };
 });
 
-function Test() {
+function Test(props: { openOnHover?: boolean }) {
   return (
     <Menu.Root>
       <Menu.Trigger>Open menu</Menu.Trigger>
@@ -25,7 +25,7 @@ function Test() {
         <Menu.Positioner>
           <Menu.Popup>
             <Menu.SubmenuRoot>
-              <Menu.SubmenuTrigger>More</Menu.SubmenuTrigger>
+              <Menu.SubmenuTrigger openOnHover={props.openOnHover}>More</Menu.SubmenuTrigger>
               <Menu.Portal>
                 <Menu.Positioner>
                   <Menu.Popup data-testid="submenu">
@@ -91,17 +91,33 @@ describe('<Menu.SubmenuTrigger /> with VoiceOver', () => {
     expect(submenuTrigger).not.toHaveAttribute('aria-expanded');
   });
 
-  it('keeps the expanded state when the submenu is opened with a pointer', async () => {
+  it('keeps the expanded state when the submenu is opened by hover', async () => {
     const { user } = await render(<Test />);
+
+    await user.click(screen.getByRole('button', { name: 'Open menu' }));
+
+    const submenuTrigger = await screen.findByRole('menuitem', { name: 'More' });
+    await user.hover(submenuTrigger);
+
+    await screen.findByTestId('submenu');
+
+    // Focus stays on the trigger, so there is no item announcement to talk over.
+    expect(submenuTrigger).toHaveAttribute('aria-expanded', 'true');
+  });
+
+  it('keeps the expanded state when the submenu is opened with a physical pointer press', async () => {
+    const { user } = await render(<Test openOnHover={false} />);
 
     await user.click(screen.getByRole('button', { name: 'Open menu' }));
 
     const submenuTrigger = await screen.findByRole('menuitem', { name: 'More' });
     await user.click(submenuTrigger);
 
-    await screen.findByTestId('submenu');
+    const submenu = await screen.findByTestId('submenu');
+    await waitFor(() => {
+      expect(submenu).toHaveFocus();
+    });
 
-    // Focus stays on the trigger, so there is no item announcement to talk over.
     expect(submenuTrigger).toHaveAttribute('aria-expanded', 'true');
   });
 
