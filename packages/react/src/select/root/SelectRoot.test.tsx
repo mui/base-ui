@@ -1950,7 +1950,12 @@ describe('<Select.Root />', () => {
         });
 
         await user.click(screen.getByRole('combobox'));
-        await act(async () => actionsRef.current.unmount());
+        await act(async () => {
+          await new Promise((resolve) => {
+            requestAnimationFrame(resolve);
+          });
+          actionsRef.current.unmount();
+        });
 
         await waitFor(() => {
           expect(upArrow).not.toHaveAttribute('data-visible');

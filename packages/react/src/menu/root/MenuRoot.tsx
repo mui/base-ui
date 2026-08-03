@@ -536,7 +536,7 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
 
   const content = (
     <MenuRootContext.Provider value={context as MenuRootContext}>
-      <PopupHandleAttachment handle={handle} store={store} />
+      {handle && <PopupHandleAttachment handle={handle} store={store} />}
       {typeof children === 'function' ? children({ payload }) : children}
     </MenuRootContext.Provider>
   );
