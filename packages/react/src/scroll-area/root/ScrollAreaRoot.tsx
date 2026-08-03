@@ -68,7 +68,7 @@ export const ScrollAreaRoot = React.forwardRef(function ScrollAreaRoot(
   const thumbXRef = React.useRef<HTMLDivElement | null>(null);
   const cornerRef = React.useRef<HTMLDivElement | null>(null);
 
-  const thumbDraggingRef = React.useRef(false);
+  const activePointerIdRef = React.useRef<number | null>(null);
   const startYRef = React.useRef(0);
   const startXRef = React.useRef(0);
   const startScrollTopRef = React.useRef(0);
@@ -121,7 +121,19 @@ export const ScrollAreaRoot = React.forwardRef(function ScrollAreaRoot(
       return;
     }
 
-    thumbDraggingRef.current = true;
+    if (activePointerIdRef.current !== null) {
+      const activeThumb =
+        currentOrientationRef.current === 'vertical' ? thumbYRef.current : thumbXRef.current;
+      // A live drag holds capture for the active pointer — ignore other pointers.
+      // No capture means the release went missing entirely (silent capture drop
+      // with an id that never reappears, e.g. a lost touch contact), so let the
+      // new pointer take over the latch instead of leaving dragging dead.
+      if (activeThumb?.hasPointerCapture(activePointerIdRef.current)) {
+        return;
+      }
+    }
+
+    activePointerIdRef.current = event.pointerId;
     startYRef.current = event.clientY;
     startXRef.current = event.clientX;
     // Literal instead of `ScrollAreaScrollbarDataAttributes.orientation`: referencing an
@@ -143,8 +155,45 @@ export const ScrollAreaRoot = React.forwardRef(function ScrollAreaRoot(
     thumb?.setPointerCapture(event.pointerId);
   });
 
+  const handlePointerUp = useStableCallback((event: React.PointerEvent) => {
+    if (event.pointerId !== activePointerIdRef.current) {
+      return;
+    }
+
+    activePointerIdRef.current = null;
+    // Clear the drag's scrolling state immediately rather than waiting for the
+    // `SCROLL_TIMEOUT` timer armed by the last drag move, so every release path
+    // (real, `pointercancel`, or the missed-release fallback) behaves the same.
+    (currentOrientationRef.current === 'vertical' ? setScrollingY : setScrollingX)(false);
+
+    if (savedSnapTypeRef.current !== null) {
+      if (viewportRef.current) {
+        viewportRef.current.style.scrollSnapType = savedSnapTypeRef.current;
+      }
+      savedSnapTypeRef.current = null;
+    }
+
+    const thumb =
+      currentOrientationRef.current === 'vertical' ? thumbYRef.current : thumbXRef.current;
+    // `pointercancel` releases capture implicitly, so guard against releasing a
+    // capture we no longer hold (which would throw).
+    if (thumb?.hasPointerCapture(event.pointerId)) {
+      thumb.releasePointerCapture(event.pointerId);
+    }
+  });
+
   const handlePointerMove = useStableCallback((event: React.PointerEvent) => {
-    if (!thumbDraggingRef.current) {
+    if (event.pointerId !== activePointerIdRef.current) {
+      return;
+    }
+
+    // The release can go missing entirely (e.g. the browser drops pointer
+    // capture while the scrollbar is hidden mid-drag), leaving the drag
+    // latched so a buttonless hover over the thumb scrolls the viewport.
+    // Treat a move without the primary button held (`buttons` bit 1 unset)
+    // as the missed release.
+    if (event.buttons % 2 === 0) {
+      handlePointerUp(event);
       return;
     }
 
@@ -185,25 +234,6 @@ export const ScrollAreaRoot = React.forwardRef(function ScrollAreaRoot(
     event.preventDefault();
 
     startScrolling(vertical);
-  });
-
-  const handlePointerUp = useStableCallback((event: React.PointerEvent) => {
-    thumbDraggingRef.current = false;
-
-    if (savedSnapTypeRef.current !== null) {
-      if (viewportRef.current) {
-        viewportRef.current.style.scrollSnapType = savedSnapTypeRef.current;
-      }
-      savedSnapTypeRef.current = null;
-    }
-
-    const thumb =
-      currentOrientationRef.current === 'vertical' ? thumbYRef.current : thumbXRef.current;
-    // `pointercancel` releases capture implicitly, so guard against releasing a
-    // capture we no longer hold (which would throw).
-    if (thumb?.hasPointerCapture(event.pointerId)) {
-      thumb.releasePointerCapture(event.pointerId);
-    }
   });
 
   function handleTouchModalityChange(event: React.PointerEvent) {
@@ -271,9 +301,7 @@ export const ScrollAreaRoot = React.forwardRef(function ScrollAreaRoot(
       touchModality,
       cornerRef,
       scrollingX,
-      setScrollingX,
       scrollingY,
-      setScrollingY,
       hovering,
       setHovering,
       viewportRef,

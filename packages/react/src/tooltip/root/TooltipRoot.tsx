@@ -137,7 +137,7 @@ export const TooltipRoot = fastComponent(function TooltipRoot<Payload>(
 
   return (
     <TooltipRootContext.Provider value={store as TooltipRootContext}>
-      <PopupHandleAttachment handle={handle} store={store} />
+      {handle && <PopupHandleAttachment handle={handle} store={store} />}
       {shouldRenderInteractions && (
         <TooltipInteractions store={store} disabled={disabled} trackCursorAxis={trackCursorAxis} />
       )}

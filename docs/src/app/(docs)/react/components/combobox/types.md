@@ -77,6 +77,7 @@ type ComboboxRootActions = { unmount: () => void };
 ```typescript
 type ComboboxRootChangeEventReason =
   | 'trigger-press'
+  | 'input-press'
   | 'outside-press'
   | 'item-press'
   | 'close-press'
@@ -87,6 +88,7 @@ type ComboboxRootChangeEventReason =
   | 'input-clear'
   | 'clear-press'
   | 'chip-remove-press'
+  | 'cancel-open'
   | 'none';
 ```
 
@@ -96,6 +98,7 @@ type ComboboxRootChangeEventReason =
 type ComboboxRootChangeEventDetails = (
   | { reason: 'none'; event: Event }
   | { reason: 'trigger-press'; event: MouseEvent | PointerEvent | TouchEvent | KeyboardEvent }
+  | { reason: 'input-press'; event: MouseEvent | PointerEvent | TouchEvent | KeyboardEvent }
   | { reason: 'outside-press'; event: MouseEvent | PointerEvent | TouchEvent }
   | { reason: 'item-press'; event: MouseEvent | PointerEvent | KeyboardEvent }
   | { reason: 'close-press'; event: MouseEvent | PointerEvent | KeyboardEvent }
@@ -106,6 +109,7 @@ type ComboboxRootChangeEventDetails = (
   | { reason: 'input-clear'; event: Event | FocusEvent | InputEvent }
   | { reason: 'clear-press'; event: MouseEvent | PointerEvent | KeyboardEvent }
   | { reason: 'chip-remove-press'; event: MouseEvent | PointerEvent | KeyboardEvent }
+  | { reason: 'cancel-open'; event: MouseEvent }
 ) & {
   /** Cancels Base UI from handling the event. */
   cancel: () => void;

@@ -52,18 +52,30 @@ describe('<Menubar />', () => {
     await screen.findByTestId('file-menu');
 
     const editTrigger = screen.getByTestId('edit-trigger');
-    await act(async () => {
-      editTrigger.focus();
-    });
-    await screen.findByTestId('edit-menu');
 
-    fireEvent(
-      editTrigger,
-      new PointerEvent('click', { bubbles: true, cancelable: true, pointerType: 'touch' }),
-    );
-    expect(screen.queryByTestId('edit-menu')).not.toBe(null);
+    // The focus-open below starts a 300ms wall-clock cooldown during which touch clicks
+    // are ignored. Freeze timers so the cooldown cannot expire before the first click
+    // on a loaded machine, and advance past its expiry explicitly.
+    vi.useFakeTimers();
+    try {
+      await act(async () => {
+        editTrigger.focus();
+      });
+      screen.getByTestId('edit-menu');
 
-    await wait(310);
+      fireEvent(
+        editTrigger,
+        new PointerEvent('click', { bubbles: true, cancelable: true, pointerType: 'touch' }),
+      );
+      expect(screen.queryByTestId('edit-menu')).not.toBe(null);
+
+      await act(async () => {
+        vi.advanceTimersByTime(310);
+      });
+    } finally {
+      vi.useRealTimers();
+    }
+
     fireEvent(
       editTrigger,
       new PointerEvent('click', { bubbles: true, cancelable: true, pointerType: 'touch' }),

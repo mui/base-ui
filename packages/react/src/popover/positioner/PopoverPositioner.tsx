@@ -69,7 +69,7 @@ export const PopoverPositioner = React.forwardRef(function PopoverPositioner(
 
   const prevTriggerElementRef = React.useRef<Element | null>(null);
 
-  const runOnceAnimationsFinish = useAnimationsFinished(positionerElement, false, false);
+  const runOnceAnimationsFinish = useAnimationsFinished(positionerElement);
 
   const positioning = useAnchorPositioning({
     anchor,

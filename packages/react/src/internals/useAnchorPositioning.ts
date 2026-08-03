@@ -559,10 +559,10 @@ export function useAnchorPositioningWithHook(
   // and flips back lazily, not eagerly. Ideal for filtered lists that change
   // the size of the popup dynamically to avoid unwanted flipping when typing.
   useIsoLayoutEffect(() => {
-    if (lazyFlip && mounted && isPositioned) {
+    if (lazyFlip && mounted && isPositioned && renderedSide !== side) {
       setMountSide(renderedSide);
     }
-  }, [lazyFlip, mounted, isPositioned, renderedSide]);
+  }, [lazyFlip, mounted, isPositioned, renderedSide, side]);
 
   const arrowStyles = React.useMemo(
     () => ({

@@ -509,7 +509,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     (options: {
       activeIndex?: number | null | undefined;
       selectedIndex?: number | null | undefined;
-      type?: 'none' | 'keyboard' | 'pointer' | undefined;
+      type?: AriaCombobox.HighlightEventReason | undefined;
     }) => {
       store.update(options);
       const activeIndexOption = options.activeIndex;
@@ -517,7 +517,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
         return;
       }
 
-      const type: AriaCombobox.HighlightEventReason = options.type || 'none';
+      const type: AriaCombobox.HighlightEventReason = options.type || REASONS.none;
 
       if (activeIndexOption === null) {
         emitHighlight(undefined, -1, type);
@@ -616,7 +616,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
       // with CSS. In this case, allow the Escape key to bubble to close a parent popup
       // if there are no items to show.
       if (
-        eventDetails.reason === 'escape-key' &&
+        eventDetails.reason === REASONS.escapeKey &&
         hasItems &&
         flatFilteredItems.length === 0 &&
         !emptyRef.current
@@ -1198,7 +1198,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
       } else {
         setIndices({
           activeIndex: nextActiveIndex,
-          type: keyboardActiveRef.current ? 'keyboard' : 'pointer',
+          type: keyboardActiveRef.current ? REASONS.keyboard : REASONS.pointer,
         });
       }
     },
@@ -1760,7 +1760,10 @@ export namespace AriaCombobox {
     unmount: () => void;
   }
 
-  export type HighlightEventReason = 'keyboard' | 'pointer' | 'none';
+  export type HighlightEventReason =
+    | typeof REASONS.keyboard
+    | typeof REASONS.pointer
+    | typeof REASONS.none;
   export type HighlightEventDetails = BaseUIGenericEventDetails<
     HighlightEventReason,
     { index: number }
@@ -1768,6 +1771,7 @@ export namespace AriaCombobox {
 
   export type ChangeEventReason =
     | typeof REASONS.triggerPress
+    | typeof REASONS.inputPress
     | typeof REASONS.outsidePress
     | typeof REASONS.itemPress
     | typeof REASONS.closePress
@@ -1778,6 +1782,7 @@ export namespace AriaCombobox {
     | typeof REASONS.inputClear
     | typeof REASONS.clearPress
     | typeof REASONS.chipRemovePress
+    | typeof REASONS.cancelOpen
     | typeof REASONS.none;
   export type ChangeEventDetails = BaseUIChangeEventDetails<ChangeEventReason>;
 }
