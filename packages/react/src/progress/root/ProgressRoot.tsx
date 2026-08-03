@@ -54,7 +54,7 @@ export const ProgressRoot = React.forwardRef(function ProgressRoot(
     // Without an explicit `format`, the value is displayed as its position within the range so the
     // text stays in sync with the indicator fill.
     formattedValue = format
-      ? formatNumber(value, locale, format)
+      ? formatNumber(clampedValue, locale, format)
       : formatNumber(percentageValue / 100, locale, { style: 'percent' });
     defaultAriaValueText = formattedValue;
   }
