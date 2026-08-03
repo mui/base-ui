@@ -268,6 +268,15 @@ jobs:
       - store_test_results:
           path: test-results
 
+  # TODO: Remove this job after `ci/circleci: Benchmark tests` is no longer a
+  # required status check. It reports the legacy context without running code.
+  benchmark_required_status:
+    <<: *default-job
+    steps:
+      - run:
+          name: Full benchmarks run only on request
+          command: echo 'Comment /benchmark on a pull request to run the full suite.'
+
   # full-benchmark-protocol: 1
   test_benchmark:
     <<: *default-job
@@ -366,6 +375,8 @@ workflows:
       - docs_validate:
           <<: *default-context
           name: 'Validating Docs'
+      - benchmark_required_status:
+          name: 'Benchmark tests'
       - test_unit_compiler:
           <<: *default-context
           name: 'JSDOM tests (React Compiler)'
@@ -406,4 +417,4 @@ workflows:
     jobs:
       - test_benchmark:
           <<: *default-context
-          name: 'Benchmark tests'
+          name: 'Full benchmark'

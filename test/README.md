@@ -170,8 +170,9 @@ Check out the [visual regression testing readme](./regressions/README.md) for mo
 #### Performance benchmarks
 
 Pull requests that change React, shared utilities, or the performance fixtures run a short
-`Performance / Render counts` check. It compares the merge base with the exact PR head using one measured
-iteration per benchmark and reports only additional or fewer renders, not runtime measurements.
+`Performance / Render counts` collection job. A trusted `Render count report` check compares the
+merge base with the exact PR head using one measured iteration per benchmark and reports only
+additional or fewer renders, not runtime measurements.
 
 A maintainer with write access can comment `/benchmark` on any open PR to request the full
 performance suite. This is a deterministic CI command and does not invoke Claude. The full suite

@@ -144,27 +144,13 @@ jobs:
                 ].join('\n')
               : `All ${names.length} benchmarks produced the same number of renders.`;
 
-            const { data } = await github.rest.checks.listForRef({
+            await github.rest.checks.create({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              ref: headSha,
-              check_name: 'Render counts',
-              filter: 'latest',
-            });
-            const existing = data.check_runs.find(
-              (check) => check.app?.slug === 'github-actions',
-            );
-            const input = {
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              name: 'Render counts',
+              name: 'Render count report',
+              head_sha: headSha,
               status: 'completed',
               conclusion: increased ? 'neutral' : 'success',
               details_url: process.env.RUN_URL,
               output: { title, summary },
-            };
-            if (existing) {
-              await github.rest.checks.update({ ...input, check_run_id: existing.id });
-            } else {
-              await github.rest.checks.create({ ...input, head_sha: headSha });
-            }
+            });
