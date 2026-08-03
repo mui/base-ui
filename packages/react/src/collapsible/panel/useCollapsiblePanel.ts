@@ -68,7 +68,7 @@ export function useCollapsiblePanel(
   const mergedPanelRef = useMergedRefs(externalRef, panelRef);
   const latestOpenRef = useValueAsRef(open);
   // Only used to handle panel close
-  const runOnceCloseAnimationsFinish = useAnimationsFinished(panelRef, false, false);
+  const runOnceCloseAnimationsFinish = useAnimationsFinished(panelRef);
 
   const hidden = !open && !mounted;
   const panelTransitionStatus = forcePanelIdle ? 'idle' : transitionStatus;

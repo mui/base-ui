@@ -79,7 +79,7 @@ function PopoverRootComponent<Payload>({ props }: { props: PopoverRoot.Props<Pay
 
   return (
     <PopoverRootContext.Provider value={store as PopoverRootContext<unknown>}>
-      <PopupHandleAttachment handle={handle} store={store} />
+      {handle && <PopupHandleAttachment handle={handle} store={store} />}
       {shouldRenderInteractions && <PopoverInteractions store={store} modal={modal} />}
       {typeof children === 'function' ? children({ payload }) : children}
     </PopoverRootContext.Provider>

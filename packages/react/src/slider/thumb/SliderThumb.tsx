@@ -138,6 +138,7 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
     setIndicatorPosition,
     state,
     step,
+    thumbRefs,
     values: sliderValues,
   } = useSliderRootContext();
 
@@ -348,7 +349,7 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
 
         // Keep field-level blur logic from running while focus moves to another thumb
         // of the same slider, so validation doesn't commit mid-interaction.
-        if (contains(controlRef.current, event.relatedTarget)) {
+        if (thumbRefs.current.some((thumb) => contains(thumb, event.relatedTarget))) {
           return;
         }
 
