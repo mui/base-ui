@@ -45,6 +45,7 @@ _Aug 3, 2026_
 - Add `cancel-open` to change event details (#5376) by @chuganzy
 - Reset list scroll position on filter (#5231) by @atomiks
 - Remove dead code and deduplicate handlers (#5194) by @atomiks
+- Fix listbox separator semantics (#5399) by @sarthakmalik0810
 
 ### Avatar
 
@@ -81,6 +82,7 @@ _Aug 3, 2026_
 - Inherit the disabled state from `<Combobox.Root>` in `<Combobox.Item>` (#5365) by @chuganzy
 - Widen trigger slip-out release tolerance (#5159) by @atomiks
 - Remove dead code and deduplicate handlers (#5194) by @atomiks
+- Fix listbox separator semantics (#5399) by @sarthakmalik0810
 
 ### Composite
 
@@ -189,6 +191,7 @@ _Aug 3, 2026_
 - Widen trigger slip-out release tolerance (#5159) by @atomiks
 - Do not force-mount the popup on programmatic value changes (#5119) by @atomiks
 - Remove dead code and deduplicate handlers (#5194) by @atomiks
+- Fix listbox separator semantics (#5399) by @sarthakmalik0810
 
 ### Slider
 
