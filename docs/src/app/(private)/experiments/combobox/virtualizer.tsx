@@ -26,7 +26,8 @@ export default function ComboboxVirtualizerExperiment() {
         <h1>Combobox virtualizers</h1>
         <p>
           Compare the built-in <code>Combobox.Virtualizer</code> with the previous external{' '}
-          <code>@tanstack/react-virtual</code> integration. Each list contains 10,000 items.
+          <code>@tanstack/react-virtual</code> integration, and with a plain list that renders every
+          item. Each list contains 10,000 items.
         </p>
       </header>
 
@@ -45,6 +46,14 @@ export default function ComboboxVirtualizerExperiment() {
             <code>@tanstack/react-virtual</code>
           </div>
           <TanStackVirtualizer varyingHeights={settings.varyingHeights} />
+        </section>
+
+        <section className={styles.Panel}>
+          <div className={styles.PanelHeader}>
+            <h2>No virtualization</h2>
+            <code>Combobox.List</code>
+          </div>
+          <PlainList varyingHeights={settings.varyingHeights} />
         </section>
       </div>
     </div>
@@ -114,6 +123,32 @@ function TanStackVirtualizer(props: { varyingHeights: boolean }) {
                 virtualizerRef={virtualizerRef}
                 varyingHeights={props.varyingHeights}
               />
+            </Combobox.List>
+          </Combobox.Popup>
+        </Combobox.Positioner>
+      </Combobox.Portal>
+    </Combobox.Root>
+  );
+}
+
+function PlainList(props: { varyingHeights: boolean }) {
+  return (
+    <Combobox.Root items={virtualizedItems} itemToStringLabel={getItemLabel}>
+      <ComboboxField label="Search the plain list" />
+      <Combobox.Portal>
+        <Combobox.Positioner className={styles.Positioner} sideOffset={4}>
+          <Combobox.Popup className={styles.Popup}>
+            <Combobox.Empty className={styles.Empty}>No items found.</Combobox.Empty>
+            <Combobox.List className={styles.PlainList}>
+              {(item: VirtualizedItem) => (
+                <Combobox.Item
+                  key={item.id}
+                  value={item}
+                  className={getItemClassName(item, props.varyingHeights)}
+                >
+                  <ItemContent item={item} varyingHeights={props.varyingHeights} />
+                </Combobox.Item>
+              )}
             </Combobox.List>
           </Combobox.Popup>
         </Combobox.Positioner>
