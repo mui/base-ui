@@ -23,6 +23,7 @@ import { useDrawerRootContext, type DrawerSwipeDirection } from '../root/DrawerR
 import { useBaseUiId } from '../../internals/useBaseUiId';
 import { useTriggerRegistration } from '../../utils/popups';
 import { useDrawerProviderContext } from '../provider/DrawerProviderContext';
+import { isVirtualClick } from '../../floating-ui-react/utils/event';
 import { DrawerSwipeAreaDataAttributes } from './DrawerSwipeAreaDataAttributes';
 
 const DEFAULT_SWIPE_OPEN_RATIO = 0.5;
@@ -127,30 +128,39 @@ export const DrawerSwipeArea = React.forwardRef(function DrawerSwipeArea(
     store.context.outsidePressEnabledRef.current = false;
   }
 
-  function enableDismissAfterRelease() {
+  const enableDismissAfterRelease = useStableCallback(() => {
     releaseGuardCleanupRef.current();
 
     const doc = ownerDocument(swipeAreaRef.current);
 
-    function restore() {
+    function restore(event?: MouseEvent) {
+      // The gesture's trailing release click is the one physical click with no `pointerdown` of
+      // its own. Ignore it and keep waiting, so it cannot dismiss the drawer it just opened,
+      // while a click-only activation (keyboard or assistive tech) still re-enables in time.
+      if (event?.type === 'click' && event.detail !== 0 && !isVirtualClick(event)) {
+        return;
+      }
+
       releaseGuardCleanupRef.current = NOOP;
       doc.removeEventListener('pointerdown', restore, true);
+      doc.removeEventListener('click', restore, true);
       store.context.outsidePressEnabledRef.current = true;
     }
 
     // The pointerup that ends a swipe-open gesture synthesizes a `click`. When the drag released
     // outside the popup (e.g. it was dragged past the popup's size), that click would be treated as
     // an outside press and immediately dismiss the drawer that was just opened. Keep outside-press
-    // dismissal disabled until the next *fresh* pointer interaction: the synthesized click has no
-    // pointerdown of its own, so it is ignored, while a deliberate outside press always starts with
-    // a pointerdown and re-enables dismissal in time to close the drawer. This is deterministic,
-    // unlike re-enabling on a timer that can race the synthesized click and dismiss at random.
+    // dismissal disabled until the next interaction that isn't that release click: a deliberate
+    // outside press starts with a `pointerdown`, and a click-only activation (keyboard or
+    // assistive tech) is distinguishable from a physical release. This is deterministic, unlike
+    // re-enabling on a timer that can race the synthesized click and dismiss at random.
     //
     // `restore` runs in document capture, ahead of floating-ui's own outside-press check (which
     // happens on the event target, after capture), so the triggering press still dismisses.
     releaseGuardCleanupRef.current = restore;
     doc.addEventListener('pointerdown', restore, true);
-  }
+    doc.addEventListener('click', restore, true);
+  });
 
   function getPopupSize(popupElement: HTMLElement) {
     const isHorizontal = dismissDirection === 'left' || dismissDirection === 'right';
@@ -394,12 +404,22 @@ export const DrawerSwipeArea = React.forwardRef(function DrawerSwipeArea(
 
   useIsoLayoutEffect(() => {
     if (!enabled) {
+      if (swipeActive) {
+        enableDismissAfterRelease();
+      }
       resetSwipe();
       resetDragDelta();
       clearSwipeStyles();
       resetSwipeInteractionState();
     }
-  }, [clearSwipeStyles, enabled, resetDragDelta, resetSwipe]);
+  }, [
+    clearSwipeStyles,
+    enableDismissAfterRelease,
+    enabled,
+    resetDragDelta,
+    resetSwipe,
+    swipeActive,
+  ]);
 
   React.useEffect(() => {
     return () => {
