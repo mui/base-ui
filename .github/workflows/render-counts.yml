@@ -70,6 +70,7 @@ jobs:
           PR_NUMBER: ${{ github.event.pull_request.number }}
         run: |
           set -euo pipefail
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
           git fetch --no-tags origin "pull/$PR_NUMBER/head"
           HEAD_SHA=$(git rev-parse FETCH_HEAD)
           if [ "$HEAD_SHA" != "$EXPECTED_HEAD_SHA" ]; then
