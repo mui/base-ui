@@ -1,0 +1,226 @@
+# v1.7.0
+
+<Subtitle>Aug 3, 2026</Subtitle>
+<Meta name="description" content="v1.7.0 release notes. Aug 3, 2026." />
+
+## General changes
+
+- Restore visible focus after keyboard close in Safari and Firefox ([#5093](https://github.com/mui/base-ui/pull/5093))
+- Type `render` callback props based on the rendered element ([#5104](https://github.com/mui/base-ui/pull/5104))
+- Reduce popup bundle size ([#5233](https://github.com/mui/base-ui/pull/5233))
+- Reduce selector bundle size ([#5250](https://github.com/mui/base-ui/pull/5250))
+- Keep unpositioned popups at the viewport origin ([#5299](https://github.com/mui/base-ui/pull/5299))
+- Correct layout and passive effect timing ([#5337](https://github.com/mui/base-ui/pull/5337))
+- Remove redundant lifecycle synchronization ([#5341](https://github.com/mui/base-ui/pull/5341))
+- Prevent stale cleanup from clearing registered part IDs ([#5340](https://github.com/mui/base-ui/pull/5340))
+- Avoid unused popup handle work during mount ([#5394](https://github.com/mui/base-ui/pull/5394))
+- Complete popup unmounting after a canceled exit transition ([#5401](https://github.com/mui/base-ui/pull/5401))
+- Export `useAnchorPositioning` and `getDisabledMountTransitionStyles` ([#5298](https://github.com/mui/base-ui/pull/5298))
+- Fix rendered trigger ID ownership ([#5110](https://github.com/mui/base-ui/pull/5110))
+- Prevent unwanted flip with capped scrollable content ([#5120](https://github.com/mui/base-ui/pull/5120))
+- Fix `collisionPadding` off-by-one on the biased side ([#5143](https://github.com/mui/base-ui/pull/5143))
+- Reduce Dialog and Popover bundle size ([#5193](https://github.com/mui/base-ui/pull/5193))
+- Reduce shared popup bundle size ([#5192](https://github.com/mui/base-ui/pull/5192))
+- Mount popup subtrees synchronously when opening in React 17 ([#5309](https://github.com/mui/base-ui/pull/5309))
+- Fix auto-resize origin for left-anchored popups ([#5370](https://github.com/mui/base-ui/pull/5370))
+- Avoid redundant re-renders during lazy flipping ([#5372](https://github.com/mui/base-ui/pull/5372))
+- Strip implementation-only types from published `.d.ts` files ([#5165](https://github.com/mui/base-ui/pull/5165))
+- Fix `usePreviousValue` equality comparison ([#5264](https://github.com/mui/base-ui/pull/5264))
+
+## Accordion
+
+- Remove the implicit `dir` attribute from `<Accordion.Root>` ([#5117](https://github.com/mui/base-ui/pull/5117))
+
+## Alert Dialog
+
+- Make `<AlertDialog.Root>` own the store ([#5109](https://github.com/mui/base-ui/pull/5109))
+
+## Autocomplete
+
+- Respect locale when filtering ([#5195](https://github.com/mui/base-ui/pull/5195))
+- Add `input-press` to change event details ([#5356](https://github.com/mui/base-ui/pull/5356))
+- Add `cancel-open` to change event details ([#5376](https://github.com/mui/base-ui/pull/5376))
+- Reset list scroll position on filter ([#5231](https://github.com/mui/base-ui/pull/5231))
+- Remove dead code and deduplicate handlers ([#5194](https://github.com/mui/base-ui/pull/5194))
+
+## Avatar
+
+- Show `<Avatar.Fallback>` immediately when `delay={0}` ([#5147](https://github.com/mui/base-ui/pull/5147))
+
+## Button
+
+- Fix keyboard click handling for custom elements ([#4838](https://github.com/mui/base-ui/pull/4838))
+
+## Checkbox
+
+- Remove redundant validation input ref ([#5188](https://github.com/mui/base-ui/pull/5188))
+- Stop internal input clicks from reaching ancestors ([#5176](https://github.com/mui/base-ui/pull/5176))
+- Reduce bundle size ([#5223](https://github.com/mui/base-ui/pull/5223))
+
+## Checkbox Group
+
+- Focus invalid checkbox ([#5216](https://github.com/mui/base-ui/pull/5216))
+- Align form values with native submission ([#5218](https://github.com/mui/base-ui/pull/5218))
+- Reduce bundle size ([#5223](https://github.com/mui/base-ui/pull/5223))
+
+## Combobox
+
+- Add `input-press` to change event details ([#5356](https://github.com/mui/base-ui/pull/5356))
+- Add `cancel-open` to change event details ([#5376](https://github.com/mui/base-ui/pull/5376))
+- Stop filtering grouped items after limit ([#5086](https://github.com/mui/base-ui/pull/5086))
+- Remove leaky value registry ([#5198](https://github.com/mui/base-ui/pull/5198))
+- Set initial highlight in inline combobox ([#5230](https://github.com/mui/base-ui/pull/5230))
+- Return highlight to selected item on query clear ([#5232](https://github.com/mui/base-ui/pull/5232))
+- Expose `expanded` state for inline comboboxes ([#5332](https://github.com/mui/base-ui/pull/5332))
+- Keep portalled popup content open ([#5334](https://github.com/mui/base-ui/pull/5334))
+- Reset list scroll position on filter ([#5231](https://github.com/mui/base-ui/pull/5231))
+- Fix hovered item stealing highlight when the list scrolls in Safari ([#5265](https://github.com/mui/base-ui/pull/5265))
+- Inherit the disabled state from `<Combobox.Root>` in `<Combobox.Item>` ([#5365](https://github.com/mui/base-ui/pull/5365))
+- Widen trigger slip-out release tolerance ([#5159](https://github.com/mui/base-ui/pull/5159))
+- Remove dead code and deduplicate handlers ([#5194](https://github.com/mui/base-ui/pull/5194))
+
+## Composite
+
+- Export `CompositeListContext` and `useCompositeListContext` from `/internals` ([#5138](https://github.com/mui/base-ui/pull/5138))
+- Fix nested list reorder detection ([#5156](https://github.com/mui/base-ui/pull/5156))
+- Always skip natively disabled items during list navigation ([#5185](https://github.com/mui/base-ui/pull/5185))
+- Fix scroll alignment for RTL direction in `scrollIntoViewIfNeeded` ([#5234](https://github.com/mui/base-ui/pull/5234))
+- Simplify keyboard bookkeeping ([#5249](https://github.com/mui/base-ui/pull/5249))
+- Publish an atomic item registry ([#5256](https://github.com/mui/base-ui/pull/5256))
+
+## Dialog
+
+- Fix touch outside-press dismissal without a backdrop ([#5096](https://github.com/mui/base-ui/pull/5096))
+- Make `<Dialog.Root>` own the store ([#5109](https://github.com/mui/base-ui/pull/5109))
+- Fix scroll lock handoff with external overlays ([#4665](https://github.com/mui/base-ui/pull/4665))
+
+## Drawer
+
+- Make `<Drawer.Root>` own the store ([#5109](https://github.com/mui/base-ui/pull/5109))
+- Fix unreliable swipe-to-open gestures ([#5105](https://github.com/mui/base-ui/pull/5105))
+- Fix popup flashing fully open for a frame on swipe area re-grab ([#5112](https://github.com/mui/base-ui/pull/5112))
+- Deduplicate swipe math to reduce bundle size ([#5181](https://github.com/mui/base-ui/pull/5181))
+- Fix scroll handling when focus moves while the virtual keyboard is open ([#5179](https://github.com/mui/base-ui/pull/5179))
+- Fix cross-axis scroll blocked on iOS below the touchmove slop ([#5257](https://github.com/mui/base-ui/pull/5257))
+- Fix snap point jump when pinned pointer moves leave the drag offset unchanged ([#5308](https://github.com/mui/base-ui/pull/5308))
+- Fix Shadow DOM swipe gestures ([#5360](https://github.com/mui/base-ui/pull/5360))
+
+## Field
+
+- Keep invalid state on disabled fields ([#5116](https://github.com/mui/base-ui/pull/5116))
+- Reduce bundle size ([#5225](https://github.com/mui/base-ui/pull/5225))
+- Fix `data-dirty` tracking for null-valued controls ([#5290](https://github.com/mui/base-ui/pull/5290))
+
+## Fieldset
+
+- Reduce bundle size ([#5225](https://github.com/mui/base-ui/pull/5225))
+
+## Form
+
+- Reduce bundle size ([#5225](https://github.com/mui/base-ui/pull/5225))
+- Focus the first invalid field in document order ([#5287](https://github.com/mui/base-ui/pull/5287))
+
+## Menu
+
+- Ignore pinch-zoom shifting ([#4485](https://github.com/mui/base-ui/pull/4485))
+- Cancel stale submenu hover-open when Chrome drops mouseleave ([#5153](https://github.com/mui/base-ui/pull/5153))
+- Fix exit animation not running on uncheck of item ([#5252](https://github.com/mui/base-ui/pull/5252))
+- Fix duplicate `onOpenChange` calls when closing a submenu ([#5178](https://github.com/mui/base-ui/pull/5178))
+- Fix VoiceOver announcement when opening a submenu ([#5342](https://github.com/mui/base-ui/pull/5342))
+- Propagate disabled state to items ([#5363](https://github.com/mui/base-ui/pull/5363))
+- Open submenus on Android TalkBack press ([#5384](https://github.com/mui/base-ui/pull/5384))
+- Make `<Menu.Root>` own the store ([#5149](https://github.com/mui/base-ui/pull/5149))
+- Widen trigger slip-out release tolerance ([#5159](https://github.com/mui/base-ui/pull/5159))
+
+## Meter
+
+- Reduce bundle size ([#5224](https://github.com/mui/base-ui/pull/5224))
+
+## Navigation Menu
+
+- Fix frozen menu when the open trigger unmounts ([#5240](https://github.com/mui/base-ui/pull/5240))
+- Ignore pinch-zoom shifting ([#4485](https://github.com/mui/base-ui/pull/4485))
+
+## Number Field
+
+- Fix keyboard editing with multi-character format symbols ([#5111](https://github.com/mui/base-ui/pull/5111))
+- Reduce bundle size ([#5220](https://github.com/mui/base-ui/pull/5220))
+
+## OTP Field
+
+- Keep focus on the invalid field when `autoSubmit` is blocked ([#5089](https://github.com/mui/base-ui/pull/5089))
+
+## Popover
+
+- Make `<Popover.Root>` own the store ([#5149](https://github.com/mui/base-ui/pull/5149))
+
+## Preview Card
+
+- Make `<PreviewCard.Root>` own the store ([#5149](https://github.com/mui/base-ui/pull/5149))
+
+## Progress
+
+- Fix custom `min`/`max` semantics to match the indicator ([#5095](https://github.com/mui/base-ui/pull/5095))
+- Reduce bundle size ([#5224](https://github.com/mui/base-ui/pull/5224))
+
+## Radio Group
+
+- Remove unnecessary ARIA attributes from `<Radio.Root>` ([#5213](https://github.com/mui/base-ui/pull/5213))
+- Stop internal input clicks from reaching ancestors ([#5176](https://github.com/mui/base-ui/pull/5176))
+- Align form values with native submission ([#5238](https://github.com/mui/base-ui/pull/5238))
+- Reduce bundle size ([#5223](https://github.com/mui/base-ui/pull/5223))
+
+## Scroll Area
+
+- Fix thumb-drag divide-by-zero and per-scroll re-render ([#5099](https://github.com/mui/base-ui/pull/5099))
+- Fix scrollbar visibility during touch scrolling on iOS ([#5157](https://github.com/mui/base-ui/pull/5157))
+- Add WebKit overscroll feedback to `<ScrollArea.Thumb>` ([#5145](https://github.com/mui/base-ui/pull/5145))
+- Reduce bundle size ([#5217](https://github.com/mui/base-ui/pull/5217))
+- Prevent scroll snapping while dragging the thumb ([#5259](https://github.com/mui/base-ui/pull/5259))
+- End thumb drag when the primary button is no longer held ([#5374](https://github.com/mui/base-ui/pull/5374))
+
+## Select
+
+- Fix hovered item stealing highlight when the list scrolls in Safari ([#5265](https://github.com/mui/base-ui/pull/5265))
+- Inherit the disabled state from `<Select.Root>` in `<Select.Item>` ([#5365](https://github.com/mui/base-ui/pull/5365))
+- Widen trigger slip-out release tolerance ([#5159](https://github.com/mui/base-ui/pull/5159))
+- Do not force-mount the popup on programmatic value changes ([#5119](https://github.com/mui/base-ui/pull/5119))
+- Remove dead code and deduplicate handlers ([#5194](https://github.com/mui/base-ui/pull/5194))
+
+## Slider
+
+- Fix assorted issues ([#5097](https://github.com/mui/base-ui/pull/5097))
+- Reduce bundle size ([#5222](https://github.com/mui/base-ui/pull/5222))
+- Exclude the prehydration script from client bundles ([#5003](https://github.com/mui/base-ui/pull/5003))
+
+## Switch
+
+- Stop internal input clicks from reaching ancestors ([#5176](https://github.com/mui/base-ui/pull/5176))
+- Reduce bundle size ([#5223](https://github.com/mui/base-ui/pull/5223))
+
+## Tabs
+
+- Position pre-hydration indicator inside streamed Suspense ([#5171](https://github.com/mui/base-ui/pull/5171))
+- Exclude the prehydration script from client bundles ([#5003](https://github.com/mui/base-ui/pull/5003))
+- Reduce bundle size ([#5221](https://github.com/mui/base-ui/pull/5221))
+
+## Toast
+
+- Fix remaining toast timer calculation ([#5261](https://github.com/mui/base-ui/pull/5261))
+- Reduce bundle size ([#5219](https://github.com/mui/base-ui/pull/5219))
+- Render content passed through the `render` prop in `<Toast.Title>`, `<Toast.Description>`, and `<Toast.Action>` ([#5210](https://github.com/mui/base-ui/pull/5210))
+- Fix re-adding a closing toast ([#5258](https://github.com/mui/base-ui/pull/5258))
+- Fix swipe direction locking for two-axis swipes ([#5295](https://github.com/mui/base-ui/pull/5295))
+- Fix `<Toast.Provider>` prop effect ordering ([#5338](https://github.com/mui/base-ui/pull/5338))
+
+## Toggle Group
+
+- Reduce bundle size ([#5224](https://github.com/mui/base-ui/pull/5224))
+
+## Toolbar
+
+- Reduce bundle size ([#5221](https://github.com/mui/base-ui/pull/5221))
+
+## Tooltip
+
+- Make `<Tooltip.Root>` own the store ([#5149](https://github.com/mui/base-ui/pull/5149))
