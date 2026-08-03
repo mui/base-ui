@@ -1881,6 +1881,50 @@ describe('FloatingFocusManager', () => {
     });
   });
 
+  describe('prop: initialFocus', () => {
+    test.skipIf(isJSDOM)('does not scroll the page when focus moves into the popup', async () => {
+      function App() {
+        const [open, setOpen] = React.useState(false);
+        const { refs, context } = useFloating({
+          open,
+          onOpenChange: setOpen,
+        });
+
+        const click = useClick(context);
+        const { getReferenceProps, getFloatingProps } = useTestInteractions([click]);
+
+        return (
+          <React.Fragment>
+            <button ref={refs.setReference} {...getReferenceProps()} data-testid="reference" />
+            {/* Makes the document scrollable so the portaled popup, appended to the end of
+                `<body>`, sits below the fold. */}
+            <div style={{ height: '150vh' }} />
+            <FloatingPortal>
+              {open && (
+                <FloatingFocusManager context={context}>
+                  <div ref={refs.setFloating} {...getFloatingProps()} data-testid="floating">
+                    <button data-testid="one">one</button>
+                  </div>
+                </FloatingFocusManager>
+              )}
+            </FloatingPortal>
+          </React.Fragment>
+        );
+      }
+
+      render(<App />);
+
+      await userEvent.click(screen.getByTestId('reference'));
+      await flushMicrotasks();
+
+      await waitFor(() => {
+        expect(screen.getByTestId('one')).toHaveFocus();
+      });
+
+      expect(window.scrollY).toBe(0);
+    });
+  });
+
   describe('prop: restoreFocus', () => {
     function App({ restoreFocus = true }: { restoreFocus?: boolean }) {
       const [isOpen, setIsOpen] = React.useState(false);

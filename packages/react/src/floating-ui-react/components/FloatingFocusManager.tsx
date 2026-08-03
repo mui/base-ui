@@ -713,7 +713,10 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
 
       // enqueueFocus returns a rAF-cancel function; we intentionally don't cancel this focus.
       void enqueueFocus(elToFocus, {
-        preventScroll: elToFocus === floatingFocusElement,
+        // Scrolling the focused element into view would move the page out from under the
+        // user. A portaled popup sits at the end of `<body>`, so focusing anything inside
+        // it scrolls the document down to that point. Return focus already opts out below.
+        preventScroll: true,
         shouldFocus() {
           // This focus is queued on the next animation frame. If the floating element has closed
           // before it runs — e.g. tabbing out of a kept-mounted popup — don't pull focus back
