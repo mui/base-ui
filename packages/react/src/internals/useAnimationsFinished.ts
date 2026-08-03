@@ -41,11 +41,6 @@ export function useAnimationsFinished(
       const resolvedElement = element;
 
       const done = () => {
-        // Ignore a stale completion after the ref moves to a replacement element.
-        if (resolveRef(elementOrRef) !== resolvedElement) {
-          return;
-        }
-
         // Synchronously flush the unmounting of the component so that the browser doesn't
         // paint: https://github.com/mui/base-ui/issues/979
         ReactDOM.flushSync(fnToExecute);

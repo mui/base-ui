@@ -312,6 +312,159 @@ describe('<Tooltip.Viewport />', () => {
       expect(document.querySelector('[data-previous]')).toHaveTextContent('Content 2');
     });
 
+    it('cleans up the transition when a lagging payload remounts the current container', async () => {
+      ignoreActWarnings();
+
+      let setPayload2: ((value: string | undefined) => void) | undefined;
+
+      function TestComponent() {
+        const [payload2, setPayload2State] = React.useState<string | undefined>(undefined);
+        setPayload2 = setPayload2State;
+
+        return (
+          <div>
+            <style>
+              {`
+              [data-transitioning] [data-current] {
+                transition: transform 10s linear, opacity 10s linear;
+              }
+              [data-transitioning] [data-current][data-starting-style] {
+                transform: translateX(30%);
+                opacity: 0;
+              }
+              [data-transitioning] [data-previous] {
+                transition: transform 10s linear, opacity 10s linear;
+              }
+              [data-transitioning] [data-previous][data-ending-style] {
+                transform: translateX(-30%);
+                opacity: 0;
+              }
+            `}
+            </style>
+            <Tooltip.Root>
+              {({ payload }) => (
+                <React.Fragment>
+                  <Tooltip.Trigger
+                    delay={0}
+                    data-testid="trigger1"
+                    style={{
+                      position: 'absolute',
+                      top: '10px',
+                      left: '10px',
+                      width: '100px',
+                      height: '50px',
+                    }}
+                  >
+                    Trigger 1
+                  </Tooltip.Trigger>
+                  <Tooltip.Trigger
+                    payload={payload2}
+                    delay={0}
+                    data-testid="trigger2"
+                    style={{
+                      position: 'absolute',
+                      top: '100px',
+                      left: '200px',
+                      width: '100px',
+                      height: '50px',
+                    }}
+                  >
+                    Trigger 2
+                  </Tooltip.Trigger>
+                  <Tooltip.Portal>
+                    <Tooltip.Positioner>
+                      <Tooltip.Popup>
+                        <Tooltip.Viewport data-testid="viewport">
+                          Content {String(payload)}
+                        </Tooltip.Viewport>
+                      </Tooltip.Popup>
+                    </Tooltip.Positioner>
+                  </Tooltip.Portal>
+                </React.Fragment>
+              )}
+            </Tooltip.Root>
+          </div>
+        );
+      }
+
+      await render(<TestComponent />);
+
+      const trigger1 = screen.getByTestId('trigger1');
+      const trigger2 = screen.getByTestId('trigger2');
+
+      await waitSingleFrame();
+      await act(async () => trigger1.focus());
+
+      await waitFor(() => {
+        expect(document.querySelector('[data-current]')).not.toBe(null);
+      });
+
+      await waitSingleFrame();
+      await act(async () => trigger2.focus());
+
+      // The morph is in progress: the previous snapshot exists and both containers
+      // are running their (long) transitions.
+      await waitFor(() => {
+        expect(document.querySelector('[data-previous]')).not.toBe(null);
+      });
+      await waitFor(() => {
+        expect(
+          document.querySelector('[data-previous]')?.getAnimations().length,
+        ).toBeGreaterThanOrEqual(1);
+      });
+      await waitFor(() => {
+        expect(
+          document.querySelector('[data-current]')?.getAnimations().length,
+        ).toBeGreaterThanOrEqual(1);
+      });
+
+      // Allow `useAnimationsFinished` to begin waiting before the container is replaced.
+      await waitSingleFrame();
+      await waitSingleFrame();
+
+      const containerBeforePayload = document.querySelector('[data-current]');
+
+      // The payload for the already-active trigger arrives a render later, which
+      // bumps the content key and remounts the current container mid-morph.
+      await act(async () => {
+        setPayload2?.('ready');
+      });
+
+      await waitFor(() => {
+        expect(document.querySelector('[data-current]')).not.toBe(containerBeforePayload);
+      });
+
+      // The remounted container must restart its entry transition, otherwise the
+      // cleanup watcher finds nothing to await and truncates the exit transition.
+      await waitFor(() => {
+        expect(
+          document.querySelector('[data-current]')?.getAnimations().length,
+        ).toBeGreaterThanOrEqual(1);
+      });
+
+      // The previous container's exit transition is still running, so it must not
+      // have been torn down in the frames right after the remount.
+      await waitSingleFrame();
+      await waitSingleFrame();
+      await waitSingleFrame();
+      await waitSingleFrame();
+      expect(document.querySelector('[data-previous]')).not.toBe(null);
+
+      // Finish the live animations so the cleanup watcher can settle.
+      await waitFor(async () => {
+        await act(async () => {
+          document.querySelectorAll('[data-previous], [data-current]').forEach((el) => {
+            el.getAnimations().forEach((animation) => animation.finish());
+          });
+        });
+        expect(document.querySelector('[data-previous]')).toBe(null);
+      });
+
+      await waitFor(() => {
+        expect(screen.getByTestId('viewport')).not.toHaveAttribute('data-transitioning');
+      });
+    });
+
     it.each([
       {
         name: 'should calculate "right down" direction',
