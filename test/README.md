@@ -176,10 +176,15 @@ additional or fewer renders, not runtime measurements.
 
 A maintainer with write access can comment `/benchmark` on any open PR to request the full
 performance suite. This is a deterministic CI command and does not invoke Claude. The full suite
-runs the unchanged benchmark settings for current `master` and the exact PR head in ABBA order
-(`master`, PR, PR, `master`) within one CircleCI job. It uploads the combined timing, paint, and
-render comparison and refreshes the existing consolidated MUI performance comment instead of
-creating another PR comment.
+runs the unchanged benchmark settings for the merge base and the exact PR head in ABBA order
+(base, PR, PR, base) within one CircleCI job, so both revisions are measured on the same machine
+under the same conditions. It uploads the combined timing, paint, and render comparison and
+refreshes the existing consolidated MUI performance comment instead of creating another PR
+comment.
+
+Review the diff before requesting a full benchmark. Unlike the automatic check, the requested
+pipeline builds and runs the PR's code with the CircleCI `org-global` context, so its secrets are
+exposed to whatever that code does, including for a PR from a fork.
 
 A PR created before this workflow was introduced must first be updated from `master`. GitHub
 Actions requires a `CIRCLECI_TOKEN` secret to start the dedicated CircleCI benchmark pipeline.

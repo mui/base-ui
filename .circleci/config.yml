@@ -301,11 +301,13 @@ jobs:
             echo "Running the full benchmark for $EXPECTED_SHA."
       - code-infra/install-deps
       - run:
-          name: Prepare current master
+          name: Prepare the baseline revision
           command: |
             set -euo pipefail
             git fetch --no-tags origin master:refs/remotes/origin/master
-            git worktree add --detach /tmp/benchmark-master origin/master
+            BASE_SHA=$(git merge-base HEAD origin/master)
+            echo "Baseline commit: $BASE_SHA"
+            git worktree add --detach /tmp/benchmark-master "$BASE_SHA"
             pnpm --dir /tmp/benchmark-master install --frozen-lockfile
       - run:
           name: Build both revisions

@@ -13,10 +13,10 @@ jobs:
   request:
     if: >-
       github.event.issue.pull_request &&
-      github.event.comment.body == '/benchmark' &&
+      startsWith(github.event.comment.body, '/benchmark') &&
       (
         github.event.action == 'created' ||
-        github.event.changes.body.from != '/benchmark'
+        !startsWith(github.event.changes.body.from, '/benchmark')
       )
     runs-on: ubuntu-latest
     timeout-minutes: 5
@@ -52,24 +52,6 @@ jobs:
               return;
             }
             const headSha = pr.head.sha;
-            const { data: masterBranch } = await github.rest.repos.getBranch({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              branch: 'master',
-            });
-            const masterSha = masterBranch.commit.sha;
-
-            const { data: comparison } = await github.rest.repos.compareCommitsWithBasehead({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              basehead: `${masterSha}...${headSha}`,
-            });
-            if (comparison.status !== 'ahead' && comparison.status !== 'identical') {
-              core.setFailed(
-                'This PR must be updated from master before /benchmark can run the current comparison protocol.',
-              );
-              return;
-            }
 
             const { data: circleConfig } = await github.rest.repos.getContent({
               owner: context.repo.owner,
@@ -83,7 +65,7 @@ jobs:
                 : '';
             if (!config.includes('# full-benchmark-protocol: 1')) {
               core.setFailed(
-                'This PR must be updated from master before /benchmark can run the current comparison protocol.',
+                'This PR predates the /benchmark workflow. Merge master into it and try again.',
               );
               return;
             }
@@ -93,26 +75,13 @@ jobs:
               return;
             }
 
-            const [{ data: latestPr }, { data: latestMasterBranch }] = await Promise.all([
-              github.rest.pulls.get({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                pull_number: context.issue.number,
-              }),
-              github.rest.repos.getBranch({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                branch: 'master',
-              }),
-            ]);
-            if (
-              latestPr.state !== 'open' ||
-              latestPr.head.sha !== headSha ||
-              latestMasterBranch.commit.sha !== masterSha
-            ) {
-              core.setFailed(
-                'The PR head or master changed while the benchmark request was being prepared.',
-              );
+            const { data: latestPr } = await github.rest.pulls.get({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.issue.number,
+            });
+            if (latestPr.state !== 'open' || latestPr.head.sha !== headSha) {
+              core.setFailed('The PR head changed while the benchmark request was being prepared.');
               return;
             }
 
