@@ -16,38 +16,37 @@ import { ComboboxItemContext } from './ComboboxItemContext';
 import { selectors, type ComboboxStore } from '../store';
 import { useButton } from '../../internals/use-button';
 import { useComboboxRowContext } from '../row/ComboboxRowContext';
-import {
-  compareItemEquality,
-  findItemIndex,
-  type ItemEqualityComparer,
-} from '../../internals/itemEquality';
+import { compareItemEquality, findItemIndex } from '../../internals/itemEquality';
 
 /**
- * Development only: warns when an item's `value` is not one of the values the active collection
- * derives, which is what passing the source item instead of its `getValue` result looks like.
+ * Development only: warns when an item's `value` is one of the collection's own source items,
+ * which is what passing the item instead of its `getValue` result looks like. Testing for a
+ * source item rather than for the absence of a derived value keeps deliberately synthesized
+ * values (a "create new" entry, a header row, an item from an externally filtered window) from
+ * being reported, and makes the check a single lookup rather than a scan per item.
+ * The selector lives here rather than in the shared `selectors` object, which is a plain object
+ * literal that survives minification, so production builds carry neither it nor this hook.
  */
-function useDerivedValueDevWarning(
-  store: ComboboxStore,
-  itemValue: any,
-  isItemEqualToValue: ItemEqualityComparer,
-) {
-  const allValues = useStore(store, selectors.collectionValues);
+const collectionItemsSelector = (state: ComboboxStore['state']) => state.collectionItems;
+
+function useSourceItemValueDevWarning(store: ComboboxStore, itemValue: any) {
+  const sourceItems = useStore(store, collectionItemsSelector);
 
   React.useEffect(() => {
-    // An empty collection is data that has not loaded yet, not a mismatch.
-    if (itemValue == null || !allValues || allValues.length === 0) {
+    if (itemValue == null || !sourceItems) {
       return;
     }
 
-    if (findItemIndex(allValues, itemValue, isItemEqualToValue) === -1) {
+    // Read through the store so a collection published in this commit's layout effect is seen,
+    // rather than the snapshot this item rendered with.
+    if (store.state.collectionItems?.has(itemValue)) {
       error(
-        'The `value` prop of <Combobox.Item> did not match any value derived by the `items` ' +
-          'collection, so the item can never be selected or resolved back to its label. ' +
-          'When `items` comes from createItems() with a `getValue` accessor, pass the derived ' +
-          'value (the `getValue` result) to <Combobox.Item>, not the source item.',
+        'The `value` prop of <Combobox.Item> is a source item of the `items` collection rather ' +
+          'than the value derived from it, so the item can never be selected or resolved back ' +
+          'to its label. Pass the `getValue` result to <Combobox.Item> instead of the item.',
       );
     }
-  }, [itemValue, allValues, isItemEqualToValue]);
+  }, [itemValue, sourceItems, store]);
 }
 
 interface ComboboxItemInnerProps {
@@ -110,7 +109,7 @@ function ComboboxItemInner(props: ComboboxItemInnerProps) {
   /* istanbul ignore else -- `process.env.NODE_ENV` is a build-time constant under test. */
   if (process.env.NODE_ENV !== 'production') {
     // eslint-disable-next-line react-hooks/rules-of-hooks
-    useDerivedValueDevWarning(store, itemValue, isItemEqualToValue);
+    useSourceItemValueDevWarning(store, itemValue);
   }
 
   const id = rootId != null && hasRegistered ? `${rootId}-${index}` : undefined;
