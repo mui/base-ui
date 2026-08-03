@@ -6524,6 +6524,87 @@ describe('<Combobox.Root />', () => {
       const [highlightedValue] = onItemHighlighted.mock.lastCall ?? [];
       expect(highlightedValue).toBe('Zucchini');
     });
+
+    it('opens a reordered external list at the selected value in rendered-list coordinates', async () => {
+      const fruits = ['Apple', 'Banana', 'Cherry'];
+      const onItemHighlighted = vi.fn();
+
+      const { user } = await render(
+        <Combobox.Root
+          items={fruits}
+          filteredItems={['Cherry', 'Apple']}
+          multiple
+          defaultValue={['Apple']}
+          onItemHighlighted={onItemHighlighted}
+        >
+          <Combobox.Input />
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  {(item: string) => (
+                    <Combobox.Item key={item} value={item}>
+                      {item}
+                    </Combobox.Item>
+                  )}
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      await user.click(screen.getByRole('combobox'));
+
+      const apple = await screen.findByRole('option', { name: 'Apple' });
+      const cherry = screen.getByRole('option', { name: 'Cherry' });
+      await waitFor(() => expect(apple).toHaveAttribute('data-highlighted'));
+      expect(cherry).not.toHaveAttribute('data-highlighted');
+      expect(onItemHighlighted.mock.lastCall?.[0]).toBe('Apple');
+    });
+
+    it('resets an empty external result when reopening a grouped selection', async () => {
+      const groups = [
+        { value: 'Fruits', items: ['Apple', 'Banana'] },
+        { value: 'Vegetables', items: ['Carrot'] },
+      ];
+
+      const { user } = await render(
+        <Combobox.Root items={groups} filteredItems={[]} defaultValue="Banana">
+          <Combobox.Input data-testid="input" />
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  {(group: (typeof groups)[number]) => (
+                    <Combobox.Group key={group.value} items={group.items}>
+                      <Combobox.GroupLabel>{group.value}</Combobox.GroupLabel>
+                      <Combobox.Collection>
+                        {(item: string) => (
+                          <Combobox.Item key={item} value={item}>
+                            {item}
+                          </Combobox.Item>
+                        )}
+                      </Combobox.Collection>
+                    </Combobox.Group>
+                  )}
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      expect(screen.getByTestId('input')).toHaveValue('Banana');
+
+      await user.click(screen.getByTestId('input'));
+
+      expect(await screen.findAllByRole('option')).toHaveLength(3);
+      expect(screen.getByRole('option', { name: 'Banana' })).toHaveAttribute(
+        'aria-selected',
+        'true',
+      );
+    });
   });
 
   describe('prop: openOnInputClick', () => {

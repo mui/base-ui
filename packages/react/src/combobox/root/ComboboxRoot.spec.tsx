@@ -299,6 +299,14 @@ mergeProps<typeof Combobox.Root<any>>(
   {},
 );
 
+// Pinning the type arguments defaults `Item` to `Value`, so filtered items are typed in the
+// selection value domain rather than inferred from the array that is passed.
+<Combobox.Root<string>
+  value="a"
+  // @ts-expect-error Filtered items must match the pinned value type.
+  filteredItems={objectItems}
+/>;
+
 function CreateItemsApp(props: {
   getValue?: ((item: { id: number; name: string }) => number) | undefined;
 }) {
