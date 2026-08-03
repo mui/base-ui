@@ -1,5 +1,4 @@
 import type { Group } from '../../internals/resolveValueLabel';
-import type { ItemEqualityComparer } from '../../internals/itemEquality';
 
 /**
  * An opaque handle to the normalized items created by `createItems()`.
@@ -17,15 +16,21 @@ export declare class ComboboxItemCollection<in out Item, Value = Item> {
  * their values and resolve a selected value back to its label while items are unmounted.
  */
 export interface ItemCollection<Item = any, Value = any> {
-  /** Source items, preserving their flat or grouped structure for collection rendering. */
-  data: readonly Item[] | readonly Group<Item>[];
-  /** Projects a source item to the value used by selection APIs. */
-  value: (item: Item) => Value;
+  /**
+   * Source items, preserving their flat or grouped structure for collection rendering.
+   * `undefined` when the data has not loaded, which the root reads as no items prop at all.
+   */
+  data: readonly Item[] | readonly Group<Item>[] | undefined;
+  /**
+   * Projects a source item to the value used by selection APIs.
+   * Absent when no `getValue` accessor was given, since the item is then its own value.
+   */
+  value: ((item: Item) => Value) | undefined;
   /** Resolves a source item's label while filtering in the source-item domain. */
   itemLabel: (item: Item) => string;
-  /** Resolves a selected value's label, including values outside the mounted items. */
-  label: (
-    valueOrItem: Value,
-    isItemEqualToValue?: ItemEqualityComparer<Value> | undefined,
-  ) => string;
+  /**
+   * Resolves a selected value's label, including values outside the mounted items.
+   * `fallback` labels the values the collection cannot resolve at all.
+   */
+  label: (valueOrItem: Value, fallback?: ((valueOrItem: Value) => string) | undefined) => string;
 }

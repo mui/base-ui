@@ -1,15 +1,14 @@
 import { EMPTY_ARRAY } from '@base-ui/utils/empty';
+import { error } from '@base-ui/utils/error';
 import { isGroupedItems, stringifyAsLabel, type Group } from '../../internals/resolveValueLabel';
-import {
-  compareItemEquality,
-  defaultItemEquality,
-  type ItemEqualityComparer,
-} from '../../internals/itemEquality';
 import type { ComboboxItemCollection } from './itemCollection';
 
 export type ComboboxPrimitiveValue = string | number | bigint | boolean;
 
-type ComboboxItemsData<Item> =
+/**
+ * The data accepted by `createItems()`: a flat array of items, or an array of groups with items.
+ */
+export type ComboboxItemsData<Item> =
   | (Extract<Item, { items: ReadonlyArray<unknown> }> extends never ? readonly Item[] : never)
   | readonly { items: ReadonlyArray<Item> }[];
 
@@ -29,19 +28,22 @@ export interface CreateComboboxItemsOptions<
    * `null` and `undefined` are reserved for no selection. Prefer stable IDs from your
    * application data.
    *
-   * Receives every entry of the data array, including nullish ones, so guard inside the accessor
-   * when the data can contain them.
+   * Each item must derive a unique value. When two items share one, the first occurrence resolves
+   * the label and every item carrying that value renders as selected.
+   *
+   * Nullish entries in the data are holes rather than items: they are skipped instead of being
+   * passed to this accessor.
    */
   getValue: (item: Item) => Value;
   /**
-   * Projects an item to the label string that represents it in the input and, by default,
-   * when matching the typed query. The root's `itemToStringLabel` prop replaces this resolver
-   * and must handle every possible selected value.
+   * Projects an item to the label string that represents it in the input and when matching the
+   * typed query. The root's `itemToStringLabel` prop is the fallback for selected values this
+   * accessor cannot reach, such as a value whose item has left an async result window.
    *
    * By default, the item's derived value is stringified.
    *
-   * Receives every entry of the data array, including nullish ones, so guard inside the accessor
-   * when the data can contain them.
+   * Nullish entries in the data are holes rather than items: they are skipped instead of being
+   * passed to this accessor.
    */
   getLabel?: ((item: Item) => string) | undefined;
 }
@@ -53,7 +55,9 @@ export interface CreateComboboxItemsOptions<
  * accessors always receive individual items, never groups.
  * An item must not itself have an `items` array property: such an entry is read as a group,
  * both in the types and at runtime.
- * Create the collection at module scope when the data is static.
+ * Create the collection at module scope when the data is static, and wrap it in
+ * `React.useMemo()` keyed on the data when it is not: a collection rebuilt on every render
+ * re-derives every value and discards the labels it resolved for items outside `data`.
  *
  * Documentation: [Base UI Combobox](https://base-ui.com/react/components/combobox)
  *
@@ -79,40 +83,50 @@ export function createComboboxItems<Item, Value>(
 ): ComboboxItemCollection<Item, Value> {
   const { getValue, getLabel } = options;
 
-  const resolvedData = data ?? (EMPTY_ARRAY as readonly (Item | { items: ReadonlyArray<Item> })[]);
-
   // Without accessors the collection would resolve every item to itself, which is exactly what
-  // a plain array already does. Handing the array back keeps `items` on its original code path,
+  // a plain array already does. Handing the data back keeps `items` on its original code path,
   // preserving React node labels and the null item's placeholder override.
   if (!getValue && !getLabel) {
-    return resolvedData as unknown as ComboboxItemCollection<Item, Value>;
+    return data as unknown as ComboboxItemCollection<Item, Value>;
   }
 
   const itemToValue = getValue ?? ((item: Item) => item as unknown as Value);
 
-  let derived: { itemValues: Map<Item, Value>; valueToItem: Map<Value, Item> } | null = null;
+  let derived: { valueToItem: Map<Value, Item>; dataValues: Set<Value> } | null = null;
 
-  // Both caches are filled by a single pass, so the accessors never run before a root consumes
-  // the collection and `getValue` never runs more than once per item.
+  // Filled by a single pass the first time a root consumes the collection, so the accessors never
+  // run before then.
   function ensureDerived() {
     if (derived === null) {
-      const itemValues = new Map<Item, Value>();
       const valueToItem = new Map<Value, Item>();
+      const dataValues = new Set<Value>();
 
-      const leafItems = isGroupedItems(resolvedData)
-        ? (resolvedData as readonly Group<Item>[]).flatMap((group) => group.items)
-        : (resolvedData as readonly Item[]);
+      const leafItems = isGroupedItems(data)
+        ? (data as readonly Group<Item>[]).flatMap((group) => group.items)
+        : ((data ?? EMPTY_ARRAY) as readonly Item[]);
 
       for (const item of leafItems) {
+        // A nullish entry is a hole in the data rather than an item, exactly as it is for a plain
+        // `items` array, so it is never derived, never labeled and never rendered.
+        if (item == null) {
+          continue;
+        }
+
         const derivedValue = itemToValue(item);
-        itemValues.set(item, derivedValue);
+        dataValues.add(derivedValue);
         // First occurrence wins, so a duplicated derived value resolves to one stable label.
         if (!valueToItem.has(derivedValue)) {
           valueToItem.set(derivedValue, item);
+        } else if (process.env.NODE_ENV !== 'production') {
+          error(
+            'Two items passed to createItems() derived the same value, so selection and label ' +
+              'resolution cannot tell them apart: the first item wins the label and every item ' +
+              'carrying the value renders as selected. Return a unique value from `getValue`.',
+          );
         }
       }
 
-      derived = { itemValues, valueToItem };
+      derived = { valueToItem, dataValues };
     }
 
     return derived;
@@ -120,19 +134,22 @@ export function createComboboxItems<Item, Value>(
 
   // The root feeds this function to memos and effects, so its identity must stay stable.
   function value(item: Item): Value {
-    const { itemValues, valueToItem } = ensureDerived();
-    const cachedValue = itemValues.get(item);
-    if (cachedValue !== undefined) {
-      return cachedValue;
+    if (item == null) {
+      return item as unknown as Value;
     }
 
-    // Externally filtered items may be absent from the data. Cache their projection and reverse
-    // lookup so selecting one preserves its label without repeating the accessor on every render.
+    const { valueToItem, dataValues } = ensureDerived();
     const derivedValue = itemToValue(item);
-    itemValues.set(item, derivedValue);
-    if (!valueToItem.has(derivedValue)) {
+
+    // Projections are not cached: an accessor is a cheap pure lookup, the same way the
+    // `itemToStringLabel` prop is re-invoked per pass, and caching every item a result window
+    // ever produced would grow without bound. Only the reverse lookup is remembered, since it is
+    // what preserves the label of a value selected from a window after the window moves on. Items
+    // owned by the data keep the entry the single pass above resolved for them.
+    if (!dataValues.has(derivedValue)) {
       valueToItem.set(derivedValue, item);
     }
+
     return derivedValue;
   }
 
@@ -141,24 +158,20 @@ export function createComboboxItems<Item, Value>(
   const itemToLabel = getLabel ?? ((item: Item) => stringifyAsLabel(value(item)));
 
   return {
-    data: resolvedData,
-    value,
+    // Passed through rather than defaulted, so that data which has not loaded is still the
+    // absence of items rather than an empty list: the root would otherwise treat the collection
+    // as an items prop that filters everything away.
+    data,
+    // Withheld without `getValue`: the value of an item is the item, so the root can skip
+    // projecting the filtered list and keep serving `items` from the store the way a plain
+    // array does, which is what preserves a null item's placeholder override.
+    value: getValue ? value : undefined,
     itemLabel: itemToLabel,
-    label: (itemValue: Value, isItemEqualToValue?: ItemEqualityComparer<Value> | undefined) => {
+    label: (itemValue: Value, fallback?: ((itemValue: Value) => string) | undefined) => {
       const { valueToItem } = ensureDerived();
 
       if (valueToItem.has(itemValue)) {
         return itemToLabel(valueToItem.get(itemValue)!);
-      }
-
-      // The exact lookup above already covers identity, so only a custom comparer can still
-      // match. Skipping the scan for the default keeps the O(n) comparison off the common path.
-      if (isItemEqualToValue && isItemEqualToValue !== defaultItemEquality) {
-        for (const [valueToCompare, item] of valueToItem) {
-          if (compareItemEquality(valueToCompare, itemValue, isItemEqualToValue)) {
-            return itemToLabel(item);
-          }
-        }
       }
 
       // Without a projection, the public value is itself a source item. This preserves its label
@@ -167,7 +180,9 @@ export function createComboboxItems<Item, Value>(
         return itemToLabel(itemValue as unknown as Item);
       }
 
-      return stringifyAsLabel(itemValue);
+      // Only values the collection cannot resolve reach the root's `itemToStringLabel`, so it
+      // covers what the data is missing instead of taking labeling over from `getLabel`.
+      return stringifyAsLabel(itemValue, fallback);
     },
   } as unknown as ComboboxItemCollection<Item, Value>;
 }
