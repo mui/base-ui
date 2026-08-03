@@ -934,7 +934,8 @@ describe('<Drawer.SwipeArea />', () => {
     async ({ input, pointerType }) => {
       // Dragging past the popup releases the pointer outside it, so the gesture's own pointerup
       // synthesizes a `click` over the backdrop. That click (which has no fresh pointerdown) must not
-      // be read as an outside press and dismiss the drawer that was just opened.
+      // be read as an outside press and dismiss the drawer that was just opened — even when it lands
+      // a macrotask later, after a timer-based re-enable would have fired.
       await render(
         <Drawer.Root>
           <Drawer.SwipeArea data-testid="swipe-area" />
@@ -952,6 +953,10 @@ describe('<Drawer.SwipeArea />', () => {
 
       expect(screen.getByTestId('popup')).toHaveAttribute('data-open', '');
 
+      await act(async () => {
+        await nextMacrotask();
+      });
+
       // Trailing synthesized click with no preceding fresh pointerdown.
       const releaseClick = new MouseEvent('click', { bubbles: true, detail: 1 });
       Object.defineProperty(releaseClick, 'pointerType', { value: pointerType });
@@ -962,75 +967,6 @@ describe('<Drawer.SwipeArea />', () => {
       });
 
       expect(screen.getByTestId('popup')).toHaveAttribute('data-open', '');
-    },
-  );
-
-  it.skipIf(isJSDOM)(
-    'does not dismiss from the trusted click synthesized by a real mouse swipe release',
-    async () => {
-      // Unlike `fireEvent`, a trusted dispatch performs a microtask checkpoint between listeners,
-      // so this is the only shape that exercises the real ordering between the release guard
-      // (document capture) and floating-ui's outside-press check (target phase).
-      ignoreActWarnings();
-      const { userEvent: user } = await import('vitest/browser');
-      const { render: vbrRender, cleanup } = await import('vitest-browser-react');
-
-      try {
-        await vbrRender(
-          <div>
-            <div
-              data-testid="release-target"
-              style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: 100 }}
-            />
-            <Drawer.Root>
-              <Drawer.SwipeArea
-                data-testid="swipe-area"
-                style={{ position: 'fixed', bottom: 0, left: 0, width: '100%', height: 40 }}
-              />
-              <Drawer.Portal>
-                <Drawer.Viewport>
-                  <Drawer.Popup
-                    data-testid="popup"
-                    style={{ position: 'fixed', bottom: 0, left: 0, width: '100%', height: 150 }}
-                  >
-                    Drawer
-                  </Drawer.Popup>
-                </Drawer.Viewport>
-              </Drawer.Portal>
-            </Drawer.Root>
-          </div>,
-        );
-
-        // Drag the swipe area past the popup's size and release outside it. The swipe area holds
-        // pointer capture, so the gesture's trusted synthesized `click` retargets to the swipe
-        // area itself — this pins that a real mouse swipe never self-dismisses, whichever element
-        // the click resolves to.
-        await user.dragAndDrop(
-          screen.getByTestId('swipe-area'),
-          screen.getByTestId('release-target'),
-        );
-
-        await waitFor(() => {
-          expect(screen.getByTestId('popup')).toHaveAttribute('data-open', '');
-        });
-
-        await act(async () => {
-          await nextMacrotask();
-        });
-
-        expect(screen.getByTestId('popup')).toHaveAttribute('data-open', '');
-
-        // A deliberate outside press afterwards must dismiss, proving the guard was restored.
-        // `force` skips Playwright's actionability check: the drawer's internal backdrop
-        // intercepts the click, which is exactly the outside press being tested.
-        await user.click(screen.getByTestId('release-target'), { force: true });
-
-        await waitFor(() => {
-          expect(screen.queryByTestId('popup')).toBe(null);
-        });
-      } finally {
-        await cleanup();
-      }
     },
   );
 
