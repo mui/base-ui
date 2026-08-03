@@ -31,6 +31,10 @@ jobs:
       cancel-in-progress: true
     permissions:
       contents: read
+    env:
+      # setup-node determines the cache path before either /tmp worktree is installed. Keep both
+      # installs on that same path so a cold cache can be saved successfully during post-job cleanup.
+      pnpm_config_store_dir: /__w/.pnpm-store
     steps:
       - name: Checkout base revision
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
@@ -89,18 +93,37 @@ jobs:
           BASE_SHA=$(git merge-base "$HEAD_SHA" "$EXPECTED_BASE_SHA")
           git worktree add --detach /tmp/render-count-base "$BASE_SHA"
           git worktree add --detach /tmp/render-count-head "$HEAD_SHA"
-          # Measure both revisions with one harness. The merge base of an open pull request can
-          # predate this workflow entirely, and even when it doesn't, a PR is free to change the
-          # harness — either way the two sides would otherwise be measured differently. Each side
-          # keeps its own fixtures, so a fixture change still shows up as a count change.
+          # Normally each revision uses its matching harness and dependency graph. During the
+          # workflow's rollout, a merge base can predate the three collector files. Reuse the head
+          # collector only when the packages it executes against are identical; otherwise the
+          # copied source could call an API that does not exist in the base installation.
           if [ ! -d /tmp/render-count-base/test/performance ]; then
             echo "The merge base predates the benchmark workspace. Update this PR from master." >&2
             exit 1
           fi
-          cp /tmp/render-count-head/test/performance/vitest.config.ts \
-             /tmp/render-count-head/test/performance/benchmark.ts \
-             /tmp/render-count-head/test/performance/renderCountReporter.ts \
-             /tmp/render-count-base/test/performance/
+          COLLECTOR_FILES=(vitest.config.ts benchmark.ts renderCountReporter.ts)
+          NEEDS_COLLECTOR=false
+          for FILE in "${COLLECTOR_FILES[@]}"; do
+            if [ ! -f "/tmp/render-count-base/test/performance/$FILE" ]; then
+              NEEDS_COLLECTOR=true
+            fi
+          done
+          if [ "$NEEDS_COLLECTOR" = true ]; then
+            COMPATIBILITY_CHECK=$GITHUB_WORKSPACE/test/performance/scripts/checkHarnessCompatibility.mts
+            # This introducing PR checks out a base revision that does not have the trusted helper
+            # yet. Future long-lived PRs use the helper from their current base checkout even when
+            # both their merge base and head predate the collector.
+            if [ ! -f "$COMPATIBILITY_CHECK" ]; then
+              COMPATIBILITY_CHECK=/tmp/render-count-head/test/performance/scripts/checkHarnessCompatibility.mts
+            fi
+            node "$COMPATIBILITY_CHECK" \
+              /tmp/render-count-base/test/performance/package.json \
+              /tmp/render-count-head/test/performance/package.json
+            cp /tmp/render-count-head/test/performance/vitest.config.ts \
+               /tmp/render-count-head/test/performance/benchmark.ts \
+               /tmp/render-count-head/test/performance/renderCountReporter.ts \
+               /tmp/render-count-base/test/performance/
+          fi
 
       - name: Install dependencies
         run: |

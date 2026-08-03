@@ -138,6 +138,11 @@ jobs:
           command: pnpm typescript
           environment:
             NODE_OPTIONS: --max-old-space-size=3072
+      # The fixtures import the built public declarations so this checks benchmark API usage
+      # without recompiling the React package under the performance workspace's TS config.
+      - run:
+          name: Tests benchmark fixture TypeScript definitions
+          command: pnpm --dir test/performance typescript:fixtures
       - run:
           name: Any defect declaration files?
           command: pnpm code-infra validate-built-types
@@ -295,58 +300,58 @@ jobs:
     executor:
       name: code-infra/mui-node-browser
       playwright-img-version: v1.59.1-noble
+    environment:
+      <<: *default-environment
+      # Pipeline parameters are configuration data, not shell source. Keep them in the job
+      # environment and validate them before using them to fetch any PR-controlled revision.
+      BENCHMARK_SHA: << pipeline.parameters.benchmark-sha >>
+      BENCHMARK_PR_NUMBER: << pipeline.parameters.benchmark-pr-number >>
+      BENCHMARK_PR_BRANCH: << pipeline.parameters.benchmark-branch >>
     steps:
       - checkout
-      # This is a race guard, not a security boundary: this job definition is itself read from
-      # the PR head, so it cannot constrain a malicious PR. What keeps the `org-global` context
-      # safe is that only a maintainer who reviewed the diff can comment `/benchmark`. The check
-      # exists so a push that lands between the comment and the checkout fails the run instead of
-      # silently benchmarking (and building, and installing) a revision nobody reviewed. It runs
-      # before `install-deps` so no code from the PR has executed yet.
       - run:
-          name: Verify the requested PR head
+          name: Prepare the exact benchmark revisions
           command: |
             set -euo pipefail
-            EXPECTED_SHA="<< pipeline.parameters.benchmark-sha >>"
-            PR_NUMBER="<< pipeline.parameters.benchmark-pr-number >>"
-            PR_BRANCH="<< pipeline.parameters.benchmark-branch >>"
-            if [ -z "$EXPECTED_SHA" ] || [ "$CIRCLE_SHA1" != "$EXPECTED_SHA" ]; then
-              echo "Expected PR head $EXPECTED_SHA but CircleCI checked out $CIRCLE_SHA1." >&2
+            if [[ ! "$BENCHMARK_SHA" =~ ^[0-9a-f]{40}$ ]]; then
+              echo "The benchmark SHA must be a full commit hash." >&2
               exit 1
             fi
-            if [ "$(git rev-parse HEAD)" != "$EXPECTED_SHA" ]; then
-              echo "CircleCI did not check out the requested PR head." >&2
+            if [[ ! "$BENCHMARK_PR_NUMBER" =~ ^[1-9][0-9]*$ ]]; then
+              echo "The benchmark PR number must be a positive integer." >&2
               exit 1
             fi
-            if [ -z "$PR_NUMBER" ] || [ -z "$PR_BRANCH" ]; then
-              echo "The benchmark pipeline needs the PR number and head branch to report." >&2
+            if [ -z "$BENCHMARK_PR_BRANCH" ]; then
+              echo "The benchmark pipeline needs the PR head branch to report." >&2
               exit 1
             fi
-            # An API-triggered pipeline has no PR association, so CircleCI sets neither
-            # CIRCLE_PR_NUMBER nor a usable CIRCLE_BRANCH — it checks `pull/N/head` out as a
-            # local branch of that name. `getCiMetadata` reads the PR from the environment and
-            # the branch from `git branch --show-current`, so restore both here. Without this
-            # the upload carries no PR number and a `pull/N/head` branch, and the dashboard
-            # cannot attach it to the consolidated PR comment.
-            git checkout -B "$PR_BRANCH" "$EXPECTED_SHA"
-            echo "export CIRCLE_PR_NUMBER=$PR_NUMBER" >> "$BASH_ENV"
-            echo "Running the full benchmark for $EXPECTED_SHA (PR #$PR_NUMBER, $PR_BRANCH)."
-      - code-infra/install-deps
-      - run:
-          name: Prepare the baseline revision
-          command: |
-            set -euo pipefail
+
+            # The pipeline itself is loaded from trusted master. Fetching through the PR ref makes
+            # fork commits available, while this equality check ensures a push after `/benchmark`
+            # fails before dependency installation or any other PR-controlled code executes.
+            git fetch --no-tags origin "pull/$BENCHMARK_PR_NUMBER/head"
+            FETCHED_SHA=$(git rev-parse FETCH_HEAD)
+            if [ "$FETCHED_SHA" != "$BENCHMARK_SHA" ]; then
+              echo "Expected PR head $BENCHMARK_SHA but fetched $FETCHED_SHA." >&2
+              exit 1
+            fi
             git fetch --no-tags origin master:refs/remotes/origin/master
-            BASE_SHA=$(git merge-base HEAD origin/master)
+            BASE_SHA=$(git merge-base "$BENCHMARK_SHA" origin/master)
             echo "Baseline commit: $BASE_SHA"
+            git worktree add --detach /tmp/benchmark-head "$BENCHMARK_SHA"
             git worktree add --detach /tmp/benchmark-master "$BASE_SHA"
+      - run:
+          name: Install both revisions
+          command: |
+            set -euo pipefail
+            pnpm --dir /tmp/benchmark-head install --frozen-lockfile
             pnpm --dir /tmp/benchmark-master install --frozen-lockfile
       - run:
           name: Build both revisions
           command: |
             set -euo pipefail
             pnpm --dir /tmp/benchmark-master release:build
-            pnpm release:build
+            pnpm --dir /tmp/benchmark-head release:build
       - run:
           name: Run full benchmark comparison (ABBA)
           command: |
@@ -354,27 +359,35 @@ jobs:
             RESULTS=/tmp/benchmark-results
             mkdir -p "$RESULTS"
 
-            BENCHMARK_BRANCH=master \
+            CIRCLE_PR_NUMBER="$BENCHMARK_PR_NUMBER" \
+              BENCHMARK_BRANCH=master \
               BENCHMARK_OUTPUT_PATH=$RESULTS/master-1.json \
               pnpm --dir /tmp/benchmark-master test:benchmark
-            BENCHMARK_OUTPUT_PATH=$RESULTS/head-1.json pnpm test:benchmark
-            BENCHMARK_OUTPUT_PATH=$RESULTS/head-2.json pnpm test:benchmark
-            BENCHMARK_BRANCH=master \
+            CIRCLE_PR_NUMBER="$BENCHMARK_PR_NUMBER" \
+              BENCHMARK_BRANCH="$BENCHMARK_PR_BRANCH" \
+              BENCHMARK_OUTPUT_PATH=$RESULTS/head-1.json \
+              pnpm --dir /tmp/benchmark-head test:benchmark
+            CIRCLE_PR_NUMBER="$BENCHMARK_PR_NUMBER" \
+              BENCHMARK_BRANCH="$BENCHMARK_PR_BRANCH" \
+              BENCHMARK_OUTPUT_PATH=$RESULTS/head-2.json \
+              pnpm --dir /tmp/benchmark-head test:benchmark
+            CIRCLE_PR_NUMBER="$BENCHMARK_PR_NUMBER" \
+              BENCHMARK_BRANCH=master \
               BENCHMARK_OUTPUT_PATH=$RESULTS/master-2.json \
               pnpm --dir /tmp/benchmark-master test:benchmark
 
-            node test/performance/scripts/aggregateBenchmarks.mts \
+            node /tmp/benchmark-head/test/performance/scripts/aggregateBenchmarks.mts \
               "$RESULTS/master-combined.json" \
               "$RESULTS/master-1.json" \
               "$RESULTS/master-2.json"
-            node test/performance/scripts/aggregateBenchmarks.mts \
+            node /tmp/benchmark-head/test/performance/scripts/aggregateBenchmarks.mts \
               "$RESULTS/head-combined.json" \
               "$RESULTS/head-1.json" \
               "$RESULTS/head-2.json" \
               "$RESULTS/master-combined.json"
       - run:
           name: Publish benchmark comparison
-          command: node test/performance/scripts/publishBenchmark.mts /tmp/benchmark-results/head-combined.json
+          command: node /tmp/benchmark-head/test/performance/scripts/publishBenchmark.mts /tmp/benchmark-results/head-combined.json
       # Aggregation refuses to combine runs that disagree, so a single nondeterministic benchmark
       # fails the step after four full suite runs. Keep the raw output either way — it is the only
       # way to tell which benchmark disagreed and by how much.

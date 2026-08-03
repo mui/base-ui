@@ -69,6 +69,8 @@ jobs:
             }
             const headSha = pr.head.sha;
 
+            // This is a compatibility check, not a trust boundary. CircleCI loads its job from
+            // master and independently verifies the exact PR SHA before executing PR code.
             const { data: circleConfig } = await github.rest.repos.getContent({
               owner: context.repo.owner,
               repo: context.repo.repo,
@@ -103,13 +105,13 @@ jobs:
                   'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
-                  branch: `pull/${context.issue.number}/head`,
+                  // Load the trusted configuration from master. That job fetches the exact PR
+                  // head below and refuses to execute it if the mutable PR ref has advanced.
+                  branch: 'master',
                   parameters: {
                     workflow: 'benchmark',
-                    // CircleCI resolves `pull/N/head` itself, so the job re-checks that it
-                    // landed on the head the maintainer asked for. An API-triggered pipeline
-                    // also carries no PR association, so the report identity has to be
-                    // threaded through explicitly or the dashboard cannot attach it to the PR.
+                    // An API-triggered pipeline has no PR association, so the report identity
+                    // has to be threaded through explicitly for the consolidated PR comment.
                     'benchmark-sha': headSha,
                     'benchmark-pr-number': String(context.issue.number),
                     'benchmark-branch': pr.head.ref,
