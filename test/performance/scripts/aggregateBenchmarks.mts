@@ -92,7 +92,8 @@ function combineEntry(
     const secondRender = second.renders[index];
     assert(
       firstRender.id === secondRender.id && firstRender.phase === secondRender.phase,
-      `${name} produced a different render sequence at index ${index}.`,
+      `${name} produced a different render sequence at index ${index}. Two runs of the same ` +
+        'revision must render identically, so this benchmark is nondeterministic.',
     );
     const duration = combineStats(
       {

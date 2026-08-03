@@ -23,6 +23,9 @@ jobs:
     defaults:
       run:
         shell: bash
+    concurrency:
+      group: render-counts-${{ github.event.pull_request.number }}
+      cancel-in-progress: true
     permissions:
       contents: read
     steps:
