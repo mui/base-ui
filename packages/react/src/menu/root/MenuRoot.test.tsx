@@ -101,6 +101,67 @@ describe('<Menu.Root />', () => {
     }
   });
 
+  it.skipIf(isJSDOM)(
+    'keeps focus on the trigger when a controlled submenu is reopened programmatically',
+    async () => {
+      let setSubmenuOpen!: React.Dispatch<React.SetStateAction<boolean>>;
+      const onSubmenuOpenChange = vi.fn();
+
+      function ControlledSubmenu() {
+        const [submenuOpen, setOpen] = React.useState(false);
+        setSubmenuOpen = setOpen;
+
+        return (
+          <Menu.Root open>
+            <Menu.Portal>
+              <Menu.Positioner>
+                <Menu.Popup>
+                  <Menu.SubmenuRoot
+                    open={submenuOpen}
+                    onOpenChange={(nextOpen, eventDetails) => {
+                      onSubmenuOpenChange(nextOpen, eventDetails);
+                      setOpen(nextOpen);
+                    }}
+                  >
+                    <Menu.SubmenuTrigger openOnHover={false}>More</Menu.SubmenuTrigger>
+                    <Menu.Portal>
+                      <Menu.Positioner>
+                        <Menu.Popup data-testid="controlled-submenu">
+                          <Menu.Item>Item</Menu.Item>
+                        </Menu.Popup>
+                      </Menu.Positioner>
+                    </Menu.Portal>
+                  </Menu.SubmenuRoot>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
+          </Menu.Root>
+        );
+      }
+
+      const { user } = await render(<ControlledSubmenu />);
+      const submenuTrigger = await screen.findByRole('menuitem', { name: 'More' });
+
+      await user.click(submenuTrigger);
+      await screen.findByTestId('controlled-submenu');
+
+      await user.click(submenuTrigger);
+      await waitFor(() => {
+        expect(screen.queryByTestId('controlled-submenu')).toBe(null);
+      });
+      expect(onSubmenuOpenChange.mock.lastCall?.[1].reason).toBe(REASONS.triggerPress);
+      expect(submenuTrigger).toHaveFocus();
+
+      await act(async () => setSubmenuOpen(true));
+      await screen.findByTestId('controlled-submenu');
+
+      await act(async () => {
+        await new Promise(requestAnimationFrame);
+      });
+      expect(submenuTrigger).toHaveFocus();
+    },
+  );
+
   // All these tests run for contained and detached triggers.
   // The rendered menu has the same structure in most cases.
   describe.for([
@@ -836,6 +897,27 @@ describe('<Menu.Root />', () => {
           });
         },
       );
+
+      it.skipIf(isJSDOM)('focuses the submenu popup when opened by touch', async () => {
+        const { user } = await render(<TestMenu submenuTriggerProps={{ openOnHover: false }} />);
+
+        await user.click(screen.getByRole('button', { name: 'Toggle' }));
+        const submenuTrigger = await screen.findByTestId('submenu-trigger');
+
+        fireEvent.pointerDown(submenuTrigger, {
+          pointerType: 'touch',
+          width: 10,
+          height: 10,
+          pressure: 0.5,
+          detail: 0,
+        });
+        fireEvent.mouseDown(submenuTrigger);
+
+        const submenu = await screen.findByTestId('submenu');
+        await waitFor(() => {
+          expect(submenu).toHaveFocus();
+        });
+      });
 
       it.skipIf(isJSDOM)(
         'focuses the first submenu item when opened by a virtual pointer',

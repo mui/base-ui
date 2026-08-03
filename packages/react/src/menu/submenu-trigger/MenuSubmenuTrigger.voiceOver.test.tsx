@@ -17,15 +17,21 @@ vi.mock('@base-ui/utils/platform', async () => {
   };
 });
 
-function Test(props: { openOnHover?: boolean }) {
+function Test(props: {
+  openOnHover?: boolean;
+  delay?: number;
+  onSubmenuOpenChange?: Menu.SubmenuRoot.Props['onOpenChange'];
+}) {
   return (
     <Menu.Root>
       <Menu.Trigger>Open menu</Menu.Trigger>
       <Menu.Portal>
         <Menu.Positioner>
           <Menu.Popup>
-            <Menu.SubmenuRoot>
-              <Menu.SubmenuTrigger openOnHover={props.openOnHover}>More</Menu.SubmenuTrigger>
+            <Menu.SubmenuRoot onOpenChange={props.onSubmenuOpenChange}>
+              <Menu.SubmenuTrigger openOnHover={props.openOnHover} delay={props.delay}>
+                More
+              </Menu.SubmenuTrigger>
               <Menu.Portal>
                 <Menu.Positioner>
                   <Menu.Popup data-testid="submenu">
@@ -143,4 +149,38 @@ describe('<Menu.SubmenuTrigger /> with VoiceOver', () => {
 
     expect(submenuTrigger).not.toHaveAttribute('aria-expanded');
   });
+
+  it.skipIf(isJSDOM)(
+    'keeps the expanded state when hover follows a canceled virtual pointer press',
+    async () => {
+      const onSubmenuOpenChange = vi.fn((open, eventDetails) => {
+        if (open && onSubmenuOpenChange.mock.calls.length === 1) {
+          eventDetails.cancel();
+        }
+      });
+      const { user } = await render(<Test delay={0} onSubmenuOpenChange={onSubmenuOpenChange} />);
+
+      await user.click(screen.getByRole('button', { name: 'Open menu' }));
+
+      const submenuTrigger = await screen.findByRole('menuitem', { name: 'More' });
+      fireEvent.pointerDown(submenuTrigger, {
+        pointerType: 'touch',
+        width: 0.333,
+        height: 0.333,
+        pressure: 0,
+        detail: 0,
+      });
+      fireEvent.mouseDown(submenuTrigger);
+
+      await waitFor(() => {
+        expect(onSubmenuOpenChange).toHaveBeenCalledTimes(1);
+      });
+      expect(screen.queryByTestId('submenu')).toBe(null);
+
+      await user.hover(submenuTrigger);
+      await screen.findByTestId('submenu');
+
+      expect(submenuTrigger).toHaveAttribute('aria-expanded', 'true');
+    },
+  );
 });

@@ -126,6 +126,7 @@ export const MenuPopup = React.forwardRef(function MenuPopup(
   const initialFocus =
     parent.type === 'menu' &&
     lastOpenChangeReason === REASONS.triggerPress &&
+    openMethod !== null &&
     openMethod !== 'keyboard' &&
     !virtualPress
       ? store.context.popupRef
