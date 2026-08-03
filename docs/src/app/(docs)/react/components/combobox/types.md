@@ -1039,7 +1039,9 @@ Accepts a flat array of items or an array of groups with items; the `getValue` a
 accessors always receive individual items, never groups.
 An item must not itself have an `items` array property: such an entry is read as a group,
 both in the types and at runtime.
-Create the collection at module scope when the data is static.
+Create the collection at module scope when the data is static, and wrap it in
+`React.useMemo()` keyed on the data when it is not: a collection rebuilt on every render
+re-derives every value and discards the labels it resolved for items outside `data`.
 
 **Parameters:**
 
@@ -1171,7 +1173,14 @@ type ComboboxFilterOptions = {
    * @default false
    */
   multiple?: boolean;
-  /** The current value of the combobox. */
+  /**
+   * The current value of the combobox, used to keep every item visible while the query still
+   * matches the selection.
+   *
+   * Omit it when `items` is a `createItems()` collection with a `getValue` accessor: the value is
+   * then a derived value rather than an item, so the item stringifier cannot label it. The root
+   * already keeps the list unfiltered in that situation.
+   */
   value?: any;
   /**
    * The locale to use for string comparison.
@@ -1179,6 +1188,14 @@ type ComboboxFilterOptions = {
    */
   locale?: Intl.LocalesArgument;
 };
+```
+
+### ComboboxItemsData
+
+The data accepted by `createItems()`: a flat array of items, or an array of groups with items.
+
+```typescript
+type ComboboxItemsData<Item> = Item[] | { items: Item[] }[];
 ```
 
 ### ComboboxPrimitiveValue
@@ -1201,19 +1218,22 @@ type CreateComboboxItemsOptions<
    * `null` and `undefined` are reserved for no selection. Prefer stable IDs from your
    * application data.
    *
-   * Receives every entry of the data array, including nullish ones, so guard inside the accessor
-   * when the data can contain them.
+   * Each item must derive a unique value. When two items share one, the first occurrence resolves
+   * the label and every item carrying that value renders as selected.
+   *
+   * Nullish entries in the data are holes rather than items: they are skipped instead of being
+   * passed to this accessor.
    */
   getValue: (item: Item) => Value;
   /**
-   * Projects an item to the label string that represents it in the input and, by default,
-   * when matching the typed query. The root's `itemToStringLabel` prop replaces this resolver
-   * and must handle every possible selected value.
+   * Projects an item to the label string that represents it in the input and when matching the
+   * typed query. The root's `itemToStringLabel` prop is the fallback for selected values this
+   * accessor cannot reach, such as a value whose item has left an async result window.
    *
    * By default, the item's derived value is stringified.
    *
-   * Receives every entry of the data array, including nullish ones, so guard inside the accessor
-   * when the data can contain them.
+   * Nullish entries in the data are holes rather than items: they are skipped instead of being
+   * passed to this accessor.
    */
   getLabel?: (item: Item) => string;
 };
@@ -1287,7 +1307,7 @@ type Orientation = 'horizontal' | 'vertical';
 - `Combobox.useFilter`
 - `Combobox.useFilteredItems`
 - `Combobox.createItems`
-- `Default`: `ComboboxFilter`, `ComboboxFilterOptions`, `ComboboxItemCollection`, `ComboboxPrimitiveValue`, `CreateComboboxItemsOptions`, `ComboboxRootProps`, `ComboboxRootState`, `ComboboxRootActions`, `ComboboxRootChangeEventReason`, `ComboboxRootChangeEventDetails`, `ComboboxRootHighlightEventReason`, `ComboboxRootHighlightEventDetails`, `ComboboxLabelState`, `ComboboxLabelProps`, `ComboboxTriggerState`, `ComboboxTriggerProps`, `ComboboxInputState`, `ComboboxInputProps`, `ComboboxInputGroupState`, `ComboboxInputGroupProps`, `ComboboxPopupState`, `ComboboxPopupProps`, `ComboboxPositionerState`, `ComboboxPositionerProps`, `ComboboxListState`, `ComboboxListProps`, `ComboboxItemState`, `ComboboxItemProps`, `ComboboxItemIndicatorProps`, `ComboboxItemIndicatorState`, `ComboboxValueState`, `ComboboxValueProps`, `ComboboxIconState`, `ComboboxIconProps`, `ComboboxArrowState`, `ComboboxArrowProps`, `ComboboxBackdropProps`, `ComboboxBackdropState`, `ComboboxPortalState`, `ComboboxPortalProps`, `ComboboxEmptyState`, `ComboboxEmptyProps`, `ComboboxGroupState`, `ComboboxGroupProps`, `ComboboxGroupLabelState`, `ComboboxGroupLabelProps`, `ComboboxRowState`, `ComboboxRowProps`, `ComboboxChipsState`, `ComboboxChipsProps`, `ComboboxChipState`, `ComboboxChipProps`, `ComboboxChipRemoveState`, `ComboboxChipRemoveProps`, `ComboboxClearState`, `ComboboxClearProps`, `ComboboxStatusState`, `ComboboxStatusProps`, `ComboboxCollectionState`, `ComboboxCollectionProps`
+- `Default`: `ComboboxFilter`, `ComboboxFilterOptions`, `ComboboxItemCollection`, `ComboboxItemsData`, `ComboboxPrimitiveValue`, `CreateComboboxItemsOptions`, `ComboboxRootProps`, `ComboboxRootState`, `ComboboxRootActions`, `ComboboxRootChangeEventReason`, `ComboboxRootChangeEventDetails`, `ComboboxRootHighlightEventReason`, `ComboboxRootHighlightEventDetails`, `ComboboxLabelState`, `ComboboxLabelProps`, `ComboboxTriggerState`, `ComboboxTriggerProps`, `ComboboxInputState`, `ComboboxInputProps`, `ComboboxInputGroupState`, `ComboboxInputGroupProps`, `ComboboxPopupState`, `ComboboxPopupProps`, `ComboboxPositionerState`, `ComboboxPositionerProps`, `ComboboxListState`, `ComboboxListProps`, `ComboboxItemState`, `ComboboxItemProps`, `ComboboxItemIndicatorProps`, `ComboboxItemIndicatorState`, `ComboboxValueState`, `ComboboxValueProps`, `ComboboxIconState`, `ComboboxIconProps`, `ComboboxArrowState`, `ComboboxArrowProps`, `ComboboxBackdropProps`, `ComboboxBackdropState`, `ComboboxPortalState`, `ComboboxPortalProps`, `ComboboxEmptyState`, `ComboboxEmptyProps`, `ComboboxGroupState`, `ComboboxGroupProps`, `ComboboxGroupLabelState`, `ComboboxGroupLabelProps`, `ComboboxRowState`, `ComboboxRowProps`, `ComboboxChipsState`, `ComboboxChipsProps`, `ComboboxChipState`, `ComboboxChipProps`, `ComboboxChipRemoveState`, `ComboboxChipRemoveProps`, `ComboboxClearState`, `ComboboxClearProps`, `ComboboxStatusState`, `ComboboxStatusProps`, `ComboboxCollectionState`, `ComboboxCollectionProps`
 
 ## Canonical Types
 

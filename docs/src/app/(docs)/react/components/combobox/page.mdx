@@ -129,6 +129,21 @@ const items = Combobox.createItems(users, {
 
 Selection props and events use the derived IDs, while list rendering continues to receive the original items. The derived label is also used for filtering and typeahead.
 
+When the data is loaded or replaced at runtime, memoize the collection on it so that it is rebuilt only when the data changes:
+
+```jsx title="Creating a collection from dynamic data"
+const items = React.useMemo(
+  () =>
+    Combobox.createItems(users, {
+      getValue: (user) => user.id,
+      getLabel: (user) => user.name,
+    }),
+  [users],
+);
+```
+
+A collection created during render is a new collection every time, so it re-derives every value on each render and discards the labels it had resolved for items supplied through `filteredItems`.
+
 import { DemoComboboxCreateItems } from './demos/create-items';
 
 <DemoComboboxCreateItems />
@@ -150,7 +165,13 @@ The APIs fall into two domains:
 
 Because filtering runs on source items, a custom `filter` can match any source field.
 
-With async data, prefer item objects as values so the selected label survives result changes, comparing them by ID with `isItemEqualToValue`. If IDs are required, keep the selected item in `data` or resolve every ID from a cache with `itemToStringLabel`, which replaces the collection's `getLabel` accessor.
+Each item must derive a unique value. When two items share one, the first of them resolves the label, and every item carrying that value renders as selected.
+
+Accessors resolve labels to strings, so `<Combobox.Value>` renders text where a plain `{ value, label }` array could render React nodes. With `getValue`, the label of an item whose value is `null` also stops overriding the `placeholder` prop, because that lookup reads the selection value domain.
+
+With async data, prefer item objects as values so the selected label survives result changes, comparing them by ID with `isItemEqualToValue`. If IDs are required, keep the selected item in `data`, or label the ones that left it with `itemToStringLabel`: the collection labels the items it holds, and the prop covers the values it cannot resolve.
+
+When passing a filter to the root, note that it receives source items. A filter from `useFilter({ value })` compares the selected value against an item, so pair a collection with `useFilter()` and let the component handle the selected label instead.
 
 ### Multiple select
 
