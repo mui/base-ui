@@ -1152,9 +1152,9 @@ Grouped collections and grid mode are not currently supported.
 
 **Virtualizer CSS Variables:**
 
-| Variable       | Type     | Description                                  |
-| :------------- | :------- | :------------------------------------------- |
-| `--total-size` | `number` | The total height of the virtualized content. |
+| Variable       | Type     | Description                                                                            |
+| :------------- | :------- | :------------------------------------------------------------------------------------- |
+| `--total-size` | `number` | The total height of the virtualized content, including the scrollport's block padding. |
 
 ### Virtualizer.Props
 
@@ -1168,7 +1168,7 @@ State metadata exposed to render props.
 type ComboboxVirtualizerState = {
   /** Whether the virtualized collection has no items. */
   empty: boolean;
-  /** Total virtual content size in pixels. */
+  /** Total scrollable content size in pixels, including the scrollport's block padding. */
   totalSize: number;
 };
 ```

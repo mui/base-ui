@@ -124,9 +124,19 @@ function ListVirtualRowImpl<RowModel extends MuiVirtualizerRow>(
 
 const ListVirtualRow = React.memo(ListVirtualRowImpl) as typeof ListVirtualRowImpl;
 
-function getRenderZoneTransform(offsetTop: number, scrollTop: number) {
-  return `translate3d(0, ${offsetTop - scrollTop}px, 0)`;
+function getRenderZoneTransform(offsetTop: number, scrollTop: number, paddingStart: number) {
+  return `translate3d(0, ${offsetTop - scrollTop + paddingStart}px, 0)`;
 }
+
+/**
+ * Block padding of the scrollport, which the rows are laid out inside of.
+ */
+interface ScrollportPadding {
+  start: number;
+  end: number;
+}
+
+const EMPTY_SCROLLPORT_PADDING: ScrollportPadding = { start: 0, end: 0 };
 
 /**
  * Index of the last row starting at or before the given virtual offset.
@@ -298,6 +308,13 @@ export const ListVirtualizer = React.forwardRef(function ListVirtualizer<
   const renderZoneVirtualEndRef = React.useRef<number | null>(null);
   const scrollTopRef = React.useRef(0);
   const muiApiRef = React.useRef<Virtualizer['api'] | null>(null);
+  /**
+   * The scrollport's own block padding. Rows begin below it, scroll through it, and the virtual
+   * content covers it, matching how a plain scrolling list treats its padding. The engine's
+   * geometry counts rows alone, so this is the offset between its coordinates and `scrollTop`.
+   */
+  const [scrollportPadding, setScrollportPadding] = React.useState(EMPTY_SCROLLPORT_PADDING);
+  const scrollportPaddingTotal = scrollportPadding.start + scrollportPadding.end;
 
   const useAdaptiveEstimate = typeof estimatedItemHeight === 'number';
   const adaptiveEstimateRef = React.useRef<number | null>(null);
@@ -428,12 +445,12 @@ export const ListVirtualizer = React.forwardRef(function ListVirtualizer<
       pendingViewportScrollTopRef.current ??
       scrollElementRef.current?.scrollTop ??
       scrollTopRef.current;
-    const stacked = renderZoneOffsetTopRef.current - scrollTop;
+    const stacked = renderZoneOffsetTopRef.current - scrollTop + scrollportPadding.start;
     let translate = stacked;
     const virtualEnd = renderZoneVirtualEndRef.current;
 
     if (virtualEnd != null) {
-      const anchored = virtualEnd - scrollTop - renderZone.offsetHeight;
+      const anchored = virtualEnd - scrollTop - renderZone.offsetHeight + scrollportPadding.start;
       translate =
         anchored <= stacked
           ? // The real tail is taller than estimated. Pulling it up cannot uncover the scrollport's
@@ -806,8 +823,10 @@ export const ListVirtualizer = React.forwardRef(function ListVirtualizer<
     rows.length,
     validPinnedRowIndex,
     renderBufferPx,
-    renderScrollTop,
-    dimensions.viewportInnerSize.height,
+    // Row positions exclude the scrollport's padding, but rows are visible inside it, so the
+    // window is computed for the whole scrollport in the engine's coordinates.
+    renderScrollTop - scrollportPadding.start,
+    dimensions.viewportInnerSize.height + scrollportPaddingTotal,
   );
   const overscannedRenderContextRef = React.useRef(overscannedRenderContext);
   overscannedRenderContextRef.current = overscannedRenderContext;
@@ -863,11 +882,11 @@ export const ListVirtualizer = React.forwardRef(function ListVirtualizer<
         rowsMeta.positions.length === rows.length &&
         element &&
         rowsMeta.currentPageTotalHeight > 0 &&
-        element.clientHeight >= rowsMeta.currentPageTotalHeight
+        element.clientHeight - scrollportPaddingTotal >= rowsMeta.currentPageTotalHeight
       ) {
         onUnconstrainedHeight?.();
       }
-    }, [enabled, onUnconstrainedHeight, rows.length, rowsMeta]);
+    }, [enabled, onUnconstrainedHeight, rows.length, rowsMeta, scrollportPaddingTotal]);
   }
 
   const pendingVirtualizationUpdateRef = React.useRef(false);
@@ -929,6 +948,24 @@ export const ListVirtualizer = React.forwardRef(function ListVirtualizer<
     virtualizer.api.forceUpdateRenderContext();
   }, [virtualizationRevision, virtualizer.api]);
 
+  // The scrollport's padding is only read when its box changes, so unpadded lists never pay for
+  // the style lookup. Padding always resizes the content box the engine observes, unless the
+  // scrollport is sized by its own content, where the next resize picks the change up.
+  useIsoLayoutEffect(() => {
+    const element = scrollElementRef.current;
+
+    if (!element) {
+      return;
+    }
+
+    const nextPadding = getScrollportPadding(element);
+    setScrollportPadding((previousPadding) =>
+      previousPadding.start === nextPadding.start && previousPadding.end === nextPadding.end
+        ? previousPadding
+        : nextPadding,
+    );
+  }, [enabled, rootSize]);
+
   useIsoLayoutEffect(() => {
     const element = scrollElementRef.current;
     const viewportHeight = element ? getContentHeight(element) : 0;
@@ -965,7 +1002,7 @@ export const ListVirtualizer = React.forwardRef(function ListVirtualizer<
       rows.length > 0 &&
       dimensions.isReady &&
       element != null &&
-      element.clientHeight < totalSize &&
+      element.clientHeight - scrollportPaddingTotal < totalSize &&
       isRenderAllRange;
 
     if (!needsWindowRefresh) {
@@ -988,6 +1025,7 @@ export const ListVirtualizer = React.forwardRef(function ListVirtualizer<
     renderContext.firstRowIndex,
     renderContext.lastRowIndex,
     rows.length,
+    scrollportPaddingTotal,
     totalSize,
     virtualizer.api,
   ]);
@@ -1046,12 +1084,18 @@ export const ListVirtualizer = React.forwardRef(function ListVirtualizer<
       }
 
       const currentRowsMeta = virtualizer.store.state.rowsMeta;
-      const start = currentRowsMeta.positions[rowIndex];
-      const end = currentRowsMeta.positions[rowIndex + 1] ?? currentRowsMeta.currentPageTotalHeight;
+      const rowStart = currentRowsMeta.positions[rowIndex];
+      const rowEnd =
+        currentRowsMeta.positions[rowIndex + 1] ?? currentRowsMeta.currentPageTotalHeight;
 
-      if (start == null || end == null) {
+      if (rowStart == null || rowEnd == null) {
         return false;
       }
+
+      // Scroll offsets are measured from the scrollport's padding edge, so the row's virtual
+      // position moves down by the padding the rows are laid out inside of.
+      const start = rowStart + scrollportPadding.start;
+      const end = rowEnd + scrollportPadding.start;
 
       const styles = ownerWindow(scrollElement).getComputedStyle(scrollElement);
       const scrollPaddingStart = resolveScrollPadding(scrollElement, styles.scrollPaddingTop);
@@ -1093,7 +1137,7 @@ export const ListVirtualizer = React.forwardRef(function ListVirtualizer<
 
       if (nextScrollTop != null) {
         const maxScrollTop = getMaxScrollOffset(
-          currentRowsMeta.currentPageTotalHeight,
+          currentRowsMeta.currentPageTotalHeight + scrollportPaddingTotal,
           scrollElement.clientHeight,
         );
         const clampedScrollTop = clamp(nextScrollTop, 0, maxScrollTop);
@@ -1276,7 +1320,7 @@ export const ListVirtualizer = React.forwardRef(function ListVirtualizer<
     const scrollerTop = scrollerRect.top;
     let scrollTop = scrollElement.scrollTop;
     const maxScrollTop = getMaxScrollOffset(
-      latestRowsMeta.currentPageTotalHeight,
+      latestRowsMeta.currentPageTotalHeight + scrollportPaddingTotal,
       scrollElement.clientHeight,
     );
     const shouldPinToBottom =
@@ -1562,17 +1606,21 @@ export const ListVirtualizer = React.forwardRef(function ListVirtualizer<
     rows.length === 0
       ? 0
       : Math.min(totalSize, Math.max(resolvedEstimatedItemHeight, renderedRangeEnd));
+  // The scrollable content spans the rows plus the padding they are laid out inside of, which is
+  // the height a scrollport needs to show the collection without scrolling. An empty collection
+  // has nothing to surround, so it stays at zero.
+  const scrollableSize = totalSize > 0 ? totalSize + scrollportPaddingTotal : totalSize;
 
   const state: ListVirtualizerState = {
     empty: rows.length === 0,
-    totalSize,
+    totalSize: scrollableSize,
   };
 
   const defaultProps: HTMLProps = {
     ...restContainerProps,
     style: {
       ...containerStyle,
-      ...(totalSizeCssVariable ? { [totalSizeCssVariable]: `${totalSize}px` } : null),
+      ...(totalSizeCssVariable ? { [totalSizeCssVariable]: `${scrollableSize}px` } : null),
       overflow: 'auto',
     } as React.CSSProperties,
     // The absolute content establishes the full scroll height without expanding an unconstrained
@@ -1586,15 +1634,22 @@ export const ListVirtualizer = React.forwardRef(function ListVirtualizer<
             ...contentStyle,
             display: 'block',
             zIndex: undefined,
+            // Absolute content is placed against the padding edge, so it must also span the
+            // padding to keep the scroll height exact and to leave the sticky viewport below
+            // room to cover the scrollport at the maximum scroll position.
+            ...(scrollableSize > 0 ? { height: scrollableSize } : null),
           }}
         >
           <div
             role="presentation"
             style={{
-              height: dimensions.viewportOuterSize.height,
+              // Sticky boxes are pinned against the content edge. Growing the viewport into the
+              // padding and pulling it back up by the same amount covers the whole scrollport,
+              // so rows scroll through the padding as they do in a plain list.
+              height: dimensions.viewportOuterSize.height + scrollportPaddingTotal,
               overflow: 'hidden',
               position: 'sticky',
-              top: 0,
+              top: -scrollportPadding.start,
               // The measured viewport width only arrives a frame after the scrollport is laid
               // out. A popup sized from its anchor has no width at all until it is positioned,
               // and the rows cannot supply one because they render inside the absolute content
@@ -1607,7 +1662,11 @@ export const ListVirtualizer = React.forwardRef(function ListVirtualizer<
               ref={renderZoneRef}
               role="presentation"
               style={{
-                transform: getRenderZoneTransform(renderZoneOffsetTop, renderScrollTop),
+                transform: getRenderZoneTransform(
+                  renderZoneOffsetTop,
+                  renderScrollTop,
+                  scrollportPadding.start,
+                ),
               }}
             >
               {renderedRows}
@@ -1648,7 +1707,7 @@ export interface ListVirtualizerState {
    */
   empty: boolean;
   /**
-   * Total virtual content size in pixels.
+   * Total scrollable content size in pixels, including the scrollport's block padding.
    */
   totalSize: number;
 }
@@ -1743,9 +1802,15 @@ function resolveScrollPadding(scrollElement: HTMLElement, value: string) {
   return Number.isFinite(pixels) ? Math.max(0, pixels) : 0;
 }
 
-function getContentHeight(element: HTMLElement) {
+function getScrollportPadding(element: HTMLElement): ScrollportPadding {
   const styles = ownerWindow(element).getComputedStyle(element);
-  const padding =
-    (Number.parseFloat(styles.paddingTop) || 0) + (Number.parseFloat(styles.paddingBottom) || 0);
-  return Math.max(0, element.clientHeight - padding);
+  return {
+    start: Math.max(0, Number.parseFloat(styles.paddingTop) || 0),
+    end: Math.max(0, Number.parseFloat(styles.paddingBottom) || 0),
+  };
+}
+
+function getContentHeight(element: HTMLElement) {
+  const padding = getScrollportPadding(element);
+  return Math.max(0, element.clientHeight - padding.start - padding.end);
 }

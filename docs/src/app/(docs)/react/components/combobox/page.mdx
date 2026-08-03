@@ -212,15 +212,19 @@ For most large datasets, use the built-in `<Combobox.Virtualizer>`. It is the re
 
 Pass a flat collection to the `items` prop on `<Combobox.Root>`, and use the virtualizer as the only item-rendering child of `<Combobox.List>`. Each item renderer must return exactly one `<Combobox.Item>`. Grouped collections and grid mode are not currently supported.
 
-The virtualizer is the scroll container, so constrain its height or maximum height. The `--total-size` CSS variable contains the estimated or measured height of the virtual content and can be combined with `--available-height` from `<Combobox.Positioner>`:
+The virtualizer is the scroll container, so constrain its height or maximum height. The `--total-size` CSS variable contains the estimated or measured height of the virtual content, including the virtualizer's own block padding, and can be combined with `--available-height` from `<Combobox.Positioner>`:
 
 ```css
 .Scroller {
+  box-sizing: border-box;
   height: min(22.5rem, var(--total-size));
   max-height: var(--available-height);
   overflow: auto;
+  padding-block: 0.25rem;
 }
 ```
+
+Padding on the virtualizer behaves as it does on a plain scrolling list: items start below it, scroll through it, and end above it.
 
 Use `getItemKey` to provide stable identity when item values are objects or when TypeScript cannot infer the item type. For primitive values, you can instead declare the type explicitly, such as `<Combobox.Virtualizer<string>>`. `estimatedItemHeight` defaults to 32 pixels and adapts to measured items. It can also be a number or a function receiving the item and its filtered index. `overscanPx` controls the extra pixel buffer around the visible range. It defaults to the larger of 150px and the first item's estimated height; even an explicit value of `0` keeps a minimum render buffer of one estimated row. CSS `scroll-padding-top` and `scroll-padding-bottom` are respected when keyboard navigation scrolls an item into view.
 

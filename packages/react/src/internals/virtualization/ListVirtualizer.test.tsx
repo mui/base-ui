@@ -159,6 +159,92 @@ describe('<ListVirtualizer />', () => {
     );
   });
 
+  // A padded scrollport is 100px tall with 10px of block padding, holding 20 rows of 20px.
+  describe.skipIf(isJSDOM)('scrollport padding', () => {
+    function renderPaddedList(scrollToRowIndex?: number) {
+      return render(
+        <ListVirtualizer
+          estimatedItemHeight={20}
+          overscanPx={0}
+          render={
+            <div
+              data-testid="virtualizer"
+              style={{ boxSizing: 'border-box', height: 100, paddingBlock: 10, width: 200 }}
+            />
+          }
+          renderRow={renderRow}
+          rows={createRows(20)}
+          scrollToRowIndex={scrollToRowIndex}
+          totalSizeCssVariable="--list-size"
+        />,
+      );
+    }
+
+    it('starts the rows below the padding and counts it in the total size', async () => {
+      vi.restoreAllMocks();
+
+      await renderPaddedList();
+
+      const virtualizer = screen.getByTestId('virtualizer');
+      const firstRow = await screen.findByText('Item 1');
+
+      await waitFor(() => expect(virtualizer.style.getPropertyValue('--list-size')).toBe('420px'));
+      expect(
+        firstRow.getBoundingClientRect().top - virtualizer.getBoundingClientRect().top,
+      ).toBeCloseTo(10, 1);
+      expect(virtualizer.scrollHeight).toBe(420);
+    });
+
+    it('keeps the last row above the end padding at the maximum scroll position', async () => {
+      vi.restoreAllMocks();
+
+      await renderPaddedList();
+
+      const virtualizer = screen.getByTestId('virtualizer');
+      await screen.findByText('Item 1');
+
+      virtualizer.scrollTop = virtualizer.scrollHeight;
+      fireEvent.scroll(virtualizer);
+
+      await waitFor(() => expect(virtualizer.scrollTop).toBe(320));
+
+      const lastRow = await screen.findByText('Item 20');
+      await waitFor(() =>
+        expect(
+          virtualizer.getBoundingClientRect().bottom - lastRow.getBoundingClientRect().bottom,
+        ).toBeCloseTo(10, 1),
+      );
+    });
+
+    it('paints rows inside the padding while scrolling', async () => {
+      vi.restoreAllMocks();
+
+      await renderPaddedList();
+
+      const virtualizer = screen.getByTestId('virtualizer');
+      await screen.findByText('Item 1');
+
+      // Item 11 spans 200-220, so it reaches 5px into the 10px start padding.
+      virtualizer.scrollTop = 205;
+      fireEvent.scroll(virtualizer);
+
+      await waitFor(() => {
+        const rect = virtualizer.getBoundingClientRect();
+        const paintedInPadding = document.elementFromPoint(rect.left + 5, rect.top + 7);
+        expect(paintedInPadding?.closest('[role="listitem"]')).toHaveTextContent('Item 11');
+      });
+    });
+
+    it('scrolls a row into view against the padded geometry', async () => {
+      vi.restoreAllMocks();
+
+      await renderPaddedList(17);
+
+      const virtualizer = screen.getByTestId('virtualizer');
+      await waitFor(() => expect(virtualizer.scrollTop).toBe(270));
+    });
+  });
+
   it.skipIf(isJSDOM)(
     'anchors the scroll position when an adaptive estimate updates rows above the viewport',
     async () => {

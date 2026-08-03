@@ -185,13 +185,13 @@ function TanStackVirtualizedList({
   const filteredItems = Combobox.useFilteredItems<VirtualizedItem>();
   const scrollElementRef = React.useRef<HTMLDivElement | null>(null);
 
+  // Both virtualized panels take their spacing from the scroller's CSS padding, so the comparison
+  // is between the virtualizers rather than their styles.
   const virtualizer = useVirtualizer({
     count: filteredItems.length,
     getScrollElement: () => scrollElementRef.current,
     estimateSize: () => 32,
     overscan: 20,
-    paddingStart: 4,
-    paddingEnd: 4,
     scrollPaddingEnd: 4,
     scrollPaddingStart: 4,
   });
