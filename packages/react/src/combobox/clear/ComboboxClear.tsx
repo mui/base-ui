@@ -103,7 +103,7 @@ export const ComboboxClear = React.forwardRef(function ComboboxClear(
             return;
           }
 
-          const type = store.state.keyboardActiveRef.current ? 'keyboard' : 'pointer';
+          const type = store.state.keyboardActiveRef.current ? REASONS.keyboard : REASONS.pointer;
 
           store.state.setInputValue(
             '',

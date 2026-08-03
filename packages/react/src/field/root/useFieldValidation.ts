@@ -25,10 +25,11 @@ export type RegisteredInputs = Map<HTMLInputElement, RegisteredInput>;
 /**
  * Whether an input participates in the surrounding Base UI Form. Inputs that are effectively
  * disabled, or whose `form` attribute explicitly associates them with another form, are excluded.
- * DOM position is not considered: field registration is context-driven, so portaled inputs
- * (for example inside a dialog) still belong to the form.
+ * DOM position only matters when it associates the input with a different form. Otherwise, field
+ * registration is context-driven, so portaled inputs (for example inside a dialog) still belong to
+ * the form for both validation and values projected into `onFormSubmit`.
  */
-function isEligibleInput(input: HTMLInputElement, formElement: HTMLFormElement | null) {
+export function isEligibleInput(input: HTMLInputElement, formElement: HTMLFormElement | null) {
   if (input.matches(':disabled')) {
     return false;
   }
@@ -181,17 +182,20 @@ export function useFieldValidation(
         return;
       }
 
-      // Avoid surfacing another error during change revalidation while the required value is
-      // still missing. The full validity state is published at the configured blur or submit
-      // boundary instead.
+      // A stale custom error can coexist with valueMissing, but defer any other native errors.
       for (const key of validityKeys) {
-        if (key !== 'valid' && key !== 'valueMissing' && currentNativeValidity[key]) {
+        if (
+          key !== 'valid' &&
+          key !== 'valueMissing' &&
+          key !== 'customError' &&
+          currentNativeValidity[key]
+        ) {
           return;
         }
       }
 
-      // Value is still missing and it is the only native error: fall through to the main
-      // validation logic below.
+      // Value is still missing: publish the current native state so valueMissing and the changed
+      // value are observable immediately. Full custom validation still waits for its boundary.
     }
 
     function getState(el: HTMLInputElement) {

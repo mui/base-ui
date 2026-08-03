@@ -5,7 +5,13 @@ import { act, flushMicrotasks, screen, waitFor } from '@mui/internal-test-utils'
 import { ContextMenu } from '@base-ui/react/context-menu';
 import { Menu } from '@base-ui/react/menu';
 import { Menubar } from '@base-ui/react/menubar';
-import { describeConformance, createRenderer, isJSDOM } from '#test-utils';
+import {
+  describeConformance,
+  createRenderer,
+  isJSDOM,
+  resetBrowserPointer,
+  waitForPositioned,
+} from '#test-utils';
 
 const useAnchorPositioningSpy = vi.hoisted(() => vi.fn());
 
@@ -31,6 +37,8 @@ const Trigger = React.forwardRef(function Trigger(
 });
 
 describe('<Menu.Positioner />', () => {
+  beforeEach(resetBrowserPointer);
+
   const { render } = createRenderer();
 
   beforeEach(() => {
@@ -812,7 +820,7 @@ describe('<Menu.Positioner />', () => {
   });
 
   it.skipIf(isJSDOM)('uses transform positioning without Viewport', async () => {
-    await render(
+    const { unmount } = await render(
       <Menu.Root open>
         <Trigger style={triggerStyle}>Trigger</Trigger>
         <Menu.Portal>
@@ -823,11 +831,15 @@ describe('<Menu.Positioner />', () => {
       </Menu.Root>,
     );
 
-    expect(screen.getByTestId('positioner').style.transform).not.toBe('');
+    const positioner = screen.getByTestId('positioner');
+    await waitFor(() => {
+      expect(positioner.style.transform).not.toBe('');
+    });
+    unmount();
   });
 
   it.skipIf(isJSDOM)('uses top/left positioning with Viewport', async () => {
-    await render(
+    const { unmount } = await render(
       <Menu.Root open>
         <Trigger style={triggerStyle}>Trigger</Trigger>
         <Menu.Portal>
@@ -840,8 +852,9 @@ describe('<Menu.Positioner />', () => {
       </Menu.Root>,
     );
 
-    await waitFor(() => {
-      expect(screen.getByTestId('positioner').style.transform).toBe('');
-    });
+    const positioner = screen.getByTestId('positioner');
+    await waitForPositioned(positioner);
+    expect(positioner.style.transform).toBe('');
+    unmount();
   });
 });

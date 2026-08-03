@@ -176,6 +176,9 @@ export function useSwipeDismiss(options: UseSwipeDismissOptions): UseSwipeDismis
   const elementSizeRef = React.useRef({ width: 0, height: 0 });
   const swipeProgressRef = React.useRef(0);
   const swipeThresholdRef = React.useRef(swipeThresholdDefault);
+  const swipeThresholdFunctionRef = React.useRef<
+    ((details: { element: HTMLElement; direction: SwipeDirection }) => number) | null
+  >(null);
   const swipeStartTimeRef = React.useRef<number | null>(null);
   const lastDragSampleRef = React.useRef<{ x: number; y: number; time: number } | null>(null);
   const lastDragVelocityRef = React.useRef({ x: 0, y: 0 });
@@ -198,17 +201,13 @@ export function useSwipeDismiss(options: UseSwipeDismissOptions): UseSwipeDismis
       return;
     }
 
-    if (typeof swipeThresholdProp !== 'function') {
-      swipeThresholdRef.current = swipeThresholdDefault;
-      return;
-    }
-
     const element = elementRef.current;
-    if (!element) {
+    const thresholdFunction = swipeThresholdFunctionRef.current;
+    if (!element || !thresholdFunction) {
       return;
     }
 
-    const value = swipeThresholdProp({ element, direction });
+    const value = thresholdFunction({ element, direction });
 
     swipeThresholdRef.current = Math.max(0, value);
   }
@@ -303,6 +302,7 @@ export function useSwipeDismiss(options: UseSwipeDismissOptions): UseSwipeDismis
     updateSwipeProgress(0);
 
     swipeThresholdRef.current = swipeThresholdDefault;
+    swipeThresholdFunctionRef.current = null;
     dragStartPosRef.current = { x: 0, y: 0 };
     dragOffsetRef.current = { x: 0, y: 0 };
     initialTransformRef.current = { x: 0, y: 0, scale: 1 };
@@ -325,12 +325,6 @@ export function useSwipeDismiss(options: UseSwipeDismissOptions): UseSwipeDismis
     syncDragStyles(false);
   }, [setSwiping, swipeThresholdDefault, syncDragStyles, updateSwipeProgress]);
 
-  React.useEffect(() => {
-    if (typeof swipeThresholdProp !== 'function') {
-      swipeThresholdRef.current = swipeThresholdDefault;
-    }
-  }, [swipeThresholdDefault, swipeThresholdProp]);
-
   function getPrimaryPointerPosition(
     event: SwipeDismissStartEvent | SwipeDismissMoveEvent | SwipeDismissEndEvent,
   ) {
@@ -352,8 +346,8 @@ export function useSwipeDismiss(options: UseSwipeDismissOptions): UseSwipeDismis
   }
 
   function getTargetAtPoint(position: { x: number; y: number }, nativeEvent: Event) {
-    const doc = ownerDocument(elementRef.current);
-    const elementAtPoint = getElementAtPoint(doc, position.x, position.y);
+    const root = elementRef.current?.getRootNode();
+    const elementAtPoint = getElementAtPoint(root, position.x, position.y);
     const target = elementAtPoint ?? getTarget(nativeEvent);
     return target as HTMLElement | null;
   }
@@ -420,6 +414,9 @@ export function useSwipeDismiss(options: UseSwipeDismissOptions): UseSwipeDismis
     swipeStartTimeRef.current = getValidTimeStamp(event.timeStamp);
     swipeCancelBaselineRef.current = position;
     lastMovePosRef.current = position;
+    swipeThresholdRef.current = swipeThresholdDefault;
+    swipeThresholdFunctionRef.current =
+      typeof swipeThresholdProp === 'function' ? swipeThresholdProp : null;
 
     if (element) {
       elementSizeRef.current = { width: element.offsetWidth, height: element.offsetHeight };

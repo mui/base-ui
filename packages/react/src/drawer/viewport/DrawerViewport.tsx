@@ -5,6 +5,7 @@ import { isElement } from '@floating-ui/utils/dom';
 import { addEventListener } from '@base-ui/utils/addEventListener';
 import { ownerDocument, ownerWindow } from '@base-ui/utils/owner';
 import { useAnimationFrame } from '@base-ui/utils/useAnimationFrame';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useDialogRootContext } from '../../dialog/root/DialogRootContext';
 import { DialogViewport } from '../../dialog/viewport/DialogViewport';
@@ -353,7 +354,7 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
       }
 
       const doc = popupElement.ownerDocument;
-      const elementAtPoint = getElementAtPoint(doc, position.x, position.y);
+      const elementAtPoint = getElementAtPoint(popupElement.getRootNode(), position.x, position.y);
       if (!elementAtPoint || !contains(popupElement, elementAtPoint)) {
         return false;
       }
@@ -764,7 +765,7 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
     virtualKeyboard,
   ]);
 
-  React.useEffect(() => {
+  useIsoLayoutEffect(() => {
     if (!snapPointRange || swipe.swiping) {
       return;
     }
@@ -783,7 +784,7 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
     visualStateStore,
   ]);
 
-  React.useEffect(() => {
+  useIsoLayoutEffect(() => {
     if (!notifyParentSwipeProgressChange) {
       return undefined;
     }
@@ -797,7 +798,7 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
     };
   }, [notifyParentSwipeProgressChange, open]);
 
-  React.useEffect(() => {
+  useIsoLayoutEffect(() => {
     if (open) {
       // Skip `resetSwipe` while `Drawer.SwipeArea` is driving the open: it zeroes the popup's
       // `--swipe-movement-*` (via `syncDragStyles(false)`), flashing it fully open for a frame.
@@ -810,7 +811,7 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
     }
   }, [clearSwipeRelease, open, resetSwipe, swipeAreaActiveRef]);
 
-  React.useEffect(() => {
+  useIsoLayoutEffect(() => {
     const backdropElement = backdropRef.current;
 
     return () => {
@@ -869,8 +870,11 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
             return;
           }
 
-          const doc = ownerDocument(event.currentTarget);
-          const elementAtPoint = getElementAtPoint(doc, event.clientX, event.clientY);
+          const elementAtPoint = getElementAtPoint(
+            event.currentTarget.getRootNode(),
+            event.clientX,
+            event.clientY,
+          );
           if (isSwipeIgnoredTarget(elementAtPoint) || isDrawerContentTarget(elementAtPoint)) {
             return;
           }
@@ -922,9 +926,12 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
             return;
           }
 
-          const doc = ownerDocument(event.currentTarget);
-          const elementAtPoint = getElementAtPoint(doc, touch.clientX, touch.clientY);
           const rootElement = event.currentTarget;
+          const elementAtPoint = getElementAtPoint(
+            rootElement.getRootNode(),
+            touch.clientX,
+            touch.clientY,
+          );
           const eventTarget = getTarget(event.nativeEvent);
           const target = isElement(eventTarget) ? eventTarget : rootElement;
           if (!contains(rootElement, target)) {

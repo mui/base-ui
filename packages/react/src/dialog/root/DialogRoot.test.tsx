@@ -9,9 +9,12 @@ import { Select } from '@base-ui/react/select';
 import { NumberField } from '@base-ui/react/number-field';
 import { ScrollArea } from '@base-ui/react/scroll-area';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useTimeout } from '@base-ui/utils/useTimeout';
 import { REASONS } from '../../internals/reasons';
 import { useDialogRootContext } from './DialogRootContext';
+import { DialogStore } from '../store/DialogStore';
+import { DialogInteractions } from './useDialogRoot';
 
 describe('<Dialog.Root />', () => {
   const { render } = createRenderer();
@@ -32,6 +35,75 @@ describe('<Dialog.Root />', () => {
     render,
     triggerMouseAction: 'click',
     expectedPopupRole: 'dialog',
+  });
+
+  it('reports nested drawer counts before passive effects', async () => {
+    const childStore = new DialogStore(
+      {
+        open: true,
+        mounted: true,
+        modal: false,
+        disablePointerDismissal: false,
+      },
+      undefined,
+      true,
+    );
+    const parentStore = new DialogStore(undefined, undefined, false);
+    let mountPassiveEffectFlushed = false;
+    let teardownPassiveEffectFlushed = false;
+    let mountedBeforePassiveEffect: boolean | null = null;
+    let unmountedBeforePassiveEffect: boolean | null = null;
+    let phase: 'mount' | 'teardown' = 'mount';
+
+    Object.assign(parentStore.context, {
+      onNestedDialogOpen(dialogCount: number, drawerCount: number) {
+        if (drawerCount > 0 && mountedBeforePassiveEffect === null) {
+          mountedBeforePassiveEffect = !mountPassiveEffectFlushed;
+        }
+        if (
+          phase === 'teardown' &&
+          dialogCount === 0 &&
+          drawerCount === 0 &&
+          unmountedBeforePassiveEffect === null
+        ) {
+          unmountedBeforePassiveEffect = !teardownPassiveEffectFlushed;
+        }
+      },
+    });
+
+    function PassiveEffectBoundary() {
+      useIsoLayoutEffect(
+        () => () => {
+          teardownPassiveEffectFlushed = false;
+        },
+        [],
+      );
+
+      React.useEffect(() => {
+        mountPassiveEffectFlushed = true;
+        return () => {
+          teardownPassiveEffectFlushed = true;
+        };
+      }, []);
+
+      return null;
+    }
+
+    const { unmount } = await render(
+      <React.Fragment>
+        <PassiveEffectBoundary />
+        <DialogInteractions store={childStore} parentContext={parentStore.context} isDrawer />
+      </React.Fragment>,
+    );
+
+    expect(mountedBeforePassiveEffect).toBe(true);
+
+    phase = 'teardown';
+    await act(async () => {
+      unmount();
+    });
+
+    expect(unmountedBeforePassiveEffect).toBe(true);
   });
 
   it('keeps trigger ownership when another trigger mounts while open', async () => {

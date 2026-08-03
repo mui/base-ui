@@ -9,6 +9,7 @@ import { REASONS } from '../../internals/reasons';
 import {
   useImplicitActiveTrigger,
   useOpenStateTransitions,
+  PopupHandleAttachment,
   usePopupRootStore,
   usePopupRootSync,
 } from '../../utils/popups';
@@ -46,7 +47,6 @@ export function useRenderDialogRoot<Payload>(
   // Default values are only initial values; controlled values and root state are synced after creation.
   // Dialogs pass the popup element to Floating UI as the floating element (`treatPopupAsFloatingElement`).
   const store = usePopupRootStore(
-    handle,
     (floatingId, floatingNested) =>
       new DialogStore<Payload>(
         {
@@ -90,6 +90,7 @@ export function useRenderDialogRoot<Payload>(
 
   return (
     <DialogRootContext.Provider value={store as DialogStore<unknown>}>
+      {handle && <PopupHandleAttachment handle={handle} store={store} />}
       {shouldRenderInteractions && (
         <DialogInteractions
           store={store}

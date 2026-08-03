@@ -1,4 +1,5 @@
 import { afterEach, expect, vi } from 'vitest';
+import * as React from 'react';
 import { act, screen } from '@mui/internal-test-utils';
 import { Menu } from '@base-ui/react/menu';
 import { createRenderer, describeConformance } from '#test-utils';
@@ -158,6 +159,44 @@ describe('<Menu.GroupLabel />', () => {
       const groupLabel = screen.getByText('Test group');
 
       expect(radioGroup).toHaveAttribute('aria-labelledby', groupLabel.id);
+    });
+
+    it('does not let an older label cleanup clear a newer label', async () => {
+      function Test({ labels }: { labels: 'old' | 'both' | 'new' }) {
+        return (
+          <Menu.Root open>
+            <Menu.Portal>
+              <Menu.Positioner>
+                <Menu.Popup>
+                  <Menu.Group>
+                    {labels !== 'new' && (
+                      <Menu.GroupLabel key="old" id="old-label">
+                        Old
+                      </Menu.GroupLabel>
+                    )}
+                    {labels !== 'old' && (
+                      <Menu.GroupLabel key="new" id="new-label">
+                        New
+                      </Menu.GroupLabel>
+                    )}
+                  </Menu.Group>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
+          </Menu.Root>
+        );
+      }
+
+      const { rerender } = await render(<Test labels="old" />);
+
+      const group = screen.getByRole('group');
+      expect(group).toHaveAttribute('aria-labelledby', 'old-label');
+
+      await rerender(<Test labels="both" />);
+      expect(group).toHaveAttribute('aria-labelledby', 'new-label');
+
+      await rerender(<Test labels="new" />);
+      expect(group).toHaveAttribute('aria-labelledby', 'new-label');
     });
   });
 });

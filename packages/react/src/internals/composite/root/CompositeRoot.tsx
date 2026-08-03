@@ -11,9 +11,6 @@ import type { CompositeGridNavigator } from './gridNavigation';
 import { useDirection } from '../../direction-context/DirectionContext';
 import { StateAttributesMapping } from '../../getStateAttributesProps';
 
-/**
- * @internal
- */
 export function CompositeRoot<Metadata extends {}, State extends Record<string, any>>(
   componentProps: CompositeRoot.Props<Metadata, State>,
 ) {

@@ -14,6 +14,7 @@ import { useBaseUiId } from '../internals/useBaseUiId';
 import { MenuOpenEventDetails } from '../menu/utils/types';
 import { StateAttributesMapping } from '../internals/getStateAttributesProps';
 import { MenubarDataAttributes } from './MenubarDataAttributes';
+import { REASONS } from '../internals/reasons';
 
 const menubarStateAttributesMapping: StateAttributesMapping<MenubarState> = {
   hasSubmenuOpen(value) {
@@ -109,7 +110,10 @@ function MenubarContent(props: React.PropsWithChildren<{}>) {
         if (!rootContext.hasSubmenuOpen) {
           rootContext.setHasSubmenuOpen(true);
         }
-      } else if (details.reason !== 'sibling-open' && details.reason !== 'list-navigation') {
+      } else if (
+        details.reason !== REASONS.siblingOpen &&
+        details.reason !== REASONS.listNavigation
+      ) {
         rootContext.setHasSubmenuOpen(false);
       }
     }
