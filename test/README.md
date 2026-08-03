@@ -174,6 +174,9 @@ Pull requests that change React, shared utilities, or the performance fixtures r
 merge base with the exact PR head using one measured iteration per benchmark and reports only
 additional or fewer renders, not runtime measurements.
 
+A PR that changes a render count also gets a comment with the per-benchmark breakdown, since the
+check on its own is easy to miss. A PR that changes nothing is left alone.
+
 A maintainer with write access can comment `/benchmark` on any open PR to request the full
 performance suite. This is a deterministic CI command and does not invoke Claude. The full suite
 runs the unchanged benchmark settings for the merge base and the exact PR head in ABBA order

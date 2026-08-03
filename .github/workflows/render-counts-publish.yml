@@ -20,7 +20,7 @@ jobs:
       actions: read
       checks: write
       contents: read
-      pull-requests: read
+      pull-requests: write
     steps:
       - name: Download pull request identity
         uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
@@ -154,3 +154,40 @@ jobs:
               details_url: process.env.RUN_URL,
               output: { title, summary },
             });
+
+            // The check alone is easy to miss among the other checks, so mirror
+            // it into a comment — but only once a PR actually changes a count.
+            const marker = '<!-- render-counts -->';
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: collectorContext.prNumber,
+              per_page: 100,
+            });
+            const previous = comments.find((comment) => comment.body?.startsWith(marker));
+            if (!rows.length && !previous) {
+              return;
+            }
+            const body = [
+              marker,
+              `### ${title}`,
+              '',
+              summary,
+              '',
+              `[Details](${process.env.RUN_URL})`,
+            ].join('\n');
+            if (previous) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: previous.id,
+                body,
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: collectorContext.prNumber,
+                body,
+              });
+            }
