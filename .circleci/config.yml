@@ -12,6 +12,10 @@ parameters:
     description: The version of react to be used
     type: string
     default: stable
+  benchmark-sha:
+    description: Exact PR head to benchmark in the dedicated benchmark workflow.
+    type: string
+    default: ''
   workflow:
     description: The name of the workflow to run
     type: string
@@ -273,19 +277,19 @@ jobs:
     steps:
       - checkout
       - run:
-          name: Check for a full benchmark request
+          name: Verify the requested PR head
           command: |
             set -euo pipefail
-            REQUESTED=$(node test/performance/scripts/isFullBenchmarkRequested.mts)
-            if [ "$REQUESTED" != "true" ]; then
-              echo "No /benchmark request for $CIRCLE_SHA1; skipping the full suite."
-              circleci-agent step halt
+            EXPECTED_SHA="<< pipeline.parameters.benchmark-sha >>"
+            if [ -z "$EXPECTED_SHA" ] || [ "$CIRCLE_SHA1" != "$EXPECTED_SHA" ]; then
+              echo "Expected PR head $EXPECTED_SHA but CircleCI checked out $CIRCLE_SHA1." >&2
+              exit 1
             fi
-            if [ "$(git rev-parse HEAD)" != "$CIRCLE_SHA1" ]; then
+            if [ "$(git rev-parse HEAD)" != "$EXPECTED_SHA" ]; then
               echo "CircleCI did not check out the requested PR head." >&2
               exit 1
             fi
-            echo "Full benchmark requested for $CIRCLE_SHA1."
+            echo "Running the full benchmark for $EXPECTED_SHA."
       - code-infra/install-deps
       - run:
           name: Prepare current master
@@ -362,9 +366,6 @@ workflows:
       - docs_validate:
           <<: *default-context
           name: 'Validating Docs'
-      - test_benchmark:
-          <<: *default-context
-          name: 'Benchmark tests'
       - test_unit_compiler:
           <<: *default-context
           name: 'JSDOM tests (React Compiler)'
@@ -399,3 +400,10 @@ workflows:
       - test_types_next:
           <<: *default-context
           name: 'Typechecking (typescript@next)'
+  benchmark:
+    when:
+      equal: [benchmark, << pipeline.parameters.workflow >>]
+    jobs:
+      - test_benchmark:
+          <<: *default-context
+          name: 'Benchmark tests'

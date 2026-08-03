@@ -1,10 +1,10 @@
 # This workflow never executes PR code. It treats the collector artifact as
 # untrusted data and publishes only validated render counts.
-name: Publish React render counts
+name: Publish render counts
 
 on:
   workflow_run:
-    workflows: ['React render counts']
+    workflows: ['Performance']
     types: [completed]
 
 permissions: {}
@@ -148,7 +148,7 @@ jobs:
               owner: context.repo.owner,
               repo: context.repo.repo,
               ref: headSha,
-              check_name: 'React render counts',
+              check_name: 'Render counts',
               filter: 'latest',
             });
             const existing = data.check_runs.find(
@@ -157,7 +157,7 @@ jobs:
             const input = {
               owner: context.repo.owner,
               repo: context.repo.repo,
-              name: 'React render counts',
+              name: 'Render counts',
               status: 'completed',
               conclusion: increased ? 'neutral' : 'success',
               details_url: process.env.RUN_URL,

@@ -1,6 +1,6 @@
 # PR code runs only with the untrusted pull_request token. A separate
 # workflow_run workflow validates the artifact and publishes the visible check.
-name: React render counts
+name: Performance
 
 on:
   pull_request:
@@ -16,10 +16,13 @@ permissions: {}
 
 jobs:
   collect:
-    name: Collect render counts
+    name: Render counts
     runs-on: ubuntu-latest
     timeout-minutes: 20
     container: mcr.microsoft.com/playwright:v1.59.1-noble
+    defaults:
+      run:
+        shell: bash
     permissions:
       contents: read
     steps:

@@ -1,6 +1,6 @@
-# `/benchmark` requests the full suite by rerunning the existing CircleCI benchmark
-# job for the exact PR head. CircleCI keeps the original PR identity and OIDC
-# claims, so the code-infra dashboard updates its existing consolidated comment.
+# `/benchmark` starts a dedicated CircleCI pipeline for the exact PR head.
+# The full master/PR comparison remains in one CircleCI job so the code-infra
+# dashboard can update its existing consolidated PR comment.
 name: Full benchmark
 
 on:
@@ -19,19 +19,17 @@ jobs:
         github.event.changes.body.from != '/benchmark'
       )
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 5
     concurrency:
       group: full-benchmark-${{ github.event.issue.number }}
       cancel-in-progress: false
     permissions:
       contents: read
-      statuses: write
     steps:
       - name: Verify commenter and request full benchmark
         uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
         env:
           CIRCLECI_TOKEN: ${{ secrets.CIRCLECI_TOKEN }}
-          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
         with:
           script: |
             const { data: permission } = await github.rest.repos.getCollaboratorPermissionLevel({
@@ -95,53 +93,6 @@ jobs:
               return;
             }
 
-            const findCircleJob = async () => {
-              const { data } = await github.rest.repos.getCombinedStatusForRef({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                ref: headSha,
-              });
-              return data.statuses.find(
-                (status) => status.context === 'ci/circleci: Benchmark tests',
-              );
-            };
-
-            let circleStatus;
-            for (let attempt = 0; attempt < 60; attempt += 1) {
-              circleStatus = await findCircleJob();
-              if (circleStatus && circleStatus.state !== 'pending') {
-                break;
-              }
-              await new Promise((resolve) => setTimeout(resolve, 10_000));
-            }
-
-            if (!circleStatus || circleStatus.state === 'pending') {
-              core.setFailed('The ordinary CircleCI Benchmark tests job has not finished yet.');
-              return;
-            }
-
-            const jobNumber = /\/(\d+)(?:\?.*)?$/.exec(circleStatus.target_url || '')?.[1];
-            if (!jobNumber) {
-              core.setFailed(`Could not read a CircleCI job number from ${circleStatus.target_url}.`);
-              return;
-            }
-
-            const metadataResponse = await fetch(
-              `https://circleci.com/api/v1.1/project/github/${context.repo.owner}/${context.repo.repo}/${jobNumber}`,
-              { headers: { 'Circle-Token': process.env.CIRCLECI_TOKEN } },
-            );
-            if (!metadataResponse.ok) {
-              core.setFailed(`CircleCI job lookup failed (${metadataResponse.status}).`);
-              return;
-            }
-            const metadata = await metadataResponse.json();
-            const workflowId = metadata.workflows?.workflow_id;
-            const jobId = metadata.workflows?.job_id;
-            if (!workflowId || !jobId) {
-              core.setFailed('CircleCI did not return the workflow and job IDs needed for a rerun.');
-              return;
-            }
-
             const [{ data: latestPr }, { data: latestMasterBranch }] = await Promise.all([
               github.rest.pulls.get({
                 owner: context.repo.owner,
@@ -165,41 +116,29 @@ jobs:
               return;
             }
 
-            await github.rest.repos.createCommitStatus({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              sha: headSha,
-              state: 'success',
-              context: 'benchmark/full-requested',
-              description: 'Full benchmark requested by a maintainer',
-              target_url: process.env.RUN_URL,
-            });
-
-            const rerunResponse = await fetch(
-              `https://circleci.com/api/v2/workflow/${workflowId}/rerun`,
+            const pipelineResponse = await fetch(
+              `https://circleci.com/api/v2/project/gh/${context.repo.owner}/${context.repo.repo}/pipeline`,
               {
                 method: 'POST',
                 headers: {
                   'Circle-Token': process.env.CIRCLECI_TOKEN,
                   'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ jobs: [jobId], sparse_tree: true }),
+                body: JSON.stringify({
+                  branch: `pull/${context.issue.number}/head`,
+                  parameters: {
+                    workflow: 'benchmark',
+                    'benchmark-sha': headSha,
+                  },
+                }),
               },
             );
-            if (!rerunResponse.ok) {
-              await github.rest.repos.createCommitStatus({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                sha: headSha,
-                state: 'error',
-                context: 'benchmark/full-requested',
-                description: 'CircleCI rejected the full benchmark request',
-                target_url: process.env.RUN_URL,
-              });
+            if (!pipelineResponse.ok) {
               core.setFailed(
-                `CircleCI rerun failed (${rerunResponse.status}): ${await rerunResponse.text()}`,
+                `CircleCI pipeline request failed (${pipelineResponse.status}): ${await pipelineResponse.text()}`,
               );
               return;
             }
 
-            core.notice(`Requested a full benchmark for ${headSha}.`);
+            const pipeline = await pipelineResponse.json();
+            core.notice(`Requested CircleCI benchmark pipeline ${pipeline.id} for ${headSha}.`);
