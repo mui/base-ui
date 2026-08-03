@@ -104,7 +104,11 @@ describe('<Combobox.Virtualizer />', () => {
               />
             }
           >
-            {(item: string) => <Combobox.Item value={item}>{item}</Combobox.Item>}
+            {(item: string) => (
+              <Combobox.Item value={item} style={{ height: 20 }}>
+                {item}
+              </Combobox.Item>
+            )}
           </Combobox.Virtualizer>
         </Combobox.List>
       </Combobox.Root>,
@@ -748,7 +752,7 @@ describe('<Combobox.Virtualizer />', () => {
                   }
                 >
                   {(item: string) => (
-                    <Combobox.Item key={item} value={item}>
+                    <Combobox.Item key={item} value={item} style={{ height: 20 }}>
                       {item}
                     </Combobox.Item>
                   )}
@@ -1433,13 +1437,28 @@ describe('<Combobox.Virtualizer />', () => {
 
     const virtualizer = screen.getByTestId('virtualizer');
     await waitFor(() => expect(virtualizer.style.getPropertyValue('--total-size')).toBe('3200px'));
+
+    // Highlighting a row keeps its scroll request pending until the row is measured, even when the
+    // row already sits in view and no scrolling is needed. Let that request resolve before
+    // simulating a user scroll: retried afterwards, it realigns the highlighted row with the top of
+    // the viewport and pulls the list straight back to where it started.
+    await act(
+      () =>
+        new Promise((resolve) => {
+          setTimeout(resolve, 250);
+        }),
+    );
+
     scrollTop = 320;
     fireEvent.scroll(virtualizer);
 
-    const activeItem = input.ownerDocument.getElementById(activeId as string);
-    await waitFor(() => expect(activeItem).not.toBe(null));
-    expect(activeItem?.parentElement).toHaveStyle({ position: 'absolute' });
-    expect(activeItem?.parentElement?.style.transform).toBe('translateX(-10000px)');
+    // The scroll event re-renders the window asynchronously, and the highlighted row is remounted
+    // as the retained proxy, so the row has to be looked up again on every attempt.
+    const getHighlightedRow = () =>
+      input.ownerDocument.getElementById(activeId as string)?.parentElement ?? null;
+
+    await waitFor(() => expect(getHighlightedRow()).toHaveStyle({ position: 'absolute' }));
+    expect(getHighlightedRow()?.style.transform).toBe('translateX(-10000px)');
     expect(virtualizer.style.getPropertyValue('--total-size')).toBe('3200px');
   });
 
@@ -1454,7 +1473,11 @@ describe('<Combobox.Virtualizer />', () => {
         }
       }, [props.item]);
 
-      return <Combobox.Item value={props.item}>{props.item}</Combobox.Item>;
+      return (
+        <Combobox.Item value={props.item} style={{ height: 32 }}>
+          {props.item}
+        </Combobox.Item>
+      );
     }
 
     const { user } = await renderNonStrict(
@@ -1487,6 +1510,15 @@ describe('<Combobox.Virtualizer />', () => {
     await user.click(input);
     await user.keyboard('{ArrowDown}');
     expect(handleItemMount).toHaveBeenCalledTimes(1);
+
+    // See the sibling test above: the highlight's scroll request stays pending until the row is
+    // measured, and retrying it after a user scroll pulls the list back to the top.
+    await act(
+      () =>
+        new Promise((resolve) => {
+          setTimeout(resolve, 250);
+        }),
+    );
 
     scrollTop = 320;
     fireEvent.scroll(screen.getByTestId('virtualizer'));
