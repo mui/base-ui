@@ -169,23 +169,16 @@ export function usePopupViewport(parameters: UsePopupViewportParameters): UsePop
       const offset = calculateRelativePosition(previousActiveTrigger, activeTrigger);
       setNewTriggerOffset(offset);
 
-      cleanupFrame.request(() => {
-        ReactDOM.flushSync(() => {
-          setShowStartingStyleAttribute(false);
-        });
-        armViewportCleanup();
-      });
-
       lastHandledTriggerRef.current = activeTrigger;
     }
-  }, [activeTrigger, previousActiveTrigger, previousContentNode, armViewportCleanup, cleanupFrame]);
+  }, [activeTrigger, previousActiveTrigger]);
 
-  // The current container can remount mid-transition when a lagging payload bumps
-  // `currentContentKey`. The remount discards the running entry animation (and with
-  // transition-style CSS the replacement mounts at final styles with no animation at
-  // all), so re-run the starting-style choreography and re-arm the cleanup watcher —
-  // otherwise the watcher either strands or fires before the previous container's
-  // exit animation finishes.
+  // Arm cleanup after a trigger change, and re-arm it if the current container remounts
+  // mid-transition when a lagging payload bumps `currentContentKey`. The remount discards
+  // the running entry animation (and with transition-style CSS the replacement mounts at
+  // final styles with no animation at all), so re-run the starting-style choreography —
+  // otherwise the watcher either strands or fires before the previous container's exit
+  // animation finishes.
   useIsoLayoutEffect(() => {
     if (previousContentNode == null) {
       return;
