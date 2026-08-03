@@ -361,6 +361,16 @@ export const ListVirtualizer = React.forwardRef(function ListVirtualizer<
    * from the scroll events of our own corrective writes.
    */
   const programmaticScrollTopRef = React.useRef<number | null>(null);
+  /**
+   * Position the scrollport should be at while the browser still refuses to scroll there. A scroll
+   * container gains its scrollable overflow only on the frame after the one that mounts it, so the
+   * write that opens a popup at a distant row is clamped back to zero. The rendered window and the
+   * render zone follow this offset instead of the DOM, which keeps the destination on screen from
+   * the first paint: the rows are positioned inside a sticky viewport, so what they paint over
+   * does not depend on `scrollTop` at all.
+   */
+  const pendingViewportScrollTopRef = React.useRef<number | null>(null);
+  const pendingViewportScrollFrame = useAnimationFrame();
 
   // Scrolling is treated as ongoing until this long without a scroll position change, so that
   // geometry rewrites can be held back for the duration of a gesture.
@@ -412,7 +422,12 @@ export const ListVirtualizer = React.forwardRef(function ListVirtualizer<
     // A geometry commit that shrinks the content makes the browser clamp the scroll position
     // during layout, before any scroll event updates the engine's bookkeeping. The live DOM
     // position is authoritative; the ref only bridges the moments without a scroll element.
-    const scrollTop = scrollElementRef.current?.scrollTop ?? scrollTopRef.current;
+    // While a requested position is still waiting for the scrollport to accept it, that position
+    // is what the rows are rendered for, so the transform must use it too.
+    const scrollTop =
+      pendingViewportScrollTopRef.current ??
+      scrollElementRef.current?.scrollTop ??
+      scrollTopRef.current;
     const stacked = renderZoneOffsetTopRef.current - scrollTop;
     let translate = stacked;
     const virtualEnd = renderZoneVirtualEndRef.current;
@@ -464,6 +479,8 @@ export const ListVirtualizer = React.forwardRef(function ListVirtualizer<
       pendingScrollRowIndexRef.current = null;
       pendingScrollRowIdRef.current = null;
       pendingScrollRequiresAdaptiveEstimateRef.current = false;
+      pendingViewportScrollTopRef.current = null;
+      pendingViewportScrollFrame.cancel();
     }
 
     scrollTopRef.current = scrollPosition.top;
@@ -771,10 +788,14 @@ export const ListVirtualizer = React.forwardRef(function ListVirtualizer<
     // Mirrors the effect's own takeover guard: the user has not scrolled away since the snapshot.
     (Math.abs(liveScrollTop - scrollAnchor.scrollTop) < 1 ||
       Math.abs(liveScrollTop - anticipatedMaxScrollTop) < 1);
-  const renderScrollTop =
+  const settledRenderScrollTop =
     anticipateBottomPin && anticipatedMaxScrollTop !== null
       ? anticipatedMaxScrollTop
       : clampedLiveScrollTop;
+  // A position the scrollport has not accepted yet still decides what the user sees, because the
+  // rows paint inside the sticky viewport rather than at `scrollTop`. Render for it so the first
+  // paint after a scroll request already shows the destination.
+  const renderScrollTop = pendingViewportScrollTopRef.current ?? settledRenderScrollTop;
 
   const overscannedRenderContext = getOverscannedRenderContext(
     anticipateBottomPin
@@ -971,6 +992,37 @@ export const ListVirtualizer = React.forwardRef(function ListVirtualizer<
     virtualizer.api,
   ]);
 
+  /**
+   * Re-applies a position the scrollport rejected, on the frame where its scrollable overflow
+   * exists. The rows already paint at that position, so this only brings `scrollTop` and the
+   * scrollbar in line. A single attempt is enough to schedule: the pending scroll request retries
+   * the write on each of its own measurement passes, and the rows keep rendering for the requested
+   * position until one of them lands, so a scrollport that stays unscrollable never spins a frame
+   * loop for as long as the request stands.
+   */
+  const applyPendingViewportScroll = useStableCallback(() => {
+    const scrollElement = scrollElementRef.current;
+    const pendingScrollTop = pendingViewportScrollTopRef.current;
+
+    if (pendingScrollTop == null) {
+      return;
+    }
+
+    if (scrollElement == null || pendingScrollRowIndexRef.current == null) {
+      pendingViewportScrollTopRef.current = null;
+      return;
+    }
+
+    programmaticScrollTopRef.current = pendingScrollTop;
+    scrollElement.scrollTo({ behavior: 'instant' as ScrollBehavior, top: pendingScrollTop });
+    const appliedScrollTop = scrollElement.scrollTop;
+
+    if (Math.abs(appliedScrollTop - pendingScrollTop) <= 1) {
+      pendingViewportScrollTopRef.current = null;
+      handleScrollChange({ top: appliedScrollTop });
+    }
+  });
+
   const scrollRowIntoView = useStableCallback(
     (
       rowIndex: number,
@@ -1054,6 +1106,8 @@ export const ListVirtualizer = React.forwardRef(function ListVirtualizer<
         const scrollApplied = Math.abs(appliedScrollTop - clampedScrollTop) <= 1;
 
         if (scrollApplied) {
+          pendingViewportScrollTopRef.current = null;
+          pendingViewportScrollFrame.cancel();
           pendingScrollRequiresMeasurementRef.current = true;
           // The native scroll event is asynchronous. Realign the sticky render zone immediately so
           // keyboard navigation cannot expose a blank edge or leave the highlighted row offscreen
@@ -1063,11 +1117,16 @@ export const ListVirtualizer = React.forwardRef(function ListVirtualizer<
             bumpWindowRevision();
           }
         } else {
-          // A newly opened popup can run this before its full scroll range is laid out. The browser
-          // then rejects the requested position. Keep the request pending for the rowsMeta retry
-          // instead of translating the initial render window by a scroll that never happened.
-          programmaticScrollTopRef.current = appliedScrollTop;
+          // A newly opened popup runs this before its scrollable overflow exists, and the browser
+          // clamps the write back to the top. The destination is still known, so hold it as the
+          // position to render for: the window below is built from it and the sticky render zone
+          // is offset by it, which puts the requested row on screen in this same commit. Only the
+          // scrollbar still lags, until the retry below lands once the scrollport can accept it.
+          programmaticScrollTopRef.current = clampedScrollTop;
+          pendingViewportScrollTopRef.current = clampedScrollTop;
           pendingScrollRequiresMeasurementRef.current = false;
+          bumpWindowRevision();
+          pendingViewportScrollFrame.request(applyPendingViewportScroll);
           return false;
         }
       } else {
@@ -1140,6 +1199,8 @@ export const ListVirtualizer = React.forwardRef(function ListVirtualizer<
       pendingScrollRowIndexRef.current = null;
       pendingScrollRowIdRef.current = null;
       pendingScrollRequiresAdaptiveEstimateRef.current = false;
+      pendingViewportScrollTopRef.current = null;
+      pendingViewportScrollFrame.cancel();
       return;
     }
 
@@ -1164,7 +1225,14 @@ export const ListVirtualizer = React.forwardRef(function ListVirtualizer<
       pendingScrollRowIdRef.current = null;
       pendingScrollRequiresAdaptiveEstimateRef.current = false;
     }
-  }, [enabled, scrollRowIntoView, scrollToRowId, scrollToRowIndex, useAdaptiveEstimate]);
+  }, [
+    enabled,
+    pendingViewportScrollFrame,
+    scrollRowIntoView,
+    scrollToRowId,
+    scrollToRowIndex,
+    useAdaptiveEstimate,
+  ]);
 
   // Scroll anchoring: geometry updates (measurements replacing estimates, mounts realizing real
   // heights, estimate refreshes) can move the rendered rows relative to the scrollport while the
@@ -1446,6 +1514,8 @@ export const ListVirtualizer = React.forwardRef(function ListVirtualizer<
       pendingScrollRowIndexRef.current = null;
       pendingScrollRowIdRef.current = null;
       pendingScrollRequiresAdaptiveEstimateRef.current = false;
+      pendingViewportScrollTopRef.current = null;
+      pendingViewportScrollFrame.cancel();
       return;
     }
 
@@ -1464,6 +1534,7 @@ export const ListVirtualizer = React.forwardRef(function ListVirtualizer<
   }, [
     overscannedRenderContext.firstRowIndex,
     overscannedRenderContext.lastRowIndex,
+    pendingViewportScrollFrame,
     rows,
     rowsMeta,
     scrollRowIntoView,
@@ -1524,7 +1595,12 @@ export const ListVirtualizer = React.forwardRef(function ListVirtualizer<
               overflow: 'hidden',
               position: 'sticky',
               top: 0,
-              width: dimensions.viewportOuterSize.width,
+              // The measured viewport width only arrives a frame after the scrollport is laid
+              // out. A popup sized from its anchor has no width at all until it is positioned,
+              // and the rows cannot supply one because they render inside the absolute content
+              // above. Clipping to a measured width would blank the list until that measurement
+              // lands; the content box the rows already span is known without measuring.
+              width: '100%',
             }}
           >
             <div

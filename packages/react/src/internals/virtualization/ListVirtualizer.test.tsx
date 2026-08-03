@@ -900,9 +900,11 @@ describe('<ListVirtualizer />', () => {
     expect(scrollTo).toHaveBeenLastCalledWith({ behavior: 'instant', top: 120 });
   });
 
-  it('keeps the render zone in place when the scroll element rejects a requested position', async () => {
+  it('renders a requested position the scroll element has not accepted yet', async () => {
     const apiRef = React.createRef<ListVirtualizerHandle>();
     const scrollTo = vi.fn<(options: ScrollToOptions) => void>();
+    let acceptsScroll = false;
+    let scrollTop = 0;
 
     await render(
       <ListVirtualizer
@@ -922,11 +924,17 @@ describe('<ListVirtualizer />', () => {
               });
               Object.defineProperty(element, 'scrollTop', {
                 configurable: true,
-                get: () => 0,
+                get: () => scrollTop,
               });
               Object.defineProperty(element, 'scrollTo', {
                 configurable: true,
-                value: scrollTo,
+                value: (options: ScrollToOptions) => {
+                  scrollTo(options);
+                  // A scrollport without scrollable overflow clamps the write back to the top.
+                  if (acceptsScroll) {
+                    scrollTop = options.top ?? 0;
+                  }
+                },
               });
             }}
             data-testid="virtualizer"
@@ -944,7 +952,16 @@ describe('<ListVirtualizer />', () => {
     act(() => apiRef.current?.scrollToIndex(10, { align: 'start' }));
 
     expect(scrollTo).toHaveBeenLastCalledWith({ behavior: 'instant', top: 200 });
-    expect(renderZone?.style.transform).toMatch(/^translate3d\(0(?:px)?, 0px, 0(?:px)?\)$/);
+    // The scrollport rejected the write, but the rows are laid out for the position it was asked
+    // for, so the requested row is on screen in this commit rather than once the scroll lands.
+    expect(screen.getByText('Item 11').parentElement).not.toHaveStyle({ position: 'absolute' });
+    expect(renderZone?.style.transform).toContain('-20px');
+
+    // Once the scrollport can accept it, the retry brings `scrollTop` in line without moving the
+    // rows, which are already where the completed scroll puts them.
+    acceptsScroll = true;
+    await waitFor(() => expect(scrollTop).toBe(200));
+    expect(renderZone?.style.transform).toContain('-20px');
   });
 });
 
