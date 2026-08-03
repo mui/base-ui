@@ -161,14 +161,6 @@
   padding: 0;
 }
 
-.BuiltInList {
-  padding-block: 0.25rem;
-
-  &[data-empty] {
-    padding-block: 0;
-  }
-}
-
 .PlainList {
   box-sizing: border-box;
   max-height: min(22.5rem, var(--available-height));
@@ -189,11 +181,6 @@
   overflow: auto;
   overscroll-behavior: contain;
   scroll-padding-block: 0.25rem;
-}
-
-.BuiltInScroller {
-  height: min(22rem, var(--total-size));
-  max-height: min(22rem, calc(var(--available-height) - 0.5rem));
 }
 
 .VirtualizedPlaceholder {

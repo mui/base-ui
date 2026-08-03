@@ -217,7 +217,7 @@ The virtualizer is the scroll container, so constrain its height or maximum heig
 ```css
 .Scroller {
   height: min(22.5rem, var(--total-size));
-  max-height: calc(var(--available-height) - 0.5rem);
+  max-height: var(--available-height);
   overflow: auto;
 }
 ```

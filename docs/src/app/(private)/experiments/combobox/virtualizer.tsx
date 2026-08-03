@@ -68,9 +68,9 @@ function BuiltInVirtualizer(props: { varyingHeights: boolean }) {
         <Combobox.Positioner className={styles.Positioner} sideOffset={4}>
           <Combobox.Popup className={styles.Popup}>
             <Combobox.Empty className={styles.Empty}>No items found.</Combobox.Empty>
-            <Combobox.List className={styles.BuiltInList}>
+            <Combobox.List className={styles.List}>
               <Combobox.Virtualizer
-                className={`${styles.Scroller} ${styles.BuiltInScroller}`}
+                className={styles.Scroller}
                 estimatedItemHeight={12}
                 getItemKey={(item) => item.id}
                 overscanPx={40}
