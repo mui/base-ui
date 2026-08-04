@@ -65,7 +65,7 @@ setInputValue('-');
 ```
 
 The text is never formatted or clamped on the way in, so any string is allowed.
-Base UI proposes formatted text back through `onInputValueChange` when one is due — while typing, on blur, when stepping, and with the `'none'` reason when `value`, `locale`, or `format` change externally.
+Base UI proposes formatted text back through `onInputValueChange` when one is due — while typing, on blur, when stepping, and with the `'none'` reason when `value`, `locale`, or `format` change externally.
 Mirroring the callback back into `inputValue` therefore reproduces the uncontrolled behavior; ignoring a given call keeps your own text instead.
 
 ## API reference
