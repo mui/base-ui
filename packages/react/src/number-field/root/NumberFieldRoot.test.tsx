@@ -449,14 +449,10 @@ describe('<NumberField />', () => {
       expect(onInputValueChange.mock.calls[0][0]).toBe('10');
     });
 
-    it('should fire when a stale unparseable string is resynced after blur', async () => {
+    it('should reconcile a stale unparseable string on blur', async () => {
       const onInputValueChange = vi.fn();
-      // `Field.Root` re-renders on blur, which is what lets the formatting sync observe that
-      // typing has ended and reset text the blur handler itself leaves alone.
       await render(
-        <Field.Root>
-          <NumberField min={-10} defaultValue={5} onInputValueChange={onInputValueChange} />
-        </Field.Root>,
+        <NumberField min={-10} defaultValue={5} onInputValueChange={onInputValueChange} />,
       );
       const input = screen.getByRole('textbox');
 
@@ -469,7 +465,23 @@ describe('<NumberField />', () => {
       expect(input).toHaveValue('5');
       expect(onInputValueChange).toHaveBeenCalledTimes(1);
       expect(onInputValueChange.mock.calls[0][0]).toBe('5');
-      expect(onInputValueChange.mock.calls[0][1].reason).toBe(REASONS.none);
+      expect(onInputValueChange.mock.calls[0][1].reason).toBe(REASONS.inputBlur);
+    });
+
+    it('should reconcile a stale unparseable string identically inside a Field', async () => {
+      // Blur used to leave this text alone and rely on an unrelated re-render to trigger the
+      // formatting sync, so the result depended on whether a `Field.Root` happened to re-render.
+      await render(
+        <Field.Root>
+          <NumberField min={-10} defaultValue={5} />
+        </Field.Root>,
+      );
+      const input = screen.getByRole('textbox');
+
+      fireEvent.change(input, { target: { value: '-' } });
+      fireEvent.blur(input);
+
+      expect(input).toHaveValue('5');
     });
 
     it('should report the text before the value for both typing and pasting', async () => {

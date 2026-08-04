@@ -1212,7 +1212,10 @@ describe('<NumberField.Input />', () => {
 
     expect(onValueChange).not.toHaveBeenCalled();
     expect(onValueCommitted).not.toHaveBeenCalled();
-    expect(input).toHaveValue(formattedOverflow);
+    // The text overflows to `Infinity` when parsed, so it can never back a value. Blur reconciles
+    // it away like any other unparseable text rather than leaving the field showing a number its
+    // value contradicts.
+    expect(input).toHaveValue('');
   });
 
   it('should not commit a canceled blur change', async () => {

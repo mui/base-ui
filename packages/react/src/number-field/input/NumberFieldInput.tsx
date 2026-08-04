@@ -54,7 +54,7 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
   const { render, className, style, ...elementProps } = componentProps;
 
   const {
-    allowInputSyncRef,
+    isTextUserAuthored,
     formatOptionsRef,
     getAllowedNonNumericKeys,
     getStepAmount,
@@ -158,10 +158,9 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
         return;
       }
 
-      const hadManualInput = !allowInputSyncRef.current;
+      // Read before any write below reconciles the text back to `value`.
+      const hadManualInput = isTextUserAuthored();
       const hadPendingProgrammaticChange = hasPendingCommitRef.current;
-
-      allowInputSyncRef.current = true;
 
       if (inputValue.trim() === '') {
         const clearDetails = createChangeEventDetails(REASONS.inputClear, event.nativeEvent);
@@ -184,6 +183,15 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
       const formatOptions = formatOptionsRef.current;
       const parsedValue = parseNumber(inputValue, locale, formatOptions);
       if (parsedValue === null) {
+        // The text can never become a number (a lone `-`, `.`, or similar), so `value` stands and
+        // the text goes back to matching it. Leaving it would strand the field showing something
+        // its value contradicts, which is what the old formatting-sync fallback papered over —
+        // and only when an unrelated re-render happened to follow.
+        setInputValue(
+          formatNumber(value, locale, formatOptions),
+          createChangeEventDetails(REASONS.inputBlur, event.nativeEvent),
+          'value',
+        );
         return;
       }
 
@@ -232,14 +240,12 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
         onValueCommitted(committedValue, nextEventDetails);
       }
 
-      // Normalize only the displayed text
-      const canonicalText = formatNumber(committedValue, locale, formatOptions);
-      if (inputValue !== canonicalText) {
-        setInputValue(
-          canonicalText,
-          createChangeEventDetails(REASONS.inputBlur, event.nativeEvent),
-        );
-      }
+      // Reconcile the displayed text with what was actually stored.
+      setInputValue(
+        formatNumber(committedValue, locale, formatOptions),
+        createChangeEventDetails(REASONS.inputBlur, event.nativeEvent),
+        'value',
+      );
     },
     onChange(event) {
       // Workaround for https://github.com/react/react/issues/9023
@@ -247,25 +253,20 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
         return;
       }
 
-      // A vetoed keystroke has to leave this exactly as it found it. Forcing it back to `true`
-      // would declare the field pristine even when earlier keystrokes were accepted, which resets
-      // in-progress text through the formatting sync and makes blur and stepping read `value`
-      // instead of what the user typed.
-      const wasInputSynced = allowInputSyncRef.current;
-      allowInputSyncRef.current = false;
       const targetValue = event.currentTarget.value;
 
       if (targetValue.trim() === '') {
         const clearTextDetails = createChangeEventDetails(REASONS.inputClear, event.nativeEvent);
-        setInputValue(targetValue, clearTextDetails);
+        setInputValue(targetValue, clearTextDetails, 'user');
         // The value here is derived from the text that was just refused, so a vetoed text update
         // has to veto the whole keystroke. Applying it anyway would leave the text and the value
         // disagreeing, and blur resolves that disagreement by reading the text.
         if (clearTextDetails.isCanceled) {
-          allowInputSyncRef.current = wasInputSynced;
           return;
         }
-        setValue(null, createChangeEventDetails(REASONS.inputClear, event.nativeEvent));
+        setValue(null, createChangeEventDetails(REASONS.inputClear, event.nativeEvent), {
+          projectText: false,
+        });
         return;
       }
 
@@ -290,15 +291,16 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
       const parsedValue = parseNumber(targetValue, locale, formatOptionsRef.current);
 
       const changeTextDetails = createChangeEventDetails(REASONS.inputChange, event.nativeEvent);
-      setInputValue(targetValue, changeTextDetails);
+      setInputValue(targetValue, changeTextDetails, 'user');
 
       if (changeTextDetails.isCanceled) {
-        allowInputSyncRef.current = wasInputSynced;
         return;
       }
 
       if (parsedValue !== null) {
-        setValue(parsedValue, createChangeEventDetails(REASONS.inputChange, event.nativeEvent));
+        setValue(parsedValue, createChangeEventDetails(REASONS.inputChange, event.nativeEvent), {
+          projectText: false,
+        });
       }
     },
     onKeyDown(event) {
@@ -308,11 +310,9 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
 
       const nativeEvent = event.nativeEvent;
 
-      // Snapshot the dirty state without clearing it: navigation/allowed keys (ArrowLeft, Tab,
-      // Enter, Escape, …) return early without changing the value, so marking the input synced
-      // here would wrongly discard dirty-input authority. Only the value-changing branches below
-      // mark it synced.
-      const hadManualInput = !allowInputSyncRef.current;
+      // Navigation and allowed keys (ArrowLeft, Tab, Enter, Escape, …) return early without
+      // changing the value, so only the value-changing branches below reconcile the text.
+      const hadManualInput = isTextUserAuthored();
 
       const allowedNonNumericKeys = getAllowedNonNumericKeys();
 
@@ -413,9 +413,6 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
       const commitDetails = createGenericEventDetails(REASONS.keyboard, nativeEvent);
 
       let changed = false;
-      if (isStepKey || boundaryValue !== null) {
-        allowInputSyncRef.current = true;
-      }
       if (isStepKey) {
         // When stepping from the synced numeric state, refresh the commit ref to the current
         // value so a canceled step can't commit a stale `lastChangedValueRef` left over from an
@@ -482,16 +479,16 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
         // Report the text before the value, matching the typing path, so consumers mirroring both
         // callbacks observe the same order regardless of how the text arrived.
         const pasteTextDetails = createChangeEventDetails(REASONS.inputPaste, event.nativeEvent);
-        setInputValue(nextText, pasteTextDetails);
+        setInputValue(nextText, pasteTextDetails, 'user');
 
         if (pasteTextDetails.isCanceled) {
           return;
         }
 
-        // Set before `setValue` so its own text sync doesn't overwrite the pasted text.
-        allowInputSyncRef.current = false;
         pendingCaretRef.current = selectionStart + pastedData.length;
-        setValue(parsedValue, createChangeEventDetails(REASONS.inputPaste, event.nativeEvent));
+        setValue(parsedValue, createChangeEventDetails(REASONS.inputPaste, event.nativeEvent), {
+          projectText: false,
+        });
       }
     },
   };
