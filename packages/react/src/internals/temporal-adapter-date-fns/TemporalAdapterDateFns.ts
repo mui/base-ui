@@ -40,7 +40,7 @@ import { isSameYear } from 'date-fns/isSameYear';
 import { isSameMonth } from 'date-fns/isSameMonth';
 import { isValid } from 'date-fns/isValid';
 import { isWithinInterval } from 'date-fns/isWithinInterval';
-import { Locale as DateFnsLocale } from 'date-fns/locale';
+import { Locale as DateFnsLocale, LocaleDayPeriod, LocaleWidth, MatchFn } from 'date-fns/locale';
 import { enUS } from 'date-fns/locale/en-US';
 import { setDate } from 'date-fns/setDate';
 import { setHours } from 'date-fns/setHours';
@@ -62,6 +62,7 @@ import {
   DateBuilderReturnType,
   TemporalTimezone,
   TemporalAdapter,
+  TemporalAdapterLetterMatch,
 } from '../temporal';
 
 const FORMATS: TemporalAdapterFormats = {
@@ -96,6 +97,33 @@ declare module '@base-ui/react/internals/temporal' {
   interface TemporalSupportedObjectLookup {
     'date-fns': Date;
   }
+}
+
+/**
+ * Widths a locale can match a letter date part with, loosest first.
+ * Trying all of them is what lets a value be read in a spelling the field does not itself render:
+ * the abbreviated month in a field showing the full one, or, in the locales that inflect month
+ * names, the nominative form in a field showing the genitive one.
+ */
+const LETTER_MATCH_WIDTHS: LocaleWidth[] = ['wide', 'abbreviated', 'short', 'narrow'];
+
+/**
+ * The day periods that mean the second half of the day. The others (`am`, `midnight`, `night`
+ * and `morning`) mean the first half.
+ */
+const PM_DAY_PERIODS: LocaleDayPeriod[] = ['pm', 'noon', 'afternoon', 'evening'];
+
+function matchLetterDatePart<TValue>(match: MatchFn<TValue>, value: string) {
+  for (const width of LETTER_MATCH_WIDTHS) {
+    const result = match(value, { width });
+    // The value is `undefined` when the string matches the width's pattern but none of the
+    // patterns telling the individual values apart.
+    if (result != null && result.value != null) {
+      return result;
+    }
+  }
+
+  return null;
 }
 
 export class TemporalAdapterDateFns implements TemporalAdapter {
@@ -211,6 +239,25 @@ export class TemporalAdapterDateFns implements TemporalAdapter {
 
   public formatByString = (value: Date, format: string) => {
     return dateFnsFormat(value, format, { locale: this.locale });
+  };
+
+  public matchMonth = (value: string): TemporalAdapterLetterMatch | null => {
+    const match = matchLetterDatePart(this.locale.match.month, value);
+    return match == null ? null : { index: match.value, rest: match.rest };
+  };
+
+  public matchWeekDay = (value: string): TemporalAdapterLetterMatch | null => {
+    const match = matchLetterDatePart(this.locale.match.day, value);
+    return match == null ? null : { index: match.value, rest: match.rest };
+  };
+
+  public matchMeridiem = (value: string): TemporalAdapterLetterMatch | null => {
+    const match = matchLetterDatePart(this.locale.match.dayPeriod, value);
+    if (match == null) {
+      return null;
+    }
+
+    return { index: PM_DAY_PERIODS.includes(match.value) ? 1 : 0, rest: match.rest };
   };
 
   public isEqual = (value: Date | null, comparing: Date | null) => {

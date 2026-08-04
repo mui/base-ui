@@ -9,6 +9,7 @@ import {
   DateBuilderReturnType,
   TemporalTimezone,
   TemporalAdapter,
+  TemporalAdapterLetterMatch,
 } from '../temporal';
 
 const FORMATS: TemporalAdapterFormats = {
@@ -47,6 +48,43 @@ const FORMATS: TemporalAdapterFormats = {
 //   }
 // }
 
+/**
+ * The lengths Luxon can render a letter date part with.
+ * Both the stand-alone and the formatting lists are collected, so a value can be read in a
+ * spelling the field does not itself render — which matters in the locales that inflect month
+ * and week day names.
+ */
+const LETTER_LENGTHS = ['long', 'short', 'narrow'] as const;
+
+interface LetterDatePartOption {
+  text: string;
+  index: number;
+}
+
+function buildLetterDatePartOptions(lists: string[][]): LetterDatePartOption[] {
+  const options: LetterDatePartOption[] = [];
+  for (const list of lists) {
+    list.forEach((text, index) => {
+      if (text !== '') {
+        options.push({ text: text.toLowerCase(), index });
+      }
+    });
+  }
+
+  // Longest first so that an option prefixing another one cannot shadow it.
+  return options.sort((a, b) => b.text.length - a.text.length);
+}
+
+/**
+ * Reads one of `options` at the beginning of `value`, ignoring case.
+ */
+function matchLetterDatePart(options: LetterDatePartOption[], value: string) {
+  const lowerCaseValue = value.toLowerCase();
+  const option = options.find((candidate) => lowerCaseValue.startsWith(candidate.text));
+
+  return option == null ? null : { index: option.index, rest: value.slice(option.text.length) };
+}
+
 export class TemporalAdapterLuxon implements TemporalAdapter {
   public isTimezoneCompatible = true;
 
@@ -57,6 +95,12 @@ export class TemporalAdapterLuxon implements TemporalAdapter {
   public formats: TemporalAdapterFormats = FORMATS;
 
   public escapedCharacters = { start: "'", end: "'" };
+
+  private monthOptions: LetterDatePartOption[] | null = null;
+
+  private weekDayOptions: LetterDatePartOption[] | null = null;
+
+  private meridiemOptions: LetterDatePartOption[] | null = null;
 
   constructor({ locale }: TemporalAdapterLuxon.ConstructorParameters = {}) {
     this.locale = locale ?? 'en-US';
@@ -126,6 +170,35 @@ export class TemporalAdapterLuxon implements TemporalAdapter {
 
   public formatByString = (value: DateTime, format: string) => {
     return value.setLocale(this.locale).toFormat(format);
+  };
+
+  public matchMonth = (value: string): TemporalAdapterLetterMatch | null => {
+    this.monthOptions ??= buildLetterDatePartOptions(
+      LETTER_LENGTHS.flatMap((length) => [
+        Info.months(length, { locale: this.locale }),
+        Info.monthsFormat(length, { locale: this.locale }),
+      ]),
+    );
+
+    return matchLetterDatePart(this.monthOptions, value);
+  };
+
+  public matchWeekDay = (value: string): TemporalAdapterLetterMatch | null => {
+    // Luxon starts its week day lists on Monday, the interface indexes them from Sunday.
+    this.weekDayOptions ??= buildLetterDatePartOptions(
+      LETTER_LENGTHS.flatMap((length) => [
+        Info.weekdays(length, { locale: this.locale }),
+        Info.weekdaysFormat(length, { locale: this.locale }),
+      ]),
+    ).map((option) => ({ ...option, index: (option.index + 1) % 7 }));
+
+    return matchLetterDatePart(this.weekDayOptions, value);
+  };
+
+  public matchMeridiem = (value: string): TemporalAdapterLetterMatch | null => {
+    this.meridiemOptions ??= buildLetterDatePartOptions([Info.meridiems({ locale: this.locale })]);
+
+    return matchLetterDatePart(this.meridiemOptions, value);
   };
 
   public isEqual = (value: DateTime | null, comparing: DateTime | null) => {

@@ -97,6 +97,23 @@ export type DateBuilderReturnType<T extends string | null> = [T] extends [null]
   ? null
   : TemporalSupportedObject;
 
+/**
+ * A letter date part read at the beginning of a string.
+ * Reading only a prefix lets the caller keep parsing what follows, which is what makes it safe
+ * to accept the loosest spellings a locale knows: a spelling that matches too much leaves a rest
+ * the caller then fails on.
+ */
+export interface TemporalAdapterLetterMatch {
+  /**
+   * Index of the value that was read.
+   */
+  index: number;
+  /**
+   * What is left of the string once the value has been read.
+   */
+  rest: string;
+}
+
 export interface TemporalAdapter {
   isTimezoneCompatible: boolean;
   formats: TemporalAdapterFormats;
@@ -144,6 +161,21 @@ export interface TemporalAdapter {
    * Formats a date using a format of the date library.
    */
   formatByString(value: TemporalSupportedObject, formatString: string): string;
+  /**
+   * Reads the month name written at the beginning of a string.
+   * The index is 0-based, 0 - January, 11 - December.
+   */
+  matchMonth(value: string): TemporalAdapterLetterMatch | null;
+  /**
+   * Reads the week day name written at the beginning of a string.
+   * The index is 0-based and always starts on Sunday, whichever day the locale starts its week on.
+   */
+  matchWeekDay(value: string): TemporalAdapterLetterMatch | null;
+  /**
+   * Reads the meridiem written at the beginning of a string.
+   * The index is 0 for AM and 1 for PM.
+   */
+  matchMeridiem(value: string): TemporalAdapterLetterMatch | null;
   /**
    * Checks if the two dates are equal (which means they represent the same timestamp).
    */
