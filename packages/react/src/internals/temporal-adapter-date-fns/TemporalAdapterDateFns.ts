@@ -42,7 +42,6 @@ import { isValid } from 'date-fns/isValid';
 import { isWithinInterval } from 'date-fns/isWithinInterval';
 import { Locale as DateFnsLocale } from 'date-fns/locale';
 import { enUS } from 'date-fns/locale/en-US';
-import { parse } from 'date-fns/parse';
 import { setDate } from 'date-fns/setDate';
 import { setHours } from 'date-fns/setHours';
 import { setMilliseconds } from 'date-fns/setMilliseconds';
@@ -162,29 +161,6 @@ export class TemporalAdapterDateFns implements TemporalAdapter {
       isDateOnly ? date.getUTCMilliseconds() : date.getMilliseconds(),
       timezone,
     ) as unknown as R;
-  };
-
-  public parse = (value: string, format: string, timezone: TemporalTimezone): Date => {
-    const date = parse(value, format, new Date(), {
-      locale: this.locale,
-    });
-
-    if (timezone === 'system' || timezone === 'default') {
-      return date;
-    }
-
-    // `new TZDate(value, timezone)` returns a date with the same timestamp `new Date(value)` would return,
-    // whereas we want to create that represents the string in the given timezone.
-    return new TZDate(
-      date.getFullYear(),
-      date.getMonth(),
-      date.getDate(),
-      date.getHours(),
-      date.getMinutes(),
-      date.getSeconds(),
-      date.getMilliseconds(),
-      timezone,
-    );
   };
 
   public getTimezone = (value: Date): string => {
