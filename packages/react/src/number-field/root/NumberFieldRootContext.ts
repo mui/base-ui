@@ -24,7 +24,7 @@ export interface NumberFieldRootContext {
   getAllowedNonNumericKeys: () => Set<string>;
   min: number | undefined;
   max: number | undefined;
-  setInputValue: React.Dispatch<React.SetStateAction<string>>;
+  setInputValue: (value: string, details: NumberFieldRoot.ChangeEventDetails) => void;
   locale: Intl.LocalesArgument;
   setIsScrubbing: React.Dispatch<React.SetStateAction<boolean>>;
   state: NumberFieldRootState;

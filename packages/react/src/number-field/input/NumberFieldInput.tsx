@@ -235,7 +235,10 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
       // Normalize only the displayed text
       const canonicalText = formatNumber(committedValue, locale, formatOptions);
       if (inputValue !== canonicalText) {
-        setInputValue(canonicalText);
+        setInputValue(
+          canonicalText,
+          createChangeEventDetails(REASONS.inputBlur, event.nativeEvent),
+        );
       }
     },
     onChange(event) {
@@ -248,7 +251,7 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
       const targetValue = event.currentTarget.value;
 
       if (targetValue.trim() === '') {
-        setInputValue(targetValue);
+        setInputValue(targetValue, createChangeEventDetails(REASONS.inputClear, event.nativeEvent));
         setValue(null, createChangeEventDetails(REASONS.inputClear, event.nativeEvent));
         return;
       }
@@ -273,7 +276,7 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
 
       const parsedValue = parseNumber(targetValue, locale, formatOptionsRef.current);
 
-      setInputValue(targetValue);
+      setInputValue(targetValue, createChangeEventDetails(REASONS.inputChange, event.nativeEvent));
 
       if (parsedValue !== null) {
         setValue(parsedValue, createChangeEventDetails(REASONS.inputChange, event.nativeEvent));
@@ -460,7 +463,7 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
         allowInputSyncRef.current = false;
         pendingCaretRef.current = selectionStart + pastedData.length;
         setValue(parsedValue, createChangeEventDetails(REASONS.inputPaste, event.nativeEvent));
-        setInputValue(nextText);
+        setInputValue(nextText, createChangeEventDetails(REASONS.inputPaste, event.nativeEvent));
       }
     },
   };

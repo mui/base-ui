@@ -5,6 +5,7 @@ import { useControlled } from '@base-ui/utils/useControlled';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
+import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { useForcedRerendering } from '@base-ui/utils/useForcedRerendering';
 import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
 import { visuallyHidden, visuallyHiddenInput } from '@base-ui/utils/visuallyHidden';
@@ -68,6 +69,9 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
     value: valueProp,
     onValueChange: onValueChangeProp,
     onValueCommitted: onValueCommittedProp,
+    defaultInputValue,
+    inputValue: inputValueProp,
+    onInputValueChange: onInputValueChangeProp,
     allowWheelScrub = false,
     snapOnStep = false,
     allowOutOfRange = false,
@@ -141,7 +145,42 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
   // locale. This causes a hydration mismatch, which we manually suppress. This is preferable to
   // rendering an empty input field and then updating it with the formatted value, as the user
   // can still see the value prior to hydration, even if it's not formatted correctly.
-  const [inputValue, setInputValue] = React.useState(() => formatNumber(value, locale, format));
+  //
+  // Resolved once so that `useControlled` doesn't see a changing `default` (which would warn about
+  // an uncontrolled component changing its default) as `value` or the format options change.
+  const initialInputValue = useRefWithInit(
+    () => defaultInputValue ?? formatNumber(value, locale, format),
+  ).current;
+
+  const [inputValue, setInputValueUnwrapped] = useControlled({
+    controlled: inputValueProp,
+    default: initialInputValue,
+    name: 'NumberField',
+    state: 'inputValue',
+  });
+
+  // Mirrors `inputValue` but is also written synchronously below, so that several writes batched
+  // into one event (e.g. the blur handler storing a clamped value and then normalizing the text)
+  // don't report the same string twice.
+  const inputValueRef = useValueAsRef(inputValue);
+
+  const setInputValue = useStableCallback(
+    (nextInputValue: string, details: NumberFieldRoot.ChangeEventDetails) => {
+      if (nextInputValue === inputValueRef.current) {
+        return;
+      }
+
+      onInputValueChangeProp?.(nextInputValue, details);
+
+      if (details.isCanceled) {
+        return;
+      }
+
+      inputValueRef.current = nextInputValue;
+      setInputValueUnwrapped(nextInputValue);
+    },
+  );
+
   const [inputMode, setInputMode] = React.useState<InputMode>('numeric');
 
   const getAllowedNonNumericKeys = useStableCallback(() => {
@@ -263,7 +302,14 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
       // to overwrite the user-provided text until blur, so we gate on
       // `allowInputSyncRef`.
       if (allowInputSyncRef.current) {
-        setInputValue(formatNumber(validatedValue, locale, format));
+        // A separate details object so that canceling the text update can't retroactively cancel
+        // the numeric change that was already applied above.
+        setInputValue(
+          formatNumber(validatedValue, locale, format),
+          createChangeEventDetails(details.reason, details.event, details.trigger, {
+            direction: dir,
+          }),
+        );
       }
 
       // Formatting can change even if the numeric value hasn't, so ensure a re-render when needed.
@@ -294,6 +340,9 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
     },
   );
 
+  const previousFormattedValueRef = useRefWithInit(() => formatNumber(value, locale, format));
+  const previousAllowInputSyncRef = React.useRef(true);
+
   // We need to update the input value when the external `value` prop changes. This ends up acting
   // as a single source of truth to update the input value, bypassing the need to manually set it in
   // each event handler.
@@ -301,21 +350,38 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
   // render as we're accessing a ref, which must be inside an effect.
   // https://react.dev/learn/you-might-not-need-an-effect#adjusting-some-state-when-a-prop-changes
   //
-  // ESLint is disabled because it needs to run even if the parsed value hasn't changed, since the
-  // value still can be formatted differently.
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+  // It deliberately has no dependency array: it must run even when the parsed value hasn't changed,
+  // since the same value can still be formatted differently.
   useIsoLayoutEffect(function syncFormattedInputValueOnValueChange() {
+    const nextInputValue = formatNumber(value, locale, format);
+    const allowInputSync = allowInputSyncRef.current;
+
+    // Tracked unconditionally so that the transitions below are measured against the previous
+    // render rather than the previous render that happened to pass the guards.
+    const formattedValueChanged = nextInputValue !== previousFormattedValueRef.current;
+    const syncResumed = allowInputSync && !previousAllowInputSyncRef.current;
+    previousFormattedValueRef.current = nextInputValue;
+    previousAllowInputSyncRef.current = allowInputSync;
+
     // This ensures the value is only updated on blur rather than every keystroke, but still
     // allows the input value to be updated when the value is changed externally.
-    if (!allowInputSyncRef.current) {
+    if (!allowInputSync) {
       return;
     }
 
-    const nextInputValue = formatNumber(value, locale, format);
-
-    if (nextInputValue !== inputValue) {
-      setInputValue(nextInputValue);
+    if (nextInputValue === inputValue) {
+      return;
     }
+
+    // The effect runs on every render (formatting can change without `value` changing), so it must
+    // only push text derived from `value` when there's a reason to. Without this, a controlled
+    // `inputValue` parked on an intermediate string like `"-"` — which no number formats to —
+    // would be overwritten again on the very next render.
+    if (!formattedValueChanged && !syncResumed) {
+      return;
+    }
+
+    setInputValue(nextInputValue, createChangeEventDetails(REASONS.none));
   });
 
   useIsoLayoutEffect(
@@ -585,6 +651,33 @@ export interface NumberFieldRootProps extends Omit<
    * To render a controlled number field, use the `value` prop instead.
    */
   defaultValue?: number | undefined;
+  /**
+   * The raw text shown in the input element.
+   *
+   * Unlike `value`, this can hold strings that aren't parseable as a number yet, such as `'-'` or
+   * `'.'`, which lets the field be driven through intermediate states while typing.
+   * The text is not formatted or clamped, so the number field only reflects it back through
+   * `onInputValueChange` when a formatted string is due (typing, blur, stepping, or an external
+   * `value` change).
+   */
+  inputValue?: string | undefined;
+  /**
+   * The uncontrolled raw text of the input element when it's initially rendered.
+   * Defaults to the formatted `defaultValue`.
+   *
+   * To render a controlled input, use the `inputValue` prop instead.
+   */
+  defaultInputValue?: string | undefined;
+  /**
+   * Callback fired when the raw text shown in the input element changes.
+   *
+   * This fires for the same reasons as `onValueChange`, plus the cases that leave the numeric value
+   * untouched, such as typing a lone `'-'`, and with `'none'` when the formatted text is refreshed
+   * after `value`, `locale`, or `format` changes externally.
+   */
+  onInputValueChange?:
+    | ((inputValue: string, eventDetails: NumberFieldRoot.ChangeEventDetails) => void)
+    | undefined;
   /**
    * Whether to allow the user to scrub the input value with the mouse wheel while focused and
    * hovering over the input.

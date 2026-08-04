@@ -34,6 +34,40 @@ import { NumberField } from '@base-ui/react/number-field';
 </NumberField.Root>;
 ```
 
+## Examples
+
+### Controlling the input text
+
+`value` holds the parsed number, so it can't represent text that isn't a number yet.
+Typing `-1.5` passes through `-` and `-1.`, neither of which parses, and both leave `value` untouched.
+
+To drive those intermediate states, control the raw text with `inputValue`, `defaultInputValue`, and `onInputValueChange`.
+It's independent of `value`, so both can be controlled at once:
+
+```tsx title="Controlling the input text"
+const [value, setValue] = React.useState<number | null>(null);
+const [inputValue, setInputValue] = React.useState('');
+
+<NumberField.Root
+  min={-100}
+  value={value}
+  onValueChange={setValue}
+  // @highlight-start
+  inputValue={inputValue}
+  onInputValueChange={setInputValue}
+  // @highlight-end
+>
+  {/* ... */}
+</NumberField.Root>;
+
+// Puts the field into a valid intermediate state that `value` cannot express.
+setInputValue('-');
+```
+
+The text is never formatted or clamped on the way in, so any string is allowed.
+Base UI proposes formatted text back through `onInputValueChange` when one is due — while typing, on blur, when stepping, and with the `'none'` reason when `value`, `locale`, or `format` change externally.
+Mirroring the callback back into `inputValue` therefore reproduces the uncontrolled behavior; ignoring a given call keeps your own text instead.
+
 ## API reference
 
 import { TypesNumberField } from './types';

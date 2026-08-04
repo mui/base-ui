@@ -167,6 +167,262 @@ describe('<NumberField />', () => {
     expect(form.checkValidity()).toBe(true);
   });
 
+  describe('prop: inputValue', () => {
+    it('should render the raw text it is given', async () => {
+      await render(<NumberField inputValue="1,234" onInputValueChange={() => {}} />);
+      expect(screen.getByRole('textbox')).toHaveValue('1,234');
+    });
+
+    it('should hold an intermediate string that no number formats to', async () => {
+      const { rerender } = await render(
+        <NumberField min={-10} inputValue="" onInputValueChange={() => {}} />,
+      );
+      const input = screen.getByRole('textbox');
+
+      await rerender(<NumberField min={-10} inputValue="-" onInputValueChange={() => {}} />);
+      expect(input).toHaveValue('-');
+
+      await rerender(<NumberField min={-10} inputValue="." onInputValueChange={() => {}} />);
+      expect(input).toHaveValue('.');
+    });
+
+    it('should not ask a controlled input to drop an intermediate string it is holding', async () => {
+      function App() {
+        const [text, setText] = React.useState('');
+        return (
+          <React.Fragment>
+            <NumberField min={-10} inputValue={text} onInputValueChange={setText} />
+            <button onClick={() => setText('-')}>set minus</button>
+            <button onClick={() => setText('.')}>set dot</button>
+          </React.Fragment>
+        );
+      }
+
+      await render(<App />);
+      const input = screen.getByRole('textbox');
+
+      // Mirroring `onInputValueChange` straight back into `inputValue` must not fight the
+      // component's own formatting sync, which would immediately reset the text.
+      fireEvent.click(screen.getByRole('button', { name: 'set minus' }));
+      expect(input).toHaveValue('-');
+
+      fireEvent.click(screen.getByRole('button', { name: 'set dot' }));
+      expect(input).toHaveValue('.');
+    });
+
+    it('should let typing continue from a programmatically set intermediate string', async () => {
+      const onValueChange = vi.fn();
+
+      function App() {
+        const [text, setText] = React.useState('');
+        return (
+          <React.Fragment>
+            <NumberField
+              min={-10}
+              inputValue={text}
+              onInputValueChange={setText}
+              onValueChange={onValueChange}
+            />
+            <button onClick={() => setText('-')}>set minus</button>
+          </React.Fragment>
+        );
+      }
+
+      await render(<App />);
+      const input = screen.getByRole('textbox');
+
+      fireEvent.click(screen.getByRole('button', { name: 'set minus' }));
+      expect(onValueChange).not.toHaveBeenCalled();
+
+      fireEvent.change(input, { target: { value: '-5' } });
+      expect(input).toHaveValue('-5');
+      expect(onValueChange).toHaveBeenCalledTimes(1);
+      expect(onValueChange.mock.calls[0][0]).toBe(-5);
+    });
+
+    it('should not repeatedly notify when the callback is ignored', async () => {
+      const onInputValueChange = vi.fn();
+
+      function App() {
+        const [, forceRerender] = React.useReducer((count) => count + 1, 0);
+        return (
+          <React.Fragment>
+            <NumberField min={-10} inputValue="-" onInputValueChange={onInputValueChange} />
+            <button onClick={forceRerender}>rerender</button>
+          </React.Fragment>
+        );
+      }
+
+      await render(<App />);
+
+      fireEvent.click(screen.getByRole('button', { name: 'rerender' }));
+      fireEvent.click(screen.getByRole('button', { name: 'rerender' }));
+
+      expect(onInputValueChange).not.toHaveBeenCalled();
+    });
+
+    it('should stay in sync when the numeric value changes externally', async () => {
+      const onInputValueChange = vi.fn();
+      const { rerender } = await render(
+        <NumberField value={1} onInputValueChange={onInputValueChange} />,
+      );
+      const input = screen.getByRole('textbox');
+
+      await rerender(<NumberField value={2} onInputValueChange={onInputValueChange} />);
+
+      expect(input).toHaveValue('2');
+      expect(onInputValueChange).toHaveBeenCalledTimes(1);
+      expect(onInputValueChange.mock.calls[0][0]).toBe('2');
+      expect(onInputValueChange.mock.calls[0][1].reason).toBe(REASONS.none);
+    });
+  });
+
+  describe('prop: defaultInputValue', () => {
+    it('should set the initial raw text', async () => {
+      await render(<NumberField min={-10} defaultInputValue="-" />);
+      expect(screen.getByRole('textbox')).toHaveValue('-');
+    });
+
+    it('should take precedence over the formatted defaultValue', async () => {
+      await render(<NumberField defaultValue={5} defaultInputValue="5.00" />);
+      expect(screen.getByRole('textbox')).toHaveValue('5.00');
+    });
+
+    it('should still be replaced by typing', async () => {
+      await render(<NumberField min={-10} defaultInputValue="-" />);
+      const input = screen.getByRole('textbox');
+      fireEvent.change(input, { target: { value: '-3' } });
+      expect(input).toHaveValue('-3');
+    });
+  });
+
+  describe('prop: onInputValueChange', () => {
+    it('should fire while typing a parseable value', async () => {
+      const onInputValueChange = vi.fn();
+      await render(<NumberField onInputValueChange={onInputValueChange} />);
+      const input = screen.getByRole('textbox');
+
+      fireEvent.change(input, { target: { value: '12' } });
+
+      expect(onInputValueChange).toHaveBeenCalledTimes(1);
+      expect(onInputValueChange.mock.calls[0][0]).toBe('12');
+      expect(onInputValueChange.mock.calls[0][1].reason).toBe(REASONS.inputChange);
+    });
+
+    it('should fire for an unparseable string that leaves the value alone', async () => {
+      const onInputValueChange = vi.fn();
+      const onValueChange = vi.fn();
+      await render(
+        <NumberField
+          min={-10}
+          onInputValueChange={onInputValueChange}
+          onValueChange={onValueChange}
+        />,
+      );
+      const input = screen.getByRole('textbox');
+
+      fireEvent.change(input, { target: { value: '-' } });
+
+      expect(onInputValueChange).toHaveBeenCalledTimes(1);
+      expect(onInputValueChange.mock.calls[0][0]).toBe('-');
+      expect(onValueChange).not.toHaveBeenCalled();
+    });
+
+    it('should fire with `input-clear` when the field is emptied', async () => {
+      const onInputValueChange = vi.fn();
+      await render(<NumberField defaultValue={5} onInputValueChange={onInputValueChange} />);
+      const input = screen.getByRole('textbox');
+
+      fireEvent.change(input, { target: { value: '' } });
+
+      expect(onInputValueChange).toHaveBeenCalledTimes(1);
+      expect(onInputValueChange.mock.calls[0][0]).toBe('');
+      expect(onInputValueChange.mock.calls[0][1].reason).toBe(REASONS.inputClear);
+    });
+
+    it('should fire once with `input-blur` when the text is normalized on blur', async () => {
+      const onInputValueChange = vi.fn();
+      await render(<NumberField onInputValueChange={onInputValueChange} />);
+      const input = screen.getByRole('textbox');
+
+      fireEvent.change(input, { target: { value: '5.50' } });
+      onInputValueChange.mockClear();
+      fireEvent.blur(input);
+
+      expect(onInputValueChange).toHaveBeenCalledTimes(1);
+      expect(onInputValueChange.mock.calls[0][0]).toBe('5.5');
+      expect(onInputValueChange.mock.calls[0][1].reason).toBe(REASONS.inputBlur);
+    });
+
+    it('should fire with the step reason when incrementing', async () => {
+      const onInputValueChange = vi.fn();
+      await render(<NumberField defaultValue={1} onInputValueChange={onInputValueChange} />);
+
+      fireEvent.click(screen.getByLabelText('Increase'));
+
+      expect(onInputValueChange).toHaveBeenCalledTimes(1);
+      expect(onInputValueChange.mock.calls[0][0]).toBe('2');
+      expect(onInputValueChange.mock.calls[0][1].reason).toBe(REASONS.incrementPress);
+    });
+
+    it('should fire once when blur both clamps the value and normalizes the text', async () => {
+      const onInputValueChange = vi.fn();
+      await render(<NumberField min={10} onInputValueChange={onInputValueChange} />);
+      const input = screen.getByRole('textbox');
+
+      fireEvent.change(input, { target: { value: '5' } });
+      onInputValueChange.mockClear();
+
+      // Blur stores the clamped value (which syncs the text) and then normalizes the text again;
+      // both land on '10' in the same batch and must not be reported twice.
+      fireEvent.blur(input);
+
+      expect(input).toHaveValue('10');
+      expect(onInputValueChange).toHaveBeenCalledTimes(1);
+      expect(onInputValueChange.mock.calls[0][0]).toBe('10');
+    });
+
+    it('should fire when a stale unparseable string is resynced after blur', async () => {
+      const onInputValueChange = vi.fn();
+      // `Field.Root` re-renders on blur, which is what lets the formatting sync observe that
+      // typing has ended and reset text the blur handler itself leaves alone.
+      await render(
+        <Field.Root>
+          <NumberField min={-10} defaultValue={5} onInputValueChange={onInputValueChange} />
+        </Field.Root>,
+      );
+      const input = screen.getByRole('textbox');
+
+      fireEvent.change(input, { target: { value: '-' } });
+      expect(input).toHaveValue('-');
+      onInputValueChange.mockClear();
+
+      fireEvent.blur(input);
+
+      expect(input).toHaveValue('5');
+      expect(onInputValueChange).toHaveBeenCalledTimes(1);
+      expect(onInputValueChange.mock.calls[0][0]).toBe('5');
+      expect(onInputValueChange.mock.calls[0][1].reason).toBe(REASONS.none);
+    });
+
+    it('should let the text update be canceled independently of the value', async () => {
+      const onValueChange = vi.fn();
+      await render(
+        <NumberField
+          onValueChange={onValueChange}
+          onInputValueChange={(_, eventDetails) => eventDetails.cancel()}
+        />,
+      );
+      const input = screen.getByRole('textbox');
+
+      fireEvent.change(input, { target: { value: '7' } });
+
+      expect(input).toHaveValue('');
+      expect(onValueChange).toHaveBeenCalledTimes(1);
+      expect(onValueChange.mock.calls[0][0]).toBe(7);
+    });
+  });
+
   describe('prop: onValueChange', () => {
     it('should be called when the value changes', async () => {
       const onValueChange = vi.fn();
