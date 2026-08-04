@@ -332,6 +332,11 @@ export const ListVirtualizer = React.forwardRef(function ListVirtualizer<
   const adaptiveKnownRowIdsRef = useRefWithInit(() => new Set(rows.map((row) => row.id)));
   const staticEstimatedItemHeight =
     typeof estimatedItemHeight === 'number' ? estimatedItemHeight : null;
+  // Whether the running average still describes the collection this render shows. The decision is
+  // made during render because the estimate it invalidates is part of this render's geometry, but
+  // the caches behind it are only rewritten in the layout effect below: a concurrent render that
+  // React discards must not clear measurements the committed tree is still using.
+  let adaptiveEstimateInvalidated = false;
   if (
     adaptiveRowsRef.current !== rows ||
     adaptiveEstimatedItemHeightRef.current !== staticEstimatedItemHeight
@@ -354,10 +359,23 @@ export const ListVirtualizer = React.forwardRef(function ListVirtualizer<
       knownRowIds.size > 0 &&
       (!rows.some((row) => knownRowIds.has(row.id)) || (addsUnknownRows && omitsKnownRows));
 
+    adaptiveEstimateInvalidated = estimateChanged || collectionChanged;
+  }
+
+  useIsoLayoutEffect(() => {
+    if (
+      adaptiveRowsRef.current === rows &&
+      adaptiveEstimatedItemHeightRef.current === staticEstimatedItemHeight
+    ) {
+      return;
+    }
+
     adaptiveRowsRef.current = rows;
     adaptiveEstimatedItemHeightRef.current = staticEstimatedItemHeight;
 
-    if (estimateChanged || collectionChanged) {
+    const knownRowIds = adaptiveKnownRowIdsRef.current;
+
+    if (adaptiveEstimateInvalidated) {
       adaptiveEstimateRef.current = null;
       adaptiveMeasurementsRef.current.heights.clear();
       adaptiveMeasurementsRef.current.total = 0;
@@ -366,7 +384,14 @@ export const ListVirtualizer = React.forwardRef(function ListVirtualizer<
     }
 
     rows.forEach((row) => knownRowIds.add(row.id));
-  }
+  }, [
+    adaptiveEstimateInvalidated,
+    adaptiveKnownRowIdsRef,
+    adaptiveMeasurementsRef,
+    measuredRowsRef,
+    rows,
+    staticEstimatedItemHeight,
+  ]);
 
   const pendingScrollRowIndexRef = React.useRef<number | null>(null);
   const pendingScrollRowIdRef = React.useRef<React.Key | null>(null);
@@ -645,24 +670,36 @@ export const ListVirtualizer = React.forwardRef(function ListVirtualizer<
 
   // MUI Virtualizer rehydrates row metadata when these callback identities change. This intentionally uses
   // a dependency-sensitive callback so estimate changes invalidate cached geometry.
+  // The layout effect that clears an invalidated running average has not run yet in the render
+  // that invalidates it, so the ref must be ignored until it has.
+  const activeAdaptiveEstimate = adaptiveEstimateInvalidated ? null : adaptiveEstimateRef.current;
   const getEstimatedRowHeight = React.useCallback(
     (row: RowEntry) => {
       // A static estimate is refined with the running average of measured rows so the virtual
       // geometry converges quickly. Per-row estimate functions encode knowledge that a global
-      // average would override, so they are used as provided.
-      if (useAdaptiveEstimate && adaptiveEstimateRef.current != null) {
-        return adaptiveEstimateRef.current;
+      // average would override, so they are used as provided. The average is read through the ref
+      // because the adaptive effect republishes it without a re-render.
+      const adaptiveEstimate = adaptiveEstimateInvalidated ? null : adaptiveEstimateRef.current;
+      if (useAdaptiveEstimate && adaptiveEstimate != null) {
+        return adaptiveEstimate;
       }
 
       const rowIndex = rowIndexById.get(row.id as React.Key) ?? -1;
       const listRow = rows[rowIndex];
       return listRow ? getEstimatedItemHeight(listRow, rowIndex) : defaultEstimatedItemHeight;
     },
-    [defaultEstimatedItemHeight, getEstimatedItemHeight, rowIndexById, rows, useAdaptiveEstimate],
+    [
+      adaptiveEstimateInvalidated,
+      defaultEstimatedItemHeight,
+      getEstimatedItemHeight,
+      rowIndexById,
+      rows,
+      useAdaptiveEstimate,
+    ],
   );
   const resolvedEstimatedItemHeight =
-    useAdaptiveEstimate && adaptiveEstimateRef.current != null
-      ? adaptiveEstimateRef.current
+    useAdaptiveEstimate && activeAdaptiveEstimate != null
+      ? activeAdaptiveEstimate
       : defaultEstimatedItemHeight;
   const applyRowHeight = React.useCallback(
     (entry: HeightEntry, row: RowEntry) => {
