@@ -21,6 +21,16 @@ export interface ListVirtualizerScrollToIndexOptions {
 }
 
 /**
+ * Imperative actions exposed by the `ListVirtualizer` component.
+ */
+export interface ListVirtualizerActions {
+  /**
+   * Scrolls an item into view by its logical collection index.
+   */
+  scrollToIndex: (index: number, options?: ListVirtualizerScrollToIndexOptions) => void;
+}
+
+/**
  * Imperative operations exposed by a list virtualizer to its owning list root.
  */
 export interface ListVirtualizerHandle {

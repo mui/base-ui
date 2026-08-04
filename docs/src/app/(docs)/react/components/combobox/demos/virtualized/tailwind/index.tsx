@@ -1,6 +1,7 @@
 'use client';
 import * as React from 'react';
 import { Combobox } from '@base-ui/react/combobox';
+import { ListVirtualizer } from '@base-ui/react/list-virtualizer';
 
 export default function ExampleVirtualizedCombobox() {
   return (
@@ -19,7 +20,7 @@ export default function ExampleVirtualizedCombobox() {
               </div>
             </Combobox.Empty>
             <Combobox.List className="p-0">
-              <Combobox.Virtualizer
+              <ListVirtualizer
                 className="h-[min(22.5rem,var(--total-size))] max-h-[var(--available-height)] overflow-auto overscroll-contain py-1 scroll-py-1 data-empty:py-0"
                 getItemKey={(item) => item.id}
                 overscanPx={640}
@@ -35,7 +36,7 @@ export default function ExampleVirtualizedCombobox() {
                     <span className="col-start-2">{item.name}</span>
                   </Combobox.Item>
                 )}
-              </Combobox.Virtualizer>
+              </ListVirtualizer>
             </Combobox.List>
           </Combobox.Popup>
         </Combobox.Positioner>

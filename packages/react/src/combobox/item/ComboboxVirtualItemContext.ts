@@ -1,9 +1,9 @@
 'use client';
 import * as React from 'react';
-import type { ListVirtualizerItemMetadata } from '../../internals/virtualization/ListVirtualizerAdapter';
+import type { ListVirtualizerItemMetadata } from '../../internals/virtualization/types';
 
 /**
- * Metadata provided by `Combobox.Virtualizer` to each rendered `Combobox.Item`.
+ * Metadata provided by `ListVirtualizer` to each rendered `Combobox.Item`.
  */
 export type ComboboxVirtualItemMetadata = ListVirtualizerItemMetadata;
 
@@ -16,7 +16,7 @@ export const ComboboxVirtualItemContext = React.createContext<
 
 /**
  * Returns virtual item metadata for the current `Combobox.Item`, if one is being rendered by
- * `Combobox.Virtualizer`.
+ * `ListVirtualizer`.
  */
 export function useComboboxVirtualItemContext() {
   return React.useContext(ComboboxVirtualItemContext);

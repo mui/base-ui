@@ -1,4 +1,4 @@
-export enum ComboboxVirtualizerCssVars {
+export enum ListVirtualizerCssVars {
   /**
    * The total height of the virtualized content, including the scrollport's block padding.
    * @type {number}

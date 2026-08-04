@@ -1,6 +1,7 @@
 'use client';
 import * as React from 'react';
 import { Combobox } from '@base-ui/react/combobox';
+import { ListVirtualizer } from '@base-ui/react/list-virtualizer';
 import styles from './index.module.css';
 
 export default function ExampleVirtualizedCombobox() {
@@ -18,7 +19,7 @@ export default function ExampleVirtualizedCombobox() {
               <div className={styles.Empty}>No items found.</div>
             </Combobox.Empty>
             <Combobox.List className={styles.List}>
-              <Combobox.Virtualizer
+              <ListVirtualizer
                 className={styles.Scroller}
                 getItemKey={(item) => item.id}
                 overscanPx={640}
@@ -31,7 +32,7 @@ export default function ExampleVirtualizedCombobox() {
                     <span className={styles.ItemText}>{item.name}</span>
                   </Combobox.Item>
                 )}
-              </Combobox.Virtualizer>
+              </ListVirtualizer>
             </Combobox.List>
           </Combobox.Popup>
         </Combobox.Positioner>

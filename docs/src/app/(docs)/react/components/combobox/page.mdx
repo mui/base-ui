@@ -23,6 +23,7 @@ Import the components and place them together:
 
 ```jsx title="Anatomy"
 import { Combobox } from '@base-ui/react/combobox';
+import { ListVirtualizer } from '@base-ui/react/list-virtualizer';
 
 <Combobox.Root>
   <Combobox.Label />
@@ -65,7 +66,7 @@ import { Combobox } from '@base-ui/react/combobox';
 
           <Combobox.Collection />
 
-          <Combobox.Virtualizer />
+          <ListVirtualizer />
         </Combobox.List>
       </Combobox.Popup>
     </Combobox.Positioner>
@@ -210,9 +211,20 @@ import { DemoComboboxCreatable } from './demos/creatable';
 
 ### Virtualized
 
-For most large datasets, use the built-in `<Combobox.Virtualizer>`. It is the recommended approach because it renders only the visible items while handling Combobox keyboard navigation, scrolling, selection, and accessibility metadata for you.
+For most large datasets, use the [`<ListVirtualizer>`](/react/utils/list-virtualizer) component. It is the recommended approach because it renders only the visible items while handling Combobox keyboard navigation, scrolling, selection, and accessibility metadata for you.
 
 Pass a flat collection to the `items` prop on `<Combobox.Root>`, and use the virtualizer as the only item-rendering child of `<Combobox.List>`. Each item renderer must return exactly one `<Combobox.Item>`. Grouped collections and grid mode are not currently supported.
+
+```jsx title="Anatomy"
+import { ListVirtualizer } from '@base-ui/react/list-virtualizer';
+
+// prettier-ignore
+<Combobox.List>
+  <ListVirtualizer getItemKey={(item) => item.id}>
+    {(item) => <Combobox.Item value={item}>{item.name}</Combobox.Item>}
+  </ListVirtualizer>
+</Combobox.List>
+```
 
 The virtualizer is the scroll container, so constrain its height or maximum height. The `--total-size` CSS variable contains the estimated or measured height of the virtual content, including the virtualizer's own block padding, and can be combined with `--available-height` from `<Combobox.Positioner>`:
 
@@ -228,7 +240,7 @@ The virtualizer is the scroll container, so constrain its height or maximum heig
 
 Padding on the virtualizer behaves as it does on a plain scrolling list: items start below it, scroll through it, and end above it.
 
-Use `getItemKey` to provide stable identity when item values are objects or when TypeScript cannot infer the item type. For primitive values, you can instead declare the type explicitly, such as `<Combobox.Virtualizer<string>>`. `estimatedItemHeight` defaults to 32 pixels and adapts to measured items. It can also be a number or a function receiving the item and its filtered index. `overscanPx` controls the extra pixel buffer around the visible range. It defaults to the larger of 150px and the first item's estimated height; even an explicit value of `0` keeps a minimum render buffer of one estimated row. CSS `scroll-padding-top` and `scroll-padding-bottom` are respected when keyboard navigation scrolls an item into view.
+Use `getItemKey` to provide stable identity when item values are objects or when TypeScript cannot infer the item type. For primitive values, you can instead declare the type explicitly, such as `<ListVirtualizer<string>>`. `estimatedItemHeight` defaults to 32 pixels and adapts to measured items. It can also be a number or a function receiving the item and its filtered index. `overscanPx` controls the extra pixel buffer around the visible range. It defaults to the larger of 150px and the first item's estimated height; even an explicit value of `0` keeps a minimum render buffer of one estimated row. CSS `scroll-padding-top` and `scroll-padding-bottom` are respected when keyboard navigation scrolls an item into view.
 
 When some items are disabled, pass `isItemDisabled` to `<Combobox.Root>`. Its index argument is the item's index in the filtered and limited collection. The `disabled` prop only marks a rendered `<Combobox.Item>` as disabled; `isItemDisabled` is the predicate keyboard navigation uses, including while an item is outside the rendered window.
 
@@ -238,7 +250,7 @@ import { DemoComboboxVirtualized } from './demos/virtualized';
 
 #### Third-party virtualizers
 
-You can instead integrate a third-party virtualization library when your application already uses one or needs behavior that the built-in virtualizer does not provide. The built-in `<Combobox.Virtualizer>` is recommended for most cases because a third-party integration must coordinate filtering, item indexes, scrolling, and accessibility metadata itself.
+You can instead integrate a third-party virtualization library when your application already uses one or needs behavior that the built-in virtualizer does not provide. `<ListVirtualizer>` is recommended for most cases because a third-party integration must coordinate filtering, item indexes, scrolling, and accessibility metadata itself.
 
 Set the `virtualized` prop on `<Combobox.Root>` only for an external virtualizer. Read the current filtered collection with `useFilteredItems()`, render the virtual rows as `<Combobox.Item>` elements, and pass each item its index in the filtered collection. The following example integrates [`@tanstack/react-virtual`](https://tanstack.com/virtual/latest):
 
@@ -319,10 +331,6 @@ import { TypesCombobox } from './types';
 ### List
 
 <TypesCombobox.List />
-
-### Virtualizer
-
-<TypesCombobox.Virtualizer />
 
 ### Portal
 
