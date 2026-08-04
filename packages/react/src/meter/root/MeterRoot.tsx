@@ -42,7 +42,7 @@ export const MeterRoot = React.forwardRef(function MeterRoot(
   // Without an explicit `format`, the value is displayed as its position within the range so the
   // text stays in sync with the indicator fill for any `min`/`max` (not just the default 0–100).
   const formattedValue = format
-    ? formatNumber(valueProp, locale, format)
+    ? formatNumber(clampedValue, locale, format)
     : formatNumber(percentageValue / 100, locale, { style: 'percent' });
 
   let ariaValuetext = formattedValue;

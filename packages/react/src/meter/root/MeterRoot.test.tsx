@@ -247,12 +247,12 @@ describe('<Meter.Root />', () => {
       expect(meter).toHaveAttribute('aria-valuetext', formatValue(30));
     });
 
-    it('formats the raw value while clamping range attributes and indicator width', async () => {
+    it('formats the clamped value while clamping range attributes and indicator width', async () => {
       const format: Intl.NumberFormatOptions = {
         style: 'currency',
         currency: 'USD',
       };
-      const expectedValue = new Intl.NumberFormat(undefined, format).format(150);
+      const expectedValue = new Intl.NumberFormat(undefined, format).format(100);
 
       await render(
         <Meter.Root value={150} format={format}>
