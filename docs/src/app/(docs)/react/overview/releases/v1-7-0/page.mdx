@@ -8,13 +8,12 @@
 - Restore visible focus after keyboard close in Safari and Firefox ([#5093](https://github.com/mui/base-ui/pull/5093))
 - Type `render` callback props based on the rendered element ([#5104](https://github.com/mui/base-ui/pull/5104))
 - Reduce popup bundle size ([#5233](https://github.com/mui/base-ui/pull/5233))
-- Reduce selector bundle size ([#5250](https://github.com/mui/base-ui/pull/5250))
+- Reduce store bundle size ([#5250](https://github.com/mui/base-ui/pull/5250))
 - Keep unpositioned popups at the viewport origin ([#5299](https://github.com/mui/base-ui/pull/5299))
 - Correct layout and passive effect timing ([#5337](https://github.com/mui/base-ui/pull/5337))
 - Remove redundant lifecycle synchronization ([#5341](https://github.com/mui/base-ui/pull/5341))
 - Prevent stale cleanup from clearing registered part IDs ([#5340](https://github.com/mui/base-ui/pull/5340))
 - Complete popup unmounting after a canceled exit transition ([#5401](https://github.com/mui/base-ui/pull/5401))
-- Export `useAnchorPositioning` and `getDisabledMountTransitionStyles` ([#5298](https://github.com/mui/base-ui/pull/5298))
 - Fix rendered trigger ID ownership ([#5110](https://github.com/mui/base-ui/pull/5110))
 - Prevent unwanted flip with capped scrollable content ([#5120](https://github.com/mui/base-ui/pull/5120))
 - Fix `collisionPadding` off-by-one on the biased side ([#5143](https://github.com/mui/base-ui/pull/5143))
@@ -31,7 +30,7 @@
 
 ## Alert Dialog
 
-- Make `<AlertDialog.Root>` own the store ([#5109](https://github.com/mui/base-ui/pull/5109))
+- Prevent `<AlertDialog.Root>` from reopening after remounting with a reused handle ([#5109](https://github.com/mui/base-ui/pull/5109))
 
 ## Autocomplete
 
@@ -81,23 +80,21 @@
 
 ## Composite
 
-- Export `CompositeListContext` and `useCompositeListContext` from `/internals` ([#5138](https://github.com/mui/base-ui/pull/5138))
 - Fix nested list reorder detection ([#5156](https://github.com/mui/base-ui/pull/5156))
 - Always skip natively disabled items during list navigation ([#5185](https://github.com/mui/base-ui/pull/5185))
 - Fix scroll alignment for RTL direction in `scrollIntoViewIfNeeded` ([#5234](https://github.com/mui/base-ui/pull/5234))
 - Simplify keyboard bookkeeping ([#5249](https://github.com/mui/base-ui/pull/5249))
-- Publish an atomic item registry ([#5256](https://github.com/mui/base-ui/pull/5256))
 
 ## Dialog
 
 - Fix touch outside-press dismissal without a backdrop ([#5096](https://github.com/mui/base-ui/pull/5096))
-- Make `<Dialog.Root>` own the store ([#5109](https://github.com/mui/base-ui/pull/5109))
+- Prevent `<Dialog.Root>` from reopening after remounting with a reused handle ([#5109](https://github.com/mui/base-ui/pull/5109))
 - Fix scroll lock handoff with external overlays ([#4665](https://github.com/mui/base-ui/pull/4665))
 - Reduce bundle size ([#5193](https://github.com/mui/base-ui/pull/5193))
 
 ## Drawer
 
-- Make `<Drawer.Root>` own the store ([#5109](https://github.com/mui/base-ui/pull/5109))
+- Prevent `<Drawer.Root>` from reopening after remounting with a reused handle ([#5109](https://github.com/mui/base-ui/pull/5109))
 - Fix unreliable swipe-to-open gestures ([#5105](https://github.com/mui/base-ui/pull/5105))
 - Fix popup flashing fully open for a frame on swipe area re-grab ([#5112](https://github.com/mui/base-ui/pull/5112))
 - Deduplicate swipe math to reduce bundle size ([#5181](https://github.com/mui/base-ui/pull/5181))
@@ -130,7 +127,7 @@
 - Fix VoiceOver announcement when opening a submenu ([#5342](https://github.com/mui/base-ui/pull/5342))
 - Propagate disabled state to items ([#5363](https://github.com/mui/base-ui/pull/5363))
 - Open submenus on Android TalkBack press ([#5384](https://github.com/mui/base-ui/pull/5384))
-- Make `<Menu.Root>` own the store ([#5149](https://github.com/mui/base-ui/pull/5149))
+- Prevent `<Menu.Root>` from reopening after remounting with a reused handle ([#5149](https://github.com/mui/base-ui/pull/5149))
 - Widen trigger slip-out release tolerance ([#5159](https://github.com/mui/base-ui/pull/5159))
 
 ## Meter
@@ -154,12 +151,12 @@
 
 ## Popover
 
-- Make `<Popover.Root>` own the store ([#5149](https://github.com/mui/base-ui/pull/5149))
+- Prevent `<Popover.Root>` from reopening after remounting with a reused handle ([#5149](https://github.com/mui/base-ui/pull/5149))
 - Reduce bundle size ([#5193](https://github.com/mui/base-ui/pull/5193))
 
 ## Preview Card
 
-- Make `<PreviewCard.Root>` own the store ([#5149](https://github.com/mui/base-ui/pull/5149))
+- Prevent `<PreviewCard.Root>` from reopening after remounting with a reused handle ([#5149](https://github.com/mui/base-ui/pull/5149))
 
 ## Progress
 
@@ -227,4 +224,4 @@
 
 ## Tooltip
 
-- Make `<Tooltip.Root>` own the store ([#5149](https://github.com/mui/base-ui/pull/5149))
+- Prevent `<Tooltip.Root>` from reopening after remounting with a reused handle ([#5149](https://github.com/mui/base-ui/pull/5149))

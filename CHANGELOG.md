@@ -11,13 +11,12 @@ _Aug 4, 2026_
 - Restore visible focus after keyboard close in Safari and Firefox (#5093) by @lyzno1
 - Type `render` callback props based on the rendered element (#5104) by @atomiks
 - Reduce popup bundle size (#5233) by @atomiks
-- Reduce selector bundle size (#5250) by @atomiks
+- Reduce store bundle size (#5250) by @atomiks
 - Keep unpositioned popups at the viewport origin (#5299) by @flaviendelangle
 - Correct layout and passive effect timing (#5337) by @atomiks
 - Remove redundant lifecycle synchronization (#5341) by @atomiks
 - Prevent stale cleanup from clearing registered part IDs (#5340) by @atomiks
 - Complete popup unmounting after a canceled exit transition (#5401) by @atomiks
-- Export `useAnchorPositioning` and `getDisabledMountTransitionStyles` (#5298) by @DiegoAndai
 - Fix rendered trigger ID ownership (#5110) by @atomiks
 - Prevent unwanted flip with capped scrollable content (#5120) by @atomiks
 - Fix `collisionPadding` off-by-one on the biased side (#5143) by @atomiks
@@ -34,7 +33,7 @@ _Aug 4, 2026_
 
 ### Alert Dialog
 
-- Make `<AlertDialog.Root>` own the store (#5109) by @michaldudak
+- Prevent `<AlertDialog.Root>` from reopening after remounting with a reused handle (#5109) by @michaldudak
 
 ### Autocomplete
 
@@ -84,23 +83,21 @@ _Aug 4, 2026_
 
 ### Composite
 
-- Export `CompositeListContext` and `useCompositeListContext` from `/internals` (#5138) by @flaviendelangle
 - Fix nested list reorder detection (#5156) by @jjenzz
 - Always skip natively disabled items during list navigation (#5185) by @atomiks
 - Fix scroll alignment for RTL direction in `scrollIntoViewIfNeeded` (#5234) by @sai6855
 - Simplify keyboard bookkeeping (#5249) by @atomiks
-- Publish an atomic item registry (#5256) by @atomiks
 
 ### Dialog
 
 - Fix touch outside-press dismissal without a backdrop (#5096) by @atomiks
-- Make `<Dialog.Root>` own the store (#5109) by @michaldudak
+- Prevent `<Dialog.Root>` from reopening after remounting with a reused handle (#5109) by @michaldudak
 - Fix scroll lock handoff with external overlays (#4665) by @atomiks
 - Reduce bundle size (#5193) by @atomiks
 
 ### Drawer
 
-- Make `<Drawer.Root>` own the store (#5109) by @michaldudak
+- Prevent `<Drawer.Root>` from reopening after remounting with a reused handle (#5109) by @michaldudak
 - Fix unreliable swipe-to-open gestures (#5105) by @atomiks
 - Fix popup flashing fully open for a frame on swipe area re-grab (#5112) by @atomiks
 - Deduplicate swipe math to reduce bundle size (#5181) by @atomiks
@@ -133,7 +130,7 @@ _Aug 4, 2026_
 - Fix VoiceOver announcement when opening a submenu (#5342) by @atomiks
 - Propagate disabled state to items (#5363) by @chuganzy
 - Open submenus on Android TalkBack press (#5384) by @atomiks
-- Make `<Menu.Root>` own the store (#5149) by @michaldudak
+- Prevent `<Menu.Root>` from reopening after remounting with a reused handle (#5149) by @michaldudak
 - Widen trigger slip-out release tolerance (#5159) by @atomiks
 
 ### Meter
@@ -157,12 +154,12 @@ _Aug 4, 2026_
 
 ### Popover
 
-- Make `<Popover.Root>` own the store (#5149) by @michaldudak
+- Prevent `<Popover.Root>` from reopening after remounting with a reused handle (#5149) by @michaldudak
 - Reduce bundle size (#5193) by @atomiks
 
 ### Preview Card
 
-- Make `<PreviewCard.Root>` own the store (#5149) by @michaldudak
+- Prevent `<PreviewCard.Root>` from reopening after remounting with a reused handle (#5149) by @michaldudak
 
 ### Progress
 
@@ -230,7 +227,7 @@ _Aug 4, 2026_
 
 ### Tooltip
 
-- Make `<Tooltip.Root>` own the store (#5149) by @michaldudak
+- Prevent `<Tooltip.Root>` from reopening after remounting with a reused handle (#5149) by @michaldudak
 
 All contributors of this release in alphabetical order: @arikchakma, @atomiks, @bernardobelchior, @brijeshb42, @chuganzy, @DiegoAndai, @DreierF, @flaviendelangle, @jjenzz, @lyzno1, @m2na7, @mdm317, @michaldudak, @nami8824, @obeattie, @sai6855, @sarthakmalik0810
 
