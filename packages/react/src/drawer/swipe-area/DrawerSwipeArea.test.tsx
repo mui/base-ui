@@ -2,7 +2,14 @@ import { beforeAll, describe, expect, it, vi } from 'vitest';
 import * as React from 'react';
 import { Drawer } from '@base-ui/react/drawer';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
-import { act, fireEvent, flushMicrotasks, screen, waitFor } from '@mui/internal-test-utils';
+import {
+  act,
+  fireEvent,
+  flushMicrotasks,
+  ignoreActWarnings,
+  screen,
+  waitFor,
+} from '@mui/internal-test-utils';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 import {
   type DrawerProviderContext,
@@ -10,6 +17,7 @@ import {
 } from '../provider/DrawerProviderContext';
 
 const useIdMockState = vi.hoisted(() => ({ returnUndefined: false }));
+const eventUtilsMockState = vi.hoisted(() => ({ forceVirtualClick: false }));
 
 vi.mock('@base-ui/utils/useId', async () => {
   const actual =
@@ -19,6 +27,18 @@ vi.mock('@base-ui/utils/useId', async () => {
     useId(...args: Parameters<typeof actual.useId>) {
       const id = actual.useId(...args);
       return useIdMockState.returnUndefined ? undefined : id;
+    },
+  };
+});
+
+vi.mock('../../floating-ui-react/utils/event', async () => {
+  const actual = await vi.importActual<typeof import('../../floating-ui-react/utils/event')>(
+    '../../floating-ui-react/utils/event',
+  );
+  return {
+    ...actual,
+    isVirtualClick(...args: Parameters<typeof actual.isVirtualClick>) {
+      return eventUtilsMockState.forceVirtualClick || actual.isVirtualClick(...args);
     },
   };
 });
@@ -33,6 +53,8 @@ type SwipeInput = 'pointer' | 'touch';
 type SwipeOptions = {
   beforeRelease?: (() => Promise<unknown>) | (() => unknown);
   input?: SwipeInput;
+  // Applies only to `input: 'pointer'`; the `touch` branch always dispatches touch events.
+  pointerType?: 'mouse' | 'pen' | 'touch';
   timeStepMs?: number;
   startTimeMs?: number;
 };
@@ -69,7 +91,13 @@ function dispatchTouchPointerEvent(
 async function swipe(element: HTMLElement, start: Point, end: Point, options: SwipeOptions = {}) {
   const stepX = start.x + (end.x === start.x ? 0 : Math.sign(end.x - start.x));
   const stepY = start.y + (end.y === start.y ? 0 : Math.sign(end.y - start.y));
-  const { beforeRelease, input = 'pointer', timeStepMs, startTimeMs = 0 } = options;
+  const {
+    beforeRelease,
+    input = 'pointer',
+    pointerType = 'mouse',
+    timeStepMs,
+    startTimeMs = 0,
+  } = options;
   const useTimeStamp = input === 'pointer' && typeof timeStepMs === 'number';
   let timeStamp = startTimeMs;
 
@@ -135,7 +163,7 @@ async function swipe(element: HTMLElement, start: Point, end: Point, options: Sw
     pointerId: 1,
     clientX: start.x,
     clientY: start.y,
-    pointerType: 'mouse',
+    pointerType,
     ...(useTimeStamp ? { timeStamp } : null),
   });
 
@@ -150,7 +178,7 @@ async function swipe(element: HTMLElement, start: Point, end: Point, options: Sw
     clientX: stepX,
     clientY: stepY,
     buttons: 1,
-    pointerType: 'mouse',
+    pointerType,
     ...(useTimeStamp ? { timeStamp } : null),
   });
 
@@ -165,7 +193,7 @@ async function swipe(element: HTMLElement, start: Point, end: Point, options: Sw
     clientX: end.x,
     clientY: end.y,
     buttons: 1,
-    pointerType: 'mouse',
+    pointerType,
     ...(useTimeStamp ? { timeStamp } : null),
   });
 
@@ -184,7 +212,7 @@ async function swipe(element: HTMLElement, start: Point, end: Point, options: Sw
     pointerId: 1,
     clientX: end.x,
     clientY: end.y,
-    pointerType: 'mouse',
+    pointerType,
     ...(useTimeStamp ? { timeStamp } : null),
   });
 
@@ -630,9 +658,79 @@ describe('<Drawer.SwipeArea />', () => {
       expect(cleanupPhases.at(-1)).toBe(true);
       expect(screen.getByTestId('popup')).not.toHaveAttribute('data-swiping');
       expect(swipeArea).toHaveAttribute('data-disabled', '');
+
+      pressOutside();
+
+      await waitFor(() => {
+        expect(screen.queryByTestId('popup')).toBe(null);
+      });
     } finally {
       providerContext!.visualStateStore.set = originalSetVisualState;
     }
+  });
+
+  it('keeps the drawer open when the release click follows a mid-gesture disable', async () => {
+    function TestCase({ disabled }: { disabled: boolean }) {
+      return (
+        <Drawer.Root>
+          <Drawer.SwipeArea data-testid="swipe-area" disabled={disabled} />
+          <Drawer.Portal>
+            <Drawer.Viewport>
+              <Drawer.Popup data-testid="popup">Drawer</Drawer.Popup>
+            </Drawer.Viewport>
+          </Drawer.Portal>
+        </Drawer.Root>
+      );
+    }
+
+    const { setProps } = await render(<TestCase disabled={false} />);
+    const swipeArea = screen.getByTestId('swipe-area');
+
+    fireEvent.pointerDown(swipeArea, {
+      button: 0,
+      buttons: 1,
+      pointerId: 1,
+      clientX: 0,
+      clientY: 100,
+      pointerType: 'mouse',
+    });
+    fireEvent.pointerMove(swipeArea, {
+      buttons: 1,
+      pointerId: 1,
+      clientX: 0,
+      clientY: 99,
+      pointerType: 'mouse',
+    });
+    fireEvent.pointerMove(swipeArea, {
+      buttons: 1,
+      pointerId: 1,
+      clientX: 0,
+      clientY: 40,
+      pointerType: 'mouse',
+    });
+    await flushMicrotasks();
+    expect(screen.getByTestId('popup')).toHaveAttribute('data-open', '');
+
+    await setProps({ disabled: true });
+
+    // The pointer is still down when `disabled` flips, so the gesture's eventual release
+    // synthesizes a click with no fresh `pointerdown`. It must not dismiss the drawer the
+    // gesture just opened.
+    const releaseClick = new MouseEvent('click', { bubbles: true, detail: 1 });
+    Object.defineProperty(releaseClick, 'pointerType', { value: 'mouse' });
+    fireEvent(document.body, releaseClick);
+
+    await act(async () => {
+      await nextMacrotask();
+    });
+
+    expect(screen.getByTestId('popup')).toHaveAttribute('data-open', '');
+
+    pressOutside();
+
+    await waitFor(() => {
+      expect(screen.queryByTestId('popup')).toBe(null);
+    });
   });
 
   it('does not prevent a non-cancelable pointer start', async () => {
@@ -827,40 +925,185 @@ describe('<Drawer.SwipeArea />', () => {
     expect(swipeArea).toHaveAttribute('data-closed', '');
   });
 
-  it('does not dismiss from the click synthesized by the swipe-open pointerup', async () => {
-    // Dragging past the popup releases the pointer outside it, so the gesture's own pointerup
-    // synthesizes a `click` over the backdrop. That click (which has no fresh pointerdown) must not
-    // be read as an outside press and dismiss the drawer that was just opened — even when it lands a
-    // macrotask later, after a timer-based re-enable would have fired.
-    await render(
-      <Drawer.Root>
-        <Drawer.SwipeArea data-testid="swipe-area" />
-        <Drawer.Portal>
-          <Drawer.Viewport>
-            <Drawer.Popup data-testid="popup">Drawer</Drawer.Popup>
-          </Drawer.Viewport>
-        </Drawer.Portal>
-      </Drawer.Root>,
+  it.each([
+    { input: 'pointer' as const, pointerType: 'mouse' as const },
+    { input: 'pointer' as const, pointerType: 'pen' as const },
+    { input: 'touch' as const, pointerType: 'touch' as const },
+  ])(
+    'does not dismiss from the $pointerType/$input click synthesized by the swipe-open release',
+    async ({ input, pointerType }) => {
+      // Dragging past the popup releases the pointer outside it, so the gesture's own pointerup
+      // synthesizes a `click` over the backdrop. That click (which has no fresh pointerdown) must not
+      // be read as an outside press and dismiss the drawer that was just opened — even when it lands
+      // a macrotask later, after a timer-based re-enable would have fired.
+      await render(
+        <Drawer.Root>
+          <Drawer.SwipeArea data-testid="swipe-area" />
+          <Drawer.Portal>
+            <Drawer.Viewport>
+              <Drawer.Popup data-testid="popup">Drawer</Drawer.Popup>
+            </Drawer.Viewport>
+          </Drawer.Portal>
+        </Drawer.Root>,
+      );
+
+      const swipeArea = screen.getByTestId('swipe-area');
+
+      await swipeUp(swipeArea, 120, 40, { input, pointerType });
+
+      expect(screen.getByTestId('popup')).toHaveAttribute('data-open', '');
+
+      await act(async () => {
+        await nextMacrotask();
+      });
+
+      // Trailing synthesized click with no preceding fresh pointerdown.
+      const releaseClick = new MouseEvent('click', { bubbles: true, detail: 1 });
+      Object.defineProperty(releaseClick, 'pointerType', { value: pointerType });
+      fireEvent(document.body, releaseClick);
+
+      await act(async () => {
+        await nextMacrotask();
+      });
+
+      expect(screen.getByTestId('popup')).toHaveAttribute('data-open', '');
+    },
+  );
+
+  it.skipIf(isJSDOM)(
+    'suppresses a trusted release click that arrives without a preceding pointerdown',
+    async () => {
+      // A trusted dispatch performs a microtask checkpoint after each listener, so only trusted
+      // input exercises the real ordering between the release guard (document capture) and
+      // floating-ui's outside-press check (target phase). Browsers deliver the gesture's trailing
+      // click without a fresh `pointerdown` (e.g. a touch flick within tap slop); trusted
+      // low-level input cannot produce that shape directly, so the `pointerdown` is stopped at
+      // the window — ahead of document capture — and only the trusted `click` flows through.
+      ignoreActWarnings();
+      const { userEvent: user } = await import('vitest/browser');
+      const { render: vbrRender, cleanup } = await import('vitest-browser-react');
+
+      const stopPointerDown = (event: Event) => event.stopPropagation();
+
+      try {
+        await vbrRender(
+          <div>
+            <div
+              data-testid="outside-target"
+              style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: 100 }}
+            />
+            <Drawer.Root>
+              <Drawer.SwipeArea
+                data-testid="swipe-area"
+                style={{ position: 'fixed', bottom: 0, left: 0, width: '100%', height: 40 }}
+              />
+              <Drawer.Portal>
+                <Drawer.Viewport>
+                  <Drawer.Popup
+                    data-testid="popup"
+                    style={{ position: 'fixed', bottom: 0, left: 0, width: '100%', height: 150 }}
+                  >
+                    Drawer
+                  </Drawer.Popup>
+                </Drawer.Viewport>
+              </Drawer.Portal>
+            </Drawer.Root>
+          </div>,
+        );
+
+        // Synthetic swipe: opens the drawer and arms the release guard without synthesizing the
+        // trailing click (`fireEvent` does not), leaving the guard waiting for it.
+        await swipeUp(screen.getByTestId('swipe-area'), 120, 40);
+        expect(screen.getByTestId('popup')).toHaveAttribute('data-open', '');
+
+        window.addEventListener('pointerdown', stopPointerDown, true);
+        // `force` skips Playwright's actionability check; the drawer's internal backdrop
+        // intercepts the click, which is exactly where a release click would land.
+        await user.click(screen.getByTestId('outside-target'), { force: true });
+        window.removeEventListener('pointerdown', stopPointerDown, true);
+
+        await act(async () => {
+          await nextMacrotask();
+        });
+
+        expect(screen.getByTestId('popup')).toHaveAttribute('data-open', '');
+
+        // The guard is consumed and restored, so a deliberate outside press now dismisses.
+        await user.click(screen.getByTestId('outside-target'), { force: true });
+
+        await waitFor(() => {
+          expect(screen.queryByTestId('popup')).toBe(null);
+        });
+      } finally {
+        window.removeEventListener('pointerdown', stopPointerDown, true);
+        await cleanup();
+      }
+    },
+  );
+
+  it.skipIf(isJSDOM)('allows a later click-only activation to dismiss after a swipe', async () => {
+    const { user } = await render(
+      <React.Fragment>
+        <button type="button">Outside</button>
+        <Drawer.Root modal={false}>
+          <Drawer.SwipeArea data-testid="swipe-area" />
+          <Drawer.Portal>
+            <Drawer.Viewport>
+              <Drawer.Popup data-testid="popup" initialFocus={false}>
+                Drawer
+              </Drawer.Popup>
+            </Drawer.Viewport>
+          </Drawer.Portal>
+        </Drawer.Root>
+      </React.Fragment>,
     );
 
-    const swipeArea = screen.getByTestId('swipe-area');
+    const outside = screen.getByRole('button', { name: 'Outside' });
+    outside.focus();
 
-    await swipeUp(swipeArea, 120, 40);
+    await swipeUp(screen.getByTestId('swipe-area'), 120, 40);
+    expect(screen.getByTestId('popup')).toHaveAttribute('data-open', '');
+    expect(outside).toHaveFocus();
 
+    await user.keyboard('{Enter}');
+
+    await waitFor(() => {
+      expect(screen.queryByTestId('popup')).toBe(null);
+    });
+  });
+
+  it('allows a later pointerless virtual click to dismiss when the release has no click', async () => {
+    await render(
+      <React.Fragment>
+        <button type="button">Outside</button>
+        <Drawer.Root modal={false}>
+          <Drawer.SwipeArea data-testid="swipe-area" />
+          <Drawer.Portal>
+            <Drawer.Viewport>
+              <Drawer.Popup data-testid="popup" initialFocus={false}>
+                Drawer
+              </Drawer.Popup>
+            </Drawer.Viewport>
+          </Drawer.Portal>
+        </Drawer.Root>
+      </React.Fragment>,
+    );
+
+    await swipeUp(screen.getByTestId('swipe-area'), 120, 40, { input: 'touch' });
     expect(screen.getByTestId('popup')).toHaveAttribute('data-open', '');
 
-    await act(async () => {
-      await nextMacrotask();
+    eventUtilsMockState.forceVirtualClick = true;
+    try {
+      const virtualClick = new MouseEvent('click', { bubbles: true, detail: 1 });
+      Object.defineProperty(virtualClick, 'pointerType', { value: '' });
+      fireEvent(screen.getByRole('button', { name: 'Outside' }), virtualClick);
+    } finally {
+      eventUtilsMockState.forceVirtualClick = false;
+    }
+
+    await waitFor(() => {
+      expect(screen.queryByTestId('popup')).toBe(null);
     });
-
-    // Trailing synthesized click with no preceding fresh pointerdown.
-    fireEvent.click(document.body);
-
-    await act(async () => {
-      await nextMacrotask();
-    });
-
-    expect(screen.getByTestId('popup')).toHaveAttribute('data-open', '');
   });
 
   it('re-enables outside press dismissal after an interrupted swipe-open gesture', async () => {
