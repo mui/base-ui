@@ -52,6 +52,7 @@
     "./navigation-menu": "./src/navigation-menu/index.ts",
     "./number-field": "./src/number-field/index.ts",
     "./otp-field": "./src/otp-field/index.ts",
+    "./password-field": "./src/password-field/index.ts",
     "./popover": "./src/popover/index.ts",
     "./preview-card": "./src/preview-card/index.ts",
     "./progress": "./src/progress/index.ts",
