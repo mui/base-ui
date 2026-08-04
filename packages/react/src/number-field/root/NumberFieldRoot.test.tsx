@@ -393,6 +393,34 @@ describe('<NumberField />', () => {
       expect(onInputValueChange.mock.calls[0][1].reason).toBe(REASONS.inputBlur);
     });
 
+    it('should not re-propose a canceled blur normalization', async () => {
+      const onInputValueChange = vi.fn();
+      await render(
+        <NumberField
+          min={10}
+          onInputValueChange={(next, eventDetails) => {
+            onInputValueChange(next, eventDetails);
+            if (eventDetails.reason === REASONS.inputBlur) {
+              eventDetails.cancel();
+            }
+          }}
+        />,
+      );
+      const input = screen.getByRole('textbox');
+
+      // Clamps the value to 10 while the text stays '5', so blur both stores the clamped value
+      // and normalizes the text — two writes of '10' that must still collapse when canceled.
+      fireEvent.change(input, { target: { value: '5' } });
+      onInputValueChange.mockClear();
+
+      fireEvent.blur(input);
+
+      const blurCalls = onInputValueChange.mock.calls.filter(
+        (call) => call[1].reason === REASONS.inputBlur,
+      );
+      expect(blurCalls).toHaveLength(1);
+    });
+
     it('should fire with the step reason when incrementing', async () => {
       const onInputValueChange = vi.fn();
       await render(<NumberField defaultValue={1} onInputValueChange={onInputValueChange} />);
@@ -458,7 +486,84 @@ describe('<NumberField />', () => {
       input.setSelectionRange(1, 1);
       pasteText(input, '2');
 
-      expect(calls).to.deep.equal(['text:1', 'value:1', 'text:12', 'value:12']);
+      expect(calls).toEqual(['text:1', 'value:1', 'text:12', 'value:12']);
+    });
+
+    it('should keep earlier accepted text when a later keystroke is vetoed', async () => {
+      function App() {
+        const [, forceRerender] = React.useReducer((count) => count + 1, 0);
+        return (
+          <React.Fragment>
+            <NumberField
+              onInputValueChange={(next, eventDetails) => {
+                // A filtering consumer: accept until the string gets too long, then reject and
+                // re-render to surface the rejection.
+                if (next.length > 2) {
+                  forceRerender();
+                  eventDetails.cancel();
+                }
+              }}
+            />
+            <button onClick={forceRerender}>rerender</button>
+          </React.Fragment>
+        );
+      }
+
+      await render(<App />);
+      const input = screen.getByRole('textbox');
+
+      fireEvent.change(input, { target: { value: '5' } });
+      fireEvent.change(input, { target: { value: '5.' } });
+      expect(input).toHaveValue('5.');
+
+      // Vetoed: the text must stay exactly as the user left it, trailing decimal included.
+      fireEvent.change(input, { target: { value: '5.0' } });
+      expect(input).toHaveValue('5.');
+
+      // An unrelated re-render must not let the formatting sync reclaim the in-progress text.
+      fireEvent.click(screen.getByRole('button', { name: 'rerender' }));
+      expect(input).toHaveValue('5.');
+    });
+
+    it('should step from the typed text after a vetoed keystroke', async () => {
+      const onValueChange = vi.fn();
+
+      function App() {
+        const [value, setValue] = React.useState<number | null>(null);
+        return (
+          <React.Fragment>
+            <NumberField
+              value={value}
+              onValueChange={(next, eventDetails) => {
+                onValueChange(next, eventDetails);
+                setValue(next);
+              }}
+              onInputValueChange={(next, eventDetails) => {
+                if (next.length > 2) {
+                  eventDetails.cancel();
+                }
+              }}
+            />
+            <button onClick={() => setValue(999)}>set 999</button>
+          </React.Fragment>
+        );
+      }
+
+      await render(<App />);
+      const input = screen.getByRole('textbox');
+      await act(async () => input.focus());
+
+      fireEvent.change(input, { target: { value: '50' } });
+      // An external change the user hasn't seen: the text still shows the in-progress '50'.
+      fireEvent.click(screen.getByRole('button', { name: 'set 999' }));
+      fireEvent.change(input, { target: { value: '50.' } });
+      onValueChange.mockClear();
+
+      fireEvent.keyDown(input, { key: 'ArrowUp' });
+
+      // Stepping must continue from the typed 50, not from the external 999 the field would
+      // treat as authoritative if the veto had cleared its manual-edit state.
+      expect(onValueChange.mock.calls[0][0]).toBe(51);
     });
 
     it('should reject the whole keystroke when the text update is canceled', async () => {

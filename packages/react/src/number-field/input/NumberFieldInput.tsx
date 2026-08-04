@@ -247,6 +247,11 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
         return;
       }
 
+      // A vetoed keystroke has to leave this exactly as it found it. Forcing it back to `true`
+      // would declare the field pristine even when earlier keystrokes were accepted, which resets
+      // in-progress text through the formatting sync and makes blur and stepping read `value`
+      // instead of what the user typed.
+      const wasInputSynced = allowInputSyncRef.current;
       allowInputSyncRef.current = false;
       const targetValue = event.currentTarget.value;
 
@@ -257,10 +262,7 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
         // has to veto the whole keystroke. Applying it anyway would leave the text and the value
         // disagreeing, and blur resolves that disagreement by reading the text.
         if (clearTextDetails.isCanceled) {
-          // A refused edit leaves the text matching `value`, so drop the manual-edit state
-          // recorded above too, or blur treats the field as dirty and reports a commit for a
-          // value that never changed.
-          allowInputSyncRef.current = true;
+          allowInputSyncRef.current = wasInputSynced;
           return;
         }
         setValue(null, createChangeEventDetails(REASONS.inputClear, event.nativeEvent));
@@ -291,8 +293,7 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
       setInputValue(targetValue, changeTextDetails);
 
       if (changeTextDetails.isCanceled) {
-        // As above: the refused edit leaves no manual edit to track.
-        allowInputSyncRef.current = true;
+        allowInputSyncRef.current = wasInputSynced;
         return;
       }
 

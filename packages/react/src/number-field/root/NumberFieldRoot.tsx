@@ -182,11 +182,15 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
 
       onInputValueChangeProp?.(nextInputValue, details);
 
+      // Recorded even when canceled: a refused proposal has still been put to the consumer, so
+      // repeating it within the same event is noise. The event key keeps this from leaking into
+      // the next interaction.
+      pendingWriteRef.current = { event: details.event, value: nextInputValue };
+
       if (details.isCanceled) {
         return;
       }
 
-      pendingWriteRef.current = { event: details.event, value: nextInputValue };
       setInputValueUnwrapped(nextInputValue);
     },
   );
@@ -363,21 +367,26 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
   // It deliberately has no dependency array: it must run even when the parsed value hasn't changed,
   // since the same value can still be formatted differently.
   useIsoLayoutEffect(function syncFormattedInputValueOnValueChange() {
-    const nextInputValue = formatNumber(value, locale, format);
+    // Tracked unconditionally so the transition is measured against the previous render rather
+    // than the previous render that happened to pass the guard below.
     const allowInputSync = allowInputSyncRef.current;
-
-    // Tracked unconditionally so that the transitions below are measured against the previous
-    // render rather than the previous render that happened to pass the guards.
-    const formattedValueChanged = nextInputValue !== previousFormattedValueRef.current;
     const syncResumed = allowInputSync && !previousAllowInputSyncRef.current;
-    previousFormattedValueRef.current = nextInputValue;
     previousAllowInputSyncRef.current = allowInputSync;
 
     // This ensures the value is only updated on blur rather than every keystroke, but still
-    // allows the input value to be updated when the value is changed externally.
+    // allows the input value to be updated when the value is changed externally. Formatting stays
+    // behind this guard so typing doesn't pay for a result that is discarded.
     if (!allowInputSync) {
       return;
     }
+
+    const nextInputValue = formatNumber(value, locale, format);
+
+    // Safe to leave stale while typing: the render that resumes syncing passes on `syncResumed`
+    // without consulting this, and every other render that reaches here had syncing enabled on the
+    // previous render, which refreshed it.
+    const formattedValueChanged = nextInputValue !== previousFormattedValueRef.current;
+    previousFormattedValueRef.current = nextInputValue;
 
     if (nextInputValue === inputValue) {
       return;
@@ -666,9 +675,9 @@ export interface NumberFieldRootProps extends Omit<
    *
    * Unlike `value`, this can hold strings that aren't parseable as a number yet, such as `'-'` or
    * `'.'`, which lets the field be driven through intermediate states while typing.
-   * The text is not formatted or clamped, so the number field only reflects it back through
-   * `onInputValueChange` when a formatted string is due (typing, blur, stepping, or an external
-   * `value` change).
+   * The text is never formatted or clamped on the way in. It is reported back through
+   * `onInputValueChange` either verbatim, as the user types, clears, or pastes, or formatted, on
+   * blur, when stepping, and after an external `value`, `locale`, or `format` change.
    */
   inputValue?: string | undefined;
   /**
