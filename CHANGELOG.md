@@ -16,7 +16,6 @@ _Aug 3, 2026_
 - Correct layout and passive effect timing (#5337) by @atomiks
 - Remove redundant lifecycle synchronization (#5341) by @atomiks
 - Prevent stale cleanup from clearing registered part IDs (#5340) by @atomiks
-- Avoid unused popup handle work during mount (#5394) by @atomiks
 - Complete popup unmounting after a canceled exit transition (#5401) by @atomiks
 - Export `useAnchorPositioning` and `getDisabledMountTransitionStyles` (#5298) by @DiegoAndai
 - Fix rendered trigger ID ownership (#5110) by @atomiks
