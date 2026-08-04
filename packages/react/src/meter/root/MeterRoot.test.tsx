@@ -253,9 +253,12 @@ describe('<Meter.Root />', () => {
         currency: 'USD',
       };
       const expectedValue = new Intl.NumberFormat(undefined, format).format(100);
+      const getAriaValueText = vi.fn(
+        (formattedValue: string, rawValue: number) => `${formattedValue} (raw: ${rawValue})`,
+      );
 
       await render(
-        <Meter.Root value={150} format={format}>
+        <Meter.Root value={150} format={format} getAriaValueText={getAriaValueText}>
           <Meter.Value data-testid="value" />
           <Meter.Track>
             <Meter.Indicator data-testid="indicator" />
@@ -266,7 +269,8 @@ describe('<Meter.Root />', () => {
       const meter = screen.getByRole('meter');
       expect(screen.getByTestId('value').textContent).toBe(expectedValue);
       expect(meter).toHaveAttribute('aria-valuenow', '100');
-      expect(meter).toHaveAttribute('aria-valuetext', expectedValue);
+      expect(getAriaValueText).toHaveBeenLastCalledWith(expectedValue, 150);
+      expect(meter).toHaveAttribute('aria-valuetext', `${expectedValue} (raw: 150)`);
       expect(screen.getByTestId('indicator').style.width).toBe('100%');
     });
   });
