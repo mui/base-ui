@@ -124,6 +124,11 @@ export interface UseListVirtualizerAdapterParameters<Value, Item> {
   activeIndex: number | null;
   children: (item: Item, index: number) => React.ReactElement;
   componentName: ComponentName;
+  /**
+   * Whether the virtual window is active. A disabled virtualizer renders every row, so the list
+   * root must fall back to the scrolling it uses for static collections.
+   */
+  enabled: boolean;
   estimatedItemHeight: number | ((item: Item, index: number) => number) | undefined;
   getItemKey: ((item: Item) => string | number) | undefined;
   getItemValue: (item: Item) => Value;
@@ -146,6 +151,7 @@ export function useListVirtualizerAdapter<Value, Item>(
     activeIndex,
     children,
     componentName,
+    enabled,
     estimatedItemHeight,
     getItemKey,
     getItemValue,
@@ -301,8 +307,8 @@ export function useListVirtualizerAdapter<Value, Item>(
       apiRef.current?.scrollToIndex(index, options),
   );
   const virtualizerHandle = React.useMemo(
-    () => ({ getRowMetrics, resetScroll, scrollToIndex }),
-    [getRowMetrics, resetScroll, scrollToIndex],
+    () => ({ enabled, getRowMetrics, resetScroll, scrollToIndex }),
+    [enabled, getRowMetrics, resetScroll, scrollToIndex],
   );
 
   useIsoLayoutEffect(() => {

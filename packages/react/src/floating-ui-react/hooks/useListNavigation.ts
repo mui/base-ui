@@ -16,7 +16,9 @@ import {
   findNonDisabledListIndex,
   getMaxListIndex,
   getMinListIndex,
+  isExplicitlyDisabledIndex,
   isIndexOutOfListBounds,
+  isListIndexDisabled,
 } from '../utils/composite';
 import type { gridNavigation } from './gridNavigation';
 import { ARROW_DOWN, ARROW_LEFT, ARROW_RIGHT, ARROW_UP } from '../utils/constants';
@@ -444,16 +446,21 @@ export function useListNavigation(
             }
             runs += 1;
           } else {
-            // Initially focus the first non-disabled item. `disabledIndices` is deliberately
-            // omitted here so attribute-disabled items (`disabled`/`aria-disabled`) are skipped
-            // on open even when the consumer passes an empty `disabledIndices` array. Passing it
-            // would regress that behavior (see mui/base-ui#2604).
+            // Initially focus the first non-disabled item. `disabledIndices` is deliberately not
+            // forwarded as-is so attribute-disabled items (`disabled`/`aria-disabled`) are skipped
+            // on open even when the consumer passes an empty `disabledIndices` array (see
+            // mui/base-ui#2604). The consumer predicate is still consulted alongside the DOM
+            // state: a virtualized list leaves offscreen items unmounted, and a `null` slot is
+            // otherwise indistinguishable from an enabled item.
+            const isInitialIndexDisabled = (index: number) =>
+              isExplicitlyDisabledIndex(index, disabledIndicesRef.current) ||
+              isListIndexDisabled(listRef.current, index);
             indexRef.current =
               keyRef.current == null ||
               isMainOrientationToEndKey(keyRef.current, orientation, rtl) ||
               nested
-                ? getMinListIndex(listRef)
-                : getMaxListIndex(listRef);
+                ? getMinListIndex(listRef, isInitialIndexDisabled)
+                : getMaxListIndex(listRef, isInitialIndexDisabled);
             keyRef.current = null;
             onNavigate();
           }
@@ -472,6 +479,7 @@ export function useListNavigation(
     floatingElement,
     activeIndex,
     selectedIndexRef,
+    disabledIndicesRef,
     nested,
     listRef,
     orientation,

@@ -1251,10 +1251,12 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     rtl: direction === 'rtl',
     disabledIndices: isItemDisabled ? isIndexDisabled : (EMPTY_ARRAY as number[]),
     grid: grid ? gridNavigation : undefined,
-    // The built-in virtualizer owns the scroll position and scrolls highlighted rows itself.
-    // The DOM scroll here is deferred by a frame, so it can read a stale window layout and drag
-    // the scroll position away from where the virtualizer just placed it.
-    scrollItemIntoView: () => store.state.virtualizationRegistry.virtualizer == null,
+    // An enabled built-in virtualizer owns the scroll position and scrolls highlighted rows
+    // itself. The DOM scroll here is deferred by a frame, so it can read a stale window layout and
+    // drag the scroll position away from where the virtualizer just placed it. A disabled
+    // virtualizer renders the whole collection and scrolls no rows, so it must keep the DOM scroll
+    // that static lists rely on.
+    scrollItemIntoView: () => store.state.virtualizationRegistry.virtualizer?.enabled !== true,
     onNavigate(nextActiveIndex, event) {
       // Retain the highlight only while actually transitioning out or closed.
       if ((!event && !open) || transitionStatus === 'ending') {

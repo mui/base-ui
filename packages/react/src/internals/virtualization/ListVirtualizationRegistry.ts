@@ -39,6 +39,18 @@ export interface ListVirtualizerHandle {
 }
 
 /**
+ * A virtualizer registered with a list root: its imperative operations, plus the state the root
+ * needs to tell which behaviors the virtualizer currently owns.
+ */
+export interface RegisteredListVirtualizer extends ListVirtualizerHandle {
+  /**
+   * Whether the virtualizer is currently mounting a window of rows and owning the scroll position.
+   * A disabled virtualizer renders the whole collection and behaves like a plain scrolling list.
+   */
+  enabled: boolean;
+}
+
+/**
  * Coordinates virtualized and non-virtualized content rendered by a single list root.
  */
 export interface ListVirtualizationRegistry {
@@ -47,10 +59,10 @@ export interface ListVirtualizationRegistry {
    */
   nonVirtualItemCount: number;
   /**
-   * Imperative handle of the registered virtualizer. A list supports at most one; the adapter
-   * warns when more than one registers.
+   * The registered virtualizer. A list supports at most one; the adapter warns when more than one
+   * registers.
    */
-  virtualizer: ListVirtualizerHandle | null;
+  virtualizer: RegisteredListVirtualizer | null;
 }
 
 /**

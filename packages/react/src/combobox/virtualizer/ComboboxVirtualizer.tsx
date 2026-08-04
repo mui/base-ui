@@ -69,6 +69,7 @@ export const ComboboxVirtualizer = React.forwardRef(function ComboboxVirtualizer
     activeIndex,
     children,
     componentName: 'Combobox',
+    enabled: virtualizationEnabled,
     estimatedItemHeight,
     getItemKey,
     getItemValue: getComboboxItemValue,

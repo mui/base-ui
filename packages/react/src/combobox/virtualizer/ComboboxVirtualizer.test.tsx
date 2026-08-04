@@ -636,6 +636,51 @@ describe('<Combobox.Virtualizer />', () => {
     });
   });
 
+  it('skips disabled offscreen items when opening with ArrowDown', async () => {
+    let scrollTop = 0;
+
+    const { user } = await render(
+      <Combobox.Root items={createItems(100)} isItemDisabled={(_, index) => index < 50}>
+        <Combobox.Input data-testid="input" />
+        <Combobox.Portal>
+          <Combobox.Positioner>
+            <Combobox.Popup>
+              <Combobox.List>
+                <Combobox.Virtualizer
+                  estimatedItemHeight={20}
+                  overscanPx={0}
+                  render={
+                    <div
+                      ref={setElementScrollState({
+                        clientHeight: 60,
+                        getScrollTop: () => scrollTop,
+                        scrollTo(options) {
+                          scrollTop = options.top ?? scrollTop;
+                        },
+                      })}
+                    />
+                  }
+                >
+                  {(item: string) => <Combobox.Item value={item}>{item}</Combobox.Item>}
+                </Combobox.Virtualizer>
+              </Combobox.List>
+            </Combobox.Popup>
+          </Combobox.Positioner>
+        </Combobox.Portal>
+      </Combobox.Root>,
+    );
+
+    const input = screen.getByTestId('input');
+    await act(async () => input.focus());
+    await user.keyboard('{ArrowDown}');
+
+    await waitFor(() => expect(input.getAttribute('aria-activedescendant')).not.toBe(null));
+    await waitFor(() => {
+      const activeId = input.getAttribute('aria-activedescendant') as string;
+      expect(input.ownerDocument.getElementById(activeId)).toHaveTextContent('Item 51');
+    });
+  });
+
   it('applies logical disabled state to rendered items', async () => {
     await render(
       <Combobox.Root defaultOpen items={createItems(3)} isItemDisabled={(_, index) => index === 0}>
@@ -723,6 +768,51 @@ describe('<Combobox.Virtualizer />', () => {
 
     expect(handleScrollTo).toHaveBeenCalledWith({ behavior: 'instant', top: 0 });
     expect(scrollTop).toBe(0);
+  });
+
+  it('keeps the virtual scroller reset when filtering a keyboard-highlighted list', async () => {
+    let scrollTop = 0;
+    const handleScrollTo = vi.fn((options: ScrollToOptions) => {
+      scrollTop = options.top ?? scrollTop;
+    });
+
+    const { user } = await render(
+      <Combobox.Root items={createItems(100)}>
+        <Combobox.Input data-testid="input" />
+        <Combobox.List>
+          <Combobox.Virtualizer
+            estimatedItemHeight={20}
+            overscanPx={0}
+            render={
+              <div
+                ref={setElementScrollState({
+                  clientHeight: 60,
+                  getScrollTop: () => scrollTop,
+                  scrollTo: handleScrollTo,
+                })}
+              />
+            }
+          >
+            {(item: string) => (
+              <Combobox.Item key={item} value={item}>
+                {item}
+              </Combobox.Item>
+            )}
+          </Combobox.Virtualizer>
+        </Combobox.List>
+      </Combobox.Root>,
+    );
+
+    const input = screen.getByTestId('input');
+    await user.click(input);
+    await user.keyboard('{ArrowDown>11/}');
+
+    await waitFor(() => expect(scrollTop).toBeGreaterThan(0));
+
+    await user.type(input, '1');
+
+    await waitFor(() => expect(scrollTop).toBe(0));
+    expect(input).not.toHaveAttribute('aria-activedescendant');
   });
 
   it('scrolls an initially selected offscreen item into view', async () => {
@@ -2359,6 +2449,49 @@ describe('<Combobox.Virtualizer />', () => {
 
     await waitFor(() => expect(screen.getAllByRole('option')).toHaveLength(20));
   });
+
+  // A disabled virtualizer renders the whole collection and scrolls no rows itself, so the DOM
+  // scrolling that static lists rely on must stay enabled.
+  it.skipIf(isJSDOM)(
+    'restores DOM scrolling for highlighted items when disabled',
+    async ({ onTestFinished }) => {
+      vi.restoreAllMocks();
+      const scrollIntoView = vi
+        .spyOn(HTMLElement.prototype, 'scrollIntoView')
+        .mockImplementation(() => {});
+      onTestFinished(() => scrollIntoView.mockRestore());
+
+      const { user } = await render(
+        <Combobox.Root defaultOpen items={createItems(100)}>
+          <Combobox.Input data-testid="input" />
+          <Combobox.List>
+            <Combobox.Virtualizer
+              enabled={false}
+              estimatedItemHeight={20}
+              render={<div style={{ height: 60, width: 200 }} />}
+            >
+              {(item: string) => (
+                <Combobox.Item key={item} value={item} style={{ height: 20 }}>
+                  {item}
+                </Combobox.Item>
+              )}
+            </Combobox.Virtualizer>
+          </Combobox.List>
+        </Combobox.Root>,
+      );
+
+      await user.click(screen.getByTestId('input'));
+      await user.keyboard('{ArrowDown>11/}');
+
+      await waitFor(() =>
+        expect(
+          scrollIntoView.mock.contexts.some(
+            (element) => (element as HTMLElement).textContent === 'Item 11',
+          ),
+        ).toBe(true),
+      );
+    },
+  );
 
   it('updates the rendered items when enabled changes', async () => {
     function Test(props: { enabled: boolean }) {
