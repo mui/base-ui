@@ -46,22 +46,37 @@ jobs:
               });
             };
 
-            const { data: permission } = await github.rest.repos.getCollaboratorPermissionLevel({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              username: context.payload.comment.user.login,
-            });
+            const attempt = async (request) => {
+              try {
+                return await request;
+              } catch (error) {
+                const message = error instanceof Error ? error.message : String(error);
+                await reply(`Could not start the full benchmark: ${message}`);
+                core.setFailed(message);
+                throw error;
+              }
+            };
+
+            const { data: permission } = await attempt(
+              github.rest.repos.getCollaboratorPermissionLevel({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                username: context.payload.comment.user.login,
+              }),
+            );
             if (permission.permission !== 'admin' && permission.permission !== 'write') {
               await reply('Only maintainers with write access can request a full benchmark.');
               core.setFailed('Only maintainers with write access can request a full benchmark.');
               return;
             }
 
-            const { data: pr } = await github.rest.pulls.get({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              pull_number: context.issue.number,
-            });
+            const { data: pr } = await attempt(
+              github.rest.pulls.get({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                pull_number: context.issue.number,
+              }),
+            );
             if (pr.state !== 'open') {
               await reply('Full benchmarks can only be requested for an open pull request.');
               core.setFailed('Full benchmarks can only be requested for an open pull request.');
@@ -71,12 +86,14 @@ jobs:
 
             // This is a compatibility check, not a trust boundary. CircleCI loads its job from
             // master and independently verifies the exact PR SHA before executing PR code.
-            const { data: circleConfig } = await github.rest.repos.getContent({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              path: '.circleci/config.yml',
-              ref: headSha,
-            });
+            const { data: circleConfig } = await attempt(
+              github.rest.repos.getContent({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                path: '.circleci/config.yml',
+                ref: headSha,
+              }),
+            );
             const config =
               !Array.isArray(circleConfig) && circleConfig.type === 'file'
                 ? Buffer.from(circleConfig.content, 'base64').toString('utf8')
@@ -96,28 +113,30 @@ jobs:
               return;
             }
 
-            const pipelineResponse = await fetch(
-              `https://circleci.com/api/v2/project/gh/${context.repo.owner}/${context.repo.repo}/pipeline`,
-              {
-                method: 'POST',
-                headers: {
-                  'Circle-Token': process.env.CIRCLECI_TOKEN,
-                  'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                  // Load the trusted configuration from master. That job fetches the exact PR
-                  // head below and refuses to execute it if the mutable PR ref has advanced.
-                  branch: 'master',
-                  parameters: {
-                    workflow: 'benchmark',
-                    // An API-triggered pipeline has no PR association, so the report identity
-                    // has to be threaded through explicitly for the consolidated PR comment.
-                    'benchmark-sha': headSha,
-                    'benchmark-pr-number': String(context.issue.number),
-                    'benchmark-branch': pr.head.ref,
+            const pipelineResponse = await attempt(
+              fetch(
+                `https://circleci.com/api/v2/project/gh/${context.repo.owner}/${context.repo.repo}/pipeline`,
+                {
+                  method: 'POST',
+                  headers: {
+                    'Circle-Token': process.env.CIRCLECI_TOKEN,
+                    'Content-Type': 'application/json',
                   },
-                }),
-              },
+                  body: JSON.stringify({
+                    // Load the trusted configuration from master. That job fetches the exact PR
+                    // head below and refuses to execute it if the mutable PR ref has advanced.
+                    branch: 'master',
+                    parameters: {
+                      workflow: 'benchmark',
+                      // An API-triggered pipeline has no PR association, so the report identity
+                      // has to be threaded through explicitly for the consolidated PR comment.
+                      'benchmark-sha': headSha,
+                      'benchmark-pr-number': String(context.issue.number),
+                      'benchmark-branch': pr.head.ref,
+                    },
+                  }),
+                },
+              ),
             );
             if (!pipelineResponse.ok) {
               const message = `CircleCI pipeline request failed (${pipelineResponse.status}): ${await pipelineResponse.text()}`;
@@ -127,8 +146,12 @@ jobs:
             }
 
             const pipeline = await pipelineResponse.json();
+            const pipelineUrl =
+              `https://app.circleci.com/pipelines/github/${context.repo.owner}/` +
+              `${context.repo.repo}/${pipeline.number}`;
             await reply(
               `Started the full benchmark for \`${headSha}\`. Results replace the consolidated ` +
-                `performance comment when the pipeline finishes.`,
+                `performance comment when the pipeline finishes. ` +
+                `[View the CircleCI pipeline](${pipelineUrl}).`,
             );
             core.notice(`Requested CircleCI benchmark pipeline ${pipeline.id} for ${headSha}.`);

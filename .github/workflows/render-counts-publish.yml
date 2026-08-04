@@ -67,8 +67,8 @@ jobs:
             // the artifact — including the PR number it claims to describe — is attacker-chosen.
             // `workflow_run.head_sha` comes from the event payload instead, and for a
             // `pull_request` run it is the head commit of the PR that produced this run. Pinning
-            // the resolved PR to it means a run can only ever publish to its own PR.
-            if (pullRequest.head.sha !== context.payload.workflow_run.head_sha) {
+            // the artifact's recorded head to it means a run can only ever publish its own data.
+            if (collectorContext.headSha !== context.payload.workflow_run.head_sha) {
               throw new Error('The collector artifact does not describe the run that produced it.');
             }
             if (pullRequest.state !== 'open' || pullRequest.head.sha !== collectorContext.headSha) {
@@ -169,7 +169,7 @@ jobs:
             // The check alone is easy to miss among the other checks, so mirror
             // it into a comment — but only once a PR actually changes a count.
             const marker = '<!-- render-counts -->';
-            const { data: comments } = await github.rest.issues.listComments({
+            const comments = await github.paginate(github.rest.issues.listComments, {
               owner: context.repo.owner,
               repo: context.repo.repo,
               issue_number: collectorContext.prNumber,

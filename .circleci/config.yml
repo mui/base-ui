@@ -309,6 +309,7 @@ jobs:
       BENCHMARK_PR_BRANCH: << pipeline.parameters.benchmark-branch >>
     steps:
       - checkout
+      - code-infra/install-pnpm
       - run:
           name: Prepare the exact benchmark revisions
           command: |
