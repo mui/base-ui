@@ -448,7 +448,9 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
     if (flatExternalValues && filteredItems === filteredItemsProp) {
       return flatExternalValues;
     }
-    const flat = flattenLeafItems(filteredItems);
+    // Explicit type argument: inferring it from a union of both shapes resolves `Item` to
+    // `Group<Item>`, which tsc rejects and tsgo does not.
+    const flat = flattenLeafItems<Item>(filteredItems);
     return itemToValue ? flat.map((item) => itemToValue(item)) : (flat as any[]);
   }, [filteredItems, filteredItemsProp, flatExternalValues, itemToValue]);
 
