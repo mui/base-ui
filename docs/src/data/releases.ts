@@ -11,7 +11,7 @@ export const releases: Release[] = [
     latest: true,
     version: 'v1.7.0',
     versionSlug: 'v1-7-0',
-    date: '2026-08-03',
+    date: '2026-08-04',
     highlights: [
       '`<ScrollArea.Thumb>` adds overscroll feedback on WebKit.',
       'Reduce bundle size and improve performance across components.',

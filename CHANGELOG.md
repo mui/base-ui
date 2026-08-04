@@ -2,9 +2,9 @@
 
 ## v1.7.0
 
-<!-- generated comparing v1.6.0...1a2ca3c9f8a39bd8c0dda939a7a23b72da226124 -->
+<!-- generated comparing v1.6.0...9222cdac2509af9ecf80c413516830e5f707c5fd -->
 
-_Aug 3, 2026_
+_Aug 4, 2026_
 
 ### General changes
 
@@ -138,6 +138,7 @@ _Aug 3, 2026_
 
 ### Meter
 
+- Format clamped values (#5409) by @atomiks
 - Reduce bundle size (#5224) by @atomiks
 
 ### Navigation Menu
