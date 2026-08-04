@@ -22,7 +22,6 @@ _Aug 3, 2026_
 - Fix rendered trigger ID ownership (#5110) by @atomiks
 - Prevent unwanted flip with capped scrollable content (#5120) by @atomiks
 - Fix `collisionPadding` off-by-one on the biased side (#5143) by @atomiks
-- Reduce Dialog and Popover bundle size (#5193) by @atomiks
 - Reduce shared popup bundle size (#5192) by @atomiks
 - Mount popup subtrees synchronously when opening in React 17 (#5309) by @atomiks
 - Fix auto-resize origin for left-anchored popups (#5370) by @sai6855
@@ -98,6 +97,7 @@ _Aug 3, 2026_
 - Fix touch outside-press dismissal without a backdrop (#5096) by @atomiks
 - Make `<Dialog.Root>` own the store (#5109) by @michaldudak
 - Fix scroll lock handoff with external overlays (#4665) by @atomiks
+- Reduce bundle size (#5193) by @atomiks
 
 ### Drawer
 
@@ -158,6 +158,7 @@ _Aug 3, 2026_
 ### Popover
 
 - Make `<Popover.Root>` own the store (#5149) by @michaldudak
+- Reduce bundle size (#5193) by @atomiks
 
 ### Preview Card
 
