@@ -917,12 +917,12 @@ describe('<Combobox.Virtualizer />', () => {
       const initialBottomOffset = viewport.bottom - selectedRect.bottom;
 
       await rerender(<Test rowHeight={32} />);
-      await act(
-        () =>
-          new Promise((resolve) => {
-            setTimeout(resolve, 250);
-          }),
-      );
+
+      // Shrinking the rows to the estimate rewrites the geometry of every measured row, and the
+      // alignment has to survive that rewrite. The virtual total reaches exactly `rows × estimate`
+      // once the last of them is remeasured, so waiting for it observes the rewrite landing
+      // instead of racing the refresh window with a fixed delay.
+      await waitFor(() => expect(virtualizer.scrollHeight).toBe(10000 * 32));
 
       const settledViewport = virtualizer.getBoundingClientRect();
       const settledRect = selectedItem.getBoundingClientRect();
