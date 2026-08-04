@@ -2,8 +2,6 @@
 
 ## v1.7.0
 
-<!-- generated comparing v1.6.0...9222cdac2509af9ecf80c413516830e5f707c5fd -->
-
 _Aug 4, 2026_
 
 ### General changes
