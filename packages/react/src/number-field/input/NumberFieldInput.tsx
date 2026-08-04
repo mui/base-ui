@@ -251,7 +251,18 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
       const targetValue = event.currentTarget.value;
 
       if (targetValue.trim() === '') {
-        setInputValue(targetValue, createChangeEventDetails(REASONS.inputClear, event.nativeEvent));
+        const clearTextDetails = createChangeEventDetails(REASONS.inputClear, event.nativeEvent);
+        setInputValue(targetValue, clearTextDetails);
+        // The value here is derived from the text that was just refused, so a vetoed text update
+        // has to veto the whole keystroke. Applying it anyway would leave the text and the value
+        // disagreeing, and blur resolves that disagreement by reading the text.
+        if (clearTextDetails.isCanceled) {
+          // A refused edit leaves the text matching `value`, so drop the manual-edit state
+          // recorded above too, or blur treats the field as dirty and reports a commit for a
+          // value that never changed.
+          allowInputSyncRef.current = true;
+          return;
+        }
         setValue(null, createChangeEventDetails(REASONS.inputClear, event.nativeEvent));
         return;
       }
@@ -276,7 +287,14 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
 
       const parsedValue = parseNumber(targetValue, locale, formatOptionsRef.current);
 
-      setInputValue(targetValue, createChangeEventDetails(REASONS.inputChange, event.nativeEvent));
+      const changeTextDetails = createChangeEventDetails(REASONS.inputChange, event.nativeEvent);
+      setInputValue(targetValue, changeTextDetails);
+
+      if (changeTextDetails.isCanceled) {
+        // As above: the refused edit leaves no manual edit to track.
+        allowInputSyncRef.current = true;
+        return;
+      }
 
       if (parsedValue !== null) {
         setValue(parsedValue, createChangeEventDetails(REASONS.inputChange, event.nativeEvent));
@@ -460,10 +478,19 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
       const parsedValue = parseNumber(nextText, locale, formatOptionsRef.current);
 
       if (parsedValue !== null) {
+        // Report the text before the value, matching the typing path, so consumers mirroring both
+        // callbacks observe the same order regardless of how the text arrived.
+        const pasteTextDetails = createChangeEventDetails(REASONS.inputPaste, event.nativeEvent);
+        setInputValue(nextText, pasteTextDetails);
+
+        if (pasteTextDetails.isCanceled) {
+          return;
+        }
+
+        // Set before `setValue` so its own text sync doesn't overwrite the pasted text.
         allowInputSyncRef.current = false;
         pendingCaretRef.current = selectionStart + pastedData.length;
         setValue(parsedValue, createChangeEventDetails(REASONS.inputPaste, event.nativeEvent));
-        setInputValue(nextText, createChangeEventDetails(REASONS.inputPaste, event.nativeEvent));
       }
     },
   };

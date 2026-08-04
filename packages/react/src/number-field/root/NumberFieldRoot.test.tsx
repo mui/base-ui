@@ -261,6 +261,45 @@ describe('<NumberField />', () => {
       expect(onInputValueChange).not.toHaveBeenCalled();
     });
 
+    it('should still report typing after a declined proposal for the same string', async () => {
+      const onInputValueChange = vi.fn();
+
+      function App({ value }: { value: number }) {
+        const [text, setText] = React.useState('1');
+        return (
+          <NumberField
+            value={value}
+            inputValue={text}
+            onInputValueChange={(next, eventDetails) => {
+              onInputValueChange(next, eventDetails);
+              // The documented "keep your own text" pattern: decline the formatting proposals
+              // the component derives from `value`.
+              if (eventDetails.reason === REASONS.none) {
+                return;
+              }
+              setText(next);
+            }}
+          />
+        );
+      }
+
+      const { rerender } = await render(<App value={1} />);
+      const input = screen.getByRole('textbox');
+
+      // Declined: the component proposes '5' but the owner keeps '1'.
+      await rerender(<App value={5} />);
+      expect(input).toHaveValue('1');
+      onInputValueChange.mockClear();
+
+      // Typing that same string is a real change and must be reported.
+      fireEvent.change(input, { target: { value: '5' } });
+
+      expect(onInputValueChange).toHaveBeenCalledTimes(1);
+      expect(onInputValueChange.mock.calls[0][0]).toBe('5');
+      expect(onInputValueChange.mock.calls[0][1].reason).toBe(REASONS.inputChange);
+      expect(input).toHaveValue('5');
+    });
+
     it('should stay in sync when the numeric value changes externally', async () => {
       const onInputValueChange = vi.fn();
       const { rerender } = await render(
@@ -405,11 +444,30 @@ describe('<NumberField />', () => {
       expect(onInputValueChange.mock.calls[0][1].reason).toBe(REASONS.none);
     });
 
-    it('should let the text update be canceled independently of the value', async () => {
+    it('should report the text before the value for both typing and pasting', async () => {
+      const calls: string[] = [];
+      await render(
+        <NumberField
+          onInputValueChange={(next) => calls.push(`text:${next}`)}
+          onValueChange={(next) => calls.push(`value:${next}`)}
+        />,
+      );
+      const input = screen.getByRole('textbox') as HTMLInputElement;
+
+      fireEvent.change(input, { target: { value: '1' } });
+      input.setSelectionRange(1, 1);
+      pasteText(input, '2');
+
+      expect(calls).to.deep.equal(['text:1', 'value:1', 'text:12', 'value:12']);
+    });
+
+    it('should reject the whole keystroke when the text update is canceled', async () => {
       const onValueChange = vi.fn();
+      const onValueCommitted = vi.fn();
       await render(
         <NumberField
           onValueChange={onValueChange}
+          onValueCommitted={onValueCommitted}
           onInputValueChange={(_, eventDetails) => eventDetails.cancel()}
         />,
       );
@@ -417,9 +475,33 @@ describe('<NumberField />', () => {
 
       fireEvent.change(input, { target: { value: '7' } });
 
+      // The numeric value is derived from the text that was just refused, so applying it would
+      // leave the field incoherent — and blur would then read the empty text and clear it again.
       expect(input).toHaveValue('');
-      expect(onValueChange).toHaveBeenCalledTimes(1);
-      expect(onValueChange.mock.calls[0][0]).toBe(7);
+      expect(onValueChange).not.toHaveBeenCalled();
+
+      fireEvent.blur(input);
+
+      expect(input).toHaveValue('');
+      expect(onValueChange).not.toHaveBeenCalled();
+      expect(onValueCommitted).not.toHaveBeenCalled();
+    });
+
+    it('should not clear an accepted value on blur after a canceled clear', async () => {
+      const onValueChange = vi.fn();
+      await render(
+        <NumberField
+          defaultValue={5}
+          onValueChange={onValueChange}
+          onInputValueChange={(_, eventDetails) => eventDetails.cancel()}
+        />,
+      );
+      const input = screen.getByRole('textbox');
+
+      fireEvent.change(input, { target: { value: '' } });
+
+      expect(input).toHaveValue('5');
+      expect(onValueChange).not.toHaveBeenCalled();
     });
   });
 

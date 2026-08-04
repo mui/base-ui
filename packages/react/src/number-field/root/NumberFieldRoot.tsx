@@ -159,14 +159,24 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
     state: 'inputValue',
   });
 
-  // Mirrors `inputValue` but is also written synchronously below, so that several writes batched
-  // into one event (e.g. the blur handler storing a clamped value and then normalizing the text)
-  // don't report the same string twice.
-  const inputValueRef = useValueAsRef(inputValue);
+  // A single event can produce several writes before React re-renders (the blur handler stores a
+  // clamped value, which syncs the text, and then normalizes the text again). Remembering the last
+  // write keyed by its event dedupes those without outliving the event: a controlled `inputValue`
+  // whose owner ignores a write leaves this ref holding a string the state never took, which would
+  // otherwise swallow the next genuine change for that same string.
+  const pendingWriteRef = React.useRef<{ event: Event; value: string } | null>(null);
 
   const setInputValue = useStableCallback(
     (nextInputValue: string, details: NumberFieldRoot.ChangeEventDetails) => {
-      if (nextInputValue === inputValueRef.current) {
+      // `useStableCallback` swaps the closure in an insertion effect, which runs before layout
+      // effects, so `inputValue` is current even when called from the formatting sync effect.
+      const pendingWrite = pendingWriteRef.current;
+      const currentInputValue =
+        pendingWrite !== null && pendingWrite.event === details.event
+          ? pendingWrite.value
+          : inputValue;
+
+      if (nextInputValue === currentInputValue) {
         return;
       }
 
@@ -176,7 +186,7 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
         return;
       }
 
-      inputValueRef.current = nextInputValue;
+      pendingWriteRef.current = { event: details.event, value: nextInputValue };
       setInputValueUnwrapped(nextInputValue);
     },
   );
@@ -672,8 +682,9 @@ export interface NumberFieldRootProps extends Omit<
    * Callback fired when the raw text shown in the input element changes.
    *
    * This fires for the same reasons as `onValueChange`, plus the cases that leave the numeric value
-   * untouched, such as typing a lone `'-'`, and with `'none'` when the formatted text is refreshed
-   * after `value`, `locale`, or `format` changes externally.
+   * untouched, such as typing a lone `'-'`, and with `'none'` when the formatted text is refreshed —
+   * either after an external `value`, `locale`, or `format` change, or when typing ends and leftover
+   * unparseable text is reset.
    */
   onInputValueChange?:
     | ((inputValue: string, eventDetails: NumberFieldRoot.ChangeEventDetails) => void)
@@ -740,7 +751,9 @@ export interface NumberFieldRootState extends FieldRootState {
    */
   value: number | null;
   /**
-   * The formatted string value presented in the input element.
+   * The raw text presented in the input element.
+   * Formatted from `value` unless `inputValue` or `defaultInputValue` overrides it, in which case
+   * it can be any string, including one that isn't parseable as a number.
    */
   inputValue: string;
   /**

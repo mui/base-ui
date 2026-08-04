@@ -65,8 +65,8 @@ setInputValue('-');
 ```
 
 The text is never formatted or clamped on the way in, so any string is allowed.
-Base UI proposes formatted text back through `onInputValueChange` when one is due — while typing, on blur, when stepping, and with the `'none'` reason when `value`, `locale`, or `format` change externally.
-Mirroring the callback back into `inputValue` therefore reproduces the uncontrolled behavior; ignoring a given call keeps your own text instead.
+Base UI proposes formatted text back through `onInputValueChange` when one is due — while typing, on blur, when stepping, and with the `'none'` reason when the formatted text is refreshed, either after an external `value`, `locale`, or `format` change or when typing ends and leftover unparseable text is reset.
+Mirroring the callback back into `inputValue` reproduces the uncontrolled behavior; ignoring a given call keeps your own text instead. Note that declining every `'none'` proposal also suppresses the blur cleanup that clears leftover unparseable text.
 
 ## API reference
 

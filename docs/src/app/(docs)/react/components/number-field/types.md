@@ -20,7 +20,7 @@ Renders a `<div>` element.
 | onValueCommitted   | `((value: number \| null, eventDetails: NumberField.Root.CommitEventDetails) => void)`         | -       | Callback function that is fired when the value is committed.&#xA;It runs later than `onValueChange`, when: The input is blurred after typing a value.The pointer is released after scrubbing or pressing the increment/decrement buttons. It runs simultaneously with `onValueChange` when interacting with the keyboard or the&#xA;mouse wheel. **Warning**: This is a generic event not a change event.                                                                                                                                                                                                        |
 | defaultInputValue  | `string`                                                                                       | -       | The uncontrolled raw text of the input element when it's initially rendered.&#xA;Defaults to the formatted `defaultValue`. To render a controlled input, use the `inputValue` prop instead.                                                                                                                                                                                                                                                                                                                                                                                                                      |
 | inputValue         | `string`                                                                                       | -       | The raw text shown in the input element. Unlike `value`, this can hold strings that aren't parseable as a number yet, such as `'-'` or&#xA;`'.'`, which lets the field be driven through intermediate states while typing.&#xA;The text is not formatted or clamped, so the number field only reflects it back through&#xA;`onInputValueChange` when a formatted string is due (typing, blur, stepping, or an external&#xA;`value` change).                                                                                                                                                                      |
-| onInputValueChange | `((inputValue: string, eventDetails: NumberField.Root.ChangeEventDetails) => void)`            | -       | Callback fired when the raw text shown in the input element changes. This fires for the same reasons as `onValueChange`, plus the cases that leave the numeric value&#xA;untouched, such as typing a lone `'-'`, and with `'none'` when the formatted text is refreshed&#xA;after `value`, `locale`, or `format` changes externally.                                                                                                                                                                                                                                                                             |
+| onInputValueChange | `((inputValue: string, eventDetails: NumberField.Root.ChangeEventDetails) => void)`            | -       | Callback fired when the raw text shown in the input element changes. This fires for the same reasons as `onValueChange`, plus the cases that leave the numeric value&#xA;untouched, such as typing a lone `'-'`, and with `'none'` when the formatted text is refreshed —&#xA;either after an external `value`, `locale`, or `format` change, or when typing ends and leftover&#xA;unparseable text is reset.                                                                                                                                                                                                    |
 | allowOutOfRange    | `boolean`                                                                                      | `false` | When true, direct text entry may be outside the `min`/`max` range without clamping,&#xA;so native range underflow/overflow validation can occur.&#xA;Step-based interactions (keyboard arrows, buttons, wheel, scrub) still clamp.                                                                                                                                                                                                                                                                                                                                                                               |
 | form               | `string`                                                                                       | -       | Identifies the form that owns the hidden input.&#xA;Useful when the number field is rendered outside the form.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
 | locale             | `Intl.LocalesArgument`                                                                         | -       | The locale of the input element.&#xA;Defaults to the user's runtime locale.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
@@ -66,7 +66,11 @@ Re-export of [Root](#root) props.
 type NumberFieldRootState = {
   /** The raw numeric value of the field. */
   value: number | null;
-  /** The formatted string value presented in the input element. */
+  /**
+   * The raw text presented in the input element.
+   * Formatted from `value` unless `inputValue` or `defaultInputValue` overrides it, in which case
+   * it can be any string, including one that isn't parseable as a number.
+   */
   inputValue: string;
   /** Whether the user must enter a value before submitting a form. */
   required: boolean;
@@ -201,7 +205,11 @@ Re-export of [Input](#input) props.
 type NumberFieldInputState = {
   /** The raw numeric value of the field. */
   value: number | null;
-  /** The formatted string value presented in the input element. */
+  /**
+   * The raw text presented in the input element.
+   * Formatted from `value` unless `inputValue` or `defaultInputValue` overrides it, in which case
+   * it can be any string, including one that isn't parseable as a number.
+   */
   inputValue: string;
   /** Whether the user must enter a value before submitting a form. */
   required: boolean;
@@ -262,7 +270,11 @@ Re-export of [Group](#group) props.
 type NumberFieldGroupState = {
   /** The raw numeric value of the field. */
   value: number | null;
-  /** The formatted string value presented in the input element. */
+  /**
+   * The raw text presented in the input element.
+   * Formatted from `value` unless `inputValue` or `defaultInputValue` overrides it, in which case
+   * it can be any string, including one that isn't parseable as a number.
+   */
   inputValue: string;
   /** Whether the user must enter a value before submitting a form. */
   required: boolean;
@@ -326,7 +338,11 @@ Re-export of [ScrubArea](#scrubarea) props.
 type NumberFieldScrubAreaState = {
   /** The raw numeric value of the field. */
   value: number | null;
-  /** The formatted string value presented in the input element. */
+  /**
+   * The raw text presented in the input element.
+   * Formatted from `value` unless `inputValue` or `defaultInputValue` overrides it, in which case
+   * it can be any string, including one that isn't parseable as a number.
+   */
   inputValue: string;
   /** Whether the user must enter a value before submitting a form. */
   required: boolean;
@@ -390,7 +406,11 @@ Re-export of [ScrubAreaCursor](#scrubareacursor) props.
 type NumberFieldScrubAreaCursorState = {
   /** The raw numeric value of the field. */
   value: number | null;
-  /** The formatted string value presented in the input element. */
+  /**
+   * The raw text presented in the input element.
+   * Formatted from `value` unless `inputValue` or `defaultInputValue` overrides it, in which case
+   * it can be any string, including one that isn't parseable as a number.
+   */
   inputValue: string;
   /** Whether the user must enter a value before submitting a form. */
   required: boolean;
@@ -452,7 +472,11 @@ Re-export of [Decrement](#decrement) props.
 type NumberFieldDecrementState = {
   /** The raw numeric value of the field. */
   value: number | null;
-  /** The formatted string value presented in the input element. */
+  /**
+   * The raw text presented in the input element.
+   * Formatted from `value` unless `inputValue` or `defaultInputValue` overrides it, in which case
+   * it can be any string, including one that isn't parseable as a number.
+   */
   inputValue: string;
   /** Whether the user must enter a value before submitting a form. */
   required: boolean;
@@ -514,7 +538,11 @@ Re-export of [Increment](#increment) props.
 type NumberFieldIncrementState = {
   /** The raw numeric value of the field. */
   value: number | null;
-  /** The formatted string value presented in the input element. */
+  /**
+   * The raw text presented in the input element.
+   * Formatted from `value` unless `inputValue` or `defaultInputValue` overrides it, in which case
+   * it can be any string, including one that isn't parseable as a number.
+   */
   inputValue: string;
   /** Whether the user must enter a value before submitting a form. */
   required: boolean;
