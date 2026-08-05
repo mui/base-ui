@@ -7,6 +7,7 @@ import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import {
   applyPopupOpenChange,
   createInitialPopupStoreState,
+  getPopupOpenState,
   PopupStoreContext,
   PopupStoreState,
   PopupStoreSelectors,
@@ -724,6 +725,38 @@ describe('usePopupInteractionProps', () => {
   });
 });
 
+describe('getPopupOpenState', () => {
+  it('clears a previous unmount-prevention request when opening', () => {
+    const state = createInitialPopupStoreState();
+    state.preventUnmountingOnClose = true;
+
+    const nextState = getPopupOpenState(state, true, undefined);
+
+    expect(nextState.preventUnmountingOnClose).toBe(false);
+    expect(state.preventUnmountingOnClose).toBe(true);
+  });
+
+  it('sets the unmount-prevention request when closing', () => {
+    const state = createInitialPopupStoreState();
+
+    const nextState = getPopupOpenState(state, false, undefined, true);
+
+    expect(nextState.preventUnmountingOnClose).toBe(true);
+  });
+
+  it('preserves the active trigger when closing without a trigger', () => {
+    const state = createInitialPopupStoreState();
+    const trigger = document.createElement('button');
+    state.activeTriggerId = 'trigger-id';
+    state.activeTriggerElement = trigger;
+
+    const nextState = getPopupOpenState(state, false, undefined);
+
+    expect(nextState.activeTriggerId).toBe('trigger-id');
+    expect(nextState.activeTriggerElement).toBe(trigger);
+  });
+});
+
 describe('applyPopupOpenChange', () => {
   type OpenChangeState = PopupStoreState<unknown> & {
     instantType?: 'delay' | 'dismiss' | 'focus' | undefined;
@@ -747,9 +780,11 @@ describe('applyPopupOpenChange', () => {
     const onOpenChange = vi.fn((_open: boolean, _details: BaseUIChangeEventDetails<string>) => {
       order.push('onOpenChange');
     });
-    const update = vi.fn((_state: Partial<OpenChangeState>) => {
-      order.push('update');
-    });
+    const update = vi.fn(
+      <const Key extends keyof OpenChangeState>(_state: Pick<OpenChangeState, Key>) => {
+        order.push('update');
+      },
+    );
 
     const store = {
       context: { onOpenChange },

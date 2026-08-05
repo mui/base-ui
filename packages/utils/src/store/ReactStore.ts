@@ -79,9 +79,13 @@ export class ReactStore<
 
   /**
    * Synchronizes multiple external values into the store.
+   * Each value must match its state key. Pass an exact known subset rather than a broad
+   * `Partial<State>`, which may contain `undefined` for required state fields.
    *
    * Note that the while the values in `state` are updated immediately, the values returned
    * by `useState` are updated before the next render (similarly to React's `useState`).
+   *
+   * @param statePart An exact subset of state fields to synchronize. Unknown keys are not accepted.
    */
   public useSyncedValues<const Key extends keyof State>(statePart: Pick<State, Key>) {
     // eslint-disable-next-line consistent-this

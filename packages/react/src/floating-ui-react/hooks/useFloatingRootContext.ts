@@ -56,21 +56,18 @@ export function useFloatingRootContext(options: UseFloatingRootContextOptions): 
   ).current;
 
   useIsoLayoutEffect(() => {
-    const valuesToSync = {};
-
-    // Only sync elements that are defined to avoid overwriting existing ones
-    if (elements.reference !== undefined) {
-      const domReferenceElement = isElement(elements.reference) ? elements.reference : null;
-      (valuesToSync as Pick<State, 'referenceElement'>).referenceElement = elements.reference;
-      (valuesToSync as Pick<State, 'domReferenceElement'>).domReferenceElement =
-        domReferenceElement;
-    }
-
-    if (elements.floating !== undefined) {
-      (valuesToSync as Pick<State, 'floatingElement'>).floatingElement = elements.floating;
-    }
-
-    store.update({ open, floatingId, ...valuesToSync });
+    store.update({
+      open,
+      floatingId,
+      ...(elements.floating !== undefined && { floatingElement: elements.floating }),
+      ...(elements.reference !== undefined && {
+        referenceElement: elements.reference,
+        domReferenceElement: isElement(elements.reference) ? elements.reference : null,
+      }),
+    } as Pick<
+      State,
+      'open' | 'floatingId' | 'referenceElement' | 'domReferenceElement' | 'floatingElement'
+    >);
   }, [open, floatingId, elements.reference, elements.floating, store]);
 
   store.context.onOpenChange = onOpenChange;

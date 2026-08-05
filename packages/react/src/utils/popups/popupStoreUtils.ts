@@ -266,7 +266,6 @@ export function applyPopupOpenChange<
   store.state.floatingRootContext.dispatchOpenChange(nextOpen, eventDetails);
 
   const changeState = () => {
-    const updatedState = {};
     const popupOpenState = getPopupOpenState(
       store.state,
       nextOpen,
@@ -274,15 +273,17 @@ export function applyPopupOpenChange<
       shouldPreventUnmountOnClose(),
     );
 
-    if (isFocusOpen) {
-      (updatedState as Pick<State, 'instantType'>).instantType = 'focus';
-    } else if (isDismissClose) {
-      (updatedState as Pick<State, 'instantType'>).instantType = 'dismiss';
-    } else if (isHover) {
-      (updatedState as Pick<State, 'instantType'>).instantType = undefined;
-    }
+    const baseState = { ...options.extraState, ...popupOpenState };
 
-    store.update({ ...options.extraState, ...popupOpenState, ...updatedState });
+    if (isFocusOpen) {
+      store.update({ ...baseState, instantType: 'focus' });
+    } else if (isDismissClose) {
+      store.update({ ...baseState, instantType: 'dismiss' });
+    } else if (isHover) {
+      store.update({ ...baseState, instantType: undefined });
+    } else {
+      store.update(baseState);
+    }
   };
 
   if (isHover) {
@@ -314,8 +315,6 @@ export function useTriggerDataForwarding<
 
   const baseRegisterTrigger = useTriggerRegistration(triggerId, store);
 
-  // `stateUpdates` is key/value checked at this hook's boundary. TypeScript does not preserve that
-  // generic `Pick` relationship after object spreads, so the merged state objects are asserted below.
   // Applies trigger-owned state (active-trigger ownership and payload) when the trigger registers.
   // Stable so payload/`stateUpdates` changes do not change the ref identity (which would needlessly
   // churn registration); it reads the latest closure values when invoked.
@@ -431,11 +430,9 @@ export function useImplicitActiveTrigger<State extends PopupStoreState<unknown>>
     }
 
     const triggerCount = store.context.triggerElements.size;
-    const updates = {};
-
-    if (store.state.triggerCount !== triggerCount) {
-      (updates as Pick<State, 'triggerCount'>).triggerCount = triggerCount;
-    }
+    const shouldUpdateTriggerCount = store.state.triggerCount !== triggerCount;
+    let nextActiveTriggerId: string | null | undefined;
+    let nextActiveTriggerElement: Element | null | undefined;
 
     const currentActiveTriggerId = store.select('activeTriggerId');
     let lostActiveTriggerId: string | null = null;
@@ -445,14 +442,14 @@ export function useImplicitActiveTrigger<State extends PopupStoreState<unknown>>
       if (!activeTriggerElement) {
         for (const [triggerId, triggerElement] of store.context.triggerElements.entries()) {
           if (triggerElement === store.state.activeTriggerElement) {
-            (updates as Pick<State, 'activeTriggerId'>).activeTriggerId = triggerId;
-            (updates as Pick<State, 'activeTriggerElement'>).activeTriggerElement = triggerElement;
+            nextActiveTriggerId = triggerId;
+            nextActiveTriggerElement = triggerElement;
             resolvedActiveTriggerIdRef.current = triggerId;
             break;
           }
         }
 
-        if (!('activeTriggerId' in updates)) {
+        if (nextActiveTriggerId === undefined) {
           if (resolvedActiveTriggerIdRef.current === currentActiveTriggerId) {
             lostActiveTriggerId = currentActiveTriggerId;
           } else {
@@ -462,8 +459,7 @@ export function useImplicitActiveTrigger<State extends PopupStoreState<unknown>>
       } else {
         resolvedActiveTriggerIdRef.current = currentActiveTriggerId;
         if (activeTriggerElement !== store.state.activeTriggerElement) {
-          (updates as Pick<State, 'activeTriggerElement'>).activeTriggerElement =
-            activeTriggerElement;
+          nextActiveTriggerElement = activeTriggerElement;
         }
       }
     } else {
@@ -474,15 +470,24 @@ export function useImplicitActiveTrigger<State extends PopupStoreState<unknown>>
       const iteratorResult = store.context.triggerElements.entries().next();
       if (!iteratorResult.done) {
         const [implicitTriggerId, implicitTriggerElement] = iteratorResult.value;
-        (updates as Pick<State, 'activeTriggerId'>).activeTriggerId = implicitTriggerId;
-        (updates as Pick<State, 'activeTriggerElement'>).activeTriggerElement =
-          implicitTriggerElement;
+        nextActiveTriggerId = implicitTriggerId;
+        nextActiveTriggerElement = implicitTriggerElement;
         resolvedActiveTriggerIdRef.current = implicitTriggerId;
       }
     }
 
-    if (Object.keys(updates).length > 0) {
-      store.update(updates);
+    if (
+      shouldUpdateTriggerCount ||
+      nextActiveTriggerId !== undefined ||
+      nextActiveTriggerElement !== undefined
+    ) {
+      store.update({
+        ...(shouldUpdateTriggerCount && { triggerCount }),
+        ...(nextActiveTriggerId !== undefined && { activeTriggerId: nextActiveTriggerId }),
+        ...(nextActiveTriggerElement !== undefined && {
+          activeTriggerElement: nextActiveTriggerElement,
+        }),
+      } as Pick<Readonly<State>, 'triggerCount' | 'activeTriggerId' | 'activeTriggerElement'>);
     }
 
     if (lostActiveTriggerId) {

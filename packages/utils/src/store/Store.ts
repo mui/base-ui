@@ -74,6 +74,8 @@ export class Store<State> {
 
   /**
    * Merges the provided changes into the current state and notifies listeners if there are changes.
+   * Each value must match its state key. Pass an exact known subset rather than a broad
+   * `Partial<State>`, which may contain `undefined` for required state fields.
    *
    * @param changes An object containing the changes to apply to the current state.
    */

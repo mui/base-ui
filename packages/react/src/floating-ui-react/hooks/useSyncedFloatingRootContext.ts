@@ -80,19 +80,24 @@ export function useSyncedFloatingRootContext<
   popupStore.useSyncedValue('floatingId', floatingId as State['floatingId']);
 
   useIsoLayoutEffect(() => {
-    const valuesToSync = {};
-
-    if (isElement(referenceElement)) {
-      (valuesToSync as Pick<FloatingRootState, 'domReferenceElement'>).domReferenceElement =
-        referenceElement;
-    }
-
-    if (store.state.positionReference === store.state.referenceElement) {
-      (valuesToSync as Pick<FloatingRootState, 'positionReference'>).positionReference =
-        referenceElement;
-    }
-
-    store.update({ open, floatingId, referenceElement, floatingElement, ...valuesToSync });
+    store.update({
+      open,
+      floatingId,
+      referenceElement,
+      floatingElement,
+      ...(isElement(referenceElement) && { domReferenceElement: referenceElement }),
+      ...(store.state.positionReference === store.state.referenceElement && {
+        positionReference: referenceElement,
+      }),
+    } as Pick<
+      FloatingRootState,
+      | 'open'
+      | 'floatingId'
+      | 'referenceElement'
+      | 'floatingElement'
+      | 'domReferenceElement'
+      | 'positionReference'
+    >);
   }, [open, floatingId, referenceElement, floatingElement, store]);
 
   // Keep non-reactive context values fresh for interactions that call `store.setOpen`.
