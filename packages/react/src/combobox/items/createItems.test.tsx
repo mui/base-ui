@@ -283,6 +283,97 @@ describe('Combobox.createItems', () => {
       );
     });
 
+    // Covers the paginated async-search use case from
+    // https://github.com/mui/base-ui/issues/3818.
+    it('keeps separately fetched selected metadata outside paginated search results', async () => {
+      interface Employee {
+        id: string;
+        name: string;
+        department: string;
+      }
+
+      const selectedEmployee: Employee = {
+        id: 'employee-100000',
+        name: 'Grace Hopper',
+        department: 'Platform',
+      };
+      const firstPage: Employee[] = [
+        { id: 'employee-1', name: 'Ada Lovelace', department: 'Research' },
+        { id: 'employee-2', name: 'Alan Turing', department: 'Security' },
+      ];
+      const pageContainingSelection: Employee[] = [
+        // A search endpoint can return a different object for the same selected ID.
+        { id: 'employee-100000', name: 'Grace Hopper', department: 'Platform' },
+        { id: 'employee-3', name: 'Margaret Hamilton', department: 'Flight software' },
+      ];
+      const onValueChange = vi.fn();
+
+      function App(props: { searchResults: Employee[] }) {
+        const knownEmployees = React.useMemo(
+          () => [
+            selectedEmployee,
+            ...props.searchResults.filter((employee) => employee.id !== selectedEmployee.id),
+          ],
+          [props.searchResults],
+        );
+        const items = React.useMemo(
+          () =>
+            Combobox.createItems(knownEmployees, {
+              getValue: (employee) => employee.id,
+              getLabel: (employee) => employee.name,
+            }),
+          [knownEmployees],
+        );
+
+        return (
+          <Combobox.Root
+            items={items}
+            filteredItems={props.searchResults}
+            value={selectedEmployee.id}
+            onValueChange={onValueChange}
+            defaultOpen
+          >
+            <Combobox.Input />
+            <span data-testid="selected-value">
+              <Combobox.Value />
+            </span>
+            <Combobox.List>
+              {(employee: Employee) => (
+                <Combobox.Item key={employee.id} value={employee.id}>
+                  <strong>{employee.name}</strong>
+                  <span>{employee.department}</span>
+                </Combobox.Item>
+              )}
+            </Combobox.List>
+          </Combobox.Root>
+        );
+      }
+
+      const { setProps, user } = await render(<App searchResults={firstPage} />);
+      const input = screen.getByRole('combobox');
+
+      expect(input).toHaveValue('Grace Hopper');
+
+      await user.click(input);
+      await user.keyboard('{Control>}a{/Control}a');
+
+      expect(screen.queryByRole('option', { name: /Grace Hopper/ })).toBe(null);
+      expect(screen.getAllByRole('option')).toHaveLength(2);
+      onValueChange.mockClear();
+
+      await setProps({ searchResults: pageContainingSelection });
+
+      const visibleSelection = screen.getAllByRole('option', { name: /Grace Hopper/ });
+      expect(visibleSelection).toHaveLength(1);
+      expect(visibleSelection[0]).toHaveAttribute('aria-selected', 'true');
+
+      await setProps({ searchResults: firstPage });
+
+      expect(screen.queryByRole('option', { name: /Grace Hopper/ })).toBe(null);
+      expect(onValueChange).not.toHaveBeenCalled();
+      expect(screen.getByTestId('selected-value')).toHaveTextContent('Grace Hopper');
+    });
+
     it('falls back to the raw selected ID when API results are cleared', async () => {
       function App() {
         const [results, setResults] = React.useState<ApiUser[] | undefined>(apiUsers);
