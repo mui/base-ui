@@ -10,7 +10,10 @@ import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { FOCUSABLE_ATTRIBUTE } from '../../floating-ui-react/utils/constants';
 import { useFloatingParentNodeId } from '../../floating-ui-react/components/FloatingTree';
-import { useSyncedFloatingRootContext } from '../../floating-ui-react/hooks/useSyncedFloatingRootContext';
+import {
+  useSyncedFloatingRootContext,
+  type SyncedFloatingRootContextStore,
+} from '../../floating-ui-react/hooks/useSyncedFloatingRootContext';
 import { useTransitionStatus } from '../../internals/useTransitionStatus';
 import { useOpenChangeComplete } from '../../internals/useOpenChangeComplete';
 import type { HTMLProps } from '../../internals/types';
@@ -23,7 +26,6 @@ import {
   PopupStoreState,
   PopupStoreContext,
   popupStoreSelectors,
-  PopupStoreSelectors,
   PopupTriggerDataStore,
 } from './store';
 
@@ -45,9 +47,10 @@ export function createDefaultInitialFocus(popupRef: React.RefObject<HTMLElement 
 type PopupStoreWithOpen<
   State extends PopupStoreState<unknown>,
   SetOpenEventDetails extends BaseUIChangeEventDetails<string>,
-> = ReactStore<State, PopupStoreContext<never>, PopupStoreSelectors> & {
-  setOpen(open: boolean, eventDetails: SetOpenEventDetails): void;
-};
+> = PopupTriggerDataStore<State> &
+  Pick<SyncedFloatingRootContextStore<State>, 'useSyncedValue'> & {
+    setOpen(open: boolean, eventDetails: SetOpenEventDetails): void;
+  };
 
 /**
  * The subset of a popup handle that a Root needs to bind its store to. Both the real handle classes
@@ -263,6 +266,7 @@ export function applyPopupOpenChange<
   store.state.floatingRootContext.dispatchOpenChange(nextOpen, eventDetails);
 
   const changeState = () => {
+    const updatedState = {};
     const popupOpenState = getPopupOpenState(
       store.state,
       nextOpen,
@@ -271,14 +275,14 @@ export function applyPopupOpenChange<
     );
 
     if (isFocusOpen) {
-      store.update({ ...options.extraState, ...popupOpenState, instantType: 'focus' });
+      (updatedState as Pick<State, 'instantType'>).instantType = 'focus';
     } else if (isDismissClose) {
-      store.update({ ...options.extraState, ...popupOpenState, instantType: 'dismiss' });
+      (updatedState as Pick<State, 'instantType'>).instantType = 'dismiss';
     } else if (isHover) {
-      store.update({ ...options.extraState, ...popupOpenState, instantType: undefined });
-    } else {
-      store.update({ ...options.extraState, ...popupOpenState });
+      (updatedState as Pick<State, 'instantType'>).instantType = undefined;
     }
+
+    store.update({ ...options.extraState, ...popupOpenState, ...updatedState });
   };
 
   if (isHover) {
@@ -427,10 +431,10 @@ export function useImplicitActiveTrigger<State extends PopupStoreState<unknown>>
     }
 
     const triggerCount = store.context.triggerElements.size;
-    const stateUpdates: Partial<PopupStoreState<unknown>> = {};
+    const updates = {};
 
     if (store.state.triggerCount !== triggerCount) {
-      stateUpdates.triggerCount = triggerCount;
+      (updates as Pick<State, 'triggerCount'>).triggerCount = triggerCount;
     }
 
     const currentActiveTriggerId = store.select('activeTriggerId');
@@ -441,14 +445,14 @@ export function useImplicitActiveTrigger<State extends PopupStoreState<unknown>>
       if (!activeTriggerElement) {
         for (const [triggerId, triggerElement] of store.context.triggerElements.entries()) {
           if (triggerElement === store.state.activeTriggerElement) {
-            stateUpdates.activeTriggerId = triggerId;
-            stateUpdates.activeTriggerElement = triggerElement;
+            (updates as Pick<State, 'activeTriggerId'>).activeTriggerId = triggerId;
+            (updates as Pick<State, 'activeTriggerElement'>).activeTriggerElement = triggerElement;
             resolvedActiveTriggerIdRef.current = triggerId;
             break;
           }
         }
 
-        if (stateUpdates.activeTriggerId === undefined) {
+        if (!('activeTriggerId' in updates)) {
           if (resolvedActiveTriggerIdRef.current === currentActiveTriggerId) {
             lostActiveTriggerId = currentActiveTriggerId;
           } else {
@@ -458,7 +462,8 @@ export function useImplicitActiveTrigger<State extends PopupStoreState<unknown>>
       } else {
         resolvedActiveTriggerIdRef.current = currentActiveTriggerId;
         if (activeTriggerElement !== store.state.activeTriggerElement) {
-          stateUpdates.activeTriggerElement = activeTriggerElement;
+          (updates as Pick<State, 'activeTriggerElement'>).activeTriggerElement =
+            activeTriggerElement;
         }
       }
     } else {
@@ -469,19 +474,15 @@ export function useImplicitActiveTrigger<State extends PopupStoreState<unknown>>
       const iteratorResult = store.context.triggerElements.entries().next();
       if (!iteratorResult.done) {
         const [implicitTriggerId, implicitTriggerElement] = iteratorResult.value;
-        stateUpdates.activeTriggerId = implicitTriggerId;
-        stateUpdates.activeTriggerElement = implicitTriggerElement;
+        (updates as Pick<State, 'activeTriggerId'>).activeTriggerId = implicitTriggerId;
+        (updates as Pick<State, 'activeTriggerElement'>).activeTriggerElement =
+          implicitTriggerElement;
         resolvedActiveTriggerIdRef.current = implicitTriggerId;
       }
     }
 
-    if (
-      stateUpdates.triggerCount !== undefined ||
-      stateUpdates.activeTriggerId !== undefined ||
-      stateUpdates.activeTriggerElement !== undefined
-    ) {
-      // Every populated key is assigned its corresponding state value above.
-      store.update(stateUpdates as Pick<State, keyof PopupStoreState<unknown>>);
+    if (Object.keys(updates).length > 0) {
+      store.update(updates);
     }
 
     if (lostActiveTriggerId) {

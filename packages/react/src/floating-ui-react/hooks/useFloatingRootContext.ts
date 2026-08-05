@@ -6,7 +6,10 @@ import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { PopupTriggerMap } from '../../utils/popups';
 import type { BaseUIChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { useFloatingParentNodeId } from '../components/FloatingTree';
-import { FloatingRootStore, type FloatingRootState } from '../components/FloatingRootStore';
+import {
+  FloatingRootStore,
+  type FloatingRootState as State,
+} from '../components/FloatingRootStore';
 import type { ReferenceType } from '../types';
 
 export interface UseFloatingRootContextOptions {
@@ -53,23 +56,21 @@ export function useFloatingRootContext(options: UseFloatingRootContextOptions): 
   ).current;
 
   useIsoLayoutEffect(() => {
-    const valuesToSync: Writeable<Partial<FloatingRootState>> = {
-      open,
-      floatingId,
-    };
+    const valuesToSync = {};
 
     // Only sync elements that are defined to avoid overwriting existing ones
     if (elements.reference !== undefined) {
-      valuesToSync.referenceElement = elements.reference;
-      valuesToSync.domReferenceElement = isElement(elements.reference) ? elements.reference : null;
+      const domReferenceElement = isElement(elements.reference) ? elements.reference : null;
+      (valuesToSync as Pick<State, 'referenceElement'>).referenceElement = elements.reference;
+      (valuesToSync as Pick<State, 'domReferenceElement'>).domReferenceElement =
+        domReferenceElement;
     }
 
     if (elements.floating !== undefined) {
-      valuesToSync.floatingElement = elements.floating;
+      (valuesToSync as Pick<State, 'floatingElement'>).floatingElement = elements.floating;
     }
 
-    // Every populated key is assigned its corresponding state value above.
-    store.update(valuesToSync as Pick<FloatingRootState, keyof FloatingRootState>);
+    store.update({ open, floatingId, ...valuesToSync });
   }, [open, floatingId, elements.reference, elements.floating, store]);
 
   store.context.onOpenChange = onOpenChange;
@@ -77,5 +78,3 @@ export function useFloatingRootContext(options: UseFloatingRootContextOptions): 
 
   return store;
 }
-
-type Writeable<T> = { -readonly [P in keyof T]: T[P] };

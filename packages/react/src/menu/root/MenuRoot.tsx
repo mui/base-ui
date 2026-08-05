@@ -162,13 +162,11 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
   }
 
   const { openMethod, triggerProps: interactionTypeProps } = useOpenInteractionType(open);
-  const modal =
-    parent.type === undefined || parent.type === 'context-menu' ? (modalProp ?? true) : false;
 
   store.useSyncedValues({
     disabled: disabledProp,
     highlightItemOnHover,
-    modal,
+    modal: parent.type === undefined ? modalProp : undefined,
     openMethod,
     rootId,
   });

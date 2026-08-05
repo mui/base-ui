@@ -754,9 +754,7 @@ describe('applyPopupOpenChange', () => {
     const store = {
       context: { onOpenChange },
       state,
-      update<Key extends keyof OpenChangeState>(changes: Pick<OpenChangeState, Key>) {
-        update(changes);
-      },
+      update,
     };
 
     return { store, order, onOpenChange, dispatchOpenChange, update };
