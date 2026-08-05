@@ -862,6 +862,59 @@ describe('<Toast.Root />', () => {
       });
     });
 
+    it('locks to a single axis on the first move of a two-axis swipe', async () => {
+      await render(
+        <Toast.Provider>
+          <Toast.Viewport>
+            <SwipeTestToast swipeDirection={['down', 'right']} />
+          </Toast.Viewport>
+          <SwipeTestButton />
+        </Toast.Provider>,
+      );
+
+      fireEvent.click(screen.getByRole('button', { name: 'add toast' }));
+
+      const toastElement = screen.getByTestId('toast-root');
+      Object.defineProperty(toastElement, 'setPointerCapture', {
+        configurable: true,
+        value: () => {},
+      });
+      Object.defineProperty(toastElement, 'releasePointerCapture', {
+        configurable: true,
+        value: () => {},
+      });
+
+      fireEvent.pointerDown(toastElement, {
+        clientX: 100,
+        clientY: 100,
+        button: 0,
+        bubbles: true,
+        pointerId: 1,
+      });
+      fireEvent.pointerMove(toastElement, {
+        clientX: 101,
+        clientY: 101,
+        bubbles: true,
+        pointerId: 1,
+      });
+      fireEvent.pointerMove(toastElement, {
+        clientX: 120,
+        clientY: 150,
+        bubbles: true,
+        pointerId: 1,
+      });
+
+      expect(toastElement.style.getPropertyValue('--toast-swipe-movement-x')).toBe('0px');
+      expect(toastElement.style.getPropertyValue('--toast-swipe-movement-y')).not.toBe('0px');
+
+      fireEvent.pointerUp(toastElement, {
+        clientX: 120,
+        clientY: 150,
+        bubbles: true,
+        pointerId: 1,
+      });
+    });
+
     it('does not close toast when swiping in the specified direction below threshold', async () => {
       await render(
         <Toast.Provider>

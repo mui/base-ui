@@ -2,7 +2,7 @@ import { Store } from '@base-ui/utils/store';
 import type { InteractionType } from '@base-ui/utils/useEnhancedClickHandler';
 import type { TransitionStatus } from '../internals/useTransitionStatus';
 import type { HTMLProps } from '../internals/types';
-import type { Side } from '../utils/useAnchorPositioning';
+import type { Side } from '../internals/useAnchorPositioning';
 import { compareItemEquality } from '../internals/itemEquality';
 import { hasNullItemLabel } from '../internals/resolveValueLabel';
 import type { AriaCombobox } from './root/AriaCombobox';
@@ -26,6 +26,7 @@ export type State = {
   selectedIndex: number | null;
 
   popupProps: HTMLProps;
+  listProps: HTMLProps;
   inputProps: HTMLProps;
   triggerProps: HTMLProps;
   itemProps: HTMLProps;
@@ -65,7 +66,7 @@ export type State = {
   setIndices: (indices: {
     activeIndex?: number | null | undefined;
     selectedIndex?: number | null | undefined;
-    type?: 'keyboard' | 'pointer' | 'none' | undefined;
+    type?: AriaCombobox.HighlightEventReason | undefined;
   }) => void;
   forceMount: () => void;
   handleSelection: (event: MouseEvent | PointerEvent | KeyboardEvent, itemValue: any) => void;
@@ -140,6 +141,7 @@ export const selectors = {
   transitionStatus: (state: State) => state.transitionStatus,
 
   popupProps: (state: State) => state.popupProps,
+  listProps: (state: State) => state.listProps,
   inputProps: (state: State) => state.inputProps,
   triggerProps: (state: State) => state.triggerProps,
   itemProps: (state: State) => state.itemProps,

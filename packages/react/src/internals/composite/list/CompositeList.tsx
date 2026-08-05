@@ -18,7 +18,6 @@ interface CompositeListItem<Metadata> {
 
 /**
  * Provides context for a list of items in a composite component.
- * @internal
  */
 export function CompositeList<Metadata>(props: CompositeList.Props<Metadata>) {
   const { children, elementsRef, labelsRef, onMapChange: onMapChangeProp } = props;

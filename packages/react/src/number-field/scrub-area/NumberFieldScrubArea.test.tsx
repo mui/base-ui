@@ -195,6 +195,9 @@ describe('<NumberField.ScrubArea />', () => {
     const scaleGetter = vi.spyOn(visualViewport, 'scale', 'get').mockImplementation(() => scale);
     const addEventListener = vi.spyOn(window, 'addEventListener');
     const removeEventListener = vi.spyOn(window, 'removeEventListener');
+    const pointerLock = vi
+      .spyOn(document.body, 'requestPointerLock')
+      .mockImplementation(() => Promise.resolve());
 
     try {
       await render(
@@ -245,6 +248,7 @@ describe('<NumberField.ScrubArea />', () => {
       scaleGetter.mockRestore();
       addEventListener.mockRestore();
       removeEventListener.mockRestore();
+      pointerLock.mockRestore();
     }
   });
 
@@ -452,7 +456,7 @@ describe('<NumberField.ScrubArea />', () => {
         scrubArea.dispatchEvent(createPointerMoveEvent({ movementX: 0 }));
       });
 
-      expect(screen.getByRole('textbox')).toHaveValue('3.5');
+      expect(screen.getByRole('textbox')).toHaveValue(new Intl.NumberFormat().format(3.5));
       expect(onValueChange).not.toHaveBeenCalled();
     });
 

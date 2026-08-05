@@ -278,12 +278,8 @@ export const ScrollAreaViewport = React.forwardRef(function ScrollAreaViewport(
   });
 
   useIsoLayoutEffect(() => {
-    if (!viewportRef.current) {
-      return;
-    }
-
     removeCSSVariableInheritance();
-  }, [viewportRef]);
+  }, []);
 
   useIsoLayoutEffect(() => {
     // Wait for scrollbar and thumb refs after hidden-state toggles, refresh math on direction
@@ -344,6 +340,9 @@ export const ScrollAreaViewport = React.forwardRef(function ScrollAreaViewport(
         return;
       }
 
+      // `allSettled` never rejects, but `computeThumbPosition` can still run against a
+      // torn-down tree once the animations resolve. Swallow instead of leaking an unhandled
+      // rejection; `void` alone would only silence the floating-promise lint.
       Promise.allSettled(animations.map((animation) => animation.finished))
         .then(computeThumbPosition)
         .catch(() => {});

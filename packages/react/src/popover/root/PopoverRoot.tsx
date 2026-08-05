@@ -10,6 +10,7 @@ import {
 } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
 import {
+  PopupHandleAttachment,
   useImplicitActiveTrigger,
   usePopupRootStore,
   useOpenStateTransitions,
@@ -78,6 +79,7 @@ function PopoverRootComponent<Payload>({ props }: { props: PopoverRoot.Props<Pay
 
   return (
     <PopoverRootContext.Provider value={store as PopoverRootContext<unknown>}>
+      {handle && <PopupHandleAttachment handle={handle} store={store} />}
       {shouldRenderInteractions && <PopoverInteractions store={store} modal={modal} />}
       {typeof children === 'function' ? children({ payload }) : children}
     </PopoverRootContext.Provider>
@@ -110,7 +112,6 @@ function usePopoverRootStore<Payload>(
   // the handle attaches to it, so swapping the handle re-attaches rather than recreating state.
   // Default values are only initial values; controlled values and root state are synced after creation.
   const store = usePopupRootStore(
-    handle,
     (floatingId, nested) => new PopoverStore<Payload>(initialState, floatingId, nested),
   );
 

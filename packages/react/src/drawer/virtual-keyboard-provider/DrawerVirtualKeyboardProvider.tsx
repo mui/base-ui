@@ -302,12 +302,6 @@ export function DrawerVirtualKeyboardProvider(props: DrawerVirtualKeyboardProvid
         return;
       }
 
-      if (!scrollTarget.isConnected || !contains(rootElement, scrollTarget)) {
-        setDrawerKeyboardInset(0);
-        restoreKeyboardScrollAdjustment();
-        return;
-      }
-
       const scrollTargetRect = scrollTarget.getBoundingClientRect();
       const clippedBottom = Math.min(scrollTargetRect.bottom, keyboardViewport.bottom);
       const overlap = Math.max(0, scrollTargetRect.bottom - keyboardViewport.bottom);
@@ -437,9 +431,7 @@ export function DrawerVirtualKeyboardProvider(props: DrawerVirtualKeyboardProvid
         // inset, slack, and pending realign. Reconcile against the real focus here.
         // A handler that ends focus entirely emits no `focusin` to reconcile from; that case
         // is covered by clearing the suppression flag above so its `focusout` is handled.
-        if (focusedKeyboardTargetRef.current) {
-          clearFocusedKeyboardTarget();
-        }
+        clearFocusedKeyboardTarget();
         return;
       }
 
@@ -462,7 +454,7 @@ export function DrawerVirtualKeyboardProvider(props: DrawerVirtualKeyboardProvid
 
       if (captureFocusedKeyboardTarget(event.relatedTarget)) {
         const target = focusedKeyboardTargetRef.current;
-        const keyboardViewport = target ? getKeyboardVisualViewport(win) : null;
+        const keyboardViewport = getKeyboardVisualViewport(win);
         // The delayed realign passes are scheduled by the `focusin` that follows once
         // focus lands on the captured target.
         if (target && keyboardViewport) {
@@ -539,16 +531,7 @@ export function DrawerVirtualKeyboardProvider(props: DrawerVirtualKeyboardProvid
   ]);
 
   const onTouchStart = useStableCallback((event: React.TouchEvent<Element>) => {
-    if (!open || !mounted || nestedDrawerOpen) {
-      resetTouchTrackingState();
-      return;
-    }
-
     const touch = event.touches[0];
-    if (!touch) {
-      return;
-    }
-
     pendingKeyboardFocusMovedRef.current = false;
     keyboardTouchStartRef.current = { x: touch.clientX, y: touch.clientY };
   });
@@ -585,10 +568,10 @@ export function DrawerVirtualKeyboardProvider(props: DrawerVirtualKeyboardProvid
     }
 
     const touch = event.changedTouches[0] ?? event.touches[0];
-    const doc = ownerDocument(event.currentTarget);
+    const root = rootElement.getRootNode();
     const nativeEventTarget = getTarget(event.nativeEvent);
     const pointTarget = touch
-      ? resolveKeyboardTouchTargetFromPoint(doc, touch.clientX, touch.clientY)
+      ? resolveKeyboardTouchTargetFromPoint(root, touch.clientX, touch.clientY)
       : null;
 
     // The lift point landed on another interactive/label element; let its native tap
@@ -717,6 +700,10 @@ function resolveKeyboardInputTarget(target: EventTarget | null): HTMLElement | n
 }
 
 function resolveKeyboardTouchTarget(target: EventTarget | null): KeyboardTouchTarget | null {
+  if (!isHTMLElement(target)) {
+    return null;
+  }
+
   const focusTarget = resolveKeyboardInputTarget(target);
   if (!focusTarget) {
     return null;
@@ -724,7 +711,7 @@ function resolveKeyboardTouchTarget(target: EventTarget | null): KeyboardTouchTa
 
   return {
     focusTarget,
-    clickTarget: isHTMLElement(target) ? target : focusTarget,
+    clickTarget: target,
   };
 }
 
@@ -739,17 +726,19 @@ function getContentEditableHost(element: HTMLElement): HTMLElement {
 }
 
 function resolveKeyboardTouchTargetFromPoint(
-  doc: Document,
+  root: Node,
   clientX: number,
   clientY: number,
 ): KeyboardTouchTarget | typeof KEYBOARD_TAP_BLOCKED | null {
-  const exactTarget = getElementAtPoint(doc, clientX, clientY);
-  const exactKeyboardTarget = resolveKeyboardInputTarget(exactTarget);
-  if (exactKeyboardTarget) {
-    return {
-      focusTarget: exactKeyboardTarget,
-      clickTarget: isHTMLElement(exactTarget) ? exactTarget : exactKeyboardTarget,
-    };
+  const exactTarget = getElementAtPoint(root, clientX, clientY);
+  if (isHTMLElement(exactTarget)) {
+    const exactKeyboardTarget = resolveKeyboardInputTarget(exactTarget);
+    if (exactKeyboardTarget) {
+      return {
+        focusTarget: exactKeyboardTarget,
+        clickTarget: exactTarget,
+      };
+    }
   }
 
   // Probing nearby points compensates for iOS retargeting taps while the page reacts
@@ -769,7 +758,7 @@ function resolveKeyboardTouchTargetFromPoint(
     [-INPUT_TAP_HIT_SLOP, 0],
   ]) {
     const keyboardTarget = resolveKeyboardInputTarget(
-      getElementAtPoint(doc, clientX + offsetX, clientY + offsetY),
+      getElementAtPoint(root, clientX + offsetX, clientY + offsetY),
     );
 
     if (keyboardTarget) {
