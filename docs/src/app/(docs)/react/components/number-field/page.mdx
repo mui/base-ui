@@ -58,7 +58,7 @@ The action can only reach states typing can reach.
 The string runs through the same character validation as a typed one, so anything the input would reject — stray letters, symbols the current `locale` and `format` don't use — is ignored and the field is left unchanged.
 Partial entries are allowed, which is the point: `'-'` and `'1.'` pass validation even though neither parses.
 
-The text itself is displayed as given, never formatted and never clamped.
+The text itself is displayed as given, never formatted, and never clamped.
 `value` follows the text when it parses and is left alone when it doesn't, which is what lets `'-'` sit over an existing number without clearing it.
 An empty string clears `value`.
 
