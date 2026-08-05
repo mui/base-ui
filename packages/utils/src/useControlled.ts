@@ -40,7 +40,9 @@ export function useControlled<T = unknown>({
   // isControlled is ignored in the hook dependency lists as it should never change.
   const { current: isControlled } = React.useRef(controlled !== undefined);
   const [valueState, setValue] = React.useState(defaultProp);
-  const value = isControlled ? controlled : valueState;
+  // Keep the initial mode, but use the initial default if a controlled value disappears.
+  // This preserves the defined-default overload while the mode-switch warning is emitted below.
+  const value = isControlled && controlled !== undefined ? controlled : valueState;
 
   if (process.env.NODE_ENV !== 'production') {
     React.useEffect(() => {

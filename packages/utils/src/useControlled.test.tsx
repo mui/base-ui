@@ -1,5 +1,6 @@
 import { expect } from 'vitest';
 import * as React from 'react';
+import { renderHook } from '@testing-library/react';
 import { act, createRenderer } from '@mui/internal-test-utils';
 import { useControlled } from './useControlled';
 
@@ -73,17 +74,27 @@ describe('useControlled', () => {
     );
   });
 
-  it('should warn when switching from controlled to uncontrolled', () => {
-    let setProps: (newProps: any) => void;
+  it('warns and falls back to the default when switching from controlled to uncontrolled', () => {
+    const initialProps: { controlled: string | undefined } = { controlled: 'foobar' };
 
     expect(() => {
-      ({ setProps } = render(<TestComponent value="foobar">{() => null}</TestComponent>));
-    }).not.toErrorDev();
+      const { result, rerender } = renderHook(
+        ({ controlled }: { controlled: string | undefined }) =>
+          useControlled({
+            controlled,
+            default: 'default',
+            name: 'TestHook',
+          }),
+        { initialProps },
+      );
 
-    expect(() => {
-      setProps({ value: undefined });
+      expect(result.current[0]).toBe('foobar');
+
+      rerender({ controlled: undefined });
+
+      expect(result.current[0]).toBe('default');
     }).toErrorDev(
-      'Base UI: A component is changing the controlled value state of TestComponent to be uncontrolled.',
+      'Base UI: A component is changing the controlled value state of TestHook to be uncontrolled.',
     );
   });
 
