@@ -12,7 +12,7 @@ export function usePreviousValue<T>(value: T): T | null {
     previous: null,
   });
 
-  if (value !== state.current) {
+  if (!Object.is(value, state.current)) {
     setState({ current: value, previous: state.current });
   }
 

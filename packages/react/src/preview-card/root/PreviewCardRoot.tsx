@@ -1,7 +1,6 @@
 'use client';
 import * as React from 'react';
 import { fastComponent } from '@base-ui/utils/fastHooks';
-import { EMPTY_OBJECT } from '@base-ui/utils/empty';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useDismiss, FloatingTree } from '../../floating-ui-react';
 import { PreviewCardRootContext, usePreviewCardRootContext } from './PreviewCardContext';
@@ -13,6 +12,7 @@ import { REASONS } from '../../internals/reasons';
 import { PreviewCardStore } from '../store/PreviewCardStore';
 import {
   PayloadChildRenderFunction,
+  PopupHandleAttachment,
   useImplicitActiveTrigger,
   usePopupRootStore,
   useOpenStateTransitions,
@@ -34,7 +34,6 @@ function PreviewCardRootComponent<Payload>(props: PreviewCardRoot.Props<Payload>
   } = props;
 
   const store = usePopupRootStore(
-    handle,
     (floatingId, nested) =>
       new PreviewCardStore<Payload>(
         {
@@ -85,6 +84,7 @@ function PreviewCardRootComponent<Payload>(props: PreviewCardRoot.Props<Payload>
 
   return (
     <PreviewCardRootContext.Provider value={store as PreviewCardRootContext}>
+      {handle && <PopupHandleAttachment handle={handle} store={store} />}
       {shouldRenderInteractions && <PreviewCardInteractions store={store} />}
       {typeof children === 'function' ? children({ payload }) : children}
     </PreviewCardRootContext.Provider>
@@ -96,12 +96,12 @@ function PreviewCardInteractions<Payload>({ store }: { store: PreviewCardStore<P
 
   const dismiss = useDismiss(floatingRootContext);
 
+  // `useDismiss` is not given an `enabled` option, so all three prop bags are always defined.
+  // `dismiss.trigger` is the same object as `dismiss.reference`.
   usePopupInteractionProps(store, {
-    // `enabled` is not passed to `useDismiss`, so its props are always defined,
-    // and `trigger` is the same object as `reference`.
     activeTriggerProps: dismiss.reference!,
     inactiveTriggerProps: dismiss.trigger!,
-    popupProps: dismiss.floating ?? EMPTY_OBJECT,
+    popupProps: dismiss.floating!,
   });
 
   return null;

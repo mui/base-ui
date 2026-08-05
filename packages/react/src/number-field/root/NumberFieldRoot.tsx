@@ -368,7 +368,7 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
         const changed = incrementValue(amount, {
           direction: event.deltaY > 0 ? -1 : 1,
           event,
-          reason: 'wheel',
+          reason: REASONS.wheel,
         });
         if (changed) {
           onValueCommitted(

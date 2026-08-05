@@ -1,14 +1,21 @@
 import { afterEach, expect, vi } from 'vitest';
 import * as React from 'react';
 import { act, fireEvent, screen, waitFor } from '@mui/internal-test-utils';
-import { createRenderer, describeConformance, isJSDOM, wait } from '#test-utils';
+import {
+  createRenderer,
+  describeConformance,
+  isJSDOM,
+  resetBrowserPointer,
+  wait,
+} from '#test-utils';
 import { Menubar } from '@base-ui/react/menubar';
 import { Menu } from '@base-ui/react/menu';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { useMenubarContext } from './MenubarContext';
 
 describe('<Menubar />', () => {
-  beforeEach(() => {
+  beforeEach(async () => {
+    await resetBrowserPointer();
     globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
   });
 
@@ -45,18 +52,30 @@ describe('<Menubar />', () => {
     await screen.findByTestId('file-menu');
 
     const editTrigger = screen.getByTestId('edit-trigger');
-    await act(async () => {
-      editTrigger.focus();
-    });
-    await screen.findByTestId('edit-menu');
 
-    fireEvent(
-      editTrigger,
-      new PointerEvent('click', { bubbles: true, cancelable: true, pointerType: 'touch' }),
-    );
-    expect(screen.queryByTestId('edit-menu')).not.toBe(null);
+    // The focus-open below starts a 300ms wall-clock cooldown during which touch clicks
+    // are ignored. Freeze timers so the cooldown cannot expire before the first click
+    // on a loaded machine, and advance past its expiry explicitly.
+    vi.useFakeTimers();
+    try {
+      await act(async () => {
+        editTrigger.focus();
+      });
+      screen.getByTestId('edit-menu');
 
-    await wait(310);
+      fireEvent(
+        editTrigger,
+        new PointerEvent('click', { bubbles: true, cancelable: true, pointerType: 'touch' }),
+      );
+      expect(screen.queryByTestId('edit-menu')).not.toBe(null);
+
+      await act(async () => {
+        vi.advanceTimersByTime(310);
+      });
+    } finally {
+      vi.useRealTimers();
+    }
+
     fireEvent(
       editTrigger,
       new PointerEvent('click', { bubbles: true, cancelable: true, pointerType: 'touch' }),
@@ -1002,48 +1021,55 @@ describe('<Menubar />', () => {
     it.skipIf(isJSDOM)(
       'correctly opens new menu on hover after clicking on its trigger and entering from hover (#2222)',
       async () => {
-        const { user } = await render(<TestMenubar />);
+        const { userEvent: user } = await import('vitest/browser');
+        const { render: vbrRender, cleanup } = await import('vitest-browser-react');
 
-        const fileTrigger = screen.getByTestId('file-trigger');
-        const editTrigger = screen.getByTestId('edit-trigger');
-        await user.click(fileTrigger);
+        try {
+          await vbrRender(<TestMenubar />);
 
-        await waitFor(() => {
-          expect(screen.queryByTestId('file-menu')).not.toBe(null);
-        });
-        await waitFor(() => {
-          expect(screen.getByRole('menubar')).toHaveAttribute('data-has-submenu-open');
-        });
+          const fileTrigger = screen.getByTestId('file-trigger');
+          const editTrigger = screen.getByTestId('edit-trigger');
+          await user.click(fileTrigger);
 
-        await user.hover(editTrigger);
+          await waitFor(() => {
+            expect(screen.queryByTestId('file-menu')).not.toBe(null);
+          });
+          await waitFor(() => {
+            expect(screen.getByRole('menubar')).toHaveAttribute('data-has-submenu-open');
+          });
 
-        await waitFor(() => {
-          expect(screen.queryByTestId('edit-menu')).not.toBe(null);
-        });
+          await user.hover(editTrigger);
 
-        await user.click(editTrigger);
+          await waitFor(() => {
+            expect(screen.queryByTestId('edit-menu')).not.toBe(null);
+          });
 
-        await waitFor(() => {
-          expect(screen.queryByTestId('edit-menu')).toBe(null);
-        });
-        await waitFor(() => {
-          expect(screen.getByRole('menubar')).not.toHaveAttribute('data-has-submenu-open');
-        });
+          await user.click(editTrigger);
 
-        await user.click(fileTrigger);
+          await waitFor(() => {
+            expect(screen.queryByTestId('edit-menu')).toBe(null);
+          });
+          await waitFor(() => {
+            expect(screen.getByRole('menubar')).not.toHaveAttribute('data-has-submenu-open');
+          });
 
-        await waitFor(() => {
-          expect(screen.queryByTestId('file-menu')).not.toBe(null);
-        });
-        await waitFor(() => {
-          expect(screen.getByRole('menubar')).toHaveAttribute('data-has-submenu-open');
-        });
+          await user.click(fileTrigger);
 
-        await user.hover(editTrigger);
+          await waitFor(() => {
+            expect(screen.queryByTestId('file-menu')).not.toBe(null);
+          });
+          await waitFor(() => {
+            expect(screen.getByRole('menubar')).toHaveAttribute('data-has-submenu-open');
+          });
 
-        await waitFor(() => {
-          expect(screen.queryByTestId('edit-menu')).not.toBe(null);
-        });
+          await user.hover(editTrigger);
+
+          await waitFor(() => {
+            expect(screen.queryByTestId('edit-menu')).not.toBe(null);
+          });
+        } finally {
+          await cleanup();
+        }
       },
     );
 

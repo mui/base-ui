@@ -274,7 +274,7 @@ export function useDismiss(
 
   React.useEffect(() => {
     if (!open || !enabled) {
-      return undefined;
+      return clearInsideReactTree;
     }
 
     dataRef.current.__escapeKeyBubbles = escapeKeyBubbles;
@@ -686,6 +686,7 @@ export function useDismiss(
       preventedPressSuppressionTimeout.clear();
       resetPressStartState();
       suppressNextOutsideClickRef.current = false;
+      clearInsideReactTree();
     };
   }, [
     dataRef,
@@ -706,8 +707,6 @@ export function useDismiss(
     store,
     cancelDismissOnEndTimeout,
   ]);
-
-  React.useEffect(clearInsideReactTree, [outsidePress, clearInsideReactTree]);
 
   const reference: ElementProps['reference'] = React.useMemo(
     () => ({

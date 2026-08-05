@@ -10,6 +10,7 @@ import {
   createChangeEventDetails,
 } from '../../internals/createBaseUIEventDetails';
 import {
+  PopupHandleAttachment,
   useImplicitActiveTrigger,
   usePopupRootStore,
   useOpenStateTransitions,
@@ -46,7 +47,6 @@ export const TooltipRoot = fastComponent(function TooltipRoot<Payload>(
   } = props;
 
   const store = usePopupRootStore(
-    handle,
     (floatingId, nested) =>
       new TooltipStore<Payload>(
         {
@@ -137,6 +137,7 @@ export const TooltipRoot = fastComponent(function TooltipRoot<Payload>(
 
   return (
     <TooltipRootContext.Provider value={store as TooltipRootContext}>
+      {handle && <PopupHandleAttachment handle={handle} store={store} />}
       {shouldRenderInteractions && (
         <TooltipInteractions store={store} disabled={disabled} trackCursorAxis={trackCursorAxis} />
       )}

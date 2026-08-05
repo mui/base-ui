@@ -5,6 +5,7 @@ import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { ownerDocument } from '@base-ui/utils/owner';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
+import { platform } from '@base-ui/utils/platform';
 import { isHTMLElement } from '@floating-ui/utils/dom';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
@@ -30,6 +31,13 @@ import { enqueueFocus } from '../utils/enqueueFocus';
 import { isVirtualClick, isVirtualPointerEvent, stopEvent } from '../utils/event';
 
 export const ESCAPE = 'Escape';
+
+// WebKit fires zero-delta `mousemove`/`pointermove` events when the list scrolls
+// beneath a stationary pointer, moving the highlight during keyboard navigation.
+// https://github.com/mui/base-ui/issues/4002
+function isStationaryWebKitPointer(event: React.MouseEvent | React.PointerEvent) {
+  return platform.engine.webkit && event.movementX === 0 && event.movementY === 0;
+}
 
 function doSwitch(
   orientation: UseListNavigationProps['orientation'],
@@ -688,6 +696,9 @@ export function useListNavigation(
       },
       onClick: ({ currentTarget }) => currentTarget.focus({ preventScroll: true }), // Safari
       onMouseMove(event) {
+        if (isStationaryWebKitPointer(event)) {
+          return;
+        }
         forceSyncFocusRef.current = true;
         forceScrollIntoViewRef.current = false;
         if (focusItemOnHover) {
@@ -780,7 +791,10 @@ export function useListNavigation(
 
         commonOnKeyDown(event);
       },
-      onPointerMove() {
+      onPointerMove(event) {
+        if (isStationaryWebKitPointer(event)) {
+          return;
+        }
         isPointerModalityRef.current = true;
       },
     };
