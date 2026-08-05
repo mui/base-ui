@@ -226,6 +226,20 @@ describe('<Combobox.Trigger />', () => {
   });
 
   describe('prop: readOnly', () => {
+    it('applies the data-readonly style hook only when readOnly', async () => {
+      const { setProps } = await render(
+        <Combobox.Root readOnly>
+          <Combobox.Trigger data-testid="trigger">Open</Combobox.Trigger>
+        </Combobox.Root>,
+      );
+
+      const trigger = screen.getByTestId('trigger');
+      expect(trigger).toHaveAttribute('data-readonly', '');
+
+      await setProps({ readOnly: false });
+      expect(trigger).not.toHaveAttribute('data-readonly');
+    });
+
     it('should not open popup when readOnly', async () => {
       const { user } = await render(
         <Combobox.Root readOnly>
