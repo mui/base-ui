@@ -314,6 +314,89 @@ describe('<NumberField />', () => {
       expect(onInputValueChange.mock.calls[0][0]).toBe('2');
       expect(onInputValueChange.mock.calls[0][1].reason).toBe(REASONS.none);
     });
+
+    it('should re-format the text when the locale changes externally', async () => {
+      const onInputValueChange = vi.fn();
+      const { rerender } = await render(
+        <NumberField value={1234} locale="en-US" onInputValueChange={onInputValueChange} />,
+      );
+      const input = screen.getByRole('textbox');
+      expect(input).toHaveValue('1,234');
+
+      await rerender(
+        <NumberField value={1234} locale="de-DE" onInputValueChange={onInputValueChange} />,
+      );
+
+      expect(input).toHaveValue('1.234');
+      expect(onInputValueChange).toHaveBeenCalledTimes(1);
+      expect(onInputValueChange.mock.calls[0][1].reason).toBe(REASONS.none);
+    });
+
+    it('should re-derive the text when a controlled value refuses a step', async () => {
+      // `setValue` projects the stepped text before it knows whether the owner stored the value,
+      // so a refused step must not leave the field displaying a number it never took.
+      await render(<NumberField value={5} />);
+
+      fireEvent.click(screen.getByLabelText('Increase'));
+
+      expect(screen.getByRole('textbox')).toHaveValue('5');
+    });
+
+    it('should re-derive the text on blur when a controlled value refuses the change', async () => {
+      await render(<NumberField value={5} onValueChange={() => {}} />);
+      const input = screen.getByRole('textbox');
+
+      fireEvent.change(input, { target: { value: '7' } });
+      expect(input).toHaveValue('7');
+
+      fireEvent.blur(input);
+
+      expect(input).toHaveValue('5');
+    });
+
+    it('should re-derive the text identically inside a Field', async () => {
+      // The repair must not depend on whether an unrelated ancestor happens to re-render.
+      await render(
+        <Field.Root>
+          <NumberField value={5} onValueChange={() => {}} />
+        </Field.Root>,
+      );
+      const input = screen.getByRole('textbox');
+      await act(async () => {
+        input.focus();
+      });
+
+      fireEvent.change(input, { target: { value: '7' } });
+      fireEvent.blur(input);
+
+      expect(input).toHaveValue('5');
+    });
+
+    it('should re-derive the text when a controlled value refuses a step after typing', async () => {
+      await render(<NumberField value={5} onValueChange={() => {}} />);
+      const input = screen.getByRole('textbox');
+
+      fireEvent.change(input, { target: { value: '7' } });
+      fireEvent.click(screen.getByLabelText('Increase'));
+
+      expect(input).toHaveValue('5');
+    });
+
+    it('should follow later external values after an empty field is blurred', async () => {
+      const { rerender } = await render(<NumberField value={null} onValueChange={() => {}} />);
+      const input = screen.getByRole('textbox');
+      await act(async () => {
+        input.focus();
+      });
+
+      // Blur has to hand the text back to `value` even though there was nothing to clear.
+      fireEvent.change(input, { target: { value: '' } });
+      fireEvent.blur(input);
+
+      await rerender(<NumberField value={7} onValueChange={() => {}} />);
+
+      expect(input).toHaveValue('7');
+    });
   });
 
   describe('prop: defaultInputValue', () => {
@@ -465,6 +548,44 @@ describe('<NumberField />', () => {
       expect(input).toHaveValue('5');
       expect(onInputValueChange).toHaveBeenCalledTimes(1);
       expect(onInputValueChange.mock.calls[0][0]).toBe('5');
+      expect(onInputValueChange.mock.calls[0][1].reason).toBe(REASONS.inputBlur);
+    });
+
+    it('should keep the text when the blur normalization is canceled', async () => {
+      // Blur proposes the normalized text twice (once through `setValue`, once on its own). The
+      // second proposal is deduped, and that must not hand the text back to `value` and let the
+      // formatting sync write the string the consumer just refused.
+      await render(
+        <NumberField
+          min={10}
+          onInputValueChange={(_next, eventDetails) => {
+            if (eventDetails.reason === REASONS.inputBlur) {
+              eventDetails.cancel();
+            }
+          }}
+        />,
+      );
+      const input = screen.getByRole('textbox');
+
+      fireEvent.change(input, { target: { value: '5' } });
+      fireEvent.blur(input);
+
+      expect(input).toHaveValue('5');
+    });
+
+    it('should normalize whitespace-only text on blur', async () => {
+      const onInputValueChange = vi.fn();
+      await render(<NumberField onInputValueChange={onInputValueChange} />);
+      const input = screen.getByRole('textbox');
+
+      fireEvent.change(input, { target: { value: '  ' } });
+      onInputValueChange.mockClear();
+
+      fireEvent.blur(input);
+
+      expect(input).toHaveValue('');
+      expect(onInputValueChange).toHaveBeenCalledTimes(1);
+      expect(onInputValueChange.mock.calls[0][0]).toBe('');
       expect(onInputValueChange.mock.calls[0][1].reason).toBe(REASONS.inputBlur);
     });
 
@@ -623,6 +744,68 @@ describe('<NumberField />', () => {
   });
 
   describe('prop: onValueChange', () => {
+    it('should not report the clear a second time when the field is blurred', async () => {
+      const onValueChange = vi.fn();
+      const onValueCommitted = vi.fn();
+      await render(
+        <NumberField
+          defaultValue={5}
+          onValueChange={onValueChange}
+          onValueCommitted={onValueCommitted}
+        />,
+      );
+      const input = screen.getByRole('textbox');
+
+      fireEvent.change(input, { target: { value: '' } });
+      expect(onValueChange).toHaveBeenCalledTimes(1);
+
+      // The value is already empty by now, so blur has nothing left to clear.
+      fireEvent.blur(input);
+
+      expect(onValueChange).toHaveBeenCalledTimes(1);
+      expect(onValueCommitted).toHaveBeenCalledTimes(1);
+    });
+
+    it('should keep the empty text when the clear is canceled on blur', async () => {
+      await render(
+        <NumberField
+          defaultValue={5}
+          onValueChange={(_value, eventDetails) => {
+            eventDetails.cancel();
+          }}
+        />,
+      );
+      const input = screen.getByRole('textbox');
+
+      fireEvent.change(input, { target: { value: '' } });
+      fireEvent.blur(input);
+
+      // A refused change leaves the edit with the user, matching the non-empty blur path.
+      expect(input).toHaveValue('');
+    });
+
+    it('should keep the empty text when the clear is canceled on blur inside a Field', async () => {
+      await render(
+        <Field.Root>
+          <NumberField
+            defaultValue={5}
+            onValueChange={(_value, eventDetails) => {
+              eventDetails.cancel();
+            }}
+          />
+        </Field.Root>,
+      );
+      const input = screen.getByRole('textbox');
+      await act(async () => {
+        input.focus();
+      });
+
+      fireEvent.change(input, { target: { value: '' } });
+      fireEvent.blur(input);
+
+      expect(input).toHaveValue('');
+    });
+
     it('should be called when the value changes', async () => {
       const onValueChange = vi.fn();
       function App() {

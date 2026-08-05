@@ -173,33 +173,47 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
   // write keyed by its event dedupes those without outliving the event: a controlled `inputValue`
   // whose owner ignores a write leaves this ref holding a string the state never took, which would
   // otherwise swallow the next genuine change for that same string.
-  const pendingWriteRef = React.useRef<{ event: Event; value: string } | null>(null);
+  const pendingWriteRef = React.useRef<{
+    event: Event;
+    value: string;
+    applied: boolean;
+  } | null>(null);
+
+  // The last text this component proposed, whether or not it was accepted. Text on screen that
+  // doesn't match it was supplied by a controlled `inputValue` owner, so it isn't ours to
+  // re-derive.
+  const lastProposedTextRef = useRefWithInit(() => formatNumber(value, locale, format));
 
   const setInputValue = useStableCallback(
     (nextInputValue: string, details: NumberFieldRoot.ChangeEventDetails, source: TextSource) => {
       // `useStableCallback` swaps the closure in an insertion effect, which runs before layout
       // effects, so `inputValue` is current even when called from the formatting sync effect.
-      const pendingWrite = pendingWriteRef.current;
-      const currentInputValue =
-        pendingWrite !== null && pendingWrite.event === details.event
-          ? pendingWrite.value
-          : inputValue;
+      const pendingWrite =
+        pendingWriteRef.current !== null && pendingWriteRef.current.event === details.event
+          ? pendingWriteRef.current
+          : null;
+      const currentInputValue = pendingWrite !== null ? pendingWrite.value : inputValue;
 
       if (nextInputValue === currentInputValue) {
-        // Nothing to write or report, but authorship still transfers: landing on the text already
-        // shown means the field now holds exactly what this write intended.
-        textSourceRef.current = source;
+        // Nothing to write or report. Authorship transfers only when the input really does hold
+        // this text: matching a proposal the consumer refused means it still holds the user's.
+        if (pendingWrite === null || pendingWrite.applied) {
+          textSourceRef.current = source;
+        }
         return;
       }
 
       onInputValueChangeProp?.(nextInputValue, details);
 
+      const applied = !details.isCanceled;
+
       // Recorded even when canceled: a refused proposal has still been put to the consumer, so
       // repeating it within the same event is noise. The event key keeps this from leaking into
       // the next interaction.
-      pendingWriteRef.current = { event: details.event, value: nextInputValue };
+      pendingWriteRef.current = { event: details.event, value: nextInputValue, applied };
+      lastProposedTextRef.current = nextInputValue;
 
-      if (details.isCanceled) {
+      if (!applied) {
         return;
       }
 
@@ -400,10 +414,12 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
     }
 
     // The effect runs on every render (formatting can change without `value` changing), so it must
-    // only push text derived from `value` when there's a reason to. Without this, a controlled
-    // `inputValue` parked on an intermediate string like `"-"` — which no number formats to —
-    // would be overwritten again on the very next render.
-    if (!formattedValueChanged) {
+    // only push text derived from `value` when there's a reason to: either the formatted value
+    // itself changed, or the text on screen is text this component wrote for a value that was
+    // never stored, because a controlled `value` owner refused the change. Text a controlled
+    // `inputValue` owner supplied — an intermediate string like `"-"`, which no number formats
+    // to — is neither, and would otherwise be overwritten on the very next render.
+    if (!formattedValueChanged && inputValue !== lastProposedTextRef.current) {
       return;
     }
 
@@ -685,6 +701,8 @@ export interface NumberFieldRootProps extends Omit<
    * The text is never formatted or clamped on the way in. It is reported back through
    * `onInputValueChange` either verbatim, as the user types, clears, or pastes, or formatted, on
    * blur, when stepping, and after an external `value`, `locale`, or `format` change.
+   * Each call must either be mirrored back into this prop or refused with `eventDetails.cancel()`;
+   * ignoring one keeps the old text while the rest of the change goes through.
    */
   inputValue?: string | undefined;
   /**
@@ -698,9 +716,9 @@ export interface NumberFieldRootProps extends Omit<
    * Callback fired when the raw text shown in the input element changes.
    *
    * This fires for the same reasons as `onValueChange`, plus the cases that leave the numeric value
-   * untouched, such as typing a lone `'-'`, and with `'none'` when the formatted text is refreshed —
-   * either after an external `value`, `locale`, or `format` change, or when typing ends and leftover
-   * unparseable text is reset.
+   * untouched, such as typing a lone `'-'`, and with `'none'` when the formatted text is refreshed
+   * after an external `value`, `locale`, or `format` change. Text left over from typing is
+   * reconciled on blur, under `'input-blur'`.
    */
   onInputValueChange?:
     | ((inputValue: string, eventDetails: NumberFieldRoot.ChangeEventDetails) => void)

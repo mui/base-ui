@@ -65,8 +65,8 @@ setInputValue('-');
 ```
 
 The text is never formatted or clamped on the way in, so any string is allowed.
-`onInputValueChange` reports the text two ways. Typing, clearing, and pasting report the raw string verbatim — `input-change`, `input-clear`, and `input-paste` carry exactly what the user produced, with no formatting applied. Blur, stepping, and the `'none'` reason instead propose formatted text, the latter after an external `value`, `locale`, or `format` change or when typing ends and leftover unparseable text is reset.
-Mirroring every call back into `inputValue` reproduces the uncontrolled behavior. Declining a formatted proposal keeps your own text, but declining an `input-change` call vetoes the keystroke outright rather than preserving anything, and declining every `'none'` call also suppresses the blur cleanup that clears leftover unparseable text.
+`onInputValueChange` reports the text two ways. Typing, clearing, and pasting report the raw string verbatim — `input-change`, `input-clear`, and `input-paste` carry exactly what the user produced, with no formatting applied. Blur, stepping, and the `'none'` reason instead propose formatted text, the last of these after an external `value`, `locale`, or `format` change. Text left over from typing is reconciled on blur, under `'input-blur'`.
+Mirroring every call back into `inputValue` reproduces the uncontrolled behavior. Every call must be answered: mirror it, or refuse it with `eventDetails.cancel()`. Refusing a formatted proposal keeps your own text, and refusing an `input-change` call vetoes the keystroke outright rather than preserving anything. Ignoring a call is neither — the text stays as it was while the rest of the change goes through, so the field can end up showing one number and reporting another.
 
 ## API reference
 

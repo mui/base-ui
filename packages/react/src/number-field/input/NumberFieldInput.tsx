@@ -161,14 +161,29 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
       // Read before any write below reconciles the text back to `value`.
       const hadManualInput = isTextUserAuthored();
       const hadPendingProgrammaticChange = hasPendingCommitRef.current;
+      const formatOptions = formatOptionsRef.current;
 
       if (inputValue.trim() === '') {
-        const clearDetails = createChangeEventDetails(REASONS.inputClear, event.nativeEvent);
-        setValue(null, clearDetails);
-        // Respect a canceled clear, mirroring the non-empty blur path below.
-        if (clearDetails.isCanceled) {
-          return;
+        // An already-empty value has nothing to clear. Calling `setValue` anyway would report the
+        // clear a second time, because the text the user typed is still theirs at this point and
+        // that alone makes a same-value input change worth reporting.
+        if (value !== null) {
+          const clearDetails = createChangeEventDetails(REASONS.inputClear, event.nativeEvent);
+          setValue(null, clearDetails);
+          // Respect a canceled clear, mirroring the non-empty blur path below.
+          if (clearDetails.isCanceled) {
+            return;
+          }
         }
+
+        // Blur ends the user's ownership of the text even when there was nothing to store, so the
+        // field can follow `value` again. Normalizes whitespace-only text away in passing.
+        setInputValue(
+          formatNumber(null, locale, formatOptions),
+          createChangeEventDetails(REASONS.inputBlur, event.nativeEvent),
+          'value',
+        );
+
         if (validationMode === 'onBlur') {
           validation.commit(null);
         }
@@ -180,7 +195,6 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
         return;
       }
 
-      const formatOptions = formatOptionsRef.current;
       const parsedValue = parseNumber(inputValue, locale, formatOptions);
       if (parsedValue === null) {
         // The text can never become a number (a lone `-`, `.`, or similar), so `value` stands and
@@ -224,6 +238,8 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
         setValue(committed, changeDetails);
         if (changeDetails.isCanceled) {
           blockRevalidationRef.current = false;
+          // A refused change leaves the text with the user so the edit can be corrected, which is
+          // also what the canceled clear above does.
           return;
         }
         committedValue = lastChangedValueRef.current;
