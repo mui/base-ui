@@ -5,9 +5,19 @@ import type { ComboboxItemCollection } from './itemCollection';
 
 export type ComboboxPrimitiveValue = string | number | bigint | boolean;
 
-/** Whether any constituent of `Item` may carry an `items` array, including optionally. */
+type RemoveIndexSignature<Type> = {
+  [Key in keyof Type as string extends Key
+    ? never
+    : number extends Key
+      ? never
+      : symbol extends Key
+        ? never
+        : Key]: Type[Key];
+};
+
+/** Whether any constituent of `Item` explicitly declares an `items` field that may be an array. */
 type HasGroupShape<Item> = Item extends object
-  ? 'items' extends keyof Item
+  ? 'items' extends keyof RemoveIndexSignature<Item>
     ? [Extract<NonNullable<Item['items']>, ReadonlyArray<unknown>>] extends [never]
       ? never[] extends NonNullable<Item['items']>
         ? true

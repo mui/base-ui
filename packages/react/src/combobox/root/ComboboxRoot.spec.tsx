@@ -406,6 +406,27 @@ function CreateItemsApp(props: {
     getLabel: (item) => item.name as string,
   });
 
+  interface IndexedItem {
+    id: number;
+    name: string;
+    [key: string]: unknown;
+  }
+  const indexedItems: IndexedItem[] = [];
+  Combobox.createItems(indexedItems, {
+    getValue: (item) => item.id,
+    getLabel: (item) => item.name,
+  });
+
+  interface IndexedItemWithItems extends IndexedItem {
+    items: unknown;
+  }
+  const indexedItemsWithItems: IndexedItemWithItems[] = [];
+  // @ts-expect-error An explicitly declared `items` field is still potentially group-shaped.
+  Combobox.createItems(indexedItemsWithItems, {
+    getValue: (item) => item.id,
+    getLabel: (item) => item.name,
+  });
+
   // Data that has not loaded yet: the item type comes from the accessors instead.
   const pendingCollection: ComboboxItemCollection<{ id: number }, number> = Combobox.createItems(
     undefined as { id: number }[] | undefined,
