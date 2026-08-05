@@ -22,7 +22,7 @@ export const ToggleGroup = React.forwardRef(function ToggleGroup<Value extends s
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const {
-    defaultValue = EMPTY_ARRAY,
+    defaultValue: defaultValueProp,
     disabled: disabledProp = false,
     loopFocus = true,
     onValueChange,
@@ -38,7 +38,10 @@ export const ToggleGroup = React.forwardRef(function ToggleGroup<Value extends s
   const toolbarContext = useToolbarRootContext(true);
   const toolbarGroupContext = useToolbarGroupContext();
 
-  const isValueInitialized = valueProp !== undefined || componentProps.defaultValue !== undefined;
+  const defaultValue = defaultValueProp ?? EMPTY_ARRAY;
+  // Use the raw prop to distinguish an omitted value from the empty default.
+  const isValueInitialized = valueProp !== undefined || defaultValueProp !== undefined;
+
   const disabled =
     (toolbarContext?.disabled ?? false) || (toolbarGroupContext?.disabled ?? false) || disabledProp;
 

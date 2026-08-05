@@ -36,10 +36,12 @@ export const AccordionRoot = React.forwardRef(function AccordionRoot<Value = any
     multiple = false,
     orientation = 'vertical',
     value: valueProp,
-    defaultValue = EMPTY_ARRAY,
+    defaultValue: defaultValueProp,
     style,
     ...elementProps
   } = componentProps;
+
+  const defaultValue = defaultValueProp ?? EMPTY_ARRAY;
 
   /* istanbul ignore else -- `process.env.NODE_ENV` is a build-time constant under test */
   if (process.env.NODE_ENV !== 'production') {

@@ -32,7 +32,7 @@ export const CheckboxGroup = React.forwardRef(function CheckboxGroup(
   const {
     allValues,
     className,
-    defaultValue = EMPTY_ARRAY,
+    defaultValue: defaultValueProp,
     disabled: disabledProp = false,
     id: idProp,
     onValueChange,
@@ -55,6 +55,7 @@ export const CheckboxGroup = React.forwardRef(function CheckboxGroup(
   const { clearErrors, elementRef } = useFormContext();
 
   const disabled = fieldDisabled || disabledProp;
+  const defaultValue = defaultValueProp ?? EMPTY_ARRAY;
 
   const [value, setValueUnwrapped] = useControlled({
     controlled: externalValue,

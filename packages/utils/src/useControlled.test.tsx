@@ -76,9 +76,8 @@ describe('useControlled', () => {
 
   it('warns and falls back to the default when switching from controlled to uncontrolled', () => {
     const initialProps: { controlled: string | undefined } = { controlled: 'foobar' };
-
-    expect(() => {
-      const { result, rerender } = renderHook(
+    const renderControlledHook = () =>
+      renderHook(
         ({ controlled }: { controlled: string | undefined }) =>
           useControlled({
             controlled,
@@ -88,14 +87,33 @@ describe('useControlled', () => {
         { initialProps },
       );
 
-      expect(result.current[0]).toBe('foobar');
+    let hook: ReturnType<typeof renderControlledHook> | undefined;
 
+    expect(() => {
+      hook = renderControlledHook();
+    }).not.toErrorDev();
+
+    if (hook === undefined) {
+      throw new Error('The hook did not render.');
+    }
+
+    const { result, rerender } = hook;
+
+    expect(result.current[0]).toBe('foobar');
+
+    expect(() => {
       rerender({ controlled: undefined });
-
-      expect(result.current[0]).toBe('default');
     }).toErrorDev(
       'Base UI: A component is changing the controlled value state of TestHook to be uncontrolled.',
     );
+
+    expect(result.current[0]).toBe('default');
+
+    act(() => {
+      result.current[1]('next');
+    });
+
+    expect(result.current[0]).toBe('default');
   });
 
   describe('prop: defaultValue', () => {

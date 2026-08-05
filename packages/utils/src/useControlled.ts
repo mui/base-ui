@@ -10,7 +10,7 @@ export interface UseControlledProps<T = unknown> {
    */
   controlled: T | undefined;
   /**
-   * The default value when uncontrolled.
+   * The default value when uncontrolled, and the fallback if a controlled value later becomes `undefined`.
    */
   default: T | undefined;
   /**

@@ -218,6 +218,15 @@ describe('<CheckboxGroup />', () => {
   });
 
   describe('prop: defaultValue', () => {
+    it('treats null as an empty array', () => {
+      // @ts-expect-error Simulates a JavaScript consumer passing an unsupported value.
+      const group = <CheckboxGroup defaultValue={null} />;
+
+      render(group);
+
+      expect(screen.getByRole('group')).toBeInTheDocument();
+    });
+
     it('should set the initial value', () => {
       function App() {
         return (
