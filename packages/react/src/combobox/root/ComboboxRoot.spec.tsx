@@ -369,6 +369,19 @@ function CreateItemsApp(props: {
     getLabel: (item: TreeItem) => item.name,
   });
 
+  // A non-array `items` field never marks a group at runtime, so flat data accepts it.
+  Combobox.createItems([{ id: 1, name: 'Alice', items: 3 }], {
+    getValue: (item) => item.id,
+    getLabel: (item) => item.name,
+  });
+
+  // `any` opts out of the group-shape check instead of rejecting the data outright.
+  const anyItems: any[] = [];
+  Combobox.createItems(anyItems, {
+    getValue: (item) => item.id as number,
+    getLabel: (item) => item.name as string,
+  });
+
   // Data that has not loaded yet: the item type comes from the accessors instead.
   const pendingCollection: ComboboxItemCollection<{ id: number }, number> = Combobox.createItems(
     undefined as { id: number }[] | undefined,

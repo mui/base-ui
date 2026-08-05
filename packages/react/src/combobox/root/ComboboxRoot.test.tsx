@@ -6601,8 +6601,7 @@ describe('<Combobox.Root />', () => {
 
       expect(screen.getByTestId('input')).toHaveValue('Banana');
 
-      // The first non-empty window teaches the root that the markup is grouped, which is what
-      // makes falling back to the internal items safe once the window empties.
+      // The first non-empty window teaches the root the markup shape, making the fallback safe.
       await setProps({ filteredItems: [] });
       await user.click(screen.getByTestId('input'));
 

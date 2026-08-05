@@ -20,15 +20,9 @@ import { compareItemEquality, findItemIndex } from '../../internals/itemEquality
 
 /**
  * Development only: warns when an item's `value` is one of the collection's own source items,
- * which is what passing the item instead of its `getValue` result looks like. Testing for a
- * source item rather than for the absence of a derived value keeps deliberately synthesized
- * values (a "create new" entry, a header row, an item from an externally filtered window) from
- * being reported, and makes the check a single lookup rather than a scan per item.
- * Only object source items are published for this check: a derived value is always a primitive,
- * so it can legitimately equal a different primitive source item, and only the object-to-ID
- * misuse is identifiable soundly.
- * The selector lives here rather than in the shared `selectors` object, which is a plain object
- * literal that survives minification, so production builds carry neither it nor this hook.
+ * which is what passing the item instead of its `getValue` result looks like. The selector lives
+ * here rather than in the shared `selectors` object so production builds carry neither it nor
+ * this hook.
  */
 const collectionItemsSelector = (state: ComboboxStore['state']) => state.collectionItems;
 

@@ -69,7 +69,7 @@ const sharedPersonItems = Combobox.createItems([] as Person[], {
 });
 
 describe('Combobox.createItems', () => {
-  const { render } = createRenderer();
+  const { render, renderToString } = createRenderer();
 
   describe('collection', () => {
     it('rejects an items object that is not a collection', async () => {
@@ -470,6 +470,43 @@ describe('Combobox.createItems', () => {
       expect(screen.getAllByRole('option')).toHaveLength(1);
       expect(screen.getByRole('option', { name: 'Alice' })).not.toBe(null);
       expect(getValue.mock.calls.every(([item]) => item != null)).toBe(true);
+    });
+
+    it('treats a non-array items field as item data rather than as a group', async () => {
+      const onValueChange = vi.fn();
+      // Only an actual `items` array marks a group; unrelated or optional fields stay item data.
+      const records = [
+        { id: 1, name: 'Alice', items: undefined },
+        { id: 2, name: 'Bob', items: 3 },
+      ];
+      const recordItems = Combobox.createItems(records, {
+        getValue: (record) => record.id,
+        getLabel: (record) => record.name,
+      });
+
+      function App() {
+        return (
+          <Combobox.Root items={recordItems} defaultOpen onValueChange={onValueChange}>
+            <Combobox.Input data-testid="input" />
+            <Combobox.List>
+              {(record: (typeof records)[number]) => (
+                <Combobox.Item key={record.id} value={record.id}>
+                  {record.name}
+                </Combobox.Item>
+              )}
+            </Combobox.List>
+          </Combobox.Root>
+        );
+      }
+
+      const { user } = await render(<App />);
+
+      expect(screen.getAllByRole('option')).toHaveLength(2);
+
+      await user.click(screen.getByRole('option', { name: 'Bob' }));
+
+      expect(onValueChange.mock.lastCall?.[0]).toBe(2);
+      expect(screen.getByTestId('input')).toHaveValue('Bob');
     });
 
     it('renders a sentinel item for the empty selection like any other item', async () => {
@@ -1580,9 +1617,8 @@ describe('Combobox.createItems', () => {
 
       expect(screen.getByTestId('input')).toHaveValue('External user');
 
-      // Labels resolve only from the data and the current window — nothing from a past window is
-      // remembered. Keeping the label means keeping the item in the data (see the separately
-      // fetched metadata test) or supplying `itemToStringLabel`.
+      // Nothing from a past window is remembered: keep the item in the data or supply
+      // `itemToStringLabel` to keep the label.
       await setProps({ results: [] });
 
       expect(screen.getByTestId('input')).toHaveValue('99');
@@ -1646,6 +1682,54 @@ describe('Combobox.createItems', () => {
 
       expect(screen.getByTestId('input-a')).toHaveValue('user-1');
       expect(screen.getByTestId('input-b')).toHaveValue('Alicia');
+    });
+
+    it('labels multiple selected values from the current external window', async () => {
+      function App(props: { results: Person[] }) {
+        return (
+          <Combobox.Root
+            multiple
+            items={sharedPersonItems}
+            filteredItems={props.results}
+            value={['user-1', 'user-2']}
+          >
+            <Combobox.Input data-testid="input" />
+            <span data-testid="value">
+              <Combobox.Value />
+            </span>
+          </Combobox.Root>
+        );
+      }
+
+      const { setProps } = await render(
+        <App
+          results={[
+            { id: 'user-1', name: 'Alice' },
+            { id: 'user-2', name: 'Bob' },
+          ]}
+        />,
+      );
+
+      expect(screen.getByTestId('value')).toHaveTextContent('Alice, Bob');
+
+      // Each selected value degrades independently when its item leaves the window.
+      await setProps({ results: [{ id: 'user-2', name: 'Bob' }] });
+
+      expect(screen.getByTestId('value')).toHaveTextContent('user-1, Bob');
+    });
+
+    it('resolves a server-rendered defaultValue label from the external window', () => {
+      renderToString(
+        <Combobox.Root
+          items={sharedPersonItems}
+          filteredItems={[{ id: 'user-1', name: 'Alice' }]}
+          defaultValue="user-1"
+        >
+          <Combobox.Input data-testid="input" />
+        </Combobox.Root>,
+      );
+
+      expect(screen.getByTestId('input')).toHaveValue('Alice');
     });
 
     it('opens a reordered external list at the selected value in rendered-list coordinates', async () => {
@@ -2171,8 +2255,7 @@ describe('Combobox.createItems', () => {
 
       expect(screen.getByTestId('input')).toHaveValue('Carol');
 
-      // The first non-empty window teaches the root that the markup is grouped, which is what
-      // makes falling back to the internal items safe once the window empties.
+      // The first non-empty window teaches the root the markup shape, making the fallback safe.
       await setProps({ filteredItems: [] });
       await user.click(screen.getByTestId('input'));
 
@@ -2209,8 +2292,7 @@ describe('Combobox.createItems', () => {
         );
       }
 
-      // No non-empty window has committed, so the markup's shape is unknown: rendering nothing
-      // beats pumping group objects through a callback written for users.
+      // With the markup shape unknown, rendering nothing beats guessing wrong.
       const { user } = await render(<App />);
 
       await user.click(screen.getByTestId('input'));

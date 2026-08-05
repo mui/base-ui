@@ -1040,8 +1040,7 @@ accessors always receive individual items, never groups.
 An item must not itself have an `items` array property: such an entry is read as a group,
 both in the types and at runtime.
 Create the collection at module scope when the data is static, and wrap it in
-`React.useMemo()` keyed on the data when it is not: a collection rebuilt on every render
-re-derives the index of every value.
+`React.useMemo()` keyed on the data when it is not.
 
 **Parameters:**
 
@@ -1215,26 +1214,19 @@ type CreateComboboxItemsOptions<
    * Projects an item to the primitive value that identifies it, used as the item's
    * selection value.
    *
-   * `null` and `undefined` are reserved for no selection. Prefer stable IDs from your
-   * application data.
+   * `null` and `undefined` are reserved for no selection, and each item must derive a unique
+   * value. Prefer stable IDs from your application data.
    *
-   * Each item must derive a unique value. When two items share one, the first occurrence resolves
-   * the label and every item carrying that value renders as selected.
-   *
-   * Nullish entries in the data are holes rather than items: they are skipped instead of being
-   * passed to this accessor.
+   * Nullish entries in the data are holes rather than items: they are never passed to this
+   * accessor.
    */
   getValue: (item: Item) => Value;
   /**
    * Projects an item to the label string that represents it in the input and when matching the
-   * typed query. The root's `itemToStringLabel` prop is the fallback for selected values this
-   * accessor cannot reach, meaning a value whose item is in neither the data nor the current
-   * `filteredItems`. Keep the selected item in the data to keep its label resolvable.
+   * typed query. The root's `itemToStringLabel` prop is the fallback for values whose item is in
+   * neither the data nor the current `filteredItems`.
    *
    * By default, the item's derived value is stringified.
-   *
-   * Nullish entries in the data are holes rather than items: they are skipped instead of being
-   * passed to this accessor.
    */
   getLabel?: (item: Item) => string;
 };
