@@ -168,53 +168,47 @@ describe('<NumberField />', () => {
   });
 
   describe('prop: actionsRef', () => {
-    function SetInputValueApp({
-      text,
-      label = 'set text',
-      ...props
-    }: { text: string; label?: string } & NumberFieldBase.Root.Props) {
+    function SetInputValueApp({ text, ...props }: { text: string } & NumberFieldBase.Root.Props) {
       const actionsRef = React.useRef<NumberFieldBase.Root.Actions | null>(null);
       return (
         <React.Fragment>
           <NumberField actionsRef={actionsRef} {...props} />
-          <button onClick={() => actionsRef.current?.setInputValue(text)}>{label}</button>
+          <button onClick={() => actionsRef.current?.setInputValue(text)}>set text</button>
         </React.Fragment>
       );
+    }
+
+    function clickSetText() {
+      fireEvent.click(screen.getByRole('button', { name: 'set text' }));
     }
 
     it('should hold an intermediate string that no number formats to', async () => {
       await render(<SetInputValueApp min={-10} text="-" />);
       const input = screen.getByRole('textbox');
 
-      fireEvent.click(screen.getByRole('button', { name: 'set text' }));
+      clickSetText();
 
       expect(input).toHaveValue('-');
     });
 
-    it('should ignore text the input would reject', async () => {
-      const onValueChange = vi.fn();
-      await render(<SetInputValueApp defaultValue={5} text="abc" onValueChange={onValueChange} />);
-      const input = screen.getByRole('textbox');
+    const rejectedTexts: Array<[string, string]> = [
+      ['text the input would reject', 'abc'],
+      ['symbols the current format does not use', '50%'],
+    ];
+    rejectedTexts.forEach(([description, text]) => {
+      it(`should ignore ${description}`, async () => {
+        const onValueChange = vi.fn();
+        await render(
+          <SetInputValueApp defaultValue={5} text={text} onValueChange={onValueChange} />,
+        );
 
-      await expect(async () => {
-        fireEvent.click(screen.getByRole('button', { name: 'set text' }));
-      }).toWarnDev('<NumberField.Root> ignored a setInputValue() call with "abc"');
+        await expect(async () => {
+          clickSetText();
+        }).toWarnDev(`<NumberField.Root> ignored a setInputValue() call with "${text}"`);
 
-      expect(input).toHaveValue('5');
-      expect(onValueChange).not.toHaveBeenCalled();
-    });
-
-    it('should ignore symbols the current format does not use', async () => {
-      const onValueChange = vi.fn();
-      await render(<SetInputValueApp defaultValue={5} text="50%" onValueChange={onValueChange} />);
-      const input = screen.getByRole('textbox');
-
-      await expect(async () => {
-        fireEvent.click(screen.getByRole('button', { name: 'set text' }));
-      }).toWarnDev('<NumberField.Root> ignored a setInputValue() call with "50%"');
-
-      expect(input).toHaveValue('5');
-      expect(onValueChange).not.toHaveBeenCalled();
+        expect(screen.getByRole('textbox')).toHaveValue('5');
+        expect(onValueChange).not.toHaveBeenCalled();
+      });
     });
 
     it('should accept symbols the current format does use', async () => {
@@ -223,7 +217,7 @@ describe('<NumberField />', () => {
         <SetInputValueApp format={{ style: 'percent' }} text="50%" onValueChange={onValueChange} />,
       );
 
-      fireEvent.click(screen.getByRole('button', { name: 'set text' }));
+      clickSetText();
 
       expect(screen.getByRole('textbox')).toHaveValue('50%');
       expect(onValueChange.mock.calls[0][0]).toBe(0.5);
@@ -244,7 +238,7 @@ describe('<NumberField />', () => {
       await render(<App />);
       const input = screen.getByRole('textbox');
 
-      fireEvent.click(screen.getByRole('button', { name: 'set text' }));
+      clickSetText();
       expect(input).toHaveValue('-');
 
       // A rejected call touches nothing at all, so the pending edit is still on screen.
@@ -255,30 +249,29 @@ describe('<NumberField />', () => {
       expect(input).toHaveValue('-');
     });
 
-    it('should set the text while disabled', async () => {
-      const onValueChange = vi.fn();
-      await render(
-        <SetInputValueApp disabled defaultValue={5} text="42" onValueChange={onValueChange} />,
-      );
+    // These gate user interaction, not the component's owner, so the action goes through them.
+    const interactionGates: Array<[string, NumberFieldBase.Root.Props]> = [
+      ['disabled', { disabled: true }],
+      ['read-only', { readOnly: true }],
+    ];
+    interactionGates.forEach(([description, gateProps]) => {
+      it(`should set the text while ${description}`, async () => {
+        const onValueChange = vi.fn();
+        await render(
+          <SetInputValueApp
+            {...gateProps}
+            defaultValue={5}
+            text="42"
+            onValueChange={onValueChange}
+          />,
+        );
 
-      fireEvent.click(screen.getByRole('button', { name: 'set text' }));
+        clickSetText();
 
-      expect(screen.getByRole('textbox')).toHaveValue('42');
-      expect(onValueChange).toHaveBeenCalledTimes(1);
-      expect(onValueChange.mock.calls[0][0]).toBe(42);
-    });
-
-    it('should set the text while read-only', async () => {
-      const onValueChange = vi.fn();
-      await render(
-        <SetInputValueApp readOnly defaultValue={5} text="42" onValueChange={onValueChange} />,
-      );
-
-      fireEvent.click(screen.getByRole('button', { name: 'set text' }));
-
-      expect(screen.getByRole('textbox')).toHaveValue('42');
-      expect(onValueChange).toHaveBeenCalledTimes(1);
-      expect(onValueChange.mock.calls[0][0]).toBe(42);
+        expect(screen.getByRole('textbox')).toHaveValue('42');
+        expect(onValueChange).toHaveBeenCalledTimes(1);
+        expect(onValueChange.mock.calls[0][0]).toBe(42);
+      });
     });
 
     it('should keep the intermediate string across an unrelated re-render', async () => {
@@ -295,7 +288,7 @@ describe('<NumberField />', () => {
       await render(<App />);
       const input = screen.getByRole('textbox');
 
-      fireEvent.click(screen.getByRole('button', { name: 'set text' }));
+      clickSetText();
       fireEvent.click(screen.getByRole('button', { name: 'rerender' }));
 
       expect(input).toHaveValue('-');
@@ -306,7 +299,7 @@ describe('<NumberField />', () => {
       await render(<SetInputValueApp min={-10} text="-" onValueChange={onValueChange} />);
       const input = screen.getByRole('textbox');
 
-      fireEvent.click(screen.getByRole('button', { name: 'set text' }));
+      clickSetText();
       expect(onValueChange).not.toHaveBeenCalled();
 
       fireEvent.change(input, { target: { value: '-5' } });
@@ -320,7 +313,7 @@ describe('<NumberField />', () => {
       const onValueChange = vi.fn();
       await render(<SetInputValueApp text="42" onValueChange={onValueChange} />);
 
-      fireEvent.click(screen.getByRole('button', { name: 'set text' }));
+      clickSetText();
 
       expect(screen.getByRole('textbox')).toHaveValue('42');
       expect(onValueChange).toHaveBeenCalledTimes(1);
@@ -334,7 +327,7 @@ describe('<NumberField />', () => {
         <SetInputValueApp min={-10} defaultValue={5} text="-" onValueChange={onValueChange} />,
       );
 
-      fireEvent.click(screen.getByRole('button', { name: 'set text' }));
+      clickSetText();
 
       expect(screen.getByRole('textbox')).toHaveValue('-');
       expect(onValueChange).not.toHaveBeenCalled();
@@ -344,7 +337,7 @@ describe('<NumberField />', () => {
       const onValueChange = vi.fn();
       await render(<SetInputValueApp defaultValue={5} text="" onValueChange={onValueChange} />);
 
-      fireEvent.click(screen.getByRole('button', { name: 'set text' }));
+      clickSetText();
 
       expect(screen.getByRole('textbox')).toHaveValue('');
       expect(onValueChange).toHaveBeenCalledTimes(1);
@@ -365,7 +358,7 @@ describe('<NumberField />', () => {
 
       expect(screen.getByRole('textbox')).toHaveValue('5');
 
-      fireEvent.click(screen.getByRole('button', { name: 'set text' }));
+      clickSetText();
 
       expect(screen.getByRole('textbox')).toHaveValue('999');
       expect(onValueChange.mock.calls[0][0]).toBe(10);
@@ -375,7 +368,7 @@ describe('<NumberField />', () => {
       const onValueCommitted = vi.fn();
       await render(<SetInputValueApp text="42" onValueCommitted={onValueCommitted} />);
 
-      fireEvent.click(screen.getByRole('button', { name: 'set text' }));
+      clickSetText();
 
       expect(onValueCommitted).toHaveBeenCalledTimes(1);
       expect(onValueCommitted.mock.calls[0][0]).toBe(42);
@@ -388,7 +381,7 @@ describe('<NumberField />', () => {
         <SetInputValueApp defaultValue={5} text="" onValueCommitted={onValueCommitted} />,
       );
 
-      fireEvent.click(screen.getByRole('button', { name: 'set text' }));
+      clickSetText();
 
       expect(onValueCommitted).toHaveBeenCalledTimes(1);
       expect(onValueCommitted.mock.calls[0][0]).toBe(null);
@@ -405,7 +398,7 @@ describe('<NumberField />', () => {
         />,
       );
 
-      fireEvent.click(screen.getByRole('button', { name: 'set text' }));
+      clickSetText();
 
       expect(onValueCommitted).not.toHaveBeenCalled();
     });
@@ -416,7 +409,7 @@ describe('<NumberField />', () => {
         <SetInputValueApp min={0} max={10} text="999" onValueCommitted={onValueCommitted} />,
       );
 
-      fireEvent.click(screen.getByRole('button', { name: 'set text' }));
+      clickSetText();
 
       expect(onValueCommitted.mock.calls[0][0]).toBe(10);
     });
@@ -439,7 +432,7 @@ describe('<NumberField />', () => {
       await render(<UnsavedEditApp />);
       const input = screen.getByRole('textbox');
 
-      fireEvent.click(screen.getByRole('button', { name: 'set text' }));
+      clickSetText();
       expect(input).toHaveValue('-');
 
       // The imperatively set text counts as an unsaved edit, exactly like typing, so an external
@@ -456,7 +449,7 @@ describe('<NumberField />', () => {
       await render(<UnsavedEditApp />);
       const input = screen.getByRole('textbox');
 
-      fireEvent.click(screen.getByRole('button', { name: 'set text' }));
+      clickSetText();
       fireEvent.click(screen.getByRole('button', { name: 'set 7' }));
       expect(input).toHaveValue('-');
 
@@ -475,7 +468,7 @@ describe('<NumberField />', () => {
       await render(<SetInputValueApp text="3.50" onValueCommitted={onValueCommitted} />);
       const input = screen.getByRole('textbox');
 
-      fireEvent.click(screen.getByRole('button', { name: 'set text' }));
+      clickSetText();
       expect(onValueCommitted).toHaveBeenCalledTimes(1);
 
       // Blurring a field with unsaved text always commits, whether the text was typed or set

@@ -334,17 +334,17 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
         allowInputSyncRef.current = false;
         setInputValue(nextInputValue);
 
-        // An unparseable string leaves `value` alone rather than clearing it, so setting `'-'`
-        // over a field showing `5` keeps the 5 until the entry is completed.
-        const parsedValue = isEmpty
+        // `undefined` means "leave `value` as it is": the text is valid but not a number yet, so
+        // setting `'-'` over a field showing `5` keeps the 5 until the entry is completed.
+        const nextValue = isEmpty
           ? null
-          : parseNumber(nextInputValue, locale, formatOptionsRef.current);
+          : (parseNumber(nextInputValue, locale, formatOptionsRef.current) ?? undefined);
 
-        if (!isEmpty && parsedValue === null) {
+        if (nextValue === undefined) {
           return;
         }
 
-        const changed = setValue(parsedValue, createChangeEventDetails(REASONS.imperativeAction));
+        const changed = setValue(nextValue, createChangeEventDetails(REASONS.imperativeAction));
 
         // The caller chose this string deliberately, so the resulting change is final the way a
         // keyboard step or a button press is, rather than a pending edit waiting for blur. The
