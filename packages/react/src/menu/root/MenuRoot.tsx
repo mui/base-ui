@@ -37,7 +37,7 @@ import {
   attachPreventUnmountOnClose,
   FOCUSABLE_POPUP_PROPS,
   PayloadChildRenderFunction,
-  setPopupOpenState,
+  getPopupOpenState,
   PopupHandleAttachment,
   useImplicitActiveTrigger,
   useOpenStateTransitions,
@@ -162,11 +162,13 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
   }
 
   const { openMethod, triggerProps: interactionTypeProps } = useOpenInteractionType(open);
+  const modal =
+    parent.type === undefined || parent.type === 'context-menu' ? (modalProp ?? true) : false;
 
   store.useSyncedValues({
     disabled: disabledProp,
     highlightItemOnHover,
-    modal: parent.type === undefined ? modalProp : undefined,
+    modal,
     openMethod,
     rootId,
   });
@@ -301,20 +303,16 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
         (nativeEvent as MouseEvent).detail === 0;
       const isDismissClose = !nextOpen && (reason === REASONS.escapeKey || reason == null);
 
-      const updatedState: Partial<MenuStoreState<Payload>> = {
-        open: nextOpen,
-        openChangeReason: reason,
-      };
       openEventRef.current = eventDetails.event;
 
-      setPopupOpenState(
-        updatedState,
+      const popupOpenState = getPopupOpenState(
+        store.state,
         nextOpen,
         eventDetails.trigger,
         shouldPreventUnmountOnClose(),
       );
 
-      store.update(updatedState);
+      store.update({ ...popupOpenState, openChangeReason: reason });
 
       if (
         parent.type === 'menubar' &&

@@ -67,7 +67,7 @@ export const MenuSubmenuTrigger = React.forwardRef(function MenuSubmenuTrigger(
 
       if (element !== null && store.select('open') && store.select('activeTriggerId') == null) {
         store.update({
-          activeTriggerId: thisTriggerId,
+          activeTriggerId: thisTriggerId ?? store.state.activeTriggerId,
           activeTriggerElement: element,
           closeDelay,
         });

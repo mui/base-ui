@@ -18,7 +18,7 @@ import {
   type PayloadChildRenderFunction,
 } from '../../utils/popups';
 import { mergeProps } from '../../merge-props';
-import { TooltipStore } from '../store/TooltipStore';
+import { TooltipStore, type State as TooltipStoreState } from '../store/TooltipStore';
 import { type TooltipHandle } from '../store/TooltipHandle';
 import { REASONS } from '../../internals/reasons';
 
@@ -90,7 +90,9 @@ export const TooltipRoot = fastComponent(function TooltipRoot<Payload>(
   // 2) Closing because another tooltip opened (reason === 'none')
   // Otherwise, allow the animation to play. In particular, do not disable animations
   // during the 'ending' phase unless it's due to a sibling opening.
-  const previousInstantTypeRef = React.useRef<string | undefined | null>(null);
+  const previousInstantTypeRef = React.useRef<TooltipStoreState<Payload>['instantType'] | null>(
+    null,
+  );
 
   useIsoLayoutEffect(() => {
     if (openState && disabled) {

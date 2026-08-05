@@ -16,7 +16,7 @@ import {
   PopupStoreState,
   PopupTriggerMap,
   type PopupTriggerStoreKeys,
-  setPopupOpenState,
+  getPopupOpenState,
 } from '../../utils/popups';
 import { PATIENT_CLICK_THRESHOLD } from '../../internals/constants';
 import type { AdaptiveOriginMiddleware } from '../../utils/adaptiveOriginConstants';
@@ -130,19 +130,17 @@ export class PopoverStore<Payload> extends ReactStore<
     this.state.floatingRootContext.dispatchOpenChange(nextOpen, eventDetails);
 
     const changeState = () => {
-      const updatedState: Partial<State<Payload>> = {
-        open: nextOpen,
-        openChangeReason: eventDetails.reason,
-      };
-
-      setPopupOpenState(
-        updatedState,
+      const popupOpenState = getPopupOpenState(
+        this.state,
         nextOpen,
         eventDetails.trigger,
         shouldPreventUnmountOnClose(),
       );
 
-      this.update(updatedState);
+      this.update({
+        ...popupOpenState,
+        openChangeReason: eventDetails.reason,
+      });
     };
 
     if (isHover) {

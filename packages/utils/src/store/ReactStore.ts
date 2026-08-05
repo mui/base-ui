@@ -42,10 +42,7 @@ export class ReactStore<
    * Note that the while the value in `state` is updated immediately, the value returned
    * by `useState` is updated before the next render (similarly to React's `useState`).
    */
-  useSyncedValue<Key extends keyof State, Value extends State[Key]>(
-    key: keyof State,
-    value: Value,
-  ) {
+  useSyncedValue<Key extends keyof State>(key: Key, value: State[Key]) {
     React.useDebugValue(key);
     // eslint-disable-next-line consistent-this
     const store = this;
@@ -86,7 +83,7 @@ export class ReactStore<
    * Note that the while the values in `state` are updated immediately, the values returned
    * by `useState` are updated before the next render (similarly to React's `useState`).
    */
-  public useSyncedValues(statePart: Partial<State>) {
+  public useSyncedValues<const Key extends keyof State>(statePart: Pick<State, Key>) {
     // eslint-disable-next-line consistent-this
     const store = this;
     if (process.env.NODE_ENV !== 'production') {
@@ -116,10 +113,7 @@ export class ReactStore<
    * Registers a controllable prop pair (`controlled`, `defaultValue`) for a specific key. If `controlled`
    * is non-undefined, the store's state at `key` is updated to match `controlled`.
    */
-  useControlledProp<Key extends keyof State, Value extends State[Key]>(
-    key: keyof State,
-    controlled: Value | undefined,
-  ): void {
+  useControlledProp<Key extends keyof State>(key: Key, controlled: State[Key] | undefined): void {
     React.useDebugValue(key);
     // eslint-disable-next-line consistent-this
     const store = this;
@@ -202,10 +196,10 @@ export class ReactStore<
    *
    * @param key Key of the state to set.
    */
-  useStateSetter<const Key extends keyof State, Value extends State[Key]>(key: keyof State) {
-    const ref = React.useRef<(v: Value) => void>(undefined as any);
+  useStateSetter<const Key extends keyof State>(key: Key) {
+    const ref = React.useRef<(value: State[Key]) => void>(undefined as any);
     if (ref.current === undefined) {
-      ref.current = (value: Value) => {
+      ref.current = (value: State[Key]) => {
         this.set(key, value);
       };
     }

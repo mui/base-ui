@@ -6,7 +6,7 @@ import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { PopupTriggerMap } from '../../utils/popups';
 import type { BaseUIChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { useFloatingParentNodeId } from '../components/FloatingTree';
-import { FloatingRootStore, type FloatingRootState } from '../components/FloatingRootStore';
+import { FloatingRootStore } from '../components/FloatingRootStore';
 import type { ReferenceType } from '../types';
 
 export interface UseFloatingRootContextOptions {
@@ -22,6 +22,8 @@ export interface UseFloatingRootContextOptions {
 
 export function useFloatingRootContext(options: UseFloatingRootContextOptions): FloatingRootStore {
   const { open = false, onOpenChange, elements = {} } = options;
+  const reference = elements.reference;
+  const floating = elements.floating;
 
   const floatingId = useId();
   const nested = useFloatingParentNodeId() != null;
@@ -43,8 +45,8 @@ export function useFloatingRootContext(options: UseFloatingRootContextOptions): 
         open,
         transitionStatus: undefined,
         onOpenChange,
-        referenceElement: elements.reference ?? null,
-        floatingElement: elements.floating ?? null,
+        referenceElement: reference ?? null,
+        floatingElement: floating ?? null,
         triggerElements: new PopupTriggerMap(),
         floatingId,
         syncOnly: false,
@@ -53,28 +55,25 @@ export function useFloatingRootContext(options: UseFloatingRootContextOptions): 
   ).current;
 
   useIsoLayoutEffect(() => {
-    const valuesToSync: Writeable<Partial<FloatingRootState>> = {
+    const referenceElement = reference === undefined ? store.state.referenceElement : reference;
+    const floatingElement = floating === undefined ? store.state.floatingElement : floating;
+    let domReferenceElement = store.state.domReferenceElement;
+
+    if (reference !== undefined) {
+      domReferenceElement = isElement(referenceElement) ? referenceElement : null;
+    }
+
+    store.update({
       open,
       floatingId,
-    };
-
-    // Only sync elements that are defined to avoid overwriting existing ones
-    if (elements.reference !== undefined) {
-      valuesToSync.referenceElement = elements.reference;
-      valuesToSync.domReferenceElement = isElement(elements.reference) ? elements.reference : null;
-    }
-
-    if (elements.floating !== undefined) {
-      valuesToSync.floatingElement = elements.floating;
-    }
-
-    store.update(valuesToSync);
-  }, [open, floatingId, elements.reference, elements.floating, store]);
+      referenceElement,
+      domReferenceElement,
+      floatingElement,
+    });
+  }, [open, floatingId, reference, floating, store]);
 
   store.context.onOpenChange = onOpenChange;
   store.context.nested = nested;
 
   return store;
 }
-
-type Writeable<T> = { -readonly [P in keyof T]: T[P] };

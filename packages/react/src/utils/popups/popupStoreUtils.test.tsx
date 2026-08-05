@@ -580,8 +580,8 @@ describe('useTriggerRegistration', () => {
 
     expect(store.state.activeTriggerId).toBe('registered-1');
 
-    // A handoff to the second trigger updates the active id from its DOM id (as `setPopupOpenState`
-    // does), without changing `open` or `triggerCount`.
+    // A handoff to the second trigger updates the active id from its DOM id (as
+    // `getPopupOpenState` does), without changing `open` or `triggerCount`.
     act(() => {
       store.update({ activeTriggerId: 'dom-id-2', activeTriggerElement: second });
     });
@@ -733,10 +733,14 @@ describe('applyPopupOpenChange', () => {
 
   function createOpenChangeStore() {
     const order: string[] = [];
-    const { floatingRootContext } = createInitialPopupStoreState(new PopupTriggerMap());
+    const state: OpenChangeState = {
+      ...createInitialPopupStoreState(new PopupTriggerMap()),
+      instantType: undefined,
+      openChangeReason: undefined,
+    };
 
     const dispatchOpenChange = vi
-      .spyOn(floatingRootContext, 'dispatchOpenChange')
+      .spyOn(state.floatingRootContext, 'dispatchOpenChange')
       .mockImplementation(() => {
         order.push('dispatchOpenChange');
       });
@@ -749,8 +753,10 @@ describe('applyPopupOpenChange', () => {
 
     const store = {
       context: { onOpenChange },
-      state: { floatingRootContext },
-      update,
+      state,
+      update<Key extends keyof OpenChangeState>(changes: Pick<OpenChangeState, Key>) {
+        update(changes);
+      },
     };
 
     return { store, order, onOpenChange, dispatchOpenChange, update };
@@ -767,7 +773,7 @@ describe('applyPopupOpenChange', () => {
       order.push('onBeforeDispatch');
     });
 
-    applyPopupOpenChange<OpenChangeState, BaseUIChangeEventDetails<string>>(store, true, details, {
+    applyPopupOpenChange(store, true, details, {
       onBeforeDispatch,
     });
 
@@ -784,12 +790,7 @@ describe('applyPopupOpenChange', () => {
     });
     const onBeforeDispatch = vi.fn();
 
-    applyPopupOpenChange<OpenChangeState, BaseUIChangeEventDetails<string>>(
-      store,
-      true,
-      createDetails(REASONS.triggerPress),
-      { onBeforeDispatch },
-    );
+    applyPopupOpenChange(store, true, createDetails(REASONS.triggerPress), { onBeforeDispatch });
 
     expect(onOpenChange).toHaveBeenCalledTimes(1);
     expect(onBeforeDispatch).not.toHaveBeenCalled();
@@ -800,15 +801,10 @@ describe('applyPopupOpenChange', () => {
   it('merges extraState into the update with `open` always reflecting nextOpen', () => {
     const { store, update } = createOpenChangeStore();
 
-    applyPopupOpenChange<OpenChangeState, BaseUIChangeEventDetails<string>>(
-      store,
-      true,
-      createDetails(REASONS.triggerFocus),
-      {
-        // `open: false` here must be overridden by `nextOpen` (true).
-        extraState: { open: false, openChangeReason: REASONS.triggerFocus },
-      },
-    );
+    applyPopupOpenChange(store, true, createDetails(REASONS.triggerFocus), {
+      // `open: false` here must be overridden by `nextOpen` (true).
+      extraState: { open: false, openChangeReason: REASONS.triggerFocus },
+    });
 
     const updatedState = update.mock.calls[0][0];
     expect(updatedState.open).toBe(true);
@@ -817,45 +813,25 @@ describe('applyPopupOpenChange', () => {
 
   it('maps the change reason to instantType', () => {
     const focusStore = createOpenChangeStore();
-    applyPopupOpenChange<OpenChangeState, BaseUIChangeEventDetails<string>>(
-      focusStore.store,
-      true,
-      createDetails(REASONS.triggerFocus),
-    );
+    applyPopupOpenChange(focusStore.store, true, createDetails(REASONS.triggerFocus));
     expect(focusStore.update.mock.calls[0][0].instantType).toBe('focus');
 
     const pressStore = createOpenChangeStore();
-    applyPopupOpenChange<OpenChangeState, BaseUIChangeEventDetails<string>>(
-      pressStore.store,
-      false,
-      createDetails(REASONS.triggerPress),
-    );
+    applyPopupOpenChange(pressStore.store, false, createDetails(REASONS.triggerPress));
     expect(pressStore.update.mock.calls[0][0].instantType).toBe('dismiss');
 
     const escapeStore = createOpenChangeStore();
-    applyPopupOpenChange<OpenChangeState, BaseUIChangeEventDetails<string>>(
-      escapeStore.store,
-      false,
-      createDetails(REASONS.escapeKey),
-    );
+    applyPopupOpenChange(escapeStore.store, false, createDetails(REASONS.escapeKey));
     expect(escapeStore.update.mock.calls[0][0].instantType).toBe('dismiss');
 
     const hoverStore = createOpenChangeStore();
-    applyPopupOpenChange<OpenChangeState, BaseUIChangeEventDetails<string>>(
-      hoverStore.store,
-      true,
-      createDetails(REASONS.triggerHover),
-    );
+    applyPopupOpenChange(hoverStore.store, true, createDetails(REASONS.triggerHover));
     const hoverState = hoverStore.update.mock.calls[0][0];
     expect('instantType' in hoverState).toBe(true);
     expect(hoverState.instantType).toBeUndefined();
 
     const noneStore = createOpenChangeStore();
-    applyPopupOpenChange<OpenChangeState, BaseUIChangeEventDetails<string>>(
-      noneStore.store,
-      true,
-      createDetails(REASONS.none),
-    );
+    applyPopupOpenChange(noneStore.store, true, createDetails(REASONS.none));
     expect('instantType' in noneStore.update.mock.calls[0][0]).toBe(false);
   });
 });

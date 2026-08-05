@@ -83,12 +83,9 @@ export class TooltipStore<Payload> extends ReactStore<
     nextOpen: boolean,
     eventDetails: Omit<TooltipRoot.ChangeEventDetails, 'preventUnmountOnClose'>,
   ) => {
-    applyPopupOpenChange<State<Payload>, TooltipRoot.ChangeEventDetails>(
-      this,
-      nextOpen,
-      eventDetails as TooltipRoot.ChangeEventDetails,
-      { extraState: { openChangeReason: eventDetails.reason } },
-    );
+    applyPopupOpenChange(this, nextOpen, eventDetails as TooltipRoot.ChangeEventDetails, {
+      extraState: { openChangeReason: eventDetails.reason },
+    });
   };
 
   // Used by trigger clicks to clear a delayed hover open without reporting a public open-state change.

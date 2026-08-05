@@ -77,7 +77,7 @@ export class Store<State> {
    *
    * @param changes An object containing the changes to apply to the current state.
    */
-  update(changes: Partial<State>) {
+  update<const Key extends keyof State>(changes: Pick<State, Key>) {
     for (const key in changes) {
       if (!Object.is(this.state[key], changes[key])) {
         this.setState({ ...this.state, ...changes });
@@ -92,7 +92,7 @@ export class Store<State> {
    * @param key The key in the store's state to update.
    * @param value The new value to set for the specified key.
    */
-  set<T>(key: keyof State, value: T) {
+  set<Key extends keyof State>(key: Key, value: State[Key]) {
     if (!Object.is(this.state[key], value)) {
       this.setState({ ...this.state, [key]: value });
     }

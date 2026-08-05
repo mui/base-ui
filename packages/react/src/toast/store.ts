@@ -123,18 +123,14 @@ export class ToastStore extends ReactStore<State, {}, typeof selectors> {
       return;
     }
 
-    const updates: Partial<State> = {
-      timeout,
-      limit,
-    };
-
     if (limitChanged) {
-      const newToasts = applyLimited(this.state.toasts, limit);
-      updates.toasts = newToasts;
-      updates.toastMetadata = createToastMetadata(newToasts);
+      const toasts = applyLimited(this.state.toasts, limit);
+      const toastMetadata = createToastMetadata(toasts);
+      this.update({ timeout, limit, toasts, toastMetadata });
+      return;
     }
 
-    this.update(updates);
+    this.update({ timeout, limit });
   }
 
   disposeEffect = () => {
@@ -446,15 +442,17 @@ export class ToastStore extends ReactStore<State, {}, typeof selectors> {
   }
 
   private setToasts(newToasts: StoredToast[], clearInteraction: boolean = newToasts.length === 0) {
-    const updates: Partial<State> = {
+    const toastUpdates = {
       toasts: newToasts,
       toastMetadata: createToastMetadata(newToasts),
     };
+
     if (clearInteraction) {
-      updates.hovering = false;
-      updates.focused = false;
+      this.update({ ...toastUpdates, hovering: false, focused: false });
+      return;
     }
-    this.update(updates);
+
+    this.update(toastUpdates);
   }
 
   private handleFocusManagement(toastId: string | undefined) {
