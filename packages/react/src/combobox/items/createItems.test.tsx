@@ -57,6 +57,17 @@ const userItems = Combobox.createItems(users, {
   getLabel: (user) => user.name,
 });
 
+interface Person {
+  id: string;
+  name: string;
+}
+
+// Created once and reused by more than one root, the way a module-scope collection is.
+const sharedPersonItems = Combobox.createItems([] as Person[], {
+  getValue: (person: Person) => person.id,
+  getLabel: (person: Person) => person.name,
+});
+
 describe('Combobox.createItems', () => {
   const { render } = createRenderer();
 
@@ -717,6 +728,35 @@ describe('Combobox.createItems', () => {
             <Combobox.List>
               <Combobox.Item>All users</Combobox.Item>
               <Combobox.Item value={1}>Alice</Combobox.Item>
+            </Combobox.List>
+          </Combobox.Root>
+        );
+      }
+
+      try {
+        await render(<App />);
+
+        expect(consoleErrorSpy).not.toHaveBeenCalled();
+      } finally {
+        consoleErrorSpy.mockRestore();
+      }
+    });
+
+    it('does not warn when a derived value equals a different primitive source item', async () => {
+      const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+      const numberItems = Combobox.createItems([1, 2] as number[], {
+        getValue: (n: number) => n + 1,
+        getLabel: (n: number) => String(n),
+      });
+
+      function App() {
+        return (
+          <Combobox.Root items={numberItems} defaultOpen>
+            <Combobox.Input />
+            <Combobox.List>
+              {/* The correct derived value of source item `1`, which also happens to be item `2`. */}
+              <Combobox.Item value={2}>One</Combobox.Item>
             </Combobox.List>
           </Combobox.Root>
         );
@@ -1574,6 +1614,62 @@ describe('Combobox.createItems', () => {
       expect(screen.getByTestId('input')).toHaveValue('Anna');
     });
 
+    it('resolves each root against its own external window when the collection is shared', async () => {
+      function App(props: { resultsA: Person[] }) {
+        return (
+          <React.Fragment>
+            <Combobox.Root items={sharedPersonItems} filteredItems={props.resultsA} value="user-1">
+              <Combobox.Input data-testid="input-a" />
+            </Combobox.Root>
+            <Combobox.Root
+              items={sharedPersonItems}
+              filteredItems={[{ id: 'user-1', name: 'Alicia' }]}
+              value="user-1"
+            >
+              <Combobox.Input data-testid="input-b" />
+            </Combobox.Root>
+          </React.Fragment>
+        );
+      }
+
+      const { setProps } = await render(<App resultsA={[{ id: 'user-1', name: 'Alice' }]} />);
+
+      expect(screen.getByTestId('input-a')).toHaveValue('Alice');
+      expect(screen.getByTestId('input-b')).toHaveValue('Alicia');
+
+      // The retained item is local to each root, so the sibling's window cannot relabel this one
+      // once its own window is gone.
+      await setProps({ resultsA: [] });
+
+      expect(screen.getByTestId('input-a')).toHaveValue('Alice');
+      expect(screen.getByTestId('input-b')).toHaveValue('Alicia');
+    });
+
+    it('does not keep the item of a value that was never selected', async () => {
+      function App(props: { results: Person[]; value: string | null }) {
+        return (
+          <Combobox.Root
+            items={sharedPersonItems}
+            filteredItems={props.results}
+            value={props.value}
+          >
+            <Combobox.Input data-testid="input" />
+          </Combobox.Root>
+        );
+      }
+
+      const { setProps } = await render(
+        <App results={[{ id: 'user-99', name: 'Ann' }]} value={null} />,
+      );
+
+      await setProps({ results: [], value: null });
+      // Selecting the value only after its window moved on: nothing retained it while it was
+      // unselected, so the label degrades to the raw value and `itemToStringLabel` covers it.
+      await setProps({ results: [], value: 'user-99' });
+
+      expect(screen.getByTestId('input')).toHaveValue('user-99');
+    });
+
     it('opens a reordered external list at the selected value in rendered-list coordinates', async () => {
       const onItemHighlighted = vi.fn();
 
@@ -2090,11 +2186,16 @@ describe('Combobox.createItems', () => {
       expect(onValueChange.mock.lastCall?.[0]).toBe(3);
     });
 
-    it('resets an empty external result when reopening a grouped selection', async () => {
-      const { user } = await render(<GroupedApp defaultValue={3} filteredItems={[]} />);
+    it('resets an empty external result when reopening a grouped selection once the window shape is known', async () => {
+      const { setProps, user } = await render(
+        <GroupedApp defaultValue={3} filteredItems={[{ value: 'Design', items: [users[2]] }]} />,
+      );
 
       expect(screen.getByTestId('input')).toHaveValue('Carol');
 
+      // The first non-empty window teaches the root that the markup is grouped, which is what
+      // makes falling back to the internal items safe once the window empties.
+      await setProps({ filteredItems: [] });
       await user.click(screen.getByTestId('input'));
 
       expect(await screen.findAllByRole('option')).toHaveLength(3);
@@ -2102,6 +2203,79 @@ describe('Combobox.createItems', () => {
         'aria-selected',
         'true',
       );
+    });
+
+    it('honors an initially empty external window when the markup is flat and the source is grouped', async () => {
+      function App() {
+        const items = Combobox.createItems(teams, {
+          getValue: getUserId,
+          getLabel: getUserName,
+        });
+        return (
+          <Combobox.Root items={items} filteredItems={[]} defaultValue={3}>
+            <Combobox.Input data-testid="input" />
+            <Combobox.Portal>
+              <Combobox.Positioner>
+                <Combobox.Popup>
+                  <Combobox.List>
+                    {(user: User) => (
+                      <Combobox.Item key={user.id} value={user.id}>
+                        {user.name}
+                      </Combobox.Item>
+                    )}
+                  </Combobox.List>
+                </Combobox.Popup>
+              </Combobox.Positioner>
+            </Combobox.Portal>
+          </Combobox.Root>
+        );
+      }
+
+      // No non-empty window has committed, so the markup's shape is unknown: rendering nothing
+      // beats pumping group objects through a callback written for users.
+      const { user } = await render(<App />);
+
+      await user.click(screen.getByTestId('input'));
+
+      await waitFor(() => expect(screen.getByRole('listbox')).not.toBe(null));
+      expect(screen.queryAllByRole('option')).toHaveLength(0);
+    });
+
+    it('honors an initially empty external window when the markup is grouped and the source is flat', async () => {
+      function App() {
+        return (
+          <Combobox.Root items={userItems} filteredItems={[]} defaultValue={3}>
+            <Combobox.Input data-testid="input" />
+            <Combobox.Portal>
+              <Combobox.Positioner>
+                <Combobox.Popup>
+                  <Combobox.List>
+                    {(group: Team) => (
+                      <Combobox.Group key={group.value} items={group.items}>
+                        <Combobox.GroupLabel>{group.value}</Combobox.GroupLabel>
+                        <Combobox.Collection>
+                          {(user: User) => (
+                            <Combobox.Item key={user.id} value={user.id}>
+                              {user.name}
+                            </Combobox.Item>
+                          )}
+                        </Combobox.Collection>
+                      </Combobox.Group>
+                    )}
+                  </Combobox.List>
+                </Combobox.Popup>
+              </Combobox.Positioner>
+            </Combobox.Portal>
+          </Combobox.Root>
+        );
+      }
+
+      const { user } = await render(<App />);
+
+      await user.click(screen.getByTestId('input'));
+
+      await waitFor(() => expect(screen.getByRole('listbox')).not.toBe(null));
+      expect(screen.queryAllByRole('option')).toHaveLength(0);
     });
 
     it('keeps a flat external window shape when its results are emptied', async () => {

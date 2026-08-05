@@ -1041,7 +1041,7 @@ An item must not itself have an `items` array property: such an entry is read as
 both in the types and at runtime.
 Create the collection at module scope when the data is static, and wrap it in
 `React.useMemo()` keyed on the data when it is not: a collection rebuilt on every render
-re-derives every value and discards the labels it resolved for items outside `data`.
+re-derives the index of every value.
 
 **Parameters:**
 
@@ -1228,7 +1228,8 @@ type CreateComboboxItemsOptions<
   /**
    * Projects an item to the label string that represents it in the input and when matching the
    * typed query. The root's `itemToStringLabel` prop is the fallback for selected values this
-   * accessor cannot reach, such as a value whose item has left an async result window.
+   * accessor cannot reach, such as a value restored from storage whose item never appeared in
+   * the data or the filtered items.
    *
    * By default, the item's derived value is stringified.
    *

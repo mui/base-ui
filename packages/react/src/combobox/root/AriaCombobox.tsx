@@ -182,16 +182,66 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
   // Without a projection the two domains coincide, so the items stay on their plain-array path.
   const storeItems = itemToValue ? undefined : items;
 
+  /**
+   * The externally filtered items projected to their selection values, paired with a lookup back
+   * to the source item each value came from. Derived this early so a label can be resolved from
+   * the window before anything reads one. Projecting alongside the internally filtered items
+   * would come too late: the initial input value, and then the selected label, are both read
+   * first, and the filter bypass can drop the window from `filteredItems` entirely. A selection
+   * whose item exists only in this window would be left showing its stringified value.
+   */
+  const externalWindow = React.useMemo(() => {
+    if (!filteredItemsProp) {
+      return undefined;
+    }
+    const flat = flattenLeafItems(filteredItemsProp);
+    if (!itemToValue) {
+      return { values: flat as any[], valueToItem: undefined };
+    }
+    const valueToItem = new Map<any, any>();
+    const values = flat.map((item) => {
+      const itemValue = itemToValue(item);
+      // First occurrence wins, mirroring the collection's own duplicate handling.
+      if (!valueToItem.has(itemValue)) {
+        valueToItem.set(itemValue, item);
+      }
+      return itemValue;
+    });
+    return { values, valueToItem };
+  }, [filteredItemsProp, itemToValue]);
+
+  /**
+   * Source items for the currently selected values that were resolved from an externally
+   * filtered window, retained so a selection's label survives after its window moves on.
+   * Bounded by the selection size and local to this root: the reusable collection itself
+   * is never mutated with items it does not own.
+   */
+  const retainedExternalItemsRef = React.useRef<Map<any, any> | null>(null);
+
   // `itemToStringLabel` labels selection values; `filterItemToString` labels source items while
   // filtering. The two domains only differ for a collection, which labels its own items and takes
   // the prop as the fallback for values it cannot resolve, so filtering always runs on the
   // collection's own labels.
+  // The collection's own data stays authoritative; only values it cannot resolve fall through to
+  // the current external window, then to the items retained for the selection, and finally to the
+  // prop. The current window wins over a retained item so a fresher record relabels the value.
+  // The identity changes with the window, which is what re-resolves labels (`Combobox.Value`, the
+  // input's selected label) once an item for the selected value arrives in a later window.
   const itemToStringLabel = React.useMemo(() => {
     if (!collection) {
       return itemToStringLabelProp;
     }
-    return (itemValue: Value) => collection.label(itemValue, itemToStringLabelProp);
-  }, [collection, itemToStringLabelProp]);
+    return (itemValue: Value) =>
+      collection.label(itemValue, (unresolvedValue: any) => {
+        const externalItem =
+          externalWindow?.valueToItem?.get(unresolvedValue) ??
+          retainedExternalItemsRef.current?.get(unresolvedValue);
+        if (externalItem != null) {
+          return collection.itemLabel(externalItem);
+        }
+        return stringifyAsLabel(unresolvedValue, itemToStringLabelProp);
+      });
+  }, [collection, itemToStringLabelProp, externalWindow]);
 
   const filterItemToString: ((item: any) => string) | undefined = collection
     ? collection.itemLabel
@@ -200,22 +250,6 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
   function stringifyItemLabel(item: any) {
     return stringifyAsLabel(item, itemToStringLabel);
   }
-
-  /**
-   * The externally filtered items projected to their selection values, derived this early so that
-   * a collection learns the labels of the items it doesn't own before any label is resolved from
-   * it. Projecting them alongside the internally filtered ones would come too late: the initial
-   * input value, and then the selected label, are both read first, and the filter bypass can drop
-   * the window from `filteredItems` entirely. A selection whose item exists only in this window
-   * would be left showing its stringified value.
-   */
-  const flatExternalValues: any[] | undefined = React.useMemo(() => {
-    if (!filteredItemsProp) {
-      return undefined;
-    }
-    const flat = flattenLeafItems(filteredItemsProp);
-    return itemToValue ? flat.map((item) => itemToValue(item)) : (flat as any[]);
-  }, [filteredItemsProp, itemToValue]);
 
   const [queryChangedAfterOpen, setQueryChangedAfterOpen] = React.useState(false);
   const [closeQuery, setCloseQuery] = React.useState<string | null>(null);
@@ -312,13 +346,14 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
   const query = closeQuery ?? String(inputValue).trim();
 
   // Memoized so the collection's comparer scan for an out-of-collection value only runs when the
-  // selection or the label resolver changes, rather than on every render. `items` and the
-  // projected window are dependencies because resolving a label can consult data that arrived
-  // with either of them, which is otherwise invisible to this memo.
+  // selection or the label resolver changes, rather than on every render. `items` is an extra
+  // dependency because resolving a label can consult data that arrived with it, which is
+  // otherwise invisible to this memo; the external window is already covered by
+  // `itemToStringLabel`, whose identity changes with it.
   const selectedLabelString = React.useMemo(
     () => (single ? stringifyAsLabel(selectedValue, itemToStringLabel) : ''),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [single, selectedValue, itemToStringLabel, items, flatExternalValues],
+    [single, selectedValue, itemToStringLabel, items],
   );
 
   const shouldBypassFiltering =
@@ -331,8 +366,11 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
   const filterQuery = shouldBypassFiltering ? '' : (filterQueryProp ?? query);
   // Falling back to the internally filtered items renders them in the shape of `items`, so it is
   // only safe when the external results carry that shape too. An empty window carries no shape of
-  // its own, so the last non-empty one stands in for it: assuming a match there would hand groups
-  // to a render callback written for leaf items whenever the two differ.
+  // its own, so the last non-empty one stands in for it. Before any non-empty window has
+  // committed the markup's shape is unknown, so the empty window is honored rather than gambling
+  // on a match: rendering nothing is always shape-safe, while falling back would hand internal
+  // items to markup written for the other shape. Once the first non-empty window commits, the
+  // remembered shape reinstates the fallback.
   const externalGroupedRef = React.useRef<boolean | undefined>(undefined);
   useIsoLayoutEffect(() => {
     if (filteredItemsProp?.length) {
@@ -340,12 +378,34 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
     }
   }, [filteredItemsProp]);
 
+  // Retains only the items backing the current selection, pruning everything else, so cycling
+  // through result windows retains nothing for unselected values. Post-commit, so an interrupted
+  // render never changes what the committed tree resolves.
+  useIsoLayoutEffect(() => {
+    if (!itemToValue) {
+      return;
+    }
+    const previous = retainedExternalItemsRef.current;
+    let next: Map<any, any> | null = null;
+    const selectedValues = multiple ? selectedValue : [selectedValue];
+    for (const value of selectedValues) {
+      if (value == null) {
+        continue;
+      }
+      const item = externalWindow?.valueToItem?.get(value) ?? previous?.get(value);
+      if (item != null) {
+        (next ??= new Map()).set(value, item);
+      }
+    }
+    retainedExternalItemsRef.current = next;
+  }, [itemToValue, multiple, selectedValue, externalWindow]);
+
   const shouldIgnoreExternalFiltering =
     hasItems &&
     hasFilteredItemsProp &&
     shouldBypassFiltering &&
     (filteredItemsProp?.length === 0
-      ? (externalGroupedRef.current ?? isGrouped) === isGrouped
+      ? externalGroupedRef.current === isGrouped
       : isGroupedItems(filteredItemsProp) === isGrouped);
 
   const flatItems: readonly Item[] = React.useMemo(() => {
@@ -445,14 +505,14 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
    */
   const flatFilteredValues: any[] = React.useMemo(() => {
     // The externally filtered window was already flattened and projected above.
-    if (flatExternalValues && filteredItems === filteredItemsProp) {
-      return flatExternalValues;
+    if (externalWindow && filteredItems === filteredItemsProp) {
+      return externalWindow.values;
     }
     // Explicit type argument: inferring it from a union of both shapes resolves `Item` to
     // `Group<Item>`, which tsc rejects and tsgo does not.
     const flat = flattenLeafItems<Item>(filteredItems);
     return itemToValue ? flat.map((item) => itemToValue(item)) : (flat as any[]);
-  }, [filteredItems, filteredItemsProp, flatExternalValues, itemToValue]);
+  }, [filteredItems, filteredItemsProp, externalWindow, itemToValue]);
 
   const store = useRefWithInit(() => {
     // An inline list open on the first render never gets a closed pass of the closed-state
@@ -995,9 +1055,20 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
   if (process.env.NODE_ENV !== 'production') {
     // Published so that each item can check whether its `value` prop is one of the collection's
     // source items. Keyed on the collection alone, so items are never woken per keystroke.
+    // Primitive source items are excluded: a legitimate derived value can equal a different
+    // primitive source item, so only the object-to-ID misuse is identifiable soundly.
     // eslint-disable-next-line react-hooks/rules-of-hooks
     useIsoLayoutEffect(() => {
-      store.set('collectionItems', itemToValue ? new Set(flatItems) : undefined);
+      let objectItems: Set<any> | undefined;
+      if (itemToValue) {
+        objectItems = new Set();
+        for (const item of flatItems) {
+          if (typeof item === 'object' && item !== null) {
+            objectItems.add(item);
+          }
+        }
+      }
+      store.set('collectionItems', objectItems);
     }, [store, flatItems, itemToValue]);
   }
 

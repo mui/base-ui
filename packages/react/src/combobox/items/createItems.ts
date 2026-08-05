@@ -6,6 +6,27 @@ import type { ComboboxItemCollection } from './itemCollection';
 export type ComboboxPrimitiveValue = string | number | bigint | boolean;
 
 /**
+ * Detects whether any constituent of `Item` may carry an `items` array, including through an
+ * optional property: such an item is indistinguishable from a group at runtime, so the flat
+ * form of the data must reject it.
+ */
+type HasGroupShape<Item> = Item extends object
+  ? 'items' extends keyof Item
+    ? [Extract<NonNullable<Item['items']>, ReadonlyArray<unknown>>] extends [never]
+      ? never
+      : true
+    : never
+  : never;
+
+/**
+ * Resolves to `never` when any constituent of `Item` may carry an `items` array. Applied to the
+ * `data` parameter as an intersection rather than folded into `ComboboxItemsData` itself, so it
+ * only validates the data after `Item` has been inferred: a conditional inside the union breaks
+ * tsc's leaf-item inference for grouped data, while an intersected guard does not.
+ */
+type RejectGroupShapedItems<Item> = true extends HasGroupShape<Item> ? never : unknown;
+
+/**
  * The data accepted by `createItems()`: a flat array of items, or an array of groups with items.
  */
 export type ComboboxItemsData<Item> =
@@ -38,7 +59,8 @@ export interface CreateComboboxItemsOptions<
   /**
    * Projects an item to the label string that represents it in the input and when matching the
    * typed query. The root's `itemToStringLabel` prop is the fallback for selected values this
-   * accessor cannot reach, such as a value whose item has left an async result window.
+   * accessor cannot reach, such as a value restored from storage whose item never appeared in
+   * the data or the filtered items.
    *
    * By default, the item's derived value is stringified.
    *
@@ -57,7 +79,7 @@ export interface CreateComboboxItemsOptions<
  * both in the types and at runtime.
  * Create the collection at module scope when the data is static, and wrap it in
  * `React.useMemo()` keyed on the data when it is not: a collection rebuilt on every render
- * re-derives every value and discards the labels it resolved for items outside `data`.
+ * re-derives the index of every value.
  *
  * Documentation: [Base UI Combobox](https://base-ui.com/react/components/combobox)
  *
@@ -65,12 +87,12 @@ export interface CreateComboboxItemsOptions<
  * or the accessor's return value when it is provided.
  */
 export function createComboboxItems<Item, Value extends ComboboxPrimitiveValue>(
-  data: ComboboxItemsData<Item> | undefined,
+  data: (ComboboxItemsData<Item> & RejectGroupShapedItems<Item>) | undefined,
   options: CreateComboboxItemsOptions<Item, Value>,
 ): ComboboxItemCollection<Item, Value>;
 
 export function createComboboxItems<Item>(
-  data: ComboboxItemsData<Item> | undefined,
+  data: (ComboboxItemsData<Item> & RejectGroupShapedItems<Item>) | undefined,
   options?: CreateComboboxItemsIdentityOptions<Item>,
 ): ComboboxItemCollection<Item, Item>;
 
@@ -92,14 +114,13 @@ export function createComboboxItems<Item, Value>(
 
   const itemToValue = getValue ?? ((item: Item) => item as unknown as Value);
 
-  let derived: { valueToItem: Map<Value, Item>; dataValues: Set<Value> } | null = null;
+  let valueToItem: Map<Value, Item> | null = null;
 
   // Filled by a single pass the first time a root consumes the collection, so the accessors never
-  // run before then.
+  // run before then. Only the collection's own `data` is indexed.
   function ensureDerived() {
-    if (derived === null) {
-      const valueToItem = new Map<Value, Item>();
-      const dataValues = new Set<Value>();
+    if (valueToItem === null) {
+      const derived = new Map<Value, Item>();
 
       const leafItems = isGroupedItems(data)
         ? (data as readonly Group<Item>[]).flatMap((group) => group.items)
@@ -113,10 +134,9 @@ export function createComboboxItems<Item, Value>(
         }
 
         const derivedValue = itemToValue(item);
-        dataValues.add(derivedValue);
         // First occurrence wins, so a duplicated derived value resolves to one stable label.
-        if (!valueToItem.has(derivedValue)) {
-          valueToItem.set(derivedValue, item);
+        if (!derived.has(derivedValue)) {
+          derived.set(derivedValue, item);
         } else if (process.env.NODE_ENV !== 'production') {
           error(
             'Two items passed to createItems() derived the same value, so selection and label ' +
@@ -126,10 +146,10 @@ export function createComboboxItems<Item, Value>(
         }
       }
 
-      derived = { valueToItem, dataValues };
+      valueToItem = derived;
     }
 
-    return derived;
+    return valueToItem;
   }
 
   // The root feeds this function to memos and effects, so its identity must stay stable.
@@ -138,23 +158,13 @@ export function createComboboxItems<Item, Value>(
       return item as unknown as Value;
     }
 
-    const { valueToItem, dataValues } = ensureDerived();
-    const derivedValue = itemToValue(item);
-
-    // Projections are not cached: an accessor is a cheap pure lookup, the same way the
-    // `itemToStringLabel` prop is re-invoked per pass, and caching every item a result window
-    // ever produced would grow without bound. Only the reverse lookup is remembered, since it is
-    // what preserves the label of a value selected from a window after the window moves on. Items
-    // owned by the data keep the entry the single pass above resolved for them.
-    if (!dataValues.has(derivedValue)) {
-      valueToItem.set(derivedValue, item);
-    }
-
-    return derivedValue;
+    // The projection is pure: the collection never stores items it does not own, so a shared
+    // collection cannot be contaminated by one root's data. Items from an externally filtered
+    // window are resolved and retained by each root instance instead.
+    return itemToValue(item);
   }
 
-  // Routed through the cached projection so filtering with the default label spends no extra
-  // `getValue` calls.
+  // Routed through the projection so the default label is exactly the item's derived value.
   const itemToLabel = getLabel ?? ((item: Item) => stringifyAsLabel(value(item)));
 
   return {
@@ -168,10 +178,10 @@ export function createComboboxItems<Item, Value>(
     value: getValue ? value : undefined,
     itemLabel: itemToLabel,
     label: (itemValue: Value, fallback?: ((itemValue: Value) => string) | undefined) => {
-      const { valueToItem } = ensureDerived();
+      const derived = ensureDerived();
 
-      if (valueToItem.has(itemValue)) {
-        return itemToLabel(valueToItem.get(itemValue)!);
+      if (derived.has(itemValue)) {
+        return itemToLabel(derived.get(itemValue)!);
       }
 
       // Without a projection, the public value is itself a source item. This preserves its label

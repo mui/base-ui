@@ -6563,14 +6563,18 @@ describe('<Combobox.Root />', () => {
       expect(onItemHighlighted.mock.lastCall?.[0]).toBe('Apple');
     });
 
-    it('resets an empty external result when reopening a grouped selection', async () => {
+    it('resets an empty external result when reopening a grouped selection once the window shape is known', async () => {
       const groups = [
         { value: 'Fruits', items: ['Apple', 'Banana'] },
         { value: 'Vegetables', items: ['Carrot'] },
       ];
 
-      const { user } = await render(
-        <Combobox.Root items={groups} filteredItems={[]} defaultValue="Banana">
+      const { setProps, user } = await render(
+        <Combobox.Root
+          items={groups}
+          filteredItems={[{ value: 'Fruits', items: ['Apple'] }]}
+          defaultValue="Banana"
+        >
           <Combobox.Input data-testid="input" />
           <Combobox.Portal>
             <Combobox.Positioner>
@@ -6597,6 +6601,9 @@ describe('<Combobox.Root />', () => {
 
       expect(screen.getByTestId('input')).toHaveValue('Banana');
 
+      // The first non-empty window teaches the root that the markup is grouped, which is what
+      // makes falling back to the internal items safe once the window empties.
+      await setProps({ filteredItems: [] });
       await user.click(screen.getByTestId('input'));
 
       expect(await screen.findAllByRole('option')).toHaveLength(3);

@@ -357,6 +357,18 @@ function CreateItemsApp(props: {
     getLabel: (item: UserItem) => item.name,
   });
 
+  interface TreeItem {
+    id: string;
+    name: string;
+    items?: readonly TreeItem[];
+  }
+  const treeItems: TreeItem[] = [];
+  // @ts-expect-error An optional `items` array is read as a group at runtime, so flat data rejects it.
+  Combobox.createItems(treeItems, {
+    getValue: (item: TreeItem) => item.id,
+    getLabel: (item: TreeItem) => item.name,
+  });
+
   // Data that has not loaded yet: the item type comes from the accessors instead.
   const pendingCollection: ComboboxItemCollection<{ id: number }, number> = Combobox.createItems(
     undefined as { id: number }[] | undefined,

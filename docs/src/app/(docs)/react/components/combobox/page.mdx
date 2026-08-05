@@ -169,7 +169,7 @@ Each item must derive a unique value. When two items share one, the first of the
 
 Accessors resolve labels to strings, so `<Combobox.Value>` renders text where a plain `{ value, label }` array could render React nodes. With `getValue`, the label of an item whose value is `null` also stops overriding the `placeholder` prop, because that lookup reads the selection value domain.
 
-With async data, prefer item objects as values so the selected label survives result changes, comparing them by ID with `isItemEqualToValue`. If IDs are required, keep the selected item in `data`, or label the ones that left it with `itemToStringLabel`: the collection labels the items it holds, and the prop covers the values it cannot resolve.
+With async data, prefer item objects as values so the selected label survives result changes, comparing them by ID with `isItemEqualToValue`. If IDs are required, the current selection keeps its label after its item leaves the filtered results. Use `itemToStringLabel` for values whose item never appeared at all, such as a selection restored from storage.
 
 When passing a filter to the root, note that it receives source items. A filter from `useFilter({ value })` compares the selected value against an item, so pair a collection with `useFilter()` and let the component handle the selected label instead.
 
