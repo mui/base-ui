@@ -27,6 +27,13 @@ export interface NumberFieldRootContext {
    * Read-only: authorship changes only as a side effect of `setInputValue` landing a write.
    */
   isTextUserAuthored: () => boolean;
+  /**
+   * Hands the text back to `value` without touching what's on screen, given the text the field
+   * would have shown. Call it when an interaction that meant to reconcile the text was refused, so
+   * the edit survives but the field still re-derives its text on the next `value`, `locale`, or
+   * `format` change.
+   */
+  releaseTextOwnership: (derivedText: string) => void;
   formatOptionsRef: React.RefObject<Intl.NumberFormatOptions | undefined>;
   valueRef: React.RefObject<number | null>;
   lastChangedValueRef: React.RefObject<number | null>;

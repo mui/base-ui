@@ -184,6 +184,21 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
   // re-derive.
   const lastProposedTextRef = useRefWithInit(() => formatNumber(value, locale, format));
 
+  const previousFormattedValueRef = useRefWithInit(() => formatNumber(value, locale, format));
+
+  // Hands the text back to `value` without touching what's on screen, given the text the field
+  // would have shown. Used when an interaction that meant to reconcile the text was refused: the
+  // edit stays put so it can be corrected, but the field keeps following `value`, so a later
+  // `value`, `locale`, or `format` change still re-derives the text. Leaving the text marked as
+  // the user's instead would pin it for the rest of the component's life.
+  const releaseTextOwnership = useStableCallback((derivedText: string) => {
+    textSourceRef.current = 'value';
+    // Recorded as both "what we last proposed" and "what `value` last formatted to" so the sync
+    // effect treats the text on screen as somebody else's until one of its inputs really changes.
+    lastProposedTextRef.current = derivedText;
+    previousFormattedValueRef.current = derivedText;
+  });
+
   const setInputValue = useStableCallback(
     (nextInputValue: string, details: NumberFieldRoot.ChangeEventDetails, source: TextSource) => {
       // `useStableCallback` swaps the closure in an insertion effect, which runs before layout
@@ -214,6 +229,12 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
       lastProposedTextRef.current = nextInputValue;
 
       if (!applied) {
+        // A refused proposal leaves the text where it is. When the field was reconciling the text
+        // back to `value`, that refusal must not also stop it from following `value` — only a
+        // refused keystroke keeps the text with the user.
+        if (source === 'value') {
+          releaseTextOwnership(nextInputValue);
+        }
         return;
       }
 
@@ -387,8 +408,6 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
     },
   );
 
-  const previousFormattedValueRef = useRefWithInit(() => formatNumber(value, locale, format));
-
   // Re-derives the text when `value`, `locale`, or `format` change from outside an interaction.
   // Interactions reconcile their own text through `setValue`, so this effect only has to cover
   // external changes.
@@ -522,6 +541,7 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
       incrementValue,
       getStepAmount,
       isTextUserAuthored,
+      releaseTextOwnership,
       formatOptionsRef,
       valueRef,
       lastChangedValueRef,
@@ -547,6 +567,7 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
       incrementValue,
       getStepAmount,
       isTextUserAuthored,
+      releaseTextOwnership,
       formatOptionsRef,
       valueRef,
       name,
@@ -707,7 +728,7 @@ export interface NumberFieldRootProps extends Omit<
   inputValue?: string | undefined;
   /**
    * The uncontrolled raw text of the input element when it's initially rendered.
-   * Defaults to the formatted `defaultValue`.
+   * Defaults to the formatted `value`.
    *
    * To render a controlled input, use the `inputValue` prop instead.
    */
@@ -717,8 +738,8 @@ export interface NumberFieldRootProps extends Omit<
    *
    * This fires for the same reasons as `onValueChange`, plus the cases that leave the numeric value
    * untouched, such as typing a lone `'-'`, and with `'none'` when the formatted text is refreshed
-   * after an external `value`, `locale`, or `format` change. Text left over from typing is
-   * reconciled on blur, under `'input-blur'`.
+   * after an external `value`, `locale`, or `format` change. Text that isn't a number is reconciled
+   * back to `value` on blur, under `'input-blur'`, however it got there.
    */
   onInputValueChange?:
     | ((inputValue: string, eventDetails: NumberFieldRoot.ChangeEventDetails) => void)

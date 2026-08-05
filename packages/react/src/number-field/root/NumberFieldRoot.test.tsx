@@ -397,6 +397,90 @@ describe('<NumberField />', () => {
 
       expect(input).toHaveValue('7');
     });
+
+    it('should follow later external values after a canceled blur change', async () => {
+      // Refusing the change keeps the edit on screen, but it must not also stop the field from
+      // ever re-deriving its text again.
+      const cancel = (_value: number | null, eventDetails: { cancel: () => void }) =>
+        eventDetails.cancel();
+      const { rerender } = await render(<NumberField value={10} onValueChange={cancel} />);
+      const input = screen.getByRole('textbox');
+
+      fireEvent.change(input, { target: { value: '13' } });
+      fireEvent.blur(input);
+      expect(input).toHaveValue('13');
+
+      await rerender(<NumberField value={20} onValueChange={cancel} />);
+
+      expect(input).toHaveValue('20');
+    });
+
+    it('should follow later external values after a canceled clear on blur', async () => {
+      const cancel = (_value: number | null, eventDetails: { cancel: () => void }) =>
+        eventDetails.cancel();
+      const { rerender } = await render(<NumberField value={5} onValueChange={cancel} />);
+      const input = screen.getByRole('textbox');
+
+      fireEvent.change(input, { target: { value: '' } });
+      fireEvent.blur(input);
+      expect(input).toHaveValue('');
+
+      await rerender(<NumberField value={42} onValueChange={cancel} />);
+
+      expect(input).toHaveValue('42');
+    });
+
+    it('should follow later external values after a canceled blur text proposal', async () => {
+      // The value change lands; only the text normalization is refused. Keeping the typed text
+      // must not cost the field its ability to re-derive from a later `value`.
+      function App() {
+        const [value, setValue] = React.useState<number | null>(10);
+        return (
+          <React.Fragment>
+            <button type="button" onClick={() => setValue(20)}>
+              set
+            </button>
+            <NumberField
+              value={value}
+              onValueChange={setValue}
+              onInputValueChange={(_next, eventDetails) => {
+                if (eventDetails.reason === REASONS.inputBlur) {
+                  eventDetails.cancel();
+                }
+              }}
+            />
+          </React.Fragment>
+        );
+      }
+
+      await render(<App />);
+      const input = screen.getByRole('textbox');
+
+      fireEvent.change(input, { target: { value: '13.5000' } });
+      fireEvent.blur(input);
+      expect(input).toHaveValue('13.5000');
+
+      fireEvent.click(screen.getByRole('button', { name: 'set' }));
+
+      expect(input).toHaveValue('20');
+    });
+
+    it('should re-format after a canceled blur when the locale changes', async () => {
+      const cancel = (_value: number | null, eventDetails: { cancel: () => void }) =>
+        eventDetails.cancel();
+      const { rerender } = await render(
+        <NumberField value={1234.5} locale="en-US" onValueChange={cancel} />,
+      );
+      const input = screen.getByRole('textbox');
+
+      fireEvent.change(input, { target: { value: '99' } });
+      fireEvent.blur(input);
+      expect(input).toHaveValue('99');
+
+      await rerender(<NumberField value={1234.5} locale="de-DE" onValueChange={cancel} />);
+
+      expect(input).toHaveValue('1.234,5');
+    });
   });
 
   describe('prop: defaultInputValue', () => {
@@ -549,6 +633,33 @@ describe('<NumberField />', () => {
       expect(onInputValueChange).toHaveBeenCalledTimes(1);
       expect(onInputValueChange.mock.calls[0][0]).toBe('5');
       expect(onInputValueChange.mock.calls[0][1].reason).toBe(REASONS.inputBlur);
+    });
+
+    it('should report a pasted intermediate string verbatim', async () => {
+      // Typing `-` reaches this state, so pasting it has to as well; otherwise paste is the one
+      // route that can't produce a string `inputValue` is documented to hold.
+      const onInputValueChange = vi.fn();
+      await render(<NumberField min={-100} onInputValueChange={onInputValueChange} />);
+      const input = screen.getByRole('textbox');
+
+      pasteText(input, '-');
+
+      expect(input).toHaveValue('-');
+      expect(onInputValueChange).toHaveBeenCalledTimes(1);
+      expect(onInputValueChange.mock.calls[0][0]).toBe('-');
+      expect(onInputValueChange.mock.calls[0][1].reason).toBe(REASONS.inputPaste);
+    });
+
+    it('should not report a pasted string the format can never render', async () => {
+      const onInputValueChange = vi.fn();
+      await render(<NumberField defaultValue={5} onInputValueChange={onInputValueChange} />);
+      const input = screen.getByRole('textbox') as HTMLInputElement;
+      input.setSelectionRange(0, input.value.length);
+
+      pasteText(input, 'abc');
+
+      expect(input).toHaveValue('5');
+      expect(onInputValueChange).not.toHaveBeenCalled();
     });
 
     it('should keep the text when the blur normalization is canceled', async () => {

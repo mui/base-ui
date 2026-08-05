@@ -1218,6 +1218,39 @@ describe('<NumberField.Input />', () => {
     expect(input).toHaveValue('');
   });
 
+  it('should commit a pending change when blur reconciles unparseable text', async () => {
+    // Blur settles the field on `value` here, so the change still waiting for a commit has to be
+    // reported now rather than leaking into whichever unrelated blur comes next.
+    const onValueCommitted = vi.fn();
+
+    await render(
+      <NumberField.Root min={-10} defaultValue={5} onValueCommitted={onValueCommitted}>
+        <NumberField.Input />
+      </NumberField.Root>,
+    );
+
+    const input = screen.getByRole('textbox');
+
+    await act(async () => {
+      input.focus();
+    });
+    fireEvent.change(input, { target: { value: '7' } });
+    fireEvent.change(input, { target: { value: '-' } });
+    fireEvent.blur(input);
+
+    expect(input).toHaveValue('7');
+    expect(onValueCommitted).toHaveBeenCalledTimes(1);
+    expect(onValueCommitted.mock.calls[0][0]).toBe(7);
+
+    // A later blur with no edits of its own has nothing left to report.
+    await act(async () => {
+      input.focus();
+    });
+    fireEvent.blur(input);
+
+    expect(onValueCommitted).toHaveBeenCalledTimes(1);
+  });
+
   it('should not commit a canceled blur change', async () => {
     const onValueChange = vi.fn((_nextValue, details) => {
       details.cancel();

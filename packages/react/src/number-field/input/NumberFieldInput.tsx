@@ -42,6 +42,23 @@ const NAVIGATE_KEYS = new Set([
 ]);
 
 /**
+ * Whether every character in `text` is one the current format can render, so the field may hold it
+ * even when it doesn't parse into a number yet (`-`, `1.`). Shared by typing and pasting so both
+ * routes accept the same intermediate strings.
+ */
+function isAllowedText(text: string, allowedNonNumericKeys: Set<string>) {
+  return Array.from(text).every(
+    (char) =>
+      isNumeralChar(char) ||
+      ANY_MINUS_DETECT_RE.test(char) ||
+      allowedNonNumericKeys.has(char) ||
+      // Bidi/format controls are stripped by `parseNumber`; don't let them reject the string
+      // (RTL locales insert them around exponent/currency signs, e.g. scientific notation).
+      FORMAT_CONTROL_DETECT_RE.test(char),
+  );
+}
+
+/**
  * The native input control in the number field.
  * Renders an `<input>` element.
  *
@@ -55,6 +72,7 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
 
   const {
     isTextUserAuthored,
+    releaseTextOwnership,
     formatOptionsRef,
     getAllowedNonNumericKeys,
     getStepAmount,
@@ -170,8 +188,11 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
         if (value !== null) {
           const clearDetails = createChangeEventDetails(REASONS.inputClear, event.nativeEvent);
           setValue(null, clearDetails);
-          // Respect a canceled clear, mirroring the non-empty blur path below.
+          // Respect a canceled clear, mirroring the non-empty blur path below. The empty text stays
+          // with the user, but the field goes back to following `value` so a later external change
+          // still repaints it.
           if (clearDetails.isCanceled) {
+            releaseTextOwnership(formatNumber(value, locale, formatOptions));
             return;
           }
         }
@@ -206,6 +227,17 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
           createChangeEventDetails(REASONS.inputBlur, event.nativeEvent),
           'value',
         );
+
+        // The field has settled on `value`, so it validates like any other blur.
+        if (validationMode === 'onBlur') {
+          validation.commit(value);
+        }
+        // The text itself produced no value, so it isn't worth a commit of its own. An earlier
+        // change still waiting for one is: without this, it would leak into whichever unrelated
+        // blur came next.
+        if (hadPendingProgrammaticChange) {
+          onValueCommitted(value, createGenericEventDetails(REASONS.inputBlur, event.nativeEvent));
+        }
         return;
       }
 
@@ -239,7 +271,9 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
         if (changeDetails.isCanceled) {
           blockRevalidationRef.current = false;
           // A refused change leaves the text with the user so the edit can be corrected, which is
-          // also what the canceled clear above does.
+          // also what the canceled clear above does. The field still resumes following `value`, so
+          // refusing one blur doesn't stop it from ever re-deriving its text again.
+          releaseTextOwnership(formatNumber(value, locale, formatOptions));
           return;
         }
         committedValue = lastChangedValueRef.current;
@@ -289,18 +323,7 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
       // Update the input text immediately and only fire onValueChange if the typed value is
       // currently parseable into a number. This preserves good UX for IME
       // composition/partial input while still providing live numeric updates when possible.
-      const allowedNonNumericKeys = getAllowedNonNumericKeys();
-      const isValidCharacterString = Array.from(targetValue).every(
-        (ch) =>
-          isNumeralChar(ch) ||
-          ANY_MINUS_DETECT_RE.test(ch) ||
-          allowedNonNumericKeys.has(ch) ||
-          // Bidi/format controls are stripped by `parseNumber`; don't let them reject the string
-          // (RTL locales insert them around exponent/currency signs, e.g. scientific notation).
-          FORMAT_CONTROL_DETECT_RE.test(ch),
-      );
-
-      if (!isValidCharacterString) {
+      if (!isAllowedText(targetValue, getAllowedNonNumericKeys())) {
         return;
       }
 
@@ -491,17 +514,25 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
 
       const parsedValue = parseNumber(nextText, locale, formatOptionsRef.current);
 
+      // Accept the result when it parses, and otherwise when it's an intermediate string the
+      // typing path would have accepted too (`-`, `1.`). Rejecting those here would make paste the
+      // only route that can't reach a state `inputValue` is documented to hold.
+      if (parsedValue === null && !isAllowedText(nextText, getAllowedNonNumericKeys())) {
+        return;
+      }
+
+      // Report the text before the value, matching the typing path, so consumers mirroring both
+      // callbacks observe the same order regardless of how the text arrived.
+      const pasteTextDetails = createChangeEventDetails(REASONS.inputPaste, event.nativeEvent);
+      setInputValue(nextText, pasteTextDetails, 'user');
+
+      if (pasteTextDetails.isCanceled) {
+        return;
+      }
+
+      pendingCaretRef.current = selectionStart + pastedData.length;
+
       if (parsedValue !== null) {
-        // Report the text before the value, matching the typing path, so consumers mirroring both
-        // callbacks observe the same order regardless of how the text arrived.
-        const pasteTextDetails = createChangeEventDetails(REASONS.inputPaste, event.nativeEvent);
-        setInputValue(nextText, pasteTextDetails, 'user');
-
-        if (pasteTextDetails.isCanceled) {
-          return;
-        }
-
-        pendingCaretRef.current = selectionStart + pastedData.length;
         setValue(parsedValue, createChangeEventDetails(REASONS.inputPaste, event.nativeEvent), {
           projectText: false,
         });
