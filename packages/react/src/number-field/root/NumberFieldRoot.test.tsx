@@ -182,13 +182,75 @@ describe('<NumberField />', () => {
       );
     }
 
-    // `min={0}` is deliberate: typing `-` is rejected outright when negatives are out of range,
-    // so this also pins that the action skips the per-character gating.
     it('should hold an intermediate string that no number formats to', async () => {
-      await render(<SetInputValueApp min={0} text="-" />);
+      await render(<SetInputValueApp min={-10} text="-" />);
       const input = screen.getByRole('textbox');
 
       fireEvent.click(screen.getByRole('button', { name: 'set text' }));
+
+      expect(input).toHaveValue('-');
+    });
+
+    it('should ignore text the input would reject', async () => {
+      const onValueChange = vi.fn();
+      await render(<SetInputValueApp defaultValue={5} text="abc" onValueChange={onValueChange} />);
+      const input = screen.getByRole('textbox');
+
+      await expect(async () => {
+        fireEvent.click(screen.getByRole('button', { name: 'set text' }));
+      }).toWarnDev('<NumberField.Root> ignored a setInputValue() call with "abc"');
+
+      expect(input).toHaveValue('5');
+      expect(onValueChange).not.toHaveBeenCalled();
+    });
+
+    it('should ignore symbols the current format does not use', async () => {
+      const onValueChange = vi.fn();
+      await render(<SetInputValueApp defaultValue={5} text="50%" onValueChange={onValueChange} />);
+      const input = screen.getByRole('textbox');
+
+      await expect(async () => {
+        fireEvent.click(screen.getByRole('button', { name: 'set text' }));
+      }).toWarnDev('<NumberField.Root> ignored a setInputValue() call with "50%"');
+
+      expect(input).toHaveValue('5');
+      expect(onValueChange).not.toHaveBeenCalled();
+    });
+
+    it('should accept symbols the current format does use', async () => {
+      const onValueChange = vi.fn();
+      await render(
+        <SetInputValueApp format={{ style: 'percent' }} text="50%" onValueChange={onValueChange} />,
+      );
+
+      fireEvent.click(screen.getByRole('button', { name: 'set text' }));
+
+      expect(screen.getByRole('textbox')).toHaveValue('50%');
+      expect(onValueChange.mock.calls[0][0]).toBe(0.5);
+    });
+
+    it('should leave an unsaved edit in place when a later call is rejected', async () => {
+      function App() {
+        const actionsRef = React.useRef<NumberFieldBase.Root.Actions | null>(null);
+        return (
+          <React.Fragment>
+            <NumberField min={-10} defaultValue={5} actionsRef={actionsRef} />
+            <button onClick={() => actionsRef.current?.setInputValue('-')}>set text</button>
+            <button onClick={() => actionsRef.current?.setInputValue('xyz')}>set bad text</button>
+          </React.Fragment>
+        );
+      }
+
+      await render(<App />);
+      const input = screen.getByRole('textbox');
+
+      fireEvent.click(screen.getByRole('button', { name: 'set text' }));
+      expect(input).toHaveValue('-');
+
+      // A rejected call touches nothing at all, so the pending edit is still on screen.
+      await expect(async () => {
+        fireEvent.click(screen.getByRole('button', { name: 'set bad text' }));
+      }).toWarnDev('<NumberField.Root> ignored a setInputValue() call with "xyz"');
 
       expect(input).toHaveValue('-');
     });
@@ -307,18 +369,6 @@ describe('<NumberField />', () => {
 
       expect(screen.getByRole('textbox')).toHaveValue('999');
       expect(onValueChange.mock.calls[0][0]).toBe(10);
-    });
-
-    it('should parse the text with the field format', async () => {
-      const onValueChange = vi.fn();
-      await render(
-        <SetInputValueApp format={{ style: 'percent' }} text="50" onValueChange={onValueChange} />,
-      );
-
-      fireEvent.click(screen.getByRole('button', { name: 'set text' }));
-
-      expect(screen.getByRole('textbox')).toHaveValue('50');
-      expect(onValueChange.mock.calls[0][0]).toBe(0.5);
     });
 
     it('should commit as soon as the text parses, without waiting for a blur', async () => {

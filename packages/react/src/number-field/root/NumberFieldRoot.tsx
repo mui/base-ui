@@ -1,5 +1,7 @@
 'use client';
 import * as React from 'react';
+import { SafeReact } from '@base-ui/utils/safeReact';
+import { warn } from '@base-ui/utils/warn';
 import { addEventListener } from '@base-ui/utils/addEventListener';
 import { useControlled } from '@base-ui/utils/useControlled';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
@@ -22,6 +24,7 @@ import { useRenderElement } from '../../internals/useRenderElement';
 import {
   getFormatParts,
   getNumberLocaleDetails,
+  isValidInputString,
   parseNumber,
   PERMILLE,
   PERCENTAGES,
@@ -304,10 +307,27 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
     actionsRef,
     () => ({
       setInputValue(nextInputValue: string) {
-        // Deliberately unconditional: this is an escape hatch for the owner of the component, not
-        // a simulated keystroke, so it skips both the per-character gating that exists to reject
-        // keystrokes and the `disabled`/`readOnly` gates that exist to reject user interaction.
+        const isEmpty = nextInputValue.trim() === '';
+
+        // The action can only put the field into states typing could reach, so it runs the same
+        // character validation as the typed path. Unlike that path it rejects without touching
+        // any state: there is no keystroke to swallow, so an ignored call is a no-op.
         //
+        // `disabled` and `readOnly` are still not consulted — those gate user interaction, and
+        // this is the component owner driving the field deliberately.
+        if (!isEmpty && !isValidInputString(nextInputValue, getAllowedNonNumericKeys())) {
+          if (process.env.NODE_ENV !== 'production') {
+            const ownerStackMessage = SafeReact.captureOwnerStack?.() || '';
+            warn(
+              `<NumberField.Root> ignored a setInputValue() call with ${JSON.stringify(nextInputValue)}, ` +
+                'because the input rejects that text when it is typed, so the field was left unchanged. ' +
+                "Pass digits, a sign, or symbols the field's `locale` and `format` render.",
+              ownerStackMessage,
+            );
+          }
+          return;
+        }
+
         // Marking the text unsynced is what lets an intermediate string like `'-'` survive. The
         // formatting sync would otherwise overwrite it with the formatting of `value` on the next
         // render, exactly as it does mid-typing.
@@ -316,7 +336,6 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
 
         // An unparseable string leaves `value` alone rather than clearing it, so setting `'-'`
         // over a field showing `5` keeps the 5 until the entry is completed.
-        const isEmpty = nextInputValue.trim() === '';
         const parsedValue = isEmpty
           ? null
           : parseNumber(nextInputValue, locale, formatOptionsRef.current);
@@ -338,7 +357,14 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
         }
       },
     }),
-    [setValue, onValueCommitted, locale, formatOptionsRef, lastChangedValueRef],
+    [
+      setValue,
+      onValueCommitted,
+      getAllowedNonNumericKeys,
+      locale,
+      formatOptionsRef,
+      lastChangedValueRef,
+    ],
   );
 
   // We need to update the input value when the external `value` prop changes. This ends up acting
@@ -690,12 +716,13 @@ export interface NumberFieldRootProps extends Omit<
   /**
    * A ref to imperative actions.
    * - `setInputValue`: Sets the raw text shown in the input element.
-   * The text is displayed as given, so it can hold strings that aren't parseable as a number
-   * yet, such as `'-'` or `'.'`. When the text parses, `value` follows it (clamped to
-   * `min`/`max` unless `allowOutOfRange` is set) and the change is committed right away; when
-   * it doesn't, `value` is left alone. An empty string clears `value`.
-   * As an escape hatch for the owner of the component rather than a simulated keystroke, this
-   * applies even while the field is `disabled` or `readOnly`.
+   * The text goes through the same character validation as typing, so text the input would
+   * reject is ignored, but strings that aren't parseable as a number yet, such as `'-'` or
+   * `'.'`, are allowed. When the text parses, `value` follows it (clamped to `min`/`max` unless
+   * `allowOutOfRange` is set) and the change is committed right away; when it doesn't, `value`
+   * is left alone. An empty string clears `value`.
+   * Unlike typing, this works while the field is `disabled` or `readOnly`, which gate user
+   * interaction rather than the component's own owner.
    */
   actionsRef?: React.RefObject<NumberFieldRoot.Actions | null> | undefined;
 }
