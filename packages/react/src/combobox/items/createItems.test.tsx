@@ -1796,74 +1796,6 @@ describe('Combobox.createItems', () => {
       expect(onItemHighlighted.mock.lastCall?.[0]).toBe(1);
     });
 
-    it('projects externally filtered groups when the source collection is flat', async () => {
-      const onValueChange = vi.fn();
-      const filteredGroups = [{ value: 'Result', items: [users[2], users[0]] }];
-
-      function App() {
-        const items = Combobox.createItems(users, {
-          getValue: (user) => user.id.toString(),
-          getLabel: (user) => user.name,
-        });
-        return (
-          <Combobox.Root
-            items={items}
-            filteredItems={filteredGroups}
-            defaultValue="3"
-            onValueChange={onValueChange}
-          >
-            <Combobox.Input />
-            <Combobox.Portal>
-              <Combobox.Positioner>
-                <Combobox.Popup>
-                  <Combobox.List>
-                    {(group: (typeof filteredGroups)[number], index: number) => (
-                      <Combobox.Group key={index} items={group.items}>
-                        <Combobox.GroupLabel>{group.value}</Combobox.GroupLabel>
-                        <Combobox.Collection>
-                          {(user: User) => (
-                            <Combobox.Item key={user.id} value={user.id.toString()}>
-                              {user.name}
-                            </Combobox.Item>
-                          )}
-                        </Combobox.Collection>
-                      </Combobox.Group>
-                    )}
-                  </Combobox.List>
-                </Combobox.Popup>
-              </Combobox.Positioner>
-            </Combobox.Portal>
-          </Combobox.Root>
-        );
-      }
-
-      const { user } = await render(<App />);
-      const input = screen.getByRole<HTMLInputElement>('combobox');
-
-      expect(input).toHaveValue('Carol');
-      await user.click(input);
-
-      expect(await screen.findAllByRole('option')).toHaveLength(2);
-      expect(screen.getByRole('option', { name: 'Carol' })).toHaveAttribute(
-        'aria-selected',
-        'true',
-      );
-
-      await user.click(screen.getByRole('option', { name: 'Alice' }));
-
-      expect(onValueChange.mock.lastCall?.[0]).toBe('1');
-      expect(input).toHaveValue('Alice');
-      await waitFor(() => expect(screen.queryByRole('listbox')).toBe(null));
-
-      await user.click(input);
-
-      expect(await screen.findAllByRole('option')).toHaveLength(2);
-      expect(screen.getByRole('option', { name: 'Alice' })).toHaveAttribute(
-        'aria-selected',
-        'true',
-      );
-    });
-
     it('resolves virtualized collection items to their derived value', async () => {
       const onValueChange = vi.fn();
 
@@ -2270,14 +2202,13 @@ describe('Combobox.createItems', () => {
       expect(onValueChange.mock.lastCall?.[0]).toBe(3);
     });
 
-    it('resets an empty external result when reopening a grouped selection once the window shape is known', async () => {
+    it('resets an emptied external result when reopening a grouped selection', async () => {
       const { setProps, user } = await render(
         <GroupedApp defaultValue={3} filteredItems={[{ value: 'Design', items: [users[2]] }]} />,
       );
 
       expect(screen.getByTestId('input')).toHaveValue('Carol');
 
-      // The first non-empty window teaches the root the markup shape, making the fallback safe.
       await setProps({ filteredItems: [] });
       await user.click(screen.getByTestId('input'));
 
@@ -2288,171 +2219,15 @@ describe('Combobox.createItems', () => {
       );
     });
 
-    it('honors an initially empty external window when the markup is flat and the source is grouped', async () => {
-      function App() {
-        const items = Combobox.createItems(teams, {
-          getValue: getUserId,
-          getLabel: getUserName,
-        });
-        return (
-          <Combobox.Root items={items} filteredItems={[]} defaultValue={3}>
-            <Combobox.Input data-testid="input" />
-            <Combobox.Portal>
-              <Combobox.Positioner>
-                <Combobox.Popup>
-                  <Combobox.List>
-                    {(user: User) => (
-                      <Combobox.Item key={user.id} value={user.id}>
-                        {user.name}
-                      </Combobox.Item>
-                    )}
-                  </Combobox.List>
-                </Combobox.Popup>
-              </Combobox.Positioner>
-            </Combobox.Portal>
-          </Combobox.Root>
-        );
-      }
+    it('resets an initially empty external result when opening a grouped selection', async () => {
+      const { user } = await render(<GroupedApp defaultValue={3} filteredItems={[]} />);
 
-      // With the markup shape unknown, rendering nothing beats guessing wrong.
-      const { user } = await render(<App />);
+      expect(screen.getByTestId('input')).toHaveValue('Carol');
 
       await user.click(screen.getByTestId('input'));
 
-      await waitFor(() => expect(screen.getByRole('listbox')).not.toBe(null));
-      expect(screen.queryAllByRole('option')).toHaveLength(0);
-    });
-
-    it('honors an initially empty external window when the markup is grouped and the source is flat', async () => {
-      function App() {
-        return (
-          <Combobox.Root items={userItems} filteredItems={[]} defaultValue={3}>
-            <Combobox.Input data-testid="input" />
-            <Combobox.Portal>
-              <Combobox.Positioner>
-                <Combobox.Popup>
-                  <Combobox.List>
-                    {(group: Team) => (
-                      <Combobox.Group key={group.value} items={group.items}>
-                        <Combobox.GroupLabel>{group.value}</Combobox.GroupLabel>
-                        <Combobox.Collection>
-                          {(user: User) => (
-                            <Combobox.Item key={user.id} value={user.id}>
-                              {user.name}
-                            </Combobox.Item>
-                          )}
-                        </Combobox.Collection>
-                      </Combobox.Group>
-                    )}
-                  </Combobox.List>
-                </Combobox.Popup>
-              </Combobox.Positioner>
-            </Combobox.Portal>
-          </Combobox.Root>
-        );
-      }
-
-      const { user } = await render(<App />);
-
-      await user.click(screen.getByTestId('input'));
-
-      await waitFor(() => expect(screen.getByRole('listbox')).not.toBe(null));
-      expect(screen.queryAllByRole('option')).toHaveLength(0);
-    });
-
-    it('keeps a flat external window shape when its results are emptied', async () => {
-      function App(props: { results: User[] }) {
-        const items = Combobox.createItems(teams, {
-          getValue: getUserId,
-          getLabel: getUserName,
-        });
-        return (
-          <Combobox.Root items={items} filteredItems={props.results} defaultValue={3}>
-            <Combobox.Input data-testid="input" />
-            <Combobox.Portal>
-              <Combobox.Positioner>
-                <Combobox.Popup>
-                  <Combobox.List>
-                    {(user: User) => (
-                      <Combobox.Item key={user.id} value={user.id}>
-                        {user.name}
-                      </Combobox.Item>
-                    )}
-                  </Combobox.List>
-                </Combobox.Popup>
-              </Combobox.Positioner>
-            </Combobox.Portal>
-          </Combobox.Root>
-        );
-      }
-
-      // The source is grouped but the window is flat, so falling back to the internal items would
-      // render group objects through a callback written for users.
-      const { setProps, user } = await render(<App results={[users[0]]} />);
-
-      await setProps({ results: [] });
-      await user.click(screen.getByTestId('input'));
-
-      await waitFor(() => expect(screen.getByRole('listbox')).not.toBe(null));
-      expect(screen.queryAllByRole('option')).toHaveLength(0);
-    });
-
-    it('projects externally filtered flat items when the source collection is grouped', async () => {
-      const onValueChange = vi.fn();
-      const filteredUsers = [users[2], users[0]];
-
-      function App() {
-        const items = Combobox.createItems(teams, {
-          getValue: getUserId,
-          getLabel: getUserName,
-        });
-        return (
-          <Combobox.Root
-            items={items}
-            filteredItems={filteredUsers}
-            defaultValue={3}
-            onValueChange={onValueChange}
-          >
-            <Combobox.Input />
-            <Combobox.Portal>
-              <Combobox.Positioner>
-                <Combobox.Popup>
-                  <Combobox.List>
-                    {(user: User) => (
-                      <Combobox.Item key={user.id} value={user.id}>
-                        {user.name}
-                      </Combobox.Item>
-                    )}
-                  </Combobox.List>
-                </Combobox.Popup>
-              </Combobox.Positioner>
-            </Combobox.Portal>
-          </Combobox.Root>
-        );
-      }
-
-      const { user } = await render(<App />);
-      const input = screen.getByRole<HTMLInputElement>('combobox');
-
-      expect(input).toHaveValue('Carol');
-      await user.click(input);
-
-      expect(await screen.findAllByRole('option')).toHaveLength(2);
+      expect(await screen.findAllByRole('option')).toHaveLength(3);
       expect(screen.getByRole('option', { name: 'Carol' })).toHaveAttribute(
-        'aria-selected',
-        'true',
-      );
-
-      await user.click(screen.getByRole('option', { name: 'Alice' }));
-
-      expect(onValueChange.mock.lastCall?.[0]).toBe(1);
-      expect(input).toHaveValue('Alice');
-      await waitFor(() => expect(screen.queryByRole('listbox')).toBe(null));
-
-      await user.click(input);
-
-      expect(await screen.findAllByRole('option')).toHaveLength(2);
-      expect(screen.getByRole('option', { name: 'Alice' })).toHaveAttribute(
         'aria-selected',
         'true',
       );

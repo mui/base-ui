@@ -337,26 +337,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
     collatorFilter.contains(selectedLabelString, query);
 
   const filterQuery = shouldBypassFiltering ? '' : (filterQueryProp ?? query);
-  // Falling back to the internally filtered items is only safe when the external results carry
-  // the shape of `items` too. An empty window has no shape of its own, so the last non-empty one
-  // stands in for it; until one has committed, the empty window is honored since rendering
-  // nothing is always shape-safe. The history assumes the window keeps one shape for the life of
-  // the root — an app that swaps shapes mid-flight can hit one stale fallback until the next
-  // non-empty window re-teaches the ref.
-  const externalGroupedRef = React.useRef<boolean | undefined>(undefined);
-  useIsoLayoutEffect(() => {
-    if (filteredItemsProp?.length) {
-      externalGroupedRef.current = isGroupedItems(filteredItemsProp);
-    }
-  }, [filteredItemsProp]);
-
-  const shouldIgnoreExternalFiltering =
-    hasItems &&
-    hasFilteredItemsProp &&
-    shouldBypassFiltering &&
-    (filteredItemsProp?.length === 0
-      ? externalGroupedRef.current === isGrouped
-      : isGroupedItems(filteredItemsProp) === isGrouped);
+  const shouldIgnoreExternalFiltering = hasItems && hasFilteredItemsProp && shouldBypassFiltering;
 
   const flatItems: readonly Item[] = React.useMemo(() => {
     if (!items) {
@@ -1775,6 +1756,7 @@ interface ComboboxRootProps<ItemValue, Item = ItemValue> {
   /**
    * Filtered items to display in the list.
    * When provided, the list will use these items instead of filtering the `items` prop internally.
+   * When `items` is also provided, this array must preserve its flat or grouped structure.
    * Use when you want to control filtering logic externally with the `useFilter()` hook.
    */
   filteredItems?: readonly Item[] | readonly Group<Item>[] | undefined;
