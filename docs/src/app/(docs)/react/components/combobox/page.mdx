@@ -148,7 +148,29 @@ import { DemoComboboxCreateItems } from './demos/create-items';
 
 <DemoComboboxCreateItems />
 
-Use `createItems()` when rendering object items but storing primitive values such as IDs. Rendering and filtering receive the original objects, while selection, comparison, serialization, and `<Combobox.Item value>` use derived values that must be stable, unique, and non-null. For async or paginated data, include the selected item in `data` or provide `itemToStringLabel` until its record is available, and use object values only when the application intentionally wants the selected record as its public value.
+`createItems()` works well when object data is only needed by the Combobox. If controlled state is also rendered or otherwise consumed outside `<Combobox.Root>`, consider using the object itself as the value so the complete record remains available without a separate ID-to-item lookup.
+
+When results are filtered externally (for example, by a server-side search), `items` represents records known to the app, while `filteredItems` represents the current result window displayed in the popup. Pass source items rather than derived values to `filteredItems`, preserving the flat or grouped structure of `items`:
+
+```tsx title="Displaying a window of async results"
+const items = React.useMemo(
+  () =>
+    Combobox.createItems(knownUsers, {
+      getValue: (user) => user.id,
+      getLabel: (user) => user.name,
+    }),
+  [knownUsers],
+);
+
+<Combobox.Root
+  items={items}
+  filteredItems={searchResults}
+  value={selectedUserId}
+  onValueChange={setSelectedUserId}
+/>;
+```
+
+Include the selected user's record in `knownUsers` so its label remains available when it is outside `searchResults`. Alternatively, provide `itemToStringLabel` when the label can be derived from the selected value alone.
 
 ### Multiple select
 
