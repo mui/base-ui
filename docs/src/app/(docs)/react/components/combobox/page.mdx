@@ -148,30 +148,7 @@ import { DemoComboboxCreateItems } from './demos/create-items';
 
 <DemoComboboxCreateItems />
 
-The APIs fall into two domains:
-
-#### Receives the source item
-
-- Rendering: `<List>` and `<Collection>` function children
-- Filtering: `useFilteredItems()`, `filteredItems`, and the root `filter` function
-- Accessors: the `getValue` and `getLabel` options of `createItems()`
-
-#### Receives the derived value
-
-- Selection: `value`, `defaultValue`, and `onValueChange`
-- Item identity: the `value` prop of `<Combobox.Item>`
-- Comparison and serialization: `isItemEqualToValue`, `itemToStringValue`, and `itemToStringLabel`
-- Callbacks and rendering: `onItemHighlighted` and `<Combobox.Value>` children
-
-Because filtering runs on source items, a custom `filter` can match any source field.
-
-Each item must derive a unique value. When two items share one, the first of them resolves the label, and every item carrying that value renders as selected.
-
-Accessors resolve labels to strings, so `<Combobox.Value>` renders text where a plain `{ value, label }` array could render React nodes. With `getValue`, the label of an item whose value is `null` also stops overriding the `placeholder` prop, because that lookup reads the selection value domain.
-
-With async data, prefer item objects as values so the selected label survives result changes, comparing them by ID with `isItemEqualToValue`. If IDs are required, keep the selected item in `data`, or label the ones outside it with `itemToStringLabel`: the collection labels its data and the current `filteredItems`, and the prop covers the values it cannot resolve.
-
-When passing a filter to the root, note that it receives source items. A filter from `useFilter({ value })` compares the selected value against an item, so pair a collection with `useFilter()` and let the component handle the selected label instead.
+Use `createItems()` when rendering object items but storing primitive values such as IDs. Rendering and filtering receive the original objects, while selection, comparison, serialization, and `<Combobox.Item value>` use derived values that must be stable, unique, and non-null. For async or paginated data, include the selected item in `data` or provide `itemToStringLabel` until its record is available, and use object values only when the application intentionally wants the selected record as its public value.
 
 ### Multiple select
 
