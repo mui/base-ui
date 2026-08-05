@@ -116,6 +116,7 @@ export const MenuSubmenuTrigger = React.forwardRef(function MenuSubmenuTrigger(
   }
 
   const itemProps = parentMenuStore.useState('itemProps');
+  const submenuItemProps = open ? { ...itemProps, onClick: undefined } : itemProps;
   const highlighted = parentMenuStore.useState('isActive', listItem.index);
 
   const itemMetadata = React.useMemo(
@@ -192,18 +193,20 @@ export const MenuSubmenuTrigger = React.forwardRef(function MenuSubmenuTrigger(
       localInteractionProps,
       hoverProps,
       rootTriggerProps,
-      itemProps,
+      submenuItemProps,
       // Opening a submenu changes the trigger's expanded state while the trigger still holds
       // focus, and VoiceOver announces that state change instead of the submenu item that focus
-      // moves to a moment later, so the first item is never announced. Dropping the state while
-      // the submenu is open avoids the announcement without claiming the submenu is collapsed;
+      // moves to a moment later, so the first item is never announced. Dropping the state when
+      // focus moves into the submenu avoids the announcement without claiming it is collapsed;
       // `aria-haspopup` still conveys that the item opens a submenu.
       shouldOmitExpanded ? VOICE_OVER_EXPANDED_PROPS : undefined,
       {
         'aria-controls': popupId,
         tabIndex: open || highlighted ? 0 : -1,
         onPointerDown(event) {
-          store.set('virtualPress', isVirtualPointerEvent(event.nativeEvent));
+          if (!open && event.button === 0) {
+            store.set('virtualPress', isVirtualPointerEvent(event.nativeEvent));
+          }
         },
         onBlur() {
           if (highlighted) {

@@ -877,18 +877,21 @@ describe('<Menu.Root />', () => {
       });
 
       it.skipIf(isJSDOM)(
-        'focuses the submenu popup when opened by clicking a trigger',
+        'keeps focus on the submenu popup after releasing a pressed trigger',
         async () => {
           const { user } = await render(<TestMenu submenuTriggerProps={{ openOnHover: false }} />);
 
           await user.click(screen.getByRole('button', { name: 'Toggle' }));
           const submenuTrigger = await screen.findByTestId('submenu-trigger');
-          await user.click(submenuTrigger);
+          await user.pointer({ keys: '[MouseLeft>]', target: submenuTrigger });
 
           const submenu = await screen.findByTestId('submenu');
           await waitFor(() => {
             expect(submenu).toHaveFocus();
           });
+
+          await user.pointer({ keys: '[/MouseLeft]', target: submenuTrigger });
+          expect(submenu).toHaveFocus();
 
           await user.keyboard('[ArrowDown]');
 

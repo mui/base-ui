@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { fireEvent, screen, waitFor } from '@mui/internal-test-utils';
+import { act, fireEvent, screen, waitFor } from '@mui/internal-test-utils';
 import { vi, describe, it, expect } from 'vitest';
 import { createRenderer, isJSDOM } from '#test-utils';
 import { Menu } from '@base-ui/react/menu';
@@ -45,6 +45,26 @@ function Test(props: {
         </Menu.Positioner>
       </Menu.Portal>
     </Menu.Root>
+  );
+}
+
+function fireVoiceOverPress(element: Element) {
+  fireEvent.pointerDown(element, {
+    pointerType: 'touch',
+    width: 0.333,
+    height: 0.333,
+    pressure: 0,
+    detail: 0,
+  });
+  fireEvent.mouseDown(element);
+}
+
+async function waitForFrame() {
+  await act(
+    () =>
+      new Promise<void>((resolve) => {
+        requestAnimationFrame(() => resolve());
+      }),
   );
 }
 
@@ -111,6 +131,25 @@ describe('<Menu.SubmenuTrigger /> with VoiceOver', () => {
     expect(submenuTrigger).toHaveAttribute('aria-expanded', 'true');
   });
 
+  it.skipIf(isJSDOM)(
+    'keeps the expanded state when a virtual pointer presses an already-open submenu',
+    async () => {
+      const { user } = await render(<Test />);
+
+      await user.click(screen.getByRole('button', { name: 'Open menu' }));
+
+      const submenuTrigger = await screen.findByRole('menuitem', { name: 'More' });
+      await user.hover(submenuTrigger);
+      await screen.findByTestId('submenu');
+      expect(submenuTrigger).toHaveAttribute('aria-expanded', 'true');
+
+      fireVoiceOverPress(submenuTrigger);
+      await waitForFrame();
+
+      expect(submenuTrigger).toHaveAttribute('aria-expanded', 'true');
+    },
+  );
+
   it('keeps the expanded state when the submenu is opened with a physical pointer press', async () => {
     const { user } = await render(<Test openOnHover={false} />);
 
@@ -133,14 +172,7 @@ describe('<Menu.SubmenuTrigger /> with VoiceOver', () => {
     await user.click(screen.getByRole('button', { name: 'Open menu' }));
 
     const submenuTrigger = await screen.findByRole('menuitem', { name: 'More' });
-    fireEvent.pointerDown(submenuTrigger, {
-      pointerType: 'touch',
-      width: 0.333,
-      height: 0.333,
-      pressure: 0,
-      detail: 0,
-    });
-    fireEvent.mouseDown(submenuTrigger);
+    fireVoiceOverPress(submenuTrigger);
 
     await screen.findByTestId('submenu');
     await waitFor(() => {
@@ -163,14 +195,7 @@ describe('<Menu.SubmenuTrigger /> with VoiceOver', () => {
       await user.click(screen.getByRole('button', { name: 'Open menu' }));
 
       const submenuTrigger = await screen.findByRole('menuitem', { name: 'More' });
-      fireEvent.pointerDown(submenuTrigger, {
-        pointerType: 'touch',
-        width: 0.333,
-        height: 0.333,
-        pressure: 0,
-        detail: 0,
-      });
-      fireEvent.mouseDown(submenuTrigger);
+      fireVoiceOverPress(submenuTrigger);
 
       await waitFor(() => {
         expect(onSubmenuOpenChange).toHaveBeenCalledTimes(1);
