@@ -9,23 +9,22 @@ export type ComboboxPrimitiveValue = string | number | bigint | boolean;
 type HasGroupShape<Item> = Item extends object
   ? 'items' extends keyof Item
     ? [Extract<NonNullable<Item['items']>, ReadonlyArray<unknown>>] extends [never]
-      ? never
+      ? never[] extends NonNullable<Item['items']>
+        ? true
+        : never
       : true
     : never
   : never;
 
 type IsAny<T> = 0 extends 1 & T ? true : false;
 
-// Intersected onto the `data` parameter rather than folded into `ComboboxItemsData`, since a
-// conditional inside the union breaks tsc's leaf-item inference for grouped data.
 // `any` opts out so loosely typed data stays usable.
 type RejectGroupShapedItems<Item> =
   IsAny<Item> extends true ? unknown : true extends HasGroupShape<Item> ? never : unknown;
 
-/**
- * The data accepted by `createItems()`: a flat array of items, or an array of groups with items.
- */
-export type ComboboxItemsData<Item> =
+// The group-shape guard stays outside this union because folding it in breaks tsc's leaf-item
+// inference for grouped data.
+type ComboboxItemsData<Item> =
   | (Extract<Item, { items: ReadonlyArray<unknown> }> extends never ? readonly Item[] : never)
   | readonly { items: ReadonlyArray<Item> }[];
 

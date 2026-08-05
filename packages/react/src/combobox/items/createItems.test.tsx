@@ -509,6 +509,28 @@ describe('Combobox.createItems', () => {
       expect(screen.getByTestId('input')).toHaveValue('Bob');
     });
 
+    it('treats an array-valued items field as a group when its declared type is unknown', async () => {
+      interface BroadRecord {
+        id: string;
+        items: unknown;
+      }
+
+      const records: BroadRecord[] = [{ id: 'people', items: [users[0]] }];
+      // @ts-expect-error A broad `items` field is rejected because its runtime value may be an array.
+      const items = Combobox.createItems(records, {
+        getValue: (user: User) => user.id,
+        getLabel: (user: User) => user.name,
+      });
+
+      await render(
+        <Combobox.Root items={items} defaultValue={1}>
+          <Combobox.Input data-testid="input" />
+        </Combobox.Root>,
+      );
+
+      expect(screen.getByTestId('input')).toHaveValue('Alice');
+    });
+
     it('renders a sentinel item for the empty selection like any other item', async () => {
       const withSentinel = [{ id: 'none', name: 'None' }, ...apiUsers];
       const items = Combobox.createItems(withSentinel, {

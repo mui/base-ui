@@ -77,6 +77,7 @@ type ComboboxRootActions = { unmount: () => void };
 ```typescript
 type ComboboxRootChangeEventReason =
   | 'trigger-press'
+  | 'input-press'
   | 'outside-press'
   | 'item-press'
   | 'close-press'
@@ -87,6 +88,7 @@ type ComboboxRootChangeEventReason =
   | 'input-clear'
   | 'clear-press'
   | 'chip-remove-press'
+  | 'cancel-open'
   | 'none';
 ```
 
@@ -95,6 +97,7 @@ type ComboboxRootChangeEventReason =
 ```typescript
 type ComboboxRootChangeEventDetails = (
   | { reason: 'trigger-press'; event: MouseEvent | PointerEvent | TouchEvent | KeyboardEvent }
+  | { reason: 'input-press'; event: MouseEvent | PointerEvent | TouchEvent | KeyboardEvent }
   | { reason: 'outside-press'; event: MouseEvent | PointerEvent | TouchEvent }
   | { reason: 'item-press'; event: MouseEvent | PointerEvent | KeyboardEvent }
   | { reason: 'close-press'; event: MouseEvent | PointerEvent | KeyboardEvent }
@@ -105,6 +108,7 @@ type ComboboxRootChangeEventDetails = (
   | { reason: 'input-clear'; event: Event | FocusEvent | InputEvent }
   | { reason: 'clear-press'; event: MouseEvent | PointerEvent | KeyboardEvent }
   | { reason: 'chip-remove-press'; event: MouseEvent | PointerEvent | KeyboardEvent }
+  | { reason: 'cancel-open'; event: MouseEvent }
   | { reason: 'none'; event: Event }
 ) & {
   /** Cancels Base UI from handling the event. */
@@ -746,17 +750,17 @@ type ComboboxGroupLabelState = {};
 
 ### Separator
 
-A separator element accessible to screen readers.
+A visual separator between items or groups.
 Renders a `<div>` element.
 
 **Separator Props:**
 
-| Prop        | Type                                                                                   | Default        | Description                                                                                                                                                                                   |
-| :---------- | :------------------------------------------------------------------------------------- | :------------- | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| orientation | `Orientation`                                                                          | `'horizontal'` | The orientation of the separator.                                                                                                                                                             |
-| className   | `string \| ((state: SeparatorState) => string \| undefined)`                           | -              | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
-| style       | `React.CSSProperties \| ((state: SeparatorState) => React.CSSProperties \| undefined)` | -              | Style applied to the element, or a function that&#xA;returns a style object based on the component's state.                                                                                   |
-| render      | `ReactElement \| ((props: HTMLProps, state: SeparatorState) => ReactElement)`          | -              | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
+| Prop        | Type                                                                                             | Default        | Description                                                                                                                                                                                   |
+| :---------- | :----------------------------------------------------------------------------------------------- | :------------- | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| orientation | `Orientation`                                                                                    | `'horizontal'` | The orientation of the separator.                                                                                                                                                             |
+| className   | `string \| ((state: Combobox.Separator.State) => string \| undefined)`                           | -              | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
+| style       | `React.CSSProperties \| ((state: Combobox.Separator.State) => React.CSSProperties \| undefined)` | -              | Style applied to the element, or a function that&#xA;returns a style object based on the component's state.                                                                                   |
+| render      | `ReactElement \| ((props: HTMLProps, state: Combobox.Separator.State) => ReactElement)`          | -              | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
 
 ### Separator.Props
 
@@ -1189,14 +1193,6 @@ type ComboboxFilterOptions = {
 };
 ```
 
-### ComboboxItemsData
-
-The data accepted by `createItems()`: a flat array of items, or an array of groups with items.
-
-```typescript
-type ComboboxItemsData<Item> = Item[] | { items: Item[] }[];
-```
-
 ### ComboboxPrimitiveValue
 
 ```typescript
@@ -1300,7 +1296,7 @@ type Orientation = 'horizontal' | 'vertical';
 - `Combobox.useFilter`
 - `Combobox.useFilteredItems`
 - `Combobox.createItems`
-- `Default`: `ComboboxFilter`, `ComboboxFilterOptions`, `ComboboxItemCollection`, `ComboboxItemsData`, `ComboboxPrimitiveValue`, `CreateComboboxItemsOptions`, `ComboboxRootProps`, `ComboboxRootState`, `ComboboxRootActions`, `ComboboxRootChangeEventReason`, `ComboboxRootChangeEventDetails`, `ComboboxRootHighlightEventReason`, `ComboboxRootHighlightEventDetails`, `ComboboxLabelState`, `ComboboxLabelProps`, `ComboboxTriggerState`, `ComboboxTriggerProps`, `ComboboxInputState`, `ComboboxInputProps`, `ComboboxInputGroupState`, `ComboboxInputGroupProps`, `ComboboxPopupState`, `ComboboxPopupProps`, `ComboboxPositionerState`, `ComboboxPositionerProps`, `ComboboxListState`, `ComboboxListProps`, `ComboboxItemState`, `ComboboxItemProps`, `ComboboxItemIndicatorProps`, `ComboboxItemIndicatorState`, `ComboboxValueState`, `ComboboxValueProps`, `ComboboxIconState`, `ComboboxIconProps`, `ComboboxArrowState`, `ComboboxArrowProps`, `ComboboxBackdropProps`, `ComboboxBackdropState`, `ComboboxPortalState`, `ComboboxPortalProps`, `ComboboxEmptyState`, `ComboboxEmptyProps`, `ComboboxGroupState`, `ComboboxGroupProps`, `ComboboxGroupLabelState`, `ComboboxGroupLabelProps`, `ComboboxRowState`, `ComboboxRowProps`, `ComboboxChipsState`, `ComboboxChipsProps`, `ComboboxChipState`, `ComboboxChipProps`, `ComboboxChipRemoveState`, `ComboboxChipRemoveProps`, `ComboboxClearState`, `ComboboxClearProps`, `ComboboxStatusState`, `ComboboxStatusProps`, `ComboboxCollectionState`, `ComboboxCollectionProps`
+- `Default`: `ComboboxFilter`, `ComboboxFilterOptions`, `ComboboxItemCollection`, `ComboboxPrimitiveValue`, `CreateComboboxItemsOptions`, `ComboboxRootProps`, `ComboboxRootState`, `ComboboxRootActions`, `ComboboxRootChangeEventReason`, `ComboboxRootChangeEventDetails`, `ComboboxRootHighlightEventReason`, `ComboboxRootHighlightEventDetails`, `ComboboxLabelState`, `ComboboxLabelProps`, `ComboboxTriggerState`, `ComboboxTriggerProps`, `ComboboxInputState`, `ComboboxInputProps`, `ComboboxInputGroupState`, `ComboboxInputGroupProps`, `ComboboxPopupState`, `ComboboxPopupProps`, `ComboboxPositionerState`, `ComboboxPositionerProps`, `ComboboxListState`, `ComboboxListProps`, `ComboboxItemState`, `ComboboxItemProps`, `ComboboxItemIndicatorProps`, `ComboboxItemIndicatorState`, `ComboboxValueState`, `ComboboxValueProps`, `ComboboxIconState`, `ComboboxIconProps`, `ComboboxArrowState`, `ComboboxArrowProps`, `ComboboxBackdropProps`, `ComboboxBackdropState`, `ComboboxPortalState`, `ComboboxPortalProps`, `ComboboxEmptyState`, `ComboboxEmptyProps`, `ComboboxGroupState`, `ComboboxGroupProps`, `ComboboxGroupLabelState`, `ComboboxGroupLabelProps`, `ComboboxRowState`, `ComboboxRowProps`, `ComboboxChipsState`, `ComboboxChipsProps`, `ComboboxChipState`, `ComboboxChipProps`, `ComboboxChipRemoveState`, `ComboboxChipRemoveProps`, `ComboboxClearState`, `ComboboxClearProps`, `ComboboxStatusState`, `ComboboxStatusProps`, `ComboboxCollectionState`, `ComboboxCollectionProps`, `ComboboxSeparatorProps`, `ComboboxSeparatorState`
 
 ## Canonical Types
 
@@ -1361,3 +1357,5 @@ Maps `Canonical`: `Alias` — Use Canonical when its namespace is already import
 - `Combobox.Empty.Props`: `ComboboxEmptyProps`
 - `Combobox.Clear.State`: `ComboboxClearState`
 - `Combobox.Clear.Props`: `ComboboxClearProps`
+- `Combobox.Separator.Props`: `ComboboxSeparatorProps`
+- `Combobox.Separator.State`: `ComboboxSeparatorState`

@@ -369,6 +369,30 @@ function CreateItemsApp(props: {
     getLabel: (item: TreeItem) => item.name,
   });
 
+  interface BroadItemsField {
+    id: number;
+    name: string;
+    items: unknown;
+  }
+  const broadItemsField: BroadItemsField[] = [];
+  // @ts-expect-error An unknown `items` field may contain an array and be read as a group.
+  Combobox.createItems(broadItemsField, {
+    getValue: (item) => item.id,
+    getLabel: (item) => item.name,
+  });
+
+  const objectItemsField: { id: number; items: object }[] = [];
+  // @ts-expect-error An object `items` field may contain an array and be read as a group.
+  Combobox.createItems(objectItemsField, {
+    getValue: (item) => item.id,
+  });
+
+  const arrayLikeItemsField: { id: number; items: ArrayLike<string> }[] = [];
+  // @ts-expect-error An array-like `items` field may contain an array and be read as a group.
+  Combobox.createItems<(typeof arrayLikeItemsField)[number], number>(arrayLikeItemsField, {
+    getValue: (item) => item.id,
+  });
+
   // A non-array `items` field never marks a group at runtime, so flat data accepts it.
   Combobox.createItems([{ id: 1, name: 'Alice', items: 3 }], {
     getValue: (item) => item.id,
