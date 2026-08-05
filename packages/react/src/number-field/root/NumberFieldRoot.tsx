@@ -22,6 +22,7 @@ import { useRenderElement } from '../../internals/useRenderElement';
 import {
   getFormatParts,
   getNumberLocaleDetails,
+  parseNumber,
   PERMILLE,
   PERCENTAGES,
   SPACE_SEPARATOR_RE,
@@ -68,6 +69,7 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
     value: valueProp,
     onValueChange: onValueChangeProp,
     onValueCommitted: onValueCommittedProp,
+    actionsRef,
     allowWheelScrub = false,
     snapOnStep = false,
     allowOutOfRange = false,
@@ -219,7 +221,11 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
       // Direct text entry (typing, pasting, clearing, autofill) behaves natively; step-based
       // interactions (keyboard arrows, buttons, wheel, scrub) do not. All direct-entry reasons
       // (`input-change`, `input-clear`, `input-blur`, `input-paste`) share the `input-` prefix.
-      const isInputReason = details.reason.startsWith('input-') || details.reason === REASONS.none;
+      // `imperative-action` sets the same raw text a user could type, so it counts as direct entry.
+      const isInputReason =
+        details.reason.startsWith('input-') ||
+        details.reason === REASONS.none ||
+        details.reason === REASONS.imperativeAction;
 
       // Only allow out-of-range values for direct text entry. Step-based interactions still clamp.
       const shouldClampValue = !allowOutOfRange || !isInputReason;
@@ -292,6 +298,37 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
         }),
       );
     },
+  );
+
+  React.useImperativeHandle(
+    actionsRef,
+    () => ({
+      setInputValue(nextInputValue: string) {
+        // Mirrors what typing the same string would do, minus the per-character gating that
+        // exists to reject keystrokes: the caller chose this string deliberately.
+        //
+        // Marking the text unsynced is what lets an intermediate string like `'-'` survive. The
+        // formatting sync would otherwise overwrite it with the formatting of `value` on the next
+        // render, exactly as it does mid-typing.
+        allowInputSyncRef.current = false;
+        setInputValue(nextInputValue);
+
+        const details = createChangeEventDetails(REASONS.imperativeAction);
+
+        if (nextInputValue.trim() === '') {
+          setValue(null, details);
+          return;
+        }
+
+        // An unparseable string leaves `value` alone rather than clearing it, so setting `'-'`
+        // over a field showing `5` keeps the 5 until the entry is completed.
+        const parsedValue = parseNumber(nextInputValue, locale, formatOptionsRef.current);
+        if (parsedValue !== null) {
+          setValue(parsedValue, details);
+        }
+      },
+    }),
+    [setValue, locale, formatOptionsRef],
   );
 
   // We need to update the input value when the external `value` prop changes. This ends up acting
@@ -639,6 +676,18 @@ export interface NumberFieldRootProps extends Omit<
    * A ref to access the hidden input element.
    */
   inputRef?: React.Ref<HTMLInputElement> | undefined;
+  /**
+   * A ref to imperative actions.
+   * - `setInputValue`: Sets the raw text shown in the input element.
+   * The text is not formatted or clamped, so it can hold strings that aren't parseable as a
+   * number yet, such as `'-'` or `'.'`. `value` follows the text when it parses, and is left
+   * alone when it doesn't, matching what typing the same string does.
+   */
+  actionsRef?: React.RefObject<NumberFieldRoot.Actions | null> | undefined;
+}
+
+export interface NumberFieldRootActions {
+  setInputValue: (inputValue: string) => void;
 }
 
 export interface NumberFieldRootState extends FieldRootState {
@@ -678,6 +727,7 @@ export type NumberFieldRootChangeEventReason =
   | typeof REASONS.decrementPress
   | typeof REASONS.wheel
   | typeof REASONS.scrub
+  | typeof REASONS.imperativeAction
   | typeof REASONS.none;
 export type NumberFieldRootChangeEventDetails = BaseUIChangeEventDetails<
   NumberFieldRootChangeEventReason,
@@ -701,6 +751,7 @@ export type NumberFieldRootCommitEventDetails =
 export namespace NumberFieldRoot {
   export type State = NumberFieldRootState;
   export type Props = NumberFieldRootProps;
+  export type Actions = NumberFieldRootActions;
   export type ChangeEventReason = NumberFieldRootChangeEventReason;
   export type ChangeEventDetails = NumberFieldRootChangeEventDetails;
   export type CommitEventReason = NumberFieldRootCommitEventReason;

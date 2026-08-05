@@ -167,6 +167,150 @@ describe('<NumberField />', () => {
     expect(form.checkValidity()).toBe(true);
   });
 
+  describe('prop: actionsRef', () => {
+    function SetInputValueApp({
+      text,
+      label = 'set text',
+      ...props
+    }: { text: string; label?: string } & NumberFieldBase.Root.Props) {
+      const actionsRef = React.useRef<NumberFieldBase.Root.Actions | null>(null);
+      return (
+        <React.Fragment>
+          <NumberField actionsRef={actionsRef} {...props} />
+          <button onClick={() => actionsRef.current?.setInputValue(text)}>{label}</button>
+        </React.Fragment>
+      );
+    }
+
+    it('should hold an intermediate string that no number formats to', async () => {
+      await render(<SetInputValueApp min={-10} text="-" />);
+      const input = screen.getByRole('textbox');
+
+      fireEvent.click(screen.getByRole('button', { name: 'set text' }));
+
+      expect(input).toHaveValue('-');
+    });
+
+    it('should keep the intermediate string across an unrelated re-render', async () => {
+      function App() {
+        const [, forceRerender] = React.useReducer((count) => count + 1, 0);
+        return (
+          <React.Fragment>
+            <SetInputValueApp min={-10} text="-" />
+            <button onClick={forceRerender}>rerender</button>
+          </React.Fragment>
+        );
+      }
+
+      await render(<App />);
+      const input = screen.getByRole('textbox');
+
+      fireEvent.click(screen.getByRole('button', { name: 'set text' }));
+      fireEvent.click(screen.getByRole('button', { name: 'rerender' }));
+
+      expect(input).toHaveValue('-');
+    });
+
+    it('should let typing continue from the intermediate string', async () => {
+      const onValueChange = vi.fn();
+      await render(<SetInputValueApp min={-10} text="-" onValueChange={onValueChange} />);
+      const input = screen.getByRole('textbox');
+
+      fireEvent.click(screen.getByRole('button', { name: 'set text' }));
+      expect(onValueChange).not.toHaveBeenCalled();
+
+      fireEvent.change(input, { target: { value: '-5' } });
+
+      expect(input).toHaveValue('-5');
+      expect(onValueChange).toHaveBeenCalledTimes(1);
+      expect(onValueChange.mock.calls[0][0]).toBe(-5);
+    });
+
+    it('should update the value when the text parses', async () => {
+      const onValueChange = vi.fn();
+      await render(<SetInputValueApp text="42" onValueChange={onValueChange} />);
+
+      fireEvent.click(screen.getByRole('button', { name: 'set text' }));
+
+      expect(screen.getByRole('textbox')).toHaveValue('42');
+      expect(onValueChange).toHaveBeenCalledTimes(1);
+      expect(onValueChange.mock.calls[0][0]).toBe(42);
+      expect(onValueChange.mock.calls[0][1].reason).toBe(REASONS.imperativeAction);
+    });
+
+    it('should leave the value alone when the text does not parse', async () => {
+      const onValueChange = vi.fn();
+      await render(
+        <SetInputValueApp min={-10} defaultValue={5} text="-" onValueChange={onValueChange} />,
+      );
+
+      fireEvent.click(screen.getByRole('button', { name: 'set text' }));
+
+      expect(screen.getByRole('textbox')).toHaveValue('-');
+      expect(onValueChange).not.toHaveBeenCalled();
+    });
+
+    it('should clear the value when the text is emptied', async () => {
+      const onValueChange = vi.fn();
+      await render(<SetInputValueApp defaultValue={5} text="" onValueChange={onValueChange} />);
+
+      fireEvent.click(screen.getByRole('button', { name: 'set text' }));
+
+      expect(screen.getByRole('textbox')).toHaveValue('');
+      expect(onValueChange).toHaveBeenCalledTimes(1);
+      expect(onValueChange.mock.calls[0][0]).toBe(null);
+    });
+
+    it('should survive a later external value change until an interaction reconciles it', async () => {
+      function App() {
+        const actionsRef = React.useRef<NumberFieldBase.Root.Actions | null>(null);
+        const [value, setValue] = React.useState<number | null>(null);
+        return (
+          <React.Fragment>
+            <NumberField min={-10} value={value} actionsRef={actionsRef} />
+            <button onClick={() => actionsRef.current?.setInputValue('-')}>set text</button>
+            <button onClick={() => setValue(7)}>set 7</button>
+          </React.Fragment>
+        );
+      }
+
+      await render(<App />);
+      const input = screen.getByRole('textbox');
+
+      fireEvent.click(screen.getByRole('button', { name: 'set text' }));
+      expect(input).toHaveValue('-');
+
+      // The imperatively set text counts as an unsaved edit, exactly like typing, so an external
+      // change doesn't clobber it. There is no callback to negotiate this — the caller can't tell
+      // the change happened, and can only recover by setting the text again.
+      fireEvent.click(screen.getByRole('button', { name: 'set 7' }));
+      expect(input).toHaveValue('-');
+
+      // Blur doesn't reclaim it either: the text can't be parsed, so the blur handler leaves it
+      // alone and the field goes on showing something its value contradicts.
+      fireEvent.blur(input);
+      expect(input).toHaveValue('-');
+
+      // Only a value-changing interaction reconciles the display. `value` is controlled and never
+      // written back here, so the step lands on the same 7 and the text follows it.
+      fireEvent.click(screen.getByLabelText('Increase'));
+      expect(input).toHaveValue('7');
+    });
+
+    it('should still commit a parseable string on blur', async () => {
+      const onValueCommitted = vi.fn();
+      await render(<SetInputValueApp text="3.50" onValueCommitted={onValueCommitted} />);
+      const input = screen.getByRole('textbox');
+
+      fireEvent.click(screen.getByRole('button', { name: 'set text' }));
+      fireEvent.blur(input);
+
+      expect(onValueCommitted).toHaveBeenCalledTimes(1);
+      expect(onValueCommitted.mock.calls[0][0]).toBe(3.5);
+      expect(input).toHaveValue('3.5');
+    });
+  });
+
   describe('prop: onValueChange', () => {
     it('should be called when the value changes', async () => {
       const onValueChange = vi.fn();

@@ -18,6 +18,7 @@ Renders a `<div>` element.
 | value            | `number \| null`                                                                               | -       | The raw numeric value of the field.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
 | onValueChange    | `((value: number \| null, eventDetails: NumberField.Root.ChangeEventDetails) => void)`         | -       | Callback fired when the number value changes. The `eventDetails.reason` indicates what triggered the change: `'input-change'` for parseable typing or programmatic text updates`'input-clear'` when the field becomes empty`'input-blur'` when formatting (and clamping, if enabled) occurs on blur`'input-paste'` for paste interactions`'keyboard'` for arrow-key/Home/End stepping (typing digits uses `'input-change'`/`'input-clear'`)`'increment-press'` / `'decrement-press'` for button presses on the increment and decrement controls`'wheel'` for wheel-based scrubbing`'scrub'` for scrub area drags |
 | onValueCommitted | `((value: number \| null, eventDetails: NumberField.Root.CommitEventDetails) => void)`         | -       | Callback function that is fired when the value is committed.&#xA;It runs later than `onValueChange`, when: The input is blurred after typing a value.The pointer is released after scrubbing or pressing the increment/decrement buttons. It runs simultaneously with `onValueChange` when interacting with the keyboard or the&#xA;mouse wheel. **Warning**: This is a generic event not a change event.                                                                                                                                                                                                        |
+| actionsRef       | `React.RefObject<NumberField.Root.Actions \| null>`                                            | -       | A ref to imperative actions. `setInputValue`: Sets the raw text shown in the input element.&#xA;The text is not formatted or clamped, so it can hold strings that aren't parseable as a&#xA;number yet, such as `'-'` or `'.'`. `value` follows the text when it parses, and is left&#xA;alone when it doesn't, matching what typing the same string does.                                                                                                                                                                                                                                                       |
 | allowOutOfRange  | `boolean`                                                                                      | `false` | When true, direct text entry may be outside the `min`/`max` range without clamping,&#xA;so native range underflow/overflow validation can occur.&#xA;Step-based interactions (keyboard arrows, buttons, wheel, scrub) still clamp.                                                                                                                                                                                                                                                                                                                                                                               |
 | form             | `string`                                                                                       | -       | Identifies the form that owns the hidden input.&#xA;Useful when the number field is rendered outside the form.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
 | locale           | `Intl.LocalesArgument`                                                                         | -       | The locale of the input element.&#xA;Defaults to the user's runtime locale.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
@@ -86,6 +87,12 @@ type NumberFieldRootState = {
 };
 ```
 
+### Root.Actions
+
+```typescript
+type NumberFieldRootActions = { setInputValue: (inputValue: string) => void };
+```
+
 ### Root.ChangeEventReason
 
 ```typescript
@@ -99,6 +106,7 @@ type NumberFieldRootChangeEventReason =
   | 'decrement-press'
   | 'wheel'
   | 'scrub'
+  | 'imperative-action'
   | 'none';
 ```
 
@@ -115,6 +123,7 @@ type NumberFieldRootChangeEventDetails = (
   | { reason: 'decrement-press'; event: PointerEvent | MouseEvent | TouchEvent }
   | { reason: 'wheel'; event: WheelEvent }
   | { reason: 'scrub'; event: PointerEvent }
+  | { reason: 'imperative-action'; event: Event }
   | { reason: 'none'; event: Event }
 ) & {
   /** Cancels Base UI from handling the event. */
@@ -544,14 +553,14 @@ type Direction = -1 | 1;
 
 ## Export Groups
 
-- `NumberField.Root`: `NumberField.Root`, `NumberField.Root.State`, `NumberField.Root.Props`, `NumberField.Root.ChangeEventReason`, `NumberField.Root.ChangeEventDetails`, `NumberField.Root.CommitEventReason`, `NumberField.Root.CommitEventDetails`
+- `NumberField.Root`: `NumberField.Root`, `NumberField.Root.State`, `NumberField.Root.Props`, `NumberField.Root.Actions`, `NumberField.Root.ChangeEventReason`, `NumberField.Root.ChangeEventDetails`, `NumberField.Root.CommitEventReason`, `NumberField.Root.CommitEventDetails`
 - `NumberField.Group`: `NumberField.Group`, `NumberField.Group.State`, `NumberField.Group.Props`
 - `NumberField.Increment`: `NumberField.Increment`, `NumberField.Increment.State`, `NumberField.Increment.Props`
 - `NumberField.Decrement`: `NumberField.Decrement`, `NumberField.Decrement.State`, `NumberField.Decrement.Props`
 - `NumberField.Input`: `NumberField.Input`, `NumberField.Input.State`, `NumberField.Input.Props`
 - `NumberField.ScrubArea`: `NumberField.ScrubArea`, `NumberField.ScrubArea.State`, `NumberField.ScrubArea.Props`
 - `NumberField.ScrubAreaCursor`: `NumberField.ScrubAreaCursor`, `NumberField.ScrubAreaCursor.State`, `NumberField.ScrubAreaCursor.Props`
-- `Default`: `NumberFieldRootProps`, `NumberFieldRootState`, `NumberFieldRootChangeEventReason`, `NumberFieldRootChangeEventDetails`, `NumberFieldRootCommitEventReason`, `NumberFieldRootCommitEventDetails`, `NumberFieldGroupState`, `NumberFieldGroupProps`, `NumberFieldIncrementState`, `NumberFieldIncrementProps`, `NumberFieldDecrementState`, `NumberFieldDecrementProps`, `NumberFieldInputState`, `NumberFieldInputProps`, `NumberFieldScrubAreaState`, `NumberFieldScrubAreaProps`, `NumberFieldScrubAreaCursorState`, `NumberFieldScrubAreaCursorProps`
+- `Default`: `NumberFieldRootProps`, `NumberFieldRootActions`, `NumberFieldRootState`, `NumberFieldRootChangeEventReason`, `NumberFieldRootChangeEventDetails`, `NumberFieldRootCommitEventReason`, `NumberFieldRootCommitEventDetails`, `NumberFieldGroupState`, `NumberFieldGroupProps`, `NumberFieldIncrementState`, `NumberFieldIncrementProps`, `NumberFieldDecrementState`, `NumberFieldDecrementProps`, `NumberFieldInputState`, `NumberFieldInputProps`, `NumberFieldScrubAreaState`, `NumberFieldScrubAreaProps`, `NumberFieldScrubAreaCursorState`, `NumberFieldScrubAreaCursorProps`
 
 ## Canonical Types
 
@@ -559,6 +568,7 @@ Maps `Canonical`: `Alias` — Use Canonical when its namespace is already import
 
 - `NumberField.Root.State`: `NumberFieldRootState`
 - `NumberField.Root.Props`: `NumberFieldRootProps`
+- `NumberField.Root.Actions`: `NumberFieldRootActions`
 - `NumberField.Root.ChangeEventReason`: `NumberFieldRootChangeEventReason`
 - `NumberField.Root.ChangeEventDetails`: `NumberFieldRootChangeEventDetails`
 - `NumberField.Root.CommitEventReason`: `NumberFieldRootCommitEventReason`
