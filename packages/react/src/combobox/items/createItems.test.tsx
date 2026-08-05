@@ -1547,7 +1547,7 @@ describe('Combobox.createItems', () => {
       expect(onValueChange.mock.lastCall?.[0]).toBe(3);
     });
 
-    it('keeps the label of an externally filtered source item after its window is gone', async () => {
+    it('degrades the label of an externally filtered item after its window is gone', async () => {
       const externalUser = { id: 99, name: 'External user' };
 
       function App(props: { results: User[] }) {
@@ -1580,9 +1580,12 @@ describe('Combobox.createItems', () => {
 
       expect(screen.getByTestId('input')).toHaveValue('External user');
 
+      // Labels resolve only from the data and the current window — nothing from a past window is
+      // remembered. Keeping the label means keeping the item in the data (see the separately
+      // fetched metadata test) or supplying `itemToStringLabel`.
       await setProps({ results: [] });
 
-      expect(screen.getByTestId('input')).toHaveValue('External user');
+      expect(screen.getByTestId('input')).toHaveValue('99');
     });
 
     it('relabels a borrowed value when a later window carries a fresher item', async () => {
@@ -1637,37 +1640,12 @@ describe('Combobox.createItems', () => {
       expect(screen.getByTestId('input-a')).toHaveValue('Alice');
       expect(screen.getByTestId('input-b')).toHaveValue('Alicia');
 
-      // The retained item is local to each root, so the sibling's window cannot relabel this one
-      // once its own window is gone.
+      // Window items never touch the shared collection: with its own window gone, the first root
+      // degrades to the raw value rather than picking up the label from the sibling's window.
       await setProps({ resultsA: [] });
 
-      expect(screen.getByTestId('input-a')).toHaveValue('Alice');
+      expect(screen.getByTestId('input-a')).toHaveValue('user-1');
       expect(screen.getByTestId('input-b')).toHaveValue('Alicia');
-    });
-
-    it('does not keep the item of a value that was never selected', async () => {
-      function App(props: { results: Person[]; value: string | null }) {
-        return (
-          <Combobox.Root
-            items={sharedPersonItems}
-            filteredItems={props.results}
-            value={props.value}
-          >
-            <Combobox.Input data-testid="input" />
-          </Combobox.Root>
-        );
-      }
-
-      const { setProps } = await render(
-        <App results={[{ id: 'user-99', name: 'Ann' }]} value={null} />,
-      );
-
-      await setProps({ results: [], value: null });
-      // Selecting the value only after its window moved on: nothing retained it while it was
-      // unselected, so the label degrades to the raw value and `itemToStringLabel` covers it.
-      await setProps({ results: [], value: 'user-99' });
-
-      expect(screen.getByTestId('input')).toHaveValue('user-99');
     });
 
     it('opens a reordered external list at the selected value in rendered-list coordinates', async () => {

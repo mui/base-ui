@@ -210,32 +210,23 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
     return { values, valueToItem };
   }, [filteredItemsProp, itemToValue]);
 
-  /**
-   * Source items for the currently selected values that were resolved from an externally
-   * filtered window, retained so a selection's label survives after its window moves on.
-   * Bounded by the selection size and local to this root: the reusable collection itself
-   * is never mutated with items it does not own.
-   */
-  const retainedExternalItemsRef = React.useRef<Map<any, any> | null>(null);
-
   // `itemToStringLabel` labels selection values; `filterItemToString` labels source items while
   // filtering. The two domains only differ for a collection, which labels its own items and takes
   // the prop as the fallback for values it cannot resolve, so filtering always runs on the
   // collection's own labels.
-  // The collection's own data stays authoritative; only values it cannot resolve fall through to
-  // the current external window, then to the items retained for the selection, and finally to the
-  // prop. The current window wins over a retained item so a fresher record relabels the value.
-  // The identity changes with the window, which is what re-resolves labels (`Combobox.Value`, the
-  // input's selected label) once an item for the selected value arrives in a later window.
+  // Label resolution is derived entirely from the current props: the collection's own data stays
+  // authoritative, values it cannot resolve fall through to the current external window, and the
+  // prop covers the rest. Nothing from a past window is remembered — keeping a selected value
+  // resolvable over time means keeping its item in the collection's data, which is why the
+  // identity changes with the window: labels (`Combobox.Value`, the input's selected label)
+  // re-resolve when an item for the selected value arrives or leaves.
   const itemToStringLabel = React.useMemo(() => {
     if (!collection) {
       return itemToStringLabelProp;
     }
     return (itemValue: Value) =>
       collection.label(itemValue, (unresolvedValue: any) => {
-        const externalItem =
-          externalWindow?.valueToItem?.get(unresolvedValue) ??
-          retainedExternalItemsRef.current?.get(unresolvedValue);
+        const externalItem = externalWindow?.valueToItem?.get(unresolvedValue);
         if (externalItem != null) {
           return collection.itemLabel(externalItem);
         }
@@ -377,28 +368,6 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
       externalGroupedRef.current = isGroupedItems(filteredItemsProp);
     }
   }, [filteredItemsProp]);
-
-  // Retains only the items backing the current selection, pruning everything else, so cycling
-  // through result windows retains nothing for unselected values. Post-commit, so an interrupted
-  // render never changes what the committed tree resolves.
-  useIsoLayoutEffect(() => {
-    if (!itemToValue) {
-      return;
-    }
-    const previous = retainedExternalItemsRef.current;
-    let next: Map<any, any> | null = null;
-    const selectedValues = multiple ? selectedValue : [selectedValue];
-    for (const value of selectedValues) {
-      if (value == null) {
-        continue;
-      }
-      const item = externalWindow?.valueToItem?.get(value) ?? previous?.get(value);
-      if (item != null) {
-        (next ??= new Map()).set(value, item);
-      }
-    }
-    retainedExternalItemsRef.current = next;
-  }, [itemToValue, multiple, selectedValue, externalWindow]);
 
   const shouldIgnoreExternalFiltering =
     hasItems &&

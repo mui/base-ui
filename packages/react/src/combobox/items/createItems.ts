@@ -59,8 +59,8 @@ export interface CreateComboboxItemsOptions<
   /**
    * Projects an item to the label string that represents it in the input and when matching the
    * typed query. The root's `itemToStringLabel` prop is the fallback for selected values this
-   * accessor cannot reach, such as a value restored from storage whose item never appeared in
-   * the data or the filtered items.
+   * accessor cannot reach, meaning a value whose item is in neither the data nor the current
+   * `filteredItems`. Keep the selected item in the data to keep its label resolvable.
    *
    * By default, the item's derived value is stringified.
    *
@@ -160,7 +160,7 @@ export function createComboboxItems<Item, Value>(
 
     // The projection is pure: the collection never stores items it does not own, so a shared
     // collection cannot be contaminated by one root's data. Items from an externally filtered
-    // window are resolved and retained by each root instance instead.
+    // window are resolved by each root from its current `filteredItems` instead.
     return itemToValue(item);
   }
 
