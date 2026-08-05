@@ -304,8 +304,9 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
     actionsRef,
     () => ({
       setInputValue(nextInputValue: string) {
-        // Mirrors what typing the same string would do, minus the per-character gating that
-        // exists to reject keystrokes: the caller chose this string deliberately.
+        // Deliberately unconditional: this is an escape hatch for the owner of the component, not
+        // a simulated keystroke, so it skips both the per-character gating that exists to reject
+        // keystrokes and the `disabled`/`readOnly` gates that exist to reject user interaction.
         //
         // Marking the text unsynced is what lets an intermediate string like `'-'` survive. The
         // formatting sync would otherwise overwrite it with the formatting of `value` on the next
@@ -313,22 +314,31 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
         allowInputSyncRef.current = false;
         setInputValue(nextInputValue);
 
-        const details = createChangeEventDetails(REASONS.imperativeAction);
+        // An unparseable string leaves `value` alone rather than clearing it, so setting `'-'`
+        // over a field showing `5` keeps the 5 until the entry is completed.
+        const isEmpty = nextInputValue.trim() === '';
+        const parsedValue = isEmpty
+          ? null
+          : parseNumber(nextInputValue, locale, formatOptionsRef.current);
 
-        if (nextInputValue.trim() === '') {
-          setValue(null, details);
+        if (!isEmpty && parsedValue === null) {
           return;
         }
 
-        // An unparseable string leaves `value` alone rather than clearing it, so setting `'-'`
-        // over a field showing `5` keeps the 5 until the entry is completed.
-        const parsedValue = parseNumber(nextInputValue, locale, formatOptionsRef.current);
-        if (parsedValue !== null) {
-          setValue(parsedValue, details);
+        const changed = setValue(parsedValue, createChangeEventDetails(REASONS.imperativeAction));
+
+        // The caller chose this string deliberately, so the resulting change is final the way a
+        // keyboard step or a button press is, rather than a pending edit waiting for blur. The
+        // input may never be focused at all, so deferring the commit could drop it entirely.
+        if (changed) {
+          onValueCommitted(
+            lastChangedValueRef.current,
+            createGenericEventDetails(REASONS.imperativeAction),
+          );
         }
       },
     }),
-    [setValue, locale, formatOptionsRef],
+    [setValue, onValueCommitted, locale, formatOptionsRef, lastChangedValueRef],
   );
 
   // We need to update the input value when the external `value` prop changes. This ends up acting
@@ -649,6 +659,7 @@ export interface NumberFieldRootProps extends Omit<
    * - `'increment-press'` / `'decrement-press'` for button presses on the increment and decrement controls
    * - `'wheel'` for wheel-based scrubbing
    * - `'scrub'` for scrub area drags
+   * - `'imperative-action'` for text set through `actionsRef`
    */
   onValueChange?:
     | ((value: number | null, eventDetails: NumberFieldRoot.ChangeEventDetails) => void)
@@ -660,7 +671,7 @@ export interface NumberFieldRootProps extends Omit<
    * - The pointer is released after scrubbing or pressing the increment/decrement buttons.
    *
    * It runs simultaneously with `onValueChange` when interacting with the keyboard or the
-   * mouse wheel.
+   * mouse wheel, and when `actionsRef`'s `setInputValue` changes the value.
    *
    * **Warning**: This is a generic event not a change event.
    */
@@ -679,9 +690,12 @@ export interface NumberFieldRootProps extends Omit<
   /**
    * A ref to imperative actions.
    * - `setInputValue`: Sets the raw text shown in the input element.
-   * The text is not formatted or clamped, so it can hold strings that aren't parseable as a
-   * number yet, such as `'-'` or `'.'`. `value` follows the text when it parses, and is left
-   * alone when it doesn't, matching what typing the same string does.
+   * The text is displayed as given, so it can hold strings that aren't parseable as a number
+   * yet, such as `'-'` or `'.'`. When the text parses, `value` follows it (clamped to
+   * `min`/`max` unless `allowOutOfRange` is set) and the change is committed right away; when
+   * it doesn't, `value` is left alone. An empty string clears `value`.
+   * As an escape hatch for the owner of the component rather than a simulated keystroke, this
+   * applies even while the field is `disabled` or `readOnly`.
    */
   actionsRef?: React.RefObject<NumberFieldRoot.Actions | null> | undefined;
 }
@@ -744,6 +758,7 @@ export type NumberFieldRootCommitEventReason =
   | typeof REASONS.decrementPress
   | typeof REASONS.wheel
   | typeof REASONS.scrub
+  | typeof REASONS.imperativeAction
   | typeof REASONS.none;
 export type NumberFieldRootCommitEventDetails =
   BaseUIGenericEventDetails<NumberFieldRoot.CommitEventReason>;

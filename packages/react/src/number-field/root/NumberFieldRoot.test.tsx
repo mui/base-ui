@@ -182,13 +182,41 @@ describe('<NumberField />', () => {
       );
     }
 
+    // `min={0}` is deliberate: typing `-` is rejected outright when negatives are out of range,
+    // so this also pins that the action skips the per-character gating.
     it('should hold an intermediate string that no number formats to', async () => {
-      await render(<SetInputValueApp min={-10} text="-" />);
+      await render(<SetInputValueApp min={0} text="-" />);
       const input = screen.getByRole('textbox');
 
       fireEvent.click(screen.getByRole('button', { name: 'set text' }));
 
       expect(input).toHaveValue('-');
+    });
+
+    it('should set the text while disabled', async () => {
+      const onValueChange = vi.fn();
+      await render(
+        <SetInputValueApp disabled defaultValue={5} text="42" onValueChange={onValueChange} />,
+      );
+
+      fireEvent.click(screen.getByRole('button', { name: 'set text' }));
+
+      expect(screen.getByRole('textbox')).toHaveValue('42');
+      expect(onValueChange).toHaveBeenCalledTimes(1);
+      expect(onValueChange.mock.calls[0][0]).toBe(42);
+    });
+
+    it('should set the text while read-only', async () => {
+      const onValueChange = vi.fn();
+      await render(
+        <SetInputValueApp readOnly defaultValue={5} text="42" onValueChange={onValueChange} />,
+      );
+
+      fireEvent.click(screen.getByRole('button', { name: 'set text' }));
+
+      expect(screen.getByRole('textbox')).toHaveValue('42');
+      expect(onValueChange).toHaveBeenCalledTimes(1);
+      expect(onValueChange.mock.calls[0][0]).toBe(42);
     });
 
     it('should keep the intermediate string across an unrelated re-render', async () => {
@@ -261,20 +289,104 @@ describe('<NumberField />', () => {
       expect(onValueChange.mock.calls[0][0]).toBe(null);
     });
 
-    it('should survive a later external value change until an interaction reconciles it', async () => {
-      function App() {
-        const actionsRef = React.useRef<NumberFieldBase.Root.Actions | null>(null);
-        const [value, setValue] = React.useState<number | null>(null);
-        return (
-          <React.Fragment>
-            <NumberField min={-10} value={value} actionsRef={actionsRef} />
-            <button onClick={() => actionsRef.current?.setInputValue('-')}>set text</button>
-            <button onClick={() => setValue(7)}>set 7</button>
-          </React.Fragment>
-        );
-      }
+    it('should clamp the value while showing the text as given', async () => {
+      const onValueChange = vi.fn();
+      await render(
+        <SetInputValueApp
+          min={0}
+          max={10}
+          defaultValue={5}
+          text="999"
+          onValueChange={onValueChange}
+        />,
+      );
 
-      await render(<App />);
+      expect(screen.getByRole('textbox')).toHaveValue('5');
+
+      fireEvent.click(screen.getByRole('button', { name: 'set text' }));
+
+      expect(screen.getByRole('textbox')).toHaveValue('999');
+      expect(onValueChange.mock.calls[0][0]).toBe(10);
+    });
+
+    it('should parse the text with the field format', async () => {
+      const onValueChange = vi.fn();
+      await render(
+        <SetInputValueApp format={{ style: 'percent' }} text="50" onValueChange={onValueChange} />,
+      );
+
+      fireEvent.click(screen.getByRole('button', { name: 'set text' }));
+
+      expect(screen.getByRole('textbox')).toHaveValue('50');
+      expect(onValueChange.mock.calls[0][0]).toBe(0.5);
+    });
+
+    it('should commit as soon as the text parses, without waiting for a blur', async () => {
+      const onValueCommitted = vi.fn();
+      await render(<SetInputValueApp text="42" onValueCommitted={onValueCommitted} />);
+
+      fireEvent.click(screen.getByRole('button', { name: 'set text' }));
+
+      expect(onValueCommitted).toHaveBeenCalledTimes(1);
+      expect(onValueCommitted.mock.calls[0][0]).toBe(42);
+      expect(onValueCommitted.mock.calls[0][1].reason).toBe(REASONS.imperativeAction);
+    });
+
+    it('should commit when the text is emptied', async () => {
+      const onValueCommitted = vi.fn();
+      await render(
+        <SetInputValueApp defaultValue={5} text="" onValueCommitted={onValueCommitted} />,
+      );
+
+      fireEvent.click(screen.getByRole('button', { name: 'set text' }));
+
+      expect(onValueCommitted).toHaveBeenCalledTimes(1);
+      expect(onValueCommitted.mock.calls[0][0]).toBe(null);
+    });
+
+    it('should not commit when the text does not parse', async () => {
+      const onValueCommitted = vi.fn();
+      await render(
+        <SetInputValueApp
+          min={-10}
+          defaultValue={5}
+          text="-"
+          onValueCommitted={onValueCommitted}
+        />,
+      );
+
+      fireEvent.click(screen.getByRole('button', { name: 'set text' }));
+
+      expect(onValueCommitted).not.toHaveBeenCalled();
+    });
+
+    it('should commit the clamped value rather than the text', async () => {
+      const onValueCommitted = vi.fn();
+      await render(
+        <SetInputValueApp min={0} max={10} text="999" onValueCommitted={onValueCommitted} />,
+      );
+
+      fireEvent.click(screen.getByRole('button', { name: 'set text' }));
+
+      expect(onValueCommitted.mock.calls[0][0]).toBe(10);
+    });
+
+    function UnsavedEditApp() {
+      const actionsRef = React.useRef<NumberFieldBase.Root.Actions | null>(null);
+      const [value, setValue] = React.useState<number | null>(null);
+      const [, forceRerender] = React.useReducer((count) => count + 1, 0);
+      return (
+        <React.Fragment>
+          <NumberField min={-10} value={value} actionsRef={actionsRef} />
+          <button onClick={() => actionsRef.current?.setInputValue('-')}>set text</button>
+          <button onClick={() => setValue(7)}>set 7</button>
+          <button onClick={forceRerender}>rerender</button>
+        </React.Fragment>
+      );
+    }
+
+    it('should survive a later external value change while the edit is unsaved', async () => {
+      await render(<UnsavedEditApp />);
       const input = screen.getByRole('textbox');
 
       fireEvent.click(screen.getByRole('button', { name: 'set text' }));
@@ -286,27 +398,43 @@ describe('<NumberField />', () => {
       fireEvent.click(screen.getByRole('button', { name: 'set 7' }));
       expect(input).toHaveValue('-');
 
-      // Blur doesn't reclaim it either: the text can't be parsed, so the blur handler leaves it
-      // alone and the field goes on showing something its value contradicts.
-      fireEvent.blur(input);
+      fireEvent.click(screen.getByRole('button', { name: 'rerender' }));
+      expect(input).toHaveValue('-');
+    });
+
+    it('should return to the formatted value on the first render after blur', async () => {
+      await render(<UnsavedEditApp />);
+      const input = screen.getByRole('textbox');
+
+      fireEvent.click(screen.getByRole('button', { name: 'set text' }));
+      fireEvent.click(screen.getByRole('button', { name: 'set 7' }));
       expect(input).toHaveValue('-');
 
-      // Only a value-changing interaction reconciles the display. `value` is controlled and never
-      // written back here, so the step lands on the same 7 and the text follows it.
-      fireEvent.click(screen.getByLabelText('Increase'));
+      // Blur ends the unsaved edit and re-arms the formatting sync. `'-'` doesn't parse, so the
+      // blur handler itself writes nothing and the stale text is still on screen right after it —
+      // but the edit no longer has authority, so the next render of any kind reclaims the display.
+      // Inside a `Field.Root` that render is scheduled by the blur itself, via `setTouched`.
+      fireEvent.blur(input);
+      fireEvent.click(screen.getByRole('button', { name: 'rerender' }));
+
       expect(input).toHaveValue('7');
     });
 
-    it('should still commit a parseable string on blur', async () => {
+    it('should commit again on blur, since the text is still an unsaved edit', async () => {
       const onValueCommitted = vi.fn();
       await render(<SetInputValueApp text="3.50" onValueCommitted={onValueCommitted} />);
       const input = screen.getByRole('textbox');
 
       fireEvent.click(screen.getByRole('button', { name: 'set text' }));
+      expect(onValueCommitted).toHaveBeenCalledTimes(1);
+
+      // Blurring a field with unsaved text always commits, whether the text was typed or set
+      // imperatively, so the same value is reported a second time under the blur reason.
       fireEvent.blur(input);
 
-      expect(onValueCommitted).toHaveBeenCalledTimes(1);
-      expect(onValueCommitted.mock.calls[0][0]).toBe(3.5);
+      expect(onValueCommitted).toHaveBeenCalledTimes(2);
+      expect(onValueCommitted.mock.calls[1][0]).toBe(3.5);
+      expect(onValueCommitted.mock.calls[1][1].reason).toBe(REASONS.inputBlur);
       expect(input).toHaveValue('3.5');
     });
   });

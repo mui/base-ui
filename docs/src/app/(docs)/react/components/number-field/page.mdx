@@ -54,11 +54,21 @@ const actionsRef = React.useRef<NumberField.Root.Actions | null>(null);
 actionsRef.current.setInputValue('-');
 ```
 
-The text is never formatted or clamped on the way in, so any string is allowed.
+The text itself is displayed as given — never formatted, never clamped — so any string is allowed.
 `value` follows the text when it parses and is left alone when it doesn't, which is what lets `'-'` sit over an existing number without clearing it.
 An empty string clears `value`.
 
-The text set this way counts as an unsaved edit, exactly as if it had been typed: it survives re-renders and external `value` changes, and the field reclaims the display on the next interaction that changes the value.
+Unlike the text, `value` is still validated: it is clamped to `min` and `max` unless `allowOutOfRange` is set.
+Setting `'999'` on a field with `max={10}` therefore shows `999` while `value` becomes `10`.
+
+Because the caller chose the string deliberately, the action is an escape hatch rather than a simulated keystroke:
+
+- It applies even while the field is `disabled` or `readOnly`, which reject typing.
+- It accepts characters typing would reject, so `'-'` works even when `min` is not negative.
+- Changes it makes are final, not pending: `onValueChange` and `onValueCommitted` both run right away, with `reason: 'imperative-action'`. Waiting for blur would drop the change entirely when the input is never focused.
+
+The _text_ still behaves as an unsaved edit, exactly as if it had been typed: it survives re-renders and external `value` changes.
+Blurring the input ends the edit and re-arms formatting, so the display returns to the formatted `value` on the next render — whether or not that blur changed anything.
 
 ## API reference
 
