@@ -480,17 +480,8 @@ export function useImplicitActiveTrigger<State extends PopupStoreState<unknown>>
       stateUpdates.activeTriggerId !== undefined ||
       stateUpdates.activeTriggerElement !== undefined
     ) {
-      store.update({
-        triggerCount: stateUpdates.triggerCount ?? store.state.triggerCount,
-        activeTriggerId:
-          stateUpdates.activeTriggerId === undefined
-            ? store.state.activeTriggerId
-            : stateUpdates.activeTriggerId,
-        activeTriggerElement:
-          stateUpdates.activeTriggerElement === undefined
-            ? store.state.activeTriggerElement
-            : stateUpdates.activeTriggerElement,
-      });
+      // Every populated key is assigned its corresponding state value above.
+      store.update(stateUpdates as Pick<State, keyof PopupStoreState<unknown>>);
     }
 
     if (lostActiveTriggerId) {

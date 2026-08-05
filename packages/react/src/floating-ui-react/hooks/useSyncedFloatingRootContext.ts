@@ -5,7 +5,7 @@ import { ReactStore } from '@base-ui/utils/store';
 import { isElement } from '@floating-ui/utils/dom';
 import { BaseUIChangeEventDetails } from '../../types';
 import { PopupStoreContext, PopupStoreSelectors, PopupStoreState } from '../../utils/popups';
-import { FloatingRootStore } from '../components/FloatingRootStore';
+import { FloatingRootState, FloatingRootStore } from '../components/FloatingRootStore';
 
 export interface UseSyncedFloatingRootContextOptions<
   State extends PopupStoreState<unknown>,
@@ -75,22 +75,23 @@ export function useSyncedFloatingRootContext<
   popupStore.useSyncedValue('floatingId', floatingId as State['floatingId']);
 
   useIsoLayoutEffect(() => {
-    const previousReferenceElement = store.state.referenceElement;
-    const positionReference =
-      store.state.positionReference === previousReferenceElement
-        ? referenceElement
-        : store.state.positionReference;
-
-    store.update({
+    const valuesToSync: Partial<FloatingRootState> = {
       open,
       floatingId,
       referenceElement,
       floatingElement,
-      domReferenceElement: isElement(referenceElement)
-        ? referenceElement
-        : store.state.domReferenceElement,
-      positionReference,
-    });
+    };
+
+    if (isElement(referenceElement)) {
+      valuesToSync.domReferenceElement = referenceElement;
+    }
+
+    if (store.state.positionReference === store.state.referenceElement) {
+      valuesToSync.positionReference = referenceElement;
+    }
+
+    // Every populated key is assigned its corresponding state value above.
+    store.update(valuesToSync as Pick<FloatingRootState, keyof FloatingRootState>);
   }, [open, floatingId, referenceElement, floatingElement, store]);
 
   // Keep non-reactive context values fresh for interactions that call `store.setOpen`.

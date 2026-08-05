@@ -509,10 +509,18 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
       selectedIndex?: number | null | undefined;
       type?: AriaCombobox.HighlightEventReason | undefined;
     }) => {
-      const { activeIndex = store.state.activeIndex, selectedIndex = store.state.selectedIndex } =
-        options;
+      const indexUpdates: Partial<Pick<StoreState, 'activeIndex' | 'selectedIndex'>> = {};
 
-      store.update({ activeIndex, selectedIndex });
+      if (options.activeIndex !== undefined) {
+        indexUpdates.activeIndex = options.activeIndex;
+      }
+
+      if (options.selectedIndex !== undefined) {
+        indexUpdates.selectedIndex = options.selectedIndex;
+      }
+
+      // Every populated key is assigned its corresponding state value above.
+      store.update(indexUpdates as Pick<StoreState, 'activeIndex' | 'selectedIndex'>);
 
       const activeIndexOption = options.activeIndex;
       if (activeIndexOption === undefined) {
