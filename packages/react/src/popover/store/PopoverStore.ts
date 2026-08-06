@@ -196,7 +196,9 @@ function createInitialState<Payload>(
   nested = false,
 ): State<Payload> {
   const state: State<Payload> = {
-    ...createInitialPopupStoreState<Payload>(),
+    ...createInitialPopupStoreState<Payload>(
+      createPopupFloatingRootContext(triggerElements, floatingId, nested),
+    ),
     disabled: false,
     modal: false,
     focusManagerModal: false,
@@ -215,8 +217,6 @@ function createInitialState<Payload>(
   if (state.open && initialState?.mounted === undefined) {
     state.mounted = true;
   }
-
-  state.floatingRootContext = createPopupFloatingRootContext(triggerElements, floatingId, nested);
 
   return state;
 }

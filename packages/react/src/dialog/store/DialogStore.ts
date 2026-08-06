@@ -126,7 +126,9 @@ function createInitialState<Payload>(
   nested = false,
 ): State<Payload> {
   const state: State<Payload> = {
-    ...createInitialPopupStoreState<Payload>(),
+    ...createInitialPopupStoreState<Payload>(
+      createPopupFloatingRootContext(triggerElements, floatingId, nested),
+    ),
     modal: true,
     disablePointerDismissal: false,
     viewportElement: null,
@@ -139,8 +141,6 @@ function createInitialState<Payload>(
     role: 'dialog',
     ...initialState,
   };
-
-  state.floatingRootContext = createPopupFloatingRootContext(triggerElements, floatingId, nested);
 
   return state;
 }

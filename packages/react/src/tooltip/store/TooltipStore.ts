@@ -126,7 +126,9 @@ function createInitialState<Payload>(
   nested = false,
 ): State<Payload> {
   const state: State<Payload> = {
-    ...createInitialPopupStoreState<Payload>(),
+    ...createInitialPopupStoreState<Payload>(
+      createPopupFloatingRootContext(triggerElements, floatingId, nested),
+    ),
     disabled: false,
     instantType: undefined,
     isInstantPhase: false,
@@ -138,8 +140,6 @@ function createInitialState<Payload>(
     adaptiveOrigin: undefined,
     ...initialState,
   };
-
-  state.floatingRootContext = createPopupFloatingRootContext(triggerElements, floatingId, nested);
 
   return state;
 }

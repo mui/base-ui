@@ -1,9 +1,10 @@
 import { describe, expect, it } from 'vitest';
 import { createInitialPopupStoreState, popupStoreSelectors, type PopupStoreState } from './store';
+import { getEmptyRootContext } from '../../floating-ui-react/utils/getEmptyRootContext';
 
 function createState(state: Partial<PopupStoreState<unknown>>) {
   return {
-    ...createInitialPopupStoreState(),
+    ...createInitialPopupStoreState(getEmptyRootContext()),
     activeTriggerId: 'trigger',
     ...state,
   };
