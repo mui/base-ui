@@ -1,3 +1,4 @@
+import * as React from 'react';
 import { expect, vi } from 'vitest';
 import { createRenderer, fireEvent, screen } from '@mui/internal-test-utils';
 import { Field } from '@base-ui/react/field';
@@ -18,14 +19,15 @@ describe('<Field.Control />', () => {
   it('avoids rerendering for uncontrolled input changes', async () => {
     const renderCountRef = { current: 0 };
 
-    function RenderCountedControl() {
-      renderCountRef.current += 1;
-      return <Field.Control data-testid="control" />;
-    }
-
     renderNonStrict(
       <Field.Root>
-        <RenderCountedControl />
+        <Field.Control
+          data-testid="control"
+          render={(props) => {
+            renderCountRef.current += 1;
+            return <input {...props} />;
+          }}
+        />
       </Field.Root>,
     );
 
@@ -42,6 +44,41 @@ describe('<Field.Control />', () => {
     expect(afterFirstChange).toBeLessThanOrEqual(initialRenderCount + 1);
   });
 
+  it('renders once per keystroke for controlled input changes', async () => {
+    const renderCountRef = { current: 0 };
+
+    function App() {
+      const [value, setValue] = React.useState('');
+      return (
+        <Field.Root>
+          <Field.Control
+            data-testid="control"
+            value={value}
+            onValueChange={setValue}
+            render={(props) => {
+              renderCountRef.current += 1;
+              return <input {...props} />;
+            }}
+          />
+        </Field.Root>
+      );
+    }
+
+    renderNonStrict(<App />);
+
+    const control = screen.getByTestId('control');
+
+    // The first keystroke also flips dirty and filled, so measure the steady state after it.
+    fireEvent.change(control, { target: { value: 'a' } });
+    const settledRenderCount = renderCountRef.current;
+
+    fireEvent.change(control, { target: { value: 'ab' } });
+    fireEvent.change(control, { target: { value: 'abc' } });
+
+    // The controlled echo must not schedule a second render per keystroke.
+    expect(renderCountRef.current).toBe(settledRenderCount + 2);
+  });
+
   it('validates once when changed by the user', async () => {
     const validate = vi.fn();
 
@@ -55,6 +92,112 @@ describe('<Field.Control />', () => {
 
     expect(validate).toHaveBeenCalledTimes(1);
     expect(validate.mock.lastCall?.[0]).toBe('a');
+  });
+
+  it('validates once when a controlled value is changed by the user', async () => {
+    const validate = vi.fn(() => null);
+
+    function App() {
+      const [value, setValue] = React.useState('');
+      return (
+        <Field.Root validationMode="onChange" validate={validate}>
+          <Field.Control value={value} onValueChange={setValue} />
+        </Field.Root>
+      );
+    }
+
+    await render(<App />);
+
+    fireEvent.change(screen.getByRole('textbox'), { target: { value: 'a' } });
+
+    expect(validate).toHaveBeenCalledTimes(1);
+  });
+
+  it('clears dirty state when a numeric controlled value returns to its initial value', async () => {
+    function App() {
+      const [value, setValue] = React.useState(5);
+      return (
+        <Field.Root data-testid="root">
+          <Field.Control value={value} onValueChange={(nextValue) => setValue(Number(nextValue))} />
+        </Field.Root>
+      );
+    }
+
+    await render(<App />);
+
+    const root = screen.getByTestId('root');
+    const control = screen.getByRole('textbox');
+
+    expect(root).not.toHaveAttribute('data-dirty');
+
+    fireEvent.change(control, { target: { value: '56' } });
+
+    expect(root).toHaveAttribute('data-dirty', '');
+
+    fireEvent.change(control, { target: { value: '5' } });
+
+    expect(root).not.toHaveAttribute('data-dirty');
+  });
+
+  it('syncs state and validates when the controlled value changes programmatically', async () => {
+    const validate = vi.fn((_value: unknown) => null);
+
+    function App() {
+      const [value, setValue] = React.useState('');
+      return (
+        <Field.Root data-testid="root" validationMode="onChange" validate={validate}>
+          <Field.Control value={value} onValueChange={setValue} />
+          <button type="button" onClick={() => setValue('external')}>
+            set
+          </button>
+        </Field.Root>
+      );
+    }
+
+    await render(<App />);
+
+    fireEvent.click(screen.getByRole('button'));
+
+    const root = screen.getByTestId('root');
+
+    expect(root).toHaveAttribute('data-filled', '');
+    expect(root).toHaveAttribute('data-dirty', '');
+    expect(validate).toHaveBeenCalledTimes(1);
+    expect(validate.mock.lastCall?.[0]).toBe('external');
+  });
+
+  it('sets filled state on mount when the control is prefilled', async () => {
+    await render(
+      <Field.Root data-testid="root">
+        <Field.Control defaultValue="foo" />
+      </Field.Root>,
+    );
+
+    expect(screen.getByTestId('root')).toHaveAttribute('data-filled', '');
+  });
+
+  it('does not set filled state on mount for an empty controlled value', async () => {
+    await render(
+      <Field.Root data-testid="root">
+        <Field.Control value="" onValueChange={() => {}} />
+      </Field.Root>,
+    );
+
+    expect(screen.getByTestId('root')).not.toHaveAttribute('data-filled');
+  });
+
+  it('does not validate when the change is canceled', async () => {
+    const validate = vi.fn(() => null);
+
+    await render(
+      <Field.Root validationMode="onChange" validate={validate}>
+        <Field.Control onValueChange={(value, details) => details.cancel()} />
+      </Field.Root>,
+    );
+
+    fireEvent.change(screen.getByRole('textbox'), { target: { value: 'a' } });
+
+    expect(validate).not.toHaveBeenCalled();
   });
 
   it('does not clear errors or validate when change is prevented', async () => {
