@@ -177,7 +177,7 @@ type PopupOpenState = Pick<
   'open' | 'preventUnmountingOnClose' | 'activeTriggerId' | 'activeTriggerElement'
 >;
 
-export function getPopupOpenState(
+export function createPopupOpenState(
   state: PopupOpenState,
   open: boolean,
   trigger: Element | undefined,
@@ -266,24 +266,27 @@ export function applyPopupOpenChange<
   store.state.floatingRootContext.dispatchOpenChange(nextOpen, eventDetails);
 
   const changeState = () => {
-    const popupOpenState = getPopupOpenState(
+    const popupOpenState = createPopupOpenState(
       store.state,
       nextOpen,
       eventDetails.trigger,
       shouldPreventUnmountOnClose(),
     );
 
-    const baseState = { ...options.extraState, ...popupOpenState };
+    const updatedState = { ...options.extraState, ...popupOpenState } as Pick<
+      State,
+      keyof PopupOpenState | ExtraKey | 'instantType'
+    >;
 
     if (isFocusOpen) {
-      store.update({ ...baseState, instantType: 'focus' });
+      updatedState.instantType = 'focus';
     } else if (isDismissClose) {
-      store.update({ ...baseState, instantType: 'dismiss' });
+      updatedState.instantType = 'dismiss';
     } else if (isHover) {
-      store.update({ ...baseState, instantType: undefined });
-    } else {
-      store.update(baseState);
+      updatedState.instantType = undefined;
     }
+
+    store.update(updatedState);
   };
 
   if (isHover) {
@@ -430,9 +433,14 @@ export function useImplicitActiveTrigger<State extends PopupStoreState<unknown>>
     }
 
     const triggerCount = store.context.triggerElements.size;
-    const shouldUpdateTriggerCount = store.state.triggerCount !== triggerCount;
-    let nextActiveTriggerId: string | null | undefined;
-    let nextActiveTriggerElement: Element | null | undefined;
+    const stateUpdates = {} as Pick<
+      State,
+      'triggerCount' | 'activeTriggerId' | 'activeTriggerElement'
+    >;
+
+    if (store.state.triggerCount !== triggerCount) {
+      stateUpdates.triggerCount = triggerCount;
+    }
 
     const currentActiveTriggerId = store.select('activeTriggerId');
     let lostActiveTriggerId: string | null = null;
@@ -442,14 +450,14 @@ export function useImplicitActiveTrigger<State extends PopupStoreState<unknown>>
       if (!activeTriggerElement) {
         for (const [triggerId, triggerElement] of store.context.triggerElements.entries()) {
           if (triggerElement === store.state.activeTriggerElement) {
-            nextActiveTriggerId = triggerId;
-            nextActiveTriggerElement = triggerElement;
+            stateUpdates.activeTriggerId = triggerId;
+            stateUpdates.activeTriggerElement = triggerElement;
             resolvedActiveTriggerIdRef.current = triggerId;
             break;
           }
         }
 
-        if (nextActiveTriggerId === undefined) {
+        if (stateUpdates.activeTriggerId === undefined) {
           if (resolvedActiveTriggerIdRef.current === currentActiveTriggerId) {
             lostActiveTriggerId = currentActiveTriggerId;
           } else {
@@ -459,7 +467,7 @@ export function useImplicitActiveTrigger<State extends PopupStoreState<unknown>>
       } else {
         resolvedActiveTriggerIdRef.current = currentActiveTriggerId;
         if (activeTriggerElement !== store.state.activeTriggerElement) {
-          nextActiveTriggerElement = activeTriggerElement;
+          stateUpdates.activeTriggerElement = activeTriggerElement;
         }
       }
     } else {
@@ -470,24 +478,18 @@ export function useImplicitActiveTrigger<State extends PopupStoreState<unknown>>
       const iteratorResult = store.context.triggerElements.entries().next();
       if (!iteratorResult.done) {
         const [implicitTriggerId, implicitTriggerElement] = iteratorResult.value;
-        nextActiveTriggerId = implicitTriggerId;
-        nextActiveTriggerElement = implicitTriggerElement;
+        stateUpdates.activeTriggerId = implicitTriggerId;
+        stateUpdates.activeTriggerElement = implicitTriggerElement;
         resolvedActiveTriggerIdRef.current = implicitTriggerId;
       }
     }
 
     if (
-      shouldUpdateTriggerCount ||
-      nextActiveTriggerId !== undefined ||
-      nextActiveTriggerElement !== undefined
+      stateUpdates.triggerCount !== undefined ||
+      stateUpdates.activeTriggerId !== undefined ||
+      stateUpdates.activeTriggerElement !== undefined
     ) {
-      store.update({
-        ...(shouldUpdateTriggerCount && { triggerCount }),
-        ...(nextActiveTriggerId !== undefined && { activeTriggerId: nextActiveTriggerId }),
-        ...(nextActiveTriggerElement !== undefined && {
-          activeTriggerElement: nextActiveTriggerElement,
-        }),
-      } as Pick<Readonly<State>, 'triggerCount' | 'activeTriggerId' | 'activeTriggerElement'>);
+      store.update(stateUpdates);
     }
 
     if (lostActiveTriggerId) {

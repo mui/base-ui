@@ -123,16 +123,18 @@ export class ToastStore extends ReactStore<State, {}, typeof selectors> {
       return;
     }
 
-    const newToasts = limitChanged ? applyLimited(this.state.toasts, limit) : undefined;
+    const updates = { timeout, limit } as Pick<
+      State,
+      'timeout' | 'limit' | 'toasts' | 'toastMetadata'
+    >;
 
-    this.update({
-      timeout,
-      limit,
-      ...(newToasts !== undefined && {
-        toasts: newToasts,
-        toastMetadata: createToastMetadata(newToasts),
-      }),
-    } as Pick<State, 'timeout' | 'limit' | 'toasts' | 'toastMetadata'>);
+    if (limitChanged) {
+      const newToasts = applyLimited(this.state.toasts, limit);
+      updates.toasts = newToasts;
+      updates.toastMetadata = createToastMetadata(newToasts);
+    }
+
+    this.update(updates);
   }
 
   disposeEffect = () => {
@@ -444,11 +446,17 @@ export class ToastStore extends ReactStore<State, {}, typeof selectors> {
   }
 
   private setToasts(newToasts: StoredToast[], clearInteraction: boolean = newToasts.length === 0) {
-    this.update({
+    const updates = {
       toasts: newToasts,
       toastMetadata: createToastMetadata(newToasts),
-      ...(clearInteraction && { hovering: false, focused: false }),
-    } as Pick<State, 'toasts' | 'toastMetadata' | 'hovering' | 'focused'>);
+    } as Pick<State, 'toasts' | 'toastMetadata' | 'hovering' | 'focused'>;
+
+    if (clearInteraction) {
+      updates.hovering = false;
+      updates.focused = false;
+    }
+
+    this.update(updates);
   }
 
   private handleFocusManagement(toastId: string | undefined) {

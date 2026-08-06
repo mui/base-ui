@@ -10,7 +10,7 @@ import {
   PopupTriggerDataStore,
   PopupStoreState,
   PopupTriggerMap,
-  getPopupOpenState,
+  createPopupOpenState,
 } from '../../utils/popups';
 
 export type State<Payload> = PopupStoreState<Payload> & {
@@ -93,7 +93,7 @@ export class DialogStore<Payload> extends ReactStore<
 
     this.state.floatingRootContext.dispatchOpenChange(nextOpen, eventDetails);
 
-    this.update(getPopupOpenState(this.state, nextOpen, eventDetails.trigger));
+    this.update(createPopupOpenState(this.state, nextOpen, eventDetails.trigger));
   };
 }
 

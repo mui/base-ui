@@ -7,7 +7,7 @@ import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import {
   applyPopupOpenChange,
   createInitialPopupStoreState,
-  getPopupOpenState,
+  createPopupOpenState,
   PopupStoreContext,
   PopupStoreState,
   PopupStoreSelectors,
@@ -727,30 +727,30 @@ describe('usePopupInteractionProps', () => {
 
 describe('getPopupOpenState', () => {
   it('clears a previous unmount-prevention request when opening', () => {
-    const state = createInitialPopupStoreState();
+    const state = createInitialPopupStoreState(new PopupTriggerMap());
     state.preventUnmountingOnClose = true;
 
-    const nextState = getPopupOpenState(state, true, undefined);
+    const nextState = createPopupOpenState(state, true, undefined);
 
     expect(nextState.preventUnmountingOnClose).toBe(false);
     expect(state.preventUnmountingOnClose).toBe(true);
   });
 
   it('sets the unmount-prevention request when closing', () => {
-    const state = createInitialPopupStoreState();
+    const state = createInitialPopupStoreState(new PopupTriggerMap());
 
-    const nextState = getPopupOpenState(state, false, undefined, true);
+    const nextState = createPopupOpenState(state, false, undefined, true);
 
     expect(nextState.preventUnmountingOnClose).toBe(true);
   });
 
   it('preserves the active trigger when closing without a trigger', () => {
-    const state = createInitialPopupStoreState();
+    const state = createInitialPopupStoreState(new PopupTriggerMap());
     const trigger = document.createElement('button');
     state.activeTriggerId = 'trigger-id';
     state.activeTriggerElement = trigger;
 
-    const nextState = getPopupOpenState(state, false, undefined);
+    const nextState = createPopupOpenState(state, false, undefined);
 
     expect(nextState.activeTriggerId).toBe('trigger-id');
     expect(nextState.activeTriggerElement).toBe(trigger);
