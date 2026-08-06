@@ -1,35 +1,24 @@
+// https://github.com/mui/mui-x/blob/master/packages/x-internals/src/fastArrayCompare/fastArrayCompare.ts
 type ItemComparer<Item> = (a: Item, b: Item) => boolean;
 
 /**
- * Compares two arrays for equality.
+ * Compares two arrays element-wise.
  *
- * Short-circuits on referential equality and bails out early on a length
- * mismatch, then iterates in reverse to avoid the closure allocation of
- * `Array.prototype.every`. When no `itemComparer` is provided the elements are
- * compared with `Object.is`, inlined to skip a per-call callback.
- *
- * Inspired by `fastArrayCompare` from `@mui/x-internals`.
+ * The default comparison is `Object.is`, so `NaN` equals `NaN` and `0` does not equal `-0`.
  */
 export function areArraysEqual<Item>(
   array1: ReadonlyArray<Item>,
   array2: ReadonlyArray<Item>,
-  itemComparer?: ItemComparer<Item>,
+  itemComparer: ItemComparer<Item> = Object.is,
 ): boolean {
-  if (array1 === array2) {
-    return true;
-  }
+  const { length } = array1;
 
-  let i = array1.length;
-  if (i !== array2.length) {
+  if (length !== array2.length) {
     return false;
   }
 
-  // eslint-disable-next-line no-plusplus
-  while (i--) {
-    const equal = itemComparer
-      ? itemComparer(array1[i], array2[i])
-      : Object.is(array1[i], array2[i]);
-    if (!equal) {
+  for (let i = 0; i < length; i += 1) {
+    if (!itemComparer(array1[i], array2[i])) {
       return false;
     }
   }

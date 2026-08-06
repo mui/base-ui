@@ -10,7 +10,6 @@ import { visuallyHidden, visuallyHiddenInput } from '@base-ui/utils/visuallyHidd
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { Store, useStore } from '@base-ui/utils/store';
 import { EMPTY_ARRAY, EMPTY_OBJECT } from '@base-ui/utils/empty';
-import { areArraysEqual } from '@base-ui/utils/areArraysEqual';
 import { isHTMLElement } from '@floating-ui/utils/dom';
 import {
   ElementProps,
@@ -62,6 +61,7 @@ import {
   compareItemEquality,
   defaultItemEquality,
   findSelectionIndex,
+  isSelectedValueDirty,
   removeItem,
   selectedValueIncludes,
 } from '../../internals/itemEquality';
@@ -1026,18 +1026,6 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     }
   }, [hasItems, autoHighlightMode, flatFilteredItems.length, setIndices]);
 
-  function isSelectedValueDirty(value: Value | Value[] | null) {
-    const initialValue = validityData.initialValue;
-
-    if (Array.isArray(value) && Array.isArray(initialValue)) {
-      return !areArraysEqual(value, initialValue, (itemValue, initialItemValue) =>
-        compareItemEquality(itemValue, initialItemValue, isItemEqualToValue),
-      );
-    }
-
-    return value !== initialValue;
-  }
-
   useValueChanged(query, () => {
     if (!open || query === '' || query === String(initialDefaultInputValue)) {
       return;
@@ -1059,7 +1047,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     }
 
     clearErrors(name);
-    setDirty(isSelectedValueDirty(selectedValue));
+    setDirty(isSelectedValueDirty(selectedValue, validityData.initialValue, isItemEqualToValue));
 
     validation.change(selectedValue);
 

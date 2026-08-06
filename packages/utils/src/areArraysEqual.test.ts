@@ -1,4 +1,4 @@
-import { expect } from 'vitest';
+import { expect, vi } from 'vitest';
 import { areArraysEqual } from './areArraysEqual';
 
 describe('areArraysEqual', () => {
@@ -27,11 +27,30 @@ describe('areArraysEqual', () => {
     expect(areArraysEqual([NaN], [NaN])).toBe(true);
   });
 
+  it('treats 0 as different from -0 (Object.is semantics)', () => {
+    expect(areArraysEqual([0], [-0])).toBe(false);
+  });
+
+  it('compares by reference by default', () => {
+    expect(areArraysEqual([{ id: 1 }], [{ id: 1 }])).toBe(false);
+  });
+
   it('uses the provided comparer', () => {
     const a = [{ id: 1 }, { id: 2 }];
     const b = [{ id: 1 }, { id: 2 }];
 
-    expect(areArraysEqual(a, b)).toBe(false);
     expect(areArraysEqual(a, b, (x, y) => x.id === y.id)).toBe(true);
+  });
+
+  it('lets the provided comparer override Object.is semantics', () => {
+    expect(areArraysEqual([0], [-0], (a, b) => a === b)).toBe(true);
+  });
+
+  it('consults the provided comparer even for the same array reference', () => {
+    const arr = [1, 2, 3];
+    const itemComparer = vi.fn(() => false);
+
+    expect(areArraysEqual(arr, arr, itemComparer)).toBe(false);
+    expect(itemComparer).toHaveBeenCalled();
   });
 });
