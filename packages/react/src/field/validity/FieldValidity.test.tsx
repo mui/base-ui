@@ -46,7 +46,9 @@ describe('<Field.Validity />', () => {
       fireEvent.change(input, { target: { value: '' } });
 
       expect(handleValidity.mock.lastCall?.[0].value).toBe('');
-      expect(handleValidity.mock.lastCall?.[0].validity.customError).toBe(true);
+      // The custom message belonged to the previous value, so it is retired rather than kept
+      // alongside the newly surfaced `valueMissing`.
+      expect(handleValidity.mock.lastCall?.[0].validity.customError).toBe(false);
       expect(handleValidity.mock.lastCall?.[0].validity.valueMissing).toBe(true);
       expect(screen.getByText('Required')).toBeVisible();
       expect(validate).toHaveBeenCalledTimes(1);
@@ -58,7 +60,11 @@ describe('<Field.Validity />', () => {
       }
 
       expect(handleValidity.mock.lastCall?.[0].value).toBe('');
-      expect(handleValidity.mock.lastCall?.[0].validity.customError).toBe(true);
+      // Submitting revalidates on change, so the validator runs again next to the native
+      // constraint. On blur the native constraint alone stands.
+      expect(handleValidity.mock.lastCall?.[0].validity.customError).toBe(
+        validationMode === 'onSubmit',
+      );
       expect(handleValidity.mock.lastCall?.[0].validity.valueMissing).toBe(true);
       expect(screen.getByText('Required')).toBeVisible();
     });

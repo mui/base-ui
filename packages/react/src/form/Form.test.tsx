@@ -7,7 +7,14 @@ import { Field } from '@base-ui/react/field';
 import { Fieldset } from '@base-ui/react/fieldset';
 import { NumberField } from '@base-ui/react/number-field';
 import { Switch } from '@base-ui/react/switch';
-import { createRenderer, fireEvent, screen, waitFor, within } from '@mui/internal-test-utils';
+import {
+  createRenderer,
+  fireEvent,
+  flushMicrotasks,
+  screen,
+  waitFor,
+  within,
+} from '@mui/internal-test-utils';
 import { describeConformance } from '../../test/describeConformance';
 
 describe('<Form />', () => {
@@ -199,6 +206,83 @@ describe('<Form />', () => {
 
     expect(validate).toHaveBeenCalledTimes(1);
     expect(onSubmit).toHaveBeenCalledTimes(1);
+  });
+
+  it('re-runs an onBlur cross-field validator on submit', async () => {
+    const onFormSubmit = vi.fn();
+    const validate = vi.fn((value: unknown, formValues: Form.Values) =>
+      value !== formValues.password ? 'Passwords do not match' : null,
+    );
+
+    await render(
+      <Form onFormSubmit={onFormSubmit}>
+        <Field.Root name="password" validationMode="onBlur">
+          <Field.Control data-testid="password" />
+        </Field.Root>
+        <Field.Root name="confirmPassword" validationMode="onBlur" validate={validate}>
+          <Field.Control data-testid="confirm" />
+          <Field.Error data-testid="confirm-error" />
+        </Field.Root>
+        <button type="submit">Submit</button>
+      </Form>,
+    );
+
+    const password = screen.getByTestId('password');
+    const confirm = screen.getByTestId('confirm');
+
+    fireEvent.change(password, { target: { value: 'secret' } });
+    fireEvent.change(confirm, { target: { value: 'typo' } });
+    fireEvent.blur(confirm);
+
+    expect(validate).toHaveBeenCalledTimes(1);
+    expect(screen.getByTestId('confirm-error')).toHaveTextContent('Passwords do not match');
+
+    fireEvent.change(password, { target: { value: 'typo' } });
+    fireEvent.blur(password);
+
+    fireEvent.click(screen.getByRole('button', { name: 'Submit' }));
+
+    expect(validate).toHaveBeenCalledTimes(2);
+    expect(screen.queryByTestId('confirm-error')).toBe(null);
+    expect(onFormSubmit).toHaveBeenCalledTimes(1);
+  });
+
+  it('retires a stale async validation result on the next submit', async () => {
+    const onFormSubmit = vi.fn();
+    const validate = vi.fn((value: unknown) =>
+      Promise.resolve(value === 'bad' ? 'async error' : null),
+    );
+
+    await render(
+      <Form onFormSubmit={onFormSubmit}>
+        <Field.Root name="field" validationMode="onSubmit" validate={validate}>
+          <Field.Control data-testid="control" defaultValue="bad" />
+          <Field.Error data-testid="error" />
+        </Field.Root>
+        <button type="submit">Submit</button>
+      </Form>,
+    );
+
+    const control = screen.getByTestId('control');
+    const submit = screen.getByRole('button', { name: 'Submit' });
+
+    fireEvent.click(submit);
+
+    // Async validation does not prevent submission.
+    expect(onFormSubmit).toHaveBeenCalledTimes(1);
+
+    await flushMicrotasks();
+
+    await waitFor(() => {
+      expect(screen.getByTestId('error')).toHaveTextContent('async error');
+    });
+
+    fireEvent.change(control, { target: { value: 'good' } });
+    fireEvent.click(submit);
+
+    expect(onFormSubmit).toHaveBeenCalledTimes(2);
+
+    await flushMicrotasks();
   });
 
   it('does not submit if an unnamed registered field control is invalid', async () => {
