@@ -168,7 +168,7 @@ function App() {
 
 ### Animating Select component with Motion
 
-The Select component is initially unmounted but remains mounted after interaction. To animate it with Motion, a mix of the two previous approaches is needed.
+This example keeps the Select popup mounted with the Portal's `keepMounted` prop once it has been opened, so animating it with Motion uses a mix of the two previous approaches.
 
 import { DemoAnimatedSelectMotion } from './demos/animated-select-motion';
 

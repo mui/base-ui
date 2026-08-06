@@ -22,9 +22,9 @@ export default function AnimatedSelectMotionDemo() {
 
   const portalMounted = open || mounted;
 
-  // Once the trigger has been interacted with, the popup will always be
-  // mounted in the DOM. We can use this to determine which animation variant
-  // to use: if it's already mounted, we switch to use "keepMounted" animations.
+  // Once the popup has been opened, `keepMounted` keeps it in the DOM from
+  // then on. We can use this to determine which animation variant to use:
+  // if it's already mounted, we switch to use "keepMounted" animations.
   const motionElement = mounted ? (
     <motion.div
       initial={false}
@@ -51,7 +51,7 @@ export default function AnimatedSelectMotionDemo() {
       </Select.Trigger>
       <AnimatePresence>
         {portalMounted && (
-          <Select.Portal>
+          <Select.Portal keepMounted>
             <Select.Positioner className={styles.Positioner} sideOffset={4} ref={positionerRef}>
               <Select.Popup className={styles.Popup} render={motionElement}>
                 <Select.ScrollUpArrow className={styles.ScrollArrow} />

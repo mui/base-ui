@@ -171,5 +171,73 @@ describe('<Select.Portal />', () => {
       });
       expect(value).toHaveTextContent('banana');
     });
+
+    // The animation handbook's Motion select demo conditionally renders a `keepMounted`
+    // portal once the popup has been opened. Motion's `initial={false}` variant relies on
+    // the popup element persisting across close and reopen.
+    it('keeps the same popup element across close, blur and reopen when conditionally rendered with keepMounted', async () => {
+      function ControlledApp() {
+        const [open, setOpen] = React.useState(false);
+        const [everMounted, setEverMounted] = React.useState(false);
+
+        const positionerRef = React.useCallback((element: HTMLElement | null) => {
+          if (element) {
+            setEverMounted(true);
+          }
+        }, []);
+
+        return (
+          <div>
+            <Select.Root open={open} onOpenChange={setOpen}>
+              <Select.Trigger data-testid="trigger">
+                <Select.Value />
+              </Select.Trigger>
+              {(open || everMounted) && (
+                <Select.Portal keepMounted>
+                  <Select.Positioner data-testid="positioner" ref={positionerRef}>
+                    <Select.Popup>
+                      <Select.Item value="apple">apple</Select.Item>
+                      <Select.Item value="banana">banana</Select.Item>
+                    </Select.Popup>
+                  </Select.Positioner>
+                </Select.Portal>
+              )}
+            </Select.Root>
+            <button data-testid="outside">outside</button>
+          </div>
+        );
+      }
+
+      const { user } = await render(<ControlledApp />);
+      const trigger = screen.getByTestId('trigger');
+
+      expect(screen.queryByTestId('positioner')).not.toBeInTheDocument();
+
+      await user.click(trigger);
+      await waitFor(() => {
+        expect(screen.getByTestId('positioner')).toBeInTheDocument();
+      });
+
+      const positioner = screen.getByTestId('positioner');
+
+      await user.keyboard('{Escape}');
+      await waitFor(() => {
+        expect(trigger).toHaveAttribute('aria-expanded', 'false');
+      });
+
+      await act(async () => {
+        screen.getByTestId('outside').focus();
+      });
+
+      // Let the deferred force-mount release settle: `keepMounted` must keep the node alive.
+      await wait(50);
+      expect(screen.getByTestId('positioner')).toBe(positioner);
+
+      await user.click(trigger);
+      await waitFor(() => {
+        expect(trigger).toHaveAttribute('aria-expanded', 'true');
+      });
+      expect(screen.getByTestId('positioner')).toBe(positioner);
+    });
   });
 });
