@@ -27,20 +27,24 @@ export const LabelableProvider: React.FC<LabelableProvider.Props> = function Lab
       const registrations = registrationsRef.current;
 
       if (nextId === undefined) {
-        registrations.delete(source);
-        return;
-      }
+        const registeredId = registrations.get(source);
 
-      registrations.set(source, nextId);
-
-      // Only flush when registering, not when unregistering.
-      // This prevents loops during rapid unmount/remount cycles (e.g. React Activity).
-      // The next registration will pick up the correct state.
-      setControlIdState((prev) => {
-        if (registrations.size === 0) {
-          return undefined;
+        if (!registrations.delete(source)) {
+          return;
         }
 
+        // Controls without their own id adopt this provider's generated id. Keep it when the
+        // last one unregisters so a remount (e.g. React Activity) re-registering it can't loop.
+        if (registrations.size === 0 && registeredId === initialControlId) {
+          return;
+        }
+      } else {
+        registrations.set(source, nextId);
+      }
+
+      // Keep the previously selected id while it is still registered so rapid
+      // unmount/remount cycles (e.g. React Activity) don't churn the selection.
+      setControlIdState((prev) => {
         let nextControlId: string | null | undefined;
 
         for (const id of registrations.values()) {

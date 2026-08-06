@@ -7,6 +7,11 @@ import { getTarget } from '../../floating-ui-react/utils';
 import { useRegisteredLabelId } from '../../utils/useRegisteredLabelId';
 import { useLabelableContext } from './LabelableContext';
 
+function isInteractiveTarget(event: React.SyntheticEvent) {
+  const target = getTarget(event.nativeEvent) as HTMLElement | null;
+  return target?.closest('button,input,select,textarea') != null;
+}
+
 export function useLabel(params: UseLabelParameters = {}): UseLabelReturnValue {
   const {
     id: idProp,
@@ -37,15 +42,17 @@ export function useLabel(params: UseLabelParameters = {}): UseLabelReturnValue {
       return;
     }
 
-    const controlElement = ownerDocument(event.currentTarget).getElementById(resolvedControlId);
+    const rootNode = event.currentTarget.getRootNode() as Document | ShadowRoot;
+    const controlElement =
+      rootNode.getElementById?.(resolvedControlId) ??
+      ownerDocument(event.currentTarget).getElementById(resolvedControlId);
     if (isHTMLElement(controlElement)) {
       focusElementWithVisible(controlElement);
     }
   }
 
   function handleInteraction(event: React.MouseEvent) {
-    const target = getTarget(event.nativeEvent) as HTMLElement | null;
-    if (target?.closest('button,input,select,textarea')) {
+    if (isInteractiveTarget(event)) {
       return;
     }
 
@@ -71,7 +78,9 @@ export function useLabel(params: UseLabelParameters = {}): UseLabelReturnValue {
         id,
         onClick: handleInteraction,
         onPointerDown(event: React.PointerEvent) {
-          event.preventDefault();
+          if (!isInteractiveTarget(event)) {
+            event.preventDefault();
+          }
         },
       };
 }
