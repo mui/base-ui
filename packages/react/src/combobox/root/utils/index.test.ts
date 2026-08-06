@@ -19,8 +19,11 @@ describe('Combobox root utilities', () => {
 
   describe('createCollatorItemFilter', () => {
     it('rejects nullish items and filters primitives and projected objects', () => {
-      const primitiveFilter = createCollatorItemFilter(filter);
-      const objectFilter = createCollatorItemFilter(filter, (item: { name: string }) => item.name);
+      const primitiveFilter = createCollatorItemFilter(filter.contains);
+      const objectFilter = createCollatorItemFilter(
+        filter.contains,
+        (item: { name: string }) => item.name,
+      );
 
       expect(primitiveFilter(null, 'app')).toBe(false);
       expect(primitiveFilter(undefined, 'app')).toBe(false);
@@ -31,21 +34,20 @@ describe('Combobox root utilities', () => {
 
   describe('createSingleSelectionCollatorFilter', () => {
     it('shows all items for an empty query and rejects nullish items', () => {
-      const itemFilter = createSingleSelectionCollatorFilter(filter);
-
+      const itemFilter = createSingleSelectionCollatorFilter(filter.contains);
       expect(itemFilter(null, 'app')).toBe(false);
       expect(itemFilter(undefined, 'app')).toBe(false);
       expect(itemFilter('Apple', '')).toBe(true);
     });
 
     it('shows all items when the query exactly matches the selected label', () => {
-      const itemFilter = createSingleSelectionCollatorFilter(filter, undefined, 'Apple');
+      const itemFilter = createSingleSelectionCollatorFilter(filter.contains, undefined, 'Apple');
 
       expect(itemFilter('Banana', 'apple')).toBe(true);
     });
 
     it('otherwise filters the current item', () => {
-      const itemFilter = createSingleSelectionCollatorFilter(filter, undefined, 'Apple');
+      const itemFilter = createSingleSelectionCollatorFilter(filter.contains, undefined, 'Apple');
 
       expect(itemFilter('Banana', 'app')).toBe(false);
       expect(itemFilter('Banana', 'nan')).toBe(true);

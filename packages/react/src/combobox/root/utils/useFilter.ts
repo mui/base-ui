@@ -38,9 +38,13 @@ export function useComboboxFilter(options: UseComboboxFilterOptions = {}): Filte
   const contains: Filter['contains'] = React.useCallback(
     (item: any, query: string, itemToString?: (item: any) => string) => {
       if (multiple) {
-        return createCollatorItemFilter(coreFilter, itemToString)(item, query);
+        return createCollatorItemFilter(coreFilter.contains, itemToString)(item, query);
       }
-      return createSingleSelectionCollatorFilter(coreFilter, itemToString, value)(item, query);
+      return createSingleSelectionCollatorFilter(
+        coreFilter.contains,
+        itemToString,
+        value,
+      )(item, query);
     },
     [coreFilter, value, multiple],
   );
