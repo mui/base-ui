@@ -1,6 +1,7 @@
 import { expect } from 'vitest';
 import * as React from 'react';
 import { Select } from '@base-ui/react/select';
+import { Field } from '@base-ui/react/field';
 import { act, screen, waitFor } from '@mui/internal-test-utils';
 import { createRenderer, describeConformance, wait } from '#test-utils';
 
@@ -85,11 +86,14 @@ describe('<Select.Portal />', () => {
         expect(trigger).toHaveFocus();
       });
 
-      // Let the close settle before asserting the popup is still there. The node identity
-      // check guards against a transient unmount/remount cycle during the close.
-      await wait(50);
+      // `hidden` marks close-complete, which also queued the deferred release; a later
+      // zero-delay timer therefore runs after it. The node identity check guards against
+      // a transient unmount/remount cycle during the close.
+      await waitFor(() => {
+        expect(screen.getByTestId('positioner')).toHaveAttribute('hidden');
+      });
+      await wait(0);
       expect(screen.getByTestId('positioner')).toBe(positionerBeforeClose);
-      expect(screen.getByTestId('positioner')).toHaveAttribute('hidden');
 
       await act(async () => {
         screen.getByTestId('outside').focus();
@@ -103,24 +107,26 @@ describe('<Select.Portal />', () => {
     it('treats focus inside a composite trigger as trigger focus', async () => {
       const { user } = await render(
         <div>
-          <Select.Root>
-            <Select.Trigger data-testid="trigger">
-              <Select.Value data-testid="value" />
-              {/* Stands in for the inner focusable of a custom or shadow-backed control
-                  (a `delegatesFocus` host focuses an inner node, not the host itself). */}
-              <span data-testid="inner" tabIndex={-1} />
-            </Select.Trigger>
-            <Select.Portal>
-              {/* No item alignment so the open popup doesn't overlay the trigger — the
-                  inner element must receive the closing click. */}
-              <Select.Positioner data-testid="positioner" alignItemWithTrigger={false}>
-                <Select.Popup>
-                  <Select.Item value="apple">apple</Select.Item>
-                  <Select.Item value="banana">banana</Select.Item>
-                </Select.Popup>
-              </Select.Positioner>
-            </Select.Portal>
-          </Select.Root>
+          <Field.Root>
+            <Select.Root>
+              <Select.Trigger data-testid="trigger">
+                <Select.Value data-testid="value" />
+                {/* Stands in for the inner focusable of a custom or shadow-backed control
+                    (a `delegatesFocus` host focuses an inner node, not the host itself). */}
+                <span data-testid="inner" tabIndex={-1} />
+              </Select.Trigger>
+              <Select.Portal>
+                {/* No item alignment so the open popup doesn't overlay the trigger — the
+                    inner element must receive the closing click. */}
+                <Select.Positioner data-testid="positioner" alignItemWithTrigger={false}>
+                  <Select.Popup>
+                    <Select.Item value="apple">apple</Select.Item>
+                    <Select.Item value="banana">banana</Select.Item>
+                  </Select.Popup>
+                </Select.Positioner>
+              </Select.Portal>
+            </Select.Root>
+          </Field.Root>
           <button data-testid="outside">outside</button>
         </div>,
       );
@@ -148,13 +154,29 @@ describe('<Select.Portal />', () => {
       });
       expect(screen.getByTestId('inner')).toHaveFocus();
 
-      // The node identity check catches a release that is only healed by a remount.
-      await wait(50);
+      // Focus never left the composite trigger, so the field must not be marked touched.
+      expect(trigger).not.toHaveAttribute('data-touched');
+
+      // `hidden` marks close-complete, which also queued the deferred release; a later
+      // zero-delay timer therefore runs after it. The node identity check catches a
+      // release that is only healed by a remount.
+      await waitFor(() => {
+        expect(screen.getByTestId('positioner')).toHaveAttribute('hidden');
+      });
+      await wait(0);
       expect(screen.getByTestId('positioner')).toBe(positionerBeforeClose);
 
       await user.keyboard('a');
       await waitFor(() => {
         expect(screen.getByTestId('value')).toHaveTextContent('apple');
+      });
+
+      // A real blur still marks the field touched.
+      await act(async () => {
+        screen.getByTestId('outside').focus();
+      });
+      await waitFor(() => {
+        expect(trigger).toHaveAttribute('data-touched', '');
       });
     });
 
@@ -287,8 +309,12 @@ describe('<Select.Portal />', () => {
         screen.getByTestId('outside').focus();
       });
 
-      // Let the deferred force-mount release settle: `keepMounted` must keep the node alive.
-      await wait(50);
+      // `hidden` marks close-complete, which also queued the deferred release; a later
+      // zero-delay timer therefore runs after it. `keepMounted` must keep the node alive.
+      await waitFor(() => {
+        expect(screen.getByTestId('positioner')).toHaveAttribute('hidden');
+      });
+      await wait(0);
       expect(screen.getByTestId('positioner')).toBe(positioner);
 
       await user.click(trigger);

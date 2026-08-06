@@ -64,7 +64,7 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
     labelsRef,
     alignItemWithTriggerActiveRef,
     selectedItemTextRef,
-    registeredItemCountRef,
+    registeredItemValuesRef,
     valuesRef,
     initialValueRef,
     popupRef,
@@ -163,16 +163,23 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
         return;
       }
 
-      const prevSize = registeredItemCountRef.current;
-      registeredItemCountRef.current = map.size;
+      const prevValues = registeredItemValuesRef.current;
+      const nextValues = valuesRef.current.slice(0, map.size);
+      registeredItemValuesRef.current = nextValues;
 
-      if (map.size === prevSize) {
-        return;
-      }
+      const sizeChanged = nextValues.length !== prevValues.length;
+      // Validate the selection whenever the registered values change, not only when the item
+      // count does: replacing the collection with one of equal size (including across an
+      // unmount and remount) must still prune a value that no longer exists. Flushes that
+      // only refresh labels or indices skip it, so a controlled value that deliberately
+      // matches no item isn't pruned by re-registration churn.
+      const valuesChanged =
+        sizeChanged ||
+        nextValues.some((itemValue, index) => !Object.is(itemValue, prevValues[index]));
 
-      const eventDetails = createChangeEventDetails(REASONS.none);
+      const shouldValidate = prevValues.length !== 0 && valuesChanged;
 
-      if (prevSize !== 0 && !store.state.multiple && value !== null) {
+      if (shouldValidate && !store.state.multiple && value !== null) {
         const selectedValueIndex = findItemIndex(valuesRef.current, value, isItemEqualToValue);
         if (selectedValueIndex === -1) {
           const initialSelectedValue = initialValueRef.current;
@@ -180,7 +187,7 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
             initialSelectedValue != null &&
             findItemIndex(valuesRef.current, initialSelectedValue, isItemEqualToValue) !== -1;
           const nextValue = hasInitial ? initialSelectedValue : null;
-          setValue(nextValue, eventDetails);
+          setValue(nextValue, createChangeEventDetails(REASONS.none));
 
           if (nextValue === null) {
             store.set('selectedIndex', null);
@@ -189,19 +196,23 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
         }
       }
 
-      if (prevSize !== 0 && store.state.multiple && Array.isArray(value)) {
+      if (shouldValidate && store.state.multiple && Array.isArray(value)) {
         const nextValue = value.filter(
           (selectedItemValue) =>
             findItemIndex(valuesRef.current, selectedItemValue, isItemEqualToValue) !== -1,
         );
         if (nextValue.length !== value.length) {
-          setValue(nextValue, eventDetails);
+          setValue(nextValue, createChangeEventDetails(REASONS.none));
 
           if (nextValue.length === 0) {
             store.set('selectedIndex', null);
             selectedItemTextRef.current = null;
           }
         }
+      }
+
+      if (!sizeChanged) {
+        return;
       }
 
       if (open && alignItemWithTriggerActive) {

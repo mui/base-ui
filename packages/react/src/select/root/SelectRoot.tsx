@@ -132,9 +132,9 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     dragY: 0,
   });
   const alignItemWithTriggerActiveRef = React.useRef(false);
-  // Lives on the root so an unmounting positioner doesn't erase the fact that items were
-  // registered before — the dynamic-items reconciliation must still run on the next mount.
-  const registeredItemCountRef = React.useRef(0);
+  // Lives on the root so an unmounting positioner doesn't erase what was registered
+  // before — the dynamic-items reconciliation must still run on the next mount.
+  const registeredItemValuesRef = React.useRef<any[]>([]);
 
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
   const { openMethod, triggerProps: interactionTypeProps } = useOpenInteractionType(open);
@@ -489,7 +489,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
       selectionRef,
       firstItemTextRef,
       selectedItemTextRef,
-      registeredItemCountRef,
+      registeredItemValuesRef,
       validation,
       onOpenChangeComplete,
       alignItemWithTriggerActiveRef,
