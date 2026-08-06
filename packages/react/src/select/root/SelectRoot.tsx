@@ -21,7 +21,7 @@ import {
   useListNavigation,
   useTypeahead,
 } from '../../floating-ui-react';
-import { activeElement } from '../../floating-ui-react/utils';
+import { activeElement, contains } from '../../floating-ui-react/utils';
 import { SelectRootContext } from './SelectRootContext';
 import { useFieldRootContext } from '../../internals/field-root-context/FieldRootContext';
 import { useRegisterFieldControl } from '../../internals/field-register-control/useRegisterFieldControl';
@@ -132,6 +132,9 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     dragY: 0,
   });
   const alignItemWithTriggerActiveRef = React.useRef(false);
+  // Lives on the root so an unmounting positioner doesn't erase the fact that items were
+  // registered before — the dynamic-items reconciliation must still run on the next mount.
+  const registeredItemCountRef = React.useRef(0);
 
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
   const { openMethod, triggerProps: interactionTypeProps } = useOpenInteractionType(open);
@@ -288,10 +291,11 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
   );
 
   // The items must stay mounted while the trigger is focused so closed-trigger typeahead can
-  // read the registered labels and values.
+  // read the registered labels and values. Containment (not identity) so focus inside a
+  // shadow-backed or composite trigger still counts as trigger focus.
   function isTriggerFocused() {
     const trigger = store.state.triggerElement;
-    return trigger != null && activeElement(ownerDocument(trigger)) === trigger;
+    return contains(trigger, activeElement(ownerDocument(trigger)));
   }
 
   const forceMountReleaseTimeout = useTimeout();
@@ -485,6 +489,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
       selectionRef,
       firstItemTextRef,
       selectedItemTextRef,
+      registeredItemCountRef,
       validation,
       onOpenChangeComplete,
       alignItemWithTriggerActiveRef,

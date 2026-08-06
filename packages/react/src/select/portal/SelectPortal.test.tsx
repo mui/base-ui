@@ -100,6 +100,64 @@ describe('<Select.Portal />', () => {
       });
     });
 
+    it('treats focus inside a composite trigger as trigger focus', async () => {
+      const { user } = await render(
+        <div>
+          <Select.Root>
+            <Select.Trigger data-testid="trigger">
+              <Select.Value data-testid="value" />
+              {/* Stands in for the inner focusable of a custom or shadow-backed control
+                  (a `delegatesFocus` host focuses an inner node, not the host itself). */}
+              <span data-testid="inner" tabIndex={-1} />
+            </Select.Trigger>
+            <Select.Portal>
+              {/* No item alignment so the open popup doesn't overlay the trigger — the
+                  inner element must receive the closing click. */}
+              <Select.Positioner data-testid="positioner" alignItemWithTrigger={false}>
+                <Select.Popup>
+                  <Select.Item value="apple">apple</Select.Item>
+                  <Select.Item value="banana">banana</Select.Item>
+                </Select.Popup>
+              </Select.Positioner>
+            </Select.Portal>
+          </Select.Root>
+          <button data-testid="outside">outside</button>
+        </div>,
+      );
+
+      const trigger = screen.getByTestId('trigger');
+
+      await user.click(trigger);
+      await waitFor(() => {
+        expect(screen.getByTestId('positioner')).toBeInTheDocument();
+      });
+
+      const positionerBeforeClose = screen.getByTestId('positioner');
+
+      // Pressing the inner element toggles the select closed. In jsdom click focus rests on
+      // it while the close completes; Chromium restores the trigger host, so focus the inner
+      // element again — either way focus sits inside the trigger, which must still count as
+      // trigger focus so the items stay registered for closed-trigger typeahead.
+      await user.click(screen.getByTestId('inner'));
+      await waitFor(() => {
+        expect(trigger).toHaveAttribute('aria-expanded', 'false');
+      });
+
+      await act(async () => {
+        screen.getByTestId('inner').focus();
+      });
+      expect(screen.getByTestId('inner')).toHaveFocus();
+
+      // The node identity check catches a release that is only healed by a remount.
+      await wait(50);
+      expect(screen.getByTestId('positioner')).toBe(positionerBeforeClose);
+
+      await user.keyboard('a');
+      await waitFor(() => {
+        expect(screen.getByTestId('value')).toHaveTextContent('apple');
+      });
+    });
+
     it('keeps the popup mounted when the select is closed and blurred', async () => {
       const { user } = await render(<App keepMounted />);
       const trigger = screen.getByTestId('trigger');

@@ -4295,13 +4295,11 @@ describe('<Select.Root />', () => {
         const [items, setItems] = React.useState(['a', 'b', 'c']);
         return (
           <div>
-            <Select.Root defaultValue="b">
+            <Select.Root defaultValue="b" name="font">
               <Select.Trigger data-testid="trigger">
                 <Select.Value />
               </Select.Trigger>
-              {/* Pruning a removed value is driven by the mounted items, so it can only run
-                  while the popup is closed if the portal is kept mounted. */}
-              <Select.Portal keepMounted>
+              <Select.Portal>
                 <Select.Positioner>
                   <Select.Popup>
                     {items.map((it) => (
@@ -4323,20 +4321,26 @@ describe('<Select.Root />', () => {
         );
       }
 
-      const { user } = await render(<Test />);
+      const { user, container } = await render(<Test />);
 
       const trigger = screen.getByTestId('trigger');
+      // eslint-disable-next-line testing-library/no-container -- No appropriate method on screen since it's a type=hidden input
+      const hiddenInput = container.querySelector<HTMLInputElement>('[name="font"]');
 
       await user.click(trigger);
       await user.click(screen.getByRole('option', { name: 'c' }));
 
+      // Clicking the button blurs the trigger, unmounting the popup, so the removal
+      // can't be observed yet.
       await user.click(screen.getByTestId('remove-c'));
+      expect(trigger).toHaveTextContent('c');
 
+      // The value reconciles when the items mount again.
+      await user.click(trigger);
       await waitFor(() => {
         expect(trigger).toHaveTextContent('b');
       });
-
-      await user.click(trigger);
+      expect(hiddenInput).toHaveValue('b');
       await waitFor(() => {
         expect(screen.getByRole('option', { name: 'b' })).toHaveAttribute('data-selected', '');
       });
@@ -4608,9 +4612,7 @@ describe('<Select.Root />', () => {
               <Select.Trigger data-testid="trigger">
                 <Select.Value />
               </Select.Trigger>
-              {/* Pruning a removed value is driven by the mounted items, so it can only run
-                  while the popup is closed if the portal is kept mounted. */}
-              <Select.Portal keepMounted>
+              <Select.Portal>
                 <Select.Positioner>
                   <Select.Popup>
                     {items.map((it) => (
@@ -4645,15 +4647,17 @@ describe('<Select.Root />', () => {
       await user.click(trigger);
       await user.click(screen.getByRole('option', { name: 'c' }));
 
+      // The first button click blurs the trigger and unmounts the popup; the removals
+      // reconcile when the items mount again on reopen.
       await user.click(screen.getByTestId('remove-b'));
       await user.click(screen.getByTestId('remove-c'));
+
+      await user.click(trigger);
 
       // Now no fallback remains; value should reset to null
       await waitFor(() => {
         expect(trigger).toHaveTextContent('');
       });
-
-      await user.click(trigger);
 
       const options = await screen.findAllByRole('option');
       options.forEach((opt) => {

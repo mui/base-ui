@@ -64,6 +64,7 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
     labelsRef,
     alignItemWithTriggerActiveRef,
     selectedItemTextRef,
+    registeredItemCountRef,
     valuesRef,
     initialValueRef,
     popupRef,
@@ -156,16 +157,14 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
     [store, selectedItemTextRef],
   );
 
-  const prevMapSizeRef = React.useRef(0);
-
   const onMapChange = useStableCallback(
     (map: Map<Element, { index?: number | null | undefined } | null>) => {
       if (valuesRef.current.length === 0) {
         return;
       }
 
-      const prevSize = prevMapSizeRef.current;
-      prevMapSizeRef.current = map.size;
+      const prevSize = registeredItemCountRef.current;
+      registeredItemCountRef.current = map.size;
 
       if (map.size === prevSize) {
         return;
