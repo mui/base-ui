@@ -10,6 +10,7 @@ import { visuallyHidden, visuallyHiddenInput } from '@base-ui/utils/visuallyHidd
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { Store, useStore } from '@base-ui/utils/store';
 import { EMPTY_ARRAY, EMPTY_OBJECT } from '@base-ui/utils/empty';
+import { getContainsFilter } from '@base-ui/react/internals/filter';
 import { isHTMLElement } from '@floating-ui/utils/dom';
 import {
   ElementProps,
@@ -42,7 +43,6 @@ import { useRegisterFieldControl } from '../../internals/field-register-control/
 import { useFormContext } from '../../internals/form-context/FormContext';
 import { useLabelableId } from '../../internals/labelable-provider/useLabelableId';
 import { createCollatorItemFilter } from './utils';
-import { useCoreFilter } from './utils/useFilter';
 import { useTransitionStatus } from '../../internals/useTransitionStatus';
 import { useOpenInteractionType } from '../../utils/useOpenInteractionType';
 import { isScrollableY } from '../../utils/scrollable';
@@ -140,7 +140,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
 
   const direction = useDirection();
   const id = useLabelableId({ id: idProp });
-  const collatorFilter = useCoreFilter({ locale });
+  const containsFilter = React.useMemo(() => getContainsFilter({ locale }), [locale]);
 
   const [queryChangedAfterOpen, setQueryChangedAfterOpen] = React.useState(false);
   const [closeQuery, setCloseQuery] = React.useState<string | null>(null);
@@ -204,8 +204,8 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     }
     // `shouldBypassFiltering` already empties the query whenever a single selection's label
     // matches it exactly, so the filter never needs a selection-aware variant here.
-    return createCollatorItemFilter(collatorFilter, itemToStringLabel);
-  }, [filterProp, collatorFilter, itemToStringLabel]);
+    return createCollatorItemFilter(containsFilter, itemToStringLabel);
+  }, [filterProp, containsFilter, itemToStringLabel]);
 
   // If neither inputValue nor defaultInputValue are provided, derive it from the
   // selected value for single mode so the input reflects the selection on mount.
@@ -243,7 +243,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     !queryChangedAfterOpen &&
     query !== '' &&
     selectedLabelString.length === query.length &&
-    collatorFilter.contains(selectedLabelString, query);
+    containsFilter(selectedLabelString, query);
 
   const filterQuery = shouldBypassFiltering ? '' : query;
   const shouldIgnoreExternalFiltering = hasItems && hasFilteredItemsProp && shouldBypassFiltering;
