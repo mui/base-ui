@@ -51,7 +51,7 @@ const actionsRef = React.useRef<NumberField.Root.Actions | null>(null);
 </NumberField.Root>;
 
 // Puts the field into a valid intermediate state that `value` cannot express.
-actionsRef.current.setInputValue('-');
+actionsRef.current?.setInputValue('-');
 ```
 
 The action can only reach states typing can reach.
