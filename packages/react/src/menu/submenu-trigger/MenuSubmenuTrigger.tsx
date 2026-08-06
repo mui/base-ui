@@ -7,7 +7,6 @@ import { EMPTY_OBJECT } from '@base-ui/utils/empty';
 import { platform } from '@base-ui/utils/platform';
 import { safePolygon, useClick, useHoverReferenceInteraction } from '../../floating-ui-react';
 import { isVirtualPointerEvent } from '../../floating-ui-react/utils/event';
-import { useValueChanged } from '../../internals/useValueChanged';
 import { BaseUIComponentProps, NonNativeButtonProps } from '../../internals/types';
 import { useMenuRootContext } from '../root/MenuRootContext';
 import { useBaseUiId } from '../../internals/useBaseUiId';
@@ -90,12 +89,6 @@ export const MenuSubmenuTrigger = React.forwardRef(function MenuSubmenuTrigger(
   );
 
   store.useSyncedValue('closeDelay', closeDelay);
-
-  useValueChanged(open, (previousOpen) => {
-    if (previousOpen && !open) {
-      store.set('virtualPress', false);
-    }
-  });
 
   const parentMenuStore = submenuRootContext.parentMenu;
   const rootDisabled = store.useState('disabled');
@@ -181,9 +174,13 @@ export const MenuSubmenuTrigger = React.forwardRef(function MenuSubmenuTrigger(
   const lastOpenChangeReason = store.useState('lastOpenChangeReason');
   // Arrow keys open the submenu through list navigation without dispatching a click, so
   // `openMethod` stays null there; Enter and Space report `keyboard`, while virtual (screen
-  // reader) presses report a physical pointer type and are tracked by `virtualPress`.
+  // reader) presses report a physical pointer type and are tracked by `virtualPress`. The
+  // `triggerPress` gate makes a stale `virtualPress` harmless, so it is never reset: hover
+  // reopens carry a different reason and presses overwrite the flag on `pointerdown`.
   const focusMovesToSubmenuItem =
-    lastOpenChangeReason === REASONS.listNavigation || openMethod === 'keyboard' || virtualPress;
+    lastOpenChangeReason === REASONS.listNavigation ||
+    openMethod === 'keyboard' ||
+    (virtualPress && lastOpenChangeReason === REASONS.triggerPress);
   const shouldOmitExpanded = open && focusMovesToSubmenuItem && platform.screenReader.voiceOver;
 
   const element = useRenderElement('div', componentProps, {

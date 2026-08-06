@@ -124,13 +124,12 @@ export const MenuPopup = React.forwardRef(function MenuPopup(
   // subsequent arrow keys are handled by the child menu rather than the parent trigger. Keyboard
   // and virtual (screen reader) presses instead let list navigation focus the first item.
   const initialFocus =
-    parent.type === 'menu' &&
-    lastOpenChangeReason === REASONS.triggerPress &&
-    openMethod !== null &&
-    openMethod !== 'keyboard' &&
-    !virtualPress
-      ? store.context.popupRef
-      : parent.type !== 'menu';
+    parent.type !== 'menu' ||
+    (lastOpenChangeReason === REASONS.triggerPress &&
+      openMethod !== null &&
+      openMethod !== 'keyboard' &&
+      !virtualPress &&
+      store.context.popupRef);
 
   return (
     <FloatingFocusManager

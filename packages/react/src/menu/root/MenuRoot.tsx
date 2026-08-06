@@ -256,9 +256,6 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
       onOpenChange?.(nextOpen, eventDetails as MenuRoot.ChangeEventDetails);
 
       if (eventDetails.isCanceled) {
-        if (nextOpen) {
-          store.set('virtualPress', false);
-        }
         return;
       }
 
