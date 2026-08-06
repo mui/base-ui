@@ -168,6 +168,11 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
           return;
         }
 
+        // The items only need to stay mounted while closed to serve closed-trigger typeahead.
+        // `clear()` handles a blur that lands before the focus timeout fires.
+        timeoutFocus.clear();
+        store.set('forceMount', false);
+
         setTouched(true);
         setFocused(false);
 

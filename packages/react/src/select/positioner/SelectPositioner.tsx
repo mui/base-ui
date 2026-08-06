@@ -145,6 +145,17 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
     inert: !open,
   });
 
+  useIsoLayoutEffect(
+    () => () => {
+      // The rendered items own the selection bookkeeping. Leaving a stale index behind lets
+      // `SelectItemText` re-adopt it on the next mount, before the value has been re-matched
+      // against the items that are actually rendered then.
+      store.set('selectedIndex', null);
+      selectedItemTextRef.current = null;
+    },
+    [store, selectedItemTextRef],
+  );
+
   const prevMapSizeRef = React.useRef(0);
 
   const onMapChange = useStableCallback(

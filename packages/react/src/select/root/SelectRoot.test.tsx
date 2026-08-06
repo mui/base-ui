@@ -4299,7 +4299,9 @@ describe('<Select.Root />', () => {
               <Select.Trigger data-testid="trigger">
                 <Select.Value />
               </Select.Trigger>
-              <Select.Portal>
+              {/* Pruning a removed value is driven by the mounted items, so it can only run
+                  while the popup is closed if the portal is kept mounted. */}
+              <Select.Portal keepMounted>
                 <Select.Positioner>
                   <Select.Popup>
                     {items.map((it) => (
@@ -4606,7 +4608,9 @@ describe('<Select.Root />', () => {
               <Select.Trigger data-testid="trigger">
                 <Select.Value />
               </Select.Trigger>
-              <Select.Portal>
+              {/* Pruning a removed value is driven by the mounted items, so it can only run
+                  while the popup is closed if the portal is kept mounted. */}
+              <Select.Portal keepMounted>
                 <Select.Positioner>
                   <Select.Popup>
                     {items.map((it) => (
@@ -4973,7 +4977,12 @@ describe('<Select.Root />', () => {
 
       await user.click(resetBtn);
 
+      // Clicking the reset button blurred the trigger, which unmounts the closed popup. Wait for
+      // the trigger's deferred force-mount to register the hidden items again before typing.
       await act(async () => trigger.focus());
+      await waitFor(() => {
+        expect(screen.queryAllByRole('option', { hidden: true })).toHaveLength(2);
+      });
       await user.keyboard('a');
       expect(valueEl.textContent).toBe('a1');
     });

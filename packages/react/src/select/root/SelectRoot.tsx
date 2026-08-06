@@ -12,6 +12,8 @@ import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
 import { useStore, ReactStore } from '@base-ui/utils/store';
 import { EMPTY_ARRAY, EMPTY_OBJECT } from '@base-ui/utils/empty';
+import { ownerDocument } from '@base-ui/utils/owner';
+import { useTimeout } from '@base-ui/utils/useTimeout';
 import {
   useClick,
   useDismiss,
@@ -19,6 +21,7 @@ import {
   useListNavigation,
   useTypeahead,
 } from '../../floating-ui-react';
+import { activeElement } from '../../floating-ui-react/utils';
 import { SelectRootContext } from './SelectRootContext';
 import { useFieldRootContext } from '../../internals/field-root-context/FieldRootContext';
 import { useRegisterFieldControl } from '../../internals/field-register-control/useRegisterFieldControl';
@@ -284,6 +287,15 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     },
   );
 
+  // The items must stay mounted while the trigger is focused so closed-trigger typeahead can
+  // read the registered labels and values.
+  function isTriggerFocused() {
+    const trigger = store.state.triggerElement;
+    return trigger != null && activeElement(ownerDocument(trigger)) === trigger;
+  }
+
+  const forceMountReleaseTimeout = useTimeout();
+
   const handleUnmount = useStableCallback(() => {
     setMounted(false);
     store.update({
@@ -291,6 +303,12 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
       openMethod: null,
       scrollUpArrowVisible: false,
       scrollDownArrowVisible: false,
+    });
+    // Defer the release until after `FloatingFocusManager` has returned focus (a microtask),
+    // so a close that restores trigger focus keeps the items mounted instead of unmounting
+    // and remounting them.
+    forceMountReleaseTimeout.start(0, () => {
+      store.set('forceMount', isTriggerFocused());
     });
     onOpenChangeComplete?.(false);
   });
@@ -565,8 +583,13 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
               }
             }
 
+            // Mount the items for a single microtask so the autofilled value can be matched
+            // against their registered values and labels.
             store.set('forceMount', true);
-            queueMicrotask(handleChange);
+            queueMicrotask(() => {
+              handleChange();
+              store.set('forceMount', isTriggerFocused());
+            });
           },
         })}
         id={generatedId && hiddenInputName == null ? `${generatedId}-hidden-input` : undefined}
