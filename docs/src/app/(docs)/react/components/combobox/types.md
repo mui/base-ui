@@ -1030,21 +1030,24 @@ type ComboboxItemIndicatorState = {
 
 ### ComboboxItemCollection
 
-An opaque handle to the normalized items created by `createItems()`.
-It carries the source item type and the derived value type, which is how the root infers what
-the list renders and what selection receives. It exposes no members of its own: the only valid
-use is passing it to the root's `items` prop.
+An opaque collection created by `createItems()`.
+
+It carries the source item and derived value types so the root can infer the list item and
+selection value types.
+
+Pass it directly to the root's `items` prop; it has no public members.
 
 ### createItems
 
-Normalizes items into a collection for the root's `items` prop, deriving each item's
-selection value and label when a root first consumes the collection.
-Accepts a flat array of items or an array of groups with items; the `getValue` and `getLabel`
-accessors always receive individual items, never groups.
-An item must not itself have an `items` array property: such an entry is read as a group,
-both in the types and at runtime.
-Create the collection at module scope when the data is static, and wrap it in
-`React.useMemo()` keyed on the data when it is not.
+Creates a collection for the root's `items` prop. Values and labels are derived on first use.
+
+Accepts either a flat item array or an array of groups. The `getValue` and `getLabel` accessors
+receive items, not groups.
+
+Items cannot have an `items` array property because they would be interpreted as groups.
+
+Create static collections at module scope. Wrap dynamic collections in `React.useMemo()` keyed
+by their data.
 
 **Parameters:**
 

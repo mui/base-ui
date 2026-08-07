@@ -69,14 +69,15 @@ export interface CreateComboboxItemsOptions<
 }
 
 /**
- * Normalizes items into a collection for the root's `items` prop, deriving each item's
- * selection value and label when a root first consumes the collection.
- * Accepts a flat array of items or an array of groups with items; the `getValue` and `getLabel`
- * accessors always receive individual items, never groups.
- * An item must not itself have an `items` array property: such an entry is read as a group,
- * both in the types and at runtime.
- * Create the collection at module scope when the data is static, and wrap it in
- * `React.useMemo()` keyed on the data when it is not.
+ * Creates a collection for the root's `items` prop. Values and labels are derived on first use.
+ *
+ * Accepts either a flat item array or an array of groups. The `getValue` and `getLabel` accessors
+ * receive items, not groups.
+ *
+ * Items cannot have an `items` array property because they would be interpreted as groups.
+ *
+ * Create static collections at module scope. Wrap dynamic collections in `React.useMemo()` keyed
+ * by their data.
  *
  * Documentation: [Base UI Combobox](https://base-ui.com/react/components/combobox)
  *
