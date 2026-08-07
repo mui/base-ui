@@ -445,6 +445,48 @@ describe('<ScrollArea.Scrollbar />', () => {
     });
   });
 
+  // jsdom doesn't implement the focus side of a mouse press, so these assert the
+  // cancellation that suppresses it rather than the resulting `activeElement`.
+  describe('track mouse down', () => {
+    async function renderScrollbarWithThumb() {
+      await render(
+        <ScrollArea.Root>
+          <ScrollArea.Viewport data-testid="viewport" />
+          <ScrollArea.Scrollbar data-testid="scrollbar" keepMounted>
+            <ScrollArea.Thumb data-testid="thumb" />
+          </ScrollArea.Scrollbar>
+        </ScrollArea.Root>,
+      );
+    }
+
+    it('cancels the press on the track so focus stays on the active element', async () => {
+      await renderScrollbarWithThumb();
+
+      const event = new MouseEvent('mousedown', { bubbles: true, cancelable: true, button: 0 });
+      screen.getByTestId('scrollbar').dispatchEvent(event);
+
+      expect(event.defaultPrevented).toBe(true);
+    });
+
+    it('cancels the press on the thumb so focus stays on the active element', async () => {
+      await renderScrollbarWithThumb();
+
+      const event = new MouseEvent('mousedown', { bubbles: true, cancelable: true, button: 0 });
+      screen.getByTestId('thumb').dispatchEvent(event);
+
+      expect(event.defaultPrevented).toBe(true);
+    });
+
+    it('leaves non-primary presses alone', async () => {
+      await renderScrollbarWithThumb();
+
+      const event = new MouseEvent('mousedown', { bubbles: true, cancelable: true, button: 1 });
+      screen.getByTestId('scrollbar').dispatchEvent(event);
+
+      expect(event.defaultPrevented).toBe(false);
+    });
+  });
+
   // The vertical/horizontal track-click branches were consolidated into one
   // axis-parameterized path. `getOffset` reads logical margins/paddings that jsdom
   // doesn't compute, so exercise the merged branch against real layout here to pin
