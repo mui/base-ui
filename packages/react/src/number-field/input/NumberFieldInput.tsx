@@ -12,6 +12,7 @@ import { useLabelableContext } from '../../internals/labelable-provider/Labelabl
 import {
   getNumberLocaleDetails,
   isNumeralChar,
+  isPlausibleNumberInput,
   parseNumber,
   ANY_MINUS_RE,
   ANY_PLUS_RE,
@@ -268,6 +269,16 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
       );
 
       if (!isValidCharacterString) {
+        return;
+      }
+
+      // Reject text whose separator structure `parseNumber` would silently reinterpret
+      // (e.g. `1.2.3` -> 12.3). Accepting it would keep the raw text visible while the
+      // numeric value and the hidden input diverge from it until blur, so a form could
+      // submit a number the user never saw. Grouping-like strings (`1.234.567.89`)
+      // remain accepted. Typing can't produce these, since `onKeyDown` blocks a
+      // second decimal separator, but drop, IME composition, and autofill land here.
+      if (!isPlausibleNumberInput(targetValue, locale, formatOptionsRef.current)) {
         return;
       }
 
