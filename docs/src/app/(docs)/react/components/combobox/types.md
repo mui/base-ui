@@ -185,6 +185,8 @@ type ComboboxTriggerState = {
   open: boolean;
   /** Whether the component should ignore user interaction. */
   disabled: boolean;
+  /** Whether the component should ignore user edits. */
+  readOnly: boolean;
   /** Indicates which side the corresponding popup is positioned relative to its anchor. */
   popupSide: Side | null;
   /** Present when the corresponding items list is empty. */
