@@ -166,10 +166,6 @@ export class MenuStore<Payload> extends ReactStore<Readonly<State<Payload>>, Con
     this.state.floatingRootContext.context.events.emit('setOpen', { open, eventDetails });
   }
 
-  initializeInactiveTriggerProps(inactiveTriggerProps: HTMLProps) {
-    this.state = { ...this.state, inactiveTriggerProps };
-  }
-
   private unsubscribeParentListener: (() => void) | null = null;
 }
 
