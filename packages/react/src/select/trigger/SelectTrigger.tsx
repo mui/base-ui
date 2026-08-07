@@ -163,10 +163,19 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
         });
       },
       onBlur(event) {
-        // If focus is moving into the popup, don't count it as a blur.
-        if (contains(positionerElement, event.relatedTarget)) {
+        // Focus moving into the popup, or within a composite trigger (an inner element of a
+        // custom control), is not a real blur.
+        if (
+          contains(positionerElement, event.relatedTarget) ||
+          contains(event.currentTarget, event.relatedTarget)
+        ) {
           return;
         }
+
+        // The items only need to stay mounted while closed to serve closed-trigger typeahead.
+        // `clear()` handles a blur that lands before the focus timeout fires.
+        timeoutFocus.clear();
+        store.set('forceMount', false);
 
         setTouched(true);
         setFocused(false);

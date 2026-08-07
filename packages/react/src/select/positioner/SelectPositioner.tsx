@@ -64,6 +64,7 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
     labelsRef,
     alignItemWithTriggerActiveRef,
     selectedItemTextRef,
+    registeredItemValuesRef,
     valuesRef,
     initialValueRef,
     popupRef,
@@ -145,67 +146,94 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
     inert: !open,
   });
 
-  const prevMapSizeRef = React.useRef(0);
-
-  const onMapChange = useStableCallback(
-    (map: Map<Element, { index?: number | null | undefined } | null>) => {
-      if (valuesRef.current.length === 0) {
-        return;
-      }
-
-      const prevSize = prevMapSizeRef.current;
-      prevMapSizeRef.current = map.size;
-
-      if (map.size === prevSize) {
-        return;
-      }
-
-      const eventDetails = createChangeEventDetails(REASONS.none);
-
-      if (prevSize !== 0 && !store.state.multiple && value !== null) {
-        const selectedValueIndex = findItemIndex(valuesRef.current, value, isItemEqualToValue);
-        if (selectedValueIndex === -1) {
-          const initialSelectedValue = initialValueRef.current;
-          const hasInitial =
-            initialSelectedValue != null &&
-            findItemIndex(valuesRef.current, initialSelectedValue, isItemEqualToValue) !== -1;
-          const nextValue = hasInitial ? initialSelectedValue : null;
-          setValue(nextValue, eventDetails);
-
-          if (nextValue === null) {
-            store.set('selectedIndex', null);
-            selectedItemTextRef.current = null;
-          }
-        }
-      }
-
-      if (prevSize !== 0 && store.state.multiple && Array.isArray(value)) {
-        const nextValue = value.filter(
-          (selectedItemValue) =>
-            findItemIndex(valuesRef.current, selectedItemValue, isItemEqualToValue) !== -1,
-        );
-        if (nextValue.length !== value.length) {
-          setValue(nextValue, eventDetails);
-
-          if (nextValue.length === 0) {
-            store.set('selectedIndex', null);
-            selectedItemTextRef.current = null;
-          }
-        }
-      }
-
-      if (open && alignItemWithTriggerActive) {
-        store.update({
-          scrollUpArrowVisible: false,
-          scrollDownArrowVisible: false,
-        });
-
-        const stylesToClear: React.CSSProperties = { height: '' };
-        clearStyles(positionerElement, stylesToClear);
-        clearStyles(popupRef.current, stylesToClear);
-      }
+  useIsoLayoutEffect(
+    () => () => {
+      // The rendered items own the selection bookkeeping. Leaving a stale index behind lets
+      // `SelectItemText` re-adopt it on the next mount, before the value has been re-matched
+      // against the items that are actually rendered then.
+      store.set('selectedIndex', null);
+      selectedItemTextRef.current = null;
     },
+    [store, selectedItemTextRef],
   );
+
+  const onMapChange = useStableCallback(() => {
+    if (valuesRef.current.length === 0) {
+      return;
+    }
+
+    const prevValues = registeredItemValuesRef.current;
+    // Compact by hole-presence rather than reading positionally: under React 18 Strict Mode
+    // the value slots can sit at stale guessed indices at flush time, so `map.size`-based
+    // positional reads see holes instead of the registered values.
+    const rawValues = valuesRef.current;
+    const nextValues: any[] = [];
+    for (let i = 0; i < rawValues.length; i += 1) {
+      if (i in rawValues) {
+        nextValues.push(rawValues[i]);
+      }
+    }
+    registeredItemValuesRef.current = nextValues;
+
+    const sizeChanged = nextValues.length !== prevValues.length;
+    // Validate the selection whenever the registered values change, not only when the item
+    // count does: replacing the collection with one of equal size (including across an
+    // unmount and remount) must still prune a value that no longer exists. Flushes that
+    // only refresh labels or indices skip it, so a controlled value that deliberately
+    // matches no item isn't pruned by re-registration churn.
+    const valuesChanged =
+      sizeChanged ||
+      nextValues.some((itemValue, index) => !Object.is(itemValue, prevValues[index]));
+
+    const shouldValidate = prevValues.length !== 0 && valuesChanged;
+
+    if (shouldValidate && !store.state.multiple && value !== null) {
+      const selectedValueIndex = findItemIndex(valuesRef.current, value, isItemEqualToValue);
+      if (selectedValueIndex === -1) {
+        const initialSelectedValue = initialValueRef.current;
+        const hasInitial =
+          initialSelectedValue != null &&
+          findItemIndex(valuesRef.current, initialSelectedValue, isItemEqualToValue) !== -1;
+        const nextValue = hasInitial ? initialSelectedValue : null;
+        setValue(nextValue, createChangeEventDetails(REASONS.none));
+
+        if (nextValue === null) {
+          store.set('selectedIndex', null);
+          selectedItemTextRef.current = null;
+        }
+      }
+    }
+
+    if (shouldValidate && store.state.multiple && Array.isArray(value)) {
+      const nextValue = value.filter(
+        (selectedItemValue) =>
+          findItemIndex(valuesRef.current, selectedItemValue, isItemEqualToValue) !== -1,
+      );
+      if (nextValue.length !== value.length) {
+        setValue(nextValue, createChangeEventDetails(REASONS.none));
+
+        if (nextValue.length === 0) {
+          store.set('selectedIndex', null);
+          selectedItemTextRef.current = null;
+        }
+      }
+    }
+
+    if (!sizeChanged) {
+      return;
+    }
+
+    if (open && alignItemWithTriggerActive) {
+      store.update({
+        scrollUpArrowVisible: false,
+        scrollDownArrowVisible: false,
+      });
+
+      const stylesToClear: React.CSSProperties = { height: '' };
+      clearStyles(positionerElement, stylesToClear);
+      clearStyles(popupRef.current, stylesToClear);
+    }
+  });
 
   const contextValue: SelectPositionerContext = React.useMemo(
     () => ({

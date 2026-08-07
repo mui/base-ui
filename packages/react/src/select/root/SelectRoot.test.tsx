@@ -4295,7 +4295,7 @@ describe('<Select.Root />', () => {
         const [items, setItems] = React.useState(['a', 'b', 'c']);
         return (
           <div>
-            <Select.Root defaultValue="b">
+            <Select.Root defaultValue="b" name="font">
               <Select.Trigger data-testid="trigger">
                 <Select.Value />
               </Select.Trigger>
@@ -4321,6 +4321,63 @@ describe('<Select.Root />', () => {
         );
       }
 
+      const { user, container } = await render(<Test />);
+
+      const trigger = screen.getByTestId('trigger');
+      // eslint-disable-next-line testing-library/no-container -- No appropriate method on screen since it's a type=hidden input
+      const hiddenInput = container.querySelector<HTMLInputElement>('[name="font"]');
+
+      await user.click(trigger);
+      await user.click(screen.getByRole('option', { name: 'c' }));
+
+      // Clicking the button blurs the trigger, unmounting the popup, so the removal
+      // can't be observed yet.
+      await user.click(screen.getByTestId('remove-c'));
+      expect(trigger).toHaveTextContent('c');
+
+      // The value reconciles when the items mount again.
+      await user.click(trigger);
+      await waitFor(() => {
+        expect(trigger).toHaveTextContent('b');
+      });
+      expect(hiddenInput).toHaveValue('b');
+      await waitFor(() => {
+        expect(screen.getByRole('option', { name: 'b' })).toHaveAttribute('data-selected', '');
+      });
+    });
+
+    it('resets to default when the selected item is replaced by an equal-size collection while unmounted', async () => {
+      if (reactMajor <= 18) {
+        ignoreActWarnings();
+      }
+
+      function Test() {
+        const [items, setItems] = React.useState(['a', 'b', 'c']);
+        return (
+          <div>
+            <Select.Root defaultValue="b">
+              <Select.Trigger data-testid="trigger">
+                <Select.Value />
+              </Select.Trigger>
+              <Select.Portal>
+                <Select.Positioner>
+                  <Select.Popup>
+                    {items.map((it) => (
+                      <Select.Item key={it} value={it}>
+                        {it}
+                      </Select.Item>
+                    ))}
+                  </Select.Popup>
+                </Select.Positioner>
+              </Select.Portal>
+            </Select.Root>
+            <button data-testid="replace-c" onClick={() => setItems(['a', 'b', 'd'])}>
+              Replace C
+            </button>
+          </div>
+        );
+      }
+
       const { user } = await render(<Test />);
 
       const trigger = screen.getByTestId('trigger');
@@ -4328,13 +4385,14 @@ describe('<Select.Root />', () => {
       await user.click(trigger);
       await user.click(screen.getByRole('option', { name: 'c' }));
 
-      await user.click(screen.getByTestId('remove-c'));
+      // Blurs the trigger and unmounts the popup. The replacement keeps the item count
+      // equal, so only value validation (not a size change) can catch it on remount.
+      await user.click(screen.getByTestId('replace-c'));
 
+      await user.click(trigger);
       await waitFor(() => {
         expect(trigger).toHaveTextContent('b');
       });
-
-      await user.click(trigger);
       await waitFor(() => {
         expect(screen.getByRole('option', { name: 'b' })).toHaveAttribute('data-selected', '');
       });
@@ -4641,15 +4699,17 @@ describe('<Select.Root />', () => {
       await user.click(trigger);
       await user.click(screen.getByRole('option', { name: 'c' }));
 
+      // The first button click blurs the trigger and unmounts the popup; the removals
+      // reconcile when the items mount again on reopen.
       await user.click(screen.getByTestId('remove-b'));
       await user.click(screen.getByTestId('remove-c'));
+
+      await user.click(trigger);
 
       // Now no fallback remains; value should reset to null
       await waitFor(() => {
         expect(trigger).toHaveTextContent('');
       });
-
-      await user.click(trigger);
 
       const options = await screen.findAllByRole('option');
       options.forEach((opt) => {
@@ -4973,7 +5033,12 @@ describe('<Select.Root />', () => {
 
       await user.click(resetBtn);
 
+      // Clicking the reset button blurred the trigger, which unmounts the closed popup. Wait for
+      // the trigger's deferred force-mount to register the hidden items again before typing.
       await act(async () => trigger.focus());
+      await waitFor(() => {
+        expect(screen.queryAllByRole('option', { hidden: true })).toHaveLength(2);
+      });
       await user.keyboard('a');
       expect(valueEl.textContent).toBe('a1');
     });
