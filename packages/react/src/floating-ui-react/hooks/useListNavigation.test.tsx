@@ -4,7 +4,7 @@ import { act, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event';
 import { flushMicrotasks } from '@mui/internal-test-utils';
 import { isJSDOM, useTestInteractions } from '#test-utils';
-import { useClick, useDismiss, useFloating, useListNavigation } from '../index';
+import { FloatingFocusManager, useClick, useDismiss, useFloating, useListNavigation } from '../index';
 import { gridNavigation } from './gridNavigation';
 import type { UseListNavigationProps } from '../types';
 import { Main as ComplexGrid } from '../../../test/floating-ui-tests/ComplexGrid';
@@ -1524,5 +1524,105 @@ describe('useListNavigation', () => {
     await waitFor(() => {
       expect(screen.getByTestId('item-1')).toHaveFocus();
     });
+  });
+});
+
+describe('queued focus', () => {
+  function ManagedApp() {
+    const [open, setOpen] = React.useState(false);
+    const listRef = React.useRef<Array<HTMLLIElement | null>>([]);
+    const [activeIndex, setActiveIndex] = React.useState<null | number>(null);
+    const { refs, context } = useFloating({
+      open,
+      onOpenChange: setOpen,
+    });
+    const { getReferenceProps, getFloatingProps, getItemProps } = useTestInteractions([
+      useClick(context),
+      useListNavigation(context, {
+        listRef,
+        activeIndex,
+        onNavigate: setActiveIndex,
+      }),
+    ]);
+
+    return (
+      <React.Fragment>
+        <button data-testid="reference" {...getReferenceProps({ ref: refs.setReference })} />
+        <button data-testid="nav-1" onClick={() => setActiveIndex(1)} />
+        <button data-testid="nav-2" onClick={() => setActiveIndex(2)} />
+        {open && (
+          <FloatingFocusManager context={context}>
+            <div role="menu" {...getFloatingProps({ ref: refs.setFloating })}>
+              <button data-testid="close" type="button" />
+              <ul>
+                {['one', 'two', 'three'].map((string, index) => (
+                  <li
+                    data-testid={`item-${index}`}
+                    key={string}
+                    tabIndex={-1}
+                    {...getItemProps({
+                      ref(node: HTMLLIElement) {
+                        listRef.current[index] = node;
+                      },
+                    })}
+                  >
+                    {string}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </FloatingFocusManager>
+        )}
+      </React.Fragment>
+    );
+  }
+
+  it('keyboard open focuses the active item when the focus manager initial focus targets another tabbable', async () => {
+    vi.useFakeTimers();
+    try {
+      render(<ManagedApp />);
+
+      fireEvent.keyDown(screen.getByTestId('reference'), { key: 'ArrowDown' });
+      expect(screen.getByRole('menu')).toBeInTheDocument();
+      // Let the focus manager's queued initial focus land before the frame runs.
+      await act(async () => {});
+      await act(async () => {
+        vi.advanceTimersToNextFrame();
+      });
+
+      expect(screen.getByTestId('item-0')).toHaveFocus();
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it('consecutive queued focus requests before the frame runs skip intermediate items', async () => {
+    vi.useFakeTimers();
+    try {
+      render(<ManagedApp />);
+
+      let intermediateFocusCount = 0;
+      const onIntermediateFocus = () => {
+        intermediateFocusCount += 1;
+      };
+
+      // Open with a click so focus requests stay queued instead of running
+      // synchronously as they do once an item holds focus.
+      fireEvent.click(screen.getByTestId('reference'));
+      await act(async () => {});
+      screen.getByTestId('item-0').addEventListener('focus', onIntermediateFocus);
+      screen.getByTestId('item-1').addEventListener('focus', onIntermediateFocus);
+
+      fireEvent.click(screen.getByTestId('nav-1'));
+      fireEvent.click(screen.getByTestId('nav-2'));
+      await act(async () => {
+        vi.advanceTimersToNextFrame();
+      });
+
+      expect(intermediateFocusCount).toBe(0);
+      expect(screen.getByTestId('item-2')).toHaveFocus();
+    } finally {
+      vi.useRealTimers();
+    }
   });
 });
