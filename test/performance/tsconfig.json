@@ -5,7 +5,9 @@
     "jsx": "react-jsx",
     "module": "es2022",
     "moduleResolution": "bundler",
-    "resolveJsonModule": true
+    "resolveJsonModule": true,
+    "allowImportingTsExtensions": true,
+    "noEmit": true
   },
-  "include": ["tests", "vitest.config.ts"]
+  "include": ["tests", "scripts", "benchmark.ts", "renderCountReporter.ts", "vitest.config.ts"]
 }

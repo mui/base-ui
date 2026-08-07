@@ -167,6 +167,40 @@ so we also need to take into account the rendering engine.
 
 Check out the [visual regression testing readme](./regressions/README.md) for more information.
 
+#### Performance benchmarks
+
+Pull requests that change React, shared utilities, or the performance fixtures run a short
+`Performance / Render counts` collection job. A trusted `Render count report` check compares the
+merge base with the exact PR head using one measured iteration per benchmark and reports only
+additional or fewer renders, not runtime measurements.
+
+A PR that changes a render count also gets a comment with the per-benchmark breakdown, since the
+check on its own is easy to miss. A PR that changes nothing is left alone.
+
+Each revision normally runs its matching `test/performance` harness and dependency graph. During
+the workflow's rollout, a merge base that predates the render-count collector can reuse the head
+collector only when the relevant harness dependency versions match; otherwise the PR must be
+updated from `master`. Only the publishing workflow is trusted; it runs from `master` and pins
+every result it publishes to the head commit of the collector run that produced it.
+
+A maintainer with write access can comment `/benchmark` on any open PR to request the full
+performance suite. This is a deterministic CI command and does not invoke Claude. The full suite
+runs the unchanged benchmark settings for the merge base and the exact PR head in ABBA order
+(base, PR, PR, base) within one CircleCI job, so both revisions are measured on the same machine
+under the same conditions. It uploads the combined timing, paint, and render comparison and
+refreshes the existing consolidated MUI performance comment instead of creating another PR
+comment.
+
+Review the exact head commit before requesting a full benchmark. Unlike the automatic check, the
+requested pipeline builds and runs that commit with the CircleCI `org-global` context, so its
+secrets are exposed to whatever that code does, including for a PR from a fork. CircleCI loads the
+trusted configuration from `master`, fetches the requested commit through the PR ref, and stops
+before installing dependencies if the PR has advanced since the comment.
+
+A PR created before this workflow was introduced must first be updated from `master`. GitHub
+Actions requires a `CIRCLECI_TOKEN` secret to start the dedicated CircleCI benchmark pipeline;
+until it is configured, `/benchmark` replies saying so and fails.
+
 #### end-to-end tests
 
 Checkout the [end-to-end testing readme](./e2e/README.md) for more information.

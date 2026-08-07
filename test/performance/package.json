@@ -2,7 +2,10 @@
   "private": true,
   "description": "Performance benchmark workspace for Base UI",
   "scripts": {
-    "benchmark": "vitest run"
+    "benchmark": "vitest run",
+    "test:scripts": "node --test scripts/*.test.mts",
+    "typescript": "tsgo -p tsconfig.scripts.json --noEmit",
+    "typescript:fixtures": "tsgo -p tsconfig.fixtures.json --noEmit"
   },
   "dependencies": {
     "@base-ui/react": "workspace:*",
