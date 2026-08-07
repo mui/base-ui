@@ -1,13 +1,23 @@
 import { isShadowRoot } from '@floating-ui/utils/dom';
 
-export function activeElement(doc: Document) {
-  let element = doc.activeElement;
+export function activeElement(root: Document | ShadowRoot) {
+  let element = root.activeElement;
 
   while (element?.shadowRoot?.activeElement != null) {
     element = element.shadowRoot.activeElement;
   }
 
   return element;
+}
+
+/**
+ * Returns the deepest active element in the element's own document or shadow
+ * root. Starting from the element's root is important for closed shadow roots:
+ * their focused descendant is intentionally hidden from `document.activeElement`.
+ */
+export function activeElementInRoot(element: Element) {
+  const root = element.getRootNode();
+  return activeElement(isShadowRoot(root) ? root : element.ownerDocument);
 }
 
 export function contains(parent?: Element | null, child?: Element | null) {
