@@ -34,11 +34,10 @@ import { useOpenChangeComplete } from '../../internals/useOpenChangeComplete';
 import { useFormContext } from '../../internals/form-context/FormContext';
 import { type Group, stringifyAsLabel, stringifyAsValue } from '../../internals/resolveValueLabel';
 import {
-  compareItemEquality,
   defaultItemEquality,
   findItemIndex,
+  isSelectedValueDirty,
 } from '../../internals/itemEquality';
-import { areArraysEqual } from '../../internals/areArraysEqual';
 import { useValueChanged } from '../../internals/useValueChanged';
 import { useOpenInteractionType } from '../../utils/useOpenInteractionType';
 import { getMaxScrollOffset, normalizeScrollOffset } from '../../utils/scrollEdges';
@@ -241,21 +240,9 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     [multiple, open, value, isItemEqualToValue, store],
   );
 
-  function isSelectedValueDirty(currentValue: unknown) {
-    const initialValue = validityData.initialValue;
-
-    if (Array.isArray(currentValue) && Array.isArray(initialValue)) {
-      return !areArraysEqual(currentValue, initialValue, (itemValue, initialItemValue) =>
-        compareItemEquality(itemValue, initialItemValue, isItemEqualToValue),
-      );
-    }
-
-    return currentValue !== initialValue;
-  }
-
   useValueChanged(value, () => {
     clearErrors(name);
-    setDirty(isSelectedValueDirty(value));
+    setDirty(isSelectedValueDirty(value, validityData.initialValue, isItemEqualToValue));
 
     validation.change(value);
   });
