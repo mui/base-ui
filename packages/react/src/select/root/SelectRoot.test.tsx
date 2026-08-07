@@ -1950,10 +1950,19 @@ describe('<Select.Root />', () => {
         });
 
         await user.click(screen.getByRole('combobox'));
-        await act(async () => actionsRef.current.unmount());
+        await act(async () => {
+          await new Promise((resolve) => {
+            requestAnimationFrame(resolve);
+          });
+          actionsRef.current.unmount();
+        });
 
-        expect(upArrow).not.toHaveAttribute('data-visible');
-        expect(downArrow).not.toHaveAttribute('data-visible');
+        await waitFor(() => {
+          expect(upArrow).not.toHaveAttribute('data-visible');
+        });
+        await waitFor(() => {
+          expect(downArrow).not.toHaveAttribute('data-visible');
+        });
       },
     );
 

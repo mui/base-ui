@@ -24,7 +24,7 @@ export function usePopupAutoResize(parameters: UsePopupAutoResizeParameters) {
     direction,
   } = parameters;
 
-  const runOnceAnimationsFinish = useAnimationsFinished(popupElement, true, false);
+  const runOnceAnimationsFinish = useAnimationsFinished(popupElement, true);
 
   const animationFrame = useAnimationFrame();
 
@@ -36,26 +36,10 @@ export function usePopupAutoResize(parameters: UsePopupAutoResizeParameters) {
   const onMeasureLayout = useStableCallback(onMeasureLayoutParam);
   const onMeasureLayoutComplete = useStableCallback(onMeasureLayoutCompleteParam);
 
-  const anchoringStyles: React.CSSProperties = React.useMemo(() => {
-    // Ensure popup size transitions correctly when anchored to `bottom` (side=top) or `right` (side=left).
-    let isOriginSide = side === 'top';
-    let isPhysicalLeft = side === 'left';
-    if (direction === 'rtl') {
-      isOriginSide = isOriginSide || side === 'inline-end';
-      isPhysicalLeft = isPhysicalLeft || side === 'inline-end';
-    } else {
-      isOriginSide = isOriginSide || side === 'inline-start';
-      isPhysicalLeft = isPhysicalLeft || side === 'inline-start';
-    }
-
-    return isOriginSide
-      ? {
-          position: 'absolute',
-          [side === 'top' ? 'bottom' : 'top']: '0',
-          [isPhysicalLeft ? 'right' : 'left']: '0',
-        }
-      : EMPTY_OBJECT;
-  }, [side, direction]);
+  const anchoringStyles = React.useMemo(
+    () => getPopupAnchoringStyles(side, direction),
+    [side, direction],
+  );
 
   useIsoLayoutEffect(() => {
     // Reset the state when the popup is closed.
@@ -198,6 +182,23 @@ interface UsePopupAutoResizeParameters {
 
   side: Side;
   direction: 'ltr' | 'rtl';
+}
+
+function getPopupAnchoringStyles(side: Side, direction: 'ltr' | 'rtl'): React.CSSProperties {
+  // Ensure popup size transitions correctly when anchored to `bottom` (side=top) or `right` (side=left).
+  const isPhysicalTop = side === 'top';
+  const isPhysicalLeft =
+    side === 'left' || side === (direction === 'rtl' ? 'inline-end' : 'inline-start');
+
+  if (!isPhysicalTop && !isPhysicalLeft) {
+    return EMPTY_OBJECT;
+  }
+
+  return {
+    position: 'absolute',
+    [isPhysicalTop ? 'bottom' : 'top']: '0',
+    [isPhysicalLeft ? 'right' : 'left']: '0',
+  };
 }
 
 function overrideElementStyle(element: HTMLElement, property: string, value: string) {

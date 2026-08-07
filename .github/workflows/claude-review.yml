@@ -13,11 +13,10 @@ permissions: {}
 
 jobs:
   claude-review:
-    uses: mui/mui-public/.github/workflows/claude-review.yml@d7a721986aed46adb128a9b200b12729c7a55378 # master
+    uses: mui/mui-public/.github/workflows/claude-review.yml@6a01f9caec47cef7ab805248de15934b70745d59 # master
     permissions:
       contents: read # read the repo (checkout + git diff)
       id-token: write # mint the GitHub OIDC token exchanged for a Claude token via WIF
-      issues: write # post the top-level PR comment (a PR comment goes through the issues API)
-      pull-requests: read # read PR metadata (gh pr view --json baseRefName); the review posts --comment only, no inline comments
+      pull-requests: write # the reusable workflow posts the review comment (commenting on a PR needs pull-requests: write)
     with:
       review-skill: base-ui-review

@@ -248,6 +248,124 @@ describe('<Drawer.Viewport />', () => {
     }
   });
 
+  it('uses shadow-root hit testing for touch swipe targets', async () => {
+    const host = document.body.appendChild(document.createElement('div'));
+    const shadowRoot = host.attachShadow({ mode: 'open' });
+    const originalDocumentElementFromPoint = document.elementFromPoint;
+    const originalShadowElementFromPoint = shadowRoot.elementFromPoint;
+
+    try {
+      await render(
+        <Drawer.Root open>
+          <Drawer.Portal container={shadowRoot}>
+            <Drawer.Backdrop data-testid="backdrop" />
+            <Drawer.Viewport>
+              <Drawer.Popup>
+                <div data-testid="target">Target</div>
+                <div data-base-ui-swipe-ignore data-testid="ignored">
+                  Ignore
+                </div>
+              </Drawer.Popup>
+            </Drawer.Viewport>
+          </Drawer.Portal>
+        </Drawer.Root>,
+      );
+
+      const target = shadowRoot.querySelector<HTMLElement>('[data-testid="target"]');
+      const ignored = shadowRoot.querySelector<HTMLElement>('[data-testid="ignored"]');
+      const backdrop = shadowRoot.querySelector<HTMLElement>('[data-testid="backdrop"]');
+      expect(target).not.toBeNull();
+      expect(ignored).not.toBeNull();
+      expect(backdrop).not.toBeNull();
+      if (!target || !ignored || !backdrop) {
+        return;
+      }
+
+      // Returning an in-popup element from the document hit test would start the swipe if the
+      // shadow root were not consulted, so this pins the shadow-root lookup rather than the
+      // `contains()` rejection that a retargeted host would also trigger.
+      document.elementFromPoint = () => target;
+      shadowRoot.elementFromPoint = () => ignored;
+
+      fireEvent.touchStart(ignored, {
+        touches: [createTouch(ignored, { clientX: 0, clientY: 0 })],
+      });
+
+      await flushMicrotasks();
+
+      expect(backdrop).not.toHaveAttribute('data-swiping');
+
+      fireEvent.touchEnd(ignored, {
+        changedTouches: [createTouch(ignored, { clientX: 0, clientY: 0 })],
+      });
+      shadowRoot.elementFromPoint = () => target;
+
+      fireEvent.touchStart(target, {
+        touches: [createTouch(target, { clientX: 0, clientY: 0 })],
+      });
+
+      await flushMicrotasks();
+
+      expect(backdrop).toHaveAttribute('data-swiping', '');
+    } finally {
+      document.elementFromPoint = originalDocumentElementFromPoint;
+      shadowRoot.elementFromPoint = originalShadowElementFromPoint;
+      host.remove();
+    }
+  });
+
+  it.skipIf(isJSDOM)('starts a swipe inside a shadow root using real hit testing', async () => {
+    const host = document.body.appendChild(document.createElement('div'));
+    const shadowRoot = host.attachShadow({ mode: 'open' });
+
+    try {
+      await render(
+        <Drawer.Root open swipeDirection="down">
+          <Drawer.Portal container={shadowRoot}>
+            <Drawer.Backdrop data-testid="backdrop" />
+            <Drawer.Viewport>
+              <Drawer.Popup
+                data-testid="popup"
+                style={{ position: 'fixed', top: 0, left: 0, width: 200, height: 200 }}
+              >
+                Content
+              </Drawer.Popup>
+            </Drawer.Viewport>
+          </Drawer.Portal>
+        </Drawer.Root>,
+      );
+
+      const popup = shadowRoot.querySelector<HTMLElement>('[data-testid="popup"]');
+      const backdrop = shadowRoot.querySelector<HTMLElement>('[data-testid="backdrop"]');
+      expect(popup).not.toBeNull();
+      expect(backdrop).not.toBeNull();
+      if (!popup || !backdrop) {
+        return;
+      }
+
+      // No `elementFromPoint` stubbing: a real document hit test retargets the popup content to
+      // the shadow host, which fails the `contains()` check in the swipe `canStart` guard, so
+      // this only engages when the hit test runs against the shadow root.
+      fireEvent.touchStart(popup, {
+        touches: [createTouch(popup, { clientX: 100, clientY: 100 })],
+      });
+
+      fireEvent.touchMove(popup, {
+        touches: [createTouch(popup, { clientX: 100, clientY: 125 })],
+      });
+
+      await waitFor(() => {
+        expect(backdrop).toHaveAttribute('data-swiping', '');
+      });
+
+      fireEvent.touchEnd(popup, {
+        changedTouches: [createTouch(popup, { clientX: 100, clientY: 125 })],
+      });
+    } finally {
+      host.remove();
+    }
+  });
+
   it('clears the backdrop data-swiping attribute when the drawer unmounts mid-swipe', async () => {
     const { unmount } = await render(
       <Drawer.Root open>

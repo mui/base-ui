@@ -122,7 +122,7 @@ export const TabsList = React.forwardRef(function TabsList(
         orientation={orientation}
         onHighlightedIndexChange={setHighlightedTabIndex}
         onMapChange={setTabMap}
-        disabledIndices={EMPTY_ARRAY as number[]}
+        disabledIndices={EMPTY_ARRAY}
       />
     </TabsListContext.Provider>
   );

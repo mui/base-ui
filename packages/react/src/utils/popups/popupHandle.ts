@@ -21,6 +21,12 @@ export interface PopupHandleStoreProvider<HandleStore> {
   readonly store: HandleStore;
 
   /**
+   * Stable store used to reproduce the server-rendered trigger snapshot during hydration.
+   * @internal
+   */
+  readonly serverStore: HandleStore;
+
+  /**
    * Subscribes to changes of the exposed store pointer.
    *
    * @param listener Callback fired when the handle starts or stops pointing at a root store.
@@ -112,6 +118,15 @@ export class BasePopupHandle<
    */
   get store(): HandleStore {
     return this.attachedStoreValue ?? this.fallbackStore;
+  }
+
+  /**
+   * Stable fallback store used for server rendering and hydration. Root stores cannot be recorded on
+   * the handle during render because a handle can be shared by concurrent server-rendered requests.
+   * @internal
+   */
+  get serverStore(): HandleStore {
+    return this.fallbackStore;
   }
 
   /**

@@ -90,7 +90,7 @@ export function useRenderDialogRoot<Payload>(
 
   return (
     <DialogRootContext.Provider value={store as DialogStore<unknown>}>
-      <PopupHandleAttachment handle={handle} store={store} />
+      {handle && <PopupHandleAttachment handle={handle} store={store} />}
       {shouldRenderInteractions && (
         <DialogInteractions
           store={store}

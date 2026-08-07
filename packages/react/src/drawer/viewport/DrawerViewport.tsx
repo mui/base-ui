@@ -354,7 +354,7 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
       }
 
       const doc = popupElement.ownerDocument;
-      const elementAtPoint = getElementAtPoint(doc, position.x, position.y);
+      const elementAtPoint = getElementAtPoint(popupElement.getRootNode(), position.x, position.y);
       if (!elementAtPoint || !contains(popupElement, elementAtPoint)) {
         return false;
       }
@@ -870,8 +870,11 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
             return;
           }
 
-          const doc = ownerDocument(event.currentTarget);
-          const elementAtPoint = getElementAtPoint(doc, event.clientX, event.clientY);
+          const elementAtPoint = getElementAtPoint(
+            event.currentTarget.getRootNode(),
+            event.clientX,
+            event.clientY,
+          );
           if (isSwipeIgnoredTarget(elementAtPoint) || isDrawerContentTarget(elementAtPoint)) {
             return;
           }
@@ -923,9 +926,12 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
             return;
           }
 
-          const doc = ownerDocument(event.currentTarget);
-          const elementAtPoint = getElementAtPoint(doc, touch.clientX, touch.clientY);
           const rootElement = event.currentTarget;
+          const elementAtPoint = getElementAtPoint(
+            rootElement.getRootNode(),
+            touch.clientX,
+            touch.clientY,
+          );
           const eventTarget = getTarget(event.nativeEvent);
           const target = isElement(eventTarget) ? eventTarget : rootElement;
           if (!contains(rootElement, target)) {

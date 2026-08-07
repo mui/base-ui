@@ -78,7 +78,7 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
   const domReference = floatingRootContext.useState('domReferenceElement');
 
   const previousTriggerRef = React.useRef<Element | null>(null);
-  const runOnceAnimationsFinish = useAnimationsFinished(positionerElement, false, false);
+  const runOnceAnimationsFinish = useAnimationsFinished(positionerElement);
 
   let anchor = anchorProp;
   let sideOffset = sideOffsetProp;

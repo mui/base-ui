@@ -51,10 +51,10 @@ export const ProgressRoot = React.forwardRef(function ProgressRoot(
     percentageValue = clamp(Number.isNaN(rawPercentage) ? 0 : rawPercentage, 0, 100);
     clampedValue = clamp(value, min, max);
     status = clampedValue === max ? 'complete' : 'progressing';
-    // Without an explicit `format`, the value is displayed as its position within the range so the
-    // text stays in sync with the indicator fill.
+    // Format the clamped value so visible and accessible text stay in sync with `aria-valuenow` and
+    // the indicator fill. The raw value remains available as the second `getAriaValueText` argument.
     formattedValue = format
-      ? formatNumber(value, locale, format)
+      ? formatNumber(clampedValue, locale, format)
       : formatNumber(percentageValue / 100, locale, { style: 'percent' });
     defaultAriaValueText = formattedValue;
   }
