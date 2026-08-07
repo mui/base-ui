@@ -761,6 +761,17 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
         }
 
         setOpen(false, eventDetails);
+
+        const closeWasPrevented =
+          eventDetails.isCanceled || (openProp === true && props.onOpenChange === undefined);
+
+        if (inline && closeWasPrevented) {
+          // Fill the input when a value is selected but the combobox does not close.
+          setInputValue(
+            stringifyAsLabel(itemValue, itemToStringLabel),
+            createChangeEventDetails(eventDetails.reason, eventDetails.event),
+          );
+        }
       }
     },
   );
