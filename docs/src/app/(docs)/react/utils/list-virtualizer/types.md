@@ -9,25 +9,31 @@
 Renders a window of visible and overscanned items in a flat list.
 Renders a scrollable `<div>` element.
 
-Requires the `items` prop on the list root and must be the only item-rendering child of the
-list. The element must have a constrained height or maximum height for virtualization to limit
-the number of mounted items.
+Pass the collection to the `items` prop to virtualize any list, or omit it inside a list that
+supports virtualization to window that list's own collection. The latter requires the `items`
+prop on the list root, and the virtualizer must be the only item-rendering child of the list.
+
+The element must have a constrained height or maximum height for virtualization to limit the
+number of mounted items.
 
 Grouped collections and grid mode are not currently supported.
 
 **ListVirtualizer Props:**
 
-| Prop                | Type                                                                                          | Default | Description                                                                                                                                                                                                                                     |
-| :------------------ | :-------------------------------------------------------------------------------------------- | :------ | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| actionsRef          | `React.RefObject<ListVirtualizer.Actions \| null>`                                            | -       | A ref to imperative actions. `scrollToIndex`: Scrolls an item into view by its logical collection index.                                                                                                                                        |
-| enabled             | `boolean`                                                                                     | `true`  | Whether virtualization is enabled. When `false`, all items are rendered.                                                                                                                                                                        |
-| estimatedItemHeight | `number \| ((item: Value, index: number) => number)`                                          | `32`    | Estimated item height in CSS pixels used before item elements have been measured.&#xA;A static number is automatically refined with the running average of measured items.&#xA;Provide a function to keep full control over per-item estimates. |
-| getItemKey          | `((item: Value) => string \| number)`                                                         | -       | Returns a stable key for the item value. Primitive item values use the value itself by default. Required when item values are&#xA;objects or the item type cannot be inferred.                                                                  |
-| overscanPx          | `number`                                                                                      | -       | Pixel buffer rendered before and after the visible range.&#xA;Defaults to the larger of 150px and the estimated size of the first item. The render buffer&#xA;always includes at least one estimated row, even when this prop is `0`.           |
-| children            | `((item: Value, index: number) => ReactElement)`                                              | -       | Renders exactly one item for the given value and its index in the filtered collection.                                                                                                                                                          |
-| className           | `string \| ((state: ListVirtualizer.State) => string \| undefined)`                           | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                                                                        |
-| style               | `React.CSSProperties \| ((state: ListVirtualizer.State) => React.CSSProperties \| undefined)` | -       | Style applied to the element, or a function that&#xA;returns a style object based on the component's state.                                                                                                                                     |
-| render              | `ReactElement \| ((props: HTMLProps, state: ListVirtualizer.State) => ReactElement)`          | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render.                                                   |
+| Prop                 | Type                                                                                          | Default | Description                                                                                                                                                                                                                                                                                                                                  |
+| :------------------- | :-------------------------------------------------------------------------------------------- | :------ | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| actionsRef           | `React.RefObject<ListVirtualizer.Actions \| null>`                                            | -       | A ref to imperative actions. `scrollToIndex`: Scrolls an item into view by its logical collection index.                                                                                                                                                                                                                                     |
+| activeIndex          | `number \| null`                                                                              | -       | Index of the active item in `items`. The item is kept mounted even when it falls outside the&#xA;rendered window, so it can hold focus or be referenced by `aria-activedescendant`, and it is&#xA;scrolled into view when the index changes. Ignored without the `items` prop: a list that provides the collection tracks its own highlight. |
+| enabled              | `boolean`                                                                                     | `true`  | Whether virtualization is enabled. When `false`, all items are rendered.                                                                                                                                                                                                                                                                     |
+| estimatedItemHeight  | `number \| ((item: Value, index: number) => number)`                                          | `32`    | Estimated item height in CSS pixels used before item elements have been measured.&#xA;A static number is automatically refined with the running average of measured items.&#xA;Provide a function to keep full control over per-item estimates.                                                                                              |
+| getItemKey           | `((item: Value) => string \| number)`                                                         | -       | Returns a stable key for the item value. Primitive item values use the value itself by default. Required when item values are&#xA;objects or the item type cannot be inferred.                                                                                                                                                               |
+| items                | `Value[]`                                                                                     | -       | The flat collection to virtualize. When omitted, the collection and its highlight state come from the surrounding list, which&#xA;requires a list that supports virtualization, such as `<Combobox.List>`.                                                                                                                                   |
+| overscanPx           | `number`                                                                                      | -       | Pixel buffer rendered before and after the visible range.&#xA;Defaults to the larger of 150px and the estimated size of the first item. The render buffer&#xA;always includes at least one estimated row, even when this prop is `0`.                                                                                                        |
+| scrollActiveIntoView | `boolean`                                                                                     | `true`  | Whether the active item is scrolled into view when it changes.&#xA;A surrounding list that already suppresses scrolling, such as for pointer highlights, stays in&#xA;control of its own scrolling; this prop can only disable the behavior.                                                                                                 |
+| children             | `((item: Value, index: number, itemProps: ListVirtualizerItemProps) => ReactElement)`         | -       | Renders exactly one item for the given value and its index in the collection.&#xA;The third argument carries the item's accessibility and collection metadata, to spread onto&#xA;the element representing the item. A list's own item component applies it automatically.                                                                   |
+| className            | `string \| ((state: ListVirtualizer.State) => string \| undefined)`                           | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                                                                                                                                                                     |
+| style                | `React.CSSProperties \| ((state: ListVirtualizer.State) => React.CSSProperties \| undefined)` | -       | Style applied to the element, or a function that&#xA;returns a style object based on the component's state.                                                                                                                                                                                                                                  |
+| render               | `ReactElement \| ((props: HTMLProps, state: ListVirtualizer.State) => ReactElement)`          | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render.                                                                                                                                                |
 
 **ListVirtualizer Data Attributes:**
 
@@ -70,6 +76,19 @@ type ListVirtualizerActions = {
 ```
 
 ## Additional Types
+
+### ListVirtualizerItemProps
+
+Accessibility and collection metadata for a virtualized item.
+
+A list's own `<Item>` applies these itself. Items rendered without one receive them as the third
+argument of the item renderer, to spread onto the element that represents the item.
+
+```typescript
+type ListVirtualizerItemProps = React.HTMLAttributes<any> & { ref?: React.Ref<any> } & {
+  'data-index': number;
+};
+```
 
 ### ListVirtualizerRowMetrics
 

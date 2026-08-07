@@ -38,16 +38,24 @@ export interface ListVirtualizerRenderRowParameters<RowModel> {
 }
 
 /**
+ * Accessibility and collection metadata for a virtualized item.
+ *
+ * A list's own `<Item>` applies these itself. Items rendered without one receive them as the third
+ * argument of the item renderer, to spread onto the element that represents the item.
+ */
+export type ListVirtualizerItemProps = HTMLProps & {
+  /** Logical index exposed as a DOM data attribute. */
+  'data-index': number;
+};
+
+/**
  * Metadata provided to an item rendered by the virtualizer.
  */
 export interface ListVirtualizerItemMetadata {
   /** Logical index in the full collection. */
   index: number;
   /** Accessibility and collection metadata applied to the item. */
-  props: HTMLProps & {
-    /** Logical index exposed as a DOM data attribute. */
-    'data-index': number;
-  };
+  props: ListVirtualizerItemProps;
   /** Registers the item rendered for this virtual row. */
   registerItem: (() => () => void) | undefined;
 }

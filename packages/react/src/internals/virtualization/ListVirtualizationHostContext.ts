@@ -79,17 +79,20 @@ export function useListVirtualizationHost() {
 }
 
 /**
- * Returns the surrounding list's virtualization host and state, throwing outside of a list.
+ * Returns the surrounding list's virtualization host and state, if there is one.
+ *
+ * A virtualizer given its own collection through the `items` prop renders without a list, so this
+ * only throws when neither source is available.
  */
-export function useListVirtualization() {
+export function useListVirtualization(hasOwnCollection: boolean) {
   const host = React.useContext(ListVirtualizationHostContext);
   const listState = React.useContext(ListVirtualizationListStateContext);
 
-  if (!host || !listState) {
+  if (!hasOwnCollection && (!host || !listState)) {
     throw new Error(
-      'Base UI: <ListVirtualizer> was rendered outside of a list that supports virtualization. ' +
-        'It reads the collection and highlight state from the surrounding list, so it cannot ' +
-        'render on its own. Place it inside <Combobox.List>. ' +
+      'Base UI: <ListVirtualizer> was rendered without an `items` prop and outside of a list ' +
+        'that supports virtualization, so it has no collection to render. Pass `items`, or ' +
+        'place it inside <Combobox.List> to window that list. ' +
         'Documentation: https://base-ui.com/react/utils/list-virtualizer',
     );
   }

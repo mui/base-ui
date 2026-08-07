@@ -4,6 +4,7 @@ import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { warn } from '@base-ui/utils/warn';
+import { EMPTY_ARRAY } from '@base-ui/utils/empty';
 import { areArraysEqual } from '../areArraysEqual';
 import type {
   ListVirtualizationRegistry,
@@ -17,6 +18,7 @@ import type {
 } from './ListVirtualizationHostContext';
 import type {
   ListVirtualizerItemMetadata,
+  ListVirtualizerItemProps,
   ListVirtualizerItemRowModel,
   ListVirtualizerRenderRowParameters,
   ListVirtualizerRow,
@@ -28,11 +30,15 @@ type VirtualizerItemKey = string;
 const DEFAULT_ESTIMATED_ITEM_HEIGHT = 32;
 
 interface ListVirtualizerItemRowProps<Item> {
-  children: (item: Item, index: number) => React.ReactElement;
-  componentName: ComponentName;
+  children: (item: Item, index: number, itemProps: ListVirtualizerItemProps) => React.ReactElement;
+  componentName: ComponentName | undefined;
   itemCount: number;
   model: ListVirtualizerItemRowModel<Item>;
-  virtualItemContext: React.Context<ListVirtualizerItemMetadata | undefined>;
+  /**
+   * The owning list's item channel, or `undefined` when the virtualizer renders standalone rows
+   * that have no `<Item>` to publish metadata to.
+   */
+  virtualItemContext: React.Context<ListVirtualizerItemMetadata | undefined> | undefined;
 }
 
 function ListVirtualizerItemRowImpl<Item>(props: ListVirtualizerItemRowProps<Item>) {
@@ -50,7 +56,8 @@ function ListVirtualizerItemRowImpl<Item>(props: ListVirtualizerItemRowProps<Ite
     // The build-time environment never changes during a component's lifetime.
     // eslint-disable-next-line react-hooks/rules-of-hooks
     useIsoLayoutEffect(() => {
-      if (registeredItemCountRef.current !== 1) {
+      // Only a list's own `<Item>` registers itself, so standalone rows have nothing to count.
+      if (virtualItemContext != null && registeredItemCountRef.current !== 1) {
         warn(
           'Each <ListVirtualizer> item renderer must render exactly one ' +
             `<${componentName}.Item>. Rendered ${registeredItemCountRef.current} items for the ` +
@@ -73,12 +80,17 @@ function ListVirtualizerItemRowImpl<Item>(props: ListVirtualizerItemRowProps<Ite
     [itemCount, model.itemIndex, registerItem],
   );
 
+  // The metadata reaches a list's `<Item>` through the list's own context, and everything else
+  // through the renderer's third argument. Both describe the same row, so a row rendered inside a
+  // list can mix them: a `<Combobox.Item>` keeps working next to a plain element that spreads them.
+  const content = children(model.item, model.itemIndex, contextValue.props);
+
+  if (virtualItemContext == null) {
+    return content;
+  }
+
   const VirtualItemContext = virtualItemContext;
-  return (
-    <VirtualItemContext.Provider value={contextValue}>
-      {children(model.item, model.itemIndex)}
-    </VirtualItemContext.Provider>
-  );
+  return <VirtualItemContext.Provider value={contextValue}>{content}</VirtualItemContext.Provider>;
 }
 
 function areListVirtualizerItemRowPropsEqual<Item>(
@@ -100,9 +112,14 @@ const ListVirtualizerItemRow = React.memo(
   areListVirtualizerItemRowPropsEqual,
 ) as typeof ListVirtualizerItemRowImpl;
 
-export interface UseListVirtualizerAdapterParameters<Item> {
+export interface UseListVirtualizerBindingParameters<Item> {
   actionsRef: React.RefObject<ListVirtualizerActions | null> | undefined;
-  children: (item: Item, index: number) => React.ReactElement;
+  /**
+   * Index of the item to keep mounted and scroll to, for a virtualizer given its own collection.
+   * Ignored when the collection comes from the surrounding list, which tracks its own highlight.
+   */
+  activeIndex: number | null | undefined;
+  children: (item: Item, index: number, itemProps: ListVirtualizerItemProps) => React.ReactElement;
   /**
    * Whether virtualization is requested. The resolved window can still be inactive while the list
    * needs every row mounted, and a disabled virtualizer renders every row, so the list root must
@@ -111,31 +128,64 @@ export interface UseListVirtualizerAdapterParameters<Item> {
   enabled: boolean;
   estimatedItemHeight: number | ((item: Item, index: number) => number) | undefined;
   getItemKey: ((item: Item) => string | number) | undefined;
-  host: ListVirtualizationHost;
-  listState: ListVirtualizationListState;
+  host: ListVirtualizationHost | undefined;
+  /**
+   * The collection to window, when the virtualizer is given one directly. Takes precedence over a
+   * surrounding list's collection.
+   */
+  items: ReadonlyArray<Item> | undefined;
+  listState: ListVirtualizationListState | undefined;
+  /**
+   * Whether the active item is scrolled into view. Only ever disables the behavior: a list that
+   * already suppresses it, such as for pointer highlights, stays in control of its own scrolling.
+   */
+  scrollActiveIntoView: boolean;
 }
 
 /**
- * Binds `<ListVirtualizer>` to its surrounding list: turns the filtered collection into stable
- * rows, supplies each row's item metadata, and registers the imperative handle with the list.
+ * Resolves what `<ListVirtualizer>` windows, from either of its two sources: an `items` prop, or
+ * the surrounding list's collection and highlight state. Turns that collection into stable rows,
+ * supplies each row's item metadata, and registers the imperative handle with the list, if any.
+ *
+ * The collection's source and the row's item channel are independent: a virtualizer given its own
+ * `items` inside a list still publishes metadata through that list's `<Item>` context.
  */
-export function useListVirtualizerAdapter<Item>(
-  parameters: UseListVirtualizerAdapterParameters<Item>,
+export function useListVirtualizerBinding<Item>(
+  parameters: UseListVirtualizerBindingParameters<Item>,
 ) {
   const {
     actionsRef,
+    activeIndex: activeIndexProp,
     children,
     enabled: enabledProp,
     estimatedItemHeight,
     getItemKey,
     host,
+    items: itemsProp,
     listState,
+    scrollActiveIntoView: scrollActiveIntoViewProp,
   } = parameters;
 
-  const { componentName, registry, virtualItemContext, warnUnsupportedConfiguration } = host;
-  const { activeIndex, renderAllRows, renderAllRowsRestoreVersion, scrollActiveIntoView } =
-    listState;
-  const items = listState.items as ReadonlyArray<Item>;
+  const componentName = host?.componentName;
+  const virtualItemContext = host?.virtualItemContext;
+  const warnUnsupportedConfiguration = host?.warnUnsupportedConfiguration;
+
+  // An `items` prop is the virtualizer's own collection, and everything derived from a collection
+  // comes with it. Mixing the two sources would window one list's items against another's state.
+  const hasOwnCollection = itemsProp != null;
+  const items = (
+    hasOwnCollection ? itemsProp : (listState?.items ?? EMPTY_ARRAY)
+  ) as ReadonlyArray<Item>;
+  const activeIndex = hasOwnCollection
+    ? (activeIndexProp ?? null)
+    : (listState?.activeIndex ?? null);
+  // Only a list asks for every row at once, and only a list restores its viewport afterwards.
+  const renderAllRows = hasOwnCollection ? false : (listState?.renderAllRows ?? false);
+  const renderAllRowsRestoreVersion = hasOwnCollection
+    ? 0
+    : (listState?.renderAllRowsRestoreVersion ?? 0);
+  const scrollActiveIntoView =
+    scrollActiveIntoViewProp && (hasOwnCollection || listState?.scrollActiveIntoView === true);
 
   if (process.env.NODE_ENV !== 'production') {
     // The build-time environment never changes during a component's lifetime.
@@ -144,6 +194,17 @@ export function useListVirtualizerAdapter<Item>(
       // Only a mounted virtualizer makes an unwindowable configuration a problem worth reporting.
       warnUnsupportedConfiguration?.();
     }, [warnUnsupportedConfiguration]);
+
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    React.useEffect(() => {
+      if (hasOwnCollection && componentName != null) {
+        warn(
+          `<ListVirtualizer> received an \`items\` prop inside <${componentName}.List>, which ` +
+            "windows that collection instead of the list's own. Item indices must match the " +
+            `list's filtered collection, so remove \`items\` unless you are reproducing it exactly.`,
+        );
+      }
+    }, [componentName, hasOwnCollection]);
   }
 
   const objectKeyRegistry = useRefWithInit(createObjectKeyRegistry).current;
@@ -275,12 +336,19 @@ export function useListVirtualizerAdapter<Item>(
   );
 
   useIsoLayoutEffect(() => {
+    // A standalone virtualizer has no list root to coordinate scrolling and item registration with.
+    if (host == null) {
+      return undefined;
+    }
+
+    const { registry } = host;
+
     if (process.env.NODE_ENV !== 'production') {
       if (registry.virtualizer != null) {
-        warn(`<${componentName}.Root> must not contain more than one <ListVirtualizer>.`);
+        warn(`<${host.componentName}.Root> must not contain more than one <ListVirtualizer>.`);
       }
       if (registry.nonVirtualItemCount > 0) {
-        warnAboutStaticItems(componentName);
+        warnAboutStaticItems(host.componentName);
       }
     }
 
@@ -290,7 +358,7 @@ export function useListVirtualizerAdapter<Item>(
         registry.virtualizer = null;
       }
     };
-  }, [componentName, registry, virtualizerHandle]);
+  }, [host, virtualizerHandle]);
 
   const onUnconstrainedHeight = useStableCallback(() => {
     warn(

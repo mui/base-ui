@@ -2208,7 +2208,7 @@ describe('<ListVirtualizer />', () => {
     }
   });
 
-  it('throws a descriptive error when rendered outside of a list', async () => {
+  it('throws a descriptive error when rendered without a collection', async () => {
     const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
     try {
@@ -2221,7 +2221,8 @@ describe('<ListVirtualizer />', () => {
           </Combobox.Root>,
         ),
       ).rejects.toThrow(
-        'Base UI: <ListVirtualizer> was rendered outside of a list that supports virtualization.',
+        'Base UI: <ListVirtualizer> was rendered without an `items` prop and outside of a list ' +
+          'that supports virtualization',
       );
     } finally {
       errorSpy.mockRestore();

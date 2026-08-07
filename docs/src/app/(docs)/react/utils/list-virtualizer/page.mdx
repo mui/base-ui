@@ -23,7 +23,7 @@ import { ListVirtualizer } from '@base-ui/react/list-virtualizer';
 
 `<ListVirtualizer>` renders a window of the visible and overscanned items instead of the whole collection, and connects to the surrounding list so that keyboard navigation, scrolling, selection, and accessibility metadata keep working for items that are not mounted.
 
-It can be used inside `<Combobox.List>` and `<Autocomplete.List>`. Rendering it outside of a list that supports virtualization throws.
+It can be used inside `<Combobox.List>` and `<Autocomplete.List>`, or on its own by passing the collection to its `items` prop.
 
 ## Rendering items
 
@@ -82,6 +82,26 @@ const virtualizer = React.useRef<ListVirtualizer.Actions>(null);
 
 virtualizer.current?.scrollToIndex(500, { align: 'center' });
 ```
+
+## Standalone lists
+
+Pass the collection to the virtualizer's own `items` prop to window a list that Base UI does not provide. Nothing else is required, so the virtualizer can be dropped into any scrolling list:
+
+```jsx title="Windowing a custom list"
+<ListVirtualizer items={items} getItemKey={(item) => item.id} role="listbox">
+  {(item, index, itemProps) => (
+    <div {...itemProps} role="option">
+      {item.name}
+    </div>
+  )}
+</ListVirtualizer>
+```
+
+The third argument of `children` carries the item's accessibility and collection metadata — `aria-posinset`, `aria-setsize`, and `data-index`. Spread it onto the element that represents the item, so assistive technology reports the whole collection rather than the mounted window. Items rendered by a list's own item component, such as `<Combobox.Item>`, receive it automatically.
+
+Set `activeIndex` to the index of the item the list treats as active. The virtualizer keeps that item mounted even when it falls outside the rendered window, so it can hold focus or be referenced by `aria-activedescendant`, and scrolls it into view when the index changes. Pass `scrollActiveIntoView={false}` for changes that should not scroll, such as highlights that follow the pointer.
+
+Everything a list root normally coordinates stays with your list: filtering, keyboard navigation, selection, and clamping `activeIndex` to the current collection.
 
 ## Third-party virtualizers
 

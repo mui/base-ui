@@ -7,3 +7,4 @@ export type {
   ListVirtualizerScrollAlignment,
   ListVirtualizerScrollToIndexOptions,
 } from '../internals/virtualization/ListVirtualizationRegistry';
+export type { ListVirtualizerItemProps } from '../internals/virtualization/types';

@@ -28,8 +28,9 @@ import type {
   ListVirtualizerScrollToIndexOptions,
 } from '../internals/virtualization/ListVirtualizationRegistry';
 import { useListVirtualization } from '../internals/virtualization/ListVirtualizationHostContext';
-import { useListVirtualizerAdapter } from '../internals/virtualization/ListVirtualizerAdapter';
+import { useListVirtualizerBinding } from '../internals/virtualization/ListVirtualizerAdapter';
 import type {
+  ListVirtualizerItemProps,
   ListVirtualizerItemRowModel,
   ListVirtualizerRenderRowParameters,
   ListVirtualizerRow,
@@ -250,9 +251,12 @@ const stateAttributesMapping: StateAttributesMapping<ListVirtualizerState> = {
  * Renders a window of visible and overscanned items in a flat list.
  * Renders a scrollable `<div>` element.
  *
- * Requires the `items` prop on the list root and must be the only item-rendering child of the
- * list. The element must have a constrained height or maximum height for virtualization to limit
- * the number of mounted items.
+ * Pass the collection to the `items` prop to virtualize any list, or omit it inside a list that
+ * supports virtualization to window that list's own collection. The latter requires the `items`
+ * prop on the list root, and the virtualizer must be the only item-rendering child of the list.
+ *
+ * The element must have a constrained height or maximum height for virtualization to limit the
+ * number of mounted items.
  *
  * Grouped collections and grid mode are not currently supported.
  *
@@ -264,18 +268,21 @@ export const ListVirtualizer = React.forwardRef(function ListVirtualizer<Value>(
 ) {
   const {
     actionsRef,
+    activeIndex,
     children,
     className,
     enabled: enabledProp = true,
     estimatedItemHeight: estimatedItemHeightProp,
     getItemKey,
+    items,
     overscanPx,
     render,
+    scrollActiveIntoView = true,
     style,
     ...elementProps
   } = componentProps;
 
-  const { host, listState } = useListVirtualization();
+  const { host, listState } = useListVirtualization(items != null);
 
   const {
     apiRef: apiRefProp,
@@ -287,14 +294,17 @@ export const ListVirtualizer = React.forwardRef(function ListVirtualizer<Value>(
     restoreViewportVersion,
     rows,
     scrollToRowIndex,
-  } = useListVirtualizerAdapter<Value>({
+  } = useListVirtualizerBinding<Value>({
     actionsRef,
+    activeIndex,
     children,
     enabled: enabledProp,
     estimatedItemHeight: estimatedItemHeightProp,
     getItemKey,
     host,
+    items,
     listState,
+    scrollActiveIntoView,
   });
 
   const scrollElementRef = React.useRef<HTMLDivElement | null>(null);
@@ -1791,9 +1801,19 @@ export interface ListVirtualizerBaseProps<Value> extends Omit<
    */
   actionsRef?: React.RefObject<ListVirtualizerActions | null> | undefined;
   /**
-   * Renders exactly one item for the given value and its index in the filtered collection.
+   * Index of the active item in `items`. The item is kept mounted even when it falls outside the
+   * rendered window, so it can hold focus or be referenced by `aria-activedescendant`, and it is
+   * scrolled into view when the index changes.
+   *
+   * Ignored without the `items` prop: a list that provides the collection tracks its own highlight.
    */
-  children: (item: Value, index: number) => React.ReactElement;
+  activeIndex?: number | null | undefined;
+  /**
+   * Renders exactly one item for the given value and its index in the collection.
+   * The third argument carries the item's accessibility and collection metadata, to spread onto
+   * the element representing the item. A list's own item component applies it automatically.
+   */
+  children: (item: Value, index: number, itemProps: ListVirtualizerItemProps) => React.ReactElement;
   /**
    * Whether virtualization is enabled. When `false`, all items are rendered.
    * @default true
@@ -1807,11 +1827,25 @@ export interface ListVirtualizerBaseProps<Value> extends Omit<
    */
   estimatedItemHeight?: number | ((item: Value, index: number) => number) | undefined;
   /**
+   * The flat collection to virtualize.
+   *
+   * When omitted, the collection and its highlight state come from the surrounding list, which
+   * requires a list that supports virtualization, such as `<Combobox.List>`.
+   */
+  items?: readonly Value[] | undefined;
+  /**
    * Pixel buffer rendered before and after the visible range.
    * Defaults to the larger of 150px and the estimated size of the first item. The render buffer
    * always includes at least one estimated row, even when this prop is `0`.
    */
   overscanPx?: number | undefined;
+  /**
+   * Whether the active item is scrolled into view when it changes.
+   * A surrounding list that already suppresses scrolling, such as for pointer highlights, stays in
+   * control of its own scrolling; this prop can only disable the behavior.
+   * @default true
+   */
+  scrollActiveIntoView?: boolean | undefined;
 }
 
 /**
