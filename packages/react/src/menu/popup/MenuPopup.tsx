@@ -48,6 +48,7 @@ export const MenuPopup = React.forwardRef(function MenuPopup(
   const hoverEnabled = store.useState('hoverEnabled');
   const disabled = store.useState('disabled');
   const openMethod = store.useState('openMethod');
+  const virtualPress = store.useState('virtualPress');
 
   const isContextMenu = parent.type === 'context-menu';
 
@@ -119,6 +120,17 @@ export const MenuPopup = React.forwardRef(function MenuPopup(
     returnFocus = true;
   }
 
+  // Hover-opened submenus must not steal focus. A pointer press is different: focus the popup so
+  // subsequent arrow keys are handled by the child menu rather than the parent trigger. Keyboard
+  // and virtual (screen reader) presses instead let list navigation focus the first item.
+  const initialFocus =
+    parent.type !== 'menu' ||
+    (lastOpenChangeReason === REASONS.triggerPress &&
+      openMethod !== null &&
+      openMethod !== 'keyboard' &&
+      !virtualPress &&
+      store.context.popupRef);
+
   return (
     <FloatingFocusManager
       context={floatingContext}
@@ -126,7 +138,7 @@ export const MenuPopup = React.forwardRef(function MenuPopup(
       modal={isContextMenu}
       disabled={!mounted}
       returnFocus={finalFocus === undefined ? returnFocus : finalFocus}
-      initialFocus={parent.type !== 'menu'}
+      initialFocus={initialFocus}
       restoreFocus
       externalTree={parent.type !== 'menubar' ? floatingTreeRoot : undefined}
       previousFocusableElement={activeTriggerElement as HTMLElement | null}

@@ -6,6 +6,7 @@ import { SafeReact } from '@base-ui/utils/safeReact';
 import { EMPTY_OBJECT } from '@base-ui/utils/empty';
 import { platform } from '@base-ui/utils/platform';
 import { safePolygon, useClick, useHoverReferenceInteraction } from '../../floating-ui-react';
+import { isVirtualPointerEvent } from '../../floating-ui-react/utils/event';
 import { BaseUIComponentProps, NonNativeButtonProps } from '../../internals/types';
 import { useMenuRootContext } from '../root/MenuRootContext';
 import { useBaseUiId } from '../../internals/useBaseUiId';
@@ -108,6 +109,7 @@ export const MenuSubmenuTrigger = React.forwardRef(function MenuSubmenuTrigger(
   }
 
   const itemProps = parentMenuStore.useState('itemProps');
+  const submenuItemProps = open ? { ...itemProps, onClick: undefined } : itemProps;
   const highlighted = parentMenuStore.useState('isActive', listItem.index);
 
   const itemMetadata = React.useMemo(
@@ -168,12 +170,18 @@ export const MenuSubmenuTrigger = React.forwardRef(function MenuSubmenuTrigger(
   const state: MenuSubmenuTriggerState = { disabled, highlighted, open };
 
   const openMethod = store.useState('openMethod');
+  const virtualPress = store.useState('virtualPress');
   const lastOpenChangeReason = store.useState('lastOpenChangeReason');
   // Arrow keys open the submenu through list navigation without dispatching a click, so
-  // `openMethod` stays null there; Enter and Space do dispatch one and report `keyboard`.
-  const openedByKeyboard =
-    lastOpenChangeReason === REASONS.listNavigation || openMethod === 'keyboard';
-  const shouldOmitExpanded = open && openedByKeyboard && platform.screenReader.voiceOver;
+  // `openMethod` stays null there; Enter and Space report `keyboard`, while virtual (screen
+  // reader) presses report a physical pointer type and are tracked by `virtualPress`. The
+  // `triggerPress` gate makes a stale `virtualPress` harmless, so it is never reset: hover
+  // reopens carry a different reason and presses overwrite the flag on `pointerdown`.
+  const focusMovesToSubmenuItem =
+    lastOpenChangeReason === REASONS.listNavigation ||
+    openMethod === 'keyboard' ||
+    (virtualPress && lastOpenChangeReason === REASONS.triggerPress);
+  const shouldOmitExpanded = open && focusMovesToSubmenuItem && platform.screenReader.voiceOver;
 
   const element = useRenderElement('div', componentProps, {
     state,
@@ -182,16 +190,21 @@ export const MenuSubmenuTrigger = React.forwardRef(function MenuSubmenuTrigger(
       localInteractionProps,
       hoverProps,
       rootTriggerProps,
-      itemProps,
+      submenuItemProps,
       // Opening a submenu changes the trigger's expanded state while the trigger still holds
       // focus, and VoiceOver announces that state change instead of the submenu item that focus
-      // moves to a moment later, so the first item is never announced. Dropping the state while
-      // the submenu is open avoids the announcement without claiming the submenu is collapsed;
+      // moves to a moment later, so the first item is never announced. Dropping the state when
+      // focus moves into the submenu avoids the announcement without claiming it is collapsed;
       // `aria-haspopup` still conveys that the item opens a submenu.
       shouldOmitExpanded ? VOICE_OVER_EXPANDED_PROPS : undefined,
       {
         'aria-controls': popupId,
         tabIndex: open || highlighted ? 0 : -1,
+        onPointerDown(event) {
+          if (!open && event.button === 0) {
+            store.set('virtualPress', isVirtualPointerEvent(event.nativeEvent));
+          }
+        },
         onBlur() {
           if (highlighted) {
             parentMenuStore.set('activeIndex', null);

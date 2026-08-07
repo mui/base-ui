@@ -20,6 +20,7 @@ export type State<Payload> = PopupStoreState<Payload> & {
   disabled: boolean;
   modal: boolean;
   openMethod: InteractionType | null;
+  virtualPress: boolean;
   allowMouseEnter: boolean;
   highlightItemOnHover: boolean;
   parent: MenuParent;
@@ -58,6 +59,7 @@ const selectors = {
     (state.parent.type === undefined || state.parent.type === 'context-menu') &&
     (state.modal ?? true),
   openMethod: (state: State<unknown>) => state.openMethod,
+  virtualPress: (state: State<unknown>) => state.virtualPress,
 
   allowMouseEnter: (state: State<unknown>) => state.allowMouseEnter,
   highlightItemOnHover: (state: State<unknown>) => state.highlightItemOnHover,
@@ -199,6 +201,7 @@ function createInitialState<Payload>(): State<Payload> {
     disabled: false,
     modal: true,
     openMethod: null,
+    virtualPress: false,
     allowMouseEnter: false,
     highlightItemOnHover: true,
     parent: {
