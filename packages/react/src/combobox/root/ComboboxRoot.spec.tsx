@@ -507,6 +507,14 @@ function CollectionInferenceApp() {
 
   return (
     <React.Fragment>
+      {/* The collection alone infers the derived value type. */}
+      <Combobox.Root
+        items={collection}
+        onValueChange={(value) => expectType<number | null, typeof value>(value)}
+        onItemHighlighted={(itemValue) =>
+          expectType<number | undefined, typeof itemValue>(itemValue)
+        }
+      />
       {/* The value helpers receive the derived value, not the source item. */}
       <Combobox.Root
         items={collection}

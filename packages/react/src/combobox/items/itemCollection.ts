@@ -26,6 +26,8 @@ export interface ItemCollection<Item = any, Value = any> {
    * Absent when no `getValue` accessor was given, since the item is then its own value.
    */
   value: ((item: Item) => Value) | undefined;
+  /** Whether a projected value belongs to the collection's own data. */
+  hasValue: ((value: Value) => boolean) | undefined;
   /** Resolves a source item's label while filtering in the source-item domain. */
   itemLabel: (item: Item) => string;
   /**

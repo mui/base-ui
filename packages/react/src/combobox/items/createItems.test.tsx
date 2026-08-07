@@ -890,6 +890,32 @@ describe('Combobox.createItems', () => {
       );
     });
 
+    it('highlights an initially selected derived value on mount when inline', async () => {
+      function App() {
+        const items = userItems;
+        return (
+          <Combobox.Root items={items} inline open defaultValue={3}>
+            <Combobox.Input data-testid="input" />
+            <Combobox.List>
+              {(user: User) => (
+                <Combobox.Item key={user.id} value={user.id}>
+                  {user.name}
+                </Combobox.Item>
+              )}
+            </Combobox.List>
+          </Combobox.Root>
+        );
+      }
+
+      await render(<App />);
+
+      const input = screen.getByTestId('input');
+      const carol = screen.getByRole('option', { name: 'Carol' });
+
+      await waitFor(() => expect(carol).toHaveAttribute('data-highlighted'));
+      expect(input).toHaveAttribute('aria-activedescendant', carol.id);
+    });
+
     it('renders the selected label via Combobox.Value', async () => {
       function App() {
         const items = userItems;
@@ -1571,6 +1597,42 @@ describe('Combobox.createItems', () => {
       await render(<App />);
 
       expect(screen.getByTestId('input')).toHaveValue('Alice');
+    });
+
+    it('keeps an external result visible when the selected item is absent from known data', async () => {
+      function App() {
+        const items = React.useMemo(
+          () =>
+            Combobox.createItems([apiUsers[1]], {
+              getValue: (apiUser: ApiUser) => apiUser.id,
+              getLabel: (apiUser: ApiUser) => apiUser.name,
+            }),
+          [],
+        );
+        return (
+          <Combobox.Root
+            items={items}
+            filteredItems={[apiUsers[0]]}
+            defaultValue="user-1"
+            defaultOpen
+          >
+            <Combobox.Input data-testid="input" />
+            <Combobox.List>
+              {(apiUser: ApiUser) => (
+                <Combobox.Item key={apiUser.id} value={apiUser.id}>
+                  {apiUser.name}
+                </Combobox.Item>
+              )}
+            </Combobox.List>
+          </Combobox.Root>
+        );
+      }
+
+      await render(<App />);
+
+      expect(screen.getByTestId('input')).toHaveValue('Alice');
+      expect(screen.getByRole('option', { name: 'Alice' })).not.toBe(null);
+      expect(screen.queryByRole('option', { name: 'Bob' })).toBe(null);
     });
 
     it('projects externally filtered source items into the derived value domain', async () => {

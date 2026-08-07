@@ -337,7 +337,11 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
     collatorFilter.contains(selectedLabelString, query);
 
   const filterQuery = shouldBypassFiltering ? '' : (filterQueryProp ?? query);
-  const shouldIgnoreExternalFiltering = hasItems && hasFilteredItemsProp && shouldBypassFiltering;
+  const shouldIgnoreExternalFiltering =
+    hasItems &&
+    hasFilteredItemsProp &&
+    shouldBypassFiltering &&
+    (!collection?.hasValue || collection.hasValue(selectedValue));
 
   const flatItems: readonly Item[] = React.useMemo(() => {
     if (!items) {

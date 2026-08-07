@@ -118,13 +118,15 @@ const items = Combobox.createItems(users, {
   getLabel: (user) => user.name,
 });
 
-<Combobox.List>
-  {(user) => (
-    <Combobox.Item key={user.id} value={user.id}>
-      {user.name}
-    </Combobox.Item>
-  )}
-</Combobox.List>;
+<Combobox.Root items={items}>
+  <Combobox.List>
+    {(user) => (
+      <Combobox.Item key={user.id} value={user.id}>
+        {user.name}
+      </Combobox.Item>
+    )}
+  </Combobox.List>
+</Combobox.Root>;
 ```
 
 Selection props and events use the derived IDs, while list rendering continues to receive the original items. The derived label is also used for filtering and typeahead.

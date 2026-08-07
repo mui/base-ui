@@ -162,17 +162,18 @@ export function createComboboxItems<Item, Value>(
     data,
     // Withheld without `getValue` so the root keeps serving `items` the way a plain array does.
     value: getValue ? value : undefined,
+    hasValue: getValue ? (itemValue: Value) => ensureDerived().has(itemValue) : undefined,
     itemLabel: itemToLabel,
     label: (itemValue: Value, fallback?: ((itemValue: Value) => string) | undefined) => {
+      // Without a projection, the public value is itself a source item.
+      if (!getValue) {
+        return itemToLabel(itemValue as unknown as Item);
+      }
+
       const derived = ensureDerived();
 
       if (derived.has(itemValue)) {
         return itemToLabel(derived.get(itemValue)!);
-      }
-
-      // Without a projection, the public value is itself a source item.
-      if (!getValue) {
-        return itemToLabel(itemValue as unknown as Item);
       }
 
       return stringifyAsLabel(itemValue, fallback);
