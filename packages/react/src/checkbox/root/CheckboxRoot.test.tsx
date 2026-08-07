@@ -565,6 +565,93 @@ describe('<Checkbox.Root />', () => {
   });
 
   describe('Form', () => {
+    it.skipIf(isJSDOM)(
+      'omits a field disabled by a native fieldset from validation and submission',
+      async () => {
+        const handleSubmit = vi.fn();
+        const validate = vi.fn(() => 'invalid');
+
+        function App() {
+          const [disabled, setDisabled] = React.useState(true);
+
+          return (
+            <Form onFormSubmit={handleSubmit} data-testid="form">
+              <fieldset disabled={disabled}>
+                <Field.Root name="terms" validate={validate}>
+                  <Checkbox.Root defaultChecked required />
+                </Field.Root>
+              </fieldset>
+              <Field.Root name="enabled">
+                <Field.Control defaultValue="sent" />
+              </Field.Root>
+              <button type="button" onClick={() => setDisabled((value) => !value)}>
+                {disabled ? 'Enable' : 'Disable'}
+              </button>
+              <button type="submit">Submit</button>
+            </Form>
+          );
+        }
+
+        const { user } = await render(<App />);
+
+        const form = screen.getByTestId('form') as HTMLFormElement;
+        expect(new FormData(form).has('terms')).toBe(false);
+
+        await user.click(screen.getByRole('button', { name: 'Submit' }));
+
+        expect(validate).not.toHaveBeenCalled();
+        expect(handleSubmit).toHaveBeenCalledTimes(1);
+        expect(handleSubmit.mock.lastCall?.[0]).toEqual({ enabled: 'sent' });
+
+        await user.click(screen.getByRole('button', { name: 'Enable' }));
+        expect(new FormData(form).get('terms')).toBe('on');
+
+        await user.click(screen.getByRole('button', { name: 'Submit' }));
+
+        expect(validate).toHaveBeenCalledTimes(1);
+        expect(handleSubmit).toHaveBeenCalledTimes(1);
+        expect(screen.getByRole('checkbox')).toHaveFocus();
+
+        await user.click(screen.getByRole('button', { name: 'Disable' }));
+        expect(new FormData(form).has('terms')).toBe(false);
+
+        await user.click(screen.getByRole('button', { name: 'Submit' }));
+
+        expect(validate).toHaveBeenCalledTimes(1);
+        expect(handleSubmit).toHaveBeenCalledTimes(2);
+        expect(handleSubmit.mock.lastCall?.[0]).toEqual({ enabled: 'sent' });
+      },
+    );
+
+    it.skipIf(isJSDOM)(
+      'includes a field inside the first legend of a disabled native fieldset',
+      async () => {
+        const handleSubmit = vi.fn();
+        const validate = vi.fn(() => null);
+
+        const { user } = await render(
+          <Form onFormSubmit={handleSubmit} data-testid="form">
+            <fieldset disabled>
+              <legend>
+                <Field.Root name="terms" validate={validate}>
+                  <Checkbox.Root defaultChecked />
+                </Field.Root>
+              </legend>
+            </fieldset>
+            <button type="submit">Submit</button>
+          </Form>,
+        );
+
+        const form = screen.getByTestId('form') as HTMLFormElement;
+        expect(new FormData(form).get('terms')).toBe('on');
+
+        await user.click(screen.getByRole('button', { name: 'Submit' }));
+
+        expect(validate).toHaveBeenCalledTimes(1);
+        expect(handleSubmit.mock.lastCall?.[0]).toEqual({ terms: true });
+      },
+    );
+
     it('triggers native HTML validation on submit', async () => {
       const { user } = await render(
         <Form>
