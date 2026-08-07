@@ -56,7 +56,7 @@ export const ToastPositioner = React.forwardRef(function ToastPositioner(
 
   const [positionerElement, setPositionerElement] = React.useState<HTMLDivElement | null>(null);
 
-  const domIndex = store.useState('toastIndex', toast.id);
+  const stackIndex = store.useState('toastStackIndex', toast.id);
   const visibleIndex = store.useState('toastVisibleIndex', toast.id);
 
   const anchor = isElement(anchorProp) ? anchorProp : null;
@@ -97,7 +97,7 @@ export const ToastPositioner = React.forwardRef(function ToastPositioner(
   const element = usePositioner(componentProps, state, {
     styles: {
       ...positioning.positionerStyles,
-      ['--toast-index' as string]: toast.transitionStatus === 'ending' ? domIndex : visibleIndex,
+      ['--toast-index' as string]: toast.transitionStatus === 'ending' ? stackIndex : visibleIndex,
     },
     transitionStatus: toast.transitionStatus,
     props: elementProps,
