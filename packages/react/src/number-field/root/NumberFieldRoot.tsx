@@ -1,5 +1,7 @@
 'use client';
 import * as React from 'react';
+import { SafeReact } from '@base-ui/utils/safeReact';
+import { warn } from '@base-ui/utils/warn';
 import { addEventListener } from '@base-ui/utils/addEventListener';
 import { useControlled } from '@base-ui/utils/useControlled';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
@@ -22,6 +24,8 @@ import { useRenderElement } from '../../internals/useRenderElement';
 import {
   getFormatParts,
   getNumberLocaleDetails,
+  isValidInputString,
+  parseNumber,
   PERMILLE,
   PERCENTAGES,
   SPACE_SEPARATOR_RE,
@@ -68,6 +72,7 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
     value: valueProp,
     onValueChange: onValueChangeProp,
     onValueCommitted: onValueCommittedProp,
+    actionsRef,
     allowWheelScrub = false,
     snapOnStep = false,
     allowOutOfRange = false,
@@ -218,7 +223,11 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
       // Direct text entry (typing, pasting, clearing, autofill) behaves natively; step-based
       // interactions (keyboard arrows, buttons, wheel, scrub) do not. All direct-entry reasons
       // (`input-change`, `input-clear`, `input-blur`, `input-paste`) share the `input-` prefix.
-      const isInputReason = details.reason.startsWith('input-') || details.reason === REASONS.none;
+      // `imperative-action` sets the same raw text a user could type, so it counts as direct entry.
+      const isInputReason =
+        details.reason.startsWith('input-') ||
+        details.reason === REASONS.none ||
+        details.reason === REASONS.imperativeAction;
 
       // Only allow out-of-range values for direct text entry. Step-based interactions still clamp.
       const shouldClampValue = !allowOutOfRange || !isInputReason;
@@ -291,6 +300,70 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
         }),
       );
     },
+  );
+
+  React.useImperativeHandle(
+    actionsRef,
+    () => ({
+      setInputValue(nextInputValue: string) {
+        const isEmpty = nextInputValue.trim() === '';
+
+        // The action can only put the field into states typing could reach, so it runs the same
+        // character validation as the typed path. Unlike that path it rejects without touching
+        // any state: there is no keystroke to swallow, so an ignored call is a no-op.
+        //
+        // `disabled` and `readOnly` are still not consulted — those gate user interaction, and
+        // this is the component owner driving the field deliberately.
+        if (!isEmpty && !isValidInputString(nextInputValue, getAllowedNonNumericKeys())) {
+          if (process.env.NODE_ENV !== 'production') {
+            const ownerStackMessage = SafeReact.captureOwnerStack?.() || '';
+            warn(
+              `<NumberField.Root> ignored a setInputValue() call with ${JSON.stringify(nextInputValue)}, ` +
+                'because the input rejects that text when it is typed, so the field was left unchanged. ' +
+                "Pass digits, a sign, or symbols the field's `locale` and `format` render.",
+              ownerStackMessage,
+            );
+          }
+          return;
+        }
+
+        // Marking the text unsynced is what lets an intermediate string like `'-'` survive. The
+        // formatting sync would otherwise overwrite it with the formatting of `value` on the next
+        // render, exactly as it does mid-typing.
+        allowInputSyncRef.current = false;
+        setInputValue(nextInputValue);
+
+        // `undefined` means "leave `value` as it is": the text is valid but not a number yet, so
+        // setting `'-'` over a field showing `5` keeps the 5 until the entry is completed.
+        const nextValue = isEmpty
+          ? null
+          : (parseNumber(nextInputValue, locale, formatOptionsRef.current) ?? undefined);
+
+        if (nextValue === undefined) {
+          return;
+        }
+
+        const changed = setValue(nextValue, createChangeEventDetails(REASONS.imperativeAction));
+
+        // The caller chose this string deliberately, so the resulting change is final the way a
+        // keyboard step or a button press is, rather than a pending edit waiting for blur. The
+        // input may never be focused at all, so deferring the commit could drop it entirely.
+        if (changed) {
+          onValueCommitted(
+            lastChangedValueRef.current,
+            createGenericEventDetails(REASONS.imperativeAction),
+          );
+        }
+      },
+    }),
+    [
+      setValue,
+      onValueCommitted,
+      getAllowedNonNumericKeys,
+      locale,
+      formatOptionsRef,
+      lastChangedValueRef,
+    ],
   );
 
   // We need to update the input value when the external `value` prop changes. This ends up acting
@@ -611,6 +684,7 @@ export interface NumberFieldRootProps extends Omit<
    * - `'increment-press'` / `'decrement-press'` for button presses on the increment and decrement controls
    * - `'wheel'` for wheel-based scrubbing
    * - `'scrub'` for scrub area drags
+   * - `'imperative-action'` for text set through `actionsRef`
    */
   onValueChange?:
     | ((value: number | null, eventDetails: NumberFieldRoot.ChangeEventDetails) => void)
@@ -622,7 +696,7 @@ export interface NumberFieldRootProps extends Omit<
    * - The pointer is released after scrubbing or pressing the increment/decrement buttons.
    *
    * It runs simultaneously with `onValueChange` when interacting with the keyboard or the
-   * mouse wheel.
+   * mouse wheel, and when `actionsRef`'s `setInputValue` changes the value.
    *
    * **Warning**: This is a generic event not a change event.
    */
@@ -638,6 +712,22 @@ export interface NumberFieldRootProps extends Omit<
    * A ref to access the hidden input element.
    */
   inputRef?: React.Ref<HTMLInputElement> | undefined;
+  /**
+   * A ref to imperative actions.
+   * - `setInputValue`: Sets the raw text shown in the input element.
+   * The text goes through the same character validation as typing, so text the input would
+   * reject is ignored, but strings that aren't parseable as a number yet, such as `'-'` or
+   * `'.'`, are allowed. When the text parses, `value` follows it (clamped to `min`/`max` unless
+   * `allowOutOfRange` is set) and the change is committed right away; when it doesn't, `value`
+   * is left alone. An empty string clears `value`.
+   * Unlike typing, this works while the field is `disabled` or `readOnly`, which gate user
+   * interaction rather than the component's own owner.
+   */
+  actionsRef?: React.RefObject<NumberFieldRoot.Actions | null> | undefined;
+}
+
+export interface NumberFieldRootActions {
+  setInputValue: (inputValue: string) => void;
 }
 
 export interface NumberFieldRootState extends FieldRootState {
@@ -677,6 +767,7 @@ export type NumberFieldRootChangeEventReason =
   | typeof REASONS.decrementPress
   | typeof REASONS.wheel
   | typeof REASONS.scrub
+  | typeof REASONS.imperativeAction
   | typeof REASONS.none;
 export type NumberFieldRootChangeEventDetails = BaseUIChangeEventDetails<
   NumberFieldRootChangeEventReason,
@@ -693,6 +784,7 @@ export type NumberFieldRootCommitEventReason =
   | typeof REASONS.decrementPress
   | typeof REASONS.wheel
   | typeof REASONS.scrub
+  | typeof REASONS.imperativeAction
   | typeof REASONS.none;
 export type NumberFieldRootCommitEventDetails =
   BaseUIGenericEventDetails<NumberFieldRoot.CommitEventReason>;
@@ -700,6 +792,7 @@ export type NumberFieldRootCommitEventDetails =
 export namespace NumberFieldRoot {
   export type State = NumberFieldRootState;
   export type Props = NumberFieldRootProps;
+  export type Actions = NumberFieldRootActions;
   export type ChangeEventReason = NumberFieldRootChangeEventReason;
   export type ChangeEventDetails = NumberFieldRootChangeEventDetails;
   export type CommitEventReason = NumberFieldRootCommitEventReason;
