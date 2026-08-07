@@ -3,6 +3,7 @@ import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { useStore } from '@base-ui/utils/store';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
+import { error } from '@base-ui/utils/error';
 import {
   useComboboxRootContext,
   useComboboxHasItemsContext,
@@ -12,10 +13,38 @@ import { useCompositeListItem } from '../../internals/composite/list/useComposit
 import type { BaseUIComponentProps, HTMLProps, NonNativeButtonProps } from '../../internals/types';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { ComboboxItemContext } from './ComboboxItemContext';
-import { selectors } from '../store';
+import { selectors, type ComboboxStore } from '../store';
 import { useButton } from '../../internals/use-button';
 import { useComboboxRowContext } from '../row/ComboboxRowContext';
 import { compareItemEquality, findItemIndex } from '../../internals/itemEquality';
+
+/**
+ * Development only: warns when an item's `value` is one of the collection's own source items,
+ * which is what passing the item instead of its `getValue` result looks like. The selector lives
+ * here rather than in the shared `selectors` object so production builds carry neither it nor
+ * this hook.
+ */
+const collectionItemsSelector = (state: ComboboxStore['state']) => state.collectionItems;
+
+function useSourceItemValueDevWarning(store: ComboboxStore, itemValue: any) {
+  const sourceItems = useStore(store, collectionItemsSelector);
+
+  React.useEffect(() => {
+    if (itemValue == null || !sourceItems) {
+      return;
+    }
+
+    // Read through the store so a collection published in this commit's layout effect is seen,
+    // rather than the snapshot this item rendered with.
+    if (store.state.collectionItems?.has(itemValue)) {
+      error(
+        'The `value` prop of <Combobox.Item> is a source item of the `items` collection rather ' +
+          'than the value derived from it, so the item can never be selected or resolved back ' +
+          'to its label. Pass the `getValue` result to <Combobox.Item> instead of the item.',
+      );
+    }
+  }, [itemValue, sourceItems, store]);
+}
 
 interface ComboboxItemInnerProps {
   componentProps: ComboboxItem.Props;
@@ -73,6 +102,12 @@ function ComboboxItemInner(props: ComboboxItemInnerProps) {
   const itemProps = useStore(store, selectors.itemProps);
 
   const itemRef = React.useRef<HTMLDivElement | null>(null);
+
+  /* istanbul ignore else -- `process.env.NODE_ENV` is a build-time constant under test. */
+  if (process.env.NODE_ENV !== 'production') {
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    useSourceItemValueDevWarning(store, itemValue);
+  }
 
   const id = rootId != null && hasRegistered ? `${rootId}-${index}` : undefined;
   const selected = matchesSelectedValue && selectable;
@@ -223,13 +258,10 @@ function ComboboxItemVirtualizedIndex(props: {
 
   const store = useComboboxRootContext();
   const isItemEqualToValue = useStore(store, selectors.isItemEqualToValue);
-  const { flatFilteredItems } = useComboboxDerivedItemsContext();
+  const { flatFilteredValues } = useComboboxDerivedItemsContext();
 
-  const indexFromFilter = findItemIndex(
-    flatFilteredItems,
-    componentProps.value ?? null,
-    isItemEqualToValue,
-  );
+  const lookupValue = componentProps.value ?? null;
+  const indexFromFilter = findItemIndex(flatFilteredValues, lookupValue, isItemEqualToValue);
 
   // Only reached when `virtualized` is true (see the wrapper below).
   return (

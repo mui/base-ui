@@ -18,12 +18,14 @@ export interface Group<Item = any> {
 export function isGroupedItems(
   items: ReadonlyArray<any | Group<any>> | undefined,
 ): items is ReadonlyArray<Group<any>> {
+  // A group must carry an actual `items` array: key presence alone would misclassify an item
+  // with an unrelated or optional `items` field.
   return (
     items != null &&
     items.length > 0 &&
     typeof items[0] === 'object' &&
     items[0] != null &&
-    'items' in items[0]
+    Array.isArray((items[0] as Group<any>).items)
   );
 }
 

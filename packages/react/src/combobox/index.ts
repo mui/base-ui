@@ -31,3 +31,9 @@ export type {
   Filter as ComboboxFilter,
   UseComboboxFilterOptions as ComboboxFilterOptions,
 } from '../combobox/root/utils/useFilter';
+
+export type {
+  ComboboxItemCollection,
+  ComboboxPrimitiveValue,
+  CreateComboboxItemsOptions,
+} from './items/createItems';

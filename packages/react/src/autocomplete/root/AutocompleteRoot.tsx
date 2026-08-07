@@ -2,7 +2,7 @@
 import * as React from 'react';
 import { AriaCombobox, type AriaComboboxState } from '../../combobox/root/AriaCombobox';
 import { useCoreFilter } from '../../combobox/root/utils/useFilter';
-import { stringifyAsLabel } from '../../internals/resolveValueLabel';
+import { stringifyAsLabel, type Group } from '../../internals/resolveValueLabel';
 import { REASONS } from '../../internals/reasons';
 
 /**
@@ -69,29 +69,9 @@ export function AutocompleteRoot<ItemValue>(
 
   const collator = useCoreFilter({ locale: other.locale });
 
-  const baseFilter = React.useMemo<Exclude<typeof other.filter, undefined>>(() => {
-    if (other.filter !== undefined) {
-      return other.filter;
-    }
-    return collator.contains;
-  }, [other.filter, collator]);
-
   const resolvedQuery = String(isControlled ? value : internalValue).trim();
-
-  // In "both", wrap filtering to use only the typed value, ignoring the inline value.
-  const resolvedFilter: typeof other.filter = React.useMemo(() => {
-    if (mode !== 'both') {
-      return staticItems ? null : baseFilter;
-    }
-
-    if (baseFilter === null) {
-      return null;
-    }
-
-    return (item, _query, toString) => {
-      return baseFilter(item, resolvedQuery, toString);
-    };
-  }, [baseFilter, mode, resolvedQuery, staticItems]);
+  const resolvedFilter =
+    staticItems || other.filter === null ? null : (other.filter ?? collator.contains);
 
   function handleValueChange(nextValue: string, eventDetails: AutocompleteRoot.ChangeEventDetails) {
     setInlineInputValue('');
@@ -118,6 +98,7 @@ export function AutocompleteRoot<ItemValue>(
     );
   }
 
+  // Inline completion temporarily changes the displayed input without changing the query.
   return (
     <AriaCombobox
       {...other}
@@ -126,6 +107,7 @@ export function AutocompleteRoot<ItemValue>(
       selectionMode="none"
       fillInputOnItemPress
       filter={resolvedFilter}
+      filterQuery={mode === 'both' ? resolvedQuery : undefined}
       autoComplete={mode}
       inputValue={resolvedInputValue}
       defaultInputValue={defaultValue}
@@ -172,12 +154,23 @@ export interface AutocompleteRootProps<ItemValue> extends Omit<
   | 'onOpenChange'
   | 'openOnInputClick'
   | 'form'
+  | 'items'
+  | 'filter'
 > {
   /**
    * Identifies the form that owns the internal input.
    * Useful when the autocomplete is rendered outside the form.
    */
   form?: string | undefined;
+  /**
+   * The items to be displayed in the list.
+   * Can be either a flat array of items or an array of groups with items.
+   */
+  items?: readonly ItemValue[] | readonly Group<ItemValue>[] | undefined;
+  /**
+   * Filter function used to match items against the input query.
+   */
+  filter?: AriaCombobox.Props<ItemValue, 'none'>['filter'] | undefined;
   /**
    * Controls how the autocomplete behaves with respect to list filtering and inline autocompletion.
    * - `list` (default): items are dynamically filtered based on the input value. The input value does not change based on the active item.

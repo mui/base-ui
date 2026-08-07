@@ -2042,7 +2042,9 @@ describe('<Autocomplete.Root />', () => {
       await waitFor(() => {
         expect(screen.getAllByRole('option')).toHaveLength(1);
       });
-      expect(screen.getByRole('option', { name: 'Canada' })).not.toBe(null);
+      await user.click(screen.getByRole('option', { name: 'Canada' }));
+
+      expect(input).toHaveValue('Canada');
     });
 
     it('uses itemToStringValue when object lacks label', async () => {
@@ -2075,7 +2077,10 @@ describe('<Autocomplete.Root />', () => {
       await waitFor(() => {
         expect(screen.getAllByRole('option')).toHaveLength(1);
       });
-      expect(screen.getByRole('option', { name: 'Canada' })).not.toBe(null);
+      await user.keyboard('{ArrowDown}');
+      await user.keyboard('{Enter}');
+
+      expect(input).toHaveValue('Canada');
     });
 
     it('filters and displays using value for {value} objects', async () => {
@@ -2106,7 +2111,9 @@ describe('<Autocomplete.Root />', () => {
       await waitFor(() => {
         expect(screen.getAllByRole('option')).toHaveLength(1);
       });
-      expect(screen.getByRole('option', { name: 'Canada' })).not.toBe(null);
+      await user.click(screen.getByRole('option', { name: 'Canada' }));
+
+      expect(input).toHaveValue('Canada');
     });
   });
 
