@@ -213,8 +213,13 @@ export function useClick(
           pointerType,
         );
       },
-      onKeyDown() {
+      onKeyDown(event) {
         pointerTypeRef.current = undefined;
+
+        if (event.key === 'Escape') {
+          frame.cancel();
+          touchOpenTimeout.clear();
+        }
       },
     };
   }, [
