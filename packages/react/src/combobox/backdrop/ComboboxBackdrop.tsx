@@ -44,7 +44,7 @@ export const ComboboxBackdrop = React.forwardRef(function ComboboxBackdrop(
     stateAttributesMapping,
     props: [
       {
-        role: 'presentation',
+        role: 'none',
         hidden: !mounted,
         style: {
           userSelect: 'none',

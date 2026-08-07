@@ -43,7 +43,7 @@ export const SelectBackdrop = React.forwardRef(function SelectBackdrop(
     ref: forwardedRef,
     props: [
       {
-        role: 'presentation',
+        role: 'none',
         hidden: !mounted,
         style: {
           userSelect: 'none',

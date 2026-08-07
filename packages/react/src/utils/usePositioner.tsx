@@ -35,7 +35,7 @@ export function usePositioner<State extends Record<string, any>>(
     state,
     ref: refs,
     props: [
-      { role: 'presentation', hidden, style },
+      { role: 'none', hidden, style },
       getDisabledMountTransitionStyles(transitionStatus),
       props,
     ],

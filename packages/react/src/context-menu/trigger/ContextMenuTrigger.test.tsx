@@ -309,7 +309,7 @@ describe('<ContextMenu.Trigger />', () => {
     await flushMicrotasks();
 
     const internalBackdrop = document.querySelector(
-      '[data-base-ui-portal] > [data-base-ui-inert][role="presentation"]',
+      '[data-base-ui-portal] > [data-base-ui-inert][role="none"]',
     )!;
     const externalBackdrop = screen.getByTestId('backdrop');
     const internalEvent = new MouseEvent('contextmenu', { bubbles: true, cancelable: true });

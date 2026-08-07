@@ -36,7 +36,7 @@ export const DialogBackdrop = React.forwardRef(function DialogBackdrop(
     stateAttributesMapping: popupTransitionStateMapping,
     props: [
       {
-        role: 'presentation',
+        role: 'none',
         hidden: !mounted,
         style: {
           userSelect: 'none',

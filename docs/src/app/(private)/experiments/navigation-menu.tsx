@@ -218,7 +218,7 @@ export default function ExampleNavigationMenu() {
               </NavigationMenu.Icon>
             </NavigationMenu.Trigger>
             <NavigationMenu.Content className={styles.Content}>
-              <table role="presentation">
+              <table role="none">
                 <tbody>
                   <tr>
                     <td>
