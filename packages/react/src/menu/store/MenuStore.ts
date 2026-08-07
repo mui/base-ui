@@ -18,7 +18,7 @@ import {
 
 export type State<Payload> = PopupStoreState<Payload> & {
   disabled: boolean;
-  modal: boolean;
+  modal: boolean | undefined;
   openMethod: InteractionType | null;
   allowMouseEnter: boolean;
   highlightItemOnHover: boolean;
@@ -112,8 +112,15 @@ type Selectors = typeof selectors;
 export type MenuHandleStore<Payload> = Pick<MenuStore<Payload>, PopupTriggerStoreKeys | 'setOpen'>;
 
 export class MenuStore<Payload> extends ReactStore<Readonly<State<Payload>>, Context, Selectors> {
-  constructor(initialState?: Partial<State<Payload>>) {
-    super({ ...createInitialState(), ...initialState }, createInitialContext(), selectors);
+  constructor(
+    initialState?: Partial<State<Payload>>,
+    floatingId?: string | undefined,
+    nested = false,
+  ) {
+    const triggerElements = new PopupTriggerMap();
+    const state = createInitialState<Payload>(triggerElements, floatingId, nested, initialState);
+
+    super(state, createInitialContext(triggerElements), selectors);
 
     // Set up propagation of state from parent menu if applicable.
     this.unsubscribeParentListener = this.observe('parent', (parent) => {
@@ -170,15 +177,16 @@ export class MenuStore<Payload> extends ReactStore<Readonly<State<Payload>>, Con
  * `setOpen` without it ever taking effect while detached.
  */
 export function createNullMenuStore<Payload>(): MenuHandleStore<Payload> {
+  const triggerElements = new PopupTriggerMap();
   const store = new NullStore<Readonly<State<Payload>>, Context, Selectors>(
-    Object.freeze(createInitialState<Payload>()),
-    Object.freeze(createInitialContext()),
+    Object.freeze(createInitialState<Payload>(triggerElements)),
+    Object.freeze(createInitialContext(triggerElements)),
     selectors,
   );
   return Object.assign(store, { setOpen: NOOP });
 }
 
-function createInitialContext(): Context {
+function createInitialContext(triggerElements: PopupTriggerMap): Context {
   return {
     positionerRef: React.createRef<HTMLElement | null>(),
     popupRef: React.createRef<HTMLElement | null>(),
@@ -189,13 +197,18 @@ function createInitialContext(): Context {
     triggerFocusTargetRef: React.createRef<HTMLElement>(),
     beforeContentFocusGuardRef: React.createRef<HTMLElement>(),
     onOpenChangeComplete: undefined,
-    triggerElements: new PopupTriggerMap(),
+    triggerElements,
   };
 }
 
-function createInitialState<Payload>(): State<Payload> {
+function createInitialState<Payload>(
+  triggerElements: PopupTriggerMap,
+  floatingId?: string | undefined,
+  nested = false,
+  initialState?: Partial<State<Payload>>,
+): State<Payload> {
   return {
-    ...createInitialPopupStoreState(),
+    ...createInitialPopupStoreState<Payload>(triggerElements, floatingId, nested),
     disabled: false,
     modal: true,
     openMethod: null,
@@ -216,5 +229,6 @@ function createInitialState<Payload>(): State<Payload> {
     keyboardEventRelay: undefined,
     closeDelay: 0,
     adaptiveOrigin: undefined,
+    ...initialState,
   };
 }

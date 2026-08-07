@@ -7,6 +7,7 @@ import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import {
   applyPopupOpenChange,
   createInitialPopupStoreState,
+  createPopupOpenState,
   PopupStoreContext,
   PopupStoreState,
   PopupStoreSelectors,
@@ -31,14 +32,15 @@ type TestStore = ReactStore<
 };
 
 function createStore() {
+  const triggerElements = new PopupTriggerMap();
   const store = new ReactStore<
     PopupStoreState<unknown>,
     PopupStoreContext<unknown>,
     PopupStoreSelectors
   >(
-    createInitialPopupStoreState(),
+    createInitialPopupStoreState(triggerElements),
     {
-      triggerElements: new PopupTriggerMap(),
+      triggerElements,
       popupRef: React.createRef<HTMLElement | null>(),
       onOpenChangeComplete: undefined,
     },
@@ -579,8 +581,8 @@ describe('useTriggerRegistration', () => {
 
     expect(store.state.activeTriggerId).toBe('registered-1');
 
-    // A handoff to the second trigger updates the active id from its DOM id (as `setPopupOpenState`
-    // does), without changing `open` or `triggerCount`.
+    // A handoff to the second trigger updates the active id from its DOM id (as
+    // `getPopupOpenState` does), without changing `open` or `triggerCount`.
     act(() => {
       store.update({ activeTriggerId: 'dom-id-2', activeTriggerElement: second });
     });
@@ -723,6 +725,38 @@ describe('usePopupInteractionProps', () => {
   });
 });
 
+describe('getPopupOpenState', () => {
+  it('clears a previous unmount-prevention request when opening', () => {
+    const state = createInitialPopupStoreState(new PopupTriggerMap());
+    state.preventUnmountingOnClose = true;
+
+    const nextState = createPopupOpenState(state, true, undefined);
+
+    expect(nextState.preventUnmountingOnClose).toBe(false);
+    expect(state.preventUnmountingOnClose).toBe(true);
+  });
+
+  it('sets the unmount-prevention request when closing', () => {
+    const state = createInitialPopupStoreState(new PopupTriggerMap());
+
+    const nextState = createPopupOpenState(state, false, undefined, true);
+
+    expect(nextState.preventUnmountingOnClose).toBe(true);
+  });
+
+  it('preserves the active trigger when closing without a trigger', () => {
+    const state = createInitialPopupStoreState(new PopupTriggerMap());
+    const trigger = document.createElement('button');
+    state.activeTriggerId = 'trigger-id';
+    state.activeTriggerElement = trigger;
+
+    const nextState = createPopupOpenState(state, false, undefined);
+
+    expect(nextState.activeTriggerId).toBe('trigger-id');
+    expect(nextState.activeTriggerElement).toBe(trigger);
+  });
+});
+
 describe('applyPopupOpenChange', () => {
   type OpenChangeState = PopupStoreState<unknown> & {
     instantType?: 'delay' | 'dismiss' | 'focus' | undefined;
@@ -732,23 +766,29 @@ describe('applyPopupOpenChange', () => {
 
   function createOpenChangeStore() {
     const order: string[] = [];
-    const { floatingRootContext } = createInitialPopupStoreState();
+    const state: OpenChangeState = {
+      ...createInitialPopupStoreState(new PopupTriggerMap()),
+      instantType: undefined,
+      openChangeReason: undefined,
+    };
 
     const dispatchOpenChange = vi
-      .spyOn(floatingRootContext, 'dispatchOpenChange')
+      .spyOn(state.floatingRootContext, 'dispatchOpenChange')
       .mockImplementation(() => {
         order.push('dispatchOpenChange');
       });
     const onOpenChange = vi.fn((_open: boolean, _details: BaseUIChangeEventDetails<string>) => {
       order.push('onOpenChange');
     });
-    const update = vi.fn((_state: Partial<OpenChangeState>) => {
-      order.push('update');
-    });
+    const update = vi.fn(
+      <const Key extends keyof OpenChangeState>(_state: Pick<OpenChangeState, Key>) => {
+        order.push('update');
+      },
+    );
 
     const store = {
       context: { onOpenChange },
-      state: { floatingRootContext },
+      state,
       update,
     };
 
@@ -766,7 +806,7 @@ describe('applyPopupOpenChange', () => {
       order.push('onBeforeDispatch');
     });
 
-    applyPopupOpenChange<OpenChangeState, BaseUIChangeEventDetails<string>>(store, true, details, {
+    applyPopupOpenChange(store, true, details, {
       onBeforeDispatch,
     });
 
@@ -783,12 +823,7 @@ describe('applyPopupOpenChange', () => {
     });
     const onBeforeDispatch = vi.fn();
 
-    applyPopupOpenChange<OpenChangeState, BaseUIChangeEventDetails<string>>(
-      store,
-      true,
-      createDetails(REASONS.triggerPress),
-      { onBeforeDispatch },
-    );
+    applyPopupOpenChange(store, true, createDetails(REASONS.triggerPress), { onBeforeDispatch });
 
     expect(onOpenChange).toHaveBeenCalledTimes(1);
     expect(onBeforeDispatch).not.toHaveBeenCalled();
@@ -799,15 +834,10 @@ describe('applyPopupOpenChange', () => {
   it('merges extraState into the update with `open` always reflecting nextOpen', () => {
     const { store, update } = createOpenChangeStore();
 
-    applyPopupOpenChange<OpenChangeState, BaseUIChangeEventDetails<string>>(
-      store,
-      true,
-      createDetails(REASONS.triggerFocus),
-      {
-        // `open: false` here must be overridden by `nextOpen` (true).
-        extraState: { open: false, openChangeReason: REASONS.triggerFocus },
-      },
-    );
+    applyPopupOpenChange(store, true, createDetails(REASONS.triggerFocus), {
+      // `open: false` here must be overridden by `nextOpen` (true).
+      extraState: { open: false, openChangeReason: REASONS.triggerFocus },
+    });
 
     const updatedState = update.mock.calls[0][0];
     expect(updatedState.open).toBe(true);
@@ -816,45 +846,25 @@ describe('applyPopupOpenChange', () => {
 
   it('maps the change reason to instantType', () => {
     const focusStore = createOpenChangeStore();
-    applyPopupOpenChange<OpenChangeState, BaseUIChangeEventDetails<string>>(
-      focusStore.store,
-      true,
-      createDetails(REASONS.triggerFocus),
-    );
+    applyPopupOpenChange(focusStore.store, true, createDetails(REASONS.triggerFocus));
     expect(focusStore.update.mock.calls[0][0].instantType).toBe('focus');
 
     const pressStore = createOpenChangeStore();
-    applyPopupOpenChange<OpenChangeState, BaseUIChangeEventDetails<string>>(
-      pressStore.store,
-      false,
-      createDetails(REASONS.triggerPress),
-    );
+    applyPopupOpenChange(pressStore.store, false, createDetails(REASONS.triggerPress));
     expect(pressStore.update.mock.calls[0][0].instantType).toBe('dismiss');
 
     const escapeStore = createOpenChangeStore();
-    applyPopupOpenChange<OpenChangeState, BaseUIChangeEventDetails<string>>(
-      escapeStore.store,
-      false,
-      createDetails(REASONS.escapeKey),
-    );
+    applyPopupOpenChange(escapeStore.store, false, createDetails(REASONS.escapeKey));
     expect(escapeStore.update.mock.calls[0][0].instantType).toBe('dismiss');
 
     const hoverStore = createOpenChangeStore();
-    applyPopupOpenChange<OpenChangeState, BaseUIChangeEventDetails<string>>(
-      hoverStore.store,
-      true,
-      createDetails(REASONS.triggerHover),
-    );
+    applyPopupOpenChange(hoverStore.store, true, createDetails(REASONS.triggerHover));
     const hoverState = hoverStore.update.mock.calls[0][0];
     expect('instantType' in hoverState).toBe(true);
     expect(hoverState.instantType).toBeUndefined();
 
     const noneStore = createOpenChangeStore();
-    applyPopupOpenChange<OpenChangeState, BaseUIChangeEventDetails<string>>(
-      noneStore.store,
-      true,
-      createDetails(REASONS.none),
-    );
+    applyPopupOpenChange(noneStore.store, true, createDetails(REASONS.none));
     expect('instantType' in noneStore.update.mock.calls[0][0]).toBe(false);
   });
 });

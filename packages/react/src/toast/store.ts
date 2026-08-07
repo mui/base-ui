@@ -123,10 +123,10 @@ export class ToastStore extends ReactStore<State, {}, typeof selectors> {
       return;
     }
 
-    const updates: Partial<State> = {
-      timeout,
-      limit,
-    };
+    const updates = { timeout, limit } as Pick<
+      State,
+      'timeout' | 'limit' | 'toasts' | 'toastMetadata'
+    >;
 
     if (limitChanged) {
       const newToasts = applyLimited(this.state.toasts, limit);
@@ -446,14 +446,16 @@ export class ToastStore extends ReactStore<State, {}, typeof selectors> {
   }
 
   private setToasts(newToasts: StoredToast[], clearInteraction: boolean = newToasts.length === 0) {
-    const updates: Partial<State> = {
+    const updates = {
       toasts: newToasts,
       toastMetadata: createToastMetadata(newToasts),
-    };
+    } as Pick<State, 'toasts' | 'toastMetadata' | 'hovering' | 'focused'>;
+
     if (clearInteraction) {
       updates.hovering = false;
       updates.focused = false;
     }
+
     this.update(updates);
   }
 
