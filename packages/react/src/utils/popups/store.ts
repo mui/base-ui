@@ -81,15 +81,27 @@ export type PopupStoreState<Payload> = {
 };
 
 export function createInitialPopupStoreState<Payload>(
-  floatingRootContext: FloatingRootContext,
+  triggerElements: PopupTriggerMap,
+  floatingId?: string | undefined,
+  nested = false,
 ): PopupStoreState<Payload> {
   return {
     open: false,
     openProp: undefined,
     mounted: false,
     transitionStatus: undefined,
-    floatingRootContext,
-    floatingId: undefined,
+    floatingRootContext: new FloatingRootStore({
+      open: false,
+      transitionStatus: undefined,
+      floatingElement: null,
+      referenceElement: null,
+      triggerElements,
+      floatingId,
+      syncOnly: true,
+      nested,
+      onOpenChange: undefined,
+    }),
+    floatingId,
     triggerCount: 0,
     preventUnmountingOnClose: false,
     payload: undefined,
@@ -102,24 +114,6 @@ export function createInitialPopupStoreState<Payload>(
     inactiveTriggerProps: EMPTY_OBJECT as HTMLProps,
     popupProps: EMPTY_OBJECT as HTMLProps,
   };
-}
-
-export function createPopupFloatingRootContext(
-  triggerElements: PopupTriggerMap,
-  floatingId?: string | undefined,
-  nested = false,
-) {
-  return new FloatingRootStore({
-    open: false,
-    transitionStatus: undefined,
-    floatingElement: null,
-    referenceElement: null,
-    triggerElements,
-    floatingId,
-    syncOnly: true,
-    nested,
-    onOpenChange: undefined,
-  });
 }
 
 export type PopupStoreContext<ChangeEventDetails> = {

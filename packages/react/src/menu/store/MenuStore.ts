@@ -6,11 +6,9 @@ import { MenuParent, MenuRoot } from '../root/MenuRoot';
 import { FloatingTreeStore } from '../../floating-ui-react/components/FloatingTreeStore';
 import { HTMLProps } from '../../internals/types';
 import { NullStore } from '../../utils/NullStore';
-import { getEmptyRootContext } from '../../floating-ui-react/utils/getEmptyRootContext';
 import type { AdaptiveOriginMiddleware } from '../../utils/adaptiveOriginConstants';
 import {
   createInitialPopupStoreState,
-  createPopupFloatingRootContext,
   PopupStoreContext,
   popupStoreSelectors,
   PopupStoreState,
@@ -120,13 +118,7 @@ export class MenuStore<Payload> extends ReactStore<Readonly<State<Payload>>, Con
     nested = false,
   ) {
     const triggerElements = new PopupTriggerMap();
-    const state = {
-      ...createInitialState<Payload>(
-        createPopupFloatingRootContext(triggerElements, floatingId, nested),
-      ),
-      floatingId,
-      ...initialState,
-    };
+    const state = createInitialState<Payload>(triggerElements, floatingId, nested, initialState);
 
     super(state, createInitialContext(triggerElements), selectors);
 
@@ -189,15 +181,16 @@ export class MenuStore<Payload> extends ReactStore<Readonly<State<Payload>>, Con
  * `setOpen` without it ever taking effect while detached.
  */
 export function createNullMenuStore<Payload>(): MenuHandleStore<Payload> {
+  const triggerElements = new PopupTriggerMap();
   const store = new NullStore<Readonly<State<Payload>>, Context, Selectors>(
-    Object.freeze(createInitialState<Payload>()),
-    Object.freeze(createInitialContext()),
+    Object.freeze(createInitialState<Payload>(triggerElements)),
+    Object.freeze(createInitialContext(triggerElements)),
     selectors,
   );
   return Object.assign(store, { setOpen: NOOP });
 }
 
-function createInitialContext(triggerElements = new PopupTriggerMap()): Context {
+function createInitialContext(triggerElements: PopupTriggerMap): Context {
   return {
     positionerRef: React.createRef<HTMLElement | null>(),
     popupRef: React.createRef<HTMLElement | null>(),
@@ -212,9 +205,14 @@ function createInitialContext(triggerElements = new PopupTriggerMap()): Context 
   };
 }
 
-function createInitialState<Payload>(floatingRootContext = getEmptyRootContext()): State<Payload> {
+function createInitialState<Payload>(
+  triggerElements: PopupTriggerMap,
+  floatingId?: string | undefined,
+  nested = false,
+  initialState?: Partial<State<Payload>>,
+): State<Payload> {
   return {
-    ...createInitialPopupStoreState<Payload>(floatingRootContext),
+    ...createInitialPopupStoreState<Payload>(triggerElements, floatingId, nested),
     disabled: false,
     modal: true,
     openMethod: null,
@@ -235,5 +233,6 @@ function createInitialState<Payload>(floatingRootContext = getEmptyRootContext()
     keyboardEventRelay: undefined,
     closeDelay: 0,
     adaptiveOrigin: undefined,
+    ...initialState,
   };
 }

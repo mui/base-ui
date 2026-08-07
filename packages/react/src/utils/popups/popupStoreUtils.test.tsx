@@ -18,7 +18,6 @@ import {
   useTriggerRegistration,
 } from './';
 import { useSyncedFloatingRootContext } from '../../floating-ui-react';
-import { getEmptyRootContext } from '../../floating-ui-react/utils/getEmptyRootContext';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
 import type { BaseUIChangeEventDetails } from '../../types';
@@ -32,14 +31,15 @@ type TestStore = ReactStore<
 };
 
 function createStore() {
+  const triggerElements = new PopupTriggerMap();
   const store = new ReactStore<
     PopupStoreState<unknown>,
     PopupStoreContext<unknown>,
     PopupStoreSelectors
   >(
-    createInitialPopupStoreState(getEmptyRootContext()),
+    createInitialPopupStoreState(triggerElements),
     {
-      triggerElements: new PopupTriggerMap(),
+      triggerElements,
       popupRef: React.createRef<HTMLElement | null>(),
       onOpenChangeComplete: undefined,
     },
@@ -733,7 +733,7 @@ describe('applyPopupOpenChange', () => {
 
   function createOpenChangeStore() {
     const order: string[] = [];
-    const { floatingRootContext } = createInitialPopupStoreState(getEmptyRootContext());
+    const { floatingRootContext } = createInitialPopupStoreState(new PopupTriggerMap());
 
     const dispatchOpenChange = vi
       .spyOn(floatingRootContext, 'dispatchOpenChange')

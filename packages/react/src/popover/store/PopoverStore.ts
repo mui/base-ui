@@ -10,7 +10,6 @@ import { REASONS } from '../../internals/reasons';
 import { NullStore } from '../../utils/NullStore';
 import {
   attachPreventUnmountOnClose,
-  createPopupFloatingRootContext,
   createInitialPopupStoreState,
   PopupStoreContext,
   popupStoreSelectors,
@@ -196,9 +195,7 @@ function createInitialState<Payload>(
   nested = false,
 ): State<Payload> {
   const state: State<Payload> = {
-    ...createInitialPopupStoreState<Payload>(
-      createPopupFloatingRootContext(triggerElements, floatingId, nested),
-    ),
+    ...createInitialPopupStoreState<Payload>(triggerElements, floatingId, nested),
     disabled: false,
     modal: false,
     focusManagerModal: false,

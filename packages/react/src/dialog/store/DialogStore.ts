@@ -4,7 +4,6 @@ import { type InteractionType } from '@base-ui/utils/useEnhancedClickHandler';
 import { type DialogRoot } from '../root/DialogRoot';
 import { NullStore } from '../../utils/NullStore';
 import {
-  createPopupFloatingRootContext,
   createInitialPopupStoreState,
   PopupStoreContext,
   popupStoreSelectors,
@@ -126,9 +125,7 @@ function createInitialState<Payload>(
   nested = false,
 ): State<Payload> {
   const state: State<Payload> = {
-    ...createInitialPopupStoreState<Payload>(
-      createPopupFloatingRootContext(triggerElements, floatingId, nested),
-    ),
+    ...createInitialPopupStoreState<Payload>(triggerElements, floatingId, nested),
     modal: true,
     disablePointerDismissal: false,
     viewportElement: null,
