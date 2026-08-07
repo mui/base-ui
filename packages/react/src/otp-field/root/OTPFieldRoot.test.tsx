@@ -1,7 +1,7 @@
 import { expect, vi } from 'vitest';
 import * as React from 'react';
 import { SafeReact } from '@base-ui/utils/safeReact';
-import { act, fireEvent, screen } from '@mui/internal-test-utils';
+import { act, fireEvent, screen, waitFor } from '@mui/internal-test-utils';
 import { OTPField as OTPFieldBase } from '@base-ui/react/otp-field';
 import { Field } from '@base-ui/react/field';
 import { Form } from '@base-ui/react/form';
@@ -713,6 +713,37 @@ describe('<OTPField.Root />', () => {
   });
 
   describe('accessibility', () => {
+    it('associates a wrapping native label when inputs mount after the root', async () => {
+      function TestCase() {
+        const [show, setShow] = React.useState(false);
+
+        return (
+          <div>
+            <label>
+              Code
+              <OTPFieldBase.Root length={2}>
+                {show && [<OTPFieldBase.Input key={0} />, <OTPFieldBase.Input key={1} />]}
+              </OTPFieldBase.Root>
+            </label>
+            <button type="button" onClick={() => setShow(true)}>
+              Show
+            </button>
+          </div>
+        );
+      }
+
+      await render(<TestCase />);
+
+      fireEvent.click(screen.getByRole('button', { name: 'Show' }));
+
+      await waitFor(() => {
+        expect(screen.getByRole('group')).toHaveAttribute(
+          'aria-labelledby',
+          screen.getByText('Code').id,
+        );
+      });
+    });
+
     it('forwards root `aria-describedby` to the group', async () => {
       await render(<OTPField aria-describedby="description-id" />);
 
