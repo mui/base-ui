@@ -533,4 +533,51 @@ describe('<NavigationMenu.Trigger />', () => {
       });
     },
   );
+
+  it.skipIf(isJSDOM)(
+    'releases the pointer-events lock when the pointer sweeps across a trigger without the menu opening',
+    async () => {
+      const user = userEvent.setup({ pointerEventsCheck: 0 });
+
+      await render(
+        <NavigationMenu.Root>
+          <NavigationMenu.List data-testid="list">
+            <NavigationMenu.Item value="a">
+              <NavigationMenu.Trigger>A</NavigationMenu.Trigger>
+              <NavigationMenu.Content>
+                <NavigationMenu.Link href="#a">A link</NavigationMenu.Link>
+              </NavigationMenu.Content>
+            </NavigationMenu.Item>
+            <NavigationMenu.Item value="b">
+              <NavigationMenu.Trigger>B</NavigationMenu.Trigger>
+              <NavigationMenu.Content>
+                <NavigationMenu.Link href="#b">B link</NavigationMenu.Link>
+              </NavigationMenu.Content>
+            </NavigationMenu.Item>
+          </NavigationMenu.List>
+          <NavigationMenu.Portal keepMounted>
+            <NavigationMenu.Positioner>
+              <NavigationMenu.Popup>
+                <NavigationMenu.Viewport />
+              </NavigationMenu.Popup>
+            </NavigationMenu.Positioner>
+          </NavigationMenu.Portal>
+        </NavigationMenu.Root>,
+      );
+
+      const list = screen.getByTestId('list');
+      const triggerA = screen.getByRole('button', { name: 'A' });
+
+      // Sweep across the trigger and leave before the rest delay elapses, so the menu
+      // never opens. `mouseenter` applies the safe-polygon pointer-events lock on the
+      // list eagerly (the Portal is `keepMounted`, so the floating element exists while
+      // closed); without an open -> close cycle nothing releases it.
+      await user.pointer([{ target: triggerA }, { target: document.body }]);
+
+      await waitFor(() => {
+        expect(list.style.pointerEvents).toBe('');
+      });
+      expect(screen.queryByRole('link', { name: 'A link' })).to.equal(null);
+    },
+  );
 });
