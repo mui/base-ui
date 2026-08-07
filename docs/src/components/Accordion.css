@@ -1,27 +1,19 @@
 @layer components {
   .AccordionRoot {
-    --color-trigger-hover: hsl(0deg 0 99);
-    --color-open-trigger-shadow: var(--gray-c3);
-
-    @media (prefers-color-scheme: dark) {
-      --color-trigger-hover: hsl(0deg 0 9);
-      --color-open-trigger-shadow: hsl(0deg 0 5);
-    }
-
     box-sizing: border-box;
     display: flex;
     flex-direction: column;
     justify-content: center;
     color: var(--gray-t1);
 
-    border: 1px solid var(--color-border);
+    border: 1px solid var(--gray-c3);
     border-collapse: separate;
     border-radius: var(--radius-12);
   }
 
   .AccordionHeaderRow {
     border-radius: calc(var(--radius-12) - 1px) calc(var(--radius-12) - 1px) 0 0;
-    border-bottom: 1px solid var(--color-border);
+    border-bottom: 1px solid var(--gray-c3);
     background-color: var(--gray-s2);
     background-clip: padding-box;
   }
@@ -29,7 +21,7 @@
   .AccordionHeaderCell {
     font-size: var(--font-size-14);
     font-weight: var(--font-weight-400);
-    color: var(--color-foreground);
+    color: var(--gray-t3);
   }
 
   .AccordionHeaderCellInner {
@@ -47,7 +39,7 @@
   }
 
   .AccordionItem:not(:last-child) {
-    border-bottom: 1px solid var(--color-border);
+    border-bottom: 1px solid var(--gray-c3);
   }
 
   .AccordionTrigger {
@@ -64,7 +56,7 @@
     border: none;
     outline: none;
     text-align: left;
-    background-color: var(--color-content);
+    background-color: var(--panel);
 
     /* remove default disclosure triangle  */
     &::-webkit-details-marker {
@@ -74,7 +66,7 @@
 
     @media (hover: hover) {
       &:hover {
-        background-color: var(--color-trigger-hover);
+        background-color: var(--gray-s1);
         cursor: default;
       }
     }
@@ -94,14 +86,14 @@
         inset: 0;
         z-index: 1;
         border-radius: inherit;
-        outline: 2px solid var(--gray-t2);
+        outline: 2px solid var(--gray-t3);
         outline-offset: -2px;
       }
     }
 
     [open] & {
       box-shadow:
-        0 2px 4px -3px var(--color-open-trigger-shadow),
+        0 2px 4px -3px color-mix(in oklch, var(--panel), black 7%),
         inset 0 -1px 1px transparent;
     }
 
@@ -126,7 +118,7 @@
     box-sizing: border-box;
     height: auto;
     overflow: hidden;
-    color: var(--color-foreground);
+    color: var(--gray-t3);
     font-size: 1rem;
     line-height: 1.5rem;
   }
@@ -160,7 +152,7 @@
         inset: 0;
         z-index: 1;
         /* The cell clips its own overflow, so the ring must sit fully inside it. */
-        outline: 2px solid var(--gray-t2);
+        outline: 2px solid var(--gray-t3);
         outline-offset: -2px;
       }
     }
@@ -189,7 +181,11 @@
 
       @media (hover: hover) {
         .AccordionTrigger:hover &::after {
-          background-image: linear-gradient(to right, transparent, var(--color-trigger-hover));
+          background-image: linear-gradient(to right, transparent, var(--gray-s2));
+
+          @media (prefers-color-scheme: dark) {
+            background-image: linear-gradient(to right, transparent, var(--gray-c1));
+          }
         }
       }
     }

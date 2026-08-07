@@ -5,11 +5,28 @@ import 'docs/src/css/index.css';
 
 import styles from './page.module.css';
 
-const coreScaleSteps = ['s1', 's2', 'c1', 'c2', 'c3', 'p1', 'p2', 't1', 't2'] as const;
+const coreScaleSteps = [
+  's1',
+  's2',
+  'c1',
+  'c2',
+  'c3',
+  'p1',
+  'p2',
+  'p3',
+  'p4',
+  't1',
+  't2',
+  't3',
+] as const;
+// The indigo scale has no p3, p4, or t3 steps.
+const indigoScaleSteps: readonly (typeof coreScaleSteps)[number][] = coreScaleSteps.filter(
+  (step) => step !== 'p3' && step !== 'p4' && step !== 't3',
+);
 const coreColorRows = ['gray', 'indigo'] as const;
 const accentColorRows = ['poppy', 'blue', 'green', 'orange', 'pink', 'grape', 'lime'] as const;
-const alphaColorRows = ['blackA'] as const;
-const alphaScaleSteps = ['1', '2', '3', '4', '5', '6'] as const;
+const alphaColorRows = ['gray'] as const;
+const alphaScaleSteps = ['a1', 'a2', 'a3', 'a4', 'a5'] as const;
 const allCoreRows = [...coreColorRows, ...accentColorRows];
 
 const typefaces = [
@@ -59,6 +76,10 @@ export default function ThemePage() {
                   <div className={styles.colorMatrixRowLabel}>{row}</div>
                   {coreScaleSteps.map((step) => {
                     if (isAccentRow && step !== 't1') {
+                      return <div key={`${row}-${step}`} />;
+                    }
+
+                    if (row === 'indigo' && !indigoScaleSteps.includes(step)) {
                       return <div key={`${row}-${step}`} />;
                     }
 

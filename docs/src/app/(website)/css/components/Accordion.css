@@ -1,11 +1,11 @@
 @layer components {
   .AccordionWebsiteRoot {
-    border-top: 1px solid var(--gray-t2);
+    border-top: 1px solid var(--gray-t3);
   }
 
   .AccordionWebsiteItem {
     box-sizing: border-box;
-    border-bottom: 1px solid var(--gray-t2);
+    border-bottom: 1px solid var(--gray-t3);
   }
 
   .AccordionWebsiteHeader {

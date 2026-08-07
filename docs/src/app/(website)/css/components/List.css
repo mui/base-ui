@@ -7,7 +7,7 @@
   }
 
   .ListItem {
-    border-bottom: 1px solid var(--gray-t2);
+    border-bottom: 1px solid var(--gray-t3);
     padding-block-start: 12px;
     padding-block-end: 12px;
   }

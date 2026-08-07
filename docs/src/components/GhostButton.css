@@ -4,7 +4,7 @@
 @layer components {
   .GhostButton {
     font-size: var(--font-size-13);
-    color: var(--gray-t2);
+    color: var(--gray-t3);
     cursor: default;
     position: relative;
     z-index: 0;
@@ -27,7 +27,7 @@
     }
 
     &:focus-visible {
-      outline: 2px solid var(--gray-t2);
+      outline: 2px solid var(--gray-t3);
       outline-offset: -1px;
     }
 

@@ -8,7 +8,7 @@
     /* Scroll containers may be focusable */
     &:focus-visible {
       position: relative;
-      outline: 2px solid var(--gray-t2);
+      outline: 2px solid var(--gray-t3);
       outline-offset: -1px;
       z-index: 1;
     }
@@ -75,7 +75,7 @@
   .ScrollAreaThumb {
     position: relative;
     border-radius: inherit;
-    background-color: var(--gray-p2);
+    background-color: var(--gray-p4);
 
     &[data-orientation='horizontal'] {
       height: 0.25rem;

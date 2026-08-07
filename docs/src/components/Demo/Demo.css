@@ -6,8 +6,9 @@
 @layer components {
   .DemoRoot {
     --demo-radius: var(--radius-12);
-    border: 1px solid var(--color-border);
+    border: 1px solid var(--gray-c3);
     border-radius: var(--demo-radius);
+    background-color: var(--canvas);
     margin-bottom: var(--space-24);
   }
 
@@ -20,7 +21,6 @@
   .DemoPlayground {
     position: relative;
 
-    background-color: var(--color-content);
     border-top-left-radius: calc(var(--demo-radius) - 1px);
     border-top-right-radius: calc(var(--demo-radius) - 1px);
 
@@ -31,7 +31,7 @@
 
     /* Scroll containers may be focusable */
     &:focus-visible {
-      outline: 2px solid var(--gray-t2);
+      outline: 2px solid var(--gray-t3);
       outline-offset: -1px;
       z-index: 1;
     }
@@ -58,7 +58,10 @@
     font-size: var(--font-size-13);
     line-height: 1.25rem;
     white-space: nowrap;
-    color: var(--gray-t2);
+    color: var(--gray-t3);
+    /* Continuous with the playground above; the active tab and code block
+       below sit on `panel`, so the tab reads as fused with its code. */
+    background-color: var(--canvas);
     background-clip: padding-box;
     display: flex;
     align-items: end;
@@ -75,8 +78,8 @@
       inset: 0;
       z-index: 0;
       background-image:
-        linear-gradient(var(--color-border), var(--color-border)),
-        linear-gradient(var(--color-border), var(--color-border));
+        linear-gradient(var(--gray-c3), var(--gray-c3)),
+        linear-gradient(var(--gray-c3), var(--gray-c3));
       background-position:
         0 0,
         0 100%;
@@ -109,7 +112,7 @@
     position: absolute;
     inset: 0;
     z-index: 2;
-    outline: 2px solid var(--gray-t2);
+    outline: 2px solid var(--gray-t3);
     outline-offset: -2px;
     pointer-events: none;
   }
@@ -230,7 +233,7 @@
           content: '';
           position: absolute;
           inset: 1px -1px;
-          background-color: var(--gray-s2);
+          background-color: var(--gray-c1);
           background-clip: padding-box;
           pointer-events: none;
         }
@@ -244,9 +247,9 @@
         /* Stop before the bottom bridge so translucent borders never overlap,
            and the focused tab's bottom outline remains visible. */
         inset: 1px -1px;
-        background-color: var(--gray-s1);
+        background-color: var(--panel);
         background-clip: padding-box;
-        border-inline: 1px solid var(--color-border);
+        border-inline: 1px solid var(--gray-c3);
         pointer-events: none;
       }
 
@@ -259,11 +262,16 @@
         content: '';
         position: absolute;
         bottom: 0;
-        left: 0;
-        width: 100%;
+        inset-inline: 0;
         height: 1px;
-        background-color: var(--gray-s1);
+        background-color: var(--panel);
         pointer-events: none;
+      }
+
+      /* Without a start border the fill bleeds 1px further, so the bridge has
+         to reach just as far or a 1px notch of the separator shows through. */
+      &:first-child::after {
+        inset-inline-start: -1px;
       }
     }
 
@@ -274,7 +282,7 @@
     }
 
     &:focus-visible {
-      outline: 2px solid var(--gray-t2);
+      outline: 2px solid var(--gray-t3);
       outline-offset: -2px;
 
       &::after {
@@ -302,7 +310,7 @@
     outline: 0;
     border-bottom-left-radius: var(--demo-radius);
     border-bottom-right-radius: var(--demo-radius);
-    background-color: var(--gray-s1);
+    background-color: var(--panel);
 
     &[data-closed] {
       &::before {
@@ -319,7 +327,7 @@
         background: linear-gradient(
           to bottom,
           transparent 0%,
-          color-mix(in srgb, var(--gray-s1), transparent 5%) 100%
+          color-mix(in srgb, var(--panel), transparent 5%) 100%
         );
       }
     }
@@ -401,7 +409,7 @@
     z-index: 3;
     top: 0.5rem;
     right: 0.5rem;
-    background-color: color-mix(in srgb, var(--gray-s1), transparent 10%);
+    background-color: color-mix(in srgb, var(--panel), transparent 10%);
 
     @media (--md) {
       background-color: transparent;
@@ -419,7 +427,7 @@
     flex-shrink: 0;
     border: none;
     padding: 0 0 0.75rem;
-    color: var(--color-foreground);
+    color: var(--gray-t3);
     background: transparent;
     font-family: inherit;
     font-size: var(--font-size-13);
@@ -438,7 +446,7 @@
     }
 
     &:focus-visible .DemoCollapseButtonVisual {
-      outline: 2px solid var(--gray-t2);
+      outline: 2px solid var(--gray-t3);
       outline-offset: -1px;
     }
 
@@ -484,10 +492,10 @@
       z-index: -1;
       inset: 1px;
       border-radius: var(--radius-pill);
-      background: var(--color-content);
+      background: var(--panel);
       pointer-events: none;
       box-shadow:
-        inset 0 0 0 1px white,
+        inset 0 0 0 1px var(--panel),
         0 1px 2px hsl(0deg 0% 0% / 5%),
         0 2px 8px -1px hsl(0deg 0% 0% / 6%),
         0 4px 16px -4px hsl(0deg 0% 0% / 5%);
