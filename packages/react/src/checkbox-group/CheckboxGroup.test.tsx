@@ -607,6 +607,36 @@ describe('<CheckboxGroup />', () => {
       expect(httpInput?.validity.customError).toBe(false);
     });
 
+    it('keeps a custom validity message set outside the field on a registered input when submitting', async () => {
+      const onFormSubmit = vi.fn();
+      const { user } = render(
+        <Form onFormSubmit={onFormSubmit}>
+          <Field.Root name="protocols">
+            <CheckboxGroup defaultValue={[]}>
+              <Field.Item>
+                <Checkbox.Root value="http" data-testid="cb-http" />
+              </Field.Item>
+              <Field.Item>
+                <Checkbox.Root value="https" data-testid="cb-https" />
+              </Field.Item>
+            </CheckboxGroup>
+            <Field.Error data-testid="error" />
+          </Field.Root>
+          <button type="submit">submit</button>
+        </Form>,
+      );
+
+      // The hidden inputs only carry their `value` attribute while checked, so select by position.
+      const httpInput = document.querySelectorAll<HTMLInputElement>('input[type="checkbox"]')[0];
+      httpInput.setCustomValidity('external error');
+
+      await user.click(screen.getByText('submit'));
+
+      expect(onFormSubmit).not.toHaveBeenCalled();
+      expect(httpInput.validationMessage).toBe('external error');
+      expect(screen.getByTestId('error')).toHaveTextContent('external error');
+    });
+
     it('prop: validationMode=onSubmit', async () => {
       const validateSpy = vi.fn((value) => {
         const v = value as string[];
