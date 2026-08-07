@@ -12,10 +12,10 @@ import {
 } from '../internals/virtualization/ListVirtualizationHostContext';
 import {
   createListVirtualizationRegistry,
-  type ListVirtualizerHandle,
+  type VirtualizerHandle,
 } from '../internals/virtualization/ListVirtualizationRegistry';
-import type { ListVirtualizerItemMetadata } from '../internals/virtualization/types';
-import { ListVirtualizer } from './ListVirtualizer';
+import type { VirtualizerItemMetadata } from '../internals/virtualization/types';
+import { Virtualizer } from './Virtualizer';
 
 interface TestItem {
   label: string;
@@ -23,9 +23,7 @@ interface TestItem {
   key?: string | number | undefined;
 }
 
-const TestVirtualItemContext = React.createContext<ListVirtualizerItemMetadata | undefined>(
-  undefined,
-);
+const TestVirtualItemContext = React.createContext<VirtualizerItemMetadata | undefined>(undefined);
 
 /**
  * Stands in for a list's `<Item>`: applies the collection metadata the virtualizer supplies and
@@ -55,11 +53,11 @@ function TestVirtualizedList(
     /** Row that should be scrolled into view. Mapped to a keyboard highlight. */
     scrollToRowIndex?: number | undefined;
     /** Receives the imperative handle the virtualizer registers with the list. */
-    apiRef?: React.RefObject<ListVirtualizerHandle | null> | undefined;
+    apiRef?: React.RefObject<VirtualizerHandle | null> | undefined;
     items: TestItem[];
     children: (item: TestItem, index: number) => React.ReactElement;
     getItemKey?: ((item: TestItem) => string | number) | undefined;
-  } & Omit<ListVirtualizer.Props<TestItem>, 'children' | 'getItemKey'>,
+  } & Omit<Virtualizer.Props<TestItem>, 'children' | 'getItemKey'>,
 ) {
   const { apiRef, getItemKey, items, pinnedRowIndex, scrollToRowIndex, ...virtualizerProps } =
     props;
@@ -87,7 +85,7 @@ function TestVirtualizedList(
     [items, pinnedRowIndex, scrollToRowIndex],
   );
 
-  React.useImperativeHandle<ListVirtualizerHandle | null, ListVirtualizerHandle | null>(
+  React.useImperativeHandle<VirtualizerHandle | null, VirtualizerHandle | null>(
     apiRef,
     () => registry.virtualizer,
     [registry],
@@ -96,7 +94,7 @@ function TestVirtualizedList(
   return (
     <ListVirtualizationHostContext.Provider value={host}>
       <ListVirtualizationListStateContext.Provider value={listState}>
-        <ListVirtualizer<TestItem>
+        <Virtualizer<TestItem>
           getItemKey={getItemKey ?? ((item) => item.key ?? item.label)}
           {...virtualizerProps}
         />
@@ -105,7 +103,7 @@ function TestVirtualizedList(
   );
 }
 
-describe('<ListVirtualizer /> windowing', () => {
+describe('<Virtualizer /> windowing', () => {
   const { render } = createRenderer();
 
   beforeEach(() => {
@@ -1011,7 +1009,7 @@ describe('<ListVirtualizer /> windowing', () => {
   );
 
   it('scrolls to an index with the requested alignment', async () => {
-    const apiRef = React.createRef<ListVirtualizerHandle>();
+    const apiRef = React.createRef<VirtualizerHandle>();
     const scrollTo = vi.fn<(options: ScrollToOptions) => void>();
     let scrollTop = 0;
 
@@ -1079,7 +1077,7 @@ describe('<ListVirtualizer /> windowing', () => {
   });
 
   it('renders a requested position the scroll element has not accepted yet', async () => {
-    const apiRef = React.createRef<ListVirtualizerHandle>();
+    const apiRef = React.createRef<VirtualizerHandle>();
     const scrollTo = vi.fn<(options: ScrollToOptions) => void>();
     let acceptsScroll = false;
     let scrollTop = 0;

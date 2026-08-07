@@ -16,7 +16,6 @@ export * from './field';
 export * from './fieldset';
 export * from './form';
 export * from './input';
-export * from './list-virtualizer';
 export * from './menu';
 export * from './menubar';
 export * from './merge-props';
@@ -41,5 +40,6 @@ export * from './toggle-group';
 export * from './toolbar';
 export * from './tooltip';
 export * from './use-render';
+export * from './virtualizer';
 
 export type * from './types';

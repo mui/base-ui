@@ -15,7 +15,7 @@ import {
   type Row as MuiVirtualizerRow,
   type RowEntry,
   type RenderContext,
-  type Virtualizer,
+  type Virtualizer as MuiVirtualizer,
 } from '@mui/x-virtualizer';
 import { getMaxScrollOffset } from '../utils/scrollEdges';
 import { clamp } from '../internals/clamp';
@@ -23,25 +23,25 @@ import type { StateAttributesMapping } from '../internals/getStateAttributesProp
 import type { BaseUIComponentProps, HTMLProps } from '../internals/types';
 import { useRenderElement } from '../internals/useRenderElement';
 import type {
-  ListVirtualizerActions,
-  ListVirtualizerScrollAlignment,
-  ListVirtualizerScrollToIndexOptions,
+  VirtualizerActions,
+  VirtualizerScrollAlignment,
+  VirtualizerScrollToIndexOptions,
 } from '../internals/virtualization/ListVirtualizationRegistry';
 import { useListVirtualization } from '../internals/virtualization/ListVirtualizationHostContext';
-import { useListVirtualizerBinding } from '../internals/virtualization/ListVirtualizerAdapter';
+import { useVirtualizerBinding } from '../internals/virtualization/VirtualizerBinding';
 import type {
-  ListVirtualizerItemProps,
-  ListVirtualizerItemRowModel,
-  ListVirtualizerRenderRowParameters,
-  ListVirtualizerRow,
+  VirtualizerItemProps,
+  VirtualizerItemRowModel,
+  VirtualizerRenderRowParameters,
+  VirtualizerRow,
 } from '../internals/virtualization/types';
-import { ListVirtualizerCssVars } from './ListVirtualizerCssVars';
+import { VirtualizerCssVars } from './VirtualizerCssVars';
 
-interface ListVirtualRowProps<RowModel> {
-  apiRef: React.RefObject<Virtualizer['api'] | null>;
+interface VirtualRowProps<RowModel> {
+  apiRef: React.RefObject<MuiVirtualizer['api'] | null>;
   isVirtualFocusRow: boolean;
-  renderRow: (params: ListVirtualizerRenderRowParameters<RowModel>) => React.ReactElement;
-  row: ListVirtualizerRow<RowModel>;
+  renderRow: (params: VirtualizerRenderRowParameters<RowModel>) => React.ReactElement;
+  row: VirtualizerRow<RowModel>;
   rowIndex: number;
 }
 
@@ -61,7 +61,7 @@ const virtualRowStyle: React.CSSProperties = {
   display: 'flow-root',
 };
 
-function ListVirtualRowImpl<RowModel>(props: ListVirtualRowProps<RowModel>) {
+function VirtualRowImpl<RowModel>(props: VirtualRowProps<RowModel>) {
   const { apiRef, isVirtualFocusRow, renderRow, row, rowIndex } = props;
 
   const measureCleanupRef = React.useRef<(() => void) | undefined>(undefined);
@@ -101,7 +101,7 @@ function ListVirtualRowImpl<RowModel>(props: ListVirtualRowProps<RowModel>) {
   );
 }
 
-const ListVirtualRow = React.memo(ListVirtualRowImpl) as typeof ListVirtualRowImpl;
+const VirtualRow = React.memo(VirtualRowImpl) as typeof VirtualRowImpl;
 
 function getRenderZoneTransform(offsetTop: number, scrollTop: number, paddingStart: number) {
   return `translate3d(0, ${offsetTop - scrollTop + paddingStart}px, 0)`;
@@ -243,7 +243,7 @@ const SCROLL_IDLE_MS = 150;
  */
 const DIRECT_INPUT_WINDOW_MS = 250;
 
-const stateAttributesMapping: StateAttributesMapping<ListVirtualizerState> = {
+const stateAttributesMapping: StateAttributesMapping<VirtualizerState> = {
   totalSize: () => null,
 };
 
@@ -260,10 +260,10 @@ const stateAttributesMapping: StateAttributesMapping<ListVirtualizerState> = {
  *
  * Grouped collections and grid mode are not currently supported.
  *
- * Documentation: [Base UI List Virtualizer](https://base-ui.com/react/utils/list-virtualizer)
+ * Documentation: [Base UI Virtualizer](https://base-ui.com/react/utils/virtualizer)
  */
-export const ListVirtualizer = React.forwardRef(function ListVirtualizer<Value>(
-  componentProps: ListVirtualizer.Props<Value>,
+export const Virtualizer = React.forwardRef(function Virtualizer<Value>(
+  componentProps: Virtualizer.Props<Value>,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const {
@@ -294,7 +294,7 @@ export const ListVirtualizer = React.forwardRef(function ListVirtualizer<Value>(
     restoreViewportVersion,
     rows,
     scrollToRowIndex,
-  } = useListVirtualizerBinding<Value>({
+  } = useVirtualizerBinding<Value>({
     actionsRef,
     activeIndex,
     children,
@@ -316,7 +316,7 @@ export const ListVirtualizer = React.forwardRef(function ListVirtualizer<Value>(
    */
   const renderZoneVirtualEndRef = React.useRef<number | null>(null);
   const scrollTopRef = React.useRef(0);
-  const muiApiRef = React.useRef<Virtualizer['api'] | null>(null);
+  const muiApiRef = React.useRef<MuiVirtualizer['api'] | null>(null);
   /**
    * The scrollport's own block padding. Rows begin below it, scroll through it, and the virtual
    * content covers it, matching how a plain scrolling list treats its padding. The engine's
@@ -404,7 +404,7 @@ export const ListVirtualizer = React.forwardRef(function ListVirtualizer<Value>(
 
   const pendingScrollRowIndexRef = React.useRef<number | null>(null);
   const pendingScrollRowIdRef = React.useRef<React.Key | null>(null);
-  const pendingScrollAlignmentRef = React.useRef<ListVirtualizerScrollAlignment>('auto');
+  const pendingScrollAlignmentRef = React.useRef<VirtualizerScrollAlignment>('auto');
   const pendingScrollRequiresMeasurementRef = React.useRef(false);
   const pendingScrollRequiresAdaptiveEstimateRef = React.useRef(false);
   /**
@@ -608,7 +608,7 @@ export const ListVirtualizer = React.forwardRef(function ListVirtualizer<Value>(
   ).current;
 
   const getEstimatedItemHeight = React.useCallback(
-    (row: ListVirtualizerRow<ListVirtualizerItemRowModel<Value>>, rowIndex: number) => {
+    (row: VirtualizerRow<VirtualizerItemRowModel<Value>>, rowIndex: number) => {
       const size =
         typeof estimatedItemHeight === 'function'
           ? estimatedItemHeight(row.model, rowIndex)
@@ -655,7 +655,7 @@ export const ListVirtualizer = React.forwardRef(function ListVirtualizer<Value>(
     }) => {
       const row = rows[params.rowIndex];
       return (
-        <ListVirtualRow
+        <VirtualRow
           key={params.id}
           apiRef={muiApiRef}
           isVirtualFocusRow={params.isVirtualFocusRow}
@@ -764,7 +764,7 @@ export const ListVirtualizer = React.forwardRef(function ListVirtualizer<Value>(
     scrollTop: number;
     virtualOffset: number | null;
     rowsMeta: unknown;
-    rows: ListVirtualizerRow<ListVirtualizerItemRowModel<Value>>[];
+    rows: VirtualizerRow<VirtualizerItemRowModel<Value>>[];
   } | null>(null);
 
   const virtualizer = useVirtualizer({
@@ -1108,11 +1108,7 @@ export const ListVirtualizer = React.forwardRef(function ListVirtualizer<Value>(
   });
 
   const scrollRowIntoView = useStableCallback(
-    (
-      rowIndex: number,
-      requireMeasurement = false,
-      align: ListVirtualizerScrollAlignment = 'auto',
-    ) => {
+    (rowIndex: number, requireMeasurement = false, align: VirtualizerScrollAlignment = 'auto') => {
       const scrollElement = scrollElementRef.current;
       const row = rowsRef.current[rowIndex];
 
@@ -1254,7 +1250,7 @@ export const ListVirtualizer = React.forwardRef(function ListVirtualizer<Value>(
   );
 
   const scrollToIndex = useStableCallback(
-    (rowIndex: number, options?: ListVirtualizerScrollToIndexOptions) => {
+    (rowIndex: number, options?: VirtualizerScrollToIndexOptions) => {
       const row = rowsRef.current[rowIndex];
 
       if (!Number.isInteger(rowIndex) || rowIndex < 0 || !row) {
@@ -1657,7 +1653,7 @@ export const ListVirtualizer = React.forwardRef(function ListVirtualizer<Value>(
   // has nothing to surround, so it stays at zero.
   const scrollableSize = totalSize > 0 ? totalSize + scrollportPaddingTotal : totalSize;
 
-  const state: ListVirtualizerState = {
+  const state: VirtualizerState = {
     empty: rows.length === 0,
     totalSize: scrollableSize,
   };
@@ -1666,7 +1662,7 @@ export const ListVirtualizer = React.forwardRef(function ListVirtualizer<Value>(
     ...restContainerProps,
     style: {
       ...containerStyle,
-      [ListVirtualizerCssVars.totalSize]: `${scrollableSize}px`,
+      [VirtualizerCssVars.totalSize]: `${scrollableSize}px`,
       overflow: 'auto',
     } as React.CSSProperties,
     // The absolute content establishes the full scroll height without expanding an unconstrained
@@ -1739,15 +1735,13 @@ export const ListVirtualizer = React.forwardRef(function ListVirtualizer<Value>(
     props: [defaultProps, elementProps],
   });
 }) as {
-  <Value>(
-    props: ListVirtualizer.Props<Value> & React.RefAttributes<HTMLDivElement>,
-  ): React.JSX.Element;
+  <Value>(props: Virtualizer.Props<Value> & React.RefAttributes<HTMLDivElement>): React.JSX.Element;
 };
 
 /**
- * State metadata exposed to the `ListVirtualizer` render props.
+ * State metadata exposed to the `Virtualizer` render props.
  */
-export interface ListVirtualizerState {
+export interface VirtualizerState {
   /**
    * Whether the virtualized collection has no items.
    */
@@ -1761,7 +1755,7 @@ export interface ListVirtualizerState {
 /**
  * Makes stable keys optional for primitive values and required for object or unknown values.
  */
-export type ListVirtualizerKeyProps<Value> = unknown extends Value
+export type VirtualizerKeyProps<Value> = unknown extends Value
   ? {
       /**
        * Returns a stable key for the item value.
@@ -1791,15 +1785,15 @@ export type ListVirtualizerKeyProps<Value> = unknown extends Value
         getItemKey: (item: Value) => string | number;
       };
 
-export interface ListVirtualizerBaseProps<Value> extends Omit<
-  BaseUIComponentProps<'div', ListVirtualizerState>,
+export interface VirtualizerBaseProps<Value> extends Omit<
+  BaseUIComponentProps<'div', VirtualizerState>,
   'children'
 > {
   /**
    * A ref to imperative actions.
    * - `scrollToIndex`: Scrolls an item into view by its logical collection index.
    */
-  actionsRef?: React.RefObject<ListVirtualizerActions | null> | undefined;
+  actionsRef?: React.RefObject<VirtualizerActions | null> | undefined;
   /**
    * Index of the active item in `items`. The item is kept mounted even when it falls outside the
    * rendered window, so it can hold focus or be referenced by `aria-activedescendant`, and it is
@@ -1813,7 +1807,7 @@ export interface ListVirtualizerBaseProps<Value> extends Omit<
    * The third argument carries the item's accessibility and collection metadata, to spread onto
    * the element representing the item. A list's own item component applies it automatically.
    */
-  children: (item: Value, index: number, itemProps: ListVirtualizerItemProps) => React.ReactElement;
+  children: (item: Value, index: number, itemProps: VirtualizerItemProps) => React.ReactElement;
   /**
    * Whether virtualization is enabled. When `false`, all items are rendered.
    * @default true
@@ -1849,27 +1843,27 @@ export interface ListVirtualizerBaseProps<Value> extends Omit<
 }
 
 /**
- * Props accepted by the `ListVirtualizer` component.
+ * Props accepted by the `Virtualizer` component.
  */
-export type ListVirtualizerProps<Value = unknown> = ListVirtualizerBaseProps<Value> &
-  ListVirtualizerKeyProps<Value>;
+export type VirtualizerProps<Value = unknown> = VirtualizerBaseProps<Value> &
+  VirtualizerKeyProps<Value>;
 
 /**
- * Type helpers for the `ListVirtualizer` component.
+ * Type helpers for the `Virtualizer` component.
  */
-export namespace ListVirtualizer {
+export namespace Virtualizer {
   /**
    * Imperative actions exposed by the component.
    */
-  export type Actions = ListVirtualizerActions;
+  export type Actions = VirtualizerActions;
   /**
    * State metadata exposed to render props.
    */
-  export type State = ListVirtualizerState;
+  export type State = VirtualizerState;
   /**
    * Props accepted by the component.
    */
-  export type Props<Value = unknown> = ListVirtualizerProps<Value>;
+  export type Props<Value = unknown> = VirtualizerProps<Value>;
 }
 
 function resolveScrollPadding(scrollElement: HTMLElement, value: string) {

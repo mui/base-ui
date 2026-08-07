@@ -1,4 +1,4 @@
-export enum ListVirtualizerDataAttributes {
+export enum VirtualizerDataAttributes {
   /**
    * Present when the virtualized collection is empty.
    */

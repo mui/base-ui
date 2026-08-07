@@ -1,12 +1,12 @@
 'use client';
 import * as React from 'react';
-import { ListVirtualizer } from '@base-ui/react/list-virtualizer';
+import { Virtualizer } from '@base-ui/react/virtualizer';
 import { SettingsMetadata, useExperimentSettings } from './_components/SettingsPanel';
-import styles from './list-virtualizer.module.css';
+import styles from './virtualizer.module.css';
 
 /**
  * A listbox built from plain elements: no `<Combobox.Root>`, no `<Combobox.List>`, and no
- * virtualization context anywhere. `<ListVirtualizer>` receives the collection through `items`,
+ * virtualization context anywhere. `<Virtualizer>` receives the collection through `items`,
  * keeps the active option mounted through `activeIndex`, and hands each row its accessibility
  * metadata as the third argument of the item renderer.
  *
@@ -55,7 +55,7 @@ const allItems: Country[] = Array.from({ length: ITEM_COUNT }, (_, index) => ({
   region: REGIONS[index % REGIONS.length],
 }));
 
-export default function ListVirtualizerExperiment() {
+export default function VirtualizerExperiment() {
   const { settings } = useExperimentSettings<Settings>();
   const listboxId = React.useId();
   const optionIdPrefix = `${listboxId}-option`;
@@ -64,7 +64,7 @@ export default function ListVirtualizerExperiment() {
   const [activeIndex, setActiveIndex] = React.useState<number | null>(0);
   const [selectedId, setSelectedId] = React.useState<number | null>(null);
 
-  const virtualizer = React.useRef<ListVirtualizer.Actions>(null);
+  const virtualizer = React.useRef<Virtualizer.Actions>(null);
 
   const items = React.useMemo(() => {
     const trimmed = query.trim().toLowerCase();
@@ -133,10 +133,10 @@ export default function ListVirtualizerExperiment() {
   return (
     <div className={styles.Root}>
       <header className={styles.Header}>
-        <h1>Standalone list virtualizer</h1>
+        <h1>Standalone virtualizer</h1>
         <p>
-          A custom listbox that uses <code>ListVirtualizer</code> through props alone — no Base UI
-          list component and no virtualization context. The collection holds{' '}
+          A custom listbox that uses <code>Virtualizer</code> through props alone — no Base UI list
+          component and no virtualization context. The collection holds{' '}
           {ITEM_COUNT.toLocaleString()} items.
         </p>
       </header>
@@ -167,7 +167,7 @@ export default function ListVirtualizerExperiment() {
         </button>
       </div>
 
-      <ListVirtualizer<Country>
+      <Virtualizer<Country>
         actionsRef={virtualizer}
         activeIndex={clampedActiveIndex}
         className={styles.Listbox}
@@ -211,7 +211,7 @@ export default function ListVirtualizerExperiment() {
             )}
           </div>
         )}
-      </ListVirtualizer>
+      </Virtualizer>
 
       <dl className={styles.Status}>
         <div>

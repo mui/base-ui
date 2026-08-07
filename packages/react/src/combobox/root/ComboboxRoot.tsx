@@ -100,7 +100,7 @@ export type ComboboxRootProps<Value, Multiple extends boolean | undefined = fals
   itemToStringValue?: ((itemValue: Value) => string) | undefined;
   /**
    * Whether the items are being virtualized by an external, third-party virtualizer.
-   * Do not set this when using the built-in `<ListVirtualizer>`.
+   * Do not set this when using the built-in `<Virtualizer>`.
    * @default false
    */
   virtualized?: boolean | undefined;

@@ -2,7 +2,7 @@ import * as React from 'react';
 import { expect, vi } from 'vitest';
 import { Autocomplete } from '@base-ui/react/autocomplete';
 import { Combobox } from '@base-ui/react/combobox';
-import { ListVirtualizer } from '@base-ui/react/list-virtualizer';
+import { Virtualizer } from '@base-ui/react/virtualizer';
 import { act, fireEvent, flushMicrotasks, screen, waitFor } from '@mui/internal-test-utils';
 import {
   createRenderer,
@@ -13,18 +13,18 @@ import {
   setElementScrollState,
 } from '#test-utils';
 
-describe('<ListVirtualizer />', () => {
+describe('<Virtualizer />', () => {
   const { render } = createRenderer();
   const { render: renderNonStrict } = createRenderer({ strict: false });
 
   describeConformance(
-    <ListVirtualizer estimatedItemHeight={20}>
+    <Virtualizer estimatedItemHeight={20}>
       {(item: string) => (
         <Combobox.Item key={item} value={item}>
           {item}
         </Combobox.Item>
       )}
-    </ListVirtualizer>,
+    </Virtualizer>,
     () => ({
       refInstanceof: window.HTMLDivElement,
       render(node) {
@@ -53,7 +53,7 @@ describe('<ListVirtualizer />', () => {
     await render(
       <Combobox.Root defaultOpen items={createItems(100)}>
         <Combobox.List>
-          <ListVirtualizer
+          <Virtualizer
             overscanPx={20}
             render={<div ref={setElementClientHeight(60)} data-testid="virtualizer" />}
           >
@@ -62,7 +62,7 @@ describe('<ListVirtualizer />', () => {
                 {item}
               </Combobox.Item>
             )}
-          </ListVirtualizer>
+          </Virtualizer>
         </Combobox.List>
       </Combobox.Root>,
     );
@@ -86,13 +86,13 @@ describe('<ListVirtualizer />', () => {
   });
 
   it('exposes imperative scrolling by logical item index', async () => {
-    const actionsRef = React.createRef<ListVirtualizer.Actions>();
+    const actionsRef = React.createRef<Virtualizer.Actions>();
     const handleScrollTo = vi.fn();
 
     await render(
       <Combobox.Root defaultOpen items={createItems(100)}>
         <Combobox.List>
-          <ListVirtualizer
+          <Virtualizer
             actionsRef={actionsRef}
             estimatedItemHeight={20}
             overscanPx={0}
@@ -111,7 +111,7 @@ describe('<ListVirtualizer />', () => {
                 {item}
               </Combobox.Item>
             )}
-          </ListVirtualizer>
+          </Virtualizer>
         </Combobox.List>
       </Combobox.Root>,
     );
@@ -125,7 +125,7 @@ describe('<ListVirtualizer />', () => {
     await render(
       <Combobox.Root defaultOpen items={createItems(10)}>
         <Combobox.List>
-          <ListVirtualizer
+          <Virtualizer
             estimatedItemHeight={20}
             overscanPx={0}
             render={<div ref={setElementClientHeight(40)} />}
@@ -135,7 +135,7 @@ describe('<ListVirtualizer />', () => {
                 {item}
               </Combobox.Item>
             )}
-          </ListVirtualizer>
+          </Virtualizer>
         </Combobox.List>
       </Combobox.Root>,
     );
@@ -152,12 +152,12 @@ describe('<ListVirtualizer />', () => {
       return (
         <Combobox.Root defaultOpen items={createItems(3)}>
           <Combobox.List>
-            <ListVirtualizer
+            <Virtualizer
               estimatedItemHeight={props.estimatedItemHeight}
               render={<div ref={setElementClientHeight(20)} data-testid="virtualizer" />}
             >
               {(item: string) => <Combobox.Item value={item}>{item}</Combobox.Item>}
-            </ListVirtualizer>
+            </Virtualizer>
           </Combobox.List>
         </Combobox.Root>
       );
@@ -182,12 +182,12 @@ describe('<ListVirtualizer />', () => {
         return (
           <Combobox.Root defaultOpen items={items}>
             <Combobox.List>
-              <ListVirtualizer
+              <Virtualizer
                 estimatedItemHeight={() => props.estimatedItemHeight}
                 render={<div ref={setElementClientHeight(20)} data-testid="virtualizer" />}
               >
                 {(item: string) => <Combobox.Item value={item}>{item}</Combobox.Item>}
-              </ListVirtualizer>
+              </Virtualizer>
             </Combobox.List>
           </Combobox.Root>
         );
@@ -211,12 +211,12 @@ describe('<ListVirtualizer />', () => {
       return (
         <Combobox.Root defaultOpen items={items}>
           <Combobox.List>
-            <ListVirtualizer
+            <Virtualizer
               estimatedItemHeight={(_, index) => (index === 0 ? 20 : props.laterItemHeight)}
               render={<div ref={setElementClientHeight(20)} data-testid="virtualizer" />}
             >
               {(item: string) => <Combobox.Item value={item}>{item}</Combobox.Item>}
-            </ListVirtualizer>
+            </Virtualizer>
           </Combobox.List>
         </Combobox.Root>
       );
@@ -238,7 +238,7 @@ describe('<ListVirtualizer />', () => {
     await render(
       <Combobox.Root defaultOpen items={createItems(100)}>
         <Combobox.List>
-          <ListVirtualizer
+          <Virtualizer
             estimatedItemHeight={20}
             overscanPx={0}
             render={<div data-testid="virtualizer" style={{ height: 60, width: 200 }} />}
@@ -248,7 +248,7 @@ describe('<ListVirtualizer />', () => {
                 {item}
               </Combobox.Item>
             )}
-          </ListVirtualizer>
+          </Virtualizer>
         </Combobox.List>
       </Combobox.Root>,
     );
@@ -270,7 +270,7 @@ describe('<ListVirtualizer />', () => {
     await render(
       <Combobox.Root defaultOpen items={createItems(100)}>
         <Combobox.List>
-          <ListVirtualizer
+          <Virtualizer
             estimatedItemHeight={20}
             render={<div data-testid="virtualizer" style={{ maxHeight: 60, width: 200 }} />}
           >
@@ -279,7 +279,7 @@ describe('<ListVirtualizer />', () => {
                 {item}
               </Combobox.Item>
             )}
-          </ListVirtualizer>
+          </Virtualizer>
         </Combobox.List>
       </Combobox.Root>,
     );
@@ -297,7 +297,7 @@ describe('<ListVirtualizer />', () => {
       await render(
         <Combobox.Root defaultOpen items={createItems(1000)}>
           <Combobox.List>
-            <ListVirtualizer
+            <Virtualizer
               estimatedItemHeight={32}
               overscanPx={64}
               render={<div data-testid="virtualizer" style={{ height: 360, width: 200 }} />}
@@ -307,7 +307,7 @@ describe('<ListVirtualizer />', () => {
                   {item}
                 </Combobox.Item>
               )}
-            </ListVirtualizer>
+            </Virtualizer>
           </Combobox.List>
         </Combobox.Root>,
       );
@@ -346,7 +346,7 @@ describe('<ListVirtualizer />', () => {
       await render(
         <Combobox.Root defaultOpen items={createItems(100)}>
           <Combobox.List>
-            <ListVirtualizer
+            <Virtualizer
               estimatedItemHeight={100}
               overscanPx={0}
               render={<div data-testid="virtualizer" style={{ height: 60, width: 200 }} />}
@@ -356,7 +356,7 @@ describe('<ListVirtualizer />', () => {
                   {item}
                 </Combobox.Item>
               )}
-            </ListVirtualizer>
+            </Virtualizer>
           </Combobox.List>
         </Combobox.Root>,
       );
@@ -393,7 +393,7 @@ describe('<ListVirtualizer />', () => {
     await render(
       <Combobox.Root defaultOpen items={createItems(100)}>
         <Combobox.List>
-          <ListVirtualizer
+          <Virtualizer
             estimatedItemHeight={20}
             overscanPx={0}
             render={
@@ -412,7 +412,7 @@ describe('<ListVirtualizer />', () => {
                 {item}
               </Combobox.Item>
             )}
-          </ListVirtualizer>
+          </Virtualizer>
         </Combobox.List>
       </Combobox.Root>,
     );
@@ -433,7 +433,7 @@ describe('<ListVirtualizer />', () => {
           <Combobox.Positioner>
             <Combobox.Popup>
               <Combobox.List>
-                <ListVirtualizer
+                <Virtualizer
                   estimatedItemHeight={20}
                   render={<div ref={setElementClientHeight(80)} />}
                 >
@@ -442,7 +442,7 @@ describe('<ListVirtualizer />', () => {
                       {item}
                     </Combobox.Item>
                   )}
-                </ListVirtualizer>
+                </Virtualizer>
               </Combobox.List>
             </Combobox.Popup>
           </Combobox.Positioner>
@@ -478,7 +478,7 @@ describe('<ListVirtualizer />', () => {
           <Combobox.Positioner>
             <Combobox.Popup>
               <Combobox.List>
-                <ListVirtualizer
+                <Virtualizer
                   estimatedItemHeight={20}
                   overscanPx={0}
                   render={
@@ -496,7 +496,7 @@ describe('<ListVirtualizer />', () => {
                       {item}
                     </Combobox.Item>
                   )}
-                </ListVirtualizer>
+                </Virtualizer>
               </Combobox.List>
             </Combobox.Popup>
           </Combobox.Positioner>
@@ -531,7 +531,7 @@ describe('<ListVirtualizer />', () => {
           <Combobox.Root defaultOpen items={[...items]}>
             <Combobox.Input aria-label={props.inputLabel} data-testid="input" />
             <Combobox.List>
-              <ListVirtualizer
+              <Virtualizer
                 estimatedItemHeight={() => 20}
                 getItemKey={(item: string) => item}
                 overscanPx={0}
@@ -551,7 +551,7 @@ describe('<ListVirtualizer />', () => {
                     {item}
                   </Combobox.Item>
                 )}
-              </ListVirtualizer>
+              </Virtualizer>
             </Combobox.List>
           </Combobox.Root>
         );
@@ -606,7 +606,7 @@ describe('<ListVirtualizer />', () => {
       >
         <Combobox.Input data-testid="input" />
         <Combobox.List>
-          <ListVirtualizer
+          <Virtualizer
             estimatedItemHeight={20}
             overscanPx={0}
             render={
@@ -622,7 +622,7 @@ describe('<ListVirtualizer />', () => {
             }
           >
             {(item: string) => <Combobox.Item value={item}>{item}</Combobox.Item>}
-          </ListVirtualizer>
+          </Virtualizer>
         </Combobox.List>
       </Combobox.Root>,
     );
@@ -648,7 +648,7 @@ describe('<ListVirtualizer />', () => {
           <Combobox.Positioner>
             <Combobox.Popup>
               <Combobox.List>
-                <ListVirtualizer
+                <Virtualizer
                   estimatedItemHeight={20}
                   overscanPx={0}
                   render={
@@ -664,7 +664,7 @@ describe('<ListVirtualizer />', () => {
                   }
                 >
                   {(item: string) => <Combobox.Item value={item}>{item}</Combobox.Item>}
-                </ListVirtualizer>
+                </Virtualizer>
               </Combobox.List>
             </Combobox.Popup>
           </Combobox.Positioner>
@@ -687,9 +687,9 @@ describe('<ListVirtualizer />', () => {
     await render(
       <Combobox.Root defaultOpen items={createItems(3)} isItemDisabled={(_, index) => index === 0}>
         <Combobox.List>
-          <ListVirtualizer estimatedItemHeight={20}>
+          <Virtualizer estimatedItemHeight={20}>
             {(item: string) => <Combobox.Item value={item}>{item}</Combobox.Item>}
-          </ListVirtualizer>
+          </Virtualizer>
         </Combobox.List>
       </Combobox.Root>,
     );
@@ -709,7 +709,7 @@ describe('<ListVirtualizer />', () => {
       >
         <Combobox.Input />
         <Combobox.List>
-          <ListVirtualizer
+          <Virtualizer
             estimatedItemHeight={20}
             render={
               <div
@@ -722,7 +722,7 @@ describe('<ListVirtualizer />', () => {
             }
           >
             {(item: string) => <Combobox.Item value={item}>{item}</Combobox.Item>}
-          </ListVirtualizer>
+          </Virtualizer>
         </Combobox.List>
       </Combobox.Root>,
     );
@@ -744,7 +744,7 @@ describe('<ListVirtualizer />', () => {
       <Combobox.Root items={createItems(100)}>
         <Combobox.Input data-testid="input" />
         <Combobox.List>
-          <ListVirtualizer
+          <Virtualizer
             estimatedItemHeight={20}
             render={
               <div
@@ -761,7 +761,7 @@ describe('<ListVirtualizer />', () => {
                 {item}
               </Combobox.Item>
             )}
-          </ListVirtualizer>
+          </Virtualizer>
         </Combobox.List>
       </Combobox.Root>,
     );
@@ -782,7 +782,7 @@ describe('<ListVirtualizer />', () => {
       <Combobox.Root items={createItems(100)}>
         <Combobox.Input data-testid="input" />
         <Combobox.List>
-          <ListVirtualizer
+          <Virtualizer
             estimatedItemHeight={20}
             overscanPx={0}
             render={
@@ -800,7 +800,7 @@ describe('<ListVirtualizer />', () => {
                 {item}
               </Combobox.Item>
             )}
-          </ListVirtualizer>
+          </Virtualizer>
         </Combobox.List>
       </Combobox.Root>,
     );
@@ -830,7 +830,7 @@ describe('<ListVirtualizer />', () => {
           <Combobox.Positioner>
             <Combobox.Popup>
               <Combobox.List>
-                <ListVirtualizer
+                <Virtualizer
                   estimatedItemHeight={20}
                   overscanPx={0}
                   render={
@@ -848,7 +848,7 @@ describe('<ListVirtualizer />', () => {
                       {item}
                     </Combobox.Item>
                   )}
-                </ListVirtualizer>
+                </Virtualizer>
               </Combobox.List>
             </Combobox.Popup>
           </Combobox.Positioner>
@@ -884,7 +884,7 @@ describe('<ListVirtualizer />', () => {
               <Combobox.Positioner>
                 <Combobox.Popup>
                   <Combobox.List>
-                    <ListVirtualizer
+                    <Virtualizer
                       estimatedItemHeight={32}
                       overscanPx={640}
                       render={<div data-testid="virtualizer" style={{ height: 352, width: 256 }} />}
@@ -897,7 +897,7 @@ describe('<ListVirtualizer />', () => {
                           {item}
                         </Combobox.Item>
                       )}
-                    </ListVirtualizer>
+                    </Virtualizer>
                   </Combobox.List>
                 </Combobox.Popup>
               </Combobox.Positioner>
@@ -942,7 +942,7 @@ describe('<ListVirtualizer />', () => {
           <Combobox.Positioner>
             <Combobox.Popup>
               <Combobox.List>
-                <ListVirtualizer
+                <Virtualizer
                   estimatedItemHeight={20}
                   overscanPx={0}
                   render={<div data-testid="virtualizer" style={{ height: 60, width: 200 }} />}
@@ -952,7 +952,7 @@ describe('<ListVirtualizer />', () => {
                       {item}
                     </Combobox.Item>
                   )}
-                </ListVirtualizer>
+                </Virtualizer>
               </Combobox.List>
             </Combobox.Popup>
           </Combobox.Positioner>
@@ -1000,7 +1000,7 @@ describe('<ListVirtualizer />', () => {
               <Combobox.Positioner>
                 <Combobox.Popup>
                   <Combobox.List>
-                    <ListVirtualizer
+                    <Virtualizer
                       estimatedItemHeight={12}
                       overscanPx={0}
                       render={
@@ -1039,7 +1039,7 @@ describe('<ListVirtualizer />', () => {
                           </Combobox.Item>
                         );
                       }}
-                    </ListVirtualizer>
+                    </Virtualizer>
                   </Combobox.List>
                 </Combobox.Popup>
               </Combobox.Positioner>
@@ -1081,7 +1081,7 @@ describe('<ListVirtualizer />', () => {
       <Combobox.Root defaultOpen items={createItems(10)}>
         <Combobox.Input data-testid="input" />
         <Combobox.List>
-          <ListVirtualizer
+          <Virtualizer
             estimatedItemHeight={20}
             overscanPx={20}
             render={
@@ -1099,7 +1099,7 @@ describe('<ListVirtualizer />', () => {
                 {item}
               </Combobox.Item>
             )}
-          </ListVirtualizer>
+          </Virtualizer>
         </Combobox.List>
       </Combobox.Root>,
     );
@@ -1129,7 +1129,7 @@ describe('<ListVirtualizer />', () => {
         <Combobox.Root defaultOpen items={createItems(1000)}>
           <Combobox.Input data-testid="input" />
           <Combobox.List>
-            <ListVirtualizer
+            <Virtualizer
               estimatedItemHeight={20}
               overscanPx={0}
               render={<div data-testid="virtualizer" style={{ height: 120, width: 200 }} />}
@@ -1139,7 +1139,7 @@ describe('<ListVirtualizer />', () => {
                   {item}
                 </Combobox.Item>
               )}
-            </ListVirtualizer>
+            </Virtualizer>
           </Combobox.List>
         </Combobox.Root>,
       );
@@ -1184,7 +1184,7 @@ describe('<ListVirtualizer />', () => {
       <Combobox.Root defaultOpen items={createItems(10)}>
         <Combobox.Input data-testid="input" />
         <Combobox.List>
-          <ListVirtualizer
+          <Virtualizer
             estimatedItemHeight={20}
             overscanPx={0}
             style={{ scrollPaddingBottom: 8, scrollPaddingTop: 8 }}
@@ -1203,7 +1203,7 @@ describe('<ListVirtualizer />', () => {
                 {item}
               </Combobox.Item>
             )}
-          </ListVirtualizer>
+          </Virtualizer>
         </Combobox.List>
       </Combobox.Root>,
     );
@@ -1240,7 +1240,7 @@ describe('<ListVirtualizer />', () => {
       <Combobox.Root defaultOpen items={createItems(3)}>
         <Combobox.Input data-testid="input" />
         <Combobox.List>
-          <ListVirtualizer
+          <Virtualizer
             estimatedItemHeight={80}
             overscanPx={0}
             render={
@@ -1258,7 +1258,7 @@ describe('<ListVirtualizer />', () => {
                 {item}
               </Combobox.Item>
             )}
-          </ListVirtualizer>
+          </Virtualizer>
         </Combobox.List>
       </Combobox.Root>,
     );
@@ -1277,7 +1277,7 @@ describe('<ListVirtualizer />', () => {
       <Combobox.Root defaultOpen items={createItems(10)}>
         <Combobox.Input data-testid="input" />
         <Combobox.List>
-          <ListVirtualizer
+          <Virtualizer
             estimatedItemHeight={20}
             overscanPx={0}
             render={
@@ -1295,7 +1295,7 @@ describe('<ListVirtualizer />', () => {
                 {item}
               </Combobox.Item>
             )}
-          </ListVirtualizer>
+          </Virtualizer>
         </Combobox.List>
       </Combobox.Root>,
     );
@@ -1326,12 +1326,12 @@ describe('<ListVirtualizer />', () => {
     const { user } = await render(
       <Combobox.Root defaultOpen items={createItems(10)}>
         <Combobox.List>
-          <ListVirtualizer
+          <Virtualizer
             estimatedItemHeight={20}
             render={<div ref={setElementClientHeight(60)} data-testid="virtualizer" />}
           >
             {renderItem}
-          </ListVirtualizer>
+          </Virtualizer>
         </Combobox.List>
       </Combobox.Root>,
     );
@@ -1369,7 +1369,7 @@ describe('<ListVirtualizer />', () => {
       return (
         <Combobox.Root defaultOpen items={items} itemToStringLabel={itemToStringLabel}>
           <Combobox.List>
-            <ListVirtualizer
+            <Virtualizer
               estimatedItemHeight={(item: Item) => {
                 handleEstimatedItemHeight(item);
                 return item.size;
@@ -1381,7 +1381,7 @@ describe('<ListVirtualizer />', () => {
               render={<div ref={setElementClientHeight(60)} data-testid="virtualizer" />}
             >
               {renderItem}
-            </ListVirtualizer>
+            </Virtualizer>
           </Combobox.List>
         </Combobox.Root>
       );
@@ -1422,12 +1422,9 @@ describe('<ListVirtualizer />', () => {
     await renderNonStrict(
       <Combobox.Root defaultOpen items={createItems(20)}>
         <Combobox.List>
-          <ListVirtualizer
-            estimatedItemHeight={20}
-            render={<div ref={setElementClientHeight(40)} />}
-          >
+          <Virtualizer estimatedItemHeight={20} render={<div ref={setElementClientHeight(40)} />}>
             {(item: string) => <Item item={item} />}
-          </ListVirtualizer>
+          </Virtualizer>
         </Combobox.List>
       </Combobox.Root>,
     );
@@ -1442,7 +1439,7 @@ describe('<ListVirtualizer />', () => {
       <Combobox.Root defaultOpen items={createItems(20)}>
         <Combobox.Input data-testid="input" />
         <Combobox.List>
-          <ListVirtualizer
+          <Virtualizer
             estimatedItemHeight={20}
             overscanPx={0}
             render={
@@ -1460,7 +1457,7 @@ describe('<ListVirtualizer />', () => {
                 {item}
               </Combobox.Item>
             )}
-          </ListVirtualizer>
+          </Virtualizer>
         </Combobox.List>
       </Combobox.Root>,
     );
@@ -1493,7 +1490,7 @@ describe('<ListVirtualizer />', () => {
       <Combobox.Root defaultOpen items={createItems(100)}>
         <Combobox.Input data-testid="input" />
         <Combobox.List>
-          <ListVirtualizer
+          <Virtualizer
             estimatedItemHeight={32}
             overscanPx={0}
             render={
@@ -1516,7 +1513,7 @@ describe('<ListVirtualizer />', () => {
                 {item}
               </Combobox.Item>
             )}
-          </ListVirtualizer>
+          </Virtualizer>
         </Combobox.List>
       </Combobox.Root>,
     );
@@ -1576,7 +1573,7 @@ describe('<ListVirtualizer />', () => {
       <Combobox.Root defaultOpen items={createItems(100)}>
         <Combobox.Input data-testid="input" />
         <Combobox.List>
-          <ListVirtualizer
+          <Virtualizer
             estimatedItemHeight={32}
             overscanPx={0}
             render={
@@ -1593,7 +1590,7 @@ describe('<ListVirtualizer />', () => {
             }
           >
             {(item: string) => <Item item={item} />}
-          </ListVirtualizer>
+          </Virtualizer>
         </Combobox.List>
       </Combobox.Root>,
     );
@@ -1629,13 +1626,13 @@ describe('<ListVirtualizer />', () => {
     await render(
       <Combobox.Root defaultOpen items={['a', 'longer']}>
         <Combobox.List>
-          <ListVirtualizer estimatedItemHeight={estimatedItemHeight}>
+          <Virtualizer estimatedItemHeight={estimatedItemHeight}>
             {(item: string) => (
               <Combobox.Item key={item} value={item}>
                 {item}
               </Combobox.Item>
             )}
-          </ListVirtualizer>
+          </Virtualizer>
         </Combobox.List>
       </Combobox.Root>,
     );
@@ -1658,7 +1655,7 @@ describe('<ListVirtualizer />', () => {
         itemToStringLabel={(item: (typeof items)[number]) => item.label}
       >
         <Combobox.List>
-          <ListVirtualizer
+          <Virtualizer
             estimatedItemHeight={20}
             getItemKey={getItemKey}
             render={<div ref={setElementClientHeight(40)} />}
@@ -1666,7 +1663,7 @@ describe('<ListVirtualizer />', () => {
             {(item: (typeof items)[number]) => (
               <Combobox.Item value={item}>{item.label}</Combobox.Item>
             )}
-          </ListVirtualizer>
+          </Virtualizer>
         </Combobox.List>
       </Combobox.Root>,
     );
@@ -1686,7 +1683,7 @@ describe('<ListVirtualizer />', () => {
           itemToStringLabel={(item: Item) => item.label}
         >
           <Combobox.List>
-            <ListVirtualizer
+            <Virtualizer
               estimatedItemHeight={(item: Item) => item.size}
               getItemKey={(item: Item) => item.id}
               render={<div ref={setElementClientHeight(200)} />}
@@ -1696,7 +1693,7 @@ describe('<ListVirtualizer />', () => {
                   {item.label}
                 </Combobox.Item>
               )}
-            </ListVirtualizer>
+            </Virtualizer>
           </Combobox.List>
         </Combobox.Root>
       );
@@ -1732,14 +1729,14 @@ describe('<ListVirtualizer />', () => {
           itemToStringLabel={(item: (typeof items)[number]) => item.label}
         >
           <Combobox.List>
-            <ListVirtualizer
+            <Virtualizer
               estimatedItemHeight={20}
               getItemKey={(item: (typeof items)[number]) => item.id}
             >
               {(item: (typeof items)[number]) => (
                 <Combobox.Item value={item}>{item.label}</Combobox.Item>
               )}
-            </ListVirtualizer>
+            </Virtualizer>
           </Combobox.List>
         </Combobox.Root>,
       );
@@ -1764,11 +1761,11 @@ describe('<ListVirtualizer />', () => {
       await render(
         <Combobox.Root defaultOpen items={[1, '1', firstSymbol, secondSymbol]}>
           <Combobox.List>
-            <ListVirtualizer<string | number | symbol> estimatedItemHeight={20}>
+            <Virtualizer<string | number | symbol> estimatedItemHeight={20}>
               {(item: string | number | symbol, index) => (
                 <Combobox.Item value={item}>{`${typeof item} ${index}`}</Combobox.Item>
               )}
-            </ListVirtualizer>
+            </Virtualizer>
           </Combobox.List>
         </Combobox.Root>,
       );
@@ -1787,7 +1784,7 @@ describe('<ListVirtualizer />', () => {
       <Combobox.Root defaultOpen items={createItems(10)}>
         <Combobox.Input data-testid="input" />
         <Combobox.List>
-          <ListVirtualizer
+          <Virtualizer
             estimatedItemHeight={20}
             className={(state) => (state.empty ? 'empty' : undefined)}
             render={<div ref={setElementClientHeight(40)} data-testid="virtualizer" />}
@@ -1797,7 +1794,7 @@ describe('<ListVirtualizer />', () => {
                 {item}
               </Combobox.Item>
             )}
-          </ListVirtualizer>
+          </Virtualizer>
         </Combobox.List>
       </Combobox.Root>,
     );
@@ -1827,16 +1824,13 @@ describe('<ListVirtualizer />', () => {
         <Combobox.Root defaultOpen items={allItems} filteredItems={props.filteredItems}>
           <Combobox.Input data-testid="input" />
           <Combobox.List>
-            <ListVirtualizer
-              estimatedItemHeight={20}
-              render={<div ref={setElementClientHeight(60)} />}
-            >
+            <Virtualizer estimatedItemHeight={20} render={<div ref={setElementClientHeight(60)} />}>
               {(item: string) => (
                 <Combobox.Item key={item} value={item}>
                   {item}
                 </Combobox.Item>
               )}
-            </ListVirtualizer>
+            </Virtualizer>
           </Combobox.List>
         </Combobox.Root>
       );
@@ -1866,7 +1860,7 @@ describe('<ListVirtualizer />', () => {
         <Combobox.Root defaultOpen items={allItems} filteredItems={props.filteredItems}>
           <Combobox.Input data-testid="input" />
           <Combobox.List>
-            <ListVirtualizer
+            <Virtualizer
               estimatedItemHeight={20}
               overscanPx={0}
               render={
@@ -1885,7 +1879,7 @@ describe('<ListVirtualizer />', () => {
                   {item}
                 </Combobox.Item>
               )}
-            </ListVirtualizer>
+            </Virtualizer>
           </Combobox.List>
         </Combobox.Root>
       );
@@ -1910,16 +1904,13 @@ describe('<ListVirtualizer />', () => {
     const { user } = await render(
       <Combobox.Root defaultOpen items={createItems(5)} multiple onValueChange={handleValueChange}>
         <Combobox.List>
-          <ListVirtualizer
-            estimatedItemHeight={20}
-            render={<div ref={setElementClientHeight(40)} />}
-          >
+          <Virtualizer estimatedItemHeight={20} render={<div ref={setElementClientHeight(40)} />}>
             {(item: string) => (
               <Combobox.Item key={item} value={item}>
                 {item}
               </Combobox.Item>
             )}
-          </ListVirtualizer>
+          </Virtualizer>
         </Combobox.List>
       </Combobox.Root>,
     );
@@ -1937,7 +1928,7 @@ describe('<ListVirtualizer />', () => {
         <Combobox.Root defaultOpen items={['one', 'two']}>
           <Combobox.Input data-testid="input" />
           <Combobox.List>
-            <ListVirtualizer<string>
+            <Virtualizer<string>
               estimatedItemHeight={20}
               render={<div ref={setElementClientHeight(40)} />}
             >
@@ -1946,7 +1937,7 @@ describe('<ListVirtualizer />', () => {
                   {item}
                 </Combobox.Item>
               )}
-            </ListVirtualizer>
+            </Virtualizer>
           </Combobox.List>
         </Combobox.Root>,
       );
@@ -1967,9 +1958,9 @@ describe('<ListVirtualizer />', () => {
     await render(
       <Combobox.Root defaultOpen items={[]}>
         <Combobox.List>
-          <ListVirtualizer estimatedItemHeight={20} data-testid="virtualizer">
+          <Virtualizer estimatedItemHeight={20} data-testid="virtualizer">
             {(item: string) => <Combobox.Item value={item}>{item}</Combobox.Item>}
-          </ListVirtualizer>
+          </Virtualizer>
         </Combobox.List>
       </Combobox.Root>,
     );
@@ -1986,7 +1977,7 @@ describe('<ListVirtualizer />', () => {
       await render(
         <Combobox.Root defaultOpen items={createItems(100)}>
           <Combobox.List>
-            <ListVirtualizer
+            <Virtualizer
               estimatedItemHeight={20}
               render={<div ref={setElementClientHeight(2000)} />}
             >
@@ -1995,7 +1986,7 @@ describe('<ListVirtualizer />', () => {
                   {item}
                 </Combobox.Item>
               )}
-            </ListVirtualizer>
+            </Virtualizer>
           </Combobox.List>
         </Combobox.Root>,
       );
@@ -2046,7 +2037,7 @@ describe('<ListVirtualizer />', () => {
               <Combobox.Positioner>
                 <Combobox.Popup data-testid="popup" className="animation-test-popup">
                   <Combobox.List>
-                    <ListVirtualizer
+                    <Virtualizer
                       estimatedItemHeight={20}
                       render={
                         <div
@@ -2062,7 +2053,7 @@ describe('<ListVirtualizer />', () => {
                           {item}
                         </Combobox.Item>
                       )}
-                    </ListVirtualizer>
+                    </Virtualizer>
                   </Combobox.List>
                 </Combobox.Popup>
               </Combobox.Positioner>
@@ -2091,9 +2082,9 @@ describe('<ListVirtualizer />', () => {
         <Combobox.Root defaultOpen items={['one']}>
           <Combobox.List>
             {props.enabled ? (
-              <ListVirtualizer estimatedItemHeight={20}>
+              <Virtualizer estimatedItemHeight={20}>
                 {(item: string) => <Combobox.Item value={item}>{item}</Combobox.Item>}
-              </ListVirtualizer>
+              </Virtualizer>
             ) : (
               <Combobox.Item value="one">one</Combobox.Item>
             )}
@@ -2127,18 +2118,18 @@ describe('<ListVirtualizer />', () => {
         <Combobox.Root defaultOpen items={['one']}>
           <Combobox.List>
             <Combobox.Item value="static">static</Combobox.Item>
-            <ListVirtualizer estimatedItemHeight={20}>
+            <Virtualizer estimatedItemHeight={20}>
               {(item: string) => <Combobox.Item value={item}>{item}</Combobox.Item>}
-            </ListVirtualizer>
-            <ListVirtualizer estimatedItemHeight={20}>
+            </Virtualizer>
+            <Virtualizer estimatedItemHeight={20}>
               {(item: string) => <Combobox.Item value={item}>{item}</Combobox.Item>}
-            </ListVirtualizer>
+            </Virtualizer>
           </Combobox.List>
         </Combobox.Root>,
       );
 
       const messages = warnSpy.mock.calls.map(([message]) => String(message)).join('\n');
-      expect(messages).toContain('must not contain more than one <ListVirtualizer>');
+      expect(messages).toContain('must not contain more than one <Virtualizer>');
       expect(messages).toContain('must not render static <Combobox.Item> elements alongside');
     } finally {
       warnSpy.mockRestore();
@@ -2152,13 +2143,13 @@ describe('<ListVirtualizer />', () => {
       await render(
         <Combobox.Root defaultOpen items={['one']}>
           <Combobox.List>
-            <ListVirtualizer estimatedItemHeight={20}>
+            <Virtualizer estimatedItemHeight={20}>
               {(item: string) => (
                 <Combobox.Item value={item} disabled>
                   {item}
                 </Combobox.Item>
               )}
-            </ListVirtualizer>
+            </Virtualizer>
           </Combobox.List>
         </Combobox.Root>,
       );
@@ -2193,7 +2184,7 @@ describe('<ListVirtualizer />', () => {
           virtualized
         >
           <Combobox.List>
-            <ListVirtualizer<string> estimatedItemHeight={20}>{() => <div />}</ListVirtualizer>
+            <Virtualizer<string> estimatedItemHeight={20}>{() => <div />}</Virtualizer>
           </Combobox.List>
         </Combobox.Root>,
       );
@@ -2215,13 +2206,13 @@ describe('<ListVirtualizer />', () => {
       await expect(
         render(
           <Combobox.Root defaultOpen items={['one']}>
-            <ListVirtualizer<string> estimatedItemHeight={20}>
+            <Virtualizer<string> estimatedItemHeight={20}>
               {(item) => <Combobox.Item value={item}>{item}</Combobox.Item>}
-            </ListVirtualizer>
+            </Virtualizer>
           </Combobox.Root>,
         ),
       ).rejects.toThrow(
-        'Base UI: <ListVirtualizer> was rendered without an `items` prop and outside of a list ' +
+        'Base UI: <Virtualizer> was rendered without an `items` prop and outside of a list ' +
           'that supports virtualization',
       );
     } finally {
@@ -2233,9 +2224,9 @@ describe('<ListVirtualizer />', () => {
     function TypeTest() {
       return (
         // @ts-expect-error object values require getItemKey
-        <ListVirtualizer estimatedItemHeight={20}>
+        <Virtualizer estimatedItemHeight={20}>
           {(value: { id: number }) => <Combobox.Item value={value}>{value.id}</Combobox.Item>}
-        </ListVirtualizer>
+        </Virtualizer>
       );
     }
 
@@ -2248,9 +2239,9 @@ describe('<ListVirtualizer />', () => {
     function TypeTest() {
       return (
         // @ts-expect-error unknown item types require getItemKey
-        <ListVirtualizer estimatedItemHeight={20}>
+        <Virtualizer estimatedItemHeight={20}>
           {() => <Combobox.Item value={item}>{item.id}</Combobox.Item>}
-        </ListVirtualizer>
+        </Virtualizer>
       );
     }
 
@@ -2260,12 +2251,12 @@ describe('<ListVirtualizer />', () => {
   it('does not allow item renderers to omit a row', () => {
     function TypeTest() {
       return (
-        <ListVirtualizer<string> estimatedItemHeight={20}>
+        <Virtualizer<string> estimatedItemHeight={20}>
           {
             // @ts-expect-error virtualized item renderers must return an element
             () => null
           }
-        </ListVirtualizer>
+        </Virtualizer>
       );
     }
 
@@ -2283,7 +2274,7 @@ describe('<ListVirtualizer />', () => {
           <Combobox.Positioner>
             <Combobox.Popup>
               <Combobox.List>
-                <ListVirtualizer<string>
+                <Virtualizer<string>
                   estimatedItemHeight={20}
                   overscanPx={0}
                   render={<div ref={setElementClientHeight(40)} />}
@@ -2291,7 +2282,7 @@ describe('<ListVirtualizer />', () => {
                   {(item: string, index) => (
                     <Combobox.Item value={item}>{`Country ${index + 1}`}</Combobox.Item>
                   )}
-                </ListVirtualizer>
+                </Virtualizer>
               </Combobox.List>
             </Combobox.Popup>
           </Combobox.Positioner>
@@ -2331,7 +2322,7 @@ describe('<ListVirtualizer />', () => {
         >
           <Combobox.Input />
           <Combobox.List>
-            <ListVirtualizer<string>
+            <Virtualizer<string>
               estimatedItemHeight={20}
               overscanPx={0}
               render={<div data-testid="virtualizer" style={{ maxHeight: 60, width: 200 }} />}
@@ -2341,7 +2332,7 @@ describe('<ListVirtualizer />', () => {
                   {`Country ${index + 1}`}
                 </Combobox.Item>
               )}
-            </ListVirtualizer>
+            </Virtualizer>
           </Combobox.List>
         </Combobox.Root>,
       );
@@ -2417,13 +2408,13 @@ describe('<ListVirtualizer />', () => {
             <Combobox.Positioner>
               <Combobox.Popup>
                 <Combobox.List>
-                  <ListVirtualizer<string>
+                  <Virtualizer<string>
                     estimatedItemHeight={20}
                     overscanPx={0}
                     render={<div ref={setElementClientHeight(40)} />}
                   >
                     {renderItem}
-                  </ListVirtualizer>
+                  </Virtualizer>
                 </Combobox.List>
               </Combobox.Popup>
             </Combobox.Positioner>
@@ -2454,7 +2445,7 @@ describe('<ListVirtualizer />', () => {
     await render(
       <Combobox.Root defaultOpen items={createItems(20)}>
         <Combobox.List>
-          <ListVirtualizer
+          <Virtualizer
             enabled={false}
             estimatedItemHeight={20}
             render={<div ref={setElementClientHeight(40)} />}
@@ -2464,7 +2455,7 @@ describe('<ListVirtualizer />', () => {
                 {item}
               </Combobox.Item>
             )}
-          </ListVirtualizer>
+          </Virtualizer>
         </Combobox.List>
       </Combobox.Root>,
     );
@@ -2487,7 +2478,7 @@ describe('<ListVirtualizer />', () => {
         <Combobox.Root defaultOpen items={createItems(100)}>
           <Combobox.Input data-testid="input" />
           <Combobox.List>
-            <ListVirtualizer
+            <Virtualizer
               enabled={false}
               estimatedItemHeight={20}
               render={<div style={{ height: 60, width: 200 }} />}
@@ -2497,7 +2488,7 @@ describe('<ListVirtualizer />', () => {
                   {item}
                 </Combobox.Item>
               )}
-            </ListVirtualizer>
+            </Virtualizer>
           </Combobox.List>
         </Combobox.Root>,
       );
@@ -2520,7 +2511,7 @@ describe('<ListVirtualizer />', () => {
       return (
         <Combobox.Root defaultOpen items={createItems(20)}>
           <Combobox.List>
-            <ListVirtualizer
+            <Virtualizer
               enabled={props.enabled}
               estimatedItemHeight={20}
               overscanPx={0}
@@ -2531,7 +2522,7 @@ describe('<ListVirtualizer />', () => {
                   {item}
                 </Combobox.Item>
               )}
-            </ListVirtualizer>
+            </Virtualizer>
           </Combobox.List>
         </Combobox.Root>
       );
@@ -2553,7 +2544,7 @@ describe('<ListVirtualizer />', () => {
       <Autocomplete.Root defaultOpen items={createItems(100)}>
         <Autocomplete.Input />
         <Autocomplete.List>
-          <ListVirtualizer
+          <Virtualizer
             estimatedItemHeight={20}
             overscanPx={0}
             render={<div ref={setElementClientHeight(40)} />}
@@ -2563,7 +2554,7 @@ describe('<ListVirtualizer />', () => {
                 {item}
               </Autocomplete.Item>
             )}
-          </ListVirtualizer>
+          </Virtualizer>
         </Autocomplete.List>
       </Autocomplete.Root>,
     );

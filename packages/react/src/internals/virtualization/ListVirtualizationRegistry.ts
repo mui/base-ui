@@ -1,4 +1,4 @@
-export interface ListVirtualizerRowMetrics {
+export interface VirtualizerRowMetrics {
   /**
    * Logical offset from the start of the virtualized content.
    */
@@ -9,39 +9,39 @@ export interface ListVirtualizerRowMetrics {
   size: number;
 }
 
-export type ListVirtualizerScrollAlignment = 'auto' | 'center' | 'end' | 'start';
+export type VirtualizerScrollAlignment = 'auto' | 'center' | 'end' | 'start';
 
-export interface ListVirtualizerScrollToIndexOptions {
+export interface VirtualizerScrollToIndexOptions {
   /**
    * Where to place the item in the scrollport. `auto` only scrolls when the item is outside the
    * visible area.
    * @default 'auto'
    */
-  align?: ListVirtualizerScrollAlignment | undefined;
+  align?: VirtualizerScrollAlignment | undefined;
 }
 
 /**
- * Imperative actions exposed by the `ListVirtualizer` component.
+ * Imperative actions exposed by the `Virtualizer` component.
  */
-export interface ListVirtualizerActions {
+export interface VirtualizerActions {
   /**
    * Scrolls an item into view by its logical collection index.
    */
-  scrollToIndex: (index: number, options?: ListVirtualizerScrollToIndexOptions) => void;
+  scrollToIndex: (index: number, options?: VirtualizerScrollToIndexOptions) => void;
 }
 
 /**
  * Imperative operations exposed by a list virtualizer to its owning list root.
  */
-export interface ListVirtualizerHandle {
+export interface VirtualizerHandle {
   /**
    * Returns the logical geometry for a row, including when it is outside the rendered window.
    */
-  getRowMetrics: (rowIndex: number) => ListVirtualizerRowMetrics | null;
+  getRowMetrics: (rowIndex: number) => VirtualizerRowMetrics | null;
   /**
    * Scrolls an item into view by its logical collection index.
    */
-  scrollToIndex: (index: number, options?: ListVirtualizerScrollToIndexOptions) => void;
+  scrollToIndex: (index: number, options?: VirtualizerScrollToIndexOptions) => void;
   /**
    * Resets the virtualizer's scroll position to the start of the list.
    */
@@ -52,7 +52,7 @@ export interface ListVirtualizerHandle {
  * A virtualizer registered with a list root: its imperative operations, plus the state the root
  * needs to tell which behaviors the virtualizer currently owns.
  */
-export interface RegisteredListVirtualizer extends ListVirtualizerHandle {
+export interface RegisteredVirtualizer extends VirtualizerHandle {
   /**
    * Whether the virtualizer is currently mounting a window of rows and owning the scroll position.
    * A disabled virtualizer renders the whole collection and behaves like a plain scrolling list.
@@ -72,7 +72,7 @@ export interface ListVirtualizationRegistry {
    * The registered virtualizer. A list supports at most one; the adapter warns when more than one
    * registers.
    */
-  virtualizer: RegisteredListVirtualizer | null;
+  virtualizer: RegisteredVirtualizer | null;
 }
 
 /**

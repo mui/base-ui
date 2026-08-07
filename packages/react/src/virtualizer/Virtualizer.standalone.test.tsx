@@ -2,7 +2,7 @@ import * as React from 'react';
 import { expect, vi } from 'vitest';
 import { act, fireEvent, screen, waitFor } from '@mui/internal-test-utils';
 import { createRenderer, createDOMRect, setElementClientHeight } from '#test-utils';
-import { ListVirtualizer } from './ListVirtualizer';
+import { Virtualizer } from './Virtualizer';
 
 interface TestItem {
   id: number;
@@ -25,12 +25,12 @@ function TestListbox(
   props: {
     items: TestItem[];
     activeIndex?: number | null | undefined;
-  } & Omit<ListVirtualizer.Props<TestItem>, 'children' | 'getItemKey' | 'items'>,
+  } & Omit<Virtualizer.Props<TestItem>, 'children' | 'getItemKey' | 'items'>,
 ) {
   const { activeIndex, items, ...virtualizerProps } = props;
 
   return (
-    <ListVirtualizer<TestItem>
+    <Virtualizer<TestItem>
       activeIndex={activeIndex}
       getItemKey={(item) => item.id}
       items={items}
@@ -43,11 +43,11 @@ function TestListbox(
           {index === activeIndex ? ' (active)' : ''}
         </div>
       )}
-    </ListVirtualizer>
+    </Virtualizer>
   );
 }
 
-describe('<ListVirtualizer /> standalone', () => {
+describe('<Virtualizer /> standalone', () => {
   const { render } = createRenderer();
 
   beforeEach(() => {
@@ -168,7 +168,7 @@ describe('<ListVirtualizer /> standalone', () => {
   });
 
   it('exposes imperative scrolling through actionsRef', async () => {
-    const actionsRef = React.createRef<ListVirtualizer.Actions>();
+    const actionsRef = React.createRef<Virtualizer.Actions>();
 
     await render(
       <TestListbox

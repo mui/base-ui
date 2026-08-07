@@ -4,7 +4,7 @@ import type { HTMLProps } from '../types';
 /**
  * Row model built for each item in the list's filtered collection.
  */
-export interface ListVirtualizerItemRowModel<Item> {
+export interface VirtualizerItemRowModel<Item> {
   item: Item;
   itemIndex: number;
 }
@@ -12,7 +12,7 @@ export interface ListVirtualizerItemRowModel<Item> {
 /**
  * A row measured and windowed by the virtualizer.
  */
-export interface ListVirtualizerRow<RowModel> {
+export interface VirtualizerRow<RowModel> {
   /**
    * Stable identity used by React and the measurement cache.
    */
@@ -26,11 +26,11 @@ export interface ListVirtualizerRow<RowModel> {
 /**
  * Parameters provided when rendering a row.
  */
-export interface ListVirtualizerRenderRowParameters<RowModel> {
+export interface VirtualizerRenderRowParameters<RowModel> {
   /**
    * The row being rendered.
    */
-  row: ListVirtualizerRow<RowModel>;
+  row: VirtualizerRow<RowModel>;
   /**
    * Index in the virtual row collection.
    */
@@ -43,7 +43,7 @@ export interface ListVirtualizerRenderRowParameters<RowModel> {
  * A list's own `<Item>` applies these itself. Items rendered without one receive them as the third
  * argument of the item renderer, to spread onto the element that represents the item.
  */
-export type ListVirtualizerItemProps = HTMLProps & {
+export type VirtualizerItemProps = HTMLProps & {
   /** Logical index exposed as a DOM data attribute. */
   'data-index': number;
 };
@@ -51,11 +51,11 @@ export type ListVirtualizerItemProps = HTMLProps & {
 /**
  * Metadata provided to an item rendered by the virtualizer.
  */
-export interface ListVirtualizerItemMetadata {
+export interface VirtualizerItemMetadata {
   /** Logical index in the full collection. */
   index: number;
   /** Accessibility and collection metadata applied to the item. */
-  props: ListVirtualizerItemProps;
+  props: VirtualizerItemProps;
   /** Registers the item rendered for this virtual row. */
   registerItem: (() => () => void) | undefined;
 }

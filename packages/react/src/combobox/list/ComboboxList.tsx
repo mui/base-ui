@@ -78,22 +78,22 @@ export const ComboboxList = React.forwardRef(function ComboboxList(
   // Reads the flags at call time, so it stays stable while reporting the current configuration.
   const warnUnsupportedConfiguration = useStableCallback(() => {
     if (!hasItems) {
-      warn('<ListVirtualizer> requires the `items` prop on <Combobox.Root>.');
+      warn('<Virtualizer> requires the `items` prop on <Combobox.Root>.');
     }
     if (isGrouped) {
       warn(
-        '<ListVirtualizer> does not currently support grouped collections. ' +
+        '<Virtualizer> does not currently support grouped collections. ' +
           'Render a flat item collection instead.',
       );
     }
     if (externallyVirtualized) {
       warn(
-        '<Combobox.Root> must not use the `virtualized` prop together with <ListVirtualizer>. ' +
+        '<Combobox.Root> must not use the `virtualized` prop together with <Virtualizer>. ' +
           'The prop is only for external virtualization.',
       );
     }
     if (grid) {
-      warn('<ListVirtualizer> does not currently support grid mode. Use a flat listbox instead.');
+      warn('<Virtualizer> does not currently support grid mode. Use a flat listbox instead.');
     }
   });
 
