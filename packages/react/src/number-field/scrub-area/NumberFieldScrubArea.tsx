@@ -49,7 +49,6 @@ export const NumberFieldScrubArea = React.forwardRef(function NumberFieldScrubAr
     setIsScrubbing: setRootScrubbing,
     inputRef,
     incrementValue,
-    allowInputSyncRef,
     getStepAmount,
     onValueCommitted,
     lastChangedValueRef,
@@ -219,7 +218,6 @@ export const NumberFieldScrubArea = React.forwardRef(function NumberFieldScrubAr
           const rawAmount = dValue * stepAmount;
 
           if (rawAmount !== 0) {
-            allowInputSyncRef.current = true;
             incrementValue(Math.abs(rawAmount), {
               direction: rawAmount >= 0 ? 1 : -1,
               event,
@@ -243,7 +241,6 @@ export const NumberFieldScrubArea = React.forwardRef(function NumberFieldScrubAr
     [
       disabled,
       readOnly,
-      allowInputSyncRef,
       incrementValue,
       isScrubbing,
       getStepAmount,
