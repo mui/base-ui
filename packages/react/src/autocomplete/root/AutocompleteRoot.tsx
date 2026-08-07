@@ -167,6 +167,7 @@ export interface AutocompleteRootProps<ItemValue> extends Omit<
   | 'inline'
   | 'autoHighlight'
   | 'keepHighlight'
+  | 'keepFilterText'
   | 'highlightItemOnHover'
   | 'actionsRef'
   | 'onOpenChange'
