@@ -634,16 +634,16 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
       // If reopening interrupts the close animation, handleUnmount won't run to clear the
       // frozen closeQuery and pending popup input.
       if (nextOpen && closeQuery !== null) {
+        // `ComboboxInput` calls `setInputValue` before `setOpen`, so on an input-change reopen
+        // `inputValue` is still the pre-keystroke value and the typed filter always survives.
+        const isInputChange = eventDetails.reason === REASONS.inputChange;
         const clearsPendingInput =
-          inputInsidePopup &&
-          !inline &&
-          inputValue !== '' &&
-          eventDetails.reason !== REASONS.inputChange;
+          !isInputChange && inputInsidePopup && !inline && inputValue !== '';
 
         // Reset only when no typed filter survives the reopen, either because the clear below
         // discards it or because the close path already cleared the input. Resetting while the
         // user can still see their filter lets the `items` sync overwrite it.
-        if (clearsPendingInput || inputValue === '') {
+        if (!isInputChange && (clearsPendingInput || inputValue === '')) {
           setQueryChangedAfterOpen(false);
         }
 
