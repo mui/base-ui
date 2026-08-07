@@ -18,7 +18,7 @@ import {
 
 export type State<Payload> = PopupStoreState<Payload> & {
   disabled: boolean;
-  modal: boolean;
+  modal: boolean | undefined;
   openMethod: InteractionType | null;
   allowMouseEnter: boolean;
   highlightItemOnHover: boolean;

@@ -37,7 +37,7 @@ import {
   attachPreventUnmountOnClose,
   FOCUSABLE_POPUP_PROPS,
   PayloadChildRenderFunction,
-  setPopupOpenState,
+  createPopupOpenState,
   PopupHandleAttachment,
   useImplicitActiveTrigger,
   useOpenStateTransitions,
@@ -301,20 +301,19 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
         (nativeEvent as MouseEvent).detail === 0;
       const isDismissClose = !nextOpen && (reason === REASONS.escapeKey || reason == null);
 
-      const updatedState: Partial<MenuStoreState<Payload>> = {
-        open: nextOpen,
-        openChangeReason: reason,
-      };
       openEventRef.current = eventDetails.event;
 
-      setPopupOpenState(
-        updatedState,
+      const popupOpenState = createPopupOpenState(
+        store.state,
         nextOpen,
         eventDetails.trigger,
         shouldPreventUnmountOnClose(),
-      );
+      ) as ReturnType<typeof createPopupOpenState> & {
+        openChangeReason: MenuRoot.ChangeEventReason;
+      };
 
-      store.update(updatedState);
+      popupOpenState.openChangeReason = reason;
+      store.update(popupOpenState);
 
       if (
         parent.type === 'menubar' &&
