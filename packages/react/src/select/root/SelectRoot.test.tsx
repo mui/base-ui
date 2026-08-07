@@ -4153,6 +4153,393 @@ describe('<Select.Root />', () => {
     });
   });
 
+  describe('filtering', () => {
+    it('does not set aria-activedescendant on open', async () => {
+      const { user } = await render(
+        <Select.Root
+          filter
+          items={[
+            { value: 'apple', label: 'Apple' },
+            { value: 'banana', label: 'Banana' },
+          ]}
+        >
+          <Select.Trigger data-testid="trigger">
+            <Select.Value />
+          </Select.Trigger>
+          <Select.Portal>
+            <Select.Positioner>
+              <Select.Popup>
+                <Select.Input aria-label="Filter fruit" />
+                <Select.List>
+                  <Select.Item value="apple">Apple</Select.Item>
+                  <Select.Item value="banana">Banana</Select.Item>
+                </Select.List>
+              </Select.Popup>
+            </Select.Positioner>
+          </Select.Portal>
+        </Select.Root>,
+      );
+
+      await user.click(screen.getByTestId('trigger'));
+      const input = await screen.findByRole('searchbox', { name: 'Filter fruit' });
+
+      if (isJSDOM) {
+        Object.defineProperty(screen.getByRole('listbox'), 'scrollTo', {
+          configurable: true,
+          value: vi.fn(),
+        });
+      }
+
+      const firstOption = screen.getByRole('option', { name: 'Apple' });
+
+      await waitFor(() => {
+        expect(input).toHaveFocus();
+      });
+      expect(firstOption).not.toHaveAttribute('data-highlighted');
+      expect(input).not.toHaveAttribute('aria-activedescendant');
+    });
+
+    it('shows the input focus indicator only for keyboard virtual focus', async () => {
+      const { user } = await render(
+        <Select.Root filter>
+          <Select.Trigger>Fruit</Select.Trigger>
+          <Select.Portal>
+            <Select.Positioner>
+              <Select.Popup>
+                <Select.Input aria-label="Filter fruit" />
+                <Select.List>
+                  <Select.Item value="apple">Apple</Select.Item>
+                </Select.List>
+              </Select.Popup>
+            </Select.Positioner>
+          </Select.Portal>
+        </Select.Root>,
+      );
+
+      const trigger = screen.getByRole('combobox');
+      await act(async () => {
+        trigger.focus();
+      });
+      await user.keyboard('[Enter]');
+
+      const input = await screen.findByRole('searchbox', { name: 'Filter fruit' });
+      const list = screen.getByRole('listbox');
+      if (isJSDOM) {
+        Object.defineProperty(list, 'scrollTo', {
+          configurable: true,
+          value: vi.fn(),
+        });
+      }
+
+      await waitFor(() => {
+        expect(input).toHaveFocus();
+      });
+      expect(input).toHaveAttribute('data-focus-visible');
+
+      const item = screen.getByRole('option', { name: 'Apple' });
+      await user.hover(item);
+      expect(input).not.toHaveAttribute('data-focus-visible');
+
+      await user.hover(input);
+      expect(input).not.toHaveAttribute('data-focus-visible');
+
+      await user.keyboard('[ArrowDown]');
+      expect(input).not.toHaveAttribute('data-focus-visible');
+
+      await user.keyboard('[ArrowDown]');
+      expect(input).toHaveAttribute('data-focus-visible');
+    });
+
+    it('supports a controlled input value', async () => {
+      function Test() {
+        const [inputValue, setInputValue] = React.useState('');
+
+        return (
+          <React.Fragment>
+            <div data-testid="input-value">{inputValue}</div>
+            <Select.Root
+              filter
+              open
+              inputValue={inputValue}
+              onInputValueChange={(nextInputValue) => {
+                if (nextInputValue.length <= 3) {
+                  setInputValue(nextInputValue);
+                }
+              }}
+            >
+              <Select.Trigger>Fruit</Select.Trigger>
+              <Select.Portal>
+                <Select.Positioner>
+                  <Select.Popup>
+                    <Select.Input aria-label="Filter fruit" />
+                    <Select.List>
+                      <Select.Item value="apple">Apple</Select.Item>
+                      <Select.Item value="banana">Banana</Select.Item>
+                    </Select.List>
+                  </Select.Popup>
+                </Select.Positioner>
+              </Select.Portal>
+            </Select.Root>
+          </React.Fragment>
+        );
+      }
+
+      const { user } = await render(<Test />);
+      const input = await screen.findByRole('searchbox', { name: 'Filter fruit' });
+
+      await user.type(input, 'ban');
+
+      expect(input).toHaveValue('ban');
+      expect(screen.getByTestId('input-value')).toHaveTextContent('ban');
+      expect(screen.queryByRole('option', { name: 'Apple' })).toBe(null);
+      expect(screen.getByRole('option', { name: 'Banana' })).toBeVisible();
+
+      await user.type(input, 'x');
+
+      expect(input).toHaveValue('ban');
+      expect(screen.getByTestId('input-value')).toHaveTextContent('ban');
+      expect(screen.getByRole('option', { name: 'Banana' })).toBeVisible();
+    });
+
+    it('disables filter controls when disabled by a field', async () => {
+      await render(
+        <Field.Root disabled>
+          <Select.Root filter open defaultInputValue="a">
+            <Select.Trigger>Fruit</Select.Trigger>
+            <Select.Portal>
+              <Select.Positioner>
+                <Select.Popup>
+                  <Select.Input aria-label="Filter fruit" />
+                  <Select.Clear aria-label="Clear filter" />
+                  <Select.List>
+                    <Select.Item value="apple">Apple</Select.Item>
+                  </Select.List>
+                </Select.Popup>
+              </Select.Positioner>
+            </Select.Portal>
+          </Select.Root>
+        </Field.Root>,
+      );
+
+      expect(screen.getByRole('searchbox', { name: 'Filter fruit' })).toBeDisabled();
+      expect(screen.getByRole('button', { name: 'Clear filter' })).toBeDisabled();
+    });
+
+    it('uses an updated custom filter function', async () => {
+      const startsWith = (item: string, query: string) => item.toLowerCase().startsWith(query);
+      const endsWith = (item: string, query: string) => item.toLowerCase().endsWith(query);
+
+      function Test() {
+        const [filter, setFilter] = React.useState(() => startsWith);
+
+        return (
+          <React.Fragment>
+            <button type="button" onClick={() => setFilter(() => endsWith)}>
+              Change filter
+            </button>
+            <Select.Root filter={filter} open defaultInputValue="a">
+              <Select.Trigger>Fruit</Select.Trigger>
+              <Select.Portal>
+                <Select.Positioner>
+                  <Select.Popup>
+                    <Select.Input aria-label="Filter fruit" />
+                    <Select.List>
+                      <Select.Item value="apple">Apple</Select.Item>
+                      <Select.Item value="banana">Banana</Select.Item>
+                    </Select.List>
+                  </Select.Popup>
+                </Select.Positioner>
+              </Select.Portal>
+            </Select.Root>
+          </React.Fragment>
+        );
+      }
+
+      const { user } = await render(<Test />);
+
+      expect(screen.getByRole('option', { name: 'Apple' })).toBeVisible();
+      expect(screen.queryByRole('option', { name: 'Banana' })).toBe(null);
+
+      await user.click(screen.getByRole('button', { name: 'Change filter' }));
+
+      expect(screen.queryByRole('option', { name: 'Apple' })).toBe(null);
+      expect(screen.getByRole('option', { name: 'Banana' })).toBeVisible();
+    });
+
+    it('preserves the selected value when filtering hides its item', async () => {
+      const onValueChange = vi.fn();
+
+      const { user } = await render(
+        <Select.Root
+          filter
+          open
+          defaultValue="banana"
+          onValueChange={onValueChange}
+          items={[
+            { value: 'apple', label: 'Apple' },
+            { value: 'banana', label: 'Banana' },
+          ]}
+        >
+          <Select.Trigger data-testid="trigger">
+            <Select.Value />
+          </Select.Trigger>
+          <Select.Portal>
+            <Select.Positioner>
+              <Select.Popup>
+                <Select.Input aria-label="Filter fruit" />
+                <Select.List>
+                  <Select.Item value="apple">Apple</Select.Item>
+                  <Select.Item value="banana">Banana</Select.Item>
+                </Select.List>
+              </Select.Popup>
+            </Select.Positioner>
+          </Select.Portal>
+        </Select.Root>,
+      );
+
+      const input = await screen.findByRole('searchbox', { name: 'Filter fruit' });
+      await user.type(input, 'app');
+
+      expect(screen.queryByRole('option', { name: 'Banana' })).toBe(null);
+      expect(screen.getByTestId('trigger')).toHaveTextContent('Banana');
+      expect(onValueChange).not.toHaveBeenCalled();
+
+      await user.clear(input);
+
+      expect(screen.getByRole('option', { name: 'Banana' })).toHaveAttribute('data-selected', '');
+    });
+
+    it('removes the selected value when its item genuinely unmounts while filtered', async () => {
+      function Test() {
+        const [items, setItems] = React.useState(['apple', 'banana']);
+        const [value, setValue] = React.useState<string | null>('banana');
+
+        return (
+          <React.Fragment>
+            <button onClick={() => setItems((current) => current.filter((item) => item !== value))}>
+              Remove selected
+            </button>
+            <div data-testid="value">{value ?? 'none'}</div>
+            <Select.Root filter open value={value} onValueChange={setValue} defaultInputValue="app">
+              <Select.Trigger>Fruit</Select.Trigger>
+              <Select.Portal>
+                <Select.Positioner>
+                  <Select.Popup>
+                    <Select.Input aria-label="Filter fruit" />
+                    <Select.List>
+                      {items.map((item) => (
+                        <Select.Item key={item} value={item}>
+                          {item}
+                        </Select.Item>
+                      ))}
+                    </Select.List>
+                  </Select.Popup>
+                </Select.Positioner>
+              </Select.Portal>
+            </Select.Root>
+          </React.Fragment>
+        );
+      }
+
+      const { user } = await render(<Test />);
+
+      expect(screen.queryByRole('option', { name: 'banana' })).toBe(null);
+      expect(screen.getByTestId('value')).toHaveTextContent('banana');
+
+      await user.click(screen.getByRole('button', { name: 'Remove selected' }));
+
+      await waitFor(() => {
+        expect(screen.getByTestId('value')).toHaveTextContent('none');
+      });
+    });
+
+    it('keeps focus on the input while navigating and selects the active item with Enter', async () => {
+      const { user } = await render(
+        <Select.Root
+          filter
+          items={[
+            { value: 'apple', label: 'Apple' },
+            { value: 'banana', label: 'Banana' },
+          ]}
+        >
+          <Select.Trigger data-testid="trigger">
+            <Select.Value />
+          </Select.Trigger>
+          <Select.Portal>
+            <Select.Positioner>
+              <Select.Popup>
+                <Select.Input aria-label="Filter fruit" />
+                <Select.List>
+                  <Select.Item value="apple">Apple</Select.Item>
+                  <Select.Item value="banana">Banana</Select.Item>
+                </Select.List>
+              </Select.Popup>
+            </Select.Positioner>
+          </Select.Portal>
+        </Select.Root>,
+      );
+
+      await user.click(screen.getByTestId('trigger'));
+      const input = await screen.findByRole('searchbox', { name: 'Filter fruit' });
+
+      if (isJSDOM) {
+        Object.defineProperty(screen.getByRole('listbox'), 'scrollTo', {
+          configurable: true,
+          value: vi.fn(),
+        });
+      }
+
+      await waitFor(() => {
+        expect(input).toHaveFocus();
+      });
+
+      await user.type(input, 'ban');
+      await user.keyboard('{ArrowDown}');
+
+      expect(input).toHaveFocus();
+      expect(screen.getByRole('option', { name: 'Banana' })).toHaveAttribute(
+        'data-highlighted',
+        '',
+      );
+
+      await user.keyboard('{Enter}');
+
+      expect(screen.getByTestId('trigger')).toHaveTextContent('Banana');
+    });
+
+    it.each([
+      ['Input', Select.Input],
+      ['Clear', Select.Clear],
+      ['Empty', Select.Empty],
+    ] as const)(
+      'throws a scoped error when Select.%s is used without filtering',
+      async (name, Part) => {
+        const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+        try {
+          await expect(
+            render(
+              <Select.Root open>
+                <Select.Trigger>Fruit</Select.Trigger>
+                <Select.Portal>
+                  <Select.Positioner>
+                    <Select.Popup>
+                      <Part />
+                    </Select.Popup>
+                  </Select.Positioner>
+                </Select.Portal>
+              </Select.Root>,
+            ),
+          ).rejects.toThrow(
+            `Base UI: <Select.${name}> requires the \`filter\` prop on <Select.Root>.`,
+          );
+        } finally {
+          errorSpy.mockRestore();
+        }
+      },
+    );
+  });
+
   describe('dynamic items', () => {
     const { render: renderFakeTimers, clock } = createRenderer({
       clockOptions: {
@@ -4715,6 +5102,36 @@ describe('<Select.Root />', () => {
   });
 
   describe('typeahead', () => {
+    it('starts matching after the selected first item', async () => {
+      const { user } = await render(
+        <Select.Root
+          defaultValue="apple"
+          items={[
+            { value: 'apple', label: 'Apple' },
+            { value: 'apricot', label: 'Apricot' },
+          ]}
+        >
+          <Select.Trigger data-testid="trigger">
+            <Select.Value />
+          </Select.Trigger>
+          <Select.Portal>
+            <Select.Positioner>
+              <Select.Popup>
+                <Select.Item value="apple">Apple</Select.Item>
+                <Select.Item value="apricot">Apricot</Select.Item>
+              </Select.Popup>
+            </Select.Positioner>
+          </Select.Portal>
+        </Select.Root>,
+      );
+
+      const trigger = screen.getByTestId('trigger');
+      await act(async () => trigger.focus());
+      await user.keyboard('a');
+
+      expect(trigger).toHaveTextContent('Apricot');
+    });
+
     it.skipIf(isJSDOM)(
       'does not trigger selection when Space is pressed during text navigation',
       async () => {

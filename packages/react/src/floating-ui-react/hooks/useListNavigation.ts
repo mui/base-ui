@@ -222,6 +222,8 @@ export interface UseListNavigationProps {
   grid?: typeof gridNavigation | null | undefined;
 }
 
+type VirtualFocusReturnData = { item: HTMLElement; event: React.KeyboardEvent };
+
 /**
  * Adds arrow key-based navigation of a list of items, either using real DOM
  * focus or virtual focus.
@@ -293,6 +295,7 @@ export function useListNavigation(
   const indexRef = React.useRef(selectedIndex ?? -1);
   const keyRef = React.useRef<null | string>(null);
   const isPointerModalityRef = React.useRef(true);
+  const referenceRef = React.useRef<HTMLElement | null>(null);
 
   const onNavigate = useStableCallback((event?: React.SyntheticEvent) => {
     onNavigateProp(indexRef.current === -1 ? null : indexRef.current, event);
@@ -360,7 +363,8 @@ export function useListNavigation(
 
   useIsoLayoutEffect(() => {
     dataRef.current.orientation = orientation;
-  }, [dataRef, orientation]);
+    dataRef.current.virtual = virtual;
+  }, [dataRef, orientation, virtual]);
 
   // Sync `selectedIndex` to be the `activeIndex` upon opening the floating
   // element. Also, reset `activeIndex` upon closing the floating element.
@@ -526,9 +530,30 @@ export function useListNavigation(
     );
   });
 
+  const isParentVirtual = useStableCallback(() => {
+    const parentNode = tree?.nodesRef.current.find((node) => node.id === parentId);
+    return Boolean(parentNode?.context?.dataRef?.current.virtual);
+  });
+
   const getMinEnabledIndex = useStableCallback(() => {
     return getMinListIndex(listRef, disabledIndicesRef.current);
   });
+
+  useIsoLayoutEffect(() => {
+    function handleVirtualFocusReturn(data: VirtualFocusReturnData) {
+      const index = listRef.current.indexOf(data.item);
+      if (index > -1) {
+        indexRef.current = index;
+        referenceRef.current?.focus({ preventScroll: true });
+        onNavigate(data.event);
+      }
+    }
+
+    tree?.events.on('virtualfocusreturn', handleVirtualFocusReturn);
+    return () => {
+      tree?.events.off('virtualfocusreturn', handleVirtualFocusReturn);
+    };
+  }, [listRef, tree, onNavigate]);
 
   const commonOnKeyDown = useStableCallback((event: React.KeyboardEvent) => {
     isPointerModalityRef.current = false;
@@ -559,8 +584,10 @@ export function useListNavigation(
       store.setOpen(false, createChangeEventDetails(REASONS.listNavigation, event.nativeEvent));
 
       if (isHTMLElement(domReferenceElement)) {
-        if (virtual) {
-          tree?.events.emit('virtualfocus', domReferenceElement);
+        if (isParentVirtual()) {
+          const item = domReferenceElement;
+          const data: VirtualFocusReturnData = { item, event };
+          tree?.events.emit('virtualfocusreturn', data);
         } else {
           domReferenceElement.focus();
         }
@@ -848,15 +875,12 @@ export function useListNavigation(
           getParentOrientation(),
           rtl,
         );
+        const isCrossCloseKey = isCrossOrientationCloseKey(event.key, orientation, rtl, isGrid);
         const isMainKey = isMainOrientationKey(event.key, orientation);
         const isNavigationKey =
           (nested ? isParentCrossOpenKey : isMainKey) ||
           event.key === 'Enter' ||
           event.key.trim() === '';
-
-        if (virtual && currentOpen) {
-          return commonOnKeyDown(event);
-        }
 
         // If a floating element should not open on arrow key down, avoid
         // setting `activeIndex` while it's closed.
@@ -870,11 +894,16 @@ export function useListNavigation(
         }
 
         if (nested) {
+          if (currentOpen && isCrossCloseKey) {
+            commonOnKeyDown(event);
+            return undefined;
+          }
+
           if (isParentCrossOpenKey) {
             stopEvent(event);
 
             if (currentOpen) {
-              indexRef.current = getMinEnabledIndex();
+              indexRef.current = !focusItemOnOpen ? -1 : getMinEnabledIndex();
               onNavigate(event);
             } else {
               openOnNavigationKeyDown(event);
@@ -928,14 +957,51 @@ export function useListNavigation(
     rtl,
     selectedIndexRef,
     virtual,
+    isGrid,
   ]);
 
   const reference: ElementProps['reference'] = React.useMemo(() => {
     return {
       ...ariaActiveDescendantProp,
       ...trigger,
+      onKeyDown(event) {
+        const currentOpen = store.select('open');
+
+        if (virtual && currentOpen) {
+          const isOpenKey = isCrossOrientationOpenKey(event.key, orientation, rtl);
+          const isCloseKey = isCrossOrientationCloseKey(event.key, orientation, rtl, isGrid);
+          const activeItem = listRef.current[indexRef.current];
+
+          if (activeItem && (isOpenKey || isCloseKey)) {
+            referenceRef.current = event.currentTarget as HTMLElement;
+            // A nested list can already be open from pointer hover while virtual focus remains
+            // on its parent's reference. Forward cross-axis keys through the active item so the
+            // nested navigation handler can enter or dismiss the hover-opened list.
+            const forwardEvent = new KeyboardEvent(event.type, { key: event.key, bubbles: true });
+            if (!activeItem.dispatchEvent(forwardEvent)) {
+              stopEvent(event);
+              return;
+            }
+          }
+
+          commonOnKeyDown(event);
+          return;
+        }
+
+        trigger?.onKeyDown?.(event);
+      },
     };
-  }, [ariaActiveDescendantProp, trigger]);
+  }, [
+    ariaActiveDescendantProp,
+    trigger,
+    store,
+    orientation,
+    rtl,
+    virtual,
+    commonOnKeyDown,
+    listRef,
+    isGrid,
+  ]);
 
   return React.useMemo(
     () => (enabled ? { reference, floating, item, trigger } : {}),

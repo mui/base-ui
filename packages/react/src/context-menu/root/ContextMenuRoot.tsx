@@ -66,6 +66,10 @@ export interface ContextMenuRootProps extends Omit<
   | 'delay'
   | 'closeDelay'
   | 'onOpenChange'
+  | 'filter'
+  | 'defaultInputValue'
+  | 'inputValue'
+  | 'onInputValueChange'
   // Context Menu opens from a pointer position rather than a registered trigger, so the
   // render-function form of `children` (which receives the active trigger's payload) is not applicable.
   | 'children'

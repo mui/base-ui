@@ -1,5 +1,7 @@
-import { stringifyAsLabel } from '../../../internals/resolveValueLabel';
-import type { Filter } from './useFilter';
+export {
+  createCollatorItemFilter,
+  createSingleSelectionCollatorFilter,
+} from '../../../internals/collatorItemFilter';
 
 /**
  * Derives the default id assigned to `Combobox.Popup` when the input is rendered inside it.
@@ -8,56 +10,4 @@ import type { Filter } from './useFilter';
  */
 export function getComboboxPopupId(rootId: string | null | undefined) {
   return rootId == null ? undefined : `${rootId}-popup`;
-}
-
-/**
- * Enhanced filter using Intl.Collator for more robust string matching.
- * Uses the provided `itemToStringLabel` function if available, otherwise falls back to:
- * • When `item` is an object with a `value` property, that property is used.
- * • When `item` is a primitive (e.g. `string`), it is used directly.
- */
-export function createCollatorItemFilter(
-  collatorFilter: Filter,
-  itemToStringLabel?: (item: any) => string,
-) {
-  return (item: any, query: string) => {
-    if (item == null) {
-      return false;
-    }
-
-    return collatorFilter.contains(item, query, itemToStringLabel);
-  };
-}
-
-/**
- * Enhanced filter for single selection mode using Intl.Collator that shows all items
- * when query is empty or matches the current selection, making it easier to browse options.
- */
-export function createSingleSelectionCollatorFilter(
-  collatorFilter: Filter,
-  itemToStringLabel?: (item: any) => string,
-  selectedValue?: any,
-) {
-  return (item: any, query: string) => {
-    if (item == null) {
-      return false;
-    }
-    if (!query) {
-      return true;
-    }
-
-    const selectedString =
-      selectedValue != null ? stringifyAsLabel(selectedValue, itemToStringLabel) : '';
-
-    // Handle case-insensitive matching consistently
-    if (
-      selectedString &&
-      collatorFilter.contains(selectedString, query) &&
-      selectedString.length === query.length
-    ) {
-      return true;
-    }
-
-    return collatorFilter.contains(item, query, itemToStringLabel);
-  };
 }

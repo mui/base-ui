@@ -96,5 +96,9 @@
   "96": "Base UI: SharedCalendarDayGridCellContext is missing. <Calendar.DayButton /> must be placed within <Calendar.DayGridCell /> and <RangeCalendar.DayButton /> must be placed within <RangeCalendar.DayGridCell />.",
   "97": "Base UI: SharedCalendarRootContext is missing. Calendar parts must be placed within <Calendar.Root /> and Range Calendar parts must be placed within <RangeCalendar.Root />.",
   "98": "Base UI: OTPFieldRootContext is missing. OTPField parts must be placed within <OTPField.Root>.",
-  "99": "Base UI: %sHandle.open() was called with the trigger id \"%s\", but no matching trigger is registered with this handle. An anchored popup cannot open without a trigger to anchor to. Pass the id of a mounted %s.Trigger that has this handle set on its \"handle\" prop."
+  "99": "Base UI: %sHandle.open() was called with the trigger id \"%s\", but no matching trigger is registered with this handle. An anchored popup cannot open without a trigger to anchor to. Pass the id of a mounted %s.Trigger that has this handle set on its \"handle\" prop.",
+  "100": "Base UI: FilterDropdownRootContext is missing. FilterDropdown parts must be placed within <FilterDropdown.Root>.",
+  "101": "Base UI: FilterDropdownPopupContext is missing. FilterDropdown popup parts must be placed within <FilterDropdown.Popup>.",
+  "102": "Base UI: <Menu.%s> requires the `filter` prop on its nearest <Menu.Root> or <Menu.SubmenuRoot>.",
+  "103": "Base UI: <Select.%s> requires the `filter` prop on <Select.Root>."
 }

@@ -33,6 +33,7 @@ import { clamp } from '../../internals/clamp';
 import { getMaxScrollOffset, SCROLL_EDGE_TOLERANCE_PX } from '../../utils/scrollEdges';
 import { useCSPContext } from '../../internals/csp-context/CSPContext';
 import { useDirection } from '../../internals/direction-context/DirectionContext';
+import { FilterDropdownPopup } from '../../filter-dropdown/popup/FilterDropdownPopup';
 
 const stateAttributesMapping: StateAttributesMapping<SelectPopupState> = {
   ...popupStateMapping,
@@ -45,11 +46,11 @@ const stateAttributesMapping: StateAttributesMapping<SelectPopupState> = {
  *
  * Documentation: [Base UI Select](https://base-ui.com/react/components/select)
  */
-export const SelectPopup = React.forwardRef(function SelectPopup(
+const SelectPopupImpl = React.forwardRef(function SelectPopupImpl(
   componentProps: SelectPopup.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { render, className, style, finalFocus, ...elementProps } = componentProps;
+  const { id, render, className, style, finalFocus, ...elementProps } = componentProps;
 
   const {
     store,
@@ -58,27 +59,20 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
     setOpen,
     valueRef,
     firstItemTextRef,
-    selectedItemTextRef,
     multiple,
     handleScrollArrowVisibility,
     scrollHandlerRef,
     listRef,
     highlightItemOnHover,
-    floatingContext: floatingRootContext,
+    floatingContext,
   } = useSelectRootContext();
-  const {
-    side,
-    align,
-    alignItemWithTriggerActive,
-    isPositioned,
-    setControlledAlignItemWithTrigger,
-  } = useSelectPositionerContext();
+  const { side, align, alignItemWithTriggerActive, isPositioned, setAlignItemWithTrigger } =
+    useSelectPositionerContext();
   const insideToolbar = useToolbarRootContext(true) != null;
   const direction = useDirection();
 
   const { nonce, disableStyleElements } = useCSPContext();
 
-  const id = useStore(store, selectors.id);
   const open = useStore(store, selectors.open);
   const openMethod = useStore(store, selectors.openMethod);
   const mounted = useStore(store, selectors.mounted);
@@ -268,7 +262,11 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
     const restoreTransformStyles = unsetTransformStyles(popupElement);
 
     try {
-      let textElement = selectedItemTextRef.current;
+      const selectionReferenceItemId = store.state.selectionReferenceItemId;
+      const registeredItems = store.state.registeredItems;
+      const selectionReferenceItem =
+        selectionReferenceItemId && registeredItems.get(selectionReferenceItemId);
+      let textElement = selectionReferenceItem?.getTextElement();
 
       if (!textElement?.isConnected) {
         const hasSelectedValue = selectors.hasSelectedValue(store.state);
@@ -367,7 +365,7 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
 
       if (fallbackToAlignPopupToTrigger || isPinchZoomed) {
         clearStyles(positionerElement, originalPositionerStylesRef.current);
-        setControlledAlignItemWithTrigger(false);
+        setAlignItemWithTrigger(false);
         return;
       }
 
@@ -405,7 +403,7 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
 
       if (
         highlightItemOnHover &&
-        store.state.selectedIndex === null &&
+        !selectionReferenceItemId &&
         store.state.activeIndex === null &&
         listRef.current[0] != null
       ) {
@@ -421,11 +419,10 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
     triggerElement,
     valueRef,
     firstItemTextRef,
-    selectedItemTextRef,
     popupRef,
     handleScrollArrowVisibility,
     alignItemWithTriggerActive,
-    setControlledAlignItemWithTrigger,
+    setAlignItemWithTrigger,
     scrollArrowFrame,
     listElement,
     listRef,
@@ -449,26 +446,21 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
   }, [setOpen, alignItemWithTriggerActive, positionerElement, open]);
 
   const defaultProps: HTMLProps = {
+    id,
+    // Select.List owns the listbox semantics when mounted; exposing the same role here would
+    // create nested listboxes in the accessibility tree.
     ...(listElement
-      ? {
-          role: 'presentation',
-          'aria-orientation': undefined,
-        }
-      : {
-          role: 'listbox',
-          'aria-multiselectable': multiple || undefined,
-          id: `${id}-list`,
-        }),
+      ? { role: 'presentation', 'aria-orientation': undefined }
+      : { role: 'listbox', 'aria-multiselectable': multiple || undefined }),
     onKeyDown(event) {
       if (insideToolbar && COMPOSITE_KEYS.has(event.key)) {
         event.stopPropagation();
       }
     },
     onScroll(event) {
-      if (listElement) {
-        return;
+      if (!listElement) {
+        handleScroll(event.currentTarget);
       }
-      handleScroll(event.currentTarget);
     },
     ...(alignItemWithTriggerActive && {
       style: listElement ? { height: '100%' } : LIST_FUNCTIONAL_STYLES,
@@ -493,7 +485,7 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
     <React.Fragment>
       {!disableStyleElements && styleDisableScrollbar.getElement(nonce)}
       <FloatingFocusManager
-        context={floatingRootContext}
+        context={floatingContext}
         modal={false}
         disabled={!mounted}
         openInteractionType={openMethod}
@@ -503,6 +495,31 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
         {element}
       </FloatingFocusManager>
     </React.Fragment>
+  );
+});
+
+/**
+ * A container for the select list.
+ * Renders a `<div>` element.
+ *
+ * Documentation: [Base UI Select](https://base-ui.com/react/components/select)
+ */
+export const SelectPopup = React.forwardRef(function SelectPopup(
+  componentProps: SelectPopup.Props,
+  forwardedRef: React.ForwardedRef<HTMLDivElement>,
+) {
+  const { store } = useSelectRootContext();
+  const filterable = useStore(store, selectors.filterable);
+  const rootId = useStore(store, selectors.id);
+  const id = `${rootId}-popup`;
+  const selectPopup = <SelectPopupImpl id={id} {...componentProps} ref={forwardedRef} />;
+
+  return filterable ? (
+    // FilterDropdownPopup composes onto SelectPopupImpl so its implementation
+    // overrides SelectPopupImpl's implementation.
+    <FilterDropdownPopup id={id} render={selectPopup} />
+  ) : (
+    selectPopup
   );
 });
 

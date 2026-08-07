@@ -53,6 +53,734 @@ describe('<Menu.Root />', () => {
     expectedPopupRole: 'menu',
   });
 
+  describe('filtering', () => {
+    function FilterableSubmenu({ portalled = true }: { portalled?: boolean }) {
+      const SubmenuPortal = portalled ? Menu.Portal : React.Fragment;
+
+      return (
+        <Menu.Root defaultOpen>
+          <Menu.Trigger>Actions</Menu.Trigger>
+          <Menu.Portal>
+            <Menu.Positioner>
+              <Menu.Popup>
+                <Menu.Item>Rename</Menu.Item>
+                <Menu.SubmenuRoot filter>
+                  <Menu.SubmenuTrigger delay={0}>Move to folder</Menu.SubmenuTrigger>
+                  <SubmenuPortal>
+                    <Menu.Positioner>
+                      <Menu.Popup>
+                        <Menu.Input aria-label="Filter folders" />
+                        <Menu.List>
+                          <Menu.Item>Documents</Menu.Item>
+                          <Menu.Item>Downloads</Menu.Item>
+                        </Menu.List>
+                      </Menu.Popup>
+                    </Menu.Positioner>
+                  </SubmenuPortal>
+                </Menu.SubmenuRoot>
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
+        </Menu.Root>
+      );
+    }
+
+    it('uses dialog semantics for a filterable submenu', async () => {
+      const { user } = await render(<FilterableSubmenu />);
+      const submenuTrigger = screen.getByRole('menuitem', { name: 'Move to folder' });
+
+      expect(submenuTrigger).toHaveAttribute('aria-haspopup', 'dialog');
+
+      await user.hover(submenuTrigger);
+
+      const popup = await screen.findByRole('dialog');
+      expect(submenuTrigger).toHaveAttribute('aria-controls', popup.id);
+      expect(popup).toHaveAttribute('aria-labelledby', submenuTrigger.id);
+    });
+
+    it('supports a detached trigger in a filterable menu', async () => {
+      function Test() {
+        const handle = useRefWithInit(() => new Menu.Handle()).current;
+
+        return (
+          <React.Fragment>
+            <Menu.Root filter handle={handle}>
+              <Menu.Portal>
+                <Menu.Positioner>
+                  <Menu.Popup>
+                    <Menu.Input aria-label="Filter fruit" />
+                    <Menu.List>
+                      <Menu.Item>Apple</Menu.Item>
+                    </Menu.List>
+                    <Menu.Empty>No fruit found</Menu.Empty>
+                  </Menu.Popup>
+                </Menu.Positioner>
+              </Menu.Portal>
+            </Menu.Root>
+            <Menu.Trigger id="fruit-trigger" handle={handle}>
+              Fruit
+            </Menu.Trigger>
+          </React.Fragment>
+        );
+      }
+
+      const { user } = await render(<Test />);
+      const trigger = screen.getByRole('button', { name: 'Fruit' });
+
+      expect(trigger).toHaveAttribute('aria-haspopup', 'dialog');
+
+      await user.click(trigger);
+
+      const popup = await screen.findByRole('dialog', { name: 'Fruit' });
+      const list = screen.getByRole('menu', { name: 'Fruit' });
+      const input = screen.getByRole('searchbox', { name: 'Filter fruit' });
+
+      expect(trigger).toHaveAttribute('aria-controls', popup.id);
+      expect(popup).toHaveAttribute('aria-labelledby', trigger.id);
+      expect(list).toHaveAttribute('aria-labelledby', trigger.id);
+      expect(screen.getByRole('status')).toHaveTextContent('');
+
+      await user.type(input, 'zz');
+
+      await waitFor(() => {
+        expect(screen.getByRole('status')).toHaveTextContent('No fruit found');
+      });
+    });
+
+    it.each([
+      ['portalled', true],
+      ['inline', false],
+    ] as const)(
+      'allows its input to be focused with a pointer when %s',
+      async (_name, portalled) => {
+        const { user } = await render(<FilterableSubmenu portalled={portalled} />);
+
+        await user.hover(screen.getByRole('menuitem', { name: 'Move to folder' }));
+
+        const input = await screen.findByRole('searchbox', { name: 'Filter folders' });
+        await userEvent.click(input);
+
+        expect(input).toHaveFocus();
+      },
+    );
+
+    it.each([
+      ['Input', Menu.Input],
+      ['Clear', Menu.Clear],
+      ['Empty', Menu.Empty],
+    ] as const)(
+      'throws a scoped error when Menu.%s is used without a filter prop',
+      async (name, Part) => {
+        const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+        try {
+          await expect(
+            render(
+              <Menu.Root open>
+                <Menu.Trigger>Actions</Menu.Trigger>
+                <Menu.Portal>
+                  <Menu.Positioner>
+                    <Menu.Popup>
+                      <Part />
+                    </Menu.Popup>
+                  </Menu.Positioner>
+                </Menu.Portal>
+              </Menu.Root>,
+            ),
+          ).rejects.toThrow(
+            `Base UI: <Menu.${name}> requires the \`filter\` prop on its nearest <Menu.Root> or <Menu.SubmenuRoot>.`,
+          );
+        } finally {
+          errorSpy.mockRestore();
+        }
+      },
+    );
+
+    it('requires filter prop on the nearest submenu root', async () => {
+      const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+      try {
+        await expect(
+          render(
+            <Menu.Root filter open>
+              <Menu.Trigger>Actions</Menu.Trigger>
+              <Menu.Portal>
+                <Menu.Positioner>
+                  <Menu.Popup>
+                    <Menu.Input aria-label="Filter actions" />
+                    <Menu.List>
+                      <Menu.SubmenuRoot>
+                        <Menu.SubmenuTrigger>More actions</Menu.SubmenuTrigger>
+                        <Menu.Portal keepMounted>
+                          <Menu.Positioner>
+                            <Menu.Popup>
+                              <Menu.Input aria-label="Filter more actions" />
+                            </Menu.Popup>
+                          </Menu.Positioner>
+                        </Menu.Portal>
+                      </Menu.SubmenuRoot>
+                    </Menu.List>
+                  </Menu.Popup>
+                </Menu.Positioner>
+              </Menu.Portal>
+            </Menu.Root>,
+          ),
+        ).rejects.toThrow(
+          'Base UI: <Menu.Input> requires the `filter` prop on its nearest <Menu.Root> or <Menu.SubmenuRoot>.',
+        );
+      } finally {
+        errorSpy.mockRestore();
+      }
+    });
+
+    it.skipIf(isJSDOM)(
+      'focuses the input when an item is focused in a pointer-opened filterable submenu',
+      async () => {
+        const { user } = await render(<FilterableSubmenu />);
+
+        await user.hover(screen.getByRole('menuitem', { name: 'Move to folder' }));
+
+        const input = await screen.findByRole('searchbox', { name: 'Filter folders' });
+        expect(input).not.toHaveFocus();
+
+        const item = screen.getByRole('menuitem', { name: 'Documents' });
+        fireEvent.focus(item);
+
+        await waitFor(() => {
+          expect(input).toHaveFocus();
+        });
+        expect(input).toHaveAttribute('aria-activedescendant', item.id);
+      },
+    );
+
+    it.skipIf(isJSDOM)(
+      'focuses the input when a filterable submenu opens with the keyboard',
+      async () => {
+        const { user } = await render(<FilterableSubmenu />);
+        const submenuTrigger = screen.getByRole('menuitem', { name: 'Move to folder' });
+
+        await act(async () => {
+          submenuTrigger.focus();
+        });
+        await user.keyboard('[ArrowRight]');
+
+        const input = await screen.findByRole('searchbox', { name: 'Filter folders' });
+        await waitFor(() => {
+          expect(input).toHaveFocus();
+        });
+        expect(input).toHaveAttribute('data-focus-visible');
+
+        const item = screen.getByRole('menuitem', { name: 'Documents' });
+        await user.hover(item);
+        expect(input).not.toHaveAttribute('data-focus-visible');
+
+        await user.hover(input);
+        expect(input).not.toHaveAttribute('data-focus-visible');
+
+        await user.keyboard('[ArrowDown]');
+        expect(input).not.toHaveAttribute('data-focus-visible');
+
+        await user.keyboard('[ArrowUp]');
+        expect(input).toHaveAttribute('data-focus-visible');
+      },
+    );
+
+    it('opens a virtually focused submenu with the keyboard', async () => {
+      const { user } = await render(
+        <Menu.Root filter defaultOpen>
+          <Menu.Trigger>Actions</Menu.Trigger>
+          <Menu.Portal>
+            <Menu.Positioner>
+              <Menu.Popup>
+                <Menu.Input aria-label="Filter actions" />
+                <Menu.List>
+                  <Menu.SubmenuRoot filter>
+                    <Menu.SubmenuTrigger>Move to folder</Menu.SubmenuTrigger>
+                    <Menu.Portal>
+                      <Menu.Positioner>
+                        <Menu.Popup>
+                          <Menu.Input aria-label="Filter folders" />
+                          <Menu.List>
+                            <Menu.Item>Documents</Menu.Item>
+                          </Menu.List>
+                        </Menu.Popup>
+                      </Menu.Positioner>
+                    </Menu.Portal>
+                  </Menu.SubmenuRoot>
+                </Menu.List>
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
+        </Menu.Root>,
+      );
+
+      const parentInput = screen.getByRole('searchbox', { name: 'Filter actions' });
+      await waitFor(() => {
+        expect(parentInput).toHaveFocus();
+      });
+
+      await user.keyboard('[ArrowDown]');
+
+      const submenuTrigger = screen.getByRole('menuitem', { name: 'Move to folder' });
+      expect(parentInput).toHaveAttribute('aria-activedescendant', submenuTrigger.id);
+
+      await user.keyboard('[ArrowRight]');
+
+      const submenuInput = await screen.findByRole('searchbox', { name: 'Filter folders' });
+      await waitFor(() => {
+        expect(submenuInput).toHaveFocus();
+      });
+    });
+
+    it('opens a submenu from a filterable submenu input', async () => {
+      const { user } = await render(
+        <Menu.Root filter defaultOpen>
+          <Menu.Trigger>Actions</Menu.Trigger>
+          <Menu.Portal>
+            <Menu.Positioner>
+              <Menu.Popup>
+                <Menu.Input aria-label="Filter actions" />
+                <Menu.List>
+                  <Menu.SubmenuRoot filter>
+                    <Menu.SubmenuTrigger>Move to folder</Menu.SubmenuTrigger>
+                    <Menu.Portal>
+                      <Menu.Positioner>
+                        <Menu.Popup>
+                          <Menu.Input aria-label="Filter folders" />
+                          <Menu.List>
+                            <Menu.SubmenuRoot>
+                              <Menu.SubmenuTrigger>More folders</Menu.SubmenuTrigger>
+                              <Menu.Portal>
+                                <Menu.Positioner>
+                                  <Menu.Popup>
+                                    <Menu.Item>Archive</Menu.Item>
+                                  </Menu.Popup>
+                                </Menu.Positioner>
+                              </Menu.Portal>
+                            </Menu.SubmenuRoot>
+                          </Menu.List>
+                        </Menu.Popup>
+                      </Menu.Positioner>
+                    </Menu.Portal>
+                  </Menu.SubmenuRoot>
+                </Menu.List>
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
+        </Menu.Root>,
+      );
+
+      const parentInput = screen.getByRole('searchbox', { name: 'Filter actions' });
+      await waitFor(() => {
+        expect(parentInput).toHaveFocus();
+      });
+
+      await user.keyboard('[ArrowDown][ArrowRight]');
+
+      const submenuTrigger = screen.getByRole('menuitem', { name: 'Move to folder' });
+      const submenuInput = await screen.findByRole('searchbox', { name: 'Filter folders' });
+      await waitFor(() => {
+        expect(submenuInput).toHaveFocus();
+      });
+
+      await user.keyboard('[ArrowDown]');
+
+      const nestedTrigger = screen.getByRole('menuitem', { name: 'More folders' });
+      expect(submenuInput).toHaveAttribute('aria-activedescendant', nestedTrigger.id);
+
+      await user.keyboard('[ArrowRight]');
+
+      const nestedItem = await screen.findByRole('menuitem', { name: 'Archive' });
+      await waitFor(() => {
+        expect(nestedItem).toHaveFocus();
+      });
+
+      await user.keyboard('[ArrowLeft]');
+
+      await waitFor(() => {
+        expect(submenuInput).toHaveFocus();
+      });
+      await waitFor(() => {
+        expect(submenuInput).toHaveAttribute('aria-activedescendant', nestedTrigger.id);
+      });
+
+      await user.keyboard('[ArrowLeft]');
+
+      await waitFor(() => {
+        expect(parentInput).toHaveFocus();
+      });
+      await waitFor(() => {
+        expect(parentInput).toHaveAttribute('aria-activedescendant', submenuTrigger.id);
+      });
+    });
+
+    it.skipIf(isJSDOM)(
+      'focuses the input when entering a hover-opened filterable submenu with the keyboard',
+      async () => {
+        const { user } = await render(
+          <Menu.Root filter defaultOpen>
+            <Menu.Trigger>Actions</Menu.Trigger>
+            <Menu.Portal>
+              <Menu.Positioner>
+                <Menu.Popup>
+                  <Menu.Input aria-label="Filter actions" />
+                  <Menu.List>
+                    <Menu.SubmenuRoot filter>
+                      <Menu.SubmenuTrigger delay={0}>Move to folder</Menu.SubmenuTrigger>
+                      <Menu.Portal>
+                        <Menu.Positioner>
+                          <Menu.Popup>
+                            <Menu.Input aria-label="Filter folders" />
+                            <Menu.List>
+                              <Menu.Item>Documents</Menu.Item>
+                            </Menu.List>
+                          </Menu.Popup>
+                        </Menu.Positioner>
+                      </Menu.Portal>
+                    </Menu.SubmenuRoot>
+                  </Menu.List>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
+          </Menu.Root>,
+        );
+
+        const parentInput = screen.getByRole('searchbox', { name: 'Filter actions' });
+        const submenuTrigger = screen.getByRole('menuitem', { name: 'Move to folder' });
+        await user.hover(submenuTrigger);
+
+        const submenuInput = await screen.findByRole('searchbox', { name: 'Filter folders' });
+        expect(parentInput).toHaveFocus();
+
+        await user.keyboard('[ArrowRight]');
+
+        expect(submenuInput).toHaveFocus();
+        expect(submenuInput).toHaveAttribute('data-focus-visible');
+      },
+    );
+
+    it.skipIf(isJSDOM)(
+      'closes a hover-opened submenu from a virtually focused parent',
+      async () => {
+        const { user } = await render(
+          <Menu.Root filter defaultOpen>
+            <Menu.Trigger>Actions</Menu.Trigger>
+            <Menu.Portal>
+              <Menu.Positioner>
+                <Menu.Popup>
+                  <Menu.Input aria-label="Filter actions" />
+                  <Menu.List>
+                    <Menu.SubmenuRoot filter>
+                      <Menu.SubmenuTrigger delay={0}>Move to folder</Menu.SubmenuTrigger>
+                      <Menu.Portal>
+                        <Menu.Positioner>
+                          <Menu.Popup>
+                            <Menu.Input aria-label="Filter folders" />
+                            <Menu.List>
+                              <Menu.Item>Documents</Menu.Item>
+                            </Menu.List>
+                          </Menu.Popup>
+                        </Menu.Positioner>
+                      </Menu.Portal>
+                    </Menu.SubmenuRoot>
+                  </Menu.List>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
+          </Menu.Root>,
+        );
+
+        const parentInput = screen.getByRole('searchbox', { name: 'Filter actions' });
+        const submenuTrigger = screen.getByRole('menuitem', { name: 'Move to folder' });
+        await user.hover(submenuTrigger);
+
+        await screen.findByRole('searchbox', { name: 'Filter folders' });
+        expect(parentInput).toHaveFocus();
+        expect(parentInput).toHaveAttribute('aria-activedescendant', submenuTrigger.id);
+
+        await user.keyboard('[ArrowLeft]');
+
+        await waitFor(() => {
+          expect(screen.queryByRole('searchbox', { name: 'Filter folders' })).toBe(null);
+        });
+        expect(parentInput).toHaveFocus();
+        expect(parentInput).toHaveAttribute('aria-activedescendant', submenuTrigger.id);
+      },
+    );
+
+    it.skipIf(isJSDOM)(
+      'focuses the first item when entering a hover-opened submenu from a filterable menu',
+      async () => {
+        const { user } = await render(
+          <Menu.Root filter defaultOpen>
+            <Menu.Trigger>Actions</Menu.Trigger>
+            <Menu.Portal>
+              <Menu.Positioner>
+                <Menu.Popup>
+                  <Menu.Input aria-label="Filter actions" />
+                  <Menu.List>
+                    <Menu.SubmenuRoot>
+                      <Menu.SubmenuTrigger delay={0}>Move to folder</Menu.SubmenuTrigger>
+                      <Menu.Portal>
+                        <Menu.Positioner>
+                          <Menu.Popup>
+                            <Menu.Item>Documents</Menu.Item>
+                            <Menu.Item>Downloads</Menu.Item>
+                          </Menu.Popup>
+                        </Menu.Positioner>
+                      </Menu.Portal>
+                    </Menu.SubmenuRoot>
+                  </Menu.List>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
+          </Menu.Root>,
+        );
+
+        const parentInput = screen.getByRole('searchbox', { name: 'Filter actions' });
+        const submenuTrigger = screen.getByRole('menuitem', { name: 'Move to folder' });
+        await user.hover(submenuTrigger);
+
+        const firstItem = await screen.findByRole('menuitem', { name: 'Documents' });
+        expect(parentInput).toHaveFocus();
+
+        await user.keyboard('[ArrowRight]');
+
+        await waitFor(() => {
+          expect(firstItem).toHaveFocus();
+        });
+      },
+    );
+
+    it('filters items and selects the active item while focus remains on the input', async () => {
+      const onClick = vi.fn();
+      const { user } = await render(
+        <Menu.Root filter>
+          <Menu.Trigger>Fruit</Menu.Trigger>
+          <Menu.Portal>
+            <Menu.Positioner>
+              <Menu.Popup>
+                <Menu.Input aria-label="Filter fruit" />
+                <Menu.List>
+                  <Menu.Item>Apple</Menu.Item>
+                  <Menu.Item onClick={onClick} closeOnClick={false}>
+                    Banana
+                  </Menu.Item>
+                </Menu.List>
+                <Menu.Empty>No fruit found</Menu.Empty>
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
+        </Menu.Root>,
+      );
+
+      const trigger = screen.getByRole('button', { name: 'Fruit' });
+      await user.click(trigger);
+
+      const popup = await screen.findByRole('dialog');
+      const list = screen.getByRole('menu');
+      const input = screen.getByRole('searchbox', { name: 'Filter fruit' });
+
+      expect(trigger).toHaveAttribute('aria-haspopup', 'dialog');
+      expect(popup).toContainElement(list);
+
+      await waitFor(() => {
+        expect(input).toHaveFocus();
+      });
+
+      const firstItem = screen.getByRole('menuitem', { name: 'Apple' });
+      expect(firstItem).not.toHaveAttribute('data-highlighted');
+      expect(input).not.toHaveAttribute('aria-activedescendant');
+
+      await waitFor(() => {
+        expect(screen.getByRole('menuitem', { name: 'Apple' })).not.toHaveAttribute('tabindex');
+      });
+      await waitFor(() => {
+        expect(screen.getByRole('menuitem', { name: 'Banana' })).not.toHaveAttribute('tabindex');
+      });
+
+      await user.type(input, 'ban');
+
+      expect(screen.queryByRole('menuitem', { name: 'Apple' })).toBe(null);
+      expect(screen.getByRole('menuitem', { name: 'Banana' })).toBeVisible();
+
+      if (isJSDOM) {
+        Object.defineProperty(list, 'scrollTo', {
+          configurable: true,
+          value: vi.fn(),
+        });
+      }
+
+      await user.keyboard('{ArrowDown}');
+
+      expect(input).toHaveFocus();
+      const activeItem = screen.getByRole('menuitem', { name: 'Banana' });
+      expect(activeItem).toHaveAttribute('data-highlighted', '');
+      expect(activeItem).not.toHaveAttribute('tabindex');
+      expect(input).toHaveAttribute('aria-activedescendant', activeItem.id);
+      expect(popup).not.toHaveAttribute('aria-activedescendant');
+
+      await user.keyboard('{Enter}');
+
+      expect(onClick).toHaveBeenCalledTimes(1);
+    });
+
+    it('disables filter controls when the root is disabled', async () => {
+      await render(
+        <Menu.Root filter open disabled defaultInputValue="a">
+          <Menu.Trigger>Fruit</Menu.Trigger>
+          <Menu.Portal>
+            <Menu.Positioner>
+              <Menu.Popup>
+                <Menu.Input aria-label="Filter fruit" />
+                <Menu.Clear aria-label="Clear filter" />
+                <Menu.List>
+                  <Menu.Item>Apple</Menu.Item>
+                </Menu.List>
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
+        </Menu.Root>,
+      );
+
+      expect(screen.getByRole('searchbox', { name: 'Filter fruit' })).toBeDisabled();
+      expect(screen.getByRole('button', { name: 'Clear filter' })).toBeDisabled();
+    });
+
+    it('uses an updated custom filter function', async () => {
+      const startsWith = (item: string, query: string) => item.toLowerCase().startsWith(query);
+      const endsWith = (item: string, query: string) => item.toLowerCase().endsWith(query);
+
+      function Test() {
+        const [filter, setFilter] = React.useState(() => startsWith);
+
+        return (
+          <React.Fragment>
+            <button type="button" onClick={() => setFilter(() => endsWith)}>
+              Change filter
+            </button>
+            <Menu.Root filter={filter} open defaultInputValue="a">
+              <Menu.Trigger>Fruit</Menu.Trigger>
+              <Menu.Portal>
+                <Menu.Positioner>
+                  <Menu.Popup>
+                    <Menu.Input aria-label="Filter fruit" />
+                    <Menu.List>
+                      <Menu.Item>Apple</Menu.Item>
+                      <Menu.Item>Banana</Menu.Item>
+                    </Menu.List>
+                  </Menu.Popup>
+                </Menu.Positioner>
+              </Menu.Portal>
+            </Menu.Root>
+          </React.Fragment>
+        );
+      }
+
+      const { user } = await render(<Test />);
+
+      expect(screen.getByRole('menuitem', { name: 'Apple' })).toBeVisible();
+      expect(screen.queryByRole('menuitem', { name: 'Banana' })).toBe(null);
+
+      await user.click(screen.getByRole('button', { name: 'Change filter' }));
+
+      expect(screen.queryByRole('menuitem', { name: 'Apple' })).toBe(null);
+      expect(screen.getByRole('menuitem', { name: 'Banana' })).toBeVisible();
+    });
+
+    it('filters a non-filterable submenu trigger from a filterable parent', async () => {
+      const { user } = await render(
+        <Menu.Root filter defaultOpen>
+          <Menu.Trigger>Actions</Menu.Trigger>
+          <Menu.Portal>
+            <Menu.Positioner>
+              <Menu.Popup>
+                <Menu.Input aria-label="Filter actions" />
+                <Menu.List>
+                  <Menu.Item>Rename</Menu.Item>
+                  <Menu.SubmenuRoot>
+                    <Menu.SubmenuTrigger>Move to folder</Menu.SubmenuTrigger>
+                    <Menu.Portal>
+                      <Menu.Positioner>
+                        <Menu.Popup>
+                          <Menu.Item>Documents</Menu.Item>
+                        </Menu.Popup>
+                      </Menu.Positioner>
+                    </Menu.Portal>
+                  </Menu.SubmenuRoot>
+                </Menu.List>
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
+        </Menu.Root>,
+      );
+
+      await user.type(screen.getByRole('searchbox', { name: 'Filter actions' }), 'rename');
+
+      expect(screen.getByRole('menuitem', { name: 'Rename' })).toBeVisible();
+      expect(screen.queryByRole('menuitem', { name: 'Move to folder' })).toBe(null);
+    });
+
+    it('moves the menu role from Popup to List', async () => {
+      await render(
+        <Menu.Root open>
+          <Menu.Portal>
+            <Menu.Positioner>
+              <Menu.Popup data-testid="popup">
+                <Menu.List>
+                  <Menu.Item>Item</Menu.Item>
+                </Menu.List>
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
+        </Menu.Root>,
+      );
+
+      expect(screen.getByTestId('popup')).toHaveAttribute('role', 'presentation');
+      expect(screen.getByRole('menu')).toHaveTextContent('Item');
+    });
+
+    it('filters each menu item variant without changing its role', async () => {
+      const { user } = await render(
+        <Menu.Root filter open defaultInputValue="banana">
+          <Menu.Trigger>Fruit</Menu.Trigger>
+          <Menu.Portal>
+            <Menu.Positioner>
+              <Menu.Popup>
+                <Menu.Input aria-label="Filter fruit" />
+                <Menu.List>
+                  <Menu.Item>Apple</Menu.Item>
+                  <Menu.CheckboxItem>Banana</Menu.CheckboxItem>
+                  <Menu.RadioGroup>
+                    <Menu.RadioItem value="cherry">Cherry</Menu.RadioItem>
+                  </Menu.RadioGroup>
+                  <Menu.LinkItem href="#date">Date</Menu.LinkItem>
+                </Menu.List>
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
+        </Menu.Root>,
+      );
+
+      const input = screen.getByRole('searchbox', { name: 'Filter fruit' });
+
+      expect(screen.getByRole('menuitemcheckbox', { name: 'Banana' })).toBeVisible();
+      expect(screen.queryByRole('menuitem', { name: 'Apple' })).toBe(null);
+
+      await user.clear(input);
+      await user.type(input, 'cherry');
+
+      expect(screen.getByRole('menuitemradio', { name: 'Cherry' })).toBeVisible();
+      expect(screen.queryByRole('menuitemcheckbox', { name: 'Banana' })).toBe(null);
+
+      await user.clear(input);
+      await user.type(input, 'date');
+
+      expect(screen.getByRole('menuitem', { name: 'Date' })).toBeVisible();
+      expect(screen.queryByRole('menuitemradio', { name: 'Cherry' })).toBe(null);
+    });
+  });
+
   function NestedMenuWithModalProp() {
     const SubmenuRootWithModal = Menu.SubmenuRoot as React.ComponentType<
       React.ComponentProps<typeof Menu.SubmenuRoot> & { modal: boolean }

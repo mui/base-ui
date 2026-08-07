@@ -24,7 +24,7 @@ import { useFieldRootContext } from '../../internals/field-root-context/FieldRoo
 import { useRegisterFieldControl } from '../../internals/field-register-control/useRegisterFieldControl';
 import { useLabelableId } from '../../internals/labelable-provider/useLabelableId';
 import { useTransitionStatus } from '../../internals/useTransitionStatus';
-import { selectors, type State as StoreState } from '../store';
+import { selectors, type RegisteredItem, type State as StoreState } from '../store';
 import {
   type BaseUIChangeEventDetails,
   createChangeEventDetails,
@@ -33,17 +33,16 @@ import { REASONS } from '../../internals/reasons';
 import { useOpenChangeComplete } from '../../internals/useOpenChangeComplete';
 import { useFormContext } from '../../internals/form-context/FormContext';
 import { type Group, stringifyAsLabel, stringifyAsValue } from '../../internals/resolveValueLabel';
-import {
-  compareItemEquality,
-  defaultItemEquality,
-  findItemIndex,
-} from '../../internals/itemEquality';
+import { compareItemEquality, defaultItemEquality } from '../../internals/itemEquality';
 import { areArraysEqual } from '../../internals/areArraysEqual';
 import { useValueChanged } from '../../internals/useValueChanged';
+import { useItemRegistry } from '../../internals/useItemRegistry';
 import { useOpenInteractionType } from '../../utils/useOpenInteractionType';
 import { getMaxScrollOffset, normalizeScrollOffset } from '../../utils/scrollEdges';
 import { FOCUSABLE_POPUP_PROPS } from '../../utils/popups';
 import { mergeProps } from '../../merge-props';
+import { FilterDropdownRoot } from '../../filter-dropdown/root/FilterDropdownRoot';
+import type { FilterDropdownFilter } from '../../filter-dropdown/root/FilterDropdownRootContext';
 
 /**
  * Groups all parts of the select.
@@ -52,16 +51,20 @@ import { mergeProps } from '../../merge-props';
  * Documentation: [Base UI Select](https://base-ui.com/react/components/select)
  */
 export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
-  props: SelectRoot.Props<Value, Multiple>,
+  componentProps: SelectRoot.Props<Value, Multiple>,
 ): React.JSX.Element {
   const {
     id,
+    filter: filterProp = false,
     value: valueProp,
     defaultValue = null,
     onValueChange,
-    open: openProp,
     defaultOpen = false,
+    open: openProp,
     onOpenChange,
+    inputValue: inputValueProp,
+    defaultInputValue = '',
+    onInputValueChange,
     name: nameProp,
     form,
     autoComplete,
@@ -79,7 +82,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     isItemEqualToValue = defaultItemEquality,
     highlightItemOnHover = true,
     children,
-  } = props;
+  } = componentProps;
 
   const { clearErrors } = useFormContext();
   const {
@@ -95,16 +98,8 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
   } = useFieldRootContext();
 
   const generatedId = useLabelableId({ id });
-
   const disabled = fieldDisabled || disabledProp;
   const name = fieldName ?? nameProp;
-
-  const [value, setValueUnwrapped] = useControlled({
-    controlled: valueProp,
-    default: multiple ? (defaultValue ?? EMPTY_ARRAY) : defaultValue,
-    name: 'Select',
-    state: 'value',
-  });
 
   const [open, setOpenUnwrapped] = useControlled({
     controlled: openProp,
@@ -113,16 +108,30 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     state: 'open',
   });
 
+  const [inputValue, setInputValue] = useControlled({
+    controlled: inputValueProp,
+    default: defaultInputValue,
+    name: 'Select',
+    state: 'inputValue',
+  });
+
+  const [value, setValueUnwrapped] = useControlled({
+    controlled: valueProp,
+    default: multiple ? (defaultValue ?? EMPTY_ARRAY) : defaultValue,
+    name: 'Select',
+    state: 'value',
+  });
+
+  // Filterable mode changes this root's context and focus model, so it cannot switch after mount.
+  const filterable = Boolean(React.useRef(filterProp).current);
+  const [registeredItems, registerItem] = useItemRegistry<symbol, RegisteredItem>();
   const listRef = React.useRef<Array<HTMLElement | null>>([]);
-  const labelsRef = React.useRef<Array<string | null>>([]);
   const popupRef = React.useRef<HTMLDivElement | null>(null);
   const scrollHandlerRef = React.useRef<((el: HTMLDivElement) => void) | null>(null);
   const scrollArrowsMountedCountRef = React.useRef(0);
   const valueRef = React.useRef<HTMLSpanElement | null>(null);
-  const valuesRef = React.useRef<Array<any>>([]);
   const typingRef = React.useRef(false);
   const firstItemTextRef = React.useRef<HTMLElement | null>(null);
-  const selectedItemTextRef = React.useRef<HTMLElement | null>(null);
   const selectionRef = React.useRef({
     allowSelectedMouseUp: false,
     allowUnselectedMouseUp: false,
@@ -140,9 +149,12 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
         labelId: undefined,
         modal,
         multiple,
+        filterable,
         itemToStringLabel,
         itemToStringValue,
         isItemEqualToValue,
+        registeredItems,
+        visibleItemIndexes: new Map(),
         value,
         open,
         mounted,
@@ -151,8 +163,10 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
         forceMount: false,
         openMethod: null,
         activeIndex: null,
-        selectedIndex: null,
+        selectionReferenceItemId: null,
+        inputFocusVisible: false,
         popupProps: {},
+        inputProps: {},
         triggerProps: {},
         triggerElement: null,
         positionerElement: null,
@@ -165,12 +179,19 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
   ).current;
 
   const activeIndex = useStore(store, selectors.activeIndex);
-  const selectedIndex = useStore(store, selectors.selectedIndex);
+  const selectionReferenceItemId = useStore(store, selectors.selectionReferenceItemId);
+  const visibleItemIndexes = useStore(store, selectors.visibleItemIndexes);
   const triggerElement = useStore(store, selectors.triggerElement);
   const positionerElement = useStore(store, selectors.positionerElement);
 
   const previousOpenMethod = usePreviousValue(openMethod);
   const renderedOpenMethod = openMethod ?? previousOpenMethod;
+
+  const selectionReferenceIndex = React.useMemo(() => {
+    return selectionReferenceItemId == null
+      ? null
+      : (visibleItemIndexes.get(selectionReferenceItemId) ?? null);
+  }, [visibleItemIndexes, selectionReferenceItemId]);
 
   const serializedValue = React.useMemo(() => {
     // In multiple mode the shared input is nameless; per-value entries are submitted via
@@ -213,32 +234,29 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
   }, [hasSelectedValue, setFilled]);
 
   useIsoLayoutEffect(
-    function syncSelectedIndex() {
-      let target: unknown = value;
-      let empty = false;
+    function syncSelectionReferenceItemId() {
+      let selectionReferenceValue: unknown = value;
+      let hasNoSelectionReference = false;
 
       if (multiple) {
         const currentValue = Array.isArray(value) ? value : [];
-        empty = currentValue.length === 0;
-        target = currentValue[currentValue.length - 1];
+        hasNoSelectionReference = currentValue.length === 0;
+        selectionReferenceValue = currentValue[currentValue.length - 1];
       }
 
-      const index = empty
-        ? -1
-        : findItemIndex(valuesRef.current, target as Value, isItemEqualToValue);
-      const nextIndex = index === -1 ? null : index;
+      const selectionReferenceItem = hasNoSelectionReference
+        ? undefined
+        : findMatchingItem(store.state.registeredItems, (item) =>
+            compareItemEquality(
+              item.getValue(),
+              selectionReferenceValue as Value,
+              isItemEqualToValue,
+            ),
+          );
 
-      if (nextIndex === null) {
-        selectedItemTextRef.current = null;
-      }
-
-      if (open) {
-        return;
-      }
-
-      store.set('selectedIndex', nextIndex);
+      store.set('selectionReferenceItemId', selectionReferenceItem?.id ?? null);
     },
-    [multiple, open, value, isItemEqualToValue, store],
+    [multiple, value, isItemEqualToValue, store],
   );
 
   function isSelectedValueDirty(currentValue: unknown) {
@@ -252,6 +270,12 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
 
     return currentValue !== initialValue;
   }
+
+  useIsoLayoutEffect(() => {
+    if (open) {
+      store.set('inputFocusVisible', filterable && renderedOpenMethod === 'keyboard');
+    }
+  }, [filterable, open, renderedOpenMethod, store]);
 
   useValueChanged(value, () => {
     clearErrors(name);
@@ -284,14 +308,30 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     },
   );
 
+  const handleInputValueChange = useStableCallback(
+    (nextInputValue: string, eventDetails: SelectRoot.InputValueChangeEventDetails) => {
+      onInputValueChange?.(nextInputValue, eventDetails);
+
+      if (!eventDetails.isCanceled) {
+        setInputValue(nextInputValue);
+      }
+    },
+  );
+
   const handleUnmount = useStableCallback(() => {
-    setMounted(false);
     store.update({
       activeIndex: null,
+      inputFocusVisible: false,
       openMethod: null,
       scrollUpArrowVisible: false,
       scrollDownArrowVisible: false,
     });
+    // Select doesn't unmount when closed, so we need to reset the scroll
+    // position manually. Needed for filterable selects where first focusable
+    // element is the filter input and not a select item.
+    store.state.listElement?.scrollTo?.({ top: 0 });
+    setMounted(false);
+
     onOpenChangeComplete?.(false);
   });
 
@@ -345,29 +385,46 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
   });
 
   const dismiss = useDismiss(floatingContext);
-
   const listNavigation = useListNavigation(floatingContext, {
+    id: generatedId,
     enabled: !readOnly && !disabled,
     listRef,
     activeIndex,
-    selectedIndex,
+    virtual: filterable,
+    loopFocus: filterable,
+    // Clear the active descendant at a list boundary so virtual focus returns to the filter
+    // input before navigation loops to the other end.
+    allowEscape: filterable,
+    focusItemOnOpen: filterable ? false : undefined,
+    // always start virtual focus on the input when filterable
+    selectedIndex: filterable ? undefined : selectionReferenceIndex,
     disabledIndices: EMPTY_ARRAY,
-    onNavigate(nextActiveIndex) {
+    focusItemOnHover: highlightItemOnHover,
+    onNavigate(nextActiveIndex, event) {
       // Retain the highlight while transitioning out.
       if (nextActiveIndex === null && !open) {
         return;
       }
 
-      store.set('activeIndex', nextActiveIndex);
+      store.update({
+        activeIndex: nextActiveIndex,
+        inputFocusVisible: filterable && nextActiveIndex === null && event?.type === 'keydown',
+      });
     },
-    focusItemOnHover: highlightItemOnHover,
   });
 
   const typeahead = useTypeahead(floatingContext, {
     enabled: !readOnly && !disabled && (open || !multiple),
-    listRef: labelsRef,
+    listRef: {
+      get current() {
+        return [...store.state.visibleItemIndexes].map(([id]) => {
+          const item = store.state.registeredItems.get(id);
+          return item?.getLabel() ?? null;
+        });
+      },
+    },
     activeIndex,
-    selectedIndex,
+    selectedIndex: selectionReferenceIndex,
     // Skip disabled items while matching so typeahead advances to the next selectable item
     // (a click can never select a disabled item and native `<select>` skips them too). Resolve
     // the disabled state from the element via the attribute-only `isElementDisabled` so the
@@ -378,7 +435,11 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
       if (open) {
         store.set('activeIndex', index);
       } else {
-        setValue(valuesRef.current[index], createChangeEventDetails(REASONS.none));
+        const itemId = findItemIdByIndex(store.state.visibleItemIndexes, index);
+        const item = itemId ? store.state.registeredItems.get(itemId) : undefined;
+        if (item) {
+          setValue(item.getValue(), createChangeEventDetails('none'));
+        }
       }
     },
     onTyping(typing) {
@@ -391,16 +452,18 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     () =>
       mergeProps(
         typeahead.reference,
-        listNavigation.reference,
+        filterable ? listNavigation.trigger : listNavigation.reference,
         dismiss.reference,
         click.reference,
         interactionTypeProps,
       ),
     [
-      click.reference,
       typeahead.reference,
       listNavigation.reference,
+      listNavigation.trigger,
+      filterable,
       dismiss.reference,
+      click.reference,
       interactionTypeProps,
     ],
   );
@@ -416,12 +479,13 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     [typeahead.floating, listNavigation.floating, dismiss.floating],
   );
 
-  const itemProps =
-    (listNavigation.item as React.HTMLProps<HTMLElement> | undefined) ?? EMPTY_OBJECT;
+  const itemProps = listNavigation.item ?? EMPTY_OBJECT;
+  const inputProps = (filterable && listNavigation.reference) || EMPTY_OBJECT;
 
   useOnFirstRender(() => {
     store.update({
       popupProps,
+      inputProps,
       triggerProps: mergedTriggerProps,
     });
   });
@@ -430,12 +494,15 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     id: generatedId,
     modal,
     multiple,
+    filterable,
     value,
     open,
     mounted,
     transitionStatus,
     popupProps,
+    inputProps,
     triggerProps: mergedTriggerProps,
+    registeredItems,
     items,
     itemToStringLabel,
     itemToStringValue,
@@ -452,6 +519,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
       readOnly,
       multiple,
       highlightItemOnHover,
+      registerItem,
       setValue,
       setOpen,
       listRef,
@@ -461,12 +529,9 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
       scrollArrowsMountedCountRef,
       itemProps,
       valueRef,
-      valuesRef,
-      labelsRef,
       typingRef,
       selectionRef,
       firstItemTextRef,
-      selectedItemTextRef,
       validation,
       onOpenChangeComplete,
       alignItemWithTriggerActiveRef,
@@ -480,6 +545,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
       readOnly,
       multiple,
       highlightItemOnHover,
+      registerItem,
       setValue,
       setOpen,
       itemProps,
@@ -513,7 +579,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     });
   }, [multiple, value, form, name, itemToStringValue, disabled]);
 
-  return (
+  const select = (
     <SelectRootContext.Provider value={contextValue}>
       {children}
       <input
@@ -544,20 +610,22 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
               // Preserve the original serialized matching, then fall back to rendered text,
               // which browsers can autofill for primitive values like `value="US">United States`.
               const nextValueLower = nextValue.toLowerCase();
-              let matchingIndex = valuesRef.current.findIndex(
-                (candidate) =>
-                  stringifyAsValue(candidate, itemToStringValue).toLowerCase() === nextValueLower ||
-                  stringifyAsLabel(candidate, itemToStringLabel).toLowerCase() === nextValueLower,
-              );
 
-              if (matchingIndex === -1) {
-                matchingIndex = valuesRef.current.findIndex((_, index) => {
-                  const renderedLabel = labelsRef.current[index];
-                  return renderedLabel != null && renderedLabel.toLowerCase() === nextValueLower;
+              let matchingItem = findMatchingItem(store.state.registeredItems, (item) => {
+                const itemValue = item.getValue();
+                const value = stringifyAsValue(itemValue, itemToStringValue).toLowerCase();
+                const label = stringifyAsLabel(itemValue, itemToStringLabel).toLowerCase();
+                return value === nextValueLower || label === nextValueLower;
+              });
+
+              if (!matchingItem) {
+                matchingItem = findMatchingItem(store.state.registeredItems, (item) => {
+                  const label = item.getLabel();
+                  return label != null && label.toLowerCase() === nextValueLower;
                 });
               }
 
-              const matchingValue = valuesRef.current[matchingIndex];
+              const matchingValue = matchingItem?.getValue();
               if (matchingValue != null) {
                 // `setValue` may be canceled by `onValueChange`; rely on `useValueChanged` to
                 // mark the field dirty and run validation only when the value actually changes.
@@ -586,13 +654,88 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
       {hiddenInputs}
     </SelectRootContext.Provider>
   );
+
+  return filterable ? (
+    <FilterDropdownRoot
+      open={open}
+      filter={typeof filterProp === 'function' ? filterProp : undefined}
+      value={inputValue}
+      onValueChange={handleInputValueChange}
+    >
+      {select}
+    </FilterDropdownRoot>
+  ) : (
+    select
+  );
+}
+
+function findMatchingItem(
+  registeredItems: ReadonlyMap<symbol, RegisteredItem>,
+  matches: (item: RegisteredItem) => boolean,
+) {
+  for (const [id, item] of registeredItems) {
+    if (matches(item)) {
+      return { ...item, id };
+    }
+  }
+  return undefined;
+}
+
+function findItemIdByIndex(visibleItemIndexes: ReadonlyMap<symbol, number>, index: number) {
+  for (const [id, itemIndex] of visibleItemIndexes) {
+    if (itemIndex === index) {
+      return id;
+    }
+  }
+  return undefined;
 }
 
 type SelectValueType<Value, Multiple extends boolean | undefined> = Multiple extends true
   ? Value[]
   : Value;
 
-export interface SelectRootProps<Value, Multiple extends boolean | undefined = false> {
+export interface SelectFilter extends FilterDropdownFilter {}
+
+interface SelectRootFilterEnabledProps {
+  /**
+   * Enables filtering. Pass a function to customize how items match the query.
+   * @default false
+   */
+  filter: true | SelectFilter;
+  /**
+   * The uncontrolled input value when the select is initially rendered.
+   *
+   * To render a controlled filter input, use the `inputValue` prop instead.
+   * @default ''
+   */
+  defaultInputValue?: string | undefined;
+  /**
+   * The input value. Use when controlled.
+   */
+  inputValue?: string | undefined;
+  /**
+   * Event handler called when the input value changes.
+   */
+  onInputValueChange?:
+    | ((value: string, eventDetails: SelectRootInputValueChangeEventDetails) => void)
+    | undefined;
+}
+
+interface SelectRootFilterDisabledProps {
+  filter?: false | undefined;
+  defaultInputValue?: never | undefined;
+  inputValue?: never | undefined;
+  onInputValueChange?: never | undefined;
+}
+
+type SelectRootFilterProps = SelectRootFilterEnabledProps | SelectRootFilterDisabledProps;
+
+export type SelectRootProps<
+  Value,
+  Multiple extends boolean | undefined = false,
+> = SelectRootBaseProps<Value, Multiple> & SelectRootFilterProps;
+
+interface SelectRootBaseProps<Value, Multiple extends boolean | undefined = false> {
   children?: React.ReactNode;
   /**
    * A ref to access the hidden input element.
@@ -750,6 +893,14 @@ export type SelectRootChangeEventReason =
 
 export type SelectRootChangeEventDetails = BaseUIChangeEventDetails<SelectRootChangeEventReason>;
 
+export type SelectRootInputValueChangeEventReason =
+  | typeof REASONS.inputChange
+  | typeof REASONS.inputClear
+  | typeof REASONS.clearPress;
+
+export type SelectRootInputValueChangeEventDetails =
+  BaseUIChangeEventDetails<SelectRootInputValueChangeEventReason>;
+
 export namespace SelectRoot {
   export type Props<Value, Multiple extends boolean | undefined = false> = SelectRootProps<
     Value,
@@ -759,4 +910,6 @@ export namespace SelectRoot {
   export type Actions = SelectRootActions;
   export type ChangeEventReason = SelectRootChangeEventReason;
   export type ChangeEventDetails = SelectRootChangeEventDetails;
+  export type InputValueChangeEventReason = SelectRootInputValueChangeEventReason;
+  export type InputValueChangeEventDetails = SelectRootInputValueChangeEventDetails;
 }

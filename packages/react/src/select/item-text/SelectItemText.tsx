@@ -16,9 +16,8 @@ export const SelectItemText = React.memo(
     componentProps: SelectItemText.Props,
     forwardedRef: React.ForwardedRef<HTMLDivElement>,
   ) {
-    const { index, textRef, selectedByFocus } = useSelectItemContext();
-    const { firstItemTextRef, selectedItemTextRef } = useSelectRootContext();
-
+    const { index, textElementRef } = useSelectItemContext();
+    const { firstItemTextRef } = useSelectRootContext();
     const { render, className, style, ...elementProps } = componentProps;
 
     const localRef = React.useCallback(
@@ -30,15 +29,12 @@ export const SelectItemText = React.memo(
         if (index === 0) {
           firstItemTextRef.current = node;
         }
-        if (selectedByFocus) {
-          selectedItemTextRef.current = node;
-        }
       },
-      [firstItemTextRef, selectedItemTextRef, index, selectedByFocus],
+      [firstItemTextRef, index],
     );
 
     const element = useRenderElement('div', componentProps, {
-      ref: [localRef, forwardedRef, textRef],
+      ref: [localRef, forwardedRef, textElementRef],
       props: elementProps,
     });
 
