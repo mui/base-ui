@@ -234,7 +234,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
   });
 
   const isGrouped = isGroupedItems(items);
-  const query = closeQuery ?? String(inputValue).trim();
+  const query = !open && closeQuery !== null ? closeQuery : String(inputValue).trim();
 
   const selectedLabelString = single ? stringifyAsLabel(selectedValue, itemToStringLabel) : '';
 
@@ -456,6 +456,8 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
   const inline = useStore(store, selectors.inline);
   const inputInsidePopup = useStore(store, selectors.inputInsidePopup);
   const inputOwnsFormValue = useStore(store, selectors.inputOwnsFormValue);
+  const inputMatchesSelectedValue =
+    single && !inputInsidePopup && inputValue === selectedLabelString;
 
   const triggerRef = useValueAsRef(triggerElement);
 
@@ -607,6 +609,26 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     },
   );
 
+  const handleInterruptedReopen = useStableCallback((isInputChange: boolean) => {
+    const clearsPendingInput = !isInputChange && inputInsidePopup && !inline && inputValue !== '';
+
+    // Reset only when no typed filter survives the reopen, either because the clear below
+    // discards it or because the close path already cleared the input. Resetting while the
+    // user can still see their filter lets the `items` sync overwrite it.
+    if (!isInputChange && (clearsPendingInput || inputValue === '' || inputMatchesSelectedValue)) {
+      setQueryChangedAfterOpen(false);
+    }
+
+    setCloseQuery(null);
+
+    if (clearsPendingInput) {
+      // This clear stands in for the unmount cleanup: unlike selection-triggered clears it has
+      // no `isItemPress` flag and only a synthetic placeholder event, so handlers canceling
+      // selection clears to keep the filter don't cancel cleanup.
+      setInputValue('', createChangeEventDetails(REASONS.inputClear));
+    }
+  });
+
   const setOpen = useStableCallback(
     (nextOpen: boolean, eventDetails: AriaCombobox.ChangeEventDetails) => {
       if (open === nextOpen) {
@@ -636,25 +658,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
       if (nextOpen && closeQuery !== null) {
         // `ComboboxInput` calls `setInputValue` before `setOpen`, so on an input-change reopen
         // `inputValue` is still the pre-keystroke value and the typed filter always survives.
-        const isInputChange = eventDetails.reason === REASONS.inputChange;
-        const clearsPendingInput =
-          !isInputChange && inputInsidePopup && !inline && inputValue !== '';
-
-        // Reset only when no typed filter survives the reopen, either because the clear below
-        // discards it or because the close path already cleared the input. Resetting while the
-        // user can still see their filter lets the `items` sync overwrite it.
-        if (!isInputChange && (clearsPendingInput || inputValue === '')) {
-          setQueryChangedAfterOpen(false);
-        }
-
-        setCloseQuery(null);
-
-        if (clearsPendingInput) {
-          // This clear stands in for the unmount cleanup: unlike selection-triggered clears it has
-          // no `isItemPress` flag and only a synthetic placeholder event, so handlers canceling
-          // selection clears to keep the filter don't cancel cleanup.
-          setInputValue('', createChangeEventDetails(REASONS.inputClear));
-        }
+        handleInterruptedReopen(eventDetails.reason === REASONS.inputChange);
       }
 
       if (!nextOpen && queryChangedAfterOpen) {
@@ -1067,10 +1071,22 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
   }
 
   useValueChanged(query, () => {
-    if (!open || query === '' || query === String(initialDefaultInputValue)) {
+    if (
+      !open ||
+      query === '' ||
+      query === String(initialDefaultInputValue) ||
+      inputMatchesSelectedValue
+    ) {
       return;
     }
     setQueryChangedAfterOpen(true);
+  });
+
+  useValueChanged(open, () => {
+    // A controlled `open` prop can interrupt the close without calling `setOpen`.
+    if (open && closeQuery !== null) {
+      handleInterruptedReopen(false);
+    }
   });
 
   function syncInputToSelectedLabel() {

@@ -5314,6 +5314,116 @@ describe('<Combobox.Root />', () => {
 
       expect(input).toHaveValue('a');
     });
+
+    it('releases the frozen query when controlled open reopens the popup', async ({
+      onTestFinished,
+    }) => {
+      globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+      const onInputValueChange = vi.fn();
+
+      onTestFinished(() => {
+        globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
+      });
+
+      function App() {
+        const [open, setOpen] = React.useState(false);
+
+        return (
+          <React.Fragment>
+            {/* eslint-disable-next-line react/no-danger */}
+            <style dangerouslySetInnerHTML={{ __html: closeAnimationStyle }} />
+            <button type="button" data-testid="reopen" onClick={() => setOpen(true)}>
+              Reopen
+            </button>
+            <Combobox.Root
+              multiple
+              items={['apple', 'apricot', 'banana']}
+              open={open}
+              onOpenChange={setOpen}
+              onInputValueChange={onInputValueChange}
+            >
+              <Combobox.Input data-testid="input" />
+              <Combobox.Portal>
+                <Combobox.Positioner>
+                  <Combobox.Popup data-testid="popup" className="animation-test-popup">
+                    <Combobox.List>
+                      {(item: string) => (
+                        <Combobox.Item key={item} value={item}>
+                          {item}
+                        </Combobox.Item>
+                      )}
+                    </Combobox.List>
+                  </Combobox.Popup>
+                </Combobox.Positioner>
+              </Combobox.Portal>
+            </Combobox.Root>
+          </React.Fragment>
+        );
+      }
+
+      const { user } = await render(<App />);
+      const input = screen.getByTestId('input');
+
+      await user.type(input, 'app');
+      await user.keyboard('{Escape}');
+
+      const popup = screen.getByTestId('popup');
+      await waitFor(() => expect(popup).toHaveAttribute('data-ending-style'));
+
+      await user.click(screen.getByTestId('reopen'));
+
+      expect(input).toHaveValue('');
+      expect(screen.getByRole('option', { name: 'banana' })).not.toBe(null);
+
+      onInputValueChange.mockClear();
+      await user.keyboard('{Escape}');
+
+      expect(onInputValueChange).not.toHaveBeenCalled();
+    });
+
+    it('shows every item when selection reopens the popup', async ({ onTestFinished }) => {
+      globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+
+      onTestFinished(() => {
+        globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
+      });
+
+      const { user } = await render(
+        <React.Fragment>
+          {/* eslint-disable-next-line react/no-danger */}
+          <style dangerouslySetInnerHTML={{ __html: closeAnimationStyle }} />
+          <Combobox.Root items={['apple', 'apricot', 'banana']}>
+            <Combobox.Input data-testid="input" />
+            <Combobox.Trigger data-testid="trigger">Open</Combobox.Trigger>
+            <Combobox.Portal>
+              <Combobox.Positioner>
+                <Combobox.Popup data-testid="popup" className="animation-test-popup">
+                  <Combobox.List>
+                    {(item: string) => (
+                      <Combobox.Item key={item} value={item}>
+                        {item}
+                      </Combobox.Item>
+                    )}
+                  </Combobox.List>
+                </Combobox.Popup>
+              </Combobox.Positioner>
+            </Combobox.Portal>
+          </Combobox.Root>
+        </React.Fragment>,
+      );
+
+      const input = screen.getByTestId('input');
+      await user.type(input, 'ap');
+      await user.click(screen.getByRole('option', { name: 'apple' }));
+
+      const popup = screen.getByTestId('popup');
+      await waitFor(() => expect(popup).toHaveAttribute('data-ending-style'));
+
+      await user.click(screen.getByTestId('trigger'));
+
+      expect(input).toHaveValue('apple');
+      expect(screen.getAllByRole('option')).toHaveLength(3);
+    });
   });
 
   describe('prop: grid', () => {
