@@ -634,7 +634,6 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
       // If reopening interrupts the close animation, handleUnmount won't run to clear the
       // frozen closeQuery and pending popup input.
       if (nextOpen && closeQuery !== null) {
-        setQueryChangedAfterOpen(false);
         setCloseQuery(null);
 
         if (
@@ -643,6 +642,9 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
           inputValue !== '' &&
           eventDetails.reason !== REASONS.inputChange
         ) {
+          // Reset only alongside the clear below. Elsewhere the input keeps the typed filter,
+          // and a stale `false` would let the `items` sync overwrite it.
+          setQueryChangedAfterOpen(false);
           // This clear stands in for the unmount cleanup: unlike selection-triggered clears it has
           // no `isItemPress` flag and only a synthetic placeholder event, so handlers canceling
           // selection clears to keep the filter don't cancel cleanup.

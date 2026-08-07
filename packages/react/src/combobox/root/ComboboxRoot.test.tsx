@@ -5059,6 +5059,140 @@ describe('<Combobox.Root />', () => {
     });
   });
 
+  describe.skipIf(isJSDOM)('reopening during the close animation', () => {
+    const closeAnimationStyle = `
+      @keyframes combobox-close-test {
+        to {
+          opacity: 0;
+        }
+      }
+
+      .animation-test-popup[data-ending-style] {
+        animation: combobox-close-test 400ms linear;
+      }
+    `;
+
+    it('keeps the typed filter when items change afterwards (input outside popup)', async ({
+      onTestFinished,
+    }) => {
+      globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+
+      onTestFinished(() => {
+        globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
+      });
+
+      function App() {
+        const [items, setItems] = React.useState(['apple', 'apricot', 'banana']);
+        return (
+          <React.Fragment>
+            {/* eslint-disable-next-line react/no-danger */}
+            <style dangerouslySetInnerHTML={{ __html: closeAnimationStyle }} />
+            <button
+              type="button"
+              data-testid="refetch"
+              onClick={() => setItems((prev) => [...prev])}
+            >
+              refetch
+            </button>
+            <Combobox.Root items={items}>
+              <Combobox.Input data-testid="input" />
+              <Combobox.Trigger data-testid="trigger">Open</Combobox.Trigger>
+              <Combobox.Portal>
+                <Combobox.Positioner>
+                  <Combobox.Popup data-testid="popup" className="animation-test-popup">
+                    <Combobox.List>
+                      {(item: string) => (
+                        <Combobox.Item key={item} value={item}>
+                          {item}
+                        </Combobox.Item>
+                      )}
+                    </Combobox.List>
+                  </Combobox.Popup>
+                </Combobox.Positioner>
+              </Combobox.Portal>
+            </Combobox.Root>
+          </React.Fragment>
+        );
+      }
+
+      const { user } = await render(<App />);
+
+      const input = screen.getByTestId('input');
+      await user.type(input, 'app');
+      await user.keyboard('{Escape}');
+
+      const popup = screen.getByTestId('popup');
+      await waitFor(() => expect(popup).toHaveAttribute('data-ending-style'));
+
+      await user.click(screen.getByTestId('trigger'));
+      await flushMicrotasks();
+
+      expect(input).toHaveValue('app');
+
+      // A new `items` identity must not resync the input to the selected label while the
+      // user's filter is still in it.
+      await user.click(screen.getByTestId('refetch'));
+      await flushMicrotasks();
+
+      expect(input).toHaveValue('app');
+    });
+
+    it('keeps filtering when typing reopens the popup (input outside popup)', async ({
+      onTestFinished,
+    }) => {
+      globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+
+      onTestFinished(() => {
+        globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
+      });
+
+      const { user } = await render(
+        <React.Fragment>
+          {/* eslint-disable-next-line react/no-danger */}
+          <style dangerouslySetInnerHTML={{ __html: closeAnimationStyle }} />
+          <Combobox.Root items={['apple', 'apricot', 'banana']} defaultValue="apple">
+            <Combobox.Input data-testid="input" />
+            <Combobox.Portal>
+              <Combobox.Positioner>
+                <Combobox.Popup data-testid="popup" className="animation-test-popup">
+                  <Combobox.List>
+                    {(item: string) => (
+                      <Combobox.Item key={item} value={item}>
+                        {item}
+                      </Combobox.Item>
+                    )}
+                  </Combobox.List>
+                </Combobox.Popup>
+              </Combobox.Positioner>
+            </Combobox.Portal>
+          </Combobox.Root>
+        </React.Fragment>,
+      );
+
+      const input = screen.getByTestId('input');
+      expect(input).toHaveValue('apple');
+
+      await user.click(input);
+      await user.keyboard('{Backspace}');
+      await waitFor(() => expect(screen.queryAllByRole('option')).toHaveLength(1));
+
+      await user.keyboard('{Escape}');
+
+      const popup = screen.getByTestId('popup');
+      await waitFor(() => expect(popup).toHaveAttribute('data-ending-style'));
+
+      // Typing reopens the popup, so the keystroke's own "query changed" flag must survive
+      // the reopen even when it restores the selected label exactly.
+      await user.keyboard('e');
+      await flushMicrotasks();
+
+      expect(input).toHaveValue('apple');
+
+      await waitFor(() => expect(screen.queryByRole('listbox')).not.toBe(null));
+      expect(screen.queryAllByRole('option')).toHaveLength(1);
+    });
+  });
+
   describe('prop: grid', () => {
     it('sets grid roles when grid is enabled and rows are used', async () => {
       await render(
