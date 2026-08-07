@@ -83,6 +83,7 @@ const FORMATS: TemporalAdapterFormats = {
   // Letter formats
   month3Letters: 'MMM',
   monthFullLetter: 'MMMM',
+  monthFullLetterStandalone: 'LLLL',
   weekday: 'EEEE',
   weekday3Letters: 'EEE',
   weekday1Letter: 'EEEEE',
