@@ -5191,6 +5191,66 @@ describe('<Combobox.Root />', () => {
       await waitFor(() => expect(screen.queryByRole('listbox')).not.toBe(null));
       expect(screen.queryAllByRole('option')).toHaveLength(1);
     });
+
+    it('does not re-emit a clear when closing again without typing (multiple, input outside popup)', async ({
+      onTestFinished,
+    }) => {
+      globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+
+      onTestFinished(() => {
+        globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
+      });
+
+      const onInputValueChange = vi.fn();
+
+      const { user } = await render(
+        <React.Fragment>
+          {/* eslint-disable-next-line react/no-danger */}
+          <style dangerouslySetInnerHTML={{ __html: closeAnimationStyle }} />
+          <Combobox.Root
+            multiple
+            items={['apple', 'apricot', 'banana']}
+            onInputValueChange={onInputValueChange}
+          >
+            <Combobox.Input data-testid="input" />
+            <Combobox.Trigger data-testid="trigger">Open</Combobox.Trigger>
+            <Combobox.Portal>
+              <Combobox.Positioner>
+                <Combobox.Popup data-testid="popup" className="animation-test-popup">
+                  <Combobox.List>
+                    {(item: string) => (
+                      <Combobox.Item key={item} value={item}>
+                        {item}
+                      </Combobox.Item>
+                    )}
+                  </Combobox.List>
+                </Combobox.Popup>
+              </Combobox.Positioner>
+            </Combobox.Portal>
+          </Combobox.Root>
+        </React.Fragment>,
+      );
+
+      const input = screen.getByTestId('input');
+      await user.type(input, 'app');
+      await user.keyboard('{Escape}');
+
+      const popup = screen.getByTestId('popup');
+      await waitFor(() => expect(popup).toHaveAttribute('data-ending-style'));
+
+      // The close path already cleared the input, so nothing survives the reopen.
+      await user.click(screen.getByTestId('trigger'));
+      await flushMicrotasks();
+
+      expect(input).toHaveValue('');
+
+      onInputValueChange.mockClear();
+
+      await user.keyboard('{Escape}');
+      await flushMicrotasks();
+
+      expect(onInputValueChange).not.toHaveBeenCalled();
+    });
   });
 
   describe('prop: grid', () => {
