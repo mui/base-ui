@@ -2,7 +2,6 @@ import * as React from 'react';
 import { ReactStore } from '@base-ui/utils/store';
 import {
   applyPopupOpenChange,
-  createPopupFloatingRootContext,
   createInitialPopupStoreState,
   InlineRectCoords,
   PopupStoreContext,
@@ -125,14 +124,12 @@ function createInitialState<Payload>(
   nested = false,
 ): State<Payload> {
   const state: State<Payload> = {
-    ...createInitialPopupStoreState<Payload>(),
+    ...createInitialPopupStoreState<Payload>(triggerElements, floatingId, nested),
     instantType: undefined,
     adaptiveOrigin: undefined,
     closeDelay: CLOSE_DELAY,
     ...initialState,
   };
-
-  state.floatingRootContext = createPopupFloatingRootContext(triggerElements, floatingId, nested);
 
   return state;
 }

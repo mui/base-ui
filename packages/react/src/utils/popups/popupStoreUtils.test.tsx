@@ -31,14 +31,15 @@ type TestStore = ReactStore<
 };
 
 function createStore() {
+  const triggerElements = new PopupTriggerMap();
   const store = new ReactStore<
     PopupStoreState<unknown>,
     PopupStoreContext<unknown>,
     PopupStoreSelectors
   >(
-    createInitialPopupStoreState(),
+    createInitialPopupStoreState(triggerElements),
     {
-      triggerElements: new PopupTriggerMap(),
+      triggerElements,
       popupRef: React.createRef<HTMLElement | null>(),
       onOpenChangeComplete: undefined,
     },
@@ -732,7 +733,7 @@ describe('applyPopupOpenChange', () => {
 
   function createOpenChangeStore() {
     const order: string[] = [];
-    const { floatingRootContext } = createInitialPopupStoreState();
+    const { floatingRootContext } = createInitialPopupStoreState(new PopupTriggerMap());
 
     const dispatchOpenChange = vi
       .spyOn(floatingRootContext, 'dispatchOpenChange')
