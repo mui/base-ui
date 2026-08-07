@@ -5598,6 +5598,11 @@ describe('<Combobox.Root />', () => {
         'aria-selected',
         'true',
       );
+
+      await user.keyboard('{Escape}');
+
+      await waitFor(() => expect(screen.queryByRole('listbox')).toBe(null));
+      expect(input).toHaveValue('');
     });
 
     it('marks the close-path clear as an item press only when an item press closed the popup (input outside popup)', async () => {
@@ -5959,6 +5964,65 @@ describe('<Combobox.Root />', () => {
         expect(cleanupCall?.[1].isItemPress).toBe(undefined);
         // The synthetic placeholder event proves cleanup clears never carry the reopening gesture.
         expect(cleanupCall?.[1].event.type).toBe('base-ui');
+      },
+    );
+
+    it.skipIf(isJSDOM)(
+      'releases the frozen query when reopening during the close animation with the input outside the popup',
+      async ({ onTestFinished }) => {
+        globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+
+        onTestFinished(() => {
+          globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
+        });
+
+        const style = `
+          @keyframes combobox-close-test {
+            to {
+              opacity: 0;
+            }
+          }
+
+          .animation-test-popup[data-ending-style] {
+            animation: combobox-close-test 200ms linear;
+          }
+        `;
+
+        const { user } = await render(
+          <React.Fragment>
+            {/* eslint-disable-next-line react/no-danger */}
+            <style dangerouslySetInnerHTML={{ __html: style }} />
+            <Combobox.Root multiple items={['apple', 'apricot', 'banana']}>
+              <Combobox.Input data-testid="input" />
+              <Combobox.Trigger data-testid="trigger">Open</Combobox.Trigger>
+              <Combobox.Portal>
+                <Combobox.Positioner>
+                  <Combobox.Popup data-testid="popup" className="animation-test-popup">
+                    <Combobox.List>
+                      {(item: string) => (
+                        <Combobox.Item key={item} value={item}>
+                          {item}
+                        </Combobox.Item>
+                      )}
+                    </Combobox.List>
+                  </Combobox.Popup>
+                </Combobox.Positioner>
+              </Combobox.Portal>
+            </Combobox.Root>
+          </React.Fragment>,
+        );
+
+        const input = screen.getByTestId('input');
+        await user.type(input, 'app');
+        await user.keyboard('{Escape}');
+
+        const popup = screen.getByTestId('popup');
+        await waitFor(() => expect(popup).toHaveAttribute('data-ending-style'));
+
+        await user.click(screen.getByTestId('trigger'));
+
+        expect(input).toHaveValue('');
+        expect(await screen.findByRole('option', { name: 'banana' })).not.toBe(null);
       },
     );
 

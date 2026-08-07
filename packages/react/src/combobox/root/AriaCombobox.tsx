@@ -635,11 +635,16 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
 
       // If reopening interrupts the close animation, handleUnmount won't run to clear the
       // frozen closeQuery and pending popup input.
-      if (nextOpen && inputInsidePopup && !inline && closeQuery !== null) {
+      if (nextOpen && closeQuery !== null) {
         setQueryChangedAfterOpen(false);
         setCloseQuery(null);
 
-        if (inputValue !== '' && eventDetails.reason !== REASONS.inputChange) {
+        if (
+          inputInsidePopup &&
+          !inline &&
+          inputValue !== '' &&
+          eventDetails.reason !== REASONS.inputChange
+        ) {
           // This clear stands in for the unmount cleanup: unlike selection-triggered clears it has
           // no `isItemPress` flag and only a synthetic placeholder event, so handlers canceling
           // selection clears to keep the filter don't cancel cleanup.
@@ -1801,10 +1806,8 @@ export namespace AriaCombobox {
     | typeof REASONS.none;
   export type ChangeEventDetails = BaseUIChangeEventDetails<ChangeEventReason> & {
     /**
-     * Whether pressing an item caused the change.
-     * Set on the `input-clear` requests that selecting an item produces, letting handlers
-     * cancel them to keep the filter without affecting automatic cleanup clears, which
-     * don't set it.
+     * When `reason` is `input-clear` in multiple mode, indicates whether an item press caused the
+     * clear. Automatic cleanup clears omit this property.
      */
     isItemPress?: boolean | undefined;
   };

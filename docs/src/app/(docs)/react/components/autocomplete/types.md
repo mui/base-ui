@@ -111,13 +111,6 @@ type AutocompleteRootChangeEventDetails = (
   isPropagationAllowed: boolean;
   /** The element that triggered the event, if applicable. */
   trigger: Element | undefined;
-  /**
-   * Whether pressing an item caused the change.
-   * Set on the `input-clear` requests that selecting an item produces, letting handlers
-   * cancel them to keep the filter without affecting automatic cleanup clears, which
-   * don't set it.
-   */
-  isItemPress?: boolean;
 };
 ```
 

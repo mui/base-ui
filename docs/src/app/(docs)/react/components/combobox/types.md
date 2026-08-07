@@ -120,10 +120,8 @@ type ComboboxRootChangeEventDetails = (
   /** The element that triggered the event, if applicable. */
   trigger: Element | undefined;
   /**
-   * Whether pressing an item caused the change.
-   * Set on the `input-clear` requests that selecting an item produces, letting handlers
-   * cancel them to keep the filter without affecting automatic cleanup clears, which
-   * don't set it.
+   * When `reason` is `input-clear` in multiple mode, indicates whether an item press caused the
+   * clear. Automatic cleanup clears omit this property.
    */
   isItemPress?: boolean;
 };
