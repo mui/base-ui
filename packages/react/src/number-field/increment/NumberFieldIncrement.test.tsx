@@ -306,6 +306,42 @@ describe('<NumberField.Increment />', () => {
       expect(input).toHaveValue('4');
     });
 
+    it('stops an active press-and-hold interaction when disabled', async () => {
+      function App() {
+        const [disabled, setDisabled] = React.useState(false);
+
+        return (
+          <NumberField.Root defaultValue={0} disabled={disabled}>
+            <NumberField.Increment />
+            <NumberField.Input />
+            <button type="button" onClick={() => setDisabled(true)}>
+              Disable
+            </button>
+          </NumberField.Root>
+        );
+      }
+
+      await render(<App />);
+
+      const input = screen.getByRole('textbox');
+      const increment = screen.getByRole('button', { name: 'Increase' });
+
+      fireEvent.pointerDown(increment, {
+        button: 0,
+        pointerType: 'mouse',
+      });
+
+      expect(input).toHaveValue('1');
+
+      fireEvent.click(screen.getByRole('button', { name: 'Disable' }));
+
+      clock.tick(START_AUTO_CHANGE_DELAY);
+      clock.tick(CHANGE_VALUE_TICK_DELAY);
+      clock.tick(CHANGE_VALUE_TICK_DELAY);
+
+      expect(input).toHaveValue('1');
+    });
+
     it('removes the global release listener when unmounted during a hold', async () => {
       const addEventListener = vi.spyOn(window, 'addEventListener');
       const removeEventListener = vi.spyOn(window, 'removeEventListener');

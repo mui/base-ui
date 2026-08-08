@@ -931,6 +931,26 @@ describe('<NumberField />', () => {
       const input = screen.getByRole('textbox');
       expect(input).toHaveAttribute('disabled');
     });
+
+    it('stops an active press-and-hold interaction when disabled', async () => {
+      const { setProps } = await render(<NumberField defaultValue={0} />);
+      const input = screen.getByRole('textbox');
+
+      fireEvent.pointerDown(screen.getByLabelText('Increase'), {
+        button: 0,
+        pointerType: 'mouse',
+      });
+      expect(input).toHaveValue('1');
+
+      await setProps({ disabled: true });
+      await act(async () => {
+        await new Promise<void>((resolve) => {
+          setTimeout(resolve, 500);
+        });
+      });
+
+      expect(input).toHaveValue('1');
+    });
   });
 
   describe('prop: readOnly', () => {
