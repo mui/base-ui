@@ -83,11 +83,18 @@ describe('<Tabs.Tab />', () => {
             >
               Overview
             </Tabs.Tab>
+            <Tabs.Tab
+              nativeButton={false}
+              render={<UnstableRefTab href="#details" />}
+              value="details"
+            >
+              Details
+            </Tabs.Tab>
           </Tabs.List>
         </Tabs.Root>,
       );
 
-      expect(screen.getByRole('tab')).toHaveAttribute('href', '#overview');
+      expect(screen.getAllByRole('tab').map((tab) => tab.tabIndex)).toEqual([0, -1]);
     });
   });
 

@@ -141,6 +141,8 @@ export function CompositeList<Metadata>(props: CompositeList.Props<Metadata>) {
 
   const flush = useStableCallback(() => {
     const [items, automaticNodes] = getCompositeListSnapshot(map);
+    const nextMap = syncRefs(items);
+
     const previousItems = itemsRef.current;
     const changed =
       previousItems.length !== items.length ||
@@ -149,10 +151,10 @@ export function CompositeList<Metadata>(props: CompositeList.Props<Metadata>) {
         return (
           item.index !== previousItem.index ||
           item.element !== previousItem.element ||
+          item.registration.index !== previousItem.registration.index ||
           item.registration.metadata !== previousItem.registration.metadata
         );
       });
-    const nextMap = syncRefs(items);
 
     observe(automaticNodes);
     itemsRef.current = items;
