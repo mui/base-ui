@@ -3,11 +3,21 @@ import * as React from 'react';
 import { act, fireEvent, screen, waitFor } from '@mui/internal-test-utils';
 import { Slider } from '@base-ui/react/slider';
 import { Field } from '@base-ui/react/field';
-import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
+import { createRenderer, describeConformance, isJSDOM, mergeRefs } from '#test-utils';
 import { platform } from '@base-ui/utils/platform';
 import { createTouches, getHorizontalSliderRect } from '../utils/test-utils';
 
 const isWebKit = platform.engine.webkit;
+
+const UnstableRefThumb = React.forwardRef(function UnstableRefThumb(
+  props: React.ComponentPropsWithoutRef<'div'>,
+  forwardedRef: React.ForwardedRef<HTMLDivElement>,
+) {
+  const internalRef = React.useRef<HTMLDivElement>(null);
+
+  // Deliberately recreate the merged host ref on every render.
+  return <div {...props} ref={mergeRefs(forwardedRef, internalRef)} />;
+});
 
 describe('<Slider.Thumb />', () => {
   const { render, renderToString } = createRenderer();
@@ -18,6 +28,18 @@ describe('<Slider.Thumb />', () => {
     },
     refInstanceof: window.HTMLDivElement,
   }));
+
+  it('settles when the rendered component recreates its merged ref', async () => {
+    await render(
+      <Slider.Root defaultValue={50}>
+        <Slider.Control>
+          <Slider.Thumb render={<UnstableRefThumb />} />
+        </Slider.Control>
+      </Slider.Root>,
+    );
+
+    expect(screen.getByRole('slider')).toBeInTheDocument();
+  });
 
   describe('ARIA attributes', () => {
     ['aria-label', 'aria-labelledby', 'aria-describedby', 'aria-valuetext'].forEach((attr) => {
