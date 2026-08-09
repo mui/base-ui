@@ -34,6 +34,7 @@ jobs:
                           subject {
                             ... on PullRequest {
                               number
+                              headRefOid
                               merged
                               mergedAt
                             }
@@ -43,6 +44,7 @@ jobs:
                           source {
                             ... on PullRequest {
                               number
+                              headRefOid
                               merged
                               mergedAt
                             }
@@ -82,6 +84,7 @@ jobs:
                   if (pr && pr.merged) {
                     relatedPRs.push({
                       number: pr.number,
+                      commit: pr.headRefOid,
                       mergedAt: pr.mergedAt
                     });
                   }
@@ -97,10 +100,11 @@ jobs:
               }
 
               const prNumber = relatedPRs[0].number;
+              const commit = relatedPRs[0].commit;
               console.log(`Found merged PR #${prNumber} associated with issue #${issue_number}`);
 
               // Set output for the next step
-              core.setOutput('pr_number', prNumber);
+              core.setOutput('commit', commit);
               core.setOutput('has_pr', 'true');
 
             } catch (error) {
@@ -112,8 +116,7 @@ jobs:
         uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
         with:
           script: |
-            // Get PR number from the previous step's output
-            const prNumber = '${{ steps.get-prs.outputs.pr_number }}';
+            const commit = '${{ steps.get-prs.outputs.commit }}';
             const issueNumber = context.payload.issue.number;
 
             // Get issue labels
@@ -127,11 +130,13 @@ jobs:
 
             const commentBody = `This ${typeText} will be available in the next npm release of Base UI.
 
-            In the meantime, you can try it out on our Canary release channel:
+            In the meantime, use the [canary build](https://base-ui.com/react/overview/releases#canary-releases) for [\`${commit.slice(0, 7)}\`](${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/commit/${commit}) as an alternative to the current npm release:
 
             \`\`\`sh
-            npm i https://pkg.pr.new/@base-ui/react@${prNumber}
-            \`\`\``;
+            npm i https://pkg.pr.new/@base-ui/react@${commit.slice(0, 7)}
+            \`\`\`
+
+            This installs a real \`@base-ui/react\` package containing the merged change, so it can be used normally as a workaround before the stable release. It is hosted by pkg.pr.new rather than npm, and the URL is available for up to six months.`;
 
             await github.rest.issues.createComment({
               owner: context.repo.owner,
