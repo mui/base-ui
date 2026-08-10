@@ -347,11 +347,8 @@ export function useTriggerDataForwarding<
     }
   });
 
-  // Intentionally NOT stable. Its identity is derived from `baseRegisterTrigger`, which is keyed on
-  // `[store, id]`, so when a handle-backed trigger's store pointer swaps the merged ref re-fires —
-  // unregistering from the previous store and registering into the new one. This lets a detached
-  // trigger follow its handle's currently-attached store across attach/detach/remount. (A stable
-  // callback would keep its identity and never re-fire on a store swap.)
+  // Intentionally not stable. Its identity follows `[store, id]` so ordinary ref handling migrates
+  // the trigger. The layout effect below also synchronizes downstream ref mergers that retain it.
   const registerTrigger = React.useCallback(
     (element: Element | null) => {
       baseRegisterTrigger(element);
@@ -361,6 +358,11 @@ export function useTriggerDataForwarding<
     },
     [baseRegisterTrigger, applyTriggerData],
   );
+
+  useIsoLayoutEffect(() => {
+    registerTrigger(triggerElementRef.current);
+    return () => registerTrigger(null);
+  }, [registerTrigger, triggerElementRef]);
 
   useIsoLayoutEffect(() => {
     if (isMountedByThisTrigger) {

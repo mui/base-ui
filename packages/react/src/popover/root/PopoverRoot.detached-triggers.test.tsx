@@ -13,6 +13,14 @@ describe('<Popover.Root />', () => {
 
   const { render, clock } = createRenderer();
 
+  const StaleRefButton = React.forwardRef<
+    HTMLButtonElement,
+    React.ComponentPropsWithoutRef<'button'>
+  >(function StaleRefButton(props, forwardedRef) {
+    const staleRef = React.useRef(forwardedRef).current;
+    return <button {...props} ref={staleRef} />;
+  });
+
   it('opens by trigger from a descendant layout effect on initial mount', async () => {
     const handle = Popover.createHandle();
     const consoleWarn = vi.spyOn(console, 'warn').mockImplementation(() => {});
@@ -43,6 +51,51 @@ describe('<Popover.Root />', () => {
       'aria-expanded',
       'true',
     );
+  });
+
+  it('hands off hover between detached triggers when the rendered component retains a stale ref', async () => {
+    const handle = Popover.createHandle<number>();
+    const fallbackStore = handle.store;
+
+    const { user } = await render(
+      <React.Fragment>
+        {[1, 2].map((payload) => (
+          <Popover.Trigger
+            key={payload}
+            handle={handle}
+            id={`trigger-${payload}`}
+            payload={payload}
+            openOnHover
+            delay={0}
+            render={<StaleRefButton />}
+          >
+            Trigger {payload}
+          </Popover.Trigger>
+        ))}
+        <Popover.Root handle={handle}>
+          {({ payload }) => (
+            <Popover.Portal>
+              <Popover.Positioner>
+                <Popover.Popup data-testid="popup">{payload}</Popover.Popup>
+              </Popover.Positioner>
+            </Popover.Portal>
+          )}
+        </Popover.Root>
+      </React.Fragment>,
+    );
+
+    expect(fallbackStore.context.triggerElements.size).toBe(0);
+    expect(handle.store.context.triggerElements.size).toBe(2);
+
+    await user.hover(screen.getByRole('button', { name: 'Trigger 1' }));
+    await waitFor(() => {
+      expect(screen.getByTestId('popup')).toHaveTextContent('1');
+    });
+
+    await user.hover(screen.getByRole('button', { name: 'Trigger 2' }));
+    await waitFor(() => {
+      expect(screen.getByTestId('popup')).toHaveTextContent('2');
+    });
   });
 
   describe.skipIf(isJSDOM)('handle-backed root ownership', () => {
