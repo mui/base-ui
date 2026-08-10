@@ -187,19 +187,19 @@ describe('useCheckboxGroupParent', () => {
       return (
         <CheckboxGroup value={value} onValueChange={setValue} allValues={allValues}>
           <Checkbox.Root parent data-testid="parent" />
-          <Checkbox.Root value="a" />
-          <Checkbox.Root value="b" />
-          <Checkbox.Root value="c" />
+          {allValues.map((v) => (
+            <Checkbox.Root key={v} value={v} data-testid={v} />
+          ))}
         </CheckboxGroup>
       );
     }
 
     render(<App />);
 
-    const parent = screen.getByTestId('parent');
-    const id = parent.getAttribute('id');
-
-    expect(parent).toHaveAttribute('aria-controls', allValues.map((v) => `${id}-${v}`).join(' '));
+    expect(screen.getByTestId('parent')).toHaveAttribute(
+      'aria-controls',
+      allValues.map((v) => screen.getByTestId(v).id).join(' '),
+    );
   });
 
   it('does not select a child without an identifying value', () => {

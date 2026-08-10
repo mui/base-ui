@@ -4,11 +4,9 @@ import { EMPTY_OBJECT } from '@base-ui/utils/empty';
 import { useControlled } from '@base-ui/utils/useControlled';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
-import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { visuallyHidden, visuallyHiddenInput } from '@base-ui/utils/visuallyHidden';
 import { ownerWindow } from '@base-ui/utils/owner';
 import { getDefaultFormSubmitter } from '@base-ui/utils/getDefaultFormSubmitter';
-import { NOOP } from '../../internals/noop';
 import { getCheckboxStateAttributesMapping } from '../utils/getCheckboxStateAttributesMapping';
 import { dispatchClickWithModifiers } from '../../utils/dispatchClickWithModifiers';
 import { useRenderElement } from '../../internals/useRenderElement';
@@ -27,6 +25,7 @@ import { useFieldItemContext } from '../../field/item/FieldItemContext';
 import { useFormContext } from '../../internals/form-context/FormContext';
 import { useLabelableContext } from '../../internals/labelable-provider/LabelableContext';
 import { useAriaLabelledBy } from '../../internals/labelable-provider/useAriaLabelledBy';
+import { useLabelableId } from '../../internals/labelable-provider/useLabelableId';
 import { useCheckboxGroupContext } from '../../checkbox-group/CheckboxGroupContext';
 import { CheckboxRootContext } from './CheckboxRootContext';
 import {
@@ -85,7 +84,7 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
     validation: localValidation,
   } = useFieldRootContext();
   const fieldItemContext = useFieldItemContext();
-  const { labelId, controlId, registerControlId, getDescriptionProps } = useLabelableContext();
+  const { labelId, registerControlId, getDescriptionProps } = useLabelableContext();
 
   const groupContext = useCheckboxGroupContext();
   const parentContext = groupContext?.allValues === undefined ? undefined : groupContext.parent;
@@ -98,17 +97,20 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
 
   const id = useBaseUiId();
 
-  const generatedInputId = useBaseUiId();
-  let inputId = idProp || controlId;
-  if (isGroupedWithParent) {
-    if (parent) {
-      inputId = generatedInputId;
-    } else if (value !== undefined) {
-      inputId = `${parentContext.id}-${value}`;
-    } else {
-      inputId ||= generatedInputId;
-    }
-  }
+  // Children take their id from the group so the parent checkbox can point `aria-controls` at
+  // them without waiting for them to mount. React 17 assigns the group id after the first
+  // render, so the derived id has to wait for it.
+  const groupItemId =
+    isGroupedWithParent && !parent && value !== undefined && parentContext.id !== undefined
+      ? `${parentContext.id}-${value}`
+      : undefined;
+
+  // A `CheckboxGroup` is the field's control and takes its name from `aria-labelledby`, so the
+  // checkboxes sharing its labelable scope must not claim the field's control id: they would all
+  // render that one id and collide. A `Field.Item` opens a scope the checkbox does own.
+  const ownsControlId = groupContext?.registerControlId !== registerControlId;
+
+  const controlId = useLabelableId({ id: idProp || undefined, enabled: ownsControlId });
 
   let groupProps: Partial<Omit<CheckboxRoot.Props, 'className'>> = {};
   if (isGroupedWithParent) {
@@ -129,8 +131,6 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
   const groupValue = groupContext?.value;
 
   const controlRef = React.useRef<HTMLButtonElement>(null);
-  const controlSourceRef = useRefWithInit(() => Symbol());
-  const hasRegisteredRef = React.useRef(false);
 
   const { getButtonProps, buttonRef } = useButton({
     disabled,
@@ -154,31 +154,6 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
     ? groupIndeterminate || indeterminate
     : indeterminate;
 
-  // can't use useLabelableId because of optional groupContext and/or parent
-  useIsoLayoutEffect(() => {
-    if (registerControlId === NOOP) {
-      return undefined;
-    }
-
-    hasRegisteredRef.current = true;
-    registerControlId(controlSourceRef.current, inputId);
-
-    return undefined;
-  }, [inputId, registerControlId, controlSourceRef]);
-
-  React.useEffect(() => {
-    const controlSource = controlSourceRef.current;
-
-    return () => {
-      if (!hasRegisteredRef.current || registerControlId === NOOP) {
-        return;
-      }
-
-      hasRegisteredRef.current = false;
-      registerControlId(controlSource, undefined);
-    };
-  }, [registerControlId, controlSourceRef]);
-
   useRegisterFieldControl(controlRef, id, checked, undefined, !groupContext && !disabled, nameProp);
 
   const inputRef = React.useRef<HTMLInputElement>(null);
@@ -195,7 +170,7 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
     labelId,
     inputRef,
     !nativeButton,
-    inputId ?? undefined,
+    controlId,
   );
 
   useIsoLayoutEffect(() => {
@@ -227,8 +202,9 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
       // parent checkboxes unset `name` to be excluded from form submission
       name: parent ? undefined : name,
       // Set `id` to stop Chrome warning about an unassociated input.
-      // When using a native button, the `id` is applied to the button instead.
-      id: nativeButton ? undefined : (inputId ?? undefined),
+      // When using a native button, the label targets the button instead, so the input takes
+      // the group-derived id that `aria-controls` references.
+      id: nativeButton ? groupItemId : controlId,
       required,
       ref: mergedInputRef,
       style: name ? visuallyHiddenInput : visuallyHidden,
@@ -321,7 +297,7 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
     ref: [buttonRef, controlRef, forwardedRef],
     props: [
       {
-        id: nativeButton ? (inputId ?? undefined) : id,
+        id: nativeButton ? controlId : (groupItemId ?? id),
         role: 'checkbox',
         'aria-checked': computedIndeterminate ? 'mixed' : computedChecked,
         'aria-readonly': readOnly || undefined,

@@ -2,7 +2,7 @@ import { expect, vi } from 'vitest';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
-import { createRenderer, screen, fireEvent } from '@mui/internal-test-utils';
+import { createRenderer, screen, fireEvent, waitFor } from '@mui/internal-test-utils';
 import { CheckboxGroup } from '@base-ui/react/checkbox-group';
 import { Checkbox } from '@base-ui/react/checkbox';
 import { Field } from '@base-ui/react/field';
@@ -10,7 +10,7 @@ import { Form } from '@base-ui/react/form';
 import { describeConformance, isJSDOM } from '#test-utils';
 
 describe('<CheckboxGroup />', () => {
-  const { render } = createRenderer();
+  const { render, renderToString } = createRenderer();
 
   describeConformance(<CheckboxGroup />, () => ({
     inheritComponent: 'div',
@@ -853,6 +853,162 @@ describe('<CheckboxGroup />', () => {
   });
 
   describe('Field.Label', () => {
+    function SharedFieldRootGroup(props: { nativeButton: boolean }) {
+      const { nativeButton } = props;
+      const checkboxProps = { nativeButton, render: nativeButton ? <button /> : undefined };
+
+      return (
+        <Field.Root name="apples">
+          <Field.Label>Apples</Field.Label>
+          <CheckboxGroup allValues={['fuji', 'gala']}>
+            <Checkbox.Root parent data-testid="parent" {...checkboxProps} />
+            <Checkbox.Root value="fuji" {...checkboxProps} />
+            <Checkbox.Root value="gala" {...checkboxProps} />
+          </CheckboxGroup>
+        </Field.Root>
+      );
+    }
+
+    function expectUniqueCheckboxIds() {
+      const ids = Array.from(document.querySelectorAll('[id]'), (element) => element.id);
+      expect(new Set(ids).size).toBe(ids.length);
+
+      const controlledIds = screen.getByTestId('parent').getAttribute('aria-controls')!.split(' ');
+      controlledIds.forEach((controlledId) => {
+        expect(document.querySelectorAll(`[id="${controlledId}"]`)).toHaveLength(1);
+      });
+    }
+
+    it.each([false, true])(
+      'keeps checkbox ids unique when the group shares one Field.Root (nativeButton=%s)',
+      async (nativeButton) => {
+        await render(<SharedFieldRootGroup nativeButton={nativeButton} />);
+        expectUniqueCheckboxIds();
+      },
+    );
+
+    it.each([false, true])(
+      'keeps checkbox ids unique in a shared Field.Root during SSR (nativeButton=%s)',
+      (nativeButton) => {
+        renderToString(<SharedFieldRootGroup nativeButton={nativeButton} />);
+        expectUniqueCheckboxIds();
+      },
+    );
+
+    it('labels the group rather than pointing Field.Label at one checkbox inside it', async () => {
+      await render(<SharedFieldRootGroup nativeButton={false} />);
+
+      const label = screen.getByText('Apples');
+      expect(label).not.toHaveAttribute('for');
+      expect(screen.getByRole('group')).toHaveAttribute('aria-labelledby', label.id);
+    });
+
+    it('gives each checkbox in a shared Field.Root its own accessible name', async () => {
+      await render(
+        <Field.Root name="apples">
+          <CheckboxGroup allValues={['fuji', 'gala']}>
+            <label>
+              <Checkbox.Root parent data-testid="parent" />
+              All
+            </label>
+            <label>
+              <Checkbox.Root value="fuji" data-testid="fuji" />
+              Fuji
+            </label>
+            <label>
+              <Checkbox.Root value="gala" data-testid="gala" />
+              Gala
+            </label>
+          </CheckboxGroup>
+        </Field.Root>,
+      );
+
+      ['All', 'Fuji', 'Gala'].forEach((name, index) => {
+        const testId = ['parent', 'fuji', 'gala'][index];
+        const labelId = screen.getByTestId(testId).getAttribute('aria-labelledby')!;
+        expect(document.getElementById(labelId)).toHaveTextContent(name);
+      });
+    });
+
+    it.each([
+      { nativeButton: false, parent: false },
+      { nativeButton: true, parent: false },
+      { nativeButton: false, parent: true },
+      { nativeButton: true, parent: true },
+    ])(
+      'associates a group-derived Checkbox id during SSR (nativeButton=$nativeButton, parent=$parent)',
+      ({ nativeButton, parent }) => {
+        renderToString(
+          <Field.Root name="apple">
+            <CheckboxGroup allValues={['fuji']}>
+              <Field.Item>
+                <Field.Label data-testid="label">Fuji</Field.Label>
+                <Checkbox.Root
+                  parent={parent}
+                  value={parent ? undefined : 'fuji'}
+                  nativeButton={nativeButton}
+                  render={nativeButton ? <button /> : undefined}
+                />
+              </Field.Item>
+            </CheckboxGroup>
+          </Field.Root>,
+        );
+
+        const control = nativeButton
+          ? screen.getByRole('checkbox')
+          : document.querySelector<HTMLInputElement>('input[type="checkbox"]')!;
+        expect(control.id).not.toBe('');
+        expect(screen.getByTestId('label')).toHaveAttribute('for', control.id);
+      },
+    );
+
+    it.each([false, true])(
+      'preserves parent aria-controls during SSR (nativeButton=%s)',
+      async (nativeButton) => {
+        const { hydrate } = renderToString(
+          <Field.Root name="apple">
+            <CheckboxGroup allValues={['fuji']}>
+              <Field.Item>
+                <Field.Label data-testid="label">All</Field.Label>
+                <Checkbox.Root
+                  parent
+                  data-testid="parent"
+                  nativeButton={nativeButton}
+                  render={nativeButton ? <button /> : undefined}
+                />
+              </Field.Item>
+              <Field.Item>
+                <Field.Label data-testid="label">Fuji</Field.Label>
+                <Checkbox.Root
+                  value="fuji"
+                  nativeButton={nativeButton}
+                  render={nativeButton ? <button /> : undefined}
+                />
+              </Field.Item>
+            </CheckboxGroup>
+          </Field.Root>,
+        );
+
+        const controls = screen.getAllByRole('checkbox', { hidden: true });
+        const controlledId = screen.getByTestId('parent').getAttribute('aria-controls')!;
+        expect(controls).toContain(document.getElementById(controlledId));
+        expect(document.querySelectorAll(`[id="${controlledId}"]`)).toHaveLength(1);
+
+        screen.getAllByTestId('label').forEach((label) => {
+          expect(controls).toContain(document.getElementById(label.getAttribute('for')!));
+        });
+
+        hydrate();
+
+        await waitFor(() => {
+          expect(document.querySelectorAll(`[id="${controlledId}"]`)).toHaveLength(1);
+        });
+        expect(screen.getAllByRole('checkbox', { hidden: true })).toContain(
+          document.getElementById(controlledId),
+        );
+      },
+    );
+
     it('implicit association', async () => {
       const changeSpy = vi.fn();
       render(

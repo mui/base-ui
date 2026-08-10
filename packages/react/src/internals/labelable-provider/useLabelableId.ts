@@ -9,11 +9,13 @@ import { useBaseUiId } from '../useBaseUiId';
 import { useLabelableContext } from './LabelableContext';
 
 export function useLabelableId(params: UseLabelableIdParameters = {}) {
-  const { id, implicit = false, controlRef } = params;
+  const { id, implicit = false, controlRef, enabled = true } = params;
 
   const { controlId, registerControlId } = useLabelableContext();
 
-  const defaultId = useBaseUiId(id);
+  // Deliberately not seeded with `id`: on React 17 the seed would stick around after the
+  // `id` prop is removed, leaving the control on a stale id forever.
+  const defaultId = useBaseUiId();
 
   const controlIdForEffect = implicit ? controlId : undefined;
 
@@ -35,6 +37,11 @@ export function useLabelableId(params: UseLabelableIdParameters = {}) {
       return undefined;
     }
 
+    if (!enabled) {
+      unregisterControlId();
+      return undefined;
+    }
+
     let nextId: string | null | undefined;
 
     if (implicit) {
@@ -45,16 +52,15 @@ export function useLabelableId(params: UseLabelableIdParameters = {}) {
       } else {
         nextId = controlIdForEffect ?? defaultId;
       }
-    } else if (id != null) {
+    } else if (id !== undefined) {
       hadExplicitIdRef.current = true;
       nextId = id;
     } else if (hadExplicitIdRef.current) {
       nextId = defaultId;
-    } else {
-      unregisterControlId();
-      return undefined;
     }
 
+    // Either the control never had an explicit `id`, or React 17 has not assigned the
+    // fallback id yet. Neither is worth registering.
     if (nextId === undefined) {
       unregisterControlId();
       return undefined;
@@ -66,6 +72,7 @@ export function useLabelableId(params: UseLabelableIdParameters = {}) {
     return undefined;
   }, [
     id,
+    enabled,
     controlRef,
     controlIdForEffect,
     registerControlId,
@@ -79,11 +86,27 @@ export function useLabelableId(params: UseLabelableIdParameters = {}) {
     return unregisterControlId;
   }, [unregisterControlId]);
 
-  return controlId ?? defaultId;
+  if (!enabled) {
+    return id ?? defaultId;
+  }
+
+  // The provider's id wins until registration runs: the label renders `htmlFor` from the
+  // provider's pre-registration state, so preempting it with an explicit `id` here would
+  // leave the pair unassociated in server-rendered markup.
+  return controlId ?? id ?? defaultId;
 }
 
 export interface UseLabelableIdParameters {
-  id?: string | undefined;
+  /**
+   * The control's `id`. Pass `null` for a control that takes its name from `aria-labelledby`
+   * instead, so that the label omits `htmlFor`.
+   */
+  id?: string | null | undefined;
+  /**
+   * Whether the control owns the label association of its labelable scope.
+   * @default true
+   */
+  enabled?: boolean | undefined;
   /**
    * Whether implicit labelling is supported.
    * @default false
