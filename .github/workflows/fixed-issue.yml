@@ -22,6 +22,11 @@ jobs:
 
             console.log(`Processing issue #${issue_number}`);
 
+            if (context.payload.issue.state_reason === 'not_planned') {
+              console.log(`Skipping issue #${issue_number} because it was closed as not planned`);
+              return;
+            }
+
             // Use GraphQL to find PRs that close this issue
             const query = `
               query($owner:String!, $repo:String!, $issueNumber:Int!) {
@@ -37,6 +42,9 @@ jobs:
                               headRefOid
                               merged
                               mergedAt
+                              repository {
+                                nameWithOwner
+                              }
                             }
                           }
                         }
@@ -47,6 +55,9 @@ jobs:
                               headRefOid
                               merged
                               mergedAt
+                              repository {
+                                nameWithOwner
+                              }
                             }
                           }
                         }
@@ -81,7 +92,11 @@ jobs:
                     pr = item.source;
                   }
 
-                  if (pr && pr.merged) {
+                  if (
+                    pr &&
+                    pr.merged &&
+                    pr.repository.nameWithOwner === `${variables.owner}/${variables.repo}`
+                  ) {
                     relatedPRs.push({
                       number: pr.number,
                       commit: pr.headRefOid,
