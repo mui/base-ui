@@ -18,6 +18,7 @@ export const LabelableProvider: React.FC<LabelableProvider.Props> = function Lab
   const [labelId, setLabelId] = React.useState<string | undefined>(props.labelId);
   const [messageIds, setMessageIds] = React.useState<string[]>([]);
 
+  // `undefined` only survives until the React 17 fallback id is assigned.
   const controlId = controlIdState === undefined ? initialControlId : controlIdState;
 
   const registrationsRef = useRefWithInit(() => new Map<symbol, string | null>());
