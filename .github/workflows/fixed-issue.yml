@@ -40,6 +40,9 @@ jobs:
                         headRefOid
                         merged
                         mergedAt
+                        repository {
+                          nameWithOwner
+                        }
                       }
                     }
                   }
@@ -57,13 +60,15 @@ jobs:
               const result = await github.graphql(query, variables);
               console.log('GraphQL query completed successfully');
 
-              // Extract all merged PRs that close this issue
+              // Extract all merged PRs that close this issue. Closing PRs can live in
+              // another repository, so the owner/name check is required: issue #1217 is
+              // closed by floating-ui/floating-ui#3259.
               const relatedPRs = [];
               if (result.repository.issue) {
                 const closingPRs = result.repository.issue.closedByPullRequestsReferences.nodes;
 
                 for (const pr of closingPRs) {
-                  if (pr.merged) {
+                  if (pr.merged && pr.repository.nameWithOwner === `${variables.owner}/${variables.repo}`) {
                     relatedPRs.push({
                       number: pr.number,
                       commit: pr.headRefOid,
