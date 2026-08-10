@@ -85,7 +85,7 @@ virtualizer.current?.scrollToIndex(500, { align: 'center' });
 
 ## Standalone lists
 
-Pass the collection to the virtualizer's own `items` prop to window a list that Base UI does not provide. Nothing else is required, so the virtualizer can be dropped into any scrolling list:
+Pass the collection to the virtualizer's own `items` prop to window a list that Base UI does not provide. Nothing else is required, so the virtualizer can be dropped into any scrolling list:
 
 ```jsx title="Windowing a custom list"
 <Virtualizer items={items} getItemKey={(item) => item.id} role="listbox">
@@ -99,7 +99,22 @@ Pass the collection to the virtualizer's own `items` prop to window a list that 
 
 The third argument of `children` carries the item's accessibility and collection metadata — `aria-posinset`, `aria-setsize`, and `data-index`. Spread it onto the element that represents the item, so assistive technology reports the whole collection rather than the mounted window. Items rendered by a list's own item component, such as `<Combobox.Item>`, receive it automatically.
 
-Set `activeIndex` to the index of the item the list treats as active. The virtualizer keeps that item mounted even when it falls outside the rendered window, so it can hold focus or be referenced by `aria-activedescendant`, and scrolls it into view when the index changes. Pass `scrollActiveIntoView={false}` for changes that should not scroll, such as highlights that follow the pointer.
+Set `activeIndex` to the item the list treats as active. The virtualizer keeps that item mounted even when it falls outside the rendered window, so it can hold focus or be referenced by `aria-activedescendant`, and scrolls it into view.
+
+Whether an activation should scroll depends on what caused it, not on which item ended up active: a keypress should bring the item into view, while a highlight following the pointer must leave the viewport alone — the cursor is already there, and moving the list would slide the next item under it. So the activation carries that decision, alongside the alignment it wants:
+
+```jsx title="Activating an item"
+// A keypress: scroll it into view.
+setActive({ index: nextIndex });
+
+// Jumping to the end of the collection reads better resting against that edge.
+setActive({ index: items.length - 1, align: 'end' });
+
+// A hover: highlight without moving the list.
+setActive({ index, scroll: false });
+```
+
+Passing a bare index is shorthand for `{ index }`, so `activeIndex={5}` activates and scrolls. Because the scroll travels with the index rather than in a prop of its own, the two cannot disagree, and re-rendering with an equal activation does not scroll again.
 
 Everything a list root normally coordinates stays with your list: filtering, keyboard navigation, selection, and clamping `activeIndex` to the current collection.
 

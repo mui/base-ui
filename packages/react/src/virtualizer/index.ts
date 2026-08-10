@@ -7,4 +7,8 @@ export type {
   VirtualizerScrollAlignment,
   VirtualizerScrollToIndexOptions,
 } from '../internals/virtualization/ListVirtualizationRegistry';
-export type { VirtualizerItemProps } from '../internals/virtualization/types';
+export type {
+  VirtualizerActiveIndex,
+  VirtualizerActiveItem,
+  VirtualizerItemProps,
+} from '../internals/virtualization/types';

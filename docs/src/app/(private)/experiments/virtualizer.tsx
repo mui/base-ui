@@ -17,7 +17,7 @@ import styles from './virtualizer.module.css';
 
 interface Settings {
   enabled: boolean;
-  scrollActiveIntoView: boolean;
+  scrollOnPointer: boolean;
   varyingHeights: boolean;
 }
 
@@ -27,10 +27,12 @@ export const settingsMetadata: SettingsMetadata<Settings> = {
     label: 'Virtualize',
     default: true,
   },
-  scrollActiveIntoView: {
+  scrollOnPointer: {
     type: 'boolean',
-    label: 'Scroll active item into view',
-    default: true,
+    // Turning this on shows why the scroll decision belongs to the activation: the list starts
+    // chasing the cursor, because every hover now asks to be brought into view.
+    label: 'Scroll on pointer highlight',
+    default: false,
   },
   varyingHeights: {
     type: 'boolean',
@@ -61,7 +63,9 @@ export default function VirtualizerExperiment() {
   const optionIdPrefix = `${listboxId}-option`;
 
   const [query, setQuery] = React.useState('');
-  const [activeIndex, setActiveIndex] = React.useState<number | null>(0);
+  // The activation, not just the index: each one carries whether it should move the viewport, so
+  // a hover and a keypress landing on the same item stay distinguishable.
+  const [active, setActive] = React.useState<Virtualizer.ActiveItem | null>({ index: 0 });
   const [selectedId, setSelectedId] = React.useState<number | null>(null);
 
   const virtualizer = React.useRef<Virtualizer.Actions>(null);
@@ -80,15 +84,14 @@ export default function VirtualizerExperiment() {
   // The collection is the application's, so clamping the highlight to it is too. A virtualizer
   // that owns the collection has no way to know what an out-of-range index should become.
   const clampedActiveIndex =
-    activeIndex == null || items.length === 0 ? null : Math.min(activeIndex, items.length - 1);
+    active == null || items.length === 0 ? null : Math.min(active.index, items.length - 1);
 
   const moveActiveIndex = (delta: number) => {
     if (items.length === 0) {
       return;
     }
     const current = clampedActiveIndex ?? -1;
-    const next = Math.max(0, Math.min(items.length - 1, current + delta));
-    setActiveIndex(next);
+    setActive({ index: Math.max(0, Math.min(items.length - 1, current + delta)) });
   };
 
   const handleKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
@@ -109,13 +112,15 @@ export default function VirtualizerExperiment() {
         event.preventDefault();
         moveActiveIndex(-PAGE_SIZE);
         break;
+      // Jumping to an end of the collection reads better resting against that edge than wherever
+      // `auto` would leave it, which is what `align` is for.
       case 'Home':
         event.preventDefault();
-        setActiveIndex(items.length === 0 ? null : 0);
+        setActive(items.length === 0 ? null : { index: 0, align: 'start' });
         break;
       case 'End':
         event.preventDefault();
-        setActiveIndex(items.length === 0 ? null : items.length - 1);
+        setActive(items.length === 0 ? null : { index: items.length - 1, align: 'end' });
         break;
       case 'Enter':
         if (clampedActiveIndex != null) {
@@ -153,7 +158,7 @@ export default function VirtualizerExperiment() {
             placeholder="e.g. Item 5000, or Europe"
             onChange={(event) => {
               setQuery(event.target.value);
-              setActiveIndex(0);
+              setActive({ index: 0 });
             }}
           />
         </div>
@@ -169,7 +174,11 @@ export default function VirtualizerExperiment() {
 
       <Virtualizer<Country>
         actionsRef={virtualizer}
-        activeIndex={clampedActiveIndex}
+        activeIndex={
+          clampedActiveIndex == null || active == null
+            ? null
+            : { ...active, index: clampedActiveIndex }
+        }
         className={styles.Listbox}
         enabled={settings.enabled}
         estimatedItemHeight={settings.varyingHeights ? 44 : 32}
@@ -180,7 +189,6 @@ export default function VirtualizerExperiment() {
         aria-activedescendant={
           clampedActiveIndex == null ? undefined : `${optionIdPrefix}-${clampedActiveIndex}`
         }
-        scrollActiveIntoView={settings.scrollActiveIntoView}
         tabIndex={0}
         onKeyDown={handleKeyDown}
       >
@@ -195,10 +203,11 @@ export default function VirtualizerExperiment() {
             className={styles.Option}
             aria-selected={item.id === selectedId}
             data-active={index === clampedActiveIndex || undefined}
-            // Pointer highlights follow the cursor, so scrolling to them would move the list under it.
-            onPointerMove={() => setActiveIndex(index)}
+            // A hover activates the item the cursor already rests on, so it asks for no scroll:
+            // moving the list here would slide the next row under the pointer and cascade.
+            onPointerMove={() => setActive({ index, scroll: settings.scrollOnPointer })}
             onClick={() => {
-              setActiveIndex(index);
+              setActive({ index, scroll: false });
               setSelectedId(item.id);
             }}
           >

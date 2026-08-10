@@ -1,5 +1,36 @@
 import type * as React from 'react';
 import type { HTMLProps } from '../types';
+import type { VirtualizerScrollAlignment } from './ListVirtualizationRegistry';
+
+/**
+ * An activation of an item, describing what should happen to the viewport along with it.
+ *
+ * Scrolling responds to the activation rather than to the resulting state: the same item can be
+ * activated by a keypress that should bring it into view, or by the pointer already resting on it,
+ * which must not move the list. Both facts arrive together so they cannot drift apart.
+ */
+export interface VirtualizerActiveItem {
+  /**
+   * Where to place the item in the scrollport. `auto` only scrolls when the item is outside the
+   * visible area.
+   * @default 'auto'
+   */
+  align?: VirtualizerScrollAlignment | undefined;
+  /**
+   * Index of the item in the collection.
+   */
+  index: number;
+  /**
+   * Whether this activation scrolls the item into view.
+   * @default true
+   */
+  scroll?: boolean | undefined;
+}
+
+/**
+ * The active item, as an index alone or as an activation that also describes the scroll it wants.
+ */
+export type VirtualizerActiveIndex = number | VirtualizerActiveItem;
 
 /**
  * Row model built for each item in the list's filtered collection.

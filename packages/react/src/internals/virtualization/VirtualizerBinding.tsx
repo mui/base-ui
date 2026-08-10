@@ -17,6 +17,7 @@ import type {
   ListVirtualizationListState,
 } from './ListVirtualizationHostContext';
 import type {
+  VirtualizerActiveIndex,
   VirtualizerItemMetadata,
   VirtualizerItemProps,
   VirtualizerItemRowModel,
@@ -115,10 +116,10 @@ const VirtualizerItemRow = React.memo(
 export interface UseVirtualizerBindingParameters<Item> {
   actionsRef: React.RefObject<VirtualizerActions | null> | undefined;
   /**
-   * Index of the item to keep mounted and scroll to, for a virtualizer given its own collection.
+   * The item to keep mounted and scroll to, for a virtualizer given its own collection.
    * Ignored when the collection comes from the surrounding list, which tracks its own highlight.
    */
-  activeIndex: number | null | undefined;
+  activeIndex: VirtualizerActiveIndex | null | undefined;
   children: (item: Item, index: number, itemProps: VirtualizerItemProps) => React.ReactElement;
   /**
    * Whether virtualization is requested. The resolved window can still be inactive while the list
@@ -135,11 +136,6 @@ export interface UseVirtualizerBindingParameters<Item> {
    */
   items: ReadonlyArray<Item> | undefined;
   listState: ListVirtualizationListState | undefined;
-  /**
-   * Whether the active item is scrolled into view. Only ever disables the behavior: a list that
-   * already suppresses it, such as for pointer highlights, stays in control of its own scrolling.
-   */
-  scrollActiveIntoView: boolean;
 }
 
 /**
@@ -161,7 +157,6 @@ export function useVirtualizerBinding<Item>(parameters: UseVirtualizerBindingPar
     host,
     items: itemsProp,
     listState,
-    scrollActiveIntoView: scrollActiveIntoViewProp,
   } = parameters;
 
   const componentName = host?.componentName;
@@ -174,16 +169,24 @@ export function useVirtualizerBinding<Item>(parameters: UseVirtualizerBindingPar
   const items = (
     hasOwnCollection ? itemsProp : (listState?.items ?? EMPTY_ARRAY)
   ) as ReadonlyArray<Item>;
-  const activeIndex = hasOwnCollection
-    ? (activeIndexProp ?? null)
-    : (listState?.activeIndex ?? null);
+  // The activation is read down to primitives here so an inline object cannot make an unchanged
+  // activation look like a new one, and so the scroll decision cannot drift from the index it
+  // belongs to.
+  const activeItem =
+    activeIndexProp != null && typeof activeIndexProp === 'object' ? activeIndexProp : null;
+  const propActiveIndex = activeItem
+    ? activeItem.index
+    : ((activeIndexProp as number | null) ?? null);
+  const activeIndex = hasOwnCollection ? propActiveIndex : (listState?.activeIndex ?? null);
+  const scrollActiveIntoView = hasOwnCollection
+    ? (activeItem?.scroll ?? true)
+    : listState?.scrollActiveIntoView === true;
+  const scrollActiveAlignment = (hasOwnCollection && activeItem?.align) || 'auto';
   // Only a list asks for every row at once, and only a list restores its viewport afterwards.
   const renderAllRows = hasOwnCollection ? false : (listState?.renderAllRows ?? false);
   const renderAllRowsRestoreVersion = hasOwnCollection
     ? 0
     : (listState?.renderAllRowsRestoreVersion ?? 0);
-  const scrollActiveIntoView =
-    scrollActiveIntoViewProp && (hasOwnCollection || listState?.scrollActiveIntoView === true);
 
   if (process.env.NODE_ENV !== 'production') {
     // The build-time environment never changes during a component's lifetime.
@@ -374,6 +377,7 @@ export function useVirtualizerBinding<Item>(parameters: UseVirtualizerBindingPar
     renderRow,
     restoreViewportVersion: renderAllRowsRestoreVersion,
     rows,
+    scrollToRowAlignment: scrollActiveAlignment,
     scrollToRowIndex,
   };
 }

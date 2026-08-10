@@ -30,6 +30,8 @@ import type {
 import { useListVirtualization } from '../internals/virtualization/ListVirtualizationHostContext';
 import { useVirtualizerBinding } from '../internals/virtualization/VirtualizerBinding';
 import type {
+  VirtualizerActiveIndex,
+  VirtualizerActiveItem,
   VirtualizerItemProps,
   VirtualizerItemRowModel,
   VirtualizerRenderRowParameters,
@@ -277,7 +279,6 @@ export const Virtualizer = React.forwardRef(function Virtualizer<Value>(
     items,
     overscanPx,
     render,
-    scrollActiveIntoView = true,
     style,
     ...elementProps
   } = componentProps;
@@ -293,6 +294,7 @@ export const Virtualizer = React.forwardRef(function Virtualizer<Value>(
     renderRow: renderRowProp,
     restoreViewportVersion,
     rows,
+    scrollToRowAlignment,
     scrollToRowIndex,
   } = useVirtualizerBinding<Value>({
     actionsRef,
@@ -304,7 +306,6 @@ export const Virtualizer = React.forwardRef(function Virtualizer<Value>(
     host,
     items,
     listState,
-    scrollActiveIntoView,
   });
 
   const scrollElementRef = React.useRef<HTMLDivElement | null>(null);
@@ -1279,6 +1280,11 @@ export const Virtualizer = React.forwardRef(function Virtualizer<Value>(
   ]);
 
   const scrollToRowId = scrollToRowIndex == null ? null : (rows[scrollToRowIndex]?.id ?? null);
+  // Alignment belongs to the activation that requested the scroll, so it is read at that moment
+  // rather than depended on: changing only the alignment describes no new activation and must not
+  // move the viewport on its own.
+  const scrollToRowAlignmentRef = React.useRef(scrollToRowAlignment);
+  scrollToRowAlignmentRef.current = scrollToRowAlignment;
 
   useIsoLayoutEffect(() => {
     if (!enabled || scrollToRowIndex == null || scrollToRowIndex < 0 || scrollToRowId == null) {
@@ -1290,9 +1296,10 @@ export const Virtualizer = React.forwardRef(function Virtualizer<Value>(
       return;
     }
 
+    const alignment = scrollToRowAlignmentRef.current;
     pendingScrollRowIndexRef.current = scrollToRowIndex;
     pendingScrollRowIdRef.current = scrollToRowId;
-    pendingScrollAlignmentRef.current = 'auto';
+    pendingScrollAlignmentRef.current = alignment;
     pendingScrollRequiresMeasurementRef.current = false;
     const currentRenderContext = overscannedRenderContextRef.current;
     pendingScrollRequiresAdaptiveEstimateRef.current =
@@ -1306,7 +1313,7 @@ export const Virtualizer = React.forwardRef(function Virtualizer<Value>(
 
     // Try immediately with estimated metadata. If the destination is still unmeasured, the
     // rowsMeta effect below corrects the position once ResizeObserver updates it.
-    if (scrollRowIntoView(scrollToRowIndex)) {
+    if (scrollRowIntoView(scrollToRowIndex, false, alignment)) {
       pendingScrollRowIndexRef.current = null;
       pendingScrollRowIdRef.current = null;
       pendingScrollRequiresAdaptiveEstimateRef.current = false;
@@ -1795,13 +1802,16 @@ export interface VirtualizerBaseProps<Value> extends Omit<
    */
   actionsRef?: React.RefObject<VirtualizerActions | null> | undefined;
   /**
-   * Index of the active item in `items`. The item is kept mounted even when it falls outside the
-   * rendered window, so it can hold focus or be referenced by `aria-activedescendant`, and it is
-   * scrolled into view when the index changes.
+   * The active item in `items`, kept mounted even when it falls outside the rendered window so it
+   * can hold focus or be referenced by `aria-activedescendant`.
+   *
+   * An index alone scrolls the item into view. Pass `{ index, scroll: false }` for activations
+   * that must leave the viewport alone, such as a highlight following the pointer, and `align` to
+   * choose where a scrolled item lands.
    *
    * Ignored without the `items` prop: a list that provides the collection tracks its own highlight.
    */
-  activeIndex?: number | null | undefined;
+  activeIndex?: VirtualizerActiveIndex | null | undefined;
   /**
    * Renders exactly one item for the given value and its index in the collection.
    * The third argument carries the item's accessibility and collection metadata, to spread onto
@@ -1833,13 +1843,6 @@ export interface VirtualizerBaseProps<Value> extends Omit<
    * always includes at least one estimated row, even when this prop is `0`.
    */
   overscanPx?: number | undefined;
-  /**
-   * Whether the active item is scrolled into view when it changes.
-   * A surrounding list that already suppresses scrolling, such as for pointer highlights, stays in
-   * control of its own scrolling; this prop can only disable the behavior.
-   * @default true
-   */
-  scrollActiveIntoView?: boolean | undefined;
 }
 
 /**
@@ -1856,6 +1859,14 @@ export namespace Virtualizer {
    * Imperative actions exposed by the component.
    */
   export type Actions = VirtualizerActions;
+  /**
+   * The active item, as an index alone or as an activation that also describes the scroll it wants.
+   */
+  export type ActiveIndex = VirtualizerActiveIndex;
+  /**
+   * An activation of an item, describing what should happen to the viewport along with it.
+   */
+  export type ActiveItem = VirtualizerActiveItem;
   /**
    * State metadata exposed to render props.
    */
