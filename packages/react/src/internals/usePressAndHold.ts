@@ -171,6 +171,9 @@ export function usePressAndHold(params: UsePressAndHoldParameters): UsePressAndH
 
   React.useEffect(() => {
     if (disabled) {
+      isPressedRef.current = false;
+      isTouchingButtonRef.current = false;
+      pointerTypeRef.current = '';
       stopAutoChange();
     }
   }, [disabled, stopAutoChange]);
