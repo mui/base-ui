@@ -3,6 +3,8 @@ import * as React from 'react';
 import clsx from 'clsx';
 import { Popover } from '@base-ui/react/popover';
 import { Field } from '@base-ui/react/field';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
+import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { Switch } from './Switch';
 import { Input } from './Input';
 import { Select } from './Select';
@@ -20,51 +22,146 @@ export const ExperimentSettingsContext = React.createContext<
 export function ExperimentSettingsProvider<Settings extends {}>(
   props: React.PropsWithChildren<{ metadata: SettingsMetadata<Settings> }>,
 ) {
-  const [settingsState, setSettings] = React.useState<Settings>({} as Settings);
   const { metadata, children } = props;
-  const isInitializedRef = React.useRef(false);
 
-  const settings = settingsState;
+  // Persisted settings live in session storage, so they can only be read on the client and the
+  // first render has to match the server output. Instead of rendering the experiment with the
+  // defaults and updating it afterwards, nothing is rendered until the stored values are read
+  // in a layout effect (which runs before the browser paints). This way experiments always
+  // mount with the persisted settings, which matters for props that are only read on mount.
+  const [settings, setSettings] = React.useState<Settings | null>(() =>
+    metadata == null ? ({} as Settings) : null,
+  );
 
-  if (!isInitializedRef.current && metadata != null) {
-    Object.keys(metadata).forEach((key) => {
-      const fieldMetadata = metadata[key as keyof Settings];
-      if (fieldMetadata.default !== undefined) {
-        settings[key as keyof Settings] = fieldMetadata.default as any;
-      } else {
-        switch (fieldMetadata.type) {
-          case 'boolean':
-            (settings[key as keyof Settings] as any) = false;
-            break;
-          case 'number':
-            (settings[key as keyof Settings] as any) = 0;
-            break;
-          case 'string':
-            (settings[key as keyof Settings] as any) = '';
-            break;
-          default:
-            break;
-        }
-      }
-    });
+  useIsoLayoutEffect(() => {
+    if (metadata != null) {
+      setSettings(loadSettings(metadata));
+    }
+  }, [metadata]);
 
-    isInitializedRef.current = true;
-    setSettings(settings);
-  }
+  const updateSettings = useStableCallback((action: React.SetStateAction<Settings>) => {
+    const nextSettings =
+      typeof action === 'function'
+        ? (action as (prevState: Settings) => Settings)(settings as Settings)
+        : action;
+
+    setSettings(nextSettings);
+
+    if (metadata != null) {
+      saveSettings(metadata, nextSettings);
+    }
+  });
 
   const context = React.useMemo(
-    () => ({
-      settings,
-      setSettings,
-    }),
-    [settings],
+    () => (settings == null ? null : { settings, setSettings: updateSettings }),
+    [settings, updateSettings],
   );
+
+  if (context == null) {
+    return null;
+  }
 
   return (
     <ExperimentSettingsContext value={context as ExperimentsSettingsContext}>
       {children}
     </ExperimentSettingsContext>
   );
+}
+
+const STORAGE_KEY_PREFIX = 'base-ui-experiment-settings:';
+
+function getStorageKey() {
+  return `${STORAGE_KEY_PREFIX}${window.location.pathname.replace(/\/$/, '')}`;
+}
+
+function getDefaultValue(fieldMetadata: FieldMetadata) {
+  if (fieldMetadata.default !== undefined) {
+    return fieldMetadata.default;
+  }
+
+  switch (fieldMetadata.type) {
+    case 'boolean':
+      return false;
+    case 'number':
+      return 0;
+    case 'string':
+      return '';
+    default:
+      return undefined;
+  }
+}
+
+/**
+ * Checks whether a value read from session storage still matches the field's metadata.
+ * Metadata changes as experiments are edited, so stored values can become stale.
+ */
+function isValidValue(fieldMetadata: FieldMetadata, value: unknown) {
+  if (typeof value !== fieldMetadata.type) {
+    return false;
+  }
+
+  if (fieldMetadata.options) {
+    return fieldMetadata.options.includes(value as string);
+  }
+
+  return true;
+}
+
+function loadSettings<Settings extends {}>(metadata: SettingsMetadata<Settings>): Settings {
+  let storedValues: Record<string, unknown> = {};
+
+  try {
+    const serialized = sessionStorage.getItem(getStorageKey());
+    const parsed = serialized == null ? null : JSON.parse(serialized);
+    if (typeof parsed === 'object' && parsed !== null) {
+      storedValues = parsed;
+    }
+  } catch (error) {
+    console.warn('Could not read the experiment settings from session storage.', error);
+  }
+
+  const settings = {} as Settings;
+
+  Object.keys(metadata).forEach((key) => {
+    const fieldMetadata = metadata[key as keyof Settings];
+    const storedValue = storedValues[key];
+
+    settings[key as keyof Settings] = (
+      isValidValue(fieldMetadata, storedValue) ? storedValue : getDefaultValue(fieldMetadata)
+    ) as Settings[keyof Settings];
+  });
+
+  return settings;
+}
+
+/**
+ * Stores only the values that differ from the defaults, so that experiments pick up changes
+ * to the defaults in their metadata instead of being stuck with a previously stored copy.
+ */
+function saveSettings<Settings extends {}>(
+  metadata: SettingsMetadata<Settings>,
+  settings: Settings,
+) {
+  const overrides: Record<string, unknown> = {};
+
+  Object.keys(metadata).forEach((key) => {
+    const fieldMetadata = metadata[key as keyof Settings];
+    const value = settings[key as keyof Settings];
+
+    if (isValidValue(fieldMetadata, value) && value !== getDefaultValue(fieldMetadata)) {
+      overrides[key] = value;
+    }
+  });
+
+  try {
+    if (Object.keys(overrides).length === 0) {
+      sessionStorage.removeItem(getStorageKey());
+    } else {
+      sessionStorage.setItem(getStorageKey(), JSON.stringify(overrides));
+    }
+  } catch (error) {
+    console.warn('Could not save the experiment settings to session storage.', error);
+  }
 }
 
 export function useExperimentSettings<Settings extends {}>() {
