@@ -332,6 +332,48 @@ describe('<Field.Root />', () => {
     },
   );
 
+  it.skipIf(reactMajor < 19)(
+    'keeps an explicit control id while the subtree is hidden',
+    async () => {
+      type ActivityProps = {
+        mode: 'visible' | 'hidden';
+        children: React.ReactNode;
+      };
+
+      const Activity = (React as typeof React & { Activity: React.ComponentType<ActivityProps> })
+        .Activity;
+
+      function TestCase() {
+        const [visible, setVisible] = React.useState(true);
+
+        return (
+          <React.Fragment>
+            <Field.Root>
+              <Field.Label data-testid="label">Email</Field.Label>
+              <Activity mode={visible ? 'visible' : 'hidden'}>
+                <Field.Control id="email" data-testid="control" />
+              </Activity>
+            </Field.Root>
+            <button type="button" onClick={() => setVisible(false)}>
+              hide
+            </button>
+          </React.Fragment>
+        );
+      }
+
+      await render(<TestCase />);
+
+      expect(screen.getByTestId('control')).toHaveAttribute('id', 'email');
+      expect(screen.getByTestId('label')).toHaveAttribute('for', 'email');
+
+      fireEvent.click(screen.getByRole('button', { name: 'hide' }));
+
+      // Hiding destroys the control's effects but keeps its DOM, so the association must hold.
+      expect(screen.getByTestId('control')).toHaveAttribute('id', 'email');
+      expect(screen.getByTestId('label')).toHaveAttribute('for', 'email');
+    },
+  );
+
   describe('prop: disabled', () => {
     it('should add data-disabled style hook to all components', async () => {
       await render(

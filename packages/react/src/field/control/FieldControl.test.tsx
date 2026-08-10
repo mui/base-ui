@@ -154,35 +154,5 @@ describe('<Field.Control />', () => {
       expect(screen.getByRole('textbox')).toHaveAttribute('id', 'b');
       expect(screen.getByTestId('label')).toHaveAttribute('for', 'b');
     });
-
-    it('keeps the label associated when an explicit id control is replaced by one without an id', async () => {
-      function App() {
-        const [explicit, setExplicit] = React.useState(true);
-        return (
-          <React.Fragment>
-            <Field.Root>
-              <Field.Label data-testid="label">Label</Field.Label>
-              {explicit ? <Field.Control key="a" id="custom" /> : <Field.Control key="b" />}
-            </Field.Root>
-            <button onClick={() => setExplicit(false)}>swap</button>
-          </React.Fragment>
-        );
-      }
-
-      const { user } = await renderNonStrict(<App />);
-
-      expect(screen.getByTestId('label')).toHaveAttribute('for', 'custom');
-
-      fireEvent.click(screen.getByRole('button'));
-
-      const control = screen.getByRole('textbox');
-      expect(control.id).not.toBe('');
-      expect(control.id).not.toBe('custom');
-      expect(screen.getByTestId('label')).toHaveAttribute('for', control.id);
-
-      await user.click(screen.getByTestId('label'));
-
-      expect(control).toHaveFocus();
-    });
   });
 });

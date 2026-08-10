@@ -26,12 +26,19 @@ export const LabelableProvider: React.FC<LabelableProvider.Props> = function Lab
 
     if (nextId === undefined) {
       registrations.delete(source);
+
+      // A hidden subtree (React Activity, a re-suspending Suspense) destroys effects but keeps
+      // its DOM, so an empty map is indistinguishable from a real unmount. Keep the selection
+      // so a control that is still rendered stays paired with the label.
+      if (registrations.size === 0) {
+        return;
+      }
     } else {
       registrations.set(source, nextId);
     }
 
-    // Keep the previously selected id while it is still registered so rapid
-    // unmount/remount cycles (e.g. React Activity) don't churn the selection.
+    // Keep the previously selected id while it is still registered so an unrelated
+    // registration doesn't steal the selection.
     setControlIdState((prev) => {
       let nextControlId: string | undefined;
 
