@@ -49,7 +49,7 @@ export const LabelableProvider: React.FC<LabelableProvider.Props> = function Lab
         let nextControlId: string | null | undefined;
 
         for (const id of registrations.values()) {
-          if (prev !== undefined && id === prev) {
+          if (id === prev) {
             return prev;
           }
 
