@@ -134,7 +134,9 @@ function syncTriggerCount(store: PopupTriggerDataStore<PopupStoreState<unknown>>
  * unregistering targets the store the element was actually registered in.
  *
  * Since the callback never changes, the caller must re-run it from a layout effect keyed on
- * `[store, id]` to migrate an already-registered element.
+ * `[store, id]` to migrate an already-registered element. That effect is also what registers the
+ * element in the first place when `id` only resolves after the first commit (React 17's `useId`
+ * fallback), because the register call made while the id is still `undefined` does nothing.
  *
  * @param id Id of the trigger.
  * @param store The Store instance where the trigger should be registered.
