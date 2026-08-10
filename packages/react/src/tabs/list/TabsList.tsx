@@ -4,8 +4,8 @@ import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { EMPTY_ARRAY } from '@base-ui/utils/empty';
 import { BaseUIComponentProps, HTMLProps } from '../../internals/types';
-import type { TabsRootState } from '../root/TabsRoot';
 import { CompositeRoot } from '../../internals/composite/root/CompositeRoot';
+import type { TabsRootState } from '../root/TabsRoot';
 import { tabsStateAttributesMapping } from '../root/stateAttributesMapping';
 import { useTabsRootContext } from '../root/TabsRootContext';
 import { TabsListContext } from './TabsListContext';
@@ -33,6 +33,13 @@ export const TabsList = React.forwardRef(function TabsList(
 
   const [highlightedTabIndex, setHighlightedTabIndex] = React.useState(0);
   const [tabsListElement, setTabsListElement] = React.useState<HTMLElement | null>(null);
+
+  const handleTabMapChange = useStableCallback((newTabMap: Parameters<typeof setTabMap>[0]) => {
+    setTabMap(newTabMap);
+    if (newTabMap.size > 0 && highlightedTabIndex >= newTabMap.size) {
+      setHighlightedTabIndex(0);
+    }
+  });
 
   const indicatorUpdateListenersRef = React.useRef(new Set<() => void>());
   const tabResizeObserverElementsRef = React.useRef(new Set<HTMLElement>());
@@ -121,7 +128,7 @@ export const TabsList = React.forwardRef(function TabsList(
         loopFocus={loopFocus}
         orientation={orientation}
         onHighlightedIndexChange={setHighlightedTabIndex}
-        onMapChange={setTabMap}
+        onMapChange={handleTabMapChange}
         disabledIndices={EMPTY_ARRAY}
       />
     </TabsListContext.Provider>

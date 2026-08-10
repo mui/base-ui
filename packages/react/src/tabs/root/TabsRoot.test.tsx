@@ -999,6 +999,7 @@ describe('<Tabs.Root />', () => {
       const tabs = screen.getAllByRole('tab');
       expect(tabs[0]).toHaveAttribute('aria-selected', 'true');
       expect(tabs[0]).toHaveTextContent('Tab 1');
+      expect(tabs[0]).toHaveAttribute('tabindex', '0');
     });
 
     it('calls onValueChange with null when the selected tab is removed and no tabs remain', async () => {
@@ -1161,6 +1162,47 @@ describe('<Tabs.Root />', () => {
       expect(handleChange.mock.calls.length).toBe(0);
       const tabs = screen.getAllByRole('tab');
       expect(tabs[0]).toHaveAttribute('aria-selected', 'false');
+      expect(tabs[0]).toHaveAttribute('tabindex', '0');
+    });
+
+    it('keeps a roving focus entry point when the last controlled selected tab is removed', async () => {
+      const handleChange = vi.fn();
+
+      function TestComponent({ showLastTab }: { showLastTab: boolean }) {
+        return (
+          <React.Fragment>
+            <button type="button">Before</button>
+            <Tabs.Root value={2} onValueChange={handleChange}>
+              <Tabs.List>
+                <Tabs.Tab value={0}>Tab 0</Tabs.Tab>
+                <Tabs.Tab value={1}>Tab 1</Tabs.Tab>
+                {showLastTab && <Tabs.Tab value={2}>Tab 2</Tabs.Tab>}
+              </Tabs.List>
+            </Tabs.Root>
+            <button type="button">After</button>
+          </React.Fragment>
+        );
+      }
+
+      const { setProps, user } = await render(<TestComponent showLastTab />);
+
+      await setProps({ showLastTab: false });
+
+      expect(handleChange).not.toHaveBeenCalled();
+      const [firstTab, secondTab] = screen.getAllByRole('tab');
+      expect(firstTab).toHaveAttribute('aria-selected', 'false');
+      expect(secondTab).toHaveAttribute('aria-selected', 'false');
+      expect([firstTab.tabIndex, secondTab.tabIndex]).toEqual([0, -1]);
+
+      await act(async () => screen.getByRole('button', { name: 'Before' }).focus());
+      await user.tab();
+
+      expect(firstTab).toHaveFocus();
+
+      await user.keyboard('{ArrowRight}');
+
+      expect(secondTab).toHaveFocus();
+      expect(handleChange).not.toHaveBeenCalled();
     });
   });
 
