@@ -180,6 +180,8 @@ type AutocompleteTriggerState = {
   popupSide: Side | null;
   /** Present when the corresponding items list is empty. */
   listEmpty: boolean;
+  /** Whether the component should ignore user edits. */
+  readOnly: boolean;
   /** Whether the field has been touched. */
   touched: boolean;
   /** Whether the field value has changed from its initial value. */
