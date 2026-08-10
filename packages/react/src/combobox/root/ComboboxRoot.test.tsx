@@ -3323,20 +3323,51 @@ describe('<Combobox.Root />', () => {
 
     it('fills the inline input when closing is canceled', async () => {
       const { user } = await render(
-        <Combobox.Root
-          inline
-          open
-          onOpenChange={(nextOpen, eventDetails) => {
-            if (!nextOpen) {
-              eventDetails.cancel();
-            }
-          }}
-        >
-          <Combobox.Input data-testid="input" />
-          <Combobox.List>
-            <Combobox.Item value="Banana">Banana</Combobox.Item>
-          </Combobox.List>
-        </Combobox.Root>,
+        <Dialog.Root open>
+          <Dialog.Portal>
+            <Dialog.Popup>
+              <Combobox.Root
+                inline
+                open
+                onOpenChange={(nextOpen, eventDetails) => {
+                  if (!nextOpen) {
+                    eventDetails.cancel();
+                  }
+                }}
+              >
+                <Combobox.Input data-testid="input" />
+                <Combobox.List>
+                  <Combobox.Item value="Banana">Banana</Combobox.Item>
+                </Combobox.List>
+              </Combobox.Root>
+            </Dialog.Popup>
+          </Dialog.Portal>
+        </Dialog.Root>,
+      );
+
+      await user.click(screen.getByRole('option', { name: 'Banana' }));
+
+      expect(screen.getByTestId('input')).toHaveValue('Banana');
+    });
+
+    it('fills the inline input inside a persistent dialog', async () => {
+      const { user } = await render(
+        <Dialog.Root open>
+          <Dialog.Portal>
+            <Dialog.Popup>
+              <Combobox.Root inline open items={['Apple', 'Banana']}>
+                <Combobox.Input data-testid="input" />
+                <Combobox.List>
+                  {(item) => (
+                    <Combobox.Item key={item} value={item}>
+                      {item}
+                    </Combobox.Item>
+                  )}
+                </Combobox.List>
+              </Combobox.Root>
+            </Dialog.Popup>
+          </Dialog.Portal>
+        </Dialog.Root>,
       );
 
       await user.click(screen.getByRole('option', { name: 'Banana' }));

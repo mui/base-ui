@@ -766,9 +766,10 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
 
         const closeWasPrevented =
           eventDetails.isCanceled || (openProp === true && props.onOpenChange === undefined);
+        const inputInsideDialog = store.state.inputElement?.closest('[role="dialog"]') != null;
 
-        if (inline && closeWasPrevented) {
-          // Fill the input when a value is selected but the combobox does not close.
+        if (inline && (!inputInsideDialog || closeWasPrevented)) {
+          // Fill the input unless it is inside a dialog that closes on selection.
           setInputValue(
             stringifyAsLabel(itemValue, itemToStringLabel),
             createChangeEventDetails(eventDetails.reason, eventDetails.event),
