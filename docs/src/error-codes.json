@@ -100,6 +100,6 @@
   "100": "Base UI: the `items` prop received an object that is not a collection, so its items cannot be read. Pass an array of items, an array of groups with items, or the result of `createItems()`. See https://base-ui.com/react/components/combobox#createitems",
   "101": "Base UI: FilterDropdownRootContext is missing. FilterDropdown parts must be placed within <FilterDropdown.Root>.",
   "102": "Base UI: FilterDropdownPopupContext is missing. FilterDropdown popup parts must be placed within <FilterDropdown.Popup>.",
-  "103": "Base UI: <Menu.%s> requires the `filter` prop on its nearest <Menu.Root> or <Menu.SubmenuRoot>.",
+  "103": "Base UI: <FilterableMenu.%s> must be placed within the nearest <FilterableMenu.Root> or <FilterableMenu.SubmenuRoot>, imported from `@base-ui/react/filterable-menu`. An ordinary <Menu.Root> cannot filter.",
   "104": "Base UI: <Select.%s> requires the `filter` prop on <Select.Root>."
 }

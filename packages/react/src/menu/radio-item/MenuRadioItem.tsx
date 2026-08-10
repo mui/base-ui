@@ -12,7 +12,6 @@ import { REGULAR_ITEM, useMenuItem } from '../item/useMenuItem';
 import { useMenuPositionerContext } from '../positioner/MenuPositionerContext';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
-import { FilterDropdownItem } from '../../filter-dropdown/item/FilterDropdownItem';
 
 const MenuRadioItemImpl = React.forwardRef(function MenuRadioItemImpl(
   componentProps: MenuRadioItem.Props,
@@ -107,13 +106,17 @@ export const MenuRadioItem = React.forwardRef(function MenuRadioItem(
   forwardedRef: React.ForwardedRef<HTMLElement>,
 ) {
   const { store } = useMenuRootContext();
-  const filterable = store.select('filterable');
+  const filterIntegration = store.select('filterIntegration');
   const menuRadioItem = <MenuRadioItemImpl {...componentProps} ref={forwardedRef} />;
 
-  return filterable ? (
-    // FilterDropdownItem composes onto MenuRadioItemImpl so its implementation
+  return filterIntegration ? (
+    // The filter wrapper composes onto MenuRadioItemImpl so its implementation
     // overrides MenuRadioItemImpl's implementation.
-    <FilterDropdownItem label={componentProps.label} role="menuitemradio" render={menuRadioItem} />
+    <filterIntegration.Item
+      label={componentProps.label}
+      role="menuitemradio"
+      render={menuRadioItem}
+    />
   ) : (
     menuRadioItem
   );

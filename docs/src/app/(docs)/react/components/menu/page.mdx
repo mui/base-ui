@@ -102,11 +102,42 @@ import { DemoMenuGroupLabels } from './demos/group-labels';
 
 ### Filterable
 
-Add the `filter` prop to `<Menu.Root>` and/or `<Menu.SubmenuRoot>`, along with `<Menu.Input>` and `<Menu.List>`, to let users filter the available items.
+Import `FilterableMenu` from `@base-ui/react/filterable-menu` to let users filter the available items. It exposes every ordinary menu part plus `<FilterableMenu.Input>`, `<FilterableMenu.Clear>`, and `<FilterableMenu.Empty>`, so a filterable menu needs only this one import.
+
+```jsx title="Filterable menu"
+import { FilterableMenu } from '@base-ui/react/filterable-menu';
+
+<FilterableMenu.Root>
+  <FilterableMenu.Trigger />
+  <FilterableMenu.Portal>
+    <FilterableMenu.Positioner>
+      <FilterableMenu.Popup>
+        <FilterableMenu.Input />
+        <FilterableMenu.Empty />
+        <FilterableMenu.List>
+          <FilterableMenu.Item />
+        </FilterableMenu.List>
+      </FilterableMenu.Popup>
+    </FilterableMenu.Positioner>
+  </FilterableMenu.Portal>
+</FilterableMenu.Root>;
+```
 
 import { DemoMenuFilterable } from './demos/filterable';
 
 <DemoMenuFilterable />
+
+Filtering lives in its own entrypoint so that an ordinary `@base-ui/react/menu` never carries the filtering code. `<Menu.Root>` cannot filter, and the filtering parts throw if placed inside one.
+
+Filterability is scoped to the nearest root. A `<Menu.SubmenuRoot>` inside a filterable menu is not itself filterable; use `<FilterableMenu.SubmenuRoot>` for a submenu that filters.
+
+Give `<FilterableMenu.Input>` an accessible name with `aria-label` or a native `<label>`.
+
+Pass a function to `filter` to customize matching. It receives the item's `label` (falling back to its rendered text) and the trimmed query:
+
+```jsx title="Custom filter"
+<FilterableMenu.Root filter={(itemText, query) => itemText.startsWith(query)}>
+```
 
 ### Nested menu
 

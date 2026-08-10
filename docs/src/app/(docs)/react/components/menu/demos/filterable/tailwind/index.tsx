@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { Menu } from '@base-ui/react/menu';
+import { FilterableMenu } from '@base-ui/react/filterable-menu';
 
 const actions = [
   'New file',
@@ -16,76 +16,78 @@ const actions = [
 
 const sharingOptions = ['Email', 'Messages', 'AirDrop', 'Copy link'];
 
-export default function FilterableMenu() {
+export default function FilterableMenuDemo() {
   return (
-    <Menu.Root filter>
-      <Menu.Trigger className="flex h-8 items-center justify-center gap-1.5 rounded-none border border-neutral-950 bg-white pr-2 pl-3 text-sm leading-none font-normal whitespace-nowrap text-neutral-950 select-none hover:not-data-disabled:bg-neutral-100 active:not-data-disabled:bg-neutral-200 data-pressed:bg-neutral-100 data-disabled:border-neutral-500 data-disabled:text-neutral-500 focus-visible:-outline-offset-1 focus-visible:outline-2 focus-visible:outline-neutral-950 disabled:border-neutral-500 disabled:text-neutral-500 dark:border-white dark:bg-neutral-950 dark:text-white dark:hover:not-data-disabled:bg-neutral-800 dark:active:not-data-disabled:bg-neutral-700 dark:data-pressed:bg-neutral-800 dark:data-disabled:border-neutral-400 dark:data-disabled:text-neutral-400 dark:focus-visible:outline-white">
+    <FilterableMenu.Root filter>
+      <FilterableMenu.Trigger className="flex h-8 items-center justify-center gap-1.5 rounded-none border border-neutral-950 bg-white pr-2 pl-3 text-sm leading-none font-normal whitespace-nowrap text-neutral-950 select-none hover:not-data-disabled:bg-neutral-100 active:not-data-disabled:bg-neutral-200 data-pressed:bg-neutral-100 data-disabled:border-neutral-500 data-disabled:text-neutral-500 focus-visible:-outline-offset-1 focus-visible:outline-2 focus-visible:outline-neutral-950 disabled:border-neutral-500 disabled:text-neutral-500 dark:border-white dark:bg-neutral-950 dark:text-white dark:hover:not-data-disabled:bg-neutral-800 dark:active:not-data-disabled:bg-neutral-700 dark:data-pressed:bg-neutral-800 dark:data-disabled:border-neutral-400 dark:data-disabled:text-neutral-400 dark:focus-visible:outline-white">
         Actions <CaretDownIcon />
-      </Menu.Trigger>
-      <Menu.Portal>
-        <Menu.Positioner className="outline-hidden" sideOffset={8} align="start">
-          <Menu.Popup className={popupClass}>
+      </FilterableMenu.Trigger>
+      <FilterableMenu.Portal>
+        <FilterableMenu.Positioner className="outline-hidden" sideOffset={8} align="start">
+          <FilterableMenu.Popup className={popupClass}>
             <div className={inputContainerClass}>
-              <Menu.Input
+              <FilterableMenu.Input
                 className={inputClass}
                 aria-label="Filter actions"
                 placeholder="e.g. Save"
               />
-              <Menu.Clear className={clearClass} aria-label="Clear filter">
+              <FilterableMenu.Clear className={clearClass} aria-label="Clear filter">
                 <ClearIcon />
-              </Menu.Clear>
+              </FilterableMenu.Clear>
             </div>
-            <Menu.Empty className={emptyClass}>No actions found.</Menu.Empty>
-            <Menu.List className={listClass}>
+            <FilterableMenu.Empty className={emptyClass}>No actions found.</FilterableMenu.Empty>
+            <FilterableMenu.List className={listClass}>
               {actions.slice(0, 4).map((action) => (
-                <Menu.Item key={action} className={itemClass}>
+                <FilterableMenu.Item key={action} className={itemClass}>
                   {action}
-                </Menu.Item>
+                </FilterableMenu.Item>
               ))}
-              <Menu.SubmenuRoot filter>
-                <Menu.SubmenuTrigger className={submenuTriggerClass}>
+              <FilterableMenu.SubmenuRoot filter>
+                <FilterableMenu.SubmenuTrigger className={submenuTriggerClass}>
                   Share
                   <CaretRightIcon />
-                </Menu.SubmenuTrigger>
-                <Menu.Portal>
-                  <Menu.Positioner
+                </FilterableMenu.SubmenuTrigger>
+                <FilterableMenu.Portal>
+                  <FilterableMenu.Positioner
                     className="outline-hidden"
                     sideOffset={getSubmenuOffset}
                     alignOffset={getSubmenuOffset}
                   >
-                    <Menu.Popup className={popupClass}>
+                    <FilterableMenu.Popup className={popupClass}>
                       <div className={inputContainerClass}>
-                        <Menu.Input
+                        <FilterableMenu.Input
                           className={inputClass}
                           aria-label="Filter sharing options"
                           placeholder="e.g. Email"
                         />
-                        <Menu.Clear className={clearClass} aria-label="Clear filter">
+                        <FilterableMenu.Clear className={clearClass} aria-label="Clear filter">
                           <ClearIcon />
-                        </Menu.Clear>
+                        </FilterableMenu.Clear>
                       </div>
-                      <Menu.Empty className={emptyClass}>No sharing options found.</Menu.Empty>
-                      <Menu.List className={listClass}>
+                      <FilterableMenu.Empty className={emptyClass}>
+                        No sharing options found.
+                      </FilterableMenu.Empty>
+                      <FilterableMenu.List className={listClass}>
                         {sharingOptions.map((option) => (
-                          <Menu.Item key={option} className={itemClass}>
+                          <FilterableMenu.Item key={option} className={itemClass}>
                             {option}
-                          </Menu.Item>
+                          </FilterableMenu.Item>
                         ))}
-                      </Menu.List>
-                    </Menu.Popup>
-                  </Menu.Positioner>
-                </Menu.Portal>
-              </Menu.SubmenuRoot>
+                      </FilterableMenu.List>
+                    </FilterableMenu.Popup>
+                  </FilterableMenu.Positioner>
+                </FilterableMenu.Portal>
+              </FilterableMenu.SubmenuRoot>
               {actions.slice(4).map((action) => (
-                <Menu.Item key={action} className={itemClass}>
+                <FilterableMenu.Item key={action} className={itemClass}>
                   {action}
-                </Menu.Item>
+                </FilterableMenu.Item>
               ))}
-            </Menu.List>
-          </Menu.Popup>
-        </Menu.Positioner>
-      </Menu.Portal>
-    </Menu.Root>
+            </FilterableMenu.List>
+          </FilterableMenu.Popup>
+        </FilterableMenu.Positioner>
+      </FilterableMenu.Portal>
+    </FilterableMenu.Root>
   );
 }
 
@@ -104,7 +106,7 @@ const itemBaseClass =
 const itemClass = `${itemBaseClass} pr-8`;
 const submenuTriggerClass = `${itemBaseClass} items-center justify-between gap-4 pr-2 data-popup-open:relative data-popup-open:z-0 data-popup-open:before:absolute data-popup-open:before:inset-x-1 data-popup-open:before:inset-y-0 data-popup-open:before:z-[-1] data-popup-open:before:bg-neutral-100 data-popup-open:before:content-[''] data-highlighted:data-popup-open:before:bg-neutral-950 dark:data-popup-open:before:bg-neutral-800 dark:data-highlighted:data-popup-open:before:bg-white`;
 
-function getSubmenuOffset({ side }: { side: Menu.Positioner.Props['side'] }) {
+function getSubmenuOffset({ side }: { side: FilterableMenu.Positioner.Props['side'] }) {
   return side === 'top' || side === 'bottom' ? 4 : -4;
 }
 

@@ -16,8 +16,6 @@ import { useMenuItem } from '../item/useMenuItem';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { useMenuPositionerContext } from '../positioner/MenuPositionerContext';
 import { useTriggerRegistration } from '../../utils/popups';
-import { FilterDropdownItem } from '../../filter-dropdown/item/FilterDropdownItem';
-import { FilterDropdownTrigger } from '../../filter-dropdown/trigger/FilterDropdownTrigger';
 import type { MenuStore } from '../store/MenuStore';
 
 const VOICE_OVER_EXPANDED_PROPS = { 'aria-expanded': undefined };
@@ -103,7 +101,7 @@ const MenuSubmenuTriggerImpl = React.forwardRef(function MenuSubmenuTriggerImpl(
 
   const itemProps = parentMenuStore.useState('itemProps');
   const highlighted = parentMenuStore.useState('isActive', listItem.index);
-  const isParentFilterable = parentMenuStore.select('filterable');
+  const isParentFilterable = parentMenuStore.select('filterIntegration') !== null;
 
   const itemMetadata = React.useMemo(
     () => ({
@@ -223,8 +221,8 @@ const MenuSubmenuTriggerWithListItem = React.forwardRef(function MenuSubmenuTrig
   const triggerId = componentProps.id ?? `${parentFloatingId}-${listItem.index}`;
   // Child filterability controls trigger/dialog semantics; parent filterability controls whether
   // this trigger participates in the parent's filtering.
-  const isSubmenuFilterable = store.select('filterable');
-  const isListItemFilterable = parentMenuStore.select('filterable');
+  const submenuFilterIntegration = store.select('filterIntegration');
+  const listFilterIntegration = parentMenuStore.select('filterIntegration');
 
   const triggerElement = (
     <MenuSubmenuTriggerImpl
@@ -236,8 +234,8 @@ const MenuSubmenuTriggerWithListItem = React.forwardRef(function MenuSubmenuTrig
     />
   );
 
-  const trigger = isSubmenuFilterable ? (
-    <FilterDropdownTrigger
+  const trigger = submenuFilterIntegration ? (
+    <submenuFilterIntegration.Trigger
       id={triggerId}
       disabled={componentProps.disabled}
       nativeButton={componentProps.nativeButton}
@@ -247,8 +245,8 @@ const MenuSubmenuTriggerWithListItem = React.forwardRef(function MenuSubmenuTrig
     triggerElement
   );
 
-  return isListItemFilterable ? (
-    <FilterDropdownItem label={componentProps.label} role="menuitem" render={trigger} />
+  return listFilterIntegration ? (
+    <listFilterIntegration.Item label={componentProps.label} role="menuitem" render={trigger} />
   ) : (
     trigger
   );

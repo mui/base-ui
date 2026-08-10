@@ -13,7 +13,6 @@ import { useMenuPositionerContext } from '../positioner/MenuPositionerContext';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
 import type { MenuRoot } from '../root/MenuRoot';
-import { FilterDropdownItem } from '../../filter-dropdown/item/FilterDropdownItem';
 
 const MenuCheckboxItemImpl = React.forwardRef(function MenuCheckboxItemImpl(
   componentProps: MenuCheckboxItem.Props,
@@ -117,13 +116,13 @@ export const MenuCheckboxItem = React.forwardRef(function MenuCheckboxItem(
   forwardedRef: React.ForwardedRef<HTMLElement>,
 ) {
   const { store } = useMenuRootContext();
-  const filterable = store.select('filterable');
+  const filterIntegration = store.select('filterIntegration');
   const menuCheckboxItem = <MenuCheckboxItemImpl {...componentProps} ref={forwardedRef} />;
 
-  return filterable ? (
-    // FilterDropdownItem composes onto MenuCheckboxItemImpl so its implementation
+  return filterIntegration ? (
+    // The filter wrapper composes onto MenuCheckboxItemImpl so its implementation
     // overrides MenuCheckboxItemImpl's implementation.
-    <FilterDropdownItem
+    <filterIntegration.Item
       label={componentProps.label}
       role="menuitemcheckbox"
       render={menuCheckboxItem}

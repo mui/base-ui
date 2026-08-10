@@ -1,7 +1,6 @@
 'use client';
 import * as React from 'react';
 import { platform } from '@base-ui/utils/platform';
-import { FilterDropdownList } from '../../filter-dropdown/list/FilterDropdownList';
 import type { BaseUIComponentProps } from '../../internals/types';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { useMenuRootContext } from '../root/MenuRootContext';
@@ -54,13 +53,13 @@ export const MenuList = React.forwardRef(function MenuList(
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const { store } = useMenuRootContext();
-  const filterable = store.select('filterable');
+  const filterIntegration = store.select('filterIntegration');
   const menuList = <MenuListImpl {...componentProps} ref={forwardedRef} />;
 
-  return filterable ? (
-    // FilterDropdownList composes onto MenuListImpl so its implementation
+  return filterIntegration ? (
+    // The filter wrapper composes onto MenuListImpl so its implementation
     // overrides MenuListImpl's implementation.
-    <FilterDropdownList id={componentProps.id} role={MENU_LIST_ROLE} render={menuList} />
+    <filterIntegration.List id={componentProps.id} role={MENU_LIST_ROLE} render={menuList} />
   ) : (
     menuList
   );

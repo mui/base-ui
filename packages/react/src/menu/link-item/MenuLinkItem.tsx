@@ -9,7 +9,6 @@ import { useMenuItemCommonProps } from '../item/useMenuItemCommonProps';
 import { REGULAR_ITEM } from '../item/useMenuItem';
 import { useButton } from '../../internals/use-button';
 import { mergeProps } from '../../merge-props';
-import { FilterDropdownItem } from '../../filter-dropdown/item/FilterDropdownItem';
 
 const MenuLinkItemImpl = React.forwardRef(function MenuLinkItemImpl(
   componentProps: MenuLinkItem.Props,
@@ -77,13 +76,13 @@ export const MenuLinkItem = React.forwardRef(function MenuLinkItem(
   forwardedRef: React.ForwardedRef<Element>,
 ) {
   const { store } = useMenuRootContext();
-  const filterable = store.select('filterable');
+  const filterIntegration = store.select('filterIntegration');
   const menuLinkItem = <MenuLinkItemImpl {...componentProps} ref={forwardedRef} />;
 
-  return filterable ? (
-    // FilterDropdownItem composes onto MenuLinkItemImpl so its implementation
+  return filterIntegration ? (
+    // The filter wrapper composes onto MenuLinkItemImpl so its implementation
     // overrides MenuLinkItemImpl's implementation.
-    <FilterDropdownItem label={componentProps.label} role="menuitem" render={menuLinkItem} />
+    <filterIntegration.Item label={componentProps.label} role="menuitem" render={menuLinkItem} />
   ) : (
     menuLinkItem
   );

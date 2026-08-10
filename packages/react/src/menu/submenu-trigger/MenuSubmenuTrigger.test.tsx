@@ -3,6 +3,7 @@ import { act, fireEvent, waitFor, screen } from '@mui/internal-test-utils';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 import { DirectionProvider } from '@base-ui/react/direction-provider';
 import { Menu } from '@base-ui/react/menu';
+import { FilterableMenu } from '@base-ui/react/filterable-menu';
 import { SafeReact } from '@base-ui/utils/safeReact';
 import { useMenuRootContext } from '../root/MenuRootContext';
 import type { MenuStore } from '../store/MenuStore';
@@ -215,29 +216,31 @@ describe('<Menu.SubmenuTrigger />', () => {
 
   it('stays out of the tab order when the parent menu is filterable', async () => {
     const { user } = await render(
-      <Menu.Root filter open>
-        <Menu.Trigger>Actions</Menu.Trigger>
-        <Menu.Portal>
-          <Menu.Positioner>
-            <Menu.Popup>
-              <Menu.Input aria-label="Filter actions" />
-              <Menu.List>
-                <Menu.Item>Rename</Menu.Item>
-                <Menu.SubmenuRoot>
-                  <Menu.SubmenuTrigger delay={0}>Move to folder</Menu.SubmenuTrigger>
-                  <Menu.Portal>
-                    <Menu.Positioner>
-                      <Menu.Popup>
-                        <Menu.Item>Documents</Menu.Item>
-                      </Menu.Popup>
-                    </Menu.Positioner>
-                  </Menu.Portal>
-                </Menu.SubmenuRoot>
-              </Menu.List>
-            </Menu.Popup>
-          </Menu.Positioner>
-        </Menu.Portal>
-      </Menu.Root>,
+      <FilterableMenu.Root open>
+        <FilterableMenu.Trigger>Actions</FilterableMenu.Trigger>
+        <FilterableMenu.Portal>
+          <FilterableMenu.Positioner>
+            <FilterableMenu.Popup>
+              <FilterableMenu.Input aria-label="Filter actions" />
+              <FilterableMenu.List>
+                <FilterableMenu.Item>Rename</FilterableMenu.Item>
+                <FilterableMenu.SubmenuRoot>
+                  <FilterableMenu.SubmenuTrigger delay={0}>
+                    Move to folder
+                  </FilterableMenu.SubmenuTrigger>
+                  <FilterableMenu.Portal>
+                    <FilterableMenu.Positioner>
+                      <FilterableMenu.Popup>
+                        <FilterableMenu.Item>Documents</FilterableMenu.Item>
+                      </FilterableMenu.Popup>
+                    </FilterableMenu.Positioner>
+                  </FilterableMenu.Portal>
+                </FilterableMenu.SubmenuRoot>
+              </FilterableMenu.List>
+            </FilterableMenu.Popup>
+          </FilterableMenu.Positioner>
+        </FilterableMenu.Portal>
+      </FilterableMenu.Root>,
     );
 
     const input = screen.getByRole('searchbox', { name: 'Filter actions' });
