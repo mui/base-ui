@@ -281,7 +281,7 @@ describe('<Field.Root />', () => {
   );
 
   it.skipIf(reactMajor < 19)(
-    'does not loop when a control is unmounted and remounted',
+    'preserves label association without looping when a control is unmounted and remounted',
     async () => {
       const errorSpy = vi
         .spyOn(console, 'error')
@@ -303,12 +303,10 @@ describe('<Field.Root />', () => {
           return (
             <React.Fragment>
               <Field.Root>
-                <Field.Label nativeLabel={false} render={<div />}>
-                  Label
-                </Field.Label>
+                <Field.Label data-testid="label">Label</Field.Label>
                 <Activity mode={showSelect ? 'visible' : 'hidden'}>
                   <Select.Root>
-                    <Select.Trigger>
+                    <Select.Trigger data-testid="trigger">
                       <Select.Value placeholder="Select a model" />
                     </Select.Trigger>
                     <Select.Portal>
@@ -334,10 +332,17 @@ describe('<Field.Root />', () => {
         await renderStrict(<TestCase />);
 
         const checkbox = screen.getByRole('checkbox');
+        const label = screen.getByTestId('label');
+
+        expect(label).toHaveAttribute('for', screen.getByTestId('trigger').id);
 
         fireEvent.click(checkbox);
+
+        expect(label).toHaveAttribute('for', screen.getByTestId('trigger').id);
+
         fireEvent.click(checkbox);
 
+        expect(label).toHaveAttribute('for', screen.getByTestId('trigger').id);
         expect(errorSpy.mock.calls.length).toBe(0);
       } finally {
         errorSpy.mockRestore();
