@@ -577,7 +577,7 @@ describe('<NavigationMenu.Trigger />', () => {
       await waitFor(() => {
         expect(list.style.pointerEvents).toBe('');
       });
-      expect(screen.queryByRole('link', { name: 'A link' })).to.equal(null);
+      expect(screen.queryByRole('link', { name: 'A link' })).toBe(null);
     },
   );
 });
