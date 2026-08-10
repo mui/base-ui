@@ -50,6 +50,11 @@ export function ExperimentSettingsProvider<Settings extends {}>(
 
     const storedSettings = { ...getDefaultSettings(metadata), ...readStoredOverrides(metadata) };
 
+    // Rewrite the entry so it only holds overrides that are still valid and still differ from
+    // the defaults. Without this, an override that a metadata change turned into the default
+    // would linger and shadow that default if it ever changed back.
+    saveSettings(metadata, storedSettings);
+
     // Already up to date when the defaults were server-rendered and nothing was stored.
     if (fastObjectShallowCompare(settingsRef.current, storedSettings)) {
       return;
