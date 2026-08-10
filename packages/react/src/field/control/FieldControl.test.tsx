@@ -1,6 +1,6 @@
 import { expect, vi } from 'vitest';
 import * as React from 'react';
-import { createRenderer, fireEvent, screen } from '@mui/internal-test-utils';
+import { act, createRenderer, fireEvent, screen } from '@mui/internal-test-utils';
 import { Field } from '@base-ui/react/field';
 import { Form } from '@base-ui/react/form';
 import { describeConformance, isJSDOM } from '#test-utils';
@@ -251,54 +251,93 @@ describe('<Field.Control />', () => {
     });
   });
 
-  describe('focused state ownership', () => {
-    it('releases the focused state when the focused control unmounts', async () => {
-      function TestCase() {
-        const [mounted, setMounted] = React.useState(true);
+  describe('[data-focused]', () => {
+    function Controls(props: {
+      firstMounted?: boolean;
+      firstDisabled?: boolean;
+      secondMounted?: boolean;
+    }) {
+      const { firstMounted = true, firstDisabled = false, secondMounted = false } = props;
+      return (
+        <Field.Root data-testid="root">
+          <Field.Label data-testid="label">Name</Field.Label>
+          {firstMounted && <Field.Control data-testid="first" disabled={firstDisabled} />}
+          {secondMounted && <Field.Control data-testid="second" />}
+        </Field.Root>
+      );
+    }
 
-        return (
-          <Field.Root data-testid="root">
-            {mounted && <Field.Control />}
-            <button type="button" onClick={() => setMounted(false)}>
-              Remove
-            </button>
-          </Field.Root>
-        );
-      }
+    it('is removed when the focused control becomes disabled', async () => {
+      const { setProps } = await render(<Controls />);
 
-      await render(<TestCase />);
+      const control = screen.getByTestId('first');
+      act(() => {
+        control.focus();
+      });
 
-      fireEvent.focus(screen.getByRole('textbox'));
       expect(screen.getByTestId('root')).toHaveAttribute('data-focused', '');
+      expect(control).toHaveAttribute('data-focused', '');
 
-      fireEvent.click(screen.getByRole('button', { name: 'Remove' }));
+      await setProps({ firstDisabled: true });
 
       expect(screen.getByTestId('root')).not.toHaveAttribute('data-focused');
+      expect(control).not.toHaveAttribute('data-focused');
+      expect(screen.getByTestId('label')).not.toHaveAttribute('data-focused');
     });
 
-    it('does not let a blurred control release the focused state of another control', async () => {
-      function TestCase() {
-        const [mounted, setMounted] = React.useState(true);
+    it('is removed when the focused control unmounts', async () => {
+      const { setProps } = await render(<Controls />);
 
-        return (
-          <Field.Root data-testid="root">
-            {mounted && <Field.Control data-testid="first" />}
-            <Field.Control data-testid="second" />
-            <button type="button" onClick={() => setMounted(false)}>
-              Remove first
-            </button>
-          </Field.Root>
-        );
-      }
+      act(() => {
+        screen.getByTestId('first').focus();
+      });
 
-      await render(<TestCase />);
-
-      fireEvent.focus(screen.getByTestId('first'));
-      fireEvent.blur(screen.getByTestId('first'));
-      fireEvent.focus(screen.getByTestId('second'));
       expect(screen.getByTestId('root')).toHaveAttribute('data-focused', '');
 
-      fireEvent.click(screen.getByRole('button', { name: 'Remove first' }));
+      await setProps({ firstMounted: false });
+
+      expect(screen.getByTestId('root')).not.toHaveAttribute('data-focused');
+      expect(screen.getByTestId('label')).not.toHaveAttribute('data-focused');
+    });
+
+    it('is kept when a different control in the field is disabled or unmounted', async () => {
+      const { setProps } = await render(<Controls secondMounted />);
+
+      const second = screen.getByTestId('second');
+      act(() => {
+        second.focus();
+      });
+
+      expect(screen.getByTestId('root')).toHaveAttribute('data-focused', '');
+
+      await setProps({ firstDisabled: true });
+
+      expect(screen.getByTestId('root')).toHaveAttribute('data-focused', '');
+      expect(second).toHaveAttribute('data-focused', '');
+
+      await setProps({ firstMounted: false });
+
+      expect(screen.getByTestId('root')).toHaveAttribute('data-focused', '');
+      expect(second).toHaveAttribute('data-focused', '');
+    });
+
+    // A control that blurred earlier must not release state that focus has since moved to.
+    it('does not let a blurred control release the focused state of another control', async () => {
+      const { setProps } = await render(<Controls secondMounted />);
+
+      const first = screen.getByTestId('first');
+      const second = screen.getByTestId('second');
+
+      act(() => {
+        first.focus();
+      });
+      act(() => {
+        second.focus();
+      });
+
+      expect(screen.getByTestId('root')).toHaveAttribute('data-focused', '');
+
+      await setProps({ firstMounted: false });
 
       expect(screen.getByTestId('root')).toHaveAttribute('data-focused', '');
     });

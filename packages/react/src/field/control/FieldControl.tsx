@@ -6,6 +6,7 @@ import { ownerDocument } from '@base-ui/utils/owner';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { type FieldRootState } from '../root/FieldRoot';
 import { useFieldRootContext } from '../../internals/field-root-context/FieldRootContext';
+import { useSetFieldFocused } from '../../internals/field-root-context/useSetFieldFocused';
 import { useRegisterFieldControl } from '../../internals/field-register-control/useRegisterFieldControl';
 import { useFormContext } from '../../internals/form-context/FormContext';
 import { useLabelableContext } from '../../internals/labelable-provider/LabelableContext';
@@ -53,7 +54,6 @@ export const FieldControl = React.forwardRef(function FieldControl(
     setTouched,
     setDirty,
     validityData,
-    setFocused,
     setFilled,
     validationMode,
     validation,
@@ -62,6 +62,8 @@ export const FieldControl = React.forwardRef(function FieldControl(
 
   const disabled = fieldDisabled || disabledProp;
   const name = fieldName ?? nameProp;
+
+  const setFocused = useSetFieldFocused(disabled);
 
   const state: FieldControlState = {
     ...fieldState,
@@ -86,29 +88,11 @@ export const FieldControl = React.forwardRef(function FieldControl(
     // this control renders, and the survivor has to reclaim it on the render that follows.
   });
 
-  const focusedRef = React.useRef(false);
-
-  const updateFocused = useStableCallback((focused: boolean) => {
-    focusedRef.current = focused;
-    setFocused(focused);
-  });
-
-  // A control removed while focused never fires blur, which would leave the field focused
-  // forever. Only release the state when this control is the one still holding it.
-  useIsoLayoutEffect(
-    () => () => {
-      if (focusedRef.current) {
-        setFocused(false);
-      }
-    },
-    [setFocused],
-  );
-
   useIsoLayoutEffect(() => {
     if (autoFocus && inputRef.current === activeElement(ownerDocument(inputRef.current))) {
-      updateFocused(true);
+      setFocused(true);
     }
-  }, [autoFocus, updateFocused]);
+  }, [autoFocus, setFocused]);
 
   const [valueUnwrapped] = useControlled({
     controlled: valueProp,
@@ -151,11 +135,11 @@ export const FieldControl = React.forwardRef(function FieldControl(
           }
         },
         onFocus() {
-          updateFocused(true);
+          setFocused(true);
         },
         onBlur(event) {
           setTouched(true);
-          updateFocused(false);
+          setFocused(false);
 
           if (validationMode === 'onBlur') {
             validation.commit(event.currentTarget.value);

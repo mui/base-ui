@@ -22,6 +22,7 @@ import { mergeProps } from '../../merge-props';
 import { useButton } from '../../internals/use-button/useButton';
 import type { FieldRootState } from '../../field/root/FieldRoot';
 import { useFieldRootContext } from '../../internals/field-root-context/FieldRootContext';
+import { useSetFieldFocused } from '../../internals/field-root-context/useSetFieldFocused';
 import { useRegisterFieldControl } from '../../internals/field-register-control/useRegisterFieldControl';
 import { useFieldItemContext } from '../../field/item/FieldItemContext';
 import { useFormContext } from '../../internals/form-context/FormContext';
@@ -77,7 +78,6 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
     name: fieldName,
     setDirty,
     setFilled,
-    setFocused,
     setTouched,
     state: fieldState,
     validationMode,
@@ -95,6 +95,8 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
     rootDisabled || fieldItemContext.disabled || groupContext?.disabled || disabledProp;
   const name = fieldName ?? nameProp;
   const value = valueProp ?? name;
+
+  const setFocused = useSetFieldFocused(disabled);
 
   const id = useBaseUiId();
 

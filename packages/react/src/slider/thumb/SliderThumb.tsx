@@ -29,6 +29,7 @@ import { useCompositeListItem } from '../../internals/composite/list/useComposit
 import { useDirection } from '../../internals/direction-context/DirectionContext';
 import { PrehydrationScript } from '../../internals/PrehydrationScript';
 import { useFieldRootContext } from '../../internals/field-root-context/FieldRootContext';
+import { useSetFieldFocused } from '../../internals/field-root-context/useSetFieldFocused';
 import { contains } from '../../floating-ui-react/utils';
 import { matchesFocusVisible } from '../../floating-ui-react/utils/element';
 import { type LabelableContext } from '../../internals/labelable-provider/LabelableContext';
@@ -149,7 +150,9 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
   const vertical = orientation === 'vertical';
   const rtl = direction === 'rtl';
 
-  const { setTouched, setFocused, validationMode } = useFieldRootContext();
+  const { setTouched, validationMode } = useFieldRootContext();
+
+  const setFocused = useSetFieldFocused(disabled);
 
   const thumbRef = React.useRef<HTMLElement>(null);
   const inputRef = React.useRef<HTMLInputElement>(null);

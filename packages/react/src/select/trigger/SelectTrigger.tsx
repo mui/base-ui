@@ -7,6 +7,7 @@ import { useStore } from '@base-ui/utils/store';
 import { useSelectRootContext } from '../root/SelectRootContext';
 import { BaseUIComponentProps, HTMLProps, NativeButtonProps } from '../../internals/types';
 import { useFieldRootContext } from '../../internals/field-root-context/FieldRootContext';
+import { useSetFieldFocused } from '../../internals/field-root-context/useSetFieldFocused';
 import { useLabelableContext } from '../../internals/labelable-provider/LabelableContext';
 import { pressableTriggerOpenStateMapping } from '../../utils/popupStateMapping';
 import { fieldValidityMapping } from '../../internals/field-constants/constants';
@@ -55,7 +56,6 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
 
   const {
     setTouched,
-    setFocused,
     validationMode,
     state: fieldState,
     disabled: fieldDisabled,
@@ -73,6 +73,8 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
   } = useSelectRootContext();
 
   const disabled = fieldDisabled || selectDisabled || disabledProp;
+
+  const setFocused = useSetFieldFocused(disabled);
 
   const open = useStore(store, selectors.open);
   const mounted = useStore(store, selectors.mounted);

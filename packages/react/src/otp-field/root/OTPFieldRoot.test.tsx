@@ -1514,6 +1514,68 @@ describe('<OTPField.Root />', () => {
     });
   });
 
+  describe('[data-focused] without a blur event', () => {
+    function Fields(props: {
+      firstMounted?: boolean;
+      firstDisabled?: boolean;
+      secondMounted?: boolean;
+    }) {
+      const { firstMounted = true, firstDisabled = false, secondMounted = false } = props;
+      return (
+        <Field.Root data-testid="field">
+          {firstMounted && <OTPField data-testid="first" disabled={firstDisabled} />}
+          {secondMounted && <OTPField data-testid="second" />}
+        </Field.Root>
+      );
+    }
+
+    it('is removed when the focused field becomes disabled', async () => {
+      const { setProps } = await render(<Fields />);
+
+      await act(async () => {
+        screen.getAllByRole<HTMLInputElement>('textbox')[0].focus();
+      });
+
+      expect(screen.getByTestId('field')).toHaveAttribute('data-focused', '');
+      expect(screen.getByTestId('first')).toHaveAttribute('data-focused', '');
+
+      await setProps({ firstDisabled: true });
+
+      expect(screen.getByTestId('field')).not.toHaveAttribute('data-focused');
+      expect(screen.getByTestId('first')).not.toHaveAttribute('data-focused');
+    });
+
+    it('is removed when the focused field unmounts', async () => {
+      const { setProps } = await render(<Fields />);
+
+      await act(async () => {
+        screen.getAllByRole<HTMLInputElement>('textbox')[0].focus();
+      });
+
+      expect(screen.getByTestId('field')).toHaveAttribute('data-focused', '');
+
+      await setProps({ firstMounted: false });
+
+      expect(screen.getByTestId('field')).not.toHaveAttribute('data-focused');
+    });
+
+    it('is kept when a different control in the field is disabled or unmounted', async () => {
+      const { setProps } = await render(<Fields secondMounted />);
+
+      await act(async () => {
+        screen.getAllByRole<HTMLInputElement>('textbox')[OTP_LENGTH].focus();
+      });
+
+      await setProps({ firstDisabled: true });
+
+      expect(screen.getByTestId('field')).toHaveAttribute('data-focused', '');
+
+      await setProps({ firstMounted: false });
+
+      expect(screen.getByTestId('field')).toHaveAttribute('data-focused', '');
+    });
+  });
+
   it('updates standalone filled and focused state on the root', async () => {
     await render(
       <OTPFieldBase.Root data-testid="root" length={OTP_LENGTH}>

@@ -11,6 +11,7 @@ import { ownerDocument } from '@base-ui/utils/owner';
 import { contains } from '../../floating-ui-react/utils';
 import { CompositeList } from '../../internals/composite/list/CompositeList';
 import { useFieldRootContext } from '../../internals/field-root-context/FieldRootContext';
+import { useSetFieldFocused } from '../../internals/field-root-context/useSetFieldFocused';
 import { useRegisterFieldControl } from '../../internals/field-register-control/useRegisterFieldControl';
 import type { FieldRootState } from '../../field/root/FieldRoot';
 import { useFormContext } from '../../internals/form-context/FormContext';
@@ -83,7 +84,6 @@ export const OTPFieldRoot = React.forwardRef(function OTPFieldRoot(
     state: fieldState,
     validation,
     validationMode,
-    setFocused,
     setTouched,
   } = useFieldRootContext();
   const { clearErrors } = useFormContext();
@@ -91,6 +91,8 @@ export const OTPFieldRoot = React.forwardRef(function OTPFieldRoot(
 
   const disabled = fieldDisabled || disabledProp;
   const name = fieldName ?? nameProp;
+
+  const setFocused = useSetFieldFocused(disabled);
 
   const [valueUnwrapped, setValueUnwrapped] = useControlled<string>({
     controlled: valueProp,
@@ -140,6 +142,14 @@ export const OTPFieldRoot = React.forwardRef(function OTPFieldRoot(
   const [inputCount, setInputCount] = React.useState(0);
   const [focusedIndex, setFocusedIndex] = React.useState(() => Math.min(value.length, length - 1));
   const [focused, setFocusedState] = React.useState(false);
+
+  // Disabling the slots moves focus away without firing `blur`, so this mirrors the field's own
+  // focused state and clears the local one too.
+  useIsoLayoutEffect(() => {
+    if (disabled) {
+      setFocusedState(false);
+    }
+  }, [disabled]);
 
   const activeIndex = focused
     ? Math.min(focusedIndex, Math.max(length - 1, 0))

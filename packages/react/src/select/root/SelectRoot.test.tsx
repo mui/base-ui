@@ -3655,6 +3655,76 @@ describe('<Select.Root />', () => {
       expect(trigger).not.toHaveAttribute('data-focused');
     });
 
+    describe('[data-focused] without a blur event', () => {
+      function Selects(props: {
+        firstMounted?: boolean;
+        firstDisabled?: boolean;
+        secondMounted?: boolean;
+      }) {
+        const { firstMounted = true, firstDisabled = false, secondMounted = false } = props;
+        return (
+          <Field.Root data-testid="field">
+            {firstMounted && (
+              <Select.Root disabled={firstDisabled}>
+                <Select.Trigger data-testid="first" />
+              </Select.Root>
+            )}
+            {secondMounted && (
+              <Select.Root>
+                <Select.Trigger data-testid="second" />
+              </Select.Root>
+            )}
+          </Field.Root>
+        );
+      }
+
+      it('is removed when the focused trigger becomes disabled', async () => {
+        const { setProps } = await render(<Selects />);
+
+        const trigger = screen.getByTestId('first');
+        act(() => {
+          trigger.focus();
+        });
+
+        expect(screen.getByTestId('field')).toHaveAttribute('data-focused', '');
+
+        await setProps({ firstDisabled: true });
+
+        expect(screen.getByTestId('field')).not.toHaveAttribute('data-focused');
+        expect(trigger).not.toHaveAttribute('data-focused');
+      });
+
+      it('is removed when the focused trigger unmounts', async () => {
+        const { setProps } = await render(<Selects />);
+
+        act(() => {
+          screen.getByTestId('first').focus();
+        });
+
+        expect(screen.getByTestId('field')).toHaveAttribute('data-focused', '');
+
+        await setProps({ firstMounted: false });
+
+        expect(screen.getByTestId('field')).not.toHaveAttribute('data-focused');
+      });
+
+      it('is kept when a different trigger in the field is disabled or unmounted', async () => {
+        const { setProps } = await render(<Selects secondMounted />);
+
+        act(() => {
+          screen.getByTestId('second').focus();
+        });
+
+        await setProps({ firstDisabled: true });
+
+        expect(screen.getByTestId('field')).toHaveAttribute('data-focused', '');
+
+        await setProps({ firstMounted: false });
+
+        expect(screen.getByTestId('field')).toHaveAttribute('data-focused', '');
+      });
+    });
+
     it('does not mark as touched when focus moves into the popup', async () => {
       const validateSpy = vi.fn(() => 'error');
 

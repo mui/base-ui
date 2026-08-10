@@ -51,6 +51,7 @@ const FieldRootInner = React.forwardRef(function FieldRootInner(
   const [dirtyState, setDirtyUnwrapped] = React.useState(false);
   const [filled, setFilled] = React.useState(false);
   const [focused, setFocused] = React.useState(false);
+  const focusOwnerRef = React.useRef<unknown>(undefined);
 
   const dirty = dirtyProp ?? dirtyState;
   const touched = touchedProp ?? touchedState;
@@ -158,6 +159,7 @@ const FieldRootInner = React.forwardRef(function FieldRootInner(
       setDirty,
       setFilled,
       setFocused,
+      focusOwnerRef,
       validationMode,
       shouldValidateOnChange,
       state,

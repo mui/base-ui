@@ -1028,6 +1028,74 @@ describe('<Switch.Root />', () => {
       expect(button).not.toHaveAttribute('data-focused');
     });
 
+    describe('[data-focused] without a blur event', () => {
+      function Switches(props: {
+        firstMounted?: boolean;
+        firstDisabled?: boolean;
+        secondMounted?: boolean;
+      }) {
+        const { firstMounted = true, firstDisabled = false, secondMounted = false } = props;
+        return (
+          <Field.Root data-testid="root">
+            {firstMounted && <Switch.Root data-testid="first" disabled={firstDisabled} />}
+            {secondMounted && <Switch.Root data-testid="second" />}
+          </Field.Root>
+        );
+      }
+
+      it('is removed when the focused switch becomes disabled', async () => {
+        const { setProps } = await render(<Switches />);
+
+        const button = screen.getByTestId('first');
+        act(() => {
+          button.focus();
+        });
+
+        expect(screen.getByTestId('root')).toHaveAttribute('data-focused', '');
+        expect(button).toHaveAttribute('data-focused', '');
+
+        await setProps({ firstDisabled: true });
+
+        expect(screen.getByTestId('root')).not.toHaveAttribute('data-focused');
+        expect(button).not.toHaveAttribute('data-focused');
+      });
+
+      it('is removed when the focused switch unmounts', async () => {
+        const { setProps } = await render(<Switches />);
+
+        act(() => {
+          screen.getByTestId('first').focus();
+        });
+
+        expect(screen.getByTestId('root')).toHaveAttribute('data-focused', '');
+
+        await setProps({ firstMounted: false });
+
+        expect(screen.getByTestId('root')).not.toHaveAttribute('data-focused');
+      });
+
+      it('is kept when a different switch in the field is disabled or unmounted', async () => {
+        const { setProps } = await render(<Switches secondMounted />);
+
+        const second = screen.getByTestId('second');
+        act(() => {
+          second.focus();
+        });
+
+        expect(screen.getByTestId('root')).toHaveAttribute('data-focused', '');
+
+        await setProps({ firstDisabled: true });
+
+        expect(screen.getByTestId('root')).toHaveAttribute('data-focused', '');
+        expect(second).toHaveAttribute('data-focused', '');
+
+        await setProps({ firstMounted: false });
+
+        expect(screen.getByTestId('root')).toHaveAttribute('data-focused', '');
+        expect(second).toHaveAttribute('data-focused', '');
+      });
+    });
+
     it('prop: validationMode=onSubmit', async () => {
       await render(
         <Form>

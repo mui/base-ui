@@ -8,6 +8,7 @@ import { contains } from '../floating-ui-react/utils';
 import { SHIFT } from '../internals/composite/composite';
 import { CompositeRoot } from '../internals/composite/root/CompositeRoot';
 import { useFieldRootContext } from '../internals/field-root-context/FieldRootContext';
+import { useSetFieldFocused } from '../internals/field-root-context/useSetFieldFocused';
 import { useRegisterFieldControl } from '../internals/field-register-control/useRegisterFieldControl';
 import { fieldValidityMapping } from '../internals/field-constants/constants';
 import type { FieldRootState } from '../field/root/FieldRoot';
@@ -51,7 +52,6 @@ export const RadioGroup = React.forwardRef(function RadioGroup<Value>(
 
   const {
     setTouched: setFieldTouched,
-    setFocused,
     validationMode,
     name: fieldName,
     disabled: fieldDisabled,
@@ -68,6 +68,8 @@ export const RadioGroup = React.forwardRef(function RadioGroup<Value>(
   const disabled = fieldDisabled || disabledProp;
   const name = fieldName ?? nameProp;
   const id = useBaseUiId(idProp);
+
+  const setFocused = useSetFieldFocused(disabled);
 
   const [checkedValue, setCheckedValueUnwrapped] = useControlled({
     controlled: externalValue,
