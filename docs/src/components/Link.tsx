@@ -1,6 +1,7 @@
 import * as React from 'react';
 import clsx from 'clsx';
 import NextLink from 'next/link';
+import { getCanonicalReactDocsUrl } from 'docs/src/utils/canonicalReactDocsUrl';
 import './Link.css';
 
 interface LinkProps extends React.ComponentProps<typeof NextLink> {
@@ -37,6 +38,8 @@ export function Link(props: LinkProps) {
     pathname = pathname.replace('https://base-ui.com/', '/');
   }
 
+  pathname = getCanonicalReactDocsUrl(pathname);
+
   if (
     pathname.startsWith('#') ||
     pathname.startsWith('/r/') ||
@@ -52,7 +55,11 @@ export function Link(props: LinkProps) {
   }
 
   return (
-    <NextLink {...rest} href={href} className={clsx('Link', className)}>
+    <NextLink
+      {...rest}
+      href={typeof href === 'string' ? pathname : { ...href, pathname }}
+      className={clsx('Link', className)}
+    >
       {content}
     </NextLink>
   );

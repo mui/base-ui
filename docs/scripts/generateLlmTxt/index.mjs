@@ -11,6 +11,9 @@ import remarkParse from 'remark-parse';
 import remarkGfm from 'remark-gfm';
 import remarkStringify from 'remark-stringify';
 import { visit } from 'unist-util-visit';
+// Node ESM requires the extension; this script runs with --experimental-strip-types.
+// eslint-disable-next-line import/extensions
+import { getCanonicalReactDocsUrl } from '../../src/utils/canonicalReactDocsUrl.ts';
 import { mdxToMarkdown } from './mdxToMarkdown.mjs';
 import { resolveUrl, isAbsoluteUrl } from './resolver.mjs';
 
@@ -23,6 +26,10 @@ const NETLIFY_DEPLOYMENT_URL =
   process.env.PULL_REQUEST === 'true' ? process.env.DEPLOY_PRIME_URL : process.env.URL;
 // Use the deployment URL if available, just root relative otherwise
 const BASE_URL = NETLIFY_DEPLOYMENT_URL || '/';
+function getMarkdownOutputPath(urlPath) {
+  const relativePath = urlPath.replace(/^\/react\/?/, '');
+  return path.join(OUTPUT_REACT_DIR, `${relativePath}.md`);
+}
 
 /**
  * Remark plugin to increment heading levels by a specified amount
@@ -96,6 +103,7 @@ async function generateLlmsTxt() {
   try {
     // Create output directories if they don't exist
     await fs.mkdir(OUTPUT_BASE_DIR, { recursive: true });
+    await fs.rm(OUTPUT_REACT_DIR, { recursive: true, force: true });
     await fs.mkdir(OUTPUT_REACT_DIR, { recursive: true });
 
     const metadataByUrl = new Map();
@@ -124,9 +132,10 @@ async function generateLlmsTxt() {
     const mdxFilesInfo = mdxFiles.map((mdxFile) => {
       const relativePath = path.relative(MDX_SOURCE_DIR, mdxFile);
       const dirPath = path.dirname(relativePath);
-      const urlPath = `/${path.join('react', dirPath).replace(/\\/g, '/')}`;
-      const outputFilePath = path.join(OUTPUT_REACT_DIR, `${dirPath}.md`);
-      return { urlPath, mdxFile, outputFilePath };
+      const sourceUrlPath = `/${path.join('react', dirPath).replace(/\\/g, '/')}`;
+      const urlPath = getCanonicalReactDocsUrl(sourceUrlPath);
+      const outputFilePath = getMarkdownOutputPath(urlPath);
+      return { sourceUrlPath, urlPath, mdxFile, outputFilePath };
     });
 
     const urlsWithMdVersion = new Set(mdxFilesInfo.map((info) => info.urlPath));
@@ -135,8 +144,8 @@ async function generateLlmsTxt() {
     const processSection = async (sectionName) => {
       console.log(`Processing ${sectionName} section...`);
 
-      for (const { urlPath, mdxFile, outputFilePath } of mdxFilesInfo) {
-        if (!urlPath.startsWith(`/react/${sectionName}/`)) {
+      for (const { sourceUrlPath, urlPath, mdxFile, outputFilePath } of mdxFilesInfo) {
+        if (!sourceUrlPath.startsWith(`/react/(${sectionName})/`)) {
           continue;
         }
 
@@ -262,7 +271,7 @@ async function generateLlmsTxt() {
           pages: mapOrderToMetadata(componentsOrder, metadataBySection.components),
         },
         {
-          title: 'Utilities',
+          title: 'Utils',
           pages: mapOrderToMetadata(utilsOrder, metadataBySection.utils),
         },
       ],

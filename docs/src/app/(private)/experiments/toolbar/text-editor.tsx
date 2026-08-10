@@ -9,10 +9,10 @@ import { NumberField } from '@base-ui/react/number-field';
 import { Menu } from '@base-ui/react/menu';
 import { SettingsMetadata, useExperimentSettings } from '../_components/SettingsPanel';
 import toolbarClasses from './toolbar.module.css';
-import selectClasses from '../../../(docs)/react/components/select/demos/hero/css-modules/index.module.css';
-import tooltipClasses from '../../../(docs)/react/components/tooltip/demos/hero/css-modules/index.module.css';
-import menuClasses from '../../../(docs)/react/components/menu/demos/submenu/css-modules/index.module.css';
-import numberFieldClasses from '../../../(docs)/react/components/number-field/demos/hero/css-modules/index.module.css';
+import selectClasses from '../../../(docs)/react/(components)/select/demos/hero/css-modules/index.module.css';
+import tooltipClasses from '../../../(docs)/react/(components)/tooltip/demos/hero/css-modules/index.module.css';
+import menuClasses from '../../../(docs)/react/(components)/menu/demos/submenu/css-modules/index.module.css';
+import numberFieldClasses from '../../../(docs)/react/(components)/number-field/demos/hero/css-modules/index.module.css';
 import '../../../../demo-data/theme/css-modules/theme.css';
 import {
   BoldIcon,

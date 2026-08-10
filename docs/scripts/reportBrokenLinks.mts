@@ -4,8 +4,7 @@ async function main() {
   const { issues } = await crawl({
     startCommand: 'pnpm serve --no-request-logging -p 3001',
     host: 'http://localhost:3001/',
-    // Target paths to ignore during link checking.
-    // Netlify redirects are unavailable on the local static server.
+    // `pnpm serve` does not apply Netlify redirects; this path is valid in production.
     ignoredPaths: [/^\/r\/discord$/],
     // CSS selectors for content to ignore during link checking
     ignoredContent: [],
@@ -19,7 +18,7 @@ async function main() {
         // can only silence with an inline directive comment scoped to the demo
         // subtree — and React can't emit HTML comments into the static export. Turn
         // the rule off for this page rather than distort the canonical demo.
-        path: '/react/components/accordion',
+        path: '/react/accordion',
         config: {
           rules: {
             'heading-level': 'off',
@@ -36,7 +35,7 @@ async function main() {
         // TODO: Fix Combobox to render distinct ids on the trigger and the hidden
         // input during SSR (`ComboboxInput`/`ComboboxTrigger`), then remove this
         // override.
-        path: '/react/handbook/forms',
+        path: '/react/forms',
         config: {
           rules: {
             'no-dup-id': 'off',

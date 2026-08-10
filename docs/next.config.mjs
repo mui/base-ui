@@ -39,6 +39,7 @@ const withMdx = nextMdx({
         },
       ],
       'remark-typography',
+      [localPlugin('src/plugins/remarkSourceCodeLink.mjs'), { componentName: 'Subtitle' }],
       localPlugin('src/components/QuickNav/remarkQuickNavExcludeHeading.mjs'),
       '@mui/internal-docs-infra/pipeline/transformMarkdownRelativePaths',
       '@mui/internal-docs-infra/pipeline/transformMarkdownCode',

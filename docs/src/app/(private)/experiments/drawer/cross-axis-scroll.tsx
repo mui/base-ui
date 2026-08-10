@@ -1,7 +1,7 @@
 import { Drawer } from '@base-ui/react/drawer';
 import clsx from 'clsx';
-import heroStyles from 'docs/src/app/(docs)/react/components/drawer/demos/hero/css-modules/index.module.css';
-import positionStyles from 'docs/src/app/(docs)/react/components/drawer/demos/position/css-modules/index.module.css';
+import heroStyles from 'docs/src/app/(docs)/react/(components)/drawer/demos/hero/css-modules/index.module.css';
+import positionStyles from 'docs/src/app/(docs)/react/(components)/drawer/demos/position/css-modules/index.module.css';
 import styles from './cross-axis-scroll.module.css';
 
 type SwipeDirection = 'left' | 'right' | 'up' | 'down';

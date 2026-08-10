@@ -2,7 +2,7 @@
 import * as React from 'react';
 import { Dialog } from '@base-ui/react/dialog';
 import { Menu } from '@base-ui/react/menu';
-import dialogStyles from 'docs/src/app/(docs)/react/components/dialog/demos/hero/css-modules/index.module.css';
+import dialogStyles from 'docs/src/app/(docs)/react/(components)/dialog/demos/hero/css-modules/index.module.css';
 import styles from './menu.module.css';
 
 export default function MenuDialogTriggerItemExperiment() {

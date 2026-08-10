@@ -1,8 +1,10 @@
 'use client';
 import * as React from 'react';
 import { useSearch } from '@mui/internal-docs-infra/useSearch';
+import type { SearchResult } from '@mui/internal-docs-infra/useSearch/types';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
-import { type SearchSitemapLoader } from './searchSitemap';
+import { getCanonicalReactDocsUrl } from 'docs/src/utils/canonicalReactDocsUrl';
+import { groupSearchSitemapBySection, type SearchSitemapLoader } from './searchSitemap';
 import { slugifyWithParentContext } from './searchUtils';
 
 const showPrivatePages = process.env.SHOW_PRIVATE_PAGES === 'true';
@@ -17,8 +19,16 @@ export function useDocsSearch(
   isSearchPending: boolean;
   performSearch: (value: string) => Promise<void>;
 } {
+  const groupedSitemap = React.useCallback(async () => {
+    const { sitemap: loadedSitemap } = await sitemap();
+
+    return {
+      sitemap: loadedSitemap ? groupSearchSitemapBySection(loadedSitemap) : undefined,
+    };
+  }, [sitemap]);
+
   const searchApi = useSearch({
-    sitemap,
+    sitemap: groupedSitemap,
     generateSlug: slugifyWithParentContext,
     tolerance: 0,
     limit: 20,
@@ -70,5 +80,16 @@ export function useDocsSearch(
   // avoid rendering the default list under a real query.
   const isSearchPending = hasQuery && (!isReady || completedSearchId !== latestSearchIdRef.current);
 
-  return { ...searchApi, results: acceptedResults, hasQuery, isSearchPending, performSearch };
+  const buildResultUrl = useStableCallback((result: SearchResult) =>
+    getCanonicalReactDocsUrl(searchApi.buildResultUrl(result)),
+  );
+
+  return {
+    ...searchApi,
+    buildResultUrl,
+    results: acceptedResults,
+    hasQuery,
+    isSearchPending,
+    performSearch,
+  };
 }
