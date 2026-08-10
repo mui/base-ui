@@ -29,7 +29,9 @@ export function useCheckboxGroupParent(
       checked,
       // TODO: custom `id` on child checkboxes breaks this
       // https://github.com/mui/base-ui/issues/2691
-      'aria-controls': allValues.map((v) => `${id}-${v}`).join(' '),
+      // Children can't derive their ids before the React 17 fallback id is assigned, so pointing
+      // at them during that window would reference elements that don't exist.
+      'aria-controls': id === undefined ? undefined : allValues.map((v) => `${id}-${v}`).join(' '),
       onCheckedChange(_, eventDetails) {
         const uncontrolledState = uncontrolledStateRef.current;
 
@@ -128,7 +130,7 @@ export interface UseCheckboxGroupParentReturnValue {
     id: string | undefined;
     indeterminate: boolean;
     checked: boolean;
-    'aria-controls': string;
+    'aria-controls': string | undefined;
     onCheckedChange: (
       checked: boolean,
       eventDetails: BaseUIChangeEventDetails<BaseUIEventReasons['none']>,

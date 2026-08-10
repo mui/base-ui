@@ -89,7 +89,9 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
   const id = idProp ?? rootId;
   const ariaLabelledBy = resolveAriaLabelledBy(fieldLabelId, selectLabelId);
 
-  useLabelableId({ id: idProp, preferId: idProp != null });
+  // Without an explicit `id` the trigger renders the root's id, so it must unregister rather than
+  // fall back to a generated one.
+  useLabelableId({ id: idProp, enabled: idProp != null, preferId: idProp != null });
 
   const positionerRef = useValueAsRef(positionerElement);
 

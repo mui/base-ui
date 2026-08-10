@@ -825,6 +825,73 @@ describe('<CheckboxGroup />', () => {
   });
 
   describe('Field.Label', () => {
+    it.each([false, true])(
+      'keeps checkbox ids unique when the group shares one Field.Root (nativeButton=%s)',
+      async (nativeButton) => {
+        await render(
+          <Field.Root name="apples">
+            <Field.Label>Apples</Field.Label>
+            <CheckboxGroup allValues={['fuji', 'gala']}>
+              <Checkbox.Root
+                parent
+                data-testid="parent"
+                nativeButton={nativeButton}
+                render={nativeButton ? <button /> : undefined}
+              />
+              <Checkbox.Root
+                value="fuji"
+                nativeButton={nativeButton}
+                render={nativeButton ? <button /> : undefined}
+              />
+              <Checkbox.Root
+                value="gala"
+                nativeButton={nativeButton}
+                render={nativeButton ? <button /> : undefined}
+              />
+            </CheckboxGroup>
+          </Field.Root>,
+        );
+
+        const ids = Array.from(document.querySelectorAll('[id]'), (element) => element.id);
+        expect(new Set(ids).size).toBe(ids.length);
+
+        const controlledIds = screen
+          .getByTestId('parent')
+          .getAttribute('aria-controls')!
+          .split(' ');
+        controlledIds.forEach((controlledId) => {
+          expect(document.querySelectorAll(`[id="${controlledId}"]`)).toHaveLength(1);
+        });
+      },
+    );
+
+    it('gives each checkbox in a shared Field.Root its own accessible name', async () => {
+      await render(
+        <Field.Root name="apples">
+          <CheckboxGroup allValues={['fuji', 'gala']}>
+            <label>
+              <Checkbox.Root parent data-testid="parent" />
+              All
+            </label>
+            <label>
+              <Checkbox.Root value="fuji" data-testid="fuji" />
+              Fuji
+            </label>
+            <label>
+              <Checkbox.Root value="gala" data-testid="gala" />
+              Gala
+            </label>
+          </CheckboxGroup>
+        </Field.Root>,
+      );
+
+      ['All', 'Fuji', 'Gala'].forEach((name, index) => {
+        const testId = ['parent', 'fuji', 'gala'][index];
+        const labelId = screen.getByTestId(testId).getAttribute('aria-labelledby')!;
+        expect(document.getElementById(labelId)).toHaveTextContent(name);
+      });
+    });
+
     it.each([
       { nativeButton: false, parent: false },
       { nativeButton: true, parent: false },

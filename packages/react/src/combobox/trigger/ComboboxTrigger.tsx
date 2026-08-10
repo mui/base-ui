@@ -85,9 +85,11 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
   const listEmpty = useListEmpty();
   const popupSide = usePopupSide(store);
 
+  // Without an explicit `id` the trigger renders the root's id, so it must unregister rather than
+  // fall back to a generated one.
   useLabelableId({
     id: idProp,
-    enabled: inputInsidePopup,
+    enabled: inputInsidePopup && idProp != null,
     preferId: idProp != null,
   });
   const id = inputInsidePopup ? (idProp ?? rootId) : idProp;

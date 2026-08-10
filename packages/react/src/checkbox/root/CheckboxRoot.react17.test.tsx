@@ -1,4 +1,4 @@
-import { vi } from 'vitest';
+import { expect, vi } from 'vitest';
 import * as React from 'react';
 import { Checkbox } from '@base-ui/react/checkbox';
 import { CheckboxGroup } from '@base-ui/react/checkbox-group';
@@ -98,6 +98,35 @@ describe('<Checkbox.Root /> with the React 17 id fallback', () => {
       );
 
       expect(getLabelControl(nativeButton)).not.toHaveAttribute('id', 'undefined-fuji');
+    },
+  );
+
+  it.each([false, true])(
+    'omits parent aria-controls while the group id is unavailable (nativeButton=%s)',
+    (nativeButton) => {
+      renderToString(
+        <Field.Root name="apple">
+          <CheckboxGroup allValues={['fuji', 'gala']}>
+            <Field.Item>
+              <Checkbox.Root
+                parent
+                data-testid="parent"
+                nativeButton={nativeButton}
+                render={nativeButton ? <button /> : undefined}
+              />
+            </Field.Item>
+            <Field.Item>
+              <Checkbox.Root
+                value="fuji"
+                nativeButton={nativeButton}
+                render={nativeButton ? <button /> : undefined}
+              />
+            </Field.Item>
+          </CheckboxGroup>
+        </Field.Root>,
+      );
+
+      expect(screen.getByTestId('parent')).not.toHaveAttribute('aria-controls');
     },
   );
 });

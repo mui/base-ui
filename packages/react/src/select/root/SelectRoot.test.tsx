@@ -2994,6 +2994,30 @@ describe('<Select.Root />', () => {
       expect(screen.getByTestId('label')).toHaveAttribute('for', 'root-id');
     });
 
+    it('falls back to the root id when a trigger mounted with an explicit id loses it', async () => {
+      function Test({ triggerId }: { triggerId?: string | undefined }) {
+        return (
+          <Field.Root>
+            <Field.Label data-testid="label">Label</Field.Label>
+            <Select.Root id="root-id">
+              <Select.Trigger id={triggerId} data-testid="trigger">
+                <Select.Value />
+              </Select.Trigger>
+            </Select.Root>
+          </Field.Root>
+        );
+      }
+
+      const { setProps } = await render(<Test triggerId="trigger-id" />);
+
+      expect(screen.getByTestId('trigger')).toHaveAttribute('id', 'trigger-id');
+
+      await setProps({ triggerId: undefined });
+
+      expect(screen.getByTestId('trigger')).toHaveAttribute('id', 'root-id');
+      expect(screen.getByTestId('label')).toHaveAttribute('for', 'root-id');
+    });
+
     it('restores an explicit trigger id after remounting the trigger', async () => {
       function Test({ showTrigger }: { showTrigger: boolean }) {
         return (

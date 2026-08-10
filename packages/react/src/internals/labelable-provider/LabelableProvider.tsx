@@ -26,9 +26,7 @@ export const LabelableProvider: React.FC<LabelableProvider.Props> = function Lab
       const registrations = registrationsRef.current;
 
       if (nextId === undefined) {
-        if (!registrations.delete(source)) {
-          return;
-        }
+        registrations.delete(source);
       } else {
         registrations.set(source, nextId);
       }

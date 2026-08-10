@@ -102,14 +102,26 @@ describe('<Checkbox.Root />', () => {
       },
     );
 
+    // An explicit `id` only reaches the DOM once registration runs, so the server markup carries
+    // the provider's generated id on both the label and the control instead.
     it.each([false, true])(
-      'associates an explicit id with Field.Label during SSR (nativeButton=%s)',
-      (nativeButton) => {
-        renderToString(<TestCase checkboxId="explicit" nativeButton={nativeButton} />);
+      'defers an explicit id until hydration but keeps Field.Label associated during SSR (nativeButton=%s)',
+      async (nativeButton) => {
+        const { hydrate } = renderToString(
+          <TestCase checkboxId="explicit" nativeButton={nativeButton} />,
+        );
 
         const control = getLabelControl(nativeButton);
         expect(control.id).not.toBe('');
+        expect(control).not.toHaveAttribute('id', 'explicit');
         expect(screen.getByTestId('label')).toHaveAttribute('for', control.id);
+
+        hydrate();
+
+        await waitFor(() => {
+          expect(getLabelControl(nativeButton)).toHaveAttribute('id', 'explicit');
+        });
+        expect(screen.getByTestId('label')).toHaveAttribute('for', 'explicit');
       },
     );
   });

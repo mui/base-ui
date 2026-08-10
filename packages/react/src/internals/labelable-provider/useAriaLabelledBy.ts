@@ -11,6 +11,7 @@ export function useAriaLabelledBy(
   labelSourceId?: string,
 ) {
   const [fallbackAriaLabelledBy, setFallbackAriaLabelledBy] = React.useState<string | undefined>();
+  const assignedLabelIdRef = React.useRef<string | undefined>(undefined);
 
   const generatedLabelId = useBaseUiId(labelSourceId ? `${labelSourceId}-label` : undefined);
   const ariaLabelledBy = explicitAriaLabelledBy ?? labelId ?? fallbackAriaLabelledBy;
@@ -23,7 +24,11 @@ export function useAriaLabelledBy(
     const nextAriaLabelledBy =
       explicitAriaLabelledBy || labelId || !enableFallback
         ? undefined
-        : getAriaLabelledBy(labelSourceRef.current, generatedLabelId);
+        : getAriaLabelledBy(labelSourceRef.current, generatedLabelId, assignedLabelIdRef.current);
+
+    if (nextAriaLabelledBy === generatedLabelId) {
+      assignedLabelIdRef.current = generatedLabelId;
+    }
 
     if (fallbackAriaLabelledBy !== nextAriaLabelledBy) {
       setFallbackAriaLabelledBy(nextAriaLabelledBy);
@@ -33,13 +38,19 @@ export function useAriaLabelledBy(
   return ariaLabelledBy;
 }
 
-function getAriaLabelledBy(labelSource?: LabelSource | null, generatedLabelId?: string) {
+function getAriaLabelledBy(
+  labelSource: LabelSource | null | undefined,
+  generatedLabelId: string | undefined,
+  assignedLabelId: string | undefined,
+) {
   const label = findAssociatedLabel(labelSource);
   if (!label) {
     return undefined;
   }
 
-  if (!label.id && generatedLabelId) {
+  // The control id can settle a commit after mount, so refresh an id this hook assigned itself.
+  // Leaving the first one in place would let two controls keep the same label id.
+  if (generatedLabelId && (!label.id || label.id === assignedLabelId)) {
     label.id = generatedLabelId;
   }
 

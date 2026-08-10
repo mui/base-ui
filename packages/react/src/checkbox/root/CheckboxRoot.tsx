@@ -101,15 +101,29 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
     isGroupedWithParent && !parent && value !== undefined && parentContext.id !== undefined
       ? `${parentContext.id}-${value}`
       : undefined;
+
   let inputIdToRegister = idProp || undefined;
   if (isGroupedWithParent) {
     if (parent) {
-      inputIdToRegister = nativeButton ? parentContext.id : undefined;
+      // The group id belongs to the button, so a hidden input needs an id of its own.
+      inputIdToRegister = nativeButton ? parentContext.id : id;
     } else if (groupInputId !== undefined) {
       inputIdToRegister = groupInputId;
     }
   }
-  const inputId = useLabelableId({ id: inputIdToRegister });
+
+  const registeredInputId = useLabelableId({ id: inputIdToRegister });
+
+  // The provider hands the same selected id to every control it wraps, and a `CheckboxGroup` can
+  // put several checkboxes in one `Field.Root`. Once registration has run, render the id this
+  // checkbox registered so siblings don't collapse onto the selected one.
+  const [ownInputId, setOwnInputId] = React.useState<string | undefined>();
+
+  useIsoLayoutEffect(() => {
+    setOwnInputId(inputIdToRegister);
+  }, [inputIdToRegister]);
+
+  const inputId = ownInputId ?? registeredInputId;
   const pendingGroupInputId = groupInputId !== inputId ? groupInputId : undefined;
 
   let groupProps: Partial<Omit<CheckboxRoot.Props, 'className'>> = {};
@@ -121,7 +135,6 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
     }
   }
 
-  const groupId = groupProps.id;
   const {
     checked: groupChecked = checkedProp,
     indeterminate: groupIndeterminate = indeterminate,
@@ -300,7 +313,7 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
     ref: [buttonRef, controlRef, forwardedRef],
     props: [
       {
-        id: nativeButton ? (inputId ?? undefined) : (pendingGroupInputId ?? groupId ?? id),
+        id: nativeButton ? (inputId ?? undefined) : (pendingGroupInputId ?? id),
         role: 'checkbox',
         'aria-checked': computedIndeterminate ? 'mixed' : computedChecked,
         'aria-readonly': readOnly || undefined,
