@@ -13,7 +13,7 @@
     max-width: var(--available-width);
     max-height: var(--available-height);
     border-radius: var(--radius-8);
-    background-color: var(--color-popup);
+    background-color: var(--surface);
     overflow: hidden;
     cursor: default;
     -webkit-user-select: none;
@@ -25,12 +25,12 @@
 
     @media (prefers-color-scheme: light) {
       box-shadow:
-        0 0 1px var(--blackA-4),
-        0 0.5px 1px var(--blackA-3),
-        0 1px 3px var(--blackA-1),
-        0 2px 4px -1px var(--blackA-1),
-        0 4px 12px -2px var(--blackA-1),
-        0 4px 16px -4px var(--blackA-1);
+        0 0 1px var(--gray-a4),
+        0 0.5px 1px var(--gray-a3),
+        0 1px 3px var(--gray-a1),
+        0 2px 4px -1px var(--gray-a1),
+        0 4px 12px -2px var(--gray-a1),
+        0 4px 16px -4px var(--gray-a1);
     }
 
     @media (prefers-color-scheme: dark) {
@@ -53,11 +53,8 @@
 
     &[data-highlighted] {
       position: relative;
-      color: white;
-
-      @media (prefers-color-scheme: dark) {
-        color: black;
-      }
+      /* Ink and its contrast; both invert per mode, so no override is needed. */
+      color: var(--gray-s1);
 
       &::before {
         content: '';
@@ -66,11 +63,7 @@
         inset-block: 0;
         z-index: -1;
         border-radius: var(--radius-4);
-        background-color: var(--gray-t2);
-
-        @media (prefers-color-scheme: dark) {
-          background-color: white;
-        }
+        background-color: var(--gray-t3);
       }
     }
 

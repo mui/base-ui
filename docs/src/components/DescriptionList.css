@@ -23,7 +23,7 @@
     font-size: var(--font-size-14);
     line-height: 1.25rem;
     font-weight: var(--font-weight-700);
-    color: var(--color-foreground);
+    color: var(--gray-t3);
     white-space: nowrap;
     word-break: keep-all;
     position: relative;
@@ -40,7 +40,7 @@
     &.separator {
       &::before {
         content: '';
-        box-shadow: inset 0 1px 0 0 var(--color-border);
+        box-shadow: inset 0 1px 0 0 var(--gray-c3);
         position: absolute;
         top: 0;
         inset-inline: 0.75rem 1rem;
@@ -59,7 +59,7 @@
     font-size: var(--font-size-14);
     line-height: 1.25rem;
 
-    color: var(--color-foreground);
+    color: var(--gray-t3);
     grid-column: span 2;
 
     & p {

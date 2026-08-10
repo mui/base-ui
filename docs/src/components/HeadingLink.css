@@ -14,7 +14,7 @@
         --focus-h-padding: 0.5rem;
         content: '';
         z-index: 1;
-        outline: 2px solid var(--gray-t2);
+        outline: 2px solid var(--gray-t3);
         outline-offset: -2px;
         position: absolute;
         top: calc(0px - var(--focus-v-padding));

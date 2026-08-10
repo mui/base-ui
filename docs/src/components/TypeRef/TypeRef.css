@@ -20,7 +20,7 @@
     }
 
     &:focus-visible {
-      outline: 2px solid var(--gray-t2);
+      outline: 2px solid var(--gray-t3);
       outline-offset: 2px;
     }
   }
@@ -58,11 +58,11 @@
   }
 
   .TypeRefArrowFill {
-    fill: var(--color-popup);
+    fill: var(--surface);
   }
 
   .TypeRefArrowStroke {
-    fill: var(--blackA-3);
+    fill: var(--gray-a3);
   }
 
   .TypeRefArrowStrokeDark {
