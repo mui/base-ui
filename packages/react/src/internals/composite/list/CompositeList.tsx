@@ -30,7 +30,7 @@ export function CompositeList<Metadata>(props: CompositeList.Props<Metadata>) {
   const map = useRefWithInit(createMap<Metadata>).current;
   const nextIndexRef = React.useRef(0);
   const isDirtyRef = React.useRef(true);
-  const itemsRef = React.useRef<readonly CompositeListItem<Metadata>[]>([]);
+  const itemsRef = React.useRef<readonly CompositeListItem<Metadata>[] | null>(null);
   const mutationObserverRef = React.useRef<MutationObserver | null>(null);
 
   // Item effects can run without their parent rendering. Schedule one synchronous
@@ -145,6 +145,7 @@ export function CompositeList<Metadata>(props: CompositeList.Props<Metadata>) {
 
     const previousItems = itemsRef.current;
     const changed =
+      !previousItems ||
       previousItems.length !== items.length ||
       items.some((item, index) => {
         const previousItem = previousItems[index];
@@ -171,7 +172,7 @@ export function CompositeList<Metadata>(props: CompositeList.Props<Metadata>) {
   useIsoLayoutEffect(() => {
     // Re-copy the last committed snapshot when the ref objects change or Strict Mode replays
     // effects without reattaching callback refs.
-    if (!isDirtyRef.current) {
+    if (!isDirtyRef.current && itemsRef.current) {
       syncRefs(itemsRef.current);
     }
 
