@@ -85,7 +85,10 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
   const listEmpty = useListEmpty();
   const popupSide = usePopupSide(store);
 
-  useLabelableId({ id: inputInsidePopup ? idProp : undefined });
+  useLabelableId({
+    id: inputInsidePopup ? idProp : undefined,
+    preferId: inputInsidePopup && idProp != null,
+  });
   const id = inputInsidePopup ? (idProp ?? rootId) : idProp;
   const ariaLabelledBy = resolveAriaLabelledBy(fieldLabelId, comboboxLabelId);
 

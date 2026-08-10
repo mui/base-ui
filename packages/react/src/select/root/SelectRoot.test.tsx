@@ -22,7 +22,6 @@ describe('<Select.Root />', () => {
   });
 
   const { render, renderToString } = createRenderer();
-  const { render: renderNonStrict } = createRenderer({ strict: false });
 
   describe('conformance', () => {
     beforeEach(() => {
@@ -2951,7 +2950,7 @@ describe('<Select.Root />', () => {
 
   describe('with Field.Root parent', () => {
     it('applies the root id to the trigger', async () => {
-      await renderNonStrict(
+      await render(
         <Field.Root>
           <Field.Label data-testid="label">Label</Field.Label>
           <Select.Root id="test-id">
@@ -2964,6 +2963,65 @@ describe('<Select.Root />', () => {
 
       expect(screen.getByTestId('trigger')).toHaveAttribute('id', 'test-id');
       expect(screen.getByTestId('label')).toHaveAttribute('for', 'test-id');
+    });
+
+    it('updates the label association when the trigger id changes', async () => {
+      function Test({ triggerId }: { triggerId?: string | undefined }) {
+        return (
+          <Field.Root>
+            <Field.Label data-testid="label">Label</Field.Label>
+            <Select.Root id="root-id">
+              <Select.Trigger id={triggerId} data-testid="trigger">
+                <Select.Value />
+              </Select.Trigger>
+            </Select.Root>
+          </Field.Root>
+        );
+      }
+
+      const { setProps } = await render(<Test />);
+
+      expect(screen.getByTestId('label')).toHaveAttribute('for', 'root-id');
+
+      await setProps({ triggerId: 'trigger-id' });
+
+      expect(screen.getByTestId('trigger')).toHaveAttribute('id', 'trigger-id');
+      expect(screen.getByTestId('label')).toHaveAttribute('for', 'trigger-id');
+
+      await setProps({ triggerId: undefined });
+
+      expect(screen.getByTestId('trigger')).toHaveAttribute('id', 'root-id');
+      expect(screen.getByTestId('label')).toHaveAttribute('for', 'root-id');
+    });
+
+    it('restores an explicit trigger id after remounting the trigger', async () => {
+      function Test({ showTrigger }: { showTrigger: boolean }) {
+        return (
+          <Field.Root>
+            <Field.Label data-testid="label">Label</Field.Label>
+            <Select.Root id="root-id">
+              {showTrigger && (
+                <Select.Trigger id="trigger-id" data-testid="trigger">
+                  <Select.Value />
+                </Select.Trigger>
+              )}
+            </Select.Root>
+          </Field.Root>
+        );
+      }
+
+      const { setProps } = await render(<Test showTrigger />);
+
+      expect(screen.getByTestId('label')).toHaveAttribute('for', 'trigger-id');
+
+      await setProps({ showTrigger: false });
+
+      expect(screen.getByTestId('label')).toHaveAttribute('for', 'root-id');
+
+      await setProps({ showTrigger: true });
+
+      expect(screen.getByTestId('trigger')).toHaveAttribute('id', 'trigger-id');
+      expect(screen.getByTestId('label')).toHaveAttribute('for', 'trigger-id');
     });
 
     it('should receive disabled prop from Field.Root', async () => {

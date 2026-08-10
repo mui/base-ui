@@ -8,7 +8,7 @@ import { useBaseUiId } from '../useBaseUiId';
 import { useLabelableContext } from './LabelableContext';
 
 export function useLabelableId(params: UseLabelableIdParameters = {}) {
-  const { id } = params;
+  const { id, preferId = false } = params;
 
   const { controlId, registerControlId } = useLabelableContext();
 
@@ -49,10 +49,10 @@ export function useLabelableId(params: UseLabelableIdParameters = {}) {
     }
 
     hasRegisteredRef.current = true;
-    registerControlId(controlSourceRef.current, nextId);
+    registerControlId(controlSourceRef.current, nextId, preferId);
 
     return undefined;
-  }, [id, registerControlId, defaultId, controlSourceRef, unregisterControlId]);
+  }, [id, registerControlId, defaultId, preferId, controlSourceRef, unregisterControlId]);
 
   React.useEffect(() => {
     return unregisterControlId;
@@ -66,6 +66,11 @@ export function useLabelableId(params: UseLabelableIdParameters = {}) {
 
 export interface UseLabelableIdParameters {
   id?: string | undefined;
+  /**
+   * Whether the registered id should replace the currently selected id.
+   * @default false
+   */
+  preferId?: boolean | undefined;
 }
 
 export type UseLabelableIdReturnValue = string;

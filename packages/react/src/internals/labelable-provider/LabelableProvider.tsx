@@ -10,23 +10,19 @@ export const LabelableProvider: React.FC<LabelableProvider.Props> = function Lab
   props,
 ) {
   const defaultId = useBaseUiId();
-  const initialControlId = props.controlId === undefined ? defaultId : props.controlId;
-
-  const [controlIdState, setControlIdState] = React.useState<string | null | undefined>(
-    initialControlId,
-  );
-  const [labelId, setLabelId] = React.useState<string | undefined>(props.labelId);
+  const [controlIdState, setControlIdState] = React.useState<string | undefined>(defaultId);
+  const [labelId, setLabelId] = React.useState<string | undefined>();
   const [messageIds, setMessageIds] = React.useState<string[]>([]);
 
   // `undefined` only survives until the React 17 fallback id is assigned.
-  const controlId = controlIdState === undefined ? initialControlId : controlIdState;
+  const controlId = controlIdState ?? defaultId;
 
-  const registrationsRef = useRefWithInit(() => new Map<symbol, string | null>());
+  const registrationsRef = useRefWithInit(() => new Map<symbol, string>());
 
   const { messageIds: parentMessageIds } = useLabelableContext();
 
   const registerControlId = useStableCallback(
-    (source: symbol, nextId: string | null | undefined) => {
+    (source: symbol, nextId: string | undefined, preferId = false) => {
       const registrations = registrationsRef.current;
 
       if (nextId === undefined) {
@@ -40,13 +36,18 @@ export const LabelableProvider: React.FC<LabelableProvider.Props> = function Lab
       // Keep the previously selected id while it is still registered so rapid
       // unmount/remount cycles (e.g. React Activity) don't churn the selection.
       setControlIdState((prev) => {
+        // An explicit control-part id must supersede a root id registered for the same control.
+        if (nextId !== undefined && preferId) {
+          return nextId;
+        }
+
         // Controls rendered without an explicit `id` never register, so fall back to this
         // provider's own id to keep them associated with the label.
         if (registrations.size === 0) {
-          return initialControlId;
+          return defaultId;
         }
 
-        let nextControlId: string | null | undefined;
+        let nextControlId: string | undefined;
 
         for (const id of registrations.values()) {
           if (id === prev) {
@@ -107,8 +108,6 @@ export const LabelableProvider: React.FC<LabelableProvider.Props> = function Lab
 export interface LabelableProviderState {}
 
 export interface LabelableProviderProps {
-  controlId?: string | null | undefined;
-  labelId?: string | undefined;
   children?: React.ReactNode;
 }
 

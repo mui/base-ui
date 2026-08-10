@@ -89,7 +89,7 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
   const id = idProp ?? rootId;
   const ariaLabelledBy = resolveAriaLabelledBy(fieldLabelId, selectLabelId);
 
-  useLabelableId({ id: idProp });
+  useLabelableId({ id: idProp, preferId: idProp != null });
 
   const positionerRef = useValueAsRef(positionerElement);
 

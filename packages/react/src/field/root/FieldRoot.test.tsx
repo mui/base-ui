@@ -19,7 +19,6 @@ import {
   waitFor,
 } from '@mui/internal-test-utils';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
-import { LabelableProvider } from '../../internals/labelable-provider';
 
 describe('<Field.Root />', () => {
   const { render, renderToString } = createRenderer();
@@ -84,23 +83,6 @@ describe('<Field.Root />', () => {
     await waitFor(() => {
       expect(label).toHaveAttribute('for', 'control-b');
     });
-  });
-
-  it('preserves null initial control ids', async () => {
-    await render(
-      <Field.Root>
-        <LabelableProvider controlId={null}>
-          <Field.Label>Label</Field.Label>
-          <Field.Control data-testid="control" />
-        </LabelableProvider>
-      </Field.Root>,
-    );
-
-    const label = screen.getByText('Label');
-    const control = screen.getByTestId('control');
-
-    expect(label).not.toHaveAttribute('for');
-    expect(control.getAttribute('id')).not.toBe(null);
   });
 
   it('updates label associations when the control id changes', async () => {

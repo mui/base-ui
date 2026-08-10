@@ -9423,6 +9423,43 @@ describe('<Combobox.Root />', () => {
       /* eslint-enable testing-library/no-wait-for-multiple-assertions */
     });
 
+    it('updates Field.Label when an inside-popup trigger receives an explicit id', async () => {
+      function Test({ triggerId }: { triggerId?: string | undefined }) {
+        return (
+          <Field.Root>
+            <Field.Label data-testid="label">Search</Field.Label>
+            <Combobox.Root id="root-id">
+              <Combobox.Trigger data-testid="trigger" id={triggerId}>
+                Open
+              </Combobox.Trigger>
+              <Combobox.Portal>
+                <Combobox.Positioner>
+                  <Combobox.Popup>
+                    <Combobox.Input />
+                    <Combobox.List />
+                  </Combobox.Popup>
+                </Combobox.Positioner>
+              </Combobox.Portal>
+            </Combobox.Root>
+          </Field.Root>
+        );
+      }
+
+      const { setProps } = await render(<Test />);
+
+      expect(screen.getByTestId('label')).toHaveAttribute('for', 'root-id');
+
+      await setProps({ triggerId: 'trigger-id' });
+
+      expect(screen.getByTestId('trigger')).toHaveAttribute('id', 'trigger-id');
+      expect(screen.getByTestId('label')).toHaveAttribute('for', 'trigger-id');
+
+      await setProps({ triggerId: undefined });
+
+      expect(screen.getByTestId('trigger')).toHaveAttribute('id', 'root-id');
+      expect(screen.getByTestId('label')).toHaveAttribute('for', 'root-id');
+    });
+
     it('does not apply validation ARIA attributes to input inside popup', async () => {
       const { user } = await render(
         <Field.Root invalid>
