@@ -33,15 +33,13 @@ jobs:
               query($owner:String!, $repo:String!, $issueNumber:Int!) {
                 repository(owner: $owner, name: $repo) {
                   issue(number: $issueNumber) {
+                    # includeClosedPrs is required: merged PRs are excluded by default.
                     closedByPullRequestsReferences(last: 100, includeClosedPrs: true) {
                       nodes {
                         number
                         headRefOid
                         merged
                         mergedAt
-                        repository {
-                          nameWithOwner
-                        }
                       }
                     }
                   }
@@ -65,7 +63,7 @@ jobs:
                 const closingPRs = result.repository.issue.closedByPullRequestsReferences.nodes;
 
                 for (const pr of closingPRs) {
-                  if (pr.merged && pr.repository.nameWithOwner === `${variables.owner}/${variables.repo}`) {
+                  if (pr.merged) {
                     relatedPRs.push({
                       number: pr.number,
                       commit: pr.headRefOid,
@@ -93,7 +91,7 @@ jobs:
               core.setOutput('has_pr', 'true');
 
             } catch (error) {
-              console.error('Error fetching related PRs:', error);
+              core.warning(`Error fetching related PRs: ${error.message}`);
             }
 
       - name: Add comment to issue
