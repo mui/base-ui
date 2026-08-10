@@ -118,9 +118,12 @@ export const TooltipTrigger = fastComponentRef(function TooltipTrigger(
   );
 
   const providerDelay = useTooltipProviderContext();
-  const { delayRef, isInstantPhase, hasProvider } = useDelayGroup(floatingRootContext, {
-    open: isOpenedByThisTrigger,
-  });
+  const { activeIdRef, delayRef, isInstantPhase, hasProvider } = useDelayGroup(
+    floatingRootContext,
+    {
+      open: isOpenedByThisTrigger,
+    },
+  );
   const hoverInteraction = useHoverInteractionSharedState(floatingRootContext);
 
   store.useSyncedValue('isInstantPhase', isInstantPhase);
@@ -140,7 +143,7 @@ export const TooltipTrigger = fastComponentRef(function TooltipTrigger(
     if (!hasProvider) {
       return delayWithDefault;
     }
-    return getDelay(delayRef.current, 'open') === 0 ? 0 : (delay ?? providerDelay ?? OPEN_DELAY);
+    return activeIdRef.current == null ? (delay ?? providerDelay ?? OPEN_DELAY) : 0;
   }
 
   function isEnabledNestedTriggerTarget(target: Element | null) {
