@@ -9,11 +9,12 @@ import { styleDisableScrollbar } from '../../utils/styles';
 import { LIST_FUNCTIONAL_STYLES } from '../popup/utils';
 import { selectors } from '../store';
 import { FilterDropdownList } from '../../filter-dropdown/list/FilterDropdownList';
+import { SelectCollection } from '../collection/SelectCollection';
 
 const SELECT_LIST_ROLE = 'listbox';
 
 const SelectListImpl = React.forwardRef(function SelectListImpl(
-  componentProps: SelectList.Props,
+  componentProps: BaseUIComponentProps<'div', SelectListState>,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const { id, render, className, style, ...elementProps } = componentProps;
@@ -64,7 +65,22 @@ export const SelectList = React.forwardRef(function SelectList(
   // Resolve once so the filter wrapper registers the same id the DOM element ends up with,
   // otherwise a consumer id leaves the trigger and input pointing at nothing.
   const id = componentProps.id ?? `${rootId}-list`;
-  const selectList = <SelectListImpl {...componentProps} id={id} ref={forwardedRef} />;
+  const { children } = componentProps;
+
+  // Closed-template API: a function child reads the filtered items from the root, so consumers
+  // don't have to wrap it in `Select.Collection` themselves.
+  const resolvedChildren = React.useMemo(() => {
+    if (typeof children === 'function') {
+      return <SelectCollection>{children}</SelectCollection>;
+    }
+    return children;
+  }, [children]);
+
+  const selectList = (
+    <SelectListImpl {...componentProps} id={id} ref={forwardedRef}>
+      {resolvedChildren}
+    </SelectListImpl>
+  );
 
   return filterable ? (
     // FilterDropdownList composes onto SelectListImpl so its implementation
@@ -75,7 +91,16 @@ export const SelectList = React.forwardRef(function SelectList(
   );
 });
 
-export interface SelectListProps extends BaseUIComponentProps<'div', SelectListState> {}
+export interface SelectListProps extends Omit<
+  BaseUIComponentProps<'div', SelectListState>,
+  'children'
+> {
+  /**
+   * A function child renders one node per filtered item from the root's `items` prop, the same
+   * shape `Select.Collection` accepts.
+   */
+  children?: React.ReactNode | ((item: any, index: number) => React.ReactNode);
+}
 
 export interface SelectListState {}
 

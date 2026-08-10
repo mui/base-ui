@@ -20,6 +20,7 @@ import {
   useTypeahead,
 } from '../../floating-ui-react';
 import { SelectRootContext } from './SelectRootContext';
+import { SelectDerivedItemsContext } from './SelectDerivedItemsContext';
 import { useFieldRootContext } from '../../internals/field-root-context/FieldRootContext';
 import { useRegisterFieldControl } from '../../internals/field-register-control/useRegisterFieldControl';
 import { useLabelableId } from '../../internals/labelable-provider/useLabelableId';
@@ -32,7 +33,13 @@ import {
 import { REASONS } from '../../internals/reasons';
 import { useOpenChangeComplete } from '../../internals/useOpenChangeComplete';
 import { useFormContext } from '../../internals/form-context/FormContext';
-import { type Group, stringifyAsLabel, stringifyAsValue } from '../../internals/resolveValueLabel';
+import {
+  type Group,
+  isGroupedItems,
+  stringifyAsLabel,
+  stringifyAsValue,
+} from '../../internals/resolveValueLabel';
+import { getContainsFilter } from '../../internals/filter';
 import {
   compareItemEquality,
   defaultItemEquality,
@@ -45,7 +52,6 @@ import { getMaxScrollOffset, normalizeScrollOffset } from '../../utils/scrollEdg
 import { FOCUSABLE_POPUP_PROPS } from '../../utils/popups';
 import { mergeProps } from '../../merge-props';
 import { FilterDropdownRoot } from '../../filter-dropdown/root/FilterDropdownRoot';
-import type { FilterDropdownFilter } from '../../filter-dropdown/root/FilterDropdownRootContext';
 
 /**
  * Groups all parts of the select.
@@ -311,6 +317,74 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
       // or at none at all. Return virtual focus to the input instead.
       store.set('activeIndex', null);
     },
+  );
+
+  // `items` is the data source when provided: it drives what the list renders and what filtering
+  // narrows. Consumers that render `<Select.Item>` children themselves still get DOM-text
+  // filtering, and keep using `items` purely to resolve labels in `<Select.Value>`.
+  const hasItems = items !== undefined;
+  const isGrouped = Array.isArray(items) && isGroupedItems(items);
+
+  const normalizedItems: readonly any[] = React.useMemo(() => {
+    if (items === undefined) {
+      return EMPTY_ARRAY;
+    }
+    if (Array.isArray(items)) {
+      return items;
+    }
+    // The `Record<string, ReactNode>` form is a label map; widen it to the labeled-item shape so
+    // one code path covers every accepted input.
+    return Object.entries(items).map(([itemValue, label]) => ({ value: itemValue, label }));
+  }, [items]);
+
+  const matchesItem = React.useMemo(() => {
+    if (typeof filterProp === 'function') {
+      return filterProp;
+    }
+    return getContainsFilter();
+  }, [filterProp]);
+
+  const query = inputValue.trim();
+
+  const filteredItems: readonly any[] = React.useMemo(() => {
+    if (!hasItems || query === '') {
+      return normalizedItems;
+    }
+
+    if (isGrouped) {
+      const matchedGroups: Group<any>[] = [];
+      for (const group of normalizedItems as ReadonlyArray<Group<any>>) {
+        const matchedGroupItems = group.items.filter((item) =>
+          matchesItem(item, query, itemToStringLabel),
+        );
+        if (matchedGroupItems.length > 0) {
+          matchedGroups.push({ ...group, items: matchedGroupItems });
+        }
+      }
+      return matchedGroups;
+    }
+
+    return normalizedItems.filter((item) => matchesItem(item, query, itemToStringLabel));
+  }, [hasItems, query, normalizedItems, isGrouped, matchesItem, itemToStringLabel]);
+
+  const flatFilteredItems: readonly any[] = React.useMemo(() => {
+    if (isGrouped) {
+      return (filteredItems as ReadonlyArray<Group<any>>).flatMap((group) => group.items);
+    }
+    return filteredItems;
+  }, [filteredItems, isGrouped]);
+
+  const derivedItemsContextValue: SelectDerivedItemsContext = React.useMemo(
+    () => ({ hasItems, filteredItems, flatFilteredItems }),
+    [hasItems, filteredItems, flatFilteredItems],
+  );
+
+  // The item is already the item's text here, so there is nothing left to stringify.
+  // Its identity is load-bearing: the popup re-runs filtering when the filter changes, so this
+  // deliberately uses `useCallback` rather than a stable callback.
+  const domTextFilter = React.useCallback(
+    (itemText: string, itemQuery: string) => matchesItem(itemText, itemQuery),
+    [matchesItem],
   );
 
   const handleUnmount = useStableCallback(() => {
@@ -656,10 +730,13 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     </SelectRootContext.Provider>
   );
 
-  return filterable ? (
+  const content = filterable ? (
     <FilterDropdownRoot
       open={open}
-      filter={typeof filterProp === 'function' ? filterProp : undefined}
+      // Rendered items are always matched on their DOM text, which the shared filter accepts as
+      // the item. When `items` drives the list this repeats a decision the data pass already
+      // made, and both agree because the data pass matches the same label text.
+      filter={domTextFilter}
       value={inputValue}
       onValueChange={handleInputValueChange}
     >
@@ -667,6 +744,12 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     </FilterDropdownRoot>
   ) : (
     select
+  );
+
+  return (
+    <SelectDerivedItemsContext.Provider value={derivedItemsContextValue}>
+      {content}
+    </SelectDerivedItemsContext.Provider>
   );
 }
 
@@ -695,7 +778,17 @@ type SelectValueType<Value, Multiple extends boolean | undefined> = Multiple ext
   ? Value[]
   : Value;
 
-export interface SelectFilter extends FilterDropdownFilter {}
+/**
+ * Matches one item against the trimmed query. Shares Combobox's signature, so a filter written
+ * for one component works in the other. When the list is rendered from `items`, `item` is the
+ * entry itself; when the consumer renders `<Select.Item>` children, `item` is the item's `label`
+ * (falling back to its rendered text).
+ */
+export type SelectFilter = (
+  item: any,
+  query: string,
+  itemToStringLabel?: (item: any) => string,
+) => boolean;
 
 interface SelectRootFilterEnabledProps {
   /**
@@ -827,6 +920,9 @@ interface SelectRootBaseProps<Value, Multiple extends boolean | undefined = fals
   /**
    * Data structure of the items rendered in the select popup.
    * When specified, `<Select.Value>` renders the label of the selected item instead of the raw value.
+   * It is also the data source for the list: pass a function child to `<Select.List>` (or use
+   * `<Select.Collection>`) to render one item per entry, and filtering narrows these entries
+   * before the list renders.
    * @example
    * ```tsx
    * const items = {

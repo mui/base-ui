@@ -4387,6 +4387,103 @@ describe('<Select.Root />', () => {
       );
     });
 
+    it('renders and filters from the items data source', async () => {
+      const fruit = [
+        { value: 'apple', label: 'Apple' },
+        { value: 'banana', label: 'Banana' },
+        { value: 'cherry', label: 'Cherry' },
+      ];
+
+      const { user } = await render(
+        <Select.Root filter open items={fruit}>
+          <Select.Trigger>
+            <Select.Value />
+          </Select.Trigger>
+          <Select.Portal>
+            <Select.Positioner>
+              <Select.Popup>
+                <Select.Input aria-label="Filter fruit" />
+                <Select.Empty>No fruit found</Select.Empty>
+                <Select.List>
+                  {(item: { value: string; label: string }) => (
+                    <Select.Item key={item.value} value={item.value}>
+                      {item.label}
+                    </Select.Item>
+                  )}
+                </Select.List>
+              </Select.Popup>
+            </Select.Positioner>
+          </Select.Portal>
+        </Select.Root>,
+      );
+
+      expect(screen.getAllByRole('option')).toHaveLength(3);
+
+      const input = screen.getByRole('searchbox', { name: 'Filter fruit' });
+      await user.type(input, 'an');
+
+      await waitFor(() => {
+        expect(screen.getAllByRole('option')).toHaveLength(1);
+      });
+      expect(screen.getByRole('option', { name: 'Banana' })).toBeVisible();
+
+      await user.clear(input);
+      await user.type(input, 'zzz');
+
+      await waitFor(() => {
+        expect(screen.queryAllByRole('option')).toHaveLength(0);
+      });
+      expect(screen.queryAllByText('No fruit found').length).toBeGreaterThan(0);
+    });
+
+    it('filters grouped items from the items data source', async () => {
+      const groups = [
+        { value: 'citrus', items: [{ value: 'orange', label: 'Orange' }] },
+        { value: 'berry', items: [{ value: 'strawberry', label: 'Strawberry' }] },
+      ];
+
+      const { user } = await render(
+        <Select.Root filter open items={groups}>
+          <Select.Trigger>
+            <Select.Value />
+          </Select.Trigger>
+          <Select.Portal>
+            <Select.Positioner>
+              <Select.Popup>
+                <Select.Input aria-label="Filter fruit" />
+                <Select.List>
+                  {(group: { value: string; items: { value: string; label: string }[] }) => (
+                    <Select.Group key={group.value} items={group.items}>
+                      <Select.GroupLabel>{group.value}</Select.GroupLabel>
+                      <Select.Collection>
+                        {(item: { value: string; label: string }) => (
+                          <Select.Item key={item.value} value={item.value}>
+                            {item.label}
+                          </Select.Item>
+                        )}
+                      </Select.Collection>
+                    </Select.Group>
+                  )}
+                </Select.List>
+              </Select.Popup>
+            </Select.Positioner>
+          </Select.Portal>
+        </Select.Root>,
+      );
+
+      expect(screen.getAllByRole('group')).toHaveLength(2);
+      expect(screen.getAllByRole('option')).toHaveLength(2);
+
+      await user.type(screen.getByRole('searchbox', { name: 'Filter fruit' }), 'straw');
+
+      await waitFor(() => {
+        expect(screen.getAllByRole('option')).toHaveLength(1);
+      });
+      // The group with no remaining matches is dropped entirely.
+      expect(screen.getAllByRole('group')).toHaveLength(1);
+      expect(screen.getByRole('option', { name: 'Strawberry' })).toBeVisible();
+    });
+
     it('disables filter controls when disabled by a field', async () => {
       await render(
         <Field.Root disabled>

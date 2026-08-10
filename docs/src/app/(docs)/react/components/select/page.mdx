@@ -130,6 +130,49 @@ const items = {
 
 To avoid lookup, [object values](#object-values) for each item can also be used.
 
+### Rendering from items
+
+`items` is also the data source for the list. Pass a function as the `children` of `<Select.List>` to render one `<Select.Item>` per entry, the same way [Combobox](/react/components/combobox) does:
+
+```jsx title="Rendering from items"
+<Select.Root items={items}>
+  <Select.List>
+    {/* @highlight-start */}
+    {(item) => (
+      <Select.Item key={item.value} value={item.value}>
+        {item.label}
+      </Select.Item>
+    )}
+    {/* @highlight-end */}
+  </Select.List>
+</Select.Root>
+```
+
+Filtering then narrows `items` before the list renders, so only matching entries are mounted.
+
+For grouped data, pass each group's entries to `<Select.Group>` and render them with `<Select.Collection>`:
+
+```jsx title="Grouped items"
+<Select.List>
+  {(group) => (
+    <Select.Group key={group.value} items={group.items}>
+      <Select.GroupLabel>{group.value}</Select.GroupLabel>
+      <Select.Collection>
+        {(item) => (
+          <Select.Item key={item.value} value={item.value}>
+            {item.label}
+          </Select.Item>
+        )}
+      </Select.Collection>
+    </Select.Group>
+  )}
+</Select.List>
+```
+
+Groups with no remaining matches are dropped.
+
+Rendering `<Select.Item>` children yourself still works. Those items are matched on their rendered text instead.
+
 ### Labeling a select
 
 Use `<Select.Label>` to provide a visible label for the select trigger:
