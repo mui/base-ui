@@ -90,12 +90,15 @@ The `--toast-offset-y` CSS variable can be used to determine the vertical offset
 }
 ```
 
-`<Toast.Content>` is used to hide overflow from taller toasts while the stack is collapsed.
+While the stack is collapsed, each toast's height can be clamped to the frontmost toast's height using the `--toast-frontmost-height` CSS variable, and `<Toast.Content>` is used to hide the content of the toasts behind it.
 The `data-behind` attribute marks content that sits behind the frontmost toast and pairs with the `data-expanded` attribute so the content fades back in when the viewport expands:
 
 ```css title="Collapsed content"
+.Toast {
+  height: var(--toast-frontmost-height, var(--toast-height));
+}
+
 .ToastContent {
-  overflow: hidden;
   transition: opacity 0.25s;
 }
 
@@ -264,8 +267,8 @@ import { DemoToastDeduplicate } from './demos/deduplicate';
 
 ### Varying heights
 
-Toasts with varying heights are stacked by ensuring that the `<Toast.Content>` element has `overflow: hidden` set, along with all toasts' heights matching the frontmost toast at index 0.
-This prevents taller toasts from overflowing the stack when collapsed.
+Toasts with varying heights are stacked by clamping every toast's height to the frontmost toast at index 0 using the `--toast-frontmost-height` CSS variable, while the `data-behind` attribute hides the content of the toasts behind it.
+Avoid sizing `<Toast.Content>` to the root's height (such as `height: 100%`), as resizing it alongside the root cancels the root's height transition.
 
 import { DemoToastVaryingHeights } from './demos/varying-heights';
 

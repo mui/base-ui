@@ -132,7 +132,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
   const pressedThumbIndexRef = React.useRef(-1);
   // The values when the current drag interaction started.
   const pressedValuesRef = React.useRef<readonly number[] | null>(null);
-  const lastChangeReasonRef = React.useRef<SliderRoot.ChangeEventReason>('none');
+  const lastChangeReasonRef = React.useRef<SliderRoot.ChangeEventReason>(REASONS.none);
 
   // We can't use the :active browser pseudo-classes.
   // - The active state isn't triggered when clicking on the rail.

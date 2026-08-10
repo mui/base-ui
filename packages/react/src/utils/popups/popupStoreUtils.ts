@@ -58,14 +58,10 @@ export interface PopupRootStoreHandle<Store> {
 }
 
 /**
- * Creates and owns a popup store on behalf of a Root part. The store is created exactly once — the
- * Root owns it for its lifetime, so swapping the handle re-attaches rather than recreating state —
- * with controlled props and root state synced separately after creation. Sets up the synced
- * floating root context and, when a handle is provided, attaches the store to it so detached
- * triggers migrate onto the live store. Returns the store.
+ * Creates and owns a popup store on behalf of a Root part. The store is created exactly once, with
+ * controlled props and root state synced separately after creation. Sets up the synced floating
+ * root context and returns the store.
  *
- * @param handle The handle to attach the store to, or `undefined` when the Root is used without one.
- * While attached, detached triggers sharing the handle read from and register into this store.
  * @param createStore Factory that builds the store. Called exactly once, receiving the floating id
  * and whether the popup is nested inside another floating element, both resolved on the first render.
  * @param treatPopupAsFloatingElement Whether the popup element is passed to Floating UI as the
@@ -76,7 +72,6 @@ export function usePopupRootStore<
   SetOpenEventDetails extends BaseUIChangeEventDetails<string>,
   Store extends PopupStoreWithOpen<State, SetOpenEventDetails>,
 >(
-  handle: PopupRootStoreHandle<Store> | undefined,
   createStore: (floatingId: string | undefined, nested: boolean) => Store,
   treatPopupAsFloatingElement = false,
 ): Store {
@@ -94,27 +89,31 @@ export function usePopupRootStore<
     onOpenChange: store.setOpen,
   });
 
-  useAttachHandle(handle, store);
-
   return store;
 }
 
 /**
- * Attaches a Root's store to a handle for the lifetime of the effect, detaching on cleanup. No-op
- * when no handle is provided. Used by every popup Root so detached triggers can follow the store
- * pointer as roots mount and unmount.
+ * Attaches a Root's store to a handle for this component's committed lifetime. Popup Roots render
+ * it before their interactions and user children so its layout effect runs before descendant layout
+ * effects. This lets descendants call the handle during the Root's initial commit without attaching
+ * during render, which would leak suspended or abandoned stores. Store subscribers are notified by
+ * `attachStore` in this ordinary layout phase, where React permits synchronous updates.
+ *
+ * Popup Roots must render this component only when a handle is present so handle-less Roots avoid
+ * mounting an extra fiber and layout effect.
  */
-export function useAttachHandle<Store>(
-  handle: PopupRootStoreHandle<Store> | undefined,
-  store: Store,
-) {
+export function PopupHandleAttachment<Store>({
+  handle,
+  store,
+}: {
+  handle: PopupRootStoreHandle<Store>;
+  store: Store;
+}) {
   useIsoLayoutEffect(() => {
-    if (!handle) {
-      return undefined;
-    }
-
     return handle.attachStore(store);
   }, [handle, store]);
+
+  return null;
 }
 
 /**
@@ -363,8 +362,10 @@ export type PayloadChildRenderFunction<Payload> = (arg: {
  * unregisters, the default path preserves existing ownership so non-closing popup families do not
  * silently claim a different trigger while staying open.
  *
- * If `closeOnActiveTriggerUnmount` is enabled, unregistering the active trigger requests a close
- * after a microtask so a same-tick replacement trigger with the same id can register first.
+ * If `closeOnActiveTriggerUnmount` is enabled, unregistering a previously resolved active trigger
+ * requests a close after a microtask so a same-tick replacement trigger with the same id can
+ * register first. An active trigger id that has not matched a registered trigger yet is treated as
+ * pending and does not request a close.
  *
  * This should be called on the Root part.
  *
@@ -378,14 +379,23 @@ export function useImplicitActiveTrigger<State extends PopupStoreState<unknown>>
   } = {},
 ) {
   const { closeOnActiveTriggerUnmount = false } = options;
+  // Distinguishes a trigger that unmounted from a new active trigger that has not hydrated yet.
+  const resolvedActiveTriggerIdRef = React.useRef<string | null>(null);
   const open = store.useState('open');
   const reactiveTriggerCount = store.useState('triggerCount');
   // Subscribe to the active trigger id so the reconciliation below reruns when ownership moves to
   // another trigger while the popup stays open (e.g. a focus/hover handoff between triggers).
   const activeTriggerId = store.useState('activeTriggerId');
+  // Subscribe to the active trigger element so the reconciliation reruns when a pending active
+  // trigger registers in a commit where the trigger count nets out unchanged (registration
+  // forwards the element to the store when the registering trigger matches the active id).
+  // Without this, the id would never be marked resolved and a later genuine unmount would be
+  // misclassified as pending, disabling `closeOnActiveTriggerUnmount`.
+  const reactiveActiveTriggerElement = store.useState('activeTriggerElement');
 
   useIsoLayoutEffect(() => {
     if (!open) {
+      resolvedActiveTriggerIdRef.current = null;
       if (store.state.triggerCount !== 0) {
         store.set('triggerCount', 0);
       }
@@ -409,16 +419,26 @@ export function useImplicitActiveTrigger<State extends PopupStoreState<unknown>>
           if (triggerElement === store.state.activeTriggerElement) {
             stateUpdates.activeTriggerId = triggerId;
             stateUpdates.activeTriggerElement = triggerElement;
+            resolvedActiveTriggerIdRef.current = triggerId;
             break;
           }
         }
 
         if (stateUpdates.activeTriggerId === undefined) {
-          lostActiveTriggerId = currentActiveTriggerId;
+          if (resolvedActiveTriggerIdRef.current === currentActiveTriggerId) {
+            lostActiveTriggerId = currentActiveTriggerId;
+          } else {
+            resolvedActiveTriggerIdRef.current = null;
+          }
         }
-      } else if (activeTriggerElement !== store.state.activeTriggerElement) {
-        stateUpdates.activeTriggerElement = activeTriggerElement;
+      } else {
+        resolvedActiveTriggerIdRef.current = currentActiveTriggerId;
+        if (activeTriggerElement !== store.state.activeTriggerElement) {
+          stateUpdates.activeTriggerElement = activeTriggerElement;
+        }
       }
+    } else {
+      resolvedActiveTriggerIdRef.current = null;
     }
 
     if (!lostActiveTriggerId && !currentActiveTriggerId && triggerCount === 1) {
@@ -427,6 +447,7 @@ export function useImplicitActiveTrigger<State extends PopupStoreState<unknown>>
         const [implicitTriggerId, implicitTriggerElement] = iteratorResult.value;
         stateUpdates.activeTriggerId = implicitTriggerId;
         stateUpdates.activeTriggerElement = implicitTriggerElement;
+        resolvedActiveTriggerIdRef.current = implicitTriggerId;
       }
     }
 
@@ -461,7 +482,14 @@ export function useImplicitActiveTrigger<State extends PopupStoreState<unknown>>
         });
       }
     }
-  }, [open, store, reactiveTriggerCount, activeTriggerId, closeOnActiveTriggerUnmount]);
+  }, [
+    open,
+    store,
+    reactiveTriggerCount,
+    activeTriggerId,
+    reactiveActiveTriggerElement,
+    closeOnActiveTriggerUnmount,
+  ]);
 }
 
 /**

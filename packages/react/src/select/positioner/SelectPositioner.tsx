@@ -12,7 +12,7 @@ import {
   type Align,
   type Side,
   type UseAnchorPositioningSharedParameters,
-} from '../../utils/useAnchorPositioning';
+} from '../../internals/useAnchorPositioning';
 import { SelectPositionerContext } from './SelectPositionerContext';
 import { InternalBackdrop } from '../../utils/InternalBackdrop';
 import { DROPDOWN_COLLISION_AVOIDANCE } from '../../internals/constants';
@@ -92,12 +92,6 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
   if (!mounted && controlledAlignItemWithTrigger !== alignItemWithTrigger) {
     setControlledAlignItemWithTrigger(alignItemWithTrigger);
   }
-
-  useIsoLayoutEffect(() => {
-    if (!mounted) {
-      store.update({ scrollUpArrowVisible: false, scrollDownArrowVisible: false });
-    }
-  }, [store, mounted]);
 
   React.useImperativeHandle(alignItemWithTriggerActiveRef, () => alignItemWithTriggerActive);
 

@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 
-export type MenuGroupContext = (id: string | undefined) => void;
+export type MenuGroupContext = React.Dispatch<React.SetStateAction<string | undefined>>;
 
 export const MenuGroupContext = React.createContext<MenuGroupContext | undefined>(undefined);
 
