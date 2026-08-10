@@ -10,7 +10,7 @@ export function useOpenChangeComplete(parameters: UseOpenChangeCompleteParameter
   const { enabled = true, open, ref, onComplete: onCompleteParam } = parameters;
 
   const onComplete = useStableCallback(onCompleteParam);
-  const runOnceAnimationsFinish = useAnimationsFinished(ref, open, false);
+  const runOnceAnimationsFinish = useAnimationsFinished(ref, open);
 
   React.useEffect(() => {
     if (!enabled) {

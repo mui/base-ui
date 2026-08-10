@@ -18,7 +18,6 @@ interface CompositeListItem<Metadata> {
 
 /**
  * Provides context for a list of items in a composite component.
- * @internal
  */
 export function CompositeList<Metadata>(props: CompositeList.Props<Metadata>) {
   const { children, elementsRef, labelsRef, onMapChange: onMapChangeProp } = props;
@@ -31,7 +30,7 @@ export function CompositeList<Metadata>(props: CompositeList.Props<Metadata>) {
   const map = useRefWithInit(createMap<Metadata>).current;
   const nextIndexRef = React.useRef(0);
   const isDirtyRef = React.useRef(true);
-  const itemsRef = React.useRef<readonly CompositeListItem<Metadata>[]>([]);
+  const itemsRef = React.useRef<readonly CompositeListItem<Metadata>[] | null>(null);
   const mutationObserverRef = React.useRef<MutationObserver | null>(null);
 
   // Item effects can run without their parent rendering. Schedule one synchronous
@@ -144,9 +143,27 @@ export function CompositeList<Metadata>(props: CompositeList.Props<Metadata>) {
     const [items, automaticNodes] = getCompositeListSnapshot(map);
     const nextMap = syncRefs(items);
 
+    const previousItems = itemsRef.current;
+    const changed =
+      !previousItems ||
+      previousItems.length !== items.length ||
+      items.some((item, index) => {
+        const previousItem = previousItems[index];
+        return (
+          item.index !== previousItem.index ||
+          item.element !== previousItem.element ||
+          item.registration.index !== previousItem.registration.index ||
+          item.registration.metadata !== previousItem.registration.metadata
+        );
+      });
+
     observe(automaticNodes);
     itemsRef.current = items;
     isDirtyRef.current = false;
+
+    if (!changed) {
+      return;
+    }
 
     listeners.forEach((listener) => listener(nextMap));
     onMapChange(nextMap);
@@ -155,7 +172,7 @@ export function CompositeList<Metadata>(props: CompositeList.Props<Metadata>) {
   useIsoLayoutEffect(() => {
     // Re-copy the last committed snapshot when the ref objects change or Strict Mode replays
     // effects without reattaching callback refs.
-    if (!isDirtyRef.current) {
+    if (!isDirtyRef.current && itemsRef.current) {
       syncRefs(itemsRef.current);
     }
 

@@ -2,10 +2,10 @@
 import * as React from 'react';
 import { addEventListener } from '@base-ui/utils/addEventListener';
 import { useControlled } from '@base-ui/utils/useControlled';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { ownerWindow } from '@base-ui/utils/owner';
 import { platform } from '@base-ui/utils/platform';
-import { useId } from '@base-ui/utils/useId';
 import {
   DrawerRootContext,
   type DrawerNestedSwipeProgressStore,
@@ -417,10 +417,10 @@ function createNestedSwipeProgressStore(): NestedSwipeProgressStore {
 }
 
 function DrawerProviderReporter() {
-  const drawerId = useId();
-
-  const providerContext = useDrawerProviderContext(true);
+  const providerContext = useDrawerProviderContext();
   const store = useDialogRootContext(false);
+  const setDrawerOpen = providerContext?.setDrawerOpen;
+  const removeDrawer = providerContext?.removeDrawer;
 
   const open = store.useState('open');
   const nestedOpenDialogCount = store.useState('nestedOpenDialogCount');
@@ -428,23 +428,19 @@ function DrawerProviderReporter() {
 
   const isTopmost = nestedOpenDialogCount === 0;
 
-  React.useEffect(() => {
-    if (!providerContext || drawerId == null) {
+  useIsoLayoutEffect(() => {
+    if (!removeDrawer) {
       return undefined;
     }
 
     return () => {
-      providerContext.removeDrawer(drawerId);
+      removeDrawer(store);
     };
-  }, [drawerId, providerContext]);
+  }, [removeDrawer, store]);
 
-  React.useEffect(() => {
-    if (drawerId == null) {
-      return;
-    }
-
-    providerContext?.setDrawerOpen(drawerId, open);
-  }, [drawerId, open, providerContext]);
+  useIsoLayoutEffect(() => {
+    setDrawerOpen?.(store, open);
+  }, [open, setDrawerOpen, store]);
 
   React.useEffect(() => {
     // CloseWatcher enables the Android back gesture (Chromium-only).

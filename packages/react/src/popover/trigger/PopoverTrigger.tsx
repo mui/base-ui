@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import { fastComponentRef } from '@base-ui/utils/fastHooks';
 import { usePopoverRootContext } from '../root/PopoverRootContext';
 import { useButton } from '../../internals/use-button/useButton';
 import type { BaseUIComponentProps, NativeButtonProps } from '../../internals/types';
@@ -26,7 +27,7 @@ import { useOpenMethodTriggerProps } from '../../utils/useOpenInteractionType';
  *
  * Documentation: [Base UI Popover](https://base-ui.com/react/components/popover)
  */
-export const PopoverTrigger = React.forwardRef(function PopoverTrigger(
+export const PopoverTrigger = fastComponentRef(function PopoverTrigger(
   componentProps: PopoverTrigger.Props,
   forwardedRef: React.ForwardedRef<HTMLElement>,
 ) {

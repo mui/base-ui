@@ -1,6 +1,8 @@
 import * as React from 'react';
 import { Combobox } from '@base-ui/react/combobox';
+import { expectType } from '#test-utils';
 import { mergeProps } from '../../merge-props';
+import { REASONS } from '../../internals/reasons';
 
 const objectItems = [
   { value: 'a', label: 'apple' },
@@ -210,6 +212,19 @@ function App() {
   onValueChange={(value) => {
     // @ts-expect-error
     value.length;
+  }}
+/>;
+
+<Combobox.Root
+  onOpenChange={(_open, details) => {
+    if (details.reason === REASONS.inputPress) {
+      expectType<MouseEvent | PointerEvent | TouchEvent | KeyboardEvent, typeof details.event>(
+        details.event,
+      );
+    }
+    if (details.reason === REASONS.cancelOpen) {
+      expectType<MouseEvent, typeof details.event>(details.event);
+    }
   }}
 />;
 

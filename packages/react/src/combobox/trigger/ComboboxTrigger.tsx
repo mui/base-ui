@@ -22,7 +22,7 @@ import type { FieldRootState } from '../../field/root/FieldRoot';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
 import { useClick, useTypeahead } from '../../floating-ui-react';
-import type { Side } from '../../utils/useAnchorPositioning';
+import type { Side } from '../../internals/useAnchorPositioning';
 import { useLabelableId } from '../../internals/labelable-provider/useLabelableId';
 import { resolveAriaLabelledBy } from '../../utils/resolveAriaLabelledBy';
 import { getComboboxPopupId } from '../root/utils';
@@ -67,7 +67,6 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
   const listElement = useStore(store, selectors.listElement);
   const storedPopupId = useStore(store, selectors.popupId);
   const triggerProps = useStore(store, selectors.triggerProps);
-  const triggerElement = useStore(store, selectors.triggerElement);
   const inputInsidePopup = useStore(store, selectors.inputInsidePopup);
   const rootId = useStore(store, selectors.id);
   const comboboxLabelId = useStore(store, selectors.labelId);
@@ -106,19 +105,6 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
     currentPointerTypeRef.current = event.pointerType;
   }
 
-  const domReference = floatingRootContext.useState('domReferenceElement');
-
-  // Update the floating root context to use the trigger element when it differs from the current reference.
-  // This ensures useClick and useTypeahead attach handlers to the correct element.
-  React.useEffect(() => {
-    if (!inputInsidePopup) {
-      return;
-    }
-    if (triggerElement && triggerElement !== domReference) {
-      floatingRootContext.set('domReferenceElement', triggerElement);
-    }
-  }, [triggerElement, domReference, floatingRootContext, inputInsidePopup]);
-
   const { reference: triggerTypeaheadProps } = useTypeahead(floatingRootContext, {
     enabled: !open && !readOnly && !comboboxDisabled && selectionMode === 'single',
     listRef: store.state.labelsRef,
@@ -127,7 +113,7 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
     onMatch(index) {
       const nextSelectedValue = store.state.valuesRef.current[index];
       if (nextSelectedValue !== undefined) {
-        store.state.setSelectedValue(nextSelectedValue, createChangeEventDetails('none'));
+        store.state.setSelectedValue(nextSelectedValue, createChangeEventDetails(REASONS.none));
       }
     },
   });
@@ -244,7 +230,7 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
               return;
             }
 
-            store.state.setOpen(false, createChangeEventDetails('cancel-open', mouseEvent));
+            store.state.setOpen(false, createChangeEventDetails(REASONS.cancelOpen, mouseEvent));
           }
 
           if (inputInsidePopup) {

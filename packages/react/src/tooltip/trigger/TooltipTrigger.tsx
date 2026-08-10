@@ -103,7 +103,6 @@ export const TooltipTrigger = fastComponentRef(function TooltipTrigger(
 
   const triggerElementRef = React.useRef<Element | null>(null);
 
-  const delayWithDefault = delay ?? OPEN_DELAY;
   const closeDelayWithDefault = closeDelay ?? 0;
 
   const { registerTrigger, isMountedByThisTrigger } = useTriggerDataForwarding(
@@ -118,9 +117,12 @@ export const TooltipTrigger = fastComponentRef(function TooltipTrigger(
   );
 
   const providerDelay = useTooltipProviderContext();
-  const { delayRef, isInstantPhase, hasProvider } = useDelayGroup(floatingRootContext, {
-    open: isOpenedByThisTrigger,
-  });
+  const { activeIdRef, delayRef, isInstantPhase, hasProvider } = useDelayGroup(
+    floatingRootContext,
+    {
+      open: isOpenedByThisTrigger,
+    },
+  );
   const hoverInteraction = useHoverInteractionSharedState(floatingRootContext);
 
   store.useSyncedValue('isInstantPhase', isInstantPhase);
@@ -137,10 +139,11 @@ export const TooltipTrigger = fastComponentRef(function TooltipTrigger(
   const pointerTypeRef = React.useRef<string | undefined>(undefined);
 
   function getOpenDelay() {
-    if (!hasProvider) {
-      return delayWithDefault;
+    // Adjacent tooltips open instantly while the group is active.
+    if (hasProvider && activeIdRef.current != null) {
+      return 0;
     }
-    return getDelay(delayRef.current, 'open') === 0 ? 0 : (delay ?? providerDelay ?? OPEN_DELAY);
+    return delay ?? providerDelay ?? OPEN_DELAY;
   }
 
   function isEnabledNestedTriggerTarget(target: Element | null) {

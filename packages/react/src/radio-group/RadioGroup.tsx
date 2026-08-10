@@ -11,6 +11,7 @@ import { useFieldRootContext } from '../internals/field-root-context/FieldRootCo
 import { useRegisterFieldControl } from '../internals/field-register-control/useRegisterFieldControl';
 import { fieldValidityMapping } from '../internals/field-constants/constants';
 import type { FieldRootState } from '../field/root/FieldRoot';
+import { isEligibleInput } from '../field/root/useFieldValidation';
 import { useFieldsetRootContext } from '../fieldset/root/FieldsetRootContext';
 import { useFormContext } from '../internals/form-context/FormContext';
 import { useLabelableContext } from '../internals/labelable-provider/LabelableContext';
@@ -162,7 +163,7 @@ export const RadioGroup = React.forwardRef(function RadioGroup<Value>(
     }
 
     for (const input of validation.registeredInputs.keys()) {
-      if (input.checked && !input.matches(':disabled') && input.form === formElement) {
+      if (input.checked && isEligibleInput(input, formElement)) {
         return checkedValue ?? null;
       }
     }

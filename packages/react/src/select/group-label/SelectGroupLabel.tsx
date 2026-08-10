@@ -24,6 +24,9 @@ export const SelectGroupLabel = React.forwardRef(function SelectGroupLabel(
 
   useIsoLayoutEffect(() => {
     setLabelId(id);
+    return () => {
+      setLabelId((currentId) => (currentId === id ? undefined : currentId));
+    };
   }, [id, setLabelId]);
 
   const element = useRenderElement('div', componentProps, {

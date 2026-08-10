@@ -218,6 +218,15 @@ describe('<CheckboxGroup />', () => {
   });
 
   describe('prop: defaultValue', () => {
+    it('treats null as an empty array', () => {
+      // @ts-expect-error Simulates a JavaScript consumer passing an unsupported value.
+      const group = <CheckboxGroup defaultValue={null} />;
+
+      render(group);
+
+      expect(screen.getByRole('group')).toBeInTheDocument();
+    });
+
     it('should set the initial value', () => {
       function App() {
         return (
@@ -1107,7 +1116,7 @@ describe('<CheckboxGroup />', () => {
       expect(handleSubmit.mock.lastCall?.[0]).toEqual({ fruits: ['apple'] });
     });
 
-    it('omits a context-portaled checkbox without native form association', () => {
+    it('includes a context-portaled checkbox without native form association', () => {
       const handleSubmit = vi.fn();
       const portalContainer = document.createElement('div');
       document.body.append(portalContainer);
@@ -1125,7 +1134,35 @@ describe('<CheckboxGroup />', () => {
 
       fireEvent.click(screen.getByText('Submit'));
 
-      expect(handleSubmit.mock.lastCall?.[0]).toEqual({ fruits: [] });
+      // Field registration is context-driven, so a portaled checkbox with no explicit `form`
+      // association still projects its value into `onFormSubmit`, like other field controls.
+      expect(handleSubmit.mock.lastCall?.[0]).toEqual({ fruits: ['apple'] });
+      portalContainer.remove();
+    });
+
+    it('includes a group fully portaled outside the form element', () => {
+      const handleSubmit = vi.fn();
+      const portalContainer = document.createElement('div');
+      document.body.append(portalContainer);
+
+      render(
+        <Form onFormSubmit={handleSubmit}>
+          {ReactDOM.createPortal(
+            <Field.Root name="fruits">
+              <CheckboxGroup defaultValue={['apple', 'banana']}>
+                <Checkbox.Root value="apple" />
+                <Checkbox.Root value="banana" disabled />
+              </CheckboxGroup>
+            </Field.Root>,
+            portalContainer,
+          )}
+          <button type="submit">Submit</button>
+        </Form>,
+      );
+
+      fireEvent.click(screen.getByText('Submit'));
+
+      expect(handleSubmit.mock.lastCall?.[0]).toEqual({ fruits: ['apple'] });
       portalContainer.remove();
     });
 

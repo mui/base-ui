@@ -1,4 +1,4 @@
-import { ReactStore, createSelector } from '@base-ui/utils/store';
+import { ReactStore } from '@base-ui/utils/store';
 import { generateId } from '@base-ui/utils/generateId';
 import { ownerDocument } from '@base-ui/utils/owner';
 import { Timeout } from '@base-ui/utils/useTimeout';
@@ -83,33 +83,17 @@ function applyLimited(toasts: StoredToast[], limit: number): StoredToast[] {
   });
 }
 
-const toastMetadataSelector = (state: State) => state.toastMetadata;
-
 export const selectors = {
-  toasts: createSelector((state: State) => state.toasts),
-  isEmpty: createSelector((state: State) => state.toasts.length === 0),
-  toast: createSelector(
-    toastMetadataSelector,
-    (toastMetadata, id: string) => toastMetadata.get(id)?.value,
-  ),
-  toastIndex: createSelector(
-    toastMetadataSelector,
-    (toastMetadata, id: string) => toastMetadata.get(id)?.domIndex ?? -1,
-  ),
-  toastOffsetY: createSelector(
-    toastMetadataSelector,
-    (toastMetadata, id: string) => toastMetadata.get(id)?.offsetY ?? 0,
-  ),
-  toastVisibleIndex: createSelector(
-    toastMetadataSelector,
-    (toastMetadata, id: string) => toastMetadata.get(id)?.visibleIndex ?? -1,
-  ),
-  focused: createSelector((state: State) => state.focused),
-  expanded: createSelector((state: State) => state.hovering || state.focused),
-  expandedOrOutOfFocus: createSelector(
-    (state: State) => state.hovering || state.focused || !state.isWindowFocused,
-  ),
-  prevFocusElement: createSelector((state: State) => state.prevFocusElement),
+  toasts: (state: State) => state.toasts,
+  isEmpty: (state: State) => state.toasts.length === 0,
+  toast: (state: State, id: string) => state.toastMetadata.get(id)?.value,
+  toastIndex: (state: State, id: string) => state.toastMetadata.get(id)?.domIndex ?? -1,
+  toastOffsetY: (state: State, id: string) => state.toastMetadata.get(id)?.offsetY ?? 0,
+  toastVisibleIndex: (state: State, id: string) => state.toastMetadata.get(id)?.visibleIndex ?? -1,
+  focused: (state: State) => state.focused,
+  expanded: (state: State) => state.hovering || state.focused,
+  expandedOrOutOfFocus: (state: State) => state.hovering || state.focused || !state.isWindowFocused,
+  prevFocusElement: (state: State) => state.prevFocusElement,
 };
 
 export class ToastStore extends ReactStore<State, {}, typeof selectors> {
@@ -139,10 +123,10 @@ export class ToastStore extends ReactStore<State, {}, typeof selectors> {
       return;
     }
 
-    const updates: Partial<State> = {
-      timeout,
-      limit,
-    };
+    const updates = { timeout, limit } as Pick<
+      State,
+      'timeout' | 'limit' | 'toasts' | 'toastMetadata'
+    >;
 
     if (limitChanged) {
       const newToasts = applyLimited(this.state.toasts, limit);
@@ -462,14 +446,16 @@ export class ToastStore extends ReactStore<State, {}, typeof selectors> {
   }
 
   private setToasts(newToasts: StoredToast[], clearInteraction: boolean = newToasts.length === 0) {
-    const updates: Partial<State> = {
+    const updates = {
       toasts: newToasts,
       toastMetadata: createToastMetadata(newToasts),
-    };
+    } as Pick<State, 'toasts' | 'toastMetadata' | 'hovering' | 'focused'>;
+
     if (clearInteraction) {
       updates.hovering = false;
       updates.focused = false;
     }
+
     this.update(updates);
   }
 

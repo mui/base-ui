@@ -2,8 +2,8 @@
 import * as React from 'react';
 import { useControlled } from '@base-ui/utils/useControlled';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
-import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { warn } from '@base-ui/utils/warn';
+import { EMPTY_ARRAY } from '@base-ui/utils/empty';
 import { BaseUIComponentProps, Orientation } from '../../internals/types';
 import { CompositeList } from '../../internals/composite/list/CompositeList';
 import { AccordionRootContext } from './AccordionRootContext';
@@ -41,9 +41,12 @@ export const AccordionRoot = React.forwardRef(function AccordionRoot<Value = any
     ...elementProps
   } = componentProps;
 
+  const defaultValue = defaultValueProp ?? EMPTY_ARRAY;
+
+  /* istanbul ignore else -- `process.env.NODE_ENV` is a build-time constant under test */
   if (process.env.NODE_ENV !== 'production') {
     // eslint-disable-next-line react-hooks/rules-of-hooks
-    useIsoLayoutEffect(() => {
+    React.useEffect(() => {
       if (hiddenUntilFoundProp && keepMountedProp === false) {
         warn(
           'The `keepMounted={false}` prop on `Accordion.Root` is ignored when `hiddenUntilFound` is enabled, since panels must remain mounted while closed.',
@@ -51,16 +54,6 @@ export const AccordionRoot = React.forwardRef(function AccordionRoot<Value = any
       }
     }, [hiddenUntilFoundProp, keepMountedProp]);
   }
-
-  // memoized to allow omitting both defaultValue and value
-  // which would otherwise trigger a warning in useControlled
-  const defaultValue = React.useMemo(() => {
-    if (valueProp === undefined) {
-      return defaultValueProp ?? [];
-    }
-
-    return undefined;
-  }, [valueProp, defaultValueProp]);
 
   const accordionItemRefs = React.useRef<(HTMLElement | null)[]>([]);
 

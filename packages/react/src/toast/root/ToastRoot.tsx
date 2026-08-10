@@ -323,6 +323,8 @@ export const ToastRoot = React.forwardRef(function ToastRoot(
     const cancelDeltaY = clientY - swipeCancelBaselineRef.current.y;
     const cancelDeltaX = clientX - swipeCancelBaselineRef.current.x;
 
+    let resolvedLockedDirection = lockedDirection;
+
     if (!isRealSwipe) {
       const movementDistance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
       if (movementDistance >= MIN_DRAG_THRESHOLD) {
@@ -335,20 +337,21 @@ export const ToastRoot = React.forwardRef(function ToastRoot(
         if (hasHorizontal && hasVertical) {
           const absX = Math.abs(deltaX);
           const absY = Math.abs(deltaY);
-          setLockedDirection(absX > absY ? 'horizontal' : 'vertical');
+          resolvedLockedDirection = absX > absY ? 'horizontal' : 'vertical';
+          setLockedDirection(resolvedLockedDirection);
         }
       }
     }
 
     let candidate: 'up' | 'down' | 'left' | 'right' | undefined;
     if (!intendedSwipeDirectionRef.current) {
-      if (lockedDirection === 'vertical') {
+      if (resolvedLockedDirection === 'vertical') {
         if (deltaY > 0) {
           candidate = 'down';
         } else if (deltaY < 0) {
           candidate = 'up';
         }
-      } else if (lockedDirection === 'horizontal') {
+      } else if (resolvedLockedDirection === 'horizontal') {
         if (deltaX > 0) {
           candidate = 'right';
         } else if (deltaX < 0) {
@@ -389,11 +392,11 @@ export const ToastRoot = React.forwardRef(function ToastRoot(
     const hasHorizontalDir = swipeDirections.includes('left') || swipeDirections.includes('right');
     const hasVerticalDir = swipeDirections.includes('up') || swipeDirections.includes('down');
 
-    if (lockedDirection !== 'vertical' && hasHorizontalDir) {
+    if (resolvedLockedDirection !== 'vertical' && hasHorizontalDir) {
       newOffsetX += dampedDelta.x;
     }
 
-    if (lockedDirection !== 'horizontal' && hasVerticalDir) {
+    if (resolvedLockedDirection !== 'horizontal' && hasVerticalDir) {
       newOffsetY += dampedDelta.y;
     }
 
