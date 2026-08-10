@@ -144,7 +144,7 @@ describe('<Popover.Root />', () => {
 
     const swappedTrigger = screen.getByRole('button', { name: 'Trigger' });
     // Guards the setup: without a real host swap the rest of the test proves nothing.
-    expect(swappedTrigger).not.to.equal(initialTrigger);
+    expect(swappedTrigger).not.toBe(initialTrigger);
     expect(initialTrigger.isConnected).toBe(false);
     expect(fallbackStore.context.triggerElements.size).toBe(0);
     expect(handle.store.context.triggerElements.getById('trigger')).toBe(swappedTrigger);
@@ -159,6 +159,41 @@ describe('<Popover.Root />', () => {
       expect(screen.getByTestId('popup')).toBeVisible();
     });
     expect(handle.store.state.activeTriggerElement).toBe(swappedTrigger);
+  });
+
+  it('does not detach the consumer ref when the handle attaches to a root', async () => {
+    const handle = Popover.createHandle();
+    const refCalls: (Element | null)[] = [];
+
+    await render(
+      <React.Fragment>
+        <Popover.Trigger
+          handle={handle}
+          id="trigger"
+          ref={(element: HTMLElement | null) => {
+            refCalls.push(element);
+          }}
+        >
+          Trigger
+        </Popover.Trigger>
+        <Popover.Root handle={handle}>
+          <Popover.Portal>
+            <Popover.Positioner>
+              <Popover.Popup>Content</Popover.Popup>
+            </Popover.Positioner>
+          </Popover.Portal>
+        </Popover.Root>
+      </React.Fragment>,
+      // Strict Mode replays the ref on its own, which would mask a migration-driven detach.
+      { strict: false },
+    );
+
+    expect(handle.store.context.triggerElements.getById('trigger')).toBe(
+      screen.getByRole('button', { name: 'Trigger' }),
+    );
+    // Migrating from the fallback store to the root's store must not churn the merged ref, which
+    // would hand the consumer a spurious `null` and back.
+    expect(refCalls).toEqual([screen.getByRole('button', { name: 'Trigger' })]);
   });
 
   describe.skipIf(isJSDOM)('handle-backed root ownership', () => {
