@@ -33,6 +33,7 @@ type Context = PopupStoreContext<DialogRoot.ChangeEventDetails> & {
   readonly internalBackdropRef: React.RefObject<HTMLDivElement | null>;
   readonly outsidePressEnabledRef: React.MutableRefObject<boolean>;
   readonly onNestedDialogOpen?: ((dialogCount: number, drawerCount: number) => void) | undefined;
+  readonly nestedDialogsCount: Map<string, { dialogCount: number; drawerCount: number }>;
 };
 
 const selectors = {
@@ -154,5 +155,6 @@ function createInitialContext(triggerElements: PopupTriggerMap): Context {
     triggerElements,
     onOpenChange: undefined,
     onOpenChangeComplete: undefined,
+    nestedDialogsCount: new Map(),
   };
 }

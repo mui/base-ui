@@ -5,6 +5,7 @@ import { useDismiss } from '../../floating-ui-react';
 import { contains, getTarget } from '../../floating-ui-react/utils';
 import { DialogStore } from '../store/DialogStore';
 import { usePopupInteractionProps } from '../../utils/popups';
+import { useId } from '@base-ui/utils/useId';
 
 export function DialogInteractions({
   store,
@@ -21,8 +22,30 @@ export function DialogInteractions({
   const popupElement = store.useState('popupElement');
   const floatingRootContext = store.useState('floatingRootContext');
 
-  const [ownNestedOpenDialogs, setOwnNestedOpenDialogs] = React.useState(0);
-  const [ownNestedOpenDrawers, setOwnNestedOpenDrawers] = React.useState(0);
+  const id = useId();
+
+  const currentNestedCount = store.context?.nestedDialogsCount.get(id!) ?? {
+    dialogCount: 0,
+    drawerCount: 0,
+  };
+
+  console.log(
+    'currentNestedCount',
+    currentNestedCount,
+    id,
+    store.context?.nestedDialogsCount.get(id!),
+  );
+
+  // const { dialogCount: ownNestedOpenDialogs, drawerCount: ownNestedOpenDrawers } =
+  //   currentNestedCount;
+
+  const [ownNestedOpenDialogs, setOwnNestedOpenDialogs] = React.useState(
+    currentNestedCount.dialogCount,
+  );
+  const [ownNestedOpenDrawers, setOwnNestedOpenDrawers] = React.useState(
+    currentNestedCount.drawerCount,
+  );
+
   const isTopmost = ownNestedOpenDialogs === 0;
 
   const dismiss = useDismiss(floatingRootContext, {
@@ -87,8 +110,15 @@ export function DialogInteractions({
   // Listen for nested open/close events on this store to maintain the counts.
   // A close notification is an open notification with zeroed counts.
   store.useContextCallback('onNestedDialogOpen', (dialogCount, drawerCount) => {
-    setOwnNestedOpenDialogs(dialogCount);
-    setOwnNestedOpenDrawers(drawerCount);
+    const finalCount = {
+      dialogCount: dialogCount + ownNestedOpenDialogs,
+      drawerCount: drawerCount + ownNestedOpenDrawers,
+    };
+
+    store.context.nestedDialogsCount.set(id!, finalCount);
+
+    setOwnNestedOpenDialogs(finalCount.dialogCount);
+    setOwnNestedOpenDrawers(finalCount.drawerCount);
   });
 
   // Notify parent of our open/close state using parent callbacks, if any
