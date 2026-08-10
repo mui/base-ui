@@ -8,7 +8,6 @@ import { useRenderElement } from '../../internals/useRenderElement';
 import { styleDisableScrollbar } from '../../utils/styles';
 import { LIST_FUNCTIONAL_STYLES } from '../popup/utils';
 import { selectors } from '../store';
-import { FilterDropdownList } from '../../filter-dropdown/list/FilterDropdownList';
 import { SelectCollection } from '../collection/SelectCollection';
 
 const SELECT_LIST_ROLE = 'listbox';
@@ -60,7 +59,7 @@ export const SelectList = React.forwardRef(function SelectList(
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const { store } = useSelectRootContext();
-  const filterable = useStore(store, selectors.filterable);
+  const filterIntegration = useStore(store, selectors.filterIntegration);
   const rootId = useStore(store, selectors.id);
   // Resolve once so the filter wrapper registers the same id the DOM element ends up with,
   // otherwise a consumer id leaves the trigger and input pointing at nothing.
@@ -82,10 +81,10 @@ export const SelectList = React.forwardRef(function SelectList(
     </SelectListImpl>
   );
 
-  return filterable ? (
-    // FilterDropdownList composes onto SelectListImpl so its implementation
+  return filterIntegration ? (
+    // The filter wrapper composes onto SelectListImpl so its implementation
     // overrides SelectListImpl's implementation.
-    <FilterDropdownList role={SELECT_LIST_ROLE} id={id} render={selectList} />
+    <filterIntegration.List role={SELECT_LIST_ROLE} id={id} render={selectList} />
   ) : (
     selectList
   );

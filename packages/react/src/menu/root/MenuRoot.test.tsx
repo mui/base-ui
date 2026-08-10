@@ -622,9 +622,7 @@ describe('<Menu.Root />', () => {
                   <FilterableMenu.Input aria-label="Filter actions" />
                   <FilterableMenu.List>
                     <Menu.SubmenuRoot>
-                      <Menu.SubmenuTrigger delay={0}>
-                        Move to folder
-                      </Menu.SubmenuTrigger>
+                      <Menu.SubmenuTrigger delay={0}>Move to folder</Menu.SubmenuTrigger>
                       <Menu.Portal>
                         <Menu.Positioner>
                           <Menu.Popup>

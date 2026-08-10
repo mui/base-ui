@@ -222,20 +222,41 @@ const items = [
 
 ### Filterable
 
-Pass the `filter` prop to `<Select.Root>` and add `<Select.Input>` to let users filter the available items.
+Import `FilterableSelect` from `@base-ui/react/filterable-select` to let users filter the available items. It exposes every ordinary select part plus `<FilterableSelect.Input>`, `<FilterableSelect.Clear>`, and `<FilterableSelect.Empty>`, so a filterable select needs only this one import.
+
+```jsx title="Filterable select"
+import { FilterableSelect } from '@base-ui/react/filterable-select';
+
+<FilterableSelect.Root>
+  <FilterableSelect.Trigger>
+    <FilterableSelect.Value />
+  </FilterableSelect.Trigger>
+  <FilterableSelect.Portal>
+    <FilterableSelect.Positioner>
+      <FilterableSelect.Popup>
+        <FilterableSelect.Input />
+        <FilterableSelect.Empty />
+        <FilterableSelect.List>
+          <FilterableSelect.Item />
+        </FilterableSelect.List>
+      </FilterableSelect.Popup>
+    </FilterableSelect.Positioner>
+  </FilterableSelect.Portal>
+</FilterableSelect.Root>;
+```
 
 import { DemoSelectFilterable } from './demos/filterable';
 
 <DemoSelectFilterable />
 
-The filter is fixed when the select mounts. To switch a select between filterable and non-filterable, give `<Select.Root>` a different `key` so it remounts.
+Filtering lives in its own entrypoint so that an ordinary `@base-ui/react/select` never carries the filtering code. `<Select.Root>` cannot filter, and the filtering parts throw if placed inside one.
 
-Give `<Select.Input>` its own accessible name with `aria-label` or a native `<label>`. `<Select.Label>` labels the trigger, not the input.
+Give `<FilterableSelect.Input>` its own accessible name with `aria-label` or a native `<label>`. `<FilterableSelect.Label>` labels the trigger, not the input.
 
 Pass a function to `filter` to customize matching. It is called with the item's text and the trimmed query, and returns whether the item matches:
 
 ```jsx title="Custom filter"
-<Select.Root filter={(itemText, query) => itemText.toLowerCase().startsWith(query.toLowerCase())}>
+<FilterableSelect.Root filter={(itemText, query) => itemText.startsWith(query)}>
 ```
 
 The first argument is the item's `label` prop, falling back to its rendered text content. This differs from [Combobox](/react/components/combobox), which filters on item values.

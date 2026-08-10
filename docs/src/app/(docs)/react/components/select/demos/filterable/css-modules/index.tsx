@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Select } from '@base-ui/react/select';
+import { FilterableSelect } from '@base-ui/react/filterable-select';
 import styles from './index.module.css';
 
 const fruits = [
@@ -18,45 +18,49 @@ const fruits = [
   'Strawberry',
 ];
 
-export default function FilterableSelect() {
+export default function FilterableSelectDemo() {
   return (
     <div className={styles.Field}>
-      <Select.Root filter>
-        <Select.Label className={styles.Label}>Fruit</Select.Label>
-        <Select.Trigger className={styles.Select}>
-          <Select.Value className={styles.Value} placeholder="Select a fruit" />
-          <Select.Icon>
+      <FilterableSelect.Root filter>
+        <FilterableSelect.Label className={styles.Label}>Fruit</FilterableSelect.Label>
+        <FilterableSelect.Trigger className={styles.Select}>
+          <FilterableSelect.Value className={styles.Value} placeholder="Select a fruit" />
+          <FilterableSelect.Icon>
             <CaretUpDownIcon />
-          </Select.Icon>
-        </Select.Trigger>
-        <Select.Portal>
-          <Select.Positioner className={styles.Positioner} sideOffset={4}>
-            <Select.Popup className={styles.Popup}>
+          </FilterableSelect.Icon>
+        </FilterableSelect.Trigger>
+        <FilterableSelect.Portal>
+          <FilterableSelect.Positioner className={styles.Positioner} sideOffset={4}>
+            <FilterableSelect.Popup className={styles.Popup}>
               <div className={styles.InputContainer}>
-                <Select.Input
+                <FilterableSelect.Input
                   className={styles.Input}
                   aria-label="Filter fruits"
                   placeholder="e.g. Apple"
                 />
-                <Select.Clear className={styles.Clear} aria-label="Clear filter">
+                <FilterableSelect.Clear className={styles.Clear} aria-label="Clear filter">
                   <ClearIcon />
-                </Select.Clear>
+                </FilterableSelect.Clear>
               </div>
-              <Select.Empty className={styles.Empty}>No fruits found.</Select.Empty>
-              <Select.List className={styles.List}>
+              <FilterableSelect.Empty className={styles.Empty}>
+                No fruits found.
+              </FilterableSelect.Empty>
+              <FilterableSelect.List className={styles.List}>
                 {fruits.map((fruit) => (
-                  <Select.Item key={fruit} value={fruit} className={styles.Item}>
-                    <Select.ItemIndicator className={styles.ItemIndicator}>
+                  <FilterableSelect.Item key={fruit} value={fruit} className={styles.Item}>
+                    <FilterableSelect.ItemIndicator className={styles.ItemIndicator}>
                       <CheckIcon />
-                    </Select.ItemIndicator>
-                    <Select.ItemText className={styles.ItemText}>{fruit}</Select.ItemText>
-                  </Select.Item>
+                    </FilterableSelect.ItemIndicator>
+                    <FilterableSelect.ItemText className={styles.ItemText}>
+                      {fruit}
+                    </FilterableSelect.ItemText>
+                  </FilterableSelect.Item>
                 ))}
-              </Select.List>
-            </Select.Popup>
-          </Select.Positioner>
-        </Select.Portal>
-      </Select.Root>
+              </FilterableSelect.List>
+            </FilterableSelect.Popup>
+          </FilterableSelect.Positioner>
+        </FilterableSelect.Portal>
+      </FilterableSelect.Root>
     </div>
   );
 }

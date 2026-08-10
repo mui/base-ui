@@ -33,7 +33,6 @@ import { clamp } from '../../internals/clamp';
 import { getMaxScrollOffset, SCROLL_EDGE_TOLERANCE_PX } from '../../utils/scrollEdges';
 import { useCSPContext } from '../../internals/csp-context/CSPContext';
 import { useDirection } from '../../internals/direction-context/DirectionContext';
-import { FilterDropdownPopup } from '../../filter-dropdown/popup/FilterDropdownPopup';
 
 const stateAttributesMapping: StateAttributesMapping<SelectPopupState> = {
   ...popupStateMapping,
@@ -509,17 +508,17 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const { store } = useSelectRootContext();
-  const filterable = useStore(store, selectors.filterable);
+  const filterIntegration = useStore(store, selectors.filterIntegration);
   const rootId = useStore(store, selectors.id);
   // Resolve once so the filter wrapper registers the same id the DOM element ends up with,
   // otherwise a consumer id leaves the trigger pointing at nothing.
   const id = componentProps.id ?? `${rootId}-popup`;
   const selectPopup = <SelectPopupImpl {...componentProps} id={id} ref={forwardedRef} />;
 
-  return filterable ? (
-    // FilterDropdownPopup composes onto SelectPopupImpl so its implementation
+  return filterIntegration ? (
+    // The filter wrapper composes onto SelectPopupImpl so its implementation
     // overrides SelectPopupImpl's implementation.
-    <FilterDropdownPopup id={id} render={selectPopup} />
+    <filterIntegration.Popup id={id} render={selectPopup} />
   ) : (
     selectPopup
   );

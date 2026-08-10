@@ -2,6 +2,7 @@ import { expect, vi } from 'vitest';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { Select } from '@base-ui/react/select';
+import { FilterableSelect } from '@base-ui/react/filterable-select';
 import { Popover } from '@base-ui/react/popover';
 import {
   act,
@@ -4156,28 +4157,28 @@ describe('<Select.Root />', () => {
   describe('filtering', () => {
     it('does not set aria-activedescendant on open', async () => {
       const { user } = await render(
-        <Select.Root
+        <FilterableSelect.Root
           filter
           items={[
             { value: 'apple', label: 'Apple' },
             { value: 'banana', label: 'Banana' },
           ]}
         >
-          <Select.Trigger data-testid="trigger">
-            <Select.Value />
-          </Select.Trigger>
-          <Select.Portal>
-            <Select.Positioner>
-              <Select.Popup>
-                <Select.Input aria-label="Filter fruit" />
-                <Select.List>
-                  <Select.Item value="apple">Apple</Select.Item>
-                  <Select.Item value="banana">Banana</Select.Item>
-                </Select.List>
-              </Select.Popup>
-            </Select.Positioner>
-          </Select.Portal>
-        </Select.Root>,
+          <FilterableSelect.Trigger data-testid="trigger">
+            <FilterableSelect.Value />
+          </FilterableSelect.Trigger>
+          <FilterableSelect.Portal>
+            <FilterableSelect.Positioner>
+              <FilterableSelect.Popup>
+                <FilterableSelect.Input aria-label="Filter fruit" />
+                <FilterableSelect.List>
+                  <FilterableSelect.Item value="apple">Apple</FilterableSelect.Item>
+                  <FilterableSelect.Item value="banana">Banana</FilterableSelect.Item>
+                </FilterableSelect.List>
+              </FilterableSelect.Popup>
+            </FilterableSelect.Positioner>
+          </FilterableSelect.Portal>
+        </FilterableSelect.Root>,
       );
 
       await user.click(screen.getByTestId('trigger'));
@@ -4201,19 +4202,19 @@ describe('<Select.Root />', () => {
 
     it('shows the input focus indicator only for keyboard virtual focus', async () => {
       const { user } = await render(
-        <Select.Root filter>
-          <Select.Trigger>Fruit</Select.Trigger>
-          <Select.Portal>
-            <Select.Positioner>
-              <Select.Popup>
-                <Select.Input aria-label="Filter fruit" />
-                <Select.List>
-                  <Select.Item value="apple">Apple</Select.Item>
-                </Select.List>
-              </Select.Popup>
-            </Select.Positioner>
-          </Select.Portal>
-        </Select.Root>,
+        <FilterableSelect.Root filter>
+          <FilterableSelect.Trigger>Fruit</FilterableSelect.Trigger>
+          <FilterableSelect.Portal>
+            <FilterableSelect.Positioner>
+              <FilterableSelect.Popup>
+                <FilterableSelect.Input aria-label="Filter fruit" />
+                <FilterableSelect.List>
+                  <FilterableSelect.Item value="apple">Apple</FilterableSelect.Item>
+                </FilterableSelect.List>
+              </FilterableSelect.Popup>
+            </FilterableSelect.Positioner>
+          </FilterableSelect.Portal>
+        </FilterableSelect.Root>,
       );
 
       const trigger = screen.getByRole('combobox');
@@ -4257,7 +4258,7 @@ describe('<Select.Root />', () => {
         return (
           <React.Fragment>
             <div data-testid="input-value">{inputValue}</div>
-            <Select.Root
+            <FilterableSelect.Root
               filter
               open
               inputValue={inputValue}
@@ -4267,19 +4268,19 @@ describe('<Select.Root />', () => {
                 }
               }}
             >
-              <Select.Trigger>Fruit</Select.Trigger>
-              <Select.Portal>
-                <Select.Positioner>
-                  <Select.Popup>
-                    <Select.Input aria-label="Filter fruit" />
-                    <Select.List>
-                      <Select.Item value="apple">Apple</Select.Item>
-                      <Select.Item value="banana">Banana</Select.Item>
-                    </Select.List>
-                  </Select.Popup>
-                </Select.Positioner>
-              </Select.Portal>
-            </Select.Root>
+              <FilterableSelect.Trigger>Fruit</FilterableSelect.Trigger>
+              <FilterableSelect.Portal>
+                <FilterableSelect.Positioner>
+                  <FilterableSelect.Popup>
+                    <FilterableSelect.Input aria-label="Filter fruit" />
+                    <FilterableSelect.List>
+                      <FilterableSelect.Item value="apple">Apple</FilterableSelect.Item>
+                      <FilterableSelect.Item value="banana">Banana</FilterableSelect.Item>
+                    </FilterableSelect.List>
+                  </FilterableSelect.Popup>
+                </FilterableSelect.Positioner>
+              </FilterableSelect.Portal>
+            </FilterableSelect.Root>
           </React.Fragment>
         );
       }
@@ -4312,19 +4313,19 @@ describe('<Select.Root />', () => {
             <button type="button" onClick={() => setOpen(false)}>
               Close
             </button>
-            <Select.Root filter open={open} onInputValueChange={onInputValueChange}>
-              <Select.Trigger>Fruit</Select.Trigger>
-              <Select.Portal>
-                <Select.Positioner>
-                  <Select.Popup>
-                    <Select.Input aria-label="Filter fruit" />
-                    <Select.List>
-                      <Select.Item value="apple">Apple</Select.Item>
-                    </Select.List>
-                  </Select.Popup>
-                </Select.Positioner>
-              </Select.Portal>
-            </Select.Root>
+            <FilterableSelect.Root filter open={open} onInputValueChange={onInputValueChange}>
+              <FilterableSelect.Trigger>Fruit</FilterableSelect.Trigger>
+              <FilterableSelect.Portal>
+                <FilterableSelect.Positioner>
+                  <FilterableSelect.Popup>
+                    <FilterableSelect.Input aria-label="Filter fruit" />
+                    <FilterableSelect.List>
+                      <FilterableSelect.Item value="apple">Apple</FilterableSelect.Item>
+                    </FilterableSelect.List>
+                  </FilterableSelect.Popup>
+                </FilterableSelect.Positioner>
+              </FilterableSelect.Portal>
+            </FilterableSelect.Root>
           </React.Fragment>
         );
       }
@@ -4347,19 +4348,19 @@ describe('<Select.Root />', () => {
 
     it('points ARIA relationships at consumer-supplied popup and list ids', async () => {
       await render(
-        <Select.Root filter open>
-          <Select.Trigger data-testid="trigger">Fruit</Select.Trigger>
-          <Select.Portal>
-            <Select.Positioner>
-              <Select.Popup id="my-popup">
-                <Select.Input aria-label="Filter fruit" />
-                <Select.List id="my-list">
-                  <Select.Item value="apple">Apple</Select.Item>
-                </Select.List>
-              </Select.Popup>
-            </Select.Positioner>
-          </Select.Portal>
-        </Select.Root>,
+        <FilterableSelect.Root filter open>
+          <FilterableSelect.Trigger data-testid="trigger">Fruit</FilterableSelect.Trigger>
+          <FilterableSelect.Portal>
+            <FilterableSelect.Positioner>
+              <FilterableSelect.Popup id="my-popup">
+                <FilterableSelect.Input aria-label="Filter fruit" />
+                <FilterableSelect.List id="my-list">
+                  <FilterableSelect.Item value="apple">Apple</FilterableSelect.Item>
+                </FilterableSelect.List>
+              </FilterableSelect.Popup>
+            </FilterableSelect.Positioner>
+          </FilterableSelect.Portal>
+        </FilterableSelect.Root>,
       );
 
       expect(screen.getByRole('dialog')).toHaveAttribute('id', 'my-popup');
@@ -4379,26 +4380,26 @@ describe('<Select.Root />', () => {
       ];
 
       const { user } = await render(
-        <Select.Root filter open items={fruit}>
-          <Select.Trigger>
-            <Select.Value />
-          </Select.Trigger>
-          <Select.Portal>
-            <Select.Positioner>
-              <Select.Popup>
-                <Select.Input aria-label="Filter fruit" />
-                <Select.Empty>No fruit found</Select.Empty>
-                <Select.List>
+        <FilterableSelect.Root filter open items={fruit}>
+          <FilterableSelect.Trigger>
+            <FilterableSelect.Value />
+          </FilterableSelect.Trigger>
+          <FilterableSelect.Portal>
+            <FilterableSelect.Positioner>
+              <FilterableSelect.Popup>
+                <FilterableSelect.Input aria-label="Filter fruit" />
+                <FilterableSelect.Empty>No fruit found</FilterableSelect.Empty>
+                <FilterableSelect.List>
                   {(item: { value: string; label: string }) => (
-                    <Select.Item key={item.value} value={item.value}>
+                    <FilterableSelect.Item key={item.value} value={item.value}>
                       {item.label}
-                    </Select.Item>
+                    </FilterableSelect.Item>
                   )}
-                </Select.List>
-              </Select.Popup>
-            </Select.Positioner>
-          </Select.Portal>
-        </Select.Root>,
+                </FilterableSelect.List>
+              </FilterableSelect.Popup>
+            </FilterableSelect.Positioner>
+          </FilterableSelect.Portal>
+        </FilterableSelect.Root>,
       );
 
       expect(screen.getAllByRole('option')).toHaveLength(3);
@@ -4427,32 +4428,32 @@ describe('<Select.Root />', () => {
       ];
 
       const { user } = await render(
-        <Select.Root filter open items={groups}>
-          <Select.Trigger>
-            <Select.Value />
-          </Select.Trigger>
-          <Select.Portal>
-            <Select.Positioner>
-              <Select.Popup>
-                <Select.Input aria-label="Filter fruit" />
-                <Select.List>
+        <FilterableSelect.Root filter open items={groups}>
+          <FilterableSelect.Trigger>
+            <FilterableSelect.Value />
+          </FilterableSelect.Trigger>
+          <FilterableSelect.Portal>
+            <FilterableSelect.Positioner>
+              <FilterableSelect.Popup>
+                <FilterableSelect.Input aria-label="Filter fruit" />
+                <FilterableSelect.List>
                   {(group: { value: string; items: { value: string; label: string }[] }) => (
-                    <Select.Group key={group.value} items={group.items}>
-                      <Select.GroupLabel>{group.value}</Select.GroupLabel>
-                      <Select.Collection>
+                    <FilterableSelect.Group key={group.value} items={group.items}>
+                      <FilterableSelect.GroupLabel>{group.value}</FilterableSelect.GroupLabel>
+                      <FilterableSelect.Collection>
                         {(item: { value: string; label: string }) => (
-                          <Select.Item key={item.value} value={item.value}>
+                          <FilterableSelect.Item key={item.value} value={item.value}>
                             {item.label}
-                          </Select.Item>
+                          </FilterableSelect.Item>
                         )}
-                      </Select.Collection>
-                    </Select.Group>
+                      </FilterableSelect.Collection>
+                    </FilterableSelect.Group>
                   )}
-                </Select.List>
-              </Select.Popup>
-            </Select.Positioner>
-          </Select.Portal>
-        </Select.Root>,
+                </FilterableSelect.List>
+              </FilterableSelect.Popup>
+            </FilterableSelect.Positioner>
+          </FilterableSelect.Portal>
+        </FilterableSelect.Root>,
       );
 
       expect(screen.getAllByRole('group')).toHaveLength(2);
@@ -4471,20 +4472,20 @@ describe('<Select.Root />', () => {
     it('disables filter controls when disabled by a field', async () => {
       await render(
         <Field.Root disabled>
-          <Select.Root filter open defaultInputValue="a">
-            <Select.Trigger>Fruit</Select.Trigger>
-            <Select.Portal>
-              <Select.Positioner>
-                <Select.Popup>
-                  <Select.Input aria-label="Filter fruit" />
-                  <Select.Clear aria-label="Clear filter" />
-                  <Select.List>
-                    <Select.Item value="apple">Apple</Select.Item>
-                  </Select.List>
-                </Select.Popup>
-              </Select.Positioner>
-            </Select.Portal>
-          </Select.Root>
+          <FilterableSelect.Root filter open defaultInputValue="a">
+            <FilterableSelect.Trigger>Fruit</FilterableSelect.Trigger>
+            <FilterableSelect.Portal>
+              <FilterableSelect.Positioner>
+                <FilterableSelect.Popup>
+                  <FilterableSelect.Input aria-label="Filter fruit" />
+                  <FilterableSelect.Clear aria-label="Clear filter" />
+                  <FilterableSelect.List>
+                    <FilterableSelect.Item value="apple">Apple</FilterableSelect.Item>
+                  </FilterableSelect.List>
+                </FilterableSelect.Popup>
+              </FilterableSelect.Positioner>
+            </FilterableSelect.Portal>
+          </FilterableSelect.Root>
         </Field.Root>,
       );
 
@@ -4504,20 +4505,20 @@ describe('<Select.Root />', () => {
             <button type="button" onClick={() => setFilter(() => endsWith)}>
               Change filter
             </button>
-            <Select.Root filter={filter} open defaultInputValue="a">
-              <Select.Trigger>Fruit</Select.Trigger>
-              <Select.Portal>
-                <Select.Positioner>
-                  <Select.Popup>
-                    <Select.Input aria-label="Filter fruit" />
-                    <Select.List>
-                      <Select.Item value="apple">Apple</Select.Item>
-                      <Select.Item value="banana">Banana</Select.Item>
-                    </Select.List>
-                  </Select.Popup>
-                </Select.Positioner>
-              </Select.Portal>
-            </Select.Root>
+            <FilterableSelect.Root filter={filter} open defaultInputValue="a">
+              <FilterableSelect.Trigger>Fruit</FilterableSelect.Trigger>
+              <FilterableSelect.Portal>
+                <FilterableSelect.Positioner>
+                  <FilterableSelect.Popup>
+                    <FilterableSelect.Input aria-label="Filter fruit" />
+                    <FilterableSelect.List>
+                      <FilterableSelect.Item value="apple">Apple</FilterableSelect.Item>
+                      <FilterableSelect.Item value="banana">Banana</FilterableSelect.Item>
+                    </FilterableSelect.List>
+                  </FilterableSelect.Popup>
+                </FilterableSelect.Positioner>
+              </FilterableSelect.Portal>
+            </FilterableSelect.Root>
           </React.Fragment>
         );
       }
@@ -4537,7 +4538,7 @@ describe('<Select.Root />', () => {
       const onValueChange = vi.fn();
 
       const { user } = await render(
-        <Select.Root
+        <FilterableSelect.Root
           filter
           open
           defaultValue="banana"
@@ -4547,21 +4548,21 @@ describe('<Select.Root />', () => {
             { value: 'banana', label: 'Banana' },
           ]}
         >
-          <Select.Trigger data-testid="trigger">
-            <Select.Value />
-          </Select.Trigger>
-          <Select.Portal>
-            <Select.Positioner>
-              <Select.Popup>
-                <Select.Input aria-label="Filter fruit" />
-                <Select.List>
-                  <Select.Item value="apple">Apple</Select.Item>
-                  <Select.Item value="banana">Banana</Select.Item>
-                </Select.List>
-              </Select.Popup>
-            </Select.Positioner>
-          </Select.Portal>
-        </Select.Root>,
+          <FilterableSelect.Trigger data-testid="trigger">
+            <FilterableSelect.Value />
+          </FilterableSelect.Trigger>
+          <FilterableSelect.Portal>
+            <FilterableSelect.Positioner>
+              <FilterableSelect.Popup>
+                <FilterableSelect.Input aria-label="Filter fruit" />
+                <FilterableSelect.List>
+                  <FilterableSelect.Item value="apple">Apple</FilterableSelect.Item>
+                  <FilterableSelect.Item value="banana">Banana</FilterableSelect.Item>
+                </FilterableSelect.List>
+              </FilterableSelect.Popup>
+            </FilterableSelect.Positioner>
+          </FilterableSelect.Portal>
+        </FilterableSelect.Root>,
       );
 
       const input = await screen.findByRole('searchbox', { name: 'Filter fruit' });
@@ -4587,23 +4588,29 @@ describe('<Select.Root />', () => {
               Remove selected
             </button>
             <div data-testid="value">{value ?? 'none'}</div>
-            <Select.Root filter open value={value} onValueChange={setValue} defaultInputValue="app">
-              <Select.Trigger>Fruit</Select.Trigger>
-              <Select.Portal>
-                <Select.Positioner>
-                  <Select.Popup>
-                    <Select.Input aria-label="Filter fruit" />
-                    <Select.List>
+            <FilterableSelect.Root
+              filter
+              open
+              value={value}
+              onValueChange={setValue}
+              defaultInputValue="app"
+            >
+              <FilterableSelect.Trigger>Fruit</FilterableSelect.Trigger>
+              <FilterableSelect.Portal>
+                <FilterableSelect.Positioner>
+                  <FilterableSelect.Popup>
+                    <FilterableSelect.Input aria-label="Filter fruit" />
+                    <FilterableSelect.List>
                       {items.map((item) => (
-                        <Select.Item key={item} value={item}>
+                        <FilterableSelect.Item key={item} value={item}>
                           {item}
-                        </Select.Item>
+                        </FilterableSelect.Item>
                       ))}
-                    </Select.List>
-                  </Select.Popup>
-                </Select.Positioner>
-              </Select.Portal>
-            </Select.Root>
+                    </FilterableSelect.List>
+                  </FilterableSelect.Popup>
+                </FilterableSelect.Positioner>
+              </FilterableSelect.Portal>
+            </FilterableSelect.Root>
           </React.Fragment>
         );
       }
@@ -4634,23 +4641,23 @@ describe('<Select.Root />', () => {
               Remove cherry
             </button>
             <div data-testid="value">{value.join(',') || 'none'}</div>
-            <Select.Root multiple filter open value={value} onValueChange={setValue}>
-              <Select.Trigger>Fruit</Select.Trigger>
-              <Select.Portal>
-                <Select.Positioner>
-                  <Select.Popup>
-                    <Select.Input aria-label="Filter fruit" />
-                    <Select.List>
+            <FilterableSelect.Root multiple filter open value={value} onValueChange={setValue}>
+              <FilterableSelect.Trigger>Fruit</FilterableSelect.Trigger>
+              <FilterableSelect.Portal>
+                <FilterableSelect.Positioner>
+                  <FilterableSelect.Popup>
+                    <FilterableSelect.Input aria-label="Filter fruit" />
+                    <FilterableSelect.List>
                       {items.map((item) => (
-                        <Select.Item key={item} value={item}>
+                        <FilterableSelect.Item key={item} value={item}>
                           {item}
-                        </Select.Item>
+                        </FilterableSelect.Item>
                       ))}
-                    </Select.List>
-                  </Select.Popup>
-                </Select.Positioner>
-              </Select.Portal>
-            </Select.Root>
+                    </FilterableSelect.List>
+                  </FilterableSelect.Popup>
+                </FilterableSelect.Positioner>
+              </FilterableSelect.Portal>
+            </FilterableSelect.Root>
           </React.Fragment>
         );
       }
@@ -4681,26 +4688,26 @@ describe('<Select.Root />', () => {
 
     it('leaves the uncontrolled query and visible items unchanged when a change is canceled', async () => {
       const { user } = await render(
-        <Select.Root
+        <FilterableSelect.Root
           filter
           open
           defaultInputValue="app"
           onInputValueChange={(_, eventDetails) => eventDetails.cancel()}
         >
-          <Select.Trigger>Fruit</Select.Trigger>
-          <Select.Portal>
-            <Select.Positioner>
-              <Select.Popup>
-                <Select.Input aria-label="Filter fruit" />
-                <Select.Clear aria-label="Clear filter" />
-                <Select.List>
-                  <Select.Item value="apple">Apple</Select.Item>
-                  <Select.Item value="banana">Banana</Select.Item>
-                </Select.List>
-              </Select.Popup>
-            </Select.Positioner>
-          </Select.Portal>
-        </Select.Root>,
+          <FilterableSelect.Trigger>Fruit</FilterableSelect.Trigger>
+          <FilterableSelect.Portal>
+            <FilterableSelect.Positioner>
+              <FilterableSelect.Popup>
+                <FilterableSelect.Input aria-label="Filter fruit" />
+                <FilterableSelect.Clear aria-label="Clear filter" />
+                <FilterableSelect.List>
+                  <FilterableSelect.Item value="apple">Apple</FilterableSelect.Item>
+                  <FilterableSelect.Item value="banana">Banana</FilterableSelect.Item>
+                </FilterableSelect.List>
+              </FilterableSelect.Popup>
+            </FilterableSelect.Positioner>
+          </FilterableSelect.Portal>
+        </FilterableSelect.Root>,
       );
 
       const input = screen.getByRole('searchbox', { name: 'Filter fruit' });
@@ -4726,28 +4733,28 @@ describe('<Select.Root />', () => {
 
     it('keeps focus on the input while navigating and selects the active item with Enter', async () => {
       const { user } = await render(
-        <Select.Root
+        <FilterableSelect.Root
           filter
           items={[
             { value: 'apple', label: 'Apple' },
             { value: 'banana', label: 'Banana' },
           ]}
         >
-          <Select.Trigger data-testid="trigger">
-            <Select.Value />
-          </Select.Trigger>
-          <Select.Portal>
-            <Select.Positioner>
-              <Select.Popup>
-                <Select.Input aria-label="Filter fruit" />
-                <Select.List>
-                  <Select.Item value="apple">Apple</Select.Item>
-                  <Select.Item value="banana">Banana</Select.Item>
-                </Select.List>
-              </Select.Popup>
-            </Select.Positioner>
-          </Select.Portal>
-        </Select.Root>,
+          <FilterableSelect.Trigger data-testid="trigger">
+            <FilterableSelect.Value />
+          </FilterableSelect.Trigger>
+          <FilterableSelect.Portal>
+            <FilterableSelect.Positioner>
+              <FilterableSelect.Popup>
+                <FilterableSelect.Input aria-label="Filter fruit" />
+                <FilterableSelect.List>
+                  <FilterableSelect.Item value="apple">Apple</FilterableSelect.Item>
+                  <FilterableSelect.Item value="banana">Banana</FilterableSelect.Item>
+                </FilterableSelect.List>
+              </FilterableSelect.Popup>
+            </FilterableSelect.Positioner>
+          </FilterableSelect.Portal>
+        </FilterableSelect.Root>,
       );
 
       await user.click(screen.getByTestId('trigger'));
@@ -4779,11 +4786,11 @@ describe('<Select.Root />', () => {
     });
 
     it.each([
-      ['Input', Select.Input],
-      ['Clear', Select.Clear],
-      ['Empty', Select.Empty],
+      ['Input', FilterableSelect.Input],
+      ['Clear', FilterableSelect.Clear],
+      ['Empty', FilterableSelect.Empty],
     ] as const)(
-      'throws a scoped error when Select.%s is used without filtering',
+      'throws a scoped error when FilterableSelect.%s is used inside an ordinary Select.Root',
       async (name, Part) => {
         const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
@@ -4802,7 +4809,8 @@ describe('<Select.Root />', () => {
               </Select.Root>,
             ),
           ).rejects.toThrow(
-            `Base UI: <Select.${name}> requires the \`filter\` prop on <Select.Root>.`,
+            `Base UI: <FilterableSelect.${name}> must be placed within <FilterableSelect.Root>, ` +
+              'imported from `@base-ui/react/filterable-select`. An ordinary <Select.Root> cannot filter.',
           );
         } finally {
           errorSpy.mockRestore();

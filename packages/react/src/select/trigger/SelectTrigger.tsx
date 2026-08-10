@@ -23,7 +23,6 @@ import { REASONS } from '../../internals/reasons';
 import { useLabelableId } from '../../internals/labelable-provider/useLabelableId';
 import { resolveAriaLabelledBy } from '../../utils/resolveAriaLabelledBy';
 import type { Side } from '../../internals/useAnchorPositioning';
-import { FilterDropdownTrigger } from '../../filter-dropdown/trigger/FilterDropdownTrigger';
 
 const SELECTED_DELAY = 400;
 
@@ -241,15 +240,15 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
   forwardedRef: React.ForwardedRef<HTMLButtonElement>,
 ) {
   const { store } = useSelectRootContext();
-  const filterable = useStore(store, selectors.filterable);
+  const filterIntegration = useStore(store, selectors.filterIntegration);
   const rootId = useStore(store, selectors.id);
   const id = componentProps.id ?? rootId;
   const trigger = <SelectTriggerImpl id={id} {...componentProps} ref={forwardedRef} />;
 
-  return filterable ? (
-    // FilterDropdownTrigger composes onto SelectTriggerImpl so its implementation
+  return filterIntegration ? (
+    // The filter wrapper composes onto SelectTriggerImpl so its implementation
     // overrides SelectTriggerImpl's implementation.
-    <FilterDropdownTrigger
+    <filterIntegration.Trigger
       id={id}
       disabled={componentProps.disabled}
       nativeButton={componentProps.nativeButton}

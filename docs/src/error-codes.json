@@ -100,5 +100,5 @@
   "100": "Base UI: FilterDropdownRootContext is missing. FilterDropdown parts must be placed within <FilterDropdown.Root>.",
   "101": "Base UI: FilterDropdownPopupContext is missing. FilterDropdown popup parts must be placed within <FilterDropdown.Popup>.",
   "102": "Base UI: <FilterableMenu.%s> must be placed within the nearest <FilterableMenu.Root> or <FilterableMenu.SubmenuRoot>, imported from `@base-ui/react/filterable-menu`. An ordinary <Menu.Root> cannot filter.",
-  "103": "Base UI: <Select.%s> requires the `filter` prop on <Select.Root>."
+  "103": "Base UI: <FilterableSelect.%s> must be placed within <FilterableSelect.Root>, imported from `@base-ui/react/filterable-select`. An ordinary <Select.Root> cannot filter."
 }
