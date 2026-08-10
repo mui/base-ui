@@ -2,7 +2,7 @@ import { expect, vi } from 'vitest';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { act, screen, waitFor } from '@mui/internal-test-utils';
-import { createRenderer } from '#test-utils';
+import { createRenderer, mergeRefs } from '#test-utils';
 import { CompositeList } from './CompositeList';
 import { useCompositeListItem } from './useCompositeListItem';
 
@@ -196,31 +196,57 @@ describe('<CompositeList />', () => {
       expect(elementsRef.current[1]).toBe(screen.getByTestId('explicit'));
     });
 
-    it('populates a replacement element registry when the items are unchanged', async () => {
+    it('syncs replacement refs without publishing an unchanged map', async () => {
       const firstElementsRef = {
         current: [] as Array<HTMLElement | null>,
       };
       const secondElementsRef = {
         current: [null, null] as Array<HTMLElement | null>,
       };
+      const firstLabelsRef = {
+        current: [] as Array<string | null>,
+      };
+      const secondLabelsRef = {
+        current: [null, null] as Array<string | null>,
+      };
+      const onMapChange = vi.fn();
+
+      function UnstableRefItem() {
+        const internalRef = React.useRef<HTMLElement | null>(null);
+        const { ref } = useCompositeListItem({ label: 'item' });
+
+        return <div ref={mergeRefs(ref, internalRef)} data-testid="item" />;
+      }
 
       function App() {
         const [useSecondRef, setUseSecondRef] = React.useState(false);
         return (
-          <CompositeList elementsRef={useSecondRef ? secondElementsRef : firstElementsRef}>
+          <CompositeList
+            elementsRef={useSecondRef ? secondElementsRef : firstElementsRef}
+            labelsRef={useSecondRef ? secondLabelsRef : firstLabelsRef}
+            onMapChange={onMapChange}
+          >
             <button type="button" onClick={() => setUseSecondRef(true)}>
               Replace ref
             </button>
-            <Item label="item" />
+            <UnstableRefItem />
           </CompositeList>
         );
       }
 
       const { user } = await render(<App />);
-      expect(firstElementsRef.current).toEqual([screen.getByTestId('item')]);
+      const item = screen.getByTestId('item');
+      expect(firstElementsRef.current).toEqual([item]);
+      expect(firstLabelsRef.current).toEqual(['item']);
+      onMapChange.mockClear();
 
       await user.click(screen.getByRole('button', { name: 'Replace ref' }));
-      expect(secondElementsRef.current).toEqual([screen.getByTestId('item')]);
+
+      expect(firstElementsRef.current).toEqual([]);
+      expect(firstLabelsRef.current).toEqual([]);
+      expect(secondElementsRef.current).toEqual([item]);
+      expect(secondLabelsRef.current).toEqual(['item']);
+      expect(onMapChange).not.toHaveBeenCalled();
     });
 
     it('registers a replacement render target', async () => {
@@ -442,6 +468,27 @@ describe('<CompositeList />', () => {
       });
       expect(refCalls).toEqual([tracked, null, tracked, null, tracked]);
       expect(elementsRef.current).toEqual([tracked]);
+    });
+
+    it('resolves an automatic index when the equivalent explicit index is removed', async () => {
+      const elementsRef = {
+        current: [] as Array<HTMLElement | null>,
+      };
+
+      function App(props: { index?: number }) {
+        return (
+          <CompositeList elementsRef={elementsRef}>
+            <Item label="indexed" index={props.index} />
+          </CompositeList>
+        );
+      }
+
+      const { setProps } = await render(<App index={0} />, { strict: false });
+      await setProps({ index: undefined });
+
+      await waitFor(() => {
+        expect(screen.getByTestId('indexed')).toHaveAttribute('data-index', '0');
+      });
     });
 
     it('does not detach item refs when an index shifts', async () => {

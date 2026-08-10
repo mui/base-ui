@@ -5,6 +5,8 @@ import { warn } from '@base-ui/utils/warn';
 import { SafeReact } from '@base-ui/utils/safeReact';
 import { EMPTY_OBJECT } from '@base-ui/utils/empty';
 import { platform } from '@base-ui/utils/platform';
+import { useStableCallback } from '@base-ui/utils/useStableCallback';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { safePolygon, useClick, useHoverReferenceInteraction } from '../../floating-ui-react';
 import { BaseUIComponentProps, NonNativeButtonProps } from '../../internals/types';
 import { useMenuRootContext } from '../root/MenuRootContext';
@@ -49,22 +51,19 @@ const MenuSubmenuTriggerImpl = React.forwardRef(function MenuSubmenuTriggerImpl(
   const floatingTreeRoot = store.useState('floatingTreeRoot');
   const popupId = store.useState('triggerPopupId', id);
   const baseRegisterTrigger = useTriggerRegistration(id, store);
-  const registerTrigger = React.useCallback(
-    (element: Element | null) => {
-      const cleanup = baseRegisterTrigger(element);
+  // Stable, so the merged ref on the rendered element keeps its identity for the trigger's whole
+  // lifetime; the latest `closeDelay` is read when it runs.
+  const registerTrigger = useStableCallback((element: Element | null) => {
+    baseRegisterTrigger(element);
 
-      if (element !== null && store.select('open') && store.select('activeTriggerId') == null) {
-        store.update({
-          activeTriggerId: id,
-          activeTriggerElement: element,
-          closeDelay,
-        });
-      }
-
-      return cleanup;
-    },
-    [baseRegisterTrigger, closeDelay, store, id],
-  );
+    if (element !== null && store.select('open') && store.select('activeTriggerId') == null) {
+      store.update({
+        activeTriggerId: id,
+        activeTriggerElement: element,
+        closeDelay,
+      });
+    }
+  });
 
   const triggerElementRef = React.useRef<HTMLElement | null>(null);
   const handleTriggerElementRef = React.useCallback(
@@ -74,6 +73,14 @@ const MenuSubmenuTriggerImpl = React.forwardRef(function MenuSubmenuTriggerImpl(
     },
     [store],
   );
+
+  // A stable ref does not re-fire when the id changes, so register the rendered element here
+  // instead. On React 17 the id also starts out `undefined`, so this is what registers the trigger
+  // at all.
+  useIsoLayoutEffect(() => {
+    registerTrigger(triggerElementRef.current);
+    return () => registerTrigger(null);
+  }, [registerTrigger, id, store]);
 
   store.useSyncedValue('closeDelay', closeDelay);
 
