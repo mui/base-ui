@@ -292,8 +292,12 @@ export function useFieldValidation(
         const currentElement = resolveRepresentativeInput();
         if (currentElement && currentElement.validity.customError) {
           // A message set by other code survived the clear, so the field is still invalid.
-          // Publish the element's actual state so the resolved `valueMissing` error doesn't linger.
-          publish(getState(currentElement), [currentElement.validationMessage], false);
+          // Publish that error alone so other native errors remain deferred until blur or submit.
+          publish(
+            { ...DEFAULT_VALIDITY_STATE, valid: false, customError: true },
+            [currentElement.validationMessage],
+            false,
+          );
           return;
         }
         publish(allValid(), [], false);

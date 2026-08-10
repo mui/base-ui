@@ -1561,6 +1561,38 @@ describe('<Field.Root />', () => {
       expect(screen.getByTestId('error')).toHaveTextContent('external error');
     });
 
+    it('keeps other native errors deferred while a message set outside the field survives', async () => {
+      const handleValidity = vi.fn();
+      await render(
+        <Field.Root name="field" validationMode="onBlur">
+          <Field.Control type="email" required />
+          <Field.Error match="typeMismatch" data-testid="type-mismatch">
+            invalid email
+          </Field.Error>
+          <Field.Validity>{handleValidity}</Field.Validity>
+        </Field.Root>,
+      );
+
+      const control = screen.getByRole<HTMLInputElement>('textbox');
+
+      // The field only publishes `valueMissing` once dirtied.
+      fireEvent.focus(control);
+      fireEvent.change(control, { target: { value: 'a' } });
+      fireEvent.change(control, { target: { value: '' } });
+      fireEvent.blur(control);
+      expect(control).toHaveAttribute('data-invalid', '');
+
+      control.setCustomValidity('external error');
+      fireEvent.change(control, { target: { value: 'abc' } });
+
+      // Other native errors wait for the blur or submit boundary even though the outside message
+      // keeps the field invalid in the meantime.
+      expect(screen.queryByTestId('type-mismatch')).toBe(null);
+      expect(handleValidity.mock.lastCall?.[0].validity.typeMismatch).toBe(false);
+      expect(handleValidity.mock.lastCall?.[0].validity.customError).toBe(true);
+      expect(handleValidity.mock.lastCall?.[0].validity.valid).toBe(false);
+    });
+
     it('clears the message it set itself', async () => {
       await render(
         <Field.Root
