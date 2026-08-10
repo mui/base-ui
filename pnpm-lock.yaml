@@ -153,8 +153,8 @@ importers:
         specifier: ^3.1.1
         version: 3.1.1(@types/react@19.2.14)(react@19.2.5)
       '@mui/internal-docs-infra':
-        specifier: https://pkg.pr.new/mui/mui-public/@mui/internal-docs-infra@4830d136
-        version: https://pkg.pr.new/mui/mui-public/@mui/internal-docs-infra@4830d136(@types/react@19.2.14)(next@16.2.10(@babel/core@7.29.7(supports-color@10.2.2))(@playwright/test@1.59.1)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.5(react@19.2.5))(react@19.2.5))(prettier@3.8.3)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)(supports-color@10.2.2)(typescript@6.0.3)
+        specifier: https://pkg.pr.new/mui/mui-public/@mui/internal-docs-infra@7efa7d69951bb39c41b310d130dfdfe9681e9d38
+        version: https://pkg.pr.new/mui/mui-public/@mui/internal-docs-infra@7efa7d69951bb39c41b310d130dfdfe9681e9d38(@types/react@19.2.14)(next@16.2.10(@babel/core@7.29.7(supports-color@10.2.2))(@playwright/test@1.59.1)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.5(react@19.2.5))(react@19.2.5))(prettier@3.8.3)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)(supports-color@10.2.2)(typescript@6.0.3)
       '@next/mdx':
         specifier: ^16.2.10
         version: 16.2.10(@mdx-js/loader@3.1.1(supports-color@10.2.2)(webpack@5.106.2(esbuild@0.27.7)(uglify-js@3.19.3)))(@mdx-js/react@3.1.1(@types/react@19.2.14)(react@19.2.5))
@@ -2259,8 +2259,8 @@ packages:
       typescript:
         optional: true
 
-  '@mui/internal-docs-infra@https://pkg.pr.new/mui/mui-public/@mui/internal-docs-infra@4830d136':
-    resolution: {integrity: sha512-A4f6OdnEBl1+H5xa0J6QHrCEA/AhgjuwO8XZLLgJUGMlIlYRjsKQChRrxAyHorFa+MSgFKPCyyE2lF579PXPlw==, tarball: https://pkg.pr.new/mui/mui-public/@mui/internal-docs-infra@4830d136}
+  '@mui/internal-docs-infra@https://pkg.pr.new/mui/mui-public/@mui/internal-docs-infra@7efa7d69951bb39c41b310d130dfdfe9681e9d38':
+    resolution: {integrity: sha512-FlZP5EA8yBDIMQMiOn7RnGJ6LE+1/Bp/BmXglbzZMDzIRLL3K5sp7Yx2lcRWlJ4vPHYSWfxaGR8QQO3NL1we9w==, tarball: https://pkg.pr.new/mui/mui-public/@mui/internal-docs-infra@7efa7d69951bb39c41b310d130dfdfe9681e9d38}
     version: 0.12.0
     engines: {node: '>=22.18.0'}
     hasBin: true
@@ -11775,7 +11775,7 @@ snapshots:
       - supports-color
       - vitest
 
-  '@mui/internal-docs-infra@https://pkg.pr.new/mui/mui-public/@mui/internal-docs-infra@4830d136(@types/react@19.2.14)(next@16.2.10(@babel/core@7.29.7(supports-color@10.2.2))(@playwright/test@1.59.1)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.5(react@19.2.5))(react@19.2.5))(prettier@3.8.3)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)(supports-color@10.2.2)(typescript@6.0.3)':
+  '@mui/internal-docs-infra@https://pkg.pr.new/mui/mui-public/@mui/internal-docs-infra@7efa7d69951bb39c41b310d130dfdfe9681e9d38(@types/react@19.2.14)(next@16.2.10(@babel/core@7.29.7(supports-color@10.2.2))(@playwright/test@1.59.1)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.5(react@19.2.5))(react@19.2.5))(prettier@3.8.3)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)(supports-color@10.2.2)(typescript@6.0.3)':
     dependencies:
       '@babel/runtime': 7.29.7
       '@csstools/postcss-light-dark-function': 3.0.2(postcss@8.5.23)

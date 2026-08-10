@@ -14,6 +14,7 @@ export function groupSearchSitemapBySection(sitemap: Sitemap): Sitemap {
           title: section.name,
           prefix: section.prefix,
           pages: section.pages,
+          sections: [],
         },
       ]),
     ),
