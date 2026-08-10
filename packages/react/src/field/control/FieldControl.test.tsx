@@ -143,7 +143,7 @@ describe('<Field.Control />', () => {
       expect(screen.getByText('Label')).toHaveAttribute('for', control.id);
     });
 
-    it('applies the explicit id on the first client render', () => {
+    it('applies the explicit id after registration', () => {
       renderNonStrict(
         <Field.Root>
           <Field.Control id="explicit" />
@@ -200,6 +200,7 @@ describe('<Field.Control />', () => {
 
       const control = screen.getByRole('textbox');
       expect(control.id).not.toBe('');
+      expect(control.id).not.toBe('custom');
       expect(screen.getByTestId('label')).toHaveAttribute('for', control.id);
 
       await user.click(screen.getByTestId('label'));
