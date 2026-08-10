@@ -67,6 +67,7 @@ function TestTrigger({
 }) {
   const register = useTriggerRegistration(id, store);
 
+  // `register` is stable, so the caller owns migration by keying this effect on `[store, id]`.
   useIsoLayoutEffect(() => {
     for (let i = 0; i < repeat; i += 1) {
       register(element);
@@ -74,7 +75,7 @@ function TestTrigger({
     return () => {
       register(null);
     };
-  }, [register, repeat, element]);
+  }, [register, repeat, element, store, id]);
 
   return null;
 }
@@ -272,6 +273,49 @@ describe('useTriggerRegistration', () => {
     expect(store.context.triggerElements.hasElement(element)).toBe(false);
     expect(store.state.triggerCount).toBe(0);
     expect(spy).not.toHaveBeenCalled();
+  });
+
+  it('returns a stable callback that unregisters from the store it registered in', () => {
+    const first = createStore();
+    const second = createStore();
+    const element = document.createElement('button');
+    let registerRef: ((element: Element | null) => void) | null = null;
+
+    function Probe({ store }: { store: ReturnType<typeof createStore> }) {
+      const register = useTriggerRegistration('trigger', store);
+      registerRef = register;
+
+      useIsoLayoutEffect(() => {
+        register(element);
+        return () => register(null);
+      }, [register, store]);
+
+      return null;
+    }
+
+    const { rerender, unmount } = render(<Probe store={first} />);
+    const initialRegister = registerRef as unknown as (element: Element | null) => void;
+
+    expect(first.context.triggerElements.getById('trigger')).toBe(element);
+
+    rerender(<Probe store={second} />);
+
+    expect(registerRef).toBe(initialRegister);
+    expect(first.context.triggerElements.getById('trigger')).toBeUndefined();
+    expect(second.context.triggerElements.getById('trigger')).toBe(element);
+
+    // A retained callback from before the migration must still act on the current store.
+    const replacement = document.createElement('button');
+    act(() => {
+      initialRegister(null);
+      initialRegister(replacement);
+    });
+
+    expect(first.context.triggerElements.getById('trigger')).toBeUndefined();
+    expect(second.context.triggerElements.getById('trigger')).toBe(replacement);
+
+    unmount();
+    expect(second.context.triggerElements.getById('trigger')).toBeUndefined();
   });
 
   it('keeps triggerCount reactive while the popup is open', () => {

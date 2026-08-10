@@ -13,12 +13,14 @@ describe('<Popover.Root />', () => {
 
   const { render, clock } = createRenderer();
 
+  // Stands in for ref mergers like `@rc-component/util`'s `useComposeRef`, which retain the
+  // callback they were first given.
   const StaleRefButton = React.forwardRef<
     HTMLButtonElement,
-    React.ComponentPropsWithoutRef<'button'>
-  >(function StaleRefButton(props, forwardedRef) {
+    React.ComponentPropsWithoutRef<'button'> & { nodeKey?: string }
+  >(function StaleRefButton({ nodeKey, ...props }, forwardedRef) {
     const staleRef = React.useRef(forwardedRef).current;
-    return <button {...props} ref={staleRef} />;
+    return <button key={nodeKey} {...props} ref={staleRef} />;
   });
 
   it('opens by trigger from a descendant layout effect on initial mount', async () => {
@@ -67,6 +69,9 @@ describe('<Popover.Root />', () => {
             payload={payload}
             openOnHover
             delay={0}
+            // Forces the handoff path: without a close delay the popup just closes and reopens,
+            // which works even when the trigger is registered on the wrong store.
+            closeDelay={100}
             render={<StaleRefButton />}
           >
             Trigger {payload}
@@ -96,6 +101,64 @@ describe('<Popover.Root />', () => {
     await waitFor(() => {
       expect(screen.getByTestId('popup')).toHaveTextContent('2');
     });
+  });
+
+  it('keeps registration on the attached store when a stale-ref component swaps its host node', async () => {
+    const handle = Popover.createHandle<number>();
+    const fallbackStore = handle.store;
+
+    function App() {
+      const [nodeKey, setNodeKey] = React.useState('a');
+      return (
+        <React.Fragment>
+          <button type="button" onClick={() => setNodeKey('b')}>
+            Swap node
+          </button>
+          <Popover.Trigger
+            handle={handle}
+            id="trigger"
+            payload={1}
+            render={<StaleRefButton nodeKey={nodeKey} />}
+          >
+            Trigger
+          </Popover.Trigger>
+          <Popover.Root handle={handle}>
+            <Popover.Portal>
+              <Popover.Positioner>
+                <Popover.Popup data-testid="popup">Content</Popover.Popup>
+              </Popover.Positioner>
+            </Popover.Portal>
+          </Popover.Root>
+        </React.Fragment>
+      );
+    }
+
+    const { user } = await render(<App />);
+
+    const initialTrigger = screen.getByRole('button', { name: 'Trigger' });
+    expect(fallbackStore.context.triggerElements.size).toBe(0);
+    expect(handle.store.context.triggerElements.getById('trigger')).toBe(initialTrigger);
+
+    // Replacing the host node re-fires the retained ref callback after the migration.
+    await user.click(screen.getByRole('button', { name: 'Swap node' }));
+
+    const swappedTrigger = screen.getByRole('button', { name: 'Trigger' });
+    // Guards the setup: without a real host swap the rest of the test proves nothing.
+    expect(swappedTrigger).not.to.equal(initialTrigger);
+    expect(initialTrigger.isConnected).toBe(false);
+    expect(fallbackStore.context.triggerElements.size).toBe(0);
+    expect(handle.store.context.triggerElements.getById('trigger')).toBe(swappedTrigger);
+
+    // `open()` searches attached stores first, so a registration left on the wrong store would
+    // anchor the popup to the removed node.
+    await act(async () => {
+      handle.open('trigger');
+    });
+
+    await waitFor(() => {
+      expect(screen.getByTestId('popup')).toBeVisible();
+    });
+    expect(handle.store.state.activeTriggerElement).toBe(swappedTrigger);
   });
 
   describe.skipIf(isJSDOM)('handle-backed root ownership', () => {
