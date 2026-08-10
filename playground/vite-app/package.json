@@ -12,7 +12,7 @@
     "radix-ui": "^1.4.3",
     "react": "19.2.5",
     "react-dom": "19.2.5",
-    "react-router": "7.15.0"
+    "react-router": "7.18.2"
   },
   "devDependencies": {
     "@eslint/js": "10.0.1",
@@ -29,6 +29,6 @@
     "tailwindcss": "4.2.4",
     "typescript": "6.0.3",
     "typescript-eslint": "8.59.2",
-    "vite": "8.0.11"
+    "vite": "8.0.16"
   }
 }
