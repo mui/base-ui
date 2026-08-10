@@ -15,6 +15,8 @@ import {
   type DrawerProviderContext,
   useDrawerProviderContext,
 } from '../provider/DrawerProviderContext';
+import { useDialogRootContext } from '../../dialog/root/DialogRootContext';
+import type { DialogStore } from '../../dialog/store/DialogStore';
 
 const useIdMockState = vi.hoisted(() => ({ returnUndefined: false }));
 const eventUtilsMockState = vi.hoisted(() => ({ forceVirtualClick: false }));
@@ -261,6 +263,11 @@ async function swipeLeft(
   options?: SwipeOptions,
 ) {
   return swipe(element, { x: startX, y: 10 }, { x: endX, y: 10 }, options);
+}
+
+function StoreProbe({ storeRef }: { storeRef: { current: DialogStore<unknown> | null } }) {
+  storeRef.current = useDialogRootContext();
+  return null;
 }
 
 describe('<Drawer.SwipeArea />', () => {
@@ -821,6 +828,65 @@ describe('<Drawer.SwipeArea />', () => {
     } finally {
       useIdMockState.returnUndefined = false;
     }
+  });
+
+  it('registers the swipe area once a generated id becomes available', async () => {
+    useIdMockState.returnUndefined = true;
+    const storeRef: { current: DialogStore<unknown> | null } = { current: null };
+
+    function App() {
+      const [, forceRender] = React.useReducer((count: number) => count + 1, 0);
+
+      React.useEffect(() => {
+        // React 17's `useId` fallback resolves the id in an effect after the first commit.
+        useIdMockState.returnUndefined = false;
+        forceRender();
+      }, []);
+
+      return (
+        <Drawer.Root>
+          <StoreProbe storeRef={storeRef} />
+          <Drawer.SwipeArea data-testid="swipe-area" />
+        </Drawer.Root>
+      );
+    }
+
+    try {
+      await render(<App />);
+
+      const swipeArea = screen.getByTestId('swipe-area');
+      await waitFor(() => {
+        expect(swipeArea).toHaveAttribute('id');
+      });
+
+      expect(storeRef.current!.context.triggerElements.getById(swipeArea.id)).toBe(swipeArea);
+    } finally {
+      useIdMockState.returnUndefined = false;
+    }
+  });
+
+  it('follows a swipe area id change', async () => {
+    const storeRef: { current: DialogStore<unknown> | null } = { current: null };
+
+    function App({ id }: { id: string }) {
+      return (
+        <Drawer.Root>
+          <StoreProbe storeRef={storeRef} />
+          <Drawer.SwipeArea data-testid="swipe-area" id={id} />
+        </Drawer.Root>
+      );
+    }
+
+    const { setProps } = await render(<App id="first" />);
+
+    const swipeArea = screen.getByTestId('swipe-area');
+    expect(storeRef.current!.context.triggerElements.getById('first')).toBe(swipeArea);
+
+    await setProps({ id: 'second' });
+
+    expect(storeRef.current!.context.triggerElements.getById('first')).toBeUndefined();
+    expect(storeRef.current!.context.triggerElements.getById('second')).toBe(swipeArea);
+    expect(storeRef.current!.context.triggerElements.size).toBe(1);
   });
 
   it('opens the drawer when swiped with touch events', async () => {

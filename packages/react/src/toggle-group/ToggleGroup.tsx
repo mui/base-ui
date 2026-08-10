@@ -38,6 +38,8 @@ export const ToggleGroup = React.forwardRef(function ToggleGroup<Value extends s
   const toolbarContext = useToolbarRootContext(true);
   const toolbarGroupContext = useToolbarGroupContext();
 
+  const defaultValue = defaultValueProp ?? EMPTY_ARRAY;
+  // Use the raw prop to distinguish an omitted value from the empty default.
   const isValueInitialized = valueProp !== undefined || defaultValueProp !== undefined;
 
   const disabled =
@@ -45,7 +47,7 @@ export const ToggleGroup = React.forwardRef(function ToggleGroup<Value extends s
 
   const [groupValue, setValueState] = useControlled({
     controlled: valueProp,
-    default: valueProp === undefined ? (defaultValueProp ?? EMPTY_ARRAY) : undefined,
+    default: defaultValue,
     name: 'ToggleGroup',
     state: 'value',
   });

@@ -1031,6 +1031,40 @@ describe('<Tabs.Root />', () => {
       expect(screen.getByRole('tabpanel', { hidden: true })).toHaveAttribute('hidden');
     });
 
+    it('calls onValueChange with null when a populated tab list is replaced by an empty one', async () => {
+      const handleChange = vi.fn();
+
+      function TestComponent({ empty }: { empty: boolean }) {
+        return (
+          <Tabs.Root defaultValue={0} onValueChange={handleChange}>
+            <Tabs.List key={empty ? 'empty' : 'populated'}>
+              {!empty && <Tabs.Tab value={0}>Tab 0</Tabs.Tab>}
+            </Tabs.List>
+            <Tabs.Panel value={0} keepMounted>
+              Panel 0
+            </Tabs.Panel>
+          </Tabs.Root>
+        );
+      }
+
+      const { setProps } = await render(<TestComponent empty={false} />);
+
+      expect(screen.getByRole('tabpanel')).not.toHaveAttribute('hidden');
+
+      await setProps({ empty: true });
+
+      await waitFor(() => {
+        expect(handleChange).toHaveBeenCalledWith(
+          null,
+          expect.objectContaining({ reason: 'missing' }),
+        );
+      });
+
+      const panel = screen.getByRole('tabpanel', { hidden: true });
+      expect(panel).toHaveAttribute('hidden');
+      expect(panel).not.toHaveAttribute('aria-labelledby');
+    });
+
     it('calls onValueChange when an explicit defaultValue points at a tab that is never present', async () => {
       const handleChange = vi.fn();
 

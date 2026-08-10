@@ -684,6 +684,11 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
     onMouseMove() {
       allowFocusRef.current = false;
     },
+    onMouseLeave() {
+      if (value == null) {
+        clearSafePolygonPointerEventsMutation(hoverInteractionState);
+      }
+    },
     onKeyDown(event) {
       allowFocusRef.current = true;
 

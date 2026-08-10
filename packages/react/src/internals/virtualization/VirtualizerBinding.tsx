@@ -5,7 +5,7 @@ import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { warn } from '@base-ui/utils/warn';
 import { EMPTY_ARRAY } from '@base-ui/utils/empty';
-import { areArraysEqual } from '../areArraysEqual';
+import { areArraysEqual } from '@base-ui/utils/areArraysEqual';
 import type {
   ListVirtualizationRegistry,
   VirtualizerActions,
