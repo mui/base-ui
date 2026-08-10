@@ -729,7 +729,11 @@ export interface MenuRootState {}
 
 export interface MenuFilter extends FilterDropdownFilter {}
 
-interface MenuRootFilterEnabledProps {
+// These are deliberately not a discriminated union on `filter`. `Omit`, `Pick`, and object rest
+// all collapse a union into one object type with widened members, which then matches no branch,
+// so a typed wrapper like `interface MyProps extends Omit<Menu.Root.Props, 'children'>` would not
+// compile. Misuse is reported at runtime instead: `Menu.Input` throws without `filter`.
+interface MenuRootFilterProps {
   /**
    * Enables filtering. Pass a function to customize how items match the query; it receives the
    * item's `label` (falling back to its rendered text) and the trimmed query.
@@ -738,9 +742,10 @@ interface MenuRootFilterEnabledProps {
    * filterable and non-filterable.
    * @default false
    */
-  filter: true | MenuFilter;
+  filter?: boolean | MenuFilter | undefined;
   /**
    * The uncontrolled input value when the menu is initially rendered.
+   * Requires the `filter` prop.
    *
    * To render a controlled filter input, use the `inputValue` prop instead.
    * @default ''
@@ -748,24 +753,17 @@ interface MenuRootFilterEnabledProps {
   defaultInputValue?: string | undefined;
   /**
    * The input value. Use when controlled.
+   * Requires the `filter` prop.
    */
   inputValue?: string | undefined;
   /**
    * Event handler called when the input value changes.
+   * Requires the `filter` prop.
    */
   onInputValueChange?:
     | ((value: string, eventDetails: MenuRootInputValueChangeEventDetails) => void)
     | undefined;
 }
-
-interface MenuRootFilterDisabledProps {
-  filter?: false | undefined;
-  defaultInputValue?: never | undefined;
-  inputValue?: never | undefined;
-  onInputValueChange?: never | undefined;
-}
-
-type MenuRootFilterProps = MenuRootFilterEnabledProps | MenuRootFilterDisabledProps;
 
 export type MenuRootProps<Payload = unknown> = MenuRootBaseProps<Payload> & MenuRootFilterProps;
 

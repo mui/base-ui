@@ -790,7 +790,11 @@ export type SelectFilter = (
   itemToStringLabel?: (item: any) => string,
 ) => boolean;
 
-interface SelectRootFilterEnabledProps {
+// These are deliberately not a discriminated union on `filter`. `Omit`, `Pick`, and object rest
+// all collapse a union into one object type with widened members, which then matches no branch,
+// so a typed wrapper like `interface MyProps extends Omit<Select.Root.Props, 'children'>` would
+// not compile. Misuse is reported at runtime instead: `Select.Input` throws without `filter`.
+interface SelectRootFilterProps {
   /**
    * Enables filtering. Pass a function to customize how items match the query; it receives the
    * item's `label` (falling back to its rendered text) and the trimmed query.
@@ -799,9 +803,10 @@ interface SelectRootFilterEnabledProps {
    * between filterable and non-filterable.
    * @default false
    */
-  filter: true | SelectFilter;
+  filter?: boolean | SelectFilter | undefined;
   /**
    * The uncontrolled input value when the select is initially rendered.
+   * Requires the `filter` prop.
    *
    * To render a controlled filter input, use the `inputValue` prop instead.
    * @default ''
@@ -809,24 +814,17 @@ interface SelectRootFilterEnabledProps {
   defaultInputValue?: string | undefined;
   /**
    * The input value. Use when controlled.
+   * Requires the `filter` prop.
    */
   inputValue?: string | undefined;
   /**
    * Event handler called when the input value changes.
+   * Requires the `filter` prop.
    */
   onInputValueChange?:
     | ((value: string, eventDetails: SelectRootInputValueChangeEventDetails) => void)
     | undefined;
 }
-
-interface SelectRootFilterDisabledProps {
-  filter?: false | undefined;
-  defaultInputValue?: never | undefined;
-  inputValue?: never | undefined;
-  onInputValueChange?: never | undefined;
-}
-
-type SelectRootFilterProps = SelectRootFilterEnabledProps | SelectRootFilterDisabledProps;
 
 export type SelectRootProps<
   Value,
