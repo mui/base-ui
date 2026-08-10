@@ -8,7 +8,7 @@ import { useBaseUiId } from '../useBaseUiId';
 import { useLabelableContext } from './LabelableContext';
 
 export function useLabelableId(params: UseLabelableIdParameters = {}) {
-  const { id, preferId = false } = params;
+  const { id, enabled = true, preferId = false } = params;
 
   const { controlId, registerControlId } = useLabelableContext();
 
@@ -32,6 +32,12 @@ export function useLabelableId(params: UseLabelableIdParameters = {}) {
       return undefined;
     }
 
+    if (!enabled) {
+      hadExplicitIdRef.current = false;
+      unregisterControlId();
+      return undefined;
+    }
+
     let nextId: string | undefined;
 
     if (id != null) {
@@ -52,7 +58,7 @@ export function useLabelableId(params: UseLabelableIdParameters = {}) {
     registerControlId(controlSourceRef.current, nextId, preferId);
 
     return undefined;
-  }, [id, registerControlId, defaultId, preferId, controlSourceRef, unregisterControlId]);
+  }, [id, enabled, registerControlId, defaultId, preferId, controlSourceRef, unregisterControlId]);
 
   React.useEffect(() => {
     return unregisterControlId;
@@ -66,6 +72,11 @@ export function useLabelableId(params: UseLabelableIdParameters = {}) {
 
 export interface UseLabelableIdParameters {
   id?: string | undefined;
+  /**
+   * Whether the control owns the label association.
+   * @default true
+   */
+  enabled?: boolean | undefined;
   /**
    * Whether the registered id should replace the currently selected id.
    * @default false

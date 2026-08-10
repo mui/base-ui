@@ -9460,6 +9460,30 @@ describe('<Combobox.Root />', () => {
       expect(screen.getByTestId('label')).toHaveAttribute('for', 'root-id');
     });
 
+    it('keeps Field.Label associated with an outside input when the trigger has an explicit id', async () => {
+      await render(
+        <Field.Root>
+          <Field.Label data-testid="label">Search</Field.Label>
+          <Combobox.Root id="root-id">
+            <Combobox.Input data-testid="input" />
+            <Combobox.Trigger id="trigger-id">Open</Combobox.Trigger>
+            <Combobox.Portal>
+              <Combobox.Positioner>
+                <Combobox.Popup>
+                  <Combobox.List />
+                </Combobox.Popup>
+              </Combobox.Positioner>
+            </Combobox.Portal>
+          </Combobox.Root>
+        </Field.Root>,
+      );
+
+      await waitFor(() => {
+        expect(screen.getByTestId('input')).toHaveAttribute('id', 'root-id');
+      });
+      expect(screen.getByTestId('label')).toHaveAttribute('for', 'root-id');
+    });
+
     it('does not apply validation ARIA attributes to input inside popup', async () => {
       const { user } = await render(
         <Field.Root invalid>
