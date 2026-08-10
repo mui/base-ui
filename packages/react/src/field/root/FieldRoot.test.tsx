@@ -1091,6 +1091,54 @@ describe('<Field.Root />', () => {
       expect(screen.getByTestId('error')).toHaveTextContent('external error');
     });
 
+    it('uses the latest representative input after async validation', async () => {
+      let resolveValidation: (result: string | null) => void = () => {};
+      const validate = vi.fn(
+        () =>
+          new Promise<string | null>((resolve) => {
+            resolveValidation = resolve;
+          }),
+      );
+      const handleValidity = vi.fn();
+
+      await render(
+        <Field.Root name="field" validationMode="onChange" validate={validate}>
+          <CheckboxGroup>
+            <Field.Item>
+              <Checkbox.Root value="a" data-testid="a" />
+            </Field.Item>
+            <Field.Item>
+              <Checkbox.Root value="b" data-testid="b" />
+            </Field.Item>
+          </CheckboxGroup>
+          <Field.Error data-testid="error" />
+          <Field.Validity>{handleValidity}</Field.Validity>
+        </Field.Root>,
+      );
+
+      const [, second] = Array.from(
+        document.querySelectorAll<HTMLInputElement>('input[type="checkbox"]'),
+      );
+
+      fireEvent.click(screen.getByTestId('a'));
+      expect(validate).toHaveBeenCalledTimes(1);
+
+      // The validator is still pending, so make another input the group's representative before it
+      // resolves. The post-await validity snapshot must come from this input, not the one that
+      // represented the group when validation started.
+      second.setCustomValidity('external error');
+
+      await act(async () => {
+        resolveValidation(null);
+        await flushMicrotasks();
+      });
+
+      expect(second.validationMessage).toBe('external error');
+      expect(screen.getByTestId('error')).toHaveTextContent('external error');
+      expect(handleValidity.mock.lastCall?.[0].validity.customError).toBe(true);
+      expect(handleValidity.mock.lastCall?.[0].validity.valid).toBe(false);
+    });
+
     it('keeps a message set outside the field on another input of the group when revalidating on change', async () => {
       const handleValidity = vi.fn();
       await render(
