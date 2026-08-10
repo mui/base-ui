@@ -20,7 +20,6 @@ import { createChangeEventDetails } from '../../internals/createBaseUIEventDetai
 import { REASONS } from '../../internals/reasons';
 import { compareItemEquality, removeItem } from '../../internals/itemEquality';
 import { isVirtualClick } from '../../floating-ui-react/utils/event';
-import { FilterDropdownItem } from '../../filter-dropdown/item/FilterDropdownItem';
 
 const SELECT_ITEM_ROLE = 'option';
 
@@ -235,7 +234,7 @@ export const SelectItem = React.memo(
     forwardedRef: React.ForwardedRef<HTMLElement>,
   ) {
     const { store, multiple, registerItem } = useSelectRootContext();
-    const filterable = useStore(store, selectors.filterable);
+    const filterIntegration = useStore(store, selectors.filterIntegration);
     const isItemEqualToValue = useStore(store, selectors.isItemEqualToValue);
     const registrationId = useRefWithInit(() => Symbol('select-item')).current;
     const itemValue = componentProps.value ?? null;
@@ -281,10 +280,10 @@ export const SelectItem = React.memo(
       />
     );
 
-    return filterable ? (
-      // FilterDropdownItem composes onto SelectItemImpl so its implementation
+    return filterIntegration ? (
+      // The filter wrapper composes onto SelectItemImpl so its implementation
       // overrides SelectItemImpl's implementation.
-      <FilterDropdownItem
+      <filterIntegration.Item
         role={SELECT_ITEM_ROLE}
         label={componentProps.label}
         render={selectItem}

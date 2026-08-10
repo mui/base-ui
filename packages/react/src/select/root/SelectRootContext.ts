@@ -55,7 +55,10 @@ export function useSelectFilterableRootContext(partName: string) {
   const filterable = useStore(context.store, selectors.filterable);
 
   if (!filterable) {
-    throw new Error(`Base UI: <Select.${partName}> requires the \`filter\` prop on <Select.Root>.`);
+    throw new Error(
+      `Base UI: <FilterableSelect.${partName}> must be placed within <FilterableSelect.Root>, ` +
+        'imported from `@base-ui/react/filterable-select`. An ordinary <Select.Root> cannot filter.',
+    );
   }
 
   return context;

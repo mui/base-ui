@@ -1,5 +1,6 @@
 import { ReactStore } from '@base-ui/utils/store';
 import { type InteractionType } from '@base-ui/utils/useEnhancedClickHandler';
+import type { SelectFilterIntegration } from './root/SelectFilterIntegrationContext';
 import type { TransitionStatus } from '../internals/useTransitionStatus';
 import type { HTMLProps } from '../internals/types';
 import type { Side } from '../internals/useAnchorPositioning';
@@ -22,6 +23,8 @@ export type State = {
   modal: boolean;
   multiple: boolean;
   filterable: boolean;
+  /** Filtering parts supplied by the `filterable-select` entrypoint, or null for an ordinary select. */
+  filterIntegration: SelectFilterIntegration | null;
 
   items:
     | Record<string, React.ReactNode>
@@ -74,6 +77,7 @@ export const selectors = {
   modal: (state: State) => state.modal,
   multiple: (state: State) => state.multiple,
   filterable: (state: State) => state.filterable,
+  filterIntegration: (state: State) => state.filterIntegration,
 
   items: (state: State) => state.items,
   itemToStringLabel: (state: State) => state.itemToStringLabel,

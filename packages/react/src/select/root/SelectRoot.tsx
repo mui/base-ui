@@ -21,6 +21,10 @@ import {
 } from '../../floating-ui-react';
 import { SelectRootContext } from './SelectRootContext';
 import { SelectDerivedItemsContext } from './SelectDerivedItemsContext';
+import {
+  SelectFilterIntegrationContext,
+  useSelectFilterIntegration,
+} from './SelectFilterIntegrationContext';
 import { useFieldRootContext } from '../../internals/field-root-context/FieldRootContext';
 import { useRegisterFieldControl } from '../../internals/field-register-control/useRegisterFieldControl';
 import { useLabelableId } from '../../internals/labelable-provider/useLabelableId';
@@ -51,7 +55,6 @@ import { useOpenInteractionType } from '../../utils/useOpenInteractionType';
 import { getMaxScrollOffset, normalizeScrollOffset } from '../../utils/scrollEdges';
 import { FOCUSABLE_POPUP_PROPS } from '../../utils/popups';
 import { mergeProps } from '../../merge-props';
-import { FilterDropdownRoot } from '../../filter-dropdown/root/FilterDropdownRoot';
 
 /**
  * Groups all parts of the select.
@@ -131,8 +134,11 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     state: 'value',
   });
 
-  // Filterable mode changes this root's context and focus model, so it cannot switch after mount.
-  const filterable = Boolean(React.useRef(filterProp).current);
+  // Filterability comes from the entrypoint, not the prop: only `filterable-select` supplies the
+  // integration. That keeps the filtering implementation out of an ordinary select's bundle, and
+  // makes the mode fixed for the select's lifetime without a mount-time latch.
+  const filterIntegration = useSelectFilterIntegration();
+  const filterable = filterIntegration !== null;
   const [registeredItems, registerItem] = useItemRegistry<symbol, RegisteredItem>();
   const listRef = React.useRef<Array<HTMLElement | null>>([]);
   const popupRef = React.useRef<HTMLDivElement | null>(null);
@@ -159,6 +165,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
         modal,
         multiple,
         filterable,
+        filterIntegration,
         itemToStringLabel,
         itemToStringValue,
         isItemEqualToValue,
@@ -730,8 +737,8 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     </SelectRootContext.Provider>
   );
 
-  const content = filterable ? (
-    <FilterDropdownRoot
+  const content = filterIntegration ? (
+    <filterIntegration.Root
       open={open}
       // Rendered items are always matched on their DOM text, which the shared filter accepts as
       // the item. When `items` drives the list this repeats a decision the data pass already
@@ -741,14 +748,18 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
       onValueChange={handleInputValueChange}
     >
       {select}
-    </FilterDropdownRoot>
+    </filterIntegration.Root>
   ) : (
     select
   );
 
   return (
     <SelectDerivedItemsContext.Provider value={derivedItemsContextValue}>
-      {content}
+      {/* A nested select is only filterable if its own root is a filterable one, so the
+          integration must not reach the subtree through context. Parts read it from the store. */}
+      <SelectFilterIntegrationContext.Provider value={null}>
+        {content}
+      </SelectFilterIntegrationContext.Provider>
     </SelectDerivedItemsContext.Provider>
   );
 }
