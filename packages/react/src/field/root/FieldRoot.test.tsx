@@ -307,7 +307,7 @@ describe('<Field.Root />', () => {
                   Label
                 </Field.Label>
                 <Activity mode={showSelect ? 'visible' : 'hidden'}>
-                  <Select.Root>
+                  <Select.Root id="select">
                     <Select.Trigger>
                       <Select.Value placeholder="Select a model" />
                     </Select.Trigger>
