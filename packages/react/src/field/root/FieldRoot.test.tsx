@@ -103,6 +103,28 @@ describe('<Field.Root />', () => {
     expect(control.getAttribute('id')).not.toBe(null);
   });
 
+  it('restores the null initial control id after the last control unregisters', async () => {
+    function TestCase(props: { showControl: boolean }) {
+      return (
+        <Field.Root>
+          <LabelableProvider controlId={null}>
+            <Field.Label>Label</Field.Label>
+            {props.showControl && <Field.Control id="control" />}
+          </LabelableProvider>
+        </Field.Root>
+      );
+    }
+
+    const { rerender } = await render(<TestCase showControl />);
+
+    const label = screen.getByText('Label');
+    expect(label).toHaveAttribute('for', 'control');
+
+    await rerender(<TestCase showControl={false} />);
+
+    expect(label).not.toHaveAttribute('for');
+  });
+
   it('updates label associations when the control id changes', async () => {
     function TestCase() {
       const [controlId, setControlId] = React.useState('control-a');

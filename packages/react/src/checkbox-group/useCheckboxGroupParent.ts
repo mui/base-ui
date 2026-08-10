@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
-import { EMPTY_ARRAY, EMPTY_OBJECT } from '@base-ui/utils/empty';
+import { EMPTY_ARRAY } from '@base-ui/utils/empty';
 import type { BaseUIChangeEventDetails } from '../internals/createBaseUIEventDetails';
 import type { BaseUIEventReasons } from '../internals/reasons';
 
@@ -14,28 +14,42 @@ export function useCheckboxGroupParent(
   const disabledStatesRef = React.useRef(new Map<string, boolean>());
 
   const [status, setStatus] = React.useState<'on' | 'off' | 'mixed'>('mixed');
-  const [childIds, setChildIds] = React.useState<Record<string, string>>(EMPTY_OBJECT);
+  // A `Map` rather than an object: checkbox values are consumer data, and a value like
+  // `constructor` would otherwise read straight off `Object.prototype`.
+  const [childIds, setChildIds] = React.useState<ReadonlyMap<string, string>>(() => new Map());
 
   const checked = value.length === allValues.length;
   const indeterminate = value.length !== allValues.length && value.length > 0;
 
   const onValueChange = useStableCallback(onValueChangeProp);
 
-  const registerChildId = useStableCallback((childValue: string, childId: string | undefined) => {
-    setChildIds((prev) => {
-      if (prev[childValue] === childId) {
-        return prev;
-      }
+  const registerChildId = useStableCallback(
+    (childValue: string, childId: string | undefined, releasedId?: string) => {
+      setChildIds((prev) => {
+        if (prev.get(childValue) === childId) {
+          return prev;
+        }
 
-      const next = { ...prev };
-      if (childId === undefined) {
-        delete next[childValue];
-      } else {
-        next[childValue] = childId;
-      }
-      return next;
-    });
-  });
+        // Two checkboxes can share a `value`. The one unmounting must not evict an entry a
+        // later sibling now owns.
+        if (
+          childId === undefined &&
+          releasedId !== undefined &&
+          prev.get(childValue) !== releasedId
+        ) {
+          return prev;
+        }
+
+        const next = new Map(prev);
+        if (childId === undefined) {
+          next.delete(childValue);
+        } else {
+          next.set(childValue, childId);
+        }
+        return next;
+      });
+    },
+  );
 
   const getParentProps: UseCheckboxGroupParentReturnValue['getParentProps'] = React.useCallback(
     () => ({
@@ -46,7 +60,7 @@ export function useCheckboxGroupParent(
       // where the parent can't control anything yet.
       'aria-controls':
         allValues
-          .map((v) => childIds[v])
+          .map((v) => childIds.get(v))
           .filter((childId) => childId !== undefined)
           .join(' ') || undefined,
       onCheckedChange(_, eventDetails) {
@@ -144,9 +158,9 @@ export interface UseCheckboxGroupParentReturnValue {
   disabledStatesRef: React.RefObject<Map<string, boolean>>;
   /**
    * Reports the `id` of the element a child checkbox exposes, so the parent can reference it
-   * through `aria-controls`. Pass `undefined` to unregister.
+   * through `aria-controls`. To unregister, pass `undefined` along with the id being released.
    */
-  registerChildId: (value: string, id: string | undefined) => void;
+  registerChildId: (value: string, id: string | undefined, releasedId?: string) => void;
   getParentProps: () => {
     indeterminate: boolean;
     checked: boolean;

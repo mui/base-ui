@@ -897,11 +897,38 @@ describe('<CheckboxGroup />', () => {
       },
     );
 
+    it.each([false, true])(
+      'keeps ids unique without allValues in a shared Field.Root (nativeButton=%s)',
+      async (nativeButton) => {
+        const checkboxProps = { nativeButton, render: nativeButton ? <button /> : undefined };
+
+        await render(
+          <Field.Root name="apples">
+            <Field.Label>Apples</Field.Label>
+            <CheckboxGroup>
+              <Checkbox.Root value="fuji" {...checkboxProps} />
+              <Checkbox.Root value="gala" {...checkboxProps} />
+            </CheckboxGroup>
+          </Field.Root>,
+        );
+
+        expectUniqueIds();
+      },
+    );
+
+    // The suppression runs in a layout effect, so server markup still carries the `htmlFor`
+    // the provider resolved before the group registered.
     it('labels the group rather than pointing Field.Label at one checkbox inside it', async () => {
-      await render(<SharedFieldRootGroup nativeButton={false} />);
+      const { hydrate } = renderToString(<SharedFieldRootGroup nativeButton={false} />);
+
+      expect(screen.getByText('Apples')).toHaveAttribute('for');
+
+      hydrate();
 
       const label = screen.getByText('Apples');
-      expect(label).not.toHaveAttribute('for');
+      await waitFor(() => {
+        expect(label).not.toHaveAttribute('for');
+      });
       expect(screen.getByRole('group')).toHaveAttribute('aria-labelledby', label.id);
     });
 

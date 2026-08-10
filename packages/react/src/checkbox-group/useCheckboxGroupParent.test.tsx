@@ -202,6 +202,73 @@ describe('useCheckboxGroupParent', () => {
     );
   });
 
+  it('keeps a custom child id in aria-controls', () => {
+    render(
+      <CheckboxGroup allValues={['a']}>
+        <Checkbox.Root parent data-testid="parent" nativeButton render={<button />} />
+        <Checkbox.Root id="custom" value="a" data-testid="a" nativeButton render={<button />} />
+      </CheckboxGroup>,
+    );
+
+    expect(screen.getByTestId('a')).toHaveAttribute('id', 'custom');
+    expect(screen.getByTestId('parent')).toHaveAttribute('aria-controls', 'custom');
+  });
+
+  it('does not read aria-controls ids off Object.prototype', () => {
+    render(
+      <CheckboxGroup allValues={['a', 'constructor']}>
+        <Checkbox.Root parent data-testid="parent" />
+        <Checkbox.Root value="a" data-testid="a" />
+      </CheckboxGroup>,
+    );
+
+    expect(screen.getByTestId('parent')).toHaveAttribute(
+      'aria-controls',
+      screen.getByTestId('a').id,
+    );
+  });
+
+  it('drops an unmounted child from aria-controls', async () => {
+    function App(props: { showB: boolean }) {
+      return (
+        <CheckboxGroup allValues={allValues}>
+          <Checkbox.Root parent data-testid="parent" />
+          <Checkbox.Root value="a" data-testid="a" />
+          {props.showB && <Checkbox.Root value="b" data-testid="b" />}
+        </CheckboxGroup>
+      );
+    }
+
+    const { rerender } = await render(<App showB />);
+    await rerender(<App showB={false} />);
+
+    expect(screen.getByTestId('parent')).toHaveAttribute(
+      'aria-controls',
+      screen.getByTestId('a').id,
+    );
+  });
+
+  it('keeps aria-controls when one of two checkboxes sharing a value unmounts', async () => {
+    function App(props: { showFirstB: boolean }) {
+      return (
+        <CheckboxGroup allValues={allValues}>
+          <Checkbox.Root parent data-testid="parent" />
+          <Checkbox.Root value="a" data-testid="a" />
+          {props.showFirstB && <Checkbox.Root value="b" />}
+          <Checkbox.Root value="b" data-testid="b" />
+        </CheckboxGroup>
+      );
+    }
+
+    const { rerender } = await render(<App showFirstB />);
+    await rerender(<App showFirstB={false} />);
+
+    expect(screen.getByTestId('parent')).toHaveAttribute(
+      'aria-controls',
+      `${screen.getByTestId('a').id} ${screen.getByTestId('b').id}`,
+    );
+  });
+
   it('does not select a child without an identifying value', () => {
     render(
       <CheckboxGroup allValues={['a']}>

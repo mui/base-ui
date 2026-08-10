@@ -6,7 +6,8 @@ import { HTMLProps } from '../types';
 export interface LabelableContext {
   /**
    * The `id` of the labelable element.
-   * When `null` the association is implicit.
+   * When `null` the label omits `htmlFor`, either because the association is implicit or
+   * because the control takes its name from `aria-labelledby`.
    */
   controlId: string | null | undefined;
   registerControlId: (source: symbol, id: string | null | undefined) => void;

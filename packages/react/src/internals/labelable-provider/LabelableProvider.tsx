@@ -34,9 +34,9 @@ export const LabelableProvider: React.FC<LabelableProvider.Props> = function Lab
 
       setControlIdState((prev) => {
         // Controls rendered without an explicit `id` adopt this provider's own id instead of
-        // registering one, so fall back to it once nothing is registered.
+        // registering one, so fall back to the initial id once nothing is registered.
         if (registrations.size === 0) {
-          return defaultId;
+          return initialControlId;
         }
 
         let nextControlId: string | null | undefined;

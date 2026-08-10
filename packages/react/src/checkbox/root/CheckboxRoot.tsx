@@ -161,7 +161,7 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
 
     registerChildId(value, rootId);
 
-    return () => registerChildId(value, undefined);
+    return () => registerChildId(value, undefined, rootId);
   }, [registerChildId, parent, value, rootId]);
 
   const inputRef = React.useRef<HTMLInputElement>(null);
