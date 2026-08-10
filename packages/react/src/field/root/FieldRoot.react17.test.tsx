@@ -20,6 +20,25 @@ vi.mock('@base-ui/utils/safeReact', async (importOriginal) => {
 describe('<Field.Root /> with the React 17 id fallback', () => {
   const { render } = createRenderer();
 
+  it('associates an id-less control after the fallback id is assigned', async () => {
+    const { user } = await render(
+      <Field.Root>
+        <Field.Label data-testid="label">Label</Field.Label>
+        <Field.Control />
+      </Field.Root>,
+    );
+
+    const label = screen.getByTestId('label');
+    const control = screen.getByRole('textbox');
+
+    expect(control.id).not.toBe('');
+    expect(label).toHaveAttribute('for', control.id);
+
+    await user.click(label);
+
+    expect(control).toHaveFocus();
+  });
+
   it('allows mount-time imperative validation before the fallback id is assigned', async () => {
     function TestCase() {
       const actionsRef = React.useRef<Field.Root.Actions>(null);
