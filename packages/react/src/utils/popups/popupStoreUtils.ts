@@ -348,7 +348,7 @@ export function useTriggerDataForwarding<
   });
 
   // Intentionally not stable. Its identity follows `[store, id]` so ordinary ref handling migrates
-  // the trigger. The layout effect below also synchronizes downstream ref mergers that retain it.
+  // the trigger.
   const registerTrigger = React.useCallback(
     (element: Element | null) => {
       baseRegisterTrigger(element);
@@ -359,6 +359,8 @@ export function useTriggerDataForwarding<
     [baseRegisterTrigger, applyTriggerData],
   );
 
+  // A downstream ref merger may retain a stale callback when `registerTrigger` changes.
+  // Synchronize from the retained element so store and id migrations still complete.
   useIsoLayoutEffect(() => {
     registerTrigger(triggerElementRef.current);
     return () => registerTrigger(null);
