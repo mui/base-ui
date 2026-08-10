@@ -45,8 +45,12 @@ import {
   usePopupInteractionProps,
 } from '../../utils/popups';
 import { useMenuSubmenuRootContext } from '../submenu-root/MenuSubmenuRootContext';
-import { FilterDropdownRoot } from '../../filter-dropdown/root/FilterDropdownRoot';
+import type { FilterDropdownRoot } from '../../filter-dropdown/root/FilterDropdownRoot';
 import type { FilterDropdownFilter } from '../../filter-dropdown/root/FilterDropdownRootContext';
+import {
+  MenuFilterIntegrationContext,
+  useMenuFilterIntegration,
+} from './MenuFilterIntegrationContext';
 
 /**
  * Groups all parts of the menu.
@@ -77,8 +81,11 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
     onInputValueChange,
   } = props;
 
-  // Filterable mode changes this root's context and focus model, so it cannot switch after mount.
-  const filterable = Boolean(React.useRef(filterProp).current);
+  // Filterability comes from the entrypoint, not the prop: only `filterable-menu` supplies the
+  // integration. That keeps the filtering implementation out of an ordinary menu's bundle, and
+  // makes the mode fixed for the menu's lifetime without a mount-time latch.
+  const filterIntegration = useMenuFilterIntegration();
+  const filterable = filterIntegration !== null;
   const [inputValue, setInputValue] = useControlled({
     controlled: inputValueProp,
     default: defaultInputValue,
@@ -140,6 +147,7 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
       highlightItemOnHover,
       modal: parentFromContext.type === undefined ? modalProp : undefined,
       filterable,
+      filterIntegration,
       rootId,
     },
     floatingId,
@@ -203,6 +211,7 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
   store.useSyncedValues({
     disabled: disabledProp,
     filterable,
+    filterIntegration,
     highlightItemOnHover,
     modal: parent.type === undefined ? modalProp : undefined,
     openMethod,
@@ -600,12 +609,17 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
   const menu = (
     <MenuRootContext.Provider value={context as MenuRootContext}>
       {handle && <PopupHandleAttachment handle={handle} store={store} />}
-      {typeof children === 'function' ? children({ payload }) : children}
+      {/* A nested menu is only filterable if its own root is a filterable one, so the
+          integration must not reach the subtree through context. Parts read it from their
+          own store instead. */}
+      <MenuFilterIntegrationContext.Provider value={null}>
+        {typeof children === 'function' ? children({ payload }) : children}
+      </MenuFilterIntegrationContext.Provider>
     </MenuRootContext.Provider>
   );
 
-  const content = filterable ? (
-    <FilterDropdownRoot
+  const content = filterIntegration ? (
+    <filterIntegration.Root
       open={open}
       value={inputValue}
       onValueChange={handleInputValueChange}
@@ -616,7 +630,7 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
       triggerElement={activeTriggerElement}
     >
       {menu}
-    </FilterDropdownRoot>
+    </filterIntegration.Root>
   ) : (
     menu
   );

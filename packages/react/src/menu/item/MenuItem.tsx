@@ -6,7 +6,6 @@ import { useRenderElement } from '../../internals/useRenderElement';
 import type { BaseUIComponentProps, NonNativeButtonProps } from '../../internals/types';
 import { useCompositeListItem } from '../../internals/composite/list/useCompositeListItem';
 import { useMenuPositionerContext } from '../positioner/MenuPositionerContext';
-import { FilterDropdownItem } from '../../filter-dropdown/item/FilterDropdownItem';
 
 const MenuItemImpl = React.forwardRef(function MenuItemImpl(
   componentProps: MenuItem.Props,
@@ -69,13 +68,13 @@ export const MenuItem = React.forwardRef(function MenuItem(
   forwardedRef: React.ForwardedRef<HTMLElement>,
 ) {
   const { store } = useMenuRootContext();
-  const filterable = store.select('filterable');
+  const filterIntegration = store.select('filterIntegration');
   const menuItem = <MenuItemImpl {...componentProps} ref={forwardedRef} />;
 
-  return filterable ? (
-    // FilterDropdownItem composes onto MenuItemImpl so its implementation
+  return filterIntegration ? (
+    // The filter wrapper composes onto MenuItemImpl so its implementation
     // overrides MenuItemImpl's implementation.
-    <FilterDropdownItem label={componentProps.label} role="menuitem" render={menuItem} />
+    <filterIntegration.Item label={componentProps.label} role="menuitem" render={menuItem} />
   ) : (
     menuItem
   );

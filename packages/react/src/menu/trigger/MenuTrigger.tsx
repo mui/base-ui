@@ -37,7 +37,6 @@ import { MenuParent } from '../root/MenuRoot';
 import { PATIENT_CLICK_THRESHOLD } from '../../internals/constants';
 import { FocusGuard } from '../../utils/FocusGuard';
 import { mergeProps } from '../../merge-props';
-import { FilterDropdownTrigger } from '../../filter-dropdown/trigger/FilterDropdownTrigger';
 
 const MenuTriggerImpl = React.forwardRef(function MenuTriggerImpl(
   componentProps: MenuTrigger.Props & MenuTriggerImplInternalProps,
@@ -166,7 +165,7 @@ export const MenuTrigger = fastComponentRef(function MenuTrigger(
   const isInMenubar = parent.type === 'menubar';
 
   const rootDisabled = store.useState('disabled');
-  const filterable = store.select('filterable');
+  const filterIntegration = store.select('filterIntegration');
   const detached = store !== rootContext?.store;
   const disabled = disabledProp || rootDisabled || (isInMenubar && parent.context.disabled);
 
@@ -283,7 +282,7 @@ export const MenuTrigger = fastComponentRef(function MenuTrigger(
     hoverProps ?? EMPTY_OBJECT,
     rootTriggerProps,
     {
-      'aria-haspopup': filterable ? 'dialog' : 'menu',
+      'aria-haspopup': filterIntegration ? 'dialog' : 'menu',
       'aria-controls': popupId,
       id: thisTriggerId,
       onMouseDown: (event: React.MouseEvent) => {
@@ -315,9 +314,9 @@ export const MenuTrigger = fastComponentRef(function MenuTrigger(
     />
   );
 
-  if (filterable) {
+  if (filterIntegration) {
     trigger = (
-      <FilterDropdownTrigger
+      <filterIntegration.Trigger
         id={thisTriggerId}
         disabled={disabled}
         detached={detached ? { open: isOpenedByThisTrigger, popupId } : undefined}

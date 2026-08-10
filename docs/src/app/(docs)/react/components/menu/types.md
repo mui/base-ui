@@ -1307,10 +1307,10 @@ type PayloadChildRenderFunction = (arg: { payload: unknown | undefined }) => Rea
 - `Menu.GroupLabel`: `Menu.GroupLabel`, `Menu.GroupLabel.Props`, `Menu.GroupLabel.State`
 - `Menu.Input`: `Menu.Input`, `Menu.Input.State`, `Menu.Input.Props`
 - `Menu.Clear`: `Menu.Clear`, `Menu.Clear.State`, `Menu.Clear.Props`
+- `Menu.Empty`: `Menu.Empty`, `Menu.Empty.State`, `Menu.Empty.Props`
 - `Menu.Item`: `Menu.Item`, `Menu.Item.State`, `Menu.Item.Props`
 - `Menu.LinkItem`: `Menu.LinkItem`, `Menu.LinkItem.State`, `Menu.LinkItem.Props`
 - `Menu.List`: `Menu.List`, `Menu.List.State`, `Menu.List.Props`
-- `Menu.Empty`: `Menu.Empty`, `Menu.Empty.State`, `Menu.Empty.Props`
 - `Menu.Popup`: `Menu.Popup`, `Menu.Popup.Props`, `Menu.Popup.State`
 - `Menu.Portal`: `Menu.Portal`, `Menu.Portal.State`, `Menu.Portal.Props`
 - `Menu.Positioner`: `Menu.Positioner`, `Menu.Positioner.State`, `Menu.Positioner.Props`
@@ -1325,7 +1325,7 @@ type PayloadChildRenderFunction = (arg: { payload: unknown | undefined }) => Rea
 - `Menu.SubmenuTrigger`: `Menu.SubmenuTrigger`, `Menu.SubmenuTrigger.Props`, `Menu.SubmenuTrigger.State`
 - `Menu.Handle`
 - `Menu.createHandle`
-- `Default`: `MenuRootState`, `MenuFilter`, `MenuRootProps`, `MenuRootActions`, `MenuRootChangeEventReason`, `MenuRootChangeEventDetails`, `MenuRootInputValueChangeEventReason`, `MenuRootInputValueChangeEventDetails`, `MenuRootOrientation`, `MenuParent`, `MenuArrowState`, `MenuArrowProps`, `MenuBackdropState`, `MenuBackdropProps`, `MenuCheckboxItemState`, `MenuCheckboxItemProps`, `MenuCheckboxItemChangeEventReason`, `MenuCheckboxItemChangeEventDetails`, `MenuCheckboxItemIndicatorProps`, `MenuCheckboxItemIndicatorState`, `MenuGroupLabelProps`, `MenuGroupLabelState`, `MenuGroupProps`, `MenuGroupState`, `MenuInputState`, `MenuInputProps`, `MenuClearState`, `MenuClearProps`, `MenuItemState`, `MenuItemProps`, `MenuLinkItemState`, `MenuLinkItemProps`, `MenuListState`, `MenuListProps`, `MenuEmptyState`, `MenuEmptyProps`, `MenuPopupProps`, `MenuPopupState`, `MenuPortalState`, `MenuPortalProps`, `MenuPositionerState`, `MenuPositionerProps`, `MenuRadioGroupProps`, `MenuRadioGroupState`, `MenuRadioGroupChangeEventReason`, `MenuRadioGroupChangeEventDetails`, `MenuRadioItemState`, `MenuRadioItemProps`, `MenuRadioItemIndicatorProps`, `MenuRadioItemIndicatorState`, `MenuSubmenuRootProps`, `MenuSubmenuRootState`, `MenuSubmenuRootChangeEventReason`, `MenuSubmenuRootChangeEventDetails`, `MenuTriggerProps`, `MenuTriggerState`, `MenuSubmenuTriggerState`, `MenuSubmenuTriggerProps`, `MenuViewportState`, `MenuViewportProps`
+- `Default`: `MenuRootState`, `MenuFilter`, `MenuRootProps`, `MenuRootActions`, `MenuRootChangeEventReason`, `MenuRootChangeEventDetails`, `MenuRootInputValueChangeEventReason`, `MenuRootInputValueChangeEventDetails`, `MenuRootOrientation`, `MenuParent`, `MenuArrowState`, `MenuArrowProps`, `MenuBackdropState`, `MenuBackdropProps`, `MenuCheckboxItemState`, `MenuCheckboxItemProps`, `MenuCheckboxItemChangeEventReason`, `MenuCheckboxItemChangeEventDetails`, `MenuCheckboxItemIndicatorProps`, `MenuCheckboxItemIndicatorState`, `MenuGroupLabelProps`, `MenuGroupLabelState`, `MenuGroupProps`, `MenuGroupState`, `MenuInputState`, `MenuInputProps`, `MenuClearState`, `MenuClearProps`, `MenuEmptyState`, `MenuEmptyProps`, `MenuItemState`, `MenuItemProps`, `MenuLinkItemState`, `MenuLinkItemProps`, `MenuListState`, `MenuListProps`, `MenuPopupProps`, `MenuPopupState`, `MenuPortalState`, `MenuPortalProps`, `MenuPositionerState`, `MenuPositionerProps`, `MenuRadioGroupProps`, `MenuRadioGroupState`, `MenuRadioGroupChangeEventReason`, `MenuRadioGroupChangeEventDetails`, `MenuRadioItemState`, `MenuRadioItemProps`, `MenuRadioItemIndicatorProps`, `MenuRadioItemIndicatorState`, `MenuSubmenuRootProps`, `MenuSubmenuRootState`, `MenuSubmenuRootChangeEventReason`, `MenuSubmenuRootChangeEventDetails`, `MenuTriggerProps`, `MenuTriggerState`, `MenuSubmenuTriggerState`, `MenuSubmenuTriggerProps`, `MenuViewportState`, `MenuViewportProps`
 
 ## Canonical Types
 
@@ -1349,14 +1349,14 @@ Maps `Canonical`: `Alias` — Use Canonical when its namespace is already import
 - `Menu.Input.Props`: `MenuInputProps`
 - `Menu.Clear.State`: `MenuClearState`
 - `Menu.Clear.Props`: `MenuClearProps`
+- `Menu.Empty.State`: `MenuEmptyState`
+- `Menu.Empty.Props`: `MenuEmptyProps`
 - `Menu.Item.State`: `MenuItemState`
 - `Menu.Item.Props`: `MenuItemProps`
 - `Menu.LinkItem.State`: `MenuLinkItemState`
 - `Menu.LinkItem.Props`: `MenuLinkItemProps`
 - `Menu.List.State`: `MenuListState`
 - `Menu.List.Props`: `MenuListProps`
-- `Menu.Empty.State`: `MenuEmptyState`
-- `Menu.Empty.Props`: `MenuEmptyProps`
 - `Menu.Popup.Props`: `MenuPopupProps`
 - `Menu.Popup.State`: `MenuPopupState`
 - `Menu.Portal.State`: `MenuPortalState`

@@ -43,6 +43,7 @@
     "./drawer": "./src/drawer/index.ts",
     "./field": "./src/field/index.ts",
     "./fieldset": "./src/fieldset/index.ts",
+    "./filterable-menu": "./src/filterable-menu/index.ts",
     "./form": "./src/form/index.ts",
     "./input": "./src/input/index.ts",
     "./menu": "./src/menu/index.ts",

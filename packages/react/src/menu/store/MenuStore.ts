@@ -2,6 +2,7 @@ import * as React from 'react';
 import { ReactStore } from '@base-ui/utils/store';
 import { EMPTY_OBJECT, NOOP } from '@base-ui/utils/empty';
 import type { InteractionType } from '@base-ui/utils/useEnhancedClickHandler';
+import type { MenuFilterIntegration } from '../root/MenuFilterIntegrationContext';
 import { MenuParent, MenuRoot } from '../root/MenuRoot';
 import { FloatingTreeStore } from '../../floating-ui-react/components/FloatingTreeStore';
 import { HTMLProps } from '../../internals/types';
@@ -21,6 +22,8 @@ export type State<Payload> = PopupStoreState<Payload> & {
   disabled: boolean;
   modal: boolean | undefined;
   filterable: boolean;
+  /** Filtering parts supplied by the `filterable-menu` entrypoint, or null for an ordinary menu. */
+  filterIntegration: MenuFilterIntegration | null;
   openMethod: InteractionType | null;
   allowMouseEnter: boolean;
   highlightItemOnHover: boolean;
@@ -64,6 +67,7 @@ const selectors = {
     (state.parent.type === undefined || state.parent.type === 'context-menu') &&
     (state.modal ?? true),
   filterable: (state: State<unknown>) => state.filterable,
+  filterIntegration: (state: State<unknown>) => state.filterIntegration,
   floatingId: (state: State<unknown>) => state.floatingId,
   openMethod: (state: State<unknown>) => state.openMethod,
   // Arrow keys open submenus through list navigation without dispatching a click, so
@@ -228,6 +232,7 @@ function createInitialState<Payload>(
     disabled: false,
     modal: true,
     filterable: false,
+    filterIntegration: null,
     openMethod: null,
     allowMouseEnter: false,
     highlightItemOnHover: true,

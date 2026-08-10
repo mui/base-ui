@@ -17,7 +17,6 @@ import { REASONS } from '../../internals/reasons';
 import { useToolbarRootContext } from '../../toolbar/root/ToolbarRootContext';
 import { COMPOSITE_KEYS } from '../../internals/composite/composite';
 import { getDisabledMountTransitionStyles } from '../../internals/getDisabledMountTransitionStyles';
-import { FilterDropdownPopup } from '../../filter-dropdown/popup/FilterDropdownPopup';
 
 const MenuPopupImpl = React.forwardRef(function MenuPopupImpl(
   componentProps: MenuPopup.Props,
@@ -34,7 +33,7 @@ const MenuPopupImpl = React.forwardRef(function MenuPopupImpl(
   const activeTriggerId = store.useState('activeTriggerId');
   const parent = store.useState('parent');
   const rootId = store.useState('rootId');
-  const filterable = store.select('filterable');
+  const filterIntegration = store.select('filterIntegration');
   const listElement = store.useState('listElement');
   const setPopupElement = store.useStateSetter('popupElement');
   const open = store.useState('open');
@@ -50,7 +49,8 @@ const MenuPopupImpl = React.forwardRef(function MenuPopupImpl(
   const disabled = store.useState('disabled');
 
   const isContextMenu = parent.type === 'context-menu';
-  const shouldFocusPopup = parent.type !== 'menu' || (filterable && openedByKeyboard);
+  const shouldFocusPopup =
+    parent.type !== 'menu' || (filterIntegration !== null && openedByKeyboard);
 
   useIsoLayoutEffect(() => {
     if (id) {
@@ -164,14 +164,14 @@ export const MenuPopup = React.forwardRef(function MenuPopup(
 ) {
   const { id: idProp } = componentProps;
   const { store, floatingId } = useMenuRootContext();
-  const filterable = store.select('filterable');
+  const filterIntegration = store.select('filterIntegration');
   const id = idProp ?? floatingId;
   const menuPopup = <MenuPopupImpl {...componentProps} id={id} ref={forwardedRef} />;
 
-  return filterable ? (
-    // FilterDropdownPopup composes onto MenuPopupImpl so its implementation
+  return filterIntegration ? (
+    // The filter wrapper composes onto MenuPopupImpl so its implementation
     // overrides MenuPopupImpl's implementation.
-    <FilterDropdownPopup id={id} render={menuPopup} />
+    <filterIntegration.Popup id={id} render={menuPopup} />
   ) : (
     menuPopup
   );
