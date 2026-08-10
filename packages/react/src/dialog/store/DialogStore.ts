@@ -26,15 +26,24 @@ export type State<Payload> = PopupStoreState<Payload> & {
   role: 'dialog' | 'alertdialog';
 };
 
+export interface NestedDialogCounts {
+  dialogCount: number;
+  drawerCount: number;
+}
+
 type Context = PopupStoreContext<DialogRoot.ChangeEventDetails> & {
   readonly popupRef: React.RefObject<HTMLElement | null>;
   readonly backdropRef: React.RefObject<HTMLDivElement | null>;
   readonly internalBackdropRef: React.RefObject<HTMLDivElement | null>;
   readonly outsidePressEnabledRef: React.MutableRefObject<boolean>;
+  /**
+   * Open nested dialogs keyed by the reporting child. Keyed rather than counted so sibling
+   * nested dialogs accumulate instead of overwriting each other's contribution.
+   */
+  readonly nestedDialogs: Map<symbol, NestedDialogCounts>;
   readonly onNestedDialogOpen?:
-    | ((childId: string, counts: { dialogCount: number; drawerCount: number } | null) => void)
+    | ((childKey: symbol, counts: NestedDialogCounts | null) => void)
     | undefined;
-  readonly nestedDialogs: Map<string, { dialogCount: number; drawerCount: number }>;
 };
 
 const selectors = {

@@ -56,16 +56,11 @@ describe('<Dialog.Root />', () => {
     let phase: 'mount' | 'teardown' = 'mount';
 
     Object.assign(parentStore.context, {
-      onNestedDialogOpen(dialogCount: number, drawerCount: number) {
-        if (drawerCount > 0 && mountedBeforePassiveEffect === null) {
+      onNestedDialogOpen(_childKey: symbol, counts: { drawerCount: number } | null) {
+        if (counts != null && counts.drawerCount > 0 && mountedBeforePassiveEffect === null) {
           mountedBeforePassiveEffect = !mountPassiveEffectFlushed;
         }
-        if (
-          phase === 'teardown' &&
-          dialogCount === 0 &&
-          drawerCount === 0 &&
-          unmountedBeforePassiveEffect === null
-        ) {
+        if (phase === 'teardown' && counts === null && unmountedBeforePassiveEffect === null) {
           unmountedBeforePassiveEffect = !teardownPassiveEffectFlushed;
         }
       },
