@@ -19,6 +19,14 @@ function isInteractiveTarget(event: React.SyntheticEvent<Element>) {
   return match != null && match !== event.currentTarget && contains(event.currentTarget, match);
 }
 
+export function getControlElement(labelElement: Element, controlId: string) {
+  // `getElementById` on the owner document cannot see into shadow roots.
+  const rootNode = labelElement.getRootNode() as Document | ShadowRoot;
+  return (
+    rootNode.getElementById?.(controlId) ?? ownerDocument(labelElement).getElementById(controlId)
+  );
+}
+
 export function useLabel(params: UseLabelParameters = {}): UseLabelReturnValue {
   const {
     id: idProp,
@@ -49,10 +57,7 @@ export function useLabel(params: UseLabelParameters = {}): UseLabelReturnValue {
       return;
     }
 
-    const rootNode = event.currentTarget.getRootNode() as Document | ShadowRoot;
-    const controlElement =
-      rootNode.getElementById?.(resolvedControlId) ??
-      ownerDocument(event.currentTarget).getElementById(resolvedControlId);
+    const controlElement = getControlElement(event.currentTarget, resolvedControlId);
     if (isHTMLElement(controlElement)) {
       focusElementWithVisible(controlElement);
     }
