@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 import * as React from 'react';
-import { act, render, waitFor } from '@testing-library/react';
+import { act, render, screen, waitFor } from '@testing-library/react';
 import { flushMicrotasks } from '@mui/internal-test-utils';
 import { ReactStore } from '@base-ui/utils/store';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
@@ -67,6 +67,7 @@ function TestTrigger({
 }) {
   const register = useTriggerRegistration(id, store);
 
+  // `register` is stable, so the caller owns migration by keying this effect on `[store, id]`.
   useIsoLayoutEffect(() => {
     for (let i = 0; i < repeat; i += 1) {
       register(element);
@@ -74,7 +75,7 @@ function TestTrigger({
     return () => {
       register(null);
     };
-  }, [register, repeat, element]);
+  }, [register, repeat, element, store, id]);
 
   return null;
 }
@@ -272,6 +273,107 @@ describe('useTriggerRegistration', () => {
     expect(store.context.triggerElements.hasElement(element)).toBe(false);
     expect(store.state.triggerCount).toBe(0);
     expect(spy).not.toHaveBeenCalled();
+  });
+
+  it('returns a stable callback that unregisters from the store it registered in', () => {
+    const first = createStore();
+    const second = createStore();
+    const element = document.createElement('button');
+    let registerRef: ((element: Element | null) => void) | null = null;
+
+    function Probe({ store }: { store: ReturnType<typeof createStore> }) {
+      const register = useTriggerRegistration('trigger', store);
+      registerRef = register;
+
+      useIsoLayoutEffect(() => {
+        register(element);
+        return () => register(null);
+      }, [register, store]);
+
+      return null;
+    }
+
+    const { rerender, unmount } = render(<Probe store={first} />);
+    const initialRegister = registerRef as unknown as (element: Element | null) => void;
+
+    expect(first.context.triggerElements.getById('trigger')).toBe(element);
+
+    rerender(<Probe store={second} />);
+
+    expect(registerRef).toBe(initialRegister);
+    expect(first.context.triggerElements.getById('trigger')).toBeUndefined();
+    expect(second.context.triggerElements.getById('trigger')).toBe(element);
+
+    // A retained callback from before the migration must still act on the current store.
+    const replacement = document.createElement('button');
+    act(() => {
+      initialRegister(null);
+      initialRegister(replacement);
+    });
+
+    expect(first.context.triggerElements.getById('trigger')).toBeUndefined();
+    expect(second.context.triggerElements.getById('trigger')).toBe(replacement);
+
+    unmount();
+    expect(second.context.triggerElements.getById('trigger')).toBeUndefined();
+  });
+
+  describe('callers that pass the callback straight into a ref', () => {
+    // Mirrors `Drawer.SwipeArea`: the callback is merged into the rendered element's ref, and the
+    // migration effect is what re-registers it when the id changes.
+    function RefOnlyTrigger({ id, store }: { id: string | undefined; store: TestStore }) {
+      const register = useTriggerRegistration(id, store);
+      const elementRef = React.useRef<HTMLButtonElement | null>(null);
+
+      useIsoLayoutEffect(() => {
+        register(elementRef.current);
+        return () => register(null);
+      }, [register, id, store]);
+
+      const handleRef = React.useCallback(
+        (element: HTMLButtonElement | null) => {
+          elementRef.current = element;
+          register(element);
+        },
+        [register],
+      );
+
+      return <button type="button" data-testid="trigger" ref={handleRef} />;
+    }
+
+    it('registers once the id resolves after the first commit', () => {
+      const store = createStore();
+
+      const { rerender } = render(<RefOnlyTrigger id={undefined} store={store} />);
+      const element = screen.getByTestId('trigger');
+
+      expect(store.context.triggerElements.size).toBe(0);
+
+      // React 17's `useId` fallback returns `undefined` on the first render and a real id after an
+      // effect commits.
+      rerender(<RefOnlyTrigger id="trigger" store={store} />);
+
+      expect(store.context.triggerElements.getById('trigger')).toBe(element);
+      expect(store.context.triggerElements.size).toBe(1);
+    });
+
+    it('follows an id change', () => {
+      const store = createStore();
+
+      const { rerender, unmount } = render(<RefOnlyTrigger id="first" store={store} />);
+      const element = screen.getByTestId('trigger');
+
+      expect(store.context.triggerElements.getById('first')).toBe(element);
+
+      rerender(<RefOnlyTrigger id="second" store={store} />);
+
+      expect(store.context.triggerElements.getById('first')).toBeUndefined();
+      expect(store.context.triggerElements.getById('second')).toBe(element);
+      expect(store.context.triggerElements.size).toBe(1);
+
+      unmount();
+      expect(store.context.triggerElements.size).toBe(0);
+    });
   });
 
   it('keeps triggerCount reactive while the popup is open', () => {
