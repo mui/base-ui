@@ -2,7 +2,7 @@ import { expect, vi } from 'vitest';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
-import { createRenderer, screen, fireEvent } from '@mui/internal-test-utils';
+import { createRenderer, screen, fireEvent, waitFor } from '@mui/internal-test-utils';
 import { CheckboxGroup } from '@base-ui/react/checkbox-group';
 import { Checkbox } from '@base-ui/react/checkbox';
 import { Field } from '@base-ui/react/field';
@@ -10,7 +10,7 @@ import { Form } from '@base-ui/react/form';
 import { describeConformance, isJSDOM } from '#test-utils';
 
 describe('<CheckboxGroup />', () => {
-  const { render } = createRenderer();
+  const { render, renderToString } = createRenderer();
 
   describeConformance(<CheckboxGroup />, () => ({
     inheritComponent: 'div',
@@ -825,6 +825,85 @@ describe('<CheckboxGroup />', () => {
   });
 
   describe('Field.Label', () => {
+    it.each([
+      { nativeButton: false, parent: false },
+      { nativeButton: true, parent: false },
+      { nativeButton: false, parent: true },
+      { nativeButton: true, parent: true },
+    ])(
+      'associates a group-derived Checkbox id during SSR (nativeButton=$nativeButton, parent=$parent)',
+      ({ nativeButton, parent }) => {
+        renderToString(
+          <Field.Root name="apple">
+            <CheckboxGroup allValues={['fuji']}>
+              <Field.Item>
+                <Field.Label data-testid="label">Fuji</Field.Label>
+                <Checkbox.Root
+                  parent={parent}
+                  value={parent ? undefined : 'fuji'}
+                  nativeButton={nativeButton}
+                  render={nativeButton ? <button /> : undefined}
+                />
+              </Field.Item>
+            </CheckboxGroup>
+          </Field.Root>,
+        );
+
+        const control = nativeButton
+          ? screen.getByRole('checkbox')
+          : document.querySelector<HTMLInputElement>('input[type="checkbox"]')!;
+        expect(control.id).not.toBe('');
+        expect(screen.getByTestId('label')).toHaveAttribute('for', control.id);
+      },
+    );
+
+    it.each([false, true])(
+      'preserves parent aria-controls during SSR (nativeButton=%s)',
+      async (nativeButton) => {
+        const { hydrate } = renderToString(
+          <Field.Root name="apple">
+            <CheckboxGroup allValues={['fuji']}>
+              <Field.Item>
+                <Field.Label data-testid="label">All</Field.Label>
+                <Checkbox.Root
+                  parent
+                  data-testid="parent"
+                  nativeButton={nativeButton}
+                  render={nativeButton ? <button /> : undefined}
+                />
+              </Field.Item>
+              <Field.Item>
+                <Field.Label data-testid="label">Fuji</Field.Label>
+                <Checkbox.Root
+                  value="fuji"
+                  nativeButton={nativeButton}
+                  render={nativeButton ? <button /> : undefined}
+                />
+              </Field.Item>
+            </CheckboxGroup>
+          </Field.Root>,
+        );
+
+        const controls = screen.getAllByRole('checkbox', { hidden: true });
+        const controlledId = screen.getByTestId('parent').getAttribute('aria-controls')!;
+        expect(controls).toContain(document.getElementById(controlledId));
+        expect(document.querySelectorAll(`[id="${controlledId}"]`)).toHaveLength(1);
+
+        screen.getAllByTestId('label').forEach((label) => {
+          expect(controls).toContain(document.getElementById(label.getAttribute('for')!));
+        });
+
+        hydrate();
+
+        await waitFor(() => {
+          expect(document.querySelectorAll(`[id="${controlledId}"]`)).toHaveLength(1);
+        });
+        expect(screen.getAllByRole('checkbox', { hidden: true })).toContain(
+          document.getElementById(controlledId),
+        );
+      },
+    );
+
     it('implicit association', async () => {
       const changeSpy = vi.fn();
       render(

@@ -4,11 +4,9 @@ import { EMPTY_OBJECT } from '@base-ui/utils/empty';
 import { useControlled } from '@base-ui/utils/useControlled';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
-import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { visuallyHidden, visuallyHiddenInput } from '@base-ui/utils/visuallyHidden';
 import { ownerWindow } from '@base-ui/utils/owner';
 import { getDefaultFormSubmitter } from '@base-ui/utils/getDefaultFormSubmitter';
-import { NOOP } from '../../internals/noop';
 import { getCheckboxStateAttributesMapping } from '../utils/getCheckboxStateAttributesMapping';
 import { dispatchClickWithModifiers } from '../../utils/dispatchClickWithModifiers';
 import { useRenderElement } from '../../internals/useRenderElement';
@@ -27,6 +25,7 @@ import { useFieldItemContext } from '../../field/item/FieldItemContext';
 import { useFormContext } from '../../internals/form-context/FormContext';
 import { useLabelableContext } from '../../internals/labelable-provider/LabelableContext';
 import { useAriaLabelledBy } from '../../internals/labelable-provider/useAriaLabelledBy';
+import { useLabelableId } from '../../internals/labelable-provider/useLabelableId';
 import { useCheckboxGroupContext } from '../../checkbox-group/CheckboxGroupContext';
 import { CheckboxRootContext } from './CheckboxRootContext';
 import {
@@ -85,7 +84,7 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
     validation: localValidation,
   } = useFieldRootContext();
   const fieldItemContext = useFieldItemContext();
-  const { labelId, controlId, registerControlId, getDescriptionProps } = useLabelableContext();
+  const { labelId, getDescriptionProps } = useLabelableContext();
 
   const groupContext = useCheckboxGroupContext();
   const parentContext = groupContext?.allValues === undefined ? undefined : groupContext.parent;
@@ -98,17 +97,20 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
 
   const id = useBaseUiId();
 
-  const generatedInputId = useBaseUiId();
-  let inputId = idProp || controlId;
+  const groupInputId =
+    isGroupedWithParent && !parent && value !== undefined && parentContext.id !== undefined
+      ? `${parentContext.id}-${value}`
+      : undefined;
+  let inputIdToRegister = idProp || undefined;
   if (isGroupedWithParent) {
     if (parent) {
-      inputId = generatedInputId;
-    } else if (value !== undefined) {
-      inputId = `${parentContext.id}-${value}`;
-    } else {
-      inputId ||= generatedInputId;
+      inputIdToRegister = nativeButton ? parentContext.id : undefined;
+    } else if (groupInputId !== undefined) {
+      inputIdToRegister = groupInputId;
     }
   }
+  const inputId = useLabelableId({ id: inputIdToRegister });
+  const pendingGroupInputId = groupInputId !== inputId ? groupInputId : undefined;
 
   let groupProps: Partial<Omit<CheckboxRoot.Props, 'className'>> = {};
   if (isGroupedWithParent) {
@@ -119,18 +121,20 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
     }
   }
 
+  const groupId = groupProps.id;
   const {
     checked: groupChecked = checkedProp,
     indeterminate: groupIndeterminate = indeterminate,
     onCheckedChange: groupOnChange,
     ...otherGroupProps
   } = groupProps;
+  if (nativeButton) {
+    delete otherGroupProps.id;
+  }
 
   const groupValue = groupContext?.value;
 
   const controlRef = React.useRef<HTMLButtonElement>(null);
-  const controlSourceRef = useRefWithInit(() => Symbol());
-  const hasRegisteredRef = React.useRef(false);
 
   const { getButtonProps, buttonRef } = useButton({
     disabled,
@@ -153,31 +157,6 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
   const computedIndeterminate = isGroupedWithParent
     ? groupIndeterminate || indeterminate
     : indeterminate;
-
-  // can't use useLabelableId because of optional groupContext and/or parent
-  useIsoLayoutEffect(() => {
-    if (registerControlId === NOOP) {
-      return undefined;
-    }
-
-    hasRegisteredRef.current = true;
-    registerControlId(controlSourceRef.current, inputId);
-
-    return undefined;
-  }, [inputId, registerControlId, controlSourceRef]);
-
-  React.useEffect(() => {
-    const controlSource = controlSourceRef.current;
-
-    return () => {
-      if (!hasRegisteredRef.current || registerControlId === NOOP) {
-        return;
-      }
-
-      hasRegisteredRef.current = false;
-      registerControlId(controlSource, undefined);
-    };
-  }, [registerControlId, controlSourceRef]);
 
   useRegisterFieldControl(controlRef, id, checked, undefined, !groupContext && !disabled, nameProp);
 
@@ -228,7 +207,7 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
       name: parent ? undefined : name,
       // Set `id` to stop Chrome warning about an unassociated input.
       // When using a native button, the `id` is applied to the button instead.
-      id: nativeButton ? undefined : (inputId ?? undefined),
+      id: nativeButton ? pendingGroupInputId : (inputId ?? undefined),
       required,
       ref: mergedInputRef,
       style: name ? visuallyHiddenInput : visuallyHidden,
@@ -321,7 +300,7 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
     ref: [buttonRef, controlRef, forwardedRef],
     props: [
       {
-        id: nativeButton ? (inputId ?? undefined) : id,
+        id: nativeButton ? (inputId ?? undefined) : (pendingGroupInputId ?? groupId ?? id),
         role: 'checkbox',
         'aria-checked': computedIndeterminate ? 'mixed' : computedChecked,
         'aria-readonly': readOnly || undefined,

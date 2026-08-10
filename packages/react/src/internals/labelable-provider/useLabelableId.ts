@@ -12,7 +12,7 @@ export function useLabelableId(params: UseLabelableIdParameters = {}) {
 
   const { controlId, registerControlId } = useLabelableContext();
 
-  const defaultId = useBaseUiId(id);
+  const defaultId = useBaseUiId();
 
   const controlSourceRef = useRefWithInit(() => Symbol());
   const hasRegisteredRef = React.useRef(false);
@@ -64,10 +64,10 @@ export function useLabelableId(params: UseLabelableIdParameters = {}) {
     return unregisterControlId;
   }, [unregisterControlId]);
 
-  // Don't let an explicit `id` preempt the selected id: during SSR the label renders
-  // `htmlFor` from the provider's pre-registration state, and preempting it here would
-  // desynchronize the pair until hydration.
-  return controlId ?? defaultId;
+  // Don't let an explicit `id` preempt the provider's selected id: during SSR the label
+  // renders `htmlFor` from the provider's pre-registration state, and preempting it here
+  // would desynchronize the pair until hydration.
+  return controlId ?? id ?? defaultId;
 }
 
 export interface UseLabelableIdParameters {

@@ -8,7 +8,7 @@ import { Form } from '@base-ui/react/form';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 
 describe('<Checkbox.Root />', () => {
-  const { render } = createRenderer();
+  const { render, renderToString } = createRenderer();
 
   describeConformance(<Checkbox.Root />, () => ({
     refInstanceof: window.HTMLSpanElement,
@@ -33,6 +33,85 @@ describe('<Checkbox.Root />', () => {
       const { container } = await render(<Checkbox.Root role="switch" />);
       expect(container.firstElementChild as HTMLElement).toHaveAttribute('role', 'switch');
     });
+  });
+
+  describe('id', () => {
+    function TestCase(props: {
+      checkboxId?: string | undefined;
+      checkboxKey?: React.Key | undefined;
+      nativeButton: boolean;
+    }) {
+      const { checkboxId, checkboxKey, nativeButton } = props;
+
+      return (
+        <Field.Root>
+          <Field.Label data-testid="label">Label</Field.Label>
+          <Checkbox.Root
+            key={checkboxKey}
+            id={checkboxId}
+            nativeButton={nativeButton}
+            render={nativeButton ? <button /> : undefined}
+          />
+        </Field.Root>
+      );
+    }
+
+    function getLabelControl(nativeButton: boolean) {
+      return nativeButton
+        ? screen.getByRole('checkbox')
+        : document.querySelector<HTMLInputElement>('input[type="checkbox"]')!;
+    }
+
+    it.each([false, true])(
+      'drops an explicit id when the prop is removed (nativeButton=%s)',
+      async (nativeButton) => {
+        const { rerender } = await render(
+          <TestCase checkboxId="explicit" nativeButton={nativeButton} />,
+        );
+
+        const label = screen.getByTestId('label');
+        expect(getLabelControl(nativeButton)).toHaveAttribute('id', 'explicit');
+        expect(label).toHaveAttribute('for', 'explicit');
+
+        await rerender(<TestCase nativeButton={nativeButton} />);
+
+        const control = getLabelControl(nativeButton);
+        expect(control.id).not.toBe('');
+        expect(control).not.toHaveAttribute('id', 'explicit');
+        expect(label).toHaveAttribute('for', control.id);
+      },
+    );
+
+    it.each([false, true])(
+      'does not reuse an unmounted Checkbox id for a keyed id-less Checkbox (nativeButton=%s)',
+      async (nativeButton) => {
+        const { rerender } = await render(
+          <TestCase checkboxKey="explicit" checkboxId="explicit" nativeButton={nativeButton} />,
+        );
+
+        const label = screen.getByTestId('label');
+        expect(getLabelControl(nativeButton)).toHaveAttribute('id', 'explicit');
+        expect(label).toHaveAttribute('for', 'explicit');
+
+        await rerender(<TestCase checkboxKey="generated" nativeButton={nativeButton} />);
+
+        const control = getLabelControl(nativeButton);
+        expect(control.id).not.toBe('');
+        expect(control).not.toHaveAttribute('id', 'explicit');
+        expect(label).toHaveAttribute('for', control.id);
+      },
+    );
+
+    it.each([false, true])(
+      'associates an explicit id with Field.Label during SSR (nativeButton=%s)',
+      (nativeButton) => {
+        renderToString(<TestCase checkboxId="explicit" nativeButton={nativeButton} />);
+
+        const control = getLabelControl(nativeButton);
+        expect(control.id).not.toBe('');
+        expect(screen.getByTestId('label')).toHaveAttribute('for', control.id);
+      },
+    );
   });
 
   describe('prop: onClick', () => {
