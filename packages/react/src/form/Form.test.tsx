@@ -665,11 +665,12 @@ describe('<Form />', () => {
     });
 
     it('removes errors for every field that changes within a single commit', async () => {
-      const errors = { a: 'A error', b: 'B error' };
+      const errors = { a: 'A error', b: 'B error', c: 'C error' };
 
       function MultiChangeApp() {
         const [a, setA] = React.useState(false);
         const [b, setB] = React.useState(false);
+        const [c, setC] = React.useState(false);
 
         return (
           <Form errors={errors}>
@@ -680,6 +681,10 @@ describe('<Form />', () => {
             <Field.Root name="b">
               <Switch.Root checked={b} onCheckedChange={setB} />
               <Field.Error data-testid="b-error" />
+            </Field.Root>
+            <Field.Root name="c">
+              <Switch.Root checked={c} onCheckedChange={setC} />
+              <Field.Error data-testid="c-error" />
             </Field.Root>
             <button
               type="button"
@@ -698,11 +703,13 @@ describe('<Form />', () => {
 
       expect(screen.queryByTestId('a-error')).not.toBe(null);
       expect(screen.queryByTestId('b-error')).not.toBe(null);
+      expect(screen.queryByTestId('c-error')).not.toBe(null);
 
       fireEvent.click(screen.getByText('Change both'));
 
       expect(screen.queryByTestId('a-error')).toBe(null);
       expect(screen.queryByTestId('b-error')).toBe(null);
+      expect(screen.queryByTestId('c-error')).not.toBe(null);
     });
   });
 
