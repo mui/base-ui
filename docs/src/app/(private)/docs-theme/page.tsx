@@ -5,12 +5,27 @@ import 'docs/src/css/index.css';
 
 import styles from './page.module.css';
 
-const coreScaleSteps = ['s1', 's2', 'c1', 'c2', 'c3', 'p1', 'p2', 't1', 't2'] as const;
-const coreColorRows = ['gray', 'indigo'] as const;
-const accentColorRows = ['poppy', 'blue', 'green', 'orange', 'pink', 'grape', 'lime'] as const;
-const alphaColorRows = ['blackA'] as const;
-const alphaScaleSteps = ['1', '2', '3', '4', '5', '6'] as const;
+const coreScaleSteps = [
+  's1',
+  's2',
+  'c1',
+  'c2',
+  'c3',
+  'p1',
+  'p2',
+  'p3',
+  'p4',
+  't1',
+  't2',
+  't3',
+] as const;
+const coreColorRows = ['gray'] as const;
+const accentColorRows = ['poppy', 'green'] as const;
+const alphaColorRows = ['gray'] as const;
+const alphaScaleSteps = ['a1', 'a2', 'a3', 'a4', 'a5'] as const;
 const allCoreRows = [...coreColorRows, ...accentColorRows];
+
+const surfaceTokens = ['canvas', 'surface', 'panel'] as const;
 
 const typefaces = [
   { token: 'font-sans', sample: 'Die Grotesk A for UI copy' },
@@ -27,7 +42,6 @@ const fontWeights = [
 const fontSizeScale = ['12', '14', '15', '16', '18', '21', '24', '36', '42'] as const;
 const spaceScale = ['4', '8', '12', '16', '20', '24', '28', '32', '40', '48'] as const;
 const radiusScale = ['2', '3', '4', '6', '8', '12', '16', 'pill', 'circle'] as const;
-const shadows = ['1', '2', '3', '4', '5'] as const;
 
 export default function ThemePage() {
   return (
@@ -118,6 +132,20 @@ export default function ThemePage() {
             ))}
           </div>
         </div>
+
+        <div className={styles.colorMatrixSection}>
+          <div className={styles.surfaceGrid}>
+            {surfaceTokens.map((token) => (
+              <article key={token} className={styles.surfaceCard}>
+                <p className={styles.tokenName}>--{token}</p>
+                <div
+                  className={styles.surfaceSwatch}
+                  style={{ backgroundColor: `var(--${token})` }}
+                />
+              </article>
+            ))}
+          </div>
+        </div>
       </section>
 
       <section className={styles.section}>
@@ -188,20 +216,6 @@ export default function ThemePage() {
                 style={{
                   borderRadius: `var(--radius-${step})`,
                 }}
-              />
-            </article>
-          ))}
-        </div>
-      </section>
-
-      <section className={styles.section}>
-        <div className={styles.shadowGrid}>
-          {shadows.map((step) => (
-            <article key={step} className={styles.shadowCard}>
-              <p className={styles.tokenName}>--shadow-{step}</p>
-              <div
-                className={styles.shadowSurface}
-                style={{ boxShadow: `var(--shadow-${step})` }}
               />
             </article>
           ))}
