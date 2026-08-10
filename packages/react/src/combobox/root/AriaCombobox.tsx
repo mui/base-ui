@@ -20,7 +20,7 @@ import {
   useClick,
 } from '../../floating-ui-react';
 import { gridNavigation } from '../../floating-ui-react/hooks/gridNavigation';
-import { contains, getTarget } from '../../floating-ui-react/utils';
+import { closest, contains, getTarget } from '../../floating-ui-react/utils';
 import {
   createChangeEventDetails,
   createGenericEventDetails,
@@ -729,7 +729,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
       const eventDetails = createChangeEventDetails(REASONS.itemPress, overrideEvent);
 
       // Let the link handle the click.
-      const href = targetEl?.closest('a')?.getAttribute('href');
+      const href = closest(targetEl, 'a')?.getAttribute('href');
       if (href) {
         if (href.startsWith('#')) {
           setOpen(false, eventDetails);
@@ -832,7 +832,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
   // `role=dialog` part must be the animated element.
   const resolvedPopupRef: React.RefObject<HTMLElement | null> = React.useMemo(() => {
     if (inline && positionerElement) {
-      return { current: positionerElement.closest('[role="dialog"]') };
+      return { current: closest(positionerElement, '[role="dialog"]') };
     }
     return popupRef;
   }, [inline, positionerElement]);

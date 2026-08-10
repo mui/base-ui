@@ -30,7 +30,7 @@ import { DrawerBackdropCssVars } from '../backdrop/DrawerBackdropCssVars';
 import { DRAWER_CONTENT_ATTRIBUTE } from '../content/DrawerContentDataAttributes';
 import { REASONS } from '../../internals/reasons';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
-import { activeElement, contains, getTarget } from '../../floating-ui-react/utils';
+import { activeElement, closest, contains, getTarget } from '../../floating-ui-react/utils';
 import { DrawerViewportContext } from './DrawerViewportContext';
 import { TransitionStatusDataAttributes } from '../../internals/stateAttributesMapping';
 import { findScrollableTouchTarget, type ScrollAxis } from '../../utils/scrollable';
@@ -1025,11 +1025,11 @@ function setBackdropSwipingAttribute(backdropElement: HTMLElement | null, swipin
 }
 
 function isSwipeIgnoredTarget(target: Element | null): boolean {
-  return Boolean(target?.closest(BASE_UI_SWIPE_IGNORE_SELECTOR));
+  return Boolean(closest(target, BASE_UI_SWIPE_IGNORE_SELECTOR));
 }
 
 function isDrawerContentTarget(target: Element | null): boolean {
-  return Boolean(target?.closest(DRAWER_CONTENT_SELECTOR));
+  return Boolean(closest(target, DRAWER_CONTENT_SELECTOR));
 }
 
 function getBaseSwipeSize(element: HTMLElement, direction: SwipeDirection): number {
