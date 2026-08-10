@@ -25,7 +25,7 @@ jobs:
       # missing token is only visible in the Actions tab.
       pull-requests: write
     steps:
-      - name: Verify commenter and request full benchmark
+      - name: Authorize and request full benchmark
         uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
         env:
           CIRCLECI_TOKEN: ${{ secrets.CIRCLECI_TOKEN }}
@@ -57,14 +57,17 @@ jobs:
               }
             };
 
-            const { data: permission } = await attempt(
+            const hasWriteAccess = (permission) =>
+              permission === 'admin' || permission === 'write';
+
+            const { data: commenterPermission } = await attempt(
               github.rest.repos.getCollaboratorPermissionLevel({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
                 username: context.payload.comment.user.login,
               }),
             );
-            if (permission.permission !== 'admin' && permission.permission !== 'write') {
+            if (!hasWriteAccess(commenterPermission.permission)) {
               await reply('Only maintainers with write access can request a full benchmark.');
               core.setFailed('Only maintainers with write access can request a full benchmark.');
               return;
@@ -82,6 +85,22 @@ jobs:
               core.setFailed('Full benchmarks can only be requested for an open pull request.');
               return;
             }
+
+            const { data: authorPermission } = await attempt(
+              github.rest.repos.getCollaboratorPermissionLevel({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                username: pr.user.login,
+              }),
+            );
+            if (!hasWriteAccess(authorPermission.permission)) {
+              const message =
+                'Full benchmarks can only run on pull requests authored by maintainers with write access.';
+              await reply(message);
+              core.setFailed(message);
+              return;
+            }
+
             const headSha = pr.head.sha;
 
             // This is a compatibility check, not a trust boundary. CircleCI loads its job from
