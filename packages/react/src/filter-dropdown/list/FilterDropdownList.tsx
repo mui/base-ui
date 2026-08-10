@@ -4,6 +4,7 @@ import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import type { BaseUIComponentProps } from '../../internals/types';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { useFilterDropdownPopupContext } from '../popup/FilterDropdownPopupContext';
+import { useFilterDropdownRootContext } from '../root/FilterDropdownRootContext';
 
 /**
  * @internal
@@ -13,9 +14,12 @@ export const FilterDropdownList = React.forwardRef(function FilterDropdownList(
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const { render, className, style, id: idProp, ...elementProps } = componentProps;
+  const rootContext = useFilterDropdownRootContext();
   const popupContext = useFilterDropdownPopupContext();
   const { setListId } = popupContext;
   const id = idProp ?? popupContext.listId;
+  const hasAriaLabel = elementProps['aria-label'] || elementProps['aria-labelledby'];
+  const ariaLabelledBy = hasAriaLabel ? elementProps['aria-labelledby'] : rootContext.triggerId;
 
   useIsoLayoutEffect(() => {
     setListId(id);
@@ -27,6 +31,7 @@ export const FilterDropdownList = React.forwardRef(function FilterDropdownList(
       {
         role: 'menu',
         id,
+        'aria-labelledby': ariaLabelledBy,
         // Prevent scrollable lists from being focusable with virtual cursor on tab keypress.
         tabIndex: -1,
         onMouseDown(event) {

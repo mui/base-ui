@@ -302,9 +302,14 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     (nextInputValue: string, eventDetails: SelectRoot.InputValueChangeEventDetails) => {
       onInputValueChange?.(nextInputValue, eventDetails);
 
-      if (!eventDetails.isCanceled) {
-        setInputValue(nextInputValue);
+      if (eventDetails.isCanceled || nextInputValue === inputValue) {
+        return;
       }
+
+      setInputValue(nextInputValue);
+      // Filtering compacts the list, so a numeric active index would point at a different item
+      // or at none at all. Return virtual focus to the input instead.
+      store.set('activeIndex', null);
     },
   );
 
@@ -321,6 +326,12 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     // element is the filter input and not a select item.
     store.state.listElement?.scrollTo?.({ top: 0 });
     setMounted(false);
+
+    // The filter root outlives the popup. Reset only on unmount so the filtered contents stay
+    // stable during an exit transition, and a prevented or interrupted unmount keeps the query.
+    if (inputValue !== '') {
+      handleInputValueChange('', createChangeEventDetails(REASONS.popupClose));
+    }
 
     onOpenChangeComplete?.(false);
   });
@@ -688,7 +699,11 @@ export interface SelectFilter extends FilterDropdownFilter {}
 
 interface SelectRootFilterEnabledProps {
   /**
-   * Enables filtering. Pass a function to customize how items match the query.
+   * Enables filtering. Pass a function to customize how items match the query; it receives the
+   * item's `label` (falling back to its rendered text) and the trimmed query.
+   *
+   * Read once when the select mounts. Give `Select.Root` a different `key` to switch a select
+   * between filterable and non-filterable.
    * @default false
    */
   filter: true | SelectFilter;
@@ -886,7 +901,8 @@ export type SelectRootChangeEventDetails = BaseUIChangeEventDetails<SelectRootCh
 export type SelectRootInputValueChangeEventReason =
   | typeof REASONS.inputChange
   | typeof REASONS.inputClear
-  | typeof REASONS.clearPress;
+  | typeof REASONS.clearPress
+  | typeof REASONS.popupClose;
 
 export type SelectRootInputValueChangeEventDetails =
   BaseUIChangeEventDetails<SelectRootInputValueChangeEventReason>;

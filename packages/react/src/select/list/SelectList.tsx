@@ -61,8 +61,10 @@ export const SelectList = React.forwardRef(function SelectList(
   const { store } = useSelectRootContext();
   const filterable = useStore(store, selectors.filterable);
   const rootId = useStore(store, selectors.id);
-  const id = `${rootId}-list`;
-  const selectList = <SelectListImpl id={id} {...componentProps} ref={forwardedRef} />;
+  // Resolve once so the filter wrapper registers the same id the DOM element ends up with,
+  // otherwise a consumer id leaves the trigger and input pointing at nothing.
+  const id = componentProps.id ?? `${rootId}-list`;
+  const selectList = <SelectListImpl {...componentProps} id={id} ref={forwardedRef} />;
 
   return filterable ? (
     // FilterDropdownList composes onto SelectListImpl so its implementation

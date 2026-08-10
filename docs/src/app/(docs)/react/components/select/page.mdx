@@ -185,6 +185,18 @@ import { DemoSelectFilterable } from './demos/filterable';
 
 <DemoSelectFilterable />
 
+The filter is fixed when the select mounts. To switch a select between filterable and non-filterable, give `<Select.Root>` a different `key` so it remounts.
+
+Give `<Select.Input>` its own accessible name with `aria-label` or a native `<label>`. `<Select.Label>` labels the trigger, not the input.
+
+Pass a function to `filter` to customize matching. It is called with the item's text and the trimmed query, and returns whether the item matches:
+
+```jsx title="Custom filter"
+<Select.Root filter={(itemText, query) => itemText.toLowerCase().startsWith(query.toLowerCase())}>
+```
+
+The first argument is the item's `label` prop, falling back to its rendered text content. This differs from [Combobox](/react/components/combobox), which filters on item values.
+
 ### Multiple selection
 
 Add the `multiple` prop to the `<Select.Root>` component to allow multiple selections.

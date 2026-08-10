@@ -49,7 +49,8 @@ export function useFilterDropdownValueContext() {
 export type FilterDropdownRootChangeEventReason =
   | typeof REASONS.inputChange
   | typeof REASONS.inputClear
-  | typeof REASONS.clearPress;
+  | typeof REASONS.clearPress
+  | typeof REASONS.popupClose;
 
 export type FilterDropdownRootChangeEventDetails =
   BaseUIChangeEventDetails<FilterDropdownRootChangeEventReason>;

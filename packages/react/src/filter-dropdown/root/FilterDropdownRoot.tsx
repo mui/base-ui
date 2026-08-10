@@ -31,10 +31,15 @@ export function FilterDropdownRoot(props: FilterDropdownRoot.Props): React.JSX.E
   const parentContext = React.useContext(FilterDropdownRootContext);
   const [liveRegionElement, setLiveRegionElement] = React.useState<HTMLDivElement | null>(null);
   const [registeredTriggerElement, setTriggerElement] = React.useState<HTMLElement | null>(null);
-  const [registeredTriggerId, setTriggerId] = React.useState<string | undefined>(useBaseUiId());
-  const [popupId, setPopupId] = React.useState<string | undefined>(useBaseUiId());
+  const [registeredTriggerId, setTriggerId] = React.useState<string | undefined>(undefined);
+  const [registeredPopupId, setPopupId] = React.useState<string | undefined>(undefined);
+  // React 17 resolves generated ids in an effect, so they must be read live rather than captured
+  // in a state initializer.
+  const defaultTriggerId = useBaseUiId();
+  const defaultPopupId = useBaseUiId();
   const triggerElement = externalTriggerElement ?? registeredTriggerElement;
-  const triggerId = externalTriggerId ?? registeredTriggerId;
+  const triggerId = externalTriggerId ?? registeredTriggerId ?? defaultTriggerId;
+  const popupId = registeredPopupId ?? defaultPopupId;
   const handleValueChange = useStableCallback(onValueChange);
 
   // Nested popups can be portalled while their events still bubble through the parent React tree.

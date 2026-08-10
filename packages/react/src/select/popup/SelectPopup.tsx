@@ -511,8 +511,10 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
   const { store } = useSelectRootContext();
   const filterable = useStore(store, selectors.filterable);
   const rootId = useStore(store, selectors.id);
-  const id = `${rootId}-popup`;
-  const selectPopup = <SelectPopupImpl id={id} {...componentProps} ref={forwardedRef} />;
+  // Resolve once so the filter wrapper registers the same id the DOM element ends up with,
+  // otherwise a consumer id leaves the trigger pointing at nothing.
+  const id = componentProps.id ?? `${rootId}-popup`;
+  const selectPopup = <SelectPopupImpl {...componentProps} id={id} ref={forwardedRef} />;
 
   return filterable ? (
     // FilterDropdownPopup composes onto SelectPopupImpl so its implementation

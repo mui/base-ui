@@ -139,40 +139,6 @@ describe('<FilterDropdown.Root />', () => {
     expect(childInput).toHaveFocus();
   });
 
-  it('resets the controlled value when the popup closes', async () => {
-    function App() {
-      const [open, setOpen] = React.useState(true);
-      const [value, setValue] = React.useState('');
-
-      return (
-        <FilterDropdown.Root open={open} value={value} onValueChange={setValue}>
-          <FilterDropdown.Popup id={undefined}>
-            <FilterDropdown.Input aria-label="Filter countries" />
-            <FilterDropdown.List id={undefined}>
-              <FilterDropdown.Item label="Canada">Canada</FilterDropdown.Item>
-            </FilterDropdown.List>
-          </FilterDropdown.Popup>
-          <button type="button" onClick={() => setOpen(false)}>
-            Close popup
-          </button>
-        </FilterDropdown.Root>
-      );
-    }
-
-    const { user } = await render(<App />);
-
-    const input = screen.getByRole('searchbox', { name: 'Filter countries' });
-    await user.type(input, 'can');
-
-    expect(input).toHaveValue('can');
-
-    await user.click(screen.getByRole('button', { name: 'Close popup' }));
-
-    await waitFor(() => {
-      expect(input).toHaveValue('');
-    });
-  });
-
   it('updates relationships when id props change', async () => {
     function App() {
       const [version, setVersion] = React.useState('first');
@@ -232,6 +198,74 @@ describe('<FilterDropdown.Root />', () => {
       expect(screen.getByText('Canada')).not.toBe(null);
     });
     expect(screen.queryByText('Japan')).toBe(null);
+  });
+
+  it('refilters an item when its rendered text changes without a label', async () => {
+    function App() {
+      const [text, setText] = React.useState('Canada');
+      const [value, setValue] = React.useState('');
+
+      return (
+        <FilterDropdown.Root open value={value} onValueChange={setValue}>
+          <FilterDropdown.Popup id={undefined}>
+            <FilterDropdown.Input aria-label="Filter countries" />
+            <FilterDropdown.List id={undefined}>
+              <FilterDropdown.Item>{text}</FilterDropdown.Item>
+            </FilterDropdown.List>
+          </FilterDropdown.Popup>
+          <button type="button" onClick={() => setText('Japan')}>
+            Rename
+          </button>
+        </FilterDropdown.Root>
+      );
+    }
+
+    const { user } = await render(<App />);
+
+    await user.type(screen.getByRole('searchbox', { name: 'Filter countries' }), 'can');
+
+    await waitFor(() => {
+      expect(screen.getByRole('menuitem')).toHaveTextContent('Canada');
+    });
+
+    await user.click(screen.getByRole('button', { name: 'Rename' }));
+
+    // "Japan" no longer matches the active "can" query.
+    await waitFor(() => {
+      expect(screen.queryByRole('menuitem')).toBe(null);
+    });
+  });
+
+  it('keeps the live region in sync with a changing Empty message', async () => {
+    function App() {
+      const [value, setValue] = React.useState('zz');
+
+      return (
+        <FilterDropdown.Root open value={value} onValueChange={setValue}>
+          <FilterDropdown.Trigger id={undefined}>Choose a country</FilterDropdown.Trigger>
+          <FilterDropdown.Popup id={undefined}>
+            <FilterDropdown.Input aria-label="Filter countries" />
+            <FilterDropdown.Empty>No matches for {value}</FilterDropdown.Empty>
+            <FilterDropdown.List id={undefined}>
+              <FilterDropdown.Item label="Canada">Canada</FilterDropdown.Item>
+            </FilterDropdown.List>
+          </FilterDropdown.Popup>
+        </FilterDropdown.Root>
+      );
+    }
+
+    const { user } = await render(<App />);
+    const status = screen.getByRole('status');
+
+    await waitFor(() => {
+      expect(status).toHaveTextContent('No matches for zz');
+    });
+
+    await user.type(screen.getByRole('searchbox', { name: 'Filter countries' }), 'q');
+
+    await waitFor(() => {
+      expect(status).toHaveTextContent('No matches for zzq');
+    });
   });
 
   it('filters items when the input is not rendered', async () => {
