@@ -27,15 +27,7 @@ export const LabelableProvider: React.FC<LabelableProvider.Props> = function Lab
       const registrations = registrationsRef.current;
 
       if (nextId === undefined) {
-        const registeredId = registrations.get(source);
-
         if (!registrations.delete(source)) {
-          return;
-        }
-
-        // Controls without their own id adopt this provider's generated id. Keep it when the
-        // last one unregisters so a remount (e.g. React Activity) re-registering it can't loop.
-        if (registrations.size === 0 && registeredId === initialControlId) {
           return;
         }
       } else {
@@ -45,6 +37,12 @@ export const LabelableProvider: React.FC<LabelableProvider.Props> = function Lab
       // Keep the previously selected id while it is still registered so rapid
       // unmount/remount cycles (e.g. React Activity) don't churn the selection.
       setControlIdState((prev) => {
+        // Controls rendered without an explicit `id` never register, so fall back to this
+        // provider's own id to keep them associated with the label.
+        if (registrations.size === 0) {
+          return initialControlId;
+        }
+
         let nextControlId: string | null | undefined;
 
         for (const id of registrations.values()) {

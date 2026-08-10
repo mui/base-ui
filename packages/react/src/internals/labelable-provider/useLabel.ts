@@ -3,13 +3,12 @@ import * as React from 'react';
 import { isHTMLElement } from '@floating-ui/utils/dom';
 import { ownerDocument } from '@base-ui/utils/owner';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
-import { getTarget } from '../../floating-ui-react/utils';
+import { getTarget, isInteractiveElement } from '../../floating-ui-react/utils';
 import { useRegisteredLabelId } from '../../utils/useRegisteredLabelId';
 import { useLabelableContext } from './LabelableContext';
 
 function isInteractiveTarget(event: React.SyntheticEvent) {
-  const target = getTarget(event.nativeEvent) as HTMLElement | null;
-  return target?.closest('button,input,select,textarea') != null;
+  return isInteractiveElement(getTarget(event.nativeEvent) as Element | null);
 }
 
 export function useLabel(params: UseLabelParameters = {}): UseLabelReturnValue {

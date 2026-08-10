@@ -95,6 +95,24 @@ describe('<Field.Label />', () => {
     expect(screen.getByTestId('control')).not.toHaveFocus();
   });
 
+  it('when nativeLabel={false}, clicking a nested link focuses the link', async () => {
+    const { user } = await render(
+      <Field.Root>
+        <Field.Control data-testid="control" />
+        <Field.Label nativeLabel={false} render={<div />}>
+          <a href="#anchor">inner</a>
+        </Field.Label>
+      </Field.Root>,
+    );
+
+    const link = screen.getByRole('link');
+
+    await user.click(link);
+
+    expect(link).toHaveFocus();
+    expect(screen.getByTestId('control')).not.toHaveFocus();
+  });
+
   describe('control selection', () => {
     function Fields(props: { first?: boolean; second?: boolean }) {
       const { first = true, second = true } = props;

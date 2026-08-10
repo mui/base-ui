@@ -178,27 +178,33 @@ describe('<Field.Control />', () => {
       expect(screen.getByTestId('label')).toHaveAttribute('for', 'b');
     });
 
-    it('clears the label association when the control unmounts', () => {
+    it('keeps the label associated when an explicit id control is replaced by one without an id', async () => {
       function App() {
-        const [mounted, setMounted] = React.useState(true);
+        const [explicit, setExplicit] = React.useState(true);
         return (
           <React.Fragment>
             <Field.Root>
               <Field.Label data-testid="label">Label</Field.Label>
-              {mounted && <Field.Control id="a" />}
+              {explicit ? <Field.Control key="a" id="custom" /> : <Field.Control key="b" />}
             </Field.Root>
-            <button onClick={() => setMounted(false)}>unmount</button>
+            <button onClick={() => setExplicit(false)}>swap</button>
           </React.Fragment>
         );
       }
 
-      renderNonStrict(<App />);
+      const { user } = await renderNonStrict(<App />);
 
-      expect(screen.getByTestId('label')).toHaveAttribute('for', 'a');
+      expect(screen.getByTestId('label')).toHaveAttribute('for', 'custom');
 
       fireEvent.click(screen.getByRole('button'));
 
-      expect(screen.getByTestId('label')).not.toHaveAttribute('for');
+      const control = screen.getByRole('textbox');
+      expect(control.id).not.toBe('');
+      expect(screen.getByTestId('label')).toHaveAttribute('for', control.id);
+
+      await user.click(screen.getByTestId('label'));
+
+      expect(control).toHaveFocus();
     });
   });
 });
