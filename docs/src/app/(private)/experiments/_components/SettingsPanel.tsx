@@ -3,6 +3,7 @@ import * as React from 'react';
 import clsx from 'clsx';
 import { Popover } from '@base-ui/react/popover';
 import { Field } from '@base-ui/react/field';
+import { fastObjectShallowCompare } from '@base-ui/utils/fastObjectShallowCompare';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { Switch } from './Switch';
@@ -20,31 +21,51 @@ export const ExperimentSettingsContext = React.createContext<
 >(undefined);
 
 export function ExperimentSettingsProvider<Settings extends {}>(
-  props: React.PropsWithChildren<{ metadata: SettingsMetadata<Settings> }>,
+  props: ExperimentSettingsProviderProps<Settings>,
 ) {
-  const { metadata, children } = props;
+  const { metadata, applySettingsAfterHydration = false, children } = props;
 
   // Persisted settings live in session storage, so they can only be read on the client and the
-  // first render has to match the server output. Instead of rendering the experiment with the
-  // defaults and updating it afterwards, nothing is rendered until the stored values are read
-  // in a layout effect (which runs before the browser paints). This way experiments always
-  // mount with the persisted settings, which matters for props that are only read on mount.
-  const [settings, setSettings] = React.useState<Settings | null>(() =>
-    metadata == null ? ({} as Settings) : null,
-  );
+  // first render has to match the server output. By default nothing is rendered until the
+  // stored values are read in a layout effect (which runs before the browser paints), so that
+  // experiments mount with the persisted settings instead of rendering the defaults and
+  // flipping afterwards. This matters for props that are only read on mount, and costs the
+  // experiment its server-rendered markup — which `applySettingsAfterHydration` opts out of.
+  const [settings, setSettings] = React.useState<Settings | null>(() => {
+    if (metadata == null) {
+      return {} as Settings;
+    }
+
+    return applySettingsAfterHydration ? getDefaultSettings(metadata) : null;
+  });
+
+  // Mirrors the committed settings so that consecutive updates within a single batch build on
+  // each other instead of the last rendered value.
+  const settingsRef = React.useRef(settings);
 
   useIsoLayoutEffect(() => {
-    if (metadata != null) {
-      setSettings(loadSettings(metadata));
+    if (metadata == null) {
+      return;
     }
+
+    const storedSettings = { ...getDefaultSettings(metadata), ...readStoredOverrides(metadata) };
+
+    // Already up to date when the defaults were server-rendered and nothing was stored.
+    if (fastObjectShallowCompare(settingsRef.current, storedSettings)) {
+      return;
+    }
+
+    settingsRef.current = storedSettings;
+    setSettings(storedSettings);
   }, [metadata]);
 
   const updateSettings = useStableCallback((action: React.SetStateAction<Settings>) => {
     const nextSettings =
       typeof action === 'function'
-        ? (action as (prevState: Settings) => Settings)(settings as Settings)
+        ? (action as (prevState: Settings) => Settings)(settingsRef.current as Settings)
         : action;
 
+    settingsRef.current = nextSettings;
     setSettings(nextSettings);
 
     if (metadata != null) {
@@ -66,6 +87,18 @@ export function ExperimentSettingsProvider<Settings extends {}>(
       {children}
     </ExperimentSettingsContext>
   );
+}
+
+export interface ExperimentSettingsProviderProps<Settings> extends React.PropsWithChildren<{}> {
+  metadata: SettingsMetadata<Settings>;
+  /**
+   * Whether to server-render the experiment with the default settings and apply the stored ones
+   * after hydration, at the cost of the experiment briefly rendering with the defaults.
+   * Set it on experiments that demonstrate server rendering; otherwise leave it off so that the
+   * experiment mounts with the stored settings already applied.
+   * @default false
+   */
+  applySettingsAfterHydration?: boolean;
 }
 
 const STORAGE_KEY_PREFIX = 'base-ui-experiment-settings:';
@@ -107,7 +140,25 @@ function isValidValue(fieldMetadata: FieldMetadata, value: unknown) {
   return true;
 }
 
-function loadSettings<Settings extends {}>(metadata: SettingsMetadata<Settings>): Settings {
+function getDefaultSettings<Settings extends {}>(metadata: SettingsMetadata<Settings>): Settings {
+  const settings = {} as Settings;
+
+  Object.keys(metadata).forEach((key) => {
+    settings[key as keyof Settings] = getDefaultValue(
+      metadata[key as keyof Settings],
+    ) as Settings[keyof Settings];
+  });
+
+  return settings;
+}
+
+/**
+ * Reads the stored values that are still described by the metadata. Values of fields that were
+ * since removed or redefined are dropped, so the defaults apply to them again.
+ */
+function readStoredOverrides<Settings extends {}>(
+  metadata: SettingsMetadata<Settings>,
+): Partial<Settings> {
   let storedValues: Record<string, unknown> = {};
 
   try {
@@ -120,18 +171,17 @@ function loadSettings<Settings extends {}>(metadata: SettingsMetadata<Settings>)
     console.warn('Could not read the experiment settings from session storage.', error);
   }
 
-  const settings = {} as Settings;
+  const overrides: Partial<Settings> = {};
 
   Object.keys(metadata).forEach((key) => {
-    const fieldMetadata = metadata[key as keyof Settings];
     const storedValue = storedValues[key];
 
-    settings[key as keyof Settings] = (
-      isValidValue(fieldMetadata, storedValue) ? storedValue : getDefaultValue(fieldMetadata)
-    ) as Settings[keyof Settings];
+    if (isValidValue(metadata[key as keyof Settings], storedValue)) {
+      overrides[key as keyof Settings] = storedValue as Settings[keyof Settings];
+    }
   });
 
-  return settings;
+  return overrides;
 }
 
 /**
