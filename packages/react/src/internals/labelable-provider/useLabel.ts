@@ -3,12 +3,20 @@ import * as React from 'react';
 import { isHTMLElement } from '@floating-ui/utils/dom';
 import { ownerDocument } from '@base-ui/utils/owner';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
-import { getTarget, isInteractiveElement } from '../../floating-ui-react/utils';
+import { INTERACTIVE_SELECTOR } from '../../floating-ui-react/utils/constants';
+import { contains, getTarget } from '../shadowDom';
 import { useRegisteredLabelId } from '../../utils/useRegisteredLabelId';
 import { useLabelableContext } from './LabelableContext';
 
-function isInteractiveTarget(event: React.SyntheticEvent) {
-  return isInteractiveElement(getTarget(event.nativeEvent) as Element | null);
+/**
+ * Whether the event originated from interactive content nested inside the label.
+ * `closest()` keeps walking past the label, so matches outside it must be rejected:
+ * the label itself may sit inside a link, a scroll viewport, or anything else focusable.
+ */
+function isInteractiveTarget(event: React.SyntheticEvent<Element>) {
+  const target = getTarget(event.nativeEvent) as Element | null;
+  const match = target?.closest(INTERACTIVE_SELECTOR);
+  return match != null && match !== event.currentTarget && contains(event.currentTarget, match);
 }
 
 export function useLabel(params: UseLabelParameters = {}): UseLabelReturnValue {

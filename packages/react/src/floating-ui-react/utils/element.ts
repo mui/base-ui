@@ -1,6 +1,6 @@
 import { isElement, isHTMLElement } from '@floating-ui/utils/dom';
 import { platform } from '@base-ui/utils/platform';
-import { FOCUSABLE_ATTRIBUTE, TYPEABLE_SELECTOR } from './constants';
+import { FOCUSABLE_ATTRIBUTE, INTERACTIVE_SELECTOR, TYPEABLE_SELECTOR } from './constants';
 import { type PopupTriggerMap } from '../../utils/popups';
 import { activeElement, contains, getTarget } from '../../internals/shadowDom';
 
@@ -52,11 +52,7 @@ export function isTypeableElement(element: unknown): boolean {
 }
 
 export function isInteractiveElement(element: Element | null) {
-  return (
-    element?.closest(
-      `button,a[href],[role="button"],select,[tabindex]:not([tabindex="-1"]),${TYPEABLE_SELECTOR}`,
-    ) != null
-  );
+  return element?.closest(INTERACTIVE_SELECTOR) != null;
 }
 
 export function isTypeableCombobox(element: Element | null) {

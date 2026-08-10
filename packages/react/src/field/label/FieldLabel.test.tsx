@@ -113,6 +113,23 @@ describe('<Field.Label />', () => {
     expect(screen.getByTestId('control')).not.toHaveFocus();
   });
 
+  it('when nativeLabel={false}, clicking focuses the control inside a focusable ancestor', async () => {
+    const { user } = await render(
+      <div tabIndex={0}>
+        <Field.Root>
+          <Field.Control data-testid="control" />
+          <Field.Label nativeLabel={false} render={<span />} data-testid="label">
+            Label
+          </Field.Label>
+        </Field.Root>
+      </div>,
+    );
+
+    await user.click(screen.getByTestId('label'));
+
+    expect(screen.getByTestId('control')).toHaveFocus();
+  });
+
   describe('control selection', () => {
     function Fields(props: { first?: boolean; second?: boolean }) {
       const { first = true, second = true } = props;

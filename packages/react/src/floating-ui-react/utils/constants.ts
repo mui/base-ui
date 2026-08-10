@@ -4,6 +4,7 @@ export const SELECTED_KEY = 'selected';
 export const TYPEABLE_SELECTOR =
   "input:not([type='hidden']):not([disabled])," +
   "[contenteditable]:not([contenteditable='false']),textarea:not([disabled])";
+export const INTERACTIVE_SELECTOR = `button,a[href],[role="button"],select,[tabindex]:not([tabindex="-1"]),${TYPEABLE_SELECTOR}`;
 export const ARROW_LEFT = 'ArrowLeft';
 export const ARROW_RIGHT = 'ArrowRight';
 export const ARROW_UP = 'ArrowUp';
