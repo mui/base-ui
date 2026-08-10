@@ -869,26 +869,23 @@ describe('<CheckboxGroup />', () => {
       );
     }
 
-    function expectUniqueCheckboxIds() {
+    function expectUniqueIds() {
       const ids = Array.from(document.querySelectorAll('[id]'), (element) => element.id);
       expect(new Set(ids).size).toBe(ids.length);
-
-      // Queried without `hidden`, so the relationship has to reach the exposed checkboxes
-      // rather than the hidden inputs behind them.
-      expect(screen.getByTestId('parent').getAttribute('aria-controls')!.split(' ')).toEqual([
-        screen.getByTestId('fuji').id,
-        screen.getByTestId('gala').id,
-      ]);
-      screen.getAllByRole('checkbox').forEach((checkbox) => {
-        expect(document.querySelectorAll(`[id="${checkbox.id}"]`)).toHaveLength(1);
-      });
     }
 
     it.each([false, true])(
       'keeps checkbox ids unique when the group shares one Field.Root (nativeButton=%s)',
       async (nativeButton) => {
         await render(<SharedFieldRootGroup nativeButton={nativeButton} />);
-        expectUniqueCheckboxIds();
+
+        expectUniqueIds();
+        // Queried without `hidden`, so the relationship has to reach the exposed checkboxes
+        // rather than the hidden inputs behind them.
+        expect(screen.getByTestId('parent').getAttribute('aria-controls')!.split(' ')).toEqual([
+          screen.getByTestId('fuji').id,
+          screen.getByTestId('gala').id,
+        ]);
       },
     );
 
@@ -896,7 +893,7 @@ describe('<CheckboxGroup />', () => {
       'keeps checkbox ids unique in a shared Field.Root during SSR (nativeButton=%s)',
       (nativeButton) => {
         renderToString(<SharedFieldRootGroup nativeButton={nativeButton} />);
-        expectUniqueCheckboxIds();
+        expectUniqueIds();
       },
     );
 
@@ -941,7 +938,7 @@ describe('<CheckboxGroup />', () => {
       { nativeButton: false, parent: true },
       { nativeButton: true, parent: true },
     ])(
-      'associates a group-derived Checkbox id during SSR (nativeButton=$nativeButton, parent=$parent)',
+      'associates Field.Label with a grouped Checkbox during SSR (nativeButton=$nativeButton, parent=$parent)',
       ({ nativeButton, parent }) => {
         renderToString(
           <Field.Root name="apple">
@@ -959,18 +956,16 @@ describe('<CheckboxGroup />', () => {
           </Field.Root>,
         );
 
-        // The label targets the button, unless the group-derived id already sits there, in
-        // which case it targets the hidden input. Either one toggles the checkbox.
-        const labelFor = screen.getByTestId('label').getAttribute('for');
-        expect(labelFor).not.toBe(null);
-        expect(screen.getAllByRole('checkbox', { hidden: true })).toContain(
-          document.getElementById(labelFor!),
-        );
+        const control = nativeButton
+          ? screen.getByRole('checkbox')
+          : document.querySelector<HTMLInputElement>('input[type="checkbox"]')!;
+        expect(control.id).not.toBe('');
+        expect(screen.getByTestId('label')).toHaveAttribute('for', control.id);
       },
     );
 
     it.each([false, true])(
-      'preserves parent aria-controls during SSR (nativeButton=%s)',
+      'points parent aria-controls at the children once they register (nativeButton=%s)',
       async (nativeButton) => {
         const { hydrate } = renderToString(
           <Field.Root name="apple">
@@ -997,25 +992,25 @@ describe('<CheckboxGroup />', () => {
           </Field.Root>,
         );
 
-        const controlledId = screen.getByTestId('parent').getAttribute('aria-controls')!;
-        // Queried without `hidden`, so the relationship has to reach the exposed checkbox
-        // rather than the hidden input behind it.
-        expect(screen.getAllByRole('checkbox')).toContain(document.getElementById(controlledId));
-        expect(controlledId).toBe(screen.getByTestId('fuji').id);
-        expect(document.querySelectorAll(`[id="${controlledId}"]`)).toHaveLength(1);
+        // Server markup claims nothing: the parent can't control a child that hasn't mounted.
+        expect(screen.getByTestId('parent')).not.toHaveAttribute('aria-controls');
 
+        const controls = screen.getAllByRole('checkbox', { hidden: true });
         screen.getAllByTestId('label').forEach((label) => {
-          expect(screen.getAllByRole('checkbox', { hidden: true })).toContain(
-            document.getElementById(label.getAttribute('for')!),
-          );
+          expect(controls).toContain(document.getElementById(label.getAttribute('for')!));
         });
 
         hydrate();
 
+        // Queried without `hidden`, so the relationship has to reach the exposed checkbox
+        // rather than the hidden input behind it.
         await waitFor(() => {
-          expect(document.querySelectorAll(`[id="${controlledId}"]`)).toHaveLength(1);
+          expect(screen.getByTestId('parent')).toHaveAttribute(
+            'aria-controls',
+            screen.getByTestId('fuji').id,
+          );
         });
-        expect(screen.getAllByRole('checkbox')).toContain(document.getElementById(controlledId));
+        expect(screen.getAllByRole('checkbox')).toContain(screen.getByTestId('fuji'));
       },
     );
 

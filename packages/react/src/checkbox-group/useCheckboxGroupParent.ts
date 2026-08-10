@@ -1,8 +1,7 @@
 'use client';
 import * as React from 'react';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
-import { EMPTY_ARRAY } from '@base-ui/utils/empty';
-import { useBaseUiId } from '../internals/useBaseUiId';
+import { EMPTY_ARRAY, EMPTY_OBJECT } from '@base-ui/utils/empty';
 import type { BaseUIChangeEventDetails } from '../internals/createBaseUIEventDetails';
 import type { BaseUIEventReasons } from '../internals/reasons';
 
@@ -15,22 +14,41 @@ export function useCheckboxGroupParent(
   const disabledStatesRef = React.useRef(new Map<string, boolean>());
 
   const [status, setStatus] = React.useState<'on' | 'off' | 'mixed'>('mixed');
+  const [childIds, setChildIds] = React.useState<Record<string, string>>(EMPTY_OBJECT);
 
-  const id = useBaseUiId();
   const checked = value.length === allValues.length;
   const indeterminate = value.length !== allValues.length && value.length > 0;
 
   const onValueChange = useStableCallback(onValueChangeProp);
 
+  const registerChildId = useStableCallback((childValue: string, childId: string | undefined) => {
+    setChildIds((prev) => {
+      if (prev[childValue] === childId) {
+        return prev;
+      }
+
+      const next = { ...prev };
+      if (childId === undefined) {
+        delete next[childValue];
+      } else {
+        next[childValue] = childId;
+      }
+      return next;
+    });
+  });
+
   const getParentProps: UseCheckboxGroupParentReturnValue['getParentProps'] = React.useCallback(
     () => ({
       indeterminate,
       checked,
-      // TODO: custom `id` on child checkboxes breaks this
-      // https://github.com/mui/base-ui/issues/2691
-      // React 17 assigns `id` after the first render, and children can't derive theirs before
-      // then, so referencing them during that window would point at elements that don't exist.
-      'aria-controls': id === undefined ? undefined : allValues.map((v) => `${id}-${v}`).join(' '),
+      // Children report the id of the element they expose, so the reference survives a custom
+      // `id` and never names an element that isn't rendered. It stays out of server markup,
+      // where the parent can't control anything yet.
+      'aria-controls':
+        allValues
+          .map((v) => childIds[v])
+          .filter((childId) => childId !== undefined)
+          .join(' ') || undefined,
       onCheckedChange(_, eventDetails) {
         const uncontrolledState = uncontrolledStateRef.current;
 
@@ -75,7 +93,7 @@ export function useCheckboxGroupParent(
         }
       },
     }),
-    [allValues, checked, id, indeterminate, onValueChange, status, value.length],
+    [allValues, checked, childIds, indeterminate, onValueChange, status, value.length],
   );
 
   const getChildProps: UseCheckboxGroupParentReturnValue['getChildProps'] = React.useCallback(
@@ -102,12 +120,12 @@ export function useCheckboxGroupParent(
 
   return React.useMemo(
     () => ({
-      id,
       getParentProps,
       getChildProps,
+      registerChildId,
       disabledStatesRef,
     }),
-    [id, getParentProps, getChildProps],
+    [getParentProps, getChildProps, registerChildId],
   );
 }
 
@@ -123,11 +141,12 @@ export interface UseCheckboxGroupParentParameters {
 }
 
 export interface UseCheckboxGroupParentReturnValue {
-  /**
-   * The namespace the child checkboxes derive their ids from.
-   */
-  id: string | undefined;
   disabledStatesRef: React.RefObject<Map<string, boolean>>;
+  /**
+   * Reports the `id` of the element a child checkbox exposes, so the parent can reference it
+   * through `aria-controls`. Pass `undefined` to unregister.
+   */
+  registerChildId: (value: string, id: string | undefined) => void;
   getParentProps: () => {
     indeterminate: boolean;
     checked: boolean;

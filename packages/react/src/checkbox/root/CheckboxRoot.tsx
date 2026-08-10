@@ -97,14 +97,6 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
 
   const id = useBaseUiId();
 
-  // Children take their id from the group so the parent checkbox can point `aria-controls` at
-  // them without waiting for them to mount. React 17 assigns the group id after the first
-  // render, so the derived id has to wait for it.
-  const groupItemId =
-    isGroupedWithParent && !parent && value !== undefined && parentContext.id !== undefined
-      ? `${parentContext.id}-${value}`
-      : undefined;
-
   // A `CheckboxGroup` is the field's control and takes its name from `aria-labelledby`, so the
   // checkboxes sharing its labelable scope must not claim the field's control id: they would all
   // render that one id and collide. A `Field.Item` opens a scope the checkbox does own.
@@ -112,11 +104,9 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
 
   const controlId = useLabelableId({ id: idProp || undefined, enabled: ownsControlId });
 
-  // The group-derived id goes on the element assistive tech sees, so the parent's `aria-controls`
-  // resolves to the child checkbox itself. The scope id takes whichever labelable element is left,
-  // so `Field.Label` can point `htmlFor` at it before registration runs.
-  const rootId = groupItemId ?? (nativeButton ? controlId : id);
-  const hiddenInputId = nativeButton && groupItemId === undefined ? undefined : controlId;
+  // With a native button the button is both the labelable element and the one assistive tech
+  // sees, so it takes the control id and the hidden input goes without.
+  const rootId = nativeButton ? controlId : id;
 
   let groupProps: Partial<Omit<CheckboxRoot.Props, 'className'>> = {};
   if (isGroupedWithParent) {
@@ -161,6 +151,18 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
     : indeterminate;
 
   useRegisterFieldControl(controlRef, id, checked, undefined, !groupContext && !disabled, nameProp);
+
+  const registerChildId = parentContext?.registerChildId;
+
+  useIsoLayoutEffect(() => {
+    if (registerChildId === undefined || parent || value === undefined || rootId === undefined) {
+      return undefined;
+    }
+
+    registerChildId(value, rootId);
+
+    return () => registerChildId(value, undefined);
+  }, [registerChildId, parent, value, rootId]);
 
   const inputRef = React.useRef<HTMLInputElement>(null);
   const registerFieldInput = validation.registerInput;
@@ -208,7 +210,8 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
       // parent checkboxes unset `name` to be excluded from form submission
       name: parent ? undefined : name,
       // Set `id` to stop Chrome warning about an unassociated input.
-      id: hiddenInputId,
+      // When using a native button, the `id` is applied to the button instead.
+      id: nativeButton ? undefined : controlId,
       required,
       ref: mergedInputRef,
       style: name ? visuallyHiddenInput : visuallyHidden,

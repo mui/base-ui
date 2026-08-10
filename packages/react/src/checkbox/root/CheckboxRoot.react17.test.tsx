@@ -3,7 +3,7 @@ import * as React from 'react';
 import { Checkbox } from '@base-ui/react/checkbox';
 import { CheckboxGroup } from '@base-ui/react/checkbox-group';
 import { Field } from '@base-ui/react/field';
-import { screen } from '@mui/internal-test-utils';
+import { screen, waitFor } from '@mui/internal-test-utils';
 import { createRenderer } from '#test-utils';
 
 vi.mock('@base-ui/utils/safeReact', async (importOriginal) => {
@@ -80,7 +80,7 @@ describe('<Checkbox.Root /> with the React 17 id fallback', () => {
   );
 
   it.each([false, true])(
-    'does not stringify an unavailable group id during SSR (nativeButton=%s)',
+    'never renders an id built from an unassigned fallback id (nativeButton=%s)',
     (nativeButton) => {
       renderToString(
         <Field.Root name="apple">
@@ -97,36 +97,46 @@ describe('<Checkbox.Root /> with the React 17 id fallback', () => {
         </Field.Root>,
       );
 
-      expect(getLabelControl(nativeButton)).not.toHaveAttribute('id', 'undefined-fuji');
+      Array.from(document.querySelectorAll('[id]'), (element) => element.id).forEach((id) => {
+        expect(id).not.toContain('undefined');
+      });
     },
   );
 
   it.each([false, true])(
-    'omits parent aria-controls while the group id is unavailable (nativeButton=%s)',
-    (nativeButton) => {
-      renderToString(
+    'wires parent aria-controls once the fallback ids are assigned (nativeButton=%s)',
+    async (nativeButton) => {
+      await render(
         <Field.Root name="apple">
           <CheckboxGroup allValues={['fuji', 'gala']}>
-            <Field.Item>
-              <Checkbox.Root
-                parent
-                data-testid="parent"
-                nativeButton={nativeButton}
-                render={nativeButton ? <button /> : undefined}
-              />
-            </Field.Item>
-            <Field.Item>
-              <Checkbox.Root
-                value="fuji"
-                nativeButton={nativeButton}
-                render={nativeButton ? <button /> : undefined}
-              />
-            </Field.Item>
+            <Checkbox.Root
+              parent
+              data-testid="parent"
+              nativeButton={nativeButton}
+              render={nativeButton ? <button /> : undefined}
+            />
+            <Checkbox.Root
+              value="fuji"
+              data-testid="fuji"
+              nativeButton={nativeButton}
+              render={nativeButton ? <button /> : undefined}
+            />
+            <Checkbox.Root
+              value="gala"
+              data-testid="gala"
+              nativeButton={nativeButton}
+              render={nativeButton ? <button /> : undefined}
+            />
           </CheckboxGroup>
         </Field.Root>,
       );
 
-      expect(screen.getByTestId('parent')).not.toHaveAttribute('aria-controls');
+      await waitFor(() => {
+        expect(screen.getByTestId('parent')).toHaveAttribute(
+          'aria-controls',
+          `${screen.getByTestId('fuji').id} ${screen.getByTestId('gala').id}`,
+        );
+      });
     },
   );
 });
