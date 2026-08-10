@@ -23,8 +23,6 @@ export function DialogInteractions({
   const popupElement = store.useState('popupElement');
   const floatingRootContext = store.useState('floatingRootContext');
 
-  // Identifies this dialog to its parent. A symbol is always defined, unlike `useId()`, which
-  // can return `undefined` on the React 17 fallback path.
   const nestedDialogKey = useRefWithInit(() => Symbol('nestedDialog')).current;
 
   const [ownNestedOpenDialogs, setOwnNestedOpenDialogs] = React.useState(0);

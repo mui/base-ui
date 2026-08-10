@@ -36,10 +36,6 @@ type Context = PopupStoreContext<DialogRoot.ChangeEventDetails> & {
   readonly backdropRef: React.RefObject<HTMLDivElement | null>;
   readonly internalBackdropRef: React.RefObject<HTMLDivElement | null>;
   readonly outsidePressEnabledRef: React.MutableRefObject<boolean>;
-  /**
-   * Open nested dialogs keyed by the reporting child. Keyed rather than counted so sibling
-   * nested dialogs accumulate instead of overwriting each other's contribution.
-   */
   readonly nestedDialogs: Map<symbol, NestedDialogCounts>;
   readonly onNestedDialogOpen?:
     | ((childKey: symbol, counts: NestedDialogCounts | null) => void)
