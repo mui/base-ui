@@ -21,22 +21,22 @@ export const ExperimentSettingsContext = React.createContext<
 >(undefined);
 
 export function ExperimentSettingsProvider<Settings extends {}>(
-  props: ExperimentSettingsProviderProps<Settings>,
+  props: React.PropsWithChildren<{ metadata: SettingsMetadata<Settings> }>,
 ) {
-  const { metadata, applySettingsAfterHydration = false, children } = props;
+  const { metadata, children } = props;
 
   // Persisted settings live in session storage, so they can only be read on the client and the
   // first render has to match the server output. By default nothing is rendered until the
   // stored values are read in a layout effect (which runs before the browser paints), so that
   // experiments mount with the persisted settings instead of rendering the defaults and
   // flipping afterwards. This matters for props that are only read on mount, and costs the
-  // experiment its server-rendered markup — which `applySettingsAfterHydration` opts out of.
+  // experiment its server-rendered markup — which `applyAfterHydration` opts out of.
   const [settings, setSettings] = React.useState<Settings | null>(() => {
     if (metadata == null) {
       return {} as Settings;
     }
 
-    return applySettingsAfterHydration ? getDefaultSettings(metadata) : null;
+    return metadata.applyAfterHydration ? getDefaultSettings(metadata) : null;
   });
 
   // Mirrors the committed settings so that consecutive updates within a single batch build on
@@ -89,18 +89,6 @@ export function ExperimentSettingsProvider<Settings extends {}>(
   );
 }
 
-export interface ExperimentSettingsProviderProps<Settings> extends React.PropsWithChildren<{}> {
-  metadata: SettingsMetadata<Settings>;
-  /**
-   * Whether to server-render the experiment with the default settings and apply the stored ones
-   * after hydration, at the cost of the experiment briefly rendering with the defaults.
-   * Set it on experiments that demonstrate server rendering; otherwise leave it off so that the
-   * experiment mounts with the stored settings already applied.
-   * @default false
-   */
-  applySettingsAfterHydration?: boolean;
-}
-
 const STORAGE_KEY_PREFIX = 'base-ui-experiment-settings:';
 
 function getStorageKey() {
@@ -143,7 +131,7 @@ function isValidValue(fieldMetadata: FieldMetadata, value: unknown) {
 function getDefaultSettings<Settings extends {}>(metadata: SettingsMetadata<Settings>): Settings {
   const settings = {} as Settings;
 
-  Object.keys(metadata).forEach((key) => {
+  getFieldKeys(metadata).forEach((key) => {
     settings[key as keyof Settings] = getDefaultValue(
       metadata[key as keyof Settings],
     ) as Settings[keyof Settings];
@@ -173,7 +161,7 @@ function readStoredOverrides<Settings extends {}>(
 
   const overrides: Partial<Settings> = {};
 
-  Object.keys(metadata).forEach((key) => {
+  getFieldKeys(metadata).forEach((key) => {
     const storedValue = storedValues[key];
 
     if (isValidValue(metadata[key as keyof Settings], storedValue)) {
@@ -194,7 +182,7 @@ function saveSettings<Settings extends {}>(
 ) {
   const overrides: Record<string, unknown> = {};
 
-  Object.keys(metadata).forEach((key) => {
+  getFieldKeys(metadata).forEach((key) => {
     const fieldMetadata = metadata[key as keyof Settings];
     const value = settings[key as keyof Settings];
 
@@ -244,7 +232,7 @@ export function SettingsPanel<Settings extends {}>(props: SettingsPanelProps<Set
   const controls = (
     <div {...otherProps} className={clsx(classes.settings, className)}>
       <h2>Settings</h2>
-      {Object.keys(metadata).map((key) => {
+      {getFieldKeys(metadata).map((key) => {
         const value = (settings as Record<string, unknown>)[key];
         const fieldMetadata: FieldMetadata = metadata[key as keyof Settings];
         switch (fieldMetadata.type) {
@@ -299,7 +287,34 @@ export interface FieldMetadata {
   default?: unknown;
 }
 
-export type SettingsMetadata<Settings> = Record<keyof Settings, FieldMetadata>;
+/**
+ * Experiment-wide options, set alongside the field definitions in `settingsMetadata`.
+ * Their keys are reserved, so a setting cannot be named after one of them.
+ */
+export interface SettingsOptions {
+  /**
+   * Whether to server-render the experiment with the default settings and apply the stored ones
+   * after hydration, at the cost of the experiment briefly rendering with the defaults.
+   * Set it on experiments that demonstrate server rendering; otherwise leave it off so that the
+   * experiment mounts with the stored settings already applied.
+   * @default false
+   */
+  applyAfterHydration?: boolean;
+}
+
+export type SettingsMetadata<Settings> = Record<keyof Settings, FieldMetadata> & SettingsOptions;
+
+const OPTION_KEYS: ReadonlySet<string> = new Set([
+  'applyAfterHydration',
+] satisfies (keyof SettingsOptions)[]);
+
+/**
+ * Lists the setting names in the metadata, skipping the experiment-wide options that share
+ * the object with them.
+ */
+function getFieldKeys<Settings extends {}>(metadata: SettingsMetadata<Settings>): string[] {
+  return Object.keys(metadata).filter((key) => !OPTION_KEYS.has(key));
+}
 
 export interface SettingsPanelProps<Settings> extends React.HTMLAttributes<HTMLDivElement> {
   metadata: SettingsMetadata<Settings>;

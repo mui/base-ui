@@ -26,13 +26,9 @@ export default async function Page(props: Props) {
     const experimentModule = await import(`../${slug.join('/')}.tsx`);
     const Experiment = experimentModule.default;
     const settingsMetadata = experimentModule.settingsMetadata;
-    const applySettingsAfterHydration = experimentModule.applySettingsAfterHydration;
 
     return (
-      <ExperimentSettingsProvider
-        metadata={settingsMetadata}
-        applySettingsAfterHydration={applySettingsAfterHydration}
-      >
+      <ExperimentSettingsProvider metadata={settingsMetadata}>
         <ExperimentRoot
           sidebar={
             <Sidebar
