@@ -13,6 +13,7 @@ import type {
   MenuRootChangeEventReason,
   SimpleMenuProps,
 } from './menu';
+import { SimpleFilterableSelect, SimpleSelect } from './select';
 import type {
   ToastCreateManagerReturn,
   ToastManagerReturnValue,
@@ -126,4 +127,13 @@ function ToastUsage() {
   }, [manager]);
 
   return null;
+}
+
+export function exerciseSelectWrappers() {
+  return (
+    <React.Fragment>
+      <SimpleSelect<string | null> label="Theme" defaultValue="light" />
+      <SimpleFilterableSelect<string | null> label="Fruit" defaultInputValue="a" />
+    </React.Fragment>
+  );
 }
