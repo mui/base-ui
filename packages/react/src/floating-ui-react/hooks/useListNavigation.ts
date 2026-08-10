@@ -972,7 +972,9 @@ export function useListNavigation(
           const isCloseKey = isCrossOrientationCloseKey(event.key, orientation, rtl, isGrid);
           const activeItem = listRef.current[indexRef.current];
 
-          if (activeItem && (isOpenKey || isCloseKey)) {
+          // A grid has no nested list to enter, and every arrow key is in-grid navigation, so
+          // forwarding would swallow the keys that move between rows and columns.
+          if (activeItem && !isGrid && (isOpenKey || isCloseKey)) {
             referenceRef.current = event.currentTarget as HTMLElement;
             // A nested list can already be open from pointer hover while virtual focus remains
             // on its parent's reference. Forward cross-axis keys through the active item so the
