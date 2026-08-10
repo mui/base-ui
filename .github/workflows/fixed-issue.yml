@@ -22,8 +22,9 @@ jobs:
 
             console.log(`Processing issue #${issue_number}`);
 
-            if (context.payload.issue.state_reason === 'not_planned') {
-              console.log(`Skipping issue #${issue_number} because it was closed as not planned`);
+            const stateReason = context.payload.issue.state_reason;
+            if (['not_planned', 'duplicate'].includes(stateReason)) {
+              console.log(`Skipping issue #${issue_number} because it was closed as ${stateReason}`);
               return;
             }
 
@@ -32,34 +33,14 @@ jobs:
               query($owner:String!, $repo:String!, $issueNumber:Int!) {
                 repository(owner: $owner, name: $repo) {
                   issue(number: $issueNumber) {
-                    timelineItems(last: 100, itemTypes: [CONNECTED_EVENT, CROSS_REFERENCED_EVENT]) {
+                    closedByPullRequestsReferences(last: 100, includeClosedPrs: true) {
                       nodes {
-                        __typename
-                        ... on ConnectedEvent {
-                          subject {
-                            ... on PullRequest {
-                              number
-                              headRefOid
-                              merged
-                              mergedAt
-                              repository {
-                                nameWithOwner
-                              }
-                            }
-                          }
-                        }
-                        ... on CrossReferencedEvent {
-                          source {
-                            ... on PullRequest {
-                              number
-                              headRefOid
-                              merged
-                              mergedAt
-                              repository {
-                                nameWithOwner
-                              }
-                            }
-                          }
+                        number
+                        headRefOid
+                        merged
+                        mergedAt
+                        repository {
+                          nameWithOwner
                         }
                       }
                     }
@@ -78,25 +59,13 @@ jobs:
               const result = await github.graphql(query, variables);
               console.log('GraphQL query completed successfully');
 
-              // Extract all merged PRs that are linked to this issue
+              // Extract all merged PRs that close this issue
               const relatedPRs = [];
               if (result.repository.issue) {
-                const timelineItems = result.repository.issue.timelineItems.nodes;
+                const closingPRs = result.repository.issue.closedByPullRequestsReferences.nodes;
 
-                for (const item of timelineItems) {
-                  let pr = null;
-
-                  if (item.__typename === 'ConnectedEvent' && item.subject) {
-                    pr = item.subject;
-                  } else if (item.__typename === 'CrossReferencedEvent' && item.source) {
-                    pr = item.source;
-                  }
-
-                  if (
-                    pr &&
-                    pr.merged &&
-                    pr.repository.nameWithOwner === `${variables.owner}/${variables.repo}`
-                  ) {
+                for (const pr of closingPRs) {
+                  if (pr.merged && pr.repository.nameWithOwner === `${variables.owner}/${variables.repo}`) {
                     relatedPRs.push({
                       number: pr.number,
                       commit: pr.headRefOid,
