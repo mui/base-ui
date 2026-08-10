@@ -862,8 +862,8 @@ describe('<CheckboxGroup />', () => {
           <Field.Label>Apples</Field.Label>
           <CheckboxGroup allValues={['fuji', 'gala']}>
             <Checkbox.Root parent data-testid="parent" {...checkboxProps} />
-            <Checkbox.Root value="fuji" {...checkboxProps} />
-            <Checkbox.Root value="gala" {...checkboxProps} />
+            <Checkbox.Root value="fuji" data-testid="fuji" {...checkboxProps} />
+            <Checkbox.Root value="gala" data-testid="gala" {...checkboxProps} />
           </CheckboxGroup>
         </Field.Root>
       );
@@ -873,9 +873,14 @@ describe('<CheckboxGroup />', () => {
       const ids = Array.from(document.querySelectorAll('[id]'), (element) => element.id);
       expect(new Set(ids).size).toBe(ids.length);
 
-      const controlledIds = screen.getByTestId('parent').getAttribute('aria-controls')!.split(' ');
-      controlledIds.forEach((controlledId) => {
-        expect(document.querySelectorAll(`[id="${controlledId}"]`)).toHaveLength(1);
+      // Queried without `hidden`, so the relationship has to reach the exposed checkboxes
+      // rather than the hidden inputs behind them.
+      expect(screen.getByTestId('parent').getAttribute('aria-controls')!.split(' ')).toEqual([
+        screen.getByTestId('fuji').id,
+        screen.getByTestId('gala').id,
+      ]);
+      screen.getAllByRole('checkbox').forEach((checkbox) => {
+        expect(document.querySelectorAll(`[id="${checkbox.id}"]`)).toHaveLength(1);
       });
     }
 
@@ -954,11 +959,13 @@ describe('<CheckboxGroup />', () => {
           </Field.Root>,
         );
 
-        const control = nativeButton
-          ? screen.getByRole('checkbox')
-          : document.querySelector<HTMLInputElement>('input[type="checkbox"]')!;
-        expect(control.id).not.toBe('');
-        expect(screen.getByTestId('label')).toHaveAttribute('for', control.id);
+        // The label targets the button, unless the group-derived id already sits there, in
+        // which case it targets the hidden input. Either one toggles the checkbox.
+        const labelFor = screen.getByTestId('label').getAttribute('for');
+        expect(labelFor).not.toBe(null);
+        expect(screen.getAllByRole('checkbox', { hidden: true })).toContain(
+          document.getElementById(labelFor!),
+        );
       },
     );
 
@@ -981,6 +988,7 @@ describe('<CheckboxGroup />', () => {
                 <Field.Label data-testid="label">Fuji</Field.Label>
                 <Checkbox.Root
                   value="fuji"
+                  data-testid="fuji"
                   nativeButton={nativeButton}
                   render={nativeButton ? <button /> : undefined}
                 />
@@ -989,13 +997,17 @@ describe('<CheckboxGroup />', () => {
           </Field.Root>,
         );
 
-        const controls = screen.getAllByRole('checkbox', { hidden: true });
         const controlledId = screen.getByTestId('parent').getAttribute('aria-controls')!;
-        expect(controls).toContain(document.getElementById(controlledId));
+        // Queried without `hidden`, so the relationship has to reach the exposed checkbox
+        // rather than the hidden input behind it.
+        expect(screen.getAllByRole('checkbox')).toContain(document.getElementById(controlledId));
+        expect(controlledId).toBe(screen.getByTestId('fuji').id);
         expect(document.querySelectorAll(`[id="${controlledId}"]`)).toHaveLength(1);
 
         screen.getAllByTestId('label').forEach((label) => {
-          expect(controls).toContain(document.getElementById(label.getAttribute('for')!));
+          expect(screen.getAllByRole('checkbox', { hidden: true })).toContain(
+            document.getElementById(label.getAttribute('for')!),
+          );
         });
 
         hydrate();
@@ -1003,9 +1015,7 @@ describe('<CheckboxGroup />', () => {
         await waitFor(() => {
           expect(document.querySelectorAll(`[id="${controlledId}"]`)).toHaveLength(1);
         });
-        expect(screen.getAllByRole('checkbox', { hidden: true })).toContain(
-          document.getElementById(controlledId),
-        );
+        expect(screen.getAllByRole('checkbox')).toContain(document.getElementById(controlledId));
       },
     );
 

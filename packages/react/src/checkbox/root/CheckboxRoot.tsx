@@ -112,6 +112,12 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
 
   const controlId = useLabelableId({ id: idProp || undefined, enabled: ownsControlId });
 
+  // The group-derived id goes on the element assistive tech sees, so the parent's `aria-controls`
+  // resolves to the child checkbox itself. The scope id takes whichever labelable element is left,
+  // so `Field.Label` can point `htmlFor` at it before registration runs.
+  const rootId = groupItemId ?? (nativeButton ? controlId : id);
+  const hiddenInputId = nativeButton && groupItemId === undefined ? undefined : controlId;
+
   let groupProps: Partial<Omit<CheckboxRoot.Props, 'className'>> = {};
   if (isGroupedWithParent) {
     if (parent) {
@@ -202,9 +208,7 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
       // parent checkboxes unset `name` to be excluded from form submission
       name: parent ? undefined : name,
       // Set `id` to stop Chrome warning about an unassociated input.
-      // When using a native button, the label targets the button instead, so the input takes
-      // the group-derived id that `aria-controls` references.
-      id: nativeButton ? groupItemId : controlId,
+      id: hiddenInputId,
       required,
       ref: mergedInputRef,
       style: name ? visuallyHiddenInput : visuallyHidden,
@@ -297,7 +301,7 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
     ref: [buttonRef, controlRef, forwardedRef],
     props: [
       {
-        id: nativeButton ? controlId : (groupItemId ?? id),
+        id: rootId,
         role: 'checkbox',
         'aria-checked': computedIndeterminate ? 'mixed' : computedChecked,
         'aria-readonly': readOnly || undefined,
