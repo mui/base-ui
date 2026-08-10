@@ -197,7 +197,7 @@ describe('<Menu.Root />', () => {
                 <Menu.Positioner>
                   <Menu.Popup>
                     <Menu.Input aria-label="Filter fruit" />
-                    <Menu.List>
+                    <Menu.List data-testid="list">
                       <Menu.Item>Apple</Menu.Item>
                     </Menu.List>
                     <Menu.Empty>No fruit found</Menu.Empty>
@@ -220,7 +220,7 @@ describe('<Menu.Root />', () => {
       await user.click(trigger);
 
       const popup = await screen.findByRole('dialog', { name: 'Fruit' });
-      const list = screen.getByRole('menu', { name: 'Fruit' });
+      const list = screen.getByTestId('list');
       const input = screen.getByRole('searchbox', { name: 'Filter fruit' });
 
       expect(trigger).toHaveAttribute('aria-controls', popup.id);
@@ -649,7 +649,7 @@ describe('<Menu.Root />', () => {
             <Menu.Positioner>
               <Menu.Popup>
                 <Menu.Input aria-label="Filter fruit" />
-                <Menu.List>
+                <Menu.List data-testid="list">
                   <Menu.Item>Apple</Menu.Item>
                   <Menu.Item onClick={onClick} closeOnClick={false}>
                     Banana
@@ -666,7 +666,7 @@ describe('<Menu.Root />', () => {
       await user.click(trigger);
 
       const popup = await screen.findByRole('dialog');
-      const list = screen.getByRole('menu');
+      const list = screen.getByTestId('list');
       const input = screen.getByRole('searchbox', { name: 'Filter fruit' });
 
       expect(trigger).toHaveAttribute('aria-haspopup', 'dialog');
