@@ -1,7 +1,13 @@
 import { expect, vi } from 'vitest';
 import * as React from 'react';
 import { Popover } from '@base-ui/react/popover';
-import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
+import {
+  createRenderer,
+  describeConformance,
+  enterWithMouse,
+  isJSDOM,
+  resetBrowserPointer,
+} from '#test-utils';
 import {
   act,
   fireEvent,
@@ -13,6 +19,8 @@ import {
 import { PATIENT_CLICK_THRESHOLD } from '../../internals/constants';
 
 describe('<Popover.Trigger />', () => {
+  beforeEach(resetBrowserPointer);
+
   const { render } = createRenderer();
 
   describeConformance(<Popover.Trigger />, () => ({
@@ -113,10 +121,22 @@ describe('<Popover.Trigger />', () => {
         <Popover.Root>
           {({ payload }) => (
             <React.Fragment>
-              <Popover.Trigger payload="One" openOnHover delay={0} closeDelay={0}>
+              <Popover.Trigger
+                payload="One"
+                openOnHover
+                delay={0}
+                closeDelay={0}
+                style={{ pointerEvents: 'none' }}
+              >
                 One
               </Popover.Trigger>
-              <Popover.Trigger payload="Two" openOnHover delay={0} closeDelay={0}>
+              <Popover.Trigger
+                payload="Two"
+                openOnHover
+                delay={0}
+                closeDelay={0}
+                style={{ pointerEvents: 'none' }}
+              >
                 Two
               </Popover.Trigger>
               <Popover.Portal>
@@ -132,16 +152,17 @@ describe('<Popover.Trigger />', () => {
       );
     }
 
-    function pressTrigger(trigger: HTMLElement, pointerType: 'mouse' | 'touch') {
-      fireEvent.pointerDown(trigger, { pointerType });
-      fireEvent.mouseDown(trigger);
-      fireEvent.click(trigger, { detail: 1 });
+    async function pressTrigger(trigger: HTMLElement, pointerType: 'mouse' | 'touch') {
+      // eslint-disable-next-line testing-library/no-unnecessary-act -- flush the complete synthetic press before the browser can dispatch physical pointer movement
+      await act(async () => {
+        fireEvent.pointerDown(trigger, { pointerType });
+        fireEvent.mouseDown(trigger);
+        fireEvent.click(trigger, { detail: 1 });
+      });
     }
 
     function hoverTrigger(trigger: HTMLElement) {
-      fireEvent.pointerEnter(trigger, { pointerType: 'mouse' });
-      fireEvent.mouseEnter(trigger);
-      fireEvent.mouseMove(trigger);
+      enterWithMouse(trigger);
     }
 
     // A touch tap leaves the pointer parked wherever the cursor happens to be, so hover must stay
@@ -153,8 +174,7 @@ describe('<Popover.Trigger />', () => {
       const one = screen.getByRole('button', { name: 'One' });
       const two = screen.getByRole('button', { name: 'Two' });
 
-      pressTrigger(one, 'touch');
-      await flushMicrotasks();
+      await pressTrigger(one, 'touch');
 
       expect(screen.getByTestId('content')).toHaveTextContent('One');
 
@@ -173,8 +193,7 @@ describe('<Popover.Trigger />', () => {
       const one = screen.getByRole('button', { name: 'One' });
       const two = screen.getByRole('button', { name: 'Two' });
 
-      pressTrigger(one, 'mouse');
-      await flushMicrotasks();
+      await pressTrigger(one, 'mouse');
 
       expect(screen.getByTestId('content')).toHaveTextContent('One');
 

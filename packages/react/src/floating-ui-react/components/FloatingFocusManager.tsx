@@ -667,6 +667,9 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
       return;
     }
 
+    closeTypeRef.current = '';
+    lastInteractionTypeRef.current = '';
+
     const doc = ownerDocument(floatingFocusElement);
     const previouslyFocusedElement = activeElement(doc);
 
@@ -803,11 +806,11 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
 
     events.on('openchange', onOpenChangeLocal);
 
-    function getReturnElement() {
+    function getReturnElement(closeType: InteractionType) {
       const returnFocusValueOrFn = returnFocusRef.current;
       let resolvedReturnFocusValue =
         typeof returnFocusValueOrFn === 'function'
-          ? returnFocusValueOrFn(closeTypeRef.current)
+          ? returnFocusValueOrFn(closeType)
           : returnFocusValueOrFn;
 
       // `null` should fallback to default behavior in case of an empty ref.
@@ -855,7 +858,8 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
 
       // eslint-disable-next-line react-hooks/exhaustive-deps
       const returnFocusValueOrFn = returnFocusRef.current;
-      const returnElement = getReturnElement();
+      const closeType = closeTypeRef.current;
+      const returnElement = getReturnElement(closeType);
 
       queueMicrotask(() => {
         // `returnElement` if it is tabbable, otherwise its first tabbable child,
@@ -875,7 +879,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
             : true)
         ) {
           const focusOptions: FocusOptions = { preventScroll: true };
-          if (closeTypeRef.current === 'keyboard') {
+          if (closeType === 'keyboard') {
             focusOptions.focusVisible = true;
           }
           tabbableReturnElement.focus(focusOptions);

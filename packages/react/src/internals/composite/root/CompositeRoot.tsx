@@ -11,9 +11,6 @@ import type { CompositeGridNavigator } from './gridNavigation';
 import { useDirection } from '../../direction-context/DirectionContext';
 import { StateAttributesMapping } from '../../getStateAttributesProps';
 
-/**
- * @internal
- */
 export function CompositeRoot<Metadata extends {}, State extends Record<string, any>>(
   componentProps: CompositeRoot.Props<Metadata, State>,
 ) {
@@ -21,8 +18,8 @@ export function CompositeRoot<Metadata extends {}, State extends Record<string, 
     render,
     className,
     style,
-    refs = EMPTY_ARRAY as React.Ref<Element>[],
-    props = EMPTY_ARRAY,
+    refs = EMPTY_ARRAY,
+    props = EMPTY_ARRAY as any[],
     state = EMPTY_OBJECT as State,
     stateAttributesMapping,
     highlightedIndex: highlightedIndexProp,
