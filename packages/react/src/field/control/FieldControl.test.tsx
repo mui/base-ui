@@ -1,4 +1,5 @@
 import { expect, vi } from 'vitest';
+import * as React from 'react';
 import { createRenderer, fireEvent, screen } from '@mui/internal-test-utils';
 import { Field } from '@base-ui/react/field';
 import { Form } from '@base-ui/react/form';
@@ -126,5 +127,62 @@ describe('<Field.Control />', () => {
     expect(screen.getByTestId('root')).toHaveAttribute('data-focused', '');
     expect(control).toHaveAttribute('data-focused', '');
     expect(screen.getByText('Name')).toHaveAttribute('data-focused', '');
+  });
+
+  describe('id', () => {
+    it('updates the label association when the control is swapped', () => {
+      function App() {
+        const [controlKey, setControlKey] = React.useState('a');
+        return (
+          <React.Fragment>
+            <Field.Root>
+              <Field.Label data-testid="label">Label</Field.Label>
+              <Field.Control key={controlKey} id={controlKey} />
+            </Field.Root>
+            <button onClick={() => setControlKey('b')}>swap</button>
+          </React.Fragment>
+        );
+      }
+
+      renderNonStrict(<App />);
+
+      expect(screen.getByRole('textbox')).toHaveAttribute('id', 'a');
+      expect(screen.getByTestId('label')).toHaveAttribute('for', 'a');
+
+      fireEvent.click(screen.getByRole('button'));
+
+      expect(screen.getByRole('textbox')).toHaveAttribute('id', 'b');
+      expect(screen.getByTestId('label')).toHaveAttribute('for', 'b');
+    });
+
+    it('keeps the label associated when an explicit id control is replaced by one without an id', async () => {
+      function App() {
+        const [explicit, setExplicit] = React.useState(true);
+        return (
+          <React.Fragment>
+            <Field.Root>
+              <Field.Label data-testid="label">Label</Field.Label>
+              {explicit ? <Field.Control key="a" id="custom" /> : <Field.Control key="b" />}
+            </Field.Root>
+            <button onClick={() => setExplicit(false)}>swap</button>
+          </React.Fragment>
+        );
+      }
+
+      const { user } = await renderNonStrict(<App />);
+
+      expect(screen.getByTestId('label')).toHaveAttribute('for', 'custom');
+
+      fireEvent.click(screen.getByRole('button'));
+
+      const control = screen.getByRole('textbox');
+      expect(control.id).not.toBe('');
+      expect(control.id).not.toBe('custom');
+      expect(screen.getByTestId('label')).toHaveAttribute('for', control.id);
+
+      await user.click(screen.getByTestId('label'));
+
+      expect(control).toHaveFocus();
+    });
   });
 });

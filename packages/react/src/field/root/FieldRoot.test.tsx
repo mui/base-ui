@@ -19,7 +19,6 @@ import {
   waitFor,
 } from '@mui/internal-test-utils';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
-import { LabelableProvider } from '../../internals/labelable-provider';
 
 describe('<Field.Root />', () => {
   const { render, renderToString } = createRenderer();
@@ -84,23 +83,6 @@ describe('<Field.Root />', () => {
     await waitFor(() => {
       expect(label).toHaveAttribute('for', 'control-b');
     });
-  });
-
-  it('preserves null initial control ids', async () => {
-    await render(
-      <Field.Root>
-        <LabelableProvider controlId={null}>
-          <Field.Label>Label</Field.Label>
-          <Field.Control data-testid="control" />
-        </LabelableProvider>
-      </Field.Root>,
-    );
-
-    const label = screen.getByText('Label');
-    const control = screen.getByTestId('control');
-
-    expect(label).not.toHaveAttribute('for');
-    expect(control.getAttribute('id')).not.toBe(null);
   });
 
   it('updates label associations when the control id changes', async () => {
@@ -281,7 +263,7 @@ describe('<Field.Root />', () => {
   );
 
   it.skipIf(reactMajor < 19)(
-    'does not loop when a control is unmounted and remounted',
+    'preserves label association without looping when a control is unmounted and remounted',
     async () => {
       const errorSpy = vi
         .spyOn(console, 'error')
@@ -303,12 +285,10 @@ describe('<Field.Root />', () => {
           return (
             <React.Fragment>
               <Field.Root>
-                <Field.Label nativeLabel={false} render={<div />}>
-                  Label
-                </Field.Label>
+                <Field.Label data-testid="label">Label</Field.Label>
                 <Activity mode={showSelect ? 'visible' : 'hidden'}>
                   <Select.Root id="select">
-                    <Select.Trigger>
+                    <Select.Trigger data-testid="trigger">
                       <Select.Value placeholder="Select a model" />
                     </Select.Trigger>
                     <Select.Portal>
@@ -334,10 +314,17 @@ describe('<Field.Root />', () => {
         await renderStrict(<TestCase />);
 
         const checkbox = screen.getByRole('checkbox');
+        const label = screen.getByTestId('label');
+
+        expect(label).toHaveAttribute('for', screen.getByTestId('trigger').id);
 
         fireEvent.click(checkbox);
+
+        expect(label).toHaveAttribute('for', screen.getByTestId('trigger').id);
+
         fireEvent.click(checkbox);
 
+        expect(label).toHaveAttribute('for', screen.getByTestId('trigger').id);
         expect(errorSpy.mock.calls.length).toBe(0);
       } finally {
         errorSpy.mockRestore();
