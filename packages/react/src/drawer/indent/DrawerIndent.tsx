@@ -30,7 +30,7 @@ export const DrawerIndent = React.forwardRef(function DrawerIndent(
 ) {
   const { render, className, style, ...elementProps } = componentProps;
 
-  const providerContext = useDrawerProviderContext(true);
+  const providerContext = useDrawerProviderContext();
 
   const active = providerContext?.active ?? false;
   const visualStateStore = providerContext?.visualStateStore;

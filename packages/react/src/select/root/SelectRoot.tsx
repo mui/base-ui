@@ -286,7 +286,12 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
 
   const handleUnmount = useStableCallback(() => {
     setMounted(false);
-    store.update({ activeIndex: null, openMethod: null });
+    store.update({
+      activeIndex: null,
+      openMethod: null,
+      scrollUpArrowVisible: false,
+      scrollDownArrowVisible: false,
+    });
     onOpenChangeComplete?.(false);
   });
 
@@ -346,7 +351,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     listRef,
     activeIndex,
     selectedIndex,
-    disabledIndices: EMPTY_ARRAY as number[],
+    disabledIndices: EMPTY_ARRAY,
     onNavigate(nextActiveIndex) {
       // Retain the highlight while transitioning out.
       if (nextActiveIndex === null && !open) {
@@ -373,7 +378,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
       if (open) {
         store.set('activeIndex', index);
       } else {
-        setValue(valuesRef.current[index], createChangeEventDetails('none'));
+        setValue(valuesRef.current[index], createChangeEventDetails(REASONS.none));
       }
     },
     onTyping(typing) {

@@ -78,11 +78,11 @@ describe('<Slider.Value />', () => {
       </Slider.Root>,
     );
 
-    expect(screen.getByTestId('output')).toHaveTextContent(formatValue(40));
+    expect(screen.getByTestId('output').textContent).toBe(formatValue(40));
 
     await setProps({ format: { style: 'currency', currency: 'USD' } });
 
-    expect(screen.getByTestId('output')).toHaveTextContent(
+    expect(screen.getByTestId('output').textContent).toBe(
       formatValue(40, { style: 'currency', currency: 'USD' }),
     );
   });

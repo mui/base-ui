@@ -2,7 +2,7 @@
 import * as React from 'react';
 import { useToastPositionerContext } from '../positioner/ToastPositionerContext';
 import type { BaseUIComponentProps } from '../../internals/types';
-import type { Side, Align } from '../../utils/useAnchorPositioning';
+import type { Side, Align } from '../../internals/useAnchorPositioning';
 import { useRenderElement } from '../../internals/useRenderElement';
 
 /**

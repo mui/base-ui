@@ -11,7 +11,7 @@ import type { CollapsibleRoot } from './CollapsibleRoot';
 export function useCollapsibleRoot(
   parameters: UseCollapsibleRootParameters,
 ): UseCollapsibleRootReturnValue {
-  const { open: openParam, defaultOpen, onOpenChange, disabled } = parameters;
+  const { open: openParam, defaultOpen = false, onOpenChange, disabled } = parameters;
 
   const [open, setOpen] = useControlled({
     controlled: openParam,
@@ -23,8 +23,9 @@ export function useCollapsibleRoot(
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open, true, true);
 
   const defaultPanelId = useBaseUiId();
-  const [panelIdState, setPanelIdState] = React.useState<string | undefined>();
-  const panelId = panelIdState ?? defaultPanelId;
+  // `undefined` uses the initial generated fallback; `null` means the panel unmounted.
+  const [registeredPanelId, setPanelIdState] = React.useState<string | null | undefined>();
+  const panelId = registeredPanelId === null ? undefined : (registeredPanelId ?? defaultPanelId);
 
   const handleTrigger = useStableCallback((event: React.MouseEvent | React.KeyboardEvent) => {
     const nextOpen = !open;
@@ -41,6 +42,7 @@ export function useCollapsibleRoot(
 
   return React.useMemo(
     () => ({
+      defaultPanelId,
       disabled,
       handleTrigger,
       mounted,
@@ -52,6 +54,7 @@ export function useCollapsibleRoot(
       transitionStatus,
     }),
     [
+      defaultPanelId,
       disabled,
       handleTrigger,
       mounted,
@@ -91,6 +94,7 @@ export interface UseCollapsibleRootParameters {
 }
 
 export interface UseCollapsibleRootReturnValue {
+  defaultPanelId: React.HTMLAttributes<Element>['id'];
   /**
    * Whether the component should ignore user interaction.
    */
@@ -109,7 +113,7 @@ export interface UseCollapsibleRootReturnValue {
   panelId: React.HTMLAttributes<Element>['id'];
   setMounted: (nextMounted: boolean) => void;
   setOpen: (open: boolean) => void;
-  setPanelIdState: (id: string | undefined) => void;
+  setPanelIdState: React.Dispatch<React.SetStateAction<string | null | undefined>>;
   transitionStatus: TransitionStatus;
 }
 

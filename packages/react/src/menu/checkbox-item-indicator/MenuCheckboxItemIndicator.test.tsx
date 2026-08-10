@@ -2,7 +2,7 @@ import { expect, vi } from 'vitest';
 import * as React from 'react';
 import { Menu } from '@base-ui/react/menu';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
-import { screen, waitFor } from '@mui/internal-test-utils';
+import { fireEvent, screen, waitFor } from '@mui/internal-test-utils';
 
 describe('<Menu.CheckboxItemIndicator />', () => {
   beforeEach(() => {
@@ -178,15 +178,13 @@ describe('<Menu.CheckboxItemIndicator />', () => {
         );
       }
 
-      const { user } = await render(<Test />);
+      await render(<Test />);
 
       expect(screen.getByTestId('indicator')).not.toBe(null);
 
-      await user.click(screen.getByText('Close'));
+      fireEvent.click(screen.getByText('Close'));
 
-      await waitFor(() => {
-        expect(screen.getByTestId('indicator')).toHaveAttribute('data-ending-style');
-      });
+      expect(screen.getByTestId('indicator')).toHaveAttribute('data-ending-style');
 
       await waitFor(() => {
         expect(screen.queryByTestId('indicator')).toBe(null);

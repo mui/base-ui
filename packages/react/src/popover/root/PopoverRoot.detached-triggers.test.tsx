@@ -3,6 +3,7 @@ import * as React from 'react';
 import type { UserEvent } from '@testing-library/user-event';
 import { createRenderer, isJSDOM } from '#test-utils';
 import { act, screen, waitFor } from '@mui/internal-test-utils';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { Popover } from '@base-ui/react/popover';
 
 describe('<Popover.Root />', () => {
@@ -11,6 +12,38 @@ describe('<Popover.Root />', () => {
   });
 
   const { render, clock } = createRenderer();
+
+  it('opens by trigger from a descendant layout effect on initial mount', async () => {
+    const handle = Popover.createHandle();
+    const consoleWarn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+
+    function OpenOnMount() {
+      useIsoLayoutEffect(() => {
+        handle.open('trigger');
+      }, []);
+      return null;
+    }
+
+    await render(
+      <Popover.Root handle={handle}>
+        <Popover.Trigger id="trigger">Trigger</Popover.Trigger>
+        <OpenOnMount />
+      </Popover.Root>,
+    );
+
+    const detachedWarned = consoleWarn.mock.calls.some(
+      ([message]) =>
+        typeof message === 'string' && message.includes('no root using this handle is mounted'),
+    );
+    consoleWarn.mockRestore();
+
+    expect(detachedWarned).toBe(false);
+    expect(handle.isOpen).toBe(true);
+    expect(screen.getByRole('button', { name: 'Trigger' })).toHaveAttribute(
+      'aria-expanded',
+      'true',
+    );
+  });
 
   describe.skipIf(isJSDOM)('handle-backed root ownership', () => {
     type NumberPayload = { payload: number | undefined };

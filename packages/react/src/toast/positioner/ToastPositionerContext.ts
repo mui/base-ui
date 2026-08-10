@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import type { UseAnchorPositioningReturnValue } from '../../utils/useAnchorPositioning';
+import type { UseAnchorPositioningReturnValue } from '../../internals/useAnchorPositioning';
 
 export type ToastPositionerContext = Pick<
   UseAnchorPositioningReturnValue,

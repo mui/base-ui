@@ -431,16 +431,21 @@ describe('<NumberField />', () => {
     it('accepts grouping while typing and parses progressively', async () => {
       const onValueChange = vi.fn();
       const onValueCommitted = vi.fn();
+      const groupSeparator =
+        new Intl.NumberFormat().formatToParts(10000).find((part) => part.type === 'group')?.value ??
+        '';
+      expect(groupSeparator).not.toBe('');
+
       await render(
         <NumberField onValueChange={onValueChange} onValueCommitted={onValueCommitted} />,
       );
       const input = screen.getByRole('textbox');
 
       fireEvent.change(input, { target: { value: '1' } }); // 1
-      fireEvent.change(input, { target: { value: '1,' } }); // 1 (group symbol)
-      fireEvent.change(input, { target: { value: '1,2' } }); // 12
-      fireEvent.change(input, { target: { value: '1,23' } }); // 123
-      fireEvent.change(input, { target: { value: '1,234' } }); // 1234
+      fireEvent.change(input, { target: { value: `1${groupSeparator}` } }); // 1 (group symbol)
+      fireEvent.change(input, { target: { value: `1${groupSeparator}2` } }); // 12
+      fireEvent.change(input, { target: { value: `1${groupSeparator}23` } }); // 123
+      fireEvent.change(input, { target: { value: `1${groupSeparator}234` } }); // 1234
 
       expect(onValueChange.mock.calls.length).toBe(5);
       expect(onValueChange.mock.calls[0][0]).toBe(1);
@@ -534,16 +539,40 @@ describe('<NumberField />', () => {
 
     it('accepts currency symbol while typing and parses numeric value', async () => {
       const onValueChange = vi.fn();
-      await render(
-        <NumberField
-          onValueChange={onValueChange}
-          format={{ style: 'currency', currency: 'USD' }}
-        />,
-      );
+      const format: Intl.NumberFormatOptions = { style: 'currency', currency: 'USD' };
+      const formatter = new Intl.NumberFormat(undefined, format);
+      const parts = formatter.formatToParts(12345);
+      const groupSeparator = parts.find((part) => part.type === 'group')?.value ?? '';
+      expect(groupSeparator).not.toBe('');
+
+      function formatPartialValue(value: string) {
+        let valueInserted = false;
+        return parts
+          .map((part) => {
+            if (
+              part.type === 'integer' ||
+              part.type === 'group' ||
+              part.type === 'decimal' ||
+              part.type === 'fraction'
+            ) {
+              if (!valueInserted) {
+                valueInserted = true;
+                return value;
+              }
+              return '';
+            }
+            return part.value;
+          })
+          .join('');
+      }
+
+      await render(<NumberField onValueChange={onValueChange} format={format} />);
       const input = screen.getByRole('textbox');
 
-      fireEvent.change(input, { target: { value: '$1' } });
-      fireEvent.change(input, { target: { value: '$1,2' } });
+      fireEvent.change(input, { target: { value: formatPartialValue('1') } });
+      fireEvent.change(input, {
+        target: { value: formatPartialValue(`1${groupSeparator}2`) },
+      });
 
       expect(onValueChange.mock.calls.length).toBe(2);
       expect(onValueChange.mock.calls[0][0]).toBe(1);
