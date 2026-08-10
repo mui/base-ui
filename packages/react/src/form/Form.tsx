@@ -135,11 +135,17 @@ export const Form = React.forwardRef(function Form<
   });
 
   const clearErrors = useStableCallback((name: string | undefined) => {
-    if (name && errors && Object.hasOwn(errors, name)) {
-      const nextErrors = { ...errors };
-      delete nextErrors[name];
-      setErrors(nextErrors);
+    if (!name) {
+      return;
     }
+    setErrors((previousErrors) => {
+      if (!previousErrors || !Object.hasOwn(previousErrors, name)) {
+        return previousErrors;
+      }
+      const nextErrors = { ...previousErrors };
+      delete nextErrors[name];
+      return nextErrors;
+    });
   });
 
   const contextValue: FormContext = React.useMemo(
