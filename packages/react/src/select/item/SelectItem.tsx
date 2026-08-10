@@ -32,7 +32,7 @@ interface SelectItemImplProps extends SelectItem.Props {
 const SelectItemImpl = React.memo(
   React.forwardRef(function SelectItemImpl(
     componentProps: SelectItemImplProps,
-    forwardedRef: React.ForwardedRef<HTMLDivElement>,
+    forwardedRef: React.ForwardedRef<HTMLElement>,
   ) {
     const {
       registrationId,
@@ -232,7 +232,7 @@ const SelectItemImpl = React.memo(
 export const SelectItem = React.memo(
   React.forwardRef(function SelectItem(
     componentProps: SelectItem.Props,
-    forwardedRef: React.ForwardedRef<HTMLDivElement>,
+    forwardedRef: React.ForwardedRef<HTMLElement>,
   ) {
     const { store, multiple, registerItem } = useSelectRootContext();
     const filterable = useStore(store, selectors.filterable);
@@ -240,7 +240,7 @@ export const SelectItem = React.memo(
     const registrationId = useRefWithInit(() => Symbol('select-item')).current;
     const itemValue = componentProps.value ?? null;
     const textElementRef = React.useRef<HTMLElement | null>(null);
-    const ref = React.useRef<HTMLDivElement | null>(null);
+    const ref = React.useRef<HTMLElement | null>(null);
     const mergedRefs = useMergedRefs(forwardedRef, ref);
 
     // FilterDropdownItem removes a non-matching option's DOM node, which also removes it from
@@ -324,7 +324,8 @@ export interface SelectItemProps
    */
   disabled?: boolean | undefined;
   /**
-   * Specifies the text label to use when the item is matched during keyboard text navigation.
+   * Specifies the text label to use when the item is matched during keyboard text navigation,
+   * and when filtering.
    *
    * Defaults to the item text content if not provided.
    */

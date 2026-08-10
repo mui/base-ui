@@ -98,6 +98,94 @@ describe('<Menu.Root />', () => {
       expect(popup).toHaveAttribute('aria-labelledby', submenuTrigger.id);
     });
 
+    it('resets the input value once when the popup closes', async () => {
+      const onInputValueChange = vi.fn();
+
+      function Test() {
+        const [open, setOpen] = React.useState(true);
+
+        return (
+          <React.Fragment>
+            <button type="button" onClick={() => setOpen(false)}>
+              Close
+            </button>
+            <Menu.Root filter open={open} onInputValueChange={onInputValueChange}>
+              <Menu.Trigger>Fruit</Menu.Trigger>
+              <Menu.Portal>
+                <Menu.Positioner>
+                  <Menu.Popup>
+                    <Menu.Input aria-label="Filter fruit" />
+                    <Menu.List>
+                      <Menu.Item>Apple</Menu.Item>
+                    </Menu.List>
+                  </Menu.Popup>
+                </Menu.Positioner>
+              </Menu.Portal>
+            </Menu.Root>
+          </React.Fragment>
+        );
+      }
+
+      const { user } = await render(<Test />);
+      const input = await screen.findByRole('searchbox', { name: 'Filter fruit' });
+
+      await user.type(input, 'app');
+      onInputValueChange.mockClear();
+
+      await user.click(screen.getByRole('button', { name: 'Close' }));
+
+      await waitFor(() => {
+        expect(onInputValueChange).toHaveBeenCalledTimes(1);
+      });
+      expect(onInputValueChange.mock.calls[0][0]).toBe('');
+      expect(onInputValueChange.mock.calls[0][1].reason).toBe('popup-close');
+    });
+
+    it('leaves the uncontrolled query and visible items unchanged when a change is canceled', async () => {
+      const { user } = await render(
+        <Menu.Root
+          filter
+          open
+          defaultInputValue="app"
+          onInputValueChange={(_, eventDetails) => eventDetails.cancel()}
+        >
+          <Menu.Trigger>Fruit</Menu.Trigger>
+          <Menu.Portal>
+            <Menu.Positioner>
+              <Menu.Popup>
+                <Menu.Input aria-label="Filter fruit" />
+                <Menu.Clear aria-label="Clear filter" />
+                <Menu.List>
+                  <Menu.Item>Apple</Menu.Item>
+                  <Menu.Item>Banana</Menu.Item>
+                </Menu.List>
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
+        </Menu.Root>,
+      );
+
+      const input = await screen.findByRole('searchbox', { name: 'Filter fruit' });
+
+      expect(input).toHaveValue('app');
+      expect(screen.getByRole('menuitem', { name: 'Apple' })).toBeVisible();
+      expect(screen.queryByRole('menuitem', { name: 'Banana' })).toBe(null);
+
+      // Typing is rejected.
+      await user.type(input, 'x');
+
+      expect(input).toHaveValue('app');
+      expect(screen.getByRole('menuitem', { name: 'Apple' })).toBeVisible();
+      expect(screen.queryByRole('menuitem', { name: 'Banana' })).toBe(null);
+
+      // Clearing is rejected.
+      await user.click(screen.getByRole('button', { name: 'Clear filter' }));
+
+      expect(input).toHaveValue('app');
+      expect(screen.getByRole('menuitem', { name: 'Apple' })).toBeVisible();
+      expect(screen.queryByRole('menuitem', { name: 'Banana' })).toBe(null);
+    });
+
     it('supports a detached trigger in a filterable menu', async () => {
       function Test() {
         const handle = useRefWithInit(() => new Menu.Handle()).current;

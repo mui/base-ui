@@ -86,16 +86,6 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
     state: 'inputValue',
   });
 
-  const handleInputValueChange = useStableCallback(
-    (nextInputValue: string, eventDetails: MenuRoot.InputValueChangeEventDetails) => {
-      onInputValueChange?.(nextInputValue, eventDetails);
-
-      if (!eventDetails.isCanceled) {
-        setInputValue(nextInputValue);
-      }
-    },
-  );
-
   const contextMenuContext = useContextMenuRootContext(true);
   const parentMenuRootContext = useMenuRootContext(true);
   const menubarContext = useMenubarContext(true);
@@ -132,7 +122,11 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
   }, [contextMenuContext, parentMenuRootContext, menubarContext, isSubmenu]);
 
   const rootId = useBaseUiId();
-  const [floatingId, setFloatingId] = React.useState<string | undefined>(useBaseUiId());
+  // React 17 resolves generated ids in an effect, so they must be read live rather than captured
+  // in a state initializer.
+  const defaultFloatingId = useBaseUiId();
+  const [customFloatingId, setFloatingId] = React.useState<string | undefined>(undefined);
+  const floatingId = customFloatingId ?? defaultFloatingId;
   const floatingParentNodeIdFromContext = useFloatingParentNodeId();
 
   const store = useMenuRootStore<Payload>(
@@ -150,6 +144,21 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
     },
     floatingId,
     floatingParentNodeIdFromContext != null,
+  );
+
+  const handleInputValueChange = useStableCallback(
+    (nextInputValue: string, eventDetails: MenuRoot.InputValueChangeEventDetails) => {
+      onInputValueChange?.(nextInputValue, eventDetails);
+
+      if (eventDetails.isCanceled || nextInputValue === inputValue) {
+        return;
+      }
+
+      setInputValue(nextInputValue);
+      // Filtering compacts the list, so a numeric active index would point at a different item
+      // or at none at all. Return virtual focus to the input instead.
+      store.set('activeIndex', null);
+    },
   );
 
   store.useControlledProp('openProp', openProp);
@@ -207,7 +216,7 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
     // The root outlives the popup. Reset only after unmount so the filtered contents remain
     // stable during an exit transition and a prevented or interrupted unmount keeps the query.
     if (inputValue !== '') {
-      handleInputValueChange('', createChangeEventDetails(REASONS.inputClear));
+      handleInputValueChange('', createChangeEventDetails(REASONS.popupClose));
     }
   });
 
@@ -643,7 +652,11 @@ export interface MenuFilter extends FilterDropdownFilter {}
 
 interface MenuRootFilterEnabledProps {
   /**
-   * Enables filtering. Pass a function to customize how items match the query.
+   * Enables filtering. Pass a function to customize how items match the query; it receives the
+   * item's `label` (falling back to its rendered text) and the trimmed query.
+   *
+   * Read once when the menu mounts. Give `Menu.Root` a different `key` to switch a menu between
+   * filterable and non-filterable.
    * @default false
    */
   filter: true | MenuFilter;

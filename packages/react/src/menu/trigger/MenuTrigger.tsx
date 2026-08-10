@@ -41,7 +41,7 @@ import { FilterDropdownTrigger } from '../../filter-dropdown/trigger/FilterDropd
 
 const MenuTriggerImpl = React.forwardRef(function MenuTriggerImpl(
   componentProps: MenuTrigger.Props & MenuTriggerImplInternalProps,
-  forwardedRef: React.ForwardedRef<HTMLButtonElement>,
+  forwardedRef: React.ForwardedRef<HTMLElement>,
 ) {
   const {
     render,
@@ -107,7 +107,7 @@ interface MenuTriggerImplInternalProps {
  */
 export const MenuTrigger = fastComponentRef(function MenuTrigger(
   componentProps: MenuTrigger.Props,
-  forwardedRef: React.ForwardedRef<HTMLButtonElement>,
+  forwardedRef: React.ForwardedRef<HTMLElement>,
 ) {
   const {
     disabled: disabledProp = false,
@@ -356,7 +356,8 @@ export const MenuTrigger = fastComponentRef(function MenuTrigger(
 
 export interface MenuTrigger {
   <Payload>(
-    componentProps: MenuTriggerProps<Payload> & React.RefAttributes<HTMLButtonElement>,
+    // `render` can swap in any element, so the public ref stays widened to `HTMLElement`.
+    componentProps: MenuTriggerProps<Payload> & React.RefAttributes<HTMLElement>,
   ): React.JSX.Element;
 }
 

@@ -96,6 +96,7 @@ const MenuSubmenuTriggerImpl = React.forwardRef(function MenuSubmenuTriggerImpl(
 
   const itemProps = parentMenuStore.useState('itemProps');
   const highlighted = parentMenuStore.useState('isActive', listItem.index);
+  const isParentFilterable = parentMenuStore.select('filterable');
 
   const itemMetadata = React.useMemo(
     () => ({
@@ -174,7 +175,9 @@ const MenuSubmenuTriggerImpl = React.forwardRef(function MenuSubmenuTriggerImpl(
       shouldOmitExpanded ? VOICE_OVER_EXPANDED_PROPS : undefined,
       {
         'aria-controls': popupId,
-        tabIndex: open || highlighted ? 0 : -1,
+        // A filterable parent keeps real focus on its input and moves virtual focus instead, so
+        // the trigger must stay out of the tab order like every other item in that list.
+        tabIndex: isParentFilterable ? undefined : ((open || highlighted ? 0 : -1) as number),
         onBlur() {
           if (highlighted) {
             parentMenuStore.set('activeIndex', null);
@@ -288,7 +291,8 @@ export interface MenuSubmenuTriggerProps
   extends NonNativeButtonProps, BaseUIComponentProps<'div', MenuSubmenuTriggerState> {
   onClick?: BaseUIComponentProps<'div', MenuSubmenuTriggerState>['onClick'] | undefined;
   /**
-   * Overrides the text label to use when the item is matched during keyboard text navigation.
+   * Overrides the text label to use when the item is matched during keyboard text navigation,
+   * and when filtering.
    */
   label?: string | undefined;
   /**

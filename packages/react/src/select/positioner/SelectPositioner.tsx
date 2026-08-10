@@ -4,7 +4,6 @@ import { inertValue } from '@base-ui/utils/inertValue';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useStore } from '@base-ui/utils/store';
-import { useControlled } from '@base-ui/utils/useControlled';
 import { useSelectRootContext } from '../root/SelectRootContext';
 import { CompositeList } from '../../internals/composite/list/CompositeList';
 import type { BaseUIComponentProps } from '../../internals/types';
@@ -86,12 +85,18 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
   const scrollUpArrowRef = React.useRef<HTMLDivElement | null>(null);
   const scrollDownArrowRef = React.useRef<HTMLDivElement | null>(null);
 
-  const [alignItemWithTrigger, setAlignItemWithTrigger] = useControlled({
-    controlled: alignItemWithTriggerProp,
-    default: !filterable,
-    name: 'SelectPositioner',
-    state: 'alignItemWithTrigger',
-  });
+  // The prop is the consumer's preference; the state is a per-open fallback the popup turns off
+  // when alignment can't work (viewport collision, pinch zoom). Keeping them separate lets the
+  // fallback apply even with an explicit `alignItemWithTrigger`, and resetting while unmounted
+  // stops one failed opening from disabling alignment for every later one.
+  const alignItemWithTriggerPreference = alignItemWithTriggerProp ?? !filterable;
+  const [alignItemWithTrigger, setAlignItemWithTrigger] = React.useState(
+    alignItemWithTriggerPreference,
+  );
+
+  if (!mounted && alignItemWithTrigger !== alignItemWithTriggerPreference) {
+    setAlignItemWithTrigger(alignItemWithTriggerPreference);
+  }
 
   const alignItemWithTriggerActive = mounted && alignItemWithTrigger && openMethod !== 'touch';
 

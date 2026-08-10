@@ -104,7 +104,8 @@ export interface MenuItemProps
    */
   disabled?: boolean | undefined;
   /**
-   * Overrides the text label to use when the item is matched during keyboard text navigation.
+   * Overrides the text label to use when the item is matched during keyboard text navigation,
+   * and when filtering.
    */
   label?: string | undefined;
   /**

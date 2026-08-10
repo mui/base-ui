@@ -167,6 +167,44 @@ describe('<Menu.SubmenuTrigger />', () => {
     });
   });
 
+  it('stays out of the tab order when the parent menu is filterable', async () => {
+    const { user } = await render(
+      <Menu.Root filter open>
+        <Menu.Trigger>Actions</Menu.Trigger>
+        <Menu.Portal>
+          <Menu.Positioner>
+            <Menu.Popup>
+              <Menu.Input aria-label="Filter actions" />
+              <Menu.List>
+                <Menu.Item>Rename</Menu.Item>
+                <Menu.SubmenuRoot>
+                  <Menu.SubmenuTrigger delay={0}>Move to folder</Menu.SubmenuTrigger>
+                  <Menu.Portal>
+                    <Menu.Positioner>
+                      <Menu.Popup>
+                        <Menu.Item>Documents</Menu.Item>
+                      </Menu.Popup>
+                    </Menu.Positioner>
+                  </Menu.Portal>
+                </Menu.SubmenuRoot>
+              </Menu.List>
+            </Menu.Popup>
+          </Menu.Positioner>
+        </Menu.Portal>
+      </Menu.Root>,
+    );
+
+    const input = screen.getByRole('searchbox', { name: 'Filter actions' });
+    input.focus();
+
+    // Move virtual focus onto the submenu trigger; real focus stays on the input.
+    await user.keyboard('[ArrowDown][ArrowDown]');
+
+    const submenuTrigger = screen.getByRole('menuitem', { name: 'Move to folder' });
+    expect(submenuTrigger).not.toHaveAttribute('tabindex');
+    expect(input).toHaveFocus();
+  });
+
   describe('prop: disabled', () => {
     it('should render with disabled attributes when disabled prop is set', async () => {
       await render(

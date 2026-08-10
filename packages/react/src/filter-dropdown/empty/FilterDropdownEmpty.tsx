@@ -18,13 +18,14 @@ const FilterDropdownEmptyImpl = React.forwardRef(function FilterDropdownEmptyImp
   const sourceRef = React.useRef<HTMLDivElement | null>(null);
   const [announcementText, setAnnouncementText] = React.useState('');
 
-  // Mirror consumer-rendered content into the live region
+  // Mirror consumer-rendered content into the live region. Keyed on `children` because the
+  // message can change while Empty stays mounted, for example "No matches for {query}".
   useIsoLayoutEffect(() => {
     const textContent = sourceRef.current?.textContent;
     if (textContent) {
       setAnnouncementText(textContent);
     }
-  }, []);
+  }, [componentProps.children]);
 
   const element = useRenderElement('div', componentProps, {
     ref: [forwardedRef, sourceRef],

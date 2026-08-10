@@ -12,9 +12,10 @@ import { DemoComboboxHero } from './demos/hero';
 
 ## Usage guidelines
 
-- **Combobox is a filterable Select**: Use Combobox when the input is restricted to a set of predefined selectable items, similar to [Select](/react/components/select) but whose items are filterable using an input. Prefer using Combobox over Select when the number of items is sufficiently large to warrant filtering.
+- **Combobox is input-first**: The input is the control. The query persists while the user edits it, which suits asynchronous or external data, virtualised lists, autocomplete modes, and richer multiple-selection and chip composition.
+- **Prefer Select for a trigger-first control**: [Select](/react/components/select) is a form control with a trigger, and its `filter` prop adds a transient finder inside the popup. Choose Select for a fixed set of discrete choices in a modest, fully mounted list. Choose Combobox when the list is large, remote, or virtualised.
 - **Avoid for simple search widgets**: Combobox does not allow free-form text input. For search widgets, consider using [Autocomplete](/react/components/autocomplete) instead.
-- **Avoid when not rendering an input**: Use [Select](/react/components/select) instead of Combobox if no input is being rendered, which includes accessibility features specific to a listbox without an input.
+- **Avoid for actions**: Combobox selects a value. To let users find and run a command, use a filterable [Menu](/react/components/menu) instead.
 - **Form controls must have an accessible name**: If `<Combobox.Input>` is the form control, label it with a native `<label>` or `<Field.Label>`, or provide an `aria-label` when no visible label is rendered. `<Combobox.Label>` labels `<Combobox.Trigger>` and is intended for the [input-inside-popup](#input-inside-popup) pattern, where the trigger is the form control. See the [forms guide](/react/handbook/forms).
 
 ## Anatomy

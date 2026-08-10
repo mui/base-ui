@@ -4,9 +4,6 @@ import { Store } from '@base-ui/utils/store';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
-import { useOpenChangeComplete } from '@base-ui/react/internals/useOpenChangeComplete';
-import { createChangeEventDetails } from '@base-ui/react/internals/createBaseUIEventDetails';
-import { REASONS } from '@base-ui/react/internals/reasons';
 import { getContainsFilter } from '../../internals/filter';
 import type { BaseUIComponentProps } from '../../internals/types';
 import { useBaseUiId } from '../../internals/useBaseUiId';
@@ -38,7 +35,11 @@ export const FilterDropdownPopup = React.forwardRef(function FilterDropdownPopup
   const value = useFilterDropdownValueContext();
   const { setPopupId } = context;
   const id = idProp ?? context.popupId;
-  const [listId, setListId] = React.useState<string | undefined>(useBaseUiId());
+  // React 17 resolves generated ids in an effect, so they must be read live rather than captured
+  // in a state initializer.
+  const defaultListId = useBaseUiId();
+  const [registeredListId, setListId] = React.useState<string | undefined>(undefined);
+  const listId = registeredListId ?? defaultListId;
   const [registeredItems, registerItem] = useItemRegistry<symbol, () => string | undefined>();
 
   const inputRef = React.useRef<HTMLInputElement | null>(null);
@@ -104,18 +105,6 @@ export const FilterDropdownPopup = React.forwardRef(function FilterDropdownPopup
   useIsoLayoutEffect(() => {
     setPopupId(id);
   }, [id, setPopupId]);
-
-  useOpenChangeComplete({
-    open: context.open,
-    ref: popupRef,
-    onComplete() {
-      // The root outlives the popup. Reset only after unmount so the filtered contents remain
-      // stable during an exit transition and a prevented or interrupted unmount keeps the query.
-      if (!context.open && value !== '') {
-        context.onValueChange('', createChangeEventDetails(REASONS.none));
-      }
-    },
-  });
 
   const handlePopupRef = useStableCallback((element: HTMLDivElement | null) => {
     const previousElement = popupRef.current;
