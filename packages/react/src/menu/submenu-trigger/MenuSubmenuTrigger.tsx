@@ -63,7 +63,7 @@ export const MenuSubmenuTrigger = React.forwardRef(function MenuSubmenuTrigger(
   const baseRegisterTrigger = useTriggerRegistration(thisTriggerId, store);
   const registerTrigger = React.useCallback(
     (element: Element | null) => {
-      const cleanup = baseRegisterTrigger(element);
+      baseRegisterTrigger(element);
 
       if (element !== null && store.select('open') && store.select('activeTriggerId') == null) {
         store.update({
@@ -72,8 +72,6 @@ export const MenuSubmenuTrigger = React.forwardRef(function MenuSubmenuTrigger(
           closeDelay,
         });
       }
-
-      return cleanup;
     },
     [baseRegisterTrigger, closeDelay, store, thisTriggerId],
   );
