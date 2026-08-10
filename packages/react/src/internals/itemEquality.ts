@@ -1,3 +1,5 @@
+import { areArraysEqual } from '@base-ui/utils/areArraysEqual';
+
 export type ItemEqualityComparer<Item = any, Value = Item> = (
   itemValue: Item,
   selectedValue: Value,
@@ -15,6 +17,20 @@ export function compareItemEquality<Item, Value>(
     return Object.is(itemValue, selectedValue);
   }
   return comparer(itemValue, selectedValue);
+}
+
+export function isSelectedValueDirty(
+  currentValue: unknown,
+  initialValue: unknown,
+  comparer: ItemEqualityComparer,
+): boolean {
+  if (Array.isArray(currentValue) && Array.isArray(initialValue)) {
+    return !areArraysEqual(currentValue, initialValue, (itemValue, initialItemValue) =>
+      compareItemEquality(itemValue, initialItemValue, comparer),
+    );
+  }
+
+  return currentValue !== initialValue;
 }
 
 export function selectedValueIncludes<Item, Value>(
