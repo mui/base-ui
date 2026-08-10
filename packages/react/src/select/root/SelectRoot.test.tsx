@@ -22,6 +22,7 @@ describe('<Select.Root />', () => {
   });
 
   const { render, renderToString } = createRenderer();
+  const { render: renderNonStrict } = createRenderer({ strict: false });
 
   describe('conformance', () => {
     beforeEach(() => {
@@ -2949,6 +2950,22 @@ describe('<Select.Root />', () => {
   });
 
   describe('with Field.Root parent', () => {
+    it('applies the root id to the trigger', async () => {
+      await renderNonStrict(
+        <Field.Root>
+          <Field.Label data-testid="label">Label</Field.Label>
+          <Select.Root id="test-id">
+            <Select.Trigger data-testid="trigger">
+              <Select.Value />
+            </Select.Trigger>
+          </Select.Root>
+        </Field.Root>,
+      );
+
+      expect(screen.getByTestId('trigger')).toHaveAttribute('id', 'test-id');
+      expect(screen.getByTestId('label')).toHaveAttribute('for', 'test-id');
+    });
+
     it('should receive disabled prop from Field.Root', async () => {
       await render(
         <Field.Root disabled>

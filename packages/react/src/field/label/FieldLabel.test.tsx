@@ -1,5 +1,6 @@
 import { expect } from 'vitest';
 import * as React from 'react';
+import * as ReactDOM from 'react-dom';
 import { Field } from '@base-ui/react/field';
 import { act, screen } from '@mui/internal-test-utils';
 import { createRenderer, describeConformance } from '#test-utils';
@@ -110,6 +111,25 @@ describe('<Field.Label />', () => {
     await user.click(link);
 
     expect(link).toHaveFocus();
+    expect(screen.getByTestId('control')).not.toHaveFocus();
+  });
+
+  it('when nativeLabel={false}, clicking a portaled button focuses the button', async () => {
+    const { user } = await render(
+      <Field.Root>
+        <Field.Control data-testid="control" />
+        <Field.Label nativeLabel={false} render={<div />}>
+          Label
+          {ReactDOM.createPortal(<button type="button">inner</button>, document.body)}
+        </Field.Label>
+      </Field.Root>,
+    );
+
+    const button = screen.getByRole('button');
+
+    await user.click(button);
+
+    expect(button).toHaveFocus();
     expect(screen.getByTestId('control')).not.toHaveFocus();
   });
 

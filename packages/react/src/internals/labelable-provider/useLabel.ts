@@ -10,13 +10,13 @@ import { useLabelableContext } from './LabelableContext';
 
 /**
  * Whether the event originated from interactive content nested inside the label.
- * `closest()` keeps walking past the label, so matches outside it must be rejected:
- * the label itself may sit inside a link, a scroll viewport, or anything else focusable.
+ * `closest()` keeps walking past the label, so interactive ancestors must be rejected.
+ * Portaled descendants remain valid because their events bubble through the label in React.
  */
 function isInteractiveTarget(event: React.SyntheticEvent<Element>) {
   const target = getTarget(event.nativeEvent) as Element | null;
   const match = target?.closest(INTERACTIVE_SELECTOR);
-  return match != null && match !== event.currentTarget && contains(event.currentTarget, match);
+  return match != null && !contains(match, event.currentTarget);
 }
 
 export function getControlElement(labelElement: Element, controlId: string) {
