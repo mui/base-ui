@@ -169,47 +169,6 @@ describe('<Form />', () => {
     expect(screen.queryByTestId('second-error')).toBe(null);
   });
 
-  it('removes errors for every field that changes within a single commit', async () => {
-    const errors = { a: 'A error', b: 'B error' };
-
-    function MultiChangeApp() {
-      const [a, setA] = React.useState(false);
-      const [b, setB] = React.useState(false);
-
-      return (
-        <Form errors={errors}>
-          <Field.Root name="a">
-            <Switch.Root checked={a} onCheckedChange={setA} />
-            <Field.Error data-testid="a-error" />
-          </Field.Root>
-          <Field.Root name="b">
-            <Switch.Root checked={b} onCheckedChange={setB} />
-            <Field.Error data-testid="b-error" />
-          </Field.Root>
-          <button
-            type="button"
-            onClick={() => {
-              setA(true);
-              setB(true);
-            }}
-          >
-            Change both
-          </button>
-        </Form>
-      );
-    }
-
-    render(<MultiChangeApp />);
-
-    expect(screen.queryByTestId('a-error')).not.toBe(null);
-    expect(screen.queryByTestId('b-error')).not.toBe(null);
-
-    fireEvent.click(screen.getByText('Change both'));
-
-    expect(screen.queryByTestId('a-error')).toBe(null);
-    expect(screen.queryByTestId('b-error')).toBe(null);
-  });
-
   it('removes the previous registered field id when another control takes over', async () => {
     const onSubmit = vi.fn((event: React.FormEvent<HTMLFormElement>) => {
       event.preventDefault();
@@ -703,6 +662,47 @@ describe('<Form />', () => {
       await user.tab();
       expect(validateSpy.mock.calls.length).toBe(1);
       expect(screen.getByTestId('name-error')).toHaveTextContent('field error');
+    });
+
+    it('removes errors for every field that changes within a single commit', async () => {
+      const errors = { a: 'A error', b: 'B error' };
+
+      function MultiChangeApp() {
+        const [a, setA] = React.useState(false);
+        const [b, setB] = React.useState(false);
+
+        return (
+          <Form errors={errors}>
+            <Field.Root name="a">
+              <Switch.Root checked={a} onCheckedChange={setA} />
+              <Field.Error data-testid="a-error" />
+            </Field.Root>
+            <Field.Root name="b">
+              <Switch.Root checked={b} onCheckedChange={setB} />
+              <Field.Error data-testid="b-error" />
+            </Field.Root>
+            <button
+              type="button"
+              onClick={() => {
+                setA(true);
+                setB(true);
+              }}
+            >
+              Change both
+            </button>
+          </Form>
+        );
+      }
+
+      render(<MultiChangeApp />);
+
+      expect(screen.queryByTestId('a-error')).not.toBe(null);
+      expect(screen.queryByTestId('b-error')).not.toBe(null);
+
+      fireEvent.click(screen.getByText('Change both'));
+
+      expect(screen.queryByTestId('a-error')).toBe(null);
+      expect(screen.queryByTestId('b-error')).toBe(null);
     });
   });
 
