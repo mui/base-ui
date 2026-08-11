@@ -6,10 +6,8 @@ export type * from './popup/FilterDropdownPopup';
 export type * from './input/FilterDropdownInput';
 export type * from './clear/FilterDropdownClear';
 export type * from './list/FilterDropdownList';
-export type * from './item/FilterDropdownItem';
 export type * from './empty/FilterDropdownEmpty';
 export type {
-  FilterDropdownFilter,
   FilterDropdownRootChangeEventDetails,
   FilterDropdownRootChangeEventReason,
 } from './root/FilterDropdownRootContext';

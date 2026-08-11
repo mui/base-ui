@@ -234,7 +234,6 @@ export const SelectItem = React.memo(
     forwardedRef: React.ForwardedRef<HTMLElement>,
   ) {
     const { store, multiple, registerItem } = useSelectRootContext();
-    const filterIntegration = useStore(store, selectors.filterIntegration);
     const isItemEqualToValue = useStore(store, selectors.isItemEqualToValue);
     const registrationId = useRefWithInit(() => Symbol('select-item')).current;
     const itemValue = componentProps.value ?? null;
@@ -242,10 +241,6 @@ export const SelectItem = React.memo(
     const ref = React.useRef<HTMLElement | null>(null);
     const mergedRefs = useMergedRefs(forwardedRef, ref);
 
-    // FilterDropdownItem removes a non-matching option's DOM node, which also removes it from
-    // CompositeList. Register at the SelectItem level so its value remains available while the
-    // React item is still mounted; otherwise filtering could be mistaken for an item removal and
-    // clear a selected value.
     useIsoLayoutEffect(() => {
       const getValue = () => itemValue;
       const getTextElement = () => textElementRef.current;
@@ -271,25 +266,13 @@ export const SelectItem = React.memo(
       }
     }, [multiple, isItemEqualToValue, store, itemValue, registrationId]);
 
-    const selectItem = (
+    return (
       <SelectItemImpl
         {...componentProps}
         ref={mergedRefs}
         registrationId={registrationId}
         textElementRef={textElementRef}
       />
-    );
-
-    return filterIntegration ? (
-      // The filter wrapper composes onto SelectItemImpl so its implementation
-      // overrides SelectItemImpl's implementation.
-      <filterIntegration.Item
-        role={SELECT_ITEM_ROLE}
-        label={componentProps.label}
-        render={selectItem}
-      />
-    ) : (
-      selectItem
     );
   }),
 );

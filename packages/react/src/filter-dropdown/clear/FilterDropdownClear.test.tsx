@@ -86,6 +86,7 @@ function ControlledFilterDropdownRoot(props: ControlledFilterDropdownRootProps) 
   return (
     <FilterDropdown.Root
       open
+      empty={false}
       value={value}
       onValueChange={(nextValue, eventDetails) => {
         onValueChange?.(nextValue, eventDetails);

@@ -204,9 +204,14 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
   );
 
   // Reconcile after React commits both the item registry and the possibly controlled value.
-  // Filtered items remain registered, so only actual SelectItem unmounts appear as removals here.
+  // A filterable root narrows `items` before rendering, so its registrations fluctuate with the
+  // query; there the full `items` data is the removal authority instead (see SelectRoot).
   useIsoLayoutEffect(
     function syncSelectedValueOnItemRemoval() {
+      if (store.state.filterable) {
+        return;
+      }
+
       const previousRegisteredItems = previousRegisteredItemsRef.current;
       previousRegisteredItemsRef.current = registeredItems;
 

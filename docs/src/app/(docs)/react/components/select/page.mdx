@@ -148,7 +148,7 @@ To avoid lookup, [object values](#object-values) for each item can also be used.
 </Select.Root>
 ```
 
-Filtering then narrows `items` before the list renders, so only matching entries are mounted.
+A filterable select narrows `items` before the list renders, so only matching entries are mounted.
 
 For grouped data, pass each group's entries to `<Select.Group>` and render them with `<Select.Collection>`:
 
@@ -171,7 +171,7 @@ For grouped data, pass each group's entries to `<Select.Group>` and render them 
 
 Groups with no remaining matches are dropped.
 
-Rendering `<Select.Item>` children yourself still works. Those items are matched on their rendered text instead.
+An ordinary select can still render `<Select.Item>` children directly. A filterable select requires `items`: filtering is a data operation, so the list must derive from data.
 
 ### Labeling a select
 
@@ -224,12 +224,15 @@ const items = [
 
 Import `FilterSelect` from `@base-ui/react/filter-select` to let users filter the available items. It exposes every ordinary select part plus `<FilterSelect.Input>`, `<FilterSelect.Clear>`, and `<FilterSelect.Empty>`, so a filterable select needs only this one import.
 
-Pass the items to the `items` prop and render them with a function as the `children` of `<FilterSelect.List>`. Filtering then narrows `items` before the list renders, so only matching entries are mounted:
+Pass the items to the `items` prop (required) and render them with a function as the `children` of `<FilterSelect.List>`. Filtering narrows `items` before the list renders, so only matching entries are mounted:
 
 ```jsx title="Filterable select"
 import { FilterSelect } from '@base-ui/react/filter-select';
 
-const items = ['Apple', 'Banana', 'Cherry'];
+const items = [
+  { value: 'apple', label: 'Apple' },
+  { value: 'banana', label: 'Banana' },
+];
 
 <FilterSelect.Root items={items}>
   <FilterSelect.Trigger>
@@ -242,8 +245,8 @@ const items = ['Apple', 'Banana', 'Cherry'];
         <FilterSelect.Empty />
         <FilterSelect.List>
           {(item) => (
-            <FilterSelect.Item key={item} value={item}>
-              {item}
+            <FilterSelect.Item key={item.value} value={item.value}>
+              {item.label}
             </FilterSelect.Item>
           )}
         </FilterSelect.List>
@@ -261,10 +264,10 @@ Filtering lives in its own entrypoint so that an ordinary `@base-ui/react/select
 
 Give `<FilterSelect.Input>` its own accessible name with `aria-label` or a native `<label>`. `<FilterSelect.Label>` labels the trigger, not the input.
 
-Pass a function to `filter` to customize matching. It is called with the item (the `items` entry, or the item's text when the list is authored as children) and the trimmed query, and returns whether the item matches:
+Pass a function to `filter` to customize matching. It is called with the `items` entry and the trimmed query, and returns whether the item matches:
 
 ```jsx title="Custom filter"
-<FilterSelect.Root items={items} filter={(item, query) => item.startsWith(query)}>
+<FilterSelect.Root items={items} filter={(item, query) => item.label.startsWith(query)}>
 ```
 
 The first argument is the item's `label` prop, falling back to its rendered text content. This differs from [Combobox](/react/components/combobox), which filters on item values.

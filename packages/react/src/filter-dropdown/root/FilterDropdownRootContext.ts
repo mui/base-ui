@@ -3,10 +3,10 @@ import * as React from 'react';
 import type { BaseUIChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import type { REASONS } from '../../internals/reasons';
 
-export type FilterDropdownFilter = (filterText: string, query: string) => boolean;
-
 export interface FilterDropdownRootContext {
   open: boolean;
+  /** Whether the current query matched no items, supplied by the host's data pass. */
+  empty: boolean;
   popupElements: WeakSet<EventTarget>;
   popupId: string | undefined;
   setPopupId: React.Dispatch<React.SetStateAction<string | undefined>>;
@@ -15,8 +15,6 @@ export interface FilterDropdownRootContext {
   liveRegionElement: HTMLDivElement | null;
   setLiveRegionElement: React.Dispatch<React.SetStateAction<HTMLDivElement | null>>;
   setTriggerElement: React.Dispatch<React.SetStateAction<HTMLElement | null>>;
-  locale: Intl.LocalesArgument | undefined;
-  filter: FilterDropdownFilter | undefined;
   onValueChange: (value: string, eventDetails: FilterDropdownRoot.ChangeEventDetails) => void;
 }
 

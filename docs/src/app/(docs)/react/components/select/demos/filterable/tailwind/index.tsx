@@ -3,19 +3,19 @@ import * as React from 'react';
 import { FilterSelect } from '@base-ui/react/filter-select';
 
 const fruits = [
-  'Apple',
-  'Apricot',
-  'Banana',
-  'Blueberry',
-  'Cherry',
-  'Grape',
-  'Kiwi',
-  'Mango',
-  'Orange',
-  'Peach',
-  'Pear',
-  'Pineapple',
-  'Strawberry',
+  { value: 'apple', label: 'Apple' },
+  { value: 'apricot', label: 'Apricot' },
+  { value: 'banana', label: 'Banana' },
+  { value: 'blueberry', label: 'Blueberry' },
+  { value: 'cherry', label: 'Cherry' },
+  { value: 'grape', label: 'Grape' },
+  { value: 'kiwi', label: 'Kiwi' },
+  { value: 'mango', label: 'Mango' },
+  { value: 'orange', label: 'Orange' },
+  { value: 'peach', label: 'Peach' },
+  { value: 'pear', label: 'Pear' },
+  { value: 'pineapple', label: 'Pineapple' },
+  { value: 'strawberry', label: 'Strawberry' },
 ];
 
 export default function FilterSelectDemo() {
@@ -54,16 +54,18 @@ export default function FilterSelectDemo() {
                 No fruits found.
               </FilterSelect.Empty>
               <FilterSelect.List className="max-h-[min(16rem,var(--available-height))] overflow-y-auto py-1 scroll-py-1 empty:py-0">
-                {(fruit) => (
+                {(fruit: { value: string; label: string }) => (
                   <FilterSelect.Item
-                    key={fruit}
-                    value={fruit}
+                    key={fruit.value}
+                    value={fruit.value}
                     className="grid cursor-default grid-cols-[1rem_1fr] items-center gap-2 py-1.5 pr-4 pl-2.5 text-sm outline-hidden select-none data-highlighted:bg-neutral-950 data-highlighted:text-white dark:data-highlighted:bg-white dark:data-highlighted:text-neutral-950"
                   >
                     <FilterSelect.ItemIndicator className="col-start-1">
                       <CheckIcon />
                     </FilterSelect.ItemIndicator>
-                    <FilterSelect.ItemText className="col-start-2">{fruit}</FilterSelect.ItemText>
+                    <FilterSelect.ItemText className="col-start-2">
+                      {fruit.label}
+                    </FilterSelect.ItemText>
                   </FilterSelect.Item>
                 )}
               </FilterSelect.List>

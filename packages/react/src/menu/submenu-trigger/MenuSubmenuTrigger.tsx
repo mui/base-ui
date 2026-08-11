@@ -219,10 +219,8 @@ const MenuSubmenuTriggerWithListItem = React.forwardRef(function MenuSubmenuTrig
   // The trigger is an item in the parent menu, so its generated ID must match the parent's
   // aria-activedescendant namespace rather than the submenu it opens.
   const triggerId = componentProps.id ?? `${parentFloatingId}-${listItem.index}`;
-  // Child filterability controls trigger/dialog semantics; parent filterability controls whether
-  // this trigger participates in the parent's filtering.
+  // Child filterability controls trigger/dialog semantics.
   const submenuFilterIntegration = store.select('filterIntegration');
-  const listFilterIntegration = parentMenuStore.select('filterIntegration');
 
   const triggerElement = (
     <MenuSubmenuTriggerImpl
@@ -245,11 +243,7 @@ const MenuSubmenuTriggerWithListItem = React.forwardRef(function MenuSubmenuTrig
     triggerElement
   );
 
-  return listFilterIntegration ? (
-    <listFilterIntegration.Item label={componentProps.label} role="menuitem" render={trigger} />
-  ) : (
-    trigger
-  );
+  return trigger;
 });
 
 /**

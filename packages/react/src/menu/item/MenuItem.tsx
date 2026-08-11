@@ -7,7 +7,13 @@ import type { BaseUIComponentProps, NonNativeButtonProps } from '../../internals
 import { useCompositeListItem } from '../../internals/composite/list/useCompositeListItem';
 import { useMenuPositionerContext } from '../positioner/MenuPositionerContext';
 
-const MenuItemImpl = React.forwardRef(function MenuItemImpl(
+/**
+ * An individual interactive item in the menu.
+ * Renders a `<div>` element.
+ *
+ * Documentation: [Base UI Menu](https://base-ui.com/react/components/menu)
+ */
+export const MenuItem = React.forwardRef(function MenuItem(
   componentProps: MenuItem.Props,
   forwardedRef: React.ForwardedRef<HTMLElement>,
 ) {
@@ -55,29 +61,6 @@ const MenuItemImpl = React.forwardRef(function MenuItemImpl(
   });
 
   return element;
-});
-
-/**
- * An individual interactive item in the menu.
- * Renders a `<div>` element.
- *
- * Documentation: [Base UI Menu](https://base-ui.com/react/components/menu)
- */
-export const MenuItem = React.forwardRef(function MenuItem(
-  componentProps: MenuItem.Props,
-  forwardedRef: React.ForwardedRef<HTMLElement>,
-) {
-  const { store } = useMenuRootContext();
-  const filterIntegration = store.select('filterIntegration');
-  const menuItem = <MenuItemImpl {...componentProps} ref={forwardedRef} />;
-
-  return filterIntegration ? (
-    // The filter wrapper composes onto MenuItemImpl so its implementation
-    // overrides MenuItemImpl's implementation.
-    <filterIntegration.Item label={componentProps.label} role="menuitem" render={menuItem} />
-  ) : (
-    menuItem
-  );
 });
 
 export interface MenuItemState {

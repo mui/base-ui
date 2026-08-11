@@ -13,7 +13,13 @@ import { useMenuPositionerContext } from '../positioner/MenuPositionerContext';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
 
-const MenuRadioItemImpl = React.forwardRef(function MenuRadioItemImpl(
+/**
+ * A menu item that works like a radio button in a given group.
+ * Renders a `<div>` element.
+ *
+ * Documentation: [Base UI Menu](https://base-ui.com/react/components/menu)
+ */
+export const MenuRadioItem = React.forwardRef(function MenuRadioItem(
   componentProps: MenuRadioItem.Props,
   forwardedRef: React.ForwardedRef<HTMLElement>,
 ) {
@@ -93,33 +99,6 @@ const MenuRadioItemImpl = React.forwardRef(function MenuRadioItemImpl(
   });
 
   return <MenuRadioItemContext.Provider value={state}>{element}</MenuRadioItemContext.Provider>;
-});
-
-/**
- * A menu item that works like a radio button in a given group.
- * Renders a `<div>` element.
- *
- * Documentation: [Base UI Menu](https://base-ui.com/react/components/menu)
- */
-export const MenuRadioItem = React.forwardRef(function MenuRadioItem(
-  componentProps: MenuRadioItem.Props,
-  forwardedRef: React.ForwardedRef<HTMLElement>,
-) {
-  const { store } = useMenuRootContext();
-  const filterIntegration = store.select('filterIntegration');
-  const menuRadioItem = <MenuRadioItemImpl {...componentProps} ref={forwardedRef} />;
-
-  return filterIntegration ? (
-    // The filter wrapper composes onto MenuRadioItemImpl so its implementation
-    // overrides MenuRadioItemImpl's implementation.
-    <filterIntegration.Item
-      label={componentProps.label}
-      role="menuitemradio"
-      render={menuRadioItem}
-    />
-  ) : (
-    menuRadioItem
-  );
 });
 
 export interface MenuRadioItemState {

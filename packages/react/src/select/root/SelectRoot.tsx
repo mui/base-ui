@@ -43,7 +43,6 @@ import {
   stringifyAsLabel,
   stringifyAsValue,
 } from '../../internals/resolveValueLabel';
-import { getContainsFilter } from '../../internals/filter';
 import {
   compareItemEquality,
   defaultItemEquality,
@@ -327,8 +326,9 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
   );
 
   // `items` is the data source when provided: it drives what the list renders and what filtering
-  // narrows. Consumers that render `<Select.Item>` children themselves still get DOM-text
-  // filtering, and keep using `items` purely to resolve labels in `<Select.Value>`.
+  // narrows. A filterable select requires it; ordinary consumers can still render
+  // `<Select.Item>` children themselves and use `items` purely to resolve labels in
+  // `<Select.Value>`.
   const hasItems = items !== undefined;
   const isGrouped = Array.isArray(items) && isGroupedItems(items);
 
@@ -344,12 +344,17 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     return Object.entries(items).map(([itemValue, label]) => ({ value: itemValue, label }));
   }, [items]);
 
-  const matchesItem = React.useMemo(() => filterProp ?? getContainsFilter(), [filterProp]);
+  const matchesItem = React.useMemo(
+    () => filterProp ?? filterIntegration?.getDefaultFilter(),
+    [filterProp, filterIntegration],
+  );
 
   const query = inputValue.trim();
 
   const filteredItems: readonly any[] = React.useMemo(() => {
-    if (!hasItems || query === '') {
+    // `matchesItem` always exists when filterable; the check doubles as type narrowing. An
+    // ordinary select never filters `items`, even when an input value is set programmatically.
+    if (!hasItems || !filterable || query === '' || matchesItem === undefined) {
       return normalizedItems;
     }
 
@@ -367,7 +372,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     }
 
     return normalizedItems.filter((item) => matchesItem(item, query, itemToStringLabel));
-  }, [hasItems, query, normalizedItems, isGrouped, matchesItem, itemToStringLabel]);
+  }, [hasItems, filterable, query, normalizedItems, isGrouped, matchesItem, itemToStringLabel]);
 
   const flatFilteredItems: readonly any[] = React.useMemo(() => {
     if (isGrouped) {
@@ -379,14 +384,6 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
   const derivedItemsContextValue: SelectDerivedItemsContext = React.useMemo(
     () => ({ hasItems, filteredItems, flatFilteredItems }),
     [hasItems, filteredItems, flatFilteredItems],
-  );
-
-  // The item is already the item's text here, so there is nothing left to stringify.
-  // Its identity is load-bearing: the popup re-runs filtering when the filter changes, so this
-  // deliberately uses `useCallback` rather than a stable callback.
-  const domTextFilter = React.useCallback(
-    (itemText: string, itemQuery: string) => matchesItem(itemText, itemQuery),
-    [matchesItem],
   );
 
   const handleUnmount = useStableCallback(() => {
@@ -436,6 +433,70 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
       setValueUnwrapped(nextValue);
     },
   );
+
+  // A filterable list narrows `items` before rendering, so item registrations fluctuate with the
+  // query and cannot distinguish a filtered-out item from a removed one. The full `items` data is
+  // the removal authority instead: drop selected values whose entries left it. Ordinary roots
+  // keep the registration-based reconciliation in SelectPositioner.
+  useIsoLayoutEffect(() => {
+    if (!filterable || !hasItems) {
+      return;
+    }
+
+    const flatEntries: readonly any[] = isGrouped
+      ? (normalizedItems as ReadonlyArray<Group<any>>).flatMap((group) => group.items)
+      : normalizedItems;
+    const isItemPresent = (itemValue: any) =>
+      flatEntries.some((entry) =>
+        compareItemEquality(
+          entry && typeof entry === 'object' && 'value' in entry ? entry.value : entry,
+          itemValue,
+          isItemEqualToValue,
+        ),
+      );
+
+    function getNextSelectedValue() {
+      if (multiple) {
+        if (Array.isArray(value)) {
+          const remainingValues = value.filter(isItemPresent);
+          return remainingValues.length === value.length ? value : remainingValues;
+        }
+        return value;
+      }
+
+      if (value != null && !isItemPresent(value)) {
+        const initialValue = initialValueRef.current;
+        const hasInitialValue = initialValue != null && isItemPresent(initialValue);
+        return hasInitialValue ? initialValue : null;
+      }
+
+      return value;
+    }
+
+    const nextSelectedValue = getNextSelectedValue();
+    if (value === nextSelectedValue) {
+      return;
+    }
+
+    setValue(nextSelectedValue, createChangeEventDetails(REASONS.none));
+
+    const hasNoSelectionReference =
+      nextSelectedValue == null ||
+      (multiple && Array.isArray(nextSelectedValue) && nextSelectedValue.length === 0);
+    if (hasNoSelectionReference) {
+      store.set('selectionReferenceItemId', null);
+    }
+  }, [
+    store,
+    filterable,
+    hasItems,
+    isGrouped,
+    normalizedItems,
+    multiple,
+    value,
+    isItemEqualToValue,
+    setValue,
+  ]);
 
   const handleScrollArrowVisibility = useStableCallback((scroller: HTMLElement) => {
     const maxScrollTop = getMaxScrollOffset(scroller.scrollHeight, scroller.clientHeight);
@@ -735,10 +796,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
   const content = filterIntegration ? (
     <filterIntegration.Root
       open={open}
-      // Rendered items are always matched on their DOM text, which the shared filter accepts as
-      // the item. When `items` drives the list this repeats a decision the data pass already
-      // made, and both agree because the data pass matches the same label text.
-      filter={domTextFilter}
+      empty={hasItems && query !== '' && flatFilteredItems.length === 0}
       value={inputValue}
       onValueChange={handleInputValueChange}
     >
@@ -802,8 +860,8 @@ export type SelectFilter = (
 // not compile. Misuse is reported at runtime instead: `Select.Input` throws without `filter`.
 interface SelectRootFilterProps {
   /**
-   * Customizes how items match the query. The function receives the item's `label` (falling back
-   * to its rendered text) and the trimmed query.
+   * Customizes how items match the query. The function receives the `items` entry and the
+   * trimmed query.
    * Only a filterable select (`FilterSelect.Root`) filters.
    */
   filter?: SelectFilter | undefined;
