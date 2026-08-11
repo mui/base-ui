@@ -35,6 +35,11 @@ const FilterDropdownEmptyImpl = React.forwardRef(function FilterDropdownEmptyImp
   return (
     <React.Fragment>
       {element}
+      {/**
+       * Keep the live-region copy outside the popup. If this was in situ, screen readers would
+       * count it as a third dialog item even though users can interact only with the input and list.
+       * The portal also prevents it from affecting layout when styling.
+       */}
       {announcementText &&
         context.liveRegionElement &&
         ReactDOM.createPortal(<div>{announcementText}</div>, context.liveRegionElement)}

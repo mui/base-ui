@@ -26,6 +26,7 @@ import {
   getFloatingFocusElement,
   getTarget,
   isTypeableCombobox,
+  isTypeableElement,
 } from '../utils/element';
 import { enqueueFocus } from '../utils/enqueueFocus';
 import { isVirtualClick, isVirtualPointerEvent, stopEvent } from '../utils/event';
@@ -217,12 +218,22 @@ export interface UseListNavigationProps {
    */
   externalTree?: FloatingTreeStore | undefined;
   /**
+   * Whether focusing the reference while the popup is open resets virtual navigation.
+   * @default false
+   */
+  resetOnReferenceFocus?: boolean | undefined;
+  /**
    * Computes two-dimensional list navigation for grid-capable consumers.
    */
   grid?: typeof gridNavigation | null | undefined;
 }
 
 type VirtualFocusReturnData = { item: HTMLElement; event: React.KeyboardEvent };
+type PendingVirtualFocusReturn = {
+  reference: HTMLElement;
+  index: number;
+  event: React.KeyboardEvent;
+};
 
 /**
  * Adds arrow key-based navigation of a list of items, either using real DOM
@@ -253,6 +264,7 @@ export function useListNavigation(
     id,
     resetOnPointerLeave = true,
     externalTree,
+    resetOnReferenceFocus = false,
     grid: navigateGrid,
   } = props;
   const isGrid = navigateGrid != null;
@@ -296,6 +308,7 @@ export function useListNavigation(
   const keyRef = React.useRef<null | string>(null);
   const isPointerModalityRef = React.useRef(true);
   const referenceRef = React.useRef<HTMLElement | null>(null);
+  const pendingFocusReturnRef = React.useRef<PendingVirtualFocusReturn | null>(null);
 
   const onNavigate = useStableCallback((event?: React.SyntheticEvent) => {
     onNavigateProp(indexRef.current === -1 ? null : indexRef.current, event);
@@ -542,10 +555,9 @@ export function useListNavigation(
   useIsoLayoutEffect(() => {
     function handleVirtualFocusReturn(data: VirtualFocusReturnData) {
       const index = listRef.current.indexOf(data.item);
-      if (index > -1) {
-        indexRef.current = index;
-        referenceRef.current?.focus({ preventScroll: true });
-        onNavigate(data.event);
+      const reference = referenceRef.current;
+      if (index > -1 && reference) {
+        pendingFocusReturnRef.current = { reference, index, event: data.event };
       }
     }
 
@@ -940,7 +952,29 @@ export function useListNavigation(
         return undefined;
       },
       onFocus(event) {
-        if (store.select('open') && !virtual) {
+        if (event.target !== event.currentTarget) {
+          return;
+        }
+
+        const pendingFocusReturn = pendingFocusReturnRef.current;
+        if (pendingFocusReturn?.reference === event.currentTarget) {
+          pendingFocusReturnRef.current = null;
+          indexRef.current = pendingFocusReturn.index;
+          onNavigate(pendingFocusReturn.event);
+          return;
+        }
+
+        if (!store.select('open')) {
+          return;
+        }
+
+        if (virtual && !isTypeableElement(event.currentTarget)) {
+          indexRef.current = getMinEnabledIndex();
+          onNavigate(event);
+        } else if (virtual && resetOnReferenceFocus) {
+          indexRef.current = -1;
+          onNavigate(event);
+        } else if (!virtual) {
           indexRef.current = -1;
           onNavigate(event);
         }
@@ -964,6 +998,7 @@ export function useListNavigation(
     selectedIndexRef,
     virtual,
     isGrid,
+    resetOnReferenceFocus,
   ]);
 
   const reference: ElementProps['reference'] = React.useMemo(() => {
@@ -976,15 +1011,24 @@ export function useListNavigation(
         if (virtual && currentOpen) {
           const isOpenKey = isCrossOrientationOpenKey(event.key, orientation, rtl);
           const isCloseKey = isCrossOrientationCloseKey(event.key, orientation, rtl, isGrid);
+          const isActivationKey = event.key === 'Enter' || event.key === ' ';
           const activeItem = listRef.current[indexRef.current];
-
+          const isEventFromReference = event.target === event.currentTarget;
           // A grid has no nested list to enter, and every arrow key is in-grid navigation, so
           // forwarding would swallow the keys that move between rows and columns.
-          if (activeItem && !isGrid && (isOpenKey || isCloseKey)) {
+          const shouldForwardCrossAxisKey = !isGrid && (isOpenKey || isCloseKey);
+
+          if (
+            activeItem &&
+            isEventFromReference &&
+            (shouldForwardCrossAxisKey || isActivationKey)
+          ) {
+            if (event.key === ' ') {
+              event.preventDefault();
+            }
             referenceRef.current = event.currentTarget as HTMLElement;
-            // A nested list can already be open from pointer hover while virtual focus remains
-            // on its parent's reference. Forward cross-axis keys through the active item so the
-            // nested navigation handler can enter or dismiss the hover-opened list.
+            // Virtual focus leaves the key event on the reference. Forward navigation and
+            // activation keys to the active item so it can handle entry, dismissal, or press.
             const forwardEvent = new KeyboardEvent(event.type, { key: event.key, bubbles: true });
             if (!activeItem.dispatchEvent(forwardEvent)) {
               stopEvent(event);

@@ -19,6 +19,7 @@ export interface SelectRootContext {
   setValue: (nextValue: any, eventDetails: SelectRoot.ChangeEventDetails) => void;
   setOpen: (open: boolean, eventDetails: SelectRoot.ChangeEventDetails) => void;
   listRef: React.RefObject<Array<HTMLElement | null>>;
+  filterInputRef: React.RefObject<HTMLInputElement | null>;
   popupRef: React.RefObject<HTMLDivElement | null>;
   scrollHandlerRef: React.RefObject<((el: HTMLDivElement) => void) | null>;
   handleScrollArrowVisibility: (scroller: HTMLElement) => void;

@@ -32,8 +32,8 @@ export const FilterDropdownList = React.forwardRef(function FilterDropdownList(
         role: 'menu',
         id,
         'aria-labelledby': ariaLabelledBy,
-        // Prevent scrollable lists from being focusable with virtual cursor on tab keypress.
-        tabIndex: -1,
+        // Allow ATs to tab to this list to discover its items.
+        tabIndex: 0,
         onMouseDown(event) {
           // Keep focus on the input when list content is pressed.
           event.preventDefault();

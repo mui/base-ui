@@ -287,7 +287,10 @@ describe('<Menu.Root />', () => {
 
     it('uses dialog semantics for a filterable submenu', async () => {
       const { user } = await render(<FilterableSubmenu />);
-      const submenuTrigger = screen.getByRole('menuitem', { name: 'Move to folder' });
+      const submenuTrigger = screen.getByRole('menuitem', {
+        name: 'Move to folder',
+        hidden: true,
+      });
 
       expect(submenuTrigger).toHaveAttribute('aria-haspopup', 'dialog');
 
@@ -623,6 +626,13 @@ describe('<Menu.Root />', () => {
       await waitFor(() => {
         expect(submenuInput).toHaveFocus();
       });
+
+      await user.keyboard('[ArrowLeft]');
+
+      await waitFor(() => {
+        expect(parentInput).toHaveFocus();
+      });
+      expect(parentInput).toHaveAttribute('aria-activedescendant', submenuTrigger.id);
     });
 
     it('opens a submenu from a filterable submenu input', async () => {
@@ -670,7 +680,10 @@ describe('<Menu.Root />', () => {
 
       await user.keyboard('[ArrowDown][ArrowRight]');
 
-      const submenuTrigger = screen.getByRole('menuitem', { name: 'Move to folder' });
+      const submenuTrigger = screen.getByRole('menuitem', {
+        name: 'Move to folder',
+        hidden: true,
+      });
       const submenuInput = await screen.findByRole('searchbox', { name: 'Filter folders' });
       await waitFor(() => {
         expect(submenuInput).toHaveFocus();
@@ -706,6 +719,75 @@ describe('<Menu.Root />', () => {
         expect(parentInput).toHaveAttribute('aria-activedescendant', submenuTrigger.id);
       });
     });
+
+    it.each(['[Enter]', '[Space]'])(
+      '%s opens a virtually focused submenu from the list',
+      async (key) => {
+        const onListKeyDown = vi.fn();
+        const { user } = await render(
+          <Menu.Root filter defaultOpen>
+            <Menu.Trigger>Actions</Menu.Trigger>
+            <Menu.Portal>
+              <Menu.Positioner>
+                <Menu.Popup>
+                  <Menu.Input aria-label="Filter actions" />
+                  <Menu.List onKeyDown={onListKeyDown}>
+                    <Menu.SubmenuRoot filter>
+                      <Menu.SubmenuTrigger>Share</Menu.SubmenuTrigger>
+                      <Menu.Portal>
+                        <Menu.Positioner>
+                          <Menu.Popup>
+                            <Menu.Input aria-label="Filter sharing options" />
+                            <Menu.List>
+                              <Menu.Item>Email</Menu.Item>
+                            </Menu.List>
+                          </Menu.Popup>
+                        </Menu.Positioner>
+                      </Menu.Portal>
+                    </Menu.SubmenuRoot>
+                  </Menu.List>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
+          </Menu.Root>,
+        );
+
+        const submenuTrigger = screen.getByRole('menuitem', { name: 'Share', hidden: true });
+        const list = submenuTrigger.parentElement!;
+        expect(list).not.toHaveAttribute('aria-activedescendant');
+
+        await user.tab();
+        await waitFor(() => {
+          expect(list).toHaveAttribute('aria-activedescendant', submenuTrigger.id);
+        });
+
+        await user.keyboard('{Shift>}{Tab}{/Shift}');
+        await waitFor(() => {
+          expect(screen.getByRole('searchbox', { name: 'Filter actions' })).toHaveFocus();
+        });
+        expect(list).not.toHaveAttribute('aria-activedescendant');
+
+        await act(async () => {
+          list.focus();
+        });
+        await waitFor(() => {
+          expect(list).toHaveAttribute('aria-activedescendant', submenuTrigger.id);
+        });
+
+        await user.keyboard(key);
+
+        if (key === '[Space]') {
+          expect(onListKeyDown.mock.lastCall?.[0]).toHaveProperty('defaultPrevented', true);
+        }
+
+        await waitFor(() => {
+          expect(screen.getByRole('searchbox', { name: 'Filter sharing options' })).toHaveFocus();
+        });
+        await waitFor(() => {
+          expect(list).not.toHaveAttribute('aria-activedescendant');
+        });
+      },
+    );
 
     it.skipIf(isJSDOM)(
       'focuses the input when entering a hover-opened filterable submenu with the keyboard',
@@ -3424,8 +3506,9 @@ describe('<Menu.Root />', () => {
         clock.tick(50);
         expect(screen.queryByTestId('submenu')).not.toBe(null);
 
-        // Submenu should close after the full delay
-        clock.tick(50);
+        // Submenu should close after the full delay. Use the async clock only to let React flush
+        // the navigation updates caused by closing; it advances the same remaining 50ms.
+        await clock.tickAsync(50);
         expect(screen.queryByTestId('submenu')).toBe(null);
       });
 
@@ -3464,8 +3547,9 @@ describe('<Menu.Root />', () => {
         // Move again - this should NOT restart the timer
         fireEvent.mouseMove(siblingItem);
 
-        // After 20 more ms (100ms total from first move), the submenu should close
-        clock.tick(20);
+        // After 20 more ms (100ms total from first move), the submenu should close. Use the async
+        // clock only to let React flush the navigation updates caused by closing.
+        await clock.tickAsync(20);
         expect(screen.queryByTestId('submenu')).toBe(null);
       });
     });

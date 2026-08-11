@@ -33,7 +33,10 @@ export const FilterDropdownInput = React.forwardRef(function FilterDropdownInput
         inputMode: 'search',
         enterKeyHint: 'search',
         autoComplete: 'off',
-        'aria-autocomplete': 'list',
+        // The aria-autocomplete 'list' value is only valid with `aria-haspopup` so we depend
+        // on the searchbox role to communicate affordance, with an input label as fallback
+        // https://w3c.github.io/aria/#aria-autocomplete
+        'aria-autocomplete': undefined,
         'aria-controls': popupContext.listId,
         value,
         onChange(event) {
