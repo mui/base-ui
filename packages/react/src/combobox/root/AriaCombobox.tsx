@@ -61,10 +61,10 @@ import {
   compareItemEquality,
   defaultItemEquality,
   findSelectionIndex,
+  isSelectedValueDirty,
   removeItem,
   selectedValueIncludes,
 } from '../../internals/itemEquality';
-import { areArraysEqual } from '../../internals/areArraysEqual';
 import { INITIAL_LAST_HIGHLIGHT, NO_ACTIVE_VALUE } from './utils/constants';
 import { useDirection } from '../../internals/direction-context/DirectionContext';
 
@@ -1037,18 +1037,6 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     }
   }, [hasItems, autoHighlightMode, flatFilteredItems.length, setIndices]);
 
-  function isSelectedValueDirty(value: Value | Value[] | null) {
-    const initialValue = validityData.initialValue;
-
-    if (Array.isArray(value) && Array.isArray(initialValue)) {
-      return !areArraysEqual(value, initialValue, (itemValue, initialItemValue) =>
-        compareItemEquality(itemValue, initialItemValue, isItemEqualToValue),
-      );
-    }
-
-    return value !== initialValue;
-  }
-
   useValueChanged(query, () => {
     if (!open || query === '' || query === String(initialDefaultInputValue)) {
       return;
@@ -1070,7 +1058,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none'>(
     }
 
     clearErrors(name);
-    setDirty(isSelectedValueDirty(selectedValue));
+    setDirty(isSelectedValueDirty(selectedValue, validityData.initialValue, isItemEqualToValue));
 
     validation.change(selectedValue);
 

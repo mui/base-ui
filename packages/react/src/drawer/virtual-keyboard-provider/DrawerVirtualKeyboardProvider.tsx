@@ -5,9 +5,9 @@ import { addEventListener } from '@base-ui/utils/addEventListener';
 import { ownerDocument, ownerWindow } from '@base-ui/utils/owner';
 import { useAnimationFrame } from '@base-ui/utils/useAnimationFrame';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
+import { clamp } from '@base-ui/utils/clamp';
 import { useTimeout } from '@base-ui/utils/useTimeout';
 import { useDialogRootContext } from '../../dialog/root/DialogRootContext';
-import { clamp } from '../../internals/clamp';
 import {
   activeElement,
   contains,
