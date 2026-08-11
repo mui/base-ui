@@ -1,5 +1,234 @@
 # Versions
 
+## v1.7.0
+
+_Aug 4, 2026_
+
+### General changes
+
+- Restore visible focus after keyboard close in Safari and Firefox (#5093) by @lyzno1
+- Type `render` callback props based on the rendered element (#5104) by @atomiks
+- Reduce popup bundle size (#5233) by @atomiks
+- Reduce store bundle size (#5250) by @atomiks
+- Keep unpositioned popups at the viewport origin (#5299) by @flaviendelangle
+- Correct layout and passive effect timing (#5337) by @atomiks
+- Remove redundant lifecycle synchronization (#5341) by @atomiks
+- Prevent stale cleanup from clearing registered part IDs (#5340) by @atomiks
+- Complete popup unmounting after a canceled exit transition (#5401) by @atomiks
+- Fix rendered trigger ID ownership (#5110) by @atomiks
+- Prevent unwanted flip with capped scrollable content (#5120) by @atomiks
+- Fix `collisionPadding` off-by-one on the biased side (#5143) by @atomiks
+- Reduce shared popup bundle size (#5192) by @atomiks
+- Mount popup subtrees synchronously when opening in React 17 (#5309) by @atomiks
+- Fix auto-resize origin for left-anchored popups (#5370) by @sai6855
+- Avoid redundant re-renders during lazy flipping (#5372) by @mdm317
+- Strip implementation-only types from published `.d.ts` files (#5165) by @michaldudak
+- Fix `usePreviousValue` equality comparison (#5264) by @lyzno1
+
+### Accordion
+
+- Remove the implicit `dir` attribute from `<Accordion.Root>` (#5117) by @chuganzy
+
+### Alert Dialog
+
+- Prevent `<AlertDialog.Root>` from reopening after remounting with a reused handle (#5109) by @michaldudak
+
+### Autocomplete
+
+- Respect locale when filtering (#5195) by @atomiks
+- Add `input-press` to change event details (#5356) by @chuganzy
+- Add `cancel-open` to change event details (#5376) by @chuganzy
+- Reset list scroll position on filter (#5231) by @atomiks
+- Remove dead code and deduplicate handlers (#5194) by @atomiks
+- Fix listbox separator semantics (#5399) by @sarthakmalik0810
+
+### Avatar
+
+- Show `<Avatar.Fallback>` immediately when `delay={0}` (#5147) by @chuganzy
+
+### Button
+
+- Fix keyboard click handling for custom elements (#4838) by @atomiks
+
+### Checkbox
+
+- Remove redundant validation input ref (#5188) by @nami8824
+- Stop internal input clicks from reaching ancestors (#5176) by @atomiks
+- Reduce bundle size (#5223) by @atomiks
+
+### Checkbox Group
+
+- Focus invalid checkbox (#5216) by @atomiks
+- Align form values with native submission (#5218) by @atomiks
+- Reduce bundle size (#5223) by @atomiks
+
+### Combobox
+
+- Add `input-press` to change event details (#5356) by @chuganzy
+- Add `cancel-open` to change event details (#5376) by @chuganzy
+- Stop filtering grouped items after limit (#5086) by @lyzno1
+- Remove leaky value registry (#5198) by @atomiks
+- Set initial highlight in inline combobox (#5230) by @atomiks
+- Return highlight to selected item on query clear (#5232) by @atomiks
+- Expose `expanded` state for inline comboboxes (#5332) by @sarthakmalik0810
+- Keep portalled popup content open (#5334) by @obeattie
+- Reset list scroll position on filter (#5231) by @atomiks
+- Fix hovered item stealing highlight when the list scrolls in Safari (#5265) by @arikchakma
+- Inherit the disabled state from `<Combobox.Root>` in `<Combobox.Item>` (#5365) by @chuganzy
+- Widen trigger slip-out release tolerance (#5159) by @atomiks
+- Remove dead code and deduplicate handlers (#5194) by @atomiks
+- Fix listbox separator semantics (#5399) by @sarthakmalik0810
+
+### Composite
+
+- Fix nested list reorder detection (#5156) by @jjenzz
+- Always skip natively disabled items during list navigation (#5185) by @atomiks
+- Fix scroll alignment for RTL direction in `scrollIntoViewIfNeeded` (#5234) by @sai6855
+- Simplify keyboard bookkeeping (#5249) by @atomiks
+
+### Dialog
+
+- Fix touch outside-press dismissal without a backdrop (#5096) by @atomiks
+- Prevent `<Dialog.Root>` from reopening after remounting with a reused handle (#5109) by @michaldudak
+- Fix scroll lock handoff with external overlays (#4665) by @atomiks
+- Reduce bundle size (#5193) by @atomiks
+
+### Drawer
+
+- Prevent `<Drawer.Root>` from reopening after remounting with a reused handle (#5109) by @michaldudak
+- Fix unreliable swipe-to-open gestures (#5105) by @atomiks
+- Fix popup flashing fully open for a frame on swipe area re-grab (#5112) by @atomiks
+- Deduplicate swipe math to reduce bundle size (#5181) by @atomiks
+- Fix scroll handling when focus moves while the virtual keyboard is open (#5179) by @atomiks
+- Fix cross-axis scroll blocked on iOS below the touchmove slop (#5257) by @atomiks
+- Fix snap point jump when pinned pointer moves leave the drag offset unchanged (#5308) by @atomiks
+- Fix Shadow DOM swipe gestures (#5360) by @atomiks
+
+### Field
+
+- Keep invalid state on disabled fields (#5116) by @atomiks
+- Reduce bundle size (#5225) by @atomiks
+- Fix `data-dirty` tracking for null-valued controls (#5290) by @sai6855
+
+### Fieldset
+
+- Reduce bundle size (#5225) by @atomiks
+
+### Form
+
+- Reduce bundle size (#5225) by @atomiks
+- Focus the first invalid field in document order (#5287) by @atomiks
+
+### Menu
+
+- Ignore pinch-zoom shifting (#4485) by @atomiks
+- Cancel stale submenu hover-open when Chrome drops mouseleave (#5153) by @atomiks
+- Fix exit animation not running on uncheck of item (#5252) by @sai6855
+- Fix duplicate `onOpenChange` calls when closing a submenu (#5178) by @atomiks
+- Fix VoiceOver announcement when opening a submenu (#5342) by @atomiks
+- Propagate disabled state to items (#5363) by @chuganzy
+- Open submenus on Android TalkBack press (#5384) by @atomiks
+- Prevent `<Menu.Root>` from reopening after remounting with a reused handle (#5149) by @michaldudak
+- Widen trigger slip-out release tolerance (#5159) by @atomiks
+
+### Meter
+
+- Format clamped values (#5409) by @atomiks
+- Reduce bundle size (#5224) by @atomiks
+
+### Navigation Menu
+
+- Fix frozen menu when the open trigger unmounts (#5240) by @DreierF
+- Ignore pinch-zoom shifting (#4485) by @atomiks
+
+### Number Field
+
+- Fix keyboard editing with multi-character format symbols (#5111) by @atomiks
+- Reduce bundle size (#5220) by @atomiks
+
+### OTP Field
+
+- Keep focus on the invalid field when `autoSubmit` is blocked (#5089) by @lyzno1
+
+### Popover
+
+- Prevent `<Popover.Root>` from reopening after remounting with a reused handle (#5149) by @michaldudak
+- Reduce bundle size (#5193) by @atomiks
+
+### Preview Card
+
+- Prevent `<PreviewCard.Root>` from reopening after remounting with a reused handle (#5149) by @michaldudak
+
+### Progress
+
+- Fix custom `min`/`max` semantics to match the indicator (#5095) by @atomiks
+- Reduce bundle size (#5224) by @atomiks
+
+### Radio Group
+
+- Remove unnecessary ARIA attributes from `<Radio.Root>` (#5213) by @sai6855
+- Stop internal input clicks from reaching ancestors (#5176) by @atomiks
+- Align form values with native submission (#5238) by @atomiks
+- Reduce bundle size (#5223) by @atomiks
+
+### Scroll Area
+
+- Fix thumb-drag divide-by-zero and per-scroll re-render (#5099) by @atomiks
+- Fix scrollbar visibility during touch scrolling on iOS (#5157) by @atomiks
+- Add WebKit overscroll feedback to `<ScrollArea.Thumb>` (#5145) by @atomiks
+- Reduce bundle size (#5217) by @atomiks
+- Prevent scroll snapping while dragging the thumb (#5259) by @atomiks
+- End thumb drag when the primary button is no longer held (#5374) by @atomiks
+
+### Select
+
+- Fix hovered item stealing highlight when the list scrolls in Safari (#5265) by @arikchakma
+- Inherit the disabled state from `<Select.Root>` in `<Select.Item>` (#5365) by @chuganzy
+- Widen trigger slip-out release tolerance (#5159) by @atomiks
+- Do not force-mount the popup on programmatic value changes (#5119) by @atomiks
+- Remove dead code and deduplicate handlers (#5194) by @atomiks
+- Fix listbox separator semantics (#5399) by @sarthakmalik0810
+
+### Slider
+
+- Fix assorted issues (#5097) by @atomiks
+- Reduce bundle size (#5222) by @atomiks
+- Exclude the prehydration script from client bundles (#5003) by @michaldudak
+
+### Switch
+
+- Stop internal input clicks from reaching ancestors (#5176) by @atomiks
+- Reduce bundle size (#5223) by @atomiks
+
+### Tabs
+
+- Position pre-hydration indicator inside streamed Suspense (#5171) by @brijeshb42
+- Exclude the prehydration script from client bundles (#5003) by @michaldudak
+- Reduce bundle size (#5221) by @atomiks
+
+### Toast
+
+- Fix remaining toast timer calculation (#5261) by @sai6855
+- Reduce bundle size (#5219) by @atomiks
+- Render content passed through the `render` prop in `<Toast.Title>`, `<Toast.Description>`, and `<Toast.Action>` (#5210) by @m2na7
+- Fix re-adding a closing toast (#5258) by @atomiks
+- Fix swipe direction locking for two-axis swipes (#5295) by @sai6855
+- Fix `<Toast.Provider>` prop effect ordering (#5338) by @atomiks
+
+### Toggle Group
+
+- Reduce bundle size (#5224) by @atomiks
+
+### Toolbar
+
+- Reduce bundle size (#5221) by @atomiks
+
+### Tooltip
+
+- Prevent `<Tooltip.Root>` from reopening after remounting with a reused handle (#5149) by @michaldudak
+
+All contributors of this release in alphabetical order: @arikchakma, @atomiks, @bernardobelchior, @brijeshb42, @chuganzy, @DiegoAndai, @DreierF, @flaviendelangle, @jjenzz, @lyzno1, @m2na7, @mdm317, @michaldudak, @nami8824, @obeattie, @sai6855, @sarthakmalik0810
+
 ## v1.6.0
 
 _Jun 18, 2026_

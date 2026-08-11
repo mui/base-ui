@@ -2,7 +2,7 @@ import { expect, vi } from 'vitest';
 import * as React from 'react';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { Field } from '@base-ui/react/field';
-import { screen } from '@mui/internal-test-utils';
+import { fireEvent, screen, waitFor } from '@mui/internal-test-utils';
 import { createRenderer } from '#test-utils';
 
 vi.mock('@base-ui/utils/safeReact', async (importOriginal) => {
@@ -19,6 +19,42 @@ vi.mock('@base-ui/utils/safeReact', async (importOriginal) => {
 
 describe('<Field.Root /> with the React 17 id fallback', () => {
   const { render } = createRenderer();
+  const { render: renderNonStrict } = createRenderer({ strict: false });
+
+  it('falls back to a generated id when an explicit control id is removed', async () => {
+    function TestCase() {
+      const [explicit, setExplicit] = React.useState(true);
+
+      return (
+        <React.Fragment>
+          <Field.Root>
+            <Field.Label data-testid="label">Label</Field.Label>
+            <Field.Control id={explicit ? 'custom' : undefined} />
+          </Field.Root>
+          <button type="button" onClick={() => setExplicit(false)}>
+            clear
+          </button>
+        </React.Fragment>
+      );
+    }
+
+    await renderNonStrict(<TestCase />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId('label')).toHaveAttribute('for', 'custom');
+    });
+
+    fireEvent.click(screen.getByRole('button'));
+
+    await waitFor(() => {
+      expect(screen.getByRole('textbox').id).not.toBe('custom');
+    });
+
+    const control = screen.getByRole('textbox');
+
+    expect(control.id).not.toBe('');
+    expect(screen.getByTestId('label')).toHaveAttribute('for', control.id);
+  });
 
   it('allows mount-time imperative validation before the fallback id is assigned', async () => {
     function TestCase() {

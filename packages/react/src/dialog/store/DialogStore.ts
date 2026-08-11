@@ -4,14 +4,13 @@ import { type InteractionType } from '@base-ui/utils/useEnhancedClickHandler';
 import { type DialogRoot } from '../root/DialogRoot';
 import { NullStore } from '../../utils/NullStore';
 import {
-  createPopupFloatingRootContext,
   createInitialPopupStoreState,
   PopupStoreContext,
   popupStoreSelectors,
   PopupTriggerDataStore,
   PopupStoreState,
   PopupTriggerMap,
-  setPopupOpenState,
+  createPopupOpenState,
 } from '../../utils/popups';
 
 export type State<Payload> = PopupStoreState<Payload> & {
@@ -94,13 +93,7 @@ export class DialogStore<Payload> extends ReactStore<
 
     this.state.floatingRootContext.dispatchOpenChange(nextOpen, eventDetails);
 
-    const updatedState: Partial<State<Payload>> = {
-      open: nextOpen,
-    };
-
-    setPopupOpenState(updatedState, nextOpen, eventDetails.trigger);
-
-    this.update(updatedState);
+    this.update(createPopupOpenState(this.state, nextOpen, eventDetails.trigger));
   };
 }
 
@@ -126,7 +119,7 @@ function createInitialState<Payload>(
   nested = false,
 ): State<Payload> {
   const state: State<Payload> = {
-    ...createInitialPopupStoreState<Payload>(),
+    ...createInitialPopupStoreState<Payload>(triggerElements, floatingId, nested),
     modal: true,
     disablePointerDismissal: false,
     viewportElement: null,
@@ -139,8 +132,6 @@ function createInitialState<Payload>(
     role: 'dialog',
     ...initialState,
   };
-
-  state.floatingRootContext = createPopupFloatingRootContext(triggerElements, floatingId, nested);
 
   return state;
 }

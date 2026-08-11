@@ -133,11 +133,11 @@ function ComboboxItemInner(props: ComboboxItemInnerProps) {
       return undefined;
     }
 
-    const visibleMap = store.state.valuesRef.current;
-    visibleMap[index] = itemValue;
+    const visibleValues = store.state.valuesRef.current;
+    visibleValues[index] = itemValue;
 
     return () => {
-      delete visibleMap[index];
+      delete visibleValues[index];
     };
   }, [hasRegistered, hasItems, index, itemValue, store]);
 
@@ -260,13 +260,10 @@ function ComboboxItemVirtualizedIndex(props: {
 
   const store = useComboboxRootContext();
   const isItemEqualToValue = useStore(store, selectors.isItemEqualToValue);
-  const { flatFilteredItems } = useComboboxDerivedItemsContext();
+  const { flatFilteredValues } = useComboboxDerivedItemsContext();
 
-  const indexFromFilter = findItemIndex(
-    flatFilteredItems,
-    componentProps.value ?? null,
-    isItemEqualToValue,
-  );
+  const lookupValue = componentProps.value ?? null;
+  const indexFromFilter = findItemIndex(flatFilteredValues, lookupValue, isItemEqualToValue);
 
   // Only reached when the root uses external virtualization (see the wrapper below).
   return (

@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import { fastComponent } from '@base-ui/utils/fastHooks';
 import { useDismiss, FloatingTree } from '../../floating-ui-react';
 import { PopoverRootContext, usePopoverRootContext } from './PopoverRootContext';
 import { PopoverStore, type State as PopoverStoreState } from '../store/PopoverStore';
@@ -19,7 +20,11 @@ import {
   type PayloadChildRenderFunction,
 } from '../../utils/popups';
 
-function PopoverRootComponent<Payload>({ props }: { props: PopoverRoot.Props<Payload> }) {
+const PopoverRootComponent = fastComponent(function PopoverRootComponent<Payload>({
+  props,
+}: {
+  props: PopoverRoot.Props<Payload>;
+}) {
   const {
     children,
     open: openProp,
@@ -84,7 +89,7 @@ function PopoverRootComponent<Payload>({ props }: { props: PopoverRoot.Props<Pay
       {typeof children === 'function' ? children({ payload }) : children}
     </PopoverRootContext.Provider>
   );
-}
+});
 
 /**
  * Groups all parts of the popover.

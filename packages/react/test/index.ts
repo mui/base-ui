@@ -4,6 +4,7 @@ export { createRenderer } from './createRenderer';
 export { describeConformance } from './describeConformance';
 export { createDOMRect, setElementClientHeight, setElementScrollState } from './layoutMocks';
 export { enterWithMouse, moveMouse } from './pointer';
+export { mergeRefs } from './mergeRefs';
 export { popupConformanceTests } from './popupConformanceTests';
 export { resetBrowserPointer } from './resetBrowserPointer';
 export { useTestInteractions } from './useTestInteractions';

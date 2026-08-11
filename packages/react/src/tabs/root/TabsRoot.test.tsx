@@ -999,6 +999,7 @@ describe('<Tabs.Root />', () => {
       const tabs = screen.getAllByRole('tab');
       expect(tabs[0]).toHaveAttribute('aria-selected', 'true');
       expect(tabs[0]).toHaveTextContent('Tab 1');
+      expect(tabs[0]).toHaveAttribute('tabindex', '0');
     });
 
     it('calls onValueChange with null when the selected tab is removed and no tabs remain', async () => {
@@ -1029,6 +1030,40 @@ describe('<Tabs.Root />', () => {
 
       expect(screen.queryAllByRole('tab').length).toBe(0);
       expect(screen.getByRole('tabpanel', { hidden: true })).toHaveAttribute('hidden');
+    });
+
+    it('calls onValueChange with null when a populated tab list is replaced by an empty one', async () => {
+      const handleChange = vi.fn();
+
+      function TestComponent({ empty }: { empty: boolean }) {
+        return (
+          <Tabs.Root defaultValue={0} onValueChange={handleChange}>
+            <Tabs.List key={empty ? 'empty' : 'populated'}>
+              {!empty && <Tabs.Tab value={0}>Tab 0</Tabs.Tab>}
+            </Tabs.List>
+            <Tabs.Panel value={0} keepMounted>
+              Panel 0
+            </Tabs.Panel>
+          </Tabs.Root>
+        );
+      }
+
+      const { setProps } = await render(<TestComponent empty={false} />);
+
+      expect(screen.getByRole('tabpanel')).not.toHaveAttribute('hidden');
+
+      await setProps({ empty: true });
+
+      await waitFor(() => {
+        expect(handleChange).toHaveBeenCalledWith(
+          null,
+          expect.objectContaining({ reason: 'missing' }),
+        );
+      });
+
+      const panel = screen.getByRole('tabpanel', { hidden: true });
+      expect(panel).toHaveAttribute('hidden');
+      expect(panel).not.toHaveAttribute('aria-labelledby');
     });
 
     it('calls onValueChange when an explicit defaultValue points at a tab that is never present', async () => {
@@ -1106,27 +1141,43 @@ describe('<Tabs.Root />', () => {
       expect(tabs[1]).toHaveAttribute('aria-selected', 'false');
     });
 
-    it('does not call onValueChange when a controlled selected tab is removed', async () => {
+    it('keeps a roving focus entry point when a controlled selected tab is removed', async () => {
       const handleChange = vi.fn();
 
-      function TestComponent({ showFirstTab }: { showFirstTab: boolean }) {
+      function TestComponent({ showLastTab }: { showLastTab: boolean }) {
         return (
-          <Tabs.Root value={0} onValueChange={handleChange}>
-            <Tabs.List>
-              {showFirstTab && <Tabs.Tab value={0}>Tab 0</Tabs.Tab>}
-              <Tabs.Tab value={1}>Tab 1</Tabs.Tab>
-            </Tabs.List>
-          </Tabs.Root>
+          <React.Fragment>
+            <button type="button">Before</button>
+            <Tabs.Root value={2} onValueChange={handleChange}>
+              <Tabs.List>
+                <Tabs.Tab value={0}>Tab 0</Tabs.Tab>
+                <Tabs.Tab value={1}>Tab 1</Tabs.Tab>
+                {showLastTab && <Tabs.Tab value={2}>Tab 2</Tabs.Tab>}
+              </Tabs.List>
+            </Tabs.Root>
+          </React.Fragment>
         );
       }
 
-      const { setProps } = await render(<TestComponent showFirstTab />);
+      const { setProps, user } = await render(<TestComponent showLastTab />);
 
-      await setProps({ showFirstTab: false });
+      await setProps({ showLastTab: false });
 
-      expect(handleChange.mock.calls.length).toBe(0);
-      const tabs = screen.getAllByRole('tab');
-      expect(tabs[0]).toHaveAttribute('aria-selected', 'false');
+      expect(handleChange).not.toHaveBeenCalled();
+      const [firstTab, secondTab] = screen.getAllByRole('tab');
+      expect(firstTab).toHaveAttribute('aria-selected', 'false');
+      expect(secondTab).toHaveAttribute('aria-selected', 'false');
+      expect([firstTab.tabIndex, secondTab.tabIndex]).toEqual([0, -1]);
+
+      await act(async () => screen.getByRole('button', { name: 'Before' }).focus());
+      await user.tab();
+
+      expect(firstTab).toHaveFocus();
+
+      await user.keyboard('{ArrowRight}');
+
+      expect(secondTab).toHaveFocus();
+      expect(handleChange).not.toHaveBeenCalled();
     });
   });
 

@@ -17,8 +17,8 @@ import {
   type RenderContext,
   type Virtualizer,
 } from '@mui/x-virtualizer';
+import { clamp } from '@base-ui/utils/clamp';
 import { getMaxScrollOffset } from '../../utils/scrollEdges';
-import { clamp } from '../clamp';
 import type { StateAttributesMapping } from '../getStateAttributesProps';
 import type { BaseUIComponentProps, HTMLProps } from '../types';
 import { useRenderElement } from '../useRenderElement';
