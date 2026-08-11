@@ -31,6 +31,9 @@ const Activity = (React as typeof React & { Activity: React.ComponentType<Activi
 describe('<Field.Root />', () => {
   const { render, renderToString } = createRenderer();
   const { render: renderStrict } = createRenderer({ strict: true });
+  // StrictMode re-runs a newly mounted control's layout effect after the outgoing control's
+  // cleanup, which hides id-handoff bugs that only show up in production.
+  const { render: renderNonStrict } = createRenderer({ strict: false });
 
   function SwappableField({
     firstControl,
@@ -107,7 +110,7 @@ describe('<Field.Root />', () => {
       );
     }
 
-    const { rerender } = await render(<TestCase swapped={false} />);
+    const { rerender } = await renderNonStrict(<TestCase swapped={false} />);
 
     const label = screen.getByText('Label');
     expect(label).toHaveAttribute('for', 'control');
@@ -117,6 +120,32 @@ describe('<Field.Root />', () => {
     const control = screen.getByTestId('control');
     expect(control.id).not.toBe('control');
     expect(label).toHaveAttribute('for', control.id);
+  });
+
+  it('re-associates the label when a CheckboxGroup is replaced by another control', async () => {
+    function TestCase(props: { multi: boolean }) {
+      return (
+        <Field.Root>
+          <Field.Label>Answer</Field.Label>
+          {props.multi ? (
+            <CheckboxGroup allValues={['a']}>
+              <Checkbox.Root value="a" />
+            </CheckboxGroup>
+          ) : (
+            <Field.Control data-testid="control" />
+          )}
+        </Field.Root>
+      );
+    }
+
+    const { rerender } = await renderNonStrict(<TestCase multi />);
+
+    // The group is named through `aria-labelledby`, so it suppresses `htmlFor` entirely.
+    expect(screen.getByText('Answer')).not.toHaveAttribute('for');
+
+    await rerender(<TestCase multi={false} />);
+
+    expect(screen.getByText('Answer')).toHaveAttribute('for', screen.getByTestId('control').id);
   });
 
   it('updates label associations when the control id changes', async () => {
@@ -440,7 +469,7 @@ describe('<Field.Root />', () => {
   );
 
   it.skipIf(reactMajor < 19)(
-    'keeps the group label association while a subtree with several checkboxes is hidden',
+    'keeps the group label suppressed while its subtree is hidden',
     async () => {
       function TestCase() {
         const [visible, setVisible] = React.useState(true);

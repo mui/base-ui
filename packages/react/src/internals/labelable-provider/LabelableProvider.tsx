@@ -45,7 +45,7 @@ export const LabelableProvider: React.FC<LabelableProvider.Props> = function Lab
         for (const id of registrations.values()) {
           // Keep the current selection while it is still registered, so rapid unmount/remount
           // cycles don't churn it.
-          if (prev !== undefined && id === prev) {
+          if (id === prev) {
             return prev;
           }
 

@@ -20,6 +20,7 @@ vi.mock('@base-ui/utils/safeReact', async (importOriginal) => {
 
 describe('<Checkbox.Root /> with the React 17 id fallback', () => {
   const { render, renderToString } = createRenderer();
+  const { render: renderNonStrict } = createRenderer({ strict: false });
 
   function TestCase(props: {
     checkboxId?: string | undefined;
@@ -66,7 +67,7 @@ describe('<Checkbox.Root /> with the React 17 id fallback', () => {
   it.each([false, true])(
     'does not reuse an unmounted Checkbox id for a keyed id-less Checkbox (nativeButton=%s)',
     async (nativeButton) => {
-      const { rerender } = await render(
+      const { rerender } = await renderNonStrict(
         <TestCase checkboxKey="explicit" checkboxId="explicit" nativeButton={nativeButton} />,
       );
 
@@ -80,15 +81,16 @@ describe('<Checkbox.Root /> with the React 17 id fallback', () => {
   );
 
   it.each([false, true])(
-    'never renders an id built from an unassigned fallback id (nativeButton=%s)',
-    (nativeButton) => {
-      renderToString(
+    'assigns the label association once the fallback ids arrive (nativeButton=%s)',
+    async (nativeButton) => {
+      const { hydrate } = renderToString(
         <Field.Root name="apple">
           <CheckboxGroup allValues={['fuji']}>
             <Field.Item>
-              <Field.Label>Fuji</Field.Label>
+              <Field.Label data-testid="label">Fuji</Field.Label>
               <Checkbox.Root
                 value="fuji"
+                data-testid="fuji"
                 nativeButton={nativeButton}
                 render={nativeButton ? <button /> : undefined}
               />
@@ -97,9 +99,16 @@ describe('<Checkbox.Root /> with the React 17 id fallback', () => {
         </Field.Root>,
       );
 
-      Array.from(document.querySelectorAll('[id]'), (element) => element.id).forEach((id) => {
-        expect(id).not.toContain('undefined');
+      // No id is assigned yet, so nothing may render a partially built one.
+      expect(document.querySelectorAll('[id]')).toHaveLength(0);
+      expect(screen.getByTestId('label')).not.toHaveAttribute('for');
+
+      hydrate();
+
+      await waitFor(() => {
+        expect(getLabelControl(nativeButton).id).not.toBe('');
       });
+      expect(screen.getByTestId('label')).toHaveAttribute('for', getLabelControl(nativeButton).id);
     },
   );
 

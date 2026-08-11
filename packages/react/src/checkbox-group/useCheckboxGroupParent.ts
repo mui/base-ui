@@ -16,7 +16,7 @@ export function useCheckboxGroupParent(
   const [status, setStatus] = React.useState<'on' | 'off' | 'mixed'>('mixed');
   // A `Map` rather than an object: checkbox values are consumer data, and a value like
   // `constructor` would otherwise read straight off `Object.prototype`.
-  const [childIds, setChildIds] = React.useState<ReadonlyMap<string, ReadonlySet<string>>>(
+  const [childIds, setChildIds] = React.useState<ReadonlyMap<string, readonly string[]>>(
     () => new Map(),
   );
 
@@ -28,32 +28,20 @@ export function useCheckboxGroupParent(
   const registerChildId = useStableCallback((childValue: string, childId: string) => {
     setChildIds((prev) => {
       const ids = prev.get(childValue);
-      if (ids?.has(childId)) {
-        return prev;
-      }
-
-      const next = new Map(prev);
-      next.set(childValue, new Set(ids).add(childId));
-      return next;
+      return ids?.includes(childId)
+        ? prev
+        : new Map(prev).set(childValue, ids ? ids.concat(childId) : [childId]);
     });
 
     return () => {
       setChildIds((prev) => {
         const ids = prev.get(childValue);
-        if (!ids?.has(childId)) {
-          return prev;
-        }
-
-        const nextIds = new Set(ids);
-        nextIds.delete(childId);
-
-        const next = new Map(prev);
-        if (nextIds.size === 0) {
-          next.delete(childValue);
-        } else {
-          next.set(childValue, nextIds);
-        }
-        return next;
+        return ids?.includes(childId)
+          ? new Map(prev).set(
+              childValue,
+              ids.filter((id) => id !== childId),
+            )
+          : prev;
       });
     };
   });
@@ -62,11 +50,10 @@ export function useCheckboxGroupParent(
     () => ({
       indeterminate,
       checked,
-      // Children report the id of the element they expose, so the reference survives a custom
-      // `id` and never names an element that isn't rendered. It stays out of server markup,
-      // where the parent can't control anything yet.
+      // Children report their own rendered id, so a custom `id` survives and no unmounted
+      // element is named.
       'aria-controls':
-        allValues.flatMap((v) => Array.from(childIds.get(v) ?? EMPTY_ARRAY)).join(' ') || undefined,
+        allValues.flatMap((v) => childIds.get(v) ?? EMPTY_ARRAY).join(' ') || undefined,
       onCheckedChange(_, eventDetails) {
         const uncontrolledState = uncontrolledStateRef.current;
 
@@ -161,8 +148,7 @@ export interface UseCheckboxGroupParentParameters {
 export interface UseCheckboxGroupParentReturnValue {
   disabledStatesRef: React.RefObject<Map<string, boolean>>;
   /**
-   * Reports the `id` of the element a child checkbox exposes, so the parent can reference it
-   * through `aria-controls`.
+   * Reports the `id` of the element a child checkbox exposes.
    */
   registerChildId: (value: string, id: string) => () => void;
   getParentProps: () => {

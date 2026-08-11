@@ -18,7 +18,7 @@ export function useLabelableId(params: UseLabelableIdParameters = {}) {
 
   const controlSourceRef = useRefWithInit(() => Symbol());
   const hasRegisteredRef = React.useRef(false);
-  const hadExplicitIdRef = React.useRef(id != null);
+  const hadExplicitIdRef = React.useRef(false);
 
   const unregisterControlId = useStableCallback(() => {
     if (!hasRegisteredRef.current || registerControlId === NOOP) {
@@ -30,11 +30,7 @@ export function useLabelableId(params: UseLabelableIdParameters = {}) {
   });
 
   useIsoLayoutEffect(() => {
-    if (registerControlId === NOOP) {
-      return undefined;
-    }
-
-    if (!enabled) {
+    if (!enabled || registerControlId === NOOP) {
       unregisterControlId();
       return undefined;
     }
@@ -48,8 +44,7 @@ export function useLabelableId(params: UseLabelableIdParameters = {}) {
       nextId = defaultId;
     } else {
       // An id-less replacement must claim the provider's fallback so a previously registered
-      // explicit id is not retained after its control unmounts. No-ops while any control
-      // is registered or the fallback is already selected.
+      // explicit id is not retained after its control unmounts.
       resetControlId();
       return undefined;
     }
@@ -75,18 +70,16 @@ export function useLabelableId(params: UseLabelableIdParameters = {}) {
     unregisterControlId,
   ]);
 
-  React.useEffect(() => {
+  // Unregistering in the layout phase, not a passive effect: a replacement control's layout
+  // effect would otherwise run first and still see the outgoing control's registration.
+  useIsoLayoutEffect(() => {
     return unregisterControlId;
   }, [unregisterControlId]);
-
-  if (!enabled) {
-    return id ?? defaultId;
-  }
 
   // The provider's id wins until registration runs: the label renders `htmlFor` from the
   // provider's pre-registration state, so preempting it with an explicit `id` here would
   // leave the pair unassociated in server-rendered markup.
-  return controlId ?? id ?? defaultId;
+  return (enabled ? controlId : undefined) ?? id ?? defaultId;
 }
 
 export interface UseLabelableIdParameters {

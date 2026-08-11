@@ -214,6 +214,24 @@ describe('useCheckboxGroupParent', () => {
     expect(screen.getByTestId('parent')).toHaveAttribute('aria-controls', 'custom');
   });
 
+  it('references the exposed child rather than its custom-id input without nativeButton', () => {
+    render(
+      <CheckboxGroup allValues={['a']}>
+        <Checkbox.Root parent data-testid="parent" />
+        <Checkbox.Root id="custom" value="a" data-testid="a" />
+      </CheckboxGroup>,
+    );
+
+    // The custom `id` lands on the hidden input, so `aria-controls` has to name the exposed
+    // element instead.
+    expect(document.querySelector('input[type="checkbox"][id="custom"]')).not.toBe(null);
+    expect(screen.getByTestId('a').id).not.toBe('custom');
+    expect(screen.getByTestId('parent')).toHaveAttribute(
+      'aria-controls',
+      screen.getByTestId('a').id,
+    );
+  });
+
   it('does not read aria-controls ids off Object.prototype', () => {
     render(
       <CheckboxGroup allValues={['a', 'constructor']}>

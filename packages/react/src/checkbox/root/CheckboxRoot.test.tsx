@@ -9,6 +9,9 @@ import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 
 describe('<Checkbox.Root />', () => {
   const { render, renderToString } = createRenderer();
+  // StrictMode re-runs a newly mounted control's layout effect after the outgoing control's
+  // cleanup, which hides id-handoff bugs that only show up in production.
+  const { render: renderNonStrict } = createRenderer({ strict: false });
 
   describeConformance(<Checkbox.Root />, () => ({
     refInstanceof: window.HTMLSpanElement,
@@ -85,7 +88,7 @@ describe('<Checkbox.Root />', () => {
     it.each([false, true])(
       'does not reuse an unmounted Checkbox id for a keyed id-less Checkbox (nativeButton=%s)',
       async (nativeButton) => {
-        const { rerender } = await render(
+        const { rerender } = await renderNonStrict(
           <TestCase checkboxKey="explicit" checkboxId="explicit" nativeButton={nativeButton} />,
         );
 

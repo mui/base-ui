@@ -869,8 +869,11 @@ describe('<CheckboxGroup />', () => {
       );
     }
 
-    function expectUniqueIds() {
+    // `expectedCount` is required: a set of unique ids is trivially unique when it is empty,
+    // so a regression that drops every id would otherwise pass.
+    function expectUniqueIds(expectedCount: number) {
       const ids = Array.from(document.querySelectorAll('[id]'), (element) => element.id);
+      expect(ids).toHaveLength(expectedCount);
       expect(new Set(ids).size).toBe(ids.length);
     }
 
@@ -879,7 +882,7 @@ describe('<CheckboxGroup />', () => {
       async (nativeButton) => {
         await render(<SharedFieldRootGroup nativeButton={nativeButton} />);
 
-        expectUniqueIds();
+        expectUniqueIds(nativeButton ? 4 : 7);
         // Queried without `hidden`, so the relationship has to reach the exposed checkboxes
         // rather than the hidden inputs behind them.
         expect(screen.getByTestId('parent').getAttribute('aria-controls')!.split(' ')).toEqual([
@@ -893,7 +896,7 @@ describe('<CheckboxGroup />', () => {
       'keeps checkbox ids unique in a shared Field.Root during SSR (nativeButton=%s)',
       (nativeButton) => {
         renderToString(<SharedFieldRootGroup nativeButton={nativeButton} />);
-        expectUniqueIds();
+        expectUniqueIds(nativeButton ? 4 : 7);
       },
     );
 
@@ -912,7 +915,7 @@ describe('<CheckboxGroup />', () => {
           </Field.Root>,
         );
 
-        expectUniqueIds();
+        expectUniqueIds(nativeButton ? 3 : 5);
       },
     );
 
@@ -1022,9 +1025,12 @@ describe('<CheckboxGroup />', () => {
         // Server markup claims nothing: the parent can't control a child that hasn't mounted.
         expect(screen.getByTestId('parent')).not.toHaveAttribute('aria-controls');
 
-        const controls = screen.getAllByRole('checkbox', { hidden: true });
-        screen.getAllByTestId('label').forEach((label) => {
-          expect(controls).toContain(document.getElementById(label.getAttribute('for')!));
+        // Each label must reach its own item's labelable element: the button itself with
+        // `nativeButton`, the hidden input rendered next to it otherwise.
+        [screen.getByTestId('parent'), screen.getByTestId('fuji')].forEach((control, index) => {
+          const labelable = nativeButton ? control : control.nextElementSibling;
+          expect(labelable).not.toBe(null);
+          expect(screen.getAllByTestId('label')[index]).toHaveAttribute('for', labelable!.id);
         });
 
         hydrate();
@@ -1037,7 +1043,6 @@ describe('<CheckboxGroup />', () => {
             screen.getByTestId('fuji').id,
           );
         });
-        expect(screen.getAllByRole('checkbox')).toContain(screen.getByTestId('fuji'));
       },
     );
 

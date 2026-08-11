@@ -17,9 +17,8 @@ export interface CheckboxGroupContext {
   disabled: boolean;
   validation: UseFieldValidationReturnValue;
   /**
-   * `registerControlId` of the labelable scope the group renders in. A checkbox that sees the
-   * same function shares that scope with the group, which means the group is the field's
-   * control rather than the checkbox.
+   * `registerControlId` of the labelable scope the group renders in. A checkbox seeing the same
+   * function shares that scope, so the group, not the checkbox, is the field's control.
    */
   registerControlId: LabelableContext['registerControlId'];
 }

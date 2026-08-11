@@ -102,10 +102,9 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
   // render that one id and collide. A `Field.Item` opens a scope the checkbox does own.
   const ownsControlId = groupContext?.registerControlId !== registerControlId;
 
+  // `|| undefined` rather than `??`: an empty `id` falls back to the scope's control id.
   const controlId = useLabelableId({ id: idProp || undefined, enabled: ownsControlId });
 
-  // With a native button the button is both the labelable element and the one assistive tech
-  // sees, so it takes the control id and the hidden input goes without.
   const rootId = nativeButton ? controlId : id;
 
   let groupProps: Partial<Omit<CheckboxRoot.Props, 'className'>> = {};
