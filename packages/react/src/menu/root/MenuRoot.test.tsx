@@ -14,11 +14,21 @@ import { Menu } from '@base-ui/react/menu';
 import { Dialog } from '@base-ui/react/dialog';
 import { AlertDialog } from '@base-ui/react/alert-dialog';
 import userEvent from '@testing-library/user-event';
-import { createRenderer, isJSDOM, popupConformanceTests, wait } from '#test-utils';
+import {
+  createRenderer,
+  enterWithMouse,
+  isJSDOM,
+  moveMouse,
+  popupConformanceTests,
+  resetBrowserPointer,
+  wait,
+} from '#test-utils';
 import { REASONS } from '../../internals/reasons';
 import { PATIENT_CLICK_THRESHOLD } from '../../internals/constants';
 
 describe('<Menu.Root />', () => {
+  beforeEach(resetBrowserPointer);
+
   beforeEach(() => {
     globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
   });
@@ -41,6 +51,54 @@ describe('<Menu.Root />', () => {
     render,
     triggerMouseAction: 'click',
     expectedPopupRole: 'menu',
+  });
+
+  function NestedMenuWithModalProp() {
+    const SubmenuRootWithModal = Menu.SubmenuRoot as React.ComponentType<
+      React.ComponentProps<typeof Menu.SubmenuRoot> & { modal: boolean }
+    >;
+
+    return (
+      <Menu.Root open>
+        <Menu.Portal>
+          <Menu.Positioner>
+            <Menu.Popup>
+              <SubmenuRootWithModal defaultOpen modal={false}>
+                <Menu.SubmenuTrigger>More</Menu.SubmenuTrigger>
+                <Menu.Portal>
+                  <Menu.Positioner>
+                    <Menu.Popup />
+                  </Menu.Positioner>
+                </Menu.Portal>
+              </SubmenuRootWithModal>
+            </Menu.Popup>
+          </Menu.Positioner>
+        </Menu.Portal>
+      </Menu.Root>
+    );
+  }
+
+  it('warns that nested menus ignore the modal prop', async () => {
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+
+    await render(<NestedMenuWithModalProp />);
+
+    expect(warnSpy).toHaveBeenCalledWith(
+      'Base UI: The `modal` prop is not supported on nested menus. It will be ignored.',
+    );
+  });
+
+  it.skipIf(!isJSDOM)('does not emit the nested modal warning in production', async () => {
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    const originalNodeEnv = process.env.NODE_ENV;
+    process.env.NODE_ENV = 'production';
+
+    try {
+      await render(<NestedMenuWithModalProp />);
+      expect(warnSpy).not.toHaveBeenCalled();
+    } finally {
+      process.env.NODE_ENV = originalNodeEnv;
+    }
   });
 
   // All these tests run for contained and detached triggers.
@@ -81,6 +139,56 @@ describe('<Menu.Root />', () => {
         await userEvent.keyboard('{ArrowUp}');
         await waitFor(() => {
           expect(item2).toHaveFocus();
+        });
+      });
+
+      it.skipIf(isJSDOM)('navigates across grouped items with arrow keys and text', async () => {
+        const { user } = await render(
+          <TestMenu
+            popupProps={{
+              children: (
+                <React.Fragment>
+                  <Menu.Group>
+                    <Menu.Item>Apple</Menu.Item>
+                    <Menu.Item>Banana</Menu.Item>
+                  </Menu.Group>
+                  <Menu.Group>
+                    <Menu.Item>Cherry</Menu.Item>
+                  </Menu.Group>
+                </React.Fragment>
+              ),
+            }}
+          />,
+        );
+
+        const trigger = screen.getByRole('button', { name: 'Toggle' });
+        await act(async () => {
+          trigger.focus();
+        });
+        await user.keyboard('[Enter]');
+
+        const apple = screen.getByRole('menuitem', { name: 'Apple' });
+        const banana = screen.getByRole('menuitem', { name: 'Banana' });
+        const cherry = screen.getByRole('menuitem', { name: 'Cherry' });
+
+        await waitFor(() => {
+          expect(apple).toHaveFocus();
+        });
+        await user.keyboard('{ArrowDown}');
+        await waitFor(() => {
+          expect(banana).toHaveFocus();
+        });
+        await user.keyboard('{ArrowDown}');
+        await waitFor(() => {
+          expect(cherry).toHaveFocus();
+        });
+
+        await act(async () => {
+          apple.focus();
+        });
+        await user.keyboard('c');
+        await waitFor(() => {
+          expect(cherry).toHaveFocus();
         });
       });
 
@@ -817,6 +925,54 @@ describe('<Menu.Root />', () => {
       });
 
       it.skipIf(isJSDOM)(
+        'calls onOpenChange with false exactly once per menu when a submenu item is clicked',
+        async () => {
+          const rootOnOpenChange = vi.fn();
+          const submenuOnOpenChange = vi.fn();
+
+          const { user } = await render(
+            <TestMenu
+              rootProps={{ onOpenChange: rootOnOpenChange }}
+              submenuProps={{ onOpenChange: submenuOnOpenChange }}
+              submenuTriggerProps={{ delay: 0, closeDelay: 50 }}
+            />,
+          );
+
+          await user.click(screen.getByRole('button', { name: 'Toggle' }));
+          await screen.findByTestId('menu');
+
+          const submenuTrigger = await screen.findByTestId('submenu-trigger');
+          await user.hover(submenuTrigger);
+
+          await waitFor(() => {
+            expect(screen.queryByTestId('submenu')).not.toBe(null);
+          });
+
+          // Schedule a delayed hover close, then click the item before it fires.
+          fireEvent.mouseLeave(submenuTrigger);
+          fireEvent.click(screen.getByTestId('item-4_1'));
+
+          await waitFor(() => {
+            expect(screen.queryByTestId('menu')).toBe(null);
+          });
+
+          // Wait out pending hover close timers; they must not refire a close.
+          await wait(100);
+
+          const rootCloseCalls = rootOnOpenChange.mock.calls.filter((args) => args[0] === false);
+          const submenuCloseCalls = submenuOnOpenChange.mock.calls.filter(
+            (args) => args[0] === false,
+          );
+          const staleHoverCloseCalls = submenuCloseCalls.filter(
+            (args) => args[1].reason === REASONS.triggerHover,
+          );
+          expect(rootCloseCalls.length).toBe(1);
+          expect(submenuCloseCalls.length).toBe(1);
+          expect(staleHoverCloseCalls.length).toBe(0);
+        },
+      );
+
+      it.skipIf(isJSDOM)(
         'returns focus to submenu triggers when closing nested menus',
         async () => {
           const { user } = await render(<TestMenu />);
@@ -1103,6 +1259,10 @@ describe('<Menu.Root />', () => {
             });
 
             const dialogClose = await screen.findByTestId('dialog-close');
+
+            await waitFor(() => {
+              expect(frameCallbacks.size).toBeGreaterThan(0);
+            });
 
             act(() => {
               const callbacks = Array.from(frameCallbacks.values());
@@ -1872,7 +2032,7 @@ describe('<Menu.Root />', () => {
           trigger.focus();
         });
 
-        await userEvent.hover(trigger);
+        enterWithMouse(trigger);
 
         await waitFor(() => {
           expect(screen.queryByRole('menu')).not.toBe(null);
@@ -1890,13 +2050,13 @@ describe('<Menu.Root />', () => {
           trigger.focus();
         });
 
-        await userEvent.hover(trigger);
+        enterWithMouse(trigger);
 
         await waitFor(() => {
           expect(screen.queryByRole('menu')).not.toBe(null);
         });
 
-        await userEvent.unhover(trigger);
+        moveMouse(trigger, document.body);
 
         await waitFor(() => {
           expect(screen.queryByRole('menu')).toBe(null);
@@ -2662,6 +2822,31 @@ describe('<Menu.Root />', () => {
   });
 
   describe('prop: disabled', () => {
+    it('marks items as disabled when controlled open', async () => {
+      await render(
+        <TestMenuContents
+          rootProps={{ open: true, disabled: true }}
+          popupProps={{
+            children: (
+              <React.Fragment>
+                <Menu.Item data-testid="item">Item</Menu.Item>
+                <Menu.CheckboxItem data-testid="checkbox-item">Checkbox item</Menu.CheckboxItem>
+                <Menu.RadioGroup>
+                  <Menu.RadioItem data-testid="radio-item" value="radio">
+                    Radio item
+                  </Menu.RadioItem>
+                </Menu.RadioGroup>
+              </React.Fragment>
+            ),
+          }}
+        />,
+      );
+
+      expect(screen.getByTestId('item')).toHaveAttribute('data-disabled');
+      expect(screen.getByTestId('checkbox-item')).toHaveAttribute('data-disabled');
+      expect(screen.getByTestId('radio-item')).toHaveAttribute('data-disabled');
+    });
+
     it('does not highlight items with text navigation when controlled open', async () => {
       const { user } = await render(
         <TestMenuContents

@@ -51,6 +51,53 @@ describe('<Toolbar.Input />', () => {
     });
   });
 
+  describe('pointer interactions', () => {
+    it('does not steal focus while disabled and becomes pointer-focusable when enabled', async () => {
+      function TestInput({ disabled }: { disabled: boolean }) {
+        return (
+          <Toolbar.Root>
+            <Toolbar.Button data-testid="button" />
+            <Toolbar.Input data-testid="input" disabled={disabled} />
+          </Toolbar.Root>
+        );
+      }
+
+      const { setProps, user } = await render(<TestInput disabled />);
+      const button = screen.getByTestId('button');
+      const input = screen.getByTestId('input');
+
+      await user.keyboard('[Tab]');
+      expect(button).toHaveFocus();
+
+      await user.click(input);
+      expect(button).toHaveFocus();
+
+      await setProps({ disabled: false });
+      await user.click(input);
+      expect(input).toHaveFocus();
+    });
+
+    it('prevents click default actions while disabled', async () => {
+      function TestInput({ disabled }: { disabled: boolean }) {
+        return (
+          <Toolbar.Root>
+            <Toolbar.Input type="checkbox" disabled={disabled} />
+          </Toolbar.Root>
+        );
+      }
+
+      const { setProps, user } = await render(<TestInput disabled />);
+      const input = screen.getByRole('checkbox');
+
+      await user.click(input);
+      expect(input).not.toBeChecked();
+
+      await setProps({ disabled: false });
+      await user.click(input);
+      expect(input).toBeChecked();
+    });
+  });
+
   describe.skipIf(isJSDOM)('keyboard navigation', () => {
     it.each([
       ['ltr', ARROW_RIGHT, ARROW_LEFT],

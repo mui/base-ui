@@ -6,8 +6,7 @@ import type { BaseUIChangeEventDetails } from '../internals/createBaseUIEventDet
 import type { BaseUIEventReasons } from '../internals/reasons';
 
 export interface CheckboxGroupContext {
-  value: string[] | undefined;
-  defaultValue: string[] | undefined;
+  value: string[];
   setValue: (
     value: string[],
     eventDetails: BaseUIChangeEventDetails<BaseUIEventReasons['none']>,

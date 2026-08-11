@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { createSelector, ReactStore } from '@base-ui/utils/store';
+import { ReactStore } from '@base-ui/utils/store';
 import { NOOP } from '@base-ui/utils/empty';
 import { type TooltipRoot } from '../root/TooltipRoot';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
@@ -8,7 +8,6 @@ import { NullStore } from '../../utils/NullStore';
 import type { AdaptiveOriginMiddleware } from '../../utils/adaptiveOriginConstants';
 import {
   applyPopupOpenChange,
-  createPopupFloatingRootContext,
   createInitialPopupStoreState,
   PopupStoreContext,
   popupStoreSelectors,
@@ -35,17 +34,16 @@ export type Context = PopupStoreContext<TooltipRoot.ChangeEventDetails> & {
 
 const selectors = {
   ...popupStoreSelectors,
-  disabled: createSelector((state: State<unknown>) => state.disabled),
-  instantType: createSelector((state: State<unknown>) => state.instantType),
-  isInstantPhase: createSelector((state: State<unknown>) => state.isInstantPhase),
-  trackCursorAxis: createSelector((state: State<unknown>) => state.trackCursorAxis),
-  disableHoverablePopup: createSelector((state: State<unknown>) => state.disableHoverablePopup),
-  lastOpenChangeReason: createSelector((state: State<unknown>) => state.openChangeReason),
-  closeOnClick: createSelector((state: State<unknown>) => state.closeOnClick),
-  closeDelay: createSelector((state: State<unknown>) => state.closeDelay),
-  adaptiveOrigin: createSelector(
-    (state: State<unknown>): AdaptiveOriginMiddleware | undefined => state.adaptiveOrigin,
-  ),
+  disabled: (state: State<unknown>) => state.disabled,
+  instantType: (state: State<unknown>) => state.instantType,
+  isInstantPhase: (state: State<unknown>) => state.isInstantPhase,
+  trackCursorAxis: (state: State<unknown>) => state.trackCursorAxis,
+  disableHoverablePopup: (state: State<unknown>) => state.disableHoverablePopup,
+  lastOpenChangeReason: (state: State<unknown>) => state.openChangeReason,
+  closeOnClick: (state: State<unknown>) => state.closeOnClick,
+  closeDelay: (state: State<unknown>) => state.closeDelay,
+  adaptiveOrigin: (state: State<unknown>): AdaptiveOriginMiddleware | undefined =>
+    state.adaptiveOrigin,
 };
 
 type Selectors = typeof selectors;
@@ -69,9 +67,9 @@ export class TooltipStore<Payload> extends ReactStore<
   Selectors
 > {
   constructor(
-    initialState?: Partial<State<Payload>>,
-    floatingId?: string | undefined,
-    nested = false,
+    initialState: Partial<State<Payload>>,
+    floatingId: string | undefined,
+    nested: boolean,
   ) {
     const triggerElements = new PopupTriggerMap();
     super(
@@ -85,12 +83,9 @@ export class TooltipStore<Payload> extends ReactStore<
     nextOpen: boolean,
     eventDetails: Omit<TooltipRoot.ChangeEventDetails, 'preventUnmountOnClose'>,
   ) => {
-    applyPopupOpenChange<State<Payload>, TooltipRoot.ChangeEventDetails>(
-      this,
-      nextOpen,
-      eventDetails as TooltipRoot.ChangeEventDetails,
-      { extraState: { openChangeReason: eventDetails.reason } },
-    );
+    applyPopupOpenChange(this, nextOpen, eventDetails as TooltipRoot.ChangeEventDetails, {
+      extraState: { openChangeReason: eventDetails.reason },
+    });
   };
 
   // Used by trigger clicks to clear a delayed hover open without reporting a public open-state change.
@@ -127,7 +122,7 @@ function createInitialState<Payload>(
   nested = false,
 ): State<Payload> {
   const state: State<Payload> = {
-    ...createInitialPopupStoreState<Payload>(),
+    ...createInitialPopupStoreState<Payload>(triggerElements, floatingId, nested),
     disabled: false,
     instantType: undefined,
     isInstantPhase: false,
@@ -139,8 +134,6 @@ function createInitialState<Payload>(
     adaptiveOrigin: undefined,
     ...initialState,
   };
-
-  state.floatingRootContext = createPopupFloatingRootContext(triggerElements, floatingId, nested);
 
   return state;
 }

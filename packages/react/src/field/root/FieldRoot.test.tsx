@@ -19,11 +19,41 @@ import {
   waitFor,
 } from '@mui/internal-test-utils';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
-import { LabelableProvider } from '../../internals/labelable-provider';
+
+type ActivityProps = {
+  mode: 'visible' | 'hidden';
+  children: React.ReactNode;
+};
+
+const Activity = (React as typeof React & { Activity: React.ComponentType<ActivityProps> })
+  .Activity;
 
 describe('<Field.Root />', () => {
   const { render, renderToString } = createRenderer();
   const { render: renderStrict } = createRenderer({ strict: true });
+
+  function SwappableField({
+    firstControl,
+    secondControl,
+    children,
+    ...rootProps
+  }: React.ComponentProps<typeof Field.Root> & {
+    firstControl: React.ReactNode;
+    secondControl: React.ReactNode;
+  }) {
+    const [swapped, setSwapped] = React.useState(false);
+    return (
+      <div>
+        <Field.Root {...rootProps}>
+          {swapped ? secondControl : firstControl}
+          {children}
+        </Field.Root>
+        <button type="button" onClick={() => setSwapped(true)}>
+          swap
+        </button>
+      </div>
+    );
+  }
 
   describeConformance(<Field.Root />, () => ({
     refInstanceof: window.HTMLDivElement,
@@ -61,23 +91,6 @@ describe('<Field.Root />', () => {
     await waitFor(() => {
       expect(label).toHaveAttribute('for', 'control-b');
     });
-  });
-
-  it('preserves null initial control ids', async () => {
-    await render(
-      <Field.Root>
-        <LabelableProvider controlId={null}>
-          <Field.Label>Label</Field.Label>
-          <Field.Control data-testid="control" />
-        </LabelableProvider>
-      </Field.Root>,
-    );
-
-    const label = screen.getByText('Label');
-    const control = screen.getByTestId('control');
-
-    expect(label).not.toHaveAttribute('for');
-    expect(control.getAttribute('id')).not.toBe(null);
   });
 
   it('updates label associations when the control id changes', async () => {
@@ -258,7 +271,7 @@ describe('<Field.Root />', () => {
   );
 
   it.skipIf(reactMajor < 19)(
-    'does not loop when a control is unmounted and remounted',
+    'preserves label association without looping when a control is unmounted and remounted',
     async () => {
       const errorSpy = vi
         .spyOn(console, 'error')
@@ -266,26 +279,16 @@ describe('<Field.Root />', () => {
         .mockImplementation(() => {});
 
       try {
-        type ActivityProps = {
-          mode: 'visible' | 'hidden';
-          children: React.ReactNode;
-        };
-
-        const Activity = (React as typeof React & { Activity: React.ComponentType<ActivityProps> })
-          .Activity;
-
         function TestCase() {
           const [showSelect, setShowSelect] = React.useState(true);
 
           return (
             <React.Fragment>
               <Field.Root>
-                <Field.Label nativeLabel={false} render={<div />}>
-                  Label
-                </Field.Label>
+                <Field.Label data-testid="label">Label</Field.Label>
                 <Activity mode={showSelect ? 'visible' : 'hidden'}>
-                  <Select.Root>
-                    <Select.Trigger>
+                  <Select.Root id="select">
+                    <Select.Trigger data-testid="trigger">
                       <Select.Value placeholder="Select a model" />
                     </Select.Trigger>
                     <Select.Portal>
@@ -311,14 +314,142 @@ describe('<Field.Root />', () => {
         await renderStrict(<TestCase />);
 
         const checkbox = screen.getByRole('checkbox');
+        const label = screen.getByTestId('label');
+
+        expect(label).toHaveAttribute('for', screen.getByTestId('trigger').id);
 
         fireEvent.click(checkbox);
+
+        expect(label).toHaveAttribute('for', screen.getByTestId('trigger').id);
+
         fireEvent.click(checkbox);
 
+        expect(label).toHaveAttribute('for', screen.getByTestId('trigger').id);
         expect(errorSpy.mock.calls.length).toBe(0);
       } finally {
         errorSpy.mockRestore();
       }
+    },
+  );
+
+  it.skipIf(reactMajor < 19)(
+    'preserves a non-native label association when a control is unmounted and remounted',
+    async () => {
+      function TestCase() {
+        const [showSelect, setShowSelect] = React.useState(true);
+
+        return (
+          <React.Fragment>
+            <Field.Root>
+              <Field.Label nativeLabel={false} render={<div />} data-testid="label">
+                Label
+              </Field.Label>
+              <Activity mode={showSelect ? 'visible' : 'hidden'}>
+                <Select.Root>
+                  <Select.Trigger data-testid="trigger">
+                    <Select.Value placeholder="Select a model" />
+                  </Select.Trigger>
+                </Select.Root>
+              </Activity>
+            </Field.Root>
+            <Checkbox.Root
+              checked={!showSelect}
+              onCheckedChange={(checked) => {
+                setShowSelect(!checked);
+              }}
+            />
+          </React.Fragment>
+        );
+      }
+
+      await renderStrict(<TestCase />);
+
+      const checkbox = screen.getByRole('checkbox');
+      const labelId = screen.getByTestId('label').id;
+
+      expect(screen.getByTestId('trigger')).toHaveAttribute('aria-labelledby', labelId);
+
+      fireEvent.click(checkbox);
+
+      expect(screen.getByTestId('trigger')).toHaveAttribute('aria-labelledby', labelId);
+
+      fireEvent.click(checkbox);
+
+      expect(screen.getByTestId('trigger')).toHaveAttribute('aria-labelledby', labelId);
+    },
+  );
+
+  it.skipIf(reactMajor < 19)(
+    'keeps an explicit control id while the subtree is hidden',
+    async () => {
+      function TestCase() {
+        const [visible, setVisible] = React.useState(true);
+
+        return (
+          <React.Fragment>
+            <Field.Root>
+              <Field.Label data-testid="label">Email</Field.Label>
+              <Activity mode={visible ? 'visible' : 'hidden'}>
+                <Field.Control id="email" data-testid="control" />
+              </Activity>
+            </Field.Root>
+            <button type="button" onClick={() => setVisible(false)}>
+              hide
+            </button>
+          </React.Fragment>
+        );
+      }
+
+      await render(<TestCase />);
+
+      expect(screen.getByTestId('control')).toHaveAttribute('id', 'email');
+      expect(screen.getByTestId('label')).toHaveAttribute('for', 'email');
+
+      fireEvent.click(screen.getByRole('button', { name: 'hide' }));
+
+      // Hiding destroys the control's effects but keeps its DOM, so the association must hold.
+      expect(screen.getByTestId('control')).toHaveAttribute('id', 'email');
+      expect(screen.getByTestId('label')).toHaveAttribute('for', 'email');
+    },
+  );
+
+  it.skipIf(reactMajor < 19)(
+    'keeps the label pointing at a rendered control when a hidden subtree holds several',
+    async () => {
+      function TestCase() {
+        const [visible, setVisible] = React.useState(true);
+
+        return (
+          <React.Fragment>
+            <Field.Root>
+              <Field.Label data-testid="label">Apples</Field.Label>
+              <Activity mode={visible ? 'visible' : 'hidden'}>
+                <CheckboxGroup allValues={['fuji', 'gala']} defaultValue={[]}>
+                  <Checkbox.Root parent />
+                  <Checkbox.Root value="fuji" />
+                  <Checkbox.Root value="gala" />
+                </CheckboxGroup>
+              </Activity>
+            </Field.Root>
+            <button type="button" onClick={() => setVisible(false)}>
+              hide
+            </button>
+          </React.Fragment>
+        );
+      }
+
+      await render(<TestCase />);
+
+      const labelledControl = () =>
+        document.getElementById(screen.getByTestId('label').getAttribute('for') ?? '');
+
+      expect(labelledControl()).not.toBe(null);
+
+      fireEvent.click(screen.getByRole('button', { name: 'hide' }));
+
+      // Each control unregisters separately, so the selection must not settle on the id the
+      // provider generated for itself while the group is still rendered.
+      expect(labelledControl()).not.toBe(null);
     },
   );
 
@@ -1467,6 +1598,224 @@ describe('<Field.Root />', () => {
         expect(label).not.toHaveAttribute('data-dirty');
         expect(description).not.toHaveAttribute('data-dirty');
       });
+
+      it('should clear [data-dirty] when a null-valued control returns to its empty initial value', async () => {
+        await render(
+          <Field.Root data-testid="root">
+            <NumberField.Root>
+              <NumberField.Input data-testid="control" />
+            </NumberField.Root>
+          </Field.Root>,
+        );
+
+        const root = screen.getByTestId('root');
+        const control = screen.getByTestId('control');
+
+        expect(root).not.toHaveAttribute('data-dirty');
+
+        fireEvent.change(control, { target: { value: '5' } });
+        await waitFor(() => {
+          expect(root).toHaveAttribute('data-dirty', '');
+        });
+
+        fireEvent.change(control, { target: { value: '' } });
+        await waitFor(() => {
+          expect(root).not.toHaveAttribute('data-dirty');
+        });
+      });
+
+      it('should clear [data-dirty] when a Select returns to its null initial value', async () => {
+        function App() {
+          const [value, setValue] = React.useState<string | null>(null);
+          return (
+            <div>
+              <Field.Root data-testid="root">
+                <Select.Root value={value} onValueChange={setValue}>
+                  <Select.Trigger />
+                  <Select.Portal>
+                    <Select.Positioner>
+                      <Select.Popup>
+                        <Select.Item value="a" />
+                      </Select.Popup>
+                    </Select.Positioner>
+                  </Select.Portal>
+                </Select.Root>
+              </Field.Root>
+              <button type="button" onClick={() => setValue('a')}>
+                set
+              </button>
+              <button type="button" onClick={() => setValue(null)}>
+                clear
+              </button>
+            </div>
+          );
+        }
+
+        await render(<App />);
+        const root = screen.getByTestId('root');
+
+        expect(root).not.toHaveAttribute('data-dirty');
+
+        fireEvent.click(screen.getByText('set'));
+        await waitFor(() => {
+          expect(root).toHaveAttribute('data-dirty', '');
+        });
+
+        fireEvent.click(screen.getByText('clear'));
+        await waitFor(() => {
+          expect(root).not.toHaveAttribute('data-dirty');
+        });
+      });
+
+      it('keeps [data-dirty] on a RadioGroup when returning to the first picked value', async () => {
+        function App() {
+          const [value, setValue] = React.useState<string | null>(null);
+          return (
+            <div>
+              <Field.Root data-testid="root">
+                <RadioGroup value={value} onValueChange={(next) => setValue(next as string | null)}>
+                  <Radio.Root value="a" />
+                  <Radio.Root value="b" />
+                </RadioGroup>
+              </Field.Root>
+              <button type="button" onClick={() => setValue('a')}>
+                a
+              </button>
+              <button type="button" onClick={() => setValue('b')}>
+                b
+              </button>
+            </div>
+          );
+        }
+
+        await render(<App />);
+        const root = screen.getByTestId('root');
+
+        expect(root).not.toHaveAttribute('data-dirty');
+
+        fireEvent.click(screen.getByText('a'));
+        await waitFor(() => {
+          expect(root).toHaveAttribute('data-dirty', '');
+        });
+
+        fireEvent.click(screen.getByText('b'));
+        fireEvent.click(screen.getByText('a'));
+
+        await waitFor(() => {
+          expect(root).toHaveAttribute('data-dirty', '');
+        });
+      });
+    });
+
+    describe('control remount', () => {
+      it('clears dirty after an empty text control returns to empty following a null-valued control', async () => {
+        await render(
+          <SwappableField
+            data-testid="root"
+            firstControl={
+              <NumberField.Root>
+                <NumberField.Input />
+              </NumberField.Root>
+            }
+            secondControl={<Field.Control data-testid="control" defaultValue="" />}
+          />,
+        );
+        const root = screen.getByTestId('root');
+
+        fireEvent.click(screen.getByText('swap'));
+        const control = screen.getByTestId('control');
+        expect(root).not.toHaveAttribute('data-dirty');
+
+        fireEvent.change(control, { target: { value: 'x' } });
+        expect(root).toHaveAttribute('data-dirty', '');
+
+        fireEvent.change(control, { target: { value: '' } });
+        expect(root).not.toHaveAttribute('data-dirty');
+      });
+
+      it('keeps the original baseline when a controlled control remounts', async () => {
+        function App() {
+          const [value, setValue] = React.useState('a');
+          const [mounted, setMounted] = React.useState(true);
+          return (
+            <div>
+              <Field.Root data-testid="root">
+                {mounted && (
+                  <Field.Control data-testid="control" value={value} onValueChange={setValue} />
+                )}
+              </Field.Root>
+              <button type="button" onClick={() => setMounted((prev) => !prev)}>
+                toggle
+              </button>
+            </div>
+          );
+        }
+
+        await render(<App />);
+        const root = screen.getByTestId('root');
+
+        fireEvent.change(screen.getByTestId('control'), { target: { value: 'b' } });
+        await waitFor(() => {
+          expect(root).toHaveAttribute('data-dirty', '');
+        });
+
+        fireEvent.click(screen.getByText('toggle'));
+        fireEvent.click(screen.getByText('toggle'));
+
+        expect(root).toHaveAttribute('data-dirty', '');
+
+        fireEvent.change(screen.getByTestId('control'), { target: { value: 'a' } });
+        await waitFor(() => {
+          expect(root).not.toHaveAttribute('data-dirty');
+        });
+      });
+
+      it('keeps the field baseline when the control is swapped', async () => {
+        await render(
+          <SwappableField
+            data-testid="root"
+            firstControl={<Field.Control key="a" defaultValue="a" />}
+            secondControl={<Field.Control key="b" data-testid="control" defaultValue="x" />}
+          />,
+        );
+        const root = screen.getByTestId('root');
+
+        fireEvent.click(screen.getByText('swap'));
+        const control = screen.getByTestId('control');
+
+        fireEvent.change(control, { target: { value: 'y' } });
+        await waitFor(() => {
+          expect(root).toHaveAttribute('data-dirty', '');
+        });
+
+        // The baseline is still the field's original value, not the swapped-in control's default.
+        fireEvent.change(control, { target: { value: 'a' } });
+        await waitFor(() => {
+          expect(root).not.toHaveAttribute('data-dirty');
+        });
+      });
+
+      it('captures the baseline only once in StrictMode', async () => {
+        await renderStrict(
+          <Field.Root data-testid="root">
+            <NumberField.Root>
+              <NumberField.Input data-testid="control" />
+            </NumberField.Root>
+          </Field.Root>,
+        );
+        const root = screen.getByTestId('root');
+        const control = screen.getByTestId('control');
+
+        fireEvent.change(control, { target: { value: '5' } });
+        await waitFor(() => {
+          expect(root).toHaveAttribute('data-dirty', '');
+        });
+
+        fireEvent.change(control, { target: { value: '' } });
+        await waitFor(() => {
+          expect(root).not.toHaveAttribute('data-dirty');
+        });
+      });
     });
 
     describe('filled', () => {
@@ -1651,6 +2000,18 @@ describe('<Field.Root />', () => {
       expect(control).toHaveAttribute('aria-invalid', 'true');
       expect(screen.getByTestId('error')).not.toBe(null);
     });
+
+    it('does not update controlled dirty state from user input', async () => {
+      await render(
+        <Field.Root data-testid="root" dirty={false}>
+          <Field.Control />
+        </Field.Root>,
+      );
+
+      fireEvent.change(screen.getByRole('textbox'), { target: { value: 'changed' } });
+
+      expect(screen.getByTestId('root')).not.toHaveAttribute('data-dirty');
+    });
   });
 
   describe('prop: touched', () => {
@@ -1667,6 +2028,19 @@ describe('<Field.Root />', () => {
       ['root', 'control', 'label', 'description'].forEach((part) => {
         expect(screen.getByTestId(part)).toHaveAttribute('data-touched');
       });
+    });
+
+    it('does not update controlled touched state on blur', async () => {
+      await render(
+        <Field.Root data-testid="root" touched={false}>
+          <Field.Control />
+        </Field.Root>,
+      );
+
+      fireEvent.focus(screen.getByRole('textbox'));
+      fireEvent.blur(screen.getByRole('textbox'));
+
+      expect(screen.getByTestId('root')).not.toHaveAttribute('data-touched');
     });
   });
 
@@ -1694,6 +2068,28 @@ describe('<Field.Root />', () => {
       await user.click(screen.getByText('validate'));
 
       expect(screen.queryByTestId('error')).not.toBe(null);
+    });
+
+    it('validates a logical field without a mounted control', async () => {
+      function App() {
+        const actionsRef = React.useRef<Field.Root.Actions>(null);
+        return (
+          <div>
+            <Field.Root actionsRef={actionsRef} validate={() => 'Logical field error'}>
+              <Field.Error />
+            </Field.Root>
+            <button type="button" onClick={() => actionsRef.current?.validate()}>
+              validate
+            </button>
+          </div>
+        );
+      }
+
+      const { user } = await render(<App />);
+
+      await user.click(screen.getByRole('button', { name: 'validate' }));
+
+      expect(screen.getByText('Logical field error')).toBeVisible();
     });
 
     it('validates the current control value when the `validate` method is called', async () => {

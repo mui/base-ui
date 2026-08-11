@@ -3,9 +3,6 @@ import * as React from 'react';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useBaseUiId } from '../useBaseUiId';
 
-/**
- * @internal
- */
 export function useAriaLabelledBy(
   explicitAriaLabelledBy: string | undefined,
   labelId: string | undefined,

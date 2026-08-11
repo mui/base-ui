@@ -87,7 +87,7 @@ export const RadioRoot = React.forwardRef(function RadioRoot<Value>(
 
   const registerFieldInput = validation?.registerInput;
   const registerInput = React.useCallback(
-    (element: HTMLInputElement | null) =>
+    (element: HTMLInputElement) =>
       registerFieldInput?.(element, { controlRef: radioRef, value: undefined }),
     [registerFieldInput],
   );
@@ -113,11 +113,7 @@ export const RadioRoot = React.forwardRef(function RadioRoot<Value>(
   }, [checked, disabled, registerInputRef]);
 
   const id = useBaseUiId();
-  const inputId = useLabelableId({
-    id: idProp,
-    implicit: false,
-    controlRef: radioRef,
-  });
+  const inputId = useLabelableId({ id: idProp });
   const hiddenInputId = nativeButton ? undefined : inputId;
   const ariaLabelledBy = useAriaLabelledBy(
     ariaLabelledByProp,

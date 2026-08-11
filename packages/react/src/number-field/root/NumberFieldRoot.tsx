@@ -10,6 +10,7 @@ import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
 import { visuallyHidden, visuallyHiddenInput } from '@base-ui/utils/visuallyHidden';
 import { ownerDocument } from '@base-ui/utils/owner';
 import { platform } from '@base-ui/utils/platform';
+import { formatNumber } from '@base-ui/utils/formatNumber';
 import { activeElement } from '../../floating-ui-react/utils';
 import { InputMode, NumberFieldRootContext } from './NumberFieldRootContext';
 import { useFieldRootContext } from '../../internals/field-root-context/FieldRootContext';
@@ -29,7 +30,6 @@ import {
   MINUS_SIGNS_WITH_ASCII,
   PLUS_SIGNS_WITH_ASCII,
 } from '../utils/parse';
-import { formatNumber } from '../../utils/formatNumber';
 import { toValidatedNumber } from '../utils/validate';
 import { EventWithOptionalKeyState } from '../utils/types';
 import type { ChangeEventCustomProperties, IncrementValueParameters } from '../utils/types';
@@ -64,7 +64,7 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
     readOnly = false,
     form,
     name: nameProp,
-    defaultValue,
+    defaultValue = null,
     value: valueProp,
     onValueChange: onValueChangeProp,
     onValueCommitted: onValueCommittedProp,
@@ -107,14 +107,13 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
 
   const id = useLabelableId({ id: idProp });
 
-  const [valueUnwrapped, setValueUnwrapped] = useControlled<number | null>({
+  const [value, setValueUnwrapped] = useControlled({
     controlled: valueProp,
     default: defaultValue,
     name: 'NumberField',
     state: 'value',
   });
 
-  const value = valueUnwrapped ?? null;
   const valueRef = useValueAsRef(value);
 
   useIsoLayoutEffect(() => {
@@ -155,9 +154,7 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
     const decimal =
       parts.find((part) => part.type === 'decimal')?.value ??
       getNumberLocaleDetails(locale, format).decimal;
-    if (decimal) {
-      keys.add(decimal);
-    }
+    keys.add(decimal);
 
     // Allow every non-digit character the formatter renders — separators, currency symbols, units
     // (e.g. `km/h`, `°C`), exponent separators, and locale literals — decomposed per character
@@ -370,11 +367,11 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
         const changed = incrementValue(amount, {
           direction: event.deltaY > 0 ? -1 : 1,
           event,
-          reason: 'wheel',
+          reason: REASONS.wheel,
         });
         if (changed) {
           onValueCommitted(
-            lastChangedValueRef.current ?? valueRef.current,
+            lastChangedValueRef.current,
             createGenericEventDetails(REASONS.wheel, event),
           );
         }

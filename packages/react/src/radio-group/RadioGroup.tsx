@@ -11,6 +11,7 @@ import { useFieldRootContext } from '../internals/field-root-context/FieldRootCo
 import { useRegisterFieldControl } from '../internals/field-register-control/useRegisterFieldControl';
 import { fieldValidityMapping } from '../internals/field-constants/constants';
 import type { FieldRootState } from '../field/root/FieldRoot';
+import { isEligibleInput } from '../field/root/useFieldValidation';
 import { useFieldsetRootContext } from '../fieldset/root/FieldsetRootContext';
 import { useFormContext } from '../internals/form-context/FormContext';
 import { useLabelableContext } from '../internals/labelable-provider/LabelableContext';
@@ -130,11 +131,29 @@ export const RadioGroup = React.forwardRef(function RadioGroup<Value>(
     }
 
     const currentInput = groupInputRef.current;
-    if (input.checked || currentInput == null || currentInput.disabled) {
-      return setInputRef(input);
-    }
+    const cleanup =
+      input.checked || currentInput == null || currentInput.disabled
+        ? setInputRef(input)
+        : undefined;
 
-    return undefined;
+    // Detach when this input unmounts while still forwarded, so consumers don't
+    // keep holding a disconnected node. The input may have become the forwarded
+    // one after attach (via the re-registration effect), so always return this.
+    return () => {
+      if (firstEnabledInputRef.current === input) {
+        firstEnabledInputRef.current = null;
+      }
+      if (groupInputRef.current === input) {
+        if (cleanup) {
+          cleanup();
+          groupInputRef.current = null;
+        } else {
+          void setInputRef(null);
+        }
+      } else {
+        cleanup?.();
+      }
+    };
   });
 
   const getFormValue = useStableCallback(() => {
@@ -144,7 +163,7 @@ export const RadioGroup = React.forwardRef(function RadioGroup<Value>(
     }
 
     for (const input of validation.registeredInputs.keys()) {
-      if (input.checked && !input.matches(':disabled') && input.form === formElement) {
+      if (input.checked && isEligibleInput(input, formElement)) {
         return checkedValue ?? null;
       }
     }

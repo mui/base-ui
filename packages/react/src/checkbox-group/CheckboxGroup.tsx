@@ -3,10 +3,12 @@ import * as React from 'react';
 import { useControlled } from '@base-ui/utils/useControlled';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { EMPTY_ARRAY } from '@base-ui/utils/empty';
+import { areArraysEqual } from '@base-ui/utils/areArraysEqual';
 import { useBaseUiId } from '../internals/useBaseUiId';
 import { useRenderElement } from '../internals/useRenderElement';
 import { CheckboxGroupContext } from './CheckboxGroupContext';
 import type { FieldRootState } from '../field/root/FieldRoot';
+import { isEligibleInput } from '../field/root/useFieldValidation';
 import { useFieldRootContext } from '../internals/field-root-context/FieldRootContext';
 import { useRegisterFieldControl } from '../internals/field-register-control/useRegisterFieldControl';
 import { useLabelableContext } from '../internals/labelable-provider/LabelableContext';
@@ -17,7 +19,6 @@ import type { BaseUIChangeEventDetails } from '../internals/createBaseUIEventDet
 import { REASONS } from '../internals/reasons';
 import { useFormContext } from '../internals/form-context/FormContext';
 import { useValueChanged } from '../internals/useValueChanged';
-import { areArraysEqual } from '../internals/areArraysEqual';
 
 /**
  * Provides a shared state to a series of checkboxes.
@@ -54,11 +55,9 @@ export const CheckboxGroup = React.forwardRef(function CheckboxGroup(
   const { clearErrors, elementRef } = useFormContext();
 
   const disabled = fieldDisabled || disabledProp;
+  const defaultValue = defaultValueProp ?? EMPTY_ARRAY;
 
-  const defaultValue =
-    externalValue === undefined ? (defaultValueProp ?? (EMPTY_ARRAY as string[])) : undefined;
-
-  const [value, setValueUnwrapped] = useControlled<string[]>({
+  const [value, setValueUnwrapped] = useControlled({
     controlled: externalValue,
     default: defaultValue,
     name: 'CheckboxGroup',
@@ -82,7 +81,6 @@ export const CheckboxGroup = React.forwardRef(function CheckboxGroup(
     value,
     onValueChange: setValue,
   });
-  const resolvedValue = value ?? EMPTY_ARRAY;
 
   const id = useBaseUiId(idProp);
   const getInputControl = validation.getInputControl;
@@ -99,7 +97,7 @@ export const CheckboxGroup = React.forwardRef(function CheckboxGroup(
   const getFormValue = useStableCallback(() => {
     const formElement = elementRef.current;
     if (!formElement) {
-      return resolvedValue;
+      return value;
     }
 
     const successfulValues = new Set<string>();
@@ -107,19 +105,18 @@ export const CheckboxGroup = React.forwardRef(function CheckboxGroup(
       if (
         registration.value !== undefined &&
         input.checked &&
-        !input.matches(':disabled') &&
-        input.form === formElement
+        isEligibleInput(input, formElement)
       ) {
         successfulValues.add(registration.value);
       }
     }
 
-    return resolvedValue.filter((inputValue) => successfulValues.has(inputValue));
+    return value.filter((inputValue) => successfulValues.has(inputValue));
   });
 
   useRegisterFieldControl(controlRef, id, value, getFormValue, !!fieldName && !disabled, fieldName);
 
-  useValueChanged(resolvedValue, () => {
+  useValueChanged(value, () => {
     if (fieldName) {
       clearErrors(fieldName);
     }
@@ -128,10 +125,10 @@ export const CheckboxGroup = React.forwardRef(function CheckboxGroup(
       ? (validityData.initialValue as readonly string[])
       : EMPTY_ARRAY;
 
-    setFilled(resolvedValue.length > 0);
-    setDirty(!areArraysEqual(resolvedValue, initialValue));
+    setFilled(value.length > 0);
+    setDirty(!areArraysEqual(value, initialValue));
 
-    validation.change(resolvedValue);
+    validation.change(value);
   });
 
   const state: CheckboxGroupState = {
@@ -143,13 +140,12 @@ export const CheckboxGroup = React.forwardRef(function CheckboxGroup(
     () => ({
       allValues,
       value,
-      defaultValue,
       setValue,
       parent,
       disabled,
       validation,
     }),
-    [allValues, value, defaultValue, setValue, parent, disabled, validation],
+    [allValues, value, setValue, parent, disabled, validation],
   );
 
   const element = useRenderElement('div', componentProps, {

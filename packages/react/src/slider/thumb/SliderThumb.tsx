@@ -6,9 +6,9 @@ import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
 import { visuallyHidden } from '@base-ui/utils/visuallyHidden';
 import { ownerWindow } from '@base-ui/utils/owner';
 import { script as prehydrationScript } from '#prehydration/slider/thumb';
+import { clamp } from '@base-ui/utils/clamp';
+import { formatNumber } from '@base-ui/utils/formatNumber';
 import { BaseUIComponentProps } from '../../internals/types';
-import { clamp } from '../../internals/clamp';
-import { formatNumber } from '../../utils/formatNumber';
 import { mergeProps } from '../../merge-props';
 import { useBaseUiId } from '../../internals/useBaseUiId';
 import { useIsHydrating } from '../../utils/useIsHydrating';
@@ -138,6 +138,7 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
     setIndicatorPosition,
     state,
     step,
+    thumbRefs,
     values: sliderValues,
   } = useSliderRootContext();
 
@@ -344,15 +345,11 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
           return;
         }
 
-        if (!thumbRef.current) {
-          return;
-        }
-
         setActive(-1);
 
         // Keep field-level blur logic from running while focus moves to another thumb
         // of the same slider, so validation doesn't commit mid-interaction.
-        if (contains(controlRef.current, event.relatedTarget)) {
+        if (thumbRefs.current.some((thumb) => contains(thumb, event.relatedTarget))) {
           return;
         }
 
@@ -481,12 +478,9 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
           }
 
           pressedThumbIndexRef.current = index;
-
-          if (thumbRef.current != null) {
-            const midpoint = getMidpoint(thumbRef.current, vertical);
-            pressedThumbCenterOffsetRef.current =
-              (vertical ? event.clientY : event.clientX) - midpoint;
-          }
+          const midpoint = getMidpoint(event.currentTarget, vertical);
+          pressedThumbCenterOffsetRef.current =
+            (vertical ? event.clientY : event.clientX) - midpoint;
         },
         style: thumbStyle,
         suppressHydrationWarning: renderBeforeHydration || undefined,

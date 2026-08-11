@@ -19,7 +19,7 @@ import {
   useListNavigation,
   useTypeahead,
 } from '../../floating-ui-react';
-import { SelectRootContext, SelectFloatingContext } from './SelectRootContext';
+import { SelectRootContext } from './SelectRootContext';
 import { useFieldRootContext } from '../../internals/field-root-context/FieldRootContext';
 import { useRegisterFieldControl } from '../../internals/field-register-control/useRegisterFieldControl';
 import { useLabelableId } from '../../internals/labelable-provider/useLabelableId';
@@ -34,11 +34,10 @@ import { useOpenChangeComplete } from '../../internals/useOpenChangeComplete';
 import { useFormContext } from '../../internals/form-context/FormContext';
 import { type Group, stringifyAsLabel, stringifyAsValue } from '../../internals/resolveValueLabel';
 import {
-  compareItemEquality,
   defaultItemEquality,
   findItemIndex,
+  isSelectedValueDirty,
 } from '../../internals/itemEquality';
-import { areArraysEqual } from '../../internals/areArraysEqual';
 import { useValueChanged } from '../../internals/useValueChanged';
 import { useOpenInteractionType } from '../../utils/useOpenInteractionType';
 import { getMaxScrollOffset, normalizeScrollOffset } from '../../utils/scrollEdges';
@@ -241,21 +240,9 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     [multiple, open, value, isItemEqualToValue, store],
   );
 
-  function isSelectedValueDirty(currentValue: unknown) {
-    const initialValue = validityData.initialValue;
-
-    if (Array.isArray(currentValue) && Array.isArray(initialValue)) {
-      return !areArraysEqual(currentValue, initialValue, (itemValue, initialItemValue) =>
-        compareItemEquality(itemValue, initialItemValue, isItemEqualToValue),
-      );
-    }
-
-    return currentValue !== initialValue;
-  }
-
   useValueChanged(value, () => {
     clearErrors(name);
-    setDirty(isSelectedValueDirty(value));
+    setDirty(isSelectedValueDirty(value, validityData.initialValue, isItemEqualToValue));
 
     validation.change(value);
   });
@@ -286,7 +273,12 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
 
   const handleUnmount = useStableCallback(() => {
     setMounted(false);
-    store.update({ activeIndex: null, openMethod: null });
+    store.update({
+      activeIndex: null,
+      openMethod: null,
+      scrollUpArrowVisible: false,
+      scrollDownArrowVisible: false,
+    });
     onOpenChangeComplete?.(false);
   });
 
@@ -315,12 +307,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     },
   );
 
-  const handleScrollArrowVisibility = useStableCallback(() => {
-    const scroller = store.state.listElement || popupRef.current;
-    if (!scroller) {
-      return;
-    }
-
+  const handleScrollArrowVisibility = useStableCallback((scroller: HTMLElement) => {
     const maxScrollTop = getMaxScrollOffset(scroller.scrollHeight, scroller.clientHeight);
     const scrollTop = normalizeScrollOffset(scroller.scrollTop, maxScrollTop);
     const shouldShowUp = scrollTop > 0;
@@ -351,7 +338,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     listRef,
     activeIndex,
     selectedIndex,
-    disabledIndices: EMPTY_ARRAY as number[],
+    disabledIndices: EMPTY_ARRAY,
     onNavigate(nextActiveIndex) {
       // Retain the highlight while transitioning out.
       if (nextActiveIndex === null && !open) {
@@ -378,7 +365,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
       if (open) {
         store.set('activeIndex', index);
       } else {
-        setValue(valuesRef.current[index], createChangeEventDetails('none'));
+        setValue(valuesRef.current[index], createChangeEventDetails(REASONS.none));
       }
     },
     onTyping(typing) {
@@ -386,28 +373,24 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     },
   });
 
-  const mergedTriggerProps = React.useMemo(() => {
-    const triggerInteractionProps = mergeProps(
+  // `Select.Trigger` applies the id itself from the store, so it's deliberately not merged here.
+  const mergedTriggerProps = React.useMemo(
+    () =>
+      mergeProps(
+        typeahead.reference,
+        listNavigation.reference,
+        dismiss.reference,
+        click.reference,
+        interactionTypeProps,
+      ),
+    [
+      click.reference,
       typeahead.reference,
       listNavigation.reference,
       dismiss.reference,
-      click.reference,
       interactionTypeProps,
-    );
-
-    if (generatedId) {
-      triggerInteractionProps.id = generatedId;
-    }
-
-    return triggerInteractionProps;
-  }, [
-    click.reference,
-    typeahead.reference,
-    listNavigation.reference,
-    dismiss.reference,
-    interactionTypeProps,
-    generatedId,
-  ]);
+    ],
+  );
 
   const popupProps = React.useMemo(
     () =>
@@ -450,6 +433,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
   const contextValue: SelectRootContext = React.useMemo(
     () => ({
       store,
+      floatingContext,
       required,
       disabled,
       readOnly,
@@ -477,6 +461,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     }),
     [
       store,
+      floatingContext,
       required,
       disabled,
       readOnly,
@@ -517,78 +502,75 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
 
   return (
     <SelectRootContext.Provider value={contextValue}>
-      <SelectFloatingContext.Provider value={floatingContext}>
-        {children}
-        <input
-          {...validation.getValidationProps(disabled, {
-            onFocus() {
-              // Move focus to the trigger element when the hidden input is focused.
-              store.state.triggerElement?.focus({
-                // Supported in Chrome from 144 (January 2026)
-                focusVisible: true,
-              });
-            },
-            // Handle browser autofill.
-            onChange(event: React.ChangeEvent<HTMLInputElement>) {
-              // Workaround for https://github.com/react/react/issues/9023
-              if (event.nativeEvent.defaultPrevented || disabled || readOnly) {
+      {children}
+      <input
+        {...validation.getValidationProps(disabled, {
+          onFocus() {
+            // Move focus to the trigger element when the hidden input is focused.
+            store.state.triggerElement?.focus({
+              // Supported in Chrome from 144 (January 2026)
+              focusVisible: true,
+            });
+          },
+          // Handle browser autofill.
+          onChange(event: React.ChangeEvent<HTMLInputElement>) {
+            // Workaround for https://github.com/react/react/issues/9023
+            if (event.nativeEvent.defaultPrevented || disabled || readOnly) {
+              return;
+            }
+
+            const nextValue = event.currentTarget.value;
+            const details = createChangeEventDetails(REASONS.none, event.nativeEvent);
+
+            function handleChange() {
+              if (multiple) {
+                // Browser autofill only writes a single scalar value.
                 return;
               }
 
-              const nextValue = event.currentTarget.value;
-              const details = createChangeEventDetails(REASONS.none, event.nativeEvent);
+              // Preserve the original serialized matching, then fall back to rendered text,
+              // which browsers can autofill for primitive values like `value="US">United States`.
+              const nextValueLower = nextValue.toLowerCase();
+              let matchingIndex = valuesRef.current.findIndex(
+                (candidate) =>
+                  stringifyAsValue(candidate, itemToStringValue).toLowerCase() === nextValueLower ||
+                  stringifyAsLabel(candidate, itemToStringLabel).toLowerCase() === nextValueLower,
+              );
 
-              function handleChange() {
-                if (multiple) {
-                  // Browser autofill only writes a single scalar value.
-                  return;
-                }
-
-                // Preserve the original serialized matching, then fall back to rendered text,
-                // which browsers can autofill for primitive values like `value="US">United States`.
-                const nextValueLower = nextValue.toLowerCase();
-                let matchingIndex = valuesRef.current.findIndex(
-                  (candidate) =>
-                    stringifyAsValue(candidate, itemToStringValue).toLowerCase() ===
-                      nextValueLower ||
-                    stringifyAsLabel(candidate, itemToStringLabel).toLowerCase() === nextValueLower,
-                );
-
-                if (matchingIndex === -1) {
-                  matchingIndex = valuesRef.current.findIndex((_, index) => {
-                    const renderedLabel = labelsRef.current[index];
-                    return renderedLabel != null && renderedLabel.toLowerCase() === nextValueLower;
-                  });
-                }
-
-                const matchingValue = valuesRef.current[matchingIndex];
-                if (matchingValue != null) {
-                  // `setValue` may be canceled by `onValueChange`; rely on `useValueChanged` to
-                  // mark the field dirty and run validation only when the value actually changes.
-                  setValue(matchingValue, details);
-                }
+              if (matchingIndex === -1) {
+                matchingIndex = valuesRef.current.findIndex((_, index) => {
+                  const renderedLabel = labelsRef.current[index];
+                  return renderedLabel != null && renderedLabel.toLowerCase() === nextValueLower;
+                });
               }
 
-              store.set('forceMount', true);
-              queueMicrotask(handleChange);
-            },
-          })}
-          id={generatedId && hiddenInputName == null ? `${generatedId}-hidden-input` : undefined}
-          form={form}
-          name={hiddenInputName}
-          autoComplete={autoComplete}
-          value={serializedValue}
-          disabled={disabled}
-          required={required && !(multiple && hasSelectedValue)}
-          readOnly={readOnly}
-          ref={ref}
-          style={name ? visuallyHiddenInput : visuallyHidden}
-          tabIndex={-1}
-          aria-hidden
-          suppressHydrationWarning
-        />
-        {hiddenInputs}
-      </SelectFloatingContext.Provider>
+              const matchingValue = valuesRef.current[matchingIndex];
+              if (matchingValue != null) {
+                // `setValue` may be canceled by `onValueChange`; rely on `useValueChanged` to
+                // mark the field dirty and run validation only when the value actually changes.
+                setValue(matchingValue, details);
+              }
+            }
+
+            store.set('forceMount', true);
+            queueMicrotask(handleChange);
+          },
+        })}
+        id={generatedId && hiddenInputName == null ? `${generatedId}-hidden-input` : undefined}
+        form={form}
+        name={hiddenInputName}
+        autoComplete={autoComplete}
+        value={serializedValue}
+        disabled={disabled}
+        required={required && !(multiple && hasSelectedValue)}
+        readOnly={readOnly}
+        ref={ref}
+        style={name ? visuallyHiddenInput : visuallyHidden}
+        tabIndex={-1}
+        aria-hidden
+        suppressHydrationWarning
+      />
+      {hiddenInputs}
     </SelectRootContext.Provider>
   );
 }

@@ -1,9 +1,14 @@
 import { expect, vi } from 'vitest';
-import { fireEvent, flushMicrotasks, screen } from '@mui/internal-test-utils';
+import * as React from 'react';
+import { act, fireEvent, flushMicrotasks, screen } from '@mui/internal-test-utils';
 import { ContextMenu } from '@base-ui/react/context-menu';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 
 describe('<ContextMenu.Trigger />', () => {
+  beforeEach(() => {
+    globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
+  });
+
   const { render, clock } = createRenderer({
     clockOptions: {
       shouldAdvanceTime: true,
@@ -18,6 +23,18 @@ describe('<ContextMenu.Trigger />', () => {
       return render(<ContextMenu.Root>{node}</ContextMenu.Root>);
     },
   }));
+
+  it('throws when rendered outside ContextMenu.Root', async () => {
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+    try {
+      await expect(render(<ContextMenu.Trigger />)).rejects.toThrow(
+        'Base UI: ContextMenuRootContext is missing. ContextMenu parts must be placed within <ContextMenu.Root>.',
+      );
+    } finally {
+      errorSpy.mockRestore();
+    }
+  });
 
   it('should open menu on right click (context menu event)', async () => {
     await render(
@@ -134,6 +151,95 @@ describe('<ContextMenu.Trigger />', () => {
     expect(onOpenChange.mock.lastCall?.[0]).toBe(false);
   });
 
+  it('keeps the menu open when the context-menu gesture ends inside its positioner', async () => {
+    const onOpenChange = vi.fn();
+
+    await render(
+      <ContextMenu.Root onOpenChange={onOpenChange}>
+        <ContextMenu.Trigger data-testid="trigger">Right click me</ContextMenu.Trigger>
+        <ContextMenu.Portal>
+          <ContextMenu.Positioner data-testid="positioner">
+            <ContextMenu.Popup />
+          </ContextMenu.Positioner>
+        </ContextMenu.Portal>
+      </ContextMenu.Root>,
+    );
+
+    fireEvent.contextMenu(screen.getByTestId('trigger'));
+    clock.tick(501);
+    fireEvent.mouseUp(screen.getByTestId('positioner'));
+
+    expect(onOpenChange.mock.calls).toHaveLength(1);
+    expect(screen.queryByRole('menu')).not.toBe(null);
+  });
+
+  it('keeps the root menu open when the context-menu gesture ends in a portaled submenu', async () => {
+    const onOpenChange = vi.fn();
+
+    await render(
+      <ContextMenu.Root onOpenChange={onOpenChange}>
+        <ContextMenu.Trigger data-testid="trigger">Right click me</ContextMenu.Trigger>
+        <ContextMenu.Portal>
+          <ContextMenu.Positioner>
+            <ContextMenu.Popup>
+              <ContextMenu.SubmenuRoot defaultOpen>
+                <ContextMenu.SubmenuTrigger>More</ContextMenu.SubmenuTrigger>
+                <ContextMenu.Portal>
+                  <ContextMenu.Positioner>
+                    <ContextMenu.Popup data-testid="submenu-popup" />
+                  </ContextMenu.Positioner>
+                </ContextMenu.Portal>
+              </ContextMenu.SubmenuRoot>
+            </ContextMenu.Popup>
+          </ContextMenu.Positioner>
+        </ContextMenu.Portal>
+      </ContextMenu.Root>,
+    );
+
+    fireEvent.contextMenu(screen.getByTestId('trigger'));
+    clock.tick(501);
+    fireEvent.mouseUp(screen.getByTestId('submenu-popup'));
+
+    expect(onOpenChange.mock.calls).toHaveLength(1);
+    expect(screen.queryByTestId('submenu-popup')).not.toBe(null);
+  });
+
+  it('aborts the pending document mouseup listener when the trigger unmounts', async () => {
+    const onOpenChange = vi.fn();
+    let hideTrigger = () => {};
+
+    function Test() {
+      const [showTrigger, setShowTrigger] = React.useState(true);
+      hideTrigger = () => setShowTrigger(false);
+
+      return (
+        <ContextMenu.Root onOpenChange={onOpenChange}>
+          {showTrigger && (
+            <ContextMenu.Trigger data-testid="trigger">Right click me</ContextMenu.Trigger>
+          )}
+          <ContextMenu.Portal>
+            <ContextMenu.Positioner>
+              <ContextMenu.Popup />
+            </ContextMenu.Positioner>
+          </ContextMenu.Portal>
+        </ContextMenu.Root>
+      );
+    }
+
+    await render(<Test />);
+    fireEvent.contextMenu(screen.getByTestId('trigger'));
+
+    await act(async () => {
+      hideTrigger();
+    });
+
+    clock.tick(501);
+    fireEvent.mouseUp(document.body);
+
+    expect(onOpenChange.mock.calls).toHaveLength(1);
+    expect(screen.queryByRole('menu')).not.toBe(null);
+  });
+
   describe('prop: disabled', () => {
     it('does not open on right-click when disabled', async () => {
       const onOpenChange = vi.fn();
@@ -185,6 +291,79 @@ describe('<ContextMenu.Trigger />', () => {
 
       expect(defaultPrevented).toBe(false);
     });
+  });
+
+  it('blocks native context menus on both internal and external backdrops', async () => {
+    await render(
+      <ContextMenu.Root defaultOpen>
+        <ContextMenu.Trigger>Right click me</ContextMenu.Trigger>
+        <ContextMenu.Portal>
+          <ContextMenu.Backdrop data-testid="backdrop" />
+          <ContextMenu.Positioner>
+            <ContextMenu.Popup />
+          </ContextMenu.Positioner>
+        </ContextMenu.Portal>
+      </ContextMenu.Root>,
+    );
+
+    await flushMicrotasks();
+
+    const internalBackdrop = document.querySelector(
+      '[data-base-ui-portal] > [data-base-ui-inert][role="presentation"]',
+    )!;
+    const externalBackdrop = screen.getByTestId('backdrop');
+    const internalEvent = new MouseEvent('contextmenu', { bubbles: true, cancelable: true });
+    const externalEvent = new MouseEvent('contextmenu', { bubbles: true, cancelable: true });
+    const outsideEvent = new MouseEvent('contextmenu', { bubbles: true, cancelable: true });
+
+    internalBackdrop.dispatchEvent(internalEvent);
+    externalBackdrop.dispatchEvent(externalEvent);
+    document.body.dispatchEvent(outsideEvent);
+
+    expect(internalEvent.defaultPrevented).toBe(true);
+    expect(externalEvent.defaultPrevented).toBe(true);
+    expect(outsideEvent.defaultPrevented).toBe(false);
+  });
+
+  it('blocks native context menus in a portal mounted inside the trigger DOM subtree', async () => {
+    const portalContainerRef = React.createRef<HTMLDivElement>();
+
+    await render(
+      <ContextMenu.Root defaultOpen>
+        <ContextMenu.Trigger>
+          Right click me
+          <div ref={portalContainerRef} />
+        </ContextMenu.Trigger>
+        <ContextMenu.Portal container={portalContainerRef}>
+          <ContextMenu.Positioner>
+            <ContextMenu.Popup data-testid="popup" />
+          </ContextMenu.Positioner>
+        </ContextMenu.Portal>
+      </ContextMenu.Root>,
+    );
+
+    const event = new MouseEvent('contextmenu', { bubbles: true, cancelable: true });
+    screen.getByTestId('popup').dispatchEvent(event);
+
+    expect(event.defaultPrevented).toBe(true);
+  });
+
+  it('blocks the native context menu when onContextMenu skips the Base UI handler', async () => {
+    await render(
+      <ContextMenu.Root>
+        <ContextMenu.Trigger
+          data-testid="trigger"
+          onContextMenu={(event) => event.preventBaseUIHandler()}
+        >
+          Right click me
+        </ContextMenu.Trigger>
+      </ContextMenu.Root>,
+    );
+
+    const event = new MouseEvent('contextmenu', { bubbles: true, cancelable: true });
+    screen.getByTestId('trigger').dispatchEvent(event);
+
+    expect(event.defaultPrevented).toBe(true);
   });
 
   describe.skipIf(isJSDOM)('long press', () => {
@@ -262,6 +441,120 @@ describe('<ContextMenu.Trigger />', () => {
 
       expect(screen.queryByRole('menu')).toBe(null);
       expect(onOpenChange.mock.calls.length).toBe(0);
+    });
+
+    it('keeps a pending long press when touch movement stays within the threshold', async () => {
+      await render(
+        <ContextMenu.Root>
+          <ContextMenu.Trigger data-testid="trigger">Long press me</ContextMenu.Trigger>
+          <ContextMenu.Portal>
+            <ContextMenu.Positioner>
+              <ContextMenu.Popup />
+            </ContextMenu.Positioner>
+          </ContextMenu.Portal>
+        </ContextMenu.Root>,
+      );
+
+      const trigger = screen.getByTestId('trigger');
+      fireEvent.touchStart(trigger, {
+        touches: [new Touch({ identifier: 0, target: trigger, clientX: 100, clientY: 100 })],
+      });
+      fireEvent.touchMove(trigger, {
+        touches: [new Touch({ identifier: 0, target: trigger, clientX: 105, clientY: 105 })],
+      });
+
+      clock.tick(500);
+
+      expect(screen.queryByRole('menu')).not.toBe(null);
+    });
+
+    it('cancels a pending long press when the touch ends', async () => {
+      const onOpenChange = vi.fn();
+
+      await render(
+        <ContextMenu.Root onOpenChange={onOpenChange}>
+          <ContextMenu.Trigger data-testid="trigger">Long press me</ContextMenu.Trigger>
+          <ContextMenu.Portal>
+            <ContextMenu.Positioner>
+              <ContextMenu.Popup />
+            </ContextMenu.Positioner>
+          </ContextMenu.Portal>
+        </ContextMenu.Root>,
+      );
+
+      const trigger = screen.getByTestId('trigger');
+      fireEvent.touchStart(trigger, {
+        touches: [new Touch({ identifier: 0, target: trigger, clientX: 100, clientY: 100 })],
+      });
+      fireEvent.touchEnd(trigger);
+      clock.tick(500);
+
+      expect(onOpenChange).not.toHaveBeenCalled();
+      expect(screen.queryByRole('menu')).toBe(null);
+    });
+
+    it('cancels a pending long press when the gesture becomes multi-touch', async () => {
+      const onOpenChange = vi.fn();
+
+      await render(
+        <ContextMenu.Root onOpenChange={onOpenChange}>
+          <ContextMenu.Trigger data-testid="trigger">Long press me</ContextMenu.Trigger>
+          <ContextMenu.Portal>
+            <ContextMenu.Positioner>
+              <ContextMenu.Popup />
+            </ContextMenu.Positioner>
+          </ContextMenu.Portal>
+        </ContextMenu.Root>,
+      );
+
+      const trigger = screen.getByTestId('trigger');
+      const firstTouch = new Touch({ identifier: 0, target: trigger, clientX: 100, clientY: 100 });
+      const touches = [
+        firstTouch,
+        new Touch({ identifier: 1, target: trigger, clientX: 120, clientY: 100 }),
+      ];
+
+      fireEvent.touchStart(trigger, { touches: [firstTouch] });
+      fireEvent.touchMove(trigger, { touches });
+      fireEvent.touchMove(trigger, { touches: [firstTouch] });
+      clock.tick(500);
+
+      expect(onOpenChange).not.toHaveBeenCalled();
+      expect(screen.queryByRole('menu')).toBe(null);
+
+      fireEvent.touchEnd(trigger);
+      fireEvent.touchStart(trigger, { touches: [firstTouch] });
+      fireEvent.touchStart(trigger, { touches });
+      clock.tick(500);
+
+      expect(onOpenChange).not.toHaveBeenCalled();
+      expect(screen.queryByRole('menu')).toBe(null);
+    });
+
+    it('delays outside-press dismissal after opening from a long press', async () => {
+      await render(
+        <ContextMenu.Root>
+          <ContextMenu.Trigger data-testid="trigger">Long press me</ContextMenu.Trigger>
+          <ContextMenu.Portal>
+            <ContextMenu.Positioner>
+              <ContextMenu.Popup />
+            </ContextMenu.Positioner>
+          </ContextMenu.Portal>
+        </ContextMenu.Root>,
+      );
+
+      const trigger = screen.getByTestId('trigger');
+      fireEvent.touchStart(trigger, {
+        touches: [new Touch({ identifier: 0, target: trigger, clientX: 100, clientY: 100 })],
+      });
+      clock.tick(500);
+
+      fireEvent.mouseDown(document.body);
+      expect(screen.queryByRole('menu')).not.toBe(null);
+
+      clock.tick(500);
+      fireEvent.mouseDown(document.body);
+      expect(screen.queryByRole('menu')).toBe(null);
     });
 
     it('does not open on long press when disabled', async () => {

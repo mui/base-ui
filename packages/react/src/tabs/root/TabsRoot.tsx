@@ -44,7 +44,7 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
 
   const tabPanelRefs = React.useRef<(HTMLElement | null)[]>([]);
   const [mountedTabPanels, setMountedTabPanels] = React.useState(
-    () => new Map<TabsTab.Value | number, string>(),
+    () => new Map<TabsTab.Value, string>(),
   );
 
   const [value, setValue] = useControlled({
@@ -57,14 +57,13 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
   const isControlled = valueProp !== undefined;
 
   const [tabMap, setTabMap] = React.useState(
-    () => new Map<Node, CompositeMetadata<TabsTab.Metadata> | null>(),
+    () => new Map<Node, CompositeMetadata<TabsTab.Metadata>>(),
   );
   const lastKnownTabElementRef = React.useRef<Node | undefined>(undefined);
 
   // Used for activation direction detection via tab element positions.
   const getTabElementBySelectedValue = React.useCallback(
-    (selectedValue: TabsTab.Value | undefined): HTMLElement | null =>
-      findTabElement(tabMap, selectedValue),
+    (selectedValue: TabsTab.Value): HTMLElement | null => findTabElement(tabMap, selectedValue),
     [tabMap],
   );
 
@@ -137,12 +136,8 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
   );
 
   const registerMountedTabPanel = useStableCallback(
-    (panelValue: TabsTab.Value | number, panelId: string) => {
+    (panelValue: TabsTab.Value, panelId: string) => {
       setMountedTabPanels((prev) => {
-        if (prev.get(panelValue) === panelId) {
-          return prev;
-        }
-
         const next = new Map(prev);
         next.set(panelValue, panelId);
         return next;
@@ -150,6 +145,8 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
 
       return () => {
         setMountedTabPanels((prev) => {
+          // Another panel with the same value took ownership in the meantime;
+          // leave its registration in place.
           if (prev.get(panelValue) !== panelId) {
             return prev;
           }
@@ -174,8 +171,8 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
   const getTabIdByPanelValue = React.useCallback(
     (tabPanelValue: TabsTab.Value) => {
       for (const tabMetadata of tabMap.values()) {
-        if (tabPanelValue === tabMetadata?.value) {
-          return tabMetadata?.id;
+        if (tabPanelValue === tabMetadata.value) {
+          return tabMetadata.id;
         }
       }
       return undefined;
@@ -210,7 +207,7 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
 
   const selectedTabMetadata = React.useMemo(() => {
     for (const tabMetadata of tabMap.values()) {
-      if (tabMetadata != null && tabMetadata.value === value) {
+      if (tabMetadata.value === value) {
         return tabMetadata;
       }
     }
@@ -221,7 +218,7 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
   // Used as a fallback when the current selection is disabled or missing.
   const firstEnabledTabValue = React.useMemo(() => {
     for (const tabMetadata of tabMap.values()) {
-      if (tabMetadata != null && !tabMetadata.disabled) {
+      if (!tabMetadata.disabled) {
         return tabMetadata.value;
       }
     }
@@ -253,15 +250,9 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
       setValue(fallbackValue);
       // Automatic fallbacks are not directional transitions; reset the direction
       // alongside the value so the batched commit keeps both in sync.
-      setActivationDirectionState((prev) => {
-        if (prev.previousValue === fallbackValue && prev.tabActivationDirection === 'none') {
-          return prev;
-        }
-
-        return {
-          previousValue: fallbackValue,
-          tabActivationDirection: 'none',
-        };
+      setActivationDirectionState({
+        previousValue: fallbackValue,
+        tabActivationDirection: 'none',
       });
       notifyAutomaticValueChange(fallbackValue, fallbackReason);
       // Mark the initial notification as delivered only after the consumer
@@ -359,15 +350,11 @@ export const TabsRoot = React.forwardRef(function TabsRoot(
 });
 
 function findTabElement(
-  tabMap: Map<Node, CompositeMetadata<TabsTab.Metadata> | null>,
-  value: TabsTab.Value | undefined,
+  tabMap: Map<Node, CompositeMetadata<TabsTab.Metadata>>,
+  value: TabsTab.Value,
 ): HTMLElement | null {
-  if (value === undefined) {
-    return null;
-  }
-
   for (const [tabElement, tabMetadata] of tabMap.entries()) {
-    if (tabMetadata != null && value === (tabMetadata.value ?? tabMetadata.index)) {
+    if (value === tabMetadata.value) {
       return tabElement as HTMLElement;
     }
   }
@@ -379,7 +366,7 @@ function computeActivationDirection(
   oldValue: TabsTab.Value | null,
   newValue: TabsTab.Value | null,
   orientation: 'horizontal' | 'vertical',
-  tabMap: Map<Node, CompositeMetadata<TabsTab.Metadata> | null>,
+  tabMap: Map<Node, CompositeMetadata<TabsTab.Metadata>>,
 ): TabsTab.ActivationDirection {
   if (oldValue == null || newValue == null) {
     return 'none';

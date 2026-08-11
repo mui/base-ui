@@ -1,4 +1,4 @@
-import { expect } from 'vitest';
+import { expect, vi } from 'vitest';
 import * as React from 'react';
 import { Dialog } from '@base-ui/react/dialog';
 import { createRenderer, describeConformance } from '#test-utils';
@@ -13,6 +13,22 @@ describe('<Dialog.Portal />', () => {
       return render(<Dialog.Root open>{node}</Dialog.Root>);
     },
   }));
+
+  it('throws a descriptive error when a portaled part is rendered without <Dialog.Portal>', async () => {
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+    try {
+      await expect(
+        render(
+          <Dialog.Root open>
+            <Dialog.Viewport />
+          </Dialog.Root>,
+        ),
+      ).rejects.toThrow('Base UI: <Dialog.Portal> is missing.');
+    } finally {
+      errorSpy.mockRestore();
+    }
+  });
 
   describe('Suspense integration', () => {
     // Issue #3695

@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import type { BaseUIComponentProps, Orientation } from '../../internals/types';
+import type { Orientation } from '../../internals/types';
 import { Separator, type SeparatorState } from '../../separator';
 import { useToolbarRootContext } from '../root/ToolbarRootContext';
 
@@ -23,8 +23,7 @@ export const ToolbarSeparator = React.forwardRef(function ToolbarSeparator(
 
 export interface ToolbarSeparatorState extends SeparatorState {}
 
-export interface ToolbarSeparatorProps
-  extends BaseUIComponentProps<'div', ToolbarSeparatorState>, Separator.Props {
+export interface ToolbarSeparatorProps extends Separator.Props {
   /**
    * The orientation of the separator. Defaults to the opposite of the toolbar's
    * orientation, so a horizontal toolbar renders vertical separators.

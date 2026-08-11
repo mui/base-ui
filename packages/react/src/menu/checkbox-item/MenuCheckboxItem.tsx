@@ -1,6 +1,7 @@
 'use client';
 import * as React from 'react';
 import { useControlled } from '@base-ui/utils/useControlled';
+import { NOOP } from '@base-ui/utils/empty';
 import { MenuCheckboxItemContext } from './MenuCheckboxItemContext';
 import { REGULAR_ITEM, useMenuItem } from '../item/useMenuItem';
 import { useCompositeListItem } from '../../internals/composite/list/useCompositeListItem';
@@ -30,7 +31,7 @@ export const MenuCheckboxItem = React.forwardRef(function MenuCheckboxItem(
     id: idProp,
     label,
     nativeButton = false,
-    disabled = false,
+    disabled: disabledProp = false,
     closeOnClick = false,
     checked: checkedProp,
     defaultChecked,
@@ -39,11 +40,13 @@ export const MenuCheckboxItem = React.forwardRef(function MenuCheckboxItem(
     ...elementProps
   } = componentProps;
 
-  const listItem = useCompositeListItem({ label });
+  const listItem = useCompositeListItem({ guess: true, label });
   const menuPositionerContext = useMenuPositionerContext(true);
   const id = useBaseUiId(idProp);
 
   const { store } = useMenuRootContext();
+  const rootDisabled = store.useState('disabled');
+  const disabled = disabledProp || rootDisabled;
   const highlighted = store.useState('isActive', listItem.index);
   const itemProps = store.useState('itemProps');
 
@@ -76,7 +79,7 @@ export const MenuCheckboxItem = React.forwardRef(function MenuCheckboxItem(
 
   function handleClick(event: React.MouseEvent) {
     const details = createChangeEventDetails(REASONS.itemPress, event.nativeEvent, undefined, {
-      preventUnmountOnClose() {},
+      preventUnmountOnClose: NOOP,
     });
 
     onCheckedChange?.(!checked, details);

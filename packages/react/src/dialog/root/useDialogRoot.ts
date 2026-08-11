@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useScrollLock } from '@base-ui/utils/useScrollLock';
-import { EMPTY_OBJECT } from '@base-ui/utils/empty';
 import { useDismiss } from '../../floating-ui-react';
 import { contains, getTarget } from '../../floating-ui-react/utils';
 import { DialogStore } from '../store/DialogStore';
@@ -93,7 +93,7 @@ export function DialogInteractions({
   });
 
   // Notify parent of our open/close state using parent callbacks, if any
-  React.useEffect(() => {
+  useIsoLayoutEffect(() => {
     if (parentContext?.onNestedDialogOpen) {
       if (open) {
         parentContext.onNestedDialogOpen(
@@ -111,16 +111,14 @@ export function DialogInteractions({
     };
   }, [isDrawer, open, ownNestedOpenDialogs, ownNestedOpenDrawers, parentContext]);
 
-  // `dismiss.trigger` is always the same object as `dismiss.reference`.
-  const triggerProps = dismiss.reference ?? EMPTY_OBJECT;
-  // Consumers (DialogPopup/DrawerPopup) already spread `FOCUSABLE_POPUP_PROPS`
-  // directly, so the popup props only need to carry the dismiss handlers.
-  const popupProps = dismiss.floating ?? EMPTY_OBJECT;
-
   usePopupInteractionProps(store, {
-    activeTriggerProps: triggerProps,
-    inactiveTriggerProps: triggerProps,
-    popupProps,
+    // `enabled` is not passed to `useDismiss`, so its props are always defined,
+    // and `trigger` is the same object as `reference`.
+    activeTriggerProps: dismiss.reference!,
+    inactiveTriggerProps: dismiss.trigger!,
+    // DialogPopup and DrawerPopup spread `FOCUSABLE_POPUP_PROPS` directly, so
+    // this only needs to carry the dismiss handlers.
+    popupProps: dismiss.floating!,
     nestedOpenDialogCount: ownNestedOpenDialogs,
     nestedOpenDrawerCount: ownNestedOpenDrawers,
   });

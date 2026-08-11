@@ -1,4 +1,4 @@
-import { expect } from 'vitest';
+import { expect, vi } from 'vitest';
 import { Dialog } from '@base-ui/react/dialog';
 import { screen } from '@mui/internal-test-utils';
 import { createRenderer, describeConformance } from '#test-utils';
@@ -18,6 +18,18 @@ describe('<Dialog.Trigger />', () => {
       );
     },
   }));
+
+  it('throws a descriptive error without a root or handle', async () => {
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+    try {
+      await expect(render(<Dialog.Trigger />)).rejects.toThrow(
+        'Base UI: <Dialog.Trigger> must be used within <Dialog.Root> or provided with a handle.',
+      );
+    } finally {
+      errorSpy.mockRestore();
+    }
+  });
 
   describe('prop: disabled', () => {
     it('disables the dialog', async () => {

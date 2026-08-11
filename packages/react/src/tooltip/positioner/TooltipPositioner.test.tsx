@@ -1,8 +1,8 @@
-import { expect } from 'vitest';
+import { expect, vi } from 'vitest';
 import * as React from 'react';
 import { Tooltip } from '@base-ui/react/tooltip';
 import { screen, waitFor } from '@mui/internal-test-utils';
-import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
+import { createRenderer, describeConformance, isJSDOM, waitForPositioned } from '#test-utils';
 
 const Trigger = React.forwardRef(function Trigger(
   props: Tooltip.Trigger.Props,
@@ -24,6 +24,34 @@ describe('<Tooltip.Positioner />', () => {
       );
     },
   }));
+
+  it('throws a descriptive error when rendered outside <Tooltip.Root>', async () => {
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+    try {
+      await expect(render(<Tooltip.Positioner />)).rejects.toThrow(
+        'Base UI: TooltipRootContext is missing. Tooltip parts must be placed within <Tooltip.Root>.',
+      );
+    } finally {
+      errorSpy.mockRestore();
+    }
+  });
+
+  it('throws a descriptive error when rendered outside <Tooltip.Portal>', async () => {
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+    try {
+      await expect(
+        render(
+          <Tooltip.Root open>
+            <Tooltip.Positioner />
+          </Tooltip.Root>,
+        ),
+      ).rejects.toThrow('Base UI: <Tooltip.Portal> is missing.');
+    } finally {
+      errorSpy.mockRestore();
+    }
+  });
 
   const baselineX = 10;
   const baselineY = 36;
@@ -265,7 +293,7 @@ describe('<Tooltip.Positioner />', () => {
   });
 
   it.skipIf(isJSDOM)('uses transform positioning without Viewport', async () => {
-    await render(
+    const { unmount } = await render(
       <Tooltip.Root open>
         <Trigger style={triggerStyle}>Trigger</Trigger>
         <Tooltip.Portal>
@@ -277,11 +305,14 @@ describe('<Tooltip.Positioner />', () => {
     );
 
     const positioner = screen.getByTestId('positioner');
-    expect(positioner.style.transform).not.toBe('');
+    await waitFor(() => {
+      expect(positioner.style.transform).not.toBe('');
+    });
+    unmount();
   });
 
   it.skipIf(isJSDOM)('uses top/left positioning with Viewport', async () => {
-    await render(
+    const { unmount } = await render(
       <Tooltip.Root open>
         <Trigger style={triggerStyle}>Trigger</Trigger>
         <Tooltip.Portal>
@@ -295,9 +326,9 @@ describe('<Tooltip.Positioner />', () => {
     );
 
     const positioner = screen.getByTestId('positioner');
-    await waitFor(() => {
-      expect(positioner.style.transform).toBe('');
-    });
+    await waitForPositioned(positioner);
+    expect(positioner.style.transform).toBe('');
+    unmount();
   });
 
   it.skipIf(isJSDOM)('updates positioning when Viewport mounts and unmounts', async () => {

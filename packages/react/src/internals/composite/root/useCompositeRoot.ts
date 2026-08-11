@@ -4,21 +4,17 @@ import { isElementDisabled } from '@base-ui/utils/isElementDisabled';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
+import { EMPTY_ARRAY } from '@base-ui/utils/empty';
 import type { TextDirection } from '../../direction-context/DirectionContext';
 import {
   COMPOSITE_KEYS,
   ARROW_DOWN,
-  ARROW_KEYS,
   ARROW_LEFT,
   ARROW_RIGHT,
   ARROW_UP,
   END,
   HOME,
-  HORIZONTAL_KEYS,
-  HORIZONTAL_KEYS_WITH_EXTRA_KEYS,
   MODIFIER_KEYS,
-  VERTICAL_KEYS,
-  VERTICAL_KEYS_WITH_EXTRA_KEYS,
   findNonDisabledListIndex,
   getMaxListIndex,
   getMinListIndex,
@@ -75,8 +71,6 @@ export interface UseCompositeRootParameters {
   modifierKeys?: ModifierKey[] | undefined;
 }
 
-const EMPTY_ARRAY: never[] = [];
-
 export function useCompositeRoot(params: UseCompositeRootParameters) {
   const {
     loopFocus = true,
@@ -101,9 +95,11 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
 
   const elementsRef = React.useRef<Array<HTMLElement | null>>([]);
   const hasSetDefaultIndexRef = React.useRef(false);
+  const highlightedElementRef = React.useRef<HTMLElement | null>(null);
 
   const highlightedIndex = externalHighlightedIndex ?? internalHighlightedIndex;
   const onHighlightedIndexChange = useStableCallback((index, shouldScrollIntoView = false) => {
+    highlightedElementRef.current = elementsRef.current[index] ?? null;
     (externalSetHighlightedIndex ?? internalSetHighlightedIndex)(index);
     if (shouldScrollIntoView) {
       const newActiveItem = elementsRef.current[index];
@@ -112,17 +108,43 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
   });
 
   const onMapChange = useStableCallback((map: Map<Element, CompositeMetadata<any>>) => {
-    if (map.size === 0 || hasSetDefaultIndexRef.current) {
+    if (map.size === 0) {
       return;
     }
+
+    if (hasSetDefaultIndexRef.current) {
+      const elements = elementsRef.current;
+      // Items added or removed around the highlighted one shift its index, so the tab stop would
+      // otherwise move to a different item and navigation would resume from the wrong position.
+      const nextIndex = elements.indexOf(highlightedElementRef.current);
+
+      if (nextIndex === -1) {
+        // A replacement at the same index can keep the tab stop. Otherwise move it to an
+        // eligible item so a missing, hidden, or disabled replacement does not take the
+        // composite out of the tab order.
+        const replacement = elements[highlightedIndex];
+        if (!replacement || isListIndexDisabled(elements, highlightedIndex, disabledIndices)) {
+          onHighlightedIndexChange(getFallbackIndex(elements, disabledIndices));
+        } else {
+          highlightedElementRef.current = replacement;
+        }
+      } else if (nextIndex !== highlightedIndex) {
+        onHighlightedIndexChange(nextIndex);
+      }
+      return;
+    }
+
     hasSetDefaultIndexRef.current = true;
+
     const sortedElements = Array.from(map.keys()) as Array<HTMLElement | null>;
     const activeItem =
       sortedElements.find((compositeElement) =>
         compositeElement?.hasAttribute(ACTIVE_COMPOSITE_ITEM),
       ) ?? null;
-    // Set the default highlighted index of an arbitrary composite item.
-    const activeIndex = activeItem ? sortedElements.indexOf(activeItem) : -1;
+    // Set the default highlighted index of an arbitrary composite item. The map value carries
+    // the item's own index, which is not its position among the keys once a list mixes explicit
+    // and automatic indexes and leaves gaps.
+    const activeIndex = activeItem ? (map.get(activeItem)?.index ?? -1) : -1;
 
     if (activeIndex !== -1) {
       onHighlightedIndexChange(activeIndex);
@@ -182,8 +204,8 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
   // Stable so that `relayKeyboardEvent` does not invalidate identity-sensitive
   // consumers (the `CompositeRootContext` value and trigger data forwarding).
   const onKeyDown = useStableCallback((event: React.KeyboardEvent) => {
-    const RELEVANT_KEYS = enableHomeAndEndKeys ? COMPOSITE_KEYS : ARROW_KEYS;
-    if (!RELEVANT_KEYS.has(event.key)) {
+    const isHomeOrEnd = event.key === HOME || event.key === END;
+    if (!COMPOSITE_KEYS.has(event.key) || (!enableHomeAndEndKeys && isHomeOrEnd)) {
       return;
     }
 
@@ -199,17 +221,9 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
     const isRtl = direction === 'rtl';
 
     const horizontalForwardKey = isRtl ? ARROW_LEFT : ARROW_RIGHT;
-    const forwardKey = {
-      horizontal: horizontalForwardKey,
-      vertical: ARROW_DOWN,
-      both: horizontalForwardKey,
-    }[orientation];
     const horizontalBackwardKey = isRtl ? ARROW_RIGHT : ARROW_LEFT;
-    const backwardKey = {
-      horizontal: horizontalBackwardKey,
-      vertical: ARROW_UP,
-      both: horizontalBackwardKey,
-    }[orientation];
+    const forwardKey = orientation === 'vertical' ? ARROW_DOWN : horizontalForwardKey;
+    const backwardKey = orientation === 'vertical' ? ARROW_UP : horizontalBackwardKey;
 
     const target = getTarget(event.nativeEvent);
     if (target != null && isNativeInput(target) && !isElementDisabled(target)) {
@@ -250,25 +264,12 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
       });
     }
 
-    const forwardKeys = {
-      horizontal: [horizontalForwardKey],
-      vertical: [ARROW_DOWN],
-      both: [horizontalForwardKey, ARROW_DOWN],
-    }[orientation];
-
-    const backwardKeys = {
-      horizontal: [horizontalBackwardKey],
-      vertical: [ARROW_UP],
-      both: [horizontalBackwardKey, ARROW_UP],
-    }[orientation];
-
-    const preventedKeys = isGrid
-      ? RELEVANT_KEYS
-      : {
-          horizontal: enableHomeAndEndKeys ? HORIZONTAL_KEYS_WITH_EXTRA_KEYS : HORIZONTAL_KEYS,
-          vertical: enableHomeAndEndKeys ? VERTICAL_KEYS_WITH_EXTRA_KEYS : VERTICAL_KEYS,
-          both: RELEVANT_KEYS,
-        }[orientation];
+    const isForwardKey =
+      (orientation !== 'vertical' && event.key === horizontalForwardKey) ||
+      (orientation !== 'horizontal' && event.key === ARROW_DOWN);
+    const isBackwardKey =
+      (orientation !== 'vertical' && event.key === horizontalBackwardKey) ||
+      (orientation !== 'horizontal' && event.key === ARROW_UP);
 
     if (enableHomeAndEndKeys) {
       if (event.key === HOME) {
@@ -278,16 +279,13 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
       }
     }
 
-    if (
-      nextIndex === highlightedIndex &&
-      (forwardKeys.includes(event.key) || backwardKeys.includes(event.key))
-    ) {
-      if (loopFocus && nextIndex === maxIndex && forwardKeys.includes(event.key)) {
+    if (nextIndex === highlightedIndex && (isForwardKey || isBackwardKey)) {
+      if (loopFocus && nextIndex === maxIndex && isForwardKey) {
         nextIndex = minIndex;
         if (onLoop) {
           nextIndex = onLoop(event, highlightedIndex, nextIndex, elementsRef);
         }
-      } else if (loopFocus && nextIndex === minIndex && backwardKeys.includes(event.key)) {
+      } else if (loopFocus && nextIndex === minIndex && isBackwardKey) {
         nextIndex = maxIndex;
         if (onLoop) {
           nextIndex = onLoop(event, highlightedIndex, nextIndex, elementsRef);
@@ -295,7 +293,7 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
       } else {
         nextIndex = findNonDisabledListIndex(elementsRef.current, {
           startingIndex: nextIndex,
-          decrement: backwardKeys.includes(event.key),
+          decrement: isBackwardKey,
           disabledIndices,
         });
       }
@@ -306,7 +304,7 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
         event.stopPropagation();
       }
 
-      if (preventedKeys.has(event.key)) {
+      if (isGrid || isHomeOrEnd || isForwardKey || isBackwardKey) {
         event.preventDefault();
       }
       onHighlightedIndexChange(nextIndex, true);
@@ -339,6 +337,31 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
     onMapChange,
     relayKeyboardEvent: onKeyDown,
   };
+}
+
+// Resolves the item that should hold the tab stop: the active item when it can take focus,
+// otherwise the first item that can. Falls back to index 0 so an all-disabled composite keeps the
+// index in range and regains a tab stop as soon as one of its items becomes focusable.
+function getFallbackIndex(elements: Array<HTMLElement | null>, disabledIndices?: number[]) {
+  let fallbackIndex = -1;
+
+  for (let index = 0; index < elements.length; index += 1) {
+    const element = elements[index];
+
+    if (!element || isListIndexDisabled(elements, index, disabledIndices)) {
+      continue;
+    }
+
+    if (element.hasAttribute(ACTIVE_COMPOSITE_ITEM)) {
+      return index;
+    }
+
+    if (fallbackIndex === -1) {
+      fallbackIndex = index;
+    }
+  }
+
+  return Math.max(fallbackIndex, 0);
 }
 
 function isModifierKeySet(event: React.KeyboardEvent, ignoredModifierKeys: ModifierKey[]) {

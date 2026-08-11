@@ -1,11 +1,13 @@
 import { expect, vi } from 'vitest';
 import * as React from 'react';
+import * as ReactDOM from 'react-dom';
 import { Form } from '@base-ui/react/form';
+import { Checkbox } from '@base-ui/react/checkbox';
 import { Field } from '@base-ui/react/field';
 import { Fieldset } from '@base-ui/react/fieldset';
 import { NumberField } from '@base-ui/react/number-field';
 import { Switch } from '@base-ui/react/switch';
-import { createRenderer, fireEvent, screen, waitFor } from '@mui/internal-test-utils';
+import { createRenderer, fireEvent, screen, waitFor, within } from '@mui/internal-test-utils';
 import { describeConformance } from '../../test/describeConformance';
 
 describe('<Form />', () => {
@@ -42,7 +44,7 @@ describe('<Form />', () => {
     const select = vi.spyOn(HTMLInputElement.prototype, 'select');
 
     try {
-      const { user } = render(
+      const { user } = await render(
         <Form onFormSubmit={onFormSubmit}>
           <Field.Root name="custom" validate={() => 'custom error'}>
             <Field.Control data-testid="custom" />
@@ -62,6 +64,120 @@ describe('<Form />', () => {
     } finally {
       select.mockRestore();
     }
+  });
+
+  it('keeps focusing the first invalid field after a control value changes', async () => {
+    const { user } = render(
+      <Form>
+        <Field.Root name="a">
+          <Checkbox.Root required data-testid="a" />
+        </Field.Root>
+        <Field.Root name="b">
+          <Checkbox.Root required data-testid="b" />
+        </Field.Root>
+        <button type="submit">Submit</button>
+      </Form>,
+    );
+
+    const checkboxA = screen.getByTestId('a');
+    const submit = screen.getByRole('button', { name: 'Submit' });
+
+    await user.click(submit);
+    expect(checkboxA).toHaveFocus();
+
+    // Toggling the checkbox updates its field control registration.
+    await user.click(checkboxA);
+    await user.click(checkboxA);
+
+    await user.click(submit);
+    expect(checkboxA).toHaveFocus();
+  });
+
+  it('keeps the registration-order focus fallback stable across disconnected trees', async () => {
+    const firstHost = document.createElement('div');
+    const secondHost = document.createElement('div');
+    const firstContainer = document.createElement('div');
+    const secondContainer = document.createElement('div');
+    const firstRoot = firstHost.attachShadow({ mode: 'open' });
+    const secondRoot = secondHost.attachShadow({ mode: 'open' });
+    firstRoot.append(firstContainer);
+    secondRoot.append(secondContainer);
+    document.body.append(firstHost, secondHost);
+
+    try {
+      const { unmount } = await render(
+        <Form>
+          {ReactDOM.createPortal(
+            <Field.Root name="a">
+              <Checkbox.Root required data-testid="a" />
+            </Field.Root>,
+            firstContainer,
+          )}
+          {ReactDOM.createPortal(
+            <Field.Root name="b">
+              <Checkbox.Root required data-testid="b" />
+            </Field.Root>,
+            secondContainer,
+          )}
+          <button type="submit">Submit</button>
+        </Form>,
+      );
+
+      try {
+        const checkboxA = within(firstContainer).getByTestId('a');
+        const submit = screen.getByRole('button', { name: 'Submit' });
+        const form = submit.closest('form');
+        if (!form) {
+          throw new Error('Expected submit button to be inside a form');
+        }
+
+        fireEvent.submit(form);
+        expect(firstRoot.activeElement).toBe(checkboxA);
+
+        fireEvent.click(checkboxA);
+        fireEvent.click(checkboxA);
+        fireEvent.submit(form);
+
+        expect(firstRoot.activeElement).toBe(checkboxA);
+      } finally {
+        unmount();
+      }
+    } finally {
+      firstHost.remove();
+      secondHost.remove();
+    }
+  });
+
+  it('focuses the first invalid field in document order when keyed fields are reordered', async () => {
+    function App() {
+      const [names, setNames] = React.useState(['a', 'b']);
+      return (
+        <React.Fragment>
+          <button type="button" onClick={() => setNames(['b', 'a'])}>
+            Reorder
+          </button>
+          <Form>
+            {names.map((name) => (
+              <Field.Root key={name} name={name}>
+                <Checkbox.Root required data-testid={name} />
+              </Field.Root>
+            ))}
+            <button type="submit">Submit</button>
+          </Form>
+        </React.Fragment>
+      );
+    }
+
+    // Strict Mode re-runs effects when a keyed subtree moves, which would re-register
+    // the fields in DOM order and mask the registration/DOM order divergence.
+    const { user } = render(<App />, { strict: false });
+
+    // Keyed reorder moves the DOM nodes without remounting, so the internal
+    // registration Map keeps the original order while the DOM order flips.
+    await user.click(screen.getByRole('button', { name: 'Reorder' }));
+
+    await user.click(screen.getByRole('button', { name: 'Submit' }));
+    expect(screen.getByTestId('b')).toHaveFocus();
   });
 
   it('submits when a valid async validator is pending', async () => {
@@ -273,6 +389,9 @@ describe('<Form />', () => {
           <button type="button" onClick={() => setDisabled(true)}>
             Disable
           </button>
+          <button type="button" onClick={() => setDisabled(false)}>
+            Enable
+          </button>
           <button type="submit">Submit</button>
         </Form>
       );
@@ -296,6 +415,13 @@ describe('<Form />', () => {
 
     expect(handleSubmit).toHaveBeenCalledTimes(1);
     expect(handleSubmit.mock.lastCall?.[0]).toEqual({});
+
+    await user.click(screen.getByRole('button', { name: 'Enable' }));
+    await user.click(screen.getByRole('button', { name: 'Submit' }));
+
+    expect(handleSubmit).toHaveBeenCalledTimes(1);
+    expect(screen.getByTestId('control')).toHaveAttribute('aria-invalid', 'true');
+    expect(screen.getByTestId('error')).toBeInTheDocument();
   });
 
   it('clears invalid attributes when a field control becomes disabled', async () => {
@@ -652,6 +778,54 @@ describe('<Form />', () => {
       await user.tab();
       expect(validateSpy.mock.calls.length).toBe(1);
       expect(screen.getByTestId('name-error')).toHaveTextContent('field error');
+    });
+
+    it('removes errors for every field that changes within a single commit', async () => {
+      const errors = { a: 'A error', b: 'B error', c: 'C error' };
+
+      function MultiChangeApp() {
+        const [a, setA] = React.useState(false);
+        const [b, setB] = React.useState(false);
+        const [c, setC] = React.useState(false);
+
+        return (
+          <Form errors={errors}>
+            <Field.Root name="a">
+              <Switch.Root checked={a} onCheckedChange={setA} />
+              <Field.Error data-testid="a-error" />
+            </Field.Root>
+            <Field.Root name="b">
+              <Switch.Root checked={b} onCheckedChange={setB} />
+              <Field.Error data-testid="b-error" />
+            </Field.Root>
+            <Field.Root name="c">
+              <Switch.Root checked={c} onCheckedChange={setC} />
+              <Field.Error data-testid="c-error" />
+            </Field.Root>
+            <button
+              type="button"
+              onClick={() => {
+                setA(true);
+                setB(true);
+              }}
+            >
+              Change both
+            </button>
+          </Form>
+        );
+      }
+
+      render(<MultiChangeApp />);
+
+      expect(screen.queryByTestId('a-error')).not.toBe(null);
+      expect(screen.queryByTestId('b-error')).not.toBe(null);
+      expect(screen.queryByTestId('c-error')).not.toBe(null);
+
+      fireEvent.click(screen.getByText('Change both'));
+
+      expect(screen.queryByTestId('a-error')).toBe(null);
+      expect(screen.queryByTestId('b-error')).toBe(null);
+      expect(screen.queryByTestId('c-error')).not.toBe(null);
     });
   });
 

@@ -23,6 +23,7 @@ import { isMouseLikePointerType } from '../../floating-ui-react/utils/event';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
 import { useHoverInteractionSharedState } from '../../floating-ui-react/hooks/useHoverInteractionSharedState';
+import { getDelay } from '../../floating-ui-react/hooks/useHoverShared';
 
 import { OPEN_DELAY } from '../utils/constants';
 
@@ -102,7 +103,6 @@ export const TooltipTrigger = fastComponentRef(function TooltipTrigger(
 
   const triggerElementRef = React.useRef<Element | null>(null);
 
-  const delayWithDefault = delay ?? OPEN_DELAY;
   const closeDelayWithDefault = closeDelay ?? 0;
 
   const { registerTrigger, isMountedByThisTrigger } = useTriggerDataForwarding(
@@ -117,9 +117,12 @@ export const TooltipTrigger = fastComponentRef(function TooltipTrigger(
   );
 
   const providerDelay = useTooltipProviderContext();
-  const { delayRef, isInstantPhase, hasProvider } = useDelayGroup(floatingRootContext, {
-    open: isOpenedByThisTrigger,
-  });
+  const { activeIdRef, delayRef, isInstantPhase, hasProvider } = useDelayGroup(
+    floatingRootContext,
+    {
+      open: isOpenedByThisTrigger,
+    },
+  );
   const hoverInteraction = useHoverInteractionSharedState(floatingRootContext);
 
   store.useSyncedValue('isInstantPhase', isInstantPhase);
@@ -136,11 +139,11 @@ export const TooltipTrigger = fastComponentRef(function TooltipTrigger(
   const pointerTypeRef = React.useRef<string | undefined>(undefined);
 
   function getOpenDelay() {
-    if (!hasProvider) {
-      return delayWithDefault;
+    // Adjacent tooltips open instantly while the group is active.
+    if (hasProvider && activeIdRef.current != null) {
+      return 0;
     }
-    const groupOpenValue = typeof delayRef.current === 'object' ? delayRef.current.open : undefined;
-    return groupOpenValue === 0 ? 0 : (delay ?? providerDelay ?? OPEN_DELAY);
+    return delay ?? providerDelay ?? OPEN_DELAY;
   }
 
   function isEnabledNestedTriggerTarget(target: Element | null) {
@@ -176,9 +179,7 @@ export const TooltipTrigger = fastComponentRef(function TooltipTrigger(
     restMs: getOpenDelay,
     delay() {
       if (closeDelay == null && hasProvider) {
-        return {
-          close: typeof delayRef.current === 'object' ? delayRef.current.close : undefined,
-        };
+        return { close: getDelay(delayRef.current, 'close') };
       }
       return { close: closeDelayWithDefault };
     },

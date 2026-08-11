@@ -21,6 +21,18 @@ describe('<Menu.Item />', () => {
     },
   }));
 
+  it('throws when rendered outside Menu.Root', async () => {
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+    try {
+      await expect(render(<Menu.Item />)).rejects.toThrow(
+        'Base UI: MenuRootContext is missing. Menu parts must be placed within <Menu.Root>.',
+      );
+    } finally {
+      errorSpy.mockRestore();
+    }
+  });
+
   it('calls the onClick handler when clicked', async () => {
     const onClick = vi.fn();
     const { user } = await render(

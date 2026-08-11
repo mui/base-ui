@@ -8,10 +8,7 @@ import {
   useComboboxHasItemsContext,
   useComboboxDerivedItemsContext,
 } from '../root/ComboboxRootContext';
-import {
-  useCompositeListItem,
-  IndexGuessBehavior,
-} from '../../internals/composite/list/useCompositeListItem';
+import { useCompositeListItem } from '../../internals/composite/list/useCompositeListItem';
 import type { BaseUIComponentProps, HTMLProps, NonNativeButtonProps } from '../../internals/types';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { ComboboxItemContext } from './ComboboxItemContext';
@@ -44,16 +41,16 @@ function ComboboxItemInner(props: ComboboxItemInnerProps) {
     style,
     value: itemValue = null,
     index: indexProp,
-    disabled = false,
+    disabled: disabledProp = false,
     nativeButton = false,
     ...elementProps
   } = componentProps;
 
   const textRef = React.useRef<HTMLElement | null>(null);
   const listItem = useCompositeListItem({
+    guess: true,
     index: indexProp,
     textRef,
-    indexGuessBehavior: IndexGuessBehavior.GuessFromOrder,
   });
 
   const store = useComboboxRootContext();
@@ -61,12 +58,14 @@ function ComboboxItemInner(props: ComboboxItemInnerProps) {
   const hasItems = useComboboxHasItemsContext();
 
   const selectionMode = useStore(store, selectors.selectionMode);
+  const rootDisabled = useStore(store, selectors.disabled);
   const readOnly = useStore(store, selectors.readOnly);
   const isItemEqualToValue = useStore(store, selectors.isItemEqualToValue);
 
+  const disabled = rootDisabled || disabledProp;
   const selectable = selectionMode !== 'none';
-  const index = indexProp ?? (virtualized ? (indexFromFilter ?? -1) : listItem.index);
-  const hasRegistered = listItem.index !== -1;
+  const index = indexProp ?? indexFromFilter ?? listItem.index;
+  const hasRegistered = index !== -1;
 
   const rootId = useStore(store, selectors.id);
   const highlighted = useStore(store, selectors.isActive, index);
@@ -97,11 +96,11 @@ function ComboboxItemInner(props: ComboboxItemInnerProps) {
       return undefined;
     }
 
-    const visibleMap = store.state.valuesRef.current;
-    visibleMap[index] = itemValue;
+    const visibleValues = store.state.valuesRef.current;
+    visibleValues[index] = itemValue;
 
     return () => {
-      delete visibleMap[index];
+      delete visibleValues[index];
     };
   }, [hasRegistered, hasItems, index, itemValue, store]);
 
@@ -224,13 +223,10 @@ function ComboboxItemVirtualizedIndex(props: {
 
   const store = useComboboxRootContext();
   const isItemEqualToValue = useStore(store, selectors.isItemEqualToValue);
-  const { flatFilteredItems } = useComboboxDerivedItemsContext();
+  const { flatFilteredValues } = useComboboxDerivedItemsContext();
 
-  const indexFromFilter = findItemIndex(
-    flatFilteredItems,
-    componentProps.value ?? null,
-    isItemEqualToValue,
-  );
+  const lookupValue = componentProps.value ?? null;
+  const indexFromFilter = findItemIndex(flatFilteredValues, lookupValue, isItemEqualToValue);
 
   // Only reached when `virtualized` is true (see the wrapper below).
   return (

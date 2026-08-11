@@ -67,6 +67,60 @@ describe('<CheckboxGroup />', () => {
       expect(green).toHaveAttribute('aria-checked', 'false');
       expect(blue).toHaveAttribute('aria-checked', 'true');
     });
+
+    it('supports an empty string item value', () => {
+      function App() {
+        const [value, setValue] = React.useState(['']);
+        return (
+          <CheckboxGroup value={value} onValueChange={setValue}>
+            <Checkbox.Root value="" data-testid="empty" />
+            <Checkbox.Root value="other" data-testid="other" />
+          </CheckboxGroup>
+        );
+      }
+
+      render(<App />);
+
+      const empty = screen.getByTestId('empty');
+      const other = screen.getByTestId('other');
+
+      expect(empty).toHaveAttribute('aria-checked', 'true');
+      expect(other).toHaveAttribute('aria-checked', 'false');
+
+      fireEvent.click(empty);
+
+      expect(empty).toHaveAttribute('aria-checked', 'false');
+    });
+
+    it('treats a controlled value that becomes undefined as an empty array', () => {
+      const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+      function App() {
+        const [value, setValue] = React.useState<string[] | undefined>(['red']);
+        return (
+          <React.Fragment>
+            <CheckboxGroup value={value}>
+              <Checkbox.Root value="red" data-testid="red" />
+            </CheckboxGroup>
+            <button type="button" onClick={() => setValue(undefined)}>
+              Clear
+            </button>
+          </React.Fragment>
+        );
+      }
+
+      try {
+        render(<App />);
+
+        expect(screen.getByTestId('red')).toHaveAttribute('aria-checked', 'true');
+
+        fireEvent.click(screen.getByText('Clear'));
+
+        expect(screen.getByTestId('red')).toHaveAttribute('aria-checked', 'false');
+      } finally {
+        consoleError.mockRestore();
+      }
+    });
   });
 
   describe('prop: onValueChange', () => {
@@ -164,6 +218,15 @@ describe('<CheckboxGroup />', () => {
   });
 
   describe('prop: defaultValue', () => {
+    it('treats null as an empty array', () => {
+      // @ts-expect-error Simulates a JavaScript consumer passing an unsupported value.
+      const group = <CheckboxGroup defaultValue={null} />;
+
+      render(group);
+
+      expect(screen.getByRole('group')).toBeInTheDocument();
+    });
+
     it('should set the initial value', () => {
       function App() {
         return (
@@ -307,6 +370,34 @@ describe('<CheckboxGroup />', () => {
   });
 
   describe('Field', () => {
+    it('[data-dirty]', () => {
+      render(
+        <Field.Root name="fruits">
+          <CheckboxGroup defaultValue={['apple']}>
+            <Field.Item>
+              <Checkbox.Root value="apple" data-testid="apple" />
+            </Field.Item>
+            <Field.Item>
+              <Checkbox.Root value="banana" data-testid="banana" />
+            </Field.Item>
+          </CheckboxGroup>
+        </Field.Root>,
+      );
+
+      const group = screen.getByRole('group');
+      const banana = screen.getByTestId('banana');
+
+      expect(group).not.toHaveAttribute('data-dirty');
+
+      fireEvent.click(banana);
+
+      expect(group).toHaveAttribute('data-dirty', '');
+
+      fireEvent.click(banana);
+
+      expect(group).not.toHaveAttribute('data-dirty');
+    });
+
     it('keeps a required error while another required checkbox in the group is unchecked', async () => {
       const { user } = render(
         <Form onSubmit={(event) => event.preventDefault()}>
@@ -1053,7 +1144,7 @@ describe('<CheckboxGroup />', () => {
       expect(handleSubmit.mock.lastCall?.[0]).toEqual({ fruits: ['apple'] });
     });
 
-    it('omits a context-portaled checkbox without native form association', () => {
+    it('includes a context-portaled checkbox without native form association', () => {
       const handleSubmit = vi.fn();
       const portalContainer = document.createElement('div');
       document.body.append(portalContainer);
@@ -1071,7 +1162,35 @@ describe('<CheckboxGroup />', () => {
 
       fireEvent.click(screen.getByText('Submit'));
 
-      expect(handleSubmit.mock.lastCall?.[0]).toEqual({ fruits: [] });
+      // Field registration is context-driven, so a portaled checkbox with no explicit `form`
+      // association still projects its value into `onFormSubmit`, like other field controls.
+      expect(handleSubmit.mock.lastCall?.[0]).toEqual({ fruits: ['apple'] });
+      portalContainer.remove();
+    });
+
+    it('includes a group fully portaled outside the form element', () => {
+      const handleSubmit = vi.fn();
+      const portalContainer = document.createElement('div');
+      document.body.append(portalContainer);
+
+      render(
+        <Form onFormSubmit={handleSubmit}>
+          {ReactDOM.createPortal(
+            <Field.Root name="fruits">
+              <CheckboxGroup defaultValue={['apple', 'banana']}>
+                <Checkbox.Root value="apple" />
+                <Checkbox.Root value="banana" disabled />
+              </CheckboxGroup>
+            </Field.Root>,
+            portalContainer,
+          )}
+          <button type="submit">Submit</button>
+        </Form>,
+      );
+
+      fireEvent.click(screen.getByText('Submit'));
+
+      expect(handleSubmit.mock.lastCall?.[0]).toEqual({ fruits: ['apple'] });
       portalContainer.remove();
     });
 
