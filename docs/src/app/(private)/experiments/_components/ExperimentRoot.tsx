@@ -21,10 +21,11 @@ const STORAGE_KEY = 'base-ui-experiments-sidebar';
 export function ExperimentRoot(props: ExperimentRootProps) {
   const { children, sidebar } = props;
 
-  // The sidebar is rendered on the client only, so the stored visibility is applied on the very
-  // first render it takes part in instead of hiding a sidebar that was already painted. It stays
-  // `null` until read from session storage in a layout effect, which is what the server renders
-  // too. The experiment itself is outside of this and keeps its server-rendered markup.
+  // The sidebar is rendered on the client only. It stays `null` — neither shown nor taking up
+  // space, which is also what the server renders — until the stored visibility is read in a
+  // layout effect, defaulting to visible when nothing is stored. This way a sidebar that is
+  // meant to be hidden is never painted first. The experiment itself is outside of this and
+  // keeps its server-rendered markup.
   const [sidebarVisible, setSidebarVisible] = React.useState<boolean | null>(null);
 
   useIsoLayoutEffect(() => {
@@ -43,11 +44,7 @@ export function ExperimentRoot(props: ExperimentRootProps) {
 
   return (
     <ExperimentRootContext value={rootContext}>
-      {/*
-       * The space for the sidebar is kept until it is known to be hidden, so that the experiment
-       * doesn't shift sideways in the common case of a sidebar that turns out to be visible.
-       */}
-      <div className={clsx(classes.root, sidebarVisible !== false && classes.withSidebar)}>
+      <div className={clsx(classes.root, sidebarVisible && classes.withSidebar)}>
         {sidebarVisible === true && sidebar}
         {sidebarVisible === false && <ShowSidebar />}
         <main className={classes.main}>{children}</main>
