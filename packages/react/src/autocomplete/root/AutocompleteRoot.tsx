@@ -157,6 +157,7 @@ export interface AutocompleteRootProps<ItemValue> extends Omit<
   | 'openOnInputClick'
   | 'form'
   | 'items'
+  | 'filteredItems'
   | 'filter'
 > {
   /**
@@ -169,6 +170,13 @@ export interface AutocompleteRootProps<ItemValue> extends Omit<
    * Can be either a flat array of items or an array of groups with items.
    */
   items?: readonly ItemValue[] | readonly Group<ItemValue>[] | undefined;
+  /**
+   * Filtered items to display in the list.
+   * When provided, the list will use these items instead of filtering the `items` prop internally.
+   * When `items` is also provided, this array must preserve its flat or grouped structure.
+   * Use when you want to control filtering logic externally with the `useFilter()` hook.
+   */
+  filteredItems?: readonly ItemValue[] | readonly Group<ItemValue>[] | undefined;
   /**
    * Filter function used to match items against the input query.
    */
