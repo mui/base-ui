@@ -1204,6 +1204,34 @@ describe('<Tabs.Root />', () => {
       expect(secondTab).toHaveFocus();
       expect(handleChange).not.toHaveBeenCalled();
     });
+
+    it('keeps disabled tabs out of the roving focus entry point after removal', async () => {
+      function TestComponent({ showLastTab }: { showLastTab: boolean }) {
+        return (
+          <Tabs.Root value={3}>
+            <Tabs.List>
+              <Tabs.Tab value={0} disabled>
+                Tab 0
+              </Tabs.Tab>
+              <Tabs.Tab value={1} render={<button type="button" disabled />}>
+                Tab 1
+              </Tabs.Tab>
+              <Tabs.Tab value={2}>Tab 2</Tabs.Tab>
+              {showLastTab && <Tabs.Tab value={3}>Tab 3</Tabs.Tab>}
+            </Tabs.List>
+          </Tabs.Root>
+        );
+      }
+
+      const { setProps } = await render(<TestComponent showLastTab />);
+
+      await setProps({ showLastTab: false });
+
+      const [disabledTab, nativelyDisabledTab, enabledTab] = screen.getAllByRole('tab');
+      expect([disabledTab.tabIndex, nativelyDisabledTab.tabIndex, enabledTab.tabIndex]).toEqual([
+        -1, -1, 0,
+      ]);
+    });
   });
 
   describe('prop: orientation', () => {

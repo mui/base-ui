@@ -3,6 +3,7 @@ import * as React from 'react';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { EMPTY_ARRAY } from '@base-ui/utils/empty';
+import { isElementDisabled } from '@base-ui/utils/isElementDisabled';
 import { BaseUIComponentProps, HTMLProps } from '../../internals/types';
 import { CompositeRoot } from '../../internals/composite/root/CompositeRoot';
 import type { TabsRootState } from '../root/TabsRoot';
@@ -36,8 +37,13 @@ export const TabsList = React.forwardRef(function TabsList(
 
   const handleTabMapChange = useStableCallback((newTabMap: Parameters<typeof setTabMap>[0]) => {
     setTabMap(newTabMap);
-    if (newTabMap.size > 0 && highlightedTabIndex >= newTabMap.size) {
-      setHighlightedTabIndex(0);
+    if (highlightedTabIndex >= newTabMap.size) {
+      for (const [tab, { index }] of newTabMap) {
+        if (!isElementDisabled(tab as HTMLElement)) {
+          setHighlightedTabIndex(index);
+          break;
+        }
+      }
     }
   });
 
