@@ -148,7 +148,9 @@ import { DemoComboboxCreateItems } from './demos/create-items';
 
 <DemoComboboxCreateItems />
 
-`createItems()` works well when object data is only needed by the Combobox. If controlled state is also rendered or otherwise consumed outside `<Combobox.Root>`, consider using the object itself as the value so the complete record remains available without a separate ID-to-item lookup.
+As a rule of thumb, use primitive items for simple lists, object values when the selected record is useful application state, and `createItems()` when selection should use a stable primitive ID while rendering and filtering still use object records.
+
+Stable IDs preserve item matching when an async data library replaces row objects during a refetch. With object values, use `isItemEqualToValue` to compare their IDs instead.
 
 When results are filtered externally (for example, by a server-side search), `items` represents records known to the app, while `filteredItems` represents the current result window displayed in the popup. Pass source items rather than derived values to `filteredItems`, preserving the flat or grouped structure of `items`:
 
