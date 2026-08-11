@@ -276,6 +276,15 @@ describe('<NumberField.Increment />', () => {
   describe('press and hold', () => {
     clock.withFakeTimers();
 
+    function TestNumberField(props: { disabled: boolean }) {
+      return (
+        <NumberField.Root defaultValue={0} disabled={props.disabled}>
+          <NumberField.Increment />
+          <NumberField.Input />
+        </NumberField.Root>
+      );
+    }
+
     it('increments continuously when holding pointerdown', async () => {
       await render(
         <NumberField.Root defaultValue={0}>
@@ -304,6 +313,54 @@ describe('<NumberField.Increment />', () => {
       clock.tick(CHANGE_VALUE_TICK_DELAY);
 
       expect(input).toHaveValue('4');
+    });
+
+    it('cancels an active mouse press-and-hold interaction when disabled', async () => {
+      const { setProps } = await render(<TestNumberField disabled={false} />);
+
+      const input = screen.getByRole('textbox');
+      const increment = screen.getByRole('button', { name: 'Increase' });
+
+      fireEvent.pointerDown(increment, {
+        button: 0,
+        pointerType: 'mouse',
+      });
+
+      expect(input).toHaveValue('1');
+
+      await setProps({ disabled: true });
+
+      clock.tick(START_AUTO_CHANGE_DELAY);
+      clock.tick(CHANGE_VALUE_TICK_DELAY);
+      clock.tick(CHANGE_VALUE_TICK_DELAY);
+
+      expect(input).toHaveValue('1');
+
+      await setProps({ disabled: false });
+      fireEvent.mouseLeave(increment);
+      fireEvent.mouseEnter(increment);
+
+      expect(input).toHaveValue('1');
+    });
+
+    it('cancels the compatibility click from a touch press when disabled', async () => {
+      const { setProps } = await render(<TestNumberField disabled={false} />);
+
+      const input = screen.getByRole('textbox');
+      const increment = screen.getByRole('button', { name: 'Increase' });
+
+      fireEvent.touchStart(increment);
+      fireEvent.pointerDown(increment, { pointerType: 'touch' });
+
+      await setProps({ disabled: true });
+      await setProps({ disabled: false });
+
+      fireEvent.pointerUp(increment, { pointerType: 'touch' });
+      fireEvent.touchEnd(increment);
+      fireEvent.mouseEnter(increment);
+      fireEvent.click(increment, { detail: 1 });
+
+      expect(input).toHaveValue('0');
     });
 
     it('removes the global release listener when unmounted during a hold', async () => {
