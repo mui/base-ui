@@ -1,4 +1,5 @@
 import { expect, vi } from 'vitest';
+import * as React from 'react';
 import { act, screen } from '@mui/internal-test-utils';
 import { DirectionProvider, type TextDirection } from '@base-ui/react/direction-provider';
 import { ToggleGroup } from '@base-ui/react/toggle-group';
@@ -194,6 +195,64 @@ describe('<ToggleGroup />', () => {
       expect(button1).not.toHaveAttribute('data-disabled');
       expect(button2).toHaveAttribute('aria-disabled', 'true');
       expect(button2).toHaveAttribute('data-disabled');
+    });
+  });
+
+  describe('item removal', () => {
+    it('keeps the tab stop on the highlighted toggle when an earlier toggle is removed', async () => {
+      function App({ showFirst }: { showFirst: boolean }) {
+        return (
+          <ToggleGroup>
+            {showFirst && <Toggle value="one" data-testid="first" />}
+            <Toggle value="two" data-testid="middle" />
+            <Toggle value="three" data-testid="last" />
+          </ToggleGroup>
+        );
+      }
+
+      const { setProps, user } = await render(<App showFirst />);
+
+      await act(async () => {
+        screen.getByTestId('first').focus();
+      });
+
+      await user.keyboard('{ArrowRight}');
+      await user.keyboard('{ArrowRight}');
+
+      expect(screen.getByTestId('last')).toHaveAttribute('tabindex', '0');
+
+      await setProps({ showFirst: false });
+
+      expect(screen.getByTestId('middle')).toHaveAttribute('tabindex', '-1');
+      expect(screen.getByTestId('last')).toHaveAttribute('tabindex', '0');
+    });
+
+    it('keeps a tab stop when the highlighted toggle is removed', async () => {
+      function App({ showLast }: { showLast: boolean }) {
+        return (
+          <ToggleGroup>
+            <Toggle value="one" data-testid="first" />
+            <Toggle value="two" data-testid="middle" />
+            {showLast && <Toggle value="three" data-testid="last" />}
+          </ToggleGroup>
+        );
+      }
+
+      const { setProps, user } = await render(<App showLast />);
+
+      await act(async () => {
+        screen.getByTestId('first').focus();
+      });
+
+      await user.keyboard('{ArrowRight}');
+      await user.keyboard('{ArrowRight}');
+
+      expect(screen.getByTestId('last')).toHaveAttribute('tabindex', '0');
+
+      await setProps({ showLast: false });
+
+      expect(screen.getByTestId('first')).toHaveAttribute('tabindex', '0');
+      expect(screen.getByTestId('middle')).toHaveAttribute('tabindex', '-1');
     });
   });
 

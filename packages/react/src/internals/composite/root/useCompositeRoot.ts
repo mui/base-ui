@@ -18,7 +18,6 @@ import {
   findNonDisabledListIndex,
   getMaxListIndex,
   getMinListIndex,
-  isElementVisible,
   isListIndexDisabled,
   isIndexOutOfListBounds,
   isNativeInput,
@@ -96,9 +95,11 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
 
   const elementsRef = React.useRef<Array<HTMLElement | null>>([]);
   const hasSetDefaultIndexRef = React.useRef(false);
+  const highlightedElementRef = React.useRef<HTMLElement | null>(null);
 
   const highlightedIndex = externalHighlightedIndex ?? internalHighlightedIndex;
   const onHighlightedIndexChange = useStableCallback((index, shouldScrollIntoView = false) => {
+    highlightedElementRef.current = elementsRef.current[index] ?? null;
     (externalSetHighlightedIndex ?? internalSetHighlightedIndex)(index);
     if (shouldScrollIntoView) {
       const newActiveItem = elementsRef.current[index];
@@ -112,10 +113,19 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
     }
 
     if (hasSetDefaultIndexRef.current) {
-      // Removing items can leave the highlighted index past the end of the list, which takes the
-      // single roving tab stop away from every remaining item.
-      if (isIndexOutOfListBounds(elementsRef.current, highlightedIndex)) {
-        onHighlightedIndexChange(getFallbackIndex(map));
+      const elements = elementsRef.current;
+      // Items added or removed around the highlighted one shift its index, so the tab stop would
+      // otherwise move to a different item and navigation would resume from the wrong position.
+      const nextIndex = elements.indexOf(highlightedElementRef.current);
+
+      if (nextIndex === -1) {
+        // The highlighted item is gone. Its index can now sit past the end of the list, which
+        // takes the single roving tab stop away from every remaining item.
+        if (isIndexOutOfListBounds(elements, highlightedIndex)) {
+          onHighlightedIndexChange(getFallbackIndex(elements));
+        }
+      } else if (nextIndex !== highlightedIndex) {
+        onHighlightedIndexChange(nextIndex);
       }
       return;
     }
@@ -326,27 +336,28 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
 }
 
 // Resolves the item that should hold the tab stop: the active item when it can take focus,
-// otherwise the first item that can.
-function getFallbackIndex(map: Map<Element, CompositeMetadata<any>>) {
+// otherwise the first item that can. Falls back to index 0 so an all-disabled composite keeps the
+// index in range and regains a tab stop as soon as one of its items becomes focusable.
+function getFallbackIndex(elements: Array<HTMLElement | null>) {
   let fallbackIndex = -1;
 
-  for (const [element, metadata] of map) {
-    if (isElementDisabled(element as HTMLElement) || !isElementVisible(element)) {
+  for (let index = 0; index < elements.length; index += 1) {
+    const element = elements[index];
+
+    if (!element || isListIndexDisabled(elements, index)) {
       continue;
     }
 
     if (element.hasAttribute(ACTIVE_COMPOSITE_ITEM)) {
-      return metadata.index;
+      return index;
     }
 
     if (fallbackIndex === -1) {
-      fallbackIndex = metadata.index;
+      fallbackIndex = index;
     }
   }
 
-  // No item can take focus. Keep the index in range so the composite regains a tab stop as soon
-  // as one of its items becomes focusable again.
-  return fallbackIndex === -1 ? 0 : fallbackIndex;
+  return Math.max(fallbackIndex, 0);
 }
 
 function isModifierKeySet(event: React.KeyboardEvent, ignoredModifierKeys: ModifierKey[]) {

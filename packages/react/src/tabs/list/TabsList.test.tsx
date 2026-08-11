@@ -185,7 +185,7 @@ describe('<Tabs.List />', () => {
       expect([unselectedTab.tabIndex, selectedTab.tabIndex]).toEqual([-1, 0]);
     });
 
-    it('restores the tab stop when an earlier tab is removed while the last tab is highlighted', async () => {
+    it('keeps the tab stop on the highlighted tab when an earlier tab is removed', async () => {
       function TestComponent({ showMiddleTab }: { showMiddleTab: boolean }) {
         return (
           <Tabs.Root defaultValue={0}>
@@ -216,7 +216,12 @@ describe('<Tabs.List />', () => {
 
       await setProps({ showMiddleTab: false });
 
-      expect([selectedTab.tabIndex, lastTab.tabIndex]).toEqual([0, -1]);
+      expect([selectedTab.tabIndex, lastTab.tabIndex]).toEqual([-1, 0]);
+
+      fireEvent.keyDown(lastTab, { key: 'ArrowLeft' });
+      await flushMicrotasks();
+
+      expect(selectedTab).toHaveFocus();
     });
 
     it('skips a hidden tab when choosing the tab stop', async () => {
