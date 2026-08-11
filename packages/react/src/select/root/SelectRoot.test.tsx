@@ -4263,8 +4263,11 @@ describe('<Select.Root />', () => {
         expect(selectedOption).toHaveAttribute('data-highlighted');
       });
       expect(input).toHaveAttribute('aria-activedescendant', selectedOption.id);
-      // DOM focus stays on the filter input.
-      expect(input).toHaveFocus();
+      // DOM focus stays on the filter input. The focus manager moves it in a later commit than
+      // the highlight, so it needs its own wait.
+      await waitFor(() => {
+        expect(input).toHaveFocus();
+      });
     });
 
     it('highlights the selected item when opening with Enter', async () => {
