@@ -351,7 +351,8 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
         if (
           // Allow pinch-zooming.
           event.ctrlKey ||
-          activeElement(ownerDocument(inputRef.current)) !== inputRef.current
+          activeElement(ownerDocument(inputRef.current)) !== inputRef.current ||
+          event.deltaY === 0
         ) {
           return;
         }

@@ -1409,6 +1409,68 @@ describe('<NumberField />', () => {
       expect(onValueChange).not.toHaveBeenCalled();
     });
 
+    it('does not scrub on a horizontal wheel event', async () => {
+      const onValueChange = vi.fn();
+      const onValueCommitted = vi.fn();
+      await render(
+        <NumberField
+          defaultValue={5}
+          allowWheelScrub
+          onValueChange={onValueChange}
+          onValueCommitted={onValueCommitted}
+        />,
+      );
+      const input = screen.getByRole('textbox');
+      await act(async () => input.focus());
+
+      fireEvent.wheel(input, { deltaY: 0, deltaX: 100 });
+      expect(input).toHaveValue('5');
+
+      fireEvent.wheel(input, { deltaY: 0, deltaX: -100 });
+      expect(input).toHaveValue('5');
+
+      expect(onValueChange).not.toHaveBeenCalled();
+      expect(onValueCommitted).not.toHaveBeenCalled();
+    });
+
+    it('does not scrub on a horizontal wheel event while shift is held', async () => {
+      const onValueChange = vi.fn();
+      await render(
+        <NumberField
+          defaultValue={0}
+          largeStep={10}
+          allowWheelScrub
+          onValueChange={onValueChange}
+        />,
+      );
+      const input = screen.getByRole('textbox');
+      await act(async () => input.focus());
+
+      fireEvent.wheel(input, { deltaY: 0, deltaX: -100, shiftKey: true });
+      expect(input).toHaveValue('0');
+      expect(onValueChange).not.toHaveBeenCalled();
+    });
+
+    it('does not scrub on a wheel event with no delta', async () => {
+      const onValueChange = vi.fn();
+      await render(<NumberField defaultValue={5} allowWheelScrub onValueChange={onValueChange} />);
+      const input = screen.getByRole('textbox');
+      await act(async () => input.focus());
+
+      fireEvent.wheel(input, { deltaY: 0, deltaX: 0 });
+      expect(input).toHaveValue('5');
+      expect(onValueChange).not.toHaveBeenCalled();
+    });
+
+    it('does not block scrolling for a wheel event it ignores', async () => {
+      await render(<NumberField defaultValue={5} allowWheelScrub />);
+      const input = screen.getByRole('textbox');
+      await act(async () => input.focus());
+
+      const horizontalWheel = fireEvent.wheel(input, { deltaY: 0, deltaX: 100 });
+      expect(horizontalWheel).toBe(true);
+    });
+
     it('uses largeStep when shift is held during wheel', async () => {
       const onValueChange = vi.fn();
       await render(
