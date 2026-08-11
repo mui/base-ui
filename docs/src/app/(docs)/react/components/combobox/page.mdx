@@ -72,10 +72,21 @@ import { Combobox } from '@base-ui/react/combobox';
 </Combobox.Root>;
 ```
 
-## TypeScript
+## Item values
 
-Combobox infers the item type from the `defaultValue` or `value` props passed to `<Combobox.Root>`.
-The type of items held in the `items` array must also match the `value` prop type passed to `<Combobox.Item>`.
+Each `<Combobox.Item>` takes a `value` prop identifying it. Pass the item being rendered:
+
+```jsx title="Using item objects as values"
+<Combobox.List>
+  {(item) => (
+    <Combobox.Item key={item.id} value={item}>
+      {item.label}
+    </Combobox.Item>
+  )}
+</Combobox.List>
+```
+
+That item is what `value`, `defaultValue`, and `onValueChange` receive. To store IDs instead, see [Value selection with IDs](#value-selection-with-ids).
 
 ## Examples
 
@@ -87,12 +98,82 @@ The following example shows a typed wrapper around the Combobox component with c
 import * as React from 'react';
 import { Combobox } from '@base-ui/react/combobox';
 
-export function MyCombobox<Value, Multiple extends boolean | undefined = false>(
-  props: Combobox.Root.Props<Value, Multiple>,
+export function MyCombobox<Value, Multiple extends boolean | undefined = false, Item = Value>(
+  props: Combobox.Root.Props<Value, Multiple, Item>,
 ): React.JSX.Element {
   return <Combobox.Root {...props}>{/* ... */}</Combobox.Root>;
 }
 ```
+
+The third `Item` type parameter is what lets the wrapper accept a `Combobox.createItems()` collection, whose rendered item type differs from its selection value. Omit it and a collection infers `Value` as the source item type, surfacing an error on `defaultValue` rather than on `items`.
+
+### Value selection with IDs
+
+When your app stores IDs rather than item objects, use `Combobox.createItems` with `getValue` and `getLabel` to derive each item's selection value and display label.
+
+With static data, create the collection at module scope. The accessor parameters are inferred from `users`. Pass the derived ID to the `value` prop of `<Combobox.Item>`, not the item being rendered:
+
+```jsx title="Using item IDs as values"
+const items = Combobox.createItems(users, {
+  getValue: (user) => user.id,
+  getLabel: (user) => user.name,
+});
+
+<Combobox.Root items={items}>
+  <Combobox.List>
+    {(user) => (
+      <Combobox.Item key={user.id} value={user.id}>
+        {user.name}
+      </Combobox.Item>
+    )}
+  </Combobox.List>
+</Combobox.Root>;
+```
+
+Selection props and events use the derived IDs, while list rendering continues to receive the original items. The derived label is also used for filtering and typeahead.
+
+When the data is loaded or replaced at runtime, memoize the collection on it so that it is rebuilt only when the data changes:
+
+```jsx title="Creating a collection from dynamic data"
+const items = React.useMemo(
+  () =>
+    Combobox.createItems(users, {
+      getValue: (user) => user.id,
+      getLabel: (user) => user.name,
+    }),
+  [users],
+);
+```
+
+import { DemoComboboxCreateItems } from './demos/create-items';
+
+<DemoComboboxCreateItems />
+
+As a rule of thumb, use primitive items for simple lists, object values when the selected record is useful application state, and `createItems()` when selection should use a stable primitive ID while rendering and filtering still use object records.
+
+Stable IDs preserve item matching when an async data library replaces row objects during a refetch. With object values, use `isItemEqualToValue` to compare their IDs instead.
+
+When results are filtered externally (for example, by a server-side search), `items` represents records known to the app, while `filteredItems` represents the current result window displayed in the popup. Pass source items rather than derived values to `filteredItems`, preserving the flat or grouped structure of `items`:
+
+```tsx title="Displaying a window of async results"
+const items = React.useMemo(
+  () =>
+    Combobox.createItems(knownUsers, {
+      getValue: (user) => user.id,
+      getLabel: (user) => user.name,
+    }),
+  [knownUsers],
+);
+
+<Combobox.Root
+  items={items}
+  filteredItems={searchResults}
+  value={selectedUserId}
+  onValueChange={setSelectedUserId}
+/>;
+```
+
+Include the selected user's record in `knownUsers` so its label remains available when it is outside `searchResults`. Alternatively, provide `itemToStringLabel` when the label can be derived from the selected value alone.
 
 ### Multiple select
 
@@ -358,6 +439,12 @@ Pass the result to the `filter` prop of `<Combobox.Root>`.
 Returns the internally filtered items when called inside `<Combobox.Root>`.
 
 <TypesCombobox.useFilteredItems hideDescription />
+
+## createItems
+
+Normalizes items into a collection for the `items` prop of `<Combobox.Root>`, deriving each item's selection value and label before rendering.
+
+<TypesCombobox.createItems hideDescription />
 
 export const metadata = {
   keywords: [

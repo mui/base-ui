@@ -1,6 +1,10 @@
 import { stringifyAsLabel } from './resolveValueLabel';
 import type { ItemFilter } from './filter';
 
+export type FilterItemToString = ((item: any) => string) & {
+  selected?: ((value: any) => string) | undefined;
+};
+
 /**
  * Enhanced filter using Intl.Collator for more robust string matching.
  * Uses the provided `itemToStringLabel` function if available, otherwise falls back to:
@@ -9,7 +13,7 @@ import type { ItemFilter } from './filter';
  */
 export function createCollatorItemFilter(
   collatorFilter: ItemFilter,
-  itemToStringLabel?: (item: any) => string,
+  itemToStringLabel?: FilterItemToString,
 ) {
   return (item: any, query: string) => {
     if (item == null) {
@@ -26,7 +30,7 @@ export function createCollatorItemFilter(
  */
 export function createSingleSelectionCollatorFilter(
   collatorFilter: ItemFilter,
-  itemToStringLabel?: (item: any) => string,
+  itemToStringLabel?: FilterItemToString,
   selectedValue?: any,
 ) {
   return (item: any, query: string) => {
@@ -37,8 +41,9 @@ export function createSingleSelectionCollatorFilter(
       return true;
     }
 
+    const selectedValueToString = itemToStringLabel?.selected ?? itemToStringLabel;
     const selectedString =
-      selectedValue != null ? stringifyAsLabel(selectedValue, itemToStringLabel) : '';
+      selectedValue != null ? stringifyAsLabel(selectedValue, selectedValueToString) : '';
 
     // Handle case-insensitive matching consistently
     if (

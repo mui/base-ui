@@ -3,6 +3,7 @@ import * as React from 'react';
 import { SafeReact } from '@base-ui/utils/safeReact';
 import { warn } from '@base-ui/utils/warn';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
+import { formatNumber } from '@base-ui/utils/formatNumber';
 import { useNumberFieldRootContext } from '../root/NumberFieldRootContext';
 import type { BaseUIComponentProps } from '../../internals/types';
 import { useFieldRootContext } from '../../internals/field-root-context/FieldRootContext';
@@ -26,7 +27,6 @@ import {
   createChangeEventDetails,
   createGenericEventDetails,
 } from '../../internals/createBaseUIEventDetails';
-import { formatNumber } from '../../utils/formatNumber';
 import { useValueChanged } from '../../internals/useValueChanged';
 import { REASONS } from '../../internals/reasons';
 import { hasNumberFormatRoundingOptions, removeFloatingPointErrors } from '../utils/validate';

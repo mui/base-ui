@@ -1,6 +1,7 @@
 export {
   createCollatorItemFilter,
   createSingleSelectionCollatorFilter,
+  type FilterItemToString,
 } from '../../../internals/collatorItemFilter';
 
 /**

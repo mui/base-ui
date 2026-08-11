@@ -43,8 +43,11 @@ import {
   stringifyAsLabel,
   stringifyAsValue,
 } from '../../internals/resolveValueLabel';
-import { compareItemEquality, defaultItemEquality } from '../../internals/itemEquality';
-import { areArraysEqual } from '../../internals/areArraysEqual';
+import {
+  compareItemEquality,
+  defaultItemEquality,
+  isSelectedValueDirty,
+} from '../../internals/itemEquality';
 import { useValueChanged } from '../../internals/useValueChanged';
 import { useItemRegistry } from '../../internals/useItemRegistry';
 import { useOpenInteractionType } from '../../utils/useOpenInteractionType';
@@ -271,18 +274,6 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     [multiple, value, isItemEqualToValue, store],
   );
 
-  function isSelectedValueDirty(currentValue: unknown) {
-    const initialValue = validityData.initialValue;
-
-    if (Array.isArray(currentValue) && Array.isArray(initialValue)) {
-      return !areArraysEqual(currentValue, initialValue, (itemValue, initialItemValue) =>
-        compareItemEquality(itemValue, initialItemValue, isItemEqualToValue),
-      );
-    }
-
-    return currentValue !== initialValue;
-  }
-
   useIsoLayoutEffect(() => {
     if (open) {
       store.set('inputFocusVisible', filterable && renderedOpenMethod === 'keyboard');
@@ -291,7 +282,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
 
   useValueChanged(value, () => {
     clearErrors(name);
-    setDirty(isSelectedValueDirty(value));
+    setDirty(isSelectedValueDirty(value, validityData.initialValue, isItemEqualToValue));
 
     validation.change(value);
   });

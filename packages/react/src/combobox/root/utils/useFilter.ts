@@ -21,7 +21,8 @@ export interface UseComboboxFilterOptions extends UseFilterOptions {
    */
   multiple?: boolean | undefined;
   /**
-   * The current value of the combobox.
+   * The current value of the combobox, used to keep every item visible while the query still
+   * matches the selection.
    */
   value?: any;
 }

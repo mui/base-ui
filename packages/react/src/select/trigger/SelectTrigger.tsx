@@ -40,7 +40,7 @@ const SelectTriggerImpl = React.forwardRef(function SelectTriggerImpl(
   const {
     render,
     className,
-    id,
+    id: idProp,
     disabled: disabledProp = false,
     nativeButton = true,
     style,
@@ -74,12 +74,15 @@ const SelectTriggerImpl = React.forwardRef(function SelectTriggerImpl(
   const positionerElement = useStore(store, selectors.positionerElement);
   const listElement = useStore(store, selectors.listElement);
   const popupSideValue = useStore(store, selectors.popupSide);
+  const rootId = useStore(store, selectors.id);
   const selectLabelId = useStore(store, selectors.labelId);
   const hasSelectedValue = useStore(store, selectors.hasSelectedValue);
   const popupSide = mounted && positionerElement ? popupSideValue : null;
+
+  const id = idProp ?? rootId;
   const ariaLabelledBy = resolveAriaLabelledBy(fieldLabelId, selectLabelId);
 
-  useLabelableId({ id });
+  useLabelableId({ id: idProp });
 
   const positionerRef = useValueAsRef(positionerElement);
   const triggerRef = React.useRef<HTMLElement | null>(null);
@@ -243,7 +246,7 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
   const filterIntegration = useStore(store, selectors.filterIntegration);
   const rootId = useStore(store, selectors.id);
   const id = componentProps.id ?? rootId;
-  const trigger = <SelectTriggerImpl id={id} {...componentProps} ref={forwardedRef} />;
+  const trigger = <SelectTriggerImpl {...componentProps} ref={forwardedRef} />;
 
   return filterIntegration ? (
     // The filter wrapper composes onto SelectTriggerImpl so its implementation
