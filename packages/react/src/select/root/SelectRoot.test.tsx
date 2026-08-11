@@ -4319,6 +4319,78 @@ describe('<Select.Root />', () => {
       expect(input).toHaveAttribute('aria-activedescendant', selectedOption.id);
     });
 
+    it('clears the highlight while typing and restores it when the query is fully cleared', async () => {
+      const { user } = await render(
+        <FilterSelect.Root
+          defaultValue="banana"
+          items={[
+            { value: 'apple', label: 'Apple' },
+            { value: 'banana', label: 'Banana' },
+            { value: 'blueberry', label: 'Blueberry' },
+          ]}
+        >
+          <FilterSelect.Trigger data-testid="trigger">
+            <FilterSelect.Value />
+          </FilterSelect.Trigger>
+          <FilterSelect.Portal>
+            <FilterSelect.Positioner>
+              <FilterSelect.Popup>
+                <FilterSelect.Input aria-label="Filter fruit" />
+                <FilterSelect.List>
+                  {(item: { value: string; label: string }) => (
+                    <FilterSelect.Item key={item.value} value={item.value}>
+                      {item.label}
+                    </FilterSelect.Item>
+                  )}
+                </FilterSelect.List>
+              </FilterSelect.Popup>
+            </FilterSelect.Positioner>
+          </FilterSelect.Portal>
+        </FilterSelect.Root>,
+      );
+
+      await user.click(screen.getByTestId('trigger'));
+      const input = await screen.findByRole('searchbox', { name: 'Filter fruit' });
+
+      if (isJSDOM) {
+        Object.defineProperty(screen.getByRole('listbox'), 'scrollTo', {
+          configurable: true,
+          value: vi.fn(),
+        });
+      }
+
+      await waitFor(() => {
+        expect(screen.getByRole('option', { name: 'Banana' })).toHaveAttribute('data-highlighted');
+      });
+
+      // Typing clears the highlight even though the selected item remains in the list,
+      // and it must stay cleared while filtering re-indexes the list.
+      await user.type(input, 'b');
+
+      await waitFor(() => {
+        expect(screen.getByRole('option', { name: 'Banana' })).not.toHaveAttribute(
+          'data-highlighted',
+        );
+      });
+      expect(input).not.toHaveAttribute('aria-activedescendant');
+
+      await user.type(input, 'l');
+
+      expect(screen.getByRole('option', { name: 'Blueberry' })).not.toHaveAttribute(
+        'data-highlighted',
+      );
+      expect(input).not.toHaveAttribute('aria-activedescendant');
+
+      // Fully clearing the query restores the highlight to the selected item.
+      await user.clear(input);
+
+      const selectedOption = await screen.findByRole('option', { name: 'Banana' });
+      await waitFor(() => {
+        expect(selectedOption).toHaveAttribute('data-highlighted');
+      });
+      expect(input).toHaveAttribute('aria-activedescendant', selectedOption.id);
+    });
+
     it('shows the input focus indicator only for keyboard virtual focus', async () => {
       const { user } = await render(
         <FilterSelect.Root items={[{ value: 'apple', label: 'Apple' }]}>
