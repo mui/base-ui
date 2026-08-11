@@ -1,5 +1,6 @@
+'use client';
 import * as React from 'react';
-import { FilterableSelect } from '@base-ui/react/filterable-select';
+import { FilterSelect } from '@base-ui/react/filter-select';
 import styles from './index.module.css';
 
 const fruits = [
@@ -18,49 +19,47 @@ const fruits = [
   'Strawberry',
 ];
 
-export default function FilterableSelectDemo() {
+export default function FilterSelectDemo() {
   return (
     <div className={styles.Field}>
-      <FilterableSelect.Root filter>
-        <FilterableSelect.Label className={styles.Label}>Fruit</FilterableSelect.Label>
-        <FilterableSelect.Trigger className={styles.Select}>
-          <FilterableSelect.Value className={styles.Value} placeholder="Select a fruit" />
-          <FilterableSelect.Icon>
+      <FilterSelect.Root items={fruits}>
+        <FilterSelect.Label className={styles.Label}>Fruit</FilterSelect.Label>
+        <FilterSelect.Trigger className={styles.Select}>
+          <FilterSelect.Value className={styles.Value} placeholder="Select a fruit" />
+          <FilterSelect.Icon>
             <CaretUpDownIcon />
-          </FilterableSelect.Icon>
-        </FilterableSelect.Trigger>
-        <FilterableSelect.Portal>
-          <FilterableSelect.Positioner className={styles.Positioner} sideOffset={4}>
-            <FilterableSelect.Popup className={styles.Popup}>
+          </FilterSelect.Icon>
+        </FilterSelect.Trigger>
+        <FilterSelect.Portal>
+          <FilterSelect.Positioner className={styles.Positioner} sideOffset={4}>
+            <FilterSelect.Popup className={styles.Popup}>
               <div className={styles.InputContainer}>
-                <FilterableSelect.Input
+                <FilterSelect.Input
                   className={styles.Input}
                   aria-label="Filter fruits"
                   placeholder="e.g. Apple"
                 />
-                <FilterableSelect.Clear className={styles.Clear} aria-label="Clear filter">
+                <FilterSelect.Clear className={styles.Clear} aria-label="Clear filter">
                   <ClearIcon />
-                </FilterableSelect.Clear>
+                </FilterSelect.Clear>
               </div>
-              <FilterableSelect.Empty className={styles.Empty}>
-                No fruits found.
-              </FilterableSelect.Empty>
-              <FilterableSelect.List className={styles.List}>
-                {fruits.map((fruit) => (
-                  <FilterableSelect.Item key={fruit} value={fruit} className={styles.Item}>
-                    <FilterableSelect.ItemIndicator className={styles.ItemIndicator}>
+              <FilterSelect.Empty className={styles.Empty}>No fruits found.</FilterSelect.Empty>
+              <FilterSelect.List className={styles.List}>
+                {(fruit) => (
+                  <FilterSelect.Item key={fruit} value={fruit} className={styles.Item}>
+                    <FilterSelect.ItemIndicator className={styles.ItemIndicator}>
                       <CheckIcon />
-                    </FilterableSelect.ItemIndicator>
-                    <FilterableSelect.ItemText className={styles.ItemText}>
+                    </FilterSelect.ItemIndicator>
+                    <FilterSelect.ItemText className={styles.ItemText}>
                       {fruit}
-                    </FilterableSelect.ItemText>
-                  </FilterableSelect.Item>
-                ))}
-              </FilterableSelect.List>
-            </FilterableSelect.Popup>
-          </FilterableSelect.Positioner>
-        </FilterableSelect.Portal>
-      </FilterableSelect.Root>
+                    </FilterSelect.ItemText>
+                  </FilterSelect.Item>
+                )}
+              </FilterSelect.List>
+            </FilterSelect.Popup>
+          </FilterSelect.Positioner>
+        </FilterSelect.Portal>
+      </FilterSelect.Root>
     </div>
   );
 }

@@ -32,7 +32,7 @@ export function SimpleSelect<Value>({ label = 'Select', ...rest }: SimpleSelectP
 }
 
 // The same wrapper shape for a filterable select, including the input-value props.
-export function SimpleFilterableSelect<Value>(props: SimpleSelectProps<Value>) {
+export function SimpleFilterSelect<Value>(props: SimpleSelectProps<Value>) {
   const handleInputValueChange = (
     value: string,
     eventDetails: SelectRootInputValueChangeEventDetails,
@@ -44,7 +44,7 @@ export function SimpleFilterableSelect<Value>(props: SimpleSelectProps<Value>) {
   };
 
   return (
-    <Select.Root {...props} filter onInputValueChange={handleInputValueChange}>
+    <Select.Root {...props} onInputValueChange={handleInputValueChange}>
       <Select.Trigger>
         <Select.Value />
       </Select.Trigger>

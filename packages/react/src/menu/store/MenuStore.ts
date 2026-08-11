@@ -22,7 +22,7 @@ export type State<Payload> = PopupStoreState<Payload> & {
   disabled: boolean;
   modal: boolean | undefined;
   filterable: boolean;
-  /** Filtering parts supplied by the `filterable-menu` entrypoint, or null for an ordinary menu. */
+  /** Filtering parts supplied by the `filter-menu` entrypoint, or null for an ordinary menu. */
   filterIntegration: MenuFilterIntegration | null;
   openMethod: InteractionType | null;
   allowMouseEnter: boolean;

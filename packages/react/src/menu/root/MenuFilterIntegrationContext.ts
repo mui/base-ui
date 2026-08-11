@@ -2,7 +2,7 @@
 import * as React from 'react';
 
 /**
- * The filtering parts, supplied by the `filterable-menu` entrypoint.
+ * The filtering parts, supplied by the `filter-menu` entrypoint.
  *
  * Menu renders these instead of importing them, so an ordinary `@base-ui/react/menu` consumer never
  * pulls the filtering implementation into their bundle. A static import here would defeat that: the

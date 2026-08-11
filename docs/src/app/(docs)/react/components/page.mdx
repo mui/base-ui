@@ -579,7 +579,7 @@ A menu that appears at the pointer on right click or long press.
     - Separator
 - Exports:
   - Context Menu - Root
-    - Props: actionsRef, children, closeParentOnEsc, defaultOpen, disabled, highlightItemOnHover, loopFocus, onOpenChange, onOpenChangeComplete, open, orientation
+    - Props: actionsRef, children, closeParentOnEsc, defaultOpen, disabled, highlightItemOnHover, items, loopFocus, onOpenChange, onOpenChangeComplete, open, orientation
   - Context Menu - Trigger
     - Props: className, render, style
     - Data Attributes: data-popup-open, data-pressed
@@ -608,7 +608,7 @@ A menu that appears at the pointer on right click or long press.
   - Context Menu - Separator
     - Props: className, orientation, render, style
   - Context Menu - SubmenuRoot
-    - Props: actionsRef, children, closeParentOnEsc, defaultOpen, disabled, highlightItemOnHover, loopFocus, onOpenChange, onOpenChangeComplete, open, orientation
+    - Props: actionsRef, children, closeParentOnEsc, defaultOpen, disabled, highlightItemOnHover, items, loopFocus, onOpenChange, onOpenChangeComplete, open, orientation
   - Context Menu - SubmenuTrigger
     - Props: className, closeDelay, delay, disabled, label, nativeButton, onClick, openOnHover, render, style
     - Data Attributes: data-disabled, data-highlighted, data-popup-open
@@ -970,7 +970,7 @@ A list of actions in a dropdown, enhanced with keyboard navigation.
     - Handle
 - Exports:
   - Menu - Root
-    - Props: actionsRef, children, closeParentOnEsc, defaultInputValue, defaultOpen, defaultTriggerId, disabled, filter, handle, highlightItemOnHover, inputValue, loopFocus, modal, onInputValueChange, onOpenChange, onOpenChangeComplete, open, orientation, triggerId
+    - Props: actionsRef, children, closeParentOnEsc, defaultInputValue, defaultOpen, defaultTriggerId, disabled, filter, handle, highlightItemOnHover, inputValue, items, loopFocus, modal, onInputValueChange, onOpenChange, onOpenChangeComplete, open, orientation, triggerId
   - Menu - Trigger
     - Props: children, className, closeDelay, delay, disabled, handle, nativeButton, openOnHover, payload, render, style
     - Data Attributes: data-popup-open, data-pressed
@@ -980,7 +980,7 @@ A list of actions in a dropdown, enhanced with keyboard navigation.
   - Menu - Clear
     - Props: className, disabled, nativeButton, render, style
   - Menu - List
-    - Props: className, render, style
+    - Props: children, className, render, style
   - Menu - Portal
     - Props: className, container, keepMounted, render, style
   - Menu - Backdrop
@@ -1012,7 +1012,7 @@ A list of actions in a dropdown, enhanced with keyboard navigation.
   - Menu - Empty
     - Props: className, render, style
   - Menu - SubmenuRoot
-    - Props: actionsRef, children, closeParentOnEsc, defaultInputValue, defaultOpen, disabled, filter, highlightItemOnHover, inputValue, loopFocus, onInputValueChange, onOpenChange, onOpenChangeComplete, open, orientation
+    - Props: actionsRef, children, closeParentOnEsc, defaultInputValue, defaultOpen, disabled, filter, highlightItemOnHover, inputValue, items, loopFocus, onInputValueChange, onOpenChange, onOpenChangeComplete, open, orientation
   - Menu - SubmenuTrigger
     - Props: className, closeDelay, delay, disabled, label, nativeButton, onClick, openOnHover, render, style
     - Data Attributes: data-disabled, data-highlighted, data-popup-open

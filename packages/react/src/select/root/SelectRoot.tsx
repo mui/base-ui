@@ -67,7 +67,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
 ): React.JSX.Element {
   const {
     id,
-    filter: filterProp = false,
+    filter: filterProp,
     value: valueProp,
     defaultValue = null,
     onValueChange,
@@ -134,7 +134,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     state: 'value',
   });
 
-  // Filterability comes from the entrypoint, not the prop: only `filterable-select` supplies the
+  // Filterability comes from the entrypoint, not the prop: only `filter-select` supplies the
   // integration. That keeps the filtering implementation out of an ordinary select's bundle, and
   // makes the mode fixed for the select's lifetime without a mount-time latch.
   const filterIntegration = useSelectFilterIntegration();
@@ -344,12 +344,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     return Object.entries(items).map(([itemValue, label]) => ({ value: itemValue, label }));
   }, [items]);
 
-  const matchesItem = React.useMemo(() => {
-    if (typeof filterProp === 'function') {
-      return filterProp;
-    }
-    return getContainsFilter();
-  }, [filterProp]);
+  const matchesItem = React.useMemo(() => filterProp ?? getContainsFilter(), [filterProp]);
 
   const query = inputValue.trim();
 
@@ -807,17 +802,14 @@ export type SelectFilter = (
 // not compile. Misuse is reported at runtime instead: `Select.Input` throws without `filter`.
 interface SelectRootFilterProps {
   /**
-   * Enables filtering. Pass a function to customize how items match the query; it receives the
-   * item's `label` (falling back to its rendered text) and the trimmed query.
-   *
-   * Read once when the select mounts. Give `Select.Root` a different `key` to switch a select
-   * between filterable and non-filterable.
-   * @default false
+   * Customizes how items match the query. The function receives the item's `label` (falling back
+   * to its rendered text) and the trimmed query.
+   * Only a filterable select (`FilterSelect.Root`) filters.
    */
-  filter?: boolean | SelectFilter | undefined;
+  filter?: SelectFilter | undefined;
   /**
    * The uncontrolled input value when the select is initially rendered.
-   * Requires the `filter` prop.
+   * Only applies to a filterable select (`FilterSelect`).
    *
    * To render a controlled filter input, use the `inputValue` prop instead.
    * @default ''
@@ -825,12 +817,12 @@ interface SelectRootFilterProps {
   defaultInputValue?: string | undefined;
   /**
    * The input value. Use when controlled.
-   * Requires the `filter` prop.
+   * Only applies to a filterable select (`FilterSelect`).
    */
   inputValue?: string | undefined;
   /**
    * Event handler called when the input value changes.
-   * Requires the `filter` prop.
+   * Only applies to a filterable select (`FilterSelect`).
    */
   onInputValueChange?:
     | ((value: string, eventDetails: SelectRootInputValueChangeEventDetails) => void)

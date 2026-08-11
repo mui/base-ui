@@ -1,12 +1,15 @@
 'use client';
 import * as React from 'react';
-import { FilterableMenu } from '@base-ui/react/filterable-menu';
+import { FilterMenu } from '@base-ui/react/filter-menu';
+
+const sharingOptions = ['Email', 'Messages', 'AirDrop', 'Copy link'];
 
 const actions = [
   'New file',
   'Open file',
   'Save',
   'Save as',
+  { label: 'Share', options: sharingOptions },
   'Duplicate',
   'Rename',
   'Move to folder',
@@ -14,80 +17,76 @@ const actions = [
   'Delete',
 ];
 
-const sharingOptions = ['Email', 'Messages', 'AirDrop', 'Copy link'];
-
-export default function FilterableMenuDemo() {
+export default function FilterMenuDemo() {
   return (
-    <FilterableMenu.Root filter>
-      <FilterableMenu.Trigger className="flex h-8 items-center justify-center gap-1.5 rounded-none border border-neutral-950 bg-white pr-2 pl-3 text-sm leading-none font-normal whitespace-nowrap text-neutral-950 select-none hover:not-data-disabled:bg-neutral-100 active:not-data-disabled:bg-neutral-200 data-pressed:bg-neutral-100 data-disabled:border-neutral-500 data-disabled:text-neutral-500 focus-visible:-outline-offset-1 focus-visible:outline-2 focus-visible:outline-neutral-950 disabled:border-neutral-500 disabled:text-neutral-500 dark:border-white dark:bg-neutral-950 dark:text-white dark:hover:not-data-disabled:bg-neutral-800 dark:active:not-data-disabled:bg-neutral-700 dark:data-pressed:bg-neutral-800 dark:data-disabled:border-neutral-400 dark:data-disabled:text-neutral-400 dark:focus-visible:outline-white">
+    <FilterMenu.Root items={actions}>
+      <FilterMenu.Trigger className="flex h-8 items-center justify-center gap-1.5 rounded-none border border-neutral-950 bg-white pr-2 pl-3 text-sm leading-none font-normal whitespace-nowrap text-neutral-950 select-none hover:not-data-disabled:bg-neutral-100 active:not-data-disabled:bg-neutral-200 data-pressed:bg-neutral-100 data-disabled:border-neutral-500 data-disabled:text-neutral-500 focus-visible:-outline-offset-1 focus-visible:outline-2 focus-visible:outline-neutral-950 disabled:border-neutral-500 disabled:text-neutral-500 dark:border-white dark:bg-neutral-950 dark:text-white dark:hover:not-data-disabled:bg-neutral-800 dark:active:not-data-disabled:bg-neutral-700 dark:data-pressed:bg-neutral-800 dark:data-disabled:border-neutral-400 dark:data-disabled:text-neutral-400 dark:focus-visible:outline-white">
         Actions <CaretDownIcon />
-      </FilterableMenu.Trigger>
-      <FilterableMenu.Portal>
-        <FilterableMenu.Positioner className="outline-hidden" sideOffset={8} align="start">
-          <FilterableMenu.Popup className={popupClass}>
+      </FilterMenu.Trigger>
+      <FilterMenu.Portal>
+        <FilterMenu.Positioner className="outline-hidden" sideOffset={8} align="start">
+          <FilterMenu.Popup className={popupClass}>
             <div className={inputContainerClass}>
-              <FilterableMenu.Input
+              <FilterMenu.Input
                 className={inputClass}
                 aria-label="Filter actions"
                 placeholder="e.g. Save"
               />
-              <FilterableMenu.Clear className={clearClass} aria-label="Clear filter">
+              <FilterMenu.Clear className={clearClass} aria-label="Clear filter">
                 <ClearIcon />
-              </FilterableMenu.Clear>
+              </FilterMenu.Clear>
             </div>
-            <FilterableMenu.Empty className={emptyClass}>No actions found.</FilterableMenu.Empty>
-            <FilterableMenu.List className={listClass}>
-              {actions.slice(0, 4).map((action) => (
-                <FilterableMenu.Item key={action} className={itemClass}>
-                  {action}
-                </FilterableMenu.Item>
-              ))}
-              <FilterableMenu.SubmenuRoot filter>
-                <FilterableMenu.SubmenuTrigger className={submenuTriggerClass}>
-                  Share
-                  <CaretRightIcon />
-                </FilterableMenu.SubmenuTrigger>
-                <FilterableMenu.Portal>
-                  <FilterableMenu.Positioner
-                    className="outline-hidden"
-                    sideOffset={getSubmenuOffset}
-                    alignOffset={getSubmenuOffset}
-                  >
-                    <FilterableMenu.Popup className={popupClass}>
-                      <div className={inputContainerClass}>
-                        <FilterableMenu.Input
-                          className={inputClass}
-                          aria-label="Filter sharing options"
-                          placeholder="e.g. Email"
-                        />
-                        <FilterableMenu.Clear className={clearClass} aria-label="Clear filter">
-                          <ClearIcon />
-                        </FilterableMenu.Clear>
-                      </div>
-                      <FilterableMenu.Empty className={emptyClass}>
-                        No sharing options found.
-                      </FilterableMenu.Empty>
-                      <FilterableMenu.List className={listClass}>
-                        {sharingOptions.map((option) => (
-                          <FilterableMenu.Item key={option} className={itemClass}>
-                            {option}
-                          </FilterableMenu.Item>
-                        ))}
-                      </FilterableMenu.List>
-                    </FilterableMenu.Popup>
-                  </FilterableMenu.Positioner>
-                </FilterableMenu.Portal>
-              </FilterableMenu.SubmenuRoot>
-              {actions.slice(4).map((action) => (
-                <FilterableMenu.Item key={action} className={itemClass}>
-                  {action}
-                </FilterableMenu.Item>
-              ))}
-            </FilterableMenu.List>
-          </FilterableMenu.Popup>
-        </FilterableMenu.Positioner>
-      </FilterableMenu.Portal>
-    </FilterableMenu.Root>
+            <FilterMenu.Empty className={emptyClass}>No actions found.</FilterMenu.Empty>
+            <FilterMenu.List className={listClass}>
+              {(action) =>
+                typeof action === 'string' ? (
+                  <FilterMenu.Item key={action} className={itemClass}>
+                    {action}
+                  </FilterMenu.Item>
+                ) : (
+                  <FilterMenu.SubmenuRoot key={action.label} items={action.options}>
+                    <FilterMenu.SubmenuTrigger className={submenuTriggerClass}>
+                      {action.label}
+                      <CaretRightIcon />
+                    </FilterMenu.SubmenuTrigger>
+                    <FilterMenu.Portal>
+                      <FilterMenu.Positioner
+                        className="outline-hidden"
+                        sideOffset={getSubmenuOffset}
+                        alignOffset={getSubmenuOffset}
+                      >
+                        <FilterMenu.Popup className={popupClass}>
+                          <div className={inputContainerClass}>
+                            <FilterMenu.Input
+                              className={inputClass}
+                              aria-label="Filter sharing options"
+                              placeholder="e.g. Email"
+                            />
+                            <FilterMenu.Clear className={clearClass} aria-label="Clear filter">
+                              <ClearIcon />
+                            </FilterMenu.Clear>
+                          </div>
+                          <FilterMenu.Empty className={emptyClass}>
+                            No sharing options found.
+                          </FilterMenu.Empty>
+                          <FilterMenu.List className={listClass}>
+                            {(option) => (
+                              <FilterMenu.Item key={option} className={itemClass}>
+                                {option}
+                              </FilterMenu.Item>
+                            )}
+                          </FilterMenu.List>
+                        </FilterMenu.Popup>
+                      </FilterMenu.Positioner>
+                    </FilterMenu.Portal>
+                  </FilterMenu.SubmenuRoot>
+                )
+              }
+            </FilterMenu.List>
+          </FilterMenu.Popup>
+        </FilterMenu.Positioner>
+      </FilterMenu.Portal>
+    </FilterMenu.Root>
   );
 }
 
@@ -106,7 +105,7 @@ const itemBaseClass =
 const itemClass = `${itemBaseClass} pr-8`;
 const submenuTriggerClass = `${itemBaseClass} items-center justify-between gap-4 pr-2 data-popup-open:relative data-popup-open:z-0 data-popup-open:before:absolute data-popup-open:before:inset-x-1 data-popup-open:before:inset-y-0 data-popup-open:before:z-[-1] data-popup-open:before:bg-neutral-100 data-popup-open:before:content-[''] data-highlighted:data-popup-open:before:bg-neutral-950 dark:data-popup-open:before:bg-neutral-800 dark:data-highlighted:data-popup-open:before:bg-white`;
 
-function getSubmenuOffset({ side }: { side: FilterableMenu.Positioner.Props['side'] }) {
+function getSubmenuOffset({ side }: { side: FilterMenu.Positioner.Props['side'] }) {
   return side === 'top' || side === 'bottom' ? 4 : -4;
 }
 
