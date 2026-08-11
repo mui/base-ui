@@ -19,6 +19,8 @@ minimumReleaseAge: 4320
 minimumReleaseAgeExclude:
   - '@base-ui/*'
   - '@mui/internal-*'
+  # Renovate security update: vite@8.0.16
+  - vite@8.0.16
 trustPolicy: no-downgrade
 # Skip trust-policy checks for packages published more than 365 days ago.
 # Several widely-used legacy packages in the current dependency tree have releases that dropped
