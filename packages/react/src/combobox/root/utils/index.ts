@@ -1,6 +1,10 @@
 import { stringifyAsLabel } from '../../../internals/resolveValueLabel';
 import type { Filter } from './useFilter';
 
+export type FilterItemToString = ((item: any) => string) & {
+  selectedValueToString?: ((value: any) => string) | undefined;
+};
+
 /**
  * Derives the default id assigned to `Combobox.Popup` when the input is rendered inside it.
  * Shared by the popup (which applies it) and the trigger (which references it via `aria-controls`)
@@ -18,7 +22,7 @@ export function getComboboxPopupId(rootId: string | null | undefined) {
  */
 export function createCollatorItemFilter(
   collatorFilter: Filter,
-  itemToStringLabel?: (item: any) => string,
+  itemToStringLabel?: FilterItemToString,
 ) {
   return (item: any, query: string) => {
     if (item == null) {
@@ -35,7 +39,7 @@ export function createCollatorItemFilter(
  */
 export function createSingleSelectionCollatorFilter(
   collatorFilter: Filter,
-  itemToStringLabel?: (item: any) => string,
+  itemToStringLabel?: FilterItemToString,
   selectedValue?: any,
 ) {
   return (item: any, query: string) => {
@@ -46,8 +50,9 @@ export function createSingleSelectionCollatorFilter(
       return true;
     }
 
+    const selectedValueToString = itemToStringLabel?.selectedValueToString ?? itemToStringLabel;
     const selectedString =
-      selectedValue != null ? stringifyAsLabel(selectedValue, itemToStringLabel) : '';
+      selectedValue != null ? stringifyAsLabel(selectedValue, selectedValueToString) : '';
 
     // Handle case-insensitive matching consistently
     if (

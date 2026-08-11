@@ -1068,6 +1068,68 @@ describe('<Autocomplete.Root />', () => {
   });
 
   describe('prop: filter', () => {
+    it('mode="both": keeps filtering against the typed query during inline completion', async () => {
+      const items = ['apple', 'banana'];
+      const filter = vi.fn((item: string, query: string) => item.includes(query));
+      const { setProps, user } = await render(
+        <Autocomplete.Root mode="both" items={items} filter={filter}>
+          <Autocomplete.Input />
+          <Autocomplete.Portal>
+            <Autocomplete.Positioner>
+              <Autocomplete.Popup>
+                <Autocomplete.List>
+                  {(item) => (
+                    <Autocomplete.Item key={item} value={item}>
+                      {item}
+                    </Autocomplete.Item>
+                  )}
+                </Autocomplete.List>
+              </Autocomplete.Popup>
+            </Autocomplete.Positioner>
+          </Autocomplete.Portal>
+        </Autocomplete.Root>,
+      );
+
+      const input = screen.getByRole<HTMLInputElement>('combobox');
+      await user.type(input, 'a');
+      await user.keyboard('{ArrowDown}');
+
+      expect(input).toHaveValue('apple');
+
+      filter.mockClear();
+      await setProps({ items: [...items, 'apricot'] });
+
+      expect(filter).toHaveBeenCalled();
+      expect(filter.mock.calls.every(([, query]) => query === 'a')).toBe(true);
+    });
+
+    it('mode="inline": does not call a custom filter', async () => {
+      const filter = vi.fn(() => false);
+      const { user } = await render(
+        <Autocomplete.Root mode="inline" items={['apple', 'banana']} filter={filter}>
+          <Autocomplete.Input />
+          <Autocomplete.Portal>
+            <Autocomplete.Positioner>
+              <Autocomplete.Popup>
+                <Autocomplete.List>
+                  {(item) => (
+                    <Autocomplete.Item key={item} value={item}>
+                      {item}
+                    </Autocomplete.Item>
+                  )}
+                </Autocomplete.List>
+              </Autocomplete.Popup>
+            </Autocomplete.Positioner>
+          </Autocomplete.Portal>
+        </Autocomplete.Root>,
+      );
+
+      await user.type(screen.getByRole('combobox'), 'a');
+
+      expect(screen.getAllByRole('option')).toHaveLength(2);
+      expect(filter).not.toHaveBeenCalled();
+    });
+
     it.each(['list', 'both'] as const)(
       'mode="%s": uses a custom filter instead of the locale-aware default',
       async (mode) => {
@@ -1156,13 +1218,17 @@ describe('<Autocomplete.Root />', () => {
   describe('prop: value', () => {
     it('treats a controlled null value as an empty query', async () => {
       await render(
-        <Autocomplete.Root value={null as never} items={['apple']} defaultOpen>
+        <Autocomplete.Root mode="both" value={null as never} items={['apple']} defaultOpen>
           <Autocomplete.Input />
           <Autocomplete.Portal>
             <Autocomplete.Positioner>
               <Autocomplete.Popup>
                 <Autocomplete.List>
-                  <Autocomplete.Item value="apple">apple</Autocomplete.Item>
+                  {(item) => (
+                    <Autocomplete.Item key={item} value={item}>
+                      {item}
+                    </Autocomplete.Item>
+                  )}
                 </Autocomplete.List>
               </Autocomplete.Popup>
             </Autocomplete.Positioner>

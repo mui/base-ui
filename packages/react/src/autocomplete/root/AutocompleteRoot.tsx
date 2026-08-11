@@ -69,7 +69,7 @@ export function AutocompleteRoot<ItemValue>(
 
   const collator = useCoreFilter({ locale: other.locale });
 
-  const resolvedQuery = String(isControlled ? value : internalValue).trim();
+  const resolvedQuery = String((isControlled ? value : internalValue) ?? '').trim();
   const resolvedFilter =
     staticItems || other.filter === null ? null : (other.filter ?? collator.contains);
 
@@ -98,7 +98,6 @@ export function AutocompleteRoot<ItemValue>(
     );
   }
 
-  // Inline completion temporarily changes the displayed input without changing the query.
   return (
     <AriaCombobox
       {...other}
@@ -107,7 +106,10 @@ export function AutocompleteRoot<ItemValue>(
       selectionMode="none"
       fillInputOnItemPress
       filter={resolvedFilter}
-      filterQuery={mode === 'both' ? resolvedQuery : undefined}
+      filterQuery={
+        // Inline completion temporarily changes the displayed input without changing this query.
+        mode === 'both' ? resolvedQuery : undefined
+      }
       autoComplete={mode}
       inputValue={resolvedInputValue}
       defaultInputValue={defaultValue}

@@ -1,6 +1,11 @@
 import { EMPTY_ARRAY } from '@base-ui/utils/empty';
 import { error } from '@base-ui/utils/error';
-import { isGroupedItems, stringifyAsLabel, type Group } from '../../internals/resolveValueLabel';
+import { flattenLeafItems, stringifyAsLabel } from '../../internals/resolveValueLabel';
+import {
+  compareItemEquality,
+  defaultItemEquality,
+  type ItemEqualityComparer,
+} from '../../internals/itemEquality';
 import type { ComboboxItemCollection } from './itemCollection';
 
 export type ComboboxPrimitiveValue = string | number | bigint | boolean;
@@ -28,20 +33,21 @@ type HasGroupShape<Item> = Item extends object
 
 type IsAny<T> = 0 extends 1 & T ? true : false;
 
-// `any` opts out so loosely typed data stays usable.
+type GroupShapedItemsError =
+  'Base UI: items passed to createItems() cannot have an `items` array property because it marks a group. Rename the field or cast the data.';
+
 type RejectGroupShapedItems<Item> =
-  IsAny<Item> extends true ? unknown : true extends HasGroupShape<Item> ? never : unknown;
+  IsAny<Item> extends true
+    ? unknown
+    : true extends HasGroupShape<Item>
+      ? GroupShapedItemsError
+      : unknown;
 
 // The group-shape guard stays outside this union because folding it in breaks tsc's leaf-item
 // inference for grouped data.
 type ComboboxItemsData<Item> =
   | (Extract<Item, { items: ReadonlyArray<unknown> }> extends never ? readonly Item[] : never)
   | readonly { items: ReadonlyArray<Item> }[];
-
-interface CreateComboboxItemsIdentityOptions<Item> {
-  getValue?: undefined;
-  getLabel?: ((item: Item) => string) | undefined;
-}
 
 export interface CreateComboboxItemsOptions<
   Item,
@@ -62,10 +68,8 @@ export interface CreateComboboxItemsOptions<
    * Projects an item to the label string that represents it in the input and when matching the
    * typed query. The root's `itemToStringLabel` prop is the fallback for values whose item is in
    * neither the data nor the current `filteredItems`.
-   *
-   * By default, the item's derived value is stringified.
    */
-  getLabel?: ((item: Item) => string) | undefined;
+  getLabel: (item: Item) => string;
 }
 
 /**
@@ -75,40 +79,22 @@ export interface CreateComboboxItemsOptions<
  * receive items, not groups.
  *
  * Items cannot have an `items` array property because they would be interpreted as groups.
+ * Rename that field or cast the data when the runtime values are known not to contain arrays.
  *
  * Create static collections at module scope. Wrap dynamic collections in `React.useMemo()` keyed
  * by their data.
  *
  * Documentation: [Base UI Combobox](https://base-ui.com/react/components/combobox)
  *
- * @returns A collection whose selection value is the source item when `getValue` is omitted,
- * or the accessor's return value when it is provided.
+ * @param data The flat or grouped source items, or `undefined` while they are loading.
+ * @param options Functions that derive each source item's selection value and display label.
+ * @returns A collection whose selection value is the `getValue` accessor's return value.
  */
 export function createComboboxItems<Item, Value extends ComboboxPrimitiveValue>(
   data: (ComboboxItemsData<Item> & RejectGroupShapedItems<Item>) | undefined,
   options: CreateComboboxItemsOptions<Item, Value>,
-): ComboboxItemCollection<Item, Value>;
-
-export function createComboboxItems<Item>(
-  data: (ComboboxItemsData<Item> & RejectGroupShapedItems<Item>) | undefined,
-  options?: CreateComboboxItemsIdentityOptions<Item>,
-): ComboboxItemCollection<Item, Item>;
-
-export function createComboboxItems<Item, Value>(
-  data: readonly (Item | { items: ReadonlyArray<Item> })[] | undefined,
-  options: {
-    getValue?: ((item: Item) => Value) | undefined;
-    getLabel?: ((item: Item) => string) | undefined;
-  } = {},
 ): ComboboxItemCollection<Item, Value> {
   const { getValue, getLabel } = options;
-
-  // Without accessors every item resolves to itself, which is what a plain array already does.
-  if (!getValue && !getLabel) {
-    return data as unknown as ComboboxItemCollection<Item, Value>;
-  }
-
-  const itemToValue = getValue ?? ((item: Item) => item as unknown as Value);
 
   let valueToItem: Map<Value, Item> | null = null;
 
@@ -117,9 +103,7 @@ export function createComboboxItems<Item, Value>(
     if (valueToItem === null) {
       const derived = new Map<Value, Item>();
 
-      const leafItems = isGroupedItems(data)
-        ? (data as readonly Group<Item>[]).flatMap((group) => group.items)
-        : ((data ?? EMPTY_ARRAY) as readonly Item[]);
+      const leafItems = data ? flattenLeafItems<Item>(data) : EMPTY_ARRAY;
 
       for (const item of leafItems) {
         // Nullish entries are holes in the data, as they are for a plain `items` array.
@@ -127,13 +111,13 @@ export function createComboboxItems<Item, Value>(
           continue;
         }
 
-        const derivedValue = itemToValue(item);
+        const derivedValue = getValue(item);
         // First occurrence wins, so a duplicated derived value resolves to one stable label.
         if (!derived.has(derivedValue)) {
           derived.set(derivedValue, item);
         } else if (process.env.NODE_ENV !== 'production') {
           error(
-            'Two items passed to createItems() derived the same value, so selection and label ' +
+            `Two items passed to createItems() derived the value ${String(derivedValue)}, so selection and label ` +
               'resolution cannot tell them apart: the first item wins the label and every item ' +
               'carrying the value renders as selected. Return a unique value from `getValue`.',
           );
@@ -152,34 +136,50 @@ export function createComboboxItems<Item, Value>(
     if (item == null) {
       return item as unknown as Value;
     }
-    return itemToValue(item);
+    return getValue(item);
   }
 
-  const itemToLabel = getLabel ?? ((item: Item) => stringifyAsLabel(value(item)));
+  function findItem(itemValue: Value, isEqual: ItemEqualityComparer<Value>): Item | undefined {
+    const derived = ensureDerived();
+
+    const exactItem = derived.get(itemValue);
+    if (exactItem !== undefined) {
+      return exactItem;
+    }
+
+    if (isEqual === defaultItemEquality) {
+      return undefined;
+    }
+
+    for (const [derivedValue, item] of derived) {
+      if (compareItemEquality(derivedValue, itemValue, isEqual)) {
+        return item;
+      }
+    }
+
+    return undefined;
+  }
 
   return {
     // Passed through rather than defaulted: data that has not loaded must stay the absence of
     // items rather than an empty list that filters everything away.
     data,
-    // Withheld without `getValue` so the root keeps serving `items` the way a plain array does.
-    value: getValue ? value : undefined,
-    hasValue: getValue ? (itemValue: Value) => ensureDerived().has(itemValue) : undefined,
-    itemLabel: itemToLabel,
-    label: (itemValue: Value, fallback?: ((itemValue: Value) => string) | undefined) => {
-      // Without a projection, the public value is itself a source item.
-      if (!getValue) {
-        return itemToLabel(itemValue as unknown as Item);
-      }
-
-      const derived = ensureDerived();
-
-      if (derived.has(itemValue)) {
-        return itemToLabel(derived.get(itemValue)!);
+    value,
+    hasValue(itemValue: Value, isEqual: ItemEqualityComparer<Value>) {
+      return findItem(itemValue, isEqual) !== undefined;
+    },
+    itemLabel: getLabel,
+    label(
+      itemValue: Value,
+      isEqual: ItemEqualityComparer<Value>,
+      fallback?: ((itemValue: Value) => string) | undefined,
+    ) {
+      const item = findItem(itemValue, isEqual);
+      if (item !== undefined) {
+        return getLabel(item);
       }
 
       return stringifyAsLabel(itemValue, fallback);
     },
   } as unknown as ComboboxItemCollection<Item, Value>;
 }
-
-export type { ComboboxItemCollection } from './itemCollection';

@@ -1,4 +1,5 @@
 import type { Group } from '../../internals/resolveValueLabel';
+import type { ItemEqualityComparer } from '../../internals/itemEquality';
 
 /**
  * An opaque collection created by `createItems()`.
@@ -25,16 +26,19 @@ export interface ItemCollection<Item = any, Value = any> {
   data: readonly Item[] | readonly Group<Item>[] | undefined;
   /**
    * Projects a source item to the value used by selection APIs.
-   * Absent when no `getValue` accessor was given, since the item is then its own value.
    */
-  value: ((item: Item) => Value) | undefined;
+  value: (item: Item) => Value;
   /** Whether a projected value belongs to the collection's own data. */
-  hasValue: ((value: Value) => boolean) | undefined;
+  hasValue: (value: Value, isEqual: ItemEqualityComparer<Value>) => boolean;
   /** Resolves a source item's label while filtering in the source-item domain. */
   itemLabel: (item: Item) => string;
   /**
    * Resolves a selected value's label, including values outside the mounted items.
    * `fallback` labels the values the collection cannot resolve at all.
    */
-  label: (valueOrItem: Value, fallback?: ((valueOrItem: Value) => string) | undefined) => string;
+  label(
+    valueOrItem: Value,
+    isEqual: ItemEqualityComparer<Value>,
+    fallback?: ((valueOrItem: Value) => string) | undefined,
+  ): string;
 }

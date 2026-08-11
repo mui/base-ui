@@ -23,10 +23,6 @@ export interface UseComboboxFilterOptions extends UseFilterOptions {
   /**
    * The current value of the combobox, used to keep every item visible while the query still
    * matches the selection.
-   *
-   * Omit it when `items` is a `createItems()` collection with a `getValue` accessor: the value is
-   * then a derived value rather than an item, so the item stringifier cannot label it. The root
-   * already keeps the list unfiltered in that situation.
    */
   value?: any;
 }

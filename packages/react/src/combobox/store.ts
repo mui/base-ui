@@ -12,14 +12,6 @@ export type State = {
   labelId: string | undefined;
 
   items: readonly any[] | undefined;
-  /**
-   * Development only: the source items of the active `createItems()` collection. Lets an item
-   * check whether its `value` prop is an item rather than the value derived from it. Kept on the
-   * store rather than on the derived-items context so items don't subscribe to a value that
-   * changes on every keystroke. Never written in production builds, and read through a selector
-   * declared next to its only consumer so the production bundle carries neither.
-   */
-  collectionItems?: Set<any> | undefined;
 
   selectedValue: any;
 

@@ -41,7 +41,7 @@ import { useFieldRootContext } from '../../internals/field-root-context/FieldRoo
 import { useRegisterFieldControl } from '../../internals/field-register-control/useRegisterFieldControl';
 import { useFormContext } from '../../internals/form-context/FormContext';
 import { useLabelableId } from '../../internals/labelable-provider/useLabelableId';
-import { createCollatorItemFilter } from './utils';
+import { createCollatorItemFilter, type FilterItemToString } from './utils';
 import { useCoreFilter } from './utils/useFilter';
 import { useTransitionStatus } from '../../internals/useTransitionStatus';
 import { useOpenInteractionType } from '../../utils/useOpenInteractionType';
@@ -55,11 +55,13 @@ import {
   stringifyAsLabel,
   stringifyAsValue,
   Group,
+  flattenLeafItems,
   isGroupedItems,
 } from '../../internals/resolveValueLabel';
 import {
   compareItemEquality,
   defaultItemEquality,
+  findItemIndex,
   findSelectionIndex,
   removeItem,
   selectedValueIncludes,
@@ -76,12 +78,6 @@ type InternalAriaComboboxProps<Value, Mode extends SelectionMode, Item = Value> 
 > & {
   filterQuery?: string | undefined;
 };
-
-function flattenLeafItems<Item>(items: readonly Item[] | readonly Group<Item>[]): readonly Item[] {
-  return isGroupedItems(items)
-    ? (items as readonly Group<Item>[]).flatMap((group) => group.items)
-    : (items as readonly Item[]);
-}
 
 /**
  * @internal
@@ -159,10 +155,10 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
   const collatorFilter = useCoreFilter({ locale });
 
   // Plain items are arrays; normalized `createItems()` collections are objects.
-  const collection =
-    itemsProp && !Array.isArray(itemsProp)
-      ? (itemsProp as unknown as ItemCollection<Item, Value>)
-      : null;
+  const collection = Array.isArray(itemsProp)
+    ? null
+    : (itemsProp as unknown as ItemCollection<Item, Value> | undefined);
+
   if (collection && typeof collection.label !== 'function') {
     throw new Error(
       'Base UI: the `items` prop received an object that is not a collection, ' +
@@ -171,11 +167,13 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
         'See https://base-ui.com/react/components/combobox#createitems',
     );
   }
+
   const items = (collection ? collection.data : itemsProp) as
     | readonly Item[]
     | readonly Group<Item>[]
     | undefined;
   const itemToValue = collection?.value;
+
   // A projected collection's items live in the source domain, not the selection-value domain the
   // store matches against, so they are withheld from the store.
   const storeItems = itemToValue ? undefined : items;
@@ -184,22 +182,34 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
   // source items. Declared before `itemToStringLabel`, which resolves labels from it on the
   // first render (initial input value).
   const externalWindow = React.useMemo(() => {
-    if (!filteredItemsProp) {
+    if (!filteredItemsProp || !itemToValue) {
       return undefined;
     }
     const flat = flattenLeafItems(filteredItemsProp);
-    if (!itemToValue) {
-      return { values: flat as any[], valueToItem: undefined };
-    }
-    const valueToItem = new Map<any, any>();
-    const values = flat.map((item) => {
-      const itemValue = itemToValue(item);
-      if (!valueToItem.has(itemValue)) {
-        valueToItem.set(itemValue, item);
-      }
-      return itemValue;
-    });
-    return { values, valueToItem };
+    const values = flat.map(itemToValue);
+    let valueToItem: Map<any, any> | undefined;
+
+    return {
+      values,
+      findItem(itemValue: any, isEqual: (item: any, value: any) => boolean) {
+        if (!valueToItem) {
+          valueToItem = new Map();
+          for (let i = 0; i < values.length; i += 1) {
+            if (!valueToItem.has(values[i])) {
+              valueToItem.set(values[i], flat[i]);
+            }
+          }
+        }
+
+        const exactItem = valueToItem.get(itemValue);
+        if (exactItem !== undefined) {
+          return exactItem;
+        }
+
+        const matchingIndex = findItemIndex(values, itemValue, isEqual);
+        return matchingIndex === -1 ? undefined : flat[matchingIndex];
+      },
+    };
   }, [filteredItemsProp, itemToValue]);
 
   // Labels selection values from current props only: collection data first, then the current
@@ -209,26 +219,34 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
     if (!collection) {
       return itemToStringLabelProp;
     }
-    return (itemValue: Value) =>
-      collection.label(itemValue, (unresolvedValue: any) => {
-        const externalItem = externalWindow?.valueToItem?.get(unresolvedValue);
+    return (itemValue: Value) => {
+      return collection.label(itemValue, isItemEqualToValue, (unresolvedValue: any) => {
+        const externalItem = externalWindow?.findItem(unresolvedValue, isItemEqualToValue);
         if (externalItem != null) {
           return collection.itemLabel(externalItem);
         }
         return stringifyAsLabel(unresolvedValue, itemToStringLabelProp);
       });
-  }, [collection, itemToStringLabelProp, externalWindow]);
+    };
+  }, [collection, itemToStringLabelProp, externalWindow, isItemEqualToValue]);
 
-  const filterItemToString: ((item: any) => string) | undefined = collection
-    ? collection.itemLabel
-    : itemToStringLabelProp;
+  const filterItemToString = React.useMemo<FilterItemToString | undefined>(() => {
+    if (!collection) {
+      return itemToStringLabelProp;
+    }
 
-  function stringifyItemLabel(item: any) {
+    return Object.assign((item: any) => collection.itemLabel(item), {
+      selectedValueToString: (value: any) => stringifyAsLabel(value, itemToStringLabel),
+    });
+  }, [collection, itemToStringLabel, itemToStringLabelProp]);
+
+  function stringifyValueLabel(item: any) {
     return stringifyAsLabel(item, itemToStringLabel);
   }
 
   const [queryChangedAfterOpen, setQueryChangedAfterOpen] = React.useState(false);
   const [closeQuery, setCloseQuery] = React.useState<string | null>(null);
+  const previousCloseQueryRef = React.useRef(closeQuery);
 
   const listRef = React.useRef<Array<HTMLElement | null>>([]);
   const labelsRef = React.useRef<Array<string | null>>([]);
@@ -299,7 +317,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
       return defaultInputValue ?? '';
     }
     if (single) {
-      return stringifyItemLabel(selectedValue);
+      return stringifyValueLabel(selectedValue);
     }
     return '';
   }).current;
@@ -321,13 +339,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
   const isGrouped = isGroupedItems(items);
   const query = closeQuery ?? String(inputValue).trim();
 
-  // `items` is an extra dependency because resolving a label can consult data that arrived with
-  // it; the external window is covered by `itemToStringLabel`, whose identity changes with it.
-  const selectedLabelString = React.useMemo(
-    () => (single ? stringifyAsLabel(selectedValue, itemToStringLabel) : ''),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [single, selectedValue, itemToStringLabel, items],
-  );
+  const selectedLabelString = single ? stringifyValueLabel(selectedValue) : '';
 
   const shouldBypassFiltering =
     single &&
@@ -341,19 +353,12 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
     hasItems &&
     hasFilteredItemsProp &&
     shouldBypassFiltering &&
-    (!collection?.hasValue || collection.hasValue(selectedValue));
+    (!collection || collection.hasValue(selectedValue, isItemEqualToValue));
 
-  const flatItems: readonly Item[] = React.useMemo(() => {
-    if (!items) {
-      return EMPTY_ARRAY;
-    }
-
-    if (isGrouped) {
-      return items.flatMap((group) => group.items);
-    }
-
-    return items;
-  }, [items, isGrouped]);
+  const flatItems: readonly Item[] = React.useMemo(
+    () => (items ? flattenLeafItems<Item>(items) : EMPTY_ARRAY),
+    [items],
+  );
 
   const filteredItems: Item[] | Group<Item>[] = React.useMemo(() => {
     if (filteredItemsProp && !shouldIgnoreExternalFiltering) {
@@ -576,7 +581,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
   const forceMount = useStableCallback(() => {
     if (items) {
       // Ensure typeahead works on a closed list.
-      labelsRef.current = flatFilteredValues.map(stringifyItemLabel);
+      labelsRef.current = flatFilteredValues.map(stringifyValueLabel);
     } else {
       store.set('forceMounted', true);
     }
@@ -801,7 +806,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
 
       if (shouldFillInput) {
         setInputValue(
-          stringifyItemLabel(nextValue),
+          stringifyValueLabel(nextValue),
           createChangeEventDetails(eventDetails.reason, eventDetails.event),
         );
       }
@@ -903,7 +908,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
           setInputValue('', createChangeEventDetails(REASONS.inputClear));
         }
       } else {
-        const stringVal = stringifyItemLabel(selectedValue);
+        const stringVal = stringifyValueLabel(selectedValue);
         if (inputRef.current && inputRef.current.value !== stringVal) {
           // If no selection was made, treat this as clearing the typed filter.
           const reason = stringVal === '' ? REASONS.inputClear : REASONS.none;
@@ -938,14 +943,21 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
   React.useImperativeHandle(props.actionsRef, () => ({ unmount: handleUnmount }), [handleUnmount]);
 
   useIsoLayoutEffect(
-    function syncClosedState() {
-      if (open) {
+    function syncSelectedIndex() {
+      const closeQueryReleased = previousCloseQueryRef.current !== null && closeQuery === null;
+      previousCloseQueryRef.current = closeQuery;
+
+      // Closing indexes against the frozen filtered list. Reopening releases that query, so its
+      // rendered coordinates must be synchronized again even though the popup is already open.
+      if (open && (!closeQueryReleased || !hasItems)) {
         return;
       }
 
       // State-driven (not tied to the internal event path) so controlled closes
       // also clear a pointerdown that never received a matching item mouseup.
-      pointerDownItemRef.current = null;
+      if (!open) {
+        pointerDownItemRef.current = null;
+      }
 
       if (selectionMode === 'none') {
         return;
@@ -966,6 +978,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
     },
     [
       open,
+      closeQuery,
       selectedValue,
       selectionMode,
       multiple,
@@ -982,25 +995,6 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
       listRef.current.length = flatFilteredValues.length;
     }
   }, [items, flatFilteredValues]);
-
-  /* istanbul ignore else -- `process.env.NODE_ENV` is a build-time constant under test. */
-  if (process.env.NODE_ENV !== 'production') {
-    // Lets each item warn when its `value` prop is one of the collection's source items.
-    // Primitives are excluded, since a legitimate derived value can equal another source item.
-    // eslint-disable-next-line react-hooks/rules-of-hooks
-    useIsoLayoutEffect(() => {
-      let objectItems: Set<any> | undefined;
-      if (itemToValue) {
-        objectItems = new Set();
-        for (const item of flatItems) {
-          if (typeof item === 'object' && item !== null) {
-            objectItems.add(item);
-          }
-        }
-      }
-      store.set('collectionItems', objectItems);
-    }, [store, flatItems, itemToValue]);
-  }
 
   useIsoLayoutEffect(() => {
     const pendingHighlight = pendingQueryHighlightRef.current;
@@ -1079,8 +1073,8 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
       return;
     }
 
-    const shouldUseFlatFilteredItems = hasItems || hasFilteredItemsProp;
-    const candidateItems = shouldUseFlatFilteredItems ? flatFilteredValues : valuesRef.current;
+    const shouldUseFlatFilteredValues = hasItems || hasFilteredItemsProp;
+    const candidateItems = shouldUseFlatFilteredValues ? flatFilteredValues : valuesRef.current;
     const storeActiveIndex = store.state.activeIndex;
 
     if (storeActiveIndex == null) {
@@ -1156,19 +1150,15 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
     return value !== initialValue;
   }
 
-  useValueChanged(query, () => {
+  function handleQueryChanged() {
     if (!open || query === '' || query === String(initialDefaultInputValue)) {
       return;
     }
     setQueryChangedAfterOpen(true);
-  });
+  }
 
-  // A selection change usually changes the resolved label too, so both syncs below can land in
-  // the same commit. The second one would still see the pre-commit `inputValue` and write again,
-  // firing `onInputValueChange` twice, so the write is recorded here. Both `useValueChanged`
-  // callbacks run in the layout phase of the render that declared this binding, so it lives for
-  // exactly as long as the duplicate is possible: the next render starts clean, which is what
-  // lets a canceled write be retried later without any release step.
+  // These sync triggers can run in the same commit while still seeing the pre-commit `inputValue`.
+  // This render-scoped flag prevents duplicate callbacks and resets so canceled writes can retry.
   let syncedSelectedLabel = false;
 
   function syncInputToSelectedLabel() {
@@ -1180,7 +1170,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
     setInputValue(selectedLabelString, createChangeEventDetails(REASONS.none));
   }
 
-  useValueChanged(selectedValue, () => {
+  function handleSelectedValueChanged() {
     if (selectionMode === 'none') {
       return;
     }
@@ -1193,20 +1183,20 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
     if (single && !hasInputValue && !inputInsidePopup) {
       syncInputToSelectedLabel();
     }
-  });
+  }
 
-  // Keyed on the resolved label rather than the items identity: the sync only has an effect
-  // when the label of the current selection changes, and a `createItems()` collection built
-  // during render is a new object on every render despite resolving the same label.
-  useValueChanged(selectedLabelString, () => {
+  // The label catches accessor changes while the items identity restores the selected label after
+  // a one-step input clear followed by a data reload. The shared sync prevents duplicate writes
+  // when both change in the same commit.
+  function syncInputAfterItemsOrLabelChange() {
     if (!single || hasInputValue || inputInsidePopup || queryChangedAfterOpen) {
       return;
     }
 
     syncInputToSelectedLabel();
-  });
+  }
 
-  useValueChanged(inputValue, () => {
+  function handleInputValueChanged() {
     if (selectionMode !== 'none') {
       return;
     }
@@ -1215,7 +1205,13 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
     setDirty(inputValue !== validityData.initialValue);
 
     validation.change(inputValue);
-  });
+  }
+
+  useValueChanged(query, handleQueryChanged);
+  useValueChanged(selectedValue, handleSelectedValueChanged);
+  useValueChanged(selectedLabelString, syncInputAfterItemsOrLabelChange);
+  useValueChanged(items, syncInputAfterItemsOrLabelChange);
+  useValueChanged(inputValue, handleInputValueChanged);
 
   const floatingRootContext = useFloatingRootContext({
     open: inline ? true : open,
@@ -1533,7 +1529,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
               valuesRef.current.findIndex(
                 (candidate) =>
                   stringifyAsValue(candidate, itemToStringValue).toLowerCase() === nextValueLower ||
-                  stringifyItemLabel(candidate).toLowerCase() === nextValueLower,
+                  stringifyValueLabel(candidate).toLowerCase() === nextValueLower,
               );
 
             function handleChange() {
@@ -1761,6 +1757,7 @@ interface ComboboxRootProps<ItemValue, Item = ItemValue> {
    * Filtered items to display in the list.
    * When provided, the list will use these items instead of filtering the `items` prop internally.
    * When `items` is also provided, this array must preserve its flat or grouped structure.
+   * With a `createItems()` collection, pass source items rather than derived values.
    * Use when you want to control filtering logic externally with the `useFilter()` hook.
    */
   filteredItems?: readonly Item[] | readonly Group<Item>[] | undefined;
@@ -1776,15 +1773,19 @@ interface ComboboxRootProps<ItemValue, Item = ItemValue> {
   /**
    * When the item values are objects (`<Combobox.Item value={object}>`), this function converts the object value to a string representation for display in the input.
    * If the shape of the object is `{ value, label }`, the label will be used automatically without needing to specify this prop.
+   * With a `createItems()` collection, this receives the derived value, and the collection's
+   * `getLabel` takes precedence for values it can resolve.
    */
   itemToStringLabel?: ((itemValue: ItemValue) => string) | undefined;
   /**
    * When the item values are objects (`<Combobox.Item value={object}>`), this function converts the object value to a string representation for form submission.
    * If the shape of the object is `{ value, label }`, the value will be used automatically without needing to specify this prop.
+   * With a `createItems()` collection, this receives the derived value.
    */
   itemToStringValue?: ((itemValue: ItemValue) => string) | undefined;
   /**
    * Custom comparison logic used to determine if a combobox item value matches the current selected value. Useful when item values are objects without matching referentially.
+   * With a `createItems()` collection, both arguments are derived values.
    * Defaults to `Object.is` comparison.
    */
   isItemEqualToValue?: ((itemValue: ItemValue, value: ItemValue) => boolean) | undefined;

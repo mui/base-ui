@@ -84,13 +84,7 @@ describe('Combobox.createItems', () => {
       }
     });
 
-    it('passes the data through unchanged when no accessors are given', () => {
-      expect(Combobox.createItems(users)).toBe(users);
-    });
-
     it('treats undefined data as the absence of items rather than as an empty list', async () => {
-      expect(Combobox.createItems(undefined)).toBe(undefined);
-
       const pendingItems = Combobox.createItems(undefined as User[] | undefined, {
         getValue: getUserId,
         getLabel: getUserName,
@@ -112,50 +106,6 @@ describe('Combobox.createItems', () => {
       );
 
       expect(screen.getAllByRole('option')).toHaveLength(users.length);
-    });
-  });
-
-  describe('no accessors', () => {
-    const labeledItems = [
-      { value: 'a', label: <b>Apple</b> },
-      { value: 'b', label: 'Banana' },
-    ];
-
-    it('keeps React node labels resolvable through Combobox.Value', async () => {
-      function App() {
-        const items = Combobox.createItems(labeledItems);
-        return (
-          <Combobox.Root items={items} defaultValue={labeledItems[0]}>
-            <span data-testid="value">
-              <Combobox.Value />
-            </span>
-          </Combobox.Root>
-        );
-      }
-
-      await render(<App />);
-
-      expect(screen.getByTestId('value').querySelector('b')).not.toBe(null);
-      expect(screen.getByTestId('value')).toHaveTextContent('Apple');
-    });
-
-    it("keeps a null item's label overriding the placeholder", async () => {
-      const withNullItem = [{ value: null, label: 'None' }, ...labeledItems];
-
-      function App() {
-        const items = Combobox.createItems(withNullItem);
-        return (
-          <Combobox.Root items={items}>
-            <span data-testid="value">
-              <Combobox.Value placeholder="Pick one" />
-            </span>
-          </Combobox.Root>
-        );
-      }
-
-      await render(<App />);
-
-      expect(screen.getByTestId('value')).toHaveTextContent('None');
     });
   });
 
@@ -446,7 +396,7 @@ describe('Combobox.createItems', () => {
           getLabel: getUserName,
         });
         return (
-          <Combobox.Root items={items} defaultOpen>
+          <Combobox.Root items={items} filteredItems={[users[0]]} defaultValue={1} defaultOpen>
             <Combobox.Input data-testid="input" />
             <Combobox.List>
               {(user: User | null) =>
@@ -462,6 +412,8 @@ describe('Combobox.createItems', () => {
       }
 
       const { user } = await render(<App />);
+
+      expect(screen.getByTestId('input')).toHaveValue('Alice');
 
       // A hole reaches the render callback while there is no query, exactly as it does for a
       // plain `items` array, but it is dropped as soon as filtering runs.
@@ -624,43 +576,18 @@ describe('Combobox.createItems', () => {
       expect(screen.getByTestId('input')).toHaveValue('3');
     });
 
-    it('labels items by their derived value when no label accessor is given', async () => {
-      function App() {
-        const items = Combobox.createItems(users, { getValue: getUserId });
-        return (
-          <Combobox.Root items={items} defaultOpen>
-            <Combobox.Input data-testid="input" />
-            <Combobox.List>
-              {(user: User) => (
-                <Combobox.Item key={user.id} value={user.id}>
-                  {user.name}
-                </Combobox.Item>
-              )}
-            </Combobox.List>
-          </Combobox.Root>
-        );
-      }
-
-      const { user } = await render(<App />);
-      const input = screen.getByTestId('input');
-
-      await user.type(input, '2');
-
-      expect(screen.queryByRole('option', { name: 'Alice' })).toBe(null);
-      expect(screen.getByRole('option', { name: 'Bob' })).not.toBe(null);
-
-      await user.click(screen.getByRole('option', { name: 'Bob' }));
-
-      expect(input).toHaveValue('2');
-    });
-
-    it('warns when an item value is a source item rather than a derived value', async () => {
+    it('warns when an externally filtered item uses its source item as its value', async () => {
       const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+      const knownUsers = [users[0]];
+      const searchResults = [users[1]];
 
       function App() {
-        const items = userItems;
+        const items = Combobox.createItems(knownUsers, {
+          getValue: getUserId,
+          getLabel: getUserName,
+        });
         return (
-          <Combobox.Root items={items} defaultOpen>
+          <Combobox.Root items={items} filteredItems={searchResults} defaultOpen>
             <Combobox.Input />
             <Combobox.List>
               {(user: User) => (
@@ -716,49 +643,19 @@ describe('Combobox.createItems', () => {
       }
     });
 
-    it('does not warn when the data is replaced with a disjoint set of values', async () => {
-      const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
-
-      function App(props: { data: User[] }) {
-        const items = React.useMemo(
-          () => Combobox.createItems(props.data, { getValue: getUserId, getLabel: getUserName }),
-          [props.data],
-        );
-        return (
-          <Combobox.Root items={items} defaultOpen>
-            <Combobox.Input />
-            <Combobox.List>
-              {(user: User) => (
-                <Combobox.Item key={user.id} value={user.id}>
-                  {user.name}
-                </Combobox.Item>
-              )}
-            </Combobox.List>
-          </Combobox.Root>
-        );
-      }
-
-      try {
-        const { setProps } = await render(<App data={[users[0]]} />);
-
-        await setProps({ data: [{ id: 7, name: 'Grace' }] });
-
-        expect(consoleErrorSpy).not.toHaveBeenCalled();
-      } finally {
-        consoleErrorSpy.mockRestore();
-      }
-    });
-
-    it('does not warn for a value that is not part of the collection', async () => {
+    it('does not warn when a plain array uses source items as values', async () => {
       const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
       function App() {
-        const items = userItems;
         return (
-          <Combobox.Root items={items} defaultOpen>
+          <Combobox.Root items={users} defaultOpen>
             <Combobox.Input />
             <Combobox.List>
-              <Combobox.Item value="create-new">Create new user</Combobox.Item>
+              {(user: User) => (
+                <Combobox.Item key={user.id} value={user}>
+                  {user.name}
+                </Combobox.Item>
+              )}
             </Combobox.List>
           </Combobox.Root>
         );
@@ -786,64 +683,7 @@ describe('Combobox.createItems', () => {
             <Combobox.Input />
             <Combobox.List>
               <Combobox.Item>All users</Combobox.Item>
-              <Combobox.Item value={1}>Alice</Combobox.Item>
-            </Combobox.List>
-          </Combobox.Root>
-        );
-      }
-
-      try {
-        await render(<App />);
-
-        expect(consoleErrorSpy).not.toHaveBeenCalled();
-      } finally {
-        consoleErrorSpy.mockRestore();
-      }
-    });
-
-    it('does not warn when a derived value equals a different primitive source item', async () => {
-      const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
-
-      const numberItems = Combobox.createItems([1, 2] as number[], {
-        getValue: (n: number) => n + 1,
-        getLabel: (n: number) => String(n),
-      });
-
-      function App() {
-        return (
-          <Combobox.Root items={numberItems} defaultOpen>
-            <Combobox.Input />
-            <Combobox.List>
-              {/* The correct derived value of source item `1`, which also happens to be item `2`. */}
-              <Combobox.Item value={2}>One</Combobox.Item>
-            </Combobox.List>
-          </Combobox.Root>
-        );
-      }
-
-      try {
-        await render(<App />);
-
-        expect(consoleErrorSpy).not.toHaveBeenCalled();
-      } finally {
-        consoleErrorSpy.mockRestore();
-      }
-    });
-
-    it('does not warn when a custom comparer matches the derived value', async () => {
-      const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
-
-      function App() {
-        const items = userItems;
-        return (
-          <Combobox.Root items={items} isItemEqualToValue={(a, b) => String(a) === String(b)}>
-            <Combobox.Input />
-            <Combobox.List>
-              {(user: User) => (
-                <Combobox.Item key={user.id} value={String(user.id)}>
-                  {user.name}
-                </Combobox.Item>
-              )}
+              <Combobox.Item value={users[0]}>Alice</Combobox.Item>
             </Combobox.List>
           </Combobox.Root>
         );
@@ -1020,7 +860,10 @@ describe('Combobox.createItems', () => {
       const cities = ['Isparta', 'İzmir'];
 
       function App() {
-        const items = Combobox.createItems(cities);
+        const items = Combobox.createItems(cities, {
+          getValue: (city) => city,
+          getLabel: (city) => city,
+        });
         return (
           <Combobox.Root items={items} locale="tr" defaultOpen>
             <Combobox.Input data-testid="input" />
@@ -1043,117 +886,56 @@ describe('Combobox.createItems', () => {
       expect(screen.getByRole('option', { name: 'İzmir' })).not.toBe(null);
     });
 
-    it('updates selected labels when the getLabel accessor changes', async () => {
-      const getEnglishName = (user: User) => user.name;
-      const getSpanishName = (user: User) => (user.id === 1 ? 'Alicia' : user.name);
+    it('updates a selected label when a stable accessor returns a new result', async () => {
+      let language: 'en' | 'es' = 'en';
+      const items = Combobox.createItems(users, {
+        getValue: getUserId,
+        getLabel: (user) => (language === 'es' && user.id === 1 ? 'Alicia' : user.name),
+      });
 
-      function App(props: { getLabel: (user: User) => string }) {
-        const items = Combobox.createItems(users, {
-          getValue: getUserId,
-          getLabel: props.getLabel,
-        });
+      function App(props: { language: 'en' | 'es' }) {
         return (
-          <Combobox.Root items={items} defaultValue={1}>
+          <Combobox.Root items={items} defaultValue={1} locale={props.language}>
             <Combobox.Input data-testid="input" />
             <span data-testid="value">
               <Combobox.Value />
             </span>
+            <Combobox.Trigger>Open</Combobox.Trigger>
+            <Combobox.Portal>
+              <Combobox.Positioner>
+                <Combobox.Popup>
+                  <Combobox.List>
+                    {(user: User) => (
+                      <Combobox.Item key={user.id} value={user.id}>
+                        {user.name}
+                      </Combobox.Item>
+                    )}
+                  </Combobox.List>
+                </Combobox.Popup>
+              </Combobox.Positioner>
+            </Combobox.Portal>
           </Combobox.Root>
         );
       }
 
-      const { setProps } = await render(<App getLabel={getEnglishName} />);
+      const { setProps, user } = await render(<App language="en" />);
+      const input = screen.getByTestId('input');
 
-      expect(screen.getByTestId('input')).toHaveValue('Alice');
+      expect(input).toHaveValue('Alice');
       expect(screen.getByTestId('value')).toHaveTextContent('Alice');
 
-      await setProps({ getLabel: getSpanishName });
+      language = 'es';
+      await setProps({ language: 'es' });
 
-      expect(screen.getByTestId('input')).toHaveValue('Alicia');
+      expect(input).toHaveValue('Alicia');
       expect(screen.getByTestId('value')).toHaveTextContent('Alicia');
+
+      await user.click(screen.getByRole('button', { name: 'Open' }));
+
+      expect(await screen.findAllByRole('option')).toHaveLength(users.length);
     });
 
-    it('labels a stale identity value from the value itself', async () => {
-      const selectedUser = { id: 2, name: 'Stale Bob' };
-
-      function App() {
-        const items = Combobox.createItems(users, {
-          getLabel: getUserName,
-        });
-        return (
-          <Combobox.Root
-            items={items}
-            defaultValue={selectedUser}
-            isItemEqualToValue={(item, value) => item.id === value.id}
-            defaultOpen
-          >
-            <Combobox.Input data-testid="input" />
-            <Combobox.List>
-              {(user: User) => (
-                <Combobox.Item key={user.id} value={user}>
-                  {user.name}
-                </Combobox.Item>
-              )}
-            </Combobox.List>
-          </Combobox.Root>
-        );
-      }
-
-      await render(<App />);
-
-      // The comparer still selects the matching item; the label of an instance the collection
-      // does not hold comes from that instance, as it does for a plain `items` array.
-      expect(screen.getByRole('option', { name: 'Bob' })).toHaveAttribute('aria-selected', 'true');
-      expect(screen.getByTestId('input')).toHaveValue('Stale Bob');
-    });
-
-    it('selects the source item of a label-only collection', async () => {
-      const onValueChange = vi.fn();
-      const labelOnlyItems = Combobox.createItems(users, { getLabel: getUserName });
-
-      function App() {
-        return (
-          <Combobox.Root items={labelOnlyItems} onValueChange={onValueChange} defaultOpen>
-            <Combobox.Input data-testid="input" />
-            <Combobox.List>
-              {(user: User) => (
-                <Combobox.Item key={user.id} value={user}>
-                  {user.name}
-                </Combobox.Item>
-              )}
-            </Combobox.List>
-          </Combobox.Root>
-        );
-      }
-
-      const { user } = await render(<App />);
-
-      await user.click(screen.getByRole('option', { name: 'Bob' }));
-
-      expect(onValueChange.mock.lastCall?.[0]).toBe(users[1]);
-      expect(screen.getByTestId('input')).toHaveValue('Bob');
-    });
-
-    it('labels an identity value outside the current data window from the value itself', async () => {
-      const selectedUser = { id: 42, name: 'Archived user' };
-
-      function App() {
-        const items = Combobox.createItems(users.slice(0, 1), {
-          getLabel: getUserName,
-        });
-        return (
-          <Combobox.Root items={items} value={selectedUser}>
-            <Combobox.Input data-testid="input" />
-          </Combobox.Root>
-        );
-      }
-
-      await render(<App />);
-
-      expect(screen.getByTestId('input')).toHaveValue('Archived user');
-    });
-
-    it('selects a value that only a custom comparer matches, labeling it from the value', async () => {
+    it('resolves a value that only a custom comparer matches from the collection', async () => {
       function App() {
         const items = Combobox.createItems(users, {
           getValue: (user) => user.name.toLowerCase(),
@@ -1162,6 +944,7 @@ describe('Combobox.createItems', () => {
         return (
           <Combobox.Root
             items={items}
+            filteredItems={[users[0]]}
             defaultValue="BOB"
             isItemEqualToValue={(item, value) => item.toLowerCase() === value.toLowerCase()}
             defaultOpen
@@ -1180,10 +963,9 @@ describe('Combobox.createItems', () => {
 
       await render(<App />);
 
-      // The comparer drives selection, while the label of a value the collection does not hold
-      // comes from the value itself, the same way a plain `items` array labels it.
+      expect(screen.getAllByRole('option')).toHaveLength(users.length);
       expect(screen.getByRole('option', { name: 'Bob' })).toHaveAttribute('aria-selected', 'true');
-      expect(screen.getByTestId('input')).toHaveValue('BOB');
+      expect(screen.getByTestId('input')).toHaveValue('Bob');
     });
 
     it('passes source items to a custom root filter', async () => {
@@ -1213,6 +995,38 @@ describe('Combobox.createItems', () => {
       expect(screen.getByRole('option', { name: 'Bob' })).not.toBe(null);
       expect(filter.mock.calls.every(([item]) => users.includes(item))).toBe(true);
       expect(new Set(filter.mock.calls.map(([item]) => item.id))).toEqual(new Set([1, 2, 3]));
+    });
+
+    it('labels a derived selection when useFilter receives its value', async () => {
+      function App() {
+        const items = Combobox.createItems(users, {
+          getValue: getUserId,
+          getLabel: (user) => user.name.trim(),
+        });
+        const filter = Combobox.useFilter({ value: 2 }).contains;
+
+        return (
+          <Combobox.Root items={items} filter={filter} defaultValue={2} defaultOpen>
+            <Combobox.Input data-testid="input" />
+            <Combobox.List>
+              {(user: User) => (
+                <Combobox.Item key={user.id} value={user.id}>
+                  {user.name}
+                </Combobox.Item>
+              )}
+            </Combobox.List>
+          </Combobox.Root>
+        );
+      }
+
+      const { user } = await render(<App />);
+
+      const input = screen.getByTestId('input');
+      await user.clear(input);
+      await user.type(input, 'ali');
+
+      expect(screen.getByRole('option', { name: 'Alice' })).not.toBe(null);
+      expect(screen.queryByRole('option', { name: 'Bob' })).toBe(null);
     });
 
     it('lets a custom root filter match source fields that are neither the value nor the label', async () => {
@@ -1599,6 +1413,38 @@ describe('Combobox.createItems', () => {
       expect(screen.getByTestId('input')).toHaveValue('Alice');
     });
 
+    it('uses the custom comparer to label a value from the externally filtered window', async () => {
+      function App() {
+        const items = Combobox.createItems([users[0]], {
+          getValue: (user) => user.name.toLowerCase(),
+          getLabel: getUserName,
+        });
+        return (
+          <Combobox.Root
+            items={items}
+            filteredItems={[users[1]]}
+            defaultValue="BOB"
+            isItemEqualToValue={(item, value) => item.toLowerCase() === value.toLowerCase()}
+            defaultOpen
+          >
+            <Combobox.Input data-testid="input" />
+            <Combobox.List>
+              {(user: User) => (
+                <Combobox.Item key={user.id} value={user.name.toLowerCase()}>
+                  {user.name}
+                </Combobox.Item>
+              )}
+            </Combobox.List>
+          </Combobox.Root>
+        );
+      }
+
+      await render(<App />);
+
+      expect(screen.getByRole('option', { name: 'Bob' })).toHaveAttribute('aria-selected', 'true');
+      expect(screen.getByTestId('input')).toHaveValue('Bob');
+    });
+
     it('keeps an external result visible when the selected item is absent from known data', async () => {
       function App() {
         const items = React.useMemo(
@@ -1884,39 +1730,38 @@ describe('Combobox.createItems', () => {
       expect(onValueChange.mock.lastCall?.[0]).toBe(2);
     });
 
-    it('resolves a falsy derived value as a selection rather than as no selection', async () => {
-      const zeroUsers = [
-        { id: 0, name: 'Zero' },
-        { id: 1, name: 'One' },
-      ];
+    it.each([
+      { derivedValue: 0, label: 'Zero' },
+      { derivedValue: '', label: 'Empty string' },
+      { derivedValue: false, label: 'False' },
+      { derivedValue: 10n, label: 'Bigint' },
+    ] as const)('resolves $label as a primitive selection', async ({ derivedValue, label }) => {
+      const sourceItems = [{ value: derivedValue, label }];
+      const items = Combobox.createItems(sourceItems, {
+        getValue: (item) => item.value,
+        getLabel: (item) => item.label,
+      });
 
-      function App() {
-        const items = Combobox.createItems(zeroUsers, {
-          getValue: getUserId,
-          getLabel: getUserName,
-        });
-        return (
-          <Combobox.Root items={items} defaultValue={0} defaultOpen>
-            <Combobox.Input data-testid="input" />
-            <span data-testid="value">
-              <Combobox.Value placeholder="Pick one" />
-            </span>
-            <Combobox.List>
-              {(user: User) => (
-                <Combobox.Item key={user.id} value={user.id}>
-                  {user.name}
-                </Combobox.Item>
-              )}
-            </Combobox.List>
-          </Combobox.Root>
-        );
-      }
+      await render(
+        <Combobox.Root items={items} defaultValue={derivedValue} name="choice" defaultOpen>
+          <Combobox.Input data-testid="input" />
+          <span data-testid="value">
+            <Combobox.Value placeholder="Pick one" />
+          </span>
+          <Combobox.List>
+            {(item) => (
+              <Combobox.Item key={item.label} value={item.value}>
+                {item.label}
+              </Combobox.Item>
+            )}
+          </Combobox.List>
+        </Combobox.Root>,
+      );
 
-      await render(<App />);
-
-      expect(screen.getByTestId<HTMLInputElement>('input').value).toBe('Zero');
-      expect(screen.getByTestId('value')).toHaveTextContent('Zero');
-      expect(screen.getByRole('option', { name: 'Zero' })).toHaveAttribute('aria-selected', 'true');
+      expect(screen.getByTestId('input')).toHaveValue(label);
+      expect(screen.getByTestId('value')).toHaveTextContent(label);
+      expect(screen.getByRole('option', { name: label })).toHaveAttribute('aria-selected', 'true');
+      expect(document.querySelector('input[name="choice"]')).toHaveValue(String(derivedValue));
     });
 
     it('resolves a duplicated derived value to the same label regardless of lookup order', async () => {
@@ -1925,6 +1770,7 @@ describe('Combobox.createItems', () => {
         { id: 1, name: 'First' },
         { id: 2, name: 'Bob' },
         { id: 1, name: 'Clone' },
+        { id: 2, name: 'Copy' },
       ];
 
       function App(props: { value: number }) {
@@ -1946,8 +1792,11 @@ describe('Combobox.createItems', () => {
         await setProps({ value: 1 });
 
         expect(screen.getByTestId<HTMLInputElement>('input').value).toBe('First');
-        expect(consoleErrorSpy).toHaveBeenCalledWith(
-          expect.stringContaining('Two items passed to createItems() derived the same value'),
+        expect(consoleErrorSpy.mock.calls).toEqual(
+          expect.arrayContaining([
+            [expect.stringContaining('Two items passed to createItems() derived the value 1')],
+            [expect.stringContaining('Two items passed to createItems() derived the value 2')],
+          ]),
         );
       } finally {
         consoleErrorSpy.mockRestore();

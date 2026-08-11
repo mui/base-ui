@@ -323,14 +323,23 @@ function CreateItemsApp(props: {
   const objectValueCollection = Combobox.createItems(userItems, {
     // @ts-expect-error Explicit projections must return a non-null primitive.
     getValue: (item) => item,
+    getLabel: (item) => item.name,
   });
   const symbolValueCollection = Combobox.createItems(userItems, {
     // @ts-expect-error Symbols are not supported as derived values.
     getValue: (item) => Symbol(item.id),
-  });
-  const labelOnlyCollection = Combobox.createItems(userItems, {
     getLabel: (item) => item.name,
   });
+  // @ts-expect-error Collections require a value accessor.
+  Combobox.createItems(userItems, {
+    getLabel: (item) => item.name,
+  });
+  // @ts-expect-error Collections require a label accessor.
+  Combobox.createItems(userItems, {
+    getValue: (item) => item.id,
+  });
+  // @ts-expect-error Collections require both accessor options.
+  Combobox.createItems(userItems);
   Combobox.createItems(userItems, {
     // @ts-expect-error A conditional getValue cannot declare a derived value that may not exist.
     getValue: props.getValue,
@@ -385,12 +394,14 @@ function CreateItemsApp(props: {
   // @ts-expect-error An object `items` field may contain an array and be read as a group.
   Combobox.createItems(objectItemsField, {
     getValue: (item) => item.id,
+    getLabel: (item) => String(item.id),
   });
 
   const arrayLikeItemsField: { id: number; items: ArrayLike<string> }[] = [];
   // @ts-expect-error An array-like `items` field may contain an array and be read as a group.
   Combobox.createItems<(typeof arrayLikeItemsField)[number], number>(arrayLikeItemsField, {
     getValue: (item) => item.id,
+    getLabel: (item) => String(item.id),
   });
 
   // A non-array `items` field never marks a group at runtime, so flat data accepts it.
@@ -430,7 +441,7 @@ function CreateItemsApp(props: {
   // Data that has not loaded yet: the item type comes from the accessors instead.
   const pendingCollection: ComboboxItemCollection<{ id: number }, number> = Combobox.createItems(
     undefined as { id: number }[] | undefined,
-    { getValue: (item) => item.id },
+    { getValue: (item) => item.id, getLabel: (item) => String(item.id) },
   );
   void pendingCollection;
 
@@ -438,7 +449,10 @@ function CreateItemsApp(props: {
   collection.each;
 
   // @ts-expect-error Existing collections are passed directly to Root.
-  Combobox.createItems(collection);
+  Combobox.createItems(collection, {
+    getValue: () => '',
+    getLabel: () => '',
+  });
   void objectValueCollection;
   void symbolValueCollection;
 
@@ -455,11 +469,6 @@ function CreateItemsApp(props: {
         // @ts-expect-error Filtered collection items stay in the source item domain.
         filteredItems={[1, 2]}
       />
-      <Combobox.Root
-        items={labelOnlyCollection}
-        defaultValue={userItems[0]}
-        onValueChange={(value) => value?.name}
-      />
     </React.Fragment>
   );
 }
@@ -467,6 +476,7 @@ function CreateItemsApp(props: {
 function CollectionVarianceApp() {
   const broadCollection = Combobox.createItems([{ id: 1 }], {
     getValue: (item) => item.id,
+    getLabel: (item) => String(item.id),
   });
 
   // @ts-expect-error A collection with broader source items cannot be narrowed.
