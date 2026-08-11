@@ -61,15 +61,18 @@ import {
 import {
   compareItemEquality,
   defaultItemEquality,
-  findItemIndex,
   findSelectionIndex,
+  isSelectedValueDirty,
   removeItem,
   selectedValueIncludes,
 } from '../../internals/itemEquality';
-import { areArraysEqual } from '../../internals/areArraysEqual';
 import { INITIAL_LAST_HIGHLIGHT, NO_ACTIVE_VALUE } from './utils/constants';
 import { useDirection } from '../../internals/direction-context/DirectionContext';
-import type { ComboboxItemCollection, ItemCollection } from '../items/itemCollection';
+import {
+  findCollectionItem,
+  type ComboboxItemCollection,
+  type ItemCollection,
+} from '../items/itemCollection';
 
 type InternalAriaComboboxProps<Value, Mode extends SelectionMode, Item = Value> = AriaComboboxProps<
   Value,
@@ -201,13 +204,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
           }
         }
 
-        const exactItem = valueToItem.get(itemValue);
-        if (exactItem !== undefined) {
-          return exactItem;
-        }
-
-        const matchingIndex = findItemIndex(values, itemValue, isEqual);
-        return matchingIndex === -1 ? undefined : flat[matchingIndex];
+        return findCollectionItem(valueToItem, itemValue, isEqual);
       },
     };
   }, [filteredItemsProp, itemToValue]);
@@ -236,7 +233,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
     }
 
     return Object.assign((item: any) => collection.itemLabel(item), {
-      selectedValueToString: (value: any) => stringifyAsLabel(value, itemToStringLabel),
+      selected: (value: any) => stringifyAsLabel(value, itemToStringLabel),
     });
   }, [collection, itemToStringLabel, itemToStringLabelProp]);
 
@@ -612,7 +609,18 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
       selectedIndex?: number | null | undefined;
       type?: AriaCombobox.HighlightEventReason | undefined;
     }) => {
-      store.update(options);
+      const update = {} as Pick<StoreState, 'activeIndex' | 'selectedIndex'>;
+
+      if (options.activeIndex !== undefined) {
+        update.activeIndex = options.activeIndex;
+      }
+
+      if (options.selectedIndex !== undefined) {
+        update.selectedIndex = options.selectedIndex;
+      }
+
+      store.update(update);
+
       const activeIndexOption = options.activeIndex;
       if (activeIndexOption === undefined) {
         return;
@@ -1138,23 +1146,10 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
     }
   }, [hasItems, autoHighlightMode, flatFilteredValues.length, setIndices]);
 
-  function isSelectedValueDirty(value: Value | Value[] | null) {
-    const initialValue = validityData.initialValue;
-
-    if (Array.isArray(value) && Array.isArray(initialValue)) {
-      return !areArraysEqual(value, initialValue, (itemValue, initialItemValue) =>
-        compareItemEquality(itemValue, initialItemValue, isItemEqualToValue),
-      );
-    }
-
-    return value !== initialValue;
-  }
-
   function handleQueryChanged() {
-    if (!open || query === '' || query === String(initialDefaultInputValue)) {
-      return;
+    if (open && query !== '' && query !== String(initialDefaultInputValue)) {
+      setQueryChangedAfterOpen(true);
     }
-    setQueryChangedAfterOpen(true);
   }
 
   // These sync triggers can run in the same commit while still seeing the pre-commit `inputValue`.
@@ -1162,12 +1157,10 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
   let syncedSelectedLabel = false;
 
   function syncInputToSelectedLabel() {
-    if (syncedSelectedLabel || inputValue === selectedLabelString) {
-      return;
+    if (!syncedSelectedLabel && inputValue !== selectedLabelString) {
+      syncedSelectedLabel = true;
+      setInputValue(selectedLabelString, createChangeEventDetails(REASONS.none));
     }
-
-    syncedSelectedLabel = true;
-    setInputValue(selectedLabelString, createChangeEventDetails(REASONS.none));
   }
 
   function handleSelectedValueChanged() {
@@ -1176,7 +1169,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
     }
 
     clearErrors(name);
-    setDirty(isSelectedValueDirty(selectedValue));
+    setDirty(isSelectedValueDirty(selectedValue, validityData.initialValue, isItemEqualToValue));
 
     validation.change(selectedValue);
 
@@ -1189,11 +1182,9 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
   // a one-step input clear followed by a data reload. The shared sync prevents duplicate writes
   // when both change in the same commit.
   function syncInputAfterItemsOrLabelChange() {
-    if (!single || hasInputValue || inputInsidePopup || queryChangedAfterOpen) {
-      return;
+    if (single && !hasInputValue && !inputInsidePopup && !queryChangedAfterOpen) {
+      syncInputToSelectedLabel();
     }
-
-    syncInputToSelectedLabel();
   }
 
   function handleInputValueChanged() {

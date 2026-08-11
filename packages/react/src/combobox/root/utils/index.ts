@@ -2,7 +2,7 @@ import { stringifyAsLabel } from '../../../internals/resolveValueLabel';
 import type { Filter } from './useFilter';
 
 export type FilterItemToString = ((item: any) => string) & {
-  selectedValueToString?: ((value: any) => string) | undefined;
+  selected?: ((value: any) => string) | undefined;
 };
 
 /**
@@ -50,7 +50,7 @@ export function createSingleSelectionCollatorFilter(
       return true;
     }
 
-    const selectedValueToString = itemToStringLabel?.selectedValueToString ?? itemToStringLabel;
+    const selectedValueToString = itemToStringLabel?.selected ?? itemToStringLabel;
     const selectedString =
       selectedValue != null ? stringifyAsLabel(selectedValue, selectedValueToString) : '';
 

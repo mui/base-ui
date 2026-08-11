@@ -1,12 +1,8 @@
 import { EMPTY_ARRAY } from '@base-ui/utils/empty';
 import { error } from '@base-ui/utils/error';
 import { flattenLeafItems, stringifyAsLabel } from '../../internals/resolveValueLabel';
-import {
-  compareItemEquality,
-  defaultItemEquality,
-  type ItemEqualityComparer,
-} from '../../internals/itemEquality';
-import type { ComboboxItemCollection } from './itemCollection';
+import type { ItemEqualityComparer } from '../../internals/itemEquality';
+import { findCollectionItem, type ComboboxItemCollection } from './itemCollection';
 
 export type ComboboxPrimitiveValue = string | number | bigint | boolean;
 
@@ -139,34 +135,13 @@ export function createComboboxItems<Item, Value extends ComboboxPrimitiveValue>(
     return getValue(item);
   }
 
-  function findItem(itemValue: Value, isEqual: ItemEqualityComparer<Value>): Item | undefined {
-    const derived = ensureDerived();
-
-    const exactItem = derived.get(itemValue);
-    if (exactItem !== undefined) {
-      return exactItem;
-    }
-
-    if (isEqual === defaultItemEquality) {
-      return undefined;
-    }
-
-    for (const [derivedValue, item] of derived) {
-      if (compareItemEquality(derivedValue, itemValue, isEqual)) {
-        return item;
-      }
-    }
-
-    return undefined;
-  }
-
   return {
     // Passed through rather than defaulted: data that has not loaded must stay the absence of
     // items rather than an empty list that filters everything away.
     data,
     value,
     hasValue(itemValue: Value, isEqual: ItemEqualityComparer<Value>) {
-      return findItem(itemValue, isEqual) !== undefined;
+      return findCollectionItem(ensureDerived(), itemValue, isEqual) !== undefined;
     },
     itemLabel: getLabel,
     label(
@@ -174,7 +149,7 @@ export function createComboboxItems<Item, Value extends ComboboxPrimitiveValue>(
       isEqual: ItemEqualityComparer<Value>,
       fallback?: ((itemValue: Value) => string) | undefined,
     ) {
-      const item = findItem(itemValue, isEqual);
+      const item = findCollectionItem(ensureDerived(), itemValue, isEqual);
       if (item !== undefined) {
         return getLabel(item);
       }

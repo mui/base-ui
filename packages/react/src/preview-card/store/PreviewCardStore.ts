@@ -2,7 +2,6 @@ import * as React from 'react';
 import { ReactStore } from '@base-ui/utils/store';
 import {
   applyPopupOpenChange,
-  createPopupFloatingRootContext,
   createInitialPopupStoreState,
   InlineRectCoords,
   PopupStoreContext,
@@ -73,33 +72,28 @@ export class PreviewCardStore<Payload> extends ReactStore<
   ) => {
     const { inlineRectCoordsRef } = this.context;
 
-    applyPopupOpenChange<State<Payload>, PreviewCardRoot.ChangeEventDetails>(
-      this,
-      nextOpen,
-      eventDetails as PreviewCardRoot.ChangeEventDetails,
-      {
-        onBeforeDispatch() {
-          // Capture the hovered inline-rect coordinates so the card anchors to the
-          // exact point on the link that was hovered.
-          const event = eventDetails.event;
-          if (
-            nextOpen &&
-            eventDetails.reason === REASONS.triggerHover &&
-            eventDetails.trigger &&
-            'clientX' in event &&
-            'clientY' in event &&
-            inlineRectCoordsRef.current?.element !== eventDetails.trigger
-          ) {
-            updateInlineRectCoords(
-              inlineRectCoordsRef,
-              eventDetails.trigger,
-              event.clientX,
-              event.clientY,
-            );
-          }
-        },
+    applyPopupOpenChange(this, nextOpen, eventDetails as PreviewCardRoot.ChangeEventDetails, {
+      onBeforeDispatch() {
+        // Capture the hovered inline-rect coordinates so the card anchors to the
+        // exact point on the link that was hovered.
+        const event = eventDetails.event;
+        if (
+          nextOpen &&
+          eventDetails.reason === REASONS.triggerHover &&
+          eventDetails.trigger &&
+          'clientX' in event &&
+          'clientY' in event &&
+          inlineRectCoordsRef.current?.element !== eventDetails.trigger
+        ) {
+          updateInlineRectCoords(
+            inlineRectCoordsRef,
+            eventDetails.trigger,
+            event.clientX,
+            event.clientY,
+          );
+        }
       },
-    );
+    });
   };
 }
 
@@ -125,14 +119,12 @@ function createInitialState<Payload>(
   nested = false,
 ): State<Payload> {
   const state: State<Payload> = {
-    ...createInitialPopupStoreState<Payload>(),
+    ...createInitialPopupStoreState<Payload>(triggerElements, floatingId, nested),
     instantType: undefined,
     adaptiveOrigin: undefined,
     closeDelay: CLOSE_DELAY,
     ...initialState,
   };
-
-  state.floatingRootContext = createPopupFloatingRootContext(triggerElements, floatingId, nested);
 
   return state;
 }

@@ -1,5 +1,28 @@
 import type { Group } from '../../internals/resolveValueLabel';
-import type { ItemEqualityComparer } from '../../internals/itemEquality';
+import {
+  compareItemEquality,
+  defaultItemEquality,
+  type ItemEqualityComparer,
+} from '../../internals/itemEquality';
+
+export function findCollectionItem<Item, Value>(
+  valueToItem: Map<Value, Item>,
+  itemValue: Value,
+  isEqual: ItemEqualityComparer<Value>,
+): Item | undefined {
+  const exactItem = valueToItem.get(itemValue);
+  if (exactItem !== undefined || isEqual === defaultItemEquality) {
+    return exactItem;
+  }
+
+  for (const [derivedValue, item] of valueToItem) {
+    if (compareItemEquality(derivedValue, itemValue, isEqual)) {
+      return item;
+    }
+  }
+
+  return undefined;
+}
 
 /**
  * An opaque collection created by `createItems()`.
