@@ -56,8 +56,8 @@ export function useSelectFilterableRootContext(partName: string) {
 
   if (!filterable) {
     throw new Error(
-      `Base UI: <FilterableSelect.${partName}> must be placed within <FilterableSelect.Root>, ` +
-        'imported from `@base-ui/react/filterable-select`. An ordinary <Select.Root> cannot filter.',
+      `Base UI: <FilterSelect.${partName}> must be placed within <FilterSelect.Root>, ` +
+        'imported from `@base-ui/react/filter-select`. An ordinary <Select.Root> cannot filter.',
     );
   }
 

@@ -21,7 +21,7 @@ export { SelectGroupLabel as GroupLabel } from '../select/group-label/SelectGrou
 export { SelectSeparator as Separator } from '../select/separator/SelectSeparator';
 
 // Filtering-only parts.
-export { FilterableSelectRoot as Root } from './root/FilterableSelectRoot';
+export { FilterSelectRoot as Root } from './root/FilterSelectRoot';
 export { SelectInput as Input } from '../select/input/SelectInput';
 export { SelectClear as Clear } from '../select/clear/SelectClear';
 export { SelectEmpty as Empty } from '../select/empty/SelectEmpty';

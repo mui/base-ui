@@ -23,8 +23,8 @@ export { Separator } from '../separator/Separator';
 export { MenuHandle as Handle, createMenuHandle as createHandle } from '../menu/store/MenuHandle';
 
 // Filtering-only parts.
-export { FilterableMenuRoot as Root } from './root/FilterableMenuRoot';
-export { FilterableMenuSubmenuRoot as SubmenuRoot } from './submenu-root/FilterableMenuSubmenuRoot';
+export { FilterMenuRoot as Root } from './root/FilterMenuRoot';
+export { FilterMenuSubmenuRoot as SubmenuRoot } from './submenu-root/FilterMenuSubmenuRoot';
 export { MenuInput as Input } from '../menu/input/MenuInput';
 export { MenuClear as Clear } from '../menu/clear/MenuClear';
 export { MenuEmpty as Empty } from '../menu/empty/MenuEmpty';

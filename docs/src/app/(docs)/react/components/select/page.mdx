@@ -222,27 +222,35 @@ const items = [
 
 ### Filterable
 
-Import `FilterableSelect` from `@base-ui/react/filterable-select` to let users filter the available items. It exposes every ordinary select part plus `<FilterableSelect.Input>`, `<FilterableSelect.Clear>`, and `<FilterableSelect.Empty>`, so a filterable select needs only this one import.
+Import `FilterSelect` from `@base-ui/react/filter-select` to let users filter the available items. It exposes every ordinary select part plus `<FilterSelect.Input>`, `<FilterSelect.Clear>`, and `<FilterSelect.Empty>`, so a filterable select needs only this one import.
+
+Pass the items to the `items` prop and render them with a function as the `children` of `<FilterSelect.List>`. Filtering then narrows `items` before the list renders, so only matching entries are mounted:
 
 ```jsx title="Filterable select"
-import { FilterableSelect } from '@base-ui/react/filterable-select';
+import { FilterSelect } from '@base-ui/react/filter-select';
 
-<FilterableSelect.Root>
-  <FilterableSelect.Trigger>
-    <FilterableSelect.Value />
-  </FilterableSelect.Trigger>
-  <FilterableSelect.Portal>
-    <FilterableSelect.Positioner>
-      <FilterableSelect.Popup>
-        <FilterableSelect.Input />
-        <FilterableSelect.Empty />
-        <FilterableSelect.List>
-          <FilterableSelect.Item />
-        </FilterableSelect.List>
-      </FilterableSelect.Popup>
-    </FilterableSelect.Positioner>
-  </FilterableSelect.Portal>
-</FilterableSelect.Root>;
+const items = ['Apple', 'Banana', 'Cherry'];
+
+<FilterSelect.Root items={items}>
+  <FilterSelect.Trigger>
+    <FilterSelect.Value />
+  </FilterSelect.Trigger>
+  <FilterSelect.Portal>
+    <FilterSelect.Positioner>
+      <FilterSelect.Popup>
+        <FilterSelect.Input />
+        <FilterSelect.Empty />
+        <FilterSelect.List>
+          {(item) => (
+            <FilterSelect.Item key={item} value={item}>
+              {item}
+            </FilterSelect.Item>
+          )}
+        </FilterSelect.List>
+      </FilterSelect.Popup>
+    </FilterSelect.Positioner>
+  </FilterSelect.Portal>
+</FilterSelect.Root>;
 ```
 
 import { DemoSelectFilterable } from './demos/filterable';
@@ -251,12 +259,12 @@ import { DemoSelectFilterable } from './demos/filterable';
 
 Filtering lives in its own entrypoint so that an ordinary `@base-ui/react/select` never carries the filtering code. `<Select.Root>` cannot filter, and the filtering parts throw if placed inside one.
 
-Give `<FilterableSelect.Input>` its own accessible name with `aria-label` or a native `<label>`. `<FilterableSelect.Label>` labels the trigger, not the input.
+Give `<FilterSelect.Input>` its own accessible name with `aria-label` or a native `<label>`. `<FilterSelect.Label>` labels the trigger, not the input.
 
-Pass a function to `filter` to customize matching. It is called with the item's text and the trimmed query, and returns whether the item matches:
+Pass a function to `filter` to customize matching. It is called with the item (the `items` entry, or the item's text when the list is authored as children) and the trimmed query, and returns whether the item matches:
 
 ```jsx title="Custom filter"
-<FilterableSelect.Root filter={(itemText, query) => itemText.startsWith(query)}>
+<FilterSelect.Root items={items} filter={(item, query) => item.startsWith(query)}>
 ```
 
 The first argument is the item's `label` prop, falling back to its rendered text content. This differs from [Combobox](/react/components/combobox), which filters on item values.

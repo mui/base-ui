@@ -32,9 +32,9 @@ export function useMenuFilterableRootContext(partName: string) {
 
   if (!filterable) {
     throw new Error(
-      `Base UI: <FilterableMenu.${partName}> must be placed within the nearest ` +
-        '<FilterableMenu.Root> or <FilterableMenu.SubmenuRoot>, imported from ' +
-        '`@base-ui/react/filterable-menu`. An ordinary <Menu.Root> cannot filter.',
+      `Base UI: <FilterMenu.${partName}> must be placed within the nearest ` +
+        '<FilterMenu.Root> or <FilterMenu.SubmenuRoot>, imported from ' +
+        '`@base-ui/react/filter-menu`. An ordinary <Menu.Root> cannot filter.',
     );
   }
 

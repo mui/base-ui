@@ -4,7 +4,7 @@ export { MenuCheckboxItem as CheckboxItem } from './checkbox-item/MenuCheckboxIt
 export { MenuCheckboxItemIndicator as CheckboxItemIndicator } from './checkbox-item-indicator/MenuCheckboxItemIndicator';
 export { MenuGroup as Group } from './group/MenuGroup';
 export { MenuGroupLabel as GroupLabel } from './group-label/MenuGroupLabel';
-// Also exported from `@base-ui/react/filterable-menu`, which is where they work. They stay here
+// Also exported from `@base-ui/react/filter-menu`, which is where they work. They stay here
 // so the reference docs can describe them; used inside an ordinary <Menu.Root> they throw.
 export { MenuInput as Input } from './input/MenuInput';
 export { MenuClear as Clear } from './clear/MenuClear';

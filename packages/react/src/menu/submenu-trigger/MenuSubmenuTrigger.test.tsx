@@ -3,7 +3,7 @@ import { act, fireEvent, waitFor, screen } from '@mui/internal-test-utils';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 import { DirectionProvider } from '@base-ui/react/direction-provider';
 import { Menu } from '@base-ui/react/menu';
-import { FilterableMenu } from '@base-ui/react/filterable-menu';
+import { FilterMenu } from '@base-ui/react/filter-menu';
 import { SafeReact } from '@base-ui/utils/safeReact';
 import { useMenuRootContext } from '../root/MenuRootContext';
 import type { MenuStore } from '../store/MenuStore';
@@ -216,31 +216,29 @@ describe('<Menu.SubmenuTrigger />', () => {
 
   it('stays out of the tab order when the parent menu is filterable', async () => {
     const { user } = await render(
-      <FilterableMenu.Root open>
-        <FilterableMenu.Trigger>Actions</FilterableMenu.Trigger>
-        <FilterableMenu.Portal>
-          <FilterableMenu.Positioner>
-            <FilterableMenu.Popup>
-              <FilterableMenu.Input aria-label="Filter actions" />
-              <FilterableMenu.List>
-                <FilterableMenu.Item>Rename</FilterableMenu.Item>
-                <FilterableMenu.SubmenuRoot>
-                  <FilterableMenu.SubmenuTrigger delay={0}>
-                    Move to folder
-                  </FilterableMenu.SubmenuTrigger>
-                  <FilterableMenu.Portal>
-                    <FilterableMenu.Positioner>
-                      <FilterableMenu.Popup>
-                        <FilterableMenu.Item>Documents</FilterableMenu.Item>
-                      </FilterableMenu.Popup>
-                    </FilterableMenu.Positioner>
-                  </FilterableMenu.Portal>
-                </FilterableMenu.SubmenuRoot>
-              </FilterableMenu.List>
-            </FilterableMenu.Popup>
-          </FilterableMenu.Positioner>
-        </FilterableMenu.Portal>
-      </FilterableMenu.Root>,
+      <FilterMenu.Root open>
+        <FilterMenu.Trigger>Actions</FilterMenu.Trigger>
+        <FilterMenu.Portal>
+          <FilterMenu.Positioner>
+            <FilterMenu.Popup>
+              <FilterMenu.Input aria-label="Filter actions" />
+              <FilterMenu.List>
+                <FilterMenu.Item>Rename</FilterMenu.Item>
+                <FilterMenu.SubmenuRoot>
+                  <FilterMenu.SubmenuTrigger delay={0}>Move to folder</FilterMenu.SubmenuTrigger>
+                  <FilterMenu.Portal>
+                    <FilterMenu.Positioner>
+                      <FilterMenu.Popup>
+                        <FilterMenu.Item>Documents</FilterMenu.Item>
+                      </FilterMenu.Popup>
+                    </FilterMenu.Positioner>
+                  </FilterMenu.Portal>
+                </FilterMenu.SubmenuRoot>
+              </FilterMenu.List>
+            </FilterMenu.Popup>
+          </FilterMenu.Positioner>
+        </FilterMenu.Portal>
+      </FilterMenu.Root>,
     );
 
     const input = screen.getByRole('searchbox', { name: 'Filter actions' });

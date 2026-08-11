@@ -2,7 +2,7 @@
 import * as React from 'react';
 
 /**
- * The filtering parts, supplied by the `filterable-select` entrypoint.
+ * The filtering parts, supplied by the `filter-select` entrypoint.
  *
  * Select renders these instead of importing them, so an ordinary `@base-ui/react/select` consumer
  * never pulls the filtering implementation into their bundle. A static import here would defeat

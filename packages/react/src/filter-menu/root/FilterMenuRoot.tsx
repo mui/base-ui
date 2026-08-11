@@ -10,9 +10,7 @@ import { filterIntegration } from '../filterIntegration';
  *
  * Documentation: [Base UI Menu](https://base-ui.com/react/components/menu)
  */
-export function FilterableMenuRoot<Payload>(
-  props: FilterableMenuRoot.Props<Payload>,
-): React.JSX.Element {
+export function FilterMenuRoot<Payload>(props: FilterMenuRoot.Props<Payload>): React.JSX.Element {
   return (
     <MenuFilterIntegrationContext.Provider value={filterIntegration}>
       <MenuRoot<Payload> {...props} />
@@ -20,7 +18,7 @@ export function FilterableMenuRoot<Payload>(
   );
 }
 
-export namespace FilterableMenuRoot {
+export namespace FilterMenuRoot {
   export type Props<Payload = unknown> = MenuRoot.Props<Payload>;
   export type Actions = MenuRoot.Actions;
   export type State = MenuRoot.State;

@@ -10,8 +10,8 @@ import { filterIntegration } from '../filterIntegration';
  *
  * Documentation: [Base UI Select](https://base-ui.com/react/components/select)
  */
-export function FilterableSelectRoot<Value, Multiple extends boolean | undefined = false>(
-  props: FilterableSelectRoot.Props<Value, Multiple>,
+export function FilterSelectRoot<Value, Multiple extends boolean | undefined = false>(
+  props: FilterSelectRoot.Props<Value, Multiple>,
 ): React.JSX.Element {
   return (
     <SelectFilterIntegrationContext.Provider value={filterIntegration}>
@@ -20,7 +20,7 @@ export function FilterableSelectRoot<Value, Multiple extends boolean | undefined
   );
 }
 
-export namespace FilterableSelectRoot {
+export namespace FilterSelectRoot {
   export type Props<Value = any, Multiple extends boolean | undefined = false> = SelectRoot.Props<
     Value,
     Multiple

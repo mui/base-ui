@@ -23,7 +23,7 @@ export type State = {
   modal: boolean;
   multiple: boolean;
   filterable: boolean;
-  /** Filtering parts supplied by the `filterable-select` entrypoint, or null for an ordinary select. */
+  /** Filtering parts supplied by the `filter-select` entrypoint, or null for an ordinary select. */
   filterIntegration: SelectFilterIntegration | null;
 
   items:

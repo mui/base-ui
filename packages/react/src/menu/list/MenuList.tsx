@@ -4,11 +4,12 @@ import { platform } from '@base-ui/utils/platform';
 import type { BaseUIComponentProps } from '../../internals/types';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { useMenuRootContext } from '../root/MenuRootContext';
+import { useMenuDerivedItemsContext } from '../root/MenuDerivedItemsContext';
 
 const MENU_LIST_ROLE = 'menu';
 
 const MenuListImpl = React.forwardRef(function MenuListImpl(
-  componentProps: MenuList.Props,
+  componentProps: Omit<MenuList.Props, 'children'> & { children?: React.ReactNode },
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const { render, className, style, ...elementProps } = componentProps;
@@ -54,7 +55,23 @@ export const MenuList = React.forwardRef(function MenuList(
 ) {
   const { store } = useMenuRootContext();
   const filterIntegration = store.select('filterIntegration');
-  const menuList = <MenuListImpl {...componentProps} ref={forwardedRef} />;
+  const { filteredItems } = useMenuDerivedItemsContext();
+  const { children } = componentProps;
+
+  // A function child renders from the root's `items`, already narrowed to the query, so
+  // filtered-out items never mount.
+  const resolvedChildren = React.useMemo(() => {
+    if (typeof children === 'function') {
+      return filteredItems.map(children);
+    }
+    return children;
+  }, [children, filteredItems]);
+
+  const menuList = (
+    <MenuListImpl {...componentProps} ref={forwardedRef}>
+      {resolvedChildren}
+    </MenuListImpl>
+  );
 
   return filterIntegration ? (
     // The filter wrapper composes onto MenuListImpl so its implementation
@@ -66,7 +83,16 @@ export const MenuList = React.forwardRef(function MenuList(
 });
 
 export interface MenuListState {}
-export interface MenuListProps extends BaseUIComponentProps<'div', MenuListState> {}
+export interface MenuListProps extends Omit<
+  BaseUIComponentProps<'div', MenuListState>,
+  'children'
+> {
+  /**
+   * A function child renders one node per entry of the root's `items` prop, narrowed to the
+   * query in a filterable menu.
+   */
+  children?: React.ReactNode | ((item: any, index: number) => React.ReactNode);
+}
 
 export namespace MenuList {
   export type State = MenuListState;

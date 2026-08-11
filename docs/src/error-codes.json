@@ -99,6 +99,6 @@
   "99": "Base UI: %sHandle.open() was called with the trigger id \"%s\", but no matching trigger is registered with this handle. An anchored popup cannot open without a trigger to anchor to. Pass the id of a mounted %s.Trigger that has this handle set on its \"handle\" prop.",
   "100": "Base UI: FilterDropdownRootContext is missing. FilterDropdown parts must be placed within <FilterDropdown.Root>.",
   "101": "Base UI: FilterDropdownPopupContext is missing. FilterDropdown popup parts must be placed within <FilterDropdown.Popup>.",
-  "102": "Base UI: <FilterableMenu.%s> must be placed within the nearest <FilterableMenu.Root> or <FilterableMenu.SubmenuRoot>, imported from `@base-ui/react/filterable-menu`. An ordinary <Menu.Root> cannot filter.",
-  "103": "Base UI: <FilterableSelect.%s> must be placed within <FilterableSelect.Root>, imported from `@base-ui/react/filterable-select`. An ordinary <Select.Root> cannot filter."
+  "102": "Base UI: <FilterMenu.%s> must be placed within the nearest <FilterMenu.Root> or <FilterMenu.SubmenuRoot>, imported from `@base-ui/react/filter-menu`. An ordinary <Menu.Root> cannot filter.",
+  "103": "Base UI: <FilterSelect.%s> must be placed within <FilterSelect.Root>, imported from `@base-ui/react/filter-select`. An ordinary <Select.Root> cannot filter."
 }
