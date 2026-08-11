@@ -310,6 +310,12 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     },
   );
 
+  // Mirrors AriaCombobox: typing always clears the highlight (virtual focus returns to the
+  // input) and suppresses selected-item seeding for the rest of the query; fully clearing the
+  // query restores the highlight to the selected item.
+  const [queryChangedAfterOpen, setQueryChangedAfterOpen] = React.useState(false);
+  const pendingClearRestoreRef = React.useRef(false);
+
   const handleInputValueChange = useStableCallback(
     (nextInputValue: string, eventDetails: SelectRoot.InputValueChangeEventDetails) => {
       onInputValueChange?.(nextInputValue, eventDetails);
@@ -319,11 +325,49 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
       }
 
       setInputValue(nextInputValue);
+
+      if (eventDetails.reason !== REASONS.popupClose) {
+        if (nextInputValue.trim() === '') {
+          setQueryChangedAfterOpen(false);
+          pendingClearRestoreRef.current = true;
+        } else {
+          setQueryChangedAfterOpen(true);
+        }
+      }
+
       // Filtering compacts the list, so a numeric active index would point at a different item
       // or at none at all. Return virtual focus to the input instead.
       store.set('activeIndex', null);
     },
   );
+
+  useIsoLayoutEffect(() => {
+    if (!open) {
+      setQueryChangedAfterOpen(false);
+      pendingClearRestoreRef.current = false;
+    }
+  }, [open]);
+
+  useIsoLayoutEffect(() => {
+    if (!pendingClearRestoreRef.current) {
+      return;
+    }
+    pendingClearRestoreRef.current = false;
+    if (!filterable || !open || inputValue.trim() !== '') {
+      return;
+    }
+    // Items re-mounted by the clear publish their composite indices in a follow-up commit, so
+    // the registries are mid-update here. Defer past React's cascade, like AriaCombobox.
+    queueMicrotask(() => {
+      if (!store.state.open) {
+        return;
+      }
+      const referenceId = store.state.selectionReferenceItemId;
+      const index =
+        referenceId == null ? null : (store.state.visibleItemIndexes.get(referenceId) ?? null);
+      store.set('activeIndex', index);
+    });
+  }, [filterable, open, inputValue, store]);
 
   // `items` is the data source when provided: it drives what the list renders and what filtering
   // narrows. A filterable select requires it; ordinary consumers can still render
@@ -540,7 +584,9 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     // index only resolves after the popup opens.
     // eslint-disable-next-line no-nested-ternary
     focusItemOnOpen: filterable ? (hasSelectedValue ? 'auto' : false) : undefined,
-    selectedIndex: selectionReferenceIndex,
+    // A null selected index while a query is active keeps the open-seeding effect from
+    // re-highlighting the selection as filtering re-indexes the list.
+    selectedIndex: queryChangedAfterOpen ? null : selectionReferenceIndex,
     disabledIndices: EMPTY_ARRAY,
     focusItemOnHover: highlightItemOnHover,
     onNavigate(nextActiveIndex, event) {
