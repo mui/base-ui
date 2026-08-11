@@ -2,12 +2,14 @@
 import * as React from 'react';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
+import { isHTMLElement } from '@floating-ui/utils/dom';
 import type { BaseUIComponentProps } from '../../internals/types';
 import { useBaseUiId } from '../../internals/useBaseUiId';
 import { useRenderElement } from '../../internals/useRenderElement';
 import type { StateAttributesMapping } from '../../internals/getStateAttributesProps';
 import { popupStateMapping } from '../../utils/popupStateMapping';
 import { getTarget } from '../../floating-ui-react/utils';
+import { createAttribute } from '../../floating-ui-react/utils/createAttribute';
 import { useFilterDropdownRootContext } from '../root/FilterDropdownRootContext';
 import { FilterDropdownPopupContext } from './FilterDropdownPopupContext';
 
@@ -84,12 +86,19 @@ export const FilterDropdownPopup = React.forwardRef(function FilterDropdownPopup
           }
         },
         onMouseMove(event) {
-          if (isEventFromCurrentPopup(event, context.popupElements)) {
+          // A closing popup must not re-capture focus during its exit transition.
+          if (context.open && isEventFromCurrentPopup(event, context.popupElements)) {
             inputRef.current?.focus({ preventScroll: true });
           }
         },
         onFocus(event) {
-          if (isEventFromCurrentPopup(event, context.popupElements)) {
+          const target = getTarget(event.nativeEvent);
+          // Focus guards are traversal plumbing: tabbing out of the menu passes through the
+          // in-content guard, and re-capturing focus here would trap Tab inside a closing tree.
+          if (isHTMLElement(target) && target.hasAttribute(createAttribute('focus-guard'))) {
+            return;
+          }
+          if (context.open && isEventFromCurrentPopup(event, context.popupElements)) {
             inputRef.current?.focus({ preventScroll: true });
           }
         },

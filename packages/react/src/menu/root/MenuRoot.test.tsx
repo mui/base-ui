@@ -589,7 +589,9 @@ describe('<Menu.Root />', () => {
       await user.keyboard('[ArrowDown][ArrowRight]');
 
       const submenuInput = await screen.findByRole('searchbox', { name: 'Filter sharing options' });
-      fireEvent.focus(await screen.findByRole('menuitem', { name: 'Email' }));
+      await act(async () => {
+        submenuInput.focus();
+      });
       await waitFor(() => {
         expect(submenuInput).toHaveFocus();
       });
@@ -607,12 +609,17 @@ describe('<Menu.Root />', () => {
     it('closes a pointer-opened filterable submenu and moves focus forward when tabbing', async () => {
       const { user } = await render(
         <div>
+          {/* Exit transitions keep the closing popups mounted while focus relocates. */}
+          <style>{`
+            .filter-popup { transition: opacity 50ms; opacity: 1; }
+            .filter-popup[data-ending-style] { opacity: 0; }
+          `}</style>
           <input />
           <FilterMenu.Root items={[{ label: 'Share', options: ['Email'] }]}>
             <FilterMenu.Trigger>Actions</FilterMenu.Trigger>
             <FilterMenu.Portal>
               <FilterMenu.Positioner>
-                <FilterMenu.Popup>
+                <FilterMenu.Popup className="filter-popup">
                   <FilterMenu.Input aria-label="Filter actions" />
                   <FilterMenu.List>
                     {(item: { label: string; options: string[] }) => (
@@ -622,7 +629,7 @@ describe('<Menu.Root />', () => {
                         </FilterMenu.SubmenuTrigger>
                         <FilterMenu.Portal>
                           <FilterMenu.Positioner>
-                            <FilterMenu.Popup>
+                            <FilterMenu.Popup className="filter-popup">
                               <FilterMenu.Input aria-label="Filter sharing options" />
                               <FilterMenu.List>
                                 {(option: string) => (
@@ -646,11 +653,12 @@ describe('<Menu.Root />', () => {
       await user.click(screen.getByRole('button', { name: 'Actions' }));
 
       const submenuTrigger = await screen.findByRole('menuitem', { name: 'Share' });
-      await user.hover(submenuTrigger);
       await user.click(submenuTrigger);
 
       const submenuInput = await screen.findByRole('searchbox', { name: 'Filter sharing options' });
-      fireEvent.focus(await screen.findByRole('menuitem', { name: 'Email' }));
+      await act(async () => {
+        submenuInput.focus();
+      });
       await waitFor(() => {
         expect(submenuInput).toHaveFocus();
       });
