@@ -542,6 +542,127 @@ describe('<Menu.Root />', () => {
       });
     });
 
+    it('closes a filterable submenu and moves focus to the next element when tabbing forward', async () => {
+      const { user } = await render(
+        <div>
+          <input />
+          <FilterMenu.Root defaultOpen items={[{ label: 'Share', options: ['Email'] }]}>
+            <FilterMenu.Trigger>Actions</FilterMenu.Trigger>
+            <FilterMenu.Portal>
+              <FilterMenu.Positioner>
+                <FilterMenu.Popup>
+                  <FilterMenu.Input aria-label="Filter actions" />
+                  <FilterMenu.List>
+                    {(item: { label: string; options: string[] }) => (
+                      <FilterMenu.SubmenuRoot key={item.label} items={item.options}>
+                        <FilterMenu.SubmenuTrigger>{item.label}</FilterMenu.SubmenuTrigger>
+                        <FilterMenu.Portal>
+                          <FilterMenu.Positioner>
+                            <FilterMenu.Popup>
+                              <FilterMenu.Input aria-label="Filter sharing options" />
+                              <FilterMenu.List>
+                                {(option: string) => (
+                                  <FilterMenu.Item key={option}>{option}</FilterMenu.Item>
+                                )}
+                              </FilterMenu.List>
+                            </FilterMenu.Popup>
+                          </FilterMenu.Positioner>
+                        </FilterMenu.Portal>
+                      </FilterMenu.SubmenuRoot>
+                    )}
+                  </FilterMenu.List>
+                </FilterMenu.Popup>
+              </FilterMenu.Positioner>
+            </FilterMenu.Portal>
+          </FilterMenu.Root>
+          <input data-testid="after" />
+        </div>,
+      );
+
+      const parentInput = screen.getByRole('searchbox', { name: 'Filter actions' });
+      await waitFor(() => {
+        expect(parentInput).toHaveFocus();
+      });
+
+      await user.keyboard('[ArrowDown][ArrowRight]');
+
+      const submenuInput = await screen.findByRole('searchbox', { name: 'Filter sharing options' });
+      fireEvent.focus(await screen.findByRole('menuitem', { name: 'Email' }));
+      await waitFor(() => {
+        expect(submenuInput).toHaveFocus();
+      });
+
+      await user.tab();
+
+      await waitFor(() => {
+        expect(screen.getByTestId('after')).toHaveFocus();
+      });
+      await waitFor(() => {
+        expect(screen.queryByRole('searchbox', { name: 'Filter actions' })).toBe(null);
+      });
+    });
+
+    it('closes a pointer-opened filterable submenu and moves focus forward when tabbing', async () => {
+      const { user } = await render(
+        <div>
+          <input />
+          <FilterMenu.Root items={[{ label: 'Share', options: ['Email'] }]}>
+            <FilterMenu.Trigger>Actions</FilterMenu.Trigger>
+            <FilterMenu.Portal>
+              <FilterMenu.Positioner>
+                <FilterMenu.Popup>
+                  <FilterMenu.Input aria-label="Filter actions" />
+                  <FilterMenu.List>
+                    {(item: { label: string; options: string[] }) => (
+                      <FilterMenu.SubmenuRoot key={item.label} items={item.options}>
+                        <FilterMenu.SubmenuTrigger delay={0}>
+                          {item.label}
+                        </FilterMenu.SubmenuTrigger>
+                        <FilterMenu.Portal>
+                          <FilterMenu.Positioner>
+                            <FilterMenu.Popup>
+                              <FilterMenu.Input aria-label="Filter sharing options" />
+                              <FilterMenu.List>
+                                {(option: string) => (
+                                  <FilterMenu.Item key={option}>{option}</FilterMenu.Item>
+                                )}
+                              </FilterMenu.List>
+                            </FilterMenu.Popup>
+                          </FilterMenu.Positioner>
+                        </FilterMenu.Portal>
+                      </FilterMenu.SubmenuRoot>
+                    )}
+                  </FilterMenu.List>
+                </FilterMenu.Popup>
+              </FilterMenu.Positioner>
+            </FilterMenu.Portal>
+          </FilterMenu.Root>
+          <input data-testid="after" />
+        </div>,
+      );
+
+      await user.click(screen.getByRole('button', { name: 'Actions' }));
+
+      const submenuTrigger = await screen.findByRole('menuitem', { name: 'Share' });
+      await user.hover(submenuTrigger);
+      await user.click(submenuTrigger);
+
+      const submenuInput = await screen.findByRole('searchbox', { name: 'Filter sharing options' });
+      fireEvent.focus(await screen.findByRole('menuitem', { name: 'Email' }));
+      await waitFor(() => {
+        expect(submenuInput).toHaveFocus();
+      });
+
+      await user.tab();
+
+      await waitFor(() => {
+        expect(screen.getByTestId('after')).toHaveFocus();
+      });
+      await waitFor(() => {
+        expect(screen.queryByRole('searchbox', { name: 'Filter actions' })).toBe(null);
+      });
+    });
+
     it('opens a submenu from a filterable submenu input', async () => {
       const { user } = await render(
         <FilterMenu.Root
