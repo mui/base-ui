@@ -4171,8 +4171,11 @@ describe('<Select.Root />', () => {
               <FilterSelect.Popup>
                 <FilterSelect.Input aria-label="Filter fruit" />
                 <FilterSelect.List>
-                  <FilterSelect.Item value="apple">Apple</FilterSelect.Item>
-                  <FilterSelect.Item value="banana">Banana</FilterSelect.Item>
+                  {(item: { value: string; label: string }) => (
+                    <FilterSelect.Item key={item.value} value={item.value}>
+                      {item.label}
+                    </FilterSelect.Item>
+                  )}
                 </FilterSelect.List>
               </FilterSelect.Popup>
             </FilterSelect.Positioner>
@@ -4201,14 +4204,18 @@ describe('<Select.Root />', () => {
 
     it('shows the input focus indicator only for keyboard virtual focus', async () => {
       const { user } = await render(
-        <FilterSelect.Root>
+        <FilterSelect.Root items={[{ value: 'apple', label: 'Apple' }]}>
           <FilterSelect.Trigger>Fruit</FilterSelect.Trigger>
           <FilterSelect.Portal>
             <FilterSelect.Positioner>
               <FilterSelect.Popup>
                 <FilterSelect.Input aria-label="Filter fruit" />
                 <FilterSelect.List>
-                  <FilterSelect.Item value="apple">Apple</FilterSelect.Item>
+                  {(item: { value: string; label: string }) => (
+                    <FilterSelect.Item key={item.value} value={item.value}>
+                      {item.label}
+                    </FilterSelect.Item>
+                  )}
                 </FilterSelect.List>
               </FilterSelect.Popup>
             </FilterSelect.Positioner>
@@ -4265,6 +4272,10 @@ describe('<Select.Root />', () => {
                   setInputValue(nextInputValue);
                 }
               }}
+              items={[
+                { value: 'apple', label: 'Apple' },
+                { value: 'banana', label: 'Banana' },
+              ]}
             >
               <FilterSelect.Trigger>Fruit</FilterSelect.Trigger>
               <FilterSelect.Portal>
@@ -4272,8 +4283,11 @@ describe('<Select.Root />', () => {
                   <FilterSelect.Popup>
                     <FilterSelect.Input aria-label="Filter fruit" />
                     <FilterSelect.List>
-                      <FilterSelect.Item value="apple">Apple</FilterSelect.Item>
-                      <FilterSelect.Item value="banana">Banana</FilterSelect.Item>
+                      {(item: { value: string; label: string }) => (
+                        <FilterSelect.Item key={item.value} value={item.value}>
+                          {item.label}
+                        </FilterSelect.Item>
+                      )}
                     </FilterSelect.List>
                   </FilterSelect.Popup>
                 </FilterSelect.Positioner>
@@ -4311,14 +4325,22 @@ describe('<Select.Root />', () => {
             <button type="button" onClick={() => setOpen(false)}>
               Close
             </button>
-            <FilterSelect.Root open={open} onInputValueChange={onInputValueChange}>
+            <FilterSelect.Root
+              open={open}
+              onInputValueChange={onInputValueChange}
+              items={[{ value: 'apple', label: 'Apple' }]}
+            >
               <FilterSelect.Trigger>Fruit</FilterSelect.Trigger>
               <FilterSelect.Portal>
                 <FilterSelect.Positioner>
                   <FilterSelect.Popup>
                     <FilterSelect.Input aria-label="Filter fruit" />
                     <FilterSelect.List>
-                      <FilterSelect.Item value="apple">Apple</FilterSelect.Item>
+                      {(item: { value: string; label: string }) => (
+                        <FilterSelect.Item key={item.value} value={item.value}>
+                          {item.label}
+                        </FilterSelect.Item>
+                      )}
                     </FilterSelect.List>
                   </FilterSelect.Popup>
                 </FilterSelect.Positioner>
@@ -4346,14 +4368,18 @@ describe('<Select.Root />', () => {
 
     it('points ARIA relationships at consumer-supplied popup and list ids', async () => {
       await render(
-        <FilterSelect.Root open>
+        <FilterSelect.Root open items={[{ value: 'apple', label: 'Apple' }]}>
           <FilterSelect.Trigger data-testid="trigger">Fruit</FilterSelect.Trigger>
           <FilterSelect.Portal>
             <FilterSelect.Positioner>
               <FilterSelect.Popup id="my-popup">
                 <FilterSelect.Input aria-label="Filter fruit" />
                 <FilterSelect.List id="my-list">
-                  <FilterSelect.Item value="apple">Apple</FilterSelect.Item>
+                  {(item: { value: string; label: string }) => (
+                    <FilterSelect.Item key={item.value} value={item.value}>
+                      {item.label}
+                    </FilterSelect.Item>
+                  )}
                 </FilterSelect.List>
               </FilterSelect.Popup>
             </FilterSelect.Positioner>
@@ -4470,7 +4496,11 @@ describe('<Select.Root />', () => {
     it('disables filter controls when disabled by a field', async () => {
       await render(
         <Field.Root disabled>
-          <FilterSelect.Root open defaultInputValue="a">
+          <FilterSelect.Root
+            open
+            defaultInputValue="a"
+            items={[{ value: 'apple', label: 'Apple' }]}
+          >
             <FilterSelect.Trigger>Fruit</FilterSelect.Trigger>
             <FilterSelect.Portal>
               <FilterSelect.Positioner>
@@ -4478,7 +4508,11 @@ describe('<Select.Root />', () => {
                   <FilterSelect.Input aria-label="Filter fruit" />
                   <FilterSelect.Clear aria-label="Clear filter" />
                   <FilterSelect.List>
-                    <FilterSelect.Item value="apple">Apple</FilterSelect.Item>
+                    {(item: { value: string; label: string }) => (
+                      <FilterSelect.Item key={item.value} value={item.value}>
+                        {item.label}
+                      </FilterSelect.Item>
+                    )}
                   </FilterSelect.List>
                 </FilterSelect.Popup>
               </FilterSelect.Positioner>
@@ -4492,8 +4526,10 @@ describe('<Select.Root />', () => {
     });
 
     it('uses an updated custom filter function', async () => {
-      const startsWith = (item: string, query: string) => item.toLowerCase().startsWith(query);
-      const endsWith = (item: string, query: string) => item.toLowerCase().endsWith(query);
+      const startsWith = (item: { value: string; label: string }, query: string) =>
+        item.label.toLowerCase().startsWith(query);
+      const endsWith = (item: { value: string; label: string }, query: string) =>
+        item.label.toLowerCase().endsWith(query);
 
       function Test() {
         const [filter, setFilter] = React.useState(() => startsWith);
@@ -4503,15 +4539,26 @@ describe('<Select.Root />', () => {
             <button type="button" onClick={() => setFilter(() => endsWith)}>
               Change filter
             </button>
-            <FilterSelect.Root filter={filter} open defaultInputValue="a">
+            <FilterSelect.Root
+              filter={filter}
+              open
+              defaultInputValue="a"
+              items={[
+                { value: 'apple', label: 'Apple' },
+                { value: 'banana', label: 'Banana' },
+              ]}
+            >
               <FilterSelect.Trigger>Fruit</FilterSelect.Trigger>
               <FilterSelect.Portal>
                 <FilterSelect.Positioner>
                   <FilterSelect.Popup>
                     <FilterSelect.Input aria-label="Filter fruit" />
                     <FilterSelect.List>
-                      <FilterSelect.Item value="apple">Apple</FilterSelect.Item>
-                      <FilterSelect.Item value="banana">Banana</FilterSelect.Item>
+                      {(item: { value: string; label: string }) => (
+                        <FilterSelect.Item key={item.value} value={item.value}>
+                          {item.label}
+                        </FilterSelect.Item>
+                      )}
                     </FilterSelect.List>
                   </FilterSelect.Popup>
                 </FilterSelect.Positioner>
@@ -4553,8 +4600,11 @@ describe('<Select.Root />', () => {
               <FilterSelect.Popup>
                 <FilterSelect.Input aria-label="Filter fruit" />
                 <FilterSelect.List>
-                  <FilterSelect.Item value="apple">Apple</FilterSelect.Item>
-                  <FilterSelect.Item value="banana">Banana</FilterSelect.Item>
+                  {(item: { value: string; label: string }) => (
+                    <FilterSelect.Item key={item.value} value={item.value}>
+                      {item.label}
+                    </FilterSelect.Item>
+                  )}
                 </FilterSelect.List>
               </FilterSelect.Popup>
             </FilterSelect.Positioner>
@@ -4576,27 +4626,38 @@ describe('<Select.Root />', () => {
 
     it('removes the selected value when its item genuinely unmounts while filtered', async () => {
       function Test() {
-        const [items, setItems] = React.useState(['apple', 'banana']);
+        const [items, setItems] = React.useState([
+          { value: 'apple', label: 'apple' },
+          { value: 'banana', label: 'banana' },
+        ]);
         const [value, setValue] = React.useState<string | null>('banana');
 
         return (
           <React.Fragment>
-            <button onClick={() => setItems((current) => current.filter((item) => item !== value))}>
+            <button
+              onClick={() => setItems((current) => current.filter((item) => item.value !== value))}
+            >
               Remove selected
             </button>
             <div data-testid="value">{value ?? 'none'}</div>
-            <FilterSelect.Root open value={value} onValueChange={setValue} defaultInputValue="app">
+            <FilterSelect.Root
+              open
+              value={value}
+              onValueChange={setValue}
+              defaultInputValue="app"
+              items={items}
+            >
               <FilterSelect.Trigger>Fruit</FilterSelect.Trigger>
               <FilterSelect.Portal>
                 <FilterSelect.Positioner>
                   <FilterSelect.Popup>
                     <FilterSelect.Input aria-label="Filter fruit" />
                     <FilterSelect.List>
-                      {items.map((item) => (
-                        <FilterSelect.Item key={item} value={item}>
-                          {item}
+                      {(item: { value: string; label: string }) => (
+                        <FilterSelect.Item key={item.value} value={item.value}>
+                          {item.label}
                         </FilterSelect.Item>
-                      ))}
+                      )}
                     </FilterSelect.List>
                   </FilterSelect.Popup>
                 </FilterSelect.Positioner>
@@ -4620,30 +4681,36 @@ describe('<Select.Root />', () => {
 
     it('preserves hidden multiple selections while filtering and drops only genuinely removed ones', async () => {
       function Test() {
-        const [items, setItems] = React.useState(['apple', 'banana', 'cherry']);
+        const [items, setItems] = React.useState([
+          { value: 'apple', label: 'apple' },
+          { value: 'banana', label: 'banana' },
+          { value: 'cherry', label: 'cherry' },
+        ]);
         const [value, setValue] = React.useState<string[]>(['banana', 'cherry']);
 
         return (
           <React.Fragment>
             <button
               type="button"
-              onClick={() => setItems((current) => current.filter((item) => item !== 'cherry'))}
+              onClick={() =>
+                setItems((current) => current.filter((item) => item.value !== 'cherry'))
+              }
             >
               Remove cherry
             </button>
             <div data-testid="value">{value.join(',') || 'none'}</div>
-            <FilterSelect.Root multiple open value={value} onValueChange={setValue}>
+            <FilterSelect.Root multiple open value={value} onValueChange={setValue} items={items}>
               <FilterSelect.Trigger>Fruit</FilterSelect.Trigger>
               <FilterSelect.Portal>
                 <FilterSelect.Positioner>
                   <FilterSelect.Popup>
                     <FilterSelect.Input aria-label="Filter fruit" />
                     <FilterSelect.List>
-                      {items.map((item) => (
-                        <FilterSelect.Item key={item} value={item}>
-                          {item}
+                      {(item: { value: string; label: string }) => (
+                        <FilterSelect.Item key={item.value} value={item.value}>
+                          {item.label}
                         </FilterSelect.Item>
-                      ))}
+                      )}
                     </FilterSelect.List>
                   </FilterSelect.Popup>
                 </FilterSelect.Positioner>
@@ -4683,6 +4750,10 @@ describe('<Select.Root />', () => {
           open
           defaultInputValue="app"
           onInputValueChange={(_, eventDetails) => eventDetails.cancel()}
+          items={[
+            { value: 'apple', label: 'Apple' },
+            { value: 'banana', label: 'Banana' },
+          ]}
         >
           <FilterSelect.Trigger>Fruit</FilterSelect.Trigger>
           <FilterSelect.Portal>
@@ -4691,8 +4762,11 @@ describe('<Select.Root />', () => {
                 <FilterSelect.Input aria-label="Filter fruit" />
                 <FilterSelect.Clear aria-label="Clear filter" />
                 <FilterSelect.List>
-                  <FilterSelect.Item value="apple">Apple</FilterSelect.Item>
-                  <FilterSelect.Item value="banana">Banana</FilterSelect.Item>
+                  {(item: { value: string; label: string }) => (
+                    <FilterSelect.Item key={item.value} value={item.value}>
+                      {item.label}
+                    </FilterSelect.Item>
+                  )}
                 </FilterSelect.List>
               </FilterSelect.Popup>
             </FilterSelect.Positioner>
@@ -4737,8 +4811,11 @@ describe('<Select.Root />', () => {
               <FilterSelect.Popup>
                 <FilterSelect.Input aria-label="Filter fruit" />
                 <FilterSelect.List>
-                  <FilterSelect.Item value="apple">Apple</FilterSelect.Item>
-                  <FilterSelect.Item value="banana">Banana</FilterSelect.Item>
+                  {(item: { value: string; label: string }) => (
+                    <FilterSelect.Item key={item.value} value={item.value}>
+                      {item.label}
+                    </FilterSelect.Item>
+                  )}
                 </FilterSelect.List>
               </FilterSelect.Popup>
             </FilterSelect.Positioner>

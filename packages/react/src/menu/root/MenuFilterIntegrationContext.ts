@@ -13,7 +13,12 @@ export interface MenuFilterIntegration {
   Trigger: React.ComponentType<any>;
   Popup: React.ComponentType<any>;
   List: React.ComponentType<any>;
-  Item: React.ComponentType<any>;
+  /** Returns the default matcher, so ordinary consumers don't bundle its collator. */
+  getDefaultFilter: () => (
+    item: any,
+    query: string,
+    itemToStringLabel?: (item: any) => string,
+  ) => boolean;
 }
 
 export const MenuFilterIntegrationContext = React.createContext<MenuFilterIntegration | null>(null);

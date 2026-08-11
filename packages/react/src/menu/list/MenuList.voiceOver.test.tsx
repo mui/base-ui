@@ -2,7 +2,7 @@ import * as React from 'react';
 import { screen, waitFor } from '@mui/internal-test-utils';
 import { expect, vi } from 'vitest';
 import { createRenderer } from '#test-utils';
-import { Menu } from '@base-ui/react/menu';
+import { FilterMenu } from '@base-ui/react/filter-menu';
 
 // Kept in a separate file so the module mock doesn't leak into `MenuRoot.test.tsx`.
 vi.mock('@base-ui/utils/platform', async () => {
@@ -17,24 +17,24 @@ vi.mock('@base-ui/utils/platform', async () => {
   };
 });
 
-describe('<Menu.List /> with VoiceOver', () => {
+describe('<FilterMenu.List /> with VoiceOver', () => {
   const { render } = createRenderer();
 
   it('exposes the menu only while an item is virtually focused', async () => {
     const { user } = await render(
-      <Menu.Root filter open>
-        <Menu.Trigger>Fruit</Menu.Trigger>
-        <Menu.Portal>
-          <Menu.Positioner>
-            <Menu.Popup>
-              <Menu.Input aria-label="Filter fruit" />
-              <Menu.List data-testid="list">
-                <Menu.Item>Apple</Menu.Item>
-              </Menu.List>
-            </Menu.Popup>
-          </Menu.Positioner>
-        </Menu.Portal>
-      </Menu.Root>,
+      <FilterMenu.Root open items={['Apple']}>
+        <FilterMenu.Trigger>Fruit</FilterMenu.Trigger>
+        <FilterMenu.Portal>
+          <FilterMenu.Positioner>
+            <FilterMenu.Popup>
+              <FilterMenu.Input aria-label="Filter fruit" />
+              <FilterMenu.List data-testid="list">
+                {(item: string) => <FilterMenu.Item key={item}>{item}</FilterMenu.Item>}
+              </FilterMenu.List>
+            </FilterMenu.Popup>
+          </FilterMenu.Positioner>
+        </FilterMenu.Portal>
+      </FilterMenu.Root>,
     );
 
     const input = screen.getByRole('searchbox', { name: 'Filter fruit' });

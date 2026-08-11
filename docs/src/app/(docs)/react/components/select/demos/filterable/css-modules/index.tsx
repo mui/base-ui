@@ -4,19 +4,19 @@ import { FilterSelect } from '@base-ui/react/filter-select';
 import styles from './index.module.css';
 
 const fruits = [
-  'Apple',
-  'Apricot',
-  'Banana',
-  'Blueberry',
-  'Cherry',
-  'Grape',
-  'Kiwi',
-  'Mango',
-  'Orange',
-  'Peach',
-  'Pear',
-  'Pineapple',
-  'Strawberry',
+  { value: 'apple', label: 'Apple' },
+  { value: 'apricot', label: 'Apricot' },
+  { value: 'banana', label: 'Banana' },
+  { value: 'blueberry', label: 'Blueberry' },
+  { value: 'cherry', label: 'Cherry' },
+  { value: 'grape', label: 'Grape' },
+  { value: 'kiwi', label: 'Kiwi' },
+  { value: 'mango', label: 'Mango' },
+  { value: 'orange', label: 'Orange' },
+  { value: 'peach', label: 'Peach' },
+  { value: 'pear', label: 'Pear' },
+  { value: 'pineapple', label: 'Pineapple' },
+  { value: 'strawberry', label: 'Strawberry' },
 ];
 
 export default function FilterSelectDemo() {
@@ -45,13 +45,13 @@ export default function FilterSelectDemo() {
               </div>
               <FilterSelect.Empty className={styles.Empty}>No fruits found.</FilterSelect.Empty>
               <FilterSelect.List className={styles.List}>
-                {(fruit) => (
-                  <FilterSelect.Item key={fruit} value={fruit} className={styles.Item}>
+                {(fruit: { value: string; label: string }) => (
+                  <FilterSelect.Item key={fruit.value} value={fruit.value} className={styles.Item}>
                     <FilterSelect.ItemIndicator className={styles.ItemIndicator}>
                       <CheckIcon />
                     </FilterSelect.ItemIndicator>
                     <FilterSelect.ItemText className={styles.ItemText}>
-                      {fruit}
+                      {fruit.label}
                     </FilterSelect.ItemText>
                   </FilterSelect.Item>
                 )}

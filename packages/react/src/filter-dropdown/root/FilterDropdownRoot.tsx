@@ -9,7 +9,6 @@ import { useBaseUiId } from '../../internals/useBaseUiId';
 import {
   FilterDropdownRootContext,
   FilterDropdownValueContext,
-  type FilterDropdownFilter,
   type FilterDropdownRoot as FilterDropdownRootNamespace,
 } from './FilterDropdownRootContext';
 
@@ -20,10 +19,9 @@ export function FilterDropdownRoot(props: FilterDropdownRoot.Props): React.JSX.E
   const {
     children,
     open,
-    locale,
+    empty,
     value,
     onValueChange,
-    filter,
     triggerId: externalTriggerId,
     triggerElement: externalTriggerElement,
   } = props;
@@ -51,6 +49,7 @@ export function FilterDropdownRoot(props: FilterDropdownRoot.Props): React.JSX.E
   const contextValue: FilterDropdownRootContext = React.useMemo(
     () => ({
       open,
+      empty,
       popupElements,
       liveRegionElement,
       popupId,
@@ -60,10 +59,8 @@ export function FilterDropdownRoot(props: FilterDropdownRoot.Props): React.JSX.E
       setTriggerElement,
       setLiveRegionElement,
       onValueChange: handleValueChange,
-      locale,
-      filter,
     }),
-    [open, popupElements, liveRegionElement, popupId, triggerId, locale, filter, handleValueChange],
+    [open, empty, popupElements, liveRegionElement, popupId, triggerId, handleValueChange],
   );
 
   return (
@@ -93,9 +90,10 @@ export interface FilterDropdownRootProps {
    */
   open: boolean;
   /**
-   * Locale used for filtering comparisons.
+   * Whether the current query matched no items. The host's data pass decides this; the
+   * filtering parts render no matching logic of their own.
    */
-  locale?: Intl.LocalesArgument | undefined;
+  empty: boolean;
   /**
    * The filter input value. Use when controlled.
    */
@@ -106,10 +104,6 @@ export interface FilterDropdownRootProps {
   onValueChange?:
     | ((value: string, eventDetails: FilterDropdownRootNamespace.ChangeEventDetails) => void)
     | undefined;
-  /**
-   * Custom filter logic used when filtering items.
-   */
-  filter?: FilterDropdownFilter | undefined;
   /**
    * ID of a trigger rendered outside this root. This is only needed by detached Menu triggers,
    * which cannot register themselves through the FilterDropdown context.

@@ -104,7 +104,7 @@ import { DemoMenuGroupLabels } from './demos/group-labels';
 
 Import `FilterMenu` from `@base-ui/react/filter-menu` to let users filter the available items. It exposes every ordinary menu part plus `<FilterMenu.Input>`, `<FilterMenu.Clear>`, and `<FilterMenu.Empty>`, so a filterable menu needs only this one import.
 
-Pass the items to the `items` prop and render them with a function as the `children` of `<FilterMenu.List>`. Filtering then narrows `items` before the list renders, so only matching entries are mounted:
+Pass the items to the `items` prop (required) and render them with a function as the `children` of `<FilterMenu.List>`. Filtering narrows `items` before the list renders, so only matching entries are mounted:
 
 ```jsx title="Filterable menu"
 import { FilterMenu } from '@base-ui/react/filter-menu';
@@ -131,7 +131,7 @@ import { DemoMenuFilterable } from './demos/filterable';
 
 <DemoMenuFilterable />
 
-Entries can be strings or objects with a `label`, which is what filtering matches on. An object entry can carry anything else the render function needs, such as a nested list for a submenu, as in the demo above. Rendering `<FilterMenu.Item>` children yourself still works; those items are matched on their rendered text instead.
+Entries can be strings or objects with a `label`, which is what filtering matches on. An object entry can carry anything else the render function needs, such as a nested list for a submenu, as in the demo above. An ordinary menu can still render `<Menu.Item>` children directly; a filterable menu requires `items`, since filtering is a data operation.
 
 Filtering lives in its own entrypoint so that an ordinary `@base-ui/react/menu` never carries the filtering code. `<Menu.Root>` cannot filter, and the filtering parts throw if placed inside one.
 
@@ -139,7 +139,7 @@ Filterability is scoped to the nearest root. A `<Menu.SubmenuRoot>` inside a fil
 
 Give `<FilterMenu.Input>` an accessible name with `aria-label` or a native `<label>`.
 
-Pass a function to `filter` to customize matching. It receives the item (the `items` entry, or the item's rendered text when the list is authored as children) and the trimmed query:
+Pass a function to `filter` to customize matching. It receives the `items` entry and the trimmed query:
 
 ```jsx title="Custom filter"
 <FilterMenu.Root items={items} filter={(item, query) => item.startsWith(query)}>

@@ -10,13 +10,11 @@ describe('<FilterDropdown.Root />', () => {
 
   it('renders the expected markup and ARIA relationships', async () => {
     await render(
-      <FilterDropdown.Root open value="">
+      <FilterDropdown.Root open empty={false} value="">
         <FilterDropdown.Trigger id={undefined}>Choose a country</FilterDropdown.Trigger>
         <FilterDropdown.Popup id={undefined}>
           <FilterDropdown.Input aria-label="Filter countries" />
-          <FilterDropdown.List id={undefined} data-testid="list">
-            <FilterDropdown.Item label="Canada">Canada</FilterDropdown.Item>
-          </FilterDropdown.List>
+          <FilterDropdown.List id={undefined} data-testid="list" />
         </FilterDropdown.Popup>
       </FilterDropdown.Root>,
     );
@@ -30,7 +28,6 @@ describe('<FilterDropdown.Root />', () => {
     const popup = screen.getByRole('dialog', { name: 'Choose a country' });
     const input = screen.getByRole('searchbox', { name: 'Filter countries' });
     const list = screen.getByRole('menu', { name: 'Choose a country' });
-    const item = screen.getByRole('menuitem', { name: 'Canada' });
 
     expect(trigger.tagName).toBe('BUTTON');
     expect(trigger.getAttribute('aria-controls')).toBe(popup.id);
@@ -45,14 +42,13 @@ describe('<FilterDropdown.Root />', () => {
     expect(input).toHaveAttribute('aria-autocomplete', 'list');
     expect(input).not.toHaveAttribute('aria-expanded');
     expect(list).toHaveAttribute('id');
-    expect(item).not.toHaveAttribute('aria-selected');
     expect(input).toHaveAttribute('aria-controls', list.id);
     expect(input).not.toHaveAttribute('aria-activedescendant');
   });
 
   it('does not associate the trigger with the popup while closed', async () => {
     await render(
-      <FilterDropdown.Root open={false} value="">
+      <FilterDropdown.Root open={false} empty={false} value="">
         <FilterDropdown.Trigger id={undefined}>Choose a country</FilterDropdown.Trigger>
         <FilterDropdown.Popup id={undefined} />
       </FilterDropdown.Root>,
@@ -66,12 +62,10 @@ describe('<FilterDropdown.Root />', () => {
 
   it('keeps focus on the input when the list or popup background is clicked', async () => {
     const { user } = await render(
-      <FilterDropdown.Root open value="">
+      <FilterDropdown.Root open empty={false} value="">
         <FilterDropdown.Popup id={undefined} data-testid="popup">
           <FilterDropdown.Input aria-label="Filter countries" />
-          <FilterDropdown.List id={undefined}>
-            <FilterDropdown.Item label="Canada">Canada</FilterDropdown.Item>
-          </FilterDropdown.List>
+          <FilterDropdown.List id={undefined} />
         </FilterDropdown.Popup>
       </FilterDropdown.Root>,
     );
@@ -90,11 +84,11 @@ describe('<FilterDropdown.Root />', () => {
 
   it('focuses the input when the pointer or focus enters the popup', async () => {
     await render(
-      <FilterDropdown.Root open value="">
+      <FilterDropdown.Root open empty={false} value="">
         <FilterDropdown.Popup id={undefined} data-testid="popup">
           <FilterDropdown.Input aria-label="Filter countries" />
           <FilterDropdown.List id={undefined}>
-            <FilterDropdown.Item label="Canada">Canada</FilterDropdown.Item>
+            <div role="menuitem">Canada</div>
           </FilterDropdown.List>
         </FilterDropdown.Popup>
         <button type="button">Outside</button>
@@ -115,10 +109,10 @@ describe('<FilterDropdown.Root />', () => {
 
   it('does not focus a parent input when the pointer enters a portalled nested popup', async () => {
     await render(
-      <FilterDropdown.Root open value="">
+      <FilterDropdown.Root open empty={false} value="">
         <FilterDropdown.Popup id={undefined} data-testid="parent-popup">
           <FilterDropdown.Input aria-label="Filter parent items" />
-          <FilterDropdown.Root open value="">
+          <FilterDropdown.Root open empty={false} value="">
             {ReactDOM.createPortal(
               <FilterDropdown.Popup id={undefined} data-testid="child-popup">
                 <FilterDropdown.Input aria-label="Filter child items" />
@@ -144,7 +138,7 @@ describe('<FilterDropdown.Root />', () => {
       const [version, setVersion] = React.useState('first');
 
       return (
-        <FilterDropdown.Root open value="">
+        <FilterDropdown.Root open empty={false} value="">
           <FilterDropdown.Trigger id={`${version}-trigger`}>Actions</FilterDropdown.Trigger>
           <FilterDropdown.Popup id={`${version}-popup`}>
             <FilterDropdown.Input aria-label="Filter actions" />
@@ -174,81 +168,17 @@ describe('<FilterDropdown.Root />', () => {
     expect(list).toHaveAttribute('aria-labelledby', 'second-trigger');
   });
 
-  it('filters rendered items using their label', async () => {
-    function App() {
-      const [value, setValue] = React.useState('');
-      return (
-        <FilterDropdown.Root open value={value} onValueChange={setValue}>
-          <FilterDropdown.Popup id={undefined}>
-            <FilterDropdown.Input aria-label="Filter countries" />
-            <FilterDropdown.List id={undefined}>
-              <FilterDropdown.Item label="Canada">Canada</FilterDropdown.Item>
-              <FilterDropdown.Item label="Japan">Japan</FilterDropdown.Item>
-            </FilterDropdown.List>
-          </FilterDropdown.Popup>
-        </FilterDropdown.Root>
-      );
-    }
-
-    const { user } = await render(<App />);
-
-    await user.type(screen.getByRole('searchbox', { name: 'Filter countries' }), 'can');
-
-    await waitFor(() => {
-      expect(screen.getByText('Canada')).not.toBe(null);
-    });
-    expect(screen.queryByText('Japan')).toBe(null);
-  });
-
-  it('refilters an item when its rendered text changes without a label', async () => {
-    function App() {
-      const [text, setText] = React.useState('Canada');
-      const [value, setValue] = React.useState('');
-
-      return (
-        <FilterDropdown.Root open value={value} onValueChange={setValue}>
-          <FilterDropdown.Popup id={undefined}>
-            <FilterDropdown.Input aria-label="Filter countries" />
-            <FilterDropdown.List id={undefined}>
-              <FilterDropdown.Item>{text}</FilterDropdown.Item>
-            </FilterDropdown.List>
-          </FilterDropdown.Popup>
-          <button type="button" onClick={() => setText('Japan')}>
-            Rename
-          </button>
-        </FilterDropdown.Root>
-      );
-    }
-
-    const { user } = await render(<App />);
-
-    await user.type(screen.getByRole('searchbox', { name: 'Filter countries' }), 'can');
-
-    await waitFor(() => {
-      expect(screen.getByRole('menuitem')).toHaveTextContent('Canada');
-    });
-
-    await user.click(screen.getByRole('button', { name: 'Rename' }));
-
-    // "Japan" no longer matches the active "can" query.
-    await waitFor(() => {
-      expect(screen.queryByRole('menuitem')).toBe(null);
-    });
-  });
-
   it('keeps the live region in sync with a changing Empty message', async () => {
     function App() {
       const [value, setValue] = React.useState('zz');
 
       return (
-        <FilterDropdown.Root open value={value} onValueChange={setValue}>
+        <FilterDropdown.Root open empty value={value} onValueChange={setValue}>
           <FilterDropdown.Trigger id={undefined}>Choose a country</FilterDropdown.Trigger>
           <FilterDropdown.Popup id={undefined}>
             <FilterDropdown.Input aria-label="Filter countries" />
             <FilterDropdown.Empty>No matches for {value}</FilterDropdown.Empty>
-            <FilterDropdown.List id={undefined}>
-              <FilterDropdown.Item label="Canada">Canada</FilterDropdown.Item>
-            </FilterDropdown.List>
+            <FilterDropdown.List id={undefined} />
           </FilterDropdown.Popup>
         </FilterDropdown.Root>
       );
@@ -268,39 +198,23 @@ describe('<FilterDropdown.Root />', () => {
     });
   });
 
-  it('filters items when the input is not rendered', async () => {
-    await render(
-      <FilterDropdown.Root open value="zz" filter={() => false}>
-        <FilterDropdown.Popup id={undefined}>
-          <FilterDropdown.List id={undefined}>
-            <FilterDropdown.Item label="Canada">Canada</FilterDropdown.Item>
-            <FilterDropdown.Item label="Japan">Japan</FilterDropdown.Item>
-          </FilterDropdown.List>
-        </FilterDropdown.Popup>
-      </FilterDropdown.Root>,
-    );
-
-    await waitFor(() => {
-      expect(screen.queryByText('Canada')).toBe(null);
-    });
-    expect(screen.queryByText('Japan')).toBe(null);
-  });
-
-  it('renders Empty when no rendered items match', async () => {
-    await render(
-      <FilterDropdown.Root open value="zz">
+  it('renders Empty and announces it when the `empty` prop becomes true', async () => {
+    const { setProps } = await render(
+      <FilterDropdown.Root open empty={false} value="zz">
         <FilterDropdown.Trigger id={undefined}>Choose a country</FilterDropdown.Trigger>
         <FilterDropdown.Popup id={undefined}>
           <FilterDropdown.Input aria-label="Filter countries" />
           <FilterDropdown.Empty data-testid="empty">
             <span id="empty-message">No countries found.</span>
           </FilterDropdown.Empty>
-          <FilterDropdown.List id={undefined}>
-            <FilterDropdown.Item label="Canada">Canada</FilterDropdown.Item>
-          </FilterDropdown.List>
+          <FilterDropdown.List id={undefined} />
         </FilterDropdown.Popup>
       </FilterDropdown.Root>,
     );
+
+    expect(screen.queryByTestId('empty')).toBe(null);
+
+    await setProps({ empty: true });
 
     const status = screen.getByRole('status');
     expect(status).toHaveAttribute('aria-live', 'polite');

@@ -46,7 +46,6 @@ import {
 } from '../../utils/popups';
 import { useMenuSubmenuRootContext } from '../submenu-root/MenuSubmenuRootContext';
 import type { FilterDropdownRoot } from '../../filter-dropdown/root/FilterDropdownRoot';
-import type { FilterDropdownFilter } from '../../filter-dropdown/root/FilterDropdownRootContext';
 import {
   MenuFilterIntegrationContext,
   useMenuFilterIntegration,
@@ -55,7 +54,6 @@ import {
   MenuDerivedItemsContext,
   type MenuDerivedItemsContext as MenuDerivedItemsContextValue,
 } from './MenuDerivedItemsContext';
-import { getContainsFilter } from '../../internals/filter';
 
 /**
  * Groups all parts of the menu.
@@ -179,18 +177,24 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
   // renders one node per entry, and a filterable menu narrows the entries to the query before
   // they render, so filtered-out items never mount.
   const hasItems = items !== undefined;
-  const matchesItem = React.useMemo(() => filterProp ?? getContainsFilter(), [filterProp]);
+  const matchesItem = React.useMemo(
+    () => filterProp ?? filterIntegration?.getDefaultFilter(),
+    [filterProp, filterIntegration],
+  );
   const query = inputValue.trim();
 
   const filteredItems: readonly any[] = React.useMemo(() => {
     if (!hasItems) {
       return EMPTY_ARRAY;
     }
-    if (!filterable || query === '') {
+    // `matchesItem` always exists when filterable; the check doubles as type narrowing.
+    if (!filterable || query === '' || matchesItem === undefined) {
       return items;
     }
     return items.filter((item) => matchesItem(item, query));
   }, [hasItems, filterable, query, items, matchesItem]);
+
+  const noMatches = hasItems && query !== '' && filteredItems.length === 0;
 
   const derivedItemsContextValue: MenuDerivedItemsContextValue = React.useMemo(
     () => ({ hasItems, filteredItems }),
@@ -649,9 +653,9 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
   let content = filterIntegration ? (
     <filterIntegration.Root
       open={open}
+      empty={noMatches}
       value={inputValue}
       onValueChange={handleInputValueChange}
-      filter={filterProp}
       // Menu handles can render a trigger outside this provider, so mirror
       // the active trigger for that detached case.
       triggerId={activeTriggerId}
@@ -694,7 +698,7 @@ function useMenuRootStore<Payload>(
 
 export interface MenuRootState {}
 
-export interface MenuFilter extends FilterDropdownFilter {}
+export type MenuFilter = (item: any, query: string) => boolean;
 
 // These are deliberately not a discriminated union on `filter`. `Omit`, `Pick`, and object rest
 // all collapse a union into one object type with widened members, which then matches no branch,
@@ -702,8 +706,8 @@ export interface MenuFilter extends FilterDropdownFilter {}
 // compile. Misuse is reported at runtime instead: `Menu.Input` throws without `filter`.
 interface MenuRootFilterProps {
   /**
-   * Customizes how items match the query. The function receives the item's `label` (falling back
-   * to its rendered text) and the trimmed query.
+   * Customizes how items match the query. The function receives the `items` entry and the
+   * trimmed query.
    * Only a filterable menu (`FilterMenu.Root` or `FilterMenu.SubmenuRoot`) filters.
    */
   filter?: MenuFilter | undefined;
