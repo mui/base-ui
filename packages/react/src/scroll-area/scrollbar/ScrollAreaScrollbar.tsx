@@ -184,14 +184,9 @@ export const ScrollAreaScrollbar = React.forwardRef(function ScrollAreaScrollbar
 
       handlePointerDown(event);
     },
-    // Native scrollbars don't move focus when pressed. Handled here rather than on
-    // the thumb so the bubbled press covers both the track and the thumb. Limited to
-    // the primary button so middle-click autoscroll keeps its default behavior.
+    // Native scrollbars don't move focus when pressed, whichever button is used.
+    // Handled here rather than on the thumb so the bubbled press covers both.
     onMouseDown(event) {
-      if (event.button !== 0) {
-        return;
-      }
-
       event.preventDefault();
     },
     onPointerUp: handlePointerUp,

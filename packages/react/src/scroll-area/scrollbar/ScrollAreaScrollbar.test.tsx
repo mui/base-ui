@@ -459,14 +459,22 @@ describe('<ScrollArea.Scrollbar />', () => {
       );
     }
 
-    it('cancels the press on the track so focus stays on the active element', async () => {
-      await renderScrollbarWithThumb();
+    // Native scrollbars keep focus for every button, not just the primary one.
+    it.each([
+      { name: 'primary', button: 0 },
+      { name: 'middle', button: 1 },
+      { name: 'secondary', button: 2 },
+    ])(
+      'cancels a $name press on the track so focus stays on the active element',
+      async ({ button }) => {
+        await renderScrollbarWithThumb();
 
-      const event = new MouseEvent('mousedown', { bubbles: true, cancelable: true, button: 0 });
-      screen.getByTestId('scrollbar').dispatchEvent(event);
+        const event = new MouseEvent('mousedown', { bubbles: true, cancelable: true, button });
+        screen.getByTestId('scrollbar').dispatchEvent(event);
 
-      expect(event.defaultPrevented).toBe(true);
-    });
+        expect(event.defaultPrevented).toBe(true);
+      },
+    );
 
     it('cancels the press on the thumb so focus stays on the active element', async () => {
       await renderScrollbarWithThumb();
@@ -475,15 +483,6 @@ describe('<ScrollArea.Scrollbar />', () => {
       screen.getByTestId('thumb').dispatchEvent(event);
 
       expect(event.defaultPrevented).toBe(true);
-    });
-
-    it('leaves non-primary presses alone', async () => {
-      await renderScrollbarWithThumb();
-
-      const event = new MouseEvent('mousedown', { bubbles: true, cancelable: true, button: 1 });
-      screen.getByTestId('scrollbar').dispatchEvent(event);
-
-      expect(event.defaultPrevented).toBe(false);
     });
   });
 
