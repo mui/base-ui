@@ -4218,6 +4218,107 @@ describe('<Select.Root />', () => {
       expect(input).not.toHaveAttribute('aria-activedescendant');
     });
 
+    it('highlights the selected item and points aria-activedescendant at it on open', async () => {
+      const { user } = await render(
+        <FilterSelect.Root
+          defaultValue="banana"
+          items={[
+            { value: 'apple', label: 'Apple' },
+            { value: 'banana', label: 'Banana' },
+          ]}
+        >
+          <FilterSelect.Trigger data-testid="trigger">
+            <FilterSelect.Value />
+          </FilterSelect.Trigger>
+          <FilterSelect.Portal>
+            <FilterSelect.Positioner>
+              <FilterSelect.Popup>
+                <FilterSelect.Input aria-label="Filter fruit" />
+                <FilterSelect.List>
+                  {(item: { value: string; label: string }) => (
+                    <FilterSelect.Item key={item.value} value={item.value}>
+                      {item.label}
+                    </FilterSelect.Item>
+                  )}
+                </FilterSelect.List>
+              </FilterSelect.Popup>
+            </FilterSelect.Positioner>
+          </FilterSelect.Portal>
+        </FilterSelect.Root>,
+      );
+
+      await user.click(screen.getByTestId('trigger'));
+      const input = await screen.findByRole('searchbox', { name: 'Filter fruit' });
+
+      if (isJSDOM) {
+        Object.defineProperty(screen.getByRole('listbox'), 'scrollTo', {
+          configurable: true,
+          value: vi.fn(),
+        });
+      }
+
+      const selectedOption = screen.getByRole('option', { name: 'Banana' });
+
+      await waitFor(() => {
+        expect(selectedOption).toHaveAttribute('data-highlighted');
+      });
+      expect(input).toHaveAttribute('aria-activedescendant', selectedOption.id);
+      // DOM focus stays on the filter input.
+      expect(input).toHaveFocus();
+    });
+
+    it('highlights the selected item when opening with Enter', async () => {
+      const { user } = await render(
+        <FilterSelect.Root
+          defaultValue="banana"
+          items={[
+            { value: 'apple', label: 'Apple' },
+            { value: 'banana', label: 'Banana' },
+          ]}
+        >
+          <FilterSelect.Trigger data-testid="trigger">
+            <FilterSelect.Value />
+          </FilterSelect.Trigger>
+          <FilterSelect.Portal>
+            <FilterSelect.Positioner>
+              <FilterSelect.Popup>
+                <FilterSelect.Input aria-label="Filter fruit" />
+                <FilterSelect.List>
+                  {(item: { value: string; label: string }) => (
+                    <FilterSelect.Item key={item.value} value={item.value}>
+                      {item.label}
+                    </FilterSelect.Item>
+                  )}
+                </FilterSelect.List>
+              </FilterSelect.Popup>
+            </FilterSelect.Positioner>
+          </FilterSelect.Portal>
+        </FilterSelect.Root>,
+      );
+
+      const trigger = screen.getByTestId('trigger');
+      await act(async () => {
+        trigger.focus();
+      });
+      await user.keyboard('[Enter]');
+
+      const input = await screen.findByRole('searchbox', { name: 'Filter fruit' });
+
+      if (isJSDOM) {
+        Object.defineProperty(screen.getByRole('listbox'), 'scrollTo', {
+          configurable: true,
+          value: vi.fn(),
+        });
+      }
+
+      const selectedOption = screen.getByRole('option', { name: 'Banana' });
+
+      await waitFor(() => {
+        expect(selectedOption).toHaveAttribute('data-highlighted');
+      });
+      expect(input).toHaveAttribute('aria-activedescendant', selectedOption.id);
+    });
+
     it('shows the input focus indicator only for keyboard virtual focus', async () => {
       const { user } = await render(
         <FilterSelect.Root items={[{ value: 'apple', label: 'Apple' }]}>

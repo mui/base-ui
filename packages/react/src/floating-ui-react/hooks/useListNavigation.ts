@@ -851,6 +851,12 @@ export function useListNavigation(
 
     function checkVirtualMouse(event: React.PointerEvent) {
       if (focusItemOnOpen === 'auto' && isVirtualClick(event.nativeEvent)) {
+        // A keyboard-activated click (Enter/Space on a native button, `detail: 0`) is not an
+        // assistive-technology virtual click: its preceding keydown switched the modality.
+        // Keep the open-seeding behavior so `selectedIndex` highlights on keyboard open.
+        if (!isPointerModalityRef.current) {
+          return;
+        }
         focusItemOnOpenRef.current = !virtual;
       }
     }
