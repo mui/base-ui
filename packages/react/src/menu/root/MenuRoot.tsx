@@ -50,10 +50,6 @@ import {
   MenuFilterIntegrationContext,
   useMenuFilterIntegration,
 } from './MenuFilterIntegrationContext';
-import {
-  MenuDerivedItemsContext,
-  type MenuDerivedItemsContext as MenuDerivedItemsContextValue,
-} from './MenuDerivedItemsContext';
 
 /**
  * Groups all parts of the menu.
@@ -78,7 +74,6 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
     triggerId: triggerIdProp,
     defaultTriggerId: defaultTriggerIdProp = null,
     highlightItemOnHover = true,
-    items,
     filter: filterProp,
     inputValue: inputValueProp,
     defaultInputValue = '',
@@ -171,34 +166,6 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
       // or at none at all. Return virtual focus to the input instead.
       store.set('activeIndex', null);
     },
-  );
-
-  // `items` is the data source for the list when provided: a function child of `Menu.List`
-  // renders one node per entry, and a filterable menu narrows the entries to the query before
-  // they render, so filtered-out items never mount.
-  const hasItems = items !== undefined;
-  const matchesItem = React.useMemo(
-    () => filterProp ?? filterIntegration?.getDefaultFilter(),
-    [filterProp, filterIntegration],
-  );
-  const query = inputValue.trim();
-
-  const filteredItems: readonly any[] = React.useMemo(() => {
-    if (!hasItems) {
-      return EMPTY_ARRAY;
-    }
-    // `matchesItem` always exists when filterable; the check doubles as type narrowing.
-    if (!filterable || query === '' || matchesItem === undefined) {
-      return items;
-    }
-    return items.filter((item) => matchesItem(item, query));
-  }, [hasItems, filterable, query, items, matchesItem]);
-
-  const noMatches = hasItems && query !== '' && filteredItems.length === 0;
-
-  const derivedItemsContextValue: MenuDerivedItemsContextValue = React.useMemo(
-    () => ({ hasItems, filteredItems }),
-    [hasItems, filteredItems],
   );
 
   store.useControlledProp('openProp', openProp);
@@ -653,8 +620,8 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
   let content = filterIntegration ? (
     <filterIntegration.Root
       open={open}
-      empty={noMatches}
       value={inputValue}
+      filter={filterProp}
       onValueChange={handleInputValueChange}
       // Menu handles can render a trigger outside this provider, so mirror
       // the active trigger for that detached case.
@@ -672,11 +639,7 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
     content = <FloatingTree externalTree={floatingTreeRoot}>{content}</FloatingTree>;
   }
 
-  return (
-    <MenuDerivedItemsContext.Provider value={derivedItemsContextValue}>
-      {content}
-    </MenuDerivedItemsContext.Provider>
-  );
+  return content;
 });
 
 function useMenuRootStore<Payload>(
@@ -698,7 +661,7 @@ function useMenuRootStore<Payload>(
 
 export interface MenuRootState {}
 
-export type MenuFilter = (item: any, query: string) => boolean;
+export type MenuFilter = (itemText: string, query: string) => boolean;
 
 // These are deliberately not a discriminated union on `filter`. `Omit`, `Pick`, and object rest
 // all collapse a union into one object type with widened members, which then matches no branch,
@@ -706,8 +669,8 @@ export type MenuFilter = (item: any, query: string) => boolean;
 // compile. Misuse is reported at runtime instead: `Menu.Input` throws without `filter`.
 interface MenuRootFilterProps {
   /**
-   * Customizes how items match the query. The function receives the `items` entry and the
-   * trimmed query.
+   * Customizes how items match the query. The function receives the item's `label` (falling
+   * back to its rendered text) and the trimmed query.
    * Only a filterable menu (`FilterMenu.Root` or `FilterMenu.SubmenuRoot`) filters.
    */
   filter?: MenuFilter | undefined;
@@ -736,12 +699,6 @@ interface MenuRootFilterProps {
 export type MenuRootProps<Payload = unknown> = MenuRootBaseProps<Payload> & MenuRootFilterProps;
 
 interface MenuRootBaseProps<Payload = unknown> {
-  /**
-   * The items to render the list from. Pass a function as the `children` of `Menu.List` to
-   * render one item per entry. A filterable menu narrows the entries to the query before they
-   * render, so the list contents derive from this data rather than from the rendered DOM.
-   */
-  items?: readonly any[] | undefined;
   /**
    * Whether the menu is initially open.
    *

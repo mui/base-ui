@@ -4585,6 +4585,42 @@ describe('<Select.Root />', () => {
       );
     });
 
+    it('matches entries on their keywords', async () => {
+      const { user } = await render(
+        <FilterSelect.Root
+          open
+          items={[
+            { value: 'delete', label: 'Delete', keywords: ['remove', 'trash'] },
+            { value: 'rename', label: 'Rename' },
+          ]}
+        >
+          <FilterSelect.Trigger>Actions</FilterSelect.Trigger>
+          <FilterSelect.Portal>
+            <FilterSelect.Positioner>
+              <FilterSelect.Popup>
+                <FilterSelect.Input aria-label="Filter actions" />
+                <FilterSelect.List>
+                  {(item: { value: string; label: string }) => (
+                    <FilterSelect.Item key={item.value} value={item.value}>
+                      {item.label}
+                    </FilterSelect.Item>
+                  )}
+                </FilterSelect.List>
+              </FilterSelect.Popup>
+            </FilterSelect.Positioner>
+          </FilterSelect.Portal>
+        </FilterSelect.Root>,
+      );
+
+      const input = await screen.findByRole('searchbox', { name: 'Filter actions' });
+      await user.type(input, 'trash');
+
+      await waitFor(() => {
+        expect(screen.getByRole('option', { name: 'Delete' })).toBeVisible();
+      });
+      expect(screen.queryByRole('option', { name: 'Rename' })).toBe(null);
+    });
+
     it('renders and filters from the items data source', async () => {
       const fruit = [
         { value: 'apple', label: 'Apple' },

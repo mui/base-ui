@@ -2,9 +2,12 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
+import { useStore } from '@base-ui/utils/store';
 import type { BaseUIComponentProps } from '../../internals/types';
 import { useRenderElement } from '../../internals/useRenderElement';
+import { useFilterDropdownPopupContext } from '../popup/FilterDropdownPopupContext';
 import { useFilterDropdownRootContext } from '../root/FilterDropdownRootContext';
+import { selectors } from '../store';
 
 const FilterDropdownEmptyImpl = React.forwardRef(function FilterDropdownEmptyImpl(
   componentProps: FilterDropdownEmpty.Props,
@@ -47,7 +50,10 @@ export const FilterDropdownEmpty = React.forwardRef(function FilterDropdownEmpty
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const { empty } = useFilterDropdownRootContext();
-  return empty ? <FilterDropdownEmptyImpl {...componentProps} ref={forwardedRef} /> : null;
+  const { store } = useFilterDropdownPopupContext();
+  const registryEmpty = useStore(store, selectors.isEmpty);
+  const isEmpty = empty ?? registryEmpty;
+  return isEmpty ? <FilterDropdownEmptyImpl {...componentProps} ref={forwardedRef} /> : null;
 });
 
 export interface FilterDropdownEmptyState {}

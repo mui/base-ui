@@ -24,30 +24,26 @@ describe('<FilterMenu.List /> with VoiceOver', () => {
     const { user } = await render(
       <div>
         <input />
-        <FilterMenu.Root defaultOpen items={[{ label: 'Share', options: ['Email'] }]}>
+        <FilterMenu.Root defaultOpen>
           <FilterMenu.Trigger>Actions</FilterMenu.Trigger>
           <FilterMenu.Portal>
             <FilterMenu.Positioner>
               <FilterMenu.Popup>
                 <FilterMenu.Input aria-label="Filter actions" />
                 <FilterMenu.List>
-                  {(item: { label: string; options: string[] }) => (
-                    <FilterMenu.SubmenuRoot key={item.label} items={item.options}>
-                      <FilterMenu.SubmenuTrigger delay={0}>{item.label}</FilterMenu.SubmenuTrigger>
-                      <FilterMenu.Portal>
-                        <FilterMenu.Positioner>
-                          <FilterMenu.Popup>
-                            <FilterMenu.Input aria-label="Filter sharing options" />
-                            <FilterMenu.List>
-                              {(option: string) => (
-                                <FilterMenu.Item key={option}>{option}</FilterMenu.Item>
-                              )}
-                            </FilterMenu.List>
-                          </FilterMenu.Popup>
-                        </FilterMenu.Positioner>
-                      </FilterMenu.Portal>
-                    </FilterMenu.SubmenuRoot>
-                  )}
+                  <FilterMenu.SubmenuRoot>
+                    <FilterMenu.SubmenuTrigger delay={0}>Share</FilterMenu.SubmenuTrigger>
+                    <FilterMenu.Portal>
+                      <FilterMenu.Positioner>
+                        <FilterMenu.Popup>
+                          <FilterMenu.Input aria-label="Filter sharing options" />
+                          <FilterMenu.List>
+                            <FilterMenu.Item>Email</FilterMenu.Item>
+                          </FilterMenu.List>
+                        </FilterMenu.Popup>
+                      </FilterMenu.Positioner>
+                    </FilterMenu.Portal>
+                  </FilterMenu.SubmenuRoot>
                 </FilterMenu.List>
               </FilterMenu.Popup>
             </FilterMenu.Positioner>
@@ -80,14 +76,14 @@ describe('<FilterMenu.List /> with VoiceOver', () => {
 
   it('exposes the menu only while an item is virtually focused', async () => {
     const { user } = await render(
-      <FilterMenu.Root open items={['Apple']}>
+      <FilterMenu.Root open>
         <FilterMenu.Trigger>Fruit</FilterMenu.Trigger>
         <FilterMenu.Portal>
           <FilterMenu.Positioner>
             <FilterMenu.Popup>
               <FilterMenu.Input aria-label="Filter fruit" />
               <FilterMenu.List data-testid="list">
-                {(item: string) => <FilterMenu.Item key={item}>{item}</FilterMenu.Item>}
+                <FilterMenu.Item>Apple</FilterMenu.Item>
               </FilterMenu.List>
             </FilterMenu.Popup>
           </FilterMenu.Positioner>

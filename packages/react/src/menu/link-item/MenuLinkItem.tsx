@@ -10,13 +10,7 @@ import { REGULAR_ITEM } from '../item/useMenuItem';
 import { useButton } from '../../internals/use-button';
 import { mergeProps } from '../../merge-props';
 
-/**
- * A link in the menu that can be used to navigate to a different page or section.
- * Renders an `<a>` element.
- *
- * Documentation: [Base UI Menu](https://base-ui.com/react/components/menu)
- */
-export const MenuLinkItem = React.forwardRef(function MenuLinkItem(
+const MenuLinkItemImpl = React.forwardRef(function MenuLinkItemImpl(
   componentProps: MenuLinkItem.Props,
   forwardedRef: React.ForwardedRef<Element>,
 ) {
@@ -71,6 +65,34 @@ export const MenuLinkItem = React.forwardRef(function MenuLinkItem(
   });
 });
 
+/**
+ * A link in the menu that can be used to navigate to a different page or section.
+ * Renders an `<a>` element.
+ *
+ * Documentation: [Base UI Menu](https://base-ui.com/react/components/menu)
+ */
+export const MenuLinkItem = React.forwardRef(function MenuLinkItem(
+  componentProps: MenuLinkItem.Props,
+  forwardedRef: React.ForwardedRef<Element>,
+) {
+  const { store } = useMenuRootContext();
+  const filterIntegration = store.select('filterIntegration');
+  const menuLinkItem = <MenuLinkItemImpl {...componentProps} ref={forwardedRef} />;
+
+  return filterIntegration ? (
+    // The filter wrapper composes onto MenuLinkItemImpl so its implementation
+    // overrides MenuLinkItemImpl's implementation.
+    <filterIntegration.Item
+      label={componentProps.label}
+      keywords={componentProps.keywords}
+      role="menuitem"
+      render={menuLinkItem}
+    />
+  ) : (
+    menuLinkItem
+  );
+});
+
 export interface MenuLinkItemState {
   /**
    * Whether the item is highlighted.
@@ -87,6 +109,10 @@ export interface MenuLinkItemProps extends BaseUIComponentProps<
    * Overrides the text label to use when the item is matched during keyboard text navigation.
    */
   label?: string | undefined;
+  /**
+   * Additional terms the item matches on when filtering, beyond its label.
+   */
+  keywords?: readonly string[] | undefined;
   /**
    * @ignore
    */

@@ -9,6 +9,7 @@ import { useBaseUiId } from '../../internals/useBaseUiId';
 import {
   FilterDropdownRootContext,
   FilterDropdownValueContext,
+  type FilterDropdownFilter,
   type FilterDropdownRoot as FilterDropdownRootNamespace,
 } from './FilterDropdownRootContext';
 
@@ -20,8 +21,10 @@ export function FilterDropdownRoot(props: FilterDropdownRoot.Props): React.JSX.E
     children,
     open,
     empty,
+    locale,
     value,
     onValueChange,
+    filter,
     triggerId: externalTriggerId,
     triggerElement: externalTriggerElement,
   } = props;
@@ -59,8 +62,20 @@ export function FilterDropdownRoot(props: FilterDropdownRoot.Props): React.JSX.E
       setTriggerElement,
       setLiveRegionElement,
       onValueChange: handleValueChange,
+      locale,
+      filter,
     }),
-    [open, empty, popupElements, liveRegionElement, popupId, triggerId, handleValueChange],
+    [
+      open,
+      empty,
+      popupElements,
+      liveRegionElement,
+      popupId,
+      triggerId,
+      locale,
+      filter,
+      handleValueChange,
+    ],
   );
 
   return (
@@ -90,10 +105,14 @@ export interface FilterDropdownRootProps {
    */
   open: boolean;
   /**
-   * Whether the current query matched no items. The host's data pass decides this; the
-   * filtering parts render no matching logic of their own.
+   * Whether the current query matched no items, when the host's data pass drives the list.
+   * When omitted, the popup's item registry decides.
    */
-  empty: boolean;
+  empty?: boolean | undefined;
+  /**
+   * Locale used for filtering comparisons.
+   */
+  locale?: Intl.LocalesArgument | undefined;
   /**
    * The filter input value. Use when controlled.
    */
@@ -104,6 +123,10 @@ export interface FilterDropdownRootProps {
   onValueChange?:
     | ((value: string, eventDetails: FilterDropdownRootNamespace.ChangeEventDetails) => void)
     | undefined;
+  /**
+   * Custom filter logic used when filtering items.
+   */
+  filter?: FilterDropdownFilter | undefined;
   /**
    * ID of a trigger rendered outside this root. This is only needed by detached Menu triggers,
    * which cannot register themselves through the FilterDropdown context.

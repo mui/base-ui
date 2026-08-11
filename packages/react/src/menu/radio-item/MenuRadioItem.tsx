@@ -13,13 +13,7 @@ import { useMenuPositionerContext } from '../positioner/MenuPositionerContext';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
 
-/**
- * A menu item that works like a radio button in a given group.
- * Renders a `<div>` element.
- *
- * Documentation: [Base UI Menu](https://base-ui.com/react/components/menu)
- */
-export const MenuRadioItem = React.forwardRef(function MenuRadioItem(
+const MenuRadioItemImpl = React.forwardRef(function MenuRadioItemImpl(
   componentProps: MenuRadioItem.Props,
   forwardedRef: React.ForwardedRef<HTMLElement>,
 ) {
@@ -101,6 +95,34 @@ export const MenuRadioItem = React.forwardRef(function MenuRadioItem(
   return <MenuRadioItemContext.Provider value={state}>{element}</MenuRadioItemContext.Provider>;
 });
 
+/**
+ * A menu item that works like a radio button in a given group.
+ * Renders a `<div>` element.
+ *
+ * Documentation: [Base UI Menu](https://base-ui.com/react/components/menu)
+ */
+export const MenuRadioItem = React.forwardRef(function MenuRadioItem(
+  componentProps: MenuRadioItem.Props,
+  forwardedRef: React.ForwardedRef<HTMLElement>,
+) {
+  const { store } = useMenuRootContext();
+  const filterIntegration = store.select('filterIntegration');
+  const menuRadioItem = <MenuRadioItemImpl {...componentProps} ref={forwardedRef} />;
+
+  return filterIntegration ? (
+    // The filter wrapper composes onto MenuRadioItemImpl so its implementation
+    // overrides MenuRadioItemImpl's implementation.
+    <filterIntegration.Item
+      label={componentProps.label}
+      keywords={componentProps.keywords}
+      role="menuitemradio"
+      render={menuRadioItem}
+    />
+  ) : (
+    menuRadioItem
+  );
+});
+
 export interface MenuRadioItemState {
   /**
    * Whether the radio item should ignore user interaction.
@@ -136,6 +158,10 @@ export interface MenuRadioItemProps
    * Overrides the text label to use when the item is matched during keyboard text navigation.
    */
   label?: string | undefined;
+  /**
+   * Additional terms the item matches on when filtering, beyond its label.
+   */
+  keywords?: readonly string[] | undefined;
   /**
    * @ignore
    */
