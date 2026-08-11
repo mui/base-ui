@@ -1490,20 +1490,12 @@ describe('<NumberField />', () => {
       expect(input).toHaveValue('6');
     });
 
-    it('attaches only one wheel listener to the input', async () => {
-      const onValueChange = vi.fn();
-      await render(<NumberField defaultValue={5} allowWheelScrub onValueChange={onValueChange} />);
-      const input = screen.getByRole('textbox');
-      await act(async () => input.focus());
+    it('leaves exactly one live wheel listener on the input, and none after it unmounts', async () => {
+      const addSpy = vi.spyOn(HTMLInputElement.prototype, 'addEventListener');
+      const removeSpy = vi.spyOn(HTMLInputElement.prototype, 'removeEventListener');
+      const countWheel = (spy: typeof addSpy) =>
+        spy.mock.calls.filter(([type]) => type === 'wheel').length;
 
-      fireEvent.wheel(input, { deltaY: -1 });
-
-      // A duplicate registration would step twice for a single event.
-      expect(onValueChange.mock.calls.length).toBe(1);
-      expect(input).toHaveValue('6');
-    });
-
-    it('stops scrubbing once the input unmounts', async () => {
       function App() {
         const [mounted, setMounted] = React.useState(true);
 
@@ -1519,19 +1511,18 @@ describe('<NumberField />', () => {
         );
       }
 
-      const { user } = await render(<App />);
+      try {
+        const { user } = await render(<App />);
 
-      const input = screen.getByRole('textbox');
-      await act(async () => input.focus());
+        expect(countWheel(addSpy) - countWheel(removeSpy)).toBe(1);
 
-      fireEvent.wheel(input, { deltaY: -1 });
-      expect(input).toHaveValue('6');
+        await user.click(screen.getByRole('button', { name: 'unmount' }));
 
-      await user.click(screen.getByRole('button', { name: 'unmount' }));
-
-      // The detached node keeps no listener, so the event is not prevented.
-      const notPrevented = fireEvent.wheel(input, { deltaY: -1 });
-      expect(notPrevented).toBe(true);
+        expect(countWheel(addSpy) - countWheel(removeSpy)).toBe(0);
+      } finally {
+        addSpy.mockRestore();
+        removeSpy.mockRestore();
+      }
     });
 
     it('calls onValueChange and onValueCommitted on wheel', async () => {
