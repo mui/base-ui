@@ -6,6 +6,7 @@ import { createRenderer, describeConformance } from '#test-utils';
 
 describe('<Field.Label />', () => {
   const { render } = createRenderer();
+  const { render: renderNonStrict } = createRenderer({ strict: false });
 
   describeConformance(<Field.Label />, () => ({
     refInstanceof: window.HTMLLabelElement,
@@ -43,6 +44,39 @@ describe('<Field.Label />', () => {
 
     await user.click(label);
     expect(control).toHaveFocus();
+  });
+
+  describe('control selection', () => {
+    function Fields(props: { first?: boolean; second?: boolean }) {
+      const { first = true, second = true } = props;
+      return (
+        <Field.Root>
+          {first && <Field.Control id="a" />}
+          {second && <Field.Control id="b" />}
+          <Field.Label data-testid="label">Label</Field.Label>
+        </Field.Root>
+      );
+    }
+
+    it('keeps the selected control id when another control unmounts', async () => {
+      const { rerender } = await renderNonStrict(<Fields />);
+
+      expect(screen.getByTestId('label')).toHaveAttribute('for', 'a');
+
+      await rerender(<Fields second={false} />);
+
+      expect(screen.getByTestId('label')).toHaveAttribute('for', 'a');
+    });
+
+    it('falls over to the remaining control when the selected one unmounts', async () => {
+      const { rerender } = await renderNonStrict(<Fields />);
+
+      expect(screen.getByTestId('label')).toHaveAttribute('for', 'a');
+
+      await rerender(<Fields first={false} />);
+
+      expect(screen.getByTestId('label')).toHaveAttribute('for', 'b');
+    });
   });
 
   it('reflects the disabled state from Field.Item', async () => {
