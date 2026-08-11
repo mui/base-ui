@@ -24,6 +24,60 @@ describe('<Tabs.Panel />', () => {
     }
   });
 
+  describe('prop: id', () => {
+    it("registers a custom id so the tab's aria-controls resolves to the panel", async () => {
+      await render(
+        <Tabs.Root defaultValue="a">
+          <Tabs.List>
+            <Tabs.Tab value="a">A</Tabs.Tab>
+          </Tabs.List>
+          <Tabs.Panel value="a" id="custom-panel-id" keepMounted />
+        </Tabs.Root>,
+      );
+
+      const tab = screen.getByRole('tab');
+      const panel = screen.getByRole('tabpanel', { hidden: true });
+
+      expect(panel).toHaveAttribute('id', 'custom-panel-id');
+      expect(tab).toHaveAttribute('aria-controls', 'custom-panel-id');
+    });
+
+    it('registers a custom id on every panel when multiple panels are mounted', async () => {
+      await render(
+        <Tabs.Root defaultValue="a">
+          <Tabs.List>
+            <Tabs.Tab value="a">A</Tabs.Tab>
+            <Tabs.Tab value="b">B</Tabs.Tab>
+          </Tabs.List>
+          <Tabs.Panel value="a" id="panel-a" keepMounted />
+          <Tabs.Panel value="b" id="panel-b" keepMounted />
+        </Tabs.Root>,
+      );
+
+      const [tabA, tabB] = screen.getAllByRole('tab');
+
+      expect(tabA).toHaveAttribute('aria-controls', 'panel-a');
+      expect(tabB).toHaveAttribute('aria-controls', 'panel-b');
+    });
+
+    it('generates an id when none is provided', async () => {
+      await render(
+        <Tabs.Root defaultValue="a">
+          <Tabs.List>
+            <Tabs.Tab value="a">A</Tabs.Tab>
+          </Tabs.List>
+          <Tabs.Panel value="a" keepMounted />
+        </Tabs.Root>,
+      );
+
+      const tab = screen.getByRole('tab');
+      const panel = screen.getByRole('tabpanel', { hidden: true });
+
+      expect(panel.id).not.toBe('');
+      expect(tab).toHaveAttribute('aria-controls', panel.id);
+    });
+  });
+
   describe('panels sharing a value', () => {
     it('keeps the surviving registration when a shadowed panel unmounts', async () => {
       function App() {
