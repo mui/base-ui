@@ -45,6 +45,12 @@ typedManager.update('typed', {
   },
 });
 
+typedManager.update('typed', {
+  data: {
+    count: 2,
+  },
+});
+
 typedManager.promise(Promise.resolve(2), {
   loading: 'loading',
   success: (value) => ({
