@@ -162,6 +162,38 @@ describe('<Tabs.Root />', () => {
       });
     });
 
+    it('syncs aria-controls to a custom panel id when keepMounted is false', async () => {
+      const { user } = await render(
+        <Tabs.Root defaultValue="tab-0">
+          <Tabs.List>
+            <Tabs.Tab value="tab-0">Tab 0</Tabs.Tab>
+            <Tabs.Tab value="tab-1">Tab 1</Tabs.Tab>
+          </Tabs.List>
+          <Tabs.Panel value="tab-0" id="panel-0">
+            Panel 0
+          </Tabs.Panel>
+          <Tabs.Panel value="tab-1" id="panel-1">
+            Panel 1
+          </Tabs.Panel>
+        </Tabs.Root>,
+      );
+
+      const tabs = screen.getAllByRole('tab');
+
+      expect(tabs[0]).toHaveAttribute('aria-controls', 'panel-0');
+      expect(tabs[1]).not.toHaveAttribute('aria-controls');
+
+      await user.click(tabs[1]);
+
+      await waitFor(() => {
+        const [mountedPanel] = screen.getAllByRole('tabpanel');
+
+        expect(mountedPanel).toHaveTextContent('Panel 1');
+        expect(tabs[0]).not.toHaveAttribute('aria-controls');
+        expect(tabs[1]).toHaveAttribute('aria-controls', 'panel-1');
+      });
+    });
+
     it('cleans and replaces panel registrations in Strict Mode', async () => {
       function App() {
         const [panel, setPanel] = React.useState({ id: 'panel-a', mounted: true, value: 'a' });

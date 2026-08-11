@@ -60,6 +60,40 @@ describe('<Tabs.Panel />', () => {
       expect(tabB).toHaveAttribute('aria-controls', 'panel-b');
     });
 
+    it('updates aria-controls when the id prop changes', async () => {
+      function App() {
+        const [id, setId] = React.useState('first-id');
+
+        return (
+          <React.Fragment>
+            <button type="button" onClick={() => setId('second-id')}>
+              change id
+            </button>
+            <Tabs.Root defaultValue="a">
+              <Tabs.List>
+                <Tabs.Tab value="a">A</Tabs.Tab>
+              </Tabs.List>
+              <Tabs.Panel value="a" id={id} keepMounted />
+            </Tabs.Root>
+          </React.Fragment>
+        );
+      }
+
+      const { user } = await render(<App />);
+
+      const tab = screen.getByRole('tab');
+
+      expect(tab).toHaveAttribute('aria-controls', 'first-id');
+
+      await user.click(screen.getByRole('button', { name: 'change id' }));
+
+      await waitFor(() => {
+        expect(tab).toHaveAttribute('aria-controls', 'second-id');
+      });
+
+      expect(screen.getByRole('tabpanel', { hidden: true })).toHaveAttribute('id', 'second-id');
+    });
+
     it('generates an id when none is provided', async () => {
       await render(
         <Tabs.Root defaultValue="a">
