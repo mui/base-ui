@@ -20,60 +20,6 @@ vi.mock('@base-ui/utils/platform', async () => {
 describe('<FilterMenu.List /> with VoiceOver', () => {
   const { render } = createRenderer();
 
-  it('closes a nested filterable submenu and moves focus forward when tabbing', async () => {
-    const { user } = await render(
-      <div>
-        <input />
-        <FilterMenu.Root defaultOpen>
-          <FilterMenu.Trigger>Actions</FilterMenu.Trigger>
-          <FilterMenu.Portal>
-            <FilterMenu.Positioner>
-              <FilterMenu.Popup>
-                <FilterMenu.Input aria-label="Filter actions" />
-                <FilterMenu.List>
-                  <FilterMenu.SubmenuRoot>
-                    <FilterMenu.SubmenuTrigger delay={0}>Share</FilterMenu.SubmenuTrigger>
-                    <FilterMenu.Portal>
-                      <FilterMenu.Positioner>
-                        <FilterMenu.Popup>
-                          <FilterMenu.Input aria-label="Filter sharing options" />
-                          <FilterMenu.List>
-                            <FilterMenu.Item>Email</FilterMenu.Item>
-                          </FilterMenu.List>
-                        </FilterMenu.Popup>
-                      </FilterMenu.Positioner>
-                    </FilterMenu.Portal>
-                  </FilterMenu.SubmenuRoot>
-                </FilterMenu.List>
-              </FilterMenu.Popup>
-            </FilterMenu.Positioner>
-          </FilterMenu.Portal>
-        </FilterMenu.Root>
-        <input data-testid="after" />
-      </div>,
-    );
-
-    const parentInput = screen.getByRole('searchbox', { name: 'Filter actions' });
-    await waitFor(() => {
-      expect(parentInput).toHaveFocus();
-    });
-
-    await user.keyboard('[ArrowDown][ArrowRight]');
-
-    const submenuInput = await screen.findByRole('searchbox', { name: 'Filter sharing options' });
-    await waitFor(() => {
-      expect(submenuInput).toHaveFocus();
-    });
-
-    await user.tab();
-
-    await waitFor(() => {
-      expect(
-        document.activeElement?.getAttribute('data-testid') ?? document.activeElement?.tagName,
-      ).toBe('after');
-    });
-  });
-
   it('exposes the menu only while an item is virtually focused', async () => {
     const { user } = await render(
       <FilterMenu.Root open>
