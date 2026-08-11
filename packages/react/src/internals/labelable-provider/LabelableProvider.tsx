@@ -40,6 +40,10 @@ export const LabelableProvider: React.FC<LabelableProvider.Props> = function Lab
     // Keep the previously selected id while it is still registered so an unrelated
     // registration doesn't steal the selection.
     setControlIdState((prev) => {
+      if (registrations.size === 0) {
+        return prev;
+      }
+
       let nextControlId: string | undefined;
 
       for (const id of registrations.values()) {

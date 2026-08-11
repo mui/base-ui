@@ -130,7 +130,7 @@ describe('<Field.Control />', () => {
   });
 
   describe('id', () => {
-    it('updates the label association when the control is swapped', () => {
+    it('updates the label association when the control is swapped', async () => {
       function App() {
         const [controlKey, setControlKey] = React.useState('a');
         return (
@@ -144,7 +144,7 @@ describe('<Field.Control />', () => {
         );
       }
 
-      renderNonStrict(<App />);
+      await renderNonStrict(<App />);
 
       expect(screen.getByRole('textbox')).toHaveAttribute('id', 'a');
       expect(screen.getByTestId('label')).toHaveAttribute('for', 'a');
