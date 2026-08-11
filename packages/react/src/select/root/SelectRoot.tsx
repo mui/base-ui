@@ -533,9 +533,14 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     // Clear the active descendant at a list boundary so virtual focus returns to the filter
     // input before navigation loops to the other end.
     allowEscape: filterable,
-    focusItemOnOpen: filterable ? false : undefined,
-    // always start virtual focus on the input when filterable
-    selectedIndex: filterable ? undefined : selectionReferenceIndex,
+    // Matches Combobox: opening a filterable select with a selection highlights the selected
+    // item and scrolls it into view, while DOM focus stays on the filter input. Without a
+    // selection, virtual focus starts on the input rather than the first item. Gated on the
+    // value (not `selectionReferenceIndex`) because items are unmounted while closed, so the
+    // index only resolves after the popup opens.
+    // eslint-disable-next-line no-nested-ternary
+    focusItemOnOpen: filterable ? (hasSelectedValue ? 'auto' : false) : undefined,
+    selectedIndex: selectionReferenceIndex,
     disabledIndices: EMPTY_ARRAY,
     focusItemOnHover: highlightItemOnHover,
     onNavigate(nextActiveIndex, event) {
