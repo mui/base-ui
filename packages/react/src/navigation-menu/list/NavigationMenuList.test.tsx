@@ -1,5 +1,6 @@
 import { vi } from 'vitest';
-import { fireEvent, screen } from '@mui/internal-test-utils';
+import * as React from 'react';
+import { act, fireEvent, flushMicrotasks, screen } from '@mui/internal-test-utils';
 import { NavigationMenu } from '@base-ui/react/navigation-menu';
 import { createRenderer, describeConformance } from '#test-utils';
 
@@ -50,5 +51,53 @@ describe('<NavigationMenu.List />', () => {
     fireEvent.keyDown(trigger, { key: 'PageDown' });
 
     expect(handleKeyDown.mock.calls.length).toBe(1);
+  });
+
+  describe('item removal', () => {
+    function App({ showFirst }: { showFirst: boolean }) {
+      return (
+        <NavigationMenu.Root>
+          <NavigationMenu.List>
+            {showFirst && (
+              <NavigationMenu.Item>
+                <NavigationMenu.Trigger data-testid="first">One</NavigationMenu.Trigger>
+              </NavigationMenu.Item>
+            )}
+            <NavigationMenu.Item>
+              <NavigationMenu.Trigger data-testid="middle">Two</NavigationMenu.Trigger>
+            </NavigationMenu.Item>
+            <NavigationMenu.Item>
+              <NavigationMenu.Trigger data-testid="last">Three</NavigationMenu.Trigger>
+            </NavigationMenu.Item>
+          </NavigationMenu.List>
+        </NavigationMenu.Root>
+      );
+    }
+
+    it('navigates from the focused trigger after an earlier item is removed', async () => {
+      const { setProps } = await render(<App showFirst />);
+
+      const first = screen.getByTestId('first');
+      await act(async () => {
+        first.focus();
+      });
+
+      fireEvent.keyDown(first, { key: 'ArrowRight' });
+      await flushMicrotasks();
+
+      const middle = screen.getByTestId('middle');
+      fireEvent.keyDown(middle, { key: 'ArrowRight' });
+      await flushMicrotasks();
+
+      const last = screen.getByTestId('last');
+      expect(last).toHaveFocus();
+
+      await setProps({ showFirst: false });
+
+      fireEvent.keyDown(last, { key: 'ArrowLeft' });
+      await flushMicrotasks();
+
+      expect(middle).toHaveFocus();
+    });
   });
 });
