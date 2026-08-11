@@ -351,9 +351,15 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
         if (
           // Allow pinch-zooming.
           event.ctrlKey ||
-          activeElement(ownerDocument(inputRef.current)) !== inputRef.current ||
-          event.deltaY === 0
+          activeElement(ownerDocument(inputRef.current)) !== inputRef.current
         ) {
+          return;
+        }
+
+        // Shift + wheel is delivered on the horizontal axis by some browsers.
+        const delta = event.deltaY !== 0 || !event.shiftKey ? event.deltaY : event.deltaX;
+        // Ignore horizontal wheel/trackpad gestures so the page can scroll
+        if (delta === 0) {
           return;
         }
 
@@ -366,7 +372,7 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
         // Each wheel turn is a discrete, final change, so commit it immediately like keyboard
         // steps (gated on an actual change so boundary no-ops don't commit).
         const changed = incrementValue(amount, {
-          direction: event.deltaY > 0 ? -1 : 1,
+          direction: delta > 0 ? -1 : 1,
           event,
           reason: REASONS.wheel,
         });
