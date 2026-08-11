@@ -3,7 +3,6 @@ import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { useStore } from '@base-ui/utils/store';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
-import { error } from '@base-ui/utils/error';
 import {
   useComboboxRootContext,
   useComboboxHasItemsContext,
@@ -74,25 +73,6 @@ function ComboboxItemInner(props: ComboboxItemInnerProps) {
   const itemProps = useStore(store, selectors.itemProps);
 
   const itemRef = React.useRef<HTMLDivElement | null>(null);
-
-  /* istanbul ignore else -- `process.env.NODE_ENV` is a build-time constant under test. */
-  if (process.env.NODE_ENV !== 'production') {
-    // eslint-disable-next-line react-hooks/rules-of-hooks
-    React.useEffect(() => {
-      if (
-        hasItems &&
-        store.state.items === undefined &&
-        itemValue !== null &&
-        typeof itemValue === 'object'
-      ) {
-        error(
-          'The `value` prop of <Combobox.Item> is a source item of the `items` collection rather ' +
-            'than the value derived from it, so the item can never be selected or resolved back ' +
-            'to its label. Pass the `getValue` result to <Combobox.Item> instead of the item.',
-        );
-      }
-    }, [hasItems, itemValue, store]);
-  }
 
   const id = rootId != null && hasRegistered ? `${rootId}-${index}` : undefined;
   const selected = matchesSelectedValue && selectable;
