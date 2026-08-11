@@ -1442,11 +1442,16 @@ describe('<NumberField />', () => {
       const input = screen.getByRole('textbox');
       await act(async () => input.focus());
 
-      fireEvent.wheel(input, { deltaY: 1, deltaX: -0.5 });
+      // `fireEvent` returns false when the event was canceled, which is what stops the page
+      // from scrolling out from under the user while the value scrubs.
+      expect(fireEvent.wheel(input, { deltaY: 1, deltaX: -0.5 })).toBe(false);
       expect(input).toHaveValue('4');
 
-      fireEvent.wheel(input, { deltaY: -1, deltaX: 0.5 });
+      expect(fireEvent.wheel(input, { deltaY: -1, deltaX: 0.5 })).toBe(false);
       expect(input).toHaveValue('5');
+
+      expect(fireEvent.wheel(input, { deltaY: 1 })).toBe(false);
+      expect(input).toHaveValue('4');
     });
 
     it('uses largeStep when shift is held and the browser swaps the wheel axis', async () => {
@@ -1456,10 +1461,18 @@ describe('<NumberField />', () => {
 
       // Chromium delivers shift + wheel as a horizontal event, so the horizontal delta carries
       // the intended direction: positive is "down", which steps the value down.
-      fireEvent.wheel(input, { deltaY: 0, deltaX: -100, shiftKey: true });
+      expect(fireEvent.wheel(input, { deltaY: 0, deltaX: -100, shiftKey: true })).toBe(false);
       expect(input).toHaveValue('10');
 
-      fireEvent.wheel(input, { deltaY: 0, deltaX: 100, shiftKey: true });
+      expect(fireEvent.wheel(input, { deltaY: 0, deltaX: 100, shiftKey: true })).toBe(false);
+      expect(input).toHaveValue('0');
+
+      // Cross-axis noise must not flip the direction of the same physical gesture, so the noise
+      // here opposes the horizontal delta: the dominant axis has to win.
+      expect(fireEvent.wheel(input, { deltaY: 0.5, deltaX: -100, shiftKey: true })).toBe(false);
+      expect(input).toHaveValue('10');
+
+      expect(fireEvent.wheel(input, { deltaY: -0.5, deltaX: 100, shiftKey: true })).toBe(false);
       expect(input).toHaveValue('0');
     });
 
