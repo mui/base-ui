@@ -18,6 +18,7 @@ import {
   findNonDisabledListIndex,
   getMaxListIndex,
   getMinListIndex,
+  isElementVisible,
   isListIndexDisabled,
   isIndexOutOfListBounds,
   isNativeInput,
@@ -106,10 +107,21 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
   });
 
   const onMapChange = useStableCallback((map: Map<Element, CompositeMetadata<any>>) => {
-    if (map.size === 0 || hasSetDefaultIndexRef.current) {
+    if (map.size === 0) {
       return;
     }
+
+    if (hasSetDefaultIndexRef.current) {
+      // Removing items can leave the highlighted index past the end of the list, which takes the
+      // single roving tab stop away from every remaining item.
+      if (isIndexOutOfListBounds(elementsRef.current, highlightedIndex)) {
+        onHighlightedIndexChange(getFallbackIndex(map));
+      }
+      return;
+    }
+
     hasSetDefaultIndexRef.current = true;
+
     const sortedElements = Array.from(map.keys()) as Array<HTMLElement | null>;
     const activeItem =
       sortedElements.find((compositeElement) =>
@@ -311,6 +323,30 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
     onMapChange,
     relayKeyboardEvent: onKeyDown,
   };
+}
+
+// Resolves the item that should hold the tab stop: the active item when it can take focus,
+// otherwise the first item that can.
+function getFallbackIndex(map: Map<Element, CompositeMetadata<any>>) {
+  let fallbackIndex = -1;
+
+  for (const [element, metadata] of map) {
+    if (isElementDisabled(element as HTMLElement) || !isElementVisible(element)) {
+      continue;
+    }
+
+    if (element.hasAttribute(ACTIVE_COMPOSITE_ITEM)) {
+      return metadata.index;
+    }
+
+    if (fallbackIndex === -1) {
+      fallbackIndex = metadata.index;
+    }
+  }
+
+  // No item can take focus. Keep the index in range so the composite regains a tab stop as soon
+  // as one of its items becomes focusable again.
+  return fallbackIndex === -1 ? 0 : fallbackIndex;
 }
 
 function isModifierKeySet(event: React.KeyboardEvent, ignoredModifierKeys: ModifierKey[]) {
