@@ -356,10 +356,17 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
           return;
         }
 
-        // Shift + wheel is delivered on the horizontal axis by some browsers.
+        // Shift + wheel is delivered on the horizontal axis by some browsers, so there the
+        // horizontal delta is the intended vertical one.
         const delta = event.deltaY !== 0 || !event.shiftKey ? event.deltaY : event.deltaX;
-        // Ignore horizontal wheel/trackpad gestures so the page can scroll
-        if (delta === 0) {
+
+        // Ignore horizontal gestures so the page can scroll instead of scrubbing. Touchpads emit
+        // sub-pixel noise on the cross axis, so compare the axes rather than requiring an exact
+        // zero. Shift is exempt: its gesture is horizontal wherever the browser swaps the axis.
+        const isHorizontalGesture =
+          !event.shiftKey && Math.abs(event.deltaX) > Math.abs(event.deltaY);
+
+        if (delta === 0 || isHorizontalGesture) {
           return;
         }
 

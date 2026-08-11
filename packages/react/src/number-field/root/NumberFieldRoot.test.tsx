@@ -1409,7 +1409,7 @@ describe('<NumberField />', () => {
       expect(onValueChange).not.toHaveBeenCalled();
     });
 
-    it('does not scrub on a horizontal wheel event', async () => {
+    it('does not scrub on a horizontal wheel event, and lets it scroll the page', async () => {
       const onValueChange = vi.fn();
       const onValueCommitted = vi.fn();
       await render(
@@ -1423,52 +1423,44 @@ describe('<NumberField />', () => {
       const input = screen.getByRole('textbox');
       await act(async () => input.focus());
 
-      fireEvent.wheel(input, { deltaY: 0, deltaX: 100 });
-      expect(input).toHaveValue('5');
+      // `fireEvent` returns false when the event was canceled with `preventDefault`.
+      expect(fireEvent.wheel(input, { deltaY: 0, deltaX: 100 })).toBe(true);
+      expect(fireEvent.wheel(input, { deltaY: 0, deltaX: -100 })).toBe(true);
+      // A precision touchpad emits sub-pixel noise on the cross axis during a sideways swipe.
+      expect(fireEvent.wheel(input, { deltaY: -0.5, deltaX: 100 })).toBe(true);
+      expect(fireEvent.wheel(input, { deltaY: 0.5, deltaX: -100 })).toBe(true);
+      // An event with no movement at all.
+      expect(fireEvent.wheel(input, { deltaY: 0, deltaX: 0 })).toBe(true);
 
-      fireEvent.wheel(input, { deltaY: 0, deltaX: -100 });
       expect(input).toHaveValue('5');
-
       expect(onValueChange).not.toHaveBeenCalled();
       expect(onValueCommitted).not.toHaveBeenCalled();
     });
 
-    it('does not scrub on a horizontal wheel event while shift is held', async () => {
-      const onValueChange = vi.fn();
-      await render(
-        <NumberField
-          defaultValue={0}
-          largeStep={10}
-          allowWheelScrub
-          onValueChange={onValueChange}
-        />,
-      );
-      const input = screen.getByRole('textbox');
-      await act(async () => input.focus());
-
-      fireEvent.wheel(input, { deltaY: 0, deltaX: -100, shiftKey: true });
-      expect(input).toHaveValue('0');
-      expect(onValueChange).not.toHaveBeenCalled();
-    });
-
-    it('does not scrub on a wheel event with no delta', async () => {
-      const onValueChange = vi.fn();
-      await render(<NumberField defaultValue={5} allowWheelScrub onValueChange={onValueChange} />);
-      const input = screen.getByRole('textbox');
-      await act(async () => input.focus());
-
-      fireEvent.wheel(input, { deltaY: 0, deltaX: 0 });
-      expect(input).toHaveValue('5');
-      expect(onValueChange).not.toHaveBeenCalled();
-    });
-
-    it('does not block scrolling for a wheel event it ignores', async () => {
+    it('scrubs on a vertical wheel event that carries horizontal noise', async () => {
       await render(<NumberField defaultValue={5} allowWheelScrub />);
       const input = screen.getByRole('textbox');
       await act(async () => input.focus());
 
-      const horizontalWheel = fireEvent.wheel(input, { deltaY: 0, deltaX: 100 });
-      expect(horizontalWheel).toBe(true);
+      fireEvent.wheel(input, { deltaY: 1, deltaX: -0.5 });
+      expect(input).toHaveValue('4');
+
+      fireEvent.wheel(input, { deltaY: -1, deltaX: 0.5 });
+      expect(input).toHaveValue('5');
+    });
+
+    it('uses largeStep when shift is held and the browser swaps the wheel axis', async () => {
+      await render(<NumberField defaultValue={0} largeStep={10} allowWheelScrub />);
+      const input = screen.getByRole('textbox');
+      await act(async () => input.focus());
+
+      // Chromium delivers shift + wheel as a horizontal event, so the horizontal delta carries
+      // the intended direction: positive is "down", which steps the value down.
+      fireEvent.wheel(input, { deltaY: 0, deltaX: -100, shiftKey: true });
+      expect(input).toHaveValue('10');
+
+      fireEvent.wheel(input, { deltaY: 0, deltaX: 100, shiftKey: true });
+      expect(input).toHaveValue('0');
     });
 
     it('uses largeStep when shift is held during wheel', async () => {
