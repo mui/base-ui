@@ -1,5 +1,23 @@
 # Contributing to Base UI
 
+## Prerequisites
+
+The repository declares its supported toolchain in the `engines` field of `package.json` and enables pnpm's `engineStrict`, so installing with an unsupported version fails early:
+
+- [Node.js](https://nodejs.org/) 22.22.3 or newer.
+- [pnpm](https://pnpm.io/installation) 11.17.0 exactly. yarn and npm aren't supported.
+
+The pnpm version is also pinned in the `packageManager` field, and pnpm 10 and newer honors that pin, so a recent pnpm switches to the required version on its own when run inside the repository.
+Alternatively, enable [Corepack](https://nodejs.org/api/corepack.html) so that Node.js installs the pinned version for you:
+
+```bash
+corepack enable
+```
+
+Corepack isn't bundled with Node.js 25 and newer, so on those versions install pnpm directly.
+
+Treat `package.json` as the source of truth—the versions listed above can fall out of date.
+
 ## Sending a pull request
 
 Base UI is community-driven, so pull requests are always welcome, but before working on a large change, it's best to open an issue first to discuss it with the maintainers.
@@ -121,7 +139,7 @@ For CircleCI, you need to log in first.
 No further permissions are required to view the build logs.
 The following sections give an overview of what each check is responsible for.
 
-#### Continuous Releases
+#### Package Preview
 
 This task publishes a preview for the packages to pkg.pr.new. It should not fail in isolation. Use it to test more complex scenarios.
 
