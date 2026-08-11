@@ -16,40 +16,47 @@ export function useCheckboxGroupParent(
   const [status, setStatus] = React.useState<'on' | 'off' | 'mixed'>('mixed');
   // A `Map` rather than an object: checkbox values are consumer data, and a value like
   // `constructor` would otherwise read straight off `Object.prototype`.
-  const [childIds, setChildIds] = React.useState<ReadonlyMap<string, string>>(() => new Map());
+  const [childIds, setChildIds] = React.useState<ReadonlyMap<string, ReadonlySet<string>>>(
+    () => new Map(),
+  );
 
   const checked = value.length === allValues.length;
   const indeterminate = value.length !== allValues.length && value.length > 0;
 
   const onValueChange = useStableCallback(onValueChangeProp);
 
-  const registerChildId = useStableCallback(
-    (childValue: string, childId: string | undefined, releasedId?: string) => {
+  const registerChildId = useStableCallback((childValue: string, childId: string) => {
+    setChildIds((prev) => {
+      const ids = prev.get(childValue);
+      if (ids?.has(childId)) {
+        return prev;
+      }
+
+      const next = new Map(prev);
+      next.set(childValue, new Set(ids).add(childId));
+      return next;
+    });
+
+    return () => {
       setChildIds((prev) => {
-        if (prev.get(childValue) === childId) {
+        const ids = prev.get(childValue);
+        if (!ids?.has(childId)) {
           return prev;
         }
 
-        // Two checkboxes can share a `value`. The one unmounting must not evict an entry a
-        // later sibling now owns.
-        if (
-          childId === undefined &&
-          releasedId !== undefined &&
-          prev.get(childValue) !== releasedId
-        ) {
-          return prev;
-        }
+        const nextIds = new Set(ids);
+        nextIds.delete(childId);
 
         const next = new Map(prev);
-        if (childId === undefined) {
+        if (nextIds.size === 0) {
           next.delete(childValue);
         } else {
-          next.set(childValue, childId);
+          next.set(childValue, nextIds);
         }
         return next;
       });
-    },
-  );
+    };
+  });
 
   const getParentProps: UseCheckboxGroupParentReturnValue['getParentProps'] = React.useCallback(
     () => ({
@@ -59,10 +66,7 @@ export function useCheckboxGroupParent(
       // `id` and never names an element that isn't rendered. It stays out of server markup,
       // where the parent can't control anything yet.
       'aria-controls':
-        allValues
-          .map((v) => childIds.get(v))
-          .filter((childId) => childId !== undefined)
-          .join(' ') || undefined,
+        allValues.flatMap((v) => Array.from(childIds.get(v) ?? EMPTY_ARRAY)).join(' ') || undefined,
       onCheckedChange(_, eventDetails) {
         const uncontrolledState = uncontrolledStateRef.current;
 
@@ -158,9 +162,9 @@ export interface UseCheckboxGroupParentReturnValue {
   disabledStatesRef: React.RefObject<Map<string, boolean>>;
   /**
    * Reports the `id` of the element a child checkbox exposes, so the parent can reference it
-   * through `aria-controls`. To unregister, pass `undefined` along with the id being released.
+   * through `aria-controls`.
    */
-  registerChildId: (value: string, id: string | undefined, releasedId?: string) => void;
+  registerChildId: (value: string, id: string) => () => void;
   getParentProps: () => {
     indeterminate: boolean;
     checked: boolean;

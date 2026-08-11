@@ -248,20 +248,26 @@ describe('useCheckboxGroupParent', () => {
     );
   });
 
-  it('keeps aria-controls when one of two checkboxes sharing a value unmounts', async () => {
-    function App(props: { showFirstB: boolean }) {
+  it('keeps both ids for checkboxes sharing a value and retains the survivor', async () => {
+    function App(props: { showSecondB: boolean }) {
       return (
         <CheckboxGroup allValues={allValues}>
           <Checkbox.Root parent data-testid="parent" />
           <Checkbox.Root value="a" data-testid="a" />
-          {props.showFirstB && <Checkbox.Root value="b" />}
           <Checkbox.Root value="b" data-testid="b" />
+          {props.showSecondB && <Checkbox.Root value="b" data-testid="second-b" />}
         </CheckboxGroup>
       );
     }
 
-    const { rerender } = await render(<App showFirstB />);
-    await rerender(<App showFirstB={false} />);
+    const { rerender } = await render(<App showSecondB />);
+
+    expect(screen.getByTestId('parent')).toHaveAttribute(
+      'aria-controls',
+      `${screen.getByTestId('a').id} ${screen.getByTestId('b').id} ${screen.getByTestId('second-b').id}`,
+    );
+
+    await rerender(<App showSecondB={false} />);
 
     expect(screen.getByTestId('parent')).toHaveAttribute(
       'aria-controls',

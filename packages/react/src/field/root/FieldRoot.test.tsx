@@ -21,6 +21,14 @@ import {
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 import { LabelableProvider } from '../../internals/labelable-provider';
 
+type ActivityProps = {
+  mode: 'visible' | 'hidden';
+  children: React.ReactNode;
+};
+
+const Activity = (React as typeof React & { Activity: React.ComponentType<ActivityProps> })
+  .Activity;
+
 describe('<Field.Root />', () => {
   const { render, renderToString } = createRenderer();
   const { render: renderStrict } = createRenderer({ strict: true });
@@ -303,7 +311,7 @@ describe('<Field.Root />', () => {
   );
 
   it.skipIf(reactMajor < 19)(
-    'does not loop when a control is unmounted and remounted',
+    'preserves label association without looping when a control is unmounted and remounted',
     async () => {
       const errorSpy = vi
         .spyOn(console, 'error')
@@ -311,26 +319,16 @@ describe('<Field.Root />', () => {
         .mockImplementation(() => {});
 
       try {
-        type ActivityProps = {
-          mode: 'visible' | 'hidden';
-          children: React.ReactNode;
-        };
-
-        const Activity = (React as typeof React & { Activity: React.ComponentType<ActivityProps> })
-          .Activity;
-
         function TestCase() {
           const [showSelect, setShowSelect] = React.useState(true);
 
           return (
             <React.Fragment>
               <Field.Root>
-                <Field.Label nativeLabel={false} render={<div />}>
-                  Label
-                </Field.Label>
+                <Field.Label data-testid="label">Label</Field.Label>
                 <Activity mode={showSelect ? 'visible' : 'hidden'}>
                   <Select.Root id="select">
-                    <Select.Trigger>
+                    <Select.Trigger data-testid="trigger">
                       <Select.Value placeholder="Select a model" />
                     </Select.Trigger>
                     <Select.Portal>
@@ -356,14 +354,142 @@ describe('<Field.Root />', () => {
         await renderStrict(<TestCase />);
 
         const checkbox = screen.getByRole('checkbox');
+        const label = screen.getByTestId('label');
+
+        expect(label).toHaveAttribute('for', screen.getByTestId('trigger').id);
 
         fireEvent.click(checkbox);
+
+        expect(label).toHaveAttribute('for', screen.getByTestId('trigger').id);
+
         fireEvent.click(checkbox);
 
+        expect(label).toHaveAttribute('for', screen.getByTestId('trigger').id);
         expect(errorSpy.mock.calls.length).toBe(0);
       } finally {
         errorSpy.mockRestore();
       }
+    },
+  );
+
+  it.skipIf(reactMajor < 19)(
+    'preserves a non-native label association when a control is unmounted and remounted',
+    async () => {
+      function TestCase() {
+        const [showSelect, setShowSelect] = React.useState(true);
+
+        return (
+          <React.Fragment>
+            <Field.Root>
+              <Field.Label nativeLabel={false} render={<div />} data-testid="label">
+                Label
+              </Field.Label>
+              <Activity mode={showSelect ? 'visible' : 'hidden'}>
+                <Select.Root>
+                  <Select.Trigger data-testid="trigger">
+                    <Select.Value placeholder="Select a model" />
+                  </Select.Trigger>
+                </Select.Root>
+              </Activity>
+            </Field.Root>
+            <Checkbox.Root
+              checked={!showSelect}
+              onCheckedChange={(checked) => {
+                setShowSelect(!checked);
+              }}
+            />
+          </React.Fragment>
+        );
+      }
+
+      await renderStrict(<TestCase />);
+
+      const checkbox = screen.getByRole('checkbox');
+      const labelId = screen.getByTestId('label').id;
+
+      expect(screen.getByTestId('trigger')).toHaveAttribute('aria-labelledby', labelId);
+
+      fireEvent.click(checkbox);
+
+      expect(screen.getByTestId('trigger')).toHaveAttribute('aria-labelledby', labelId);
+
+      fireEvent.click(checkbox);
+
+      expect(screen.getByTestId('trigger')).toHaveAttribute('aria-labelledby', labelId);
+    },
+  );
+
+  it.skipIf(reactMajor < 19)(
+    'keeps an explicit control id while the subtree is hidden',
+    async () => {
+      function TestCase() {
+        const [visible, setVisible] = React.useState(true);
+
+        return (
+          <React.Fragment>
+            <Field.Root>
+              <Field.Label data-testid="label">Email</Field.Label>
+              <Activity mode={visible ? 'visible' : 'hidden'}>
+                <Field.Control id="email" data-testid="control" />
+              </Activity>
+            </Field.Root>
+            <button type="button" onClick={() => setVisible(false)}>
+              hide
+            </button>
+          </React.Fragment>
+        );
+      }
+
+      await render(<TestCase />);
+
+      expect(screen.getByTestId('control')).toHaveAttribute('id', 'email');
+      expect(screen.getByTestId('label')).toHaveAttribute('for', 'email');
+
+      fireEvent.click(screen.getByRole('button', { name: 'hide' }));
+
+      // Hiding destroys the control's effects but keeps its DOM, so the association must hold.
+      expect(screen.getByTestId('control')).toHaveAttribute('id', 'email');
+      expect(screen.getByTestId('label')).toHaveAttribute('for', 'email');
+    },
+  );
+
+  it.skipIf(reactMajor < 19)(
+    'keeps the group label association while a subtree with several checkboxes is hidden',
+    async () => {
+      function TestCase() {
+        const [visible, setVisible] = React.useState(true);
+
+        return (
+          <React.Fragment>
+            <Field.Root>
+              <Field.Label data-testid="label">Apples</Field.Label>
+              <Activity mode={visible ? 'visible' : 'hidden'}>
+                <CheckboxGroup allValues={['fuji', 'gala']} defaultValue={[]} data-testid="group">
+                  <Checkbox.Root parent />
+                  <Checkbox.Root value="fuji" />
+                  <Checkbox.Root value="gala" />
+                </CheckboxGroup>
+              </Activity>
+            </Field.Root>
+            <button type="button" onClick={() => setVisible(false)}>
+              hide
+            </button>
+          </React.Fragment>
+        );
+      }
+
+      await render(<TestCase />);
+
+      const label = screen.getByTestId('label');
+      const group = screen.getByTestId('group');
+
+      expect(label).not.toHaveAttribute('for');
+      expect(group).toHaveAttribute('aria-labelledby', label.id);
+
+      fireEvent.click(screen.getByRole('button', { name: 'hide' }));
+
+      expect(label).not.toHaveAttribute('for');
+      expect(group).toHaveAttribute('aria-labelledby', label.id);
     },
   );
 

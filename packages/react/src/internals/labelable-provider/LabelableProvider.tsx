@@ -12,11 +12,15 @@ export const LabelableProvider: React.FC<LabelableProvider.Props> = function Lab
   const defaultId = useBaseUiId();
   const initialControlId = props.controlId === undefined ? defaultId : props.controlId;
 
-  const [controlId, setControlIdState] = React.useState<string | null | undefined>(
+  const [controlIdState, setControlIdState] = React.useState<string | null | undefined>(
     initialControlId,
   );
   const [labelId, setLabelId] = React.useState<string | undefined>(props.labelId);
   const [messageIds, setMessageIds] = React.useState<string[]>([]);
+
+  // `undefined` only survives until the React 17 fallback id is assigned. Do not use `??`:
+  // `null` deliberately suppresses `htmlFor`.
+  const controlId = controlIdState === undefined ? initialControlId : controlIdState;
 
   const registrationsRef = useRefWithInit(() => new Map<symbol, string | null>());
 
@@ -33,17 +37,18 @@ export const LabelableProvider: React.FC<LabelableProvider.Props> = function Lab
       }
 
       setControlIdState((prev) => {
-        // Controls rendered without an explicit `id` adopt this provider's own id instead of
-        // registering one, so fall back to the initial id once nothing is registered.
         if (registrations.size === 0) {
-          return initialControlId;
+          // A hidden subtree (React Activity, a re-suspending Suspense) destroys effects but keeps
+          // its DOM, so preserve its selected control. A `null` initial id is an explicit request
+          // to restore the scope's implicit/aria-labelledby association after the last control.
+          return initialControlId === null ? null : prev;
         }
 
         let nextControlId: string | null | undefined;
 
         for (const id of registrations.values()) {
           // Keep the current selection while it is still registered, so rapid unmount/remount
-          // cycles (e.g. React Activity) don't churn it.
+          // cycles don't churn it.
           if (prev !== undefined && id === prev) {
             return prev;
           }
@@ -76,6 +81,7 @@ export const LabelableProvider: React.FC<LabelableProvider.Props> = function Lab
   const contextValue: LabelableContext = React.useMemo(
     () => ({
       controlId,
+      initialControlId,
       registerControlId,
       labelId,
       setLabelId,
@@ -85,6 +91,7 @@ export const LabelableProvider: React.FC<LabelableProvider.Props> = function Lab
     }),
     [
       controlId,
+      initialControlId,
       registerControlId,
       labelId,
       setLabelId,

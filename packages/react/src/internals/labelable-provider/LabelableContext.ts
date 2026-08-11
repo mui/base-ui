@@ -10,6 +10,10 @@ export interface LabelableContext {
    * because the control takes its name from `aria-labelledby`.
    */
   controlId: string | null | undefined;
+  /**
+   * The provider's control id before mounted controls register their own ids.
+   */
+  initialControlId: string | null | undefined;
   registerControlId: (source: symbol, id: string | null | undefined) => void;
   /**
    * The `id` of the label.
@@ -30,6 +34,7 @@ export interface LabelableContext {
  */
 export const LabelableContext = React.createContext<LabelableContext>({
   controlId: undefined,
+  initialControlId: undefined,
   registerControlId: NOOP,
   labelId: undefined,
   setLabelId: NOOP,
