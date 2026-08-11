@@ -1,4 +1,4 @@
-import { clamp } from '../internals/clamp';
+import { clamp } from '@base-ui/utils/clamp';
 
 export const SCROLL_EDGE_TOLERANCE_PX = 1;
 

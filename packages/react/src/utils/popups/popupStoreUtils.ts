@@ -119,57 +119,67 @@ export function PopupHandleAttachment<Store>({
   return null;
 }
 
+function syncTriggerCount(store: PopupTriggerDataStore<PopupStoreState<unknown>>) {
+  const triggerCount = store.context.triggerElements.size;
+  if (store.select('open') && store.state.triggerCount !== triggerCount) {
+    store.set('triggerCount', triggerCount);
+  }
+}
+
 /**
- * Returns a callback ref that registers/unregisters the trigger element in the store.
+ * Returns a stable callback ref that registers/unregisters the trigger element in the store.
  *
+ * Stable so a downstream ref merger that retains the callback it was first given still reaches the
+ * trigger's current store. The registration is tracked as a `(store, id, element)` triple, so
+ * unregistering targets the store the element was actually registered in.
+ *
+ * Since the callback never changes, the caller must re-run it from a layout effect keyed on
+ * `[store, id]` to migrate an already-registered element. That effect is also what registers the
+ * element in the first place when `id` only resolves after the first commit (React 17's `useId`
+ * fallback), because the register call made while the id is still `undefined` does nothing.
+ *
+ * @param id Id of the trigger.
  * @param store The Store instance where the trigger should be registered.
  */
 export function useTriggerRegistration<State extends PopupStoreState<unknown>>(
   id: string | undefined,
   store: PopupTriggerDataStore<State>,
 ) {
-  // Keep track of the currently registered element to unregister it on unmount or id change.
-  const registeredElementIdRef = React.useRef<string | null>(null);
-  const registeredElementRef = React.useRef<Element | null>(null);
+  const registrationRef = React.useRef<{
+    store: PopupTriggerDataStore<State>;
+    id: string;
+    element: Element;
+  } | null>(null);
 
-  return React.useCallback(
-    (element: Element | null) => {
-      if (id === undefined) {
+  return useStableCallback((element: Element | null) => {
+    const registration = registrationRef.current;
+
+    if (registration !== null) {
+      if (
+        registration.element === element &&
+        registration.store === store &&
+        registration.id === id
+      ) {
+        // Already registered where it belongs, so the caller's migration effect is free on mount.
         return;
       }
 
-      let shouldSyncTriggerCount = false;
-
-      if (registeredElementIdRef.current !== null) {
-        const registeredId = registeredElementIdRef.current;
-        const registeredElement = registeredElementRef.current;
-        const currentElement = store.context.triggerElements.getById(registeredId);
-
-        if (registeredElement && currentElement === registeredElement) {
-          store.context.triggerElements.delete(registeredId);
-          shouldSyncTriggerCount = true;
-        }
-
-        registeredElementIdRef.current = null;
-        registeredElementRef.current = null;
+      registrationRef.current = null;
+      const registeredStore = registration.store;
+      if (
+        registeredStore.context.triggerElements.getById(registration.id) === registration.element
+      ) {
+        registeredStore.context.triggerElements.delete(registration.id);
+        syncTriggerCount(registeredStore);
       }
+    }
 
-      if (element !== null) {
-        registeredElementIdRef.current = id;
-        registeredElementRef.current = element;
-        store.context.triggerElements.add(id, element);
-        shouldSyncTriggerCount = true;
-      }
-
-      if (shouldSyncTriggerCount) {
-        const triggerCount = store.context.triggerElements.size;
-        if (store.select('open') && store.state.triggerCount !== triggerCount) {
-          store.set('triggerCount', triggerCount);
-        }
-      }
-    },
-    [store, id],
-  );
+    if (element !== null && id !== undefined) {
+      registrationRef.current = { store, id, element };
+      store.context.triggerElements.add(id, element);
+      syncTriggerCount(store);
+    }
+  });
 }
 
 type PopupOpenState = Pick<
@@ -347,20 +357,21 @@ export function useTriggerDataForwarding<
     }
   });
 
-  // Intentionally NOT stable. Its identity is derived from `baseRegisterTrigger`, which is keyed on
-  // `[store, id]`, so when a handle-backed trigger's store pointer swaps the merged ref re-fires —
-  // unregistering from the previous store and registering into the new one. This lets a detached
-  // trigger follow its handle's currently-attached store across attach/detach/remount. (A stable
-  // callback would keep its identity and never re-fire on a store swap.)
-  const registerTrigger = React.useCallback(
-    (element: Element | null) => {
-      baseRegisterTrigger(element);
-      if (element) {
-        applyTriggerData(element);
-      }
-    },
-    [baseRegisterTrigger, applyTriggerData],
-  );
+  // Stable, so the merged ref on the rendered element keeps its identity for the trigger's whole
+  // lifetime.
+  const registerTrigger = useStableCallback((element: Element | null) => {
+    baseRegisterTrigger(element);
+    if (element) {
+      applyTriggerData(element);
+    }
+  });
+
+  // A stable ref does not re-fire on a store or id change, so migrate here instead: unregister from
+  // the previous store, then register the element the trigger still renders into the current one.
+  useIsoLayoutEffect(() => {
+    registerTrigger(triggerElementRef.current);
+    return () => registerTrigger(null);
+  }, [registerTrigger, triggerElementRef, store, triggerId]);
 
   useIsoLayoutEffect(() => {
     if (isMountedByThisTrigger) {

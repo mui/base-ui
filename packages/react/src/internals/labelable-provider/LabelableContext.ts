@@ -6,10 +6,9 @@ import { HTMLProps } from '../types';
 export interface LabelableContext {
   /**
    * The `id` of the labelable element.
-   * When `null` the association is implicit.
    */
-  controlId: string | null | undefined;
-  registerControlId: (source: symbol, id: string | null | undefined) => void;
+  controlId: string | undefined;
+  registerControlId: (source: symbol, id: string | undefined) => void;
   /**
    * The `id` of the label.
    */
