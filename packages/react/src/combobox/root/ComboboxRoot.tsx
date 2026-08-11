@@ -8,8 +8,8 @@ import { AriaCombobox, type AriaComboboxState } from './AriaCombobox';
  *
  * Documentation: [Base UI Combobox](https://base-ui.com/react/components/combobox)
  */
-export function ComboboxRoot<Value, Multiple extends boolean | undefined = false>(
-  props: ComboboxRoot.Props<Value, Multiple>,
+export function ComboboxRoot<Value, Multiple extends boolean | undefined = false, Item = Value>(
+  props: ComboboxRoot.Props<Value, Multiple, Item>,
 ): React.JSX.Element {
   const {
     multiple = false as Multiple,
@@ -40,8 +40,12 @@ type ComboboxValueType<Value, Multiple extends boolean | undefined> = Multiple e
   ? Value[]
   : Value;
 
-export type ComboboxRootProps<Value, Multiple extends boolean | undefined = false> = Omit<
-  AriaCombobox.Props<Value, ModeFromMultiple<Multiple>>,
+export type ComboboxRootProps<
+  Value,
+  Multiple extends boolean | undefined = false,
+  Item = Value,
+> = Omit<
+  AriaCombobox.Props<Value, ModeFromMultiple<Multiple>, Item>,
   | 'fillInputOnItemPress'
   | 'autoComplete'
   | 'formAutoComplete'
@@ -91,11 +95,14 @@ export type ComboboxRootProps<Value, Multiple extends boolean | undefined = fals
    * their values, especially in large or virtualized collections, so browser autofill can match
    * labels without mounting every item.
    * If the shape of the object is `{ value, label }`, the label will be used automatically without needing to specify this prop.
+   * With a `createItems()` collection, this receives the derived value, and the collection's
+   * `getLabel` takes precedence for values it can resolve.
    */
   itemToStringLabel?: ((itemValue: Value) => string) | undefined;
   /**
    * When the item values are objects (`<Combobox.Item value={object}>`), this function converts the object value to a string representation for form submission.
    * If the shape of the object is `{ value, label }`, the value will be used automatically without needing to specify this prop.
+   * With a `createItems()` collection, this receives the derived value.
    */
   itemToStringValue?: ((itemValue: Value) => string) | undefined;
   /**
@@ -106,6 +113,7 @@ export type ComboboxRootProps<Value, Multiple extends boolean | undefined = fals
   virtualized?: boolean | undefined;
   /**
    * Custom comparison logic used to determine if a combobox item value matches the current selected value. Useful when item values are objects without matching referentially.
+   * With a `createItems()` collection, both arguments are derived values.
    * Defaults to `Object.is` comparison.
    */
   isItemEqualToValue?: ((itemValue: Value, value: Value) => boolean) | undefined;
@@ -173,10 +181,11 @@ export type ComboboxRootHighlightEventReason = AriaCombobox.HighlightEventReason
 export type ComboboxRootHighlightEventDetails = AriaCombobox.HighlightEventDetails;
 
 export namespace ComboboxRoot {
-  export type Props<Value, Multiple extends boolean | undefined = false> = ComboboxRootProps<
+  export type Props<
     Value,
-    Multiple
-  >;
+    Multiple extends boolean | undefined = false,
+    Item = Value,
+  > = ComboboxRootProps<Value, Multiple, Item>;
   export type State = ComboboxRootState;
   export type Actions = ComboboxRootActions;
   export type ChangeEventReason = ComboboxRootChangeEventReason;

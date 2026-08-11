@@ -4,6 +4,8 @@ import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 import { DirectionProvider } from '@base-ui/react/direction-provider';
 import { Menu } from '@base-ui/react/menu';
 import { SafeReact } from '@base-ui/utils/safeReact';
+import { useMenuRootContext } from '../root/MenuRootContext';
+import type { MenuStore } from '../store/MenuStore';
 
 type TextDirection = 'ltr' | 'rtl';
 const hasCaptureOwnerStack = typeof SafeReact.captureOwnerStack === 'function';
@@ -43,6 +45,50 @@ describe('<Menu.SubmenuTrigger />', () => {
       );
     },
   }));
+
+  it('follows a submenu trigger id change', async () => {
+    const storeRef: { current: MenuStore<unknown> | null } = { current: null };
+
+    function StoreProbe() {
+      storeRef.current = useMenuRootContext().store;
+      return null;
+    }
+
+    function App({ id }: { id: string }) {
+      return (
+        <Menu.Root open>
+          <Menu.Portal>
+            <Menu.Positioner>
+              <Menu.Popup>
+                <Menu.SubmenuRoot>
+                  <StoreProbe />
+                  <Menu.SubmenuTrigger id={id}>More</Menu.SubmenuTrigger>
+                  <Menu.Portal>
+                    <Menu.Positioner>
+                      <Menu.Popup>
+                        <Menu.Item>Monthly</Menu.Item>
+                      </Menu.Popup>
+                    </Menu.Positioner>
+                  </Menu.Portal>
+                </Menu.SubmenuRoot>
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
+        </Menu.Root>
+      );
+    }
+
+    const { setProps } = await render(<App id="first" />);
+
+    const submenuTrigger = screen.getByText('More');
+    expect(storeRef.current!.context.triggerElements.getById('first')).toBe(submenuTrigger);
+
+    await setProps({ id: 'second' });
+
+    expect(storeRef.current!.context.triggerElements.getById('first')).toBeUndefined();
+    expect(storeRef.current!.context.triggerElements.getById('second')).toBe(submenuTrigger);
+    expect(storeRef.current!.context.triggerElements.size).toBe(1);
+  });
 
   it('throws when rendered outside Menu.SubmenuRoot', async () => {
     const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});

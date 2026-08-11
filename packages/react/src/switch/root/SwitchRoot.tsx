@@ -80,11 +80,7 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
 
   const id = useBaseUiId();
 
-  const controlId = useLabelableId({
-    id: idProp,
-    implicit: false,
-    controlRef: switchRef,
-  });
+  const controlId = useLabelableId({ id: idProp });
   const hiddenInputId = nativeButton ? undefined : controlId;
 
   const [checked, setCheckedState] = useControlled({

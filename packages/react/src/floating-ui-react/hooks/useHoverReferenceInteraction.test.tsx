@@ -3,11 +3,34 @@ import { act, fireEvent, flushMicrotasks, render, screen } from '@mui/internal-t
 import * as React from 'react';
 import { isJSDOM } from '#test-utils';
 import { useFloating } from './useFloating';
+import { safePolygon } from '../safePolygon';
+import { useHoverInteractionSharedState } from './useHoverInteractionSharedState';
 import { useHoverReferenceInteraction } from './useHoverReferenceInteraction';
 import { REASONS } from '../../internals/reasons';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 
 describe.skipIf(!isJSDOM)('useHoverReferenceInteraction', () => {
+  it('updates the handleClose options during render', () => {
+    let blockPointerEvents: boolean | undefined;
+
+    function App({ block }: { block: boolean }) {
+      const { context } = useFloating();
+      useHoverReferenceInteraction(context, {
+        handleClose: safePolygon({ blockPointerEvents: block }),
+      });
+      const hoverInteraction = useHoverInteractionSharedState(context.rootStore);
+      blockPointerEvents = hoverInteraction.handleCloseOptions?.blockPointerEvents;
+
+      return null;
+    }
+
+    const { rerender } = render(<App block={false} />);
+    expect(blockPointerEvents).toBe(false);
+
+    rerender(<App block />);
+    expect(blockPointerEvents).toBe(true);
+  });
+
   it('does not treat child target as inactive when handlers are on a wrapper', async () => {
     const onOpenChange = vi.fn();
 

@@ -4,6 +4,7 @@ import { isElementDisabled } from '@base-ui/utils/isElementDisabled';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
+import { EMPTY_ARRAY } from '@base-ui/utils/empty';
 import type { TextDirection } from '../../direction-context/DirectionContext';
 import {
   COMPOSITE_KEYS,
@@ -70,8 +71,6 @@ export interface UseCompositeRootParameters {
   modifierKeys?: ModifierKey[] | undefined;
 }
 
-const EMPTY_ARRAY: never[] = [];
-
 export function useCompositeRoot(params: UseCompositeRootParameters) {
   const {
     loopFocus = true,
@@ -96,9 +95,11 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
 
   const elementsRef = React.useRef<Array<HTMLElement | null>>([]);
   const hasSetDefaultIndexRef = React.useRef(false);
+  const highlightedElementRef = React.useRef<HTMLElement | null>(null);
 
   const highlightedIndex = externalHighlightedIndex ?? internalHighlightedIndex;
   const onHighlightedIndexChange = useStableCallback((index, shouldScrollIntoView = false) => {
+    highlightedElementRef.current = elementsRef.current[index] ?? null;
     (externalSetHighlightedIndex ?? internalSetHighlightedIndex)(index);
     if (shouldScrollIntoView) {
       const newActiveItem = elementsRef.current[index];
@@ -107,10 +108,34 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
   });
 
   const onMapChange = useStableCallback((map: Map<Element, CompositeMetadata<any>>) => {
-    if (map.size === 0 || hasSetDefaultIndexRef.current) {
+    if (map.size === 0) {
       return;
     }
+
+    if (hasSetDefaultIndexRef.current) {
+      const elements = elementsRef.current;
+      // Items added or removed around the highlighted one shift its index, so the tab stop would
+      // otherwise move to a different item and navigation would resume from the wrong position.
+      const nextIndex = elements.indexOf(highlightedElementRef.current);
+
+      if (nextIndex === -1) {
+        // A replacement at the same index can keep the tab stop. Otherwise move it to an
+        // eligible item so a missing, hidden, or disabled replacement does not take the
+        // composite out of the tab order.
+        const replacement = elements[highlightedIndex];
+        if (!replacement || isListIndexDisabled(elements, highlightedIndex, disabledIndices)) {
+          onHighlightedIndexChange(getFallbackIndex(elements, disabledIndices));
+        } else {
+          highlightedElementRef.current = replacement;
+        }
+      } else if (nextIndex !== highlightedIndex) {
+        onHighlightedIndexChange(nextIndex);
+      }
+      return;
+    }
+
     hasSetDefaultIndexRef.current = true;
+
     const sortedElements = Array.from(map.keys()) as Array<HTMLElement | null>;
     const activeItem =
       sortedElements.find((compositeElement) =>
@@ -312,6 +337,31 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
     onMapChange,
     relayKeyboardEvent: onKeyDown,
   };
+}
+
+// Resolves the item that should hold the tab stop: the active item when it can take focus,
+// otherwise the first item that can. Falls back to index 0 so an all-disabled composite keeps the
+// index in range and regains a tab stop as soon as one of its items becomes focusable.
+function getFallbackIndex(elements: Array<HTMLElement | null>, disabledIndices?: number[]) {
+  let fallbackIndex = -1;
+
+  for (let index = 0; index < elements.length; index += 1) {
+    const element = elements[index];
+
+    if (!element || isListIndexDisabled(elements, index, disabledIndices)) {
+      continue;
+    }
+
+    if (element.hasAttribute(ACTIVE_COMPOSITE_ITEM)) {
+      return index;
+    }
+
+    if (fallbackIndex === -1) {
+      fallbackIndex = index;
+    }
+  }
+
+  return Math.max(fallbackIndex, 0);
 }
 
 function isModifierKeySet(event: React.KeyboardEvent, ignoredModifierKeys: ModifierKey[]) {

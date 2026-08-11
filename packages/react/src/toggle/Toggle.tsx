@@ -27,7 +27,7 @@ export const Toggle = React.forwardRef(function Toggle<Value extends string>(
 ) {
   const {
     className,
-    defaultPressed: defaultPressedProp = false,
+    defaultPressed = false,
     disabled: disabledProp = false,
     form, // never participates in form validation
     onPressedChange,
@@ -44,8 +44,6 @@ export const Toggle = React.forwardRef(function Toggle<Value extends string>(
   const value = useBaseUiId(valueProp || undefined);
   const groupContext = useToggleGroupContext();
   const groupValue = groupContext?.value ?? [];
-
-  const defaultPressed = groupContext ? undefined : defaultPressedProp;
 
   const disabled = (disabledProp || groupContext?.disabled) ?? false;
 

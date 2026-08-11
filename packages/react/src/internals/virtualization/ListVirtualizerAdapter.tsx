@@ -4,7 +4,7 @@ import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { warn } from '@base-ui/utils/warn';
-import { areArraysEqual } from '../areArraysEqual';
+import { areArraysEqual } from '@base-ui/utils/areArraysEqual';
 import type {
   ListVirtualizationRegistry,
   ListVirtualizerActions,

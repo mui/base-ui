@@ -17,7 +17,7 @@ interface ContextValue {
   delayRef: React.RefObject<Delay>;
   initialDelayRef: React.RefObject<Delay>;
   timeout: Timeout;
-  currentIdRef: React.RefObject<any>;
+  currentIdRef: React.RefObject<string | null | undefined>;
   currentContextRef: React.RefObject<{
     onOpenChange: (open: boolean, eventDetails: BaseUIChangeEventDetails<any>) => void;
     setIsInstantPhase: (value: boolean) => void;
@@ -114,6 +114,10 @@ interface UseDelayGroupOptions {
 }
 
 interface UseDelayGroupReturn {
+  /**
+   * The id of the floating element keeping the delay group active.
+   */
+  activeIdRef: React.RefObject<string | null | undefined>;
   /**
    * The delay reference object.
    */
@@ -267,10 +271,11 @@ export function useDelayGroup(
 
   return React.useMemo(
     () => ({
+      activeIdRef: currentIdRef,
       hasProvider,
       delayRef,
       isInstantPhase,
     }),
-    [hasProvider, delayRef, isInstantPhase],
+    [currentIdRef, hasProvider, delayRef, isInstantPhase],
   );
 }
