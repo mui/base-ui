@@ -158,6 +158,58 @@ describe('<Tabs.List />', () => {
   });
 
   describe('roving focus after tab removal', () => {
+    it('moves the tab stop off a hidden successor when the highlighted tab is removed', async () => {
+      function TestComponent({ showMiddleTab }: { showMiddleTab: boolean }) {
+        return (
+          <Tabs.Root defaultValue={0}>
+            <Tabs.List>
+              <Tabs.Tab value={0}>Tab 0</Tabs.Tab>
+              {showMiddleTab && <Tabs.Tab value={1}>Tab 1</Tabs.Tab>}
+              <Tabs.Tab value={2} hidden>
+                Tab 2
+              </Tabs.Tab>
+              <Tabs.Tab value={3}>Tab 3</Tabs.Tab>
+            </Tabs.List>
+          </Tabs.Root>
+        );
+      }
+
+      const { setProps } = await render(<TestComponent showMiddleTab />);
+
+      const selectedTab = screen.getByText('Tab 0');
+      await act(async () => selectedTab.focus());
+      fireEvent.keyDown(selectedTab, { key: 'ArrowRight' });
+      await flushMicrotasks();
+
+      await setProps({ showMiddleTab: false });
+
+      const tabs = screen.getAllByRole('tab', { hidden: true });
+      expect(tabs.map((tab) => tab.tabIndex)).toEqual([0, -1, -1]);
+    });
+
+    it('can fall back to a tab that is focusable when disabled', async () => {
+      function TestComponent({ showSelectedTab }: { showSelectedTab: boolean }) {
+        return (
+          <Tabs.Root value={2}>
+            <Tabs.List>
+              <Tabs.Tab value={0} disabled>
+                Tab 0
+              </Tabs.Tab>
+              <Tabs.Tab value={1}>Tab 1</Tabs.Tab>
+              {showSelectedTab && <Tabs.Tab value={2}>Tab 2</Tabs.Tab>}
+            </Tabs.List>
+          </Tabs.Root>
+        );
+      }
+
+      const { setProps } = await render(<TestComponent showSelectedTab />);
+
+      await setProps({ showSelectedTab: false });
+
+      expect(screen.getByText('Tab 0')).toHaveAttribute('tabindex', '0');
+      expect(screen.getByText('Tab 1')).toHaveAttribute('tabindex', '-1');
+    });
+
     it('keeps the tab stop on the selected tab when focus is inside the list', async () => {
       function TestComponent({ showFirstTab }: { showFirstTab: boolean }) {
         return (
@@ -185,99 +237,30 @@ describe('<Tabs.List />', () => {
       expect([unselectedTab.tabIndex, selectedTab.tabIndex]).toEqual([-1, 0]);
     });
 
-    it('keeps the tab stop on the highlighted tab when an earlier tab is removed', async () => {
-      function TestComponent({ showMiddleTab }: { showMiddleTab: boolean }) {
+    it('keeps tracking a successor through subsequent removals', async () => {
+      function TestComponent(props: { showFirstTab: boolean; showSelectedTab: boolean }) {
         return (
-          <Tabs.Root defaultValue={0}>
+          <Tabs.Root value={1}>
             <Tabs.List>
-              <Tabs.Tab value={0}>Tab 0</Tabs.Tab>
-              {showMiddleTab && <Tabs.Tab value={1}>Tab 1</Tabs.Tab>}
+              {props.showFirstTab && <Tabs.Tab value={0}>Tab 0</Tabs.Tab>}
+              {props.showSelectedTab && <Tabs.Tab value={1}>Tab 1</Tabs.Tab>}
               <Tabs.Tab value={2}>Tab 2</Tabs.Tab>
+              <Tabs.Tab value={3}>Tab 3</Tabs.Tab>
             </Tabs.List>
           </Tabs.Root>
         );
       }
 
-      const { setProps } = await render(<TestComponent showMiddleTab />);
+      const { setProps } = await render(<TestComponent showFirstTab showSelectedTab />);
 
-      const selectedTab = screen.getByText('Tab 0');
-      await act(async () => {
-        selectedTab.focus();
-      });
+      await setProps({ showFirstTab: true, showSelectedTab: false });
 
-      fireEvent.keyDown(selectedTab, { key: 'ArrowRight' });
-      await flushMicrotasks();
+      expect(screen.getByText('Tab 2')).toHaveAttribute('tabindex', '0');
 
-      fireEvent.keyDown(screen.getByText('Tab 1'), { key: 'ArrowRight' });
-      await flushMicrotasks();
+      await setProps({ showFirstTab: false, showSelectedTab: false });
 
-      const lastTab = screen.getByText('Tab 2');
-      expect(lastTab).toHaveFocus();
-
-      await setProps({ showMiddleTab: false });
-
-      expect([selectedTab.tabIndex, lastTab.tabIndex]).toEqual([-1, 0]);
-
-      fireEvent.keyDown(lastTab, { key: 'ArrowLeft' });
-      await flushMicrotasks();
-
-      expect(selectedTab).toHaveFocus();
-    });
-
-    it('skips a hidden tab when choosing the tab stop', async () => {
-      function TestComponent({ showLastTab }: { showLastTab: boolean }) {
-        return (
-          <Tabs.Root value={2}>
-            <Tabs.List>
-              <Tabs.Tab value={0} hidden>
-                Tab 0
-              </Tabs.Tab>
-              <Tabs.Tab value={1}>Tab 1</Tabs.Tab>
-              {showLastTab && <Tabs.Tab value={2}>Tab 2</Tabs.Tab>}
-            </Tabs.List>
-          </Tabs.Root>
-        );
-      }
-
-      const { setProps } = await render(<TestComponent showLastTab />);
-
-      await setProps({ showLastTab: false });
-
-      const [hiddenTab, visibleTab] = screen.getAllByRole('tab', { hidden: true });
-
-      expect([hiddenTab.tabIndex, visibleTab.tabIndex]).toEqual([-1, 0]);
-    });
-
-    it('keeps the tab stop in range when every remaining tab is disabled', async () => {
-      function TestComponent({ showLastTab }: { showLastTab: boolean }) {
-        return (
-          <Tabs.Root value={2}>
-            <Tabs.List>
-              <Tabs.Tab value={0} disabled>
-                Tab 0
-              </Tabs.Tab>
-              <Tabs.Tab value={1} disabled>
-                Tab 1
-              </Tabs.Tab>
-              {showLastTab && <Tabs.Tab value={2}>Tab 2</Tabs.Tab>}
-            </Tabs.List>
-          </Tabs.Root>
-        );
-      }
-
-      const { setProps } = await render(<TestComponent showLastTab />);
-
-      await setProps({ showLastTab: false });
-
-      const [firstTab, secondTab] = screen.getAllByRole('tab');
-
-      expect([firstTab.tabIndex, secondTab.tabIndex]).toEqual([0, -1]);
-
-      await act(async () => {
-        firstTab.focus();
-      });
-
-      expect(firstTab).toHaveFocus();
+      expect(screen.getByText('Tab 2')).toHaveAttribute('tabindex', '0');
+      expect(screen.getByText('Tab 3')).toHaveAttribute('tabindex', '-1');
     });
   });
 

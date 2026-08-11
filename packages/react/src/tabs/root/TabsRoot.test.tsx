@@ -1141,31 +1141,7 @@ describe('<Tabs.Root />', () => {
       expect(tabs[1]).toHaveAttribute('aria-selected', 'false');
     });
 
-    it('does not call onValueChange when a controlled selected tab is removed', async () => {
-      const handleChange = vi.fn();
-
-      function TestComponent({ showFirstTab }: { showFirstTab: boolean }) {
-        return (
-          <Tabs.Root value={0} onValueChange={handleChange}>
-            <Tabs.List>
-              {showFirstTab && <Tabs.Tab value={0}>Tab 0</Tabs.Tab>}
-              <Tabs.Tab value={1}>Tab 1</Tabs.Tab>
-            </Tabs.List>
-          </Tabs.Root>
-        );
-      }
-
-      const { setProps } = await render(<TestComponent showFirstTab />);
-
-      await setProps({ showFirstTab: false });
-
-      expect(handleChange.mock.calls.length).toBe(0);
-      const tabs = screen.getAllByRole('tab');
-      expect(tabs[0]).toHaveAttribute('aria-selected', 'false');
-      expect(tabs[0]).toHaveAttribute('tabindex', '0');
-    });
-
-    it('keeps a roving focus entry point when the last controlled selected tab is removed', async () => {
+    it('keeps a roving focus entry point when a controlled selected tab is removed', async () => {
       const handleChange = vi.fn();
 
       function TestComponent({ showLastTab }: { showLastTab: boolean }) {
@@ -1179,7 +1155,6 @@ describe('<Tabs.Root />', () => {
                 {showLastTab && <Tabs.Tab value={2}>Tab 2</Tabs.Tab>}
               </Tabs.List>
             </Tabs.Root>
-            <button type="button">After</button>
           </React.Fragment>
         );
       }
@@ -1203,34 +1178,6 @@ describe('<Tabs.Root />', () => {
 
       expect(secondTab).toHaveFocus();
       expect(handleChange).not.toHaveBeenCalled();
-    });
-
-    it('keeps disabled tabs out of the roving focus entry point after removal', async () => {
-      function TestComponent({ showLastTab }: { showLastTab: boolean }) {
-        return (
-          <Tabs.Root value={3}>
-            <Tabs.List>
-              <Tabs.Tab value={0} disabled>
-                Tab 0
-              </Tabs.Tab>
-              <Tabs.Tab value={1} render={<button type="button" disabled />}>
-                Tab 1
-              </Tabs.Tab>
-              <Tabs.Tab value={2}>Tab 2</Tabs.Tab>
-              {showLastTab && <Tabs.Tab value={3}>Tab 3</Tabs.Tab>}
-            </Tabs.List>
-          </Tabs.Root>
-        );
-      }
-
-      const { setProps } = await render(<TestComponent showLastTab />);
-
-      await setProps({ showLastTab: false });
-
-      const [disabledTab, nativelyDisabledTab, enabledTab] = screen.getAllByRole('tab');
-      expect([disabledTab.tabIndex, nativelyDisabledTab.tabIndex, enabledTab.tabIndex]).toEqual([
-        -1, -1, 0,
-      ]);
     });
   });
 

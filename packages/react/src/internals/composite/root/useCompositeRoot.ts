@@ -119,10 +119,14 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
       const nextIndex = elements.indexOf(highlightedElementRef.current);
 
       if (nextIndex === -1) {
-        // The highlighted item is gone. Its index can now sit past the end of the list, which
-        // takes the single roving tab stop away from every remaining item.
-        if (isIndexOutOfListBounds(elements, highlightedIndex)) {
-          onHighlightedIndexChange(getFallbackIndex(elements));
+        // A replacement at the same index can keep the tab stop. Otherwise move it to an
+        // eligible item so a missing, hidden, or disabled replacement does not take the
+        // composite out of the tab order.
+        const replacement = elements[highlightedIndex];
+        if (!replacement || isListIndexDisabled(elements, highlightedIndex, disabledIndices)) {
+          onHighlightedIndexChange(getFallbackIndex(elements, disabledIndices));
+        } else {
+          highlightedElementRef.current = replacement;
         }
       } else if (nextIndex !== highlightedIndex) {
         onHighlightedIndexChange(nextIndex);
@@ -338,13 +342,13 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
 // Resolves the item that should hold the tab stop: the active item when it can take focus,
 // otherwise the first item that can. Falls back to index 0 so an all-disabled composite keeps the
 // index in range and regains a tab stop as soon as one of its items becomes focusable.
-function getFallbackIndex(elements: Array<HTMLElement | null>) {
+function getFallbackIndex(elements: Array<HTMLElement | null>, disabledIndices?: number[]) {
   let fallbackIndex = -1;
 
   for (let index = 0; index < elements.length; index += 1) {
     const element = elements[index];
 
-    if (!element || isListIndexDisabled(elements, index)) {
+    if (!element || isListIndexDisabled(elements, index, disabledIndices)) {
       continue;
     }
 

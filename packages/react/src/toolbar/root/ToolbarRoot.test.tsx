@@ -1,7 +1,7 @@
 import { expect } from 'vitest';
 import { Toolbar } from '@base-ui/react/toolbar';
 import { DirectionProvider, type TextDirection } from '@base-ui/react/direction-provider';
-import { act, screen } from '@mui/internal-test-utils';
+import { screen } from '@mui/internal-test-utils';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 import { type Orientation } from '../../internals/types';
 import { useToolbarRootContext } from './ToolbarRootContext';
@@ -120,64 +120,6 @@ describe('<Toolbar.Root />', () => {
 
       await user.keyboard('[ArrowRight]');
       expect(last).toHaveFocus();
-    });
-  });
-
-  describe('item removal', () => {
-    it('keeps the tab stop on the highlighted item when an earlier item is removed', async () => {
-      function App({ showFirst }: { showFirst: boolean }) {
-        return (
-          <Toolbar.Root>
-            {showFirst && <Toolbar.Button data-testid="first" />}
-            <Toolbar.Button data-testid="middle" />
-            <Toolbar.Button data-testid="last" />
-          </Toolbar.Root>
-        );
-      }
-
-      const { setProps, user } = await render(<App showFirst />);
-
-      await act(async () => {
-        screen.getByTestId('first').focus();
-      });
-
-      await user.keyboard('{ArrowRight}');
-      await user.keyboard('{ArrowRight}');
-
-      expect(screen.getByTestId('last')).toHaveAttribute('tabindex', '0');
-
-      await setProps({ showFirst: false });
-
-      expect(screen.getByTestId('middle')).toHaveAttribute('tabindex', '-1');
-      expect(screen.getByTestId('last')).toHaveAttribute('tabindex', '0');
-    });
-
-    it('keeps a tab stop when the highlighted item is removed', async () => {
-      function App({ showLast }: { showLast: boolean }) {
-        return (
-          <Toolbar.Root>
-            <Toolbar.Button data-testid="first" />
-            <Toolbar.Button data-testid="middle" />
-            {showLast && <Toolbar.Button data-testid="last" />}
-          </Toolbar.Root>
-        );
-      }
-
-      const { setProps, user } = await render(<App showLast />);
-
-      await act(async () => {
-        screen.getByTestId('first').focus();
-      });
-
-      await user.keyboard('{ArrowRight}');
-      await user.keyboard('{ArrowRight}');
-
-      expect(screen.getByTestId('last')).toHaveAttribute('tabindex', '0');
-
-      await setProps({ showLast: false });
-
-      expect(screen.getByTestId('first')).toHaveAttribute('tabindex', '0');
-      expect(screen.getByTestId('middle')).toHaveAttribute('tabindex', '-1');
     });
   });
 

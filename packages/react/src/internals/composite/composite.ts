@@ -3,7 +3,6 @@ import type { TextDirection } from '../direction-context/DirectionContext';
 
 export {
   stopEvent,
-  isElementVisible,
   isIndexOutOfListBounds,
   isListIndexDisabled,
   findNonDisabledListIndex,
