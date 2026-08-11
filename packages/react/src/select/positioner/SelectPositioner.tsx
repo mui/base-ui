@@ -125,6 +125,8 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
     disableAnchorTracking: disableAnchorTracking ?? alignItemWithTriggerActive,
     collisionAvoidance,
     keepMounted: true,
+    // Filtering resizes the popup as the user types; latch the side so it doesn't flip mid-query.
+    lazyFlip: filterable,
   });
 
   const renderedSide = alignItemWithTriggerActive ? 'none' : positioning.side;
