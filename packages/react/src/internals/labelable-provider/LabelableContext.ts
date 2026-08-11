@@ -15,6 +15,7 @@ export interface LabelableContext {
    */
   initialControlId: string | null | undefined;
   registerControlId: (source: symbol, id: string | null | undefined) => void;
+  resetControlId: () => void;
   /**
    * The `id` of the label.
    */
@@ -36,6 +37,7 @@ export const LabelableContext = React.createContext<LabelableContext>({
   controlId: undefined,
   initialControlId: undefined,
   registerControlId: NOOP,
+  resetControlId: NOOP,
   labelId: undefined,
   setLabelId: NOOP,
   messageIds: [],

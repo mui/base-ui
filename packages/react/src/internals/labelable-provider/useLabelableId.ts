@@ -11,7 +11,7 @@ import { useLabelableContext } from './LabelableContext';
 export function useLabelableId(params: UseLabelableIdParameters = {}) {
   const { id, implicit = false, controlRef, enabled = true } = params;
 
-  const { controlId, initialControlId, registerControlId } = useLabelableContext();
+  const { controlId, initialControlId, registerControlId, resetControlId } = useLabelableContext();
 
   // Deliberately not seeded with `id`: on React 17 the seed would stick around after the
   // `id` prop is removed, leaving the control on a stale id forever.
@@ -57,10 +57,11 @@ export function useLabelableId(params: UseLabelableIdParameters = {}) {
       nextId = id;
     } else if (hadExplicitIdRef.current) {
       nextId = defaultId;
-    } else {
+    } else if (controlId !== initialControlId) {
       // An id-less replacement must claim the provider's fallback so a previously registered
       // explicit id is not retained after its control unmounts.
-      nextId = initialControlId;
+      resetControlId();
+      return undefined;
     }
 
     // Either the control never had an explicit `id`, or React 17 has not assigned the
@@ -79,8 +80,10 @@ export function useLabelableId(params: UseLabelableIdParameters = {}) {
     enabled,
     controlRef,
     controlIdForEffect,
+    controlId,
     initialControlId,
     registerControlId,
+    resetControlId,
     implicit,
     defaultId,
     controlSourceRef,

@@ -63,6 +63,12 @@ export const LabelableProvider: React.FC<LabelableProvider.Props> = function Lab
     },
   );
 
+  const resetControlId = useStableCallback(() => {
+    if (registrationsRef.current.size === 0) {
+      setControlIdState(initialControlId);
+    }
+  });
+
   const getDescriptionProps = React.useCallback(
     (externalProps: HTMLProps) => {
       const ids = externalProps['aria-describedby']
@@ -83,6 +89,7 @@ export const LabelableProvider: React.FC<LabelableProvider.Props> = function Lab
       controlId,
       initialControlId,
       registerControlId,
+      resetControlId,
       labelId,
       setLabelId,
       messageIds,
@@ -93,6 +100,7 @@ export const LabelableProvider: React.FC<LabelableProvider.Props> = function Lab
       controlId,
       initialControlId,
       registerControlId,
+      resetControlId,
       labelId,
       setLabelId,
       messageIds,
