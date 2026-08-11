@@ -142,6 +142,18 @@ The following sections give an overview of what each check is responsible for.
 #### Package Preview
 
 This task publishes a preview for the packages to pkg.pr.new. It should not fail in isolation. Use it to test more complex scenarios.
+pkg.pr.new reports its own check, named **Continuous Releases**, that links to the published preview packages.
+
+#### Vale
+
+This lints the prose in Markdown and MDX files against the style rules configured in `.vale.ini`, and annotates the offending lines on the pull request.
+The check is advisory: it points out issues but doesn't block merging.
+
+To reproduce it locally, run `pnpm valelint`, which reports errors only.
+`pnpm vale:fix` applies the corrections that Vale can make on its own.
+
+The style rules are shared across MUI repositories, so they sometimes misfire on legitimate wording.
+When that happens, point it out in the pull request instead of contorting the text to satisfy the rule.
 
 #### ci/circleci: Linting
 
