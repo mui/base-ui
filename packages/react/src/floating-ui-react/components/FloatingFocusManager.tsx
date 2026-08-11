@@ -488,9 +488,12 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
         }
 
         // Restore focus to the previously focused tabbable element to prevent
-        // focus from being lost outside the floating tree.
+        // focus from being lost outside the floating tree. A closing tree must not re-capture
+        // focus: tabbing out has already relocated it, and the restored element is about to
+        // unmount, which would drop focus on `<body>`.
         if (
           restoreFocus &&
+          store.select('open') &&
           currentTarget !== domReference &&
           !isElementVisible(target) &&
           activeElement(doc) === doc.body
