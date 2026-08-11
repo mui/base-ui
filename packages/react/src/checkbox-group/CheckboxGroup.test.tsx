@@ -370,6 +370,34 @@ describe('<CheckboxGroup />', () => {
   });
 
   describe('Field', () => {
+    it('[data-dirty]', () => {
+      render(
+        <Field.Root name="fruits">
+          <CheckboxGroup defaultValue={['apple']}>
+            <Field.Item>
+              <Checkbox.Root value="apple" data-testid="apple" />
+            </Field.Item>
+            <Field.Item>
+              <Checkbox.Root value="banana" data-testid="banana" />
+            </Field.Item>
+          </CheckboxGroup>
+        </Field.Root>,
+      );
+
+      const group = screen.getByRole('group');
+      const banana = screen.getByTestId('banana');
+
+      expect(group).not.toHaveAttribute('data-dirty');
+
+      fireEvent.click(banana);
+
+      expect(group).toHaveAttribute('data-dirty', '');
+
+      fireEvent.click(banana);
+
+      expect(group).not.toHaveAttribute('data-dirty');
+    });
+
     it('keeps a required error while another required checkbox in the group is unchecked', async () => {
       const { user } = render(
         <Form onSubmit={(event) => event.preventDefault()}>
