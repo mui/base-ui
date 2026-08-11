@@ -66,7 +66,7 @@ git push -u origin HEAD
 7. Go to [the repository](https://github.com/mui/base-ui) and open a pull request.
 
 The core team actively monitors for new pull requests.
-We will review your PR and either merge it, request changes to it, or close it with an explanation.
+A maintainer reviews your PR and either merges it, requests changes to it, or closes it with an explanation.
 
 ### Trying changes on the documentation site
 
@@ -80,11 +80,11 @@ pnpm start
 ```
 
 You can now access the documentation site locally: http://localhost:3005.
-Changes to the docs will hot reload the site.
+Changes to the docs hot reload the site.
 
 ### Trying changes on the playground
 
-While we do recommend trying your changes on the documentation site, this is not always ideal.
+Trying your changes on the documentation site is the recommended approach, but it's not always ideal.
 You might face the following problems:
 
 - Updating the existing demos prevents you from working in isolation on a single instance of the component
@@ -94,7 +94,7 @@ You might face the following problems:
 To avoid these problems, you can use playgrounds.
 Playgrounds are for local-only experiments that should not be checked in.
 You can create as many playgrounds as you want by going to the `docs/src/app/(private)/playground` folder and creating a tsx file with a default export.
-The new playground will be accessible at: `http://localhost:3005/playground/<file_name>` when you launch the docs with `pnpm start`.
+The new playground is accessible at: `http://localhost:3005/playground/<file_name>` when you launch the docs with `pnpm start`.
 
 If the demo should be kept for review or future verification, add it as an experiment in `docs/src/app/(private)/experiments` instead.
 Experiments are checked in to the repository, so other team members can open them locally or on Netlify and verify the behavior.
@@ -102,22 +102,22 @@ Experiments are checked in to the repository, so other team members can open the
 ### How to increase the chances of being accepted
 
 Continuous Integration (CI) automatically runs a series of checks when a PR is opened.
-If you're unsure whether your changes will pass, you can always open a PR, and the GitHub UI will display a summary of the results.
+If you're unsure whether your changes pass, you can always open a PR, and the GitHub UI displays a summary of the results.
 If any of these checks fail, refer to [CI checks and how to fix them](#ci-checks-and-how-to-fix-them).
 
 Make sure the following is true:
 
 <!-- #target-branch-reference -->
 
-- The branch is targeted at `master` for ongoing development. All tests are passing. Code that lands in `master` must be compatible with the latest stable release. It may contain additional features but no breaking changes. We should be able to release a new minor version from the tip of `master` at any time.
+- The branch is targeted at `master` for ongoing development. All tests are passing. Code that lands in `master` must be compatible with the latest stable release. It may contain additional features but no breaking changes. Releasing a new minor version from the tip of `master` must be possible at any time.
 - If a feature is being added:
   - If the result was already achievable with the core library, you've explained why this feature needs to be added to the core.
   - If this is a common use case, you've added an example to the documentation.
-- If adding new features or modifying existing ones, you've included tests to confirm the new behavior. You can read more about our test setup in our test [README](https://github.com/mui/base-ui/blob/HEAD/test/README.md).
+- If adding new features or modifying existing ones, you've included tests to confirm the new behavior. You can read more about the test setup in the test [README](https://github.com/mui/base-ui/blob/HEAD/test/README.md).
 - If props were added or prop types were changed, you've updated the TypeScript declarations.
 - The branch is not [behind its target branch](https://docs.github.com/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/keeping-your-pull-request-in-sync-with-the-base-branch).
 
-We will only merge a PR when all tests pass.
+A PR gets merged only when all tests pass.
 The following statements must be true:
 
 - The code is formatted. If the code was changed, run `pnpm prettier`.
@@ -126,11 +126,11 @@ The following statements must be true:
 - The API docs are up to date. If API was changed, run `pnpm docs:api`.
 - The pull request title follows the pattern `[scope] Imperative summary`, for example `[popover] Fix focus trap`. Choose scopes that mirror the package, component, or area being changed. (See: [How to Write a Git Commit Message](https://chris.beams.io/posts/git-commit/) for a great explanation).
 
-Don't worry if you miss a step—the Continuous Integration will run a thorough set of tests on your commits, and the maintainers of the project can assist you if you run into problems.
+Don't worry if you miss a step—the Continuous Integration runs a thorough set of tests on your commits, and the maintainers of the project can assist you if you run into problems.
 
 If your pull request addresses an open issue, make sure to link the PR to that issue.
 Use any [supported GitHub keyword](https://docs.github.com/en/issues/tracking-your-work-with-issues/linking-a-pull-request-to-an-issue#linking-a-pull-request-to-an-issue-using-a-keyword) in the PR description to automatically link them.
-This makes it easier to understand where the PR is coming from, and also speeds things up because the issue will be closed automatically when the PR is merged.
+This makes it easier to understand where the PR is coming from, and also speeds things up because the issue closes automatically when the PR is merged.
 
 ### CI checks and how to fix them
 
@@ -152,7 +152,7 @@ The check is advisory: it points out issues but doesn't block merging.
 To reproduce it locally, run `pnpm valelint`, which reports errors only.
 `pnpm vale:fix` applies the corrections that Vale can make on its own.
 
-The style rules are shared across MUI repositories, so they sometimes misfire on legitimate wording.
+The style rules are shared with other repositories in the organization, so they sometimes misfire on legitimate wording.
 When that happens, point it out in the pull request instead of contorting the text to satisfy the rule.
 
 #### ci/circleci: Linting
@@ -163,7 +163,7 @@ If the CI job fails, then you most likely need to run the commands that failed l
 
 #### ci/circleci: Generated files verification
 
-This checks whether generated files are up to date, including error codes and inlined scripts.
+This checks whether generated files—such as error codes and inlined scripts—are up to date.
 If the CI job fails, run the command from the failed step locally and commit the changes.
 
 #### ci/circleci: JSDOM tests
@@ -193,8 +193,8 @@ The log of the failed build should list any issues.
 #### argos/base-ui
 
 This evaluates the screenshots taken in `test/regressions/screenshots/chrome`, and fails if it detects differences.
-This doesn't necessarily mean that your PR will be rejected, as a failure might be intended.
-Clicking on **Details** will show you the differences.
+This doesn't necessarily mean that your PR gets rejected, as a failure might be intended.
+Clicking on **Details** shows you the differences.
 
 #### deploy/netlify
 
@@ -209,7 +209,7 @@ It uses Prettier and ESLint, so if possible, enable linting in your editor to ge
 - `pnpm prettier` reformats the code.
 - `pnpm eslint` runs the linting rules.
 
-When you submit a PR, these checks are run again by our continuous integration tools, but hopefully your code is already clean!
+When you submit a PR, these checks run again on CI, but hopefully your code is already clean!
 
 ## Documentation
 
