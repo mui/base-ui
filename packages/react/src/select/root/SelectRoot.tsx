@@ -140,6 +140,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
   const filterable = filterIntegration !== null;
   const [registeredItems, registerItem] = useItemRegistry<symbol, RegisteredItem>();
   const listRef = React.useRef<Array<HTMLElement | null>>([]);
+  const filterInputRef = React.useRef<HTMLInputElement | null>(null);
   const popupRef = React.useRef<HTMLDivElement | null>(null);
   const scrollHandlerRef = React.useRef<((el: HTMLDivElement) => void) | null>(null);
   const scrollArrowsMountedCountRef = React.useRef(0);
@@ -182,6 +183,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
         inputFocusVisible: false,
         popupProps: {},
         inputProps: {},
+        listProps: {},
         triggerProps: {},
         triggerElement: null,
         positionerElement: null,
@@ -599,6 +601,11 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
         return;
       }
 
+      if (filterable && nextActiveIndex === null) {
+        // Virtual navigation escaped the List boundary, so return DOM focus to the filter input.
+        filterInputRef.current?.focus({ preventScroll: true });
+      }
+
       store.update({
         activeIndex: nextActiveIndex,
         inputFocusVisible: filterable && nextActiveIndex === null && event?.type === 'keydown',
@@ -674,11 +681,13 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
 
   const itemProps = listNavigation.item ?? EMPTY_OBJECT;
   const inputProps = (filterable && listNavigation.reference) || EMPTY_OBJECT;
+  const listProps = inputProps;
 
   useOnFirstRender(() => {
     store.update({
       popupProps,
       inputProps,
+      listProps,
       triggerProps: mergedTriggerProps,
     });
   });
@@ -694,6 +703,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     transitionStatus,
     popupProps,
     inputProps,
+    listProps,
     triggerProps: mergedTriggerProps,
     registeredItems,
     items,
@@ -716,6 +726,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
       setValue,
       setOpen,
       listRef,
+      filterInputRef,
       popupRef,
       scrollHandlerRef,
       handleScrollArrowVisibility,

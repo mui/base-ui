@@ -57,6 +57,7 @@ export type State = {
 
   popupProps: HTMLProps;
   inputProps: HTMLProps;
+  listProps: HTMLProps;
   triggerProps: HTMLProps;
   triggerElement: HTMLElement | null;
   positionerElement: HTMLElement | null;
@@ -132,6 +133,7 @@ export const selectors = {
 
   popupProps: (state: State) => state.popupProps,
   inputProps: (state: State) => state.inputProps,
+  listProps: (state: State) => state.listProps,
   triggerProps: (state: State) => state.triggerProps,
   triggerElement: (state: State) => state.triggerElement,
   positionerElement: (state: State) => state.positionerElement,

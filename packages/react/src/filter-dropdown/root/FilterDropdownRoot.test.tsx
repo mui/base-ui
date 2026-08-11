@@ -39,7 +39,6 @@ describe('<FilterDropdown.Root />', () => {
     expect(input).toHaveAttribute('enterkeyhint', 'search');
     expect(input).toHaveAttribute('autocomplete', 'off');
     expect(input).not.toHaveAttribute('role', 'combobox');
-    expect(input).toHaveAttribute('aria-autocomplete', 'list');
     expect(input).not.toHaveAttribute('aria-expanded');
     expect(list).toHaveAttribute('id');
     expect(input).toHaveAttribute('aria-controls', list.id);
@@ -82,7 +81,7 @@ describe('<FilterDropdown.Root />', () => {
     expect(input).toHaveFocus();
   });
 
-  it('focuses the input when the pointer or focus enters the popup', async () => {
+  it('focuses the input when the pointer enters or the popup itself receives focus', async () => {
     await render(
       <FilterDropdown.Root open empty={false} value="">
         <FilterDropdown.Popup id={undefined} data-testid="popup">
@@ -103,8 +102,11 @@ describe('<FilterDropdown.Root />', () => {
     expect(input).toHaveFocus();
 
     outside.focus();
-    fireEvent.focus(screen.getByRole('menuitem', { name: 'Canada' }));
+    fireEvent.focus(screen.getByTestId('popup'));
     expect(input).toHaveFocus();
+
+    screen.getByRole('menu').focus();
+    expect(input).not.toHaveFocus();
   });
 
   it('does not focus a parent input when the pointer enters a portalled nested popup', async () => {

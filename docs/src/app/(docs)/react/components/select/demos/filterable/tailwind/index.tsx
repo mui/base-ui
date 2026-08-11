@@ -53,7 +53,7 @@ export default function FilterSelectDemo() {
               <FilterSelect.Empty className="p-3 text-sm text-neutral-500 dark:text-neutral-400">
                 No fruits found.
               </FilterSelect.Empty>
-              <FilterSelect.List className="max-h-[min(16rem,var(--available-height))] overflow-y-auto py-1 scroll-py-1 empty:py-0">
+              <FilterSelect.List className="max-h-[min(16rem,var(--available-height))] overflow-y-auto py-1 outline-hidden scroll-py-1 empty:py-0">
                 {(fruit: { value: string; label: string }) => (
                   <FilterSelect.Item
                     key={fruit.value}

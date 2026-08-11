@@ -1,6 +1,7 @@
 'use client';
 import * as React from 'react';
 import { useStore } from '@base-ui/utils/store';
+import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
 import {
   FilterDropdownInput,
   type FilterDropdownInputProps,
@@ -23,6 +24,7 @@ export const SelectInput = React.forwardRef(function SelectInput(
   const context = useSelectFilterableRootContext('Input');
   const isFocusVisible = useStore(context.store, selectors.inputFocusVisible);
   const listNavigationProps = useStore(context.store, selectors.inputProps);
+  const mergedRefs = useMergedRefs(forwardedRef, context.filterInputRef);
 
   const inputProps = mergeProps<typeof FilterDropdownInput>(
     listNavigationProps,
@@ -43,7 +45,7 @@ export const SelectInput = React.forwardRef(function SelectInput(
     { disabled: componentProps.disabled || context.disabled },
   );
 
-  return <FilterDropdownInput {...inputProps} ref={forwardedRef} />;
+  return <FilterDropdownInput {...inputProps} ref={mergedRefs} />;
 });
 
 export interface SelectInputState extends FilterDropdownInputState {}

@@ -443,6 +443,10 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
       popupOpenState.openChangeReason = reason;
       popupOpenState.inputFocusVisible = filterable && isKeyboardOpen;
 
+      if (isKeyboardOpen && parent.type === 'menu' && parent.store.select('filterable')) {
+        parent.store.set('activeIndex', null);
+      }
+
       if (
         parent.type === 'menubar' &&
         (reason === REASONS.triggerFocus ||
@@ -545,6 +549,7 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
     // Clear the active descendant at a list boundary so virtual focus returns to the filter
     // input before navigation loops to the other end.
     allowEscape: filterable,
+    resetOnReferenceFocus: filterable,
     focusItemOnOpen: filterable ? false : undefined,
     orientation,
     parentOrientation: parent.type === 'menubar' ? parent.context.orientation : undefined,
@@ -553,7 +558,8 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
     onNavigate(nextActiveIndex, event) {
       const inputFocusVisible = filterable && nextActiveIndex === null && event?.type === 'keydown';
 
-      if (inputFocusVisible) {
+      if (filterable && nextActiveIndex === null) {
+        // Virtual navigation escaped the List boundary, so return DOM focus to the filter input.
         store.context.inputRef.current?.focus({ preventScroll: true });
       }
 
@@ -671,6 +677,7 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
     popupProps,
     itemProps: listNavigation.item ?? EMPTY_OBJECT,
     inputProps: listNavigation.reference ?? EMPTY_OBJECT,
+    listProps: listNavigation.reference ?? EMPTY_OBJECT,
   });
 
   const context: MenuRootContext<Payload> = React.useMemo(

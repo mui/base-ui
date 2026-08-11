@@ -23,6 +23,8 @@ const SelectListImpl = React.forwardRef(function SelectListImpl(
 
   const hasScrollArrows = useStore(store, selectors.hasScrollArrows);
   const openMethod = useStore(store, selectors.openMethod);
+  const filterable = useStore(store, selectors.filterable);
+  const listNavigationProps = useStore(store, selectors.listProps);
 
   const defaultProps: HTMLProps = {
     id,
@@ -30,6 +32,16 @@ const SelectListImpl = React.forwardRef(function SelectListImpl(
     'aria-multiselectable': multiple || undefined,
     onScroll(event) {
       scrollHandlerRef.current?.(event.currentTarget);
+    },
+    onFocus(event) {
+      if (event.target === event.currentTarget) {
+        store.set('inputFocusVisible', false);
+      }
+    },
+    onKeyDown(event) {
+      if (event.key === 'Tab' && event.shiftKey) {
+        store.set('activeIndex', null);
+      }
     },
     ...(alignItemWithTriggerActive && {
       style: LIST_FUNCTIONAL_STYLES,
@@ -42,7 +54,7 @@ const SelectListImpl = React.forwardRef(function SelectListImpl(
 
   const element = useRenderElement('div', componentProps, {
     ref: [forwardedRef, setListElement],
-    props: [defaultProps, elementProps],
+    props: [defaultProps, filterable ? listNavigationProps : undefined, elementProps],
   });
 
   return element;

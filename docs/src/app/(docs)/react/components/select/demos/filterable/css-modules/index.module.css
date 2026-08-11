@@ -193,6 +193,7 @@
   box-sizing: border-box;
   max-height: min(16rem, var(--available-height));
   padding-block: 0.25rem;
+  outline: 0;
   overflow-y: auto;
   scroll-padding-block: 0.25rem;
 

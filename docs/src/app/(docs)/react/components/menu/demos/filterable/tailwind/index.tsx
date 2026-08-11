@@ -114,7 +114,7 @@ const inputClass =
 const clearClass = 'flex size-8 items-center justify-center bg-transparent';
 const emptyClass = 'p-3 text-sm text-neutral-500 dark:text-neutral-400';
 const listClass =
-  'max-h-[min(16rem,var(--available-height))] overflow-y-auto py-1 scroll-py-1 empty:py-0';
+  'max-h-[min(16rem,var(--available-height))] overflow-y-auto py-1 outline-hidden scroll-py-1 empty:py-0';
 const itemBaseClass =
   "flex cursor-default py-2 pl-4 text-sm leading-4 outline-hidden select-none data-highlighted:relative data-highlighted:z-0 data-highlighted:text-white data-highlighted:before:absolute data-highlighted:before:inset-x-1 data-highlighted:before:inset-y-0 data-highlighted:before:z-[-1] data-highlighted:before:bg-neutral-950 data-highlighted:before:content-[''] dark:data-highlighted:text-neutral-950 dark:data-highlighted:before:bg-white";
 const itemClass = `${itemBaseClass} pr-8`;

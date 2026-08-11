@@ -1,6 +1,5 @@
 'use client';
 import * as React from 'react';
-import { platform } from '@base-ui/utils/platform';
 import type { BaseUIComponentProps } from '../../internals/types';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { useMenuRootContext } from '../root/MenuRootContext';
@@ -16,24 +15,25 @@ const MenuListImpl = React.forwardRef(function MenuListImpl(
   const setListElement = store.useStateSetter('listElement');
   const filterable = store.select('filterable');
   const activeIndex = store.useState('activeIndex');
+  const listNavigationProps = store.useState('listProps');
   const listRole = elementProps.role ?? MENU_LIST_ROLE;
-
-  // VoiceOver switches into menu interaction mode as soon as the menu is exposed, which prevents
-  // dialog/input focus from being announced. To fix, we match autocomplete behavior by keeping
-  // the complete menu subtree hidden until Down Arrow moves virtual focus into the results. This
-  // exposes the menu and its items during menu navigation.
-  const shouldHideMenuFromAT =
-    platform.screenReader.voiceOver &&
-    filterable &&
-    activeIndex === null &&
-    listRole === MENU_LIST_ROLE;
 
   const element = useRenderElement('div', componentProps, {
     ref: [forwardedRef, setListElement],
     props: [
+      filterable ? listNavigationProps : undefined,
       {
         role: listRole,
-        'aria-hidden': shouldHideMenuFromAT ? true : undefined,
+        // ATs switch into menu interaction mode as soon as the menu is exposed, which sometimes prevents
+        // dialog/input focus from being announced. To fix, we match autocomplete behavior by keeping
+        // the menu subtree hidden until Down Arrow moves virtual focus into the results. This
+        // exposes the menu and its items during menu navigation.
+        'aria-hidden': filterable && activeIndex === null ? true : undefined,
+        onFocus(event) {
+          if (event.target === event.currentTarget) {
+            store.set('inputFocusVisible', false);
+          }
+        },
       },
       elementProps,
     ],

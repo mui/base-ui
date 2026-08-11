@@ -39,6 +39,7 @@ export type State<Payload> = PopupStoreState<Payload> & {
   floatingParentNodeId: string | null;
   itemProps: HTMLProps;
   inputProps: HTMLProps;
+  listProps: HTMLProps;
   listElement: HTMLElement | null;
   closeDelay: number;
   keyboardEventRelay: ((event: React.KeyboardEvent<any>) => void) | undefined;
@@ -102,6 +103,7 @@ const selectors = {
   floatingParentNodeId: (state: State<unknown>) => state.floatingParentNodeId,
   itemProps: (state: State<unknown>) => state.itemProps,
   inputProps: (state: State<unknown>) => state.inputProps,
+  listProps: (state: State<unknown>) => state.listProps,
   listElement: (state: State<unknown>) => state.listElement,
   closeDelay: (state: State<unknown>) => state.closeDelay,
   adaptiveOrigin: (state: State<unknown>): AdaptiveOriginMiddleware | undefined =>
@@ -250,6 +252,7 @@ function createInitialState<Payload>(
     floatingParentNodeId: null,
     itemProps: EMPTY_OBJECT,
     inputProps: EMPTY_OBJECT,
+    listProps: EMPTY_OBJECT,
     listElement: null,
     keyboardEventRelay: undefined,
     closeDelay: 0,
