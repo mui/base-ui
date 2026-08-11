@@ -264,6 +264,8 @@ Filtering lives in its own entrypoint so that an ordinary `@base-ui/react/select
 
 Give `<FilterSelect.Input>` its own accessible name with `aria-label` or a native `<label>`. `<FilterSelect.Label>` labels the trigger, not the input.
 
+An entry can carry `keywords` to match additional terms beyond its label.
+
 Pass a function to `filter` to customize matching. It is called with the `items` entry and the trimmed query, and returns whether the item matches:
 
 ```jsx title="Custom filter"

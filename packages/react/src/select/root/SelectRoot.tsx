@@ -402,12 +402,16 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
       return normalizedItems;
     }
 
+    // The filter runs against the entry and against each of its keywords.
+    const entryMatches = (item: any) =>
+      matchesItem(item, query, itemToStringLabel) ||
+      (Array.isArray(item?.keywords) &&
+        item.keywords.some((keyword: string) => matchesItem(keyword, query)));
+
     if (isGrouped) {
       const matchedGroups: Group<any>[] = [];
       for (const group of normalizedItems as ReadonlyArray<Group<any>>) {
-        const matchedGroupItems = group.items.filter((item) =>
-          matchesItem(item, query, itemToStringLabel),
-        );
+        const matchedGroupItems = group.items.filter(entryMatches);
         if (matchedGroupItems.length > 0) {
           matchedGroups.push({ ...group, items: matchedGroupItems });
         }
@@ -415,7 +419,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
       return matchedGroups;
     }
 
-    return normalizedItems.filter((item) => matchesItem(item, query, itemToStringLabel));
+    return normalizedItems.filter(entryMatches);
   }, [hasItems, filterable, query, normalizedItems, isGrouped, matchesItem, itemToStringLabel]);
 
   const flatFilteredItems: readonly any[] = React.useMemo(() => {
@@ -1046,7 +1050,11 @@ interface SelectRootBaseProps<Value, Multiple extends boolean | undefined = fals
    */
   items?:
     | Record<string, React.ReactNode>
-    | ReadonlyArray<{ label: React.ReactNode; value: any }>
+    | ReadonlyArray<{
+        label: React.ReactNode;
+        value: any;
+        keywords?: readonly string[] | undefined;
+      }>
     | ReadonlyArray<Group<any>>
     | undefined;
   /**

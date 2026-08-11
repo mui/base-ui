@@ -2,14 +2,11 @@
 import * as React from 'react';
 import { FilterMenu } from '@base-ui/react/filter-menu';
 
-const sharingOptions = ['Email', 'Messages', 'AirDrop', 'Copy link'];
-
 const actions = [
   'New file',
   'Open file',
   'Save',
   'Save as',
-  { label: 'Share', options: sharingOptions },
   'Duplicate',
   'Rename',
   'Move to folder',
@@ -17,9 +14,11 @@ const actions = [
   'Delete',
 ];
 
+const sharingOptions = ['Email', 'Messages', 'AirDrop', 'Copy link'];
+
 export default function FilterMenuDemo() {
   return (
-    <FilterMenu.Root items={actions}>
+    <FilterMenu.Root>
       <FilterMenu.Trigger className="flex h-8 items-center justify-center gap-1.5 rounded-none border border-neutral-950 bg-white pr-2 pl-3 text-sm leading-none font-normal whitespace-nowrap text-neutral-950 select-none hover:not-data-disabled:bg-neutral-100 active:not-data-disabled:bg-neutral-200 data-pressed:bg-neutral-100 data-disabled:border-neutral-500 data-disabled:text-neutral-500 focus-visible:-outline-offset-1 focus-visible:outline-2 focus-visible:outline-neutral-950 disabled:border-neutral-500 disabled:text-neutral-500 dark:border-white dark:bg-neutral-950 dark:text-white dark:hover:not-data-disabled:bg-neutral-800 dark:active:not-data-disabled:bg-neutral-700 dark:data-pressed:bg-neutral-800 dark:data-disabled:border-neutral-400 dark:data-disabled:text-neutral-400 dark:focus-visible:outline-white">
         Actions <CaretDownIcon />
       </FilterMenu.Trigger>
@@ -38,50 +37,66 @@ export default function FilterMenuDemo() {
             </div>
             <FilterMenu.Empty className={emptyClass}>No actions found.</FilterMenu.Empty>
             <FilterMenu.List className={listClass}>
-              {(action) =>
-                typeof action === 'string' ? (
+              <FilterMenu.Group>
+                <FilterMenu.GroupLabel className="py-2 pr-8 pl-[2.125rem] text-sm leading-4 text-neutral-500 select-none dark:text-neutral-400">
+                  File
+                </FilterMenu.GroupLabel>
+                {actions.slice(0, 4).map((action) => (
                   <FilterMenu.Item key={action} className={itemClass}>
                     {action}
                   </FilterMenu.Item>
-                ) : (
-                  <FilterMenu.SubmenuRoot key={action.label} items={action.options}>
-                    <FilterMenu.SubmenuTrigger className={submenuTriggerClass}>
-                      {action.label}
-                      <CaretRightIcon />
-                    </FilterMenu.SubmenuTrigger>
-                    <FilterMenu.Portal>
-                      <FilterMenu.Positioner
-                        className="outline-hidden"
-                        sideOffset={getSubmenuOffset}
-                        alignOffset={getSubmenuOffset}
-                      >
-                        <FilterMenu.Popup className={popupClass}>
-                          <div className={inputContainerClass}>
-                            <FilterMenu.Input
-                              className={inputClass}
-                              aria-label="Filter sharing options"
-                              placeholder="e.g. Email"
-                            />
-                            <FilterMenu.Clear className={clearClass} aria-label="Clear filter">
-                              <ClearIcon />
-                            </FilterMenu.Clear>
-                          </div>
-                          <FilterMenu.Empty className={emptyClass}>
-                            No sharing options found.
-                          </FilterMenu.Empty>
-                          <FilterMenu.List className={listClass}>
-                            {(option) => (
-                              <FilterMenu.Item key={option} className={itemClass}>
-                                {option}
-                              </FilterMenu.Item>
-                            )}
-                          </FilterMenu.List>
-                        </FilterMenu.Popup>
-                      </FilterMenu.Positioner>
-                    </FilterMenu.Portal>
-                  </FilterMenu.SubmenuRoot>
-                )
-              }
+                ))}
+              </FilterMenu.Group>
+              <FilterMenu.SubmenuRoot>
+                <FilterMenu.SubmenuTrigger className={submenuTriggerClass}>
+                  Share
+                  <CaretRightIcon />
+                </FilterMenu.SubmenuTrigger>
+                <FilterMenu.Portal>
+                  <FilterMenu.Positioner
+                    className="outline-hidden"
+                    sideOffset={getSubmenuOffset}
+                    alignOffset={getSubmenuOffset}
+                  >
+                    <FilterMenu.Popup className={popupClass}>
+                      <div className={inputContainerClass}>
+                        <FilterMenu.Input
+                          className={inputClass}
+                          aria-label="Filter sharing options"
+                          placeholder="e.g. Email"
+                        />
+                        <FilterMenu.Clear className={clearClass} aria-label="Clear filter">
+                          <ClearIcon />
+                        </FilterMenu.Clear>
+                      </div>
+                      <FilterMenu.Empty className={emptyClass}>
+                        No sharing options found.
+                      </FilterMenu.Empty>
+                      <FilterMenu.List className={listClass}>
+                        {sharingOptions.map((option) => (
+                          <FilterMenu.Item key={option} className={itemClass}>
+                            {option}
+                          </FilterMenu.Item>
+                        ))}
+                      </FilterMenu.List>
+                    </FilterMenu.Popup>
+                  </FilterMenu.Positioner>
+                </FilterMenu.Portal>
+              </FilterMenu.SubmenuRoot>
+              <FilterMenu.Group>
+                <FilterMenu.GroupLabel className="py-2 pr-8 pl-[2.125rem] text-sm leading-4 text-neutral-500 select-none dark:text-neutral-400">
+                  Manage
+                </FilterMenu.GroupLabel>
+                {actions.slice(4).map((action) => (
+                  <FilterMenu.Item
+                    key={action}
+                    className={itemClass}
+                    keywords={action === 'Delete' ? ['remove', 'trash'] : undefined}
+                  >
+                    {action}
+                  </FilterMenu.Item>
+                ))}
+              </FilterMenu.Group>
             </FilterMenu.List>
           </FilterMenu.Popup>
         </FilterMenu.Positioner>

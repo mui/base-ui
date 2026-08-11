@@ -26,7 +26,6 @@ import {
   resetBrowserPointer,
   wait,
 } from '#test-utils';
-
 import { REASONS } from '../../internals/reasons';
 import { PATIENT_CLICK_THRESHOLD } from '../../internals/constants';
 
@@ -72,69 +71,18 @@ describe('<Menu.Root />', () => {
     expectedPopupRole: 'menu',
   });
 
-  describe('prop: items', () => {
-    function ItemsTest(props: Partial<FilterMenu.Root.Props>) {
-      return (
-        <FilterMenu.Root open items={['New file', 'Open file', 'Save']} {...props}>
-          <FilterMenu.Trigger>Actions</FilterMenu.Trigger>
-          <FilterMenu.Portal>
-            <FilterMenu.Positioner>
-              <FilterMenu.Popup>
-                <FilterMenu.Input aria-label="Filter actions" />
-                <FilterMenu.Empty>No actions found</FilterMenu.Empty>
-                <FilterMenu.List>
-                  {(item: string) => <FilterMenu.Item key={item}>{item}</FilterMenu.Item>}
-                </FilterMenu.List>
-              </FilterMenu.Popup>
-            </FilterMenu.Positioner>
-          </FilterMenu.Portal>
-        </FilterMenu.Root>
-      );
-    }
-
-    it('renders the list from items with a function child', async () => {
-      await render(<ItemsTest />);
-
-      expect(screen.getAllByRole('menuitem')).toHaveLength(3);
-      expect(screen.getByRole('menuitem', { name: 'Save' })).toBeVisible();
-    });
-
-    it('narrows items to the query before rendering', async () => {
-      const { user } = await render(<ItemsTest />);
-
-      const input = screen.getByRole('searchbox', { name: 'Filter actions' });
-      await user.type(input, 'file');
-
-      await waitFor(() => {
-        expect(screen.getAllByRole('menuitem')).toHaveLength(2);
-      });
-      expect(screen.queryByRole('menuitem', { name: 'Save' })).toBeNull();
-
-      await user.clear(input);
-      await user.type(input, 'zzz');
-
-      await waitFor(() => {
-        expect(screen.queryAllByRole('menuitem')).toHaveLength(0);
-      });
-      expect(screen.queryAllByText('No actions found').length).toBeGreaterThan(0);
-    });
-
-    it('matches object entries on their label', async () => {
-      await render(
-        <FilterMenu.Root
-          open
-          items={[{ label: 'New file' }, { label: 'Share' }]}
-          defaultInputValue="sha"
-        >
+  describe('filtering', () => {
+    it('matches items on their keywords', async () => {
+      const { user } = await render(
+        <FilterMenu.Root open>
           <FilterMenu.Trigger>Actions</FilterMenu.Trigger>
           <FilterMenu.Portal>
             <FilterMenu.Positioner>
               <FilterMenu.Popup>
                 <FilterMenu.Input aria-label="Filter actions" />
                 <FilterMenu.List>
-                  {(item: { label: string }) => (
-                    <FilterMenu.Item key={item.label}>{item.label}</FilterMenu.Item>
-                  )}
+                  <FilterMenu.Item keywords={['remove', 'trash']}>Delete</FilterMenu.Item>
+                  <FilterMenu.Item>Rename</FilterMenu.Item>
                 </FilterMenu.List>
               </FilterMenu.Popup>
             </FilterMenu.Positioner>
@@ -142,31 +90,171 @@ describe('<Menu.Root />', () => {
         </FilterMenu.Root>,
       );
 
+      const input = await screen.findByRole('searchbox', { name: 'Filter actions' });
+      await user.type(input, 'trash');
+
       await waitFor(() => {
-        expect(screen.getAllByRole('menuitem')).toHaveLength(1);
+        expect(screen.getByRole('menuitem', { name: 'Delete' })).toBeVisible();
       });
-      expect(screen.getByRole('menuitem', { name: 'Share' })).toBeVisible();
+      expect(screen.queryByRole('menuitem', { name: 'Rename' })).toBe(null);
     });
 
-    it('renders all items in an ordinary menu', async () => {
-      await render(
-        <Menu.Root open items={['New file', 'Save']}>
-          <Menu.Trigger>Actions</Menu.Trigger>
-          <Menu.Portal>
-            <Menu.Positioner>
-              <Menu.Popup>
-                <Menu.List>{(item: string) => <Menu.Item key={item}>{item}</Menu.Item>}</Menu.List>
-              </Menu.Popup>
-            </Menu.Positioner>
-          </Menu.Portal>
-        </Menu.Root>,
+    it('hides a group, label included, when the query filters out all of its items', async () => {
+      const { user } = await render(
+        <FilterMenu.Root open>
+          <FilterMenu.Trigger>Actions</FilterMenu.Trigger>
+          <FilterMenu.Portal>
+            <FilterMenu.Positioner>
+              <FilterMenu.Popup>
+                <FilterMenu.Input aria-label="Filter actions" />
+                <FilterMenu.List>
+                  <FilterMenu.Group data-testid="file-group">
+                    <FilterMenu.GroupLabel>File</FilterMenu.GroupLabel>
+                    <FilterMenu.Item>Save</FilterMenu.Item>
+                  </FilterMenu.Group>
+                  <FilterMenu.Group data-testid="manage-group">
+                    <FilterMenu.GroupLabel>Manage</FilterMenu.GroupLabel>
+                    <FilterMenu.Item>Rename</FilterMenu.Item>
+                  </FilterMenu.Group>
+                </FilterMenu.List>
+              </FilterMenu.Popup>
+            </FilterMenu.Positioner>
+          </FilterMenu.Portal>
+        </FilterMenu.Root>,
       );
 
-      expect(screen.getAllByRole('menuitem')).toHaveLength(2);
-    });
-  });
+      const input = await screen.findByRole('searchbox', { name: 'Filter actions' });
+      await user.type(input, 'ren');
 
-  describe('filtering', () => {
+      await waitFor(() => {
+        expect(screen.getByTestId('file-group')).not.toBeVisible();
+      });
+      expect(screen.getByTestId('manage-group')).toBeVisible();
+      expect(screen.getByRole('menuitem', { name: 'Rename' })).toBeVisible();
+
+      await user.clear(input);
+
+      await waitFor(() => {
+        expect(screen.getByTestId('file-group')).toBeVisible();
+      });
+    });
+
+    it('closes a filterable submenu and moves focus to the next element when tabbing forward', async () => {
+      const { user } = await render(
+        <div>
+          <input />
+          <FilterMenu.Root defaultOpen>
+            <FilterMenu.Trigger>Actions</FilterMenu.Trigger>
+            <FilterMenu.Portal>
+              <FilterMenu.Positioner>
+                <FilterMenu.Popup>
+                  <FilterMenu.Input aria-label="Filter actions" />
+                  <FilterMenu.List>
+                    <FilterMenu.SubmenuRoot>
+                      <FilterMenu.SubmenuTrigger>Share</FilterMenu.SubmenuTrigger>
+                      <FilterMenu.Portal>
+                        <FilterMenu.Positioner>
+                          <FilterMenu.Popup>
+                            <FilterMenu.Input aria-label="Filter sharing options" />
+                            <FilterMenu.List>
+                              <FilterMenu.Item>Email</FilterMenu.Item>
+                            </FilterMenu.List>
+                          </FilterMenu.Popup>
+                        </FilterMenu.Positioner>
+                      </FilterMenu.Portal>
+                    </FilterMenu.SubmenuRoot>
+                  </FilterMenu.List>
+                </FilterMenu.Popup>
+              </FilterMenu.Positioner>
+            </FilterMenu.Portal>
+          </FilterMenu.Root>
+          <input data-testid="after" />
+        </div>,
+      );
+
+      const parentInput = screen.getByRole('searchbox', { name: 'Filter actions' });
+      await waitFor(() => {
+        expect(parentInput).toHaveFocus();
+      });
+
+      await user.keyboard('[ArrowDown][ArrowRight]');
+
+      const submenuInput = await screen.findByRole('searchbox', { name: 'Filter sharing options' });
+      await waitFor(() => {
+        expect(submenuInput).toHaveFocus();
+      });
+
+      await user.tab();
+
+      await waitFor(() => {
+        expect(screen.getByTestId('after')).toHaveFocus();
+      });
+      await waitFor(() => {
+        expect(screen.queryByRole('searchbox', { name: 'Filter actions' })).toBe(null);
+      });
+    });
+
+    it('closes a pointer-opened filterable submenu and moves focus forward when tabbing', async () => {
+      const { user } = await render(
+        <div>
+          {/* Exit transitions keep the closing popups mounted while focus relocates. */}
+          <style>{`
+            .filter-popup { transition: opacity 50ms; opacity: 1; }
+            .filter-popup[data-ending-style] { opacity: 0; }
+          `}</style>
+          <input />
+          <FilterMenu.Root>
+            <FilterMenu.Trigger>Actions</FilterMenu.Trigger>
+            <FilterMenu.Portal>
+              <FilterMenu.Positioner>
+                <FilterMenu.Popup className="filter-popup">
+                  <FilterMenu.Input aria-label="Filter actions" />
+                  <FilterMenu.List>
+                    <FilterMenu.SubmenuRoot>
+                      <FilterMenu.SubmenuTrigger delay={0}>Share</FilterMenu.SubmenuTrigger>
+                      <FilterMenu.Portal>
+                        <FilterMenu.Positioner>
+                          <FilterMenu.Popup className="filter-popup">
+                            <FilterMenu.Input aria-label="Filter sharing options" />
+                            <FilterMenu.List>
+                              <FilterMenu.Item>Email</FilterMenu.Item>
+                            </FilterMenu.List>
+                          </FilterMenu.Popup>
+                        </FilterMenu.Positioner>
+                      </FilterMenu.Portal>
+                    </FilterMenu.SubmenuRoot>
+                  </FilterMenu.List>
+                </FilterMenu.Popup>
+              </FilterMenu.Positioner>
+            </FilterMenu.Portal>
+          </FilterMenu.Root>
+          <input data-testid="after" />
+        </div>,
+      );
+
+      await user.click(screen.getByRole('button', { name: 'Actions' }));
+
+      const submenuTrigger = await screen.findByRole('menuitem', { name: 'Share' });
+      await user.click(submenuTrigger);
+
+      const submenuInput = await screen.findByRole('searchbox', { name: 'Filter sharing options' });
+      await act(async () => {
+        submenuInput.focus();
+      });
+      await waitFor(() => {
+        expect(submenuInput).toHaveFocus();
+      });
+
+      await user.tab();
+
+      await waitFor(() => {
+        expect(screen.getByTestId('after')).toHaveFocus();
+      });
+      await waitFor(() => {
+        expect(screen.queryByRole('searchbox', { name: 'Filter actions' })).toBe(null);
+      });
+    });
+
     // Only the submenu filters here; the outer menu is an ordinary one.
     function FilterableSubmenu({ portalled = true }: { portalled?: boolean }) {
       const SubmenuPortal = portalled ? Menu.Portal : React.Fragment;
@@ -178,14 +266,15 @@ describe('<Menu.Root />', () => {
             <Menu.Positioner>
               <Menu.Popup>
                 <Menu.Item>Rename</Menu.Item>
-                <FilterMenu.SubmenuRoot items={['Documents', 'Downloads']}>
+                <FilterMenu.SubmenuRoot>
                   <FilterMenu.SubmenuTrigger delay={0}>Move to folder</FilterMenu.SubmenuTrigger>
                   <SubmenuPortal>
                     <FilterMenu.Positioner>
                       <FilterMenu.Popup>
                         <FilterMenu.Input aria-label="Filter folders" />
                         <FilterMenu.List>
-                          {(item: string) => <FilterMenu.Item key={item}>{item}</FilterMenu.Item>}
+                          <FilterMenu.Item>Documents</FilterMenu.Item>
+                          <FilterMenu.Item>Downloads</FilterMenu.Item>
                         </FilterMenu.List>
                       </FilterMenu.Popup>
                     </FilterMenu.Positioner>
@@ -222,14 +311,14 @@ describe('<Menu.Root />', () => {
             <button type="button" onClick={() => setOpen(false)}>
               Close
             </button>
-            <FilterMenu.Root open={open} onInputValueChange={onInputValueChange} items={['Apple']}>
+            <FilterMenu.Root open={open} onInputValueChange={onInputValueChange}>
               <FilterMenu.Trigger>Fruit</FilterMenu.Trigger>
               <FilterMenu.Portal>
                 <FilterMenu.Positioner>
                   <FilterMenu.Popup>
                     <FilterMenu.Input aria-label="Filter fruit" />
                     <FilterMenu.List>
-                      {(item: string) => <FilterMenu.Item key={item}>{item}</FilterMenu.Item>}
+                      <FilterMenu.Item>Apple</FilterMenu.Item>
                     </FilterMenu.List>
                   </FilterMenu.Popup>
                 </FilterMenu.Positioner>
@@ -260,7 +349,6 @@ describe('<Menu.Root />', () => {
           open
           defaultInputValue="app"
           onInputValueChange={(_, eventDetails) => eventDetails.cancel()}
-          items={['Apple', 'Banana']}
         >
           <FilterMenu.Trigger>Fruit</FilterMenu.Trigger>
           <FilterMenu.Portal>
@@ -269,7 +357,8 @@ describe('<Menu.Root />', () => {
                 <FilterMenu.Input aria-label="Filter fruit" />
                 <FilterMenu.Clear aria-label="Clear filter" />
                 <FilterMenu.List>
-                  {(item: string) => <FilterMenu.Item key={item}>{item}</FilterMenu.Item>}
+                  <FilterMenu.Item>Apple</FilterMenu.Item>
+                  <FilterMenu.Item>Banana</FilterMenu.Item>
                 </FilterMenu.List>
               </FilterMenu.Popup>
             </FilterMenu.Positioner>
@@ -304,13 +393,13 @@ describe('<Menu.Root />', () => {
 
         return (
           <React.Fragment>
-            <FilterMenu.Root handle={handle} items={['Apple']}>
+            <FilterMenu.Root handle={handle}>
               <FilterMenu.Portal>
                 <FilterMenu.Positioner>
                   <FilterMenu.Popup>
                     <FilterMenu.Input aria-label="Filter fruit" />
                     <FilterMenu.List data-testid="list">
-                      {(item: string) => <FilterMenu.Item key={item}>{item}</FilterMenu.Item>}
+                      <FilterMenu.Item>Apple</FilterMenu.Item>
                     </FilterMenu.List>
                     <FilterMenu.Empty>No fruit found</FilterMenu.Empty>
                   </FilterMenu.Popup>
@@ -404,7 +493,7 @@ describe('<Menu.Root />', () => {
       try {
         await expect(
           render(
-            <FilterMenu.Root open items={['More actions']}>
+            <FilterMenu.Root open>
               <FilterMenu.Trigger>Actions</FilterMenu.Trigger>
               <FilterMenu.Portal>
                 <FilterMenu.Positioner>
@@ -413,18 +502,16 @@ describe('<Menu.Root />', () => {
                     <FilterMenu.List>
                       {/* An ordinary submenu root inside a filterable menu is not itself
                           filterable, so its own Input has no filterable root to attach to. */}
-                      {(item: string) => (
-                        <Menu.SubmenuRoot key={item}>
-                          <Menu.SubmenuTrigger>{item}</Menu.SubmenuTrigger>
-                          <Menu.Portal keepMounted>
-                            <Menu.Positioner>
-                              <Menu.Popup>
-                                <FilterMenu.Input aria-label="Filter more actions" />
-                              </Menu.Popup>
-                            </Menu.Positioner>
-                          </Menu.Portal>
-                        </Menu.SubmenuRoot>
-                      )}
+                      <Menu.SubmenuRoot>
+                        <Menu.SubmenuTrigger>More actions</Menu.SubmenuTrigger>
+                        <Menu.Portal keepMounted>
+                          <Menu.Positioner>
+                            <Menu.Popup>
+                              <FilterMenu.Input aria-label="Filter more actions" />
+                            </Menu.Popup>
+                          </Menu.Positioner>
+                        </Menu.Portal>
+                      </Menu.SubmenuRoot>
                     </FilterMenu.List>
                   </FilterMenu.Popup>
                 </FilterMenu.Positioner>
@@ -495,30 +582,26 @@ describe('<Menu.Root />', () => {
 
     it('opens a virtually focused submenu with the keyboard', async () => {
       const { user } = await render(
-        <FilterMenu.Root defaultOpen items={[{ label: 'Move to folder', options: ['Documents'] }]}>
+        <FilterMenu.Root defaultOpen>
           <FilterMenu.Trigger>Actions</FilterMenu.Trigger>
           <FilterMenu.Portal>
             <FilterMenu.Positioner>
               <FilterMenu.Popup>
                 <FilterMenu.Input aria-label="Filter actions" />
                 <FilterMenu.List>
-                  {(item: { label: string; options: string[] }) => (
-                    <FilterMenu.SubmenuRoot key={item.label} items={item.options}>
-                      <FilterMenu.SubmenuTrigger>{item.label}</FilterMenu.SubmenuTrigger>
-                      <FilterMenu.Portal>
-                        <FilterMenu.Positioner>
-                          <FilterMenu.Popup>
-                            <FilterMenu.Input aria-label="Filter folders" />
-                            <FilterMenu.List>
-                              {(folder: string) => (
-                                <FilterMenu.Item key={folder}>{folder}</FilterMenu.Item>
-                              )}
-                            </FilterMenu.List>
-                          </FilterMenu.Popup>
-                        </FilterMenu.Positioner>
-                      </FilterMenu.Portal>
-                    </FilterMenu.SubmenuRoot>
-                  )}
+                  <FilterMenu.SubmenuRoot>
+                    <FilterMenu.SubmenuTrigger>Move to folder</FilterMenu.SubmenuTrigger>
+                    <FilterMenu.Portal>
+                      <FilterMenu.Positioner>
+                        <FilterMenu.Popup>
+                          <FilterMenu.Input aria-label="Filter folders" />
+                          <FilterMenu.List>
+                            <FilterMenu.Item>Documents</FilterMenu.Item>
+                          </FilterMenu.List>
+                        </FilterMenu.Popup>
+                      </FilterMenu.Positioner>
+                    </FilterMenu.Portal>
+                  </FilterMenu.SubmenuRoot>
                 </FilterMenu.List>
               </FilterMenu.Popup>
             </FilterMenu.Positioner>
@@ -544,173 +627,37 @@ describe('<Menu.Root />', () => {
       });
     });
 
-    it('closes a filterable submenu and moves focus to the next element when tabbing forward', async () => {
-      const { user } = await render(
-        <div>
-          <input />
-          <FilterMenu.Root defaultOpen items={[{ label: 'Share', options: ['Email'] }]}>
-            <FilterMenu.Trigger>Actions</FilterMenu.Trigger>
-            <FilterMenu.Portal>
-              <FilterMenu.Positioner>
-                <FilterMenu.Popup>
-                  <FilterMenu.Input aria-label="Filter actions" />
-                  <FilterMenu.List>
-                    {(item: { label: string; options: string[] }) => (
-                      <FilterMenu.SubmenuRoot key={item.label} items={item.options}>
-                        <FilterMenu.SubmenuTrigger>{item.label}</FilterMenu.SubmenuTrigger>
-                        <FilterMenu.Portal>
-                          <FilterMenu.Positioner>
-                            <FilterMenu.Popup>
-                              <FilterMenu.Input aria-label="Filter sharing options" />
-                              <FilterMenu.List>
-                                {(option: string) => (
-                                  <FilterMenu.Item key={option}>{option}</FilterMenu.Item>
-                                )}
-                              </FilterMenu.List>
-                            </FilterMenu.Popup>
-                          </FilterMenu.Positioner>
-                        </FilterMenu.Portal>
-                      </FilterMenu.SubmenuRoot>
-                    )}
-                  </FilterMenu.List>
-                </FilterMenu.Popup>
-              </FilterMenu.Positioner>
-            </FilterMenu.Portal>
-          </FilterMenu.Root>
-          <input data-testid="after" />
-        </div>,
-      );
-
-      const parentInput = screen.getByRole('searchbox', { name: 'Filter actions' });
-      await waitFor(() => {
-        expect(parentInput).toHaveFocus();
-      });
-
-      await user.keyboard('[ArrowDown][ArrowRight]');
-
-      const submenuInput = await screen.findByRole('searchbox', { name: 'Filter sharing options' });
-      await act(async () => {
-        submenuInput.focus();
-      });
-      await waitFor(() => {
-        expect(submenuInput).toHaveFocus();
-      });
-
-      await user.tab();
-
-      await waitFor(() => {
-        expect(screen.getByTestId('after')).toHaveFocus();
-      });
-      await waitFor(() => {
-        expect(screen.queryByRole('searchbox', { name: 'Filter actions' })).toBe(null);
-      });
-    });
-
-    it('closes a pointer-opened filterable submenu and moves focus forward when tabbing', async () => {
-      const { user } = await render(
-        <div>
-          {/* Exit transitions keep the closing popups mounted while focus relocates. */}
-          <style>{`
-            .filter-popup { transition: opacity 50ms; opacity: 1; }
-            .filter-popup[data-ending-style] { opacity: 0; }
-          `}</style>
-          <input />
-          <FilterMenu.Root items={[{ label: 'Share', options: ['Email'] }]}>
-            <FilterMenu.Trigger>Actions</FilterMenu.Trigger>
-            <FilterMenu.Portal>
-              <FilterMenu.Positioner>
-                <FilterMenu.Popup className="filter-popup">
-                  <FilterMenu.Input aria-label="Filter actions" />
-                  <FilterMenu.List>
-                    {(item: { label: string; options: string[] }) => (
-                      <FilterMenu.SubmenuRoot key={item.label} items={item.options}>
-                        <FilterMenu.SubmenuTrigger delay={0}>
-                          {item.label}
-                        </FilterMenu.SubmenuTrigger>
-                        <FilterMenu.Portal>
-                          <FilterMenu.Positioner>
-                            <FilterMenu.Popup className="filter-popup">
-                              <FilterMenu.Input aria-label="Filter sharing options" />
-                              <FilterMenu.List>
-                                {(option: string) => (
-                                  <FilterMenu.Item key={option}>{option}</FilterMenu.Item>
-                                )}
-                              </FilterMenu.List>
-                            </FilterMenu.Popup>
-                          </FilterMenu.Positioner>
-                        </FilterMenu.Portal>
-                      </FilterMenu.SubmenuRoot>
-                    )}
-                  </FilterMenu.List>
-                </FilterMenu.Popup>
-              </FilterMenu.Positioner>
-            </FilterMenu.Portal>
-          </FilterMenu.Root>
-          <input data-testid="after" />
-        </div>,
-      );
-
-      await user.click(screen.getByRole('button', { name: 'Actions' }));
-
-      const submenuTrigger = await screen.findByRole('menuitem', { name: 'Share' });
-      await user.click(submenuTrigger);
-
-      const submenuInput = await screen.findByRole('searchbox', { name: 'Filter sharing options' });
-      await act(async () => {
-        submenuInput.focus();
-      });
-      await waitFor(() => {
-        expect(submenuInput).toHaveFocus();
-      });
-
-      await user.tab();
-
-      await waitFor(() => {
-        expect(screen.getByTestId('after')).toHaveFocus();
-      });
-      await waitFor(() => {
-        expect(screen.queryByRole('searchbox', { name: 'Filter actions' })).toBe(null);
-      });
-    });
-
     it('opens a submenu from a filterable submenu input', async () => {
       const { user } = await render(
-        <FilterMenu.Root
-          defaultOpen
-          items={[{ label: 'Move to folder', options: ['More folders'] }]}
-        >
+        <FilterMenu.Root defaultOpen>
           <FilterMenu.Trigger>Actions</FilterMenu.Trigger>
           <FilterMenu.Portal>
             <FilterMenu.Positioner>
               <FilterMenu.Popup>
                 <FilterMenu.Input aria-label="Filter actions" />
                 <FilterMenu.List>
-                  {(item: { label: string; options: string[] }) => (
-                    <FilterMenu.SubmenuRoot key={item.label} items={item.options}>
-                      <FilterMenu.SubmenuTrigger>{item.label}</FilterMenu.SubmenuTrigger>
-                      <FilterMenu.Portal>
-                        <FilterMenu.Positioner>
-                          <FilterMenu.Popup>
-                            <FilterMenu.Input aria-label="Filter folders" />
-                            <FilterMenu.List>
-                              {(folder: string) => (
-                                <Menu.SubmenuRoot key={folder}>
-                                  <Menu.SubmenuTrigger>{folder}</Menu.SubmenuTrigger>
-                                  <Menu.Portal>
-                                    <Menu.Positioner>
-                                      <Menu.Popup>
-                                        <Menu.Item>Archive</Menu.Item>
-                                      </Menu.Popup>
-                                    </Menu.Positioner>
-                                  </Menu.Portal>
-                                </Menu.SubmenuRoot>
-                              )}
-                            </FilterMenu.List>
-                          </FilterMenu.Popup>
-                        </FilterMenu.Positioner>
-                      </FilterMenu.Portal>
-                    </FilterMenu.SubmenuRoot>
-                  )}
+                  <FilterMenu.SubmenuRoot>
+                    <FilterMenu.SubmenuTrigger>Move to folder</FilterMenu.SubmenuTrigger>
+                    <FilterMenu.Portal>
+                      <FilterMenu.Positioner>
+                        <FilterMenu.Popup>
+                          <FilterMenu.Input aria-label="Filter folders" />
+                          <FilterMenu.List>
+                            <Menu.SubmenuRoot>
+                              <Menu.SubmenuTrigger>More folders</Menu.SubmenuTrigger>
+                              <Menu.Portal>
+                                <Menu.Positioner>
+                                  <Menu.Popup>
+                                    <Menu.Item>Archive</Menu.Item>
+                                  </Menu.Popup>
+                                </Menu.Positioner>
+                              </Menu.Portal>
+                            </Menu.SubmenuRoot>
+                          </FilterMenu.List>
+                        </FilterMenu.Popup>
+                      </FilterMenu.Positioner>
+                    </FilterMenu.Portal>
+                  </FilterMenu.SubmenuRoot>
                 </FilterMenu.List>
               </FilterMenu.Popup>
             </FilterMenu.Positioner>
@@ -766,35 +713,28 @@ describe('<Menu.Root />', () => {
       'focuses the input when entering a hover-opened filterable submenu with the keyboard',
       async () => {
         const { user } = await render(
-          <FilterMenu.Root
-            defaultOpen
-            items={[{ label: 'Move to folder', options: ['Documents'] }]}
-          >
+          <FilterMenu.Root defaultOpen>
             <FilterMenu.Trigger>Actions</FilterMenu.Trigger>
             <FilterMenu.Portal>
               <FilterMenu.Positioner>
                 <FilterMenu.Popup>
                   <FilterMenu.Input aria-label="Filter actions" />
                   <FilterMenu.List>
-                    {(item: { label: string; options: string[] }) => (
-                      <FilterMenu.SubmenuRoot key={item.label} items={item.options}>
-                        <FilterMenu.SubmenuTrigger delay={0}>
-                          {item.label}
-                        </FilterMenu.SubmenuTrigger>
-                        <FilterMenu.Portal>
-                          <FilterMenu.Positioner>
-                            <FilterMenu.Popup>
-                              <FilterMenu.Input aria-label="Filter folders" />
-                              <FilterMenu.List>
-                                {(folder: string) => (
-                                  <FilterMenu.Item key={folder}>{folder}</FilterMenu.Item>
-                                )}
-                              </FilterMenu.List>
-                            </FilterMenu.Popup>
-                          </FilterMenu.Positioner>
-                        </FilterMenu.Portal>
-                      </FilterMenu.SubmenuRoot>
-                    )}
+                    <FilterMenu.SubmenuRoot>
+                      <FilterMenu.SubmenuTrigger delay={0}>
+                        Move to folder
+                      </FilterMenu.SubmenuTrigger>
+                      <FilterMenu.Portal>
+                        <FilterMenu.Positioner>
+                          <FilterMenu.Popup>
+                            <FilterMenu.Input aria-label="Filter folders" />
+                            <FilterMenu.List>
+                              <FilterMenu.Item>Documents</FilterMenu.Item>
+                            </FilterMenu.List>
+                          </FilterMenu.Popup>
+                        </FilterMenu.Positioner>
+                      </FilterMenu.Portal>
+                    </FilterMenu.SubmenuRoot>
                   </FilterMenu.List>
                 </FilterMenu.Popup>
               </FilterMenu.Positioner>
@@ -820,35 +760,28 @@ describe('<Menu.Root />', () => {
       'closes a hover-opened submenu from a virtually focused parent',
       async () => {
         const { user } = await render(
-          <FilterMenu.Root
-            defaultOpen
-            items={[{ label: 'Move to folder', options: ['Documents'] }]}
-          >
+          <FilterMenu.Root defaultOpen>
             <FilterMenu.Trigger>Actions</FilterMenu.Trigger>
             <FilterMenu.Portal>
               <FilterMenu.Positioner>
                 <FilterMenu.Popup>
                   <FilterMenu.Input aria-label="Filter actions" />
                   <FilterMenu.List>
-                    {(item: { label: string; options: string[] }) => (
-                      <FilterMenu.SubmenuRoot key={item.label} items={item.options}>
-                        <FilterMenu.SubmenuTrigger delay={0}>
-                          {item.label}
-                        </FilterMenu.SubmenuTrigger>
-                        <FilterMenu.Portal>
-                          <FilterMenu.Positioner>
-                            <FilterMenu.Popup>
-                              <FilterMenu.Input aria-label="Filter folders" />
-                              <FilterMenu.List>
-                                {(folder: string) => (
-                                  <FilterMenu.Item key={folder}>{folder}</FilterMenu.Item>
-                                )}
-                              </FilterMenu.List>
-                            </FilterMenu.Popup>
-                          </FilterMenu.Positioner>
-                        </FilterMenu.Portal>
-                      </FilterMenu.SubmenuRoot>
-                    )}
+                    <FilterMenu.SubmenuRoot>
+                      <FilterMenu.SubmenuTrigger delay={0}>
+                        Move to folder
+                      </FilterMenu.SubmenuTrigger>
+                      <FilterMenu.Portal>
+                        <FilterMenu.Positioner>
+                          <FilterMenu.Popup>
+                            <FilterMenu.Input aria-label="Filter folders" />
+                            <FilterMenu.List>
+                              <FilterMenu.Item>Documents</FilterMenu.Item>
+                            </FilterMenu.List>
+                          </FilterMenu.Popup>
+                        </FilterMenu.Positioner>
+                      </FilterMenu.Portal>
+                    </FilterMenu.SubmenuRoot>
                   </FilterMenu.List>
                 </FilterMenu.Popup>
               </FilterMenu.Positioner>
@@ -878,26 +811,24 @@ describe('<Menu.Root />', () => {
       'focuses the first item when entering a hover-opened submenu from a filterable menu',
       async () => {
         const { user } = await render(
-          <FilterMenu.Root defaultOpen items={['Move to folder']}>
+          <FilterMenu.Root defaultOpen>
             <FilterMenu.Trigger>Actions</FilterMenu.Trigger>
             <FilterMenu.Portal>
               <FilterMenu.Positioner>
                 <FilterMenu.Popup>
                   <FilterMenu.Input aria-label="Filter actions" />
                   <FilterMenu.List>
-                    {(item: string) => (
-                      <Menu.SubmenuRoot key={item}>
-                        <Menu.SubmenuTrigger delay={0}>{item}</Menu.SubmenuTrigger>
-                        <Menu.Portal>
-                          <Menu.Positioner>
-                            <Menu.Popup>
-                              <Menu.Item>Documents</Menu.Item>
-                              <Menu.Item>Downloads</Menu.Item>
-                            </Menu.Popup>
-                          </Menu.Positioner>
-                        </Menu.Portal>
-                      </Menu.SubmenuRoot>
-                    )}
+                    <Menu.SubmenuRoot>
+                      <Menu.SubmenuTrigger delay={0}>Move to folder</Menu.SubmenuTrigger>
+                      <Menu.Portal>
+                        <Menu.Positioner>
+                          <Menu.Popup>
+                            <Menu.Item>Documents</Menu.Item>
+                            <Menu.Item>Downloads</Menu.Item>
+                          </Menu.Popup>
+                        </Menu.Positioner>
+                      </Menu.Portal>
+                    </Menu.SubmenuRoot>
                   </FilterMenu.List>
                 </FilterMenu.Popup>
               </FilterMenu.Positioner>
@@ -923,22 +854,17 @@ describe('<Menu.Root />', () => {
     it('filters items and selects the active item while focus remains on the input', async () => {
       const onClick = vi.fn();
       const { user } = await render(
-        <FilterMenu.Root items={['Apple', 'Banana']}>
+        <FilterMenu.Root>
           <FilterMenu.Trigger>Fruit</FilterMenu.Trigger>
           <FilterMenu.Portal>
             <FilterMenu.Positioner>
               <FilterMenu.Popup>
                 <FilterMenu.Input aria-label="Filter fruit" />
                 <FilterMenu.List data-testid="list">
-                  {(item: string) =>
-                    item === 'Banana' ? (
-                      <FilterMenu.Item key={item} onClick={onClick} closeOnClick={false}>
-                        {item}
-                      </FilterMenu.Item>
-                    ) : (
-                      <FilterMenu.Item key={item}>{item}</FilterMenu.Item>
-                    )
-                  }
+                  <FilterMenu.Item>Apple</FilterMenu.Item>
+                  <FilterMenu.Item onClick={onClick} closeOnClick={false}>
+                    Banana
+                  </FilterMenu.Item>
                 </FilterMenu.List>
                 <FilterMenu.Empty>No fruit found</FilterMenu.Empty>
               </FilterMenu.Popup>
@@ -1000,7 +926,7 @@ describe('<Menu.Root />', () => {
 
     it('disables filter controls when the root is disabled', async () => {
       await render(
-        <FilterMenu.Root open disabled defaultInputValue="a" items={['Apple']}>
+        <FilterMenu.Root open disabled defaultInputValue="a">
           <FilterMenu.Trigger>Fruit</FilterMenu.Trigger>
           <FilterMenu.Portal>
             <FilterMenu.Positioner>
@@ -1008,7 +934,7 @@ describe('<Menu.Root />', () => {
                 <FilterMenu.Input aria-label="Filter fruit" />
                 <FilterMenu.Clear aria-label="Clear filter" />
                 <FilterMenu.List>
-                  {(item: string) => <FilterMenu.Item key={item}>{item}</FilterMenu.Item>}
+                  <FilterMenu.Item>Apple</FilterMenu.Item>
                 </FilterMenu.List>
               </FilterMenu.Popup>
             </FilterMenu.Positioner>
@@ -1032,14 +958,15 @@ describe('<Menu.Root />', () => {
             <button type="button" onClick={() => setFilter(() => endsWith)}>
               Change filter
             </button>
-            <FilterMenu.Root filter={filter} open defaultInputValue="a" items={['Apple', 'Banana']}>
+            <FilterMenu.Root filter={filter} open defaultInputValue="a">
               <FilterMenu.Trigger>Fruit</FilterMenu.Trigger>
               <FilterMenu.Portal>
                 <FilterMenu.Positioner>
                   <FilterMenu.Popup>
                     <FilterMenu.Input aria-label="Filter fruit" />
                     <FilterMenu.List>
-                      {(item: string) => <FilterMenu.Item key={item}>{item}</FilterMenu.Item>}
+                      <FilterMenu.Item>Apple</FilterMenu.Item>
+                      <FilterMenu.Item>Banana</FilterMenu.Item>
                     </FilterMenu.List>
                   </FilterMenu.Popup>
                 </FilterMenu.Positioner>
@@ -1062,36 +989,24 @@ describe('<Menu.Root />', () => {
 
     it('filters a non-filterable submenu trigger from a filterable parent', async () => {
       const { user } = await render(
-        <FilterMenu.Root
-          defaultOpen
-          items={['Rename', { label: 'Move to folder', options: ['Documents'] }]}
-        >
+        <FilterMenu.Root defaultOpen>
           <FilterMenu.Trigger>Actions</FilterMenu.Trigger>
           <FilterMenu.Portal>
             <FilterMenu.Positioner>
               <FilterMenu.Popup>
                 <FilterMenu.Input aria-label="Filter actions" />
                 <FilterMenu.List>
-                  {(item: string | { label: string; options: string[] }) =>
-                    typeof item === 'string' ? (
-                      <FilterMenu.Item key={item}>{item}</FilterMenu.Item>
-                    ) : (
-                      <FilterMenu.SubmenuRoot key={item.label} items={item.options}>
-                        <FilterMenu.SubmenuTrigger>{item.label}</FilterMenu.SubmenuTrigger>
-                        <FilterMenu.Portal>
-                          <FilterMenu.Positioner>
-                            <FilterMenu.Popup>
-                              <FilterMenu.List>
-                                {(folder: string) => (
-                                  <FilterMenu.Item key={folder}>{folder}</FilterMenu.Item>
-                                )}
-                              </FilterMenu.List>
-                            </FilterMenu.Popup>
-                          </FilterMenu.Positioner>
-                        </FilterMenu.Portal>
-                      </FilterMenu.SubmenuRoot>
-                    )
-                  }
+                  <FilterMenu.Item>Rename</FilterMenu.Item>
+                  <FilterMenu.SubmenuRoot>
+                    <FilterMenu.SubmenuTrigger>Move to folder</FilterMenu.SubmenuTrigger>
+                    <FilterMenu.Portal>
+                      <FilterMenu.Positioner>
+                        <FilterMenu.Popup>
+                          <FilterMenu.Item>Documents</FilterMenu.Item>
+                        </FilterMenu.Popup>
+                      </FilterMenu.Positioner>
+                    </FilterMenu.Portal>
+                  </FilterMenu.SubmenuRoot>
                 </FilterMenu.List>
               </FilterMenu.Popup>
             </FilterMenu.Positioner>
@@ -1126,37 +1041,19 @@ describe('<Menu.Root />', () => {
 
     it('filters each menu item variant without changing its role', async () => {
       const { user } = await render(
-        <FilterMenu.Root
-          open
-          defaultInputValue="banana"
-          items={['Apple', 'Banana', 'Cherry', 'Date']}
-        >
+        <FilterMenu.Root open defaultInputValue="banana">
           <FilterMenu.Trigger>Fruit</FilterMenu.Trigger>
           <FilterMenu.Portal>
             <FilterMenu.Positioner>
               <FilterMenu.Popup>
                 <FilterMenu.Input aria-label="Filter fruit" />
                 <FilterMenu.List>
-                  {(item: string) => {
-                    switch (item) {
-                      case 'Banana':
-                        return <FilterMenu.CheckboxItem key={item}>{item}</FilterMenu.CheckboxItem>;
-                      case 'Cherry':
-                        return (
-                          <FilterMenu.RadioGroup key={item}>
-                            <FilterMenu.RadioItem value="cherry">{item}</FilterMenu.RadioItem>
-                          </FilterMenu.RadioGroup>
-                        );
-                      case 'Date':
-                        return (
-                          <FilterMenu.LinkItem key={item} href="#date">
-                            {item}
-                          </FilterMenu.LinkItem>
-                        );
-                      default:
-                        return <FilterMenu.Item key={item}>{item}</FilterMenu.Item>;
-                    }
-                  }}
+                  <FilterMenu.Item>Apple</FilterMenu.Item>
+                  <FilterMenu.CheckboxItem>Banana</FilterMenu.CheckboxItem>
+                  <FilterMenu.RadioGroup>
+                    <FilterMenu.RadioItem value="cherry">Cherry</FilterMenu.RadioItem>
+                  </FilterMenu.RadioGroup>
+                  <FilterMenu.LinkItem href="#date">Date</FilterMenu.LinkItem>
                 </FilterMenu.List>
               </FilterMenu.Popup>
             </FilterMenu.Positioner>

@@ -104,14 +104,10 @@ import { DemoMenuGroupLabels } from './demos/group-labels';
 
 Import `FilterMenu` from `@base-ui/react/filter-menu` to let users filter the available items. It exposes every ordinary menu part plus `<FilterMenu.Input>`, `<FilterMenu.Clear>`, and `<FilterMenu.Empty>`, so a filterable menu needs only this one import.
 
-Pass the items to the `items` prop (required) and render them with a function as the `children` of `<FilterMenu.List>`. Filtering narrows `items` before the list renders, so only matching entries are mounted:
-
 ```jsx title="Filterable menu"
 import { FilterMenu } from '@base-ui/react/filter-menu';
 
-const items = ['New file', 'Open file', 'Save'];
-
-<FilterMenu.Root items={items}>
+<FilterMenu.Root>
   <FilterMenu.Trigger />
   <FilterMenu.Portal>
     <FilterMenu.Positioner>
@@ -119,7 +115,7 @@ const items = ['New file', 'Open file', 'Save'];
         <FilterMenu.Input />
         <FilterMenu.Empty />
         <FilterMenu.List>
-          {(item) => <FilterMenu.Item key={item}>{item}</FilterMenu.Item>}
+          <FilterMenu.Item />
         </FilterMenu.List>
       </FilterMenu.Popup>
     </FilterMenu.Positioner>
@@ -131,18 +127,18 @@ import { DemoMenuFilterable } from './demos/filterable';
 
 <DemoMenuFilterable />
 
-Entries can be strings or objects with a `label`, which is what filtering matches on. An object entry can carry anything else the render function needs, such as a nested list for a submenu, as in the demo above. An ordinary menu can still render `<Menu.Item>` children directly; a filterable menu requires `items`, since filtering is a data operation.
+Items are matched on their `label` prop, falling back to their rendered text, so ordinary handcrafted children filter without any extra wiring. Pass `keywords` to an item to match additional terms beyond its label. A `<FilterMenu.Group>` hides itself, label included, when the query filters out every item in it.
 
 Filtering lives in its own entrypoint so that an ordinary `@base-ui/react/menu` never carries the filtering code. `<Menu.Root>` cannot filter, and the filtering parts throw if placed inside one.
 
-Filterability is scoped to the nearest root. A `<Menu.SubmenuRoot>` inside a filterable menu is not itself filterable; use `<FilterMenu.SubmenuRoot>` with its own `items` for a submenu that filters.
+Filterability is scoped to the nearest root. A `<Menu.SubmenuRoot>` inside a filterable menu is not itself filterable; use `<FilterMenu.SubmenuRoot>` for a submenu that filters.
 
 Give `<FilterMenu.Input>` an accessible name with `aria-label` or a native `<label>`.
 
-Pass a function to `filter` to customize matching. It receives the `items` entry and the trimmed query:
+Pass a function to `filter` to customize matching. It receives the item's `label` (falling back to its rendered text) and the trimmed query:
 
 ```jsx title="Custom filter"
-<FilterMenu.Root items={items} filter={(item, query) => item.startsWith(query)}>
+<FilterMenu.Root filter={(itemText, query) => itemText.startsWith(query)}>
 ```
 
 ### Nested menu

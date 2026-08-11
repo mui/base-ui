@@ -250,3 +250,14 @@
     color: oklch(70.8% 0 0deg);
   }
 }
+
+.GroupLabel {
+  -webkit-user-select: none;
+  user-select: none;
+  padding-block: 0.5rem;
+  padding-left: 2.125rem;
+  padding-right: 2rem;
+  font-size: 0.875rem;
+  line-height: 1rem;
+  color: oklch(55.6% 0 0deg);
+}

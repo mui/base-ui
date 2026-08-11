@@ -4,4 +4,6 @@ export { FilterDropdownPopup as Popup } from './popup/FilterDropdownPopup';
 export { FilterDropdownInput as Input } from './input/FilterDropdownInput';
 export { FilterDropdownClear as Clear } from './clear/FilterDropdownClear';
 export { FilterDropdownList as List } from './list/FilterDropdownList';
+export { FilterDropdownItem as Item } from './item/FilterDropdownItem';
+export { FilterDropdownGroup as Group } from './group/FilterDropdownGroup';
 export { FilterDropdownEmpty as Empty } from './empty/FilterDropdownEmpty';

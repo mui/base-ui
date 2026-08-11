@@ -3,14 +3,11 @@ import * as React from 'react';
 import { FilterMenu } from '@base-ui/react/filter-menu';
 import styles from './index.module.css';
 
-const sharingOptions = ['Email', 'Messages', 'AirDrop', 'Copy link'];
-
 const actions = [
   'New file',
   'Open file',
   'Save',
   'Save as',
-  { label: 'Share', options: sharingOptions },
   'Duplicate',
   'Rename',
   'Move to folder',
@@ -18,9 +15,11 @@ const actions = [
   'Delete',
 ];
 
+const sharingOptions = ['Email', 'Messages', 'AirDrop', 'Copy link'];
+
 export default function FilterMenuDemo() {
   return (
-    <FilterMenu.Root items={actions}>
+    <FilterMenu.Root>
       <FilterMenu.Trigger className={styles.Trigger}>
         Actions <CaretDownIcon />
       </FilterMenu.Trigger>
@@ -39,50 +38,62 @@ export default function FilterMenuDemo() {
             </div>
             <FilterMenu.Empty className={styles.Empty}>No actions found.</FilterMenu.Empty>
             <FilterMenu.List className={styles.List}>
-              {(action) =>
-                typeof action === 'string' ? (
+              <FilterMenu.Group>
+                <FilterMenu.GroupLabel className={styles.GroupLabel}>File</FilterMenu.GroupLabel>
+                {actions.slice(0, 4).map((action) => (
                   <FilterMenu.Item key={action} className={styles.Item}>
                     {action}
                   </FilterMenu.Item>
-                ) : (
-                  <FilterMenu.SubmenuRoot key={action.label} items={action.options}>
-                    <FilterMenu.SubmenuTrigger className={styles.SubmenuTrigger}>
-                      {action.label}
-                      <CaretRightIcon />
-                    </FilterMenu.SubmenuTrigger>
-                    <FilterMenu.Portal>
-                      <FilterMenu.Positioner
-                        className={styles.Positioner}
-                        sideOffset={getSubmenuOffset}
-                        alignOffset={getSubmenuOffset}
-                      >
-                        <FilterMenu.Popup className={styles.Popup}>
-                          <div className={styles.InputContainer}>
-                            <FilterMenu.Input
-                              className={styles.Input}
-                              aria-label="Filter sharing options"
-                              placeholder="e.g. Email"
-                            />
-                            <FilterMenu.Clear className={styles.Clear} aria-label="Clear filter">
-                              <ClearIcon />
-                            </FilterMenu.Clear>
-                          </div>
-                          <FilterMenu.Empty className={styles.Empty}>
-                            No sharing options found.
-                          </FilterMenu.Empty>
-                          <FilterMenu.List className={styles.List}>
-                            {(option) => (
-                              <FilterMenu.Item key={option} className={styles.Item}>
-                                {option}
-                              </FilterMenu.Item>
-                            )}
-                          </FilterMenu.List>
-                        </FilterMenu.Popup>
-                      </FilterMenu.Positioner>
-                    </FilterMenu.Portal>
-                  </FilterMenu.SubmenuRoot>
-                )
-              }
+                ))}
+              </FilterMenu.Group>
+              <FilterMenu.SubmenuRoot>
+                <FilterMenu.SubmenuTrigger className={styles.SubmenuTrigger}>
+                  Share
+                  <CaretRightIcon />
+                </FilterMenu.SubmenuTrigger>
+                <FilterMenu.Portal>
+                  <FilterMenu.Positioner
+                    className={styles.Positioner}
+                    sideOffset={getSubmenuOffset}
+                    alignOffset={getSubmenuOffset}
+                  >
+                    <FilterMenu.Popup className={styles.Popup}>
+                      <div className={styles.InputContainer}>
+                        <FilterMenu.Input
+                          className={styles.Input}
+                          aria-label="Filter sharing options"
+                          placeholder="e.g. Email"
+                        />
+                        <FilterMenu.Clear className={styles.Clear} aria-label="Clear filter">
+                          <ClearIcon />
+                        </FilterMenu.Clear>
+                      </div>
+                      <FilterMenu.Empty className={styles.Empty}>
+                        No sharing options found.
+                      </FilterMenu.Empty>
+                      <FilterMenu.List className={styles.List}>
+                        {sharingOptions.map((option) => (
+                          <FilterMenu.Item key={option} className={styles.Item}>
+                            {option}
+                          </FilterMenu.Item>
+                        ))}
+                      </FilterMenu.List>
+                    </FilterMenu.Popup>
+                  </FilterMenu.Positioner>
+                </FilterMenu.Portal>
+              </FilterMenu.SubmenuRoot>
+              <FilterMenu.Group>
+                <FilterMenu.GroupLabel className={styles.GroupLabel}>Manage</FilterMenu.GroupLabel>
+                {actions.slice(4).map((action) => (
+                  <FilterMenu.Item
+                    key={action}
+                    className={styles.Item}
+                    keywords={action === 'Delete' ? ['remove', 'trash'] : undefined}
+                  >
+                    {action}
+                  </FilterMenu.Item>
+                ))}
+              </FilterMenu.Group>
             </FilterMenu.List>
           </FilterMenu.Popup>
         </FilterMenu.Positioner>

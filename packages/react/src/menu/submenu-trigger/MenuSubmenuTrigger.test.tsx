@@ -216,33 +216,24 @@ describe('<Menu.SubmenuTrigger />', () => {
 
   it('stays out of the tab order when the parent menu is filterable', async () => {
     const { user } = await render(
-      <FilterMenu.Root open items={['Rename', { label: 'Move to folder', options: ['Documents'] }]}>
+      <FilterMenu.Root open>
         <FilterMenu.Trigger>Actions</FilterMenu.Trigger>
         <FilterMenu.Portal>
           <FilterMenu.Positioner>
             <FilterMenu.Popup>
               <FilterMenu.Input aria-label="Filter actions" />
               <FilterMenu.List>
-                {(item: string | { label: string; options: string[] }) =>
-                  typeof item === 'string' ? (
-                    <FilterMenu.Item key={item}>{item}</FilterMenu.Item>
-                  ) : (
-                    <FilterMenu.SubmenuRoot key={item.label} items={item.options}>
-                      <FilterMenu.SubmenuTrigger delay={0}>{item.label}</FilterMenu.SubmenuTrigger>
-                      <FilterMenu.Portal>
-                        <FilterMenu.Positioner>
-                          <FilterMenu.Popup>
-                            <FilterMenu.List>
-                              {(folder: string) => (
-                                <FilterMenu.Item key={folder}>{folder}</FilterMenu.Item>
-                              )}
-                            </FilterMenu.List>
-                          </FilterMenu.Popup>
-                        </FilterMenu.Positioner>
-                      </FilterMenu.Portal>
-                    </FilterMenu.SubmenuRoot>
-                  )
-                }
+                <FilterMenu.Item>Rename</FilterMenu.Item>
+                <FilterMenu.SubmenuRoot>
+                  <FilterMenu.SubmenuTrigger delay={0}>Move to folder</FilterMenu.SubmenuTrigger>
+                  <FilterMenu.Portal>
+                    <FilterMenu.Positioner>
+                      <FilterMenu.Popup>
+                        <FilterMenu.Item>Documents</FilterMenu.Item>
+                      </FilterMenu.Popup>
+                    </FilterMenu.Positioner>
+                  </FilterMenu.Portal>
+                </FilterMenu.SubmenuRoot>
               </FilterMenu.List>
             </FilterMenu.Popup>
           </FilterMenu.Positioner>
