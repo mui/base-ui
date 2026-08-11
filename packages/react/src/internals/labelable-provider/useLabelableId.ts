@@ -3,21 +3,18 @@ import * as React from 'react';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
-import { isElement } from '@floating-ui/utils/dom';
 import { NOOP } from '../noop';
 import { useBaseUiId } from '../useBaseUiId';
 import { useLabelableContext } from './LabelableContext';
 
 export function useLabelableId(params: UseLabelableIdParameters = {}) {
-  const { id, implicit = false, controlRef, enabled = true } = params;
+  const { id, enabled = true } = params;
 
-  const { controlId, initialControlId, registerControlId, resetControlId } = useLabelableContext();
+  const { controlId, registerControlId, resetControlId } = useLabelableContext();
 
   // Deliberately not seeded with `id`: on React 17 the seed would stick around after the
   // `id` prop is removed, leaving the control on a stale id forever.
   const defaultId = useBaseUiId();
-
-  const controlIdForEffect = implicit ? controlId : undefined;
 
   const controlSourceRef = useRefWithInit(() => Symbol());
   const hasRegisteredRef = React.useRef(false);
@@ -44,22 +41,15 @@ export function useLabelableId(params: UseLabelableIdParameters = {}) {
 
     let nextId: string | null | undefined;
 
-    if (implicit) {
-      const elem = controlRef?.current;
-
-      if (isElement(elem) && elem.closest('label') != null) {
-        nextId = id ?? null;
-      } else {
-        nextId = controlIdForEffect ?? defaultId;
-      }
-    } else if (id !== undefined) {
+    if (id !== undefined) {
       hadExplicitIdRef.current = true;
       nextId = id;
     } else if (hadExplicitIdRef.current) {
       nextId = defaultId;
-    } else if (controlId !== initialControlId) {
+    } else {
       // An id-less replacement must claim the provider's fallback so a previously registered
-      // explicit id is not retained after its control unmounts.
+      // explicit id is not retained after its control unmounts. No-ops while any control
+      // is registered or the fallback is already selected.
       resetControlId();
       return undefined;
     }
@@ -78,13 +68,8 @@ export function useLabelableId(params: UseLabelableIdParameters = {}) {
   }, [
     id,
     enabled,
-    controlRef,
-    controlIdForEffect,
-    controlId,
-    initialControlId,
     registerControlId,
     resetControlId,
-    implicit,
     defaultId,
     controlSourceRef,
     unregisterControlId,
@@ -115,15 +100,6 @@ export interface UseLabelableIdParameters {
    * @default true
    */
   enabled?: boolean | undefined;
-  /**
-   * Whether implicit labelling is supported.
-   * @default false
-   */
-  implicit?: boolean | undefined;
-  /**
-   * A ref to an element that can be implicitly labelled.
-   */
-  controlRef?: React.RefObject<HTMLElement | null> | undefined;
 }
 
 export type UseLabelableIdReturnValue = string;

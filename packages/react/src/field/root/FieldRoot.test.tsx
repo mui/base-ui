@@ -19,7 +19,6 @@ import {
   waitFor,
 } from '@mui/internal-test-utils';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
-import { LabelableProvider } from '../../internals/labelable-provider';
 
 type ActivityProps = {
   mode: 'visible' | 'hidden';
@@ -94,43 +93,30 @@ describe('<Field.Root />', () => {
     });
   });
 
-  it('preserves null initial control ids', async () => {
-    await render(
-      <Field.Root>
-        <LabelableProvider controlId={null}>
-          <Field.Label>Label</Field.Label>
-          <Field.Control data-testid="control" />
-        </LabelableProvider>
-      </Field.Root>,
-    );
-
-    const label = screen.getByText('Label');
-    const control = screen.getByTestId('control');
-
-    expect(label).not.toHaveAttribute('for');
-    expect(control.getAttribute('id')).not.toBe(null);
-  });
-
-  it('restores the null initial control id after the last control unregisters', async () => {
-    function TestCase(props: { showControl: boolean }) {
+  it('drops a stale explicit id when an id-less control replaces the control that owned it', async () => {
+    function TestCase(props: { swapped: boolean }) {
       return (
         <Field.Root>
-          <LabelableProvider controlId={null}>
-            <Field.Label>Label</Field.Label>
-            {props.showControl && <Field.Control id="control" />}
-          </LabelableProvider>
+          <Field.Label>Label</Field.Label>
+          {props.swapped ? (
+            <Field.Control key="b" data-testid="control" />
+          ) : (
+            <Field.Control key="a" id="control" data-testid="control" />
+          )}
         </Field.Root>
       );
     }
 
-    const { rerender } = await render(<TestCase showControl />);
+    const { rerender } = await render(<TestCase swapped={false} />);
 
     const label = screen.getByText('Label');
     expect(label).toHaveAttribute('for', 'control');
 
-    await rerender(<TestCase showControl={false} />);
+    await rerender(<TestCase swapped />);
 
-    expect(label).not.toHaveAttribute('for');
+    const control = screen.getByTestId('control');
+    expect(control.id).not.toBe('control');
+    expect(label).toHaveAttribute('for', control.id);
   });
 
   it('updates label associations when the control id changes', async () => {
