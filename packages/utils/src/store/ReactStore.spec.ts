@@ -24,6 +24,34 @@ const store = new ReactStore<TestState, Record<string, never>, typeof selectors>
   selectors,
 );
 
+store.set('text', 'next');
+store.set('count', undefined);
+store.update({ text: 'next' });
+store.update({ count: undefined });
+store.useSyncedValue('text', 'next');
+store.useSyncedValues({ text: 'next' });
+store.useControlledProp('text', 'next');
+
+const setText = store.useStateSetter('text');
+setText('next');
+
+// @ts-expect-error `text` only accepts strings.
+store.set('text', 1);
+// @ts-expect-error `text` does not accept undefined.
+store.set('text', undefined);
+// @ts-expect-error Store values must match their corresponding keys.
+store.update({ text: undefined });
+// @ts-expect-error Store updates cannot contain unknown keys.
+store.update({ unknown: true });
+// @ts-expect-error Synced values must match their corresponding keys.
+store.useSyncedValue('text', 1);
+// @ts-expect-error Synced values cannot explicitly be undefined unless the state field allows it.
+store.useSyncedValues({ text: undefined });
+// @ts-expect-error Controlled values must match their corresponding keys.
+store.useControlledProp('text', 1);
+// @ts-expect-error State setters only accept the selected field's value type.
+setText(1);
+
 const count = store.select('count');
 expectType<number | undefined, typeof count>(count);
 

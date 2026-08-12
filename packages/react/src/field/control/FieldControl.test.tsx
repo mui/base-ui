@@ -1,4 +1,5 @@
 import { expect, vi } from 'vitest';
+import * as React from 'react';
 import { createRenderer, fireEvent, screen } from '@mui/internal-test-utils';
 import { Field } from '@base-ui/react/field';
 import { Form } from '@base-ui/react/form';
@@ -126,5 +127,32 @@ describe('<Field.Control />', () => {
     expect(screen.getByTestId('root')).toHaveAttribute('data-focused', '');
     expect(control).toHaveAttribute('data-focused', '');
     expect(screen.getByText('Name')).toHaveAttribute('data-focused', '');
+  });
+
+  describe('id', () => {
+    it('updates the label association when the control is swapped', async () => {
+      function App() {
+        const [controlKey, setControlKey] = React.useState('a');
+        return (
+          <React.Fragment>
+            <Field.Root>
+              <Field.Label data-testid="label">Label</Field.Label>
+              <Field.Control key={controlKey} id={controlKey} />
+            </Field.Root>
+            <button onClick={() => setControlKey('b')}>swap</button>
+          </React.Fragment>
+        );
+      }
+
+      await renderNonStrict(<App />);
+
+      expect(screen.getByRole('textbox')).toHaveAttribute('id', 'a');
+      expect(screen.getByTestId('label')).toHaveAttribute('for', 'a');
+
+      fireEvent.click(screen.getByRole('button'));
+
+      expect(screen.getByRole('textbox')).toHaveAttribute('id', 'b');
+      expect(screen.getByTestId('label')).toHaveAttribute('for', 'b');
+    });
   });
 });

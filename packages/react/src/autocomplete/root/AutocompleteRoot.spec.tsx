@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { Autocomplete } from '@base-ui/react/autocomplete';
+import { Combobox } from '@base-ui/react/combobox';
 
 const objectItems = [
   { value: 'a', label: 'apple' },
@@ -105,6 +106,17 @@ const groupItemsReadonly = [
     eventDetails.isItemPress;
   }}
 />;
+
+function CollectionApp() {
+  const collection = Combobox.createItems(objectItems, {
+    getValue: (item) => item.value,
+    getLabel: (item) => item.label,
+  });
+
+  // @ts-expect-error Autocomplete has no item type parameter, so collections are not accepted.
+  return <Autocomplete.Root items={collection} />;
+}
+void CollectionApp;
 
 function App2() {
   const [value, setValue] = React.useState('a');

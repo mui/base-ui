@@ -6,7 +6,10 @@ import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { PopupTriggerMap } from '../../utils/popups';
 import type { BaseUIChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { useFloatingParentNodeId } from '../components/FloatingTree';
-import { FloatingRootStore, type FloatingRootState } from '../components/FloatingRootStore';
+import {
+  FloatingRootStore,
+  type FloatingRootState as State,
+} from '../components/FloatingRootStore';
 import type { ReferenceType } from '../types';
 
 export interface UseFloatingRootContextOptions {
@@ -53,12 +56,11 @@ export function useFloatingRootContext(options: UseFloatingRootContextOptions): 
   ).current;
 
   useIsoLayoutEffect(() => {
-    const valuesToSync: Writeable<Partial<FloatingRootState>> = {
-      open,
-      floatingId,
-    };
+    const valuesToSync = { open, floatingId } as Pick<
+      State,
+      'open' | 'floatingId' | 'referenceElement' | 'domReferenceElement' | 'floatingElement'
+    >;
 
-    // Only sync elements that are defined to avoid overwriting existing ones
     if (elements.reference !== undefined) {
       valuesToSync.referenceElement = elements.reference;
       valuesToSync.domReferenceElement = isElement(elements.reference) ? elements.reference : null;
@@ -76,5 +78,3 @@ export function useFloatingRootContext(options: UseFloatingRootContextOptions): 
 
   return store;
 }
-
-type Writeable<T> = { -readonly [P in keyof T]: T[P] };

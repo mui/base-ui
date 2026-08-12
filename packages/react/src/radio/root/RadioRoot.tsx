@@ -113,11 +113,7 @@ export const RadioRoot = React.forwardRef(function RadioRoot<Value>(
   }, [checked, disabled, registerInputRef]);
 
   const id = useBaseUiId();
-  const inputId = useLabelableId({
-    id: idProp,
-    implicit: false,
-    controlRef: radioRef,
-  });
+  const inputId = useLabelableId({ id: idProp });
   const hiddenInputId = nativeButton ? undefined : inputId;
   const ariaLabelledBy = useAriaLabelledBy(
     ariaLabelledByProp,
