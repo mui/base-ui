@@ -187,19 +187,133 @@ describe('useCheckboxGroupParent', () => {
       return (
         <CheckboxGroup value={value} onValueChange={setValue} allValues={allValues}>
           <Checkbox.Root parent data-testid="parent" />
-          <Checkbox.Root value="a" />
-          <Checkbox.Root value="b" />
-          <Checkbox.Root value="c" />
+          {allValues.map((v) => (
+            <Checkbox.Root key={v} value={v} data-testid={v} />
+          ))}
         </CheckboxGroup>
       );
     }
 
     render(<App />);
 
-    const parent = screen.getByTestId('parent');
-    const id = parent.getAttribute('id');
+    expect(screen.getByTestId('parent')).toHaveAttribute(
+      'aria-controls',
+      allValues.map((v) => screen.getByTestId(v).id).join(' '),
+    );
+  });
 
-    expect(parent).toHaveAttribute('aria-controls', allValues.map((v) => `${id}-${v}`).join(' '));
+  it('keeps a custom child id in aria-controls', () => {
+    render(
+      <CheckboxGroup allValues={['a']}>
+        <Checkbox.Root parent data-testid="parent" nativeButton render={<button />} />
+        <Checkbox.Root id="custom" value="a" data-testid="a" nativeButton render={<button />} />
+      </CheckboxGroup>,
+    );
+
+    expect(screen.getByTestId('a')).toHaveAttribute('id', 'custom');
+    expect(screen.getByTestId('parent')).toHaveAttribute('aria-controls', 'custom');
+  });
+
+  it.each([false, true])(
+    'keeps a rendered child id in aria-controls (nativeButton=%s)',
+    (nativeButton) => {
+      render(
+        <CheckboxGroup allValues={['a']}>
+          <Checkbox.Root
+            parent
+            data-testid="parent"
+            nativeButton={nativeButton}
+            render={nativeButton ? <button /> : undefined}
+          />
+          <Checkbox.Root
+            value="a"
+            nativeButton={nativeButton}
+            render={nativeButton ? <button id="rendered" /> : <span id="rendered" />}
+          />
+        </CheckboxGroup>,
+      );
+
+      expect(screen.getByTestId('parent')).toHaveAttribute('aria-controls', 'rendered');
+    },
+  );
+
+  it('references the exposed child rather than its custom-id input without nativeButton', () => {
+    render(
+      <CheckboxGroup allValues={['a']}>
+        <Checkbox.Root parent data-testid="parent" />
+        <Checkbox.Root id="custom" value="a" data-testid="a" />
+      </CheckboxGroup>,
+    );
+
+    // The custom `id` lands on the hidden input, so `aria-controls` has to name the exposed
+    // element instead.
+    expect(document.querySelector('input[type="checkbox"][id="custom"]')).not.toBe(null);
+    expect(screen.getByTestId('a').id).not.toBe('custom');
+    expect(screen.getByTestId('parent')).toHaveAttribute(
+      'aria-controls',
+      screen.getByTestId('a').id,
+    );
+  });
+
+  it('does not read aria-controls ids off Object.prototype', () => {
+    render(
+      <CheckboxGroup allValues={['a', 'constructor']}>
+        <Checkbox.Root parent data-testid="parent" />
+        <Checkbox.Root value="a" data-testid="a" />
+      </CheckboxGroup>,
+    );
+
+    expect(screen.getByTestId('parent')).toHaveAttribute(
+      'aria-controls',
+      screen.getByTestId('a').id,
+    );
+  });
+
+  it('drops an unmounted child from aria-controls', async () => {
+    function App(props: { showB: boolean }) {
+      return (
+        <CheckboxGroup allValues={allValues}>
+          <Checkbox.Root parent data-testid="parent" />
+          <Checkbox.Root value="a" data-testid="a" />
+          {props.showB && <Checkbox.Root value="b" data-testid="b" />}
+        </CheckboxGroup>
+      );
+    }
+
+    const { rerender } = await render(<App showB />);
+    await rerender(<App showB={false} />);
+
+    expect(screen.getByTestId('parent')).toHaveAttribute(
+      'aria-controls',
+      screen.getByTestId('a').id,
+    );
+  });
+
+  it('keeps both ids for checkboxes sharing a value and retains the survivor', async () => {
+    function App(props: { showSecondB: boolean }) {
+      return (
+        <CheckboxGroup allValues={allValues}>
+          <Checkbox.Root parent data-testid="parent" />
+          <Checkbox.Root value="a" data-testid="a" />
+          <Checkbox.Root value="b" data-testid="b" />
+          {props.showSecondB && <Checkbox.Root value="b" data-testid="second-b" />}
+        </CheckboxGroup>
+      );
+    }
+
+    const { rerender } = await render(<App showSecondB />);
+
+    expect(screen.getByTestId('parent')).toHaveAttribute(
+      'aria-controls',
+      `${screen.getByTestId('a').id} ${screen.getByTestId('b').id} ${screen.getByTestId('second-b').id}`,
+    );
+
+    await rerender(<App showSecondB={false} />);
+
+    expect(screen.getByTestId('parent')).toHaveAttribute(
+      'aria-controls',
+      `${screen.getByTestId('a').id} ${screen.getByTestId('b').id}`,
+    );
   });
 
   it('does not select a child without an identifying value', () => {

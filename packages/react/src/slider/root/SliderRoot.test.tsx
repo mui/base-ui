@@ -3104,6 +3104,32 @@ describe('<Slider.Root />', () => {
       expect(root).toHaveAttribute('data-dirty', '');
     });
 
+    it('[data-dirty] with a range value', async () => {
+      await render(
+        <Field.Root>
+          <Slider.Root data-testid="root" defaultValue={[20, 40]}>
+            <Slider.Control>
+              <Slider.Thumb index={0} />
+              <Slider.Thumb index={1} />
+            </Slider.Control>
+          </Slider.Root>
+        </Field.Root>,
+      );
+
+      const root = screen.getByTestId('root');
+      const [, input2] = screen.getAllByRole('slider');
+
+      expect(root).not.toHaveAttribute('data-dirty');
+
+      fireEvent.change(input2, { target: { value: '50' } });
+
+      expect(root).toHaveAttribute('data-dirty', '');
+
+      fireEvent.change(input2, { target: { value: '40' } });
+
+      expect(root).not.toHaveAttribute('data-dirty');
+    });
+
     it('[data-focused]', async () => {
       await render(
         <Field.Root>

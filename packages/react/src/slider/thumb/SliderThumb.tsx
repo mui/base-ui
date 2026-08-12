@@ -6,9 +6,9 @@ import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
 import { visuallyHidden } from '@base-ui/utils/visuallyHidden';
 import { ownerWindow } from '@base-ui/utils/owner';
 import { script as prehydrationScript } from '#prehydration/slider/thumb';
+import { clamp } from '@base-ui/utils/clamp';
+import { formatNumber } from '@base-ui/utils/formatNumber';
 import { BaseUIComponentProps } from '../../internals/types';
-import { clamp } from '../../internals/clamp';
-import { formatNumber } from '../../utils/formatNumber';
 import { mergeProps } from '../../merge-props';
 import { useBaseUiId } from '../../internals/useBaseUiId';
 import { useIsHydrating } from '../../utils/useIsHydrating';
@@ -31,7 +31,6 @@ import { PrehydrationScript } from '../../internals/PrehydrationScript';
 import { useFieldRootContext } from '../../internals/field-root-context/FieldRootContext';
 import { contains } from '../../floating-ui-react/utils';
 import { matchesFocusVisible } from '../../floating-ui-react/utils/element';
-import { type LabelableContext } from '../../internals/labelable-provider/LabelableContext';
 import { useLabelableId } from '../../internals/labelable-provider/useLabelableId';
 import { getMidpoint } from '../utils/getMidpoint';
 import { getSliderValue } from '../utils/getSliderValue';
@@ -494,7 +493,7 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
 });
 
 export interface ThumbMetadata {
-  inputId: LabelableContext['controlId'];
+  inputId: string | undefined;
 }
 
 export interface SliderThumbState extends SliderRootState {}
