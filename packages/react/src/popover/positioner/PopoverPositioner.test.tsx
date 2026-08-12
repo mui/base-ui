@@ -663,7 +663,7 @@ describe('<Popover.Positioner />', () => {
       expect(positioner).toHaveAttribute('data-side', 'top');
     });
 
-    it('does not transition the position when the side flips for the same anchor', async () => {
+    it('does not animate the position while scrolling with the same anchor', async () => {
       const { user } = await render(
         <div>
           <style>
@@ -714,44 +714,35 @@ describe('<Popover.Positioner />', () => {
 
       const scroller = screen.getByTestId('scroller');
 
-      // The initial position is applied while the mount-time `transition: none` is
-      // inline, so it uses `top`. Trigger one reposition so the popup reaches its
-      // steady `bottom`-based positioning.
+      // Trigger one reposition so the popup settles into its steady `bottom`-based
+      // positioning (the initial position is applied while the mount-time
+      // `transition: none` is inline, so it uses `top`).
       scroller.scrollTop = 50;
       await waitFor(() => {
         expect(positioner.style.bottom).not.toBe('');
       });
 
-      // Scroll without flipping so a same-anchor inset transition is running.
+      // Scrolling must track the anchor rigidly: no transition runs and the popup
+      // is at its target immediately.
       scroller.scrollTop = 100;
       await waitFor(() => {
-        expect(
-          positioner
-            .getAnimations()
-            .some(
-              (animation) =>
-                animation.playState === 'running' &&
-                ['top', 'bottom'].includes((animation as CSSTransition).transitionProperty),
-            ),
-        ).toBe(true);
+        const triggerRect = screen.getByTestId('trigger').getBoundingClientRect();
+        const positionerRect = positioner.getBoundingClientRect();
+        expect(Math.abs(positionerRect.bottom - (triggerRect.top - 8))).toBeLessThan(2);
       });
+      expect(
+        positioner
+          .getAnimations()
+          .some(
+            (animation) =>
+              animation.playState === 'running' &&
+              ['top', 'bottom'].includes((animation as CSSTransition).transitionProperty),
+          ),
+      ).toBe(false);
       expect(positioner).toHaveAttribute('data-side', 'top');
-
-      // Scrolling moves the anchor near the top of its clipping container,
-      // flipping the popup below it.
-      scroller.scrollTop = 280;
-
-      await waitFor(() => {
-        expect(positioner).toHaveAttribute('data-side', 'bottom');
-      });
-
-      // A same-anchor collision flip applies instantly instead of gliding across the anchor.
-      const triggerRect = screen.getByTestId('trigger').getBoundingClientRect();
-      const positionerRect = positioner.getBoundingClientRect();
-      expect(Math.abs(positionerRect.top - (triggerRect.bottom + 8))).toBeLessThan(2);
     });
 
-    it('preserves inline transition longhands across a same-anchor flip', async () => {
+    it('applies a collision flip instantly while scrolling with the same anchor', async () => {
       const { user } = await render(
         <div>
           <style>
@@ -759,6 +750,7 @@ describe('<Popover.Positioner />', () => {
               [data-testid="positioner"] {
                 width: var(--positioner-width);
                 height: var(--positioner-height);
+                transition: top 10s linear, bottom 10s linear, left 10s linear, right 10s linear;
               }
             `}
           </style>
@@ -793,29 +785,43 @@ describe('<Popover.Positioner />', () => {
       await waitFor(() => {
         expect(positioner).toHaveAttribute('data-side', 'top');
       });
-      // Wait for the mount-time `transition: none` style to be removed, since React
-      // clears the inline longhands when it removes the shorthand.
+
+      // Wait for the mount-time `transition: none` style to be removed.
       await waitFor(() => {
         expect(positioner.style.transition).toBe('');
       });
 
-      // Transitions configured through individual inline longhands rather than
-      // the `transition` shorthand.
-      positioner.style.transitionProperty = 'top, bottom, left, right';
-      positioner.style.transitionDuration = '10s';
-      positioner.style.transitionTimingFunction = 'linear';
+      const scroller = screen.getByTestId('scroller');
+
+      // Trigger one reposition so the popup settles into its steady `bottom`-based
+      // positioning (the initial position is applied while the mount-time
+      // `transition: none` is inline, so it uses `top`).
+      scroller.scrollTop = 50;
+      await waitFor(() => {
+        expect(positioner.style.bottom).not.toBe('');
+      });
 
       // Scrolling moves the anchor near the top of its clipping container,
-      // flipping the popup below it.
-      screen.getByTestId('scroller').scrollTop = 280;
+      // flipping the popup below it. The flip applies instantly instead of
+      // gliding across the anchor mid-scroll.
+      scroller.scrollTop = 280;
 
       await waitFor(() => {
         expect(positioner).toHaveAttribute('data-side', 'bottom');
       });
 
-      expect(positioner.style.transitionProperty).toBe('top, bottom, left, right');
-      expect(positioner.style.transitionDuration).toBe('10s');
-      expect(positioner.style.transitionTimingFunction).toBe('linear');
+      const positionerRect = positioner.getBoundingClientRect();
+      const triggerRect = screen.getByTestId('trigger').getBoundingClientRect();
+      expect(Math.abs(positionerRect.top - (triggerRect.bottom + 8))).toBeLessThan(2);
+      expect(
+        positioner
+          .getAnimations()
+          .some(
+            (animation) =>
+              animation.playState === 'running' &&
+              ['top', 'bottom'].includes((animation as CSSTransition).transitionProperty),
+          ),
+      ).toBe(false);
     });
 
     it('keeps an unchanged-axis transition running when the side flips during a trigger change', async () => {
