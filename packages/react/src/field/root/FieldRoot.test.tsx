@@ -20,6 +20,7 @@ import {
 } from '@mui/internal-test-utils';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 import { LabelableProvider } from '../../internals/labelable-provider';
+import { useFieldRootContext } from '../../internals/field-root-context/FieldRootContext';
 
 describe('<Field.Root />', () => {
   const { render, renderToString } = createRenderer();
@@ -1574,6 +1575,55 @@ describe('<Field.Root />', () => {
 
       expect(screen.queryByTestId('error')).toBe(null);
       expect(screen.getByTestId('root')).not.toHaveAttribute('data-invalid');
+    });
+
+    it('keeps the published error when async validation rejects', async () => {
+      const onSubmit = vi.fn((event: React.FormEvent) => event.preventDefault());
+      let commit: ((value: unknown) => Promise<void>) | undefined;
+
+      function ReadCommit() {
+        commit = useFieldRootContext().validation.commit;
+        return null;
+      }
+
+      let calls = 0;
+      const validate = async () => {
+        calls += 1;
+        if (calls === 2) {
+          throw new Error('network');
+        }
+        return 'Username is taken';
+      };
+
+      await render(
+        <Form onSubmit={onSubmit}>
+          <Field.Root name="username" validationMode="onBlur" validate={validate}>
+            <Field.Control data-testid="control" />
+            <Field.Error data-testid="error" />
+            <ReadCommit />
+          </Field.Root>
+          <button type="submit">submit</button>
+        </Form>,
+      );
+
+      const control = screen.getByTestId('control');
+
+      fireEvent.focus(control);
+      fireEvent.change(control, { target: { value: 'taken' } });
+      fireEvent.blur(control);
+      await flushMicrotasks();
+
+      expect(screen.getByTestId('error')).toHaveTextContent('Username is taken');
+
+      await expect(commit?.('taken')).rejects.toThrow('network');
+
+      expect(screen.getByTestId('error')).toHaveTextContent('Username is taken');
+      expect(control).toHaveAttribute('aria-invalid', 'true');
+
+      fireEvent.click(screen.getByText('submit'));
+      await flushMicrotasks();
+
+      expect(onSubmit).not.toHaveBeenCalled();
     });
 
     it('drops a pending validation when another field-aware control takes ownership', async () => {
