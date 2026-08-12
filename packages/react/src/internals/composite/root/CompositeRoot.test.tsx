@@ -1062,6 +1062,159 @@ describe('Composite', () => {
     });
   });
 
+  describe('item removal', () => {
+    it('keeps the tab stop on the highlighted item when an earlier item is removed', async () => {
+      function App({ showFirst }: { showFirst: boolean }) {
+        return (
+          <CompositeRoot>
+            {showFirst && <CompositeItem data-testid="1" />}
+            <CompositeItem data-testid="2" />
+            <CompositeItem data-testid="3" />
+            <CompositeItem data-testid="4" />
+          </CompositeRoot>
+        );
+      }
+
+      const { setProps } = await render(<App showFirst />);
+
+      const item1 = screen.getByTestId('1');
+      act(() => item1.focus());
+
+      fireEvent.keyDown(item1, { key: 'ArrowDown' });
+      await flushMicrotasks();
+
+      fireEvent.keyDown(screen.getByTestId('2'), { key: 'ArrowDown' });
+      await flushMicrotasks();
+
+      const item3 = screen.getByTestId('3');
+      expect(item3).toHaveAttribute('tabindex', '0');
+
+      await setProps({ showFirst: false });
+
+      expect(item3).toHaveAttribute('tabindex', '0');
+      expect(screen.getByTestId('2')).toHaveAttribute('tabindex', '-1');
+      expect(screen.getByTestId('4')).toHaveAttribute('tabindex', '-1');
+
+      // navigation continues from the item that holds the tab stop
+      fireEvent.keyDown(item3, { key: 'ArrowDown' });
+      await flushMicrotasks();
+
+      expect(screen.getByTestId('4')).toHaveFocus();
+    });
+
+    it('moves the tab stop back into range when the highlighted item is removed', async () => {
+      function App({ showLast }: { showLast: boolean }) {
+        return (
+          <CompositeRoot>
+            <CompositeItem data-testid="1" />
+            <CompositeItem data-testid="2" />
+            {showLast && <CompositeItem data-testid="3" />}
+          </CompositeRoot>
+        );
+      }
+
+      const { setProps } = await render(<App showLast />);
+
+      const item1 = screen.getByTestId('1');
+      act(() => item1.focus());
+
+      fireEvent.keyDown(item1, { key: 'ArrowDown' });
+      await flushMicrotasks();
+
+      fireEvent.keyDown(screen.getByTestId('2'), { key: 'ArrowDown' });
+      await flushMicrotasks();
+
+      expect(screen.getByTestId('3')).toHaveAttribute('tabindex', '0');
+
+      await setProps({ showLast: false });
+
+      expect(screen.getByTestId('1')).toHaveAttribute('tabindex', '0');
+      expect(screen.getByTestId('2')).toHaveAttribute('tabindex', '-1');
+    });
+
+    it('moves the tab stop to the active item when the highlighted item is removed', async () => {
+      function App({ showLast }: { showLast: boolean }) {
+        return (
+          <CompositeRoot>
+            <CompositeItem data-testid="1" />
+            <CompositeItem data-testid="2" />
+            <CompositeItem data-testid="3" data-composite-item-active="" />
+            {showLast && <CompositeItem data-testid="4" />}
+          </CompositeRoot>
+        );
+      }
+
+      const { setProps } = await render(<App showLast />);
+
+      const item3 = screen.getByTestId('3');
+      expect(item3).toHaveAttribute('tabindex', '0');
+
+      act(() => item3.focus());
+
+      fireEvent.keyDown(item3, { key: 'ArrowDown' });
+      await flushMicrotasks();
+
+      expect(screen.getByTestId('4')).toHaveAttribute('tabindex', '0');
+
+      await setProps({ showLast: false });
+
+      expect(screen.getByTestId('1')).toHaveAttribute('tabindex', '-1');
+      expect(item3).toHaveAttribute('tabindex', '0');
+    });
+
+    it('skips items that cannot hold the tab stop', async () => {
+      function App({ showLast }: { showLast: boolean }) {
+        return (
+          <CompositeRoot>
+            <CompositeItem data-testid="1" style={{ display: 'none' }} />
+            <CompositeItem data-testid="2" aria-disabled="true" />
+            <CompositeItem data-testid="3" />
+            {showLast && <CompositeItem data-testid="4" />}
+          </CompositeRoot>
+        );
+      }
+
+      const { setProps } = await render(<App showLast />);
+
+      const item3 = screen.getByTestId('3');
+      expect(item3).toHaveAttribute('tabindex', '0');
+
+      act(() => item3.focus());
+
+      fireEvent.keyDown(item3, { key: 'ArrowDown' });
+      await flushMicrotasks();
+
+      expect(screen.getByTestId('4')).toHaveAttribute('tabindex', '0');
+
+      await setProps({ showLast: false });
+
+      expect(screen.getByTestId('1')).toHaveAttribute('tabindex', '-1');
+      expect(screen.getByTestId('2')).toHaveAttribute('tabindex', '-1');
+      expect(item3).toHaveAttribute('tabindex', '0');
+    });
+
+    it('keeps the tab stop in range when no item can hold it', async () => {
+      function App({ showLast }: { showLast: boolean }) {
+        return (
+          <CompositeRoot>
+            <CompositeItem data-testid="1" aria-disabled="true" />
+            <CompositeItem data-testid="2" aria-disabled="true" />
+            {showLast && <CompositeItem data-testid="3" />}
+          </CompositeRoot>
+        );
+      }
+
+      const { setProps } = await render(<App showLast />);
+
+      expect(screen.getByTestId('3')).toHaveAttribute('tabindex', '0');
+
+      await setProps({ showLast: false });
+
+      expect(screen.getByTestId('1')).toHaveAttribute('tabindex', '0');
+      expect(screen.getByTestId('2')).toHaveAttribute('tabindex', '-1');
+    });
+  });
+
   describe('prop: modifierKeys', () => {
     it('prevents arrow key navigation when any modifier key is pressed by default', async () => {
       render(

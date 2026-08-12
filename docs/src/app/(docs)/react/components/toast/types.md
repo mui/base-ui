@@ -823,6 +823,8 @@ type ToastManagerPromiseOptions<Value, Data extends {}> = {
 
 ```typescript
 type ToastManagerUpdateOptions<Data extends {}> = {
+  /** Custom data for the toast. */
+  data?: Partial<Data>;
   /** The title of the toast. */
   title?: React.ReactNode;
   /**
@@ -856,8 +858,6 @@ type ToastManagerUpdateOptions<Data extends {}> = {
   >;
   /** The props forwarded to the toast positioner element when rendering anchored toasts. */
   positionerProps?: ToastManagerPositionerProps;
-  /** Custom data for the toast. */
-  data?: Data;
 };
 ```
 

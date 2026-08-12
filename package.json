@@ -1,6 +1,6 @@
 {
   "name": "@base-ui/monorepo",
-  "version": "1.6.0",
+  "version": "1.7.0",
   "private": true,
   "scripts": {
     "preinstall": "npx only-allow pnpm",
@@ -66,7 +66,7 @@
     "@arethetypeswrong/cli": "0.18.5",
     "@babel/plugin-transform-react-constant-elements": "7.27.1",
     "@base-ui/monorepo-tests": "workspace:*",
-    "@microsoft/api-extractor": "7.58.9",
+    "@microsoft/api-extractor": "7.58.12",
     "@mui/internal-code-infra": "0.0.4-canary.101",
     "@mui/internal-netlify-cache": "0.0.3-canary.5",
     "@mui/internal-test-utils": "2.0.18-canary.25",
@@ -78,10 +78,10 @@
     "@types/react": "19.2.14",
     "@typescript/native-preview": "7.0.0-dev.20260602.1",
     "@vitejs/plugin-react": "6.0.1",
-    "@vitest/browser-playwright": "4.1.8",
-    "@vitest/coverage-istanbul": "4.1.8",
-    "@vitest/ui": "4.1.8",
-    "concurrently": "^10.0.3",
+    "@vitest/browser-playwright": "4.1.10",
+    "@vitest/coverage-istanbul": "4.1.10",
+    "@vitest/ui": "4.1.10",
+    "concurrently": "^10.0.4",
     "cross-env": "10.1.0",
     "docs": "workspace:^",
     "eslint": "10.3.0",
@@ -104,8 +104,8 @@
     "terser": "5.47.1",
     "tsx": "4.21.0",
     "typescript": "6.0.3",
-    "vite": "8.0.11",
-    "vitest": "4.1.8"
+    "vite": "8.0.16",
+    "vitest": "4.1.10"
   },
   "config": {
     "valeVersion": "3.14.1"

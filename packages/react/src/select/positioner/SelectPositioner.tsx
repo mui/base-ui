@@ -156,10 +156,6 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
       const prevSize = prevMapSizeRef.current;
       prevMapSizeRef.current = map.size;
 
-      if (map.size === prevSize) {
-        return;
-      }
-
       const eventDetails = createChangeEventDetails(REASONS.none);
 
       if (prevSize !== 0 && !store.state.multiple && value !== null) {

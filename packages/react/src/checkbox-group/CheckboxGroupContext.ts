@@ -4,6 +4,7 @@ import type { UseFieldValidationReturnValue } from '../field/root/useFieldValida
 import type { UseCheckboxGroupParentReturnValue } from './useCheckboxGroupParent';
 import type { BaseUIChangeEventDetails } from '../internals/createBaseUIEventDetails';
 import type { BaseUIEventReasons } from '../internals/reasons';
+import type { LabelableContext } from '../internals/labelable-provider/LabelableContext';
 
 export interface CheckboxGroupContext {
   value: string[];
@@ -15,6 +16,11 @@ export interface CheckboxGroupContext {
   parent: UseCheckboxGroupParentReturnValue;
   disabled: boolean;
   validation: UseFieldValidationReturnValue;
+  /**
+   * `registerControlId` of the labelable scope the group renders in. A checkbox seeing the same
+   * function shares that scope, so the group, not the checkbox, is the field's control.
+   */
+  registerControlId: LabelableContext['registerControlId'];
 }
 
 export const CheckboxGroupContext = React.createContext<CheckboxGroupContext | undefined>(

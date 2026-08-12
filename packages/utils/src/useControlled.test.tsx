@@ -1,10 +1,11 @@
 import { expect } from 'vitest';
 import * as React from 'react';
+import { renderHook } from '@testing-library/react';
 import { act, createRenderer } from '@mui/internal-test-utils';
 import { useControlled } from './useControlled';
 
 interface TestComponentChildrenArgument {
-  value: number | string | object | null;
+  value: number | string | object | null | undefined;
   setValue: React.Dispatch<React.SetStateAction<number | string>>;
 }
 
@@ -73,18 +74,46 @@ describe('useControlled', () => {
     );
   });
 
-  it('should warn when switching from controlled to uncontrolled', () => {
-    let setProps: (newProps: any) => void;
+  it('warns and falls back to the default when switching from controlled to uncontrolled', () => {
+    const initialProps: { controlled: string | undefined } = { controlled: 'foobar' };
+    const renderControlledHook = () =>
+      renderHook(
+        ({ controlled }: { controlled: string | undefined }) =>
+          useControlled({
+            controlled,
+            default: 'default',
+            name: 'TestHook',
+          }),
+        { initialProps },
+      );
+
+    let hook: ReturnType<typeof renderControlledHook> | undefined;
 
     expect(() => {
-      ({ setProps } = render(<TestComponent value="foobar">{() => null}</TestComponent>));
+      hook = renderControlledHook();
     }).not.toErrorDev();
 
+    if (hook === undefined) {
+      throw new Error('The hook did not render.');
+    }
+
+    const { result, rerender } = hook;
+
+    expect(result.current[0]).toBe('foobar');
+
     expect(() => {
-      setProps({ value: undefined });
+      rerender({ controlled: undefined });
     }).toErrorDev(
-      'Base UI: A component is changing the controlled value state of TestComponent to be uncontrolled.',
+      'Base UI: A component is changing the controlled value state of TestHook to be uncontrolled.',
     );
+
+    expect(result.current[0]).toBe('default');
+
+    act(() => {
+      result.current[1]('next');
+    });
+
+    expect(result.current[0]).toBe('default');
   });
 
   describe('prop: defaultValue', () => {

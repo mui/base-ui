@@ -1,9 +1,9 @@
 'use client';
 import * as React from 'react';
 import { visuallyHidden } from '@base-ui/utils/visuallyHidden';
-import { formatNumber } from '../../utils/formatNumber';
+import { formatNumber } from '@base-ui/utils/formatNumber';
+import { clamp } from '@base-ui/utils/clamp';
 import { valueToPercent } from '../../utils/valueToPercent';
-import { clamp } from '../../internals/clamp';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { ProgressRootContext } from './ProgressRootContext';
 import { progressStateAttributesMapping } from './stateAttributesMapping';
@@ -51,8 +51,8 @@ export const ProgressRoot = React.forwardRef(function ProgressRoot(
     percentageValue = clamp(Number.isNaN(rawPercentage) ? 0 : rawPercentage, 0, 100);
     clampedValue = clamp(value, min, max);
     status = clampedValue === max ? 'complete' : 'progressing';
-    // Without an explicit `format`, the value is displayed as its position within the range so the
-    // text stays in sync with the indicator fill.
+    // Format the clamped value so visible and accessible text stay in sync with `aria-valuenow` and
+    // the indicator fill. The raw value remains available as the second `getAriaValueText` argument.
     formattedValue = format
       ? formatNumber(clampedValue, locale, format)
       : formatNumber(percentageValue / 100, locale, { style: 'percent' });

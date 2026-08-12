@@ -8,7 +8,6 @@ import { NullStore } from '../../utils/NullStore';
 import type { AdaptiveOriginMiddleware } from '../../utils/adaptiveOriginConstants';
 import {
   applyPopupOpenChange,
-  createPopupFloatingRootContext,
   createInitialPopupStoreState,
   PopupStoreContext,
   popupStoreSelectors,
@@ -84,12 +83,9 @@ export class TooltipStore<Payload> extends ReactStore<
     nextOpen: boolean,
     eventDetails: Omit<TooltipRoot.ChangeEventDetails, 'preventUnmountOnClose'>,
   ) => {
-    applyPopupOpenChange<State<Payload>, TooltipRoot.ChangeEventDetails>(
-      this,
-      nextOpen,
-      eventDetails as TooltipRoot.ChangeEventDetails,
-      { extraState: { openChangeReason: eventDetails.reason } },
-    );
+    applyPopupOpenChange(this, nextOpen, eventDetails as TooltipRoot.ChangeEventDetails, {
+      extraState: { openChangeReason: eventDetails.reason },
+    });
   };
 
   // Used by trigger clicks to clear a delayed hover open without reporting a public open-state change.
@@ -126,7 +122,7 @@ function createInitialState<Payload>(
   nested = false,
 ): State<Payload> {
   const state: State<Payload> = {
-    ...createInitialPopupStoreState<Payload>(),
+    ...createInitialPopupStoreState<Payload>(triggerElements, floatingId, nested),
     disabled: false,
     instantType: undefined,
     isInstantPhase: false,
@@ -138,8 +134,6 @@ function createInitialState<Payload>(
     adaptiveOrigin: undefined,
     ...initialState,
   };
-
-  state.floatingRootContext = createPopupFloatingRootContext(triggerElements, floatingId, nested);
 
   return state;
 }

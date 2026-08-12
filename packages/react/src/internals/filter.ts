@@ -1,5 +1,5 @@
+import { stringifyLocale } from '@base-ui/utils/stringifyLocale';
 import { stringifyAsLabel } from './resolveValueLabel';
-import { stringifyLocale } from '../utils/stringifyLocale';
 
 const filterCache = new Map<string, Filter>();
 

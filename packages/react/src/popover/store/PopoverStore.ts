@@ -10,14 +10,13 @@ import { REASONS } from '../../internals/reasons';
 import { NullStore } from '../../utils/NullStore';
 import {
   attachPreventUnmountOnClose,
-  createPopupFloatingRootContext,
   createInitialPopupStoreState,
   PopupStoreContext,
   popupStoreSelectors,
   PopupStoreState,
   PopupTriggerMap,
   type PopupTriggerStoreKeys,
-  setPopupOpenState,
+  createPopupOpenState,
 } from '../../utils/popups';
 import { PATIENT_CLICK_THRESHOLD } from '../../internals/constants';
 import type { AdaptiveOriginMiddleware } from '../../utils/adaptiveOriginConstants';
@@ -131,19 +130,17 @@ export class PopoverStore<Payload> extends ReactStore<
     this.state.floatingRootContext.dispatchOpenChange(nextOpen, eventDetails);
 
     const changeState = () => {
-      const updatedState: Partial<State<Payload>> = {
-        open: nextOpen,
-        openChangeReason: eventDetails.reason,
-      };
-
-      setPopupOpenState(
-        updatedState,
+      const popupOpenState = createPopupOpenState(
+        this.state,
         nextOpen,
         eventDetails.trigger,
         shouldPreventUnmountOnClose(),
-      );
+      ) as ReturnType<typeof createPopupOpenState> & {
+        openChangeReason: PopoverRoot.ChangeEventReason;
+      };
 
-      this.update(updatedState);
+      popupOpenState.openChangeReason = eventDetails.reason;
+      this.update(popupOpenState);
     };
 
     if (isHover) {
@@ -196,7 +193,7 @@ function createInitialState<Payload>(
   nested = false,
 ): State<Payload> {
   const state: State<Payload> = {
-    ...createInitialPopupStoreState<Payload>(),
+    ...createInitialPopupStoreState<Payload>(triggerElements, floatingId, nested),
     disabled: false,
     modal: false,
     focusManagerModal: false,
@@ -215,8 +212,6 @@ function createInitialState<Payload>(
   if (state.open && initialState?.mounted === undefined) {
     state.mounted = true;
   }
-
-  state.floatingRootContext = createPopupFloatingRootContext(triggerElements, floatingId, nested);
 
   return state;
 }
