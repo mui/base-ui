@@ -309,9 +309,11 @@ export function useFieldValidation(
         if (validationMode === 'onSubmit') {
           publish(nextState, validationErrors);
         }
+
         // A rejected validator keeps the previously published state, so a transient
         // failure can't retire an error and unblock submission.
         result = await resultOrPromise;
+
         if (validationCommitId !== validationCommitIdRef.current) {
           return;
         }
