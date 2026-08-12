@@ -17,6 +17,7 @@ import { useRenderElement } from '../../internals/useRenderElement';
 import { useMenuPositionerContext } from '../positioner/MenuPositionerContext';
 import { useTriggerRegistration } from '../../utils/popups';
 import type { MenuStore } from '../store/MenuStore';
+import { useMenuSubmenuRootContext } from '../submenu-root/MenuSubmenuRootContext';
 
 const VOICE_OVER_EXPANDED_PROPS = { 'aria-expanded': undefined };
 
@@ -43,6 +44,7 @@ const MenuSubmenuTriggerImpl = React.forwardRef(function MenuSubmenuTriggerImpl(
   const menuPositionerContext = useMenuPositionerContext();
 
   const { store } = useMenuRootContext();
+  const submenuRootContext = useMenuSubmenuRootContext();
 
   const open = store.useState('open');
   const floatingRootContext = store.useState('floatingRootContext');
@@ -170,7 +172,14 @@ const MenuSubmenuTriggerImpl = React.forwardRef(function MenuSubmenuTriggerImpl(
     props: [
       localInteractionProps,
       hoverProps,
-      rootTriggerProps,
+      {
+        ...rootTriggerProps,
+        // SubmenuRoot overrides the generic trigger handler because entry and exit depend on
+        // both the parent and child menu orientations.
+        onKeyDown(event) {
+          submenuRootContext?.onTriggerKeyDown(event);
+        },
+      },
       itemProps,
       // Opening a submenu changes the trigger's expanded state while the trigger still holds
       // focus, and VoiceOver announces that state change instead of the submenu item that focus

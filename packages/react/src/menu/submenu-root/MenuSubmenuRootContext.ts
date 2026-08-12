@@ -1,8 +1,16 @@
 'use client';
 import * as React from 'react';
 
-export const MenuSubmenuRootContext = React.createContext(false);
+export interface MenuSubmenuRootContext {
+  getReturnElement(): HTMLElement | null;
+  onTriggerKeyDown(event: React.KeyboardEvent): void;
+  onPopupKeyDown(event: React.KeyboardEvent): void;
+}
 
-export function useMenuSubmenuRootContext(): boolean {
+export const MenuSubmenuRootContext = React.createContext<MenuSubmenuRootContext | undefined>(
+  undefined,
+);
+
+export function useMenuSubmenuRootContext(): MenuSubmenuRootContext | undefined {
   return React.useContext(MenuSubmenuRootContext);
 }

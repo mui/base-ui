@@ -17,6 +17,7 @@ import { REASONS } from '../../internals/reasons';
 import { useToolbarRootContext } from '../../toolbar/root/ToolbarRootContext';
 import { COMPOSITE_KEYS } from '../../internals/composite/composite';
 import { getDisabledMountTransitionStyles } from '../../internals/getDisabledMountTransitionStyles';
+import { useMenuSubmenuRootContext } from '../submenu-root/MenuSubmenuRootContext';
 
 const MenuPopupImpl = React.forwardRef(function MenuPopupImpl(
   componentProps: MenuPopup.Props,
@@ -24,6 +25,7 @@ const MenuPopupImpl = React.forwardRef(function MenuPopupImpl(
 ) {
   const { id, finalFocus, render, className, style, ...elementProps } = componentProps;
   const { store, setFloatingId } = useMenuRootContext();
+  const submenuRootContext = useMenuSubmenuRootContext();
   const { side, align } = useMenuPositionerContext();
   const insideToolbar = useToolbarRootContext(true) != null;
 
@@ -110,6 +112,7 @@ const MenuPopupImpl = React.forwardRef(function MenuPopupImpl(
         role: listElement ? 'presentation' : 'menu',
         'aria-labelledby': activeTriggerId ?? undefined,
         onKeyDown(event) {
+          submenuRootContext?.onPopupKeyDown(event);
           if (insideToolbar && COMPOSITE_KEYS.has(event.key)) {
             event.stopPropagation();
           }
@@ -129,13 +132,15 @@ const MenuPopupImpl = React.forwardRef(function MenuPopupImpl(
     returnFocus = true;
   }
 
+  const resolvedReturnFocus = submenuRootContext?.getReturnElement ?? returnFocus;
+
   return (
     <FloatingFocusManager
       context={floatingContext}
       openInteractionType={openMethod}
       modal={isContextMenu}
       disabled={!mounted}
-      returnFocus={finalFocus === undefined ? returnFocus : finalFocus}
+      returnFocus={finalFocus === undefined ? resolvedReturnFocus : finalFocus}
       initialFocus={shouldFocusPopup}
       restoreFocus
       externalTree={parent.type !== 'menubar' ? floatingTreeRoot : undefined}

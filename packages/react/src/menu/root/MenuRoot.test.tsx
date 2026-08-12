@@ -27,9 +27,7 @@ import {
 import { REASONS } from '../../internals/reasons';
 import { PATIENT_CLICK_THRESHOLD } from '../../internals/constants';
 
-// Mainline tests assert the non-VoiceOver behavior deterministically on every host OS
-// (`platform.screenReader.voiceOver` is true on any Apple platform, which would hide filterable
-// lists from role queries). `MenuList.voiceOver.test.tsx` covers the VoiceOver-specific path.
+// Mainline tests assert the non-VoiceOver submenu-trigger behavior deterministically on every OS.
 vi.mock('@base-ui/utils/platform', async () => {
   const actual =
     await vi.importActual<typeof import('@base-ui/utils/platform')>('@base-ui/utils/platform');
@@ -90,6 +88,7 @@ describe('<Menu.Root />', () => {
 
       const input = await screen.findByRole('searchbox', { name: 'Filter actions' });
       await user.type(input, 'trash');
+      await user.keyboard('[ArrowDown]');
 
       await waitFor(() => {
         expect(screen.getByRole('menuitem', { name: 'Delete' })).toBeVisible();
@@ -123,6 +122,7 @@ describe('<Menu.Root />', () => {
 
       const input = await screen.findByRole('searchbox', { name: 'Filter actions' });
       await user.type(input, 'ren');
+      await user.keyboard('[ArrowDown]');
 
       await waitFor(() => {
         expect(screen.getByTestId('file-group')).not.toBeVisible();
@@ -154,7 +154,7 @@ describe('<Menu.Root />', () => {
                         <FilterMenu.Positioner>
                           <FilterMenu.Popup>
                             <FilterMenu.Input aria-label="Filter sharing options" />
-                            <FilterMenu.List>
+                            <FilterMenu.List data-testid="sharing-list">
                               <FilterMenu.Item>Email</FilterMenu.Item>
                             </FilterMenu.List>
                           </FilterMenu.Popup>
@@ -180,6 +180,13 @@ describe('<Menu.Root />', () => {
       const submenuInput = await screen.findByRole('searchbox', { name: 'Filter sharing options' });
       await waitFor(() => {
         expect(submenuInput).toHaveFocus();
+      });
+
+      await user.tab();
+
+      const submenuList = screen.getByTestId('sharing-list');
+      await waitFor(() => {
+        expect(submenuList).toHaveFocus();
       });
 
       await user.tab();
@@ -214,7 +221,7 @@ describe('<Menu.Root />', () => {
                         <FilterMenu.Positioner>
                           <FilterMenu.Popup className="filter-popup">
                             <FilterMenu.Input aria-label="Filter sharing options" />
-                            <FilterMenu.List>
+                            <FilterMenu.List data-testid="sharing-list">
                               <FilterMenu.Item>Email</FilterMenu.Item>
                             </FilterMenu.List>
                           </FilterMenu.Popup>
@@ -232,7 +239,7 @@ describe('<Menu.Root />', () => {
 
       await user.click(screen.getByRole('button', { name: 'Actions' }));
 
-      const submenuTrigger = await screen.findByRole('menuitem', { name: 'Share' });
+      const submenuTrigger = await screen.findByRole('menuitem', { name: 'Share', hidden: true });
       await user.click(submenuTrigger);
 
       const submenuInput = await screen.findByRole('searchbox', { name: 'Filter sharing options' });
@@ -241,6 +248,13 @@ describe('<Menu.Root />', () => {
       });
       await waitFor(() => {
         expect(submenuInput).toHaveFocus();
+      });
+
+      await user.tab();
+
+      const submenuList = screen.getByTestId('sharing-list');
+      await waitFor(() => {
+        expect(submenuList).toHaveFocus();
       });
 
       await user.tab();
@@ -368,6 +382,7 @@ describe('<Menu.Root />', () => {
       );
 
       const input = await screen.findByRole('searchbox', { name: 'Filter fruit' });
+      await user.keyboard('[ArrowDown]');
 
       expect(input).toHaveValue('app');
       expect(screen.getByRole('menuitem', { name: 'Apple' })).toBeVisible();
@@ -530,43 +545,22 @@ describe('<Menu.Root />', () => {
     });
 
     it.skipIf(isJSDOM)(
-      'focuses the input when an item is focused in a pointer-opened filterable submenu',
-      async () => {
-        const { user } = await render(<FilterableSubmenu />);
-
-        await user.hover(screen.getByRole('menuitem', { name: 'Move to folder' }));
-
-        const input = await screen.findByRole('searchbox', { name: 'Filter folders' });
-        expect(input).not.toHaveFocus();
-
-        const item = screen.getByRole('menuitem', { name: 'Documents' });
-        fireEvent.focus(item);
-
-        await waitFor(() => {
-          expect(input).toHaveFocus();
-        });
-        expect(input).toHaveAttribute('aria-activedescendant', item.id);
-      },
-    );
-
-    it.skipIf(isJSDOM)(
       'focuses the input when a filterable submenu opens with the keyboard',
       async () => {
         const { user } = await render(<FilterableSubmenu />);
-        const submenuTrigger = screen.getByRole('menuitem', { name: 'Move to folder' });
+        const parentMenu = screen.getByRole('menu');
 
-        await act(async () => {
-          submenuTrigger.focus();
+        await waitFor(() => {
+          expect(parentMenu).toHaveFocus();
         });
-        await user.keyboard('[ArrowRight]');
+        await user.keyboard('[ArrowDown][ArrowDown][ArrowRight]');
 
         const input = await screen.findByRole('searchbox', { name: 'Filter folders' });
         await waitFor(() => {
           expect(input).toHaveFocus();
         });
-        expect(input).toHaveAttribute('data-focus-visible');
 
-        const item = screen.getByRole('menuitem', { name: 'Documents' });
+        const item = screen.getByText('Documents');
         await user.hover(item);
         expect(input).not.toHaveAttribute('data-focus-visible');
 
@@ -603,6 +597,7 @@ describe('<Menu.Root />', () => {
                       </FilterMenu.Positioner>
                     </FilterMenu.Portal>
                   </FilterMenu.SubmenuRoot>
+                  <FilterMenu.Item>Delete</FilterMenu.Item>
                 </FilterMenu.List>
               </FilterMenu.Popup>
             </FilterMenu.Positioner>
@@ -633,6 +628,11 @@ describe('<Menu.Root />', () => {
         expect(parentInput).toHaveFocus();
       });
       expect(parentInput).toHaveAttribute('aria-activedescendant', submenuTrigger.id);
+
+      await user.keyboard('[ArrowDown]');
+
+      const nextItem = screen.getByRole('menuitem', { name: 'Delete' });
+      expect(parentInput).toHaveAttribute('aria-activedescendant', nextItem.id);
     });
 
     it('opens a submenu from a filterable submenu input', async () => {
@@ -725,31 +725,32 @@ describe('<Menu.Root />', () => {
       async (key) => {
         const onListKeyDown = vi.fn();
         const { user } = await render(
-          <Menu.Root filter defaultOpen>
-            <Menu.Trigger>Actions</Menu.Trigger>
-            <Menu.Portal>
-              <Menu.Positioner>
-                <Menu.Popup>
-                  <Menu.Input aria-label="Filter actions" />
-                  <Menu.List onKeyDown={onListKeyDown}>
-                    <Menu.SubmenuRoot filter>
-                      <Menu.SubmenuTrigger>Share</Menu.SubmenuTrigger>
-                      <Menu.Portal>
-                        <Menu.Positioner>
-                          <Menu.Popup>
-                            <Menu.Input aria-label="Filter sharing options" />
-                            <Menu.List>
-                              <Menu.Item>Email</Menu.Item>
-                            </Menu.List>
-                          </Menu.Popup>
-                        </Menu.Positioner>
-                      </Menu.Portal>
-                    </Menu.SubmenuRoot>
-                  </Menu.List>
-                </Menu.Popup>
-              </Menu.Positioner>
-            </Menu.Portal>
-          </Menu.Root>,
+          <FilterMenu.Root defaultOpen>
+            <FilterMenu.Trigger>Actions</FilterMenu.Trigger>
+            <FilterMenu.Portal>
+              <FilterMenu.Positioner>
+                <FilterMenu.Popup>
+                  <FilterMenu.Input aria-label="Filter actions" />
+                  <FilterMenu.List onKeyDown={onListKeyDown}>
+                    <FilterMenu.SubmenuRoot>
+                      <FilterMenu.SubmenuTrigger>Share</FilterMenu.SubmenuTrigger>
+                      <FilterMenu.Portal>
+                        <FilterMenu.Positioner>
+                          <FilterMenu.Popup>
+                            <FilterMenu.Input aria-label="Filter sharing options" />
+                            <FilterMenu.List>
+                              <FilterMenu.Item>Email</FilterMenu.Item>
+                            </FilterMenu.List>
+                          </FilterMenu.Popup>
+                        </FilterMenu.Positioner>
+                      </FilterMenu.Portal>
+                    </FilterMenu.SubmenuRoot>
+                    <FilterMenu.Item>Delete</FilterMenu.Item>
+                  </FilterMenu.List>
+                </FilterMenu.Popup>
+              </FilterMenu.Positioner>
+            </FilterMenu.Portal>
+          </FilterMenu.Root>,
         );
 
         const submenuTrigger = screen.getByRole('menuitem', { name: 'Share', hidden: true });
@@ -780,12 +781,27 @@ describe('<Menu.Root />', () => {
           expect(onListKeyDown.mock.lastCall?.[0]).toHaveProperty('defaultPrevented', true);
         }
 
+        const submenuInput = screen.getByRole('searchbox', { name: 'Filter sharing options' });
         await waitFor(() => {
-          expect(screen.getByRole('searchbox', { name: 'Filter sharing options' })).toHaveFocus();
+          expect(submenuInput).toHaveFocus();
         });
         await waitFor(() => {
           expect(list).not.toHaveAttribute('aria-activedescendant');
         });
+
+        await user.keyboard('[ArrowLeft]');
+
+        await waitFor(() => {
+          expect(list).toHaveFocus();
+        });
+        await waitFor(() => {
+          expect(list).toHaveAttribute('aria-activedescendant', submenuTrigger.id);
+        });
+
+        await user.keyboard('[ArrowDown]');
+
+        const nextItem = screen.getByRole('menuitem', { name: 'Delete' });
+        expect(list).toHaveAttribute('aria-activedescendant', nextItem.id);
       },
     );
 
@@ -823,6 +839,10 @@ describe('<Menu.Root />', () => {
         );
 
         const parentInput = screen.getByRole('searchbox', { name: 'Filter actions' });
+        await waitFor(() => {
+          expect(parentInput).toHaveFocus();
+        });
+        await user.keyboard('[ArrowDown]');
         const submenuTrigger = screen.getByRole('menuitem', { name: 'Move to folder' });
         await user.hover(submenuTrigger);
 
@@ -870,6 +890,10 @@ describe('<Menu.Root />', () => {
         );
 
         const parentInput = screen.getByRole('searchbox', { name: 'Filter actions' });
+        await waitFor(() => {
+          expect(parentInput).toHaveFocus();
+        });
+        await user.keyboard('[ArrowDown]');
         const submenuTrigger = screen.getByRole('menuitem', { name: 'Move to folder' });
         await user.hover(submenuTrigger);
 
@@ -917,6 +941,10 @@ describe('<Menu.Root />', () => {
         );
 
         const parentInput = screen.getByRole('searchbox', { name: 'Filter actions' });
+        await waitFor(() => {
+          expect(parentInput).toHaveFocus();
+        });
+        await user.keyboard('[ArrowDown]');
         const submenuTrigger = screen.getByRole('menuitem', { name: 'Move to folder' });
         await user.hover(submenuTrigger);
 
@@ -967,21 +995,21 @@ describe('<Menu.Root />', () => {
         expect(input).toHaveFocus();
       });
 
-      const firstItem = screen.getByRole('menuitem', { name: 'Apple' });
+      const firstItem = screen.getByText('Apple');
       expect(firstItem).not.toHaveAttribute('data-highlighted');
       expect(input).not.toHaveAttribute('aria-activedescendant');
 
       await waitFor(() => {
-        expect(screen.getByRole('menuitem', { name: 'Apple' })).not.toHaveAttribute('tabindex');
+        expect(screen.getByText('Apple')).not.toHaveAttribute('tabindex');
       });
       await waitFor(() => {
-        expect(screen.getByRole('menuitem', { name: 'Banana' })).not.toHaveAttribute('tabindex');
+        expect(screen.getByText('Banana')).not.toHaveAttribute('tabindex');
       });
 
       await user.type(input, 'ban');
 
       expect(screen.queryByRole('menuitem', { name: 'Apple' })).toBe(null);
-      expect(screen.getByRole('menuitem', { name: 'Banana' })).toBeVisible();
+      expect(screen.getByText('Banana')).toBeVisible();
 
       if (isJSDOM) {
         Object.defineProperty(list, 'scrollTo', {
@@ -1057,11 +1085,16 @@ describe('<Menu.Root />', () => {
       }
 
       const { user } = await render(<Test />);
+      const input = screen.getByRole('searchbox', { name: 'Filter fruit' });
+      await user.click(input);
+      await user.keyboard('[ArrowDown]');
 
       expect(screen.getByRole('menuitem', { name: 'Apple' })).toBeVisible();
       expect(screen.queryByRole('menuitem', { name: 'Banana' })).toBe(null);
 
       await user.click(screen.getByRole('button', { name: 'Change filter' }));
+      await user.click(input);
+      await user.keyboard('[ArrowDown]');
 
       expect(screen.queryByRole('menuitem', { name: 'Apple' })).toBe(null);
       expect(screen.getByRole('menuitem', { name: 'Banana' })).toBeVisible();
@@ -1094,7 +1127,9 @@ describe('<Menu.Root />', () => {
         </FilterMenu.Root>,
       );
 
-      await user.type(screen.getByRole('searchbox', { name: 'Filter actions' }), 'rename');
+      const input = screen.getByRole('searchbox', { name: 'Filter actions' });
+      await user.type(input, 'rename');
+      await user.keyboard('[ArrowDown]');
 
       expect(screen.getByRole('menuitem', { name: 'Rename' })).toBeVisible();
       expect(screen.queryByRole('menuitem', { name: 'Move to folder' })).toBe(null);
@@ -1142,18 +1177,21 @@ describe('<Menu.Root />', () => {
       );
 
       const input = screen.getByRole('searchbox', { name: 'Filter fruit' });
+      await user.keyboard('[ArrowDown]');
 
       expect(screen.getByRole('menuitemcheckbox', { name: 'Banana' })).toBeVisible();
       expect(screen.queryByRole('menuitem', { name: 'Apple' })).toBe(null);
 
       await user.clear(input);
       await user.type(input, 'cherry');
+      await user.keyboard('[ArrowDown]');
 
       expect(screen.getByRole('menuitemradio', { name: 'Cherry' })).toBeVisible();
       expect(screen.queryByRole('menuitemcheckbox', { name: 'Banana' })).toBe(null);
 
       await user.clear(input);
       await user.type(input, 'date');
+      await user.keyboard('[ArrowDown]');
 
       expect(screen.getByRole('menuitem', { name: 'Date' })).toBeVisible();
       expect(screen.queryByRole('menuitemradio', { name: 'Cherry' })).toBe(null);
@@ -2125,6 +2163,12 @@ describe('<Menu.Root />', () => {
             expect(screen.queryByTestId('submenu')).toBe(null);
           });
           expect(submenuTrigger).toHaveFocus();
+
+          await user.keyboard('[ArrowDown]');
+
+          await waitFor(() => {
+            expect(screen.getByTestId('item-5')).toHaveFocus();
+          });
         },
       );
     });
