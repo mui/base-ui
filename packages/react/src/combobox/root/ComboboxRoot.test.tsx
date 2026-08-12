@@ -5537,6 +5537,39 @@ describe('<Combobox.Root />', () => {
       expect(onInputValueChange).not.toHaveBeenCalled();
     });
 
+    it('unfreezes filtering when a controlled open ignores the close request (multiple, input outside popup)', async () => {
+      const { user } = await render(
+        <Combobox.Root multiple items={['apple', 'apricot', 'banana']} open onOpenChange={() => {}}>
+          <Combobox.Input data-testid="input" />
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup data-testid="popup">
+                <Combobox.List>
+                  {(item: string) => (
+                    <Combobox.Item key={item} value={item}>
+                      {item}
+                    </Combobox.Item>
+                  )}
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      const input = screen.getByTestId('input');
+      await user.type(input, 'ap');
+      await waitFor(() => expect(screen.queryAllByRole('option')).toHaveLength(2));
+
+      // The close request clears the input and freezes the query for the exit animation,
+      // but the consumer keeps the popup open, so the frozen query must stop filtering.
+      await user.keyboard('{Escape}');
+      await flushMicrotasks();
+
+      expect(input).toHaveValue('');
+      await waitFor(() => expect(screen.queryAllByRole('option')).toHaveLength(3));
+    });
+
     it('keeps an input value set in the same batch as a controlled reopen (input inside popup)', async ({
       onTestFinished,
     }) => {
