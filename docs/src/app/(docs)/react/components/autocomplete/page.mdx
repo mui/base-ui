@@ -60,10 +60,9 @@ import { Autocomplete } from '@base-ui/react/autocomplete';
 </Autocomplete.Root>;
 ```
 
-## TypeScript inference
+## Item values
 
-Autocomplete infers the item type from the `items` prop passed to `<Autocomplete.Root>`.
-The `value` prop on `<Autocomplete.Item>` must match the type of an item in the `items` array, which also ensures that props like `itemToStringValue` infer the correct item type.
+Each `<Autocomplete.Item>` takes a `value` prop identifying it. Pass the item being rendered, so that props like `itemToStringValue` receive it.
 
 ## Examples
 
