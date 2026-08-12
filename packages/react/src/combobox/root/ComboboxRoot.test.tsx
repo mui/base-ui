@@ -5570,6 +5570,76 @@ describe('<Combobox.Root />', () => {
       await waitFor(() => expect(screen.queryAllByRole('option')).toHaveLength(3));
     });
 
+    it('opens blank when the input only mirrors the selection (single, input inside popup)', async ({
+      onTestFinished,
+    }) => {
+      globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+
+      onTestFinished(() => {
+        globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
+      });
+
+      function App() {
+        const [value, setValue] = React.useState<string | null>(null);
+        const [inputValue, setInputValue] = React.useState('');
+        return (
+          <React.Fragment>
+            {/* eslint-disable-next-line react/no-danger */}
+            <style dangerouslySetInnerHTML={{ __html: closeAnimationStyle }} />
+            <Combobox.Root
+              items={['apple', 'apricot', 'banana']}
+              value={value}
+              onValueChange={(next: string | null) => {
+                setValue(next);
+                setInputValue(next ?? '');
+              }}
+              inputValue={inputValue}
+              onInputValueChange={setInputValue}
+            >
+              <Combobox.Trigger data-testid="trigger">Open</Combobox.Trigger>
+              <Combobox.Portal>
+                <Combobox.Positioner>
+                  <Combobox.Popup data-testid="popup" className="animation-test-popup">
+                    <Combobox.Input data-testid="input" />
+                    <Combobox.List>
+                      {(item: string) => (
+                        <Combobox.Item key={item} value={item}>
+                          {item}
+                        </Combobox.Item>
+                      )}
+                    </Combobox.List>
+                  </Combobox.Popup>
+                </Combobox.Positioner>
+              </Combobox.Portal>
+            </Combobox.Root>
+          </React.Fragment>
+        );
+      }
+
+      const { user } = await render(<App />);
+
+      await user.click(screen.getByTestId('trigger'));
+      const input = await screen.findByTestId('input');
+      await waitFor(() => expect(input).toHaveFocus());
+
+      await user.type(input, 'ap');
+      await waitFor(() => expect(screen.queryAllByRole('option')).toHaveLength(2));
+
+      await user.click(screen.getByRole('option', { name: 'apple' }));
+
+      const popup = screen.getByTestId('popup');
+      await waitFor(() => expect(popup).toHaveAttribute('data-ending-style'));
+
+      // A consumer mirroring the selection into the popup input must not leave the reopened
+      // list filtered by it: an interrupted close opens blank, same as a completed one.
+      await user.click(screen.getByTestId('trigger'));
+      await flushMicrotasks();
+
+      const inputAfter = await screen.findByTestId('input');
+      expect(inputAfter).toHaveValue('');
+      await waitFor(() => expect(screen.queryAllByRole('option')).toHaveLength(3));
+    });
+
     it('keeps an input value set in the same batch as a controlled reopen (input inside popup)', async ({
       onTestFinished,
     }) => {
