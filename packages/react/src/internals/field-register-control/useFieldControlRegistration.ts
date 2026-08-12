@@ -16,7 +16,7 @@ export interface FieldControlRegistration {
 
 export function useFieldControlRegistration(params: UseFieldControlRegistrationParameters) {
   const {
-    cancelPendingValidation,
+    change,
     commit,
     invalid,
     markedDirtyRef,
@@ -135,7 +135,7 @@ export function useFieldControlRegistration(params: UseFieldControlRegistrationP
       if (!registration) {
         if (activeFieldControlSourceRef.current === source) {
           activeFieldControlSourceRef.current = null;
-          cancelPendingValidation();
+          change(undefined, true);
           deleteRegistration();
           registrationRef.current = null;
           setRegisteredFieldName(undefined);
@@ -148,7 +148,7 @@ export function useFieldControlRegistration(params: UseFieldControlRegistrationP
 
       // A pending debounce or async result belongs to the previous control, not to this one.
       if (activeFieldControlSourceRef.current !== source) {
-        cancelPendingValidation();
+        change(undefined, true);
       }
 
       activeFieldControlSourceRef.current = source;
@@ -171,7 +171,7 @@ export function useFieldControlRegistration(params: UseFieldControlRegistrationP
 }
 
 export interface UseFieldControlRegistrationParameters {
-  cancelPendingValidation: () => void;
+  change: (value: unknown, cancelPending?: boolean) => void;
   commit: (value: unknown) => void;
   invalid: boolean;
   markedDirtyRef: React.RefObject<boolean>;

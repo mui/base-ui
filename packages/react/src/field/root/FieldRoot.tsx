@@ -133,7 +133,7 @@ const FieldRootInner = React.forwardRef(function FieldRootInner(
   });
 
   const [validateFieldControl, registerFieldControl] = useFieldControlRegistration({
-    cancelPendingValidation: validation.cancelPendingValidation,
+    change: validation.change,
     commit: validation.commit,
     invalid,
     markedDirtyRef,

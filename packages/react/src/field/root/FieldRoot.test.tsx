@@ -1597,7 +1597,7 @@ describe('<Field.Root />', () => {
       await render(
         <Field.Root
           validationMode="onChange"
-          validate={(value) => (value === 'bad' ? 'custom error' : null)}
+          validate={(value) => (value === 'bad' ? 'custom error\r\nmore' : null)}
         >
           <Field.Control data-testid="control" />
           <Field.Error data-testid="error" />
@@ -1608,7 +1608,7 @@ describe('<Field.Root />', () => {
 
       fireEvent.change(control, { target: { value: 'bad' } });
 
-      expect(control.validationMessage).toBe('custom error');
+      expect(control.validationMessage).toBe('custom error\nmore');
 
       fireEvent.change(control, { target: { value: 'good' } });
 

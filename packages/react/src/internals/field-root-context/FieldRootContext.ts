@@ -57,7 +57,6 @@ export const DEFAULT_FIELD_ROOT_CONTEXT: FieldRootContext = {
     getInputControl: () => null,
     commit: async () => {},
     change: NOOP,
-    cancelPendingValidation: NOOP,
   },
 };
 

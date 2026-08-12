@@ -65,62 +65,6 @@ function findRepresentativeInput(
   return fallback;
 }
 
-// Custom validity messages installed by Base UI, so clearing never wipes a message set by other
-// code (for example a date field surfacing an invalid date through `setCustomValidity`).
-// Ownership is matched by message text, so an identical foreign message is indistinguishable
-// from an owned one. The record stores the installed message (normalized the way browsers report
-// it back) and the message set by other code that it overwrote, restored on clear.
-const customValidityRecords = new WeakMap<HTMLInputElement, [message: string, displaced: string]>();
-
-// Browsers normalize line breaks in custom validity messages — Chromium reports `\r\n` and `\r`
-// back as `\n` — so ownership is matched on normalized text.
-function normalizeValidationMessage(message: string) {
-  return message.replace(/\r\n?/g, '\n');
-}
-
-function setOwnCustomValidity(element: HTMLInputElement, message: string) {
-  const record = customValidityRecords.get(element);
-  // `validationMessage` is unreadable on elements barred from constraint validation (disabled
-  // ones, for example), so a foreign message cannot be captured there — keep the prior capture.
-  let displaced = record ? record[1] : '';
-  if (element.willValidate) {
-    // Only a custom message can be displaced: a failing native constraint reports its own text
-    // through `validationMessage`, which must never be reinstalled as a custom validity message.
-    const current = element.validity.customError ? element.validationMessage : '';
-    if (normalizeValidationMessage(current) !== record?.[0]) {
-      displaced = current;
-    }
-  }
-  element.setCustomValidity(message);
-  customValidityRecords.set(element, [normalizeValidationMessage(message), displaced]);
-}
-
-function clearOwnCustomValidity(element: HTMLInputElement) {
-  const record = customValidityRecords.get(element);
-  if (!record) {
-    return;
-  }
-  customValidityRecords.delete(element);
-  // If another message replaced (or withdrew) the owned one, it is no longer this hook's to
-  // clear — and it superseded whatever the owned message had displaced. Otherwise hand the
-  // control back to the message the owned one overwrote, if there was one.
-  if (
-    !element.willValidate ||
-    normalizeValidationMessage(element.validationMessage) === record[0]
-  ) {
-    element.setCustomValidity(record[1]);
-  }
-}
-
-function clearCustomValidity(element: HTMLInputElement | null, inputs: RegisteredInputs) {
-  for (const input of inputs.keys()) {
-    clearOwnCustomValidity(input);
-  }
-  if (element && !inputs.has(element)) {
-    clearOwnCustomValidity(element);
-  }
-}
-
 /**
  * A synthetic validity state carrying no native constraint errors: all valid, or failing only
  * `customError`.
@@ -156,6 +100,32 @@ export function useFieldValidation(
   const inputRef = React.useRef<HTMLInputElement | null>(null);
   const registeredInputs = useRefWithInit<RegisteredInputs>(() => new Map()).current;
   const validationCommitIdRef = React.useRef(0);
+  // Base UI installs at most one custom validity message per field. Keep its normalized text and
+  // the message it displaced so clearing never wipes validity owned by another control.
+  const customValidityRef = React.useRef<
+    [element: HTMLInputElement, message: string, displaced: string] | null
+  >(null);
+
+  function updateCustomValidity(element?: HTMLInputElement, message?: string) {
+    if (element) {
+      // Only a custom message can be displaced: a failing native constraint reports its own text
+      // through `validationMessage`, which must never be reinstalled as a custom validity message.
+      const displaced =
+        element.willValidate && element.validity.customError ? element.validationMessage : '';
+      const ownedMessage = message!.replace(/\r\n?/g, '\n');
+      element.setCustomValidity(ownedMessage);
+      customValidityRef.current = [element, ownedMessage, displaced];
+      return;
+    }
+
+    const record = customValidityRef.current;
+    customValidityRef.current = null;
+    // Another message replacing or withdrawing ours transfers ownership to outside code. Barred
+    // controls do not expose `validationMessage`, so the owned message has to be cleared blindly.
+    if (record && (!record[0].willValidate || record[0].validationMessage === record[1])) {
+      record[0].setCustomValidity(record[2]);
+    }
+  }
 
   // Groups register several inputs against a single field so focus, validation, and form-value
   // projection can use the same live controls. This also ensures a `required` checkbox can't be
@@ -290,7 +260,7 @@ export function useFieldValidation(
         // Temporarily mark the field as valid for this onChange event.
         // Other native errors (e.g., typeMismatch) will be caught by full validation on blur or submit.
         // The required value is now present; ignore stale external invalid state for this pass.
-        clearCustomValidity(element, registeredInputs);
+        updateCustomValidity();
         // Clearing can hand representative status to another registered input that kept a
         // message of its own, so resolve it again. A message set by other code that survived the
         // clear keeps the field invalid; publish that error alone so other native errors remain
@@ -321,7 +291,7 @@ export function useFieldValidation(
 
     // Residue this hook installed for a previous result would otherwise read back as a native
     // constraint message below and skip `validate`, blocking submission until the user retypes.
-    clearCustomValidity(element, registeredInputs);
+    updateCustomValidity();
 
     let nextState = refreshState();
     let validationErrors = getNativeErrors(element);
@@ -369,7 +339,7 @@ export function useFieldValidation(
         nextState.valid = false;
         nextState.customError = true;
         if (element) {
-          setOwnCustomValidity(element, validationErrors.join('\n'));
+          updateCustomValidity(element, validationErrors.join('\n'));
         }
       } else {
         // The validator passed but a native constraint (validating on change) or a message set by
@@ -381,14 +351,13 @@ export function useFieldValidation(
     publish(nextState, validationErrors);
   });
 
-  const cancelPendingValidation = useStableCallback(() => {
+  const change = useStableCallback((value: unknown, cancelPending = false) => {
     timeout.clear();
     validationCommitIdRef.current += 1;
-  });
+    if (cancelPending) {
+      return;
+    }
 
-  const change = useStableCallback((value: unknown) => {
-    // The extra commit id bump is harmless in the immediate path: `commit` bumps again first.
-    cancelPendingValidation();
     const validateOnChange = shouldValidateOnChange();
 
     if (validateOnChange && value !== '' && validationDebounceTime) {
@@ -420,17 +389,8 @@ export function useFieldValidation(
       getInputControl,
       commit,
       change,
-      cancelPendingValidation,
     }),
-    [
-      getValidationProps,
-      registeredInputs,
-      registerInput,
-      getInputControl,
-      commit,
-      change,
-      cancelPendingValidation,
-    ],
+    [getValidationProps, registeredInputs, registerInput, getInputControl, commit, change],
   );
 }
 
@@ -456,6 +416,5 @@ export interface UseFieldValidationReturnValue {
   registerInput: (element: HTMLInputElement, registration: RegisteredInput) => void | (() => void);
   getInputControl: () => HTMLElement | null;
   commit: (value: unknown) => Promise<void>;
-  change: (value: unknown) => void;
-  cancelPendingValidation: () => void;
+  change: (value: unknown, cancelPending?: boolean) => void;
 }
