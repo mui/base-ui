@@ -45,20 +45,19 @@ import {
   useOpenStateTransitions,
   usePopupInteractionProps,
 } from '../../utils/popups';
-import { useMenuSubmenuRootContext } from '../submenu-root/MenuSubmenuRootContext';
 import type { FilterDropdownRoot } from '../../filter-dropdown/root/FilterDropdownRoot';
 import {
   MenuFilterIntegrationContext,
   useMenuFilterIntegration,
 } from './MenuFilterIntegrationContext';
 
-/**
- * Groups all parts of the menu.
- * Doesn't render its own HTML element.
- *
- * Documentation: [Base UI Menu](https://base-ui.com/react/components/menu)
- */
-export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot.Props<Payload>) {
+interface MenuRootImplProps<Payload> extends MenuRoot.Props<Payload> {
+  isSubmenu?: boolean | undefined;
+}
+
+export const MenuRootImpl = fastComponent(function MenuRootImpl<Payload>(
+  props: MenuRootImplProps<Payload>,
+) {
   const {
     children,
     open: openProp,
@@ -79,6 +78,7 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
     inputValue: inputValueProp,
     defaultInputValue = '',
     onInputValueChange,
+    isSubmenu = false,
   } = props;
 
   // Filterability comes from the entrypoint, not the prop: only `filter-menu` supplies the
@@ -96,8 +96,6 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
   const contextMenuContext = useContextMenuRootContext(true);
   const parentMenuRootContext = useMenuRootContext(true);
   const menubarContext = useMenubarContext(true);
-  const isSubmenu = useMenuSubmenuRootContext();
-
   const parentFromContext: MenuParent = React.useMemo(() => {
     if (isSubmenu && parentMenuRootContext) {
       return {
@@ -204,6 +202,7 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
   const hoverEnabled = store.useState('hoverEnabled');
   const disabled = store.useState('disabled');
   const lastOpenChangeReason = store.useState('lastOpenChangeReason');
+  const openedByKeyboard = store.useState('openedByKeyboard');
   const parent = store.useState('parent');
 
   const activeIndex = store.useState('activeIndex');
@@ -443,10 +442,6 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
       popupOpenState.openChangeReason = reason;
       popupOpenState.inputFocusVisible = filterable && isKeyboardOpen;
 
-      if (isKeyboardOpen && parent.type === 'menu' && parent.store.select('filterable')) {
-        parent.store.set('activeIndex', null);
-      }
-
       if (
         parent.type === 'menubar' &&
         (reason === REASONS.triggerFocus ||
@@ -538,27 +533,27 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
   const direction = useDirection();
   // Filterable menus keep DOM focus on their input and navigate items virtually.
   const virtual = filterable;
+  const focusItemOnOpen = (parent.type !== undefined && openedByKeyboard) || undefined;
+
   const listNavigation = useListNavigation(floatingRootContext, {
     id: floatingId,
     enabled: !disabled,
     listRef: store.context.itemDomElements,
     activeIndex,
-    nested: parent.type !== undefined,
     virtual,
     loopFocus,
     // Clear the active descendant at a list boundary so virtual focus returns to the filter
     // input before navigation loops to the other end.
     allowEscape: filterable,
     resetOnReferenceFocus: filterable,
-    focusItemOnOpen: filterable ? false : undefined,
+    focusItemOnOpen: filterable ? false : focusItemOnOpen,
     orientation,
-    parentOrientation: parent.type === 'menubar' ? parent.context.orientation : undefined,
     rtl: direction === 'rtl',
     disabledIndices: EMPTY_ARRAY,
     onNavigate(nextActiveIndex, event) {
       const inputFocusVisible = filterable && nextActiveIndex === null && event?.type === 'keydown';
 
-      if (filterable && nextActiveIndex === null) {
+      if (filterable && nextActiveIndex === null && store.select('open')) {
         // Virtual navigation escaped the List boundary, so return DOM focus to the filter input.
         store.context.inputRef.current?.focus({ preventScroll: true });
       }
@@ -566,9 +561,6 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
       store.update({ activeIndex: nextActiveIndex, inputFocusVisible });
     },
     openOnArrowKeyDown: parent.type !== 'context-menu',
-    // Nested menus use the tree to coordinate with their parent. A top-level virtual menu
-    // also needs it to restore its active descendant when one of its submenus closes.
-    externalTree: nested || virtual ? floatingTreeRoot : undefined,
     focusItemOnHover: highlightItemOnHover,
   });
 
@@ -685,10 +677,11 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
       store,
       type: isSubmenu ? 'submenu' : 'menu',
       parent: parentFromContext,
+      orientation,
       floatingId,
       setFloatingId,
     }),
-    [store, isSubmenu, parentFromContext, floatingId],
+    [store, isSubmenu, parentFromContext, orientation, floatingId],
   );
 
   const menu = (
@@ -727,6 +720,16 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
 
   return content;
 });
+
+/**
+ * Groups all parts of the menu.
+ * Doesn't render its own HTML element.
+ *
+ * Documentation: [Base UI Menu](https://base-ui.com/react/components/menu)
+ */
+export const MenuRoot = function MenuRoot<Payload>(props: MenuRoot.Props<Payload>) {
+  return <MenuRootImpl {...props} />;
+};
 
 function useMenuRootStore<Payload>(
   initialState: Partial<MenuStoreState<Payload>>,

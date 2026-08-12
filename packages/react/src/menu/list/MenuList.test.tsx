@@ -1,23 +1,10 @@
 import * as React from 'react';
 import { screen, waitFor } from '@mui/internal-test-utils';
-import { expect, vi } from 'vitest';
+import { expect } from 'vitest';
 import { createRenderer } from '#test-utils';
 import { FilterMenu } from '@base-ui/react/filter-menu';
 
-// Kept in a separate file so the module mock doesn't leak into `MenuRoot.test.tsx`.
-vi.mock('@base-ui/utils/platform', async () => {
-  const actual =
-    await vi.importActual<typeof import('@base-ui/utils/platform')>('@base-ui/utils/platform');
-
-  return {
-    platform: {
-      ...actual.platform,
-      screenReader: { ...actual.platform.screenReader, voiceOver: true },
-    },
-  };
-});
-
-describe('<FilterMenu.List /> with VoiceOver', () => {
+describe('<FilterMenu.List />', () => {
   const { render } = createRenderer();
 
   it('exposes the menu only while an item is virtually focused', async () => {

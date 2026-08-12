@@ -7,6 +7,7 @@ export interface MenuRootContext<Payload = unknown> {
   type: 'menu' | 'submenu';
   store: MenuStore<Payload>;
   parent: MenuParent;
+  orientation: 'vertical' | 'horizontal';
   floatingId: string | undefined;
   setFloatingId: React.Dispatch<React.SetStateAction<string | undefined>>;
 }

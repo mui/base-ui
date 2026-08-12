@@ -118,7 +118,6 @@ export const MenuComponent = React.forwardRef<
   const listNavigation = useListNavigation(context, {
     listRef: elementsRef,
     activeIndex,
-    nested: isNested,
     onNavigate: setActiveIndex,
     orientation,
     grid: grid ? gridNavigation : undefined,
