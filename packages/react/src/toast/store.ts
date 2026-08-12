@@ -13,8 +13,10 @@ import { activeElement, contains, getTarget } from '../floating-ui-react/utils';
 import { isFocusVisible } from './utils/focusVisible';
 
 type ToastInternalUpdateOptions<Data extends object> = Partial<
-  Omit<ToastObject<Data>, 'id' | 'updateKey'>
->;
+  Omit<ToastObject<Data>, 'id' | 'updateKey' | 'data'>
+> & {
+  data?: Partial<Data> | undefined;
+};
 
 /**
  * A toast once it lives in the store. `addToast` is the only way in and it always
@@ -228,6 +230,9 @@ export class ToastStore extends ReactStore<State, {}, typeof selectors> {
     const nextToast: StoredToast<Data> = {
       ...prevToast,
       ...updates,
+      ...(updates.data && {
+        data: { ...prevToast.data, ...updates.data },
+      }),
       ...(markUpdated && {
         updateKey: prevToast.updateKey + 1,
       }),
