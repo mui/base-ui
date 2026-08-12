@@ -5292,6 +5292,58 @@ describe('<Select.Root />', () => {
       });
     });
 
+    it('removes selections replaced without changing the item count', async () => {
+      const onValueChange = vi.fn();
+
+      function Test() {
+        const [items, setItems] = React.useState(['a', 'b', 'c']);
+        const [value, setValue] = React.useState(['a', 'c']);
+
+        return (
+          <div>
+            <Select.Root
+              multiple
+              defaultOpen
+              value={value}
+              onValueChange={(nextValue) => {
+                setValue(nextValue);
+                onValueChange(nextValue);
+              }}
+            >
+              <Select.Trigger>
+                <Select.Value />
+              </Select.Trigger>
+              <Select.Portal>
+                <Select.Positioner>
+                  <Select.Popup>
+                    {items.map((item) => (
+                      <Select.Item key={item} value={item}>
+                        {item}
+                      </Select.Item>
+                    ))}
+                  </Select.Popup>
+                </Select.Positioner>
+              </Select.Portal>
+            </Select.Root>
+            <button onClick={() => setItems(['a', 'b', 'd'])}>Replace C with D</button>
+          </div>
+        );
+      }
+
+      await render(<Test />);
+
+      expect(screen.getByRole('option', { name: 'a' })).toHaveAttribute('data-selected', '');
+      expect(screen.getByRole('option', { name: 'c' })).toHaveAttribute('data-selected', '');
+
+      fireEvent.click(screen.getByRole('button', { name: 'Replace C with D' }));
+
+      await waitFor(() => {
+        expect(onValueChange.mock.lastCall?.[0]).toEqual(['a']);
+      });
+      expect(screen.getByRole('option', { name: 'a' })).toHaveAttribute('data-selected', '');
+      expect(screen.getByRole('option', { name: 'd' })).not.toHaveAttribute('data-selected');
+    });
+
     it('should allow multiple selections when multiple is true', async () => {
       const handleValueChange = vi.fn();
 
