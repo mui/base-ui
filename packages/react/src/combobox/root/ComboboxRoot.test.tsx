@@ -5834,7 +5834,7 @@ describe('<Combobox.Root />', () => {
       await user.click(screen.getByTestId('trigger'));
 
       expect(input).toHaveValue('apple');
-      expect(screen.getAllByRole('option')).toHaveLength(3);
+      await waitFor(() => expect(screen.getAllByRole('option')).toHaveLength(3));
     });
   });
 
