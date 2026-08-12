@@ -721,7 +721,14 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
   );
 
   const handleInterruptedReopen = useStableCallback((isInputChange: boolean) => {
-    const clearsPendingInput = !isInputChange && inputInsidePopup && !inline && inputValue !== '';
+    // Match against `closeQuery` so a value the consumer set in the same batch as the
+    // reopen (which never fed the frozen query) is not mistaken for leftover filter text.
+    const clearsPendingInput =
+      !isInputChange &&
+      inputInsidePopup &&
+      !inline &&
+      inputValue !== '' &&
+      String(inputValue).trim() === closeQuery;
 
     // Reset only when no typed filter survives the reopen, either because the clear below
     // discards it or because the close path already cleared the input. Resetting while the

@@ -5537,6 +5537,89 @@ describe('<Combobox.Root />', () => {
       expect(onInputValueChange).not.toHaveBeenCalled();
     });
 
+    it('keeps an input value set in the same batch as a controlled reopen (input inside popup)', async ({
+      onTestFinished,
+    }) => {
+      globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+
+      onTestFinished(() => {
+        globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
+      });
+
+      const onInputValueChange = vi.fn();
+
+      function App() {
+        const [open, setOpen] = React.useState(false);
+        const [inputValue, setInputValue] = React.useState('');
+        return (
+          <React.Fragment>
+            {/* eslint-disable-next-line react/no-danger */}
+            <style dangerouslySetInnerHTML={{ __html: closeAnimationStyle }} />
+            <button
+              type="button"
+              data-testid="preset"
+              onClick={() => {
+                setInputValue('banana');
+                setOpen(true);
+              }}
+            >
+              preset
+            </button>
+            <Combobox.Root
+              items={['apple', 'apricot', 'banana']}
+              open={open}
+              onOpenChange={setOpen}
+              inputValue={inputValue}
+              onInputValueChange={(value, eventDetails) => {
+                onInputValueChange(value, eventDetails.reason);
+                setInputValue(value);
+              }}
+            >
+              <Combobox.Trigger data-testid="trigger">Open</Combobox.Trigger>
+              <Combobox.Portal>
+                <Combobox.Positioner>
+                  <Combobox.Popup data-testid="popup" className="animation-test-popup">
+                    <Combobox.Input data-testid="input" />
+                    <Combobox.List>
+                      {(item: string) => (
+                        <Combobox.Item key={item} value={item}>
+                          {item}
+                        </Combobox.Item>
+                      )}
+                    </Combobox.List>
+                  </Combobox.Popup>
+                </Combobox.Positioner>
+              </Combobox.Portal>
+            </Combobox.Root>
+          </React.Fragment>
+        );
+      }
+
+      const { user } = await render(<App />);
+
+      await user.click(screen.getByTestId('trigger'));
+      const input = await screen.findByTestId('input');
+      await waitFor(() => expect(input).toHaveFocus());
+
+      await user.type(input, 'ap');
+      await waitFor(() => expect(screen.queryAllByRole('option')).toHaveLength(2));
+
+      await user.keyboard('{Escape}');
+      const popup = screen.getByTestId('popup');
+      await waitFor(() => expect(popup).toHaveAttribute('data-ending-style'));
+
+      onInputValueChange.mockClear();
+
+      // The consumer's value never fed the frozen query, so the reopen cleanup must not
+      // mistake it for leftover filter text and clear it.
+      await user.click(screen.getByTestId('preset'));
+      await flushMicrotasks();
+
+      const inputAfter = await screen.findByTestId('input');
+      expect(inputAfter).toHaveValue('banana');
+      expect(onInputValueChange).not.toHaveBeenCalledWith('', 'input-clear');
+    });
+
     it('shows every item when selection reopens the popup', async ({ onTestFinished }) => {
       globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
 
