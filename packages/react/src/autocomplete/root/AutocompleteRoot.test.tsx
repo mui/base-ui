@@ -42,23 +42,32 @@ describe('<Autocomplete.Root />', () => {
       const options = await screen.findAllByRole('option');
       expect(input).toHaveAttribute('aria-activedescendant', options[0].id);
 
+      fireEvent.keyDown(input, { key: 'j', ctrlKey: true });
+      expect(input).toHaveAttribute('aria-activedescendant', options[1].id);
+
+      fireEvent.keyDown(input, { key: 'N', ctrlKey: true });
+      expect(input).toHaveAttribute('aria-activedescendant', options[2].id);
+
+      fireEvent.keyDown(input, { key: 'p', ctrlKey: true });
+      expect(input).toHaveAttribute('aria-activedescendant', options[1].id);
+
+      fireEvent.keyDown(input, { key: 'K', ctrlKey: true });
+      expect(input).toHaveAttribute('aria-activedescendant', options[0].id);
+
       fireEvent.keyDown(input, { key: 'J', ctrlKey: true });
       expect(input).toHaveAttribute('aria-activedescendant', options[1].id);
 
-      await user.keyboard('{Control>}j{/Control}');
+      fireEvent.keyDown(input, { key: 'n', ctrlKey: true });
       expect(input).toHaveAttribute('aria-activedescendant', options[2].id);
 
-      await user.keyboard('{Control>}n{/Control}');
+      fireEvent.keyDown(input, { key: 'P', ctrlKey: true });
+      expect(input).toHaveAttribute('aria-activedescendant', options[1].id);
+
+      fireEvent.keyDown(input, { key: 'k', ctrlKey: true });
       expect(input).toHaveAttribute('aria-activedescendant', options[0].id);
 
-      await user.keyboard('{Control>}k{/Control}');
-      expect(input).toHaveAttribute('aria-activedescendant', options[2].id);
-
-      await user.keyboard('{Control>}p{/Control}');
-      expect(input).toHaveAttribute('aria-activedescendant', options[1].id);
-
       fireEvent.keyDown(input, { key: 'n', ctrlKey: true, isComposing: true });
-      expect(input).toHaveAttribute('aria-activedescendant', options[1].id);
+      expect(input).toHaveAttribute('aria-activedescendant', options[0].id);
     });
 
     it('does not enable Vim-style Ctrl navigation by default', async () => {
