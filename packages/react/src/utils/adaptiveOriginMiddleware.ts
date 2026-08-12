@@ -8,6 +8,7 @@ interface PrevPositioning {
   width: number;
   height: number;
   anchor: unknown;
+  moving: boolean;
 }
 
 // Last committed positioning per floating element, used to detect rendered side changes.
@@ -44,11 +45,17 @@ export const adaptiveOrigin: Middleware = {
     const currentSide = getSide(placement);
 
     const prev = prevPositioningMap.get(floating);
+    const anchorChanged = prev != null && prev.anchor !== reference;
+    // Same-anchor scrolling also starts inset transitions, so a running transition only
+    // indicates an anchor move while it chains back to an anchor change.
+    const moving =
+      anchorChanged || (prev != null && prev.moving && hasRunningInsetTransition(floating));
     prevPositioningMap.set(floating, {
       side: currentSide,
       width: floatRect.width,
       height: floatRect.height,
       anchor: reference,
+      moving,
     });
 
     if (!hasTransition) {
@@ -93,20 +100,17 @@ export const adaptiveOrigin: Middleware = {
     const sideY = currentSide === 'top' ? 'bottom' : 'top';
 
     // A side change may swap the positioning inset (e.g. `bottom` -> `top`), which CSS
-    // can't transition from `auto`. Mid-move (anchor change or in-flight inset transition),
-    // commit the current visual position in the new properties so the transition continues;
-    // otherwise commit the target with transitions disabled so a steady-state collision
-    // flip stays instant.
+    // can't transition from `auto`. Mid anchor move, commit the current visual position
+    // in the new properties so the transition continues; otherwise commit the target with
+    // transitions disabled so a same-anchor collision flip stays instant.
     if (prev && prev.side !== currentSide) {
-      const anchorChanged = prev.anchor !== reference;
-      const animate = anchorChanged || hasRunningInsetTransition(floating);
       const swappedX = (prev.side === 'left') !== (currentSide === 'left');
       const swappedY = (prev.side === 'top') !== (currentSide === 'top');
-      const updateX = !animate || swappedX;
-      const updateY = !animate || swappedY;
+      const updateX = !moving || swappedX;
+      const updateY = !moving || swappedY;
       let fromX = x;
       let fromY = y;
-      if (animate) {
+      if (moving) {
         // An anchor change may commit a new popup size before this update runs. On a
         // swapped axis that shifts the captured inset by the size delta; compensate.
         if (swappedX) {
@@ -125,7 +129,7 @@ export const adaptiveOrigin: Middleware = {
         // Overriding the `transition` shorthand would clear consumer inline longhands.
         const inlineDuration = floatingStyle.getPropertyValue('transition-duration');
         const inlineDurationPriority = floatingStyle.getPropertyPriority('transition-duration');
-        if (!animate) {
+        if (!moving) {
           floatingStyle.setProperty('transition-duration', '0s');
         }
         if (updateX) {
@@ -140,7 +144,7 @@ export const adaptiveOrigin: Middleware = {
         }
         // Commit the intermediate position before the new styles apply.
         floating.getBoundingClientRect();
-        if (!animate) {
+        if (!moving) {
           if (inlineDuration) {
             floatingStyle.setProperty(
               'transition-duration',

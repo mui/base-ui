@@ -707,9 +707,39 @@ describe('<Popover.Positioner />', () => {
         expect(positioner).toHaveAttribute('data-side', 'top');
       });
 
+      // Wait for the mount-time `transition: none` style to be removed.
+      await waitFor(() => {
+        expect(positioner.style.transition).toBe('');
+      });
+
+      const scroller = screen.getByTestId('scroller');
+
+      // The initial position is applied while the mount-time `transition: none` is
+      // inline, so it uses `top`. Trigger one reposition so the popup reaches its
+      // steady `bottom`-based positioning.
+      scroller.scrollTop = 50;
+      await waitFor(() => {
+        expect(positioner.style.bottom).not.toBe('');
+      });
+
+      // Scroll without flipping so a same-anchor inset transition is running.
+      scroller.scrollTop = 100;
+      await waitFor(() => {
+        expect(
+          positioner
+            .getAnimations()
+            .some(
+              (animation) =>
+                animation.playState === 'running' &&
+                ['top', 'bottom'].includes((animation as CSSTransition).transitionProperty),
+            ),
+        ).toBe(true);
+      });
+      expect(positioner).toHaveAttribute('data-side', 'top');
+
       // Scrolling moves the anchor near the top of its clipping container,
       // flipping the popup below it.
-      screen.getByTestId('scroller').scrollTop = 280;
+      scroller.scrollTop = 280;
 
       await waitFor(() => {
         expect(positioner).toHaveAttribute('data-side', 'bottom');
