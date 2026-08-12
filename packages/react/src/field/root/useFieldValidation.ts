@@ -65,18 +65,12 @@ function findRepresentativeInput(
   return fallback;
 }
 
-interface CustomValidityRecord {
-  /** The installed message, normalized the way browsers report it back. */
-  message: string;
-  /** A message set by other code that the installed one overwrote, restored on clear. */
-  displaced: string;
-}
-
 // Custom validity messages installed by Base UI, so clearing never wipes a message set by other
 // code (for example a date field surfacing an invalid date through `setCustomValidity`).
 // Ownership is matched by message text, so an identical foreign message is indistinguishable
-// from an owned one.
-const customValidityRecords = new WeakMap<HTMLInputElement, CustomValidityRecord>();
+// from an owned one. The record stores the installed message (normalized the way browsers report
+// it back) and the message set by other code that it overwrote, restored on clear.
+const customValidityRecords = new WeakMap<HTMLInputElement, [message: string, displaced: string]>();
 
 // Browsers normalize line breaks in custom validity messages — Chromium reports `\r\n` and `\r`
 // back as `\n` — so ownership is matched on normalized text.
@@ -86,20 +80,19 @@ function normalizeValidationMessage(message: string) {
 
 function setOwnCustomValidity(element: HTMLInputElement, message: string) {
   const record = customValidityRecords.get(element);
-  let displaced;
+  // `validationMessage` is unreadable on elements barred from constraint validation (disabled
+  // ones, for example), so a foreign message cannot be captured there — keep the prior capture.
+  let displaced = record ? record[1] : '';
   if (element.willValidate) {
     // Only a custom message can be displaced: a failing native constraint reports its own text
     // through `validationMessage`, which must never be reinstalled as a custom validity message.
     const current = element.validity.customError ? element.validationMessage : '';
-    displaced =
-      normalizeValidationMessage(current) === record?.message ? record.displaced : current;
-  } else {
-    // `validationMessage` is unreadable on elements barred from constraint validation (disabled
-    // ones, for example), so a foreign message cannot be captured there.
-    displaced = record?.displaced ?? '';
+    if (normalizeValidationMessage(current) !== record?.[0]) {
+      displaced = current;
+    }
   }
   element.setCustomValidity(message);
-  customValidityRecords.set(element, { message: normalizeValidationMessage(message), displaced });
+  customValidityRecords.set(element, [normalizeValidationMessage(message), displaced]);
 }
 
 function clearOwnCustomValidity(element: HTMLInputElement) {
@@ -107,18 +100,16 @@ function clearOwnCustomValidity(element: HTMLInputElement) {
   if (!record) {
     return;
   }
-  if (
-    element.willValidate &&
-    normalizeValidationMessage(element.validationMessage) !== record.message
-  ) {
-    // Another message replaced (or withdrew) the owned one, so it is no longer this hook's to
-    // clear — and it superseded whatever the owned message had displaced.
-    customValidityRecords.delete(element);
-    return;
-  }
-  // Hand the control back to the message the owned one overwrote, if there was one.
-  element.setCustomValidity(record.displaced);
   customValidityRecords.delete(element);
+  // If another message replaced (or withdrew) the owned one, it is no longer this hook's to
+  // clear — and it superseded whatever the owned message had displaced. Otherwise hand the
+  // control back to the message the owned one overwrote, if there was one.
+  if (
+    !element.willValidate ||
+    normalizeValidationMessage(element.validationMessage) === record[0]
+  ) {
+    element.setCustomValidity(record[1]);
+  }
 }
 
 function clearCustomValidity(element: HTMLInputElement | null, inputs: RegisteredInputs) {
@@ -128,6 +119,18 @@ function clearCustomValidity(element: HTMLInputElement | null, inputs: Registere
   if (element && !inputs.has(element)) {
     clearOwnCustomValidity(element);
   }
+}
+
+/**
+ * A synthetic validity state carrying no native constraint errors: all valid, or failing only
+ * `customError`.
+ */
+function makeState(customError: boolean): Record<keyof ValidityState, boolean> {
+  return { ...DEFAULT_VALIDITY_STATE, valid: !customError, customError };
+}
+
+function getNativeErrors(element: HTMLInputElement | null): string[] {
+  return element && element.validationMessage ? [element.validationMessage] : [];
 }
 
 export function useFieldValidation(
@@ -201,10 +204,6 @@ export function useFieldValidation(
       });
     }
 
-    function allValid(): Record<keyof ValidityState, boolean> {
-      return { ...DEFAULT_VALIDITY_STATE, valid: true };
-    }
-
     function makeValidityData(
       validityState: Record<keyof ValidityState, boolean>,
       errorMessages: string[],
@@ -276,6 +275,11 @@ export function useFieldValidation(
     // applies to the logical value at the configured validation boundary.
     let element = resolveRepresentativeInput();
 
+    function refreshState() {
+      element = resolveRepresentativeInput();
+      return element ? getState(element) : makeState(false);
+    }
+
     if (revalidate) {
       if (state.valid !== false || !element) {
         return;
@@ -288,19 +292,12 @@ export function useFieldValidation(
         // The required value is now present; ignore stale external invalid state for this pass.
         clearCustomValidity(element, registeredInputs);
         // Clearing can hand representative status to another registered input that kept a
-        // message of its own, so resolve it again.
+        // message of its own, so resolve it again. A message set by other code that survived the
+        // clear keeps the field invalid; publish that error alone so other native errors remain
+        // deferred until blur or submit.
         const currentElement = resolveRepresentativeInput();
-        if (currentElement && currentElement.validity.customError) {
-          // A message set by other code survived the clear, so the field is still invalid.
-          // Publish that error alone so other native errors remain deferred until blur or submit.
-          publish(
-            { ...DEFAULT_VALIDITY_STATE, valid: false, customError: true },
-            [currentElement.validationMessage],
-            false,
-          );
-          return;
-        }
-        publish(allValid(), [], false);
+        const foreign = currentElement?.validity.customError ? currentElement : null;
+        publish(makeState(foreign !== null), getNativeErrors(foreign), false);
         return;
       }
 
@@ -325,18 +322,15 @@ export function useFieldValidation(
     // Residue this hook installed for a previous result would otherwise read back as a native
     // constraint message below and skip `validate`, blocking submission until the user retypes.
     clearCustomValidity(element, registeredInputs);
-    element = resolveRepresentativeInput();
 
-    let nextState = element ? getState(element) : allValid();
-    let validationErrors: string[] = [];
+    let nextState = refreshState();
+    let validationErrors = getNativeErrors(element);
 
     const isValidatingOnChange = shouldValidateOnChange();
 
-    if (element && element.validationMessage && !isValidatingOnChange) {
-      // Not validating on change: a native constraint (or a message set by other code) stands, so
-      // skip the custom validate function.
-      validationErrors = [element.validationMessage];
-    } else {
+    // Not validating on change with a standing native constraint (or a message set by other
+    // code): skip the custom validate function.
+    if (validationErrors.length === 0 || isValidatingOnChange) {
       // call the validate function because either
       // - validating on change, or
       // - native constraint validations passed, custom validity check is next
@@ -357,27 +351,19 @@ export function useFieldValidation(
       ) {
         // Async results don't participate in submit-time validation, so retire the previous
         // result while the validator runs: a stale error must not keep blocking submission.
-        updateRegisteredFieldValidity(
-          makeValidityData(
-            { ...nextState },
-            element?.validationMessage ? [element.validationMessage] : [],
-          ),
-        );
+        updateRegisteredFieldValidity(makeValidityData(nextState, validationErrors));
         result = await resultOrPromise;
         if (validationCommitId !== validationCommitIdRef.current) {
           return;
         }
         // The DOM may have moved on while awaiting.
-        element = resolveRepresentativeInput();
-        nextState = element ? getState(element) : allValid();
+        nextState = refreshState();
       } else {
         result = resultOrPromise;
       }
 
       // `null`, `undefined`, `''`, and `[]` all mean the value is valid.
-      if (result != null && result !== '') {
-        validationErrors = Array.isArray(result) ? result : [result];
-      }
+      validationErrors = result == null || result === '' ? [] : ([] as string[]).concat(result);
 
       if (validationErrors.length > 0) {
         nextState.valid = false;
@@ -385,33 +371,33 @@ export function useFieldValidation(
         if (element) {
           setOwnCustomValidity(element, validationErrors.join('\n'));
         }
-      } else if (element && element.validationMessage) {
+      } else {
         // The validator passed but a native constraint (validating on change) or a message set by
-        // other code stands.
-        validationErrors = [element.validationMessage];
+        // other code may stand.
+        validationErrors = getNativeErrors(element);
       }
     }
 
     publish(nextState, validationErrors);
   });
 
-  const change = useStableCallback((value: unknown) => {
+  const cancelPendingValidation = useStableCallback(() => {
     timeout.clear();
+    validationCommitIdRef.current += 1;
+  });
+
+  const change = useStableCallback((value: unknown) => {
+    // The extra commit id bump is harmless in the immediate path: `commit` bumps again first.
+    cancelPendingValidation();
     const validateOnChange = shouldValidateOnChange();
 
     if (validateOnChange && value !== '' && validationDebounceTime) {
-      validationCommitIdRef.current += 1;
       timeout.start(validationDebounceTime, () => {
         commit(value);
       });
     } else {
       commit(value, !validateOnChange);
     }
-  });
-
-  const cancelPendingValidation = useStableCallback(() => {
-    timeout.clear();
-    validationCommitIdRef.current += 1;
   });
 
   const getValidationProps = React.useCallback(
