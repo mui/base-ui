@@ -647,10 +647,8 @@ describe('<Popover.Positioner />', () => {
 
       await user.click(screen.getByTestId('trigger2'));
 
-      // The positioning property swaps from `top` to `bottom`. The popup must
-      // transition from its previous visual position instead of teleporting, so
-      // its position may never change abruptly between frames (the 10s linear
-      // transition moves it by roughly 1px per frame).
+      // The inset property swaps, but the popup must move continuously from its
+      // previous position (the 10s linear transition moves ~1px per frame).
       let previousTop = initialTop;
       await act(async () => {
         for (let i = 0; i < 20; i += 1) {

@@ -752,9 +752,8 @@ describe('<Popover.Viewport />', () => {
 
       await user.click(screen.getByTestId('trigger2'));
 
-      // Despite the positioner's size snapping to the new content size and the popup's
-      // anchored edge changing, the visible popup moves continuously from where it was
-      // instead of detaching (the 10s linear transitions move it by ~1px per frame).
+      // Despite the positioner size snap and the anchored edge changing, the popup
+      // moves continuously (the 10s linear transitions move ~1px per frame).
       let previousTop = initialRect.top;
       let previousLeft = initialRect.left;
       await act(async () => {

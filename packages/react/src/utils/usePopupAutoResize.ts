@@ -39,9 +39,8 @@ export function usePopupAutoResize(parameters: UsePopupAutoResizeParameters) {
     [side, direction],
   );
 
-  // Apply the anchoring styles in a separate effect so that a rendered side change
-  // (e.g. a flip from `top` to `bottom`) doesn't restart the measurement effect below,
-  // which would cancel an in-flight size transition and snap to the new dimensions.
+  // Applied separately so a rendered side change doesn't restart the measurement
+  // effect below, which would cancel an in-flight size transition.
   useIsoLayoutEffect(() => {
     if (!mounted || !popupElement) {
       return undefined;
