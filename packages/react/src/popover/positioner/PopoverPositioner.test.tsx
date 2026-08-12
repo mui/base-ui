@@ -751,7 +751,7 @@ describe('<Popover.Positioner />', () => {
       expect(Math.abs(positionerRect.top - (triggerRect.bottom + 8))).toBeLessThan(2);
     });
 
-    it('preserves inline transition longhands when a same-anchor flip disables the transition', async () => {
+    it('preserves inline transition longhands across a same-anchor flip', async () => {
       const { user } = await render(
         <div>
           <style>
@@ -806,7 +806,7 @@ describe('<Popover.Positioner />', () => {
       positioner.style.transitionTimingFunction = 'linear';
 
       // Scrolling moves the anchor near the top of its clipping container,
-      // flipping the popup below it and taking the transition-disabling path.
+      // flipping the popup below it.
       screen.getByTestId('scroller').scrollTop = 280;
 
       await waitFor(() => {

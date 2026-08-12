@@ -104,60 +104,32 @@ export const adaptiveOrigin: Middleware = {
 
     // A side change may swap the positioning inset (e.g. `bottom` -> `top`), which CSS
     // can't transition from `auto`. Mid anchor move, commit the current visual position
-    // in the new properties so the transition continues; otherwise commit the target with
-    // transitions disabled so a same-anchor collision flip stays instant.
-    if (prev && prev.side !== currentSide) {
+    // in the new properties so the transition continues from where the popup is.
+    if (prev && moving && prev.side !== currentSide) {
       const swappedX = (prev.side === 'left') !== (currentSide === 'left');
       const swappedY = (prev.side === 'top') !== (currentSide === 'top');
-      const updateX = !moving || swappedX;
-      const updateY = !moving || swappedY;
-      let fromX = x;
-      let fromY = y;
-      if (moving) {
-        // An anchor change may commit a new popup size before this update runs. On a
-        // swapped axis that shifts the captured inset by the size delta; compensate.
-        if (swappedX) {
-          fromX = parseFloat(styles[sideX]) + (anchorChanged ? floatRect.width - prev.width : 0);
-        }
-        if (swappedY) {
-          fromY = parseFloat(styles[sideY]) + (anchorChanged ? floatRect.height - prev.height : 0);
-        }
-      }
-      if (
-        (updateX || updateY) &&
-        (!updateX || Number.isFinite(fromX)) &&
-        (!updateY || Number.isFinite(fromY))
-      ) {
+      // An anchor change may commit a new popup size before this update runs. On a
+      // swapped axis that shifts the captured inset by the size delta; compensate.
+      const fromX = swappedX
+        ? parseFloat(styles[sideX]) + (anchorChanged ? floatRect.width - prev.width : 0)
+        : 0;
+      const fromY = swappedY
+        ? parseFloat(styles[sideY]) + (anchorChanged ? floatRect.height - prev.height : 0)
+        : 0;
+      if ((swappedX || swappedY) && Number.isFinite(fromX) && Number.isFinite(fromY)) {
         const floatingStyle = floating.style;
-        // Overriding the `transition` shorthand would clear consumer inline longhands.
-        const inlineDuration = floatingStyle.getPropertyValue('transition-duration');
-        const inlineDurationPriority = floatingStyle.getPropertyPriority('transition-duration');
-        if (!moving) {
-          floatingStyle.setProperty('transition-duration', '0s');
-        }
-        if (updateX) {
+        if (swappedX) {
           floatingStyle.right = '';
           floatingStyle.left = '';
           floatingStyle[sideX] = `${fromX}px`;
         }
-        if (updateY) {
+        if (swappedY) {
           floatingStyle.top = '';
           floatingStyle.bottom = '';
           floatingStyle[sideY] = `${fromY}px`;
         }
         // Commit the intermediate position before the new styles apply.
         floating.getBoundingClientRect();
-        if (!moving) {
-          if (inlineDuration) {
-            floatingStyle.setProperty(
-              'transition-duration',
-              inlineDuration,
-              inlineDurationPriority,
-            );
-          } else {
-            floatingStyle.removeProperty('transition-duration');
-          }
-        }
       }
     }
 
