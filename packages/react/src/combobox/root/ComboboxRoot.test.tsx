@@ -5295,7 +5295,7 @@ describe('<Combobox.Root />', () => {
       await waitFor(() => expect(popup).not.toHaveAttribute('data-ending-style'));
 
       expect(input).toHaveValue('apple');
-      expect(screen.getAllByRole('option')).toHaveLength(3);
+      await waitFor(() => expect(screen.getAllByRole('option')).toHaveLength(3));
     });
 
     it('keeps the typed filter when items change afterwards (input outside popup)', async ({
@@ -5413,9 +5413,7 @@ describe('<Combobox.Root />', () => {
       await flushMicrotasks();
 
       expect(input).toHaveValue('apple');
-
-      await waitFor(() => expect(screen.queryByRole('listbox')).not.toBe(null));
-      expect(screen.queryAllByRole('option')).toHaveLength(1);
+      await waitFor(() => expect(screen.queryAllByRole('option')).toHaveLength(1));
     });
 
     it('does not re-emit a clear when closing again without typing (multiple, input outside popup)', async ({
@@ -5598,8 +5596,8 @@ describe('<Combobox.Root />', () => {
 
       await user.click(screen.getByTestId('reopen'));
 
-      expect(input).toHaveValue('');
-      expect(screen.getByRole('option', { name: 'banana' })).not.toBe(null);
+      await waitFor(() => expect(input).toHaveValue(''));
+      expect(await screen.findByRole('option', { name: 'banana' })).not.toBe(null);
 
       onInputValueChange.mockClear();
       await user.keyboard('{Escape}');
@@ -5703,10 +5701,9 @@ describe('<Combobox.Root />', () => {
       // A consumer mirroring the selection into the popup input must not leave the reopened
       // list filtered by it: an interrupted close opens blank, same as a completed one.
       await user.click(screen.getByTestId('trigger'));
-      await flushMicrotasks();
 
       const inputAfter = await screen.findByTestId('input');
-      expect(inputAfter).toHaveValue('');
+      await waitFor(() => expect(inputAfter).toHaveValue(''));
       await waitFor(() => expect(screen.queryAllByRole('option')).toHaveLength(3));
     });
 
@@ -6800,7 +6797,7 @@ describe('<Combobox.Root />', () => {
 
         await user.click(screen.getByTestId('trigger'));
 
-        expect(input).toHaveValue('');
+        await waitFor(() => expect(input).toHaveValue(''));
         expect(await screen.findByRole('option', { name: 'banana' })).not.toBe(null);
       },
     );
