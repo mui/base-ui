@@ -393,7 +393,7 @@ export interface UseFieldValidationParameters {
   markedDirtyRef: React.RefObject<boolean>;
   state: FieldRootState;
   shouldValidateOnChange: () => boolean;
-  validationMode: 'onBlur' | 'onChange' | 'onSubmit';
+  validationMode: Form.ValidationMode;
   registeredFieldIdRef: React.RefObject<string | undefined>;
 }
 
