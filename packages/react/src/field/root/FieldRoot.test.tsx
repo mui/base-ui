@@ -31,6 +31,9 @@ const Activity = (React as typeof React & { Activity: React.ComponentType<Activi
 describe('<Field.Root />', () => {
   const { render, renderToString } = createRenderer();
   const { render: renderStrict } = createRenderer({ strict: true });
+  // StrictMode re-runs a newly mounted control's layout effect after the outgoing control's
+  // cleanup, which hides id-handoff bugs that only show up in production.
+  const { render: renderNonStrict } = createRenderer({ strict: false });
 
   function SwappableField({
     firstControl,
@@ -91,6 +94,58 @@ describe('<Field.Root />', () => {
     await waitFor(() => {
       expect(label).toHaveAttribute('for', 'control-b');
     });
+  });
+
+  it('drops a stale explicit id when an id-less control replaces the control that owned it', async () => {
+    function TestCase(props: { swapped: boolean }) {
+      return (
+        <Field.Root>
+          <Field.Label>Label</Field.Label>
+          {props.swapped ? (
+            <Field.Control key="b" data-testid="control" />
+          ) : (
+            <Field.Control key="a" id="control" data-testid="control" />
+          )}
+        </Field.Root>
+      );
+    }
+
+    const { rerender } = await renderNonStrict(<TestCase swapped={false} />);
+
+    const label = screen.getByText('Label');
+    expect(label).toHaveAttribute('for', 'control');
+
+    await rerender(<TestCase swapped />);
+
+    const control = screen.getByTestId('control');
+    expect(control.id).not.toBe('control');
+    expect(label).toHaveAttribute('for', control.id);
+  });
+
+  it('re-associates the label when a CheckboxGroup is replaced by another control', async () => {
+    function TestCase(props: { multi: boolean }) {
+      return (
+        <Field.Root>
+          <Field.Label>Answer</Field.Label>
+          {props.multi ? (
+            <CheckboxGroup allValues={['a']}>
+              <Checkbox.Root value="a" />
+            </CheckboxGroup>
+          ) : (
+            <Field.Control data-testid="control" />
+          )}
+        </Field.Root>
+      );
+    }
+
+    const { rerender } = await renderNonStrict(<TestCase multi />);
+
+    // The group is named through `aria-labelledby`, so it suppresses `htmlFor` entirely.
+    expect(screen.getByText('Answer')).not.toHaveAttribute('for');
+
+    await rerender(<TestCase multi={false} />);
+
+    expect(screen.getByText('Answer')).toHaveAttribute('for', screen.getByTestId('control').id);
   });
 
   it('updates label associations when the control id changes', async () => {
@@ -414,7 +469,7 @@ describe('<Field.Root />', () => {
   );
 
   it.skipIf(reactMajor < 19)(
-    'keeps the label pointing at a rendered control when a hidden subtree holds several',
+    'keeps the group label suppressed while its subtree is hidden',
     async () => {
       function TestCase() {
         const [visible, setVisible] = React.useState(true);
@@ -424,7 +479,7 @@ describe('<Field.Root />', () => {
             <Field.Root>
               <Field.Label data-testid="label">Apples</Field.Label>
               <Activity mode={visible ? 'visible' : 'hidden'}>
-                <CheckboxGroup allValues={['fuji', 'gala']} defaultValue={[]}>
+                <CheckboxGroup allValues={['fuji', 'gala']} defaultValue={[]} data-testid="group">
                   <Checkbox.Root parent />
                   <Checkbox.Root value="fuji" />
                   <Checkbox.Root value="gala" />
@@ -440,16 +495,16 @@ describe('<Field.Root />', () => {
 
       await render(<TestCase />);
 
-      const labelledControl = () =>
-        document.getElementById(screen.getByTestId('label').getAttribute('for') ?? '');
+      const label = screen.getByTestId('label');
+      const group = screen.getByTestId('group');
 
-      expect(labelledControl()).not.toBe(null);
+      expect(label).not.toHaveAttribute('for');
+      expect(group).toHaveAttribute('aria-labelledby', label.id);
 
       fireEvent.click(screen.getByRole('button', { name: 'hide' }));
 
-      // Each control unregisters separately, so the selection must not settle on the id the
-      // provider generated for itself while the group is still rendered.
-      expect(labelledControl()).not.toBe(null);
+      expect(label).not.toHaveAttribute('for');
+      expect(group).toHaveAttribute('aria-labelledby', label.id);
     },
   );
 
