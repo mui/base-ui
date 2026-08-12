@@ -385,9 +385,8 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
     stateAttributesMapping,
   });
 
-  const renderedId = React.isValidElement<{ id?: string | undefined }>(element)
-    ? element.props.id
-    : undefined;
+  // `useRenderElement` always returns an element here, so the cast only narrows `props`.
+  const renderedId = (element as React.ReactElement<{ id?: string | undefined }>).props.id;
   useIsoLayoutEffect(() => {
     if (!registerChildId || parent || value === undefined || renderedId === undefined) {
       return undefined;
