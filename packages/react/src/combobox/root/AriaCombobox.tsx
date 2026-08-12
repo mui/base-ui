@@ -646,9 +646,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
         return;
       }
 
-      // Record only committed clears, so that a canceled clear (such as one kept by an
-      // `onInputValueChange` handler preserving the filter) cannot suppress the cleanup
-      // clear once the popup closes.
+      // A canceled selection clear must not suppress close-completion cleanup.
       hadInputClearRef.current = eventDetails.reason === REASONS.inputClear;
 
       // If user is typing, ensure we don't auto-highlight on open due to a race
@@ -721,9 +719,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
   );
 
   const handleInterruptedReopen = useStableCallback((isInputChange: boolean) => {
-    // Clear leftover filter text, and a value that only mirrors the selection, so the popup
-    // input opens blank as it does after a completed close. A value the consumer introduced
-    // with the reopen never fed the frozen query, so keep it.
+    // Preserve values supplied with the reopen rather than owned by the interrupted close.
     const clearsPendingInput =
       !isInputChange &&
       inputInsidePopup &&
@@ -731,9 +727,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
       inputValue !== '' &&
       (String(inputValue).trim() === closeQuery || inputValue === selectedLabelString);
 
-    // Reset only when no typed filter survives the reopen, either because the clear below
-    // discards it or because the close path already cleared the input. Resetting while the
-    // user can still see their filter lets the `items` sync overwrite it.
+    // Keep the flag while a visible filter survives so the `items` sync cannot overwrite it.
     if (!isInputChange && (clearsPendingInput || inputValue === '' || inputMatchesSelectedValue)) {
       setQueryChangedAfterOpen(false);
     }
@@ -741,9 +735,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
     setCloseQuery(null);
 
     if (clearsPendingInput) {
-      // This clear stands in for the unmount cleanup: unlike selection-triggered clears it has
-      // no `isItemPress` flag and only a synthetic placeholder event, so handlers canceling
-      // selection clears to keep the filter don't cancel cleanup.
+      // Cleanup clears omit the selection flag and reopening gesture.
       setInputValue('', createChangeEventDetails(REASONS.inputClear));
     }
   });
@@ -772,8 +764,6 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
         return;
       }
 
-      // If reopening interrupts the close animation, handleUnmount won't run to clear the
-      // frozen closeQuery and pending popup input.
       if (nextOpen && closeQuery !== null) {
         // `ComboboxInput` calls `setInputValue` before `setOpen`, so on an input-change reopen
         // `inputValue` is still the pre-keystroke value and the typed filter always survives.
@@ -1197,16 +1187,16 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
     }
   }
 
-  // These sync triggers can run in the same commit while still seeing the pre-commit `inputValue`.
-  // This render-scoped flag prevents duplicate callbacks and resets so canceled writes can retry.
-  let syncedSelectedLabel = false;
-
-  useValueChanged(open, () => {
+  function handleOpenChanged() {
     // A controlled `open` prop can interrupt the close without calling `setOpen`.
     if (open && closeQuery !== null) {
       handleInterruptedReopen(false);
     }
-  });
+  }
+
+  // These sync triggers can run in the same commit while still seeing the pre-commit `inputValue`.
+  // This render-scoped flag prevents duplicate callbacks and resets so canceled writes can retry.
+  let syncedSelectedLabel = false;
 
   function syncInputToSelectedLabel() {
     if (!syncedSelectedLabel && inputValue !== selectedLabelString) {
@@ -1250,6 +1240,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
     validation.change(inputValue);
   }
 
+  useValueChanged(open, handleOpenChanged);
   useValueChanged(query, handleQueryChanged);
   useValueChanged(selectedValue, handleSelectedValueChanged);
   useValueChanged(selectedLabelString, syncInputAfterItemsOrLabelChange);
