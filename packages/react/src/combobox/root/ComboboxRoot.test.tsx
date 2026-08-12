@@ -3065,6 +3065,71 @@ describe('<Combobox.Root />', () => {
   });
 
   describe('keyboard interaction', () => {
+    it('supports Vim-style Ctrl navigation when enabled', async () => {
+      const { user } = await render(
+        <Combobox.Root items={['apple', 'banana', 'cherry']} vimBindings>
+          <Combobox.Input />
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  {(item: string) => (
+                    <Combobox.Item key={item} value={item}>
+                      {item}
+                    </Combobox.Item>
+                  )}
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      const input = screen.getByRole<HTMLInputElement>('combobox');
+      await act(async () => input.focus());
+
+      await user.keyboard('{Control>}j{/Control}');
+      const options = await screen.findAllByRole('option');
+      expect(input).toHaveAttribute('aria-activedescendant', options[0].id);
+
+      await user.keyboard('{Control>}n{/Control}');
+      expect(input).toHaveAttribute('aria-activedescendant', options[1].id);
+
+      await user.keyboard('{Control>}k{/Control}');
+      expect(input).toHaveAttribute('aria-activedescendant', options[0].id);
+
+      await user.keyboard('{Control>}p{/Control}');
+      await waitFor(() => expect(input).not.toHaveAttribute('aria-activedescendant'));
+    });
+
+    it('does not enable Vim-style Ctrl navigation by default', async () => {
+      const { user } = await render(
+        <Combobox.Root items={['apple', 'banana']}>
+          <Combobox.Input />
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  {(item: string) => (
+                    <Combobox.Item key={item} value={item}>
+                      {item}
+                    </Combobox.Item>
+                  )}
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      const input = screen.getByRole<HTMLInputElement>('combobox');
+      await act(async () => input.focus());
+      await user.keyboard('{Control>}n{/Control}');
+
+      expect(screen.queryByRole('listbox')).toBe(null);
+      expect(input).not.toHaveAttribute('aria-activedescendant');
+    });
+
     it('focuses first item on ArrowDown and last item on ArrowUp', async () => {
       const { user } = await render(
         <Combobox.Root>

@@ -126,6 +126,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
     keepHighlight = false,
     highlightItemOnHover = true,
     loopFocus = true,
+    vimBindings = false,
     itemToStringLabel: itemToStringLabelProp,
     itemToStringValue,
     isItemEqualToValue = defaultItemEquality,
@@ -1334,6 +1335,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
     selectedIndex,
     virtual: true,
     loopFocus,
+    vimBindings,
     allowEscape: loopFocus && !autoHighlightMode,
     focusItemOnOpen:
       queryChangedAfterOpen || (selectionMode === 'none' && !autoHighlightMode) ? false : 'auto',
@@ -1734,6 +1736,13 @@ interface ComboboxRootProps<ItemValue, Item = ItemValue> {
    * @default true
    */
   loopFocus?: boolean | undefined;
+  /**
+   * Whether to support Ctrl+N/Ctrl+J and Ctrl+P/Ctrl+K as aliases for
+   * <kbd>ArrowDown</kbd> and <kbd>ArrowUp</kbd>, respectively.
+   * The shortcuts are ignored while composing text with an IME.
+   * @default false
+   */
+  vimBindings?: boolean | undefined;
   /**
    * The input value of the combobox. Use when controlled.
    */

@@ -16,6 +16,78 @@ describe('<Autocomplete.Root />', () => {
   const { render, renderToString } = createRenderer();
 
   describe('keyboard interactions', () => {
+    it('supports Vim-style Ctrl navigation when enabled', async () => {
+      const { user } = await render(
+        <Autocomplete.Root items={['alpha', 'beta', 'gamma']} autoHighlight vimBindings>
+          <Autocomplete.Input />
+          <Autocomplete.Portal>
+            <Autocomplete.Positioner>
+              <Autocomplete.Popup>
+                <Autocomplete.List>
+                  {(item: string) => (
+                    <Autocomplete.Item key={item} value={item}>
+                      {item}
+                    </Autocomplete.Item>
+                  )}
+                </Autocomplete.List>
+              </Autocomplete.Popup>
+            </Autocomplete.Positioner>
+          </Autocomplete.Portal>
+        </Autocomplete.Root>,
+      );
+
+      const input = screen.getByRole<HTMLInputElement>('combobox');
+      await user.type(input, 'a');
+
+      const options = await screen.findAllByRole('option');
+      expect(input).toHaveAttribute('aria-activedescendant', options[0].id);
+
+      fireEvent.keyDown(input, { key: 'J', ctrlKey: true });
+      expect(input).toHaveAttribute('aria-activedescendant', options[1].id);
+
+      await user.keyboard('{Control>}j{/Control}');
+      expect(input).toHaveAttribute('aria-activedescendant', options[2].id);
+
+      await user.keyboard('{Control>}n{/Control}');
+      expect(input).toHaveAttribute('aria-activedescendant', options[0].id);
+
+      await user.keyboard('{Control>}k{/Control}');
+      expect(input).toHaveAttribute('aria-activedescendant', options[2].id);
+
+      await user.keyboard('{Control>}p{/Control}');
+      expect(input).toHaveAttribute('aria-activedescendant', options[1].id);
+
+      fireEvent.keyDown(input, { key: 'n', ctrlKey: true, isComposing: true });
+      expect(input).toHaveAttribute('aria-activedescendant', options[1].id);
+    });
+
+    it('does not enable Vim-style Ctrl navigation by default', async () => {
+      const { user } = await render(
+        <Autocomplete.Root items={['alpha', 'beta']} openOnInputClick>
+          <Autocomplete.Input />
+          <Autocomplete.Portal>
+            <Autocomplete.Positioner>
+              <Autocomplete.Popup>
+                <Autocomplete.List>
+                  {(item: string) => (
+                    <Autocomplete.Item key={item} value={item}>
+                      {item}
+                    </Autocomplete.Item>
+                  )}
+                </Autocomplete.List>
+              </Autocomplete.Popup>
+            </Autocomplete.Positioner>
+          </Autocomplete.Portal>
+        </Autocomplete.Root>,
+      );
+
+      const input = screen.getByRole<HTMLInputElement>('combobox');
+      await user.click(input);
+      await user.keyboard('{Control>}n{/Control}');
+
+      expect(input).not.toHaveAttribute('aria-activedescendant');
+    });
+
     it('closes popup on Tab after selecting with Enter and typing again', async () => {
       const { user } = await render(
         <Autocomplete.Root items={['alpha', 'alpine', 'beta']} autoHighlight>
