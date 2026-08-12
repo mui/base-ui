@@ -3355,7 +3355,6 @@ describe('<Slider.Root />', () => {
         fireEvent.click(screen.getByText('submit'));
         expect(validateSpy.mock.calls.length).toBe(1);
         expect(validateSpy.mock.calls[0][0]).toEqual([5, 12]);
-        // A clean validator must not block the submit.
         expect(onSubmit).toHaveBeenCalledTimes(1);
       });
 

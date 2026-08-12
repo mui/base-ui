@@ -147,8 +147,7 @@ export function useFieldControlRegistration(params: UseFieldControlRegistrationP
       const previousId = registrationRef.current?.id;
       const previousSource = activeFieldControlSourceRef.current;
 
-      // A pending debounce or async result belongs to the previous control, not to this one.
-      // There is no previous control on the first registration, so nothing to drop.
+      // Drop work owned by a replaced control, but not on first registration.
       if (previousSource && previousSource !== source) {
         change(undefined, true);
       }

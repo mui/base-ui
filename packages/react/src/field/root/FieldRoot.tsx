@@ -284,7 +284,7 @@ export interface FieldRootProps extends BaseUIComponentProps<'div', FieldRootSta
     | ((
         value: unknown,
         formValues: Form.Values,
-      ) => string | string[] | null | undefined | Promise<string | string[] | null | undefined>)
+      ) => string | string[] | null | void | Promise<string | string[] | null | void>)
     | undefined;
   /**
    * Determines when the field should be validated.

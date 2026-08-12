@@ -268,7 +268,6 @@ describe('<Form />', () => {
 
     fireEvent.click(submit);
 
-    // Async validation does not prevent submission.
     expect(onFormSubmit).toHaveBeenCalledTimes(1);
 
     await flushMicrotasks();
@@ -282,8 +281,6 @@ describe('<Form />', () => {
 
     expect(onFormSubmit).toHaveBeenCalledTimes(2);
 
-    // Retiring the result publishes it to the field as well, so the error does not linger on
-    // screen while the form submits.
     expect(screen.queryByTestId('error')).toBe(null);
 
     await flushMicrotasks();
@@ -316,7 +313,6 @@ describe('<Form />', () => {
         expect(screen.getByTestId('error')).toHaveTextContent('Username is taken');
       });
 
-      // Only `validationMode="onSubmit"` is documented as never blocking on async validation.
       fireEvent.click(screen.getByRole('button', { name: 'Submit' }));
 
       expect(onFormSubmit).not.toHaveBeenCalled();

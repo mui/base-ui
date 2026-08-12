@@ -65,10 +65,6 @@ function findRepresentativeInput(
   return fallback;
 }
 
-/**
- * A synthetic validity state carrying no native constraint errors: all valid, or failing only
- * `customError`.
- */
 function makeState(customError: boolean): Record<keyof ValidityState, boolean> {
   return { ...DEFAULT_VALIDITY_STATE, valid: !customError, customError };
 }
@@ -101,8 +97,7 @@ export function useFieldValidation(
   const inputRef = React.useRef<HTMLInputElement | null>(null);
   const registeredInputs = useRefWithInit<RegisteredInputs>(() => new Map()).current;
   const validationCommitIdRef = React.useRef(0);
-  // Base UI installs at most one custom validity message per field. Keep its normalized text and
-  // the message it displaced so clearing never wipes validity owned by another control.
+  // Tracks the message installed by Base UI and the custom message it displaced.
   const customValidityRef = React.useRef<
     [element: HTMLInputElement, message: string, displaced: string] | null
   >(null);
@@ -158,8 +153,7 @@ export function useFieldValidation(
       validityState: Record<keyof ValidityState, boolean>,
       errorMessages: string[],
     ): FieldValidityData {
-      // A field that isn't invalid carries no errors: the pristine `valueMissing` suppression in
-      // `getState` can leave `valid: true` while the native message is non-empty.
+      // `valueMissing` may be suppressed while the native message remains non-empty.
       const errors = validityState.valid === false ? errorMessages : [];
       return {
         value,
@@ -171,8 +165,7 @@ export function useFieldValidation(
     }
 
     function setCustomValidity(element: HTMLInputElement, message: string) {
-      // Only a custom message can be displaced: a failing native constraint reports its own text
-      // through `validationMessage`, which must never be reinstalled as a custom validity message.
+      // Never reinstall a native constraint message as custom validity.
       const displaced = element.validity.customError ? element.validationMessage : '';
       const ownedMessage = message.replace(/\r\n?/g, '\n');
       element.setCustomValidity(ownedMessage);
@@ -182,8 +175,7 @@ export function useFieldValidation(
     function clearCustomValidity() {
       const record = customValidityRef.current;
       customValidityRef.current = null;
-      // Another message replacing or withdrawing ours transfers ownership to outside code. Barred
-      // controls do not expose `validationMessage`, so the owned message has to be cleared blindly.
+      // Replacement transfers ownership; barred controls hide `validationMessage`.
       if (record && (!record[0].willValidate || record[0].validationMessage === record[1])) {
         record[0].setCustomValidity(record[2]);
       }
@@ -195,7 +187,6 @@ export function useFieldValidation(
       externalInvalid?: boolean,
     ) {
       const nextValidityData = makeValidityData(validityState, errorMessages);
-      // Keep Form-level errors part of overall field validity for submit blocking/focus logic.
       updateRegisteredFieldValidity(nextValidityData, externalInvalid);
       setValidityData(nextValidityData);
     }
@@ -246,9 +237,7 @@ export function useFieldValidation(
 
     function refreshState() {
       element = resolveRepresentativeInput();
-      // A control barred from constraint validation (readonly, disabled, hidden) is excluded from
-      // native validation by the browser and reports no `validationMessage`, so it contributes no
-      // native errors. Trusting its flags would mark the field invalid with nothing to show.
+      // Barred controls expose no usable native constraint state.
       return element?.willValidate ? getState(element) : makeState(false);
     }
 
@@ -263,10 +252,7 @@ export function useFieldValidation(
         // Other native errors (e.g., typeMismatch) will be caught by full validation on blur or submit.
         // The required value is now present; ignore stale external invalid state for this pass.
         clearCustomValidity();
-        // Clearing can hand representative status to another registered input that kept a
-        // message of its own, so resolve it again. A message set by other code that survived the
-        // clear keeps the field invalid; publish that error alone so other native errors remain
-        // deferred until blur or submit.
+        // Clearing can make another registered input with a custom error representative.
         const currentElement = resolveRepresentativeInput();
         const foreign = currentElement?.validity.customError ? getNativeErrors(currentElement) : [];
         publish(makeState(foreign.length > 0), foreign, false);
@@ -291,8 +277,7 @@ export function useFieldValidation(
 
     timeout.clear();
 
-    // Residue this hook installed for a previous result would otherwise read back as a native
-    // constraint message below and skip `validate`, blocking submission until the user retypes.
+    // Do not read Base UI's previous message back as a native constraint.
     clearCustomValidity();
 
     let nextState = refreshState();
@@ -300,8 +285,7 @@ export function useFieldValidation(
 
     const isValidatingOnChange = shouldValidateOnChange();
 
-    // Not validating on change with a standing native constraint (or a message set by other
-    // code): skip the custom validate function.
+    // Native or externally set errors take precedence outside onChange validation.
     if (validationErrors.length === 0 || isValidatingOnChange) {
       // call the validate function because either
       // - validating on change, or
@@ -314,25 +298,20 @@ export function useFieldValidation(
       }, {} as Form.Values);
 
       const resultOrPromise = validate(value, formValues);
-      let result: string | string[] | null | undefined;
+      let result: string | string[] | null | void;
 
       if (
         typeof resultOrPromise === 'object' &&
         resultOrPromise !== null &&
         'then' in resultOrPromise
       ) {
-        // An async result cannot participate in the submit that triggered it, and `onSubmit` mode
-        // documents that it never blocks submission. Retire the previous result before awaiting so
-        // a resolved error can't keep the form from submitting. The other modes publish their
-        // async result at a boundary of their own, so there it must keep standing.
+        // Retire a previous async result before an onSubmit validation begins.
         if (validationMode === 'onSubmit') {
           publish(nextState, validationErrors);
         }
         try {
           result = await resultOrPromise;
         } catch (error) {
-          // The validator never produced a result, so leave the field on the native-only state the
-          // clear above already put the DOM in rather than on a result that no longer holds.
           if (validationCommitId === validationCommitIdRef.current) {
             publish(nextState, validationErrors);
           }
@@ -341,27 +320,22 @@ export function useFieldValidation(
         if (validationCommitId !== validationCommitIdRef.current) {
           return;
         }
-        // The DOM may have moved on while awaiting.
         nextState = refreshState();
       } else {
         result = resultOrPromise;
       }
 
-      // `null`, `undefined`, `''`, and `[]` all mean the value is valid, element-wise too: an
-      // empty message can neither be shown nor installed as a custom validity.
+      // Empty results and empty array entries are valid.
       validationErrors = result ? ([] as string[]).concat(result).filter(Boolean) : [];
 
       if (validationErrors.length > 0) {
         nextState.valid = false;
         nextState.customError = true;
-        // Writing to a barred control would clobber validity owned by other code without
-        // surfacing anything: the message stays in the field's own state instead.
+        // Keep custom errors for barred controls in field state only.
         if (element?.willValidate) {
           setCustomValidity(element, validationErrors.join('\n'));
         }
       } else {
-        // The validator passed but a native constraint (validating on change) or a message set by
-        // other code may stand.
         validationErrors = getNativeErrors(element);
       }
     }
@@ -417,7 +391,7 @@ export interface UseFieldValidationParameters {
   validate: (
     value: unknown,
     formValues: Form.Values,
-  ) => string | string[] | null | undefined | Promise<string | string[] | null | undefined>;
+  ) => string | string[] | null | void | Promise<string | string[] | null | void>;
   validityData: FieldValidityData;
   validationDebounceTime: number;
   invalid: boolean;

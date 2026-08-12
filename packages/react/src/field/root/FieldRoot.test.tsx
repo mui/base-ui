@@ -500,6 +500,18 @@ describe('<Field.Root />', () => {
       });
     });
 
+    it('accepts synchronous and async validators with no return value', async () => {
+      await render(
+        <React.Fragment>
+          <Field.Root data-testid="sync" validate={() => {}} />
+          <Field.Root data-testid="async" validate={async () => {}} />
+        </React.Fragment>,
+      );
+
+      expect(screen.getByTestId('sync')).toBeInTheDocument();
+      expect(screen.getByTestId('async')).toBeInTheDocument();
+    });
+
     it('should apply aria-invalid prop to control once validation finishes', async () => {
       await render(
         <Form>
@@ -602,7 +614,6 @@ describe('<Field.Root />', () => {
         'range-slider': [25, 70],
         switch: false,
       });
-      // A clean validator must not block the submit.
       expect(onSubmit).toHaveBeenCalledTimes(1);
     });
 
@@ -644,7 +655,6 @@ describe('<Field.Root />', () => {
       expect(validateSpy.mock.lastCall?.[1]).toEqual({
         input2: 'two',
       });
-      // A clean validator must not block the submit.
       expect(onSubmit).toHaveBeenCalledTimes(2);
     });
 
@@ -1597,8 +1607,6 @@ describe('<Field.Root />', () => {
 
       clock.tick(99);
 
-      // The switch registers as the field's control, so the debounced pass belongs to a control
-      // that no longer owns the field.
       fireEvent.click(screen.getByText('add switch'));
 
       clock.tick(100);
@@ -1684,7 +1692,6 @@ describe('<Field.Root />', () => {
 
       const control = screen.getByTestId<HTMLInputElement>('control');
 
-      // Drive the field invalid so the revalidate pass runs on the next change.
       fireEvent.focus(control);
       fireEvent.change(control, { target: { value: 'a' } });
       fireEvent.change(control, { target: { value: '' } });
@@ -1713,7 +1720,6 @@ describe('<Field.Root />', () => {
 
       const control = screen.getByRole<HTMLInputElement>('textbox');
 
-      // The field only publishes `valueMissing` once dirtied.
       fireEvent.focus(control);
       fireEvent.change(control, { target: { value: 'a' } });
       fireEvent.change(control, { target: { value: '' } });
@@ -1723,8 +1729,6 @@ describe('<Field.Root />', () => {
       control.setCustomValidity('external error');
       fireEvent.change(control, { target: { value: 'abc' } });
 
-      // Other native errors wait for the blur or submit boundary even though the outside message
-      // keeps the field invalid in the meantime.
       expect(screen.queryByTestId('type-mismatch')).toBe(null);
       expect(handleValidity.mock.lastCall?.[0].validity.typeMismatch).toBe(false);
       expect(handleValidity.mock.lastCall?.[0].validity.customError).toBe(true);
@@ -1857,8 +1861,6 @@ describe('<Field.Root />', () => {
 
       const control = screen.getByTestId<HTMLInputElement>('control');
 
-      // `bad` fails the native `typeMismatch` constraint and the validator at the same time, so
-      // the message being displaced is native and must not be reinstalled as a custom one.
       fireEvent.change(control, { target: { value: 'bad' } });
       expect(control.validationMessage).toBe('custom error');
 
@@ -1896,14 +1898,11 @@ describe('<Field.Root />', () => {
 
       await render(<App />);
 
-      // `Radio.Root` renders its input beside the control, in registration order.
       const [cats, dogs] = document.querySelectorAll<HTMLInputElement>('input[type="radio"]');
 
       fireEvent.click(screen.getByText('validate'));
       expect(cats.validationMessage).toBe('custom error');
 
-      // Outside code owns a message on the sibling input. Clearing ours must not touch it, and it
-      // must become the representative once ours is gone.
       dogs.setCustomValidity('external error');
       fireEvent.click(screen.getByTestId('dogs'));
 
@@ -1929,14 +1928,11 @@ describe('<Field.Root />', () => {
         );
 
         const control = screen.getByTestId<HTMLInputElement>('control');
-        // A read-only control is barred from constraint validation, so the browser reports no
-        // message for this and excludes the control from native validation.
         expect(control.willValidate).toBe(false);
         control.setCustomValidity('external error');
 
         fireEvent.change(control, { target: { value: 'abc' } });
 
-        // Blocking here would leave an empty error and an unsubmittable form.
         expect(control).not.toHaveAttribute('data-invalid');
         expect(screen.queryByTestId('error')).toBe(null);
 
@@ -1970,8 +1966,6 @@ describe('<Field.Root />', () => {
 
       fireEvent.change(control, { target: { value: 'abc' } });
 
-      // The field surfaces its own result in its own state, and leaves the DOM validity of a
-      // control it cannot read to whoever owns it.
       expect(screen.getByTestId('error')).toHaveTextContent('custom error');
 
       fireEvent.click(screen.getByText('make editable'));
