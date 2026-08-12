@@ -5228,6 +5228,76 @@ describe('<Combobox.Root />', () => {
       }
     `;
 
+    it('shows every item when a controlled reopen interrupts a canceled mirrored-selection clear', async ({
+      onTestFinished,
+    }) => {
+      globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+
+      onTestFinished(() => {
+        globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
+      });
+
+      function App() {
+        const [open, setOpen] = React.useState(false);
+        const [inputValue, setInputValue] = React.useState('');
+
+        return (
+          <React.Fragment>
+            {/* eslint-disable-next-line react/no-danger */}
+            <style dangerouslySetInnerHTML={{ __html: closeAnimationStyle }} />
+            <button type="button" data-testid="open" onClick={() => setOpen(true)}>
+              Open
+            </button>
+            <Combobox.Root
+              items={['apple', 'apricot', 'banana']}
+              open={open}
+              onOpenChange={setOpen}
+              onValueChange={(value: string | null) => setInputValue(value ?? '')}
+              inputValue={inputValue}
+              onInputValueChange={(value, eventDetails) => {
+                if (eventDetails.reason === REASONS.inputClear) {
+                  eventDetails.cancel();
+                } else {
+                  setInputValue(value);
+                }
+              }}
+            >
+              <Combobox.Portal>
+                <Combobox.Positioner>
+                  <Combobox.Popup data-testid="popup" className="animation-test-popup">
+                    <Combobox.Input data-testid="input" />
+                    <Combobox.List>
+                      {(item: string) => (
+                        <Combobox.Item key={item} value={item}>
+                          {item}
+                        </Combobox.Item>
+                      )}
+                    </Combobox.List>
+                  </Combobox.Popup>
+                </Combobox.Positioner>
+              </Combobox.Portal>
+            </Combobox.Root>
+          </React.Fragment>
+        );
+      }
+
+      const { user } = await render(<App />);
+
+      await user.click(screen.getByTestId('open'));
+      const input = await screen.findByTestId('input');
+      await user.type(input, 'ap');
+      await user.click(await screen.findByRole('option', { name: 'apple' }));
+
+      const popup = screen.getByTestId('popup');
+      await waitFor(() => expect(popup).toHaveAttribute('data-ending-style'));
+
+      await user.click(screen.getByTestId('open'));
+      await waitFor(() => expect(popup).not.toHaveAttribute('data-ending-style'));
+
+      expect(input).toHaveValue('apple');
+      expect(screen.getAllByRole('option')).toHaveLength(3);
+    });
+
     it('keeps the typed filter when items change afterwards (input outside popup)', async ({
       onTestFinished,
     }) => {

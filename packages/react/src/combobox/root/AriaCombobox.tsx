@@ -1240,8 +1240,8 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
     validation.change(inputValue);
   }
 
-  useValueChanged(open, handleOpenChanged);
   useValueChanged(query, handleQueryChanged);
+  useValueChanged(open, handleOpenChanged);
   useValueChanged(selectedValue, handleSelectedValueChanged);
   useValueChanged(selectedLabelString, syncInputAfterItemsOrLabelChange);
   useValueChanged(items, syncInputAfterItemsOrLabelChange);
