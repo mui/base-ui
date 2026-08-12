@@ -574,7 +574,6 @@ Renders a `<div>` element.
 | data-closed         | -                                                                          | Present when the popup is closed.                                     |
 | data-align          | `'start' \| 'center' \| 'end'`                                             | Indicates how the popup is aligned relative to specified side.        |
 | data-empty          | -                                                                          | Present when the items list is empty.                                 |
-| data-instant        | `'click' \| 'dismiss'`                                                     | Present if animations should be instant.                              |
 | data-side           | `'top' \| 'bottom' \| 'left' \| 'right' \| 'inline-end' \| 'inline-start'` | Indicates which side the popup is positioned relative to the trigger. |
 | data-starting-style | -                                                                          | Present when the popup begins animating in.                           |
 | data-ending-style   | -                                                                          | Present when the popup is animating out.                              |
