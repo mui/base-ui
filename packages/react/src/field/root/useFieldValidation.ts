@@ -91,6 +91,7 @@ export function useFieldValidation(
     markedDirtyRef,
     state,
     shouldValidateOnChange,
+    validationMode,
     registeredFieldIdRef,
   } = params;
 
@@ -105,27 +106,6 @@ export function useFieldValidation(
   const customValidityRef = React.useRef<
     [element: HTMLInputElement, message: string, displaced: string] | null
   >(null);
-
-  function updateCustomValidity(element?: HTMLInputElement, message?: string) {
-    if (element) {
-      // Only a custom message can be displaced: a failing native constraint reports its own text
-      // through `validationMessage`, which must never be reinstalled as a custom validity message.
-      const displaced =
-        element.willValidate && element.validity.customError ? element.validationMessage : '';
-      const ownedMessage = message!.replace(/\r\n?/g, '\n');
-      element.setCustomValidity(ownedMessage);
-      customValidityRef.current = [element, ownedMessage, displaced];
-      return;
-    }
-
-    const record = customValidityRef.current;
-    customValidityRef.current = null;
-    // Another message replacing or withdrawing ours transfers ownership to outside code. Barred
-    // controls do not expose `validationMessage`, so the owned message has to be cleared blindly.
-    if (record && (!record[0].willValidate || record[0].validationMessage === record[1])) {
-      record[0].setCustomValidity(record[2]);
-    }
-  }
 
   // Groups register several inputs against a single field so focus, validation, and form-value
   // projection can use the same live controls. This also ensures a `required` checkbox can't be
@@ -190,6 +170,25 @@ export function useFieldValidation(
       };
     }
 
+    function setCustomValidity(element: HTMLInputElement, message: string) {
+      // Only a custom message can be displaced: a failing native constraint reports its own text
+      // through `validationMessage`, which must never be reinstalled as a custom validity message.
+      const displaced = element.validity.customError ? element.validationMessage : '';
+      const ownedMessage = message.replace(/\r\n?/g, '\n');
+      element.setCustomValidity(ownedMessage);
+      customValidityRef.current = [element, ownedMessage, displaced];
+    }
+
+    function clearCustomValidity() {
+      const record = customValidityRef.current;
+      customValidityRef.current = null;
+      // Another message replacing or withdrawing ours transfers ownership to outside code. Barred
+      // controls do not expose `validationMessage`, so the owned message has to be cleared blindly.
+      if (record && (!record[0].willValidate || record[0].validationMessage === record[1])) {
+        record[0].setCustomValidity(record[2]);
+      }
+    }
+
     function publish(
       validityState: Record<keyof ValidityState, boolean>,
       errorMessages: string[],
@@ -247,7 +246,10 @@ export function useFieldValidation(
 
     function refreshState() {
       element = resolveRepresentativeInput();
-      return element ? getState(element) : makeState(false);
+      // A control barred from constraint validation (readonly, disabled, hidden) is excluded from
+      // native validation by the browser and reports no `validationMessage`, so it contributes no
+      // native errors. Trusting its flags would mark the field invalid with nothing to show.
+      return element?.willValidate ? getState(element) : makeState(false);
     }
 
     if (revalidate) {
@@ -260,14 +262,14 @@ export function useFieldValidation(
         // Temporarily mark the field as valid for this onChange event.
         // Other native errors (e.g., typeMismatch) will be caught by full validation on blur or submit.
         // The required value is now present; ignore stale external invalid state for this pass.
-        updateCustomValidity();
+        clearCustomValidity();
         // Clearing can hand representative status to another registered input that kept a
         // message of its own, so resolve it again. A message set by other code that survived the
         // clear keeps the field invalid; publish that error alone so other native errors remain
         // deferred until blur or submit.
         const currentElement = resolveRepresentativeInput();
-        const foreign = currentElement?.validity.customError ? currentElement : null;
-        publish(makeState(foreign !== null), getNativeErrors(foreign), false);
+        const foreign = currentElement?.validity.customError ? getNativeErrors(currentElement) : [];
+        publish(makeState(foreign.length > 0), foreign, false);
         return;
       }
 
@@ -291,7 +293,7 @@ export function useFieldValidation(
 
     // Residue this hook installed for a previous result would otherwise read back as a native
     // constraint message below and skip `validate`, blocking submission until the user retypes.
-    updateCustomValidity();
+    clearCustomValidity();
 
     let nextState = refreshState();
     let validationErrors = getNativeErrors(element);
@@ -312,17 +314,30 @@ export function useFieldValidation(
       }, {} as Form.Values);
 
       const resultOrPromise = validate(value, formValues);
-      let result: string | string[] | null;
+      let result: string | string[] | null | undefined;
 
       if (
         typeof resultOrPromise === 'object' &&
         resultOrPromise !== null &&
         'then' in resultOrPromise
       ) {
-        // Async results don't participate in submit-time validation, so retire the previous
-        // result while the validator runs: a stale error must not keep blocking submission.
-        updateRegisteredFieldValidity(makeValidityData(nextState, validationErrors));
-        result = await resultOrPromise;
+        // An async result cannot participate in the submit that triggered it, and `onSubmit` mode
+        // documents that it never blocks submission. Retire the previous result before awaiting so
+        // a resolved error can't keep the form from submitting. The other modes publish their
+        // async result at a boundary of their own, so there it must keep standing.
+        if (validationMode === 'onSubmit') {
+          publish(nextState, validationErrors);
+        }
+        try {
+          result = await resultOrPromise;
+        } catch (error) {
+          // The validator never produced a result, so leave the field on the native-only state the
+          // clear above already put the DOM in rather than on a result that no longer holds.
+          if (validationCommitId === validationCommitIdRef.current) {
+            publish(nextState, validationErrors);
+          }
+          throw error;
+        }
         if (validationCommitId !== validationCommitIdRef.current) {
           return;
         }
@@ -332,14 +347,17 @@ export function useFieldValidation(
         result = resultOrPromise;
       }
 
-      // `null`, `undefined`, `''`, and `[]` all mean the value is valid.
-      validationErrors = result == null || result === '' ? [] : ([] as string[]).concat(result);
+      // `null`, `undefined`, `''`, and `[]` all mean the value is valid, element-wise too: an
+      // empty message can neither be shown nor installed as a custom validity.
+      validationErrors = result ? ([] as string[]).concat(result).filter(Boolean) : [];
 
       if (validationErrors.length > 0) {
         nextState.valid = false;
         nextState.customError = true;
-        if (element) {
-          updateCustomValidity(element, validationErrors.join('\n'));
+        // Writing to a barred control would clobber validity owned by other code without
+        // surfacing anything: the message stays in the field's own state instead.
+        if (element?.willValidate) {
+          setCustomValidity(element, validationErrors.join('\n'));
         }
       } else {
         // The validator passed but a native constraint (validating on change) or a message set by
@@ -399,13 +417,14 @@ export interface UseFieldValidationParameters {
   validate: (
     value: unknown,
     formValues: Form.Values,
-  ) => string | string[] | null | Promise<string | string[] | null>;
+  ) => string | string[] | null | undefined | Promise<string | string[] | null | undefined>;
   validityData: FieldValidityData;
   validationDebounceTime: number;
   invalid: boolean;
   markedDirtyRef: React.RefObject<boolean>;
   state: FieldRootState;
   shouldValidateOnChange: () => boolean;
+  validationMode: 'onBlur' | 'onChange' | 'onSubmit';
   registeredFieldIdRef: React.RefObject<string | undefined>;
 }
 

@@ -129,6 +129,7 @@ const FieldRootInner = React.forwardRef(function FieldRootInner(
     markedDirtyRef,
     state,
     shouldValidateOnChange,
+    validationMode,
     registeredFieldIdRef,
   });
 
@@ -274,7 +275,8 @@ export interface FieldRootProps extends BaseUIComponentProps<'div', FieldRootSta
   name?: string | undefined;
   /**
    * A function for custom validation. Return a string or an array of strings with
-   * the error message(s) if the value is invalid, or `null` if the value is valid.
+   * the error message(s) if the value is invalid. Returning nothing, `null`, an empty
+   * string, or an empty array means the value is valid.
    * Asynchronous functions are supported, but they do not prevent form submission
    * when using `validationMode="onSubmit"`.
    */
@@ -282,7 +284,7 @@ export interface FieldRootProps extends BaseUIComponentProps<'div', FieldRootSta
     | ((
         value: unknown,
         formValues: Form.Values,
-      ) => string | string[] | null | Promise<string | string[] | null>)
+      ) => string | string[] | null | undefined | Promise<string | string[] | null | undefined>)
     | undefined;
   /**
    * Determines when the field should be validated.

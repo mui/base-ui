@@ -464,40 +464,40 @@ describe('<Field.Root />', () => {
       // expect(screen.queryByText('custom error')).toBe(null);
     });
 
-    it('treats an empty array result as valid', async () => {
-      await render(
-        <Field.Root validationMode="onChange" validate={() => []}>
-          <Field.Control data-testid="control" />
-          <Field.Error data-testid="error" />
-        </Field.Root>,
-      );
+    (
+      [
+        ['an empty array', () => []],
+        ['an undefined', () => undefined],
+        ['an empty string', () => ''],
+        ['an array of empty strings', () => ['', '']],
+      ] as const
+    ).forEach(([label, validate]) => {
+      it(`treats ${label} result as valid`, async () => {
+        const onSubmit = vi.fn((event: React.FormEvent) => event.preventDefault());
 
-      const control = screen.getByTestId('control');
+        await render(
+          <Form onSubmit={onSubmit}>
+            <Field.Root name="field" validationMode="onChange" validate={validate}>
+              <Field.Control data-testid="control" />
+              <Field.Error data-testid="error" />
+            </Field.Root>
+            <button type="submit">submit</button>
+          </Form>,
+        );
 
-      fireEvent.change(control, { target: { value: 'abc' } });
+        const control = screen.getByTestId('control');
 
-      expect(control).not.toHaveAttribute('aria-invalid');
-      expect(control).not.toHaveAttribute('data-invalid');
-      expect(screen.queryByTestId('error')).toBe(null);
-    });
+        fireEvent.change(control, { target: { value: 'abc' } });
 
-    it('treats an undefined result as valid', async () => {
-      const validate = (() => undefined) as unknown as NonNullable<Field.Root.Props['validate']>;
+        expect(control).not.toHaveAttribute('aria-invalid');
+        expect(control).not.toHaveAttribute('data-invalid');
+        expect(screen.queryByTestId('error')).toBe(null);
+        expect(control).toHaveProperty('validationMessage', '');
 
-      await render(
-        <Field.Root validationMode="onChange" validate={validate}>
-          <Field.Control data-testid="control" />
-          <Field.Error data-testid="error" />
-        </Field.Root>,
-      );
+        fireEvent.click(screen.getByText('submit'));
 
-      const control = screen.getByTestId('control');
-
-      fireEvent.change(control, { target: { value: 'abc' } });
-
-      expect(control).not.toHaveAttribute('aria-invalid');
-      expect(control).not.toHaveAttribute('data-invalid');
-      expect(screen.queryByTestId('error')).toBe(null);
+        expect(onSubmit).toHaveBeenCalledTimes(1);
+      });
     });
 
     it('should apply aria-invalid prop to control once validation finishes', async () => {
@@ -520,9 +520,10 @@ describe('<Field.Root />', () => {
 
     it('receives all form values as the 2nd argument', async () => {
       const validateSpy = vi.fn();
+      const onSubmit = vi.fn((event: React.FormEvent) => event.preventDefault());
 
       await render(
-        <Form onSubmit={(event) => event.preventDefault()}>
+        <Form onSubmit={onSubmit}>
           <Field.Root name="checkbox">
             <Checkbox.Root defaultChecked />
           </Field.Root>
@@ -601,15 +602,18 @@ describe('<Field.Root />', () => {
         'range-slider': [25, 70],
         switch: false,
       });
+      // A clean validator must not block the submit.
+      expect(onSubmit).toHaveBeenCalledTimes(1);
     });
 
     it('unmounted fields are excluded from the validate fn', async () => {
       const validateSpy = vi.fn();
+      const onSubmit = vi.fn((event: React.FormEvent) => event.preventDefault());
       function App() {
         const [checked, setChecked] = React.useState(true);
 
         return (
-          <Form onSubmit={(event) => event.preventDefault()}>
+          <Form onSubmit={onSubmit}>
             <input type="checkbox" checked={checked} onChange={() => setChecked(!checked)} />
             {checked && (
               <Field.Root name="input1">
@@ -640,6 +644,8 @@ describe('<Field.Root />', () => {
       expect(validateSpy.mock.lastCall?.[1]).toEqual({
         input2: 'two',
       });
+      // A clean validator must not block the submit.
+      expect(onSubmit).toHaveBeenCalledTimes(2);
     });
 
     it('submits the replacement control value when swapping field-aware controls', async () => {
@@ -1001,8 +1007,9 @@ describe('<Field.Root />', () => {
         fireEvent.focus(control);
         fireEvent.blur(control);
 
-        expect(latestValidity!.validity.valid).not.toBe(false);
+        expect(latestValidity!.validity.valid).toBe(true);
         expect(latestValidity!.errors).toEqual([]);
+        expect(latestValidity!.error).toBe('');
       });
 
       it('should mark invalid if `valueMissing` is the only error and dirtied', async () => {
@@ -1517,6 +1524,112 @@ describe('<Field.Root />', () => {
       expect(screen.queryByText('old error')).toBe(null);
       expect(control).not.toHaveAttribute('aria-invalid');
     });
+
+    it('drops an in-flight async validation when the control unmounts', async () => {
+      let resolveValidate: ((value: string | null) => void) | undefined;
+      const validate = vi.fn(
+        () =>
+          new Promise<string | null>((resolve) => {
+            resolveValidate = resolve;
+          }),
+      );
+
+      function App() {
+        const [mounted, setMounted] = React.useState(true);
+
+        return (
+          <div>
+            <Field.Root data-testid="root" validationMode="onChange" validate={validate}>
+              {mounted && <Field.Control data-testid="control" />}
+              <Field.Error data-testid="error" />
+            </Field.Root>
+            <button type="button" onClick={() => setMounted(false)}>
+              unmount
+            </button>
+          </div>
+        );
+      }
+
+      await render(<App />);
+
+      fireEvent.change(screen.getByTestId('control'), { target: { value: 'abc' } });
+      expect(validate).toHaveBeenCalledTimes(1);
+
+      fireEvent.click(screen.getByText('unmount'));
+
+      await act(async () => {
+        resolveValidate?.('error');
+        await flushMicrotasks();
+      });
+
+      expect(screen.queryByTestId('error')).toBe(null);
+      expect(screen.getByTestId('root')).not.toHaveAttribute('data-invalid');
+    });
+
+    it('drops a pending validation when another field-aware control takes ownership', async () => {
+      const validate = vi.fn(() => 'error');
+
+      function App() {
+        const [showSwitch, setShowSwitch] = React.useState(false);
+
+        return (
+          <div>
+            <Field.Root
+              data-testid="root"
+              validationDebounceTime={100}
+              validationMode="onChange"
+              validate={validate}
+            >
+              <Field.Control data-testid="control" />
+              {showSwitch && <Switch.Root />}
+              <Field.Error data-testid="error" />
+            </Field.Root>
+            <button type="button" onClick={() => setShowSwitch(true)}>
+              add switch
+            </button>
+          </div>
+        );
+      }
+
+      await renderFakeTimers(<App />);
+
+      fireEvent.change(screen.getByTestId('control'), { target: { value: 'abc' } });
+
+      clock.tick(99);
+
+      // The switch registers as the field's control, so the debounced pass belongs to a control
+      // that no longer owns the field.
+      fireEvent.click(screen.getByText('add switch'));
+
+      clock.tick(100);
+
+      expect(validate).not.toHaveBeenCalled();
+      expect(screen.queryByTestId('error')).toBe(null);
+      expect(screen.getByTestId('root')).not.toHaveAttribute('data-invalid');
+    });
+
+    it('keeps a pending debounce armed across the first registration', async () => {
+      const validate = vi.fn(() => 'error');
+
+      await renderFakeTimers(
+        <Field.Root
+          data-testid="root"
+          validationDebounceTime={100}
+          validationMode="onChange"
+          validate={validate}
+        >
+          <Field.Control data-testid="control" />
+          <Field.Error data-testid="error" />
+        </Field.Root>,
+      );
+
+      fireEvent.change(screen.getByTestId('control'), { target: { value: 'abc' } });
+
+      clock.tick(100);
+
+      expect(validate).toHaveBeenCalledTimes(1);
+      expect(screen.getByTestId('error')).toHaveTextContent('error');
+    });
   });
 
   describe('custom validity ownership', () => {
@@ -1543,7 +1656,7 @@ describe('<Field.Root />', () => {
       expect(screen.getByTestId('error')).toHaveTextContent('external error');
     });
 
-    it('keeps a message set outside the field when revalidating on change', async () => {
+    it('keeps a message set outside the field when validating on change', async () => {
       await render(
         <Field.Root validationMode="onChange">
           <Field.Control data-testid="control" />
@@ -1554,6 +1667,31 @@ describe('<Field.Root />', () => {
       const control = screen.getByTestId<HTMLInputElement>('control');
       control.setCustomValidity('external error');
 
+      fireEvent.change(control, { target: { value: 'abc' } });
+
+      expect(control.validationMessage).toBe('external error');
+      expect(control).toHaveAttribute('data-invalid', '');
+      expect(screen.getByTestId('error')).toHaveTextContent('external error');
+    });
+
+    it('keeps a message set outside the field when revalidating on change', async () => {
+      await render(
+        <Field.Root validationMode="onBlur">
+          <Field.Control data-testid="control" required />
+          <Field.Error data-testid="error" />
+        </Field.Root>,
+      );
+
+      const control = screen.getByTestId<HTMLInputElement>('control');
+
+      // Drive the field invalid so the revalidate pass runs on the next change.
+      fireEvent.focus(control);
+      fireEvent.change(control, { target: { value: 'a' } });
+      fireEvent.change(control, { target: { value: '' } });
+      fireEvent.blur(control);
+      expect(control).toHaveAttribute('data-invalid', '');
+
+      control.setCustomValidity('external error');
       fireEvent.change(control, { target: { value: 'abc' } });
 
       expect(control.validationMessage).toBe('external error');
@@ -1591,6 +1729,7 @@ describe('<Field.Root />', () => {
       expect(handleValidity.mock.lastCall?.[0].validity.typeMismatch).toBe(false);
       expect(handleValidity.mock.lastCall?.[0].validity.customError).toBe(true);
       expect(handleValidity.mock.lastCall?.[0].validity.valid).toBe(false);
+      expect(handleValidity.mock.lastCall?.[0].errors).toEqual(['external error']);
     });
 
     it('clears the message it set itself', async () => {
@@ -1704,6 +1843,140 @@ describe('<Field.Root />', () => {
       fireEvent.click(screen.getByText('toggle disabled'));
 
       expect(control.validationMessage).toBe('');
+    });
+
+    it('does not adopt a native message as the message it displaced', async () => {
+      await render(
+        <Field.Root
+          validationMode="onChange"
+          validate={(value) => (value === 'bad' ? 'custom error' : null)}
+        >
+          <Field.Control data-testid="control" type="email" />
+        </Field.Root>,
+      );
+
+      const control = screen.getByTestId<HTMLInputElement>('control');
+
+      // `bad` fails the native `typeMismatch` constraint and the validator at the same time, so
+      // the message being displaced is native and must not be reinstalled as a custom one.
+      fireEvent.change(control, { target: { value: 'bad' } });
+      expect(control.validationMessage).toBe('custom error');
+
+      fireEvent.change(control, { target: { value: 'a@b.co' } });
+
+      expect(control.validity.customError).toBe(false);
+      expect(control.validationMessage).toBe('');
+    });
+
+    it('keeps a message set outside the field on another input of the same field', async () => {
+      const handleValidity = vi.fn();
+
+      function App() {
+        const actionsRef = React.useRef<Field.Root.Actions>(null);
+
+        return (
+          <div>
+            <Field.Root
+              actionsRef={actionsRef}
+              validationMode="onBlur"
+              validate={(value) => (value === 'cats' ? 'custom error' : null)}
+            >
+              <RadioGroup defaultValue="cats">
+                <Radio.Root value="cats" data-testid="cats" />
+                <Radio.Root value="dogs" data-testid="dogs" />
+              </RadioGroup>
+              <Field.Validity>{handleValidity}</Field.Validity>
+            </Field.Root>
+            <button type="button" onClick={() => actionsRef.current?.validate()}>
+              validate
+            </button>
+          </div>
+        );
+      }
+
+      await render(<App />);
+
+      // `Radio.Root` renders its input beside the control, in registration order.
+      const [cats, dogs] = document.querySelectorAll<HTMLInputElement>('input[type="radio"]');
+
+      fireEvent.click(screen.getByText('validate'));
+      expect(cats.validationMessage).toBe('custom error');
+
+      // Outside code owns a message on the sibling input. Clearing ours must not touch it, and it
+      // must become the representative once ours is gone.
+      dogs.setCustomValidity('external error');
+      fireEvent.click(screen.getByTestId('dogs'));
+
+      expect(cats.validationMessage).toBe('');
+      expect(dogs.validationMessage).toBe('external error');
+      expect(handleValidity.mock.lastCall?.[0].validity.customError).toBe(true);
+      expect(handleValidity.mock.lastCall?.[0].errors).toEqual(['external error']);
+    });
+
+    it.skipIf(isJSDOM)(
+      'ignores a message set outside the field on a control barred from validation',
+      async () => {
+        const onFormSubmit = vi.fn();
+
+        await render(
+          <Form onFormSubmit={onFormSubmit}>
+            <Field.Root name="field" validationMode="onChange">
+              <Field.Control data-testid="control" readOnly />
+              <Field.Error data-testid="error" />
+            </Field.Root>
+            <button type="submit">submit</button>
+          </Form>,
+        );
+
+        const control = screen.getByTestId<HTMLInputElement>('control');
+        // A read-only control is barred from constraint validation, so the browser reports no
+        // message for this and excludes the control from native validation.
+        expect(control.willValidate).toBe(false);
+        control.setCustomValidity('external error');
+
+        fireEvent.change(control, { target: { value: 'abc' } });
+
+        // Blocking here would leave an empty error and an unsubmittable form.
+        expect(control).not.toHaveAttribute('data-invalid');
+        expect(screen.queryByTestId('error')).toBe(null);
+
+        fireEvent.click(screen.getByText('submit'));
+
+        expect(onFormSubmit).toHaveBeenCalledTimes(1);
+      },
+    );
+
+    it.skipIf(isJSDOM)('does not write its own message to a barred control', async () => {
+      function App() {
+        const [readOnly, setReadOnly] = React.useState(true);
+
+        return (
+          <div>
+            <Field.Root validationMode="onChange" validate={() => 'custom error'}>
+              <Field.Control data-testid="control" readOnly={readOnly} />
+              <Field.Error data-testid="error" />
+            </Field.Root>
+            <button type="button" onClick={() => setReadOnly(false)}>
+              make editable
+            </button>
+          </div>
+        );
+      }
+
+      await render(<App />);
+
+      const control = screen.getByTestId<HTMLInputElement>('control');
+      control.setCustomValidity('external error');
+
+      fireEvent.change(control, { target: { value: 'abc' } });
+
+      // The field surfaces its own result in its own state, and leaves the DOM validity of a
+      // control it cannot read to whoever owns it.
+      expect(screen.getByTestId('error')).toHaveTextContent('custom error');
+
+      fireEvent.click(screen.getByText('make editable'));
+
+      expect(control.validationMessage).toBe('external error');
     });
   });
 
