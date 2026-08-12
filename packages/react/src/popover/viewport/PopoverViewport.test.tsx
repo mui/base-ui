@@ -600,20 +600,20 @@ describe('<Popover.Viewport />', () => {
       }
     });
 
-    it('keeps the size morph transition running when the rendered side changes', async () => {
-      const { user } = await render(
+    function PayloadSwitchApp({ duration }: { duration: string }) {
+      return (
         <div>
           <style>
             {`
               [data-testid="positioner"] {
                 width: var(--positioner-width);
                 height: var(--positioner-height);
-                transition: top 1s linear, bottom 1s linear, left 1s linear, right 1s linear;
+                transition: top ${duration} linear, bottom ${duration} linear, left ${duration} linear, right ${duration} linear;
               }
               [data-testid="popup"] {
                 width: var(--popup-width, auto);
                 height: var(--popup-height, auto);
-                transition: width 1s linear, height 1s linear;
+                transition: width ${duration} linear, height ${duration} linear;
               }
             `}
           </style>
@@ -650,8 +650,12 @@ describe('<Popover.Viewport />', () => {
               </React.Fragment>
             )}
           </Popover.Root>
-        </div>,
+        </div>
       );
+    }
+
+    it('keeps the size morph transition running when the rendered side changes', async () => {
+      const { user } = await render(<PayloadSwitchApp duration="1s" />);
 
       // Trigger 1 has space below it (side `bottom`); trigger 2 sits at the bottom
       // of the viewport, so the tall popup flips to side `top`.
@@ -687,57 +691,7 @@ describe('<Popover.Viewport />', () => {
     });
 
     it('keeps the popup attached to its previous position when a trigger change swaps the rendered side', async () => {
-      const { user } = await render(
-        <div>
-          <style>
-            {`
-              [data-testid="positioner"] {
-                width: var(--positioner-width);
-                height: var(--positioner-height);
-                transition: top 10s linear, bottom 10s linear, left 10s linear, right 10s linear;
-              }
-              [data-testid="popup"] {
-                width: var(--popup-width, auto);
-                height: var(--popup-height, auto);
-                transition: width 10s linear, height 10s linear;
-              }
-            `}
-          </style>
-          <Popover.Root>
-            {({ payload }) => (
-              <React.Fragment>
-                <Popover.Trigger
-                  payload="small"
-                  data-testid="trigger1"
-                  style={{ position: 'fixed', top: 10, left: 10, width: 100, height: 50 }}
-                >
-                  Trigger 1
-                </Popover.Trigger>
-                <Popover.Trigger
-                  payload="tall"
-                  data-testid="trigger2"
-                  style={{ position: 'fixed', bottom: 10, left: 10, width: 100, height: 50 }}
-                >
-                  Trigger 2
-                </Popover.Trigger>
-                <Popover.Portal>
-                  <Popover.Positioner data-testid="positioner">
-                    <Popover.Popup data-testid="popup">
-                      <Popover.Viewport>
-                        {payload === 'tall' ? (
-                          <div style={{ width: 200, height: 200 }}>tall</div>
-                        ) : (
-                          <div style={{ width: 140, height: 60 }}>small</div>
-                        )}
-                      </Popover.Viewport>
-                    </Popover.Popup>
-                  </Popover.Positioner>
-                </Popover.Portal>
-              </React.Fragment>
-            )}
-          </Popover.Root>
-        </div>,
-      );
+      const { user } = await render(<PayloadSwitchApp duration="10s" />);
 
       await user.click(screen.getByTestId('trigger1'));
 

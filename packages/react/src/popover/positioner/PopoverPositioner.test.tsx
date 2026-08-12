@@ -663,8 +663,18 @@ describe('<Popover.Positioner />', () => {
       expect(positioner).toHaveAttribute('data-side', 'top');
     });
 
-    it('does not animate the position while scrolling with the same anchor', async () => {
-      const { user } = await render(
+    function hasRunningVerticalTransition(element: Element) {
+      return element
+        .getAnimations()
+        .some(
+          (animation) =>
+            animation.playState === 'running' &&
+            ['top', 'bottom'].includes((animation as CSSTransition).transitionProperty),
+        );
+    }
+
+    function SameAnchorScrollApp() {
+      return (
         <div>
           <style>
             {`
@@ -697,9 +707,11 @@ describe('<Popover.Positioner />', () => {
               </Popover.Root>
             </div>
           </div>
-        </div>,
+        </div>
       );
+    }
 
+    async function openSameAnchorPopup(user: { click: (element: Element) => Promise<void> }) {
       await user.click(screen.getByTestId('trigger'));
 
       const positioner = screen.getByTestId('positioner');
@@ -721,6 +733,13 @@ describe('<Popover.Positioner />', () => {
       await waitFor(() => {
         expect(positioner.style.bottom).not.toBe('');
       });
+
+      return { positioner, scroller };
+    }
+
+    it('does not animate the position while scrolling with the same anchor', async () => {
+      const { user } = await render(<SameAnchorScrollApp />);
+      const { positioner, scroller } = await openSameAnchorPopup(user);
 
       // Scrolling must track the anchor rigidly: no transition runs and the popup
       // is at its target immediately.
@@ -730,76 +749,13 @@ describe('<Popover.Positioner />', () => {
         const positionerRect = positioner.getBoundingClientRect();
         expect(Math.abs(positionerRect.bottom - (triggerRect.top - 8))).toBeLessThan(2);
       });
-      expect(
-        positioner
-          .getAnimations()
-          .some(
-            (animation) =>
-              animation.playState === 'running' &&
-              ['top', 'bottom'].includes((animation as CSSTransition).transitionProperty),
-          ),
-      ).toBe(false);
+      expect(hasRunningVerticalTransition(positioner)).toBe(false);
       expect(positioner).toHaveAttribute('data-side', 'top');
     });
 
     it('applies a collision flip instantly while scrolling with the same anchor', async () => {
-      const { user } = await render(
-        <div>
-          <style>
-            {`
-              [data-testid="positioner"] {
-                width: var(--positioner-width);
-                height: var(--positioner-height);
-                transition: top 10s linear, bottom 10s linear, left 10s linear, right 10s linear;
-              }
-            `}
-          </style>
-          <div
-            data-testid="scroller"
-            style={{ height: 400, overflow: 'auto', position: 'relative' }}
-          >
-            <div style={{ height: 1200 }}>
-              <Popover.Root>
-                <Popover.Trigger
-                  data-testid="trigger"
-                  style={{ position: 'absolute', top: 300, left: 10, width: 100, height: 50 }}
-                >
-                  Trigger
-                </Popover.Trigger>
-                <Popover.Portal>
-                  <Popover.Positioner data-testid="positioner" side="top" sideOffset={8}>
-                    <Popover.Popup style={popupStyle}>
-                      <Popover.Viewport>Popup</Popover.Viewport>
-                    </Popover.Popup>
-                  </Popover.Positioner>
-                </Popover.Portal>
-              </Popover.Root>
-            </div>
-          </div>
-        </div>,
-      );
-
-      await user.click(screen.getByTestId('trigger'));
-
-      const positioner = screen.getByTestId('positioner');
-      await waitFor(() => {
-        expect(positioner).toHaveAttribute('data-side', 'top');
-      });
-
-      // Wait for the mount-time `transition: none` style to be removed.
-      await waitFor(() => {
-        expect(positioner.style.transition).toBe('');
-      });
-
-      const scroller = screen.getByTestId('scroller');
-
-      // Trigger one reposition so the popup settles into its steady `bottom`-based
-      // positioning (the initial position is applied while the mount-time
-      // `transition: none` is inline, so it uses `top`).
-      scroller.scrollTop = 50;
-      await waitFor(() => {
-        expect(positioner.style.bottom).not.toBe('');
-      });
+      const { user } = await render(<SameAnchorScrollApp />);
+      const { positioner, scroller } = await openSameAnchorPopup(user);
 
       // Scrolling moves the anchor near the top of its clipping container,
       // flipping the popup below it. The flip applies instantly instead of
@@ -813,15 +769,7 @@ describe('<Popover.Positioner />', () => {
       const positionerRect = positioner.getBoundingClientRect();
       const triggerRect = screen.getByTestId('trigger').getBoundingClientRect();
       expect(Math.abs(positionerRect.top - (triggerRect.bottom + 8))).toBeLessThan(2);
-      expect(
-        positioner
-          .getAnimations()
-          .some(
-            (animation) =>
-              animation.playState === 'running' &&
-              ['top', 'bottom'].includes((animation as CSSTransition).transitionProperty),
-          ),
-      ).toBe(false);
+      expect(hasRunningVerticalTransition(positioner)).toBe(false);
     });
 
     it('keeps an unchanged-axis transition running when the side flips during a trigger change', async () => {

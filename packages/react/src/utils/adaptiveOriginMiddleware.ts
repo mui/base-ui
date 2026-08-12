@@ -40,8 +40,8 @@ export const adaptiveOrigin: Middleware = {
     const currentSide = getSide(placement);
 
     const prev = prevPositioningMap.get(floating);
-    const anchorChanged = prev != null && prev.anchor !== reference;
-    const sideChanged = prev != null && prev.side !== currentSide;
+    const anchorChanged = prev && prev.anchor !== reference;
+    const sideChanged = prev && prev.side !== currentSide;
     // Position transitions animate anchor moves only; collision flips outside a move
     // apply instantly, and tracking updates (scroll/resize) apply instantly by
     // suppressing the transition via the `transition-property` longhand, which keeps
@@ -63,16 +63,18 @@ export const adaptiveOrigin: Middleware = {
       movingUntil,
     });
 
-    if (hasTransition) {
-      floating.style.transitionProperty = moving ? '' : 'none';
-    }
-
     if (!hasTransition) {
       return {
         x: rawX,
         y: rawY,
         data: DEFAULT_SIDES,
       };
+    }
+
+    // Skip the write when the value is unchanged; this runs on every tracking update.
+    const suppressedProperty = moving ? '' : 'none';
+    if (floating.style.transitionProperty !== suppressedProperty) {
+      floating.style.transitionProperty = suppressedProperty;
     }
 
     const offsetParent = await platform.getOffsetParent?.(floating);
@@ -111,7 +113,7 @@ export const adaptiveOrigin: Middleware = {
     // A side change may swap the positioning inset (e.g. `bottom` -> `top`), which CSS
     // can't transition from `auto`. Commit the current visual position in the new
     // properties so the transition continues from where the popup is.
-    if (prev && moving && sideChanged) {
+    if (moving && sideChanged) {
       const swappedX = (prev.side === 'left') !== (currentSide === 'left');
       const swappedY = (prev.side === 'top') !== (currentSide === 'top');
       // An anchor change may commit a new popup size before this update runs. On a
@@ -122,7 +124,7 @@ export const adaptiveOrigin: Middleware = {
       const fromY = swappedY
         ? parseFloat(styles[sideY]) + (anchorChanged ? floatRect.height - prev.height : 0)
         : 0;
-      if ((swappedX || swappedY) && Number.isFinite(fromX) && Number.isFinite(fromY)) {
+      if ((swappedX || swappedY) && Number.isFinite(fromX + fromY)) {
         const floatingStyle = floating.style;
         if (swappedX) {
           floatingStyle.right = '';
