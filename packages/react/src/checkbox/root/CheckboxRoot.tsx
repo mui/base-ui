@@ -153,14 +153,6 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
 
   const registerChildId = parentContext?.registerChildId;
 
-  useIsoLayoutEffect(() => {
-    if (registerChildId === undefined || parent || value === undefined || rootId === undefined) {
-      return undefined;
-    }
-
-    return registerChildId(value, rootId);
-  }, [registerChildId, parent, value, rootId]);
-
   const inputRef = React.useRef<HTMLInputElement>(null);
   const registerFieldInput = validation.registerInput;
   const registeredInputValue = groupContext ? value : undefined;
@@ -392,6 +384,17 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
     ],
     stateAttributesMapping,
   });
+
+  const renderedId = React.isValidElement<{ id?: string | undefined }>(element)
+    ? element.props.id
+    : undefined;
+  useIsoLayoutEffect(() => {
+    if (!registerChildId || parent || value === undefined || renderedId === undefined) {
+      return undefined;
+    }
+
+    return registerChildId(value, renderedId);
+  }, [registerChildId, parent, value, renderedId]);
 
   return (
     <CheckboxRootContext.Provider value={state}>

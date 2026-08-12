@@ -16,9 +16,10 @@ export function useCheckboxGroupParent(
   const [status, setStatus] = React.useState<'on' | 'off' | 'mixed'>('mixed');
   // A `Map` rather than an object: checkbox values are consumer data, and a value like
   // `constructor` would otherwise read straight off `Object.prototype`.
-  const [childIds, setChildIds] = React.useState<ReadonlyMap<string, readonly string[]>>(
-    () => new Map(),
-  );
+  // Replace only the wrapper to rerender without cloning the growing registry.
+  const [childIdsState, setChildIdsState] = React.useState(() => ({
+    registry: new Map<string, readonly string[]>(),
+  }));
 
   const checked = value.length === allValues.length;
   const indeterminate = value.length !== allValues.length && value.length > 0;
@@ -26,23 +27,26 @@ export function useCheckboxGroupParent(
   const onValueChange = useStableCallback(onValueChangeProp);
 
   const registerChildId = useStableCallback((childValue: string, childId: string) => {
-    setChildIds((prev) => {
-      const ids = prev.get(childValue);
-      return ids?.includes(childId)
-        ? prev
-        : new Map(prev).set(childValue, ids ? ids.concat(childId) : [childId]);
-    });
+    const childIds = childIdsState.registry;
+    const ids = childIds.get(childValue);
+    if (!ids?.includes(childId)) {
+      childIds.set(childValue, ids ? ids.concat(childId) : [childId]);
+      setChildIdsState({ registry: childIds });
+    }
 
     return () => {
-      setChildIds((prev) => {
-        const ids = prev.get(childValue);
-        return ids?.includes(childId)
-          ? new Map(prev).set(
-              childValue,
-              ids.filter((id) => id !== childId),
-            )
-          : prev;
-      });
+      const registeredIds = childIds.get(childValue);
+      if (!registeredIds?.includes(childId)) {
+        return;
+      }
+
+      const nextIds = registeredIds.filter((id) => id !== childId);
+      if (nextIds.length === 0) {
+        childIds.delete(childValue);
+      } else {
+        childIds.set(childValue, nextIds);
+      }
+      setChildIdsState({ registry: childIds });
     };
   });
 
@@ -53,7 +57,8 @@ export function useCheckboxGroupParent(
       // Children report their own rendered id, so a custom `id` survives and no unmounted
       // element is named.
       'aria-controls':
-        allValues.flatMap((v) => childIds.get(v) ?? EMPTY_ARRAY).join(' ') || undefined,
+        allValues.flatMap((v) => childIdsState.registry.get(v) ?? EMPTY_ARRAY).join(' ') ||
+        undefined,
       onCheckedChange(_, eventDetails) {
         const uncontrolledState = uncontrolledStateRef.current;
 
@@ -98,7 +103,7 @@ export function useCheckboxGroupParent(
         }
       },
     }),
-    [allValues, checked, childIds, indeterminate, onValueChange, status, value.length],
+    [allValues, checked, childIdsState, indeterminate, onValueChange, status, value.length],
   );
 
   const getChildProps: UseCheckboxGroupParentReturnValue['getChildProps'] = React.useCallback(

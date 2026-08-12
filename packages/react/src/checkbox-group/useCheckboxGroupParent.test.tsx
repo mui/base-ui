@@ -214,6 +214,29 @@ describe('useCheckboxGroupParent', () => {
     expect(screen.getByTestId('parent')).toHaveAttribute('aria-controls', 'custom');
   });
 
+  it.each([false, true])(
+    'keeps a rendered child id in aria-controls (nativeButton=%s)',
+    (nativeButton) => {
+      render(
+        <CheckboxGroup allValues={['a']}>
+          <Checkbox.Root
+            parent
+            data-testid="parent"
+            nativeButton={nativeButton}
+            render={nativeButton ? <button /> : undefined}
+          />
+          <Checkbox.Root
+            value="a"
+            nativeButton={nativeButton}
+            render={nativeButton ? <button id="rendered" /> : <span id="rendered" />}
+          />
+        </CheckboxGroup>,
+      );
+
+      expect(screen.getByTestId('parent')).toHaveAttribute('aria-controls', 'rendered');
+    },
+  );
+
   it('references the exposed child rather than its custom-id input without nativeButton', () => {
     render(
       <CheckboxGroup allValues={['a']}>
