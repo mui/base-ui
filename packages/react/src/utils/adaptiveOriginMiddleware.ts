@@ -17,13 +17,16 @@ const prevPositioningMap = new WeakMap<HTMLElement, PrevPositioning>();
 const INSET_PROPERTIES = ['top', 'right', 'bottom', 'left'];
 
 function hasRunningInsetTransition(floating: HTMLElement): boolean {
-  return floating
-    .getAnimations()
-    .some(
-      (animation) =>
-        animation.playState === 'running' &&
-        INSET_PROPERTIES.includes((animation as CSSTransition).transitionProperty),
-    );
+  // `getAnimations` is unavailable in jsdom.
+  return Boolean(
+    floating
+      .getAnimations?.()
+      .some(
+        (animation) =>
+          animation.playState === 'running' &&
+          INSET_PROPERTIES.includes((animation as CSSTransition).transitionProperty),
+      ),
+  );
 }
 
 export const adaptiveOrigin: Middleware = {
