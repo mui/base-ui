@@ -1,5 +1,6 @@
 import { expect, vi } from 'vitest';
 import * as React from 'react';
+import * as ReactDOM from 'react-dom';
 import { Select } from '@base-ui/react/select';
 import { Popover } from '@base-ui/react/popover';
 import {
@@ -614,6 +615,28 @@ describe('<Select.Root />', () => {
       });
       expect(handleOpenChange.mock.calls[0][0]).toBe(true);
     });
+  });
+
+  it('does not dismiss when pressing portalled content inside the popup but outside the list', async () => {
+    const { user } = await render(
+      <Select.Root defaultOpen>
+        <Select.Trigger>Open</Select.Trigger>
+        <Select.Portal>
+          <Select.Positioner>
+            <Select.Popup>
+              <Select.List>
+                <Select.Item value="apple">Apple</Select.Item>
+              </Select.List>
+              {ReactDOM.createPortal(<div>Portalled content</div>, document.body)}
+            </Select.Popup>
+          </Select.Positioner>
+        </Select.Portal>
+      </Select.Root>,
+    );
+
+    await user.click(screen.getByText('Portalled content'));
+
+    expect(screen.getByRole('listbox')).not.toBe(null);
   });
 
   describe('BaseUIChangeEventDetails', () => {
@@ -1872,6 +1895,77 @@ describe('<Select.Root />', () => {
       });
     });
 
+    it.each([false, true])(
+      'clears scroll arrow visibility when manually unmounted (strict: %s)',
+      async (strict) => {
+        const actionsRef = {
+          current: {
+            unmount: vi.fn(),
+          },
+        };
+
+        const { user } = await render(
+          <Select.Root actionsRef={actionsRef}>
+            <Select.Trigger>Open</Select.Trigger>
+            <Select.Portal>
+              <Select.Positioner alignItemWithTrigger={false}>
+                <Select.Popup>
+                  <Select.ScrollUpArrow keepMounted />
+                  <Select.List
+                    ref={(node) => {
+                      if (!node) {
+                        return;
+                      }
+                      Object.defineProperties(node, {
+                        scrollTop: { configurable: true, value: 20, writable: true },
+                        scrollHeight: { configurable: true, value: 100 },
+                        clientHeight: { configurable: true, value: 50 },
+                      });
+                    }}
+                  >
+                    <Select.Item value="one">One</Select.Item>
+                    <Select.Item value="two">Two</Select.Item>
+                  </Select.List>
+                  <Select.ScrollDownArrow keepMounted />
+                </Select.Popup>
+              </Select.Positioner>
+            </Select.Portal>
+          </Select.Root>,
+          { strict },
+        );
+
+        await user.click(screen.getByRole('combobox'));
+
+        const list = await screen.findByRole('listbox');
+        fireEvent.scroll(list);
+
+        const upArrow = screen.getByText('▲');
+        const downArrow = screen.getByText('▼');
+
+        await waitFor(() => {
+          expect(upArrow).toHaveAttribute('data-visible');
+        });
+        await waitFor(() => {
+          expect(downArrow).toHaveAttribute('data-visible');
+        });
+
+        await user.click(screen.getByRole('combobox'));
+        await act(async () => {
+          await new Promise((resolve) => {
+            requestAnimationFrame(resolve);
+          });
+          actionsRef.current.unmount();
+        });
+
+        await waitFor(() => {
+          expect(upArrow).not.toHaveAttribute('data-visible');
+        });
+        await waitFor(() => {
+          expect(downArrow).not.toHaveAttribute('data-visible');
+        });
+      },
+    );
+
     it('does not leave a tabbable option while closed and kept mounted after tabbing out', async () => {
       const actionsRef = {
         current: {
@@ -2855,6 +2949,22 @@ describe('<Select.Root />', () => {
   });
 
   describe('with Field.Root parent', () => {
+    it('applies the root id to the trigger', async () => {
+      await render(
+        <Field.Root>
+          <Field.Label data-testid="label">Label</Field.Label>
+          <Select.Root id="test-id">
+            <Select.Trigger data-testid="trigger">
+              <Select.Value />
+            </Select.Trigger>
+          </Select.Root>
+        </Field.Root>,
+      );
+
+      expect(screen.getByTestId('trigger')).toHaveAttribute('id', 'test-id');
+      expect(screen.getByTestId('label')).toHaveAttribute('for', 'test-id');
+    });
+
     it('should receive disabled prop from Field.Root', async () => {
       await render(
         <Field.Root disabled>

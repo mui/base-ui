@@ -125,7 +125,7 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
     store.state.setIndices({
       activeIndex: null,
       selectedIndex: null,
-      type: store.state.keyboardActiveRef.current ? 'keyboard' : 'pointer',
+      type: store.state.keyboardActiveRef.current ? REASONS.keyboard : REASONS.pointer,
     });
   }
 

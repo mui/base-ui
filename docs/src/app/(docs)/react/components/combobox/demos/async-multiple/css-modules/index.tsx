@@ -77,6 +77,7 @@ export default function ExampleAsyncMultipleCombobox() {
     <Combobox.Root
       items={items}
       itemToStringLabel={(user: DirectoryUser) => user.name}
+      isItemEqualToValue={(item, value) => item.id === value.id}
       multiple
       filter={null}
       onOpenChangeComplete={(open) => {

@@ -761,6 +761,35 @@ describe('<RadioGroup />', () => {
     });
   });
 
+  describe('item removal', () => {
+    it('moves the tab stop to the checked radio when the highlighted radio is removed', async () => {
+      function App({ showLast }: { showLast: boolean }) {
+        return (
+          <RadioGroup value="b">
+            <Radio.Root value="a" data-testid="a" />
+            <Radio.Root value="b" data-testid="b" />
+            {showLast && <Radio.Root value="c" data-testid="c" />}
+          </RadioGroup>
+        );
+      }
+
+      const { setProps, user } = await render(<App showLast />);
+
+      await act(async () => {
+        screen.getByTestId('b').focus();
+      });
+
+      await user.keyboard('{ArrowDown}');
+
+      expect(screen.getByTestId('c')).toHaveAttribute('tabindex', '0');
+
+      await setProps({ showLast: false });
+
+      expect(screen.getByTestId('a')).toHaveAttribute('tabindex', '-1');
+      expect(screen.getByTestId('b')).toHaveAttribute('tabindex', '0');
+    });
+  });
+
   describe('style hooks', () => {
     it('should apply data-checked and data-unchecked to radio root and indicator', async () => {
       await render(
@@ -1683,7 +1712,7 @@ describe('<RadioGroup />', () => {
     });
 
     it.skipIf(isJSDOM)(
-      'omits a context-portaled radio without native form association',
+      'includes a context-portaled radio without native form association in onFormSubmit',
       async () => {
         const handleSubmit = vi.fn();
         const portalContainer = document.createElement('div');
@@ -1701,16 +1730,43 @@ describe('<RadioGroup />', () => {
         );
 
         const form = screen.getByTestId('form') as HTMLFormElement;
-        // The radio is portaled out of the form with no `form` association, so its value is not
-        // submitted, matching native successful-control semantics.
+        // Native submission omits the portaled radio since it has no DOM form association.
         expect(new FormData(form).getAll('choice')).toEqual([]);
 
         fireEvent.click(screen.getByText('Submit'));
 
-        expect(handleSubmit.mock.calls[0][0]).toEqual({ choice: null });
+        // Field registration is context-driven, so the portaled radio still projects its value
+        // into `onFormSubmit`, like other field controls.
+        expect(handleSubmit.mock.calls[0][0]).toEqual({ choice: 'a' });
         portalContainer.remove();
       },
     );
+
+    it('includes a group fully portaled outside the form element in onFormSubmit', async () => {
+      const handleSubmit = vi.fn();
+      const portalContainer = document.createElement('div');
+      document.body.append(portalContainer);
+
+      await renderFakeTimers(
+        <Form onFormSubmit={handleSubmit}>
+          {ReactDOM.createPortal(
+            <Field.Root name="choice">
+              <RadioGroup defaultValue="a">
+                <Radio.Root value="a" />
+                <Radio.Root value="b" />
+              </RadioGroup>
+            </Field.Root>,
+            portalContainer,
+          )}
+          <button type="submit">Submit</button>
+        </Form>,
+      );
+
+      fireEvent.click(screen.getByText('Submit'));
+
+      expect(handleSubmit.mock.calls[0][0]).toEqual({ choice: 'a' });
+      portalContainer.remove();
+    });
 
     it.skipIf(isJSDOM)(
       'submits null when the selected radio in a required group is disabled, matching native validity',

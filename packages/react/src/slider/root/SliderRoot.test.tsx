@@ -2809,7 +2809,7 @@ describe('<Slider.Root />', () => {
 
       const value = screen.getByTestId('value');
       const slider = screen.getByRole('slider');
-      expect(value).toHaveTextContent(formatValue(50));
+      expect(value.textContent).toBe(formatValue(50));
       expect(slider).toHaveAttribute('aria-valuetext', formatValue(50));
     });
 
@@ -2836,7 +2836,7 @@ describe('<Slider.Root />', () => {
       await render(<TestRangeSlider defaultValue={[50, 75]} format={USD_NUMBER_FORMAT} />);
 
       const value = screen.getByTestId('value');
-      expect(value).toHaveTextContent(`${formatValue(50)} – ${formatValue(75)}`);
+      expect(value.textContent).toBe(`${formatValue(50)} – ${formatValue(75)}`);
       const [slider1, slider2] = screen.getAllByRole('slider');
       expect(slider1).toHaveAttribute('aria-valuetext', `${formatValue(50)} start range`);
       expect(slider2).toHaveAttribute('aria-valuetext', `${formatValue(75)} end range`);
@@ -3102,6 +3102,32 @@ describe('<Slider.Root />', () => {
       fireEvent.change(input, { target: { value: 'value' } });
 
       expect(root).toHaveAttribute('data-dirty', '');
+    });
+
+    it('[data-dirty] with a range value', async () => {
+      await render(
+        <Field.Root>
+          <Slider.Root data-testid="root" defaultValue={[20, 40]}>
+            <Slider.Control>
+              <Slider.Thumb index={0} />
+              <Slider.Thumb index={1} />
+            </Slider.Control>
+          </Slider.Root>
+        </Field.Root>,
+      );
+
+      const root = screen.getByTestId('root');
+      const [, input2] = screen.getAllByRole('slider');
+
+      expect(root).not.toHaveAttribute('data-dirty');
+
+      fireEvent.change(input2, { target: { value: '50' } });
+
+      expect(root).toHaveAttribute('data-dirty', '');
+
+      fireEvent.change(input2, { target: { value: '40' } });
+
+      expect(root).not.toHaveAttribute('data-dirty');
     });
 
     it('[data-focused]', async () => {

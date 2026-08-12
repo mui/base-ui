@@ -130,7 +130,7 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
   const hoverFloatingElement = positionerElement || viewportElement;
   const hoverInteractionsEnabled = (hoverFloatingElement != null || value == null) && !disabled;
 
-  const runOnceAnimationsFinish = useAnimationsFinished(popupElement, false, false);
+  const runOnceAnimationsFinish = useAnimationsFinished(popupElement);
 
   const handleTriggerElement = React.useCallback((element: HTMLElement | null) => {
     triggerElementRef.current = element;
@@ -683,6 +683,11 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
     },
     onMouseMove() {
       allowFocusRef.current = false;
+    },
+    onMouseLeave() {
+      if (value == null) {
+        clearSafePolygonPointerEventsMutation(hoverInteractionState);
+      }
     },
     onKeyDown(event) {
       allowFocusRef.current = true;

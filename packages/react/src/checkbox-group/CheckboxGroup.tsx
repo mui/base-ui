@@ -3,13 +3,16 @@ import * as React from 'react';
 import { useControlled } from '@base-ui/utils/useControlled';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { EMPTY_ARRAY } from '@base-ui/utils/empty';
+import { areArraysEqual } from '@base-ui/utils/areArraysEqual';
 import { useBaseUiId } from '../internals/useBaseUiId';
 import { useRenderElement } from '../internals/useRenderElement';
 import { CheckboxGroupContext } from './CheckboxGroupContext';
 import type { FieldRootState } from '../field/root/FieldRoot';
+import { isEligibleInput } from '../field/root/useFieldValidation';
 import { useFieldRootContext } from '../internals/field-root-context/FieldRootContext';
 import { useRegisterFieldControl } from '../internals/field-register-control/useRegisterFieldControl';
 import { useLabelableContext } from '../internals/labelable-provider/LabelableContext';
+import { useLabelableId } from '../internals/labelable-provider/useLabelableId';
 import type { BaseUIComponentProps } from '../internals/types';
 import { fieldValidityMapping } from '../internals/field-constants/constants';
 import { useCheckboxGroupParent } from './useCheckboxGroupParent';
@@ -17,7 +20,6 @@ import type { BaseUIChangeEventDetails } from '../internals/createBaseUIEventDet
 import { REASONS } from '../internals/reasons';
 import { useFormContext } from '../internals/form-context/FormContext';
 import { useValueChanged } from '../internals/useValueChanged';
-import { areArraysEqual } from '../internals/areArraysEqual';
 
 /**
  * Provides a shared state to a series of checkboxes.
@@ -50,16 +52,13 @@ export const CheckboxGroup = React.forwardRef(function CheckboxGroup(
     setDirty,
     validityData,
   } = useFieldRootContext();
-  const { labelId, getDescriptionProps } = useLabelableContext();
+  const { labelId, registerControlId, getDescriptionProps } = useLabelableContext();
   const { clearErrors, elementRef } = useFormContext();
 
   const disabled = fieldDisabled || disabledProp;
+  const defaultValue = defaultValueProp ?? EMPTY_ARRAY;
 
-  const defaultValue = defaultValueProp ?? (EMPTY_ARRAY as string[]);
-
-  // A controlled value can still be `undefined` at runtime even though `useControlled`'s
-  // generic return type says otherwise. Keep the fallback to prevent group consumers from crashing.
-  const [value = EMPTY_ARRAY as string[], setValueUnwrapped] = useControlled<string[]>({
+  const [value, setValueUnwrapped] = useControlled({
     controlled: externalValue,
     default: defaultValue,
     name: 'CheckboxGroup',
@@ -84,6 +83,10 @@ export const CheckboxGroup = React.forwardRef(function CheckboxGroup(
     onValueChange: setValue,
   });
 
+  // The group is the field's control and takes its name from `aria-labelledby`, so `Field.Label`
+  // must not point `htmlFor` at one arbitrary checkbox inside the group.
+  useLabelableId({ id: null });
+
   const id = useBaseUiId(idProp);
   const getInputControl = validation.getInputControl;
 
@@ -107,8 +110,7 @@ export const CheckboxGroup = React.forwardRef(function CheckboxGroup(
       if (
         registration.value !== undefined &&
         input.checked &&
-        !input.matches(':disabled') &&
-        input.form === formElement
+        isEligibleInput(input, formElement)
       ) {
         successfulValues.add(registration.value);
       }
@@ -147,8 +149,9 @@ export const CheckboxGroup = React.forwardRef(function CheckboxGroup(
       parent,
       disabled,
       validation,
+      registerControlId,
     }),
-    [allValues, value, setValue, parent, disabled, validation],
+    [allValues, value, setValue, parent, disabled, validation, registerControlId],
   );
 
   const element = useRenderElement('div', componentProps, {

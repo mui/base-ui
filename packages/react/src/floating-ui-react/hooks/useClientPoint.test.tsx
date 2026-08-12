@@ -2,7 +2,7 @@ import { test, expect, vi } from 'vitest';
 import * as React from 'react';
 import type { Coords } from '@floating-ui/react-dom';
 import { flushMicrotasks } from '@mui/internal-test-utils';
-import { fireEvent, render, screen } from '@testing-library/react';
+import { act, fireEvent, render, screen } from '@testing-library/react';
 import { useTestInteractions } from '#test-utils';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
@@ -87,12 +87,17 @@ function App({
         data-testid="reference"
         ref={refs.setReference}
         {...referenceProps}
-        style={{ width: 0, height: 0 }}
+        style={{ width: 0, height: 0, pointerEvents: 'none' }}
       >
         Reference
       </div>
       {isOpen && (
-        <div data-testid="floating" ref={refs.setFloating} {...getFloatingProps()}>
+        <div
+          data-testid="floating"
+          ref={refs.setFloating}
+          {...getFloatingProps()}
+          style={{ pointerEvents: 'none' }}
+        >
           Floating
         </div>
       )}
@@ -375,6 +380,8 @@ test('removes window listener when cursor lands on floating element', async () =
     }),
   );
 
+  await act(async () => flushMicrotasks());
+
   fireEvent(
     document.body,
     new MouseEvent('mousemove', {
@@ -383,7 +390,6 @@ test('removes window listener when cursor lands on floating element', async () =
       clientY: 0,
     }),
   );
-  await flushMicrotasks();
 
   expectLocation({ x: 500, y: 500 });
 });
@@ -411,6 +417,8 @@ test('reattaches window listener after cursor returns from floating element to r
     }),
   );
 
+  await act(async () => flushMicrotasks());
+
   fireEvent(
     document.body,
     new MouseEvent('mousemove', {
@@ -419,7 +427,6 @@ test('reattaches window listener after cursor returns from floating element to r
       clientY: 0,
     }),
   );
-  await flushMicrotasks();
 
   expectLocation({ x: 500, y: 500 });
 
@@ -431,7 +438,18 @@ test('reattaches window listener after cursor returns from floating element to r
       clientY: 700,
     }),
   );
-  await flushMicrotasks();
+  await act(async () => flushMicrotasks());
+
+  // Reapply deterministic coordinates after the effect attaches the window listener.
+  // A real browser cursor can emit an unrelated move while the effect is flushing.
+  fireEvent(
+    screen.getByTestId('reference'),
+    new MouseEvent('mousemove', {
+      bubbles: true,
+      clientX: 600,
+      clientY: 700,
+    }),
+  );
 
   expectLocation({ x: 600, y: 700 });
 
@@ -443,8 +461,8 @@ test('reattaches window listener after cursor returns from floating element to r
       clientY: 200,
     }),
   );
-  await flushMicrotasks();
 
+  await act(async () => flushMicrotasks());
   expectLocation({ x: 100, y: 200 });
 });
 

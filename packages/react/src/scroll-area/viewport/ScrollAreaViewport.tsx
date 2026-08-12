@@ -4,6 +4,7 @@ import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { platform } from '@base-ui/utils/platform';
 import { useTimeout } from '@base-ui/utils/useTimeout';
+import { clamp } from '@base-ui/utils/clamp';
 import type { BaseUIComponentProps } from '../../internals/types';
 import { useScrollAreaRootContext } from '../root/ScrollAreaRootContext';
 import { ScrollAreaViewportContext } from './ScrollAreaViewportContext';
@@ -11,7 +12,6 @@ import { useRenderElement } from '../../internals/useRenderElement';
 import { useDirection } from '../../internals/direction-context/DirectionContext';
 import { getOffset } from '../utils/getOffset';
 import { MIN_THUMB_SIZE } from '../constants';
-import { clamp } from '../../internals/clamp';
 import { styleDisableScrollbar } from '../../utils/styles';
 import { scrollAreaStateAttributesMapping } from '../root/stateAttributes';
 import type { HiddenState, ScrollAreaRootState } from '../root/ScrollAreaRoot';
@@ -278,12 +278,8 @@ export const ScrollAreaViewport = React.forwardRef(function ScrollAreaViewport(
   });
 
   useIsoLayoutEffect(() => {
-    if (!viewportRef.current) {
-      return;
-    }
-
     removeCSSVariableInheritance();
-  }, [viewportRef]);
+  }, []);
 
   useIsoLayoutEffect(() => {
     // Wait for scrollbar and thumb refs after hidden-state toggles, refresh math on direction
@@ -344,6 +340,9 @@ export const ScrollAreaViewport = React.forwardRef(function ScrollAreaViewport(
         return;
       }
 
+      // `allSettled` never rejects, but `computeThumbPosition` can still run against a
+      // torn-down tree once the animations resolve. Swallow instead of leaking an unhandled
+      // rejection; `void` alone would only silence the floating-promise lint.
       Promise.allSettled(animations.map((animation) => animation.finished))
         .then(computeThumbPosition)
         .catch(() => {});

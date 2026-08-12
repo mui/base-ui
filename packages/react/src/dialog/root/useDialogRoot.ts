@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useScrollLock } from '@base-ui/utils/useScrollLock';
 import { useDismiss } from '../../floating-ui-react';
 import { contains, getTarget } from '../../floating-ui-react/utils';
@@ -92,7 +93,7 @@ export function DialogInteractions({
   });
 
   // Notify parent of our open/close state using parent callbacks, if any
-  React.useEffect(() => {
+  useIsoLayoutEffect(() => {
     if (parentContext?.onNestedDialogOpen) {
       if (open) {
         parentContext.onNestedDialogOpen(

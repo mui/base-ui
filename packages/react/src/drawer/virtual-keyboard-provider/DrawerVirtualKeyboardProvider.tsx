@@ -5,9 +5,9 @@ import { addEventListener } from '@base-ui/utils/addEventListener';
 import { ownerDocument, ownerWindow } from '@base-ui/utils/owner';
 import { useAnimationFrame } from '@base-ui/utils/useAnimationFrame';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
+import { clamp } from '@base-ui/utils/clamp';
 import { useTimeout } from '@base-ui/utils/useTimeout';
 import { useDialogRootContext } from '../../dialog/root/DialogRootContext';
-import { clamp } from '../../internals/clamp';
 import {
   activeElement,
   contains,
@@ -568,10 +568,10 @@ export function DrawerVirtualKeyboardProvider(props: DrawerVirtualKeyboardProvid
     }
 
     const touch = event.changedTouches[0] ?? event.touches[0];
-    const doc = ownerDocument(event.currentTarget);
+    const root = rootElement.getRootNode();
     const nativeEventTarget = getTarget(event.nativeEvent);
     const pointTarget = touch
-      ? resolveKeyboardTouchTargetFromPoint(doc, touch.clientX, touch.clientY)
+      ? resolveKeyboardTouchTargetFromPoint(root, touch.clientX, touch.clientY)
       : null;
 
     // The lift point landed on another interactive/label element; let its native tap
@@ -726,11 +726,11 @@ function getContentEditableHost(element: HTMLElement): HTMLElement {
 }
 
 function resolveKeyboardTouchTargetFromPoint(
-  doc: Document,
+  root: Node,
   clientX: number,
   clientY: number,
 ): KeyboardTouchTarget | typeof KEYBOARD_TAP_BLOCKED | null {
-  const exactTarget = getElementAtPoint(doc, clientX, clientY);
+  const exactTarget = getElementAtPoint(root, clientX, clientY);
   if (isHTMLElement(exactTarget)) {
     const exactKeyboardTarget = resolveKeyboardInputTarget(exactTarget);
     if (exactKeyboardTarget) {
@@ -758,7 +758,7 @@ function resolveKeyboardTouchTargetFromPoint(
     [-INPUT_TAP_HIT_SLOP, 0],
   ]) {
     const keyboardTarget = resolveKeyboardInputTarget(
-      getElementAtPoint(doc, clientX + offsetX, clientY + offsetY),
+      getElementAtPoint(root, clientX + offsetX, clientY + offsetY),
     );
 
     if (keyboardTarget) {

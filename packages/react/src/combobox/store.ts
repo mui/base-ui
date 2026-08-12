@@ -26,6 +26,7 @@ export type State = {
   selectedIndex: number | null;
 
   popupProps: HTMLProps;
+  listProps: HTMLProps;
   inputProps: HTMLProps;
   triggerProps: HTMLProps;
   itemProps: HTMLProps;
@@ -65,7 +66,7 @@ export type State = {
   setIndices: (indices: {
     activeIndex?: number | null | undefined;
     selectedIndex?: number | null | undefined;
-    type?: 'keyboard' | 'pointer' | 'none' | undefined;
+    type?: AriaCombobox.HighlightEventReason | undefined;
   }) => void;
   forceMount: () => void;
   handleSelection: (event: MouseEvent | PointerEvent | KeyboardEvent, itemValue: any) => void;
@@ -140,6 +141,7 @@ export const selectors = {
   transitionStatus: (state: State) => state.transitionStatus,
 
   popupProps: (state: State) => state.popupProps,
+  listProps: (state: State) => state.listProps,
   inputProps: (state: State) => state.inputProps,
   triggerProps: (state: State) => state.triggerProps,
   itemProps: (state: State) => state.itemProps,

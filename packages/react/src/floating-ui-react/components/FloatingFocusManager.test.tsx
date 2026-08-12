@@ -5,6 +5,8 @@ import { test, vi, expect } from 'vitest';
 
 /* eslint-disable react/jsx-fragments */
 import userEvent from '@testing-library/user-event';
+import type { InteractionType } from '@base-ui/utils/useEnhancedClickHandler';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import {
   flushMicrotasks,
   act,
@@ -1463,6 +1465,178 @@ describe('FloatingFocusManager', () => {
         await userEvent.keyboard('{Escape}');
 
         expect(screen.getByTestId('reference')).toHaveFocus();
+      });
+
+      test('resets close modality between keep-mounted open sessions', async () => {
+        const finalFocus = vi.fn((_closeType: InteractionType) => true);
+
+        function App() {
+          const [isOpen, setIsOpen] = React.useState(false);
+
+          const { refs, context } = useFloating({
+            open: isOpen,
+            onOpenChange: setIsOpen,
+          });
+
+          const click = useClick(context);
+          const dismiss = useDismiss(context);
+          const { getReferenceProps, getFloatingProps } = useTestInteractions([click, dismiss]);
+
+          return (
+            <>
+              <button data-testid="reference" ref={refs.setReference} {...getReferenceProps()} />
+              <button data-testid="controlled-open" onClick={() => setIsOpen(true)} />
+              <button data-testid="controlled-close" onClick={() => setIsOpen(false)} />
+              <FloatingPortal>
+                <FloatingFocusManager context={context} disabled={!isOpen} returnFocus={finalFocus}>
+                  <div ref={refs.setFloating} {...getFloatingProps()}>
+                    <button data-testid="child" />
+                  </div>
+                </FloatingFocusManager>
+              </FloatingPortal>
+            </>
+          );
+        }
+
+        render(<App />);
+
+        const reference = screen.getByTestId('reference');
+        const focusSpy = vi.spyOn(reference, 'focus');
+
+        try {
+          await userEvent.click(reference);
+          await waitFor(() => {
+            expect(screen.getByTestId('child')).toHaveFocus();
+          });
+
+          await userEvent.keyboard('{Escape}');
+          await waitFor(() => {
+            expect(focusSpy).toHaveBeenCalledWith({
+              preventScroll: true,
+              focusVisible: true,
+            });
+          });
+          expect(finalFocus).toHaveBeenLastCalledWith('keyboard');
+
+          focusSpy.mockClear();
+
+          await userEvent.click(reference);
+          await waitFor(() => {
+            expect(screen.getByTestId('child')).toHaveFocus();
+          });
+
+          fireEvent.click(screen.getByTestId('controlled-close'));
+
+          await waitFor(() => {
+            expect(focusSpy).toHaveBeenCalledWith({ preventScroll: true });
+          });
+          expect(focusSpy).not.toHaveBeenCalledWith(
+            expect.objectContaining({ focusVisible: true }),
+          );
+          expect(finalFocus).toHaveBeenLastCalledWith('');
+
+          focusSpy.mockClear();
+          finalFocus.mockClear();
+
+          fireEvent.click(screen.getByTestId('controlled-open'));
+          await waitFor(() => {
+            expect(screen.getByTestId('child')).toHaveFocus();
+          });
+
+          fireEvent.pointerDown(reference, { pointerType: 'mouse' });
+          fireEvent.click(screen.getByTestId('controlled-close'));
+
+          await waitFor(() => {
+            expect(focusSpy).toHaveBeenCalledWith({ preventScroll: true });
+          });
+          expect(focusSpy).not.toHaveBeenCalledWith(
+            expect.objectContaining({ focusVisible: true }),
+          );
+          expect(finalFocus).toHaveBeenCalledWith('');
+
+          focusSpy.mockClear();
+          finalFocus.mockClear();
+
+          fireEvent.click(screen.getByTestId('controlled-open'));
+          await waitFor(() => {
+            expect(screen.getByTestId('child')).toHaveFocus();
+          });
+
+          fireEvent.click(reference, { detail: 0 });
+
+          await waitFor(() => {
+            expect(focusSpy).toHaveBeenCalledWith({
+              preventScroll: true,
+              focusVisible: true,
+            });
+          });
+          expect(finalFocus).toHaveBeenCalledWith('keyboard');
+        } finally {
+          focusSpy.mockRestore();
+        }
+      });
+
+      test('preserves keyboard close modality when reopening before focus restoration', async () => {
+        function App() {
+          const [isOpen, setIsOpen] = React.useState(false);
+          const [reopenOnClose, setReopenOnClose] = React.useState(false);
+
+          const { refs, context } = useFloating({
+            open: isOpen,
+            onOpenChange: setIsOpen,
+          });
+
+          const click = useClick(context);
+          const dismiss = useDismiss(context);
+          const { getReferenceProps, getFloatingProps } = useTestInteractions([click, dismiss]);
+
+          useIsoLayoutEffect(() => {
+            if (!isOpen && reopenOnClose) {
+              setReopenOnClose(false);
+              setIsOpen(true);
+            }
+          }, [isOpen, reopenOnClose]);
+
+          return (
+            <>
+              <span data-testid="open-state">{String(isOpen)}</span>
+              <button data-testid="reference" ref={refs.setReference} {...getReferenceProps()} />
+              <button data-testid="reopen-on-close" onClick={() => setReopenOnClose(true)} />
+              <FloatingPortal>
+                <FloatingFocusManager context={context} disabled={!isOpen}>
+                  <div ref={refs.setFloating} {...getFloatingProps()}>
+                    <button data-testid="child" />
+                  </div>
+                </FloatingFocusManager>
+              </FloatingPortal>
+            </>
+          );
+        }
+
+        render(<App />);
+
+        const reference = screen.getByTestId('reference');
+        const focusSpy = vi.spyOn(reference, 'focus');
+
+        try {
+          await userEvent.click(reference);
+          await waitFor(() => {
+            expect(screen.getByTestId('child')).toHaveFocus();
+          });
+
+          fireEvent.click(screen.getByTestId('reopen-on-close'));
+          await userEvent.keyboard('{Escape}');
+
+          await waitFor(() => {
+            expect(focusSpy).toHaveBeenCalledWith({
+              preventScroll: true,
+              focusVisible: true,
+            });
+          });
+          expect(screen.getByTestId('open-state')).toHaveTextContent('true');
+        } finally {
+          focusSpy.mockRestore();
+        }
       });
 
       test('clears outside pointer state between keep-mounted open sessions', async () => {

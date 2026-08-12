@@ -19,9 +19,7 @@ export interface ScrollAreaRootContext {
   hovering: boolean;
   setHovering: React.Dispatch<React.SetStateAction<boolean>>;
   scrollingX: boolean;
-  setScrollingX: React.Dispatch<React.SetStateAction<boolean>>;
   scrollingY: boolean;
-  setScrollingY: React.Dispatch<React.SetStateAction<boolean>>;
   viewportRef: React.RefObject<HTMLDivElement | null>;
   scrollbarYRef: React.RefObject<HTMLDivElement | null>;
   thumbYRef: React.RefObject<HTMLDivElement | null>;

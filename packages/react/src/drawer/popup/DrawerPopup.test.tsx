@@ -4,8 +4,10 @@ import { AlertDialog } from '@base-ui/react/alert-dialog';
 import { Dialog } from '@base-ui/react/dialog';
 import { Drawer } from '@base-ui/react/drawer';
 import { SafeReact } from '@base-ui/utils/safeReact';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { act, fireEvent, screen, waitFor } from '@mui/internal-test-utils';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
+import { useDialogRootContext } from '../../dialog/root/DialogRootContext';
 import { useDrawerRootContext } from '../root/DrawerRootContext';
 
 function setHeight(element: HTMLElement | null, getValue: () => number) {
@@ -337,6 +339,112 @@ describe('<Drawer.Popup />', () => {
       });
     },
   );
+
+  it('reports nested presence and frontmost height before passive effects', async () => {
+    let passiveEffectFlushed = false;
+    let heightReportedBeforePassiveEffect: boolean | null = null;
+    let presenceReportedBeforePassiveEffect: boolean | null = null;
+    const patchedDrawerContexts = new WeakSet<object>();
+
+    function PassiveEffectBoundary({ childOpen }: { childOpen: boolean }) {
+      React.useEffect(() => {
+        if (childOpen) {
+          passiveEffectFlushed = true;
+        }
+      }, [childOpen]);
+
+      return null;
+    }
+
+    function ChildDrawerMethodProbe() {
+      const context = useDrawerRootContext();
+
+      if (!patchedDrawerContexts.has(context)) {
+        patchedDrawerContexts.add(context);
+        const notifyParentFrontmostHeight = context.notifyParentFrontmostHeight;
+        const notifyParentHasNestedDrawer = context.notifyParentHasNestedDrawer;
+
+        context.notifyParentFrontmostHeight = (height) => {
+          if (height > 0 && heightReportedBeforePassiveEffect === null) {
+            heightReportedBeforePassiveEffect = !passiveEffectFlushed;
+          }
+          notifyParentFrontmostHeight?.(height);
+        };
+        context.notifyParentHasNestedDrawer = (present) => {
+          if (present && presenceReportedBeforePassiveEffect === null) {
+            presenceReportedBeforePassiveEffect = !passiveEffectFlushed;
+          }
+          notifyParentHasNestedDrawer?.(present);
+        };
+      }
+
+      return null;
+    }
+
+    function PopupPhaseBoundary() {
+      useDialogRootContext().useState('open');
+      useDrawerRootContext();
+      passiveEffectFlushed = false;
+
+      useIsoLayoutEffect(() => {
+        passiveEffectFlushed = false;
+      });
+
+      React.useEffect(() => {
+        passiveEffectFlushed = true;
+      });
+
+      return null;
+    }
+
+    function TestCase({ childOpen }: { childOpen: boolean }) {
+      return (
+        <React.StrictMode>
+          <Drawer.Root defaultOpen modal={false}>
+            <Drawer.Portal>
+              <Drawer.Viewport>
+                <Drawer.Popup data-testid="parent-popup">
+                  <PassiveEffectBoundary childOpen={childOpen} />
+                  <Drawer.Root open={childOpen} modal={false}>
+                    <ChildDrawerMethodProbe />
+                    <Drawer.Portal keepMounted>
+                      <Drawer.Viewport>
+                        <Drawer.Popup
+                          initialFocus={false}
+                          ref={(element) => {
+                            if (element) {
+                              Object.defineProperty(element, 'offsetHeight', {
+                                configurable: true,
+                                value: 100,
+                              });
+                            }
+                          }}
+                        >
+                          <PopupPhaseBoundary />
+                          Child drawer
+                        </Drawer.Popup>
+                      </Drawer.Viewport>
+                    </Drawer.Portal>
+                  </Drawer.Root>
+                </Drawer.Popup>
+              </Drawer.Viewport>
+            </Drawer.Portal>
+          </Drawer.Root>
+        </React.StrictMode>
+      );
+    }
+
+    const { setProps } = await render(<TestCase childOpen={false} />);
+
+    await setProps({ childOpen: true });
+
+    expect(heightReportedBeforePassiveEffect).toBe(true);
+    expect(presenceReportedBeforePassiveEffect).toBe(true);
+    const parentPopup = screen.getByTestId('parent-popup');
+    expect(parentPopup.style.getPropertyValue('--nested-drawers')).toBe('1');
+    expect(parentPopup).toHaveAttribute('data-nested-drawer-open', '');
+    expect(parentPopup.style.getPropertyValue('--drawer-frontmost-height')).toBe('100px');
+  });
 
   it('does not treat dialogs inside nested drawers as nested drawers', async () => {
     await render(

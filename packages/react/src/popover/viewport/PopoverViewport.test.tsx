@@ -1,8 +1,16 @@
 import { expect } from 'vitest';
 import * as React from 'react';
+import { DirectionProvider } from '@base-ui/react/direction-provider';
 import { Popover } from '@base-ui/react/popover';
 import { act, screen, waitFor } from '@mui/internal-test-utils';
 import { createRenderer, describeConformance, isJSDOM, waitSingleFrame } from '#test-utils';
+import type { Side } from '../../internals/useAnchorPositioning';
+
+interface AnchoringCase {
+  side: Side;
+  direction: 'ltr' | 'rtl';
+  expected: React.CSSProperties;
+}
 
 describe('<Popover.Viewport />', () => {
   const { render } = createRenderer();
@@ -22,6 +30,70 @@ describe('<Popover.Viewport />', () => {
       );
     },
   }));
+
+  it.each([
+    {
+      side: 'top',
+      direction: 'ltr',
+      expected: { position: 'absolute', bottom: '0px', left: '0px' },
+    },
+    {
+      side: 'top',
+      direction: 'rtl',
+      expected: { position: 'absolute', bottom: '0px', left: '0px' },
+    },
+    { side: 'bottom', direction: 'ltr', expected: {} },
+    { side: 'bottom', direction: 'rtl', expected: {} },
+    {
+      side: 'left',
+      direction: 'ltr',
+      expected: { position: 'absolute', top: '0px', right: '0px' },
+    },
+    {
+      side: 'left',
+      direction: 'rtl',
+      expected: { position: 'absolute', top: '0px', right: '0px' },
+    },
+    { side: 'right', direction: 'ltr', expected: {} },
+    { side: 'right', direction: 'rtl', expected: {} },
+    {
+      side: 'inline-start',
+      direction: 'ltr',
+      expected: { position: 'absolute', top: '0px', right: '0px' },
+    },
+    { side: 'inline-start', direction: 'rtl', expected: {} },
+    { side: 'inline-end', direction: 'ltr', expected: {} },
+    {
+      side: 'inline-end',
+      direction: 'rtl',
+      expected: { position: 'absolute', top: '0px', right: '0px' },
+    },
+  ] satisfies AnchoringCase[])(
+    'anchors side=$side correctly in $direction mode',
+    async ({ side, direction, expected }) => {
+      await render(
+        <DirectionProvider direction={direction}>
+          <Popover.Root open>
+            <Popover.Trigger>Trigger</Popover.Trigger>
+            <Popover.Portal>
+              <Popover.Positioner side={side} collisionAvoidance={{ side: 'none' }}>
+                <Popover.Popup data-testid="popup">
+                  <Popover.Viewport>Content</Popover.Viewport>
+                </Popover.Popup>
+              </Popover.Positioner>
+            </Popover.Portal>
+          </Popover.Root>
+        </DirectionProvider>,
+      );
+
+      const { style } = screen.getByTestId('popup');
+      expect(style.position).toBe(expected.position ?? '');
+      expect(style.top).toBe(expected.top ?? '');
+      expect(style.right).toBe(expected.right ?? '');
+      expect(style.bottom).toBe(expected.bottom ?? '');
+      expect(style.left).toBe(expected.left ?? '');
+    },
+  );
 
   it('should render children in the `current` container by default', async () => {
     await render(
@@ -92,6 +164,43 @@ describe('<Popover.Viewport />', () => {
       expect(secondContainer).not.toBe(firstContainer);
     });
   });
+
+  it.each([false, true])(
+    'does not restart a transition when the active trigger remounts while closed and retained (strict: %s)',
+    async (strict) => {
+      function Test({ triggerKey }: { triggerKey: string }) {
+        return (
+          <Popover.Root
+            defaultOpen
+            defaultTriggerId="trigger"
+            onOpenChange={(open, eventDetails) => {
+              if (!open) {
+                eventDetails.preventUnmountOnClose();
+              }
+            }}
+          >
+            <Popover.Trigger id="trigger" key={triggerKey}>
+              Trigger
+            </Popover.Trigger>
+            <Popover.Portal>
+              <Popover.Positioner>
+                <Popover.Popup>
+                  <Popover.Viewport data-testid="viewport">Content</Popover.Viewport>
+                </Popover.Popup>
+              </Popover.Positioner>
+            </Popover.Portal>
+          </Popover.Root>
+        );
+      }
+
+      const { user, rerender } = await render(<Test triggerKey="a" />, { strict });
+
+      await user.click(screen.getByRole('button', { name: 'Trigger' }));
+      await rerender(<Test triggerKey="b" />);
+
+      expect(screen.getByTestId('viewport')).toBeInTheDocument();
+    },
+  );
 
   describe.skipIf(isJSDOM)('morphing containers with multiple triggers and payloads', () => {
     beforeEach(() => {
