@@ -1,9 +1,9 @@
 'use client';
 import * as React from 'react';
+import { clamp } from '@base-ui/utils/clamp';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { ownerDocument, ownerWindow } from '@base-ui/utils/owner';
-import { clamp } from '@base-ui/utils/clamp';
-import { contains, getTarget } from '../floating-ui-react/utils';
+import { closest, contains, getTarget } from '../floating-ui-react/utils';
 import { findScrollableTouchTarget, hasScrollableAncestor, type ScrollAxis } from './scrollable';
 import { getElementAtPoint } from './getElementAtPoint';
 
@@ -393,7 +393,7 @@ export function useSwipeDismiss(options: UseSwipeDismissOptions): UseSwipeDismis
     }
     swipeFromScrollableRef.current = Boolean(scrollableTarget && ignoreScrollableTarget);
 
-    const isInteractiveElement = target ? target.closest(ignoreSelector) : false;
+    const isInteractiveElement = closest(target, ignoreSelector);
     if (isInteractiveElement && (!touchLike || ignoreSelectorWhenTouch)) {
       return false;
     }
