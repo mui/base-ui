@@ -20,15 +20,6 @@ export type RegisterDraggableParameters<TData = undefined> = Omit<
 >;
 
 /**
- * Just the `payload` field, required. Picked from `DraggableConfig` rather than
- * redeclared so its description has one home.
- * @internal
- */
-export type RequiredDraggablePayload<TData> = Required<
-  Pick<RegisterDraggableParameters<TData>, 'payload'>
->;
-
-/**
  * `RegisterDraggableParameters` for the overload that infers `TData` from a required `payload`.
  * @public
  */
@@ -36,7 +27,7 @@ export type RegisterDraggableParametersWithPayload<TData> = Omit<
   RegisterDraggableParameters<TData>,
   'payload'
 > &
-  RequiredDraggablePayload<TData>;
+  Required<Pick<RegisterDraggableParameters<TData>, 'payload'>>;
 
 /**
  * Drop target registration parameters whose local payload is required.
@@ -112,7 +103,6 @@ export type { RegisterDropTargetParameters };
  *   render={<div onDrop={handleFileDrop} onDragOver={allowFileDrop} />}
  * />
  * ```
- * @internal
  */
 export type NativeDragEventProps =
   | 'onDrag'

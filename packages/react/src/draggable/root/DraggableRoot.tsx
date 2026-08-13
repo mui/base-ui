@@ -6,7 +6,6 @@ import type { BaseUIComponentProps } from '../../internals/types';
 import type {
   NativeDragEventProps,
   RegisterDraggableParameters,
-  RequiredDraggablePayload,
 } from '../../types/dragRegistration';
 import type { DraggablePayload } from '../../types/drag';
 import { useDraggableElement } from './useDraggableElement';
@@ -152,7 +151,8 @@ export const DraggableRoot = React.forwardRef(function DraggableRoot<TData = und
   // would make it a deferred conditional a generic wrapper can't spread into.
 }) as {
   <TData>(
-    props: DraggableRootPropsBase<TData> & RequiredDraggablePayload<TData>,
+    props: DraggableRootPropsBase<TData> &
+      Required<Pick<RegisterDraggableParameters<TData>, 'payload'>>,
   ): React.JSX.Element;
   (props: DraggableRootPropsBase<undefined>): React.JSX.Element;
 };
@@ -197,15 +197,15 @@ export type DraggableRootProps<TData = undefined> = DraggableRootPropsBase<TData
  * Use this alias when spreading props with an unbound payload type into the root.
  */
 export type DraggableRootPropsWithPayload<TData> = DraggableRootPropsBase<TData> &
-  RequiredDraggablePayload<TData>;
+  Required<Pick<RegisterDraggableParameters<TData>, 'payload'>>;
 
 /**
  * Requires `payload` when the caller declares a payload type. Generic wrappers
  * use {@link DraggableRootPropsWithPayload} instead.
  */
 type DraggableRootPayloadField<TData> = [TData] extends [undefined]
-  ? Partial<RequiredDraggablePayload<TData>>
-  : RequiredDraggablePayload<TData>;
+  ? Partial<Required<Pick<RegisterDraggableParameters<TData>, 'payload'>>>
+  : Required<Pick<RegisterDraggableParameters<TData>, 'payload'>>;
 
 export namespace DraggableRoot {
   export type State = DraggableRootState;
