@@ -233,7 +233,6 @@ export function useListNavigation(
   const forceScrollIntoViewRef = React.useRef(false);
   const cancelQueuedFocusRef = React.useRef<(() => void) | null>(null);
 
-  const disabledIndicesRef = useValueAsRef(disabledIndices);
   const latestOpenRef = useValueAsRef(open);
   const selectedIndexRef = useValueAsRef(selectedIndex);
   const resetOnPointerLeaveRef = useValueAsRef(resetOnPointerLeave);
@@ -419,10 +418,6 @@ export function useListNavigation(
       indexRef.current = index;
       onNavigate(event);
     }
-  });
-
-  const getMinEnabledIndex = useStableCallback(() => {
-    return getMinListIndex(listRef, disabledIndicesRef.current);
   });
 
   const commonOnKeyDown = useStableCallback((event: React.KeyboardEvent) => {
@@ -766,10 +761,9 @@ export function useListNavigation(
           return;
         }
 
-        if (virtual && !isTypeableElement(event.currentTarget)) {
-          indexRef.current = getMinEnabledIndex();
-          onNavigate(event);
-        } else if (virtual && resetOnReferenceFocus) {
+        // A non-typeable reference (a list container receiving DOM focus as a WebKit
+        // compatibility measure) keeps the current index; navigation set it in the same event.
+        if (virtual && resetOnReferenceFocus && isTypeableElement(event.currentTarget)) {
           indexRef.current = -1;
           onNavigate(event);
         } else if (!virtual) {
@@ -785,7 +779,6 @@ export function useListNavigation(
   }, [
     commonOnKeyDown,
     focusItemOnOpen,
-    getMinEnabledIndex,
     onNavigate,
     store,
     openOnArrowKeyDown,

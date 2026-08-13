@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import { platform } from '@base-ui/utils/platform';
 import type { BaseUIComponentProps } from '../../internals/types';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { useMenuRootContext } from '../root/MenuRootContext';
@@ -24,11 +25,12 @@ const MenuListImpl = React.forwardRef(function MenuListImpl(
       filterable ? listNavigationProps : undefined,
       {
         role: listRole,
-        // ATs switch into menu interaction mode as soon as the menu is exposed, which sometimes prevents
-        // dialog/input focus from being announced. To fix, we match autocomplete behavior by keeping
-        // the menu subtree hidden until Down Arrow moves virtual focus into the results. This
-        // exposes the menu and its items during menu navigation.
-        'aria-hidden': filterable && activeIndex === null ? true : undefined,
+        // VoiceOver switches into menu interaction mode as soon as the menu is exposed, which
+        // prevents dialog/input focus from being announced. Keep the menu subtree hidden until
+        // Down Arrow moves navigation (and DOM focus) into the results. Scoped to WebKit so
+        // other ATs keep browse-mode discovery of the items.
+        'aria-hidden':
+          filterable && activeIndex === null && platform.engine.webkit ? true : undefined,
         onFocus(event) {
           if (event.target === event.currentTarget) {
             store.set('inputFocusVisible', false);

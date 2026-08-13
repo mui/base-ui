@@ -32,11 +32,26 @@ export const FilterDropdownList = React.forwardRef(function FilterDropdownList(
         role: 'menu',
         id,
         'aria-labelledby': ariaLabelledBy,
-        // Allow ATs to tab to this list to discover its items.
-        tabIndex: 0,
+        // Out of the tab order, but programmatically focusable: WebKit only tracks
+        // `aria-activedescendant` from the list element itself, so navigation moves DOM focus
+        // here. Also prevents scrollable lists from being tabbable by default.
+        tabIndex: -1,
         onMouseDown(event) {
           // Keep focus on the input when list content is pressed.
           event.preventDefault();
+        },
+        onKeyDown(event) {
+          if (event.target !== event.currentTarget || event.nativeEvent.isComposing) {
+            return;
+          }
+          const isTypingKey =
+            (event.key.length === 1 && event.key !== ' ') || event.key === 'Backspace';
+          const hasModifier = event.ctrlKey || event.metaKey || event.altKey;
+          if (isTypingKey && !hasModifier) {
+            // The list only holds DOM focus under the WebKit compatibility behavior. Return
+            // focus to the input without preventing default so the keystroke lands there.
+            popupContext.inputRef.current?.focus({ preventScroll: true });
+          }
         },
       },
       elementProps,
