@@ -39,6 +39,9 @@ const SelectListImpl = React.forwardRef(function SelectListImpl(
       }
     },
     onKeyDown(event) {
+      // Unlike the menu, the select cannot reset whenever the input regains focus: the open
+      // sequence focuses the input after the selected item is seeded, which would clear the
+      // open highlight. Reset only when tabbing back out of the focused list.
       if (event.key === 'Tab' && event.shiftKey) {
         store.set('activeIndex', null);
       }

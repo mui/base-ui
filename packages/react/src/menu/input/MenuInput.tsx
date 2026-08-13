@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import { platform } from '@base-ui/utils/platform';
 import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
 import {
   FilterDropdownInput,
@@ -40,6 +41,22 @@ export const MenuInput = React.forwardRef(function MenuInput(
           // Prevent a containing form from submitting before the active item handles selection.
           event.preventDefault();
           activeItem.click();
+        }
+
+        const isNavigationKey = event.key === 'ArrowDown' || event.key === 'ArrowUp';
+        const hasModifier = event.ctrlKey || event.metaKey || event.altKey;
+        const hasItems = store.context.itemDomElements.current.some(Boolean);
+        if (
+          platform.engine.webkit &&
+          isNavigationKey &&
+          hasItems &&
+          !hasModifier &&
+          !event.nativeEvent.isComposing
+        ) {
+          // WebKit only tracks `aria-activedescendant` when DOM focus is on the list element,
+          // not the input, so navigation moves real focus there. The same keydown continues to
+          // the list navigation handler, which sets the active item.
+          store.select('listElement')?.focus({ preventScroll: true });
         }
       },
     },
