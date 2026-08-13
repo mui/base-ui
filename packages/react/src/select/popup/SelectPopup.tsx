@@ -58,6 +58,7 @@ const SelectPopupImpl = React.forwardRef(function SelectPopupImpl(
     setOpen,
     valueRef,
     firstItemTextRef,
+    selectedItemTextRef,
     multiple,
     handleScrollArrowVisibility,
     scrollHandlerRef,
@@ -261,11 +262,7 @@ const SelectPopupImpl = React.forwardRef(function SelectPopupImpl(
     const restoreTransformStyles = unsetTransformStyles(popupElement);
 
     try {
-      const selectionReferenceItemId = store.state.selectionReferenceItemId;
-      const registeredItems = store.state.registeredItems;
-      const selectionReferenceItem =
-        selectionReferenceItemId && registeredItems.get(selectionReferenceItemId);
-      let textElement = selectionReferenceItem?.getTextElement();
+      let textElement = selectedItemTextRef.current;
 
       if (!textElement?.isConnected) {
         const hasSelectedValue = selectors.hasSelectedValue(store.state);
@@ -402,7 +399,8 @@ const SelectPopupImpl = React.forwardRef(function SelectPopupImpl(
 
       if (
         highlightItemOnHover &&
-        !selectionReferenceItemId &&
+        store.state.selectionReferenceItemId === null &&
+        store.state.selectionReferenceIndex === null &&
         store.state.activeIndex === null &&
         listRef.current[0] != null
       ) {
@@ -418,6 +416,7 @@ const SelectPopupImpl = React.forwardRef(function SelectPopupImpl(
     triggerElement,
     valueRef,
     firstItemTextRef,
+    selectedItemTextRef,
     popupRef,
     handleScrollArrowVisibility,
     alignItemWithTriggerActive,

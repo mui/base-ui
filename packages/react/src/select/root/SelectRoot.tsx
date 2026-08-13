@@ -29,7 +29,7 @@ import { useFieldRootContext } from '../../internals/field-root-context/FieldRoo
 import { useRegisterFieldControl } from '../../internals/field-register-control/useRegisterFieldControl';
 import { useLabelableId } from '../../internals/labelable-provider/useLabelableId';
 import { useTransitionStatus } from '../../internals/useTransitionStatus';
-import { selectors, type RegisteredItem, type State as StoreState } from '../store';
+import { selectors, type State as StoreState } from '../store';
 import {
   type BaseUIChangeEventDetails,
   createChangeEventDetails,
@@ -46,10 +46,10 @@ import {
 import {
   compareItemEquality,
   defaultItemEquality,
+  findItemIndex,
   isSelectedValueDirty,
 } from '../../internals/itemEquality';
 import { useValueChanged } from '../../internals/useValueChanged';
-import { useItemRegistry } from '../../internals/useItemRegistry';
 import { useOpenInteractionType } from '../../utils/useOpenInteractionType';
 import { getMaxScrollOffset, normalizeScrollOffset } from '../../utils/scrollEdges';
 import { FOCUSABLE_POPUP_PROPS } from '../../utils/popups';
@@ -135,8 +135,10 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     name: 'Select',
     state: 'value',
   });
-  const [registeredItems, registerItem] = useItemRegistry<symbol, RegisteredItem>();
   const listRef = React.useRef<Array<HTMLElement | null>>([]);
+  const valuesRef = React.useRef<Array<any>>([]);
+  const labelsRef = React.useRef<Array<string | null>>([]);
+  const selectedItemTextRef = React.useRef<HTMLElement | null>(null);
   const filterInputRef = React.useRef<HTMLInputElement | null>(null);
   const popupRef = React.useRef<HTMLDivElement | null>(null);
   const scrollHandlerRef = React.useRef<((el: HTMLDivElement) => void) | null>(null);
@@ -166,7 +168,6 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
         itemToStringLabel,
         itemToStringValue,
         isItemEqualToValue,
-        registeredItems,
         visibleItemIndexes: new Map(),
         value,
         open,
@@ -177,6 +178,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
         openMethod: null,
         activeIndex: null,
         selectionReferenceItemId: null,
+        selectionReferenceIndex: null,
         inputFocusVisible: false,
         popupProps: {},
         inputProps: {},
@@ -201,11 +203,17 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
   const previousOpenMethod = usePreviousValue(openMethod);
   const renderedOpenMethod = openMethod ?? previousOpenMethod;
 
+  const storedSelectionReferenceIndex = useStore(store, selectors.selectionReferenceIndex);
   const selectionReferenceIndex = React.useMemo(() => {
+    // An ordinary select syncs the index while closed; a filterable select resolves it from
+    // the registration ids because its items remount as the query changes.
+    if (!filterable) {
+      return storedSelectionReferenceIndex;
+    }
     return selectionReferenceItemId == null
       ? null
       : (visibleItemIndexes.get(selectionReferenceItemId) ?? null);
-  }, [visibleItemIndexes, selectionReferenceItemId]);
+  }, [filterable, storedSelectionReferenceIndex, visibleItemIndexes, selectionReferenceItemId]);
 
   const serializedValue = React.useMemo(() => {
     // In multiple mode the shared input is nameless; per-value entries are submitted via
@@ -248,29 +256,36 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
   }, [hasSelectedValue, setFilled]);
 
   useIsoLayoutEffect(
-    function syncSelectionReferenceItemId() {
-      let selectionReferenceValue: unknown = value;
-      let hasNoSelectionReference = false;
+    function syncSelectionReferenceIndex() {
+      if (filterable) {
+        return;
+      }
+      // While open, the index is owned by item interactions; syncing from the sparse
+      // `valuesRef` mid-session could point at a stale slot.
+      if (open) {
+        return;
+      }
 
+      let selectionReferenceValue: unknown = value;
       if (multiple) {
         const currentValue = Array.isArray(value) ? value : [];
-        hasNoSelectionReference = currentValue.length === 0;
         selectionReferenceValue = currentValue[currentValue.length - 1];
       }
 
-      const selectionReferenceItem = hasNoSelectionReference
-        ? undefined
-        : findMatchingItem(store.state.registeredItems, (item) =>
-            compareItemEquality(
-              item.getValue(),
-              selectionReferenceValue as Value,
-              isItemEqualToValue,
-            ),
-          );
+      const index =
+        selectionReferenceValue === undefined
+          ? -1
+          : findItemIndex(valuesRef.current, selectionReferenceValue as Value, isItemEqualToValue);
+      const nextIndex = index === -1 ? null : index;
 
-      store.set('selectionReferenceItemId', selectionReferenceItem?.id ?? null);
+      if (store.state.selectionReferenceIndex !== nextIndex) {
+        store.set('selectionReferenceIndex', nextIndex);
+      }
+      if (nextIndex === null) {
+        selectedItemTextRef.current = null;
+      }
     },
-    [multiple, value, isItemEqualToValue, store],
+    [filterable, open, multiple, value, isItemEqualToValue, store],
   );
 
   useIsoLayoutEffect(() => {
@@ -613,14 +628,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
 
   const typeahead = useTypeahead(floatingContext, {
     enabled: !readOnly && !disabled && (open || !multiple),
-    listRef: {
-      get current() {
-        return [...store.state.visibleItemIndexes].map(([id]) => {
-          const item = store.state.registeredItems.get(id);
-          return item?.getLabel() ?? null;
-        });
-      },
-    },
+    listRef: labelsRef,
     activeIndex,
     selectedIndex: selectionReferenceIndex,
     // Skip disabled items while matching so typeahead advances to the next selectable item
@@ -633,10 +641,9 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
       if (open) {
         store.set('activeIndex', index);
       } else {
-        const itemId = findItemIdByIndex(store.state.visibleItemIndexes, index);
-        const item = itemId ? store.state.registeredItems.get(itemId) : undefined;
-        if (item) {
-          setValue(item.getValue(), createChangeEventDetails('none'));
+        const matchedValue = valuesRef.current[index];
+        if (matchedValue !== undefined) {
+          setValue(matchedValue, createChangeEventDetails('none'));
         }
       }
     },
@@ -703,7 +710,6 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     inputProps,
     listProps,
     triggerProps: mergedTriggerProps,
-    registeredItems,
     items,
     itemToStringLabel,
     itemToStringValue,
@@ -720,10 +726,12 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
       readOnly,
       multiple,
       highlightItemOnHover,
-      registerItem,
       setValue,
       setOpen,
       listRef,
+      valuesRef,
+      labelsRef,
+      selectedItemTextRef,
       filterInputRef,
       popupRef,
       scrollHandlerRef,
@@ -747,7 +755,6 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
       readOnly,
       multiple,
       highlightItemOnHover,
-      registerItem,
       setValue,
       setOpen,
       itemProps,
@@ -812,22 +819,23 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
               // Preserve the original serialized matching, then fall back to rendered text,
               // which browsers can autofill for primitive values like `value="US">United States`.
               const nextValueLower = nextValue.toLowerCase();
+              const itemValues = valuesRef.current;
+              const itemLabels = labelsRef.current;
 
-              let matchingItem = findMatchingItem(store.state.registeredItems, (item) => {
-                const itemValue = item.getValue();
-                const value = stringifyAsValue(itemValue, itemToStringValue).toLowerCase();
-                const label = stringifyAsLabel(itemValue, itemToStringLabel).toLowerCase();
-                return value === nextValueLower || label === nextValueLower;
-              });
+              const matchesItemValue = (itemValue: any) =>
+                itemValue !== undefined &&
+                (stringifyAsValue(itemValue, itemToStringValue).toLowerCase() === nextValueLower ||
+                  stringifyAsLabel(itemValue, itemToStringLabel).toLowerCase() === nextValueLower);
 
-              if (!matchingItem) {
-                matchingItem = findMatchingItem(store.state.registeredItems, (item) => {
-                  const label = item.getLabel();
-                  return label != null && label.toLowerCase() === nextValueLower;
-                });
+              let matchingIndex = itemValues.findIndex(matchesItemValue);
+              if (matchingIndex === -1) {
+                matchingIndex = itemValues.findIndex(
+                  (itemValue, index) =>
+                    itemValue !== undefined && itemLabels[index]?.toLowerCase() === nextValueLower,
+                );
               }
 
-              const matchingValue = matchingItem?.getValue();
+              const matchingValue = matchingIndex === -1 ? undefined : itemValues[matchingIndex];
               if (matchingValue != null) {
                 // `setValue` may be canceled by `onValueChange`; rely on `useValueChanged` to
                 // mark the field dirty and run validation only when the value actually changes.
@@ -879,27 +887,6 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
       </SelectFilterIntegrationContext.Provider>
     </SelectDerivedItemsContext.Provider>
   );
-}
-
-function findMatchingItem(
-  registeredItems: ReadonlyMap<symbol, RegisteredItem>,
-  matches: (item: RegisteredItem) => boolean,
-) {
-  for (const [id, item] of registeredItems) {
-    if (matches(item)) {
-      return { ...item, id };
-    }
-  }
-  return undefined;
-}
-
-function findItemIdByIndex(visibleItemIndexes: ReadonlyMap<symbol, number>, index: number) {
-  for (const [id, itemIndex] of visibleItemIndexes) {
-    if (itemIndex === index) {
-      return id;
-    }
-  }
-  return undefined;
 }
 
 type SelectValueType<Value, Multiple extends boolean | undefined> = Multiple extends true

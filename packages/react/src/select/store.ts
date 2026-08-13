@@ -7,12 +7,6 @@ import type { Side } from '../internals/useAnchorPositioning';
 import { compareItemEquality } from '../internals/itemEquality';
 import { type Group, hasNullItemLabel, stringifyAsValue } from '../internals/resolveValueLabel';
 
-export interface RegisteredItem {
-  getValue: () => any;
-  getLabel: () => string | undefined;
-  getTextElement: () => HTMLElement | null;
-}
-
 export interface SelectItemMetadata {
   registrationId: symbol;
 }
@@ -37,9 +31,9 @@ export type State = {
   /**
    * All logically mounted Select items, including items hidden by filtering.
    */
-  registeredItems: ReadonlyMap<symbol, RegisteredItem>;
   /**
-   * Composite indexes for the items currently rendered in the list.
+   * Composite indexes for the items currently rendered in a filterable list, keyed by
+   * registration id. Empty for an ordinary select.
    */
   visibleItemIndexes: ReadonlyMap<symbol, number>;
 
@@ -53,6 +47,12 @@ export type State = {
 
   activeIndex: number | null;
   selectionReferenceItemId: symbol | null;
+  /**
+   * The composite index of the selected item in an ordinary select, synced while closed.
+   * A filterable select resolves the index from `visibleItemIndexes` instead, because its
+   * items remount as the query changes.
+   */
+  selectionReferenceIndex: number | null;
   inputFocusVisible: boolean;
 
   popupProps: HTMLProps;
@@ -83,7 +83,6 @@ export const selectors = {
   items: (state: State) => state.items,
   itemToStringLabel: (state: State) => state.itemToStringLabel,
   isItemEqualToValue: (state: State) => state.isItemEqualToValue,
-  registeredItems: (state: State) => state.registeredItems,
   visibleItemIndexes: (state: State) => state.visibleItemIndexes,
 
   value: (state: State) => state.value,
@@ -112,6 +111,7 @@ export const selectors = {
 
   activeIndex: (state: State) => state.activeIndex,
   selectionReferenceItemId: (state: State) => state.selectionReferenceItemId,
+  selectionReferenceIndex: (state: State) => state.selectionReferenceIndex,
   inputFocusVisible: (state: State) => state.inputFocusVisible,
   isActive: (state: State, index: number) => state.activeIndex === index,
 
@@ -129,6 +129,15 @@ export const selectors = {
     // The value is the source of truth. The selection reference ID only identifies the item used
     // for navigation and positioning.
     return compareItemEquality(itemValue, storeValue, comparer);
+  },
+
+  isSelectionReference: (state: State, itemValue: any) => {
+    // In multiple mode, the last value determines the selection reference.
+    const referenceValue =
+      state.multiple && Array.isArray(state.value)
+        ? state.value[state.value.length - 1]
+        : state.value;
+    return compareItemEquality(itemValue, referenceValue, state.isItemEqualToValue);
   },
 
   popupProps: (state: State) => state.popupProps,

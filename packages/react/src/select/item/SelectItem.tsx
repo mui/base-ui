@@ -3,7 +3,6 @@ import * as React from 'react';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { useStore } from '@base-ui/utils/store';
-import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
 import { useSelectRootContext } from '../root/SelectRootContext';
 import { useCompositeListItem } from '../../internals/composite/list/useCompositeListItem';
 import type {
@@ -18,7 +17,7 @@ import { selectors, type SelectItemMetadata } from '../store';
 import { useButton } from '../../internals/use-button';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
-import { compareItemEquality, removeItem } from '../../internals/itemEquality';
+import { removeItem } from '../../internals/itemEquality';
 import { isVirtualClick } from '../../floating-ui-react/utils/event';
 
 const SELECT_ITEM_ROLE = 'option';
@@ -53,6 +52,8 @@ const SelectItemImpl = React.memo(
     const listItem = useCompositeListItem({
       metadata: itemMetadata,
       guess: true,
+      label,
+      textRef: textElementRef,
     });
 
     const {
@@ -62,6 +63,8 @@ const SelectItemImpl = React.memo(
       setValue,
       selectionRef,
       typingRef,
+      valuesRef,
+      selectedItemTextRef,
       multiple,
       disabled: selectDisabled,
       readOnly,
@@ -72,6 +75,7 @@ const SelectItemImpl = React.memo(
     const highlighted = useStore(store, selectors.isActive, listItem.index);
     const open = useStore(store, selectors.open);
     const selected = useStore(store, selectors.isSelected, itemValue);
+    const isSelectionReference = useStore(store, selectors.isSelectionReference, itemValue);
     const isItemEqualToValue = useStore(store, selectors.isItemEqualToValue);
 
     const index = listItem.index;
@@ -119,6 +123,50 @@ const SelectItemImpl = React.memo(
     function resetDragMovement() {
       selectionRef.current.dragY = 0;
     }
+
+    useIsoLayoutEffect(() => {
+      const values = valuesRef.current;
+      values[index] = itemValue;
+      return () => {
+        delete values[index];
+      };
+    }, [valuesRef, index, itemValue]);
+
+    useIsoLayoutEffect(() => {
+      if (!isSelectionReference) {
+        if (store.state.selectionReferenceItemId === registrationId) {
+          store.set('selectionReferenceItemId', null);
+        }
+        if (!filterable && store.state.selectionReferenceIndex === index) {
+          store.set('selectionReferenceIndex', null);
+        }
+        // Item components can be reused for different values, so the stale reference must be
+        // released while its element is still connected.
+        const ownTextElement = textElementRef.current ?? itemRef.current;
+        if (ownTextElement !== null && selectedItemTextRef.current === ownTextElement) {
+          selectedItemTextRef.current = null;
+        }
+        return;
+      }
+
+      selectedItemTextRef.current = textElementRef.current ?? itemRef.current;
+
+      if (filterable) {
+        // The id survives query-driven remounts, so a filterable root tracks the reference by
+        // registration id rather than by index.
+        store.set('selectionReferenceItemId', registrationId);
+      } else {
+        store.set('selectionReferenceIndex', index);
+      }
+    }, [
+      isSelectionReference,
+      filterable,
+      index,
+      registrationId,
+      store,
+      selectedItemTextRef,
+      textElementRef,
+    ]);
 
     const rovingTabIndex = open && highlighted ? 0 : -1;
 
@@ -233,43 +281,13 @@ export const SelectItem = React.memo(
     componentProps: SelectItem.Props,
     forwardedRef: React.ForwardedRef<HTMLElement>,
   ) {
-    const { store, multiple, registerItem } = useSelectRootContext();
-    const isItemEqualToValue = useStore(store, selectors.isItemEqualToValue);
     const registrationId = useRefWithInit(() => Symbol('select-item')).current;
-    const itemValue = componentProps.value ?? null;
     const textElementRef = React.useRef<HTMLElement | null>(null);
-    const ref = React.useRef<HTMLElement | null>(null);
-    const mergedRefs = useMergedRefs(forwardedRef, ref);
-
-    useIsoLayoutEffect(() => {
-      const getValue = () => itemValue;
-      const getTextElement = () => textElementRef.current;
-      const getLabel = () => {
-        const textContent = textElementRef.current?.textContent ?? ref.current?.textContent;
-        return componentProps.label ?? textContent;
-      };
-      return registerItem(registrationId, { getValue, getLabel, getTextElement });
-    }, [componentProps.label, itemValue, registerItem, registrationId]);
-
-    useIsoLayoutEffect(() => {
-      const currentValue = store.state.value;
-      // In multiple mode, the last value determines the selection reference.
-      const selectionReferenceValue =
-        multiple && Array.isArray(currentValue)
-          ? currentValue[currentValue.length - 1]
-          : currentValue;
-
-      if (compareItemEquality(itemValue, selectionReferenceValue, isItemEqualToValue)) {
-        store.set('selectionReferenceItemId', registrationId);
-      } else if (store.state.selectionReferenceItemId === registrationId) {
-        store.set('selectionReferenceItemId', null);
-      }
-    }, [multiple, isItemEqualToValue, store, itemValue, registrationId]);
 
     return (
       <SelectItemImpl
         {...componentProps}
-        ref={mergedRefs}
+        ref={forwardedRef}
         registrationId={registrationId}
         textElementRef={textElementRef}
       />

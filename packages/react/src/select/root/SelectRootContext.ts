@@ -2,7 +2,7 @@
 import * as React from 'react';
 import { useStore } from '@base-ui/utils/store';
 import { type FloatingRootContext } from '../../floating-ui-react';
-import { selectors, type RegisteredItem, type SelectStore } from '../store';
+import { selectors, type SelectStore } from '../store';
 import type { UseFieldValidationReturnValue } from '../../field/root/useFieldValidation';
 import type { HTMLProps } from '../../internals/types';
 import type { SelectRoot } from './SelectRoot';
@@ -15,10 +15,12 @@ export interface SelectRootContext {
   required: boolean;
   multiple: boolean;
   highlightItemOnHover: boolean;
-  registerItem: (id: symbol, item: RegisteredItem) => () => void;
   setValue: (nextValue: any, eventDetails: SelectRoot.ChangeEventDetails) => void;
   setOpen: (open: boolean, eventDetails: SelectRoot.ChangeEventDetails) => void;
   listRef: React.RefObject<Array<HTMLElement | null>>;
+  valuesRef: React.RefObject<Array<any>>;
+  labelsRef: React.RefObject<Array<string | null>>;
+  selectedItemTextRef: React.RefObject<HTMLElement | null>;
   filterInputRef: React.RefObject<HTMLInputElement | null>;
   popupRef: React.RefObject<HTMLDivElement | null>;
   scrollHandlerRef: React.RefObject<((el: HTMLDivElement) => void) | null>;
