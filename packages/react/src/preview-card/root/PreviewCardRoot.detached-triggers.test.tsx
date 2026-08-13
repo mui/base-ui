@@ -1,7 +1,7 @@
 import { expect, vi } from 'vitest';
 import * as React from 'react';
 import * as ReactDOMClient from 'react-dom/client';
-import { createRenderer, isJSDOM } from '#test-utils';
+import { createRenderer, isJSDOM, resetBrowserPointer } from '#test-utils';
 import { PreviewCard } from '@base-ui/react/preview-card';
 import {
   screen,
@@ -17,6 +17,11 @@ const CLOSE_TRANSITION_MS = 50;
 const CLOSE_TRANSITION_TIMEOUT = 300;
 
 describe('<PreviewCard.Root />', () => {
+  // Hover tests here drive the real pointer with `user.hover`, and several leave it resting on a
+  // trigger. The next test renders its own triggers under that stationary pointer, which makes the
+  // browser hover whatever now sits beneath it and open the card before the test interacts at all.
+  beforeEach(resetBrowserPointer);
+
   beforeEach(async () => {
     globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
   });

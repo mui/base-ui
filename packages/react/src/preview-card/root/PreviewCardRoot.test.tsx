@@ -3,11 +3,22 @@ import * as React from 'react';
 import { PreviewCard } from '@base-ui/react/preview-card';
 import { act, fireEvent, screen, flushMicrotasks, waitFor } from '@mui/internal-test-utils';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
-import { advanceReactClock, createRenderer, isJSDOM, popupConformanceTests } from '#test-utils';
+import {
+  advanceReactClock,
+  createRenderer,
+  isJSDOM,
+  popupConformanceTests,
+  resetBrowserPointer,
+} from '#test-utils';
 import { REASONS } from '../../internals/reasons';
 import { CLOSE_DELAY, OPEN_DELAY } from '../utils/constants';
 
 describe('<PreviewCard.Root />', () => {
+  // The conformance and hover tests here drive the real pointer, which keeps resting wherever the
+  // last interaction left it. A trigger rendered under that stationary pointer gets hovered by the
+  // browser, opening the card before the test interacts at all.
+  beforeEach(resetBrowserPointer);
+
   beforeEach(() => {
     globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
   });
