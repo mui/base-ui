@@ -136,6 +136,8 @@ export const FilterDropdownPopup = React.forwardRef(function FilterDropdownPopup
         'aria-labelledby': ariaLabelledBy,
         // Input owns virtual focus
         'aria-activedescendant': undefined,
+        // Not valid on a dialog; the list's implicit orientation is already vertical.
+        'aria-orientation': undefined,
         onMouseDown(event) {
           if (getTarget(event.nativeEvent) === event.currentTarget) {
             // Keep focus on the input when the popup's own background is pressed.
