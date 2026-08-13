@@ -135,6 +135,32 @@ describe('<Dialog.Root />', () => {
         expect(screen.getByTestId('popup').contains(trustedClick?.target as Node)).toBe(false);
         expect(screen.queryByTestId('popup')).not.toBe(null);
         expect(openChangeSpy).not.toHaveBeenCalledWith(false, REASONS.outsidePress);
+
+        // The guard must only suppress the gesture that opened the dialog. A
+        // fresh press observed while open still dismisses — without this the
+        // suite would stay green if the press were never recorded for trusted
+        // input at all.
+        await act(async () => {
+          await session.send('Input.dispatchMouseEvent', {
+            type: 'mousePressed',
+            ...buttonCenter,
+            button: 'left',
+            buttons: 1,
+            clickCount: 1,
+          });
+          await session.send('Input.dispatchMouseEvent', {
+            type: 'mouseReleased',
+            ...buttonCenter,
+            button: 'left',
+            buttons: 0,
+            clickCount: 1,
+          });
+        });
+
+        await waitFor(() => {
+          expect(screen.queryByTestId('popup')).toBe(null);
+        });
+        expect(openChangeSpy).toHaveBeenCalledWith(false, REASONS.outsidePress);
       } finally {
         document.removeEventListener('click', recordClick, true);
       }

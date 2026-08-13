@@ -19,6 +19,7 @@ import { useFloatingTree } from '../components/FloatingTree';
 import { FloatingTreeStore } from '../components/FloatingTreeStore';
 import type { ElementProps, FloatingContext, FloatingRootContext } from '../types';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
+import type { FloatingUIOpenChangeDetails } from '../../internals/types';
 import { REASONS } from '../../internals/reasons';
 import { createAttribute } from '../utils/createAttribute';
 import { contains, getTarget, isEventTargetWithin, isRootElement } from '../utils/element';
@@ -286,8 +287,16 @@ export function useDismiss(
   // bypass the store entirely are only observable when they render, which the
   // effect below covers.
   React.useEffect(() => {
-    function handleOpenChange() {
-      sawPressWhileOpenRef.current = false;
+    function handleOpenChange(details: FloatingUIOpenChangeDetails) {
+      // Only the closing half ends the session. `setOpen` dispatches
+      // `openchange` without comparing against the current state, so an
+      // already-open element can receive a redundant `setOpen(true)` — hovering
+      // an inactive trigger of the same element does exactly that. Resetting on
+      // those would retract a press that is still mid-gesture and drop its
+      // click.
+      if (!details.open) {
+        sawPressWhileOpenRef.current = false;
+      }
     }
 
     events.on('openchange', handleOpenChange);

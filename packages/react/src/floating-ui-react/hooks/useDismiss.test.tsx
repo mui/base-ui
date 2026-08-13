@@ -1207,6 +1207,46 @@ describe.skipIf(!isJSDOM)('useDismiss', () => {
       expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
     });
 
+    test('press survives a redundant open dispatch while already open', async () => {
+      let context!: ReturnType<typeof useFloating>['context'];
+
+      function RedundantOpenApp() {
+        const [open, setOpen] = React.useState(true);
+        const floating = useFloating({ open, onOpenChange: setOpen });
+        context = floating.context;
+        const { getReferenceProps, getFloatingProps } = useTestInteractions([
+          useDismiss(floating.context, { outsidePressEvent: 'intentional' }),
+        ]);
+
+        return (
+          <React.Fragment>
+            <button {...getReferenceProps({ ref: floating.refs.setReference })} />
+            {open && (
+              <div role="tooltip" {...getFloatingProps({ ref: floating.refs.setFloating })} />
+            )}
+          </React.Fragment>
+        );
+      }
+
+      render(<RedundantOpenApp />);
+
+      // A genuine outside press lands while open.
+      fireEvent.pointerDown(document.body, { pointerType: 'mouse' });
+      fireEvent.mouseDown(document.body);
+
+      // `setOpen` emits `openchange` without comparing against the current
+      // state, so an already-open element can receive a redundant open dispatch
+      // mid-gesture — hovering an inactive trigger of the same element does
+      // this. It does not end the open session, so the press stays on record.
+      act(() => {
+        context.rootStore.setOpen(true, createChangeEventDetails(REASONS.none));
+      });
+      expect(screen.getByRole('tooltip')).toBeInTheDocument();
+
+      fireEvent.click(document.body, { detail: 1 });
+      expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
+    });
+
     test('press survives listener re-attachment while open', async () => {
       const { rerender } = render(<App outsidePressEvent="intentional" />);
 
