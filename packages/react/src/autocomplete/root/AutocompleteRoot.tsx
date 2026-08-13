@@ -2,6 +2,7 @@
 import * as React from 'react';
 import { AriaCombobox, type AriaComboboxState } from '../../combobox/root/AriaCombobox';
 import { useCoreFilter } from '../../combobox/root/utils/useFilter';
+import type { BaseUIChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { stringifyAsLabel, type Group } from '../../internals/resolveValueLabel';
 import { REASONS } from '../../internals/reasons';
 
@@ -126,7 +127,8 @@ export interface AutocompleteRootActions {
 }
 
 export type AutocompleteRootChangeEventReason = AriaCombobox.ChangeEventReason;
-export type AutocompleteRootChangeEventDetails = AriaCombobox.ChangeEventDetails;
+export type AutocompleteRootChangeEventDetails =
+  BaseUIChangeEventDetails<AutocompleteRootChangeEventReason>;
 
 export type AutocompleteRootHighlightEventReason = AriaCombobox.HighlightEventReason;
 export type AutocompleteRootHighlightEventDetails = AriaCombobox.HighlightEventDetails;

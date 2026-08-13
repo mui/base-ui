@@ -334,7 +334,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
   });
 
   const isGrouped = isGroupedItems(items);
-  const query = closeQuery ?? String(inputValue).trim();
+  const query = !open && closeQuery !== null ? closeQuery : String(inputValue).trim();
 
   const selectedLabelString = single ? stringifyValueLabel(selectedValue) : '';
 
@@ -558,6 +558,8 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
   const inline = useStore(store, selectors.inline);
   const inputInsidePopup = useStore(store, selectors.inputInsidePopup);
   const inputOwnsFormValue = useStore(store, selectors.inputOwnsFormValue);
+  const inputMatchesSelectedValue =
+    single && !inputInsidePopup && inputValue === selectedLabelString;
 
   const triggerRef = useValueAsRef(triggerElement);
 
@@ -638,13 +640,14 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
 
   const setInputValue = useStableCallback(
     (next: string, eventDetails: AriaCombobox.ChangeEventDetails) => {
-      hadInputClearRef.current = eventDetails.reason === REASONS.inputClear;
-
       props.onInputValueChange?.(next, eventDetails);
 
       if (eventDetails.isCanceled) {
         return;
       }
+
+      // A canceled selection clear must not suppress close-completion cleanup.
+      hadInputClearRef.current = eventDetails.reason === REASONS.inputClear;
 
       // If user is typing, ensure we don't auto-highlight on open due to a race
       // with the post-open effect that sets this flag.
@@ -715,6 +718,28 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
     },
   );
 
+  const handleInterruptedReopen = useStableCallback((isInputChange: boolean) => {
+    // Preserve values supplied with the reopen rather than owned by the interrupted close.
+    const clearsPendingInput =
+      !isInputChange &&
+      inputInsidePopup &&
+      !inline &&
+      inputValue !== '' &&
+      (String(inputValue).trim() === closeQuery || inputValue === selectedLabelString);
+
+    // Keep the flag while a visible filter survives so the `items` sync cannot overwrite it.
+    if (!isInputChange && (clearsPendingInput || inputValue === '' || inputMatchesSelectedValue)) {
+      setQueryChangedAfterOpen(false);
+    }
+
+    setCloseQuery(null);
+
+    if (clearsPendingInput) {
+      // Cleanup clears omit the selection flag and reopening gesture.
+      setInputValue('', createChangeEventDetails(REASONS.inputClear));
+    }
+  });
+
   const setOpen = useStableCallback(
     (nextOpen: boolean, eventDetails: AriaCombobox.ChangeEventDetails) => {
       if (open === nextOpen) {
@@ -739,15 +764,10 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
         return;
       }
 
-      // If reopening interrupts the close animation, handleUnmount won't run to clear the
-      // frozen closeQuery and pending popup input.
-      if (nextOpen && inputInsidePopup && !inline && closeQuery !== null) {
-        setQueryChangedAfterOpen(false);
-        setCloseQuery(null);
-
-        if (inputValue !== '' && eventDetails.reason !== REASONS.inputChange) {
-          setInputValue('', createChangeEventDetails(REASONS.inputClear, eventDetails.event));
-        }
+      if (nextOpen && closeQuery !== null) {
+        // `ComboboxInput` calls `setInputValue` before `setOpen`, so on an input-change reopen
+        // `inputValue` is still the pre-keystroke value and the typed filter always survives.
+        handleInterruptedReopen(eventDetails.reason === REASONS.inputChange);
       }
 
       if (!nextOpen && queryChangedAfterOpen) {
@@ -773,7 +793,12 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
           // if the input is outside the popup. When the input is inside the popup, defer the clear until
           // unmount so the filtered list doesn't flash to unfiltered during the exit animation.
           if (!inputInsidePopup || inline) {
-            setInputValue('', createChangeEventDetails(REASONS.inputClear, eventDetails.event));
+            setInputValue(
+              '',
+              createChangeEventDetails(REASONS.inputClear, eventDetails.event, undefined, {
+                isItemPress: eventDetails.reason === REASONS.itemPress,
+              }),
+            );
           }
         }
       }
@@ -860,7 +885,12 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
         }
 
         if (store.state.inputInsidePopup) {
-          setInputValue('', createChangeEventDetails(REASONS.inputClear, eventDetails.event));
+          setInputValue(
+            '',
+            createChangeEventDetails(REASONS.inputClear, eventDetails.event, undefined, {
+              isItemPress: true,
+            }),
+          );
         } else {
           setOpen(false, eventDetails);
         }
@@ -1147,8 +1177,20 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
   }, [hasItems, autoHighlightMode, flatFilteredValues.length, setIndices]);
 
   function handleQueryChanged() {
-    if (open && query !== '' && query !== String(initialDefaultInputValue)) {
+    if (
+      open &&
+      query !== '' &&
+      query !== String(initialDefaultInputValue) &&
+      !inputMatchesSelectedValue
+    ) {
       setQueryChangedAfterOpen(true);
+    }
+  }
+
+  function handleOpenChanged() {
+    // A controlled `open` prop can interrupt the close without calling `setOpen`.
+    if (open && closeQuery !== null) {
+      handleInterruptedReopen(false);
     }
   }
 
@@ -1199,6 +1241,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
   }
 
   useValueChanged(query, handleQueryChanged);
+  useValueChanged(open, handleOpenChanged);
   useValueChanged(selectedValue, handleSelectedValueChanged);
   useValueChanged(selectedLabelString, syncInputAfterItemsOrLabelChange);
   useValueChanged(items, syncInputAfterItemsOrLabelChange);
@@ -1913,5 +1956,11 @@ export namespace AriaCombobox {
     | typeof REASONS.chipRemovePress
     | typeof REASONS.cancelOpen
     | typeof REASONS.none;
-  export type ChangeEventDetails = BaseUIChangeEventDetails<ChangeEventReason>;
+  export type ChangeEventDetails = BaseUIChangeEventDetails<ChangeEventReason> & {
+    /**
+     * When `reason` is `input-clear` in multiple mode, indicates whether an item press caused the
+     * clear. Automatic cleanup clears omit this property.
+     */
+    isItemPress?: boolean | undefined;
+  };
 }
