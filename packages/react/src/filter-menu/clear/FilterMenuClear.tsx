@@ -5,16 +5,16 @@ import {
   type FilterDropdownClearProps,
   type FilterDropdownClearState,
 } from '../../filter-dropdown/clear/FilterDropdownClear';
-import { useMenuFilterableRootContext } from '../root/MenuRootContext';
+import { useMenuFilterableRootContext } from '../../menu/root/MenuRootContext';
 
 /**
  * Clears the filter input value.
  * Renders a `<button>` element.
  *
- * Documentation: [Base UI Menu](https://base-ui.com/react/components/menu)
+ * Documentation: [Base UI Filter Menu](https://base-ui.com/react/components/filter-menu)
  */
-export const MenuClear = React.forwardRef(function MenuClear(
-  componentProps: MenuClear.Props,
+export const FilterMenuClear = React.forwardRef(function FilterMenuClear(
+  componentProps: FilterMenuClear.Props,
   forwardedRef: React.ForwardedRef<HTMLButtonElement>,
 ) {
   const { store, parent } = useMenuFilterableRootContext('Clear');
@@ -30,10 +30,10 @@ export const MenuClear = React.forwardRef(function MenuClear(
   );
 });
 
-export interface MenuClearState extends FilterDropdownClearState {}
-export interface MenuClearProps extends FilterDropdownClearProps {}
+export interface FilterMenuClearState extends FilterDropdownClearState {}
+export interface FilterMenuClearProps extends FilterDropdownClearProps {}
 
-export namespace MenuClear {
-  export type State = MenuClearState;
-  export type Props = MenuClearProps;
+export namespace FilterMenuClear {
+  export type State = FilterMenuClearState;
+  export type Props = FilterMenuClearProps;
 }

@@ -6,9 +6,6 @@ export { MenuGroup as Group } from './group/MenuGroup';
 export { MenuGroupLabel as GroupLabel } from './group-label/MenuGroupLabel';
 // Also exported from `@base-ui/react/filter-menu`, which is where they work. They stay here
 // so the reference docs can describe them; used inside an ordinary <Menu.Root> they throw.
-export { MenuInput as Input } from './input/MenuInput';
-export { MenuClear as Clear } from './clear/MenuClear';
-export { MenuEmpty as Empty } from './empty/MenuEmpty';
 export { MenuItem as Item } from './item/MenuItem';
 export { MenuLinkItem as LinkItem } from './link-item/MenuLinkItem';
 export { MenuList as List } from './list/MenuList';

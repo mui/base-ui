@@ -25,6 +25,6 @@ export { MenuHandle as Handle, createMenuHandle as createHandle } from '../menu/
 // Filtering-only parts.
 export { FilterMenuRoot as Root } from './root/FilterMenuRoot';
 export { FilterMenuSubmenuRoot as SubmenuRoot } from './submenu-root/FilterMenuSubmenuRoot';
-export { MenuInput as Input } from '../menu/input/MenuInput';
-export { MenuClear as Clear } from '../menu/clear/MenuClear';
-export { MenuEmpty as Empty } from '../menu/empty/MenuEmpty';
+export { FilterMenuInput as Input } from './input/FilterMenuInput';
+export { FilterMenuClear as Clear } from './clear/FilterMenuClear';
+export { FilterMenuEmpty as Empty } from './empty/FilterMenuEmpty';

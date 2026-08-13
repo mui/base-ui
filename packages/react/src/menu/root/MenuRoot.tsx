@@ -73,21 +73,18 @@ export const MenuRootImpl = fastComponent(function MenuRootImpl<Payload>(
     triggerId: triggerIdProp,
     defaultTriggerId: defaultTriggerIdProp = null,
     highlightItemOnHover = true,
-    filter: filterProp,
-    inputValue: inputValueProp,
-    defaultInputValue = '',
-    onInputValueChange,
     isSubmenu = false,
   } = props;
 
-  // Filterability comes from the entrypoint, not the prop: only `filter-menu` supplies the
-  // integration. That keeps the filtering implementation out of an ordinary menu's bundle, and
-  // makes the mode fixed for the menu's lifetime without a mount-time latch.
-  const filterIntegration = useMenuFilterIntegration();
-  const filterable = filterIntegration !== null;
+  // Filterability comes from the entrypoint, not a prop: only `filter-menu` supplies the
+  // integration, and the filter configuration arrives with it through context so an ordinary
+  // menu carries none of the filter-only props. The mode is fixed for the menu's lifetime.
+  const filterConfig = useMenuFilterIntegration();
+  const filterIntegration = filterConfig?.integration ?? null;
+  const filterable = filterConfig !== null;
   const [inputValue, setInputValue] = useControlled({
-    controlled: inputValueProp,
-    default: defaultInputValue,
+    controlled: filterConfig?.inputValue,
+    default: filterConfig?.defaultInputValue ?? '',
     name: 'Menu',
     state: 'inputValue',
   });
@@ -153,7 +150,7 @@ export const MenuRootImpl = fastComponent(function MenuRootImpl<Payload>(
 
   const handleInputValueChange = useStableCallback(
     (nextInputValue: string, eventDetails: MenuRoot.InputValueChangeEventDetails) => {
-      onInputValueChange?.(nextInputValue, eventDetails);
+      filterConfig?.onInputValueChange?.(nextInputValue, eventDetails);
 
       if (eventDetails.isCanceled || nextInputValue === inputValue) {
         return;
@@ -631,7 +628,7 @@ export const MenuRootImpl = fastComponent(function MenuRootImpl<Payload>(
     <filterIntegration.Root
       open={open}
       value={inputValue}
-      filter={filterProp}
+      filter={filterConfig?.filter}
       onValueChange={handleInputValueChange}
       // Menu handles can render a trigger outside this provider, so mirror
       // the active trigger for that detached case.
@@ -683,40 +680,7 @@ export interface MenuRootState {}
 
 export type MenuFilter = (itemText: string, query: string) => boolean;
 
-// These are deliberately not a discriminated union on `filter`. `Omit`, `Pick`, and object rest
-// all collapse a union into one object type with widened members, which then matches no branch,
-// so a typed wrapper like `interface MyProps extends Omit<Menu.Root.Props, 'children'>` would not
-// compile. Misuse is reported at runtime instead: `Menu.Input` throws without `filter`.
-interface MenuRootFilterProps {
-  /**
-   * Customizes how items match the query. The function receives the item's `label` (falling
-   * back to its rendered text) and the trimmed query.
-   * Only a filterable menu (`FilterMenu.Root` or `FilterMenu.SubmenuRoot`) filters.
-   */
-  filter?: MenuFilter | undefined;
-  /**
-   * The uncontrolled input value when the menu is initially rendered.
-   * Only applies to a filterable menu (`FilterMenu`).
-   *
-   * To render a controlled filter input, use the `inputValue` prop instead.
-   * @default ''
-   */
-  defaultInputValue?: string | undefined;
-  /**
-   * The input value. Use when controlled.
-   * Only applies to a filterable menu (`FilterMenu`).
-   */
-  inputValue?: string | undefined;
-  /**
-   * Event handler called when the input value changes.
-   * Only applies to a filterable menu (`FilterMenu`).
-   */
-  onInputValueChange?:
-    | ((value: string, eventDetails: MenuRootInputValueChangeEventDetails) => void)
-    | undefined;
-}
-
-export type MenuRootProps<Payload = unknown> = MenuRootBaseProps<Payload> & MenuRootFilterProps;
+export type MenuRootProps<Payload = unknown> = MenuRootBaseProps<Payload>;
 
 interface MenuRootBaseProps<Payload = unknown> {
   /**

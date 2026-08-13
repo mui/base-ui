@@ -17,16 +17,16 @@ Doesn't render its own HTML element.
 | defaultValue         | `Value[] \| Value \| null`                                                                                                                                                                                                                                 | -       | The uncontrolled value of the select when it's initially rendered. To render a controlled select, use the `value` prop instead.                                                                                                                                                                                                                                                                                                                   |
 | value                | `Value[] \| Value \| null`                                                                                                                                                                                                                                 | -       | The value of the select. Use when controlled.                                                                                                                                                                                                                                                                                                                                                                                                     |
 | onValueChange        | `((value: Value[] \| Value \| null, eventDetails: SelectRootChangeEventDetails) => void)`                                                                                                                                                                  | -       | Event handler called when the value of the select changes.                                                                                                                                                                                                                                                                                                                                                                                        |
-| defaultInputValue    | `string`                                                                                                                                                                                                                                                   | `''`    | The uncontrolled input value when the select is initially rendered.&#xA;Only applies to a filterable select (`FilterSelect`). To render a controlled filter input, use the `inputValue` prop instead.                                                                                                                                                                                                                                             |
-| inputValue           | `string`                                                                                                                                                                                                                                                   | -       | The input value. Use when controlled.&#xA;Only applies to a filterable select (`FilterSelect`).                                                                                                                                                                                                                                                                                                                                                   |
-| onInputValueChange   | `((value: string, eventDetails: SelectRootInputValueChangeEventDetails) => void)`                                                                                                                                                                          | -       | Event handler called when the input value changes.&#xA;Only applies to a filterable select (`FilterSelect`).                                                                                                                                                                                                                                                                                                                                      |
+| defaultInputValue    | `string`                                                                                                                                                                                                                                                   | `''`    | The uncontrolled input value when the select is initially rendered. To render a controlled filter input, use the `inputValue` prop instead.                                                                                                                                                                                                                                                                                                       |
+| inputValue           | `string`                                                                                                                                                                                                                                                   | -       | The input value. Use when controlled.                                                                                                                                                                                                                                                                                                                                                                                                             |
+| onInputValueChange   | `((value: string, eventDetails: SelectRootInputValueChangeEventDetails) => void)`                                                                                                                                                                          | -       | Event handler called when the input value changes.                                                                                                                                                                                                                                                                                                                                                                                                |
 | defaultOpen          | `boolean`                                                                                                                                                                                                                                                  | `false` | Whether the select popup is initially open. To render a controlled select popup, use the `open` prop instead.                                                                                                                                                                                                                                                                                                                                     |
 | open                 | `boolean`                                                                                                                                                                                                                                                  | -       | Whether the select popup is currently open.                                                                                                                                                                                                                                                                                                                                                                                                       |
 | onOpenChange         | `((open: boolean, eventDetails: SelectRootChangeEventDetails) => void)`                                                                                                                                                                                    | -       | Event handler called when the select popup is opened or closed.                                                                                                                                                                                                                                                                                                                                                                                   |
 | highlightItemOnHover | `boolean`                                                                                                                                                                                                                                                  | `true`  | Whether moving the pointer over items should highlight them.&#xA;Disabling this prop allows CSS `:hover` to be differentiated from the `:focus` (`data-highlighted`) state.                                                                                                                                                                                                                                                                       |
 | actionsRef           | `React.RefObject<SelectRootActions \| null>`                                                                                                                                                                                                               | -       | A ref to imperative actions. `unmount`: Manually unmounts the select.&#xA;Call this after any externally controlled closing animation finishes.                                                                                                                                                                                                                                                                                                   |
 | autoComplete         | `string`                                                                                                                                                                                                                                                   | -       | Provides a hint to the browser for autofill.                                                                                                                                                                                                                                                                                                                                                                                                      |
-| filter               | `SelectFilter`                                                                                                                                                                                                                                             | -       | Customizes how items match the query. The function receives the `items` entry and the&#xA;trimmed query.&#xA;Only a filterable select (`FilterSelect.Root`) filters.                                                                                                                                                                                                                                                                              |
+| filter               | `SelectFilter`                                                                                                                                                                                                                                             | -       | Customizes how items match the query. The function receives the `items` entry and the&#xA;trimmed query.                                                                                                                                                                                                                                                                                                                                          |
 | form                 | `string`                                                                                                                                                                                                                                                   | -       | Identifies the form that owns the hidden input.&#xA;Useful when the select is rendered outside the form.                                                                                                                                                                                                                                                                                                                                          |
 | isItemEqualToValue   | `((itemValue: Value, value: Value) => boolean)`                                                                                                                                                                                                            | -       | Custom comparison logic used to determine if a select item value matches the current selected value. Useful when item values are objects without matching referentially.&#xA;Defaults to `Object.is` comparison.                                                                                                                                                                                                                                  |
 | itemToStringLabel    | `((itemValue: Value) => string)`                                                                                                                                                                                                                           | -       | When the item values are objects (`<Select.Item value={object}>`), this function converts the object value to a string representation for display in the trigger.&#xA;If the shape of the object is `{ value, label }`, the label will be used automatically without needing to specify this prop.                                                                                                                                                |
@@ -240,11 +240,11 @@ Renders an `<input>` element.
 
 **Input Props:**
 
-| Prop      | Type                                                                                     | Default | Description                                                                                                                                                                                   |
-| :-------- | :--------------------------------------------------------------------------------------- | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| className | `string \| ((state: SelectInputState) => string \| undefined)`                           | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
-| style     | `React.CSSProperties \| ((state: SelectInputState) => React.CSSProperties \| undefined)` | -       | Style applied to the element, or a function that&#xA;returns a style object based on the component's state.                                                                                   |
-| render    | `ReactElement \| ((props: HTMLProps, state: SelectInputState) => ReactElement)`          | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
+| Prop      | Type                                                                                             | Default | Description                                                                                                                                                                                   |
+| :-------- | :----------------------------------------------------------------------------------------------- | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| className | `string \| ((state: FilterSelect.Input.State) => string \| undefined)`                           | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
+| style     | `React.CSSProperties \| ((state: FilterSelect.Input.State) => React.CSSProperties \| undefined)` | -       | Style applied to the element, or a function that&#xA;returns a style object based on the component's state.                                                                                   |
+| render    | `ReactElement \| ((props: HTMLProps, state: FilterSelect.Input.State) => ReactElement)`          | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
 
 **Input Data Attributes:**
 
@@ -295,13 +295,13 @@ Renders a `<button>` element.
 
 **Clear Props:**
 
-| Prop         | Type                                                                                     | Default | Description                                                                                                                                                                                   |
-| :----------- | :--------------------------------------------------------------------------------------- | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| nativeButton | `boolean`                                                                                | `true`  | Whether the component renders a native `<button>` element when replacing it&#xA;via the `render` prop.&#xA;Set to `false` if the rendered element is not a button (for example, `<div>`).     |
-| disabled     | `boolean`                                                                                | `false` | Whether the component should ignore user interaction.                                                                                                                                         |
-| className    | `string \| ((state: SelectClearState) => string \| undefined)`                           | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
-| style        | `React.CSSProperties \| ((state: SelectClearState) => React.CSSProperties \| undefined)` | -       | Style applied to the element, or a function that&#xA;returns a style object based on the component's state.                                                                                   |
-| render       | `ReactElement \| ((props: HTMLProps, state: SelectClearState) => ReactElement)`          | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
+| Prop         | Type                                                                                             | Default | Description                                                                                                                                                                                   |
+| :----------- | :----------------------------------------------------------------------------------------------- | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| nativeButton | `boolean`                                                                                        | `true`  | Whether the component renders a native `<button>` element when replacing it&#xA;via the `render` prop.&#xA;Set to `false` if the rendered element is not a button (for example, `<div>`).     |
+| disabled     | `boolean`                                                                                        | `false` | Whether the component should ignore user interaction.                                                                                                                                         |
+| className    | `string \| ((state: FilterSelect.Clear.State) => string \| undefined)`                           | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
+| style        | `React.CSSProperties \| ((state: FilterSelect.Clear.State) => React.CSSProperties \| undefined)` | -       | Style applied to the element, or a function that&#xA;returns a style object based on the component's state.                                                                                   |
+| render       | `ReactElement \| ((props: HTMLProps, state: FilterSelect.Clear.State) => ReactElement)`          | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
 
 ### Clear.Props
 
@@ -690,11 +690,11 @@ Renders a `<div>` element.
 
 **Empty Props:**
 
-| Prop      | Type                                                                                     | Default | Description                                                                                                                                                                                   |
-| :-------- | :--------------------------------------------------------------------------------------- | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| className | `string \| ((state: SelectEmptyState) => string \| undefined)`                           | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
-| style     | `React.CSSProperties \| ((state: SelectEmptyState) => React.CSSProperties \| undefined)` | -       | Style applied to the element, or a function that&#xA;returns a style object based on the component's state.                                                                                   |
-| render    | `ReactElement \| ((props: HTMLProps, state: SelectEmptyState) => ReactElement)`          | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
+| Prop      | Type                                                                                             | Default | Description                                                                                                                                                                                   |
+| :-------- | :----------------------------------------------------------------------------------------------- | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| className | `string \| ((state: FilterSelect.Empty.State) => string \| undefined)`                           | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
+| style     | `React.CSSProperties \| ((state: FilterSelect.Empty.State) => React.CSSProperties \| undefined)` | -       | Style applied to the element, or a function that&#xA;returns a style object based on the component's state.                                                                                   |
+| render    | `ReactElement \| ((props: HTMLProps, state: FilterSelect.Empty.State) => ReactElement)`          | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
 
 ### Empty.Props
 
@@ -830,121 +830,6 @@ Re-export of [ScrollDownArrow](#scrolldownarrow) props.
 type FilterSelectScrollDownArrowState = {};
 ```
 
-## Additional Types
-
-### SelectClearProps
-
-```typescript
-type SelectClearProps = {
-  /**
-   * Whether the component should ignore user interaction.
-   * @default false
-   */
-  disabled?: boolean;
-  /**
-   * Whether the component renders a native `<button>` element when replacing it
-   * via the `render` prop.
-   * Set to `false` if the rendered element is not a button (for example, `<div>`).
-   * @default true
-   */
-  nativeButton?: boolean;
-  /**
-   * CSS class applied to the element, or a function that
-   * returns a class based on the component's state.
-   */
-  className?: string | ((state: FilterDropdownClearState) => string | undefined);
-  /**
-   * Allows you to replace the component's HTML element
-   * with a different tag, or compose it with another component.
-   *
-   * Accepts a `ReactElement` or a function that returns the element to render.
-   */
-  render?: ReactElement | ((props: HTMLProps, state: FilterDropdownClearState) => ReactElement);
-  /**
-   * Style applied to the element, or a function that
-   * returns a style object based on the component's state.
-   */
-  style?:
-    | React.CSSProperties
-    | ((state: FilterDropdownClearState) => React.CSSProperties | undefined);
-};
-```
-
-### SelectClearState
-
-```typescript
-type SelectClearState = {
-  /** Whether the component should ignore user interaction. */
-  disabled: boolean;
-  /** Whether the clear button is visible. */
-  visible: boolean;
-};
-```
-
-### SelectEmptyProps
-
-```typescript
-type SelectEmptyProps = {
-  /**
-   * CSS class applied to the element, or a function that
-   * returns a class based on the component's state.
-   */
-  className?: string | ((state: FilterDropdownEmptyState) => string | undefined);
-  /**
-   * Allows you to replace the component's HTML element
-   * with a different tag, or compose it with another component.
-   *
-   * Accepts a `ReactElement` or a function that returns the element to render.
-   */
-  render?: ReactElement | ((props: HTMLProps, state: FilterDropdownEmptyState) => ReactElement);
-  /**
-   * Style applied to the element, or a function that
-   * returns a style object based on the component's state.
-   */
-  style?:
-    | React.CSSProperties
-    | ((state: FilterDropdownEmptyState) => React.CSSProperties | undefined);
-};
-```
-
-### SelectEmptyState
-
-```typescript
-type SelectEmptyState = {};
-```
-
-### SelectInputProps
-
-```typescript
-type SelectInputProps = {
-  /**
-   * CSS class applied to the element, or a function that
-   * returns a class based on the component's state.
-   */
-  className?: string | ((state: FilterDropdownInputState) => string | undefined);
-  /**
-   * Allows you to replace the component's HTML element
-   * with a different tag, or compose it with another component.
-   *
-   * Accepts a `ReactElement` or a function that returns the element to render.
-   */
-  render?: ReactElement | ((props: HTMLProps, state: FilterDropdownInputState) => ReactElement);
-  /**
-   * Style applied to the element, or a function that
-   * returns a style object based on the component's state.
-   */
-  style?:
-    | React.CSSProperties
-    | ((state: FilterDropdownInputState) => React.CSSProperties | undefined);
-};
-```
-
-### SelectInputState
-
-```typescript
-type SelectInputState = {};
-```
-
 ## External Types
 
 ### Side
@@ -1013,4 +898,15 @@ type SelectFilter = (item: any, query: string, itemToStringLabel?: unknown | und
 - `FilterSelect.Input`: `FilterSelect.Input`, `FilterSelect.Input.State`, `FilterSelect.Input.Props`
 - `FilterSelect.Clear`: `FilterSelect.Clear`, `FilterSelect.Clear.State`, `FilterSelect.Clear.Props`
 - `FilterSelect.Empty`: `FilterSelect.Empty`, `FilterSelect.Empty.State`, `FilterSelect.Empty.Props`
-- `Default`: `SelectInputState`, `SelectInputProps`, `SelectClearState`, `SelectClearProps`, `SelectEmptyState`, `SelectEmptyProps`
+- `Default`: `FilterSelectInputState`, `FilterSelectInputProps`, `FilterSelectClearState`, `FilterSelectClearProps`, `FilterSelectEmptyState`, `FilterSelectEmptyProps`
+
+## Canonical Types
+
+Maps `Canonical`: `Alias` — Use Canonical when its namespace is already imported; otherwise use Alias.
+
+- `FilterSelect.Input.State`: `FilterSelectInputState`
+- `FilterSelect.Input.Props`: `FilterSelectInputProps`
+- `FilterSelect.Clear.State`: `FilterSelectClearState`
+- `FilterSelect.Clear.Props`: `FilterSelectClearProps`
+- `FilterSelect.Empty.State`: `FilterSelectEmptyState`
+- `FilterSelect.Empty.Props`: `FilterSelectEmptyProps`

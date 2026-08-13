@@ -66,16 +66,12 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
 ): React.JSX.Element {
   const {
     id,
-    filter: filterProp,
     value: valueProp,
     defaultValue = null,
     onValueChange,
     defaultOpen = false,
     open: openProp,
     onOpenChange,
-    inputValue: inputValueProp,
-    defaultInputValue = '',
-    onInputValueChange,
     name: nameProp,
     form,
     autoComplete,
@@ -119,9 +115,16 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     state: 'open',
   });
 
+  // Filterability comes from the entrypoint, not a prop: only `filter-select` supplies the
+  // integration, and the filter configuration arrives with it through context so an ordinary
+  // select carries none of the filter-only props. The mode is fixed for the select's lifetime.
+  const filterConfig = useSelectFilterIntegration();
+  const filterIntegration = filterConfig?.integration ?? null;
+  const filterable = filterConfig !== null;
+
   const [inputValue, setInputValue] = useControlled({
-    controlled: inputValueProp,
-    default: defaultInputValue,
+    controlled: filterConfig?.inputValue,
+    default: filterConfig?.defaultInputValue ?? '',
     name: 'Select',
     state: 'inputValue',
   });
@@ -132,12 +135,6 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     name: 'Select',
     state: 'value',
   });
-
-  // Filterability comes from the entrypoint, not the prop: only `filter-select` supplies the
-  // integration. That keeps the filtering implementation out of an ordinary select's bundle, and
-  // makes the mode fixed for the select's lifetime without a mount-time latch.
-  const filterIntegration = useSelectFilterIntegration();
-  const filterable = filterIntegration !== null;
   const [registeredItems, registerItem] = useItemRegistry<symbol, RegisteredItem>();
   const listRef = React.useRef<Array<HTMLElement | null>>([]);
   const filterInputRef = React.useRef<HTMLInputElement | null>(null);
@@ -321,7 +318,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
 
   const handleInputValueChange = useStableCallback(
     (nextInputValue: string, eventDetails: SelectRoot.InputValueChangeEventDetails) => {
-      onInputValueChange?.(nextInputValue, eventDetails);
+      filterConfig?.onInputValueChange?.(nextInputValue, eventDetails);
 
       if (eventDetails.isCanceled || nextInputValue === inputValue) {
         return;
@@ -392,8 +389,8 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
   }, [items]);
 
   const matchesItem = React.useMemo(
-    () => filterProp ?? filterIntegration?.getDefaultFilter(),
-    [filterProp, filterIntegration],
+    () => filterConfig?.filter ?? filterIntegration?.getDefaultFilter(),
+    [filterConfig, filterIntegration],
   );
 
   const query = inputValue.trim();
@@ -921,43 +918,10 @@ export type SelectFilter = (
   itemToStringLabel?: (item: any) => string,
 ) => boolean;
 
-// These are deliberately not a discriminated union on `filter`. `Omit`, `Pick`, and object rest
-// all collapse a union into one object type with widened members, which then matches no branch,
-// so a typed wrapper like `interface MyProps extends Omit<Select.Root.Props, 'children'>` would
-// not compile. Misuse is reported at runtime instead: `Select.Input` throws without `filter`.
-interface SelectRootFilterProps {
-  /**
-   * Customizes how items match the query. The function receives the `items` entry and the
-   * trimmed query.
-   * Only a filterable select (`FilterSelect.Root`) filters.
-   */
-  filter?: SelectFilter | undefined;
-  /**
-   * The uncontrolled input value when the select is initially rendered.
-   * Only applies to a filterable select (`FilterSelect`).
-   *
-   * To render a controlled filter input, use the `inputValue` prop instead.
-   * @default ''
-   */
-  defaultInputValue?: string | undefined;
-  /**
-   * The input value. Use when controlled.
-   * Only applies to a filterable select (`FilterSelect`).
-   */
-  inputValue?: string | undefined;
-  /**
-   * Event handler called when the input value changes.
-   * Only applies to a filterable select (`FilterSelect`).
-   */
-  onInputValueChange?:
-    | ((value: string, eventDetails: SelectRootInputValueChangeEventDetails) => void)
-    | undefined;
-}
-
 export type SelectRootProps<
   Value,
   Multiple extends boolean | undefined = false,
-> = SelectRootBaseProps<Value, Multiple> & SelectRootFilterProps;
+> = SelectRootBaseProps<Value, Multiple>;
 
 interface SelectRootBaseProps<Value, Multiple extends boolean | undefined = false> {
   children?: React.ReactNode;

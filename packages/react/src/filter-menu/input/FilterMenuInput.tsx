@@ -8,17 +8,17 @@ import {
 } from '../../filter-dropdown/input/FilterDropdownInput';
 import { mergeProps } from '../../merge-props';
 import type { BaseUIEvent } from '../../internals/types';
-import { useMenuFilterableRootContext } from '../root/MenuRootContext';
-import { MenuInputDataAttributes } from './MenuInputDataAttributes';
+import { useMenuFilterableRootContext } from '../../menu/root/MenuRootContext';
+import { FilterMenuInputDataAttributes } from './FilterMenuInputDataAttributes';
 
 /**
  * A text input used to filter the menu items.
  * Renders an `<input>` element.
  *
- * Documentation: [Base UI Menu](https://base-ui.com/react/components/menu)
+ * Documentation: [Base UI Filter Menu](https://base-ui.com/react/components/filter-menu)
  */
-export const MenuInput = React.forwardRef(function MenuInput(
-  componentProps: MenuInput.Props,
+export const FilterMenuInput = React.forwardRef(function FilterMenuInput(
+  componentProps: FilterMenuInput.Props,
   forwardedRef: React.ForwardedRef<HTMLInputElement>,
 ) {
   const { store, parent } = useMenuFilterableRootContext('Input');
@@ -31,7 +31,7 @@ export const MenuInput = React.forwardRef(function MenuInput(
   const inputProps = mergeProps<typeof FilterDropdownInput>(
     listNavigationProps,
     {
-      [MenuInputDataAttributes.focusVisible as string]: isFocusVisible ? '' : undefined,
+      [FilterMenuInputDataAttributes.focusVisible as string]: isFocusVisible ? '' : undefined,
       onKeyDown(event: BaseUIEvent<React.KeyboardEvent<HTMLInputElement>>) {
         const activeIndex = store.state.activeIndex;
         const activeItem = store.context.itemDomElements.current[activeIndex ?? -1];
@@ -50,10 +50,10 @@ export const MenuInput = React.forwardRef(function MenuInput(
   return <FilterDropdownInput {...inputProps} ref={mergedRefs} />;
 });
 
-export interface MenuInputState extends FilterDropdownInputState {}
-export interface MenuInputProps extends FilterDropdownInputProps {}
+export interface FilterMenuInputState extends FilterDropdownInputState {}
+export interface FilterMenuInputProps extends FilterDropdownInputProps {}
 
-export namespace MenuInput {
-  export type State = MenuInputState;
-  export type Props = MenuInputProps;
+export namespace FilterMenuInput {
+  export type State = FilterMenuInputState;
+  export type Props = FilterMenuInputProps;
 }

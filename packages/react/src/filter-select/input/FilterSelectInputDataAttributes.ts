@@ -1,4 +1,4 @@
-export enum SelectInputDataAttributes {
+export enum FilterSelectInputDataAttributes {
   /**
    * Present when the input receives virtual focus via keyboard navigation.
    */

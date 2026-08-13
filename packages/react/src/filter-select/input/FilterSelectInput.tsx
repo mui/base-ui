@@ -9,16 +9,16 @@ import {
 } from '../../filter-dropdown/input/FilterDropdownInput';
 import { mergeProps } from '../../merge-props';
 import type { BaseUIEvent } from '../../internals/types';
-import { useSelectFilterableRootContext } from '../root/SelectRootContext';
-import { selectors } from '../store';
-import { SelectInputDataAttributes } from './SelectInputDataAttributes';
+import { useSelectFilterableRootContext } from '../../select/root/SelectRootContext';
+import { selectors } from '../../select/store';
+import { FilterSelectInputDataAttributes } from './FilterSelectInputDataAttributes';
 
 /**
  * A text input used to filter the select items.
  * Renders an `<input>` element.
  */
-export const SelectInput = React.forwardRef(function SelectInput(
-  componentProps: SelectInput.Props,
+export const FilterSelectInput = React.forwardRef(function FilterSelectInput(
+  componentProps: FilterSelectInput.Props,
   forwardedRef: React.ForwardedRef<HTMLInputElement>,
 ) {
   const context = useSelectFilterableRootContext('Input');
@@ -29,7 +29,7 @@ export const SelectInput = React.forwardRef(function SelectInput(
   const inputProps = mergeProps<typeof FilterDropdownInput>(
     listNavigationProps,
     {
-      [SelectInputDataAttributes.focusVisible as string]: isFocusVisible ? '' : undefined,
+      [FilterSelectInputDataAttributes.focusVisible as string]: isFocusVisible ? '' : undefined,
       onKeyDown(event: BaseUIEvent<React.KeyboardEvent<HTMLInputElement>>) {
         const activeIndex = context.store.state.activeIndex;
         const activeItem = context.listRef.current[activeIndex ?? -1];
@@ -48,10 +48,10 @@ export const SelectInput = React.forwardRef(function SelectInput(
   return <FilterDropdownInput {...inputProps} ref={mergedRefs} />;
 });
 
-export interface SelectInputState extends FilterDropdownInputState {}
-export interface SelectInputProps extends FilterDropdownInputProps {}
+export interface FilterSelectInputState extends FilterDropdownInputState {}
+export interface FilterSelectInputProps extends FilterDropdownInputProps {}
 
-export namespace SelectInput {
-  export type State = SelectInputState;
-  export type Props = SelectInputProps;
+export namespace FilterSelectInput {
+  export type State = FilterSelectInputState;
+  export type Props = FilterSelectInputProps;
 }

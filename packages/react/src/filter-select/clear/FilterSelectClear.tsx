@@ -5,14 +5,14 @@ import {
   type FilterDropdownClearProps,
   type FilterDropdownClearState,
 } from '../../filter-dropdown/clear/FilterDropdownClear';
-import { useSelectFilterableRootContext } from '../root/SelectRootContext';
+import { useSelectFilterableRootContext } from '../../select/root/SelectRootContext';
 
 /**
  * Clears the filter input value.
  * Renders a `<button>` element.
  */
-export const SelectClear = React.forwardRef(function SelectClear(
-  componentProps: SelectClear.Props,
+export const FilterSelectClear = React.forwardRef(function FilterSelectClear(
+  componentProps: FilterSelectClear.Props,
   forwardedRef: React.ForwardedRef<HTMLButtonElement>,
 ) {
   const context = useSelectFilterableRootContext('Clear');
@@ -25,10 +25,10 @@ export const SelectClear = React.forwardRef(function SelectClear(
   );
 });
 
-export interface SelectClearState extends FilterDropdownClearState {}
-export interface SelectClearProps extends FilterDropdownClearProps {}
+export interface FilterSelectClearState extends FilterDropdownClearState {}
+export interface FilterSelectClearProps extends FilterDropdownClearProps {}
 
-export namespace SelectClear {
-  export type State = SelectClearState;
-  export type Props = SelectClearProps;
+export namespace FilterSelectClear {
+  export type State = FilterSelectClearState;
+  export type Props = FilterSelectClearProps;
 }

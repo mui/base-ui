@@ -22,6 +22,6 @@ export { SelectSeparator as Separator } from '../select/separator/SelectSeparato
 
 // Filtering-only parts.
 export { FilterSelectRoot as Root } from './root/FilterSelectRoot';
-export { SelectInput as Input } from '../select/input/SelectInput';
-export { SelectClear as Clear } from '../select/clear/SelectClear';
-export { SelectEmpty as Empty } from '../select/empty/SelectEmpty';
+export { FilterSelectInput as Input } from './input/FilterSelectInput';
+export { FilterSelectClear as Clear } from './clear/FilterSelectClear';
+export { FilterSelectEmpty as Empty } from './empty/FilterSelectEmpty';

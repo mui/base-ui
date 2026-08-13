@@ -1,8 +1,6 @@
 export { SelectRoot as Root } from './root/SelectRoot';
 export { SelectLabel as Label } from './label/SelectLabel';
 export { SelectTrigger as Trigger } from './trigger/SelectTrigger';
-export { SelectInput as Input } from './input/SelectInput';
-export { SelectClear as Clear } from './clear/SelectClear';
 export { SelectValue as Value } from './value/SelectValue';
 export { SelectIcon as Icon } from './icon/SelectIcon';
 export { SelectPortal as Portal } from './portal/SelectPortal';
@@ -20,4 +18,3 @@ export { SelectScrollUpArrow as ScrollUpArrow } from './scroll-up-arrow/SelectSc
 export { SelectGroup as Group } from './group/SelectGroup';
 export { SelectGroupLabel as GroupLabel } from './group-label/SelectGroupLabel';
 export { SelectSeparator as Separator } from './separator/SelectSeparator';
-export { SelectEmpty as Empty } from './empty/SelectEmpty';
