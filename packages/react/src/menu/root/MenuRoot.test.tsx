@@ -216,6 +216,13 @@ describe('<Menu.Root />', () => {
 
       await user.tab();
 
+      const submenuList = screen.getByTestId('sharing-list');
+      await waitFor(() => {
+        expect(submenuList).toHaveFocus();
+      });
+
+      await user.tab();
+
       await waitFor(() => {
         expect(screen.getByTestId('after')).toHaveFocus();
       });
@@ -273,6 +280,13 @@ describe('<Menu.Root />', () => {
       });
       await waitFor(() => {
         expect(submenuInput).toHaveFocus();
+      });
+
+      await user.tab();
+
+      const submenuList = screen.getByTestId('sharing-list');
+      await waitFor(() => {
+        expect(submenuList).toHaveFocus();
       });
 
       await user.tab();
@@ -731,6 +745,92 @@ describe('<Menu.Root />', () => {
         expect(parentInput).toHaveAttribute('aria-activedescendant', submenuTrigger.id);
       });
     });
+
+    it.each(['[Enter]', '[Space]'])(
+      '%s opens a virtually focused submenu from the list',
+      async (key) => {
+        const onListKeyDown = vi.fn();
+        const { user } = await render(
+          <FilterMenu.Root defaultOpen>
+            <FilterMenu.Trigger>Actions</FilterMenu.Trigger>
+            <FilterMenu.Portal>
+              <FilterMenu.Positioner>
+                <FilterMenu.Popup>
+                  <FilterMenu.Input aria-label="Filter actions" />
+                  <FilterMenu.List onKeyDown={onListKeyDown}>
+                    <FilterMenu.SubmenuRoot>
+                      <FilterMenu.SubmenuTrigger>Share</FilterMenu.SubmenuTrigger>
+                      <FilterMenu.Portal>
+                        <FilterMenu.Positioner>
+                          <FilterMenu.Popup>
+                            <FilterMenu.Input aria-label="Filter sharing options" />
+                            <FilterMenu.List>
+                              <FilterMenu.Item>Email</FilterMenu.Item>
+                            </FilterMenu.List>
+                          </FilterMenu.Popup>
+                        </FilterMenu.Positioner>
+                      </FilterMenu.Portal>
+                    </FilterMenu.SubmenuRoot>
+                    <FilterMenu.Item>Delete</FilterMenu.Item>
+                  </FilterMenu.List>
+                </FilterMenu.Popup>
+              </FilterMenu.Positioner>
+            </FilterMenu.Portal>
+          </FilterMenu.Root>,
+        );
+
+        const submenuTrigger = screen.getByRole('menuitem', { name: 'Share' });
+        const list = submenuTrigger.parentElement!;
+        expect(list).not.toHaveAttribute('aria-activedescendant');
+
+        await user.tab();
+        await waitFor(() => {
+          expect(list).toHaveAttribute('aria-activedescendant', submenuTrigger.id);
+        });
+
+        await user.keyboard('{Shift>}{Tab}{/Shift}');
+        await waitFor(() => {
+          expect(screen.getByRole('searchbox', { name: 'Filter actions' })).toHaveFocus();
+        });
+        expect(list).not.toHaveAttribute('aria-activedescendant');
+
+        await act(async () => {
+          list.focus();
+        });
+        await waitFor(() => {
+          expect(list).toHaveAttribute('aria-activedescendant', submenuTrigger.id);
+        });
+
+        await user.keyboard(key);
+
+        if (key === '[Space]') {
+          expect(onListKeyDown.mock.lastCall?.[0]).toHaveProperty('defaultPrevented', true);
+        }
+
+        const submenuInput = screen.getByRole('searchbox', { name: 'Filter sharing options' });
+        await waitFor(() => {
+          expect(submenuInput).toHaveFocus();
+        });
+        await waitFor(() => {
+          expect(list).not.toHaveAttribute('aria-activedescendant');
+        });
+
+        await user.keyboard('[ArrowLeft]');
+
+        // Exiting the submenu returns focus to where it was entered from: the list.
+        await waitFor(() => {
+          expect(list).toHaveFocus();
+        });
+        await waitFor(() => {
+          expect(list).toHaveAttribute('aria-activedescendant', submenuTrigger.id);
+        });
+
+        await user.keyboard('[ArrowDown]');
+
+        const nextItem = screen.getByRole('menuitem', { name: 'Delete' });
+        expect(list).toHaveAttribute('aria-activedescendant', nextItem.id);
+      },
+    );
 
     it.skipIf(isJSDOM)(
       'focuses the input when entering a hover-opened filterable submenu with the keyboard',
