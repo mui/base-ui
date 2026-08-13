@@ -474,7 +474,15 @@ export const MenuRootImpl = fastComponent(function MenuRootImpl<Payload>(
     rtl: direction === 'rtl',
     disabledIndices: EMPTY_ARRAY,
     onNavigate(nextActiveIndex, event) {
-      const inputFocusVisible = filterable && nextActiveIndex === null && event?.type === 'keydown';
+      // Event-less null navigations (the hook's open-time reset) and focus events (the input
+      // receiving focus when the popup opens) carry no input modality, so they must not clear
+      // a keyboard-open focus ring. Only keydown shows it and only pointer events hide it.
+      let inputFocusVisible = filterable && store.state.inputFocusVisible;
+      if (!filterable || nextActiveIndex !== null) {
+        inputFocusVisible = false;
+      } else if (event && event.type !== 'focus') {
+        inputFocusVisible = event.type === 'keydown';
+      }
 
       if (filterable && nextActiveIndex === null && store.select('open')) {
         // Virtual navigation escaped the List boundary, so return DOM focus to the filter input.
