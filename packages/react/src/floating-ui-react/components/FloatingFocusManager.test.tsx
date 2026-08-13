@@ -1826,7 +1826,7 @@ describe('FloatingFocusManager', () => {
         const reference = screen.getByTestId('reference');
         const portalNode = screen.getByTestId('floating').closest('[data-base-ui-portal]');
         const portalNodeId = portalNode?.id ?? '';
-        const owner = document.querySelector('span[aria-owns]');
+        const owner = portalNode?.ownerDocument.querySelector('span[aria-owns]');
 
         expect(portalNodeId).not.toBe('');
         expect(owner).not.toHaveAttribute('role');
@@ -1867,7 +1867,11 @@ describe('FloatingFocusManager', () => {
         await userEvent.click(screen.getByTestId('reference'));
         await flushMicrotasks();
 
-        expect(document.querySelector('span[aria-owns]')).toHaveAttribute('role', 'group');
+        const portalNode = screen.getByTestId('floating').closest('[data-base-ui-portal]');
+        const owner = portalNode?.ownerDocument.querySelector('span[aria-owns]');
+
+        expect(portalNode).not.toBe(null);
+        expect(owner).toHaveAttribute('role', 'group');
       });
 
       test('shift+tab', async () => {
