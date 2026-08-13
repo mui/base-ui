@@ -950,6 +950,31 @@ describe('Draggable.Root', () => {
       expect(el).toHaveAttribute('aria-describedby');
     });
 
+    it('preserves inline gesture styles changed while disabling', async () => {
+      const { rerender } = await renderDnd(
+        <Draggable.Root
+          kind={testDragKind}
+          data-testid="drag"
+          style={{ touchAction: 'pan-y', userSelect: 'text' }}
+        />,
+      );
+      const el = screen.getByTestId('drag');
+      expect(el.style.touchAction).toBe('manipulation');
+      expect(el.style.userSelect).toBe('none');
+
+      await rerender(
+        <Draggable.Root
+          kind={testDragKind}
+          data-testid="drag"
+          disabled
+          style={{ touchAction: 'none', userSelect: 'auto' }}
+        />,
+      );
+
+      expect(el.style.touchAction).toBe('none');
+      expect(el.style.userSelect).toBe('auto');
+    });
+
     it('re-applies the a11y strings when the locale changes, without remounting', async () => {
       // The provider is present in both trees and only its `translations` change,
       // so the tree shape is identical and React keeps the same node. Wrapping a

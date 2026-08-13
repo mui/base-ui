@@ -24,16 +24,30 @@ export interface DragSessionState {
 
 interface DragSessionSlot {
   store: Store<DragSessionState | null>;
+  sourceStore: Store<DragSource | null>;
+  sourceSnapshot: DragSource | null;
+  sourceStoreSubscription?: (() => void) | undefined;
   targetListeners: Map<Element, Set<() => void>>;
   allTargetListeners: Set<() => void>;
 }
 
 const slot = getSharedSlot<DragSessionSlot>('dragSessionStore', () => ({
   store: new Store<DragSessionState | null>(null),
+  sourceStore: new Store<DragSource | null>(null),
+  sourceSnapshot: null,
   targetListeners: new Map<Element, Set<() => void>>(),
   allTargetListeners: new Set<() => void>(),
 }));
 // Forward-compatible with a slot created by an older copy during development.
+slot.sourceStore ??= new Store<DragSource | null>(slot.store.state?.source ?? null);
+slot.sourceSnapshot ??= slot.store.state?.source ?? null;
+slot.sourceStoreSubscription ??= slot.store.subscribe((state) => {
+  const source = state?.source ?? null;
+  if (source !== slot.sourceSnapshot) {
+    slot.sourceSnapshot = source;
+    slot.sourceStore.setState(source);
+  }
+});
 slot.targetListeners ??= new Map<Element, Set<() => void>>();
 slot.allTargetListeners ??= new Set<() => void>();
 
@@ -42,6 +56,17 @@ slot.allTargetListeners ??= new Set<() => void>();
  * `useStore(dragSessionStore, selector)` or `dragSessionStore.subscribe(fn)`.
  */
 export const dragSessionStore: ReadonlyStore<DragSessionState | null> = slot.store;
+
+/**
+ * Reactive view of the active source. Unlike the full session store, this only
+ * publishes when a drag starts, ends, or its source element is retargeted, so
+ * source-only consumers do no work when the hovered target stack changes.
+ */
+export const dragSourceStore: ReadonlyStore<DragSource | null> = slot.sourceStore;
+
+export function selectDragSource(source: DragSource | null): DragSource | null {
+  return source;
+}
 
 /** Internal: lifecycle-only writer. Not exported from `index.ts`. */
 export function setDragSession(state: DragSessionState | null): void {
@@ -189,9 +214,9 @@ export function createDragTargetStateStore(
  * draggable re-registers mid-drag (a virtualizer remounting the item to a fresh
  * node). The lifecycle holds the `source` object by reference, so mutating
  * `source.element` in place keeps every in-flight closure consistent; we then
- * publish a fresh snapshot object so `useStore` `Object.is` subscribers (the
- * `isDragging` selector) re-run against the new node. No-op when no drag is
- * active or `oldElement` isn't the current source. Returns whether it matched.
+ * publish fresh full-session and source-only snapshots so reactive consumers
+ * re-run against the new node. No-op when no drag is active or `oldElement`
+ * isn't the current source. Returns whether it matched.
  */
 export function updateDragSourceElement(oldElement: Element, newElement: HTMLElement): boolean {
   const state = slot.store.state;
@@ -200,6 +225,9 @@ export function updateDragSourceElement(oldElement: Element, newElement: HTMLEle
   }
   state.source.element = newElement;
   slot.store.setState({ ...state });
+  // The lifecycle mutates its source object in place, so publish a shallow copy
+  // to wake source-only selectors for this rare virtualizer retarget.
+  slot.sourceStore.setState({ ...state.source });
   return true;
 }
 
@@ -217,12 +245,6 @@ export const selectors = {
     }
     return state.source.element === element;
   },
-  /**
-   * The active drag source as a strongly-typed `DragSource`, or `null`
-   * when no drag is in progress. Reference-stable for the lifetime of the
-   * session — subscribers re-render only on drag start / end, not per frame.
-   */
-  dragSource: (state: State): DragSource | null => state?.source ?? null,
   /**
    * Whether `element` is in the active drop-target stack at any depth.
    * `false` when `element` is `null` or no drag is active. Drives

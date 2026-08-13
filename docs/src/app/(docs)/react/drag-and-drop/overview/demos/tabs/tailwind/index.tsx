@@ -121,7 +121,7 @@ function DraggableTab(props: DraggableTabProps) {
 
   const handleBeforeDragStart = useStableCallback(
     (_context: DragStartContext, eventDetails: BeforeDragStartEventDetails) => {
-      if (eventDetails.trigger?.hasAttribute('data-close-tab')) {
+      if (eventDetails.trigger?.closest('[data-close-tab]')) {
         eventDetails.cancel();
         return;
       }

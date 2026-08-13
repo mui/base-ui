@@ -9,7 +9,6 @@ import { NOOP } from '@base-ui/utils/empty';
 import { ownerDocument, ownerWindow } from '@base-ui/utils/owner';
 import { addEventListener } from '@base-ui/utils/addEventListener';
 import { contains, getTarget } from '@base-ui/utils/shadowDom';
-import { isShadowRoot } from '@floating-ui/utils/dom';
 import { createChangeEventDetails } from '../../../internals/createBaseUIEventDetails';
 import {
   evaluateActivation,
@@ -28,7 +27,7 @@ import * as dragRootLock from './dragRootLock';
 import * as dragCursor from './dragCursor';
 import { suppressNextClick } from './postDragClick';
 import { getSharedSlot } from '../sharedState';
-import { createDocumentBinding, type DragEventRoot } from '../documentBinding';
+import { createEventRootBinding, type DragEventRoot } from '../documentBinding';
 import type { DraggableConfig } from '../draggable';
 import { getRegistration, resolveDraggablePickup } from '../draggableRegistry';
 import { hasInteractiveAncestorWithin } from '../interactiveElement';
@@ -77,21 +76,6 @@ const handledPointerDownEvents = getSharedSlot<WeakSet<Event>>(
   'syntheticDrag.handledPointerDownEvents',
   () => new WeakSet<Event>(),
 );
-const boundShadowRoots = getSharedSlot<Map<ShadowRoot, number>>(
-  'syntheticDrag.boundShadowRoots',
-  () => new Map<ShadowRoot, number>(),
-);
-
-function crossesBoundShadowRoot(event: Event, doc: Document): boolean {
-  const path = event.composedPath();
-  for (const root of boundShadowRoots.keys()) {
-    if (ownerDocument(root.host) === doc && path.includes(root.host)) {
-      return true;
-    }
-  }
-  return false;
-}
-
 const CONTEXT_MENU_SUPPRESSION_MS = 1500;
 
 /** Cursor pinned across the document during a pointer drag (see `dragCursor`). */
@@ -103,46 +87,12 @@ const DEFAULT_DRAG_CURSOR = 'grabbing';
  * preserves the internal target even when a closed root retargets the event at
  * its host for outside listeners.
  */
-const documentBinding = createDocumentBinding({
+const documentBinding = createEventRootBinding({
   slot: 'syntheticDrag.documentBindings',
-  install: (root) => {
-    if (isShadowRoot(root)) {
-      boundShadowRoots.set(root, (boundShadowRoots.get(root) ?? 0) + 1);
-      const off = addEventListener(root, 'pointerdown', onPointerDown, {
-        capture: true,
-        passive: false,
-      });
-      return () => {
-        off();
-        const count = boundShadowRoots.get(root) ?? 0;
-        if (count <= 1) {
-          boundShadowRoots.delete(root);
-        } else {
-          boundShadowRoots.set(root, count - 1);
-        }
-      };
-    }
-    const win = ownerWindow(root.documentElement);
-    const onCapture = (event: Event) => {
-      if (!crossesBoundShadowRoot(event, root)) {
-        onPointerDown(event);
-      }
-    };
-    const onBubble = (event: Event) => {
-      if (crossesBoundShadowRoot(event, root)) {
-        onPointerDown(event);
-      }
-    };
-    const offCapture = addEventListener(win, 'pointerdown', onCapture, {
-      capture: true,
-      passive: false,
-    });
-    const offBubble = addEventListener(win, 'pointerdown', onBubble, { passive: false });
-    return () => {
-      offCapture();
-      offBubble();
-    };
-  },
+  shadowRootsSlot: 'syntheticDrag.boundShadowRoots',
+  type: 'pointerdown',
+  listener: onPointerDown,
+  options: { passive: false },
 });
 
 export function bindPointerListeners(root: DragEventRoot): void {
@@ -771,7 +721,7 @@ function commitActivation(): void {
   const lastY = lastInput.clientY;
   const getParameters = getRegistration(element);
   if (!getParameters) {
-    clearPending();
+    clearPending(true);
     return;
   }
   let parameters: DraggableConfig<any> & { pointerDragHandle?: DragHandle | undefined };
@@ -784,7 +734,7 @@ function commitActivation(): void {
 
   // Re-check `disabled` at commit: it may have flipped during the press.
   if (parameters.disabled) {
-    clearPending();
+    clearPending(true);
     return;
   }
 
@@ -796,7 +746,7 @@ function commitActivation(): void {
   // element the *keyboard* drag is dragging, killing its dimming for the rest of
   // the drag.
   if (!canStartLifecycle()) {
-    clearPending();
+    clearPending(true);
     return;
   }
 
@@ -809,7 +759,7 @@ function commitActivation(): void {
   // have swapped its handle during the press, and the press that armed this
   // gesture was never on the handle that now governs it.
   if (dragHandle && !contains(dragHandle, target)) {
-    clearPending();
+    clearPending(true);
     return;
   }
 
@@ -817,16 +767,16 @@ function commitActivation(): void {
   // any resource is allocated, so canceling leaves nothing to undo beyond the
   // pending phase itself — nothing has lifted yet.
   if (parameters.onBeforeDragStart) {
-    const eventDetails = createChangeEventDetails('pointer', pending.lastNativeEvent, element);
+    const eventDetails = createChangeEventDetails('pointer', pending.lastNativeEvent, target);
     try {
       parameters.onBeforeDragStart({ input: lastInput, element, dragHandle }, eventDetails);
     } catch (error) {
       // A throwing consumer handler must not leave the pending phase armed.
-      clearPending();
+      clearPending(true);
       throw error;
     }
     if (eventDetails.isCanceled) {
-      clearPending();
+      clearPending(true);
       return;
     }
   }

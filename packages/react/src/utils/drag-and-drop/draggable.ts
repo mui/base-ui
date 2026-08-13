@@ -210,10 +210,22 @@ function applyStaticSetup(parameters: DraggableStaticSetupParameters): {
         gestureStyle.webkitTouchCallout = 'none';
       },
       restoreGestureStyles() {
-        gestureStyle.touchAction = previous.touchAction;
-        gestureStyle.userSelect = previous.userSelect;
-        gestureStyle.webkitUserSelect = previous.webkitUserSelect;
-        gestureStyle.webkitTouchCallout = previous.webkitTouchCallout;
+        // Do not overwrite a value the consumer committed while this setup was
+        // active. This matters when React updates `style` and a registration input
+        // (such as `disabled`) in the same commit: the layout-effect teardown runs
+        // after the new inline style has already landed.
+        if (gestureStyle.touchAction === 'manipulation') {
+          gestureStyle.touchAction = previous.touchAction;
+        }
+        if (gestureStyle.userSelect === 'none') {
+          gestureStyle.userSelect = previous.userSelect;
+        }
+        if (gestureStyle.webkitUserSelect === 'none') {
+          gestureStyle.webkitUserSelect = previous.webkitUserSelect;
+        }
+        if (gestureStyle.webkitTouchCallout === 'none') {
+          gestureStyle.webkitTouchCallout = previous.webkitTouchCallout;
+        }
       },
       reconcile() {
         const existing = gestureElement.getAttribute('aria-describedby');

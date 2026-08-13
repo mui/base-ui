@@ -2,7 +2,7 @@ import { describe, it, expect, vi } from 'vitest';
 import { fireEvent } from '@testing-library/react';
 import { createDndRenderer } from '#test-utils';
 import { cancel, createElement, flushRaf, setupDragEngineTests } from '../../../test/dnd';
-import { dragSessionStore } from './dragSessionStore';
+import { dragSessionStore, dragSourceStore } from './dragSessionStore';
 
 setupDragEngineTests();
 
@@ -168,6 +168,30 @@ describe('dragSessionStore', () => {
     expect(seen.length).toBeGreaterThanOrEqual(3);
     expect(seen[seen.length - 1]).toBeNull();
 
+    unsubscribe();
+  });
+
+  it('does not notify source-only subscribers when the target stack changes', async () => {
+    const { engine } = await renderDnd();
+    const source = createElement();
+    const target = createElement();
+    engine.registerDraggable(source, {});
+    engine.registerDropTarget(target, {});
+    const listener = vi.fn();
+    const unsubscribe = dragSourceStore.subscribe(listener);
+
+    fireEvent.dragStart(source);
+    await flushRaf();
+    expect(listener).toHaveBeenCalledTimes(1);
+
+    fireEvent.dragEnter(target);
+    fireEvent.dragOver(target);
+    await flushRaf();
+    expect(listener).toHaveBeenCalledTimes(1);
+
+    fireEvent.drop(target);
+    expect(listener).toHaveBeenCalledTimes(2);
+    expect(dragSourceStore.state).toBeNull();
     unsubscribe();
   });
 });

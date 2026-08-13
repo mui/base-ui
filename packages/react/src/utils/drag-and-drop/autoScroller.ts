@@ -54,7 +54,7 @@ type ScrollerGetter<TSourceData = any> = () => RegisterAutoScrollerParameters<TS
  * {@link RegisterAutoScrollerParameters} exists to *change* one of these answers,
  * which is what registering the element explicitly does.
  */
-const INFERRED_PARAMETERS: RegisterAutoScrollerParameters = {};
+export const EMPTY_AUTO_SCROLLER_PARAMETERS: RegisterAutoScrollerParameters = {};
 
 const state = getSharedSlot<AutoScrollerState>('registerAutoScroller', () => ({
   scrollers: new Map<HTMLElement, ScrollerGetter[]>(),
@@ -115,6 +115,9 @@ export function addScrollerRegistration(
  * @internal
  */
 export function refreshAutoScroll(): void {
+  if (!state.enabled) {
+    return;
+  }
   // A same-node class/style change can alter whether it scrolls and which side
   // is its inline end without changing the inferred ancestor chain. Force the
   // next frame to re-read both computed-style facts and rebuild that chain.
@@ -618,7 +621,7 @@ function runScrollFrame(timestamp: number): void {
     }
     const registration =
       getParameters === undefined
-        ? INFERRED_PARAMETERS
+        ? EMPTY_AUTO_SCROLLER_PARAMETERS
         : safeCall<RegisterAutoScrollerParameters | null>(
             'getParameters',
             element,

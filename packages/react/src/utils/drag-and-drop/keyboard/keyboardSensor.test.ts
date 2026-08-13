@@ -276,6 +276,22 @@ describe('keyboard sensor', () => {
     },
   );
 
+  it('reports the focused drag handle as the keyboard pickup trigger', async () => {
+    const { engine } = await renderDnd();
+    const el = createElement();
+    const handle = document.createElement('button');
+    el.appendChild(handle);
+    const onBeforeDragStart = vi.fn(
+      (_: DragStartContext, eventDetails: BeforeDragStartEventDetails) => eventDetails.cancel(),
+    );
+    engine.registerDraggable(el, { dragHandle: handle, onBeforeDragStart });
+
+    handle.focus();
+    pressKey(handle, ' ');
+
+    expect(onBeforeDragStart.mock.calls[0][1].trigger).toBe(handle);
+  });
+
   it('does not dispatch onBeforeDragStart when another drag already refuses the pickup', async () => {
     const { engine } = await renderDnd();
     const dragged = createElement();

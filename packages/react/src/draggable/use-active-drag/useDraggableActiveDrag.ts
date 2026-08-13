@@ -1,6 +1,6 @@
 'use client';
 import { useStore } from '@base-ui/utils/store';
-import { dragSessionStore, selectors } from '../../utils/drag-and-drop/dragSessionStore';
+import { dragSourceStore, selectDragSource } from '../../utils/drag-and-drop/dragSessionStore';
 import { matchesAccept } from '../../utils/drag-and-drop/dragKind';
 import type { AcceptedDragPayload, AnyDragAccept, DragKind, DragSource } from '../../types/drag';
 
@@ -20,7 +20,7 @@ export type UseDraggableActiveDragReturnValue<TData = unknown> = DragSource<TDat
 export function useDraggableActiveDrag<TAccept extends AnyDragAccept = DragKind<unknown>>(
   accept?: TAccept,
 ): UseDraggableActiveDragReturnValue<AcceptedDragPayload<TAccept>> {
-  const source = useStore(dragSessionStore, selectors.dragSource);
+  const source = useStore(dragSourceStore, selectDragSource);
   if (source === null || !matchesAccept(accept, source)) {
     return null;
   }

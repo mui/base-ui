@@ -19,13 +19,13 @@ import type {
   InternalDraggableParameters,
   RegisterDraggableParameters,
 } from '../../types/dragRegistration';
-import type { DragCleanupFn } from '../../types/drag';
+import type { DragCleanupFn, DragSource } from '../../types/drag';
 import {
   dragSessionStore,
+  dragSourceStore,
   selectors,
   updateDragSourceElement,
 } from '../../utils/drag-and-drop/dragSessionStore';
-import type { DragSessionState } from '../../utils/drag-and-drop/dragSessionStore';
 import { useRegistrationRef } from '../../utils/drag-and-drop/useRegistrationRef';
 import { retargetActivePreviewSource } from '../../utils/drag-and-drop/activePreview';
 import {
@@ -37,8 +37,8 @@ import {
 // the node behind the ref even when a virtualizer swaps it. Module-scope
 // (stable-identity) selector so `useStore`'s selector-identity fast path holds.
 type ElementRef = { readonly current: Element | null };
-function selectIsDragging(state: DragSessionState | null, r: ElementRef): boolean {
-  return selectors.isDraggingElement(state, r.current);
+function selectIsDragging(source: DragSource | null, r: ElementRef): boolean {
+  return source?.element === r.current;
 }
 
 /**
@@ -253,7 +253,7 @@ export function useDraggableElement<TData = undefined>(
     }
   });
 
-  const dragging = useStore(dragSessionStore, selectIsDragging, elementRef);
+  const dragging = useStore(dragSourceStore, selectIsDragging, elementRef);
 
   // Flush a reconcile skipped mid-drag: `dragging` flipping false re-renders this
   // hook, so the swapped handle (or changed a11y inputs) receives the static

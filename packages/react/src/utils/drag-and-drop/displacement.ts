@@ -37,7 +37,7 @@
 
 import { ownerWindow } from '@base-ui/utils/owner';
 import { addEventListener } from '@base-ui/utils/addEventListener';
-import { dragSessionStore } from './dragSessionStore';
+import { dragSessionStore, dragSourceStore } from './dragSessionStore';
 import { WindowAnimationFrame } from './core/windowAnimationFrame';
 import type { DragCleanupFn } from '../../types/drag';
 
@@ -179,7 +179,7 @@ function closeWindow(): void {
 }
 
 function handleSessionChange(): void {
-  const live = dragSessionStore.getSnapshot() !== null;
+  const live = dragSourceStore.getSnapshot() !== null;
   if (live) {
     graceFrame?.cancel();
     graceFrame = null;
@@ -411,7 +411,7 @@ export function trackDisplacedElement(element: HTMLElement): DragCleanupFn {
     }
   }
   if (storeUnsubscribe === null) {
-    storeUnsubscribe = dragSessionStore.subscribe(handleSessionChange);
+    storeUnsubscribe = dragSourceStore.subscribe(handleSessionChange);
     // Subscribing does not replay the current snapshot, and the registry can
     // first become non-empty in the middle of a drag (a virtualized list
     // draining and refilling, a list mounting late): derive the window state

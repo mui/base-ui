@@ -3,7 +3,7 @@ import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { Store, useStore } from '@base-ui/utils/store';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
-import { dragSessionStore, selectors } from '../dragSessionStore';
+import { dragSourceStore, selectDragSource } from '../dragSessionStore';
 import type { DragPreviewState } from './dragPreviewStore';
 import { setActivePreviewOffset } from '../activePreview';
 import { resolveDragPreviewOffset } from '../customDragPreview';
@@ -30,7 +30,7 @@ export function PreviewOverlayRenderer(props: {
   previewStore: Store<DragPreviewState | null>;
 }): React.ReactNode {
   const { previewStore } = props;
-  const source = useStore(dragSessionStore, selectors.dragSource);
+  const source = useStore(dragSourceStore, selectDragSource);
   const preview = useStore(previewStore, selectPreviewState);
 
   // Works for pointer and keyboard drags alike (both publish a preview host).

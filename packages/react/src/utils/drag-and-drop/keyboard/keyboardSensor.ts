@@ -35,7 +35,7 @@ import type { SyntheticPreviewHandle } from '../synthetic/syntheticPreview';
 import { clearActivePreviewHandle } from '../activePreview';
 import { dragSessionStore } from '../dragSessionStore';
 import { getSharedSlot } from '../sharedState';
-import { createDocumentBinding, type DragEventRoot } from '../documentBinding';
+import { createEventRootBinding, type DragEventRoot } from '../documentBinding';
 import { isEditable } from '../interactiveElement';
 import {
   findRegisteredAncestor,
@@ -178,67 +178,15 @@ const handledEvents = getSharedSlot<WeakSet<Event>>(
   'keyboardDrag.handledEvents',
   () => new WeakSet<Event>(),
 );
-const boundShadowRoots = getSharedSlot<Map<ShadowRoot, number>>(
-  'keyboardDrag.boundShadowRoots',
-  () => new Map<ShadowRoot, number>(),
-);
-
-function crossesBoundShadowRoot(event: Event, doc: Document): boolean {
-  const path = event.composedPath();
-  for (const root of boundShadowRoots.keys()) {
-    if (ownerDocument(root.host) === doc && path.includes(root.host)) {
-      return true;
-    }
-  }
-  return false;
-}
-
 /**
  * Per-document-or-shadow-root `keydown` listener that starts and drives a
  * keyboard gesture, ref-counted across draggables.
  */
-const documentBinding = createDocumentBinding({
+const documentBinding = createEventRootBinding({
   slot: 'keyboardDrag.documentBindings',
-  install: (root) => {
-    if (isShadowRoot(root)) {
-      boundShadowRoots.set(root, (boundShadowRoots.get(root) ?? 0) + 1);
-      const off = addEventListener(root, 'keydown', onKeyDown, { capture: true });
-      return () => {
-        off();
-        const count = boundShadowRoots.get(root) ?? 0;
-        if (count <= 1) {
-          boundShadowRoots.delete(root);
-        } else {
-          boundShadowRoots.set(root, count - 1);
-        }
-      };
-    }
-    const win = ownerWindow(root.documentElement);
-    // A fresh wrapper per install, never the shared `onKeyDown` directly: a
-    // deferred cleanup (below) can outlive its binding, so a re-bind on the same
-    // document must install a *distinct* listener. The DOM dedupes identical
-    // `(type, listener, capture)` triples, which would otherwise let the deferred
-    // removal take the live binding's listener with it.
-    const onCapture = (event: Event) => {
-      // Window capture precedes capture inside a shadow root. Let the inner
-      // binding see the unretargeted event first; the bubble fallback below
-      // handles a press dispatched directly on the host.
-      if (!crossesBoundShadowRoot(event, root)) {
-        onKeyDown(event);
-      }
-    };
-    const onBubble = (event: Event) => {
-      if (crossesBoundShadowRoot(event, root)) {
-        onKeyDown(event);
-      }
-    };
-    const offCapture = addEventListener(win, 'keydown', onCapture, { capture: true });
-    const offBubble = addEventListener(win, 'keydown', onBubble);
-    return () => {
-      offCapture();
-      offBubble();
-    };
-  },
+  shadowRootsSlot: 'keyboardDrag.boundShadowRoots',
+  type: 'keydown',
+  listener: onKeyDown,
   // If the dragged source was the last draggable and unmounts mid-drag, the
   // ref-count hits 0 and this cleanup would remove the only keydown path while
   // `state.active` survives — the drag would become uncontrollable. Defer the
@@ -343,7 +291,9 @@ function handlePickupKeyDown(event: KeyboardEvent): void {
   // on Enter, or Space may scroll), so its native key behavior must be left
   // intact — same as the `keyboardActivation` gate above. Only genuinely-in-progress
   // pickups swallow.
-  if (!dispatchBeforeDragStart(element, dragHandle, parameters, seed.initialInput, event)) {
+  if (
+    !dispatchBeforeDragStart(element, dragHandle, parameters, seed.initialInput, pickupNode, event)
+  ) {
     return;
   }
 
@@ -389,7 +339,13 @@ export function startKeyboardDrag(element: HTMLElement | null): boolean {
 
   const seed = seedKeyboardPickup(sourceElement, parameters);
   const started =
-    dispatchBeforeDragStart(sourceElement, dragHandle, parameters, seed.initialInput) &&
+    dispatchBeforeDragStart(
+      sourceElement,
+      dragHandle,
+      parameters,
+      seed.initialInput,
+      focusTarget,
+    ) &&
     beginKeyboardSession({ element: sourceElement, parameters, dragHandle, focusTarget, seed });
 
   // Nothing was picked up, so focus belongs where the caller had it.
@@ -473,13 +429,14 @@ function dispatchBeforeDragStart(
   dragHandle: Element | null,
   parameters: DraggableConfig<any>,
   initialInput: DragInput,
+  trigger: Element,
   event?: KeyboardEvent,
 ): boolean {
   const { onBeforeDragStart } = parameters;
   if (!onBeforeDragStart) {
     return true;
   }
-  const eventDetails = createChangeEventDetails('keyboard', event, element);
+  const eventDetails = createChangeEventDetails('keyboard', event, trigger);
   const delivered = containConsumerError(
     'Base UI: the "onBeforeDragStart" handler threw, so the keyboard pickup was canceled.',
     element,

@@ -20,8 +20,10 @@ import { useInnerDragEngine } from './useInnerDragEngine';
 import { useDraggableCollection } from './useDraggableCollection';
 import { dragSessionStore } from './dragSessionStore';
 import { getRegistration } from './draggableRegistry';
+import { captureDropTargetRegistration } from './dropTarget';
+import { monitorRegistry } from './monitor';
 import { scheduleDisplacementSweep } from './displacement';
-import type { DragKeyboardMoveDetails, DragKind } from '../../types/drag';
+import type { DragKeyboardMoveDetails, DragKind, DropTargetRecord } from '../../types/drag';
 import { createKind } from './dragKind';
 
 const cardsKind = createKind<any>('cards');
@@ -94,6 +96,26 @@ describe('useDraggableCollection', () => {
     expect(second).not.toBe(first);
     expect(second.disabled).toBe(true);
     expect(getParameters()).toBe(second);
+  });
+
+  it('reuses collection monitor and drop target registrations', () => {
+    const { plugin } = setupPlugin({}, { knownItemIds: ['a'] });
+    const element = createElement();
+    registerCleanup(plugin.setupItem('a', element));
+
+    const getMonitor = [...monitorRegistry].at(-1)!;
+    expect(getMonitor()).toBe(getMonitor());
+
+    const record: DropTargetRecord = {
+      element,
+      label: undefined,
+      kind: undefined,
+      payload: undefined,
+      getLocalPoint: () => ({ x: 0, y: 0 }),
+      getSnappedLocalPoint: () => ({ x: 0, y: 0 }),
+    };
+    const getDropTarget = captureDropTargetRegistration(record)!;
+    expect(getDropTarget()).toBe(getDropTarget());
   });
 
   it('gives an item a stable label for cross-collection preview settling', () => {

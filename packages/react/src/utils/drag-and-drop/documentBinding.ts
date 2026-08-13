@@ -7,6 +7,9 @@
  * shares one count per root, exactly like the sensors' other shared state.
  */
 
+import { addEventListener } from '@base-ui/utils/addEventListener';
+import { ownerDocument, ownerWindow } from '@base-ui/utils/owner';
+import { isShadowRoot } from '@floating-ui/utils/dom';
 import { getSharedSlot } from './sharedState';
 import type { DragCleanupFn } from '../../types/drag';
 
@@ -82,4 +85,94 @@ export function createDocumentBinding(options: CreateDocumentBindingOptions): Do
       }
     },
   };
+}
+
+interface CreateEventRootBindingOptions {
+  /** Unique shared slot prefix for this sensor. */
+  slot: string;
+  /** Shared slot used to coordinate shadow-root routing across bundle copies. */
+  shadowRootsSlot: string;
+  type: string;
+  listener: (event: Event) => void;
+  options?: Omit<AddEventListenerOptions, 'capture'> | undefined;
+  shouldDefer?: ((root: DragEventRoot) => boolean) | undefined;
+  onDefer?: ((cleanup: DragCleanupFn) => void) | undefined;
+}
+
+/**
+ * Bind one sensor event across documents and shadow roots. A composed event is
+ * observed by window capture before an inner shadow-root listener, so the window
+ * defers those events to bubble; direct host events still fall back to the window.
+ */
+export function createEventRootBinding(options: CreateEventRootBindingOptions): DocumentBinding {
+  const {
+    slot,
+    shadowRootsSlot,
+    type,
+    listener,
+    options: listenerOptions,
+    shouldDefer,
+    onDefer,
+  } = options;
+  const boundShadowRoots = getSharedSlot<Map<ShadowRoot, number>>(
+    shadowRootsSlot,
+    () => new Map<ShadowRoot, number>(),
+  );
+
+  const crossesBoundShadowRoot = (event: Event, doc: Document): boolean => {
+    const path = event.composedPath();
+    for (const root of boundShadowRoots.keys()) {
+      if (ownerDocument(root.host) === doc && path.includes(root.host)) {
+        return true;
+      }
+    }
+    return false;
+  };
+
+  return createDocumentBinding({
+    slot,
+    install(root) {
+      if (isShadowRoot(root)) {
+        boundShadowRoots.set(root, (boundShadowRoots.get(root) ?? 0) + 1);
+        const off = addEventListener(root, type, listener, {
+          ...listenerOptions,
+          capture: true,
+        });
+        return () => {
+          off();
+          const count = boundShadowRoots.get(root) ?? 0;
+          if (count <= 1) {
+            boundShadowRoots.delete(root);
+          } else {
+            boundShadowRoots.set(root, count - 1);
+          }
+        };
+      }
+
+      const win = ownerWindow(root.documentElement);
+      // A distinct wrapper per install ensures a deferred cleanup cannot remove
+      // a later binding through the DOM's listener-identity deduplication.
+      const onCapture = (event: Event) => {
+        if (!crossesBoundShadowRoot(event, root)) {
+          listener(event);
+        }
+      };
+      const onBubble = (event: Event) => {
+        if (crossesBoundShadowRoot(event, root)) {
+          listener(event);
+        }
+      };
+      const offCapture = addEventListener(win, type, onCapture, {
+        ...listenerOptions,
+        capture: true,
+      });
+      const offBubble = addEventListener(win, type, onBubble, listenerOptions);
+      return () => {
+        offCapture();
+        offBubble();
+      };
+    },
+    shouldDefer,
+    onDefer,
+  });
 }

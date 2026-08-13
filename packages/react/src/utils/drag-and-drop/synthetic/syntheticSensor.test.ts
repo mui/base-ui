@@ -756,11 +756,13 @@ describe('syntheticDrag sensor', () => {
   it('onBeforeDragStart fires at activation commit with the pointer details', async () => {
     const { engine } = await renderDnd();
     const el = createElement();
+    const trigger = document.createElement('span');
+    el.appendChild(trigger);
     const onBeforeDragStart = vi.fn();
     const onDragStart = vi.fn();
     engine.registerDraggable(el, { onBeforeDragStart, onDragStart });
 
-    penDown(el, 50, 50);
+    penDown(trigger, 50, 50);
     await flushRaf();
     // Not at pointerdown: the veto waits for the activation modifier.
     expect(onBeforeDragStart).not.toHaveBeenCalled();
@@ -772,7 +774,7 @@ describe('syntheticDrag sensor', () => {
     expect(parameters.element).toBe(el);
     expect(eventDetails.reason).toBe('pointer');
     expect(eventDetails.event).toBeInstanceOf(PointerEvent);
-    expect(eventDetails.trigger).toBe(el);
+    expect(eventDetails.trigger).toBe(trigger);
     // Not canceled, so the drag started right after.
     expect(onDragStart).toHaveBeenCalledTimes(1);
 
@@ -800,6 +802,9 @@ describe('syntheticDrag sensor', () => {
     // The canceled commit tore the pending phase down and restored the source's
     // `draggable` attribute.
     expect(el.hasAttribute('draggable')).toBe(false);
+    const contextMenu = new Event('contextmenu', { bubbles: true, cancelable: true });
+    dispatch(el, contextMenu);
+    expect(contextMenu.defaultPrevented).toBe(false);
 
     // A later gesture is unaffected once the consumer allows dragging again.
     block = false;

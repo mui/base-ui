@@ -18,7 +18,12 @@ import { reorderRowBrand, type ReorderRowBrand } from './reorderRow';
 import { DragEngineImpl, resolveKeyboardInstructions } from './useInnerDragEngine';
 import { useDragPreviewContext } from './overlay/DragPreviewContext';
 import type { DragPreviewContext } from './overlay/DragPreviewContext';
-import type { InternalDragEngine, InternalDraggableParameters } from '../../types/dragRegistration';
+import type {
+  InternalDragEngine,
+  InternalDraggableParameters,
+  RegisterDropTargetParameters,
+  RegisterMonitorParameters,
+} from '../../types/dragRegistration';
 import { getSharedSlot } from './sharedState';
 import { dragSessionStore, selectors, updateDragSourceElement } from './dragSessionStore';
 import { retargetActivePreviewSource } from './activePreview';
@@ -26,6 +31,7 @@ import { mergeKeyboardAnnouncements } from './a11y/defaultAnnouncements';
 import { buildStaticSetupKey } from './draggable';
 import { createKind, matchesAccept } from './dragKind';
 import { scheduleDisplacementSweep, trackDisplacedElement } from './displacement';
+import { EMPTY_AUTO_SCROLLER_PARAMETERS } from './autoScroller';
 import type { LatestRef } from './useRegistrationRef';
 import { isPointInRect, runAllCleanups } from './utils';
 import type {
@@ -173,12 +179,6 @@ export class DraggableCollectionPlugin<
 
   private acceptCacheKind: DragKind<DragSourceData<TItem>> | null = null;
 
-  private monitorAcceptCache: IncomingKinds<TItem> | null = null;
-
-  private monitorAcceptSource: IncomingKinds<TItem> | null = null;
-
-  private monitorAcceptKind: DragKind<DragSourceData<TItem>> | null = null;
-
   // Dragged item ids, set by the global monitor.
   private currentDraggedItemIds: Set<CollectionItemId> = new Set();
 
@@ -277,30 +277,6 @@ export class DraggableCollectionPlugin<
     return this.acceptCache;
   }
 
-  // Kinds the collection's global monitor observes. The monitor must also see
-  // this collection's OWN drags (for dimming and `onDragStart`/`onDragEnd`), so
-  // it registers on the union of the own `kind` and the configured accept kinds.
-  // `accept` itself is unchanged, so drop routing still filters strictly.
-  private get monitorAccept(): IncomingKinds<TItem> {
-    const accept = this.accept;
-    const kind = this.kind;
-    // `kind` is part of the key, not just of the value: with a stable `accept`
-    // array `this.accept` returns the same reference whatever the kind is, so
-    // keying on it alone would keep serving a union built around the old kind —
-    // and the monitor would stop seeing this collection's own drags, leaving
-    // `currentDraggedItemIds` unseeded and its drops silently doing nothing.
-    if (
-      this.monitorAcceptCache === null ||
-      this.monitorAcceptSource !== accept ||
-      this.monitorAcceptKind !== kind
-    ) {
-      this.monitorAcceptSource = accept;
-      this.monitorAcceptKind = kind;
-      this.monitorAcceptCache = [kind as DragKind<IncomingSourceData<TItem>>, ...accept];
-    }
-    return this.monitorAcceptCache;
-  }
-
   connect(): void {
     // Guard against a second connect() without an intervening destroy(), which
     // would otherwise leak the previously registered monitor.
@@ -312,13 +288,12 @@ export class DraggableCollectionPlugin<
     // A collection lazily mounted mid-drag never saw the monitor's `onDragStart`,
     // so seed from the live drag session; otherwise `currentDraggedItemIds` stays
     // empty and its drops early-return silently. Mirrors the same-frame seeding in
-    // the lifecycle manager. Matched on `monitorAccept` (like the monitor
-    // below), so remounting mid-own-drag with an `accept` that excludes the
-    // own `kind` still reseeds the in-flight drag.
+    // the lifecycle manager. `accept` always includes this collection's own
+    // kind, so remounting mid-own-drag still reseeds the in-flight drag.
     const session = dragSessionStore.getSnapshot();
     const activeSource =
       session != null ? (session.source as DragSource<IncomingSourceData<TItem>>) : null;
-    if (activeSource != null && matchesAccept(this.monitorAccept, activeSource)) {
+    if (activeSource != null && matchesAccept(this.accept, activeSource)) {
       const src = activeSource.payload;
       this.currentDraggedItemIds = src?.itemIds ?? new Set();
       this.currentDragItems = src?.items ?? [];
@@ -337,8 +312,8 @@ export class DraggableCollectionPlugin<
       this.hasNonInitialState = false;
     }
 
-    this.monitorCleanup = this.engine.registerMonitor(() => ({
-      accept: this.monitorAccept,
+    const monitor: RegisterMonitorParameters<IncomingSourceData<TItem>> = {
+      accept: this.accept,
       onDragStart: ({ source }) => {
         // Row `direction` is cached per drag; a locale switch between drags must
         // not keep resolving before/after against the old reading order.
@@ -429,7 +404,11 @@ export class DraggableCollectionPlugin<
           });
         }
       },
-    }));
+    };
+    this.monitorCleanup = this.engine.registerMonitor(() => {
+      monitor.accept = this.accept;
+      return monitor;
+    });
   }
 
   destroy(): void {
@@ -640,24 +619,28 @@ export class DraggableCollectionPlugin<
       return true;
     };
 
-    return this.engine.registerDropTarget<IncomingSourceData<TItem>, DropTargetItemData>(
-      element,
-      () => ({
-        accept: this.accept,
-        payload: itemPayload,
-        canDrop: itemCanDrop,
-        onDragEnter: trackDropPosition,
-        onDrag: trackDropPosition,
-        onDragLeave: () => {
-          this.clearDropState();
-        },
-        // A target commits before monitors receive `onDragEnd`, so insertion
-        // cannot depend on collection/monitor mount order.
-        onDrop: ({ source, location }) => {
-          this.handleDrop(location, source as DragSource<IncomingSourceData<TItem>>);
-        },
-      }),
-    );
+    const registration: RegisterDropTargetParameters<
+      IncomingSourceData<TItem>,
+      DropTargetItemData
+    > = {
+      accept: this.accept,
+      payload: itemPayload,
+      canDrop: itemCanDrop,
+      onDragEnter: trackDropPosition,
+      onDrag: trackDropPosition,
+      onDragLeave: () => {
+        this.clearDropState();
+      },
+      // A target commits before monitors receive `onDragEnd`, so insertion
+      // cannot depend on collection/monitor mount order.
+      onDrop: ({ source, location }) => {
+        this.handleDrop(location, source as DragSource<IncomingSourceData<TItem>>);
+      },
+    };
+    return this.engine.registerDropTarget(element, () => {
+      registration.accept = this.accept;
+      return registration;
+    });
   }
 
   setupItem(itemId: CollectionItemId, element: HTMLElement): () => void {
@@ -854,64 +837,68 @@ export class DraggableCollectionPlugin<
       this.hasNonInitialState = true;
     };
 
-    return this.engine.registerDropTarget<IncomingSourceData<TItem>, DropTargetItemData>(
-      element,
-      () => ({
-        accept: this.accept,
-        payload: {
-          role: 'root' as const,
-          targetInstanceId: this.instanceId,
-        },
-        canDrop: ({ source }) =>
-          this.config.canDropRoot?.(source as DragSource<unknown>) ??
-          (this.config.onDrop != null || this.config.onRootDrop != null),
-        onDragEnter: trackRootDrop,
-        onDrag: trackRootDrop,
-        onDragLeave: () => {
-          if (this.rootDropActive) {
-            this.clearDropState();
-          }
-        },
-        onDrop: ({ source, location }) => {
-          // `onDrop` fires innermost-only, so reaching the root means no item was the deepest target.
-          const src = source.payload;
+    const registration: RegisterDropTargetParameters<
+      IncomingSourceData<TItem>,
+      DropTargetItemData
+    > = {
+      accept: this.accept,
+      payload: {
+        role: 'root',
+        targetInstanceId: this.instanceId,
+      },
+      canDrop: ({ source }) =>
+        this.config.canDropRoot?.(source as DragSource<unknown>) ??
+        (this.config.onDrop != null || this.config.onRootDrop != null),
+      onDragEnter: trackRootDrop,
+      onDrag: trackRootDrop,
+      onDragLeave: () => {
+        if (this.rootDropActive) {
+          this.clearDropState();
+        }
+      },
+      onDrop: ({ source, location }) => {
+        // `onDrop` fires innermost-only, so reaching the root means no item was the deepest target.
+        const src = source.payload;
 
-          // Releasing the dragged rows over their own footprint is "put it back",
-          // not a drop on the root's empty area — skip the callback.
-          if (this.isSelfRootDrop(src, location)) {
-            return;
-          }
+        // Releasing the dragged rows over their own footprint is "put it back",
+        // not a drop on the root's empty area — skip the callback.
+        if (this.isSelfRootDrop(src, location)) {
+          return;
+        }
 
-          const actions = this.config.getActions();
-          const onDrop = this.config.onDrop;
-          let committed = false;
-          if (onDrop != null) {
-            committed =
-              onDrop({
-                itemIds: src?.itemIds ?? new Set(),
-                items: src?.items ?? [],
-                target: { itemId: null, position: 'root' },
-                isInternal: src?.sourceInstanceId === this.instanceId,
-                source: source as DragSource<unknown>,
-                actions,
-              }) !== false;
-          } else if (this.config.onRootDrop != null) {
-            this.config.onRootDrop({
+        const actions = this.config.getActions();
+        const onDrop = this.config.onDrop;
+        let committed = false;
+        if (onDrop != null) {
+          committed =
+            onDrop({
               itemIds: src?.itemIds ?? new Set(),
               items: src?.items ?? [],
+              target: { itemId: null, position: 'root' },
+              isInternal: src?.sourceInstanceId === this.instanceId,
+              source: source as DragSource<unknown>,
               actions,
-            });
-            committed = true;
-          }
-          // Mirror `handleDrop`: this collection now owns the inserted rows, so
-          // a keyboard drag's `finalFocus` on the origin can find the row this
-          // instance remounted.
-          if (committed) {
-            committedDropSlot.owner = this;
-          }
-        },
-      }),
-    );
+            }) !== false;
+        } else if (this.config.onRootDrop != null) {
+          this.config.onRootDrop({
+            itemIds: src?.itemIds ?? new Set(),
+            items: src?.items ?? [],
+            actions,
+          });
+          committed = true;
+        }
+        // Mirror `handleDrop`: this collection now owns the inserted rows, so
+        // a keyboard drag's `finalFocus` on the origin can find the row this
+        // instance remounted.
+        if (committed) {
+          committedDropSlot.owner = this;
+        }
+      },
+    };
+    return this.engine.registerDropTarget(element, () => {
+      registration.accept = this.accept;
+      return registration;
+    });
   }
 
   setupHandle(itemId: CollectionItemId, element: HTMLElement): () => void {
@@ -929,7 +916,7 @@ export class DraggableCollectionPlugin<
     // Register unconditionally: whether the element actually scrolls is the loop's
     // business, resolved once per drag from its computed overflow (`getOverflowFlags`,
     // cached in `state.overflowCache`) rather than asked of the element here.
-    return this.engine.registerAutoScroller(element, () => ({}));
+    return this.engine.registerAutoScroller(element, () => EMPTY_AUTO_SCROLLER_PARAMETERS);
   }
 
   /** See {@link LiveDropPositionOwner}. */
