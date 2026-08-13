@@ -80,7 +80,7 @@ export interface UseDismissProps {
   outsidePress?: boolean | ((event: MouseEvent | TouchEvent) => boolean) | undefined;
   /**
    * The type of event to use to determine an outside "press".
-   * - `intentional` dismisses on an outside `click` whose press was observed while the floating element was open; a trailing click from a press that began before it opened (such as the drag-release gesture that opened it) is ignored. Touch requires minimal `touchmove`s. Virtual clicks — keyboard and assistive technology activations as well as programmatic `element.click()` — are accepted without a press.
+   * - `intentional` dismisses on an outside `click` whose press began while the floating element was open, ignoring the trailing click of a press that started before it opened. Touch requires minimal `touchmove`s, and press-less clicks (keyboard, assistive technology) are always accepted.
    * - `sloppy` fires on `pointerdown` for mouse, while for touch it fires on `touchend` (within 1 second) or while scrolling away after `touchstart`.
    */
   outsidePressEvent?:
@@ -149,11 +149,8 @@ export function useDismiss(
   const pressStartPreventedRef = React.useRef(false);
   // Ignore only the very next outside click after dragging from inside to outside.
   const suppressNextOutsideClickRef = React.useRef(false);
-  // Whether a press has started (anywhere) while the floating element was open.
-  // A `click` whose press began before the floating element opened must not count
-  // as an outside press: e.g. when a menu item activated by a press-drag-release
-  // gesture opens a dialog, the browser fires the gesture's click on the common
-  // ancestor of the mousedown and mouseup targets after the dialog is open.
+  // A click whose press began before the floating element opened is the tail of that
+  // gesture (e.g. the drag-release that opened it), not a new outside press.
   const sawPressWhileOpenRef = React.useRef(false);
   const isComposingRef = React.useRef(false);
   const currentPointerTypeRef = React.useRef<PointerEvent['pointerType']>('');
@@ -279,21 +276,12 @@ export function useDismiss(
     },
   );
 
-  // A synchronous close+reopen pair (`setOpen(false); setOpen(true)`) never
-  // renders `open === false`, so the effect below cannot observe that session
-  // boundary. Every open change dispatched through the store emits
-  // `openchange` synchronously, including both halves of a same-batch pair,
-  // so the press latch is reset there as well. Controlled `open` flips that
-  // bypass the store entirely are only observable when they render, which the
-  // effect below covers.
+  // A same-batch close+reopen never renders `open === false`, so only `openchange` can
+  // observe that session boundary. The effect below covers controlled flips.
   React.useEffect(() => {
     function handleOpenChange(details: FloatingUIOpenChangeDetails) {
-      // Only the closing half ends the session. `setOpen` dispatches
-      // `openchange` without comparing against the current state, so an
-      // already-open element can receive a redundant `setOpen(true)` — hovering
-      // an inactive trigger of the same element does exactly that. Resetting on
-      // those would retract a press that is still mid-gesture and drop its
-      // click.
+      // Only the closing half ends the session: `setOpen(true)` on an already-open
+      // element (hovering an inactive trigger) must not drop a press mid-gesture.
       if (!details.open) {
         sawPressWhileOpenRef.current = false;
       }
@@ -307,12 +295,8 @@ export function useDismiss(
 
   React.useEffect(() => {
     if (!open || !enabled) {
-      // Reset per open session, in the effect body rather than the cleanup: the
-      // cleanup also runs when other dependencies change while the floating
-      // element stays open, which must not erase a press observed during the
-      // current gesture. The ref cannot change while closed (the listeners
-      // below are detached), so resetting on close is equivalent to resetting
-      // on open.
+      // Reset in the effect body, not the cleanup, which also runs when a dependency
+      // changes mid-gesture.
       if (!open) {
         sawPressWhileOpenRef.current = false;
       }
@@ -496,15 +480,15 @@ export function useDismiss(
         return;
       }
 
-      // Only `click` events reach this point in intentional mode:
-      // `shouldIgnoreEvent` drops other event types in it, as well as clicks
-      // in sloppy mode.
+      // Only `click` events reach this point in intentional mode.
       if (getOutsidePressEvent() === 'intentional') {
-        // Only a click whose press began while the floating element was open
-        // counts as an outside press. Virtual clicks — keyboard and assistive
-        // technology activations as well as programmatic `element.click()` —
-        // have no press and are still accepted.
-        if (!isVirtualClick(event as MouseEvent) && !sawPressWhileOpenRef.current) {
+        // Press-less clicks (keyboard, assistive technology, `element.click()`) report no
+        // click count; `isVirtualClick` also catches the ones that do.
+        if (
+          (event as MouseEvent).detail !== 0 &&
+          !isVirtualClick(event as MouseEvent) &&
+          !sawPressWhileOpenRef.current
+        ) {
           return;
         }
 
@@ -597,15 +581,10 @@ export function useDismiss(
     function closeOnPressOutsideCapture(event: PointerEvent | MouseEvent) {
       cancelDismissOnEndTimeout.clear();
 
-      // This handler only receives `click`, `pointerdown`, and `mousedown`.
-      // Only `pointerdown` marks a press: `mousedown` is a compatibility event
-      // that follows `pointerdown`, so if the pointerdown opened the floating
-      // element, attributing its mousedown to the new open session would make
-      // the gesture's trailing click look like a new outside press.
+      // Only `pointerdown` marks a press; `mousedown` is its compatibility event, and
+      // counting it would misattribute a gesture that started before open.
       if (event.type === 'pointerdown') {
-        // Only a primary-button press can produce a `click`; a right- or
-        // middle-button press must not vouch for a later click it did not
-        // generate.
+        // Only a primary press can produce a `click`.
         if (event.button === 0) {
           sawPressWhileOpenRef.current = true;
         }
@@ -630,10 +609,8 @@ export function useDismiss(
     }
 
     function handlePressEndCapture(event: PointerEvent | MouseEvent) {
-      // A cancelled gesture produces no click, so its press can no longer
-      // vouch for one; drop it so a later press-less click is not attributed
-      // to it. The latch is not cleared on `pointerup`: the gesture's click
-      // fires after it and must still find the press on record.
+      // A cancelled gesture produces no click. Not cleared on `pointerup`: the click
+      // fires after it and must still find the press.
       if (event.type === 'pointercancel') {
         sawPressWhileOpenRef.current = false;
       }
