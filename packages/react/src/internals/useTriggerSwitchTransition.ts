@@ -8,6 +8,11 @@ import { useAnimationsFinished } from './useAnimationsFinished';
  * this hook touches are typed.
  */
 interface TriggerSwitchStore {
+  /**
+   * Read raw, because the `instantType` selector deliberately hides
+   * `trigger-change` while closed — which is exactly when it has to be cleared.
+   */
+  readonly state: { readonly instantType: string | undefined };
   set(key: 'instantType', value: 'trigger-change' | undefined): void;
   select(key: 'open'): boolean;
 }
@@ -55,7 +60,22 @@ export function useTriggerSwitchTransition(parameters: UseTriggerSwitchTransitio
 
     pendingSwitchRef.current?.abort();
     pendingSwitchRef.current = null;
-  }, [open]);
+
+    // `trigger-change` belongs to the open cycle that scheduled it. The selector
+    // stops a closed popup from rendering it, but the value has to be dropped
+    // too: a controlled reopen changes only `openProp`, so neither this effect
+    // nor `setOpen` would run again to replace it, and the selector would start
+    // exposing the old value against the new cycle.
+    if (store.state.instantType === 'trigger-change') {
+      store.set('instantType', undefined);
+    }
+
+    // `trigger-change` belongs to the open cycle that scheduled it. The selector
+    // stops a closed popup from rendering it, but the value has to be dropped
+    // too: a controlled reopen changes only `openProp`, so neither this effect
+    // nor `setOpen` would run again to replace it, and the selector would start
+    // exposing the old value against the new cycle.
+  }, [open, store]);
 
   useIsoLayoutEffect(() => {
     const currentTrigger = domReference;
@@ -66,6 +86,14 @@ export function useTriggerSwitchTransition(parameters: UseTriggerSwitchTransitio
     }
 
     if (!previousTrigger || !currentTrigger || currentTrigger === previousTrigger) {
+      return undefined;
+    }
+
+    // The trigger element can also change while the popup is closing, when a
+    // trigger is replaced by a new element. There is no move to animate, and
+    // the cancellation effect above has already run for this commit, so a
+    // restoration scheduled here would survive into whatever opens next.
+    if (!store.select('open')) {
       return undefined;
     }
 

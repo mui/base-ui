@@ -1165,6 +1165,21 @@ describe('<Popover.Root />', () => {
       );
 
       expect(endingInstants).not.toContain('trigger-change');
+
+      // Reopening on the same trigger, again purely through props, must not
+      // inherit the `trigger-change` the earlier switch had stored.
+      await waitFor(() => {
+        expect(screen.queryByTestId('popup')).toBe(null);
+      });
+
+      await act(async () => {
+        controls.setOpen!(true);
+      });
+      await waitFor(() => {
+        expect(screen.queryByTestId('popup')).not.toBe(null);
+      });
+
+      expect(screen.getByTestId('popup')).not.toHaveAttribute('data-instant');
     });
 
     it('does not restore the trigger-change instant when a controlled close commits late', async () => {
