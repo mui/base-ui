@@ -68,6 +68,7 @@ export const PopoverPositioner = React.forwardRef(function PopoverPositioner(
   const adaptiveOrigin = store.useState('adaptiveOrigin');
 
   const prevTriggerElementRef = React.useRef<Element | null>(null);
+  const openCycleRef = React.useRef(0);
 
   const runOnceAnimationsFinish = useAnimationsFinished(positionerElement);
 
@@ -93,6 +94,12 @@ export const PopoverPositioner = React.forwardRef(function PopoverPositioner(
 
   const domReference = floatingRootContext.useState('domReferenceElement');
 
+  // Track close/reopen cycles so a stale trigger-switch callback cannot apply
+  // `trigger-change` to a later open.
+  useIsoLayoutEffect(() => {
+    openCycleRef.current += 1;
+  }, [open]);
+
   // When the current trigger element changes, enable transitions on the
   // positioner temporarily
   useIsoLayoutEffect(() => {
@@ -110,8 +117,19 @@ export const PopoverPositioner = React.forwardRef(function PopoverPositioner(
     ) {
       store.set('instantType', undefined);
       const ac = new AbortController();
+      const triggerElementOnSwitch = currentTriggerElement;
+      const openCycleOnSwitch = openCycleRef.current;
       runOnceAnimationsFinish(() => {
-        store.set('instantType', 'trigger-change');
+        // The switch animation can finish after a close has already started, or
+        // after the popover reopened on a different trigger. Restoring
+        // `trigger-change` then would suppress that cycle's own transition.
+        if (
+          openCycleRef.current === openCycleOnSwitch &&
+          store.select('open') &&
+          floatingRootContext.select('domReferenceElement') === triggerElementOnSwitch
+        ) {
+          store.set('instantType', 'trigger-change');
+        }
       }, ac.signal);
 
       return () => {
@@ -120,7 +138,7 @@ export const PopoverPositioner = React.forwardRef(function PopoverPositioner(
     }
 
     return undefined;
-  }, [domReference, runOnceAnimationsFinish, store]);
+  }, [domReference, floatingRootContext, runOnceAnimationsFinish, store]);
 
   const trueModalNonHover = modal === true && openReason !== REASONS.triggerHover;
 

@@ -763,6 +763,165 @@ describe('<MenuRoot />', () => {
   describe.skipIf(isJSDOM)('multiple detached triggers', () => {
     type NumberPayload = { payload: number | undefined };
 
+    /**
+     * Mirrors the Popover detached-trigger hover fixture: two detached hover
+     * triggers with a real position transition on the positioner and a real exit
+     * transition on the popup, handed off from trigger 1 to trigger 2 so
+     * `instantType` is `trigger-change`.
+     */
+    async function renderHoverDetachedTriggers({
+      settleTriggerChange = true,
+    }: {
+      /**
+       * Set to `false` to return while the positioner is still animating to the
+       * new trigger, so the delayed `trigger-change` restoration is still pending.
+       */
+      settleTriggerChange?: boolean;
+    } = {}) {
+      globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+
+      const testMenu = Menu.createHandle<number>();
+      const instantsWhileEnding: (string | undefined)[] = [];
+
+      const utils = await render(
+        <div style={{ position: 'relative', width: 400, height: 200 }}>
+          <style>
+            {`
+              .positioner {
+                transition:
+                  top 120ms linear,
+                  left 120ms linear,
+                  transform 120ms linear;
+              }
+
+              .popup {
+                opacity: 1;
+                transition: opacity 250ms linear;
+              }
+
+              .popup[data-ending-style] {
+                opacity: 0;
+              }
+
+              .positioner[data-instant],
+              .popup[data-instant] {
+                transition: none;
+              }
+            `}
+          </style>
+
+          <Menu.Trigger
+            handle={testMenu}
+            payload={1}
+            openOnHover
+            delay={0}
+            style={{ position: 'absolute', top: 20, left: 20 }}
+          >
+            Trigger 1
+          </Menu.Trigger>
+          <Menu.Trigger
+            handle={testMenu}
+            payload={2}
+            openOnHover
+            delay={0}
+            style={{ position: 'absolute', top: 20, left: 220 }}
+          >
+            Trigger 2
+          </Menu.Trigger>
+
+          <Menu.Root handle={testMenu}>
+            {({ payload }: NumberPayload) => (
+              <Menu.Portal>
+                <Menu.Positioner data-testid="positioner" className="positioner">
+                  <Menu.Popup
+                    data-testid="popup"
+                    className="popup"
+                    render={(props, state) => {
+                      if (state.transitionStatus === 'ending') {
+                        instantsWhileEnding.push(state.instant);
+                      }
+                      return <div {...props} />;
+                    }}
+                  >
+                    <Menu.Item data-testid="content">{payload}</Menu.Item>
+                  </Menu.Popup>
+                </Menu.Positioner>
+              </Menu.Portal>
+            )}
+          </Menu.Root>
+        </div>,
+      );
+
+      const trigger1 = screen.getByRole('button', { name: 'Trigger 1' });
+      const trigger2 = screen.getByRole('button', { name: 'Trigger 2' });
+
+      await utils.user.hover(trigger1);
+      await waitFor(() => {
+        expect(screen.getByTestId('content').textContent).toBe('1');
+      });
+
+      await utils.user.hover(trigger2);
+      await waitFor(() => {
+        expect(screen.getByTestId('content').textContent).toBe('2');
+      });
+
+      if (settleTriggerChange) {
+        await waitFor(() => {
+          expect(screen.getByTestId('popup')).toHaveAttribute('data-instant', 'trigger-change');
+        });
+      }
+
+      // The handoff itself legitimately renders `trigger-change` while closing
+      // the previous trigger's popup. Only the close that follows matters.
+      instantsWhileEnding.length = 0;
+
+      return {
+        ...utils,
+        trigger1,
+        trigger2,
+        instantsWhileEnding,
+        popup: screen.getByTestId('popup'),
+      };
+    }
+
+    it('does not apply the trigger-change instant to a hover close after switching triggers', async () => {
+      const { user, trigger2, popup, instantsWhileEnding } = await renderHoverDetachedTriggers();
+
+      await user.unhover(trigger2);
+      await waitFor(() => {
+        expect(popup).toHaveAttribute('data-ending-style');
+      });
+
+      expect(instantsWhileEnding).not.toContain('trigger-change');
+    });
+
+    it('does not restore the trigger-change instant after a hover close has started', async () => {
+      const { user, trigger2, popup } = await renderHoverDetachedTriggers({
+        settleTriggerChange: false,
+      });
+
+      const positioner = screen.getByTestId('positioner');
+      await waitFor(() => {
+        expect(positioner.getAnimations().length).toBeGreaterThan(0);
+      });
+      const switchAnimations = positioner.getAnimations();
+
+      await user.unhover(trigger2);
+      await waitFor(() => {
+        expect(popup).toHaveAttribute('data-ending-style');
+      });
+
+      await act(async () => {
+        await Promise.all(switchAnimations.map((animation) => animation.finished));
+      });
+
+      // Still mid-exit: the stale callback must not have marked it instant and
+      // collapsed the transition.
+      expect(screen.getByTestId('popup')).toBe(popup);
+      expect(popup).toHaveAttribute('data-ending-style');
+      expect(popup).not.toHaveAttribute('data-instant');
+    });
+
     it('should open the menu with any trigger', async () => {
       const testMenu = Menu.createHandle();
       const { user } = await render(
