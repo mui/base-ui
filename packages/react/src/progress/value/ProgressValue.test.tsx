@@ -22,7 +22,7 @@ describe('<Progress.Value />', () => {
       );
 
       const value = screen.getByTestId('value');
-      expect(value).toHaveTextContent((0.3).toLocaleString(undefined, { style: 'percent' }));
+      expect(value.textContent).toBe((0.3).toLocaleString(undefined, { style: 'percent' }));
     });
 
     it('renders a formatted value when a format is provided', async () => {
@@ -41,7 +41,7 @@ describe('<Progress.Value />', () => {
       );
 
       const value = screen.getByTestId('value');
-      expect(value).toHaveTextContent(formatValue(30));
+      expect(value.textContent).toBe(formatValue(30));
     });
 
     describe('it accepts a render function', () => {
@@ -63,19 +63,19 @@ describe('<Progress.Value />', () => {
         expect(renderSpy.mock.lastCall?.[1]).toEqual(30);
       });
 
-      it('indeterminate value', async () => {
+      it.each([null, Number.NaN])('indeterminate value %s', async (value) => {
         const renderSpy = vi.fn();
         const format: Intl.NumberFormatOptions = {
           style: 'currency',
           currency: 'USD',
         };
         await render(
-          <Progress.Root value={null} format={format}>
+          <Progress.Root value={value} format={format}>
             <Progress.Value data-testid="value">{renderSpy}</Progress.Value>
           </Progress.Root>,
         );
         expect(renderSpy.mock.lastCall?.[0]).toEqual('indeterminate');
-        expect(renderSpy.mock.lastCall?.[1]).toEqual(null);
+        expect(renderSpy.mock.lastCall?.[1]).toEqual(value);
       });
     });
   });

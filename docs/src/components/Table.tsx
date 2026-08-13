@@ -30,7 +30,7 @@ export function ColumnHeader({
 }: Omit<React.ComponentProps<'th'>, 'scope'>) {
   return (
     <th scope="col" className={clsx('TableColumnHeader', className)} {...other}>
-      <span className="TableCellInner">{children}</span>
+      <div className="TableCellInner">{children}</div>
     </th>
   );
 }
@@ -47,7 +47,7 @@ export function RowHeader({
       className={clsx('TableCell', className)}
       {...other}
     >
-      <span className="TableCellInner">{children}</span>
+      <div className="TableCellInner">{children}</div>
     </th>
   );
 }
@@ -55,7 +55,7 @@ export function RowHeader({
 export function Cell({ children, className, ...other }: React.ComponentProps<'td'>) {
   return (
     <td ref={observeScrollableInner} className={clsx('TableCell', className)} {...other}>
-      <span className="TableCellInner">{children}</span>
+      <div className="TableCellInner">{children}</div>
     </td>
   );
 }

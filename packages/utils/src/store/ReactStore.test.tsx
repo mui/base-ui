@@ -127,7 +127,7 @@ describe('ReactStore', () => {
   it('useProps applies multiple keys from a props object', () => {
     let store!: ReactStore<TestState>;
 
-    function Test({ props }: { props: Partial<TestState> }) {
+    function Test({ props }: { props: TestState }) {
       store = useStableStore<TestState>({ value: 0, label: '' });
       store.useSyncedValues(props);
       return null;
@@ -146,7 +146,7 @@ describe('ReactStore', () => {
     let store!: ReactStore<TestState>;
     let updateSpy!: MockInstance;
 
-    function Test({ props }: { props: Partial<TestState> }) {
+    function Test({ props }: { props: TestState }) {
       store = useStableStore<TestState>({ value: 0, label: '' });
 
       if (!updateSpy) {
@@ -178,6 +178,8 @@ describe('ReactStore', () => {
   it('warns if useSyncedValues keys change between renders', () => {
     function Test({ props }: { props: Partial<TestState> }) {
       const store = useStableStore<TestState>({ value: 0, label: '' });
+      // This intentionally violates the stable-key contract to verify the development warning.
+      // @ts-expect-error A broad partial can explicitly contain undefined state values.
       store.useSyncedValues(props);
       return null;
     }
@@ -262,9 +264,10 @@ describe('ReactStore', () => {
 
   it('supports nested stores as state values', async () => {
     type ParentState = { count: number };
-    type ChildState = { count: number; parent?: ReactStore<ParentState> };
-
     const parentSelectors = { count: (state: ParentState) => state.count };
+    type ParentStore = ReactStore<ParentState, Record<string, never>, typeof parentSelectors>;
+    type ChildState = { count: number; parent?: ParentStore };
+
     const childSelectors = {
       count: (state: ChildState) => state.parent?.state.count ?? state.count,
       parent: (state: ChildState) => state.parent,
@@ -286,8 +289,8 @@ describe('ReactStore', () => {
 
     let unsubscribeParentHandler: () => void;
     const onParentUpdated = (
-      newParent: ReactStore<ParentState> | undefined,
-      _: ReactStore<ParentState> | undefined,
+      newParent: ParentStore | undefined,
+      _: ParentStore | undefined,
       store: ReactStore<ChildState, any, any>,
     ) => {
       if (!newParent) {

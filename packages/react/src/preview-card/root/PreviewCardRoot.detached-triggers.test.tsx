@@ -1,8 +1,16 @@
 import { expect, vi } from 'vitest';
 import * as React from 'react';
+import * as ReactDOMClient from 'react-dom/client';
 import { createRenderer, isJSDOM } from '#test-utils';
 import { PreviewCard } from '@base-ui/react/preview-card';
-import { screen, waitFor, randomStringValue, act, flushMicrotasks } from '@mui/internal-test-utils';
+import {
+  screen,
+  waitFor,
+  randomStringValue,
+  act,
+  fireEvent,
+  flushMicrotasks,
+} from '@mui/internal-test-utils';
 import { OPEN_DELAY } from '../utils/constants';
 
 const CLOSE_TRANSITION_MS = 50;
@@ -17,6 +25,66 @@ describe('<PreviewCard.Root />', () => {
 
   describe.skipIf(isJSDOM)('handle-backed root ownership', () => {
     type NumberPayload = { payload: number | undefined };
+
+    it('keeps a default-open root open while a detached trigger migrates after the initial commit', async () => {
+      const handle = PreviewCard.createHandle();
+      const onOpenChange = vi.fn();
+      const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {});
+      const container = document.createElement('div');
+      document.body.appendChild(container);
+      const root = ReactDOMClient.createRoot(container);
+
+      let isOpen = false;
+      let popupIsOpen = false;
+      let unexpectedErrors: unknown[][] = [];
+
+      try {
+        root.render(
+          <React.Fragment>
+            <PreviewCard.Root
+              handle={handle}
+              defaultOpen
+              defaultTriggerId="trigger"
+              onOpenChange={onOpenChange}
+            >
+              <PreviewCard.Portal>
+                <PreviewCard.Positioner>
+                  <PreviewCard.Popup data-testid="default-open-content">Content</PreviewCard.Popup>
+                </PreviewCard.Positioner>
+              </PreviewCard.Portal>
+            </PreviewCard.Root>
+            <PreviewCard.Trigger handle={handle} id="trigger" href="#">
+              Trigger
+            </PreviewCard.Trigger>
+          </React.Fragment>,
+        );
+
+        // Rendering outside act preserves the browser's native ordering: the queued "lost trigger"
+        // microtask runs before useSyncExternalStore's passive subscription migrates the trigger.
+        await waitFor(() => {
+          expect(screen.getByRole('link', { name: 'Trigger' })).toHaveAttribute('data-popup-open');
+        });
+
+        isOpen = handle.isOpen;
+        popupIsOpen =
+          document
+            .querySelector('[data-testid="default-open-content"]')
+            ?.hasAttribute('data-open') ?? false;
+      } finally {
+        root.unmount();
+        container.remove();
+        // The spy only exists to silence the act() warnings caused by rendering outside act.
+        unexpectedErrors = consoleError.mock.calls.filter(
+          (call) => !String(call[0]).includes('act(...)'),
+        );
+        consoleError.mockRestore();
+      }
+
+      expect(unexpectedErrors).toEqual([]);
+      expect(isOpen).toBe(true);
+      expect(popupIsOpen).toBe(true);
+      expect(onOpenChange).not.toHaveBeenCalled();
+    });
 
     it('ignores imperative handle calls made before a root is attached', async () => {
       const handle = PreviewCard.createHandle<number>();
@@ -296,7 +364,7 @@ describe('<PreviewCard.Root />', () => {
 
     it('should open the preview card with any trigger on hover', async () => {
       const popupId = randomStringValue();
-      const { user } = await render(
+      await render(
         <PreviewCard.Root>
           <button type="button" aria-label="Initial focus" autoFocus />
           <PreviewCard.Trigger href="#" delay={0}>
@@ -325,23 +393,26 @@ describe('<PreviewCard.Root />', () => {
         expect(screen.queryByTestId(popupId)).toBe(null);
       });
 
-      await user.hover(trigger1);
+      fireEvent.mouseEnter(trigger1);
+      fireEvent.mouseMove(trigger1);
       expect(screen.queryByTestId(popupId)).toBeVisible();
-      await user.hover(document.body);
+      fireEvent.mouseLeave(trigger1);
       await waitFor(() => {
         expect(screen.queryByTestId(popupId)).toBe(null);
       });
 
-      await user.hover(trigger2);
+      fireEvent.mouseEnter(trigger2);
+      fireEvent.mouseMove(trigger2);
       expect(screen.queryByTestId(popupId)).toBeVisible();
-      await user.hover(document.body);
+      fireEvent.mouseLeave(trigger2);
       await waitFor(() => {
         expect(screen.queryByTestId(popupId)).toBe(null);
       });
 
-      await user.hover(trigger3);
+      fireEvent.mouseEnter(trigger3);
+      fireEvent.mouseMove(trigger3);
       expect(screen.queryByTestId(popupId)).toBeVisible();
-      await user.hover(document.body);
+      fireEvent.mouseLeave(trigger3);
       await waitFor(() => {
         expect(screen.queryByTestId(popupId)).toBe(null);
       });
@@ -771,10 +842,21 @@ describe('<PreviewCard.Root />', () => {
           {({ payload }: NumberPayload) => (
             <React.Fragment>
               <button type="button" aria-label="Initial focus" autoFocus />
-              <PreviewCard.Trigger href="#" handle={testPreviewCard} payload={1}>
+              <PreviewCard.Trigger
+                href="#"
+                handle={testPreviewCard}
+                payload={1}
+                style={{ pointerEvents: 'none' }}
+              >
                 Trigger 1
               </PreviewCard.Trigger>
-              <PreviewCard.Trigger href="#" handle={testPreviewCard} payload={2} id={triggerId}>
+              <PreviewCard.Trigger
+                href="#"
+                handle={testPreviewCard}
+                payload={2}
+                id={triggerId}
+                style={{ pointerEvents: 'none' }}
+              >
                 Trigger 2
               </PreviewCard.Trigger>
               <PreviewCard.Portal>
@@ -801,7 +883,7 @@ describe('<PreviewCard.Root />', () => {
     it('should open the preview card with any trigger on hover', async () => {
       const testPreviewCard = PreviewCard.createHandle();
       const popupId = randomStringValue();
-      const { user } = await render(
+      await render(
         <div>
           <button type="button" aria-label="Initial focus" autoFocus />
           <PreviewCard.Trigger href="#" handle={testPreviewCard} delay={0}>
@@ -832,29 +914,32 @@ describe('<PreviewCard.Root />', () => {
         expect(screen.queryByTestId(popupId)).toBe(null);
       });
 
-      await user.hover(trigger1);
+      fireEvent.mouseEnter(trigger1);
+      fireEvent.mouseMove(trigger1);
       await waitFor(() => {
         expect(screen.queryByTestId(popupId)).toBeVisible();
       });
-      await user.unhover(trigger1);
+      fireEvent.mouseLeave(trigger1);
       await waitFor(() => {
         expect(screen.queryByTestId(popupId)).toBe(null);
       });
 
-      await user.hover(trigger2);
+      fireEvent.mouseEnter(trigger2);
+      fireEvent.mouseMove(trigger2);
       await waitFor(() => {
         expect(screen.queryByTestId(popupId)).toBeVisible();
       });
-      await user.unhover(trigger2);
+      fireEvent.mouseLeave(trigger2);
       await waitFor(() => {
         expect(screen.queryByTestId(popupId)).toBe(null);
       });
 
-      await user.hover(trigger3);
+      fireEvent.mouseEnter(trigger3);
+      fireEvent.mouseMove(trigger3);
       await waitFor(() => {
         expect(screen.queryByTestId(popupId)).toBeVisible();
       });
-      await user.unhover(trigger3);
+      fireEvent.mouseLeave(trigger3);
       await waitFor(() => {
         expect(screen.queryByTestId(popupId)).toBe(null);
       });
@@ -865,13 +950,28 @@ describe('<PreviewCard.Root />', () => {
       await render(
         <div>
           <button type="button" aria-label="Initial focus" autoFocus />
-          <PreviewCard.Trigger href="#" handle={testPreviewCard} delay={0}>
+          <PreviewCard.Trigger
+            href="#"
+            handle={testPreviewCard}
+            delay={0}
+            style={{ pointerEvents: 'none' }}
+          >
             Trigger 1
           </PreviewCard.Trigger>
-          <PreviewCard.Trigger href="#" handle={testPreviewCard} delay={0}>
+          <PreviewCard.Trigger
+            href="#"
+            handle={testPreviewCard}
+            delay={0}
+            style={{ pointerEvents: 'none' }}
+          >
             Trigger 2
           </PreviewCard.Trigger>
-          <PreviewCard.Trigger href="#" handle={testPreviewCard} delay={0}>
+          <PreviewCard.Trigger
+            href="#"
+            handle={testPreviewCard}
+            delay={0}
+            style={{ pointerEvents: 'none' }}
+          >
             Trigger 3
           </PreviewCard.Trigger>
 
@@ -1212,10 +1312,21 @@ describe('<PreviewCard.Root />', () => {
       await render(
         <React.Fragment>
           <button type="button" aria-label="Initial focus" autoFocus />
-          <PreviewCard.Trigger href="#" handle={testPreviewCard} payload={1}>
+          <PreviewCard.Trigger
+            href="#"
+            handle={testPreviewCard}
+            payload={1}
+            style={{ pointerEvents: 'none' }}
+          >
             Trigger 1
           </PreviewCard.Trigger>
-          <PreviewCard.Trigger href="#" handle={testPreviewCard} payload={2} id={triggerId}>
+          <PreviewCard.Trigger
+            href="#"
+            handle={testPreviewCard}
+            payload={2}
+            id={triggerId}
+            style={{ pointerEvents: 'none' }}
+          >
             Trigger 2
           </PreviewCard.Trigger>
 

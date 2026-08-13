@@ -1,7 +1,7 @@
 'use client';
 import type * as React from 'react';
 import { DialogPortal } from '../../dialog/portal/DialogPortal';
-import type { FloatingPortal } from '../../floating-ui-react';
+import { type BaseUIComponentProps } from '../../internals/types';
 
 /**
  * A portal element that moves the popup to a different part of the DOM.
@@ -14,7 +14,7 @@ export const DrawerPortal = DialogPortal as DrawerPortal;
 
 export interface DrawerPortalState {}
 
-export interface DrawerPortalProps extends FloatingPortal.Props<DrawerPortalState> {
+export interface DrawerPortalProps extends BaseUIComponentProps<'div', DrawerPortalState> {
   /**
    * Whether to keep the portal mounted in the DOM while the popup is hidden.
    * @default false
@@ -23,7 +23,12 @@ export interface DrawerPortalProps extends FloatingPortal.Props<DrawerPortalStat
   /**
    * A parent element to render the portal element into.
    */
-  container?: FloatingPortal.Props<DrawerPortalState>['container'] | undefined;
+  container?:
+    | HTMLElement
+    | ShadowRoot
+    | React.RefObject<HTMLElement | ShadowRoot | null>
+    | null
+    | undefined;
 }
 
 export interface DrawerPortal {

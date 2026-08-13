@@ -1,6 +1,13 @@
-import { expect } from 'vitest';
+import { expect, vi } from 'vitest';
+import * as React from 'react';
 import { Popover } from '@base-ui/react/popover';
-import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
+import {
+  createRenderer,
+  describeConformance,
+  enterWithMouse,
+  isJSDOM,
+  resetBrowserPointer,
+} from '#test-utils';
 import {
   act,
   fireEvent,
@@ -12,6 +19,8 @@ import {
 import { PATIENT_CLICK_THRESHOLD } from '../../internals/constants';
 
 describe('<Popover.Trigger />', () => {
+  beforeEach(resetBrowserPointer);
+
   const { render } = createRenderer();
 
   describeConformance(<Popover.Trigger />, () => ({
@@ -22,6 +31,18 @@ describe('<Popover.Trigger />', () => {
       return render(<Popover.Root open>{node}</Popover.Root>);
     },
   }));
+
+  it('throws a descriptive error when rendered without a root or a handle', async () => {
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+    try {
+      await expect(render(<Popover.Trigger>Toggle</Popover.Trigger>)).rejects.toThrow(
+        'Base UI: <Popover.Trigger> must be either used within a <Popover.Root> component or provided with a handle.',
+      );
+    } finally {
+      errorSpy.mockRestore();
+    }
+  });
 
   describe('prop: disabled', () => {
     it('disables the popover', async () => {
@@ -91,6 +112,96 @@ describe('<Popover.Trigger />', () => {
 
       expect(screen.queryByText('Content')).toBe(null);
       expect(trigger).not.toHaveAttribute('data-popup-open');
+    });
+  });
+
+  describe('openOnHover opened by touch', () => {
+    function MultiTriggerPopover() {
+      return (
+        <Popover.Root>
+          {({ payload }) => (
+            <React.Fragment>
+              <Popover.Trigger
+                payload="One"
+                openOnHover
+                delay={0}
+                closeDelay={0}
+                style={{ pointerEvents: 'none' }}
+              >
+                One
+              </Popover.Trigger>
+              <Popover.Trigger
+                payload="Two"
+                openOnHover
+                delay={0}
+                closeDelay={0}
+                style={{ pointerEvents: 'none' }}
+              >
+                Two
+              </Popover.Trigger>
+              <Popover.Portal>
+                <Popover.Positioner>
+                  <Popover.Popup>
+                    <span data-testid="content">{payload as string}</span>
+                  </Popover.Popup>
+                </Popover.Positioner>
+              </Popover.Portal>
+            </React.Fragment>
+          )}
+        </Popover.Root>
+      );
+    }
+
+    async function pressTrigger(trigger: HTMLElement, pointerType: 'mouse' | 'touch') {
+      // eslint-disable-next-line testing-library/no-unnecessary-act -- flush the complete synthetic press before the browser can dispatch physical pointer movement
+      await act(async () => {
+        fireEvent.pointerDown(trigger, { pointerType });
+        fireEvent.mouseDown(trigger);
+        fireEvent.click(trigger, { detail: 1 });
+      });
+    }
+
+    function hoverTrigger(trigger: HTMLElement) {
+      enterWithMouse(trigger);
+    }
+
+    // A touch tap leaves the pointer parked wherever the cursor happens to be, so hover must stay
+    // disarmed until the popover is reopened by some other means. Otherwise a stray hover over a
+    // sibling trigger silently swaps the content the user just tapped for.
+    it('keeps ownership on the tapped trigger when a sibling trigger is hovered', async () => {
+      await render(<MultiTriggerPopover />);
+
+      const one = screen.getByRole('button', { name: 'One' });
+      const two = screen.getByRole('button', { name: 'Two' });
+
+      await pressTrigger(one, 'touch');
+
+      expect(screen.getByTestId('content')).toHaveTextContent('One');
+
+      hoverTrigger(two);
+      await flushMicrotasks();
+
+      expect(screen.getByTestId('content')).toHaveTextContent('One');
+      expect(two).toHaveAttribute('aria-expanded', 'false');
+    });
+
+    // The same hover must still take over when the popover was opened with a mouse, so the guard
+    // above can't be a blanket disable.
+    it('hands ownership to a hovered sibling trigger when opened by mouse', async () => {
+      await render(<MultiTriggerPopover />);
+
+      const one = screen.getByRole('button', { name: 'One' });
+      const two = screen.getByRole('button', { name: 'Two' });
+
+      await pressTrigger(one, 'mouse');
+
+      expect(screen.getByTestId('content')).toHaveTextContent('One');
+
+      hoverTrigger(two);
+      await flushMicrotasks();
+
+      expect(screen.getByTestId('content')).toHaveTextContent('Two');
+      expect(two).toHaveAttribute('aria-expanded', 'true');
     });
   });
 

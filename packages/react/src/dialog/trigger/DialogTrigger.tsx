@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import { fastComponentRef } from '@base-ui/utils/fastHooks';
 import { useDialogRootContext } from '../root/DialogRootContext';
 import { useButton } from '../../internals/use-button/useButton';
 import { useRenderElement } from '../../internals/useRenderElement';
@@ -18,7 +19,7 @@ import { useOpenMethodTriggerProps } from '../../utils/useOpenInteractionType';
  *
  * Documentation: [Base UI Dialog](https://base-ui.com/react/components/dialog)
  */
-export const DialogTrigger = React.forwardRef(function DialogTrigger(
+export const DialogTrigger = fastComponentRef(function DialogTrigger(
   componentProps: DialogTrigger.Props,
   forwardedRef: React.ForwardedRef<HTMLButtonElement>,
 ) {
@@ -34,9 +35,9 @@ export const DialogTrigger = React.forwardRef(function DialogTrigger(
     ...elementProps
   } = componentProps;
 
-  const dialogRootContext = useDialogRootContext(true);
+  const dialogRootStore = useDialogRootContext(true);
   const handleStore = usePopupHandleStore(handle);
-  const store = handleStore ?? dialogRootContext?.store;
+  const store = handleStore ?? dialogRootStore;
   if (!store) {
     throw new Error(
       'Base UI: <Dialog.Trigger> must be used within <Dialog.Root> or provided with a handle.',
@@ -64,7 +65,7 @@ export const DialogTrigger = React.forwardRef(function DialogTrigger(
     native: nativeButton,
   });
 
-  const click = useClick(floatingContext, { enabled: floatingContext != null });
+  const click = useClick(floatingContext);
   const interactionTypeProps = useOpenMethodTriggerProps(
     () => store.select('open'),
     (interactionType) => {

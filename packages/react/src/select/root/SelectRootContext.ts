@@ -8,7 +8,7 @@ import type { SelectRoot } from './SelectRoot';
 
 export interface SelectRootContext {
   store: SelectStore;
-  name: string | undefined;
+  floatingContext: FloatingRootContext;
   disabled: boolean;
   readOnly: boolean;
   required: boolean;
@@ -19,7 +19,7 @@ export interface SelectRootContext {
   listRef: React.RefObject<Array<HTMLElement | null>>;
   popupRef: React.RefObject<HTMLDivElement | null>;
   scrollHandlerRef: React.RefObject<((el: HTMLDivElement) => void) | null>;
-  handleScrollArrowVisibility: () => void;
+  handleScrollArrowVisibility: (scroller: HTMLElement) => void;
   scrollArrowsMountedCountRef: React.RefObject<number>;
   itemProps: HTMLProps;
   valueRef: React.RefObject<HTMLSpanElement | null>;
@@ -40,23 +40,12 @@ export interface SelectRootContext {
 }
 
 export const SelectRootContext = React.createContext<SelectRootContext | null>(null);
-export const SelectFloatingContext = React.createContext<FloatingRootContext | null>(null);
 
 export function useSelectRootContext() {
   const context = React.useContext(SelectRootContext);
   if (context === null) {
     throw new Error(
       'Base UI: SelectRootContext is missing. Select parts must be placed within <Select.Root>.',
-    );
-  }
-  return context;
-}
-
-export function useSelectFloatingContext() {
-  const context = React.useContext(SelectFloatingContext);
-  if (context === null) {
-    throw new Error(
-      'Base UI: SelectFloatingContext is missing. Select parts must be placed within <Select.Root>.',
     );
   }
   return context;

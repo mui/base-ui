@@ -19,6 +19,18 @@ describe('<Dialog.Popup />', () => {
     },
   }));
 
+  it('throws a descriptive error when rendered outside <Dialog.Root>', async () => {
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+    try {
+      await expect(render(<Dialog.Popup />)).rejects.toThrow(
+        'Base UI: DialogRootContext is missing. Dialog parts must be placed within <Dialog.Root>.',
+      );
+    } finally {
+      errorSpy.mockRestore();
+    }
+  });
+
   describe('prop: keepMounted', () => {
     [
       [true, true],

@@ -151,6 +151,40 @@ describe('<Meter.Root />', () => {
       expect(screen.getByTestId('value').textContent).toBe(expected);
     });
 
+    it('keeps range attributes, formatted text, and the indicator synchronized on rerender', async () => {
+      const initialValue = formatPercent(0.5);
+      const updatedValue = formatPercent(0.75);
+
+      const { setProps } = await render(
+        <Meter.Root value={20} min={10} max={30}>
+          <Meter.Value data-testid="value" />
+          <Meter.Track>
+            <Meter.Indicator data-testid="indicator" />
+          </Meter.Track>
+        </Meter.Root>,
+      );
+
+      const meter = screen.getByRole('meter');
+      const value = screen.getByTestId('value');
+      const indicator = screen.getByTestId('indicator');
+
+      expect(meter).toHaveAttribute('aria-valuemin', '10');
+      expect(meter).toHaveAttribute('aria-valuemax', '30');
+      expect(meter).toHaveAttribute('aria-valuenow', '20');
+      expect(meter).toHaveAttribute('aria-valuetext', initialValue);
+      expect(value).toHaveTextContent(initialValue);
+      expect(indicator.style.width).toBe('50%');
+
+      await setProps({ min: 20, max: 60, value: 50 });
+
+      expect(meter).toHaveAttribute('aria-valuemin', '20');
+      expect(meter).toHaveAttribute('aria-valuemax', '60');
+      expect(meter).toHaveAttribute('aria-valuenow', '50');
+      expect(meter).toHaveAttribute('aria-valuetext', updatedValue);
+      expect(value).toHaveTextContent(updatedValue);
+      expect(indicator.style.width).toBe('75%');
+    });
+
     it.each([
       {
         label: 'value exceeds max',
@@ -213,15 +247,18 @@ describe('<Meter.Root />', () => {
       expect(meter).toHaveAttribute('aria-valuetext', formatValue(30));
     });
 
-    it('formats the raw value while clamping range attributes and indicator width', async () => {
+    it('formats the clamped value while clamping range attributes and indicator width', async () => {
       const format: Intl.NumberFormatOptions = {
         style: 'currency',
         currency: 'USD',
       };
-      const expectedValue = new Intl.NumberFormat(undefined, format).format(150);
+      const expectedValue = new Intl.NumberFormat(undefined, format).format(100);
+      const getAriaValueText = vi.fn(
+        (formattedValue: string, rawValue: number) => `${formattedValue} (raw: ${rawValue})`,
+      );
 
       await render(
-        <Meter.Root value={150} format={format}>
+        <Meter.Root value={150} format={format} getAriaValueText={getAriaValueText}>
           <Meter.Value data-testid="value" />
           <Meter.Track>
             <Meter.Indicator data-testid="indicator" />
@@ -232,7 +269,8 @@ describe('<Meter.Root />', () => {
       const meter = screen.getByRole('meter');
       expect(screen.getByTestId('value').textContent).toBe(expectedValue);
       expect(meter).toHaveAttribute('aria-valuenow', '100');
-      expect(meter).toHaveAttribute('aria-valuetext', expectedValue);
+      expect(getAriaValueText).toHaveBeenLastCalledWith(expectedValue, 150);
+      expect(meter).toHaveAttribute('aria-valuetext', `${expectedValue} (raw: 150)`);
       expect(screen.getByTestId('indicator').style.width).toBe('100%');
     });
   });

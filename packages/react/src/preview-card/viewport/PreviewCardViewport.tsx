@@ -4,18 +4,7 @@ import { usePreviewCardRootContext } from '../root/PreviewCardContext';
 import { usePreviewCardPositionerContext } from '../positioner/PreviewCardPositionerContext';
 import { BaseUIComponentProps } from '../../internals/types';
 import { useRenderElement } from '../../internals/useRenderElement';
-import { StateAttributesMapping } from '../../internals/getStateAttributesProps';
-import { PreviewCardViewportCssVars } from './PreviewCardViewportCssVars';
-import { usePopupViewport } from '../../utils/usePopupViewport';
-
-const stateAttributesMapping: StateAttributesMapping<PreviewCardViewportState> = {
-  activationDirection: (value) =>
-    value
-      ? {
-          'data-activation-direction': value,
-        }
-      : null,
-};
+import { popupViewportStateMapping, usePopupViewport } from '../../utils/usePopupViewport';
 
 /**
  * A viewport for displaying content transitions.
@@ -39,7 +28,6 @@ export const PreviewCardViewport = React.forwardRef(function PreviewCardViewport
   const { children: childrenToRender, state: viewportState } = usePopupViewport({
     store,
     side: positioner.side,
-    cssVars: PreviewCardViewportCssVars,
     children,
   });
 
@@ -53,7 +41,7 @@ export const PreviewCardViewport = React.forwardRef(function PreviewCardViewport
     state,
     ref: forwardedRef,
     props: [elementProps, { children: childrenToRender }],
-    stateAttributesMapping,
+    stateAttributesMapping: popupViewportStateMapping,
   });
 });
 

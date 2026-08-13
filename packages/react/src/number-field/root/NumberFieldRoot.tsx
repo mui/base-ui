@@ -10,6 +10,7 @@ import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
 import { visuallyHidden, visuallyHiddenInput } from '@base-ui/utils/visuallyHidden';
 import { ownerDocument } from '@base-ui/utils/owner';
 import { platform } from '@base-ui/utils/platform';
+import { formatNumber } from '@base-ui/utils/formatNumber';
 import { activeElement } from '../../floating-ui-react/utils';
 import { InputMode, NumberFieldRootContext } from './NumberFieldRootContext';
 import { useFieldRootContext } from '../../internals/field-root-context/FieldRootContext';
@@ -29,7 +30,6 @@ import {
   MINUS_SIGNS_WITH_ASCII,
   PLUS_SIGNS_WITH_ASCII,
 } from '../utils/parse';
-import { formatNumber } from '../../utils/formatNumber';
 import { toValidatedNumber } from '../utils/validate';
 import { EventWithOptionalKeyState } from '../utils/types';
 import type { ChangeEventCustomProperties, IncrementValueParameters } from '../utils/types';
@@ -64,7 +64,7 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
     readOnly = false,
     form,
     name: nameProp,
-    defaultValue,
+    defaultValue = null,
     value: valueProp,
     onValueChange: onValueChangeProp,
     onValueCommitted: onValueCommittedProp,
@@ -85,7 +85,6 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
     validityData,
     disabled: fieldDisabled,
     setFilled,
-    invalid,
     name: fieldName,
     state: fieldState,
     validation,
@@ -108,14 +107,13 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
 
   const id = useLabelableId({ id: idProp });
 
-  const [valueUnwrapped, setValueUnwrapped] = useControlled<number | null>({
+  const [value, setValueUnwrapped] = useControlled({
     controlled: valueProp,
     default: defaultValue,
     name: 'NumberField',
     state: 'value',
   });
 
-  const value = valueUnwrapped ?? null;
   const valueRef = useValueAsRef(value);
 
   useIsoLayoutEffect(() => {
@@ -148,17 +146,15 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
   const getAllowedNonNumericKeys = useStableCallback(() => {
     const parts = getFormatParts(locale, format);
 
-    const keys = new Set<string>();
-    BASE_NON_NUMERIC_SYMBOLS.forEach((symbol) => keys.add(symbol));
+    const keys = new Set<string>(BASE_NON_NUMERIC_SYMBOLS);
+    const addAll = (chars: readonly string[]) => chars.forEach((char) => keys.add(char));
 
     // Integer formats omit the decimal from `parts`, so fall back to the locale's separator in that
     // case; it must stay typeable regardless of whether the format renders a fraction.
     const decimal =
       parts.find((part) => part.type === 'decimal')?.value ??
       getNumberLocaleDetails(locale, format).decimal;
-    if (decimal) {
-      keys.add(decimal);
-    }
+    keys.add(decimal);
 
     // Allow every non-digit character the formatter renders — separators, currency symbols, units
     // (e.g. `km/h`, `°C`), exponent separators, and locale literals — decomposed per character
@@ -175,7 +171,7 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
       ) {
         return;
       }
-      Array.from(part.value).forEach((char) => keys.add(char));
+      addAll(Array.from(part.value));
       if (SPACE_SEPARATOR_RE.test(part.value)) {
         keys.add(' ');
       }
@@ -188,17 +184,17 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
 
     // Tolerate percent/permille variants the formatter doesn't emit but users may type or paste.
     if (allowPercentSymbols) {
-      PERCENTAGES.forEach((key) => keys.add(key));
+      addAll(PERCENTAGES);
     }
     if (allowPermilleSymbols) {
-      PERMILLE.forEach((key) => keys.add(key));
+      addAll(PERMILLE);
     }
 
     // Allow plus sign in all cases; minus sign when negatives are valid, or when out-of-range
     // entry is allowed so native underflow validation can be triggered from the keyboard.
-    PLUS_SIGNS_WITH_ASCII.forEach((key) => keys.add(key));
+    addAll(PLUS_SIGNS_WITH_ASCII);
     if (minWithDefault < 0 || allowOutOfRange) {
-      MINUS_SIGNS_WITH_ASCII.forEach((key) => keys.add(key));
+      addAll(MINUS_SIGNS_WITH_ASCII);
     }
 
     return keys;
@@ -220,27 +216,24 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
       const dir = details.direction;
 
       // Direct text entry (typing, pasting, clearing, autofill) behaves natively; step-based
-      // interactions (keyboard arrows, buttons, wheel, scrub) do not.
-      const isInputReason =
-        details.reason === REASONS.inputChange ||
-        details.reason === REASONS.inputClear ||
-        details.reason === REASONS.inputBlur ||
-        details.reason === REASONS.inputPaste ||
-        details.reason === REASONS.none;
+      // interactions (keyboard arrows, buttons, wheel, scrub) do not. All direct-entry reasons
+      // (`input-change`, `input-clear`, `input-blur`, `input-paste`) share the `input-` prefix.
+      const isInputReason = details.reason.startsWith('input-') || details.reason === REASONS.none;
 
       // Only allow out-of-range values for direct text entry. Step-based interactions still clamp.
       const shouldClampValue = !allowOutOfRange || !isInputReason;
 
-      const validatedValue = toValidatedNumber(unvalidatedValue, {
-        step: dir ? getStepAmount(eventWithOptionalKeyState) * dir : undefined,
-        format: formatOptionsRef.current,
+      const validatedValue = toValidatedNumber(
+        unvalidatedValue,
+        dir ? getStepAmount(eventWithOptionalKeyState) * dir : undefined,
         minWithDefault,
         maxWithDefault,
         minWithZeroDefault,
+        formatOptionsRef.current,
         snapOnStep,
-        small: eventWithOptionalKeyState?.altKey ?? false,
-        clamp: shouldClampValue,
-      });
+        eventWithOptionalKeyState?.altKey ?? false,
+        shouldClampValue,
+      );
 
       // Notify about a change even when the numeric value is unchanged for input reasons: the
       // typed text may clamp/snap to the current value, or differ while validation normalizes
@@ -374,11 +367,11 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
         const changed = incrementValue(amount, {
           direction: event.deltaY > 0 ? -1 : 1,
           event,
-          reason: 'wheel',
+          reason: REASONS.wheel,
         });
         if (changed) {
           onValueCommitted(
-            lastChangedValueRef.current ?? valueRef.current,
+            lastChangedValueRef.current,
             createGenericEventDetails(REASONS.wheel, event),
           );
         }
@@ -414,12 +407,8 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
   const contextValue: NumberFieldRootContext = React.useMemo(
     () => ({
       inputRef,
-      inputValue,
-      value,
       minWithDefault,
       maxWithDefault,
-      disabled,
-      readOnly,
       id,
       setValue,
       incrementValue,
@@ -431,27 +420,20 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
       hasPendingCommitRef,
       name,
       nameProp,
-      required,
-      invalid,
       inputMode,
       getAllowedNonNumericKeys,
       min,
       max,
       setInputValue,
       locale,
-      isScrubbing,
       setIsScrubbing,
       state,
       onValueCommitted,
     }),
     [
       inputRef,
-      inputValue,
-      value,
       minWithDefault,
       maxWithDefault,
-      disabled,
-      readOnly,
       id,
       setValue,
       incrementValue,
@@ -460,15 +442,12 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
       valueRef,
       name,
       nameProp,
-      required,
-      invalid,
       inputMode,
       getAllowedNonNumericKeys,
       min,
       max,
       setInputValue,
       locale,
-      isScrubbing,
       state,
       onValueCommitted,
     ],

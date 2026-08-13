@@ -1,6 +1,6 @@
 import { expect, vi } from 'vitest';
 import * as React from 'react';
-import { act, flushMicrotasks, fireEvent, screen, waitFor } from '@mui/internal-test-utils';
+import { act, flushMicrotasks, fireEvent, screen, waitFor, within } from '@mui/internal-test-utils';
 import { DirectionProvider, type TextDirection } from '@base-ui/react/direction-provider';
 import { Popover } from '@base-ui/react/popover';
 import { Dialog } from '@base-ui/react/dialog';
@@ -160,6 +160,73 @@ describe('<Tabs.Root />', () => {
         expect(tabs[0]).not.toHaveAttribute('aria-controls');
         expect(tabs[1]).toHaveAttribute('aria-controls', secondTabPanel.id);
       });
+    });
+
+    it('cleans and replaces panel registrations in Strict Mode', async () => {
+      function App() {
+        const [panel, setPanel] = React.useState({ id: 'panel-a', mounted: true, value: 'a' });
+
+        return (
+          <React.Fragment>
+            <button
+              type="button"
+              onClick={() => setPanel({ id: 'panel-b', mounted: true, value: 'b' })}
+            >
+              replace
+            </button>
+            <button
+              type="button"
+              onClick={() => setPanel((current) => ({ ...current, mounted: false }))}
+            >
+              unmount
+            </button>
+            <button
+              type="button"
+              onClick={() => setPanel({ id: 'panel-c', mounted: true, value: 'b' })}
+            >
+              remount
+            </button>
+            <Tabs.Root value="a">
+              <Tabs.List>
+                <Tabs.Tab value="a">A</Tabs.Tab>
+                <Tabs.Tab value="b">B</Tabs.Tab>
+              </Tabs.List>
+              {panel.mounted && <Tabs.Panel key={panel.id} value={panel.value} keepMounted />}
+            </Tabs.Root>
+          </React.Fragment>
+        );
+      }
+
+      const { user } = await render(
+        <React.StrictMode>
+          <App />
+        </React.StrictMode>,
+      );
+      const [tabA, tabB] = screen.getAllByRole('tab');
+
+      expect(tabA).toHaveAttribute(
+        'aria-controls',
+        screen.getByRole('tabpanel', { hidden: true }).id,
+      );
+      expect(tabB).not.toHaveAttribute('aria-controls');
+
+      await user.click(screen.getByRole('button', { name: 'replace' }));
+      expect(tabA).not.toHaveAttribute('aria-controls');
+      expect(tabB).toHaveAttribute(
+        'aria-controls',
+        screen.getByRole('tabpanel', { hidden: true }).id,
+      );
+
+      await user.click(screen.getByRole('button', { name: 'unmount' }));
+      expect(tabA).not.toHaveAttribute('aria-controls');
+      expect(tabB).not.toHaveAttribute('aria-controls');
+
+      await user.click(screen.getByRole('button', { name: 'remount' }));
+      expect(tabA).not.toHaveAttribute('aria-controls');
+      expect(tabB).toHaveAttribute(
+        'aria-controls',
+        screen.getByRole('tabpanel', { hidden: true }).id,
+      );
     });
   });
 
@@ -932,6 +999,7 @@ describe('<Tabs.Root />', () => {
       const tabs = screen.getAllByRole('tab');
       expect(tabs[0]).toHaveAttribute('aria-selected', 'true');
       expect(tabs[0]).toHaveTextContent('Tab 1');
+      expect(tabs[0]).toHaveAttribute('tabindex', '0');
     });
 
     it('calls onValueChange with null when the selected tab is removed and no tabs remain', async () => {
@@ -964,6 +1032,40 @@ describe('<Tabs.Root />', () => {
       expect(screen.getByRole('tabpanel', { hidden: true })).toHaveAttribute('hidden');
     });
 
+    it('calls onValueChange with null when a populated tab list is replaced by an empty one', async () => {
+      const handleChange = vi.fn();
+
+      function TestComponent({ empty }: { empty: boolean }) {
+        return (
+          <Tabs.Root defaultValue={0} onValueChange={handleChange}>
+            <Tabs.List key={empty ? 'empty' : 'populated'}>
+              {!empty && <Tabs.Tab value={0}>Tab 0</Tabs.Tab>}
+            </Tabs.List>
+            <Tabs.Panel value={0} keepMounted>
+              Panel 0
+            </Tabs.Panel>
+          </Tabs.Root>
+        );
+      }
+
+      const { setProps } = await render(<TestComponent empty={false} />);
+
+      expect(screen.getByRole('tabpanel')).not.toHaveAttribute('hidden');
+
+      await setProps({ empty: true });
+
+      await waitFor(() => {
+        expect(handleChange).toHaveBeenCalledWith(
+          null,
+          expect.objectContaining({ reason: 'missing' }),
+        );
+      });
+
+      const panel = screen.getByRole('tabpanel', { hidden: true });
+      expect(panel).toHaveAttribute('hidden');
+      expect(panel).not.toHaveAttribute('aria-labelledby');
+    });
+
     it('calls onValueChange when an explicit defaultValue points at a tab that is never present', async () => {
       const handleChange = vi.fn();
 
@@ -984,6 +1086,33 @@ describe('<Tabs.Root />', () => {
 
       const tabs = screen.getAllByRole('tab');
       expect(tabs[0]).toHaveAttribute('aria-selected', 'true');
+    });
+
+    it('does not emit a second change when the fallback resolves to the current value', async () => {
+      const handleValueChange = vi.fn();
+
+      // Tabs can transiently share a value while a dynamic list is reordered.
+      // Duplicate values are not a supported configuration and this test makes
+      // no claim about the resulting DOM state; it only pins that the automatic
+      // fallback settles instead of re-emitting.
+      //
+      // The implicit default (`0`) matches no tab, so the root falls back to the
+      // first enabled tab. The disabled tab shares that value, so the selection
+      // still looks disabled on the next pass and must not be re-committed.
+      await render(
+        <Tabs.Root onValueChange={handleValueChange}>
+          <Tabs.List>
+            <Tabs.Tab value="a" disabled>
+              Stale duplicate
+            </Tabs.Tab>
+            <Tabs.Tab value="a">A</Tabs.Tab>
+          </Tabs.List>
+        </Tabs.Root>,
+      );
+
+      expect(handleValueChange).toHaveBeenCalledTimes(1);
+      expect(handleValueChange.mock.calls[0][0]).toBe('a');
+      expect(handleValueChange.mock.calls[0][1].reason).toBe('initial');
     });
 
     it('does not call onValueChange when a controlled selected tab becomes disabled', async () => {
@@ -1012,27 +1141,43 @@ describe('<Tabs.Root />', () => {
       expect(tabs[1]).toHaveAttribute('aria-selected', 'false');
     });
 
-    it('does not call onValueChange when a controlled selected tab is removed', async () => {
+    it('keeps a roving focus entry point when a controlled selected tab is removed', async () => {
       const handleChange = vi.fn();
 
-      function TestComponent({ showFirstTab }: { showFirstTab: boolean }) {
+      function TestComponent({ showLastTab }: { showLastTab: boolean }) {
         return (
-          <Tabs.Root value={0} onValueChange={handleChange}>
-            <Tabs.List>
-              {showFirstTab && <Tabs.Tab value={0}>Tab 0</Tabs.Tab>}
-              <Tabs.Tab value={1}>Tab 1</Tabs.Tab>
-            </Tabs.List>
-          </Tabs.Root>
+          <React.Fragment>
+            <button type="button">Before</button>
+            <Tabs.Root value={2} onValueChange={handleChange}>
+              <Tabs.List>
+                <Tabs.Tab value={0}>Tab 0</Tabs.Tab>
+                <Tabs.Tab value={1}>Tab 1</Tabs.Tab>
+                {showLastTab && <Tabs.Tab value={2}>Tab 2</Tabs.Tab>}
+              </Tabs.List>
+            </Tabs.Root>
+          </React.Fragment>
         );
       }
 
-      const { setProps } = await render(<TestComponent showFirstTab />);
+      const { setProps, user } = await render(<TestComponent showLastTab />);
 
-      await setProps({ showFirstTab: false });
+      await setProps({ showLastTab: false });
 
-      expect(handleChange.mock.calls.length).toBe(0);
-      const tabs = screen.getAllByRole('tab');
-      expect(tabs[0]).toHaveAttribute('aria-selected', 'false');
+      expect(handleChange).not.toHaveBeenCalled();
+      const [firstTab, secondTab] = screen.getAllByRole('tab');
+      expect(firstTab).toHaveAttribute('aria-selected', 'false');
+      expect(secondTab).toHaveAttribute('aria-selected', 'false');
+      expect([firstTab.tabIndex, secondTab.tabIndex]).toEqual([0, -1]);
+
+      await act(async () => screen.getByRole('button', { name: 'Before' }).focus());
+      await user.tab();
+
+      expect(firstTab).toHaveFocus();
+
+      await user.keyboard('{ArrowRight}');
+
+      expect(secondTab).toHaveFocus();
+      expect(handleChange).not.toHaveBeenCalled();
     });
   });
 
@@ -2008,6 +2153,33 @@ describe('<Tabs.Root />', () => {
       expect(screen.getByTestId('root')).toHaveAttribute('data-activation-direction', 'none');
     });
 
+    it('resets `data-activation-direction` when the selection is cleared and restored', async () => {
+      const { setProps } = await render(
+        <Tabs.Root data-testid="root" value={0}>
+          <Tabs.List>
+            <Tabs.Tab value={0} />
+            <Tabs.Tab value={1} />
+            <Tabs.Indicator data-testid="indicator" />
+          </Tabs.List>
+        </Tabs.Root>,
+      );
+
+      const root = screen.getByTestId('root');
+
+      await setProps({ value: 1 });
+      expect(root).toHaveAttribute('data-activation-direction', 'right');
+
+      // Clearing the selection is not a directional transition.
+      await setProps({ value: null });
+      expect(root).toHaveAttribute('data-activation-direction', 'none');
+      expect(screen.queryByTestId('indicator')).toBe(null);
+
+      // Neither is selecting a tab again from a cleared state.
+      await setProps({ value: 0 });
+      expect(root).toHaveAttribute('data-activation-direction', 'none');
+      expect(screen.getByTestId('indicator')).not.toBe(null);
+    });
+
     it('should update `data-activation-direction` on programmatic change after a canceled click', async () => {
       const { user, setProps } = await render(
         <Tabs.Root
@@ -2155,14 +2327,67 @@ describe('<Tabs.Root />', () => {
 
       await user.click(screen.getByText('Add and Select'));
 
-      expect(panelRenderMock).toHaveBeenNthCalledWith(
-        1,
-        expect.objectContaining({ tabActivationDirection: 'left' }),
-      );
       expect(panelRenderMock).toHaveBeenLastCalledWith(
         expect.objectContaining({ tabActivationDirection: 'right' }),
       );
       expect(root).toHaveAttribute('data-activation-direction', 'right');
+    });
+  });
+
+  describe('nested tabs', () => {
+    it('keeps a nested root independent from the one hosting its panel', async () => {
+      const { user } = await render(
+        <Tabs.Root defaultValue="outer-1">
+          <Tabs.List data-testid="outer-list">
+            <Tabs.Tab value="outer-1">Outer 1</Tabs.Tab>
+            <Tabs.Tab value="outer-2">Outer 2</Tabs.Tab>
+          </Tabs.List>
+          <Tabs.Panel value="outer-1" data-testid="outer-panel-1">
+            <Tabs.Root defaultValue="inner-1">
+              <Tabs.List data-testid="inner-list">
+                <Tabs.Tab value="inner-1">Inner 1</Tabs.Tab>
+                <Tabs.Tab value="inner-2">Inner 2</Tabs.Tab>
+              </Tabs.List>
+              <Tabs.Panel value="inner-1">Inner panel 1</Tabs.Panel>
+              <Tabs.Panel value="inner-2">Inner panel 2</Tabs.Panel>
+            </Tabs.Root>
+          </Tabs.Panel>
+          <Tabs.Panel value="outer-2">Outer panel 2</Tabs.Panel>
+        </Tabs.Root>,
+      );
+
+      const [outerTab1, outerTab2] = within(screen.getByTestId('outer-list')).getAllByRole('tab');
+      const [innerTab1, innerTab2] = within(screen.getByTestId('inner-list')).getAllByRole('tab');
+
+      const outerPanel1 = screen.getByTestId('outer-panel-1');
+      const innerPanel1 = screen.getByText('Inner panel 1');
+
+      // Each root wires its own tabs and panels together.
+      expect(outerTab1).toHaveAttribute('aria-controls', outerPanel1.id);
+      expect(innerTab1).toHaveAttribute('aria-controls', innerPanel1.id);
+      expect(innerPanel1).toHaveAttribute('aria-labelledby', innerTab1.id);
+
+      // Arrow keys within the nested list stay within the nested list.
+      await act(async () => {
+        innerTab1.focus();
+      });
+      await user.keyboard('{ArrowRight}');
+
+      expect(innerTab2).toHaveFocus();
+      expect(innerTab2).toHaveAttribute('aria-selected', 'false');
+
+      await user.keyboard('{Enter}');
+
+      expect(innerTab2).toHaveAttribute('aria-selected', 'true');
+      expect(screen.getByText('Inner panel 2')).not.toHaveAttribute('hidden');
+      expect(outerTab1).toHaveAttribute('aria-selected', 'true');
+      expect(outerTab2).toHaveAttribute('aria-selected', 'false');
+
+      // Selecting an outer tab unmounts the nested root along with its panel.
+      await user.click(outerTab2);
+
+      expect(screen.queryByTestId('inner-list')).toBe(null);
+      expect(screen.getByText('Outer panel 2')).not.toHaveAttribute('hidden');
     });
   });
 
@@ -2254,6 +2479,54 @@ describe('<Tabs.Root />', () => {
   });
 
   describe('highlight synchronization on external value change relative to focus', () => {
+    it.each([true, false])(
+      'keeps controlled async activation and focus aligned with activateOnFocus=%s',
+      async (activateOnFocus) => {
+        const onValueChange = vi.fn();
+
+        function App() {
+          const [value, setValue] = React.useState(0);
+          return (
+            <Tabs.Root
+              value={value}
+              onValueChange={(nextValue) => {
+                onValueChange(nextValue);
+                Promise.resolve().then(() => setValue(nextValue));
+              }}
+            >
+              <Tabs.List activateOnFocus={activateOnFocus}>
+                <Tabs.Tab value={0}>First</Tabs.Tab>
+                <Tabs.Tab value={1} disabled>
+                  Disabled
+                </Tabs.Tab>
+                <Tabs.Tab value={2}>Third</Tabs.Tab>
+              </Tabs.List>
+            </Tabs.Root>
+          );
+        }
+
+        const { user } = await render(<App />);
+        const [firstTab, disabledTab, thirdTab] = screen.getAllByRole('tab');
+
+        await act(async () => firstTab.focus());
+        await user.keyboard('{ArrowRight}');
+        expect(disabledTab).toHaveFocus();
+        expect(firstTab).toHaveAttribute('aria-selected', 'true');
+
+        await user.keyboard('{ArrowRight}');
+        expect(thirdTab).toHaveFocus();
+
+        if (!activateOnFocus) {
+          expect(onValueChange).not.toHaveBeenCalled();
+          await user.keyboard('{Enter}');
+        }
+
+        await waitFor(() => expect(thirdTab).toHaveAttribute('aria-selected', 'true'));
+        expect(thirdTab).toHaveFocus();
+        expect(onValueChange).toHaveBeenCalledWith(2);
+      },
+    );
+
     it('when focus is outside the tablist, highlight follows the new active tab (tabIndex=0 moves)', async () => {
       const { setProps } = await render(
         <Tabs.Root value={0}>

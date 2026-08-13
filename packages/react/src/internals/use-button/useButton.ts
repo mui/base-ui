@@ -9,6 +9,7 @@ import { makeEventPreventable, mergeProps } from '../../merge-props';
 import { useCompositeRootContext } from '../composite/root/CompositeRootContext';
 import { BaseUIEvent, HTMLProps } from '../types';
 import { useFocusableWhenDisabled } from '../../utils/useFocusableWhenDisabled';
+import { dispatchClickWithModifiers } from '../../utils/dispatchClickWithModifiers';
 
 export function useButton(parameters: UseButtonParameters = {}): UseButtonReturnValue {
   const {
@@ -124,7 +125,7 @@ export function useButton(parameters: UseButtonParameters = {}): UseButtonReturn
             }
 
             const isCurrentTarget = event.target === event.currentTarget;
-            const currentTarget = event.currentTarget as HTMLElement;
+            const currentTarget = event.currentTarget as Element;
             const isButton = isButtonElement(currentTarget);
             const isLink = !isNativeButton && isValidLinkElement(currentTarget);
             const shouldClick = isCurrentTarget && (isNativeButton ? isButton : !isLink);
@@ -141,26 +142,36 @@ export function useButton(parameters: UseButtonParameters = {}): UseButtonReturn
 
               event.preventDefault();
 
-              if (isLink || (isNativeButton && isButton)) {
-                currentTarget.click();
+              // Only a native-mode item that isn't a real <button> is excluded.
+              if (!isNativeButton || isButton) {
                 event.preventBaseUIHandler();
-              } else if (shouldClick) {
-                externalOnClick?.(event);
-                event.preventBaseUIHandler();
+                dispatchClickWithModifiers(currentTarget, event);
               }
 
               return;
             }
 
             // Keyboard accessibility for native and non-native elements.
-            if (shouldClick) {
-              if (!isNativeButton && (isSpaceKey || isEnterKey)) {
+            if (!shouldClick || isNativeButton || (!isSpaceKey && !isEnterKey)) {
+              // Space activates links on keyup (`role="button"` semantics, matching the
+              // composite path); prevent the page scroll Space would otherwise trigger.
+              // Enter is left to the browser's native link activation.
+              if (isCurrentTarget && isLink && isSpaceKey) {
                 event.preventDefault();
               }
+              return;
+            }
 
-              if (!isNativeButton && isEnterKey) {
-                externalOnClick?.(event);
-              }
+            // Match native buttons: preventing the keydown's default cancels activation.
+            if (event.defaultPrevented) {
+              return;
+            }
+
+            event.preventDefault();
+
+            if (isEnterKey) {
+              event.preventBaseUIHandler();
+              dispatchClickWithModifiers(currentTarget, event);
             }
           },
           onKeyUp(event: BaseUIEvent<React.KeyboardEvent>) {
@@ -188,14 +199,20 @@ export function useButton(parameters: UseButtonParameters = {}): UseButtonReturn
               return;
             }
 
-            // Keyboard accessibility for non interactive elements
+            // Keyboard accessibility for non interactive elements.
+            // Match native buttons: preventing the keyup's default cancels Space activation.
+            // Limitation: unlike a native <button>, a prevented *keydown* cannot cancel the
+            // activation — no state is kept between keydown and keyup, so we can't tell
+            // whether the keydown was prevented or even happened on this element.
             if (
               event.target === event.currentTarget &&
               !isNativeButton &&
               !isCompositeItem &&
+              !event.defaultPrevented &&
               event.key === ' '
             ) {
-              externalOnClick?.(event);
+              event.preventBaseUIHandler();
+              dispatchClickWithModifiers(event.currentTarget as Element, event);
             }
           },
           onPointerDown(event: React.PointerEvent) {
@@ -225,14 +242,12 @@ export function useButton(parameters: UseButtonParameters = {}): UseButtonReturn
   };
 }
 
-function isButtonElement(
-  elem: HTMLButtonElement | HTMLAnchorElement | HTMLElement | null,
-): elem is HTMLButtonElement {
+function isButtonElement(elem: Element | null): elem is HTMLButtonElement {
   return isHTMLElement(elem) && elem.tagName === 'BUTTON';
 }
 
-function isValidLinkElement(elem: HTMLElement | null): elem is HTMLAnchorElement {
-  return Boolean(elem?.tagName === 'A' && (elem as HTMLAnchorElement)?.href);
+function isValidLinkElement(elem: Element | null): elem is HTMLAnchorElement {
+  return isHTMLElement(elem) && elem.tagName === 'A' && Boolean((elem as HTMLAnchorElement).href);
 }
 
 interface GenericButtonProps extends Omit<HTMLProps, 'onClick'>, AdditionalButtonProps {

@@ -8,70 +8,38 @@ import { useSliderRootContext } from '../root/SliderRootContext';
 import { sliderStateAttributesMapping } from '../root/stateAttributesMapping';
 import type { SliderRootState } from '../root/SliderRoot';
 
-function getInsetStyles(
+function getIndicatorStyles(
   vertical: boolean,
   range: boolean,
+  inset: boolean,
   start: number | undefined,
   end: number | undefined,
-  renderBeforeHydration: boolean,
-  hydrating: boolean,
+  forceHidden: boolean,
 ): React.CSSProperties & Record<string, unknown> {
-  const visibility =
-    start === undefined || (range && end === undefined) ? ('hidden' as const) : undefined;
-
-  const startEdge = vertical ? 'bottom' : 'insetInlineStart';
-  const mainSide = vertical ? 'height' : 'width';
-  const crossSide = vertical ? 'width' : 'height';
-
   const styles: React.CSSProperties & Record<string, unknown> = {
-    visibility: renderBeforeHydration && hydrating ? 'hidden' : visibility,
+    visibility:
+      forceHidden || (inset && (start === undefined || (range && end === undefined)))
+        ? ('hidden' as const)
+        : undefined,
     position: vertical ? 'absolute' : 'relative',
-    [crossSide]: 'inherit',
+    [vertical ? 'width' : 'height']: 'inherit',
   };
 
-  styles['--start-position'] = `${start ?? 0}%`;
+  let startValue: string = `${start ?? 0}%`;
+  let sizeValue: string = `${(end ?? 0) - (start ?? 0)}%`;
 
-  if (!range) {
-    styles[startEdge] = 0;
-    styles[mainSide] = 'var(--start-position)';
+  if (inset) {
+    styles['--start-position'] = startValue;
+    startValue = 'var(--start-position)';
 
-    return styles;
+    if (range) {
+      styles['--relative-size'] = sizeValue;
+      sizeValue = 'var(--relative-size)';
+    }
   }
 
-  styles['--relative-size'] = `${(end ?? 0) - (start ?? 0)}%`;
-
-  styles[startEdge] = 'var(--start-position)';
-  styles[mainSide] = 'var(--relative-size)';
-
-  return styles;
-}
-
-function getCenteredStyles(
-  vertical: boolean,
-  range: boolean,
-  start: number,
-  end: number,
-): React.CSSProperties {
-  const startEdge = vertical ? 'bottom' : 'insetInlineStart';
-  const mainSide = vertical ? 'height' : 'width';
-  const crossSide = vertical ? 'width' : 'height';
-
-  const styles: React.CSSProperties = {
-    position: vertical ? 'absolute' : 'relative',
-    [crossSide]: 'inherit',
-  };
-
-  if (!range) {
-    styles[startEdge] = 0;
-    styles[mainSide] = `${start}%`;
-
-    return styles;
-  }
-
-  const size = end - start;
-
-  styles[startEdge] = `${start}%`;
-  styles[mainSide] = `${size}%`;
+  styles[vertical ? 'bottom' : 'insetInlineStart'] = range ? startValue : 0;
+  styles[vertical ? 'height' : 'width'] = range ? sizeValue : startValue;
 
   return styles;
 }
@@ -96,21 +64,14 @@ export const SliderIndicator = React.forwardRef(function SliderIndicator(
   const vertical = orientation === 'vertical';
   const range = values.length > 1;
 
-  const style = inset
-    ? getInsetStyles(
-        vertical,
-        range,
-        indicatorPosition[0],
-        indicatorPosition[1],
-        renderBeforeHydration,
-        isHydrating,
-      )
-    : getCenteredStyles(
-        vertical,
-        range,
-        valueToPercent(values[0], min, max),
-        valueToPercent(values[values.length - 1], min, max),
-      );
+  const style = getIndicatorStyles(
+    vertical,
+    range,
+    inset,
+    inset ? indicatorPosition[0] : valueToPercent(values[0], min, max),
+    inset ? indicatorPosition[1] : valueToPercent(values[values.length - 1], min, max),
+    inset && renderBeforeHydration && isHydrating,
+  );
 
   const element = useRenderElement('div', componentProps, {
     state,

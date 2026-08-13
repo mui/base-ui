@@ -1,11 +1,12 @@
 import * as React from 'react';
-import { createSelector, ReactStore } from '@base-ui/utils/store';
+import { ReactStore } from '@base-ui/utils/store';
 import { EMPTY_OBJECT, NOOP } from '@base-ui/utils/empty';
 import type { InteractionType } from '@base-ui/utils/useEnhancedClickHandler';
 import { MenuParent, MenuRoot } from '../root/MenuRoot';
 import { FloatingTreeStore } from '../../floating-ui-react/components/FloatingTreeStore';
 import { HTMLProps } from '../../internals/types';
 import { NullStore } from '../../utils/NullStore';
+import type { AdaptiveOriginMiddleware } from '../../utils/adaptiveOriginConstants';
 import {
   createInitialPopupStoreState,
   PopupStoreContext,
@@ -17,7 +18,7 @@ import {
 
 export type State<Payload> = PopupStoreState<Payload> & {
   disabled: boolean;
-  modal: boolean;
+  modal: boolean | undefined;
   openMethod: InteractionType | null;
   allowMouseEnter: boolean;
   highlightItemOnHover: boolean;
@@ -25,7 +26,6 @@ export type State<Payload> = PopupStoreState<Payload> & {
   rootId: string | undefined;
   activeIndex: number | null;
   hoverEnabled: boolean;
-  stickIfOpen: boolean;
   instantType: 'dismiss' | 'click' | 'group' | 'trigger-change' | undefined;
   openChangeReason: MenuRoot.ChangeEventReason | null;
   floatingTreeRoot: FloatingTreeStore;
@@ -34,7 +34,7 @@ export type State<Payload> = PopupStoreState<Payload> & {
   itemProps: HTMLProps;
   closeDelay: number;
   keyboardEventRelay: ((event: React.KeyboardEvent<any>) => void) | undefined;
-  hasViewport: boolean;
+  adaptiveOrigin: AdaptiveOriginMiddleware | undefined;
 };
 
 type Context = PopupStoreContext<MenuRoot.ChangeEventDetails> & {
@@ -50,61 +50,54 @@ type Context = PopupStoreContext<MenuRoot.ChangeEventDetails> & {
 
 const selectors = {
   ...popupStoreSelectors,
-  disabled: createSelector((state: State<unknown>) =>
+  disabled: (state: State<unknown>) =>
     state.parent.type === 'menubar'
       ? state.parent.context.disabled || state.disabled
       : state.disabled,
-  ),
-  modal: createSelector(
-    (state: State<unknown>) =>
-      (state.parent.type === undefined || state.parent.type === 'context-menu') &&
-      (state.modal ?? true),
-  ),
-  openMethod: createSelector((state: State<unknown>) => state.openMethod),
+  modal: (state: State<unknown>) =>
+    (state.parent.type === undefined || state.parent.type === 'context-menu') &&
+    (state.modal ?? true),
+  openMethod: (state: State<unknown>) => state.openMethod,
 
-  allowMouseEnter: createSelector((state: State<unknown>) => state.allowMouseEnter),
-  highlightItemOnHover: createSelector((state: State<unknown>) => state.highlightItemOnHover),
-  stickIfOpen: createSelector((state: State<unknown>) => state.stickIfOpen),
-  parent: createSelector((state: State<unknown>) => state.parent),
-  rootId: createSelector((state: State<unknown>): string | undefined => {
+  allowMouseEnter: (state: State<unknown>) => state.allowMouseEnter,
+  highlightItemOnHover: (state: State<unknown>) => state.highlightItemOnHover,
+  parent: (state: State<unknown>) => state.parent,
+  rootId: (state: State<unknown>): string | undefined => {
     if (state.parent.type === 'menu') {
       return state.parent.store.select('rootId');
     }
 
     return state.parent.type !== undefined ? state.parent.context.rootId : state.rootId;
-  }),
-  activeIndex: createSelector((state: State<unknown>) => state.activeIndex),
-  isActive: createSelector(
-    (state: State<unknown>, itemIndex: number) => state.activeIndex === itemIndex,
-  ),
-  hoverEnabled: createSelector((state: State<unknown>) => state.hoverEnabled),
-  instantType: createSelector((state: State<unknown>) => state.instantType),
-  lastOpenChangeReason: createSelector((state: State<unknown>) => state.openChangeReason),
-  floatingTreeRoot: createSelector((state: State<unknown>): FloatingTreeStore => {
+  },
+  activeIndex: (state: State<unknown>) => state.activeIndex,
+  isActive: (state: State<unknown>, itemIndex: number) => state.activeIndex === itemIndex,
+  hoverEnabled: (state: State<unknown>) => state.hoverEnabled,
+  instantType: (state: State<unknown>) => state.instantType,
+  lastOpenChangeReason: (state: State<unknown>) => state.openChangeReason,
+  floatingTreeRoot: (state: State<unknown>): FloatingTreeStore => {
     if (state.parent.type === 'menu') {
       return state.parent.store.select('floatingTreeRoot');
     }
 
     return state.floatingTreeRoot;
-  }),
-  floatingNodeId: createSelector((state: State<unknown>) => state.floatingNodeId),
-  floatingParentNodeId: createSelector((state: State<unknown>) => state.floatingParentNodeId),
-  itemProps: createSelector((state: State<unknown>) => state.itemProps),
-  closeDelay: createSelector((state: State<unknown>) => state.closeDelay),
-  hasViewport: createSelector((state: State<unknown>) => state.hasViewport),
-  keyboardEventRelay: createSelector(
-    (state: State<unknown>): React.KeyboardEventHandler<any> | undefined => {
-      if (state.keyboardEventRelay) {
-        return state.keyboardEventRelay;
-      }
+  },
+  floatingNodeId: (state: State<unknown>) => state.floatingNodeId,
+  floatingParentNodeId: (state: State<unknown>) => state.floatingParentNodeId,
+  itemProps: (state: State<unknown>) => state.itemProps,
+  closeDelay: (state: State<unknown>) => state.closeDelay,
+  adaptiveOrigin: (state: State<unknown>): AdaptiveOriginMiddleware | undefined =>
+    state.adaptiveOrigin,
+  keyboardEventRelay: (state: State<unknown>): React.KeyboardEventHandler<any> | undefined => {
+    if (state.keyboardEventRelay) {
+      return state.keyboardEventRelay;
+    }
 
-      if (state.parent.type === 'menu') {
-        return state.parent.store.select('keyboardEventRelay');
-      }
+    if (state.parent.type === 'menu') {
+      return state.parent.store.select('keyboardEventRelay');
+    }
 
-      return undefined;
-    },
-  ),
+    return undefined;
+  },
 };
 
 type Selectors = typeof selectors;
@@ -119,8 +112,15 @@ type Selectors = typeof selectors;
 export type MenuHandleStore<Payload> = Pick<MenuStore<Payload>, PopupTriggerStoreKeys | 'setOpen'>;
 
 export class MenuStore<Payload> extends ReactStore<Readonly<State<Payload>>, Context, Selectors> {
-  constructor(initialState?: Partial<State<Payload>>) {
-    super({ ...createInitialState(), ...initialState }, createInitialContext(), selectors);
+  constructor(
+    initialState?: Partial<State<Payload>>,
+    floatingId?: string | undefined,
+    nested = false,
+  ) {
+    const triggerElements = new PopupTriggerMap();
+    const state = createInitialState<Payload>(triggerElements, floatingId, nested, initialState);
+
+    super(state, createInitialContext(triggerElements), selectors);
 
     // Set up propagation of state from parent menu if applicable.
     this.unsubscribeParentListener = this.observe('parent', (parent) => {
@@ -177,15 +177,16 @@ export class MenuStore<Payload> extends ReactStore<Readonly<State<Payload>>, Con
  * `setOpen` without it ever taking effect while detached.
  */
 export function createNullMenuStore<Payload>(): MenuHandleStore<Payload> {
+  const triggerElements = new PopupTriggerMap();
   const store = new NullStore<Readonly<State<Payload>>, Context, Selectors>(
-    Object.freeze(createInitialState<Payload>()),
-    Object.freeze(createInitialContext()),
+    Object.freeze(createInitialState<Payload>(triggerElements)),
+    Object.freeze(createInitialContext(triggerElements)),
     selectors,
   );
   return Object.assign(store, { setOpen: NOOP });
 }
 
-function createInitialContext(): Context {
+function createInitialContext(triggerElements: PopupTriggerMap): Context {
   return {
     positionerRef: React.createRef<HTMLElement | null>(),
     popupRef: React.createRef<HTMLElement | null>(),
@@ -196,19 +197,23 @@ function createInitialContext(): Context {
     triggerFocusTargetRef: React.createRef<HTMLElement>(),
     beforeContentFocusGuardRef: React.createRef<HTMLElement>(),
     onOpenChangeComplete: undefined,
-    triggerElements: new PopupTriggerMap(),
+    triggerElements,
   };
 }
 
-function createInitialState<Payload>(): State<Payload> {
+function createInitialState<Payload>(
+  triggerElements: PopupTriggerMap,
+  floatingId?: string | undefined,
+  nested = false,
+  initialState?: Partial<State<Payload>>,
+): State<Payload> {
   return {
-    ...createInitialPopupStoreState(),
+    ...createInitialPopupStoreState<Payload>(triggerElements, floatingId, nested),
     disabled: false,
     modal: true,
     openMethod: null,
     allowMouseEnter: false,
     highlightItemOnHover: true,
-    stickIfOpen: true,
     parent: {
       type: undefined,
     },
@@ -223,6 +228,7 @@ function createInitialState<Payload>(): State<Payload> {
     itemProps: EMPTY_OBJECT as HTMLProps,
     keyboardEventRelay: undefined,
     closeDelay: 0,
-    hasViewport: false,
+    adaptiveOrigin: undefined,
+    ...initialState,
   };
 }

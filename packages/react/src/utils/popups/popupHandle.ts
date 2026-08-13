@@ -21,6 +21,12 @@ export interface PopupHandleStoreProvider<HandleStore> {
   readonly store: HandleStore;
 
   /**
+   * Stable store used to reproduce the server-rendered trigger snapshot during hydration.
+   * @internal
+   */
+  readonly serverStore: HandleStore;
+
+  /**
    * Subscribes to changes of the exposed store pointer.
    *
    * @param listener Callback fired when the handle starts or stops pointing at a root store.
@@ -62,15 +68,7 @@ export interface PopupHandleStoreWithOpen extends PopupHandleStoreWithTriggers {
 export class BasePopupHandle<
   HandleStore extends PopupHandleStoreWithTriggers,
   Store extends HandleStore & PopupHandleStoreWithOpen,
-> implements PopupHandleStoreProvider<HandleStore> {
-  /**
-   * Inert, closed store handed to detached triggers while no root is attached, so they can render
-   * and register without a mounted root. Triggers register into whichever store `store` currently
-   * resolves to, so while detached they live in this store's trigger map and migrate themselves to
-   * the root's store (and back) as it attaches/detaches.
-   */
-  private readonly fallbackStoreValue: HandleStore;
-
+> {
   /**
    * Stores of every root currently using this handle, in attach order. A handle is meant to be used
    * by a single mounted root, but roots can transiently overlap (e.g. during an animated route
@@ -93,7 +91,10 @@ export class BasePopupHandle<
   /**
    * Creates a handle backed by the store used while no root is attached.
    *
-   * @param fallbackStore Inert store exposed to detached triggers before a root mounts.
+   * @param fallbackStore Inert, closed store handed to detached triggers while no root is attached,
+   * so they can render and register without a mounted root. Triggers register into whichever store
+   * `store` currently resolves to, so while detached they live in this store's trigger map and
+   * migrate themselves to the root's store (and back) as it attaches/detaches.
    * @param componentName Component name used to prefix dev warnings, e.g. `'Menu'` produces
    * `MenuHandle.open()` in warning text.
    * @param throwOnMissingTrigger Whether `open(triggerId)` throws when no trigger with that id is
@@ -101,19 +102,13 @@ export class BasePopupHandle<
    * so they throw; Dialog is not anchored and instead opens unassociated with a dev warning.
    */
   constructor(
-    fallbackStore: HandleStore,
+    protected readonly fallbackStore: HandleStore,
     private readonly componentName: string,
     private readonly throwOnMissingTrigger: boolean = true,
-  ) {
-    this.fallbackStoreValue = fallbackStore;
-  }
+  ) {}
 
   protected get attachedStore() {
     return this.attachedStoreValue;
-  }
-
-  protected get fallbackStore() {
-    return this.fallbackStoreValue;
   }
 
   /**
@@ -122,7 +117,16 @@ export class BasePopupHandle<
    * @internal
    */
   get store(): HandleStore {
-    return this.attachedStoreValue ?? this.fallbackStoreValue;
+    return this.attachedStoreValue ?? this.fallbackStore;
+  }
+
+  /**
+   * Stable fallback store used for server rendering and hydration. Root stores cannot be recorded on
+   * the handle during render because a handle can be shared by concurrent server-rendered requests.
+   * @internal
+   */
+  get serverStore(): HandleStore {
+    return this.fallbackStore;
   }
 
   /**
@@ -140,8 +144,8 @@ export class BasePopupHandle<
 
   /**
    * Points the handle at a root's store and notifies subscribers so detached triggers re-render and
-   * re-register into it (their registration ref re-fires on the store-pointer change). Returns a
-   * cleanup function that detaches the store again.
+   * re-register into it (their registration effect migrates them when the store pointer changes).
+   * Returns a cleanup function that detaches the store again.
    * @internal
    */
   attachStore(newStore: Store) {
@@ -189,17 +193,10 @@ export class BasePopupHandle<
   private setActiveStore(store: Store | null) {
     if (this.attachedStoreValue !== store) {
       this.attachedStoreValue = store;
-      this.notifyStoreListeners();
+      this.storeListeners.forEach((listener) => {
+        listener();
+      });
     }
-  }
-
-  /**
-   * Notifies subscribers that the attached store pointer changed.
-   */
-  private notifyStoreListeners() {
-    this.storeListeners.forEach((listener) => {
-      listener();
-    });
   }
 
   /**
@@ -286,9 +283,6 @@ export class BasePopupHandle<
       return;
     }
 
-    attachedStore.setOpen(
-      false,
-      createChangeEventDetails(REASONS.imperativeAction, undefined, undefined),
-    );
+    attachedStore.setOpen(false, createChangeEventDetails(REASONS.imperativeAction));
   }
 }

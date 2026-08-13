@@ -4,20 +4,17 @@ import * as ReactDOM from 'react-dom';
 import { useAnimationFrame } from '@base-ui/utils/useAnimationFrame';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { resolveRef } from '../utils/resolveRef';
-import { TransitionStatusDataAttributes } from './stateAttributesMapping';
 
 /**
  * Executes a function once all animations have finished on the provided element.
+ * If an animation is canceled, waits for any replacement animations before executing.
  * @param elementOrRef - The element to watch for animations.
  * @param waitForStartingStyleRemoved - Whether to wait for [data-starting-style] to be removed before checking for animations.
- * @param treatAbortedAsFinished - Whether to treat aborted animations as finished. If `false`, and there are aborted animations,
- *   the function will check again if any new animations have started and wait for them to finish.
  * @returns A function that takes a callback to execute once all animations have finished, and an optional AbortSignal to abort the callback
  */
 export function useAnimationsFinished(
   elementOrRef: React.RefObject<HTMLElement | null> | HTMLElement | null,
   waitForStartingStyleRemoved = false,
-  treatAbortedAsFinished = true,
 ) {
   const frame = useAnimationFrame();
 
@@ -58,25 +55,20 @@ export function useAnimationsFinished(
       }
 
       function exec() {
-        Promise.all(resolvedElement.getAnimations().map((animation) => animation.finished))
-          .then(() => {
+        Promise.all(resolvedElement.getAnimations().map((animation) => animation.finished)).then(
+          () => {
             if (!signal?.aborted) {
               done();
             }
-          })
-          .catch(() => {
-            if (treatAbortedAsFinished) {
-              if (!signal?.aborted) {
-                done();
-              }
+          },
+          () => {
+            if (signal?.aborted) {
               return;
             }
 
             const currentAnimations = resolvedElement.getAnimations();
 
             if (
-              !signal?.aborted &&
-              currentAnimations.length > 0 &&
               currentAnimations.some(
                 (animation) => animation.pending || animation.playState !== 'finished',
               )
@@ -84,12 +76,16 @@ export function useAnimationsFinished(
               // Sometimes animations can be aborted because a property they depend on changes while the animation plays.
               // In such cases, we need to re-check if any new animations have started.
               exec();
+              return;
             }
-          });
+
+            done();
+          },
+        );
       }
 
       if (waitForStartingStyleRemoved) {
-        const startingStyleAttribute = TransitionStatusDataAttributes.startingStyle;
+        const startingStyleAttribute = 'data-starting-style';
 
         // If `[data-starting-style]` isn't present, fall back to waiting one more frame
         // to give "open" animations a chance to be registered.
