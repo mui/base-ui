@@ -3135,6 +3135,118 @@ describe('<Drawer.Viewport />', () => {
     expect(handleOpenChange).toHaveBeenCalledWith(false, expect.anything());
   });
 
+  it('does not dismiss from a fast swipe that was never attributed to the snap point axis', async () => {
+    const handleOpenChange = vi.fn();
+    const handleSnapPointChange = vi.fn();
+
+    vi.useFakeTimers();
+    try {
+      vi.setSystemTime(new Date(1000));
+      await render(
+        <Drawer.Root
+          open
+          onOpenChange={handleOpenChange}
+          onSnapPointChange={handleSnapPointChange}
+          snapPoints={['100px', '200px']}
+          swipeDirection="down"
+        >
+          <Drawer.Portal>
+            <Drawer.Viewport
+              data-testid="viewport"
+              ref={(element) => {
+                if (element) {
+                  Object.defineProperty(element, 'offsetHeight', {
+                    configurable: true,
+                    value: 400,
+                  });
+                }
+              }}
+            >
+              <Drawer.Popup
+                data-testid="popup"
+                ref={(element) => {
+                  if (element) {
+                    Object.defineProperty(element, 'offsetHeight', {
+                      configurable: true,
+                      value: 300,
+                    });
+                  }
+                }}
+              >
+                Drawer
+              </Drawer.Popup>
+            </Drawer.Viewport>
+          </Drawer.Portal>
+        </Drawer.Root>,
+      );
+
+      const viewport = screen.getByTestId('viewport');
+      const popup = screen.getByTestId('popup');
+      const originalElementFromPoint = document.elementFromPoint;
+      document.elementFromPoint = () => popup;
+
+      try {
+        // A mostly horizontal flick: cumulative |deltaX| stays above |deltaY| on every
+        // move so no swipe direction is ever attributed, while the final samples carry
+        // fast downward velocity from the finger arcing down at lift.
+        fireEvent.pointerDown(viewport, {
+          button: 0,
+          buttons: 1,
+          pointerId: 1,
+          clientX: 100,
+          clientY: 10,
+          pointerType: 'mouse',
+          timeStamp: 1000,
+        });
+        vi.setSystemTime(new Date(1050));
+        fireEvent.pointerMove(viewport, {
+          buttons: 1,
+          pointerId: 1,
+          clientX: 120,
+          clientY: 12,
+          pointerType: 'mouse',
+          timeStamp: 1050,
+        });
+        vi.setSystemTime(new Date(1100));
+        fireEvent.pointerMove(viewport, {
+          buttons: 1,
+          pointerId: 1,
+          clientX: 200,
+          clientY: 20,
+          pointerType: 'mouse',
+          timeStamp: 1100,
+        });
+        vi.setSystemTime(new Date(1120));
+        fireEvent.pointerMove(viewport, {
+          buttons: 1,
+          pointerId: 1,
+          clientX: 240,
+          clientY: 55,
+          pointerType: 'mouse',
+          timeStamp: 1120,
+        });
+        vi.setSystemTime(new Date(1130));
+        fireEvent.pointerUp(viewport, {
+          pointerId: 1,
+          clientX: 240,
+          clientY: 55,
+          pointerType: 'mouse',
+          timeStamp: 1130,
+        });
+        await flushMicrotasks();
+      } finally {
+        document.elementFromPoint = originalElementFromPoint;
+      }
+
+      expect(handleOpenChange).not.toHaveBeenCalled();
+      expect(handleSnapPointChange).not.toHaveBeenCalled();
+      expect(popup).not.toHaveAttribute('data-ending-style');
+      expect(popup).not.toHaveAttribute('data-swipe-dismiss');
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
   it('does not resolve snap points before the popup has a measurable height', async () => {
     const handleOpenChange = vi.fn();
     await render(

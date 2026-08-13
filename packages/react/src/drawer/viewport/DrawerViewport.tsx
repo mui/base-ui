@@ -480,6 +480,15 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
         return undefined;
       }
 
+      // A gesture that was never attributed to the swipe axis (e.g. a mostly horizontal
+      // flick) must not dismiss. Without a direction, `useSwipeDismiss` drops the release
+      // decision and never calls `onDismiss`, leaving the popup visually dismissed while
+      // `open` remains `true`.
+      if (!direction) {
+        clearSwipeRelease();
+        return false;
+      }
+
       const dragDelta = swipeDirection === 'down' ? deltaY : -deltaY;
       const dragDirection = Math.sign(dragDelta);
       const releaseDirectionalVelocity =
