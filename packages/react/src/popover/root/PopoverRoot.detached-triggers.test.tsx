@@ -860,6 +860,8 @@ describe('<Popover.Root />', () => {
     async function renderHoverDetachedTriggers({
       popupChildren,
       settleTriggerChange = true,
+      switchDuration = 120,
+      exitDuration = 250,
     }: {
       popupChildren?: React.ReactNode;
       /**
@@ -867,6 +869,10 @@ describe('<Popover.Root />', () => {
        * new trigger, so the delayed `trigger-change` restoration is still pending.
        */
       settleTriggerChange?: boolean;
+      /** How long the positioner takes to move to the new trigger. */
+      switchDuration?: number;
+      /** How long the popup takes to fade out. */
+      exitDuration?: number;
     } = {}) {
       globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
 
@@ -879,14 +885,14 @@ describe('<Popover.Root />', () => {
             {`
               .positioner {
                 transition:
-                  top 120ms linear,
-                  left 120ms linear,
-                  transform 120ms linear;
+                  top ${switchDuration}ms linear,
+                  left ${switchDuration}ms linear,
+                  transform ${switchDuration}ms linear;
               }
 
               .popup {
                 opacity: 1;
-                transition: opacity 250ms linear;
+                transition: opacity ${exitDuration}ms linear;
               }
 
               .popup[data-ending-style] {
@@ -1017,6 +1023,35 @@ describe('<Popover.Root />', () => {
       });
 
       expect(instantsWhileEnding).not.toContain('trigger-change');
+    });
+
+    it('does not restore the trigger-change instant after a reopen on the same trigger', async () => {
+      // A slow switch and a fast exit, so the switch callback is still pending
+      // once the popover has closed and reopened on the same trigger.
+      const { user, trigger2 } = await renderHoverDetachedTriggers({
+        settleTriggerChange: false,
+        switchDuration: 500,
+        exitDuration: 10,
+      });
+
+      await user.unhover(trigger2);
+      await waitFor(() => {
+        expect(screen.queryByTestId('popup')).toBe(null);
+      });
+
+      await user.hover(trigger2);
+      await waitFor(() => {
+        expect(screen.getByTestId('content').textContent).toBe('2');
+      });
+
+      const reopenedPopup = screen.getByTestId('popup');
+      await act(async () => {
+        await new Promise((resolve) => {
+          setTimeout(resolve, 600);
+        });
+      });
+
+      expect(reopenedPopup).not.toHaveAttribute('data-instant');
     });
 
     it('does not restore the trigger-change instant after a hover close has started', async () => {

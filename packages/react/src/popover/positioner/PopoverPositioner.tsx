@@ -1,7 +1,6 @@
 'use client';
 import * as React from 'react';
 import { inertValue } from '@base-ui/utils/inertValue';
-import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { FloatingNode, useFloatingNodeId } from '../../floating-ui-react';
 import { usePopoverRootContext } from '../root/PopoverRootContext';
 import { PopoverPositionerContext } from './PopoverPositionerContext';
@@ -16,7 +15,7 @@ import { usePopoverPortalContext } from '../portal/PopoverPortalContext';
 import { InternalBackdrop } from '../../utils/InternalBackdrop';
 import { REASONS } from '../../internals/reasons';
 import { POPUP_COLLISION_AVOIDANCE } from '../../internals/constants';
-import { useAnimationsFinished } from '../../internals/useAnimationsFinished';
+import { useTriggerSwitchTransition } from '../../internals/useTriggerSwitchTransition';
 import { usePositioner } from '../../utils/usePositioner';
 import { useAnchoredPopupScrollLock } from '../../utils/useAnchoredPopupScrollLock';
 
@@ -67,11 +66,6 @@ export const PopoverPositioner = React.forwardRef(function PopoverPositioner(
   const transitionStatus = store.useState('transitionStatus');
   const adaptiveOrigin = store.useState('adaptiveOrigin');
 
-  const prevTriggerElementRef = React.useRef<Element | null>(null);
-  const openCycleRef = React.useRef(0);
-
-  const runOnceAnimationsFinish = useAnimationsFinished(positionerElement);
-
   const positioning = useAnchorPositioning({
     anchor,
     floatingRootContext,
@@ -94,51 +88,12 @@ export const PopoverPositioner = React.forwardRef(function PopoverPositioner(
 
   const domReference = floatingRootContext.useState('domReferenceElement');
 
-  // Track close/reopen cycles so a stale trigger-switch callback cannot apply
-  // `trigger-change` to a later open.
-  useIsoLayoutEffect(() => {
-    openCycleRef.current += 1;
-  }, [open]);
-
-  // When the current trigger element changes, enable transitions on the
-  // positioner temporarily
-  useIsoLayoutEffect(() => {
-    const currentTriggerElement = domReference;
-    const prevTriggerElement = prevTriggerElementRef.current;
-
-    if (currentTriggerElement) {
-      prevTriggerElementRef.current = currentTriggerElement;
-    }
-
-    if (
-      prevTriggerElement &&
-      currentTriggerElement &&
-      currentTriggerElement !== prevTriggerElement
-    ) {
-      store.set('instantType', undefined);
-      const ac = new AbortController();
-      const triggerElementOnSwitch = currentTriggerElement;
-      const openCycleOnSwitch = openCycleRef.current;
-      runOnceAnimationsFinish(() => {
-        // The switch animation can finish after a close has already started, or
-        // after the popover reopened on a different trigger. Restoring
-        // `trigger-change` then would suppress that cycle's own transition.
-        if (
-          openCycleRef.current === openCycleOnSwitch &&
-          store.select('open') &&
-          floatingRootContext.select('domReferenceElement') === triggerElementOnSwitch
-        ) {
-          store.set('instantType', 'trigger-change');
-        }
-      }, ac.signal);
-
-      return () => {
-        ac.abort();
-      };
-    }
-
-    return undefined;
-  }, [domReference, floatingRootContext, runOnceAnimationsFinish, store]);
+  useTriggerSwitchTransition({
+    store,
+    floatingRootContext,
+    domReference,
+    positionerElement,
+  });
 
   const trueModalNonHover = modal === true && openReason !== REASONS.triggerHover;
 

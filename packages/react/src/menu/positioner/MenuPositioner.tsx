@@ -1,7 +1,6 @@
 'use client';
 import * as React from 'react';
 import { inertValue } from '@base-ui/utils/inertValue';
-import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useTimeout } from '@base-ui/utils/useTimeout';
 import { FloatingNode } from '../../floating-ui-react';
 import { MenuPositionerContext } from './MenuPositionerContext';
@@ -22,7 +21,7 @@ import { useContextMenuRootContext } from '../../context-menu/root/ContextMenuRo
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
 import { MenuOpenEventDetails } from '../utils/types';
-import { useAnimationsFinished } from '../../internals/useAnimationsFinished';
+import { useTriggerSwitchTransition } from '../../internals/useTriggerSwitchTransition';
 import { usePositioner } from '../../utils/usePositioner';
 import { useAnchoredPopupScrollLock } from '../../utils/useAnchoredPopupScrollLock';
 
@@ -76,10 +75,6 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
   const floatingNodeId = store.useState('floatingNodeId');
   const floatingParentNodeId = store.useState('floatingParentNodeId');
   const domReference = floatingRootContext.useState('domReferenceElement');
-
-  const previousTriggerRef = React.useRef<Element | null>(null);
-  const openCycleRef = React.useRef(0);
-  const runOnceAnimationsFinish = useAnimationsFinished(positionerElement);
 
   let anchor = anchorProp;
   let sideOffset = sideOffsetProp;
@@ -231,47 +226,12 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
     floatingTreeRoot.events.emit('menuopenchange', eventDetails);
   }, [floatingTreeRoot.events, open, store, floatingNodeId, floatingParentNodeId]);
 
-  // Track close/reopen cycles so a stale trigger-switch callback cannot apply
-  // `trigger-change` to a later open.
-  useIsoLayoutEffect(() => {
-    openCycleRef.current += 1;
-  }, [open]);
-
-  // Keep positioner transition behavior aligned with Popover when switching detached triggers.
-  useIsoLayoutEffect(() => {
-    const currentTrigger = domReference;
-    const previousTrigger = previousTriggerRef.current;
-
-    if (currentTrigger) {
-      previousTriggerRef.current = currentTrigger;
-    }
-
-    if (previousTrigger && currentTrigger && currentTrigger !== previousTrigger) {
-      store.set('instantType', undefined);
-
-      const abortController = new AbortController();
-      const triggerOnSwitch = currentTrigger;
-      const openCycleOnSwitch = openCycleRef.current;
-      runOnceAnimationsFinish(() => {
-        // The switch animation can finish after a close has already started, or
-        // after the menu reopened on a different trigger. Restoring
-        // `trigger-change` then would suppress that cycle's own transition.
-        if (
-          openCycleRef.current === openCycleOnSwitch &&
-          store.select('open') &&
-          floatingRootContext.select('domReferenceElement') === triggerOnSwitch
-        ) {
-          store.set('instantType', 'trigger-change');
-        }
-      }, abortController.signal);
-
-      return () => {
-        abortController.abort();
-      };
-    }
-
-    return undefined;
-  }, [domReference, floatingRootContext, runOnceAnimationsFinish, store]);
+  useTriggerSwitchTransition({
+    store,
+    floatingRootContext,
+    domReference,
+    positionerElement,
+  });
 
   const state: MenuPositionerState = {
     open,
