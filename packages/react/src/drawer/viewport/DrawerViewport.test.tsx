@@ -3225,12 +3225,90 @@ describe('<Drawer.Viewport />', () => {
       }
 
       expect(handleOpenChange).not.toHaveBeenCalled();
-      expect(handleSnapPointChange).not.toHaveBeenCalled();
+      // The release settles on the nearest snap point rather than dismissing.
+      expect(handleSnapPointChange).not.toHaveBeenCalledWith(null, expect.anything());
+      expect(handleSnapPointChange).toHaveBeenCalledWith('100px', expect.anything());
       expect(popup).not.toHaveAttribute('data-ending-style');
       expect(popup).not.toHaveAttribute('data-swipe-dismiss');
     } finally {
       vi.useRealTimers();
     }
+  });
+
+  it('navigates snap points from a drag that was never attributed to the swipe axis', async () => {
+    const handleOpenChange = vi.fn();
+    const handleSnapPointChange = vi.fn();
+
+    await render(
+      <Drawer.Root
+        open
+        onOpenChange={handleOpenChange}
+        onSnapPointChange={handleSnapPointChange}
+        snapPoints={['100px', '200px']}
+        swipeDirection="down"
+      >
+        <Drawer.Portal>
+          <Drawer.Viewport data-testid="viewport" ref={(element) => setHeight(element, 400)}>
+            <Drawer.Popup data-testid="popup" ref={(element) => setHeight(element, 300)}>
+              Drawer
+            </Drawer.Popup>
+          </Drawer.Viewport>
+        </Drawer.Portal>
+      </Drawer.Root>,
+    );
+
+    const viewport = screen.getByTestId('viewport');
+    const popup = screen.getByTestId('popup');
+    const originalElementFromPoint = document.elementFromPoint;
+    document.elementFromPoint = () => popup;
+
+    try {
+      // A sustained diagonal drag: cumulative |deltaX| stays above |deltaY| on every
+      // move so no direction is attributed, while the vertical component drags the
+      // sheet 150px upward toward the taller snap point.
+      fireEvent.pointerDown(viewport, {
+        button: 0,
+        buttons: 1,
+        pointerId: 1,
+        clientX: 300,
+        clientY: 300,
+        pointerType: 'mouse',
+      });
+      fireEvent.pointerMove(viewport, {
+        buttons: 1,
+        pointerId: 1,
+        clientX: 280,
+        clientY: 290,
+        pointerType: 'mouse',
+      });
+      fireEvent.pointerMove(viewport, {
+        buttons: 1,
+        pointerId: 1,
+        clientX: 200,
+        clientY: 220,
+        pointerType: 'mouse',
+      });
+      fireEvent.pointerMove(viewport, {
+        buttons: 1,
+        pointerId: 1,
+        clientX: 140,
+        clientY: 150,
+        pointerType: 'mouse',
+      });
+      fireEvent.pointerUp(viewport, {
+        pointerId: 1,
+        clientX: 140,
+        clientY: 150,
+        pointerType: 'mouse',
+      });
+      await flushMicrotasks();
+    } finally {
+      document.elementFromPoint = originalElementFromPoint;
+    }
+
+    expect(handleSnapPointChange).toHaveBeenCalledWith('200px', expect.anything());
+    expect(handleOpenChange).not.toHaveBeenCalled();
+    expect(popup).not.toHaveAttribute('data-ending-style');
   });
 
   it('clears nested swipe state after an unattributed snap point gesture', async () => {

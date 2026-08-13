@@ -480,14 +480,12 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
         return undefined;
       }
 
-      // A gesture that was never attributed to the swipe axis (e.g. a mostly horizontal
-      // flick) must not dismiss. Without a direction, `useSwipeDismiss` drops the release
-      // decision and never calls `onDismiss`, leaving the popup visually dismissed while
-      // `open` remains `true`.
+      // An unattributed gesture (e.g. a mostly horizontal flick) may settle on a snap
+      // point but must not dismiss: `useSwipeDismiss` drops a directionless dismissal,
+      // stranding the popup visually closed while `open` stays `true`. The hook's
+      // trailing progress update is deduped here, so reset nested swipe state now.
       if (!direction) {
         applySwipeProgress(0, true, true);
-        clearSwipeRelease();
-        return false;
       }
 
       const dragDelta = swipeDirection === 'down' ? deltaY : -deltaY;
@@ -516,6 +514,18 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
         : clamp(dragTargetOffset + velocityOffset, 0, popupHeight);
       const snapPointEventDetails = createChangeEventDetails(REASONS.swipe, event);
       const closeFromSnapPoints = () => {
+        if (!direction) {
+          const nearestSnapPoint =
+            resolvedSnapPoints[
+              closestSnapPointIndex(
+                resolvedSnapPoints.map((point) => point.offset),
+                targetOffset,
+              )
+            ];
+          setActiveSnapPoint(nearestSnapPoint.value, snapPointEventDetails);
+          clearSwipeRelease();
+          return false;
+        }
         pendingSwipeCloseSnapPointRef.current = activeSnapPoint;
         setActiveSnapPoint(null, snapPointEventDetails);
         startSwipeRelease(swipeDirection);
