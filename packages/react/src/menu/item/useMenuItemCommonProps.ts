@@ -74,12 +74,16 @@ export function useMenuItemCommonProps(params: UseMenuItemCommonPropsParameters)
   const isContextMenu = contextMenuContext !== undefined;
   const rovingTabIndex = open && highlighted ? 0 : -1;
   const tabIndex = filterable ? undefined : rovingTabIndex;
+  // VoiceOver + Safari doesn't announce aria-activedescendant changes while DOM focus is on the
+  // input, but it does announce aria-selected changes on the highlighted item.
+  const ariaSelected = filterable && highlighted ? true : undefined;
 
   return React.useMemo(
     () => ({
       id,
       role: 'menuitem' as const,
       tabIndex,
+      'aria-selected': ariaSelected,
       onKeyDown(event: React.KeyboardEvent) {
         if (event.key === ' ' && typingRef?.current) {
           event.preventDefault();
@@ -140,6 +144,7 @@ export function useMenuItemCommonProps(params: UseMenuItemCommonPropsParameters)
     [
       id,
       tabIndex,
+      ariaSelected,
       typingRef,
       nodeId,
       menuEvents,
