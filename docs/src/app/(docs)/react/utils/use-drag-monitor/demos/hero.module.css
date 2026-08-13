@@ -1,0 +1,203 @@
+.Root {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+.Root,
+.Root * {
+  box-sizing: border-box;
+  font-synthesis: none;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .Piece[data-drag-preview][data-ending-style] {
+    transition: translate 0.2s cubic-bezier(0.2, 0, 0, 1);
+  }
+}
+
+.Actions {
+  display: flex;
+  justify-content: flex-end;
+  width: 100%;
+  max-width: 28rem;
+  min-height: 1.25rem;
+}
+
+.Reset {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: oklch(55.6% 0 0deg);
+  font: inherit;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  cursor: pointer;
+
+  @media (prefers-color-scheme: dark) {
+    color: oklch(70.8% 0 0deg);
+  }
+
+  &:hover {
+    color: oklch(14.5% 0 0deg);
+
+    @media (prefers-color-scheme: dark) {
+      color: white;
+    }
+  }
+
+  &:focus-visible {
+    outline: 2px solid oklch(14.5% 0 0deg);
+    outline-offset: 2px;
+
+    @media (prefers-color-scheme: dark) {
+      outline-color: white;
+    }
+  }
+}
+
+.Tray {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  width: 100%;
+  max-width: 28rem;
+  padding: 0.75rem 0;
+}
+
+.TraySlot {
+  display: grid;
+  height: 4rem;
+  place-items: center;
+}
+
+.Board {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  width: 100%;
+  max-width: 28rem;
+  padding: 0.75rem;
+  border: 1px solid oklch(92.2% 0 0deg);
+  background-color: oklch(98.5% 0 0deg);
+
+  @media (prefers-color-scheme: dark) {
+    border-color: oklch(37.1% 0 0deg);
+    background-color: oklch(20.5% 0 0deg);
+  }
+}
+
+.Target {
+  display: grid;
+  height: 6rem;
+  place-items: center;
+
+  &[data-accepting] .Cutout {
+    background-color: oklch(87% 0 0deg);
+
+    @media (prefers-color-scheme: dark) {
+      background-color: oklch(43.9% 0 0deg);
+    }
+  }
+
+  &[data-over] .Cutout {
+    background-color: oklch(70.8% 0 0deg);
+
+    @media (prefers-color-scheme: dark) {
+      background-color: oklch(55.6% 0 0deg);
+    }
+  }
+}
+
+.Piece,
+.Cutout {
+  grid-area: 1 / 1;
+  width: 3.5rem;
+  height: 3.5rem;
+
+  &[data-shape='circle'] {
+    border-radius: 50%;
+  }
+
+  &[data-shape='triangle'] {
+    clip-path: polygon(50% 4%, 96% 96%, 4% 96%);
+  }
+}
+
+.Monitor {
+  display: flex;
+  align-items: baseline;
+  gap: 0.75rem;
+  width: 100%;
+  max-width: 28rem;
+  margin-top: 0.75rem;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid oklch(92.2% 0 0deg);
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+
+  @media (prefers-color-scheme: dark) {
+    border-color: oklch(37.1% 0 0deg);
+  }
+}
+
+.MonitorLabel {
+  flex: none;
+  color: oklch(14.5% 0 0deg);
+  font-weight: 500;
+
+  @media (prefers-color-scheme: dark) {
+    color: white;
+  }
+}
+
+.MonitorMessage {
+  min-width: 0;
+  overflow: hidden;
+  color: oklch(55.6% 0 0deg);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+
+  @media (prefers-color-scheme: dark) {
+    color: oklch(70.8% 0 0deg);
+  }
+}
+
+.Piece {
+  z-index: 1;
+  border: 0;
+  background-color: oklch(14.5% 0 0deg);
+  cursor: grab;
+  transition: opacity 0.15s;
+
+  @media (prefers-color-scheme: dark) {
+    background-color: white;
+  }
+
+  &:focus-visible {
+    outline: 2px solid oklch(14.5% 0 0deg);
+    outline-offset: 4px;
+
+    @media (prefers-color-scheme: dark) {
+      outline-color: white;
+    }
+  }
+
+  &[data-dragging] {
+    opacity: 0;
+  }
+}
+
+.Cutout {
+  background-color: oklch(92.2% 0 0deg);
+  transition: background-color 0.15s;
+
+  @media (prefers-color-scheme: dark) {
+    background-color: oklch(37.1% 0 0deg);
+  }
+}

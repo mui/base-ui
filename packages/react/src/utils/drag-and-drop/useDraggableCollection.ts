@@ -1,0 +1,1650 @@
+'use client';
+import * as React from 'react';
+import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
+import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
+import { warn } from '@base-ui/utils/warn';
+import {
+  computeDropPosition as computeCollectionDropPosition,
+  getDropCapabilities,
+  invalidateDirectionCache,
+} from './collectionDrop';
+import type {
+  CollectionOrientation,
+  DragSourceData,
+  DropCapabilities,
+  DropPosition,
+} from './collectionDrop';
+import { reorderRowBrand, type ReorderRowBrand } from './reorderRow';
+import { DragEngineImpl, resolveKeyboardInstructions } from './useInnerDragEngine';
+import { useDragPreviewContext } from './overlay/DragPreviewContext';
+import type { DragPreviewContext } from './overlay/DragPreviewContext';
+import type { InternalDragEngine, InternalDraggableParameters } from '../../types/dragRegistration';
+import { getSharedSlot } from './sharedState';
+import { dragSessionStore, selectors, updateDragSourceElement } from './dragSessionStore';
+import { retargetActivePreviewSource } from './activePreview';
+import { mergeKeyboardAnnouncements } from './a11y/defaultAnnouncements';
+import { buildStaticSetupKey } from './draggable';
+import { createKind, matchesAccept } from './dragKind';
+import type { LatestRef } from './useRegistrationRef';
+import { isPointInRect, runAllCleanups } from './utils';
+import type {
+  DragKind,
+  DragSource,
+  DragLocationHistory,
+  DragPreviewSettings,
+  DropTargetEvent,
+  DropTargetResolutionContext,
+  DragKeyboardAnnouncements,
+  DragKeyboardMovement,
+  DragKeyboardFinalFocusParameters,
+  DragKeyboardActivation,
+} from '../../types/drag';
+import type { CollectionActions, CollectionItemId } from '../../types/collection';
+import { useTranslations } from '../../internals/localization-context/LocalizationContext';
+import type { LocalizationProviderTranslations } from '../../localization-provider/types';
+import { useCSPContext } from '../../internals/csp-context/CSPContext';
+import type { CSPContextValue } from '../../internals/csp-context/CSPContext';
+
+const DEFAULT_KIND = createKind<never>('base-ui-dnd-item');
+
+/** The kinds a collection accepts for drops, normalized to an array. */
+type IncomingKinds<TItem> = ReadonlyArray<DragKind<IncomingSourceData<TItem>>>;
+
+function isKindArray<TPayload>(
+  accept: DragKind<TPayload> | ReadonlyArray<DragKind<TPayload>>,
+): accept is ReadonlyArray<DragKind<TPayload>> {
+  return Array.isArray(accept);
+}
+
+/**
+ * This collection's wire format as seen on an *incoming* drag. Any draggable of an
+ * accepted kind reaches the monitor and the drop targets — including a plain
+ * `Draggable.Root` carrying a scalar payload, or none — so neither the fields nor
+ * the payload itself are guaranteed.
+ */
+type IncomingSourceData<TItem> = Partial<DragSourceData<TItem>> | undefined;
+
+// Built fresh per call: the state object and its set are handed to consumers,
+// and one stray mutation on a shared singleton would poison every later read.
+function createInitialState(): DraggableCollectionState {
+  return {
+    draggedItemIds: new Set<CollectionItemId>(),
+    dropTargetItemId: null,
+    dropPosition: null,
+  };
+}
+
+// Shared slot so a double-bundled engine shares one counter; two copies would
+// otherwise collide on instance ids, breaking internal-drag detection.
+const instanceIdSlot = getSharedSlot<{ next: number }>('useDraggableCollection.instanceId', () => ({
+  next: 0,
+}));
+
+function getNextInstanceId() {
+  instanceIdSlot.next += 1;
+  return instanceIdSlot.next;
+}
+
+/** The subset of a plugin the origin needs to find a row another instance remounted. */
+interface CommittedDropOwner {
+  getItemElement(itemId: CollectionItemId): HTMLElement | undefined;
+}
+
+/**
+ * The collection that committed the current drag's drop.
+ *
+ * A keyboard drag restores focus to the moved row, but for a cross-collection
+ * move that row is remounted by the *destination* — while `finalFocus` runs on
+ * the origin, whose `itemElements` never held it. Recorded at commit time (which
+ * precedes the deferred focus restore) so the origin can reach across.
+ * Shared-slot for the same reason as the instance-id counter.
+ */
+const committedDropSlot = getSharedSlot<{ owner: CommittedDropOwner | null }>(
+  'useDraggableCollection.committedDrop',
+  () => ({ owner: null }),
+);
+
+/** The subset of a plugin the origin needs to describe another instance's hovered row. */
+interface LiveDropPositionOwner {
+  itemLabel(itemId: CollectionItemId): string;
+}
+
+/**
+ * The hovered row of the active drag: the plugin that owns it, and where the
+ * drop would land relative to it.
+ *
+ * The keyboard announcements ride on the dragged item, so they come from the
+ * ORIGIN plugin — but only the plugin owning the hovered row tracks its drop
+ * position. On a cross-collection drag the origin's own tracking is cleared
+ * when the drag leaves its rows, so the announcer reads the live position
+ * through this slot and resolves the row's label through its owner (the
+ * origin's item map doesn't know foreign rows). Reset at the next drag's
+ * start, when the row is left, and when the owning plugin is destroyed.
+ * Shared-slot for the same reason as the instance-id counter.
+ */
+const liveDropSlot = getSharedSlot<{
+  owner: LiveDropPositionOwner | null;
+  itemId: CollectionItemId | null;
+  position: DropPosition | null;
+}>('useDraggableCollection.liveDropPosition', () => ({
+  owner: null,
+  itemId: null,
+  position: null,
+}));
+
+function clearLiveDropSlot(): void {
+  liveDropSlot.owner = null;
+  liveDropSlot.itemId = null;
+  liveDropSlot.position = null;
+}
+
+export class DraggableCollectionPlugin<
+  TItem,
+  TActions extends CollectionActions<TItem> = CollectionActions<TItem>,
+> {
+  public static get initialState(): DraggableCollectionState {
+    return createInitialState();
+  }
+
+  private readonly instanceId = getNextInstanceId();
+
+  private configRef: LatestRef<UseDraggableCollectionParameters<TItem, TActions>>;
+
+  private translationsRef: LatestRef<LocalizationProviderTranslations>;
+
+  // The drag engine, so collection items, the root, the global monitor
+  // and scroll containers all register through the same (global) engine as the rest
+  // of the app. Built here from the staged refs (rather than passed in) so the
+  // plugin fully owns its registration path.
+  private engine: InternalDragEngine;
+
+  private monitorCleanup: (() => void) | null = null;
+
+  /** See the `accept` getter: cached, keyed on the two inputs it derives from. */
+  private acceptCache: IncomingKinds<TItem> | null = null;
+
+  private acceptCacheConfigured: UseDraggableCollectionParameters<TItem, TActions>['accept'];
+
+  private acceptCacheKind: DragKind<DragSourceData<TItem>> | null = null;
+
+  private monitorAcceptCache: IncomingKinds<TItem> | null = null;
+
+  private monitorAcceptSource: IncomingKinds<TItem> | null = null;
+
+  private monitorAcceptKind: DragKind<DragSourceData<TItem>> | null = null;
+
+  // Dragged item ids, set by the global monitor.
+  private currentDraggedItemIds: Set<CollectionItemId> = new Set();
+
+  // Whether the drag was initiated by an item in this plugin's collection.
+  private dragOriginatedHere = false;
+
+  /**
+   * The dragged rows' border boxes, captured at pickup by `onBeforeDragStart`.
+   * Read by `isSelfRootDrop`, which must not depend on live layout the drag's own
+   * `[data-dragging]` styles are allowed to collapse.
+   */
+  private draggedRects = new Map<CollectionItemId, DOMRect>();
+
+  private lastDropPosition: DropPosition | null = null;
+
+  private lastDropTargetItemId: CollectionItemId | null = null;
+
+  // Whether this plugin published non-initial state since the last reset. Gates
+  // the end-of-drag reset so uninvolved same-kind collections don't get a
+  // redundant initial-state `onStateChange` on every drop.
+  private hasNonInitialState = false;
+
+  private currentDragItems: TItem[] = [];
+
+  // Per-item root elements, kept fresh by `setupItem`. Used by keyboard focus
+  // restoration to refocus a moved item after the drop commits.
+  private itemElements = new Map<CollectionItemId, HTMLElement>();
+
+  // Per-item re-registration hooks, so `refreshItemsA11y` can re-apply the
+  // registration-time static setup when `canDrag` or the locale changes.
+  private itemRefreshers = new Map<CollectionItemId, () => void>();
+
+  /** An a11y sweep requested mid-drag, deferred to drag end (see `refreshItemsA11y`). */
+  private pendingA11yRefresh = false;
+
+  constructor(
+    configRef: LatestRef<UseDraggableCollectionParameters<TItem, TActions>>,
+    translationsRef: LatestRef<LocalizationProviderTranslations>,
+    previewContextRef: LatestRef<DragPreviewContext | null>,
+    cspContextRef: LatestRef<CSPContextValue>,
+  ) {
+    this.configRef = configRef;
+    this.translationsRef = translationsRef;
+    this.engine = new DragEngineImpl(translationsRef, previewContextRef, cspContextRef);
+  }
+
+  private get config(): UseDraggableCollectionParameters<TItem, TActions> {
+    // `.next` is the current render's config (see `useRegistrationRef`) — the setup
+    // methods run from ref callbacks, and a mid-drag registration makes the engine
+    // read the config synchronously.
+    return this.configRef.next;
+  }
+
+  private get translations(): LocalizationProviderTranslations {
+    return this.translationsRef.next;
+  }
+
+  private get kind(): DragKind<DragSourceData<TItem>> {
+    return (this.config.kind ?? DEFAULT_KIND) as DragKind<DragSourceData<TItem>>;
+  }
+
+  /**
+   * Cached, and invalidated when the inputs it is derived from change.
+   *
+   * This getter is read once per `resolveDropTarget` *and* once per
+   * `dispatchToDropTarget`, for every row — so on the keyboard path over a long
+   * list a fresh array per read is hundreds of thousands of allocations a second,
+   * for a value that only changes when the consumer re-declares `accept` or `kind`.
+   */
+  private get accept(): IncomingKinds<TItem> {
+    const configured = this.config.accept;
+    const kind = this.kind;
+    if (
+      this.acceptCache === null ||
+      this.acceptCacheConfigured !== configured ||
+      this.acceptCacheKind !== kind
+    ) {
+      this.acceptCacheConfigured = configured;
+      this.acceptCacheKind = kind;
+      if (configured === undefined) {
+        this.acceptCache = [kind as DragKind<IncomingSourceData<TItem>>];
+      } else {
+        // `Array.isArray` doesn't narrow a `ReadonlyArray` union, so widen it first.
+        this.acceptCache = isKindArray(configured) ? configured : [configured];
+      }
+    }
+    return this.acceptCache;
+  }
+
+  // Kinds the collection's global monitor observes. The monitor must also see
+  // this collection's OWN drags (for dimming and `onDragStart`/`onDragEnd`), so
+  // it registers on the union of the own `kind` and the configured accept kinds.
+  // `accept` itself is unchanged, so drop routing still filters strictly.
+  private get monitorAccept(): IncomingKinds<TItem> {
+    const accept = this.accept;
+    const kind = this.kind;
+    // `kind` is part of the key, not just of the value: with a stable `accept`
+    // array `this.accept` returns the same reference whatever the kind is, so
+    // keying on it alone would keep serving a union built around the old kind —
+    // and the monitor would stop seeing this collection's own drags, leaving
+    // `currentDraggedItemIds` unseeded and its drops silently doing nothing.
+    if (
+      this.monitorAcceptCache === null ||
+      this.monitorAcceptSource !== accept ||
+      this.monitorAcceptKind !== kind
+    ) {
+      this.monitorAcceptSource = accept;
+      this.monitorAcceptKind = kind;
+      this.monitorAcceptCache = [kind as DragKind<IncomingSourceData<TItem>>, ...accept];
+    }
+    return this.monitorAcceptCache;
+  }
+
+  connect(): void {
+    // Guard against a second connect() without an intervening destroy(), which
+    // would otherwise leak the previously registered monitor.
+    this.monitorCleanup?.();
+
+    // A collection lazily mounted mid-drag never saw the monitor's `onDragStart`,
+    // so seed from the live drag session; otherwise `currentDraggedItemIds` stays
+    // empty and its drops early-return silently. Mirrors the same-frame seeding in
+    // the lifecycle manager. Matched on `monitorAccept` (like the monitor
+    // below), so remounting mid-own-drag with an `accept` that excludes the
+    // own `kind` still reseeds the in-flight drag.
+    const session = dragSessionStore.getSnapshot();
+    const activeSource =
+      session != null ? (session.source as DragSource<IncomingSourceData<TItem>>) : null;
+    if (activeSource != null && matchesAccept(this.monitorAccept, activeSource)) {
+      const src = activeSource.payload;
+      this.currentDraggedItemIds = src?.itemIds ?? new Set();
+      this.currentDragItems = src?.items ?? [];
+      // Only the originating instance fires callbacks — recomputed rather than
+      // hard-coded, so an instance remounting during its *own* drag (Strict
+      // Mode, a wrapper remount) keeps firing them.
+      this.dragOriginatedHere = src?.sourceInstanceId === this.instanceId;
+      this.config.onStateChange?.({
+        draggedItemIds: this.currentDraggedItemIds,
+        dropTargetItemId: null,
+        dropPosition: null,
+      });
+      this.hasNonInitialState = true;
+    } else {
+      this.config.onStateChange?.(createInitialState());
+      this.hasNonInitialState = false;
+    }
+
+    this.monitorCleanup = this.engine.registerMonitor(() => ({
+      accept: this.monitorAccept,
+      onDragStart: ({ source }) => {
+        // Row `direction` is cached per drag; a locale switch between drags must
+        // not keep resolving before/after against the old reading order.
+        invalidateDirectionCache();
+        committedDropSlot.owner = null;
+        clearLiveDropSlot();
+        const src = source.payload;
+        const draggedItemIds = src?.itemIds ?? new Set<CollectionItemId>();
+        this.currentDraggedItemIds = draggedItemIds;
+        this.currentDragItems = src?.items ?? [];
+        this.lastDropPosition = null;
+        this.lastDropTargetItemId = null;
+        this.dragOriginatedHere = src?.sourceInstanceId === this.instanceId;
+
+        // Only the plugin that owns the dragged items updates state and fires callbacks.
+        if (this.dragOriginatedHere) {
+          this.config.onStateChange?.({
+            draggedItemIds,
+            dropTargetItemId: null,
+            dropPosition: null,
+          });
+          this.hasNonInitialState = true;
+          this.config.onDragStart?.({
+            itemIds: draggedItemIds,
+            actions: this.config.getActions(),
+          });
+        }
+      },
+      onDragEnd: ({ source, location, dropTarget }) => {
+        const src = source.payload;
+        const draggedItemIds = this.currentDraggedItemIds;
+        const actualTargetData = dropTarget?.payload;
+        // Heterogeneous local data from any same-kind plugin; cast to our wire format.
+        const targetData = actualTargetData as DropTargetItemData | undefined;
+        // Item drops commit from the target's own `onDrop`, which the lifecycle
+        // dispatches before this — see the item registration in `setupItem`.
+
+        // Root drops match on `targetInstanceId` since `role: 'root'` is shared across same-kind instances.
+        const isRootDrop =
+          targetData?.role === 'root' && targetData.targetInstanceId === this.instanceId;
+        // Releasing the dragged rows over their own footprint reaches the root
+        // (see `isSelfRootDrop`) but commits nothing.
+        const selfRootDrop = isRootDrop && this.isSelfRootDrop(src, location);
+
+        // The collection surfaces a single `canceled` boolean to its consumers:
+        // a drop landed (`dropTarget != null`) or it didn't (cancel / released
+        // outside / released over the dragged rows' own footprint).
+        const canceled = dropTarget == null || selfRootDrop;
+
+        // Where the drop landed, not whether a handler ran: a valid internal drop
+        // managed entirely through `onStateChange` has no configured callback and
+        // would otherwise report `isInternal: false`.
+        const isInternal =
+          !canceled && targetData != null && targetData.targetInstanceId === this.instanceId;
+
+        const dragItems = this.currentDragItems;
+        if (this.hasNonInitialState) {
+          this.config.onStateChange?.(createInitialState());
+          this.hasNonInitialState = false;
+        }
+        this.currentDraggedItemIds = new Set();
+        this.currentDragItems = [];
+        this.draggedRects.clear();
+
+        if (draggedItemIds.size > 0 && this.dragOriginatedHere) {
+          this.config.onDragEnd?.({
+            itemIds: draggedItemIds,
+            items: dragItems,
+            isInternal,
+            canceled,
+            actions: this.config.getActions(),
+          });
+        }
+
+        // Flush an a11y sweep deferred mid-drag. This dispatch runs before the
+        // lifecycle's teardown nulls the session, so defer one microtask and
+        // re-check rather than re-deferring immediately.
+        if (this.pendingA11yRefresh) {
+          queueMicrotask(() => {
+            if (this.pendingA11yRefresh && dragSessionStore.getSnapshot() === null) {
+              this.refreshItemsA11y();
+            }
+          });
+        }
+      },
+    }));
+  }
+
+  destroy(): void {
+    this.monitorCleanup?.();
+    this.monitorCleanup = null;
+    // Release the shared slots this instance owns, or the next drag's focus
+    // restore / announcements would reach into a destroyed plugin's item maps.
+    if (committedDropSlot.owner === this) {
+      committedDropSlot.owner = null;
+    }
+    if (liveDropSlot.owner === this) {
+      clearLiveDropSlot();
+    }
+    this.currentDraggedItemIds = new Set();
+    this.currentDragItems = [];
+    // Keep the pickup footprints while this instance's own drag is live: a
+    // remount mid-own-drag (Strict Mode re-running the effect) re-`connect`s the
+    // same plugin, and `connect` can reseed the ids from the session but cannot
+    // re-measure the rects: a `[data-dragging]` rule may have the rows
+    // `display: none`, the very case the snapshot exists for. Without it a
+    // put-back release would fall through to `onRootDrop` and reparent the rows.
+    const liveSource = dragSessionStore.getSnapshot()?.source.payload as
+      | IncomingSourceData<TItem>
+      | undefined;
+    if (liveSource?.sourceInstanceId !== this.instanceId) {
+      this.draggedRects.clear();
+    }
+  }
+
+  /**
+   * Whether the active drag was started by an item of this collection.
+   * `false` when no drag is in progress, or when a same-kind drag from another
+   * collection is merely hovering this one (which also publishes the dragged
+   * ids through `onStateChange` for its drop-state updates).
+   */
+  public isDragOrigin = (): boolean => {
+    return this.dragOriginatedHere && this.currentDraggedItemIds.size > 0;
+  };
+
+  /**
+   * Re-register every item's draggable so the registration-time static setup
+   * (gesture styles, keyboard a11y attributes) reflects the current `canDrag`,
+   * `keyboardActivation`, and locale strings. An item that is the active drag
+   * source is skipped — its teardown would disrupt the live gesture.
+   *
+   * Each item re-registers only when its own setup inputs actually changed
+   * (see `itemA11yKey`), so this stays cheap enough to call on every render —
+   * the caller can't tell an inline `canDrag` (new identity each render) from a
+   * real change.
+   */
+  refreshItemsA11y(): void {
+    // A11y attributes are irrelevant mid-drag, and each sweep costs O(N)
+    // consumer `canDrag` calls — during a drag, every hover-position render
+    // would otherwise pay it. Defer to drag end: the monitor's `onDragEnd`
+    // flushes (covering the actively dragged item, whose per-item refresh is
+    // skipped mid-drag), and any later render retries too.
+    if (dragSessionStore.getSnapshot() !== null) {
+      this.pendingA11yRefresh = true;
+      return;
+    }
+    this.pendingA11yRefresh = false;
+    for (const refresh of this.itemRefreshers.values()) {
+      refresh();
+    }
+  }
+
+  /**
+   * The inputs feeding an item's registration-time static setup, flattened to a
+   * comparable string. The collection declares no per-item aria/instruction
+   * overrides, so the strings come from the locale, through the same resolver the
+   * engine applies — `keyboardActivation: 'manual'` drops the default instructions.
+   */
+  private itemA11yKey(itemId: CollectionItemId): string {
+    return buildStaticSetupKey({
+      disabled: this.config.canDrag ? !this.config.canDrag(itemId) : false,
+      keyboardActivation: this.config.keyboardActivation,
+      ariaRoleDescription: this.translations.dragRoleDescription,
+      keyboardInstructions: resolveKeyboardInstructions(
+        { keyboardActivation: this.config.keyboardActivation },
+        this.translations,
+      ),
+    });
+  }
+
+  /**
+   * A virtualizer can remount the dragged row to a fresh node mid-drag. Re-point
+   * the live session at it, exactly as `Draggable.Root` does for a standalone
+   * source: otherwise the drag keeps reporting the detached element,
+   * `data-dragging` stays behind on it, and the replacement row renders undragged.
+   *
+   * The outgoing node comes from the session rather than `itemElements`, which
+   * `Draggable.Root` solves with a survivor ref: React runs the previous effect's
+   * cleanup — which forgets the map entry — before this setup, so the map never
+   * holds the node being replaced.
+   */
+  private retargetActiveSource(itemId: CollectionItemId, element: HTMLElement): void {
+    const session = dragSessionStore.state;
+    if (session == null) {
+      return;
+    }
+    const payload = session.source.payload as DragSourceData<TItem> | undefined;
+    if (payload?.sourceInstanceId !== this.instanceId || payload.draggedItemId !== itemId) {
+      return;
+    }
+    const previous = session.source.element;
+    if (previous !== element && updateDragSourceElement(previous, element)) {
+      retargetActivePreviewSource(element);
+    }
+  }
+
+  setupItem(itemId: CollectionItemId, element: HTMLElement): () => void {
+    this.retargetActiveSource(itemId, element);
+    this.itemElements.set(itemId, element);
+
+    let pendingDraggedItemIds: Set<CollectionItemId> | null = null;
+    const onBeforeDragStart = () => {
+      pendingDraggedItemIds = this.resolveDraggedItemIds(itemId);
+      // Unioned with the grabbed row for the same reason `canDrop` checks it
+      // separately: pruning can drop it from the set, and the self-drop
+      // footprint has to cover the row the user is actually holding.
+      this.snapshotDraggedRects(new Set([itemId, ...pendingDraggedItemIds]));
+    };
+    const payload = () => {
+      const itemIdsSet = pendingDraggedItemIds ?? this.resolveDraggedItemIds(itemId);
+      pendingDraggedItemIds = null;
+      const actions = this.config.getActions();
+      const items = actions.getItemModels([...itemIdsSet]) ?? [];
+      const draggedItem = actions.getItemModels([itemId])[0];
+      return {
+        itemIds: itemIdsSet,
+        draggedItemId: itemId,
+        items,
+        draggedItem,
+        sourceInstanceId: this.instanceId,
+      } satisfies DragSourceData<TItem>;
+    };
+    let lastConfig: UseDraggableCollectionParameters<TItem, TActions> | null = null;
+    let lastTranslations: LocalizationProviderTranslations | null = null;
+    let lastLabel: string | null = null;
+    let lastDisabled = false;
+    let parametersCache: InternalDraggableParameters<DragSourceData<TItem>> | null = null;
+
+    const registerItemDraggable = () =>
+      this.engine.registerDraggable<DragSourceData<TItem>>(
+        element,
+        () => {
+          const config = this.config;
+          const translations = this.translations;
+          const dragPreview = config.dragPreview;
+          const kind = this.kind;
+          const disabled = config.canDrag ? !config.canDrag(itemId) : false;
+          const label = this.itemLabel(itemId);
+          const keyboardActivation = config.keyboardActivation;
+          const keyboardMovement = config.keyboardMovement;
+          const ariaRoleDescription = translations.dragRoleDescription;
+          if (
+            parametersCache !== null &&
+            config === lastConfig &&
+            translations === lastTranslations &&
+            label === lastLabel &&
+            disabled === lastDisabled
+          ) {
+            return parametersCache;
+          }
+
+          const parameters: InternalDraggableParameters<DragSourceData<TItem>> = {
+            kind,
+            // Besides supplying the source's accessible name, this gives the
+            // settling clone a stable identity when a cross-collection move
+            // remounts the item under a new registration. The payload callback
+            // is necessarily a new function in the destination collection.
+            label,
+            // `canDrag(itemId)` is declarative (no gesture context), so it maps to
+            // `disabled`: a locked item keeps its native long-press context menu
+            // and nested `<img>`/`<a>` drags and drops the keyboard-drag a11y hints,
+            // instead of arming the pending phase only to veto it at commit.
+            disabled,
+            keyboardActivation,
+            keyboardAnnouncements: this.keyboardAnnouncements,
+            keyboardMovement,
+            finalFocus: this.finalFocus,
+            ariaRoleDescription,
+            // Unset on purpose: the engine resolves it from `keyboardActivation` and the
+            // locale, and passing the default here would shadow that resolution.
+            keyboardInstructions: undefined,
+            // Dispatched before the preview is built and before `[data-dragging]`
+            // lands, which is the only moment the rows are guaranteed to still be
+            // laid out — a consumer rule may legitimately `display: none` the
+            // source. See `isSelfRootDrop`, which needs their footprints.
+            onBeforeDragStart,
+            payload,
+            // The collection owns its preview: it renders into the provider's
+            // overlay, so it survives the dragged item reordering or unmounting.
+            // Without one, the item falls back to the engine's default clone.
+            // The wrapper (for example `Tree.DragPreview`) supplies the content and
+            // the placement settings, mirroring `Draggable.Preview`.
+            dragPreview: dragPreview && {
+              render: ({ source }) => {
+                const src = source.payload;
+                return dragPreview.render({
+                  itemIds: src.itemIds ?? new Set(),
+                  draggedItemId: src.draggedItemId,
+                  actions: this.config.getActions(),
+                });
+              },
+              offset: dragPreview.offset,
+              modifiers: dragPreview.modifiers,
+              disabled: dragPreview.disabled,
+              container: dragPreview.container,
+            },
+          };
+          lastConfig = config;
+          lastTranslations = translations;
+          lastLabel = label;
+          lastDisabled = disabled;
+          parametersCache = parameters;
+          return parameters;
+        },
+        true,
+      );
+
+    let draggableCleanup = registerItemDraggable();
+    let a11yKey = this.itemA11yKey(itemId);
+    // The registration-time static setup goes stale when `canDrag` or the locale
+    // changes; `refreshItemsA11y` re-registers to re-apply it. Never for the
+    // active drag source — the teardown would restore the gesture styles under
+    // the live drag. `refreshItemsA11y` already defers wholesale while a drag is
+    // live; the source check below keeps this closure safe on its own.
+    const refreshA11y = () => {
+      // Re-registration is a full registry remove/add plus sensor rebind, so
+      // compare the setup inputs first: the caller can't distinguish an inline
+      // `canDrag` (new identity every render) from a real change, and during a
+      // drag every hovered-row render would otherwise re-register all N items.
+      const nextKey = this.itemA11yKey(itemId);
+      if (nextKey === a11yKey) {
+        return;
+      }
+      if (selectors.isDraggingElement(dragSessionStore.state, element)) {
+        return;
+      }
+      a11yKey = nextKey;
+      draggableCleanup();
+      draggableCleanup = registerItemDraggable();
+    };
+    this.itemRefreshers.set(itemId, refreshA11y);
+
+    // Track the drop indicator against the innermost item. Only the innermost
+    // item drives it: for DOM-nested items (e.g. a tree row inside its parent
+    // row) every ancestor item is in the stack and fires too, but the drop
+    // commits against `dropTargets[0]` (innermost), so the visual state must
+    // track that same target. `onDragEnter` and `onDrag` share this so hover
+    // tracking can't drift between them.
+    const trackDropPosition = (
+      event: DropTargetEvent<'onDrag', IncomingSourceData<TItem>, DropTargetItemData>,
+    ) => {
+      const { source, location } = event;
+      if (location.current.dropTargets[0]?.element !== element) {
+        return;
+      }
+      const { input } = location.current;
+      const position = this.computeDropPosition(element, input, source.payload);
+      this.updateDropState(itemId, position);
+    };
+
+    // Hoisted out of the getter below, which the engine reads once per
+    // `resolveDropTarget` *and* once per `dispatchToDropTarget`, per row: neither
+    // depends on anything that changes between reads, so rebuilding them per
+    // access was pure allocation on the hot path.
+    const itemPayload: DropTargetItemData = {
+      // Tells the keyboard collision layer this row reads its insertion side
+      // from the cursor's sub-position (see `reorderRow`).
+      ...reorderRowBrand,
+      role: 'item' as const,
+      itemId,
+      targetInstanceId: this.instanceId,
+    };
+    const itemCanDrop = ({
+      source,
+      input,
+    }: DropTargetResolutionContext<IncomingSourceData<TItem>>): boolean => {
+      const src = source.payload;
+      const draggedItemIds = src?.itemIds;
+      // A source of an accepted kind that doesn't carry the collection wire
+      // format (a plain `Draggable.Root`): an item can't route its drop —
+      // there are no item ids to commit — so bow out and let it fall through
+      // to the collection root, whose `onRootDrop` handles such sources.
+      if (draggedItemIds == null) {
+        return false;
+      }
+      // Can't drop on any of the dragged items. The grabbed row is checked
+      // separately: `itemIds` is the pruned set, which can legitimately exclude
+      // it (select a folder and a file inside it, then grab the file), and the
+      // row being held must never accept its own drop.
+      if (draggedItemIds.has(itemId) || src?.draggedItemId === itemId) {
+        return false;
+      }
+      // Reject invalid targets, but only for same-kind sources (cross-kind
+      // drops have no tree shape to validate against).
+      if (
+        this.kind.matches(source as DragSource<unknown>) &&
+        this.config.isDropTargetInvalid?.(itemId, draggedItemIds)
+      ) {
+        return false;
+      }
+      // No handler can commit a drop of this origin (e.g. an internal drag in
+      // an insert-only collection): reject the row rather than indicating a
+      // drop that would no-op, and let a parent target claim it instead.
+      const capabilities = this.dropCapabilities(src);
+      if (!capabilities.hasOn && !capabilities.hasBeforeAfter) {
+        return false;
+      }
+      // Fold consumer `canDrop` in here, on the same pointer input the rest of the lifecycle uses.
+      if (this.config.canDrop) {
+        const position = this.computeDropPosition(element, input, src);
+        if (
+          !this.config.canDrop({
+            draggedItemIds,
+            targetItemId: itemId,
+            position,
+          })
+        ) {
+          return false;
+        }
+      }
+      return true;
+    };
+
+    // Register as drop target; `accept` filters by source `kind`.
+    const dropTargetCleanup = this.engine.registerDropTarget<
+      IncomingSourceData<TItem>,
+      DropTargetItemData
+    >(element, () => ({
+      accept: this.accept,
+      payload: itemPayload,
+      canDrop: itemCanDrop,
+      onDragEnter: trackDropPosition,
+      onDrag: trackDropPosition,
+      onDragLeave: () => {
+        this.clearDropState();
+      },
+      // Committed here rather than from this plugin's monitor: the lifecycle
+      // dispatches the innermost target's `onDrop` before *any* monitor's
+      // `onDragEnd`, so the destination inserts before the origin collection
+      // clears its shared drag state and fires its public `onDragEnd`. Monitors
+      // run in registration order, which for a cross-collection drop is
+      // whichever list mounted first — the wrong thing to depend on.
+      onDrop: ({ source, location }) => {
+        this.handleDrop(location, source.payload);
+      },
+    }));
+
+    return () => {
+      // Only forget the element/refresher if a newer `setupItem` hasn't already
+      // replaced them (React can mount the next element before unmounting the old one).
+      if (this.itemElements.get(itemId) === element) {
+        this.itemElements.delete(itemId);
+      }
+      if (this.itemRefreshers.get(itemId) === refreshA11y) {
+        this.itemRefreshers.delete(itemId);
+      }
+      // `draggableCleanup` is re-assigned by `refreshA11y`, so read it late.
+      runAllCleanups([() => draggableCleanup(), dropTargetCleanup]);
+    };
+  }
+
+  setupRoot(element: HTMLElement): () => void {
+    return this.engine.registerDropTarget<IncomingSourceData<TItem>, DropTargetItemData>(
+      element,
+      () => ({
+        accept: this.accept,
+        payload: {
+          role: 'root' as const,
+          targetInstanceId: this.instanceId,
+        },
+        canDrop: () => this.config.onRootDrop != null,
+        onDrop: ({ source, location }) => {
+          // `onDrop` fires innermost-only, so reaching the root means no item was the deepest target.
+          const src = source.payload;
+
+          // Releasing the dragged rows over their own footprint is "put it back",
+          // not a drop on the root's empty area — skip the callback.
+          if (this.isSelfRootDrop(src, location)) {
+            return;
+          }
+
+          if (this.config.onRootDrop == null) {
+            return;
+          }
+          this.config.onRootDrop({
+            itemIds: src?.itemIds ?? new Set(),
+            items: src?.items ?? [],
+            actions: this.config.getActions(),
+          });
+          // Mirror `handleDrop`: this collection now owns the inserted rows, so
+          // a keyboard drag's `finalFocus` on the origin can find the row this
+          // instance remounted.
+          committedDropSlot.owner = this;
+        },
+      }),
+    );
+  }
+
+  setupScroller(element: HTMLElement): () => void {
+    // Register unconditionally: whether the element actually scrolls is the loop's
+    // business, resolved once per drag from its computed overflow (`getOverflowFlags`,
+    // cached in `state.overflowCache`) rather than asked of the element here.
+    return this.engine.registerAutoScroller(element, () => ({}));
+  }
+
+  /** See {@link LiveDropPositionOwner}. */
+  itemLabel(itemId: CollectionItemId): string {
+    return this.config.getItemLabel?.(itemId) ?? String(itemId);
+  }
+
+  /** How many items the drag carries; announcements use it to agree in number. */
+  private draggedCount(data: DragSourceData<TItem>): number {
+    return data.itemIds?.size ?? 1;
+  }
+
+  private describeDragged(data: DragSourceData<TItem>): string {
+    const count = this.draggedCount(data);
+    return count > 1
+      ? this.translations.dragMultipleItemsLabel({ count })
+      : this.itemLabel(data.draggedItemId);
+  }
+
+  private positionPhrase(): string | null {
+    // The live position lives in the shared slot (see {@link liveDropSlot}):
+    // on a cross-collection drag only the plugin owning the hovered row tracks
+    // it, and that owner also resolves the row's label. The phrase template
+    // still comes from this (origin) plugin's translations, matching the rest
+    // of the announcement.
+    if (
+      liveDropSlot.owner != null &&
+      liveDropSlot.itemId != null &&
+      liveDropSlot.position != null
+    ) {
+      return this.translations.dragDropPositionPhrase({
+        position: liveDropSlot.position,
+        target: liveDropSlot.owner.itemLabel(liveDropSlot.itemId),
+      });
+    }
+    // The slot's owner may have been destroyed mid-drag; own tracking still
+    // covers a same-collection hover.
+    if (this.lastDropTargetItemId == null || this.lastDropPosition == null) {
+      return null;
+    }
+    const target = this.itemLabel(this.lastDropTargetItemId);
+    return this.translations.dragDropPositionPhrase({
+      position: this.lastDropPosition,
+      target,
+    });
+  }
+
+  // Collection-aware defaults: label- and position-phrase-enriched strings from
+  // the active `LocalizationProvider`.
+  private defaultAnnouncements: Required<DragKeyboardAnnouncements<DragSourceData<TItem>>> = {
+    pickedUp: (parameters) =>
+      this.translations.dragAnnouncementPickedUp({
+        label: this.describeDragged(parameters.source.payload),
+        count: this.draggedCount(parameters.source.payload),
+      }),
+    moved: (parameters) =>
+      this.translations.dragAnnouncementMoved({
+        label: this.describeDragged(parameters.source.payload),
+        count: this.draggedCount(parameters.source.payload),
+        positionPhrase: this.positionPhrase(),
+      }),
+    dropped: (parameters) =>
+      this.translations.dragAnnouncementDropped({
+        label: this.describeDragged(parameters.source.payload),
+        count: this.draggedCount(parameters.source.payload),
+        positionPhrase: this.positionPhrase(),
+        hasDropTarget: parameters.location.current.dropTargets.length > 0,
+      }),
+    canceled: (parameters) =>
+      this.translations.dragAnnouncementCanceled({
+        label: this.describeDragged(parameters.source.payload),
+        count: this.draggedCount(parameters.source.payload),
+      }),
+    reachedEdge: () => null,
+  };
+
+  // A consumer-supplied `keyboardAnnouncements` override wins per phase
+  // (including one returning `null` to stay silent); an omitted callback keeps
+  // the collection-aware default above.
+  private keyboardAnnouncements: DragKeyboardAnnouncements<DragSourceData<TItem>> =
+    mergeKeyboardAnnouncements<DragSourceData<TItem>>(
+      () => this.config.keyboardAnnouncements,
+      () => this.defaultAnnouncements,
+    );
+
+  private finalFocus = (
+    parameters: DragKeyboardFinalFocusParameters<DragSourceData<TItem>>,
+  ): HTMLElement | true => {
+    // Refocus the moved item's root once the reorder has remounted it; fall back
+    // to the default behavior (handle / source) when it can't be found. A
+    // cross-collection move remounts the row in the destination, so ask whoever
+    // committed the drop when this collection no longer holds it.
+    const itemId = parameters.source.payload.draggedItemId;
+    const element =
+      this.itemElements.get(itemId) ?? committedDropSlot.owner?.getItemElement(itemId);
+    if (element && element.isConnected) {
+      return element;
+    }
+    return true;
+  };
+
+  // ---- Private helpers -----------------------------------------------------
+
+  private clearDropState() {
+    // Reset drop metadata so a hovered target doesn't leak into a later drag phase.
+    // Only the slot this plugin owns: leaves dispatch before enters, so on a
+    // row-to-row move the entered row's plugin re-establishes ownership after.
+    if (liveDropSlot.owner === this) {
+      clearLiveDropSlot();
+    }
+    this.lastDropTargetItemId = null;
+    this.lastDropPosition = null;
+    if (this.currentDraggedItemIds.size > 0) {
+      this.config.onStateChange?.({
+        draggedItemIds: this.currentDraggedItemIds,
+        dropTargetItemId: null,
+        dropPosition: null,
+      });
+      this.hasNonInitialState = true;
+    }
+  }
+
+  // The resolvable positions depend on which handlers can commit a drop of this
+  // drag's origin. Origin is read off the source payload (not `dragOriginatedHere`,
+  // which the monitor only sets after the initial drop-target resolution).
+  private dropCapabilities(src: IncomingSourceData<TItem>): DropCapabilities {
+    return getDropCapabilities(
+      this.config,
+      src?.sourceInstanceId === this.instanceId ? 'internal' : 'external',
+    );
+  }
+
+  private computeDropPosition(
+    element: HTMLElement,
+    input: { clientX: number; clientY: number },
+    src: IncomingSourceData<TItem>,
+  ): DropPosition {
+    const orientation = this.config.orientation ?? 'vertical';
+    const clientPosition = orientation === 'horizontal' ? input.clientX : input.clientY;
+    return computeCollectionDropPosition(
+      element,
+      clientPosition,
+      this.dropCapabilities(src),
+      orientation,
+    );
+  }
+
+  /**
+   * Whether a drop that reached the collection root was released over one of the
+   * dragged rows' own footprint. The dragged rows reject themselves as targets
+   * (`canDrop`), so such a release falls through to the root — but the user
+   * meant "put it back", not "drop on the root's empty area".
+   */
+  private isSelfRootDrop(src: IncomingSourceData<TItem>, location: DragLocationHistory): boolean {
+    if (src?.sourceInstanceId !== this.instanceId || src.itemIds == null) {
+      return false;
+    }
+    const { clientX, clientY } = location.current.input;
+    // The grabbed row is unioned in: `itemIds` is the *pruned* set, which can
+    // legitimately exclude it (select a folder and a file inside it, then grab the
+    // file), and the row the user is holding is exactly the one they can release
+    // back onto.
+    const footprintIds = new Set(src.itemIds);
+    if (src.draggedItemId !== undefined) {
+      footprintIds.add(src.draggedItemId);
+    }
+    for (const id of footprintIds) {
+      // Prefer the live rect, which stays valid across scrolling — including this
+      // engine's own auto-scroll. `draggedRects` are viewport-coordinate rects
+      // frozen at pickup, so any scroll during the drag invalidates them, and
+      // preferring them unconditionally makes a put-back fall through to
+      // `onRootDrop` and silently reparent the row to the root level.
+      //
+      // The snapshot is still the fallback, for the case it exists for: a
+      // `display: none` source measures as a degenerate rect, and reading that
+      // live would turn every put-back into a root drop.
+      const live = this.liveItemRect(id);
+      // Both dimensions, not either: a row collapsed on one axis mid-drag (an
+      // animating height, a `[data-dragging]` rule) still reports a usable width,
+      // and treating that as a live footprint puts the pointer outside it and
+      // turns the put-back into a root drop — the case the snapshot exists for.
+      const rect = live && live.width > 0 && live.height > 0 ? live : this.draggedRects.get(id);
+      if (rect && isPointInRect(clientX, clientY, rect)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  /** The rows a drag started on `itemId` carries: the multi-selection, or just it. */
+  private resolveDraggedItemIds(itemId: CollectionItemId): Set<CollectionItemId> {
+    const selected = this.config.getActions().getSelectedItemIds() ?? new Set();
+    if (selected.size > 1 && selected.has(itemId)) {
+      // Copy *before* pruning, and again after: a consumer's
+      // `getSelectedItemIds()` may hand back its live, mutable set, and the
+      // documented default `pruneDraggedItems` returns its input unchanged — so
+      // passing the live set straight through would make `itemIds` alias the
+      // consumer's selection and change under the drag.
+      const snapshot = new Set(selected);
+      return this.config.pruneDraggedItems
+        ? new Set(this.config.pruneDraggedItems(snapshot))
+        : snapshot;
+    }
+    return new Set([itemId]);
+  }
+
+  private liveItemRect(itemId: CollectionItemId): DOMRect | null {
+    const element = this.itemElements.get(itemId);
+    return element?.isConnected ? element.getBoundingClientRect() : null;
+  }
+
+  /** Capture the dragged rows' footprints while they are still laid out. */
+  private snapshotDraggedRects(itemIds: Set<CollectionItemId>): void {
+    this.draggedRects.clear();
+    for (const id of itemIds) {
+      const rect = this.liveItemRect(id);
+      if (rect) {
+        this.draggedRects.set(id, rect);
+      }
+    }
+  }
+
+  private updateDropState(targetItemId: CollectionItemId, position: DropPosition) {
+    if (this.currentDraggedItemIds.size === 0) {
+      return;
+    }
+
+    // Published even when unchanged for this plugin — cheap, and it
+    // re-establishes ownership when another instance's (DOM-nested) row was
+    // hovered in between without this plugin's row ever leaving the stack.
+    liveDropSlot.owner = this;
+    liveDropSlot.itemId = targetItemId;
+    liveDropSlot.position = position;
+
+    // Skip the redundant `onStateChange` when (target, position) is unchanged so a
+    // consumer wiring it to `setState` doesn't re-render the collection ~60x/s within one row.
+    if (targetItemId === this.lastDropTargetItemId && position === this.lastDropPosition) {
+      return;
+    }
+
+    this.lastDropTargetItemId = targetItemId;
+    this.lastDropPosition = position;
+
+    this.config.onStateChange?.({
+      draggedItemIds: this.currentDraggedItemIds,
+      dropTargetItemId: targetItemId,
+      dropPosition: position,
+    });
+    this.hasNonInitialState = true;
+  }
+
+  private handleDrop(location: DragLocationHistory, src: IncomingSourceData<TItem>) {
+    // A collection can mount mid-drag (a panel revealed while dragging): its item
+    // targets register synchronously in ref callbacks, but `connect()`, which
+    // seeds the dragged ids and items, runs in a passive effect. A drop landing
+    // in that gap performs the seed itself from the event's own payload rather
+    // than silently no-op on a target the drop indicator showed as valid.
+    if (this.currentDraggedItemIds.size === 0 && src?.itemIds != null) {
+      this.currentDraggedItemIds = new Set(src.itemIds);
+      this.currentDragItems = src.items ?? [];
+    }
+    const draggedItemIds = this.currentDraggedItemIds;
+    if (draggedItemIds.size === 0) {
+      return;
+    }
+
+    // Recompute target and position from the fresh drop event coordinates
+    // rather than using the last rAF-throttled values, which may be stale.
+    const topDropTarget = location.current.dropTargets[0];
+    // Cast heterogeneous local data to our wire format (see onDrop).
+    const targetData = topDropTarget ? (topDropTarget.payload as DropTargetItemData) : undefined;
+    const targetItemId =
+      targetData?.role === 'item' ? targetData.itemId : this.lastDropTargetItemId;
+    const position =
+      topDropTarget && targetItemId != null
+        ? this.computeDropPosition(
+            topDropTarget.element as HTMLElement,
+            location.current.input,
+            src,
+          )
+        : this.lastDropPosition;
+
+    if (targetItemId == null || position == null) {
+      return;
+    }
+
+    // Snapshot the actions once; the collection can't mutate within this synchronous drop handler.
+    const actions = this.config.getActions();
+
+    if (!actions.hasItem(targetItemId)) {
+      return;
+    }
+
+    // Origin is instance identity, not id membership: two collections routinely
+    // reuse item ids (1..n), so "the destination already knows every dragged id"
+    // reads a foreign drop as internal and runs the move path instead of the
+    // insertion path. Matches `dropCapabilities`, which routes the same way.
+    let committed: boolean;
+    if (src?.sourceInstanceId === this.instanceId) {
+      for (const id of draggedItemIds) {
+        // An internal drop whose rows were removed mid-drag has nothing to move.
+        if (!actions.hasItem(id)) {
+          return;
+        }
+      }
+      committed = this.handleInternalDrop(draggedItemIds, targetItemId, position, actions);
+    } else {
+      committed = this.handleExternalDrop(draggedItemIds, targetItemId, position, actions);
+    }
+    // This collection now owns the moved rows; the origin's `finalFocus` reads
+    // this to find a row it never mounted itself. Claimed only when a handler
+    // actually committed, so a no-op route can't point focus at a collection
+    // that moved nothing.
+    if (committed) {
+      committedDropSlot.owner = this;
+    }
+  }
+
+  /** See {@link CommittedDropOwner}. */
+  getItemElement(itemId: CollectionItemId): HTMLElement | undefined {
+    return this.itemElements.get(itemId);
+  }
+
+  /** Routes an internal drop to the configured move/reorder/item-drop handler. */
+  private handleInternalDrop(
+    draggedItemIds: Set<CollectionItemId>,
+    targetItemId: CollectionItemId,
+    position: DropPosition,
+    actions: TActions,
+  ): boolean {
+    if (this.config.onMove) {
+      this.config.onMove({
+        itemIds: draggedItemIds,
+        target: { itemId: targetItemId, position },
+        actions,
+      });
+      return true;
+    }
+
+    if (position === 'on') {
+      return this.routeItemDrop(draggedItemIds, targetItemId, true, actions);
+    }
+
+    if (this.config.onReorder) {
+      this.config.onReorder({
+        itemIds: draggedItemIds,
+        target: { itemId: targetItemId, position },
+        actions,
+      });
+      return true;
+    }
+    return false;
+  }
+
+  /** Routes a drop landing `on` an item to `onItemDrop`; both drop paths share it. */
+  private routeItemDrop(
+    draggedItemIds: Set<CollectionItemId>,
+    targetItemId: CollectionItemId,
+    isInternal: boolean,
+    actions: TActions,
+  ): boolean {
+    if (!this.config.onItemDrop) {
+      return false;
+    }
+    this.config.onItemDrop({
+      itemIds: draggedItemIds,
+      items: this.currentDragItems,
+      target: { itemId: targetItemId },
+      isInternal,
+      actions,
+    });
+    return true;
+  }
+
+  /** Routes an external drop to the configured insert/item-drop handler. */
+  private handleExternalDrop(
+    draggedItemIds: Set<CollectionItemId>,
+    targetItemId: CollectionItemId,
+    position: DropPosition,
+    actions: TActions,
+  ): boolean {
+    const items = this.currentDragItems;
+
+    if (position === 'on') {
+      return this.routeItemDrop(draggedItemIds, targetItemId, false, actions);
+    }
+
+    if (this.config.onInsert) {
+      this.config.onInsert({
+        itemIds: draggedItemIds,
+        items,
+        target: { itemId: targetItemId, position },
+        actions,
+      });
+      return true;
+    }
+    return false;
+  }
+}
+
+/**
+ * Wires a collection (Tree, Kanban, ListBox…) into the drag engine. Returns a
+ * `DraggableCollectionPlugin` whose `setupItem` / `setupRoot` / `setupScroller`
+ * methods are wired by the collection wrapper to register draggables, drop
+ * targets, and scroll containers per item.
+ */
+export function useDraggableCollection<
+  TItem = unknown,
+  TActions extends CollectionActions<TItem> = CollectionActions<TItem>,
+>(params: UseDraggableCollectionParameters<TItem, TActions>) {
+  if (process.env.NODE_ENV !== 'production') {
+    if (params.onReorder && params.onMove) {
+      // `onMove` subsumes `onReorder` (it also handles the `'on'` position), so the
+      // collection routes internal drops through `onMove` and `onReorder` never
+      // fires — a silent no-op that looks like a bug. Warn (once) instead of guessing.
+      warn(
+        'Base UI: a collection was given both `onReorder` and `onMove`. ' +
+          '`onMove` subsumes `onReorder`, so `onReorder` will never fire. ' +
+          'Provide one or the other.',
+      );
+    }
+  }
+  // `useValueAsRef` stages the latest value and commits it in a layout effect, so
+  // a drag event firing between commit and a passive effect still reads fresh
+  // callbacks (`.next`) rather than stale ones.
+  const configRef = useValueAsRef(params);
+
+  // Accessibility strings come from the nearest `LocalizationProvider`; kept in
+  // a ref so a language change reaches the next drag's announcements without
+  // re-creating the plugin.
+  const translations = useTranslations();
+  const translationsRef = useValueAsRef(translations);
+
+  // The plugin builds its own drag engine from this ref (see its constructor). The
+  // engine is global, so the collection itself needs no provider — but an item
+  // preview with content renders in a `Draggable.PreviewProvider`'s tree, so a
+  // collection that declares one needs it. Staged so a provider change reaches the
+  // next drag without re-creating the plugin.
+  const previewContextRef = useValueAsRef(useDragPreviewContext());
+  const cspContextRef = useValueAsRef(useCSPContext());
+
+  const plugin = useRefWithInit(
+    () =>
+      new DraggableCollectionPlugin<TItem, TActions>(
+        configRef,
+        translationsRef,
+        previewContextRef,
+        cspContextRef,
+      ),
+  );
+
+  React.useEffect(() => {
+    const instance = plugin.current;
+    instance.connect();
+    return () => instance.destroy();
+  }, [plugin]);
+
+  // The items' static a11y setup (gesture styles, `aria-roledescription`,
+  // keyboard instructions) is captured at registration; re-apply it when the
+  // inputs that feed it change — `canDrag` (mapped to `disabled`),
+  // `keyboardActivation`, or the active locale's strings — mirroring
+  // `Draggable.Root`'s reconcile path. `canDrag` and `translations` are commonly
+  // passed inline, so these deps fire on most renders; `refreshItemsA11y`
+  // re-registers only the items whose own setup inputs actually changed.
+  useIsoLayoutEffect(() => {
+    plugin.current.refreshItemsA11y();
+  }, [params.canDrag, params.keyboardActivation, translations, plugin]);
+
+  return plugin.current;
+}
+
+// Local-data shape attached to drop targets via `payload`. `role` discriminates
+// item vs root; a root carries its instance id so cross-instance monitors can route the drop.
+type DropTargetItemData =
+  | (ReorderRowBrand & {
+      role: 'item';
+      itemId: CollectionItemId;
+      // Carried so cross-instance monitors route the drop to the owning
+      // collection. Two same-kind lists can share item ids (1..n), so `itemId`
+      // alone would let a cross-list drop pass both monitors and double-commit.
+      targetInstanceId: number;
+    })
+  | {
+      role: 'root';
+      targetInstanceId: number;
+    };
+
+export interface OnReorderParameters<TActions = unknown> {
+  /**
+   * The ids of the dragged items.
+   */
+  itemIds: Set<CollectionItemId>;
+  /**
+   * The target item and drop position.
+   */
+  target: { itemId: CollectionItemId; position: 'before' | 'after' };
+  /**
+   * The actions provided by the collection wrapper (for example `Tree.DragProvider`).
+   */
+  actions: TActions;
+}
+
+export interface OnMoveParameters<TActions = unknown> {
+  /**
+   * The ids of the dragged items.
+   */
+  itemIds: Set<CollectionItemId>;
+  /**
+   * The target item and drop position.
+   */
+  target: { itemId: CollectionItemId; position: DropPosition };
+  /**
+   * The actions provided by the collection wrapper (for example `Tree.DragProvider`).
+   */
+  actions: TActions;
+}
+
+export interface OnInsertParameters<TItem, TActions = unknown> {
+  /**
+   * The ids of the external items being inserted.
+   */
+  itemIds: Set<CollectionItemId>;
+  /**
+   * The models of the dragged items, resolved from the source collection.
+   */
+  items: TItem[];
+  /**
+   * Where to insert relative to the target.
+   */
+  target: { itemId: CollectionItemId; position: 'before' | 'after' };
+  /**
+   * The actions provided by the collection wrapper (for example `Tree.DragProvider`).
+   */
+  actions: TActions;
+}
+
+export interface OnItemDropParameters<TItem, TActions = unknown> {
+  /**
+   * The ids of the items being dropped.
+   */
+  itemIds: Set<CollectionItemId>;
+  /**
+   * The models of the dragged items, resolved from the source collection.
+   */
+  items: TItem[];
+  /**
+   * The item being dropped onto.
+   */
+  target: { itemId: CollectionItemId };
+  /**
+   * Whether the drag originated within this same collection (`true`) or from
+   * another source (`false`). A reparenting collection can run its internal-move
+   * logic when `true` and its external-import logic when `false`, without
+   * inferring the origin elsewhere.
+   */
+  isInternal: boolean;
+  /**
+   * The actions provided by the collection wrapper (for example `Tree.DragProvider`).
+   */
+  actions: TActions;
+}
+
+export interface OnRootDropParameters<TItem, TActions = unknown> {
+  /**
+   * The ids of the items being dropped on the root.
+   */
+  itemIds: Set<CollectionItemId>;
+  /**
+   * The models of the dragged items, resolved from the source collection.
+   */
+  items: TItem[];
+  /**
+   * The actions provided by the collection wrapper (for example `Tree.DragProvider`).
+   */
+  actions: TActions;
+}
+
+/** Parameters for the collection's `canDrop` predicate. */
+export interface CanDropParameters {
+  /** The ids of the items being dragged. */
+  draggedItemIds: Set<CollectionItemId>;
+  /** The item the drop would land on or beside. */
+  targetItemId: CollectionItemId;
+  /** Where the drop would land relative to `targetItemId`. */
+  position: DropPosition;
+}
+
+export interface OnDragStartParameters<TActions = unknown> {
+  /**
+   * The ids of the items being dragged.
+   */
+  itemIds: Set<CollectionItemId>;
+  /**
+   * The actions provided by the collection wrapper (for example `Tree.DragProvider`).
+   */
+  actions: TActions;
+}
+
+export interface OnDragEndParameters<TItem, TActions = unknown> {
+  /**
+   * The ids of the items that were being dragged.
+   */
+  itemIds: Set<CollectionItemId>;
+  /**
+   * The models of the items that were dragged, resolved from the source collection.
+   */
+  items: TItem[];
+  /**
+   * Whether the drop occurred within the same collection that initiated the drag.
+   */
+  isInternal: boolean;
+  /**
+   * Whether the drag ended without a drop — `true` when it was aborted (Escape,
+   * drop outside the window, or release over no valid target), `false` when an
+   * item was dropped on a valid target.
+   */
+  canceled: boolean;
+  /**
+   * The actions provided by the collection wrapper (for example `Tree.DragProvider`).
+   */
+  actions: TActions;
+}
+
+/**
+ * The drag preview declared by a collection wrapper. Carries the content
+ * (`render`) plus the same placement settings as `Draggable.Preview`
+ * (`offset`, `modifiers`, `disabled`, `container`).
+ */
+export interface CollectionDragPreview<TActions = unknown> extends DragPreviewSettings {
+  /**
+   * Renders the preview content, replacing the default clone of the dragged item.
+   * Return `null` (or `false`) to show no preview for that drag.
+   */
+  render: (parameters: RenderDragPreviewParameters<TActions>) => React.ReactNode;
+}
+
+export interface RenderDragPreviewParameters<TActions = unknown> {
+  /**
+   * The ids of the items being dragged.
+   */
+  itemIds: Set<CollectionItemId>;
+  /**
+   * The id of the specific item the user grabbed to initiate the drag.
+   */
+  draggedItemId: CollectionItemId;
+  /**
+   * The actions provided by the collection wrapper (for example `Tree.DragProvider`).
+   */
+  actions: TActions;
+}
+
+export interface DraggableCollectionState {
+  /**
+   * The items currently being dragged (empty set when not dragging).
+   */
+  draggedItemIds: Set<CollectionItemId>;
+  /**
+   * The item currently hovered as a drop target, or `null`.
+   */
+  dropTargetItemId: CollectionItemId | null;
+  /**
+   * Drop position relative to the target item.
+   */
+  dropPosition: DropPosition | null;
+}
+
+export interface UseDraggableCollectionParameters<
+  TItem = unknown,
+  TActions extends CollectionActions<TItem> = CollectionActions<TItem>,
+> {
+  /**
+   * Called when items are reordered within the same parent.
+   * Only fires for `'before'`/`'after'` positions on siblings.
+   * Mutually exclusive with `onMove`.
+   */
+  onReorder?: ((parameters: OnReorderParameters<TActions>) => void) | undefined;
+  /**
+   * Called when items are moved within the same collection.
+   * Fires for `'before'`, `'after'`, and `'on'` positions.
+   * Subsumes `onReorder` — use one or the other.
+   */
+  onMove?: ((parameters: OnMoveParameters<TActions>) => void) | undefined;
+  /**
+   * Called when external items are dropped between items.
+   * Fires for `'before'`/`'after'` positions from a different source.
+   */
+  onInsert?: ((parameters: OnInsertParameters<TItem, TActions>) => void) | undefined;
+  /**
+   * Called when items are dropped ON an item (the `'on'` position), whether the
+   * drag came from this same collection or from another source — `onItemDrop` is
+   * origin-agnostic, so check the `isInternal` flag on the parameters to tell
+   * them apart. For an internal `'on'` drop `onMove` takes precedence when
+   * defined; otherwise the drop routes here.
+   */
+  onItemDrop?: ((parameters: OnItemDropParameters<TItem, TActions>) => void) | undefined;
+  /**
+   * Called when items are dropped on the collection root (empty area).
+   */
+  onRootDrop?: ((parameters: OnRootDropParameters<TItem, TActions>) => void) | undefined;
+  /**
+   * Whether a given item can be dragged.
+   *
+   * Re-evaluated for every mounted item in a layout effect whenever its identity
+   * changes, so on large non-virtualized collections prefer a referentially
+   * stable (or cheap) callback over an inline closure.
+   * @default () => true
+   */
+  canDrag?: ((itemId: CollectionItemId) => boolean) | undefined;
+  /**
+   * How a keyboard drag is started on an item.
+   *
+   * - `'auto'`: Space or Enter picks the focused item up.
+   * - `'manual'`: Only `useDragEngine().startKeyboardDrag()` picks an item up, freeing
+   *   Space and Enter for another action such as inline editing while items stay
+   *   focusable and announced as draggable.
+   * - `'off'`: Items are only pointer-draggable, and the keyboard-drag screen reader
+   *   hints are omitted.
+   * @default 'auto'
+   */
+  keyboardActivation?: DragKeyboardActivation | undefined;
+  /**
+   * Whether a drop is allowed at a given (target item, position) pair.
+   *
+   * Returning `false` removes this item from the active drop-target stack —
+   * a parent target underneath (for example the collection root, or an outer
+   * collection in nested setups) gets a chance to claim the drop instead.
+   * If you want "reject the drop entirely" semantics, leave `onRootDrop`
+   * unset so the fall-through has nowhere to land.
+   */
+  canDrop?: ((parameters: CanDropParameters) => boolean) | undefined;
+  /**
+   * The drag preview for items of this collection: the content that follows the
+   * pointer and how it is placed. Omit it to clone the dragged item in place (the
+   * engine default). The content renders in a React tree, so the collection
+   * wrapper (for example `Tree.DragProvider`) must render a `DragPreviewContext`
+   * provider around the collection.
+   */
+  dragPreview?: CollectionDragPreview<TActions> | undefined;
+  /**
+   * Called when a drag operation starts.
+   */
+  onDragStart?: ((parameters: OnDragStartParameters<TActions>) => void) | undefined;
+  /**
+   * Called when a drag operation ends (drop or cancel).
+   */
+  onDragEnd?: ((parameters: OnDragEndParameters<TItem, TActions>) => void) | undefined;
+  /**
+   * What items dragged out of this collection are, created with
+   * `Draggable.createKind`. Maps directly to the engine-level `kind` on every source
+   * registered by `setupItem`, which other drop targets and monitors declare in their
+   * `accept`.
+   * @default createKind('base-ui-dnd-item')
+   */
+  kind?: DragKind<DragSourceData<TItem>> | undefined;
+  /**
+   * Which source kinds this collection accepts for drops. Defaults to the
+   * collection's own `kind` (accepts its own items only). Pass a kind, or an array of
+   * them, to allow specific external kinds.
+   */
+  accept?:
+    | DragKind<IncomingSourceData<TItem>>
+    | ReadonlyArray<DragKind<IncomingSourceData<TItem>>>
+    | undefined;
+  /**
+   * The axis along which items are laid out, used to resolve the before/after
+   * drop position from the pointer. Use `'horizontal'` for horizontally-laid-out
+   * sortables (the position is read from `clientX` instead of `clientY`).
+   * @default 'vertical'
+   */
+  orientation?: CollectionOrientation | undefined;
+  /**
+   * Called when the drag-and-drop state changes (drag start, hover, drop,
+   * etc.). Also fires once at mount with the initial empty state so consumers
+   * can synchronise from a known baseline; pass a stable function reference
+   * (or one wrapped in `useStableCallback`) if the initial fire would otherwise
+   * trigger work you don't want repeated on every render.
+   *
+   * During a matching drag that originated in *another* collection instance,
+   * `draggedItemIds` carries the foreign drag's ids (so "N items incoming" UIs
+   * can respond); those ids are only meaningful within their source instance —
+   * don't use them to mark this collection's own rows as dragged.
+   */
+  onStateChange?: ((state: DraggableCollectionState) => void) | undefined;
+  /**
+   * Given a set of selected item IDs being dragged, returns a pruned set
+   * that removes redundant items.
+   * For example, a tree removes descendants when their ancestor is also in the set.
+   * @default Returns the input set unchanged.
+   */
+  pruneDraggedItems?: ((itemIds: Set<CollectionItemId>) => Set<CollectionItemId>) | undefined;
+  /**
+   * Returns whether a drop target should be rejected given the dragged items.
+   * For example, a tree returns `true` if the target is a descendant of any dragged item.
+   * @default () => false
+   */
+  isDropTargetInvalid?:
+    | ((dropTargetItemId: CollectionItemId, draggedItemIds: Set<CollectionItemId>) => boolean)
+    | undefined;
+  /**
+   * Human-readable label for an item, used in keyboard-drag screen-reader
+   * announcements ("Grabbed Buy milk", "Buy milk before Walk dog"). Falls back
+   * to the stringified id.
+   */
+  getItemLabel?: ((itemId: CollectionItemId) => string) | undefined;
+  /**
+   * Override keyboard-drag screen-reader announcements. A supplied callback
+   * fully replaces the collection's label-aware default for that phase (return
+   * `null` to stay silent); omit a callback to keep its default.
+   */
+  keyboardAnnouncements?: DragKeyboardAnnouncements<DragSourceData<TItem>> | undefined;
+  /**
+   * Controls how arrow keys move a keyboard drag of the collection's items,
+   * replacing the engine's default per-press movement. See the draggable
+   * `keyboardMovement` option for the return-value contract.
+   */
+  keyboardMovement?: DragKeyboardMovement<DragSourceData<TItem>> | undefined;
+  /**
+   * Returns the actions object used internally by the plugin to query items
+   * and injected into every callback's parameters.
+   */
+  getActions: () => TActions;
+}
+
+export type UseDraggableCollectionReturnValue = DraggableCollectionPlugin<unknown>;
+
+export namespace useDraggableCollection {
+  export type Parameters<
+    TItem = unknown,
+    TActions extends CollectionActions<TItem> = CollectionActions<TItem>,
+  > = UseDraggableCollectionParameters<TItem, TActions>;
+
+  export type ReturnValue = UseDraggableCollectionReturnValue;
+}

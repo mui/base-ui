@@ -1,0 +1,161 @@
+.Root {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  width: 100%;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .Card[data-drag-preview][data-ending-style] {
+    transition: translate 0.2s cubic-bezier(0.2, 0, 0, 1);
+  }
+}
+
+/*
+ * CSS Modules demos revert Tailwind's preflight with `all: revert-layer`, which
+ * also drops the page's font smoothing and renders text heavier than the
+ * Tailwind variant. Restore it so both variants render text identically.
+ */
+.Root,
+.Root * {
+  font-synthesis: none;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.Board {
+  display: flex;
+  gap: 0.75rem;
+  align-items: flex-start;
+}
+
+.Column {
+  box-sizing: border-box;
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  padding: 0.75rem;
+  border: 1px solid oklch(92.2% 0 0deg);
+  transition:
+    border-color 0.15s,
+    background-color 0.15s;
+
+  @media (prefers-color-scheme: dark) {
+    border-color: oklch(37.1% 0 0deg);
+  }
+
+  /* Highlighted while the placeholder is resolved to this column. */
+  &[data-active] {
+    border-color: oklch(14.5% 0 0deg);
+    background-color: oklch(97% 0 0deg);
+
+    @media (prefers-color-scheme: dark) {
+      border-color: white;
+      background-color: oklch(26.9% 0 0deg);
+    }
+  }
+}
+
+.ColumnHeader {
+  padding: 0 0.25rem 0.625rem;
+  font-size: 0.75rem;
+  line-height: 1rem;
+  font-weight: 600;
+  color: oklch(55.6% 0 0deg);
+
+  @media (prefers-color-scheme: dark) {
+    color: oklch(70.8% 0 0deg);
+  }
+}
+
+.ColumnBody {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  min-height: 2.5rem;
+}
+
+/* An empty ghost card marking where the dropped card will land. */
+.Placeholder {
+  box-sizing: border-box;
+  flex-shrink: 0;
+  border: 1px solid oklch(14.5% 0 0deg);
+  background-color: white;
+  opacity: 0.4;
+  pointer-events: none;
+
+  @media (prefers-color-scheme: dark) {
+    border-color: white;
+    background-color: oklch(14.5% 0 0deg);
+  }
+}
+
+.Card {
+  box-sizing: border-box;
+  padding: 0.5rem 0.625rem;
+  border: 1px solid oklch(14.5% 0 0deg);
+  background-color: white;
+  /* Inherit the page font; CSS Modules demos revert Tailwind's preflight. */
+  font: inherit;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  color: oklch(14.5% 0 0deg);
+  cursor: grab;
+  transition:
+    background-color 0.15s,
+    opacity 0.15s;
+
+  @media (prefers-color-scheme: dark) {
+    border-color: white;
+    background-color: oklch(14.5% 0 0deg);
+    color: white;
+  }
+
+  &:hover {
+    background-color: oklch(97% 0 0deg);
+
+    @media (prefers-color-scheme: dark) {
+      background-color: oklch(26.9% 0 0deg);
+    }
+  }
+
+  &:focus-visible {
+    outline: 2px solid oklch(14.5% 0 0deg);
+    outline-offset: -1px;
+
+    @media (prefers-color-scheme: dark) {
+      outline-color: white;
+    }
+  }
+
+  &[data-dragging] {
+    opacity: 0.4;
+  }
+
+  /* Keep the committed card looking like the placeholder until the clone arrives. */
+  &[data-ending-style]:not([data-drag-preview]) {
+    color: transparent;
+  }
+
+  /* The preview is a clone of the card and keeps its classes. */
+  &[data-drag-preview] {
+    box-shadow: 0.25rem 0.25rem 0 rgb(0 0 0 / 12%);
+
+    @media (prefers-color-scheme: dark) {
+      box-shadow: none;
+    }
+  }
+}
+
+.Empty {
+  padding: 0.25rem;
+  font-size: 0.75rem;
+  line-height: 1rem;
+  color: oklch(55.6% 0 0deg);
+
+  @media (prefers-color-scheme: dark) {
+    color: oklch(70.8% 0 0deg);
+  }
+}

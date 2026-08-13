@@ -1,0 +1,160 @@
+# Accessibility
+
+<Subtitle>Making a drag usable without a pointer and without sight.</Subtitle>
+
+<Meta
+  name="description"
+  content="Accessible drag and drop in Base UI Plus: non-drag alternatives, labeling sources and targets, screen-reader announcements, focus, and localization."
+/>
+
+Every `Draggable.Root` is keyboard-draggable and announced to screen readers out of the box. What remains is mostly naming things, and offering a way through that isn't a drag.
+
+## Provide an alternative to dragging
+
+Keyboard dragging is not a substitute for a non-drag path to the same outcome. Tracking and aiming a moving object can be difficult with motor, cognitive, or speech input. Provide an ordinary control for the same operation.
+
+Give every draggable item an ordinary control that achieves the same result: a "Move to…" menu, "Move up" and "Move down" buttons, or a destination `select` in the item's editor.
+
+```tsx title="A menu next to the drag handle"
+<Draggable.Root label={task.title} kind={taskKind} payload={task.id}>
+  <Draggable.Handle>
+    <Grip />
+  </Draggable.Handle>
+  {task.title}
+  <Menu.Root>
+    <Menu.Trigger aria-label={`Move ${task.title}`}>
+      <Ellipsis />
+    </Menu.Trigger>
+    <Menu.Popup>
+      {columns.map((column) => (
+        <Menu.Item key={column.id} onClick={() => move(task.id, column.id)}>
+          Move to {column.name}
+        </Menu.Item>
+      ))}
+    </Menu.Popup>
+  </Menu.Root>
+</Draggable.Root>
+```
+
+The drag is then a shortcut rather than the only route.
+
+The same menu can host the keyboard drag itself. `useDragEngine().startKeyboardDrag(element)` picks an item up without a key press, so a "Reorder" entry starts the drag from wherever the item's other actions already live — which is how an item keeps <kbd>Space</kbd> for its menu ([`keyboardActivation="manual"`](/react/components/draggable#moving-the-pickup-elsewhere)).
+
+## Name the source and the destination
+
+The default announcements are built from two labels.
+
+- `label` on `Draggable.Root` names the item: "Grabbed Water the plants." Without it the announcement falls back to "item", which makes every row in a list sound the same.
+- `label` on `DropTarget.Root` names the destination: "Water the plants on Done", and "Dropped Water the plants on Done." on release. Without it, moves over that target are silent and the drop announcement omits where the item landed. With nested targets, the innermost labeled one is named.
+
+```tsx title="Both ends named"
+<DropTarget.Root label="Done" accept={taskKind} onDrop={handleDrop}>
+  {tasks.map((task) => (
+    <Draggable.Root key={task.id} label={task.title} kind={taskKind} payload={task.id}>
+      {task.title}
+    </Draggable.Root>
+  ))}
+</DropTarget.Root>
+```
+
+A `Draggable.Handle` renders a button. With direct icon-only children and a labeled root, it names itself `Drag {label}` automatically; visible text keeps its own accessible name. When `render` is a function or a custom component, Base UI cannot inspect the rendered control, so give an icon-only handle an explicit `aria-label` or `aria-labelledby`.
+
+## Keep the source operable
+
+`Draggable.Root` sets `tabIndex={0}` and `role="button"` whenever keyboard dragging is on and no `Draggable.Handle` is attached, since a handle brings its own button. Two consequences:
+
+- **Override the role when the element already has one.** A `listitem`, `row` or `option` should keep its semantics; pass your own `role` and the engine leaves it alone.
+- **Prefer a handle when the source contains interactive children.** A button may not contain another button or a link, so a card with a menu inside it needs a `Draggable.Handle` rather than a draggable root.
+
+[`registerDraggable`](/react/utils/use-drag-engine) does not manage `tabIndex`, so make those elements focusable yourself.
+
+## What gets announced, and when
+
+During a keyboard drag, Base UI announces the pickup, effective moves, the drop, and cancellation. Pointer drags are not announced.
+
+Every effective move is announced, even when the named destination does not change. Return `null` from `keyboardAnnouncements.moved` to skip an announcement.
+
+Override any of them with `keyboardAnnouncements`. Each callback returns the string to announce, or `null` to stay silent:
+
+```tsx title="Announcing the position in the list"
+<Draggable.Root
+  kind={taskKind}
+  payload={task.id}
+  label={task.title}
+  keyboardAnnouncements={{
+    moved: ({ location }) => {
+      const target = location.current.dropTargets[0];
+      return target ? `${task.title} before ${target.label}` : null;
+    },
+    reachedEdge: () => 'No further',
+  }}
+/>
+```
+
+Announce positions rather than indices: "3 of 12" rather than "index 2".
+
+`reachedEdge` is silent by default and fires when a press is refused: the end of a list under [`targetsOnlyKeyboardMovement`](/react/components/draggable#controlling-movement), or a resolver returning `false`. `null` and `undefined` fall through to the default movement; that default only reaches an edge when it cannot move. Without a `reachedEdge` announcement, a refused arrow press is silent.
+
+Two more per-source options cover what is read outside a drag: `ariaRoleDescription` sets `aria-roledescription` ("draggable" by default) on the handle when one is attached, or on the source itself otherwise, and `keyboardInstructions` replaces the instructions announced when the source or handle takes focus.
+
+## Restore focus when the drag ends
+
+When a keyboard drag ends, the default behavior tries to focus its handle, then its source, then the innermost drop target. Pointer drags never move focus. Use `finalFocus` when reordering unmounts the source or focus must move somewhere specific:
+
+```tsx title="Focus the row at its new position"
+<Draggable.Root
+  kind={taskKind}
+  label={task.title}
+  payload={task.id}
+  finalFocus={() => document.querySelector<HTMLElement>(`[data-task-id="${task.id}"]`)}
+/>
+```
+
+Return `true` or `null` from the function for the default behavior, `false` or `undefined` to leave focus where it is, or pass `finalFocus={false}` to opt out entirely.
+
+## Localize the strings
+
+The defaults are English. Provide translated strings once through [`LocalizationProvider`](/react/utils/localization-provider) rather than per source: `dragRoleDescription`, `dragKeyboardInstructions`, `dragHandleLabel`, `dragDefaultItemLabel`, `dragMultipleItemsLabel`, `dragDropPositionPhrase`, and the four `dragAnnouncement*` builders.
+
+```tsx title="Translated drag announcements"
+<LocalizationProvider
+  translations={{
+    dragRoleDescription: 'déplaçable',
+    dragAnnouncementPickedUp: ({ label }) => `${label} saisi.`,
+  }}
+>
+  <Board />
+</LocalizationProvider>
+```
+
+The locale is read where the drag is registered, so the provider has to sit above your draggables, and above the component calling [`useDragEngine`](/react/utils/use-drag-engine#when-each-parameter-is-read) for imperative registrations.
+
+## When the element already owns its keys
+
+Some elements already own the keys a drag would take: a card that opens a menu on <kbd>Space</kbd>, a listbox option where Space selects, a grid column header the grid reorders with the arrows. There, the engine and your handler would fight over the same press. `keyboardActivation` decides who wins:
+
+- `'manual'` takes only the pickup key away from the engine. The element stays focusable and announced as draggable, and you start the drag from your own UI with [`useDragEngine().startKeyboardDrag(element)`](/react/utils/use-drag-engine) — a "Reorder" item in that menu, say. Prefer this: the keyboard path survives.
+- `'off'` takes the whole keyboard away. The hints go too, since they would otherwise promise a path that doesn't exist. Only use it when the element already offers an equivalent keyboard route to the same outcome, or when it is `aria-hidden` decoration beside a control that does.
+
+## Check it
+
+- Tab to a draggable and confirm the instructions are announced.
+- Pick it up, arrow across targets, and confirm each destination is named.
+- Drop, and confirm the result is announced and focus is somewhere sensible.
+- Press Escape mid-drag and confirm the cancel is announced.
+- Do the same move with the pointer path disabled entirely, using only the non-drag alternative.
+
+export const metadata =
+  /** @type {import('@mui/internal-docs-infra/createSitemap/types').NextMetadata} */ ({
+    keywords: [
+      'React Drag and Drop',
+      'Accessible Drag and Drop',
+      'Keyboard Drag',
+      'Screen Reader',
+      'ARIA',
+      'Base UI',
+    ],
+    robots: {
+      index: true,
+    },
+  });

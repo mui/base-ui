@@ -1,0 +1,122 @@
+.List {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  width: 100%;
+  max-width: 22rem;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .Item[data-drag-preview][data-ending-style] {
+    transition: translate 0.2s cubic-bezier(0.2, 0, 0, 1);
+  }
+}
+
+/*
+ * CSS Modules demos revert Tailwind's preflight with `all: revert-layer`, which
+ * also drops the page's font smoothing and renders text heavier than the
+ * Tailwind variant. Restore it so both variants render text identically.
+ */
+.List,
+.List * {
+  font-synthesis: none;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.Item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  box-sizing: border-box;
+  width: 100%;
+  padding: 0.875rem 1rem;
+  border: 1px solid oklch(14.5% 0 0deg);
+  background-color: white;
+  /* Inherit the page font; CSS Modules demos revert Tailwind's preflight. */
+  font: inherit;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  color: oklch(14.5% 0 0deg);
+  cursor: grab;
+  transition: background-color 0.15s;
+
+  /* The engine measures how far a reorder pushed this item and publishes it as
+   * the displacement variables; these two rules are the whole animation. The
+   * starting-style frame holds the item at its old position, and the transition
+   * (gated off that frame, so an interrupted reorder retargets instantly)
+   * carries it to its new slot. Both rules sit behind the reduced-motion guard:
+   * gating only the transition would still paint one frame at the old position. */
+  @media (prefers-reduced-motion: no-preference) {
+    &[data-displacing][data-starting-style] {
+      translate: var(--drag-displacement-x) var(--drag-displacement-y);
+    }
+
+    &[data-displacing]:not([data-starting-style]) {
+      transition:
+        translate 0.2s ease,
+        background-color 0.15s;
+    }
+  }
+
+  @media (prefers-color-scheme: dark) {
+    border-color: white;
+    background-color: oklch(14.5% 0 0deg);
+    color: white;
+  }
+
+  &:hover {
+    background-color: oklch(97% 0 0deg);
+
+    @media (prefers-color-scheme: dark) {
+      background-color: oklch(26.9% 0 0deg);
+    }
+  }
+
+  &:focus-visible {
+    outline: 2px solid oklch(14.5% 0 0deg);
+    outline-offset: -1px;
+
+    @media (prefers-color-scheme: dark) {
+      outline-color: white;
+    }
+  }
+
+  /* Hide the item in its live list slot so an empty gap opens up beneath the drag
+   * preview. The preview is a separate clone that never inherits `data-dragging`, so
+   * it stays fully visible. */
+  &[data-dragging] {
+    opacity: 0;
+  }
+
+  /* The preview is a clone of the item and keeps its classes. Its transition is
+   * cleared while it follows the pointer, then re-enabled for keyboard moves and drop. */
+  &[data-drag-preview] {
+    transition: none;
+    box-shadow: 0.25rem 0.25rem 0 rgb(0 0 0 / 12%);
+
+    @media (prefers-color-scheme: dark) {
+      box-shadow: none;
+    }
+
+    /* A keyboard drag moves the preview between discrete slots one key at a time,
+     * so easing its `translate` glides it there instead of teleporting. */
+    &[data-drag-mode='keyboard'] {
+      transition: translate 0.2s ease;
+    }
+  }
+}
+
+.Grip {
+  flex: none;
+  color: oklch(70.8% 0 0deg);
+
+  @media (prefers-color-scheme: dark) {
+    color: oklch(55.6% 0 0deg);
+  }
+}

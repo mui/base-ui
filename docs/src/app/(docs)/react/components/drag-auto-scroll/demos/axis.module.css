@@ -1,0 +1,121 @@
+.Root {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  width: 100%;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .Stop[data-drag-preview][data-ending-style] {
+    transition: translate 0.2s cubic-bezier(0.2, 0, 0, 1);
+  }
+}
+
+/*
+ * CSS Modules demos revert Tailwind's preflight with `all: revert-layer`, which
+ * also drops the page's font smoothing and renders text heavier than the
+ * Tailwind variant. Restore it so both variants render text identically.
+ */
+.Root,
+.Root * {
+  font-synthesis: none;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.Hint {
+  margin: 0;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  color: oklch(55.6% 0 0deg);
+
+  @media (prefers-color-scheme: dark) {
+    color: oklch(70.8% 0 0deg);
+  }
+}
+
+/* The scroll container the auto-scroller drives. */
+.Lane {
+  box-sizing: border-box;
+  padding: 0.75rem;
+  border: 1px solid oklch(92.2% 0 0deg);
+  overflow-x: auto;
+
+  @media (prefers-color-scheme: dark) {
+    border-color: oklch(37.1% 0 0deg);
+  }
+}
+
+/* Sized to its content so the lane overflows sideways and can scroll. */
+.Track {
+  display: flex;
+  gap: 0.375rem;
+  width: max-content;
+}
+
+.Stop {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  box-sizing: border-box;
+  padding: 0.375rem 0.625rem;
+  border: 1px solid oklch(14.5% 0 0deg);
+  background-color: white;
+  /* Inherit the page font; CSS Modules demos revert Tailwind's preflight. */
+  font: inherit;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  white-space: nowrap;
+  color: oklch(14.5% 0 0deg);
+  cursor: grab;
+  transition:
+    background-color 0.15s,
+    opacity 0.15s;
+
+  @media (prefers-color-scheme: dark) {
+    border-color: white;
+    background-color: oklch(14.5% 0 0deg);
+    color: white;
+  }
+
+  &:hover {
+    background-color: oklch(97% 0 0deg);
+
+    @media (prefers-color-scheme: dark) {
+      background-color: oklch(26.9% 0 0deg);
+    }
+  }
+
+  &:focus-visible {
+    outline: 2px solid oklch(14.5% 0 0deg);
+    outline-offset: -1px;
+
+    @media (prefers-color-scheme: dark) {
+      outline-color: white;
+    }
+  }
+
+  &[data-dragging] {
+    opacity: 0.4;
+  }
+
+  /* The preview is a clone of the stop and keeps its classes. */
+  &[data-drag-preview] {
+    box-shadow: 0.25rem 0.25rem 0 rgb(0 0 0 / 12%);
+
+    @media (prefers-color-scheme: dark) {
+      box-shadow: none;
+    }
+  }
+}
+
+.Grip {
+  flex: none;
+  color: oklch(70.8% 0 0deg);
+
+  @media (prefers-color-scheme: dark) {
+    color: oklch(55.6% 0 0deg);
+  }
+}
