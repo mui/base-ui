@@ -268,7 +268,10 @@ async function generateLlmsTxt() {
       ],
     };
 
-    const createFile = async (filename, pageRenderer) => {
+    const createFile = async (filename, pageRenderer, { formatPages = false } = {}) => {
+      const filePath = path.join(OUTPUT_BASE_DIR, filename);
+      const prettierOptions = await prettier.resolveConfig(filePath);
+
       // Generate sections with shared logic
       const sections = [];
 
@@ -280,9 +283,28 @@ async function generateLlmsTxt() {
         const sectionContent = [`## ${section.title}`, ''];
 
         // Use the page renderer for each page (handle async renderers)
-        for (const page of section.pages) {
-          const renderedPage = await pageRenderer(page);
+        for (const [pageIndex, page] of section.pages.entries()) {
+          let renderedPage = await pageRenderer(page);
+
+          if (formatPages) {
+            renderedPage = await Promise.all(
+              renderedPage.map(async (pageContent) =>
+                (
+                  await prettier.format(pageContent, {
+                    ...prettierOptions,
+                    filepath: filePath,
+                    parser: 'markdown',
+                  })
+                ).trimEnd(),
+              ),
+            );
+          }
+
           sectionContent.push(...renderedPage);
+
+          if (formatPages && pageIndex < section.pages.length - 1) {
+            sectionContent.push('');
+          }
         }
 
         sectionContent.push(''); // Add empty line after section
@@ -291,15 +313,16 @@ async function generateLlmsTxt() {
 
       let content = [...preamble, ...sections].join('\n');
 
-      // Apply prettier formatting
-      const filePath = path.join(OUTPUT_BASE_DIR, filename);
-      const prettierOptions = await prettier.resolveConfig(filePath);
-
-      content = await prettier.format(content, {
-        ...prettierOptions,
-        filepath: filePath,
-        parser: 'markdown',
-      });
+      if (formatPages) {
+        content = `${content.trim()}\n`;
+      } else {
+        // Apply prettier formatting
+        content = await prettier.format(content, {
+          ...prettierOptions,
+          filepath: filePath,
+          parser: 'markdown',
+        });
+      }
 
       await fs.writeFile(filePath, content, 'utf-8');
     };
@@ -307,7 +330,9 @@ async function generateLlmsTxt() {
     // Generate both files in parallel
     await Promise.all([
       createFile('llms.txt', renderPageAsLink),
-      createFile('llms-full.txt', renderPageAsInline),
+      // Format each page separately: formatting the multi-megabyte aggregate in one pass makes
+      // Prettier retain several gigabytes of Markdown AST and document nodes.
+      createFile('llms-full.txt', renderPageAsInline, { formatPages: true }),
       createFile('index.md', renderPageAsRelativeLink),
     ]);
 
