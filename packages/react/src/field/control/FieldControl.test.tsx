@@ -1,4 +1,3 @@
-import * as React from 'react';
 import { expect, vi } from 'vitest';
 import * as React from 'react';
 import { createRenderer, fireEvent, screen } from '@mui/internal-test-utils';
