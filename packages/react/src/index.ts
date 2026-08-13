@@ -19,6 +19,8 @@ export * from './field';
 export * from './fieldset';
 export * from './form';
 export * from './input';
+export * from './locale-enUS';
+export * from './locale-frFR';
 export * from './localization-provider';
 export * from './menu';
 export * from './menubar';
