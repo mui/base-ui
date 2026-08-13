@@ -43,6 +43,12 @@ describe('<Drawer.Viewport />', () => {
     return point;
   }
 
+  function setHeight(element: HTMLElement | null, value: number) {
+    if (element) {
+      Object.defineProperty(element, 'offsetHeight', { configurable: true, value });
+    }
+  }
+
   function createNativeTouchMove(target: EventTarget, point: { clientX: number; clientY: number }) {
     const touchMove = new Event('touchmove', { bubbles: true, cancelable: true });
     Object.defineProperty(touchMove, 'touches', {
@@ -3151,28 +3157,8 @@ describe('<Drawer.Viewport />', () => {
           swipeDirection="down"
         >
           <Drawer.Portal>
-            <Drawer.Viewport
-              data-testid="viewport"
-              ref={(element) => {
-                if (element) {
-                  Object.defineProperty(element, 'offsetHeight', {
-                    configurable: true,
-                    value: 400,
-                  });
-                }
-              }}
-            >
-              <Drawer.Popup
-                data-testid="popup"
-                ref={(element) => {
-                  if (element) {
-                    Object.defineProperty(element, 'offsetHeight', {
-                      configurable: true,
-                      value: 300,
-                    });
-                  }
-                }}
-              >
+            <Drawer.Viewport data-testid="viewport" ref={(element) => setHeight(element, 400)}>
+              <Drawer.Popup data-testid="popup" ref={(element) => setHeight(element, 300)}>
                 Drawer
               </Drawer.Popup>
             </Drawer.Viewport>
@@ -3244,6 +3230,82 @@ describe('<Drawer.Viewport />', () => {
       expect(popup).not.toHaveAttribute('data-swipe-dismiss');
     } finally {
       vi.useRealTimers();
+    }
+  });
+
+  it('clears nested swipe state after an unattributed snap point gesture', async () => {
+    await render(
+      <Drawer.Root open swipeDirection="down">
+        <Drawer.Portal>
+          <Drawer.Viewport>
+            <Drawer.Popup data-testid="parent-popup">
+              <Drawer.Root open snapPoints={['100px', '200px']} swipeDirection="down">
+                <Drawer.Portal>
+                  <Drawer.Viewport
+                    data-testid="child-viewport"
+                    ref={(element) => setHeight(element, 400)}
+                  >
+                    <Drawer.Popup
+                      data-testid="child-popup"
+                      ref={(element) => setHeight(element, 300)}
+                    >
+                      Child
+                    </Drawer.Popup>
+                  </Drawer.Viewport>
+                </Drawer.Portal>
+              </Drawer.Root>
+            </Drawer.Popup>
+          </Drawer.Viewport>
+        </Drawer.Portal>
+      </Drawer.Root>,
+    );
+
+    const parentPopup = screen.getByTestId('parent-popup');
+    const childPopup = screen.getByTestId('child-popup');
+    const childViewport = screen.getByTestId('child-viewport');
+    const originalElementFromPoint = document.elementFromPoint;
+    document.elementFromPoint = () => childPopup;
+
+    try {
+      fireEvent.pointerDown(childViewport, {
+        button: 0,
+        buttons: 1,
+        pointerId: 1,
+        clientX: 100,
+        clientY: 10,
+        pointerType: 'mouse',
+      });
+      fireEvent.pointerMove(childViewport, {
+        buttons: 1,
+        pointerId: 1,
+        clientX: 120,
+        clientY: 12,
+        pointerType: 'mouse',
+      });
+      fireEvent.pointerMove(childViewport, {
+        buttons: 1,
+        pointerId: 1,
+        clientX: 200,
+        clientY: 30,
+        pointerType: 'mouse',
+      });
+      await flushMicrotasks();
+
+      expect(parentPopup).toHaveAttribute('data-nested-drawer-swiping', '');
+      expect(parentPopup.style.getPropertyValue('--drawer-swipe-progress')).not.toBe('0');
+
+      fireEvent.pointerUp(childViewport, {
+        pointerId: 1,
+        clientX: 200,
+        clientY: 30,
+        pointerType: 'mouse',
+      });
+      await flushMicrotasks();
+
+      expect(parentPopup.style.getPropertyValue('--drawer-swipe-progress')).toBe('0');
+      expect(parentPopup).not.toHaveAttribute('data-nested-drawer-swiping');
+    } finally {
+      document.elementFromPoint = originalElementFromPoint;
     }
   });
 

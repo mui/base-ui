@@ -485,6 +485,7 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
       // decision and never calls `onDismiss`, leaving the popup visually dismissed while
       // `open` remains `true`.
       if (!direction) {
+        applySwipeProgress(0, true, true);
         clearSwipeRelease();
         return false;
       }
