@@ -19,10 +19,11 @@ import { useFloatingTree } from '../components/FloatingTree';
 import { FloatingTreeStore } from '../components/FloatingTreeStore';
 import type { ElementProps, FloatingContext, FloatingRootContext } from '../types';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
+import type { FloatingUIOpenChangeDetails } from '../../internals/types';
 import { REASONS } from '../../internals/reasons';
 import { createAttribute } from '../utils/createAttribute';
 import { contains, getTarget, isEventTargetWithin, isRootElement } from '../utils/element';
-import { isReactEvent } from '../utils/event';
+import { isReactEvent, isVirtualClick } from '../utils/event';
 import { getNodeChildren } from '../utils/nodes';
 
 type PressType = 'intentional' | 'sloppy';
@@ -79,7 +80,7 @@ export interface UseDismissProps {
   outsidePress?: boolean | ((event: MouseEvent | TouchEvent) => boolean) | undefined;
   /**
    * The type of event to use to determine an outside "press".
-   * - `intentional` requires the user to click outside intentionally, firing on `pointerup` for mouse, and requiring minimal `touchmove`s for touch.
+   * - `intentional` dismisses on an outside `click` whose press was observed while the floating element was open; a trailing click from a press that began before it opened (such as the drag-release gesture that opened it) is ignored. Touch requires minimal `touchmove`s. Virtual clicks — keyboard and assistive technology activations as well as programmatic `element.click()` — are accepted without a press.
    * - `sloppy` fires on `pointerdown` for mouse, while for touch it fires on `touchend` (within 1 second) or while scrolling away after `touchstart`.
    */
   outsidePressEvent?:
@@ -132,7 +133,7 @@ export function useDismiss(
 
   const open = store.useState('open');
   const floatingElement = store.useState('floatingElement');
-  const { dataRef } = store.context;
+  const { dataRef, events } = store.context;
 
   const tree = useFloatingTree(externalTree);
   const outsidePressFn = useStableCallback(
@@ -148,6 +149,12 @@ export function useDismiss(
   const pressStartPreventedRef = React.useRef(false);
   // Ignore only the very next outside click after dragging from inside to outside.
   const suppressNextOutsideClickRef = React.useRef(false);
+  // Whether a press has started (anywhere) while the floating element was open.
+  // A `click` whose press began before the floating element opened must not count
+  // as an outside press: e.g. when a menu item activated by a press-drag-release
+  // gesture opens a dialog, the browser fires the gesture's click on the common
+  // ancestor of the mousedown and mouseup targets after the dialog is open.
+  const sawPressWhileOpenRef = React.useRef(false);
   const isComposingRef = React.useRef(false);
   const currentPointerTypeRef = React.useRef<PointerEvent['pointerType']>('');
 
@@ -272,8 +279,43 @@ export function useDismiss(
     },
   );
 
+  // A synchronous close+reopen pair (`setOpen(false); setOpen(true)`) never
+  // renders `open === false`, so the effect below cannot observe that session
+  // boundary. Every open change dispatched through the store emits
+  // `openchange` synchronously, including both halves of a same-batch pair,
+  // so the press latch is reset there as well. Controlled `open` flips that
+  // bypass the store entirely are only observable when they render, which the
+  // effect below covers.
+  React.useEffect(() => {
+    function handleOpenChange(details: FloatingUIOpenChangeDetails) {
+      // Only the closing half ends the session. `setOpen` dispatches
+      // `openchange` without comparing against the current state, so an
+      // already-open element can receive a redundant `setOpen(true)` — hovering
+      // an inactive trigger of the same element does exactly that. Resetting on
+      // those would retract a press that is still mid-gesture and drop its
+      // click.
+      if (!details.open) {
+        sawPressWhileOpenRef.current = false;
+      }
+    }
+
+    events.on('openchange', handleOpenChange);
+    return () => {
+      events.off('openchange', handleOpenChange);
+    };
+  }, [events]);
+
   React.useEffect(() => {
     if (!open || !enabled) {
+      // Reset per open session, in the effect body rather than the cleanup: the
+      // cleanup also runs when other dependencies change while the floating
+      // element stays open, which must not erase a press observed during the
+      // current gesture. The ref cannot change while closed (the listeners
+      // below are detached), so resetting on close is equivalent to resetting
+      // on open.
+      if (!open) {
+        sawPressWhileOpenRef.current = false;
+      }
       return clearInsideReactTree;
     }
 
@@ -282,6 +324,7 @@ export function useDismiss(
 
     const compositionTimeout = new Timeout();
     const preventedPressSuppressionTimeout = new Timeout();
+    const doc = ownerDocument(floatingElement);
 
     function handleCompositionStart() {
       compositionTimeout.clear();
@@ -453,13 +496,26 @@ export function useDismiss(
         return;
       }
 
-      // In intentional mode, a press that starts inside and ends outside gets
-      // one suppressed outside click. Run this after inside-target checks so
-      // inside clicks don't consume the one-shot suppression.
-      if (getOutsidePressEvent() === 'intentional' && suppressNextOutsideClickRef.current) {
-        preventedPressSuppressionTimeout.clear();
-        suppressNextOutsideClickRef.current = false;
-        return;
+      // Only `click` events reach this point in intentional mode:
+      // `shouldIgnoreEvent` drops other event types in it, as well as clicks
+      // in sloppy mode.
+      if (getOutsidePressEvent() === 'intentional') {
+        // Only a click whose press began while the floating element was open
+        // counts as an outside press. Virtual clicks — keyboard and assistive
+        // technology activations as well as programmatic `element.click()` —
+        // have no press and are still accepted.
+        if (!isVirtualClick(event as MouseEvent) && !sawPressWhileOpenRef.current) {
+          return;
+        }
+
+        // A press that starts inside and ends outside gets one suppressed
+        // outside click. Run this after inside-target checks so inside clicks
+        // don't consume the one-shot suppression.
+        if (suppressNextOutsideClickRef.current) {
+          preventedPressSuppressionTimeout.clear();
+          suppressNextOutsideClickRef.current = false;
+          return;
+        }
       }
 
       if (typeof outsidePress === 'function' && !outsidePress(event)) {
@@ -541,7 +597,18 @@ export function useDismiss(
     function closeOnPressOutsideCapture(event: PointerEvent | MouseEvent) {
       cancelDismissOnEndTimeout.clear();
 
+      // This handler only receives `click`, `pointerdown`, and `mousedown`.
+      // Only `pointerdown` marks a press: `mousedown` is a compatibility event
+      // that follows `pointerdown`, so if the pointerdown opened the floating
+      // element, attributing its mousedown to the new open session would make
+      // the gesture's trailing click look like a new outside press.
       if (event.type === 'pointerdown') {
+        // Only a primary-button press can produce a `click`; a right- or
+        // middle-button press must not vouch for a later click it did not
+        // generate.
+        if (event.button === 0) {
+          sawPressWhileOpenRef.current = true;
+        }
         currentPointerTypeRef.current = (event as PointerEvent).pointerType;
       }
 
@@ -563,6 +630,14 @@ export function useDismiss(
     }
 
     function handlePressEndCapture(event: PointerEvent | MouseEvent) {
+      // A cancelled gesture produces no click, so its press can no longer
+      // vouch for one; drop it so a later press-less click is not attributed
+      // to it. The latch is not cleared on `pointerup`: the gesture's click
+      // fires after it and must still find the press on record.
+      if (event.type === 'pointercancel') {
+        sawPressWhileOpenRef.current = false;
+      }
+
       if (!pressStartedInsideRef.current) {
         return;
       }
@@ -658,7 +733,6 @@ export function useDismiss(
       addTargetEventListenerOnce(event, handleTouchEnd);
     }
 
-    const doc = ownerDocument(floatingElement);
     const unsubscribe = mergeCleanups(
       escapeKey &&
         mergeCleanups(
