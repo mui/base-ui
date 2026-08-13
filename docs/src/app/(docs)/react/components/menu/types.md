@@ -11,27 +11,24 @@ Doesn't render its own HTML element.
 
 **Root Props:**
 
-| Prop                 | Type                                                                              | Default      | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
-| :------------------- | :-------------------------------------------------------------------------------- | :----------- | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| defaultInputValue    | `string`                                                                          | `''`         | The uncontrolled input value when the menu is initially rendered.&#xA;Only applies to a filterable menu (`FilterMenu`). To render a controlled filter input, use the `inputValue` prop instead.                                                                                                                                                                                                                                                                                                                         |
-| inputValue           | `string`                                                                          | -            | The input value. Use when controlled.&#xA;Only applies to a filterable menu (`FilterMenu`).                                                                                                                                                                                                                                                                                                                                                                                                                             |
-| onInputValueChange   | `((value: string, eventDetails: Menu.Root.InputValueChangeEventDetails) => void)` | -            | Event handler called when the input value changes.&#xA;Only applies to a filterable menu (`FilterMenu`).                                                                                                                                                                                                                                                                                                                                                                                                                |
-| defaultOpen          | `boolean`                                                                         | `false`      | Whether the menu is initially open. To render a controlled menu, use the `open` prop instead.                                                                                                                                                                                                                                                                                                                                                                                                                           |
-| open                 | `boolean`                                                                         | -            | Whether the menu is currently open.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
-| onOpenChange         | `((open: boolean, eventDetails: Menu.Root.ChangeEventDetails) => void)`           | -            | Event handler called when the menu is opened or closed.                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
-| highlightItemOnHover | `boolean`                                                                         | `true`       | Whether moving the pointer over items should highlight them.&#xA;Disabling this prop allows CSS `:hover` to be differentiated from the `:focus` (`data-highlighted`) state.                                                                                                                                                                                                                                                                                                                                             |
-| actionsRef           | `React.RefObject<Menu.Root.Actions \| null>`                                      | -            | A ref to imperative actions. `unmount`: Manually unmounts the menu.&#xA;Call this after any externally controlled closing animation finishes.`close`: When specified, the menu can be closed imperatively.                                                                                                                                                                                                                                                                                                              |
-| closeParentOnEsc     | `boolean`                                                                         | `false`      | When in a submenu, determines whether pressing the Escape key&#xA;closes the entire menu, or only the current child menu.                                                                                                                                                                                                                                                                                                                                                                                               |
-| defaultTriggerId     | `string \| null`                                                                  | -            | ID of the trigger that the menu is associated with.&#xA;This is useful in conjunction with the `defaultOpen` prop to create an initially open menu.                                                                                                                                                                                                                                                                                                                                                                     |
-| filter               | `MenuFilter`                                                                      | -            | Customizes how items match the query. The function receives the item's `label` (falling&#xA;back to its rendered text) and the trimmed query.&#xA;Only a filterable menu (`FilterMenu.Root` or `FilterMenu.SubmenuRoot`) filters.                                                                                                                                                                                                                                                                                       |
-| handle               | `Menu.Handle<Payload>`                                                            | -            | A handle to associate the menu with a trigger.&#xA;If specified, allows external triggers to control the menu's open state.                                                                                                                                                                                                                                                                                                                                                                                             |
-| loopFocus            | `boolean`                                                                         | `true`       | Whether to loop keyboard focus back to the first item&#xA;when the end of the list is reached while using the arrow keys.                                                                                                                                                                                                                                                                                                                                                                                               |
-| modal                | `boolean`                                                                         | `true`       | Determines if the menu enters a modal state when open. `true`: user interaction is limited to the menu: document page scroll is locked and pointer interactions on outside elements are disabled.`false`: user interaction with the rest of the document is allowed. On touch devices, a `true` modal blocks outside taps but leaves the page scrollable unless the popup spans nearly the full viewport width, matching native iOS behavior. Nested menus ignore this prop, and menus opened by hover are never modal. |
-| onOpenChangeComplete | `((open: boolean) => void)`                                                       | -            | Event handler called after any animations complete when the menu is opened or closed.                                                                                                                                                                                                                                                                                                                                                                                                                                   |
-| triggerId            | `string \| null`                                                                  | -            | ID of the trigger that the menu is associated with.&#xA;This is useful in conjunction with the `open` prop to create a controlled menu.&#xA;There's no need to specify this prop when the menu is uncontrolled (that is, when the `open` prop is not set).                                                                                                                                                                                                                                                              |
-| disabled             | `boolean`                                                                         | `false`      | Whether the component should ignore user interaction.                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
-| orientation          | `Menu.Root.Orientation`                                                           | `'vertical'` | The visual orientation of the menu.&#xA;Controls whether roving focus uses up/down or left/right arrow keys.                                                                                                                                                                                                                                                                                                                                                                                                            |
-| children             | `React.ReactNode \| PayloadChildRenderFunction<Payload>`                          | -            | The content of the menu.&#xA;This can be a regular React node or a render function that receives the `payload` of the active trigger.                                                                                                                                                                                                                                                                                                                                                                                   |
+| Prop                 | Type                                                                    | Default      | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
+| :------------------- | :---------------------------------------------------------------------- | :----------- | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| defaultOpen          | `boolean`                                                               | `false`      | Whether the menu is initially open. To render a controlled menu, use the `open` prop instead.                                                                                                                                                                                                                                                                                                                                                                                                                           |
+| open                 | `boolean`                                                               | -            | Whether the menu is currently open.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
+| onOpenChange         | `((open: boolean, eventDetails: Menu.Root.ChangeEventDetails) => void)` | -            | Event handler called when the menu is opened or closed.                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
+| highlightItemOnHover | `boolean`                                                               | `true`       | Whether moving the pointer over items should highlight them.&#xA;Disabling this prop allows CSS `:hover` to be differentiated from the `:focus` (`data-highlighted`) state.                                                                                                                                                                                                                                                                                                                                             |
+| actionsRef           | `React.RefObject<Menu.Root.Actions \| null>`                            | -            | A ref to imperative actions. `unmount`: Manually unmounts the menu.&#xA;Call this after any externally controlled closing animation finishes.`close`: When specified, the menu can be closed imperatively.                                                                                                                                                                                                                                                                                                              |
+| closeParentOnEsc     | `boolean`                                                               | `false`      | When in a submenu, determines whether pressing the Escape key&#xA;closes the entire menu, or only the current child menu.                                                                                                                                                                                                                                                                                                                                                                                               |
+| defaultTriggerId     | `string \| null`                                                        | -            | ID of the trigger that the menu is associated with.&#xA;This is useful in conjunction with the `defaultOpen` prop to create an initially open menu.                                                                                                                                                                                                                                                                                                                                                                     |
+| handle               | `Menu.Handle<Payload>`                                                  | -            | A handle to associate the menu with a trigger.&#xA;If specified, allows external triggers to control the menu's open state.                                                                                                                                                                                                                                                                                                                                                                                             |
+| isSubmenu            | `boolean`                                                               | -            | -                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
+| loopFocus            | `boolean`                                                               | `true`       | Whether to loop keyboard focus back to the first item&#xA;when the end of the list is reached while using the arrow keys.                                                                                                                                                                                                                                                                                                                                                                                               |
+| modal                | `boolean`                                                               | `true`       | Determines if the menu enters a modal state when open. `true`: user interaction is limited to the menu: document page scroll is locked and pointer interactions on outside elements are disabled.`false`: user interaction with the rest of the document is allowed. On touch devices, a `true` modal blocks outside taps but leaves the page scrollable unless the popup spans nearly the full viewport width, matching native iOS behavior. Nested menus ignore this prop, and menus opened by hover are never modal. |
+| onOpenChangeComplete | `((open: boolean) => void)`                                             | -            | Event handler called after any animations complete when the menu is opened or closed.                                                                                                                                                                                                                                                                                                                                                                                                                                   |
+| triggerId            | `string \| null`                                                        | -            | ID of the trigger that the menu is associated with.&#xA;This is useful in conjunction with the `open` prop to create a controlled menu.&#xA;There's no need to specify this prop when the menu is uncontrolled (that is, when the `open` prop is not set).                                                                                                                                                                                                                                                              |
+| disabled             | `boolean`                                                               | `false`      | Whether the component should ignore user interaction.                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
+| orientation          | `Menu.Root.Orientation`                                                 | `'vertical'` | The visual orientation of the menu.&#xA;Controls whether roving focus uses up/down or left/right arrow keys.                                                                                                                                                                                                                                                                                                                                                                                                            |
+| children             | `React.ReactNode \| PayloadChildRenderFunction<Payload>`                | -            | The content of the menu.&#xA;This can be a regular React node or a render function that receives the `payload` of the active trigger.                                                                                                                                                                                                                                                                                                                                                                                   |
 
 ### Root.Props
 
@@ -106,38 +103,6 @@ type MenuRootChangeEventDetails = (
 type MenuRootOrientation = 'horizontal' | 'vertical';
 ```
 
-### Root.InputValueChangeEventDetails
-
-```typescript
-type MenuRootInputValueChangeEventDetails = (
-  | { reason: 'clear-press'; event: KeyboardEvent | MouseEvent | PointerEvent }
-  | { reason: 'input-change'; event: Event | InputEvent }
-  | { reason: 'input-clear'; event: Event | FocusEvent | InputEvent }
-  | { reason: 'popup-close'; event: Event }
-) & {
-  /** Cancels Base UI from handling the event. */
-  cancel: () => void;
-  /** Allows the event to propagate in cases where Base UI will stop the propagation. */
-  allowPropagation: () => void;
-  /** Indicates whether the event has been canceled. */
-  isCanceled: boolean;
-  /** Indicates whether the event is allowed to propagate. */
-  isPropagationAllowed: boolean;
-  /** The element that triggered the event, if applicable. */
-  trigger: Element | undefined;
-};
-```
-
-### Root.InputValueChangeEventReason
-
-```typescript
-type MenuRootInputValueChangeEventReason =
-  | 'input-change'
-  | 'input-clear'
-  | 'clear-press'
-  | 'popup-close';
-```
-
 ### Trigger
 
 A button that opens the menu.
@@ -179,88 +144,6 @@ type MenuTriggerState = {
   /** Whether the trigger is disabled. */
   disabled: boolean;
 };
-```
-
-### Input
-
-A text input used to filter the menu items.
-Renders an `<input>` element.
-
-**Input Props:**
-
-| Prop      | Type                                                                                     | Default | Description                                                                                                                                                                                   |
-| :-------- | :--------------------------------------------------------------------------------------- | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| className | `string \| ((state: Menu.Input.State) => string \| undefined)`                           | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
-| style     | `React.CSSProperties \| ((state: Menu.Input.State) => React.CSSProperties \| undefined)` | -       | Style applied to the element, or a function that&#xA;returns a style object based on the component's state.                                                                                   |
-| render    | `ReactElement \| ((props: HTMLProps, state: Menu.Input.State) => ReactElement)`          | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
-
-**Input Data Attributes:**
-
-| Attribute          | Type | Description                                                            |
-| :----------------- | :--- | :--------------------------------------------------------------------- |
-| data-focus-visible | -    | Present when the input receives virtual focus via keyboard navigation. |
-
-### Input.Props
-
-Re-export of [Input](#input) props.
-
-### Input.State
-
-```typescript
-type MenuInputState = {};
-```
-
-### Clear
-
-Clears the filter input value.
-Renders a `<button>` element.
-
-**Clear Props:**
-
-| Prop         | Type                                                                                     | Default | Description                                                                                                                                                                                   |
-| :----------- | :--------------------------------------------------------------------------------------- | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| nativeButton | `boolean`                                                                                | `true`  | Whether the component renders a native `<button>` element when replacing it&#xA;via the `render` prop.&#xA;Set to `false` if the rendered element is not a button (for example, `<div>`).     |
-| disabled     | `boolean`                                                                                | `false` | Whether the component should ignore user interaction.                                                                                                                                         |
-| className    | `string \| ((state: Menu.Clear.State) => string \| undefined)`                           | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
-| style        | `React.CSSProperties \| ((state: Menu.Clear.State) => React.CSSProperties \| undefined)` | -       | Style applied to the element, or a function that&#xA;returns a style object based on the component's state.                                                                                   |
-| render       | `ReactElement \| ((props: HTMLProps, state: Menu.Clear.State) => ReactElement)`          | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
-
-### Clear.Props
-
-Re-export of [Clear](#clear) props.
-
-### Clear.State
-
-```typescript
-type MenuClearState = {
-  /** Whether the component should ignore user interaction. */
-  disabled: boolean;
-  /** Whether the clear button is visible. */
-  visible: boolean;
-};
-```
-
-### List
-
-A container for the menu items.
-Renders a `<div>` element.
-
-**List Props:**
-
-| Prop      | Type                                                                                    | Default | Description                                                                                                                                                                                   |
-| :-------- | :-------------------------------------------------------------------------------------- | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| className | `string \| ((state: Menu.List.State) => string \| undefined)`                           | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
-| style     | `React.CSSProperties \| ((state: Menu.List.State) => React.CSSProperties \| undefined)` | -       | Style applied to the element, or a function that&#xA;returns a style object based on the component's state.                                                                                   |
-| render    | `ReactElement \| ((props: HTMLProps, state: Menu.List.State) => ReactElement)`          | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
-
-### List.Props
-
-Re-export of [List](#list) props.
-
-### List.State
-
-```typescript
-type MenuListState = {};
 ```
 
 ### Portal
@@ -529,10 +412,9 @@ Renders a `<div>` element.
 
 | Prop         | Type                                                                                    | Default | Description                                                                                                                                                                                   |
 | :----------- | :-------------------------------------------------------------------------------------- | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| label        | `string`                                                                                | -       | Overrides the text label to use when the item is matched during keyboard text navigation,&#xA;and when filtering.                                                                             |
+| label        | `string`                                                                                | -       | Overrides the text label to use when the item is matched during keyboard text navigation.                                                                                                     |
 | onClick      | `((event: BaseUIEvent<React.MouseEvent<HTMLDivElement, MouseEvent>>) => void)`          | -       | The click handler for the menu item.                                                                                                                                                          |
 | closeOnClick | `boolean`                                                                               | `true`  | Whether to close the menu when the item is clicked.                                                                                                                                           |
-| keywords     | `string[]`                                                                              | -       | Additional terms the item matches on when filtering, beyond its label.                                                                                                                        |
 | nativeButton | `boolean`                                                                               | `false` | Whether the component renders a native `<button>` element when replacing it&#xA;via the `render` prop.&#xA;Set to `true` if the rendered element is a native button.                          |
 | disabled     | `boolean`                                                                               | `false` | Whether the component should ignore user interaction.                                                                                                                                         |
 | className    | `string \| ((state: Menu.Item.State) => string \| undefined)`                           | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
@@ -685,29 +567,6 @@ type MenuSeparatorState = {
 };
 ```
 
-### Empty
-
-Displays when no items match the current filter.
-Renders a `<div>` element.
-
-**Empty Props:**
-
-| Prop      | Type                                                                                     | Default | Description                                                                                                                                                                                   |
-| :-------- | :--------------------------------------------------------------------------------------- | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| className | `string \| ((state: Menu.Empty.State) => string \| undefined)`                           | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
-| style     | `React.CSSProperties \| ((state: Menu.Empty.State) => React.CSSProperties \| undefined)` | -       | Style applied to the element, or a function that&#xA;returns a style object based on the component's state.                                                                                   |
-| render    | `ReactElement \| ((props: HTMLProps, state: Menu.Empty.State) => ReactElement)`          | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
-
-### Empty.Props
-
-Re-export of [Empty](#empty) props.
-
-### Empty.State
-
-```typescript
-type MenuEmptyState = {};
-```
-
 ### SubmenuRoot
 
 Groups all parts of a submenu.
@@ -715,23 +574,19 @@ Doesn't render its own HTML element.
 
 **SubmenuRoot Props:**
 
-| Prop                 | Type                                                                              | Default      | Description                                                                                                                                                                                                                       |
-| :------------------- | :-------------------------------------------------------------------------------- | :----------- | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| defaultInputValue    | `string`                                                                          | `''`         | The uncontrolled input value when the menu is initially rendered.&#xA;Only applies to a filterable menu (`FilterMenu`). To render a controlled filter input, use the `inputValue` prop instead.                                   |
-| inputValue           | `string`                                                                          | -            | The input value. Use when controlled.&#xA;Only applies to a filterable menu (`FilterMenu`).                                                                                                                                       |
-| onInputValueChange   | `((value: string, eventDetails: Menu.Root.InputValueChangeEventDetails) => void)` | -            | Event handler called when the input value changes.&#xA;Only applies to a filterable menu (`FilterMenu`).                                                                                                                          |
-| defaultOpen          | `boolean`                                                                         | `false`      | Whether the menu is initially open. To render a controlled menu, use the `open` prop instead.                                                                                                                                     |
-| open                 | `boolean`                                                                         | -            | Whether the menu is currently open.                                                                                                                                                                                               |
-| onOpenChange         | `((open: boolean, eventDetails: Menu.SubmenuRoot.ChangeEventDetails) => void)`    | -            | Event handler called when the menu is opened or closed.                                                                                                                                                                           |
-| highlightItemOnHover | `boolean`                                                                         | `true`       | Whether moving the pointer over items should highlight them.&#xA;Disabling this prop allows CSS `:hover` to be differentiated from the `:focus` (`data-highlighted`) state.                                                       |
-| actionsRef           | `React.RefObject<Menu.Root.Actions \| null>`                                      | -            | A ref to imperative actions. `unmount`: Manually unmounts the menu.&#xA;Call this after any externally controlled closing animation finishes.`close`: When specified, the menu can be closed imperatively.                        |
-| closeParentOnEsc     | `boolean`                                                                         | `false`      | When in a submenu, determines whether pressing the Escape key&#xA;closes the entire menu, or only the current child menu.                                                                                                         |
-| filter               | `MenuFilter`                                                                      | -            | Customizes how items match the query. The function receives the item's `label` (falling&#xA;back to its rendered text) and the trimmed query.&#xA;Only a filterable menu (`FilterMenu.Root` or `FilterMenu.SubmenuRoot`) filters. |
-| loopFocus            | `boolean`                                                                         | `true`       | Whether to loop keyboard focus back to the first item&#xA;when the end of the list is reached while using the arrow keys.                                                                                                         |
-| onOpenChangeComplete | `((open: boolean) => void)`                                                       | -            | Event handler called after any animations complete when the menu is opened or closed.                                                                                                                                             |
-| disabled             | `boolean`                                                                         | `false`      | Whether the component should ignore user interaction.                                                                                                                                                                             |
-| orientation          | `Menu.Root.Orientation`                                                           | `'vertical'` | The visual orientation of the menu.&#xA;Controls whether roving focus uses up/down or left/right arrow keys.                                                                                                                      |
-| children             | `React.ReactNode`                                                                 | -            | The content of the submenu.                                                                                                                                                                                                       |
+| Prop                 | Type                                                                           | Default      | Description                                                                                                                                                                                                |
+| :------------------- | :----------------------------------------------------------------------------- | :----------- | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| defaultOpen          | `boolean`                                                                      | `false`      | Whether the menu is initially open. To render a controlled menu, use the `open` prop instead.                                                                                                              |
+| open                 | `boolean`                                                                      | -            | Whether the menu is currently open.                                                                                                                                                                        |
+| onOpenChange         | `((open: boolean, eventDetails: Menu.SubmenuRoot.ChangeEventDetails) => void)` | -            | Event handler called when the menu is opened or closed.                                                                                                                                                    |
+| highlightItemOnHover | `boolean`                                                                      | `true`       | Whether moving the pointer over items should highlight them.&#xA;Disabling this prop allows CSS `:hover` to be differentiated from the `:focus` (`data-highlighted`) state.                                |
+| actionsRef           | `React.RefObject<Menu.Root.Actions \| null>`                                   | -            | A ref to imperative actions. `unmount`: Manually unmounts the menu.&#xA;Call this after any externally controlled closing animation finishes.`close`: When specified, the menu can be closed imperatively. |
+| closeParentOnEsc     | `boolean`                                                                      | `false`      | When in a submenu, determines whether pressing the Escape key&#xA;closes the entire menu, or only the current child menu.                                                                                  |
+| loopFocus            | `boolean`                                                                      | `true`       | Whether to loop keyboard focus back to the first item&#xA;when the end of the list is reached while using the arrow keys.                                                                                  |
+| onOpenChangeComplete | `((open: boolean) => void)`                                                    | -            | Event handler called after any animations complete when the menu is opened or closed.                                                                                                                      |
+| disabled             | `boolean`                                                                      | `false`      | Whether the component should ignore user interaction.                                                                                                                                                      |
+| orientation          | `Menu.Root.Orientation`                                                        | `'vertical'` | The visual orientation of the menu.&#xA;Controls whether roving focus uses up/down or left/right arrow keys.                                                                                               |
+| children             | `React.ReactNode`                                                              | -            | The content of the submenu.                                                                                                                                                                                |
 
 ### SubmenuRoot.Props
 
@@ -803,9 +658,8 @@ Renders a `<div>` element.
 
 | Prop         | Type                                                                                              | Default | Description                                                                                                                                                                                   |
 | :----------- | :------------------------------------------------------------------------------------------------ | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| label        | `string`                                                                                          | -       | Overrides the text label to use when the item is matched during keyboard text navigation,&#xA;and when filtering.                                                                             |
+| label        | `string`                                                                                          | -       | Overrides the text label to use when the item is matched during keyboard text navigation.                                                                                                     |
 | onClick      | `((event: BaseUIEvent<React.MouseEvent<HTMLDivElement, MouseEvent>>) => void)`                    | -       | -                                                                                                                                                                                             |
-| keywords     | `string[]`                                                                                        | -       | Additional terms the item matches on when filtering, beyond its label.                                                                                                                        |
 | nativeButton | `boolean`                                                                                         | `false` | Whether the component renders a native `<button>` element when replacing it&#xA;via the `render` prop.&#xA;Set to `true` if the rendered element is a native button.                          |
 | disabled     | `boolean`                                                                                         | `false` | Whether the component should ignore user interaction.                                                                                                                                         |
 | openOnHover  | `boolean`                                                                                         | -       | Whether the menu should also open when the trigger is hovered.                                                                                                                                |
@@ -935,7 +789,6 @@ Renders a `<div>` element.
 | value\*      | `any`                                                                                        | -       | Value of the radio item.&#xA;This is the value that will be set in the Menu.RadioGroup when the item is selected.                                                                             |
 | onClick      | `((event: BaseUIEvent<React.MouseEvent<HTMLDivElement, MouseEvent>>) => void)`               | -       | The click handler for the menu item.                                                                                                                                                          |
 | closeOnClick | `boolean`                                                                                    | `false` | Whether to close the menu when the item is clicked.                                                                                                                                           |
-| keywords     | `string[]`                                                                                   | -       | Additional terms the item matches on when filtering, beyond its label.                                                                                                                        |
 | nativeButton | `boolean`                                                                                    | `false` | Whether the component renders a native `<button>` element when replacing it&#xA;via the `render` prop.&#xA;Set to `true` if the rendered element is a native button.                          |
 | disabled     | `boolean`                                                                                    | `false` | Whether the component should ignore user interaction.                                                                                                                                         |
 | className    | `string \| ((state: Menu.RadioItem.State) => string \| undefined)`                           | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
@@ -1026,7 +879,6 @@ Renders a `<div>` element.
 | onCheckedChange | `((checked: boolean, eventDetails: Menu.CheckboxItem.ChangeEventDetails) => void)`              | -       | Event handler called when the checkbox item is ticked or unticked.                                                                                                                            |
 | onClick         | `((event: BaseUIEvent<React.MouseEvent<HTMLDivElement, MouseEvent>>) => void)`                  | -       | The click handler for the menu item.                                                                                                                                                          |
 | closeOnClick    | `boolean`                                                                                       | `false` | Whether to close the menu when the item is clicked.                                                                                                                                           |
-| keywords        | `string[]`                                                                                      | -       | Additional terms the item matches on when filtering, beyond its label.                                                                                                                        |
 | nativeButton    | `boolean`                                                                                       | `false` | Whether the component renders a native `<button>` element when replacing it&#xA;via the `render` prop.&#xA;Set to `true` if the rendered element is a native button.                          |
 | disabled        | `boolean`                                                                                       | `false` | Whether the component should ignore user interaction.                                                                                                                                         |
 | className       | `string \| ((state: Menu.CheckboxItem.State) => string \| undefined)`                           | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
@@ -1207,7 +1059,6 @@ Renders an `<a>` element.
 | :----------- | :----------------------------------------------------------------------------------------------------------------------------------------------------------------- | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | label        | `string`                                                                                                                                                           | -       | Overrides the text label to use when the item is matched during keyboard text navigation.                                                                                                     |
 | closeOnClick | `boolean`                                                                                                                                                          | `false` | Whether to close the menu when the item is clicked.                                                                                                                                           |
-| keywords     | `string[]`                                                                                                                                                         | -       | Additional terms the item matches on when filtering, beyond its label.                                                                                                                        |
 | className    | `string \| ((state: Menu.LinkItem.State) => string \| undefined)`                                                                                                  | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
 | style        | `React.CSSProperties \| ((state: Menu.LinkItem.State) => React.CSSProperties \| undefined)`                                                                        | -       | Style applied to the element, or a function that&#xA;returns a style object based on the component's state.                                                                                   |
 | render       | `ReactElement \| ((props: React.DetailedHTMLProps<React.AnchorHTMLAttributes<HTMLAnchorElement>, HTMLAnchorElement>, state: Menu.LinkItem.State) => ReactElement)` | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
@@ -1229,21 +1080,6 @@ type MenuLinkItemState = {
   /** Whether the item is highlighted. */
   highlighted: boolean;
 };
-```
-
-### MenuFilter
-
-**Parameters:**
-
-| Parameter | Type     | Default | Description |
-| :-------- | :------- | :------ | :---------- |
-| itemText  | `string` | -       | -           |
-| query     | `string` | -       | -           |
-
-**Return Value:**
-
-```tsx
-type ReturnValue = boolean;
 ```
 
 ## Additional Types
@@ -1310,19 +1146,15 @@ type PayloadChildRenderFunction = (arg: { payload: unknown | undefined }) => Rea
 - `Menu.CheckboxItemIndicator`: `Menu.CheckboxItemIndicator`, `Menu.CheckboxItemIndicator.Props`, `Menu.CheckboxItemIndicator.State`
 - `Menu.Group`: `Menu.Group`, `Menu.Group.Props`, `Menu.Group.State`
 - `Menu.GroupLabel`: `Menu.GroupLabel`, `Menu.GroupLabel.Props`, `Menu.GroupLabel.State`
-- `Menu.Input`: `Menu.Input`, `Menu.Input.State`, `Menu.Input.Props`
-- `Menu.Clear`: `Menu.Clear`, `Menu.Clear.State`, `Menu.Clear.Props`
-- `Menu.Empty`: `Menu.Empty`, `Menu.Empty.State`, `Menu.Empty.Props`
 - `Menu.Item`: `Menu.Item`, `Menu.Item.State`, `Menu.Item.Props`
 - `Menu.LinkItem`: `Menu.LinkItem`, `Menu.LinkItem.State`, `Menu.LinkItem.Props`
-- `Menu.List`: `Menu.List`, `Menu.List.State`, `Menu.List.Props`
 - `Menu.Popup`: `Menu.Popup`, `Menu.Popup.Props`, `Menu.Popup.State`
 - `Menu.Portal`: `Menu.Portal`, `Menu.Portal.State`, `Menu.Portal.Props`
 - `Menu.Positioner`: `Menu.Positioner`, `Menu.Positioner.State`, `Menu.Positioner.Props`
 - `Menu.RadioGroup`: `Menu.RadioGroup`, `Menu.RadioGroup.Props`, `Menu.RadioGroup.State`, `Menu.RadioGroup.ChangeEventReason`, `Menu.RadioGroup.ChangeEventDetails`
 - `Menu.RadioItem`: `Menu.RadioItem`, `Menu.RadioItem.State`, `Menu.RadioItem.Props`
 - `Menu.RadioItemIndicator`: `Menu.RadioItemIndicator`, `Menu.RadioItemIndicator.Props`, `Menu.RadioItemIndicator.State`
-- `Menu.Root`: `Menu.Root`, `Menu.Root.State`, `Menu.Root.Props`, `Menu.Root.Actions`, `Menu.Root.ChangeEventReason`, `Menu.Root.ChangeEventDetails`, `Menu.Root.InputValueChangeEventReason`, `Menu.Root.InputValueChangeEventDetails`, `Menu.Root.Orientation`
+- `Menu.Root`: `Menu.Root`, `Menu.Root.State`, `Menu.Root.Props`, `Menu.Root.Actions`, `Menu.Root.ChangeEventReason`, `Menu.Root.ChangeEventDetails`, `Menu.Root.Orientation`
 - `Menu.SubmenuRoot`: `Menu.SubmenuRoot`, `Menu.SubmenuRoot.Props`, `Menu.SubmenuRoot.State`, `Menu.SubmenuRoot.ChangeEventReason`, `Menu.SubmenuRoot.ChangeEventDetails`
 - `Menu.Trigger`: `Menu.Trigger`, `Menu.Trigger.Props`, `Menu.Trigger.State`
 - `Menu.Viewport`: `Menu.Viewport`, `Menu.Viewport.Props`, `Menu.Viewport.State`
@@ -1330,7 +1162,7 @@ type PayloadChildRenderFunction = (arg: { payload: unknown | undefined }) => Rea
 - `Menu.SubmenuTrigger`: `Menu.SubmenuTrigger`, `Menu.SubmenuTrigger.Props`, `Menu.SubmenuTrigger.State`
 - `Menu.Handle`
 - `Menu.createHandle`
-- `Default`: `MenuRootState`, `MenuFilter`, `MenuRootProps`, `MenuRootActions`, `MenuRootChangeEventReason`, `MenuRootChangeEventDetails`, `MenuRootInputValueChangeEventReason`, `MenuRootInputValueChangeEventDetails`, `MenuRootOrientation`, `MenuParent`, `MenuArrowState`, `MenuArrowProps`, `MenuBackdropState`, `MenuBackdropProps`, `MenuCheckboxItemState`, `MenuCheckboxItemProps`, `MenuCheckboxItemChangeEventReason`, `MenuCheckboxItemChangeEventDetails`, `MenuCheckboxItemIndicatorProps`, `MenuCheckboxItemIndicatorState`, `MenuGroupLabelProps`, `MenuGroupLabelState`, `MenuGroupProps`, `MenuGroupState`, `MenuInputState`, `MenuInputProps`, `MenuClearState`, `MenuClearProps`, `MenuEmptyState`, `MenuEmptyProps`, `MenuItemState`, `MenuItemProps`, `MenuLinkItemState`, `MenuLinkItemProps`, `MenuListState`, `MenuListProps`, `MenuPopupProps`, `MenuPopupState`, `MenuPortalState`, `MenuPortalProps`, `MenuPositionerState`, `MenuPositionerProps`, `MenuRadioGroupProps`, `MenuRadioGroupState`, `MenuRadioGroupChangeEventReason`, `MenuRadioGroupChangeEventDetails`, `MenuRadioItemState`, `MenuRadioItemProps`, `MenuRadioItemIndicatorProps`, `MenuRadioItemIndicatorState`, `MenuSubmenuRootProps`, `MenuSubmenuRootState`, `MenuSubmenuRootChangeEventReason`, `MenuSubmenuRootChangeEventDetails`, `MenuTriggerProps`, `MenuTriggerState`, `MenuSubmenuTriggerState`, `MenuSubmenuTriggerProps`, `MenuViewportState`, `MenuViewportProps`
+- `Default`: `MenuRootState`, `MenuRootProps`, `MenuRootActions`, `MenuRootChangeEventReason`, `MenuRootChangeEventDetails`, `MenuRootOrientation`, `MenuParent`, `MenuArrowState`, `MenuArrowProps`, `MenuBackdropState`, `MenuBackdropProps`, `MenuCheckboxItemState`, `MenuCheckboxItemProps`, `MenuCheckboxItemChangeEventReason`, `MenuCheckboxItemChangeEventDetails`, `MenuCheckboxItemIndicatorProps`, `MenuCheckboxItemIndicatorState`, `MenuGroupLabelProps`, `MenuGroupLabelState`, `MenuGroupProps`, `MenuGroupState`, `MenuItemState`, `MenuItemProps`, `MenuLinkItemState`, `MenuLinkItemProps`, `MenuPopupProps`, `MenuPopupState`, `MenuPortalState`, `MenuPortalProps`, `MenuPositionerState`, `MenuPositionerProps`, `MenuRadioGroupProps`, `MenuRadioGroupState`, `MenuRadioGroupChangeEventReason`, `MenuRadioGroupChangeEventDetails`, `MenuRadioItemState`, `MenuRadioItemProps`, `MenuRadioItemIndicatorProps`, `MenuRadioItemIndicatorState`, `MenuSubmenuRootProps`, `MenuSubmenuRootState`, `MenuSubmenuRootChangeEventReason`, `MenuSubmenuRootChangeEventDetails`, `MenuTriggerProps`, `MenuTriggerState`, `MenuSubmenuTriggerState`, `MenuSubmenuTriggerProps`, `MenuViewportState`, `MenuViewportProps`
 
 ## Canonical Types
 
@@ -1350,18 +1182,10 @@ Maps `Canonical`: `Alias` — Use Canonical when its namespace is already import
 - `Menu.Group.State`: `MenuGroupState`
 - `Menu.GroupLabel.Props`: `MenuGroupLabelProps`
 - `Menu.GroupLabel.State`: `MenuGroupLabelState`
-- `Menu.Input.State`: `MenuInputState`
-- `Menu.Input.Props`: `MenuInputProps`
-- `Menu.Clear.State`: `MenuClearState`
-- `Menu.Clear.Props`: `MenuClearProps`
-- `Menu.Empty.State`: `MenuEmptyState`
-- `Menu.Empty.Props`: `MenuEmptyProps`
 - `Menu.Item.State`: `MenuItemState`
 - `Menu.Item.Props`: `MenuItemProps`
 - `Menu.LinkItem.State`: `MenuLinkItemState`
 - `Menu.LinkItem.Props`: `MenuLinkItemProps`
-- `Menu.List.State`: `MenuListState`
-- `Menu.List.Props`: `MenuListProps`
 - `Menu.Popup.Props`: `MenuPopupProps`
 - `Menu.Popup.State`: `MenuPopupState`
 - `Menu.Portal.State`: `MenuPortalState`
@@ -1381,8 +1205,6 @@ Maps `Canonical`: `Alias` — Use Canonical when its namespace is already import
 - `Menu.Root.Actions`: `MenuRootActions`
 - `Menu.Root.ChangeEventReason`: `MenuRootChangeEventReason`
 - `Menu.Root.ChangeEventDetails`: `MenuRootChangeEventDetails`
-- `Menu.Root.InputValueChangeEventReason`: `MenuRootInputValueChangeEventReason`
-- `Menu.Root.InputValueChangeEventDetails`: `MenuRootInputValueChangeEventDetails`
 - `Menu.Root.Orientation`: `MenuRootOrientation`
 - `Menu.SubmenuRoot.Props`: `MenuSubmenuRootProps`
 - `Menu.SubmenuRoot.State`: `MenuSubmenuRootState`

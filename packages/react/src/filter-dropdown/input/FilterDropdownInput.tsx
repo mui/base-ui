@@ -9,6 +9,7 @@ import {
   useFilterDropdownRootContext,
   useFilterDropdownValueContext,
 } from '../root/FilterDropdownRootContext';
+import { FilterDropdownInputDataAttributes } from './FilterDropdownInputDataAttributes';
 
 const MOVE_CARET_KEYS = ['ArrowLeft', 'ArrowRight', 'Home', 'End'];
 
@@ -19,16 +20,22 @@ export const FilterDropdownInput = React.forwardRef(function FilterDropdownInput
   componentProps: FilterDropdownInput.Props,
   forwardedRef: React.ForwardedRef<HTMLInputElement>,
 ) {
-  const { render, className, style, ...elementProps } = componentProps;
+  const { render, className, style, disabled, ...elementProps } = componentProps;
   const context = useFilterDropdownRootContext();
   const popupContext = useFilterDropdownPopupContext();
   const value = useFilterDropdownValueContext();
+  const focusVisibleAttr = context.inputFocusVisible ? '' : undefined;
+  const activeElement = context.listRef.current[context.activeIndex ?? -1];
 
   return useRenderElement('input', componentProps, {
     ref: [forwardedRef, popupContext.inputRef],
     props: [
+      context.navigation.reference,
       {
         type: 'text',
+        disabled: disabled ?? context.disabled,
+        [FilterDropdownInputDataAttributes.focusVisible as string]: focusVisibleAttr,
+        'aria-activedescendant': activeElement?.id,
         role: 'searchbox',
         inputMode: 'search',
         enterKeyHint: 'search',
@@ -41,15 +48,13 @@ export const FilterDropdownInput = React.forwardRef(function FilterDropdownInput
         value,
         onChange(event) {
           const nextValue = event.currentTarget.value;
-          context.onValueChange(
-            nextValue,
-            createChangeEventDetails(
-              nextValue === '' ? REASONS.inputClear : REASONS.inputChange,
-              event.nativeEvent,
-            ),
-          );
+          const reason = nextValue === '' ? REASONS.inputClear : REASONS.inputChange;
+          const eventDetails = createChangeEventDetails(reason, event.nativeEvent);
+          context.setActiveIndex(null);
+          context.onValueChange(nextValue, eventDetails);
         },
-        onMouseEnter(event: BaseUIEvent<React.MouseEvent<HTMLInputElement>>) {
+        onMouseEnter(event) {
+          context.setInputFocusVisible(false);
           event.currentTarget.focus({ preventScroll: true });
         },
         onKeyDown(event: BaseUIEvent<React.KeyboardEvent<HTMLInputElement>>) {

@@ -1,6 +1,5 @@
 import { ReactStore } from '@base-ui/utils/store';
 import { type InteractionType } from '@base-ui/utils/useEnhancedClickHandler';
-import type { SelectFilterIntegration } from './root/SelectFilterIntegrationContext';
 import type { TransitionStatus } from '../internals/useTransitionStatus';
 import type { HTMLProps } from '../internals/types';
 import type { Side } from '../internals/useAnchorPositioning';
@@ -22,10 +21,6 @@ export type State = {
   labelId: string | undefined;
   modal: boolean;
   multiple: boolean;
-  filterable: boolean;
-  /** Filtering parts supplied by the `filter-select` entrypoint, or null for an ordinary select. */
-  filterIntegration: SelectFilterIntegration | null;
-
   items:
     | Record<string, React.ReactNode>
     | ReadonlyArray<{ label: React.ReactNode; value: any }>
@@ -35,7 +30,7 @@ export type State = {
   itemToStringValue: ((item: any) => string) | undefined;
   isItemEqualToValue: (itemValue: any, selectedValue: any) => boolean;
   /**
-   * All logically mounted Select items, including items hidden by filtering.
+   * All logically mounted Select items.
    */
   registeredItems: ReadonlyMap<symbol, RegisteredItem>;
   /**
@@ -53,11 +48,8 @@ export type State = {
 
   activeIndex: number | null;
   selectionReferenceItemId: symbol | null;
-  inputFocusVisible: boolean;
 
   popupProps: HTMLProps;
-  inputProps: HTMLProps;
-  listProps: HTMLProps;
   triggerProps: HTMLProps;
   triggerElement: HTMLElement | null;
   positionerElement: HTMLElement | null;
@@ -77,9 +69,6 @@ export const selectors = {
   labelId: (state: State) => state.labelId,
   modal: (state: State) => state.modal,
   multiple: (state: State) => state.multiple,
-  filterable: (state: State) => state.filterable,
-  filterIntegration: (state: State) => state.filterIntegration,
-
   items: (state: State) => state.items,
   itemToStringLabel: (state: State) => state.itemToStringLabel,
   isItemEqualToValue: (state: State) => state.isItemEqualToValue,
@@ -112,7 +101,6 @@ export const selectors = {
 
   activeIndex: (state: State) => state.activeIndex,
   selectionReferenceItemId: (state: State) => state.selectionReferenceItemId,
-  inputFocusVisible: (state: State) => state.inputFocusVisible,
   isActive: (state: State, index: number) => state.activeIndex === index,
 
   isSelected: (state: State, itemValue: any) => {
@@ -132,8 +120,6 @@ export const selectors = {
   },
 
   popupProps: (state: State) => state.popupProps,
-  inputProps: (state: State) => state.inputProps,
-  listProps: (state: State) => state.listProps,
   triggerProps: (state: State) => state.triggerProps,
   triggerElement: (state: State) => state.triggerElement,
   positionerElement: (state: State) => state.positionerElement,

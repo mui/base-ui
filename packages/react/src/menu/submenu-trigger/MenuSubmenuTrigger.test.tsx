@@ -3,7 +3,6 @@ import { act, fireEvent, waitFor, screen } from '@mui/internal-test-utils';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 import { DirectionProvider } from '@base-ui/react/direction-provider';
 import { Menu } from '@base-ui/react/menu';
-import { FilterMenu } from '@base-ui/react/filter-menu';
 import { SafeReact } from '@base-ui/utils/safeReact';
 import { useMenuRootContext } from '../root/MenuRootContext';
 import type { MenuStore } from '../store/MenuStore';
@@ -212,44 +211,6 @@ describe('<Menu.SubmenuTrigger />', () => {
     await waitFor(() => {
       expect(screen.getByTestId('submenu-trigger')).toHaveFocus();
     });
-  });
-
-  it('stays out of the tab order when the parent menu is filterable', async () => {
-    const { user } = await render(
-      <FilterMenu.Root open>
-        <FilterMenu.Trigger>Actions</FilterMenu.Trigger>
-        <FilterMenu.Portal>
-          <FilterMenu.Positioner>
-            <FilterMenu.Popup>
-              <FilterMenu.Input aria-label="Filter actions" />
-              <FilterMenu.List>
-                <FilterMenu.Item>Rename</FilterMenu.Item>
-                <FilterMenu.SubmenuRoot>
-                  <FilterMenu.SubmenuTrigger delay={0}>Move to folder</FilterMenu.SubmenuTrigger>
-                  <FilterMenu.Portal>
-                    <FilterMenu.Positioner>
-                      <FilterMenu.Popup>
-                        <FilterMenu.Item>Documents</FilterMenu.Item>
-                      </FilterMenu.Popup>
-                    </FilterMenu.Positioner>
-                  </FilterMenu.Portal>
-                </FilterMenu.SubmenuRoot>
-              </FilterMenu.List>
-            </FilterMenu.Popup>
-          </FilterMenu.Positioner>
-        </FilterMenu.Portal>
-      </FilterMenu.Root>,
-    );
-
-    const input = screen.getByRole('searchbox', { name: 'Filter actions' });
-    input.focus();
-
-    // Move virtual focus onto the submenu trigger; real focus stays on the input.
-    await user.keyboard('[ArrowDown][ArrowDown]');
-
-    const submenuTrigger = screen.getByRole('menuitem', { name: 'Move to folder' });
-    expect(submenuTrigger).not.toHaveAttribute('tabindex');
-    expect(input).toHaveFocus();
   });
 
   describe('prop: disabled', () => {

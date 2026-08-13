@@ -69,11 +69,10 @@ export function useMenuItemCommonProps(params: UseMenuItemCommonPropsParameters)
 
   const { events: menuEvents } = store.useState('floatingTreeRoot');
   const open = listStore.useState('open');
-  const filterable = listStore.select('filterable');
   const contextMenuContext = useContextMenuRootContext(true);
   const isContextMenu = contextMenuContext !== undefined;
   const rovingTabIndex = open && highlighted ? 0 : -1;
-  const tabIndex = filterable ? undefined : rovingTabIndex;
+  const tabIndex = rovingTabIndex;
 
   return React.useMemo(
     () => ({

@@ -10,13 +10,13 @@ describe('<FilterDropdown.Root />', () => {
 
   it('renders the expected markup and ARIA relationships', async () => {
     await render(
-      <FilterDropdown.Root open empty={false} value="">
+      <TestFilterDropdownRoot open empty={false} value="">
         <FilterDropdown.Trigger id={undefined}>Choose a country</FilterDropdown.Trigger>
         <FilterDropdown.Popup id={undefined}>
           <FilterDropdown.Input aria-label="Filter countries" />
           <FilterDropdown.List id={undefined} data-testid="list" />
         </FilterDropdown.Popup>
-      </FilterDropdown.Root>,
+      </TestFilterDropdownRoot>,
     );
 
     const trigger = screen.getByRole('button', { name: 'Choose a country' });
@@ -47,10 +47,10 @@ describe('<FilterDropdown.Root />', () => {
 
   it('does not associate the trigger with the popup while closed', async () => {
     await render(
-      <FilterDropdown.Root open={false} empty={false} value="">
+      <TestFilterDropdownRoot open={false} empty={false} value="">
         <FilterDropdown.Trigger id={undefined}>Choose a country</FilterDropdown.Trigger>
         <FilterDropdown.Popup id={undefined} />
-      </FilterDropdown.Root>,
+      </TestFilterDropdownRoot>,
     );
 
     const trigger = screen.getByRole('button', { name: 'Choose a country' });
@@ -61,12 +61,12 @@ describe('<FilterDropdown.Root />', () => {
 
   it('keeps focus on the input when the list or popup background is clicked', async () => {
     const { user } = await render(
-      <FilterDropdown.Root open empty={false} value="">
+      <TestFilterDropdownRoot open empty={false} value="">
         <FilterDropdown.Popup id={undefined} data-testid="popup">
           <FilterDropdown.Input aria-label="Filter countries" />
           <FilterDropdown.List id={undefined} />
         </FilterDropdown.Popup>
-      </FilterDropdown.Root>,
+      </TestFilterDropdownRoot>,
     );
 
     const input = screen.getByRole('searchbox', { name: 'Filter countries' });
@@ -83,7 +83,7 @@ describe('<FilterDropdown.Root />', () => {
 
   it('focuses the input when the pointer enters or the popup itself receives focus', async () => {
     await render(
-      <FilterDropdown.Root open empty={false} value="">
+      <TestFilterDropdownRoot open empty={false} value="">
         <FilterDropdown.Popup id={undefined} data-testid="popup">
           <FilterDropdown.Input aria-label="Filter countries" />
           <FilterDropdown.List id={undefined}>
@@ -91,7 +91,7 @@ describe('<FilterDropdown.Root />', () => {
           </FilterDropdown.List>
         </FilterDropdown.Popup>
         <button type="button">Outside</button>
-      </FilterDropdown.Root>,
+      </TestFilterDropdownRoot>,
     );
 
     const input = screen.getByRole('searchbox', { name: 'Filter countries' });
@@ -111,19 +111,19 @@ describe('<FilterDropdown.Root />', () => {
 
   it('does not focus a parent input when the pointer enters a portalled nested popup', async () => {
     await render(
-      <FilterDropdown.Root open empty={false} value="">
+      <TestFilterDropdownRoot open empty={false} value="">
         <FilterDropdown.Popup id={undefined} data-testid="parent-popup">
           <FilterDropdown.Input aria-label="Filter parent items" />
-          <FilterDropdown.Root open empty={false} value="">
+          <TestFilterDropdownRoot open empty={false} value="">
             {ReactDOM.createPortal(
               <FilterDropdown.Popup id={undefined} data-testid="child-popup">
                 <FilterDropdown.Input aria-label="Filter child items" />
               </FilterDropdown.Popup>,
               document.body,
             )}
-          </FilterDropdown.Root>
+          </TestFilterDropdownRoot>
         </FilterDropdown.Popup>
-      </FilterDropdown.Root>,
+      </TestFilterDropdownRoot>,
     );
 
     const parentInput = screen.getByRole('searchbox', { name: 'Filter parent items' });
@@ -140,7 +140,7 @@ describe('<FilterDropdown.Root />', () => {
       const [version, setVersion] = React.useState('first');
 
       return (
-        <FilterDropdown.Root open empty={false} value="">
+        <TestFilterDropdownRoot open empty={false} value="">
           <FilterDropdown.Trigger id={`${version}-trigger`}>Actions</FilterDropdown.Trigger>
           <FilterDropdown.Popup id={`${version}-popup`}>
             <FilterDropdown.Input aria-label="Filter actions" />
@@ -149,7 +149,7 @@ describe('<FilterDropdown.Root />', () => {
               Change ids
             </button>
           </FilterDropdown.Popup>
-        </FilterDropdown.Root>
+        </TestFilterDropdownRoot>
       );
     }
 
@@ -175,14 +175,14 @@ describe('<FilterDropdown.Root />', () => {
       const [value, setValue] = React.useState('zz');
 
       return (
-        <FilterDropdown.Root open empty value={value} onValueChange={setValue}>
+        <TestFilterDropdownRoot open empty value={value} onValueChange={setValue}>
           <FilterDropdown.Trigger id={undefined}>Choose a country</FilterDropdown.Trigger>
           <FilterDropdown.Popup id={undefined}>
             <FilterDropdown.Input aria-label="Filter countries" />
             <FilterDropdown.Empty>No matches for {value}</FilterDropdown.Empty>
             <FilterDropdown.List id={undefined} />
           </FilterDropdown.Popup>
-        </FilterDropdown.Root>
+        </TestFilterDropdownRoot>
       );
     }
 
@@ -202,7 +202,7 @@ describe('<FilterDropdown.Root />', () => {
 
   it('renders Empty and announces it when the `empty` prop becomes true', async () => {
     const { setProps } = await render(
-      <FilterDropdown.Root open empty={false} value="zz">
+      <TestFilterDropdownRoot open empty={false} value="zz">
         <FilterDropdown.Trigger id={undefined}>Choose a country</FilterDropdown.Trigger>
         <FilterDropdown.Popup id={undefined}>
           <FilterDropdown.Input aria-label="Filter countries" />
@@ -211,7 +211,7 @@ describe('<FilterDropdown.Root />', () => {
           </FilterDropdown.Empty>
           <FilterDropdown.List id={undefined} />
         </FilterDropdown.Popup>
-      </FilterDropdown.Root>,
+      </TestFilterDropdownRoot>,
     );
 
     expect(screen.queryByTestId('empty')).toBe(null);
@@ -234,3 +234,10 @@ describe('<FilterDropdown.Root />', () => {
     expect(empty.ownerDocument.querySelectorAll('#empty-message')).toHaveLength(1);
   });
 });
+
+function TestFilterDropdownRoot(
+  props: Omit<React.ComponentProps<typeof FilterDropdown.Root>, 'listRef'>,
+) {
+  const listRef = React.useRef<Array<HTMLElement | null>>([]);
+  return <FilterDropdown.Root {...props} listRef={listRef} />;
+}

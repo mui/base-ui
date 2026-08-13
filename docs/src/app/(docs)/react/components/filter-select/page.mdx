@@ -1,0 +1,263 @@
+# Filter Select
+
+<Subtitle>A select with a built-in search field for filtering its options.</Subtitle>
+<Meta
+  name="description"
+  content="A high-quality, unstyled React select component with a built-in input for filtering options."
+/>
+
+import { DemoSelectFilterable } from '../select/demos/filterable';
+
+<DemoSelectFilterable />
+
+## Usage guidelines
+
+- **Use for modest option lists**: Choose `FilterSelect` when users select one or more predefined values and need search to narrow a manageable list. Use [Select](/react/components/select) when search is unnecessary.
+- **Prefer Combobox for large or remote data**: Use [Combobox](/react/components/combobox) when the list is large, virtualized, asynchronously loaded, or users need to enter values that are not in the list.
+- **Name both controls**: `<FilterSelect.Label>` labels the select trigger. Give `<FilterSelect.Input>` a separate accessible name with `aria-label`, `aria-labelledby`, or a visible native `<label>`.
+
+## Anatomy
+
+Import the component and assemble its parts:
+
+```jsx title="Anatomy"
+import { FilterSelect } from '@base-ui/react/filter-select';
+
+<FilterSelect.Root items={items}>
+  <FilterSelect.Label>Fruit</FilterSelect.Label>
+  <FilterSelect.Trigger>
+    <FilterSelect.Value placeholder="Choose a fruit" />
+    <FilterSelect.Icon />
+  </FilterSelect.Trigger>
+
+  <FilterSelect.Portal>
+    <FilterSelect.Positioner>
+      <FilterSelect.Popup>
+        <FilterSelect.Input aria-label="Filter fruit" />
+        <FilterSelect.Clear aria-label="Clear filter" />
+        <FilterSelect.Empty>No fruit found.</FilterSelect.Empty>
+        <FilterSelect.List>
+          {(item) => (
+            <FilterSelect.Item key={item.value} value={item.value}>
+              {item.label}
+            </FilterSelect.Item>
+          )}
+        </FilterSelect.List>
+      </FilterSelect.Popup>
+    </FilterSelect.Positioner>
+  </FilterSelect.Portal>
+</FilterSelect.Root>;
+```
+
+`items` is required because it is the data source used to filter the list. Render the items with a function child of `<FilterSelect.List>` so the rendered entry stays associated with its data.
+
+## Examples
+
+### Rendering from items
+
+`items` can be an array of entries, an object map, or grouped entries. Each entry has a `value` and `label`:
+
+```jsx title="Rendering options"
+const items = [
+  { value: 'apple', label: 'Apple' },
+  { value: 'banana', label: 'Banana' },
+];
+
+<FilterSelect.Root items={items}>
+  <FilterSelect.List>
+    {(item) => (
+      <FilterSelect.Item key={item.value} value={item.value}>
+        {item.label}
+      </FilterSelect.Item>
+    )}
+  </FilterSelect.List>
+</FilterSelect.Root>;
+```
+
+### Matching keywords
+
+Add `keywords` to an item when users should be able to find it using terms that are not displayed in its label:
+
+```jsx title="Additional search terms"
+const items = [{ value: 'settings', label: 'Settings', keywords: ['preferences', 'options'] }];
+```
+
+The default filter matches the entry's label and its keywords. Keywords are not rendered as part of the option.
+
+### Custom matching
+
+Pass `filter` to change how entries match the query. The callback receives the item from `items` and the trimmed query. Narrow the item before reading custom fields so the filter also works with the generic `FilterSelectFilter` type:
+
+```tsx title="Custom filter"
+import type { FilterSelectFilter } from '@base-ui/react/filter-select';
+
+const filter: FilterSelectFilter = (item, query) => {
+  if (typeof item !== 'object' || item === null || !('label' in item)) {
+    return false;
+  }
+
+  return String(item.label).toLowerCase().startsWith(query.toLowerCase());
+};
+
+<FilterSelect.Root items={items} filter={filter}>
+  {/* select parts */}
+</FilterSelect.Root>;
+```
+
+### Controlled query
+
+Use `inputValue` and `onInputValueChange` when the query needs to be synchronized with application state. `defaultInputValue` sets the initial query for uncontrolled usage.
+
+```tsx title="Controlling the query"
+import * as React from 'react';
+import { FilterSelect } from '@base-ui/react/filter-select';
+
+function SearchableSelect() {
+  const [inputValue, setInputValue] = React.useState('');
+
+  return (
+    <FilterSelect.Root
+      items={items}
+      inputValue={inputValue}
+      onInputValueChange={(value) => setInputValue(value)}
+    >
+      {/* select parts */}
+    </FilterSelect.Root>
+  );
+}
+```
+
+The query is cleared when the popup closes. If the query is controlled, update the value in `onInputValueChange` for the clear and close events as well as for typing.
+
+### Grouped options
+
+Use grouped entries with `<FilterSelect.Group>`, `<FilterSelect.GroupLabel>`, and `<FilterSelect.Collection>`:
+
+```jsx title="Grouped options"
+<FilterSelect.List>
+  {(group) => (
+    <FilterSelect.Group key={group.value} items={group.items}>
+      <FilterSelect.GroupLabel>{group.value}</FilterSelect.GroupLabel>
+      <FilterSelect.Collection>
+        {(item) => (
+          <FilterSelect.Item key={item.value} value={item.value}>
+            {item.label}
+          </FilterSelect.Item>
+        )}
+      </FilterSelect.Collection>
+    </FilterSelect.Group>
+  )}
+</FilterSelect.List>
+```
+
+Groups with no matching options are removed from the rendered list.
+
+## API reference
+
+import { TypesFilterSelect } from './types';
+
+### Root
+
+<TypesFilterSelect.Root />
+
+### Label
+
+<TypesFilterSelect.Label />
+
+### Trigger
+
+<TypesFilterSelect.Trigger />
+
+### Value
+
+<TypesFilterSelect.Value />
+
+### Icon
+
+<TypesFilterSelect.Icon />
+
+### Portal
+
+<TypesFilterSelect.Portal />
+
+### Backdrop
+
+<TypesFilterSelect.Backdrop />
+
+### Positioner
+
+<TypesFilterSelect.Positioner />
+
+### Popup
+
+<TypesFilterSelect.Popup />
+
+### Input
+
+<TypesFilterSelect.Input />
+
+### Clear
+
+<TypesFilterSelect.Clear />
+
+### Empty
+
+<TypesFilterSelect.Empty />
+
+### List
+
+<TypesFilterSelect.List />
+
+### Collection
+
+<TypesFilterSelect.Collection />
+
+### Arrow
+
+<TypesFilterSelect.Arrow />
+
+### Item
+
+<TypesFilterSelect.Item />
+
+### ItemText
+
+<TypesFilterSelect.ItemText />
+
+### ItemIndicator
+
+<TypesFilterSelect.ItemIndicator />
+
+### Group
+
+<TypesFilterSelect.Group />
+
+### GroupLabel
+
+<TypesFilterSelect.GroupLabel />
+
+### ScrollUpArrow
+
+<TypesFilterSelect.ScrollUpArrow />
+
+### ScrollDownArrow
+
+<TypesFilterSelect.ScrollDownArrow />
+
+### Separator
+
+<TypesFilterSelect.Separator />
+
+export const metadata = {
+  keywords: [
+    'React Filter Select',
+    'Searchable Select',
+    'Filterable Select',
+    'Searchable Dropdown',
+    'Dropdown Search',
+    'Multi Select React',
+    'Accessible React Select',
+    'Headless React Components',
+    'Base UI',
+  ],
+};

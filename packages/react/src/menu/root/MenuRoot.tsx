@@ -5,7 +5,6 @@ import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useBaseUiId } from '@base-ui/react/internals/useBaseUiId';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
-import { useControlled } from '@base-ui/utils/useControlled';
 import { EMPTY_ARRAY, EMPTY_OBJECT } from '@base-ui/utils/empty';
 import { fastComponent } from '@base-ui/utils/fastHooks';
 import {
@@ -45,18 +44,19 @@ import {
   useOpenStateTransitions,
   usePopupInteractionProps,
 } from '../../utils/popups';
-import type { FilterDropdownRoot } from '../../filter-dropdown/root/FilterDropdownRoot';
-import {
-  MenuFilterIntegrationContext,
-  useMenuFilterIntegration,
-} from './MenuFilterIntegrationContext';
 
-interface MenuRootImplProps<Payload> extends MenuRoot.Props<Payload> {
+interface MenuRootInternalProps<Payload> extends MenuRoot.Props<Payload> {
   isSubmenu?: boolean | undefined;
 }
 
-export const MenuRootImpl = fastComponent(function MenuRootImpl<Payload>(
-  props: MenuRootImplProps<Payload>,
+/**
+ * Groups all parts of the menu.
+ * Doesn't render its own HTML element.
+ *
+ * Documentation: [Base UI Menu](https://base-ui.com/react/components/menu)
+ */
+export const MenuRoot = fastComponent(function MenuRoot<Payload>(
+  props: MenuRootInternalProps<Payload>,
 ) {
   const {
     children,
@@ -74,24 +74,8 @@ export const MenuRootImpl = fastComponent(function MenuRootImpl<Payload>(
     triggerId: triggerIdProp,
     defaultTriggerId: defaultTriggerIdProp = null,
     highlightItemOnHover = true,
-    filter: filterProp,
-    inputValue: inputValueProp,
-    defaultInputValue = '',
-    onInputValueChange,
     isSubmenu = false,
   } = props;
-
-  // Filterability comes from the entrypoint, not the prop: only `filter-menu` supplies the
-  // integration. That keeps the filtering implementation out of an ordinary menu's bundle, and
-  // makes the mode fixed for the menu's lifetime without a mount-time latch.
-  const filterIntegration = useMenuFilterIntegration();
-  const filterable = filterIntegration !== null;
-  const [inputValue, setInputValue] = useControlled({
-    controlled: inputValueProp,
-    default: defaultInputValue,
-    name: 'Menu',
-    state: 'inputValue',
-  });
 
   const contextMenuContext = useContextMenuRootContext(true);
   const parentMenuRootContext = useMenuRootContext(true);
@@ -163,28 +147,11 @@ export const MenuRootImpl = fastComponent(function MenuRootImpl<Payload>(
       disabled: disabledProp,
       highlightItemOnHover,
       modal: parentFromContext.type === undefined ? modalProp : undefined,
-      filterable,
-      filterIntegration,
       rootId,
       instantType: seededInstantType,
     },
     floatingId,
     floatingParentNodeIdFromContext != null,
-  );
-
-  const handleInputValueChange = useStableCallback(
-    (nextInputValue: string, eventDetails: MenuRoot.InputValueChangeEventDetails) => {
-      onInputValueChange?.(nextInputValue, eventDetails);
-
-      if (eventDetails.isCanceled || nextInputValue === inputValue) {
-        return;
-      }
-
-      setInputValue(nextInputValue);
-      // Filtering compacts the list, so a numeric active index would point at a different item
-      // or at none at all. Return virtual focus to the input instead.
-      store.set('activeIndex', null);
-    },
   );
 
   store.useControlledProp('openProp', openProp);
@@ -196,7 +163,6 @@ export const MenuRootImpl = fastComponent(function MenuRootImpl<Payload>(
   const floatingNodeIdFromContext = useFloatingNodeId(floatingTreeRoot);
 
   const open = store.useState('open');
-  const activeTriggerId = store.useState('activeTriggerId');
   const activeTriggerElement = store.useState('activeTriggerElement');
   const positionerElement = store.useState('positionerElement');
   const hoverEnabled = store.useState('hoverEnabled');
@@ -229,8 +195,6 @@ export const MenuRootImpl = fastComponent(function MenuRootImpl<Payload>(
 
   store.useSyncedValues({
     disabled: disabledProp,
-    filterable,
-    filterIntegration,
     highlightItemOnHover,
     modal: parent.type === undefined ? modalProp : undefined,
     openMethod,
@@ -242,12 +206,7 @@ export const MenuRootImpl = fastComponent(function MenuRootImpl<Payload>(
     open,
     store,
     () => {
-      store.update({ allowMouseEnter: false, inputFocusVisible: false });
-      // The root outlives the popup. Reset only after unmount so the filtered contents remain
-      // stable during an exit transition and a prevented or interrupted unmount keeps the query.
-      if (inputValue !== '') {
-        handleInputValueChange('', createChangeEventDetails(REASONS.popupClose));
-      }
+      store.set('allowMouseEnter', false);
     },
     animateInitialOpen,
   );
@@ -424,8 +383,6 @@ export const MenuRootImpl = fastComponent(function MenuRootImpl<Payload>(
         (reason === REASONS.triggerPress || reason === REASONS.itemPress) &&
         (nativeEvent as MouseEvent).detail === 0;
       const isDismissClose = !nextOpen && (reason === REASONS.escapeKey || reason == null);
-      const isKeyboardOpen = nextOpen && (reason === REASONS.listNavigation || isKeyboardClick);
-
       openEventRef.current = eventDetails.event;
 
       const popupOpenState = createPopupOpenState(
@@ -436,11 +393,9 @@ export const MenuRootImpl = fastComponent(function MenuRootImpl<Payload>(
       ) as ReturnType<typeof createPopupOpenState> & {
         openChangeReason: MenuRoot.ChangeEventReason;
         instantType: MenuStoreState<Payload>['instantType'];
-        inputFocusVisible: boolean;
       };
 
       popupOpenState.openChangeReason = reason;
-      popupOpenState.inputFocusVisible = filterable && isKeyboardOpen;
 
       if (
         parent.type === 'menubar' &&
@@ -531,8 +486,6 @@ export const MenuRootImpl = fastComponent(function MenuRootImpl<Payload>(
   });
 
   const direction = useDirection();
-  // Filterable menus keep DOM focus on their input and navigate items virtually.
-  const virtual = filterable;
   const focusItemOnOpen = (parent.type !== undefined && openedByKeyboard) || undefined;
 
   const listNavigation = useListNavigation(floatingRootContext, {
@@ -540,33 +493,14 @@ export const MenuRootImpl = fastComponent(function MenuRootImpl<Payload>(
     enabled: !disabled,
     listRef: store.context.itemDomElements,
     activeIndex,
-    virtual,
+    virtual: false,
     loopFocus,
-    // Clear the active descendant at a list boundary so virtual focus returns to the filter
-    // input before navigation loops to the other end.
-    allowEscape: filterable,
-    resetOnReferenceFocus: filterable,
-    focusItemOnOpen: filterable ? false : focusItemOnOpen,
+    focusItemOnOpen,
     orientation,
     rtl: direction === 'rtl',
     disabledIndices: EMPTY_ARRAY,
-    onNavigate(nextActiveIndex, event) {
-      // Event-less null navigations (the hook's open-time reset) and focus events (the input
-      // receiving focus when the popup opens) carry no input modality, so they must not clear
-      // a keyboard-open focus ring. Only keydown shows it and only pointer events hide it.
-      let inputFocusVisible = filterable && store.state.inputFocusVisible;
-      if (!filterable || nextActiveIndex !== null) {
-        inputFocusVisible = false;
-      } else if (event && event.type !== 'focus') {
-        inputFocusVisible = event.type === 'keydown';
-      }
-
-      if (filterable && nextActiveIndex === null && store.select('open')) {
-        // Virtual navigation escaped the List boundary, so return DOM focus to the filter input.
-        store.context.inputRef.current?.focus({ preventScroll: true });
-      }
-
-      store.update({ activeIndex: nextActiveIndex, inputFocusVisible });
+    onNavigate(nextActiveIndex) {
+      store.set('activeIndex', nextActiveIndex);
     },
     openOnArrowKeyDown: parent.type !== 'context-menu',
     focusItemOnHover: highlightItemOnHover,
@@ -596,7 +530,7 @@ export const MenuRootImpl = fastComponent(function MenuRootImpl<Payload>(
   const activeTriggerProps = React.useMemo(() => {
     const mergedProps = mergeProps(
       typeahead.reference,
-      filterable ? listNavigation.trigger : listNavigation.reference,
+      listNavigation.reference,
       dismiss.reference,
       {
         onMouseMove() {
@@ -614,8 +548,6 @@ export const MenuRootImpl = fastComponent(function MenuRootImpl<Payload>(
     store,
     typeahead.reference,
     listNavigation.reference,
-    listNavigation.trigger,
-    filterable,
     dismiss.reference,
     interactionTypeProps,
     open,
@@ -676,8 +608,6 @@ export const MenuRootImpl = fastComponent(function MenuRootImpl<Payload>(
     inactiveTriggerProps,
     popupProps,
     itemProps: listNavigation.item ?? EMPTY_OBJECT,
-    inputProps: listNavigation.reference ?? EMPTY_OBJECT,
-    listProps: listNavigation.reference ?? EMPTY_OBJECT,
   });
 
   const context: MenuRootContext<Payload> = React.useMemo(
@@ -695,31 +625,11 @@ export const MenuRootImpl = fastComponent(function MenuRootImpl<Payload>(
   const menu = (
     <MenuRootContext.Provider value={context as MenuRootContext}>
       {handle && <PopupHandleAttachment handle={handle} store={store} />}
-      {/* A nested menu is only filterable if its own root is a filterable one, so the
-          integration must not reach the subtree through context. Parts read it from their
-          own store instead. */}
-      <MenuFilterIntegrationContext.Provider value={null}>
-        {typeof children === 'function' ? children({ payload }) : children}
-      </MenuFilterIntegrationContext.Provider>
+      {typeof children === 'function' ? children({ payload }) : children}
     </MenuRootContext.Provider>
   );
 
-  let content = filterIntegration ? (
-    <filterIntegration.Root
-      open={open}
-      value={inputValue}
-      filter={filterProp}
-      onValueChange={handleInputValueChange}
-      // Menu handles can render a trigger outside this provider, so mirror
-      // the active trigger for that detached case.
-      triggerId={activeTriggerId}
-      triggerElement={activeTriggerElement}
-    >
-      {menu}
-    </filterIntegration.Root>
-  ) : (
-    menu
-  );
+  let content = menu;
 
   if (parent.type === undefined || parent.type === 'context-menu') {
     // set up a FloatingTree to provide the context to nested menus
@@ -728,16 +638,6 @@ export const MenuRootImpl = fastComponent(function MenuRootImpl<Payload>(
 
   return content;
 });
-
-/**
- * Groups all parts of the menu.
- * Doesn't render its own HTML element.
- *
- * Documentation: [Base UI Menu](https://base-ui.com/react/components/menu)
- */
-export const MenuRoot = function MenuRoot<Payload>(props: MenuRoot.Props<Payload>) {
-  return <MenuRootImpl {...props} />;
-};
 
 function useMenuRootStore<Payload>(
   initialState: Partial<MenuStoreState<Payload>>,
@@ -758,42 +658,7 @@ function useMenuRootStore<Payload>(
 
 export interface MenuRootState {}
 
-export type MenuFilter = (itemText: string, query: string) => boolean;
-
-// These are deliberately not a discriminated union on `filter`. `Omit`, `Pick`, and object rest
-// all collapse a union into one object type with widened members, which then matches no branch,
-// so a typed wrapper like `interface MyProps extends Omit<Menu.Root.Props, 'children'>` would not
-// compile. Misuse is reported at runtime instead: `Menu.Input` throws without `filter`.
-interface MenuRootFilterProps {
-  /**
-   * Customizes how items match the query. The function receives the item's `label` (falling
-   * back to its rendered text) and the trimmed query.
-   * Only a filterable menu (`FilterMenu.Root` or `FilterMenu.SubmenuRoot`) filters.
-   */
-  filter?: MenuFilter | undefined;
-  /**
-   * The uncontrolled input value when the menu is initially rendered.
-   * Only applies to a filterable menu (`FilterMenu`).
-   *
-   * To render a controlled filter input, use the `inputValue` prop instead.
-   * @default ''
-   */
-  defaultInputValue?: string | undefined;
-  /**
-   * The input value. Use when controlled.
-   * Only applies to a filterable menu (`FilterMenu`).
-   */
-  inputValue?: string | undefined;
-  /**
-   * Event handler called when the input value changes.
-   * Only applies to a filterable menu (`FilterMenu`).
-   */
-  onInputValueChange?:
-    | ((value: string, eventDetails: MenuRootInputValueChangeEventDetails) => void)
-    | undefined;
-}
-
-export type MenuRootProps<Payload = unknown> = MenuRootBaseProps<Payload> & MenuRootFilterProps;
+export type MenuRootProps<Payload = unknown> = MenuRootBaseProps<Payload>;
 
 interface MenuRootBaseProps<Payload = unknown> {
   /**
@@ -909,9 +774,6 @@ export type MenuRootChangeEventDetails = BaseUIChangeEventDetails<MenuRoot.Chang
   preventUnmountOnClose(): void;
 };
 
-export type MenuRootInputValueChangeEventReason = FilterDropdownRoot.ChangeEventReason;
-export type MenuRootInputValueChangeEventDetails = FilterDropdownRoot.ChangeEventDetails;
-
 export type MenuRootOrientation = 'horizontal' | 'vertical';
 
 export type MenuParent =
@@ -942,7 +804,5 @@ export namespace MenuRoot {
   export type Actions = MenuRootActions;
   export type ChangeEventReason = MenuRootChangeEventReason;
   export type ChangeEventDetails = MenuRootChangeEventDetails;
-  export type InputValueChangeEventReason = MenuRootInputValueChangeEventReason;
-  export type InputValueChangeEventDetails = MenuRootInputValueChangeEventDetails;
   export type Orientation = MenuRootOrientation;
 }

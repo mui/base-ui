@@ -2,7 +2,6 @@ import * as React from 'react';
 import { ReactStore } from '@base-ui/utils/store';
 import { EMPTY_OBJECT, NOOP } from '@base-ui/utils/empty';
 import type { InteractionType } from '@base-ui/utils/useEnhancedClickHandler';
-import type { MenuFilterIntegration } from '../root/MenuFilterIntegrationContext';
 import { MenuParent, MenuRoot } from '../root/MenuRoot';
 import { FloatingTreeStore } from '../../floating-ui-react/components/FloatingTreeStore';
 import { HTMLProps } from '../../internals/types';
@@ -21,16 +20,12 @@ import {
 export type State<Payload> = PopupStoreState<Payload> & {
   disabled: boolean;
   modal: boolean | undefined;
-  filterable: boolean;
-  /** Filtering parts supplied by the `filter-menu` entrypoint, or null for an ordinary menu. */
-  filterIntegration: MenuFilterIntegration | null;
   openMethod: InteractionType | null;
   allowMouseEnter: boolean;
   highlightItemOnHover: boolean;
   parent: MenuParent;
   rootId: string | undefined;
   activeIndex: number | null;
-  inputFocusVisible: boolean;
   hoverEnabled: boolean;
   instantType: 'dismiss' | 'click' | 'group' | 'trigger-change' | undefined;
   openChangeReason: MenuRoot.ChangeEventReason | null;
@@ -38,9 +33,6 @@ export type State<Payload> = PopupStoreState<Payload> & {
   floatingNodeId: string | undefined;
   floatingParentNodeId: string | null;
   itemProps: HTMLProps;
-  inputProps: HTMLProps;
-  listProps: HTMLProps;
-  listElement: HTMLElement | null;
   closeDelay: number;
   keyboardEventRelay: ((event: React.KeyboardEvent<any>) => void) | undefined;
   adaptiveOrigin: AdaptiveOriginMiddleware | undefined;
@@ -67,8 +59,6 @@ const selectors = {
   modal: (state: State<unknown>) =>
     (state.parent.type === undefined || state.parent.type === 'context-menu') &&
     (state.modal ?? true),
-  filterable: (state: State<unknown>) => state.filterable,
-  filterIntegration: (state: State<unknown>) => state.filterIntegration,
   floatingId: (state: State<unknown>) => state.floatingId,
   openMethod: (state: State<unknown>) => state.openMethod,
   // Arrow keys open submenus through list navigation without dispatching a click, so
@@ -87,7 +77,6 @@ const selectors = {
     return state.parent.type !== undefined ? state.parent.context.rootId : state.rootId;
   },
   activeIndex: (state: State<unknown>) => state.activeIndex,
-  inputFocusVisible: (state: State<unknown>) => state.inputFocusVisible,
   isActive: (state: State<unknown>, itemIndex: number) => state.activeIndex === itemIndex,
   hoverEnabled: (state: State<unknown>) => state.hoverEnabled,
   instantType: (state: State<unknown>) => state.instantType,
@@ -102,9 +91,6 @@ const selectors = {
   floatingNodeId: (state: State<unknown>) => state.floatingNodeId,
   floatingParentNodeId: (state: State<unknown>) => state.floatingParentNodeId,
   itemProps: (state: State<unknown>) => state.itemProps,
-  inputProps: (state: State<unknown>) => state.inputProps,
-  listProps: (state: State<unknown>) => state.listProps,
-  listElement: (state: State<unknown>) => state.listElement,
   closeDelay: (state: State<unknown>) => state.closeDelay,
   adaptiveOrigin: (state: State<unknown>): AdaptiveOriginMiddleware | undefined =>
     state.adaptiveOrigin,
@@ -233,8 +219,6 @@ function createInitialState<Payload>(
     ...createInitialPopupStoreState<Payload>(triggerElements, floatingId, nested),
     disabled: false,
     modal: true,
-    filterable: false,
-    filterIntegration: null,
     openMethod: null,
     allowMouseEnter: false,
     highlightItemOnHover: true,
@@ -243,7 +227,6 @@ function createInitialState<Payload>(
     },
     rootId: undefined,
     activeIndex: null,
-    inputFocusVisible: false,
     hoverEnabled: true,
     instantType: undefined,
     openChangeReason: null,
@@ -251,9 +234,6 @@ function createInitialState<Payload>(
     floatingNodeId: undefined,
     floatingParentNodeId: null,
     itemProps: EMPTY_OBJECT,
-    inputProps: EMPTY_OBJECT,
-    listProps: EMPTY_OBJECT,
-    listElement: null,
     keyboardEventRelay: undefined,
     closeDelay: 0,
     adaptiveOrigin: undefined,

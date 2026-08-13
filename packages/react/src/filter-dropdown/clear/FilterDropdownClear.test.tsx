@@ -82,12 +82,14 @@ interface ControlledFilterDropdownRootProps {
 function ControlledFilterDropdownRoot(props: ControlledFilterDropdownRootProps) {
   const { children, initialValue = '', onValueChange } = props;
   const [value, setValue] = React.useState(initialValue);
+  const listRef = React.useRef<Array<HTMLElement | null>>([]);
 
   return (
     <FilterDropdown.Root
       open
       empty={false}
       value={value}
+      listRef={listRef}
       onValueChange={(nextValue, eventDetails) => {
         onValueChange?.(nextValue, eventDetails);
         setValue(nextValue);

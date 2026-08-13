@@ -68,7 +68,6 @@ const SelectItemImpl = React.memo(
     } = useSelectRootContext();
 
     const disabled = selectDisabled || disabledProp;
-    const filterable = useStore(store, selectors.filterable);
     const highlighted = useStore(store, selectors.isActive, listItem.index);
     const open = useStore(store, selectors.open);
     const selected = useStore(store, selectors.isSelected, itemValue);
@@ -126,7 +125,7 @@ const SelectItemImpl = React.memo(
       id,
       role: SELECT_ITEM_ROLE,
       'aria-selected': selected,
-      tabIndex: filterable ? undefined : rovingTabIndex,
+      tabIndex: rovingTabIndex,
       onKeyDown(event: BaseUIEvent<React.KeyboardEvent>) {
         store.set('activeIndex', index);
 
@@ -306,8 +305,7 @@ export interface SelectItemProps
    */
   disabled?: boolean | undefined;
   /**
-   * Specifies the text label to use when the item is matched during keyboard text navigation,
-   * and when filtering.
+   * Specifies the text label to use during keyboard text navigation.
    *
    * Defaults to the item text content if not provided.
    */

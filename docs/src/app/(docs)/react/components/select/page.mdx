@@ -12,7 +12,7 @@ import { DemoSelectHero } from './demos/hero';
 
 ## Usage guidelines
 
-- **Prefer Combobox for large lists**: Select can filter a modest list of predefined values. Use [Combobox](/react/components/combobox) when the number of items is sufficiently large or requires virtualisation.
+- **Prefer Combobox for large lists**: Use [FilterSelect](/react/components/filter-select) for a modest list of predefined values that needs filtering. Use [Combobox](/react/components/combobox) when the number of items is sufficiently large or requires virtualisation.
 - **Special positioning behavior**: The select popup overlaps its trigger by default so the selected item's text is aligned with the trigger's value text. This behavior [can be disabled or customized](/react/components/select#positioning).
 - **Form controls must have an accessible name**: Prefer `<Select.Label>`, or provide an `aria-label` on `<Select.Trigger>` when no visible label is rendered. See [Labeling a select](#labeling-a-select) and the [forms guide](/react/handbook/forms).
 
@@ -57,9 +57,9 @@ import { Select } from '@base-ui/react/select';
 
 `<Select.Positioner>` has a special prop called `alignItemWithTrigger` which causes the positioning to act differently by default from other `Positioner` components.
 The prop makes the select popup overlap the trigger so the selected item's text is aligned with the trigger's value text.
-It defaults to `true` for standard selects and `false` for filterable selects.
+It defaults to `true`.
 
-For styling, `data-side` is `"none"` on the `.Popup` and `.Positioner` parts when the mode is active.
+For styling, `data-side` is `"none"` on the `.Popup` and `.Positioner` parts when this positioning mode is active.
 
 To prevent the select popup from overlapping its trigger, set the `alignItemWithTrigger` prop to `false`.
 When set to `true`, there are a few important points to note about its behavior:
@@ -148,8 +148,6 @@ To avoid lookup, [object values](#object-values) for each item can also be used.
 </Select.Root>
 ```
 
-A filterable select narrows `items` before the list renders, so only matching entries are mounted.
-
 For grouped data, pass each group's entries to `<Select.Group>` and render them with `<Select.Collection>`:
 
 ```jsx title="Grouped items"
@@ -168,10 +166,6 @@ For grouped data, pass each group's entries to `<Select.Group>` and render them 
   )}
 </Select.List>
 ```
-
-Groups with no remaining matches are dropped.
-
-An ordinary select can still render `<Select.Item>` children directly. A filterable select requires `items`: filtering is a data operation, so the list must derive from data.
 
 ### Labeling a select
 
@@ -219,60 +213,6 @@ const items = [
   <Select.Value />
 </Select.Root>;
 ```
-
-### Filterable
-
-Import `FilterSelect` from `@base-ui/react/filter-select` to let users filter the available items. It exposes every ordinary select part plus `<FilterSelect.Input>`, `<FilterSelect.Clear>`, and `<FilterSelect.Empty>`, so a filterable select needs only this one import.
-
-Pass the items to the `items` prop (required) and render them with a function as the `children` of `<FilterSelect.List>`. Filtering narrows `items` before the list renders, so only matching entries are mounted:
-
-```jsx title="Filterable select"
-import { FilterSelect } from '@base-ui/react/filter-select';
-
-const items = [
-  { value: 'apple', label: 'Apple' },
-  { value: 'banana', label: 'Banana' },
-];
-
-<FilterSelect.Root items={items}>
-  <FilterSelect.Trigger>
-    <FilterSelect.Value />
-  </FilterSelect.Trigger>
-  <FilterSelect.Portal>
-    <FilterSelect.Positioner>
-      <FilterSelect.Popup>
-        <FilterSelect.Input />
-        <FilterSelect.Empty />
-        <FilterSelect.List>
-          {(item) => (
-            <FilterSelect.Item key={item.value} value={item.value}>
-              {item.label}
-            </FilterSelect.Item>
-          )}
-        </FilterSelect.List>
-      </FilterSelect.Popup>
-    </FilterSelect.Positioner>
-  </FilterSelect.Portal>
-</FilterSelect.Root>;
-```
-
-import { DemoSelectFilterable } from './demos/filterable';
-
-<DemoSelectFilterable />
-
-Filtering lives in its own entrypoint so that an ordinary `@base-ui/react/select` never carries the filtering code. `<Select.Root>` cannot filter, and the filtering parts throw if placed inside one.
-
-Give `<FilterSelect.Input>` its own accessible name with `aria-label` or a native `<label>`. `<FilterSelect.Label>` labels the trigger, not the input.
-
-An entry can carry `keywords` to match additional terms beyond its label.
-
-Pass a function to `filter` to customize matching. It is called with the `items` entry and the trimmed query, and returns whether the item matches:
-
-```jsx title="Custom filter"
-<FilterSelect.Root items={items} filter={(item, query) => item.label.startsWith(query)}>
-```
-
-The first argument is the item's `label` prop, falling back to its rendered text content. This differs from [Combobox](/react/components/combobox), which filters on item values.
 
 ### Multiple selection
 
@@ -361,18 +301,6 @@ import { TypesSelect } from './types';
 ### Popup
 
 <TypesSelect.Popup />
-
-### Input
-
-<TypesSelect.Input />
-
-### Clear
-
-<TypesSelect.Clear />
-
-### Empty
-
-<TypesSelect.Empty />
 
 ### List
 

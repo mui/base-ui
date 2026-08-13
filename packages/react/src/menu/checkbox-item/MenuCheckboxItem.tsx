@@ -14,7 +14,13 @@ import { createChangeEventDetails } from '../../internals/createBaseUIEventDetai
 import { REASONS } from '../../internals/reasons';
 import type { MenuRoot } from '../root/MenuRoot';
 
-const MenuCheckboxItemImpl = React.forwardRef(function MenuCheckboxItemImpl(
+/**
+ * A menu item that toggles a setting on or off.
+ * Renders a `<div>` element.
+ *
+ * Documentation: [Base UI Menu](https://base-ui.com/react/components/menu)
+ */
+export const MenuCheckboxItem = React.forwardRef(function MenuCheckboxItem(
   componentProps: MenuCheckboxItem.Props,
   forwardedRef: React.ForwardedRef<HTMLElement>,
 ) {
@@ -105,34 +111,6 @@ const MenuCheckboxItemImpl = React.forwardRef(function MenuCheckboxItemImpl(
   );
 });
 
-/**
- * A menu item that toggles a setting on or off.
- * Renders a `<div>` element.
- *
- * Documentation: [Base UI Menu](https://base-ui.com/react/components/menu)
- */
-export const MenuCheckboxItem = React.forwardRef(function MenuCheckboxItem(
-  componentProps: MenuCheckboxItem.Props,
-  forwardedRef: React.ForwardedRef<HTMLElement>,
-) {
-  const { store } = useMenuRootContext();
-  const filterIntegration = store.select('filterIntegration');
-  const menuCheckboxItem = <MenuCheckboxItemImpl {...componentProps} ref={forwardedRef} />;
-
-  return filterIntegration ? (
-    // The filter wrapper composes onto MenuCheckboxItemImpl so its implementation
-    // overrides MenuCheckboxItemImpl's implementation.
-    <filterIntegration.Item
-      label={componentProps.label}
-      keywords={componentProps.keywords}
-      role="menuitemcheckbox"
-      render={menuCheckboxItem}
-    />
-  ) : (
-    menuCheckboxItem
-  );
-});
-
 export interface MenuCheckboxItemState {
   /**
    * Whether the checkbox item should ignore user interaction.
@@ -181,10 +159,6 @@ export interface MenuCheckboxItemProps
    * Overrides the text label to use when the item is matched during keyboard text navigation.
    */
   label?: string | undefined;
-  /**
-   * Additional terms the item matches on when filtering, beyond its label.
-   */
-  keywords?: readonly string[] | undefined;
   /**
    * @ignore
    */

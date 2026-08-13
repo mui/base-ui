@@ -2,17 +2,11 @@
 import * as React from 'react';
 import type { FilterDropdownStore } from '../store';
 
-export interface FilterDropdownItemRegistration {
-  getText: () => string | undefined;
-  keywords: readonly string[] | undefined;
-}
-
 export interface FilterDropdownPopupContext {
   store: FilterDropdownStore;
   inputRef: React.RefObject<HTMLInputElement | null>;
   listId: string | undefined;
   setListId: (id: string | undefined) => void;
-  registerItem: (id: symbol, registration: FilterDropdownItemRegistration) => () => void;
 }
 
 export const FilterDropdownPopupContext = React.createContext<FilterDropdownPopupContext | null>(

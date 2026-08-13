@@ -3,28 +3,28 @@
 // this one import.
 export { MenuArrow as Arrow } from '../menu/arrow/MenuArrow';
 export { MenuBackdrop as Backdrop } from '../menu/backdrop/MenuBackdrop';
-export { MenuCheckboxItem as CheckboxItem } from '../menu/checkbox-item/MenuCheckboxItem';
+export { FilterMenuCheckboxItem as CheckboxItem } from './checkbox-item/FilterMenuCheckboxItem';
 export { MenuCheckboxItemIndicator as CheckboxItemIndicator } from '../menu/checkbox-item-indicator/MenuCheckboxItemIndicator';
-export { MenuGroup as Group } from '../menu/group/MenuGroup';
-export { MenuGroupLabel as GroupLabel } from '../menu/group-label/MenuGroupLabel';
-export { MenuItem as Item } from '../menu/item/MenuItem';
-export { MenuLinkItem as LinkItem } from '../menu/link-item/MenuLinkItem';
-export { MenuList as List } from '../menu/list/MenuList';
-export { MenuPopup as Popup } from '../menu/popup/MenuPopup';
+export { FilterMenuGroup as Group } from './group/FilterMenuGroup';
+export { FilterMenuGroupLabel as GroupLabel } from './group-label/FilterMenuGroupLabel';
+export { FilterMenuItem as Item } from './item/FilterMenuItem';
+export { FilterMenuLinkItem as LinkItem } from './link-item/FilterMenuLinkItem';
+export { FilterMenuList as List } from './list/FilterMenuList';
+export { FilterMenuPopup as Popup } from './popup/FilterMenuPopup';
 export { MenuPortal as Portal } from '../menu/portal/MenuPortal';
 export { MenuPositioner as Positioner } from '../menu/positioner/MenuPositioner';
-export { MenuRadioGroup as RadioGroup } from '../menu/radio-group/MenuRadioGroup';
-export { MenuRadioItem as RadioItem } from '../menu/radio-item/MenuRadioItem';
+export { FilterMenuRadioGroup as RadioGroup } from './radio-group/FilterMenuRadioGroup';
+export { FilterMenuRadioItem as RadioItem } from './radio-item/FilterMenuRadioItem';
 export { MenuRadioItemIndicator as RadioItemIndicator } from '../menu/radio-item-indicator/MenuRadioItemIndicator';
-export { MenuTrigger as Trigger } from '../menu/trigger/MenuTrigger';
+export { FilterMenuTrigger as Trigger } from './FilterMenuTrigger';
 export { MenuViewport as Viewport } from '../menu/viewport/MenuViewport';
-export { MenuSubmenuTrigger as SubmenuTrigger } from '../menu/submenu-trigger/MenuSubmenuTrigger';
+export { FilterMenuSubmenuTrigger as SubmenuTrigger } from './FilterMenuSubmenuTrigger';
 export { Separator } from '../separator/Separator';
 export { MenuHandle as Handle, createMenuHandle as createHandle } from '../menu/store/MenuHandle';
 
 // Filtering-only parts.
 export { FilterMenuRoot as Root } from './root/FilterMenuRoot';
 export { FilterMenuSubmenuRoot as SubmenuRoot } from './submenu-root/FilterMenuSubmenuRoot';
-export { MenuInput as Input } from '../menu/input/MenuInput';
-export { MenuClear as Clear } from '../menu/clear/MenuClear';
-export { MenuEmpty as Empty } from '../menu/empty/MenuEmpty';
+export { FilterMenuInput as Input } from './FilterMenuInput';
+export { FilterMenuClear as Clear } from './FilterMenuClear';
+export { FilterMenuEmpty as Empty } from './FilterMenuEmpty';

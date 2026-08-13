@@ -33,7 +33,13 @@ const stateAttributesMapping: StateAttributesMapping<SelectTriggerState> = {
   value: () => null,
 };
 
-const SelectTriggerImpl = React.forwardRef(function SelectTriggerImpl(
+/**
+ * A button that opens the select popup.
+ * Renders a `<button>` element.
+ *
+ * Documentation: [Base UI Select](https://base-ui.com/react/components/select)
+ */
+export const SelectTrigger = React.forwardRef(function SelectTrigger(
   componentProps: SelectTrigger.Props,
   forwardedRef: React.ForwardedRef<HTMLButtonElement>,
 ) {
@@ -227,36 +233,6 @@ const SelectTriggerImpl = React.forwardRef(function SelectTriggerImpl(
   });
 
   return element;
-});
-
-/**
- * A button that opens the select popup.
- * Renders a `<button>` element.
- *
- * Documentation: [Base UI Select](https://base-ui.com/react/components/select)
- */
-export const SelectTrigger = React.forwardRef(function SelectTrigger(
-  componentProps: SelectTrigger.Props,
-  forwardedRef: React.ForwardedRef<HTMLButtonElement>,
-) {
-  const { store } = useSelectRootContext();
-  const filterIntegration = useStore(store, selectors.filterIntegration);
-  const rootId = useStore(store, selectors.id);
-  const id = componentProps.id ?? rootId;
-  const trigger = <SelectTriggerImpl id={id} {...componentProps} ref={forwardedRef} />;
-
-  return filterIntegration ? (
-    // The filter wrapper composes onto SelectTriggerImpl so its implementation
-    // overrides SelectTriggerImpl's implementation.
-    <filterIntegration.Trigger
-      id={id}
-      disabled={componentProps.disabled}
-      nativeButton={componentProps.nativeButton}
-      render={trigger}
-    />
-  ) : (
-    trigger
-  );
 });
 
 export interface SelectTriggerState extends FieldRootState {

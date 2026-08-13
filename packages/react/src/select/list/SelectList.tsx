@@ -12,19 +12,37 @@ import { SelectCollection } from '../collection/SelectCollection';
 
 const SELECT_LIST_ROLE = 'listbox';
 
-const SelectListImpl = React.forwardRef(function SelectListImpl(
-  componentProps: BaseUIComponentProps<'div', SelectListState>,
+/**
+ * A container for the select items.
+ * Renders a `<div>` element.
+ *
+ * Documentation: [Base UI Select](https://base-ui.com/react/components/select)
+ */
+export const SelectList = React.forwardRef(function SelectList(
+  componentProps: SelectList.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { id, render, className, style, ...elementProps } = componentProps;
-
   const { store, scrollHandlerRef, multiple } = useSelectRootContext();
   const { alignItemWithTriggerActive } = useSelectPositionerContext();
+  const rootId = useStore(store, selectors.id);
+  // Resolve once so the list registration uses the same id the DOM element ends up with.
+  const id = componentProps.id ?? `${rootId}-list`;
+  const { children } = componentProps;
+
+  // Closed-template API: a function child reads the root's items, so consumers don't have to
+  // wrap it in `Select.Collection` themselves.
+  const resolvedChildren = React.useMemo(() => {
+    if (typeof children === 'function') {
+      return <SelectCollection>{children}</SelectCollection>;
+    }
+    return children;
+  }, [children]);
+
+  const listProps = { ...componentProps, id, children: resolvedChildren };
+  const { render, className, style, ...elementProps } = listProps;
 
   const hasScrollArrows = useStore(store, selectors.hasScrollArrows);
   const openMethod = useStore(store, selectors.openMethod);
-  const filterable = useStore(store, selectors.filterable);
-  const listNavigationProps = useStore(store, selectors.listProps);
 
   const defaultProps: HTMLProps = {
     id,
@@ -35,7 +53,7 @@ const SelectListImpl = React.forwardRef(function SelectListImpl(
     },
     onFocus(event) {
       if (event.target === event.currentTarget) {
-        store.set('inputFocusVisible', false);
+        store.set('activeIndex', null);
       }
     },
     onKeyDown(event) {
@@ -55,54 +73,12 @@ const SelectListImpl = React.forwardRef(function SelectListImpl(
 
   const setListElement = store.useStateSetter('listElement');
 
-  const element = useRenderElement('div', componentProps, {
+  const element = useRenderElement('div', listProps, {
     ref: [forwardedRef, setListElement],
-    props: [defaultProps, filterable ? listNavigationProps : undefined, elementProps],
+    props: [defaultProps, elementProps],
   });
 
   return element;
-});
-
-/**
- * A container for the select items.
- * Renders a `<div>` element.
- *
- * Documentation: [Base UI Select](https://base-ui.com/react/components/select)
- */
-export const SelectList = React.forwardRef(function SelectList(
-  componentProps: SelectList.Props,
-  forwardedRef: React.ForwardedRef<HTMLDivElement>,
-) {
-  const { store } = useSelectRootContext();
-  const filterIntegration = useStore(store, selectors.filterIntegration);
-  const rootId = useStore(store, selectors.id);
-  // Resolve once so the filter wrapper registers the same id the DOM element ends up with,
-  // otherwise a consumer id leaves the trigger and input pointing at nothing.
-  const id = componentProps.id ?? `${rootId}-list`;
-  const { children } = componentProps;
-
-  // Closed-template API: a function child reads the filtered items from the root, so consumers
-  // don't have to wrap it in `Select.Collection` themselves.
-  const resolvedChildren = React.useMemo(() => {
-    if (typeof children === 'function') {
-      return <SelectCollection>{children}</SelectCollection>;
-    }
-    return children;
-  }, [children]);
-
-  const selectList = (
-    <SelectListImpl {...componentProps} id={id} ref={forwardedRef}>
-      {resolvedChildren}
-    </SelectListImpl>
-  );
-
-  return filterIntegration ? (
-    // The filter wrapper composes onto SelectListImpl so its implementation
-    // overrides SelectListImpl's implementation.
-    <filterIntegration.List role={SELECT_LIST_ROLE} id={id} render={selectList} />
-  ) : (
-    selectList
-  );
 });
 
 export interface SelectListProps extends Omit<
@@ -110,8 +86,8 @@ export interface SelectListProps extends Omit<
   'children'
 > {
   /**
-   * A function child renders one node per filtered item from the root's `items` prop, the same
-   * shape `Select.Collection` accepts.
+   * A function child renders one node per entry from the root's `items` prop, the same shape
+   * `Select.Collection` accepts.
    */
   children?: React.ReactNode | ((item: any, index: number) => React.ReactNode);
 }

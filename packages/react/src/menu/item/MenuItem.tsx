@@ -7,7 +7,13 @@ import type { BaseUIComponentProps, NonNativeButtonProps } from '../../internals
 import { useCompositeListItem } from '../../internals/composite/list/useCompositeListItem';
 import { useMenuPositionerContext } from '../positioner/MenuPositionerContext';
 
-const MenuItemImpl = React.forwardRef(function MenuItemImpl(
+/**
+ * An individual interactive item in the menu.
+ * Renders a `<div>` element.
+ *
+ * Documentation: [Base UI Menu](https://base-ui.com/react/components/menu)
+ */
+export const MenuItem = React.forwardRef(function MenuItem(
   componentProps: MenuItem.Props,
   forwardedRef: React.ForwardedRef<HTMLElement>,
 ) {
@@ -57,34 +63,6 @@ const MenuItemImpl = React.forwardRef(function MenuItemImpl(
   return element;
 });
 
-/**
- * An individual interactive item in the menu.
- * Renders a `<div>` element.
- *
- * Documentation: [Base UI Menu](https://base-ui.com/react/components/menu)
- */
-export const MenuItem = React.forwardRef(function MenuItem(
-  componentProps: MenuItem.Props,
-  forwardedRef: React.ForwardedRef<HTMLElement>,
-) {
-  const { store } = useMenuRootContext();
-  const filterIntegration = store.select('filterIntegration');
-  const menuItem = <MenuItemImpl {...componentProps} ref={forwardedRef} />;
-
-  return filterIntegration ? (
-    // The filter wrapper composes onto MenuItemImpl so its implementation
-    // overrides MenuItemImpl's implementation.
-    <filterIntegration.Item
-      label={componentProps.label}
-      keywords={componentProps.keywords}
-      role="menuitem"
-      render={menuItem}
-    />
-  ) : (
-    menuItem
-  );
-});
-
 export interface MenuItemState {
   /**
    * Whether the item should ignore user interaction.
@@ -108,14 +86,9 @@ export interface MenuItemProps
    */
   disabled?: boolean | undefined;
   /**
-   * Overrides the text label to use when the item is matched during keyboard text navigation,
-   * and when filtering.
+   * Overrides the text label to use when the item is matched during keyboard text navigation.
    */
   label?: string | undefined;
-  /**
-   * Additional terms the item matches on when filtering, beyond its label.
-   */
-  keywords?: readonly string[] | undefined;
   /**
    * @ignore
    */

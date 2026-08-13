@@ -13,7 +13,8 @@ import type {
   MenuRootChangeEventReason,
   SimpleMenuProps,
 } from './menu';
-import { SimpleFilterSelect, SimpleSelect } from './select';
+import { SimpleSelect } from './select';
+import { SimpleFilterSelect } from './filter-select';
 import type {
   ToastCreateManagerReturn,
   ToastManagerReturnValue,

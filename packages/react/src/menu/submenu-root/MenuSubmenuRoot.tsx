@@ -4,7 +4,7 @@ import { EMPTY_ARRAY } from '@base-ui/utils/empty';
 import { ownerDocument } from '@base-ui/utils/owner';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { isHTMLElement } from '@floating-ui/utils/dom';
-import { MenuRoot, MenuRootImpl } from '../root/MenuRoot';
+import { MenuRoot } from '../root/MenuRoot';
 import { useMenuRootContext } from '../root/MenuRootContext';
 import { MenuSubmenuRootContext } from './MenuSubmenuRootContext';
 import { useDirection } from '../../internals/direction-context/DirectionContext';
@@ -57,7 +57,7 @@ export function MenuSubmenuRoot(props: MenuSubmenuRoot.Props) {
     // animation. Both paths therefore share one recorded return target.
     parentReference.reference.focus({ preventScroll: true });
     if (triggerIndex > -1) {
-      parent.store.update({ activeIndex: triggerIndex, inputFocusVisible: false });
+      parent.store.set('activeIndex', triggerIndex);
     }
   }
 
@@ -82,38 +82,29 @@ export function MenuSubmenuRoot(props: MenuSubmenuRoot.Props) {
   }
 
   return (
-    <MenuRootImpl {...props} isSubmenu onOpenChange={handleOpenChange}>
+    <MenuRoot {...props} isSubmenu onOpenChange={handleOpenChange}>
       <MenuSubmenuRootImpl
         parentOrientation={parent.orientation}
-        parentFilterable={parent.store.select('filterable')}
         getReturnElement={() => parentReferenceRef.current?.reference ?? null}
         onSubmenuEnter={handleSubmenuEnter}
         onSubmenuExit={handleSubmenuExit}
       >
         {props.children}
       </MenuSubmenuRootImpl>
-    </MenuRootImpl>
+    </MenuRoot>
   );
 }
 
 interface MenuSubmenuRootImplProps {
   children: React.ReactNode;
   parentOrientation: MenuRoot.Orientation;
-  parentFilterable: boolean;
   onSubmenuEnter(trigger: HTMLElement): void;
   onSubmenuExit(): void;
   getReturnElement(): HTMLElement | null;
 }
 
 function MenuSubmenuRootImpl(props: MenuSubmenuRootImplProps) {
-  const {
-    children,
-    parentOrientation,
-    parentFilterable,
-    onSubmenuEnter,
-    onSubmenuExit,
-    getReturnElement,
-  } = props;
+  const { children, parentOrientation, onSubmenuEnter, onSubmenuExit, getReturnElement } = props;
   const { store, orientation } = useMenuRootContext();
   const direction = useDirection();
 
@@ -130,7 +121,11 @@ function MenuSubmenuRootImpl(props: MenuSubmenuRootImplProps) {
     }
 
     const triggerElement = store.select('activeTriggerElement');
-    if (!store.select('open') && !parentFilterable && isHTMLElement(triggerElement)) {
+    if (
+      !store.select('open') &&
+      isHTMLElement(triggerElement) &&
+      activeElement(ownerDocument(triggerElement)) !== triggerElement
+    ) {
       triggerElement.focus();
     }
   }
@@ -155,17 +150,10 @@ function MenuSubmenuRootImpl(props: MenuSubmenuRootImplProps) {
     stopEvent(event);
 
     if (open) {
-      const filterable = store.select('filterable');
       onSubmenuEnter(event.currentTarget);
-
-      if (filterable) {
-        store.context.inputRef.current?.focus({ preventScroll: true });
-        store.update({ activeIndex: null, inputFocusVisible: true });
-      } else {
-        const firstItemIndex = getMinListIndex(store.context.itemDomElements, EMPTY_ARRAY);
-        const activeIndex = firstItemIndex === -1 ? null : firstItemIndex;
-        store.update({ activeIndex, inputFocusVisible: false });
-      }
+      const firstItemIndex = getMinListIndex(store.context.itemDomElements, EMPTY_ARRAY);
+      const activeIndex = firstItemIndex === -1 ? null : firstItemIndex;
+      store.set('activeIndex', activeIndex);
       return;
     }
 
@@ -203,10 +191,6 @@ function MenuSubmenuRootImpl(props: MenuSubmenuRootImplProps) {
   );
 }
 
-type MenuSubmenuRootFilterProps<RootProps = MenuRoot.Props> = RootProps extends MenuRoot.Props
-  ? Pick<RootProps, 'filter' | 'defaultInputValue' | 'inputValue' | 'onInputValueChange'>
-  : never;
-
 type MenuSubmenuRootBaseProps = Omit<
   MenuRoot.Props,
   | 'modal'
@@ -215,32 +199,27 @@ type MenuSubmenuRootBaseProps = Omit<
   | 'handle'
   | 'triggerId'
   | 'defaultTriggerId'
-  | 'filter'
-  | 'defaultInputValue'
-  | 'inputValue'
-  | 'onInputValueChange'
   | 'children'
 >;
 
-export type MenuSubmenuRootProps = MenuSubmenuRootBaseProps &
-  MenuSubmenuRootFilterProps & {
-    /**
-     * Event handler called when the menu is opened or closed.
-     */
-    onOpenChange?:
-      | ((open: boolean, eventDetails: MenuSubmenuRoot.ChangeEventDetails) => void)
-      | undefined;
-    /**
-     * When in a submenu, determines whether pressing the Escape key
-     * closes the entire menu, or only the current child menu.
-     * @default false
-     */
-    closeParentOnEsc?: boolean | undefined;
-    /**
-     * The content of the submenu.
-     */
-      children?: React.ReactNode;
-  };
+export type MenuSubmenuRootProps = MenuSubmenuRootBaseProps & {
+  /**
+   * Event handler called when the menu is opened or closed.
+   */
+  onOpenChange?:
+    | ((open: boolean, eventDetails: MenuSubmenuRoot.ChangeEventDetails) => void)
+    | undefined;
+  /**
+   * When in a submenu, determines whether pressing the Escape key
+   * closes the entire menu, or only the current child menu.
+   * @default false
+   */
+  closeParentOnEsc?: boolean | undefined;
+  /**
+   * The content of the submenu.
+   */
+  children?: React.ReactNode;
+};
 
 export interface MenuSubmenuRootState {}
 

@@ -103,8 +103,6 @@ const MenuSubmenuTriggerImpl = React.forwardRef(function MenuSubmenuTriggerImpl(
 
   const itemProps = parentMenuStore.useState('itemProps');
   const highlighted = parentMenuStore.useState('isActive', listItem.index);
-  const isParentFilterable = parentMenuStore.select('filterIntegration') !== null;
-
   const itemMetadata = React.useMemo(
     () => ({
       type: 'submenu-trigger' as const,
@@ -189,17 +187,15 @@ const MenuSubmenuTriggerImpl = React.forwardRef(function MenuSubmenuTriggerImpl(
       shouldOmitExpanded ? VOICE_OVER_EXPANDED_PROPS : undefined,
       {
         'aria-controls': popupId,
-        // A filterable parent keeps real focus on its input and moves virtual focus instead, so
-        // the trigger must stay out of the tab order like every other item in that list.
-        tabIndex: isParentFilterable ? undefined : ((open || highlighted ? 0 : -1) as number),
+        tabIndex: (open || highlighted ? 0 : -1) as number,
         onBlur() {
           if (highlighted) {
             parentMenuStore.set('activeIndex', null);
           }
         },
       },
-      elementProps,
       getItemProps,
+      elementProps,
     ],
     ref: [forwardedRef, listItem.ref, itemRef, registerTrigger, handleTriggerElementRef],
   });
@@ -222,17 +218,12 @@ const MenuSubmenuTriggerWithListItem = React.forwardRef(function MenuSubmenuTrig
   forwardedRef: React.ForwardedRef<HTMLElement>,
 ) {
   const { parentMenuStore, ...componentProps } = props;
-  const { store } = useMenuRootContext();
+  useMenuRootContext();
   const listItem = useCompositeListItem({ guess: true, label: componentProps.label });
   const parentFloatingId = parentMenuStore.useState('floatingId');
   // The trigger is an item in the parent menu, so its generated ID must match the parent's
   // aria-activedescendant namespace rather than the submenu it opens.
   const triggerId = componentProps.id ?? `${parentFloatingId}-${listItem.index}`;
-  // Child filterability controls trigger/dialog semantics; parent filterability controls whether
-  // this trigger participates in the parent's filtering.
-  const submenuFilterIntegration = store.select('filterIntegration');
-  const listFilterIntegration = parentMenuStore.select('filterIntegration');
-
   const triggerElement = (
     <MenuSubmenuTriggerImpl
       {...componentProps}
@@ -243,27 +234,7 @@ const MenuSubmenuTriggerWithListItem = React.forwardRef(function MenuSubmenuTrig
     />
   );
 
-  const trigger = submenuFilterIntegration ? (
-    <submenuFilterIntegration.Trigger
-      id={triggerId}
-      disabled={componentProps.disabled}
-      nativeButton={componentProps.nativeButton}
-      render={triggerElement}
-    />
-  ) : (
-    triggerElement
-  );
-
-  return listFilterIntegration ? (
-    <listFilterIntegration.Item
-      label={componentProps.label}
-      keywords={componentProps.keywords}
-      role="menuitem"
-      render={trigger}
-    />
-  ) : (
-    trigger
-  );
+  return triggerElement;
 });
 
 /**
@@ -310,14 +281,9 @@ export interface MenuSubmenuTriggerProps
   extends NonNativeButtonProps, BaseUIComponentProps<'div', MenuSubmenuTriggerState> {
   onClick?: BaseUIComponentProps<'div', MenuSubmenuTriggerState>['onClick'] | undefined;
   /**
-   * Overrides the text label to use when the item is matched during keyboard text navigation,
-   * and when filtering.
+   * Overrides the text label to use when the item is matched during keyboard text navigation.
    */
   label?: string | undefined;
-  /**
-   * Additional terms the item matches on when filtering, beyond its label.
-   */
-  keywords?: readonly string[] | undefined;
   /**
    * @ignore
    */

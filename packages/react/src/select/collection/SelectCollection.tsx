@@ -1,10 +1,10 @@
 'use client';
 import * as React from 'react';
-import { useSelectDerivedItemsContext } from '../root/SelectDerivedItemsContext';
+import { useSelectRootContext } from '../root/SelectRootContext';
 import { useSelectGroupCollectionContext } from './SelectGroupCollectionContext';
 
 /**
- * Renders filtered list items.
+ * Renders list items from the root's data source.
  * Doesn't render its own HTML element.
  *
  * If rendering a flat list, pass a function child to the `List` component instead, which implicitly wraps it.
@@ -14,10 +14,10 @@ import { useSelectGroupCollectionContext } from './SelectGroupCollectionContext'
 export function SelectCollection(props: SelectCollection.Props): React.JSX.Element {
   const { children } = props;
 
-  const { filteredItems } = useSelectDerivedItemsContext();
+  const { items } = useSelectRootContext();
   const groupContext = useSelectGroupCollectionContext();
 
-  const itemsToRender = groupContext ? groupContext.items : filteredItems;
+  const itemsToRender = groupContext ? groupContext.items : items;
 
   return <React.Fragment>{itemsToRender.map(children)}</React.Fragment>;
 }

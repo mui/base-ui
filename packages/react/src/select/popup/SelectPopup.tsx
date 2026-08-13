@@ -45,12 +45,10 @@ const stateAttributesMapping: StateAttributesMapping<SelectPopupState> = {
  *
  * Documentation: [Base UI Select](https://base-ui.com/react/components/select)
  */
-const SelectPopupImpl = React.forwardRef(function SelectPopupImpl(
+export const SelectPopup = React.forwardRef(function SelectPopup(
   componentProps: SelectPopup.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { id, render, className, style, finalFocus, ...elementProps } = componentProps;
-
   const {
     store,
     popupRef,
@@ -65,6 +63,11 @@ const SelectPopupImpl = React.forwardRef(function SelectPopupImpl(
     highlightItemOnHover,
     floatingContext,
   } = useSelectRootContext();
+  const rootId = useStore(store, selectors.id);
+  // Resolve once so the popup registration uses the same id the DOM element ends up with,
+  // otherwise a consumer id leaves the trigger pointing at nothing.
+  const id = componentProps.id ?? `${rootId}-popup`;
+  const { render, className, style, finalFocus, ...elementProps } = componentProps;
   const { side, align, alignItemWithTriggerActive, isPositioned, setAlignItemWithTrigger } =
     useSelectPositionerContext();
   const insideToolbar = useToolbarRootContext(true) != null;
@@ -494,33 +497,6 @@ const SelectPopupImpl = React.forwardRef(function SelectPopupImpl(
         {element}
       </FloatingFocusManager>
     </React.Fragment>
-  );
-});
-
-/**
- * A container for the select list.
- * Renders a `<div>` element.
- *
- * Documentation: [Base UI Select](https://base-ui.com/react/components/select)
- */
-export const SelectPopup = React.forwardRef(function SelectPopup(
-  componentProps: SelectPopup.Props,
-  forwardedRef: React.ForwardedRef<HTMLDivElement>,
-) {
-  const { store } = useSelectRootContext();
-  const filterIntegration = useStore(store, selectors.filterIntegration);
-  const rootId = useStore(store, selectors.id);
-  // Resolve once so the filter wrapper registers the same id the DOM element ends up with,
-  // otherwise a consumer id leaves the trigger pointing at nothing.
-  const id = componentProps.id ?? `${rootId}-popup`;
-  const selectPopup = <SelectPopupImpl {...componentProps} id={id} ref={forwardedRef} />;
-
-  return filterIntegration ? (
-    // The filter wrapper composes onto SelectPopupImpl so its implementation
-    // overrides SelectPopupImpl's implementation.
-    <filterIntegration.Popup id={id} render={selectPopup} />
-  ) : (
-    selectPopup
   );
 });
 

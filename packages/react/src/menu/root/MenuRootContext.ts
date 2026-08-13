@@ -26,18 +26,3 @@ export function useMenuRootContext(optional?: boolean) {
 
   return context;
 }
-
-export function useMenuFilterableRootContext(partName: string) {
-  const context = useMenuRootContext();
-  const filterable = context.store.select('filterable');
-
-  if (!filterable) {
-    throw new Error(
-      `Base UI: <FilterMenu.${partName}> must be placed within the nearest ` +
-        '<FilterMenu.Root> or <FilterMenu.SubmenuRoot>, imported from ' +
-        '`@base-ui/react/filter-menu`. An ordinary <Menu.Root> cannot filter.',
-    );
-  }
-
-  return context;
-}

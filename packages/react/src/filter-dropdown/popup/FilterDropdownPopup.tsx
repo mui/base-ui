@@ -7,7 +7,6 @@ import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { getContainsFilter } from '../../internals/filter';
 import type { BaseUIComponentProps } from '../../internals/types';
 import { useBaseUiId } from '../../internals/useBaseUiId';
-import { useItemRegistry } from '../../internals/useItemRegistry';
 import { useRenderElement } from '../../internals/useRenderElement';
 import type { StateAttributesMapping } from '../../internals/getStateAttributesProps';
 import { popupStateMapping } from '../../utils/popupStateMapping';
@@ -15,11 +14,10 @@ import { getTarget } from '../../floating-ui-react/utils';
 import {
   useFilterDropdownRootContext,
   useFilterDropdownValueContext,
-} from '../root/FilterDropdownRootContext';
-import {
-  FilterDropdownPopupContext,
   type FilterDropdownItemRegistration,
-} from './FilterDropdownPopupContext';
+  type FilterDropdownFilter,
+} from '../root/FilterDropdownRootContext';
+import { FilterDropdownPopupContext } from './FilterDropdownPopupContext';
 import type { State as StoreState } from '../store';
 
 const stateAttributesMapping: StateAttributesMapping<FilterDropdownPopupState> = {
@@ -36,16 +34,15 @@ export const FilterDropdownPopup = React.forwardRef(function FilterDropdownPopup
   const { id: idProp, render, className, style, ...elementProps } = componentProps;
   const context = useFilterDropdownRootContext();
   const value = useFilterDropdownValueContext();
-  const { setPopupId } = context;
+  const { inputRef, setPopupId, setPopupElement } = context;
   const id = idProp ?? context.popupId;
   // React 17 resolves generated ids in an effect, so they must be read live rather than captured
   // in a state initializer.
   const defaultListId = useBaseUiId();
   const [registeredListId, setListId] = React.useState<string | undefined>(undefined);
   const listId = registeredListId ?? defaultListId;
-  const [registeredItems, registerItem] = useItemRegistry<symbol, FilterDropdownItemRegistration>();
+  const { registeredItems } = context;
 
-  const inputRef = React.useRef<HTMLInputElement | null>(null);
   const popupRef = React.useRef<HTMLDivElement | null>(null);
   const store = useRefWithInit(() => new Store<StoreState>({ visibleItemIds: null })).current;
   const hasAriaLabel = elementProps['aria-label'] || elementProps['aria-labelledby'];
@@ -55,8 +52,13 @@ export const FilterDropdownPopup = React.forwardRef(function FilterDropdownPopup
     open: context.open,
   };
 
-  const matches = React.useMemo(() => {
-    return context.filter ?? getContainsFilter({ locale: context.locale });
+  const matches = React.useMemo<FilterDropdownFilter>(() => {
+    if (context.filter) {
+      return context.filter;
+    }
+
+    const defaultFilter = getContainsFilter({ locale: context.locale });
+    return (filterText, query) => defaultFilter(filterText, query);
   }, [context.filter, context.locale]);
 
   const filter = React.useCallback(
@@ -69,13 +71,11 @@ export const FilterDropdownPopup = React.forwardRef(function FilterDropdownPopup
       } else {
         const nextIds = new Set<symbol>();
 
-        registeredItems.forEach(({ getText, keywords }, id) => {
+        registeredItems.forEach(({ getText, keywords, filterValue }, id) => {
           const filterText = getText();
           // The filter runs against the label text and against each keyword.
-          if (
-            (filterText != null && matches(filterText, query)) ||
-            keywords?.some((keyword) => matches(keyword, query))
-          ) {
+          const matchesText = filterText != null && matches(filterText, query, filterValue);
+          if (matchesText || keywords?.some((keyword) => matches(keyword, query))) {
             nextIds.add(id);
           }
         });
@@ -94,10 +94,9 @@ export const FilterDropdownPopup = React.forwardRef(function FilterDropdownPopup
       store,
       inputRef,
       listId,
-      registerItem,
       setListId,
     }),
-    [store, listId, registerItem],
+    [inputRef, listId, setListId, store],
   );
 
   // Filtering uses the registry snapshot published after all items in the commit register.
@@ -119,10 +118,12 @@ export const FilterDropdownPopup = React.forwardRef(function FilterDropdownPopup
 
     if (previousElement && previousElement !== element) {
       context.popupElements.delete(previousElement);
+      setPopupElement(null);
     }
 
     if (element) {
       context.popupElements.add(element);
+      setPopupElement(element);
     }
   });
 
@@ -131,6 +132,7 @@ export const FilterDropdownPopup = React.forwardRef(function FilterDropdownPopup
     ref: [forwardedRef, handlePopupRef],
     props: [
       {
+        ...context.navigation.floating,
         id,
         role: 'dialog',
         'aria-labelledby': ariaLabelledBy,
@@ -147,12 +149,18 @@ export const FilterDropdownPopup = React.forwardRef(function FilterDropdownPopup
         onMouseMove(event) {
           // A closing popup must not re-capture focus during its exit transition.
           if (context.open && isEventFromCurrentPopup(event, context.popupElements)) {
-            inputRef.current?.focus({ preventScroll: true });
+            context.inputRef.current?.focus({ preventScroll: true });
           }
         },
         onFocus(event) {
           if (context.open && getTarget(event.nativeEvent) === event.currentTarget) {
-            inputRef.current?.focus({ preventScroll: true });
+            context.inputRef.current?.focus({ preventScroll: true });
+          }
+        },
+        onKeyDown(event) {
+          if (event.key === 'ArrowLeft' && event.target !== context.inputRef.current) {
+            context.inputRef.current?.focus({ preventScroll: true });
+            event.stopPropagation();
           }
         },
       },

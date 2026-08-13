@@ -165,8 +165,6 @@ export const MenuTrigger = fastComponentRef(function MenuTrigger(
   const isInMenubar = parent.type === 'menubar';
 
   const rootDisabled = store.useState('disabled');
-  const filterIntegration = store.select('filterIntegration');
-  const detached = store !== rootContext?.store;
   const disabled = disabledProp || rootDisabled || (isInMenubar && parent.context.disabled);
 
   const { getButtonProps, buttonRef } = useButton({
@@ -282,7 +280,7 @@ export const MenuTrigger = fastComponentRef(function MenuTrigger(
     hoverProps ?? EMPTY_OBJECT,
     rootTriggerProps,
     {
-      'aria-haspopup': filterIntegration ? 'dialog' : 'menu',
+      'aria-haspopup': 'menu',
       'aria-controls': popupId,
       id: thisTriggerId,
       onMouseDown: (event: React.MouseEvent) => {
@@ -304,7 +302,7 @@ export const MenuTrigger = fastComponentRef(function MenuTrigger(
     getButtonProps,
   ];
 
-  let trigger = (
+  const trigger = (
     <MenuTriggerImpl
       {...componentProps}
       isInMenubar={isInMenubar}
@@ -313,17 +311,6 @@ export const MenuTrigger = fastComponentRef(function MenuTrigger(
       props={props}
     />
   );
-
-  if (filterIntegration) {
-    trigger = (
-      <filterIntegration.Trigger
-        id={thisTriggerId}
-        disabled={disabled}
-        detached={detached ? { open: isOpenedByThisTrigger, popupId } : undefined}
-        render={trigger}
-      />
-    );
-  }
 
   if (isInMenubar) {
     return trigger;

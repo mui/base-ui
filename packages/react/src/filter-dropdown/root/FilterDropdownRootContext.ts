@@ -2,14 +2,30 @@
 import * as React from 'react';
 import type { BaseUIChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import type { REASONS } from '../../internals/reasons';
+import type { HTMLProps } from '../../internals/types';
+import type { FilterDropdownNavigationStore } from '../store';
 
-export type FilterDropdownFilter = (filterText: string, query: string) => boolean;
+export interface FilterDropdownItemRegistration {
+  getText: () => string | undefined;
+  keywords: readonly string[] | undefined;
+  filterValue: unknown;
+  ref: React.RefObject<HTMLElement | null>;
+}
+
+export type FilterDropdownFilter = (
+  filterText: string,
+  query: string,
+  filterValue?: unknown,
+) => boolean;
 
 export interface FilterDropdownRootContext {
   open: boolean;
+  disabled: boolean;
+  inputFocusVisible: boolean;
+  setInputFocusVisible: (visible: boolean) => void;
   /**
    * Whether the current query matched no items, supplied by a host whose data pass drives the
-   * list (Select). When undefined, the popup's item registry decides (Menu).
+   * list. When undefined, the popup's item registry decides.
    */
   empty: boolean | undefined;
   popupElements: WeakSet<EventTarget>;
@@ -20,6 +36,20 @@ export interface FilterDropdownRootContext {
   liveRegionElement: HTMLDivElement | null;
   setLiveRegionElement: React.Dispatch<React.SetStateAction<HTMLDivElement | null>>;
   setTriggerElement: React.Dispatch<React.SetStateAction<HTMLElement | null>>;
+  setPopupElement: React.Dispatch<React.SetStateAction<HTMLElement | null>>;
+  inputRef: React.RefObject<HTMLInputElement | null>;
+  listRef: React.RefObject<Array<HTMLElement | null>>;
+  registeredItems: ReadonlyMap<symbol, FilterDropdownItemRegistration>;
+  registerItem: (id: symbol, registration: FilterDropdownItemRegistration) => () => void;
+  navigationStore: FilterDropdownNavigationStore;
+  activeIndex: number | null;
+  setActiveIndex: (index: number | null) => void;
+  navigation: {
+    trigger: HTMLProps;
+    reference: HTMLProps;
+    floating: HTMLProps;
+    item: HTMLProps;
+  };
   locale: Intl.LocalesArgument | undefined;
   filter: FilterDropdownFilter | undefined;
   onValueChange: (value: string, eventDetails: FilterDropdownRoot.ChangeEventDetails) => void;

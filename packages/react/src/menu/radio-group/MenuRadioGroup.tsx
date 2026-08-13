@@ -5,7 +5,6 @@ import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { MenuRadioGroupContext } from './MenuRadioGroupContext';
 import { MenuGroupContext } from '../group/MenuGroupContext';
 import { useRenderElement } from '../../internals/useRenderElement';
-import { useMenuRootContext } from '../root/MenuRootContext';
 import type { BaseUIComponentProps } from '../../internals/types';
 import type { MenuRoot } from '../root/MenuRoot';
 
@@ -32,9 +31,6 @@ export const MenuRadioGroup = React.memo(
       ...elementProps
     } = componentProps;
 
-    // Optional so the group renders standalone (e.g. in conformance tests and previews).
-    const rootContext = useMenuRootContext(true);
-    const filterIntegration = rootContext ? rootContext.store.select('filterIntegration') : null;
     const [labelId, setLabelId] = React.useState<string | undefined>(undefined);
 
     const [value, setValueUnwrapped] = useControlled({
@@ -77,12 +73,9 @@ export const MenuRadioGroup = React.memo(
       [value, setValue, disabled],
     );
 
-    // Hides the whole group, label included, when the query filters out every item in it.
-    const composed = filterIntegration ? <filterIntegration.Group render={element} /> : element;
-
     return (
       <MenuGroupContext.Provider value={setLabelId}>
-        <MenuRadioGroupContext.Provider value={context}>{composed}</MenuRadioGroupContext.Provider>
+        <MenuRadioGroupContext.Provider value={context}>{element}</MenuRadioGroupContext.Provider>
       </MenuGroupContext.Provider>
     );
   }),

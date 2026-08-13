@@ -69,7 +69,6 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
   } = useSelectRootContext();
 
   const open = useStore(store, selectors.open);
-  const filterable = useStore(store, selectors.filterable);
   const mounted = useStore(store, selectors.mounted);
   const modal = useStore(store, selectors.modal);
   const multiple = useStore(store, selectors.multiple);
@@ -89,7 +88,7 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
   // when alignment can't work (viewport collision, pinch zoom). Keeping them separate lets the
   // fallback apply even with an explicit `alignItemWithTrigger`, and resetting while unmounted
   // stops one failed opening from disabling alignment for every later one.
-  const alignItemWithTriggerPreference = alignItemWithTriggerProp ?? !filterable;
+  const alignItemWithTriggerPreference = alignItemWithTriggerProp ?? true;
   const [alignItemWithTrigger, setAlignItemWithTrigger] = React.useState(
     alignItemWithTriggerPreference,
   );
@@ -125,8 +124,6 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
     disableAnchorTracking: disableAnchorTracking ?? alignItemWithTriggerActive,
     collisionAvoidance,
     keepMounted: true,
-    // Filtering resizes the popup as the user types; latch the side so it doesn't flip mid-query.
-    lazyFlip: filterable,
   });
 
   const renderedSide = alignItemWithTriggerActive ? 'none' : positioning.side;
@@ -205,15 +202,8 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
     [positioning, renderedSide, alignItemWithTriggerActive, setAlignItemWithTrigger],
   );
 
-  // Reconcile after React commits both the item registry and the possibly controlled value.
-  // A filterable root narrows `items` before rendering, so its registrations fluctuate with the
-  // query; there the full `items` data is the removal authority instead (see SelectRoot).
   useIsoLayoutEffect(
     function syncSelectedValueOnItemRemoval() {
-      if (store.state.filterable) {
-        return;
-      }
-
       const previousRegisteredItems = previousRegisteredItemsRef.current;
       previousRegisteredItemsRef.current = registeredItems;
 
@@ -323,7 +313,7 @@ export interface SelectPositionerProps
   extends UseAnchorPositioningSharedParameters, BaseUIComponentProps<'div', SelectPositionerState> {
   /**
    * Whether the positioner overlaps the trigger so the selected item's text is aligned with the trigger's value text. This only applies to mouse input and is automatically disabled if there is not enough space.
-   * @default true for standard selects; false for filterable selects
+   * @default true
    */
   alignItemWithTrigger?: boolean | undefined;
 }

@@ -22,13 +22,14 @@ export const FilterDropdownClear = React.forwardRef(function FilterDropdownClear
     render,
     className,
     style,
-    disabled = false,
+    disabled: disabledProp,
     nativeButton = true,
     ...elementProps
   } = componentProps;
   const context = useFilterDropdownRootContext();
   const popupContext = useFilterDropdownPopupContext();
   const value = useFilterDropdownValueContext();
+  const disabled = disabledProp ?? context.disabled;
   const { buttonRef, getButtonProps } = useButton({ disabled, native: nativeButton });
   const visible = value !== '';
 

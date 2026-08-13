@@ -4,7 +4,6 @@ import { visuallyHidden, visuallyHiddenInput } from '@base-ui/utils/visuallyHidd
 import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { useOnFirstRender } from '@base-ui/utils/useOnFirstRender';
-import { usePreviousValue } from '@base-ui/utils/usePreviousValue';
 import { isElementDisabled } from '@base-ui/utils/isElementDisabled';
 import { useControlled } from '@base-ui/utils/useControlled';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
@@ -20,11 +19,6 @@ import {
   useTypeahead,
 } from '../../floating-ui-react';
 import { SelectRootContext } from './SelectRootContext';
-import { SelectDerivedItemsContext } from './SelectDerivedItemsContext';
-import {
-  SelectFilterIntegrationContext,
-  useSelectFilterIntegration,
-} from './SelectFilterIntegrationContext';
 import { useFieldRootContext } from '../../internals/field-root-context/FieldRootContext';
 import { useRegisterFieldControl } from '../../internals/field-register-control/useRegisterFieldControl';
 import { useLabelableId } from '../../internals/labelable-provider/useLabelableId';
@@ -37,12 +31,7 @@ import {
 import { REASONS } from '../../internals/reasons';
 import { useOpenChangeComplete } from '../../internals/useOpenChangeComplete';
 import { useFormContext } from '../../internals/form-context/FormContext';
-import {
-  type Group,
-  isGroupedItems,
-  stringifyAsLabel,
-  stringifyAsValue,
-} from '../../internals/resolveValueLabel';
+import { type Group, stringifyAsLabel, stringifyAsValue } from '../../internals/resolveValueLabel';
 import {
   compareItemEquality,
   defaultItemEquality,
@@ -66,16 +55,12 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
 ): React.JSX.Element {
   const {
     id,
-    filter: filterProp,
     value: valueProp,
     defaultValue = null,
     onValueChange,
     defaultOpen = false,
     open: openProp,
     onOpenChange,
-    inputValue: inputValueProp,
-    defaultInputValue = '',
-    onInputValueChange,
     name: nameProp,
     form,
     autoComplete,
@@ -119,13 +104,6 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     state: 'open',
   });
 
-  const [inputValue, setInputValue] = useControlled({
-    controlled: inputValueProp,
-    default: defaultInputValue,
-    name: 'Select',
-    state: 'inputValue',
-  });
-
   const [value, setValueUnwrapped] = useControlled({
     controlled: valueProp,
     default: multiple ? (defaultValue ?? EMPTY_ARRAY) : defaultValue,
@@ -133,14 +111,8 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     state: 'value',
   });
 
-  // Filterability comes from the entrypoint, not the prop: only `filter-select` supplies the
-  // integration. That keeps the filtering implementation out of an ordinary select's bundle, and
-  // makes the mode fixed for the select's lifetime without a mount-time latch.
-  const filterIntegration = useSelectFilterIntegration();
-  const filterable = filterIntegration !== null;
   const [registeredItems, registerItem] = useItemRegistry<symbol, RegisteredItem>();
   const listRef = React.useRef<Array<HTMLElement | null>>([]);
-  const filterInputRef = React.useRef<HTMLInputElement | null>(null);
   const popupRef = React.useRef<HTMLDivElement | null>(null);
   const scrollHandlerRef = React.useRef<((el: HTMLDivElement) => void) | null>(null);
   const scrollArrowsMountedCountRef = React.useRef(0);
@@ -164,8 +136,6 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
         labelId: undefined,
         modal,
         multiple,
-        filterable,
-        filterIntegration,
         itemToStringLabel,
         itemToStringValue,
         isItemEqualToValue,
@@ -180,10 +150,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
         openMethod: null,
         activeIndex: null,
         selectionReferenceItemId: null,
-        inputFocusVisible: false,
         popupProps: {},
-        inputProps: {},
-        listProps: {},
         triggerProps: {},
         triggerElement: null,
         positionerElement: null,
@@ -200,9 +167,6 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
   const visibleItemIndexes = useStore(store, selectors.visibleItemIndexes);
   const triggerElement = useStore(store, selectors.triggerElement);
   const positionerElement = useStore(store, selectors.positionerElement);
-
-  const previousOpenMethod = usePreviousValue(openMethod);
-  const renderedOpenMethod = openMethod ?? previousOpenMethod;
 
   const selectionReferenceIndex = React.useMemo(() => {
     return selectionReferenceItemId == null
@@ -276,11 +240,6 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     [multiple, value, isItemEqualToValue, store],
   );
 
-  useIsoLayoutEffect(() => {
-    if (open) {
-      store.set('inputFocusVisible', filterable && renderedOpenMethod === 'keyboard');
-    }
-  }, [filterable, open, renderedOpenMethod, store]);
   useValueChanged(value, () => {
     clearErrors(name);
     setDirty(isSelectedValueDirty(value, validityData.initialValue, isItemEqualToValue));
@@ -312,72 +271,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     },
   );
 
-  // Mirrors AriaCombobox: typing always clears the highlight (virtual focus returns to the
-  // input) and suppresses selected-item seeding for the rest of the query; fully clearing the
-  // query restores the highlight to the selected item.
-  const [queryChangedAfterOpen, setQueryChangedAfterOpen] = React.useState(false);
-  const pendingClearRestoreRef = React.useRef(false);
-
-  const handleInputValueChange = useStableCallback(
-    (nextInputValue: string, eventDetails: SelectRoot.InputValueChangeEventDetails) => {
-      onInputValueChange?.(nextInputValue, eventDetails);
-
-      if (eventDetails.isCanceled || nextInputValue === inputValue) {
-        return;
-      }
-
-      setInputValue(nextInputValue);
-
-      if (eventDetails.reason !== REASONS.popupClose) {
-        if (nextInputValue.trim() === '') {
-          setQueryChangedAfterOpen(false);
-          pendingClearRestoreRef.current = true;
-        } else {
-          setQueryChangedAfterOpen(true);
-        }
-      }
-
-      // Filtering compacts the list, so a numeric active index would point at a different item
-      // or at none at all. Return virtual focus to the input instead.
-      store.set('activeIndex', null);
-    },
-  );
-
-  useIsoLayoutEffect(() => {
-    if (!open) {
-      setQueryChangedAfterOpen(false);
-      pendingClearRestoreRef.current = false;
-    }
-  }, [open]);
-
-  useIsoLayoutEffect(() => {
-    if (!pendingClearRestoreRef.current) {
-      return;
-    }
-    pendingClearRestoreRef.current = false;
-    if (!filterable || !open || inputValue.trim() !== '') {
-      return;
-    }
-    // Items re-mounted by the clear publish their composite indices in a follow-up commit, so
-    // the registries are mid-update here. Defer past React's cascade, like AriaCombobox.
-    queueMicrotask(() => {
-      if (!store.state.open) {
-        return;
-      }
-      const referenceId = store.state.selectionReferenceItemId;
-      const index =
-        referenceId == null ? null : (store.state.visibleItemIndexes.get(referenceId) ?? null);
-      store.set('activeIndex', index);
-    });
-  }, [filterable, open, inputValue, store]);
-
-  // `items` is the data source when provided: it drives what the list renders and what filtering
-  // narrows. A filterable select requires it; ordinary consumers can still render
-  // `<Select.Item>` children themselves and use `items` purely to resolve labels in
-  // `<Select.Value>`.
-  const hasItems = items !== undefined;
-  const isGrouped = Array.isArray(items) && isGroupedItems(items);
-
+  // `items` is the data source for resolving labels and rendering collection children.
   const normalizedItems: readonly any[] = React.useMemo(() => {
     if (items === undefined) {
       return EMPTY_ARRAY;
@@ -390,71 +284,16 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     return Object.entries(items).map(([itemValue, label]) => ({ value: itemValue, label }));
   }, [items]);
 
-  const matchesItem = React.useMemo(
-    () => filterProp ?? filterIntegration?.getDefaultFilter(),
-    [filterProp, filterIntegration],
-  );
-
-  const query = inputValue.trim();
-
-  const filteredItems: readonly any[] = React.useMemo(() => {
-    // `matchesItem` always exists when filterable; the check doubles as type narrowing. An
-    // ordinary select never filters `items`, even when an input value is set programmatically.
-    if (!hasItems || !filterable || query === '' || matchesItem === undefined) {
-      return normalizedItems;
-    }
-
-    // The filter runs against the entry and against each of its keywords.
-    const entryMatches = (item: any) =>
-      matchesItem(item, query, itemToStringLabel) ||
-      (Array.isArray(item?.keywords) &&
-        item.keywords.some((keyword: string) => matchesItem(keyword, query)));
-
-    if (isGrouped) {
-      const matchedGroups: Group<any>[] = [];
-      for (const group of normalizedItems as ReadonlyArray<Group<any>>) {
-        const matchedGroupItems = group.items.filter(entryMatches);
-        if (matchedGroupItems.length > 0) {
-          matchedGroups.push({ ...group, items: matchedGroupItems });
-        }
-      }
-      return matchedGroups;
-    }
-
-    return normalizedItems.filter(entryMatches);
-  }, [hasItems, filterable, query, normalizedItems, isGrouped, matchesItem, itemToStringLabel]);
-
-  const flatFilteredItems: readonly any[] = React.useMemo(() => {
-    if (isGrouped) {
-      return (filteredItems as ReadonlyArray<Group<any>>).flatMap((group) => group.items);
-    }
-    return filteredItems;
-  }, [filteredItems, isGrouped]);
-
-  const derivedItemsContextValue: SelectDerivedItemsContext = React.useMemo(
-    () => ({ hasItems, filteredItems, flatFilteredItems }),
-    [hasItems, filteredItems, flatFilteredItems],
-  );
-
   const handleUnmount = useStableCallback(() => {
     store.update({
       activeIndex: null,
-      inputFocusVisible: false,
       openMethod: null,
       scrollUpArrowVisible: false,
       scrollDownArrowVisible: false,
     });
     // Select doesn't unmount when closed, so we need to reset the scroll
-    // position manually. Needed for filterable selects where first focusable
-    // element is the filter input and not a select item.
     store.state.listElement?.scrollTo?.({ top: 0 });
     setMounted(false);
-
-    // The filter root outlives the popup. Reset only on unmount so the filtered contents stay
-    // stable during an exit transition, and a prevented or interrupted unmount keeps the query.
-    if (inputValue !== '') {
-      handleInputValueChange('', createChangeEventDetails(REASONS.popupClose));
-    }
 
     onOpenChangeComplete?.(false);
   });
@@ -483,70 +322,6 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
       setValueUnwrapped(nextValue);
     },
   );
-
-  // A filterable list narrows `items` before rendering, so item registrations fluctuate with the
-  // query and cannot distinguish a filtered-out item from a removed one. The full `items` data is
-  // the removal authority instead: drop selected values whose entries left it. Ordinary roots
-  // keep the registration-based reconciliation in SelectPositioner.
-  useIsoLayoutEffect(() => {
-    if (!filterable || !hasItems) {
-      return;
-    }
-
-    const flatEntries: readonly any[] = isGrouped
-      ? (normalizedItems as ReadonlyArray<Group<any>>).flatMap((group) => group.items)
-      : normalizedItems;
-    const isItemPresent = (itemValue: any) =>
-      flatEntries.some((entry) =>
-        compareItemEquality(
-          entry && typeof entry === 'object' && 'value' in entry ? entry.value : entry,
-          itemValue,
-          isItemEqualToValue,
-        ),
-      );
-
-    function getNextSelectedValue() {
-      if (multiple) {
-        if (Array.isArray(value)) {
-          const remainingValues = value.filter(isItemPresent);
-          return remainingValues.length === value.length ? value : remainingValues;
-        }
-        return value;
-      }
-
-      if (value != null && !isItemPresent(value)) {
-        const initialValue = initialValueRef.current;
-        const hasInitialValue = initialValue != null && isItemPresent(initialValue);
-        return hasInitialValue ? initialValue : null;
-      }
-
-      return value;
-    }
-
-    const nextSelectedValue = getNextSelectedValue();
-    if (value === nextSelectedValue) {
-      return;
-    }
-
-    setValue(nextSelectedValue, createChangeEventDetails(REASONS.none));
-
-    const hasNoSelectionReference =
-      nextSelectedValue == null ||
-      (multiple && Array.isArray(nextSelectedValue) && nextSelectedValue.length === 0);
-    if (hasNoSelectionReference) {
-      store.set('selectionReferenceItemId', null);
-    }
-  }, [
-    store,
-    filterable,
-    hasItems,
-    isGrouped,
-    normalizedItems,
-    multiple,
-    value,
-    isItemEqualToValue,
-    setValue,
-  ]);
 
   const handleScrollArrowVisibility = useStableCallback((scroller: HTMLElement) => {
     const maxScrollTop = getMaxScrollOffset(scroller.scrollHeight, scroller.clientHeight);
@@ -578,38 +353,16 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     enabled: !readOnly && !disabled,
     listRef,
     activeIndex,
-    virtual: filterable,
-    loopFocus: filterable,
-    // Clear the active descendant at a list boundary so virtual focus returns to the filter
-    // input before navigation loops to the other end.
-    allowEscape: filterable,
-    // Matches Combobox: opening a filterable select with a selection highlights the selected
-    // item and scrolls it into view, while DOM focus stays on the filter input. Without a
-    // selection, virtual focus starts on the input rather than the first item. Gated on the
-    // value (not `selectionReferenceIndex`) because items are unmounted while closed, so the
-    // index only resolves after the popup opens.
-    // eslint-disable-next-line no-nested-ternary
-    focusItemOnOpen: filterable ? (hasSelectedValue ? 'auto' : false) : undefined,
-    // A null selected index while a query is active keeps the open-seeding effect from
-    // re-highlighting the selection as filtering re-indexes the list.
-    selectedIndex: queryChangedAfterOpen ? null : selectionReferenceIndex,
+    selectedIndex: selectionReferenceIndex,
     disabledIndices: EMPTY_ARRAY,
     focusItemOnHover: highlightItemOnHover,
-    onNavigate(nextActiveIndex, event) {
+    onNavigate(nextActiveIndex, _event) {
       // Retain the highlight while transitioning out.
       if (nextActiveIndex === null && !open) {
         return;
       }
 
-      if (filterable && nextActiveIndex === null) {
-        // Virtual navigation escaped the List boundary, so return DOM focus to the filter input.
-        filterInputRef.current?.focus({ preventScroll: true });
-      }
-
-      store.update({
-        activeIndex: nextActiveIndex,
-        inputFocusVisible: filterable && nextActiveIndex === null && event?.type === 'keydown',
-      });
+      store.set('activeIndex', nextActiveIndex);
     },
   });
 
@@ -652,7 +405,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     () =>
       mergeProps(
         typeahead.reference,
-        filterable ? listNavigation.trigger : listNavigation.reference,
+        listNavigation.reference,
         dismiss.reference,
         click.reference,
         interactionTypeProps,
@@ -660,8 +413,6 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     [
       typeahead.reference,
       listNavigation.reference,
-      listNavigation.trigger,
-      filterable,
       dismiss.reference,
       click.reference,
       interactionTypeProps,
@@ -680,14 +431,9 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
   );
 
   const itemProps = listNavigation.item ?? EMPTY_OBJECT;
-  const inputProps = (filterable && listNavigation.reference) || EMPTY_OBJECT;
-  const listProps = inputProps;
-
   useOnFirstRender(() => {
     store.update({
       popupProps,
-      inputProps,
-      listProps,
       triggerProps: mergedTriggerProps,
     });
   });
@@ -696,21 +442,18 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     id: generatedId,
     modal,
     multiple,
-    filterable,
     value,
     open,
     mounted,
     transitionStatus,
     popupProps,
-    inputProps,
-    listProps,
     triggerProps: mergedTriggerProps,
     registeredItems,
     items,
     itemToStringLabel,
     itemToStringValue,
     isItemEqualToValue,
-    openMethod: renderedOpenMethod,
+    openMethod,
   });
 
   const contextValue: SelectRootContext = React.useMemo(
@@ -721,12 +464,12 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
       disabled,
       readOnly,
       multiple,
+      items: normalizedItems,
       highlightItemOnHover,
       registerItem,
       setValue,
       setOpen,
       listRef,
-      filterInputRef,
       popupRef,
       scrollHandlerRef,
       handleScrollArrowVisibility,
@@ -748,6 +491,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
       disabled,
       readOnly,
       multiple,
+      normalizedItems,
       highlightItemOnHover,
       registerItem,
       setValue,
@@ -859,28 +603,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     </SelectRootContext.Provider>
   );
 
-  const content = filterIntegration ? (
-    <filterIntegration.Root
-      open={open}
-      empty={hasItems && query !== '' && flatFilteredItems.length === 0}
-      value={inputValue}
-      onValueChange={handleInputValueChange}
-    >
-      {select}
-    </filterIntegration.Root>
-  ) : (
-    select
-  );
-
-  return (
-    <SelectDerivedItemsContext.Provider value={derivedItemsContextValue}>
-      {/* A nested select is only filterable if its own root is a filterable one, so the
-          integration must not reach the subtree through context. Parts read it from the store. */}
-      <SelectFilterIntegrationContext.Provider value={null}>
-        {content}
-      </SelectFilterIntegrationContext.Provider>
-    </SelectDerivedItemsContext.Provider>
-  );
+  return select;
 }
 
 function findMatchingItem(
@@ -908,55 +631,10 @@ type SelectValueType<Value, Multiple extends boolean | undefined> = Multiple ext
   ? Value[]
   : Value;
 
-/**
- * Matches one item against the trimmed query. Shares Combobox's signature, so a filter written
- * for one component works in the other. When the list is rendered from `items`, `item` is the
- * entry itself; when the consumer renders `<Select.Item>` children, `item` is the item's `label`
- * (falling back to its rendered text).
- */
-export type SelectFilter = (
-  item: any,
-  query: string,
-  itemToStringLabel?: (item: any) => string,
-) => boolean;
-
-// These are deliberately not a discriminated union on `filter`. `Omit`, `Pick`, and object rest
-// all collapse a union into one object type with widened members, which then matches no branch,
-// so a typed wrapper like `interface MyProps extends Omit<Select.Root.Props, 'children'>` would
-// not compile. Misuse is reported at runtime instead: `Select.Input` throws without `filter`.
-interface SelectRootFilterProps {
-  /**
-   * Customizes how items match the query. The function receives the `items` entry and the
-   * trimmed query.
-   * Only a filterable select (`FilterSelect.Root`) filters.
-   */
-  filter?: SelectFilter | undefined;
-  /**
-   * The uncontrolled input value when the select is initially rendered.
-   * Only applies to a filterable select (`FilterSelect`).
-   *
-   * To render a controlled filter input, use the `inputValue` prop instead.
-   * @default ''
-   */
-  defaultInputValue?: string | undefined;
-  /**
-   * The input value. Use when controlled.
-   * Only applies to a filterable select (`FilterSelect`).
-   */
-  inputValue?: string | undefined;
-  /**
-   * Event handler called when the input value changes.
-   * Only applies to a filterable select (`FilterSelect`).
-   */
-  onInputValueChange?:
-    | ((value: string, eventDetails: SelectRootInputValueChangeEventDetails) => void)
-    | undefined;
-}
-
 export type SelectRootProps<
   Value,
   Multiple extends boolean | undefined = false,
-> = SelectRootBaseProps<Value, Multiple> & SelectRootFilterProps;
+> = SelectRootBaseProps<Value, Multiple>;
 
 interface SelectRootBaseProps<Value, Multiple extends boolean | undefined = false> {
   children?: React.ReactNode;
@@ -1046,8 +724,7 @@ interface SelectRootBaseProps<Value, Multiple extends boolean | undefined = fals
    * Data structure of the items rendered in the select popup.
    * When specified, `<Select.Value>` renders the label of the selected item instead of the raw value.
    * It is also the data source for the list: pass a function child to `<Select.List>` (or use
-   * `<Select.Collection>`) to render one item per entry, and filtering narrows these entries
-   * before the list renders.
+   * `<Select.Collection>`) to render one item per entry.
    * @example
    * ```tsx
    * const items = {
@@ -1064,7 +741,6 @@ interface SelectRootBaseProps<Value, Multiple extends boolean | undefined = fals
     | ReadonlyArray<{
         label: React.ReactNode;
         value: any;
-        keywords?: readonly string[] | undefined;
       }>
     | ReadonlyArray<Group<any>>
     | undefined;
@@ -1123,15 +799,6 @@ export type SelectRootChangeEventReason =
 
 export type SelectRootChangeEventDetails = BaseUIChangeEventDetails<SelectRootChangeEventReason>;
 
-export type SelectRootInputValueChangeEventReason =
-  | typeof REASONS.inputChange
-  | typeof REASONS.inputClear
-  | typeof REASONS.clearPress
-  | typeof REASONS.popupClose;
-
-export type SelectRootInputValueChangeEventDetails =
-  BaseUIChangeEventDetails<SelectRootInputValueChangeEventReason>;
-
 export namespace SelectRoot {
   export type Props<Value, Multiple extends boolean | undefined = false> = SelectRootProps<
     Value,
@@ -1141,6 +808,4 @@ export namespace SelectRoot {
   export type Actions = SelectRootActions;
   export type ChangeEventReason = SelectRootChangeEventReason;
   export type ChangeEventDetails = SelectRootChangeEventDetails;
-  export type InputValueChangeEventReason = SelectRootInputValueChangeEventReason;
-  export type InputValueChangeEventDetails = SelectRootInputValueChangeEventDetails;
 }

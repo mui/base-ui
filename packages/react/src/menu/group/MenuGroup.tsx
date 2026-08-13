@@ -2,7 +2,6 @@
 import * as React from 'react';
 import { BaseUIComponentProps } from '../../internals/types';
 import { useRenderElement } from '../../internals/useRenderElement';
-import { useMenuRootContext } from '../root/MenuRootContext';
 import { MenuGroupContext } from './MenuGroupContext';
 
 /**
@@ -16,10 +15,6 @@ export const MenuGroup = React.forwardRef(function MenuGroup(
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const { render, className, style, ...elementProps } = componentProps;
-  // Optional so the group renders standalone (e.g. in conformance tests and previews).
-  const rootContext = useMenuRootContext(true);
-  const filterIntegration = rootContext ? rootContext.store.select('filterIntegration') : null;
-
   const [labelId, setLabelId] = React.useState<string | undefined>(undefined);
 
   const element = useRenderElement('div', componentProps, {
@@ -31,10 +26,7 @@ export const MenuGroup = React.forwardRef(function MenuGroup(
     },
   });
 
-  // Hides the whole group, label included, when the query filters out every item in it.
-  const composed = filterIntegration ? <filterIntegration.Group render={element} /> : element;
-
-  return <MenuGroupContext.Provider value={setLabelId}>{composed}</MenuGroupContext.Provider>;
+  return <MenuGroupContext.Provider value={setLabelId}>{element}</MenuGroupContext.Provider>;
 });
 
 export interface MenuGroupProps extends BaseUIComponentProps<'div', MenuGroupState> {

@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
-import type { BaseUIComponentProps } from '../../internals/types';
+import type { BaseUIComponentProps, BaseUIEvent } from '../../internals/types';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { useFilterDropdownPopupContext } from '../popup/FilterDropdownPopupContext';
 import { useFilterDropdownRootContext } from '../root/FilterDropdownRootContext';
@@ -18,6 +18,7 @@ export const FilterDropdownList = React.forwardRef(function FilterDropdownList(
   const popupContext = useFilterDropdownPopupContext();
   const { setListId } = popupContext;
   const id = idProp ?? popupContext.listId;
+  const activeElement = rootContext.listRef.current[rootContext.activeIndex ?? -1];
   const hasAriaLabel = elementProps['aria-label'] || elementProps['aria-labelledby'];
   const ariaLabelledBy = hasAriaLabel ? elementProps['aria-labelledby'] : rootContext.triggerId;
 
@@ -25,13 +26,15 @@ export const FilterDropdownList = React.forwardRef(function FilterDropdownList(
     setListId(id);
   }, [id, setListId]);
 
-  return useRenderElement('div', componentProps, {
+  const element = useRenderElement('div', componentProps, {
     ref: forwardedRef,
     props: [
+      rootContext.navigation.reference,
       {
         role: 'menu',
         id,
         'aria-labelledby': ariaLabelledBy,
+        'aria-activedescendant': activeElement?.id,
         // A tab stop: VoiceOver + Safari doesn't track `aria-activedescendant` from the input,
         // so ATs can tab onto the list and navigate from it instead (focus seeds the first item).
         tabIndex: 0,
@@ -39,8 +42,16 @@ export const FilterDropdownList = React.forwardRef(function FilterDropdownList(
           // Keep focus on the input when list content is pressed.
           event.preventDefault();
         },
-        onKeyDown(event) {
+        onKeyDown(event: BaseUIEvent<React.KeyboardEvent>) {
           if (event.target !== event.currentTarget || event.nativeEvent.isComposing) {
+            return;
+          }
+          if (event.key === 'Tab' && event.shiftKey) {
+            event.preventDefault();
+            event.stopPropagation();
+            event.preventBaseUIHandler();
+            rootContext.setActiveIndex(null);
+            popupContext.inputRef.current?.focus({ preventScroll: true });
             return;
           }
           const isTypingKey =
@@ -52,10 +63,18 @@ export const FilterDropdownList = React.forwardRef(function FilterDropdownList(
             popupContext.inputRef.current?.focus({ preventScroll: true });
           }
         },
+        onFocus(event) {
+          if (event.target === event.currentTarget) {
+            const firstItemIndex = rootContext.listRef.current.findIndex(Boolean);
+            rootContext.setActiveIndex(firstItemIndex === -1 ? null : firstItemIndex);
+          }
+        },
       },
       elementProps,
     ],
   });
+
+  return element;
 });
 
 export interface FilterDropdownListState {}

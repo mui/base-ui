@@ -16,6 +16,8 @@
 - Drawer - ([Outline](#drawer), [Contents](./drawer/page.mdx))
 - Field - ([Outline](#field), [Contents](./field/page.mdx))
 - Fieldset - ([Outline](#fieldset), [Contents](./fieldset/page.mdx))
+- Filter Menu [New] - ([Outline](#filter-menu), [Contents](./filter-menu/page.mdx))
+- Filter Select [New] - ([Outline](#filter-select), [Contents](./filter-select/page.mdx))
 - Form - ([Outline](#form), [Contents](./form/page.mdx))
 - Input - ([Outline](#input), [Contents](./input/page.mdx))
 - Menu - ([Outline](#menu), [Contents](./menu/page.mdx))
@@ -599,7 +601,7 @@ A menu that appears at the pointer on right click or long press.
     - Props: className, render, style
     - Data Attributes: data-align, data-closed, data-open, data-side, data-uncentered
   - Context Menu - Item
-    - Props: className, closeOnClick, disabled, keywords, label, nativeButton, onClick, render, style
+    - Props: className, closeOnClick, disabled, label, nativeButton, onClick, render, style
     - Data Attributes: data-disabled, data-highlighted
   - Context Menu - Group
     - Props: children, className, render, style
@@ -610,24 +612,24 @@ A menu that appears at the pointer on right click or long press.
   - Context Menu - SubmenuRoot
     - Props: actionsRef, children, closeParentOnEsc, defaultOpen, disabled, highlightItemOnHover, loopFocus, onOpenChange, onOpenChangeComplete, open, orientation
   - Context Menu - SubmenuTrigger
-    - Props: className, closeDelay, delay, disabled, keywords, label, nativeButton, onClick, openOnHover, render, style
+    - Props: className, closeDelay, delay, disabled, label, nativeButton, onClick, openOnHover, render, style
     - Data Attributes: data-disabled, data-highlighted, data-popup-open
   - Context Menu - RadioGroup
     - Props: children, className, defaultValue, disabled, onValueChange, render, style, value
   - Context Menu - RadioItem
-    - Props: className, closeOnClick, disabled, keywords, label, nativeButton, onClick, render, style, value
+    - Props: className, closeOnClick, disabled, label, nativeButton, onClick, render, style, value
     - Data Attributes: data-checked, data-disabled, data-highlighted, data-unchecked
   - Context Menu - RadioItemIndicator
     - Props: className, keepMounted, render, style
     - Data Attributes: data-checked, data-disabled, data-ending-style, data-starting-style, data-unchecked
   - Context Menu - CheckboxItem
-    - Props: checked, className, closeOnClick, defaultChecked, disabled, keywords, label, nativeButton, onCheckedChange, onClick, render, style
+    - Props: checked, className, closeOnClick, defaultChecked, disabled, label, nativeButton, onCheckedChange, onClick, render, style
     - Data Attributes: data-checked, data-disabled, data-highlighted, data-unchecked
   - Context Menu - CheckboxItemIndicator
     - Props: className, keepMounted, render, style
     - Data Attributes: data-checked, data-disabled, data-ending-style, data-starting-style, data-unchecked
   - Context Menu - LinkItem
-    - Props: className, closeOnClick, keywords, label, render, style
+    - Props: className, closeOnClick, label, render, style
     - Data Attributes: data-highlighted
 - Types: ContextMenu.Arrow.Props, ContextMenu.Arrow.State, ContextMenu.Backdrop.Props, ContextMenu.Backdrop.State, ContextMenu.CheckboxItem.ChangeEventDetails, ContextMenu.CheckboxItem.ChangeEventReason, ContextMenu.CheckboxItem.Props, ContextMenu.CheckboxItem.State, ContextMenu.CheckboxItemIndicator.Props, ContextMenu.CheckboxItemIndicator.State, ContextMenu.Group.Props, ContextMenu.Group.State, ContextMenu.GroupLabel.Props, ContextMenu.GroupLabel.State, ContextMenu.Item.Props, ContextMenu.Item.State, ContextMenu.LinkItem.Props, ContextMenu.LinkItem.State, ContextMenu.Popup.Props, ContextMenu.Popup.State, ContextMenu.Portal.Props, ContextMenu.Portal.State, ContextMenu.Positioner.Props, ContextMenu.Positioner.State, ContextMenu.RadioGroup.ChangeEventDetails, ContextMenu.RadioGroup.ChangeEventReason, ContextMenu.RadioGroup.Props, ContextMenu.RadioGroup.State, ContextMenu.RadioItem.Props, ContextMenu.RadioItem.State, ContextMenu.RadioItemIndicator.Props, ContextMenu.RadioItemIndicator.State, ContextMenu.Root.Actions, ContextMenu.Root.ChangeEventDetails, ContextMenu.Root.ChangeEventReason, ContextMenu.Root.Props, ContextMenu.Root.State, ContextMenu.Separator.Props, ContextMenu.Separator.State, ContextMenu.SubmenuRoot.ChangeEventDetails, ContextMenu.SubmenuRoot.ChangeEventReason, ContextMenu.SubmenuRoot.Props, ContextMenu.SubmenuRoot.State, ContextMenu.SubmenuTrigger.Props, ContextMenu.SubmenuTrigger.State, ContextMenu.Trigger.Props, ContextMenu.Trigger.State
 
@@ -865,6 +867,204 @@ A native fieldset element with an easily stylable legend.
 
 [Read more](./fieldset/page.mdx)
 
+## Filter Menu
+
+A searchable menu for finding and running actions in a dropdown.
+
+<details>
+
+<summary>Outline</summary>
+
+- Keywords: React Filter Menu, Searchable Menu, Filterable Menu, Command Menu, Action Search, Search Menu, Keyboard Navigation Menu, Accessible React Menu, Headless React Components, Base UI
+- Sections:
+  - Usage guidelines
+  - Anatomy
+  - Examples
+    - Filtering items
+    - Controlled query
+    - Custom matching
+    - Filterable submenus
+  - API reference
+    - Root
+    - Trigger
+    - Portal
+    - Backdrop
+    - Positioner
+    - Popup
+    - Input
+    - Clear
+    - Empty
+    - List
+    - Viewport
+    - Arrow
+    - Item
+    - LinkItem
+    - SubmenuRoot
+    - SubmenuTrigger
+    - Group
+    - GroupLabel
+    - RadioGroup
+    - RadioItem
+    - RadioItemIndicator
+    - CheckboxItem
+    - CheckboxItemIndicator
+    - Separator
+  - createHandle
+    - Handle
+- Exports:
+  - Filter Menu - Root
+    - Props: actionsRef, children, closeParentOnEsc, defaultInputValue, defaultOpen, defaultTriggerId, disabled, filter, handle, highlightItemOnHover, inputValue, loopFocus, modal, onInputValueChange, onOpenChange, onOpenChangeComplete, open, orientation, triggerId
+  - Filter Menu - Trigger
+    - Props: children, className, closeDelay, delay, detached, disabled, handle, id, nativeButton, openOnHover, payload, render, style
+  - Filter Menu - Input
+    - Props: className, render, style
+  - Filter Menu - Clear
+    - Props: className, disabled, nativeButton, render, style
+  - Filter Menu - List
+    - Props: className, id, render, style
+  - Filter Menu - Portal
+    - Props: className, container, keepMounted, render, style
+  - Filter Menu - Backdrop
+    - Props: className, render, style
+  - Filter Menu - Positioner
+    - Props: align, alignOffset, anchor, arrowPadding, className, collisionAvoidance, collisionBoundary, collisionPadding, disableAnchorTracking, positionMethod, render, side, sideOffset, sticky, style
+  - Filter Menu - Popup
+    - Props: children, className, finalFocus, render, style
+  - Filter Menu - Arrow
+    - Props: className, render, style
+  - Filter Menu - Item
+    - Props: className, closeOnClick, disabled, keywords, label, nativeButton, onClick, render, style
+  - Filter Menu - Viewport
+    - Props: children, className, render, style
+  - Filter Menu - Group
+    - Props: children, className, render, style
+  - Filter Menu - GroupLabel
+    - Props: className, render, style
+  - Filter Menu - Separator
+    - Props: className, orientation, render, style
+  - Filter Menu - Empty
+    - Props: className, render, style
+  - Filter Menu - SubmenuRoot
+    - Props: actionsRef, children, closeParentOnEsc, defaultInputValue, defaultOpen, disabled, filter, highlightItemOnHover, inputValue, loopFocus, onInputValueChange, onOpenChange, onOpenChangeComplete, open, orientation
+  - Filter Menu - SubmenuTrigger
+    - Props: className, closeDelay, delay, disabled, id, keywords, label, nativeButton, onClick, openOnHover, render, style
+  - Filter Menu - RadioGroup
+    - Props: children, className, defaultValue, disabled, onValueChange, render, style, value
+  - Filter Menu - RadioItem
+    - Props: className, closeOnClick, disabled, keywords, label, nativeButton, onClick, render, style, value
+  - Filter Menu - RadioItemIndicator
+    - Props: className, keepMounted, render, style
+  - Filter Menu - CheckboxItem
+    - Props: checked, className, closeOnClick, defaultChecked, disabled, keywords, label, nativeButton, onCheckedChange, onClick, render, style
+  - Filter Menu - CheckboxItemIndicator
+    - Props: className, keepMounted, render, style
+  - Filter Menu - createHandle
+  - Filter Menu - Handle
+  - Filter Menu - LinkItem
+    - Props: className, closeOnClick, keywords, label, render, style
+- Types: FilterMenu.Arrow.Props, FilterMenu.Arrow.State, FilterMenu.Backdrop.Props, FilterMenu.Backdrop.State, FilterMenu.CheckboxItem.ChangeEventDetails, FilterMenu.CheckboxItem.ChangeEventReason, FilterMenu.CheckboxItem.Props, FilterMenu.CheckboxItem.State, FilterMenu.CheckboxItemIndicator.Props, FilterMenu.CheckboxItemIndicator.State, FilterMenu.Clear.Props, FilterMenu.Clear.State, FilterMenu.Empty.Props, FilterMenu.Empty.State, FilterMenu.Group.Props, FilterMenu.Group.State, FilterMenu.GroupLabel.Props, FilterMenu.GroupLabel.State, FilterMenu.Input.Props, FilterMenu.Input.State, FilterMenu.Item.Props, FilterMenu.Item.State, FilterMenu.LinkItem.Props, FilterMenu.LinkItem.State, FilterMenu.List.Props, FilterMenu.List.State, FilterMenu.Popup.Props, FilterMenu.Popup.State, FilterMenu.Portal.Props, FilterMenu.Portal.State, FilterMenu.Positioner.Props, FilterMenu.Positioner.State, FilterMenu.RadioGroup.ChangeEventDetails, FilterMenu.RadioGroup.ChangeEventReason, FilterMenu.RadioGroup.Props, FilterMenu.RadioGroup.State, FilterMenu.RadioItem.Props, FilterMenu.RadioItem.State, FilterMenu.RadioItemIndicator.Props, FilterMenu.RadioItemIndicator.State, FilterMenu.Root.Actions, FilterMenu.Root.ChangeEventDetails, FilterMenu.Root.ChangeEventReason, FilterMenu.Root.InputValueChangeEventDetails, FilterMenu.Root.InputValueChangeEventReason, FilterMenu.Root.Props, FilterMenu.Root.State, FilterMenu.Separator.Props, FilterMenu.Separator.State, FilterMenu.SubmenuRoot.ChangeEventDetails, FilterMenu.SubmenuRoot.ChangeEventReason, FilterMenu.SubmenuRoot.InputValueChangeEventDetails, FilterMenu.SubmenuRoot.InputValueChangeEventReason, FilterMenu.SubmenuRoot.Props, FilterMenu.SubmenuRoot.State, FilterMenu.SubmenuTrigger.Props, FilterMenu.SubmenuTrigger.State, FilterMenu.Trigger.Props, FilterMenu.Trigger.State, FilterMenu.Viewport.Props, FilterMenu.Viewport.State
+
+</details>
+
+[Read more](./filter-menu/page.mdx)
+
+## Filter Select
+
+A select with a built-in search field for filtering its options.
+
+<details>
+
+<summary>Outline</summary>
+
+- Keywords: React Filter Select, Searchable Select, Filterable Select, Searchable Dropdown, Dropdown Search, Multi Select React, Accessible React Select, Headless React Components, Base UI
+- Sections:
+  - Usage guidelines
+  - Anatomy
+  - Examples
+    - Rendering from items
+    - Matching keywords
+    - Custom matching
+    - Controlled query
+    - Grouped options
+  - API reference
+    - Root
+    - Label
+    - Trigger
+    - Value
+    - Icon
+    - Portal
+    - Backdrop
+    - Positioner
+    - Popup
+    - Input
+    - Clear
+    - Empty
+    - List
+    - Collection
+    - Arrow
+    - Item
+    - ItemText
+    - ItemIndicator
+    - Group
+    - GroupLabel
+    - ScrollUpArrow
+    - ScrollDownArrow
+    - Separator
+- Exports:
+  - Filter Select - Root
+    - Props: actionsRef, autoComplete, children, defaultInputValue, defaultOpen, defaultValue, disabled, filter, form, highlightItemOnHover, id, inputRef, inputValue, isItemEqualToValue, itemToStringLabel, itemToStringValue, items, locale, modal, multiple, name, onInputValueChange, onOpenChange, onOpenChangeComplete, onValueChange, open, readOnly, required, value
+  - Filter Select - Trigger
+    - Props: children, className, disabled, nativeButton, render, style
+  - Filter Select - Value
+    - Props: children, className, placeholder, render, style
+  - Filter Select - Input
+    - Props: className, render, style
+  - Filter Select - Icon
+    - Props: className, render, style
+  - Filter Select - Clear
+    - Props: className, disabled, nativeButton, render, style
+  - Filter Select - List
+    - Props: children, className, render, style
+  - Filter Select - Portal
+    - Props: className, container, render, style
+  - Filter Select - Backdrop
+    - Props: className, render, style
+  - Filter Select - Positioner
+    - Props: align, alignOffset, anchor, arrowPadding, className, collisionAvoidance, collisionBoundary, collisionPadding, disableAnchorTracking, positionMethod, render, side, sideOffset, sticky, style
+  - Filter Select - Popup
+    - Props: children, className, finalFocus, render, style
+  - Filter Select - Arrow
+    - Props: className, render, style
+  - Filter Select - Item
+    - Props: children, className, disabled, keywords, label, nativeButton, render, style, value
+  - Filter Select - Group
+    - Props: className, items, render, style
+  - Filter Select - GroupLabel
+    - Props: className, render, style
+  - Filter Select - Separator
+    - Props: className, orientation, render, style
+  - Filter Select - Label
+    - Props: className, render, style
+  - Filter Select - Empty
+    - Props: className, render, style
+  - Filter Select - Collection
+    - Props: children
+  - Filter Select - ItemText
+    - Props: className, render, style
+  - Filter Select - ItemIndicator
+    - Props: children, className, keepMounted, render, style
+  - Filter Select - ScrollUpArrow
+    - Props: className, keepMounted, render, style
+  - Filter Select - ScrollDownArrow
+    - Props: className, keepMounted, render, style
+  - FilterSelectFilter
+    - Parameters: item, query, itemToString
+- Types: FilterSelect.Arrow.Props, FilterSelect.Arrow.State, FilterSelect.Backdrop.Props, FilterSelect.Backdrop.State, FilterSelect.Clear.Props, FilterSelect.Clear.State, FilterSelect.Collection.Props, FilterSelect.Collection.State, FilterSelect.Empty.Props, FilterSelect.Empty.State, FilterSelect.Group.Props, FilterSelect.Group.State, FilterSelect.GroupLabel.Props, FilterSelect.GroupLabel.State, FilterSelect.Icon.Props, FilterSelect.Icon.State, FilterSelect.Input.Props, FilterSelect.Input.State, FilterSelect.Item.Props, FilterSelect.Item.State, FilterSelect.ItemIndicator.Props, FilterSelect.ItemIndicator.State, FilterSelect.ItemText.Props, FilterSelect.ItemText.State, FilterSelect.Label.Props, FilterSelect.Label.State, FilterSelect.List.Props, FilterSelect.List.State, FilterSelect.Popup.Props, FilterSelect.Popup.State, FilterSelect.Portal.Props, FilterSelect.Portal.State, FilterSelect.Positioner.Props, FilterSelect.Positioner.State, FilterSelect.Root.Actions, FilterSelect.Root.ChangeEventDetails, FilterSelect.Root.ChangeEventReason, FilterSelect.Root.InputValueChangeEventDetails, FilterSelect.Root.InputValueChangeEventReason, FilterSelect.Root.Props, FilterSelect.Root.State, FilterSelect.ScrollDownArrow.Props, FilterSelect.ScrollDownArrow.State, FilterSelect.ScrollUpArrow.Props, FilterSelect.ScrollUpArrow.State, FilterSelect.Separator.Props, FilterSelect.Separator.State, FilterSelect.Trigger.Props, FilterSelect.Trigger.State, FilterSelect.Value.Props, FilterSelect.Value.State
+
+</details>
+
+[Read more](./filter-select/page.mdx)
+
 ## Form
 
 A native form element with consolidated error handling.
@@ -930,7 +1130,6 @@ A list of actions in a dropdown, enhanced with keyboard navigation.
     - Radio items
     - Close on click
     - Group labels
-    - Filterable
     - Nested menu
     - Navigate to another page
     - Open a dialog
@@ -948,10 +1147,6 @@ A list of actions in a dropdown, enhanced with keyboard navigation.
     - Backdrop
     - Positioner
     - Popup
-    - Input
-    - Clear
-    - List
-    - Empty
     - Viewport
     - Arrow
     - Item
@@ -970,17 +1165,10 @@ A list of actions in a dropdown, enhanced with keyboard navigation.
     - Handle
 - Exports:
   - Menu - Root
-    - Props: actionsRef, children, closeParentOnEsc, defaultInputValue, defaultOpen, defaultTriggerId, disabled, filter, handle, highlightItemOnHover, inputValue, loopFocus, modal, onInputValueChange, onOpenChange, onOpenChangeComplete, open, orientation, triggerId
+    - Props: actionsRef, children, closeParentOnEsc, defaultOpen, defaultTriggerId, disabled, handle, highlightItemOnHover, isSubmenu, loopFocus, modal, onOpenChange, onOpenChangeComplete, open, orientation, triggerId
   - Menu - Trigger
     - Props: children, className, closeDelay, delay, disabled, handle, nativeButton, openOnHover, payload, render, style
     - Data Attributes: data-popup-open, data-pressed
-  - Menu - Input
-    - Props: className, render, style
-    - Data Attributes: data-focus-visible
-  - Menu - Clear
-    - Props: className, disabled, nativeButton, render, style
-  - Menu - List
-    - Props: className, render, style
   - Menu - Portal
     - Props: className, container, keepMounted, render, style
   - Menu - Backdrop
@@ -997,7 +1185,7 @@ A list of actions in a dropdown, enhanced with keyboard navigation.
     - Props: className, render, style
     - Data Attributes: data-align, data-closed, data-open, data-side, data-uncentered
   - Menu - Item
-    - Props: className, closeOnClick, disabled, keywords, label, nativeButton, onClick, render, style
+    - Props: className, closeOnClick, disabled, label, nativeButton, onClick, render, style
     - Data Attributes: data-disabled, data-highlighted
   - Menu - Viewport
     - Props: children, className, render, style
@@ -1009,23 +1197,21 @@ A list of actions in a dropdown, enhanced with keyboard navigation.
     - Props: className, render, style
   - Menu - Separator
     - Props: className, orientation, render, style
-  - Menu - Empty
-    - Props: className, render, style
   - Menu - SubmenuRoot
-    - Props: actionsRef, children, closeParentOnEsc, defaultInputValue, defaultOpen, disabled, filter, highlightItemOnHover, inputValue, loopFocus, onInputValueChange, onOpenChange, onOpenChangeComplete, open, orientation
+    - Props: actionsRef, children, closeParentOnEsc, defaultOpen, disabled, highlightItemOnHover, loopFocus, onOpenChange, onOpenChangeComplete, open, orientation
   - Menu - SubmenuTrigger
-    - Props: className, closeDelay, delay, disabled, keywords, label, nativeButton, onClick, openOnHover, render, style
+    - Props: className, closeDelay, delay, disabled, label, nativeButton, onClick, openOnHover, render, style
     - Data Attributes: data-disabled, data-highlighted, data-popup-open
   - Menu - RadioGroup
     - Props: children, className, defaultValue, disabled, onValueChange, render, style, value
   - Menu - RadioItem
-    - Props: className, closeOnClick, disabled, keywords, label, nativeButton, onClick, render, style, value
+    - Props: className, closeOnClick, disabled, label, nativeButton, onClick, render, style, value
     - Data Attributes: data-checked, data-disabled, data-highlighted, data-unchecked
   - Menu - RadioItemIndicator
     - Props: className, keepMounted, render, style
     - Data Attributes: data-checked, data-disabled, data-ending-style, data-starting-style, data-unchecked
   - Menu - CheckboxItem
-    - Props: checked, className, closeOnClick, defaultChecked, disabled, keywords, label, nativeButton, onCheckedChange, onClick, render, style
+    - Props: checked, className, closeOnClick, defaultChecked, disabled, label, nativeButton, onCheckedChange, onClick, render, style
     - Data Attributes: data-checked, data-disabled, data-highlighted, data-unchecked
   - Menu - CheckboxItemIndicator
     - Props: className, keepMounted, render, style
@@ -1033,11 +1219,9 @@ A list of actions in a dropdown, enhanced with keyboard navigation.
   - Menu - createHandle
   - Menu - Handle
   - Menu - LinkItem
-    - Props: className, closeOnClick, keywords, label, render, style
+    - Props: className, closeOnClick, label, render, style
     - Data Attributes: data-highlighted
-  - MenuFilter
-    - Parameters: itemText, query
-- Types: Menu.Arrow.Props, Menu.Arrow.State, Menu.Backdrop.Props, Menu.Backdrop.State, Menu.CheckboxItem.ChangeEventDetails, Menu.CheckboxItem.ChangeEventReason, Menu.CheckboxItem.Props, Menu.CheckboxItem.State, Menu.CheckboxItemIndicator.Props, Menu.CheckboxItemIndicator.State, Menu.Clear.Props, Menu.Clear.State, Menu.Empty.Props, Menu.Empty.State, Menu.Group.Props, Menu.Group.State, Menu.GroupLabel.Props, Menu.GroupLabel.State, Menu.Input.Props, Menu.Input.State, Menu.Item.Props, Menu.Item.State, Menu.LinkItem.Props, Menu.LinkItem.State, Menu.List.Props, Menu.List.State, Menu.Popup.Props, Menu.Popup.State, Menu.Portal.Props, Menu.Portal.State, Menu.Positioner.Props, Menu.Positioner.State, Menu.RadioGroup.ChangeEventDetails, Menu.RadioGroup.ChangeEventReason, Menu.RadioGroup.Props, Menu.RadioGroup.State, Menu.RadioItem.Props, Menu.RadioItem.State, Menu.RadioItemIndicator.Props, Menu.RadioItemIndicator.State, Menu.Root.Actions, Menu.Root.ChangeEventDetails, Menu.Root.ChangeEventReason, Menu.Root.InputValueChangeEventDetails, Menu.Root.InputValueChangeEventReason, Menu.Root.Orientation, Menu.Root.Props, Menu.Root.State, Menu.Separator.Props, Menu.Separator.State, Menu.SubmenuRoot.ChangeEventDetails, Menu.SubmenuRoot.ChangeEventReason, Menu.SubmenuRoot.Props, Menu.SubmenuRoot.State, Menu.SubmenuTrigger.Props, Menu.SubmenuTrigger.State, Menu.Trigger.Props, Menu.Trigger.State, Menu.Viewport.Props, Menu.Viewport.State
+- Types: Menu.Arrow.Props, Menu.Arrow.State, Menu.Backdrop.Props, Menu.Backdrop.State, Menu.CheckboxItem.ChangeEventDetails, Menu.CheckboxItem.ChangeEventReason, Menu.CheckboxItem.Props, Menu.CheckboxItem.State, Menu.CheckboxItemIndicator.Props, Menu.CheckboxItemIndicator.State, Menu.Group.Props, Menu.Group.State, Menu.GroupLabel.Props, Menu.GroupLabel.State, Menu.Item.Props, Menu.Item.State, Menu.LinkItem.Props, Menu.LinkItem.State, Menu.Popup.Props, Menu.Popup.State, Menu.Portal.Props, Menu.Portal.State, Menu.Positioner.Props, Menu.Positioner.State, Menu.RadioGroup.ChangeEventDetails, Menu.RadioGroup.ChangeEventReason, Menu.RadioGroup.Props, Menu.RadioGroup.State, Menu.RadioItem.Props, Menu.RadioItem.State, Menu.RadioItemIndicator.Props, Menu.RadioItemIndicator.State, Menu.Root.Actions, Menu.Root.ChangeEventDetails, Menu.Root.ChangeEventReason, Menu.Root.Orientation, Menu.Root.Props, Menu.Root.State, Menu.Separator.Props, Menu.Separator.State, Menu.SubmenuRoot.ChangeEventDetails, Menu.SubmenuRoot.ChangeEventReason, Menu.SubmenuRoot.Props, Menu.SubmenuRoot.State, Menu.SubmenuTrigger.Props, Menu.SubmenuTrigger.State, Menu.Trigger.Props, Menu.Trigger.State, Menu.Viewport.Props, Menu.Viewport.State
 
 </details>
 
@@ -1535,7 +1719,6 @@ A common form component for choosing a predefined value in a dropdown menu.
     - Rendering from items
     - Labeling a select
     - Placeholder values
-    - Filterable
     - Multiple selection
     - Object values
     - Grouped
@@ -1549,9 +1732,6 @@ A common form component for choosing a predefined value in a dropdown menu.
     - Portal
     - Positioner
     - Popup
-    - Input
-    - Clear
-    - Empty
     - List
     - Collection
     - Arrow
@@ -1565,21 +1745,16 @@ A common form component for choosing a predefined value in a dropdown menu.
     - Separator
 - Exports:
   - Select - Root
-    - Props: actionsRef, autoComplete, children, defaultInputValue, defaultOpen, defaultValue, disabled, filter, form, highlightItemOnHover, id, inputRef, inputValue, isItemEqualToValue, itemToStringLabel, itemToStringValue, items, modal, multiple, name, onInputValueChange, onOpenChange, onOpenChangeComplete, onValueChange, open, readOnly, required, value
+    - Props: actionsRef, autoComplete, children, defaultOpen, defaultValue, disabled, form, highlightItemOnHover, id, inputRef, isItemEqualToValue, itemToStringLabel, itemToStringValue, items, modal, multiple, name, onOpenChange, onOpenChangeComplete, onValueChange, open, readOnly, required, value
   - Select - Trigger
     - Props: children, className, disabled, nativeButton, render, style
     - Data Attributes: data-dirty, data-disabled, data-filled, data-focused, data-invalid, data-placeholder, data-popup-open, data-popup-side, data-pressed, data-readonly, data-required, data-touched, data-valid
   - Select - Value
     - Props: children, className, placeholder, render, style
     - Data Attributes: data-placeholder
-  - Select - Input
-    - Props: className, render, style
-    - Data Attributes: data-focus-visible
   - Select - Icon
     - Props: className, render, style
     - Data Attributes: data-popup-open
-  - Select - Clear
-    - Props: className, disabled, nativeButton, render, style
   - Select - List
     - Props: children, className, render, style
   - Select - Portal
@@ -1608,8 +1783,6 @@ A common form component for choosing a predefined value in a dropdown menu.
     - Props: className, orientation, render, style
   - Select - Label
     - Props: className, render, style
-  - Select - Empty
-    - Props: className, render, style
   - Select - Collection
     - Props: children
   - Select - ItemText
@@ -1623,9 +1796,7 @@ A common form component for choosing a predefined value in a dropdown menu.
   - Select - ScrollDownArrow
     - Props: className, keepMounted, render, style
     - Data Attributes: data-direction, data-ending-style, data-side, data-starting-style, data-visible
-  - SelectFilter
-    - Parameters: item, query, itemToStringLabel
-- Types: Select.Arrow.Props, Select.Arrow.State, Select.Backdrop.Props, Select.Backdrop.State, Select.Clear.Props, Select.Clear.State, Select.Collection.Props, Select.Collection.State, Select.Empty.Props, Select.Empty.State, Select.Group.Props, Select.Group.State, Select.GroupLabel.Props, Select.GroupLabel.State, Select.Icon.Props, Select.Icon.State, Select.Input.Props, Select.Input.State, Select.Item.Props, Select.Item.State, Select.ItemIndicator.Props, Select.ItemIndicator.State, Select.ItemText.Props, Select.ItemText.State, Select.Label.Props, Select.Label.State, Select.List.Props, Select.List.State, Select.Popup.Props, Select.Popup.State, Select.Portal.Props, Select.Portal.State, Select.Positioner.Props, Select.Positioner.State, Select.Root.Actions, Select.Root.ChangeEventDetails, Select.Root.ChangeEventReason, Select.Root.InputValueChangeEventDetails, Select.Root.InputValueChangeEventReason, Select.Root.Props, Select.Root.State, Select.ScrollDownArrow.Props, Select.ScrollDownArrow.State, Select.ScrollUpArrow.Props, Select.ScrollUpArrow.State, Select.Separator.Props, Select.Separator.State, Select.Trigger.Props, Select.Trigger.State, Select.Value.Props, Select.Value.State
+- Types: Select.Arrow.Props, Select.Arrow.State, Select.Backdrop.Props, Select.Backdrop.State, Select.Collection.Props, Select.Collection.State, Select.Group.Props, Select.Group.State, Select.GroupLabel.Props, Select.GroupLabel.State, Select.Icon.Props, Select.Icon.State, Select.Item.Props, Select.Item.State, Select.ItemIndicator.Props, Select.ItemIndicator.State, Select.ItemText.Props, Select.ItemText.State, Select.Label.Props, Select.Label.State, Select.List.Props, Select.List.State, Select.Popup.Props, Select.Popup.State, Select.Portal.Props, Select.Portal.State, Select.Positioner.Props, Select.Positioner.State, Select.Root.Actions, Select.Root.ChangeEventDetails, Select.Root.ChangeEventReason, Select.Root.Props, Select.Root.State, Select.ScrollDownArrow.Props, Select.ScrollDownArrow.State, Select.ScrollUpArrow.Props, Select.ScrollUpArrow.State, Select.Separator.Props, Select.Separator.State, Select.Trigger.Props, Select.Trigger.State, Select.Value.Props, Select.Value.State
 
 </details>
 
