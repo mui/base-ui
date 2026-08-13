@@ -6,7 +6,7 @@ import { isRtlElement } from './utils';
  */
 export type DropPosition = 'before' | 'after' | 'on';
 
-/** @internal Runtime brand used to distinguish Tree payloads from arbitrary draggables. */
+/** Runtime brand used to distinguish collection payloads from arbitrary draggables. */
 export const treeDragPayloadBrand: unique symbol = Symbol.for('base-ui.tree-drag-payload');
 
 /**
