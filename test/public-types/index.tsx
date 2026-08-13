@@ -133,7 +133,11 @@ export function exerciseSelectWrappers() {
   return (
     <React.Fragment>
       <SimpleSelect<string | null> label="Theme" defaultValue="light" />
-      <SimpleFilterSelect<string | null> label="Fruit" defaultInputValue="a" />
+      <SimpleFilterSelect<string | null>
+        label="Fruit"
+        defaultInputValue="a"
+        items={[{ value: 'apple', label: 'Apple' }]}
+      />
     </React.Fragment>
   );
 }

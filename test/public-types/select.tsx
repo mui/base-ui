@@ -1,10 +1,13 @@
 import * as React from 'react';
 import { Select } from '@base-ui/react/select';
+import { FilterSelect } from '@base-ui/react/filter-select';
 
 export type SelectRootProps<Value> = Select.Root.Props<Value>;
 export type SelectRootActions = Select.Root.Actions;
 export type SelectRootChangeEventDetails = Select.Root.ChangeEventDetails;
-export type SelectRootInputValueChangeEventDetails = Select.Root.InputValueChangeEventDetails;
+export type FilterSelectRootProps<Value> = FilterSelect.Root.Props<Value>;
+export type FilterSelectRootInputValueChangeEventDetails =
+  FilterSelect.Root.InputValueChangeEventDetails;
 
 // A typed wrapper that forwards props. `Omit` collapses a discriminated union into one widened
 // object type, so `Select.Root.Props` must stay a plain intersection for this to compile.
@@ -31,11 +34,23 @@ export function SimpleSelect<Value>({ label = 'Select', ...rest }: SimpleSelectP
   );
 }
 
-// The same wrapper shape for a filterable select, including the input-value props.
-export function SimpleFilterSelect<Value>(props: SimpleSelectProps<Value>) {
+// The same wrapper shape for a filterable select, including the input-value props. `Omit`
+// collapses a discriminated union into one widened object type, so `FilterSelect.Root.Props`
+// must stay a plain intersection for this to compile.
+export interface SimpleFilterSelectProps<Value> extends Omit<
+  FilterSelectRootProps<Value>,
+  'children'
+> {
+  label?: string;
+}
+
+export function SimpleFilterSelect<Value>({
+  label = 'Select',
+  ...rest
+}: SimpleFilterSelectProps<Value>) {
   const handleInputValueChange = (
     value: string,
-    eventDetails: SelectRootInputValueChangeEventDetails,
+    eventDetails: FilterSelectRootInputValueChangeEventDetails,
   ) => {
     if (eventDetails.reason === 'popup-close') {
       eventDetails.cancel();
@@ -44,24 +59,24 @@ export function SimpleFilterSelect<Value>(props: SimpleSelectProps<Value>) {
   };
 
   return (
-    <Select.Root {...props} onInputValueChange={handleInputValueChange}>
-      <Select.Trigger>
-        <Select.Value />
-      </Select.Trigger>
-      <Select.Portal>
-        <Select.Positioner>
-          <Select.Popup>
-            <Select.Input aria-label="Filter" />
-            <Select.Clear aria-label="Clear" />
-            <Select.Empty>No matches</Select.Empty>
-            <Select.List>
+    <FilterSelect.Root {...rest} onInputValueChange={handleInputValueChange}>
+      <FilterSelect.Trigger aria-label={label}>
+        <FilterSelect.Value />
+      </FilterSelect.Trigger>
+      <FilterSelect.Portal>
+        <FilterSelect.Positioner>
+          <FilterSelect.Popup>
+            <FilterSelect.Input aria-label="Filter" />
+            <FilterSelect.Clear aria-label="Clear" />
+            <FilterSelect.Empty>No matches</FilterSelect.Empty>
+            <FilterSelect.List>
               {(item: { value: Value; label: string }) => (
-                <Select.Item value={item.value}>{item.label}</Select.Item>
+                <FilterSelect.Item value={item.value}>{item.label}</FilterSelect.Item>
               )}
-            </Select.List>
-          </Select.Popup>
-        </Select.Positioner>
-      </Select.Portal>
-    </Select.Root>
+            </FilterSelect.List>
+          </FilterSelect.Popup>
+        </FilterSelect.Positioner>
+      </FilterSelect.Portal>
+    </FilterSelect.Root>
   );
 }
