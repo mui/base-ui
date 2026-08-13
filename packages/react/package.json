@@ -106,6 +106,7 @@
     "./internals/types": "./src/internals/types.ts",
     "./internals/use-button": "./src/internals/use-button/index.ts",
     "./internals/useBaseUiId": "./src/internals/useBaseUiId.ts",
+    "./internals/use-draggable-collection": "./src/internals/use-draggable-collection/index.ts",
     "./internals/useAnchorPositioning": "./src/internals/useAnchorPositioning.ts",
     "./internals/useAnimationsFinished": "./src/internals/useAnimationsFinished.ts",
     "./internals/useOpenChangeComplete": "./src/internals/useOpenChangeComplete.tsx",
