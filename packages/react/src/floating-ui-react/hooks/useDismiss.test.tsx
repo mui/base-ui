@@ -1118,6 +1118,18 @@ describe.skipIf(!isJSDOM)('useDismiss', () => {
       expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
     });
 
+    test('press-less outside click reporting a pointer type closes', async () => {
+      render(<App outsidePressEvent="intentional" />);
+
+      // A press-less click can still report a `pointerType`: Android assistive
+      // technology activations report `mouse`. The click count is what
+      // separates them from a press, so `detail: 0` must be enough.
+      const click = new MouseEvent('click', { bubbles: true, detail: 0 });
+      Object.defineProperty(click, 'pointerType', { value: 'mouse' });
+      fireEvent(document.body, click);
+      expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
+    });
+
     test('press seen in a previous open session does not leak into a reopen', async () => {
       function ReopenApp() {
         const [open, setOpen] = React.useState(true);
