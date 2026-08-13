@@ -46,7 +46,15 @@ type Context = PopupStoreContext<PopoverRoot.ChangeEventDetails> & {
 const selectors = {
   ...popupStoreSelectors,
   disabled: (state: State<unknown>) => state.disabled,
-  instantType: (state: State<unknown>) => state.instantType,
+  // `trigger-change` describes a popup moving between triggers, which only has
+  // meaning while it is open. Dropping it once closed keeps a late or stale
+  // restoration from marking a closing popup instant and skipping its exit
+  // transition, including on close paths that never reach `setOpen` — a
+  // controlled consumer committing `open={false}` goes straight through the prop.
+  instantType: (state: State<unknown>) =>
+    state.instantType === 'trigger-change' && !popupStoreSelectors.open(state)
+      ? undefined
+      : state.instantType,
   openMethod: (state: State<unknown>) => state.openMethod,
   openChangeReason: (state: State<unknown>) => state.openChangeReason,
   modal: (state: State<unknown>) => state.modal,
@@ -142,12 +150,6 @@ export class PopoverStore<Payload> extends ReactStore<
       popupOpenState.openChangeReason = eventDetails.reason;
       this.update(popupOpenState);
     };
-
-    if (isHover || !nextOpen) {
-      // Clear stale trigger-switch instant state before hover updates or any close render are flushed.
-      // Otherwise the first closing frame can inherit `trigger-change` and skip the exit animation.
-      this.set('instantType', undefined);
-    }
 
     if (isHover) {
       // Only allow "patient" clicks to close the popover if it's open.

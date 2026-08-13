@@ -8,28 +8,18 @@ import { useAnimationsFinished } from './useAnimationsFinished';
  * this hook touches are typed.
  */
 interface TriggerSwitchStore {
-  /**
-   * The requested open state. A controlled consumer can leave the effective
-   * `open` selector (`openProp ?? open`) `true` after a close was requested, so
-   * this is the only signal that a close is already on its way.
-   */
-  readonly state: { readonly open: boolean };
   set(key: 'instantType', value: 'trigger-change' | undefined): void;
   select(key: 'open'): boolean;
 }
 
-interface TriggerSwitchFloatingRootContext {
-  select(key: 'domReferenceElement'): Element | null;
-}
-
 export interface UseTriggerSwitchTransitionParameters {
   store: TriggerSwitchStore;
-  floatingRootContext: TriggerSwitchFloatingRootContext;
   /**
    * The trigger element that currently owns the popup.
    */
   domReference: Element | null;
   positionerElement: HTMLElement | null;
+  open: boolean;
 }
 
 /**
@@ -39,23 +29,33 @@ export interface UseTriggerSwitchTransitionParameters {
  * another would teleport. Clearing `instantType` for the duration of the move
  * lets it transition, and `trigger-change` is restored once the move finishes.
  *
- * That restoration is deferred until the move's animations finish, by which
- * time the popup may already be closing — the trigger element is retained
- * through the exit transition, so nothing else re-runs this effect to abort it.
- * Restoring `trigger-change` then would mark the closing popup instant and skip
- * its exit animation, so it only applies while the popup is still open, no
- * close has been requested in the meantime, and the same trigger still owns it.
+ * The restoration is deferred until the move's animations finish, so it can
+ * outlive the move that scheduled it. The trigger element is retained through
+ * the exit transition, so a close alone does not change `domReference` and
+ * nothing would otherwise re-run this effect to abort it — a popup that closes
+ * and reopens on the same trigger mid-exit would inherit the stale callback and
+ * lose its own transition. Closing therefore cancels the pending restoration
+ * explicitly.
  *
- * The requested and effective open states have to be checked separately: a
- * controlled consumer can accept a close but commit `open={false}` later, and
- * that commit goes straight through the prop without passing back through
- * `setOpen`, so nothing downstream would clear a `trigger-change` set here.
+ * Applying `trigger-change` to a closed popup is prevented separately, by the
+ * stores' `instantType` selector, since a controlled `open={false}` commit
+ * reaches the popup without passing through `setOpen`.
  */
 export function useTriggerSwitchTransition(parameters: UseTriggerSwitchTransitionParameters): void {
-  const { store, floatingRootContext, domReference, positionerElement } = parameters;
+  const { store, domReference, positionerElement, open } = parameters;
 
   const previousTriggerRef = React.useRef<Element | null>(null);
+  const pendingSwitchRef = React.useRef<AbortController | null>(null);
   const runOnceAnimationsFinish = useAnimationsFinished(positionerElement);
+
+  useIsoLayoutEffect(() => {
+    if (open) {
+      return;
+    }
+
+    pendingSwitchRef.current?.abort();
+    pendingSwitchRef.current = null;
+  }, [open]);
 
   useIsoLayoutEffect(() => {
     const currentTrigger = domReference;
@@ -72,15 +72,13 @@ export function useTriggerSwitchTransition(parameters: UseTriggerSwitchTransitio
     store.set('instantType', undefined);
 
     const abortController = new AbortController();
-    const triggerOnSwitch = currentTrigger;
-    const requestedOpenOnSwitch = store.state.open;
+    pendingSwitchRef.current = abortController;
 
     runOnceAnimationsFinish(() => {
-      if (
-        store.select('open') &&
-        store.state.open === requestedOpenOnSwitch &&
-        floatingRootContext.select('domReferenceElement') === triggerOnSwitch
-      ) {
+      // The abort above covers a committed close, but the animations can finish
+      // in the same frame the close commits. Writing `trigger-change` then would
+      // leave stale state behind for the next open to inherit.
+      if (store.select('open')) {
         store.set('instantType', 'trigger-change');
       }
     }, abortController.signal);
@@ -88,5 +86,5 @@ export function useTriggerSwitchTransition(parameters: UseTriggerSwitchTransitio
     return () => {
       abortController.abort();
     };
-  }, [domReference, floatingRootContext, runOnceAnimationsFinish, store]);
+  }, [domReference, runOnceAnimationsFinish, store]);
 }

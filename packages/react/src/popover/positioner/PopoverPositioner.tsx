@@ -90,9 +90,9 @@ export const PopoverPositioner = React.forwardRef(function PopoverPositioner(
 
   useTriggerSwitchTransition({
     store,
-    floatingRootContext,
     domReference,
     positionerElement,
+    open,
   });
 
   const trueModalNonHover = modal === true && openReason !== REASONS.triggerHover;

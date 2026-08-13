@@ -228,9 +228,9 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
 
   useTriggerSwitchTransition({
     store,
-    floatingRootContext,
     domReference,
     positionerElement,
+    open,
   });
 
   const state: MenuPositionerState = {

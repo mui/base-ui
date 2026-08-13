@@ -1026,32 +1026,145 @@ describe('<Popover.Root />', () => {
     });
 
     it('does not restore the trigger-change instant after a reopen on the same trigger', async () => {
-      // A slow switch and a fast exit, so the switch callback is still pending
-      // once the popover has closed and reopened on the same trigger.
+      // Leaving and returning mid-exit keeps the positioner mounted and the
+      // trigger unchanged, so nothing re-runs the effect to cancel the pending
+      // switch callback. A slow switch keeps it pending across the reopen.
       const { user, trigger2 } = await renderHoverDetachedTriggers({
         settleTriggerChange: false,
         switchDuration: 500,
-        exitDuration: 10,
+        exitDuration: 400,
       });
 
       await user.unhover(trigger2);
       await waitFor(() => {
-        expect(screen.queryByTestId('popup')).toBe(null);
+        expect(screen.getByTestId('popup')).toHaveAttribute('data-ending-style');
       });
 
       await user.hover(trigger2);
       await waitFor(() => {
-        expect(screen.getByTestId('content').textContent).toBe('2');
+        expect(screen.getByTestId('popup')).not.toHaveAttribute('data-ending-style');
       });
 
       const reopenedPopup = screen.getByTestId('popup');
       await act(async () => {
         await new Promise((resolve) => {
-          setTimeout(resolve, 600);
+          setTimeout(resolve, 650);
         });
       });
 
       expect(reopenedPopup).not.toHaveAttribute('data-instant');
+    });
+
+    it('does not apply the trigger-change instant to a prop-driven close after a switch', async () => {
+      // A controlled consumer can switch triggers and close entirely through
+      // props, so neither transition passes through `setOpen`.
+      globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+
+      const endingInstants: (string | undefined)[] = [];
+      const controls: { setOpen?: (v: boolean) => void; setTriggerId?: (v: string) => void } = {};
+
+      function Test() {
+        const [open, setOpen] = React.useState(false);
+        const [triggerId, setTriggerId] = React.useState<string | null>(null);
+        controls.setOpen = setOpen;
+        controls.setTriggerId = setTriggerId;
+
+        return (
+          <div style={{ position: 'relative', width: 400, height: 240 }}>
+            <style>
+              {`
+                .positioner {
+                  transition:
+                    top 300ms linear,
+                    left 300ms linear,
+                    transform 300ms linear;
+                }
+
+                .popup {
+                  opacity: 1;
+                  transition: opacity 400ms linear;
+                }
+
+                .popup[data-ending-style] {
+                  opacity: 0;
+                }
+
+                .positioner[data-instant],
+                .popup[data-instant] {
+                  transition: none;
+                }
+              `}
+            </style>
+
+            <Popover.Root
+              open={open}
+              triggerId={triggerId}
+              onOpenChange={(nextOpen, details) => {
+                if (nextOpen) {
+                  setTriggerId(details.trigger?.id ?? null);
+                }
+                setOpen(nextOpen);
+              }}
+            >
+              <Popover.Trigger id="t1" style={{ position: 'absolute', top: 80, left: 20 }}>
+                Trigger 1
+              </Popover.Trigger>
+              <Popover.Trigger id="t2" style={{ position: 'absolute', top: 80, left: 220 }}>
+                Trigger 2
+              </Popover.Trigger>
+
+              <Popover.Portal>
+                <Popover.Positioner data-testid="positioner" className="positioner">
+                  <Popover.Popup
+                    data-testid="popup"
+                    className="popup"
+                    render={(props, state) => {
+                      if (state.transitionStatus === 'ending') {
+                        endingInstants.push(state.instant);
+                      }
+                      return <div {...props} />;
+                    }}
+                  >
+                    Content
+                  </Popover.Popup>
+                </Popover.Positioner>
+              </Popover.Portal>
+            </Popover.Root>
+          </div>
+        );
+      }
+
+      const { user } = await render(<Test />);
+
+      await user.click(screen.getByRole('button', { name: 'Trigger 1' }));
+      await waitFor(() => {
+        expect(screen.queryByTestId('popup')).not.toBe(null);
+      });
+      await act(async () => {
+        await new Promise((resolve) => {
+          setTimeout(resolve, 100);
+        });
+      });
+
+      await act(async () => {
+        controls.setTriggerId!('t2');
+      });
+      await waitFor(() => {
+        expect(screen.getByTestId('popup')).toHaveAttribute('data-instant', 'trigger-change');
+      });
+
+      endingInstants.length = 0;
+      await act(async () => {
+        controls.setOpen!(false);
+      });
+      await waitFor(
+        () => {
+          expect(endingInstants.length).toBeGreaterThan(0);
+        },
+        { timeout: 2000 },
+      );
+
+      expect(endingInstants).not.toContain('trigger-change');
     });
 
     it('does not restore the trigger-change instant when a controlled close commits late', async () => {
