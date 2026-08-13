@@ -4449,6 +4449,51 @@ describe('<Select.Root />', () => {
       expect(input).toHaveAttribute('data-focus-visible');
     });
 
+    it('sets the first item as active when the filterable list receives focus', async () => {
+      const { user } = await render(
+        <FilterSelect.Root
+          defaultOpen
+          items={[
+            { value: 'apple', label: 'Apple' },
+            { value: 'banana', label: 'Banana' },
+          ]}
+        >
+          <FilterSelect.Trigger>Fruit</FilterSelect.Trigger>
+          <FilterSelect.Portal>
+            <FilterSelect.Positioner>
+              <FilterSelect.Popup>
+                <FilterSelect.Input aria-label="Filter fruit" />
+                <FilterSelect.List>
+                  {(item: { value: string; label: string }) => (
+                    <FilterSelect.Item key={item.value} value={item.value}>
+                      {item.label}
+                    </FilterSelect.Item>
+                  )}
+                </FilterSelect.List>
+              </FilterSelect.Popup>
+            </FilterSelect.Positioner>
+          </FilterSelect.Portal>
+        </FilterSelect.Root>,
+      );
+
+      const list = screen.getByRole('listbox');
+      const firstItem = screen.getByRole('option', { name: 'Apple' });
+      expect(list).not.toHaveAttribute('aria-activedescendant');
+
+      await user.tab();
+
+      await waitFor(() => {
+        expect(list).toHaveAttribute('aria-activedescendant', firstItem.id);
+      });
+
+      await user.keyboard('{Shift>}{Tab}{/Shift}');
+
+      await waitFor(() => {
+        expect(screen.getByRole('searchbox', { name: 'Filter fruit' })).toHaveFocus();
+      });
+      expect(list).not.toHaveAttribute('aria-activedescendant');
+    });
+
     it('supports a controlled input value', async () => {
       function Test() {
         const [inputValue, setInputValue] = React.useState('');
