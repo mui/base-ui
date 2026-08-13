@@ -2,7 +2,7 @@ import { vi, expect } from 'vitest';
 import { act, fireEvent, flushMicrotasks, render, screen } from '@mui/internal-test-utils';
 import * as React from 'react';
 import { isJSDOM, useTestInteractions } from '#test-utils';
-import { useClick, useFloating, useHover } from '../index';
+import { useClick, useDismiss, useFloating, useHover } from '../index';
 import { REASONS } from '../../internals/reasons';
 import type { UseFloatingOptions } from '../types';
 import type { UseClickProps } from './useClick';
@@ -31,6 +31,22 @@ function App({
   return (
     <React.Fragment>
       <Reference data-testid="reference" {...getReferenceProps({ ref: refs.setReference })} />
+      {open && <div role="tooltip" {...getFloatingProps({ ref: refs.setFloating })} />}
+    </React.Fragment>
+  );
+}
+
+function DismissApp(props: UseClickProps) {
+  const [open, setOpen] = React.useState(false);
+  const { refs, context } = useFloating({ open, onOpenChange: setOpen });
+  const { getReferenceProps, getFloatingProps } = useTestInteractions([
+    useClick(context, props),
+    useDismiss(context),
+  ]);
+
+  return (
+    <React.Fragment>
+      <button {...getReferenceProps({ ref: refs.setReference })} />
       {open && <div role="tooltip" {...getFloatingProps({ ref: refs.setFloating })} />}
     </React.Fragment>
   );
@@ -149,6 +165,29 @@ describe.skipIf(!isJSDOM)('useClick', () => {
     expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
   });
 
+  test('closes when Escape is pressed after the deferred mousedown open runs', async () => {
+    const frameCallbacks: FrameRequestCallback[] = [];
+    vi.spyOn(window, 'requestAnimationFrame').mockImplementation((callback) => {
+      frameCallbacks.push(callback);
+      return frameCallbacks.length;
+    });
+
+    render(<DismissApp event="mousedown" />);
+
+    const button = screen.getByRole('button');
+
+    fireEvent.pointerDown(button, { pointerType: 'mouse' });
+    fireEvent.mouseDown(button);
+
+    await act(async () => {
+      frameCallbacks.forEach((callback) => callback(0));
+      // Keep Escape in the same batch as the pending open to exercise the pre-commit window.
+      button.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+    });
+
+    expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
+  });
+
   test('closes from the mousedown event path', async () => {
     render(<App event="mousedown" initialOpen />);
 
@@ -219,6 +258,24 @@ describe.skipIf(!isJSDOM)('useClick', () => {
     });
 
     expect(onOpenChange).not.toHaveBeenCalled();
+    expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
+  });
+
+  test('closes when Escape is pressed after the delayed touch open runs', async () => {
+    vi.useFakeTimers();
+
+    render(<DismissApp touchOpenDelay={100} />);
+
+    const button = screen.getByRole('button');
+
+    fireEvent.pointerDown(button, { pointerType: 'touch' });
+    fireEvent.click(button);
+
+    await act(async () => {
+      vi.advanceTimersByTime(100);
+      button.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+    });
+
     expect(screen.queryByRole('tooltip')).not.toBeInTheDocument();
   });
 

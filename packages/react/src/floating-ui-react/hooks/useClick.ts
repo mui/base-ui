@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import * as ReactDOM from 'react-dom';
 import { useAnimationFrame } from '@base-ui/utils/useAnimationFrame';
 import { useTimeout } from '@base-ui/utils/useTimeout';
 import { EMPTY_OBJECT } from '@base-ui/utils/empty';
@@ -84,15 +85,18 @@ export function useClick(
       nativeEvent: MouseEvent,
       target: HTMLElement,
       pointerType: 'mouse' | 'pen' | 'touch' | 'virtual' | undefined,
+      synchronous = false,
     ) {
       const details = createChangeEventDetails(reason, nativeEvent, target);
+      const setOpen = () => store.setOpen(nextOpen, details);
 
+      // Preserve discrete-event ordering after deferring work so later input sees the new state.
       if (nextOpen && pointerType === 'touch' && touchOpenDelay > 0) {
-        touchOpenTimeout.start(touchOpenDelay, () => {
-          store.setOpen(true, details);
-        });
+        touchOpenTimeout.start(touchOpenDelay, () => ReactDOM.flushSync(setOpen));
+      } else if (synchronous) {
+        ReactDOM.flushSync(setOpen);
       } else {
-        store.setOpen(nextOpen, details);
+        setOpen();
       }
     }
 
@@ -177,7 +181,7 @@ export function useClick(
         // Wait until focus is set on the element. This is an alternative to
         // `event.preventDefault()` to avoid :focus-visible from appearing when using a pointer.
         frame.request(() => {
-          setOpenWithTouchDelay(nextOpen, nativeEvent, eventCurrentTarget, pointerType);
+          setOpenWithTouchDelay(nextOpen, nativeEvent, eventCurrentTarget, pointerType, true);
         });
       },
       onClick(event) {
