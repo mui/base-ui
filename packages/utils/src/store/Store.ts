@@ -7,6 +7,10 @@ type Listener<T> = (state: T) => void;
  * It uses an observer pattern to notify subscribers when the state changes.
  */
 export class Store<State> {
+  static create<T>(state: T) {
+    return new Store(state);
+  }
+
   /**
    * The current state of the store.
    * This property is updated immediately when the state changes as a result of calling {@link setState}, {@link update}, or {@link set}.
