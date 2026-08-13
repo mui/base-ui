@@ -1,7 +1,7 @@
 import * as React from 'react';
-import { screen, waitFor } from '@mui/internal-test-utils';
+import { act, fireEvent, screen, waitFor } from '@mui/internal-test-utils';
 import { vi, describe, it, expect } from 'vitest';
-import { createRenderer } from '#test-utils';
+import { createRenderer, isJSDOM } from '#test-utils';
 import { Menu } from '@base-ui/react/menu';
 
 // Kept in a separate file so the module mock doesn't leak into `MenuSubmenuTrigger.test.tsx`.
@@ -17,15 +17,21 @@ vi.mock('@base-ui/utils/platform', async () => {
   };
 });
 
-function Test() {
+function Test(props: {
+  openOnHover?: boolean;
+  delay?: number;
+  onSubmenuOpenChange?: Menu.SubmenuRoot.Props['onOpenChange'];
+}) {
   return (
     <Menu.Root>
       <Menu.Trigger>Open menu</Menu.Trigger>
       <Menu.Portal>
         <Menu.Positioner>
           <Menu.Popup>
-            <Menu.SubmenuRoot>
-              <Menu.SubmenuTrigger>More</Menu.SubmenuTrigger>
+            <Menu.SubmenuRoot onOpenChange={props.onSubmenuOpenChange}>
+              <Menu.SubmenuTrigger openOnHover={props.openOnHover} delay={props.delay}>
+                More
+              </Menu.SubmenuTrigger>
               <Menu.Portal>
                 <Menu.Positioner>
                   <Menu.Popup data-testid="submenu">
@@ -39,6 +45,26 @@ function Test() {
         </Menu.Positioner>
       </Menu.Portal>
     </Menu.Root>
+  );
+}
+
+function fireVoiceOverPress(element: Element) {
+  fireEvent.pointerDown(element, {
+    pointerType: 'touch',
+    width: 0.333,
+    height: 0.333,
+    pressure: 0,
+    detail: 0,
+  });
+  fireEvent.mouseDown(element);
+}
+
+async function waitForFrame() {
+  await act(
+    () =>
+      new Promise<void>((resolve) => {
+        requestAnimationFrame(() => resolve());
+      }),
   );
 }
 
@@ -91,17 +117,95 @@ describe('<Menu.SubmenuTrigger /> with VoiceOver', () => {
     expect(submenuTrigger).not.toHaveAttribute('aria-expanded');
   });
 
-  it('keeps the expanded state when the submenu is opened with a pointer', async () => {
+  it('keeps the expanded state when the submenu is opened by hover', async () => {
     const { user } = await render(<Test />);
 
     await user.click(screen.getByRole('button', { name: 'Open menu' }));
 
     const submenuTrigger = await screen.findByRole('menuitem', { name: 'More' });
-    await user.click(submenuTrigger);
+    await user.hover(submenuTrigger);
 
     await screen.findByTestId('submenu');
 
     // Focus stays on the trigger, so there is no item announcement to talk over.
     expect(submenuTrigger).toHaveAttribute('aria-expanded', 'true');
   });
+
+  it.skipIf(isJSDOM)(
+    'keeps the expanded state when a virtual pointer presses an already-open submenu',
+    async () => {
+      const { user } = await render(<Test />);
+
+      await user.click(screen.getByRole('button', { name: 'Open menu' }));
+
+      const submenuTrigger = await screen.findByRole('menuitem', { name: 'More' });
+      await user.hover(submenuTrigger);
+      await screen.findByTestId('submenu');
+      expect(submenuTrigger).toHaveAttribute('aria-expanded', 'true');
+
+      fireVoiceOverPress(submenuTrigger);
+      await waitForFrame();
+
+      expect(submenuTrigger).toHaveAttribute('aria-expanded', 'true');
+    },
+  );
+
+  it('keeps the expanded state when the submenu is opened with a physical pointer press', async () => {
+    const { user } = await render(<Test openOnHover={false} />);
+
+    await user.click(screen.getByRole('button', { name: 'Open menu' }));
+
+    const submenuTrigger = await screen.findByRole('menuitem', { name: 'More' });
+    await user.click(submenuTrigger);
+
+    const submenu = await screen.findByTestId('submenu');
+    await waitFor(() => {
+      expect(submenu).toHaveFocus();
+    });
+
+    expect(submenuTrigger).toHaveAttribute('aria-expanded', 'true');
+  });
+
+  it.skipIf(isJSDOM)('omits the expanded state when opened with a virtual pointer', async () => {
+    const { user } = await render(<Test />);
+
+    await user.click(screen.getByRole('button', { name: 'Open menu' }));
+
+    const submenuTrigger = await screen.findByRole('menuitem', { name: 'More' });
+    fireVoiceOverPress(submenuTrigger);
+
+    await screen.findByTestId('submenu');
+    await waitFor(() => {
+      expect(screen.getByRole('menuitem', { name: 'Alpha' })).toHaveFocus();
+    });
+
+    expect(submenuTrigger).not.toHaveAttribute('aria-expanded');
+  });
+
+  it.skipIf(isJSDOM)(
+    'keeps the expanded state when hover follows a canceled virtual pointer press',
+    async () => {
+      const onSubmenuOpenChange = vi.fn((open, eventDetails) => {
+        if (open && onSubmenuOpenChange.mock.calls.length === 1) {
+          eventDetails.cancel();
+        }
+      });
+      const { user } = await render(<Test delay={0} onSubmenuOpenChange={onSubmenuOpenChange} />);
+
+      await user.click(screen.getByRole('button', { name: 'Open menu' }));
+
+      const submenuTrigger = await screen.findByRole('menuitem', { name: 'More' });
+      fireVoiceOverPress(submenuTrigger);
+
+      await waitFor(() => {
+        expect(onSubmenuOpenChange).toHaveBeenCalledTimes(1);
+      });
+      expect(screen.queryByTestId('submenu')).toBe(null);
+
+      await user.hover(submenuTrigger);
+      await screen.findByTestId('submenu');
+
+      expect(submenuTrigger).toHaveAttribute('aria-expanded', 'true');
+    },
+  );
 });
