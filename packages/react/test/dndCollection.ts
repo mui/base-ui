@@ -188,9 +188,15 @@ export function setupPlugin(
   // `connect()` created.
   const plugin = result.current;
   const rawSetupItem = plugin.setupItem.bind(plugin);
+  const rawSetupDropTarget = plugin.setupDropTarget.bind(plugin);
   const rawSetupRoot = plugin.setupRoot.bind(plugin);
   plugin.setupItem = (...args: Parameters<typeof rawSetupItem>) => {
     const cleanup = rawSetupItem(...args);
+    registerCleanup(cleanup);
+    return cleanup;
+  };
+  plugin.setupDropTarget = (...args: Parameters<typeof rawSetupDropTarget>) => {
+    const cleanup = rawSetupDropTarget(...args);
     registerCleanup(cleanup);
     return cleanup;
   };

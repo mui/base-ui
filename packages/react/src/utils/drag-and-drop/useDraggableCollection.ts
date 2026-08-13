@@ -491,6 +491,21 @@ export class DraggableCollectionPlugin<
     }
   };
 
+  /** Reconciles mounted rows when collection-level displacement tracking changes. */
+  public refreshDisplacementTracking(): void {
+    for (const [itemId, element] of this.itemElements) {
+      this.syncDisplacementTracking(itemId, element);
+    }
+  }
+
+  private syncDisplacementTracking(itemId: CollectionItemId, element: HTMLElement): void {
+    this.displacementCleanups.get(itemId)?.();
+    this.displacementCleanups.delete(itemId);
+    if (this.config.trackDisplacement) {
+      this.displacementCleanups.set(itemId, trackDisplacedElement(element));
+    }
+  }
+
   /**
    * Re-register every item's draggable so the registration-time static setup
    * (gesture styles, keyboard a11y attributes) reflects the current `canDrag`,
@@ -562,13 +577,93 @@ export class DraggableCollectionPlugin<
     }
   }
 
+  /** Registers a secondary visual copy as a drop target without making it draggable. */
+  setupDropTarget(itemId: CollectionItemId, element: HTMLElement): () => void {
+    // Only the innermost item drives the indicator. DOM-nested ancestors fire
+    // too, but the drop commits against `dropTargets[0]`.
+    const trackDropPosition = (
+      event: DropTargetEvent<'onDrag', IncomingSourceData<TItem>, DropTargetItemData>,
+    ) => {
+      const { source, location } = event;
+      if (location.current.dropTargets[0]?.element !== element) {
+        return;
+      }
+      const { input } = location.current;
+      const position = this.computeDropPosition(element, input, source.payload);
+      this.updateDropState(itemId, position);
+    };
+
+    const itemPayload: DropTargetItemData = {
+      ...reorderRowBrand,
+      role: 'item',
+      itemId,
+      targetInstanceId: this.instanceId,
+    };
+    const itemCanDrop = ({
+      source,
+      input,
+    }: DropTargetResolutionContext<IncomingSourceData<TItem>>): boolean => {
+      const src = source.payload;
+      const draggedItemIds = src?.itemIds;
+      // Without managed rows or a consumer drop handler, no drop can commit.
+      if (draggedItemIds == null && this.config.onDrop == null) {
+        return false;
+      }
+      if (draggedItemIds?.has(itemId) || src?.draggedItemId === itemId) {
+        return false;
+      }
+      // Cross-kind drops have no collection shape this instance can validate.
+      if (
+        this.kind.matches(source as DragSource<unknown>) &&
+        draggedItemIds != null &&
+        this.config.isDropTargetInvalid?.(itemId, draggedItemIds)
+      ) {
+        return false;
+      }
+      const capabilities = this.dropCapabilities(src);
+      if (!capabilities.hasOn && !capabilities.hasBeforeAfter) {
+        return false;
+      }
+      if (this.config.canDrop) {
+        const position = this.computeDropPosition(element, input, src);
+        if (
+          !this.config.canDrop({
+            draggedItemIds: draggedItemIds ?? new Set(),
+            targetItemId: itemId,
+            position,
+            source: source as DragSource<unknown>,
+          })
+        ) {
+          return false;
+        }
+      }
+      return true;
+    };
+
+    return this.engine.registerDropTarget<IncomingSourceData<TItem>, DropTargetItemData>(
+      element,
+      () => ({
+        accept: this.accept,
+        payload: itemPayload,
+        canDrop: itemCanDrop,
+        onDragEnter: trackDropPosition,
+        onDrag: trackDropPosition,
+        onDragLeave: () => {
+          this.clearDropState();
+        },
+        // A target commits before monitors receive `onDragEnd`, so insertion
+        // cannot depend on collection/monitor mount order.
+        onDrop: ({ source, location }) => {
+          this.handleDrop(location, source as DragSource<IncomingSourceData<TItem>>);
+        },
+      }),
+    );
+  }
+
   setupItem(itemId: CollectionItemId, element: HTMLElement): () => void {
     this.retargetActiveSource(itemId, element);
     this.itemElements.set(itemId, element);
-    this.displacementCleanups.get(itemId)?.();
-    if (this.config.trackDisplacement) {
-      this.displacementCleanups.set(itemId, trackDisplacedElement(element));
-    }
+    this.syncDisplacementTracking(itemId, element);
 
     let pendingDraggedItemIds: Set<CollectionItemId> | null = null;
     const onBeforeDragStart = () => {
@@ -710,108 +805,7 @@ export class DraggableCollectionPlugin<
     };
     this.itemRefreshers.set(itemId, refreshA11y);
 
-    // Track the drop indicator against the innermost item. Only the innermost
-    // item drives it: for DOM-nested items (e.g. a tree row inside its parent
-    // row) every ancestor item is in the stack and fires too, but the drop
-    // commits against `dropTargets[0]` (innermost), so the visual state must
-    // track that same target. `onDragEnter` and `onDrag` share this so hover
-    // tracking can't drift between them.
-    const trackDropPosition = (
-      event: DropTargetEvent<'onDrag', IncomingSourceData<TItem>, DropTargetItemData>,
-    ) => {
-      const { source, location } = event;
-      if (location.current.dropTargets[0]?.element !== element) {
-        return;
-      }
-      const { input } = location.current;
-      const position = this.computeDropPosition(element, input, source.payload);
-      this.updateDropState(itemId, position);
-    };
-
-    // Hoisted out of the getter below, which the engine reads once per
-    // `resolveDropTarget` *and* once per `dispatchToDropTarget`, per row: neither
-    // depends on anything that changes between reads, so rebuilding them per
-    // access was pure allocation on the hot path.
-    const itemPayload: DropTargetItemData = {
-      // Tells the keyboard collision layer this row reads its insertion side
-      // from the cursor's sub-position (see `reorderRow`).
-      ...reorderRowBrand,
-      role: 'item' as const,
-      itemId,
-      targetInstanceId: this.instanceId,
-    };
-    const itemCanDrop = ({
-      source,
-      input,
-    }: DropTargetResolutionContext<IncomingSourceData<TItem>>): boolean => {
-      const src = source.payload;
-      const draggedItemIds = src?.itemIds;
-      if (draggedItemIds == null && this.config.onDrop == null) {
-        return false;
-      }
-      // Can't drop on any of the dragged items. The grabbed row is checked
-      // separately: `itemIds` is the pruned set, which can legitimately exclude
-      // it (select a folder and a file inside it, then grab the file), and the
-      // row being held must never accept its own drop.
-      if (draggedItemIds?.has(itemId) || src?.draggedItemId === itemId) {
-        return false;
-      }
-      // Reject invalid targets, but only for same-kind sources (cross-kind
-      // drops have no tree shape to validate against).
-      if (
-        this.kind.matches(source as DragSource<unknown>) &&
-        draggedItemIds != null &&
-        this.config.isDropTargetInvalid?.(itemId, draggedItemIds)
-      ) {
-        return false;
-      }
-      // No handler can commit a drop of this origin (e.g. an internal drag in
-      // an insert-only collection): reject the row rather than indicating a
-      // drop that would no-op, and let a parent target claim it instead.
-      const capabilities = this.dropCapabilities(src);
-      if (!capabilities.hasOn && !capabilities.hasBeforeAfter) {
-        return false;
-      }
-      // Fold consumer `canDrop` in here, on the same pointer input the rest of the lifecycle uses.
-      if (this.config.canDrop) {
-        const position = this.computeDropPosition(element, input, src);
-        if (
-          !this.config.canDrop({
-            draggedItemIds: draggedItemIds ?? new Set(),
-            targetItemId: itemId,
-            position,
-            source: source as DragSource<unknown>,
-          })
-        ) {
-          return false;
-        }
-      }
-      return true;
-    };
-
-    // Register as drop target; `accept` filters by source `kind`.
-    const dropTargetCleanup = this.engine.registerDropTarget<
-      IncomingSourceData<TItem>,
-      DropTargetItemData
-    >(element, () => ({
-      accept: this.accept,
-      payload: itemPayload,
-      canDrop: itemCanDrop,
-      onDragEnter: trackDropPosition,
-      onDrag: trackDropPosition,
-      onDragLeave: () => {
-        this.clearDropState();
-      },
-      // Committed here rather than from this plugin's monitor: the lifecycle
-      // dispatches the innermost target's `onDrop` before *any* monitor's
-      // `onDragEnd`, so the destination inserts before the origin collection
-      // clears its shared drag state and fires its public `onDragEnd`. Monitors
-      // run in registration order, which for a cross-collection drop is
-      // whichever list mounted first — the wrong thing to depend on.
-      onDrop: ({ source, location }) => {
-        this.handleDrop(location, source as DragSource<IncomingSourceData<TItem>>);
-      },
-    }));
+    const dropTargetCleanup = this.setupDropTarget(itemId, element);
 
     return () => {
       // Only forget the element/refresher if a newer `setupItem` hasn't already
@@ -1401,7 +1395,16 @@ export function useDraggableCollection<
     plugin.current.refreshItemsA11y();
   }, [params.canDrag, params.keyboardActivation, translations, plugin]);
 
+  useIsoLayoutEffect(() => {
+    plugin.current.refreshDisplacementTracking();
+  }, [params.trackDisplacement, plugin]);
+
   return plugin.current;
+}
+
+/** Returns the Base UI translations used by the collection adapter. */
+export function useDraggableCollectionTranslations(): LocalizationProviderTranslations {
+  return useTranslations();
 }
 
 // Local-data shape attached to drop targets via `payload`. `role` discriminates

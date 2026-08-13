@@ -20,6 +20,7 @@ import { useInnerDragEngine } from './useInnerDragEngine';
 import { useDraggableCollection } from './useDraggableCollection';
 import { dragSessionStore } from './dragSessionStore';
 import { getRegistration } from './draggableRegistry';
+import { scheduleDisplacementSweep } from './displacement';
 import type { DragKeyboardMoveDetails, DragKind } from '../../types/drag';
 import { createKind } from './dragKind';
 
@@ -106,6 +107,40 @@ describe('useDraggableCollection', () => {
     expect(getRegistration(element)!().label).toBe('Item a');
   });
 
+  it('reconciles mounted rows when displacement tracking is enabled at runtime', async () => {
+    const actions = {
+      hasItem: () => true,
+      getSelectedItemIds: () => new Set<string | number>(),
+      getItemModels: () => [],
+    };
+    const { result, rerender, unmount } = renderHook(
+      ({ trackDisplacement }) =>
+        useDraggableCollection({ getActions: () => actions, trackDisplacement }),
+      { initialProps: { trackDisplacement: false } },
+    );
+    registerCleanup(unmount);
+    const source = createElement();
+    const target = createElement();
+    let targetTop = 100;
+    Object.defineProperties(target, {
+      offsetTop: { configurable: true, get: () => targetTop },
+      offsetLeft: { configurable: true, get: () => 0 },
+      offsetWidth: { configurable: true, get: () => 200 },
+      offsetHeight: { configurable: true, get: () => 40 },
+    });
+    registerCleanup(result.current.setupItem('a', source));
+    registerCleanup(result.current.setupItem('b', target));
+
+    await lift(source);
+    rerender({ trackDisplacement: true });
+    await Promise.resolve();
+
+    targetTop = 50;
+    scheduleDisplacementSweep(target);
+
+    expect(target).toHaveAttribute('data-displacing');
+  });
+
   it('adapts collection preview content and placement settings to the draggable', async () => {
     const previewRender = vi.fn(() => <span>Two cards</span>);
     const previewModifier = vi.fn(({ point }) => point);
@@ -146,6 +181,26 @@ describe('useDraggableCollection', () => {
   });
 
   describe('drop position', () => {
+    it('registers a secondary copy as a drop-only target', async () => {
+      const onMove = vi.fn();
+      const { plugin } = setupPlugin({ onMove }, { knownItemIds: ['a', 'b'] });
+      const source = createElement({ top: 0, height: 100 });
+      const targetCopy = createElement({ top: 200, height: 100 });
+      plugin.setupItem('a', source);
+      plugin.setupDropTarget('b', targetCopy);
+
+      expect(getRegistration(targetCopy)).toBeUndefined();
+
+      await lift(source);
+      await dragEnter(targetCopy, { clientY: 210 });
+      await dragOver(targetCopy, { clientY: 210 });
+      drop(targetCopy, { clientY: 210 });
+
+      expect(onMove).toHaveBeenCalledWith(
+        expect.objectContaining({ target: { itemId: 'b', position: 'before' } }),
+      );
+    });
+
     it('routes onMove for "before" / "on" / "after" based on pointer Y', async () => {
       const onMove = vi.fn();
       const { plugin } = setupPlugin({ onMove }, { knownItemIds: ['a', 'b'] });
