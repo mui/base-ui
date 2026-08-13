@@ -9,14 +9,18 @@
 
 import { isElement, isHTMLElement } from '@floating-ui/utils/dom';
 import { contains } from '@base-ui/utils/shadowDom';
-import type { DragCleanupFn } from '../../types/drag';
+import type { DragCleanupFn, DragHandle } from '../../types/drag';
 import type { DraggableConfig } from './draggable';
 import { createGetterStackRegistry } from './getterStackRegistry';
 import { getSharedSlot } from './sharedState';
 import { getComposedParentElement, resolveElementReference } from './utils';
 
 /** Getter for a single hook's latest draggable parameters, read fresh at gesture start. */
-type DraggableGetter = () => DraggableConfig<any>;
+type RegisteredDraggableConfig = DraggableConfig<any> & {
+  pointerDragHandle?: DragHandle | undefined;
+};
+
+type DraggableGetter = () => RegisteredDraggableConfig;
 
 interface RegistryState {
   /**
@@ -71,7 +75,7 @@ export interface DraggablePickup {
   /** The resolved event target (inside, or equal to, `element`). */
   target: Element;
   /** The draggable's latest parameters, read fresh at gesture start. */
-  parameters: DraggableConfig<any>;
+  parameters: RegisteredDraggableConfig;
   /** The configured drag handle, or `null` when the whole element is draggable. */
   dragHandle: Element | null;
 }
@@ -84,7 +88,10 @@ export interface DraggablePickup {
  * sensor-specific `disabled` gate / `onBeforeDragStart` dispatch (the input
  * differs per sensor) and `canStartLifecycle`.
  */
-export function resolveDraggablePickup(rawTarget: EventTarget | null): DraggablePickup | null {
+export function resolveDraggablePickup(
+  rawTarget: EventTarget | null,
+  modality: 'pointer' | 'keyboard' = 'keyboard',
+): DraggablePickup | null {
   const target = isElement(rawTarget) ? rawTarget : null;
   if (!target) {
     return null;
@@ -103,7 +110,11 @@ export function resolveDraggablePickup(rawTarget: EventTarget | null): Draggable
     const getParameters = getRegistration(element);
     if (getParameters) {
       const parameters = getParameters();
-      const dragHandle = resolveElementReference(parameters.dragHandle, undefined);
+      const handleReference =
+        modality === 'pointer'
+          ? (parameters.pointerDragHandle ?? parameters.dragHandle)
+          : parameters.dragHandle;
+      const dragHandle = resolveElementReference(handleReference, undefined);
       // With a configured drag handle, only pick up if the gesture began within
       // it — so an action control elsewhere inside the draggable keeps its own
       // behaviour. A `disabled` draggable can never start a drag, so it is

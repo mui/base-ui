@@ -6,6 +6,9 @@ import { isRtlElement } from './utils';
  */
 export type DropPosition = 'before' | 'after' | 'on';
 
+/** @internal Runtime brand used to distinguish Tree payloads from arbitrary draggables. */
+export const treeDragPayloadBrand: unique symbol = Symbol.for('base-ui.tree-drag-payload');
+
 /**
  * The wire format carried with a collection drag, so cross-collection monitors
  * read the same shape regardless of which collection produced the drag.
@@ -16,6 +19,8 @@ export type DragSourceData<TItem> = {
   draggedItemId: CollectionItemId;
   items: TItem[];
   draggedItem: TItem | undefined;
+  remove: () => void;
+  readonly [treeDragPayloadBrand]: true;
 };
 
 /**

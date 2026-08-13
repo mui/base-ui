@@ -38,6 +38,7 @@ import { WindowTimeout } from '../core/windowTimeout';
 import type {
   DragCanceledReason,
   DragCleanupFn,
+  DragHandle,
   DragInput,
   DragPointerType,
 } from '../../../types/drag';
@@ -487,7 +488,7 @@ function onPointerDown(event: Event): void {
     return;
   }
 
-  const pickup = resolveDraggablePickup(getTarget(pointerEvent));
+  const pickup = resolveDraggablePickup(getTarget(pointerEvent), 'pointer');
   if (!pickup) {
     return;
   }
@@ -773,7 +774,7 @@ function commitActivation(): void {
     clearPending();
     return;
   }
-  let parameters: DraggableConfig<any>;
+  let parameters: DraggableConfig<any> & { pointerDragHandle?: DragHandle | undefined };
   try {
     parameters = getParameters();
   } catch (error) {
@@ -799,7 +800,10 @@ function commitActivation(): void {
     return;
   }
 
-  const dragHandle = resolveElementReference(parameters.dragHandle, undefined);
+  const dragHandle = resolveElementReference(
+    parameters.pointerDragHandle ?? parameters.dragHandle,
+    undefined,
+  );
 
   // Re-check the handle gate at commit, like `disabled` above: the draggable may
   // have swapped its handle during the press, and the press that armed this

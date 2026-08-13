@@ -3,7 +3,13 @@ import type { DragPreviewDeclaration } from '../utils/drag-and-drop/dragPreviewD
 import type { RegisterDropTargetParameters } from '../utils/drag-and-drop/dropTarget';
 import type { RegisterAutoScrollerParameters as InternalRegisterAutoScrollerParameters } from '../utils/drag-and-drop/autoScroller';
 import type { RegisterMonitorParameters } from '../utils/drag-and-drop/monitor';
-import type { AcceptedDragPayload, AnyDragAccept, DragCleanupFn, DragKind } from './drag';
+import type {
+  AcceptedDragPayload,
+  AnyDragAccept,
+  DragCleanupFn,
+  DragHandle,
+  DragKind,
+} from './drag';
 
 /** Parameters accepted by `Draggable.Root` and `registerDraggable`, except the element. */
 // `onGenerateDragPreview` is omitted because the engine overwrites it to publish the
@@ -83,6 +89,8 @@ export interface InternalDragEngine extends Omit<
  */
 export type InternalDraggableParameters<TData = undefined> = RegisterDraggableParameters<TData> & {
   getDragPreviewDeclaration?: (() => DragPreviewDeclaration<NoInfer<TData>> | null) | undefined;
+  /** Pointer-only handle gate used by composite widgets that retain keyboard pickup on the root. */
+  pointerDragHandle?: DragHandle | undefined;
 };
 
 export type { RegisterDropTargetParameters };
