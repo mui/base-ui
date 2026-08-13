@@ -17,9 +17,8 @@ const CLOSE_TRANSITION_MS = 50;
 const CLOSE_TRANSITION_TIMEOUT = 300;
 
 describe('<PreviewCard.Root />', () => {
-  // Hover tests here drive the real pointer with `user.hover`, and several leave it resting on a
-  // trigger. The next test renders its own triggers under that stationary pointer, which makes the
-  // browser hover whatever now sits beneath it and open the card before the test interacts at all.
+  // Tests here leave the real pointer resting on a trigger, which the next render would put a
+  // fresh trigger under, opening the card before the test interacts.
   beforeEach(resetBrowserPointer);
 
   beforeEach(async () => {

@@ -1042,10 +1042,8 @@ describe.skipIf(!isJSDOM)('useDismiss', () => {
       fireEvent.mouseDown(floatingEl);
       fireEvent.mouseUp(document.body);
 
-      // Real mouse clicks carry `detail: 1`. The drag's pointerdown was
-      // observed while open, so the gesture's own click passes the
-      // press-observed guard and is consumed by the one-shot drag
-      // suppression, exactly once.
+      // Real mouse clicks carry `detail: 1`. This one passes the press-observed guard
+      // and is consumed by the one-shot drag suppression.
       fireEvent.click(document.body, { detail: 1 });
       expect(screen.getByRole('tooltip')).toBeInTheDocument();
 
@@ -1059,11 +1057,8 @@ describe.skipIf(!isJSDOM)('useDismiss', () => {
     test('mouse click whose press started before open does not close', async () => {
       render(<App outsidePressEvent="intentional" />);
 
-      // Simulates the trailing click the browser fires after a press-drag-release
-      // gesture that began before the floating element opened (e.g. a menu item
-      // activated by drag-release opening a dialog): no pointerdown/mousedown
-      // was observed while open, and the gesture's click lands on the common
-      // ancestor of the mousedown and mouseup targets.
+      // The trailing click of a press that began before open, e.g. a menu item activated
+      // by drag-release opening a dialog.
       fireEvent.click(document.body, { detail: 1 });
       expect(screen.getByRole('tooltip')).toBeInTheDocument();
 
@@ -1121,9 +1116,8 @@ describe.skipIf(!isJSDOM)('useDismiss', () => {
     test('press-less outside click reporting a pointer type closes', async () => {
       render(<App outsidePressEvent="intentional" />);
 
-      // A press-less click can still report a `pointerType`: Android assistive
-      // technology activations report `mouse`. The click count is what
-      // separates them from a press, so `detail: 0` must be enough.
+      // Android assistive technology reports `pointerType: 'mouse'` with no press behind
+      // it, so the click count is what separates the two.
       const click = new MouseEvent('click', { bubbles: true, detail: 0 });
       Object.defineProperty(click, 'pointerType', { value: 'mouse' });
       fireEvent(document.body, click);
@@ -1198,9 +1192,8 @@ describe.skipIf(!isJSDOM)('useDismiss', () => {
       fireEvent.pointerDown(document.body, { pointerType: 'mouse' });
       fireEvent.mouseDown(document.body);
 
-      // Close and reopen in one batch: React never renders `open === false`,
-      // so only the store's `openchange` events can observe the session
-      // boundary.
+      // React never renders `open === false` here, so only `openchange` can observe the
+      // session boundary.
       act(() => {
         context.rootStore.setOpen(false, createChangeEventDetails(REASONS.none));
         context.rootStore.setOpen(true, createChangeEventDetails(REASONS.none));
@@ -1246,10 +1239,8 @@ describe.skipIf(!isJSDOM)('useDismiss', () => {
       fireEvent.pointerDown(document.body, { pointerType: 'mouse' });
       fireEvent.mouseDown(document.body);
 
-      // `setOpen` emits `openchange` without comparing against the current
-      // state, so an already-open element can receive a redundant open dispatch
-      // mid-gesture — hovering an inactive trigger of the same element does
-      // this. It does not end the open session, so the press stays on record.
+      // A redundant open dispatch mid-gesture (hovering an inactive trigger does this)
+      // does not end the session, so the press stays on record.
       act(() => {
         context.rootStore.setOpen(true, createChangeEventDetails(REASONS.none));
       });
@@ -1265,10 +1256,8 @@ describe.skipIf(!isJSDOM)('useDismiss', () => {
       fireEvent.pointerDown(document.body, { pointerType: 'mouse' });
       fireEvent.mouseDown(document.body);
 
-      // Changing a listener effect dependency mid-gesture detaches and
-      // re-attaches the document listeners. The press observed during the
-      // current gesture must survive the re-run, so the gesture's click can
-      // still dismiss.
+      // Changing an effect dependency mid-gesture re-attaches the document listeners;
+      // the observed press must survive that.
       rerender(<App outsidePressEvent="intentional" escapeKey={false} />);
 
       fireEvent.click(document.body, { detail: 1 });

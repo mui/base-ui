@@ -8,9 +8,8 @@ import { OPEN_DELAY } from '../utils/constants';
 import { REASONS } from '../../internals/reasons';
 
 describe('<Tooltip.Root />', () => {
-  // Hover tests here drive the real pointer, which stays where the last one left it. A trigger
-  // rendered under that stationary pointer gets hovered by the browser, opening the tooltip before
-  // the test interacts at all.
+  // Tests here leave the real pointer resting on a trigger, which the next render would put a
+  // fresh trigger under, opening the tooltip before the test interacts.
   beforeEach(resetBrowserPointer);
 
   beforeEach(async () => {

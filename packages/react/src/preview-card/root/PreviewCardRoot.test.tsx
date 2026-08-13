@@ -14,9 +14,8 @@ import { REASONS } from '../../internals/reasons';
 import { CLOSE_DELAY, OPEN_DELAY } from '../utils/constants';
 
 describe('<PreviewCard.Root />', () => {
-  // The conformance and hover tests here drive the real pointer, which keeps resting wherever the
-  // last interaction left it. A trigger rendered under that stationary pointer gets hovered by the
-  // browser, opening the card before the test interacts at all.
+  // Tests here leave the real pointer resting on a trigger, which the next render would put a
+  // fresh trigger under, opening the card before the test interacts.
   beforeEach(resetBrowserPointer);
 
   beforeEach(() => {
