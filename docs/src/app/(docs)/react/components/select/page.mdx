@@ -222,57 +222,7 @@ const items = [
 
 ### Filterable
 
-Import `FilterSelect` from `@base-ui/react/filter-select` to let users filter the available items. It exposes every ordinary select part plus `<FilterSelect.Input>`, `<FilterSelect.Clear>`, and `<FilterSelect.Empty>`, so a filterable select needs only this one import.
-
-Pass the items to the `items` prop (required) and render them with a function as the `children` of `<FilterSelect.List>`. Filtering narrows `items` before the list renders, so only matching entries are mounted:
-
-```jsx title="Filterable select"
-import { FilterSelect } from '@base-ui/react/filter-select';
-
-const items = [
-  { value: 'apple', label: 'Apple' },
-  { value: 'banana', label: 'Banana' },
-];
-
-<FilterSelect.Root items={items}>
-  <FilterSelect.Trigger>
-    <FilterSelect.Value />
-  </FilterSelect.Trigger>
-  <FilterSelect.Portal>
-    <FilterSelect.Positioner>
-      <FilterSelect.Popup>
-        <FilterSelect.Input />
-        <FilterSelect.Empty />
-        <FilterSelect.List>
-          {(item) => (
-            <FilterSelect.Item key={item.value} value={item.value}>
-              {item.label}
-            </FilterSelect.Item>
-          )}
-        </FilterSelect.List>
-      </FilterSelect.Popup>
-    </FilterSelect.Positioner>
-  </FilterSelect.Portal>
-</FilterSelect.Root>;
-```
-
-import { DemoSelectFilterable } from './demos/filterable';
-
-<DemoSelectFilterable />
-
-Filtering lives in its own entrypoint so that an ordinary `@base-ui/react/select` never carries the filtering code. `<Select.Root>` cannot filter, and the filtering parts throw if placed inside one.
-
-Give `<FilterSelect.Input>` its own accessible name with `aria-label` or a native `<label>`. `<FilterSelect.Label>` labels the trigger, not the input.
-
-An entry can carry `keywords` to match additional terms beyond its label.
-
-Pass a function to `filter` to customize matching. It is called with the `items` entry and the trimmed query, and returns whether the item matches:
-
-```jsx title="Custom filter"
-<FilterSelect.Root items={items} filter={(item, query) => item.label.startsWith(query)}>
-```
-
-The first argument is the item's `label` prop, falling back to its rendered text content. This differs from [Combobox](/react/components/combobox), which filters on item values.
+Use [Filter Select](/react/components/filter-select) when users need to filter the options with a text input. It is a separate component with its own entrypoint, so an ordinary select never carries the filtering code.
 
 ### Multiple selection
 
@@ -361,18 +311,6 @@ import { TypesSelect } from './types';
 ### Popup
 
 <TypesSelect.Popup />
-
-### Input
-
-<TypesSelect.Input />
-
-### Clear
-
-<TypesSelect.Clear />
-
-### Empty
-
-<TypesSelect.Empty />
 
 ### List
 

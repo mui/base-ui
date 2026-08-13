@@ -102,44 +102,7 @@ import { DemoMenuGroupLabels } from './demos/group-labels';
 
 ### Filterable
 
-Import `FilterMenu` from `@base-ui/react/filter-menu` to let users filter the available items. It exposes every ordinary menu part plus `<FilterMenu.Input>`, `<FilterMenu.Clear>`, and `<FilterMenu.Empty>`, so a filterable menu needs only this one import.
-
-```jsx title="Filterable menu"
-import { FilterMenu } from '@base-ui/react/filter-menu';
-
-<FilterMenu.Root>
-  <FilterMenu.Trigger />
-  <FilterMenu.Portal>
-    <FilterMenu.Positioner>
-      <FilterMenu.Popup>
-        <FilterMenu.Input />
-        <FilterMenu.Empty />
-        <FilterMenu.List>
-          <FilterMenu.Item />
-        </FilterMenu.List>
-      </FilterMenu.Popup>
-    </FilterMenu.Positioner>
-  </FilterMenu.Portal>
-</FilterMenu.Root>;
-```
-
-import { DemoMenuFilterable } from './demos/filterable';
-
-<DemoMenuFilterable />
-
-Items are matched on their `label` prop, falling back to their rendered text, so ordinary handcrafted children filter without any extra wiring. Pass `keywords` to an item to match additional terms beyond its label. A `<FilterMenu.Group>` hides itself, label included, when the query filters out every item in it.
-
-Filtering lives in its own entrypoint so that an ordinary `@base-ui/react/menu` never carries the filtering code. `<Menu.Root>` cannot filter, and the filtering parts throw if placed inside one.
-
-Filterability is scoped to the nearest root. A `<Menu.SubmenuRoot>` inside a filterable menu is not itself filterable; use `<FilterMenu.SubmenuRoot>` for a submenu that filters.
-
-Give `<FilterMenu.Input>` an accessible name with `aria-label` or a native `<label>`.
-
-Pass a function to `filter` to customize matching. It receives the item's `label` (falling back to its rendered text) and the trimmed query:
-
-```jsx title="Custom filter"
-<FilterMenu.Root filter={(itemText, query) => itemText.startsWith(query)}>
-```
+Use [Filter Menu](/react/components/filter-menu) when users need to filter the items with a text input. It is a separate component with its own entrypoint, so an ordinary menu never carries the filtering code.
 
 ### Nested menu
 
@@ -409,21 +372,9 @@ import { TypesMenu } from './types';
 
 <TypesMenu.Popup />
 
-### Input
-
-<TypesMenu.Input />
-
-### Clear
-
-<TypesMenu.Clear />
-
 ### List
 
 <TypesMenu.List />
-
-### Empty
-
-<TypesMenu.Empty />
 
 ### Viewport
 
