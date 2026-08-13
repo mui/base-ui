@@ -8,6 +8,12 @@ import { useAnimationsFinished } from './useAnimationsFinished';
  * this hook touches are typed.
  */
 interface TriggerSwitchStore {
+  /**
+   * The requested open state. A controlled consumer can leave the effective
+   * `open` selector (`openProp ?? open`) `true` after a close was requested, so
+   * this is the only signal that a close is already on its way.
+   */
+  readonly state: { readonly open: boolean };
   set(key: 'instantType', value: 'trigger-change' | undefined): void;
   select(key: 'open'): boolean;
 }
@@ -37,8 +43,13 @@ export interface UseTriggerSwitchTransitionParameters {
  * time the popup may already be closing — the trigger element is retained
  * through the exit transition, so nothing else re-runs this effect to abort it.
  * Restoring `trigger-change` then would mark the closing popup instant and skip
- * its exit animation, so it only applies while the popup is still open and the
- * same trigger still owns it.
+ * its exit animation, so it only applies while the popup is still open, no
+ * close has been requested in the meantime, and the same trigger still owns it.
+ *
+ * The requested and effective open states have to be checked separately: a
+ * controlled consumer can accept a close but commit `open={false}` later, and
+ * that commit goes straight through the prop without passing back through
+ * `setOpen`, so nothing downstream would clear a `trigger-change` set here.
  */
 export function useTriggerSwitchTransition(parameters: UseTriggerSwitchTransitionParameters): void {
   const { store, floatingRootContext, domReference, positionerElement } = parameters;
@@ -62,10 +73,12 @@ export function useTriggerSwitchTransition(parameters: UseTriggerSwitchTransitio
 
     const abortController = new AbortController();
     const triggerOnSwitch = currentTrigger;
+    const requestedOpenOnSwitch = store.state.open;
 
     runOnceAnimationsFinish(() => {
       if (
         store.select('open') &&
+        store.state.open === requestedOpenOnSwitch &&
         floatingRootContext.select('domReferenceElement') === triggerOnSwitch
       ) {
         store.set('instantType', 'trigger-change');

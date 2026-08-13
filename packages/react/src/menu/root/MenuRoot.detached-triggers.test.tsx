@@ -895,6 +895,130 @@ describe('<MenuRoot />', () => {
       expect(instantsWhileEnding).not.toContain('trigger-change');
     });
 
+    it('does not restore the trigger-change instant when a controlled close commits late', async () => {
+      // A controlled consumer can accept the close but commit `open={false}`
+      // later. That commit goes straight through the prop without passing back
+      // through `setOpen`, so a `trigger-change` restored in the meantime would
+      // never be cleared and would collapse the exit transition.
+      globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+
+      const instantsWhileEnding: (string | undefined)[] = [];
+      const switchDuration = 200;
+      const commitDelay = 400;
+
+      function Test() {
+        const [open, setOpen] = React.useState(false);
+        const [activeTrigger, setActiveTrigger] = React.useState<string | null>(null);
+
+        return (
+          <div style={{ position: 'relative', width: 400, height: 200 }}>
+            <style>
+              {`
+                .positioner {
+                  transition:
+                    top ${switchDuration}ms linear,
+                    left ${switchDuration}ms linear,
+                    transform ${switchDuration}ms linear;
+                }
+
+                .popup {
+                  opacity: 1;
+                  transition: opacity 250ms linear;
+                }
+
+                .popup[data-ending-style] {
+                  opacity: 0;
+                }
+
+                .positioner[data-instant],
+                .popup[data-instant] {
+                  transition: none;
+                }
+              `}
+            </style>
+
+            <Menu.Root
+              open={open}
+              triggerId={activeTrigger}
+              onOpenChange={(nextOpen, details) => {
+                if (nextOpen) {
+                  setActiveTrigger(details.trigger?.id ?? null);
+                  setOpen(true);
+                  return;
+                }
+
+                setTimeout(() => setOpen(false), commitDelay);
+              }}
+            >
+              <Menu.Trigger
+                id="trigger-1"
+                openOnHover
+                delay={0}
+                style={{ position: 'absolute', top: 20, left: 20 }}
+              >
+                Trigger 1
+              </Menu.Trigger>
+              <Menu.Trigger
+                id="trigger-2"
+                openOnHover
+                delay={0}
+                style={{ position: 'absolute', top: 20, left: 220 }}
+              >
+                Trigger 2
+              </Menu.Trigger>
+
+              <Menu.Portal>
+                <Menu.Positioner data-testid="positioner" className="positioner">
+                  <Menu.Popup
+                    data-testid="popup"
+                    className="popup"
+                    render={(props, state) => {
+                      if (state.transitionStatus === 'ending') {
+                        instantsWhileEnding.push(state.instant);
+                      }
+                      return <div {...props} />;
+                    }}
+                  >
+                    <Menu.Item>Item</Menu.Item>
+                  </Menu.Popup>
+                </Menu.Positioner>
+              </Menu.Portal>
+            </Menu.Root>
+          </div>
+        );
+      }
+
+      const { user } = await render(<Test />);
+
+      const trigger1 = screen.getByRole('button', { name: 'Trigger 1' });
+      const trigger2 = screen.getByRole('button', { name: 'Trigger 2' });
+
+      await user.hover(trigger1);
+      await waitFor(() => {
+        expect(screen.queryByTestId('popup')).not.toBe(null);
+      });
+
+      // Let the first open settle so moving to trigger 2 is a real switch.
+      await act(async () => {
+        await new Promise((resolve) => {
+          setTimeout(resolve, 100);
+        });
+      });
+
+      await user.hover(trigger2);
+      // Request the close while the switch is still animating.
+      await user.unhover(trigger2);
+
+      await waitFor(
+        () => {
+          expect(instantsWhileEnding.length).toBeGreaterThan(0);
+        },
+        { timeout: 2000 },
+      );
+
+      expect(instantsWhileEnding).not.toContain('trigger-change');
+    });
+
     it('does not restore the trigger-change instant after a hover close has started', async () => {
       const { user, trigger2, popup } = await renderHoverDetachedTriggers({
         settleTriggerChange: false,
