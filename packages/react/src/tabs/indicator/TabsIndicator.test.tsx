@@ -302,6 +302,45 @@ describe('<Tabs.Indicator />', () => {
       });
     });
 
+    it('accounts for a scrolled container between the tab list and the active tab', async () => {
+      await render(
+        <React.Fragment>
+          <style>{STYLED_INDICATOR_CSS}</style>
+          <Tabs.Root value={3}>
+            <Tabs.List style={{ display: 'flex', position: 'relative' }}>
+              {/* 240px of tabs inside a 200px viewport, so the container scrolls by 40px. */}
+              <div
+                data-testid="scroller"
+                style={{ display: 'flex', width: '200px', overflowX: 'auto' }}
+              >
+                <Tabs.Tab value={1} style={{ width: '80px', height: '32px', flexShrink: 0 }}>
+                  One
+                </Tabs.Tab>
+                <Tabs.Tab value={2} style={{ width: '80px', height: '32px', flexShrink: 0 }}>
+                  Two
+                </Tabs.Tab>
+                <Tabs.Tab value={3} style={{ width: '80px', height: '32px', flexShrink: 0 }}>
+                  Three
+                </Tabs.Tab>
+              </div>
+              <Tabs.Indicator data-testid="bubble" />
+            </Tabs.List>
+          </Tabs.Root>
+        </React.Fragment>,
+      );
+
+      const scroller = screen.getByTestId('scroller');
+      const bubble = screen.getByTestId('bubble');
+      const activeTab = screen.getAllByRole('tab')[2];
+
+      scroller.scrollLeft = 40;
+      // Scrolling on its own doesn't notify the indicator — only tab resizes do — so nudge the
+      // active tab to flush the scrolled position through a recomputation.
+      activeTab.style.width = '84px';
+
+      await waitForBubbleToOverlapActiveTab(bubble, activeTab);
+    });
+
     it('overlays the active tab when an ancestor has a 2D rotation', async () => {
       await renderTransformedTabs({ transform: 'rotate(40deg)' });
 

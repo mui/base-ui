@@ -4,10 +4,11 @@ import { ownerWindow } from '@base-ui/utils/owner';
  * Extracts the 2D translation and scale from the element's computed `transform` matrix.
  * Note that the `translate`, `rotate`, and `scale` longhands are separate properties and
  * are not reflected in the computed `transform` value.
+ *
+ * Pass `computedStyle` when the caller has already resolved it to avoid a second lookup.
  */
-export function getElementTransform(element: HTMLElement) {
-  const computedStyle = ownerWindow(element).getComputedStyle(element);
-  const transform = computedStyle.transform;
+export function getElementTransform(element: HTMLElement, computedStyle?: CSSStyleDeclaration) {
+  const transform = (computedStyle ?? ownerWindow(element).getComputedStyle(element)).transform;
   let translateX = 0;
   let translateY = 0;
   let scale = 1;

@@ -51,10 +51,21 @@
     const elementOffset = getCumulativeOffset(element);
     const ancestorOffset = getCumulativeOffset(ancestor);
 
-    return {
-      left: elementOffset.left - ancestorOffset.left - ancestor.clientLeft,
-      top: elementOffset.top - ancestorOffset.top - ancestor.clientTop,
-    };
+    let left = elementOffset.left - ancestorOffset.left - ancestor.clientLeft;
+    let top = elementOffset.top - ancestorOffset.top - ancestor.clientTop;
+
+    // Layout offsets ignore scrolling, so subtract the scroll of every container between the
+    // tab and the list; the list's own scroll is excluded because the indicator scrolls with
+    // it. `ancestor` always terminates the walk: the tab was found by querying inside it.
+    // Keep this in sync with `getLayoutOffset` in `TabsIndicator.tsx`.
+    let scrollParent = element.parentElement;
+    while (scrollParent != null && scrollParent !== ancestor) {
+      left -= scrollParent.scrollLeft;
+      top -= scrollParent.scrollTop;
+      scrollParent = scrollParent.parentElement;
+    }
+
+    return { left, top };
   }
 
   function getCumulativeOffset(element) {

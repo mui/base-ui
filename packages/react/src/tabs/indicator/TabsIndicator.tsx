@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import { getParentNode, isHTMLElement, isLastTraversableNode } from '@floating-ui/utils/dom';
 import { useForcedRerendering } from '@base-ui/utils/useForcedRerendering';
 import { ownerWindow } from '@base-ui/utils/owner';
 import { script as prehydrationScript } from '#prehydration/tabs/indicator';
@@ -74,41 +75,40 @@ export const TabsIndicator = React.forwardRef(function TabsIndicator(
       const tabsListRect = tabsListElement.getBoundingClientRect();
       const scaleX = tabListWidth > 0 ? tabsListRect.width / tabListWidth : 1;
       const scaleY = tabListHeight > 0 ? tabsListRect.height / tabListHeight : 1;
-      const hasNonZeroScale = scaleX > Number.EPSILON && scaleY > Number.EPSILON;
 
       // Layout offsets are immune to transforms, but lose sub-pixel precision.
       const layoutOffset = getLayoutOffset(activeTab, tabsListElement);
       left = layoutOffset.left;
       top = layoutOffset.top;
 
-      if (hasNonZeroScale) {
-        const rectLeft =
-          (tabRect.left - tabsListRect.left) / scaleX +
-          tabsListElement.scrollLeft -
-          tabsListElement.clientLeft;
-        const rectTop =
-          (tabRect.top - tabsListRect.top) / scaleY +
-          tabsListElement.scrollTop -
-          tabsListElement.clientTop;
+      const rectLeft =
+        (tabRect.left - tabsListRect.left) / scaleX +
+        tabsListElement.scrollLeft -
+        tabsListElement.clientLeft;
+      const rectTop =
+        (tabRect.top - tabsListRect.top) / scaleY +
+        tabsListElement.scrollTop -
+        tabsListElement.clientTop;
 
-        // The rect-based offset is sub-pixel-precise but is derived from projected viewport
-        // geometry: a rotation, skew, flip, perspective, or 3D transform on the tab or any
-        // ancestor warps it beyond what the scale division can undo. When it agrees with the
-        // layout offset (up to layout rounding), no distortion is in effect and the more
-        // precise value is safe to use.
-        //
-        // The active tab's own translation moves the rect but not the layout offset, so
-        // strip it from the comparison. This lets the indicator follow tab-local animations
-        // (e.g. `transform: translateX(12px)` on the selected tab) — the indicator is a
-        // sibling of the tab and does not inherit its transform.
-        const tabTranslation = getActiveTabTranslation(activeTab);
-        if (
-          Math.abs(rectLeft - tabTranslation.x - left) <= MAX_LAYOUT_ROUNDING_ERROR &&
-          Math.abs(rectTop - tabTranslation.y - top) <= MAX_LAYOUT_ROUNDING_ERROR
-        ) {
-          left = rectLeft;
-          top = rectTop;
-        }
+      // The rect-based offset is sub-pixel-precise but is derived from projected viewport
+      // geometry: a rotation, skew, flip, perspective, or 3D transform on the tab or any
+      // ancestor warps it beyond what the scale division can undo. When it agrees with the
+      // layout offset (up to layout rounding), no distortion is in effect and the more
+      // precise value is safe to use. A tab list scaled to zero divides by zero just above,
+      // and the resulting `NaN`/`Infinity` fails this same check, leaving the layout offset
+      // in place — so a degenerate scale needs no guard of its own.
+      //
+      // The active tab's own translation moves the rect but not the layout offset, so
+      // strip it from the comparison. This lets the indicator follow tab-local animations
+      // (e.g. `transform: translateX(12px)` on the selected tab) — the indicator is a
+      // sibling of the tab and does not inherit its transform.
+      const tabTranslation = getActiveTabTranslation(activeTab);
+      if (
+        Math.abs(rectLeft - tabTranslation.x - left) <= MAX_LAYOUT_ROUNDING_ERROR &&
+        Math.abs(rectTop - tabTranslation.y - top) <= MAX_LAYOUT_ROUNDING_ERROR
+      ) {
+        left = rectLeft;
+        top = rectTop;
       }
 
       width = computedWidth;
@@ -204,10 +204,26 @@ function getLayoutOffset(element: HTMLElement, ancestor: HTMLElement) {
   const elementOffset = getCumulativeOffset(element);
   const ancestorOffset = getCumulativeOffset(ancestor);
 
-  return {
-    left: elementOffset.left - ancestorOffset.left - ancestor.clientLeft,
-    top: elementOffset.top - ancestorOffset.top - ancestor.clientTop,
-  };
+  let left = elementOffset.left - ancestorOffset.left - ancestor.clientLeft;
+  let top = elementOffset.top - ancestorOffset.top - ancestor.clientTop;
+
+  // `offsetLeft`/`offsetTop` describe layout, and scrolling doesn't change layout: a scroll
+  // container between the tab and the list moves the tab on screen while its layout slot stays
+  // put. Subtract that scroll so this offset remains comparable with the rect-based one below —
+  // otherwise the difference reads as transform distortion, the rect offset is rejected, and the
+  // indicator is left behind by the full scroll amount. The list's own scroll is deliberately
+  // excluded: the indicator sits inside it and scrolls along with the tab.
+  //
+  // `getParentNode` crosses shadow boundaries (and slots), so a tab inside a shadow root still
+  // reaches the scroll containers between it and the list.
+  let node: Node | null = getParentNode(element);
+  while (isHTMLElement(node) && node !== ancestor && !isLastTraversableNode(node)) {
+    left -= node.scrollLeft;
+    top -= node.scrollTop;
+    node = getParentNode(node);
+  }
+
+  return { left, top };
 }
 
 function getCumulativeOffset(element: HTMLElement) {
@@ -231,10 +247,15 @@ function getCumulativeOffset(element: HTMLElement) {
   return { left, top };
 }
 
-// Returns the active tab's own 2D translation, in CSS pixels, as the sum of the
-// `translate` longhand and the translation component of the `transform` property.
+// Returns the active tab's own 2D translation, in CSS pixels: the translation component of
+// the computed `transform` matrix plus the `translate` longhand. CSS composes the two as
+// `translate → rotate → scale → transform`, so adding them is only exact when no rotation or
+// scale is in play. That is enough here: with either of those present the caller's agreement
+// check rejects the rect-based offset regardless of the translation, and the tab's layout
+// slot is used instead.
 function getActiveTabTranslation(element: HTMLElement) {
-  const { x, y } = getElementTransform(element);
+  const computedStyle = ownerWindow(element).getComputedStyle(element);
+  const { x, y } = getElementTransform(element, computedStyle);
   let translateX = x;
   let translateY = y;
 
@@ -242,7 +263,7 @@ function getActiveTabTranslation(element: HTMLElement) {
   // computed `transform` matrix that `getElementTransform` reads. `getComputedStyle`
   // resolves absolute and font-relative lengths to pixels but keeps percentages, which
   // resolve against the tab's border box.
-  const { translate } = ownerWindow(element).getComputedStyle(element);
+  const { translate } = computedStyle;
   if (translate && translate !== 'none') {
     const parts = translate.split(' ');
     translateX += resolveTranslateLength(parts[0], element.offsetWidth);
