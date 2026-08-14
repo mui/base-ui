@@ -109,6 +109,15 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
   const floatingId = useId();
   const floatingParentNodeIdFromContext = useFloatingParentNodeId();
 
+  const parentMenuStore = parentFromContext.type === 'menu' ? parentFromContext.store : undefined;
+  // An initially open submenu should animate in only when the user watches it appear, i.e. when
+  // its subtree mounts because the parent popup is playing its own enter transition. A parent
+  // popup that was already open on the first page render (`defaultOpen` at page load,
+  // `keepMounted`) never passes through `'starting'`, so its submenu is page-load content that
+  // must not animate. Read during the first render only — consumed exclusively by `useState`
+  // initializers below.
+  const animateInitialOpen = parentMenuStore?.state.transitionStatus === 'starting';
+
   const store = useMenuRootStore<Payload>(
     {
       open: defaultOpen,
@@ -120,6 +129,9 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
       highlightItemOnHover,
       modal: parentFromContext.type === undefined ? modalProp : undefined,
       rootId,
+      // Mirror an instantly-opened parent (e.g. keyboard click) so `[data-instant]` styling
+      // suppresses the enter transition on both popups or neither.
+      instantType: animateInitialOpen ? parentMenuStore?.state.instantType : undefined,
     },
     floatingId,
     floatingParentNodeIdFromContext != null,
@@ -178,10 +190,7 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
     () => {
       store.set('allowMouseEnter', false);
     },
-    // A submenu's subtree only mounts once its parent popup opens, so an open submenu appearing
-    // on mount is something the user sees happen rather than page-load content. Without this it
-    // would pop in fully formed next to a parent that is still animating.
-    parentFromContext.type === 'menu',
+    animateInitialOpen,
   );
 
   useIsoLayoutEffect(() => {
