@@ -104,8 +104,13 @@ describe.skipIf(isJSDOM)('Menu enter transition', () => {
       expect(screen.queryByTestId('menu-popup')).not.toBe(null);
     });
 
-    await new Promise<void>((resolve) => {
-      setTimeout(resolve, 100);
+    // Wrapped in `act` because pending transition-status updates (e.g. the frame that clears
+    // `'starting'`) may land during this window; unwrapped, they trigger React act warnings that
+    // `vitest-fail-on-console` turns into failures.
+    await act(async () => {
+      await new Promise<void>((resolve) => {
+        setTimeout(resolve, 100);
+      });
     });
 
     expect(menuTracker.seen()).toBe(false);
@@ -144,8 +149,13 @@ describe.skipIf(isJSDOM)('Menu enter transition', () => {
       expect(screen.queryByTestId('submenu-popup')).not.toBe(null);
     });
 
-    await new Promise<void>((resolve) => {
-      setTimeout(resolve, 100);
+    // Wrapped in `act` because pending transition-status updates (e.g. the frame that clears
+    // `'starting'`) may land during this window; unwrapped, they trigger React act warnings that
+    // `vitest-fail-on-console` turns into failures.
+    await act(async () => {
+      await new Promise<void>((resolve) => {
+        setTimeout(resolve, 100);
+      });
     });
 
     expect(menuTracker.seen()).toBe(false);
@@ -190,8 +200,13 @@ describe.skipIf(isJSDOM)('Menu enter transition', () => {
       expect(screen.getByTestId('menu-popup')).toBeVisible();
     });
 
-    await new Promise<void>((resolve) => {
-      setTimeout(resolve, 100);
+    // Wrapped in `act` because pending transition-status updates (e.g. the frame that clears
+    // `'starting'`) may land during this window; unwrapped, they trigger React act warnings that
+    // `vitest-fail-on-console` turns into failures.
+    await act(async () => {
+      await new Promise<void>((resolve) => {
+        setTimeout(resolve, 100);
+      });
     });
 
     expect(submenuTracker.seen()).toBe(false);
@@ -269,5 +284,55 @@ describe.skipIf(isJSDOM)('Menu enter transition', () => {
     });
     expect(screen.getByTestId('menu-popup')).toHaveAttribute('data-instant', 'click');
     expect(screen.getByTestId('submenu-popup')).toHaveAttribute('data-instant', 'click');
+  });
+
+  it('does not mark a closed submenu as instant when it is later opened programmatically', async () => {
+    // A submenu that mounts closed during the parent's enter transition must not inherit the
+    // parent's `instantType`: a later programmatic open (controlled `open` flip) does not go
+    // through `setOpen`, so a seeded value would never be cleared.
+    function App({ submenuOpen }: { submenuOpen: boolean }) {
+      return (
+        <Menu.Root>
+          <Menu.Trigger>Trigger</Menu.Trigger>
+          <Menu.Portal>
+            <Menu.Positioner>
+              <Menu.Popup data-testid="menu-popup">
+                <Menu.Item>Item</Menu.Item>
+                <Menu.SubmenuRoot open={submenuOpen}>
+                  <Menu.SubmenuTrigger>Submenu</Menu.SubmenuTrigger>
+                  <Menu.Portal>
+                    <Menu.Positioner>
+                      <Menu.Popup data-testid="submenu-popup">
+                        <Menu.Item>Sub item</Menu.Item>
+                      </Menu.Popup>
+                    </Menu.Positioner>
+                  </Menu.Portal>
+                </Menu.SubmenuRoot>
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
+        </Menu.Root>
+      );
+    }
+
+    const { setProps } = await render(<App submenuOpen={false} />);
+
+    const trigger = screen.getByRole('button', { name: 'Trigger' });
+    await act(async () => {
+      trigger.focus();
+    });
+    await userEvent.keyboard('[Enter]');
+
+    await waitFor(() => {
+      expect(screen.queryByTestId('menu-popup')).not.toBe(null);
+    });
+    expect(screen.getByTestId('menu-popup')).toHaveAttribute('data-instant', 'click');
+
+    await setProps({ submenuOpen: true });
+
+    await waitFor(() => {
+      expect(screen.queryByTestId('submenu-popup')).not.toBe(null);
+    });
+    expect(screen.getByTestId('submenu-popup')).not.toHaveAttribute('data-instant');
   });
 });

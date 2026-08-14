@@ -112,11 +112,14 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
   const parentMenuStore = parentFromContext.type === 'menu' ? parentFromContext.store : undefined;
   // An initially open submenu should animate in only when the user watches it appear, i.e. when
   // its subtree mounts because the parent popup is playing its own enter transition. A parent
-  // popup that was already open on the first page render (`defaultOpen` at page load,
-  // `keepMounted`) never passes through `'starting'`, so its submenu is page-load content that
-  // must not animate. Read during the first render only — consumed exclusively by `useState`
-  // initializers below.
-  const animateInitialOpen = parentMenuStore?.state.transitionStatus === 'starting';
+  // that was `defaultOpen` at page load never passes through `'starting'`, and under a
+  // `keepMounted` parent these initializers run at page load while the parent's status is still
+  // `undefined` — in both cases the submenu is page-load content that must not animate. Gated on
+  // being open at mount so a closed submenu doesn't seed `instantType` it would never clear. Read
+  // during the first render only — consumed exclusively by first-render initializers below
+  // (`useState` and the store's initial state).
+  const animateInitialOpen =
+    (defaultOpen || openProp === true) && parentMenuStore?.state.transitionStatus === 'starting';
 
   const store = useMenuRootStore<Payload>(
     {
@@ -327,10 +330,10 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
         shouldPreventUnmountOnClose(),
       ) as ReturnType<typeof createPopupOpenState> & {
         openChangeReason: MenuRoot.ChangeEventReason;
+        instantType: MenuStoreState<Payload>['instantType'];
       };
 
       popupOpenState.openChangeReason = reason;
-      store.update(popupOpenState);
 
       if (
         parent.type === 'menubar' &&
@@ -340,12 +343,18 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
           reason === REASONS.listNavigation ||
           reason === REASONS.siblingOpen)
       ) {
-        store.set('instantType', 'group');
+        popupOpenState.instantType = 'group';
       } else if (isKeyboardClick || isDismissClose) {
-        store.set('instantType', isKeyboardClick ? 'click' : 'dismiss');
+        popupOpenState.instantType = isKeyboardClick ? 'click' : 'dismiss';
       } else {
-        store.set('instantType', undefined);
+        popupOpenState.instantType = undefined;
       }
+
+      // `instantType` must land in the same update that mounts the popup subtree: in React 17
+      // legacy mode this `update` can flush synchronously, and a separate `instantType` write
+      // after it would come too late for an initially open submenu seeding its own store from
+      // this one during that flush.
+      store.update(popupOpenState);
     },
   );
 
