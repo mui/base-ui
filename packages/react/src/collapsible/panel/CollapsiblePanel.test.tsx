@@ -1584,6 +1584,9 @@ describe('<Collapsible.Panel />', () => {
       const trigger = screen.getByRole('button', { name: 'Trigger' });
 
       fireBeforeMatch(panel);
+      // The browser drops `hidden` as part of revealing the match, regardless of
+      // what the event handler decided.
+      panel.removeAttribute('hidden');
 
       expect(handleOpenChange).toHaveBeenCalledOnce();
       expect(trigger).toHaveAttribute('aria-expanded', 'false');
@@ -1591,6 +1594,11 @@ describe('<Collapsible.Panel />', () => {
       // A canceled reveal must leave the collapsed styles in place.
       expect(panel).toHaveAttribute('data-starting-style');
       expect(getComputedStyle(panel).height).toBe('0px');
+
+      // A canceled reveal must also stay hidden and searchable.
+      await waitFor(() => {
+        expect(panel).toHaveAttribute('hidden', 'until-found');
+      });
 
       await user.click(trigger);
 
@@ -1720,9 +1728,10 @@ describe('<Collapsible.Panel />', () => {
       });
 
       // React renders the same props while the panel stays closed, so it cannot
-      // restore the collapsed styles on its own.
+      // restore the collapsed styles or the `hidden` state on its own.
       expect(panel).toHaveAttribute('data-starting-style');
       expect(getComputedStyle(panel).height).toBe('0px');
+      expect(panel).toHaveAttribute('hidden', 'until-found');
 
       await user.click(screen.getByRole('button', { name: 'Rerender' }));
 
@@ -1735,6 +1744,99 @@ describe('<Collapsible.Panel />', () => {
 
       expect(panel).toHaveAttribute('data-open');
       expect(getComputedStyle(panel).transitionDuration).toBe('0.123s');
+    });
+
+    it('re-collapses a keyframe panel when the open state never arrives', async () => {
+      function App() {
+        const [open, setOpen] = React.useState(false);
+
+        return (
+          <React.Fragment>
+            <style>{`
+              @keyframes test-panel-slide-down {
+                from { height: 0; }
+                to { height: var(--collapsible-panel-height); }
+              }
+
+              @keyframes test-panel-slide-up {
+                from { height: var(--collapsible-panel-height); }
+                to { height: 0; }
+              }
+
+              .animation-test-panel {
+                overflow: hidden;
+              }
+
+              .animation-test-panel[data-open] {
+                animation: test-panel-slide-down 100ms ease-out;
+              }
+
+              .animation-test-panel[data-closed] {
+                animation: test-panel-slide-up 100ms ease-in;
+              }
+            `}</style>
+
+            <Collapsible.Root
+              open={open}
+              onOpenChange={(nextOpen, eventDetails) => {
+                // Opts out of find-in-page reveals while still honoring the trigger.
+                if (eventDetails.reason === REASONS.none) {
+                  return;
+                }
+
+                setOpen(nextOpen);
+              }}
+            >
+              <Collapsible.Trigger>Trigger</Collapsible.Trigger>
+              <Collapsible.Panel
+                className="animation-test-panel"
+                data-testid="panel"
+                hiddenUntilFound
+              >
+                {PANEL_CONTENT}
+              </Collapsible.Panel>
+            </Collapsible.Root>
+          </React.Fragment>
+        );
+      }
+
+      const { user } = await render(<App />);
+
+      const panel = screen.getByTestId('panel');
+      const trigger = screen.getByRole('button', { name: 'Trigger' });
+
+      // A full open/close cycle reaches the steady state where the closed panel
+      // no longer carries `data-starting-style` (keyframe panels only hold it
+      // until the animation type has been detected).
+      await user.click(trigger);
+      await user.click(trigger);
+
+      await waitFor(() => {
+        expect(panel).toHaveAttribute('hidden', 'until-found');
+      });
+      expect(panel).not.toHaveAttribute('data-starting-style');
+
+      fireBeforeMatch(panel);
+      // The browser drops `hidden` as part of revealing the match.
+      panel.removeAttribute('hidden');
+
+      await act(async () => {
+        await waitForAnimationFrame();
+        await waitForAnimationFrame();
+      });
+
+      // The panel returns to the fully closed state without gaining attributes
+      // React does not render for it.
+      expect(panel).toHaveAttribute('hidden', 'until-found');
+      expect(panel).not.toHaveAttribute('data-starting-style');
+
+      // The reveal never opened the panel, so it must not consume the motion of
+      // the next ordinary open.
+      await user.click(trigger);
+
+      expect(panel).toHaveAttribute('data-open');
+      expect(getComputedStyle(panel).animationDuration).toBe('0.1s');
+      expect(panel.getAnimations().length).toBeGreaterThan(0);
     });
 
     it('uses `hidden="until-found" to hide panel when true', async () => {

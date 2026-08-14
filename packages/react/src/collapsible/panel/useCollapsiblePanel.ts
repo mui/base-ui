@@ -363,7 +363,34 @@ export function useCollapsiblePanel(
         return undefined;
       }
 
-      let restoreStartingStyleFrame = -1;
+      let revertRevealFrame = -1;
+
+      // Reverting must wait until the browser has measured the match, and React
+      // cannot do it: it keeps rendering the same `hidden` and `data-starting-style`
+      // props while the panel stays closed, so it never rewrites attributes that were
+      // changed behind its back (the browser removes `hidden` as part of the reveal).
+      const scheduleRevealRevert = (
+        revertSkippedMotion: boolean,
+        restoreStartingStyle: boolean,
+      ) => {
+        revertRevealFrame = AnimationFrame.request(() => {
+          if (latestOpenRef.current) {
+            return;
+          }
+
+          if (revertSkippedMotion) {
+            // The open never happened, so the next one is an ordinary open that
+            // should keep its author-defined motion.
+            shouldSkipNextOpenRef.current = false;
+          }
+
+          if (restoreStartingStyle) {
+            panel.setAttribute(CollapsiblePanelDataAttributes.startingStyle, '');
+          }
+
+          panel.setAttribute('hidden', 'until-found');
+        });
+      };
 
       // Declared as a `const` after the null check so `panel` stays narrowed: the
       // handler must touch the same element the listener is attached to.
@@ -373,6 +400,9 @@ export function useCollapsiblePanel(
         onOpenChange(true, eventDetails);
 
         if (eventDetails.isCanceled) {
+          // A canceled reveal means the panel must stay hidden, so undo the
+          // browser's removal of `hidden` and keep the content searchable.
+          scheduleRevealRevert(false, false);
           return;
         }
 
@@ -388,30 +418,15 @@ export function useCollapsiblePanel(
 
         setOpen(true);
 
-        if (!hadStartingStyle) {
-          return;
-        }
-
-        // React renders the same `data-starting-style` prop for as long as the panel
-        // stays closed, so it never rewrites the attribute removed above. Once the
-        // browser has measured the match, put it back if the open state never arrived,
-        // otherwise a controlled panel whose `onOpenChange` is ignored stays expanded.
-        restoreStartingStyleFrame = AnimationFrame.request(() => {
-          if (latestOpenRef.current) {
-            return;
-          }
-
-          // The open never happened, so the next one is an ordinary open that should
-          // keep its author-defined motion.
-          shouldSkipNextOpenRef.current = false;
-          panel.setAttribute(CollapsiblePanelDataAttributes.startingStyle, '');
-        });
+        // A controlled panel whose `onOpenChange` is ignored never receives the open
+        // state, so return it to the fully closed state once the browser has measured.
+        scheduleRevealRevert(true, hadStartingStyle);
       };
 
       const cleanupBeforeMatchListener = addEventListener(panel, 'beforematch', handleBeforeMatch);
 
       return () => {
-        AnimationFrame.cancel(restoreStartingStyleFrame);
+        AnimationFrame.cancel(revertRevealFrame);
         cleanupBeforeMatchListener();
       };
     },
