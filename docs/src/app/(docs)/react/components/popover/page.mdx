@@ -55,6 +55,9 @@ For simple, one-off interactions, place the `<Popover.Trigger>` inside `<Popover
 However, if defining the popover's content next to its trigger is not practical, you can use a detached trigger.
 This involves placing the `<Popover.Trigger>` outside of `<Popover.Root>` and linking them with a `handle` created by the `Popover.createHandle()` function.
 
+The imperative methods on the handle, such as `open()` and `close()`, require a `<Popover.Root>` using the same handle to be mounted.
+Calls made while no root is attached to the handle — before one mounts, or after it unmounts — are ignored. Each time a root mounts, it starts from fresh state: a call made while no root was attached is not replayed, and no open state carries over from a previous mount.
+
 ```jsx title="Detached triggers"
 const demoPopover = Popover.createHandle();
 

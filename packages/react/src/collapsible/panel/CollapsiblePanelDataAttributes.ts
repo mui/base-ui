@@ -10,7 +10,7 @@ export enum CollapsiblePanelDataAttributes {
    */
   closed = 'data-closed',
   /**
-   * Present when the panel is animating in.
+   * Present when the panel begins animating in.
    */
   startingStyle = TransitionStatusDataAttributes.startingStyle,
   /**

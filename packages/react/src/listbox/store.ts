@@ -153,7 +153,9 @@ function createInitialContext(): Context {
     validation: {
       getValidationProps: (_disabled, props = {}) => props,
       inputRef: { current: null },
+      registeredInputs: new Map(),
       registerInput: () => {},
+      getInputControl: () => null,
       commit: async () => {},
       change: () => {},
     },

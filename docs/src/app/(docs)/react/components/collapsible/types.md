@@ -23,12 +23,12 @@ Renders a `<div>` element.
 
 **Root Data Attributes:**
 
-| Attribute           | Type | Description                                    |
-| :------------------ | :--- | :--------------------------------------------- |
-| data-open           | -    | Present when the collapsible is open.          |
-| data-closed         | -    | Present when the collapsible is closed.        |
-| data-starting-style | -    | Present when the collapsible is animating in.  |
-| data-ending-style   | -    | Present when the collapsible is animating out. |
+| Attribute           | Type | Description                                       |
+| :------------------ | :--- | :------------------------------------------------ |
+| data-open           | -    | Present when the collapsible is open.             |
+| data-closed         | -    | Present when the collapsible is closed.           |
+| data-starting-style | -    | Present when the collapsible begins animating in. |
+| data-ending-style   | -    | Present when the collapsible is animating out.    |
 
 ### Root.Props
 
@@ -129,7 +129,7 @@ Renders a `<div>` element.
 | :------------------ | :--- | :-------------------------------------------- |
 | data-open           | -    | Present when the collapsible panel is open.   |
 | data-closed         | -    | Present when the collapsible panel is closed. |
-| data-starting-style | -    | Present when the panel is animating in.       |
+| data-starting-style | -    | Present when the panel begins animating in.   |
 | data-ending-style   | -    | Present when the panel is animating out.      |
 
 **Panel CSS Variables:**

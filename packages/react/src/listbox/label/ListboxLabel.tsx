@@ -1,6 +1,7 @@
 'use client';
 import * as React from 'react';
 import type { Store } from '@base-ui/utils/store';
+import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import type { BaseUIComponentProps } from '../../internals/types';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { useFieldRootContext } from '../../internals/field-root-context';
@@ -37,12 +38,17 @@ export const ListboxLabel = React.forwardRef(function ListboxLabel(
 
   const defaultLabelId = getDefaultLabelId(rootId);
 
+  const setLabelId = useStableCallback((nextLabelId: React.SetStateAction<string | undefined>) => {
+    const currentLabelId = store.state.labelId;
+    const resolvedLabelId =
+      typeof nextLabelId === 'function' ? nextLabelId(currentLabelId) : nextLabelId;
+    (store as Store<{ labelId: string | undefined }>).set('labelId', resolvedLabelId);
+  });
+
   const labelProps = useLabel({
     id: defaultLabelId,
     fallbackControlId: controlElement?.id ?? rootId,
-    setLabelId(nextLabelId: string | undefined) {
-      (store as Store<{ labelId: string | undefined }>).set('labelId', nextLabelId);
-    },
+    setLabelId,
   });
 
   return useRenderElement('div', componentProps, {

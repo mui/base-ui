@@ -26,7 +26,7 @@ export const DialogClose = React.forwardRef(function DialogClose(
     ...elementProps
   } = componentProps;
 
-  const { store } = useDialogRootContext();
+  const store = useDialogRootContext();
   const open = store.useState('open');
 
   const { getButtonProps, buttonRef } = useButton({

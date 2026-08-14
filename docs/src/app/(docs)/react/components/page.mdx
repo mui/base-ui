@@ -24,7 +24,7 @@
 - Meter - ([Outline](#meter), [Contents](./meter/page.mdx))
 - Navigation Menu - ([Outline](#navigation-menu), [Contents](./navigation-menu/page.mdx))
 - Number Field - ([Outline](#number-field), [Contents](./number-field/page.mdx))
-- OTP Field [New] - ([Outline](#otp-field), [Contents](./otp-field/page.mdx))
+- OTP Field - ([Outline](#otp-field), [Contents](./otp-field/page.mdx))
 - Popover - ([Outline](#popover), [Contents](./popover/page.mdx))
 - Preview Card - ([Outline](#preview-card), [Contents](./preview-card/page.mdx))
 - Progress - ([Outline](#progress), [Contents](./progress/page.mdx))
@@ -141,7 +141,6 @@ A dialog that requires a user response to proceed.
     - Data Attributes: data-closed, data-ending-style, data-nested, data-nested-dialog-open, data-open, data-starting-style
   - Alert Dialog - createHandle
   - Alert Dialog - Handle
-    - Parameters: store
 - Types: AlertDialog.Backdrop.Props, AlertDialog.Backdrop.State, AlertDialog.Close.Props, AlertDialog.Close.State, AlertDialog.Description.Props, AlertDialog.Description.State, AlertDialog.Popup.Props, AlertDialog.Popup.State, AlertDialog.Portal.Props, AlertDialog.Portal.State, AlertDialog.Root.Actions, AlertDialog.Root.ChangeEventDetails, AlertDialog.Root.ChangeEventReason, AlertDialog.Root.Props, AlertDialog.Root.State, AlertDialog.Title.Props, AlertDialog.Title.State, AlertDialog.Trigger.Props, AlertDialog.Trigger.State, AlertDialog.Viewport.Props, AlertDialog.Viewport.State
 
 </details>
@@ -160,7 +159,7 @@ An input that suggests options as you type.
 - Sections:
   - Usage guidelines
   - Anatomy
-  - TypeScript inference
+  - Item values
   - Examples
     - Async search
     - Inline autocomplete
@@ -171,6 +170,7 @@ An input that suggests options as you type.
     - Command palette
     - Grid layout
     - Virtualized
+      - Memoizing items
   - API reference
     - Root
     - Value
@@ -224,7 +224,7 @@ An input that suggests options as you type.
     - CSS Variables: --anchor-height, --anchor-width, --available-height, --available-width, --transform-origin
   - Autocomplete - Popup
     - Props: className, finalFocus, initialFocus, render, style
-    - Data Attributes: data-align, data-closed, data-empty, data-ending-style, data-instant, data-open, data-side, data-starting-style
+    - Data Attributes: data-align, data-anchor-hidden, data-closed, data-empty, data-ending-style, data-open, data-side, data-starting-style
   - Autocomplete - Arrow
     - Props: className, render, style
     - Data Attributes: data-align, data-closed, data-open, data-side, data-uncentered
@@ -273,6 +273,7 @@ An easily stylable avatar component.
     - Root
     - Image
     - Fallback
+  - Additional types
 - Exports:
   - Avatar - Root
     - Props: className, render, style
@@ -419,16 +420,19 @@ An input combined with a list of predefined items to select.
 - Sections:
   - Usage guidelines
   - Anatomy
-  - TypeScript
+  - Item values
   - Examples
     - Typed wrapper component
+    - Value selection with IDs
     - Multiple select
+      - Keeping the filter after selection
     - Input inside popup
     - Grouped
     - Async search (single)
     - Async search (multiple)
     - Creatable
     - Virtualized
+      - Memoizing items
   - API reference
     - Root
     - Label
@@ -458,6 +462,7 @@ An input combined with a list of predefined items to select.
     - Separator
   - useFilter
   - useFilteredItems
+  - createItems
 - Exports:
   - Combobox - Root
     - Props: actionsRef, autoComplete, autoHighlight, children, defaultInputValue, defaultOpen, defaultValue, disabled, filter, filteredItems, form, grid, highlightItemOnHover, id, inline, inputRef, inputValue, isItemEqualToValue, itemToStringLabel, itemToStringValue, items, limit, locale, loopFocus, modal, multiple, name, onInputValueChange, onItemHighlighted, onOpenChange, onOpenChangeComplete, onValueChange, open, openOnInputClick, readOnly, required, value, virtualized
@@ -487,7 +492,7 @@ An input combined with a list of predefined items to select.
     - CSS Variables: --anchor-height, --anchor-width, --available-height, --available-width, --transform-origin
   - Combobox - Popup
     - Props: className, finalFocus, initialFocus, render, style
-    - Data Attributes: data-align, data-closed, data-empty, data-ending-style, data-instant, data-open, data-side, data-starting-style
+    - Data Attributes: data-align, data-anchor-hidden, data-closed, data-empty, data-ending-style, data-open, data-side, data-starting-style
   - Combobox - Arrow
     - Props: className, render, style
     - Data Attributes: data-align, data-closed, data-open, data-side, data-uncentered
@@ -520,12 +525,15 @@ An input combined with a list of predefined items to select.
   - Combobox - ItemIndicator
     - Props: children, className, keepMounted, render, style
     - Data Attributes: data-ending-style, data-starting-style
+  - Combobox - createItems
+    - Parameters: data, options
   - Combobox - InputGroup
     - Props: className, render, style
     - Data Attributes: data-dirty, data-disabled, data-filled, data-focused, data-invalid, data-list-empty, data-placeholder, data-popup-open, data-popup-side, data-pressed, data-readonly, data-touched, data-valid
   - Combobox - useFilter
     - Parameters: options
   - Combobox - useFilteredItems
+  - ComboboxItemCollection
 - Types: Combobox.Arrow.Props, Combobox.Arrow.State, Combobox.Backdrop.Props, Combobox.Backdrop.State, Combobox.Chip.Props, Combobox.Chip.State, Combobox.ChipRemove.Props, Combobox.ChipRemove.State, Combobox.Chips.Props, Combobox.Chips.State, Combobox.Clear.Props, Combobox.Clear.State, Combobox.Collection.Props, Combobox.Collection.State, Combobox.Empty.Props, Combobox.Empty.State, Combobox.Group.Props, Combobox.Group.State, Combobox.GroupLabel.Props, Combobox.GroupLabel.State, Combobox.Icon.Props, Combobox.Icon.State, Combobox.Input.Props, Combobox.Input.State, Combobox.InputGroup.Props, Combobox.InputGroup.State, Combobox.Item.Props, Combobox.Item.State, Combobox.ItemIndicator.Props, Combobox.ItemIndicator.State, Combobox.Label.Props, Combobox.Label.State, Combobox.List.Props, Combobox.List.State, Combobox.Popup.Props, Combobox.Popup.State, Combobox.Portal.Props, Combobox.Portal.State, Combobox.Positioner.Props, Combobox.Positioner.State, Combobox.Root.Actions, Combobox.Root.ChangeEventDetails, Combobox.Root.ChangeEventReason, Combobox.Root.HighlightEventDetails, Combobox.Root.HighlightEventReason, Combobox.Root.Props, Combobox.Root.State, Combobox.Row.Props, Combobox.Row.State, Combobox.Separator.Props, Combobox.Separator.State, Combobox.Status.Props, Combobox.Status.State, Combobox.Trigger.Props, Combobox.Trigger.State, Combobox.Value.Props, Combobox.Value.State
 
 </details>
@@ -542,8 +550,10 @@ A menu that appears at the pointer on right click or long press.
 
 - Keywords: React Context Menu, Context Menu Component, Right Click Menu, Secondary Click Menu, Pointer Menu, Touch Hold Menu, Long Press Menu, Nested Menu React, Accessible Context Menu, Headless React Components, Base UI
 - Sections:
+  - Usage guidelines
   - Anatomy
   - Examples
+    - Using with Menu
     - Nested menu
   - API reference
     - Root
@@ -639,6 +649,7 @@ A popup that opens on top of the entire page.
     - Open from a menu
     - Nested dialogs
     - Close confirmation
+    - Custom focus management
     - Outside scroll dialog
     - Inside scroll dialog
     - Placing elements outside the popup
@@ -684,7 +695,6 @@ A popup that opens on top of the entire page.
     - Data Attributes: data-closed, data-ending-style, data-nested, data-nested-dialog-open, data-open, data-starting-style
   - Dialog - createHandle
   - Dialog - Handle
-    - Parameters: store
 - Types: Dialog.Backdrop.Props, Dialog.Backdrop.State, Dialog.Close.Props, Dialog.Close.State, Dialog.Description.Props, Dialog.Description.State, Dialog.Popup.Props, Dialog.Popup.State, Dialog.Portal.Props, Dialog.Portal.State, Dialog.Root.Actions, Dialog.Root.ChangeEventDetails, Dialog.Root.ChangeEventReason, Dialog.Root.Props, Dialog.Root.State, Dialog.Title.Props, Dialog.Title.State, Dialog.Trigger.Props, Dialog.Trigger.State, Dialog.Viewport.Props, Dialog.Viewport.State
 
 </details>
@@ -766,7 +776,6 @@ A panel that slides in from the edge of the screen.
     - CSS Variables: --drawer-keyboard-inset
   - Drawer - createHandle
   - Drawer - Handle
-    - Parameters: store
   - Drawer - Indent
     - Props: className, render, style
   - Drawer - IndentBackground
@@ -1766,6 +1775,7 @@ A component for toggling between related panels on the same page.
 - Sections:
   - Anatomy
   - Examples
+    - Animated panels
     - Links
   - API reference
     - Root
@@ -1835,7 +1845,7 @@ Generates toast notifications.
     - `update` method
     - `close` method
     - `promise` method
-  - Additional Types
+  - Additional types
 - Exports:
   - Toast - Root
     - Props: className, render, style, swipeDirection, toast

@@ -1,50 +1,48 @@
-import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
-import { MenuStore } from './MenuStore';
+import { MenuStore, createNullMenuStore, type MenuHandleStore } from './MenuStore';
+import { BasePopupHandle } from '../../utils/popups/popupHandle';
 
-export class MenuHandle<Payload> {
-  /**
-   * Internal store holding the menu's state.
-   * @internal
-   */
-  public readonly store: MenuStore<Payload>;
-
+/**
+ * Controls a Menu imperatively and associates detached `Menu.Trigger` components with a `Menu.Root`.
+ * Create one with `Menu.createHandle()` and pass it to the `handle` prop of the root and of any
+ * triggers rendered outside of it.
+ *
+ * The imperative methods take effect only while a root using this handle is mounted; calls made
+ * before a root attaches (or after it unmounts) are ignored.
+ */
+export class MenuHandle<Payload> extends BasePopupHandle<
+  MenuHandleStore<Payload>,
+  MenuStore<Payload>
+> {
   constructor() {
-    this.store = new MenuStore<Payload>();
+    super(createNullMenuStore<Payload>(), 'Menu');
   }
 
   /**
    * Opens the menu and associates it with the trigger with the given id.
-   * The trigger must be a Menu.Trigger component with this handle passed as a prop.
    *
-   * @param triggerId ID of the trigger to associate with the menu.
+   * This method should only be called in an event handler or an effect (not during rendering).
+   *
+   * @param triggerId ID of the trigger to associate with the menu. The trigger must be a matching
+   * `Menu.Trigger` with this handle passed as a prop.
    */
   open(triggerId: string) {
-    const triggerElement = triggerId
-      ? (this.store.context.triggerElements.getById(triggerId) as HTMLElement | undefined)
-      : undefined;
-
-    if (triggerId && !triggerElement) {
-      throw new Error(`Base UI: MenuHandle.open: No trigger found with id "${triggerId}".`);
-    }
-
-    this.store.setOpen(
-      true,
-      createChangeEventDetails('imperative-action', undefined, triggerElement),
-    );
+    this.openByTrigger(triggerId);
   }
 
   /**
    * Closes the menu.
+   *
+   * This method should only be called in an event handler or an effect (not during rendering).
    */
   close() {
-    this.store.setOpen(false, createChangeEventDetails('imperative-action', undefined, undefined));
+    this.closePopup();
   }
 
   /**
-   * Indicates whether the menu is currently open.
+   * Whether the menu is currently open. Returns `false` while no root is attached to the handle.
    */
   get isOpen() {
-    return this.store.select('open');
+    return this.attachedStore?.select('open') ?? false;
   }
 }
 

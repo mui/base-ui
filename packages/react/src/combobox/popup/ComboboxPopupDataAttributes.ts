@@ -10,7 +10,7 @@ export enum ComboboxPopupDataAttributes {
    */
   closed = CommonPopupDataAttributes.closed,
   /**
-   * Present when the popup is animating in.
+   * Present when the popup begins animating in.
    */
   startingStyle = CommonPopupDataAttributes.startingStyle,
   /**
@@ -28,10 +28,9 @@ export enum ComboboxPopupDataAttributes {
    */
   align = CommonPopupDataAttributes.align,
   /**
-   * Present if animations should be instant.
-   * @type {'click' | 'dismiss'}
+   * Present when the anchor is hidden.
    */
-  instant = 'data-instant',
+  anchorHidden = CommonPopupDataAttributes.anchorHidden,
   /**
    * Present when the items list is empty.
    */

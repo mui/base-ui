@@ -5,6 +5,8 @@ import { test, vi, expect } from 'vitest';
 
 /* eslint-disable react/jsx-fragments */
 import userEvent from '@testing-library/user-event';
+import type { InteractionType } from '@base-ui/utils/useEnhancedClickHandler';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import {
   flushMicrotasks,
   act,
@@ -798,7 +800,7 @@ describe('FloatingFocusManager', () => {
 
       /* eslint-disable testing-library/prefer-screen-queries */
       // "Should not already be working"(?) when trying to click within the iframe
-      // https://github.com/facebook/react/pull/32441
+      // https://github.com/react/react/pull/32441
       test.skipIf(!isJSDOM)('tabs from the popover to the next element in the iframe', async () => {
         render(<IframeApp />);
 
@@ -819,7 +821,7 @@ describe('FloatingFocusManager', () => {
       });
 
       // "Should not already be working"(?) when trying to click within the iframe
-      // https://github.com/facebook/react/pull/32441
+      // https://github.com/react/react/pull/32441
       test.skipIf(!isJSDOM)(
         'shift+tab from the popover to the previous element in the iframe',
         async () => {
@@ -1465,6 +1467,178 @@ describe('FloatingFocusManager', () => {
         expect(screen.getByTestId('reference')).toHaveFocus();
       });
 
+      test('resets close modality between keep-mounted open sessions', async () => {
+        const finalFocus = vi.fn((_closeType: InteractionType) => true);
+
+        function App() {
+          const [isOpen, setIsOpen] = React.useState(false);
+
+          const { refs, context } = useFloating({
+            open: isOpen,
+            onOpenChange: setIsOpen,
+          });
+
+          const click = useClick(context);
+          const dismiss = useDismiss(context);
+          const { getReferenceProps, getFloatingProps } = useTestInteractions([click, dismiss]);
+
+          return (
+            <>
+              <button data-testid="reference" ref={refs.setReference} {...getReferenceProps()} />
+              <button data-testid="controlled-open" onClick={() => setIsOpen(true)} />
+              <button data-testid="controlled-close" onClick={() => setIsOpen(false)} />
+              <FloatingPortal>
+                <FloatingFocusManager context={context} disabled={!isOpen} returnFocus={finalFocus}>
+                  <div ref={refs.setFloating} {...getFloatingProps()}>
+                    <button data-testid="child" />
+                  </div>
+                </FloatingFocusManager>
+              </FloatingPortal>
+            </>
+          );
+        }
+
+        render(<App />);
+
+        const reference = screen.getByTestId('reference');
+        const focusSpy = vi.spyOn(reference, 'focus');
+
+        try {
+          await userEvent.click(reference);
+          await waitFor(() => {
+            expect(screen.getByTestId('child')).toHaveFocus();
+          });
+
+          await userEvent.keyboard('{Escape}');
+          await waitFor(() => {
+            expect(focusSpy).toHaveBeenCalledWith({
+              preventScroll: true,
+              focusVisible: true,
+            });
+          });
+          expect(finalFocus).toHaveBeenLastCalledWith('keyboard');
+
+          focusSpy.mockClear();
+
+          await userEvent.click(reference);
+          await waitFor(() => {
+            expect(screen.getByTestId('child')).toHaveFocus();
+          });
+
+          fireEvent.click(screen.getByTestId('controlled-close'));
+
+          await waitFor(() => {
+            expect(focusSpy).toHaveBeenCalledWith({ preventScroll: true });
+          });
+          expect(focusSpy).not.toHaveBeenCalledWith(
+            expect.objectContaining({ focusVisible: true }),
+          );
+          expect(finalFocus).toHaveBeenLastCalledWith('');
+
+          focusSpy.mockClear();
+          finalFocus.mockClear();
+
+          fireEvent.click(screen.getByTestId('controlled-open'));
+          await waitFor(() => {
+            expect(screen.getByTestId('child')).toHaveFocus();
+          });
+
+          fireEvent.pointerDown(reference, { pointerType: 'mouse' });
+          fireEvent.click(screen.getByTestId('controlled-close'));
+
+          await waitFor(() => {
+            expect(focusSpy).toHaveBeenCalledWith({ preventScroll: true });
+          });
+          expect(focusSpy).not.toHaveBeenCalledWith(
+            expect.objectContaining({ focusVisible: true }),
+          );
+          expect(finalFocus).toHaveBeenCalledWith('');
+
+          focusSpy.mockClear();
+          finalFocus.mockClear();
+
+          fireEvent.click(screen.getByTestId('controlled-open'));
+          await waitFor(() => {
+            expect(screen.getByTestId('child')).toHaveFocus();
+          });
+
+          fireEvent.click(reference, { detail: 0 });
+
+          await waitFor(() => {
+            expect(focusSpy).toHaveBeenCalledWith({
+              preventScroll: true,
+              focusVisible: true,
+            });
+          });
+          expect(finalFocus).toHaveBeenCalledWith('keyboard');
+        } finally {
+          focusSpy.mockRestore();
+        }
+      });
+
+      test('preserves keyboard close modality when reopening before focus restoration', async () => {
+        function App() {
+          const [isOpen, setIsOpen] = React.useState(false);
+          const [reopenOnClose, setReopenOnClose] = React.useState(false);
+
+          const { refs, context } = useFloating({
+            open: isOpen,
+            onOpenChange: setIsOpen,
+          });
+
+          const click = useClick(context);
+          const dismiss = useDismiss(context);
+          const { getReferenceProps, getFloatingProps } = useTestInteractions([click, dismiss]);
+
+          useIsoLayoutEffect(() => {
+            if (!isOpen && reopenOnClose) {
+              setReopenOnClose(false);
+              setIsOpen(true);
+            }
+          }, [isOpen, reopenOnClose]);
+
+          return (
+            <>
+              <span data-testid="open-state">{String(isOpen)}</span>
+              <button data-testid="reference" ref={refs.setReference} {...getReferenceProps()} />
+              <button data-testid="reopen-on-close" onClick={() => setReopenOnClose(true)} />
+              <FloatingPortal>
+                <FloatingFocusManager context={context} disabled={!isOpen}>
+                  <div ref={refs.setFloating} {...getFloatingProps()}>
+                    <button data-testid="child" />
+                  </div>
+                </FloatingFocusManager>
+              </FloatingPortal>
+            </>
+          );
+        }
+
+        render(<App />);
+
+        const reference = screen.getByTestId('reference');
+        const focusSpy = vi.spyOn(reference, 'focus');
+
+        try {
+          await userEvent.click(reference);
+          await waitFor(() => {
+            expect(screen.getByTestId('child')).toHaveFocus();
+          });
+
+          fireEvent.click(screen.getByTestId('reopen-on-close'));
+          await userEvent.keyboard('{Escape}');
+
+          await waitFor(() => {
+            expect(focusSpy).toHaveBeenCalledWith({
+              preventScroll: true,
+              focusVisible: true,
+            });
+          });
+          expect(screen.getByTestId('open-state')).toHaveTextContent('true');
+        } finally {
+          focusSpy.mockRestore();
+        }
+      });
+
       test('clears outside pointer state between keep-mounted open sessions', async () => {
         let readInsideReactTree = () => false;
 
@@ -1614,6 +1788,90 @@ describe('FloatingFocusManager', () => {
         expect(screen.getByTestId('reference')).not.toHaveAttribute('data-base-ui-inert');
         expect(screen.getByTestId('reference-sibling-1')).not.toHaveAttribute('data-base-ui-inert');
         expect(screen.getByTestId('reference-sibling-2')).not.toHaveAttribute('data-base-ui-inert');
+      });
+
+      test('renders the aria-owns owner without changing regular reference semantics', async () => {
+        function App() {
+          const [open, setOpen] = React.useState(false);
+          const { refs, context } = useFloating({
+            open,
+            onOpenChange: setOpen,
+          });
+
+          return (
+            <>
+              <button
+                data-testid="reference"
+                ref={refs.setReference}
+                onClick={() => setOpen(true)}
+              />
+              <FloatingPortal>
+                {open && (
+                  <FloatingFocusManager context={context} modal={false}>
+                    <div data-testid="floating" ref={refs.setFloating}>
+                      <span tabIndex={0} data-testid="inside" />
+                    </div>
+                  </FloatingFocusManager>
+                )}
+              </FloatingPortal>
+            </>
+          );
+        }
+
+        render(<App />);
+
+        await userEvent.click(screen.getByTestId('reference'));
+        await flushMicrotasks();
+
+        const reference = screen.getByTestId('reference');
+        const portalNode = screen.getByTestId('floating').closest('[data-base-ui-portal]');
+        const portalNodeId = portalNode?.id ?? '';
+        const owner = portalNode?.ownerDocument.querySelector('span[aria-owns]');
+
+        expect(portalNodeId).not.toBe('');
+        expect(owner).not.toHaveAttribute('role');
+        expect(owner).toHaveAttribute('aria-owns', portalNodeId);
+        expect(reference).not.toHaveAttribute('aria-owns');
+      });
+
+      test('supports setting the aria-owns owner role explicitly', async () => {
+        function App() {
+          const [open, setOpen] = React.useState(false);
+          const { refs, context } = useFloating({
+            open,
+            onOpenChange: setOpen,
+          });
+
+          return (
+            <>
+              <button
+                data-testid="reference"
+                ref={refs.setReference}
+                onClick={() => setOpen(true)}
+              />
+              <FloatingPortal portalOwnerRole="group">
+                {open && (
+                  <FloatingFocusManager context={context} modal={false}>
+                    <div data-testid="floating" ref={refs.setFloating}>
+                      <span tabIndex={0} data-testid="inside" />
+                    </div>
+                  </FloatingFocusManager>
+                )}
+              </FloatingPortal>
+            </>
+          );
+        }
+
+        render(<App />);
+
+        await userEvent.click(screen.getByTestId('reference'));
+        await flushMicrotasks();
+
+        const portalNode = screen.getByTestId('floating').closest('[data-base-ui-portal]');
+        const owner = portalNode?.ownerDocument.querySelector('span[aria-owns]');
+
+        expect(portalNode).not.toBe(null);
+        expect(owner).toHaveAttribute('role', 'group');
       });
 
       test('shift+tab', async () => {

@@ -1,6 +1,6 @@
 {
   "name": "@base-ui/react",
-  "version": "1.6.0",
+  "version": "1.7.0",
   "author": "MUI Team",
   "description": "Base UI is a library of headless ('unstyled') React components and low-level hooks. You gain complete control over your app's CSS and accessibility features.",
   "license": "MIT",
@@ -72,8 +72,6 @@
     "./types": "./src/types/index.ts",
     "./unstable-use-media-query": "./src/unstable-use-media-query/index.ts",
     "./use-render": "./src/use-render/index.ts",
-    "./internals/areArraysEqual": "./src/internals/areArraysEqual.ts",
-    "./internals/clamp": "./src/internals/clamp.ts",
     "./internals/composite": "./src/internals/composite/index.ts",
     "./internals/constants": "./src/internals/constants.ts",
     "./internals/createBaseUIEventDetails": "./src/internals/createBaseUIEventDetails.ts",
@@ -85,6 +83,7 @@
     "./internals/filter": "./src/internals/filter.ts",
     "./internals/itemEquality": "./src/internals/itemEquality.ts",
     "./internals/form-context": "./src/internals/form-context/index.ts",
+    "./internals/getDisabledMountTransitionStyles": "./src/internals/getDisabledMountTransitionStyles.ts",
     "./internals/getStateAttributesProps": "./src/internals/getStateAttributesProps.ts",
     "./internals/labelable-provider": "./src/internals/labelable-provider/index.ts",
     "./internals/noop": "./src/internals/noop.ts",
@@ -92,7 +91,6 @@
     "./internals/resolveValueLabel": "./src/internals/resolveValueLabel.tsx",
     "./internals/RequestQueue": "./src/internals/RequestQueue.ts",
     "./internals/serializeValue": "./src/internals/serializeValue.ts",
-    "./internals/shadowDom": "./src/internals/shadowDom.ts",
     "./internals/stateAttributesMapping": "./src/internals/stateAttributesMapping.ts",
     "./internals/temporal": "./src/internals/temporal/index.ts",
     "./internals/temporal-adapter-date-fns": "./src/internals/temporal-adapter-date-fns/index.ts",
@@ -101,6 +99,7 @@
     "./internals/types": "./src/internals/types.ts",
     "./internals/use-button": "./src/internals/use-button/index.ts",
     "./internals/useBaseUiId": "./src/internals/useBaseUiId.ts",
+    "./internals/useAnchorPositioning": "./src/internals/useAnchorPositioning.ts",
     "./internals/useAnimationsFinished": "./src/internals/useAnimationsFinished.ts",
     "./internals/useOpenChangeComplete": "./src/internals/useOpenChangeComplete.tsx",
     "./internals/usePressAndHold": "./src/internals/usePressAndHold.ts",
@@ -110,7 +109,15 @@
   },
   "imports": {
     "#test-utils": "./test/index.ts",
-    "#formatErrorMessage": "@base-ui/utils/formatErrorMessage"
+    "#formatErrorMessage": "@base-ui/utils/formatErrorMessage",
+    "#prehydration/tabs/indicator": {
+      "browser": "./src/internals/prehydrationScript.stub.ts",
+      "default": "./src/tabs/indicator/prehydrationScript.min.ts"
+    },
+    "#prehydration/slider/thumb": {
+      "browser": "./src/internals/prehydrationScript.stub.ts",
+      "default": "./src/slider/thumb/prehydrationScript.min.ts"
+    }
   },
   "scripts": {
     "prebuild": "rimraf --glob build build-tests published-docs \"*.tsbuildinfo\" && node ./scripts/stagePublishedDocs.mjs",
@@ -118,6 +125,7 @@
     "test:package": "publint --pack pnpm && attw --pack ./build --exclude-entrypoints package.json",
     "release": "pnpm build && pnpm publish",
     "test": "cross-env VITEST_ENV=jsdom vitest",
+    "types:check": "api-extractor run --config api-extractor.json --typescript-compiler-folder ../../node_modules/typescript",
     "typescript": "tsgo -b tsconfig.json"
   },
   "dependencies": {
@@ -125,8 +133,8 @@
     "@atlaskit/pragmatic-drag-and-drop-hitbox": "^1.1.0",
     "@babel/runtime": "^7.29.2",
     "@base-ui/utils": "workspace:*",
-    "@floating-ui/react-dom": "^2.1.8",
-    "@floating-ui/utils": "^0.2.11",
+    "@floating-ui/react-dom": "^2.1.9",
+    "@floating-ui/utils": "^0.2.12",
     "use-sync-external-store": "^1.6.0"
   },
   "devDependencies": {
@@ -142,7 +150,7 @@
     "luxon": "3.7.2",
     "react": "19.2.5",
     "react-dom": "19.2.5",
-    "react-router": "7.15.0",
+    "react-router": "7.18.2",
     "typescript": "6.0.3",
     "vitest-browser-react": "2.2.0"
   },

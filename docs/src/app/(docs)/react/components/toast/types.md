@@ -28,7 +28,7 @@ Renders a `<div>` element.
 | data-swipe-direction | `'up' \| 'down' \| 'left' \| 'right'` | The direction the toast was swiped.                                      |
 | data-swiping         | `boolean`                             | Present when the toast is being swiped.                                  |
 | data-type            | `string`                              | The type of the toast.                                                   |
-| data-starting-style  | -                                     | Present when the toast is animating in.                                  |
+| data-starting-style  | -                                     | Present when the toast begins animating in.                              |
 | data-ending-style    | -                                     | Present when the toast is animating out.                                 |
 
 **Root CSS Variables:**
@@ -149,12 +149,12 @@ Renders a `<div>` element.
 
 **Portal Props:**
 
-| Prop      | Type                                                                                      | Default | Description                                                                                                                                                                                   |
-| :-------- | :---------------------------------------------------------------------------------------- | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| container | `HTMLElement \| ShadowRoot \| React.RefObject<HTMLElement \| ShadowRoot \| null> \| null` | -       | A parent element to render the portal element into.                                                                                                                                           |
-| className | `string \| ((state: any) => string \| undefined)`                                         | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
-| style     | `React.CSSProperties \| ((state: any) => React.CSSProperties \| undefined)`               | -       | Style applied to the element, or a function that&#xA;returns a style object based on the component's state.                                                                                   |
-| render    | `ReactElement \| ((props: HTMLProps, state: any) => ReactElement)`                        | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
+| Prop      | Type                                                                                       | Default | Description                                                                                                                                                                                   |
+| :-------- | :----------------------------------------------------------------------------------------- | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| container | `HTMLElement \| ShadowRoot \| React.RefObject<HTMLElement \| ShadowRoot \| null> \| null`  | -       | A parent element to render the portal element into.                                                                                                                                           |
+| className | `string \| ((state: Toast.Portal.State) => string \| undefined)`                           | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
+| style     | `React.CSSProperties \| ((state: Toast.Portal.State) => React.CSSProperties \| undefined)` | -       | Style applied to the element, or a function that&#xA;returns a style object based on the component's state.                                                                                   |
+| render    | `ReactElement \| ((props: HTMLProps, state: Toast.Portal.State) => ReactElement)`          | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
 
 ### Portal.Props
 
@@ -823,6 +823,8 @@ type ToastManagerPromiseOptions<Value, Data extends {}> = {
 
 ```typescript
 type ToastManagerUpdateOptions<Data extends {}> = {
+  /** Custom data for the toast. */
+  data?: Partial<Data>;
   /** The title of the toast. */
   title?: React.ReactNode;
   /**
@@ -856,8 +858,6 @@ type ToastManagerUpdateOptions<Data extends {}> = {
   >;
   /** The props forwarded to the toast positioner element when rendering anchored toasts. */
   positionerProps?: ToastManagerPositionerProps;
-  /** Custom data for the toast. */
-  data?: Data;
 };
 ```
 

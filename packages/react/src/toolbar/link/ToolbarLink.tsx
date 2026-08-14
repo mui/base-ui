@@ -50,7 +50,11 @@ export interface ToolbarLinkState {
   orientation: ToolbarRoot.Orientation;
 }
 
-export interface ToolbarLinkProps extends BaseUIComponentProps<'a', ToolbarLinkState> {}
+export interface ToolbarLinkProps extends BaseUIComponentProps<
+  'a',
+  ToolbarLinkState,
+  React.ComponentPropsWithRef<'a'>
+> {}
 
 export namespace ToolbarLink {
   export type State = ToolbarLinkState;

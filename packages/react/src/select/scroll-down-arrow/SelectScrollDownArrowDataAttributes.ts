@@ -2,7 +2,7 @@ import { CommonPopupDataAttributes } from '../../utils/popupStateMapping';
 
 export enum SelectScrollDownArrowDataAttributes {
   /**
-   * Present when the scroll arrow is animating in.
+   * Present when the scroll arrow begins animating in.
    */
   startingStyle = CommonPopupDataAttributes.startingStyle,
   /**

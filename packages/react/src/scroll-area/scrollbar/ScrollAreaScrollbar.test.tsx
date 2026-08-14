@@ -1,4 +1,5 @@
-import { expect } from 'vitest';
+import * as React from 'react';
+import { expect, vi } from 'vitest';
 import { DirectionProvider, type TextDirection } from '@base-ui/react/direction-provider';
 import { ScrollArea } from '@base-ui/react/scroll-area';
 import { screen, fireEvent, flushMicrotasks, waitFor } from '@mui/internal-test-utils';
@@ -14,6 +15,28 @@ describe('<ScrollArea.Scrollbar />', () => {
       return render(<ScrollArea.Root>{node}</ScrollArea.Root>);
     },
   }));
+
+  it('supports a custom scrollbar renderer that does not forward its ref', async () => {
+    const ScrollbarWithoutRef = React.forwardRef<
+      HTMLDivElement,
+      React.ComponentPropsWithoutRef<'div'>
+    >(function ScrollbarWithoutRef(props, _ref) {
+      return <div {...props} />;
+    });
+
+    await render(
+      <ScrollArea.Root>
+        <ScrollArea.Viewport />
+        <ScrollArea.Scrollbar
+          data-testid="scrollbar"
+          keepMounted
+          render={<ScrollbarWithoutRef />}
+        />
+      </ScrollArea.Root>,
+    );
+
+    expect(screen.getByTestId('scrollbar')).toBeInTheDocument();
+  });
 
   describe('data-scrolling attribute', () => {
     const { render: renderWithClock, clock } = createRenderer();
@@ -79,6 +102,50 @@ describe('<ScrollArea.Scrollbar />', () => {
   });
 
   describe('data-hovering attribute', () => {
+    it('detects a viewport that is already hovered on mount', async () => {
+      const originalMatches = Element.prototype.matches;
+      const matchesSpy = vi.spyOn(Element.prototype, 'matches').mockImplementation(function matches(
+        this: Element,
+        selector: string,
+      ) {
+        if (selector === ':hover' && (this as HTMLElement).dataset.testid === 'viewport') {
+          return true;
+        }
+        return originalMatches.call(this, selector);
+      });
+
+      try {
+        await render(
+          <ScrollArea.Root>
+            <ScrollArea.Viewport data-testid="viewport" />
+            <ScrollArea.Scrollbar data-testid="scrollbar" keepMounted />
+          </ScrollArea.Root>,
+        );
+
+        await waitFor(() =>
+          expect(screen.getByTestId('scrollbar')).toHaveAttribute('data-hovering'),
+        );
+      } finally {
+        matchesSpy.mockRestore();
+      }
+    });
+
+    it('does not enter hover state for touch pointers', async () => {
+      await render(
+        <ScrollArea.Root>
+          <ScrollArea.Viewport data-testid="viewport" />
+          <ScrollArea.Scrollbar data-testid="scrollbar" keepMounted />
+        </ScrollArea.Root>,
+      );
+
+      const viewport = screen.getByTestId('viewport');
+      const scrollbar = screen.getByTestId('scrollbar');
+
+      fireEvent.pointerEnter(viewport, { pointerType: 'touch' });
+
+      expect(scrollbar).not.toHaveAttribute('data-hovering');
+    });
+
     it('adds [data-hovering] when the synthetic pointer target differs from the native path', async () => {
       await render(
         <ScrollArea.Root data-testid="root" style={{ width: 200, height: 200 }}>
@@ -124,6 +191,61 @@ describe('<ScrollArea.Scrollbar />', () => {
   });
 
   describe('track pointer down', () => {
+    it('ignores non-primary pointer presses', async () => {
+      await render(
+        <ScrollArea.Root>
+          <ScrollArea.Viewport data-testid="viewport" style={{ scrollSnapType: 'y mandatory' }} />
+          <ScrollArea.Scrollbar data-testid="scrollbar" keepMounted>
+            <ScrollArea.Thumb />
+          </ScrollArea.Scrollbar>
+        </ScrollArea.Root>,
+      );
+
+      const viewport = screen.getByTestId('viewport');
+      fireEvent.pointerDown(screen.getByTestId('scrollbar'), {
+        button: 2,
+        clientY: 100,
+        pointerId: 1,
+      });
+
+      expect(viewport.scrollTop).toBe(0);
+      expect(viewport.style.scrollSnapType).toBe('y mandatory');
+    });
+
+    it('handles a track press when no viewport is mounted', async () => {
+      await render(
+        <ScrollArea.Root>
+          <ScrollArea.Scrollbar data-testid="scrollbar" keepMounted>
+            <ScrollArea.Thumb />
+          </ScrollArea.Scrollbar>
+        </ScrollArea.Root>,
+      );
+
+      const scrollbar = screen.getByTestId('scrollbar');
+      fireEvent.pointerDown(scrollbar, { button: 0, clientY: 100, pointerId: 1 });
+
+      expect(scrollbar).not.toHaveAttribute('data-scrolling');
+    });
+
+    it('does not start a track gesture without a thumb', async () => {
+      await render(
+        <ScrollArea.Root>
+          <ScrollArea.Viewport data-testid="viewport" style={{ scrollSnapType: 'y mandatory' }} />
+          <ScrollArea.Scrollbar data-testid="scrollbar" keepMounted />
+        </ScrollArea.Root>,
+      );
+
+      const viewport = screen.getByTestId('viewport');
+      fireEvent.pointerDown(screen.getByTestId('scrollbar'), {
+        button: 0,
+        clientY: 100,
+        pointerId: 1,
+      });
+
+      expect(viewport.scrollTop).toBe(0);
+      expect(viewport.style.scrollSnapType).toBe('y mandatory');
+    });
+
     it('ignores thumb clicks when the native path differs from the synthetic target', async () => {
       await render(
         <ScrollArea.Root style={{ width: 200, height: 200 }}>
@@ -317,9 +439,251 @@ describe('<ScrollArea.Scrollbar />', () => {
       const scrollTopAfterTrackPress = viewport.scrollTop;
 
       fireEvent.pointerCancel(verticalScrollbar, { pointerId: 1 });
-      fireEvent.pointerMove(thumb, { clientY: 180, pointerId: 1 });
+      fireEvent.pointerMove(thumb, { clientY: 180, pointerId: 1, buttons: 1 });
 
       expect(viewport.scrollTop).toBe(scrollTopAfterTrackPress);
+    });
+  });
+
+  // jsdom doesn't implement the focus side of a mouse press, so these assert the
+  // cancellation that suppresses it rather than the resulting `activeElement`.
+  describe('track mouse down', () => {
+    async function renderScrollbarWithThumb() {
+      await render(
+        <ScrollArea.Root>
+          <ScrollArea.Viewport data-testid="viewport" />
+          <ScrollArea.Scrollbar data-testid="scrollbar" keepMounted>
+            <ScrollArea.Thumb data-testid="thumb" />
+          </ScrollArea.Scrollbar>
+        </ScrollArea.Root>,
+      );
+    }
+
+    // Native scrollbars keep focus for every button, not just the primary one.
+    it.each([
+      { name: 'primary', button: 0 },
+      { name: 'middle', button: 1 },
+      { name: 'secondary', button: 2 },
+    ])(
+      'cancels a $name press on the track so focus stays on the active element',
+      async ({ button }) => {
+        await renderScrollbarWithThumb();
+
+        const event = new MouseEvent('mousedown', { bubbles: true, cancelable: true, button });
+        screen.getByTestId('scrollbar').dispatchEvent(event);
+
+        expect(event.defaultPrevented).toBe(true);
+      },
+    );
+
+    it('cancels the press on the thumb so focus stays on the active element', async () => {
+      await renderScrollbarWithThumb();
+
+      const event = new MouseEvent('mousedown', { bubbles: true, cancelable: true, button: 0 });
+      screen.getByTestId('thumb').dispatchEvent(event);
+
+      expect(event.defaultPrevented).toBe(true);
+    });
+  });
+
+  // The vertical/horizontal track-click branches were consolidated into one
+  // axis-parameterized path. `getOffset` reads logical margins/paddings that jsdom
+  // doesn't compute, so exercise the merged branch against real layout here to pin
+  // the horizontal LTR path and the RTL inversion (jsdom track-click tests above
+  // assert the vertical path but pass vacuously on the offset math).
+  describe.skipIf(isJSDOM)('track click by axis', () => {
+    async function renderAxisTrack(
+      orientation: 'horizontal' | 'vertical',
+      direction: TextDirection,
+    ) {
+      await render(
+        <DirectionProvider direction={direction}>
+          <ScrollArea.Root style={{ width: 200, height: 200, direction }}>
+            <ScrollArea.Viewport data-testid="viewport" style={{ width: '100%', height: '100%' }}>
+              <div style={{ width: 1000, height: 1000 }} />
+            </ScrollArea.Viewport>
+            <ScrollArea.Scrollbar orientation={orientation} data-testid="scrollbar" keepMounted>
+              <ScrollArea.Thumb data-testid="thumb" />
+            </ScrollArea.Scrollbar>
+          </ScrollArea.Root>
+        </DirectionProvider>,
+      );
+
+      const viewport = screen.getByTestId('viewport') as HTMLDivElement;
+      const scrollbar = screen.getByTestId('scrollbar');
+      const thumb = screen.getByTestId('thumb');
+      await waitFor(() => expect(thumb.offsetWidth + thumb.offsetHeight).toBeGreaterThan(0));
+
+      return { viewport, scrollbar };
+    }
+
+    it('scrolls down when clicking below the thumb on a vertical track', async () => {
+      const { viewport, scrollbar } = await renderAxisTrack('vertical', 'ltr');
+      const rect = scrollbar.getBoundingClientRect();
+
+      fireEvent.pointerDown(scrollbar, {
+        button: 0,
+        clientX: rect.left + rect.width / 2,
+        clientY: rect.bottom - 5,
+        pointerId: 1,
+      });
+
+      expect(viewport.scrollTop).toBeGreaterThan(0);
+    });
+
+    it('scrolls right when clicking the end of a horizontal LTR track', async () => {
+      const { viewport, scrollbar } = await renderAxisTrack('horizontal', 'ltr');
+      const rect = scrollbar.getBoundingClientRect();
+
+      fireEvent.pointerDown(scrollbar, {
+        button: 0,
+        clientX: rect.right - 5,
+        clientY: rect.top + rect.height / 2,
+        pointerId: 1,
+      });
+
+      expect(viewport.scrollLeft).toBeGreaterThan(0);
+    });
+
+    it('scrolls into the negative RTL range when clicking a horizontal RTL track', async () => {
+      const { viewport, scrollbar } = await renderAxisTrack('horizontal', 'rtl');
+      const rect = scrollbar.getBoundingClientRect();
+
+      fireEvent.pointerDown(scrollbar, {
+        button: 0,
+        clientX: rect.left + 5,
+        clientY: rect.top + rect.height / 2,
+        pointerId: 1,
+      });
+
+      expect(viewport.scrollLeft).toBeLessThan(0);
+    });
+  });
+
+  // The jump-to-click assignment must run with snapping already disabled, or the
+  // assigned position quantizes to the nearest snap point and the thumb stays
+  // offset from the pointer for the whole drag. Requires real layout for the
+  // track/thumb offset math, so Chromium only.
+  describe.skipIf(isJSDOM)('scroll snap on track press', () => {
+    it('does not snap the initial jump-to-click position', async () => {
+      await render(
+        <ScrollArea.Root style={{ width: 400, height: 200 }}>
+          <ScrollArea.Viewport
+            data-testid="viewport"
+            style={{ width: '100%', height: '100%', scrollSnapType: 'x mandatory' }}
+          >
+            <div style={{ display: 'flex' }}>
+              {Array.from({ length: 10 }, (_, index) => (
+                <div
+                  key={index}
+                  style={{ flexShrink: 0, width: 200, height: 100, scrollSnapAlign: 'start' }}
+                />
+              ))}
+            </div>
+          </ScrollArea.Viewport>
+          <ScrollArea.Scrollbar orientation="horizontal" data-testid="scrollbar" keepMounted>
+            <ScrollArea.Thumb data-testid="thumb" />
+          </ScrollArea.Scrollbar>
+        </ScrollArea.Root>,
+      );
+
+      const viewport = screen.getByTestId('viewport') as HTMLDivElement;
+      const scrollbar = screen.getByTestId('scrollbar');
+      const thumb = screen.getByTestId('thumb');
+      await waitFor(() => expect(thumb.offsetWidth).toBeGreaterThan(0));
+
+      // Aim mid-way between the 800 and 1000 snap points (200px items).
+      const targetScroll = 900;
+      const maxScroll = viewport.scrollWidth - viewport.clientWidth;
+      const maxThumbOffset = scrollbar.offsetWidth - thumb.offsetWidth;
+      const rect = scrollbar.getBoundingClientRect();
+      const clickX =
+        rect.left + (targetScroll / maxScroll) * maxThumbOffset + thumb.offsetWidth / 2;
+
+      fireEvent.pointerDown(scrollbar, {
+        button: 0,
+        clientX: clickX,
+        clientY: rect.top + rect.height / 2,
+        pointerId: 1,
+      });
+
+      expect(Math.abs(viewport.scrollLeft - targetScroll)).toBeLessThanOrEqual(1);
+
+      // Releasing restores snapping, which re-snaps to the nearest snap point.
+      fireEvent.pointerUp(scrollbar, { pointerId: 1 });
+      await waitFor(() => expect(viewport.scrollLeft % 200).toBe(0));
+    });
+  });
+
+  // A short or heavily padded track drives `maxThumbOffset` to zero or negative
+  // once the thumb hits its `MIN_THUMB_SIZE` floor. Dragging the thumb then
+  // divides by a non-positive offset, teleporting the scroll position to an
+  // extreme instead of moving proportionally. Asserted with real layout: a 16px
+  // track ties the floored thumb to the track length (offset 0); a 10px track is
+  // shorter than the floored thumb (negative offset).
+  describe.skipIf(isJSDOM)('non-positive thumb offset', () => {
+    async function renderShortTrack(trackHeight: number) {
+      await render(
+        <ScrollArea.Root style={{ width: 200, height: 200 }}>
+          <ScrollArea.Viewport data-testid="viewport" style={{ width: '100%', height: '100%' }}>
+            <div style={{ width: 1000, height: 1000 }} />
+          </ScrollArea.Viewport>
+          <ScrollArea.Scrollbar
+            orientation="vertical"
+            data-testid="vertical"
+            keepMounted
+            style={{ height: trackHeight, bottom: 'auto', width: 12 }}
+          >
+            <ScrollArea.Thumb data-testid="thumb" />
+          </ScrollArea.Scrollbar>
+        </ScrollArea.Root>,
+      );
+
+      const viewport = screen.getByTestId('viewport') as HTMLDivElement;
+      const verticalScrollbar = screen.getByTestId('vertical');
+      const thumb = screen.getByTestId('thumb');
+      await waitFor(() => expect(thumb.offsetHeight).toBeGreaterThan(0));
+
+      return { viewport, verticalScrollbar, thumb };
+    }
+
+    it('does not jump the scroll when dragging a thumb that fills the track', async () => {
+      const { viewport, thumb } = await renderShortTrack(16);
+
+      // Park the scroll mid-range so an erroneous jump to an edge is detectable.
+      viewport.scrollTop = 400;
+      fireEvent.pointerDown(thumb, { button: 0, clientY: 0, pointerId: 1 });
+      fireEvent.pointerMove(thumb, { clientY: 5, pointerId: 1, buttons: 1 });
+
+      expect(viewport.scrollTop).toBe(400);
+    });
+
+    it('does not jump the scroll when dragging a thumb taller than the track', async () => {
+      const { viewport, thumb } = await renderShortTrack(10);
+
+      viewport.scrollTop = 400;
+      fireEvent.pointerDown(thumb, { button: 0, clientY: 0, pointerId: 1 });
+      fireEvent.pointerMove(thumb, { clientY: 5, pointerId: 1, buttons: 1 });
+
+      expect(viewport.scrollTop).toBe(400);
+    });
+
+    it('does not jump the scroll when clicking a track whose thumb fills the track', async () => {
+      const { viewport, verticalScrollbar } = await renderShortTrack(16);
+
+      viewport.scrollTop = 400;
+      fireEvent.pointerDown(verticalScrollbar, { button: 0, clientY: 5, pointerId: 1 });
+
+      expect(viewport.scrollTop).toBe(400);
+    });
+
+    it('does not jump the scroll when clicking a track whose thumb is taller than the track', async () => {
+      const { viewport, verticalScrollbar } = await renderShortTrack(10);
+
+      viewport.scrollTop = 400;
+      fireEvent.pointerDown(verticalScrollbar, { button: 0, clientY: 5, pointerId: 1 });
+
+      expect(viewport.scrollTop).toBe(400);
     });
   });
 
@@ -465,6 +829,17 @@ describe('<ScrollArea.Scrollbar />', () => {
       });
 
       expect(fireEvent.wheel(scrollbar, { deltaY: 0 })).toBe(true);
+      expect(viewport.scrollTop).toBe(400);
+      expect(scrollbar).not.toHaveAttribute('data-scrolling');
+    });
+
+    it('does not intercept browser zoom gestures', async () => {
+      const { viewport, scrollbar } = await renderWheelTest({
+        orientation: 'vertical',
+        scrollTop: 400,
+      });
+
+      expect(fireEvent.wheel(scrollbar, { ctrlKey: true, deltaY: 50 })).toBe(true);
       expect(viewport.scrollTop).toBe(400);
       expect(scrollbar).not.toHaveAttribute('data-scrolling');
     });

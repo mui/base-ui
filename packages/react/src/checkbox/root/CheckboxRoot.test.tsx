@@ -8,7 +8,10 @@ import { Form } from '@base-ui/react/form';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 
 describe('<Checkbox.Root />', () => {
-  const { render } = createRenderer();
+  const { render, renderToString } = createRenderer();
+  // StrictMode re-runs a newly mounted control's layout effect after the outgoing control's
+  // cleanup, which hides id-handoff bugs that only show up in production.
+  const { render: renderNonStrict } = createRenderer({ strict: false });
 
   describeConformance(<Checkbox.Root />, () => ({
     refInstanceof: window.HTMLSpanElement,
@@ -35,7 +38,178 @@ describe('<Checkbox.Root />', () => {
     });
   });
 
+  describe('id', () => {
+    function TestCase(props: {
+      checkboxId?: string | undefined;
+      checkboxKey?: React.Key | undefined;
+      nativeButton: boolean;
+    }) {
+      const { checkboxId, checkboxKey, nativeButton } = props;
+
+      return (
+        <Field.Root>
+          <Field.Label data-testid="label">Label</Field.Label>
+          <Checkbox.Root
+            key={checkboxKey}
+            id={checkboxId}
+            nativeButton={nativeButton}
+            render={nativeButton ? <button /> : undefined}
+          />
+        </Field.Root>
+      );
+    }
+
+    function getLabelControl(nativeButton: boolean) {
+      return nativeButton
+        ? screen.getByRole('checkbox')
+        : document.querySelector<HTMLInputElement>('input[type="checkbox"]')!;
+    }
+
+    it.each([false, true])(
+      'drops an explicit id when the prop is removed (nativeButton=%s)',
+      async (nativeButton) => {
+        const { rerender } = await render(
+          <TestCase checkboxId="explicit" nativeButton={nativeButton} />,
+        );
+
+        const label = screen.getByTestId('label');
+        expect(getLabelControl(nativeButton)).toHaveAttribute('id', 'explicit');
+        expect(label).toHaveAttribute('for', 'explicit');
+
+        await rerender(<TestCase nativeButton={nativeButton} />);
+
+        const control = getLabelControl(nativeButton);
+        expect(control.id).not.toBe('');
+        expect(control).not.toHaveAttribute('id', 'explicit');
+        expect(label).toHaveAttribute('for', control.id);
+      },
+    );
+
+    it.each([false, true])(
+      'does not reuse an unmounted Checkbox id for a keyed id-less Checkbox (nativeButton=%s)',
+      async (nativeButton) => {
+        const { rerender } = await renderNonStrict(
+          <TestCase checkboxKey="explicit" checkboxId="explicit" nativeButton={nativeButton} />,
+        );
+
+        const label = screen.getByTestId('label');
+        expect(getLabelControl(nativeButton)).toHaveAttribute('id', 'explicit');
+        expect(label).toHaveAttribute('for', 'explicit');
+
+        await rerender(<TestCase checkboxKey="generated" nativeButton={nativeButton} />);
+
+        const control = getLabelControl(nativeButton);
+        expect(control.id).not.toBe('');
+        expect(control).not.toHaveAttribute('id', 'explicit');
+        expect(label).toHaveAttribute('for', control.id);
+      },
+    );
+
+    // An explicit `id` only reaches the DOM once registration runs, so the server markup carries
+    // the provider's generated id on both the label and the control. Rendering `id` right away
+    // would instead leave `Field.Label`'s `for` pointing at nothing until hydration.
+    it.each([false, true])(
+      'defers an explicit id until hydration but keeps Field.Label associated during SSR (nativeButton=%s)',
+      async (nativeButton) => {
+        const { hydrate } = renderToString(
+          <TestCase checkboxId="explicit" nativeButton={nativeButton} />,
+        );
+
+        const control = getLabelControl(nativeButton);
+        expect(control.id).not.toBe('');
+        expect(control).not.toHaveAttribute('id', 'explicit');
+        expect(screen.getByTestId('label')).toHaveAttribute('for', control.id);
+
+        hydrate();
+
+        await waitFor(() => {
+          expect(getLabelControl(nativeButton)).toHaveAttribute('id', 'explicit');
+        });
+        expect(screen.getByTestId('label')).toHaveAttribute('for', 'explicit');
+      },
+    );
+  });
+
+  describe('prop: onClick', () => {
+    it('propagates a single click event to ancestors per user click', async () => {
+      const handleParentClick = vi.fn();
+      await render(
+        <div onClick={handleParentClick}>
+          <Checkbox.Root data-testid="checkbox" />
+        </div>,
+      );
+
+      fireEvent.click(screen.getByTestId('checkbox'));
+
+      expect(handleParentClick).toHaveBeenCalledTimes(1);
+      expect(screen.getByTestId('checkbox')).toHaveAttribute('aria-checked', 'true');
+    });
+
+    it('does not propagate to ancestors when stopPropagation() is called', async () => {
+      const handleParentClick = vi.fn();
+      await render(
+        <div onClick={handleParentClick}>
+          <Checkbox.Root data-testid="checkbox" onClick={(event) => event.stopPropagation()} />
+        </div>,
+      );
+
+      fireEvent.click(screen.getByTestId('checkbox'));
+
+      expect(handleParentClick).toHaveBeenCalledTimes(0);
+      expect(screen.getByTestId('checkbox')).toHaveAttribute('aria-checked', 'true');
+    });
+
+    it('propagates a single click event to ancestors with a native button', async () => {
+      const handleParentClick = vi.fn();
+      await render(
+        <div onClick={handleParentClick}>
+          <Checkbox.Root nativeButton render={<button />} data-testid="checkbox" />
+        </div>,
+      );
+
+      fireEvent.click(screen.getByTestId('checkbox'));
+
+      expect(handleParentClick).toHaveBeenCalledTimes(1);
+      expect(screen.getByTestId('checkbox')).toHaveAttribute('aria-checked', 'true');
+    });
+
+    it('does not propagate to ancestors when stopPropagation() is called with a native button', async () => {
+      const handleParentClick = vi.fn();
+      await render(
+        <div onClick={handleParentClick}>
+          <Checkbox.Root
+            nativeButton
+            render={<button />}
+            data-testid="checkbox"
+            onClick={(event) => event.stopPropagation()}
+          />
+        </div>,
+      );
+
+      fireEvent.click(screen.getByTestId('checkbox'));
+
+      expect(handleParentClick).toHaveBeenCalledTimes(0);
+      expect(screen.getByTestId('checkbox')).toHaveAttribute('aria-checked', 'true');
+    });
+  });
+
   describe('interactions', () => {
+    it('tolerates imperative interaction in its ref callback before the hidden input mounts', async () => {
+      await render(
+        <Checkbox.Root
+          ref={(element) => {
+            if (element) {
+              element.focus();
+              element.blur();
+              element.click();
+            }
+          }}
+        />,
+      );
+
+      expect(screen.getByRole('checkbox')).toHaveAttribute('aria-checked', 'false');
+    });
+
     it('should change its state when clicked', async () => {
       await render(<Checkbox.Root />);
       const [checkbox] = screen.getAllByRole('checkbox');
@@ -146,6 +320,21 @@ describe('<Checkbox.Root />', () => {
       });
 
       expect(checkbox).toHaveAttribute('aria-checked', 'true');
+    });
+
+    it('ignores a hidden input click canceled before React handles it', async () => {
+      const handleCheckedChange = vi.fn();
+      await render(<Checkbox.Root onCheckedChange={handleCheckedChange} />);
+
+      const checkbox = screen.getByRole('checkbox');
+      const input = screen.getAllByRole<HTMLInputElement>('checkbox', { hidden: true })[1];
+      const event = new MouseEvent('click', { bubbles: true, cancelable: true });
+      event.preventDefault();
+
+      fireEvent(input, event);
+
+      expect(handleCheckedChange).not.toHaveBeenCalled();
+      expect(checkbox).toHaveAttribute('aria-checked', 'false');
     });
 
     it('can be activated with Space key', async () => {
@@ -427,6 +616,46 @@ describe('<Checkbox.Root />', () => {
       expect(checkbox).toHaveAttribute('aria-checked', 'false');
       fireEvent.click(screen.getByTestId('label'));
       expect(checkbox).toHaveAttribute('aria-checked', 'true');
+    });
+
+    it('falls back to the Field control id when id is empty', async () => {
+      await render(
+        <Field.Root>
+          <Field.Label>Label</Field.Label>
+          <Checkbox.Root id="" />
+        </Field.Root>,
+      );
+
+      const label = screen.getByText('Label');
+      const input = document.querySelector<HTMLInputElement>('input[type="checkbox"]')!;
+      const checkbox = screen.getByRole('checkbox');
+
+      expect(input.id).not.toBe('');
+      expect(label).toHaveAttribute('for', input.id);
+
+      fireEvent.click(label);
+      expect(checkbox).toHaveAttribute('aria-checked', 'true');
+    });
+
+    it('assigns an input id to a valueless child in a parent checkbox group', async () => {
+      await render(
+        <CheckboxGroup allValues={['one']}>
+          <Checkbox.Root />
+        </CheckboxGroup>,
+      );
+
+      const input = document.querySelector<HTMLInputElement>('input[type="checkbox"]')!;
+      expect(input.id).not.toBe('');
+    });
+
+    it('assigns a root id to a valueless native button in a parent checkbox group', async () => {
+      await render(
+        <CheckboxGroup allValues={['one']}>
+          <Checkbox.Root nativeButton render={<button />} />
+        </CheckboxGroup>,
+      );
+
+      expect(screen.getByRole('checkbox').id).not.toBe('');
     });
   });
 

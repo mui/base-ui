@@ -22,7 +22,7 @@ export enum RadioIndicatorDataAttributes {
    */
   required = 'data-required',
   /**
-   * Present when the radio indicator is animating in.
+   * Present when the radio indicator begins animating in.
    */
   startingStyle = TransitionStatusDataAttributes.startingStyle,
   /**

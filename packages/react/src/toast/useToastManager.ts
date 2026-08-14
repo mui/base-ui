@@ -1,17 +1,13 @@
 'use client';
 import * as React from 'react';
-import { ToastContext } from './provider/ToastProviderContext';
+import { useToastProviderContext } from './provider/ToastProviderContext';
 import type { ToastPositionerProps } from './positioner/ToastPositioner';
 
 /**
  * Returns the array of toasts and methods to manage them.
  */
 export function useToastManager<Data extends object = any>(): UseToastManagerReturnValue<Data> {
-  const store = React.useContext(ToastContext);
-
-  if (!store) {
-    throw new Error('Base UI: useToastManager must be used within <Toast.Provider>.');
-  }
+  const store = useToastProviderContext();
 
   const toasts = store.useState('toasts');
 
@@ -133,8 +129,16 @@ export interface ToastManagerAddOptions<Data extends object> extends Omit<
 }
 
 export interface ToastManagerUpdateOptions<Data extends object> extends Partial<
-  Omit<ToastObject<Data>, 'id' | 'ref' | 'height' | 'transitionStatus' | 'limited' | 'updateKey'>
-> {}
+  Omit<
+    ToastObject<Data>,
+    'id' | 'ref' | 'height' | 'transitionStatus' | 'limited' | 'updateKey' | 'data'
+  >
+> {
+  /**
+   * Custom data for the toast.
+   */
+  data?: Partial<Data> | undefined;
+}
 
 export interface ToastManagerPromiseOptions<Value, Data extends object> {
   loading: string | ToastManagerUpdateOptions<Data>;

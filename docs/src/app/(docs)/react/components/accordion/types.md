@@ -307,7 +307,7 @@ Renders a `<div>` element.
 | data-orientation    | -        | Indicates the orientation of the accordion.  |
 | data-disabled       | -        | Present when the accordion item is disabled. |
 | data-index          | `number` | Indicates the index of the accordion item.   |
-| data-starting-style | -        | Present when the panel is animating in.      |
+| data-starting-style | -        | Present when the panel begins animating in.  |
 | data-ending-style   | -        | Present when the panel is animating out.     |
 
 **Panel CSS Variables:**

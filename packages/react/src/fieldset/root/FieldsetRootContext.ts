@@ -4,7 +4,7 @@ import * as React from 'react';
 export interface FieldsetRootContext {
   legendId: string | undefined;
   setLegendId: React.Dispatch<React.SetStateAction<string | undefined>>;
-  disabled: boolean | undefined;
+  disabled: boolean;
 }
 
 export const FieldsetRootContext = React.createContext<FieldsetRootContext | undefined>(undefined);

@@ -1,7 +1,9 @@
 import { expect, vi } from 'vitest';
+import * as React from 'react';
+import * as ReactDOM from 'react-dom';
 import { Toast } from '@base-ui/react/toast';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
-import { act, fireEvent, screen } from '@mui/internal-test-utils';
+import { act, fireEvent, screen, waitFor } from '@mui/internal-test-utils';
 import { List, Button } from '../utils/test-utils';
 
 describe('<Toast.Viewport />', () => {
@@ -13,6 +15,121 @@ describe('<Toast.Viewport />', () => {
       return render(<Toast.Provider>{node}</Toast.Provider>);
     },
   }));
+
+  it.skipIf(!isJSDOM)(
+    'rebinds owner-document listeners once across empty store cycles',
+    async () => {
+      const iframe = document.createElement('iframe');
+      document.body.appendChild(iframe);
+      const iframeWindow = iframe.contentWindow;
+      const iframeDocument = iframe.contentDocument;
+      if (!iframeWindow || !iframeDocument) {
+        throw new Error('Expected iframe window and document.');
+      }
+      const iframeGlobal = iframeWindow as Window & typeof globalThis;
+
+      const portalContainer = iframeDocument.createElement('div');
+      iframeDocument.body.appendChild(portalContainer);
+      const addWindowListener = vi.spyOn(iframeWindow, 'addEventListener');
+      const removeWindowListener = vi.spyOn(iframeWindow, 'removeEventListener');
+      const addDocumentListener = vi.spyOn(iframeDocument, 'addEventListener');
+      const removeDocumentListener = vi.spyOn(iframeDocument, 'removeEventListener');
+
+      function Controls() {
+        const { add, close, toasts } = Toast.useToastManager();
+        return (
+          <React.Fragment>
+            <button type="button" onClick={() => add({ title: 'title' })}>
+              add alternate toast
+            </button>
+            <button type="button" onClick={() => close(toasts[0]?.id)}>
+              close alternate toast
+            </button>
+          </React.Fragment>
+        );
+      }
+
+      try {
+        const { user } = await render(
+          <Toast.Provider timeout={0}>
+            {ReactDOM.createPortal(
+              <Toast.Viewport data-testid="alternate-viewport">
+                <List />
+              </Toast.Viewport>,
+              portalContainer,
+            )}
+            <Controls />
+          </Toast.Provider>,
+        );
+
+        const add = screen.getByRole('button', { name: 'add alternate toast' });
+        const close = screen.getByRole('button', { name: 'close alternate toast' });
+
+        await user.click(add);
+        await waitFor(() =>
+          expect(iframeDocument.querySelector('[data-testid="root"]')).not.toBe(null),
+        );
+
+        expect(addWindowListener.mock.calls.filter(([type]) => type === 'keydown')).toHaveLength(1);
+        expect(addWindowListener.mock.calls.filter(([type]) => type === 'blur')).toHaveLength(1);
+        expect(addWindowListener.mock.calls.filter(([type]) => type === 'focus')).toHaveLength(1);
+        expect(
+          addDocumentListener.mock.calls.filter(([type]) => type === 'pointerdown'),
+        ).toHaveLength(1);
+
+        await act(async () => {
+          iframeWindow.dispatchEvent(new iframeGlobal.KeyboardEvent('keydown', { key: 'F6' }));
+        });
+        expect(iframeDocument.activeElement).toBe(
+          iframeDocument.querySelector('[data-testid="alternate-viewport"]'),
+        );
+
+        await user.click(close);
+        await waitFor(() =>
+          expect(iframeDocument.querySelector('[data-testid="root"]')).toBe(null),
+        );
+        expect(removeWindowListener.mock.calls.filter(([type]) => type === 'keydown')).toHaveLength(
+          1,
+        );
+        expect(removeWindowListener.mock.calls.filter(([type]) => type === 'blur')).toHaveLength(1);
+        expect(removeWindowListener.mock.calls.filter(([type]) => type === 'focus')).toHaveLength(
+          1,
+        );
+        expect(
+          removeDocumentListener.mock.calls.filter(([type]) => type === 'pointerdown'),
+        ).toHaveLength(1);
+
+        await user.click(add);
+        await waitFor(() =>
+          expect(iframeDocument.querySelector('[data-testid="root"]')).not.toBe(null),
+        );
+        expect(addWindowListener.mock.calls.filter(([type]) => type === 'keydown')).toHaveLength(2);
+        expect(addWindowListener.mock.calls.filter(([type]) => type === 'blur')).toHaveLength(2);
+        expect(addWindowListener.mock.calls.filter(([type]) => type === 'focus')).toHaveLength(2);
+        expect(
+          addDocumentListener.mock.calls.filter(([type]) => type === 'pointerdown'),
+        ).toHaveLength(2);
+      } finally {
+        addWindowListener.mockRestore();
+        removeWindowListener.mockRestore();
+        addDocumentListener.mockRestore();
+        removeDocumentListener.mockRestore();
+        iframe.remove();
+      }
+    },
+  );
+
+  it('throws a descriptive error when rendered outside <Toast.Provider>', async () => {
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+    try {
+      await expect(render(<Toast.Viewport />)).rejects.toThrow(
+        'Base UI: useToastManager must be used within <Toast.Provider>.',
+      );
+    } finally {
+      errorSpy.mockRestore();
+    }
+  });
 
   it('gets focused when F6 is pressed', async () => {
     const { user } = await render(
@@ -378,6 +495,173 @@ describe('<Toast.Viewport />', () => {
       expect(screen.queryByTestId('root')).not.toBe(null);
     });
 
+    it('restores focus and resumes timers on shift+Tab out of the focused viewport', async () => {
+      await renderFakeTimers(
+        <Toast.Provider>
+          <Toast.Viewport data-testid="viewport">
+            <List />
+          </Toast.Viewport>
+          <Button />
+        </Toast.Provider>,
+      );
+
+      const button = screen.getByRole('button', { name: 'add' });
+
+      await act(async () => button.focus());
+      fireEvent.click(button);
+      fireEvent.keyDown(button, { key: 'F6' });
+
+      const viewport = screen.getByTestId('viewport');
+      expect(viewport).toHaveFocus();
+
+      clock.tick(5001);
+      expect(screen.queryByTestId('root')).not.toBe(null);
+
+      fireEvent.keyDown(viewport, { key: 'Tab', shiftKey: true });
+
+      expect(button).toHaveFocus();
+
+      clock.tick(5001);
+      expect(screen.queryByTestId('root')).toBe(null);
+    });
+
+    it('keeps timers paused when shift+Tab returns focus inside the viewport', async () => {
+      await renderFakeTimers(
+        <Toast.Provider>
+          <Toast.Viewport data-testid="viewport">
+            <List />
+          </Toast.Viewport>
+          <Button />
+        </Toast.Provider>,
+      );
+
+      const button = screen.getByRole('button', { name: 'add' });
+
+      await act(async () => button.focus());
+      fireEvent.click(button);
+
+      // Pressing F6 from a control inside the toast makes the restore target
+      // itself live inside the viewport.
+      const close = document.querySelector('[aria-label="close-press"]') as HTMLElement;
+      await act(async () => close.focus());
+      fireEvent.keyDown(close, { key: 'F6' });
+
+      const viewport = screen.getByTestId('viewport');
+      expect(viewport).toHaveFocus();
+
+      fireEvent.keyDown(viewport, { key: 'Tab', shiftKey: true });
+
+      expect(close).toHaveFocus();
+
+      clock.tick(5001);
+      // Focus never left the viewport, so the toast must stay put.
+      expect(screen.queryByTestId('root')).not.toBe(null);
+    });
+
+    it('keeps the viewport focused when Tab is pressed without shift', async () => {
+      await renderFakeTimers(
+        <Toast.Provider>
+          <Toast.Viewport data-testid="viewport">
+            <List />
+          </Toast.Viewport>
+          <Button />
+        </Toast.Provider>,
+      );
+
+      const button = screen.getByRole('button', { name: 'add' });
+
+      await act(async () => button.focus());
+      fireEvent.click(button);
+      fireEvent.keyDown(button, { key: 'F6' });
+
+      const viewport = screen.getByTestId('viewport');
+      fireEvent.keyDown(viewport, { key: 'Tab' });
+
+      // Forward Tab moves into the toasts, so the viewport must not hand focus back.
+      expect(button).not.toHaveFocus();
+
+      clock.tick(5001);
+      expect(screen.queryByTestId('root')).not.toBe(null);
+    });
+
+    it('collapses and resumes timers on a touch outside the viewport', async () => {
+      await renderFakeTimers(
+        <Toast.Provider>
+          <Toast.Viewport data-testid="viewport">
+            <List />
+          </Toast.Viewport>
+          <Button />
+        </Toast.Provider>,
+      );
+
+      const button = screen.getByRole('button', { name: 'add' });
+
+      fireEvent.click(button);
+      fireEvent.mouseEnter(screen.getByTestId('root'));
+
+      const viewport = screen.getByTestId('viewport');
+      expect(viewport).toHaveAttribute('data-expanded');
+
+      clock.tick(5001);
+      expect(screen.queryByTestId('root')).not.toBe(null);
+
+      fireEvent.pointerDown(document.body, { pointerType: 'touch' });
+
+      expect(viewport).not.toHaveAttribute('data-expanded');
+
+      clock.tick(5001);
+      expect(screen.queryByTestId('root')).toBe(null);
+    });
+
+    it('stays expanded on a touch inside the viewport', async () => {
+      await renderFakeTimers(
+        <Toast.Provider>
+          <Toast.Viewport data-testid="viewport">
+            <List />
+          </Toast.Viewport>
+          <Button />
+        </Toast.Provider>,
+      );
+
+      const button = screen.getByRole('button', { name: 'add' });
+
+      fireEvent.click(button);
+      fireEvent.mouseEnter(screen.getByTestId('root'));
+
+      const viewport = screen.getByTestId('viewport');
+      fireEvent.pointerDown(viewport, { pointerType: 'touch' });
+
+      expect(viewport).toHaveAttribute('data-expanded');
+
+      clock.tick(5001);
+      expect(screen.queryByTestId('root')).not.toBe(null);
+    });
+
+    it('ignores a mouse pointerdown outside the viewport', async () => {
+      await renderFakeTimers(
+        <Toast.Provider>
+          <Toast.Viewport data-testid="viewport">
+            <List />
+          </Toast.Viewport>
+          <Button />
+        </Toast.Provider>,
+      );
+
+      const button = screen.getByRole('button', { name: 'add' });
+
+      fireEvent.click(button);
+      fireEvent.mouseEnter(screen.getByTestId('root'));
+
+      // Only touch activity ends the paused interaction; a mouse press outside
+      // is followed by a `mouseleave`, which handles the collapse instead.
+      fireEvent.pointerDown(document.body, { pointerType: 'mouse' });
+
+      expect(screen.getByTestId('viewport')).toHaveAttribute('data-expanded');
+
+      clock.tick(5001);
+      expect(screen.queryByTestId('root')).not.toBe(null);
+    });
+
     it.skipIf(!isJSDOM)('resumes timers when the viewport is blurred', async () => {
       await renderFakeTimers(
         <Toast.Provider>
@@ -713,6 +997,104 @@ describe('<Toast.Viewport />', () => {
 
       const guard = document.querySelector('[data-base-ui-focus-guard]') as HTMLElement;
       fireEvent.focus(guard, { relatedTarget: viewport });
+
+      expect(button).toHaveFocus();
+    });
+
+    it.skipIf(!isJSDOM)('returns focus to the trigger when every toast is closed', async () => {
+      const manager = Toast.createToastManager();
+
+      await renderFakeTimers(
+        <Toast.Provider toastManager={manager} timeout={0}>
+          <Toast.Viewport data-testid="viewport">
+            <List />
+          </Toast.Viewport>
+          <Button />
+        </Toast.Provider>,
+      );
+
+      const button = screen.getByRole('button', { name: 'add' });
+      await act(async () => button.focus());
+      fireEvent.click(button);
+
+      fireEvent.keyDown(button, { key: 'F6' });
+      const viewport = screen.getByTestId('viewport');
+      const guard = document.querySelector('[data-base-ui-focus-guard]') as HTMLElement;
+      fireEvent.focus(guard, { relatedTarget: viewport });
+
+      expect(screen.getByTestId('root')).toHaveFocus();
+
+      // Closing everything leaves no toast to hand focus to.
+      await act(async () => manager.close());
+
+      expect(button).toHaveFocus();
+    });
+
+    it.skipIf(!isJSDOM)('moves focus past toasts animating out when one is closed', async () => {
+      const manager = Toast.createToastManager();
+
+      await renderFakeTimers(
+        <Toast.Provider toastManager={manager} timeout={0}>
+          <Toast.Viewport data-testid="viewport">
+            <List />
+          </Toast.Viewport>
+          <Button />
+        </Toast.Provider>,
+      );
+
+      const button = screen.getByRole('button', { name: 'add' });
+      await act(async () => button.focus());
+
+      await act(async () => {
+        manager.add({ title: 'oldest' });
+      });
+      await act(async () => {
+        manager.add({ id: 'middle', title: 'middle' });
+      });
+      await act(async () => {
+        manager.add({ id: 'newest', title: 'newest' });
+      });
+
+      const [newest, middle, oldest] = screen.getAllByTestId('root');
+      expect(middle).toHaveTextContent('middle');
+
+      fireEvent.keyDown(button, { key: 'F6' });
+      const viewport = screen.getByTestId('viewport');
+      const guard = document.querySelector('[data-base-ui-focus-guard]') as HTMLElement;
+      fireEvent.focus(guard, { relatedTarget: viewport });
+
+      expect(newest).toHaveFocus();
+
+      // Dismissing both in one go leaves the middle toast animating out while
+      // the focused toast closes, so focus has to skip over it.
+      await act(async () => {
+        manager.close('middle');
+        manager.close('newest');
+      });
+
+      expect(middle).toHaveAttribute('data-ending-style');
+      expect(oldest).toHaveFocus();
+    });
+
+    it.skipIf(!isJSDOM)('leaves focus alone when it is outside the viewport', async () => {
+      const manager = Toast.createToastManager();
+
+      await renderFakeTimers(
+        <Toast.Provider toastManager={manager} timeout={0}>
+          <Toast.Viewport data-testid="viewport">
+            <List />
+          </Toast.Viewport>
+          <Button />
+        </Toast.Provider>,
+      );
+
+      const button = screen.getByRole('button', { name: 'add' });
+      await act(async () => button.focus());
+      fireEvent.click(button);
+      fireEvent.click(button);
+
+      // Focus never entered the viewport, so closing a toast must not steal it.
+      await act(async () => manager.close());
 
       expect(button).toHaveFocus();
     });

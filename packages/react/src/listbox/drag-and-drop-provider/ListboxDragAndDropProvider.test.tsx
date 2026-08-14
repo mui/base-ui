@@ -55,12 +55,9 @@ describe('<Listbox.DragAndDropProvider />', () => {
     dndMocks.dropTargetConfigs.clear();
     originalRequestAnimationFrame = globalThis.requestAnimationFrame;
     originalCancelAnimationFrame = globalThis.cancelAnimationFrame;
-    globalThis.requestAnimationFrame = ((callback: FrameRequestCallback) =>
-      setTimeout(() => callback(performance.now()), 0)) as typeof globalThis.requestAnimationFrame;
-    globalThis.cancelAnimationFrame = ((id: number) =>
-      clearTimeout(
-        id as unknown as ReturnType<typeof setTimeout>,
-      )) as typeof globalThis.cancelAnimationFrame;
+    globalThis.requestAnimationFrame = (callback: FrameRequestCallback) =>
+      Number(setTimeout(() => callback(performance.now()), 0));
+    globalThis.cancelAnimationFrame = (id: number) => clearTimeout(id);
   });
 
   afterEach(() => {

@@ -1,5 +1,6 @@
 import { expect } from 'vitest';
-import { getNumberLocaleDetails, parseNumber } from './parse';
+import { isJSDOM } from '#test-utils';
+import { getNumberLocaleDetails, isNumeralChar, parseNumber } from './parse';
 
 describe('NumberField parse', () => {
   describe('getNumberLocaleDetails', () => {
@@ -293,6 +294,49 @@ describe('NumberField parse', () => {
       expect(parseNumber('1..5')).toBe(1.5);
       expect(parseNumber('123..456..789.01')).toBe(123456789.01);
       expect(parseNumber('....5')).toBe(0.5);
+    });
+
+    // Guards the numeral-to-ASCII mapping: Arabic-Indic, Persian, and fullwidth digits are
+    // decoded via `charCode % 16` (their ranges all start at a multiple of 16), and Han digits
+    // via a digit-ordered lookup string. Existing cases only exercise a few digits, so these
+    // pin the full 0-9 range of every system.
+    it('maps the full Persian digit range', () => {
+      expect(parseNumber('۹۸۷۶۵۴۳۲۱۰')).toBe(9876543210);
+    });
+
+    it('maps the full fullwidth digit range', () => {
+      expect(parseNumber('０１２３４５６７８９')).toBe(123456789);
+    });
+
+    it.skipIf(!isJSDOM)('maps the full Arabic-Indic digit range', () => {
+      // Browser Intl handles Arabic-Indic digits inconsistently, so this runs in jsdom only.
+      expect(parseNumber('٩٨٧٦٥٤٣٢١٠')).toBe(9876543210);
+    });
+
+    it('maps the full Han digit range', () => {
+      expect(parseNumber('九八七六五四三二一〇')).toBe(9876543210);
+    });
+
+    it('maps both Han zero forms to 0', () => {
+      expect(parseNumber('零')).toBe(0);
+      expect(parseNumber('〇')).toBe(0);
+    });
+  });
+
+  describe('isNumeralChar', () => {
+    it('accepts a digit from every supported numeral system', () => {
+      // ASCII, Arabic-Indic, Persian, fullwidth, and Han (including both zero forms).
+      for (const char of ['0', '9', '٠', '٩', '۰', '۹', '０', '９', '零', '〇', '九']) {
+        expect(isNumeralChar(char)).toBe(true);
+      }
+    });
+
+    it('rejects non-digit characters', () => {
+      // Separators, signs, and letters must not read as digits, or input validation would
+      // accept unparseable strings.
+      for (const char of ['.', ',', '-', '+', '%', '٫', 'a', ' ']) {
+        expect(isNumeralChar(char)).toBe(false);
+      }
     });
   });
 });

@@ -23,7 +23,7 @@ export const MenuCheckboxItemIndicator = React.forwardRef(function MenuCheckboxI
 
   const indicatorRef = React.useRef<HTMLSpanElement | null>(null);
 
-  const { transitionStatus, setMounted } = useTransitionStatus(item.checked);
+  const { transitionStatus, mounted, setMounted } = useTransitionStatus(item.checked);
 
   useOpenChangeComplete({
     open: item.checked,
@@ -50,7 +50,7 @@ export const MenuCheckboxItemIndicator = React.forwardRef(function MenuCheckboxI
       'aria-hidden': true,
       ...elementProps,
     },
-    enabled: keepMounted || item.checked,
+    enabled: keepMounted || mounted,
   });
 
   return element;

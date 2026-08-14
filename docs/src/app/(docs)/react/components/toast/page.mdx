@@ -78,7 +78,7 @@ The 0th index toast appears at the front.
 ```css title="z-index stacking"
 .Toast {
   z-index: calc(1000 - var(--toast-index));
-  transform: scale(1 - calc(0.1 * var(--toast-index)));
+  transform: scale(calc(max(0, 1 - (var(--toast-index) * 0.1))));
 }
 ```
 
@@ -90,12 +90,15 @@ The `--toast-offset-y` CSS variable can be used to determine the vertical offset
 }
 ```
 
-`<Toast.Content>` is used to hide overflow from taller toasts while the stack is collapsed.
+While the stack is collapsed, each toast's height can be clamped to the frontmost toast's height using the `--toast-frontmost-height` CSS variable, and `<Toast.Content>` is used to hide the content of the toasts behind it.
 The `data-behind` attribute marks content that sits behind the frontmost toast and pairs with the `data-expanded` attribute so the content fades back in when the viewport expands:
 
 ```css title="Collapsed content"
+.Toast {
+  height: var(--toast-frontmost-height, var(--toast-height));
+}
+
 .ToastContent {
-  overflow: hidden;
   transition: opacity 0.25s;
 }
 
@@ -114,8 +117,8 @@ The `--toast-swipe-movement-x` and `--toast-swipe-movement-y` CSS variables are 
 
 ```css title="Swipe offset"
 .Toast {
-  /* @highlight-text "--toast-swipe-movement-x" */
-  transform: scale(1 - calc(0.1 * var(--toast-index))) translateX(var(--toast-swipe-movement-x))
+  transform: scale(calc(max(0, 1 - (var(--toast-index) * 0.1))))
+    translateX(var(--toast-swipe-movement-x)) /* @highlight-text "--toast-swipe-movement-x" */
     /* @highlight-text "--toast-swipe-movement-y" */
     translateY(calc(var(--toast-swipe-movement-y) + (var(--toast-index) * -20%)));
 }
@@ -264,8 +267,8 @@ import { DemoToastDeduplicate } from './demos/deduplicate';
 
 ### Varying heights
 
-Toasts with varying heights are stacked by ensuring that the `<Toast.Content>` element has `overflow: hidden` set, along with all toasts' heights matching the frontmost toast at index 0.
-This prevents taller toasts from overflowing the stack when collapsed.
+Toasts with varying heights are stacked by clamping every toast's height to the frontmost toast at index 0 using the `--toast-frontmost-height` CSS variable, while the `data-behind` attribute hides the content of the toasts behind it.
+Avoid sizing `<Toast.Content>` to the root's height (such as `height: 100%`), as resizing it alongside the root cancels the root's height transition.
 
 import { DemoToastVaryingHeights } from './demos/varying-heights';
 
@@ -443,7 +446,7 @@ See full [`promise` method](#ToastuseToastManager-promise)
 
 [//]: # '@exclude-table-of-contents'
 
-## Additional Types
+## Additional types
 
 <TypesToastAdditional showAdditionalTypes={['toastmanagerupdateoptions']} />
 

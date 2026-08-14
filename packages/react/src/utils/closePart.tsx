@@ -7,7 +7,7 @@ interface ClosePartContextValue {
   register: () => () => void;
 }
 
-const ClosePartContext = React.createContext<ClosePartContextValue | undefined>(undefined);
+export const ClosePartContext = React.createContext<ClosePartContextValue | undefined>(undefined);
 
 export function useClosePartCount() {
   const [closePartCount, setClosePartCount] = React.useState(0);
@@ -26,15 +26,6 @@ export function useClosePartCount() {
     context,
     hasClosePart: closePartCount > 0,
   };
-}
-
-export function ClosePartProvider(props: {
-  value: ClosePartContextValue;
-  children: React.ReactNode;
-}) {
-  const { value, children } = props;
-
-  return <ClosePartContext.Provider value={value}>{children}</ClosePartContext.Provider>;
 }
 
 export function useClosePartRegistration() {

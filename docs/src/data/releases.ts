@@ -9,9 +9,19 @@ export interface Release {
 export const releases: Release[] = [
   {
     latest: true,
+    version: 'v1.7.0',
+    versionSlug: 'v1-7-0',
+    date: '2026-08-04',
+    highlights: [
+      '`<ScrollArea.Thumb>` adds overscroll feedback on WebKit.',
+      'Reduce bundle size and improve performance across components.',
+      'Many accessibility and bug fixes.',
+    ],
+  },
+  {
     version: 'v1.6.0',
     versionSlug: 'v1-6-0',
-    date: '2026-06-17',
+    date: '2026-06-18',
     highlights: [
       '`OTPField` is now stable.',
       'Align `Accordion` keyboard navigation with APG.',

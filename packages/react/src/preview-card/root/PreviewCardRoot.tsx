@@ -1,7 +1,6 @@
 'use client';
 import * as React from 'react';
 import { fastComponent } from '@base-ui/utils/fastHooks';
-import { EMPTY_OBJECT } from '@base-ui/utils/empty';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useDismiss, FloatingTree } from '../../floating-ui-react';
 import { PreviewCardRootContext, usePreviewCardRootContext } from './PreviewCardContext';
@@ -12,15 +11,14 @@ import {
 import { REASONS } from '../../internals/reasons';
 import { PreviewCardStore } from '../store/PreviewCardStore';
 import {
-  FOCUSABLE_POPUP_PROPS,
   PayloadChildRenderFunction,
+  PopupHandleAttachment,
   useImplicitActiveTrigger,
-  useInitialOpenSync,
+  usePopupRootStore,
   useOpenStateTransitions,
   usePopupInteractionProps,
 } from '../../utils/popups';
 import { PreviewCardHandle } from '../store/PreviewCardHandle';
-import { mergeProps } from '../../merge-props';
 
 function PreviewCardRootComponent<Payload>(props: PreviewCardRoot.Props<Payload>) {
   const {
@@ -35,14 +33,19 @@ function PreviewCardRootComponent<Payload>(props: PreviewCardRoot.Props<Payload>
     children,
   } = props;
 
-  const store = PreviewCardStore.useStore<Payload>(handle?.store, {
-    open: defaultOpen,
-    openProp,
-    activeTriggerId: defaultTriggerIdProp,
-    triggerIdProp,
-  });
-
-  useInitialOpenSync(store, openProp, defaultOpen, defaultTriggerIdProp);
+  const store = usePopupRootStore(
+    (floatingId, nested) =>
+      new PreviewCardStore<Payload>(
+        {
+          open: defaultOpen,
+          openProp,
+          activeTriggerId: defaultTriggerIdProp,
+          triggerIdProp,
+        },
+        floatingId,
+        nested,
+      ),
+  );
 
   store.useControlledProp('openProp', openProp);
   store.useControlledProp('triggerIdProp', triggerIdProp);
@@ -68,20 +71,20 @@ function PreviewCardRootComponent<Payload>(props: PreviewCardRoot.Props<Payload>
     }
   }, [store, activeTriggerId, open]);
 
-  const handleImperativeClose = React.useCallback(() => {
-    store.setOpen(false, createChangeEventDetails(REASONS.imperativeAction));
-  }, [store]);
-
   React.useImperativeHandle(
     actionsRef,
-    () => ({ unmount: forceUnmount, close: handleImperativeClose }),
-    [forceUnmount, handleImperativeClose],
+    () => ({
+      unmount: forceUnmount,
+      close: () => store.setOpen(false, createChangeEventDetails(REASONS.imperativeAction)),
+    }),
+    [forceUnmount, store],
   );
 
   const shouldRenderInteractions = open || mounted;
 
   return (
     <PreviewCardRootContext.Provider value={store as PreviewCardRootContext}>
+      {handle && <PopupHandleAttachment handle={handle} store={store} />}
       {shouldRenderInteractions && <PreviewCardInteractions store={store} />}
       {typeof children === 'function' ? children({ payload }) : children}
     </PreviewCardRootContext.Provider>
@@ -92,17 +95,13 @@ function PreviewCardInteractions<Payload>({ store }: { store: PreviewCardStore<P
   const floatingRootContext = store.useState('floatingRootContext');
 
   const dismiss = useDismiss(floatingRootContext);
-  const activeTriggerProps = dismiss.reference ?? EMPTY_OBJECT;
-  const inactiveTriggerProps = dismiss.trigger ?? EMPTY_OBJECT;
-  const popupProps = React.useMemo(
-    () => mergeProps(FOCUSABLE_POPUP_PROPS, dismiss.floating),
-    [dismiss.floating],
-  );
 
+  // `useDismiss` is not given an `enabled` option, so all three prop bags are always defined.
+  // `dismiss.trigger` is the same object as `dismiss.reference`.
   usePopupInteractionProps(store, {
-    activeTriggerProps,
-    inactiveTriggerProps,
-    popupProps,
+    activeTriggerProps: dismiss.reference!,
+    inactiveTriggerProps: dismiss.trigger!,
+    popupProps: dismiss.floating!,
   });
 
   return null;

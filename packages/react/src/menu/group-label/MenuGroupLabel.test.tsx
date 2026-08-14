@@ -1,5 +1,6 @@
-import { expect } from 'vitest';
-import { screen } from '@mui/internal-test-utils';
+import { afterEach, expect, vi } from 'vitest';
+import * as React from 'react';
+import { act, screen } from '@mui/internal-test-utils';
 import { Menu } from '@base-ui/react/menu';
 import { createRenderer, describeConformance } from '#test-utils';
 import { MenuGroupContext } from '../group/MenuGroupContext';
@@ -9,6 +10,15 @@ const testContext: MenuGroupContext = () => {};
 describe('<Menu.GroupLabel />', () => {
   const { render } = createRenderer();
 
+  afterEach(async () => {
+    await act(
+      () =>
+        new Promise<void>((resolve) => {
+          requestAnimationFrame(() => resolve());
+        }),
+    );
+  });
+
   describeConformance(<Menu.GroupLabel />, () => ({
     render: (node) => {
       return render(
@@ -17,6 +27,18 @@ describe('<Menu.GroupLabel />', () => {
     },
     refInstanceof: window.HTMLDivElement,
   }));
+
+  it('throws when rendered outside Menu.Group or Menu.RadioGroup', async () => {
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+    try {
+      await expect(render(<Menu.GroupLabel />)).rejects.toThrow(
+        'Base UI: MenuGroupContext is missing. Menu group parts must be used within <Menu.Group> or <Menu.RadioGroup>.',
+      );
+    } finally {
+      errorSpy.mockRestore();
+    }
+  });
 
   describe('a11y attributes', () => {
     it('should have the role `presentation`', async () => {
@@ -137,6 +159,44 @@ describe('<Menu.GroupLabel />', () => {
       const groupLabel = screen.getByText('Test group');
 
       expect(radioGroup).toHaveAttribute('aria-labelledby', groupLabel.id);
+    });
+
+    it('does not let an older label cleanup clear a newer label', async () => {
+      function Test({ labels }: { labels: 'old' | 'both' | 'new' }) {
+        return (
+          <Menu.Root open>
+            <Menu.Portal>
+              <Menu.Positioner>
+                <Menu.Popup>
+                  <Menu.Group>
+                    {labels !== 'new' && (
+                      <Menu.GroupLabel key="old" id="old-label">
+                        Old
+                      </Menu.GroupLabel>
+                    )}
+                    {labels !== 'old' && (
+                      <Menu.GroupLabel key="new" id="new-label">
+                        New
+                      </Menu.GroupLabel>
+                    )}
+                  </Menu.Group>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
+          </Menu.Root>
+        );
+      }
+
+      const { rerender } = await render(<Test labels="old" />);
+
+      const group = screen.getByRole('group');
+      expect(group).toHaveAttribute('aria-labelledby', 'old-label');
+
+      await rerender(<Test labels="both" />);
+      expect(group).toHaveAttribute('aria-labelledby', 'new-label');
+
+      await rerender(<Test labels="new" />);
+      expect(group).toHaveAttribute('aria-labelledby', 'new-label');
     });
   });
 });

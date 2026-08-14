@@ -1,14 +1,34 @@
 /**
+ * Development-only reverse index of element to registered id, keyed by the owning map.
+ *
+ * Registration would otherwise have to scan every entry to detect an element claimed by two ids,
+ * making the mount of many triggers sharing one handle quadratic. Kept module-scoped, lazily
+ * initialized, and read only from `process.env.NODE_ENV` guards so production builds drop it along
+ * with the checks.
+ */
+let devElementIdsByMap: WeakMap<PopupTriggerMap, WeakMap<Element, string>> | undefined;
+
+function getDevElementIds(map: PopupTriggerMap) {
+  devElementIdsByMap ??= new WeakMap();
+
+  let elementIds = devElementIdsByMap.get(map);
+  if (!elementIds) {
+    elementIds = new WeakMap();
+    devElementIdsByMap.set(map, elementIds);
+  }
+  return elementIds;
+}
+
+/**
  * Data structure to keep track of popup trigger elements by their IDs.
- * Uses both a set of Elements and a map of IDs to Elements for efficient lookups.
+ *
+ * Element lookups iterate the id map rather than maintaining a parallel Set. Registration is O(1),
+ * while `hasElement` and `hasMatchingElement` are linear in the number of triggers.
  */
 export class PopupTriggerMap {
-  private elementsSet: Set<Element>;
-
   private idMap: Map<string, Element>;
 
   constructor() {
-    this.elementsSet = new Set();
     this.idMap = new Map();
   }
 
@@ -18,54 +38,63 @@ export class PopupTriggerMap {
    * Note: The provided element is assumed to not be registered under multiple IDs.
    */
   public add(id: string, element: Element) {
-    const existingElement = this.idMap.get(id);
-    if (existingElement === element) {
-      return;
-    }
-
-    if (existingElement !== undefined) {
-      // We assume that the same element won't be registered under multiple ids.
-      // This is safe considering how useTriggerRegistration is implemented.
-      this.elementsSet.delete(existingElement);
-    }
-
-    this.elementsSet.add(element);
-    this.idMap.set(id, element);
-
     if (process.env.NODE_ENV !== 'production') {
-      if (this.elementsSet.size !== this.idMap.size) {
+      const elementIds = getDevElementIds(this);
+
+      const existingId = elementIds.get(element);
+      if (existingId !== undefined && existingId !== id) {
         // TODO: fix mui/no-guarded-throw
         // eslint-disable-next-line mui/no-guarded-throw
         throw new Error(
           'Base UI: A trigger element cannot be registered under multiple IDs in PopupTriggerMap.',
         );
       }
+
+      // Reusing an id for a different element evicts the previous one, so it must lose its claim
+      // on the id or a later registration under a different id would be reported as a duplicate.
+      const previousElement = this.idMap.get(id);
+      if (previousElement !== undefined && previousElement !== element) {
+        elementIds.delete(previousElement);
+      }
+
+      elementIds.set(element, id);
     }
+
+    this.idMap.set(id, element);
   }
 
   /**
    * Removes the trigger element with the given ID.
    */
   public delete(id: string) {
-    const element = this.idMap.get(id);
-    if (element) {
-      this.elementsSet.delete(element);
-      this.idMap.delete(id);
+    if (process.env.NODE_ENV !== 'production') {
+      const element = this.idMap.get(id);
+      if (element !== undefined) {
+        devElementIdsByMap?.get(this)?.delete(element);
+      }
     }
+
+    this.idMap.delete(id);
   }
 
   /**
    * Whether the given element is registered as a trigger.
    */
   public hasElement(element: Element): boolean {
-    return this.elementsSet.has(element);
+    for (const registered of this.idMap.values()) {
+      if (registered === element) {
+        return true;
+      }
+    }
+
+    return false;
   }
 
   /**
    * Whether there is a registered trigger element matching the given predicate.
    */
   public hasMatchingElement(predicate: (el: Element) => boolean): boolean {
-    for (const element of this.elementsSet) {
+    for (const element of this.idMap.values()) {
       if (predicate(element)) {
         return true;
       }
@@ -92,7 +121,7 @@ export class PopupTriggerMap {
    * Returns an iterable of all registered trigger elements.
    */
   public elements(): IterableIterator<Element> {
-    return this.elementsSet.values();
+    return this.idMap.values();
   }
 
   /**

@@ -137,7 +137,7 @@ Renders a `<span>` element.
 | data-filled         | -    | Present when the checkbox is checked (when wrapped in Field.Root).             |
 | data-focused        | -    | Present when the checkbox is focused (when wrapped in Field.Root).             |
 | data-indeterminate  | -    | Present when the checkbox is in an indeterminate state.                        |
-| data-starting-style | -    | Present when the checkbox indicator is animating in.                           |
+| data-starting-style | -    | Present when the checkbox indicator begins animating in.                       |
 | data-ending-style   | -    | Present when the checkbox indicator is animating out.                          |
 
 ### Indicator.Props

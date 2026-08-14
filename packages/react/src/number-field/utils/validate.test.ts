@@ -1,5 +1,5 @@
 import { expect } from 'vitest';
-import { toValidatedNumber, removeFloatingPointErrors } from './validate';
+import { toValidatedNumber as toValidatedNumberImpl, removeFloatingPointErrors } from './validate';
 
 const min = Number.MIN_SAFE_INTEGER;
 const max = Number.MAX_SAFE_INTEGER;
@@ -14,6 +14,31 @@ const defaultOptions = {
   small: false,
   clamp: true,
 } as const;
+
+// Adapter over the positional signature so fixtures can spread option objects.
+type ValidateOptions = {
+  step: number | undefined;
+  minWithDefault: number;
+  maxWithDefault: number;
+  minWithZeroDefault: number;
+  format: Parameters<typeof toValidatedNumberImpl>[5];
+  snapOnStep: boolean;
+  small: boolean;
+  clamp: boolean;
+};
+
+const toValidatedNumber = (value: number | null, options: ValidateOptions) =>
+  toValidatedNumberImpl(
+    value,
+    options.step,
+    options.minWithDefault,
+    options.maxWithDefault,
+    options.minWithZeroDefault,
+    options.format,
+    options.snapOnStep,
+    options.small,
+    options.clamp,
+  );
 
 describe('NumberField validate', () => {
   describe('removeFloatingPointErrors', () => {
@@ -46,6 +71,20 @@ describe('NumberField validate', () => {
       // real precision.
       expect(removeFloatingPointErrors(1000000.1 + 0.2)).toBe(1000000.1 + 0.2);
       expect(removeFloatingPointErrors(1000000.1 + 0.2)).not.toBe(1000000.3);
+    });
+
+    it('returns non-finite values untouched', () => {
+      expect(removeFloatingPointErrors(Infinity)).toBe(Infinity);
+      expect(removeFloatingPointErrors(-Infinity)).toBe(-Infinity);
+      expect(removeFloatingPointErrors(NaN)).toBeNaN();
+    });
+
+    it('rounds compact notation against its standard equivalent', () => {
+      // `compact` would format 1234.567 as "1.2K", which cannot round-trip back to a number, so
+      // the rounding is resolved with standard notation instead.
+      expect(
+        removeFloatingPointErrors(1234.567, { notation: 'compact', maximumFractionDigits: 1 }),
+      ).toBe(1234.6);
     });
 
     it('returns 0.3 for 0.2 + 0.1 with maximumFractionDigits', () => {
@@ -700,6 +739,23 @@ describe('NumberField validate', () => {
         }),
       ).toBe(-0.2);
     });
+  });
+
+  it('keeps rounded out-of-range values when clamping is disabled', () => {
+    // `allowOutOfRange` text entry rounds to the format's precision but must stay outside the
+    // range so native overflow validation can report it.
+    expect(
+      toValidatedNumber(12.349, {
+        ...defaultOptions,
+        step: undefined,
+        snapOnStep: false,
+        format: { maximumFractionDigits: 2 },
+        minWithDefault: 0,
+        minWithZeroDefault: 0,
+        maxWithDefault: 10,
+        clamp: false,
+      }),
+    ).toBe(12.35);
   });
 
   it('clamps to a non-step-aligned max after snapping so the boundary is reachable', () => {

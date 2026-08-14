@@ -10,6 +10,10 @@ import { DemoContextMenuHero } from './demos/hero';
 
 <DemoContextMenuHero />
 
+## Usage guidelines
+
+- **Use context menus as an enhancement**: Don't make a context menu the only way to perform actions. Users may not discover or be able to open a context menu, especially on touch devices or with assistive technology. Always provide visible controls for the actions that are available in the context menu.
+
 ## Anatomy
 
 Import the components and place them together:
@@ -54,6 +58,14 @@ import { ContextMenu } from '@base-ui/react/context-menu';
 ## Examples
 
 [Menu](/react/components/menu#examples) displays additional demos, many of which apply to the context menu as well.
+
+### Using with Menu
+
+A context menu should supplement a primary way to perform the same actions. This image card exposes actions through a visible menu button and reuses them in the context menu for right-click and long-press users.
+
+import { DemoContextMenuWithMenu } from './demos/with-menu';
+
+<DemoContextMenuWithMenu />
 
 ### Nested menu
 

@@ -1,11 +1,13 @@
 import { describe, expect, it, vi } from 'vitest';
 import * as React from 'react';
-import { act, render, waitFor } from '@testing-library/react';
+import { act, render, screen, waitFor } from '@testing-library/react';
+import { flushMicrotasks } from '@mui/internal-test-utils';
 import { ReactStore } from '@base-ui/utils/store';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import {
   applyPopupOpenChange,
   createInitialPopupStoreState,
+  createPopupOpenState,
   PopupStoreContext,
   PopupStoreState,
   PopupStoreSelectors,
@@ -30,14 +32,15 @@ type TestStore = ReactStore<
 };
 
 function createStore() {
+  const triggerElements = new PopupTriggerMap();
   const store = new ReactStore<
     PopupStoreState<unknown>,
     PopupStoreContext<unknown>,
     PopupStoreSelectors
   >(
-    createInitialPopupStoreState(),
+    createInitialPopupStoreState(triggerElements),
     {
-      triggerElements: new PopupTriggerMap(),
+      triggerElements,
       popupRef: React.createRef<HTMLElement | null>(),
       onOpenChangeComplete: undefined,
     },
@@ -64,6 +67,7 @@ function TestTrigger({
 }) {
   const register = useTriggerRegistration(id, store);
 
+  // `register` is stable, so the caller owns migration by keying this effect on `[store, id]`.
   useIsoLayoutEffect(() => {
     for (let i = 0; i < repeat; i += 1) {
       register(element);
@@ -71,7 +75,7 @@ function TestTrigger({
     return () => {
       register(null);
     };
-  }, [register, repeat, element]);
+  }, [register, repeat, element, store, id]);
 
   return null;
 }
@@ -129,6 +133,39 @@ function ImplicitActiveTriggerTest({ store }: { store: TestStore }) {
 function CloseOnActiveTriggerUnmountTest({ store }: { store: TestStore }) {
   useImplicitActiveTrigger(store, { closeOnActiveTriggerUnmount: true });
   return null;
+}
+
+function HideOnLayout({
+  setVisible,
+}: {
+  setVisible: React.Dispatch<React.SetStateAction<boolean>>;
+}) {
+  useIsoLayoutEffect(() => {
+    setVisible(false);
+  }, [setVisible]);
+  return null;
+}
+
+function ImplicitTriggerUnmountTest({
+  store,
+  element,
+}: {
+  store: TestStore;
+  element: HTMLElement;
+}) {
+  const [triggerVisible, setTriggerVisible] = React.useState(true);
+  useImplicitActiveTrigger(store, { closeOnActiveTriggerUnmount: true });
+
+  if (!triggerVisible) {
+    return null;
+  }
+
+  return (
+    <React.Fragment>
+      <TestTrigger id="trigger" store={store} element={element} />
+      <HideOnLayout setVisible={setTriggerVisible} />
+    </React.Fragment>
+  );
 }
 
 function PopupInteractionPropsTest({
@@ -238,6 +275,107 @@ describe('useTriggerRegistration', () => {
     expect(spy).not.toHaveBeenCalled();
   });
 
+  it('returns a stable callback that unregisters from the store it registered in', () => {
+    const first = createStore();
+    const second = createStore();
+    const element = document.createElement('button');
+    let registerRef: ((element: Element | null) => void) | null = null;
+
+    function Probe({ store }: { store: ReturnType<typeof createStore> }) {
+      const register = useTriggerRegistration('trigger', store);
+      registerRef = register;
+
+      useIsoLayoutEffect(() => {
+        register(element);
+        return () => register(null);
+      }, [register, store]);
+
+      return null;
+    }
+
+    const { rerender, unmount } = render(<Probe store={first} />);
+    const initialRegister = registerRef as unknown as (element: Element | null) => void;
+
+    expect(first.context.triggerElements.getById('trigger')).toBe(element);
+
+    rerender(<Probe store={second} />);
+
+    expect(registerRef).toBe(initialRegister);
+    expect(first.context.triggerElements.getById('trigger')).toBeUndefined();
+    expect(second.context.triggerElements.getById('trigger')).toBe(element);
+
+    // A retained callback from before the migration must still act on the current store.
+    const replacement = document.createElement('button');
+    act(() => {
+      initialRegister(null);
+      initialRegister(replacement);
+    });
+
+    expect(first.context.triggerElements.getById('trigger')).toBeUndefined();
+    expect(second.context.triggerElements.getById('trigger')).toBe(replacement);
+
+    unmount();
+    expect(second.context.triggerElements.getById('trigger')).toBeUndefined();
+  });
+
+  describe('callers that pass the callback straight into a ref', () => {
+    // Mirrors `Drawer.SwipeArea`: the callback is merged into the rendered element's ref, and the
+    // migration effect is what re-registers it when the id changes.
+    function RefOnlyTrigger({ id, store }: { id: string | undefined; store: TestStore }) {
+      const register = useTriggerRegistration(id, store);
+      const elementRef = React.useRef<HTMLButtonElement | null>(null);
+
+      useIsoLayoutEffect(() => {
+        register(elementRef.current);
+        return () => register(null);
+      }, [register, id, store]);
+
+      const handleRef = React.useCallback(
+        (element: HTMLButtonElement | null) => {
+          elementRef.current = element;
+          register(element);
+        },
+        [register],
+      );
+
+      return <button type="button" data-testid="trigger" ref={handleRef} />;
+    }
+
+    it('registers once the id resolves after the first commit', () => {
+      const store = createStore();
+
+      const { rerender } = render(<RefOnlyTrigger id={undefined} store={store} />);
+      const element = screen.getByTestId('trigger');
+
+      expect(store.context.triggerElements.size).toBe(0);
+
+      // React 17's `useId` fallback returns `undefined` on the first render and a real id after an
+      // effect commits.
+      rerender(<RefOnlyTrigger id="trigger" store={store} />);
+
+      expect(store.context.triggerElements.getById('trigger')).toBe(element);
+      expect(store.context.triggerElements.size).toBe(1);
+    });
+
+    it('follows an id change', () => {
+      const store = createStore();
+
+      const { rerender, unmount } = render(<RefOnlyTrigger id="first" store={store} />);
+      const element = screen.getByTestId('trigger');
+
+      expect(store.context.triggerElements.getById('first')).toBe(element);
+
+      rerender(<RefOnlyTrigger id="second" store={store} />);
+
+      expect(store.context.triggerElements.getById('first')).toBeUndefined();
+      expect(store.context.triggerElements.getById('second')).toBe(element);
+      expect(store.context.triggerElements.size).toBe(1);
+
+      unmount();
+      expect(store.context.triggerElements.size).toBe(0);
+    });
+  });
+
   it('keeps triggerCount reactive while the popup is open', () => {
     const store = createStore();
     const element = document.createElement('button');
@@ -277,6 +415,24 @@ describe('useTriggerRegistration', () => {
     expect(store.state.activeTriggerElement).toBe(element);
   });
 
+  it('closes when an implicitly claimed trigger unmounts during the claim commit', async () => {
+    const store = createStore();
+    const element = document.createElement('button');
+    store.set('open', true);
+
+    render(<ImplicitTriggerUnmountTest store={store} element={element} />);
+
+    await waitFor(() => {
+      expect(store.setOpen).toHaveBeenCalledTimes(1);
+    });
+
+    expect(store.context.triggerElements.getById('trigger')).toBeUndefined();
+    expect(store.state.activeTriggerId).toBe(null);
+    expect(store.state.activeTriggerElement).toBe(null);
+    expect(store.setOpen).toHaveBeenCalledWith(false, expect.objectContaining({ reason: 'none' }));
+    expect(store.state.open).toBe(false);
+  });
+
   it('closes when the active trigger unregisters while open', async () => {
     const store = createStore();
     const first = document.createElement('button');
@@ -292,7 +448,7 @@ describe('useTriggerRegistration', () => {
       <React.Fragment>
         <TestTrigger key="first" id="first" store={store} element={first} />
         <TestTrigger key="second" id="second" store={store} element={second} />
-        <CloseOnActiveTriggerUnmountTest store={store} />
+        <CloseOnActiveTriggerUnmountTest key="root" store={store} />
       </React.Fragment>,
     );
 
@@ -303,7 +459,7 @@ describe('useTriggerRegistration', () => {
     rerender(
       <React.Fragment>
         <TestTrigger key="second" id="second" store={store} element={second} />
-        <CloseOnActiveTriggerUnmountTest store={store} />
+        <CloseOnActiveTriggerUnmountTest key="root" store={store} />
       </React.Fragment>,
     );
 
@@ -316,6 +472,121 @@ describe('useTriggerRegistration', () => {
     expect(store.state.activeTriggerElement).toBe(null);
     expect(store.setOpen).toHaveBeenCalledWith(false, expect.objectContaining({ reason: 'none' }));
     expect(store.state.open).toBe(false);
+  });
+
+  it.each([
+    ['a different unresolved id', 'second'],
+    ['no active trigger', null],
+  ] as const)(
+    'keeps the popup open when ownership returns to a pending trigger after %s',
+    async (_description, pendingTriggerId) => {
+      const store = createStore();
+      const first = document.createElement('button');
+      const replacement = document.createElement('button');
+
+      store.update({
+        open: true,
+        activeTriggerId: 'first',
+        activeTriggerElement: first,
+      });
+
+      const { rerender } = render([
+        <TestTrigger key="trigger" id="first" store={store} element={first} />,
+        <CloseOnActiveTriggerUnmountTest key="root" store={store} />,
+      ]);
+
+      act(() => {
+        store.context.triggerElements.delete('first');
+        store.update({
+          activeTriggerId: pendingTriggerId,
+          activeTriggerElement: null,
+          triggerCount: 0,
+        });
+      });
+
+      rerender([<CloseOnActiveTriggerUnmountTest key="root" store={store} />]);
+
+      act(() => {
+        store.update({
+          activeTriggerId: 'first',
+          activeTriggerElement: null,
+        });
+      });
+
+      await flushMicrotasks();
+
+      expect(store.state.open).toBe(true);
+      expect(store.setOpen).not.toHaveBeenCalled();
+
+      rerender([
+        <TestTrigger key="trigger" id="first" store={store} element={replacement} />,
+        <CloseOnActiveTriggerUnmountTest key="root" store={store} />,
+      ]);
+
+      expect(store.context.triggerElements.getById('first')).toBe(replacement);
+      expect(store.state.open).toBe(true);
+      expect(store.setOpen).not.toHaveBeenCalled();
+    },
+  );
+
+  it('closes when the active trigger unmounts after registering in a count-neutral commit', async () => {
+    const store = createStore();
+    const first = document.createElement('button');
+    const second = document.createElement('button');
+
+    store.update({
+      open: true,
+      // The `activeTriggerElement` selector resolves to null while unmounted, so reflect the
+      // real open-popup state for the element subscription to observe registration.
+      mounted: true,
+      activeTriggerId: 'first',
+      activeTriggerElement: first,
+    });
+
+    const { rerender } = render(
+      <React.Fragment>
+        <TestForwardedTrigger key="first" id="first" store={store} element={first} />
+        <CloseOnActiveTriggerUnmountTest key="root" store={store} />
+      </React.Fragment>,
+    );
+
+    // Ownership moves to a trigger that has not registered yet: the popup stays open (pending).
+    act(() => {
+      store.update({ activeTriggerId: 'second', activeTriggerElement: null });
+    });
+
+    await flushMicrotasks();
+
+    expect(store.state.open).toBe(true);
+    expect(store.setOpen).not.toHaveBeenCalled();
+
+    // Swap "first" out and "second" in within one commit, so the trigger count nets out
+    // unchanged and only the forwarded active trigger element reruns the reconciliation.
+    rerender(
+      <React.Fragment>
+        <TestForwardedTrigger key="second" id="second" store={store} element={second} />
+        <CloseOnActiveTriggerUnmountTest key="root" store={store} />
+      </React.Fragment>,
+    );
+
+    await flushMicrotasks();
+
+    expect(store.context.triggerElements.getById('second')).toBe(second);
+    expect(store.state.activeTriggerElement).toBe(second);
+    expect(store.state.open).toBe(true);
+    expect(store.setOpen).not.toHaveBeenCalled();
+
+    // The now-registered active trigger genuinely unmounts: the popup must close.
+    rerender(<CloseOnActiveTriggerUnmountTest key="root" store={store} />);
+
+    await waitFor(() => {
+      expect(store.setOpen).toHaveBeenCalledTimes(1);
+    });
+
+    expect(store.setOpen).toHaveBeenCalledWith(false, expect.objectContaining({ reason: 'none' }));
+    expect(store.state.open).toBe(false);
+    expect(store.state.activeTriggerId).toBe(null);
+    expect(store.state.activeTriggerElement).toBe(null);
   });
 
   it('keeps the popup open when the active trigger is replaced with the same id', async () => {
@@ -350,15 +621,78 @@ describe('useTriggerRegistration', () => {
       </React.Fragment>,
     );
 
-    await act(async () => {
-      await Promise.resolve();
-    });
+    await flushMicrotasks();
 
     expect(store.context.triggerElements.getById('first')).toBe(replacement);
     expect(store.context.triggerElements.getById('second')).toBe(second);
     expect(store.state.triggerCount).toBe(2);
     expect(store.state.activeTriggerId).toBe('first');
     expect(store.state.activeTriggerElement).toBe(replacement);
+    expect(store.state.open).toBe(true);
+    expect(store.setOpen).not.toHaveBeenCalled();
+  });
+
+  it('keeps the popup open when the active trigger element is registered with another id', async () => {
+    const store = createStore();
+    const element = document.createElement('button');
+    element.id = 'dom-id';
+
+    store.update({
+      open: true,
+      activeTriggerId: 'dom-id',
+      activeTriggerElement: element,
+    });
+
+    render(
+      <React.Fragment>
+        <TestTrigger id="registered-id" store={store} element={element} />
+        <CloseOnActiveTriggerUnmountTest store={store} />
+      </React.Fragment>,
+    );
+
+    await flushMicrotasks();
+
+    expect(store.state.triggerCount).toBe(1);
+    expect(store.state.activeTriggerId).toBe('registered-id');
+    expect(store.state.activeTriggerElement).toBe(element);
+    expect(store.state.open).toBe(true);
+    expect(store.setOpen).not.toHaveBeenCalled();
+  });
+
+  it('reassociates the active trigger when ownership moves to another rendered-id trigger while open', async () => {
+    const store = createStore();
+    const first = document.createElement('button');
+    const second = document.createElement('button');
+    second.id = 'dom-id-2';
+
+    store.update({
+      open: true,
+      activeTriggerId: 'registered-1',
+      activeTriggerElement: first,
+    });
+
+    render(
+      <React.Fragment>
+        <TestTrigger id="registered-1" store={store} element={first} />
+        <TestTrigger id="registered-2" store={store} element={second} />
+        <CloseOnActiveTriggerUnmountTest store={store} />
+      </React.Fragment>,
+    );
+
+    await flushMicrotasks();
+
+    expect(store.state.activeTriggerId).toBe('registered-1');
+
+    // A handoff to the second trigger updates the active id from its DOM id (as
+    // `getPopupOpenState` does), without changing `open` or `triggerCount`.
+    act(() => {
+      store.update({ activeTriggerId: 'dom-id-2', activeTriggerElement: second });
+    });
+
+    await flushMicrotasks();
+
+    expect(store.state.activeTriggerId).toBe('registered-2');
+    expect(store.state.activeTriggerElement).toBe(second);
     expect(store.state.open).toBe(true);
     expect(store.setOpen).not.toHaveBeenCalled();
   });
@@ -493,6 +827,38 @@ describe('usePopupInteractionProps', () => {
   });
 });
 
+describe('getPopupOpenState', () => {
+  it('clears a previous unmount-prevention request when opening', () => {
+    const state = createInitialPopupStoreState(new PopupTriggerMap());
+    state.preventUnmountingOnClose = true;
+
+    const nextState = createPopupOpenState(state, true, undefined);
+
+    expect(nextState.preventUnmountingOnClose).toBe(false);
+    expect(state.preventUnmountingOnClose).toBe(true);
+  });
+
+  it('sets the unmount-prevention request when closing', () => {
+    const state = createInitialPopupStoreState(new PopupTriggerMap());
+
+    const nextState = createPopupOpenState(state, false, undefined, true);
+
+    expect(nextState.preventUnmountingOnClose).toBe(true);
+  });
+
+  it('preserves the active trigger when closing without a trigger', () => {
+    const state = createInitialPopupStoreState(new PopupTriggerMap());
+    const trigger = document.createElement('button');
+    state.activeTriggerId = 'trigger-id';
+    state.activeTriggerElement = trigger;
+
+    const nextState = createPopupOpenState(state, false, undefined);
+
+    expect(nextState.activeTriggerId).toBe('trigger-id');
+    expect(nextState.activeTriggerElement).toBe(trigger);
+  });
+});
+
 describe('applyPopupOpenChange', () => {
   type OpenChangeState = PopupStoreState<unknown> & {
     instantType?: 'delay' | 'dismiss' | 'focus' | undefined;
@@ -502,23 +868,29 @@ describe('applyPopupOpenChange', () => {
 
   function createOpenChangeStore() {
     const order: string[] = [];
-    const { floatingRootContext } = createInitialPopupStoreState();
+    const state: OpenChangeState = {
+      ...createInitialPopupStoreState(new PopupTriggerMap()),
+      instantType: undefined,
+      openChangeReason: undefined,
+    };
 
     const dispatchOpenChange = vi
-      .spyOn(floatingRootContext, 'dispatchOpenChange')
+      .spyOn(state.floatingRootContext, 'dispatchOpenChange')
       .mockImplementation(() => {
         order.push('dispatchOpenChange');
       });
     const onOpenChange = vi.fn((_open: boolean, _details: BaseUIChangeEventDetails<string>) => {
       order.push('onOpenChange');
     });
-    const update = vi.fn((_state: Partial<OpenChangeState>) => {
-      order.push('update');
-    });
+    const update = vi.fn(
+      <const Key extends keyof OpenChangeState>(_state: Pick<OpenChangeState, Key>) => {
+        order.push('update');
+      },
+    );
 
     const store = {
       context: { onOpenChange },
-      state: { floatingRootContext },
+      state,
       update,
     };
 
@@ -536,7 +908,7 @@ describe('applyPopupOpenChange', () => {
       order.push('onBeforeDispatch');
     });
 
-    applyPopupOpenChange<OpenChangeState, BaseUIChangeEventDetails<string>>(store, true, details, {
+    applyPopupOpenChange(store, true, details, {
       onBeforeDispatch,
     });
 
@@ -553,12 +925,7 @@ describe('applyPopupOpenChange', () => {
     });
     const onBeforeDispatch = vi.fn();
 
-    applyPopupOpenChange<OpenChangeState, BaseUIChangeEventDetails<string>>(
-      store,
-      true,
-      createDetails(REASONS.triggerPress),
-      { onBeforeDispatch },
-    );
+    applyPopupOpenChange(store, true, createDetails(REASONS.triggerPress), { onBeforeDispatch });
 
     expect(onOpenChange).toHaveBeenCalledTimes(1);
     expect(onBeforeDispatch).not.toHaveBeenCalled();
@@ -569,15 +936,10 @@ describe('applyPopupOpenChange', () => {
   it('merges extraState into the update with `open` always reflecting nextOpen', () => {
     const { store, update } = createOpenChangeStore();
 
-    applyPopupOpenChange<OpenChangeState, BaseUIChangeEventDetails<string>>(
-      store,
-      true,
-      createDetails(REASONS.triggerFocus),
-      {
-        // `open: false` here must be overridden by `nextOpen` (true).
-        extraState: { open: false, openChangeReason: REASONS.triggerFocus },
-      },
-    );
+    applyPopupOpenChange(store, true, createDetails(REASONS.triggerFocus), {
+      // `open: false` here must be overridden by `nextOpen` (true).
+      extraState: { open: false, openChangeReason: REASONS.triggerFocus },
+    });
 
     const updatedState = update.mock.calls[0][0];
     expect(updatedState.open).toBe(true);
@@ -586,45 +948,25 @@ describe('applyPopupOpenChange', () => {
 
   it('maps the change reason to instantType', () => {
     const focusStore = createOpenChangeStore();
-    applyPopupOpenChange<OpenChangeState, BaseUIChangeEventDetails<string>>(
-      focusStore.store,
-      true,
-      createDetails(REASONS.triggerFocus),
-    );
+    applyPopupOpenChange(focusStore.store, true, createDetails(REASONS.triggerFocus));
     expect(focusStore.update.mock.calls[0][0].instantType).toBe('focus');
 
     const pressStore = createOpenChangeStore();
-    applyPopupOpenChange<OpenChangeState, BaseUIChangeEventDetails<string>>(
-      pressStore.store,
-      false,
-      createDetails(REASONS.triggerPress),
-    );
+    applyPopupOpenChange(pressStore.store, false, createDetails(REASONS.triggerPress));
     expect(pressStore.update.mock.calls[0][0].instantType).toBe('dismiss');
 
     const escapeStore = createOpenChangeStore();
-    applyPopupOpenChange<OpenChangeState, BaseUIChangeEventDetails<string>>(
-      escapeStore.store,
-      false,
-      createDetails(REASONS.escapeKey),
-    );
+    applyPopupOpenChange(escapeStore.store, false, createDetails(REASONS.escapeKey));
     expect(escapeStore.update.mock.calls[0][0].instantType).toBe('dismiss');
 
     const hoverStore = createOpenChangeStore();
-    applyPopupOpenChange<OpenChangeState, BaseUIChangeEventDetails<string>>(
-      hoverStore.store,
-      true,
-      createDetails(REASONS.triggerHover),
-    );
+    applyPopupOpenChange(hoverStore.store, true, createDetails(REASONS.triggerHover));
     const hoverState = hoverStore.update.mock.calls[0][0];
     expect('instantType' in hoverState).toBe(true);
     expect(hoverState.instantType).toBeUndefined();
 
     const noneStore = createOpenChangeStore();
-    applyPopupOpenChange<OpenChangeState, BaseUIChangeEventDetails<string>>(
-      noneStore.store,
-      true,
-      createDetails(REASONS.none),
-    );
+    applyPopupOpenChange(noneStore.store, true, createDetails(REASONS.none));
     expect('instantType' in noneStore.update.mock.calls[0][0]).toBe(false);
   });
 });

@@ -1,13 +1,32 @@
-import { vi, expect } from 'vitest';
-import { fireEvent, waitFor, screen } from '@mui/internal-test-utils';
-import { createRenderer, describeConformance } from '#test-utils';
+import { afterEach, beforeEach, vi, expect } from 'vitest';
+import { act, fireEvent, waitFor, screen } from '@mui/internal-test-utils';
+import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 import { DirectionProvider } from '@base-ui/react/direction-provider';
 import { Menu } from '@base-ui/react/menu';
+import { SafeReact } from '@base-ui/utils/safeReact';
+import { useMenuRootContext } from '../root/MenuRootContext';
+import type { MenuStore } from '../store/MenuStore';
 
 type TextDirection = 'ltr' | 'rtl';
+const hasCaptureOwnerStack = typeof SafeReact.captureOwnerStack === 'function';
 
 describe('<Menu.SubmenuTrigger />', () => {
   const { render } = createRenderer();
+
+  beforeEach(() => {
+    globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
+  });
+
+  async function waitForAnimationFrame() {
+    await act(
+      () =>
+        new Promise<void>((resolve) => {
+          requestAnimationFrame(() => resolve());
+        }),
+    );
+  }
+
+  afterEach(waitForAnimationFrame);
 
   describeConformance(<Menu.SubmenuTrigger />, () => ({
     refInstanceof: window.HTMLDivElement,
@@ -26,6 +45,62 @@ describe('<Menu.SubmenuTrigger />', () => {
       );
     },
   }));
+
+  it('follows a submenu trigger id change', async () => {
+    const storeRef: { current: MenuStore<unknown> | null } = { current: null };
+
+    function StoreProbe() {
+      storeRef.current = useMenuRootContext().store;
+      return null;
+    }
+
+    function App({ id }: { id: string }) {
+      return (
+        <Menu.Root open>
+          <Menu.Portal>
+            <Menu.Positioner>
+              <Menu.Popup>
+                <Menu.SubmenuRoot>
+                  <StoreProbe />
+                  <Menu.SubmenuTrigger id={id}>More</Menu.SubmenuTrigger>
+                  <Menu.Portal>
+                    <Menu.Positioner>
+                      <Menu.Popup>
+                        <Menu.Item>Monthly</Menu.Item>
+                      </Menu.Popup>
+                    </Menu.Positioner>
+                  </Menu.Portal>
+                </Menu.SubmenuRoot>
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
+        </Menu.Root>
+      );
+    }
+
+    const { setProps } = await render(<App id="first" />);
+
+    const submenuTrigger = screen.getByText('More');
+    expect(storeRef.current!.context.triggerElements.getById('first')).toBe(submenuTrigger);
+
+    await setProps({ id: 'second' });
+
+    expect(storeRef.current!.context.triggerElements.getById('first')).toBeUndefined();
+    expect(storeRef.current!.context.triggerElements.getById('second')).toBe(submenuTrigger);
+    expect(storeRef.current!.context.triggerElements.size).toBe(1);
+  });
+
+  it('throws when rendered outside Menu.SubmenuRoot', async () => {
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+    try {
+      await expect(render(<Menu.SubmenuTrigger />)).rejects.toThrow(
+        'Base UI: <Menu.SubmenuTrigger> must be placed in <Menu.SubmenuRoot>.',
+      );
+    } finally {
+      errorSpy.mockRestore();
+    }
+  });
 
   function TestComponent({ direction = 'ltr' }: { direction: TextDirection }) {
     return (
@@ -209,7 +284,6 @@ describe('<Menu.SubmenuTrigger />', () => {
         .spyOn(console, 'warn')
         .mockName('console.warn')
         .mockImplementation(() => {});
-
       await render(
         <Menu.Root open>
           <Menu.Trigger>Open menu</Menu.Trigger>
@@ -237,6 +311,75 @@ describe('<Menu.SubmenuTrigger />', () => {
           'Base UI: A disabled element was detected on <Menu.SubmenuTrigger>. To properly disable the trigger, use the `disabled` prop on the component instead of setting it on the rendered element.',
         ),
       );
+      expect(warnSpy.mock.lastCall?.[0]).not.toContain('undefined');
+    });
+
+    it.skipIf(!hasCaptureOwnerStack)(
+      'warns without an owner stack when React cannot provide one',
+      async () => {
+        const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+        const ownerStackSpy = vi.spyOn(SafeReact, 'captureOwnerStack').mockReturnValue(null);
+
+        try {
+          await render(
+            <Menu.Root open>
+              <Menu.Portal>
+                <Menu.Positioner>
+                  <Menu.Popup>
+                    <Menu.SubmenuRoot>
+                      <Menu.SubmenuTrigger
+                        nativeButton
+                        render={<button type="button" disabled={true} />}
+                      >
+                        Open submenu
+                      </Menu.SubmenuTrigger>
+                    </Menu.SubmenuRoot>
+                  </Menu.Popup>
+                </Menu.Positioner>
+              </Menu.Portal>
+            </Menu.Root>,
+          );
+
+          expect(warnSpy).toHaveBeenCalledTimes(1);
+          expect(warnSpy).toHaveBeenCalledWith(
+            'Base UI: A disabled element was detected on <Menu.SubmenuTrigger>. To properly disable the trigger, use the `disabled` prop on the component instead of setting it on the rendered element.',
+          );
+        } finally {
+          ownerStackSpy.mockRestore();
+          warnSpy.mockRestore();
+        }
+      },
+    );
+
+    it.skipIf(!isJSDOM)('does not inspect rendered disabled elements in production', async () => {
+      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+      const originalNodeEnv = process.env.NODE_ENV;
+      process.env.NODE_ENV = 'production';
+
+      try {
+        await render(
+          <Menu.Root open>
+            <Menu.Portal>
+              <Menu.Positioner>
+                <Menu.Popup>
+                  <Menu.SubmenuRoot>
+                    <Menu.SubmenuTrigger
+                      nativeButton
+                      render={<button type="button" disabled={true} />}
+                    >
+                      Open submenu
+                    </Menu.SubmenuTrigger>
+                  </Menu.SubmenuRoot>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
+          </Menu.Root>,
+        );
+
+        expect(warnSpy).not.toHaveBeenCalled();
+      } finally {
+        process.env.NODE_ENV = originalNodeEnv;
+      }
     });
   });
 });

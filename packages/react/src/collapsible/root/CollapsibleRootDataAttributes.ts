@@ -10,7 +10,7 @@ export enum CollapsibleRootDataAttributes {
    */
   closed = 'data-closed',
   /**
-   * Present when the collapsible is animating in.
+   * Present when the collapsible begins animating in.
    */
   startingStyle = TransitionStatusDataAttributes.startingStyle,
   /**

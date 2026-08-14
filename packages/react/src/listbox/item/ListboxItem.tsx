@@ -5,8 +5,8 @@ import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
 import { isMouseWithinBounds } from '@base-ui/utils/isMouseWithinBounds';
 import { ownerDocument } from '@base-ui/utils/owner';
+import { activeElement, contains } from '@base-ui/utils/shadowDom';
 import { useTimeout } from '@base-ui/utils/useTimeout';
-import { contains, activeElement } from '../../internals/shadowDom';
 import { useDirection } from '../../internals/direction-context';
 import type {
   BaseUIComponentProps,
@@ -19,11 +19,7 @@ import { useButton } from '../../internals/use-button';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
 import type { StateAttributesMapping } from '../../internals/getStateAttributesProps';
-import {
-  useCompositeListItem,
-  IndexGuessBehavior,
-  scrollIntoViewIfNeeded,
-} from '../../internals/composite';
+import { useCompositeListItem, scrollIntoViewIfNeeded } from '../../internals/composite';
 import { findItemIndex } from '../../internals/itemEquality';
 import { useListboxRootContext } from '../root/ListboxRootContext';
 import { ListboxItemContext } from './ListboxItemContext';
@@ -126,9 +122,9 @@ export const ListboxItem = React.memo(
 
     const textRef = React.useRef<HTMLElement | null>(null);
     const listItem = useCompositeListItem({
+      guess: true,
       label,
       textRef,
-      indexGuessBehavior: IndexGuessBehavior.GuessFromOrder,
     });
 
     const store = useListboxRootContext();

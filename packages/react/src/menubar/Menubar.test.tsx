@@ -1,13 +1,21 @@
 import { afterEach, expect, vi } from 'vitest';
 import * as React from 'react';
 import { act, fireEvent, screen, waitFor } from '@mui/internal-test-utils';
-import { createRenderer, describeConformance, isJSDOM, wait } from '#test-utils';
+import {
+  createRenderer,
+  describeConformance,
+  isJSDOM,
+  resetBrowserPointer,
+  wait,
+} from '#test-utils';
 import { Menubar } from '@base-ui/react/menubar';
 import { Menu } from '@base-ui/react/menu';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
+import { useMenubarContext } from './MenubarContext';
 
 describe('<Menubar />', () => {
-  beforeEach(() => {
+  beforeEach(async () => {
+    await resetBrowserPointer();
     globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
   });
 
@@ -19,6 +27,99 @@ describe('<Menubar />', () => {
     },
     refInstanceof: window.HTMLDivElement,
   }));
+
+  it('throws when the menubar context is missing', async () => {
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+    function ContextConsumer() {
+      useMenubarContext();
+      return null;
+    }
+
+    try {
+      await expect(render(<ContextConsumer />)).rejects.toThrow(
+        'Base UI: MenubarContext is missing. Menubar parts must be placed within <Menubar>.',
+      );
+    } finally {
+      errorSpy.mockRestore();
+    }
+  });
+
+  it('ignores a delayed touch click immediately after focus opens another menu', async () => {
+    const { user } = await render(<ContainedTriggerMenubar />);
+
+    await user.click(screen.getByTestId('file-trigger'));
+    await screen.findByTestId('file-menu');
+
+    const editTrigger = screen.getByTestId('edit-trigger');
+
+    // The focus-open below starts a 300ms wall-clock cooldown during which touch clicks
+    // are ignored. Freeze timers so the cooldown cannot expire before the first click
+    // on a loaded machine, and advance past its expiry explicitly.
+    vi.useFakeTimers();
+    try {
+      await act(async () => {
+        editTrigger.focus();
+      });
+      screen.getByTestId('edit-menu');
+
+      fireEvent(
+        editTrigger,
+        new PointerEvent('click', { bubbles: true, cancelable: true, pointerType: 'touch' }),
+      );
+      expect(screen.queryByTestId('edit-menu')).not.toBe(null);
+
+      await act(async () => {
+        vi.advanceTimersByTime(310);
+      });
+    } finally {
+      vi.useRealTimers();
+    }
+
+    fireEvent(
+      editTrigger,
+      new PointerEvent('click', { bubbles: true, cancelable: true, pointerType: 'touch' }),
+    );
+
+    await waitFor(() => {
+      expect(screen.queryByTestId('edit-menu')).toBe(null);
+    });
+  });
+
+  it('keeps focus on an outside target when a triggerless menubar menu closes', async () => {
+    function TestComponent() {
+      const [open, setOpen] = React.useState(true);
+
+      return (
+        <React.Fragment>
+          <button data-testid="outside" type="button">
+            Outside
+          </button>
+          <Menubar>
+            <Menu.Root open={open} onOpenChange={setOpen}>
+              <Menu.Portal keepMounted>
+                <Menu.Positioner>
+                  <Menu.Popup data-testid="triggerless-menu">
+                    <Menu.Item>Item</Menu.Item>
+                  </Menu.Popup>
+                </Menu.Positioner>
+              </Menu.Portal>
+            </Menu.Root>
+          </Menubar>
+        </React.Fragment>
+      );
+    }
+
+    const { user } = await render(<TestComponent />);
+    const outside = screen.getByTestId('outside');
+
+    await user.click(outside);
+
+    await waitFor(() => {
+      expect(screen.getByTestId('triggerless-menu')).not.toHaveAttribute('data-open');
+    });
+    expect(outside).toHaveFocus();
+  });
 
   // All these tests run for contained, detached and multiple contained triggers.
   // The rendered menubar has the same structure in most cases.
@@ -920,48 +1021,55 @@ describe('<Menubar />', () => {
     it.skipIf(isJSDOM)(
       'correctly opens new menu on hover after clicking on its trigger and entering from hover (#2222)',
       async () => {
-        const { user } = await render(<TestMenubar />);
+        const { userEvent: user } = await import('vitest/browser');
+        const { render: vbrRender, cleanup } = await import('vitest-browser-react');
 
-        const fileTrigger = screen.getByTestId('file-trigger');
-        const editTrigger = screen.getByTestId('edit-trigger');
-        await user.click(fileTrigger);
+        try {
+          await vbrRender(<TestMenubar />);
 
-        await waitFor(() => {
-          expect(screen.queryByTestId('file-menu')).not.toBe(null);
-        });
-        await waitFor(() => {
-          expect(screen.getByRole('menubar')).toHaveAttribute('data-has-submenu-open');
-        });
+          const fileTrigger = screen.getByTestId('file-trigger');
+          const editTrigger = screen.getByTestId('edit-trigger');
+          await user.click(fileTrigger);
 
-        await user.hover(editTrigger);
+          await waitFor(() => {
+            expect(screen.queryByTestId('file-menu')).not.toBe(null);
+          });
+          await waitFor(() => {
+            expect(screen.getByRole('menubar')).toHaveAttribute('data-has-submenu-open');
+          });
 
-        await waitFor(() => {
-          expect(screen.queryByTestId('edit-menu')).not.toBe(null);
-        });
+          await user.hover(editTrigger);
 
-        await user.click(editTrigger);
+          await waitFor(() => {
+            expect(screen.queryByTestId('edit-menu')).not.toBe(null);
+          });
 
-        await waitFor(() => {
-          expect(screen.queryByTestId('edit-menu')).toBe(null);
-        });
-        await waitFor(() => {
-          expect(screen.getByRole('menubar')).not.toHaveAttribute('data-has-submenu-open');
-        });
+          await user.click(editTrigger);
 
-        await user.click(fileTrigger);
+          await waitFor(() => {
+            expect(screen.queryByTestId('edit-menu')).toBe(null);
+          });
+          await waitFor(() => {
+            expect(screen.getByRole('menubar')).not.toHaveAttribute('data-has-submenu-open');
+          });
 
-        await waitFor(() => {
-          expect(screen.queryByTestId('file-menu')).not.toBe(null);
-        });
-        await waitFor(() => {
-          expect(screen.getByRole('menubar')).toHaveAttribute('data-has-submenu-open');
-        });
+          await user.click(fileTrigger);
 
-        await user.hover(editTrigger);
+          await waitFor(() => {
+            expect(screen.queryByTestId('file-menu')).not.toBe(null);
+          });
+          await waitFor(() => {
+            expect(screen.getByRole('menubar')).toHaveAttribute('data-has-submenu-open');
+          });
 
-        await waitFor(() => {
-          expect(screen.queryByTestId('edit-menu')).not.toBe(null);
-        });
+          await user.hover(editTrigger);
+
+          await waitFor(() => {
+            expect(screen.queryByTestId('edit-menu')).not.toBe(null);
+          });
+        } finally {
+          await cleanup();
+        }
       },
     );
 
@@ -982,6 +1090,40 @@ describe('<Menubar />', () => {
         expect(menuItems).toHaveLength(3);
       });
     });
+  });
+
+  it('renders contained top-level portal ownership as an allowed menubar child', async () => {
+    const { user } = await render(<ContainedTriggerMenubar />);
+
+    await user.click(screen.getByTestId('file-trigger'));
+
+    const fileMenu = await screen.findByTestId('file-menu');
+    const fileMenuPortal = fileMenu.closest('[data-base-ui-portal]');
+    const fileMenuPortalId = fileMenuPortal?.id ?? '';
+    const owner = screen.getByRole('menubar').querySelector('span[aria-owns]');
+
+    expect(fileMenuPortalId).not.toBe('');
+    expect(owner).toHaveAttribute('role', 'group');
+    expect(owner).not.toHaveAttribute('aria-hidden');
+    expect(owner).toHaveAttribute('aria-owns', fileMenuPortalId);
+  });
+
+  it('renders detached top-level portal ownership without an accessibility role', async () => {
+    const { user } = await render(<DetachedTriggerMenubar />);
+
+    await user.click(screen.getByTestId('file-trigger'));
+
+    const fileMenu = await screen.findByTestId('file-menu');
+    const fileMenuPortal = fileMenu.closest('[data-base-ui-portal]');
+    const fileMenuPortalId = fileMenuPortal?.id ?? '';
+    const owner = fileMenu.ownerDocument.querySelector('span[aria-owns]');
+
+    expect(fileMenuPortalId).not.toBe('');
+    expect(owner).toHaveAttribute('aria-owns', fileMenuPortalId);
+    // The portal renders outside the menubar, so the `group` workaround would only add a stray
+    // accessible group.
+    expect(screen.getByRole('menubar')).not.toContainElement(owner as HTMLElement | null);
+    expect(owner).not.toHaveAttribute('role');
   });
 
   describe('disabled state', () => {

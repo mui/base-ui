@@ -1,7 +1,7 @@
 'use client';
 import type * as React from 'react';
 import { DialogTrigger } from '../../dialog/trigger/DialogTrigger';
-import type { DialogHandle as DrawerHandle } from '../../dialog/store/DialogHandle';
+import type { DrawerHandle } from '../handle';
 import type { BaseUIComponentProps, NativeButtonProps } from '../../internals/types';
 
 /**

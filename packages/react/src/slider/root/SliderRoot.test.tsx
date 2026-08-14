@@ -87,6 +87,12 @@ describe('<Slider.Root />', () => {
     refInstanceof: window.HTMLDivElement,
   }));
 
+  it('warns when max is not greater than min', async () => {
+    await expect(async () => {
+      await render(<TestSlider defaultValue={10} min={10} max={10} />);
+    }).toWarnDev('Base UI: Slider `max` must be greater than `min`.');
+  });
+
   describe('server-side rendering', () => {
     it('does not link Slider.Label before hydration', () => {
       renderToString(
@@ -242,6 +248,21 @@ describe('<Slider.Root />', () => {
       [root, value, control, track, indicator, thumb].forEach((subcomponent) => {
         expect(subcomponent).toHaveAttribute('data-disabled', '');
       });
+    });
+
+    it.skipIf(!isJSDOM)('explicitly blurs the focused thumb when disabled', async () => {
+      const { setProps } = await render(<TestSlider defaultValue={30} />);
+      const input = screen.getByRole('slider');
+
+      await act(async () => {
+        input.focus();
+      });
+      expect(input).toHaveFocus();
+      const blurSpy = vi.spyOn(input, 'blur');
+
+      await setProps({ disabled: true });
+
+      expect(blurSpy).toHaveBeenCalled();
     });
 
     // TODO: Don't skip once a fix for https://github.com/jsdom/jsdom/issues/3029 is released.
@@ -721,6 +742,14 @@ describe('<Slider.Root />', () => {
       expect(slider).toHaveAttribute('aria-valuenow', '0');
       await user.keyboard(`[${ARROW_LEFT}]`);
       expect(slider).toHaveAttribute('aria-valuenow', '0');
+    });
+
+    it('clamps range values that fall outside the min and max bounds', async () => {
+      await render(<TestRangeSlider defaultValue={[19, 41]} min={20} max={40} />);
+
+      const thumbs = screen.getAllByRole('slider');
+
+      expect(thumbs.map((thumb) => thumb.getAttribute('aria-valuenow'))).toEqual(['20', '40']);
     });
   });
 
@@ -1819,6 +1848,122 @@ describe('<Slider.Root />', () => {
       expect(newValue[2]).not.toBe(60);
     });
 
+    it.skipIf(isJSDOM).each(['thumb drag', 'track press'])(
+      'keeps focus and the active index on the logical thumb after a swap from a %s',
+      async (interaction) => {
+        const handleValueChange = vi.fn();
+        const handleValueCommitted = vi.fn();
+
+        await render(
+          <TestRangeSlider
+            defaultValue={[20, 40]}
+            thumbCollisionBehavior="swap"
+            onValueChange={handleValueChange}
+            onValueCommitted={handleValueCommitted}
+          />,
+        );
+
+        const control = screen.getByTestId('control');
+        const thumbs = screen.getAllByTestId('thumb');
+        const inputs = screen.getAllByRole('slider');
+        vi.spyOn(control, 'getBoundingClientRect').mockImplementation(getHorizontalSliderRect);
+        vi.spyOn(thumbs[0], 'getBoundingClientRect').mockImplementation(() => ({
+          width: 0,
+          height: 0,
+          bottom: 0,
+          left: 20,
+          right: 20,
+          top: 0,
+          x: 20,
+          y: 0,
+          toJSON() {},
+        }));
+        vi.spyOn(thumbs[1], 'getBoundingClientRect').mockImplementation(() => ({
+          width: 0,
+          height: 0,
+          bottom: 0,
+          left: 40,
+          right: 40,
+          top: 0,
+          x: 40,
+          y: 0,
+          toJSON() {},
+        }));
+
+        fireEvent.pointerDown(interaction === 'thumb drag' ? thumbs[0] : control, {
+          pointerId: 1,
+          buttons: 1,
+          clientX: 20,
+        });
+        fireEvent.pointerMove(document.body, { pointerId: 1, buttons: 1, clientX: 70 });
+
+        expect(inputs[1]).toHaveFocus();
+        expect(handleValueChange.mock.lastCall?.[0]).toEqual([40, 70]);
+        expect(handleValueChange.mock.lastCall?.[1].activeThumbIndex).toBe(1);
+
+        fireEvent.pointerUp(document.body, { pointerId: 1, buttons: 0, clientX: 70 });
+
+        expect(handleValueCommitted).toHaveBeenCalledWith(
+          [40, 70],
+          expect.objectContaining({ reason: REASONS.drag }),
+        );
+      },
+    );
+
+    it.skipIf(isJSDOM)(
+      'keeps the original pressed thumb after a canceled swap and commits the next accepted move',
+      async () => {
+        const handleValueChange = vi.fn((value, details) => {
+          if (Array.isArray(value) && value[1] === 70) {
+            details.cancel();
+          }
+        });
+        const handleValueCommitted = vi.fn();
+
+        await render(
+          <TestRangeSlider
+            defaultValue={[20, 40]}
+            thumbCollisionBehavior="swap"
+            onValueChange={handleValueChange}
+            onValueCommitted={handleValueCommitted}
+          />,
+        );
+
+        const control = screen.getByTestId('control');
+        const firstThumb = screen.getAllByTestId('thumb')[0];
+        const firstInput = screen.getAllByRole('slider')[0];
+        vi.spyOn(control, 'getBoundingClientRect').mockImplementation(getHorizontalSliderRect);
+        vi.spyOn(firstThumb, 'getBoundingClientRect').mockImplementation(() => ({
+          width: 0,
+          height: 0,
+          bottom: 0,
+          left: 20,
+          right: 20,
+          top: 0,
+          x: 20,
+          y: 0,
+          toJSON() {},
+        }));
+
+        await act(async () => firstInput.focus());
+        fireEvent.pointerDown(firstThumb, { pointerId: 1, buttons: 1, clientX: 20 });
+        fireEvent.pointerMove(document.body, { pointerId: 1, buttons: 1, clientX: 70 });
+
+        expect(firstInput).toHaveFocus();
+        expect(handleValueChange.mock.lastCall?.[1].activeThumbIndex).toBe(1);
+
+        fireEvent.pointerMove(document.body, { pointerId: 1, buttons: 1, clientX: 30 });
+        fireEvent.pointerUp(document.body, { pointerId: 1, buttons: 0, clientX: 30 });
+
+        expect(handleValueChange.mock.lastCall?.[0]).toEqual([30, 40]);
+        expect(handleValueChange.mock.lastCall?.[1].activeThumbIndex).toBe(0);
+        expect(handleValueCommitted).toHaveBeenCalledWith(
+          [30, 40],
+          expect.objectContaining({ reason: REASONS.drag }),
+        );
+      },
+    );
+
     it.skipIf(isJSDOM)('should fire only when the value changes', async () => {
       const handleValueChange = vi.fn();
       await render(<TestSlider defaultValue={20} onValueChange={handleValueChange} />);
@@ -2664,7 +2809,22 @@ describe('<Slider.Root />', () => {
 
       const value = screen.getByTestId('value');
       const slider = screen.getByRole('slider');
-      expect(value).toHaveTextContent(formatValue(50));
+      expect(value.textContent).toBe(formatValue(50));
+      expect(slider).toHaveAttribute('aria-valuetext', formatValue(50));
+    });
+
+    it('recomputes the thumb aria text when the format option changes', async () => {
+      function formatValue(v: number) {
+        return new Intl.NumberFormat(undefined, USD_NUMBER_FORMAT).format(v);
+      }
+
+      const { setProps } = await render(<TestSlider defaultValue={50} />);
+
+      const slider = screen.getByRole('slider');
+      expect(slider).not.toHaveAttribute('aria-valuetext');
+
+      await setProps({ format: USD_NUMBER_FORMAT });
+
       expect(slider).toHaveAttribute('aria-valuetext', formatValue(50));
     });
 
@@ -2676,7 +2836,7 @@ describe('<Slider.Root />', () => {
       await render(<TestRangeSlider defaultValue={[50, 75]} format={USD_NUMBER_FORMAT} />);
 
       const value = screen.getByTestId('value');
-      expect(value).toHaveTextContent(`${formatValue(50)} – ${formatValue(75)}`);
+      expect(value.textContent).toBe(`${formatValue(50)} – ${formatValue(75)}`);
       const [slider1, slider2] = screen.getAllByRole('slider');
       expect(slider1).toHaveAttribute('aria-valuetext', `${formatValue(50)} start range`);
       expect(slider2).toHaveAttribute('aria-valuetext', `${formatValue(75)} end range`);
@@ -2792,6 +2952,57 @@ describe('<Slider.Root />', () => {
         fireEvent.click(submit);
       });
 
+      it('submits clamped range slider values to onFormSubmit', async () => {
+        const handleSubmit = vi.fn();
+
+        await render(
+          <Form onFormSubmit={handleSubmit}>
+            <Field.Root name="slider">
+              <Slider.Root defaultValue={[19, 41]} min={20} max={40}>
+                <Slider.Control>
+                  <Slider.Thumb />
+                  <Slider.Thumb />
+                </Slider.Control>
+              </Slider.Root>
+            </Field.Root>
+            <button type="submit">Submit</button>
+          </Form>,
+        );
+
+        const submit = screen.getByRole('button');
+        fireEvent.click(submit);
+
+        expect(handleSubmit).toHaveBeenCalledWith(
+          { slider: [20, 40] },
+          expect.objectContaining({ reason: 'none' }),
+        );
+      });
+
+      it('submits a clamped single-thumb slider value to onFormSubmit', async () => {
+        const handleSubmit = vi.fn();
+
+        await render(
+          <Form onFormSubmit={handleSubmit}>
+            <Field.Root name="slider">
+              <Slider.Root defaultValue={5} min={20} max={40}>
+                <Slider.Control>
+                  <Slider.Thumb />
+                </Slider.Control>
+              </Slider.Root>
+            </Field.Root>
+            <button type="submit">Submit</button>
+          </Form>,
+        );
+
+        const submit = screen.getByRole('button');
+        fireEvent.click(submit);
+
+        expect(handleSubmit).toHaveBeenCalledWith(
+          { slider: 20 },
+          expect.objectContaining({ reason: 'none' }),
+        );
+      });
+
       it('submits to an external form when `form` is provided', async () => {
         let submitValue: FormDataEntryValue | null = null;
 
@@ -2891,6 +3102,32 @@ describe('<Slider.Root />', () => {
       fireEvent.change(input, { target: { value: 'value' } });
 
       expect(root).toHaveAttribute('data-dirty', '');
+    });
+
+    it('[data-dirty] with a range value', async () => {
+      await render(
+        <Field.Root>
+          <Slider.Root data-testid="root" defaultValue={[20, 40]}>
+            <Slider.Control>
+              <Slider.Thumb index={0} />
+              <Slider.Thumb index={1} />
+            </Slider.Control>
+          </Slider.Root>
+        </Field.Root>,
+      );
+
+      const root = screen.getByTestId('root');
+      const [, input2] = screen.getAllByRole('slider');
+
+      expect(root).not.toHaveAttribute('data-dirty');
+
+      fireEvent.change(input2, { target: { value: '50' } });
+
+      expect(root).toHaveAttribute('data-dirty', '');
+
+      fireEvent.change(input2, { target: { value: '40' } });
+
+      expect(root).not.toHaveAttribute('data-dirty');
     });
 
     it('[data-focused]', async () => {
@@ -3125,8 +3362,9 @@ describe('<Slider.Root />', () => {
 
       it('receives an array value for range sliders', async () => {
         const validateSpy = vi.fn();
+        const onSubmit = vi.fn((event: React.FormEvent) => event.preventDefault());
         await render(
-          <Form>
+          <Form onSubmit={onSubmit}>
             <Field.Root validate={validateSpy}>
               <Slider.Root defaultValue={[5, 12]}>
                 <Slider.Control>
@@ -3143,6 +3381,7 @@ describe('<Slider.Root />', () => {
         fireEvent.click(screen.getByText('submit'));
         expect(validateSpy.mock.calls.length).toBe(1);
         expect(validateSpy.mock.calls[0][0]).toEqual([5, 12]);
+        expect(onSubmit).toHaveBeenCalledTimes(1);
       });
 
       it('does not call validate on change when validationMode is omitted', async () => {

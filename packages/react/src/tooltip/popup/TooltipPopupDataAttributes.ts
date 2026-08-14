@@ -10,7 +10,7 @@ export enum TooltipPopupDataAttributes {
    */
   closed = CommonPopupDataAttributes.closed,
   /**
-   * Present when the tooltip is animating in.
+   * Present when the tooltip begins animating in.
    */
   startingStyle = CommonPopupDataAttributes.startingStyle,
   /**

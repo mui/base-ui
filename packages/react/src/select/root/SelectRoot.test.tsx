@@ -1,5 +1,6 @@
 import { expect, vi } from 'vitest';
 import * as React from 'react';
+import * as ReactDOM from 'react-dom';
 import { Select } from '@base-ui/react/select';
 import { Popover } from '@base-ui/react/popover';
 import {
@@ -616,6 +617,28 @@ describe('<Select.Root />', () => {
     });
   });
 
+  it('does not dismiss when pressing portalled content inside the popup but outside the list', async () => {
+    const { user } = await render(
+      <Select.Root defaultOpen>
+        <Select.Trigger>Open</Select.Trigger>
+        <Select.Portal>
+          <Select.Positioner>
+            <Select.Popup>
+              <Select.List>
+                <Select.Item value="apple">Apple</Select.Item>
+              </Select.List>
+              {ReactDOM.createPortal(<div>Portalled content</div>, document.body)}
+            </Select.Popup>
+          </Select.Positioner>
+        </Select.Portal>
+      </Select.Root>,
+    );
+
+    await user.click(screen.getByText('Portalled content'));
+
+    expect(screen.getByRole('listbox')).not.toBe(null);
+  });
+
   describe('BaseUIChangeEventDetails', () => {
     it('onOpenChange cancel() prevents opening while uncontrolled', async () => {
       await render(
@@ -677,6 +700,94 @@ describe('<Select.Root />', () => {
 
     await waitFor(() => {
       expect(screen.getByRole('option', { name: 'b' })).toHaveAttribute('data-selected', '');
+    });
+  });
+
+  it('ignores browser autofill in multiple mode', async () => {
+    const handleValueChange = vi.fn();
+
+    await render(
+      <Select.Root multiple name="select" onValueChange={handleValueChange}>
+        <Select.Trigger data-testid="trigger">
+          <Select.Value />
+        </Select.Trigger>
+        <Select.Portal>
+          <Select.Positioner>
+            <Select.Popup>
+              <Select.Item value="a">a</Select.Item>
+              <Select.Item value="b">b</Select.Item>
+            </Select.Popup>
+          </Select.Positioner>
+        </Select.Portal>
+      </Select.Root>,
+    );
+
+    const selectInput = screen.getByRole('textbox', { hidden: true });
+
+    // Autofill only ever writes a single scalar, which can't be meaningfully applied to a
+    // multi-selection, so it must be dropped rather than collapsing the value to one item.
+    fireEvent.change(selectInput, { target: { value: 'b' } });
+    await flushMicrotasks();
+
+    expect(handleValueChange).not.toHaveBeenCalled();
+  });
+
+  it('leaves the value untouched when autofill matches no item', async () => {
+    const handleValueChange = vi.fn();
+
+    await render(
+      <Select.Root name="select" defaultValue="a" onValueChange={handleValueChange}>
+        <Select.Trigger data-testid="trigger">
+          <Select.Value />
+        </Select.Trigger>
+        <Select.Portal>
+          <Select.Positioner>
+            <Select.Popup>
+              <Select.Item value="a">a</Select.Item>
+              <Select.Item value="b">b</Select.Item>
+            </Select.Popup>
+          </Select.Positioner>
+        </Select.Portal>
+      </Select.Root>,
+    );
+
+    const trigger = screen.getByTestId('trigger');
+    const selectInput = screen.getByRole('textbox', { hidden: true });
+
+    fireEvent.change(selectInput, { target: { value: 'not-an-option' } });
+    await flushMicrotasks();
+
+    expect(handleValueChange).not.toHaveBeenCalled();
+    expect(trigger).toHaveTextContent('a');
+  });
+
+  it('redirects focus to the trigger when the hidden input is focused', async () => {
+    await render(
+      <Select.Root name="select">
+        <Select.Trigger data-testid="trigger">
+          <Select.Value />
+        </Select.Trigger>
+        <Select.Portal>
+          <Select.Positioner>
+            <Select.Popup>
+              <Select.Item value="a">a</Select.Item>
+            </Select.Popup>
+          </Select.Positioner>
+        </Select.Portal>
+      </Select.Root>,
+    );
+
+    const trigger = screen.getByTestId('trigger');
+    const selectInput = screen.getByRole('textbox', { hidden: true });
+
+    // Browsers can focus the visually hidden input (for example when validation reports an
+    // error on it); focus has to land on the visible control instead.
+    await act(async () => {
+      selectInput.focus();
+    });
+
+    await waitFor(() => {
+      expect(trigger).toHaveFocus();
     });
   });
 
@@ -1784,6 +1895,77 @@ describe('<Select.Root />', () => {
       });
     });
 
+    it.each([false, true])(
+      'clears scroll arrow visibility when manually unmounted (strict: %s)',
+      async (strict) => {
+        const actionsRef = {
+          current: {
+            unmount: vi.fn(),
+          },
+        };
+
+        const { user } = await render(
+          <Select.Root actionsRef={actionsRef}>
+            <Select.Trigger>Open</Select.Trigger>
+            <Select.Portal>
+              <Select.Positioner alignItemWithTrigger={false}>
+                <Select.Popup>
+                  <Select.ScrollUpArrow keepMounted />
+                  <Select.List
+                    ref={(node) => {
+                      if (!node) {
+                        return;
+                      }
+                      Object.defineProperties(node, {
+                        scrollTop: { configurable: true, value: 20, writable: true },
+                        scrollHeight: { configurable: true, value: 100 },
+                        clientHeight: { configurable: true, value: 50 },
+                      });
+                    }}
+                  >
+                    <Select.Item value="one">One</Select.Item>
+                    <Select.Item value="two">Two</Select.Item>
+                  </Select.List>
+                  <Select.ScrollDownArrow keepMounted />
+                </Select.Popup>
+              </Select.Positioner>
+            </Select.Portal>
+          </Select.Root>,
+          { strict },
+        );
+
+        await user.click(screen.getByRole('combobox'));
+
+        const list = await screen.findByRole('listbox');
+        fireEvent.scroll(list);
+
+        const upArrow = screen.getByText('▲');
+        const downArrow = screen.getByText('▼');
+
+        await waitFor(() => {
+          expect(upArrow).toHaveAttribute('data-visible');
+        });
+        await waitFor(() => {
+          expect(downArrow).toHaveAttribute('data-visible');
+        });
+
+        await user.click(screen.getByRole('combobox'));
+        await act(async () => {
+          await new Promise((resolve) => {
+            requestAnimationFrame(resolve);
+          });
+          actionsRef.current.unmount();
+        });
+
+        await waitFor(() => {
+          expect(upArrow).not.toHaveAttribute('data-visible');
+        });
+        await waitFor(() => {
+          expect(downArrow).not.toHaveAttribute('data-visible');
+        });
+      },
+    );
+
     it('does not leave a tabbable option while closed and kept mounted after tabbing out', async () => {
       const actionsRef = {
         current: {
@@ -2767,6 +2949,22 @@ describe('<Select.Root />', () => {
   });
 
   describe('with Field.Root parent', () => {
+    it('applies the root id to the trigger', async () => {
+      await render(
+        <Field.Root>
+          <Field.Label data-testid="label">Label</Field.Label>
+          <Select.Root id="test-id">
+            <Select.Trigger data-testid="trigger">
+              <Select.Value />
+            </Select.Trigger>
+          </Select.Root>
+        </Field.Root>,
+      );
+
+      expect(screen.getByTestId('trigger')).toHaveAttribute('id', 'test-id');
+      expect(screen.getByTestId('label')).toHaveAttribute('for', 'test-id');
+    });
+
     it('should receive disabled prop from Field.Root', async () => {
       await render(
         <Field.Root disabled>
@@ -2856,6 +3054,68 @@ describe('<Select.Root />', () => {
     await waitFor(() => {
       expect(screen.queryByRole('option', { name: '2' })).not.toHaveAttribute('data-selected', '');
     });
+  });
+
+  it('does not force-mount the popup on a programmatic value change', async () => {
+    function App() {
+      const [withItems, setWithItems] = React.useState<string | null>(null);
+      const [withoutItems, setWithoutItems] = React.useState<string | null>(null);
+      return (
+        <div>
+          <button
+            type="button"
+            onClick={() => {
+              setWithItems('b');
+              setWithoutItems('b');
+            }}
+          >
+            set
+          </button>
+          <Select.Root
+            items={{ a: 'Apple', b: 'Banana' }}
+            value={withItems}
+            onValueChange={setWithItems}
+          >
+            <Select.Trigger>
+              <Select.Value data-testid="items-value" />
+            </Select.Trigger>
+            <Select.Portal>
+              <Select.Positioner>
+                <Select.Popup>
+                  <Select.Item value="a">Apple</Select.Item>
+                  <Select.Item value="b">Banana</Select.Item>
+                </Select.Popup>
+              </Select.Positioner>
+            </Select.Portal>
+          </Select.Root>
+          <Select.Root value={withoutItems} onValueChange={setWithoutItems}>
+            <Select.Trigger>
+              <Select.Value data-testid="plain-value" />
+            </Select.Trigger>
+            <Select.Portal>
+              <Select.Positioner>
+                <Select.Popup>
+                  <Select.Item value="a">a</Select.Item>
+                  <Select.Item value="b">b</Select.Item>
+                </Select.Popup>
+              </Select.Positioner>
+            </Select.Portal>
+          </Select.Root>
+        </div>
+      );
+    }
+
+    const { user } = await render(<App />);
+
+    expect(screen.queryAllByRole('listbox', { hidden: true })).toHaveLength(0);
+
+    await user.click(screen.getByRole('button', { name: 'set' }));
+
+    // A programmatic value change must not force-mount the popup (which would leave it in the DOM
+    // permanently). The label resolves without the list mounted, with or without `items`.
+    expect(screen.queryAllByRole('listbox', { hidden: true })).toHaveLength(0);
+    expect(screen.getByTestId('items-value')).toHaveTextContent('Banana');
+    expect(screen.getByTestId('plain-value')).toHaveTextContent('b');
   });
 
   describe('Form', () => {
@@ -4042,6 +4302,189 @@ describe('<Select.Root />', () => {
       expect(screen.queryByRole('option', { name: 'a' })).not.toHaveAttribute('data-selected');
     });
 
+    it('resets the value when the selected item is replaced and the item count is unchanged', async () => {
+      if (reactMajor <= 18) {
+        ignoreActWarnings();
+      }
+
+      const onValueChange = vi.fn();
+
+      function Test() {
+        const [items, setItems] = React.useState(['a', 'b', 'c']);
+        const [value, setValue] = React.useState<string | null>('c');
+
+        return (
+          <div>
+            <Select.Root
+              value={value}
+              onValueChange={(next) => {
+                setValue(next);
+                onValueChange(next);
+              }}
+            >
+              <Select.Trigger data-testid="trigger">
+                <Select.Value />
+              </Select.Trigger>
+              <Select.Portal>
+                <Select.Positioner>
+                  <Select.Popup>
+                    {items.map((item) => (
+                      <Select.Item key={item} value={item}>
+                        {item}
+                      </Select.Item>
+                    ))}
+                  </Select.Popup>
+                </Select.Positioner>
+              </Select.Portal>
+            </Select.Root>
+            <button data-testid="swap" onClick={() => setItems(['a', 'b', 'd'])}>
+              Swap C for D
+            </button>
+          </div>
+        );
+      }
+
+      const { user } = await render(<Test />);
+
+      const trigger = screen.getByTestId('trigger');
+      expect(trigger).toHaveTextContent('c');
+
+      // The items only register once the popup has mounted.
+      await user.click(trigger);
+      await waitFor(() => {
+        expect(screen.getByRole('listbox')).toBeVisible();
+      });
+
+      // Replace "c" with "d" while the popup is open, keeping the count at three.
+      fireEvent.click(screen.getByTestId('swap'));
+
+      await waitFor(() => {
+        expect(onValueChange.mock.lastCall?.[0]).toBe(null);
+      });
+
+      expect(trigger).not.toHaveTextContent('c');
+    });
+
+    it('resets the value when every item is replaced and the item count is unchanged', async () => {
+      if (reactMajor <= 18) {
+        ignoreActWarnings();
+      }
+
+      const onValueChange = vi.fn();
+
+      function Test() {
+        const [items, setItems] = React.useState(['a', 'b', 'c']);
+        const [value, setValue] = React.useState<string | null>('c');
+
+        return (
+          <div>
+            <Select.Root
+              value={value}
+              onValueChange={(next) => {
+                setValue(next);
+                onValueChange(next);
+              }}
+            >
+              <Select.Trigger data-testid="trigger">
+                <Select.Value />
+              </Select.Trigger>
+              <Select.Portal>
+                <Select.Positioner>
+                  <Select.Popup>
+                    {items.map((item) => (
+                      <Select.Item key={item} value={item}>
+                        {item}
+                      </Select.Item>
+                    ))}
+                  </Select.Popup>
+                </Select.Positioner>
+              </Select.Portal>
+            </Select.Root>
+            <button data-testid="swap" onClick={() => setItems(['x', 'y', 'z'])}>
+              Swap all
+            </button>
+          </div>
+        );
+      }
+
+      const { user } = await render(<Test />);
+
+      const trigger = screen.getByTestId('trigger');
+
+      await user.click(trigger);
+      await waitFor(() => {
+        expect(screen.getByRole('listbox')).toBeVisible();
+      });
+
+      fireEvent.click(screen.getByTestId('swap'));
+
+      await waitFor(() => {
+        expect(onValueChange.mock.lastCall?.[0]).toBe(null);
+      });
+    });
+
+    it('keeps the value when the items are only reordered', async () => {
+      if (reactMajor <= 18) {
+        ignoreActWarnings();
+      }
+
+      const onValueChange = vi.fn();
+
+      function Test() {
+        const [items, setItems] = React.useState(['a', 'b', 'c']);
+        const [value, setValue] = React.useState<string | null>('c');
+
+        return (
+          <div>
+            <Select.Root
+              value={value}
+              onValueChange={(next) => {
+                setValue(next);
+                onValueChange(next);
+              }}
+            >
+              <Select.Trigger data-testid="trigger">
+                <Select.Value />
+              </Select.Trigger>
+              <Select.Portal>
+                <Select.Positioner>
+                  <Select.Popup>
+                    {items.map((item) => (
+                      <Select.Item key={item} value={item}>
+                        {item}
+                      </Select.Item>
+                    ))}
+                  </Select.Popup>
+                </Select.Positioner>
+              </Select.Portal>
+            </Select.Root>
+            <button data-testid="reorder" onClick={() => setItems(['c', 'a', 'b'])}>
+              Reorder
+            </button>
+          </div>
+        );
+      }
+
+      const { user } = await render(<Test />);
+
+      const trigger = screen.getByTestId('trigger');
+
+      await user.click(trigger);
+      await waitFor(() => {
+        expect(screen.getByRole('listbox')).toBeVisible();
+      });
+
+      fireEvent.click(screen.getByTestId('reorder'));
+
+      await waitFor(() => {
+        expect(screen.getByRole('option', { name: 'c' })).toHaveAttribute('data-selected', '');
+      });
+
+      // The item set is unchanged, so nothing should have been reconciled away.
+      expect(onValueChange).not.toHaveBeenCalled();
+      expect(trigger).toHaveTextContent('c');
+    });
+
     it('resets to default when the selected item is removed from the list', async () => {
       if (reactMajor <= 18) {
         ignoreActWarnings();
@@ -4548,6 +4991,42 @@ describe('<Select.Root />', () => {
       expect(valueEl.textContent).toBe('avocado');
     });
 
+    it('commits typeahead on a closed trigger when items are provided', async () => {
+      function App() {
+        const [value, setValue] = React.useState<string | null>(null);
+        return (
+          <Select.Root
+            items={{ apple: 'Apple', cherry: 'Cherry' }}
+            value={value}
+            onValueChange={setValue}
+          >
+            <Select.Trigger data-testid="trigger">
+              <Select.Value data-testid="value" />
+            </Select.Trigger>
+            <Select.Portal>
+              <Select.Positioner>
+                <Select.Popup>
+                  <Select.Item value="apple">Apple</Select.Item>
+                  <Select.Item value="cherry">Cherry</Select.Item>
+                </Select.Popup>
+              </Select.Positioner>
+            </Select.Portal>
+          </Select.Root>
+        );
+      }
+
+      const { user } = await render(<App />);
+      const trigger = screen.getByTestId('trigger');
+      const valueEl = screen.getByTestId('value');
+
+      // The popup is never opened. With `items` provided the value-change effect no longer
+      // force-mounts, so this pins the load-bearing claim that the trigger's own onFocus
+      // force-mount still registers the list for closed-trigger typeahead.
+      await act(async () => trigger.focus());
+      await user.keyboard('c');
+      expect(valueEl.textContent).toBe('Cherry');
+    });
+
     it('commits nothing when the only typeahead match is disabled (closed trigger)', async () => {
       function App() {
         const [value, setValue] = React.useState<string | null>(null);
@@ -4813,6 +5292,58 @@ describe('<Select.Root />', () => {
       });
     });
 
+    it('removes selections replaced without changing the item count', async () => {
+      const onValueChange = vi.fn();
+
+      function Test() {
+        const [items, setItems] = React.useState(['a', 'b', 'c']);
+        const [value, setValue] = React.useState(['a', 'c']);
+
+        return (
+          <div>
+            <Select.Root
+              multiple
+              defaultOpen
+              value={value}
+              onValueChange={(nextValue) => {
+                setValue(nextValue);
+                onValueChange(nextValue);
+              }}
+            >
+              <Select.Trigger>
+                <Select.Value />
+              </Select.Trigger>
+              <Select.Portal>
+                <Select.Positioner>
+                  <Select.Popup>
+                    {items.map((item) => (
+                      <Select.Item key={item} value={item}>
+                        {item}
+                      </Select.Item>
+                    ))}
+                  </Select.Popup>
+                </Select.Positioner>
+              </Select.Portal>
+            </Select.Root>
+            <button onClick={() => setItems(['a', 'b', 'd'])}>Replace C with D</button>
+          </div>
+        );
+      }
+
+      await render(<Test />);
+
+      expect(screen.getByRole('option', { name: 'a' })).toHaveAttribute('data-selected', '');
+      expect(screen.getByRole('option', { name: 'c' })).toHaveAttribute('data-selected', '');
+
+      fireEvent.click(screen.getByRole('button', { name: 'Replace C with D' }));
+
+      await waitFor(() => {
+        expect(onValueChange.mock.lastCall?.[0]).toEqual(['a']);
+      });
+      expect(screen.getByRole('option', { name: 'a' })).toHaveAttribute('data-selected', '');
+      expect(screen.getByRole('option', { name: 'd' })).not.toHaveAttribute('data-selected');
+    });
+
     it('should allow multiple selections when multiple is true', async () => {
       const handleValueChange = vi.fn();
 
@@ -4867,6 +5398,52 @@ describe('<Select.Root />', () => {
       expect(optionB).toHaveAttribute('data-selected', '');
 
       expect(screen.getByRole('listbox')).not.toBe(null);
+    });
+
+    it('keeps the selection when items are added and none of the selected ones are removed', async () => {
+      const handleValueChange = vi.fn();
+
+      function App() {
+        const [items, setItems] = React.useState(['a', 'b']);
+
+        return (
+          <div>
+            <Select.Root multiple open defaultValue={['a']} onValueChange={handleValueChange}>
+              <Select.Trigger data-testid="trigger">
+                <Select.Value />
+              </Select.Trigger>
+              <Select.Portal>
+                <Select.Positioner>
+                  <Select.Popup>
+                    {items.map((item) => (
+                      <Select.Item key={item} value={item}>
+                        {item}
+                      </Select.Item>
+                    ))}
+                  </Select.Popup>
+                </Select.Positioner>
+              </Select.Portal>
+            </Select.Root>
+            <button data-testid="add" onClick={() => setItems((prev) => [...prev, 'c'])}>
+              Add C
+            </button>
+          </div>
+        );
+      }
+
+      const { user } = await render(<App />);
+
+      expect(await screen.findByRole('option', { name: 'a' })).toHaveAttribute('data-selected', '');
+
+      await user.click(screen.getByTestId('add'));
+
+      await waitFor(() => {
+        expect(screen.getByRole('option', { name: 'c' })).not.toBe(null);
+      });
+
+      // Growing the list must not rewrite a still-valid selection.
+      expect(handleValueChange).not.toHaveBeenCalled();
+      expect(screen.getByRole('option', { name: 'a' })).toHaveAttribute('data-selected', '');
     });
 
     it('should deselect items when clicked again in multiple mode', async () => {
@@ -5475,13 +6052,17 @@ describe('<Select.Root />', () => {
       const optionA = screen.getByRole('option', { name: 'a' });
       await user.hover(optionA);
 
+      const popup = screen.getByRole('listbox');
+      await waitFor(() => {
+        expect(popup).toHaveFocus();
+      });
+
       await user.keyboard('{ArrowDown}');
 
       await waitFor(() => {
         expect(optionA).toHaveAttribute('data-highlighted');
       });
 
-      const popup = screen.getByRole('listbox');
       await user.unhover(popup);
 
       await waitFor(() => {

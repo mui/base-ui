@@ -1,10 +1,8 @@
 'use client';
 import * as React from 'react';
-import { useId } from '@base-ui/utils/useId';
-import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import type { BaseUIComponentProps } from '../../internals/types';
-import { useToastRootContext } from '../root/ToastRootContext';
 import { useRenderElement } from '../../internals/useRenderElement';
+import { useToastLabelElement, useToastLabelPart } from '../utils/useToastLabelPart';
 
 /**
  * A description that describes the toast.
@@ -26,45 +24,17 @@ export const ToastDescription = React.forwardRef(function ToastDescription(
     ...elementProps
   } = componentProps;
 
-  const { toast, setDescriptionId } = useToastRootContext();
+  const { id, children, type, setId } = useToastLabelPart(idProp, childrenProp, 'description');
 
-  const children = childrenProp ?? toast.description;
-
-  const shouldRender = Boolean(children);
-
-  const id = useId(idProp);
-
-  useIsoLayoutEffect(() => {
-    if (!shouldRender) {
-      return undefined;
-    }
-
-    setDescriptionId(id);
-
-    return () => {
-      setDescriptionId(undefined);
-    };
-  }, [shouldRender, id, setDescriptionId]);
-
-  const state: ToastDescriptionState = {
-    type: toast.type,
-  };
+  const state: ToastDescriptionState = { type };
 
   const element = useRenderElement('p', componentProps, {
     ref: forwardedRef,
     state,
-    props: {
-      ...elementProps,
-      id,
-      children,
-    },
+    props: { ...elementProps, id, children },
   });
 
-  if (!shouldRender) {
-    return null;
-  }
-
-  return element;
+  return useToastLabelElement(element, id, setId);
 });
 
 export interface ToastDescriptionState {

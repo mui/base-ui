@@ -6,6 +6,7 @@ import { createRenderer, isJSDOM } from '#test-utils';
 import { describeConformance } from '../../../test/describeConformance';
 import { DirectionProvider } from '../../direction-provider/DirectionProvider';
 import { SCROLL_TIMEOUT } from '../constants';
+import { ScrollAreaRootContext } from './ScrollAreaRootContext';
 
 const VIEWPORT_SIZE = 200;
 const SCROLLABLE_CONTENT_SIZE = 1000;
@@ -14,7 +15,7 @@ const SCROLLBAR_HEIGHT = 10;
 
 async function withMockResizeObserver(test: (notifyResizeObserver: () => void) => Promise<void>) {
   const originalResizeObserver = window.ResizeObserver;
-  let notifyResizeObserver: (() => void) | null = null;
+  const observers = new Set<ResizeObserverMock>();
 
   class ResizeObserverMock implements ResizeObserver {
     callback: ResizeObserverCallback;
@@ -24,14 +25,14 @@ async function withMockResizeObserver(test: (notifyResizeObserver: () => void) =
     }
 
     observe() {
-      notifyResizeObserver = () => {
-        this.callback([], this);
-      };
+      observers.add(this);
     }
 
     unobserve() {}
 
-    disconnect() {}
+    disconnect() {
+      observers.delete(this);
+    }
 
     takeRecords() {
       return [];
@@ -42,8 +43,8 @@ async function withMockResizeObserver(test: (notifyResizeObserver: () => void) =
 
   try {
     await test(() => {
-      expect(notifyResizeObserver).not.toBe(null);
-      notifyResizeObserver?.();
+      expect(observers.size).toBeGreaterThan(0);
+      observers.forEach((observer) => observer.callback([], observer));
     });
   } finally {
     window.ResizeObserver = originalResizeObserver;
@@ -249,6 +250,71 @@ describe('<ScrollArea.Root />', () => {
           expect(corner.style.width).toBe('11px');
           expect(corner.style.height).toBe('13px');
         });
+      });
+    });
+
+    it('clears corner, overflow attributes, and metrics when content stops overflowing', async () => {
+      await withMockResizeObserver(async (notifyResizeObserver) => {
+        function App() {
+          const [contentSize, setContentSize] = React.useState(SCROLLABLE_CONTENT_SIZE);
+
+          return (
+            <React.Fragment>
+              <button type="button" onClick={() => setContentSize(VIEWPORT_SIZE / 2)}>
+                shrink
+              </button>
+              <ScrollArea.Root
+                data-testid="root"
+                style={{ width: VIEWPORT_SIZE, height: VIEWPORT_SIZE }}
+              >
+                <ScrollArea.Viewport
+                  data-testid="viewport"
+                  style={{ width: '100%', height: '100%' }}
+                >
+                  <div style={{ width: contentSize, height: contentSize }} />
+                </ScrollArea.Viewport>
+                <ScrollArea.Scrollbar
+                  orientation="vertical"
+                  keepMounted
+                  style={{ width: SCROLLBAR_WIDTH }}
+                >
+                  <ScrollArea.Thumb />
+                </ScrollArea.Scrollbar>
+                <ScrollArea.Scrollbar
+                  orientation="horizontal"
+                  keepMounted
+                  style={{ height: SCROLLBAR_HEIGHT }}
+                >
+                  <ScrollArea.Thumb />
+                </ScrollArea.Scrollbar>
+                <ScrollArea.Corner data-testid="corner" />
+              </ScrollArea.Root>
+            </React.Fragment>
+          );
+        }
+
+        const { user } = await render(<App />);
+        const root = screen.getByTestId('root');
+        const viewport = screen.getByTestId('viewport');
+
+        await waitFor(() => expect(root).toHaveAttribute('data-has-overflow-x'));
+        await waitFor(() => expect(root).toHaveAttribute('data-has-overflow-y'));
+        expect(screen.getByTestId('corner')).toBeInTheDocument();
+        expect(viewport.style.getPropertyValue('--scroll-area-overflow-x-end')).not.toBe('0px');
+        expect(viewport.style.getPropertyValue('--scroll-area-overflow-y-end')).not.toBe('0px');
+
+        await user.click(screen.getByRole('button', { name: 'shrink' }));
+        await act(async () => {
+          notifyResizeObserver();
+        });
+
+        await waitFor(() => expect(root).not.toHaveAttribute('data-has-overflow-x'));
+        await waitFor(() => expect(root).not.toHaveAttribute('data-has-overflow-y'));
+        expect(screen.queryByTestId('corner')).toBe(null);
+        expect(viewport.style.getPropertyValue('--scroll-area-overflow-x-start')).toBe('0px');
+        expect(viewport.style.getPropertyValue('--scroll-area-overflow-x-end')).toBe('0px');
+        expect(viewport.style.getPropertyValue('--scroll-area-overflow-y-start')).toBe('0px');
+        expect(viewport.style.getPropertyValue('--scroll-area-overflow-y-end')).toBe('0px');
       });
     });
 
@@ -878,6 +944,57 @@ describe('<ScrollArea.Root />', () => {
 
       await waitFor(() => expect(root).toHaveAttribute('data-overflow-x-start'));
       expect(root).not.toHaveAttribute('data-overflow-x-end');
+    });
+  });
+
+  describe.skipIf(isJSDOM)('context stability', () => {
+    it('does not re-render parts on scroll when the corner size is unchanged', async () => {
+      let commitCount = 0;
+      function ContextProbe() {
+        React.useContext(ScrollAreaRootContext);
+        // Count committed renders in an effect rather than in the render body:
+        // under StrictMode/concurrent rendering the render function can run
+        // multiple times or be discarded without committing.
+        React.useEffect(() => {
+          commitCount += 1;
+        });
+        return null;
+      }
+
+      await render(
+        <ScrollArea.Root style={{ width: VIEWPORT_SIZE, height: VIEWPORT_SIZE }}>
+          <ScrollArea.Viewport data-testid="viewport" style={{ width: '100%', height: '100%' }}>
+            <div style={{ width: SCROLLABLE_CONTENT_SIZE, height: SCROLLABLE_CONTENT_SIZE }} />
+          </ScrollArea.Viewport>
+          <ScrollArea.Scrollbar orientation="vertical" style={{ width: 10 }}>
+            <ScrollArea.Thumb />
+          </ScrollArea.Scrollbar>
+          <ScrollArea.Scrollbar orientation="horizontal" style={{ height: 10 }}>
+            <ScrollArea.Thumb />
+          </ScrollArea.Scrollbar>
+          <ScrollArea.Corner data-testid="corner" />
+          <ContextProbe />
+        </ScrollArea.Root>,
+      );
+
+      const viewport = screen.getByTestId('viewport');
+
+      // Wait until both scrollbars are visible and the corner has been measured,
+      // which is the precondition for the corner-size setter to run on scroll.
+      await waitFor(() => expect(screen.getByTestId('corner').style.width).toBe('10px'));
+      await flushMicrotasks();
+
+      const countBeforeScroll = commitCount;
+
+      // Scrolling does not change the corner size, so no scroll-area part should
+      // re-render. Previously the corner-size setter built a fresh object on every
+      // scroll frame, rebuilding the root context and re-rendering every part.
+      for (let i = 0; i < 3; i += 1) {
+        fireEvent.scroll(viewport, { target: { scrollTop: 0, scrollLeft: 0 } });
+      }
+      await flushMicrotasks();
+
+      expect(commitCount).toBe(countBeforeScroll);
     });
   });
 });

@@ -2,10 +2,10 @@
 import * as React from 'react';
 import { addEventListener } from '@base-ui/utils/addEventListener';
 import { useControlled } from '@base-ui/utils/useControlled';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { ownerWindow } from '@base-ui/utils/owner';
 import { platform } from '@base-ui/utils/platform';
-import { useId } from '@base-ui/utils/useId';
 import {
   DrawerRootContext,
   type DrawerNestedSwipeProgressStore,
@@ -13,15 +13,15 @@ import {
   useDrawerRootContext,
   type DrawerSnapPoint,
 } from './DrawerRootContext';
-import { Dialog } from '../../dialog';
 import {
   createChangeEventDetails,
   type BaseUIChangeEventDetails,
 } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
-import { IsDrawerContext, useDialogRootContext } from '../../dialog/root/DialogRootContext';
+import { useDialogRootContext } from '../../dialog/root/DialogRootContext';
+import { useRenderDialogRoot } from '../../dialog/root/useRenderDialogRoot';
 import { useDrawerProviderContext } from '../provider/DrawerProviderContext';
-import type { DialogHandle } from '../../dialog/store/DialogHandle';
+import type { DrawerHandle } from '../handle';
 import type { PayloadChildRenderFunction } from '../../utils/popups';
 
 /**
@@ -76,6 +76,7 @@ export function DrawerRoot<Payload = unknown>(props: DrawerRoot.Props<Payload>) 
   });
 
   const isNestedDrawerOpenRef = React.useRef(false);
+  const swipeAreaActiveRef = React.useRef(false);
 
   const setActiveSnapPoint = useStableCallback(
     (
@@ -172,6 +173,7 @@ export function DrawerRoot<Payload = unknown>(props: DrawerRoot.Props<Payload>) 
   const contextValue: DrawerRootContext = React.useMemo(
     () => ({
       swipeDirection,
+      swipeAreaActiveRef,
       snapToSequentialPoints,
       snapPoints,
       activeSnapPoint: resolvedActiveSnapPoint,
@@ -210,6 +212,7 @@ export function DrawerRoot<Payload = unknown>(props: DrawerRoot.Props<Payload>) 
       setActiveSnapPoint,
       snapPoints,
       snapToSequentialPoints,
+      swipeAreaActiveRef,
       swipeDirection,
     ],
   );
@@ -229,26 +232,21 @@ export function DrawerRoot<Payload = unknown>(props: DrawerRoot.Props<Payload>) 
       </React.Fragment>
     );
 
-  return (
-    <DrawerRootContext.Provider value={contextValue}>
-      <IsDrawerContext.Provider value>
-        <Dialog.Root
-          open={openProp}
-          defaultOpen={defaultOpen}
-          onOpenChange={handleOpenChange}
-          onOpenChangeComplete={onOpenChangeComplete}
-          disablePointerDismissal={disablePointerDismissal}
-          modal={modal}
-          actionsRef={actionsRef}
-          handle={handle}
-          triggerId={triggerIdProp}
-          defaultTriggerId={defaultTriggerIdProp}
-        >
-          {resolvedChildren}
-        </Dialog.Root>
-      </IsDrawerContext.Provider>
-    </DrawerRootContext.Provider>
-  );
+  const dialog = useRenderDialogRoot('drawer', {
+    open: openProp,
+    defaultOpen,
+    onOpenChange: handleOpenChange,
+    onOpenChangeComplete,
+    disablePointerDismissal,
+    modal,
+    actionsRef,
+    handle,
+    triggerId: triggerIdProp,
+    defaultTriggerId: defaultTriggerIdProp,
+    children: resolvedChildren,
+  });
+
+  return <DrawerRootContext.Provider value={contextValue}>{dialog}</DrawerRootContext.Provider>;
 }
 
 export interface DrawerRootState {}
@@ -299,7 +297,7 @@ export interface DrawerRootProps<Payload = unknown> {
    * If specified, allows detached triggers to control the drawer's open state.
    * Can be created with the Drawer.createHandle() method.
    */
-  handle?: DialogHandle<Payload> | undefined;
+  handle?: DrawerHandle<Payload> | undefined;
   /**
    * ID of the trigger that the drawer is associated with.
    * This is useful in conjunction with the `open` prop to create a controlled drawer.
@@ -419,10 +417,10 @@ function createNestedSwipeProgressStore(): NestedSwipeProgressStore {
 }
 
 function DrawerProviderReporter() {
-  const drawerId = useId();
-
-  const providerContext = useDrawerProviderContext(true);
-  const { store } = useDialogRootContext(false);
+  const providerContext = useDrawerProviderContext();
+  const store = useDialogRootContext(false);
+  const setDrawerOpen = providerContext?.setDrawerOpen;
+  const removeDrawer = providerContext?.removeDrawer;
 
   const open = store.useState('open');
   const nestedOpenDialogCount = store.useState('nestedOpenDialogCount');
@@ -430,23 +428,19 @@ function DrawerProviderReporter() {
 
   const isTopmost = nestedOpenDialogCount === 0;
 
-  React.useEffect(() => {
-    if (!providerContext || drawerId == null) {
+  useIsoLayoutEffect(() => {
+    if (!removeDrawer) {
       return undefined;
     }
 
     return () => {
-      providerContext.removeDrawer(drawerId);
+      removeDrawer(store);
     };
-  }, [drawerId, providerContext]);
+  }, [removeDrawer, store]);
 
-  React.useEffect(() => {
-    if (drawerId == null) {
-      return;
-    }
-
-    providerContext?.setDrawerOpen(drawerId, open);
-  }, [drawerId, open, providerContext]);
+  useIsoLayoutEffect(() => {
+    setDrawerOpen?.(store, open);
+  }, [open, setDrawerOpen, store]);
 
   React.useEffect(() => {
     // CloseWatcher enables the Android back gesture (Chromium-only).
