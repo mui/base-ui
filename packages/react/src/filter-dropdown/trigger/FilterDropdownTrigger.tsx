@@ -41,7 +41,6 @@ export const FilterDropdownTrigger = React.forwardRef(function FilterDropdownTri
     state,
     ref: [forwardedRef, context?.setTriggerElement],
     props: [
-      context?.navigation.trigger,
       {
         id,
         'aria-haspopup': 'dialog',

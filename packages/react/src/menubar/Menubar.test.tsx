@@ -1084,6 +1084,43 @@ describe('<Menubar />', () => {
         expect(screen.getByRole('menubar')).toHaveAttribute('aria-orientation', 'vertical');
       });
 
+      it('moves between triggers with the main-axis arrow keys when vertical', async () => {
+        const { user } = await render(
+          <Menubar orientation="vertical">
+            <Menu.Root>
+              <Menu.Trigger data-testid="first-trigger">File</Menu.Trigger>
+              <Menu.Portal>
+                <Menu.Positioner>
+                  <Menu.Popup>
+                    <Menu.Item>New</Menu.Item>
+                  </Menu.Popup>
+                </Menu.Positioner>
+              </Menu.Portal>
+            </Menu.Root>
+            <Menu.Root>
+              <Menu.Trigger data-testid="second-trigger">Edit</Menu.Trigger>
+              <Menu.Portal>
+                <Menu.Positioner>
+                  <Menu.Popup>
+                    <Menu.Item>Undo</Menu.Item>
+                  </Menu.Popup>
+                </Menu.Positioner>
+              </Menu.Portal>
+            </Menu.Root>
+          </Menubar>,
+        );
+
+        const firstTrigger = screen.getByTestId('first-trigger');
+        await act(async () => {
+          firstTrigger.focus();
+        });
+
+        await user.keyboard('[ArrowDown]');
+
+        expect(screen.getByTestId('second-trigger')).toHaveFocus();
+        expect(screen.queryByRole('menu')).to.equal(null);
+      });
+
       it('sets role="menuitem" on menu triggers', async () => {
         await render(<TestMenubar />);
         const menuItems = screen.getAllByRole('menuitem');

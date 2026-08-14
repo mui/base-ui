@@ -26,6 +26,7 @@ export function FilterMenuRoot<Payload>(props: FilterMenuRoot.Props<Payload>): R
     disabled,
     ...menuProps
   } = props;
+
   const [open, setOpen] = useControlled({
     controlled: openProp,
     default: defaultOpen,
@@ -48,13 +49,7 @@ export function FilterMenuRoot<Payload>(props: FilterMenuRoot.Props<Payload>): R
     }
 
     setOpen(nextOpen);
-
-    const event = details.event as MouseEvent | undefined;
-    setInputFocusVisible(
-      nextOpen &&
-        (details.reason === REASONS.listNavigation ||
-          (details.reason === REASONS.triggerPress && event?.detail === 0)),
-    );
+    setInputFocusVisible(nextOpen && isKeyboardOpen(details));
   }
 
   const handleInputValueChange = useStableCallback(
@@ -73,53 +68,85 @@ export function FilterMenuRoot<Payload>(props: FilterMenuRoot.Props<Payload>): R
     previousOpenRef.current = open;
   }, [handleInputValueChange, open, inputValue]);
 
-  function renderChildren(payload: { payload: Payload | undefined }) {
-    return (
-      <FilterMenuRootContent
-        open={open}
-        disabled={disabled}
-        inputFocusVisible={inputFocusVisible}
-        value={inputValue}
-        filter={filter}
-        onValueChange={handleInputValueChange}
-      >
-        {typeof children === 'function' ? children(payload) : children}
-      </FilterMenuRootContent>
-    );
-  }
-
   return (
-    <MenuRoot {...menuProps} disabled={disabled} open={open} onOpenChange={handleOpenChange}>
-      {renderChildren}
+    <MenuRoot
+      {...menuProps}
+      disabled={disabled}
+      open={open}
+      onOpenChange={handleOpenChange}
+      virtualFocus
+    >
+      {(payload) => (
+        <FilterMenuProvider
+          open={open}
+          inputFocusVisible={inputFocusVisible}
+          value={inputValue}
+          filter={filter}
+          onValueChange={handleInputValueChange}
+        >
+          {typeof children === 'function' ? children(payload) : children}
+        </FilterMenuProvider>
+      )}
     </MenuRoot>
   );
 }
 
-interface FilterMenuRootContentProps {
+/**
+ * A keyboard open is the one that lands focus in the popup, so the input shows its focus ring.
+ * Arrow keys report `list-navigation`; Enter and Space dispatch a click carrying no pointer detail.
+ */
+export function isKeyboardOpen(details: {
+  reason: string | null;
+  event: Event | undefined;
+}): boolean {
+  if (details.reason === REASONS.listNavigation) {
+    return true;
+  }
+  return (
+    (details.reason === REASONS.triggerPress || details.reason === REASONS.itemPress) &&
+    (details.event as MouseEvent | undefined)?.detail === 0
+  );
+}
+
+interface FilterMenuProviderProps {
   open: boolean;
-  disabled?: boolean | undefined;
   inputFocusVisible: boolean;
   value: string;
-  filter?: FilterDropdownFilter | undefined;
+  filter: FilterDropdownFilter | undefined;
   onValueChange: (value: string, details: FilterMenuRoot.InputValueChangeEventDetails) => void;
   children?: React.ReactNode;
 }
 
-function FilterMenuRootContent(props: FilterMenuRootContentProps) {
+/**
+ * Reads the menu store, which is only available below `Menu.Root`, and hands the filter root the
+ * list the menu navigates plus the props for the input that holds real focus.
+ */
+export function FilterMenuProvider(props: FilterMenuProviderProps) {
   const { store } = useMenuRootContext();
   const triggerId = store.useState('activeTriggerId');
   const triggerElement = store.useState('activeTriggerElement');
+  const activeIndex = store.useState('activeIndex');
+  const inputProps = store.useState('inputProps');
+  const disabled = store.useState('disabled');
+
+  const setActiveIndex = useStableCallback((index: number | null) => {
+    store.set('activeIndex', index);
+  });
 
   return (
     <FilterDropdownRoot
       open={props.open}
-      disabled={props.disabled}
+      disabled={disabled}
       inputFocusVisible={props.inputFocusVisible}
       value={props.value}
       filter={props.filter}
       triggerId={triggerId}
       triggerElement={triggerElement}
       listRef={store.context.itemDomElements}
+      activeIndex={activeIndex}
+      setActiveIndex={setActiveIndex}
+      inputProps={inputProps}
+      inputRef={store.context.inputRef}
       onValueChange={props.onValueChange}
     >
       {props.children}

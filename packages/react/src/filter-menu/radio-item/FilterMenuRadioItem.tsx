@@ -1,23 +1,18 @@
 'use client';
 import * as React from 'react';
-import { FilterDropdown } from '../../filter-dropdown';
+import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
+import { useFilterDropdownItem } from '../../filter-dropdown/item/useFilterDropdownItem';
 import { MenuRadioItem, type MenuRadioItemProps } from '../../menu/radio-item/MenuRadioItem';
 
 export const FilterMenuRadioItem = React.forwardRef(function FilterMenuRadioItem(
   props: FilterMenuRadioItem.Props,
   forwardedRef: React.ForwardedRef<HTMLElement>,
 ) {
-  const { label, keywords, render, ...menuProps } = props;
-  return (
-    <FilterDropdown.Item
-      label={label}
-      keywords={keywords}
-      role="menuitemradio"
-      render={
-        <MenuRadioItem {...menuProps} tabIndex={undefined} ref={forwardedRef} render={render} />
-      }
-    />
-  );
+  const { label, keywords, ...menuProps } = props;
+  const { visible, ref } = useFilterDropdownItem({ label, keywords, children: props.children });
+  const mergedRef = useMergedRefs(forwardedRef, ref);
+
+  return visible ? <MenuRadioItem {...menuProps} label={label} ref={mergedRef} /> : null;
 });
 
 export interface FilterMenuRadioItemProps extends Omit<MenuRadioItemProps, 'keywords'> {

@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { FilterDropdown } from '../../filter-dropdown';
+import { FilterDropdownPopup } from '../../filter-dropdown/popup/FilterDropdownPopup';
 import { MenuPopup, type MenuPopupProps } from '../../menu/popup/MenuPopup';
 import { useMenuRootContext } from '../../menu/root/MenuRootContext';
 
@@ -14,9 +14,10 @@ export const FilterMenuPopup = React.forwardRef(function FilterMenuPopup(
   const popupId = id ?? floatingId;
 
   return (
-    <FilterDropdown.Popup
+    <FilterDropdownPopup
       id={popupId}
       aria-labelledby={activeTriggerId ?? undefined}
+      // The consumer's props and ref go to the inner popup only, so each handler runs once.
       render={<MenuPopup {...menuProps} id={popupId} ref={forwardedRef} role="dialog" />}
     />
   );

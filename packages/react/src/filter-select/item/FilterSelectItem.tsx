@@ -1,8 +1,8 @@
 'use client';
 import * as React from 'react';
-import { FilterDropdown } from '../../filter-dropdown';
+import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
+import { useFilterDropdownItem } from '../../filter-dropdown/item/useFilterDropdownItem';
 import { SelectItem, type SelectItemProps } from '../../select/item/SelectItem';
-import { flattenLeafItems } from '../../internals/resolveValueLabel';
 import { useFilterSelectRootContext } from '../root/FilterSelectRootContext';
 
 export const FilterSelectItem = React.memo(
@@ -10,26 +10,19 @@ export const FilterSelectItem = React.memo(
     props: FilterSelectItem.Props,
     forwardedRef: React.ForwardedRef<HTMLElement>,
   ) {
-    const { label, keywords, render, ...selectProps } = props;
-    const { items, isItemEqualToValue } = useFilterSelectRootContext();
+    const { label, keywords, ...selectProps } = props;
+    const { getItemData } = useFilterSelectRootContext();
     const itemValue = props.value ?? null;
-    const itemData = React.useMemo(
-      () =>
-        flattenLeafItems(items).find((item) => isItemEqualToValue(item?.value ?? null, itemValue)),
-      [isItemEqualToValue, itemValue, items],
-    );
+    const itemData = getItemData(itemValue);
+    const { visible, ref } = useFilterDropdownItem({
+      label,
+      keywords: keywords ?? itemData?.keywords,
+      filterValue: itemData,
+      children: props.children,
+    });
+    const mergedRef = useMergedRefs(forwardedRef, ref);
 
-    return (
-      <FilterDropdown.Item
-        label={label}
-        keywords={keywords ?? itemData?.keywords}
-        filterValue={itemData}
-        role="option"
-        render={
-          <SelectItem {...selectProps} tabIndex={undefined} ref={forwardedRef} render={render} />
-        }
-      />
-    );
+    return visible ? <SelectItem {...selectProps} label={label} ref={mergedRef} /> : null;
   }),
 );
 

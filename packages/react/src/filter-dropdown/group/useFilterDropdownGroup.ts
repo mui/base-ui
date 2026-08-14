@@ -3,9 +3,7 @@ import * as React from 'react';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useStore } from '@base-ui/utils/store';
-import type { BaseUIComponentProps } from '../../internals/types';
-import { useRenderElement } from '../../internals/useRenderElement';
-import { useFilterDropdownPopupContext } from '../popup/FilterDropdownPopupContext';
+import { useFilterDropdownRootContext } from '../root/FilterDropdownRootContext';
 import { FilterDropdownGroupContext } from './FilterDropdownGroupContext';
 import type { State as StoreState } from '../store';
 
@@ -26,15 +24,25 @@ function isGroupHidden(state: StoreState, membership: GroupMembership) {
   return true;
 }
 
+export interface UseFilterDropdownGroupReturnValue {
+  /**
+   * Whether the query filtered out every item in the group, so its label doesn't linger over an
+   * empty section.
+   */
+  hidden: boolean;
+  /**
+   * Provider value that collects the group's items.
+   */
+  context: FilterDropdownGroupContext;
+}
+
 /**
+ * Tracks which items belong to a group and hides the group once none of them match.
+ *
  * @internal
  */
-export const FilterDropdownGroup = React.forwardRef(function FilterDropdownGroup(
-  componentProps: FilterDropdownGroup.Props,
-  forwardedRef: React.ForwardedRef<HTMLDivElement>,
-) {
-  const { render, className, style, ...elementProps } = componentProps;
-  const { store } = useFilterDropdownPopupContext();
+export function useFilterDropdownGroup(): UseFilterDropdownGroupReturnValue {
+  const { store } = useFilterDropdownRootContext();
   const itemIds = useRefWithInit(() => new Set<symbol>()).current;
   const [membershipVersion, setMembershipVersion] = React.useState(0);
 
@@ -52,29 +60,12 @@ export const FilterDropdownGroup = React.forwardRef(function FilterDropdownGroup
     [itemIds, membershipVersion],
   );
 
-  // The whole group hides when the query filters out every item in it, so its label doesn't
-  // linger over an empty section.
   const hidden = useStore(store, isGroupHidden, membership);
 
-  const contextValue: FilterDropdownGroupContext = React.useMemo(
+  const context = React.useMemo<FilterDropdownGroupContext>(
     () => ({ registerItem }),
     [registerItem],
   );
 
-  const element = useRenderElement('div', componentProps, {
-    ref: forwardedRef,
-    props: [{ hidden: hidden || undefined }, elementProps],
-  });
-
-  return (
-    <FilterDropdownGroupContext.Provider value={contextValue}>
-      {element}
-    </FilterDropdownGroupContext.Provider>
-  );
-});
-
-export interface FilterDropdownGroupProps extends BaseUIComponentProps<'div', {}> {}
-
-export namespace FilterDropdownGroup {
-  export type Props = FilterDropdownGroupProps;
+  return { hidden, context };
 }

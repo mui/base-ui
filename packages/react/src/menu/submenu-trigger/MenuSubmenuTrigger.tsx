@@ -18,7 +18,6 @@ import { useMenuPositionerContext } from '../positioner/MenuPositionerContext';
 import { useTriggerRegistration } from '../../utils/popups';
 import type { MenuStore } from '../store/MenuStore';
 import { useMenuSubmenuRootContext } from '../submenu-root/MenuSubmenuRootContext';
-import { useIsFilterableList } from '../../filter-dropdown/root/FilterDropdownRootContext';
 
 const VOICE_OVER_EXPANDED_PROPS = { 'aria-expanded': undefined };
 
@@ -59,7 +58,7 @@ const MenuSubmenuTriggerImpl = React.forwardRef(function MenuSubmenuTriggerImpl(
 
     if (element !== null && store.select('open') && store.select('activeTriggerId') == null) {
       store.update({
-        activeTriggerId: id,
+        activeTriggerId: id ?? null,
         activeTriggerElement: element,
         closeDelay,
       });
@@ -104,7 +103,7 @@ const MenuSubmenuTriggerImpl = React.forwardRef(function MenuSubmenuTriggerImpl(
 
   const itemProps = parentMenuStore.useState('itemProps');
   const highlighted = parentMenuStore.useState('isActive', listItem.index);
-  const isParentFilterable = useIsFilterableList(parentMenuStore.context.itemDomElements);
+  const parentVirtualFocus = parentMenuStore.useState('virtualFocus');
 
   const itemMetadata = React.useMemo(
     () => ({
@@ -190,9 +189,9 @@ const MenuSubmenuTriggerImpl = React.forwardRef(function MenuSubmenuTriggerImpl(
       shouldOmitExpanded ? VOICE_OVER_EXPANDED_PROPS : undefined,
       {
         'aria-controls': popupId,
-        // A filterable parent keeps real focus on its input and moves virtual focus instead, so
-        // the trigger must not be focusable.
-        tabIndex: isParentFilterable ? undefined : ((open || highlighted ? 0 : -1) as number),
+        // A virtually focused parent keeps real focus on its input, so the trigger must stay out
+        // of the tab order.
+        tabIndex: parentVirtualFocus ? undefined : ((open || highlighted ? 0 : -1) as number),
         onBlur() {
           if (highlighted) {
             parentMenuStore.set('activeIndex', null);
@@ -209,7 +208,7 @@ const MenuSubmenuTriggerImpl = React.forwardRef(function MenuSubmenuTriggerImpl(
 });
 
 interface MenuSubmenuTriggerImplProps extends Omit<MenuSubmenuTrigger.Props, 'id'> {
-  id: string;
+  id: string | undefined;
   listItem: ReturnType<typeof useCompositeListItem>;
   parentMenuStore: MenuStore<unknown>;
 }
@@ -228,7 +227,11 @@ const MenuSubmenuTriggerWithListItem = React.forwardRef(function MenuSubmenuTrig
   const parentFloatingId = parentMenuStore.useState('floatingId');
   // The trigger is an item in the parent menu, so its generated ID must match the parent's
   // aria-activedescendant namespace rather than the submenu it opens.
-  const triggerId = componentProps.id ?? `${parentFloatingId}-${listItem.index}`;
+  // React 17 resolves generated ids in an effect, so `parentFloatingId` can be undefined on the
+  // first render; the item id is left unset until it resolves.
+  const triggerId =
+    componentProps.id ??
+    (parentFloatingId != null ? `${parentFloatingId}-${listItem.index}` : undefined);
   const triggerElement = (
     <MenuSubmenuTriggerImpl
       {...componentProps}

@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import { useStore } from '@base-ui/utils/store';
-import { FilterDropdown } from '../../filter-dropdown';
+import { FilterDropdownTrigger } from '../../filter-dropdown/trigger/FilterDropdownTrigger';
 import { SelectTrigger, type SelectTriggerProps } from '../../select/trigger/SelectTrigger';
 import { useSelectRootContext } from '../../select/root/SelectRootContext';
 import { selectors } from '../../select/store';
@@ -16,7 +16,7 @@ export const FilterSelectTrigger = React.forwardRef(function FilterSelectTrigger
   const triggerId = id ?? rootId;
 
   return (
-    <FilterDropdown.Trigger
+    <FilterDropdownTrigger
       id={triggerId}
       render={<SelectTrigger {...selectProps} ref={forwardedRef} />}
     />

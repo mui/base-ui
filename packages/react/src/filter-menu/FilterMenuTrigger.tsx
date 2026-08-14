@@ -32,11 +32,18 @@ export const FilterMenuTrigger = React.forwardRef(function FilterMenuTrigger(
 
   return (
     <FilterDropdownTrigger
-      {...menuProps}
       id={id}
       detached={detached}
-      render={<MenuTrigger {...menuProps} handle={handle} id={id} />}
-      ref={forwardedRef}
+      // The consumer's props and ref go to the inner trigger only. Applying them to both layers
+      // would run each handler twice for one interaction.
+      render={
+        <MenuTrigger
+          {...menuProps}
+          handle={handle}
+          id={id}
+          ref={forwardedRef as React.Ref<HTMLButtonElement>}
+        />
+      }
     />
   );
 });

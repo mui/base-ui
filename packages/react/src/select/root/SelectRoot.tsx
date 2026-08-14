@@ -45,6 +45,18 @@ import { getMaxScrollOffset, normalizeScrollOffset } from '../../utils/scrollEdg
 import { FOCUSABLE_POPUP_PROPS } from '../../utils/popups';
 import { mergeProps } from '../../merge-props';
 
+interface SelectRootInternalProps<
+  Value,
+  Multiple extends boolean | undefined,
+> extends SelectRoot.Props<Value, Multiple> {
+  /**
+   * @ignore
+   * Keeps real focus on an input inside the popup and navigates the list with
+   * `aria-activedescendant`. Set by parts that render such an input.
+   */
+  virtualFocus?: boolean | undefined;
+}
+
 /**
  * Groups all parts of the select.
  * Doesn't render its own HTML element.
@@ -52,7 +64,7 @@ import { mergeProps } from '../../merge-props';
  * Documentation: [Base UI Select](https://base-ui.com/react/components/select)
  */
 export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
-  componentProps: SelectRoot.Props<Value, Multiple>,
+  componentProps: SelectRootInternalProps<Value, Multiple>,
 ): React.JSX.Element {
   const {
     id,
@@ -78,6 +90,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     itemToStringValue,
     isItemEqualToValue = defaultItemEquality,
     highlightItemOnHover = true,
+    virtualFocus = false,
     children,
   } = componentProps;
 
@@ -120,6 +133,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
   const valueRef = React.useRef<HTMLSpanElement | null>(null);
   const typingRef = React.useRef(false);
   const firstItemTextRef = React.useRef<HTMLElement | null>(null);
+  const virtualFocusInputRef = React.useRef<HTMLInputElement | null>(null);
   const selectionRef = React.useRef({
     allowSelectedMouseUp: false,
     allowUnselectedMouseUp: false,
@@ -156,8 +170,10 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
         openMethod: null,
         activeIndex: null,
         selectionReferenceItemId: null,
+        virtualFocus,
         popupProps: {},
         triggerProps: {},
+        inputProps: EMPTY_OBJECT,
         triggerElement: null,
         positionerElement: null,
         listElement: null,
@@ -359,7 +375,11 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     enabled: !readOnly && !disabled,
     listRef,
     activeIndex,
-    selectedIndex: selectionReferenceIndex,
+    virtual: virtualFocus,
+    loopFocus: virtualFocus,
+    allowEscape: virtualFocus,
+    focusItemOnOpen: virtualFocus ? false : 'auto',
+    selectedIndex: virtualFocus ? null : selectionReferenceIndex,
     disabledIndices: EMPTY_ARRAY,
     focusItemOnHover: highlightItemOnHover,
     onNavigate(nextActiveIndex, _event) {
@@ -372,16 +392,22 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     },
   });
 
+  // `useTypeahead` reads `listRef.current` on every keydown, so the labels are resolved once per
+  // item-set change rather than re-reading `textContent` from every item each time.
+  const typeaheadLabels = React.useMemo(() => {
+    const labels: Array<string | null> = [];
+    for (const [id, index] of visibleItemIndexes) {
+      labels[index] = registeredItems.get(id)?.getLabel() ?? null;
+    }
+    return labels;
+  }, [visibleItemIndexes, registeredItems]);
+  const typeaheadLabelsRef = useValueAsRef(typeaheadLabels);
+
   const typeahead = useTypeahead(floatingContext, {
-    enabled: !readOnly && !disabled && (open || !multiple),
-    listRef: {
-      get current() {
-        return [...store.state.visibleItemIndexes].map(([id]) => {
-          const item = store.state.registeredItems.get(id);
-          return item?.getLabel() ?? null;
-        });
-      },
-    },
+    // While the popup is open under virtual focus, typing goes to the input and drives the query
+    // instead. The closed trigger still typeaheads.
+    enabled: !readOnly && !disabled && (open ? !virtualFocus : !multiple),
+    listRef: typeaheadLabelsRef,
     activeIndex,
     selectedIndex: selectionReferenceIndex,
     // Skip disabled items while matching so typeahead advances to the next selectable item
@@ -406,19 +432,23 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     },
   });
 
+  // Under virtual focus the trigger keeps only the props that open the popup; the input takes the
+  // reference props once it holds focus.
+  const openTriggerProps = virtualFocus ? listNavigation.trigger : listNavigation.reference;
+
   // `Select.Trigger` applies the id itself from the store, so it's deliberately not merged here.
   const mergedTriggerProps = React.useMemo(
     () =>
       mergeProps(
         typeahead.reference,
-        listNavigation.reference,
+        openTriggerProps,
         dismiss.reference,
         click.reference,
         interactionTypeProps,
       ),
     [
       typeahead.reference,
-      listNavigation.reference,
+      openTriggerProps,
       dismiss.reference,
       click.reference,
       interactionTypeProps,
@@ -460,6 +490,10 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     itemToStringValue,
     isItemEqualToValue,
     openMethod: renderedOpenMethod,
+    virtualFocus,
+    // Under virtual focus the popup's input is the element that holds real focus, so it takes the
+    // navigation's reference props (`aria-activedescendant` and the key handling).
+    inputProps: virtualFocus ? (listNavigation.reference ?? EMPTY_OBJECT) : EMPTY_OBJECT,
   });
 
   const contextValue: SelectRootContext = React.useMemo(
@@ -485,6 +519,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
       typingRef,
       selectionRef,
       firstItemTextRef,
+      virtualFocusInputRef,
       validation,
       onOpenChangeComplete,
       alignItemWithTriggerActiveRef,

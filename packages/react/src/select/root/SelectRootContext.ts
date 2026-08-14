@@ -32,6 +32,11 @@ export interface SelectRootContext {
     dragY: number;
   }>;
   firstItemTextRef: React.RefObject<HTMLElement | null>;
+  /**
+   * The input inside the popup that holds real focus while the store's `virtualFocus` is
+   * enabled.
+   */
+  virtualFocusInputRef: React.RefObject<HTMLInputElement | null>;
   validation: UseFieldValidationReturnValue;
   onOpenChangeComplete?: ((open: boolean) => void) | undefined;
   alignItemWithTriggerActiveRef: React.RefObject<boolean>;

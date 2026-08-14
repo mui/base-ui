@@ -1,9 +1,8 @@
 'use client';
 import * as React from 'react';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
-import type { BaseUIComponentProps, BaseUIEvent } from '../../internals/types';
+import type { BaseUIComponentProps, HTMLProps } from '../../internals/types';
 import { useRenderElement } from '../../internals/useRenderElement';
-import { useFilterDropdownPopupContext } from '../popup/FilterDropdownPopupContext';
 import { useFilterDropdownRootContext } from '../root/FilterDropdownRootContext';
 
 /**
@@ -14,67 +13,30 @@ export const FilterDropdownList = React.forwardRef(function FilterDropdownList(
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const { render, className, style, id: idProp, ...elementProps } = componentProps;
-  const rootContext = useFilterDropdownRootContext();
-  const popupContext = useFilterDropdownPopupContext();
-  const { setListId } = popupContext;
-  const id = idProp ?? popupContext.listId;
-  const activeElement = rootContext.listRef.current[rootContext.activeIndex ?? -1];
+  const context = useFilterDropdownRootContext();
+  const { setListId } = context;
+  const id = idProp ?? context.listId;
   const hasAriaLabel = elementProps['aria-label'] || elementProps['aria-labelledby'];
-  const ariaLabelledBy = hasAriaLabel ? elementProps['aria-labelledby'] : rootContext.triggerId;
+  const ariaLabelledBy = hasAriaLabel ? elementProps['aria-labelledby'] : context.triggerId;
 
   useIsoLayoutEffect(() => {
     setListId(id);
   }, [id, setListId]);
 
-  const element = useRenderElement('div', componentProps, {
-    ref: forwardedRef,
-    props: [
-      rootContext.navigation.reference,
-      {
-        role: 'menu',
-        id,
-        'aria-labelledby': ariaLabelledBy,
-        'aria-activedescendant': activeElement?.id,
-        // A tab stop: VoiceOver + Safari doesn't track `aria-activedescendant` from the input,
-        // so ATs can tab onto the list and navigate from it instead (focus seeds the first item).
-        tabIndex: 0,
-        onMouseDown(event) {
-          // Keep focus on the input when list content is pressed.
-          event.preventDefault();
-        },
-        onKeyDown(event: BaseUIEvent<React.KeyboardEvent>) {
-          if (event.target !== event.currentTarget || event.nativeEvent.isComposing) {
-            return;
-          }
-          if (event.key === 'Tab' && event.shiftKey) {
-            event.preventDefault();
-            event.stopPropagation();
-            event.preventBaseUIHandler();
-            rootContext.setActiveIndex(null);
-            popupContext.inputRef.current?.focus({ preventScroll: true });
-            return;
-          }
-          const isTypingKey =
-            (event.key.length === 1 && event.key !== ' ') || event.key === 'Backspace';
-          const hasModifier = event.ctrlKey || event.metaKey || event.altKey;
-          if (isTypingKey && !hasModifier) {
-            // Typing while the list holds DOM focus continues filtering: return focus to the
-            // input without preventing default so the keystroke lands there.
-            popupContext.inputRef.current?.focus({ preventScroll: true });
-          }
-        },
-        onFocus(event) {
-          if (event.target === event.currentTarget) {
-            const firstItemIndex = rootContext.listRef.current.findIndex(Boolean);
-            rootContext.setActiveIndex(firstItemIndex === -1 ? null : firstItemIndex);
-          }
-        },
-      },
-      elementProps,
-    ],
-  });
+  const defaultProps: HTMLProps = {
+    role: 'menu',
+    id,
+    'aria-labelledby': ariaLabelledBy,
+    onMouseDown(event) {
+      // Keep focus on the input when list content is pressed.
+      event.preventDefault();
+    },
+  };
 
-  return element;
+  return useRenderElement('div', componentProps, {
+    ref: forwardedRef,
+    props: [defaultProps, elementProps],
+  });
 });
 
 export interface FilterDropdownListState {}

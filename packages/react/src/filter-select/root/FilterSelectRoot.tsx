@@ -9,7 +9,7 @@ import {
   type FilterDropdownRoot as FilterDropdownRootNamespace,
 } from '../../filter-dropdown/root/FilterDropdownRoot';
 import type { FilterDropdownFilter } from '../../filter-dropdown/root/FilterDropdownRootContext';
-import { getContainsFilter, type ItemFilter } from '../../internals/filter';
+import type { ItemFilter } from '../../internals/filter';
 import { flattenLeafItems, type Group } from '../../internals/resolveValueLabel';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
@@ -37,6 +37,7 @@ export function FilterSelectRoot<Value, Multiple extends boolean | undefined = f
     onValueChange,
     disabled: disabledProp = false,
     isItemEqualToValue = defaultItemEquality,
+    highlightItemOnHover = true,
     ...selectProps
   } = props;
   const { disabled: fieldDisabled } = useFieldRootContext();
@@ -64,33 +65,50 @@ export function FilterSelectRoot<Value, Multiple extends boolean | undefined = f
     }
     return Object.entries(items).map(([itemValue, label]) => ({ value: itemValue, label }));
   }, [items]);
-  const flatItems = flattenLeafItems(normalizedItems);
+  // Memoized so the removal reconciliation below is not re-armed on every render by a fresh
+  // array, which grouped items would otherwise produce.
+  const flatItems = React.useMemo(() => flattenLeafItems(normalizedItems), [normalizedItems]);
   const query = inputValue.trim();
 
-  const matches = React.useMemo(() => filter ?? getContainsFilter({ locale }), [filter, locale]);
   const filterDropdownFilter = React.useMemo(() => {
-    const defaultFilter = getContainsFilter({ locale });
-    return (filterText: string, filterQuery: string, filterValue?: unknown) => {
-      const item = filterValue ?? filterText;
-      if (matches<any>(item, filterQuery, selectProps.itemToStringLabel)) {
-        return true;
+    if (filter == null) {
+      // Without a custom filter the popup matches each item's registered text, which already
+      // resolves `ReactNode` labels through what was rendered.
+      return undefined;
+    }
+
+    // A custom filter receives the entry from `items`, as documented. Keywords are matched
+    // separately by the popup so a filter written against the item shape never sees a bare
+    // keyword string.
+    return (filterText: string, filterQuery: string, filterValue?: unknown) =>
+      filter<any>(filterValue ?? filterText, filterQuery, selectProps.itemToStringLabel as any);
+  }, [filter, selectProps.itemToStringLabel]);
+
+  const filterSelectContextValue = React.useMemo(() => {
+    // Resolved once for the whole collection. Letting every item scan `items` itself made
+    // rendering n items cost O(n^2).
+    const itemDataByValue = new Map<unknown, any>();
+    for (const item of flatItems) {
+      const itemValue = item?.value ?? null;
+      if (!itemDataByValue.has(itemValue)) {
+        itemDataByValue.set(itemValue, item);
       }
+    }
 
-      return (
-        filter == null &&
-        filterValue != null &&
-        Array.isArray((filterValue as { keywords?: unknown }).keywords) &&
-        (filterValue as { keywords: readonly string[] }).keywords.some((keyword) =>
-          defaultFilter(keyword, filterQuery),
-        )
-      );
+    return {
+      items: normalizedItems,
+      isItemEqualToValue,
+      getItemData(itemValue: unknown) {
+        if (itemDataByValue.has(itemValue)) {
+          return itemDataByValue.get(itemValue);
+        }
+        // A custom comparer can treat different references as equal, so fall back to a scan.
+        return isItemEqualToValue === defaultItemEquality
+          ? undefined
+          : flatItems.find((item) => isItemEqualToValue(item?.value ?? null, itemValue as any));
+      },
     };
-  }, [filter, locale, matches, selectProps.itemToStringLabel]);
-
-  const filterSelectContextValue = React.useMemo(
-    () => ({ items: normalizedItems, isItemEqualToValue }),
-    [isItemEqualToValue, normalizedItems],
-  );
+  }, [flatItems, isItemEqualToValue, normalizedItems]);
 
   function handleOpenChange(nextOpen: boolean, details: FilterSelectRoot.ChangeEventDetails) {
     onOpenChange?.(nextOpen, details);
@@ -139,36 +157,39 @@ export function FilterSelectRoot<Value, Multiple extends boolean | undefined = f
       disabled={disabled}
       isItemEqualToValue={isItemEqualToValue}
       items={items}
-      highlightItemOnHover={false}
+      highlightItemOnHover={highlightItemOnHover}
       open={open}
       onOpenChange={handleOpenChange}
       onValueChange={handleValueChange}
+      virtualFocus
     >
       <FilterSelectRootContext.Provider value={filterSelectContextValue}>
-        <FilterSelectContent
+        <FilterSelectProvider
           open={open}
           disabled={disabled}
           inputFocusVisible={inputFocusVisible}
           inputValue={inputValue}
           flatItems={flatItems}
+          locale={locale}
           removalInProgressRef={removalInProgressRef}
           filter={filterDropdownFilter}
           onInputValueChange={handleInputValueChange}
         >
           {children}
-        </FilterSelectContent>
+        </FilterSelectProvider>
       </FilterSelectRootContext.Provider>
     </SelectRoot>
   );
 }
 
-interface FilterSelectContentProps {
+interface FilterSelectProviderProps {
   open: boolean;
   disabled: boolean;
   inputFocusVisible: boolean;
   inputValue: string;
   flatItems: readonly any[];
-  filter: FilterDropdownFilter;
+  locale: Intl.LocalesArgument | undefined;
+  filter: FilterDropdownFilter | undefined;
   removalInProgressRef: React.MutableRefObject<boolean>;
   onInputValueChange: (
     value: string,
@@ -177,19 +198,31 @@ interface FilterSelectContentProps {
   children?: React.ReactNode;
 }
 
-function FilterSelectContent(props: FilterSelectContentProps) {
-  const { store, listRef, setValue } = useSelectRootContext();
+function FilterSelectProvider(props: FilterSelectProviderProps) {
+  const { store, listRef, setValue, virtualFocusInputRef } = useSelectRootContext();
+  const activeIndex = useStore(store, selectors.activeIndex);
+  const inputProps = useStore(store, selectors.inputProps);
   const selectionReferenceItemId = useStore(store, selectors.selectionReferenceItemId);
   const visibleItemIndexes = useStore(store, selectors.visibleItemIndexes);
-  const hasSelectedValue = useStore(store, selectors.hasSelectedValue);
   const value = useStore(store, selectors.value);
   const isEqual = useStore(store, selectors.isItemEqualToValue);
-
   const selectedIndex =
     selectionReferenceItemId == null
       ? null
       : (visibleItemIndexes.get(selectionReferenceItemId) ?? null);
   const hasQuery = props.inputValue.trim() !== '';
+
+  const setActiveIndex = useStableCallback((index: number | null) => {
+    store.set('activeIndex', index);
+  });
+
+  // Select items register after the popup opens. Seed the selected item once it becomes available,
+  // and again when clearing a query reveals it, without re-latching after navigation escapes.
+  useIsoLayoutEffect(() => {
+    if (props.open && !hasQuery && selectedIndex != null) {
+      setActiveIndex(selectedIndex);
+    }
+  }, [props.open, hasQuery, selectedIndex, setActiveIndex]);
 
   useIsoLayoutEffect(() => {
     const selectedValues = store.state.multiple && Array.isArray(value) ? value : [value];
@@ -216,11 +249,14 @@ function FilterSelectContent(props: FilterSelectContentProps) {
       open={props.open}
       disabled={props.disabled}
       inputFocusVisible={props.inputFocusVisible}
-      selectedIndex={hasQuery ? null : selectedIndex}
-      focusItemOnOpen={!hasQuery && hasSelectedValue ? 'auto' : false}
       value={props.inputValue}
       filter={props.filter}
+      locale={props.locale}
       listRef={listRef}
+      activeIndex={activeIndex}
+      setActiveIndex={setActiveIndex}
+      inputProps={inputProps}
+      inputRef={virtualFocusInputRef}
       onValueChange={props.onInputValueChange}
     >
       {props.children}

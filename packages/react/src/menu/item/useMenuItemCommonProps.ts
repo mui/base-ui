@@ -5,7 +5,6 @@ import { HTMLProps } from '../../internals/types';
 import { MenuStore } from '../store/MenuStore';
 import { REASONS } from '../../internals/reasons';
 import { useContextMenuRootContext } from '../../context-menu/root/ContextMenuRootContext';
-import { useIsFilterableList } from '../../filter-dropdown/root/FilterDropdownRootContext';
 import { dispatchClickWithModifiers } from '../../utils/dispatchClickWithModifiers';
 import type { UseMenuItemMetadata } from './useMenuItem';
 
@@ -72,9 +71,15 @@ export function useMenuItemCommonProps(params: UseMenuItemCommonPropsParameters)
   const open = listStore.useState('open');
   const contextMenuContext = useContextMenuRootContext(true);
   const isContextMenu = contextMenuContext !== undefined;
-  const filterable = useIsFilterableList(listStore.context.itemDomElements);
-  const rovingTabIndex = open && highlighted ? 0 : -1;
-  const tabIndex = filterable ? undefined : rovingTabIndex;
+  // Under virtual focus the list is navigated with `aria-activedescendant` while an input keeps
+  // real focus, so items must stay out of the tab order entirely.
+  const virtualFocus = listStore.useState('virtualFocus');
+  let tabIndex: number | undefined = -1;
+  if (virtualFocus) {
+    tabIndex = undefined;
+  } else if (open && highlighted) {
+    tabIndex = 0;
+  }
 
   return React.useMemo(
     () => ({

@@ -70,6 +70,7 @@ const SelectItemImpl = React.memo(
     const disabled = selectDisabled || disabledProp;
     const highlighted = useStore(store, selectors.isActive, listItem.index);
     const open = useStore(store, selectors.open);
+    const virtualFocus = useStore(store, selectors.virtualFocus);
     const selected = useStore(store, selectors.isSelected, itemValue);
     const isItemEqualToValue = useStore(store, selectors.isItemEqualToValue);
 
@@ -119,7 +120,14 @@ const SelectItemImpl = React.memo(
       selectionRef.current.dragY = 0;
     }
 
-    const rovingTabIndex = open && highlighted ? 0 : -1;
+    // Under virtual focus an input inside the popup keeps real focus and the list is navigated
+    // with `aria-activedescendant`, so items must stay out of the tab order.
+    let rovingTabIndex: number | undefined = -1;
+    if (virtualFocus) {
+      rovingTabIndex = undefined;
+    } else if (open && highlighted) {
+      rovingTabIndex = 0;
+    }
 
     const defaultProps: HTMLProps = {
       id,

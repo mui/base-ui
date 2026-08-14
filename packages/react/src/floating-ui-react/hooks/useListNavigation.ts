@@ -146,11 +146,6 @@ export interface UseListNavigationProps {
    */
   resetOnPointerLeave?: boolean | undefined;
   /**
-   * Whether focusing the reference while the popup is open resets virtual navigation.
-   * @default false
-   */
-  resetOnReferenceFocus?: boolean | undefined;
-  /**
    * Computes two-dimensional list navigation for grid-capable consumers.
    */
   grid?: typeof gridNavigation | null | undefined;
@@ -182,7 +177,6 @@ export function useListNavigation(
     orientation = 'vertical',
     id,
     resetOnPointerLeave = true,
-    resetOnReferenceFocus = false,
     grid: navigateGrid,
   } = props;
   const isGrid = navigateGrid != null;
@@ -442,6 +436,18 @@ export function useListNavigation(
     // the user ArrowDowns, the first item won't be focused.
     if (!latestOpenRef.current && event.currentTarget === floatingFocusElementRef.current) {
       return;
+    }
+
+    // The consumer owns `activeIndex` and may decline a navigation this hook proposed, such as a
+    // virtual list keeping its highlight when the reference is refocused. Declining produces no
+    // re-render, so reconcile here: otherwise the cursor drifts from the rendered highlight and
+    // this key moves from the wrong position.
+    if (
+      activeIndex != null &&
+      activeIndex !== indexRef.current &&
+      !isIndexOutOfListBounds(listRef.current, activeIndex)
+    ) {
+      indexRef.current = activeIndex;
     }
 
     const currentIndex = indexRef.current;
@@ -771,9 +777,6 @@ export function useListNavigation(
           // assistive tech can navigate from it via aria-activedescendant.
           indexRef.current = getMinEnabledIndex();
           onNavigate(event);
-        } else if (virtual && resetOnReferenceFocus) {
-          indexRef.current = -1;
-          onNavigate(event);
         } else if (!virtual) {
           indexRef.current = -1;
           onNavigate(event);
@@ -794,7 +797,6 @@ export function useListNavigation(
     orientation,
     selectedIndexRef,
     virtual,
-    resetOnReferenceFocus,
   ]);
 
   const reference: ElementProps['reference'] = React.useMemo(() => {
@@ -819,9 +821,18 @@ export function useListNavigation(
               event.preventDefault();
             }
             const KeyboardEventConstructor = ownerWindow(activeItem).KeyboardEvent;
+            // `cancelable` lets the item report that it handled the key, `composed` lets the
+            // event escape a shadow root so React's root listener still sees it, and the
+            // modifiers are copied so handlers that branch on them see a real key press.
             const forwardEvent = new KeyboardEventConstructor(event.type, {
               key: event.key,
               bubbles: true,
+              cancelable: true,
+              composed: true,
+              altKey: event.altKey,
+              ctrlKey: event.ctrlKey,
+              metaKey: event.metaKey,
+              shiftKey: event.shiftKey,
             });
             if (!activeItem.dispatchEvent(forwardEvent)) {
               stopEvent(event);

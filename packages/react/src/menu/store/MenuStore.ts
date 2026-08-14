@@ -33,6 +33,16 @@ export type State<Payload> = PopupStoreState<Payload> & {
   floatingNodeId: string | undefined;
   floatingParentNodeId: string | null;
   itemProps: HTMLProps;
+  /**
+   * Whether real focus stays on an input inside the popup while the list is navigated with
+   * `aria-activedescendant` instead of roving DOM focus. Parts that own such an input opt the
+   * menu into this mode.
+   */
+  virtualFocus: boolean;
+  /**
+   * Props for the input that holds real focus while `virtualFocus` is enabled.
+   */
+  inputProps: HTMLProps;
   closeDelay: number;
   keyboardEventRelay: ((event: React.KeyboardEvent<any>) => void) | undefined;
   adaptiveOrigin: AdaptiveOriginMiddleware | undefined;
@@ -91,6 +101,8 @@ const selectors = {
   floatingNodeId: (state: State<unknown>) => state.floatingNodeId,
   floatingParentNodeId: (state: State<unknown>) => state.floatingParentNodeId,
   itemProps: (state: State<unknown>) => state.itemProps,
+  virtualFocus: (state: State<unknown>) => state.virtualFocus,
+  inputProps: (state: State<unknown>) => state.inputProps,
   closeDelay: (state: State<unknown>) => state.closeDelay,
   adaptiveOrigin: (state: State<unknown>): AdaptiveOriginMiddleware | undefined =>
     state.adaptiveOrigin,
@@ -234,6 +246,8 @@ function createInitialState<Payload>(
     floatingNodeId: undefined,
     floatingParentNodeId: null,
     itemProps: EMPTY_OBJECT,
+    virtualFocus: false,
+    inputProps: EMPTY_OBJECT,
     keyboardEventRelay: undefined,
     closeDelay: 0,
     adaptiveOrigin: undefined,

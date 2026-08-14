@@ -6,11 +6,12 @@ import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { visuallyHidden } from '@base-ui/utils/visuallyHidden';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
-import { Store, useStore } from '@base-ui/utils/store';
-import { useFloatingRootContext, useListNavigation } from '../../floating-ui-react';
+import { Store } from '@base-ui/utils/store';
+import { EMPTY_OBJECT, NOOP } from '@base-ui/utils/empty';
+import { getContainsFilter } from '../../internals/filter';
+import type { HTMLProps } from '../../internals/types';
 import { useBaseUiId } from '../../internals/useBaseUiId';
 import { useItemRegistry } from '../../internals/useItemRegistry';
-import type { HTMLProps } from '../../internals/types';
 import {
   FilterDropdownRootContext,
   FilterDropdownValueContext,
@@ -18,9 +19,12 @@ import {
   type FilterDropdownFilter,
   type FilterDropdownRoot as FilterDropdownRootNamespace,
 } from './FilterDropdownRootContext';
-import type { NavigationState } from '../store';
+import type { State as StoreState } from '../store';
 
 /**
+ * Holds the filter query, matches it against the registered items, and publishes the result. The
+ * host owns list navigation; this root only reads the index the host highlights.
+ *
  * @internal
  */
 export function FilterDropdownRoot(props: FilterDropdownRoot.Props): React.JSX.Element {
@@ -29,8 +33,6 @@ export function FilterDropdownRoot(props: FilterDropdownRoot.Props): React.JSX.E
     open,
     disabled = false,
     inputFocusVisible = false,
-    selectedIndex = null,
-    focusItemOnOpen = false,
     empty,
     locale,
     value,
@@ -39,170 +41,123 @@ export function FilterDropdownRoot(props: FilterDropdownRoot.Props): React.JSX.E
     triggerId: externalTriggerId,
     triggerElement: externalTriggerElement,
     listRef,
-    contextRef,
+    activeIndex = null,
+    setActiveIndex = NOOP,
+    inputProps = EMPTY_OBJECT,
+    inputRef: externalInputRef,
   } = props;
 
   const parentContext = React.useContext(FilterDropdownRootContext);
   const [liveRegionElement, setLiveRegionElement] = React.useState<HTMLDivElement | null>(null);
   const [registeredTriggerElement, setTriggerElement] = React.useState<HTMLElement | null>(null);
-  const [registeredPopupElement, setPopupElement] = React.useState<HTMLElement | null>(null);
   const [registeredTriggerId, setTriggerId] = React.useState<string | undefined>(undefined);
   const [registeredPopupId, setPopupId] = React.useState<string | undefined>(undefined);
+  const [registeredListId, setListId] = React.useState<string | undefined>(undefined);
   const [registeredItems, registerItem] = useItemRegistry<symbol, FilterDropdownItemRegistration>();
-  const [navigationFocusVisible, setNavigationFocusVisible] = React.useState(inputFocusVisible);
+  const [focusVisible, setFocusVisible] = React.useState(inputFocusVisible);
+
   // React 17 resolves generated ids in an effect, so they must be read live rather than captured
   // in a state initializer.
   const defaultTriggerId = useBaseUiId();
   const defaultPopupId = useBaseUiId();
+  const defaultListId = useBaseUiId();
   const triggerElement = externalTriggerElement ?? registeredTriggerElement;
   const triggerId = externalTriggerId ?? registeredTriggerId ?? defaultTriggerId;
   const popupId = registeredPopupId ?? defaultPopupId;
-  const inputRef = React.useRef<HTMLInputElement | null>(null);
-  const keyboardNavigationCountRef = React.useRef(0);
-  const handleValueChange = useStableCallback(onValueChange);
+  const listId = registeredListId ?? defaultListId;
 
-  const navigationStore = useRefWithInit(
-    () => new Store<NavigationState>({ activeIndex: null }),
-  ).current;
+  const ownInputRef = React.useRef<HTMLInputElement | null>(null);
+  const inputRef = externalInputRef ?? ownInputRef;
+  const handleValueChange = useStableCallback(onValueChange ?? NOOP);
 
-  const activeIndex = useStore(navigationStore, (state) => state.activeIndex);
+  const store = useRefWithInit(() => new Store<StoreState>({ visibleItemIds: null })).current;
 
-  const floatingContext = useFloatingRootContext({
-    open,
-    onOpenChange: () => {},
-    elements: {
-      reference: triggerElement,
-      floating: registeredPopupElement,
-    },
-  });
-
-  const listNavigation = useListNavigation(floatingContext, {
-    enabled: open,
-    id: popupId,
-    listRef,
-    activeIndex,
-    virtual: true,
-    loopFocus: true,
-    allowEscape: true,
-    resetOnReferenceFocus: true,
-    focusItemOnOpen,
-    selectedIndex,
-    onNavigate(nextActiveIndex, event) {
-      if (event?.type === 'focus') {
-        return;
-      }
-      navigationStore.set('activeIndex', nextActiveIndex);
-      if (nextActiveIndex === null && open) {
-        inputRef.current?.focus({ preventScroll: true });
-      }
-      if (event?.type !== 'focus') {
-        if (event?.type === 'keydown') {
-          keyboardNavigationCountRef.current += 1;
-          setNavigationFocusVisible(keyboardNavigationCountRef.current > 1);
-        } else {
-          keyboardNavigationCountRef.current = 0;
-          setNavigationFocusVisible(false);
-        }
-      }
-    },
-  });
+  const defaultMatches = React.useMemo(() => getContainsFilter({ locale }), [locale]);
 
   useIsoLayoutEffect(() => {
-    keyboardNavigationCountRef.current = 0;
-    setNavigationFocusVisible(inputFocusVisible);
+    setFocusVisible(inputFocusVisible);
   }, [inputFocusVisible]);
 
-  React.useEffect(() => {
-    if (open) {
-      inputRef.current?.focus({ preventScroll: true });
-    }
-  }, [open]);
-
-  const previousValueRef = React.useRef(value);
+  // Filtering runs against the registry snapshot published after every item in the commit has
+  // registered, and against the committed value, because a controlled consumer can reject a
+  // proposed change.
   useIsoLayoutEffect(() => {
-    if (previousValueRef.current === value) {
-      if (open && value.trim() === '' && activeIndex === null && selectedIndex != null) {
-        navigationStore.set('activeIndex', selectedIndex);
+    if (!open) {
+      return;
+    }
+
+    const query = value.trim();
+    if (query === '') {
+      if (store.state.visibleItemIds !== null) {
+        store.set('visibleItemIds', null);
       }
       return;
     }
-    previousValueRef.current = value;
-    navigationStore.set('activeIndex', value.trim() === '' ? selectedIndex : null);
-  }, [activeIndex, navigationStore, open, selectedIndex, value]);
 
-  // Nested popups can be portalled while their events still bubble through the parent React tree.
-  // Share a registry so each popup can ignore events owned by a nested popup.
-  const popupElements = useRefWithInit(
-    () => parentContext?.popupElements ?? new WeakSet<EventTarget>(),
-  ).current;
+    const nextIds = new Set<symbol>();
+    registeredItems.forEach(({ getText, keywords, filterValue }, id) => {
+      const filterText = getText();
+      const matchesText =
+        filterText != null &&
+        (filter ? filter(filterText, query, filterValue) : defaultMatches(filterText, query));
+      // Keywords are alternate search terms rather than items, so they always use the default
+      // matcher. Handing one to a custom filter would give it a bare string instead of an item.
+      if (matchesText || keywords?.some((keyword) => defaultMatches(keyword, query))) {
+        nextIds.add(id);
+      }
+    });
+
+    const currentIds = store.state.visibleItemIds;
+    if (currentIds === null || !isSetEqual(currentIds, nextIds)) {
+      store.set('visibleItemIds', nextIds);
+    }
+  }, [open, value, registeredItems, filter, defaultMatches, store]);
 
   const contextValue: FilterDropdownRootContext = React.useMemo(
     () => ({
       parent: parentContext,
       open,
       disabled,
-      inputFocusVisible: navigationFocusVisible,
-      setInputFocusVisible: setNavigationFocusVisible,
+      inputFocusVisible: focusVisible,
+      setInputFocusVisible: setFocusVisible,
       empty,
-      popupElements,
-      liveRegionElement,
+      store,
       popupId,
       setPopupId,
       triggerId,
       setTriggerId,
+      listId,
+      setListId,
+      liveRegionElement,
       setTriggerElement,
-      setPopupElement,
-      setLiveRegionElement,
       inputRef,
-      listRef,
-      registeredItems,
       registerItem,
-      navigationStore,
+      listRef,
       activeIndex,
-      setActiveIndex(index) {
-        navigationStore.set('activeIndex', index);
-      },
-      navigation: {
-        trigger: listNavigation.trigger ?? ({} as HTMLProps),
-        reference: listNavigation.reference ?? ({} as HTMLProps),
-        floating: listNavigation.floating ?? ({} as HTMLProps),
-        item: listNavigation.item ?? ({} as HTMLProps),
-      },
+      setActiveIndex,
+      inputProps,
       onValueChange: handleValueChange,
-      locale,
-      filter,
     }),
     [
       parentContext,
       open,
       disabled,
-      navigationFocusVisible,
+      focusVisible,
       empty,
-      popupElements,
-      liveRegionElement,
+      store,
       popupId,
       triggerId,
+      listId,
+      liveRegionElement,
       inputRef,
-      listRef,
-      registeredItems,
       registerItem,
-      listNavigation.trigger,
-      listNavigation.reference,
-      listNavigation.floating,
-      listNavigation.item,
+      listRef,
       activeIndex,
-      navigationStore,
-      locale,
-      filter,
+      setActiveIndex,
+      inputProps,
       handleValueChange,
     ],
   );
-
-  useIsoLayoutEffect(() => {
-    if (contextRef) {
-      contextRef.current = contextValue;
-    }
-  }, [contextRef, contextValue]);
 
   return (
     <FilterDropdownRootContext.Provider value={contextValue}>
@@ -224,6 +179,24 @@ export function FilterDropdownRoot(props: FilterDropdownRoot.Props): React.JSX.E
   );
 }
 
+function isSetEqual<T>(firstSet: ReadonlySet<T>, secondSet: ReadonlySet<T>) {
+  if (firstSet === secondSet) {
+    return true;
+  }
+
+  if (firstSet.size !== secondSet.size) {
+    return false;
+  }
+
+  for (const item of firstSet) {
+    if (!secondSet.has(item)) {
+      return false;
+    }
+  }
+
+  return true;
+}
+
 export interface FilterDropdownRootProps {
   children?: React.ReactNode;
   /**
@@ -232,15 +205,11 @@ export interface FilterDropdownRootProps {
   open: boolean;
   /** Whether the filter controls should be disabled. */
   disabled?: boolean | undefined;
-  /** Whether virtual focus was entered through keyboard navigation. */
+  /** Whether the input should render its focus ring. */
   inputFocusVisible?: boolean | undefined;
-  /** The item to highlight when the popup opens or its value is cleared. */
-  selectedIndex?: number | null | undefined;
-  /** Whether to seed virtual focus when the popup opens. */
-  focusItemOnOpen?: boolean | 'auto' | undefined;
   /**
    * Whether the current query matched no items, when the host's data pass drives the list.
-   * When omitted, the popup's item registry decides.
+   * When omitted, the item registry decides.
    */
   empty?: boolean | undefined;
   /**
@@ -270,13 +239,25 @@ export interface FilterDropdownRootProps {
    */
   triggerElement?: Element | null | undefined;
   /**
-   * DOM-ordered list of item elements used by virtual focus navigation.
+   * The host's DOM-ordered list of item elements.
    */
   listRef: React.RefObject<Array<HTMLElement | null>>;
   /**
-   * Receives the root's context value, for owners that need it above the provider.
+   * The index the host currently highlights.
    */
-  contextRef?: React.RefObject<FilterDropdownRootContext | null> | undefined;
+  activeIndex?: number | null | undefined;
+  /**
+   * Moves the host's highlight.
+   */
+  setActiveIndex?: ((index: number | null) => void) | undefined;
+  /**
+   * The host's navigation props for the element holding real focus while the popup is open.
+   */
+  inputProps?: HTMLProps | undefined;
+  /**
+   * The host's ref for the input, so it can focus it when the popup opens.
+   */
+  inputRef?: React.RefObject<HTMLInputElement | null> | undefined;
 }
 
 export namespace FilterDropdownRoot {

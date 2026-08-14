@@ -1,17 +1,19 @@
 'use client';
 import * as React from 'react';
-import { FilterDropdown } from '../../filter-dropdown';
+import { useFilterDropdownGroup } from '../../filter-dropdown/group/useFilterDropdownGroup';
+import { FilterDropdownGroupContext } from '../../filter-dropdown/group/FilterDropdownGroupContext';
 import { MenuGroup, type MenuGroupProps } from '../../menu/group/MenuGroup';
 
 export const FilterMenuGroup = React.forwardRef(function FilterMenuGroup(
   props: FilterMenuGroup.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { children, ...menuProps } = props;
+  const { hidden, context } = useFilterDropdownGroup();
+
   return (
-    <FilterDropdown.Group render={<MenuGroup {...menuProps} ref={forwardedRef} />}>
-      {children}
-    </FilterDropdown.Group>
+    <FilterDropdownGroupContext.Provider value={context}>
+      <MenuGroup {...props} hidden={hidden || props.hidden || undefined} ref={forwardedRef} />
+    </FilterDropdownGroupContext.Provider>
   );
 });
 

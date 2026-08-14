@@ -49,8 +49,19 @@ export type State = {
   activeIndex: number | null;
   selectionReferenceItemId: symbol | null;
 
+  /**
+   * Whether real focus stays on an input inside the popup while the list is navigated with
+   * `aria-activedescendant` instead of roving DOM focus. Parts that own such an input opt the
+   * select into this mode.
+   */
+  virtualFocus: boolean;
+
   popupProps: HTMLProps;
   triggerProps: HTMLProps;
+  /**
+   * Props for the input that holds real focus while `virtualFocus` is enabled.
+   */
+  inputProps: HTMLProps;
   triggerElement: HTMLElement | null;
   positionerElement: HTMLElement | null;
   listElement: HTMLDivElement | null;
@@ -102,6 +113,8 @@ export const selectors = {
   activeIndex: (state: State) => state.activeIndex,
   selectionReferenceItemId: (state: State) => state.selectionReferenceItemId,
   isActive: (state: State, index: number) => state.activeIndex === index,
+  virtualFocus: (state: State) => state.virtualFocus,
+  inputProps: (state: State) => state.inputProps,
 
   isSelected: (state: State, itemValue: any) => {
     const comparer = state.isItemEqualToValue;

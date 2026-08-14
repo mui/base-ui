@@ -3,6 +3,7 @@ import * as React from 'react';
 import type { InteractionType } from '@base-ui/utils/useEnhancedClickHandler';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { FloatingFocusManager, useHoverFloatingInteraction } from '../../floating-ui-react';
+import type { FloatingFocusManagerProps } from '../../floating-ui-react/components/FloatingFocusManager';
 import { useMenuRootContext } from '../root/MenuRootContext';
 import type { MenuRoot } from '../root/MenuRoot';
 import { useMenuPositionerContext } from '../positioner/MenuPositionerContext';
@@ -55,8 +56,16 @@ export const MenuPopup = React.forwardRef(function MenuPopup(
   const hoverEnabled = store.useState('hoverEnabled');
   const disabled = store.useState('disabled');
 
+  const virtualFocus = store.useState('virtualFocus');
+
   const isContextMenu = parent.type === 'context-menu';
   const shouldFocusPopup = parent.type !== 'menu' || openedByKeyboard;
+  // Under virtual focus the popup itself is never the focus target: the input holds real focus
+  // and the list is navigated with `aria-activedescendant`.
+  let initialFocus: FloatingFocusManagerProps['initialFocus'] = shouldFocusPopup;
+  if (shouldFocusPopup && virtualFocus) {
+    initialFocus = store.context.inputRef;
+  }
 
   useIsoLayoutEffect(() => {
     if (id) {
@@ -112,7 +121,9 @@ export const MenuPopup = React.forwardRef(function MenuPopup(
       {
         id,
         role: 'menu',
-        'aria-labelledby': activeTriggerId ?? undefined,
+        // Read the id off the element rather than the registration: a `render` element's own
+        // `id` wins in the DOM, and pointing at the registered id would reference nothing.
+        'aria-labelledby': activeTriggerElement?.id ?? activeTriggerId ?? undefined,
         onKeyDown(event) {
           submenuRootContext?.onPopupKeyDown(event);
           if (insideToolbar && COMPOSITE_KEYS.has(event.key)) {
@@ -143,7 +154,7 @@ export const MenuPopup = React.forwardRef(function MenuPopup(
       modal={isContextMenu}
       disabled={!mounted}
       returnFocus={finalFocus === undefined ? resolvedReturnFocus : finalFocus}
-      initialFocus={shouldFocusPopup}
+      initialFocus={initialFocus}
       restoreFocus
       externalTree={parent.type !== 'menubar' ? floatingTreeRoot : undefined}
       previousFocusableElement={activeTriggerElement as HTMLElement | null}

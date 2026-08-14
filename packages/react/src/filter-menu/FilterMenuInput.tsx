@@ -5,30 +5,33 @@ import {
   type FilterDropdownInputProps,
   type FilterDropdownInputState,
 } from '../filter-dropdown/input/FilterDropdownInput';
+import { useFilterDropdownRootContext } from '../filter-dropdown/root/FilterDropdownRootContext';
 import { mergeProps } from '../merge-props';
 import type { BaseUIEvent } from '../internals/types';
-import { useMenuRootContext } from '../menu/root/MenuRootContext';
-import { useFilterDropdownRootContext } from '../filter-dropdown/root/FilterDropdownRootContext';
 
 export const FilterMenuInput = React.forwardRef(function FilterMenuInput(
   componentProps: FilterMenuInput.Props,
   forwardedRef: React.ForwardedRef<HTMLInputElement>,
 ) {
-  const { store } = useMenuRootContext();
-  const filterContext = useFilterDropdownRootContext();
-
-  React.useEffect(() => {
-    const activeElement = filterContext.listRef.current[filterContext.activeIndex ?? -1];
-    const menuActiveIndex = store.context.itemDomElements.current.indexOf(activeElement);
-    store.set('activeIndex', menuActiveIndex === -1 ? null : menuActiveIndex);
-  }, [filterContext.activeIndex, filterContext.listRef, store]);
+  const { listRef, activeIndex } = useFilterDropdownRootContext();
 
   const inputProps = mergeProps<typeof FilterDropdownInput>(
     {
       onKeyDown(event: BaseUIEvent<React.KeyboardEvent<HTMLInputElement>>) {
-        const activeItem = filterContext.listRef.current[filterContext.activeIndex ?? -1];
+        // List navigation forwards cross-axis keys to the highlighted item but leaves activation
+        // keys to a typeable reference, so Enter is committed here.
+        if (event.key !== 'Enter') {
+          return;
+        }
 
-        if (event.key === 'Enter' && activeItem) {
+        // Enter that commits an IME composition belongs to the input, not the list.
+        const nativeEvent = event.nativeEvent as KeyboardEvent;
+        if (nativeEvent.isComposing || nativeEvent.keyCode === 229) {
+          return;
+        }
+
+        const activeItem = listRef.current[activeIndex ?? -1];
+        if (activeItem) {
           event.preventDefault();
           activeItem.click();
         }

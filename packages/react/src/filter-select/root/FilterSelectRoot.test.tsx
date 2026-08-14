@@ -310,7 +310,7 @@ describe('<FilterSelect.Root />', () => {
       expect(input).toHaveAttribute('data-focus-visible');
     });
 
-    it('sets the first item as active when the filterable list receives focus', async () => {
+    it('keeps virtual focus on the input without making the list tabbable', async () => {
       const { user } = await render(
         <FilterSelect.Root
           defaultOpen
@@ -339,20 +339,17 @@ describe('<FilterSelect.Root />', () => {
 
       const list = screen.getByRole('listbox');
       const firstItem = screen.getByRole('option', { name: 'Apple' });
+      const input = screen.getByRole('searchbox', { name: 'Filter fruit' });
       expect(list).not.toHaveAttribute('aria-activedescendant');
+      expect(list).not.toHaveAttribute('tabindex');
+      expect(input).toHaveFocus();
 
-      await user.tab();
+      await user.keyboard('[ArrowDown]');
 
       await waitFor(() => {
-        expect(list).toHaveAttribute('aria-activedescendant', firstItem.id);
+        expect(input).toHaveAttribute('aria-activedescendant', firstItem.id);
       });
-
-      await user.keyboard('{Shift>}{Tab}{/Shift}');
-
-      await waitFor(() => {
-        expect(screen.getByRole('searchbox', { name: 'Filter fruit' })).toHaveFocus();
-      });
-      expect(list).not.toHaveAttribute('aria-activedescendant');
+      expect(input).toHaveFocus();
     });
 
     it('supports a controlled input value', async () => {
@@ -985,6 +982,244 @@ describe('<FilterSelect.Root />', () => {
       await user.keyboard('{Enter}');
 
       expect(screen.getByTestId('trigger')).toHaveTextContent('Banana');
+    });
+  });
+
+  it('matches keywords with the default filter when a custom filter is supplied', async () => {
+    const filter: FilterSelectFilter = (item, query) => {
+      if (typeof item !== 'object' || item === null || !('label' in item)) {
+        return false;
+      }
+      return String(item.label).toLowerCase().startsWith(query.toLowerCase());
+    };
+
+    const { user } = await render(
+      <FilterSelect.Root
+        items={
+          [
+            { value: 'settings', label: 'Settings', keywords: ['preferences'] },
+            { value: 'apple', label: 'Apple' },
+          ] as FilterSelectItemData[]
+        }
+        filter={filter}
+      >
+        <FilterSelect.Trigger data-testid="trigger">
+          <FilterSelect.Value />
+        </FilterSelect.Trigger>
+        <FilterSelect.Portal>
+          <FilterSelect.Positioner>
+            <FilterSelect.Popup>
+              <FilterSelect.Input aria-label="Filter" />
+              <FilterSelect.List>
+                {(item: { value: string; label: string }) => (
+                  <FilterSelect.Item key={item.value} value={item.value}>
+                    <FilterSelect.ItemText>{item.label}</FilterSelect.ItemText>
+                  </FilterSelect.Item>
+                )}
+              </FilterSelect.List>
+            </FilterSelect.Popup>
+          </FilterSelect.Positioner>
+        </FilterSelect.Portal>
+      </FilterSelect.Root>,
+    );
+
+    await user.click(screen.getByTestId('trigger'));
+    const input = await screen.findByRole('searchbox', { name: 'Filter' });
+
+    // The custom filter only ever sees the item from `items`, so narrowing it does not break
+    // keyword matching.
+    await user.type(input, 'prefer');
+
+    await waitFor(() => {
+      expect(screen.getByRole('option', { name: 'Settings' })).toBeVisible();
+    });
+    expect(screen.queryByRole('option', { name: 'Apple' })).to.equal(null);
+  });
+
+  describe('keyboard navigation', () => {
+    const fruits = [
+      { value: 'apple', label: 'Apple' },
+      { value: 'banana', label: 'Banana' },
+      { value: 'blueberry', label: 'Blueberry' },
+    ];
+
+    function KeyboardNavigationSelect(props: { defaultValue?: string }) {
+      return (
+        <FilterSelect.Root items={fruits} defaultValue={props.defaultValue}>
+          <FilterSelect.Trigger data-testid="trigger">
+            <FilterSelect.Value />
+          </FilterSelect.Trigger>
+          <FilterSelect.Portal>
+            <FilterSelect.Positioner>
+              <FilterSelect.Popup>
+                <FilterSelect.Input aria-label="Filter fruit" />
+                <FilterSelect.List>
+                  {(fruit: { value: string; label: string }) => (
+                    <FilterSelect.Item key={fruit.value} value={fruit.value}>
+                      <FilterSelect.ItemText>{fruit.label}</FilterSelect.ItemText>
+                    </FilterSelect.Item>
+                  )}
+                </FilterSelect.List>
+              </FilterSelect.Popup>
+            </FilterSelect.Positioner>
+          </FilterSelect.Portal>
+        </FilterSelect.Root>
+      );
+    }
+
+    async function openWithKeyboard(user: { keyboard: (input: string) => Promise<void> }) {
+      const trigger = screen.getByTestId('trigger');
+      await act(async () => {
+        trigger.focus();
+      });
+      await user.keyboard('[Enter]');
+      const input = await screen.findByRole('searchbox', { name: 'Filter fruit' });
+
+      if (isJSDOM) {
+        Object.defineProperty(screen.getByRole('listbox'), 'scrollTo', {
+          configurable: true,
+          value: vi.fn(),
+        });
+      }
+
+      return input;
+    }
+
+    it('walks the options with the arrow keys and releases the highlight at the end', async () => {
+      const { user } = await render(<KeyboardNavigationSelect />);
+      const input = await openWithKeyboard(user);
+
+      await user.keyboard('[ArrowDown]');
+      await waitFor(() => {
+        expect(screen.getByRole('option', { name: 'Apple' })).toHaveAttribute('data-highlighted');
+      });
+
+      await user.keyboard('[ArrowDown][ArrowDown]');
+      await waitFor(() => {
+        expect(screen.getByRole('option', { name: 'Blueberry' })).toHaveAttribute(
+          'data-highlighted',
+        );
+      });
+
+      await user.keyboard('[ArrowDown]');
+      await waitFor(() => {
+        expect(input).not.toHaveAttribute('aria-activedescendant');
+      });
+
+      await user.keyboard('[ArrowDown]');
+      await waitFor(() => {
+        expect(screen.getByRole('option', { name: 'Apple' })).toHaveAttribute('data-highlighted');
+      });
+    });
+
+    it('keeps the highlight on the selected option past the end of the list', async () => {
+      const { user } = await render(<KeyboardNavigationSelect defaultValue="banana" />);
+      const input = await openWithKeyboard(user);
+
+      await waitFor(() => {
+        expect(screen.getByRole('option', { name: 'Banana' })).toHaveAttribute('data-highlighted');
+      });
+
+      await user.keyboard('[ArrowDown]');
+      await waitFor(() => {
+        expect(screen.getByRole('option', { name: 'Blueberry' })).toHaveAttribute(
+          'data-highlighted',
+        );
+      });
+
+      // Releasing the highlight at the end must not snap back to the selected option.
+      await user.keyboard('[ArrowDown]');
+      await waitFor(() => {
+        expect(input).not.toHaveAttribute('aria-activedescendant');
+      });
+
+      await user.keyboard('[ArrowDown]');
+      await waitFor(() => {
+        expect(screen.getByRole('option', { name: 'Apple' })).toHaveAttribute('data-highlighted');
+      });
+    });
+
+    it('restores the selected highlight after closing and reopening', async () => {
+      const { user } = await render(<KeyboardNavigationSelect defaultValue="banana" />);
+      await openWithKeyboard(user);
+
+      await user.keyboard('[ArrowDown]');
+      await waitFor(() => {
+        expect(screen.getByRole('option', { name: 'Blueberry' })).toHaveAttribute(
+          'data-highlighted',
+        );
+      });
+
+      await user.keyboard('[Escape]');
+      await waitFor(() => {
+        expect(screen.queryByRole('listbox')).to.equal(null);
+      });
+
+      const reopenedInput = await openWithKeyboard(user);
+      const selectedOption = screen.getByRole('option', { name: 'Banana' });
+
+      await waitFor(() => {
+        expect(selectedOption).toHaveAttribute('data-highlighted');
+      });
+      expect(reopenedInput).toHaveAttribute('aria-activedescendant', selectedOption.id);
+
+      // Navigation continues from the selected option, not from a stale index.
+      await user.keyboard('[ArrowDown]');
+      await waitFor(() => {
+        expect(screen.getByRole('option', { name: 'Blueberry' })).toHaveAttribute(
+          'data-highlighted',
+        );
+      });
+    });
+
+    it('keeps the highlight index in step with the highlighted option after the input is refocused', async () => {
+      const { user } = await render(<KeyboardNavigationSelect />);
+      const input = await openWithKeyboard(user);
+
+      await user.keyboard('[ArrowDown][ArrowDown]');
+      await waitFor(() => {
+        expect(screen.getByRole('option', { name: 'Banana' })).toHaveAttribute('data-highlighted');
+      });
+
+      await act(async () => {
+        input.blur();
+        input.focus();
+      });
+
+      expect(input).toHaveAttribute(
+        'aria-activedescendant',
+        screen.getByRole('option', { name: 'Banana' }).id,
+      );
+
+      await user.keyboard('[ArrowDown]');
+      await waitFor(() => {
+        expect(screen.getByRole('option', { name: 'Blueberry' })).toHaveAttribute(
+          'data-highlighted',
+        );
+      });
+    });
+
+    it('rebuilds the highlight from the first match after filtering and clearing', async () => {
+      const { user } = await render(<KeyboardNavigationSelect defaultValue="banana" />);
+      const input = await openWithKeyboard(user);
+
+      await user.type(input, 'blue');
+      await waitFor(() => {
+        expect(screen.queryByRole('option', { name: 'Banana' })).to.equal(null);
+      });
+      expect(input).not.toHaveAttribute('aria-activedescendant');
+
+      await user.keyboard('[ArrowDown]');
+      await waitFor(() => {
+        expect(screen.getByRole('option', { name: 'Blueberry' })).toHaveAttribute(
+          'data-highlighted',
+        );
+      });
+
+      await user.clear(input);
+      await waitFor(() => {
+        expect(screen.getByRole('option', { name: 'Banana' })).toHaveAttribute('data-highlighted');
+      });
     });
   });
 });

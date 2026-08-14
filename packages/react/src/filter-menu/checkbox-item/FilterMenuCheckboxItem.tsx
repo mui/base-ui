@@ -1,6 +1,7 @@
 'use client';
 import * as React from 'react';
-import { FilterDropdown } from '../../filter-dropdown';
+import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
+import { useFilterDropdownItem } from '../../filter-dropdown/item/useFilterDropdownItem';
 import {
   MenuCheckboxItem,
   type MenuCheckboxItemProps,
@@ -10,17 +11,11 @@ export const FilterMenuCheckboxItem = React.forwardRef(function FilterMenuCheckb
   props: FilterMenuCheckboxItem.Props,
   forwardedRef: React.ForwardedRef<HTMLElement>,
 ) {
-  const { label, keywords, render, ...menuProps } = props;
-  return (
-    <FilterDropdown.Item
-      label={label}
-      keywords={keywords}
-      role="menuitemcheckbox"
-      render={
-        <MenuCheckboxItem {...menuProps} tabIndex={undefined} ref={forwardedRef} render={render} />
-      }
-    />
-  );
+  const { label, keywords, ...menuProps } = props;
+  const { visible, ref } = useFilterDropdownItem({ label, keywords, children: props.children });
+  const mergedRef = useMergedRefs(forwardedRef, ref);
+
+  return visible ? <MenuCheckboxItem {...menuProps} label={label} ref={mergedRef} /> : null;
 });
 
 export interface FilterMenuCheckboxItemProps extends Omit<MenuCheckboxItemProps, 'keywords'> {

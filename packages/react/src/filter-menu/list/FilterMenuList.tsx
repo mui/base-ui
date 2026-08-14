@@ -1,39 +1,18 @@
 'use client';
 import * as React from 'react';
-import { FilterDropdown } from '../../filter-dropdown';
-import { useFilterDropdownRootContext } from '../../filter-dropdown/root/FilterDropdownRootContext';
-import type { BaseUIComponentProps, BaseUIEvent } from '../../internals/types';
-import { mergeProps } from '../../merge-props';
+import {
+  FilterDropdownList,
+  type FilterDropdownListProps,
+} from '../../filter-dropdown/list/FilterDropdownList';
+import type { BaseUIComponentProps } from '../../internals/types';
 
 export const FilterMenuList = React.forwardRef(function FilterMenuList(
   props: FilterMenuList.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const { id, ...listProps } = props;
-  const filterContext = useFilterDropdownRootContext();
-  const mergedProps = mergeProps(
-    {
-      onKeyDown(event: BaseUIEvent<React.KeyboardEvent>) {
-        if (event.key === 'Tab' && event.shiftKey) {
-          event.preventDefault();
-          event.stopPropagation();
-          event.preventBaseUIHandler();
-          filterContext.setActiveIndex(null);
-          filterContext.inputRef.current?.focus({ preventScroll: true });
-        }
-      },
-    },
-    listProps,
-  );
-  const activeDescendant = filterContext.listRef.current[filterContext.activeIndex ?? -1]?.id;
-
   return (
-    <FilterDropdown.List
-      {...mergedProps}
-      id={id}
-      aria-activedescendant={activeDescendant}
-      ref={forwardedRef}
-    />
+    <FilterDropdownList {...(listProps as FilterDropdownListProps)} id={id} ref={forwardedRef} />
   );
 });
 

@@ -30,8 +30,13 @@ import {
   ContextMenuRootContext,
   useContextMenuRootContext,
 } from '../../context-menu/root/ContextMenuRootContext';
-import { mergeProps } from '../../merge-props';
+import { mergeProps, mergePropsN } from '../../merge-props';
 import { useAnimationsFinished } from '../../internals/useAnimationsFinished';
+import {
+  isCrossOrientationOpenKey,
+  isMainOrientationKey,
+} from '../../floating-ui-react/utils/listNavigation';
+import type { BaseUIEvent, HTMLProps } from '../../internals/types';
 import { MenuStore, type State as MenuStoreState } from '../store/MenuStore';
 import { MenuHandle } from '../store/MenuHandle';
 import {
@@ -47,6 +52,12 @@ import {
 
 interface MenuRootInternalProps<Payload> extends MenuRoot.Props<Payload> {
   isSubmenu?: boolean | undefined;
+  /**
+   * @ignore
+   * Keeps real focus on an input inside the popup and navigates the list with
+   * `aria-activedescendant`. Set by parts that render such an input.
+   */
+  virtualFocus?: boolean | undefined;
 }
 
 /**
@@ -75,6 +86,7 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(
     defaultTriggerId: defaultTriggerIdProp = null,
     highlightItemOnHover = true,
     isSubmenu = false,
+    virtualFocus = false,
   } = props;
 
   const contextMenuContext = useContextMenuRootContext(true);
@@ -199,6 +211,7 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(
     modal: parent.type === undefined ? modalProp : undefined,
     openMethod,
     rootId,
+    virtualFocus,
   });
 
   useImplicitActiveTrigger(store);
@@ -493,9 +506,12 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(
     enabled: !disabled,
     listRef: store.context.itemDomElements,
     activeIndex,
-    virtual: false,
+    virtual: virtualFocus,
     loopFocus,
-    focusItemOnOpen,
+    // Virtual focus opens with the input focused and nothing highlighted, so the first arrow key
+    // enters the list from the top rather than moving off a seeded item.
+    focusItemOnOpen: virtualFocus ? false : focusItemOnOpen,
+    allowEscape: virtualFocus && loopFocus,
     orientation,
     rtl: direction === 'rtl',
     disabledIndices: EMPTY_ARRAY,
@@ -514,7 +530,8 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(
   );
 
   const typeahead = useTypeahead(floatingRootContext, {
-    enabled: !disabled,
+    // Typing goes to the input when it owns focus, so typeahead would race the query.
+    enabled: !disabled && !virtualFocus,
     listRef: store.context.itemLabels,
     elementsRef: store.context.itemDomElements,
     activeIndex,
@@ -527,18 +544,61 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(
     onTyping,
   });
 
+  // A menubar whose orientation matches this menu's shares its arrow keys with the menubar's own
+  // roving focus. The menubar owns its main axis, so the trigger must leave those keys to the
+  // composite and open on the cross-axis key instead.
+  const menubarOrientation = parent.type === 'menubar' ? parent.context.orientation : undefined;
+  const menubarTriggerProps = React.useMemo<HTMLProps>(() => {
+    if (menubarOrientation !== orientation) {
+      return EMPTY_OBJECT;
+    }
+
+    return {
+      onKeyDown(event: BaseUIEvent<React.KeyboardEvent>) {
+        if (isMainOrientationKey(event.key, menubarOrientation)) {
+          event.preventBaseUIHandler();
+          return;
+        }
+
+        if (
+          !store.select('open') &&
+          isCrossOrientationOpenKey(event.key, menubarOrientation, direction === 'rtl')
+        ) {
+          event.preventBaseUIHandler();
+          event.preventDefault();
+          event.stopPropagation();
+          store.setOpen(
+            true,
+            createChangeEventDetails(
+              REASONS.listNavigation,
+              event.nativeEvent,
+              event.currentTarget,
+            ),
+          );
+        }
+      },
+    };
+  }, [menubarOrientation, orientation, store, direction]);
+
+  // Under virtual focus the popup's input is the element that holds real focus, so it takes the
+  // navigation's reference props (`aria-activedescendant` and the key handling) and the trigger
+  // keeps only the props that open the menu.
+  const openTriggerProps = virtualFocus ? listNavigation.trigger : listNavigation.reference;
+  const inputProps = virtualFocus ? (listNavigation.reference ?? EMPTY_OBJECT) : EMPTY_OBJECT;
+
   const activeTriggerProps = React.useMemo(() => {
-    const mergedProps = mergeProps(
+    const mergedProps = mergePropsN([
       typeahead.reference,
-      listNavigation.reference,
+      openTriggerProps,
       dismiss.reference,
       {
         onMouseMove() {
           store.set('allowMouseEnter', true);
         },
       },
+      menubarTriggerProps,
       interactionTypeProps,
-    );
+    ]);
 
     mergedProps['aria-haspopup'] = 'menu';
     mergedProps['aria-expanded'] = open;
@@ -547,20 +607,26 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(
   }, [
     store,
     typeahead.reference,
-    listNavigation.reference,
+    openTriggerProps,
     dismiss.reference,
+    menubarTriggerProps,
     interactionTypeProps,
     open,
   ]);
 
   const inactiveTriggerProps = React.useMemo(() => {
-    const mergedProps = mergeProps(listNavigation.trigger, dismiss.trigger, interactionTypeProps);
+    const mergedProps = mergeProps(
+      listNavigation.trigger,
+      dismiss.trigger,
+      menubarTriggerProps,
+      interactionTypeProps,
+    );
 
     mergedProps['aria-haspopup'] = 'menu';
     mergedProps['aria-expanded'] = false;
 
     return mergedProps;
-  }, [listNavigation.trigger, dismiss.trigger, interactionTypeProps]);
+  }, [listNavigation.trigger, dismiss.trigger, menubarTriggerProps, interactionTypeProps]);
 
   // The initial render has no store subscribers yet. Seed these props before triggers render so
   // the synchronization effect below doesn't make every trigger render twice in the first commit.
@@ -602,12 +668,23 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(
     [typeahead.floating, listNavigation.floating, dismiss.floating, store, parent.type],
   );
 
+  const itemProps = React.useMemo<HTMLProps>(() => {
+    if (!virtualFocus) {
+      return listNavigation.item ?? EMPTY_OBJECT;
+    }
+
+    // Safari + VoiceOver only follows a searchbox's virtual focus when the menu items expose an
+    // expanded state. This avoids making the menu itself a fallback tab stop.
+    return { ...listNavigation.item, 'aria-expanded': true };
+  }, [listNavigation.item, virtualFocus]);
+
   usePopupInteractionProps(store, {
     floatingRootContext,
     activeTriggerProps,
     inactiveTriggerProps,
     popupProps,
-    itemProps: listNavigation.item ?? EMPTY_OBJECT,
+    itemProps,
+    inputProps,
   });
 
   const context: MenuRootContext<Payload> = React.useMemo(

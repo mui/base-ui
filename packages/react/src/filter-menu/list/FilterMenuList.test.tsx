@@ -7,7 +7,7 @@ import { FilterMenu } from '@base-ui/react/filter-menu';
 describe('<FilterMenu.List />', () => {
   const { render } = createRenderer();
 
-  it('returns focus to the input when typing while the list has focus', async () => {
+  it('keeps virtual focus on the input without making the list tabbable', async () => {
     const { user } = await render(
       <FilterMenu.Root open>
         <FilterMenu.Trigger>Fruit</FilterMenu.Trigger>
@@ -33,25 +33,13 @@ describe('<FilterMenu.List />', () => {
       expect(input).toHaveFocus();
     });
     expect(list).not.toHaveAttribute('aria-hidden');
+    expect(list).not.toHaveAttribute('tabindex');
+    expect(apple).toHaveAttribute('aria-expanded', 'true');
 
-    await user.tab();
+    await user.keyboard('[ArrowDown]');
     await waitFor(() => {
-      expect(list).toHaveFocus();
+      expect(input).toHaveAttribute('aria-activedescendant', apple.id);
     });
-    expect(list).toHaveAttribute('aria-activedescendant', apple.id);
-
-    await user.keyboard('b');
-
-    // The keystroke lands in the input natively; synthetic events can't reproduce the
-    // insertion, so assert the focus contract and that further typing filters.
-    await waitFor(() => {
-      expect(input).toHaveFocus();
-    });
-
-    await user.keyboard('b');
-
-    await waitFor(() => {
-      expect(apple).not.toBeVisible();
-    });
+    expect(input).toHaveFocus();
   });
 });

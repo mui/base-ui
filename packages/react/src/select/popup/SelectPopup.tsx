@@ -62,8 +62,10 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
     listRef,
     highlightItemOnHover,
     floatingContext,
+    virtualFocusInputRef,
   } = useSelectRootContext();
   const rootId = useStore(store, selectors.id);
+  const virtualFocus = useStore(store, selectors.virtualFocus);
   // Resolve once so the popup registration uses the same id the DOM element ends up with,
   // otherwise a consumer id leaves the trigger pointing at nothing.
   const id = componentProps.id ?? `${rootId}-popup`;
@@ -492,6 +494,9 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
         disabled={!mounted}
         openInteractionType={openMethod}
         returnFocus={finalFocus}
+        // Under virtual focus the popup is never the focus target: the input holds real focus and
+        // the list is navigated with `aria-activedescendant`.
+        initialFocus={virtualFocus ? virtualFocusInputRef : true}
         restoreFocus
       >
         {element}

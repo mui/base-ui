@@ -58,6 +58,7 @@ const MenuTriggerImpl = React.forwardRef(function MenuTriggerImpl(
     state,
     refs,
     props,
+    buttonProps,
     ...elementProps
   } = componentProps;
 
@@ -69,7 +70,8 @@ const MenuTriggerImpl = React.forwardRef(function MenuTriggerImpl(
       stateAttributesMapping: pressableTriggerOpenStateMapping,
       state,
       ref: [forwardedRef, ...refs],
-      props: [...props, elementProps],
+      // `buttonProps` stays last so `useButton` keeps gating consumer handlers while disabled.
+      props: [...props, elementProps, buttonProps],
     },
   );
 
@@ -85,7 +87,7 @@ const MenuTriggerImpl = React.forwardRef(function MenuTriggerImpl(
       style={style}
       state={state}
       refs={refs}
-      props={[...props, elementProps]}
+      props={[...props, elementProps, buttonProps]}
       stateAttributesMapping={pressableTriggerOpenStateMapping}
     />
   );
@@ -96,6 +98,7 @@ interface MenuTriggerImplInternalProps {
   state: MenuTriggerState;
   refs: React.Ref<HTMLElement | null>[];
   props: Array<Record<string, any> | (() => Record<string, any>)>;
+  buttonProps: Record<string, any> | ((props: Record<string, any>) => Record<string, any>);
 }
 
 /**
@@ -299,7 +302,6 @@ export const MenuTrigger = fastComponentRef(function MenuTrigger(
     },
     isInMenubar ? { role: 'menuitem' } : {},
     mixedToggleHandlers,
-    getButtonProps,
   ];
 
   const trigger = (
@@ -309,6 +311,7 @@ export const MenuTrigger = fastComponentRef(function MenuTrigger(
       state={state}
       refs={ref}
       props={props}
+      buttonProps={getButtonProps}
     />
   );
 

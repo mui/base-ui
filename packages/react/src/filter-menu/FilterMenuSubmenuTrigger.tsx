@@ -1,9 +1,8 @@
 'use client';
 import * as React from 'react';
-import { FilterDropdownItem } from '../filter-dropdown/item/FilterDropdownItem';
-import { FilterDropdownPopupContext } from '../filter-dropdown/popup/FilterDropdownPopupContext';
-import { FilterDropdownTrigger } from '../filter-dropdown/trigger/FilterDropdownTrigger';
-import { useFilterDropdownRootContext } from '../filter-dropdown/root/FilterDropdownRootContext';
+import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
+import { useFilterDropdownItem } from '../filter-dropdown/item/useFilterDropdownItem';
+import { useFilterContextForList } from '../filter-dropdown/root/FilterDropdownRootContext';
 import {
   MenuSubmenuTrigger,
   type MenuSubmenuTriggerProps,
@@ -14,41 +13,36 @@ export const FilterMenuSubmenuTrigger = React.forwardRef(function FilterMenuSubm
   props: FilterMenuSubmenuTrigger.Props,
   forwardedRef: React.ForwardedRef<HTMLElement>,
 ) {
-  const { id, label, keywords, ...submenuProps } = props;
-  const { floatingId, store } = useMenuRootContext();
-  const popupContext = React.useContext(FilterDropdownPopupContext);
-  const nearestContext = useFilterDropdownRootContext(true);
-  // The nearest root context is usually this trigger's own submenu dropdown, whose `parent`
-  // owns the list the trigger belongs to. Inside a plain submenu root there is no own dropdown,
-  // so the nearest context itself is the owner.
-  const parentContext =
-    nearestContext !== null && nearestContext.listRef === store.context.itemDomElements
-      ? nearestContext.parent
-      : nearestContext;
+  const { label, keywords, ...submenuProps } = props;
+  const { store } = useMenuRootContext();
+  const parent = store.useState('parent');
+  // The trigger sits inside its own submenu's root, whose provider shadows the enclosing one, but
+  // it is an item of the list it opens from, which belongs to the parent menu.
+  const parentListRef = parent.type === 'menu' ? parent.store.context.itemDomElements : null;
+  const parentContext = useFilterContextForList(parentListRef);
+  const { visible, ref } = useFilterDropdownItem({
+    label,
+    keywords,
+    children: props.children,
+    context: parentContext,
+  });
+  const mergedRef = useMergedRefs(forwardedRef, ref);
 
-  const trigger = (
-    <FilterDropdownTrigger
-      id={id}
-      aria-controls={floatingId}
-      render={<MenuSubmenuTrigger {...submenuProps} id={id} />}
-      ref={forwardedRef}
-    />
-  );
-
-  // A plain parent menu roves DOM focus across its items, so the trigger stays unregistered.
-  if (popupContext === null || parentContext === null) {
-    return trigger;
+  if (parentContext === null) {
+    // A plain parent menu roves DOM focus across its items and never filters them.
+    return (
+      <MenuSubmenuTrigger
+        {...submenuProps}
+        aria-haspopup="dialog"
+        label={label}
+        ref={forwardedRef}
+      />
+    );
   }
 
-  // The trigger registers as an item of the parent dropdown so the query filters it.
-  return (
-    <FilterDropdownItem
-      label={label}
-      keywords={keywords}
-      rootContext={parentContext}
-      render={trigger}
-    />
-  );
+  return visible ? (
+    <MenuSubmenuTrigger {...submenuProps} aria-haspopup="dialog" label={label} ref={mergedRef} />
+  ) : null;
 });
 
 export interface FilterMenuSubmenuTriggerProps extends Omit<

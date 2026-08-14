@@ -42,7 +42,7 @@ export function isKeyboardOpenReason(details: MenuSubmenuRoot.ChangeEventDetails
  * Documentation: [Base UI Menu](https://base-ui.com/react/components/menu)
  */
 export function MenuSubmenuRoot(props: MenuSubmenuRoot.Props) {
-  const { onKeyboardEnter, ...rootProps } = props;
+  const { ...rootProps } = props;
   const parent = useMenuRootContext();
   const parentReferenceRef = React.useRef<ParentReference | null>(null);
 
@@ -93,10 +93,15 @@ export function MenuSubmenuRoot(props: MenuSubmenuRoot.Props) {
     <MenuRoot {...rootProps} isSubmenu onOpenChange={handleOpenChange}>
       <MenuSubmenuRootImpl
         parentOrientation={parent.orientation}
-        getReturnElement={() => parentReferenceRef.current?.reference ?? null}
+        getReturnElement={() =>
+          // Return to the element that actually held focus on entry. This is usually the input in
+          // a virtually focused parent, but can be the list's Safari + VoiceOver fallback target.
+          parentReferenceRef.current?.reference ??
+          (parent.store.select('virtualFocus') ? parent.store.context.inputRef.current : null) ??
+          null
+        }
         onSubmenuEnter={handleSubmenuEnter}
         onSubmenuExit={handleSubmenuExit}
-        onKeyboardEnter={onKeyboardEnter}
       >
         {props.children}
       </MenuSubmenuRootImpl>
@@ -110,18 +115,10 @@ interface MenuSubmenuRootImplProps {
   onSubmenuEnter(trigger: HTMLElement): void;
   onSubmenuExit(): void;
   getReturnElement(): HTMLElement | null;
-  onKeyboardEnter?: (() => void) | undefined;
 }
 
 function MenuSubmenuRootImpl(props: MenuSubmenuRootImplProps) {
-  const {
-    children,
-    parentOrientation,
-    onSubmenuEnter,
-    onSubmenuExit,
-    getReturnElement,
-    onKeyboardEnter,
-  } = props;
+  const { children, parentOrientation, onSubmenuEnter, onSubmenuExit, getReturnElement } = props;
   const { store, orientation } = useMenuRootContext();
   const direction = useDirection();
 
@@ -168,9 +165,11 @@ function MenuSubmenuRootImpl(props: MenuSubmenuRootImplProps) {
 
     if (open) {
       onSubmenuEnter(event.currentTarget);
-      if (onKeyboardEnter) {
-        // A filterable submenu focuses its input instead of its first item.
-        onKeyboardEnter();
+      if (store.select('virtualFocus')) {
+        // Real focus lives on the input, so entering the submenu focuses it rather than
+        // highlighting an item.
+        store.set('activeIndex', null);
+        store.context.inputRef.current?.focus({ preventScroll: true });
       } else {
         const firstItemIndex = getMinListIndex(store.context.itemDomElements, EMPTY_ARRAY);
         const activeIndex = firstItemIndex === -1 ? null : firstItemIndex;
@@ -226,17 +225,17 @@ type MenuSubmenuRootBaseProps = Omit<
 
 export type MenuSubmenuRootProps = MenuSubmenuRootBaseProps & {
   /**
+   * @ignore
+   * Keeps real focus on an input inside the popup and navigates the list with
+   * `aria-activedescendant`. Set by parts that render such an input.
+   */
+  virtualFocus?: boolean | undefined;
+  /**
    * Event handler called when the menu is opened or closed.
    */
   onOpenChange?:
     | ((open: boolean, eventDetails: MenuSubmenuRoot.ChangeEventDetails) => void)
     | undefined;
-  /**
-   * @ignore
-   * Overrides the first-item focus when the keyboard enters an already-open submenu.
-   * A filterable submenu focuses its input instead.
-   */
-  onKeyboardEnter?: (() => void) | undefined;
   /**
    * When in a submenu, determines whether pressing the Escape key
    * closes the entire menu, or only the current child menu.

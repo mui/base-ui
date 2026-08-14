@@ -41,6 +41,7 @@ describe('<FilterDropdown.Root />', () => {
     expect(input).not.toHaveAttribute('role', 'combobox');
     expect(input).not.toHaveAttribute('aria-expanded');
     expect(list).toHaveAttribute('id');
+    expect(list).not.toHaveAttribute('tabindex');
     expect(input).toHaveAttribute('aria-controls', list.id);
     expect(input).not.toHaveAttribute('aria-activedescendant');
   });
@@ -104,9 +105,6 @@ describe('<FilterDropdown.Root />', () => {
     outside.focus();
     fireEvent.focus(screen.getByTestId('popup'));
     expect(input).toHaveFocus();
-
-    screen.getByRole('menu').focus();
-    expect(input).not.toHaveFocus();
   });
 
   it('does not focus a parent input when the pointer enters a portalled nested popup', async () => {

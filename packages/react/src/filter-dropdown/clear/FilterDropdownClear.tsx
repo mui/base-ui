@@ -5,7 +5,6 @@ import { useButton } from '../../internals/use-button';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
-import { useFilterDropdownPopupContext } from '../popup/FilterDropdownPopupContext';
 import {
   useFilterDropdownRootContext,
   useFilterDropdownValueContext,
@@ -27,9 +26,8 @@ export const FilterDropdownClear = React.forwardRef(function FilterDropdownClear
     ...elementProps
   } = componentProps;
   const context = useFilterDropdownRootContext();
-  const popupContext = useFilterDropdownPopupContext();
   const value = useFilterDropdownValueContext();
-  const disabled = disabledProp ?? context.disabled;
+  const disabled = context.disabled || (disabledProp ?? false);
   const { buttonRef, getButtonProps } = useButton({ disabled, native: nativeButton });
   const visible = value !== '';
 
@@ -56,7 +54,7 @@ export const FilterDropdownClear = React.forwardRef(function FilterDropdownClear
 
           const eventDetails = createChangeEventDetails(REASONS.clearPress, event.nativeEvent);
           context.onValueChange('', eventDetails);
-          popupContext.inputRef.current?.focus();
+          context.inputRef.current?.focus();
         },
       },
       elementProps,
