@@ -573,7 +573,7 @@ describe('<FilterMenu.Root />', () => {
         await waitFor(() => {
           expect(popup).toHaveAttribute('data-ending-style');
         });
-        expect(input).toHaveValue('');
+        expect(input).toHaveValue('ap');
         await act(async () => {
           addApricot();
         });
@@ -588,6 +588,7 @@ describe('<FilterMenu.Root />', () => {
         });
 
         await user.click(screen.getByRole('menuitem', { name: 'Fruit' }));
+        expect(await screen.findByRole('searchbox', { name: 'Filter fruit' })).toHaveValue('');
         expect(await screen.findByRole('menuitem', { name: 'Banana' })).toBeVisible();
       },
     );
@@ -722,15 +723,18 @@ describe('<FilterMenu.Root />', () => {
 
         const item = screen.getByText('Documents');
         await user.hover(item);
-        expect(input).toHaveAttribute('data-focus-visible');
+        expect(input).toHaveAttribute('aria-activedescendant', item.id);
+        expect(input).not.toHaveAttribute('data-focus-visible');
 
         await user.hover(input);
+        expect(input).not.toHaveAttribute('aria-activedescendant');
         expect(input).toHaveAttribute('data-focus-visible');
 
         await user.keyboard('[ArrowDown]');
-        expect(input).toHaveAttribute('data-focus-visible');
+        expect(input).not.toHaveAttribute('data-focus-visible');
 
         await user.keyboard('[ArrowUp]');
+        expect(input).not.toHaveAttribute('aria-activedescendant');
         expect(input).toHaveAttribute('data-focus-visible');
       },
     );

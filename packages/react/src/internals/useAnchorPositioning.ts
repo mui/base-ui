@@ -160,10 +160,10 @@ export function useAnchorPositioningWithHook(
     externalTree,
   } = params;
 
-  const [mountSide, setMountSide] = React.useState<PhysicalSide | null>(null);
+  const [mountPlacement, setMountPlacement] = React.useState<Placement | null>(null);
 
-  if (!mounted && mountSide !== null) {
-    setMountSide(null);
+  if (!mounted && mountPlacement !== null) {
+    setMountPlacement(null);
   }
 
   const collisionAvoidanceSide = collisionAvoidance.side || 'flip';
@@ -181,20 +181,19 @@ export function useAnchorPositioningWithHook(
   const direction = useDirection();
   const isRtl = direction === 'rtl';
 
-  const side =
-    mountSide ||
-    (
-      {
-        top: 'top',
-        right: 'right',
-        bottom: 'bottom',
-        left: 'left',
-        'inline-end': isRtl ? 'left' : 'right',
-        'inline-start': isRtl ? 'right' : 'left',
-      } satisfies Record<Side, PhysicalSide>
-    )[sideParam];
-
-  const placement = align === 'center' ? side : (`${side}-${align}` as Placement);
+  const preferredSide = (
+    {
+      top: 'top',
+      right: 'right',
+      bottom: 'bottom',
+      left: 'left',
+      'inline-end': isRtl ? 'left' : 'right',
+      'inline-start': isRtl ? 'right' : 'left',
+    } satisfies Record<Side, PhysicalSide>
+  )[sideParam];
+  const preferredPlacement =
+    align === 'center' ? preferredSide : (`${preferredSide}-${align}` as Placement);
+  const placement = mountPlacement ?? preferredPlacement;
 
   let collisionPadding = collisionPaddingParam as {
     top: number;
@@ -556,14 +555,13 @@ export function useAnchorPositioningWithHook(
   const renderedAlign = getAlignment(renderedPlacement) || 'center';
   const anchorHidden = Boolean(middlewareData.hide?.referenceHidden);
 
-  // Locks the flip (makes it "sticky") so it doesn't prefer a given placement
-  // and flips back lazily, not eagerly. Ideal for filtered lists that change
-  // the size of the popup dynamically to avoid unwanted flipping when typing.
+  // Locks the flip (makes it "sticky") so it no longer prefers the requested side or alignment and
+  // flips back eagerly. Ideal for filtered lists that change the popup size while typing.
   useIsoLayoutEffect(() => {
-    if (lazyFlip && mounted && isPositioned && renderedSide !== side) {
-      setMountSide(renderedSide);
+    if (lazyFlip && mounted && isPositioned && renderedPlacement !== placement) {
+      setMountPlacement(renderedPlacement);
     }
-  }, [lazyFlip, mounted, isPositioned, renderedSide, side]);
+  }, [lazyFlip, mounted, isPositioned, renderedPlacement, placement]);
 
   const arrowStyles = React.useMemo(
     () => ({

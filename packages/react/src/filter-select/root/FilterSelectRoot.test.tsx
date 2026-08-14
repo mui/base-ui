@@ -353,7 +353,7 @@ describe('<FilterSelect.Root />', () => {
       expect(input).toHaveAttribute('aria-activedescendant', selectedOption.id);
     });
 
-    it('keeps the input focus indicator visible during pointer and keyboard navigation', async () => {
+    it('hides the input focus indicator while an item is highlighted', async () => {
       const { user } = await render(
         <FilterSelect.Root items={[{ value: 'apple', label: 'Apple' }]}>
           <FilterSelect.Trigger>Fruit</FilterSelect.Trigger>
@@ -396,15 +396,19 @@ describe('<FilterSelect.Root />', () => {
 
       const item = screen.getByRole('option', { name: 'Apple' });
       await user.hover(item);
-      expect(input).toHaveAttribute('data-focus-visible');
+      expect(input).toHaveAttribute('aria-activedescendant', item.id);
+      expect(input).not.toHaveAttribute('data-focus-visible');
 
       await user.hover(input);
+      expect(input).not.toHaveAttribute('aria-activedescendant');
       expect(input).toHaveAttribute('data-focus-visible');
 
       await user.keyboard('[ArrowDown]');
-      expect(input).toHaveAttribute('data-focus-visible');
+      expect(input).toHaveAttribute('aria-activedescendant', item.id);
+      expect(input).not.toHaveAttribute('data-focus-visible');
 
       await user.keyboard('[ArrowDown]');
+      expect(input).not.toHaveAttribute('aria-activedescendant');
       expect(input).toHaveAttribute('data-focus-visible');
     });
 
@@ -618,7 +622,7 @@ describe('<FilterSelect.Root />', () => {
         await waitFor(() => {
           expect(popup).toHaveAttribute('data-ending-style');
         });
-        expect(input).toHaveValue('');
+        expect(input).toHaveValue('ap');
         await act(async () => {
           addApricot();
         });
@@ -633,6 +637,7 @@ describe('<FilterSelect.Root />', () => {
         });
 
         await user.click(screen.getByRole('combobox'));
+        expect(await screen.findByRole('searchbox', { name: 'Filter fruit' })).toHaveValue('');
         expect(await screen.findByRole('option', { name: 'Banana' })).toBeVisible();
       },
     );

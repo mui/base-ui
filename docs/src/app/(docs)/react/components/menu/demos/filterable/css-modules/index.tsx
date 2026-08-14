@@ -57,7 +57,7 @@ export default function FilterMenuDemo() {
             </div>
             <FilterMenu.Empty className={styles.Empty}>No actions found.</FilterMenu.Empty>
             <FilterMenu.List className={styles.List}>
-              <FilterMenu.Group>
+              <FilterMenu.Group className={styles.Section}>
                 <FilterMenu.GroupLabel className={styles.GroupLabel}>File</FilterMenu.GroupLabel>
                 <FilterMenu.Item className={styles.Item}>New file</FilterMenu.Item>
                 <FilterMenu.Item className={styles.Item}>Open file</FilterMenu.Item>
@@ -66,7 +66,7 @@ export default function FilterMenuDemo() {
                 <FilterMenu.Item className={styles.Item}>Duplicate</FilterMenu.Item>
                 <FilterMenu.Item className={styles.Item}>Rename</FilterMenu.Item>
               </FilterMenu.Group>
-              <FilterMenu.Group>
+              <FilterMenu.Group className={styles.Section}>
                 <FilterMenu.GroupLabel className={styles.GroupLabel}>
                   Organize
                 </FilterMenu.GroupLabel>
@@ -97,9 +97,12 @@ export default function FilterMenuDemo() {
                 </FilterMenu.Item>
               </FilterMenu.Group>
 
-              <FilterMenu.Separator className={styles.Separator} />
-
-              <FilterMenu.RadioGroup value={sortBy} onValueChange={setSortBy}>
+              <FilterMenu.RadioGroup
+                className={styles.Section}
+                value={sortBy}
+                onValueChange={setSortBy}
+              >
+                <FilterMenu.Separator className={styles.Separator} />
                 <FilterMenu.GroupLabel className={styles.GroupLabel}>Sort by</FilterMenu.GroupLabel>
                 {[
                   ['date', 'Date modified'],
@@ -110,14 +113,13 @@ export default function FilterMenuDemo() {
                     <FilterMenu.RadioItemIndicator className={styles.ChoiceIndicator}>
                       <CheckIcon />
                     </FilterMenu.RadioItemIndicator>
-                    <span>{label}</span>
+                    <span className={styles.ChoiceText}>{label}</span>
                   </FilterMenu.RadioItem>
                 ))}
               </FilterMenu.RadioGroup>
 
-              <FilterMenu.Separator className={styles.Separator} />
-
-              <FilterMenu.Group>
+              <FilterMenu.Group className={styles.Section}>
+                <FilterMenu.Separator className={styles.Separator} />
                 <FilterMenu.GroupLabel className={styles.GroupLabel}>View</FilterMenu.GroupLabel>
                 <FilterMenu.CheckboxItem
                   className={styles.ChoiceItem}
@@ -127,7 +129,7 @@ export default function FilterMenuDemo() {
                   <FilterMenu.CheckboxItemIndicator className={styles.ChoiceIndicator}>
                     <CheckIcon />
                   </FilterMenu.CheckboxItemIndicator>
-                  <span>Show details</span>
+                  <span className={styles.ChoiceText}>Show details</span>
                 </FilterMenu.CheckboxItem>
                 <FilterMenu.CheckboxItem
                   className={styles.ChoiceItem}
@@ -137,7 +139,7 @@ export default function FilterMenuDemo() {
                   <FilterMenu.CheckboxItemIndicator className={styles.ChoiceIndicator}>
                     <CheckIcon />
                   </FilterMenu.CheckboxItemIndicator>
-                  <span>Show sidebar</span>
+                  <span className={styles.ChoiceText}>Show sidebar</span>
                 </FilterMenu.CheckboxItem>
                 <FilterMenu.CheckboxItem
                   className={styles.ChoiceItem}
@@ -147,7 +149,7 @@ export default function FilterMenuDemo() {
                   <FilterMenu.CheckboxItemIndicator className={styles.ChoiceIndicator}>
                     <CheckIcon />
                   </FilterMenu.CheckboxItemIndicator>
-                  <span>Keep available offline</span>
+                  <span className={styles.ChoiceText}>Keep available offline</span>
                 </FilterMenu.CheckboxItem>
               </FilterMenu.Group>
             </FilterMenu.List>
@@ -191,7 +193,7 @@ function FilterableSubmenu(props: FilterableSubmenuProps) {
               </FilterMenu.Clear>
             </div>
             <FilterMenu.Empty className={styles.Empty}>{props.emptyText}</FilterMenu.Empty>
-            <FilterMenu.List className={styles.List}>
+            <FilterMenu.List className={`${styles.List} ${styles.SubmenuList}`}>
               {props.options.map((option) => (
                 <FilterMenu.Item key={option} className={styles.Item}>
                   {option}

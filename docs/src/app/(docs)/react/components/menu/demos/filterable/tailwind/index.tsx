@@ -56,7 +56,7 @@ export default function FilterMenuDemo() {
             </div>
             <FilterMenu.Empty className={emptyClass}>No actions found.</FilterMenu.Empty>
             <FilterMenu.List className={listClass}>
-              <FilterMenu.Group>
+              <FilterMenu.Group data-filter-section>
                 <FilterMenu.GroupLabel className={groupLabelClass}>File</FilterMenu.GroupLabel>
                 <FilterMenu.Item className={itemClass}>New file</FilterMenu.Item>
                 <FilterMenu.Item className={itemClass}>Open file</FilterMenu.Item>
@@ -65,7 +65,7 @@ export default function FilterMenuDemo() {
                 <FilterMenu.Item className={itemClass}>Duplicate</FilterMenu.Item>
                 <FilterMenu.Item className={itemClass}>Rename</FilterMenu.Item>
               </FilterMenu.Group>
-              <FilterMenu.Group>
+              <FilterMenu.Group data-filter-section>
                 <FilterMenu.GroupLabel className={groupLabelClass}>Organize</FilterMenu.GroupLabel>
                 <FilterableSubmenu
                   label="Move to folder"
@@ -94,9 +94,8 @@ export default function FilterMenuDemo() {
                 </FilterMenu.Item>
               </FilterMenu.Group>
 
-              <FilterMenu.Separator className={separatorClass} />
-
-              <FilterMenu.RadioGroup value={sortBy} onValueChange={setSortBy}>
+              <FilterMenu.RadioGroup data-filter-section value={sortBy} onValueChange={setSortBy}>
+                <FilterMenu.Separator data-filter-separator className={separatorClass} />
                 <FilterMenu.GroupLabel className={groupLabelClass}>Sort by</FilterMenu.GroupLabel>
                 {[
                   ['date', 'Date modified'],
@@ -107,14 +106,13 @@ export default function FilterMenuDemo() {
                     <FilterMenu.RadioItemIndicator className="col-start-1">
                       <CheckIcon />
                     </FilterMenu.RadioItemIndicator>
-                    <span>{label}</span>
+                    <span className="col-start-2 min-w-0">{label}</span>
                   </FilterMenu.RadioItem>
                 ))}
               </FilterMenu.RadioGroup>
 
-              <FilterMenu.Separator className={separatorClass} />
-
-              <FilterMenu.Group>
+              <FilterMenu.Group data-filter-section>
+                <FilterMenu.Separator data-filter-separator className={separatorClass} />
                 <FilterMenu.GroupLabel className={groupLabelClass}>View</FilterMenu.GroupLabel>
                 <FilterMenu.CheckboxItem
                   className={choiceItemClass}
@@ -124,7 +122,7 @@ export default function FilterMenuDemo() {
                   <FilterMenu.CheckboxItemIndicator className="col-start-1">
                     <CheckIcon />
                   </FilterMenu.CheckboxItemIndicator>
-                  <span>Show details</span>
+                  <span className="col-start-2 min-w-0">Show details</span>
                 </FilterMenu.CheckboxItem>
                 <FilterMenu.CheckboxItem
                   className={choiceItemClass}
@@ -134,7 +132,7 @@ export default function FilterMenuDemo() {
                   <FilterMenu.CheckboxItemIndicator className="col-start-1">
                     <CheckIcon />
                   </FilterMenu.CheckboxItemIndicator>
-                  <span>Show sidebar</span>
+                  <span className="col-start-2 min-w-0">Show sidebar</span>
                 </FilterMenu.CheckboxItem>
                 <FilterMenu.CheckboxItem
                   className={choiceItemClass}
@@ -144,7 +142,7 @@ export default function FilterMenuDemo() {
                   <FilterMenu.CheckboxItemIndicator className="col-start-1">
                     <CheckIcon />
                   </FilterMenu.CheckboxItemIndicator>
-                  <span>Keep available offline</span>
+                  <span className="col-start-2 min-w-0">Keep available offline</span>
                 </FilterMenu.CheckboxItem>
               </FilterMenu.Group>
             </FilterMenu.List>
@@ -188,7 +186,7 @@ function FilterableSubmenu(props: FilterableSubmenuProps) {
               </FilterMenu.Clear>
             </div>
             <FilterMenu.Empty className={emptyClass}>{props.emptyText}</FilterMenu.Empty>
-            <FilterMenu.List className={listClass}>
+            <FilterMenu.List className={submenuListClass}>
               {props.options.map((option) => (
                 <FilterMenu.Item key={option} className={itemClass}>
                   {option}
@@ -210,8 +208,9 @@ const inputClass =
   'min-h-8 w-0 flex-1 bg-transparent px-2.5 text-sm leading-none outline-hidden placeholder:text-neutral-500 dark:placeholder:text-neutral-400';
 const clearClass = 'flex size-8 items-center justify-center bg-transparent';
 const emptyClass = 'p-3 text-sm text-neutral-500 dark:text-neutral-400';
-const listClass =
-  'max-h-[min(22rem,var(--available-height))] overflow-y-auto py-1 outline-hidden scroll-py-1 empty:py-0';
+const listBaseClass = 'overflow-y-auto py-1 outline-hidden scroll-py-1 empty:py-0';
+const listClass = `${listBaseClass} max-h-[min(22rem,var(--available-height))] [&>[data-filter-section]:not([hidden])~[data-filter-section]:not([hidden])>[data-filter-separator]]:block`;
+const submenuListClass = `${listBaseClass} max-h-[min(28rem,var(--available-height))]`;
 const itemBaseClass =
   "cursor-default py-2 pl-4 text-sm leading-4 outline-hidden select-none data-highlighted:relative data-highlighted:z-0 data-highlighted:text-white data-highlighted:before:absolute data-highlighted:before:inset-x-1 data-highlighted:before:inset-y-0 data-highlighted:before:z-[-1] data-highlighted:before:bg-neutral-950 data-highlighted:before:content-[''] dark:data-highlighted:text-neutral-950 dark:data-highlighted:before:bg-white";
 const itemClass = `${itemBaseClass} flex pr-8`;
@@ -219,7 +218,7 @@ const choiceItemClass = `${itemBaseClass} grid grid-cols-[1rem_1fr] items-center
 const submenuTriggerClass = `${itemBaseClass} flex items-center justify-between gap-4 pr-2 data-popup-open:relative data-popup-open:z-0 data-popup-open:before:absolute data-popup-open:before:inset-x-1 data-popup-open:before:inset-y-0 data-popup-open:before:z-[-1] data-popup-open:before:bg-neutral-100 data-popup-open:before:content-[''] data-highlighted:data-popup-open:before:bg-neutral-950 dark:data-popup-open:before:bg-neutral-800 dark:data-highlighted:data-popup-open:before:bg-white`;
 const groupLabelClass =
   'pt-1.5 pr-8 pb-1 pl-4 text-xs leading-4 font-medium text-neutral-500 select-none dark:text-neutral-400';
-const separatorClass = 'mx-1 my-1 h-px bg-neutral-300 dark:bg-neutral-700';
+const separatorClass = 'mx-1 my-1 hidden h-px bg-neutral-300 dark:bg-neutral-700';
 
 function getSubmenuOffset({ side }: { side: FilterMenu.Positioner.Props['side'] }) {
   return side === 'top' || side === 'bottom' ? 4 : -4;

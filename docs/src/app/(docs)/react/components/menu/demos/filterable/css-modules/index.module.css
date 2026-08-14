@@ -171,6 +171,10 @@
   }
 }
 
+.SubmenuList {
+  max-height: min(28rem, var(--available-height));
+}
+
 .Item,
 .SubmenuTrigger,
 .ChoiceItem {
@@ -219,6 +223,11 @@
 
 .ChoiceIndicator {
   grid-column-start: 1;
+}
+
+.ChoiceText {
+  grid-column-start: 2;
+  min-width: 0;
 }
 
 .SubmenuTrigger {
@@ -282,6 +291,7 @@
 }
 
 .Separator {
+  display: none;
   height: 1px;
   margin: 0.25rem;
   background-color: oklch(87% 0 0deg);
@@ -289,4 +299,8 @@
   @media (prefers-color-scheme: dark) {
     background-color: oklch(37.1% 0 0deg);
   }
+}
+
+.Section:not([hidden]) ~ .Section:not([hidden]) > .Separator {
+  display: block;
 }

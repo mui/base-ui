@@ -32,9 +32,8 @@ export const FilterDropdownInput = React.forwardRef(function FilterDropdownInput
       {
         type: 'text',
         disabled: context.disabled || disabled,
-        [FilterDropdownInputDataAttributes.focusVisible as string]: context.inputFocusVisible
-          ? ''
-          : undefined,
+        [FilterDropdownInputDataAttributes.focusVisible as string]:
+          context.inputFocusVisible && activeItemId == null ? '' : undefined,
         'aria-activedescendant': activeItemId,
         role: 'searchbox',
         inputMode: 'search',

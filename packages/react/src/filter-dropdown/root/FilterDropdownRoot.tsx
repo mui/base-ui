@@ -184,7 +184,7 @@ export function FilterDropdownRoot(props: FilterDropdownRoot.Props): React.JSX.E
 
   return (
     <FilterDropdownRootContext.Provider value={contextValue}>
-      <FilterDropdownValueContext.Provider value={value}>
+      <FilterDropdownValueContext.Provider value={query ?? value}>
         {children}
       </FilterDropdownValueContext.Provider>
       {triggerElement &&

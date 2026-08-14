@@ -14,8 +14,8 @@ interface UseFilterDropdownCloseQueryParameters {
 }
 
 /**
- * Clears the input when a filter popup closes while retaining its query until the exit transition
- * completes.
+ * Clears the committed value when a filter popup closes while retaining the displayed query and
+ * filtered items until the exit transition completes.
  */
 export function useFilterDropdownCloseQuery(parameters: UseFilterDropdownCloseQueryParameters) {
   const { open, value, onValueChange, onOpenChangeComplete } = parameters;
