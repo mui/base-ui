@@ -82,6 +82,44 @@ describe.skipIf(isJSDOM)('Menu enter transition', () => {
     });
   });
 
+  it('plays the enter transition for a controlled-open submenu when its parent opens', async () => {
+    globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+
+    const submenuTracker = trackStartingStyle('submenu-popup');
+
+    await render(
+      <Menu.Root>
+        <Menu.Trigger>Trigger</Menu.Trigger>
+        <Menu.Portal>
+          <Menu.Positioner>
+            <Menu.Popup data-testid="menu-popup">
+              <Menu.Item>Item</Menu.Item>
+              <Menu.SubmenuRoot open>
+                <Menu.SubmenuTrigger>Submenu</Menu.SubmenuTrigger>
+                <Menu.Portal>
+                  <Menu.Positioner>
+                    <Menu.Popup data-testid="submenu-popup">
+                      <Menu.Item>Sub item</Menu.Item>
+                    </Menu.Popup>
+                  </Menu.Positioner>
+                </Menu.Portal>
+              </Menu.SubmenuRoot>
+            </Menu.Popup>
+          </Menu.Positioner>
+        </Menu.Portal>
+      </Menu.Root>,
+    );
+
+    await userEvent.click(screen.getByRole('button', { name: 'Trigger' }));
+
+    await waitFor(() => {
+      expect(screen.queryByTestId('submenu-popup')).not.toBe(null);
+    });
+    await waitFor(() => {
+      expect(submenuTracker.seen()).toBe(true);
+    });
+  });
+
   it('does not play the enter transition for a menu that is open on the first render', async () => {
     globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
 
@@ -289,7 +327,9 @@ describe.skipIf(isJSDOM)('Menu enter transition', () => {
   it('does not mark a closed submenu as instant when it is later opened programmatically', async () => {
     // A submenu that mounts closed during the parent's enter transition must not inherit the
     // parent's `instantType`: a later programmatic open (controlled `open` flip) does not go
-    // through `setOpen`, so a seeded value would never be cleared.
+    // through `setOpen`, so a seeded value would never be cleared. `defaultOpen` is set alongside
+    // the controlled prop to pin that the gate resolves the effective open state — the controlled
+    // `open={false}` must win over `defaultOpen`.
     function App({ submenuOpen }: { submenuOpen: boolean }) {
       return (
         <Menu.Root>
@@ -298,7 +338,7 @@ describe.skipIf(isJSDOM)('Menu enter transition', () => {
             <Menu.Positioner>
               <Menu.Popup data-testid="menu-popup">
                 <Menu.Item>Item</Menu.Item>
-                <Menu.SubmenuRoot open={submenuOpen}>
+                <Menu.SubmenuRoot open={submenuOpen} defaultOpen>
                   <Menu.SubmenuTrigger>Submenu</Menu.SubmenuTrigger>
                   <Menu.Portal>
                     <Menu.Positioner>

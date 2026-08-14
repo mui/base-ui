@@ -119,7 +119,7 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
   // during the first render only — consumed exclusively by first-render initializers below
   // (`useState` and the store's initial state).
   const animateInitialOpen =
-    (defaultOpen || openProp === true) && parentMenuStore?.state.transitionStatus === 'starting';
+    (openProp ?? defaultOpen) && parentMenuStore?.state.transitionStatus === 'starting';
 
   const store = useMenuRootStore<Payload>(
     {
