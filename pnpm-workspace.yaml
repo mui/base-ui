@@ -37,7 +37,7 @@ overrides:
   # via lerna/stylelint -> cosmiconfig (GHSA-5p4m-2wfm-xmqj, -52cp-r559-cp3m, -h67p-54hq-rp68)
   js-yaml@4: '^4.3.1'
   # via postcss (GHSA-2v37-7h3g-55p8)
-  nanoid@3: '^3.3.17'
+  nanoid@3: '^3.3.18'
   # via lerna; also picks up the fixed axios and tmp (GHSA-vp3h-ghgh-jr7g)
   nx: '~22.7.8'
   # via test/bundle-size -> @mui/internal-bundle-size-checker (GHSA-x9g3-xrwr-cwfg)
@@ -50,9 +50,9 @@ overrides:
   # Capped below 5, whose engines.node excludes the Node 24.14 line CI runs on.
   sigstore: '^4.1.1'
   # lerna pins 7.5.11 (GHSA-23hp-3jrh-7fpw, -vmf3-w455-68vh, -w8wr-v893-vjvp)
-  tar: '^7.5.19'
+  tar: '^7.5.22'
   # via @vitest/browser (GHSA-96hv-2xvq-fx4p)
-  ws: '^8.21.0'
+  ws: '^8.21.3'
 
 engineStrict: true
 updateNotifier: false
