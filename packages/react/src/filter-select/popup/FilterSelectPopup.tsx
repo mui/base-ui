@@ -13,6 +13,7 @@ export const FilterSelectPopup = React.forwardRef(function FilterSelectPopup(
   const { store } = useSelectRootContext();
   const rootId = useStore(store, selectors.id);
   const id = props.id ?? `${rootId}-popup`;
+
   return (
     <FilterDropdown.Popup id={id} render={<SelectPopup {...props} id={id} ref={forwardedRef} />} />
   );

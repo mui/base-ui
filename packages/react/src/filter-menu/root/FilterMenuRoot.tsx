@@ -43,15 +43,18 @@ export function FilterMenuRoot<Payload>(props: FilterMenuRoot.Props<Payload>): R
 
   function handleOpenChange(nextOpen: boolean, details: FilterMenuRoot.ChangeEventDetails) {
     onOpenChange?.(nextOpen, details);
-    if (!details.isCanceled) {
-      setOpen(nextOpen);
-      const event = details.event as MouseEvent | undefined;
-      setInputFocusVisible(
-        nextOpen &&
-          (details.reason === 'list-navigation' ||
-            (details.reason === 'trigger-press' && event?.detail === 0)),
-      );
+    if (details.isCanceled) {
+      return;
     }
+
+    setOpen(nextOpen);
+
+    const event = details.event as MouseEvent | undefined;
+    setInputFocusVisible(
+      nextOpen &&
+        (details.reason === REASONS.listNavigation ||
+          (details.reason === REASONS.triggerPress && event?.detail === 0)),
+    );
   }
 
   const handleInputValueChange = useStableCallback(

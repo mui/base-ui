@@ -58,6 +58,7 @@ export const FilterDropdownEmpty = React.forwardRef(function FilterDropdownEmpty
   const { store } = useFilterDropdownPopupContext();
   const registryEmpty = useStore(store, selectors.isEmpty);
   const isEmpty = empty ?? registryEmpty;
+
   return isEmpty ? <FilterDropdownEmptyImpl {...componentProps} ref={forwardedRef} /> : null;
 });
 

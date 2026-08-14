@@ -10,10 +10,11 @@ export const FilterSelectTrigger = React.forwardRef(function FilterSelectTrigger
   props: FilterSelectTrigger.Props,
   forwardedRef: React.ForwardedRef<HTMLButtonElement>,
 ) {
+  const { id, ...selectProps } = props;
   const { store } = useSelectRootContext();
   const rootId = useStore(store, selectors.id);
-  const { id, ...selectProps } = props;
   const triggerId = id ?? rootId;
+
   return (
     <FilterDropdown.Trigger
       id={triggerId}

@@ -39,6 +39,7 @@ export function FilterDropdownRoot(props: FilterDropdownRoot.Props): React.JSX.E
     triggerId: externalTriggerId,
     triggerElement: externalTriggerElement,
     listRef,
+    contextRef,
   } = props;
 
   const parentContext = React.useContext(FilterDropdownRootContext);
@@ -137,6 +138,7 @@ export function FilterDropdownRoot(props: FilterDropdownRoot.Props): React.JSX.E
 
   const contextValue: FilterDropdownRootContext = React.useMemo(
     () => ({
+      parent: parentContext,
       open,
       disabled,
       inputFocusVisible: navigationFocusVisible,
@@ -171,6 +173,7 @@ export function FilterDropdownRoot(props: FilterDropdownRoot.Props): React.JSX.E
       filter,
     }),
     [
+      parentContext,
       open,
       disabled,
       navigationFocusVisible,
@@ -194,6 +197,12 @@ export function FilterDropdownRoot(props: FilterDropdownRoot.Props): React.JSX.E
       handleValueChange,
     ],
   );
+
+  useIsoLayoutEffect(() => {
+    if (contextRef) {
+      contextRef.current = contextValue;
+    }
+  }, [contextRef, contextValue]);
 
   return (
     <FilterDropdownRootContext.Provider value={contextValue}>
@@ -264,6 +273,10 @@ export interface FilterDropdownRootProps {
    * DOM-ordered list of item elements used by virtual focus navigation.
    */
   listRef: React.RefObject<Array<HTMLElement | null>>;
+  /**
+   * Receives the root's context value, for owners that need it above the provider.
+   */
+  contextRef?: React.RefObject<FilterDropdownRootContext | null> | undefined;
 }
 
 export namespace FilterDropdownRoot {

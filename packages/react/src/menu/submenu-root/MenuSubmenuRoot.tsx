@@ -23,12 +23,26 @@ export { useMenuSubmenuRootContext } from './MenuSubmenuRootContext';
 type ParentReference = { reference: HTMLElement; trigger: HTMLElement };
 
 /**
+ * Whether an accepted submenu open came from the keyboard: list navigation, or a trigger/item
+ * press whose click carries no mouse gesture (`detail === 0`).
+ */
+export function isKeyboardOpenReason(details: MenuSubmenuRoot.ChangeEventDetails): boolean {
+  const isMouseEvent = ((details.event as MouseEvent | undefined)?.detail ?? 0) > 0;
+  return (
+    details.reason === REASONS.listNavigation ||
+    ((details.reason === REASONS.triggerPress || details.reason === REASONS.itemPress) &&
+      !isMouseEvent)
+  );
+}
+
+/**
  * Groups all parts of a submenu.
  * Doesn't render its own HTML element.
  *
  * Documentation: [Base UI Menu](https://base-ui.com/react/components/menu)
  */
 export function MenuSubmenuRoot(props: MenuSubmenuRoot.Props) {
+  const { onKeyboardEnter, ...rootProps } = props;
   const parent = useMenuRootContext();
   const parentReferenceRef = React.useRef<ParentReference | null>(null);
 
@@ -70,24 +84,19 @@ export function MenuSubmenuRoot(props: MenuSubmenuRoot.Props) {
       return;
     }
 
-    const isTriggerPress = eventDetails.reason === REASONS.triggerPress;
-    const isItemPress = eventDetails.reason === REASONS.itemPress;
-    const isListNavigation = eventDetails.reason === REASONS.listNavigation;
-    const isMouseEvent = (eventDetails.event as MouseEvent).detail > 0;
-    const isKeyboardClick = (isTriggerPress || isItemPress) && !isMouseEvent;
-
-    if (isListNavigation || isKeyboardClick) {
+    if (isKeyboardOpenReason(eventDetails)) {
       handleSubmenuEnter(eventDetails.trigger);
     }
   }
 
   return (
-    <MenuRoot {...props} isSubmenu onOpenChange={handleOpenChange}>
+    <MenuRoot {...rootProps} isSubmenu onOpenChange={handleOpenChange}>
       <MenuSubmenuRootImpl
         parentOrientation={parent.orientation}
         getReturnElement={() => parentReferenceRef.current?.reference ?? null}
         onSubmenuEnter={handleSubmenuEnter}
         onSubmenuExit={handleSubmenuExit}
+        onKeyboardEnter={onKeyboardEnter}
       >
         {props.children}
       </MenuSubmenuRootImpl>
@@ -101,10 +110,18 @@ interface MenuSubmenuRootImplProps {
   onSubmenuEnter(trigger: HTMLElement): void;
   onSubmenuExit(): void;
   getReturnElement(): HTMLElement | null;
+  onKeyboardEnter?: (() => void) | undefined;
 }
 
 function MenuSubmenuRootImpl(props: MenuSubmenuRootImplProps) {
-  const { children, parentOrientation, onSubmenuEnter, onSubmenuExit, getReturnElement } = props;
+  const {
+    children,
+    parentOrientation,
+    onSubmenuEnter,
+    onSubmenuExit,
+    getReturnElement,
+    onKeyboardEnter,
+  } = props;
   const { store, orientation } = useMenuRootContext();
   const direction = useDirection();
 
@@ -151,9 +168,14 @@ function MenuSubmenuRootImpl(props: MenuSubmenuRootImplProps) {
 
     if (open) {
       onSubmenuEnter(event.currentTarget);
-      const firstItemIndex = getMinListIndex(store.context.itemDomElements, EMPTY_ARRAY);
-      const activeIndex = firstItemIndex === -1 ? null : firstItemIndex;
-      store.set('activeIndex', activeIndex);
+      if (onKeyboardEnter) {
+        // A filterable submenu focuses its input instead of its first item.
+        onKeyboardEnter();
+      } else {
+        const firstItemIndex = getMinListIndex(store.context.itemDomElements, EMPTY_ARRAY);
+        const activeIndex = firstItemIndex === -1 ? null : firstItemIndex;
+        store.set('activeIndex', activeIndex);
+      }
       return;
     }
 
@@ -209,6 +231,12 @@ export type MenuSubmenuRootProps = MenuSubmenuRootBaseProps & {
   onOpenChange?:
     | ((open: boolean, eventDetails: MenuSubmenuRoot.ChangeEventDetails) => void)
     | undefined;
+  /**
+   * @ignore
+   * Overrides the first-item focus when the keyboard enters an already-open submenu.
+   * A filterable submenu focuses its input instead.
+   */
+  onKeyboardEnter?: (() => void) | undefined;
   /**
    * When in a submenu, determines whether pressing the Escape key
    * closes the entire menu, or only the current child menu.

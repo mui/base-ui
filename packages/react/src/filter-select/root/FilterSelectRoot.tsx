@@ -65,13 +65,14 @@ export function FilterSelectRoot<Value, Multiple extends boolean | undefined = f
     return Object.entries(items).map(([itemValue, label]) => ({ value: itemValue, label }));
   }, [items]);
   const flatItems = flattenLeafItems(normalizedItems);
-  const matches = React.useMemo(() => filter ?? getContainsFilter({ locale }), [filter, locale]);
   const query = inputValue.trim();
+
+  const matches = React.useMemo(() => filter ?? getContainsFilter({ locale }), [filter, locale]);
   const filterDropdownFilter = React.useMemo(() => {
     const defaultFilter = getContainsFilter({ locale });
-    return (filterText: string, query: string, filterValue?: unknown) => {
+    return (filterText: string, filterQuery: string, filterValue?: unknown) => {
       const item = filterValue ?? filterText;
-      if (matches<any>(item, query, selectProps.itemToStringLabel)) {
+      if (matches<any>(item, filterQuery, selectProps.itemToStringLabel)) {
         return true;
       }
 
@@ -80,11 +81,12 @@ export function FilterSelectRoot<Value, Multiple extends boolean | undefined = f
         filterValue != null &&
         Array.isArray((filterValue as { keywords?: unknown }).keywords) &&
         (filterValue as { keywords: readonly string[] }).keywords.some((keyword) =>
-          defaultFilter(keyword, query),
+          defaultFilter(keyword, filterQuery),
         )
       );
     };
   }, [filter, locale, matches, selectProps.itemToStringLabel]);
+
   const filterSelectContextValue = React.useMemo(
     () => ({ items: normalizedItems, isItemEqualToValue }),
     [isItemEqualToValue, normalizedItems],
@@ -183,6 +185,12 @@ function FilterSelectContent(props: FilterSelectContentProps) {
   const value = useStore(store, selectors.value);
   const isEqual = useStore(store, selectors.isItemEqualToValue);
 
+  const selectedIndex =
+    selectionReferenceItemId == null
+      ? null
+      : (visibleItemIndexes.get(selectionReferenceItemId) ?? null);
+  const hasQuery = props.inputValue.trim() !== '';
+
   useIsoLayoutEffect(() => {
     const selectedValues = store.state.multiple && Array.isArray(value) ? value : [value];
     const selectedValueStillExists = selectedValues.every(
@@ -202,11 +210,6 @@ function FilterSelectContent(props: FilterSelectContentProps) {
       props.removalInProgressRef.current = false;
     }
   }, [isEqual, props.flatItems, props.removalInProgressRef, setValue, store, value]);
-  const selectedIndex =
-    selectionReferenceItemId == null
-      ? null
-      : (visibleItemIndexes.get(selectionReferenceItemId) ?? null);
-  const hasQuery = props.inputValue.trim() !== '';
 
   return (
     <FilterDropdownRoot

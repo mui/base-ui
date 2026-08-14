@@ -5,6 +5,7 @@ import { HTMLProps } from '../../internals/types';
 import { MenuStore } from '../store/MenuStore';
 import { REASONS } from '../../internals/reasons';
 import { useContextMenuRootContext } from '../../context-menu/root/ContextMenuRootContext';
+import { useIsFilterableList } from '../../filter-dropdown/root/FilterDropdownRootContext';
 import { dispatchClickWithModifiers } from '../../utils/dispatchClickWithModifiers';
 import type { UseMenuItemMetadata } from './useMenuItem';
 
@@ -71,8 +72,9 @@ export function useMenuItemCommonProps(params: UseMenuItemCommonPropsParameters)
   const open = listStore.useState('open');
   const contextMenuContext = useContextMenuRootContext(true);
   const isContextMenu = contextMenuContext !== undefined;
+  const filterable = useIsFilterableList(listStore.context.itemDomElements);
   const rovingTabIndex = open && highlighted ? 0 : -1;
-  const tabIndex = rovingTabIndex;
+  const tabIndex = filterable ? undefined : rovingTabIndex;
 
   return React.useMemo(
     () => ({

@@ -26,6 +26,7 @@ export const FilterMenuList = React.forwardRef(function FilterMenuList(
     listProps,
   );
   const activeDescendant = filterContext.listRef.current[filterContext.activeIndex ?? -1]?.id;
+
   return (
     <FilterDropdown.List
       {...mergedProps}

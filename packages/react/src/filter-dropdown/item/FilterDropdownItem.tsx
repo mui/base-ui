@@ -8,7 +8,10 @@ import { useRenderElement } from '../../internals/useRenderElement';
 import { useFilterDropdownPopupContext } from '../popup/FilterDropdownPopupContext';
 import { selectors } from '../store';
 import { useFilterDropdownGroupContext } from '../group/FilterDropdownGroupContext';
-import { useFilterDropdownRootContext } from '../root/FilterDropdownRootContext';
+import {
+  useFilterDropdownRootContext,
+  type FilterDropdownRootContext,
+} from '../root/FilterDropdownRootContext';
 
 /**
  * @internal
@@ -26,11 +29,13 @@ export const FilterDropdownItem = React.memo(
       keywords,
       filterValue,
       itemId: itemIdProp,
+      rootContext: rootContextProp,
       role = 'menuitem',
       ...elementProps
     } = componentProps;
 
-    const rootContext = useFilterDropdownRootContext();
+    const nearestRootContext = useFilterDropdownRootContext();
+    const rootContext = rootContextProp ?? nearestRootContext;
     const popupContext = useFilterDropdownPopupContext();
     const groupContext = useFilterDropdownGroupContext();
     const registerRootItem = rootContext.registerItem;
@@ -121,6 +126,12 @@ export interface FilterDropdownItemProps extends BaseUIComponentProps<'div', {}>
    * @ignore
    */
   itemId?: symbol | undefined;
+  /**
+   * @ignore
+   * Context of the dropdown that owns this item. Used when the nearest context belongs to a
+   * nested dropdown, such as a submenu trigger rendered inside its own submenu's root.
+   */
+  rootContext?: FilterDropdownRootContext | undefined;
 }
 
 export namespace FilterDropdownItem {

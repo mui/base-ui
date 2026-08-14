@@ -18,6 +18,7 @@ export const FilterSelectItem = React.memo(
         flattenLeafItems(items).find((item) => isItemEqualToValue(item?.value ?? null, itemValue)),
       [isItemEqualToValue, itemValue, items],
     );
+
     return (
       <FilterDropdown.Item
         label={label}

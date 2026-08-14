@@ -22,6 +22,7 @@ export const FilterMenuItem = React.forwardRef(function FilterMenuItem(
     itemRef,
     rootContext.listRef,
   );
+
   return (
     <FilterDropdown.Item
       ref={itemRef}

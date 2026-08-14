@@ -18,6 +18,7 @@ import { useMenuPositionerContext } from '../positioner/MenuPositionerContext';
 import { useTriggerRegistration } from '../../utils/popups';
 import type { MenuStore } from '../store/MenuStore';
 import { useMenuSubmenuRootContext } from '../submenu-root/MenuSubmenuRootContext';
+import { useIsFilterableList } from '../../filter-dropdown/root/FilterDropdownRootContext';
 
 const VOICE_OVER_EXPANDED_PROPS = { 'aria-expanded': undefined };
 
@@ -103,6 +104,8 @@ const MenuSubmenuTriggerImpl = React.forwardRef(function MenuSubmenuTriggerImpl(
 
   const itemProps = parentMenuStore.useState('itemProps');
   const highlighted = parentMenuStore.useState('isActive', listItem.index);
+  const isParentFilterable = useIsFilterableList(parentMenuStore.context.itemDomElements);
+
   const itemMetadata = React.useMemo(
     () => ({
       type: 'submenu-trigger' as const,
@@ -187,7 +190,9 @@ const MenuSubmenuTriggerImpl = React.forwardRef(function MenuSubmenuTriggerImpl(
       shouldOmitExpanded ? VOICE_OVER_EXPANDED_PROPS : undefined,
       {
         'aria-controls': popupId,
-        tabIndex: (open || highlighted ? 0 : -1) as number,
+        // A filterable parent keeps real focus on its input and moves virtual focus instead, so
+        // the trigger must not be focusable.
+        tabIndex: isParentFilterable ? undefined : ((open || highlighted ? 0 : -1) as number),
         onBlur() {
           if (highlighted) {
             parentMenuStore.set('activeIndex', null);

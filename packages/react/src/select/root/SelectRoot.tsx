@@ -9,6 +9,7 @@ import { useControlled } from '@base-ui/utils/useControlled';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
+import { usePreviousValue } from '@base-ui/utils/usePreviousValue';
 import { useStore, ReactStore } from '@base-ui/utils/store';
 import { EMPTY_ARRAY, EMPTY_OBJECT } from '@base-ui/utils/empty';
 import {
@@ -128,6 +129,11 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
 
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
   const { openMethod, triggerProps: interactionTypeProps } = useOpenInteractionType(open);
+
+  // `openMethod` resets to null as soon as the popup closes, but positioning must keep the
+  // open interaction type (e.g. touch) during the close transition while still mounted.
+  const previousOpenMethod = usePreviousValue(openMethod);
+  const renderedOpenMethod = openMethod ?? previousOpenMethod;
 
   const store = useRefWithInit(
     () =>
@@ -453,7 +459,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     itemToStringLabel,
     itemToStringValue,
     isItemEqualToValue,
-    openMethod,
+    openMethod: renderedOpenMethod,
   });
 
   const contextValue: SelectRootContext = React.useMemo(

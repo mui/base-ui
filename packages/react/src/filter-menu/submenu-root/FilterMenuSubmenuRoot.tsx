@@ -10,12 +10,14 @@ import { REASONS } from '../../internals/reasons';
 import { activeElement } from '../../floating-ui-react/utils';
 import {
   MenuSubmenuRoot,
+  isKeyboardOpenReason,
   type MenuSubmenuRootProps,
 } from '../../menu/submenu-root/MenuSubmenuRoot';
 import { FilterDropdownRoot } from '../../filter-dropdown/root/FilterDropdownRoot';
 import {
   useFilterDropdownRootContext,
   type FilterDropdownFilter,
+  type FilterDropdownRootContext as FilterDropdownRootContextValue,
 } from '../../filter-dropdown/root/FilterDropdownRootContext';
 import { useMenuRootContext } from '../../menu/root/MenuRootContext';
 
@@ -46,24 +48,53 @@ export function FilterMenuSubmenuRoot(props: FilterMenuSubmenuRoot.Props): React
     name: 'FilterMenuSubmenu',
     state: 'inputValue',
   });
+  const [inputFocusVisible, setInputFocusVisible] = React.useState(false);
   const parentFilterContext = useFilterDropdownRootContext(true);
+  const submenuFilterContextRef = React.useRef<FilterDropdownRootContextValue | null>(null);
   const previousOpenRef = React.useRef(open);
   const parentInputFocusedRef = React.useRef(false);
   const triggerRef = React.useRef<HTMLElement | null>(null);
+
   const disabled = disabledProp ?? parentDisabled;
 
   function handleOpenChange(nextOpen: boolean, details: FilterMenuSubmenuRoot.ChangeEventDetails) {
     onOpenChange?.(nextOpen, details);
-    if (!details.isCanceled) {
-      if (nextOpen) {
-        const parentInput = parentFilterContext?.inputRef.current;
-        parentInputFocusedRef.current =
-          parentInput != null && activeElement(ownerDocument(parentInput)) === parentInput;
-        triggerRef.current = isHTMLElement(details.trigger) ? details.trigger : null;
-      }
-      setOpen(nextOpen);
+    if (details.isCanceled) {
+      return;
     }
+
+    const isKeyboardOpen = nextOpen && isKeyboardOpenReason(details);
+
+    if (nextOpen) {
+      // Record where to restore the parent's state when the submenu closes.
+      const parentInput = parentFilterContext?.inputRef.current;
+      parentInputFocusedRef.current =
+        parentInput != null && activeElement(ownerDocument(parentInput)) === parentInput;
+      triggerRef.current = isHTMLElement(details.trigger) ? details.trigger : null;
+
+      // Keyboard opens move focus into the submenu, so release the parent's virtual highlight.
+      // The close effect restores it, which also resyncs list navigation's internal index.
+      if (isKeyboardOpen) {
+        parentFilterContext?.setActiveIndex(null);
+      }
+    }
+
+    setOpen(nextOpen);
+    setInputFocusVisible(isKeyboardOpen);
   }
+
+  // The keyboard entering an already-open submenu moves focus onto its input, mirroring how a
+  // keyboard open focuses it.
+  const handleKeyboardEnter = useStableCallback(() => {
+    parentFilterContext?.setActiveIndex(null);
+
+    const submenuContext = submenuFilterContextRef.current;
+    if (submenuContext) {
+      submenuContext.setActiveIndex(null);
+      submenuContext.setInputFocusVisible(true);
+      submenuContext.inputRef.current?.focus({ preventScroll: true });
+    }
+  });
 
   const handleInputValueChange = useStableCallback(
     (nextValue: string, details: FilterMenuSubmenuRoot.InputValueChangeEventDetails) => {
@@ -80,18 +111,22 @@ export function FilterMenuSubmenuRoot(props: FilterMenuSubmenuRoot.Props): React
     }
   }, [handleInputValueChange, open, inputValue]);
 
+  // On close, re-highlight the trigger in the parent list and return focus to the parent's
+  // input when it held focus at open.
   React.useEffect(() => {
-    if (previousOpenRef.current && !open && parentInputFocusedRef.current) {
-      if (triggerRef.current && parentFilterContext) {
-        const index = parentFilterContext.listRef.current.indexOf(triggerRef.current);
-        parentFilterContext.setActiveIndex(index === -1 ? null : index);
-      }
-      parentFilterContext?.inputRef.current?.focus({ preventScroll: true });
-    } else if (previousOpenRef.current && !open && triggerRef.current && parentFilterContext) {
+    const didClose = previousOpenRef.current && !open;
+    previousOpenRef.current = open;
+    if (!didClose || !parentFilterContext) {
+      return;
+    }
+
+    if (triggerRef.current) {
       const index = parentFilterContext.listRef.current.indexOf(triggerRef.current);
       parentFilterContext.setActiveIndex(index === -1 ? null : index);
     }
-    previousOpenRef.current = open;
+    if (parentInputFocusedRef.current) {
+      parentFilterContext.inputRef.current?.focus({ preventScroll: true });
+    }
   }, [open, parentFilterContext]);
 
   return (
@@ -100,13 +135,16 @@ export function FilterMenuSubmenuRoot(props: FilterMenuSubmenuRoot.Props): React
       disabled={disabled}
       open={open}
       onOpenChange={handleOpenChange}
+      onKeyboardEnter={handleKeyboardEnter}
     >
       <FilterMenuSubmenuContent
         open={open}
         disabled={disabled}
+        inputFocusVisible={inputFocusVisible}
         value={inputValue}
         filter={filter}
         onValueChange={handleInputValueChange}
+        contextRef={submenuFilterContextRef}
       >
         {children}
       </FilterMenuSubmenuContent>
@@ -117,9 +155,11 @@ export function FilterMenuSubmenuRoot(props: FilterMenuSubmenuRoot.Props): React
 interface FilterMenuSubmenuContentProps {
   open: boolean;
   disabled?: boolean | undefined;
+  inputFocusVisible: boolean;
   value: string;
   filter?: FilterDropdownFilter | undefined;
   onValueChange: FilterMenuSubmenuRoot.Props['onInputValueChange'];
+  contextRef: React.RefObject<FilterDropdownRootContextValue | null>;
   children?: React.ReactNode;
 }
 
@@ -129,10 +169,12 @@ function FilterMenuSubmenuContent(props: FilterMenuSubmenuContentProps) {
     <FilterDropdownRoot
       open={props.open}
       disabled={props.disabled}
+      inputFocusVisible={props.inputFocusVisible}
       value={props.value}
       filter={props.filter}
       listRef={store.context.itemDomElements}
       onValueChange={props.onValueChange}
+      contextRef={props.contextRef}
     >
       {props.children}
     </FilterDropdownRoot>
@@ -140,7 +182,10 @@ function FilterMenuSubmenuContent(props: FilterMenuSubmenuContentProps) {
 }
 
 export namespace FilterMenuSubmenuRoot {
-  export type Props = Omit<MenuSubmenuRootProps, 'open' | 'defaultOpen' | 'onOpenChange'> & {
+  export type Props = Omit<
+    MenuSubmenuRootProps,
+    'open' | 'defaultOpen' | 'onOpenChange' | 'onKeyboardEnter'
+  > & {
     open?: boolean | undefined;
     defaultOpen?: boolean | undefined;
     onOpenChange?:
@@ -156,18 +201,6 @@ export namespace FilterMenuSubmenuRoot {
   export type State = MenuSubmenuRoot.State;
   export type ChangeEventReason = MenuSubmenuRoot.ChangeEventReason;
   export type ChangeEventDetails = MenuSubmenuRoot.ChangeEventDetails;
-  export type InputValueChangeEventReason = FilterMenuRootInputValueChangeEventReason;
-  export type InputValueChangeEventDetails = FilterMenuRootInputValueChangeEventDetails;
-}
-
-type FilterMenuRootInputValueChangeEventReason =
-  | 'input-change'
-  | 'input-clear'
-  | 'clear-press'
-  | 'popup-close';
-interface FilterMenuRootInputValueChangeEventDetails {
-  reason: FilterMenuRootInputValueChangeEventReason;
-  event?: Event | undefined;
-  isCanceled: boolean;
-  cancel(): void;
+  export type InputValueChangeEventReason = FilterDropdownRoot.ChangeEventReason;
+  export type InputValueChangeEventDetails = FilterDropdownRoot.ChangeEventDetails;
 }

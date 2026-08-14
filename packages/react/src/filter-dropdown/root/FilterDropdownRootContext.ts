@@ -19,6 +19,12 @@ export type FilterDropdownFilter = (
 ) => boolean;
 
 export interface FilterDropdownRootContext {
+  /**
+   * Context of the enclosing dropdown when this root is nested (e.g. a filterable submenu).
+   * A nested root's provider shadows the enclosing one for children such as submenu triggers,
+   * which belong to the enclosing dropdown's list.
+   */
+  parent: FilterDropdownRootContext | null;
   open: boolean;
   disabled: boolean;
   inputFocusVisible: boolean;
@@ -70,6 +76,17 @@ export function useFilterDropdownRootContext(optional = false) {
     );
   }
   return context;
+}
+
+/**
+ * Whether the given item list is governed by a FilterDropdown, which keeps real focus on its
+ * input and navigates virtually, so the list's items must not be focusable. Checks the nearest
+ * context and its parent: a nested dropdown's provider shadows the enclosing one for a submenu
+ * trigger, whose list belongs to the enclosing dropdown.
+ */
+export function useIsFilterableList(listRef: React.RefObject<Array<HTMLElement | null>>) {
+  const context = React.useContext(FilterDropdownRootContext);
+  return context !== null && (context.listRef === listRef || context.parent?.listRef === listRef);
 }
 
 // `value` controls a native input and can't be placed in the store without breaking the caret

@@ -671,11 +671,22 @@ type FilterMenuSubmenuRootChangeEventDetails = (
 ### SubmenuRoot.InputValueChangeEventDetails
 
 ```typescript
-type FilterMenuSubmenuRootInputValueChangeEventDetails = {
-  reason: FilterMenuRootInputValueChangeEventReason;
-  event?: Event;
+type FilterMenuSubmenuRootInputValueChangeEventDetails = (
+  | { reason: 'clear-press'; event: KeyboardEvent | MouseEvent | PointerEvent }
+  | { reason: 'input-change'; event: Event | InputEvent }
+  | { reason: 'input-clear'; event: Event | FocusEvent | InputEvent }
+  | { reason: 'popup-close'; event: Event }
+) & {
+  /** Cancels Base UI from handling the event. */
+  cancel: () => void;
+  /** Allows the event to propagate in cases where Base UI will stop the propagation. */
+  allowPropagation: () => void;
+  /** Indicates whether the event has been canceled. */
   isCanceled: boolean;
-  cancel: cancel;
+  /** Indicates whether the event is allowed to propagate. */
+  isPropagationAllowed: boolean;
+  /** The element that triggered the event, if applicable. */
+  trigger: Element | undefined;
 };
 ```
 
@@ -1129,22 +1140,6 @@ type PayloadChildRenderFunction = (arg: { payload: unknown | undefined }) => Rea
 
 ```typescript
 type FilterDropdownFilter = (filterText: string, query: string, filterValue?: unknown) => boolean;
-```
-
-### FilterMenuRootInputValueChangeEventReason
-
-```typescript
-type FilterMenuRootInputValueChangeEventReason =
-  | 'input-change'
-  | 'input-clear'
-  | 'clear-press'
-  | 'popup-close';
-```
-
-### cancel
-
-```typescript
-type cancel = () => void;
 ```
 
 ## Export Groups
