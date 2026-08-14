@@ -31,6 +31,7 @@ import {
   useContextMenuRootContext,
 } from '../../context-menu/root/ContextMenuRootContext';
 import { mergeProps } from '../../merge-props';
+import { useAnimationsFinished } from '../../internals/useAnimationsFinished';
 import { MenuStore, type State as MenuStoreState } from '../store/MenuStore';
 import { MenuHandle } from '../store/MenuHandle';
 import {
@@ -121,6 +122,13 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
   const animateInitialOpen =
     (openProp ?? defaultOpen) && parentMenuStore?.state.transitionStatus === 'starting';
 
+  // Mirror an instantly-opened parent (e.g. keyboard click) so `[data-instant]` styling
+  // suppresses the enter transition on both popups or neither. Captured once —
+  // `animateInitialOpen` is only meaningful during the first render.
+  const seededInstantType = useRefWithInit(() =>
+    animateInitialOpen ? parentMenuStore?.state.instantType : undefined,
+  ).current;
+
   const store = useMenuRootStore<Payload>(
     {
       open: defaultOpen,
@@ -132,9 +140,7 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
       highlightItemOnHover,
       modal: parentFromContext.type === undefined ? modalProp : undefined,
       rootId,
-      // Mirror an instantly-opened parent (e.g. keyboard click) so `[data-instant]` styling
-      // suppresses the enter transition on both popups or neither.
-      instantType: animateInitialOpen ? parentMenuStore?.state.instantType : undefined,
+      instantType: seededInstantType,
     },
     floatingId,
     floatingParentNodeIdFromContext != null,
@@ -187,7 +193,7 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
   });
 
   useImplicitActiveTrigger(store);
-  const { forceUnmount } = useOpenStateTransitions(
+  const { forceUnmount, transitionStatus } = useOpenStateTransitions(
     open,
     store,
     () => {
@@ -195,6 +201,29 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
     },
     animateInitialOpen,
   );
+
+  const runOnceAnimationsFinish = useAnimationsFinished(store.context.popupRef);
+
+  // An inherited `instantType` is only for the initial reveal. A later controlled `open` flip
+  // bypasses `setOpen`, so nothing would reset it and `[data-instant]` would wrongly suppress
+  // every subsequent transition. Clear it once the enter phase settles, unless an interactive
+  // open change already replaced it.
+  React.useEffect(() => {
+    if (seededInstantType === undefined || !open || transitionStatus !== undefined) {
+      return undefined;
+    }
+
+    const abortController = new AbortController();
+    runOnceAnimationsFinish(() => {
+      if (store.state.instantType === seededInstantType) {
+        store.set('instantType', undefined);
+      }
+    }, abortController.signal);
+
+    return () => {
+      abortController.abort();
+    };
+  }, [seededInstantType, open, transitionStatus, runOnceAnimationsFinish, store]);
 
   useIsoLayoutEffect(() => {
     if (contextMenuContext && !parentMenuRootContext) {

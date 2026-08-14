@@ -3,24 +3,25 @@ import * as React from 'react';
 import userEvent from '@testing-library/user-event';
 import { act, screen, waitFor } from '@mui/internal-test-utils';
 import { AnimationFrame } from '@base-ui/utils/useAnimationFrame';
+import { Timeout } from '@base-ui/utils/useTimeout';
 import { Menu } from '@base-ui/react/menu';
 import { createRenderer, isJSDOM } from '#test-utils';
 
 const activeTrackers: Array<{ stop(): void }> = [];
+const activeTimeouts: Timeout[] = [];
 
 /**
- * Records whether an element ever carries `[data-starting-style]`, which is what drives the enter
- * transition. Polls per frame because the attribute is only present for a single frame. Uses the
- * managed `AnimationFrame` scheduler so the loop cannot outlive its test: `stop()` cancels the
- * pending frame, and every tracker is also stopped in `afterEach` in case a test fails before
- * reaching `stop()`.
+ * Records whether `selector` ever matches an element. Polls per frame because the tracked
+ * attributes may be present for only a single frame. Uses the managed `AnimationFrame` scheduler
+ * so the loop cannot outlive its test: `stop()` cancels the pending frame, and every tracker is
+ * also stopped in `afterEach` in case a test fails before reaching `stop()`.
  */
-function trackStartingStyle(testId: string) {
+function trackSelector(selector: string) {
   let seen = false;
   let frame: number;
 
   function sample() {
-    if (document.querySelector(`[data-testid="${testId}"][data-starting-style]`)) {
+    if (document.querySelector(selector)) {
       seen = true;
     }
     frame = AnimationFrame.request(sample);
@@ -37,11 +38,37 @@ function trackStartingStyle(testId: string) {
   return tracker;
 }
 
+/**
+ * Records whether an element ever carries `[data-starting-style]`, which is what drives the enter
+ * transition.
+ */
+function trackStartingStyle(testId: string) {
+  return trackSelector(`[data-testid="${testId}"][data-starting-style]`);
+}
+
+/**
+ * Waits using the managed timeout scheduler instead of a raw global timer, so an interrupted test
+ * cannot leak a pending callback into a later one — every timeout is cleared in `afterEach`.
+ * Wrapped in `act` because pending transition-status updates (e.g. the frame that clears
+ * `'starting'`) may land during the window; unwrapped, they trigger React act warnings that
+ * `vitest-fail-on-console` turns into failures.
+ */
+async function waitMs(ms: number) {
+  const timeout = Timeout.create();
+  activeTimeouts.push(timeout);
+  await act(async () => {
+    await new Promise<void>((resolve) => {
+      timeout.start(ms, resolve);
+    });
+  });
+}
+
 describe.skipIf(isJSDOM)('Menu enter transition', () => {
   const { render } = createRenderer();
 
   afterEach(() => {
     activeTrackers.splice(0).forEach((tracker) => tracker.stop());
+    activeTimeouts.splice(0).forEach((timeout) => timeout.clear());
   });
 
   it('plays the enter transition for a submenu that is open when its parent opens', async () => {
@@ -142,14 +169,7 @@ describe.skipIf(isJSDOM)('Menu enter transition', () => {
       expect(screen.queryByTestId('menu-popup')).not.toBe(null);
     });
 
-    // Wrapped in `act` because pending transition-status updates (e.g. the frame that clears
-    // `'starting'`) may land during this window; unwrapped, they trigger React act warnings that
-    // `vitest-fail-on-console` turns into failures.
-    await act(async () => {
-      await new Promise<void>((resolve) => {
-        setTimeout(resolve, 100);
-      });
-    });
+    await waitMs(100);
 
     expect(menuTracker.seen()).toBe(false);
   });
@@ -187,14 +207,7 @@ describe.skipIf(isJSDOM)('Menu enter transition', () => {
       expect(screen.queryByTestId('submenu-popup')).not.toBe(null);
     });
 
-    // Wrapped in `act` because pending transition-status updates (e.g. the frame that clears
-    // `'starting'`) may land during this window; unwrapped, they trigger React act warnings that
-    // `vitest-fail-on-console` turns into failures.
-    await act(async () => {
-      await new Promise<void>((resolve) => {
-        setTimeout(resolve, 100);
-      });
-    });
+    await waitMs(100);
 
     expect(menuTracker.seen()).toBe(false);
     expect(submenuTracker.seen()).toBe(false);
@@ -238,14 +251,7 @@ describe.skipIf(isJSDOM)('Menu enter transition', () => {
       expect(screen.getByTestId('menu-popup')).toBeVisible();
     });
 
-    // Wrapped in `act` because pending transition-status updates (e.g. the frame that clears
-    // `'starting'`) may land during this window; unwrapped, they trigger React act warnings that
-    // `vitest-fail-on-console` turns into failures.
-    await act(async () => {
-      await new Promise<void>((resolve) => {
-        setTimeout(resolve, 100);
-      });
-    });
+    await waitMs(100);
 
     expect(submenuTracker.seen()).toBe(false);
   });
@@ -288,6 +294,12 @@ describe.skipIf(isJSDOM)('Menu enter transition', () => {
   });
 
   it('marks an initially open submenu as instant when its parent opened instantly', async () => {
+    globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+
+    const submenuInstantTracker = trackSelector(
+      '[data-testid="submenu-popup"][data-instant="click"]',
+    );
+
     await render(
       <Menu.Root>
         <Menu.Trigger>Trigger</Menu.Trigger>
@@ -321,7 +333,70 @@ describe.skipIf(isJSDOM)('Menu enter transition', () => {
       expect(screen.queryByTestId('submenu-popup')).not.toBe(null);
     });
     expect(screen.getByTestId('menu-popup')).toHaveAttribute('data-instant', 'click');
-    expect(screen.getByTestId('submenu-popup')).toHaveAttribute('data-instant', 'click');
+    // The submenu carries the inherited value during its enter frames only: it is cleared once
+    // the initial reveal settles, so it cannot suppress later transitions.
+    await waitFor(() => {
+      expect(submenuInstantTracker.seen()).toBe(true);
+    });
+    await waitFor(() => {
+      expect(screen.getByTestId('submenu-popup')).not.toHaveAttribute('data-instant');
+    });
+  });
+
+  it('clears the inherited instant type after the initial open', async () => {
+    // The inherited `instantType` must not outlive the initial reveal: controlled `open` flips
+    // bypass `setOpen`, so a value that stuck around would render `[data-instant]` on every
+    // subsequent open and suppress transitions that should play.
+    function App({ submenuOpen }: { submenuOpen: boolean }) {
+      return (
+        <Menu.Root>
+          <Menu.Trigger>Trigger</Menu.Trigger>
+          <Menu.Portal>
+            <Menu.Positioner>
+              <Menu.Popup data-testid="menu-popup">
+                <Menu.Item>Item</Menu.Item>
+                <Menu.SubmenuRoot open={submenuOpen}>
+                  <Menu.SubmenuTrigger>Submenu</Menu.SubmenuTrigger>
+                  <Menu.Portal>
+                    <Menu.Positioner>
+                      <Menu.Popup data-testid="submenu-popup">
+                        <Menu.Item>Sub item</Menu.Item>
+                      </Menu.Popup>
+                    </Menu.Positioner>
+                  </Menu.Portal>
+                </Menu.SubmenuRoot>
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
+        </Menu.Root>
+      );
+    }
+
+    const { setProps } = await render(<App submenuOpen />);
+
+    const trigger = screen.getByRole('button', { name: 'Trigger' });
+    await act(async () => {
+      trigger.focus();
+    });
+    await userEvent.keyboard('[Enter]');
+
+    await waitFor(() => {
+      expect(screen.queryByTestId('submenu-popup')).not.toBe(null);
+    });
+    await waitFor(() => {
+      expect(screen.getByTestId('submenu-popup')).not.toHaveAttribute('data-instant');
+    });
+
+    await setProps({ submenuOpen: false });
+    await waitFor(() => {
+      expect(screen.queryByTestId('submenu-popup')).toBe(null);
+    });
+
+    await setProps({ submenuOpen: true });
+    await waitFor(() => {
+      expect(screen.queryByTestId('submenu-popup')).not.toBe(null);
+    });
+    expect(screen.getByTestId('submenu-popup')).not.toHaveAttribute('data-instant');
   });
 
   it('does not mark a closed submenu as instant when it is later opened programmatically', async () => {
