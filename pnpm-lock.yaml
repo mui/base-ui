@@ -197,8 +197,8 @@ importers:
         specifier: ^2.1.1
         version: 2.1.1
       es-toolkit:
-        specifier: ^1.46.1
-        version: 1.46.1
+        specifier: ^1.50.0
+        version: 1.50.0
       estree-util-value-to-estree:
         specifier: ^3.5.0
         version: 3.5.0
@@ -5100,6 +5100,7 @@ packages:
   conventional-changelog-core@5.0.1:
     resolution: {integrity: sha512-Rvi5pH+LvgsqGwZPZ3Cq/tz4ty7mjijhr3qR4m9IBXNbxGGYgTVVO+duXzz9aArmHxFtwZ+LRkrNIMDQzgoY4A==}
     engines: {node: '>=14'}
+    deprecated: Deprecated and no longer maintained. Please use conventional-changelog instead.
 
   conventional-changelog-preset-loader@3.0.0:
     resolution: {integrity: sha512-qy9XbdSLmVnwnvzEisjxdDiLA4OmV3o8db+Zdg4WiFw14fP3B6XNz98X0swPPpkTd/pc1K7+adKgEDM1JCUMiA==}
@@ -5498,8 +5499,8 @@ packages:
   es-toolkit@1.46.1:
     resolution: {integrity: sha512-5eNtXOs3tbfxXOj04tjjseeWkRWaoCjdEI+96DgwzZoe6c9juL49pXlzAFTI72aWC9Y8p7168g6XIKjh7k6pyQ==}
 
-  es-toolkit@1.49.0:
-    resolution: {integrity: sha512-G5iZ6Pc/FNRY/soKZHC+TxGDD83rHUDXxzaWhGCX44vAv/tMs56WMusnm/KMNK+luUPsgA9U28cGr4RDlSzL2g==}
+  es-toolkit@1.50.0:
+    resolution: {integrity: sha512-OyZKhUVvEep9ITEiwHn8GKnMRQIVqoSIX7WnRbkWgJkllCujilqP2rD0u979tkl8wqyc8ICwlc1UBVv/Sl1G6w==}
 
   esast-util-from-estree@2.0.0:
     resolution: {integrity: sha512-4CyanoAudUSBAn5K13H4JhsMH6L9ZP7XbLVe/dKybkxMO7eDyLsT8UHl9TRNrU2Gr9nz+FovfSIjuXWJ81uVwQ==}
@@ -11385,7 +11386,7 @@ snapshots:
       clipboardy: 5.3.2
       content-type: 2.0.0
       env-ci: 11.2.0
-      es-toolkit: 1.49.0
+      es-toolkit: 1.50.0
       eslint: 10.3.0(jiti@2.7.0)(supports-color@7.2.0)
       eslint-config-prettier: 10.1.8(eslint@10.3.0(jiti@2.7.0)(supports-color@7.2.0))
       eslint-import-resolver-typescript: 4.4.5(eslint-plugin-import-x@4.16.2(@typescript-eslint/utils@8.65.0(eslint@10.3.0(jiti@2.7.0)(supports-color@7.2.0))(supports-color@7.2.0)(typescript@6.0.3))(eslint-import-resolver-node@0.3.10(supports-color@7.2.0))(eslint@10.3.0(jiti@2.7.0)(supports-color@7.2.0))(supports-color@7.2.0))(eslint-plugin-import@2.32.0)(eslint@10.3.0(jiti@2.7.0)(supports-color@7.2.0))(supports-color@7.2.0)
@@ -11472,7 +11473,7 @@ snapshots:
       autoprefixer: 10.5.4(postcss@8.5.26)
       chalk: 5.6.2
       clipboard-copy: 4.0.1
-      es-toolkit: 1.49.0
+      es-toolkit: 1.50.0
       fflate: 0.8.3
       hast-util-to-jsx-runtime: 2.3.6(supports-color@10.2.2)
       hast-util-to-text: 4.0.2
@@ -11526,7 +11527,7 @@ snapshots:
       chai: 6.2.2
       chai-dom: 1.12.1(chai@6.2.2)
       dom-accessibility-api: 0.7.1
-      es-toolkit: 1.46.1
+      es-toolkit: 1.50.0
       format-util: 1.0.5
       prop-types: 15.8.1
       react: 19.2.5
@@ -15027,7 +15028,7 @@ snapshots:
 
   es-toolkit@1.46.1: {}
 
-  es-toolkit@1.49.0: {}
+  es-toolkit@1.50.0: {}
 
   esast-util-from-estree@2.0.0:
     dependencies:
@@ -19900,7 +19901,7 @@ snapshots:
 
   typescript-api-extractor@1.0.0-beta.4(typescript@6.0.3):
     dependencies:
-      es-toolkit: 1.46.1
+      es-toolkit: 1.50.0
       typescript: 6.0.3
 
   typescript-eslint@8.59.2(eslint@10.3.0(jiti@2.7.0)(supports-color@10.2.2))(supports-color@10.2.2)(typescript@6.0.3):
