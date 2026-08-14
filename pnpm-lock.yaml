@@ -14,7 +14,7 @@ overrides:
   js-yaml@4: ^4.3.1
   nanoid@3: ^3.3.17
   nx: ~22.7.8
-  piscina: ^5.2.0
+  piscina: ^5.3.0
   postcss: ^8.5.26
   sharp: ^0.35.3
   sigstore: ^4.1.1
@@ -5100,6 +5100,7 @@ packages:
   conventional-changelog-core@5.0.1:
     resolution: {integrity: sha512-Rvi5pH+LvgsqGwZPZ3Cq/tz4ty7mjijhr3qR4m9IBXNbxGGYgTVVO+duXzz9aArmHxFtwZ+LRkrNIMDQzgoY4A==}
     engines: {node: '>=14'}
+    deprecated: Deprecated and no longer maintained. Please use conventional-changelog instead.
 
   conventional-changelog-preset-loader@3.0.0:
     resolution: {integrity: sha512-qy9XbdSLmVnwnvzEisjxdDiLA4OmV3o8db+Zdg4WiFw14fP3B6XNz98X0swPPpkTd/pc1K7+adKgEDM1JCUMiA==}
