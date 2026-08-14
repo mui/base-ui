@@ -1596,6 +1596,60 @@ describe('<Collapsible.Panel />', () => {
       expect(panel.style.transitionDuration).toBe('123ms');
     });
 
+    it('expands the panel while beforematch is being dispatched', async () => {
+      await render(
+        <React.Fragment>
+          <style>{`
+            .transition-test-panel {
+              overflow: hidden;
+              height: var(--collapsible-panel-height);
+              transition-property: height;
+              transition-duration: 999ms;
+              transition-timing-function: linear;
+            }
+
+            .transition-test-panel[data-starting-style],
+            .transition-test-panel[data-ending-style] {
+              height: 0;
+            }
+          `}</style>
+
+          <Collapsible.Root>
+            <Collapsible.Trigger>Trigger</Collapsible.Trigger>
+            <Collapsible.Panel
+              className="transition-test-panel"
+              data-testid="panel"
+              hiddenUntilFound
+            >
+              {PANEL_CONTENT}
+            </Collapsible.Panel>
+          </Collapsible.Root>
+        </React.Fragment>,
+      );
+
+      const panel = screen.getByTestId('panel');
+
+      expect(panel).toHaveAttribute('data-starting-style');
+
+      let startingStyleWhenRevealed: boolean | undefined;
+      let heightWhenRevealed: string | undefined;
+
+      // Registered after the component's own listener, so this observes the panel
+      // from where the browser does: the same task, once `beforematch` handling is
+      // done. The browser drops `hidden` and measures the match there, and a panel
+      // still holding its collapsed starting styles measures as zero-sized.
+      panel.addEventListener('beforematch', () => {
+        startingStyleWhenRevealed = panel.hasAttribute('data-starting-style');
+        panel.removeAttribute('hidden');
+        heightWhenRevealed = getComputedStyle(panel).height;
+      });
+
+      fireBeforeMatch(panel);
+
+      expect(startingStyleWhenRevealed).toBe(false);
+      expect(heightWhenRevealed).not.toBe('0px');
+    });
+
     it('uses `hidden="until-found" to hide panel when true', async () => {
       const handleOpenChange = vi.fn();
 

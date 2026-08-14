@@ -373,6 +373,12 @@ export function useCollapsiblePanel(
         }
 
         shouldSkipNextOpenRef.current = true;
+        // The browser removes `hidden` and measures the match in the same task that
+        // dispatches this event, while the React state update below only lands in a
+        // later one. Panels kept collapsed by persisted starting styles would still
+        // be zero-sized at that point and the match highlight is dropped, so drop
+        // those styles synchronously here.
+        panelRef.current?.removeAttribute(CollapsiblePanelDataAttributes.startingStyle);
         setOpen(true);
       }
 
