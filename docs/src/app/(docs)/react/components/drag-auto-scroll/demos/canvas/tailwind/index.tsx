@@ -63,7 +63,7 @@ export default function CanvasPan() {
           <DropTarget.Root
             label="Archive"
             accept={pinKind}
-            className="absolute box-border flex h-[90px] w-[160px] items-center justify-center border border-dashed border-neutral-400 text-[0.875rem] leading-5 text-neutral-500 data-[over]:border-solid data-[over]:border-neutral-900 data-[over]:text-neutral-900 dark:border-neutral-500 dark:text-neutral-400 dark:data-[over]:border-white dark:data-[over]:text-white"
+            className="absolute box-border flex h-[90px] w-[160px] items-center justify-center border border-dashed border-neutral-400 text-[0.875rem] leading-5 text-neutral-500 data-[drag-over]:border-solid data-[drag-over]:border-neutral-900 data-[drag-over]:text-neutral-900 dark:border-neutral-500 dark:text-neutral-400 dark:data-[drag-over]:border-white dark:data-[drag-over]:text-white"
             style={{ left: ARCHIVE.x, top: ARCHIVE.y }}
             onDrop={({ source }) => {
               setPins((previous) => previous.filter((pin) => pin.id !== source.payload));

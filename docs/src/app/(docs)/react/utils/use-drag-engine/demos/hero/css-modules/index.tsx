@@ -143,7 +143,7 @@ export default function EngineShapeSorter() {
               ref={targetRef(shape.id)}
               className={styles.Target}
               data-accepting={activeShape === shape.id || undefined}
-              data-over={overShape === shape.id || undefined}
+              data-drag-over={overShape === shape.id || undefined}
             >
               <span className={styles.Cutout} data-shape={shape.id} aria-hidden="true" />
               {isPlaced && <ShapePiece shape={shape} elementRef={pieceRef(shape.id)} />}

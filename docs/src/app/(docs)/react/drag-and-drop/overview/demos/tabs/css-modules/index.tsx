@@ -178,7 +178,7 @@ function DraggableTab(props: DraggableTabProps) {
             <DropTarget.Root
               label={`${item.label} tab`}
               accept={tabKind}
-              trackOver={false}
+              trackDragOver={false}
               onDrag={handleDrag}
               render={
                 <button
@@ -288,7 +288,7 @@ export default function DraggableTabs() {
           ref={listRef}
           className={styles.TabList}
           activateOnFocus
-          render={<DropTarget.Root label="Open documents" accept={tabKind} trackOver={false} />}
+          render={<DropTarget.Root label="Open documents" accept={tabKind} trackDragOver={false} />}
         >
           {items.map((item) => (
             <DraggableTab

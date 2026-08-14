@@ -35,7 +35,7 @@ describe('DropTarget enum sync', () => {
     // Present for as long as the element is registered, drag or no drag.
     expect(outer).toHaveAttribute(DropTargetRootDataAttributes.dropTarget);
     expect(screen.getByTestId('off')).toHaveAttribute(DropTargetRootDataAttributes.disabled);
-    expect(outer).not.toHaveAttribute(DropTargetRootDataAttributes.over);
+    expect(outer).not.toHaveAttribute(DropTargetRootDataAttributes.dragOver);
     expect(outer).not.toHaveAttribute(DropTargetRootDataAttributes.accepting);
 
     const source = createElement();
@@ -51,11 +51,11 @@ describe('DropTarget enum sync', () => {
     expect(outer).toHaveAttribute(DropTargetRootDataAttributes.accepting);
     expect(screen.getByTestId('off')).not.toHaveAttribute(DropTargetRootDataAttributes.accepting);
 
-    // Both are over; only the deepest is `overInnermost`.
-    expect(inner).toHaveAttribute(DropTargetRootDataAttributes.over);
-    expect(inner).toHaveAttribute(DropTargetRootDataAttributes.overInnermost);
-    expect(outer).toHaveAttribute(DropTargetRootDataAttributes.over);
-    expect(outer).not.toHaveAttribute(DropTargetRootDataAttributes.overInnermost);
+    // Both are over; only the deepest is `dragOverInnermost`.
+    expect(inner).toHaveAttribute(DropTargetRootDataAttributes.dragOver);
+    expect(inner).toHaveAttribute(DropTargetRootDataAttributes.dragOverInnermost);
+    expect(outer).toHaveAttribute(DropTargetRootDataAttributes.dragOver);
+    expect(outer).not.toHaveAttribute(DropTargetRootDataAttributes.dragOverInnermost);
 
     // A rejecting target marks itself while hovered, and only while hovered,
     // without ever entering the stack.
@@ -64,7 +64,7 @@ describe('DropTarget enum sync', () => {
     fireEvent.dragOver(full);
     await flushRaf();
     expect(full).toHaveAttribute(DropTargetRootDataAttributes.rejected);
-    expect(full).not.toHaveAttribute(DropTargetRootDataAttributes.over);
+    expect(full).not.toHaveAttribute(DropTargetRootDataAttributes.dragOver);
     fireEvent.dragEnter(inner);
     fireEvent.dragOver(inner);
     await flushRaf();
@@ -77,8 +77,8 @@ describe('DropTarget enum sync', () => {
     // leave targets highlighted as valid drop zones after every drop.
     expect(outer).not.toHaveAttribute(DropTargetRootDataAttributes.accepting);
     expect(inner).not.toHaveAttribute(DropTargetRootDataAttributes.accepting);
-    expect(inner).not.toHaveAttribute(DropTargetRootDataAttributes.over);
-    expect(inner).not.toHaveAttribute(DropTargetRootDataAttributes.overInnermost);
-    expect(outer).not.toHaveAttribute(DropTargetRootDataAttributes.over);
+    expect(inner).not.toHaveAttribute(DropTargetRootDataAttributes.dragOver);
+    expect(inner).not.toHaveAttribute(DropTargetRootDataAttributes.dragOverInnermost);
+    expect(outer).not.toHaveAttribute(DropTargetRootDataAttributes.dragOver);
   });
 });

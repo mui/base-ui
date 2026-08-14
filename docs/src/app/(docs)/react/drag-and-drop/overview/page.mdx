@@ -89,7 +89,7 @@ const itemKind = Draggable.createKind<string>('item');
     <DropTarget.Root
       accept={itemKind}
       label={item.label}
-      trackOver={false}
+      trackDragOver={false}
       onDrag={({ source, location }) => {
         const { clientY } = location.current.input;
         const previousY = location.previous.input.clientY;

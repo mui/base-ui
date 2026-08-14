@@ -114,7 +114,7 @@
     color: oklch(70.8% 0 0deg);
   }
 
-  &[data-over] {
+  &[data-drag-over] {
     border-style: solid;
     border-color: oklch(14.5% 0 0deg);
     color: oklch(14.5% 0 0deg);

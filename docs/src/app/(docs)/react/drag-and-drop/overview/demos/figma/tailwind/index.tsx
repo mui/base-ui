@@ -122,7 +122,7 @@ export default function FigmaBoard() {
         ref={surfaceRef}
         label="Canvas"
         accept={cardKind}
-        trackOver={false}
+        trackDragOver={false}
         className="relative box-border h-64 overflow-hidden bg-neutral-50 sm:h-80 bg-[radial-gradient(var(--color-neutral-300)_1px,transparent_1px)] [background-size:20px_20px] dark:bg-neutral-900 dark:bg-[radial-gradient(var(--color-neutral-700)_1px,transparent_1px)]"
         onDrop={({ self, source }) => {
           const surface = surfaceRef.current;

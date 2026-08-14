@@ -34,7 +34,7 @@ function clamp(value: number, min: number, max: number): number {
 
 // An hour line every 4 slots (see SLOT_HEIGHT).
 const DAY_COLUMN_CLASS =
-  'relative box-border border border-l-0 border-neutral-200 first:border-l bg-[repeating-linear-gradient(to_bottom,var(--color-neutral-200)_0_1px,transparent_1px_64px)] transition-colors data-[over]:bg-neutral-100 dark:border-neutral-700 dark:bg-[repeating-linear-gradient(to_bottom,var(--color-neutral-700)_0_1px,transparent_1px_64px)] dark:data-[over]:bg-neutral-800';
+  'relative box-border border border-l-0 border-neutral-200 first:border-l bg-[repeating-linear-gradient(to_bottom,var(--color-neutral-200)_0_1px,transparent_1px_64px)] transition-colors data-[drag-over]:bg-neutral-100 dark:border-neutral-700 dark:bg-[repeating-linear-gradient(to_bottom,var(--color-neutral-700)_0_1px,transparent_1px_64px)] dark:data-[drag-over]:bg-neutral-800';
 
 // The preview is a clone of the event, so it keeps these classes: `data-dragging`
 // dims the source, `data-drag-preview` lifts the clone above the grid, and the

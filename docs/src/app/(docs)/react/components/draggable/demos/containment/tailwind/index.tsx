@@ -95,7 +95,7 @@ function DockSlot({
 }) {
   return (
     <DropTarget.Root
-      className="box-border flex min-h-32 items-stretch data-[empty]:items-center data-[empty]:justify-center data-[empty]:border data-[empty]:border-dashed data-[empty]:border-neutral-300 data-[over]:border-solid data-[over]:border-neutral-950 data-[over]:bg-neutral-100 dark:data-[empty]:border-neutral-700 dark:data-[over]:border-white dark:data-[over]:bg-neutral-800"
+      className="box-border flex min-h-32 items-stretch data-[empty]:items-center data-[empty]:justify-center data-[empty]:border data-[empty]:border-dashed data-[empty]:border-neutral-300 data-[drag-over]:border-solid data-[drag-over]:border-neutral-950 data-[drag-over]:bg-neutral-100 dark:data-[empty]:border-neutral-700 dark:data-[drag-over]:border-white dark:data-[drag-over]:bg-neutral-800"
       data-empty={widget ? undefined : ''}
       label={label}
       accept={widgetKind}
@@ -145,7 +145,7 @@ export default function ContainedDashboard() {
       <DropTarget.Root
         label="Outside slot"
         accept={widgetKind}
-        className="box-border flex min-h-24 flex-col justify-center gap-1 border border-dashed border-neutral-300 px-4 text-neutral-500 data-[over]:border-solid data-[over]:border-neutral-950 data-[over]:bg-neutral-100 dark:border-neutral-700 dark:text-neutral-400 dark:data-[over]:border-white dark:data-[over]:bg-neutral-800"
+        className="box-border flex min-h-24 flex-col justify-center gap-1 border border-dashed border-neutral-300 px-4 text-neutral-500 data-[drag-over]:border-solid data-[drag-over]:border-neutral-950 data-[drag-over]:bg-neutral-100 dark:border-neutral-700 dark:text-neutral-400 dark:data-[drag-over]:border-white dark:data-[drag-over]:bg-neutral-800"
       >
         <strong className="text-xs leading-4 font-semibold">Outside slot</strong>
         <span className="text-sm leading-5">The drag cannot reach this target.</span>

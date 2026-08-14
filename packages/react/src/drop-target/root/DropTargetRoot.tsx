@@ -20,11 +20,12 @@ import type { UseDropTargetElementParameters } from './useDropTargetElement';
 
 const stateAttributesMapping: StateAttributesMapping<DropTargetRootState> = {
   // The default mapping only lowercases the state key, which would yield
-  // `data-overinnermost`. The literal is inlined rather than read from
+  // `data-dragoverinnermost`. The literal is inlined rather than read from
   // `DropTargetRootDataAttributes` so that enum stays tree-shakeable — it exists
   // for types and the generated reference only, and `enumSync.test.tsx` is what
   // keeps the two in step.
-  overInnermost: (value) => (value ? { 'data-over-innermost': '' } : null),
+  dragOver: (value) => (value ? { 'data-drag-over': '' } : null),
+  dragOverInnermost: (value) => (value ? { 'data-drag-over-innermost': '' } : null),
 };
 
 /**
@@ -59,7 +60,7 @@ export const DropTargetRoot = React.forwardRef(function DropTargetRoot<
     disabled,
     payload,
     snap,
-    trackOver,
+    trackDragOver,
     // Event handlers
     onDragStart,
     onDrag,
@@ -81,7 +82,7 @@ export const DropTargetRoot = React.forwardRef(function DropTargetRoot<
     disabled,
     payload,
     snap,
-    trackOver,
+    trackDragOver,
     onDragStart,
     onDrag,
     onDropTargetChange,
@@ -90,11 +91,11 @@ export const DropTargetRoot = React.forwardRef(function DropTargetRoot<
     onDrop,
   } as UseDropTargetElementParameters;
 
-  const { ref, over, overInnermost, rejected, accepting } = useDropTargetElement(params);
+  const { ref, dragOver, dragOverInnermost, rejected, accepting } = useDropTargetElement(params);
 
   const state: DropTargetRoot.State = {
-    over,
-    overInnermost,
+    dragOver,
+    dragOverInnermost,
     rejected,
     accepting,
     disabled: disabled ?? false,
@@ -134,28 +135,28 @@ export const DropTargetRoot = React.forwardRef(function DropTargetRoot<
 export interface DropTargetRootState {
   /**
    * Whether a matching drag source is currently over this target or a nested
-   * descendant. Always `false` when `trackOver` is `false`.
+   * descendant. Always `false` when `trackDragOver` is `false`.
    */
-  over: boolean;
+  dragOver: boolean;
   /**
    * Whether the drag in progress is one this target accepts, wherever the pointer
    * is — the state to key a "valid drop zone" highlight on. `false` when no drag
-   * is running, when the target is `disabled`, and always when `trackOver` is
+   * is running, when the target is `disabled`, and always when `trackDragOver` is
    * `false`. Matched on `accept` alone: `canDrop` answers per position, so it
    * cannot describe a target the pointer is nowhere near.
    */
   accepting: boolean;
   /**
-   * Whether this is the innermost active target. A nested ancestor has `over` true
-   * but `overInnermost` false while a descendant target is active. Always `false`
-   * when `trackOver` is `false`.
+   * Whether this is the innermost active target. A nested ancestor has `dragOver`
+   * true but `dragOverInnermost` false while a descendant target is active. Always
+   * `false` when `trackDragOver` is `false`.
    */
-  overInnermost: boolean;
+  dragOverInnermost: boolean;
   /**
    * Whether this target is currently refusing the drag: its `canDrop` returned
    * `'reject'` for the current position, the state to key a "column is full"
-   * affordance on. Mutually exclusive with `over`, and always `false` when
-   * `trackOver` is `false`.
+   * affordance on. Mutually exclusive with `dragOver`, and always `false` when
+   * `trackDragOver` is `false`.
    */
   rejected: boolean;
   /** Whether the drop target is disabled. */
@@ -171,11 +172,11 @@ type DropTargetRootPropsBase<TSourceData, TLocalData> = Omit<
 > &
   Omit<RegisterDropTargetParameters<TSourceData, TLocalData>, 'payload'> & {
     /**
-     * Whether to update over-state and its data attributes. Set to `false` when
-     * the target renders no over feedback; drag callbacks still fire.
+     * Whether to update drag-over state and its data attributes. Set to `false`
+     * when the target renders no drag-over feedback; drag callbacks still fire.
      * @default true
      */
-    trackOver?: boolean | undefined;
+    trackDragOver?: boolean | undefined;
   };
 
 /**

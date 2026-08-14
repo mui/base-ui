@@ -87,7 +87,7 @@ function SortableItem({
         <DropTarget.Root
           label={item.label}
           accept={itemKind}
-          trackOver={false}
+          trackDragOver={false}
           onDrag={({ source, location }) => {
             // Travel direction, from where the pointer was on the previous event.
             // On the first event of a drag `previous.input` is the pickup point,

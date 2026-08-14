@@ -13,7 +13,7 @@ The engine is [synthetic](/react/drag-and-drop/overview#concepts): it listens to
 
 A drag resolves drop targets through layout and `document.elementFromPoint`, which jsdom does not provide.
 
-- **Anything that has to land on a target** — `onDrop`, `data-over`, drop indicators, auto-scroll, arrow-key movement — belongs in a browser test.
+- **Anything that has to land on a target** — `onDrop`, `data-drag-over`, drop indicators, auto-scroll, arrow-key movement — belongs in a browser test.
 - **Everything else works in jsdom**: activation thresholds, `onDragStart`/`onDragEnd` firing, the end `reason` on Escape, `data-dragging` on the source, whether a preview renders, `disabled` and `onBeforeDragStart` vetoes.
 
 Stubbing `getBoundingClientRect` in jsdom supplies geometry but not hit-testing. A drag can still start and end there, but it resolves no target and ends as an `'outside-release'`. Use a browser test when the destination matters.
@@ -59,14 +59,14 @@ Set `pointerActivation={{ type: 'immediate' }}` on the draggable under test when
 
 ## Let a frame pass
 
-`onDrag` and the over-state it drives are throttled to one call per animation frame, so an assertion made right after a move reads the state from before it. Await a frame in between:
+`onDrag` and the drag-over state it drives are throttled to one call per animation frame, so an assertion made right after a move reads the state from before it. Await a frame in between:
 
 ```tsx title="Assert after the frame lands"
 fireEvent.pointerMove(document, { pointerId: 1, clientX: 0, clientY: 120, buttons: 1 });
 await act(async () => {
   await new Promise(requestAnimationFrame);
 });
-expect(screen.getByTestId('zone')).toHaveAttribute('data-over');
+expect(screen.getByTestId('zone')).toHaveAttribute('data-drag-over');
 ```
 
 `onDragStart` and `onDragEnd` are not throttled and fire synchronously with the event that caused them.
@@ -88,7 +88,7 @@ Escape and Tab both cancel and end the drag with `canceled: true`. The default f
 
 ## Assert on what a user can observe
 
-Assert on the data attributes and the handler arguments: `data-dragging` on the source, `data-over` and `data-over-innermost` on the target, `data-drag-preview` on the preview element, the `source`, `location` and `canceled` fields on the first argument, and `reason` on the second.
+Assert on the data attributes and the handler arguments: `data-dragging` on the source, `data-drag-over` and `data-drag-over-innermost` on the target, `data-drag-preview` on the preview element, the `source`, `location` and `canceled` fields on the first argument, and `reason` on the second.
 
 Handlers take two arguments, so a `toHaveBeenCalledWith` that lists only the payload will not match — assert on `mock.calls[0][0]`, or pass a second matcher.
 

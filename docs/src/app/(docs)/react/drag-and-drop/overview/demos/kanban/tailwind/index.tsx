@@ -249,7 +249,7 @@ export default function KanbanBoard() {
       className="flex w-full flex-col gap-4 select-none"
       label="Board"
       accept={cardKind}
-      trackOver={false}
+      trackDragOver={false}
     >
       <div className="flex items-start gap-3">
         {board.columnOrder.map((id) => {

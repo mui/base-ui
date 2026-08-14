@@ -108,7 +108,7 @@ export default function AxisLane() {
           className={styles.Track}
           label="Stop lane"
           accept={stopKind}
-          trackOver={false}
+          trackDragOver={false}
           onDrop={({ source, location }) => {
             const track = trackRef.current;
             if (track) {

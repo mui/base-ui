@@ -101,19 +101,19 @@ Put the motion on `translate`, not `transform`, so it composes with any `transfo
 
 ## Highlighting the innermost target
 
-Nested drop targets are over at once: a card over a slot inside a column marks both. `data-over` is on every target in the stack, `data-over-innermost` only on the one that would receive the drop:
+Nested drop targets are over at once: a card over a slot inside a column marks both. `data-drag-over` is on every target in the stack, `data-drag-over-innermost` only on the one that would receive the drop:
 
 ```css title="Feedback on both levels"
-.Column[data-over] {
+.Column[data-drag-over] {
   background-color: oklch(97% 0 0deg);
 }
 
-.Slot[data-over-innermost] {
+.Slot[data-drag-over-innermost] {
   outline: 2px solid oklch(14.5% 0 0deg);
 }
 ```
 
-Both attributes are absent on targets with [`trackOver={false}`](/react/components/drop-target#track-the-over-state).
+Both attributes are absent on targets with [`trackDragOver={false}`](/react/components/drop-target#track-the-drag-over-state).
 
 ## The drag cursor
 

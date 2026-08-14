@@ -121,7 +121,7 @@ export default function AxisLane() {
           className="flex w-max gap-1.5"
           label="Stop lane"
           accept={stopKind}
-          trackOver={false}
+          trackDragOver={false}
           onDrop={({ source, location }) => {
             const track = trackRef.current;
             if (track) {

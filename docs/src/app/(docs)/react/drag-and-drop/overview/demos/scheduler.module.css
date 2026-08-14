@@ -91,7 +91,7 @@
     border-inline-start-width: 1px;
   }
 
-  &[data-over] {
+  &[data-drag-over] {
     background-color: oklch(97% 0 0deg);
 
     @media (prefers-color-scheme: dark) {

@@ -102,7 +102,7 @@ export default function MonitorShapeSorter() {
           return (
             <DropTarget.Root
               key={shape.id}
-              className="grid h-24 place-items-center data-[accepting]:[&_[data-cutout]]:bg-neutral-300 data-[over]:[&_[data-cutout]]:bg-neutral-400 dark:data-[accepting]:[&_[data-cutout]]:bg-neutral-600 dark:data-[over]:[&_[data-cutout]]:bg-neutral-500"
+              className="grid h-24 place-items-center data-[accepting]:[&_[data-cutout]]:bg-neutral-300 data-[drag-over]:[&_[data-cutout]]:bg-neutral-400 dark:data-[accepting]:[&_[data-cutout]]:bg-neutral-600 dark:data-[drag-over]:[&_[data-cutout]]:bg-neutral-500"
               label={`${shape.label} cutout`}
               accept={shape.kind}
             >

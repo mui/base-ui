@@ -172,7 +172,7 @@
     }
   }
 
-  &[data-over] {
+  &[data-drag-over] {
     border-style: solid;
     border-color: oklch(14.5% 0 0deg);
     background-color: oklch(92.2% 0 0deg);

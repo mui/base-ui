@@ -70,7 +70,7 @@
     border-color: oklch(37.1% 0 0deg);
   }
 
-  &[data-over] {
+  &[data-drag-over] {
     border-color: oklch(14.5% 0 0deg);
     background-color: oklch(97% 0 0deg);
 

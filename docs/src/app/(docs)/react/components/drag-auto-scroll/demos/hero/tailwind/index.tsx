@@ -172,7 +172,7 @@ function DropZone({
 
   return (
     <DropTarget.Root
-      className="box-border flex h-52 flex-col gap-2 border border-neutral-200 p-3 transition-colors data-[over]:border-neutral-950 data-[over]:bg-neutral-100 dark:border-neutral-700 dark:data-[over]:border-white dark:data-[over]:bg-neutral-800"
+      className="box-border flex h-52 flex-col gap-2 border border-neutral-200 p-3 transition-colors data-[drag-over]:border-neutral-950 data-[drag-over]:bg-neutral-100 dark:border-neutral-700 dark:data-[drag-over]:border-white dark:data-[drag-over]:bg-neutral-800"
       label={label}
       accept={taskKind}
       onDrag={({ location }) => {

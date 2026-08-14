@@ -46,7 +46,7 @@
     background-image: radial-gradient(oklch(37.1% 0 0deg) 1px, transparent 1px);
   }
 
-  &[data-over-innermost] {
+  &[data-drag-over-innermost] {
     border-color: oklch(14.5% 0 0deg);
     background-color: oklch(97% 0 0deg);
 
@@ -103,7 +103,7 @@
     width: min(55%, 18rem);
   }
 
-  &[data-over-innermost] {
+  &[data-drag-over-innermost] {
     border-style: solid;
     border-color: oklch(14.5% 0 0deg);
     background-color: oklch(97% 0 0deg);

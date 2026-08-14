@@ -26,7 +26,7 @@ export default function DraggableHero() {
         ref={surfaceRef}
         label="Canvas"
         accept={cardKind}
-        trackOver={false}
+        trackDragOver={false}
         className="relative box-border h-48 overflow-hidden border border-neutral-200 bg-neutral-50 bg-[radial-gradient(var(--color-neutral-300)_1px,transparent_1px)] [background-size:20px_20px] dark:border-neutral-700 dark:bg-neutral-900 dark:bg-[radial-gradient(var(--color-neutral-700)_1px,transparent_1px)]"
         onDrop={({ self }) => {
           const surface = surfaceRef.current;

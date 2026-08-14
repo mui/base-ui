@@ -105,7 +105,7 @@
     }
   }
 
-  &[data-over] .Cutout {
+  &[data-drag-over] .Cutout {
     background-color: oklch(70.8% 0 0deg);
 
     @media (prefers-color-scheme: dark) {

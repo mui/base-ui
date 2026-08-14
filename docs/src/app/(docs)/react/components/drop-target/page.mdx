@@ -267,21 +267,21 @@ Use `'reject'` when a rule must block the drop everywhere within a target. For e
 }
 ```
 
-## Track the over state
+## Track the drag-over state
 
-`data-over` is present while an accepted drag is over a target or one of its descendants. With nested targets, every accepted target under the pointer receives `data-over`; only the innermost one, which would handle the drop, also receives `data-over-innermost`:
+`data-drag-over` is present while an accepted drag is over a target or one of its descendants. With nested targets, every accepted target under the pointer receives `data-drag-over`; only the innermost one, which would handle the drop, also receives `data-drag-over-innermost`:
 
 ```tsx
 <DropTarget.Root accept={card} label="Done" className="Zone" />
 ```
 
 ```css title="Highlighting the innermost target"
-.Zone[data-over-innermost] {
+.Zone[data-drag-over-innermost] {
   outline: 2px solid blue;
 }
 ```
 
-`data-accepting` is present on every enabled, tracked target whose `accept` prop matches the active drag, from pickup until the drag ends. Unlike `data-over`, it does not depend on the pointer's location. Use it to reveal all targets configured for that kind as soon as dragging starts:
+`data-accepting` is present on every enabled, tracked target whose `accept` prop matches the active drag, from pickup until the drag ends. Unlike `data-drag-over`, it does not depend on the pointer's location. Use it to reveal all targets configured for that kind as soon as dragging starts:
 
 ```tsx
 <DropTarget.Root accept={card} label="Done" className="Zone" />
@@ -293,12 +293,12 @@ Use `'reject'` when a rule must block the drop everywhere within a target. For e
 }
 ```
 
-Among enabled targets with `trackOver` enabled, `data-accepting` is based only on the target's `accept` prop. A target can therefore have `data-accepting` and still refuse the drop when `canDrop` runs. Use the attribute to show which targets support the dragged item; use `canDrop` for additional rules that are checked when the drag moves over a target. If `canDrop` returns `'reject'`, style that target with `data-rejected`.
+Among enabled targets with `trackDragOver` enabled, `data-accepting` is based only on the target's `accept` prop. A target can therefore have `data-accepting` and still refuse the drop when `canDrop` runs. Use the attribute to show which targets support the dragged item; use `canDrop` for additional rules that are checked when the drag moves over a target. If `canDrop` returns `'reject'`, style that target with `data-rejected`.
 
-If a target does not use these drag-feedback attributes, set `trackOver={false}`. The target still participates in drop resolution and its callbacks still fire, but `data-over`, `data-over-innermost`, `data-accepting`, and `data-rejected` are not added. This also avoids re-rendering the target as the drag moves, which can be useful when many rows in a list are drop targets:
+If a target does not use these drag-feedback attributes, set `trackDragOver={false}`. The target still participates in drop resolution and its callbacks still fire, but `data-drag-over`, `data-drag-over-innermost`, `data-accepting`, and `data-rejected` are not added. This also avoids re-rendering the target as the drag moves, which can be useful when many rows in a list are drop targets:
 
-```tsx title="A target that renders no over feedback"
-<DropTarget.Root label={row.label} accept={card} trackOver={false} onDrop={handleDrop} />
+```tsx title="A target that renders no drag-over feedback"
+<DropTarget.Root label={row.label} accept={card} trackDragOver={false} onDrop={handleDrop} />
 ```
 
 ## Both a source and a target

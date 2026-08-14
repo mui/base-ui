@@ -22,7 +22,12 @@ const itemKind = Draggable.createKind<string>('item');
   payload={item.id}
   keyboardMovement={Draggable.targetsOnlyKeyboardMovement}
   render={
-    <DropTarget.Root accept={itemKind} label={item.label} trackOver={false} onDrop={handleDrop} />
+    <DropTarget.Root
+      accept={itemKind}
+      label={item.label}
+      trackDragOver={false}
+      onDrop={handleDrop}
+    />
   }
 />;
 ```
@@ -43,7 +48,7 @@ For the second, compare the current pointer against the previous one so the swap
 <DropTarget.Root
   accept={itemKind}
   label={item.label}
-  trackOver={false}
+  trackDragOver={false}
   onDrag={({ source, location }) => {
     const { clientY } = location.current.input;
     const previousY = location.previous.input.clientY;
@@ -148,7 +153,7 @@ The `payload` on records read from `location.current.dropTargets` is typed `unkn
 
 ## Performance
 
-- **`trackOver={false}` on rows that render no over-feedback.** Over-state tracking re-renders a target as a drag enters and leaves it. Rows that exist only so a drop can be resolved on them don't need it, and their callbacks still fire. See [Track the over state](/react/components/drop-target#track-the-over-state).
+- **`trackDragOver={false}` on rows that render no drag-over feedback.** Drag-over tracking re-renders a target as a drag enters and leaves it. Rows that exist only so a drop can be resolved on them don't need it, and their callbacks still fire. See [Track the drag-over state](/react/components/drop-target#track-the-drag-over-state).
 - **One monitor rather than a handler per row.** State shared across the collection, such as what is being dragged or where the indicator goes, belongs in a single [`useDragMonitor`](/react/utils/use-drag-monitor). [`Draggable.useActiveDrag`](/react/components/draggable#useactivedrag) is the read-only version, and re-renders only when a drag starts or ends.
 - **Keep modifiers cheap.** A [modifier](/react/components/draggable#movement-modifiers) runs on every frame of a pointer drag, so measuring the DOM inside one costs a layout per frame.
 - **Keep imperative getters current.** React component and hook props stay current across renders. For [`useDragEngine`](/react/utils/use-drag-engine), read changing values from refs or re-register from an effect with the appropriate dependencies.

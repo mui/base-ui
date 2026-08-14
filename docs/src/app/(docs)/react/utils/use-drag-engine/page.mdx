@@ -74,7 +74,7 @@ A `render` needs a [`Draggable.PreviewProvider`](/react/drag-and-drop/overview#s
 
 ## Drop targets
 
-Register a drop target with `registerDropTarget`. Its parameters are the props of [`DropTarget.Root`](/react/components/drop-target) without the element and without `trackOver` (over-state tracking is a React-layer concept): `accept`, `onDragEnter`, `onDragLeave`, `onDrop`, and the rest.
+Register a drop target with `registerDropTarget`. Its parameters are the props of [`DropTarget.Root`](/react/components/drop-target) without the element and without `trackDragOver` (drag-over tracking is a React-layer concept): `accept`, `onDragEnter`, `onDragLeave`, `onDrop`, and the rest.
 
 Unlike on `DropTarget.Root`, only the payload `accept` promises is inferred here: these parameters reach the engine through a getter, which TypeScript stops inferring the target's own `payload` type from once `accept` is present. Name both type arguments — `registerDropTarget<typeof card, SlotData>` — when a target attaches a payload of its own and reads it back as `self.payload`.
 

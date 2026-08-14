@@ -56,7 +56,7 @@ describe('DropTarget.Root', () => {
         kind={slotKind}
         accept={cardKind}
         payload={{ id: 'slot-1' }}
-        trackOver={false}
+        trackDragOver={false}
         disabled={false}
         canDrop={() => true}
         snap={{ y: 4 }}
@@ -67,7 +67,7 @@ describe('DropTarget.Root', () => {
     // Engine parameters are destructured out, so they can't land as attributes.
     expect(el).not.toHaveAttribute('kind');
     expect(el).not.toHaveAttribute('accept');
-    expect(el).not.toHaveAttribute('trackOver');
+    expect(el).not.toHaveAttribute('trackDragOver');
     expect(el).not.toHaveAttribute('disabled');
     expect(el).not.toHaveAttribute('label');
     expect(el).not.toHaveAttribute('payload');
@@ -291,7 +291,7 @@ describe('DropTarget.Root', () => {
     fireEvent.dragOver(first);
     await flushRaf();
     expect(enterBefore).toHaveBeenCalledTimes(1);
-    expect(first).toHaveAttribute('data-over');
+    expect(first).toHaveAttribute('data-drag-over');
 
     // The bridge's hit test latches the exact node the last drag event targeted,
     // which is about to be unmounted. Re-point it at whichever node currently
@@ -319,7 +319,7 @@ describe('DropTarget.Root', () => {
     // The old node is unmounted garbage — React never updates a detached node's
     // attributes, so only its disconnection is assertable.
     expect(first.isConnected).toBe(false);
-    expect(second).toHaveAttribute('data-over');
+    expect(second).toHaveAttribute('data-drag-over');
 
     fireEvent.drop(second);
   });
@@ -444,9 +444,9 @@ describe('DropTarget.Root', () => {
     await flushRaf();
 
     expect(onDragEnter).not.toHaveBeenCalled();
-    // The target never becomes active, so its over-state stays false too.
-    expect(target).not.toHaveAttribute('data-over');
-    expect(target).not.toHaveAttribute('data-over-innermost');
+    // The target never becomes active, so its drag-over state stays false too.
+    expect(target).not.toHaveAttribute('data-drag-over');
+    expect(target).not.toHaveAttribute('data-drag-over-innermost');
   });
 
   it('reflects disabled in state and as data-disabled', async () => {
@@ -460,7 +460,7 @@ describe('DropTarget.Root', () => {
     expect(target).not.toHaveAttribute('data-disabled');
   });
 
-  it('a disabled target receives no callbacks and reports no over state', async () => {
+  it('a disabled target receives no callbacks and reports no drag-over state', async () => {
     const onDragEnter = vi.fn();
     const onDrop = vi.fn();
     const { engine } = await renderDnd(
@@ -487,7 +487,7 @@ describe('DropTarget.Root', () => {
     // Like `canDrop: () => false`, a disabled target is skipped entirely.
     expect(onDragEnter).not.toHaveBeenCalled();
     expect(onDrop).not.toHaveBeenCalled();
-    expect(target).not.toHaveAttribute('data-over');
+    expect(target).not.toHaveAttribute('data-drag-over');
   });
 
   it('a hovered target disabled mid-drag leaves the stack without pointer movement, and re-enters on re-enable', async () => {
@@ -520,20 +520,20 @@ describe('DropTarget.Root', () => {
     fireEvent.dragOver(target);
     await flushRaf();
     expect(onDragEnter).toHaveBeenCalledTimes(1);
-    expect(target).toHaveAttribute('data-over');
+    expect(target).toHaveAttribute('data-drag-over');
 
     // Disable while hovered — no pointer event follows.
     await rerender(<Fixture disabled />);
 
     expect(onDragLeave).toHaveBeenCalledTimes(1);
-    expect(target).not.toHaveAttribute('data-over');
-    expect(target).not.toHaveAttribute('data-over-innermost');
+    expect(target).not.toHaveAttribute('data-drag-over');
+    expect(target).not.toHaveAttribute('data-drag-over-innermost');
 
     // Re-enable: the pointer never left, so the eager refresh re-enters it.
     await rerender(<Fixture />);
 
     expect(onDragEnter).toHaveBeenCalledTimes(2);
-    expect(target).toHaveAttribute('data-over');
+    expect(target).toHaveAttribute('data-drag-over');
 
     fireEvent.drop(target);
   });
@@ -576,26 +576,26 @@ describe('DropTarget.Root', () => {
     fireEvent.dragOver(target);
     await flushRaf();
     expect(onDragEnter).toHaveBeenCalledTimes(1);
-    expect(target).toHaveAttribute('data-over');
+    expect(target).toHaveAttribute('data-drag-over');
 
     // A normal rerender allocates a fresh inline array with the same contents.
     // It must not churn the live target stack.
     await rerender(<Fixture accepted="both" revision={1} />);
     expect(onDragEnter).toHaveBeenCalledTimes(1);
     expect(onDragLeave).not.toHaveBeenCalled();
-    expect(target).toHaveAttribute('data-over');
+    expect(target).toHaveAttribute('data-drag-over');
 
     // Narrow `accept` while hovered — no pointer event follows.
     await rerender(<Fixture accepted="columnOnly" revision={1} />);
 
     expect(onDragLeave).toHaveBeenCalledTimes(1);
-    expect(target).not.toHaveAttribute('data-over');
+    expect(target).not.toHaveAttribute('data-drag-over');
 
     // Widen it back: the pointer never left, so the eager refresh re-enters it.
     await rerender(<Fixture accepted="both" revision={1} />);
 
     expect(onDragEnter).toHaveBeenCalledTimes(2);
-    expect(target).toHaveAttribute('data-over');
+    expect(target).toHaveAttribute('data-drag-over');
 
     fireEvent.drop(target);
   });
@@ -617,12 +617,12 @@ describe('DropTarget.Root', () => {
     await flushRaf();
 
     expect(onDragEnter).not.toHaveBeenCalled();
-    expect(target).not.toHaveAttribute('data-over');
+    expect(target).not.toHaveAttribute('data-drag-over');
 
     cancel();
   });
 
-  it('data-over-innermost is absent on the outer target while a nested target is active', async () => {
+  it('data-drag-over-innermost is absent on the outer target while a nested target is active', async () => {
     const { engine } = await renderDnd(
       <DropTarget.Root accept={DropTarget.anyKind} data-testid="outer">
         <DropTarget.Root accept={DropTarget.anyKind} data-testid="inner" />
@@ -643,9 +643,9 @@ describe('DropTarget.Root', () => {
     fireEvent.dragOver(outer);
     await flushRaf();
 
-    expect(outer).toHaveAttribute('data-over');
-    expect(outer).toHaveAttribute('data-over-innermost');
-    expect(inner).not.toHaveAttribute('data-over');
+    expect(outer).toHaveAttribute('data-drag-over');
+    expect(outer).toHaveAttribute('data-drag-over-innermost');
+    expect(inner).not.toHaveAttribute('data-drag-over');
 
     // Now over the inner (nested inside outer): the outer stays `over` but is no
     // longer the innermost active target.
@@ -653,26 +653,26 @@ describe('DropTarget.Root', () => {
     fireEvent.dragOver(inner);
     await flushRaf();
 
-    expect(outer).toHaveAttribute('data-over');
-    expect(outer).not.toHaveAttribute('data-over-innermost');
-    expect(inner).toHaveAttribute('data-over');
-    expect(inner).toHaveAttribute('data-over-innermost');
+    expect(outer).toHaveAttribute('data-drag-over');
+    expect(outer).not.toHaveAttribute('data-drag-over-innermost');
+    expect(inner).toHaveAttribute('data-drag-over');
+    expect(inner).toHaveAttribute('data-drag-over-innermost');
 
     // Back out to the outer only: it regains innermost status and the inner
-    // loses its over state entirely.
+    // loses its drag-over state entirely.
     fireEvent.dragEnter(outer);
     fireEvent.dragOver(outer);
     await flushRaf();
 
-    expect(outer).toHaveAttribute('data-over');
-    expect(outer).toHaveAttribute('data-over-innermost');
-    expect(inner).not.toHaveAttribute('data-over');
-    expect(inner).not.toHaveAttribute('data-over-innermost');
+    expect(outer).toHaveAttribute('data-drag-over');
+    expect(outer).toHaveAttribute('data-drag-over-innermost');
+    expect(inner).not.toHaveAttribute('data-drag-over');
+    expect(inner).not.toHaveAttribute('data-drag-over-innermost');
 
     fireEvent.drop(outer);
   });
 
-  it('flips over state off and fires onDragLeave when the pointer leaves for empty space, then re-enters', async () => {
+  it('flips drag-over state off and fires onDragLeave when the pointer leaves for empty space, then re-enters', async () => {
     const onDragEnter = vi.fn();
     const onDragLeave = vi.fn();
     const { engine } = await renderDnd(
@@ -694,16 +694,16 @@ describe('DropTarget.Root', () => {
     fireEvent.dragOver(target);
     await flushRaf();
     expect(onDragEnter).toHaveBeenCalledTimes(1);
-    expect(target).toHaveAttribute('data-over');
-    expect(target).toHaveAttribute('data-over-innermost');
+    expect(target).toHaveAttribute('data-drag-over');
+    expect(target).toHaveAttribute('data-drag-over-innermost');
 
     // Off the target into empty space: the drag stays live with no hovered target.
     fireEvent.dragLeave(target);
     await flushRaf();
 
     expect(onDragLeave).toHaveBeenCalledTimes(1);
-    expect(target).not.toHaveAttribute('data-over');
-    expect(target).not.toHaveAttribute('data-over-innermost');
+    expect(target).not.toHaveAttribute('data-drag-over');
+    expect(target).not.toHaveAttribute('data-drag-over-innermost');
 
     // Back onto the same target: a fresh enter, not a resumed hover.
     fireEvent.dragEnter(target);
@@ -711,13 +711,13 @@ describe('DropTarget.Root', () => {
     await flushRaf();
 
     expect(onDragEnter).toHaveBeenCalledTimes(2);
-    expect(target).toHaveAttribute('data-over');
-    expect(target).toHaveAttribute('data-over-innermost');
+    expect(target).toHaveAttribute('data-drag-over');
+    expect(target).toHaveAttribute('data-drag-over-innermost');
 
     fireEvent.drop(target);
   });
 
-  it('reflects over state across the drag lifecycle by default (trackOver defaults to true)', async () => {
+  it('reflects drag-over state across the drag lifecycle by default (trackDragOver defaults to true)', async () => {
     const { engine } = await renderDnd(
       <DropTarget.Root accept={DropTarget.anyKind} data-testid="target" />,
     );
@@ -726,7 +726,7 @@ describe('DropTarget.Root', () => {
     const target = screen.getByTestId('target');
     target.getBoundingClientRect = () => new DOMRect(0, 0, 200, 100);
 
-    expect(target).not.toHaveAttribute('data-over');
+    expect(target).not.toHaveAttribute('data-drag-over');
 
     fireEvent.dragStart(source);
     await flushRaf();
@@ -734,13 +734,13 @@ describe('DropTarget.Root', () => {
     fireEvent.dragOver(target);
     await flushRaf();
 
-    expect(target).toHaveAttribute('data-over');
-    expect(target).toHaveAttribute('data-over-innermost');
+    expect(target).toHaveAttribute('data-drag-over');
+    expect(target).toHaveAttribute('data-drag-over-innermost');
 
     fireEvent.drop(target);
 
-    expect(target).not.toHaveAttribute('data-over');
-    expect(target).not.toHaveAttribute('data-over-innermost');
+    expect(target).not.toHaveAttribute('data-drag-over');
+    expect(target).not.toHaveAttribute('data-drag-over-innermost');
   });
 
   it('re-resolves a stationary hovered target when canDrop changes', async () => {
@@ -769,23 +769,23 @@ describe('DropTarget.Root', () => {
     fireEvent.dragEnter(target);
     fireEvent.dragOver(target);
     await flushRaf();
-    expect(target).toHaveAttribute('data-over');
+    expect(target).toHaveAttribute('data-drag-over');
 
     await rerender(<Fixture allowed={false} />);
     expect(onDragLeave).toHaveBeenCalledTimes(1);
-    expect(target).not.toHaveAttribute('data-over');
+    expect(target).not.toHaveAttribute('data-drag-over');
 
     await rerender(<Fixture allowed />);
     expect(onDragEnter).toHaveBeenCalledTimes(2);
-    expect(target).toHaveAttribute('data-over');
+    expect(target).toHaveAttribute('data-drag-over');
   });
 
-  it('passes the over state to a className callback', async () => {
+  it('passes the drag-over state to a className callback', async () => {
     const { engine } = await renderDnd(
       <DropTarget.Root
         accept={DropTarget.anyKind}
         data-testid="target"
-        className={(state) => (state.over ? 'is-over' : 'idle')}
+        className={(state) => (state.dragOver ? 'is-over' : 'idle')}
       />,
     );
     const source = createElement();
@@ -806,9 +806,9 @@ describe('DropTarget.Root', () => {
     fireEvent.drop(target);
   });
 
-  it('does not re-render on drag activity when trackOver is false', async () => {
+  it('does not re-render on drag activity when trackDragOver is false', async () => {
     // Count renders inside each target: a function `className` runs on every
-    // render of the DropTarget.Root itself, where the over-state subscription
+    // render of the DropTarget.Root itself, where the drag-over subscription
     // lives — a spy in a parent component would miss store-driven re-renders.
     const trackedRenders = vi.fn(() => 'tracked');
     const untrackedRenders = vi.fn(() => 'untracked');
@@ -821,7 +821,7 @@ describe('DropTarget.Root', () => {
         />
         <DropTarget.Root
           accept={DropTarget.anyKind}
-          trackOver={false}
+          trackDragOver={false}
           data-testid="untracked"
           className={untrackedRenders}
         />
@@ -916,13 +916,13 @@ describe('DropTarget.Root', () => {
     expect(unrelatedRenders).toHaveBeenCalledTimes(unrelatedAfterStart);
   });
 
-  it('does not re-render for drag-session updates when trackOver is false', async () => {
+  it('does not re-render for drag-session updates when trackDragOver is false', async () => {
     const className = vi.fn(() => 'target');
     const { engine } = await renderDnd(
       <DropTarget.Root
         accept={DropTarget.anyKind}
         data-testid="target"
-        trackOver={false}
+        trackDragOver={false}
         className={className}
       />,
     );
@@ -936,12 +936,12 @@ describe('DropTarget.Root', () => {
     expect(className).toHaveBeenCalledTimes(rendersBeforeDrag);
   });
 
-  it('still fires callbacks when trackOver is false', async () => {
+  it('still fires callbacks when trackDragOver is false', async () => {
     const onDrop = vi.fn();
     const { engine } = await renderDnd(
       <DropTarget.Root
         accept={DropTarget.anyKind}
-        trackOver={false}
+        trackDragOver={false}
         data-testid="target"
         onDrop={onDrop}
       />,
@@ -958,10 +958,10 @@ describe('DropTarget.Root', () => {
     await flushRaf();
     fireEvent.drop(target);
 
-    // Skipping the over-state subscription must not skip the registration: the
+    // Skipping the drag-over subscription must not skip the registration: the
     // element is still a real drop target, it just renders no feedback.
     expect(onDrop).toHaveBeenCalledTimes(1);
-    expect(target).not.toHaveAttribute('data-over');
+    expect(target).not.toHaveAttribute('data-drag-over');
   });
 
   it('reads payload back on the drop record', async () => {
@@ -1011,7 +1011,7 @@ describe('DropTarget.Root', () => {
       expect(el).toHaveAttribute('aria-roledescription', 'draggable');
     });
 
-    it('reflects the drop target over state on the composed element', async () => {
+    it('reflects the drop target drag-over state on the composed element', async () => {
       const { engine } = await renderDnd(
         <Draggable.Root
           label="card"
@@ -1031,16 +1031,16 @@ describe('DropTarget.Root', () => {
       fireEvent.dragOver(item);
       await flushRaf();
 
-      expect(item).toHaveAttribute('data-over');
+      expect(item).toHaveAttribute('data-drag-over');
 
       fireEvent.drop(item);
-      expect(item).not.toHaveAttribute('data-over');
+      expect(item).not.toHaveAttribute('data-drag-over');
     });
 
     it('keeps the engine-owned data-dragging when the drop target re-renders mid-drag', async () => {
       // The engine writes `data-dragging` straight to the DOM and the draggable's
       // state mapping suppresses React's copy, so a re-render driven by the inner
-      // drop target's over-state must not clobber it.
+      // drop target's drag-over state must not clobber it.
       await renderDnd(
         <React.Fragment>
           <Draggable.Root
@@ -1068,9 +1068,9 @@ describe('DropTarget.Root', () => {
       fireEvent.dragOver(b);
       await flushRaf();
 
-      expect(b).toHaveAttribute('data-over');
+      expect(b).toHaveAttribute('data-drag-over');
       expect(a).toHaveAttribute('data-dragging');
-      expect(a).not.toHaveAttribute('data-over');
+      expect(a).not.toHaveAttribute('data-drag-over');
 
       fireEvent.drop(b);
       expect(a).toHaveAttribute('data-ending-style');

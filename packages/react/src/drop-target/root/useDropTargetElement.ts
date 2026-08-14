@@ -54,7 +54,7 @@ function sameAccept(
 export function useDropTargetElement(
   parameters: UseDropTargetElementParameters,
 ): UseDropTargetElementReturnValue {
-  const { trackOver = true, ...registrationParameters } = parameters;
+  const { trackDragOver = true, ...registrationParameters } = parameters;
   const paramsRef = useValueAsRef(registrationParameters as RegisterDropTargetParameters);
   const disabledRef = useValueAsRef(parameters.disabled);
   const acceptRef = useValueAsRef(parameters.accept);
@@ -78,7 +78,7 @@ export function useDropTargetElement(
   // Parameter changes never re-register, so the engine re-reads them on the next
   // resolution — normally the next pointer move. A `disabled` or `accept` change
   // under a stationary pointer has no next move: the hovered target would keep
-  // `data-over` until a drop silently resolved without it, so re-resolve
+  // `data-drag-over` until a drop silently resolved without it, so re-resolve
   // eagerly (a no-op while no drag is active). `canDrop` gets no such refresh —
   // only calling it could reveal a changed verdict, and that means polling.
   // Only on an actual change, compared by content so an inline `accept` array
@@ -104,21 +104,21 @@ export function useDropTargetElement(
   }, [disabled, accept, canDrop]);
 
   const targetState = useStore(
-    trackOver ? targetStateStore : untrackedTargetStateStore,
+    trackDragOver ? targetStateStore : untrackedTargetStateStore,
     selectTargetState,
   );
 
   return {
     ref,
-    over: hasTargetState(targetState, DragTargetState.over),
-    overInnermost: hasTargetState(targetState, DragTargetState.innermost),
+    dragOver: hasTargetState(targetState, DragTargetState.over),
+    dragOverInnermost: hasTargetState(targetState, DragTargetState.innermost),
     rejected: hasTargetState(targetState, DragTargetState.rejected),
     accepting: hasTargetState(targetState, DragTargetState.accepting),
   };
 }
 
 export type UseDropTargetElementParameters = RegisterDropTargetParameters & {
-  trackOver?: boolean | undefined;
+  trackDragOver?: boolean | undefined;
 };
 
 export interface UseDropTargetElementReturnValue {
@@ -128,24 +128,24 @@ export interface UseDropTargetElementReturnValue {
    * Whether a matching drag source is currently over the drop target or a nested
    * descendant.
    */
-  over: boolean;
+  dragOver: boolean;
   /**
    * Whether the drop target is the innermost active target.
-   * A nested ancestor target has `over` true but `overInnermost` false while a
-   * descendant target is active.
+   * A nested ancestor target has `dragOver` true but `dragOverInnermost` false
+   * while a descendant target is active.
    */
-  overInnermost: boolean;
+  dragOverInnermost: boolean;
   /**
    * Whether this target is currently refusing the drag: its `canDrop` returned
-   * `'reject'` for the current position. Mutually exclusive with `over`, since a
-   * rejecting target keeps the stack empty. Absent tracking when `trackOver` is
-   * `false`.
+   * `'reject'` for the current position. Mutually exclusive with `dragOver`, since
+   * a rejecting target keeps the stack empty. Absent tracking when
+   * `trackDragOver` is `false`.
    */
   rejected: boolean;
   /**
    * Whether the drag in progress is one this target accepts, wherever the pointer
    * currently is. `false` when no drag is running, when the target is `disabled`,
-   * and always when `trackOver` is `false`.
+   * and always when `trackDragOver` is `false`.
    */
   accepting: boolean;
 }

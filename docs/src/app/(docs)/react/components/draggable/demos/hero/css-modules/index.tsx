@@ -19,7 +19,7 @@ export default function DraggableHero() {
         ref={surfaceRef}
         label="Canvas"
         accept={cardKind}
-        trackOver={false}
+        trackDragOver={false}
         className={styles.Surface}
         onDrop={({ self }) => {
           const surface = surfaceRef.current;

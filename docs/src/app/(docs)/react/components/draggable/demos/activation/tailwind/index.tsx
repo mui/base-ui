@@ -155,7 +155,7 @@ export default function ActivationLab() {
 
         <div className="grid justify-items-center gap-2">
           <DropTarget.Root
-            className="grid size-20 place-items-center rounded-full border border-dashed border-neutral-400 transition-[border-color,background-color] data-[accepting]:bg-neutral-100 data-[over]:border-solid data-[over]:border-neutral-950 data-[over]:bg-neutral-200 dark:border-neutral-500 dark:data-[accepting]:bg-neutral-800 dark:data-[over]:border-white dark:data-[over]:bg-neutral-700"
+            className="grid size-20 place-items-center rounded-full border border-dashed border-neutral-400 transition-[border-color,background-color] data-[accepting]:bg-neutral-100 data-[drag-over]:border-solid data-[drag-over]:border-neutral-950 data-[drag-over]:bg-neutral-200 dark:border-neutral-500 dark:data-[accepting]:bg-neutral-800 dark:data-[drag-over]:border-white dark:data-[drag-over]:bg-neutral-700"
             accept={puckKind}
             label="Target"
             onDrop={() => {

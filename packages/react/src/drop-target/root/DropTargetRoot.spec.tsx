@@ -168,8 +168,8 @@ if (slot.matches(untypedRecord)) {
 <DropTarget.Root
   accept={DropTarget.anyKind}
   className={(state) => {
-    expectType<boolean, typeof state.over>(state.over);
-    expectType<boolean, typeof state.overInnermost>(state.overInnermost);
+    expectType<boolean, typeof state.dragOver>(state.dragOver);
+    expectType<boolean, typeof state.dragOverInnermost>(state.dragOverInnermost);
     return '';
   }}
 />;

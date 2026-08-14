@@ -117,7 +117,7 @@ export default function FigmaBoard() {
         ref={surfaceRef}
         label="Canvas"
         accept={cardKind}
-        trackOver={false}
+        trackDragOver={false}
         onDrop={({ self, source }) => {
           const surface = surfaceRef.current;
           if (!surface) {
