@@ -219,6 +219,21 @@ describe('getElementScale', () => {
     expect(getElementScale(inner)).toEqual({ x: 2, y: 2 });
   });
 
+  it('walks through an assigned slot instead of the light-DOM parent', () => {
+    const host = makeNested('transform: matrix(2, 0, 0, 2, 0, 0)');
+    const shadow = host.attachShadow({ mode: 'open' });
+    const wrapper = document.createElement('div');
+    wrapper.style.transform = 'matrix(3, 0, 0, 3, 0, 0)';
+    const slot = document.createElement('slot');
+    wrapper.appendChild(slot);
+    shadow.appendChild(wrapper);
+    const leaf = document.createElement('div');
+    host.appendChild(leaf);
+
+    expect(leaf.assignedSlot).toBe(slot);
+    expect(getElementScale(leaf)).toEqual({ x: 6, y: 6 });
+  });
+
   it.skipIf(isJSDOM)('folds in a zoom, which is not a transform', () => {
     expect(getElementScale(makeNested('zoom: 2'))).toEqual({ x: 2, y: 2 });
   });

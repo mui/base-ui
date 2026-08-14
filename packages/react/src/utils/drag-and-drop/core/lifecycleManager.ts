@@ -10,6 +10,7 @@
 
 import { ownerDocument, ownerWindow } from '@base-ui/utils/owner';
 import { areArraysEqual } from '@base-ui/utils/areArraysEqual';
+import { AnimationFrame } from '@base-ui/utils/useAnimationFrame';
 import type {
   DragCanceledReason,
   DragCleanupFn,
@@ -37,7 +38,6 @@ import {
   getDropTargetsOver,
   refreshHoveredRecords,
 } from '../dropTarget';
-import { WindowAnimationFrame } from './windowAnimationFrame';
 import { activateMonitors, clearActiveMonitors, dispatchToMonitors } from '../monitor';
 import { buildSessionSnapshot, cloneLocationHistory, setDragSession } from '../dragSessionStore';
 import { clearPublishedDragPreview } from '../overlay/dragPreviewStore';
@@ -429,10 +429,9 @@ export function start(parameters: StartParameters): DragSessionHandle | null {
     drainPendingRefresh();
   }
 
-  // Bound to the source's own window so the throttle keeps ticking for a drag
-  // inside a popout whose opener is backgrounded (the shared `AnimationFrame`
-  // util schedules through the main realm's rAF, which freezes there).
-  const dragFrame = new WindowAnimationFrame(ownerWindow(source.element));
+  // Bind the shared frame handle to the source's window so the throttle keeps
+  // ticking for a drag inside a popout whose opener is backgrounded.
+  const dragFrame = new AnimationFrame(ownerWindow(source.element));
   // A flag rather than a prebuilt payload: `location.previous` only advances
   // below, at delivery, so a payload snapshotted when the sample arrived would
   // carry a `previous` from before the coalescing window.
@@ -675,19 +674,17 @@ export function start(parameters: StartParameters): DragSessionHandle | null {
     state.isHovered = null;
 
     // The published state is released in a `finally` for the same reason the
-    // slots above go first: everything in the `try` can throw — `dragFrame.cancel()`
-    // reaches into a possibly-dead popout realm, `onForceCleanup` runs the
-    // sensor's teardown — and the `tornDown` latch blocks any retry. A throw
+    // slots above go first: `onForceCleanup` runs the sensor's teardown and can
+    // throw, while the `tornDown` latch blocks any retry. A throw
     // that left the session store non-null would strand every `Draggable.Root`
     // on `data-dragging` and every `DropTarget.Root` on `data-over`, and the
     // auto-scroller's self-heal keys on a null snapshot, so its rAF loop would
     // keep calling `scrollBy` forever.
     // Each step is contained separately, not just wrapped as a group: the first
-    // one is the one most likely to throw (`cancelAnimationFrame` on a dead
-    // popout realm), and letting it skip the other two would strand the sensor's
-    // document listeners, its pointer capture, the `<html>` cursor lock and the
-    // root lock for the rest of the page's life — `clearActive` is unreachable by
-    // then, because `tornDown` is already latched.
+    // error must not skip the other steps or it would strand the sensor's document
+    // listeners, its pointer capture, the `<html>` cursor lock and the root lock
+    // for the rest of the page's life — `clearActive` is unreachable by then,
+    // because `tornDown` is already latched.
     containConsumerError(
       'Base UI: releasing the drag frame threw during teardown.',
       null,

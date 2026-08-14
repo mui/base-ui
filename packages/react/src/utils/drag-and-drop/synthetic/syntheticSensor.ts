@@ -8,6 +8,8 @@
 import { NOOP } from '@base-ui/utils/empty';
 import { ownerDocument, ownerWindow } from '@base-ui/utils/owner';
 import { addEventListener } from '@base-ui/utils/addEventListener';
+import { AnimationFrame } from '@base-ui/utils/useAnimationFrame';
+import { Timeout } from '@base-ui/utils/useTimeout';
 import { contains, getTarget } from '@base-ui/utils/shadowDom';
 import { createChangeEventDetails } from '../../../internals/createBaseUIEventDetails';
 import {
@@ -32,8 +34,6 @@ import type { DraggableConfig } from '../draggable';
 import { getRegistration, resolveDraggablePickup } from '../draggableRegistry';
 import { hasInteractiveAncestorWithin } from '../interactiveElement';
 import { getDropTargetShadowRoots } from '../dropTarget';
-import { WindowAnimationFrame } from '../core/windowAnimationFrame';
-import { WindowTimeout } from '../core/windowTimeout';
 import type {
   DragCanceledReason,
   DragCleanupFn,
@@ -58,6 +58,7 @@ import {
   normalizePointerType,
   remapInput,
   resolveElementReference,
+  runAllCleanups,
 } from '../utils';
 
 interface SyntheticDragState {
@@ -172,23 +173,19 @@ function clearPending(releaseContextMenuSuppression: boolean = false): void {
   // — and a `state.pending` left set would make every later `pointerdown` re-enter
   // this same teardown and throw again, so no drag could ever start.
   state.pending = null;
-  pending.pressHoldTimer.clear();
-  for (const off of pending.listeners) {
-    off();
-  }
-  // Touch's implicit pointer capture lives on the pointerdown target, not the
-  // drag handle — release it there so a candidate abandoned before activation
-  // doesn't leave the target holding the pointer.
-  releasePointerCaptureSafely(pending.target, pending.pointerId);
-  pending.restoreNativeDrag();
-  pending.touchMoveAnchor();
-  if (releaseContextMenuSuppression) {
-    // Release only the suppression *this* gesture armed. Touch/pen suppression
-    // lives in a single global slot, so releasing `state.cleanupContextMenuSuppression`
-    // blindly would let a clean mouse `pointerup` cancel a suppression a prior
-    // touch gesture is still relying on (Android's late `contextmenu`).
-    pending.contextMenuSuppression?.();
-  }
+  runAllCleanups([
+    pending.pressHoldTimer.clear,
+    ...pending.listeners,
+    // Touch's implicit pointer capture lives on the pointerdown target, not the
+    // drag handle — release it there so a candidate abandoned before activation
+    // doesn't leave the target holding the pointer.
+    () => releasePointerCaptureSafely(pending.target, pending.pointerId),
+    pending.restoreNativeDrag,
+    pending.touchMoveAnchor,
+    ...(releaseContextMenuSuppression && pending.contextMenuSuppression
+      ? [pending.contextMenuSuppression]
+      : []),
+  ]);
 }
 
 /**
@@ -233,24 +230,23 @@ function clearActive(
   }
 
   try {
-    session.rafFrame.cancel();
-    for (const off of session.listeners) {
-      off();
-    }
-    releasePointerCaptureSafely(session.captureTarget, session.pointerId);
-    session.preview.destroy();
-    session.restoreNativeDrag();
-    session.touchMoveAnchor();
+    runAllCleanups([
+      session.rafFrame.cancel,
+      ...session.listeners,
+      () => releasePointerCaptureSafely(session.captureTarget, session.pointerId),
+      () => session.preview.destroy(),
+      session.restoreNativeDrag,
+      session.touchMoveAnchor,
+    ]);
   } finally {
     if (releaseContextMenuSuppression) {
       // Release only the suppression *this* gesture armed (see clearPending).
       session.contextMenuSuppression?.();
     }
     // In the `finally`, above the unlock it pairs with: a drag that ends inside
-    // its own lift frame must not have the cursor locked behind it, and if a step
-    // in the `try` throws first (a dead realm raising from `cancelAnimationFrame`)
-    // a cancel left up there would be skipped — the deferred lock would then fire
-    // after teardown, at depth 0, pinning `grabbing` over the page for good.
+    // its own lift frame must not have the cursor locked behind it. If a cleanup
+    // in the `try` throws, a cancel left there would otherwise be skipped and the
+    // deferred lock could fire after teardown, pinning `grabbing` over the page.
     session.cursorLockFrame.cancel();
     // Idempotent: a no-op when the lock was skipped (touch) or already released.
     dragCursor.unlock();
@@ -506,7 +502,7 @@ function onPointerDown(event: Event): void {
     lastNativeEvent: pointerEvent,
     startedAt: pointerEvent.timeStamp,
     listeners: [],
-    pressHoldTimer: new WindowTimeout(win),
+    pressHoldTimer: new Timeout(win),
     restoreNativeDrag,
     contextMenuSuppression,
     // iOS Safari quirk: a `{ passive: false }` `touchmove` listener must exist
@@ -594,7 +590,7 @@ function startContextMenuSuppression(win: Window, targets: EventTarget[]): DragC
   state.cleanupContextMenuSuppression?.();
 
   const uniqueTargets = Array.from(new Set(targets));
-  const timeout = new WindowTimeout(win);
+  const timeout = new Timeout(win);
   const cleanups: DragCleanupFn[] = [];
   let disposed = false;
 
@@ -877,8 +873,8 @@ function commitActivation(): void {
     // stationary frame is gated.
     movedSinceFrame: true,
     scrolledSinceFrame: false,
-    rafFrame: new WindowAnimationFrame(win),
-    cursorLockFrame: new WindowAnimationFrame(win),
+    rafFrame: new AnimationFrame(win),
+    cursorLockFrame: new AnimationFrame(win),
     listeners: [],
     restoreNativeDrag,
     contextMenuSuppression,
@@ -1339,7 +1335,7 @@ interface PendingSession {
   lastNativeEvent: PointerEvent;
   startedAt: number;
   listeners: DragCleanupFn[];
-  pressHoldTimer: WindowTimeout;
+  pressHoldTimer: Timeout;
   restoreNativeDrag: DragCleanupFn;
   /**
    * The contextmenu suppression this gesture armed (touch/pen only), or `null`
@@ -1402,13 +1398,13 @@ interface ActiveSession {
    * stationary pointer is still tracked.
    */
   scrolledSinceFrame: boolean;
-  rafFrame: WindowAnimationFrame;
+  rafFrame: AnimationFrame;
   /**
    * Defers the cursor lock by one frame (see the `dragCursor.lock` call site).
    * Its own frame rather than {@link rafFrame}, which drives the per-move
    * resolution loop and would cancel this one on the very next pointer sample.
    */
-  cursorLockFrame: WindowAnimationFrame;
+  cursorLockFrame: AnimationFrame;
   listeners: DragCleanupFn[];
   /** See {@link PendingSession.touchMoveAnchor}; released when the drag ends. */
   touchMoveAnchor: DragCleanupFn;

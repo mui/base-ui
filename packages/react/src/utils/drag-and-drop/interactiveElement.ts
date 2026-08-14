@@ -1,4 +1,5 @@
 import { ownerWindow } from '@base-ui/utils/owner';
+import { isInteractiveElement } from '../isInteractiveElement';
 import { getComposedParentElement } from './utils';
 
 // Input types that never take text or arrow-key interaction: focusing one
@@ -42,22 +43,6 @@ export function isEditable(node: Element): boolean {
  * Whether `node` owns a press gesture of its own — typing, toggling, activating.
  * A disabled control owns nothing, so it stays transparent to the drag.
  */
-function isInteractiveElement(node: Element): boolean {
-  const win = ownerWindow(node);
-  if (node instanceof win.HTMLAnchorElement) {
-    return node.hasAttribute('href');
-  }
-  if (
-    node instanceof win.HTMLButtonElement ||
-    node instanceof win.HTMLInputElement ||
-    node instanceof win.HTMLSelectElement ||
-    node instanceof win.HTMLTextAreaElement
-  ) {
-    return !node.disabled;
-  }
-  return node instanceof win.HTMLElement && node.isContentEditable;
-}
-
 /**
  * Whether the press landed on an interactive control nested *inside* the node the
  * gesture would pick up by — a rename input, a row's action button — rather than
@@ -70,7 +55,7 @@ export function hasInteractiveAncestorWithin(target: Element, pickupNode: Elemen
     node !== null && node !== pickupNode;
     node = getComposedParentElement(node)
   ) {
-    if (isInteractiveElement(node)) {
+    if (isInteractiveElement(node) && !node.matches(':disabled')) {
       return true;
     }
   }

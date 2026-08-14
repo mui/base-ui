@@ -1,5 +1,6 @@
 import { ownerDocument, ownerWindow } from '@base-ui/utils/owner';
 import { warn } from '@base-ui/utils/warn';
+import { AnimationFrame } from '@base-ui/utils/useAnimationFrame';
 import type {
   DragAccept,
   DragSource,
@@ -30,6 +31,7 @@ import {
   notifyExternalScroll,
 } from './synthetic/syntheticSensor';
 import { dragSessionStore } from './dragSessionStore';
+import { getMaxScrollOffset } from '../scrollEdges';
 
 const EDGE_THRESHOLD = 0.25;
 const MAX_EDGE_SIZE = 180;
@@ -230,10 +232,6 @@ function canScrollDown(el: Element): boolean {
 // and `scrollLeft + clientWidth < scrollWidth` always reads as scrollable. Work
 // in a direction-normalized coordinate where the home edge is 0 and the far edge
 // is the max scroll extent, so both edges are detected identically in LTR/RTL.
-function getHorizontalScrollExtent(el: Element): number {
-  return Math.max(0, el.scrollWidth - el.clientWidth);
-}
-
 // Distance already scrolled away from the (right-hand) home edge in RTL, always
 // ≥ 0 (RTL `scrollLeft` is ≤ 0). Only the RTL branches need this; the LTR
 // branches read `el.scrollLeft` directly.
@@ -246,7 +244,7 @@ function canScrollLeft(el: Element, rtl: boolean): boolean {
   // Leftward in RTL means scrolling back toward the (right-hand) home edge;
   // in LTR it means scrolling away from the (left-hand) home edge.
   return rtl
-    ? Math.ceil(getScrollFromStart(el)) < getHorizontalScrollExtent(el)
+    ? Math.ceil(getScrollFromStart(el)) < getMaxScrollOffset(el.scrollWidth, el.clientWidth)
     : el.scrollLeft > 0;
 }
 
@@ -820,11 +818,9 @@ function runScrollFrame(timestamp: number): void {
 
 /**
  * Schedule the next loop frame on the drag source's own window, resolved on the
- * drag's first schedule and held until `stopScrollLoop`. The shared `AnimationFrame`
- * util runs on the main realm's rAF, which the browser freezes while that window is
- * hidden, so a drag inside a popout would stall its auto-scroll the moment the
- * opener is backgrounded. The raw handle also keeps the rAF timestamp the loop's
- * frame deltas are computed from.
+ * drag's first schedule and held until `stopScrollLoop`. Passing that window to
+ * `AnimationFrame` keeps a popout drag independent from its opener's throttling,
+ * while the raw callback timestamp drives the loop's frame deltas.
  */
 function requestScrollFrame(): number | null {
   const source = state.currentSource;
@@ -834,7 +830,7 @@ function requestScrollFrame(): number | null {
   if (state.scrollWindow === null) {
     state.scrollWindow = ownerWindow(source.element);
   }
-  return state.scrollWindow.requestAnimationFrame(scrollLoop);
+  return AnimationFrame.request(scrollLoop, state.scrollWindow);
 }
 
 /**
@@ -898,12 +894,8 @@ function stopScrollLoop(): void {
   state.engagedThisFrame.clear();
   clearInferredScrollers();
   resetStyleCaches();
-  if (scrollLoopRaf !== null) {
-    try {
-      scrollWindow?.cancelAnimationFrame(scrollLoopRaf);
-    } catch {
-      // The owning browsing context is already gone.
-    }
+  if (scrollLoopRaf !== null && scrollWindow !== null) {
+    AnimationFrame.cancel(scrollLoopRaf, scrollWindow);
   }
 }
 

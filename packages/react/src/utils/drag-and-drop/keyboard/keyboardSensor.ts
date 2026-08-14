@@ -21,6 +21,8 @@
 
 import { ownerDocument, ownerWindow } from '@base-ui/utils/owner';
 import { addEventListener } from '@base-ui/utils/addEventListener';
+import { clamp } from '@base-ui/utils/clamp';
+import { AnimationFrame } from '@base-ui/utils/useAnimationFrame';
 import { isElement, isHTMLElement, isShadowRoot } from '@floating-ui/utils/dom';
 import { activeElement, contains, getTarget } from '@base-ui/utils/shadowDom';
 import { createChangeEventDetails } from '../../../internals/createBaseUIEventDetails';
@@ -30,7 +32,6 @@ import {
   type DropOutcome,
 } from '../core/lifecycleManager';
 import { createPreviewAndStartSession, type PreviewSessionHandle } from '../core/sensorSession';
-import { WindowAnimationFrame } from '../core/windowAnimationFrame';
 import type { SyntheticPreviewHandle } from '../synthetic/syntheticPreview';
 import { clearActivePreviewHandle } from '../activePreview';
 import { dragSessionStore } from '../dragSessionStore';
@@ -141,7 +142,7 @@ interface ActiveKeyboardSession {
   finalFocus: DragKeyboardFinalFocus | undefined;
   announcer: Announcer;
   /** Coalesces held-arrow repeats to one collision scan per animation frame. */
-  repeatMoveFrame: WindowAnimationFrame;
+  repeatMoveFrame: AnimationFrame;
   /** The newest repeat to commit when {@link repeatMoveFrame} fires. */
   pendingRepeatMove: { key: DragKeyboardArrowKey; event: KeyboardEvent } | null;
   listeners: DragCleanupFn[];
@@ -152,10 +153,10 @@ interface KeyboardDragState {
   /**
    * The pending end-of-drag focus-restore frame, so a new drag or a teardown can
    * cancel it before it fires. Bound to the window of the drag that scheduled it
-   * (see {@link WindowAnimationFrame}); each schedule replaces the handle, so a
+   * (see {@link AnimationFrame}); each schedule replaces the handle, so a
    * frame pending in a previous drag's window is still cancelable from here.
    */
-  pendingFocusFrame: WindowAnimationFrame | null;
+  pendingFocusFrame: AnimationFrame | null;
   /**
    * Keydown-listener cleanups deferred because they were released while an active
    * keyboard drag still needed them (the dragged source was the last draggable and
@@ -536,7 +537,7 @@ function beginKeyboardSession(parameters: {
     keyboardMovement: draggableParameters.keyboardMovement,
     finalFocus: draggableParameters.finalFocus,
     announcer: getAnnouncer(element),
-    repeatMoveFrame: new WindowAnimationFrame(win),
+    repeatMoveFrame: new AnimationFrame(win),
     pendingRepeatMove: null,
     listeners: [],
   };
@@ -786,8 +787,8 @@ function stepNudge(
 function clampToViewport(session: ActiveKeyboardSession, position: DragPosition): DragPosition {
   const viewport = getViewportSize(ownerWindow(session.doc.documentElement));
   return {
-    x: Math.max(0, Math.min(position.x, viewport.width - 1)),
-    y: Math.max(0, Math.min(position.y, viewport.height - 1)),
+    x: clamp(position.x, 0, viewport.width - 1),
+    y: clamp(position.y, 0, viewport.height - 1),
   };
 }
 
@@ -879,8 +880,8 @@ function scrollCanSatisfyAim(
     }
     const box = ancestor.getBoundingClientRect();
     const postScrollAim = {
-      x: Math.max(box.left, Math.min(aim.x, box.right)),
-      y: Math.max(box.top, Math.min(aim.y, box.bottom)),
+      x: clamp(aim.x, box.left, box.right),
+      y: clamp(aim.y, box.top, box.bottom),
     };
     const constrained = modifyMovePoint(session, postScrollAim);
     if (isPointInRect(constrained.x, constrained.y, box)) {
@@ -1638,10 +1639,10 @@ function scheduleRestoreFocus(
   // Restore after the commit so a reordering collection has remounted the item.
   // A new schedule supersedes any restore still pending from an earlier drag —
   // possibly scheduled in a different window, so cancel that one through its own
-  // handle and bind a fresh frame to this drag's realm: the main realm's rAF
-  // freezes in a popout whose opener is backgrounded (see WindowAnimationFrame).
+  // handle and bind a fresh frame to this drag's realm, so an opener's throttled
+  // rAF cannot freeze focus restoration inside a popout.
   cancelPendingFocusRestore();
-  const frame = new WindowAnimationFrame(ownerWindow(session.source.element));
+  const frame = new AnimationFrame(ownerWindow(session.source.element));
   state.pendingFocusFrame = frame;
   frame.request(() => {
     // Contained: the live registration/`dragHandle` getters the default cascade

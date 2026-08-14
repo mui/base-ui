@@ -1,5 +1,6 @@
 import { isShadowRoot } from '@floating-ui/utils/dom';
 import { ownerDocument } from '@base-ui/utils/owner';
+import { clamp } from '@base-ui/utils/clamp';
 import type {
   DragAccept,
   DragKind,
@@ -407,7 +408,7 @@ export function resolveDropTarget(
  * A missing or non-positive count leaves the axis unquantized (still clamped).
  */
 function snapAxis(value: number, steps: number | undefined): number {
-  const clamped = Math.min(1, Math.max(0, value));
+  const clamped = clamp(value, 0, 1);
   if (steps === undefined || !Number.isFinite(steps) || steps <= 0) {
     return clamped;
   }

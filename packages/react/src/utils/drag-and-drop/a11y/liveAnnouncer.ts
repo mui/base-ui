@@ -8,8 +8,8 @@
 
 import { ownerDocument } from '@base-ui/utils/owner';
 import { visuallyHidden } from '@base-ui/utils/visuallyHidden';
+import { Timeout } from '@base-ui/utils/useTimeout';
 import { getSharedSlot } from '../sharedState';
-import { WindowTimeout } from '../core/windowTimeout';
 
 export interface AnnounceOptions {
   /**
@@ -61,7 +61,7 @@ function createAnnouncer(doc: Document): Announcer {
   // is parsed (imperative registration from a head script).
   (doc.body ?? doc.documentElement).appendChild(node);
 
-  const debounceTimer = new WindowTimeout(doc.defaultView ?? window);
+  const debounceTimer = new Timeout(doc.defaultView ?? window);
   let destroyed = false;
   // The last message written, and a toggle used to force a content change when
   // the same message is announced twice in a row (see `write`).

@@ -37,8 +37,8 @@
 
 import { ownerWindow } from '@base-ui/utils/owner';
 import { addEventListener } from '@base-ui/utils/addEventListener';
+import { AnimationFrame } from '@base-ui/utils/useAnimationFrame';
 import { dragSessionStore, dragSourceStore } from './dragSessionStore';
-import { WindowAnimationFrame } from './core/windowAnimationFrame';
 import type { DragCleanupFn } from '../../types/drag';
 
 const DISPLACING_ATTR = 'data-displacing';
@@ -91,7 +91,7 @@ const tracked = new Map<HTMLElement, TrackedState>();
 const resizeListeners = new Map<Window, DragCleanupFn>();
 let storeUnsubscribe: DragCleanupFn | null = null;
 let windowOpen = false;
-let graceFrame: WindowAnimationFrame | null = null;
+let graceFrame: AnimationFrame | null = null;
 /** Monotonic across all plays, so a remounted record can never reuse a token. */
 let playCounter = 0;
 // One sweep per commit: the first tracked element's layout effect sweeps the
@@ -198,7 +198,7 @@ function handleSessionChange(): void {
   // or closed popout window and never deliver the close.
   const first = tracked.keys().next().value as HTMLElement | undefined;
   graceFrame?.cancel();
-  graceFrame = new WindowAnimationFrame(first ? ownerWindow(first) : window);
+  graceFrame = new AnimationFrame(first ? ownerWindow(first) : window);
   graceFrame.request(closeWindow);
 }
 
@@ -334,14 +334,14 @@ function sweep(): void {
   // carries each element from the published delta back to its stylesheet rest
   // state. One frame per window serves every element it played.
   for (const [win, group] of perWindow) {
-    win.requestAnimationFrame(() => {
+    AnimationFrame.request(() => {
       for (const play of group) {
         play.element.removeAttribute(STARTING_STYLE_ATTR);
         // The token was captured when this play was armed: a newer play owns
         // the element now if they differ, and its own watcher will clean up.
         watchFinish(play.element, play.token);
       }
-    });
+    }, win);
   }
 }
 

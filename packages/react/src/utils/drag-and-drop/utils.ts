@@ -2,6 +2,7 @@ import { ownerDocument, ownerWindow } from '@base-ui/utils/owner';
 import { isShadowRoot } from '@floating-ui/utils/dom';
 import { contains } from '@base-ui/utils/shadowDom';
 import type { DragInput, DragModifierKeys, DragPointerType, DragPosition } from '../../types/drag';
+import { getParentElement as getComposedParentElement } from '../getParentElement';
 import {
   identityLinearTransform,
   multiplyLinearTransforms,
@@ -63,14 +64,11 @@ export function getShadowHost(node: Element): Element | null {
 }
 
 /**
- * Walk to a node's parent element, crossing up out of a shadow root through its
- * host. Mirrors the shadow-piercing behaviour of `getTarget`, so an ancestor
- * lookup started from a deep (possibly shadow-internal) target doesn't stop at a
- * shadow boundary. Returns `null` at the top of the document.
+ * Walk to a node's composed parent element, stepping through an assigned slot
+ * and crossing out of a shadow root through its host. Returns `null` at the top
+ * of the document.
  */
-export function getComposedParentElement(node: Element): Element | null {
-  return node.parentElement ?? getShadowHost(node);
-}
+export { getComposedParentElement };
 
 /** The event root that can observe a node before closed-shadow retargeting. */
 export function getDragEventRoot(node: Element): Document | ShadowRoot {

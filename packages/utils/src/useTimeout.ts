@@ -7,18 +7,22 @@ type TimeoutId = number;
 const EMPTY = 0 as TimeoutId;
 
 export class Timeout {
-  static create() {
-    return new Timeout();
+  /** Create a handle scheduled by `ownerWindow`, or by the global timer APIs. */
+  static create(ownerWindow?: Window) {
+    return new Timeout(ownerWindow);
   }
+
+  constructor(private readonly ownerWindow?: Window) {}
 
   currentId: TimeoutId = EMPTY;
 
   /**
    * Executes `fn` after `delay`, clearing any previously scheduled call.
    */
-  start(delay: number, fn: Function) {
+  start(delay: number, fn: () => void) {
     this.clear();
-    this.currentId = setTimeout(() => {
+    const schedule = this.ownerWindow?.setTimeout.bind(this.ownerWindow) ?? setTimeout;
+    this.currentId = schedule(() => {
       this.currentId = EMPTY;
       fn();
     }, delay) as unknown as number; /* Node.js types are enabled in development */
@@ -30,8 +34,10 @@ export class Timeout {
 
   clear = () => {
     if (this.currentId !== EMPTY) {
-      clearTimeout(this.currentId as TimeoutId);
+      const id = this.currentId;
       this.currentId = EMPTY;
+      const clear = this.ownerWindow?.clearTimeout.bind(this.ownerWindow) ?? clearTimeout;
+      clear(id);
     }
   };
 

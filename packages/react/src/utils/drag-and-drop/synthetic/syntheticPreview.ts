@@ -1,8 +1,8 @@
 import { ownerWindow } from '@base-ui/utils/owner';
+import { AnimationFrame } from '@base-ui/utils/useAnimationFrame';
 import type { DragPreviewElementHandle } from './cloneDragPreview';
 import type { DragModifier, DragModifierKeys, DragMode, DragPosition } from '../../../types/drag';
 import { applyDragModifiers } from '../dragModifiers';
-import { WindowAnimationFrame } from '../core/windowAnimationFrame';
 import { getSharedSlot } from '../sharedState';
 import { getElementScale, NO_MODIFIER_KEYS } from '../utils';
 
@@ -199,11 +199,11 @@ export function createSyntheticPreview(
         // Wait a frame so this first position is committed before the transition
         // turns on — otherwise a keyboard drag would ease in from off-screen.
         const { element } = previewElement;
-        ownerWindow(element).requestAnimationFrame(() => {
+        AnimationFrame.request(() => {
           if (!destroyed && previewElement?.element === element) {
             element.setAttribute(DRAG_MODE_ATTR, mode);
           }
-        });
+        }, ownerWindow(element));
       }
     }
   }
@@ -324,7 +324,7 @@ export function createSyntheticPreview(
       // mounted until a consumer-authored drop transition finishes.
       if (preparedForDrop && endingPreview && !endingPreview.isHost) {
         const element = endingPreview.element;
-        const frame = new WindowAnimationFrame(ownerWindow(element));
+        const frame = new AnimationFrame(ownerWindow(element));
         let registration: EndingPreviewRegistration | null = null;
 
         const cleanup = () => {

@@ -1,4 +1,5 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
+import { generateId } from '@base-ui/utils/generateId';
 import { createElement, setupDragEngineTests } from '../../../../test/dnd';
 import { ensureKeyboardInstructions } from './keyboardInstructions';
 
@@ -112,5 +113,25 @@ describe('ensureKeyboardInstructions', () => {
 
     lightHold.release();
     expect(document.getElementById(lightHold.id)).toBeNull();
+  });
+
+  it('does not adopt or remove a consumer element whose id collides', () => {
+    const random = vi.spyOn(Math, 'random').mockReturnValue(0.123456);
+    const prefix = 'base-ui-dnd-keyboard-instructions';
+    const previousId = generateId(prefix);
+    const separator = previousId.lastIndexOf('-');
+    const nextCounter = Number(previousId.slice(separator + 1)) + 1;
+    const consumer = createElement();
+    consumer.id = `${previousId.slice(0, separator + 1)}${nextCounter}`;
+    consumer.textContent = 'Consumer content';
+
+    const hold = ensureKeyboardInstructions(consumer, 'Drag instructions');
+
+    expect(hold.id).not.toBe(consumer.id);
+    expect(document.getElementById(hold.id)?.textContent).toBe('Drag instructions');
+    hold.release();
+    expect(document.getElementById(consumer.id)).toBe(consumer);
+    expect(consumer.textContent).toBe('Consumer content');
+    random.mockRestore();
   });
 });

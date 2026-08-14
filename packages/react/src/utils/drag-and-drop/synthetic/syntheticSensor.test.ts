@@ -122,6 +122,41 @@ describe('syntheticDrag sensor', () => {
     expect(el.getAttribute('draggable')).toBe('true');
   });
 
+  it('runs the remaining pending and active cleanups after a listener removal throws', async () => {
+    const { engine } = await renderDnd();
+    const el = createElement();
+    el.setAttribute('draggable', 'true');
+    engine.registerDraggable(el, {
+      pointerActivation: { touch: { type: 'immediate' } },
+    });
+
+    penDown(el, 50, 50);
+    const removePendingListener = vi
+      .spyOn(window, 'removeEventListener')
+      .mockImplementationOnce(() => {
+        throw new Error('pending listener cleanup failed');
+      });
+    expect(() => act(() => syntheticSensor.cancelActiveDrag())).toThrow(
+      'pending listener cleanup failed',
+    );
+    expect(el.getAttribute('draggable')).toBe('true');
+    removePendingListener.mockRestore();
+
+    touchDown(el, 50, 50);
+    await flushRaf();
+    const removeActiveListener = vi
+      .spyOn(document, 'removeEventListener')
+      .mockImplementationOnce(() => {
+        throw new Error('active listener cleanup failed');
+      });
+    expect(() => act(() => syntheticSensor.cancelActiveDrag())).toThrow(
+      'active listener cleanup failed',
+    );
+    expect(el.getAttribute('draggable')).toBe('true');
+    expect(document.querySelector('[data-drag-preview]')).toBeNull();
+    removeActiveListener.mockRestore();
+  });
+
   it('pen activates after moving past the distance threshold', async () => {
     const { engine } = await renderDnd();
     const el = createElement();
@@ -1078,6 +1113,30 @@ describe('syntheticDrag sensor', () => {
     await flushRaf();
     expect(onDragStart).toHaveBeenCalledTimes(1);
     act(() => cancelDrag());
+    touchUp(50, 50);
+  });
+
+  it.each([
+    ['role button', () => Object.assign(document.createElement('div'), { role: 'button' })],
+    [
+      'focusable custom control',
+      () => Object.assign(document.createElement('div'), { tabIndex: 0 }),
+    ],
+  ])('a press inside a nested %s does not start a drag', async (_name, createControl) => {
+    const { engine } = await renderDnd();
+    const el = createElement();
+    const control = createControl();
+    el.appendChild(control);
+    const onDragStart = vi.fn();
+    engine.registerDraggable(el, {
+      pointerActivation: { touch: { type: 'immediate' } },
+      onDragStart,
+    });
+
+    touchDown(control, 50, 50);
+    await flushRaf();
+
+    expect(onDragStart).not.toHaveBeenCalled();
     touchUp(50, 50);
   });
 

@@ -5,6 +5,7 @@
  */
 
 import { ownerWindow } from '@base-ui/utils/owner';
+import { clamp } from '@base-ui/utils/clamp';
 import {
   containConsumerError,
   getComposedParentElement,
@@ -25,12 +26,6 @@ import type {
 
 const ZERO_OFFSET: DragPosition = { x: 0, y: 0 };
 
-function clamp(value: number, min: number, max: number): number {
-  // `max` can fall below `min` when the preview is larger than the bounds; pin to
-  // `min` (the top/left edge) rather than returning an inverted range.
-  return Math.max(min, Math.min(value, Math.max(min, max)));
-}
-
 /**
  * Clamp the point so the preview stays inside `rect`. The preview sits at
  * `point − previewOffset`, so both edges shift by the offset: on `Draggable.Root`
@@ -49,8 +44,16 @@ function clampPointToRect(context: DragModifierContext, rect: DOMRect): DragPosi
   const width = previewRect?.width ?? 0;
   const height = previewRect?.height ?? 0;
   return {
-    x: clamp(point.x, rect.left + previewOffset.x, rect.right - width + previewOffset.x),
-    y: clamp(point.y, rect.top + previewOffset.y, rect.bottom - height + previewOffset.y),
+    x: clamp(
+      point.x,
+      rect.left + previewOffset.x,
+      Math.max(rect.left + previewOffset.x, rect.right - width + previewOffset.x),
+    ),
+    y: clamp(
+      point.y,
+      rect.top + previewOffset.y,
+      Math.max(rect.top + previewOffset.y, rect.bottom - height + previewOffset.y),
+    ),
   };
 }
 
@@ -73,8 +76,16 @@ export const restrictToWindowEdges: DragModifier = (context) => {
   const height = previewRect?.height ?? 0;
   const viewport = getViewportSize(context.ownerWindow);
   return {
-    x: clamp(point.x, previewOffset.x, viewport.width - width + previewOffset.x),
-    y: clamp(point.y, previewOffset.y, viewport.height - height + previewOffset.y),
+    x: clamp(
+      point.x,
+      previewOffset.x,
+      Math.max(previewOffset.x, viewport.width - width + previewOffset.x),
+    ),
+    y: clamp(
+      point.y,
+      previewOffset.y,
+      Math.max(previewOffset.y, viewport.height - height + previewOffset.y),
+    ),
   };
 };
 

@@ -1,6 +1,7 @@
 'use client';
 import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
+import { mergeCleanups } from '@base-ui/utils/mergeCleanups';
 import { useCSPContext } from '../../internals/csp-context/CSPContext';
 import type { CSPContextValue } from '../../internals/csp-context/CSPContext';
 import { applyDraggableStaticSetup, bindDraggableSensors } from './draggable';
@@ -232,11 +233,7 @@ export class DragEngineBase {
     });
     const unbindSensors = bindDraggableSensors(element);
 
-    return onceCleanup(() => {
-      restoreStatic();
-      unregister();
-      unbindSensors();
-    });
+    return onceCleanup(mergeCleanups(restoreStatic, unregister, unbindSensors));
   };
 }
 

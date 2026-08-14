@@ -11,6 +11,7 @@
  * at their own node instead of clobbering a shared one (last writer wins).
  */
 
+import { generateId } from '@base-ui/utils/generateId';
 import { ownerDocument } from '@base-ui/utils/owner';
 import { visuallyHidden } from '@base-ui/utils/visuallyHidden';
 import { getSharedSlot } from '../sharedState';
@@ -18,40 +19,29 @@ import { getSharedSlot } from '../sharedState';
 const INSTRUCTIONS_ID_PREFIX = 'base-ui-dnd-keyboard-instructions';
 
 interface InstructionsEntry {
-  // Stable id per distinct instruction string, shared across documents (the id
-  // only has to be unique within each root, and each root creates its own node
-  // lazily under that id).
+  roots: Map<Document | ShadowRoot, InstructionsRootEntry>;
+}
+
+interface InstructionsRootEntry {
   id: string;
-  /**
-   * Draggables currently referencing this text, counted *per root*: each root
-   * owns its own node, so each has to die on its own last release. A single
-   * global count would keep every root this text was ever used in strongly
-   * reachable (a detached ShadowRoot, a closed popout's document) for as long as
-   * one draggable anywhere still uses the same string.
-   */
-  countsByRoot: Map<Document | ShadowRoot, number>;
+  node: HTMLElement;
+  count: number;
 }
 
 interface InstructionsState {
   entriesByText: Map<string, InstructionsEntry>;
-  nextInstructionIndex: number;
 }
 
-// Route the id allocation through a shared slot (like the other engine
-// singletons) so two bundled copies of the engine don't allocate colliding ids.
+// Share the text/root registry across bundled copies of the engine. Generated
+// ids are also checked against the destination root before insertion.
 const state = getSharedSlot<InstructionsState>('keyboardInstructions', () => ({
   entriesByText: new Map<string, InstructionsEntry>(),
-  nextInstructionIndex: 0,
 }));
 
 function entryForText(text: string): InstructionsEntry {
   let entry = state.entriesByText.get(text);
   if (entry === undefined) {
-    entry = {
-      id: `${INSTRUCTIONS_ID_PREFIX}-${state.nextInstructionIndex}`,
-      countsByRoot: new Map(),
-    };
-    state.nextInstructionIndex += 1;
+    entry = { roots: new Map() };
     state.entriesByText.set(text, entry);
   }
   return entry;
@@ -87,8 +77,6 @@ export function ensureKeyboardInstructions(reference: Element, text: string): In
   // second defaulting layer here would be unreachable and could drift.
   const root = reference.getRootNode();
   const doc = ownerDocument(reference);
-  const entry = entryForText(text);
-  const { id } = entry;
   // A ShadowRoot has no `<body>`; append to the root itself. A Document does, so
   // append to its body. Both expose `getElementById`. A detached
   // element is its own root — neither applies (and `getElementById` doesn't
@@ -107,33 +95,44 @@ export function ensureKeyboardInstructions(reference: Element, text: string): In
     searchRoot = doc;
     container = doc.body ?? doc.documentElement;
   }
-  entry.countsByRoot.set(searchRoot, (entry.countsByRoot.get(searchRoot) ?? 0) + 1);
-  if (!searchRoot.getElementById(id)) {
+  const entry = entryForText(text);
+  let rootEntry = entry.roots.get(searchRoot);
+  if (rootEntry === undefined) {
+    let id = generateId(INSTRUCTIONS_ID_PREFIX);
+    while (searchRoot.getElementById(id)) {
+      id = generateId(INSTRUCTIONS_ID_PREFIX);
+    }
     const node = doc.createElement('div');
     node.id = id;
     Object.assign(node.style, visuallyHidden);
     node.textContent = text;
     container.appendChild(node);
+    rootEntry = { id, node, count: 0 };
+    entry.roots.set(searchRoot, rootEntry);
+  } else if (rootEntry.node.getRootNode() !== searchRoot) {
+    // Keep the exact owned node alive if page code removed or moved it while a
+    // draggable still holds the instructions.
+    container.appendChild(rootEntry.node);
   }
+  rootEntry.count += 1;
 
   let released = false;
   return {
-    id,
+    id: rootEntry.id,
     release() {
       if (released) {
         return;
       }
       released = true;
-      const remaining = (entry.countsByRoot.get(searchRoot) ?? 1) - 1;
-      if (remaining > 0) {
-        entry.countsByRoot.set(searchRoot, remaining);
+      rootEntry.count -= 1;
+      if (rootEntry.count > 0) {
         return;
       }
-      entry.countsByRoot.delete(searchRoot);
-      searchRoot.getElementById(id)?.remove();
+      entry.roots.delete(searchRoot);
+      rootEntry.node.remove();
       // Nothing anywhere references this text any more; drop the entry so the
       // roots map doesn't outlive the nodes it tracked.
-      if (entry.countsByRoot.size === 0 && state.entriesByText.get(text) === entry) {
+      if (entry.roots.size === 0 && state.entriesByText.get(text) === entry) {
         state.entriesByText.delete(text);
       }
     },
@@ -141,13 +140,11 @@ export function ensureKeyboardInstructions(reference: Element, text: string): In
 }
 
 /** Remove the instructions nodes. Test-only. */
-export function resetKeyboardInstructionsForTests(doc: Document = document): void {
+export function resetKeyboardInstructionsForTests(): void {
   for (const entry of state.entriesByText.values()) {
-    for (const root of entry.countsByRoot.keys()) {
-      root.getElementById(entry.id)?.remove();
+    for (const rootEntry of entry.roots.values()) {
+      rootEntry.node.remove();
     }
-    doc.getElementById(entry.id)?.remove();
   }
   state.entriesByText.clear();
-  state.nextInstructionIndex = 0;
 }
