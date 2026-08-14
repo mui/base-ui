@@ -172,9 +172,17 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
   });
 
   useImplicitActiveTrigger(store);
-  const { forceUnmount } = useOpenStateTransitions(open, store, () => {
-    store.set('allowMouseEnter', false);
-  });
+  const { forceUnmount } = useOpenStateTransitions(
+    open,
+    store,
+    () => {
+      store.set('allowMouseEnter', false);
+    },
+    // A submenu's subtree only mounts once its parent popup opens, so an open submenu appearing
+    // on mount is something the user sees happen rather than page-load content. Without this it
+    // would pop in fully formed next to a parent that is still animating.
+    parentFromContext.type === 'menu',
+  );
 
   useIsoLayoutEffect(() => {
     if (contextMenuContext && !parentMenuRootContext) {
