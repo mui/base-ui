@@ -1637,10 +1637,6 @@ function scheduleRestoreFocus(
 ): void {
   const location: DragLocationHistory | null = snapshot?.location ?? null;
   // Restore after the commit so a reordering collection has remounted the item.
-  // A new schedule supersedes any restore still pending from an earlier drag —
-  // possibly scheduled in a different window, so cancel that one through its own
-  // handle and bind a fresh frame to this drag's realm, so an opener's throttled
-  // rAF cannot freeze focus restoration inside a popout.
   cancelPendingFocusRestore();
   const frame = new AnimationFrame(ownerWindow(session.source.element));
   state.pendingFocusFrame = frame;

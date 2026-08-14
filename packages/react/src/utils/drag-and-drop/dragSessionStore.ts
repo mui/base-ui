@@ -57,11 +57,6 @@ slot.allTargetListeners ??= new Set<() => void>();
  */
 export const dragSessionStore: ReadonlyStore<DragSessionState | null> = slot.store;
 
-/**
- * Reactive view of the active source. Unlike the full session store, this only
- * publishes when a drag starts, ends, or its source element is retargeted, so
- * source-only consumers do no work when the hovered target stack changes.
- */
 export const dragSourceStore: ReadonlyStore<DragSource | null> = slot.sourceStore;
 
 export function selectDragSource(source: DragSource | null): DragSource | null {
@@ -209,15 +204,6 @@ export function createDragTargetStateStore(
   return store;
 }
 
-/**
- * Re-point the active session's source at a new element when the dragged
- * draggable re-registers mid-drag (a virtualizer remounting the item to a fresh
- * node). The lifecycle holds the `source` object by reference, so mutating
- * `source.element` in place keeps every in-flight closure consistent; we then
- * publish fresh full-session and source-only snapshots so reactive consumers
- * re-run against the new node. No-op when no drag is active or `oldElement`
- * isn't the current source. Returns whether it matched.
- */
 export function updateDragSourceElement(oldElement: Element, newElement: HTMLElement): boolean {
   const state = slot.store.state;
   if (!state || state.source.element !== oldElement) {
@@ -225,8 +211,7 @@ export function updateDragSourceElement(oldElement: Element, newElement: HTMLEle
   }
   state.source.element = newElement;
   slot.store.setState({ ...state });
-  // The lifecycle mutates its source object in place, so publish a shallow copy
-  // to wake source-only selectors for this rare virtualizer retarget.
+  // Wake subscribers whose selector returns the source.
   slot.sourceStore.setState({ ...state.source });
   return true;
 }

@@ -32,8 +32,6 @@ interface InstructionsState {
   entriesByText: Map<string, InstructionsEntry>;
 }
 
-// Share the text/root registry across bundled copies of the engine. Generated
-// ids are also checked against the destination root before insertion.
 const state = getSharedSlot<InstructionsState>('keyboardInstructions', () => ({
   entriesByText: new Map<string, InstructionsEntry>(),
 }));
@@ -110,8 +108,7 @@ export function ensureKeyboardInstructions(reference: Element, text: string): In
     rootEntry = { id, node, count: 0 };
     entry.roots.set(searchRoot, rootEntry);
   } else if (rootEntry.node.getRootNode() !== searchRoot) {
-    // Keep the exact owned node alive if page code removed or moved it while a
-    // draggable still holds the instructions.
+    // Reattach the node if application code removed or moved it.
     container.appendChild(rootEntry.node);
   }
   rootEntry.count += 1;

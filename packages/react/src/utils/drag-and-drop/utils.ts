@@ -63,11 +63,6 @@ export function getShadowHost(node: Element): Element | null {
   return isShadowRoot(root) ? root.host : null;
 }
 
-/**
- * Walk to a node's composed parent element, stepping through an assigned slot
- * and crossing out of a shadow root through its host. Returns `null` at the top
- * of the document.
- */
 export { getComposedParentElement };
 
 /** The event root that can observe a node before closed-shadow retargeting. */

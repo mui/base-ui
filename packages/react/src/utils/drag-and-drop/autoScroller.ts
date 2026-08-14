@@ -816,12 +816,7 @@ function runScrollFrame(timestamp: number): void {
   state.scrollLoopRaf = requestScrollFrame();
 }
 
-/**
- * Schedule the next loop frame on the drag source's own window, resolved on the
- * drag's first schedule and held until `stopScrollLoop`. Passing that window to
- * `AnimationFrame` keeps a popout drag independent from its opener's throttling,
- * while the raw callback timestamp drives the loop's frame deltas.
- */
+// Schedule in the source window so popout drags are not throttled with their opener.
 function requestScrollFrame(): number | null {
   const source = state.currentSource;
   if (source === null) {
@@ -1092,11 +1087,6 @@ interface AutoScrollerState {
   /** Each scroll container maps to the stack of getters held against it (merged refs). */
   scrollers: Map<HTMLElement, ScrollerGetter[]>;
   scrollLoopRaf: number | null;
-  /**
-   * The drag source's window, which the loop's frames are scheduled on (see
-   * `requestScrollFrame`); `null` until the drag's first schedule, cleared in
-   * `stopScrollLoop`.
-   */
   scrollWindow: Window | null;
   /**
    * Auto-scroll is armed for the current drag — set by the scroll monitor's

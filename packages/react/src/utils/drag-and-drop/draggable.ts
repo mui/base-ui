@@ -210,10 +210,7 @@ function applyStaticSetup(parameters: DraggableStaticSetupParameters): {
         gestureStyle.webkitTouchCallout = 'none';
       },
       restoreGestureStyles() {
-        // Do not overwrite a value the consumer committed while this setup was
-        // active. This matters when React updates `style` and a registration input
-        // (such as `disabled`) in the same commit: the layout-effect teardown runs
-        // after the new inline style has already landed.
+        // Preserve style updates made while the element was registered.
         if (gestureStyle.touchAction === 'manipulation') {
           gestureStyle.touchAction = previous.touchAction;
         }

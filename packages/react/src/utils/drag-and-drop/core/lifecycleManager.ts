@@ -429,8 +429,7 @@ export function start(parameters: StartParameters): DragSessionHandle | null {
     drainPendingRefresh();
   }
 
-  // Bind the shared frame handle to the source's window so the throttle keeps
-  // ticking for a drag inside a popout whose opener is backgrounded.
+  // Schedule in the source window so popout drags are not throttled with their opener.
   const dragFrame = new AnimationFrame(ownerWindow(source.element));
   // A flag rather than a prebuilt payload: `location.previous` only advances
   // below, at delivery, so a payload snapshotted when the sample arrived would
@@ -661,36 +660,14 @@ export function start(parameters: StartParameters): DragSessionHandle | null {
     tornDown = true;
     dragPending = false;
 
-    // Release the shared engine slots *first*. Everything below can throw —
-    // `dragFrame.cancel()` reaches into a possibly-dead popout realm (Firefox
-    // raises on a dead object), and `onForceCleanup` runs the sensor's teardown
-    // — and the latch above means a retry would return early. Leaving
-    // `isActive` true past a throw would make `canStart()` false for the rest
-    // of the page's life, unrecoverably.
+    // Release the shared state before running cleanup callbacks.
     state.isActive = false;
     state.dragCleanup = null;
     state.dragCancel = null;
     state.refreshDropTargets = null;
     state.isHovered = null;
 
-    // The published state is released in a `finally` for the same reason the
-    // slots above go first: `onForceCleanup` runs the sensor's teardown and can
-    // throw, while the `tornDown` latch blocks any retry. A throw
-    // that left the session store non-null would strand every `Draggable.Root`
-    // on `data-dragging` and every `DropTarget.Root` on `data-over`, and the
-    // auto-scroller's self-heal keys on a null snapshot, so its rAF loop would
-    // keep calling `scrollBy` forever.
-    // Each step is contained separately, not just wrapped as a group: the first
-    // error must not skip the other steps or it would strand the sensor's document
-    // listeners, its pointer capture, the `<html>` cursor lock and the root lock
-    // for the rest of the page's life — `clearActive` is unreachable by then,
-    // because `tornDown` is already latched.
-    containConsumerError(
-      'Base UI: releasing the drag frame threw during teardown.',
-      null,
-      () => dragFrame.cancel(),
-      undefined,
-    );
+    dragFrame.cancel();
     try {
       // Notify the sensor, which owns the preview; no-ops if already torn down.
       containConsumerError(

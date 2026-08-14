@@ -176,9 +176,7 @@ function clearPending(releaseContextMenuSuppression: boolean = false): void {
   runAllCleanups([
     pending.pressHoldTimer.clear,
     ...pending.listeners,
-    // Touch's implicit pointer capture lives on the pointerdown target, not the
-    // drag handle — release it there so a candidate abandoned before activation
-    // doesn't leave the target holding the pointer.
+    // Touch implicitly captures the pointerdown target.
     () => releasePointerCaptureSafely(pending.target, pending.pointerId),
     pending.restoreNativeDrag,
     pending.touchMoveAnchor,
@@ -243,10 +241,7 @@ function clearActive(
       // Release only the suppression *this* gesture armed (see clearPending).
       session.contextMenuSuppression?.();
     }
-    // In the `finally`, above the unlock it pairs with: a drag that ends inside
-    // its own lift frame must not have the cursor locked behind it. If a cleanup
-    // in the `try` throws, a cancel left there would otherwise be skipped and the
-    // deferred lock could fire after teardown, pinning `grabbing` over the page.
+    // Cancel before unlocking in case an earlier cleanup threw.
     session.cursorLockFrame.cancel();
     // Idempotent: a no-op when the lock was skipped (touch) or already released.
     dragCursor.unlock();

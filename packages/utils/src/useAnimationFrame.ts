@@ -104,7 +104,6 @@ export function resetAnimationFrameScheduler() {
 }
 
 export class AnimationFrame {
-  /** Create a handle scheduled by `ownerWindow`, or by the shared global scheduler. */
   static create(ownerWindow?: Window) {
     return new AnimationFrame(ownerWindow);
   }
@@ -118,7 +117,7 @@ export class AnimationFrame {
       try {
         ownerWindow.cancelAnimationFrame(id);
       } catch {
-        // A closed browsing context has already discarded its callbacks.
+        // The window may have closed.
       }
       return;
     }
@@ -129,9 +128,7 @@ export class AnimationFrame {
 
   currentId: AnimationFrameId | null = EMPTY;
 
-  /**
-   * Executes `fn` on the next animation frame, clearing any previously scheduled call.
-   */
+  /** Executes `fn` on the next animation frame, replacing any pending call. */
   request(fn: () => void) {
     this.cancel();
     this.currentId = AnimationFrame.request(() => {

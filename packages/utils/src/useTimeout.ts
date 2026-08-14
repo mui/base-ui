@@ -7,7 +7,6 @@ type TimeoutId = number;
 const EMPTY = 0 as TimeoutId;
 
 export class Timeout {
-  /** Create a handle scheduled by `ownerWindow`, or by the global timer APIs. */
   static create(ownerWindow?: Window) {
     return new Timeout(ownerWindow);
   }

@@ -285,11 +285,7 @@ export class DraggableCollectionPlugin<
     this.lastDropTargetItemId = null;
     this.rootDropActive = false;
 
-    // A collection lazily mounted mid-drag never saw the monitor's `onDragStart`,
-    // so seed from the live drag session; otherwise `currentDraggedItemIds` stays
-    // empty and its drops early-return silently. Mirrors the same-frame seeding in
-    // the lifecycle manager. `accept` always includes this collection's own
-    // kind, so remounting mid-own-drag still reseeds the in-flight drag.
+    // Seed collections that mount during an accepted drag.
     const session = dragSessionStore.getSnapshot();
     const activeSource =
       session != null ? (session.source as DragSource<IncomingSourceData<TItem>>) : null;
@@ -631,8 +627,6 @@ export class DraggableCollectionPlugin<
       onDragLeave: () => {
         this.clearDropState();
       },
-      // A target commits before monitors receive `onDragEnd`, so insertion
-      // cannot depend on collection/monitor mount order.
       onDrop: ({ source, location }) => {
         this.handleDrop(location, source as DragSource<IncomingSourceData<TItem>>);
       },
@@ -857,11 +851,9 @@ export class DraggableCollectionPlugin<
         }
       },
       onDrop: ({ source, location }) => {
-        // `onDrop` fires innermost-only, so reaching the root means no item was the deepest target.
         const src = source.payload;
 
-        // Releasing the dragged rows over their own footprint is "put it back",
-        // not a drop on the root's empty area — skip the callback.
+        // Ignore releases over the dragged rows.
         if (this.isSelfRootDrop(src, location)) {
           return;
         }
@@ -887,9 +879,7 @@ export class DraggableCollectionPlugin<
           });
           committed = true;
         }
-        // Mirror `handleDrop`: this collection now owns the inserted rows, so
-        // a keyboard drag's `finalFocus` on the origin can find the row this
-        // instance remounted.
+        // Keep keyboard focus restoration with the collection that committed the drop.
         if (committed) {
           committedDropSlot.owner = this;
         }
