@@ -37,6 +37,16 @@ import { DemoAccordionMultiple } from './demos/multiple';
 
 <DemoAccordionMultiple />
 
+### Find-in-page
+
+The `hiddenUntilFound` prop hides closed panels with [`hidden="until-found"`](https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Global_attributes/hidden) so the browser can search their contents and reveal the matching panel automatically. It can be set on each `Accordion.Panel`, or once on `Accordion.Root` to apply to all panels.
+
+To try it, press <kbd>Ctrl</kbd>+<kbd>F</kbd> (<kbd>Cmd</kbd>+<kbd>F</kbd> on macOS) and search for "restocking"—the browser opens the closed panel containing the match. When `hiddenUntilFound` is enabled, closed panels always remain mounted in the DOM, which also makes their contents indexable by search engines. In browsers without `hidden="until-found"` support (Safari before 26.2 and Firefox before 139), panels stay fully hidden until opened manually.
+
+import { DemoAccordionHiddenUntilFound } from './demos/hidden-until-found';
+
+<DemoAccordionHiddenUntilFound />
+
 ## API reference
 
 import { TypesAccordion } from './types';

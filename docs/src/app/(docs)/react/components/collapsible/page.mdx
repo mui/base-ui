@@ -23,6 +23,22 @@ import { Collapsible } from '@base-ui/react/collapsible';
 </Collapsible.Root>;
 ```
 
+## Examples
+
+### Find-in-page
+
+The `hiddenUntilFound` prop hides the closed panel with [`hidden="until-found"`](https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Global_attributes/hidden) so the browser can search its contents with find-in-page (<kbd>Ctrl</kbd>+<kbd>F</kbd>/<kbd>Cmd</kbd>+<kbd>F</kbd>) and reveal the panel when a match is found. The closed panel always remains mounted in the DOM, which also makes its contents indexable by search engines. In browsers without `hidden="until-found"` support (Safari before 26.2 and Firefox before 139), the panel stays fully hidden until opened manually.
+
+```tsx title="Searchable hidden panel"
+<Collapsible.Root>
+  <Collapsible.Trigger>Shipping details</Collapsible.Trigger>
+  {/* @highlight-text "hiddenUntilFound" */}
+  <Collapsible.Panel hiddenUntilFound>Standard shipping takes 3–5 business days.</Collapsible.Panel>
+</Collapsible.Root>
+```
+
+See the [Accordion example](/react/components/accordion#find-in-page) for an interactive demo.
+
 ## API reference
 
 import { TypesCollapsible } from './types';
