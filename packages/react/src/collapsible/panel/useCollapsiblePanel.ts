@@ -363,7 +363,11 @@ export function useCollapsiblePanel(
         return undefined;
       }
 
-      function handleBeforeMatch(event: Event) {
+      let restoreStartingStyleFrame = -1;
+
+      // Declared as a `const` after the null check so `panel` stays narrowed: the
+      // handler must touch the same element the listener is attached to.
+      const handleBeforeMatch = (event: Event) => {
         const eventDetails = createChangeEventDetails(REASONS.none, event);
 
         onOpenChange(true, eventDetails);
@@ -373,18 +377,42 @@ export function useCollapsiblePanel(
         }
 
         shouldSkipNextOpenRef.current = true;
+
         // The browser removes `hidden` and measures the match in the same task that
         // dispatches this event, while the React state update below only lands in a
         // later one. Panels kept collapsed by persisted starting styles would still
         // be zero-sized at that point and the match highlight is dropped, so drop
         // those styles synchronously here.
-        panelRef.current?.removeAttribute(CollapsiblePanelDataAttributes.startingStyle);
-        setOpen(true);
-      }
+        const hadStartingStyle = panel.hasAttribute(CollapsiblePanelDataAttributes.startingStyle);
+        panel.removeAttribute(CollapsiblePanelDataAttributes.startingStyle);
 
-      return addEventListener(panel, 'beforematch', handleBeforeMatch);
+        setOpen(true);
+
+        if (!hadStartingStyle) {
+          return;
+        }
+
+        // React renders the same `data-starting-style` prop for as long as the panel
+        // stays closed, so it never rewrites the attribute removed above. Once the
+        // browser has measured the match, put it back if the open state never arrived,
+        // otherwise a controlled panel whose `onOpenChange` is ignored stays expanded.
+        restoreStartingStyleFrame = AnimationFrame.request(() => {
+          if (latestOpenRef.current) {
+            return;
+          }
+
+          panel.setAttribute(CollapsiblePanelDataAttributes.startingStyle, '');
+        });
+      };
+
+      const cleanupBeforeMatchListener = addEventListener(panel, 'beforematch', handleBeforeMatch);
+
+      return () => {
+        AnimationFrame.cancel(restoreStartingStyleFrame);
+        cleanupBeforeMatchListener();
+      };
     },
-    [onOpenChange, setOpen],
+    [latestOpenRef, onOpenChange, setOpen],
   );
 
   const shouldRender = keepMounted || hiddenUntilFound || mounted || open;

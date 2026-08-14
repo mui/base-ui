@@ -1588,6 +1588,9 @@ describe('<Collapsible.Panel />', () => {
       expect(handleOpenChange).toHaveBeenCalledOnce();
       expect(trigger).toHaveAttribute('aria-expanded', 'false');
       expect(panel).toHaveAttribute('data-closed');
+      // A canceled reveal must leave the collapsed styles in place.
+      expect(panel).toHaveAttribute('data-starting-style');
+      expect(getComputedStyle(panel).height).toBe('0px');
 
       await user.click(trigger);
 
@@ -1648,6 +1651,72 @@ describe('<Collapsible.Panel />', () => {
 
       expect(startingStyleWhenRevealed).toBe(false);
       expect(heightWhenRevealed).not.toBe('0px');
+    });
+
+    it('re-collapses the panel when the open state never arrives', async () => {
+      function App() {
+        const [, forceRender] = React.useState(0);
+
+        return (
+          <React.Fragment>
+            <style>{`
+              .transition-test-panel {
+                overflow: hidden;
+                height: var(--collapsible-panel-height);
+                transition-property: height;
+                transition-duration: 999ms;
+                transition-timing-function: linear;
+              }
+
+              .transition-test-panel[data-starting-style],
+              .transition-test-panel[data-ending-style] {
+                height: 0;
+              }
+            `}</style>
+
+            <button type="button" onClick={() => forceRender((value) => value + 1)}>
+              Rerender
+            </button>
+
+            {/* Controlled and pinned closed: this consumer never honors `onOpenChange`. */}
+            <Collapsible.Root open={false} onOpenChange={() => {}}>
+              <Collapsible.Trigger>Trigger</Collapsible.Trigger>
+              <Collapsible.Panel
+                className="transition-test-panel"
+                data-testid="panel"
+                hiddenUntilFound
+              >
+                {PANEL_CONTENT}
+              </Collapsible.Panel>
+            </Collapsible.Root>
+          </React.Fragment>
+        );
+      }
+
+      const { user } = await render(<App />);
+
+      const panel = screen.getByTestId('panel');
+
+      expect(panel).toHaveAttribute('data-starting-style');
+
+      fireBeforeMatch(panel);
+      // The browser drops `hidden` as part of revealing the match.
+      panel.removeAttribute('hidden');
+
+      await act(async () => {
+        await waitForAnimationFrame();
+        await waitForAnimationFrame();
+      });
+
+      // React renders the same props while the panel stays closed, so it cannot
+      // restore the collapsed styles on its own.
+      expect(panel).toHaveAttribute('data-starting-style');
+      expect(getComputedStyle(panel).height).toBe('0px');
+
+      await user.click(screen.getByRole('button', { name: 'Rerender' }));
+
+      expect(panel).toHaveAttribute('data-starting-style');
+      expect(getComputedStyle(panel).height).toBe('0px');
     });
 
     it('uses `hidden="until-found" to hide panel when true', async () => {
