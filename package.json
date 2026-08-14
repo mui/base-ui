@@ -84,7 +84,7 @@
     "concurrently": "^10.0.4",
     "cross-env": "10.1.0",
     "docs": "workspace:^",
-    "eslint": "10.3.0",
+    "eslint": "10.8.1",
     "globby": "16.2.0",
     "jsdom": "27.4.0",
     "lerna": "9.0.7",
