@@ -21,7 +21,7 @@ export const FilterDropdownPopup = React.forwardRef(function FilterDropdownPopup
 ) {
   const { id: idProp, render, className, style, ...elementProps } = componentProps;
   const context = useFilterDropdownRootContext();
-  const { inputRef, setPopupId } = context;
+  const { focusOwnerRef, setPopupId } = context;
   const id = idProp ?? context.popupId;
   const hasAriaLabel = elementProps['aria-label'] || elementProps['aria-labelledby'];
   const ariaLabelledBy = hasAriaLabel ? elementProps['aria-labelledby'] : context.triggerId;
@@ -40,13 +40,13 @@ export const FilterDropdownPopup = React.forwardRef(function FilterDropdownPopup
         id,
         role: 'dialog',
         'aria-labelledby': ariaLabelledBy,
-        // The input owns virtual focus, so the popup must not also claim it.
+        // The input, or the list when the input is omitted, owns virtual focus.
         'aria-activedescendant': undefined,
         // Not valid on a dialog; the list's implicit orientation is already vertical.
         'aria-orientation': undefined,
         onMouseDown(event) {
           if (getTarget(event.nativeEvent) === event.currentTarget) {
-            // Keep focus on the input when the popup's own background is pressed.
+            // Keep focus on the virtual focus owner when the popup's own background is pressed.
             event.preventDefault();
           }
         },
@@ -55,17 +55,17 @@ export const FilterDropdownPopup = React.forwardRef(function FilterDropdownPopup
           // The composed path only contains this popup when the pointer is really over it, and a
           // closing popup must not re-capture focus during its exit transition.
           if (context.open && event.nativeEvent.composedPath().includes(event.currentTarget)) {
-            inputRef.current?.focus({ preventScroll: true });
+            focusOwnerRef.current?.focus({ preventScroll: true });
           }
         },
         onFocus(event) {
           if (context.open && getTarget(event.nativeEvent) === event.currentTarget) {
-            inputRef.current?.focus({ preventScroll: true });
+            focusOwnerRef.current?.focus({ preventScroll: true });
           }
         },
         onKeyDown(event) {
-          if (event.key === 'ArrowLeft' && event.target !== inputRef.current) {
-            inputRef.current?.focus({ preventScroll: true });
+          if (event.key === 'ArrowLeft' && event.target !== focusOwnerRef.current) {
+            focusOwnerRef.current?.focus({ preventScroll: true });
             event.stopPropagation();
           }
         },

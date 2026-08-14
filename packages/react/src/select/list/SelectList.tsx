@@ -43,6 +43,7 @@ export const SelectList = React.forwardRef(function SelectList(
 
   const hasScrollArrows = useStore(store, selectors.hasScrollArrows);
   const openMethod = useStore(store, selectors.openMethod);
+  const virtualFocus = useStore(store, selectors.virtualFocus);
 
   const defaultProps: HTMLProps = {
     id,
@@ -52,7 +53,7 @@ export const SelectList = React.forwardRef(function SelectList(
       scrollHandlerRef.current?.(event.currentTarget);
     },
     onFocus(event) {
-      if (event.target === event.currentTarget) {
+      if (!virtualFocus && event.target === event.currentTarget) {
         store.set('activeIndex', null);
       }
     },

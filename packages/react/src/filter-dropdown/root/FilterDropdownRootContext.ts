@@ -45,7 +45,14 @@ export interface FilterDropdownRootContext {
   setListId: React.Dispatch<React.SetStateAction<string | undefined>>;
   liveRegionElement: HTMLDivElement | null;
   setTriggerElement: React.Dispatch<React.SetStateAction<HTMLElement | null>>;
-  inputRef: React.RefObject<HTMLInputElement | null>;
+  /**
+   * The input when present, or the list when the input is omitted. This element owns real focus
+   * while the host uses virtual list navigation.
+   */
+  focusOwnerRef: React.RefObject<HTMLElement | null>;
+  setInputElement: (element: HTMLInputElement | null) => void;
+  setListElement: (element: HTMLDivElement | null) => void;
+  hasInput: boolean;
   registerItem: (id: symbol, registration: FilterDropdownItemRegistration) => () => void;
   /**
    * The host's list of item elements, in DOM order, and the index it currently highlights. The

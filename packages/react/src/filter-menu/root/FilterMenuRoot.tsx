@@ -1,15 +1,14 @@
 'use client';
 import * as React from 'react';
 import { useControlled } from '@base-ui/utils/useControlled';
-import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
-import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
 import {
   FilterDropdownRoot,
   type FilterDropdownRoot as FilterDropdownRootNamespace,
 } from '../../filter-dropdown/root/FilterDropdownRoot';
 import type { FilterDropdownFilter } from '../../filter-dropdown/root/FilterDropdownRootContext';
+import { useFilterDropdownCloseQuery } from '../../filter-dropdown/root/useFilterDropdownCloseQuery';
 import { MenuRoot } from '../../menu/root/MenuRoot';
 import { useMenuRootContext } from '../../menu/root/MenuRootContext';
 
@@ -19,6 +18,7 @@ export function FilterMenuRoot<Payload>(props: FilterMenuRoot.Props<Payload>): R
     open: openProp,
     defaultOpen = false,
     onOpenChange,
+    onOpenChangeComplete,
     inputValue: inputValueProp,
     defaultInputValue = '',
     onInputValueChange,
@@ -40,17 +40,6 @@ export function FilterMenuRoot<Payload>(props: FilterMenuRoot.Props<Payload>): R
     state: 'inputValue',
   });
   const [inputFocusVisible, setInputFocusVisible] = React.useState(false);
-  const previousOpenRef = React.useRef(open);
-
-  function handleOpenChange(nextOpen: boolean, details: FilterMenuRoot.ChangeEventDetails) {
-    onOpenChange?.(nextOpen, details);
-    if (details.isCanceled) {
-      return;
-    }
-
-    setOpen(nextOpen);
-    setInputFocusVisible(nextOpen && isKeyboardOpen(details));
-  }
 
   const handleInputValueChange = useStableCallback(
     (nextValue: string, details: FilterMenuRoot.InputValueChangeEventDetails) => {
@@ -61,12 +50,23 @@ export function FilterMenuRoot<Payload>(props: FilterMenuRoot.Props<Payload>): R
     },
   );
 
-  useIsoLayoutEffect(() => {
-    if (previousOpenRef.current && !open && inputValue !== '') {
-      handleInputValueChange('', createChangeEventDetails(REASONS.popupClose));
+  const closeQuery = useFilterDropdownCloseQuery({
+    open,
+    value: inputValue,
+    onValueChange: handleInputValueChange,
+    onOpenChangeComplete,
+  });
+
+  function handleOpenChange(nextOpen: boolean, details: FilterMenuRoot.ChangeEventDetails) {
+    onOpenChange?.(nextOpen, details);
+    if (details.isCanceled) {
+      return;
     }
-    previousOpenRef.current = open;
-  }, [handleInputValueChange, open, inputValue]);
+
+    closeQuery.handleOpenChange(nextOpen);
+    setOpen(nextOpen);
+    setInputFocusVisible(nextOpen && isKeyboardOpen(details));
+  }
 
   return (
     <MenuRoot
@@ -74,6 +74,7 @@ export function FilterMenuRoot<Payload>(props: FilterMenuRoot.Props<Payload>): R
       disabled={disabled}
       open={open}
       onOpenChange={handleOpenChange}
+      onOpenChangeComplete={closeQuery.handleOpenChangeComplete}
       virtualFocus
     >
       {(payload) => (
@@ -81,6 +82,7 @@ export function FilterMenuRoot<Payload>(props: FilterMenuRoot.Props<Payload>): R
           open={open}
           inputFocusVisible={inputFocusVisible}
           value={inputValue}
+          query={closeQuery.query}
           filter={filter}
           onValueChange={handleInputValueChange}
         >
@@ -112,6 +114,7 @@ interface FilterMenuProviderProps {
   open: boolean;
   inputFocusVisible: boolean;
   value: string;
+  query?: string | undefined;
   filter: FilterDropdownFilter | undefined;
   onValueChange: (value: string, details: FilterMenuRoot.InputValueChangeEventDetails) => void;
   children?: React.ReactNode;
@@ -139,6 +142,7 @@ export function FilterMenuProvider(props: FilterMenuProviderProps) {
       disabled={disabled}
       inputFocusVisible={props.inputFocusVisible}
       value={props.value}
+      query={props.query ?? props.value}
       filter={props.filter}
       triggerId={triggerId}
       triggerElement={triggerElement}

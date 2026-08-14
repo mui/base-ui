@@ -120,7 +120,7 @@ const SelectItemImpl = React.memo(
       selectionRef.current.dragY = 0;
     }
 
-    // Under virtual focus an input inside the popup keeps real focus and the list is navigated
+    // Under virtual focus an element inside the popup keeps real focus and the list is navigated
     // with `aria-activedescendant`, so items must stay out of the tab order.
     let rovingTabIndex: number | undefined = -1;
     if (virtualFocus) {

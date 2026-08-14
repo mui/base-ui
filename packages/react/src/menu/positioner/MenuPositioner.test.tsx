@@ -3,6 +3,7 @@ import * as React from 'react';
 import userEvent from '@testing-library/user-event';
 import { act, flushMicrotasks, screen, waitFor } from '@mui/internal-test-utils';
 import { ContextMenu } from '@base-ui/react/context-menu';
+import { FilterMenu } from '@base-ui/react/filter-menu';
 import { Menu } from '@base-ui/react/menu';
 import { Menubar } from '@base-ui/react/menubar';
 import {
@@ -59,6 +60,21 @@ describe('<Menu.Positioner />', () => {
     } finally {
       errorSpy.mockRestore();
     }
+  });
+
+  it('enables lazy flipping for a filter menu', async () => {
+    await render(
+      <FilterMenu.Root open>
+        <FilterMenu.Trigger>Actions</FilterMenu.Trigger>
+        <FilterMenu.Portal>
+          <FilterMenu.Positioner>
+            <FilterMenu.Popup />
+          </FilterMenu.Positioner>
+        </FilterMenu.Portal>
+      </FilterMenu.Root>,
+    );
+
+    expect(useAnchorPositioningSpy.mock.lastCall?.[0].lazyFlip).toBe(true);
   });
 
   describeConformance(<Menu.Positioner />, () => ({

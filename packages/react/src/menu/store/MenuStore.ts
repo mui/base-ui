@@ -34,13 +34,12 @@ export type State<Payload> = PopupStoreState<Payload> & {
   floatingParentNodeId: string | null;
   itemProps: HTMLProps;
   /**
-   * Whether real focus stays on an input inside the popup while the list is navigated with
-   * `aria-activedescendant` instead of roving DOM focus. Parts that own such an input opt the
-   * menu into this mode.
+   * Whether real focus stays on an element inside the popup while the list is navigated with
+   * `aria-activedescendant` instead of roving DOM focus.
    */
   virtualFocus: boolean;
   /**
-   * Props for the input that holds real focus while `virtualFocus` is enabled.
+   * Props for the element that holds real focus while `virtualFocus` is enabled.
    */
   inputProps: HTMLProps;
   closeDelay: number;
@@ -51,7 +50,7 @@ export type State<Payload> = PopupStoreState<Payload> & {
 type Context = PopupStoreContext<MenuRoot.ChangeEventDetails> & {
   readonly positionerRef: React.RefObject<HTMLElement | null>;
   readonly popupRef: React.RefObject<HTMLElement | null>;
-  readonly inputRef: React.RefObject<HTMLInputElement | null>;
+  readonly inputRef: React.RefObject<HTMLElement | null>;
   readonly typingRef: React.RefObject<boolean>;
   readonly itemDomElements: React.RefObject<(HTMLElement | null)[]>;
   readonly itemLabels: React.RefObject<(string | null)[]>;
@@ -209,7 +208,7 @@ function createInitialContext(triggerElements: PopupTriggerMap): Context {
   return {
     positionerRef: React.createRef<HTMLElement | null>(),
     popupRef: React.createRef<HTMLElement | null>(),
-    inputRef: React.createRef<HTMLInputElement | null>(),
+    inputRef: React.createRef<HTMLElement | null>(),
     typingRef: { current: false },
     itemDomElements: { current: [] },
     itemLabels: { current: [] },

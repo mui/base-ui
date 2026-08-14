@@ -494,8 +494,8 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
         disabled={!mounted}
         openInteractionType={openMethod}
         returnFocus={finalFocus}
-        // Under virtual focus the popup is never the focus target: the input holds real focus and
-        // the list is navigated with `aria-activedescendant`.
+        // Under virtual focus the popup is never the focus target: a child element holds real
+        // focus and the list is navigated with `aria-activedescendant`.
         initialFocus={virtualFocus ? virtualFocusInputRef : true}
         restoreFocus
       >

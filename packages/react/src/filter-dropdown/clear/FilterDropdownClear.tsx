@@ -54,7 +54,7 @@ export const FilterDropdownClear = React.forwardRef(function FilterDropdownClear
 
           const eventDetails = createChangeEventDetails(REASONS.clearPress, event.nativeEvent);
           context.onValueChange('', eventDetails);
-          context.inputRef.current?.focus();
+          context.focusOwnerRef.current?.focus();
         },
       },
       elementProps,

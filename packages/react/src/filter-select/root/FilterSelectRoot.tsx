@@ -9,6 +9,7 @@ import {
   type FilterDropdownRoot as FilterDropdownRootNamespace,
 } from '../../filter-dropdown/root/FilterDropdownRoot';
 import type { FilterDropdownFilter } from '../../filter-dropdown/root/FilterDropdownRootContext';
+import { useFilterDropdownCloseQuery } from '../../filter-dropdown/root/useFilterDropdownCloseQuery';
 import type { ItemFilter } from '../../internals/filter';
 import { flattenLeafItems, type Group } from '../../internals/resolveValueLabel';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
@@ -31,6 +32,7 @@ export function FilterSelectRoot<Value, Multiple extends boolean | undefined = f
     open: openProp,
     defaultOpen = false,
     onOpenChange,
+    onOpenChangeComplete,
     inputValue: inputValueProp,
     defaultInputValue = '',
     onInputValueChange,
@@ -56,7 +58,6 @@ export function FilterSelectRoot<Value, Multiple extends boolean | undefined = f
     state: 'inputValue',
   });
   const [inputFocusVisible, setInputFocusVisible] = React.useState(false);
-  const previousOpenRef = React.useRef(open);
   const removalInProgressRef = React.useRef(false);
 
   const normalizedItems = React.useMemo<readonly any[]>(() => {
@@ -68,8 +69,6 @@ export function FilterSelectRoot<Value, Multiple extends boolean | undefined = f
   // Memoized so the removal reconciliation below is not re-armed on every render by a fresh
   // array, which grouped items would otherwise produce.
   const flatItems = React.useMemo(() => flattenLeafItems(normalizedItems), [normalizedItems]);
-  const query = inputValue.trim();
-
   const filterDropdownFilter = React.useMemo(() => {
     if (filter == null) {
       // Without a custom filter the popup matches each item's registered text, which already
@@ -110,21 +109,6 @@ export function FilterSelectRoot<Value, Multiple extends boolean | undefined = f
     };
   }, [flatItems, isItemEqualToValue, normalizedItems]);
 
-  function handleOpenChange(nextOpen: boolean, details: FilterSelectRoot.ChangeEventDetails) {
-    onOpenChange?.(nextOpen, details);
-    if (details.isCanceled) {
-      return;
-    }
-
-    setOpen(nextOpen);
-    setInputFocusVisible(
-      nextOpen &&
-        (details.reason === REASONS.listNavigation ||
-          (details.reason === REASONS.triggerPress &&
-            (details.event as MouseEvent | undefined)?.detail === 0)),
-    );
-  }
-
   const handleInputValueChange = useStableCallback(
     (nextValue: string, details: FilterSelectRoot.InputValueChangeEventDetails) => {
       onInputValueChange?.(nextValue, details);
@@ -133,6 +117,30 @@ export function FilterSelectRoot<Value, Multiple extends boolean | undefined = f
       }
     },
   );
+
+  const closeQuery = useFilterDropdownCloseQuery({
+    open,
+    value: inputValue,
+    onValueChange: handleInputValueChange,
+    onOpenChangeComplete,
+  });
+  const query = closeQuery.query.trim();
+
+  function handleOpenChange(nextOpen: boolean, details: FilterSelectRoot.ChangeEventDetails) {
+    onOpenChange?.(nextOpen, details);
+    if (details.isCanceled) {
+      return;
+    }
+
+    closeQuery.handleOpenChange(nextOpen);
+    setOpen(nextOpen);
+    setInputFocusVisible(
+      nextOpen &&
+        (details.reason === REASONS.listNavigation ||
+          (details.reason === REASONS.triggerPress &&
+            (details.event as MouseEvent | undefined)?.detail === 0)),
+    );
+  }
 
   function handleValueChange(nextValue: any, details: SelectRoot.ChangeEventDetails) {
     // Filtering is data-driven by this owner. Select's ordinary item-removal reconciliation must
@@ -144,13 +152,6 @@ export function FilterSelectRoot<Value, Multiple extends boolean | undefined = f
     onValueChange?.(nextValue, details);
   }
 
-  useIsoLayoutEffect(() => {
-    if (previousOpenRef.current && !open && inputValue !== '') {
-      handleInputValueChange('', createChangeEventDetails(REASONS.popupClose));
-    }
-    previousOpenRef.current = open;
-  }, [handleInputValueChange, open, inputValue]);
-
   return (
     <SelectRoot
       {...selectProps}
@@ -160,6 +161,7 @@ export function FilterSelectRoot<Value, Multiple extends boolean | undefined = f
       highlightItemOnHover={highlightItemOnHover}
       open={open}
       onOpenChange={handleOpenChange}
+      onOpenChangeComplete={closeQuery.handleOpenChangeComplete}
       onValueChange={handleValueChange}
       virtualFocus
     >
@@ -169,6 +171,7 @@ export function FilterSelectRoot<Value, Multiple extends boolean | undefined = f
           disabled={disabled}
           inputFocusVisible={inputFocusVisible}
           inputValue={inputValue}
+          query={closeQuery.query}
           flatItems={flatItems}
           locale={locale}
           removalInProgressRef={removalInProgressRef}
@@ -187,6 +190,7 @@ interface FilterSelectProviderProps {
   disabled: boolean;
   inputFocusVisible: boolean;
   inputValue: string;
+  query: string;
   flatItems: readonly any[];
   locale: Intl.LocalesArgument | undefined;
   filter: FilterDropdownFilter | undefined;
@@ -250,6 +254,7 @@ function FilterSelectProvider(props: FilterSelectProviderProps) {
       disabled={props.disabled}
       inputFocusVisible={props.inputFocusVisible}
       value={props.inputValue}
+      query={props.query}
       filter={props.filter}
       locale={props.locale}
       listRef={listRef}

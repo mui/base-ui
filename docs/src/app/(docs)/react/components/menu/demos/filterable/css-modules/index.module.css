@@ -78,7 +78,7 @@
 
 .Popup {
   box-sizing: border-box;
-  min-width: max(12rem, var(--anchor-width));
+  min-width: max(14rem, var(--anchor-width));
   overflow: hidden;
   border: 1px solid oklch(14.5% 0 0deg);
   border-radius: 0;
@@ -160,7 +160,7 @@
 }
 
 .List {
-  max-height: min(16rem, var(--available-height));
+  max-height: min(22rem, var(--available-height));
   padding-block: 0.25rem;
   outline: 0;
   overflow-y: auto;
@@ -172,7 +172,8 @@
 }
 
 .Item,
-.SubmenuTrigger {
+.SubmenuTrigger,
+.ChoiceItem {
   outline: 0;
   cursor: default;
   -webkit-user-select: none;
@@ -206,6 +207,18 @@
       background-color: white;
     }
   }
+}
+
+.ChoiceItem {
+  display: grid;
+  grid-template-columns: 1rem 1fr;
+  align-items: center;
+  gap: 0.5rem;
+  padding-left: 0.625rem;
+}
+
+.ChoiceIndicator {
+  grid-column-start: 1;
 }
 
 .SubmenuTrigger {
@@ -255,10 +268,25 @@
 .GroupLabel {
   -webkit-user-select: none;
   user-select: none;
-  padding-block: 0.5rem;
-  padding-left: 2.125rem;
+  padding-block: 0.375rem 0.25rem;
+  padding-left: 1rem;
   padding-right: 2rem;
-  font-size: 0.875rem;
+  font-size: 0.75rem;
+  font-weight: 500;
   line-height: 1rem;
   color: oklch(55.6% 0 0deg);
+
+  @media (prefers-color-scheme: dark) {
+    color: oklch(70.8% 0 0deg);
+  }
+}
+
+.Separator {
+  height: 1px;
+  margin: 0.25rem;
+  background-color: oklch(87% 0 0deg);
+
+  @media (prefers-color-scheme: dark) {
+    background-color: oklch(37.1% 0 0deg);
+  }
 }

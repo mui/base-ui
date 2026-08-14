@@ -78,6 +78,7 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
   const triggerElement = useStore(store, selectors.triggerElement);
   const isItemEqualToValue = useStore(store, selectors.isItemEqualToValue);
   const transitionStatus = useStore(store, selectors.transitionStatus);
+  const virtualFocus = useStore(store, selectors.virtualFocus);
   const registeredItems = useStore(store, selectors.registeredItems);
   const previousRegisteredItemsRef = React.useRef(registeredItems);
 
@@ -124,6 +125,7 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
     disableAnchorTracking: disableAnchorTracking ?? alignItemWithTriggerActive,
     collisionAvoidance,
     keepMounted: true,
+    lazyFlip: virtualFocus,
   });
 
   const renderedSide = alignItemWithTriggerActive ? 'none' : positioning.side;

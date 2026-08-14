@@ -32,6 +32,55 @@ describe('<FilterSelect.Root />', () => {
   });
 
   describe('filtering', () => {
+    it('uses the listbox as the virtual focus owner when the input is omitted', async () => {
+      const { user } = await render(
+        <FilterSelect.Root
+          defaultOpen
+          items={[
+            { value: 'apple', label: 'Apple' },
+            { value: 'banana', label: 'Banana' },
+          ]}
+        >
+          <FilterSelect.Trigger>Fruit</FilterSelect.Trigger>
+          <FilterSelect.Portal>
+            <FilterSelect.Positioner>
+              <FilterSelect.Popup>
+                <FilterSelect.List data-testid="listbox">
+                  {(item: { value: string; label: string }) => (
+                    <FilterSelect.Item key={item.value} value={item.value}>
+                      {item.label}
+                    </FilterSelect.Item>
+                  )}
+                </FilterSelect.List>
+              </FilterSelect.Popup>
+            </FilterSelect.Positioner>
+          </FilterSelect.Portal>
+        </FilterSelect.Root>,
+      );
+
+      const listbox = screen.getByTestId('listbox');
+      if (isJSDOM) {
+        Object.defineProperty(listbox, 'scrollTo', {
+          configurable: true,
+          value: vi.fn(),
+        });
+      }
+
+      await waitFor(() => {
+        expect(listbox).toHaveFocus();
+      });
+      expect(listbox).toHaveAttribute(
+        'aria-activedescendant',
+        screen.getByRole('option', { name: 'Apple' }).id,
+      );
+
+      await user.keyboard('[ArrowDown]');
+      expect(listbox).toHaveAttribute(
+        'aria-activedescendant',
+        screen.getByRole('option', { name: 'Banana' }).id,
+      );
+    });
+
     it('does not set aria-activedescendant on open', async () => {
       const { user } = await render(
         <FilterSelect.Root
@@ -77,6 +126,55 @@ describe('<FilterSelect.Root />', () => {
       });
       expect(firstOption).not.toHaveAttribute('data-highlighted');
       expect(input).not.toHaveAttribute('aria-activedescendant');
+    });
+
+    it('moves focus past the listbox when tabbing from the input', async () => {
+      const { user } = await render(
+        <div>
+          <FilterSelect.Root
+            defaultOpen
+            items={[
+              { value: 'apple', label: 'Apple' },
+              { value: 'banana', label: 'Banana' },
+            ]}
+          >
+            <FilterSelect.Trigger>Fruit</FilterSelect.Trigger>
+            <FilterSelect.Portal>
+              <FilterSelect.Positioner>
+                <FilterSelect.Popup>
+                  <FilterSelect.Input aria-label="Filter fruit" />
+                  <FilterSelect.List style={{ height: 1, overflow: 'auto' }}>
+                    {(item: { value: string; label: string }) => (
+                      <FilterSelect.Item key={item.value} value={item.value} style={{ height: 10 }}>
+                        {item.label}
+                      </FilterSelect.Item>
+                    )}
+                  </FilterSelect.List>
+                </FilterSelect.Popup>
+              </FilterSelect.Positioner>
+            </FilterSelect.Portal>
+          </FilterSelect.Root>
+          <input data-testid="after" />
+        </div>,
+      );
+
+      const input = screen.getByRole('searchbox', { name: 'Filter fruit' });
+      await waitFor(() => {
+        expect(input).toHaveFocus();
+      });
+
+      if (isJSDOM) {
+        await user.tab();
+      } else {
+        const { userEvent: browserUser } = await import('vitest/browser');
+        await act(async () => {
+          await browserUser.keyboard('[Tab]');
+        });
+      }
+
+      await waitFor(() => {
+        expect(screen.getByTestId('after')).toHaveFocus();
+      });
     });
 
     it('highlights the selected item and points aria-activedescendant at it on open', async () => {
@@ -341,7 +439,7 @@ describe('<FilterSelect.Root />', () => {
       const firstItem = screen.getByRole('option', { name: 'Apple' });
       const input = screen.getByRole('searchbox', { name: 'Filter fruit' });
       expect(list).not.toHaveAttribute('aria-activedescendant');
-      expect(list).not.toHaveAttribute('tabindex');
+      expect(list).toHaveAttribute('tabindex', '-1');
       expect(input).toHaveFocus();
 
       await user.keyboard('[ArrowDown]');
@@ -460,6 +558,84 @@ describe('<FilterSelect.Root />', () => {
       expect(onInputValueChange.mock.calls[0][0]).toBe('');
       expect(onInputValueChange.mock.calls[0][1].reason).toBe('popup-close');
     });
+
+    it.skipIf(isJSDOM)(
+      'keeps filtering updated during the exit transition',
+      async ({ onTestFinished }) => {
+        globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+        onTestFinished(() => {
+          globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
+        });
+
+        let addApricot = () => {};
+
+        function Test() {
+          const [open, setOpen] = React.useState(true);
+          const [items, setItems] = React.useState([
+            { value: 'apple', label: 'Apple' },
+            { value: 'banana', label: 'Banana' },
+          ]);
+          addApricot = () =>
+            setItems((currentItems) => [...currentItems, { value: 'apricot', label: 'Apricot' }]);
+
+          return (
+            <React.Fragment>
+              <style>{`
+                @keyframes filter-select-close-test {
+                  to { opacity: 0; }
+                }
+                .filter-select-close-test[data-ending-style] {
+                  animation: filter-select-close-test 10s linear;
+                }
+              `}</style>
+              <FilterSelect.Root open={open} items={items} onOpenChange={setOpen}>
+                <FilterSelect.Trigger>Fruit</FilterSelect.Trigger>
+                <FilterSelect.Portal>
+                  <FilterSelect.Positioner>
+                    <FilterSelect.Popup data-testid="popup" className="filter-select-close-test">
+                      <FilterSelect.Input aria-label="Filter fruit" />
+                      <FilterSelect.List>
+                        {(item: { value: string; label: string }) => (
+                          <FilterSelect.Item key={item.value} value={item.value}>
+                            {item.label}
+                          </FilterSelect.Item>
+                        )}
+                      </FilterSelect.List>
+                    </FilterSelect.Popup>
+                  </FilterSelect.Positioner>
+                </FilterSelect.Portal>
+              </FilterSelect.Root>
+            </React.Fragment>
+          );
+        }
+
+        const { user } = await render(<Test />);
+        const input = screen.getByRole('searchbox', { name: 'Filter fruit' });
+        await user.type(input, 'ap');
+        await user.keyboard('[Escape]');
+
+        const popup = screen.getByTestId('popup');
+        await waitFor(() => {
+          expect(popup).toHaveAttribute('data-ending-style');
+        });
+        expect(input).toHaveValue('');
+        await act(async () => {
+          addApricot();
+        });
+        await waitFor(() => {
+          expect(screen.getByRole('option', { name: 'Apricot' })).toBeVisible();
+        });
+        expect(screen.queryByRole('option', { name: 'Banana' })).toBe(null);
+
+        popup.getAnimations().forEach((animation) => animation.finish());
+        await waitFor(() => {
+          expect(popup).toHaveAttribute('data-closed');
+        });
+
+        await user.click(screen.getByRole('combobox'));
+        expect(await screen.findByRole('option', { name: 'Banana' })).toBeVisible();
+      },
+    );
 
     it('points ARIA relationships at consumer-supplied popup and list ids', async () => {
       await render(

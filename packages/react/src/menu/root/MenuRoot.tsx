@@ -54,8 +54,8 @@ interface MenuRootInternalProps<Payload> extends MenuRoot.Props<Payload> {
   isSubmenu?: boolean | undefined;
   /**
    * @ignore
-   * Keeps real focus on an input inside the popup and navigates the list with
-   * `aria-activedescendant`. Set by parts that render such an input.
+   * Keeps real focus on an element inside the popup and navigates the list with
+   * `aria-activedescendant`.
    */
   virtualFocus?: boolean | undefined;
 }
@@ -580,7 +580,7 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(
     };
   }, [menubarOrientation, orientation, store, direction]);
 
-  // Under virtual focus the popup's input is the element that holds real focus, so it takes the
+  // Under virtual focus an element inside the popup holds real focus, so it takes the
   // navigation's reference props (`aria-activedescendant` and the key handling) and the trigger
   // keeps only the props that open the menu.
   const openTriggerProps = virtualFocus ? listNavigation.trigger : listNavigation.reference;

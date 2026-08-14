@@ -238,8 +238,8 @@ type MenuSubmenuRootBaseProps = Omit<
 export type MenuSubmenuRootProps = MenuSubmenuRootBaseProps & {
   /**
    * @ignore
-   * Keeps real focus on an input inside the popup and navigates the list with
-   * `aria-activedescendant`. Set by parts that render such an input.
+   * Keeps real focus on an element inside the popup and navigates the list with
+   * `aria-activedescendant`.
    */
   virtualFocus?: boolean | undefined;
   /**

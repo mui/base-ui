@@ -60,8 +60,8 @@ export const MenuPopup = React.forwardRef(function MenuPopup(
 
   const isContextMenu = parent.type === 'context-menu';
   const shouldFocusPopup = parent.type !== 'menu' || openedByKeyboard;
-  // Under virtual focus the popup itself is never the focus target: the input holds real focus
-  // and the list is navigated with `aria-activedescendant`.
+  // Under virtual focus the popup itself is never the focus target: a child element holds real
+  // focus and the list is navigated with `aria-activedescendant`.
   let initialFocus: FloatingFocusManagerProps['initialFocus'] = shouldFocusPopup;
   if (shouldFocusPopup && virtualFocus) {
     initialFocus = store.context.inputRef;

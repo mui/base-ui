@@ -50,16 +50,15 @@ export type State = {
   selectionReferenceItemId: symbol | null;
 
   /**
-   * Whether real focus stays on an input inside the popup while the list is navigated with
-   * `aria-activedescendant` instead of roving DOM focus. Parts that own such an input opt the
-   * select into this mode.
+   * Whether real focus stays on an element inside the popup while the list is navigated with
+   * `aria-activedescendant` instead of roving DOM focus.
    */
   virtualFocus: boolean;
 
   popupProps: HTMLProps;
   triggerProps: HTMLProps;
   /**
-   * Props for the input that holds real focus while `virtualFocus` is enabled.
+   * Props for the element that holds real focus while `virtualFocus` is enabled.
    */
   inputProps: HTMLProps;
   triggerElement: HTMLElement | null;

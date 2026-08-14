@@ -26,7 +26,7 @@ export const FilterDropdownInput = React.forwardRef(function FilterDropdownInput
   const activeItemId = useActiveItemId(context);
 
   return useRenderElement('input', componentProps, {
-    ref: [forwardedRef, context.inputRef],
+    ref: [forwardedRef, context.setInputElement],
     props: [
       context.inputProps,
       {

@@ -36,6 +36,7 @@ export function FilterDropdownRoot(props: FilterDropdownRoot.Props): React.JSX.E
     empty,
     locale,
     value,
+    query,
     onValueChange,
     filter,
     triggerId: externalTriggerId,
@@ -44,7 +45,7 @@ export function FilterDropdownRoot(props: FilterDropdownRoot.Props): React.JSX.E
     activeIndex = null,
     setActiveIndex = NOOP,
     inputProps = EMPTY_OBJECT,
-    inputRef: externalInputRef,
+    inputRef: externalFocusOwnerRef,
   } = props;
 
   const parentContext = React.useContext(FilterDropdownRootContext);
@@ -55,6 +56,7 @@ export function FilterDropdownRoot(props: FilterDropdownRoot.Props): React.JSX.E
   const [registeredListId, setListId] = React.useState<string | undefined>(undefined);
   const [registeredItems, registerItem] = useItemRegistry<symbol, FilterDropdownItemRegistration>();
   const [focusVisible, setFocusVisible] = React.useState(inputFocusVisible);
+  const [hasInput, setHasInput] = React.useState(false);
 
   // React 17 resolves generated ids in an effect, so they must be read live rather than captured
   // in a state initializer.
@@ -66,9 +68,22 @@ export function FilterDropdownRoot(props: FilterDropdownRoot.Props): React.JSX.E
   const popupId = registeredPopupId ?? defaultPopupId;
   const listId = registeredListId ?? defaultListId;
 
-  const ownInputRef = React.useRef<HTMLInputElement | null>(null);
-  const inputRef = externalInputRef ?? ownInputRef;
+  const ownFocusOwnerRef = React.useRef<HTMLElement | null>(null);
+  const focusOwnerRef = externalFocusOwnerRef ?? ownFocusOwnerRef;
+  const inputElementRef = React.useRef<HTMLInputElement | null>(null);
+  const listElementRef = React.useRef<HTMLDivElement | null>(null);
   const handleValueChange = useStableCallback(onValueChange ?? NOOP);
+  const setInputElement = useStableCallback((element: HTMLInputElement | null) => {
+    inputElementRef.current = element;
+    focusOwnerRef.current = element ?? listElementRef.current;
+    setHasInput(element !== null);
+  });
+  const setListElement = useStableCallback((element: HTMLDivElement | null) => {
+    listElementRef.current = element;
+    if (inputElementRef.current === null) {
+      focusOwnerRef.current = element;
+    }
+  });
 
   const store = useRefWithInit(() => new Store<StoreState>({ visibleItemIds: null })).current;
 
@@ -79,15 +94,15 @@ export function FilterDropdownRoot(props: FilterDropdownRoot.Props): React.JSX.E
   }, [inputFocusVisible]);
 
   // Filtering runs against the registry snapshot published after every item in the commit has
-  // registered, and against the committed value, because a controlled consumer can reject a
+  // registered, and against the committed query, because a controlled consumer can reject a
   // proposed change.
   useIsoLayoutEffect(() => {
-    if (!open) {
+    if (!open && query === undefined) {
       return;
     }
 
-    const query = value.trim();
-    if (query === '') {
+    const filterQuery = (query ?? value).trim();
+    if (filterQuery === '') {
       if (store.state.visibleItemIds !== null) {
         store.set('visibleItemIds', null);
       }
@@ -99,10 +114,12 @@ export function FilterDropdownRoot(props: FilterDropdownRoot.Props): React.JSX.E
       const filterText = getText();
       const matchesText =
         filterText != null &&
-        (filter ? filter(filterText, query, filterValue) : defaultMatches(filterText, query));
+        (filter
+          ? filter(filterText, filterQuery, filterValue)
+          : defaultMatches(filterText, filterQuery));
       // Keywords are alternate search terms rather than items, so they always use the default
       // matcher. Handing one to a custom filter would give it a bare string instead of an item.
-      if (matchesText || keywords?.some((keyword) => defaultMatches(keyword, query))) {
+      if (matchesText || keywords?.some((keyword) => defaultMatches(keyword, filterQuery))) {
         nextIds.add(id);
       }
     });
@@ -111,7 +128,7 @@ export function FilterDropdownRoot(props: FilterDropdownRoot.Props): React.JSX.E
     if (currentIds === null || !isSetEqual(currentIds, nextIds)) {
       store.set('visibleItemIds', nextIds);
     }
-  }, [open, value, registeredItems, filter, defaultMatches, store]);
+  }, [open, value, query, registeredItems, filter, defaultMatches, store]);
 
   const contextValue: FilterDropdownRootContext = React.useMemo(
     () => ({
@@ -130,7 +147,10 @@ export function FilterDropdownRoot(props: FilterDropdownRoot.Props): React.JSX.E
       setListId,
       liveRegionElement,
       setTriggerElement,
-      inputRef,
+      focusOwnerRef,
+      setInputElement,
+      setListElement,
+      hasInput,
       registerItem,
       listRef,
       activeIndex,
@@ -149,7 +169,10 @@ export function FilterDropdownRoot(props: FilterDropdownRoot.Props): React.JSX.E
       triggerId,
       listId,
       liveRegionElement,
-      inputRef,
+      focusOwnerRef,
+      setInputElement,
+      setListElement,
+      hasInput,
       registerItem,
       listRef,
       activeIndex,
@@ -221,6 +244,10 @@ export interface FilterDropdownRootProps {
    */
   value: string;
   /**
+   * Query used for filtering when it differs from the input value, such as while closing.
+   */
+  query?: string | undefined;
+  /**
    * Event handler called when the filter input value changes.
    */
   onValueChange?:
@@ -255,9 +282,9 @@ export interface FilterDropdownRootProps {
    */
   inputProps?: HTMLProps | undefined;
   /**
-   * The host's ref for the input, so it can focus it when the popup opens.
+   * The host's ref for the input, or the list when no input is rendered.
    */
-  inputRef?: React.RefObject<HTMLInputElement | null> | undefined;
+  inputRef?: React.RefObject<HTMLElement | null> | undefined;
 }
 
 export namespace FilterDropdownRoot {

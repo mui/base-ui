@@ -1,16 +1,14 @@
 'use client';
 import * as React from 'react';
 import { useControlled } from '@base-ui/utils/useControlled';
-import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
-import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
-import { REASONS } from '../../internals/reasons';
 import {
   MenuSubmenuRoot,
   type MenuSubmenuRootProps,
 } from '../../menu/submenu-root/MenuSubmenuRoot';
 import { FilterDropdownRoot } from '../../filter-dropdown/root/FilterDropdownRoot';
 import type { FilterDropdownFilter } from '../../filter-dropdown/root/FilterDropdownRootContext';
+import { useFilterDropdownCloseQuery } from '../../filter-dropdown/root/useFilterDropdownCloseQuery';
 import { useMenuRootContext } from '../../menu/root/MenuRootContext';
 import { FilterMenuProvider, isKeyboardOpen } from '../root/FilterMenuRoot';
 
@@ -19,6 +17,7 @@ export function FilterMenuSubmenuRoot(props: FilterMenuSubmenuRoot.Props): React
     open: openProp,
     defaultOpen = false,
     onOpenChange,
+    onOpenChangeComplete,
     inputValue: inputValueProp,
     defaultInputValue = '',
     onInputValueChange,
@@ -45,17 +44,6 @@ export function FilterMenuSubmenuRoot(props: FilterMenuSubmenuRoot.Props): React
     state: 'inputValue',
   });
   const [inputFocusVisible, setInputFocusVisible] = React.useState(false);
-  const previousOpenRef = React.useRef(open);
-
-  function handleOpenChange(nextOpen: boolean, details: FilterMenuSubmenuRoot.ChangeEventDetails) {
-    onOpenChange?.(nextOpen, details);
-    if (details.isCanceled) {
-      return;
-    }
-
-    setOpen(nextOpen);
-    setInputFocusVisible(nextOpen && isKeyboardOpen(details));
-  }
 
   const handleInputValueChange = useStableCallback(
     (nextValue: string, details: FilterMenuSubmenuRoot.InputValueChangeEventDetails) => {
@@ -66,12 +54,23 @@ export function FilterMenuSubmenuRoot(props: FilterMenuSubmenuRoot.Props): React
     },
   );
 
-  useIsoLayoutEffect(() => {
-    if (previousOpenRef.current && !open && inputValue !== '') {
-      handleInputValueChange('', createChangeEventDetails(REASONS.popupClose));
+  const closeQuery = useFilterDropdownCloseQuery({
+    open,
+    value: inputValue,
+    onValueChange: handleInputValueChange,
+    onOpenChangeComplete,
+  });
+
+  function handleOpenChange(nextOpen: boolean, details: FilterMenuSubmenuRoot.ChangeEventDetails) {
+    onOpenChange?.(nextOpen, details);
+    if (details.isCanceled) {
+      return;
     }
-    previousOpenRef.current = open;
-  }, [handleInputValueChange, open, inputValue]);
+
+    closeQuery.handleOpenChange(nextOpen);
+    setOpen(nextOpen);
+    setInputFocusVisible(nextOpen && isKeyboardOpen(details));
+  }
 
   return (
     <MenuSubmenuRoot
@@ -79,12 +78,14 @@ export function FilterMenuSubmenuRoot(props: FilterMenuSubmenuRoot.Props): React
       disabled={disabled}
       open={open}
       onOpenChange={handleOpenChange}
+      onOpenChangeComplete={closeQuery.handleOpenChangeComplete}
       virtualFocus
     >
       <FilterMenuProvider
         open={open}
         inputFocusVisible={inputFocusVisible}
         value={inputValue}
+        query={closeQuery.query}
         filter={filter}
         onValueChange={handleInputValueChange}
       >

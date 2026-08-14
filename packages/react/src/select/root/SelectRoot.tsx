@@ -51,8 +51,8 @@ interface SelectRootInternalProps<
 > extends SelectRoot.Props<Value, Multiple> {
   /**
    * @ignore
-   * Keeps real focus on an input inside the popup and navigates the list with
-   * `aria-activedescendant`. Set by parts that render such an input.
+   * Keeps real focus on an element inside the popup and navigates the list with
+   * `aria-activedescendant`.
    */
   virtualFocus?: boolean | undefined;
 }
@@ -133,7 +133,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
   const valueRef = React.useRef<HTMLSpanElement | null>(null);
   const typingRef = React.useRef(false);
   const firstItemTextRef = React.useRef<HTMLElement | null>(null);
-  const virtualFocusInputRef = React.useRef<HTMLInputElement | null>(null);
+  const virtualFocusInputRef = React.useRef<HTMLElement | null>(null);
   const selectionRef = React.useRef({
     allowSelectedMouseUp: false,
     allowUnselectedMouseUp: false,
@@ -491,7 +491,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     isItemEqualToValue,
     openMethod: renderedOpenMethod,
     virtualFocus,
-    // Under virtual focus the popup's input is the element that holds real focus, so it takes the
+    // Under virtual focus an element inside the popup holds real focus, so it takes the
     // navigation's reference props (`aria-activedescendant` and the key handling).
     inputProps: virtualFocus ? (listNavigation.reference ?? EMPTY_OBJECT) : EMPTY_OBJECT,
   });
