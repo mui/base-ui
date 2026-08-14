@@ -60,6 +60,32 @@ describe('<FilterMenu.Root />', () => {
       expect(input).toHaveAttribute('data-focus-visible');
     });
 
+    it('marks the input focus-visible when the menu is opened with a pointer', async () => {
+      const { user } = await render(
+        <FilterMenu.Root>
+          <FilterMenu.Trigger>Actions</FilterMenu.Trigger>
+          <FilterMenu.Portal>
+            <FilterMenu.Positioner>
+              <FilterMenu.Popup>
+                <FilterMenu.Input aria-label="Filter actions" />
+                <FilterMenu.List>
+                  <FilterMenu.Item>Rename</FilterMenu.Item>
+                </FilterMenu.List>
+              </FilterMenu.Popup>
+            </FilterMenu.Positioner>
+          </FilterMenu.Portal>
+        </FilterMenu.Root>,
+      );
+
+      await user.click(screen.getByRole('button', { name: 'Actions' }));
+
+      const input = await screen.findByRole('searchbox', { name: 'Filter actions' });
+      await waitFor(() => {
+        expect(input).toHaveFocus();
+      });
+      expect(input).toHaveAttribute('data-focus-visible');
+    });
+
     it('matches items on their keywords', async () => {
       const { user } = await render(
         <FilterMenu.Root open>
@@ -463,13 +489,13 @@ describe('<FilterMenu.Root />', () => {
 
         const item = screen.getByText('Documents');
         await user.hover(item);
-        expect(input).not.toHaveAttribute('data-focus-visible');
+        expect(input).toHaveAttribute('data-focus-visible');
 
         await user.hover(input);
-        expect(input).not.toHaveAttribute('data-focus-visible');
+        expect(input).toHaveAttribute('data-focus-visible');
 
         await user.keyboard('[ArrowDown]');
-        expect(input).not.toHaveAttribute('data-focus-visible');
+        expect(input).toHaveAttribute('data-focus-visible');
 
         await user.keyboard('[ArrowUp]');
         expect(input).toHaveAttribute('data-focus-visible');
@@ -536,6 +562,55 @@ describe('<FilterMenu.Root />', () => {
 
       const nextItem = screen.getByRole('menuitem', { name: 'Delete' });
       expect(parentInput).toHaveAttribute('aria-activedescendant', nextItem.id);
+    });
+
+    it('returns focus to a virtually focused submenu trigger on Escape', async () => {
+      const { user } = await render(
+        <FilterMenu.Root defaultOpen>
+          <FilterMenu.Trigger>Actions</FilterMenu.Trigger>
+          <FilterMenu.Portal>
+            <FilterMenu.Positioner>
+              <FilterMenu.Popup>
+                <FilterMenu.Input aria-label="Filter actions" />
+                <FilterMenu.List>
+                  <FilterMenu.SubmenuRoot>
+                    <FilterMenu.SubmenuTrigger>Move to folder</FilterMenu.SubmenuTrigger>
+                    <FilterMenu.Portal>
+                      <FilterMenu.Positioner>
+                        <FilterMenu.Popup>
+                          <FilterMenu.Input aria-label="Filter folders" />
+                          <FilterMenu.List>
+                            <FilterMenu.Item>Documents</FilterMenu.Item>
+                          </FilterMenu.List>
+                        </FilterMenu.Popup>
+                      </FilterMenu.Positioner>
+                    </FilterMenu.Portal>
+                  </FilterMenu.SubmenuRoot>
+                </FilterMenu.List>
+              </FilterMenu.Popup>
+            </FilterMenu.Positioner>
+          </FilterMenu.Portal>
+        </FilterMenu.Root>,
+      );
+
+      const parentInput = screen.getByRole('searchbox', { name: 'Filter actions' });
+      await waitFor(() => {
+        expect(parentInput).toHaveFocus();
+      });
+
+      await user.keyboard('[ArrowDown][ArrowRight]');
+
+      const submenuInput = await screen.findByRole('searchbox', { name: 'Filter folders' });
+      await waitFor(() => {
+        expect(submenuInput).toHaveFocus();
+      });
+
+      await user.keyboard('[Escape]');
+
+      const submenuTrigger = screen.getByRole('menuitem', { name: 'Move to folder' });
+      await waitFor(() => {
+        expect(submenuTrigger).toHaveFocus();
+      });
     });
 
     it('opens a submenu from a filterable submenu input', async () => {
@@ -1154,7 +1229,7 @@ describe('<FilterMenu.Root />', () => {
       expect(plainItem).not.toHaveAttribute('tabindex');
       expect(plainItem).toHaveAttribute('aria-expanded', 'true');
       const submenuTrigger = screen.getByRole('menuitem', { name: 'More folders' });
-      expect(submenuTrigger).not.toHaveAttribute('tabindex');
+      expect(submenuTrigger).toHaveAttribute('tabindex', '-1');
       expect(submenuTrigger).toHaveAttribute('aria-expanded', 'true');
       expect(input).toHaveFocus();
 

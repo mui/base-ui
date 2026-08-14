@@ -1,6 +1,5 @@
 'use client';
 import * as React from 'react';
-import { ownerDocument } from '@base-ui/utils/owner';
 import type { BaseUIComponentProps, BaseUIEvent } from '../../internals/types';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
@@ -25,36 +24,6 @@ export const FilterDropdownInput = React.forwardRef(function FilterDropdownInput
   const context = useFilterDropdownRootContext();
   const value = useFilterDropdownValueContext();
   const activeItemId = useActiveItemId(context);
-  const keyboardNavigationCountRef = React.useRef(0);
-  const keyboardModalityRef = React.useRef(false);
-  const previousFocusVisibleRef = React.useRef(context.inputFocusVisible);
-
-  React.useEffect(() => {
-    const input = context.inputRef.current;
-    if (!input) {
-      return undefined;
-    }
-
-    const document = ownerDocument(input);
-    function handleKeyDown() {
-      keyboardModalityRef.current = true;
-    }
-    function handlePointerDown() {
-      keyboardModalityRef.current = false;
-    }
-
-    document.addEventListener('keydown', handleKeyDown, true);
-    document.addEventListener('pointerdown', handlePointerDown, true);
-    return () => {
-      document.removeEventListener('keydown', handleKeyDown, true);
-      document.removeEventListener('pointerdown', handlePointerDown, true);
-    };
-  }, [context.inputRef]);
-
-  if (previousFocusVisibleRef.current && !context.inputFocusVisible) {
-    keyboardNavigationCountRef.current = 0;
-  }
-  previousFocusVisibleRef.current = context.inputFocusVisible;
 
   return useRenderElement('input', componentProps, {
     ref: [forwardedRef, context.inputRef],
@@ -84,14 +53,13 @@ export const FilterDropdownInput = React.forwardRef(function FilterDropdownInput
           context.onValueChange(nextValue, createChangeEventDetails(reason, event.nativeEvent));
         },
         onMouseEnter(event) {
-          keyboardNavigationCountRef.current = 0;
           event.currentTarget.focus({ preventScroll: true });
-          context.setInputFocusVisible(false);
         },
-        onFocus(event) {
-          if (keyboardModalityRef.current && event.currentTarget.matches(':focus-visible')) {
-            context.setInputFocusVisible(true);
-          }
+        onFocus() {
+          context.setInputFocusVisible(true);
+        },
+        onBlur() {
+          context.setInputFocusVisible(false);
         },
         onKeyDown(event: BaseUIEvent<React.KeyboardEvent<HTMLInputElement>>) {
           const isMovingCaret = MOVE_CARET_KEYS.includes(event.key);
@@ -103,10 +71,6 @@ export const FilterDropdownInput = React.forwardRef(function FilterDropdownInput
             // The input already consumed the host's reference handler. Keep the same event from
             // reaching the popup's floating handler and moving the virtual cursor a second time.
             event.stopPropagation();
-            keyboardNavigationCountRef.current += 1;
-            if (keyboardNavigationCountRef.current > 1) {
-              context.setInputFocusVisible(true);
-            }
           } else if (!isInputActive && isMovingCaret) {
             // Cross-axis and boundary keys were forwarded to the active item by the reference.
             event.stopPropagation();

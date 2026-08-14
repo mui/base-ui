@@ -56,7 +56,6 @@ export const FilterDropdownPopup = React.forwardRef(function FilterDropdownPopup
           // closing popup must not re-capture focus during its exit transition.
           if (context.open && event.nativeEvent.composedPath().includes(event.currentTarget)) {
             inputRef.current?.focus({ preventScroll: true });
-            context.setInputFocusVisible(false);
           }
         },
         onFocus(event) {

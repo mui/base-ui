@@ -191,7 +191,7 @@ const MenuSubmenuTriggerImpl = React.forwardRef(function MenuSubmenuTriggerImpl(
         'aria-controls': popupId,
         // A virtually focused parent keeps real focus on its input, so the trigger must stay out
         // of the tab order.
-        tabIndex: parentVirtualFocus ? undefined : ((open || highlighted ? 0 : -1) as number),
+        tabIndex: parentVirtualFocus ? -1 : ((open || highlighted ? 0 : -1) as number),
         onBlur() {
           if (highlighted) {
             parentMenuStore.set('activeIndex', null);

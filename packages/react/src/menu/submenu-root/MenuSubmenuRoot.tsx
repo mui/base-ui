@@ -47,7 +47,9 @@ export function MenuSubmenuRoot(props: MenuSubmenuRoot.Props) {
   const parentReferenceRef = React.useRef<ParentReference | null>(null);
 
   function handleSubmenuEnter(trigger: HTMLElement) {
-    const focusedElement = activeElement(ownerDocument(trigger));
+    const focusedElement = parent.store.select('virtualFocus')
+      ? parent.store.context.inputRef.current
+      : activeElement(ownerDocument(trigger));
 
     if (isHTMLElement(focusedElement)) {
       // Store a reference to the parent reference element (this might be the trigger or an input)
@@ -80,7 +82,17 @@ export function MenuSubmenuRoot(props: MenuSubmenuRoot.Props) {
   function handleOpenChange(nextOpen: boolean, eventDetails: MenuSubmenuRoot.ChangeEventDetails) {
     props.onOpenChange?.(nextOpen, eventDetails);
 
-    if (eventDetails.isCanceled || !nextOpen || !isHTMLElement(eventDetails.trigger)) {
+    if (eventDetails.isCanceled || !isHTMLElement(eventDetails.trigger)) {
+      return;
+    }
+
+    if (!nextOpen) {
+      if (eventDetails.reason === REASONS.escapeKey) {
+        parentReferenceRef.current = {
+          reference: eventDetails.trigger,
+          trigger: eventDetails.trigger,
+        };
+      }
       return;
     }
 
@@ -134,13 +146,13 @@ function MenuSubmenuRootImpl(props: MenuSubmenuRootImplProps) {
       onSubmenuExit();
     }
 
-    const triggerElement = store.select('activeTriggerElement');
+    const returnElement = getReturnElement() ?? store.select('activeTriggerElement');
     if (
       !store.select('open') &&
-      isHTMLElement(triggerElement) &&
-      activeElement(ownerDocument(triggerElement)) !== triggerElement
+      isHTMLElement(returnElement) &&
+      activeElement(ownerDocument(returnElement)) !== returnElement
     ) {
-      triggerElement.focus();
+      returnElement.focus();
     }
   }
 

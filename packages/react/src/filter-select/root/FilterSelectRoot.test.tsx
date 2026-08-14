@@ -255,7 +255,7 @@ describe('<FilterSelect.Root />', () => {
       expect(input).toHaveAttribute('aria-activedescendant', selectedOption.id);
     });
 
-    it('shows the input focus indicator only for keyboard virtual focus', async () => {
+    it('keeps the input focus indicator visible during pointer and keyboard navigation', async () => {
       const { user } = await render(
         <FilterSelect.Root items={[{ value: 'apple', label: 'Apple' }]}>
           <FilterSelect.Trigger>Fruit</FilterSelect.Trigger>
@@ -298,13 +298,13 @@ describe('<FilterSelect.Root />', () => {
 
       const item = screen.getByRole('option', { name: 'Apple' });
       await user.hover(item);
-      expect(input).not.toHaveAttribute('data-focus-visible');
+      expect(input).toHaveAttribute('data-focus-visible');
 
       await user.hover(input);
-      expect(input).not.toHaveAttribute('data-focus-visible');
+      expect(input).toHaveAttribute('data-focus-visible');
 
       await user.keyboard('[ArrowDown]');
-      expect(input).not.toHaveAttribute('data-focus-visible');
+      expect(input).toHaveAttribute('data-focus-visible');
 
       await user.keyboard('[ArrowDown]');
       expect(input).toHaveAttribute('data-focus-visible');

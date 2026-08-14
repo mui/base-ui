@@ -40,7 +40,7 @@ describe('<FilterMenu.SubmenuTrigger />', () => {
     await user.keyboard('[ArrowDown][ArrowDown]');
 
     const submenuTrigger = screen.getByRole('menuitem', { name: 'Move to folder' });
-    expect(submenuTrigger).not.toHaveAttribute('tabindex');
+    expect(submenuTrigger).toHaveAttribute('tabindex', '-1');
     expect(input).toHaveFocus();
   });
 });
