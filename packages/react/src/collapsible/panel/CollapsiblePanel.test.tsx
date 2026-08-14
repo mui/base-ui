@@ -1655,6 +1655,7 @@ describe('<Collapsible.Panel />', () => {
 
     it('re-collapses the panel when the open state never arrives', async () => {
       function App() {
+        const [open, setOpen] = React.useState(false);
         const [, forceRender] = React.useState(0);
 
         return (
@@ -1678,13 +1679,23 @@ describe('<Collapsible.Panel />', () => {
               Rerender
             </button>
 
-            {/* Controlled and pinned closed: this consumer never honors `onOpenChange`. */}
-            <Collapsible.Root open={false} onOpenChange={() => {}}>
+            <Collapsible.Root
+              open={open}
+              onOpenChange={(nextOpen, eventDetails) => {
+                // Opts out of find-in-page reveals while still honoring the trigger.
+                if (eventDetails.reason === REASONS.none) {
+                  return;
+                }
+
+                setOpen(nextOpen);
+              }}
+            >
               <Collapsible.Trigger>Trigger</Collapsible.Trigger>
               <Collapsible.Panel
                 className="transition-test-panel"
                 data-testid="panel"
                 hiddenUntilFound
+                style={{ transitionDuration: '123ms' }}
               >
                 {PANEL_CONTENT}
               </Collapsible.Panel>
@@ -1717,6 +1728,13 @@ describe('<Collapsible.Panel />', () => {
 
       expect(panel).toHaveAttribute('data-starting-style');
       expect(getComputedStyle(panel).height).toBe('0px');
+
+      // The reveal never opened the panel, so it must not consume the motion of the
+      // next ordinary open.
+      await user.click(screen.getByRole('button', { name: 'Trigger' }));
+
+      expect(panel).toHaveAttribute('data-open');
+      expect(getComputedStyle(panel).transitionDuration).toBe('0.123s');
     });
 
     it('uses `hidden="until-found" to hide panel when true', async () => {

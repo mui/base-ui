@@ -401,6 +401,9 @@ export function useCollapsiblePanel(
             return;
           }
 
+          // The open never happened, so the next one is an ordinary open that should
+          // keep its author-defined motion.
+          shouldSkipNextOpenRef.current = false;
           panel.setAttribute(CollapsiblePanelDataAttributes.startingStyle, '');
         });
       };
