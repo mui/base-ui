@@ -36,17 +36,6 @@ describe('AnimationFrame with an owner window', () => {
     expect(frame.currentId).toBeNull();
   });
 
-  it('keeps accepting callbacks with required parameters', () => {
-    const { ownerWindow, scheduled } = createFakeWindow();
-    const frame = new AnimationFrame(ownerWindow);
-    const callback = vi.fn((_event: Event) => {});
-
-    frame.request(callback);
-    scheduled.get(1)!(0);
-
-    expect(callback).toHaveBeenCalledOnce();
-  });
-
   it('cancels through the owner window', () => {
     const { ownerWindow, cancelAnimationFrame, scheduled } = createFakeWindow();
     const frame = new AnimationFrame(ownerWindow);

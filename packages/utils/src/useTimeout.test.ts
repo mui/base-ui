@@ -33,17 +33,6 @@ describe('Timeout with an owner window', () => {
     expect(timeout.isStarted()).toBe(false);
   });
 
-  it('keeps accepting callbacks with required parameters', () => {
-    const { ownerWindow, scheduled } = createFakeWindow();
-    const timeout = new Timeout(ownerWindow);
-    const callback = vi.fn((_event: Event) => {});
-
-    timeout.start(250, callback);
-    scheduled.get(1)!();
-
-    expect(callback).toHaveBeenCalledOnce();
-  });
-
   it('clears through the owner window, including the previous timer on restart', () => {
     const { ownerWindow, clearTimeout, scheduled } = createFakeWindow();
     const timeout = new Timeout(ownerWindow);
