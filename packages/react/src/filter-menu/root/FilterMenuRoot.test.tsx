@@ -127,7 +127,9 @@ describe('<FilterMenu.Root />', () => {
         expect(item).not.toHaveAttribute('data-highlighted');
 
         // Pressing the trigger can move focus before its close handler runs in Safari.
-        trigger.focus();
+        await act(async () => {
+          trigger.focus();
+        });
         expect(item).not.toHaveAttribute('data-highlighted');
         await user.click(trigger);
 

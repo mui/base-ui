@@ -1,7 +1,7 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { expect } from 'vitest';
-import { fireEvent, screen, waitFor } from '@mui/internal-test-utils';
+import { act, screen, waitFor } from '@mui/internal-test-utils';
 import { createRenderer } from '#test-utils';
 import { FilterDropdown } from '..';
 
@@ -41,7 +41,7 @@ describe('<FilterDropdown.Root />', () => {
     expect(input).not.toHaveAttribute('role', 'combobox');
     expect(input).not.toHaveAttribute('aria-expanded');
     expect(list).toHaveAttribute('id');
-    expect(list).not.toHaveAttribute('tabindex');
+    expect(list).toHaveAttribute('tabindex', '-1');
     expect(input).toHaveAttribute('aria-controls', list.id);
     expect(input).not.toHaveAttribute('aria-activedescendant');
   });
@@ -83,9 +83,9 @@ describe('<FilterDropdown.Root />', () => {
   });
 
   it('focuses the input when the pointer enters or the popup itself receives focus', async () => {
-    await render(
+    const { user } = await render(
       <TestFilterDropdownRoot open empty={false} value="">
-        <FilterDropdown.Popup id={undefined} data-testid="popup">
+        <FilterDropdown.Popup id={undefined} data-testid="popup" tabIndex={-1}>
           <FilterDropdown.Input aria-label="Filter countries" />
           <FilterDropdown.List id={undefined}>
             <div role="menuitem">Canada</div>
@@ -97,18 +97,23 @@ describe('<FilterDropdown.Root />', () => {
 
     const input = screen.getByRole('searchbox', { name: 'Filter countries' });
     const outside = screen.getByRole('button', { name: 'Outside' });
+    const popup = screen.getByTestId('popup');
 
-    outside.focus();
-    fireEvent.mouseMove(screen.getByTestId('popup'));
+    await act(async () => {
+      outside.focus();
+    });
+    await user.hover(popup);
     expect(input).toHaveFocus();
 
-    outside.focus();
-    fireEvent.focus(screen.getByTestId('popup'));
+    await act(async () => {
+      outside.focus();
+      popup.focus();
+    });
     expect(input).toHaveFocus();
   });
 
   it('does not focus a parent input when the pointer enters a portalled nested popup', async () => {
-    await render(
+    const { user } = await render(
       <TestFilterDropdownRoot open empty={false} value="">
         <FilterDropdown.Popup id={undefined} data-testid="parent-popup">
           <FilterDropdown.Input aria-label="Filter parent items" />
@@ -127,8 +132,10 @@ describe('<FilterDropdown.Root />', () => {
     const parentInput = screen.getByRole('searchbox', { name: 'Filter parent items' });
     const childInput = screen.getByRole('searchbox', { name: 'Filter child items' });
 
-    parentInput.focus();
-    fireEvent.mouseMove(screen.getByTestId('child-popup'));
+    await act(async () => {
+      parentInput.focus();
+    });
+    await user.hover(screen.getByTestId('child-popup'));
 
     expect(childInput).toHaveFocus();
   });
