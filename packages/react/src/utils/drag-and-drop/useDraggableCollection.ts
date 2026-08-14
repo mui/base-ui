@@ -460,9 +460,9 @@ export class DraggableCollectionPlugin<
   };
 
   /** Requests a FLIP measurement after a managed live mutation. */
-  public scheduleDisplacementSweep = (): void => {
+  public scheduleDisplacementSweep = (requester?: HTMLElement): void => {
     if (this.config.trackDisplacement) {
-      scheduleDisplacementSweep();
+      scheduleDisplacementSweep(requester);
     }
   };
 
@@ -584,8 +584,9 @@ export class DraggableCollectionPlugin<
       if (draggedItemIds == null && this.config.onDrop == null) {
         return false;
       }
-      if (draggedItemIds?.has(itemId) || src?.draggedItemId === itemId) {
-        return false;
+      const isDraggedItem = draggedItemIds?.has(itemId) || src?.draggedItemId === itemId;
+      if (isDraggedItem) {
+        return this.config.allowDropOnDraggedItems ?? false;
       }
       // Cross-kind drops have no collection shape this instance can validate.
       if (
@@ -1598,6 +1599,12 @@ export interface UseDraggableCollectionParameters<
    * `canDropRoot` too so the fall-through has nowhere to land.
    */
   canDrop?: ((parameters: CanDropParameters) => boolean) | undefined;
+  /**
+   * Keeps dragged rows registered as drop targets. Live-reordering collections can use this to
+   * retain the current placement when DOM reordering moves a dragged row under the pointer.
+   * @default false
+   */
+  allowDropOnDraggedItems?: boolean | undefined;
   /**
    * The drag preview for items of this collection: the content that follows the
    * pointer and how it is placed. Omit it to clone the dragged item in place (the

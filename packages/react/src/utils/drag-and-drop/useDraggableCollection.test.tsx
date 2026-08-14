@@ -474,6 +474,33 @@ describe('useDraggableCollection', () => {
       expect(onMove).not.toHaveBeenCalled();
     });
 
+    it('can retain a dragged item as a target for live reordering', async () => {
+      const onDrop = vi.fn(() => true);
+      const onDragEnd = vi.fn();
+      const { plugin } = setupPlugin(
+        { allowDropOnDraggedItems: true, onDrop, onDragEnd },
+        { knownItemIds: ['a'] },
+      );
+      const element = createElement({ top: 0, height: 100 });
+      plugin.setupItem('a', element);
+
+      await lift(element);
+      await dragEnter(element, { clientY: 50 });
+      await dragOver(element, { clientY: 50 });
+      drop(element, { clientY: 50 });
+
+      expect(onDrop).toHaveBeenCalledWith(
+        expect.objectContaining({
+          itemIds: new Set(['a']),
+          target: { itemId: 'a', position: 'on' },
+          isInternal: true,
+        }),
+      );
+      expect(onDragEnd).toHaveBeenCalledWith(
+        expect.objectContaining({ canceled: false, isInternal: true }),
+      );
+    });
+
     it('rejects drop on a descendant when isDropTargetInvalid says so (tree case)', async () => {
       const onMove = vi.fn();
       // 'b' is a child of 'a'
