@@ -1722,16 +1722,13 @@ describe('<Collapsible.Panel />', () => {
       // The browser drops `hidden` as part of revealing the match.
       panel.removeAttribute('hidden');
 
-      await act(async () => {
-        await waitForAnimationFrame();
-        await waitForAnimationFrame();
-      });
-
       // React renders the same props while the panel stays closed, so it cannot
       // restore the collapsed styles or the `hidden` state on its own.
+      await waitFor(() => {
+        expect(panel).toHaveAttribute('hidden', 'until-found');
+      });
       expect(panel).toHaveAttribute('data-starting-style');
       expect(getComputedStyle(panel).height).toBe('0px');
-      expect(panel).toHaveAttribute('hidden', 'until-found');
 
       await user.click(screen.getByRole('button', { name: 'Rerender' }));
 
@@ -1820,14 +1817,11 @@ describe('<Collapsible.Panel />', () => {
       // The browser drops `hidden` as part of revealing the match.
       panel.removeAttribute('hidden');
 
-      await act(async () => {
-        await waitForAnimationFrame();
-        await waitForAnimationFrame();
-      });
-
       // The panel returns to the fully closed state without gaining attributes
       // React does not render for it.
-      expect(panel).toHaveAttribute('hidden', 'until-found');
+      await waitFor(() => {
+        expect(panel).toHaveAttribute('hidden', 'until-found');
+      });
       expect(panel).not.toHaveAttribute('data-starting-style');
 
       // The reveal never opened the panel, so it must not consume the motion of

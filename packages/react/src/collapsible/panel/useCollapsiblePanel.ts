@@ -4,6 +4,7 @@ import { addEventListener } from '@base-ui/utils/addEventListener';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
 import { AnimationFrame } from '@base-ui/utils/useAnimationFrame';
+import { Timeout } from '@base-ui/utils/useTimeout';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
 import { warn } from '@base-ui/utils/warn';
@@ -363,32 +364,47 @@ export function useCollapsiblePanel(
         return undefined;
       }
 
+      const revealDecisionTimeout = Timeout.create();
       let revertRevealFrame = -1;
 
       // Reverting must wait until the browser has measured the match, and React
       // cannot do it: it keeps rendering the same `hidden` and `data-starting-style`
       // props while the panel stays closed, so it never rewrites attributes that were
       // changed behind its back (the browser removes `hidden` as part of the reveal).
+      //
+      // Whether the open arrived is decided in a task, not a frame: `setOpen` has
+      // already scheduled React's own task by the time the timeout is queued, so the
+      // decision drains after the commit even when a busy main thread delays both,
+      // whereas a rendering update could preempt the still-queued commit and make an
+      // animation frame read a stale value. When the consumer ignores the open, no
+      // commit is ever scheduled and the decision holds. The DOM revert then runs
+      // in a frame so it stays atomic with respect to paint.
       const scheduleRevealRevert = (
         revertSkippedMotion: boolean,
         restoreStartingStyle: boolean,
       ) => {
-        revertRevealFrame = AnimationFrame.request(() => {
+        revealDecisionTimeout.start(0, () => {
           if (latestOpenRef.current) {
             return;
           }
 
-          if (revertSkippedMotion) {
-            // The open never happened, so the next one is an ordinary open that
-            // should keep its author-defined motion.
-            shouldSkipNextOpenRef.current = false;
-          }
+          revertRevealFrame = AnimationFrame.request(() => {
+            if (latestOpenRef.current) {
+              return;
+            }
 
-          if (restoreStartingStyle) {
-            panel.setAttribute(CollapsiblePanelDataAttributes.startingStyle, '');
-          }
+            if (revertSkippedMotion) {
+              // The open never happened, so the next one is an ordinary open that
+              // should keep its author-defined motion.
+              shouldSkipNextOpenRef.current = false;
+            }
 
-          panel.setAttribute('hidden', 'until-found');
+            if (restoreStartingStyle) {
+              panel.setAttribute(CollapsiblePanelDataAttributes.startingStyle, '');
+            }
+
+            panel.setAttribute('hidden', 'until-found');
+          });
         });
       };
 
@@ -426,6 +442,7 @@ export function useCollapsiblePanel(
       const cleanupBeforeMatchListener = addEventListener(panel, 'beforematch', handleBeforeMatch);
 
       return () => {
+        revealDecisionTimeout.clear();
         AnimationFrame.cancel(revertRevealFrame);
         cleanupBeforeMatchListener();
       };
