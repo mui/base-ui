@@ -41,7 +41,7 @@ overrides:
   # via lerna; also picks up the fixed axios and tmp (GHSA-vp3h-ghgh-jr7g)
   nx: '~22.7.8'
   # via test/bundle-size -> @mui/internal-bundle-size-checker (GHSA-x9g3-xrwr-cwfg)
-  piscina: '^5.2.0'
+  piscina: '^5.3.0'
   # next pins 8.4.31 (GHSA-6g55-p6wh-862q, -r28c-9q8g-f849, -fxqj-rqcc-2cmp)
   postcss: '^8.5.26'
   # optional dependency of next; unused because the docs site is a static export with no next/image
