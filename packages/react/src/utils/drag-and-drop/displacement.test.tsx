@@ -1,10 +1,10 @@
 import * as React from 'react';
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import { fireEvent, screen } from '@testing-library/react';
 import { act, flushMicrotasks } from '@mui/internal-test-utils';
 import { createDndRenderer, testDragKind } from '#test-utils';
 import { Draggable } from '@base-ui/react/draggable';
-import { createElement, flushRaf, setupDragEngineTests } from '../../../test/dnd';
+import { createElement, flushRaf, registerCleanup, setupDragEngineTests } from '../../../test/dnd';
 import { scheduleDisplacementSweep, trackDisplacedElement } from './displacement';
 
 setupDragEngineTests();
@@ -125,6 +125,55 @@ describe('displacement tracking', () => {
     expect(b).not.toHaveAttribute('data-starting-style');
     expect(b).not.toHaveAttribute('data-displacing');
     expect(b.style.getPropertyValue(VAR_Y)).toBe('');
+
+    fireEvent.dragEnd(source);
+  });
+
+  it('does not let an older release frame clear a newer play', async () => {
+    const callbacks: FrameRequestCallback[] = [];
+    const requestSpy = vi.spyOn(window, 'requestAnimationFrame').mockImplementation((callback) => {
+      callbacks.push(callback);
+      return callbacks.length;
+    });
+    registerCleanup(() => requestSpy.mockRestore());
+
+    const { engine } = await renderDnd();
+    const source = createElement();
+    engine.registerDraggable(source, { kind: testDragKind });
+    const row = document.createElement('div');
+    document.body.appendChild(row);
+    registerCleanup(() => row.remove());
+    let top = 0;
+    Object.defineProperties(row, {
+      offsetTop: { configurable: true, get: () => top },
+      offsetLeft: { configurable: true, get: () => 0 },
+      offsetWidth: { configurable: true, get: () => 200 },
+      offsetHeight: { configurable: true, get: () => 40 },
+    });
+    const untrack = trackDisplacedElement(row);
+    registerCleanup(untrack);
+
+    fireEvent.dragStart(source);
+    callbacks.length = 0;
+
+    top = 40;
+    scheduleDisplacementSweep();
+    const releaseFirst = callbacks.at(-1)!;
+
+    top = 80;
+    scheduleDisplacementSweep();
+    await Promise.resolve();
+    const releaseSecond = callbacks.at(-1)!;
+    expect(releaseSecond).not.toBe(releaseFirst);
+    expect(row.style.getPropertyValue(VAR_Y)).toBe('-40px');
+
+    releaseFirst(0);
+    expect(row).toHaveAttribute('data-starting-style');
+    expect(row.style.getPropertyValue(VAR_Y)).toBe('-40px');
+
+    releaseSecond(16);
+    expect(row).not.toHaveAttribute('data-starting-style');
+    expect(row).not.toHaveAttribute('data-displacing');
 
     fireEvent.dragEnd(source);
   });

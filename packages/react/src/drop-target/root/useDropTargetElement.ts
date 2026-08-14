@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import { useStore, type ReadonlyStore } from '@base-ui/utils/store';
-import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
+import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { areArraysEqual } from '@base-ui/utils/areArraysEqual';
@@ -11,12 +11,22 @@ import type { RegisterDropTargetParameters } from '../../types/dragRegistration'
 import { useRegistrationRef } from '../../utils/drag-and-drop/useRegistrationRef';
 import {
   createDragTargetStateStore,
+  dragSourceStore,
   DragTargetState,
 } from '../../utils/drag-and-drop/dragSessionStore';
+import { matchesAccept } from '../../utils/drag-and-drop/dragKind';
 
 // Stable scalar selector: the per-target store already resolves the live node
 // and publishes only when this target's rendered state can change.
-function selectTargetState(state: number): number {
+function selectTargetState(
+  state: number,
+  disabled: boolean | undefined,
+  accept: RegisterDropTargetParameters['accept'],
+): number {
+  const source = dragSourceStore.state;
+  if (source !== null && !disabled && matchesAccept(accept, source)) {
+    return state + DragTargetState.accepting;
+  }
   return state;
 }
 
@@ -55,17 +65,12 @@ export function useDropTargetElement(
   parameters: UseDropTargetElementParameters,
 ): UseDropTargetElementReturnValue {
   const { trackDragOver = true, ...registrationParameters } = parameters;
-  const paramsRef = useValueAsRef(registrationParameters as RegisterDropTargetParameters);
-  const disabledRef = useValueAsRef(parameters.disabled);
-  const acceptRef = useValueAsRef(parameters.accept);
-  const targetStateStore = useRefWithInit(() =>
-    createDragTargetStateStore(disabledRef, acceptRef),
-  ).current;
+  const getParameters = useStableCallback(
+    () => registrationParameters as RegisterDropTargetParameters,
+  );
+  const targetStateStore = useRefWithInit(createDragTargetStateStore).current;
   const registrationRef = useRegistrationRef<HTMLElement>((element) =>
-    // `.next` is the current render's params (see `useRegistrationRef`) — and it
-    // matters doubly here, since registering mid-drag makes the engine read this
-    // getter synchronously through the drop-target refresh.
-    registerDropTarget(element, () => paramsRef.next),
+    registerDropTarget(element, getParameters),
   );
 
   // Forward the attached node to both the engine registration and the local ref.
@@ -106,6 +111,8 @@ export function useDropTargetElement(
   const targetState = useStore(
     trackDragOver ? targetStateStore : untrackedTargetStateStore,
     selectTargetState,
+    trackDragOver ? parameters.disabled : true,
+    parameters.accept,
   );
 
   return {

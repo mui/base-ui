@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
-import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
+import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { warn } from '@base-ui/utils/warn';
 import {
@@ -32,7 +32,7 @@ import { buildStaticSetupKey } from './draggable';
 import { createKind, matchesAccept } from './dragKind';
 import { scheduleDisplacementSweep, trackDisplacedElement } from './displacement';
 import { EMPTY_AUTO_SCROLLER_PARAMETERS } from './autoScroller';
-import type { LatestRef } from './useRegistrationRef';
+import type { LatestGetter } from './useRegistrationRef';
 import { isPointInRect, runAllCleanups } from './utils';
 import type {
   DragKind,
@@ -160,13 +160,13 @@ export class DraggableCollectionPlugin<
     `base-ui-tree-${this.instanceId}`,
   );
 
-  private configRef: LatestRef<UseDraggableCollectionParameters<TItem, TActions>>;
+  private getConfig: LatestGetter<UseDraggableCollectionParameters<TItem, TActions>>;
 
-  private translationsRef: LatestRef<LocalizationProviderTranslations>;
+  private getTranslations: LatestGetter<LocalizationProviderTranslations>;
 
   // The drag engine, so collection items, the root, the global monitor
   // and scroll containers all register through the same (global) engine as the rest
-  // of the app. Built here from the staged refs (rather than passed in) so the
+  // of the app. Built here from stable getters (rather than passed in) so the
   // plugin fully owns its registration path.
   private engine: InternalDragEngine;
 
@@ -221,25 +221,22 @@ export class DraggableCollectionPlugin<
   private pendingA11yRefresh = false;
 
   constructor(
-    configRef: LatestRef<UseDraggableCollectionParameters<TItem, TActions>>,
-    translationsRef: LatestRef<LocalizationProviderTranslations>,
-    previewContextRef: LatestRef<DragPreviewContext | null>,
-    cspContextRef: LatestRef<CSPContextValue>,
+    getConfig: LatestGetter<UseDraggableCollectionParameters<TItem, TActions>>,
+    getTranslations: LatestGetter<LocalizationProviderTranslations>,
+    getPreviewContext: LatestGetter<DragPreviewContext | null>,
+    getCSPContext: LatestGetter<CSPContextValue>,
   ) {
-    this.configRef = configRef;
-    this.translationsRef = translationsRef;
-    this.engine = new DragEngineImpl(translationsRef, previewContextRef, cspContextRef);
+    this.getConfig = getConfig;
+    this.getTranslations = getTranslations;
+    this.engine = new DragEngineImpl(getTranslations, getPreviewContext, getCSPContext);
   }
 
   private get config(): UseDraggableCollectionParameters<TItem, TActions> {
-    // `.next` is the current render's config (see `useRegistrationRef`) — the setup
-    // methods run from ref callbacks, and a mid-drag registration makes the engine
-    // read the config synchronously.
-    return this.configRef.next;
+    return this.getConfig();
   }
 
   private get translations(): LocalizationProviderTranslations {
-    return this.translationsRef.next;
+    return this.getTranslations();
   }
 
   private get kind(): DragKind<DragSourceData<TItem>> {
@@ -585,8 +582,8 @@ export class DraggableCollectionPlugin<
         return false;
       }
       const isDraggedItem = draggedItemIds?.has(itemId) || src?.draggedItemId === itemId;
-      if (isDraggedItem) {
-        return this.config.allowDropOnDraggedItems ?? false;
+      if (isDraggedItem && !this.config.allowDropOnDraggedItems) {
+        return false;
       }
       // Cross-kind drops have no collection shape this instance can validate.
       if (
@@ -1327,32 +1324,31 @@ export function useDraggableCollection<
         'Provide one or the other.',
     );
   }
-  // `useValueAsRef` stages the latest value and commits it in a layout effect, so
-  // a drag event firing between commit and a passive effect still reads fresh
-  // callbacks (`.next`) rather than stale ones.
-  const configRef = useValueAsRef(params);
+  const getConfig = useStableCallback(() => params);
 
   // Accessibility strings come from the nearest `LocalizationProvider`; kept in
   // a ref so a language change reaches the next drag's announcements without
   // re-creating the plugin.
   const translations = useTranslations();
-  const translationsRef = useValueAsRef(translations);
+  const getTranslations = useStableCallback(() => translations);
 
   // The plugin builds its own drag engine from this ref (see its constructor). The
   // engine is global, so the collection itself needs no provider — but an item
   // preview with content renders in a `Draggable.PreviewProvider`'s tree, so a
   // collection that declares one needs it. Staged so a provider change reaches the
   // next drag without re-creating the plugin.
-  const previewContextRef = useValueAsRef(useDragPreviewContext());
-  const cspContextRef = useValueAsRef(useCSPContext());
+  const previewContext = useDragPreviewContext();
+  const cspContext = useCSPContext();
+  const getPreviewContext = useStableCallback(() => previewContext);
+  const getCSPContext = useStableCallback(() => cspContext);
 
   const plugin = useRefWithInit(
     () =>
       new DraggableCollectionPlugin<TItem, TActions>(
-        configRef,
-        translationsRef,
-        previewContextRef,
-        cspContextRef,
+        getConfig,
+        getTranslations,
+        getPreviewContext,
+        getCSPContext,
       ),
   );
 

@@ -1,8 +1,6 @@
 import { Store, type ReadonlyStore } from '@base-ui/utils/store';
 import type { DragLocationHistory, DragMode, DragSource } from '../../types/drag';
 import { getSharedSlot } from './sharedState';
-import { matchesAccept } from './dragKind';
-import type { RegisterDropTargetParameters } from '../../types/dragRegistration';
 
 /**
  * Snapshot of the active drag, mirrored from the lifecycle for reactive
@@ -107,10 +105,6 @@ export const DragTargetState = {
   accepting: 8,
 } as const;
 
-interface LatestValue<T> {
-  readonly next: T;
-}
-
 export interface DragTargetStateStore extends ReadonlyStore<number> {
   setElement(element: Element | null): void;
 }
@@ -119,10 +113,7 @@ export interface DragTargetStateStore extends ReadonlyStore<number> {
  * A per-target session view. Movement wakes only targets in the old/new hover
  * stack instead of synchronously running selectors for every target on the page.
  */
-export function createDragTargetStateStore(
-  disabledRef: LatestValue<boolean | undefined>,
-  acceptRef: LatestValue<RegisterDropTargetParameters['accept']>,
-): DragTargetStateStore {
+export function createDragTargetStateStore(): DragTargetStateStore {
   let element: Element | null = null;
   const listeners = new Set<() => void>();
 
@@ -139,10 +130,6 @@ export function createDragTargetStateStore(
       if (session.location.current.dropTargets[0]?.element === element) {
         value += DragTargetState.innermost;
       }
-    }
-    const source = session?.source ?? null;
-    if (source !== null && !disabledRef.next && matchesAccept(acceptRef.next, source)) {
-      value += DragTargetState.accepting;
     }
     return value;
   };

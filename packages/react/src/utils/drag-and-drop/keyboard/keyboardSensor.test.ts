@@ -70,12 +70,26 @@ describe('keyboard sensor', () => {
     expect(onDragStart.mock.calls[0][0].mode).toBe('keyboard');
   });
 
-  it('picks up from a focus-delegating host, whose composed target is an inner control', async () => {
+  it('keeps a keydown path when the last source unregisters during startup', async () => {
+    const { engine } = await renderDnd();
+    const el = createElement();
+    let unregister = () => {};
+    unregister = engine.registerDraggable(el, {
+      onDragStart: () => unregister(),
+    });
+
+    el.focus();
+    pressKey(el, ' ');
+    expect(dragSessionStore.getSnapshot()?.mode).toBe('keyboard');
+
+    pressKey(el, 'Escape');
+    expect(dragSessionStore.getSnapshot()).toBeNull();
+  });
+
+  it('does not pick up from an interactive control inside a focus-delegating host', async () => {
     // A web component registered as the draggable delegates focus to an internal
-    // control, so `composedPath()[0]` is that control rather than the registered
-    // host. The retargeted `event.target` still resolves to the host, and pickup
-    // has to accept it or the element is pointer-draggable but never keyboard-
-    // draggable.
+    // control, so `composedPath()[0]` is that control while `event.target` is
+    // retargeted to the host. The composed button must keep its native keys.
     const { engine } = await renderDnd();
     const host = createElement();
     const shadow = host.attachShadow({ mode: 'open', delegatesFocus: true });
@@ -97,8 +111,8 @@ describe('keyboard sensor', () => {
       inner.dispatchEvent(event);
     });
 
-    expect(dragSessionStore.getSnapshot()?.mode).toBe('keyboard');
-    act(() => cancelDrag());
+    expect(dragSessionStore.getSnapshot()).toBeNull();
+    expect(event.defaultPrevented).toBe(false);
   });
 
   it('picks up a draggable registered inside a closed shadow root', async () => {
@@ -847,6 +861,37 @@ describe('keyboard sensor', () => {
 
     target.style.top = '250px';
     await Promise.resolve();
+    pressKey(el, 'ArrowDown', { repeat: true });
+    await flushRaf();
+    expect(measure.mock.calls.length).toBeGreaterThan(afterFirstPress);
+  });
+
+  it('remeasures shadow-root targets on held-arrow repeat frames', async () => {
+    const { engine } = await renderDnd();
+    const el = createElement({ top: 0, height: 100, left: 0, width: 200 });
+    const host = createElement();
+    const shadow = host.attachShadow({ mode: 'open' });
+    const target = document.createElement('div');
+    shadow.appendChild(target);
+    let top = 200;
+    const measure = vi
+      .spyOn(target, 'getBoundingClientRect')
+      .mockImplementation(() => new DOMRect(0, top, 200, 100));
+    engine.registerDropTarget(target, {});
+    engine.registerDraggable(el, {
+      keyboardMovement: ({ getTargets }) => {
+        getTargets();
+        return false;
+      },
+    });
+
+    el.focus();
+    pressKey(el, ' ');
+    await flushRaf();
+    pressKey(el, 'ArrowDown');
+    const afterFirstPress = measure.mock.calls.length;
+
+    top = 250;
     pressKey(el, 'ArrowDown', { repeat: true });
     await flushRaf();
     expect(measure.mock.calls.length).toBeGreaterThan(afterFirstPress);

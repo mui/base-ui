@@ -79,6 +79,25 @@ describe('DragAutoScroll.Root', () => {
     expect(() => unmount()).not.toThrow();
   });
 
+  it('does not wake a parked loop after an unchanged re-render', async () => {
+    const scrollBy = vi.fn();
+    const { engine, rerender } = await renderDnd(<Scroller scrollByMock={scrollBy} />);
+    const source = createElement();
+    engine.registerDraggable(source, {});
+    const scroller = screen.getByTestId('scroller');
+
+    await liftOutside(source);
+    // The center is outside every edge zone, so this input parks the loop.
+    await dragTo(scroller, 100, 50);
+    const measure = vi.spyOn(scroller, 'getBoundingClientRect');
+
+    await rerender(<Scroller scrollByMock={scrollBy} />);
+    await flushRaf();
+
+    expect(measure).not.toHaveBeenCalled();
+    fireEvent.drop(source);
+  });
+
   it('registers a scroller: canScroll receives the drag context during a drag', async () => {
     const canScroll = vi.fn<CanScrollFn>(() => true);
     const { engine } = await renderDnd(<Scroller canScroll={canScroll} />);

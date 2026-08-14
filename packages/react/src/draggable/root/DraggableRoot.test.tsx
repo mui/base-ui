@@ -441,6 +441,52 @@ describe('Draggable.Root', () => {
     expect(secondOnDragStart).toHaveBeenCalledTimes(1);
   });
 
+  it('does not expose parameters from a suspended render', async () => {
+    const committedOnDragStart = vi.fn();
+    const suspendedOnDragStart = vi.fn();
+    const never = new Promise<void>(() => {});
+    const suspendedRender = vi.fn();
+
+    function SuspendingChild(): React.JSX.Element {
+      suspendedRender();
+      throw never;
+    }
+
+    function App() {
+      const [suspend, setSuspend] = React.useState(false);
+      const [, startTransition] = React.useTransition();
+      return (
+        <React.Fragment>
+          <button
+            type="button"
+            onClick={() => {
+              startTransition(() => setSuspend(true));
+            }}
+          >
+            Suspend update
+          </button>
+          <React.Suspense fallback="Loading">
+            <TestDraggable
+              options={{ onDragStart: suspend ? suspendedOnDragStart : committedOnDragStart }}
+            />
+            {suspend && <SuspendingChild />}
+          </React.Suspense>
+        </React.Fragment>
+      );
+    }
+
+    await renderDnd(<App />);
+    fireEvent.click(screen.getByRole('button', { name: 'Suspend update' }));
+    await act(async () => Promise.resolve());
+    expect(suspendedRender).toHaveBeenCalled();
+
+    fireEvent.dragStart(screen.getByTestId('drag'));
+    await flushRaf();
+
+    expect(committedOnDragStart).toHaveBeenCalledTimes(1);
+    expect(suspendedOnDragStart).not.toHaveBeenCalled();
+  });
+
   it('re-registers when the element behind the ref is swapped without remounting', async () => {
     function Swappable({ swapped }: { swapped: boolean }) {
       // The key sits on the rendered node, not on the root, so this component —

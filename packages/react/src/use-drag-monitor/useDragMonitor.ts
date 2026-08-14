@@ -1,6 +1,6 @@
 'use client';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
-import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
+import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { registerMonitor } from '../utils/drag-and-drop/registrations';
 import type { RegisterMonitorParameters } from '../utils/drag-and-drop/monitor';
 import type { AcceptedDragPayload, AnyDragAccept, DragKind } from '../types/drag';
@@ -20,12 +20,8 @@ import type { WithInferredAccept } from '../types/dragRegistration';
 export function useDragMonitor<TAccept extends AnyDragAccept = DragKind<unknown>>(
   parameters: WithInferredAccept<UseDragMonitorParameters<AcceptedDragPayload<TAccept>>, TAccept>,
 ): void {
-  const paramsRef = useValueAsRef(parameters);
-  // `.next`, like every sibling registration (see `useRegistrationRef`):
-  // `registrations.ts` dispatches to monitors synchronously from a ref cleanup —
-  // the mutation-phase window where `.current` is still the previous render's —
-  // so reading `.current` runs a monitor one render stale.
-  useIsoLayoutEffect(() => registerMonitor<TAccept>(() => paramsRef.next), [paramsRef]);
+  const getParameters = useStableCallback(() => parameters);
+  useIsoLayoutEffect(() => registerMonitor<TAccept>(getParameters), [getParameters]);
 }
 
 // Keyed on the observed payload rather than on an `accept` value, like the props types.

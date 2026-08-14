@@ -572,6 +572,12 @@ export function start(parameters: StartParameters): DragSessionHandle | null {
     }
 
     const newDropTargets = resolveStack(rawTarget, input);
+    // A consumer resolver (`payload` / `canDrop`) can synchronously cancel the
+    // drag. Teardown already delivered the terminal events and cleared the
+    // session, so do not mutate or publish location state for the dead drag.
+    if (tornDown) {
+      return;
+    }
     const previousDropTargets = location.current.dropTargets;
     // Captured before `location.current` is reassigned below. `refreshDropTargets`
     // re-runs with the same `input` (no pointer movement), so this lets the change
@@ -712,6 +718,11 @@ export function start(parameters: StartParameters): DragSessionHandle | null {
     dispatching = true;
 
     const freshDropTargets = getDropTargetsOver(rawTarget, { input, source });
+    // Final resolution runs consumer getters too. A re-entrant cancellation
+    // owns the outcome and has already torn the session down.
+    if (tornDown) {
+      return { canceled: true, dropTarget: null };
+    }
     // Snapshot the drop recipient now, before any end dispatch can mutate the
     // stack. `onDragEnd` running earlier could re-resolve `location.current` (via
     // an unregister-triggered refresh), and re-reading `[0]` there could hand the

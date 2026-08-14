@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { describe, it, expect, vi } from 'vitest';
-import { fireEvent, screen } from '@testing-library/react';
+import { act, fireEvent, screen } from '@testing-library/react';
 import { createDndRenderer, describeConformance } from '#test-utils';
 import { Draggable } from '@base-ui/react/draggable';
 import { DropTarget } from '@base-ui/react/drop-target';
@@ -356,6 +356,62 @@ describe('DropTarget.Root', () => {
     expect(firstOnDragEnter).not.toHaveBeenCalled();
     expect(secondOnDragEnter).toHaveBeenCalledTimes(1);
 
+    fireEvent.drop(target);
+  });
+
+  it('does not expose parameters from a suspended render', async () => {
+    const committedCanDrop = vi.fn(() => true);
+    const suspendedCanDrop = vi.fn(() => false);
+    const never = new Promise<void>(() => {});
+    const suspendedRender = vi.fn();
+
+    function SuspendingChild(): React.JSX.Element {
+      suspendedRender();
+      throw never;
+    }
+
+    function App() {
+      const [suspend, setSuspend] = React.useState(false);
+      const [, startTransition] = React.useTransition();
+      return (
+        <React.Fragment>
+          <button
+            type="button"
+            onClick={() => {
+              startTransition(() => setSuspend(true));
+            }}
+          >
+            Suspend update
+          </button>
+          <React.Suspense fallback="Loading">
+            <DropTarget.Root
+              accept={DropTarget.anyKind}
+              canDrop={suspend ? suspendedCanDrop : committedCanDrop}
+              data-testid="target"
+            />
+            {suspend && <SuspendingChild />}
+          </React.Suspense>
+        </React.Fragment>
+      );
+    }
+
+    const { engine } = await renderDnd(<App />);
+    const source = createElement();
+    engine.registerDraggable(source, {});
+    const target = screen.getByTestId('target');
+    target.getBoundingClientRect = () => new DOMRect(0, 0, 200, 100);
+
+    fireEvent.click(screen.getByRole('button', { name: 'Suspend update' }));
+    await act(async () => Promise.resolve());
+    expect(suspendedRender).toHaveBeenCalled();
+
+    fireEvent.dragStart(source);
+    await flushRaf();
+    fireEvent.dragEnter(target);
+    await flushRaf();
+
+    expect(committedCanDrop).toHaveBeenCalled();
+    expect(suspendedCanDrop).not.toHaveBeenCalled();
     fireEvent.drop(target);
   });
 

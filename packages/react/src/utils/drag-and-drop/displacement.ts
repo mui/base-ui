@@ -336,9 +336,12 @@ function sweep(): void {
   for (const [win, group] of perWindow) {
     AnimationFrame.request(() => {
       for (const play of group) {
+        // A newer sweep can retarget the same element before this frame runs.
+        // Its starting-style guard and variables belong to that newer token.
+        if (tracked.get(play.element)?.token !== play.token) {
+          continue;
+        }
         play.element.removeAttribute(STARTING_STYLE_ATTR);
-        // The token was captured when this play was armed: a newer play owns
-        // the element now if they differ, and its own watcher will clean up.
         watchFinish(play.element, play.token);
       }
     }, win);

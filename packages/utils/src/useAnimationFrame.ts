@@ -129,7 +129,7 @@ export class AnimationFrame {
   currentId: AnimationFrameId | null = EMPTY;
 
   /** Executes `fn` on the next animation frame, replacing any pending call. */
-  request(fn: () => void) {
+  request(fn: (...args: never[]) => unknown) {
     this.cancel();
     this.currentId = AnimationFrame.request(() => {
       this.currentId = EMPTY;

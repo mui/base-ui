@@ -501,6 +501,25 @@ describe('useDraggableCollection', () => {
       );
     });
 
+    it('still applies canDrop when a dragged item remains a target', async () => {
+      const onDrop = vi.fn(() => true);
+      const canDrop = vi.fn(() => false);
+      const { plugin } = setupPlugin(
+        { allowDropOnDraggedItems: true, canDrop, onDrop },
+        { knownItemIds: ['a'] },
+      );
+      const element = createElement({ top: 0, height: 100 });
+      plugin.setupItem('a', element);
+
+      await lift(element);
+      await dragEnter(element, { clientY: 50 });
+      await dragOver(element, { clientY: 50 });
+      drop(element, { clientY: 50 });
+
+      expect(canDrop).toHaveBeenCalled();
+      expect(onDrop).not.toHaveBeenCalled();
+    });
+
     it('rejects drop on a descendant when isDropTargetInvalid says so (tree case)', async () => {
       const onMove = vi.fn();
       // 'b' is a child of 'a'

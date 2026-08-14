@@ -14,6 +14,7 @@ import type {
 import { addDropTargetRegistration, removeDropTargetRegistration } from '../dropTarget';
 import { engageMonitorIfDragging, monitorRegistry, removeMonitor } from '../monitor';
 import { cancelDrag } from '../cancelDrag';
+import { dragSessionStore } from '../dragSessionStore';
 import { reset, start, canStart, isActive } from './lifecycleManager';
 import type { DragSessionHandle, SourceHandlers } from './lifecycleManager';
 import { createKind } from '../dragKind';
@@ -1124,6 +1125,66 @@ describe('lifecycle manager', () => {
   });
 
   describe('re-entrant cancel mid-dispatch', () => {
+    it('does not republish a session canceled from canDrop resolution', async () => {
+      const { engine } = await renderDnd();
+      const source = createElement();
+      const target = createElement();
+      const onDragEnd = vi.fn();
+      const onDropTargetChange = vi.fn();
+      engine.registerDraggable(source, { onDragEnd, onDropTargetChange });
+      engine.registerDropTarget(target, {
+        canDrop: () => {
+          cancelDrag();
+          return 'reject';
+        },
+      });
+
+      fireEvent.dragStart(source);
+      await flushRaf();
+      fireEvent.dragEnter(target);
+      await flushRaf();
+
+      expect(onDragEnd).toHaveBeenCalledTimes(1);
+      expect(onDropTargetChange).not.toHaveBeenCalled();
+      expect(dragSessionStore.getSnapshot()).toBeNull();
+      expect(canStart()).toBe(true);
+    });
+
+    it('stops final resolution when canDrop cancels during release', async () => {
+      const { engine } = await renderDnd();
+      const source = createElement();
+      const target = createElement();
+      const onDragEnd = vi.fn();
+      const onDropTargetChange = vi.fn();
+      let cancelOnResolve = false;
+      engine.registerDraggable(source, { onDragEnd, onDropTargetChange });
+      engine.registerDropTarget(target, {
+        canDrop: () => {
+          if (cancelOnResolve) {
+            cancelDrag();
+            return 'reject';
+          }
+          return true;
+        },
+      });
+
+      fireEvent.dragStart(source);
+      await flushRaf();
+      fireEvent.dragEnter(target);
+      await flushRaf();
+      onDropTargetChange.mockClear();
+      cancelOnResolve = true;
+
+      fireEvent.drop(target);
+
+      expect(onDragEnd).toHaveBeenCalledTimes(1);
+      expect(onDragEnd.mock.calls[0][0].canceled).toBe(true);
+      // The cancel's terminal leave is the only change round; final resolution
+      // must not dispatch a second one after teardown.
+      expect(onDropTargetChange).toHaveBeenCalledTimes(1);
+      expect(dragSessionStore.getSnapshot()).toBeNull();
+    });
+
     it('cancelDrag() from onDragLeave delivers nothing to the entering target', async () => {
       const { engine } = await renderDnd();
       const el = createElement();

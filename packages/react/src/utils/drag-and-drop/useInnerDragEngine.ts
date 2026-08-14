@@ -1,6 +1,6 @@
 'use client';
-import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
+import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { mergeCleanups } from '@base-ui/utils/mergeCleanups';
 import { useCSPContext } from '../../internals/csp-context/CSPContext';
 import type { CSPContextValue } from '../../internals/csp-context/CSPContext';
@@ -33,7 +33,7 @@ import type { DragCleanupFn } from '../../types/drag';
 import { useTranslations } from '../../internals/localization-context/LocalizationContext';
 import type { LocalizationProviderTranslations } from '../../localization-provider/types';
 
-import type { LatestRef } from './useRegistrationRef';
+import type { LatestGetter } from './useRegistrationRef';
 
 /**
  * The keyboard instructions to announce when the draggable is focused.
@@ -69,21 +69,18 @@ export function resolveKeyboardInstructions(
  */
 export class DragEngineBase {
   constructor(
-    private readonly translationsRef: LatestRef<LocalizationProviderTranslations>,
-    private readonly previewContextRef: LatestRef<DragPreviewContext | null>,
-    private readonly cspContextRef: LatestRef<CSPContextValue>,
+    private readonly getTranslations: LatestGetter<LocalizationProviderTranslations>,
+    private readonly getPreviewContext: LatestGetter<DragPreviewContext | null>,
+    private readonly getCSPContext: LatestGetter<CSPContextValue>,
   ) {}
 
-  // `.next` is the current render's translations (see `useRegistrationRef`).
   private get translations(): LocalizationProviderTranslations {
-    return this.translationsRef.next;
+    return this.getTranslations();
   }
 
-  // The nearest `Draggable.PreviewProvider`, or `null` when there is none. `next`
-  // holds the current render's value (see `translations`); `null` is a valid value,
-  // so there is no `?? current` fallback.
+  // The nearest `Draggable.PreviewProvider`, or `null` when there is none.
   private get previewContext(): DragPreviewContext | null {
-    return this.previewContextRef.next;
+    return this.getPreviewContext();
   }
 
   cancelDrag = cancelDrag;
@@ -183,8 +180,8 @@ export class DragEngineBase {
       // here; the public parameter type hides it, since consumers never set it.
       const params = get() as InternalDraggableParameters<TData>;
       const translations = this.translations;
-      const previewContainerDefault = this.previewContext?.containerRef.next;
-      const cspContext = this.cspContextRef.next;
+      const previewContainerDefault = this.previewContext?.getContainer();
+      const cspContext = this.getCSPContext();
       if (
         cacheParameters &&
         normalized !== null &&
@@ -257,11 +254,14 @@ export class DragEngineImpl extends DragEngineBase implements InternalDragEngine
  * `Draggable.Root`.
  */
 export function useRegisterDraggable(): DragEngineBase['registerDraggable'] {
-  const translationsRef = useValueAsRef(useTranslations());
-  const previewContextRef = useValueAsRef(useDragPreviewContext());
-  const cspContextRef = useValueAsRef(useCSPContext());
+  const translations = useTranslations();
+  const previewContext = useDragPreviewContext();
+  const cspContext = useCSPContext();
+  const getTranslations = useStableCallback(() => translations);
+  const getPreviewContext = useStableCallback(() => previewContext);
+  const getCSPContext = useStableCallback(() => cspContext);
 
-  return useRefWithInit(() => new DragEngineBase(translationsRef, previewContextRef, cspContextRef))
+  return useRefWithInit(() => new DragEngineBase(getTranslations, getPreviewContext, getCSPContext))
     .current.registerDraggable;
 }
 
@@ -276,13 +276,13 @@ export function useRegisterDraggable(): DragEngineBase['registerDraggable'] {
  * in the nearest `Draggable.PreviewProvider`'s tree, and throws without one.
  */
 export function useInnerDragEngine(): InternalDragEngine {
-  // Active translations and the nearest provider, each staged into a stable ref so
-  // a language or provider change applies to the next drag without re-registering
-  // any draggable — which lets the engine below be created exactly once.
-  const translationsRef = useValueAsRef(useTranslations());
-  const previewContextRef = useValueAsRef(useDragPreviewContext());
-  const cspContextRef = useValueAsRef(useCSPContext());
+  const translations = useTranslations();
+  const previewContext = useDragPreviewContext();
+  const cspContext = useCSPContext();
+  const getTranslations = useStableCallback(() => translations);
+  const getPreviewContext = useStableCallback(() => previewContext);
+  const getCSPContext = useStableCallback(() => cspContext);
 
-  return useRefWithInit(() => new DragEngineImpl(translationsRef, previewContextRef, cspContextRef))
+  return useRefWithInit(() => new DragEngineImpl(getTranslations, getPreviewContext, getCSPContext))
     .current;
 }

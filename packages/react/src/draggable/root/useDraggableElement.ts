@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import { useStore } from '@base-ui/utils/store';
-import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
+import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { warn } from '@base-ui/utils/warn';
@@ -51,7 +51,7 @@ export function useDraggableElement<TData = undefined>(
   options?: UseDraggableElementOptions,
 ): UseDraggableElementReturnValue<TData> {
   const registerDraggable = useRegisterDraggable();
-  const paramsRef = useValueAsRef(parameters);
+  const getParameters = useStableCallback(() => parameters);
   const trackDisplacement = options?.trackDisplacement ?? false;
 
   // The `dragging` selector reads the live element behind this ref.
@@ -84,8 +84,7 @@ export function useDraggableElement<TData = undefined>(
     return registerDraggable<TData>(
       element,
       () => {
-        // `.next` is the current render's params (see `useRegistrationRef`).
-        const params = paramsRef.next;
+        const params = getParameters();
         if (params === lastParams && normalized !== null) {
           return normalized;
         }

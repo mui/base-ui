@@ -106,6 +106,7 @@ describe.skipIf(isJSDOM)('useDraggableCollection browser geometry', () => {
 
     pointer(source, 'pointerdown', 70, 80);
     await movePointer(82, 80);
+    expect(dragSessionStore.getSnapshot()?.source.element).toBe(source);
     pointer(document, 'pointerup', 82, 80);
 
     expect(onRootDrop).not.toHaveBeenCalled();

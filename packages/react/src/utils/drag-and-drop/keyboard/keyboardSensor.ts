@@ -23,7 +23,7 @@ import { ownerDocument, ownerWindow } from '@base-ui/utils/owner';
 import { addEventListener } from '@base-ui/utils/addEventListener';
 import { clamp } from '@base-ui/utils/clamp';
 import { AnimationFrame } from '@base-ui/utils/useAnimationFrame';
-import { isElement, isHTMLElement, isShadowRoot } from '@floating-ui/utils/dom';
+import { isElement, isHTMLElement } from '@floating-ui/utils/dom';
 import { activeElement, contains, getTarget } from '@base-ui/utils/shadowDom';
 import { createChangeEventDetails } from '../../../internals/createBaseUIEventDetails';
 import {
@@ -37,7 +37,7 @@ import { clearActivePreviewHandle } from '../activePreview';
 import { dragSessionStore } from '../dragSessionStore';
 import { getSharedSlot } from '../sharedState';
 import { createEventRootBinding, type DragEventRoot } from '../documentBinding';
-import { isEditable } from '../interactiveElement';
+import { hasInteractiveAncestorWithin, isEditable } from '../interactiveElement';
 import {
   findRegisteredAncestor,
   getRegistration,
@@ -259,8 +259,13 @@ function handlePickupKeyDown(event: KeyboardEvent): void {
   // boundary, so accepting either keeps both compositions working.
   const retargeted = event.target;
   const pickupNode = dragHandle ?? element;
-  if (target !== pickupNode && retargeted !== pickupNode) {
-    return;
+  if (target !== pickupNode) {
+    if (
+      retargeted !== pickupNode ||
+      (isElement(target) && hasInteractiveAncestorWithin(target, pickupNode))
+    ) {
+      return;
+    }
   }
   // Disabled entirely, or the pickup key belongs to the element (`'manual'`) or to
   // nothing at all (`'off'`): leave the key un-prevented so it propagates to the
@@ -555,13 +560,11 @@ function beginKeyboardSession(parameters: {
   // reaches first, so it still refuses to start a pointer drag from this same
   // press — the press cancels, and only a later one lifts with the mouse.
   activeRef.listeners.push(
-    // The registration listener inside a closed shadow root can no longer see
-    // keys after the source unmounts. Keep a document-window continuation path
-    // for the active session; the pickup event stopped propagation before this
-    // listener was installed, so it cannot be handled twice.
-    ...(isShadowRoot(activeRef.eventRoot)
-      ? [addEventListener(win, 'keydown', onKeyDown, { capture: true })]
-      : []),
+    // Keep a session-owned continuation path even if the source unregisters
+    // synchronously during startup, before `state.active` can make the shared
+    // registration listener defer its cleanup. `handledEvents` deduplicates this
+    // with any document/shadow-root listener that remains installed.
+    addEventListener(win, 'keydown', onKeyDown, { capture: true }),
     addEventListener(win, 'blur', onActiveBlur),
     addEventListener(doc, 'visibilitychange', onActiveVisibilityChange),
     addEventListener(doc, 'focusin', onActiveFocusIn, { capture: true }),
@@ -755,6 +758,12 @@ function scheduleRepeatMove(
     session.lastNativeEvent = pending.event;
     const keys = getModifierKeys(pending.event);
     session.lastInput = { ...session.lastInput, ...keys };
+    // A document MutationObserver cannot see live-reorder mutations inside a
+    // shadow tree. Keep the held-key cache for ordinary documents, but measure
+    // afresh for the less common shadow-root target case.
+    if (!getDropTargetShadowRoots()[Symbol.iterator]().next().done) {
+      invalidateCollisionRects();
+    }
     moveActive(session, pending.key, pending.event);
   });
 }

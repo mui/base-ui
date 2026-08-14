@@ -4,7 +4,7 @@
 
 <Meta
   name="description"
-  content="How to test Base UI Plus drag and drop: simulating pointer and keyboard drags, activation thresholds, and what jsdom can and cannot resolve."
+  content="How to test Base UI drag and drop: simulating pointer and keyboard drags, activation thresholds, and what jsdom can and cannot resolve."
 />
 
 The engine is [synthetic](/react/drag-and-drop/overview#concepts): it listens to pointer and keyboard events and never uses the browser's HTML5 drag-and-drop. There is no `dragstart` to fire. A test drives a drag the way a user does, with `pointerdown`, `pointermove` and `pointerup`.

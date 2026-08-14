@@ -1,7 +1,9 @@
 'use client';
 import * as React from 'react';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
-import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
+import { useStableCallback } from '@base-ui/utils/useStableCallback';
+import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
+import { ownerWindow } from '@base-ui/utils/owner';
 import { registerAutoScroller } from '../../utils/drag-and-drop/registrations';
 import { refreshAutoScroll } from '../../utils/drag-and-drop/autoScroller';
 import type { RegisterAutoScrollerParameters } from '../../types/dragRegistration';
@@ -15,14 +17,17 @@ import { useRegistrationRef } from '../../utils/drag-and-drop/useRegistrationRef
  * The engine also infers scroll containers from the DOM, so this is what
  * *configures* one rather than what makes it scroll.
  *
- * The parameters are read through a ref on every frame, so a re-render never
+ * The parameters are read through a stable getter on every frame, so a re-render never
  * re-registers and the freshest callbacks always apply.
  * @internal
  */
 export function useDragAutoScrollElement<TSourceData = unknown>(
   parameters: UseDragAutoScrollElementParameters<TSourceData>,
 ): UseDragAutoScrollElementReturnValue {
-  const paramsRef = useValueAsRef(parameters);
+  const getParameters = useStableCallback(
+    () => parameters as RegisterAutoScrollerParameters<unknown>,
+  );
+  const elementRef = React.useRef<HTMLElement | null>(null);
 
   // Registering mid-drag needs nothing from this layer: the loop is already
   // armed and running on a live input (the first draggable armed it), so the
@@ -33,18 +38,44 @@ export function useDragAutoScrollElement<TSourceData = unknown>(
   // `disabled` rides along in the parameters (the engine reads it every frame)
   // rather than gating the registration, which would churn the engine's registry
   // — and its cached depth order — on every flip of the prop.
-  const ref = useRegistrationRef<HTMLElement>((node) =>
-    registerAutoScroller(node, () => paramsRef.current as RegisterAutoScrollerParameters<unknown>),
-  );
+  const ref = useRegistrationRef<HTMLElement>((node) => registerAutoScroller(node, getParameters));
+  const mergedRef = useRefWithInit(() => (node: HTMLElement | null) => {
+    elementRef.current = node;
+    ref(node);
+  }).current;
 
   useIsoLayoutEffect(() => {
-    // Parameters and the element's class/style can both change computed scroll
-    // behavior. Re-evaluate after every commit so a stationary pointer sees the
-    // current render without waiting for another input event.
+    // A live parameter change must wake a loop that parked while the element was
+    // disabled or declined scrolling. Stable parameters no longer discard the
+    // shared geometry/style caches on every unrelated parent render.
     refreshAutoScroll();
-  });
+  }, [
+    parameters.accept,
+    parameters.allowedAxis,
+    parameters.applyScroll,
+    parameters.canScroll,
+    parameters.disabled,
+    parameters.maxSpeed,
+  ]);
 
-  return { ref };
+  useIsoLayoutEffect(() => {
+    const element = elementRef.current;
+    if (!element) {
+      return undefined;
+    }
+    // Class and inline-style changes can alter overflow or direction without a
+    // parameter change. Observe the actual DOM mutation instead of invalidating
+    // caches after every React commit.
+    const MutationObserver = ownerWindow(element).MutationObserver;
+    const observer = new MutationObserver(refreshAutoScroll);
+    observer.observe(element, {
+      attributes: true,
+      attributeFilter: ['class', 'style'],
+    });
+    return () => observer.disconnect();
+  }, []);
+
+  return { ref: mergedRef };
 }
 
 export type UseDragAutoScrollElementParameters<TSourceData = unknown> =

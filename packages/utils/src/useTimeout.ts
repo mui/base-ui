@@ -3,6 +3,7 @@ import { useRefWithInit } from './useRefWithInit';
 import { useOnMount } from './useOnMount';
 
 type TimeoutId = number;
+type TimeoutCallback = (...args: never[]) => unknown;
 
 const EMPTY = 0 as TimeoutId;
 
@@ -18,7 +19,7 @@ export class Timeout {
   /**
    * Executes `fn` after `delay`, clearing any previously scheduled call.
    */
-  start(delay: number, fn: () => void) {
+  start(delay: number, fn: TimeoutCallback) {
     this.clear();
     const schedule = this.ownerWindow?.setTimeout.bind(this.ownerWindow) ?? setTimeout;
     this.currentId = schedule(() => {

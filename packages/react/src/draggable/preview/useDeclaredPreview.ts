@@ -1,7 +1,6 @@
 'use client';
 import * as React from 'react';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
-import type { useValueAsRef } from '@base-ui/utils/useValueAsRef';
 import { useDraggableRootContext } from '../root/DraggableRootContext';
 import type { DragPreviewDeclaration } from '../../utils/drag-and-drop/dragPreviewDeclaration';
 import type { DragPreviewSettings } from '../../types/drag';
@@ -14,7 +13,7 @@ import { throwMissingPreviewProvider } from '../../utils/drag-and-drop/overlay/m
  * @internal
  */
 export function useDeclaredPreview<TData = unknown>(
-  propsRef: ReturnType<typeof useValueAsRef<DragPreviewSettings>>,
+  getProps: () => DragPreviewSettings,
   render: DragPreviewDeclaration<TData>['render'],
 ): void {
   const { previewHandle, previewContext: rootPreviewContext } = useDraggableRootContext<TData>();
@@ -40,8 +39,6 @@ export function useDeclaredPreview<TData = unknown>(
   }
 
   const declaration = React.useMemo<DragPreviewDeclaration<TData>>(() => {
-    // `.next` is the current render's props (see `useRegistrationRef`).
-    const latest = () => propsRef.next;
     // Mapped over `Required<…>` so every setting has to be plucked here: settings
     // are all optional, so a new one added to `DragPreviewSettings` would
     // otherwise type-check while being silently dropped on its way to the engine.
@@ -50,20 +47,20 @@ export function useDeclaredPreview<TData = unknown>(
     } = {
       render,
       get offset() {
-        return latest().offset;
+        return getProps().offset;
       },
       get modifiers() {
-        return latest().modifiers;
+        return getProps().modifiers;
       },
       get disabled() {
-        return latest().disabled;
+        return getProps().disabled;
       },
       get container() {
-        return latest().container;
+        return getProps().container;
       },
     };
     return declared;
-  }, [propsRef, render]);
+  }, [getProps, render]);
 
   useIsoLayoutEffect(() => previewHandle.declare(declaration), [previewHandle, declaration]);
 }

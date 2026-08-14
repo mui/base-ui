@@ -1,6 +1,6 @@
 'use client';
 import type * as React from 'react';
-import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
+import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import type { DragPreviewSettings } from '../../types/drag';
 import { useDeclaredPreview } from './useDeclaredPreview';
 
@@ -18,8 +18,8 @@ import { useDeclaredPreview } from './useDeclaredPreview';
  * Documentation: [Base UI Draggable](https://base-ui.com/react/components/draggable)
  */
 export function DraggableClonedPreview(props: DraggableClonedPreview.Props): React.ReactNode {
-  const propsRef = useValueAsRef(props);
-  useDeclaredPreview(propsRef, null);
+  const getProps = useStableCallback(() => props);
+  useDeclaredPreview(getProps, null);
   return null;
 }
 

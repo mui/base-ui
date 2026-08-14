@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
-import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
+import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import type { DragPreviewContainer } from '../../types/drag';
 import { createDragPreviewStore } from '../../utils/drag-and-drop/overlay/dragPreviewStore';
 import { DragPreviewContext } from '../../utils/drag-and-drop/overlay/DragPreviewContext';
@@ -20,14 +20,14 @@ export const DraggablePreviewProvider: React.FC<DraggablePreviewProvider.Props> 
     const previewStore = useRefWithInit(createDragPreviewStore).current;
 
     // `container` is read at drag start, so it goes into the context through this
-    // stable ref rather than by value: every `Draggable.Root` below consumes this
+    // stable getter rather than by value: every `Draggable.Root` below consumes this
     // context, so an inline `container` callback — a new identity each render —
     // would otherwise churn the context value and re-render them all.
-    const containerRef = useValueAsRef(container);
+    const getContainer = useStableCallback(() => container);
 
     const contextValue = React.useMemo(
-      () => ({ previewStore, containerRef }),
-      [previewStore, containerRef],
+      () => ({ previewStore, getContainer }),
+      [previewStore, getContainer],
     );
 
     return (

@@ -1,6 +1,5 @@
 'use client';
 import type * as React from 'react';
-import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import type { BaseUIComponentProps } from '../../internals/types';
 import type { DragKind, DragPreviewSettings, DragPreviewRenderEvent } from '../../types/drag';
@@ -23,15 +22,14 @@ export function DraggablePreview(props: DraggablePreviewProps): React.ReactNode;
 export function DraggablePreview<TData = unknown>(
   props: DraggablePreviewProps | DraggablePreviewTypedProps<TData>,
 ): React.ReactNode {
-  const propsRef = useValueAsRef(props);
+  const getProps = useStableCallback(() => props);
 
   // Resolved per drag, not per render.
   const render = useStableCallback((parameters: DragPreviewRenderEvent<TData>) => {
     // The settings belong to the engine, which reads them off the declaration;
     // everything else belongs to the rendered element.
-    // `.next` is the current render's props (see `useRegistrationRef`).
     const { children, kind, offset, modifiers, disabled, container, ...componentProps } =
-      propsRef.next;
+      getProps();
     // A typed preview must never call its render function with a payload of a
     // different kind. This can happen only when the part is composed under the
     // wrong root; decline the preview for that drag rather than violating the
@@ -48,7 +46,7 @@ export function DraggablePreview<TData = unknown>(
     return <DraggablePreviewElement componentProps={{ ...componentProps, children: resolved }} />;
   });
 
-  useDeclaredPreview<TData>(propsRef, render);
+  useDeclaredPreview<TData>(getProps, render);
 
   return null;
 }

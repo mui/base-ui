@@ -10,6 +10,7 @@ export enum DraggableRootDataAttributes {
   /**
    * The input modality driving the drag: `'pointer'` or `'keyboard'`. Present on the
    * source alongside `data-dragging`, and mirrored on the preview element.
+   * @type {'pointer' | 'keyboard'}
    */
   dragMode = 'data-drag-mode',
   /**
