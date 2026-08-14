@@ -28,6 +28,8 @@ export interface FilterDropdownRootContext {
   disabled: boolean;
   inputFocusVisible: boolean;
   setInputFocusVisible: (visible: boolean) => void;
+  keyboardModality: boolean;
+  setKeyboardModality: (keyboardModality: boolean) => void;
   /**
    * Whether the current query matched no items, supplied by a host whose data pass drives the
    * list. When undefined, the item registry decides.

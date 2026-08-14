@@ -77,6 +77,12 @@ export function MenuSubmenuRoot(props: MenuSubmenuRoot.Props) {
     }
   }
 
+  function handleParentNavigation() {
+    if (parent.store.select('virtualFocus')) {
+      parent.store.context.inputRef.current?.focus({ preventScroll: true });
+    }
+  }
+
   // Handle every accepted keyboard open event (e.g. Click or Space) here so any open
   // will record where to return focus and activeIndex.
   function handleOpenChange(nextOpen: boolean, eventDetails: MenuSubmenuRoot.ChangeEventDetails) {
@@ -114,6 +120,7 @@ export function MenuSubmenuRoot(props: MenuSubmenuRoot.Props) {
         }
         onSubmenuEnter={handleSubmenuEnter}
         onSubmenuExit={handleSubmenuExit}
+        onParentNavigation={handleParentNavigation}
       >
         {props.children}
       </MenuSubmenuRootImpl>
@@ -126,11 +133,19 @@ interface MenuSubmenuRootImplProps {
   parentOrientation: MenuRoot.Orientation;
   onSubmenuEnter(trigger: HTMLElement): void;
   onSubmenuExit(): void;
+  onParentNavigation(): void;
   getReturnElement(): HTMLElement | null;
 }
 
 function MenuSubmenuRootImpl(props: MenuSubmenuRootImplProps) {
-  const { children, parentOrientation, onSubmenuEnter, onSubmenuExit, getReturnElement } = props;
+  const {
+    children,
+    parentOrientation,
+    onSubmenuEnter,
+    onSubmenuExit,
+    onParentNavigation,
+    getReturnElement,
+  } = props;
   const { store, orientation } = useMenuRootContext();
   const direction = useDirection();
 
@@ -159,6 +174,13 @@ function MenuSubmenuRootImpl(props: MenuSubmenuRootImplProps) {
   // Submenu entry and exit use cross-axis keys derived from both the parent and child
   // orientations. Enter and Space continue through useClick and are handled on open change.
   const handleTriggerKeyDown = useStableCallback((event: React.KeyboardEvent<HTMLElement>) => {
+    if (isMainOrientationKey(event.key, parentOrientation)) {
+      // Escape returns real focus to the trigger so it is announced. Move it back to the virtual
+      // focus owner before parent navigation so a later cross-axis key targets the current item.
+      onParentNavigation();
+      return;
+    }
+
     const open = store.select('open');
     const isRtl = direction === 'rtl';
     const isCloseKey = isCrossOrientationCloseKey(event.key, orientation, isRtl, false);

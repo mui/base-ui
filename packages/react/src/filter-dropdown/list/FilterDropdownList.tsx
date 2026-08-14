@@ -35,6 +35,12 @@ export const FilterDropdownList = React.forwardRef(function FilterDropdownList(
       // Keep focus on the virtual focus owner when list content is pressed.
       event.preventDefault();
     },
+    onPointerMove() {
+      context.setKeyboardModality(false);
+    },
+    onPointerDown() {
+      context.setKeyboardModality(false);
+    },
     onKeyDown(event) {
       if (!context.hasInput && (event.key === 'ArrowUp' || event.key === 'ArrowDown')) {
         // The list consumed the reference navigation handler. Do not let the same event reach the

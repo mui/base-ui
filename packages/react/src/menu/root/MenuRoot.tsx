@@ -583,7 +583,17 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(
   // Under virtual focus an element inside the popup holds real focus, so it takes the
   // navigation's reference props (`aria-activedescendant` and the key handling) and the trigger
   // keeps only the props that open the menu.
-  const openTriggerProps = virtualFocus ? listNavigation.trigger : listNavigation.reference;
+  const openTriggerProps = React.useMemo(() => {
+    if (!virtualFocus) {
+      return listNavigation.reference;
+    }
+
+    const triggerProps = { ...listNavigation.trigger };
+    // Focusing the trigger while the menu is open must not seed the virtual highlight. This can
+    // happen before a pointer press closes the menu in Safari.
+    delete triggerProps.onFocus;
+    return triggerProps;
+  }, [virtualFocus, listNavigation.reference, listNavigation.trigger]);
   const inputProps = virtualFocus ? (listNavigation.reference ?? EMPTY_OBJECT) : EMPTY_OBJECT;
 
   const activeTriggerProps = React.useMemo(() => {

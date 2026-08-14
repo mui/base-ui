@@ -56,6 +56,7 @@ export function FilterDropdownRoot(props: FilterDropdownRoot.Props): React.JSX.E
   const [registeredListId, setListId] = React.useState<string | undefined>(undefined);
   const [registeredItems, registerItem] = useItemRegistry<symbol, FilterDropdownItemRegistration>();
   const [focusVisible, setFocusVisible] = React.useState(inputFocusVisible);
+  const [keyboardModality, setKeyboardModality] = React.useState(inputFocusVisible);
   const [hasInput, setHasInput] = React.useState(false);
 
   // React 17 resolves generated ids in an effect, so they must be read live rather than captured
@@ -91,6 +92,7 @@ export function FilterDropdownRoot(props: FilterDropdownRoot.Props): React.JSX.E
 
   useIsoLayoutEffect(() => {
     setFocusVisible(inputFocusVisible);
+    setKeyboardModality(inputFocusVisible);
   }, [inputFocusVisible]);
 
   // Filtering runs against the registry snapshot published after every item in the commit has
@@ -137,6 +139,8 @@ export function FilterDropdownRoot(props: FilterDropdownRoot.Props): React.JSX.E
       disabled,
       inputFocusVisible: focusVisible,
       setInputFocusVisible: setFocusVisible,
+      keyboardModality,
+      setKeyboardModality,
       empty,
       store,
       popupId,
@@ -163,6 +167,7 @@ export function FilterDropdownRoot(props: FilterDropdownRoot.Props): React.JSX.E
       open,
       disabled,
       focusVisible,
+      keyboardModality,
       empty,
       store,
       popupId,

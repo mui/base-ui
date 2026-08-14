@@ -33,7 +33,9 @@ export const FilterDropdownInput = React.forwardRef(function FilterDropdownInput
         type: 'text',
         disabled: context.disabled || disabled,
         [FilterDropdownInputDataAttributes.focusVisible as string]:
-          context.inputFocusVisible && activeItemId == null ? '' : undefined,
+          context.inputFocusVisible && (!context.keyboardModality || activeItemId == null)
+            ? ''
+            : undefined,
         'aria-activedescendant': activeItemId,
         role: 'searchbox',
         inputMode: 'search',
@@ -52,7 +54,11 @@ export const FilterDropdownInput = React.forwardRef(function FilterDropdownInput
           context.onValueChange(nextValue, createChangeEventDetails(reason, event.nativeEvent));
         },
         onMouseEnter(event) {
+          context.setKeyboardModality(false);
           event.currentTarget.focus({ preventScroll: true });
+        },
+        onPointerDown() {
+          context.setKeyboardModality(false);
         },
         onFocus() {
           context.setInputFocusVisible(true);
@@ -61,6 +67,7 @@ export const FilterDropdownInput = React.forwardRef(function FilterDropdownInput
           context.setInputFocusVisible(false);
         },
         onKeyDown(event: BaseUIEvent<React.KeyboardEvent<HTMLInputElement>>) {
+          context.setKeyboardModality(true);
           const isMovingCaret = MOVE_CARET_KEYS.includes(event.key);
           const isMainNavigationKey = event.key === 'ArrowUp' || event.key === 'ArrowDown';
           const isTyping = event.key.length === 1;

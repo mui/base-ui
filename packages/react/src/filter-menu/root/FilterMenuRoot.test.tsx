@@ -86,6 +86,59 @@ describe('<FilterMenu.Root />', () => {
       expect(input).toHaveAttribute('data-focus-visible');
     });
 
+    it.skipIf(isJSDOM)(
+      'does not highlight the first item while closing from the trigger with a pointer',
+      async ({ onTestFinished }) => {
+        globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+        onTestFinished(() => {
+          globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
+        });
+
+        const { user } = await render(
+          <React.Fragment>
+            <style>{`
+              @keyframes filter-menu-pointer-close-test {
+                to { opacity: 0; }
+              }
+              .filter-menu-pointer-close-test[data-ending-style] {
+                animation: filter-menu-pointer-close-test 10s linear;
+              }
+            `}</style>
+            <FilterMenu.Root>
+              <FilterMenu.Trigger>Actions</FilterMenu.Trigger>
+              <FilterMenu.Portal>
+                <FilterMenu.Positioner>
+                  <FilterMenu.Popup data-testid="popup" className="filter-menu-pointer-close-test">
+                    <FilterMenu.Input aria-label="Filter actions" />
+                    <FilterMenu.List>
+                      <FilterMenu.Item>Rename</FilterMenu.Item>
+                    </FilterMenu.List>
+                  </FilterMenu.Popup>
+                </FilterMenu.Positioner>
+              </FilterMenu.Portal>
+            </FilterMenu.Root>
+          </React.Fragment>,
+        );
+
+        const trigger = screen.getByRole('button', { name: 'Actions' });
+        await user.click(trigger);
+        const input = await screen.findByRole('searchbox', { name: 'Filter actions' });
+        const item = screen.getByRole('menuitem', { name: 'Rename' });
+        expect(item).not.toHaveAttribute('data-highlighted');
+
+        // Pressing the trigger can move focus before its close handler runs in Safari.
+        trigger.focus();
+        expect(item).not.toHaveAttribute('data-highlighted');
+        await user.click(trigger);
+
+        await waitFor(() => {
+          expect(screen.getByTestId('popup')).toHaveAttribute('data-ending-style');
+        });
+        expect(input).not.toHaveAttribute('aria-activedescendant');
+        expect(item).not.toHaveAttribute('data-highlighted');
+      },
+    );
+
     it('moves focus past the menu when tabbing from the input', async () => {
       const { user } = await render(
         <div>
@@ -724,7 +777,7 @@ describe('<FilterMenu.Root />', () => {
         const item = screen.getByText('Documents');
         await user.hover(item);
         expect(input).toHaveAttribute('aria-activedescendant', item.id);
-        expect(input).not.toHaveAttribute('data-focus-visible');
+        expect(input).toHaveAttribute('data-focus-visible');
 
         await user.hover(input);
         expect(input).not.toHaveAttribute('aria-activedescendant');
@@ -986,6 +1039,78 @@ describe('<FilterMenu.Root />', () => {
 
       const nextItem = screen.getByRole('menuitem', { name: 'Delete' });
       expect(parentInput).toHaveAttribute('aria-activedescendant', nextItem.id);
+    });
+
+    it('does not reopen a stale submenu with a cross-axis key', async () => {
+      const { user } = await render(
+        <FilterMenu.Root defaultOpen>
+          <FilterMenu.Trigger>Actions</FilterMenu.Trigger>
+          <FilterMenu.Portal>
+            <FilterMenu.Positioner>
+              <FilterMenu.Popup>
+                <FilterMenu.Input aria-label="Filter actions" />
+                <FilterMenu.List>
+                  <FilterMenu.Item>Rename</FilterMenu.Item>
+                  <FilterMenu.SubmenuRoot>
+                    <FilterMenu.SubmenuTrigger>Share</FilterMenu.SubmenuTrigger>
+                    <FilterMenu.Portal>
+                      <FilterMenu.Positioner>
+                        <FilterMenu.Popup>
+                          <FilterMenu.Input aria-label="Filter sharing options" />
+                          <FilterMenu.List>
+                            <FilterMenu.Item>Email</FilterMenu.Item>
+                          </FilterMenu.List>
+                        </FilterMenu.Popup>
+                      </FilterMenu.Positioner>
+                    </FilterMenu.Portal>
+                  </FilterMenu.SubmenuRoot>
+                  <FilterMenu.SubmenuRoot>
+                    <FilterMenu.SubmenuTrigger>Export</FilterMenu.SubmenuTrigger>
+                    <FilterMenu.Portal>
+                      <FilterMenu.Positioner>
+                        <FilterMenu.Popup>
+                          <FilterMenu.Input aria-label="Filter export options" />
+                          <FilterMenu.List>
+                            <FilterMenu.Item>PDF</FilterMenu.Item>
+                          </FilterMenu.List>
+                        </FilterMenu.Popup>
+                      </FilterMenu.Positioner>
+                    </FilterMenu.Portal>
+                  </FilterMenu.SubmenuRoot>
+                </FilterMenu.List>
+              </FilterMenu.Popup>
+            </FilterMenu.Positioner>
+          </FilterMenu.Portal>
+        </FilterMenu.Root>,
+      );
+
+      const input = screen.getByRole('searchbox', { name: 'Filter actions' });
+      await waitFor(() => {
+        expect(input).toHaveFocus();
+      });
+
+      await user.keyboard('[ArrowDown][ArrowDown][ArrowRight]');
+      expect(
+        await screen.findByRole('searchbox', { name: 'Filter sharing options' }),
+      ).toHaveFocus();
+
+      await user.keyboard('[Escape]');
+      const shareTrigger = screen.getByRole('menuitem', { name: 'Share' });
+      await waitFor(() => {
+        expect(shareTrigger).toHaveFocus();
+      });
+
+      await user.keyboard('[ArrowUp]');
+      const item = screen.getByRole('menuitem', { name: 'Rename' });
+      expect(input).toHaveFocus();
+      expect(input).toHaveAttribute('aria-activedescendant', item.id);
+
+      await user.keyboard('[ArrowRight]');
+      expect(screen.queryByRole('searchbox', { name: 'Filter sharing options' })).toBe(null);
+
+      await user.keyboard('[ArrowDown][ArrowDown][ArrowRight]');
+      expect(screen.queryByRole('searchbox', { name: 'Filter sharing options' })).toBe(null);
+      expect(await screen.findByRole('searchbox', { name: 'Filter export options' })).toHaveFocus();
     });
 
     it.skipIf(isJSDOM)(
