@@ -170,7 +170,8 @@ export const FloatingPortal = React.forwardRef(function FloatingPortal(
   componentProps: FloatingPortal.Props<any>,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { render, className, style, children, container, ...elementProps } = componentProps;
+  const { render, className, style, children, container, portalOwnerRole, ...elementProps } =
+    componentProps;
 
   const {
     node: portalNode,
@@ -270,7 +271,7 @@ export const FloatingPortal = React.forwardRef(function FloatingPortal(
           />
         )}
         {shouldRenderGuards && portalNode && (
-          <span aria-owns={portalNodeId} style={ownerVisuallyHidden} />
+          <span role={portalOwnerRole} aria-owns={portalNodeId} style={ownerVisuallyHidden} />
         )}
         {portalNode && ReactDOM.createPortal(children, portalNode)}
         {shouldRenderGuards && portalNode && (
@@ -309,5 +310,10 @@ export namespace FloatingPortal {
      * A parent element to render the portal element into.
      */
     container?: UseFloatingPortalNodeProps['container'] | undefined;
+    /**
+     * @ignore
+     * The role for the hidden `aria-owns` owner element.
+     */
+    portalOwnerRole?: React.AriaRole | undefined;
   }
 }
