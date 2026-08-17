@@ -143,6 +143,9 @@ export const MenuPopup = React.forwardRef(function MenuPopup(
 });
 
 export interface MenuPopupProps extends BaseUIComponentProps<'div', MenuPopupState> {
+  /**
+   * The content of the menu popup.
+   */
   children?: React.ReactNode;
   /**
    * @ignore
