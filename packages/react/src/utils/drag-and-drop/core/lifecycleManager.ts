@@ -54,7 +54,7 @@ interface LifecycleState {
    */
   dragCancel: (() => void) | null;
   /** See {@link refreshDropTargets}. Set during an active drag, cleared on teardown. */
-  refreshDropTargets: (() => void) | null;
+  refreshDropTargets: ((rehitTest: boolean) => void) | null;
   /**
    * Whether an element currently holds delivered hover state. See
    * {@link isHoveredDropTarget}.
@@ -88,8 +88,8 @@ export function isActive(): boolean {
  * element un-registers mid-drag, so subscribers see it leave `dropTargets`
  * without a pointer event.
  */
-export function refreshDropTargets(): void {
-  state.refreshDropTargets?.();
+export function refreshDropTargets(options?: { rehitTest?: boolean | undefined }): void {
+  state.refreshDropTargets?.(options?.rehitTest ?? true);
 }
 
 /**
@@ -221,6 +221,7 @@ export function start(parameters: StartParameters): DragSessionHandle | null {
   // round finishes (see `drainPendingRefresh`).
   let dispatching = false;
   let refreshPending = false;
+  let pendingRefreshNeedsHitTest = false;
 
   // Whether the terminal `onDragEnd` has been delivered. The recovery path below
   // reads it so a throw *from* `onDragEnd` doesn't produce a second one.
@@ -503,21 +504,23 @@ export function start(parameters: StartParameters): DragSessionHandle | null {
   // fading in mid-drag) is not an ancestor of the old target, and a detached
   // `lastTarget` (virtualizer/live reorder) would resolve an empty stack. The
   // preview is skipped so it can't be hit and spuriously empty the stack.
-  function resolveDropTargetsFromLastTarget(): void {
+  function resolveDropTargetsFromLastTarget(rehitTest: boolean): void {
     let target = lastTarget;
-    const { clientX, clientY } = location.current.input;
-    const fresh = elementFromPointIgnoring(
-      ownerDocument(source.element),
-      clientX,
-      clientY,
-      synthetic.getPreviewElement(),
-      getDropTargetShadowRoots(),
-    );
-    // A `null` hit with a still-connected last target means the pointer is
-    // outside the viewport (captured pointer drag); keep the last target so the
-    // stack doesn't spuriously empty.
-    if (fresh !== null || target == null || !target.isConnected) {
-      target = fresh;
+    if (rehitTest) {
+      const { clientX, clientY } = location.current.input;
+      const fresh = elementFromPointIgnoring(
+        ownerDocument(source.element),
+        clientX,
+        clientY,
+        synthetic.getPreviewElement(),
+        getDropTargetShadowRoots(),
+      );
+      // A `null` hit with a still-connected last target means the pointer is
+      // outside the viewport (captured pointer drag); keep the last target so the
+      // stack doesn't spuriously empty.
+      if (fresh !== null || target == null || !target.isConnected) {
+        target = fresh;
+      }
     }
     updateDropTargets(location.current.input, target);
   }
@@ -525,7 +528,9 @@ export function start(parameters: StartParameters): DragSessionHandle | null {
   function drainPendingRefresh(): void {
     while (refreshPending && !tornDown) {
       refreshPending = false;
-      resolveDropTargetsFromLastTarget();
+      const rehitTest = pendingRefreshNeedsHitTest;
+      pendingRefreshNeedsHitTest = false;
+      resolveDropTargetsFromLastTarget(rehitTest);
     }
   }
 
@@ -1014,14 +1019,15 @@ export function start(parameters: StartParameters): DragSessionHandle | null {
     // Installed before the synchronous `onGenerateDragPreview` dispatch so a
     // consumer that unregisters an initial drop target during it gets the stale
     // target dropped from the stack rather than published onDragStart.
-    state.refreshDropTargets = () => {
+    state.refreshDropTargets = (rehitTest) => {
       // Requested from inside a consumer fan-out, or before `onDragStart` has
       // been delivered: queue it (see `dispatching` and `startDispatched`).
       if (dispatching || !startDispatched) {
         refreshPending = true;
+        pendingRefreshNeedsHitTest ||= rehitTest;
         return;
       }
-      resolveDropTargetsFromLastTarget();
+      resolveDropTargetsFromLastTarget(rehitTest);
     };
     state.isHovered = (element) => hoveredDropTargets.some((record) => record.element === element);
 

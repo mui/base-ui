@@ -107,7 +107,12 @@ export function useDropTargetElement(
     previousDisabledRef.current = disabled;
     previousAcceptRef.current = accept;
     previousCanDropRef.current = canDrop;
-    refreshDropTargets();
+    // Parameter changes re-resolve from the last event target rather than
+    // hit-testing the live DOM again. An inline `canDrop` commonly changes
+    // identity after its own `onDrag` updates preview state; re-hit-testing the
+    // shifted content there can enter another target, update preview state
+    // again, and create a synchronous render/refresh loop.
+    refreshDropTargets({ rehitTest: false });
   }, [disabled, accept, canDrop]);
 
   const targetState = useStore(

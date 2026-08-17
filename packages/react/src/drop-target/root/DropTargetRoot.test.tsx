@@ -827,7 +827,12 @@ describe('DropTarget.Root', () => {
     await flushRaf();
     expect(target).toHaveAttribute('data-drag-over');
 
+    const hitTest = vi.spyOn(document, 'elementFromPoint').mockReturnValue(null);
     await rerender(<Fixture allowed={false} />);
+    // A parameter-only refresh must re-resolve from the last event target. A
+    // fresh hit test can observe layout changed by an onDrag state update and
+    // recursively enter another target during the same React commit.
+    expect(hitTest).not.toHaveBeenCalled();
     expect(onDragLeave).toHaveBeenCalledTimes(1);
     expect(target).not.toHaveAttribute('data-drag-over');
 
