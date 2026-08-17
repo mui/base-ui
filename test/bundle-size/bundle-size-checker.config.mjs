@@ -99,11 +99,6 @@ const dragAndDropLeafEntrypoints = [
     track: true,
   },
   {
-    id: 'drag-and-drop/leaf/Draggable.createClonedPreview',
-    code: `import { Draggable } from '@base-ui/react/draggable'; console.log(Draggable.createClonedPreview);`,
-    track: true,
-  },
-  {
     id: 'drag-and-drop/leaf/Draggable.PreviewProvider',
     code: `import { Draggable } from '@base-ui/react/draggable'; console.log(Draggable.PreviewProvider);`,
     track: true,
@@ -119,8 +114,23 @@ const dragAndDropLeafEntrypoints = [
     track: true,
   },
   {
+    id: 'drag-and-drop/leaf/DragAutoScroll.Provider',
+    code: `import { DragAutoScroll } from '@base-ui/react/drag-auto-scroll'; console.log(DragAutoScroll.Provider);`,
+    track: true,
+  },
+  {
+    id: 'drag-and-drop/leaf/DragAutoScroll.Provider+Root',
+    code: `import { DragAutoScroll } from '@base-ui/react/drag-auto-scroll'; console.log(DragAutoScroll.Provider, DragAutoScroll.Root);`,
+    track: true,
+  },
+  {
     id: 'drag-and-drop/leaf/Draggable.Root+DragAutoScroll.Root',
     code: `import { Draggable } from '@base-ui/react/draggable'; import { DragAutoScroll } from '@base-ui/react/drag-auto-scroll'; console.log(Draggable.Root, DragAutoScroll.Root);`,
+    track: true,
+  },
+  {
+    id: 'drag-and-drop/leaf/Draggable.Root+DragAutoScroll.Provider',
+    code: `import { Draggable } from '@base-ui/react/draggable'; import { DragAutoScroll } from '@base-ui/react/drag-auto-scroll'; console.log(Draggable.Root, DragAutoScroll.Provider);`,
     track: true,
   },
   {

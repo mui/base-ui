@@ -724,14 +724,17 @@ A component that enables and configures drag auto-scroll.
   - Both a scroll container and a drop target
   - Scrolling the page
   - API reference
+    - Provider
     - Root
 - Exports:
   - Drag Auto Scroll - Root
     - Props: accept, allowedAxis, applyScroll, canScroll, className, disabled, maxSpeed, render, style
     - Data Attributes: data-disabled
+  - Drag Auto Scroll - Provider
+    - Props: children, disabled
   - DragAutoScrollApply
     - Parameters: parameters
-- Types: DragAutoScroll.Root.Props, DragAutoScroll.Root.State
+- Types: DragAutoScroll.Provider.Props, DragAutoScroll.Root.Props, DragAutoScroll.Root.State
 
 </details>
 
@@ -765,7 +768,7 @@ A component that makes its element a drag source.
     - Write your own
     - Gating on a modifier key
   - Drag previews
-    - Cloned preview
+    - Default preview
     - Custom previews
     - Configure the clone
     - Drag without a preview
@@ -798,8 +801,6 @@ A component that makes its element a drag source.
     - CSS Variables: --drag-displacement-x, --drag-displacement-y
   - Draggable - ClonedPreview
     - Props: container, disabled, modifiers, offset
-  - Draggable - createClonedPreview
-    - Parameters: settings
   - Draggable - createGlobalKind
     - Parameters: key
   - Draggable - createKind

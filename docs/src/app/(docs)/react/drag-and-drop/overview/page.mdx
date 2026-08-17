@@ -51,7 +51,7 @@ If independently evaluated bundles cannot share the same value, use `Draggable.c
 
 ## Setup
 
-You do not need a provider for `Draggable.ClonedPreview` or a draggable with no preview. When you render custom content with `Draggable.Preview`, wrap that part of your app in a `Draggable.PreviewProvider`. Put it inside the context providers the preview needs:
+You do not need a provider for the default clone or `Draggable.ClonedPreview`. When you render custom content with `Draggable.Preview`, wrap that part of your app in a `Draggable.PreviewProvider`. Put it inside the context providers the preview needs:
 
 ```tsx title="Setting up drag and drop"
 import { Draggable } from '@base-ui/react/draggable';

@@ -550,8 +550,7 @@ export type DraggableConfig<TData = undefined> = {
   dragCursor?: string | false | undefined;
   /**
    * The drag preview: what follows the pointer, and where it lives in the DOM.
-   * Omit it to render no preview. Use `Draggable.createClonedPreview()` for a
-   * full-fidelity clone of the source.
+   * Omit it to use a full-fidelity clone of the source.
    *
    * For sources registered imperatively. A draggable that renders a preview part
    * describes its preview there instead.
@@ -559,8 +558,8 @@ export type DraggableConfig<TData = undefined> = {
   dragPreview?: DragPreviewParameters<NoInfer<TData>> | undefined;
   /**
    * The preview part declared for this draggable, if any. Wired by the React layer;
-   * the engine reads it once at drag start, before React can run, to build either
-   * the declared clone or a host for custom content.
+   * the engine reads it once at drag start, before React can run, to decide between
+   * cloning the source and building a host for custom content.
    * @internal
    */
   getDragPreviewDeclaration?: (() => DragPreviewDeclaration<NoInfer<TData>> | null) | undefined;

@@ -29,17 +29,14 @@ import { Draggable } from '@base-ui/react/draggable';
 
 const itemKind = Draggable.createKind('item');
 
-<Draggable.PreviewProvider>
-  <Draggable.Root kind={itemKind} label="Item">
-    <Draggable.Handle />
-    <Draggable.ClonedPreview />
-    <Draggable.Displacement />
-  </Draggable.Root>
-</Draggable.PreviewProvider>;
+<Draggable.Root kind={itemKind} label="Item">
+  <Draggable.Handle />
+  <Draggable.Displacement />
+</Draggable.Root>;
 ```
 
-A root takes at most one preview part. Omit it to render no preview, use
-`Draggable.ClonedPreview` for a full-fidelity clone of the source, or swap it for
+A root takes at most one preview part. Omit it to use the full-fidelity clone of
+the source, render `Draggable.ClonedPreview` to configure that clone, or use
 `Draggable.Preview` to render custom content. Declaring both warns in development;
 the last one mounted wins. `Draggable.Displacement` is independent and opts the
 root into reorder animations.
@@ -488,9 +485,9 @@ A modifier only moves a point, so it still can't express a keyboard move that ta
 
 ## Drag previews
 
-### Cloned preview
+### Default preview
 
-Render `Draggable.ClonedPreview` to follow the pointer with a full-fidelity clone of the dragged element. The clone keeps your element's classes so your own CSS styles it, and renders in the browser's top layer, where no scroll container can clip it and nothing on the page paints over it. With no preview part, nothing follows the pointer.
+With no preview part, a full-fidelity clone of the dragged element follows the pointer. The clone keeps your element's classes so your own CSS styles it, and renders in the browser's top layer, where no scroll container can clip it and nothing on the page paints over it.
 
 Custom elements inside a clone are replaced with inert native placeholders. Cloning a live custom element would run its constructor and connection callbacks again merely because a drag started. Render a `Draggable.Preview` when the preview must reproduce a custom element's shadow content exactly.
 
@@ -541,7 +538,7 @@ To show **no preview for a particular drag**, resolve the children to nothing: `
 
 ### Configure the clone
 
-To opt into the clone and configure how it's placed, render a `Draggable.ClonedPreview`. It takes the same placement props as `Draggable.Preview` and renders nothing, since the clone is the engine's and there's no content to own:
+To configure how the default clone is placed, render a `Draggable.ClonedPreview`. It takes the same placement props as `Draggable.Preview` and renders nothing, since the clone is the engine's and there's no content to own:
 
 ```tsx title="Place the clone under the pointer"
 function Card({ id, label }) {
@@ -554,17 +551,16 @@ function Card({ id, label }) {
 }
 ```
 
-Style the clone with `[data-drag-preview]`. The part renders no element of its own, so it takes no `className`.
+You only need this part to configure the clone. Style the clone with `[data-drag-preview]`. The part renders no element of its own, so it takes no `className`.
 
 ### Drag without a preview
 
-Omit the preview part when nothing should follow the pointer. The drag itself still runs — targets light up and the drop commits — which suits a surface that draws its own feedback, such as a canvas rendering the moved shape.
-
-Use `disabled` to conditionally switch off a declared preview while keeping its placement configuration mounted.
+Use `disabled` on a preview part when nothing should follow the pointer. The drag itself still runs — targets light up and the drop commits — which suits a surface that draws its own feedback, such as a canvas rendering the moved shape. `Draggable.ClonedPreview` needs no preview provider, even when disabled.
 
 ```tsx title="Dragging without a preview"
 <Draggable.Root kind={shape} label={label} payload={id}>
   {label}
+  <Draggable.ClonedPreview disabled />
 </Draggable.Root>
 ```
 

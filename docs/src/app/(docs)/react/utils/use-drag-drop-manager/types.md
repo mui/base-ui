@@ -691,8 +691,7 @@ type RegisterDraggableParameters<TData = undefined> = {
   dragCursor?: string | false;
   /**
    * The drag preview: what follows the pointer, and where it lives in the DOM.
-   * Omit it to render no preview. Use `Draggable.createClonedPreview()` for a
-   * full-fidelity clone of the source.
+   * Omit it to use a full-fidelity clone of the source.
    *
    * For sources registered imperatively. A draggable that renders a preview part
    * describes its preview there instead.
@@ -847,8 +846,7 @@ type RegisterDraggableParametersWithPayload<TData> = (
   dragCursor?: string | false;
   /**
    * The drag preview: what follows the pointer, and where it lives in the DOM.
-   * Omit it to render no preview. Use `Draggable.createClonedPreview()` for a
-   * full-fidelity clone of the source.
+   * Omit it to use a full-fidelity clone of the source.
    *
    * For sources registered imperatively. A draggable that renders a preview part
    * describes its preview there instead.

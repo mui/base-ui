@@ -73,7 +73,7 @@ export function retargetActivePreviewSource(element: HTMLElement): void {
 /**
  * The host a declared preview renders its content into: an empty element the engine
  * injected next to the source (or into the configured container) and positions each
- * frame. `null` when the active drag has no custom preview — a clone needs
+ * frame. `null` when the active drag has no custom preview — the default clone needs
  * no React involvement at all.
  */
 export function getActivePreview(): DragPreviewElementHandle | null {

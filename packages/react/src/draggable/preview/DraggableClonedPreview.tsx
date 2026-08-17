@@ -6,11 +6,10 @@ import { useDeclaredPreview } from './useDeclaredPreview';
 import { createClonedDragPreviewElement } from '../../utils/drag-and-drop/synthetic/cloneDragPreview';
 
 /**
- * Enables a full-fidelity clone of the source as the drag preview.
+ * Configures the full-fidelity clone of the source shown by default.
  * Renders nothing.
  *
- * Reach for it when the preview should preserve the source's DOM and live form,
- * canvas, and scroll state.
+ * Reach for it to place or constrain the default cloned preview.
  * Use a `Draggable.Preview` instead to replace the clone with your own content.
  *
  * The clone carries the source's own classes, so style it with `[data-drag-preview]`

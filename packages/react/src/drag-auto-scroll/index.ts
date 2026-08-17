@@ -1,6 +1,7 @@
 export * as DragAutoScroll from './index.parts';
 
 export type * from './root/DragAutoScrollRoot';
+export type * from './provider/DragAutoScrollProvider';
 
 // The types a `DragAutoScroll.*` consumer needs to type extracted callbacks and
 // props, re-exported so this entry point is self-sufficient (they also remain

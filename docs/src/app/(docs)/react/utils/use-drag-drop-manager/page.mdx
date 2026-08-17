@@ -56,15 +56,13 @@ manager.registerDraggable(element, () => ({ kind: card, payload: id }));
 
 ### Drag preview
 
-With no preview part to nest, describe a custom preview on the registration with `dragPreview`. Omit it to render no preview. For a full-fidelity source clone, use `Draggable.createClonedPreview()`:
+With no preview part to nest, an imperative source uses the same full-fidelity clone by default. Pass `dragPreview` only to configure or replace it:
 
 ```tsx title="A cloned preview for a registered source"
-import { Draggable } from '@base-ui/react/draggable';
-
 manager.registerDraggable(element, () => ({
   kind: card,
   payload: id,
-  dragPreview: Draggable.createClonedPreview({ offset: 'pointer' }),
+  dragPreview: { offset: 'pointer' },
 }));
 ```
 
@@ -82,7 +80,7 @@ manager.registerDraggable(element, () => ({
 }));
 ```
 
-A `render` needs a [`Draggable.PreviewProvider`](/react/drag-and-drop/overview#setup) in the tree, like a `Draggable.Preview` does, and throws without one. A source using `createClonedPreview` needs no provider.
+A `render` needs a [`Draggable.PreviewProvider`](/react/drag-and-drop/overview#setup) in the tree, like a `Draggable.Preview` does, and throws without one. A source that uses the default clone needs no provider.
 
 ## Drop targets
 
@@ -99,7 +97,7 @@ manager.registerDropTarget(element, () => ({
 
 ## Auto-scroll
 
-Scroll containers auto-scroll during a drag on their own, including the page, so `registerAutoScroller` is not what turns that on — it changes what one element does. It takes the same parameters as [`DragAutoScroll.Root`](/react/components/drag-auto-scroll): `allowedAxis` to restrict the scroll to one axis, `canScroll` to suspend it, `maxSpeed` to tune how fast it goes, and `applyScroll` to move the surface yourself. That last one is often reached for here rather than through the component: a canvas whose camera is a CSS `transform` is never found by the engine — it has no scroll offsets to detect — and is usually rendered by code that already holds a ref to its viewport.
+`registerAutoScroller` enables inferred auto-scroll and configures one element imperatively. When a [`DragAutoScroll.Provider`](/react/components/drag-auto-scroll) is already mounted, the enabling half is redundant and the registration simply changes what that element does. It takes the same parameters as `DragAutoScroll.Root`: `allowedAxis` to restrict the scroll to one axis, `canScroll` to suspend it, `maxSpeed` to tune how fast it goes, and `applyScroll` to move the surface yourself. That last one is often reached for here rather than through the component: a canvas whose camera is a CSS `transform` is never found by the engine — it has no scroll offsets to detect — and is usually rendered by code that already holds a ref to its viewport.
 
 ```tsx title="A surface that pans itself"
 manager.registerAutoScroller(canvasViewport, () => ({ applyScroll: panBy }));
@@ -111,7 +109,7 @@ Register `document.documentElement` to customize or disable page auto-scroll.
 manager.registerAutoScroller(document.documentElement, () => ({ canScroll: () => false }));
 ```
 
-A container that mounts later — one behind data loading, or owned by a third-party widget — needs no advance registration: it is inferred as soon as a drag reaches it. Register it only to change what it does, once you hold the element.
+With a provider mounted, a container that appears later — one behind data loading, or owned by a third-party widget — is inferred as soon as a drag reaches it. Register it only to change what it does, once you hold the element.
 
 ```tsx title="A container that appears later"
 React.useEffect(() => {

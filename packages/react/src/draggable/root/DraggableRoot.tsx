@@ -34,6 +34,8 @@ const DEFAULT_KEYBOARD_ROLE_PROPS = { role: 'button' } as const;
  * keyboard and dropped on matching drop targets.
  * Renders a `<div>` element.
  *
+ * While dragging, a clone of the element follows the pointer by default.
+ *
  * Documentation: [Base UI Draggable](https://base-ui.com/react/components/draggable)
  */
 export const DraggableRoot = React.forwardRef(function DraggableRoot<TData = undefined>(

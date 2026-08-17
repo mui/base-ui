@@ -10,6 +10,8 @@ Makes its element a drag source, so it can be picked up with the pointer or the
 keyboard and dropped on matching drop targets.
 Renders a `<div>` element.
 
+While dragging, a clone of the element follows the pointer by default.
+
 **Root Props:**
 
 | Prop                  | Type                                                                                                                                                                                                                                               | Default      | Description                                                                                                                                                                                                                                                                                                                                          |
@@ -229,11 +231,10 @@ type DraggableRootPropsWithPayload<TData> = (
 
 ### ClonedPreview
 
-Enables a full-fidelity clone of the source as the drag preview.
+Configures the full-fidelity clone of the source shown by default.
 Renders nothing.
 
-Reach for it when the preview should preserve the source's DOM and live form,
-canvas, and scroll state.
+Reach for it to place or constrain the default cloned preview.
 Use a `Draggable.Preview` instead to replace the clone with your own content.
 
 The clone carries the source's own classes, so style it with `[data-drag-preview]`
@@ -251,23 +252,6 @@ the way you would without this part.
 ### ClonedPreview.Props
 
 Re-export of [ClonedPreview](#clonedpreview) props.
-
-### createClonedPreview
-
-Creates the full-fidelity cloned preview configuration for a source registered
-with `useDragDropManager`.
-
-**Parameters:**
-
-| Parameter | Type                  | Default | Description |
-| :-------- | :-------------------- | :------ | :---------- |
-| settings? | `DragPreviewSettings` | -       | -           |
-
-**Return Value:**
-
-```tsx
-type ReturnValue = DragPreviewParameters;
-```
 
 ### createGlobalKind
 
@@ -467,7 +451,8 @@ type DraggableHandleState = {
 
 ### Preview
 
-Customizes what follows the pointer while the draggable is dragged.
+Customizes what follows the pointer while the draggable is dragged, replacing
+the default clone of the source.
 Renders a `<div>` element.
 
 Renders nothing where you write it: the content renders in the nearest
@@ -520,7 +505,7 @@ from providers above this component, but not from providers nested between it
 and an individual draggable. Place it inside every local context boundary the
 preview needs. Renders no element of its own.
 
-This provider is optional for `Draggable.ClonedPreview`.
+This provider is optional for the default clone and `Draggable.ClonedPreview`.
 
 **PreviewProvider Props:**
 
@@ -1570,8 +1555,7 @@ type DragPreviewOffsetParameters = {
 ### DragPreviewParameters
 
 The drag preview of a source registered imperatively.
-Omit it to render no preview. Use `Draggable.createClonedPreview()` for a
-full-fidelity clone of the source.
+Omit it to use a full-fidelity clone of the source.
 
 Components describe the preview with `Draggable.Preview` or
 `Draggable.ClonedPreview` instead.
@@ -1579,7 +1563,7 @@ Components describe the preview with `Draggable.Preview` or
 ```typescript
 type DragPreviewParameters<TSourceData = unknown> = {
   /**
-   * Renders the preview content.
+   * Renders the preview content, replacing the default clone of the source.
    * Return `null` or `false` to show no preview for this drag.
    */
   render?: (parameters: DragPreviewRenderEvent<TSourceData>) => React.ReactNode;
@@ -1929,7 +1913,6 @@ type matches =
 - `Draggable.ClonedPreview`: `Draggable.ClonedPreview`, `Draggable.ClonedPreview.Props`
 - `Draggable.PreviewProvider`: `Draggable.PreviewProvider`, `Draggable.PreviewProvider.State`, `Draggable.PreviewProvider.Props`
 - `Draggable.Displacement`
-- `Draggable.createClonedPreview`
 - `Draggable.useActiveDrag`: `Draggable.useActiveDrag`, `Draggable.useActiveDrag.ReturnValue`
 - `Draggable.createKind`
 - `Draggable.createGlobalKind`

@@ -22,7 +22,7 @@ export interface DragPreviewContext {
  * The nearest `Draggable.PreviewProvider`, or `null` when there is none.
  *
  * The drag engine is global — draggables, drop targets, monitors, auto-scrollers
- * and cloned previews all work with no provider at all. The React layer is not:
+ * and the default clone all work with no provider at all. The React layer is not:
  * a preview with content has to render in a React tree, so a `Draggable.Preview`
  * (or an imperative `dragPreview.render`) needs a provider and throws without one.
  */

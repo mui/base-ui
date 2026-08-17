@@ -12,7 +12,7 @@ import type { DragPreviewOffset, DragInput } from '../../../types/drag';
  * and `input` are captured at drag start so an offset *callback* can be resolved
  * once the content has rendered and the host has a size.
  *
- * A drag whose preview is a clone publishes nothing here — the engine
+ * A drag whose preview is the default clone publishes nothing here — the engine
  * builds it without React.
  */
 export interface DragPreviewState {

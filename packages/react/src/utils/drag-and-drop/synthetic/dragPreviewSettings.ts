@@ -2,11 +2,11 @@ import type * as React from 'react';
 import type { DraggableConfig } from '../draggable';
 import { resolveElementReference } from '../utils';
 import type { DragModifiers, DragPreviewOffset, DragPreviewRenderEvent } from '../../../types/drag';
-import { createDragPreviewHostElement, type DragPreviewElementFactory } from './cloneDragPreview';
 import {
-  dragPreviewElementFactory,
-  type DragPreviewParametersWithFactory,
-} from './previewElementFactory';
+  createClonedDragPreviewElement,
+  createDragPreviewHostElement,
+  type DragPreviewElementFactory,
+} from './cloneDragPreview';
 
 interface ResolvedDragPreviewBase {
   offset: DragPreviewOffset | undefined;
@@ -24,7 +24,7 @@ interface ResolvedDragPreviewBase {
  */
 export type ResolvedDragPreview<TData = unknown> = ResolvedDragPreviewBase &
   (
-    | { content: 'none' | 'clone'; render: null }
+    | { content: 'clone'; render: null }
     | {
         content: 'host';
         render: (parameters: DragPreviewRenderEvent<TData>) => React.ReactNode;
@@ -47,11 +47,9 @@ export function resolveDragPreview<TData = unknown>(
   const settings = declaration ?? parameters.dragPreview;
   const render = settings?.render ?? null;
   const disabled = settings?.disabled ?? false;
-  const imperativeFactory = (settings as DragPreviewParametersWithFactory<TData> | undefined)?.[
-    dragPreviewElementFactory
-  ];
-  const createPreviewElement = declaration?.createPreviewElement ?? imperativeFactory ?? null;
-  const hasPreview = !disabled && (createPreviewElement !== null || render !== null);
+  const createPreviewElement =
+    declaration?.createPreviewElement ??
+    (render ? createDragPreviewHostElement : createClonedDragPreviewElement);
 
   // A part's (or an imperative source's) own container wins over the subtree
   // default a `Draggable.PreviewProvider` set; with neither, the engine injects
@@ -61,18 +59,14 @@ export function resolveDragPreview<TData = unknown>(
   const base: ResolvedDragPreviewBase = {
     offset: settings?.offset,
     modifiers: settings?.modifiers,
-    // Can be a callback, so leave it uninvoked when there is no preview to inject.
-    container: hasPreview ? resolveElementReference(container, source) : null,
+    // Can be a callback, so leave it uninvoked when the preview is disabled.
+    container: disabled ? null : resolveElementReference(container, source),
     disabled,
-    createPreviewElement: disabled
-      ? null
-      : (createPreviewElement ?? (render ? createDragPreviewHostElement : null)),
+    createPreviewElement: disabled ? null : createPreviewElement,
   };
 
   if (render) {
     return { ...base, content: 'host', render };
   }
-  return base.createPreviewElement
-    ? { ...base, content: 'clone', render: null }
-    : { ...base, content: 'none', render: null };
+  return { ...base, content: 'clone', render: null };
 }

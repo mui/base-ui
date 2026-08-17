@@ -1339,12 +1339,11 @@ describe('Draggable.Root', () => {
     });
   });
 
-  describe('opt-in clone preview', () => {
+  describe('default clone preview', () => {
     function PlainDraggable(props: { options?: Partial<Draggable.Root.Props> }) {
       return (
         <Draggable.Root kind={testDragKind} {...props.options} data-testid="drag" className="Card">
           Card
-          <Draggable.ClonedPreview />
         </Draggable.Root>
       );
     }
@@ -1452,21 +1451,6 @@ describe('Draggable.Root', () => {
       expect(document.querySelector('[data-drag-preview]')).toBeNull();
       expect(source).not.toHaveAttribute('data-dragging');
     });
-  });
-
-  it('renders no preview when no preview part is declared', async () => {
-    await renderDnd(
-      <Draggable.Root kind={testDragKind} data-testid="drag" className="Card">
-        Card
-      </Draggable.Root>,
-    );
-    const source = screen.getByTestId('drag');
-    source.getBoundingClientRect = () => new DOMRect(0, 0, 200, 100);
-
-    fireEvent.dragStart(source);
-
-    expect(source).toHaveAttribute('data-dragging');
-    expect(document.querySelector('[data-drag-preview]')).toBeNull();
   });
 
   describe('Draggable.ClonedPreview', () => {
@@ -2252,7 +2236,7 @@ describe('Draggable.Root', () => {
       ).toBe(screen.getByTestId('from-part'));
     });
 
-    it('relocates an opted-in clone through a provider container too', async () => {
+    it('relocates the default clone through a provider container too', async () => {
       function Wiring() {
         const containerRef = React.useRef<HTMLDivElement>(null);
         return (
@@ -2477,10 +2461,10 @@ describe('Draggable.Root', () => {
             engine.registerDraggable(elementRef.current!, () => ({
               kind: cardKind,
               getPayload: () => ({ id: 'a' }),
-              dragPreview: Draggable.createClonedPreview({
+              dragPreview: {
                 modifiers: Draggable.restrictToElement(boundsRef),
                 offset: 'pointer',
-              }),
+              },
             })),
           [engine],
         );
@@ -2518,7 +2502,7 @@ describe('Draggable.Root', () => {
               engine.registerDraggable(elementRef.current!, () => ({
                 kind: cardKind,
                 getPayload: () => ({ id: 'a' }),
-                dragPreview: Draggable.createClonedPreview({ container: host }),
+                dragPreview: { container: host },
               })),
             [engine],
           );

@@ -88,7 +88,6 @@ function SortableItem({
       {/* The opt-in part measures how far each reorder pushes this item and
           publishes `data-displacing` and the displacement variables. */}
       <Draggable.Displacement />
-      <Draggable.ClonedPreview />
       <Grip />
       {item.label}
     </Draggable.Root>

@@ -10,8 +10,8 @@ import type { RegisterAutoScrollerParameters } from '../../types/dragRegistratio
 import { useRegistrationRef } from '../../utils/drag-and-drop/useRegistrationRef';
 
 /**
- * Enables auto-scroll and configures the element the returned `ref` is attached
- * to as an auto-scroll container. Backs
+ * Configures the element the returned `ref` is attached to as an auto-scroll
+ * container, and enables auto-scroll when used without a provider. Backs
  * `DragAutoScroll.Root`.
  *
  * Once enabled, the engine also infers nested scroll containers from the DOM.

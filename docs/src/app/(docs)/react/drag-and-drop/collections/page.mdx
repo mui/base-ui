@@ -102,17 +102,19 @@ function useDropIndicator() {
 
 ## Scrolling a long list
 
-A drag has to be able to reach the part of a list that is scrolled out of view. Render `DragAutoScroll.Root` as the scroll container to opt into inferred scrolling as the pointer nears one of its edges.
+A drag has to be able to reach the part of a list that is scrolled out of view. Wrap the collection area in `DragAutoScroll.Provider` to enable inferred scrolling as the pointer nears an edge. Scrollable descendants require no annotation.
 
 ```tsx title="A scrollable, reorderable list"
-<DragAutoScroll.Root style={{ maxHeight: 400, overflowY: 'auto' }}>
-  {items.map((item) => (
-    <Row key={item.id} item={item} />
-  ))}
-</DragAutoScroll.Root>
+<DragAutoScroll.Provider>
+  <div style={{ maxHeight: 400, overflowY: 'auto' }}>
+    {items.map((item) => (
+      <Row key={item.id} item={item} />
+    ))}
+  </div>
+</DragAutoScroll.Provider>
 ```
 
-Configure the [`DragAutoScroll.Root`](/react/components/drag-auto-scroll) to leave a nested scroller alone, cap the speed, or drive a surface that has no scrollbar at all.
+Use [`DragAutoScroll.Root`](/react/components/drag-auto-scroll) only to leave a nested scroller alone, cap its speed, or drive a surface that has no scrollbar at all.
 
 Auto-scroll runs for pointer drags only. A keyboard drag moves between targets rather than by position, so the engine scrolls the target it lands on into view instead.
 
@@ -168,7 +170,7 @@ The `payload` on records read from `location.current.dropTargets` is typed `unkn
 
 **A custom preview throws.** Preview content renders in React, so it needs a `Draggable.PreviewProvider` above it, and above the component calling `useDragDropManager` for imperative registrations. A source with no preview part clones itself and needs no provider.
 
-**Auto-scroll does nothing.** The container must be scrollable on its own: a scrollable `overflow` plus a size that constrains its content, and something left to scroll on the axis the pointer is pushing toward. A surface with no scrollbar — a canvas moved by a `transform` — is never found by the engine and moves itself through [`applyScroll`](/react/components/drag-auto-scroll#drive-a-surface-that-has-no-scroll-container) instead. Auto-scroll also runs for pointer drags only.
+**Auto-scroll does nothing.** First mount `DragAutoScroll.Provider` or register a `DragAutoScroll.Root`. The container must also be scrollable on its own: a scrollable `overflow` plus a size that constrains its content, and something left to scroll on the axis the pointer is pushing toward. A surface with no scrollbar — a canvas moved by a `transform` — is never found by the engine and moves itself through [`applyScroll`](/react/components/drag-auto-scroll#drive-a-surface-that-has-no-scroll-container) instead. Auto-scroll also runs for pointer drags only.
 
 **Keyboard dragging does nothing on an imperatively registered source.** `registerDraggable` does not manage `tabIndex` the way `Draggable.Root` does. Make the element focusable yourself.
 

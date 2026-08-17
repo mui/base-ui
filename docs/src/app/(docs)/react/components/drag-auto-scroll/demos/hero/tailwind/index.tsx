@@ -169,6 +169,16 @@ function DropZone({
       )}
     </React.Fragment>
   );
+  const scrollRegion =
+    maxSpeed === undefined ? (
+      <div ref={listRef} className={LIST_CLASS}>
+        {cards}
+      </div>
+    ) : (
+      <DragAutoScroll.Root ref={listRef} className={LIST_CLASS} maxSpeed={maxSpeed}>
+        {cards}
+      </DragAutoScroll.Root>
+    );
 
   return (
     <DropTarget.Root
@@ -196,9 +206,7 @@ function DropZone({
       <span className="text-[0.75rem] leading-4 font-semibold text-neutral-500 dark:text-neutral-400">
         {label}
       </span>
-      <DragAutoScroll.Root ref={listRef} className={LIST_CLASS} maxSpeed={maxSpeed}>
-        {cards}
-      </DragAutoScroll.Root>
+      {scrollRegion}
     </DropTarget.Root>
   );
 }
@@ -237,27 +245,29 @@ export default function AutoScrollBoard() {
   }, [tasks]);
 
   return (
-    <div ref={rootRef} className="flex w-full flex-col gap-4 select-none">
-      <p className="m-0 text-sm leading-5 text-neutral-500 dark:text-neutral-400">
-        Drag the card into either list, at the slot you want. Both scroll when you near an edge.
-        Only the second one declares anything.
-      </p>
-      <div className="flex items-center gap-3">
-        <Card task={pending} draggable />
+    <DragAutoScroll.Provider>
+      <div ref={rootRef} className="flex w-full flex-col gap-4 select-none">
+        <p className="m-0 text-sm leading-5 text-neutral-500 dark:text-neutral-400">
+          Drag the card into either list, at the slot you want. The provider enables both; only the
+          second list configures its region.
+        </p>
+        <div className="flex items-center gap-3">
+          <Card task={pending} draggable />
+        </div>
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <DropZone
+            label="Default"
+            tasks={tasks.plain}
+            onInsert={(task, index) => insert('plain', task, index)}
+          />
+          <DropZone
+            label="maxSpeed={150}"
+            tasks={tasks.slow}
+            maxSpeed={150}
+            onInsert={(task, index) => insert('slow', task, index)}
+          />
+        </div>
       </div>
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-        <DropZone
-          label="Default"
-          tasks={tasks.plain}
-          onInsert={(task, index) => insert('plain', task, index)}
-        />
-        <DropZone
-          label="maxSpeed={150}"
-          tasks={tasks.slow}
-          maxSpeed={150}
-          onInsert={(task, index) => insert('slow', task, index)}
-        />
-      </div>
-    </div>
+    </DragAutoScroll.Provider>
   );
 }

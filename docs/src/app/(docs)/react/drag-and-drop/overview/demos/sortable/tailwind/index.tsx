@@ -103,7 +103,6 @@ function SortableItem({
       className={ITEM_CLASS}
     >
       <Draggable.Displacement />
-      <Draggable.ClonedPreview />
       <Grip />
       {item.label}
     </Draggable.Root>

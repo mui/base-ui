@@ -12,25 +12,27 @@ import { DemoDragAutoScrollCanvas } from './demos/canvas';
 
 <DemoDragAutoScrollHero />
 
-Auto-scroll is an explicit feature boundary. Both lists above use `DragAutoScroll.Root`: the first uses inferred scrolling with the defaults, and the second reduces its speed.
+Auto-scroll is an explicit feature boundary. The board above uses `DragAutoScroll.Provider` once to enable inferred scrolling for both lists. Only the second list uses `DragAutoScroll.Root`, to reduce its speed.
 
-Once a root is registered, the engine infers nested scroll containers around the source, pointer, and drop target. The same component also covers [customizing a container that already scrolls](#customize-a-container-that-already-scrolls), and [driving a surface that has none](#drive-a-surface-that-has-no-scroll-container), such as a canvas panned by a CSS `transform`.
+Once a provider is mounted, the engine infers nested scroll containers around every source, pointer, and drop target. No scrollable element needs to be annotated. Use `DragAutoScroll.Root` for [customizing a container that already scrolls](#customize-a-container-that-already-scrolls), or [driving a surface that has none](#drive-a-surface-that-has-no-scroll-container), such as a canvas panned by a CSS `transform`.
 
 It pairs with [Draggable](/react/components/draggable) and [DropTarget](/react/components/drop-target). For auto-scroll inside a reorderable list, see the [collections guide](/react/drag-and-drop/collections). Auto-scroll runs for pointer drags only; a keyboard drag scrolls the focused target into view instead.
 
 ## Anatomy
 
-Import the component and render it as the scroll-region boundary:
+Import the component and wrap the application area whose lifetime should enable auto-scroll:
 
 ```jsx title="Anatomy"
 import { DragAutoScroll } from '@base-ui/react/drag-auto-scroll';
 
-<DragAutoScroll.Root className="ScrollableBoard">{children}</DragAutoScroll.Root>;
+<DragAutoScroll.Provider>{children}</DragAutoScroll.Provider>;
 ```
+
+The provider renders no element and does not scope drag-and-drop through React context. Base UI's drag manager is page-global, so while any provider is mounted, inferred auto-scroll is enabled for every drag source managed by Base UI. Set `disabled` to suspend this provider's activation without replacing it in the React tree. Another provider or root can keep auto-scroll active.
 
 ## Which containers scroll
 
-While a `DragAutoScroll.Root` is mounted, scrollable ancestors under the pointer and around the dragged element can auto-scroll, including the page.
+While a `DragAutoScroll.Provider`, `DragAutoScroll.Root`, or imperative auto-scroller registration is mounted, scrollable ancestors under the pointer and around the dragged element can auto-scroll, including the page.
 
 An element participates on axes whose computed `overflow` is `auto`, `scroll`, or `overlay`. Use `hidden` or `clip` to exclude an axis.
 
@@ -42,7 +44,7 @@ Drop targets are resolved again as content scrolls, so a target that moves under
 
 ## Customize a container that already scrolls
 
-Use these props to control which drags a container reacts to, which axes it moves on, its speed, and whether it participates.
+`DragAutoScroll.Root` is self-sufficient, so it can enable auto-scroll for one configured region without a provider. Inside a provider, use it only where a container needs to control which drags it reacts to, which axes it moves on, its speed, or whether it participates.
 
 ### Control when it scrolls
 
@@ -170,7 +172,7 @@ You can pass a `DragAutoScroll.Root` to a `DropTarget.Root`'s `render` prop when
 
 ## Scrolling the page
 
-The inferred walk ends at the document root, so dragging near the viewport edge can scroll the page after auto-scroll has been enabled by a mounted `DragAutoScroll.Root` or an imperative registration. Its edge zones follow the viewport, and inner containers still win.
+The inferred walk ends at the document root, so dragging near the viewport edge can scroll the page after auto-scroll has been enabled by a mounted provider, root, or imperative registration. Its edge zones follow the viewport, and inner containers still win.
 
 You can stop page auto-scroll on an axis with `overflow: hidden` or `clip` on `<html>` or `<body>`.
 
@@ -208,6 +210,10 @@ generated table below renders those signatures at the _default_ type (`unknown`)
 because the reference is extracted without concrete type arguments.
 
 import { TypesDragAutoScroll } from './types';
+
+### Provider
+
+<TypesDragAutoScroll.Provider hideDescription />
 
 ### Root
 

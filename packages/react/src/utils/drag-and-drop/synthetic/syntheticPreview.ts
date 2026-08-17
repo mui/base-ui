@@ -91,7 +91,7 @@ export function createSyntheticPreview(
   let preparedForDrop = false;
   let endingCleanup: (() => void) | null = null;
 
-  // The element that follows the pointer: an opted-in clone of the source, or the host a
+  // The element that follows the pointer: a clone of the source, or the host a
   // `Draggable.Preview` renders into. Either way it lives in the source's own DOM
   // position, and both sensors drive `update`, so it works for pointer and keyboard
   // drags alike.
