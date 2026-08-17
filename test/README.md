@@ -175,6 +175,8 @@ Checkout the [end-to-end testing readme](./e2e/README.md) for more information.
 
 Screen reader tests use [Guidepup](https://www.guidepup.dev/) with the existing end-to-end
 fixtures. They run in a headed Chromium browser with VoiceOver on macOS or NVDA on Windows.
+The screen reader must use English because the tests and Guidepup's navigation match English
+announcements.
 
 The setup package is installed by `pnpm install`. On macOS, developers who run these tests must
 configure their host once:

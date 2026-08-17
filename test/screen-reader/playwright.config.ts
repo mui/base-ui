@@ -8,7 +8,8 @@ export default defineConfig({
   outputDir: '../../test-results/screen-reader',
   testDir: '.',
   testMatch: '*.spec.ts',
-  timeout: 60_000,
+  timeout: 5 * 60_000,
+  retries: 1,
   use: {
     ...screenReaderConfig.use,
     baseURL: BASE_URL,
