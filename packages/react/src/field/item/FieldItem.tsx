@@ -1,13 +1,12 @@
 'use client';
 import * as React from 'react';
-import { FieldRoot } from '../root/FieldRoot';
-import { useFieldRootContext } from '../root/FieldRootContext';
-import { fieldValidityMapping } from '../utils/constants';
-import type { BaseUIComponentProps } from '../../utils/types';
-import { useRenderElement } from '../../utils/useRenderElement';
+import { type FieldRootState } from '../root/FieldRoot';
+import { useFieldRootContext } from '../../internals/field-root-context/FieldRootContext';
+import { fieldValidityMapping } from '../../internals/field-constants/constants';
+import type { BaseUIComponentProps } from '../../internals/types';
+import { useRenderElement } from '../../internals/useRenderElement';
 import { FieldItemContext } from './FieldItemContext';
-import { LabelableProvider } from '../../labelable-provider';
-import { useCheckboxGroupContext } from '../../checkbox-group/CheckboxGroupContext';
+import { LabelableProvider } from '../../internals/labelable-provider';
 
 /**
  * Groups individual items in a checkbox group or radio group with a label and description.
@@ -19,19 +18,18 @@ export const FieldItem = React.forwardRef(function FieldItem(
   componentProps: FieldItem.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { render, className, disabled: disabledProp = false, ...elementProps } = componentProps;
+  const {
+    render,
+    className,
+    style,
+    disabled: disabledProp = false,
+    ...elementProps
+  } = componentProps;
 
-  const { state, disabled: rootDisabled } = useFieldRootContext(false);
+  const { state: fieldState, disabled: rootDisabled } = useFieldRootContext(false);
 
   const disabled = rootDisabled || disabledProp;
-
-  const checkboxGroupContext = useCheckboxGroupContext();
-  // checkboxGroupContext.parent is truthy even if no parent checkbox is involved
-  const parentId = checkboxGroupContext?.parent.id;
-  // this a more reliable check
-  const hasParentCheckbox = checkboxGroupContext?.allValues !== undefined;
-
-  const initialControlId = hasParentCheckbox ? parentId : undefined;
+  const state: FieldItemState = { ...fieldState, disabled };
 
   const fieldItemContext: FieldItemContext = React.useMemo(() => ({ disabled }), [disabled]);
 
@@ -43,13 +41,15 @@ export const FieldItem = React.forwardRef(function FieldItem(
   });
 
   return (
-    <LabelableProvider initialControlId={initialControlId}>
+    <LabelableProvider>
       <FieldItemContext.Provider value={fieldItemContext}>{element}</FieldItemContext.Provider>
     </LabelableProvider>
   );
 });
 
-export interface FieldItemProps extends BaseUIComponentProps<'div', FieldItem.State> {
+export interface FieldItemState extends FieldRootState {}
+
+export interface FieldItemProps extends BaseUIComponentProps<'div', FieldItemState> {
   /**
    * Whether the wrapped control should ignore user interaction.
    * The `disabled` prop on `<Field.Root>` takes precedence over this.
@@ -59,6 +59,6 @@ export interface FieldItemProps extends BaseUIComponentProps<'div', FieldItem.St
 }
 
 export namespace FieldItem {
-  export type State = FieldRoot.State;
+  export type State = FieldItemState;
   export type Props = FieldItemProps;
 }

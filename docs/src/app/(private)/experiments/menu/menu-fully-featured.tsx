@@ -1,11 +1,10 @@
 'use client';
 import * as React from 'react';
 import { Menu } from '@base-ui/react/menu';
-import {
-  SettingsMetadata,
-  useExperimentSettings,
-} from '../../../../components/Experiments/SettingsPanel';
-import '../../../../demo-theme.css';
+import clsx from 'clsx';
+import NextLink from 'next/link';
+import { SettingsMetadata, useExperimentSettings } from '../_components/SettingsPanel';
+import '../../../../demo-data/theme/css-modules/theme.css';
 import classes from './menu.module.css';
 
 interface Settings {
@@ -44,7 +43,7 @@ export default function MenuFullyFeatured() {
         >
           Menu <ChevronDownIcon className={classes.ButtonIcon} />
         </Menu.Trigger>
-        <Menu.Portal keepMounted>
+        <Menu.Portal>
           <Menu.Positioner
             className={classes.Positioner}
             sideOffset={8}
@@ -61,6 +60,23 @@ export default function MenuFullyFeatured() {
               </Menu.Item>
               <Menu.Item className={classes.Item} onClick={handleItemClick}>
                 Item 2
+              </Menu.Item>
+              <Menu.LinkItem
+                href="https://base-ui.com"
+                className={clsx(classes.Item, classes.LinkItem)}
+              >
+                Link 1 (base-ui.com)
+              </Menu.LinkItem>
+              <Menu.LinkItem
+                render={<a href="https://github.com">Link 2 (github.com)</a>}
+                className={clsx(classes.Item, classes.LinkItem)}
+              />
+              <Menu.LinkItem
+                render={<NextLink href="/experiments">Link 3 (/experiments)</NextLink>}
+                className={clsx(classes.Item, classes.LinkItem)}
+              />
+              <Menu.Item className={classes.Item} onClick={handleItemClick}>
+                Item 3
               </Menu.Item>
               <Menu.Separator className={classes.Separator} />
               <Menu.Item className={classes.Item} closeOnClick={false} onClick={handleItemClick}>
@@ -80,7 +96,7 @@ export default function MenuFullyFeatured() {
                 <Menu.Portal>
                   <Menu.Positioner className={classes.Positioner} sideOffset={8}>
                     <Menu.Popup className={classes.Popup}>
-                      <div>Non-focusable text</div>
+                      <div className={classes.NonFocusableText}>Non-focusable text</div>
                       <Menu.Group>
                         <Menu.GroupLabel className={classes.GroupLabel}>
                           Radio items
@@ -255,7 +271,7 @@ export const settingsMetadata: SettingsMetadata<Settings> = {
 function ChevronDownIcon(props: React.ComponentProps<'svg'>) {
   return (
     <svg width="10" height="10" viewBox="0 0 10 10" fill="none" {...props}>
-      <path d="M1 3.5L5 7.5L9 3.5" stroke="currentcolor" strokeWidth="1.5" />
+      <path d="M1 3.5L5 7.5L9 3.5" stroke="currentColor" strokeWidth="1.5" />
     </svg>
   );
 }
@@ -263,7 +279,7 @@ function ChevronDownIcon(props: React.ComponentProps<'svg'>) {
 function ChevronRightIcon(props: React.ComponentProps<'svg'>) {
   return (
     <svg width="10" height="10" viewBox="0 0 10 10" fill="none" {...props}>
-      <path d="M3.5 9L7.5 5L3.5 1" stroke="currentcolor" strokeWidth="1.5" />
+      <path d="M3.5 9L7.5 5L3.5 1" stroke="currentColor" strokeWidth="1.5" />
     </svg>
   );
 }
@@ -289,7 +305,7 @@ function ArrowIcon(props: React.ComponentProps<'svg'>) {
 
 function CheckIcon(props: React.ComponentProps<'svg'>) {
   return (
-    <svg fill="currentcolor" width="10" height="10" viewBox="0 0 10 10" {...props}>
+    <svg fill="currentColor" width="10" height="10" viewBox="0 0 10 10" {...props}>
       <path d="M9.1603 1.12218C9.50684 1.34873 9.60427 1.81354 9.37792 2.16038L5.13603 8.66012C5.01614 8.8438 4.82192 8.96576 4.60451 8.99384C4.3871 9.02194 4.1683 8.95335 4.00574 8.80615L1.24664 6.30769C0.939709 6.02975 0.916013 5.55541 1.19372 5.24822C1.47142 4.94102 1.94536 4.91731 2.2523 5.19524L4.36085 7.10461L8.12299 1.33999C8.34934 0.993152 8.81376 0.895638 9.1603 1.12218Z" />
     </svg>
   );

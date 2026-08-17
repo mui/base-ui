@@ -8,7 +8,10 @@ export function Root({ className, ...props }: Slider.Root.Props<any>) {
 
 export function Value({ className, ...props }: Slider.Value.Props) {
   return (
-    <Slider.Value className={clsx('text-sm font-medium text-gray-900', className)} {...props} />
+    <Slider.Value
+      className={clsx('text-sm font-normal text-neutral-950 dark:text-white', className)}
+      {...props}
+    />
   );
 }
 
@@ -24,10 +27,7 @@ export function Control({ className, ...props }: Slider.Control.Props) {
 export function Track({ className, ...props }: Slider.Track.Props) {
   return (
     <Slider.Track
-      className={clsx(
-        'h-1 w-full rounded bg-gray-200 shadow-[inset_0_0_0_1px] shadow-gray-200 select-none',
-        className,
-      )}
+      className={clsx('h-1 w-full bg-neutral-200 select-none dark:bg-neutral-800', className)}
       {...props}
     />
   );
@@ -35,7 +35,10 @@ export function Track({ className, ...props }: Slider.Track.Props) {
 
 export function Indicator({ className, ...props }: Slider.Indicator.Props) {
   return (
-    <Slider.Indicator className={clsx('rounded bg-gray-700 select-none', className)} {...props} />
+    <Slider.Indicator
+      className={clsx('bg-neutral-950 select-none dark:bg-white', className)}
+      {...props}
+    />
   );
 }
 
@@ -43,7 +46,7 @@ export function Thumb({ className, ...props }: Slider.Thumb.Props) {
   return (
     <Slider.Thumb
       className={clsx(
-        'size-4 rounded-full bg-white outline outline-gray-300 select-none has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-blue-800',
+        'size-4 border border-neutral-950 bg-white select-none has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-neutral-950 dark:has-[:focus-visible]:outline-white dark:border-white dark:bg-neutral-950',
         className,
       )}
       {...props}

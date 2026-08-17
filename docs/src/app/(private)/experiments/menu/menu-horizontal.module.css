@@ -104,6 +104,7 @@
   padding: 8px;
   border-radius: 8px;
   cursor: default;
+  -webkit-user-select: none;
   user-select: none;
 
   &:last-of-type {
@@ -142,6 +143,7 @@
   padding: 8px;
   border-radius: 8px;
   cursor: default;
+  -webkit-user-select: none;
   user-select: none;
 
   &:last-of-type {

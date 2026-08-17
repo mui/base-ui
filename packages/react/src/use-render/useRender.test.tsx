@@ -1,6 +1,6 @@
+import { expect } from 'vitest';
 /* eslint-disable testing-library/render-result-naming-convention */
 import * as React from 'react';
-import { expect } from 'chai';
 import { useRender } from '@base-ui/react/use-render';
 import { createRenderer } from '#test-utils';
 
@@ -32,7 +32,7 @@ describe('useRender', () => {
 
     const element = container.firstElementChild;
 
-    expect(element).to.have.attribute('class', 'my-span ');
+    expect(element).toHaveAttribute('class', 'my-span ');
   });
 
   it('refs are handled as expected', async () => {
@@ -64,10 +64,10 @@ describe('useRender', () => {
     const { container } = await render(
       <TestComponent render={(props: any, state: any) => <span {...props} {...state} />} />,
     );
-    expect(refs.length).to.equal(2);
+    expect(refs.length).toBe(2);
 
     refs.forEach((ref) => {
-      expect(ref).to.deep.equal({ current: container.firstElementChild });
+      expect(ref).toEqual({ current: container.firstElementChild });
     });
   });
 
@@ -78,7 +78,7 @@ describe('useRender', () => {
       }
 
       const { container } = await render(<TestComponent />);
-      expect(container.firstElementChild).to.have.property('tagName', 'DIV');
+      expect(container.firstElementChild).toHaveProperty('tagName', 'DIV');
     });
 
     it('renders the element with the default tag with no render prop', async () => {
@@ -91,10 +91,10 @@ describe('useRender', () => {
       }
 
       const { container, setProps } = await render(<TestComponent defaultTagName="div" />);
-      expect(container.firstElementChild).to.have.property('tagName', 'DIV');
+      expect(container.firstElementChild).toHaveProperty('tagName', 'DIV');
 
       await setProps({ defaultTagName: 'span' });
-      expect(container.firstElementChild).to.have.property('tagName', 'SPAN');
+      expect(container.firstElementChild).toHaveProperty('tagName', 'SPAN');
     });
 
     it('is overwritten by the render prop', async () => {
@@ -111,10 +111,10 @@ describe('useRender', () => {
       const { container, setProps } = await render(
         <TestComponent defaultTagName="div" render={<span />} />,
       );
-      expect(container.firstElementChild).to.have.property('tagName', 'SPAN');
+      expect(container.firstElementChild).toHaveProperty('tagName', 'SPAN');
 
       await setProps({ defaultTagName: 'a' });
-      expect(container.firstElementChild).to.have.property('tagName', 'SPAN');
+      expect(container.firstElementChild).toHaveProperty('tagName', 'SPAN');
     });
   });
 
@@ -134,8 +134,8 @@ describe('useRender', () => {
       const { container } = await render(<TestComponent />);
       const button = container.firstElementChild;
 
-      expect(button).to.have.attribute('data-active', '');
-      expect(button).to.have.attribute('data-index', '42');
+      expect(button).toHaveAttribute('data-active', '');
+      expect(button).toHaveAttribute('data-index', '42');
     });
 
     it('handles undefined values in state', async () => {
@@ -153,8 +153,8 @@ describe('useRender', () => {
       const { container } = await render(<TestComponent />);
       const div = container.firstElementChild;
 
-      expect(div).to.have.attribute('data-defined', 'value');
-      expect(div).not.to.have.attribute('data-notdefined');
+      expect(div).toHaveAttribute('data-defined', 'value');
+      expect(div).not.toHaveAttribute('data-notdefined');
     });
 
     it('merges state-based data attributes with existing props', async () => {
@@ -176,12 +176,12 @@ describe('useRender', () => {
       const { container } = await render(<TestComponent />);
       const button = container.firstElementChild;
 
-      expect(button).to.have.attribute('data-form', 'login');
+      expect(button).toHaveAttribute('data-form', 'login');
 
-      expect(button).to.have.attribute('class', 'btn-primary');
-      expect(button).to.have.attribute('id', 'submit-btn');
+      expect(button).toHaveAttribute('class', 'btn-primary');
+      expect(button).toHaveAttribute('id', 'submit-btn');
 
-      expect(button).to.have.attribute('data-existing', 'prop');
+      expect(button).toHaveAttribute('data-existing', 'prop');
     });
 
     it('props override state-based data attributes', async () => {
@@ -201,7 +201,7 @@ describe('useRender', () => {
       const { container } = await render(<TestComponent />);
       const button = container.firstElementChild;
 
-      expect(button).to.have.attribute('data-active', 'false');
+      expect(button).toHaveAttribute('data-active', 'false');
     });
 
     it('handles empty state', async () => {
@@ -219,12 +219,12 @@ describe('useRender', () => {
       const { container } = await render(<TestComponent />);
       const span = container.firstElementChild;
 
-      expect(span).to.have.attribute('class', 'test-class');
+      expect(span).toHaveAttribute('class', 'test-class');
 
       const attributes = span?.attributes;
       if (attributes) {
         for (let i = 0; i < attributes.length; i += 1) {
-          expect(attributes[i].name).not.to.match(/^data-/);
+          expect(attributes[i].name).not.toMatch(/^data-/);
         }
       }
     });
@@ -245,8 +245,8 @@ describe('useRender', () => {
       const { container } = await render(<TestComponent />);
       const div = container.firstElementChild;
 
-      expect(div).to.have.attribute('class', 'test-class');
-      expect(div).to.have.attribute('data-from-props', 'value');
+      expect(div).toHaveAttribute('class', 'test-class');
+      expect(div).toHaveAttribute('data-from-props', 'value');
     });
 
     it('converts boolean values in state to data attributes', async () => {
@@ -264,8 +264,8 @@ describe('useRender', () => {
       const { container } = await render(<TestComponent />);
       const button = container.firstElementChild;
 
-      expect(button).to.have.attribute('data-active', '');
-      expect(button).not.to.have.attribute('data-disabled');
+      expect(button).toHaveAttribute('data-active', '');
+      expect(button).not.toHaveAttribute('data-disabled');
     });
 
     it('converts number values in state to data attributes', async () => {
@@ -284,9 +284,9 @@ describe('useRender', () => {
       const { container } = await render(<TestComponent />);
       const div = container.firstElementChild;
 
-      expect(div).not.to.have.attribute('data-count');
-      expect(div).to.have.attribute('data-index', '42');
-      expect(div).to.have.attribute('data-percentage', '99.9');
+      expect(div).not.toHaveAttribute('data-count');
+      expect(div).toHaveAttribute('data-index', '42');
+      expect(div).toHaveAttribute('data-percentage', '99.9');
     });
 
     it('supports custom stateAttributesMapping for kebab-case conversion', async () => {
@@ -310,9 +310,9 @@ describe('useRender', () => {
       const { container } = await render(<TestComponent />);
       const button = container.firstElementChild;
 
-      expect(button).to.have.attribute('data-is-active', '');
-      expect(button).to.have.attribute('data-item-count', '5');
-      expect(button).to.have.attribute('data-user-name', 'John');
+      expect(button).toHaveAttribute('data-is-active', '');
+      expect(button).toHaveAttribute('data-item-count', '5');
+      expect(button).toHaveAttribute('data-user-name', 'John');
     });
   });
 });

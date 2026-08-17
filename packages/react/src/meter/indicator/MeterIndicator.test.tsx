@@ -1,5 +1,5 @@
+import { expect } from 'vitest';
 import { screen } from '@mui/internal-test-utils';
-import { expect } from 'chai';
 import { Meter } from '@base-ui/react/meter';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 
@@ -12,6 +12,44 @@ describe('<Meter.Indicator />', () => {
     },
     refInstanceof: window.HTMLDivElement,
   }));
+
+  describe('value bounds', () => {
+    it('clamps the width to 100% when the value exceeds max', async () => {
+      await render(
+        <Meter.Root value={150}>
+          <Meter.Track>
+            <Meter.Indicator data-testid="indicator" />
+          </Meter.Track>
+        </Meter.Root>,
+      );
+
+      expect(screen.getByTestId('indicator').style.width).toBe('100%');
+    });
+
+    it('clamps the width to 0% when the value is below min', async () => {
+      await render(
+        <Meter.Root value={-10}>
+          <Meter.Track>
+            <Meter.Indicator data-testid="indicator" />
+          </Meter.Track>
+        </Meter.Root>,
+      );
+
+      expect(screen.getByTestId('indicator').style.width).toBe('0%');
+    });
+
+    it('produces a finite width when min equals max', async () => {
+      await render(
+        <Meter.Root value={5} min={5} max={5}>
+          <Meter.Track>
+            <Meter.Indicator data-testid="indicator" />
+          </Meter.Track>
+        </Meter.Root>,
+      );
+
+      expect(screen.getByTestId('indicator').style.width).toBe('0%');
+    });
+  });
 
   describe.skipIf(isJSDOM)('internal styles', () => {
     it('sets positioning styles', async () => {

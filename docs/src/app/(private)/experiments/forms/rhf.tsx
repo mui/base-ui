@@ -16,10 +16,7 @@ import { CheckboxGroup } from '@base-ui/react/checkbox-group';
 import styles from './form.module.css';
 import { CheckIcon, ChevronUpDownIcon, HorizontalRuleIcon } from './_icons';
 
-import {
-  SettingsMetadata,
-  useExperimentSettings,
-} from '../../../../components/Experiments/SettingsPanel';
+import { SettingsMetadata, useExperimentSettings } from '../_components/SettingsPanel';
 
 interface Settings {
   validationMode: Mode;
@@ -89,7 +86,7 @@ export default function ExampleForm() {
   }
 
   return (
-    <div style={{ fontFamily: 'var(--font-sans)' }}>
+    <div>
       <h1>react-hook-form</h1>
 
       <hr style={{ margin: '1rem 0' }} />

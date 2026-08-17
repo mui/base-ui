@@ -1,11 +1,11 @@
 'use client';
 import * as React from 'react';
-import { formatNumber } from '../../utils/formatNumber';
-import type { BaseUIComponentProps } from '../../utils/types';
-import { useRenderElement } from '../../utils/useRenderElement';
+import { formatNumber } from '@base-ui/utils/formatNumber';
+import type { BaseUIComponentProps } from '../../internals/types';
+import { useRenderElement } from '../../internals/useRenderElement';
 import { useSliderRootContext } from '../root/SliderRootContext';
 import { sliderStateAttributesMapping } from '../root/stateAttributesMapping';
-import type { SliderRoot } from '../root/SliderRoot';
+import type { SliderRootState } from '../root/SliderRoot';
 
 /**
  * Displays the current value of the slider as text.
@@ -22,36 +22,23 @@ export const SliderValue = React.forwardRef(function SliderValue(
     render,
     className,
     children,
+    style,
     ...elementProps
   } = componentProps;
 
-  const { thumbMap, state, values, formatOptionsRef, locale } = useSliderRootContext();
+  const { thumbMap, state, values, format, locale } = useSliderRootContext();
 
-  const outputFor = React.useMemo(() => {
-    let htmlFor = '';
-    for (const thumbMetadata of thumbMap.values()) {
-      if (thumbMetadata?.inputId) {
-        htmlFor += `${thumbMetadata.inputId} `;
-      }
-    }
-    return htmlFor.trim() === '' ? undefined : htmlFor.trim();
-  }, [thumbMap]);
+  const outputFor =
+    Array.from(thumbMap.values(), ({ inputId }) => inputId)
+      .join(' ')
+      .trim() || undefined;
 
-  const formattedValues = React.useMemo(() => {
-    const arr = [];
-    for (let i = 0; i < values.length; i += 1) {
-      arr.push(formatNumber(values[i], locale, formatOptionsRef.current ?? undefined));
-    }
-    return arr;
-  }, [formatOptionsRef, locale, values]);
+  const formattedValues = React.useMemo(
+    () => values.map((v) => formatNumber(v, locale, format)),
+    [format, locale, values],
+  );
 
-  const defaultDisplayValue = React.useMemo(() => {
-    const arr = [];
-    for (let i = 0; i < values.length; i += 1) {
-      arr.push(formattedValues[i] || values[i]);
-    }
-    return arr.join(' – ');
-  }, [values, formattedValues]);
+  const defaultDisplayValue = formattedValues.join(' – ');
 
   const element = useRenderElement('output', componentProps, {
     state,
@@ -73,15 +60,19 @@ export const SliderValue = React.forwardRef(function SliderValue(
   return element;
 });
 
+export interface SliderValueState extends SliderRootState {}
+
 export interface SliderValueProps extends Omit<
-  BaseUIComponentProps<'output', SliderRoot.State>,
+  BaseUIComponentProps<'output', SliderValueState>,
   'children'
 > {
   children?:
-    | (null | ((formattedValues: readonly string[], values: readonly number[]) => React.ReactNode))
+    | null
+    | ((formattedValues: readonly string[], values: readonly number[]) => React.ReactNode)
     | undefined;
 }
 
 export namespace SliderValue {
+  export type State = SliderValueState;
   export type Props = SliderValueProps;
 }

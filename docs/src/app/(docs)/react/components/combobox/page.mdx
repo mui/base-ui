@@ -15,7 +15,7 @@ import { DemoComboboxHero } from './demos/hero';
 - **Combobox is a filterable Select**: Use Combobox when the input is restricted to a set of predefined selectable items, similar to [Select](/react/components/select) but whose items are filterable using an input. Prefer using Combobox over Select when the number of items is sufficiently large to warrant filtering.
 - **Avoid for simple search widgets**: Combobox does not allow free-form text input. For search widgets, consider using [Autocomplete](/react/components/autocomplete) instead.
 - **Avoid when not rendering an input**: Use [Select](/react/components/select) instead of Combobox if no input is being rendered, which includes accessibility features specific to a listbox without an input.
-- **Form controls must have an accessible name**: It can be created using a `<label>` element or the `Field` component. See [Labeling a combobox](#input-inside-popup) and the [forms guide](/react/handbook/forms).
+- **Form controls must have an accessible name**: If `<Combobox.Input>` is the form control, label it with a native `<label>` or `<Field.Label>`, or provide an `aria-label` when no visible label is rendered. `<Combobox.Label>` labels `<Combobox.Trigger>` and is intended for the [input-inside-popup](#input-inside-popup) pattern, where the trigger is the form control. See the [forms guide](/react/handbook/forms).
 
 ## Anatomy
 
@@ -25,17 +25,21 @@ Import the components and place them together:
 import { Combobox } from '@base-ui/react/combobox';
 
 <Combobox.Root>
-  <Combobox.Input />
-  <Combobox.Trigger />
-  <Combobox.Icon />
-  <Combobox.Clear />
-  <Combobox.Value />
+  <Combobox.Label />
 
-  <Combobox.Chips>
-    <Combobox.Chip>
-      <Combobox.ChipRemove />
-    </Combobox.Chip>
-  </Combobox.Chips>
+  <Combobox.InputGroup>
+    <Combobox.Input />
+    <Combobox.Trigger />
+    <Combobox.Icon />
+    <Combobox.Clear />
+    <Combobox.Value />
+
+    <Combobox.Chips>
+      <Combobox.Chip>
+        <Combobox.ChipRemove />
+      </Combobox.Chip>
+    </Combobox.Chips>
+  </Combobox.InputGroup>
 
   <Combobox.Portal>
     <Combobox.Backdrop />
@@ -67,10 +71,21 @@ import { Combobox } from '@base-ui/react/combobox';
 </Combobox.Root>;
 ```
 
-## TypeScript
+## Item values
 
-Combobox infers the item type from the `defaultValue` or `value` props passed to `<Combobox.Root>`.
-The type of items held in the `items` array must also match the `value` prop type passed to `<Combobox.Item>`.
+Each `<Combobox.Item>` takes a `value` prop identifying it. Pass the item being rendered:
+
+```jsx title="Using item objects as values"
+<Combobox.List>
+  {(item) => (
+    <Combobox.Item key={item.id} value={item}>
+      {item.label}
+    </Combobox.Item>
+  )}
+</Combobox.List>
+```
+
+That item is what `value`, `defaultValue`, and `onValueChange` receive. To store IDs instead, see [Value selection with IDs](#value-selection-with-ids).
 
 ## Examples
 
@@ -82,12 +97,82 @@ The following example shows a typed wrapper around the Combobox component with c
 import * as React from 'react';
 import { Combobox } from '@base-ui/react/combobox';
 
-export function MyCombobox<Value, Multiple extends boolean | undefined = false>(
-  props: Combobox.Root.Props<Value, Multiple>,
+export function MyCombobox<Value, Multiple extends boolean | undefined = false, Item = Value>(
+  props: Combobox.Root.Props<Value, Multiple, Item>,
 ): React.JSX.Element {
   return <Combobox.Root {...props}>{/* ... */}</Combobox.Root>;
 }
 ```
+
+The third `Item` type parameter is what lets the wrapper accept a `Combobox.createItems()` collection, whose rendered item type differs from its selection value. Omit it and a collection infers `Value` as the source item type, surfacing an error on `defaultValue` rather than on `items`.
+
+### Value selection with IDs
+
+When your app stores IDs rather than item objects, use `Combobox.createItems` with `getValue` and `getLabel` to derive each item's selection value and display label.
+
+With static data, create the collection at module scope. The accessor parameters are inferred from `users`. Pass the derived ID to the `value` prop of `<Combobox.Item>`, not the item being rendered:
+
+```jsx title="Using item IDs as values"
+const items = Combobox.createItems(users, {
+  getValue: (user) => user.id,
+  getLabel: (user) => user.name,
+});
+
+<Combobox.Root items={items}>
+  <Combobox.List>
+    {(user) => (
+      <Combobox.Item key={user.id} value={user.id}>
+        {user.name}
+      </Combobox.Item>
+    )}
+  </Combobox.List>
+</Combobox.Root>;
+```
+
+Selection props and events use the derived IDs, while list rendering continues to receive the original items. The derived label is also used for filtering and typeahead.
+
+When the data is loaded or replaced at runtime, memoize the collection on it so that it is rebuilt only when the data changes:
+
+```jsx title="Creating a collection from dynamic data"
+const items = React.useMemo(
+  () =>
+    Combobox.createItems(users, {
+      getValue: (user) => user.id,
+      getLabel: (user) => user.name,
+    }),
+  [users],
+);
+```
+
+import { DemoComboboxCreateItems } from './demos/create-items';
+
+<DemoComboboxCreateItems />
+
+As a rule of thumb, use primitive items for simple lists, object values when the selected record is useful application state, and `createItems()` when selection should use a stable primitive ID while rendering and filtering still use object records.
+
+Stable IDs preserve item matching when an async data library replaces row objects during a refetch. With object values, use `isItemEqualToValue` to compare their IDs instead.
+
+When results are filtered externally (for example, by a server-side search), `items` represents records known to the app, while `filteredItems` represents the current result window displayed in the popup. Pass source items rather than derived values to `filteredItems`, preserving the flat or grouped structure of `items`:
+
+```tsx title="Displaying a window of async results"
+const items = React.useMemo(
+  () =>
+    Combobox.createItems(knownUsers, {
+      getValue: (user) => user.id,
+      getLabel: (user) => user.name,
+    }),
+  [knownUsers],
+);
+
+<Combobox.Root
+  items={items}
+  filteredItems={searchResults}
+  value={selectedUserId}
+  onValueChange={setSelectedUserId}
+/>;
+```
+
+Include the selected user's record in `knownUsers` so its label remains available when it is outside `searchResults`. Alternatively, provide `itemToStringLabel` when the label can be derived from the selected value alone.
 
 ### Multiple select
 
@@ -96,7 +181,70 @@ Selection chips are rendered with `<Combobox.Chip>` inside the input that can be
 
 import { DemoComboboxMultiple } from './demos/multiple';
 
-<DemoComboboxMultiple compact />
+<DemoComboboxMultiple />
+
+Visible chips can be limited by slicing the selected values rendered in `<Combobox.Value>`:
+
+```tsx title="Limiting visible chips"
+const CHIP_LIMIT = 3;
+
+<Combobox.Value>
+  {(selectedValue: string[]) => {
+    // @highlight-start
+    const visibleValue = selectedValue.slice(0, CHIP_LIMIT);
+    const hiddenCount = selectedValue.length - visibleValue.length;
+    // @highlight-end
+    return (
+      <>
+        {visibleValue.map((item) => (
+          <Combobox.Chip key={item}>
+            {item}
+            <Combobox.ChipRemove aria-label={`Remove ${item}`} />
+          </Combobox.Chip>
+        ))}
+        {/* @highlight-start */}
+        {hiddenCount > 0 && <span>{`+${hiddenCount} more`}</span>}
+        {/* @highlight-end */}
+        <Combobox.Input />
+      </>
+    );
+  }}
+</Combobox.Value>;
+```
+
+#### Keeping the filter after selection
+
+In `multiple` mode, selecting an item clears the typed filter and closes the popup when the input is rendered outside it. To let users pick several results from one query, cancel the relevant change request.
+
+Which request to cancel depends on the input's placement. When the input is outside the popup, cancel the `item-press` close request in `onOpenChange`. When it is inside, cancel the clear request in `onInputValueChange`, marked with `eventDetails.isItemPress`.
+
+```jsx title="Input outside the popup"
+<Combobox.Root
+  multiple
+  onOpenChange={(open, eventDetails) => {
+    if (!open && eventDetails.reason === 'item-press') {
+      eventDetails.cancel();
+    }
+  }}
+>
+  {/* ... */}
+</Combobox.Root>
+```
+
+```jsx title="Input inside the popup"
+<Combobox.Root
+  multiple
+  onInputValueChange={(value, eventDetails) => {
+    if (eventDetails.isItemPress) {
+      eventDetails.cancel();
+    }
+  }}
+>
+  {/* ... */}
+</Combobox.Root>
+```
+
+The typed filter still resets once the popup closes.
 
 ### Input inside popup
 
@@ -104,20 +252,19 @@ import { DemoComboboxMultiple } from './demos/multiple';
 
 import { DemoComboboxInputInsidePopup } from './demos/input-inside-popup';
 
-<DemoComboboxInputInsidePopup compact />
+<DemoComboboxInputInsidePopup />
 
-Use the [Field](/react/components/field) component to provide a visible label for the combobox trigger:
+Use `<Combobox.Label>` to provide a visible label for the combobox trigger in this pattern:
 
-```tsx title="Using Field to label a combobox" {2,4}
-<Field.Root>
-  <Field.Label nativeLabel={false} render={<div />}>
-    Favorite fruit
-  </Field.Label>
-  <Combobox.Root>{/* ... */}</Combobox.Root>
-</Field.Root>
+```tsx title="Using Combobox.Label to label a combobox"
+<Combobox.Root>
+  {/* @highlight */}
+  <Combobox.Label>Favorite fruit</Combobox.Label>
+  {/* ... */}
+</Combobox.Root>
 ```
 
-Replace the rendered `<label>` element with a `<div>` element and add `nativeLabel={false}` so it does not inherit native label behaviors. This ensures clicking on the label will focus the combobox trigger without opening the associated popup to match native `<select>` behavior, and prevents CSS `:hover` from activating on the trigger when hovering over the label.
+`<Combobox.Label>` renders a `<div>`, so clicking it focuses the combobox trigger without opening the popup.
 
 ### Grouped
 
@@ -125,19 +272,22 @@ Organize related options with `<Combobox.Group>` and `<Combobox.GroupLabel>` to 
 
 Groups are represented by an array of objects with an `items` property, which itself is an array of individual items for each group. An extra property, such as `value`, can be provided for the heading text when rendering the group label.
 
-```tsx title="Example" {3,9,13}
+```tsx title="Example"
 interface ProduceGroupItem {
   value: string;
+  // @highlight
   items: string[];
 }
 
 const groups: ProduceGroupItem[] = [
   {
     value: 'Fruits',
+    // @highlight
     items: ['Apple', 'Banana', 'Orange'],
   },
   {
     value: 'Vegetables',
+    // @highlight
     items: ['Carrot', 'Lettuce', 'Spinach'],
   },
 ];
@@ -145,7 +295,7 @@ const groups: ProduceGroupItem[] = [
 
 import { DemoComboboxGrouped } from './demos/grouped';
 
-<DemoComboboxGrouped compact />
+<DemoComboboxGrouped />
 
 ### Async search (single)
 
@@ -153,7 +303,7 @@ Load items from a remote source by fetching on input changes. Keep the selected 
 
 import { DemoComboboxAsyncSingle } from './demos/async-single';
 
-<DemoComboboxAsyncSingle compact />
+<DemoComboboxAsyncSingle />
 
 ### Async search (multiple)
 
@@ -161,7 +311,7 @@ Load items from a remote source by fetching on input changes while supporting mu
 
 import { DemoComboboxAsyncMultiple } from './demos/async-multiple';
 
-<DemoComboboxAsyncMultiple compact />
+<DemoComboboxAsyncMultiple />
 
 ### Creatable
 
@@ -169,7 +319,7 @@ Create a new item when the filter matches no items, opening a creation `<Dialog>
 
 import { DemoComboboxCreatable } from './demos/creatable';
 
-<DemoComboboxCreatable compact />
+<DemoComboboxCreatable />
 
 ### Virtualized
 
@@ -177,14 +327,137 @@ Efficiently handle large datasets using a virtualization library like `@tanstack
 
 import { DemoComboboxVirtualized } from './demos/virtualized';
 
-<DemoComboboxVirtualized compact />
+<DemoComboboxVirtualized />
+
+#### Memoizing items
+
+Memoizing each item is a simpler alternative to virtualization for datasets up to roughly 1,000 items. Wrap each item in [`React.memo`](https://react.dev/reference/react/memo) and pass the item as a prop so unchanged items skip re-rendering. While memoization speeds up typing, it does not speed up opening; with a large enough number of items, the mount cost dominates, and virtualization becomes necessary to keep the open interaction fast on low-end devices.
+
+```tsx title="Memoizing list items"
+interface Fruit {
+  id: string;
+  label: string;
+}
+
+const FruitItem = React.memo(function FruitItem({ item }: { item: Fruit }) {
+  return (
+    <Combobox.Item value={item}>
+      <Combobox.ItemIndicator />
+      <span>{item.label}</span>
+    </Combobox.Item>
+  );
+});
+
+<Combobox.List>{(item: Fruit) => <FruitItem key={item.id} item={item} />}</Combobox.List>;
+```
 
 ## API reference
 
-<Reference
-  component="Combobox"
-  parts="Root, Value, Icon, Input, Clear, Trigger, Chips, Chip, ChipRemove, List, Portal, Backdrop, Positioner, Popup, Arrow, Status, Empty, Collection, Row, Item, ItemIndicator, Group, GroupLabel, Separator"
-/>
+import { TypesCombobox } from './types';
+
+### Root
+
+<TypesCombobox.Root />
+
+### Label
+
+<TypesCombobox.Label />
+
+### Value
+
+<TypesCombobox.Value />
+
+### Icon
+
+<TypesCombobox.Icon />
+
+### Input
+
+<TypesCombobox.Input />
+
+### InputGroup
+
+<TypesCombobox.InputGroup />
+
+### Clear
+
+<TypesCombobox.Clear />
+
+### Trigger
+
+<TypesCombobox.Trigger />
+
+### Chips
+
+<TypesCombobox.Chips />
+
+### Chip
+
+<TypesCombobox.Chip />
+
+### ChipRemove
+
+<TypesCombobox.ChipRemove />
+
+### List
+
+<TypesCombobox.List />
+
+### Portal
+
+<TypesCombobox.Portal />
+
+### Backdrop
+
+<TypesCombobox.Backdrop />
+
+### Positioner
+
+<TypesCombobox.Positioner />
+
+### Popup
+
+<TypesCombobox.Popup />
+
+### Arrow
+
+<TypesCombobox.Arrow />
+
+### Status
+
+<TypesCombobox.Status />
+
+### Empty
+
+<TypesCombobox.Empty />
+
+### Collection
+
+<TypesCombobox.Collection />
+
+### Row
+
+<TypesCombobox.Row />
+
+### Item
+
+<TypesCombobox.Item />
+
+### ItemIndicator
+
+<TypesCombobox.ItemIndicator />
+
+### Group
+
+<TypesCombobox.Group />
+
+### GroupLabel
+
+<TypesCombobox.GroupLabel />
+
+### Separator
+
+<TypesCombobox.Separator />
 
 ## useFilter
 
@@ -192,48 +465,19 @@ Matches items against a query using `Intl.Collator` for robust string matching.
 This hook is used when externally filtering items.
 Pass the result to the `filter` prop of `<Combobox.Root>`.
 
-### Input parameters
+<TypesCombobox.useFilter hideDescription />
 
-Accepts all `Intl.CollatorOptions`, plus the following options:
+## useFilteredItems
 
-<PropsReferenceTable
-  data={{
-    locale: {
-      type: 'Intl.LocalesArgument',
-      description: 'The locale to use for string comparison.',
-    },
-    multiple: {
-      type: 'boolean',
-      description: 'Whether the combobox is in multiple selection mode.',
-      default: 'false',
-    },
-    value: {
-      type: 'any',
-      description:
-        'The current value of the combobox. For single selection, pass this so all items are visible when the query is empty or matches the selection.',
-    },
-  }}
-/>
+Returns the internally filtered items when called inside `<Combobox.Root>`.
 
-### Return value
+<TypesCombobox.useFilteredItems hideDescription />
 
-<PropsReferenceTable
-  type="return"
-  data={{
-    contains: {
-      type: '(itemValue: any, query: string, itemToString?: (itemValue) => string) => boolean',
-      description: 'Returns whether the item matches the query anywhere.',
-    },
-    startsWith: {
-      type: '(itemValue: any, query: string, itemToString?: (itemValue) => string) => boolean',
-      description: 'Returns whether the item starts with the query.',
-    },
-    endsWith: {
-      type: '(itemValue: any, query: string, itemToString?: (itemValue) => string) => boolean',
-      description: 'Returns whether the item ends with the query.',
-    },
-  }}
-/>
+## createItems
+
+Normalizes items into a collection for the `items` prop of `<Combobox.Root>`, deriving each item's selection value and label before rendering.
+
+<TypesCombobox.createItems hideDescription />
 
 export const metadata = {
   keywords: [

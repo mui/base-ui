@@ -10,7 +10,7 @@ export enum SelectPopupDataAttributes {
    */
   closed = CommonPopupDataAttributes.closed,
   /**
-   * Present when the select is animating in.
+   * Present when the select begins animating in.
    */
   startingStyle = CommonPopupDataAttributes.startingStyle,
   /**
@@ -21,10 +21,10 @@ export enum SelectPopupDataAttributes {
    * Indicates which side the popup is positioned relative to the trigger.
    * @type {'none' | 'top' | 'bottom' | 'left' | 'right' | 'inline-end' | 'inline-start'}
    */
-  side = 'data-side',
+  side = CommonPopupDataAttributes.side,
   /**
    * Indicates how the popup is aligned relative to specified side.
    * @type {'start' | 'center' | 'end'}
    */
-  align = 'data-align',
+  align = CommonPopupDataAttributes.align,
 }

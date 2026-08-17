@@ -1,5 +1,18 @@
-import { stringifyAsLabel } from '../../../utils/resolveValueLabel';
+import { stringifyAsLabel } from '../../../internals/resolveValueLabel';
 import type { Filter } from './useFilter';
+
+export type FilterItemToString = ((item: any) => string) & {
+  selected?: ((value: any) => string) | undefined;
+};
+
+/**
+ * Derives the default id assigned to `Combobox.Popup` when the input is rendered inside it.
+ * Shared by the popup (which applies it) and the trigger (which references it via `aria-controls`)
+ * so the convention only lives in one place.
+ */
+export function getComboboxPopupId(rootId: string | null | undefined) {
+  return rootId == null ? undefined : `${rootId}-popup`;
+}
 
 /**
  * Enhanced filter using Intl.Collator for more robust string matching.
@@ -9,14 +22,14 @@ import type { Filter } from './useFilter';
  */
 export function createCollatorItemFilter(
   collatorFilter: Filter,
-  itemToStringLabel?: (item: any) => string,
+  itemToStringLabel?: FilterItemToString,
 ) {
   return (item: any, query: string) => {
     if (item == null) {
       return false;
     }
-    const itemString = stringifyAsLabel(item, itemToStringLabel);
-    return collatorFilter.contains(itemString, query);
+
+    return collatorFilter.contains(item, query, itemToStringLabel);
   };
 }
 
@@ -26,7 +39,7 @@ export function createCollatorItemFilter(
  */
 export function createSingleSelectionCollatorFilter(
   collatorFilter: Filter,
-  itemToStringLabel?: (item: any) => string,
+  itemToStringLabel?: FilterItemToString,
   selectedValue?: any,
 ) {
   return (item: any, query: string) => {
@@ -37,9 +50,9 @@ export function createSingleSelectionCollatorFilter(
       return true;
     }
 
-    const itemString = stringifyAsLabel(item, itemToStringLabel);
+    const selectedValueToString = itemToStringLabel?.selected ?? itemToStringLabel;
     const selectedString =
-      selectedValue != null ? stringifyAsLabel(selectedValue, itemToStringLabel) : '';
+      selectedValue != null ? stringifyAsLabel(selectedValue, selectedValueToString) : '';
 
     // Handle case-insensitive matching consistently
     if (
@@ -50,6 +63,6 @@ export function createSingleSelectionCollatorFilter(
       return true;
     }
 
-    return collatorFilter.contains(itemString, query);
+    return collatorFilter.contains(item, query, itemToStringLabel);
   };
 }

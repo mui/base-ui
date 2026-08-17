@@ -1,5 +1,5 @@
-import type { StateAttributesMapping } from '../../utils/getStateAttributesProps';
-import { transitionStatusMapping } from '../../utils/stateAttributesMapping';
+import type { StateAttributesMapping } from '../../internals/getStateAttributesProps';
+import { transitionStatusMapping } from '../../internals/stateAttributesMapping';
 import { MenuCheckboxItemDataAttributes } from '../checkbox-item/MenuCheckboxItemDataAttributes';
 
 export const itemMapping: StateAttributesMapping<{ checked: boolean }> = {

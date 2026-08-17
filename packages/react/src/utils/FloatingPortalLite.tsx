@@ -1,7 +1,14 @@
 'use client';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
-import { useFloatingPortalNode, type FloatingPortal } from '../floating-ui-react';
+import { type BaseUIComponentProps } from '../internals/types';
+import { useFloatingPortalNode } from '../floating-ui-react/components/FloatingPortal';
+
+type PortalContainer =
+  | HTMLElement
+  | ShadowRoot
+  | React.RefObject<HTMLElement | ShadowRoot | null>
+  | null;
 
 /**
  * `FloatingPortal` includes tabbable logic handling for focus management.
@@ -12,9 +19,9 @@ export const FloatingPortalLite = React.forwardRef(function FloatingPortalLite(
   componentProps: FloatingPortalLite.Props<any>,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { children, container, className, render, ...elementProps } = componentProps;
+  const { children, container, className, render, style, ...elementProps } = componentProps;
 
-  const { portalNode, portalSubtree } = useFloatingPortalNode({
+  const { node: portalNode, subtree: portalSubtree } = useFloatingPortalNode({
     container,
     ref: forwardedRef,
     componentProps,
@@ -33,8 +40,13 @@ export const FloatingPortalLite = React.forwardRef(function FloatingPortalLite(
   );
 });
 
-export interface FloatingPortalLiteProps<State> extends FloatingPortal.Props<State> {}
+export interface FloatingPortalLiteState {}
+
+export interface FloatingPortalLiteProps<TState> extends BaseUIComponentProps<'div', TState> {
+  container?: PortalContainer | undefined;
+}
 
 export namespace FloatingPortalLite {
-  export type Props<State> = FloatingPortalLiteProps<State>;
+  export type State = FloatingPortalLiteState;
+  export type Props<TState> = FloatingPortalLiteProps<TState>;
 }

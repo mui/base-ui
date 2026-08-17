@@ -1,19 +1,23 @@
 'use client';
 import * as React from 'react';
-import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useControlled } from '@base-ui/utils/useControlled';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
-import { FieldRoot } from '../root/FieldRoot';
-import { useFieldRootContext } from '../root/FieldRootContext';
-import { useLabelableContext } from '../../labelable-provider/LabelableContext';
-import { useLabelableId } from '../../labelable-provider/useLabelableId';
-import { fieldValidityMapping } from '../utils/constants';
-import { BaseUIComponentProps } from '../../utils/types';
-import { useRenderElement } from '../../utils/useRenderElement';
-import { useField } from '../useField';
-import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
-import { REASONS } from '../../utils/reasons';
-import type { BaseUIChangeEventDetails } from '../../utils/createBaseUIEventDetails';
+import { ownerDocument } from '@base-ui/utils/owner';
+import { useStableCallback } from '@base-ui/utils/useStableCallback';
+import { type FieldRootState } from '../root/FieldRoot';
+import { useFieldRootContext } from '../../internals/field-root-context/FieldRootContext';
+import { useRegisterFieldControl } from '../../internals/field-register-control/useRegisterFieldControl';
+import { useFormContext } from '../../internals/form-context/FormContext';
+import { useLabelableContext } from '../../internals/labelable-provider/LabelableContext';
+import { useLabelableId } from '../../internals/labelable-provider/useLabelableId';
+import { fieldValidityMapping } from '../../internals/field-constants/constants';
+import { BaseUIComponentProps } from '../../internals/types';
+import { useRenderElement } from '../../internals/useRenderElement';
+import { useValueChanged } from '../../internals/useValueChanged';
+import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
+import { REASONS } from '../../internals/reasons';
+import type { BaseUIChangeEventDetails } from '../../internals/createBaseUIEventDetails';
+import { activeElement } from '../../floating-ui-react/utils';
 
 /**
  * The form control to label and validate.
@@ -27,7 +31,7 @@ import type { BaseUIChangeEventDetails } from '../../utils/createBaseUIEventDeta
  */
 export const FieldControl = React.forwardRef(function FieldControl(
   componentProps: FieldControl.Props,
-  forwardedRef: React.ForwardedRef<HTMLInputElement>,
+  forwardedRef: React.ForwardedRef<HTMLElement>,
 ) {
   const {
     render,
@@ -38,38 +42,38 @@ export const FieldControl = React.forwardRef(function FieldControl(
     disabled: disabledProp = false,
     onValueChange,
     defaultValue,
+    autoFocus = false,
+    style,
     ...elementProps
   } = componentProps;
 
-  const { state: fieldState, name: fieldName, disabled: fieldDisabled } = useFieldRootContext();
+  const {
+    state: fieldState,
+    name: fieldName,
+    disabled: fieldDisabled,
+    setTouched,
+    setDirty,
+    validityData,
+    setFocused,
+    setFilled,
+    validationMode,
+    validation,
+  } = useFieldRootContext();
+  const { clearErrors } = useFormContext();
 
   const disabled = fieldDisabled || disabledProp;
   const name = fieldName ?? nameProp;
 
-  const state: FieldControl.State = React.useMemo(
-    () => ({
-      ...fieldState,
-      disabled,
-    }),
-    [fieldState, disabled],
-  );
+  const state: FieldControlState = {
+    ...fieldState,
+    disabled,
+  };
 
-  const { setTouched, setDirty, validityData, setFocused, setFilled, validationMode, validation } =
-    useFieldRootContext();
   const { labelId } = useLabelableContext();
 
   const id = useLabelableId({ id: idProp });
 
-  useIsoLayoutEffect(() => {
-    const hasExternalValue = valueProp != null;
-    if (validation.inputRef.current?.value || (hasExternalValue && valueProp !== '')) {
-      setFilled(true);
-    } else if (hasExternalValue && valueProp === '') {
-      setFilled(false);
-    }
-  }, [validation.inputRef, setFilled, valueProp]);
-
-  const [value, setValueUnwrapped] = useControlled({
+  const [valueUnwrapped] = useControlled({
     controlled: valueProp,
     default: defaultValue,
     name: 'FieldControl',
@@ -77,30 +81,49 @@ export const FieldControl = React.forwardRef(function FieldControl(
   });
 
   const isControlled = valueProp !== undefined;
+  const value = isControlled ? valueUnwrapped : undefined;
+  // The DOM value is always a string, so dirty comparisons must serialize the controlled value.
+  const serializedValue = value == null ? undefined : String(value);
 
-  const setValue = useStableCallback(
-    (nextValue: string, eventDetails: FieldControl.ChangeEventDetails) => {
-      onValueChange?.(nextValue, eventDetails);
+  const getValueFromInput = useStableCallback(() => validation.inputRef.current?.value);
 
-      if (eventDetails.isCanceled) {
-        return;
-      }
-
-      setValueUnwrapped(nextValue);
-    },
+  useRegisterFieldControl(
+    validation.inputRef,
+    id,
+    serializedValue,
+    getValueFromInput,
+    !disabled,
+    nameProp,
   );
 
-  useField({
-    id,
-    name,
-    commit: validation.commit,
-    value,
-    getValue: () => validation.inputRef.current?.value,
-    controlRef: validation.inputRef,
+  useIsoLayoutEffect(() => {
+    if (validation.inputRef.current?.value) {
+      setFilled(true);
+    }
+  }, [validation.inputRef, setFilled]);
+
+  useValueChanged(serializedValue, () => {
+    if (serializedValue === undefined) {
+      return;
+    }
+
+    clearErrors(name);
+    setDirty(serializedValue !== (validityData.initialValue ?? ''));
+    setFilled(serializedValue !== '');
+
+    validation.change(serializedValue);
   });
 
+  const inputRef = React.useRef<HTMLElement>(null);
+
+  useIsoLayoutEffect(() => {
+    if (autoFocus && inputRef.current === activeElement(ownerDocument(inputRef.current))) {
+      setFocused(true);
+    }
+  }, [autoFocus, setFocused]);
+
   const element = useRenderElement('input', componentProps, {
-    ref: forwardedRef,
+    ref: [forwardedRef, inputRef],
     state,
     props: [
       {
@@ -109,12 +132,28 @@ export const FieldControl = React.forwardRef(function FieldControl(
         name,
         ref: validation.inputRef,
         'aria-labelledby': labelId,
+        autoFocus,
         ...(isControlled ? { value } : { defaultValue }),
         onChange(event) {
           const inputValue = event.currentTarget.value;
-          setValue(inputValue, createChangeEventDetails(REASONS.none, event.nativeEvent));
-          setDirty(inputValue !== validityData.initialValue);
+          const details = createChangeEventDetails(REASONS.none, event.nativeEvent);
+          onValueChange?.(inputValue, details);
+
+          // Controlled values sync from the `value` prop instead, so that a value the consumer
+          // rejects or rewrites never reaches the field state.
+          if (isControlled) {
+            return;
+          }
+
+          // `validation.change` reads `markedDirtyRef`, so update dirty before validating.
+          setDirty(inputValue !== (validityData.initialValue ?? ''));
           setFilled(inputValue !== '');
+
+          // Workaround for https://github.com/react/react/issues/9023
+          if (!event.nativeEvent.defaultPrevented && !details.isCanceled) {
+            clearErrors(name);
+            validation.change(inputValue);
+          }
         },
         onFocus() {
           setFocused(true);
@@ -134,8 +173,8 @@ export const FieldControl = React.forwardRef(function FieldControl(
           }
         },
       },
-      validation.getInputValidationProps(),
       elementProps,
+      (props) => validation.getValidationProps(disabled, props),
     ],
     stateAttributesMapping: fieldValidityMapping,
   });
@@ -143,9 +182,9 @@ export const FieldControl = React.forwardRef(function FieldControl(
   return element;
 });
 
-export type FieldControlState = FieldRoot.State;
+export interface FieldControlState extends FieldRootState {}
 
-export interface FieldControlProps extends BaseUIComponentProps<'input', FieldControl.State> {
+export interface FieldControlProps extends BaseUIComponentProps<'input', FieldControlState> {
   /**
    * Callback fired when the `value` changes. Use when controlled.
    */

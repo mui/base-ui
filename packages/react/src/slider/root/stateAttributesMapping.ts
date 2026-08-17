@@ -1,11 +1,15 @@
-import type { StateAttributesMapping } from '../../utils/getStateAttributesProps';
-import type { SliderRoot } from './SliderRoot';
+import type { StateAttributesMapping } from '../../internals/getStateAttributesProps';
+import type { SliderRootState } from './SliderRoot';
+import { fieldValidityMapping } from '../../internals/field-constants/constants';
 
-export const sliderStateAttributesMapping: StateAttributesMapping<SliderRoot.State> = {
-  activeThumbIndex: () => null,
-  max: () => null,
-  min: () => null,
-  minStepsBetweenValues: () => null,
-  step: () => null,
-  values: () => null,
+const nullMapping = () => null;
+
+export const sliderStateAttributesMapping: StateAttributesMapping<SliderRootState> = {
+  activeThumbIndex: nullMapping,
+  max: nullMapping,
+  min: nullMapping,
+  minStepsBetweenValues: nullMapping,
+  step: nullMapping,
+  values: nullMapping,
+  ...fieldValidityMapping,
 };

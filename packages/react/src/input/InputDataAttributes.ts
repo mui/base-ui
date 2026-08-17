@@ -4,11 +4,11 @@ export enum InputDataAttributes {
    */
   disabled = 'data-disabled',
   /**
-   * Present when the input is in valid state (when wrapped in Field.Root).
+   * Present when the input is in a valid state (when wrapped in Field.Root).
    */
   valid = 'data-valid',
   /**
-   * Present when the input is in invalid state (when wrapped in Field.Root).
+   * Present when the input is in an invalid state (when wrapped in Field.Root).
    */
   invalid = 'data-invalid',
   /**

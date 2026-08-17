@@ -1,11 +1,18 @@
+'use client';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
+import { isElement } from '@floating-ui/utils/dom';
+import { useSyncExternalStore } from 'use-sync-external-store/shim';
+import { mergeCleanups } from '../mergeCleanups';
+import { ownerDocument, ownerWindow } from '../owner';
+import { addEventListener } from '../addEventListener';
 import { Store } from './Store';
 import { useForcedRerendering } from '../useForcedRerendering';
 import { useStableCallback } from '../useStableCallback';
 import { useAnimationFrame } from '../useAnimationFrame';
 import { useIsoLayoutEffect } from '../useIsoLayoutEffect';
 import { useTimeout } from '../useTimeout';
+import { NOOP } from '../empty';
 
 const STYLES = `
 .baseui-store-inspector-trigger {
@@ -71,8 +78,8 @@ const STYLES = `
   display: flex;
   align-items: center;
   cursor: move;
-  user-select: none;
   -webkit-user-select: none;
+  user-select: none;
   touch-action: none;
   padding: 4px 8px 8px 8px;
   gap: 8px;
@@ -110,11 +117,26 @@ const STYLES = `
 }
 `;
 
-export interface StoreInspectorProps {
-  /**
-   * Instance of the store to inspect.
-   */
-  store: Store<any>;
+function getTarget(event: Event) {
+  if ('composedPath' in event) {
+    return event.composedPath()[0];
+  }
+
+  return (event as Event).target;
+}
+
+/**
+ * Minimal shape of a store owner (such as a Base UI popup handle) that exposes a live store to
+ * inspect. Typed structurally so this dev utility stays decoupled from the component packages'
+ * handle types. The exposed store is loosely typed on purpose: handles narrow it for their public
+ * API, but at runtime it is a full `Store`, which the inspector casts to internally.
+ */
+export interface StoreOwner {
+  readonly store: object;
+  subscribeStore?(listener: () => void): () => void;
+}
+
+interface StoreInspectorBaseProps {
   /**
    * Additional data to display in the inspector.
    */
@@ -130,13 +152,33 @@ export interface StoreInspectorProps {
   defaultOpen?: boolean | undefined;
 }
 
+export type StoreInspectorProps = StoreInspectorBaseProps &
+  (
+    | {
+        /**
+         * Instance of the store to inspect.
+         */
+        store: Store<any>;
+        handle?: undefined;
+      }
+    | {
+        /**
+         * A store owner (such as a Base UI popup handle) whose live `store` is inspected.
+         */
+        handle: StoreOwner;
+        store?: undefined;
+      }
+  );
+
 /**
  * A tool to inspect the state of a Store in a floating panel.
  * This is intended for development and debugging purposes.
  */
 export function StoreInspector(props: StoreInspectorProps) {
-  const { store, title, additionalData, defaultOpen = false } = props;
+  const { title, additionalData, defaultOpen = false } = props;
+  const store = useStoreInspectorStore(props);
   const [open, setOpen] = React.useState(defaultOpen);
+  const triggerRef = React.useRef<HTMLButtonElement | null>(null);
 
   return (
     <React.Fragment>
@@ -144,6 +186,7 @@ export function StoreInspector(props: StoreInspectorProps) {
         {STYLES}
       </style>
       <button
+        ref={triggerRef}
         className="baseui-store-inspector-trigger"
         type="button"
         onClick={(event) => {
@@ -157,6 +200,7 @@ export function StoreInspector(props: StoreInspectorProps) {
         <FileJson />
       </button>
       <StoreInspectorPanel
+        anchorElement={triggerRef.current}
         open={open}
         store={store}
         title={title}
@@ -167,7 +211,27 @@ export function StoreInspector(props: StoreInspectorProps) {
   );
 }
 
+function useStoreInspectorStore(props: StoreInspectorProps) {
+  const handle = props.handle;
+  const store = props.store;
+
+  const subscribe = React.useCallback(
+    (listener: () => void) => {
+      return handle?.subscribeStore?.(listener) ?? NOOP;
+    },
+    [handle],
+  );
+
+  const getSnapshot = React.useCallback(() => {
+    // A handle exposes a narrowed store view for its public API; at runtime it is a full `Store`.
+    return (store ?? handle?.store) as Store<any>;
+  }, [handle, store]);
+
+  return useSyncExternalStore(subscribe, getSnapshot, getSnapshot);
+}
+
 interface PanelProps {
+  anchorElement: HTMLElement | null;
   store: Store<any>;
   title?: string | undefined;
   additionalData?: any;
@@ -175,7 +239,14 @@ interface PanelProps {
   onClose?: (() => void) | undefined;
 }
 
-export function StoreInspectorPanel({ store, title, additionalData, open, onClose }: PanelProps) {
+export function StoreInspectorPanel({
+  anchorElement,
+  store,
+  title,
+  additionalData,
+  open,
+  onClose,
+}: PanelProps) {
   const rerender = useForcedRerendering();
   const rerenderTimeout = useTimeout();
 
@@ -209,6 +280,8 @@ export function StoreInspectorPanel({ store, title, additionalData, open, onClos
     return null;
   }
 
+  const doc = ownerDocument(anchorElement);
+
   const content = (
     <Window
       title={title ?? 'Store Inspector'}
@@ -236,14 +309,14 @@ export function StoreInspectorPanel({ store, title, additionalData, open, onClos
     </Window>
   );
 
-  return open ? ReactDOM.createPortal(content, document.body) : null;
+  return open ? ReactDOM.createPortal(content, doc.body) : null;
 }
 
 function getStringifyReplacer() {
   const ancestors: any[] = [];
 
   return function replacer(this: unknown, _: string, value: unknown) {
-    if (value instanceof Element) {
+    if (isElement(value)) {
       return `Element(${value.tagName.toLowerCase()}${value.id ? `#${value.id}` : ''})`;
     }
 
@@ -336,7 +409,7 @@ function Window({ title, onClose, children, headerActions }: WindowProps) {
     if (!headerRef.current || !rootRef.current) {
       return;
     }
-    const target = event.target as Element | null;
+    const target = getTarget(event.nativeEvent) as Element | null;
     if (target && target.closest('button')) {
       return;
     }
@@ -390,8 +463,9 @@ function Window({ title, onClose, children, headerActions }: WindowProps) {
     const currentSize = size ?? { width: rect.width, height: rect.height };
     const currentLeft = position?.left ?? rect.left;
     const currentTop = position?.top ?? rect.top;
-    const maxWidth = Math.max(100, window.innerWidth - currentLeft);
-    const maxHeight = Math.max(80, window.innerHeight - currentTop);
+    const win = ownerWindow(rootRef.current);
+    const maxWidth = Math.max(100, win.innerWidth - currentLeft);
+    const maxHeight = Math.max(80, win.innerHeight - currentTop);
     resizeStateRef.current = {
       resizing: true,
       startX: event.clientX,
@@ -428,7 +502,7 @@ function Window({ title, onClose, children, headerActions }: WindowProps) {
   const endResize = useStableCallback((event?: PointerEvent) => {
     if (event) {
       try {
-        (event.target as any)?.releasePointerCapture?.((event as any).pointerId);
+        (getTarget(event) as any)?.releasePointerCapture?.((event as any).pointerId);
       } catch {
         void 0;
       }
@@ -440,6 +514,7 @@ function Window({ title, onClose, children, headerActions }: WindowProps) {
 
   // Bind/unbind global listeners for dragging and resizing
   useIsoLayoutEffect(() => {
+    const win = ownerWindow(rootRef.current);
     const move = (event: PointerEvent) => {
       onPointerMove(event);
       onResizePointerMove(event);
@@ -448,21 +523,23 @@ function Window({ title, onClose, children, headerActions }: WindowProps) {
       endDrag(event);
       endResize(event);
     };
-    window.addEventListener('pointermove', move);
-    window.addEventListener('pointerup', up);
-    window.addEventListener('pointercancel', up);
-    return () => {
-      window.removeEventListener('pointermove', move);
-      window.removeEventListener('pointerup', up);
-      window.removeEventListener('pointercancel', up);
-    };
+    return mergeCleanups(
+      addEventListener(win, 'pointermove', move),
+      addEventListener(win, 'pointerup', up),
+      addEventListener(win, 'pointercancel', up),
+    );
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Compute window style once per render
   const style: React.CSSProperties = {};
-  const viewportMax =
-    typeof window !== 'undefined' ? Math.max(0, window.innerHeight - 16) : undefined;
+  let win: Window | null = null;
+  if (rootRef.current) {
+    win = ownerWindow(rootRef.current);
+  } else if (typeof window !== 'undefined') {
+    win = window;
+  }
+  const viewportMax = win ? Math.max(0, win.innerHeight - 16) : undefined;
   if (position) {
     style.top = position.top;
     style.left = position.left;
@@ -474,10 +551,7 @@ function Window({ title, onClose, children, headerActions }: WindowProps) {
     if (size?.height != null) {
       style.height = size.height;
     }
-    style.maxHeight =
-      typeof window !== 'undefined'
-        ? Math.max(0, window.innerHeight - position.top - 8)
-        : undefined;
+    style.maxHeight = win ? Math.max(0, win.innerHeight - position.top - 8) : undefined;
   } else {
     if (size?.width != null) {
       style.width = size.width;
@@ -512,7 +586,6 @@ function Window({ title, onClose, children, headerActions }: WindowProps) {
 function CloseIcon() {
   return (
     <svg
-      xmlns="http://www.w3.org/2000/svg"
       width="24"
       height="24"
       viewBox="0 0 24 24"
@@ -532,7 +605,6 @@ function CloseIcon() {
 function FileJson() {
   return (
     <svg
-      xmlns="http://www.w3.org/2000/svg"
       width="24"
       height="24"
       viewBox="0 0 24 24"
@@ -553,7 +625,6 @@ function FileJson() {
 function SquareTerminal() {
   return (
     <svg
-      xmlns="http://www.w3.org/2000/svg"
       width="24"
       height="24"
       viewBox="0 0 24 24"

@@ -3,7 +3,7 @@ import * as ReactDOMClient from 'react-dom/client';
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router';
 import * as DomTestingLibrary from '@testing-library/dom';
 import TestViewer from './TestViewer';
-import 'docs/src/styles.css';
+import 'docs/src/css/index.css';
 
 interface Fixture {
   Component: React.ComponentType<any>;

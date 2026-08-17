@@ -1,15 +1,17 @@
 'use client';
 import * as React from 'react';
+import { fastComponentRef } from '@base-ui/utils/fastHooks';
 import { useDialogRootContext } from '../root/DialogRootContext';
-import { useButton } from '../../use-button/useButton';
-import { useRenderElement } from '../../utils/useRenderElement';
-import type { BaseUIComponentProps, NativeButtonProps } from '../../utils/types';
+import { useButton } from '../../internals/use-button/useButton';
+import { useRenderElement } from '../../internals/useRenderElement';
+import type { BaseUIComponentProps, NativeButtonProps } from '../../internals/types';
 import { triggerOpenStateMapping } from '../../utils/popupStateMapping';
-import { CLICK_TRIGGER_IDENTIFIER } from '../../utils/constants';
+import { CLICK_TRIGGER_IDENTIFIER } from '../../internals/constants';
 import { DialogHandle } from '../store/DialogHandle';
-import { useTriggerDataForwarding } from '../../utils/popups';
-import { useBaseUiId } from '../../utils/useBaseUiId';
-import { useClick, useInteractions } from '../../floating-ui-react';
+import { usePopupHandleStore, useTriggerDataForwarding } from '../../utils/popups';
+import { useBaseUiId } from '../../internals/useBaseUiId';
+import { useClick } from '../../floating-ui-react';
+import { useOpenMethodTriggerProps } from '../../utils/useOpenInteractionType';
 
 /**
  * A button that opens the dialog.
@@ -17,13 +19,14 @@ import { useClick, useInteractions } from '../../floating-ui-react';
  *
  * Documentation: [Base UI Dialog](https://base-ui.com/react/components/dialog)
  */
-export const DialogTrigger = React.forwardRef(function DialogTrigger(
+export const DialogTrigger = fastComponentRef(function DialogTrigger(
   componentProps: DialogTrigger.Props,
   forwardedRef: React.ForwardedRef<HTMLButtonElement>,
 ) {
   const {
     render,
     className,
+    style,
     disabled = false,
     nativeButton = true,
     id: idProp,
@@ -32,8 +35,9 @@ export const DialogTrigger = React.forwardRef(function DialogTrigger(
     ...elementProps
   } = componentProps;
 
-  const dialogRootContext = useDialogRootContext(true);
-  const store = handle?.store ?? dialogRootContext?.store;
+  const dialogRootStore = useDialogRootContext(true);
+  const handleStore = usePopupHandleStore(handle);
+  const store = handleStore ?? dialogRootStore;
   if (!store) {
     throw new Error(
       'Base UI: <Dialog.Trigger> must be used within <Dialog.Root> or provided with a handle.',
@@ -43,6 +47,7 @@ export const DialogTrigger = React.forwardRef(function DialogTrigger(
   const thisTriggerId = useBaseUiId(idProp);
   const floatingContext = store.useState('floatingRootContext');
   const isOpenedByThisTrigger = store.useState('isOpenedByTrigger', thisTriggerId);
+  const popupId = store.useState('triggerPopupId', thisTriggerId);
 
   const triggerElementRef = React.useRef<HTMLElement | null>(null);
 
@@ -60,17 +65,18 @@ export const DialogTrigger = React.forwardRef(function DialogTrigger(
     native: nativeButton,
   });
 
-  const click = useClick(floatingContext, { enabled: floatingContext != null });
-
-  const localInteractionProps = useInteractions([click]);
-
-  const state: DialogTrigger.State = React.useMemo(
-    () => ({
-      disabled,
-      open: isOpenedByThisTrigger,
-    }),
-    [disabled, isOpenedByThisTrigger],
+  const click = useClick(floatingContext);
+  const interactionTypeProps = useOpenMethodTriggerProps(
+    () => store.select('open'),
+    (interactionType) => {
+      store.set('openMethod', interactionType);
+    },
   );
+
+  const state: DialogTriggerState = {
+    disabled,
+    open: isOpenedByThisTrigger,
+  };
 
   const rootTriggerProps = store.useState('triggerProps', isMountedByThisTrigger);
 
@@ -78,9 +84,16 @@ export const DialogTrigger = React.forwardRef(function DialogTrigger(
     state,
     ref: [buttonRef, forwardedRef, registerTrigger, triggerElementRef],
     props: [
-      localInteractionProps.getReferenceProps(),
+      click.reference,
       rootTriggerProps,
-      { [CLICK_TRIGGER_IDENTIFIER as string]: '', id: thisTriggerId },
+      interactionTypeProps,
+      {
+        [CLICK_TRIGGER_IDENTIFIER as string]: '',
+        id: thisTriggerId,
+        'aria-haspopup': 'dialog' as const,
+        'aria-expanded': isOpenedByThisTrigger,
+        'aria-controls': popupId,
+      },
       elementProps,
       getButtonProps,
     ],
@@ -95,7 +108,7 @@ export interface DialogTrigger {
 }
 
 export interface DialogTriggerProps<Payload = unknown>
-  extends NativeButtonProps, BaseUIComponentProps<'button', DialogTrigger.State> {
+  extends NativeButtonProps, BaseUIComponentProps<'button', DialogTriggerState> {
   /**
    * A handle to associate the trigger with a dialog.
    * Can be created with the Dialog.createHandle() method.
@@ -107,18 +120,18 @@ export interface DialogTriggerProps<Payload = unknown>
   payload?: Payload | undefined;
   /**
    * ID of the trigger. In addition to being forwarded to the rendered element,
-   * it is also used to specify the active trigger for the dialogs in controlled mode (with the DialogRoot `triggerId` prop).
+   * it is also used to specify the active trigger for the dialog in controlled mode (with the DialogRoot `triggerId` prop).
    */
   id?: string | undefined;
 }
 
 export interface DialogTriggerState {
   /**
-   * Whether the dialog is currently disabled.
+   * Whether the trigger is currently disabled.
    */
   disabled: boolean;
   /**
-   * Whether the dialog is currently open.
+   * Whether the dialog is currently open and was opened by this trigger.
    */
   open: boolean;
 }

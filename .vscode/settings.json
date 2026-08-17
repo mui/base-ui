@@ -1,6 +1,7 @@
 {
   "editor.defaultFormatter": "esbenp.prettier-vscode",
   "files.trimTrailingWhitespace": true,
+  "js/ts.experimental.useTsgo": true,
 
   // Root workspace only
   "grammarly.selectors": [

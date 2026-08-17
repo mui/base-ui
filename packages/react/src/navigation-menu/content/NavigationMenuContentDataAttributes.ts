@@ -10,7 +10,7 @@ export enum NavigationMenuContentDataAttributes {
    */
   closed = CommonPopupDataAttributes.closed,
   /**
-   * Present when the content is animating in.
+   * Present when the content begins animating in.
    */
   startingStyle = CommonPopupDataAttributes.startingStyle,
   /**
@@ -19,6 +19,7 @@ export enum NavigationMenuContentDataAttributes {
   endingStyle = CommonPopupDataAttributes.endingStyle,
   /**
    * Which direction another trigger was activated from.
+   * @type {'left' | 'right' | 'up' | 'down'}
    */
   activationDirection = 'data-activation-direction',
 }

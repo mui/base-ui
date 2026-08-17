@@ -2,49 +2,62 @@
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  font-size: 1rem;
-  line-height: 1.5rem;
-  color: var(--color-gray-900);
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  font-weight: 400;
+  color: oklch(14.5% 0 0deg);
+
+  @media (prefers-color-scheme: dark) {
+    color: white;
+  }
 }
 
 .Checkbox {
   box-sizing: border-box;
   display: flex;
-  width: 1.25rem;
-  height: 1.25rem;
+  flex-shrink: 0;
+  width: 1rem;
+  height: 1rem;
   align-items: center;
   justify-content: center;
-  border-radius: 0.25rem;
-  outline: 0;
+  border: 1px solid oklch(14.5% 0 0deg);
+  border-radius: 0;
+  background-color: white;
+  color: white;
   padding: 0;
   margin: 0;
-  border: none;
 
-  &[data-unchecked] {
-    border: 1px solid var(--color-gray-300);
-    background-color: transparent;
+  @media (prefers-color-scheme: dark) {
+    border: 1px solid white;
+    background-color: oklch(14.5% 0 0deg);
+    color: oklch(14.5% 0 0deg);
   }
 
-  &[data-checked] {
-    background-color: var(--color-gray-900);
+  &[data-checked],
+  &[data-indeterminate] {
+    background-color: oklch(14.5% 0 0deg);
+    color: white;
+
+    @media (prefers-color-scheme: dark) {
+      background-color: white;
+      color: oklch(14.5% 0 0deg);
+    }
   }
 
   &:focus-visible {
-    outline: 2px solid var(--color-blue);
+    outline: 2px solid oklch(14.5% 0 0deg);
     outline-offset: 2px;
+
+    @media (prefers-color-scheme: dark) {
+      outline-color: white;
+    }
   }
 }
 
 .Indicator {
   display: flex;
-  color: var(--color-gray-50);
 
   &[data-unchecked] {
     display: none;
   }
-}
-
-.Icon {
-  width: 0.75rem;
-  height: 0.75rem;
 }

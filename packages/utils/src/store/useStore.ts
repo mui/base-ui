@@ -69,7 +69,6 @@ export type StoreInstance = Instance & {
     a2: unknown;
     a3: unknown;
     value: unknown;
-    didChange: boolean;
   }[];
   didChangeStore: boolean;
   subscribe: (onStoreChange: any) => () => void;
@@ -89,10 +88,9 @@ register({
         for (let i = 0; i < instance.syncHooks.length; i += 1) {
           const hook = instance.syncHooks[i];
           const value = hook.selector(hook.store.state, hook.a1, hook.a2, hook.a3);
-          if (hook.didChange || !Object.is(hook.value, value)) {
+          if (!Object.is(hook.value, value)) {
             didChange = true;
             hook.value = value;
-            hook.didChange = false;
           }
         }
         if (didChange) {
@@ -153,7 +151,6 @@ function useStoreFast(
       a2,
       a3,
       value: selector(store.getSnapshot(), a1, a2, a3),
-      didChange: false,
     };
     instance.syncHooks.push(hook);
   } else {
@@ -173,7 +170,7 @@ function useStoreFast(
       hook.a1 = a1;
       hook.a2 = a2;
       hook.a3 = a3;
-      hook.didChange = true;
+      hook.value = selector(store.getSnapshot(), a1, a2, a3);
     }
   }
 

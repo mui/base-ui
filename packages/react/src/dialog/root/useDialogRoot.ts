@@ -1,73 +1,31 @@
 'use client';
 import * as React from 'react';
-import { useStableCallback } from '@base-ui/utils/useStableCallback';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useScrollLock } from '@base-ui/utils/useScrollLock';
-import {
-  useDismiss,
-  useInteractions,
-  useRole,
-  useSyncedFloatingRootContext,
-} from '../../floating-ui-react';
+import { useDismiss } from '../../floating-ui-react';
 import { contains, getTarget } from '../../floating-ui-react/utils';
-import { useOpenInteractionType } from '../../utils/useOpenInteractionType';
-import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
-import { REASONS } from '../../utils/reasons';
-import { type DialogRoot } from './DialogRoot';
 import { DialogStore } from '../store/DialogStore';
-import { useImplicitActiveTrigger, useOpenStateTransitions } from '../../utils/popups';
+import { usePopupInteractionProps } from '../../utils/popups';
 
-export function useDialogRoot(params: useDialogRoot.Parameters): useDialogRoot.ReturnValue {
-  const { store, parentContext, actionsRef } = params;
-
+export function DialogInteractions({
+  store,
+  parentContext,
+  isDrawer,
+}: {
+  store: DialogStore<any>;
+  parentContext: DialogStore<unknown>['context'] | undefined;
+  isDrawer: boolean;
+}) {
   const open = store.useState('open');
   const disablePointerDismissal = store.useState('disablePointerDismissal');
   const modal = store.useState('modal');
   const popupElement = store.useState('popupElement');
-
-  const {
-    openMethod,
-    triggerProps,
-    reset: resetOpenInteractionType,
-  } = useOpenInteractionType(open);
-
-  useImplicitActiveTrigger(store);
-  const { forceUnmount } = useOpenStateTransitions(open, store, () => {
-    resetOpenInteractionType();
-  });
-
-  const createDialogEventDetails = useStableCallback((reason: DialogRoot.ChangeEventReason) => {
-    const details: DialogRoot.ChangeEventDetails =
-      createChangeEventDetails<DialogRoot.ChangeEventReason>(
-        reason,
-      ) as DialogRoot.ChangeEventDetails;
-    details.preventUnmountOnClose = () => {
-      store.set('preventUnmountingOnClose', true);
-    };
-
-    return details;
-  });
-
-  const handleImperativeClose = React.useCallback(() => {
-    store.setOpen(false, createDialogEventDetails(REASONS.imperativeAction));
-  }, [store, createDialogEventDetails]);
-
-  React.useImperativeHandle(
-    actionsRef,
-    () => ({ unmount: forceUnmount, close: handleImperativeClose }),
-    [forceUnmount, handleImperativeClose],
-  );
-
-  const floatingRootContext = useSyncedFloatingRootContext({
-    popupStore: store,
-    onOpenChange: store.setOpen,
-    treatPopupAsFloatingElement: true,
-    noEmit: true,
-  });
+  const floatingRootContext = store.useState('floatingRootContext');
 
   const [ownNestedOpenDialogs, setOwnNestedOpenDialogs] = React.useState(0);
+  const [ownNestedOpenDrawers, setOwnNestedOpenDrawers] = React.useState(0);
   const isTopmost = ownNestedOpenDialogs === 0;
 
-  const role = useRole(floatingRootContext);
   const dismiss = useDismiss(floatingRootContext, {
     outsidePressEvent() {
       if (store.context.internalBackdropRef.current || store.context.backdropRef.current) {
@@ -81,26 +39,41 @@ export function useDialogRoot(params: useDialogRoot.Parameters): useDialogRoot.R
       };
     },
     outsidePress(event) {
+      if (!store.context.outsidePressEnabledRef.current) {
+        return false;
+      }
+
       // For mouse events, only accept left button (button 0)
       // For touch events, a single touch is equivalent to left button
       if ('button' in event && event.button !== 0) {
         return false;
       }
-      if ('touches' in event && event.touches.length !== 1) {
-        return false;
+      if ('touches' in event) {
+        // Outside press can be handled on `touchend`, where the lifted point is
+        // reported in `changedTouches` and `touches` contains any remaining
+        // active points. Treat it as a single-finger tap only when exactly one
+        // touch ended and no other fingers are still down.
+        if (event.type === 'touchend') {
+          if (event.changedTouches.length !== 1 || event.touches.length !== 0) {
+            return false;
+          }
+        } else if (event.touches.length !== 1) {
+          return false;
+        }
       }
+
       const target = getTarget(event) as Element | null;
       if (isTopmost && !disablePointerDismissal) {
-        const eventTarget = target as Element | null;
         // Only close if the click occurred on the dialog's owning backdrop.
         // This supports multiple modal dialogs that aren't nested in the React tree:
         // https://github.com/mui/base-ui/issues/1320
         if (modal) {
-          return store.context.internalBackdropRef.current || store.context.backdropRef.current
-            ? store.context.internalBackdropRef.current === eventTarget ||
-                store.context.backdropRef.current === eventTarget ||
-                (contains(eventTarget, popupElement) &&
-                  !eventTarget?.hasAttribute('data-base-ui-portal'))
+          const internalBackdrop = store.context.internalBackdropRef.current;
+          const backdrop = store.context.backdropRef.current;
+          return internalBackdrop || backdrop
+            ? internalBackdrop === target ||
+                backdrop === target ||
+                (contains(target, popupElement) && !target?.hasAttribute('data-base-ui-portal'))
             : true;
         }
         return true;
@@ -112,68 +85,43 @@ export function useDialogRoot(params: useDialogRoot.Parameters): useDialogRoot.R
 
   useScrollLock(open && modal === true, popupElement);
 
-  const { getReferenceProps, getFloatingProps, getTriggerProps } = useInteractions([role, dismiss]);
-
-  // Listen for nested open/close events on this store to maintain the count
-  store.useContextCallback('onNestedDialogOpen', (ownChildrenCount) => {
-    setOwnNestedOpenDialogs(ownChildrenCount + 1);
-  });
-
-  store.useContextCallback('onNestedDialogClose', () => {
-    setOwnNestedOpenDialogs(0);
+  // Listen for nested open/close events on this store to maintain the counts.
+  // A close notification is an open notification with zeroed counts.
+  store.useContextCallback('onNestedDialogOpen', (dialogCount, drawerCount) => {
+    setOwnNestedOpenDialogs(dialogCount);
+    setOwnNestedOpenDrawers(drawerCount);
   });
 
   // Notify parent of our open/close state using parent callbacks, if any
-  React.useEffect(() => {
-    if (parentContext?.onNestedDialogOpen && open) {
-      parentContext.onNestedDialogOpen(ownNestedOpenDialogs);
-    }
-    if (parentContext?.onNestedDialogClose && !open) {
-      parentContext.onNestedDialogClose();
+  useIsoLayoutEffect(() => {
+    if (parentContext?.onNestedDialogOpen) {
+      if (open) {
+        parentContext.onNestedDialogOpen(
+          ownNestedOpenDialogs + 1,
+          ownNestedOpenDrawers + (isDrawer ? 1 : 0),
+        );
+      } else {
+        parentContext.onNestedDialogOpen(0, 0);
+      }
     }
     return () => {
-      if (parentContext?.onNestedDialogClose && open) {
-        parentContext.onNestedDialogClose();
+      if (parentContext?.onNestedDialogOpen && open) {
+        parentContext.onNestedDialogOpen(0, 0);
       }
     };
-  }, [open, parentContext, ownNestedOpenDialogs]);
+  }, [isDrawer, open, ownNestedOpenDialogs, ownNestedOpenDrawers, parentContext]);
 
-  const activeTriggerProps = React.useMemo(
-    () => getReferenceProps(triggerProps),
-    [getReferenceProps, triggerProps],
-  );
-
-  const inactiveTriggerProps = React.useMemo(
-    () => getTriggerProps(triggerProps),
-    [getTriggerProps, triggerProps],
-  );
-
-  const popupProps = React.useMemo(() => getFloatingProps(), [getFloatingProps]);
-
-  store.useSyncedValues({
-    openMethod,
-    activeTriggerProps,
-    inactiveTriggerProps,
-    popupProps,
-    floatingRootContext,
+  usePopupInteractionProps(store, {
+    // `enabled` is not passed to `useDismiss`, so its props are always defined,
+    // and `trigger` is the same object as `reference`.
+    activeTriggerProps: dismiss.reference!,
+    inactiveTriggerProps: dismiss.trigger!,
+    // DialogPopup and DrawerPopup spread `FOCUSABLE_POPUP_PROPS` directly, so
+    // this only needs to carry the dismiss handlers.
+    popupProps: dismiss.floating!,
     nestedOpenDialogCount: ownNestedOpenDialogs,
+    nestedOpenDrawerCount: ownNestedOpenDrawers,
   });
-}
 
-export interface UseDialogRootSharedParameters {}
-
-export interface UseDialogRootParameters {
-  store: DialogStore<any>;
-  actionsRef?: DialogRoot.Props['actionsRef'] | undefined;
-  parentContext?: DialogStore<unknown>['context'] | undefined;
-  onOpenChange: DialogRoot.Props['onOpenChange'];
-  triggerIdProp?: (string | null) | undefined;
-}
-
-export type UseDialogRootReturnValue = void;
-
-export namespace useDialogRoot {
-  export type SharedParameters = UseDialogRootSharedParameters;
-  export type Parameters = UseDialogRootParameters;
-  export type ReturnValue = UseDialogRootReturnValue;
+  return null;
 }

@@ -10,6 +10,7 @@
   border: none;
   font-size: 100%;
   line-height: 1.5;
+  -webkit-user-select: none;
   user-select: none;
   cursor: default;
 
@@ -63,6 +64,7 @@
   outline: 0;
   cursor: default;
   border-radius: 4px;
+  -webkit-user-select: none;
   user-select: none;
   display: flex;
   align-items: center;
@@ -142,6 +144,7 @@
   padding: 8px;
   border-radius: 8px;
   cursor: default;
+  -webkit-user-select: none;
   user-select: none;
 
   &:last-of-type {

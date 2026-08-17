@@ -52,7 +52,8 @@ You can use `onFormSubmit` instead of the native `onSubmit` to access form value
 
     const response = await fetch('https://api.example.com', {
       method: 'POST',
-      body: payload,
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
     });
   }}
 />
@@ -70,7 +71,9 @@ import { DemoFormZod } from './demos/zod';
 
 ## API reference
 
-<Reference component="Form" />
+import { TypesForm } from './types';
+
+<TypesForm />
 
 export const metadata = {
   keywords: [

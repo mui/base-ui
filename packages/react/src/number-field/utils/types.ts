@@ -1,11 +1,13 @@
+import { REASONS } from '../../internals/reasons';
+
 export type Direction = -1 | 1;
 
 export type DirectionalChangeReason =
-  | 'increment-press'
-  | 'decrement-press'
-  | 'wheel'
-  | 'scrub'
-  | 'keyboard';
+  | typeof REASONS.incrementPress
+  | typeof REASONS.decrementPress
+  | typeof REASONS.wheel
+  | typeof REASONS.scrub
+  | typeof REASONS.keyboard;
 
 export interface ChangeEventCustomProperties {
   direction?: Direction | undefined;
@@ -13,9 +15,9 @@ export interface ChangeEventCustomProperties {
 
 export interface IncrementValueParameters {
   direction: Direction;
-  event?: (Event | React.SyntheticEvent) | undefined;
+  event?: Event | React.SyntheticEvent | undefined;
   reason: DirectionalChangeReason;
-  currentValue?: (number | null) | undefined;
+  currentValue?: number | null | undefined;
 }
 
 export interface EventWithOptionalKeyState {

@@ -1,6 +1,6 @@
+import { expect } from 'vitest';
 import { Popover } from '@base-ui/react/popover';
 import { screen } from '@mui/internal-test-utils';
-import { expect } from 'chai';
 import { createRenderer, describeConformance } from '#test-utils';
 
 describe('<Popover.Description />', () => {
@@ -37,6 +37,6 @@ describe('<Popover.Description />', () => {
     );
 
     const id = document.querySelector('p')?.id;
-    expect(screen.getByRole('dialog')).to.have.attribute('aria-describedby', id);
+    expect(screen.getByRole('dialog')).toHaveAttribute('aria-describedby', id);
   });
 });

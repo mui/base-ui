@@ -1,28 +1,26 @@
 'use client';
 import * as React from 'react';
-import type { Orientation } from '../../utils/types';
-import type { TextDirection } from '../../direction-provider';
-import type { AccordionRoot, AccordionValue } from './AccordionRoot';
+import type { AccordionRoot } from './AccordionRoot';
 
-export interface AccordionRootContext {
-  accordionItemRefs: React.RefObject<(HTMLElement | null)[]>;
-  direction: TextDirection;
+export interface AccordionRootContext<Value = any> {
   disabled: boolean;
-  handleValueChange: (newValue: number | string, nextOpen: boolean) => void;
+  handleValueChange: (
+    newValue: AccordionRoot.Value<Value>[number],
+    nextOpen: boolean,
+    eventDetails: AccordionRoot.ChangeEventDetails,
+  ) => void;
   hiddenUntilFound: boolean;
   keepMounted: boolean;
-  loopFocus: boolean;
-  orientation: Orientation;
-  state: AccordionRoot.State;
-  value: AccordionValue;
+  state: AccordionRoot.State<Value>;
+  value: AccordionRoot.Value<Value>;
 }
 
-export const AccordionRootContext = React.createContext<AccordionRootContext | undefined>(
+export const AccordionRootContext = React.createContext<AccordionRootContext<any> | undefined>(
   undefined,
 );
 
-export function useAccordionRootContext() {
-  const context = React.useContext(AccordionRootContext);
+export function useAccordionRootContext<Value = any>() {
+  const context = React.useContext<AccordionRootContext<Value> | undefined>(AccordionRootContext);
   if (context === undefined) {
     throw new Error(
       'Base UI: AccordionRootContext is missing. Accordion parts must be placed within <Accordion.Root>.',

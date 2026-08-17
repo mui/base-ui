@@ -9,7 +9,7 @@
     "moduleResolution": "bundler",
     "rootDir": ".",
     "outDir": "build-tests",
-    "types": ["vitest/globals", "@types/chai", "@types/chai-dom"]
+    "types": ["vitest/globals", "@testing-library/jest-dom"]
   },
   "include": ["src/**/*.spec.ts*", "src/**/*.test.ts*", "src/index.test.ts", "package.json"],
   "references": [{ "path": "./tsconfig.build.json" }]

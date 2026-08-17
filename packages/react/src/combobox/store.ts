@@ -1,18 +1,15 @@
-import { Store, createSelector } from '@base-ui/utils/store';
+import { Store } from '@base-ui/utils/store';
 import type { InteractionType } from '@base-ui/utils/useEnhancedClickHandler';
-import type { TransitionStatus } from '../utils/useTransitionStatus';
-import type { HTMLProps } from '../utils/types';
-import type { Side } from '../utils/useAnchorPositioning';
-import { compareItemEquality } from '../utils/itemEquality';
-import { hasNullItemLabel } from '../utils/resolveValueLabel';
+import type { TransitionStatus } from '../internals/useTransitionStatus';
+import type { HTMLProps } from '../internals/types';
+import type { Side } from '../internals/useAnchorPositioning';
+import { compareItemEquality } from '../internals/itemEquality';
+import { hasNullItemLabel } from '../internals/resolveValueLabel';
 import type { AriaCombobox } from './root/AriaCombobox';
 
 export type State = {
   id: string | undefined;
-
-  query: string;
-
-  filter: (item: any, query: string) => boolean;
+  labelId: string | undefined;
 
   items: readonly any[] | undefined;
 
@@ -29,18 +26,23 @@ export type State = {
   selectedIndex: number | null;
 
   popupProps: HTMLProps;
+  listProps: HTMLProps;
   inputProps: HTMLProps;
   triggerProps: HTMLProps;
+  itemProps: HTMLProps;
 
   positionerElement: HTMLElement | null;
   listElement: HTMLElement | null;
+  popupId: string | undefined;
   triggerElement: HTMLElement | null;
   inputElement: HTMLInputElement | null;
+  inputGroupElement: HTMLDivElement | null;
   popupSide: Side | null;
 
   openMethod: InteractionType | null;
 
   inputInsidePopup: boolean;
+  inputOwnsFormValue: boolean;
 
   selectionMode: 'single' | 'multiple' | 'none';
 
@@ -49,40 +51,38 @@ export type State = {
   popupRef: React.RefObject<HTMLDivElement | null>;
   emptyRef: React.RefObject<HTMLDivElement | null>;
   inputRef: React.RefObject<HTMLInputElement | null>;
+  startDismissRef: React.RefObject<HTMLSpanElement | null>;
+  endDismissRef: React.RefObject<HTMLSpanElement | null>;
   keyboardActiveRef: React.RefObject<boolean>;
   chipsContainerRef: React.RefObject<HTMLDivElement | null>;
   clearRef: React.RefObject<HTMLButtonElement | null>;
   valuesRef: React.RefObject<Array<any>>;
-  allValuesRef: React.RefObject<Array<any>>;
+  pointerDownItemRef: React.RefObject<Element | null>;
   selectionEventRef: React.RefObject<MouseEvent | PointerEvent | KeyboardEvent | null>;
 
   setOpen: (open: boolean, eventDetails: AriaCombobox.ChangeEventDetails) => void;
   setInputValue: (value: string, eventDetails: AriaCombobox.ChangeEventDetails) => void;
   setSelectedValue: (value: any, eventDetails: AriaCombobox.ChangeEventDetails) => void;
   setIndices: (indices: {
-    activeIndex?: (number | null) | undefined;
-    selectedIndex?: (number | null) | undefined;
-    type?: ('keyboard' | 'pointer' | 'none') | undefined;
+    activeIndex?: number | null | undefined;
+    selectedIndex?: number | null | undefined;
+    type?: AriaCombobox.HighlightEventReason | undefined;
   }) => void;
-  onItemHighlighted: (item: any, eventDetails: AriaCombobox.HighlightEventDetails) => void;
   forceMount: () => void;
-  handleSelection: (event: MouseEvent | PointerEvent | KeyboardEvent, passedValue?: any) => void;
-  getItemProps: (
-    props?: HTMLProps & { active?: boolean | undefined; selected?: boolean | undefined },
-  ) => Record<string, unknown>;
+  handleSelection: (event: MouseEvent | PointerEvent | KeyboardEvent, itemValue: any) => void;
   requestSubmit: () => void;
 
   name: string | undefined;
+  form: string | undefined;
   disabled: boolean;
   readOnly: boolean;
   required: boolean;
   grid: boolean;
-  isGrouped: boolean;
   virtualized: boolean;
   onOpenChangeComplete: (open: boolean) => void;
   openOnInputClick: boolean;
   itemToStringLabel?: ((item: any) => string) | undefined;
-  isItemEqualToValue: (item: any, value: any) => boolean;
+  isItemEqualToValue: (itemValue: any, selectedValue: any) => boolean;
   modal: boolean;
   autoHighlight: false | 'always' | 'input-change';
   submitOnItemClick: boolean;
@@ -92,19 +92,18 @@ export type State = {
 export type ComboboxStore = Store<State>;
 
 export const selectors = {
-  id: createSelector((state: State) => state.id),
+  id: (state: State) => state.id,
+  labelId: (state: State) => state.labelId,
 
-  query: createSelector((state: State) => state.query),
+  items: (state: State) => state.items,
 
-  items: createSelector((state: State) => state.items),
-
-  selectedValue: createSelector((state: State) => state.selectedValue),
-  hasSelectionChips: createSelector((state: State) => {
+  selectedValue: (state: State) => state.selectedValue,
+  hasSelectionChips: (state: State) => {
     const selectedValue = state.selectedValue;
     return Array.isArray(selectedValue) && selectedValue.length > 0;
-  }),
+  },
 
-  hasSelectedValue: createSelector((state: State) => {
+  hasSelectedValue: (state: State) => {
     const { selectedValue, selectionMode } = state;
     if (selectedValue == null) {
       return false;
@@ -113,71 +112,64 @@ export const selectors = {
       return selectedValue.length > 0;
     }
     return true;
-  }),
+  },
 
-  hasNullItemLabel: createSelector((state: State, enabled: boolean) => {
+  hasNullItemLabel: (state: State, enabled: boolean) => {
     return enabled ? hasNullItemLabel(state.items) : false;
-  }),
+  },
 
-  open: createSelector((state: State) => state.open),
-  mounted: createSelector((state: State) => state.mounted),
-  forceMounted: createSelector((state: State) => state.forceMounted),
+  open: (state: State) => state.open,
+  mounted: (state: State) => state.mounted,
+  forceMounted: (state: State) => state.forceMounted,
 
-  inline: createSelector((state: State) => state.inline),
+  inline: (state: State) => state.inline,
 
-  activeIndex: createSelector((state: State) => state.activeIndex),
-  selectedIndex: createSelector((state: State) => state.selectedIndex),
-  isActive: createSelector((state: State, index: number) => state.activeIndex === index),
-  isSelected: createSelector((state: State, candidate: any) => {
+  activeIndex: (state: State) => state.activeIndex,
+  selectedIndex: (state: State) => state.selectedIndex,
+  isActive: (state: State, index: number) => state.activeIndex === index,
+  isSelected: (state: State, itemValue: any) => {
     const comparer = state.isItemEqualToValue;
     const selectedValue = state.selectedValue;
     if (Array.isArray(selectedValue)) {
-      return selectedValue.some((value) => compareItemEquality(value, candidate, comparer));
+      return selectedValue.some((selectedItem) =>
+        compareItemEquality(itemValue, selectedItem, comparer),
+      );
     }
-    return compareItemEquality(selectedValue, candidate, comparer);
-  }),
+    return compareItemEquality(itemValue, selectedValue, comparer);
+  },
 
-  transitionStatus: createSelector((state: State) => state.transitionStatus),
+  transitionStatus: (state: State) => state.transitionStatus,
 
-  popupProps: createSelector((state: State) => state.popupProps),
-  inputProps: createSelector((state: State) => state.inputProps),
-  triggerProps: createSelector((state: State) => state.triggerProps),
-  getItemProps: createSelector((state: State) => state.getItemProps),
+  popupProps: (state: State) => state.popupProps,
+  listProps: (state: State) => state.listProps,
+  inputProps: (state: State) => state.inputProps,
+  triggerProps: (state: State) => state.triggerProps,
+  itemProps: (state: State) => state.itemProps,
 
-  positionerElement: createSelector((state: State) => state.positionerElement),
-  listElement: createSelector((state: State) => state.listElement),
-  triggerElement: createSelector((state: State) => state.triggerElement),
-  inputElement: createSelector((state: State) => state.inputElement),
-  popupSide: createSelector((state: State) => state.popupSide),
+  positionerElement: (state: State) => state.positionerElement,
+  listElement: (state: State) => state.listElement,
+  popupId: (state: State) => state.popupId,
+  triggerElement: (state: State) => state.triggerElement,
+  inputElement: (state: State) => state.inputElement,
+  inputGroupElement: (state: State) => state.inputGroupElement,
+  popupSide: (state: State) => state.popupSide,
 
-  openMethod: createSelector((state: State) => state.openMethod),
+  openMethod: (state: State) => state.openMethod,
 
-  inputInsidePopup: createSelector((state: State) => state.inputInsidePopup),
+  inputInsidePopup: (state: State) => state.inputInsidePopup,
+  inputOwnsFormValue: (state: State) => state.inputOwnsFormValue,
 
-  selectionMode: createSelector((state: State) => state.selectionMode),
-  listRef: createSelector((state: State) => state.listRef),
-  labelsRef: createSelector((state: State) => state.labelsRef),
-  popupRef: createSelector((state: State) => state.popupRef),
-  emptyRef: createSelector((state: State) => state.emptyRef),
-  inputRef: createSelector((state: State) => state.inputRef),
-  keyboardActiveRef: createSelector((state: State) => state.keyboardActiveRef),
-  chipsContainerRef: createSelector((state: State) => state.chipsContainerRef),
-  clearRef: createSelector((state: State) => state.clearRef),
-  valuesRef: createSelector((state: State) => state.valuesRef),
-  allValuesRef: createSelector((state: State) => state.allValuesRef),
+  selectionMode: (state: State) => state.selectionMode,
 
-  name: createSelector((state: State) => state.name),
-  disabled: createSelector((state: State) => state.disabled),
-  readOnly: createSelector((state: State) => state.readOnly),
-  required: createSelector((state: State) => state.required),
-  grid: createSelector((state: State) => state.grid),
-  isGrouped: createSelector((state: State) => state.isGrouped),
-  virtualized: createSelector((state: State) => state.virtualized),
-  onOpenChangeComplete: createSelector((state: State) => state.onOpenChangeComplete),
-  openOnInputClick: createSelector((state: State) => state.openOnInputClick),
-  itemToStringLabel: createSelector((state: State) => state.itemToStringLabel),
-  isItemEqualToValue: createSelector((state: State) => state.isItemEqualToValue),
-  modal: createSelector((state: State) => state.modal),
-  autoHighlight: createSelector((state: State) => state.autoHighlight),
-  submitOnItemClick: createSelector((state: State) => state.submitOnItemClick),
+  name: (state: State) => state.name,
+  form: (state: State) => state.form,
+  disabled: (state: State) => state.disabled,
+  readOnly: (state: State) => state.readOnly,
+  required: (state: State) => state.required,
+  grid: (state: State) => state.grid,
+  virtualized: (state: State) => state.virtualized,
+  itemToStringLabel: (state: State) => state.itemToStringLabel,
+  isItemEqualToValue: (state: State) => state.isItemEqualToValue,
+  modal: (state: State) => state.modal,
+  autoHighlight: (state: State) => state.autoHighlight,
 };

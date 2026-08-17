@@ -1,8 +1,12 @@
+'use client';
 import * as React from 'react';
 import c from 'clsx';
 import { useMergedRefsN } from '@base-ui/utils/useMergedRefs';
-import { CompositeList } from '../../src/composite/list/CompositeList';
-import { useCompositeListItem } from '../../src/composite/list/useCompositeListItem';
+import { useTestInteractions } from '#test-utils';
+import { useBaseUiId } from '../../src/internals/useBaseUiId';
+import { CompositeList } from '../../src/internals/composite/list/CompositeList';
+import { useCompositeListItem } from '../../src/internals/composite/list/useCompositeListItem';
+import { getEmptyRootContext } from '../../src/floating-ui-react/utils/getEmptyRootContext';
 import {
   autoUpdate,
   flip,
@@ -20,14 +24,15 @@ import {
   useFloatingParentNodeId,
   useFloatingTree,
   useHover,
-  useInteractions,
   useListNavigation,
-  useRole,
   useTypeahead,
 } from '../../src/floating-ui-react';
+import { gridNavigation } from '../../src/floating-ui-react/hooks/gridNavigation';
+import { GRID_COLUMN_COUNT, renderGridRows } from './renderGridRows';
+import styles from './MenuOrientation.module.css';
 
 type MenuContextType = {
-  getItemProps: ReturnType<typeof useInteractions>['getItemProps'];
+  getItemProps: ReturnType<typeof useTestInteractions>['getItemProps'];
   activeIndex: number | null;
   setActiveIndex: React.Dispatch<React.SetStateAction<number | null>>;
   setHasFocusInside: React.Dispatch<React.SetStateAction<boolean>>;
@@ -56,7 +61,7 @@ interface MenuProps {
   children?: React.ReactNode;
   keepMounted?: boolean;
   orientation?: 'vertical' | 'horizontal' | 'both';
-  cols?: number;
+  grid?: boolean;
 }
 
 /** @internal */
@@ -64,7 +69,7 @@ export const MenuComponent = React.forwardRef<
   HTMLButtonElement,
   MenuProps & React.HTMLProps<HTMLButtonElement>
 >(function Menu(
-  { children, label, keepMounted = false, cols, orientation: orientationOption, ...props },
+  { children, label, keepMounted = false, grid, orientation: orientationOption, ...props },
   forwardedRef,
 ) {
   const [isOpen, setIsOpen] = React.useState(false);
@@ -79,10 +84,11 @@ export const MenuComponent = React.forwardRef<
   const nodeId = useFloatingNodeId();
   const parentId = useFloatingParentNodeId();
   const isNested = parentId != null;
-  const orientation = orientationOption ?? (cols ? 'both' : 'vertical');
+  const orientation = orientationOption ?? (grid ? 'both' : 'vertical');
 
   const parent = React.useContext(MenuContext);
   const item = useCompositeListItem();
+  const triggerId = useBaseUiId();
 
   const { floatingStyles, refs, context } = useFloating({
     nodeId,
@@ -96,9 +102,10 @@ export const MenuComponent = React.forwardRef<
     ],
     whileElementsMounted: autoUpdate,
   });
+  const fallbackContext = React.useMemo(() => getEmptyRootContext(), []);
+  const hoverContext = isNested && allowHover ? context : fallbackContext;
 
-  const hover = useHover(context, {
-    enabled: isNested && allowHover,
+  const hover = useHover(hoverContext, {
     delay: { open: 75 },
     handleClose: safePolygon({ blockPointerEvents: true }),
   });
@@ -107,7 +114,6 @@ export const MenuComponent = React.forwardRef<
     toggle: !isNested || !allowHover,
     ignoreMouse: isNested,
   });
-  const role = useRole(context, { role: 'menu' });
   const dismiss = useDismiss(context, { bubbles: true });
   const listNavigation = useListNavigation(context, {
     listRef: elementsRef,
@@ -115,7 +121,7 @@ export const MenuComponent = React.forwardRef<
     nested: isNested,
     onNavigate: setActiveIndex,
     orientation,
-    cols,
+    grid: grid ? gridNavigation : undefined,
   });
   const typeahead = useTypeahead(context, {
     listRef: labelsRef,
@@ -123,10 +129,9 @@ export const MenuComponent = React.forwardRef<
     activeIndex,
   });
 
-  const { getReferenceProps, getFloatingProps, getItemProps } = useInteractions([
+  const { getReferenceProps, getFloatingProps, getItemProps } = useTestInteractions([
     hover,
     click,
-    role,
     dismiss,
     listNavigation,
     typeahead,
@@ -198,18 +203,19 @@ export const MenuComponent = React.forwardRef<
       <button
         type="button"
         ref={useMergedRefsN([refs.setReference, item.ref, forwardedRef])}
+        id={triggerId}
+        aria-haspopup="menu"
+        aria-expanded={isOpen}
+        aria-controls={isOpen ? context.floatingId : undefined}
         data-open={isOpen ? '' : undefined}
         // eslint-disable-next-line no-nested-ternary
         tabIndex={!isNested ? props.tabIndex : parent.activeIndex === item.index ? 0 : -1}
-        className={c(
-          props.className || 'flex items-center justify-between gap-4 rounded px-2 py-1 text-left',
-          {
-            'focus:bg-blue-500 outline-none focus:text-white': isNested,
-            'bg-blue-500 text-white': isOpen && isNested && !hasFocusInside,
-            'bg-slate-200 rounded px-2 py-1': isNested && isOpen && hasFocusInside,
-            'bg-slate-200': !isNested && isOpen,
-          },
-        )}
+        className={c(props.className || styles.Trigger, {
+          [styles.TriggerNested]: isNested,
+          [styles.TriggerNestedOpenNoFocus]: isOpen && isNested && !hasFocusInside,
+          [styles.TriggerNestedOpenHasFocus]: isNested && isOpen && hasFocusInside,
+          [styles.TriggerRootOpen]: !isNested && isOpen,
+        })}
         {...getReferenceProps(
           parent.getItemProps({
             ...props,
@@ -229,7 +235,7 @@ export const MenuComponent = React.forwardRef<
       >
         {label}
         {isNested && (
-          <span aria-hidden className="ml-4">
+          <span aria-hidden className={styles.Icon}>
             Icon
           </span>
         )}
@@ -259,29 +265,32 @@ export const MenuComponent = React.forwardRef<
               >
                 <div
                   ref={refs.setFloating}
+                  id={context.floatingId}
+                  role="menu"
+                  aria-labelledby={triggerId}
                   className={c(
-                    'border-slate-900/10 rounded border bg-white bg-clip-padding p-1 shadow-lg outline-none',
+                    styles.Panel,
                     {
-                      'flex flex-col': !cols && orientation !== 'horizontal',
+                      [styles.PanelFlexCol]: !grid && orientation !== 'horizontal',
                     },
                     {
-                      'flex flex-row': orientation === 'horizontal',
+                      [styles.PanelFlexRow]: orientation === 'horizontal',
                     },
                     {
-                      [`grid grid-cols-[repeat(var(--cols),_minmax(0,_1fr))] gap-3`]: cols,
+                      [styles.PanelGrid]: grid,
                     },
                   )}
                   style={{
                     ...floatingStyles,
                     // @ts-expect-error css var
-                    '--cols': cols,
+                    '--cols': GRID_COLUMN_COUNT,
                     // eslint-disable-next-line no-nested-ternary
                     visibility: !keepMounted ? undefined : isOpen ? 'visible' : 'hidden',
                   }}
                   aria-hidden={!isOpen}
                   {...getFloatingProps()}
                 >
-                  {children}
+                  {renderGridRows(children, grid)}
                 </div>
               </FloatingFocusManager>
             </FloatingPortal>
@@ -315,10 +324,7 @@ export const MenuItem = React.forwardRef<
       role="menuitem"
       disabled={disabled}
       tabIndex={isActive ? 0 : -1}
-      className={c(
-        'focus:bg-blue-500 flex rounded px-2 py-1 text-left outline-none focus:text-white',
-        { 'opacity-40': disabled },
-      )}
+      className={c(styles.Item, { [styles.ItemDisabled]: disabled })}
       {...menu.getItemProps({
         active: isActive,
         onClick(event: React.MouseEvent<HTMLButtonElement>) {
@@ -380,8 +386,8 @@ export const Menu = React.forwardRef<
 export function HorizontalMenu() {
   return (
     <React.Fragment>
-      <h1 className="mb-8 text-5xl font-bold">Horizontal menu</h1>
-      <div className="border-slate-400 mb-4 grid h-[20rem] place-items-center rounded border lg:w-[40rem]">
+      <h1 className={styles.Heading}>Horizontal menu</h1>
+      <div className={styles.Container}>
         <Menu label="Edit" orientation="horizontal">
           <MenuItem
             label="Undo"
@@ -395,7 +401,7 @@ export function HorizontalMenu() {
           <Menu label="Copy as" keepMounted>
             <MenuItem label="Text" />
             <MenuItem label="Video" />
-            <Menu label="Image" keepMounted cols={2}>
+            <Menu label="Image" keepMounted grid>
               <MenuItem label=".png" />
               <MenuItem label=".jpg" />
               <MenuItem label=".svg" />
@@ -417,8 +423,8 @@ export function HorizontalMenu() {
 export function VerticalMenu() {
   return (
     <React.Fragment>
-      <h1 className="mb-8 text-5xl font-bold">Vertical menu</h1>
-      <div className="border-slate-400 mb-4 grid h-[20rem] place-items-center rounded border lg:w-[40rem]">
+      <h1 className={styles.Heading}>Vertical menu</h1>
+      <div className={styles.Container}>
         <Menu label="Edit">
           <MenuItem
             label="Undo"
@@ -432,7 +438,7 @@ export function VerticalMenu() {
           <Menu label="Copy as" keepMounted orientation="horizontal">
             <MenuItem label="Text" />
             <MenuItem label="Video" />
-            <Menu label="Image" keepMounted cols={2}>
+            <Menu label="Image" keepMounted grid>
               <MenuItem label=".png" />
               <MenuItem label=".jpg" />
               <MenuItem label=".svg" />
@@ -454,8 +460,8 @@ export function VerticalMenu() {
 export function HorizontalMenuWithHorizontalSubmenus() {
   return (
     <React.Fragment>
-      <h1 className="mb-8 text-5xl font-bold">Horizontal menu with horizontal submenus</h1>
-      <div className="border-slate-400 mb-4 grid h-[20rem] place-items-center rounded border lg:w-[40rem]">
+      <h1 className={styles.Heading}>Horizontal menu with horizontal submenus</h1>
+      <div className={styles.Container}>
         <Menu label="Edit" orientation="horizontal">
           <MenuItem
             label="Undo"
@@ -469,7 +475,7 @@ export function HorizontalMenuWithHorizontalSubmenus() {
           <Menu label="Copy as" keepMounted orientation="horizontal">
             <MenuItem label="Text" />
             <MenuItem label="Video" />
-            <Menu label="Image" keepMounted cols={2}>
+            <Menu label="Image" keepMounted grid>
               <MenuItem label=".png" />
               <MenuItem label=".jpg" />
               <MenuItem label=".svg" />

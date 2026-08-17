@@ -10,7 +10,7 @@ export enum PopoverBackdropDataAttributes {
    */
   closed = CommonPopupDataAttributes.closed,
   /**
-   * Present when the popup is animating in.
+   * Present when the popup begins animating in.
    */
   startingStyle = CommonPopupDataAttributes.startingStyle,
   /**

@@ -1,7 +1,7 @@
 @layer components {
   .AccordionRoot {
     --color-trigger-hover: hsl(0deg 0 99);
-    --color-open-trigger-shadow: var(--color-gray-300);
+    --color-open-trigger-shadow: var(--gray-c3);
 
     @media (prefers-color-scheme: dark) {
       --color-trigger-hover: hsl(0deg 0 9);
@@ -12,29 +12,42 @@
     display: flex;
     flex-direction: column;
     justify-content: center;
-    color: var(--color-gray);
+    color: var(--gray-t1);
 
-    border: 1px solid var(--color-gray-200);
+    border: 1px solid var(--color-border);
     border-collapse: separate;
-    border-radius: var(--radius-md);
+    border-radius: var(--radius-12);
   }
 
   .AccordionHeaderRow {
-    border-radius: var(--radius-md) var(--radius-md) 0 0;
-    border-bottom: 1px solid var(--color-gray-200);
-    background-color: var(--color-gray-50);
+    border-radius: calc(var(--radius-12) - 1px) calc(var(--radius-12) - 1px) 0 0;
+    border-bottom: 1px solid var(--color-border);
+    background-color: var(--gray-s2);
+    background-clip: padding-box;
   }
 
   .AccordionHeaderCell {
-    padding: 0.5rem 0.75rem;
-    font-size: var(--text-sm);
-    font-weight: var(--font-weight-medium);
-    letter-spacing: -0.00625em;
+    font-size: var(--font-size-14);
+    font-weight: var(--font-weight-400);
     color: var(--color-foreground);
   }
 
+  .AccordionHeaderCellInner {
+    display: flex;
+    align-items: center;
+    /* Keep in sync with the ReferenceTable.css placeholder height math. */
+    min-height: 2.5rem;
+    padding: 0.5rem 0.75rem;
+    overflow-x: auto;
+    scrollbar-width: none;
+
+    &::-webkit-scrollbar {
+      display: none;
+    }
+  }
+
   .AccordionItem:not(:last-child) {
-    border-bottom: 1px solid var(--color-gray-200);
+    border-bottom: 1px solid var(--color-border);
   }
 
   .AccordionTrigger {
@@ -42,6 +55,7 @@
     position: relative;
     display: flex;
     width: 100%;
+    /* Keep in sync with the ReferenceTable.css placeholder height math. */
     min-height: 2.5rem;
     align-items: center;
     /* use padding to match TableCell height in CSS vars or data attributes table */
@@ -66,8 +80,23 @@
     }
 
     &:focus-visible {
-      outline: 2px solid var(--color-blue);
       z-index: 1;
+
+      /*
+       * The ring is inset so the root's paint containment (`content-visibility`)
+       * doesn't clip it, which puts it underneath the cells' overscroll overlays.
+       * Draw it as a stacked pseudo-element so it paints above them.
+       */
+      &::after {
+        content: '';
+        position: absolute;
+        pointer-events: none;
+        inset: 0;
+        z-index: 1;
+        border-radius: inherit;
+        outline: 2px solid var(--gray-t2);
+        outline-offset: -2px;
+      }
     }
 
     [open] & {
@@ -77,8 +106,8 @@
     }
 
     .AccordionItem:not([open]):last-child & {
-      border-bottom-left-radius: var(--radius-md);
-      border-bottom-right-radius: var(--radius-md);
+      border-bottom-left-radius: calc(var(--radius-12) - 1px);
+      border-bottom-right-radius: calc(var(--radius-12) - 1px);
     }
   }
 
@@ -106,18 +135,35 @@
     padding-block: 1px;
 
     [open] & {
-      background-color: var(--color-gray-50);
-      box-shadow: inset 0 1px 0 0 var(--color-gray-100);
+      background-color: var(--gray-s2);
+      box-shadow: inset 0 1px 0 0 var(--gray-c1);
     }
 
     .AccordionItem:last-child & {
-      border-bottom-left-radius: var(--radius-md);
-      border-bottom-right-radius: var(--radius-md);
+      border-bottom-left-radius: calc(var(--radius-12) - 1px);
+      border-bottom-right-radius: calc(var(--radius-12) - 1px);
     }
   }
 
   .AccordionScrollable {
     overflow-x: hidden;
+
+    /* stylelint-disable-next-line selector-pseudo-class-disallowed-list */
+    &:has(.AccordionScrollableInner:focus-visible) {
+      position: relative;
+      z-index: 1;
+
+      &::before {
+        content: '';
+        position: absolute;
+        pointer-events: none;
+        inset: 0;
+        z-index: 1;
+        /* The cell clips its own overflow, so the ring must sit fully inside it. */
+        outline: 2px solid var(--gray-t2);
+        outline-offset: -2px;
+      }
+    }
 
     &[data-scrollable] {
       position: relative;
@@ -133,6 +179,12 @@
         width: 1.25rem;
         background-image: linear-gradient(to right, transparent, var(--scrollable-gradient-color));
         animation: accordion-overscroll-overlay 500ms;
+      }
+
+      /* Only applied when the container is scrollable as this creates a layer. */
+      & .AccordionScrollableInner {
+        /* Prevent Chrome/Safari page navigation gestures when scrolling horizontally */
+        overscroll-behavior-x: contain;
       }
 
       @media (hover: hover) {
@@ -154,20 +206,25 @@
     display: flex;
     align-items: center;
     gap: 0.5rem;
+    /* Keep in sync with the ReferenceTable.css placeholder height math. */
     min-height: 2.5rem;
     padding-block: 0.5rem;
     padding-right: 1rem;
 
     /* Make individual cells scrollable */
     overflow-x: auto;
-    overscroll-behavior-x: contain;
     scrollbar-width: none;
 
     &::-webkit-scrollbar {
       display: none;
     }
+
+    &:focus-visible {
+      outline: 0;
+    }
   }
 
+  /* stylelint-disable-next-line selector-pseudo-class-disallowed-list */
   .AccordionScrollable:has(pre) .AccordionScrollableInner {
     min-height: unset;
     padding: 0;

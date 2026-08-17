@@ -8,12 +8,12 @@ export function MarkdownLink() {
   return (
     <a
       href={`${pathname}.md`}
-      className="flex-shrink-0"
+      className="SubtitleLink"
       aria-label="View markdown source"
       rel="alternate"
       type="text/markdown"
     >
-      <span className="MarkdownLink">
+      <span className="SubtitleLinkText">
         <MarkdownIcon />
         View as Markdown
       </span>

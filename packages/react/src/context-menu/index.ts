@@ -7,7 +7,10 @@ export type {
   MenuBackdropProps as ContextMenuBackdropProps,
   MenuBackdropState as ContextMenuBackdropState,
 } from '../menu/backdrop/MenuBackdrop';
-export type { MenuPortalProps as ContextMenuPortalProps } from '../menu/portal/MenuPortal';
+export type {
+  MenuPortalProps as ContextMenuPortalProps,
+  MenuPortalState as ContextMenuPortalState,
+} from '../menu/portal/MenuPortal';
 export type {
   MenuPositionerProps as ContextMenuPositionerProps,
   MenuPositionerState as ContextMenuPositionerState,
@@ -32,6 +35,10 @@ export type {
   MenuItemProps as ContextMenuItemProps,
   MenuItemState as ContextMenuItemState,
 } from '../menu/item/MenuItem';
+export type {
+  MenuLinkItemProps as ContextMenuLinkItemProps,
+  MenuLinkItemState as ContextMenuLinkItemState,
+} from '../menu/link-item/MenuLinkItem';
 export type {
   MenuCheckboxItemProps as ContextMenuCheckboxItemProps,
   MenuCheckboxItemState as ContextMenuCheckboxItemState,

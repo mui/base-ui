@@ -182,9 +182,6 @@ export default function ButtonControlsForm() {
         const formData = new FormData(event.currentTarget);
         console.log('submitting:', formData.getAll('pull-requests'));
       }}
-      style={{
-        fontFamily: 'var(--font-sans)',
-      }}
     >
       <PullRequestsCheckboxGroup />
       <StickersRadioGroup />

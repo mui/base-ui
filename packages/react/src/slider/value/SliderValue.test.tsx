@@ -1,6 +1,5 @@
+import { expect, vi } from 'vitest';
 import { screen } from '@mui/internal-test-utils';
-import { expect } from 'chai';
-import { spy } from 'sinon';
 import { Slider } from '@base-ui/react/slider';
 import { createRenderer, describeConformance } from '#test-utils';
 
@@ -23,7 +22,7 @@ describe('<Slider.Value />', () => {
 
     const sliderValue = screen.getByTestId('output');
 
-    expect(sliderValue).to.have.text('40');
+    expect(sliderValue).toHaveTextContent('40');
   });
 
   it('renders a range', async () => {
@@ -35,7 +34,25 @@ describe('<Slider.Value />', () => {
 
     const sliderValue = screen.getByTestId('output');
 
-    expect(sliderValue).to.have.text('40 – 65');
+    expect(sliderValue).toHaveTextContent('40 – 65');
+  });
+
+  it('associates the output with every thumb input', async () => {
+    await render(
+      <Slider.Root defaultValue={[40, 65]}>
+        <Slider.Value data-testid="output" />
+        <Slider.Control>
+          <Slider.Thumb index={0} />
+          <Slider.Thumb index={1} />
+        </Slider.Control>
+      </Slider.Root>,
+    );
+
+    const thumbIds = screen.getAllByRole('slider').map((thumb) => thumb.id);
+
+    expect(thumbIds).not.toContain('');
+    expect(new Set(thumbIds).size).toBe(thumbIds.length);
+    expect(screen.getByTestId('output')).toHaveAttribute('for', thumbIds.join(' '));
   });
 
   it('renders all thumb values', async () => {
@@ -47,7 +64,27 @@ describe('<Slider.Value />', () => {
 
     const sliderValue = screen.getByTestId('output');
 
-    expect(sliderValue).to.have.text('40 – 60 – 80 – 95');
+    expect(sliderValue).toHaveTextContent('40 – 60 – 80 – 95');
+  });
+
+  it('recomputes the formatted output when the format option changes', async () => {
+    function formatValue(v: number, format?: Intl.NumberFormatOptions) {
+      return new Intl.NumberFormat(undefined, format).format(v);
+    }
+
+    const { setProps } = await render(
+      <Slider.Root defaultValue={40}>
+        <Slider.Value data-testid="output" />
+      </Slider.Root>,
+    );
+
+    expect(screen.getByTestId('output').textContent).toBe(formatValue(40));
+
+    await setProps({ format: { style: 'currency', currency: 'USD' } });
+
+    expect(screen.getByTestId('output').textContent).toBe(
+      formatValue(40, { style: 'currency', currency: 'USD' }),
+    );
   });
 
   describe('prop: children', () => {
@@ -59,15 +96,15 @@ describe('<Slider.Value />', () => {
       function formatValue(v: number) {
         return new Intl.NumberFormat(undefined, format).format(v);
       }
-      const renderSpy = spy();
+      const renderSpy = vi.fn();
       await render(
         <Slider.Root defaultValue={[40, 60]} format={format}>
           <Slider.Value data-testid="output">{renderSpy}</Slider.Value>
         </Slider.Root>,
       );
 
-      expect(renderSpy.lastCall.args[0]).to.deep.equal([formatValue(40), formatValue(60)]);
-      expect(renderSpy.lastCall.args[1]).to.deep.equal([40, 60]);
+      expect(renderSpy.mock.lastCall?.[0]).toEqual([formatValue(40), formatValue(60)]);
+      expect(renderSpy.mock.lastCall?.[1]).toEqual([40, 60]);
     });
   });
 });

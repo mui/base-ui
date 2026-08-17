@@ -1,21 +1,374 @@
+import { expect, vi } from 'vitest';
 import * as React from 'react';
-import { createRenderer, isJSDOM } from '#test-utils';
+import * as ReactDOMClient from 'react-dom/client';
+import { createRenderer, isJSDOM, resetBrowserPointer } from '#test-utils';
 import { PreviewCard } from '@base-ui/react/preview-card';
-import { screen, waitFor, randomStringValue, act, flushMicrotasks } from '@mui/internal-test-utils';
+import {
+  screen,
+  waitFor,
+  randomStringValue,
+  act,
+  fireEvent,
+  flushMicrotasks,
+} from '@mui/internal-test-utils';
+import { OPEN_DELAY } from '../utils/constants';
+
+const CLOSE_TRANSITION_MS = 50;
+const CLOSE_TRANSITION_TIMEOUT = 300;
 
 describe('<PreviewCard.Root />', () => {
+  // Tests here leave the real pointer resting on a trigger, which the next render would put a
+  // fresh trigger under, opening the card before the test interacts.
+  beforeEach(resetBrowserPointer);
+
   beforeEach(async () => {
     globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
   });
 
-  const { render } = createRenderer();
+  const { render, clock } = createRenderer();
+
+  describe.skipIf(isJSDOM)('handle-backed root ownership', () => {
+    type NumberPayload = { payload: number | undefined };
+
+    it('keeps a default-open root open while a detached trigger migrates after the initial commit', async () => {
+      const handle = PreviewCard.createHandle();
+      const onOpenChange = vi.fn();
+      const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {});
+      const container = document.createElement('div');
+      document.body.appendChild(container);
+      const root = ReactDOMClient.createRoot(container);
+
+      let isOpen = false;
+      let popupIsOpen = false;
+      let unexpectedErrors: unknown[][] = [];
+
+      try {
+        root.render(
+          <React.Fragment>
+            <PreviewCard.Root
+              handle={handle}
+              defaultOpen
+              defaultTriggerId="trigger"
+              onOpenChange={onOpenChange}
+            >
+              <PreviewCard.Portal>
+                <PreviewCard.Positioner>
+                  <PreviewCard.Popup data-testid="default-open-content">Content</PreviewCard.Popup>
+                </PreviewCard.Positioner>
+              </PreviewCard.Portal>
+            </PreviewCard.Root>
+            <PreviewCard.Trigger handle={handle} id="trigger" href="#">
+              Trigger
+            </PreviewCard.Trigger>
+          </React.Fragment>,
+        );
+
+        // Rendering outside act preserves the browser's native ordering: the queued "lost trigger"
+        // microtask runs before useSyncExternalStore's passive subscription migrates the trigger.
+        await waitFor(() => {
+          expect(screen.getByRole('link', { name: 'Trigger' })).toHaveAttribute('data-popup-open');
+        });
+
+        isOpen = handle.isOpen;
+        popupIsOpen =
+          document
+            .querySelector('[data-testid="default-open-content"]')
+            ?.hasAttribute('data-open') ?? false;
+      } finally {
+        root.unmount();
+        container.remove();
+        // The spy only exists to silence the act() warnings caused by rendering outside act.
+        unexpectedErrors = consoleError.mock.calls.filter(
+          (call) => !String(call[0]).includes('act(...)'),
+        );
+        consoleError.mockRestore();
+      }
+
+      expect(unexpectedErrors).toEqual([]);
+      expect(isOpen).toBe(true);
+      expect(popupIsOpen).toBe(true);
+      expect(onOpenChange).not.toHaveBeenCalled();
+    });
+
+    it('ignores imperative handle calls made before a root is attached', async () => {
+      const handle = PreviewCard.createHandle<number>();
+
+      const consoleWarn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+      handle.open('trigger');
+      handle.close();
+      const detachedWarnings = consoleWarn.mock.calls.filter(
+        ([message]) =>
+          typeof message === 'string' && message.includes('no root using this handle is mounted'),
+      );
+      consoleWarn.mockRestore();
+
+      expect(handle.isOpen).toBe(false);
+      expect(detachedWarnings).toHaveLength(2);
+
+      await render(
+        <div>
+          <PreviewCard.Trigger handle={handle} id="trigger" href="#" payload={1}>
+            Trigger
+          </PreviewCard.Trigger>
+          <PreviewCard.Root handle={handle}>
+            {({ payload }: NumberPayload) => (
+              <React.Fragment>
+                <span data-testid="payload">{payload ?? 'No payload'}</span>
+                <PreviewCard.Portal>
+                  <PreviewCard.Positioner>
+                    <PreviewCard.Popup data-testid="content">Content</PreviewCard.Popup>
+                  </PreviewCard.Positioner>
+                </PreviewCard.Portal>
+              </React.Fragment>
+            )}
+          </PreviewCard.Root>
+        </div>,
+      );
+
+      const trigger = screen.getByRole('link', { name: 'Trigger' });
+      expect(screen.queryByTestId('content')).toBe(null);
+      expect(screen.getByTestId('payload').textContent).toBe('No payload');
+
+      await act(() => handle.open('trigger'));
+      await waitFor(() => {
+        expect(screen.queryByTestId('content')).not.toBe(null);
+      });
+      expect(screen.getByTestId('payload').textContent).toBe('1');
+      expect(trigger).toHaveAttribute('data-popup-open');
+    });
+
+    it('ignores imperative handle calls made after the root is detached', async () => {
+      const handle = PreviewCard.createHandle<number>();
+
+      function App() {
+        const [mounted, setMounted] = React.useState(true);
+
+        return (
+          <div>
+            <PreviewCard.Trigger handle={handle} id="trigger" href="#" payload={1}>
+              Trigger
+            </PreviewCard.Trigger>
+            {!mounted && (
+              <button type="button" onClick={() => setMounted(true)}>
+                Remount root
+              </button>
+            )}
+            {mounted && (
+              <PreviewCard.Root handle={handle}>
+                {({ payload }: NumberPayload) => (
+                  <React.Fragment>
+                    <span data-testid="payload">{payload ?? 'No payload'}</span>
+                    <button type="button" onClick={() => setMounted(false)}>
+                      Unmount root
+                    </button>
+                    <PreviewCard.Portal>
+                      <PreviewCard.Positioner>
+                        <PreviewCard.Popup data-testid="content">Content</PreviewCard.Popup>
+                      </PreviewCard.Positioner>
+                    </PreviewCard.Portal>
+                  </React.Fragment>
+                )}
+              </PreviewCard.Root>
+            )}
+          </div>
+        );
+      }
+
+      const { user } = await render(<App />);
+
+      await act(() => handle.open('trigger'));
+      await waitFor(() => {
+        expect(screen.queryByTestId('content')).not.toBe(null);
+      });
+      expect(screen.getByTestId('payload').textContent).toBe('1');
+
+      await user.click(screen.getByRole('button', { name: 'Unmount root' }));
+      expect(handle.isOpen).toBe(false);
+      await waitFor(() => {
+        expect(screen.queryByTestId('content')).toBe(null);
+      });
+
+      const consoleWarn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+      handle.open('trigger');
+      handle.close();
+      const detachedWarnings = consoleWarn.mock.calls.filter(
+        ([message]) =>
+          typeof message === 'string' && message.includes('no root using this handle is mounted'),
+      );
+      consoleWarn.mockRestore();
+
+      expect(handle.isOpen).toBe(false);
+      expect(detachedWarnings).toHaveLength(2);
+
+      await user.click(screen.getByRole('button', { name: 'Remount root' }));
+      expect(screen.queryByTestId('content')).toBe(null);
+      expect(screen.getByTestId('payload').textContent).toBe('No payload');
+
+      await act(() => handle.open('trigger'));
+      await waitFor(() => {
+        expect(screen.queryByTestId('content')).not.toBe(null);
+      });
+      expect(screen.getByTestId('payload').textContent).toBe('1');
+    });
+
+    it('registers a detached trigger declared after the root', async () => {
+      const handle = PreviewCard.createHandle();
+
+      await render(
+        <div>
+          <PreviewCard.Root handle={handle}>
+            <PreviewCard.Portal>
+              <PreviewCard.Positioner>
+                <PreviewCard.Popup data-testid="content">Content</PreviewCard.Popup>
+              </PreviewCard.Positioner>
+            </PreviewCard.Portal>
+          </PreviewCard.Root>
+          <PreviewCard.Trigger handle={handle} id="trigger" href="#">
+            Trigger
+          </PreviewCard.Trigger>
+        </div>,
+      );
+
+      const trigger = screen.getByRole('link', { name: 'Trigger' });
+
+      await act(() => handle.open('trigger'));
+      await waitFor(() => {
+        expect(screen.queryByTestId('content')).not.toBe(null);
+      });
+
+      expect(trigger).toHaveAttribute('data-popup-open');
+    });
+
+    it('throws when called with an unregistered trigger id', async () => {
+      const handle = PreviewCard.createHandle();
+
+      await render(
+        <div>
+          <PreviewCard.Root handle={handle}>
+            <PreviewCard.Portal>
+              <PreviewCard.Positioner>
+                <PreviewCard.Popup data-testid="content">Content</PreviewCard.Popup>
+              </PreviewCard.Positioner>
+            </PreviewCard.Portal>
+          </PreviewCard.Root>
+          <PreviewCard.Trigger handle={handle} id="trigger" href="#">
+            Trigger
+          </PreviewCard.Trigger>
+        </div>,
+      );
+
+      expect(() => handle.open('missing')).toThrow('was called with the trigger id "missing"');
+      expect(handle.isOpen).toBe(false);
+    });
+
+    describe('multiple roots sharing one handle', () => {
+      // Fake timers so the deferred overlap check only runs when ticked, after the handoff settles.
+      clock.withFakeTimers();
+
+      it('warns when a handle stays attached to more than one mounted root', async () => {
+        const handle = PreviewCard.createHandle();
+        const consoleWarn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+
+        await render(
+          <div>
+            <PreviewCard.Root handle={handle}>
+              <PreviewCard.Portal>
+                <PreviewCard.Positioner>
+                  <PreviewCard.Popup>First</PreviewCard.Popup>
+                </PreviewCard.Positioner>
+              </PreviewCard.Portal>
+            </PreviewCard.Root>
+            <PreviewCard.Root handle={handle}>
+              <PreviewCard.Portal>
+                <PreviewCard.Positioner>
+                  <PreviewCard.Popup>Second</PreviewCard.Popup>
+                </PreviewCard.Positioner>
+              </PreviewCard.Portal>
+            </PreviewCard.Root>
+          </div>,
+        );
+
+        // Both roots stay mounted, so the deferred check still sees the overlap and warns.
+        clock.tick(20);
+
+        const overlapWarned = consoleWarn.mock.calls.some(
+          ([message]) =>
+            typeof message === 'string' && message.includes('more than one mounted root'),
+        );
+        expect(overlapWarned).toBe(true);
+        consoleWarn.mockRestore();
+      });
+
+      it('resolves a trigger still registered to the previous root during a transient overlap', async () => {
+        const handle = PreviewCard.createHandle();
+        const openErrors: unknown[] = [];
+
+        function OpenOnMount() {
+          React.useLayoutEffect(() => {
+            try {
+              handle.open('trigger');
+            } catch (error) {
+              openErrors.push(error);
+            }
+          }, []);
+          return null;
+        }
+
+        function App({ phase }: { phase: 'outgoing' | 'overlap' | 'incoming' }) {
+          return (
+            <React.Fragment>
+              <PreviewCard.Trigger handle={handle} id="trigger" href="#">
+                Trigger
+              </PreviewCard.Trigger>
+              {(phase === 'outgoing' || phase === 'overlap') && (
+                <PreviewCard.Root key="outgoing" handle={handle}>
+                  <PreviewCard.Portal>
+                    <PreviewCard.Positioner>
+                      <PreviewCard.Popup>Outgoing</PreviewCard.Popup>
+                    </PreviewCard.Positioner>
+                  </PreviewCard.Portal>
+                </PreviewCard.Root>
+              )}
+              {(phase === 'overlap' || phase === 'incoming') && (
+                <React.Fragment>
+                  <PreviewCard.Root key="incoming" handle={handle}>
+                    <PreviewCard.Portal>
+                      <PreviewCard.Positioner>
+                        <PreviewCard.Popup>Incoming</PreviewCard.Popup>
+                      </PreviewCard.Positioner>
+                    </PreviewCard.Portal>
+                  </PreviewCard.Root>
+                  <OpenOnMount />
+                </React.Fragment>
+              )}
+            </React.Fragment>
+          );
+        }
+
+        // The detached trigger settles into the outgoing root's store (it is no longer in the
+        // fallback map). The incoming root then attaches while the outgoing one is still mounted,
+        // and a layout effect in that same commit opens by trigger id — before the trigger has
+        // migrated to the incoming root's store.
+        const { setProps } = await render(<App phase="outgoing" />);
+        await setProps({ phase: 'overlap' });
+
+        expect(openErrors).toHaveLength(0);
+        expect(handle.isOpen).toBe(true);
+        expect(screen.getByRole('link', { name: 'Trigger' })).toHaveAttribute('data-popup-open');
+
+        // Completing the handoff (the outgoing root unmounts) keeps the popup open and associated.
+        await setProps({ phase: 'incoming' });
+        expect(handle.isOpen).toBe(true);
+      });
+    });
+  });
 
   describe.skipIf(isJSDOM)('multiple triggers within Root', () => {
     type NumberPayload = { payload: number | undefined };
 
     it('should open the preview card with any trigger on hover', async () => {
       const popupId = randomStringValue();
-      const { user } = await render(
+      await render(
         <PreviewCard.Root>
           <button type="button" aria-label="Initial focus" autoFocus />
           <PreviewCard.Trigger href="#" delay={0}>
@@ -41,28 +394,31 @@ describe('<PreviewCard.Root />', () => {
       const trigger3 = screen.getByRole('link', { name: 'Trigger 3' });
 
       await waitFor(() => {
-        expect(screen.queryByTestId(popupId)).to.equal(null);
+        expect(screen.queryByTestId(popupId)).toBe(null);
       });
 
-      await user.hover(trigger1);
+      fireEvent.mouseEnter(trigger1);
+      fireEvent.mouseMove(trigger1);
       expect(screen.queryByTestId(popupId)).toBeVisible();
-      await user.hover(document.body);
+      fireEvent.mouseLeave(trigger1);
       await waitFor(() => {
-        expect(screen.queryByTestId(popupId)).to.equal(null);
+        expect(screen.queryByTestId(popupId)).toBe(null);
       });
 
-      await user.hover(trigger2);
+      fireEvent.mouseEnter(trigger2);
+      fireEvent.mouseMove(trigger2);
       expect(screen.queryByTestId(popupId)).toBeVisible();
-      await user.hover(document.body);
+      fireEvent.mouseLeave(trigger2);
       await waitFor(() => {
-        expect(screen.queryByTestId(popupId)).to.equal(null);
+        expect(screen.queryByTestId(popupId)).toBe(null);
       });
 
-      await user.hover(trigger3);
+      fireEvent.mouseEnter(trigger3);
+      fireEvent.mouseMove(trigger3);
       expect(screen.queryByTestId(popupId)).toBeVisible();
-      await user.hover(document.body);
+      fireEvent.mouseLeave(trigger3);
       await waitFor(() => {
-        expect(screen.queryByTestId(popupId)).to.equal(null);
+        expect(screen.queryByTestId(popupId)).toBe(null);
       });
     });
 
@@ -97,11 +453,11 @@ describe('<PreviewCard.Root />', () => {
 
       await user.hover(trigger1);
       expect(screen.queryByTestId(popupId)).toBeVisible();
-      expect(screen.getByTestId(popupId).textContent).to.equal('Content: 1');
+      expect(screen.getByTestId(popupId).textContent).toBe('Content: 1');
 
       await user.hover(trigger2);
       expect(screen.queryByTestId(popupId)).toBeVisible();
-      expect(screen.getByTestId(popupId).textContent).to.equal('Content: 2');
+      expect(screen.getByTestId(popupId).textContent).toBe('Content: 2');
     });
 
     it('should open the preview card with any trigger on focus', async () => {
@@ -130,25 +486,25 @@ describe('<PreviewCard.Root />', () => {
       const trigger2 = screen.getByRole('link', { name: 'Trigger 2' });
       const trigger3 = screen.getByRole('link', { name: 'Trigger 3' });
 
-      expect(screen.queryByText('Content')).to.equal(null);
+      expect(screen.queryByText('Content')).toBe(null);
 
       await act(async () => trigger1.focus());
       await flushMicrotasks();
       expect(screen.getByText('Content')).toBeVisible();
       await act(async () => trigger1.blur());
-      expect(screen.queryByText('Content')).to.equal(null);
+      expect(screen.queryByText('Content')).toBe(null);
 
       await act(async () => trigger2.focus());
       await flushMicrotasks();
       expect(screen.getByText('Content')).toBeVisible();
       await act(async () => trigger2.blur());
-      expect(screen.queryByText('Content')).to.equal(null);
+      expect(screen.queryByText('Content')).toBe(null);
 
       await act(async () => trigger3.focus());
       await flushMicrotasks();
       expect(screen.getByText('Content')).toBeVisible();
       await act(async () => trigger3.blur());
-      expect(screen.queryByText('Content')).to.equal(null);
+      expect(screen.queryByText('Content')).toBe(null);
     });
 
     it('should open again after escape when focusing another trigger', async () => {
@@ -181,7 +537,7 @@ describe('<PreviewCard.Root />', () => {
 
       await user.keyboard('{Escape}');
       await waitFor(() => {
-        expect(screen.queryByTestId(popupId)).to.equal(null);
+        expect(screen.queryByTestId(popupId)).toBe(null);
       });
 
       await act(async () => trigger2.focus());
@@ -221,12 +577,12 @@ describe('<PreviewCard.Root />', () => {
       await act(async () => trigger1.focus());
       await flushMicrotasks();
       await waitFor(() => {
-        expect(screen.getByTestId('content').textContent).to.equal('1');
+        expect(screen.getByTestId('content').textContent).toBe('1');
       });
 
       await act(async () => trigger2.focus());
       await flushMicrotasks();
-      expect(screen.getByTestId('content').textContent).to.equal('2');
+      expect(screen.getByTestId('content').textContent).toBe('2');
     });
 
     it('should set the payload and render content based on its value', async () => {
@@ -258,11 +614,126 @@ describe('<PreviewCard.Root />', () => {
       const trigger2 = screen.getByRole('link', { name: 'Trigger 2' });
 
       await user.hover(trigger1);
-      expect(screen.getByTestId('content').textContent).to.equal('1');
+      expect(screen.getByTestId('content').textContent).toBe('1');
 
       await user.unhover(trigger1);
       await user.hover(trigger2);
-      expect(screen.getByTestId('content').textContent).to.equal('2');
+      expect(screen.getByTestId('content').textContent).toBe('2');
+    });
+
+    it('should close when the active trigger unmounts', async () => {
+      let removeFirstTrigger: () => void = () => {};
+
+      function Test() {
+        const [showFirstTrigger, setShowFirstTrigger] = React.useState(true);
+        removeFirstTrigger = () => setShowFirstTrigger(false);
+
+        return (
+          <div style={{ padding: 50 }}>
+            <PreviewCard.Root defaultOpen defaultTriggerId="trigger-1">
+              {({ payload }: NumberPayload) => (
+                <React.Fragment>
+                  <button type="button" aria-label="Initial focus" autoFocus />
+                  <div style={{ display: 'flex', gap: 120 }}>
+                    {showFirstTrigger && (
+                      <PreviewCard.Trigger href="#" id="trigger-1" payload={1} delay={0}>
+                        Trigger 1
+                      </PreviewCard.Trigger>
+                    )}
+                    <PreviewCard.Trigger href="#" id="trigger-2" payload={2} delay={0}>
+                      Trigger 2
+                    </PreviewCard.Trigger>
+                  </div>
+
+                  <PreviewCard.Portal>
+                    <PreviewCard.Positioner side="bottom" align="start">
+                      <PreviewCard.Popup>
+                        <span data-testid="content">{payload}</span>
+                      </PreviewCard.Popup>
+                    </PreviewCard.Positioner>
+                  </PreviewCard.Portal>
+                </React.Fragment>
+              )}
+            </PreviewCard.Root>
+          </div>
+        );
+      }
+
+      await render(<Test />);
+
+      expect(await screen.findByTestId('content')).toHaveTextContent('1');
+
+      await act(async () => removeFirstTrigger());
+
+      const trigger2 = screen.getByRole('link', { name: 'Trigger 2' });
+
+      await waitFor(() => {
+        expect(screen.queryByRole('link', { name: 'Trigger 1' })).toBe(null);
+        expect(trigger2).not.toHaveAttribute('data-popup-open');
+        expect(screen.queryByTestId('content')).toBe(null);
+      });
+    });
+
+    it('should remain open when the active trigger unmount close is canceled', async () => {
+      let removeFirstTrigger: () => void = () => {};
+      const onOpenChange = vi.fn((nextOpen, details: PreviewCard.Root.ChangeEventDetails) => {
+        if (!nextOpen) {
+          details.cancel();
+        }
+      });
+
+      function Test() {
+        const [showFirstTrigger, setShowFirstTrigger] = React.useState(true);
+        removeFirstTrigger = () => setShowFirstTrigger(false);
+
+        return (
+          <div style={{ padding: 50 }}>
+            <PreviewCard.Root defaultOpen defaultTriggerId="trigger-1" onOpenChange={onOpenChange}>
+              {({ payload }: NumberPayload) => (
+                <React.Fragment>
+                  <button type="button" aria-label="Initial focus" autoFocus />
+                  <div style={{ display: 'flex', gap: 120 }}>
+                    {showFirstTrigger && (
+                      <PreviewCard.Trigger href="#" id="trigger-1" payload={1} delay={0}>
+                        Trigger 1
+                      </PreviewCard.Trigger>
+                    )}
+                    <PreviewCard.Trigger href="#" id="trigger-2" payload={2} delay={0}>
+                      Trigger 2
+                    </PreviewCard.Trigger>
+                  </div>
+
+                  <PreviewCard.Portal>
+                    <PreviewCard.Positioner side="bottom" align="start">
+                      <PreviewCard.Popup>
+                        <span data-testid="content">{payload}</span>
+                      </PreviewCard.Popup>
+                    </PreviewCard.Positioner>
+                  </PreviewCard.Portal>
+                </React.Fragment>
+              )}
+            </PreviewCard.Root>
+          </div>
+        );
+      }
+
+      await render(<Test />);
+
+      expect(await screen.findByTestId('content')).toHaveTextContent('1');
+
+      await act(async () => removeFirstTrigger());
+
+      const trigger2 = screen.getByRole('link', { name: 'Trigger 2' });
+
+      await waitFor(() => {
+        expect(screen.queryByRole('link', { name: 'Trigger 1' })).toBe(null);
+        expect(onOpenChange).toHaveBeenCalledWith(
+          false,
+          expect.objectContaining({ reason: 'none' }),
+        );
+        expect(trigger2).not.toHaveAttribute('data-popup-open');
+        expect(screen.getByTestId('content')).toHaveTextContent('1');
+      });
     });
 
     it('should reuse the popup and positioner DOM nodes when switching triggers', async () => {
@@ -298,8 +769,8 @@ describe('<PreviewCard.Root />', () => {
       const positionerElement = screen.getByTestId('positioner');
 
       await act(async () => trigger2.focus());
-      expect(screen.getByTestId('positioner')).to.equal(positionerElement);
-      expect(screen.getByTestId('popup')).to.equal(popupElement);
+      expect(screen.getByTestId('positioner')).toBe(positionerElement);
+      expect(screen.getByTestId('popup')).toBe(popupElement);
     });
 
     it('should allow controlling the preview card state programmatically', async () => {
@@ -360,11 +831,11 @@ describe('<PreviewCard.Root />', () => {
 
       const { user } = await render(<Test />);
       await user.click(screen.getByRole('button', { name: 'Open Trigger 1' }));
-      expect(screen.getByTestId('content').textContent).to.equal('1');
+      expect(screen.getByTestId('content').textContent).toBe('1');
       await user.click(screen.getByRole('button', { name: 'Open Trigger 2' }));
-      expect(screen.getByTestId('content').textContent).to.equal('2');
+      expect(screen.getByTestId('content').textContent).toBe('2');
       await user.click(screen.getByRole('button', { name: 'Close' }));
-      expect(screen.queryByTestId('content')).to.equal(null);
+      expect(screen.queryByTestId('content')).toBe(null);
     });
 
     it('allows setting an initially open preview card', async () => {
@@ -375,10 +846,21 @@ describe('<PreviewCard.Root />', () => {
           {({ payload }: NumberPayload) => (
             <React.Fragment>
               <button type="button" aria-label="Initial focus" autoFocus />
-              <PreviewCard.Trigger href="#" handle={testPreviewCard} payload={1}>
+              <PreviewCard.Trigger
+                href="#"
+                handle={testPreviewCard}
+                payload={1}
+                style={{ pointerEvents: 'none' }}
+              >
                 Trigger 1
               </PreviewCard.Trigger>
-              <PreviewCard.Trigger href="#" handle={testPreviewCard} payload={2} id={triggerId}>
+              <PreviewCard.Trigger
+                href="#"
+                handle={testPreviewCard}
+                payload={2}
+                id={triggerId}
+                style={{ pointerEvents: 'none' }}
+              >
                 Trigger 2
               </PreviewCard.Trigger>
               <PreviewCard.Portal>
@@ -394,7 +876,7 @@ describe('<PreviewCard.Root />', () => {
       );
 
       await waitFor(() => {
-        expect(screen.getByTestId('popup').textContent).to.equal('2');
+        expect(screen.getByTestId('popup').textContent).toBe('2');
       });
     });
   });
@@ -405,7 +887,7 @@ describe('<PreviewCard.Root />', () => {
     it('should open the preview card with any trigger on hover', async () => {
       const testPreviewCard = PreviewCard.createHandle();
       const popupId = randomStringValue();
-      const { user } = await render(
+      await render(
         <div>
           <button type="button" aria-label="Initial focus" autoFocus />
           <PreviewCard.Trigger href="#" handle={testPreviewCard} delay={0}>
@@ -433,34 +915,37 @@ describe('<PreviewCard.Root />', () => {
       const trigger3 = screen.getByRole('link', { name: 'Trigger 3' });
 
       await waitFor(() => {
-        expect(screen.queryByTestId(popupId)).to.equal(null);
+        expect(screen.queryByTestId(popupId)).toBe(null);
       });
 
-      await user.hover(trigger1);
+      fireEvent.mouseEnter(trigger1);
+      fireEvent.mouseMove(trigger1);
       await waitFor(() => {
         expect(screen.queryByTestId(popupId)).toBeVisible();
       });
-      await user.unhover(trigger1);
+      fireEvent.mouseLeave(trigger1);
       await waitFor(() => {
-        expect(screen.queryByTestId(popupId)).to.equal(null);
+        expect(screen.queryByTestId(popupId)).toBe(null);
       });
 
-      await user.hover(trigger2);
+      fireEvent.mouseEnter(trigger2);
+      fireEvent.mouseMove(trigger2);
       await waitFor(() => {
         expect(screen.queryByTestId(popupId)).toBeVisible();
       });
-      await user.unhover(trigger2);
+      fireEvent.mouseLeave(trigger2);
       await waitFor(() => {
-        expect(screen.queryByTestId(popupId)).to.equal(null);
+        expect(screen.queryByTestId(popupId)).toBe(null);
       });
 
-      await user.hover(trigger3);
+      fireEvent.mouseEnter(trigger3);
+      fireEvent.mouseMove(trigger3);
       await waitFor(() => {
         expect(screen.queryByTestId(popupId)).toBeVisible();
       });
-      await user.unhover(trigger3);
+      fireEvent.mouseLeave(trigger3);
       await waitFor(() => {
-        expect(screen.queryByTestId(popupId)).to.equal(null);
+        expect(screen.queryByTestId(popupId)).toBe(null);
       });
     });
 
@@ -469,13 +954,28 @@ describe('<PreviewCard.Root />', () => {
       await render(
         <div>
           <button type="button" aria-label="Initial focus" autoFocus />
-          <PreviewCard.Trigger href="#" handle={testPreviewCard} delay={0}>
+          <PreviewCard.Trigger
+            href="#"
+            handle={testPreviewCard}
+            delay={0}
+            style={{ pointerEvents: 'none' }}
+          >
             Trigger 1
           </PreviewCard.Trigger>
-          <PreviewCard.Trigger href="#" handle={testPreviewCard} delay={0}>
+          <PreviewCard.Trigger
+            href="#"
+            handle={testPreviewCard}
+            delay={0}
+            style={{ pointerEvents: 'none' }}
+          >
             Trigger 2
           </PreviewCard.Trigger>
-          <PreviewCard.Trigger href="#" handle={testPreviewCard} delay={0}>
+          <PreviewCard.Trigger
+            href="#"
+            handle={testPreviewCard}
+            delay={0}
+            style={{ pointerEvents: 'none' }}
+          >
             Trigger 3
           </PreviewCard.Trigger>
 
@@ -493,25 +993,81 @@ describe('<PreviewCard.Root />', () => {
       const trigger2 = screen.getByRole('link', { name: 'Trigger 2' });
       const trigger3 = screen.getByRole('link', { name: 'Trigger 3' });
 
-      expect(screen.queryByText('Content')).to.equal(null);
+      expect(screen.queryByText('Content')).toBe(null);
 
       await act(async () => trigger1.focus());
       await flushMicrotasks();
       expect(screen.getByText('Content')).toBeVisible();
       await act(async () => trigger1.blur());
-      expect(screen.queryByText('Content')).to.equal(null);
+      expect(screen.queryByText('Content')).toBe(null);
 
       await act(async () => trigger2.focus());
       await flushMicrotasks();
       expect(screen.getByText('Content')).toBeVisible();
       await act(async () => trigger2.blur());
-      expect(screen.queryByText('Content')).to.equal(null);
+      expect(screen.queryByText('Content')).toBe(null);
 
       await act(async () => trigger3.focus());
       await flushMicrotasks();
       expect(screen.getByText('Content')).toBeVisible();
       await act(async () => trigger3.blur());
-      expect(screen.queryByText('Content')).to.equal(null);
+      expect(screen.queryByText('Content')).toBe(null);
+    });
+
+    it('should reposition to a different trigger when reopened with keepMounted=true', async () => {
+      const previewCardHandle = PreviewCard.createHandle();
+      const { user } = await render(
+        <div style={{ margin: 50 }}>
+          <PreviewCard.Trigger href="#" handle={previewCardHandle} delay={0}>
+            Trigger 1
+          </PreviewCard.Trigger>
+          <PreviewCard.Trigger href="#" handle={previewCardHandle} delay={0}>
+            Trigger 2
+          </PreviewCard.Trigger>
+
+          <PreviewCard.Root handle={previewCardHandle}>
+            <PreviewCard.Portal keepMounted>
+              <PreviewCard.Positioner data-testid="positioner" side="bottom" align="start">
+                <PreviewCard.Popup>Content</PreviewCard.Popup>
+              </PreviewCard.Positioner>
+            </PreviewCard.Portal>
+          </PreviewCard.Root>
+        </div>,
+      );
+
+      const trigger1 = screen.getByRole('link', { name: 'Trigger 1' });
+      const trigger2 = screen.getByRole('link', { name: 'Trigger 2' });
+      const positioner = screen.getByTestId('positioner');
+
+      await user.hover(trigger1);
+
+      await waitFor(() => {
+        expect(screen.getByText('Content')).toBeVisible();
+      });
+
+      await waitFor(() => {
+        expect(
+          Math.abs(positioner.getBoundingClientRect().left - trigger1.getBoundingClientRect().left),
+        ).toBeLessThanOrEqual(1);
+      });
+
+      await user.unhover(trigger1);
+
+      await waitFor(() => {
+        expect(positioner).toHaveAttribute('hidden');
+      });
+
+      await user.hover(trigger2);
+
+      await waitFor(() => {
+        expect(screen.getByText('Content')).toBeVisible();
+      });
+
+      await waitFor(() => {
+        expect(
+          Math.abs(positioner.getBoundingClientRect().left - trigger2.getBoundingClientRect().left),
+        ).toBeLessThanOrEqual(1);
+      });
     });
 
     it('should set the payload and render content based on its value', async () => {
@@ -544,11 +1100,75 @@ describe('<PreviewCard.Root />', () => {
       const trigger2 = screen.getByRole('link', { name: 'Trigger 2' });
 
       await user.hover(trigger1);
-      expect(screen.getByTestId('content').textContent).to.equal('1');
+      expect(screen.getByTestId('content').textContent).toBe('1');
 
       await user.unhover(trigger1);
       await user.hover(trigger2);
-      expect(screen.getByTestId('content').textContent).to.equal('2');
+      expect(screen.getByTestId('content').textContent).toBe('2');
+    });
+
+    it('should close when the active detached trigger unmounts', async () => {
+      const testPreviewCard = PreviewCard.createHandle<number>();
+      let removeFirstTrigger: () => void = () => {};
+
+      function Test() {
+        const [showFirstTrigger, setShowFirstTrigger] = React.useState(true);
+        removeFirstTrigger = () => setShowFirstTrigger(false);
+
+        return (
+          <div style={{ padding: 50 }}>
+            <button type="button" aria-label="Initial focus" autoFocus />
+            <div style={{ display: 'flex', gap: 120 }}>
+              {showFirstTrigger && (
+                <PreviewCard.Trigger
+                  href="#"
+                  handle={testPreviewCard}
+                  id="trigger-1"
+                  payload={1}
+                  delay={0}
+                >
+                  Trigger 1
+                </PreviewCard.Trigger>
+              )}
+              <PreviewCard.Trigger
+                href="#"
+                handle={testPreviewCard}
+                id="trigger-2"
+                payload={2}
+                delay={0}
+              >
+                Trigger 2
+              </PreviewCard.Trigger>
+            </div>
+
+            <PreviewCard.Root handle={testPreviewCard} defaultOpen defaultTriggerId="trigger-1">
+              {({ payload }: NumberPayload) => (
+                <PreviewCard.Portal>
+                  <PreviewCard.Positioner side="bottom" align="start">
+                    <PreviewCard.Popup>
+                      <span data-testid="content">{payload}</span>
+                    </PreviewCard.Popup>
+                  </PreviewCard.Positioner>
+                </PreviewCard.Portal>
+              )}
+            </PreviewCard.Root>
+          </div>
+        );
+      }
+
+      await render(<Test />);
+
+      expect(await screen.findByTestId('content')).toHaveTextContent('1');
+
+      await act(async () => removeFirstTrigger());
+
+      const trigger2 = screen.getByRole('link', { name: 'Trigger 2' });
+
+      await waitFor(() => {
+        expect(screen.queryByRole('link', { name: 'Trigger 1' })).toBe(null);
+        expect(trigger2).not.toHaveAttribute('data-popup-open');
+        expect(screen.queryByTestId('content')).toBe(null);
+      });
     });
 
     it('should reuse the popup and positioner DOM nodes when switching triggers', async () => {
@@ -585,8 +1205,8 @@ describe('<PreviewCard.Root />', () => {
       const positionerElement = screen.getByTestId('positioner');
 
       await act(async () => trigger2.focus());
-      expect(screen.getByTestId('popup')).to.equal(popupElement);
-      expect(screen.getByTestId('positioner')).to.equal(positionerElement);
+      expect(screen.getByTestId('popup')).toBe(popupElement);
+      expect(screen.getByTestId('positioner')).toBe(positionerElement);
     });
 
     it('should allow controlling the preview card state programmatically', async () => {
@@ -664,26 +1284,30 @@ describe('<PreviewCard.Root />', () => {
       const trigger2 = screen.getByRole('link', { name: 'Trigger 2' });
 
       await user.click(screen.getByRole('button', { name: 'Open Trigger 1' }));
-      expect(screen.getByTestId('content').textContent).to.equal('1');
+      expect(screen.getByTestId('content').textContent).toBe('1');
 
       await waitFor(() => {
-        expect(screen.getByTestId('positioner').getBoundingClientRect().left).to.be.approximately(
-          trigger1.getBoundingClientRect().left,
-          1,
-        );
+        expect(
+          Math.abs(
+            screen.getByTestId('positioner').getBoundingClientRect().left -
+              trigger1.getBoundingClientRect().left,
+          ),
+        ).toBeLessThanOrEqual(1);
       });
 
       await user.click(screen.getByRole('button', { name: 'Open Trigger 2' }));
-      expect(screen.getByTestId('content').textContent).to.equal('2');
+      expect(screen.getByTestId('content').textContent).toBe('2');
       await waitFor(() => {
-        expect(screen.getByTestId('positioner').getBoundingClientRect().left).to.be.approximately(
-          trigger2.getBoundingClientRect().left,
-          1,
-        );
+        expect(
+          Math.abs(
+            screen.getByTestId('positioner').getBoundingClientRect().left -
+              trigger2.getBoundingClientRect().left,
+          ),
+        ).toBeLessThanOrEqual(1);
       });
 
       await user.click(screen.getByRole('button', { name: 'Close' }));
-      expect(screen.queryByTestId('content')).to.equal(null);
+      expect(screen.queryByTestId('content')).toBe(null);
     });
 
     it('allows setting an initially open preview card', async () => {
@@ -692,10 +1316,21 @@ describe('<PreviewCard.Root />', () => {
       await render(
         <React.Fragment>
           <button type="button" aria-label="Initial focus" autoFocus />
-          <PreviewCard.Trigger href="#" handle={testPreviewCard} payload={1}>
+          <PreviewCard.Trigger
+            href="#"
+            handle={testPreviewCard}
+            payload={1}
+            style={{ pointerEvents: 'none' }}
+          >
             Trigger 1
           </PreviewCard.Trigger>
-          <PreviewCard.Trigger href="#" handle={testPreviewCard} payload={2} id={triggerId}>
+          <PreviewCard.Trigger
+            href="#"
+            handle={testPreviewCard}
+            payload={2}
+            id={triggerId}
+            style={{ pointerEvents: 'none' }}
+          >
             Trigger 2
           </PreviewCard.Trigger>
 
@@ -714,7 +1349,344 @@ describe('<PreviewCard.Root />', () => {
       );
 
       await waitFor(() => {
-        expect(screen.getByTestId('popup').textContent).to.equal('2');
+        expect(screen.getByTestId('popup').textContent).toBe('2');
+      });
+    });
+
+    it('should not have inline scale style after switching triggers', async () => {
+      globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+
+      const testPreviewCard = PreviewCard.createHandle<number>();
+
+      function Test() {
+        return (
+          <React.Fragment>
+            <button type="button" aria-label="Initial focus" autoFocus />
+            <PreviewCard.Trigger href="#" handle={testPreviewCard} payload={1} delay={0}>
+              Trigger 1
+            </PreviewCard.Trigger>
+            <PreviewCard.Trigger href="#" handle={testPreviewCard} payload={2} delay={0}>
+              Trigger 2
+            </PreviewCard.Trigger>
+
+            <PreviewCard.Root handle={testPreviewCard}>
+              {({ payload }: NumberPayload) => (
+                <PreviewCard.Portal>
+                  <PreviewCard.Positioner>
+                    <PreviewCard.Popup data-testid="popup">
+                      <PreviewCard.Viewport>
+                        <span data-testid="content">{payload}</span>
+                      </PreviewCard.Viewport>
+                    </PreviewCard.Popup>
+                  </PreviewCard.Positioner>
+                </PreviewCard.Portal>
+              )}
+            </PreviewCard.Root>
+          </React.Fragment>
+        );
+      }
+
+      const { user } = await render(<Test />);
+
+      const trigger1 = screen.getByRole('link', { name: 'Trigger 1' });
+      const trigger2 = screen.getByRole('link', { name: 'Trigger 2' });
+
+      // Open with Trigger 1
+      await user.hover(trigger1);
+      await waitFor(() => {
+        expect(screen.getByTestId('content').textContent).toBe('1');
+      });
+
+      // Switch to Trigger 2
+      await user.unhover(trigger1);
+      await user.hover(trigger2);
+      await waitFor(() => {
+        expect(screen.getByTestId('content').textContent).toBe('2');
+      });
+
+      // The popup should not have an inline scale style that would override CSS transitions
+      const popup = screen.getByTestId('popup');
+      expect(popup.style.scale).toBe('');
+    });
+
+    it('opens immediately when entering trigger B during trigger A close transition', async () => {
+      globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+      const testPreviewCard = PreviewCard.createHandle<number>();
+      const style = `
+        @keyframes preview-card-a-to-b-close-transition {
+          from { opacity: 1; }
+          to { opacity: 0.01; }
+        }
+        [data-testid="popup"][data-ending-style] {
+          animation: preview-card-a-to-b-close-transition ${CLOSE_TRANSITION_MS}ms linear forwards;
+        }
+      `;
+      const { user } = await render(
+        <React.Fragment>
+          {/* eslint-disable-next-line react/no-danger */}
+          <style dangerouslySetInnerHTML={{ __html: style }} />
+          <button type="button" aria-label="Initial focus" autoFocus />
+          <PreviewCard.Trigger href="#" handle={testPreviewCard} payload={1} delay={0}>
+            Trigger 1
+          </PreviewCard.Trigger>
+          <PreviewCard.Trigger href="#" handle={testPreviewCard} payload={2} delay={OPEN_DELAY}>
+            Trigger 2
+          </PreviewCard.Trigger>
+
+          <PreviewCard.Root handle={testPreviewCard}>
+            {({ payload }: NumberPayload) => (
+              <PreviewCard.Portal keepMounted>
+                <PreviewCard.Positioner>
+                  <PreviewCard.Popup data-testid="popup">
+                    <span data-testid="content">{payload}</span>
+                  </PreviewCard.Popup>
+                </PreviewCard.Positioner>
+              </PreviewCard.Portal>
+            )}
+          </PreviewCard.Root>
+        </React.Fragment>,
+      );
+
+      const trigger1 = screen.getByRole('link', { name: 'Trigger 1' });
+      const trigger2 = screen.getByRole('link', { name: 'Trigger 2' });
+
+      await user.hover(trigger1);
+      await waitFor(() => {
+        expect(screen.getByTestId('content').textContent).toBe('1');
+      });
+
+      await user.unhover(trigger1);
+      await waitFor(() => {
+        expect(screen.getByTestId('popup')).toHaveAttribute('data-ending-style');
+      });
+
+      await user.hover(trigger2);
+
+      await waitFor(
+        () => {
+          expect(screen.getByTestId('content').textContent).toBe('2');
+        },
+        { timeout: 200 },
+      );
+    });
+
+    it('still respects trigger B open delay after trigger A close transition finishes', async () => {
+      globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+      const testPreviewCard = PreviewCard.createHandle<number>();
+      const style = `
+        @keyframes preview-card-a-to-b-post-close-delay {
+          from { opacity: 1; }
+          to { opacity: 0.01; }
+        }
+        [data-testid="popup"][data-ending-style] {
+          animation: preview-card-a-to-b-post-close-delay ${CLOSE_TRANSITION_MS}ms linear forwards;
+        }
+      `;
+      const { user } = await render(
+        <React.Fragment>
+          {/* eslint-disable-next-line react/no-danger */}
+          <style dangerouslySetInnerHTML={{ __html: style }} />
+          <button type="button" aria-label="Initial focus" autoFocus />
+          <PreviewCard.Trigger href="#" handle={testPreviewCard} payload={1} delay={0}>
+            Trigger 1
+          </PreviewCard.Trigger>
+          <PreviewCard.Trigger href="#" handle={testPreviewCard} payload={2} delay={OPEN_DELAY}>
+            Trigger 2
+          </PreviewCard.Trigger>
+
+          <PreviewCard.Root handle={testPreviewCard}>
+            {({ payload }: NumberPayload) => (
+              <PreviewCard.Portal keepMounted>
+                <PreviewCard.Positioner>
+                  <PreviewCard.Popup data-testid="popup">
+                    <span data-testid="content">{payload}</span>
+                  </PreviewCard.Popup>
+                </PreviewCard.Positioner>
+              </PreviewCard.Portal>
+            )}
+          </PreviewCard.Root>
+        </React.Fragment>,
+      );
+
+      const trigger1 = screen.getByRole('link', { name: 'Trigger 1' });
+      const trigger2 = screen.getByRole('link', { name: 'Trigger 2' });
+
+      await user.hover(trigger1);
+      await waitFor(() => {
+        expect(screen.getByTestId('content').textContent).toBe('1');
+      });
+
+      await user.unhover(trigger1);
+      await waitFor(() => {
+        expect(screen.getByTestId('popup')).toHaveAttribute('data-ending-style');
+      });
+
+      // Once close transition is done, this should behave like a normal delayed open.
+      await waitFor(
+        () => {
+          expect(screen.getByTestId('popup')).not.toHaveAttribute('data-ending-style');
+        },
+        { timeout: CLOSE_TRANSITION_TIMEOUT },
+      );
+      await waitFor(() => {
+        expect(screen.getByTestId('popup')).toHaveAttribute('data-closed');
+      });
+
+      await user.hover(trigger2);
+
+      // Must not open immediately once close transition has finished.
+      await waitFor(
+        () => {
+          expect(screen.getByTestId('popup')).toHaveAttribute('data-closed');
+        },
+        { timeout: 200 },
+      );
+
+      await waitFor(() => {
+        expect(screen.getByTestId('popup')).toHaveAttribute('data-open');
+      });
+    });
+
+    it('reopens immediately when re-hovering trigger A during its close transition', async () => {
+      globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+
+      const testPreviewCard = PreviewCard.createHandle<number>();
+      const style = `
+        @keyframes preview-card-reopen-during-close {
+          from { opacity: 1; }
+          to { opacity: 0.01; }
+        }
+        [data-testid="popup"][data-ending-style] {
+          animation: preview-card-reopen-during-close ${CLOSE_TRANSITION_MS}ms linear forwards;
+        }
+      `;
+
+      const { user } = await render(
+        <React.Fragment>
+          {/* eslint-disable-next-line react/no-danger */}
+          <style dangerouslySetInnerHTML={{ __html: style }} />
+          <button type="button" aria-label="Initial focus" autoFocus />
+          <PreviewCard.Trigger href="#" handle={testPreviewCard} payload={1} delay={OPEN_DELAY}>
+            Trigger 1
+          </PreviewCard.Trigger>
+          <PreviewCard.Root handle={testPreviewCard}>
+            {({ payload }: NumberPayload) => (
+              <PreviewCard.Portal keepMounted>
+                <PreviewCard.Positioner>
+                  <PreviewCard.Popup data-testid="popup">
+                    <span data-testid="content">{payload}</span>
+                  </PreviewCard.Popup>
+                </PreviewCard.Positioner>
+              </PreviewCard.Portal>
+            )}
+          </PreviewCard.Root>
+        </React.Fragment>,
+      );
+
+      const trigger1 = screen.getByRole('link', { name: 'Trigger 1' });
+
+      await user.hover(trigger1);
+      await waitFor(() => {
+        expect(screen.getByTestId('content').textContent).toBe('1');
+      });
+
+      await user.unhover(trigger1);
+      await waitFor(() => {
+        expect(screen.getByTestId('popup')).toHaveAttribute('data-ending-style');
+      });
+
+      await user.hover(trigger1);
+
+      await waitFor(
+        () => {
+          expect(screen.getByTestId('content').textContent).toBe('1');
+          expect(screen.getByTestId('popup')).toHaveAttribute('data-open');
+          expect(screen.getByTestId('popup')).not.toHaveAttribute('data-closed');
+        },
+        { timeout: 200 },
+      );
+    });
+
+    it('respects open delay on later same-trigger hovers after close lifecycle finishes', async () => {
+      globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+
+      const testPreviewCard = PreviewCard.createHandle<number>();
+      const style = `
+        @keyframes preview-card-reopen-during-close-delay {
+          from { opacity: 1; }
+          to { opacity: 0.01; }
+        }
+        [data-testid="popup"][data-ending-style] {
+          animation: preview-card-reopen-during-close-delay ${CLOSE_TRANSITION_MS}ms linear forwards;
+        }
+      `;
+
+      const { user } = await render(
+        <React.Fragment>
+          {/* eslint-disable-next-line react/no-danger */}
+          <style dangerouslySetInnerHTML={{ __html: style }} />
+          <button type="button" aria-label="Initial focus" autoFocus />
+          <PreviewCard.Trigger href="#" handle={testPreviewCard} payload={1} delay={OPEN_DELAY}>
+            Trigger 1
+          </PreviewCard.Trigger>
+          <PreviewCard.Root handle={testPreviewCard}>
+            {({ payload }: NumberPayload) => (
+              <PreviewCard.Portal keepMounted>
+                <PreviewCard.Positioner>
+                  <PreviewCard.Popup data-testid="popup">
+                    <span data-testid="content">{payload}</span>
+                  </PreviewCard.Popup>
+                </PreviewCard.Positioner>
+              </PreviewCard.Portal>
+            )}
+          </PreviewCard.Root>
+        </React.Fragment>,
+      );
+
+      const trigger1 = screen.getByRole('link', { name: 'Trigger 1' });
+
+      // First cycle: close and immediate re-hover during close lifecycle should reopen.
+      await user.hover(trigger1);
+      await waitFor(() => {
+        expect(screen.getByTestId('content').textContent).toBe('1');
+      });
+      await user.unhover(trigger1);
+      await waitFor(() => {
+        expect(screen.getByTestId('popup')).toHaveAttribute('data-ending-style');
+      });
+      await user.hover(trigger1);
+      await waitFor(
+        () => {
+          expect(screen.getByTestId('popup')).toHaveAttribute('data-open');
+          expect(screen.getByTestId('popup')).not.toHaveAttribute('data-closed');
+        },
+        { timeout: 200 },
+      );
+
+      // Second cycle: once close lifecycle has fully finished, a fresh hover must honor OPEN_DELAY.
+      await user.unhover(trigger1);
+      await waitFor(() => {
+        expect(screen.getByTestId('popup')).toHaveAttribute('data-closed');
+      });
+      await waitFor(
+        () => {
+          expect(screen.getByTestId('popup')).not.toHaveAttribute('data-ending-style');
+        },
+        { timeout: CLOSE_TRANSITION_TIMEOUT },
+      );
+
+      await user.hover(trigger1);
+
+      // Should not reopen immediately this time.
+      await waitFor(
+        () => {
+          expect(screen.getByTestId('popup')).toHaveAttribute('data-closed');
+        },
+        { timeout: 200 },
+      );
+
+      await waitFor(() => {
+        expect(screen.getByTestId('popup')).toHaveAttribute('data-open');
       });
     });
   });
@@ -739,22 +1711,22 @@ describe('<PreviewCard.Root />', () => {
       );
 
       const trigger = screen.getByRole('link', { name: 'Trigger' });
-      expect(screen.queryByTestId('content')).to.equal(null);
+      expect(screen.queryByTestId('content')).toBe(null);
 
       await act(() => handle.open('trigger'));
       await waitFor(() => {
-        expect(screen.queryByTestId('content')).not.to.equal(null);
+        expect(screen.queryByTestId('content')).not.toBe(null);
       });
 
-      expect(screen.getByTestId('content').textContent).to.equal('Content');
-      expect(trigger).to.have.attribute('data-popup-open');
+      expect(screen.getByTestId('content').textContent).toBe('Content');
+      expect(trigger).toHaveAttribute('data-popup-open');
 
       await act(() => handle.close());
       await waitFor(() => {
-        expect(screen.queryByTestId('content')).to.equal(null);
+        expect(screen.queryByTestId('content')).toBe(null);
       });
 
-      expect(trigger).not.to.have.attribute('data-popup-open');
+      expect(trigger).not.toHaveAttribute('data-popup-open');
     });
 
     it('sets the payload associated with the trigger', async () => {
@@ -782,23 +1754,23 @@ describe('<PreviewCard.Root />', () => {
 
       const trigger1 = screen.getByRole('link', { name: 'Trigger 1' });
       const trigger2 = screen.getByRole('link', { name: 'Trigger 2' });
-      expect(screen.queryByTestId('content')).to.equal(null);
+      expect(screen.queryByTestId('content')).toBe(null);
 
       await act(() => handle.open('trigger2'));
       await waitFor(() => {
-        expect(screen.queryByTestId('content')).not.to.equal(null);
+        expect(screen.queryByTestId('content')).not.toBe(null);
       });
 
-      expect(screen.getByTestId('content').textContent).to.equal('2');
-      expect(trigger2).to.have.attribute('data-popup-open');
-      expect(trigger1).not.to.have.attribute('data-popup-open');
+      expect(screen.getByTestId('content').textContent).toBe('2');
+      expect(trigger2).toHaveAttribute('data-popup-open');
+      expect(trigger1).not.toHaveAttribute('data-popup-open');
 
       await act(() => handle.close());
       await waitFor(() => {
-        expect(screen.queryByTestId('content')).to.equal(null);
+        expect(screen.queryByTestId('content')).toBe(null);
       });
 
-      expect(trigger2).not.to.have.attribute('data-popup-open');
+      expect(trigger2).not.toHaveAttribute('data-popup-open');
     });
   });
 });

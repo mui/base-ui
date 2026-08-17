@@ -1,77 +1,45 @@
 'use client';
 import * as React from 'react';
-import { useOnMount } from '@base-ui/utils/useOnMount';
-import type { BaseUIComponentProps } from '../../utils/types';
+import type { BaseUIComponentProps } from '../../internals/types';
 import { valueToPercent } from '../../utils/valueToPercent';
-import { useRenderElement } from '../../utils/useRenderElement';
+import { useIsHydrating } from '../../utils/useIsHydrating';
+import { useRenderElement } from '../../internals/useRenderElement';
 import { useSliderRootContext } from '../root/SliderRootContext';
 import { sliderStateAttributesMapping } from '../root/stateAttributesMapping';
-import type { SliderRoot } from '../root/SliderRoot';
+import type { SliderRootState } from '../root/SliderRoot';
 
-function getInsetStyles(
+function getIndicatorStyles(
   vertical: boolean,
   range: boolean,
+  inset: boolean,
   start: number | undefined,
   end: number | undefined,
-  renderBeforeHydration: boolean,
-  mounted: boolean,
+  forceHidden: boolean,
 ): React.CSSProperties & Record<string, unknown> {
-  const visibility =
-    start === undefined || (range && end === undefined) ? ('hidden' as const) : undefined;
-
-  const startEdge = vertical ? 'bottom' : 'insetInlineStart';
-  const mainSide = vertical ? 'height' : 'width';
-  const crossSide = vertical ? 'width' : 'height';
-
   const styles: React.CSSProperties & Record<string, unknown> = {
-    visibility: renderBeforeHydration && !mounted ? 'hidden' : visibility,
+    visibility:
+      forceHidden || (inset && (start === undefined || (range && end === undefined)))
+        ? ('hidden' as const)
+        : undefined,
     position: vertical ? 'absolute' : 'relative',
-    [crossSide]: 'inherit',
+    [vertical ? 'width' : 'height']: 'inherit',
   };
 
-  styles['--start-position'] = `${start ?? 0}%`;
+  let startValue: string = `${start ?? 0}%`;
+  let sizeValue: string = `${(end ?? 0) - (start ?? 0)}%`;
 
-  if (!range) {
-    styles[startEdge] = 0;
-    styles[mainSide] = 'var(--start-position)';
+  if (inset) {
+    styles['--start-position'] = startValue;
+    startValue = 'var(--start-position)';
 
-    return styles;
+    if (range) {
+      styles['--relative-size'] = sizeValue;
+      sizeValue = 'var(--relative-size)';
+    }
   }
 
-  styles['--relative-size'] = `${(end ?? 0) - (start ?? 0)}%`;
-
-  styles[startEdge] = 'var(--start-position)';
-  styles[mainSide] = 'var(--relative-size)';
-
-  return styles;
-}
-
-function getCenteredStyles(
-  vertical: boolean,
-  range: boolean,
-  start: number,
-  end: number,
-): React.CSSProperties {
-  const startEdge = vertical ? 'bottom' : 'insetInlineStart';
-  const mainSide = vertical ? 'height' : 'width';
-  const crossSide = vertical ? 'width' : 'height';
-
-  const styles: React.CSSProperties = {
-    position: vertical ? 'absolute' : 'relative',
-    [crossSide]: 'inherit',
-  };
-
-  if (!range) {
-    styles[startEdge] = 0;
-    styles[mainSide] = `${start}%`;
-
-    return styles;
-  }
-
-  const size = end - start;
-
-  styles[startEdge] = `${start}%`;
-  styles[mainSide] = `${size}%`;
+  styles[vertical ? 'bottom' : 'insetInlineStart'] = range ? startValue : 0;
+  styles[vertical ? 'height' : 'width'] = range ? sizeValue : startValue;
 
   return styles;
 }
@@ -86,32 +54,24 @@ export const SliderIndicator = React.forwardRef(function SliderIndicator(
   componentProps: SliderIndicator.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { render, className, ...elementProps } = componentProps;
+  const { render, className, style: styleProp, ...elementProps } = componentProps;
 
   const { indicatorPosition, inset, max, min, orientation, renderBeforeHydration, state, values } =
     useSliderRootContext();
 
-  const [isMounted, setIsMounted] = React.useState(false);
-  useOnMount(() => setIsMounted(true));
+  const isHydrating = useIsHydrating();
 
   const vertical = orientation === 'vertical';
   const range = values.length > 1;
 
-  const style = inset
-    ? getInsetStyles(
-        vertical,
-        range,
-        indicatorPosition[0],
-        indicatorPosition[1],
-        renderBeforeHydration,
-        isMounted,
-      )
-    : getCenteredStyles(
-        vertical,
-        range,
-        valueToPercent(values[0], min, max),
-        valueToPercent(values[values.length - 1], min, max),
-      );
+  const style = getIndicatorStyles(
+    vertical,
+    range,
+    inset,
+    inset ? indicatorPosition[0] : valueToPercent(values[0], min, max),
+    inset ? indicatorPosition[1] : valueToPercent(values[values.length - 1], min, max),
+    inset && renderBeforeHydration && isHydrating,
+  );
 
   const element = useRenderElement('div', componentProps, {
     state,
@@ -130,8 +90,11 @@ export const SliderIndicator = React.forwardRef(function SliderIndicator(
   return element;
 });
 
-export interface SliderIndicatorProps extends BaseUIComponentProps<'div', SliderRoot.State> {}
+export interface SliderIndicatorState extends SliderRootState {}
+
+export interface SliderIndicatorProps extends BaseUIComponentProps<'div', SliderIndicatorState> {}
 
 export namespace SliderIndicator {
+  export type State = SliderIndicatorState;
   export type Props = SliderIndicatorProps;
 }

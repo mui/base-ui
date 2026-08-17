@@ -5,75 +5,60 @@ import { Link } from 'docs/src/components/Link';
 export default function DesignEngineerPage() {
   return (
     <React.Fragment>
-      <section className="d-c">
-        <h1 className="Text size-3 bp2:size-4 gcs-1 gce-9 bp4:gce-5">Design Engineer</h1>
-        <div className="gcs-1 gce-9">
+      <section className="bui-d-c">
+        <h1 className="Text sz-3 bp2:sz-4 bui-gcs-1 bui-gce-9 bp4:bui-gce-5">Design Engineer</h1>
+        <div className="bui-gcs-1 bui-gce-9">
           <Link
-            className="Text size-2 Link d-if"
+            className="Text sz-2 bui-d-if"
             href="https://jobs.ashbyhq.com/MUI/353c3d7c-7e58-44f7-83b0-3b87edb6bebd/application"
-            skipExternalIcon
+            withArrow
           >
             Apply now
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="20"
-              height="20"
-              viewBox="0 0 16 16"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="1"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              className="Icon"
-            >
-              <path className="LinkArrowCaret" d="M6 12L10 8L6 4"></path>
-              <path className="LinkArrowLine" d="M2 8L13 8"></path>
-            </svg>
           </Link>
         </div>
       </section>
 
-      <section className="d-c">
-        <div className="d-f fd-c g-4 gcs-1 gce-9 bp2:gcs-3 bp4:gce-7">
-          <p className="Text size-2">
+      <section className="bui-d-c">
+        <div className="bui-d-f bui-fd-c bui-g-4 bui-gcs-1 bui-gce-9 bp2:bui-gcs-3 bp4:bui-gce-7">
+          <p className="Text sz-2">
             Help us make Base UI the most intuitive, accessible, and powerful open-source UI library
             for React.
           </p>
         </div>
       </section>
 
-      <div className="gcs-1 gce-9 bp3:gcs-3">
+      <div className="bui-gcs-1 bui-gce-9 bp3:bui-gcs-3">
         <div className="Separator" role="separator" aria-hidden="true"></div>
       </div>
 
-      <section className="d-c">
-        <div className="gcs-1 gce-9 bp2:gce-3">
-          <h2 className="Text size-2">About Base UI</h2>
+      <section className="bui-d-c">
+        <div className="bui-gcs-1 bui-gce-9 bp2:bui-gce-3">
+          <h2 className="Text sz-2">About Base UI</h2>
         </div>
-        <div className="d-f fd-c g-4 gcs-1 gce-9 bp2:gcs-3 bp4:gce-7">
-          <p className="Text size-2">
+        <div className="bui-d-f bui-fd-c bui-g-4 bui-gcs-1 bui-gce-9 bp2:bui-gcs-3 bp4:bui-gce-7">
+          <p className="Text sz-2">
             From the creators of Radix, Material UI, and Floating UI, Base UI is an unstyled React
             component library for building accessible user interfaces. Our focus is on
             accessibility, performance, and developer experience. Our goal is to provide a complete
             set of open-source UI components, with a delightful developer experience, in a
             sustainable way.
           </p>
-          <p className="Text size-2">
+          <p className="Text sz-2">
             The Base UI team is a small group of engineers, designers, and product people, working
             to solve incredibly complex and challenging UI problems on the web. In our work, we
             value craft, flexibility, and accessibility.
           </p>
-          <p className="Text size-2">
+          <p className="Text sz-2">
             We're looking for an experienced Design Engineer to join the team at Staff–Senior Staff
             level. You will help us improve the library across the board, including API design,
             performance, a11y, testing workflows, docs, support, and implementing components.
           </p>
-          <p className="Text size-2">
+          <p className="Text sz-2">
             We're looking for someone who enjoys wearing many hats. Think less about spending many
             months implementing a single component, and more about leading developer experience, API
             design, a11y, docs, and maintaining overall product quality.
           </p>
-          <p className="Text size-2">
+          <p className="Text sz-2">
             You will have a lot of autonomy to push for improvements. We are looking for someone who
             is passionate about UI design, with an exceptional eye for detail, and great taste in
             both visual design and API design.
@@ -81,16 +66,16 @@ export default function DesignEngineerPage() {
         </div>
       </section>
 
-      <div className="gcs-1 gce-9 bp3:gcs-3">
+      <div className="bui-gcs-1 bui-gce-9 bp3:bui-gcs-3">
         <div className="Separator" role="separator" aria-hidden="true"></div>
       </div>
 
-      <section className="d-c">
-        <div className="gcs-1 gce-9 bp2:gce-3">
-          <h2 className="Text size-2">Responsibilities</h2>
+      <section className="bui-d-c">
+        <div className="bui-gcs-1 bui-gce-9 bp2:bui-gce-3">
+          <h2 className="Text sz-2">Responsibilities</h2>
         </div>
-        <div className="d-f fd-c g-4 gcs-1 gce-9 bp2:gcs-3 bp4:gce-7">
-          <ul className="BulletList Text size-2">
+        <div className="bui-d-f bui-fd-c bui-g-4 bui-gcs-1 bui-gce-9 bp2:bui-gcs-3 bp4:bui-gce-7">
+          <ul className="BulletList Text sz-2">
             <li>Report to our OSS Engineering Manager.</li>
             <li>
               Contribute to the component design process through a11y research, user research,
@@ -125,12 +110,12 @@ export default function DesignEngineerPage() {
         </div>
       </section>
 
-      <section className="d-c">
-        <div className="gcs-1 gce-9 bp2:gce-3">
-          <h2 className="Text size-2">Requirements</h2>
+      <section className="bui-d-c">
+        <div className="bui-gcs-1 bui-gce-9 bp2:bui-gce-3">
+          <h2 className="Text sz-2">Requirements</h2>
         </div>
-        <div className="d-f fd-c g-4 gcs-1 gce-9 bp2:gcs-3 bp4:gce-7">
-          <ul className="BulletList Text size-2">
+        <div className="bui-d-f bui-fd-c bui-g-4 bui-gcs-1 bui-gce-9 bp2:bui-gcs-3 bp4:bui-gce-7">
+          <ul className="BulletList Text sz-2">
             <li>We are targeting 7+ years of web development experience.</li>
             <li>
               Working knowledge of React, TypeScript, Next.js, MDX, Git, Figma, and other popular
@@ -156,12 +141,12 @@ export default function DesignEngineerPage() {
         </div>
       </section>
 
-      <section className="d-c">
-        <div className="gcs-1 gce-9 bp2:gce-3">
-          <h2 className="Text size-2">Benefits</h2>
+      <section className="bui-d-c">
+        <div className="bui-gcs-1 bui-gce-9 bp2:bui-gce-3">
+          <h2 className="Text sz-2">Benefits</h2>
         </div>
-        <div className="d-f fd-c g-4 gcs-1 gce-9 bp2:gcs-3 bp4:gce-7">
-          <ul className="BulletList Text size-2">
+        <div className="bui-d-f bui-fd-c bui-g-4 bui-gcs-1 bui-gce-9 bp2:bui-gcs-3 bp4:bui-gce-7">
+          <ul className="BulletList Text sz-2">
             <li>$200k–$290k USD base salary.</li>
             <li>Subsidized healthcare package (dependent on employment path and location).</li>
             <li>Flexible time-off. We provide 33 days of paid time-off globally.</li>
@@ -178,7 +163,7 @@ export default function DesignEngineerPage() {
             </li>
           </ul>
 
-          <p className="Text size-2">
+          <p className="Text sz-2">
             The actual salary will be determined by skill-level, experience, and location. More
             information about the specific compensation package will be shared during the hiring
             process.
@@ -186,13 +171,13 @@ export default function DesignEngineerPage() {
         </div>
       </section>
 
-      <section className="d-c">
-        <div className="gcs-1 gce-9 bp2:gce-3">
-          <h2 className="Text size-2">Application</h2>
+      <section className="bui-d-c">
+        <div className="bui-gcs-1 bui-gce-9 bp2:bui-gce-3">
+          <h2 className="Text sz-2">Application</h2>
         </div>
-        <div className="d-f fd-c g-4 gcs-1 gce-9 bp2:gcs-3 bp4:gce-7">
-          <p className="Text size-2">The hiring process will consist of 6 stages:</p>
-          <ul className="BulletList Text size-2">
+        <div className="bui-d-f bui-fd-c bui-g-4 bui-gcs-1 bui-gce-9 bp2:bui-gcs-3 bp4:bui-gce-7">
+          <p className="Text sz-2">The hiring process will consist of 6 stages:</p>
+          <ul className="BulletList Text sz-2">
             <li>Resume review.</li>
             <li>45 minute Phone screen.</li>
             <li>React challenge (asynchronous).</li>
@@ -200,28 +185,13 @@ export default function DesignEngineerPage() {
             <li>90 minute meeting with the Base UI team.</li>
             <li>60 minute culture-fit interview.</li>
           </ul>
-          <p className="Text size-2">
+          <p className="Text sz-2">
             <Link
-              className="Text size-2 Link d-if"
+              className="Text sz-2 bui-d-if"
               href="https://jobs.ashbyhq.com/MUI/353c3d7c-7e58-44f7-83b0-3b87edb6bebd/application"
-              skipExternalIcon
+              withArrow
             >
               Apply now
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="20"
-                height="20"
-                viewBox="0 0 16 16"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="1"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                className="Icon"
-              >
-                <path className="LinkArrowCaret" d="M6 12L10 8L6 4"></path>
-                <path className="LinkArrowLine" d="M2 8L13 8"></path>
-              </svg>
             </Link>
           </p>
         </div>

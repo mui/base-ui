@@ -1,8 +1,10 @@
 export * as Combobox from './index.parts';
 
 export type * from './root/ComboboxRoot';
+export type * from './label/ComboboxLabel';
 export type * from './trigger/ComboboxTrigger';
 export type * from './input/ComboboxInput';
+export type * from './input-group/ComboboxInputGroup';
 export type * from './popup/ComboboxPopup';
 export type * from './positioner/ComboboxPositioner';
 export type * from './list/ComboboxList';
@@ -23,8 +25,12 @@ export type * from './chip-remove/ComboboxChipRemove';
 export type * from './clear/ComboboxClear';
 export type * from './status/ComboboxStatus';
 export type * from './collection/ComboboxCollection';
+export type * from './separator/ComboboxSeparator';
 
 export type {
   Filter as ComboboxFilter,
   UseComboboxFilterOptions as ComboboxFilterOptions,
 } from '../combobox/root/utils/useFilter';
+
+export type { ComboboxPrimitiveValue, CreateComboboxItemsOptions } from './items/createItems';
+export type { ComboboxItemCollection } from './items/itemCollection';

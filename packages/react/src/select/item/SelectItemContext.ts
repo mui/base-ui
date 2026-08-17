@@ -1,11 +1,11 @@
+'use client';
 import * as React from 'react';
 
 export interface SelectItemContext {
   selected: boolean;
-  indexRef: React.RefObject<number>;
+  index: number;
   textRef: React.RefObject<HTMLElement | null>;
   selectedByFocus: boolean;
-  hasRegistered: boolean;
 }
 
 export const SelectItemContext = React.createContext<SelectItemContext | undefined>(undefined);

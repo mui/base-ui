@@ -9,8 +9,10 @@
     "module": "esnext",
     "moduleResolution": "bundler",
     "noEmit": false,
+    "stripInternal": true,
     "rootDir": "./src",
-    "outDir": "build/esm"
+    "outDir": "build",
+    "types": ["@mui/internal-code-infra/build-env"]
   },
   "include": ["src/**/*.ts*"],
   "exclude": ["src/**/*.spec.ts*", "src/**/*.test.ts*"],

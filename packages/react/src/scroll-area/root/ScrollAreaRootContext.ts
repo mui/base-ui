@@ -1,20 +1,26 @@
+'use client';
 import * as React from 'react';
-import type { Coords, HiddenState, OverflowEdges, ScrollAreaRoot, Size } from './ScrollAreaRoot';
+import type {
+  Coords,
+  HiddenState,
+  OverflowEdges,
+  Size,
+  ScrollAreaRootState,
+} from './ScrollAreaRoot';
 
 export interface ScrollAreaRootContext {
   cornerSize: Size;
   setCornerSize: React.Dispatch<React.SetStateAction<Size>>;
   thumbSize: Size;
   setThumbSize: React.Dispatch<React.SetStateAction<Size>>;
+  hasMeasuredScrollbar: boolean;
+  setHasMeasuredScrollbar: React.Dispatch<React.SetStateAction<boolean>>;
   touchModality: boolean;
   hovering: boolean;
   setHovering: React.Dispatch<React.SetStateAction<boolean>>;
   scrollingX: boolean;
-  setScrollingX: React.Dispatch<React.SetStateAction<boolean>>;
   scrollingY: boolean;
-  setScrollingY: React.Dispatch<React.SetStateAction<boolean>>;
   viewportRef: React.RefObject<HTMLDivElement | null>;
-  rootRef: React.RefObject<HTMLDivElement | null>;
   scrollbarYRef: React.RefObject<HTMLDivElement | null>;
   thumbYRef: React.RefObject<HTMLDivElement | null>;
   scrollbarXRef: React.RefObject<HTMLDivElement | null>;
@@ -24,12 +30,13 @@ export interface ScrollAreaRootContext {
   handlePointerMove: (event: React.PointerEvent) => void;
   handlePointerUp: (event: React.PointerEvent) => void;
   handleScroll: (scrollPosition: Coords) => void;
+  disableViewportSnap: () => void;
   rootId: string | undefined;
   hiddenState: HiddenState;
   setHiddenState: React.Dispatch<React.SetStateAction<HiddenState>>;
   overflowEdges: OverflowEdges;
   setOverflowEdges: React.Dispatch<React.SetStateAction<OverflowEdges>>;
-  viewportState: ScrollAreaRoot.State;
+  viewportState: ScrollAreaRootState;
   overflowEdgeThreshold: {
     xStart: number;
     xEnd: number;

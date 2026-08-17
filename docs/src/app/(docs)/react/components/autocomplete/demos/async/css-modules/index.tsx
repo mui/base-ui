@@ -18,7 +18,7 @@ export default function ExampleAsyncAutocomplete() {
     if (isPending) {
       return (
         <React.Fragment>
-          <div className={styles.Spinner} aria-hidden />
+          <span className={styles.Spinner} aria-hidden />
           Searching…
         </React.Fragment>
       );
@@ -83,19 +83,21 @@ export default function ExampleAsyncAutocomplete() {
       <Autocomplete.Portal hidden={!status}>
         <Autocomplete.Positioner className={styles.Positioner} sideOffset={4} align="start">
           <Autocomplete.Popup className={styles.Popup} aria-busy={isPending || undefined}>
-            <Autocomplete.Status>
-              {status && <div className={styles.Status}>{status}</div>}
-            </Autocomplete.Status>
-            <Autocomplete.List>
-              {(movie: Movie) => (
-                <Autocomplete.Item key={movie.id} className={styles.Item} value={movie}>
-                  <div className={styles.MovieItem}>
-                    <div className={styles.MovieName}>{movie.title}</div>
-                    <div className={styles.MovieYear}>{movie.year}</div>
-                  </div>
-                </Autocomplete.Item>
-              )}
-            </Autocomplete.List>
+            <div className={styles.Viewport}>
+              <Autocomplete.Status>
+                {status && <div className={styles.Status}>{status}</div>}
+              </Autocomplete.Status>
+              <Autocomplete.List>
+                {(movie: Movie) => (
+                  <Autocomplete.Item key={movie.id} className={styles.Item} value={movie}>
+                    <span className={styles.MovieItem}>
+                      <span className={styles.MovieName}>{movie.title}</span>
+                      <span className={styles.MovieYear}>{movie.year}</span>
+                    </span>
+                  </Autocomplete.Item>
+                )}
+              </Autocomplete.List>
+            </div>
           </Autocomplete.Popup>
         </Autocomplete.Positioner>
       </Autocomplete.Portal>

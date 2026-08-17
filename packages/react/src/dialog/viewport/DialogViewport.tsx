@@ -1,25 +1,11 @@
 'use client';
 import * as React from 'react';
-import { useRenderElement } from '../../utils/useRenderElement';
-import { type BaseUIComponentProps } from '../../utils/types';
-import { type TransitionStatus } from '../../utils/useTransitionStatus';
-import { type StateAttributesMapping } from '../../utils/getStateAttributesProps';
-import { popupStateMapping as baseMapping } from '../../utils/popupStateMapping';
-import { transitionStatusMapping } from '../../utils/stateAttributesMapping';
+import { useRenderElement } from '../../internals/useRenderElement';
+import { type BaseUIComponentProps } from '../../internals/types';
+import { type TransitionStatus } from '../../internals/useTransitionStatus';
 import { useDialogRootContext } from '../root/DialogRootContext';
 import { useDialogPortalContext } from '../portal/DialogPortalContext';
-import { DialogViewportDataAttributes } from './DialogViewportDataAttributes';
-
-const stateAttributesMapping: StateAttributesMapping<DialogViewport.State> = {
-  ...baseMapping,
-  ...transitionStatusMapping,
-  nested(value) {
-    return value ? { [DialogViewportDataAttributes.nested]: '' } : null;
-  },
-  nestedDialogOpen(value) {
-    return value ? { [DialogViewportDataAttributes.nestedDialogOpen]: '' } : null;
-  },
-};
+import { dialogStateAttributesMapping } from '../utils/stateAttributesMapping';
 
 /**
  * A positioning container for the dialog popup that can be made scrollable.
@@ -31,10 +17,10 @@ export const DialogViewport = React.forwardRef(function DialogViewport(
   componentProps: DialogViewport.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { className, render, children, ...elementProps } = componentProps;
+  const { render, className, style, children, ...elementProps } = componentProps;
 
   const keepMounted = useDialogPortalContext();
-  const { store } = useDialogRootContext();
+  const store = useDialogRootContext();
 
   const open = store.useState('open');
   const nested = store.useState('nested');
@@ -42,29 +28,31 @@ export const DialogViewport = React.forwardRef(function DialogViewport(
   const nestedOpenDialogCount = store.useState('nestedOpenDialogCount');
   const mounted = store.useState('mounted');
 
+  const setViewportElement = store.useStateSetter('viewportElement');
+
   const nestedDialogOpen = nestedOpenDialogCount > 0;
 
-  const state: DialogViewport.State = React.useMemo(
-    () => ({
-      open,
-      nested,
-      transitionStatus,
-      nestedDialogOpen,
-    }),
-    [open, nested, transitionStatus, nestedDialogOpen],
-  );
+  const state: DialogViewportState = {
+    open,
+    nested,
+    transitionStatus,
+    nestedDialogOpen,
+  };
 
   const shouldRender = keepMounted || mounted;
 
   return useRenderElement('div', componentProps, {
     enabled: shouldRender,
     state,
-    ref: [forwardedRef, store.useStateSetter('viewportElement')],
-    stateAttributesMapping,
+    ref: [forwardedRef, setViewportElement],
+    stateAttributesMapping: dialogStateAttributesMapping,
     props: [
       {
         role: 'presentation',
         hidden: !mounted,
+        style: {
+          pointerEvents: !open ? 'none' : undefined,
+        },
         children,
       },
       elementProps,
@@ -77,6 +65,9 @@ export interface DialogViewportState {
    * Whether the dialog is currently open.
    */
   open: boolean;
+  /**
+   * The transition status of the component.
+   */
   transitionStatus: TransitionStatus;
   /**
    * Whether the dialog is nested within another dialog.

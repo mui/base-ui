@@ -2,7 +2,39 @@
 import * as React from 'react';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { InteractionType, useEnhancedClickHandler } from '@base-ui/utils/useEnhancedClickHandler';
-import { isIOS } from '@base-ui/utils/detectBrowser';
+import { platform } from '@base-ui/utils/platform';
+import { useValueChanged } from '../internals/useValueChanged';
+
+export function useOpenMethodTriggerProps(
+  open: boolean | (() => boolean),
+  setOpenMethod: (interactionType: InteractionType | null) => void,
+) {
+  const handleTriggerClick = useStableCallback(
+    (_: React.MouseEvent, interactionType: InteractionType) => {
+      const isOpen = typeof open === 'function' ? open() : open;
+
+      if (!isOpen) {
+        setOpenMethod(
+          interactionType ||
+            // On iOS Safari, the hitslop around touch targets means tapping outside an element's
+            // bounds does not fire `pointerdown` but does fire `mousedown`. The `interactionType`
+            // will be "" in that case.
+            (platform.os.ios ? 'touch' : ''),
+        );
+      }
+    },
+  );
+
+  const { onClick, onPointerDown } = useEnhancedClickHandler(handleTriggerClick);
+
+  return React.useMemo(
+    () => ({
+      onClick,
+      onPointerDown,
+    }),
+    [onClick, onPointerDown],
+  );
+}
 
 /**
  * Determines the interaction type (keyboard, mouse, touch, etc.) that opened the component.
@@ -12,35 +44,19 @@ import { isIOS } from '@base-ui/utils/detectBrowser';
 export function useOpenInteractionType(open: boolean) {
   const [openMethod, setOpenMethod] = React.useState<InteractionType | null>(null);
 
-  const handleTriggerClick = useStableCallback(
-    (_: React.MouseEvent, interactionType: InteractionType) => {
-      if (!open) {
-        setOpenMethod(
-          interactionType ||
-            // On iOS Safari, the hitslop around touch targets means tapping outside an element's
-            // bounds does not fire `pointerdown` but does fire `mousedown`. The `interactionType`
-            // will be "" in that case.
-            (isIOS ? 'touch' : ''),
-        );
-      }
-    },
-  );
+  const triggerProps = useOpenMethodTriggerProps(open, setOpenMethod);
 
-  const reset = React.useCallback(() => {
-    setOpenMethod(null);
-  }, []);
-
-  const { onClick, onPointerDown } = useEnhancedClickHandler(handleTriggerClick);
+  useValueChanged(open, (previousOpen) => {
+    if (previousOpen && !open) {
+      setOpenMethod(null);
+    }
+  });
 
   return React.useMemo(
     () => ({
       openMethod,
-      reset,
-      triggerProps: {
-        onClick,
-        onPointerDown,
-      },
+      triggerProps,
     }),
-    [openMethod, reset, onClick, onPointerDown],
+    [openMethod, triggerProps],
   );
 }

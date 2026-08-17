@@ -1,4 +1,5 @@
 export { SelectRoot as Root } from './root/SelectRoot';
+export { SelectLabel as Label } from './label/SelectLabel';
 export { SelectTrigger as Trigger } from './trigger/SelectTrigger';
 export { SelectValue as Value } from './value/SelectValue';
 export { SelectIcon as Icon } from './icon/SelectIcon';
@@ -15,4 +16,4 @@ export { SelectScrollDownArrow as ScrollDownArrow } from './scroll-down-arrow/Se
 export { SelectScrollUpArrow as ScrollUpArrow } from './scroll-up-arrow/SelectScrollUpArrow';
 export { SelectGroup as Group } from './group/SelectGroup';
 export { SelectGroupLabel as GroupLabel } from './group-label/SelectGroupLabel';
-export { Separator } from '../separator/Separator';
+export { SelectSeparator as Separator } from './separator/SelectSeparator';

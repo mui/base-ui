@@ -1,15 +1,106 @@
-import { createRenderer, fireEvent, screen } from '@mui/internal-test-utils';
-import { expect } from 'chai';
-import { spy } from 'sinon';
+import { expect, vi } from 'vitest';
+import { act, createRenderer, fireEvent, screen } from '@mui/internal-test-utils';
 import { Field } from '@base-ui/react/field';
 import { Form } from '@base-ui/react/form';
+import { isJSDOM } from '#test-utils';
 
 describe('<Field.Validity />', () => {
   const { render } = createRenderer();
 
+  ['onBlur', 'onSubmit'].forEach((validationMode) => {
+    it(`surfaces valueMissing immediately after a stale custom error in ${validationMode} mode`, () => {
+      const handleValidity = vi.fn();
+      const validate = vi.fn(() => 'custom error');
+
+      render(
+        <Form>
+          <Field.Root validationMode={validationMode as 'onBlur' | 'onSubmit'} validate={validate}>
+            <Field.Control required />
+            <Field.Error match="valueMissing">Required</Field.Error>
+            <Field.Validity>{handleValidity}</Field.Validity>
+          </Field.Root>
+          <button type="submit">submit</button>
+        </Form>,
+      );
+
+      const input = screen.getByRole<HTMLInputElement>('textbox');
+      const establishInvalidState = () => {
+        if (validationMode === 'onBlur') {
+          fireEvent.blur(input);
+        } else {
+          act(() => input.focus());
+          fireEvent.keyDown(input, { key: 'Enter' });
+        }
+      };
+
+      fireEvent.focus(input);
+      fireEvent.change(input, { target: { value: 'invalid' } });
+      establishInvalidState();
+
+      expect(handleValidity.mock.lastCall?.[0].value).toBe('invalid');
+      expect(handleValidity.mock.lastCall?.[0].validity.customError).toBe(true);
+      expect(handleValidity.mock.lastCall?.[0].validity.valueMissing).toBe(false);
+      expect(validate).toHaveBeenCalledTimes(1);
+
+      fireEvent.focus(input);
+      fireEvent.change(input, { target: { value: '' } });
+
+      expect(handleValidity.mock.lastCall?.[0].value).toBe('');
+      expect(handleValidity.mock.lastCall?.[0].validity.customError).toBe(false);
+      expect(handleValidity.mock.lastCall?.[0].validity.valueMissing).toBe(true);
+      expect(screen.getByText('Required')).toBeVisible();
+      expect(validate).toHaveBeenCalledTimes(1);
+
+      if (validationMode === 'onBlur') {
+        fireEvent.blur(input);
+      } else {
+        fireEvent.click(screen.getByText('submit'));
+      }
+
+      expect(handleValidity.mock.lastCall?.[0].value).toBe('');
+      expect(handleValidity.mock.lastCall?.[0].validity.customError).toBe(
+        validationMode === 'onSubmit',
+      );
+      expect(handleValidity.mock.lastCall?.[0].validity.valueMissing).toBe(true);
+      expect(screen.getByText('Required')).toBeVisible();
+    });
+  });
+
+  it.skipIf(isJSDOM)('defers badInput during required change revalidation', async () => {
+    const { userEvent } = await import('vitest/browser');
+    const user = userEvent.setup();
+    const handleValidity = vi.fn();
+
+    await render(
+      <Field.Root validationMode="onBlur" validate={() => 'custom error'}>
+        <Field.Control type="number" required />
+        <Field.Error match="valueMissing">Required</Field.Error>
+        <Field.Error match="badInput">Invalid number</Field.Error>
+        <Field.Validity>{handleValidity}</Field.Validity>
+      </Field.Root>,
+    );
+
+    const input = screen.getByRole<HTMLInputElement>('spinbutton');
+
+    await act(() => user.type(input, '1[Tab]'));
+
+    expect(handleValidity.mock.lastCall?.[0].value).toBe('1');
+    expect(handleValidity.mock.lastCall?.[0].validity.customError).toBe(true);
+
+    await act(() => user.type(input, '{Control>}a{/Control}e'));
+
+    expect(input.validity.valueMissing).toBe(true);
+    expect(input.validity.badInput).toBe(true);
+    expect(handleValidity.mock.lastCall?.[0].value).toBe('1');
+    expect(handleValidity.mock.lastCall?.[0].validity.valueMissing).toBe(false);
+    expect(handleValidity.mock.lastCall?.[0].validity.badInput).toBe(false);
+    expect(screen.queryByText('Required')).toBe(null);
+    expect(screen.queryByText('Invalid number')).toBe(null);
+  });
+
   describe('validationMode=onSubmit', () => {
     it('should pass validity data', () => {
-      const handleValidity = spy();
+      const handleValidity = vi.fn();
 
       render(
         <Form>
@@ -23,25 +114,26 @@ describe('<Field.Validity />', () => {
 
       const input = screen.getByRole<HTMLInputElement>('textbox');
 
-      expect(handleValidity.lastCall.args[0].validity.valid).to.equal(null);
+      expect(handleValidity.mock.lastCall?.[0].validity.valid).toBe(null);
 
       fireEvent.click(screen.getByText('submit'));
 
-      expect(handleValidity.lastCall.args[0].validity.valid).to.equal(false);
-      expect(handleValidity.lastCall.args[0].validity.valueMissing).to.equal(true);
+      expect(handleValidity.mock.lastCall?.[0].validity.valid).toBe(false);
+      expect(handleValidity.mock.lastCall?.[0].validity.valueMissing).toBe(true);
+      expect(handleValidity.mock.lastCall?.[0]).toHaveProperty('transitionStatus');
 
       fireEvent.focus(input);
       fireEvent.change(input, { target: { value: 'test' } });
 
-      expect(handleValidity.lastCall.args[0].value).to.equal('test');
-      expect(handleValidity.lastCall.args[0].validity.valid).to.equal(true);
-      expect(handleValidity.lastCall.args[0].validity.valueMissing).to.equal(false);
+      expect(handleValidity.mock.lastCall?.[0].value).toBe('test');
+      expect(handleValidity.mock.lastCall?.[0].validity.valid).toBe(true);
+      expect(handleValidity.mock.lastCall?.[0].validity.valueMissing).toBe(false);
     });
   });
 
   describe('validationMode=onBlur', () => {
     it('should pass validity data', () => {
-      const handleValidity = spy();
+      const handleValidity = vi.fn();
 
       render(
         <Field.Root validationMode="onBlur">
@@ -52,19 +144,19 @@ describe('<Field.Validity />', () => {
 
       const input = screen.getByRole<HTMLInputElement>('textbox');
 
-      expect(handleValidity.lastCall.args[0].validity.valid).to.equal(null);
+      expect(handleValidity.mock.lastCall?.[0].validity.valid).toBe(null);
 
       fireEvent.focus(input);
       fireEvent.change(input, { target: { value: 'test' } });
       fireEvent.blur(input);
 
-      expect(handleValidity.lastCall.args[0].value).to.equal('test');
-      expect(handleValidity.lastCall.args[0].validity.valid).to.equal(true);
-      expect(handleValidity.lastCall.args[0].validity.valueMissing).to.equal(false);
+      expect(handleValidity.mock.lastCall?.[0].value).toBe('test');
+      expect(handleValidity.mock.lastCall?.[0].validity.valid).toBe(true);
+      expect(handleValidity.mock.lastCall?.[0].validity.valueMissing).toBe(false);
     });
 
     it('should correctly pass errors when validate function returns a string', () => {
-      const handleValidity = spy();
+      const handleValidity = vi.fn();
 
       render(
         <Field.Root validationMode="onBlur" validate={() => 'error'}>
@@ -78,12 +170,12 @@ describe('<Field.Validity />', () => {
       fireEvent.focus(input);
       fireEvent.blur(input);
 
-      expect(handleValidity.lastCall.args[0].error).to.equal('error');
-      expect(handleValidity.lastCall.args[0].errors).to.deep.equal(['error']);
+      expect(handleValidity.mock.lastCall?.[0].error).toBe('error');
+      expect(handleValidity.mock.lastCall?.[0].errors).toEqual(['error']);
     });
 
     it('should correctly pass errors when validate function returns an array of strings', () => {
-      const handleValidity = spy();
+      const handleValidity = vi.fn();
 
       render(
         <Field.Root validationMode="onBlur" validate={() => ['1', '2']}>
@@ -97,8 +189,8 @@ describe('<Field.Validity />', () => {
       fireEvent.focus(input);
       fireEvent.blur(input);
 
-      expect(handleValidity.lastCall.args[0].error).to.equal('1');
-      expect(handleValidity.lastCall.args[0].errors).to.deep.equal(['1', '2']);
+      expect(handleValidity.mock.lastCall?.[0].error).toBe('1');
+      expect(handleValidity.mock.lastCall?.[0].errors).toEqual(['1', '2']);
     });
   });
 });

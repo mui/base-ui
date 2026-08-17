@@ -1,4 +1,4 @@
-import { TransitionStatusDataAttributes } from '../../utils/stateAttributesMapping';
+import { TransitionStatusDataAttributes } from '../../internals/stateAttributesMapping';
 
 export enum AccordionPanelDataAttributes {
   /**
@@ -19,7 +19,7 @@ export enum AccordionPanelDataAttributes {
    */
   disabled = 'data-disabled',
   /**
-   * Present when the panel is animating in.
+   * Present when the panel begins animating in.
    */
   startingStyle = TransitionStatusDataAttributes.startingStyle,
   /**

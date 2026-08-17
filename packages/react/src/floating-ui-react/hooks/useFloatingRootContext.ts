@@ -1,27 +1,26 @@
+'use client';
 import { isElement } from '@floating-ui/utils/dom';
 import { useId } from '@base-ui/utils/useId';
-import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
-import type { ReferenceType } from '../types';
-import type { BaseUIChangeEventDetails } from '../../utils/createBaseUIEventDetails';
-import { useFloatingParentNodeId } from '../components/FloatingTree';
-import { FloatingRootStore, type FloatingRootState } from '../components/FloatingRootStore';
+import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { PopupTriggerMap } from '../../utils/popups';
+import type { BaseUIChangeEventDetails } from '../../internals/createBaseUIEventDetails';
+import { useFloatingParentNodeId } from '../components/FloatingTree';
+import {
+  FloatingRootStore,
+  type FloatingRootState as State,
+} from '../components/FloatingRootStore';
+import type { ReferenceType } from '../types';
 
 export interface UseFloatingRootContextOptions {
   open?: boolean | undefined;
   onOpenChange?(open: boolean, eventDetails: BaseUIChangeEventDetails<string>): void;
   elements?:
     | {
-        reference?: (ReferenceType | null) | undefined;
-        floating?: (HTMLElement | null) | undefined;
-        triggers?: PopupTriggerMap | undefined;
+        reference?: ReferenceType | null | undefined;
+        floating?: HTMLElement | null | undefined;
       }
     | undefined;
-  /**
-   * Whether to prevent the auto-emitted `openchange` event.
-   */
-  noEmit?: boolean | undefined;
 }
 
 export function useFloatingRootContext(options: UseFloatingRootContextOptions): FloatingRootStore {
@@ -45,23 +44,23 @@ export function useFloatingRootContext(options: UseFloatingRootContextOptions): 
     () =>
       new FloatingRootStore({
         open,
+        transitionStatus: undefined,
         onOpenChange,
         referenceElement: elements.reference ?? null,
         floatingElement: elements.floating ?? null,
-        triggerElements: elements.triggers ?? new PopupTriggerMap(),
+        triggerElements: new PopupTriggerMap(),
         floatingId,
+        syncOnly: false,
         nested,
-        noEmit: options.noEmit || false,
       }),
   ).current;
 
   useIsoLayoutEffect(() => {
-    const valuesToSync: Writeable<Partial<FloatingRootState>> = {
-      open,
-      floatingId,
-    };
+    const valuesToSync = { open, floatingId } as Pick<
+      State,
+      'open' | 'floatingId' | 'referenceElement' | 'domReferenceElement' | 'floatingElement'
+    >;
 
-    // Only sync elements that are defined to avoid overwriting existing ones
     if (elements.reference !== undefined) {
       valuesToSync.referenceElement = elements.reference;
       valuesToSync.domReferenceElement = isElement(elements.reference) ? elements.reference : null;
@@ -76,9 +75,6 @@ export function useFloatingRootContext(options: UseFloatingRootContextOptions): 
 
   store.context.onOpenChange = onOpenChange;
   store.context.nested = nested;
-  store.context.noEmit = options.noEmit || false;
 
   return store;
 }
-
-type Writeable<T> = { -readonly [P in keyof T]: T[P] };

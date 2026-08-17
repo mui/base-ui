@@ -13,7 +13,9 @@ export default function ExampleAutocomplete() {
       <Autocomplete.Portal>
         <Autocomplete.Positioner className={styles.Positioner} sideOffset={4}>
           <Autocomplete.Popup className={styles.Popup}>
-            <Autocomplete.Empty className={styles.Empty}>No tags found.</Autocomplete.Empty>
+            <Autocomplete.Empty>
+              <div className={styles.Empty}>No tags found.</div>
+            </Autocomplete.Empty>
             <Autocomplete.List className={styles.List}>
               {(tag: Tag) => (
                 <Autocomplete.Item key={tag.id} className={styles.Item} value={tag}>

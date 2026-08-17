@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import type { CompositeMetadata } from '../../internals/composite/list/CompositeList';
 import type { TabsTab } from '../tab/TabsTab';
 import type { TabsRoot } from './TabsRoot';
 
@@ -19,22 +20,17 @@ export interface TabsRootContext {
   /**
    * Gets the element of the Tab with the given value.
    */
-  getTabElementBySelectedValue: (selectedValue: TabsTab.Value | undefined) => HTMLElement | null;
+  getTabElementBySelectedValue: (selectedValue: TabsTab.Value) => HTMLElement | null;
   /**
    * Gets the `id` attribute of the Tab that corresponds to the given TabPanel value.
-   * @param (any) panelValue Value to find the Tab for.
    */
   getTabIdByPanelValue: (panelValue: TabsTab.Value) => string | undefined;
   /**
    * Gets the `id` attribute of the TabPanel that corresponds to the given Tab value.
-   * @param (any) tabValue Value to find the TabPanel for.
    */
   getTabPanelIdByValue: (tabValue: TabsTab.Value) => string | undefined;
-  registerMountedTabPanel: (panelValue: TabsTab.Value | number, panelId: string) => void;
-  setTabMap: (
-    map: Map<Node, (TabsTab.Metadata & { index?: (number | null) | undefined }) | null>,
-  ) => void;
-  unregisterMountedTabPanel: (panelValue: TabsTab.Value | number, panelId: string) => void;
+  registerMountedTabPanel: (panelValue: TabsTab.Value, panelId: string) => () => void;
+  setTabMap: (map: Map<Node, CompositeMetadata<TabsTab.Metadata>>) => void;
   /**
    * The position of the active tab relative to the previously active tab.
    */

@@ -3,6 +3,7 @@ import * as React from 'react';
 import { useTooltipRootContext } from '../root/TooltipRootContext';
 import { TooltipPortalContext } from './TooltipPortalContext';
 import { FloatingPortalLite } from '../../utils/FloatingPortalLite';
+import { type BaseUIComponentProps } from '../../internals/types';
 
 /**
  * A portal element that moves the popup to a different part of the DOM.
@@ -32,18 +33,26 @@ export const TooltipPortal = React.forwardRef(function TooltipPortal(
   );
 });
 
-export namespace TooltipPortal {
-  export interface State {}
-}
+export interface TooltipPortalState {}
 
-export interface TooltipPortalProps extends FloatingPortalLite.Props<TooltipPortal.State> {
+export interface TooltipPortalProps extends BaseUIComponentProps<'div', TooltipPortalState> {
   /**
    * Whether to keep the portal mounted in the DOM while the popup is hidden.
    * @default false
    */
   keepMounted?: boolean | undefined;
+  /**
+   * A parent element to render the portal element into.
+   */
+  container?:
+    | HTMLElement
+    | ShadowRoot
+    | React.RefObject<HTMLElement | ShadowRoot | null>
+    | null
+    | undefined;
 }
 
 export namespace TooltipPortal {
+  export type State = TooltipPortalState;
   export type Props = TooltipPortalProps;
 }

@@ -1,6 +1,7 @@
 export * as Select from './index.parts';
 
 export type * from './root/SelectRoot';
+export type * from './label/SelectLabel';
 export type * from './trigger/SelectTrigger';
 export type * from './value/SelectValue';
 export type * from './icon/SelectIcon';
@@ -17,3 +18,4 @@ export type * from './scroll-down-arrow/SelectScrollDownArrow';
 export type * from './scroll-up-arrow/SelectScrollUpArrow';
 export type * from './group/SelectGroup';
 export type * from './group-label/SelectGroupLabel';
+export type * from './separator/SelectSeparator';

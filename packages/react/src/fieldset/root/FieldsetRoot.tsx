@@ -1,11 +1,11 @@
 'use client';
 import * as React from 'react';
-import { FieldsetRootContext } from './FieldsetRootContext';
-import type { BaseUIComponentProps } from '../../utils/types';
-import { useRenderElement } from '../../utils/useRenderElement';
+import { FieldsetRootContext, useFieldsetRootContext } from './FieldsetRootContext';
+import type { BaseUIComponentProps } from '../../internals/types';
+import { useRenderElement } from '../../internals/useRenderElement';
 
 /**
- * Groups the fieldset legend and the associated fields.
+ * Groups a shared legend with related controls.
  * Renders a `<fieldset>` element.
  *
  * Documentation: [Base UI Fieldset](https://base-ui.com/react/components/fieldset)
@@ -14,16 +14,22 @@ export const FieldsetRoot = React.forwardRef(function FieldsetRoot(
   componentProps: FieldsetRoot.Props,
   forwardedRef: React.ForwardedRef<HTMLElement>,
 ) {
-  const { render, className, disabled = false, ...elementProps } = componentProps;
+  const {
+    render,
+    className,
+    style,
+    disabled: disabledProp = false,
+    ...elementProps
+  } = componentProps;
 
   const [legendId, setLegendId] = React.useState<string | undefined>(undefined);
 
-  const state: FieldsetRoot.State = React.useMemo(
-    () => ({
-      disabled,
-    }),
-    [disabled],
-  );
+  const parentDisabled = useFieldsetRootContext(true)?.disabled;
+  const disabled = parentDisabled || disabledProp;
+
+  const state: FieldsetRootState = {
+    disabled,
+  };
 
   const element = useRenderElement('fieldset', componentProps, {
     ref: forwardedRef,
@@ -31,6 +37,7 @@ export const FieldsetRoot = React.forwardRef(function FieldsetRoot(
     props: [
       {
         'aria-labelledby': legendId,
+        disabled,
       },
       elementProps,
     ],
@@ -56,7 +63,8 @@ export interface FieldsetRootState {
    */
   disabled: boolean;
 }
-export interface FieldsetRootProps extends BaseUIComponentProps<'fieldset', FieldsetRoot.State> {}
+
+export interface FieldsetRootProps extends BaseUIComponentProps<'fieldset', FieldsetRootState> {}
 
 export namespace FieldsetRoot {
   export type State = FieldsetRootState;

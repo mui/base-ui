@@ -1,7 +1,6 @@
+import { expect, vi } from 'vitest';
 import * as React from 'react';
-import { expect } from 'chai';
 import { act, fireEvent, ignoreActWarnings, screen, waitFor } from '@mui/internal-test-utils';
-import { spy } from 'sinon';
 import { Menu } from '@base-ui/react/menu';
 import { createRenderer, isJSDOM, wait } from '#test-utils';
 
@@ -10,7 +9,290 @@ describe('<MenuRoot />', () => {
     globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
   });
 
-  const { render } = createRenderer();
+  const { render, clock } = createRenderer();
+
+  describe.skipIf(isJSDOM)('handle-backed root ownership', () => {
+    type NumberPayload = { payload: number | undefined };
+
+    it('ignores imperative handle calls made before a root is attached', async () => {
+      const handle = Menu.createHandle<number>();
+
+      const consoleWarn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+      handle.open('trigger');
+      handle.close();
+      const detachedWarnings = consoleWarn.mock.calls.filter(
+        ([message]) =>
+          typeof message === 'string' && message.includes('no root using this handle is mounted'),
+      );
+      consoleWarn.mockRestore();
+
+      expect(handle.isOpen).toBe(false);
+      expect(detachedWarnings).toHaveLength(2);
+
+      const { user } = await render(
+        <React.Fragment>
+          <Menu.Trigger handle={handle} id="trigger" payload={1}>
+            Trigger
+          </Menu.Trigger>
+          <Menu.Root handle={handle}>
+            {({ payload }: NumberPayload) => (
+              <React.Fragment>
+                <span data-testid="payload">{payload ?? 'No payload'}</span>
+                <Menu.Portal>
+                  <Menu.Positioner>
+                    <Menu.Popup>
+                      <Menu.Item>Menu Content</Menu.Item>
+                    </Menu.Popup>
+                  </Menu.Positioner>
+                </Menu.Portal>
+              </React.Fragment>
+            )}
+          </Menu.Root>
+        </React.Fragment>,
+      );
+
+      expect(screen.queryByRole('menu')).toBe(null);
+      expect(screen.getByTestId('payload').textContent).toBe('No payload');
+
+      await user.click(screen.getByRole('button', { name: 'Trigger' }));
+      await screen.findByRole('menu');
+      expect(screen.getByTestId('payload').textContent).toBe('1');
+    });
+
+    it('ignores imperative handle calls made after the root is detached', async () => {
+      const handle = Menu.createHandle<number>();
+
+      function App() {
+        const [mounted, setMounted] = React.useState(true);
+
+        return (
+          <React.Fragment>
+            <Menu.Trigger handle={handle} id="trigger" payload={1}>
+              Trigger
+            </Menu.Trigger>
+            {!mounted && (
+              <button type="button" onClick={() => setMounted(true)}>
+                Remount root
+              </button>
+            )}
+            {mounted && (
+              <Menu.Root handle={handle}>
+                {({ payload }: NumberPayload) => (
+                  <React.Fragment>
+                    <span data-testid="payload">{payload ?? 'No payload'}</span>
+                    <Menu.Portal>
+                      <Menu.Positioner>
+                        <Menu.Popup>
+                          <Menu.Item onClick={() => setMounted(false)}>Unmount root</Menu.Item>
+                        </Menu.Popup>
+                      </Menu.Positioner>
+                    </Menu.Portal>
+                  </React.Fragment>
+                )}
+              </Menu.Root>
+            )}
+          </React.Fragment>
+        );
+      }
+
+      const { user } = await render(<App />);
+      const trigger = screen.getByRole('button', { name: 'Trigger' });
+
+      await user.click(trigger);
+      await screen.findByRole('menu');
+      expect(screen.getByTestId('payload').textContent).toBe('1');
+
+      await user.click(screen.getByRole('menuitem', { name: 'Unmount root' }));
+      expect(handle.isOpen).toBe(false);
+      await waitFor(() => {
+        expect(screen.queryByRole('menu')).toBe(null);
+      });
+
+      const consoleWarn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+      handle.open('trigger');
+      handle.close();
+      const detachedWarnings = consoleWarn.mock.calls.filter(
+        ([message]) =>
+          typeof message === 'string' && message.includes('no root using this handle is mounted'),
+      );
+      consoleWarn.mockRestore();
+
+      expect(handle.isOpen).toBe(false);
+      expect(detachedWarnings).toHaveLength(2);
+
+      await user.click(screen.getByRole('button', { name: 'Remount root' }));
+      expect(screen.queryByRole('menu')).toBe(null);
+      expect(screen.getByTestId('payload').textContent).toBe('No payload');
+
+      await user.click(trigger);
+      await screen.findByRole('menu');
+      expect(screen.getByTestId('payload').textContent).toBe('1');
+    });
+
+    it('registers a detached trigger declared after the root', async () => {
+      const handle = Menu.createHandle();
+
+      const { user } = await render(
+        <React.Fragment>
+          <Menu.Root handle={handle}>
+            <Menu.Portal>
+              <Menu.Positioner>
+                <Menu.Popup>
+                  <Menu.Item>Menu Content</Menu.Item>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
+          </Menu.Root>
+          <Menu.Trigger handle={handle} id="trigger">
+            Trigger
+          </Menu.Trigger>
+        </React.Fragment>,
+      );
+
+      const trigger = screen.getByRole('button', { name: 'Trigger' });
+
+      await user.click(trigger);
+      await screen.findByRole('menu');
+
+      expect(trigger).toHaveAttribute('aria-expanded', 'true');
+    });
+
+    it('throws when called with an unregistered trigger id', async () => {
+      const handle = Menu.createHandle();
+
+      await render(
+        <React.Fragment>
+          <Menu.Root handle={handle}>
+            <Menu.Portal>
+              <Menu.Positioner>
+                <Menu.Popup>
+                  <Menu.Item>Menu Content</Menu.Item>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
+          </Menu.Root>
+          <Menu.Trigger handle={handle} id="trigger">
+            Trigger
+          </Menu.Trigger>
+        </React.Fragment>,
+      );
+
+      expect(() => handle.open('missing')).toThrow('was called with the trigger id "missing"');
+      expect(handle.isOpen).toBe(false);
+    });
+
+    describe('multiple roots sharing one handle', () => {
+      // Fake timers so the deferred overlap check only runs when ticked, after the handoff settles.
+      clock.withFakeTimers();
+
+      it('warns when a handle stays attached to more than one mounted root', async () => {
+        const handle = Menu.createHandle();
+        const consoleWarn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+
+        await render(
+          <React.Fragment>
+            <Menu.Root handle={handle}>
+              <Menu.Portal>
+                <Menu.Positioner>
+                  <Menu.Popup>
+                    <Menu.Item>First</Menu.Item>
+                  </Menu.Popup>
+                </Menu.Positioner>
+              </Menu.Portal>
+            </Menu.Root>
+            <Menu.Root handle={handle}>
+              <Menu.Portal>
+                <Menu.Positioner>
+                  <Menu.Popup>
+                    <Menu.Item>Second</Menu.Item>
+                  </Menu.Popup>
+                </Menu.Positioner>
+              </Menu.Portal>
+            </Menu.Root>
+          </React.Fragment>,
+        );
+
+        // Both roots stay mounted, so the deferred check still sees the overlap and warns.
+        clock.tick(20);
+
+        const overlapWarned = consoleWarn.mock.calls.some(
+          ([message]) =>
+            typeof message === 'string' && message.includes('more than one mounted root'),
+        );
+        expect(overlapWarned).toBe(true);
+        consoleWarn.mockRestore();
+      });
+
+      it('resolves a trigger still registered to the previous root during a transient overlap', async () => {
+        const handle = Menu.createHandle();
+        const openErrors: unknown[] = [];
+
+        function OpenOnMount() {
+          React.useLayoutEffect(() => {
+            try {
+              handle.open('trigger');
+            } catch (error) {
+              openErrors.push(error);
+            }
+          }, []);
+          return null;
+        }
+
+        function App({ phase }: { phase: 'outgoing' | 'overlap' | 'incoming' }) {
+          return (
+            <React.Fragment>
+              <Menu.Trigger handle={handle} id="trigger">
+                Trigger
+              </Menu.Trigger>
+              {(phase === 'outgoing' || phase === 'overlap') && (
+                <Menu.Root key="outgoing" handle={handle}>
+                  <Menu.Portal>
+                    <Menu.Positioner>
+                      <Menu.Popup>
+                        <Menu.Item>Outgoing</Menu.Item>
+                      </Menu.Popup>
+                    </Menu.Positioner>
+                  </Menu.Portal>
+                </Menu.Root>
+              )}
+              {(phase === 'overlap' || phase === 'incoming') && (
+                <React.Fragment>
+                  <Menu.Root key="incoming" handle={handle}>
+                    <Menu.Portal>
+                      <Menu.Positioner>
+                        <Menu.Popup>
+                          <Menu.Item>Incoming</Menu.Item>
+                        </Menu.Popup>
+                      </Menu.Positioner>
+                    </Menu.Portal>
+                  </Menu.Root>
+                  <OpenOnMount />
+                </React.Fragment>
+              )}
+            </React.Fragment>
+          );
+        }
+
+        // The detached trigger settles into the outgoing root's store (it is no longer in the
+        // fallback map). The incoming root then attaches while the outgoing one is still mounted,
+        // and a layout effect in that same commit opens by trigger id — before the trigger has
+        // migrated to the incoming root's store.
+        const { setProps } = await render(<App phase="outgoing" />);
+        await setProps({ phase: 'overlap' });
+
+        expect(openErrors).toHaveLength(0);
+        expect(handle.isOpen).toBe(true);
+        expect(screen.getByRole('button', { name: 'Trigger' })).toHaveAttribute(
+          'aria-expanded',
+          'true',
+        );
+
+        // Completing the handoff (the outgoing root unmounts) keeps the popup open and associated.
+        await setProps({ phase: 'incoming' });
+        expect(handle.isOpen).toBe(true);
+      });
+    });
+  });
 
   describe.skipIf(isJSDOM)('multiple triggers within Root', () => {
     type NumberPayload = { payload: number | undefined };
@@ -36,27 +318,27 @@ describe('<MenuRoot />', () => {
       const trigger2 = screen.getByRole('button', { name: 'Trigger 2' });
       const trigger3 = screen.getByRole('button', { name: 'Trigger 3' });
 
-      expect(screen.queryByRole('menu')).to.equal(null);
+      expect(screen.queryByRole('menu')).toBe(null);
 
       await user.click(trigger1);
       await screen.findByRole('menu');
       await user.click(await screen.findByRole('menuitem', { name: 'Close' }));
       await waitFor(() => {
-        expect(screen.queryByRole('menu')).to.equal(null);
+        expect(screen.queryByRole('menu')).toBe(null);
       });
 
       await user.click(trigger2);
       await screen.findByRole('menu');
       await user.click(await screen.findByRole('menuitem', { name: 'Close' }));
       await waitFor(() => {
-        expect(screen.queryByRole('menu')).to.equal(null);
+        expect(screen.queryByRole('menu')).toBe(null);
       });
 
       await user.click(trigger3);
       await screen.findByRole('menu');
       await user.click(await screen.findByRole('menuitem', { name: 'Close' }));
       await waitFor(() => {
-        expect(screen.queryByRole('menu')).to.equal(null);
+        expect(screen.queryByRole('menu')).toBe(null);
       });
     });
 
@@ -85,17 +367,17 @@ describe('<MenuRoot />', () => {
 
       await user.click(trigger1);
       await waitFor(() => {
-        expect(screen.getByTestId('content').textContent).to.equal('1');
+        expect(screen.getByTestId('content').textContent).toBe('1');
       });
 
       await user.click(screen.getByTestId('content'));
       await waitFor(() => {
-        expect(screen.queryByRole('menu')).to.equal(null);
+        expect(screen.queryByRole('menu')).toBe(null);
       });
 
       await user.click(trigger2);
       await waitFor(() => {
-        expect(screen.getByTestId('content').textContent).to.equal('2');
+        expect(screen.getByTestId('content').textContent).toBe('2');
       });
     });
 
@@ -130,8 +412,8 @@ describe('<MenuRoot />', () => {
       await user.click(trigger2);
       await screen.findByRole('menu');
 
-      expect(screen.getByTestId('popup')).to.equal(popupElement);
-      expect(screen.getByTestId('positioner')).to.equal(positionerElement);
+      expect(screen.getByTestId('popup')).toBe(popupElement);
+      expect(screen.getByTestId('positioner')).toBe(positionerElement);
     });
 
     it('should allow controlling the menu state programmatically', async () => {
@@ -193,17 +475,17 @@ describe('<MenuRoot />', () => {
 
       await user.click(screen.getByRole('button', { name: 'Open Trigger 1' }));
       await waitFor(() => {
-        expect(screen.getByTestId('content').textContent).to.equal('1');
+        expect(screen.getByTestId('content').textContent).toBe('1');
       });
 
       await user.click(screen.getByRole('button', { name: 'Open Trigger 2' }));
       await waitFor(() => {
-        expect(screen.getByTestId('content').textContent).to.equal('2');
+        expect(screen.getByTestId('content').textContent).toBe('2');
       });
 
       await user.click(screen.getByRole('button', { name: 'Close' }));
       await waitFor(() => {
-        expect(screen.queryByTestId('content')).to.equal(null);
+        expect(screen.queryByTestId('content')).toBe(null);
       });
     });
 
@@ -230,7 +512,7 @@ describe('<MenuRoot />', () => {
         </Menu.Root>,
       );
 
-      expect(screen.getByTestId('popup-content').textContent).to.equal('2');
+      expect(screen.getByTestId('popup-content').textContent).toBe('2');
     });
 
     describe('nested menus', () => {
@@ -283,13 +565,13 @@ describe('<MenuRoot />', () => {
 
         await user.keyboard('[ArrowLeft]');
         await waitFor(() => {
-          expect(screen.queryByTestId('submenu')).to.equal(null);
+          expect(screen.queryByTestId('submenu')).toBe(null);
         });
         expect(submenuTrigger).toHaveFocus();
 
         await user.keyboard('[Escape]');
         await waitFor(() => {
-          expect(screen.queryByTestId('menu')).to.equal(null);
+          expect(screen.queryByTestId('menu')).toBe(null);
         });
 
         await user.click(trigger2);
@@ -329,22 +611,22 @@ describe('<MenuRoot />', () => {
 
         await user.click(trigger1);
         await screen.findByTestId('menu');
-        expect(screen.queryByTestId('submenu')).to.equal(null);
+        expect(screen.queryByTestId('submenu')).toBe(null);
 
         const submenuTrigger = screen.getByTestId('submenu-trigger');
         await user.click(submenuTrigger);
 
         const submenuItem = await screen.findByTestId('submenu-item');
-        expect(submenuItem.textContent).to.equal('Nested');
+        expect(submenuItem.textContent).toBe('Nested');
 
         await user.click(submenuItem);
         await waitFor(() => {
-          expect(screen.queryByTestId('menu')).to.equal(null);
+          expect(screen.queryByTestId('menu')).toBe(null);
         });
 
         await user.click(trigger2);
         await screen.findByTestId('menu');
-        expect(screen.queryByTestId('submenu')).to.equal(null);
+        expect(screen.queryByTestId('submenu')).toBe(null);
       });
 
       it('closes every level when clicking outside the deepest submenu', async () => {
@@ -415,15 +697,15 @@ describe('<MenuRoot />', () => {
 
         await user.click(screen.getByTestId('outside'));
         await waitFor(() => {
-          expect(screen.queryByTestId('level-1')).to.equal(null);
-          expect(screen.queryByTestId('level-2')).to.equal(null);
-          expect(screen.queryByTestId('level-3')).to.equal(null);
+          expect(screen.queryByTestId('level-1')).toBe(null);
+          expect(screen.queryByTestId('level-2')).toBe(null);
+          expect(screen.queryByTestId('level-3')).toBe(null);
         });
       });
 
       it('allows selecting nested items via click, drag, release', async () => {
         ignoreActWarnings();
-        const clickSpy = spy();
+        const clickSpy = vi.fn();
         const { user } = await render(
           <Menu.Root>
             <Menu.Trigger>Trigger 1</Menu.Trigger>
@@ -467,9 +749,9 @@ describe('<MenuRoot />', () => {
         fireEvent.mouseUp(submenuItem);
 
         await waitFor(() => {
-          expect(screen.queryByTestId('menu')).to.equal(null);
+          expect(screen.queryByTestId('menu')).toBe(null);
         });
-        expect(clickSpy.callCount).to.equal(1);
+        expect(clickSpy.mock.calls.length).toBe(1);
 
         const trigger2 = screen.getByRole('button', { name: 'Trigger 2' });
         await user.click(trigger2);
@@ -505,27 +787,27 @@ describe('<MenuRoot />', () => {
       const trigger2 = screen.getByRole('button', { name: 'Trigger 2' });
       const trigger3 = screen.getByRole('button', { name: 'Trigger 3' });
 
-      expect(screen.queryByRole('menu')).to.equal(null);
+      expect(screen.queryByRole('menu')).toBe(null);
 
       await user.click(trigger1);
       await screen.findByRole('menu');
       await user.click(await screen.findByRole('menuitem', { name: 'Close' }));
       await waitFor(() => {
-        expect(screen.queryByRole('menu')).to.equal(null);
+        expect(screen.queryByRole('menu')).toBe(null);
       });
 
       await user.click(trigger2);
       await screen.findByRole('menu');
       await user.click(await screen.findByRole('menuitem', { name: 'Close' }));
       await waitFor(() => {
-        expect(screen.queryByRole('menu')).to.equal(null);
+        expect(screen.queryByRole('menu')).toBe(null);
       });
 
       await user.click(trigger3);
       await screen.findByRole('menu');
       await user.click(await screen.findByRole('menuitem', { name: 'Close' }));
       await waitFor(() => {
-        expect(screen.queryByRole('menu')).to.equal(null);
+        expect(screen.queryByRole('menu')).toBe(null);
       });
     });
 
@@ -559,17 +841,17 @@ describe('<MenuRoot />', () => {
 
       await user.click(trigger1);
       await waitFor(() => {
-        expect(screen.getByTestId('content').textContent).to.equal('1');
+        expect(screen.getByTestId('content').textContent).toBe('1');
       });
 
       await user.click(screen.getByTestId('content'));
       await waitFor(() => {
-        expect(screen.queryByRole('menu')).to.equal(null);
+        expect(screen.queryByRole('menu')).toBe(null);
       });
 
       await user.click(trigger2);
       await waitFor(() => {
-        expect(screen.getByTestId('content').textContent).to.equal('2');
+        expect(screen.getByTestId('content').textContent).toBe('2');
       });
     });
 
@@ -609,8 +891,8 @@ describe('<MenuRoot />', () => {
       await user.click(trigger2);
       await screen.findByRole('menu');
 
-      expect(screen.getByTestId('popup')).to.equal(popupElement);
-      expect(screen.getByTestId('positioner')).to.equal(positionerElement);
+      expect(screen.getByTestId('popup')).toBe(popupElement);
+      expect(screen.getByTestId('positioner')).toBe(positionerElement);
     });
 
     it('should allow controlling the menu state programmatically', async () => {
@@ -677,26 +959,30 @@ describe('<MenuRoot />', () => {
 
       await user.click(screen.getByRole('button', { name: 'Open Trigger 1' }));
       await waitFor(() => {
-        expect(screen.getByTestId('content').textContent).to.equal('1');
+        expect(screen.getByTestId('content').textContent).toBe('1');
       });
 
       await waitFor(() => {
         const positionerLeft = screen.getByTestId('positioner').getBoundingClientRect().left;
-        expect(positionerLeft).to.be.closeTo(trigger1.getBoundingClientRect().left, 1);
+        expect(
+          Math.abs(positionerLeft - trigger1.getBoundingClientRect().left),
+        ).toBeLessThanOrEqual(1);
       });
 
       await user.click(screen.getByRole('button', { name: 'Open Trigger 2' }));
       await waitFor(() => {
-        expect(screen.getByTestId('content').textContent).to.equal('2');
+        expect(screen.getByTestId('content').textContent).toBe('2');
       });
       await waitFor(() => {
         const positionerLeft = screen.getByTestId('positioner').getBoundingClientRect().left;
-        expect(positionerLeft).to.be.closeTo(trigger2.getBoundingClientRect().left, 1);
+        expect(
+          Math.abs(positionerLeft - trigger2.getBoundingClientRect().left),
+        ).toBeLessThanOrEqual(1);
       });
 
       await user.click(screen.getByRole('button', { name: 'Close' }));
       await waitFor(() => {
-        expect(screen.queryByTestId('content')).to.equal(null);
+        expect(screen.queryByTestId('content')).toBe(null);
       });
     });
 
@@ -724,7 +1010,58 @@ describe('<MenuRoot />', () => {
         </Menu.Root>,
       );
 
-      expect(screen.getByTestId('popup-content').textContent).to.equal('2');
+      expect(screen.getByTestId('popup-content').textContent).toBe('2');
+    });
+
+    it('should not have inline scale style after switching triggers', async () => {
+      globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+
+      const testMenu = Menu.createHandle<number>();
+
+      function Test() {
+        return (
+          <React.Fragment>
+            <Menu.Trigger handle={testMenu} payload={1}>
+              Trigger 1
+            </Menu.Trigger>
+            <Menu.Trigger handle={testMenu} payload={2}>
+              Trigger 2
+            </Menu.Trigger>
+
+            <Menu.Root handle={testMenu}>
+              {({ payload }: NumberPayload) => (
+                <Menu.Portal>
+                  <Menu.Positioner>
+                    <Menu.Popup data-testid="popup">
+                      <Menu.Viewport>
+                        <Menu.Item data-testid="content">{payload}</Menu.Item>
+                      </Menu.Viewport>
+                    </Menu.Popup>
+                  </Menu.Positioner>
+                </Menu.Portal>
+              )}
+            </Menu.Root>
+          </React.Fragment>
+        );
+      }
+
+      const { user } = await render(<Test />);
+
+      const trigger1 = screen.getByRole('button', { name: 'Trigger 1' });
+      const trigger2 = screen.getByRole('button', { name: 'Trigger 2' });
+
+      await user.click(trigger1);
+      await waitFor(() => {
+        expect(screen.getByTestId('content').textContent).toBe('1');
+      });
+
+      await user.click(trigger2);
+      await waitFor(() => {
+        expect(screen.getByTestId('content').textContent).toBe('2');
+      });
+
+      const popup = screen.getByTestId('popup');
+      expect(popup.style.scale).toBe('');
     });
 
     describe('nested menus', () => {
@@ -777,13 +1114,13 @@ describe('<MenuRoot />', () => {
 
         await user.keyboard('[ArrowLeft]');
         await waitFor(() => {
-          expect(screen.queryByTestId('submenu')).to.equal(null);
+          expect(screen.queryByTestId('submenu')).toBe(null);
         });
         expect(submenuTrigger).toHaveFocus();
 
         await user.keyboard('[Escape]');
         await waitFor(() => {
-          expect(screen.queryByTestId('menu')).to.equal(null);
+          expect(screen.queryByTestId('menu')).toBe(null);
         });
 
         await user.click(trigger2);
@@ -826,22 +1163,22 @@ describe('<MenuRoot />', () => {
 
         await user.click(trigger1);
         await screen.findByTestId('menu');
-        expect(screen.queryByTestId('submenu')).to.equal(null);
+        expect(screen.queryByTestId('submenu')).toBe(null);
 
         const submenuTrigger = screen.getByTestId('submenu-trigger');
         await user.click(submenuTrigger);
 
         const submenuItem = await screen.findByTestId('submenu-item');
-        expect(submenuItem.textContent).to.equal('Nested');
+        expect(submenuItem.textContent).toBe('Nested');
 
         await user.click(submenuItem);
         await waitFor(() => {
-          expect(screen.queryByTestId('menu')).to.equal(null);
+          expect(screen.queryByTestId('menu')).toBe(null);
         });
 
         await user.click(trigger2);
         await screen.findByTestId('menu');
-        expect(screen.queryByTestId('submenu')).to.equal(null);
+        expect(screen.queryByTestId('submenu')).toBe(null);
       });
 
       it('closes the nested tree on outside click', async () => {
@@ -910,16 +1247,16 @@ describe('<MenuRoot />', () => {
 
         await user.click(screen.getByTestId('outside'));
         await waitFor(() => {
-          expect(screen.queryByTestId('level-1')).to.equal(null);
-          expect(screen.queryByTestId('level-2')).to.equal(null);
-          expect(screen.queryByTestId('level-3')).to.equal(null);
+          expect(screen.queryByTestId('level-1')).toBe(null);
+          expect(screen.queryByTestId('level-2')).toBe(null);
+          expect(screen.queryByTestId('level-3')).toBe(null);
         });
       });
 
       it('selects nested items with click, drag, release', async () => {
         ignoreActWarnings();
         const testMenu = Menu.createHandle();
-        const clickSpy = spy();
+        const clickSpy = vi.fn();
         const { user } = await render(
           <div>
             <Menu.Trigger handle={testMenu}>Trigger 1</Menu.Trigger>
@@ -964,9 +1301,9 @@ describe('<MenuRoot />', () => {
         fireEvent.mouseUp(submenuItem);
 
         await waitFor(() => {
-          expect(screen.queryByTestId('menu')).to.equal(null);
+          expect(screen.queryByTestId('menu')).toBe(null);
         });
-        expect(clickSpy.callCount).to.equal(1);
+        expect(clickSpy.mock.calls.length).toBe(1);
 
         const trigger2 = screen.getByRole('button', { name: 'Trigger 2' });
         await user.click(trigger2);
@@ -998,26 +1335,26 @@ describe('<MenuRoot />', () => {
       );
 
       const trigger = screen.getByRole('button', { name: 'Trigger' });
-      expect(screen.queryByRole('menu')).to.equal(null);
+      expect(screen.queryByRole('menu')).toBe(null);
 
       await act(async () => {
         menuHandle.open('trigger');
       });
       await waitFor(() => {
-        expect(screen.queryByRole('menu')).not.to.equal(null);
+        expect(screen.queryByRole('menu')).not.toBe(null);
       });
 
-      expect(screen.getByTestId('content').textContent).to.equal('Content');
-      expect(trigger).to.have.attribute('aria-expanded', 'true');
+      expect(screen.getByTestId('content').textContent).toBe('Content');
+      expect(trigger).toHaveAttribute('aria-expanded', 'true');
 
       await act(async () => {
         menuHandle.close();
       });
       await waitFor(() => {
-        expect(screen.queryByRole('menu')).to.equal(null);
+        expect(screen.queryByRole('menu')).toBe(null);
       });
 
-      expect(trigger).to.have.attribute('aria-expanded', 'false');
+      expect(trigger).toHaveAttribute('aria-expanded', 'false');
     });
 
     it('sets the payload associated with the trigger', async () => {
@@ -1046,27 +1383,27 @@ describe('<MenuRoot />', () => {
 
       const trigger1 = screen.getByRole('button', { name: 'Trigger 1' });
       const trigger2 = screen.getByRole('button', { name: 'Trigger 2' });
-      expect(screen.queryByRole('menu')).to.equal(null);
+      expect(screen.queryByRole('menu')).toBe(null);
 
       await act(async () => {
         menuHandle.open('trigger2');
       });
       await waitFor(() => {
-        expect(screen.queryByRole('menu')).not.to.equal(null);
+        expect(screen.queryByRole('menu')).not.toBe(null);
       });
 
-      expect(screen.getByTestId('content').textContent).to.equal('2');
-      expect(trigger2).to.have.attribute('aria-expanded', 'true');
-      expect(trigger1).not.to.have.attribute('aria-expanded', 'true');
+      expect(screen.getByTestId('content').textContent).toBe('2');
+      expect(trigger2).toHaveAttribute('aria-expanded', 'true');
+      expect(trigger1).not.toHaveAttribute('aria-expanded', 'true');
 
       await act(async () => {
         menuHandle.close();
       });
       await waitFor(() => {
-        expect(screen.queryByRole('menu')).to.equal(null);
+        expect(screen.queryByRole('menu')).toBe(null);
       });
 
-      expect(trigger2).to.have.attribute('aria-expanded', 'false');
+      expect(trigger2).toHaveAttribute('aria-expanded', 'false');
     });
   });
 });

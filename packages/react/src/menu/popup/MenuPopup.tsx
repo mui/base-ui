@@ -5,24 +5,17 @@ import { FloatingFocusManager, useHoverFloatingInteraction } from '../../floatin
 import { useMenuRootContext } from '../root/MenuRootContext';
 import type { MenuRoot } from '../root/MenuRoot';
 import { useMenuPositionerContext } from '../positioner/MenuPositionerContext';
-import { useRenderElement } from '../../utils/useRenderElement';
-import type { BaseUIComponentProps } from '../../utils/types';
-import type { StateAttributesMapping } from '../../utils/getStateAttributesProps';
-import type { Side, Align } from '../../utils/useAnchorPositioning';
-import type { TransitionStatus } from '../../utils/useTransitionStatus';
-import { popupStateMapping as baseMapping } from '../../utils/popupStateMapping';
-import { transitionStatusMapping } from '../../utils/stateAttributesMapping';
-import { useOpenChangeComplete } from '../../utils/useOpenChangeComplete';
-import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
-import { REASONS } from '../../utils/reasons';
+import { useRenderElement } from '../../internals/useRenderElement';
+import type { BaseUIComponentProps } from '../../internals/types';
+import type { Side, Align } from '../../internals/useAnchorPositioning';
+import type { TransitionStatus } from '../../internals/useTransitionStatus';
+import { popupTransitionStateMapping } from '../../utils/popupStateMapping';
+import { useOpenChangeComplete } from '../../internals/useOpenChangeComplete';
+import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
+import { REASONS } from '../../internals/reasons';
 import { useToolbarRootContext } from '../../toolbar/root/ToolbarRootContext';
-import { COMPOSITE_KEYS } from '../../composite/composite';
-import { getDisabledMountTransitionStyles } from '../../utils/getDisabledMountTransitionStyles';
-
-const stateAttributesMapping: StateAttributesMapping<MenuPopup.State> = {
-  ...baseMapping,
-  ...transitionStatusMapping,
-};
+import { COMPOSITE_KEYS } from '../../internals/composite/composite';
+import { getDisabledMountTransitionStyles } from '../../internals/getDisabledMountTransitionStyles';
 
 /**
  * A container for the menu items.
@@ -34,7 +27,7 @@ export const MenuPopup = React.forwardRef(function MenuPopup(
   componentProps: MenuPopup.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { render, className, finalFocus, ...elementProps } = componentProps;
+  const { render, className, style, finalFocus, ...elementProps } = componentProps;
 
   const { store } = useMenuRootContext();
   const { side, align } = useMenuPositionerContext();
@@ -45,14 +38,16 @@ export const MenuPopup = React.forwardRef(function MenuPopup(
   const popupProps = store.useState('popupProps');
   const mounted = store.useState('mounted');
   const instantType = store.useState('instantType');
-  const triggerElement = store.useState('activeTriggerElement');
+  const activeTriggerElement = store.useState('activeTriggerElement');
   const parent = store.useState('parent');
   const lastOpenChangeReason = store.useState('lastOpenChangeReason');
   const rootId = store.useState('rootId');
   const floatingContext = store.useState('floatingRootContext');
   const floatingTreeRoot = store.useState('floatingTreeRoot');
   const closeDelay = store.useState('closeDelay');
-  const activeTriggerElement = store.useState('activeTriggerElement');
+  const hoverEnabled = store.useState('hoverEnabled');
+  const disabled = store.useState('disabled');
+  const openMethod = store.useState('openMethod');
 
   const isContextMenu = parent.type === 'context-menu';
 
@@ -81,30 +76,26 @@ export const MenuPopup = React.forwardRef(function MenuPopup(
     };
   }, [floatingTreeRoot.events, store]);
 
-  const hoverEnabled = store.useState('hoverEnabled');
-  const disabled = store.useState('disabled');
-
   useHoverFloatingInteraction(floatingContext, {
     enabled: hoverEnabled && !disabled && !isContextMenu && parent.type !== 'menubar',
     closeDelay,
   });
 
-  const state: MenuPopup.State = React.useMemo(
-    () => ({
-      transitionStatus,
-      side,
-      align,
-      open,
-      nested: parent.type === 'menu',
-      instant: instantType,
-    }),
-    [transitionStatus, side, align, open, parent.type, instantType],
-  );
+  const setPopupElement = store.useStateSetter('popupElement');
+
+  const state: MenuPopupState = {
+    transitionStatus,
+    side,
+    align,
+    open,
+    nested: parent.type === 'menu',
+    instant: instantType,
+  };
 
   const element = useRenderElement('div', componentProps, {
     state,
-    ref: [forwardedRef, store.context.popupRef],
-    stateAttributesMapping,
+    ref: [forwardedRef, store.context.popupRef, setPopupElement],
+    stateAttributesMapping: popupTransitionStateMapping,
     props: [
       popupProps,
       {
@@ -122,7 +113,7 @@ export const MenuPopup = React.forwardRef(function MenuPopup(
 
   let returnFocus = parent.type === undefined || isContextMenu;
   if (
-    triggerElement ||
+    activeTriggerElement ||
     (parent.type === 'menubar' && lastOpenChangeReason !== REASONS.outsidePress)
   ) {
     returnFocus = true;
@@ -131,6 +122,7 @@ export const MenuPopup = React.forwardRef(function MenuPopup(
   return (
     <FloatingFocusManager
       context={floatingContext}
+      openInteractionType={openMethod}
       modal={isContextMenu}
       disabled={!mounted}
       returnFocus={finalFocus === undefined ? returnFocus : finalFocus}
@@ -150,7 +142,7 @@ export const MenuPopup = React.forwardRef(function MenuPopup(
   );
 });
 
-export interface MenuPopupProps extends BaseUIComponentProps<'div', MenuPopup.State> {
+export interface MenuPopupProps extends BaseUIComponentProps<'div', MenuPopupState> {
   children?: React.ReactNode;
   /**
    * @ignore
@@ -166,24 +158,38 @@ export interface MenuPopupProps extends BaseUIComponentProps<'div', MenuPopup.St
    *   Return an element to focus, `true` to use the default behavior, or `false`/`undefined` to do nothing.
    */
   finalFocus?:
-    | (
-        | boolean
-        | React.RefObject<HTMLElement | null>
-        | ((closeType: InteractionType) => boolean | HTMLElement | null | void)
-      )
+    | boolean
+    | React.RefObject<HTMLElement | null>
+    | ((closeType: InteractionType) => boolean | HTMLElement | null | void)
     | undefined;
 }
 
-export type MenuPopupState = {
+export interface MenuPopupState {
+  /**
+   * The transition status of the component.
+   */
   transitionStatus: TransitionStatus;
+  /**
+   * The side of the anchor the component is placed on.
+   */
   side: Side;
+  /**
+   * The alignment of the component relative to the anchor.
+   */
   align: Align;
   /**
    * Whether the menu is currently open.
    */
   open: boolean;
+  /**
+   * Whether the component is nested.
+   */
   nested: boolean;
-};
+  /**
+   * Whether transitions should be skipped.
+   */
+  instant: 'dismiss' | 'click' | 'group' | 'trigger-change' | undefined;
+}
 
 export namespace MenuPopup {
   export type Props = MenuPopupProps;

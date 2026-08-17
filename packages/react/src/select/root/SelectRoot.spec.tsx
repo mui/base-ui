@@ -15,6 +15,18 @@ const objectItemsReadonly = [
   { value: 'c', label: 'cherry' },
 ] as const;
 
+const groupedItemsReadonly = [
+  {
+    heading: 'Fruits',
+    items: [
+      { value: 'a', label: 'apple' },
+      { value: 'b', label: 'banana' },
+    ],
+  },
+] as const;
+
+<Select.Root items={groupedItemsReadonly} />;
+
 <Select.Root
   items={objectItemsReadonly}
   defaultValue="a"

@@ -20,11 +20,11 @@ export enum SwitchRootDataAttributes {
    */
   required = 'data-required',
   /**
-   * Present when the switch is in valid state (when wrapped in Field.Root).
+   * Present when the switch is in a valid state (when wrapped in Field.Root).
    */
   valid = 'data-valid',
   /**
-   * Present when the switch is in invalid state (when wrapped in Field.Root).
+   * Present when the switch is in an invalid state (when wrapped in Field.Root).
    */
   invalid = 'data-invalid',
   /**

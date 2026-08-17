@@ -2,23 +2,24 @@
 import * as React from 'react';
 import { useControlled } from '@base-ui/utils/useControlled';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
-import { useBaseUiId } from '../utils/useBaseUiId';
-import { useRenderElement } from '../utils/useRenderElement';
+import { EMPTY_ARRAY } from '@base-ui/utils/empty';
+import { areArraysEqual } from '@base-ui/utils/areArraysEqual';
+import { useBaseUiId } from '../internals/useBaseUiId';
+import { useRenderElement } from '../internals/useRenderElement';
 import { CheckboxGroupContext } from './CheckboxGroupContext';
-import type { FieldRoot } from '../field/root/FieldRoot';
-import { useFieldRootContext } from '../field/root/FieldRootContext';
-import { useLabelableContext } from '../labelable-provider/LabelableContext';
-import type { BaseUIComponentProps } from '../utils/types';
-import { fieldValidityMapping } from '../field/utils/constants';
-import { useField } from '../field/useField';
-import { PARENT_CHECKBOX } from '../checkbox/root/CheckboxRoot';
+import type { FieldRootState } from '../field/root/FieldRoot';
+import { isEligibleInput } from '../field/root/useFieldValidation';
+import { useFieldRootContext } from '../internals/field-root-context/FieldRootContext';
+import { useRegisterFieldControl } from '../internals/field-register-control/useRegisterFieldControl';
+import { useLabelableContext } from '../internals/labelable-provider/LabelableContext';
+import { useLabelableId } from '../internals/labelable-provider/useLabelableId';
+import type { BaseUIComponentProps } from '../internals/types';
+import { fieldValidityMapping } from '../internals/field-constants/constants';
 import { useCheckboxGroupParent } from './useCheckboxGroupParent';
-import type { BaseUIChangeEventDetails } from '../utils/createBaseUIEventDetails';
-import { REASONS } from '../utils/reasons';
-import { useFormContext } from '../form/FormContext';
-import { useValueChanged } from '../utils/useValueChanged';
-import { areArraysEqual } from '../utils/areArraysEqual';
-import { EMPTY_ARRAY } from '../utils/constants';
+import type { BaseUIChangeEventDetails } from '../internals/createBaseUIEventDetails';
+import { REASONS } from '../internals/reasons';
+import { useFormContext } from '../internals/form-context/FormContext';
+import { useValueChanged } from '../internals/useValueChanged';
 
 /**
  * Provides a shared state to a series of checkboxes.
@@ -32,12 +33,13 @@ export const CheckboxGroup = React.forwardRef(function CheckboxGroup(
   const {
     allValues,
     className,
-    defaultValue,
+    defaultValue: defaultValueProp,
     disabled: disabledProp = false,
     id: idProp,
     onValueChange,
     render,
     value: externalValue,
+    style,
     ...elementProps
   } = componentProps;
 
@@ -48,13 +50,13 @@ export const CheckboxGroup = React.forwardRef(function CheckboxGroup(
     validation,
     setFilled,
     setDirty,
-    shouldValidateOnChange,
     validityData,
   } = useFieldRootContext();
-  const { labelId, getDescriptionProps } = useLabelableContext();
-  const { clearErrors } = useFormContext();
+  const { labelId, registerControlId, getDescriptionProps } = useLabelableContext();
+  const { clearErrors, elementRef } = useFormContext();
 
   const disabled = fieldDisabled || disabledProp;
+  const defaultValue = defaultValueProp ?? EMPTY_ARRAY;
 
   const [value, setValueUnwrapped] = useControlled({
     controlled: externalValue,
@@ -77,33 +79,49 @@ export const CheckboxGroup = React.forwardRef(function CheckboxGroup(
 
   const parent = useCheckboxGroupParent({
     allValues,
-    value: externalValue,
-    onValueChange,
+    value,
+    onValueChange: setValue,
   });
+
+  // The group is the field's control and takes its name from `aria-labelledby`, so `Field.Label`
+  // must not point `htmlFor` at one arbitrary checkbox inside the group.
+  useLabelableId({ id: null });
 
   const id = useBaseUiId(idProp);
+  const getInputControl = validation.getInputControl;
 
-  const controlRef = React.useRef<HTMLButtonElement>(null);
+  const controlRef = React.useMemo<React.RefObject<HTMLElement | null>>(
+    () => ({
+      get current() {
+        return getInputControl();
+      },
+    }),
+    [getInputControl],
+  );
 
-  const registerControlRef = React.useCallback((element: HTMLButtonElement | null) => {
-    if (controlRef.current == null && element != null && !element.hasAttribute(PARENT_CHECKBOX)) {
-      controlRef.current = element;
+  const getFormValue = useStableCallback(() => {
+    const formElement = elementRef.current;
+    if (!formElement) {
+      return value;
     }
-  }, []);
 
-  useField({
-    enabled: !!fieldName,
-    id,
-    commit: validation.commit,
-    value,
-    controlRef,
-    name: fieldName,
-    getValue: () => value,
+    const successfulValues = new Set<string>();
+    for (const [input, registration] of validation.registeredInputs) {
+      if (
+        registration.value !== undefined &&
+        input.checked &&
+        isEligibleInput(input, formElement)
+      ) {
+        successfulValues.add(registration.value);
+      }
+    }
+
+    return value.filter((inputValue) => successfulValues.has(inputValue));
   });
 
-  const resolvedValue = value ?? EMPTY_ARRAY;
+  useRegisterFieldControl(controlRef, id, value, getFormValue, !!fieldName && !disabled, fieldName);
 
-  useValueChanged(resolvedValue, () => {
+  useValueChanged(value, () => {
     if (fieldName) {
       clearErrors(fieldName);
     }
@@ -112,36 +130,28 @@ export const CheckboxGroup = React.forwardRef(function CheckboxGroup(
       ? (validityData.initialValue as readonly string[])
       : EMPTY_ARRAY;
 
-    setFilled(resolvedValue.length > 0);
-    setDirty(!areArraysEqual(resolvedValue, initialValue));
+    setFilled(value.length > 0);
+    setDirty(!areArraysEqual(value, initialValue));
 
-    if (shouldValidateOnChange()) {
-      validation.commit(resolvedValue);
-    } else {
-      validation.commit(resolvedValue, true);
-    }
+    validation.change(value);
   });
 
-  const state: CheckboxGroup.State = React.useMemo(
-    () => ({
-      ...fieldState,
-      disabled,
-    }),
-    [fieldState, disabled],
-  );
+  const state: CheckboxGroupState = {
+    ...fieldState,
+    disabled,
+  };
 
   const contextValue: CheckboxGroupContext = React.useMemo(
     () => ({
       allValues,
       value,
-      defaultValue,
       setValue,
       parent,
       disabled,
       validation,
-      registerControlRef,
+      registerControlId,
     }),
-    [allValues, value, defaultValue, setValue, parent, disabled, validation, registerControlRef],
+    [allValues, value, setValue, parent, disabled, validation, registerControlId],
   );
 
   const element = useRenderElement('div', componentProps, {
@@ -149,11 +159,12 @@ export const CheckboxGroup = React.forwardRef(function CheckboxGroup(
     ref: forwardedRef,
     props: [
       {
+        id: idProp,
         role: 'group',
         'aria-labelledby': labelId,
       },
-      getDescriptionProps,
       elementProps,
+      getDescriptionProps,
     ],
     stateAttributesMapping: fieldValidityMapping,
   });
@@ -163,14 +174,14 @@ export const CheckboxGroup = React.forwardRef(function CheckboxGroup(
   );
 });
 
-export interface CheckboxGroupState extends FieldRoot.State {
+export interface CheckboxGroupState extends FieldRootState {
   /**
    * Whether the component should ignore user interaction.
    */
   disabled: boolean;
 }
 
-export interface CheckboxGroupProps extends BaseUIComponentProps<'div', CheckboxGroup.State> {
+export interface CheckboxGroupProps extends BaseUIComponentProps<'div', CheckboxGroupState> {
   /**
    * Names of the checkboxes in the group that should be ticked.
    *

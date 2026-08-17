@@ -2,9 +2,12 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { isNode } from '@floating-ui/utils/dom';
+import { addEventListener } from '@base-ui/utils/addEventListener';
+import { mergeCleanups } from '@base-ui/utils/mergeCleanups';
 import { useId } from '@base-ui/utils/useId';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
+import { EMPTY_OBJECT } from '@base-ui/utils/empty';
 import { FocusGuard } from '../../utils/FocusGuard';
 import {
   enableFocusInside,
@@ -12,13 +15,16 @@ import {
   getPreviousTabbable,
   getNextTabbable,
   isOutsideEvent,
-} from '../utils';
-import { createChangeEventDetails } from '../../utils/createBaseUIEventDetails';
-import { REASONS } from '../../utils/reasons';
+} from '../utils/tabbable';
+import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
+import { REASONS } from '../../internals/reasons';
 import { createAttribute } from '../utils/createAttribute';
-import { useRenderElement } from '../../utils/useRenderElement';
-import { EMPTY_OBJECT, ownerVisuallyHidden } from '../../utils/constants';
-import type { BaseUIComponentProps } from '../../utils/types';
+import {
+  useRenderElement,
+  type UseRenderElementComponentProps,
+} from '../../internals/useRenderElement';
+import { ownerVisuallyHidden } from '../../internals/constants';
+import type { BaseUIComponentProps } from '../../internals/types';
 
 type FocusManagerState = null | {
   modal: boolean;
@@ -47,28 +53,29 @@ const attr = createAttribute('portal');
 export interface UseFloatingPortalNodeProps {
   ref?: React.Ref<HTMLDivElement> | undefined;
   container?:
-    | (HTMLElement | ShadowRoot | null | React.RefObject<HTMLElement | ShadowRoot | null>)
+    | HTMLElement
+    | ShadowRoot
+    | null
+    | React.RefObject<HTMLElement | ShadowRoot | null>
     | undefined;
-  componentProps?: useRenderElement.ComponentProps<any> | undefined;
+  componentProps?: UseRenderElementComponentProps<any> | undefined;
   elementProps?: React.HTMLAttributes<HTMLDivElement> | undefined;
-  elementState?: Record<string, unknown> | undefined;
 }
 
 export interface UseFloatingPortalNodeResult {
-  portalNode: HTMLElement | null;
-  portalSubtree: React.ReactPortal | null;
+  node: HTMLElement | null;
+  /**
+   * The `id` attribute of the portal node. On React 17 it is `undefined` until the `useId`
+   * polyfill assigns it in an effect after the node has been created.
+   */
+  nodeId: string | undefined;
+  subtree: React.ReactPortal | null;
 }
 
 export function useFloatingPortalNode(
   props: UseFloatingPortalNodeProps = {},
 ): UseFloatingPortalNodeResult {
-  const {
-    ref,
-    container: containerProp,
-    componentProps = EMPTY_OBJECT,
-    elementProps,
-    elementState,
-  } = props;
+  const { ref, container: containerProp, componentProps = EMPTY_OBJECT, elementProps } = props;
 
   const uniqueId = useId();
   const portalContext = usePortalContext();
@@ -100,11 +107,6 @@ export function useFloatingPortalNode(
       return;
     }
 
-    // React 17 does not use React.useId().
-    if (uniqueId == null) {
-      return;
-    }
-
     const resolvedContainer =
       (containerProp && (isNode(containerProp) ? containerProp : containerProp.current)) ??
       parentPortalNode ??
@@ -124,11 +126,10 @@ export function useFloatingPortalNode(
       setPortalNode(null);
       setContainerElement(resolvedContainer);
     }
-  }, [containerProp, parentPortalNode, uniqueId]);
+  }, [containerProp, parentPortalNode]);
 
   const portalElement = useRenderElement('div', componentProps, {
     ref: [ref, setPortalNodeRef],
-    state: elementState,
     props: [
       {
         id: uniqueId,
@@ -146,8 +147,13 @@ export function useFloatingPortalNode(
       : null;
 
   return {
-    portalNode,
-    portalSubtree,
+    node: portalNode,
+    // `id` and `render` props can override or remove the generated ID. Use the exact
+    // rendered value so `aria-owns` never points at an ID absent from the DOM.
+    nodeId: React.isValidElement<{ id?: string | undefined }>(portalElement)
+      ? portalElement.props.id
+      : undefined,
+    subtree: portalSubtree,
   };
 }
 
@@ -161,12 +167,17 @@ export function useFloatingPortalNode(
  * @internal
  */
 export const FloatingPortal = React.forwardRef(function FloatingPortal(
-  componentProps: FloatingPortal.Props<any> & { renderGuards?: boolean | undefined },
+  componentProps: FloatingPortal.Props<any>,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { children, container, className, render, renderGuards, ...elementProps } = componentProps;
+  const { render, className, style, children, container, portalOwnerRole, ...elementProps } =
+    componentProps;
 
-  const { portalNode, portalSubtree } = useFloatingPortalNode({
+  const {
+    node: portalNode,
+    nodeId: portalNodeId,
+    subtree: portalSubtree,
+  } = useFloatingPortalNode({
     container,
     ref: forwardedRef,
     componentProps,
@@ -179,14 +190,13 @@ export const FloatingPortal = React.forwardRef(function FloatingPortal(
   const afterInsideRef = React.useRef<HTMLSpanElement>(null);
 
   const [focusManagerState, setFocusManagerState] = React.useState<FocusManagerState>(null);
+  const focusInsideDisabledRef = React.useRef(false);
 
   const modal = focusManagerState?.modal;
   const open = focusManagerState?.open;
 
   const shouldRenderGuards =
-    typeof renderGuards === 'boolean'
-      ? renderGuards
-      : !!focusManagerState && !focusManagerState.modal && focusManagerState.open && !!portalNode;
+    !!focusManagerState && !focusManagerState.modal && focusManagerState.open && !!portalNode;
 
   // https://codesandbox.io/s/tabbable-portal-f4tng?file=/src/TabbablePortal.tsx
   React.useEffect(() => {
@@ -199,27 +209,34 @@ export const FloatingPortal = React.forwardRef(function FloatingPortal(
     // element outside or using the mouse.
     function onFocus(event: FocusEvent) {
       if (portalNode && event.relatedTarget && isOutsideEvent(event)) {
-        const focusing = event.type === 'focusin';
-        const manageFocus = focusing ? enableFocusInside : disableFocusInside;
-        manageFocus(portalNode);
+        if (event.type === 'focusin') {
+          if (focusInsideDisabledRef.current) {
+            enableFocusInside(portalNode);
+            focusInsideDisabledRef.current = false;
+          }
+        } else {
+          disableFocusInside(portalNode);
+          focusInsideDisabledRef.current = true;
+        }
       }
     }
 
     // Listen to the event on the capture phase so they run before the focus
     // trap elements onFocus prop is called.
-    portalNode.addEventListener('focusin', onFocus, true);
-    portalNode.addEventListener('focusout', onFocus, true);
-    return () => {
-      portalNode.removeEventListener('focusin', onFocus, true);
-      portalNode.removeEventListener('focusout', onFocus, true);
-    };
+    return mergeCleanups(
+      addEventListener(portalNode, 'focusin', onFocus, true),
+      addEventListener(portalNode, 'focusout', onFocus, true),
+    );
   }, [portalNode, modal]);
 
-  React.useEffect(() => {
-    if (!portalNode || open) {
+  useIsoLayoutEffect(() => {
+    if (!portalNode || open !== true || !focusInsideDisabledRef.current) {
       return;
     }
+
+    // Restore tabbability before the focus manager's queued focus-on-open step runs.
     enableFocusInside(portalNode);
+    focusInsideDisabledRef.current = false;
   }, [open, portalNode]);
 
   const portalContextValue = React.useMemo(
@@ -254,7 +271,7 @@ export const FloatingPortal = React.forwardRef(function FloatingPortal(
           />
         )}
         {shouldRenderGuards && portalNode && (
-          <span aria-owns={portalNode.id} style={ownerVisuallyHidden} />
+          <span role={portalOwnerRole} aria-owns={portalNodeId} style={ownerVisuallyHidden} />
         )}
         {portalNode && ReactDOM.createPortal(children, portalNode)}
         {shouldRenderGuards && portalNode && (
@@ -284,11 +301,19 @@ export const FloatingPortal = React.forwardRef(function FloatingPortal(
   );
 });
 
+export interface FloatingPortalState {}
+
 export namespace FloatingPortal {
-  export interface Props<State> extends BaseUIComponentProps<'div', State> {
+  export type State = FloatingPortalState;
+  export interface Props<TState> extends BaseUIComponentProps<'div', TState> {
     /**
      * A parent element to render the portal element into.
      */
     container?: UseFloatingPortalNodeProps['container'] | undefined;
+    /**
+     * @ignore
+     * The role for the hidden `aria-owns` owner element.
+     */
+    portalOwnerRole?: React.AriaRole | undefined;
   }
 }

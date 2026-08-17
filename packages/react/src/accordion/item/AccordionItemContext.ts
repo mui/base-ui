@@ -1,11 +1,12 @@
 'use client';
 import * as React from 'react';
-import type { AccordionItem } from './AccordionItem';
+import type { AccordionItemState } from './AccordionItem';
 
 export interface AccordionItemContext {
+  defaultTriggerId?: string | undefined;
   open: boolean;
-  state: AccordionItem.State;
-  setTriggerId: (id: string | undefined) => void;
+  state: AccordionItemState;
+  setTriggerId: React.Dispatch<React.SetStateAction<string | null | undefined>>;
   triggerId?: string | undefined;
 }
 

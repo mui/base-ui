@@ -1,7 +1,7 @@
+import { expect } from 'vitest';
 import { Combobox } from '@base-ui/react/combobox';
 import { createRenderer, describeConformance } from '#test-utils';
 import { screen } from '@mui/internal-test-utils';
-import { expect } from 'chai';
 
 describe('<Combobox.Group />', () => {
   const { render } = createRenderer();
@@ -28,7 +28,7 @@ describe('<Combobox.Group />', () => {
       </Combobox.Root>,
     );
 
-    expect(screen.getByRole('group')).to.have.attribute('aria-labelledby');
+    expect(screen.getByRole('group')).toHaveAttribute('aria-labelledby');
     expect(screen.getByText('Fruits')).toBeVisible();
   });
 
@@ -49,6 +49,6 @@ describe('<Combobox.Group />', () => {
 
     const Group = screen.getByRole('group');
     const label = screen.getByText('Vegetables');
-    expect(Group).to.have.attribute('aria-labelledby', label.id);
+    expect(Group).toHaveAttribute('aria-labelledby', label.id);
   });
 });

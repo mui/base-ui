@@ -1,19 +1,14 @@
-import type { SwitchRoot } from './root/SwitchRoot';
-import type { StateAttributesMapping } from '../utils/getStateAttributesProps';
-import { fieldValidityMapping } from '../field/utils/constants';
-import { SwitchRootDataAttributes } from './root/SwitchRootDataAttributes';
+import type { SwitchRootState } from './root/SwitchRoot';
+import type { StateAttributesMapping } from '../internals/getStateAttributesProps';
+import { fieldValidityMapping } from '../internals/field-constants/constants';
 
-export const stateAttributesMapping: StateAttributesMapping<SwitchRoot.State> = {
+export const stateAttributesMapping: StateAttributesMapping<SwitchRootState> = {
   ...fieldValidityMapping,
   checked(value): Record<string, string> {
     if (value) {
-      return {
-        [SwitchRootDataAttributes.checked]: '',
-      };
+      return { 'data-checked': '' };
     }
 
-    return {
-      [SwitchRootDataAttributes.unchecked]: '',
-    };
+    return { 'data-unchecked': '' };
   },
 };

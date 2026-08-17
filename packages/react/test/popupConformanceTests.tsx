@@ -1,6 +1,5 @@
 import * as React from 'react';
-import { spy } from 'sinon';
-import { expect } from 'chai';
+import { expect, vi } from 'vitest';
 import { randomStringValue, screen, waitFor } from '@mui/internal-test-utils';
 import { createRenderer, isJSDOM } from '#test-utils';
 
@@ -36,13 +35,13 @@ export function popupConformanceTests(config: PopupTestConfig) {
       it('opens the popup with the `open` prop', async () => {
         const { rerender } = await render(prepareComponent({ root: { open: false } }));
         if (!alwaysMounted) {
-          expect(getPopup()).to.equal(null);
+          expect(getPopup()).toBe(null);
         } else {
           expect(getPopup()).toBeInaccessible();
         }
 
         await rerender(prepareComponent({ root: { open: true } }));
-        expect(getPopup()).not.to.equal(null);
+        expect(getPopup()).not.toBe(null);
       });
     });
 
@@ -53,14 +52,14 @@ export function popupConformanceTests(config: PopupTestConfig) {
 
           const trigger = getTrigger();
           if (!alwaysMounted) {
-            expect(getPopup()).to.equal(null);
+            expect(getPopup()).toBe(null);
           } else {
             expect(getPopup()).toBeInaccessible();
           }
 
           await user.click(trigger);
           await waitFor(() => {
-            expect(getPopup()).not.to.equal(null);
+            expect(getPopup()).not.toBe(null);
           });
         });
       });
@@ -72,8 +71,8 @@ export function popupConformanceTests(config: PopupTestConfig) {
           it(`has the ${expectedPopupRole} role on the popup`, async () => {
             await render(prepareComponent({ root: { open: true } }));
             const popup = getPopup();
-            expect(popup).not.to.equal(null);
-            expect(popup).to.have.attribute('role', expectedPopupRole);
+            expect(popup).not.toBe(null);
+            expect(popup).toHaveAttribute('role', expectedPopupRole);
           });
         }
 
@@ -82,34 +81,34 @@ export function popupConformanceTests(config: PopupTestConfig) {
             await render(prepareComponent({ root: { open: true } }));
             const trigger = getTrigger();
             const popup = getPopup();
-            expect(trigger).to.have.attribute('aria-controls', popup?.id);
+            expect(trigger).toHaveAttribute('aria-controls', popup?.id);
           });
 
           it('has the `aria-expanded` attribute on the trigger when open', async () => {
             const { user } = await render(prepareComponent({}));
             const trigger = getTrigger();
             if (!alwaysMounted) {
-              expect(getPopup()).to.equal(null);
+              expect(getPopup()).toBe(null);
             } else {
               expect(getPopup()).toBeInaccessible();
             }
-            expect(trigger).to.have.attribute('aria-expanded', 'false');
+            expect(trigger).toHaveAttribute('aria-expanded', 'false');
             await user.click(trigger);
             await waitFor(() => {
               if (combobox) {
-                expect(getPopup()).to.have.attribute('role', 'listbox');
+                expect(getPopup()).toHaveAttribute('role', 'listbox');
               } else {
-                expect(getPopup()).to.have.attribute('data-open');
+                expect(getPopup()).toHaveAttribute('data-open');
               }
             });
-            expect(trigger).to.have.attribute('aria-expanded', 'true');
+            expect(trigger).toHaveAttribute('aria-expanded', 'true');
           });
 
           if (expectedAriaHasPopupValue) {
             it('has the `aria-haspopup` attribute on the trigger', async () => {
               await render(prepareComponent({ root: { open: true } }));
               const trigger = getTrigger();
-              expect(trigger).to.have.attribute('aria-haspopup', expectedAriaHasPopupValue);
+              expect(trigger).toHaveAttribute('aria-haspopup', expectedAriaHasPopupValue);
             });
           }
 
@@ -117,7 +116,7 @@ export function popupConformanceTests(config: PopupTestConfig) {
             await render(prepareComponent({ root: { open: true }, popup: { id: 'TestId' } }));
             const trigger = getTrigger();
             const popup = getPopup();
-            expect(trigger.getAttribute('aria-controls')).to.equal(popup?.getAttribute('id'));
+            expect(trigger.getAttribute('aria-controls')).toBe(popup?.getAttribute('id'));
           });
         }
       });
@@ -140,13 +139,13 @@ export function popupConformanceTests(config: PopupTestConfig) {
         const { rerender } = await render(prepareComponent({ root: { open: true } }));
 
         await waitFor(() => {
-          expect(getPopup()).not.to.equal(null);
+          expect(getPopup()).not.toBe(null);
         });
 
         await rerender(prepareComponent({ root: { open: false } }));
         await waitFor(() => {
           if (!alwaysMounted && alwaysMountedParam !== 'only-after-open') {
-            expect(getPopup()).to.equal(null);
+            expect(getPopup()).toBe(null);
           } else {
             expect(getPopup()).toBeInaccessible();
           }
@@ -161,7 +160,7 @@ export function popupConformanceTests(config: PopupTestConfig) {
           skip();
         }
 
-        const handleAnimationEnd = spy();
+        const handleAnimationEnd = vi.fn();
         const animationName = `anim-${randomStringValue()}`;
 
         function Test(props: { open: boolean }) {
@@ -202,12 +201,12 @@ export function popupConformanceTests(config: PopupTestConfig) {
 
         await waitFor(() => {
           const popup = getPopup();
-          expect(popup).not.to.equal(null);
+          expect(popup).not.toBe(null);
           expect(popup).toBeInaccessible();
         });
 
         await waitFor(() => {
-          expect(handleAnimationEnd.callCount).to.equal(1);
+          expect(handleAnimationEnd).toHaveBeenCalledTimes(1);
         });
       });
     });

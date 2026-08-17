@@ -1,3 +1,6 @@
+import { ownerWindow } from '@base-ui/utils/owner';
+import { platform } from '@base-ui/utils/platform';
+
 interface ElementBounds {
   left: number;
   right: number;
@@ -5,16 +8,37 @@ interface ElementBounds {
   bottom: number;
 }
 
+// Tolerance around the element bounds so a fast click whose pointer drifts slightly
+// during press-release isn't mistaken for a drag-off-and-release cancellation.
+// Matches typical OS/browser drag-initiation thresholds.
+const BOUNDARY_OFFSET = 5;
+
+/**
+ * Determines if a mouse event occurred within the bounds of an element
+ * (including its pseudo-elements), with a small tolerance for pointer drift.
+ */
+export function isMouseWithinBounds(event: MouseEvent, element: HTMLElement): boolean {
+  const bounds = getPseudoElementBounds(element);
+
+  return (
+    event.clientX >= bounds.left - BOUNDARY_OFFSET &&
+    event.clientX <= bounds.right + BOUNDARY_OFFSET &&
+    event.clientY >= bounds.top - BOUNDARY_OFFSET &&
+    event.clientY <= bounds.bottom + BOUNDARY_OFFSET
+  );
+}
+
 export function getPseudoElementBounds(element: HTMLElement): ElementBounds {
   const elementRect = element.getBoundingClientRect();
+  const win = ownerWindow(element);
 
-  // Avoid "Not implemented: window.getComputedStyle(elt, pseudoElt)"
-  if (process.env.NODE_ENV === 'test') {
+  // Avoid "Not implemented: window.getComputedStyle(elt, pseudoElt)" in jsdom.
+  if (platform.env.jsdom) {
     return elementRect;
   }
 
-  const beforeStyles = window.getComputedStyle(element, '::before');
-  const afterStyles = window.getComputedStyle(element, '::after');
+  const beforeStyles = win.getComputedStyle(element, '::before');
+  const afterStyles = win.getComputedStyle(element, '::after');
 
   const hasPseudoElements = beforeStyles.content !== 'none' || afterStyles.content !== 'none';
 

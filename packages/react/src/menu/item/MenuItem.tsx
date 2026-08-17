@@ -2,10 +2,10 @@
 import * as React from 'react';
 import { REGULAR_ITEM, useMenuItem } from './useMenuItem';
 import { useMenuRootContext } from '../root/MenuRootContext';
-import { useRenderElement } from '../../utils/useRenderElement';
-import { useBaseUiId } from '../../utils/useBaseUiId';
-import type { BaseUIComponentProps, NonNativeButtonProps } from '../../utils/types';
-import { useCompositeListItem } from '../../composite/list/useCompositeListItem';
+import { useRenderElement } from '../../internals/useRenderElement';
+import { useBaseUiId } from '../../internals/useBaseUiId';
+import type { BaseUIComponentProps, NonNativeButtonProps } from '../../internals/types';
+import { useCompositeListItem } from '../../internals/composite/list/useCompositeListItem';
 import { useMenuPositionerContext } from '../positioner/MenuPositionerContext';
 
 /**
@@ -24,16 +24,19 @@ export const MenuItem = React.forwardRef(function MenuItem(
     id: idProp,
     label,
     nativeButton = false,
-    disabled = false,
+    disabled: disabledProp = false,
     closeOnClick = true,
+    style,
     ...elementProps
   } = componentProps;
 
-  const listItem = useCompositeListItem({ label });
+  const listItem = useCompositeListItem({ guess: true, label });
   const menuPositionerContext = useMenuPositionerContext(true);
   const id = useBaseUiId(idProp);
 
   const { store } = useMenuRootContext();
+  const rootDisabled = store.useState('disabled');
+  const disabled = disabledProp || rootDisabled;
   const highlighted = store.useState('isActive', listItem.index);
   const itemProps = store.useState('itemProps');
 
@@ -44,17 +47,14 @@ export const MenuItem = React.forwardRef(function MenuItem(
     id,
     store,
     nativeButton,
-    nodeId: menuPositionerContext?.nodeId,
+    nodeId: menuPositionerContext?.context.nodeId,
     itemMetadata: REGULAR_ITEM,
   });
 
-  const state: MenuItem.State = React.useMemo(
-    () => ({
-      disabled,
-      highlighted,
-    }),
-    [disabled, highlighted],
-  );
+  const state: MenuItemState = {
+    disabled,
+    highlighted,
+  };
 
   return useRenderElement('div', componentProps, {
     state,
@@ -75,11 +75,11 @@ export interface MenuItemState {
 }
 
 export interface MenuItemProps
-  extends NonNativeButtonProps, BaseUIComponentProps<'div', MenuItem.State> {
+  extends NonNativeButtonProps, BaseUIComponentProps<'div', MenuItemState> {
   /**
    * The click handler for the menu item.
    */
-  onClick?: React.MouseEventHandler<HTMLElement> | undefined;
+  onClick?: BaseUIComponentProps<'div', MenuItemState>['onClick'] | undefined;
   /**
    * Whether the component should ignore user interaction.
    * @default false

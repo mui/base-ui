@@ -1,12 +1,10 @@
 'use client';
 import * as React from 'react';
-import type { TabsRoot } from '../root/TabsRoot';
 
 export interface TabsListContext {
   activateOnFocus: boolean;
-  highlightedTabIndex: number;
-  onTabActivation: (newValue: any, eventDetails: TabsRoot.ChangeEventDetails) => void;
-  setHighlightedTabIndex: (index: number) => void;
+  registerIndicatorUpdateListener: (listener: () => void) => () => void;
+  registerTabResizeObserverElement: (element: HTMLElement) => () => void;
   tabsListElement: HTMLElement | null;
 }
 

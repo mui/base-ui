@@ -1,17 +1,10 @@
 'use client';
 import * as React from 'react';
-import type { BaseUIComponentProps } from '../../utils/types';
-import { useRenderElement } from '../../utils/useRenderElement';
+import type { BaseUIComponentProps } from '../../internals/types';
+import { useRenderElement } from '../../internals/useRenderElement';
 import { useNavigationMenuRootContext } from '../root/NavigationMenuRootContext';
-import type { TransitionStatus } from '../../utils/useTransitionStatus';
-import type { StateAttributesMapping } from '../../utils/getStateAttributesProps';
-import { transitionStatusMapping } from '../../utils/stateAttributesMapping';
-import { popupStateMapping as baseMapping } from '../../utils/popupStateMapping';
-
-const stateAttributesMapping: StateAttributesMapping<NavigationMenuBackdrop.State> = {
-  ...baseMapping,
-  ...transitionStatusMapping,
-};
+import type { TransitionStatus } from '../../internals/useTransitionStatus';
+import { popupTransitionStateMapping } from '../../utils/popupStateMapping';
 
 /**
  * A backdrop for the navigation menu popup.
@@ -23,17 +16,14 @@ export const NavigationMenuBackdrop = React.forwardRef(function NavigationMenuBa
   componentProps: NavigationMenuBackdrop.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { className, render, ...elementProps } = componentProps;
+  const { render, className, style, ...elementProps } = componentProps;
 
   const { open, mounted, transitionStatus } = useNavigationMenuRootContext();
 
-  const state: NavigationMenuBackdrop.State = React.useMemo(
-    () => ({
-      open,
-      transitionStatus,
-    }),
-    [open, transitionStatus],
-  );
+  const state: NavigationMenuBackdropState = {
+    open,
+    transitionStatus,
+  };
 
   const element = useRenderElement('div', componentProps, {
     state,
@@ -49,7 +39,7 @@ export const NavigationMenuBackdrop = React.forwardRef(function NavigationMenuBa
       },
       elementProps,
     ],
-    stateAttributesMapping,
+    stateAttributesMapping: popupTransitionStateMapping,
   });
 
   return element;
@@ -68,7 +58,7 @@ export interface NavigationMenuBackdropState {
 
 export interface NavigationMenuBackdropProps extends BaseUIComponentProps<
   'div',
-  NavigationMenuBackdrop.State
+  NavigationMenuBackdropState
 > {}
 
 export namespace NavigationMenuBackdrop {

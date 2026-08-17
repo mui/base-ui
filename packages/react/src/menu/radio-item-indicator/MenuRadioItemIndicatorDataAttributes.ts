@@ -1,4 +1,4 @@
-import { TransitionStatusDataAttributes } from '../../utils/stateAttributesMapping';
+import { TransitionStatusDataAttributes } from '../../internals/stateAttributesMapping';
 
 export enum MenuRadioItemIndicatorDataAttributes {
   /**
@@ -14,7 +14,7 @@ export enum MenuRadioItemIndicatorDataAttributes {
    */
   disabled = 'data-disabled',
   /**
-   * Present when the radio indicator is animating in.
+   * Present when the radio indicator begins animating in.
    */
   startingStyle = TransitionStatusDataAttributes.startingStyle,
   /**
