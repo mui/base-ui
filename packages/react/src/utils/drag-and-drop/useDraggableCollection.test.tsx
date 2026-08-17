@@ -231,8 +231,8 @@ describe('useDraggableCollection', () => {
 
   describe('drop position', () => {
     it('registers a secondary copy as a drop-only target', async () => {
-      const onMove = vi.fn();
-      const { plugin } = setupPlugin({ onMove }, { knownItemIds: ['a', 'b'] });
+      const onDrop = vi.fn();
+      const { plugin } = setupPlugin({ onDrop }, { knownItemIds: ['a', 'b'] });
       const source = createElement({ top: 0, height: 100 });
       const targetCopy = createElement({ top: 200, height: 100 });
       plugin.setupItem('a', source);
@@ -245,14 +245,14 @@ describe('useDraggableCollection', () => {
       await dragOver(targetCopy, { clientY: 210 });
       drop(targetCopy, { clientY: 210 });
 
-      expect(onMove).toHaveBeenCalledWith(
+      expect(onDrop).toHaveBeenCalledWith(
         expect.objectContaining({ target: { itemId: 'b', position: 'before' } }),
       );
     });
 
-    it('routes onMove for "before" / "on" / "after" based on pointer Y', async () => {
-      const onMove = vi.fn();
-      const { plugin } = setupPlugin({ onMove }, { knownItemIds: ['a', 'b'] });
+    it('routes onDrop for "before" / "on" / "after" based on pointer Y', async () => {
+      const onDrop = vi.fn();
+      const { plugin } = setupPlugin({ onDrop }, { knownItemIds: ['a', 'b'] });
       const source = createElement({ top: 0, height: 100 });
       const target = createElement({ top: 200, height: 100 });
       plugin.setupItem('a', source);
@@ -263,7 +263,7 @@ describe('useDraggableCollection', () => {
       await dragEnter(target, { clientY: 210 });
       await dragOver(target, { clientY: 210 });
       drop(target, { clientY: 210 });
-      expect(onMove).toHaveBeenLastCalledWith(
+      expect(onDrop).toHaveBeenLastCalledWith(
         expect.objectContaining({
           target: { itemId: 'b', position: 'before' },
         }),
@@ -274,7 +274,7 @@ describe('useDraggableCollection', () => {
       await dragEnter(target, { clientY: 250 });
       await dragOver(target, { clientY: 250 });
       drop(target, { clientY: 250 });
-      expect(onMove).toHaveBeenLastCalledWith(
+      expect(onDrop).toHaveBeenLastCalledWith(
         expect.objectContaining({
           target: { itemId: 'b', position: 'on' },
         }),
@@ -285,27 +285,33 @@ describe('useDraggableCollection', () => {
       await dragEnter(target, { clientY: 290 });
       await dragOver(target, { clientY: 290 });
       drop(target, { clientY: 290 });
-      expect(onMove).toHaveBeenLastCalledWith(
+      expect(onDrop).toHaveBeenLastCalledWith(
         expect.objectContaining({
           target: { itemId: 'b', position: 'after' },
         }),
       );
     });
 
-    it('uses 50/50 before/after split when only onReorder/onInsert is provided (no onMove/onItemDrop)', async () => {
-      const onReorder = vi.fn();
-      const { plugin } = setupPlugin({ onReorder }, { knownItemIds: ['a', 'b'] });
+    it('uses a 50/50 split when only before/after positions are enabled', async () => {
+      const onDrop = vi.fn();
+      const { plugin } = setupPlugin(
+        {
+          onDrop,
+          getDropCapabilities: () => ({ hasOn: false, hasBeforeAfter: true }),
+        },
+        { knownItemIds: ['a', 'b'] },
+      );
       const source = createElement({ top: 0, height: 100 });
       const target = createElement({ top: 200, height: 100 });
       plugin.setupItem('a', source);
       plugin.setupItem('b', target);
 
-      // anywhere in the top half → before (would have been "on" with onMove)
+      // Anywhere in the top half resolves to "before" rather than "on".
       await lift(source);
       await dragEnter(target, { clientY: 240 });
       await dragOver(target, { clientY: 240 });
       drop(target, { clientY: 240 });
-      expect(onReorder).toHaveBeenLastCalledWith(
+      expect(onDrop).toHaveBeenLastCalledWith(
         expect.objectContaining({
           target: { itemId: 'b', position: 'before' },
         }),
@@ -313,9 +319,13 @@ describe('useDraggableCollection', () => {
     });
 
     it('reads the before/after split from clientX with orientation: "horizontal"', async () => {
-      const onReorder = vi.fn();
+      const onDrop = vi.fn();
       const { plugin } = setupPlugin(
-        { onReorder, orientation: 'horizontal' },
+        {
+          onDrop,
+          orientation: 'horizontal',
+          getDropCapabilities: () => ({ hasOn: false, hasBeforeAfter: true }),
+        },
         { knownItemIds: ['a', 'b'] },
       );
       const source = createElement({ top: 0, height: 100, left: 0, width: 100 });
@@ -329,7 +339,7 @@ describe('useDraggableCollection', () => {
       await dragEnter(target, { clientX: 240, clientY: 50 });
       await dragOver(target, { clientX: 240, clientY: 50 });
       drop(target, { clientX: 240, clientY: 50 });
-      expect(onReorder).toHaveBeenLastCalledWith(
+      expect(onDrop).toHaveBeenLastCalledWith(
         expect.objectContaining({
           target: { itemId: 'b', position: 'before' },
         }),
@@ -340,7 +350,7 @@ describe('useDraggableCollection', () => {
       await dragEnter(target, { clientX: 260, clientY: 50 });
       await dragOver(target, { clientX: 260, clientY: 50 });
       drop(target, { clientX: 260, clientY: 50 });
-      expect(onReorder).toHaveBeenLastCalledWith(
+      expect(onDrop).toHaveBeenLastCalledWith(
         expect.objectContaining({
           target: { itemId: 'b', position: 'after' },
         }),
@@ -348,9 +358,13 @@ describe('useDraggableCollection', () => {
     });
 
     it('flips the horizontal before/after split for an RTL row', async () => {
-      const onReorder = vi.fn();
+      const onDrop = vi.fn();
       const { plugin } = setupPlugin(
-        { onReorder, orientation: 'horizontal' },
+        {
+          onDrop,
+          orientation: 'horizontal',
+          getDropCapabilities: () => ({ hasOn: false, hasBeforeAfter: true }),
+        },
         { knownItemIds: ['a', 'b'] },
       );
       const source = createElement({ top: 0, height: 100, left: 0, width: 100 });
@@ -366,7 +380,7 @@ describe('useDraggableCollection', () => {
       await dragEnter(target, { clientX: 260, clientY: 50 });
       await dragOver(target, { clientX: 260, clientY: 50 });
       drop(target, { clientX: 260, clientY: 50 });
-      expect(onReorder).toHaveBeenLastCalledWith(
+      expect(onDrop).toHaveBeenLastCalledWith(
         expect.objectContaining({
           target: { itemId: 'b', position: 'before' },
         }),
@@ -374,74 +388,19 @@ describe('useDraggableCollection', () => {
     });
   });
 
-  describe('callback routing', () => {
-    it('fires onReorder for before/after, onItemDrop for on, when both are provided', async () => {
-      const onReorder = vi.fn();
-      const onItemDrop = vi.fn();
-      const { plugin } = setupPlugin({ onReorder, onItemDrop }, { knownItemIds: ['a', 'b'] });
-      const source = createElement({ top: 0, height: 100 });
-      const target = createElement({ top: 200, height: 100 });
-      plugin.setupItem('a', source);
-      plugin.setupItem('b', target);
-
-      await lift(source);
-      await dragEnter(target, { clientY: 250 });
-      await dragOver(target, { clientY: 250 });
-      drop(target, { clientY: 250 });
-
-      expect(onItemDrop).toHaveBeenCalledTimes(1);
-      // A same-collection "on" drop is flagged internal.
-      expect(onItemDrop.mock.calls[0][0].isInternal).toBe(true);
-      expect(onReorder).not.toHaveBeenCalled();
-
-      await lift(source);
-      await dragEnter(target, { clientY: 210 });
-      await dragOver(target, { clientY: 210 });
-      drop(target, { clientY: 210 });
-
-      expect(onReorder).toHaveBeenCalledTimes(1);
-      expect(onItemDrop).toHaveBeenCalledTimes(1);
-    });
-
-    it('prefers onMove over onReorder/onItemDrop when both are provided', async () => {
-      const onMove = vi.fn();
-      const onReorder = vi.fn();
-      const onItemDrop = vi.fn();
-      // Providing both onMove and onReorder warns (onMove subsumes onReorder).
-      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
-      // Restore even if the assertion below throws, so a failure can't leave
-      // `console.warn` mocked for the rest of the suite.
-      restoreOnCleanup(() => warnSpy.mockRestore());
-      const { plugin } = setupPlugin(
-        { onMove, onReorder, onItemDrop },
-        { knownItemIds: ['a', 'b'] },
-      );
-      expect(warnSpy).toHaveBeenCalledWith(
-        expect.stringContaining('`onMove` subsumes `onReorder`'),
-      );
-      const source = createElement({ top: 0, height: 100 });
-      const target = createElement({ top: 200, height: 100 });
-      plugin.setupItem('a', source);
-      plugin.setupItem('b', target);
-
-      await lift(source);
-      await dragEnter(target, { clientY: 210 });
-      await dragOver(target, { clientY: 210 });
-      drop(target, { clientY: 210 });
-
-      expect(onMove).toHaveBeenCalledTimes(1);
-      expect(onReorder).not.toHaveBeenCalled();
-      expect(onItemDrop).not.toHaveBeenCalled();
-    });
-
-    it('offers no drop positions to an internal drag when only onInsert is configured', async () => {
-      // `onInsert` only commits *external* drops, so an internal drag must not
-      // light up before/after indicators whose drop would then no-op — the rows
-      // reject the target entirely.
-      const onInsert = vi.fn();
+  describe('normalized drop routing', () => {
+    it('can expose positions only to external drags', async () => {
+      const onDrop = vi.fn();
       const onDragEnd = vi.fn();
       const { plugin, lastState } = setupPlugin(
-        { onInsert, onDragEnd },
+        {
+          onDrop,
+          onDragEnd,
+          getDropCapabilities: ({ isInternal }) => ({
+            hasOn: false,
+            hasBeforeAfter: !isInternal,
+          }),
+        },
         { knownItemIds: ['a', 'b'] },
       );
       const source = createElement({ top: 0, height: 100 });
@@ -458,19 +417,17 @@ describe('useDraggableCollection', () => {
 
       drop(target, { clientY: 210 });
 
-      expect(onInsert).not.toHaveBeenCalled();
+      expect(onDrop).not.toHaveBeenCalled();
       // Nothing committed, so the drag ends as a cancel, not an internal drop.
       expect(onDragEnd).toHaveBeenCalledTimes(1);
       expect(onDragEnd.mock.calls[0][0].isInternal).toBe(false);
       expect(onDragEnd.mock.calls[0][0].canceled).toBe(true);
     });
 
-    it('reports isInternal=true for a drop in this collection with no drop callbacks', async () => {
-      // A collection driven manually through `onStateChange` configures no drop
-      // callbacks, but the drop still landed in the collection that started the
-      // drag — `isInternal` reports where it landed, not whether a callback ran.
+    it('reports isInternal=true for a drop in its originating collection', async () => {
+      const onDrop = vi.fn();
       const onDragEnd = vi.fn();
-      const { plugin } = setupPlugin({ onDragEnd }, { knownItemIds: ['a', 'b'] });
+      const { plugin } = setupPlugin({ onDrop, onDragEnd }, { knownItemIds: ['a', 'b'] });
       const source = createElement({ top: 0, height: 100 });
       const target = createElement({ top: 200, height: 100 });
       plugin.setupItem('a', source);
@@ -481,6 +438,7 @@ describe('useDraggableCollection', () => {
       await dragOver(target, { clientY: 250 });
       drop(target, { clientY: 250 });
 
+      expect(onDrop).toHaveBeenCalledWith(expect.objectContaining({ isInternal: true }));
       expect(onDragEnd).toHaveBeenCalledTimes(1);
       expect(onDragEnd.mock.calls[0][0].isInternal).toBe(true);
     });
@@ -488,8 +446,8 @@ describe('useDraggableCollection', () => {
 
   describe('canDrag / canDrop / isDropTargetInvalid', () => {
     it('rejects drop on a dragged item', async () => {
-      const onMove = vi.fn();
-      const { plugin } = setupPlugin({ onMove }, { knownItemIds: ['a'] });
+      const onDrop = vi.fn();
+      const { plugin } = setupPlugin({ onDrop }, { knownItemIds: ['a'] });
       const el = createElement({ top: 0, height: 100 });
       plugin.setupItem('a', el);
 
@@ -498,7 +456,7 @@ describe('useDraggableCollection', () => {
       await dragOver(el, { clientY: 50 });
       drop(el, { clientY: 50 });
 
-      expect(onMove).not.toHaveBeenCalled();
+      expect(onDrop).not.toHaveBeenCalled();
     });
 
     it('can retain a dragged item as a target for live reordering', async () => {
@@ -548,10 +506,10 @@ describe('useDraggableCollection', () => {
     });
 
     it('rejects drop on a descendant when isDropTargetInvalid says so (tree case)', async () => {
-      const onMove = vi.fn();
+      const onDrop = vi.fn();
       // 'b' is a child of 'a'
       const { plugin } = setupPlugin(
-        { onMove },
+        { onDrop },
         {
           knownItemIds: ['a', 'b'],
           parentMap: { b: 'a' },
@@ -568,13 +526,13 @@ describe('useDraggableCollection', () => {
       await dragOver(target, { clientY: 250 });
       drop(target, { clientY: 250 });
 
-      expect(onMove).not.toHaveBeenCalled();
+      expect(onDrop).not.toHaveBeenCalled();
     });
 
     it('respects user-provided canDrop', async () => {
-      const onMove = vi.fn();
+      const onDrop = vi.fn();
       const canDrop = vi.fn(() => false);
-      const { plugin } = setupPlugin({ onMove, canDrop }, { knownItemIds: ['a', 'b'] });
+      const { plugin } = setupPlugin({ onDrop, canDrop }, { knownItemIds: ['a', 'b'] });
       const source = createElement({ top: 0, height: 100 });
       const target = createElement({ top: 200, height: 100 });
       plugin.setupItem('a', source);
@@ -586,13 +544,13 @@ describe('useDraggableCollection', () => {
       drop(target, { clientY: 210 });
 
       expect(canDrop).toHaveBeenCalled();
-      expect(onMove).not.toHaveBeenCalled();
+      expect(onDrop).not.toHaveBeenCalled();
     });
 
     it('blocks the pickup when canDrag returns false', async () => {
-      const onMove = vi.fn();
+      const onDrop = vi.fn();
       const canDrag = vi.fn(() => false);
-      const { plugin } = setupPlugin({ onMove, canDrag }, { knownItemIds: ['a', 'b'] });
+      const { plugin } = setupPlugin({ onDrop, canDrag }, { knownItemIds: ['a', 'b'] });
       const source = createElement({ top: 0, height: 100 });
       const target = createElement({ top: 200, height: 100 });
       plugin.setupItem('a', source);
@@ -606,16 +564,16 @@ describe('useDraggableCollection', () => {
       drop(target, { clientY: 250 });
 
       expect(canDrag).toHaveBeenCalledWith('a');
-      expect(onMove).not.toHaveBeenCalled();
+      expect(onDrop).not.toHaveBeenCalled();
     });
 
     it('blocks keyboard pickup and omits the a11y hints on a canDrag-locked item', async () => {
-      const onMove = vi.fn();
+      const onDrop = vi.fn();
       // `canDrag` is declarative, so it maps to `disabled`: the locked item must
       // gate the keyboard pickup and never advertise a keyboard drag it can't
       // start, while a draggable sibling keeps its hints.
       const { plugin } = setupPlugin(
-        { onMove, canDrag: (id) => id !== 'a' },
+        { onDrop, canDrag: (id) => id !== 'a' },
         { knownItemIds: ['a', 'b'] },
       );
       const a = createElement({ top: 0, height: 100 });
@@ -639,7 +597,7 @@ describe('useDraggableCollection', () => {
         expect(dragSessionStore.getSnapshot()).toBeNull();
         expect(event.defaultPrevented).toBe(false);
       }
-      expect(onMove).not.toHaveBeenCalled();
+      expect(onDrop).not.toHaveBeenCalled();
     });
 
     it('re-applies the item a11y setup when canDrag flips via a config change', () => {
@@ -656,7 +614,7 @@ describe('useDraggableCollection', () => {
       const { result, rerender } = renderHook(
         ({ locked }: { locked: boolean }) =>
           useDraggableCollection({
-            onMove: () => {},
+            onDrop: () => {},
             canDrag: () => !locked,
             getActions: () => actions,
           }),
@@ -695,7 +653,7 @@ describe('useDraggableCollection', () => {
       const { result, rerender } = renderHook(
         ({ locked }: { locked: boolean }) =>
           useDraggableCollection({
-            onMove: () => {},
+            onDrop: () => {},
             canDrag: () => !locked,
             getActions: () => actions,
           }),
@@ -721,9 +679,9 @@ describe('useDraggableCollection', () => {
 
   describe('multi-select drag', () => {
     it('drags every selected item when the user lifts a selected item', async () => {
-      const onMove = vi.fn();
+      const onDrop = vi.fn();
       const { plugin } = setupPlugin(
-        { onMove },
+        { onDrop },
         {
           knownItemIds: ['a', 'b', 'c'],
           selectedItemIds: new Set<string>(['a', 'c']),
@@ -740,15 +698,15 @@ describe('useDraggableCollection', () => {
       await dragOver(target, { clientY: 210 });
       drop(target, { clientY: 210 });
 
-      expect(onMove).toHaveBeenCalledTimes(1);
-      const [{ itemIds }] = onMove.mock.calls[0];
+      expect(onDrop).toHaveBeenCalledTimes(1);
+      const [{ itemIds }] = onDrop.mock.calls[0];
       expect([...itemIds].sort()).toEqual(['a', 'c']);
     });
 
     it('drags only the lifted item when it is not part of the selection', async () => {
-      const onMove = vi.fn();
+      const onDrop = vi.fn();
       const { plugin } = setupPlugin(
-        { onMove },
+        { onDrop },
         {
           knownItemIds: ['a', 'b', 'c'],
           selectedItemIds: new Set<string>(['b', 'c']),
@@ -764,16 +722,16 @@ describe('useDraggableCollection', () => {
       await dragOver(target, { clientY: 210 });
       drop(target, { clientY: 210 });
 
-      expect(onMove).toHaveBeenCalledTimes(1);
-      const [{ itemIds }] = onMove.mock.calls[0];
+      expect(onDrop).toHaveBeenCalledTimes(1);
+      const [{ itemIds }] = onDrop.mock.calls[0];
       expect([...itemIds]).toEqual(['a']);
     });
 
     it('applies pruneDraggedItems for trees (drops descendants of selected ancestors)', async () => {
-      const onMove = vi.fn();
+      const onDrop = vi.fn();
       // 'a1' is a child of 'a'; both selected → only 'a' should drag
       const { plugin } = setupPlugin(
-        { onMove },
+        { onDrop },
         {
           knownItemIds: ['a', 'a1', 'b'],
           parentMap: { a1: 'a' },
@@ -793,8 +751,8 @@ describe('useDraggableCollection', () => {
       await dragOver(b, { clientY: 210 });
       drop(b, { clientY: 210 });
 
-      expect(onMove).toHaveBeenCalledTimes(1);
-      const [{ itemIds }] = onMove.mock.calls[0];
+      expect(onDrop).toHaveBeenCalledTimes(1);
+      const [{ itemIds }] = onDrop.mock.calls[0];
       expect([...itemIds]).toEqual(['a']);
     });
   });
@@ -802,8 +760,8 @@ describe('useDraggableCollection', () => {
   describe('cancellation', () => {
     it('reports canceled=true via onDragEnd when no drop target is hit', async () => {
       const onDragEnd = vi.fn();
-      const onMove = vi.fn();
-      const { plugin } = setupPlugin({ onDragEnd, onMove }, { knownItemIds: ['a'] });
+      const onDrop = vi.fn();
+      const { plugin } = setupPlugin({ onDragEnd, onDrop }, { knownItemIds: ['a'] });
       const el = createElement({ top: 0, height: 100 });
       plugin.setupItem('a', el);
 
@@ -811,7 +769,7 @@ describe('useDraggableCollection', () => {
       // End the drag without a drop target hit
       fireEvent.dragEnd(el);
 
-      expect(onMove).not.toHaveBeenCalled();
+      expect(onDrop).not.toHaveBeenCalled();
       expect(onDragEnd).toHaveBeenCalledTimes(1);
       expect(onDragEnd.mock.calls[0][0].canceled).toBe(true);
     });
@@ -860,8 +818,8 @@ describe('useDraggableCollection', () => {
 
   describe('state transitions', () => {
     it('emits state on dragstart, hover, and reset on drop', async () => {
-      const onMove = vi.fn();
-      const { plugin, lastState, states } = setupPlugin({ onMove }, { knownItemIds: ['a', 'b'] });
+      const onDrop = vi.fn();
+      const { plugin, lastState, states } = setupPlugin({ onDrop }, { knownItemIds: ['a', 'b'] });
       const source = createElement({ top: 0, height: 100 });
       const target = createElement({ top: 200, height: 100 });
       plugin.setupItem('a', source);
@@ -888,8 +846,8 @@ describe('useDraggableCollection', () => {
     });
 
     it('updates dropTargetItemId when moving from one target to another', async () => {
-      const onMove = vi.fn();
-      const { plugin, lastState } = setupPlugin({ onMove }, { knownItemIds: ['a', 'b', 'c'] });
+      const onDrop = vi.fn();
+      const { plugin, lastState } = setupPlugin({ onDrop }, { knownItemIds: ['a', 'b', 'c'] });
       const source = createElement({ top: 0, height: 100 });
       const targetB = createElement({ top: 200, height: 100 });
       const targetC = createElement({ top: 400, height: 100 });
@@ -910,10 +868,10 @@ describe('useDraggableCollection', () => {
 
   describe('kind filtering', () => {
     it('rejects drops from a different kind by default', async () => {
-      const onMoveA = vi.fn();
-      const onMoveB = vi.fn();
-      const a = setupPlugin({ onMove: onMoveA, kind: cardsKind }, { knownItemIds: ['a'] });
-      const b = setupPlugin({ onMove: onMoveB, kind: columnsKind }, { knownItemIds: ['b'] });
+      const onDropA = vi.fn();
+      const onDropB = vi.fn();
+      const a = setupPlugin({ onDrop: onDropA, kind: cardsKind }, { knownItemIds: ['a'] });
+      const b = setupPlugin({ onDrop: onDropB, kind: columnsKind }, { knownItemIds: ['b'] });
       const sourceA = createElement({ top: 0, height: 100 });
       const targetB = createElement({ top: 200, height: 100 });
       a.plugin.setupItem('a', sourceA);
@@ -924,15 +882,15 @@ describe('useDraggableCollection', () => {
       await dragOver(targetB, { clientY: 210 });
       drop(targetB, { clientY: 210 });
 
-      expect(onMoveB).not.toHaveBeenCalled();
-      expect(onMoveA).not.toHaveBeenCalled();
+      expect(onDropB).not.toHaveBeenCalled();
+      expect(onDropA).not.toHaveBeenCalled();
     });
 
     it('accepts cross-type drops from an accepted external kind', async () => {
-      const onItemDrop = vi.fn();
+      const onDrop = vi.fn();
       const a = setupPlugin({ kind: cardsKind }, { knownItemIds: ['a'] });
       const b = setupPlugin(
-        { onItemDrop, kind: columnsKind, accept: cardsKind },
+        { onDrop, kind: columnsKind, accept: cardsKind },
         { knownItemIds: ['b'] },
       );
       const sourceA = createElement({ top: 0, height: 100 });
@@ -945,9 +903,9 @@ describe('useDraggableCollection', () => {
       await dragOver(targetB, { clientY: 250 });
       drop(targetB, { clientY: 250 });
 
-      expect(onItemDrop).toHaveBeenCalledTimes(1);
+      expect(onDrop).toHaveBeenCalledTimes(1);
       // A drop from another collection is flagged external.
-      expect(onItemDrop.mock.calls[0][0].isInternal).toBe(false);
+      expect(onDrop.mock.calls[0][0].isInternal).toBe(false);
     });
 
     // Every other cross-kind case drags one collection into another, so the source
@@ -957,10 +915,10 @@ describe('useDraggableCollection', () => {
       ['declares no payload', undefined],
       ['declares a scalar payload', 'card-1'],
     ])('tolerates a drag from a plain draggable that %s', async (_label, payload) => {
-      const onItemDrop = vi.fn();
+      const onDrop = vi.fn();
       const onDragEnd = vi.fn();
       const b = setupPlugin(
-        { onItemDrop, onDragEnd, kind: columnsKind, accept: cardsKind },
+        { onDrop, onDragEnd, kind: columnsKind, accept: cardsKind },
         { knownItemIds: ['b'] },
       );
       const plainSource = createElement({ top: 0, height: 100 });
@@ -977,9 +935,17 @@ describe('useDraggableCollection', () => {
       await dragOver(targetB, { clientY: 250 });
       drop(targetB, { clientY: 250 });
 
-      // The source contributes no item ids, so the collection has nothing to move
-      // and no drag of its own that ended.
-      expect(onItemDrop).not.toHaveBeenCalled();
+      // A normalized drop still reaches the collection with an empty item set;
+      // the consumer can inspect the generic source and decide what to commit.
+      expect(onDrop).toHaveBeenCalledWith(
+        expect.objectContaining({
+          itemIds: new Set(),
+          items: [],
+          isInternal: false,
+          target: { itemId: 'b', position: 'on' },
+        }),
+      );
+      // This collection did not originate the drag, so it has no lifecycle end.
       expect(onDragEnd).not.toHaveBeenCalled();
       // State is untouched, so a later real drag still starts from a clean slate.
       expect(b.lastState()).toEqual({
@@ -992,9 +958,9 @@ describe('useDraggableCollection', () => {
     // The root target reads the incoming payload on its own `onDrop` path, which
     // the item-drop case above never reaches.
     it('tolerates a payload-less drag released on the collection root', async () => {
-      const onRootDrop = vi.fn();
+      const onDrop = vi.fn();
       const b = setupPlugin(
-        { onRootDrop, kind: columnsKind, accept: cardsKind },
+        { onDrop, kind: columnsKind, accept: cardsKind },
         { knownItemIds: ['b'] },
       );
       const plainSource = createElement({ top: 0, height: 100 });
@@ -1009,16 +975,15 @@ describe('useDraggableCollection', () => {
 
       // The root drop still routes — it doesn't need item ids — but it reports an
       // empty set rather than reading the foreign payload as its own shape.
-      expect(onRootDrop).toHaveBeenCalledTimes(1);
-      expect(onRootDrop.mock.calls[0][0].itemIds.size).toBe(0);
-      expect(onRootDrop.mock.calls[0][0].items).toEqual([]);
+      expect(onDrop).toHaveBeenCalledTimes(1);
+      expect(onDrop.mock.calls[0][0].itemIds.size).toBe(0);
+      expect(onDrop.mock.calls[0][0].items).toEqual([]);
     });
 
-    it('routes a plain draggable of an accepted kind dropped over a row to onRootDrop', async () => {
-      const onItemDrop = vi.fn();
-      const onRootDrop = vi.fn();
+    it('routes a plain draggable rejected by a row to the collection root', async () => {
+      const onDrop = vi.fn();
       const b = setupPlugin(
-        { onItemDrop, onRootDrop, kind: columnsKind, accept: cardsKind },
+        { onDrop, canDrop: () => false, kind: columnsKind, accept: cardsKind },
         { knownItemIds: ['b'] },
       );
       const plainSource = createElement({ top: 0, height: 100 });
@@ -1037,9 +1002,13 @@ describe('useDraggableCollection', () => {
       // The row can't route a source without the collection wire format (no item
       // ids to commit), so it rejects the target and the drop falls through to
       // the root instead of being silently swallowed.
-      expect(onItemDrop).not.toHaveBeenCalled();
-      expect(onRootDrop).toHaveBeenCalledTimes(1);
-      expect(onRootDrop.mock.calls[0][0].itemIds.size).toBe(0);
+      expect(onDrop).toHaveBeenCalledTimes(1);
+      expect(onDrop).toHaveBeenCalledWith(
+        expect.objectContaining({
+          itemIds: new Set(),
+          target: { itemId: null, position: 'root' },
+        }),
+      );
     });
 
     // `connect()` seeds from the live session for a collection that mounts while a
@@ -1062,17 +1031,21 @@ describe('useDraggableCollection', () => {
       });
     });
 
-    // With only `onInsert` (no `onItemDrop`/`onMove`), the collection's drop
-    // capabilities are before/after-only, so an external drop resolves to
-    // `before`/`after` by pointer Y within the target row and routes to `onInsert`.
+    // The destination enables before/after positions, so an external drop
+    // resolves by pointer Y within the target row and routes to `onDrop`.
     it.each([
       { label: 'before', clientY: 210, position: 'before' as const },
       { label: 'after', clientY: 290, position: 'after' as const },
-    ])('routes an external drop to onInsert at $label', async ({ clientY, position }) => {
-      const onInsert = vi.fn();
+    ])('routes an external drop to onDrop at $label', async ({ clientY, position }) => {
+      const onDrop = vi.fn();
       const a = setupPlugin({ kind: cardsKind }, { knownItemIds: ['a'] });
       const b = setupPlugin(
-        { onInsert, kind: columnsKind, accept: cardsKind },
+        {
+          onDrop,
+          kind: columnsKind,
+          accept: cardsKind,
+          getDropCapabilities: () => ({ hasOn: false, hasBeforeAfter: true }),
+        },
         { knownItemIds: ['b'] },
       );
       const sourceA = createElement({ top: 0, height: 100 });
@@ -1087,8 +1060,8 @@ describe('useDraggableCollection', () => {
       await dragOver(targetB, { clientY });
       drop(targetB, { clientY });
 
-      expect(onInsert).toHaveBeenCalledTimes(1);
-      const payload = onInsert.mock.calls[0][0];
+      expect(onDrop).toHaveBeenCalledTimes(1);
+      const payload = onDrop.mock.calls[0][0];
       // The external item's id is carried through to the insert callback.
       expect(Array.from(payload.itemIds)).toEqual(['a']);
       // Not `toBeDefined()`, which an empty array satisfies: the models the ids
@@ -1134,8 +1107,8 @@ describe('useDraggableCollection', () => {
     });
 
     it('does not reset onStateChange on a same-kind plugin that never participated', async () => {
-      const a = setupPlugin({ onMove: vi.fn() }, { knownItemIds: ['a1', 'a2'] });
-      const b = setupPlugin({ onMove: vi.fn() }, { knownItemIds: ['b'] });
+      const a = setupPlugin({ onDrop: vi.fn() }, { knownItemIds: ['a1', 'a2'] });
+      const b = setupPlugin({ onDrop: vi.fn() }, { knownItemIds: ['b'] });
 
       const a1 = createElement({ top: 0, height: 100 });
       const a2 = createElement({ top: 200, height: 100 });
@@ -1192,7 +1165,7 @@ describe('useDraggableCollection', () => {
       const itemIds = Array.from({ length: 50 }, (_, index) => `item-${index}`);
       const selectedItemIds = new Set(itemIds);
       const { plugin } = setupPlugin(
-        { onRootDrop: vi.fn() },
+        { onDrop: vi.fn() },
         { knownItemIds: itemIds, selectedItemIds },
       );
       const root = createElement({ top: 0, height: 1000 });
@@ -1218,11 +1191,11 @@ describe('useDraggableCollection', () => {
       fireEvent.dragEnd(items[0]);
     });
 
-    it('fires onRootDrop only on the originating plugin', async () => {
-      const onRootDropA = vi.fn();
-      const onRootDropB = vi.fn();
-      const a = setupPlugin({ onRootDrop: onRootDropA }, { knownItemIds: ['a'] });
-      const b = setupPlugin({ onRootDrop: onRootDropB }, { knownItemIds: ['b'] });
+    it('fires a root onDrop only on the targeted plugin', async () => {
+      const onDropA = vi.fn();
+      const onDropB = vi.fn();
+      const a = setupPlugin({ onDrop: onDropA }, { knownItemIds: ['a'] });
+      const b = setupPlugin({ onDrop: onDropB }, { knownItemIds: ['b'] });
 
       const sourceA = createElement({ top: 0, height: 100 });
       const rootA = createElement({ top: 1000, height: 100 });
@@ -1236,14 +1209,13 @@ describe('useDraggableCollection', () => {
       await dragOver(rootA, { clientY: 1050 });
       drop(rootA, { clientY: 1050 });
 
-      expect(onRootDropA).toHaveBeenCalledTimes(1);
-      expect(onRootDropB).not.toHaveBeenCalled();
+      expect(onDropA).toHaveBeenCalledTimes(1);
+      expect(onDropB).not.toHaveBeenCalled();
     });
 
-    it('does not fire onRootDrop when dropping on an item', async () => {
-      const onRootDrop = vi.fn();
-      const onMove = vi.fn();
-      const { plugin } = setupPlugin({ onRootDrop, onMove }, { knownItemIds: ['a', 'b'] });
+    it('reports an item target rather than the collection root when dropping on an item', async () => {
+      const onDrop = vi.fn();
+      const { plugin } = setupPlugin({ onDrop }, { knownItemIds: ['a', 'b'] });
       const source = createElement({ top: 0, height: 100 });
       const target = createElement({ top: 200, height: 100 });
       const root = createElement({ top: 1000, height: 200 });
@@ -1256,18 +1228,16 @@ describe('useDraggableCollection', () => {
       await dragOver(target, { clientY: 250 });
       drop(target, { clientY: 250 });
 
-      expect(onMove).toHaveBeenCalledTimes(1);
-      expect(onRootDrop).not.toHaveBeenCalled();
+      expect(onDrop).toHaveBeenCalledTimes(1);
+      expect(onDrop).toHaveBeenCalledWith(
+        expect.objectContaining({ target: { itemId: 'b', position: 'on' } }),
+      );
     });
 
     it('treats releasing over the dragged row’s own footprint as a no-op, not a root drop', async () => {
-      const onRootDrop = vi.fn();
-      const onMove = vi.fn();
+      const onDrop = vi.fn();
       const onDragEnd = vi.fn();
-      const { plugin } = setupPlugin(
-        { onRootDrop, onMove, onDragEnd },
-        { knownItemIds: ['a', 'b'] },
-      );
+      const { plugin } = setupPlugin({ onDrop, onDragEnd }, { knownItemIds: ['a', 'b'] });
       // The dragged row lives inside the root's footprint, as in a real list.
       const root = createElement({ top: 0, height: 400 });
       const source = createElement({ top: 0, height: 100 });
@@ -1282,16 +1252,15 @@ describe('useDraggableCollection', () => {
       await dragOver(source, { clientY: 50 });
       drop(source, { clientY: 50 });
 
-      expect(onRootDrop).not.toHaveBeenCalled();
-      expect(onMove).not.toHaveBeenCalled();
+      expect(onDrop).not.toHaveBeenCalled();
       expect(onDragEnd).toHaveBeenCalledTimes(1);
       expect(onDragEnd.mock.calls[0][0].canceled).toBe(true);
       expect(onDragEnd.mock.calls[0][0].isInternal).toBe(false);
     });
 
-    it('still fires onRootDrop for an internal drag released on the root’s empty area', async () => {
-      const onRootDrop = vi.fn();
-      const { plugin } = setupPlugin({ onRootDrop, onMove: vi.fn() }, { knownItemIds: ['a'] });
+    it('fires onDrop for an internal drag released on the root’s empty area', async () => {
+      const onDrop = vi.fn();
+      const { plugin } = setupPlugin({ onDrop }, { knownItemIds: ['a'] });
       const root = createElement({ top: 0, height: 400 });
       const source = createElement({ top: 0, height: 100 });
       root.appendChild(source);
@@ -1304,14 +1273,15 @@ describe('useDraggableCollection', () => {
       await dragOver(root, { clientY: 350 });
       drop(root, { clientY: 350 });
 
-      expect(onRootDrop).toHaveBeenCalledTimes(1);
-      expect([...onRootDrop.mock.calls[0][0].itemIds]).toEqual(['a']);
+      expect(onDrop).toHaveBeenCalledTimes(1);
+      expect([...onDrop.mock.calls[0][0].itemIds]).toEqual(['a']);
+      expect(onDrop.mock.calls[0][0].target).toEqual({ itemId: null, position: 'root' });
     });
 
     it('keeps the put-back footprint through a mid-own-drag reconnect', async () => {
-      const onRootDrop = vi.fn();
+      const onDrop = vi.fn();
       const onDragEnd = vi.fn();
-      const { plugin } = setupPlugin({ onRootDrop, onDragEnd }, { knownItemIds: ['a'] });
+      const { plugin } = setupPlugin({ onDrop, onDragEnd }, { knownItemIds: ['a'] });
       const root = createElement({ top: 0, height: 400 });
       const source = createElement({ top: 0, height: 100 });
       root.appendChild(source);
@@ -1335,18 +1305,21 @@ describe('useDraggableCollection', () => {
       await dragOver(root, { clientY: 50 });
       drop(root, { clientY: 50 });
 
-      expect(onRootDrop).not.toHaveBeenCalled();
+      expect(onDrop).not.toHaveBeenCalled();
       expect(onDragEnd).toHaveBeenCalledTimes(1);
       expect(onDragEnd.mock.calls[0][0].canceled).toBe(true);
     });
 
     it('commits a drop that lands before the passive connect() has seeded the drag', async () => {
-      const a = setupPlugin({}, { knownItemIds: ['a'] });
+      const a = setupPlugin({ kind: cardsKind }, { knownItemIds: ['a'] });
       const sourceA = createElement({ top: 0, height: 100 });
       a.plugin.setupItem('a', sourceA);
 
-      const onInsert = vi.fn();
-      const b = setupPlugin({ onInsert }, { knownItemIds: ['x'] });
+      const onDrop = vi.fn();
+      const b = setupPlugin(
+        { onDrop, kind: columnsKind, accept: cardsKind },
+        { knownItemIds: ['x'] },
+      );
       const target = createElement({ top: 200, height: 100 });
       b.plugin.setupItem('x', target);
       // The mount-mid-drag gap: item targets register synchronously in ref
@@ -1361,9 +1334,9 @@ describe('useDraggableCollection', () => {
 
       // The drop seeds itself from the event payload instead of silently
       // no-oping on a target the drop indicator showed as valid.
-      expect(onInsert).toHaveBeenCalledTimes(1);
-      expect([...onInsert.mock.calls[0][0].itemIds]).toEqual(['a']);
-      expect(onInsert.mock.calls[0][0].target).toEqual({ itemId: 'x', position: 'before' });
+      expect(onDrop).toHaveBeenCalledTimes(1);
+      expect([...onDrop.mock.calls[0][0].itemIds]).toEqual(['a']);
+      expect(onDrop.mock.calls[0][0].target).toEqual({ itemId: 'x', position: 'before' });
     });
   });
 
@@ -1382,8 +1355,8 @@ describe('useDraggableCollection', () => {
     }
 
     it('reorders with arrow keys: Space picks up, ArrowDown targets the next item, Space drops', async () => {
-      const onReorder = vi.fn();
-      const { plugin } = setupPlugin({ onReorder }, { knownItemIds: ['a', 'b'] });
+      const onDrop = vi.fn();
+      const { plugin } = setupPlugin({ onDrop }, { knownItemIds: ['a', 'b'] });
       const a = createElement({ top: 0, height: 100 });
       const b = createElement({ top: 200, height: 100 });
       a.tabIndex = 0;
@@ -1400,15 +1373,15 @@ describe('useDraggableCollection', () => {
       pressKey(a, 'ArrowDown'); // jump to the slot after "b"
       pressKey(a, ' '); // drop
 
-      expect(onReorder).toHaveBeenCalledTimes(1);
-      expect(onReorder).toHaveBeenLastCalledWith(
+      expect(onDrop).toHaveBeenCalledTimes(1);
+      expect(onDrop).toHaveBeenLastCalledWith(
         expect.objectContaining({ target: { itemId: 'b', position: 'after' } }),
       );
     });
 
     it('restores focus to the dragged item after a keyboard drop', async () => {
-      const onReorder = vi.fn();
-      const { plugin } = setupPlugin({ onReorder }, { knownItemIds: ['a', 'b'] });
+      const onDrop = vi.fn();
+      const { plugin } = setupPlugin({ onDrop }, { knownItemIds: ['a', 'b'] });
       const a = createElement({ top: 0, height: 100 });
       const b = createElement({ top: 200, height: 100 });
       a.tabIndex = 0;
@@ -1430,7 +1403,7 @@ describe('useDraggableCollection', () => {
     });
 
     it('restores focus to the destination row after a cross-collection root drop', async () => {
-      const origin = setupPlugin({ onDragEnd: vi.fn() }, { knownItemIds: ['a'] });
+      const origin = setupPlugin({ kind: cardsKind, onDragEnd: vi.fn() }, { knownItemIds: ['a'] });
       const rowA = createElement({ top: 0, height: 100 });
       rowA.tabIndex = 0;
       const cleanupRowA = origin.plugin.setupItem('a', rowA);
@@ -1438,7 +1411,7 @@ describe('useDraggableCollection', () => {
       let movedRow: HTMLElement | null = null;
       const destination = setupPlugin(
         {
-          onRootDrop: () => {
+          onDrop: () => {
             // The destination commits the move: the origin unmounts its row and
             // the destination remounts it, before the deferred focus restore.
             cleanupRowA();
@@ -1446,6 +1419,8 @@ describe('useDraggableCollection', () => {
             movedRow.tabIndex = 0;
             destination.plugin.setupItem('a', movedRow);
           },
+          kind: columnsKind,
+          accept: cardsKind,
         },
         { knownItemIds: [] },
       );
@@ -1470,11 +1445,11 @@ describe('useDraggableCollection', () => {
     });
 
     it('threads a config keyboardMovement resolver into the item draggables', async () => {
-      const onReorder = vi.fn();
+      const onDrop = vi.fn();
       const moves: DragKeyboardMoveDetails[] = [];
       const { plugin } = setupPlugin(
         {
-          onReorder,
+          onDrop,
           keyboardMovement: (details) => {
             moves.push(details);
             return null;
@@ -1499,13 +1474,13 @@ describe('useDraggableCollection', () => {
       // target navigation: nothing moved, so the drop reorders nothing.
       expect(moves).toHaveLength(1);
       expect(moves[0].direction).toEqual({ x: 0, y: 1 });
-      expect(onReorder).not.toHaveBeenCalled();
+      expect(onDrop).not.toHaveBeenCalled();
     });
 
     it('does not start a keyboard drag when keyboardActivation is off', async () => {
-      const onReorder = vi.fn();
+      const onDrop = vi.fn();
       const { plugin } = setupPlugin(
-        { onReorder, keyboardActivation: 'off' },
+        { onDrop, keyboardActivation: 'off' },
         { knownItemIds: ['a', 'b'] },
       );
       const a = createElement({ top: 0, height: 100 });
@@ -1573,10 +1548,10 @@ describe('useDraggableCollection', () => {
     }
 
     it('announces a keyboard reorder in the provider language with item labels', async () => {
-      const onReorder = vi.fn();
+      const onDrop = vi.fn();
       const { plugin } = setupPlugin(
         {
-          onReorder,
+          onDrop,
           getItemLabel: (id) => (id === 'a' ? 'Acheter du lait' : 'Promener le chien'),
         },
         { knownItemIds: ['a', 'b'] },
@@ -1602,16 +1577,16 @@ describe('useDraggableCollection', () => {
       pressKey(a, 'ArrowDown'); // jump to the slot after "b"
       pressKey(a, ' '); // drop
 
-      expect(onReorder).toHaveBeenLastCalledWith(
+      expect(onDrop).toHaveBeenLastCalledWith(
         expect.objectContaining({ target: { itemId: 'b', position: 'after' } }),
       );
       expect(liveRegionText()).toBe('Acheter du lait déposé après Promener le chien.');
     });
 
     it('uses the localized multi-item label when several items are dragged', async () => {
-      const onReorder = vi.fn();
+      const onDrop = vi.fn();
       const { plugin } = setupPlugin(
-        { onReorder, getItemLabel: (id) => String(id) },
+        { onDrop, getItemLabel: (id) => String(id) },
         { knownItemIds: ['a', 'b', 'c'], selectedItemIds: new Set(['a', 'b']) },
         { wrapper: FrenchProvider },
       );
@@ -1635,14 +1610,14 @@ describe('useDraggableCollection', () => {
       // announcements come from A (the origin), but only B tracks the hovered
       // row. The position must still be announced on every move — and the row's
       // label must resolve through B's items, not A's.
-      const onInsert = vi.fn();
+      const onDrop = vi.fn();
       const a = setupPlugin(
         { kind: cardsKind, getItemLabel: (id) => `Origin ${id}` },
         { knownItemIds: ['a1'] },
       );
       const b = setupPlugin(
         {
-          onInsert,
+          onDrop,
           kind: columnsKind,
           accept: cardsKind,
           getItemLabel: (id) => (id === 'b1' ? 'Berry' : String(id)),
@@ -1670,8 +1645,8 @@ describe('useDraggableCollection', () => {
 
       pressKey(aRow, ' '); // drop
 
-      expect(onInsert).toHaveBeenCalledTimes(1);
-      expect(onInsert.mock.calls[0][0].target).toEqual({ itemId: 'b1', position: 'after' });
+      expect(onDrop).toHaveBeenCalledTimes(1);
+      expect(onDrop.mock.calls[0][0].target).toEqual({ itemId: 'b1', position: 'after' });
       // The terminal announcement carries the same owner-resolved phrase.
       expect(liveRegionText()).toBe('Dropped Origin a1 after Berry.');
     });

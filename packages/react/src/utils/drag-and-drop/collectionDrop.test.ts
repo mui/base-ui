@@ -1,5 +1,5 @@
 import { afterEach, describe, it, expect } from 'vitest';
-import { computeDropPosition, getDropCapabilities } from './collectionDrop';
+import { computeDropPosition } from './collectionDrop';
 
 const appendedElements: HTMLElement[] = [];
 
@@ -94,63 +94,5 @@ describe('computeDropPosition', () => {
     // The before/on/after split flips too.
     expect(computeDropPosition(el, 90, BOTH, 'horizontal')).toBe('before');
     expect(computeDropPosition(el, 10, BOTH, 'horizontal')).toBe('after');
-  });
-});
-
-describe('getDropCapabilities', () => {
-  it('enables both positions for both origins when no callbacks are configured', () => {
-    // A callback-less collection is driven manually through `onStateChange`.
-    expect(getDropCapabilities({}, 'internal')).toEqual({ hasOn: true, hasBeforeAfter: true });
-    expect(getDropCapabilities({}, 'external')).toEqual({ hasOn: true, hasBeforeAfter: true });
-  });
-
-  it('enables both internal positions when onMove is configured', () => {
-    expect(getDropCapabilities({ onMove: () => {} }, 'internal')).toEqual({
-      hasOn: true,
-      hasBeforeAfter: true,
-    });
-  });
-
-  it('resolves no external positions when only internal callbacks are configured', () => {
-    // An external drag has no handler that could commit, so no position may
-    // light up an indicator.
-    expect(getDropCapabilities({ onMove: () => {} }, 'external')).toEqual({
-      hasOn: false,
-      hasBeforeAfter: false,
-    });
-    expect(getDropCapabilities({ onReorder: () => {} }, 'external')).toEqual({
-      hasOn: false,
-      hasBeforeAfter: false,
-    });
-  });
-
-  it('enables only before/after internally for a reorder-only collection', () => {
-    expect(getDropCapabilities({ onReorder: () => {} }, 'internal')).toEqual({
-      hasOn: false,
-      hasBeforeAfter: true,
-    });
-  });
-
-  it('enables only external before/after for an insert-only collection', () => {
-    expect(getDropCapabilities({ onInsert: () => {} }, 'external')).toEqual({
-      hasOn: false,
-      hasBeforeAfter: true,
-    });
-    // The internal drop of an insert-only collection has nowhere to commit.
-    expect(getDropCapabilities({ onInsert: () => {} }, 'internal')).toEqual({
-      hasOn: false,
-      hasBeforeAfter: false,
-    });
-  });
-
-  it('enables only "on" for an item-drop-only collection, for both origins', () => {
-    expect(getDropCapabilities({ onItemDrop: () => {} }, 'internal')).toEqual({
-      hasOn: true,
-      hasBeforeAfter: false,
-    });
-    expect(getDropCapabilities({ onItemDrop: () => {} }, 'external')).toEqual({
-      hasOn: true,
-      hasBeforeAfter: false,
-    });
   });
 });

@@ -3,10 +3,8 @@ import * as React from 'react';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
-import { warn } from '@base-ui/utils/warn';
 import {
   computeDropPosition as computeCollectionDropPosition,
-  getDropCapabilities as getLegacyDropCapabilities,
   invalidateDirectionCache,
   treeDragPayloadBrand,
   type CollectionOrientation,
@@ -55,6 +53,7 @@ import { useCSPContext } from '../../internals/csp-context/CSPContext';
 import type { CSPContextValue } from '../../internals/csp-context/CSPContext';
 
 const DEFAULT_KIND = createKind<never>('base-ui-dnd-item');
+const ALL_DROP_CAPABILITIES: DropCapabilities = { hasOn: true, hasBeforeAfter: true };
 
 /** The kinds a collection accepts for drops, normalized to an array. */
 type IncomingKinds<TItem> = ReadonlyArray<DragKind<IncomingSourceData<TItem>>>;
@@ -846,8 +845,7 @@ export class DraggableCollectionPlugin<
         targetInstanceId: this.instanceId,
       },
       canDrop: ({ source }) =>
-        this.config.canDropRoot?.(source as DragSource<unknown>) ??
-        (this.config.onDrop != null || this.config.onRootDrop != null),
+        this.config.canDropRoot?.(source as DragSource<unknown>) ?? this.config.onDrop != null,
       onDragEnter: trackRootDrop,
       onDrag: trackRootDrop,
       onDragLeave: () => {
@@ -863,29 +861,19 @@ export class DraggableCollectionPlugin<
           return;
         }
 
-        const actions = this.config.getActions();
         const onDrop = this.config.onDrop;
-        let committed = false;
-        if (onDrop != null) {
-          committed =
-            onDrop({
-              itemIds: src?.itemIds ?? new Set(),
-              items: src?.items ?? [],
-              target: { itemId: null, position: 'root' },
-              isInternal: src?.sourceInstanceId === this.instanceId,
-              source: source as DragSource<unknown>,
-              actions,
-            }) !== false;
-        } else if (this.config.onRootDrop != null) {
-          this.config.onRootDrop({
+        if (
+          onDrop != null &&
+          onDrop({
             itemIds: src?.itemIds ?? new Set(),
             items: src?.items ?? [],
-            actions,
-          });
-          committed = true;
-        }
-        // Keep keyboard focus restoration with the collection that committed the drop.
-        if (committed) {
+            target: { itemId: null, position: 'root' },
+            isInternal: src?.sourceInstanceId === this.instanceId,
+            source: source as DragSource<unknown>,
+            actions: this.config.getActions(),
+          }) !== false
+        ) {
+          // Keep keyboard focus restoration with the collection that committed the drop.
           committedDropSlot.owner = this;
         }
       },
@@ -1040,10 +1028,7 @@ export class DraggableCollectionPlugin<
   // can run before this plugin's monitor receives drag start.
   private dropCapabilities(src: IncomingSourceData<TItem>): DropCapabilities {
     const isInternal = src?.sourceInstanceId === this.instanceId;
-    return (
-      this.config.getDropCapabilities?.({ isInternal }) ??
-      getLegacyDropCapabilities(this.config, isInternal ? 'internal' : 'external')
-    );
+    return this.config.getDropCapabilities?.({ isInternal }) ?? ALL_DROP_CAPABILITIES;
   }
 
   private computeDropPosition(
@@ -1244,22 +1229,16 @@ export class DraggableCollectionPlugin<
       }
     }
     const onDrop = this.config.onDrop;
-    let committed: boolean;
-    if (onDrop != null) {
-      committed =
-        onDrop({
-          itemIds: draggedItemIds,
-          items: this.currentDragItems,
-          target: { itemId: targetItemId, position },
-          isInternal,
-          actions,
-          source,
-        }) !== false;
-    } else if (isInternal) {
-      committed = this.handleInternalDrop(draggedItemIds, targetItemId, position, actions);
-    } else {
-      committed = this.handleExternalDrop(draggedItemIds, targetItemId, position, actions);
-    }
+    const committed =
+      onDrop != null &&
+      onDrop({
+        itemIds: draggedItemIds,
+        items: this.currentDragItems,
+        target: { itemId: targetItemId, position },
+        isInternal,
+        actions,
+        source,
+      }) !== false;
     // This collection now owns the moved rows; the origin's `finalFocus` reads
     // this to find a row it never mounted itself. Claimed only when a handler
     // actually committed, so a no-op route can't point focus at a collection
@@ -1273,66 +1252,6 @@ export class DraggableCollectionPlugin<
   getItemElement(itemId: CollectionItemId): HTMLElement | undefined {
     return this.itemElements.get(itemId);
   }
-
-  private handleInternalDrop(
-    itemIds: Set<CollectionItemId>,
-    targetItemId: CollectionItemId,
-    position: DropPosition,
-    actions: TActions,
-  ): boolean {
-    if (this.config.onMove) {
-      this.config.onMove({ itemIds, target: { itemId: targetItemId, position }, actions });
-      return true;
-    }
-    if (position === 'on') {
-      return this.routeItemDrop(itemIds, targetItemId, true, actions);
-    }
-    if (this.config.onReorder) {
-      this.config.onReorder({ itemIds, target: { itemId: targetItemId, position }, actions });
-      return true;
-    }
-    return false;
-  }
-
-  private routeItemDrop(
-    itemIds: Set<CollectionItemId>,
-    targetItemId: CollectionItemId,
-    isInternal: boolean,
-    actions: TActions,
-  ): boolean {
-    if (!this.config.onItemDrop) {
-      return false;
-    }
-    this.config.onItemDrop({
-      itemIds,
-      items: this.currentDragItems,
-      target: { itemId: targetItemId },
-      isInternal,
-      actions,
-    });
-    return true;
-  }
-
-  private handleExternalDrop(
-    itemIds: Set<CollectionItemId>,
-    targetItemId: CollectionItemId,
-    position: DropPosition,
-    actions: TActions,
-  ): boolean {
-    if (position === 'on') {
-      return this.routeItemDrop(itemIds, targetItemId, false, actions);
-    }
-    if (this.config.onInsert) {
-      this.config.onInsert({
-        itemIds,
-        items: this.currentDragItems,
-        target: { itemId: targetItemId, position },
-        actions,
-      });
-      return true;
-    }
-    return false;
-  }
 }
 
 /**
@@ -1344,13 +1263,6 @@ export function useDraggableCollection<
   TItem = unknown,
   TActions extends CollectionActions<TItem> = CollectionActions<TItem>,
 >(params: UseDraggableCollectionParameters<TItem, TActions>) {
-  if (process.env.NODE_ENV !== 'production' && params.onMove && params.onReorder) {
-    warn(
-      'Base UI: a collection was given both `onReorder` and `onMove`. ' +
-        '`onMove` subsumes `onReorder`, so `onReorder` will never fire. ' +
-        'Provide one or the other.',
-    );
-  }
   const getConfig = useStableCallback(() => params);
 
   // Accessibility strings come from the nearest `LocalizationProvider`; kept in
@@ -1423,39 +1335,6 @@ type DropTargetItemData =
       role: 'root';
       targetInstanceId: number;
     };
-
-export interface OnReorderParameters<TActions = unknown> {
-  itemIds: Set<CollectionItemId>;
-  target: { itemId: CollectionItemId; position: 'before' | 'after' };
-  actions: TActions;
-}
-
-export interface OnMoveParameters<TActions = unknown> {
-  itemIds: Set<CollectionItemId>;
-  target: { itemId: CollectionItemId; position: DropPosition };
-  actions: TActions;
-}
-
-export interface OnInsertParameters<TItem, TActions = unknown> {
-  itemIds: Set<CollectionItemId>;
-  items: TItem[];
-  target: { itemId: CollectionItemId; position: 'before' | 'after' };
-  actions: TActions;
-}
-
-export interface OnItemDropParameters<TItem, TActions = unknown> {
-  itemIds: Set<CollectionItemId>;
-  items: TItem[];
-  target: { itemId: CollectionItemId };
-  isInternal: boolean;
-  actions: TActions;
-}
-
-export interface OnRootDropParameters<TItem, TActions = unknown> {
-  itemIds: Set<CollectionItemId>;
-  items: TItem[];
-  actions: TActions;
-}
 
 export interface CollectionDropParameters<TItem, TActions = unknown> {
   /** The ids carried by a collection source, or an empty set for a generic source. */
@@ -1571,16 +1450,6 @@ export interface UseDraggableCollectionParameters<
   TItem = unknown,
   TActions extends CollectionActions<TItem> = CollectionActions<TItem>,
 > {
-  /** Legacy callback for reordering within one collection. */
-  onReorder?: ((parameters: OnReorderParameters<TActions>) => void) | undefined;
-  /** Legacy callback for moving within one collection. */
-  onMove?: ((parameters: OnMoveParameters<TActions>) => void) | undefined;
-  /** Legacy callback for inserting items from another collection. */
-  onInsert?: ((parameters: OnInsertParameters<TItem, TActions>) => void) | undefined;
-  /** Legacy callback for dropping directly on an item. */
-  onItemDrop?: ((parameters: OnItemDropParameters<TItem, TActions>) => void) | undefined;
-  /** Legacy callback for dropping on the collection root. */
-  onRootDrop?: ((parameters: OnRootDropParameters<TItem, TActions>) => void) | undefined;
   /**
    * Receives the normalized item/root drop after final-coordinate resolution.
    * Return `false` when no mutation committed, so focus restoration does not

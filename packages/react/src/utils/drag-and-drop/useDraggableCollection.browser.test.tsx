@@ -5,6 +5,10 @@ import { isJSDOM } from '#test-utils';
 import { flushRaf, registerCleanup, setupDragEngineTests } from '../../../test/dnd';
 import { setupPlugin as setupPluginBase } from '../../../test/dndCollection';
 import { dragSessionStore } from './dragSessionStore';
+import { createKind } from './dragKind';
+
+const cardsKind = createKind<any>('cards');
+const columnsKind = createKind<any>('columns');
 
 setupDragEngineTests();
 
@@ -65,11 +69,20 @@ describe.skipIf(isJSDOM)('useDraggableCollection browser geometry', () => {
     const outerRootDrop = vi.fn();
     const previewRender = vi.fn(() => <span>Card preview</span>);
     const outer = setupPlugin(
-      { onRootDrop: outerRootDrop, dragPreview: { render: previewRender } },
+      { kind: cardsKind, onDrop: outerRootDrop, dragPreview: { render: previewRender } },
       { knownItemIds: ['a'] },
     );
-    const onInsert = vi.fn();
-    const inner = setupPlugin({ onInsert, orientation: 'horizontal' }, { knownItemIds: ['b'] });
+    const onDrop = vi.fn();
+    const inner = setupPlugin(
+      {
+        kind: columnsKind,
+        accept: cardsKind,
+        onDrop,
+        orientation: 'horizontal',
+        getDropCapabilities: () => ({ hasOn: false, hasBeforeAfter: true }),
+      },
+      { knownItemIds: ['b'] },
+    );
     outer.plugin.setupRoot(outerRoot);
     outer.plugin.setupItem('a', source);
     inner.plugin.setupRoot(innerRoot);
@@ -86,7 +99,7 @@ describe.skipIf(isJSDOM)('useDraggableCollection browser geometry', () => {
     pointer(document, 'pointerup', 295, 165);
 
     expect(previewRender).toHaveBeenCalled();
-    expect(onInsert).toHaveBeenCalledWith(
+    expect(onDrop).toHaveBeenCalledWith(
       expect.objectContaining({ target: { itemId: 'b', position: 'before' } }),
     );
     expect(outerRootDrop).not.toHaveBeenCalled();
@@ -99,8 +112,8 @@ describe.skipIf(isJSDOM)('useDraggableCollection browser geometry', () => {
     root.appendChild(source);
     document.body.appendChild(root);
     registerCleanup(() => root.remove());
-    const onRootDrop = vi.fn();
-    const collection = setupPlugin({ onRootDrop }, { knownItemIds: ['a'] });
+    const onDrop = vi.fn();
+    const collection = setupPlugin({ onDrop }, { knownItemIds: ['a'] });
     collection.plugin.setupRoot(root);
     collection.plugin.setupItem('a', source);
 
@@ -109,7 +122,7 @@ describe.skipIf(isJSDOM)('useDraggableCollection browser geometry', () => {
     expect(dragSessionStore.getSnapshot()?.source.element).toBe(source);
     pointer(document, 'pointerup', 82, 80);
 
-    expect(onRootDrop).not.toHaveBeenCalled();
+    expect(onDrop).not.toHaveBeenCalled();
     expect(dragSessionStore.getSnapshot()).toBeNull();
   });
 });

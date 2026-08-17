@@ -23,64 +23,10 @@ export type DragSourceData<TItem> = {
   readonly [treeDragPayloadBrand]: true;
 };
 
-/**
- * Which drop positions a collection can resolve to, derived from the configured
- * callbacks. `hasOn` allows dropping "on" a row (reparent / item drop), while
- * `hasBeforeAfter` allows dropping between rows (reorder / insert).
- *
- * The allowed positions are derived from the callbacks that can commit a drop of
- * the given origin — an internal drag routes to `onMove`/`onReorder`/`onItemDrop`,
- * an external one to `onInsert`/`onItemDrop` — so a position never lights up an
- * indicator only for its drop to no-op. The trade-off is that adding an
- * `onItemDrop`/`onMove` handler introduces the "on" zone and reshapes the
- * before/after hit areas of every row. Per origin, the mapping is:
- *
- * | Configured callbacks | Internal drag       | External drag       |
- * | -------------------- | ------------------- | ------------------- |
- * | none                 | before / after / on | before / after / on |
- * | reorder only         | before / after      | —                   |
- * | insert only          | —                   | before / after      |
- * | itemDrop only        | on                  | on                  |
- * | move                 | before / after / on | —                   |
- *
- * A collection with no resolvable position for the drag's origin ("—") rejects
- * the row as a drop target entirely, so the drop falls through to the root / an
- * outer target. With no callbacks at all (a collection driven manually through
- * `onStateChange`) every position resolves. To keep a callback wired (e.g. for
- * logging) without it changing the geometry, veto the unwanted position per
- * target from `canDrop`.
- */
+/** Which drop positions a collection can resolve to. */
 export interface DropCapabilities {
   hasOn: boolean;
   hasBeforeAfter: boolean;
-}
-
-/** Which side of the collection a drag came from, for {@link getDropCapabilities}. */
-export type DropOrigin = 'internal' | 'external';
-
-export function getDropCapabilities(
-  config: {
-    onReorder?: unknown;
-    onInsert?: unknown;
-    onMove?: unknown;
-    onItemDrop?: unknown;
-  },
-  origin: DropOrigin,
-): DropCapabilities {
-  if (!config.onReorder && !config.onInsert && !config.onMove && !config.onItemDrop) {
-    // No drop callbacks at all: the consumer commits drops manually (via
-    // `onStateChange`), so every position stays resolvable.
-    return { hasOn: true, hasBeforeAfter: true };
-  }
-  return origin === 'internal'
-    ? {
-        hasOn: !!(config.onMove || config.onItemDrop),
-        hasBeforeAfter: !!(config.onMove || config.onReorder),
-      }
-    : {
-        hasOn: !!config.onItemDrop,
-        hasBeforeAfter: !!config.onInsert,
-      };
 }
 
 /**
