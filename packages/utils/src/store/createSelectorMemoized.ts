@@ -1,5 +1,5 @@
 import { lruMemoize, createSelectorCreator } from 'reselect';
-import type { OverrideMemoizeOptions, UnknownMemoizer, Selector } from 'reselect';
+import type { CreateSelectorOptions, UnknownMemoizer, Selector, weakMapMemoize } from 'reselect';
 import type { CreateSelectorFunction } from './createSelector';
 
 /* eslint-disable no-underscore-dangle */ // __cacheKey__
@@ -15,7 +15,17 @@ const reselectCreateSelector = createSelectorCreator({
 type SelectorWithArgs = ReturnType<typeof reselectCreateSelector> & { selectorArgs: any[3] };
 
 export const createSelectorMemoizedWithOptions =
-  (options?: OverrideMemoizeOptions<UnknownMemoizer>): CreateSelectorFunction =>
+  <
+    OverrideMemoizeFunction extends UnknownMemoizer = never,
+    OverrideArgsMemoizeFunction extends UnknownMemoizer = never,
+  >(
+    options?: CreateSelectorOptions<
+      typeof lruMemoize,
+      typeof weakMapMemoize,
+      OverrideMemoizeFunction,
+      OverrideArgsMemoizeFunction
+    >,
+  ): CreateSelectorFunction =>
   (...inputs: any[]) => {
     type CacheKey = { id: number };
 

@@ -7,8 +7,11 @@ type Listener<T> = (state: T) => void;
  * It uses an observer pattern to notify subscribers when the state changes.
  */
 export class Store<State> {
-  static create<T>(state: T) {
-    return new Store(state);
+  /**
+   * Creates a store with the given initial state, constructing the class it is called on.
+   */
+  static create<T, This extends Store<T>>(this: new (state: T) => This, state: T): This {
+    return new this(state);
   }
 
   /**

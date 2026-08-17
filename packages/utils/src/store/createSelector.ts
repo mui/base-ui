@@ -14,15 +14,54 @@ type NoOptionalParams<F extends Fn> =
     ? F
     : 'Combiner cannot have optional or default parameters because memoization relies on Function.length';
 
+/**
+ * The combiner parameters that remain once the input selector results are accounted for.
+ * In the single-function form the first parameter is the state, not a selector result.
+ */
+type ExtraParams<
+  Selectors extends ReadonlyArray<Fn>,
+  Combiner extends Fn,
+> = Selectors['length'] extends 0
+  ? DropFirst<Parameters<Combiner>>
+  : MergeParams<ReturnTypes<Selectors>, Parameters<Combiner>>;
+
+type LengthOf<T> = T extends readonly unknown[] ? T['length'] : number;
+
+/**
+ * The runtime dispatches the extra combiner arguments through three fixed slots. An
+ * open-ended parameter count cannot be validated statically (it occurs both for rest
+ * parameters and for combiners typed contextually), so it is left to the runtime guards.
+ */
+type ExtraArgsWithinLimit<
+  Selectors extends ReadonlyArray<Fn>,
+  Combiner extends Fn,
+> = number extends Parameters<Combiner>['length']
+  ? true
+  : LengthOf<ExtraParams<Selectors, Combiner>> extends 0 | 1 | 2 | 3
+    ? true
+    : false;
+
+type ValidCombiner<
+  Selectors extends ReadonlyArray<Fn>,
+  Combiner extends Fn,
+> = Selectors['length'] extends 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7
+  ? ExtraArgsWithinLimit<Selectors, Combiner> extends false
+    ? 'Combiner accepts up to three arguments beyond the input selector results'
+    : NoOptionalParams<Combiner>
+  : 'Up to seven input selectors are supported';
+
 export type CreateSelectorFunction = <
   const Args extends any[],
   const Selectors extends ReadonlyArray<Selector<any>>,
   const Combiner extends (...args: readonly [...ReturnTypes<Selectors>, ...Args]) => any,
 >(
-  ...items: [...Selectors, NoOptionalParams<Combiner>]
+  ...items: [...Selectors, ValidCombiner<Selectors, Combiner>]
 ) => (
   ...args: Selectors['length'] extends 0
-    ? MergeParams<ReturnTypes<Selectors>, Parameters<Combiner>>
+    ? Parameters<Combiner> extends []
+      ? // The state is still required for caching when the combiner ignores it.
+        [state: object]
+      : MergeParams<ReturnTypes<Selectors>, Parameters<Combiner>>
     : [
         StateFromSelectorList<Selectors>,
         ...MergeParams<ReturnTypes<Selectors>, Parameters<Combiner>>,

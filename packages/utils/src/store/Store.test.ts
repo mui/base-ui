@@ -25,6 +25,20 @@ describe('Store', () => {
       expect(first.state.value).toBe(1);
       expect(second.state.value).toBe(0);
     });
+
+    it('constructs an instance of the subclass it is called on', () => {
+      class SubStore extends Store<{ count: number }> {
+        increment() {
+          this.set('count', this.state.count + 1);
+        }
+      }
+
+      const store = SubStore.create({ count: 1 });
+
+      expect(store).toBeInstanceOf(SubStore);
+      store.increment();
+      expect(store.state.count).toBe(2);
+    });
   });
 });
 
@@ -83,9 +97,10 @@ describe('createSelector', () => {
   it('throws when given one more than the maximum (eight input selectors plus a combiner)', () => {
     const fn = (s: any) => s;
 
-    expect(() => createSelector(fn, fn, fn, fn, fn, fn, fn, fn, fn)).toThrow(
-      'Unsupported number of selectors',
-    );
+    expect(
+      // @ts-expect-error nine functions exceed the supported arity
+      () => createSelector(fn, fn, fn, fn, fn, fn, fn, fn, fn),
+    ).toThrow('Unsupported number of selectors');
   });
 });
 

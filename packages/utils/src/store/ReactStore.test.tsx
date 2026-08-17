@@ -15,6 +15,13 @@ function useStableStore<State extends object>(initial: State) {
 describe('ReactStore', () => {
   const { render } = createRenderer();
 
+  it('create() constructs a ReactStore instance', () => {
+    const store = ReactStore.create({ value: 1, label: 'a' });
+
+    expect(store).toBeInstanceOf(ReactStore);
+    expect(store.state.value).toBe(1);
+  });
+
   it('syncs internal state from controlled prop', () => {
     let store!: ReactStore<TestState>;
 
