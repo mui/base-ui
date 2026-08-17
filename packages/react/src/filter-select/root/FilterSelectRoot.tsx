@@ -42,6 +42,7 @@ export function FilterSelectRoot<Value, Multiple extends boolean | undefined = f
     highlightItemOnHover = true,
     ...selectProps
   } = props;
+
   const { disabled: fieldDisabled } = useFieldRootContext();
   const disabled = disabledProp || fieldDisabled || false;
 

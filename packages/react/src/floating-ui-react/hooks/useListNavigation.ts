@@ -180,6 +180,7 @@ export function useListNavigation(
     resetOnPointerLeave = true,
     grid: navigateGrid,
   } = props;
+
   const isGrid = navigateGrid != null;
 
   if (process.env.NODE_ENV !== 'production') {

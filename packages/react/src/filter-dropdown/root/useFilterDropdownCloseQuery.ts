@@ -19,6 +19,7 @@ interface UseFilterDropdownCloseQueryParameters {
  */
 export function useFilterDropdownCloseQuery(parameters: UseFilterDropdownCloseQueryParameters) {
   const { open, value, onValueChange, onOpenChangeComplete } = parameters;
+
   const [closeQuery, setCloseQuery] = React.useState<string | null>(null);
   const previousOpenRef = React.useRef(open);
 

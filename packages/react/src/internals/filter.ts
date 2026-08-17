@@ -39,11 +39,13 @@ export function getContainsFilter(options: GetFilterParameters = {}): ItemFilter
 
 function createCollator(options: GetFilterParameters = {}) {
   const { locale, ...collatorOptions } = options;
+
   return new Intl.Collator(locale, getCollatorOptions(collatorOptions));
 }
 
 function getCacheKey(options: GetFilterParameters) {
   const { locale, ...collatorOptions } = options;
+
   const mergedOptions = getCollatorOptions(collatorOptions);
   return `${stringifyLocale(locale)}|${JSON.stringify(mergedOptions)}`;
 }

@@ -21,6 +21,7 @@ export const FilterDropdownInput = React.forwardRef(function FilterDropdownInput
   forwardedRef: React.ForwardedRef<HTMLInputElement>,
 ) {
   const { render, className, style, disabled, ...elementProps } = componentProps;
+
   const context = useFilterDropdownRootContext();
   const value = useFilterDropdownValueContext();
   const activeItemId = useActiveItemId(context);

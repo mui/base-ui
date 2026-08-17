@@ -77,6 +77,7 @@ export function useFilterDropdownItem(
   params: UseFilterDropdownItemParameters,
 ): UseFilterDropdownItemReturnValue {
   const { label, keywords, filterValue, retainGroup = false, children, context } = params;
+
   const nearestContext = useFilterDropdownRootContext(context !== undefined);
   const owner = context === undefined ? nearestContext : context;
   const { registerItem, store } = owner ?? DETACHED_OWNER;

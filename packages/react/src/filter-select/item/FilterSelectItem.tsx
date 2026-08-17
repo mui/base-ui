@@ -11,6 +11,7 @@ export const FilterSelectItem = React.memo(
     forwardedRef: React.ForwardedRef<HTMLElement>,
   ) {
     const { label, keywords, ...selectProps } = props;
+
     const { getItemData } = useFilterSelectRootContext();
     const itemValue = props.value ?? null;
     const itemData = getItemData(itemValue);

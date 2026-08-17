@@ -15,6 +15,7 @@ export const FilterMenuTrigger = React.forwardRef(function FilterMenuTrigger(
   forwardedRef: React.ForwardedRef<HTMLElement>,
 ) {
   const { id: idProp, handle, ...menuProps } = props;
+
   const rootContext = useMenuRootContext(true);
   const handleStore = usePopupHandleStore(handle);
   const store = handleStore ?? rootContext?.store;

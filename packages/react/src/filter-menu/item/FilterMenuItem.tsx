@@ -9,6 +9,7 @@ export const FilterMenuItem = React.forwardRef(function FilterMenuItem(
   forwardedRef: React.ForwardedRef<HTMLElement>,
 ) {
   const { label, keywords, ...menuProps } = props;
+
   const { visible, ref } = useFilterDropdownItem({ label, keywords, children: props.children });
   const mergedRef = useMergedRefs(forwardedRef, ref);
 

@@ -11,6 +11,7 @@ export const FilterSelectPopup = React.forwardRef(function FilterSelectPopup(
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const { id: idProp, ...selectProps } = props;
+
   const { store } = useSelectRootContext();
   const rootId = useStore(store, selectors.id);
   const id = idProp ?? suffixId(rootId, 'popup');

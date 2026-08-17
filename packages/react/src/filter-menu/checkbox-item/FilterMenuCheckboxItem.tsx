@@ -12,6 +12,7 @@ export const FilterMenuCheckboxItem = React.forwardRef(function FilterMenuCheckb
   forwardedRef: React.ForwardedRef<HTMLElement>,
 ) {
   const { label, keywords, ...menuProps } = props;
+
   const { visible, ref } = useFilterDropdownItem({ label, keywords, children: props.children });
   const mergedRef = useMergedRefs(forwardedRef, ref);
 

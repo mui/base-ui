@@ -3288,6 +3288,7 @@ describe('<Menu.Root />', () => {
 
 function ContainedTriggerMenu(props: TestMenuProps) {
   const { triggerProps, ...rest } = props;
+
   return (
     <TestMenuContents {...rest}>
       <Menu.Trigger {...triggerProps}>Toggle</Menu.Trigger>
@@ -3297,6 +3298,7 @@ function ContainedTriggerMenu(props: TestMenuProps) {
 
 function DetachedTriggerMenu(props: TestMenuProps) {
   const { triggerProps, ...rest } = props;
+
   const menuHandle = useRefWithInit(() => new Menu.Handle()).current;
 
   return (
@@ -3324,6 +3326,7 @@ type TestMenuProps = {
 
 function TestMenuContents(props: TestMenuProps) {
   const { children, rootProps, portalProps, submenuProps, submenuTriggerProps, popupProps } = props;
+
   return (
     <Menu.Root {...rootProps}>
       {children}

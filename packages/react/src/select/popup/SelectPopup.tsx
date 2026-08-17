@@ -70,6 +70,7 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
   // otherwise a consumer id leaves the trigger pointing at nothing.
   const id = componentProps.id ?? suffixId(rootId, 'popup');
   const { render, className, style, finalFocus, ...elementProps } = componentProps;
+
   const { side, align, alignItemWithTriggerActive, isPositioned, setAlignItemWithTrigger } =
     useSelectPositionerContext();
   const insideToolbar = useToolbarRootContext(true) != null;

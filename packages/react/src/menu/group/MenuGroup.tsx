@@ -15,6 +15,7 @@ export const MenuGroup = React.forwardRef(function MenuGroup(
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const { render, className, style, ...elementProps } = componentProps;
+
   const [labelId, setLabelId] = React.useState<string | undefined>(undefined);
 
   const element = useRenderElement('div', componentProps, {

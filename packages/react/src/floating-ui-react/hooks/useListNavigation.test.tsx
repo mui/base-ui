@@ -23,6 +23,7 @@ function App(
   } = {},
 ) {
   const { disableFirstItem, hideFirstItem, firstItemStyle, onItemKeyDown, ...props } = inProps;
+
   const [open, setOpen] = React.useState(false);
   const listRef = React.useRef<Array<HTMLLIElement | null>>([]);
   const [activeIndex, setActiveIndex] = React.useState<null | number>(null);

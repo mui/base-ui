@@ -13,6 +13,7 @@ export const FilterDropdownList = React.forwardRef(function FilterDropdownList(
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const { render, className, style, id: idProp, ...elementProps } = componentProps;
+
   const context = useFilterDropdownRootContext();
   const { setListId } = context;
   const activeItemId = useActiveItemId(context);

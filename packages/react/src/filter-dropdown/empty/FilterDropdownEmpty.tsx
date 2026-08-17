@@ -13,6 +13,7 @@ const FilterDropdownEmptyImpl = React.forwardRef(function FilterDropdownEmptyImp
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const { render, className, style, ...elementProps } = componentProps;
+
   const context = useFilterDropdownRootContext();
   const sourceRef = React.useRef<HTMLDivElement | null>(null);
   const [announcementText, setAnnouncementText] = React.useState('');

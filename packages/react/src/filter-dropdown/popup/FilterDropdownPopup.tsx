@@ -20,6 +20,7 @@ export const FilterDropdownPopup = React.forwardRef(function FilterDropdownPopup
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const { id: idProp, render, className, style, ...elementProps } = componentProps;
+
   const context = useFilterDropdownRootContext();
   const { focusOwnerRef, setPopupId } = context;
   const id = idProp ?? context.popupId;

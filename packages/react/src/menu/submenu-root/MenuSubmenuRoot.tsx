@@ -161,6 +161,7 @@ function MenuSubmenuRootImpl(props: MenuSubmenuRootImplProps) {
     onParentNavigation,
     getReturnElement,
   } = props;
+
   const { store, orientation } = useMenuRootContext();
   const direction = useDirection();
 

@@ -33,6 +33,7 @@ export const MenuPopup = React.forwardRef(function MenuPopup(
   const { store, floatingId, setFloatingId } = useMenuRootContext();
   const id = componentProps.id ?? floatingId;
   const { finalFocus, render, className, style, ...elementProps } = componentProps;
+
   const submenuRootContext = useMenuSubmenuRootContext();
   const { side, align } = useMenuPositionerContext();
   const insideToolbar = useToolbarRootContext(true) != null;

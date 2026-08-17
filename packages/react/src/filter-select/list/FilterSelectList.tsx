@@ -11,6 +11,7 @@ export const FilterSelectList = React.forwardRef(function FilterSelectList(
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const { id: idProp, ...selectProps } = props;
+
   const { store } = useSelectRootContext();
   const rootId = useStore(store, selectors.id);
   const id = idProp ?? suffixId(rootId, 'list');

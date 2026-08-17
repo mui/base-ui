@@ -17,6 +17,7 @@ export const FilterMenuSubmenuTrigger = React.forwardRef(function FilterMenuSubm
   forwardedRef: React.ForwardedRef<HTMLElement>,
 ) {
   const { label, keywords, ...submenuProps } = props;
+
   const { store } = useMenuRootContext();
   const open = store.useState('open');
   const mounted = store.useState('mounted');

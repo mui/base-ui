@@ -23,6 +23,7 @@ export const FilterDropdownTrigger = React.forwardRef(function FilterDropdownTri
     popupState,
     ...elementProps
   } = componentProps;
+
   const context = useFilterDropdownRootContext(popupState !== undefined);
   const setTriggerId = context?.setTriggerId;
   const id = idProp ?? context?.triggerId;

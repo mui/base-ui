@@ -223,6 +223,7 @@ const MenuSubmenuTriggerWithListItem = React.forwardRef(function MenuSubmenuTrig
   forwardedRef: React.ForwardedRef<HTMLElement>,
 ) {
   const { parentMenuStore, ...componentProps } = props;
+
   useMenuRootContext();
   const listItem = useCompositeListItem({ guess: true, label: componentProps.label });
   const parentFloatingId = parentMenuStore.useState('floatingId');

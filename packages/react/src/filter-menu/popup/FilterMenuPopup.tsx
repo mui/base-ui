@@ -9,6 +9,7 @@ export const FilterMenuPopup = React.forwardRef(function FilterMenuPopup(
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const { id, ...menuProps } = props;
+
   const { floatingId, store } = useMenuRootContext();
   const activeTriggerId = store.useState('activeTriggerId');
   const activeTriggerElement = store.useState('activeTriggerElement');
