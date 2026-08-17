@@ -4597,6 +4597,67 @@ describe('<Select.Root />', () => {
       });
     });
 
+    it('keeps the value when the items mount a commit after the positioner', async () => {
+      if (reactMajor <= 18) {
+        ignoreActWarnings();
+      }
+
+      const handleValueChange = vi.fn();
+
+      // Mimics options that render one commit late on every mount (lazy or effect-gated
+      // fetching). The mount-commit registration flush then contains no items.
+      function DeferredItems(props: { children: React.ReactNode }) {
+        const [ready, setReady] = React.useState(false);
+        React.useEffect(() => {
+          setReady(true);
+        }, []);
+        return ready ? props.children : null;
+      }
+
+      const { user } = await render(
+        <div>
+          <Select.Root defaultValue="b" onValueChange={handleValueChange}>
+            <Select.Trigger data-testid="trigger">
+              <Select.Value />
+            </Select.Trigger>
+            <Select.Portal>
+              <Select.Positioner>
+                <Select.Popup>
+                  <DeferredItems>
+                    {['a', 'b', 'c'].map((it) => (
+                      <Select.Item key={it} value={it}>
+                        {it}
+                      </Select.Item>
+                    ))}
+                  </DeferredItems>
+                </Select.Popup>
+              </Select.Positioner>
+            </Select.Portal>
+          </Select.Root>
+          <button data-testid="outside">Outside</button>
+        </div>,
+      );
+
+      const trigger = screen.getByTestId('trigger');
+
+      // Register the items once, then blur so the popup subtree unmounts.
+      await user.click(trigger);
+      await user.keyboard('{Escape}');
+      await user.click(screen.getByTestId('outside'));
+      await waitFor(() => {
+        expect(screen.queryByRole('listbox', { hidden: true })).not.toBeInTheDocument();
+      });
+
+      // Refocusing remounts the items; their first registration flush is empty.
+      await act(async () => trigger.focus());
+      await waitFor(() => {
+        expect(screen.queryAllByRole('option', { hidden: true })).toHaveLength(3);
+      });
+
+      expect(trigger).toHaveTextContent('b');
+      expect(handleValueChange).not.toHaveBeenCalled();
+    });
+
     it('resets via onValueChange and does not break in controlled mode when the selected item is removed', async () => {
       if (reactMajor <= 18) {
         ignoreActWarnings();

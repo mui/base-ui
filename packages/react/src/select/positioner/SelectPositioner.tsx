@@ -158,14 +158,18 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
 
   const onMapChange = useStableCallback(() => {
     const rawValues = valuesRef.current;
-    if (rawValues.length === 0) {
+    // `filter` compacts by hole-presence. Reading positionally is unsafe: under React 18
+    // Strict Mode the value slots can sit at stale guessed indices at flush time.
+    const nextValues = rawValues.filter(() => true);
+
+    // An empty flush is indeterminate: the mount-commit flush fires before items rendered
+    // in a later commit (lazy or effect-gated options) have registered. Keep the previous
+    // snapshot so that flush still reconciles, instead of wiping the value here.
+    if (nextValues.length === 0) {
       return;
     }
 
     const prevValues = registeredItemValuesRef.current;
-    // `filter` compacts by hole-presence. Reading positionally is unsafe: under React 18
-    // Strict Mode the value slots can sit at stale guessed indices at flush time.
-    const nextValues = rawValues.filter(() => true);
     registeredItemValuesRef.current = nextValues;
 
     // Validate the selection whenever the registered values change, including a replacement
