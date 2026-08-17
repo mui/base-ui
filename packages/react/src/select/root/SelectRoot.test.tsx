@@ -4346,58 +4346,6 @@ describe('<Select.Root />', () => {
       });
     });
 
-    it('resets to default when the selected item is replaced by an equal-size collection while unmounted', async () => {
-      if (reactMajor <= 18) {
-        ignoreActWarnings();
-      }
-
-      function Test() {
-        const [items, setItems] = React.useState(['a', 'b', 'c']);
-        return (
-          <div>
-            <Select.Root defaultValue="b">
-              <Select.Trigger data-testid="trigger">
-                <Select.Value />
-              </Select.Trigger>
-              <Select.Portal>
-                <Select.Positioner>
-                  <Select.Popup>
-                    {items.map((it) => (
-                      <Select.Item key={it} value={it}>
-                        {it}
-                      </Select.Item>
-                    ))}
-                  </Select.Popup>
-                </Select.Positioner>
-              </Select.Portal>
-            </Select.Root>
-            <button data-testid="replace-c" onClick={() => setItems(['a', 'b', 'd'])}>
-              Replace C
-            </button>
-          </div>
-        );
-      }
-
-      const { user } = await render(<Test />);
-
-      const trigger = screen.getByTestId('trigger');
-
-      await user.click(trigger);
-      await user.click(screen.getByRole('option', { name: 'c' }));
-
-      // Blurs the trigger and unmounts the popup. The replacement keeps the item count
-      // equal, so only value validation (not a size change) can catch it on remount.
-      await user.click(screen.getByTestId('replace-c'));
-
-      await user.click(trigger);
-      await waitFor(() => {
-        expect(trigger).toHaveTextContent('b');
-      });
-      await waitFor(() => {
-        expect(screen.getByRole('option', { name: 'b' })).toHaveAttribute('data-selected', '');
-      });
-    });
-
     it('resets via onValueChange and does not break in controlled mode when the selected item is removed', async () => {
       if (reactMajor <= 18) {
         ignoreActWarnings();

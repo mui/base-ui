@@ -134,7 +134,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
   const alignItemWithTriggerActiveRef = React.useRef(false);
   // Lives on the root so an unmounting positioner doesn't erase what was registered
   // before — the dynamic-items reconciliation must still run on the next mount.
-  const registeredItemValuesRef = React.useRef<any[]>([]);
+  const registeredItemCountRef = React.useRef(0);
 
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
   const { openMethod, triggerProps: interactionTypeProps } = useOpenInteractionType(open);
@@ -293,10 +293,10 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
   // The items must stay mounted while the trigger is focused so closed-trigger typeahead can
   // read the registered labels and values. Containment (not identity) so focus inside a
   // shadow-backed or composite trigger still counts as trigger focus.
-  function isTriggerFocused() {
+  const syncForceMount = useStableCallback(() => {
     const trigger = store.state.triggerElement;
-    return contains(trigger, activeElement(ownerDocument(trigger)));
-  }
+    store.set('forceMount', contains(trigger, activeElement(ownerDocument(trigger))));
+  });
 
   const forceMountReleaseTimeout = useTimeout();
 
@@ -311,9 +311,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     // Defer the release until after `FloatingFocusManager` has returned focus (a microtask),
     // so a close that restores trigger focus keeps the items mounted instead of unmounting
     // and remounting them.
-    forceMountReleaseTimeout.start(0, () => {
-      store.set('forceMount', isTriggerFocused());
-    });
+    forceMountReleaseTimeout.start(0, syncForceMount);
     onOpenChangeComplete?.(false);
   });
 
@@ -489,7 +487,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
       selectionRef,
       firstItemTextRef,
       selectedItemTextRef,
-      registeredItemValuesRef,
+      registeredItemCountRef,
       validation,
       onOpenChangeComplete,
       alignItemWithTriggerActiveRef,
@@ -559,42 +557,40 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
             const details = createChangeEventDetails(REASONS.none, event.nativeEvent);
 
             function handleChange() {
-              if (multiple) {
-                // Browser autofill only writes a single scalar value.
-                return;
+              // Browser autofill only writes a single scalar value.
+              if (!multiple) {
+                // Preserve the original serialized matching, then fall back to rendered text,
+                // which browsers can autofill for primitive values like `value="US">United States`.
+                const nextValueLower = nextValue.toLowerCase();
+                let matchingIndex = valuesRef.current.findIndex(
+                  (candidate) =>
+                    stringifyAsValue(candidate, itemToStringValue).toLowerCase() ===
+                      nextValueLower ||
+                    stringifyAsLabel(candidate, itemToStringLabel).toLowerCase() === nextValueLower,
+                );
+
+                if (matchingIndex === -1) {
+                  matchingIndex = valuesRef.current.findIndex((_, index) => {
+                    const renderedLabel = labelsRef.current[index];
+                    return renderedLabel != null && renderedLabel.toLowerCase() === nextValueLower;
+                  });
+                }
+
+                const matchingValue = valuesRef.current[matchingIndex];
+                if (matchingValue != null) {
+                  // `setValue` may be canceled by `onValueChange`; rely on `useValueChanged` to
+                  // mark the field dirty and run validation only when the value actually changes.
+                  setValue(matchingValue, details);
+                }
               }
 
-              // Preserve the original serialized matching, then fall back to rendered text,
-              // which browsers can autofill for primitive values like `value="US">United States`.
-              const nextValueLower = nextValue.toLowerCase();
-              let matchingIndex = valuesRef.current.findIndex(
-                (candidate) =>
-                  stringifyAsValue(candidate, itemToStringValue).toLowerCase() === nextValueLower ||
-                  stringifyAsLabel(candidate, itemToStringLabel).toLowerCase() === nextValueLower,
-              );
-
-              if (matchingIndex === -1) {
-                matchingIndex = valuesRef.current.findIndex((_, index) => {
-                  const renderedLabel = labelsRef.current[index];
-                  return renderedLabel != null && renderedLabel.toLowerCase() === nextValueLower;
-                });
-              }
-
-              const matchingValue = valuesRef.current[matchingIndex];
-              if (matchingValue != null) {
-                // `setValue` may be canceled by `onValueChange`; rely on `useValueChanged` to
-                // mark the field dirty and run validation only when the value actually changes.
-                setValue(matchingValue, details);
-              }
+              syncForceMount();
             }
 
             // Mount the items for a single microtask so the autofilled value can be matched
             // against their registered values and labels.
             store.set('forceMount', true);
-            queueMicrotask(() => {
-              handleChange();
-              store.set('forceMount', isTriggerFocused());
-            });
+            queueMicrotask(handleChange);
           },
         })}
         id={generatedId && hiddenInputName == null ? `${generatedId}-hidden-input` : undefined}
