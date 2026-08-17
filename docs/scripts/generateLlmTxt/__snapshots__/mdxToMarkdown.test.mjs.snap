@@ -557,7 +557,7 @@ function PlusIcon(props: React.ComponentProps<'svg'>) {
 
 \`\`\`
 
-### Find-in-page
+### Hidden until found
 
 The \`hiddenUntilFound\` prop hides closed panels with [\`hidden="until-found"\`](https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Global_attributes/hidden) so the browser can search their contents and reveal the matching panel automatically. It can be set on each \`Accordion.Panel\`, or once on \`Accordion.Root\` to apply to all panels.
 
