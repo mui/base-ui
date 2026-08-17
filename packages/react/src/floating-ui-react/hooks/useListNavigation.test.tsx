@@ -176,6 +176,70 @@ function VirtualizedGridRows({
   );
 }
 
+function VirtualizedListbox({
+  totalItems,
+  windowSize,
+  disabledIndices,
+}: {
+  totalItems: number;
+  windowSize: number;
+  disabledIndices?: UseListNavigationProps['disabledIndices'];
+}) {
+  const [open, setOpen] = React.useState(false);
+  const [activeIndex, setActiveIndex] = React.useState<number | null>(null);
+  const listRef = React.useRef<Array<HTMLDivElement | null>>([]);
+
+  const { refs, context } = useFloating({ open, onOpenChange: setOpen });
+
+  const { getReferenceProps, getFloatingProps, getItemProps } = useTestInteractions([
+    useListNavigation(context, {
+      listRef,
+      activeIndex,
+      onNavigate: setActiveIndex,
+      virtual: true,
+      disabledIndices,
+    }),
+  ]);
+
+  // Only a window of items is mounted; the rest of the collection is `null` in the list ref.
+  React.useEffect(() => {
+    listRef.current.length = totalItems;
+  }, [totalItems]);
+
+  return (
+    <React.Fragment>
+      <input
+        data-testid="virtual-listbox-reference"
+        {...getReferenceProps({ ref: refs.setReference })}
+      />
+      {open && (
+        <div role="listbox" {...getFloatingProps({ ref: refs.setFloating })}>
+          {Array.from({ length: windowSize }, (_item, index) => (
+            <div
+              key={index}
+              role="option"
+              aria-selected={activeIndex === index}
+              aria-disabled={
+                typeof disabledIndices === 'function'
+                  ? disabledIndices(index)
+                  : disabledIndices?.includes(index)
+              }
+              {...getItemProps({
+                ref(node: HTMLDivElement | null) {
+                  listRef.current[index] = node;
+                },
+              })}
+            >
+              {index}
+            </div>
+          ))}
+        </div>
+      )}
+      <span data-testid="virtual-listbox-active-index" data-active-index={activeIndex ?? ''} />
+    </React.Fragment>
+  );
+}
+
 describe('useListNavigation', () => {
   it('opens on ArrowDown and focuses first item', async () => {
     render(<App />);
@@ -271,6 +335,24 @@ describe('useListNavigation', () => {
     fireEvent.keyDown(screen.getByRole('menu'), { key: 'ArrowUp' });
     await waitFor(() => {
       expect(screen.getByTestId('item-0')).toHaveFocus();
+    });
+  });
+
+  it('skips unmounted disabled items on initial navigation', async () => {
+    render(
+      <VirtualizedListbox
+        totalItems={100}
+        windowSize={5}
+        disabledIndices={(index) => index < 50}
+      />,
+    );
+
+    fireEvent.keyDown(screen.getByTestId('virtual-listbox-reference'), { key: 'ArrowDown' });
+    await waitFor(() => {
+      expect(screen.getByTestId('virtual-listbox-active-index')).toHaveAttribute(
+        'data-active-index',
+        '50',
+      );
     });
   });
 

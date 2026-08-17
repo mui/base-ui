@@ -6,6 +6,12 @@ import type { Side } from '../internals/useAnchorPositioning';
 import { compareItemEquality } from '../internals/itemEquality';
 import { hasNullItemLabel } from '../internals/resolveValueLabel';
 import type { AriaCombobox } from './root/AriaCombobox';
+import type { ListVirtualizationRegistry } from '../internals/virtualization/ListVirtualizationRegistry';
+
+export type VirtualizationState = {
+  renderAllRows: boolean;
+  renderAllRowsRestoreVersion: number;
+};
 
 export type State = {
   id: string | undefined;
@@ -23,6 +29,7 @@ export type State = {
   inline: boolean;
 
   activeIndex: number | null;
+  highlightType: AriaCombobox.HighlightEventReason;
   selectedIndex: number | null;
 
   popupProps: HTMLProps;
@@ -78,10 +85,13 @@ export type State = {
   readOnly: boolean;
   required: boolean;
   grid: boolean;
-  virtualized: boolean;
+  externallyVirtualized: boolean;
+  virtualizationState: VirtualizationState;
+  virtualizationRegistry: ListVirtualizationRegistry;
   onOpenChangeComplete: (open: boolean) => void;
   openOnInputClick: boolean;
   itemToStringLabel?: ((item: any) => string) | undefined;
+  isItemDisabled?: ((item: any, index: number) => boolean) | undefined;
   isItemEqualToValue: (itemValue: any, selectedValue: any) => boolean;
   modal: boolean;
   autoHighlight: false | 'always' | 'input-change';
@@ -90,6 +100,25 @@ export type State = {
 };
 
 export type ComboboxStore = Store<State>;
+
+type VirtualizationStore = {
+  state: { virtualizationState: VirtualizationState };
+  set: (key: 'virtualizationState', value: VirtualizationState) => void;
+};
+
+export function setVirtualizationRenderAllRows(store: VirtualizationStore, renderAllRows: boolean) {
+  const virtualizationState = store.state.virtualizationState;
+
+  if (virtualizationState.renderAllRows === renderAllRows) {
+    return;
+  }
+
+  store.set('virtualizationState', {
+    renderAllRows,
+    renderAllRowsRestoreVersion:
+      virtualizationState.renderAllRowsRestoreVersion + (renderAllRows ? 0 : 1),
+  });
+}
 
 export const selectors = {
   id: (state: State) => state.id,
@@ -125,6 +154,7 @@ export const selectors = {
   inline: (state: State) => state.inline,
 
   activeIndex: (state: State) => state.activeIndex,
+  highlightType: (state: State) => state.highlightType,
   selectedIndex: (state: State) => state.selectedIndex,
   isActive: (state: State, index: number) => state.activeIndex === index,
   isSelected: (state: State, itemValue: any) => {
@@ -167,8 +197,10 @@ export const selectors = {
   readOnly: (state: State) => state.readOnly,
   required: (state: State) => state.required,
   grid: (state: State) => state.grid,
-  virtualized: (state: State) => state.virtualized,
+  externallyVirtualized: (state: State) => state.externallyVirtualized,
+  virtualizationState: (state: State) => state.virtualizationState,
   itemToStringLabel: (state: State) => state.itemToStringLabel,
+  isItemDisabled: (state: State) => state.isItemDisabled,
   isItemEqualToValue: (state: State) => state.isItemEqualToValue,
   modal: (state: State) => state.modal,
   autoHighlight: (state: State) => state.autoHighlight,
