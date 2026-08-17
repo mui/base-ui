@@ -5,11 +5,6 @@ import { Toolbar } from '@base-ui/react/toolbar';
 import { act, fireEvent, flushMicrotasks, screen, waitFor } from '@mui/internal-test-utils';
 import { createRenderer, describeConformance, isJSDOM, waitSingleFrame } from '#test-utils';
 
-// The narrowing a consumer writes inside `onInitiallyFocused` to reach `select()`.
-function isInputElement(element: Element): element is HTMLInputElement {
-  return element.tagName === 'INPUT';
-}
-
 describe('<Popover.Popup />', () => {
   const { render, clock } = createRenderer();
 
@@ -102,145 +97,6 @@ describe('<Popover.Popup />', () => {
       await waitFor(() => {
         const innerInput = screen.getByTestId('popover-input');
         expect(innerInput).to.toHaveFocus();
-      });
-    });
-
-    describe('prop: onInitiallyFocused', () => {
-      it('is called with the element that received initial focus', async () => {
-        const onInitiallyFocused = vi.fn();
-
-        const { user } = await render(
-          <Popover.Root>
-            <Popover.Trigger>Open</Popover.Trigger>
-            <Popover.Portal>
-              <Popover.Positioner>
-                <Popover.Popup onInitiallyFocused={onInitiallyFocused}>
-                  <input data-testid="popover-input" defaultValue="Hello World" />
-                  <button>Close</button>
-                </Popover.Popup>
-              </Popover.Positioner>
-            </Popover.Portal>
-          </Popover.Root>,
-        );
-
-        await user.click(screen.getByText('Open'));
-
-        await waitFor(() => {
-          expect(onInitiallyFocused).toHaveBeenCalledTimes(1);
-        });
-        expect(onInitiallyFocused).toHaveBeenCalledWith(screen.getByTestId('popover-input'));
-      });
-
-      it('lets the handler select the input contents', async () => {
-        const { user } = await render(
-          <Popover.Root>
-            <Popover.Trigger>Open</Popover.Trigger>
-            <Popover.Portal>
-              <Popover.Positioner>
-                <Popover.Popup
-                  onInitiallyFocused={(element) => {
-                    if (isInputElement(element)) {
-                      element.select();
-                    }
-                  }}
-                >
-                  <input data-testid="popover-input" defaultValue="Hello World" />
-                  <button>Close</button>
-                </Popover.Popup>
-              </Popover.Positioner>
-            </Popover.Portal>
-          </Popover.Root>,
-        );
-
-        await user.click(screen.getByText('Open'));
-
-        const input = screen.getByTestId('popover-input') as HTMLInputElement;
-
-        await waitFor(() => {
-          expect(input).toHaveFocus();
-        });
-        await waitFor(() => {
-          expect(input.selectionStart).toBe(0);
-        });
-        expect(input.selectionEnd).toBe(input.value.length);
-      });
-
-      it('is called with the element resolved from `initialFocus`', async () => {
-        const onInitiallyFocused = vi.fn();
-
-        function TestComponent() {
-          const inputRef = React.useRef<HTMLInputElement>(null);
-          return (
-            <Popover.Root>
-              <Popover.Trigger>Open</Popover.Trigger>
-              <Popover.Portal>
-                <Popover.Positioner>
-                  <Popover.Popup initialFocus={inputRef} onInitiallyFocused={onInitiallyFocused}>
-                    <button>First element</button>
-                    <input data-testid="popover-input" ref={inputRef} defaultValue="Custom focus" />
-                  </Popover.Popup>
-                </Popover.Positioner>
-              </Popover.Portal>
-            </Popover.Root>
-          );
-        }
-
-        const { user } = await render(<TestComponent />);
-
-        await user.click(screen.getByText('Open'));
-
-        await waitFor(() => {
-          expect(onInitiallyFocused).toHaveBeenCalledTimes(1);
-        });
-        expect(onInitiallyFocused).toHaveBeenCalledWith(screen.getByTestId('popover-input'));
-      });
-
-      it('is not called when `initialFocus` is `false`', async () => {
-        const onInitiallyFocused = vi.fn();
-
-        const { user } = await render(
-          <Popover.Root>
-            <Popover.Trigger>Open</Popover.Trigger>
-            <Popover.Portal>
-              <Popover.Positioner>
-                <Popover.Popup initialFocus={false} onInitiallyFocused={onInitiallyFocused}>
-                  <input data-testid="popover-input" defaultValue="Hello World" />
-                </Popover.Popup>
-              </Popover.Positioner>
-            </Popover.Portal>
-          </Popover.Root>,
-        );
-
-        await user.click(screen.getByText('Open'));
-
-        await waitFor(() => {
-          expect(screen.getByTestId('popover-input')).not.toHaveFocus();
-        });
-        expect(onInitiallyFocused).not.toHaveBeenCalled();
-      });
-
-      it('is called with the popup itself when it has no tabbable children', async () => {
-        const onInitiallyFocused = vi.fn();
-
-        const { user } = await render(
-          <Popover.Root>
-            <Popover.Trigger>Open</Popover.Trigger>
-            <Popover.Portal>
-              <Popover.Positioner>
-                <Popover.Popup data-testid="popup" onInitiallyFocused={onInitiallyFocused}>
-                  Plain content
-                </Popover.Popup>
-              </Popover.Positioner>
-            </Popover.Portal>
-          </Popover.Root>,
-        );
-
-        await user.click(screen.getByText('Open'));
-
-        await waitFor(() => {
-          expect(onInitiallyFocused).toHaveBeenCalledTimes(1);
-        });
-        expect(onInitiallyFocused).toHaveBeenCalledWith(screen.getByTestId('popup'));
       });
     });
 
@@ -473,6 +329,145 @@ describe('<Popover.Popup />', () => {
       await waitFor(() => {
         expect(screen.getByTestId('input-1')).toHaveFocus();
       });
+    });
+  });
+
+  describe('prop: onInitiallyFocused', () => {
+    it('is called with the element that received initial focus', async () => {
+      const onInitiallyFocused = vi.fn();
+
+      const { user } = await render(
+        <Popover.Root>
+          <Popover.Trigger>Open</Popover.Trigger>
+          <Popover.Portal>
+            <Popover.Positioner>
+              <Popover.Popup onInitiallyFocused={onInitiallyFocused}>
+                <input data-testid="popover-input" defaultValue="Hello World" />
+                <button>Close</button>
+              </Popover.Popup>
+            </Popover.Positioner>
+          </Popover.Portal>
+        </Popover.Root>,
+      );
+
+      await user.click(screen.getByText('Open'));
+
+      await waitFor(() => {
+        expect(onInitiallyFocused).toHaveBeenCalledTimes(1);
+      });
+      expect(onInitiallyFocused).toHaveBeenCalledWith(screen.getByTestId('popover-input'));
+    });
+
+    it('lets the handler select the input contents', async () => {
+      const { user } = await render(
+        <Popover.Root>
+          <Popover.Trigger>Open</Popover.Trigger>
+          <Popover.Portal>
+            <Popover.Positioner>
+              <Popover.Popup
+                onInitiallyFocused={(element) => {
+                  if (element.tagName === 'INPUT') {
+                    (element as HTMLInputElement).select();
+                  }
+                }}
+              >
+                <input data-testid="popover-input" defaultValue="Hello World" />
+                <button>Close</button>
+              </Popover.Popup>
+            </Popover.Positioner>
+          </Popover.Portal>
+        </Popover.Root>,
+      );
+
+      await user.click(screen.getByText('Open'));
+
+      const input = screen.getByTestId('popover-input') as HTMLInputElement;
+
+      await waitFor(() => {
+        expect(input).toHaveFocus();
+      });
+      await waitFor(() => {
+        expect(input.selectionStart).toBe(0);
+      });
+      expect(input.selectionEnd).toBe(input.value.length);
+    });
+
+    it('is called with the element resolved from `initialFocus`', async () => {
+      const onInitiallyFocused = vi.fn();
+
+      function TestComponent() {
+        const inputRef = React.useRef<HTMLInputElement>(null);
+        return (
+          <Popover.Root>
+            <Popover.Trigger>Open</Popover.Trigger>
+            <Popover.Portal>
+              <Popover.Positioner>
+                <Popover.Popup initialFocus={inputRef} onInitiallyFocused={onInitiallyFocused}>
+                  <button>First element</button>
+                  <input data-testid="popover-input" ref={inputRef} defaultValue="Custom focus" />
+                </Popover.Popup>
+              </Popover.Positioner>
+            </Popover.Portal>
+          </Popover.Root>
+        );
+      }
+
+      const { user } = await render(<TestComponent />);
+
+      await user.click(screen.getByText('Open'));
+
+      await waitFor(() => {
+        expect(onInitiallyFocused).toHaveBeenCalledTimes(1);
+      });
+      expect(onInitiallyFocused).toHaveBeenCalledWith(screen.getByTestId('popover-input'));
+    });
+
+    it('is not called when `initialFocus` is `false`', async () => {
+      const onInitiallyFocused = vi.fn();
+
+      const { user } = await render(
+        <Popover.Root>
+          <Popover.Trigger>Open</Popover.Trigger>
+          <Popover.Portal>
+            <Popover.Positioner>
+              <Popover.Popup initialFocus={false} onInitiallyFocused={onInitiallyFocused}>
+                <input data-testid="popover-input" defaultValue="Hello World" />
+              </Popover.Popup>
+            </Popover.Positioner>
+          </Popover.Portal>
+        </Popover.Root>,
+      );
+
+      await user.click(screen.getByText('Open'));
+
+      await waitFor(() => {
+        expect(screen.getByTestId('popover-input')).not.toHaveFocus();
+      });
+      expect(onInitiallyFocused).not.toHaveBeenCalled();
+    });
+
+    it('is called with the popup itself when it has no tabbable children', async () => {
+      const onInitiallyFocused = vi.fn();
+
+      const { user } = await render(
+        <Popover.Root>
+          <Popover.Trigger>Open</Popover.Trigger>
+          <Popover.Portal>
+            <Popover.Positioner>
+              <Popover.Popup data-testid="popup" onInitiallyFocused={onInitiallyFocused}>
+                Plain content
+              </Popover.Popup>
+            </Popover.Positioner>
+          </Popover.Portal>
+        </Popover.Root>,
+      );
+
+      await user.click(screen.getByText('Open'));
+
+      await waitFor(() => {
+        expect(onInitiallyFocused).toHaveBeenCalledTimes(1);
+      });
+      expect(onInitiallyFocused).toHaveBeenCalledWith(screen.getByTestId('popup'));
     });
   });
 

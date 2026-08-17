@@ -5,21 +5,13 @@ import { Dialog } from '@base-ui/react/dialog';
 import styles from './on-initially-focused.module.css';
 
 /**
- * POC for the `onInitiallyFocused` prop discussed in
- * https://github.com/mui/base-ui/pull/3751.
- *
- * Nothing is selected by default. Selecting the initially focused input's text is opt-in, and can
- * be applied either per-popup or once inside a design-system wrapper.
+ * `onInitiallyFocused` on popups. Nothing is selected by default; selecting the initially focused
+ * input's contents is opt-in, and can be applied per-popup or once inside a design-system wrapper.
  */
 
-/** The narrowing a consumer writes to reach `select()`. */
-function isInputElement(element: Element): element is HTMLInputElement {
-  return element.tagName === 'INPUT';
-}
-
 function selectContents(element: HTMLElement | SVGElement) {
-  if (isInputElement(element)) {
-    element.select();
+  if (element.tagName === 'INPUT') {
+    (element as HTMLInputElement).select();
   }
 }
 
@@ -33,9 +25,7 @@ export default function OnInitiallyFocusedExperiment() {
       </p>
 
       <h2>1. Popover — opted in (share link)</h2>
-      <p className={styles.Note}>
-        The whole URL should be selected, ready to copy. This is the case Radix gets right.
-      </p>
+      <p className={styles.Note}>The whole URL should be selected, ready to copy.</p>
       <div className={styles.Container}>
         <Popover.Root>
           <Popover.Trigger className={styles.Button}>Share</Popover.Trigger>
@@ -56,8 +46,8 @@ export default function OnInitiallyFocusedExperiment() {
 
       <h2>2. Popover — default (edit form)</h2>
       <p className={styles.Note}>
-        The caret should sit in the name field without selecting it, so typing appends rather than
-        replaces. This is the case where selecting felt wrong.
+        Nothing is passed, so the caret sits in the name field without selecting it and typing
+        appends rather than replaces.
       </p>
       <div className={styles.Container}>
         <Popover.Root>
@@ -82,9 +72,8 @@ export default function OnInitiallyFocusedExperiment() {
 
       <h2>3. Design-system wrapper — the reusable case</h2>
       <p className={styles.Note}>
-        <code>SelectingDialog</code> below applies the policy once. Its consumers pass arbitrary
-        children and never hold a ref into them, which is what a ref-based <code>initialFocus</code>{' '}
-        callback cannot express.
+        <code>SelectingDialog</code> below applies the behavior once, for every dialog built on it.
+        Its consumers pass arbitrary children and never hold a ref into them.
       </p>
       <div className={styles.Container}>
         <SelectingDialog trigger="Rename file">
