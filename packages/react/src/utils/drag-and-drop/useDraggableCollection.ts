@@ -13,7 +13,8 @@ import {
   type DropPosition,
 } from './collectionDrop';
 import { reorderRowBrand, type ReorderRowBrand } from './reorderRow';
-import { DragEngineImpl, resolveKeyboardInstructions } from './useInnerDragEngine';
+import { DragEngineBase, resolveKeyboardInstructions } from './useInnerDragEngine';
+import { registerDropTarget, registerMonitor } from './registrations';
 import { useDragPreviewContext } from './overlay/DragPreviewContext';
 import type { DragPreviewContext } from './overlay/DragPreviewContext';
 import type {
@@ -54,6 +55,22 @@ import type { CSPContextValue } from '../../internals/csp-context/CSPContext';
 
 const DEFAULT_KIND = createKind<never>('base-ui-dnd-item');
 const ALL_DROP_CAPABILITIES: DropCapabilities = { hasOn: true, hasBeforeAfter: true };
+
+type DraggableCollectionEngineApi = Pick<
+  InternalDragEngine,
+  'registerDraggable' | 'registerDropTarget' | 'registerMonitor'
+>;
+
+/**
+ * The engine surface collections need. Auto-scroll remains an explicit feature
+ * composed by the collection wrapper, so collections without it do not retain
+ * the auto-scroller registration and measurement code.
+ */
+class DraggableCollectionEngine extends DragEngineBase implements DraggableCollectionEngineApi {
+  registerDropTarget = registerDropTarget;
+
+  registerMonitor = registerMonitor;
+}
 
 /** The kinds a collection accepts for drops, normalized to an array. */
 type IncomingKinds<TItem> = ReadonlyArray<DragKind<IncomingSourceData<TItem>>>;
@@ -164,11 +181,11 @@ export class DraggableCollectionPlugin<
 
   private getTranslations: LatestGetter<LocalizationProviderTranslations>;
 
-  // The drag engine, so collection items, the root, the global monitor
-  // and scroll containers all register through the same (global) engine as the rest
-  // of the app. Built here from stable getters (rather than passed in) so the
-  // plugin fully owns its registration path.
-  private engine: InternalDragEngine;
+  // The drag engine, so collection items, the root, and the global monitor all
+  // register through the same (global) engine as the rest of the app. Built here
+  // from stable getters (rather than passed in) so the plugin fully owns its
+  // registration path. Auto-scroll is composed separately by collection wrappers.
+  private engine: DraggableCollectionEngineApi;
 
   private monitorCleanup: (() => void) | null = null;
 
@@ -230,7 +247,7 @@ export class DraggableCollectionPlugin<
   ) {
     this.getConfig = getConfig;
     this.getTranslations = getTranslations;
-    this.engine = new DragEngineImpl(getTranslations, getPreviewContext, getCSPContext);
+    this.engine = new DraggableCollectionEngine(getTranslations, getPreviewContext, getCSPContext);
   }
 
   private get config(): UseDraggableCollectionParameters<TItem, TActions> {
@@ -895,13 +912,6 @@ export class DraggableCollectionPlugin<
     };
   }
 
-  setupScroller(_element: HTMLElement): () => void {
-    // Ordinary collection scrollers are discovered from the active pointer/source
-    // ancestry. Keeping them out of the explicit global registry avoids measuring
-    // every mounted collection on every auto-scroll frame.
-    return () => {};
-  }
-
   /** See {@link LiveDropPositionOwner}. */
   itemLabel(itemId: CollectionItemId): string {
     return this.config.getItemLabel?.(itemId) ?? String(itemId);
@@ -1257,7 +1267,8 @@ export class DraggableCollectionPlugin<
 /**
  * Wires a collection (Tree, Kanban, ListBox…) into the drag engine. Returns a
  * `DraggableCollectionPlugin` whose setup methods are wired by the collection
- * wrapper to register draggables, drop targets, handles, and scrollers.
+ * wrapper to register draggables, drop targets, and handles. Collection wrappers
+ * opt into auto-scroll separately when they need it.
  */
 export function useDraggableCollection<
   TItem = unknown,
