@@ -170,8 +170,8 @@ importers:
         specifier: ^3.1.1
         version: 3.1.1(@types/react@19.2.14)(react@19.2.5)
       '@mui/internal-docs-infra':
-        specifier: 0.12.1-canary.26
-        version: 0.12.1-canary.26(@types/react@19.2.14)(next@16.2.12(@babel/core@7.29.7(supports-color@10.2.2))(@playwright/test@1.59.1)(@types/node@22.18.13)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.5(react@19.2.5))(react@19.2.5))(prettier@3.8.3)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)(supports-color@10.2.2)(typescript@6.0.3)
+        specifier: 0.12.1-canary.30
+        version: 0.12.1-canary.30(@types/react@19.2.14)(next@16.2.12(@babel/core@7.29.7(supports-color@10.2.2))(@playwright/test@1.59.1)(@types/node@22.18.13)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.5(react@19.2.5))(react@19.2.5))(prettier@3.8.3)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)(supports-color@10.2.2)(typescript@6.0.3)
       '@next/mdx':
         specifier: ^16.2.10
         version: 16.2.10(@mdx-js/loader@3.1.1(supports-color@10.2.2)(webpack@5.106.2(esbuild@0.27.7)(uglify-js@3.19.3)))(@mdx-js/react@3.1.1(@types/react@19.2.14)(react@19.2.5))
@@ -2127,8 +2127,8 @@ packages:
       typescript:
         optional: true
 
-  '@mui/internal-docs-infra@0.12.1-canary.26':
-    resolution: {integrity: sha512-7olHhvR5tDbyRx+y3yVG0lmAApFk7h+JdkmyZDph3x+Bf6YwwbSE1ZTtkU64PLCgBKoP7AukbxP8YkDiz/rHOg==}
+  '@mui/internal-docs-infra@0.12.1-canary.30':
+    resolution: {integrity: sha512-JpmCIlHPcH9Xmya7l46BhZDBAAxz3Trqn9qGMw3kq26+BBP+vPv+LKT0yIvayjUZYhCMkwwbJs5pyld9FZ9KlA==}
     engines: {node: '>=22.18.0'}
     hasBin: true
     peerDependencies:
@@ -5100,6 +5100,7 @@ packages:
   conventional-changelog-core@5.0.1:
     resolution: {integrity: sha512-Rvi5pH+LvgsqGwZPZ3Cq/tz4ty7mjijhr3qR4m9IBXNbxGGYgTVVO+duXzz9aArmHxFtwZ+LRkrNIMDQzgoY4A==}
     engines: {node: '>=14'}
+    deprecated: Deprecated and no longer maintained. Please use conventional-changelog instead.
 
   conventional-changelog-preset-loader@3.0.0:
     resolution: {integrity: sha512-qy9XbdSLmVnwnvzEisjxdDiLA4OmV3o8db+Zdg4WiFw14fP3B6XNz98X0swPPpkTd/pc1K7+adKgEDM1JCUMiA==}
@@ -11458,7 +11459,7 @@ snapshots:
       - supports-color
       - vitest
 
-  '@mui/internal-docs-infra@0.12.1-canary.26(@types/react@19.2.14)(next@16.2.12(@babel/core@7.29.7(supports-color@10.2.2))(@playwright/test@1.59.1)(@types/node@22.18.13)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.5(react@19.2.5))(react@19.2.5))(prettier@3.8.3)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)(supports-color@10.2.2)(typescript@6.0.3)':
+  '@mui/internal-docs-infra@0.12.1-canary.30(@types/react@19.2.14)(next@16.2.12(@babel/core@7.29.7(supports-color@10.2.2))(@playwright/test@1.59.1)(@types/node@22.18.13)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.5(react@19.2.5))(react@19.2.5))(prettier@3.8.3)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)(supports-color@10.2.2)(typescript@6.0.3)':
     dependencies:
       '@babel/runtime': 7.29.7
       '@csstools/postcss-light-dark-function': 3.0.2(postcss@8.5.26)
