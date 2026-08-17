@@ -103,6 +103,7 @@ Renders a `<button>` element.
 | Prop         | Type                                                                                                 | Default | Description                                                                                                                                                                                   |
 | :----------- | :--------------------------------------------------------------------------------------------------- | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | nativeButton | `boolean`                                                                                            | `true`  | Whether the component renders a native `<button>` element when replacing it&#xA;via the `render` prop.&#xA;Set to `false` if the rendered element is not a button (for example, `<div>`).     |
+| disabled     | `boolean`                                                                                            | `false` | Whether the component should ignore user interaction.                                                                                                                                         |
 | className    | `string \| ((state: NavigationMenu.Trigger.State) => string \| undefined)`                           | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
 | style        | `React.CSSProperties \| ((state: NavigationMenu.Trigger.State) => React.CSSProperties \| undefined)` | -       | Style applied to the element, or a function that&#xA;returns a style object based on the component's state.                                                                                   |
 | render       | `ReactElement \| ((props: HTMLProps, state: NavigationMenu.Trigger.State) => ReactElement)`          | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
@@ -113,6 +114,7 @@ Renders a `<button>` element.
 | :-------------- | :--- | :------------------------------------------------------ |
 | data-popup-open | -    | Present when the corresponding navigation menu is open. |
 | data-pressed    | -    | Present when the trigger is pressed.                    |
+| data-disabled   | -    | Present when the trigger is disabled.                   |
 
 ### Trigger.Props
 
@@ -124,6 +126,8 @@ Re-export of [Trigger](#trigger) props.
 type NavigationMenuTriggerState = {
   /** If `true`, the popup is open and the item is active. */
   open: boolean;
+  /** Whether the component should ignore user interaction. */
+  disabled: boolean;
 };
 ```
 
