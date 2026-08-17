@@ -158,7 +158,7 @@ jobs:
     resource_class: large
     executor:
       name: code-infra/mui-node-browser
-      playwright-img-version: v1.59.1-noble
+      playwright-img-version: v1.62.1-noble
     steps:
       - checkout
       - code-infra/install-deps:
@@ -173,7 +173,7 @@ jobs:
     resource_class: medium+
     executor:
       name: code-infra/mui-node-browser
-      playwright-img-version: v1.59.1-noble
+      playwright-img-version: v1.62.1-noble
     steps:
       - checkout
       - code-infra/install-deps
@@ -189,7 +189,7 @@ jobs:
     <<: *default-job
     executor:
       name: code-infra/mui-node-browser
-      playwright-img-version: v1.59.1-noble
+      playwright-img-version: v1.62.1-noble
     steps:
       - checkout
       - code-infra/install-deps
@@ -248,7 +248,7 @@ jobs:
     resource_class: large
     executor:
       name: code-infra/mui-node-browser
-      playwright-img-version: v1.59.1-noble
+      playwright-img-version: v1.62.1-noble
     steps:
       - checkout
       - code-infra/install-deps
@@ -265,7 +265,7 @@ jobs:
     <<: *default-job
     executor:
       name: code-infra/mui-node-browser
-      playwright-img-version: v1.59.1-noble
+      playwright-img-version: v1.62.1-noble
     steps:
       - checkout
       - code-infra/install-deps
@@ -274,6 +274,8 @@ jobs:
           command: pnpm release:build
       - run:
           name: Run baseline benchmarks at merge-base
+          environment:
+            PLAYWRIGHT_BROWSERS_PATH: /tmp/base-playwright-browsers
           command: |
             set -e
             if [ "$CIRCLE_BRANCH" = "master" ]; then
@@ -286,6 +288,7 @@ jobs:
             git worktree add /tmp/base-worktree "$BASE_SHA"
             cd /tmp/base-worktree
             pnpm install --frozen-lockfile
+            pnpm exec playwright install chromium
             pnpm release:build
             BENCHMARK_BRANCH=master pnpm test:benchmark
             echo 'export BENCHMARK_BASELINE_PATH=/tmp/base-worktree/test/performance/benchmarks/results.json' >> "$BASH_ENV"
