@@ -137,7 +137,7 @@
   "devDependencies": {
     "@date-fns/tz": "1.4.1",
     "@testing-library/react": "16.3.2",
-    "@testing-library/user-event": "14.6.1",
+    "@testing-library/user-event": "14.6.3",
     "@types/luxon": "3.7.1",
     "@types/react": "19.2.14",
     "@types/react-dom": "19.2.3",
