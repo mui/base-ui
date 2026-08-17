@@ -428,6 +428,40 @@ describe('<Popover.Positioner />', () => {
     expect(positioner.getBoundingClientRect()).toMatchObject(final);
   });
 
+  it.skipIf(isJSDOM)('does not follow the anchor when its ancestor scrolls', async () => {
+    await render(
+      <div data-testid="scroller" style={{ height: 72, overflow: 'auto' }}>
+        <div style={{ height: 200 }}>
+          <Popover.Root open>
+            <Trigger data-testid="trigger" style={triggerStyle}>
+              Trigger
+            </Trigger>
+            <Popover.Portal>
+              <Popover.Positioner data-testid="positioner" disableAnchorTracking>
+                <Popover.Popup style={popupStyle}>Popup</Popover.Popup>
+              </Popover.Positioner>
+            </Popover.Portal>
+          </Popover.Root>
+        </div>
+      </div>,
+    );
+
+    const scroller = screen.getByTestId('scroller');
+    const trigger = screen.getByTestId('trigger');
+    const positioner = screen.getByTestId('positioner');
+    const initialTriggerY = trigger.getBoundingClientRect().y;
+    const initialPositionerY = positioner.getBoundingClientRect().y;
+
+    await act(async () => {
+      scroller.scrollTop = 20;
+      await waitSingleFrame();
+      await waitSingleFrame();
+    });
+
+    expect(trigger.getBoundingClientRect().y).toBe(initialTriggerY - 20);
+    expect(positioner.getBoundingClientRect().y).toBe(initialPositionerY);
+  });
+
   it.skipIf(isJSDOM)('observes a custom anchor for keepMounted auto-updates', async () => {
     const originalResizeObserver = window.ResizeObserver;
     const observedElements: Element[] = [];
