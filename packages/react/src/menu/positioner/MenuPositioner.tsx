@@ -356,15 +356,16 @@ export interface MenuPositionerProps
   /**
    * How to align the popup relative to the specified side.
    *
-   * Defaults to `'center'` at the root, and to `'start'` for submenus and menubars.
+   * Submenus and menubars default to `'start'`.
+   * @default 'center'
    */
   align?: UseAnchorPositioningSharedParameters['align'] | undefined;
   /**
    * Which side of the anchor element to align the popup against.
    * May automatically change to avoid collisions.
    *
-   * Defaults to `'bottom'` at the root and for horizontal menubars, and to `'inline-end'`
-   * for submenus and vertical menubars.
+   * Submenus and vertical menubars default to `'inline-end'`.
+   * @default 'bottom'
    */
   side?: UseAnchorPositioningSharedParameters['side'] | undefined;
 }

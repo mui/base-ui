@@ -48,7 +48,8 @@ export interface ContextMenuPositionerProps
    * Which side of the anchor element to align the popup against.
    * May automatically change to avoid collisions.
    *
-   * Defaults to `'bottom'` for root context menus and to `'inline-end'` for submenus.
+   * Submenus default to `'inline-end'`.
+   * @default 'bottom'
    */
   side?: MenuPositionerProps['side'] | undefined;
   /**
