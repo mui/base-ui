@@ -2,11 +2,11 @@ import { CommonPopupDataAttributes } from '../../utils/popupStateMapping';
 
 export enum MenuPositionerDataAttributes {
   /**
-   * Present when the popup is open.
+   * Present when the menu popup is open.
    */
   open = CommonPopupDataAttributes.open,
   /**
-   * Present when the popup is closed.
+   * Present when the menu popup is closed.
    */
   closed = CommonPopupDataAttributes.closed,
   /**

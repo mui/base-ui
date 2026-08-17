@@ -231,9 +231,6 @@ export interface MenuSubmenuTriggerState {
 
 export interface MenuSubmenuTriggerProps
   extends NonNativeButtonProps, BaseUIComponentProps<'div', MenuSubmenuTriggerState> {
-  /**
-   * The click handler for the submenu trigger.
-   */
   onClick?: BaseUIComponentProps<'div', MenuSubmenuTriggerState>['onClick'] | undefined;
   /**
    * Overrides the text label to use when the item is matched during keyboard text navigation.
