@@ -37,11 +37,10 @@ import { useOpenChangeComplete } from '../../internals/useOpenChangeComplete';
 import { useFormContext } from '../../internals/form-context/FormContext';
 import { type Group, stringifyAsLabel, stringifyAsValue } from '../../internals/resolveValueLabel';
 import {
-  compareItemEquality,
   defaultItemEquality,
   findItemIndex,
+  isSelectedValueDirty,
 } from '../../internals/itemEquality';
-import { areArraysEqual } from '../../internals/areArraysEqual';
 import { useValueChanged } from '../../internals/useValueChanged';
 import { useOpenInteractionType } from '../../utils/useOpenInteractionType';
 import { getMaxScrollOffset, normalizeScrollOffset } from '../../utils/scrollEdges';
@@ -134,7 +133,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
   const alignItemWithTriggerActiveRef = React.useRef(false);
   // Lives on the root so an unmounting positioner doesn't erase what was registered
   // before — the dynamic-items reconciliation must still run on the next mount.
-  const registeredItemCountRef = React.useRef(0);
+  const registeredItemValuesRef = React.useRef<any[]>([]);
 
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
   const { openMethod, triggerProps: interactionTypeProps } = useOpenInteractionType(open);
@@ -247,21 +246,9 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     [multiple, open, value, isItemEqualToValue, store],
   );
 
-  function isSelectedValueDirty(currentValue: unknown) {
-    const initialValue = validityData.initialValue;
-
-    if (Array.isArray(currentValue) && Array.isArray(initialValue)) {
-      return !areArraysEqual(currentValue, initialValue, (itemValue, initialItemValue) =>
-        compareItemEquality(itemValue, initialItemValue, isItemEqualToValue),
-      );
-    }
-
-    return currentValue !== initialValue;
-  }
-
   useValueChanged(value, () => {
     clearErrors(name);
-    setDirty(isSelectedValueDirty(value));
+    setDirty(isSelectedValueDirty(value, validityData.initialValue, isItemEqualToValue));
 
     validation.change(value);
   });
@@ -487,7 +474,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
       selectionRef,
       firstItemTextRef,
       selectedItemTextRef,
-      registeredItemCountRef,
+      registeredItemValuesRef,
       validation,
       onOpenChangeComplete,
       alignItemWithTriggerActiveRef,

@@ -2,7 +2,7 @@ import { expect, vi } from 'vitest';
 import * as React from 'react';
 import { Menu } from '@base-ui/react/menu';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
-import { fireEvent, screen, waitFor } from '@mui/internal-test-utils';
+import { act, fireEvent, screen, waitFor } from '@mui/internal-test-utils';
 
 describe('<Menu.CheckboxItemIndicator />', () => {
   beforeEach(() => {
@@ -42,7 +42,16 @@ describe('<Menu.CheckboxItemIndicator />', () => {
 
   it.skipIf(isJSDOM)(
     'should remove the indicator when there is no exit animation defined',
-    async () => {
+    async ({ onTestFinished }) => {
+      const frameCallbacks: FrameRequestCallback[] = [];
+      const requestAnimationFrameSpy = vi
+        .spyOn(window, 'requestAnimationFrame')
+        .mockImplementation((callback) => {
+          frameCallbacks.push(callback);
+          return frameCallbacks.length;
+        });
+      onTestFinished(() => requestAnimationFrameSpy.mockRestore());
+
       function Test() {
         const [checked, setChecked] = React.useState(true);
         return (
@@ -63,13 +72,20 @@ describe('<Menu.CheckboxItemIndicator />', () => {
         );
       }
 
-      const { user } = await render(<Test />);
+      await render(<Test />);
 
       expect(screen.queryByTestId('indicator')).not.toBe(null);
 
-      const closeButton = screen.getByText('Close');
+      await waitFor(() => expect(frameCallbacks.length).toBeGreaterThan(0));
+      while (frameCallbacks.length > 0) {
+        act(() => {
+          const callbacks = frameCallbacks.splice(0);
+          callbacks.forEach((callback) => callback(performance.now()));
+        });
+      }
+      requestAnimationFrameSpy.mockRestore();
 
-      await user.click(closeButton);
+      fireEvent.click(screen.getByText('Close'));
 
       await waitFor(() => {
         expect(screen.queryByTestId('indicator')).toBe(null);

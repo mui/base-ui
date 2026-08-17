@@ -10,12 +10,8 @@ import type { StateAttributesMapping } from '../../internals/getStateAttributesP
 import { NOOP } from '../../internals/noop';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
-import {
-  getDisplacement,
-  getElementTransform,
-  useSwipeDismiss,
-  type SwipeDirection,
-} from '../../utils/useSwipeDismiss';
+import { getDisplacement, useSwipeDismiss, type SwipeDirection } from '../../utils/useSwipeDismiss';
+import { getElementTransform } from '../../utils/getElementTransform';
 import { DrawerPopupCssVars } from '../popup/DrawerPopupCssVars';
 import { DrawerPopupDataAttributes } from '../popup/DrawerPopupDataAttributes';
 import { DrawerBackdropCssVars } from '../backdrop/DrawerBackdropCssVars';
@@ -111,6 +107,14 @@ export const DrawerSwipeArea = React.forwardRef(function DrawerSwipeArea(
 
   const swipeAreaId = useBaseUiId(componentProps.id);
   const registerTrigger = useTriggerRegistration(swipeAreaId, store);
+
+  // `registerTrigger` is stable, so the ref does not re-fire when the id changes: re-register the
+  // rendered element here instead. On React 17 the id also starts out `undefined`, so this is what
+  // registers the swipe area at all.
+  useIsoLayoutEffect(() => {
+    registerTrigger(swipeAreaRef.current);
+    return () => registerTrigger(null);
+  }, [registerTrigger, swipeAreaId, store]);
 
   const open = store.useState('open');
 

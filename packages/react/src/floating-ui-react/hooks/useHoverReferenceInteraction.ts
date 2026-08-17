@@ -157,7 +157,7 @@ export function useHoverReferenceInteraction(
 
   if (isActiveTrigger) {
     // eslint-disable-next-line no-underscore-dangle
-    instance.handleCloseOptions = handleCloseRef.current?.__options;
+    instance.handleCloseOptions = handleClose?.__options;
   }
 
   React.useEffect(() => cleanupMouseMoveHandler, [cleanupMouseMoveHandler]);

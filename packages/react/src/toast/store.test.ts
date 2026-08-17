@@ -95,6 +95,19 @@ describe('ToastStore', () => {
     expect(selectors.toast(store.state, 'a')?.transitionStatus).toBe(undefined);
   });
 
+  it('shallow merges custom data when updating a toast', () => {
+    const store = createStore([{ id: 'a', data: { name: 'Draft', count: 1 } }]);
+
+    store.updateToast('a', { data: { count: 2 } });
+    expect(selectors.toast(store.state, 'a')?.data).toEqual({ name: 'Draft', count: 2 });
+
+    store.updateToast('a', { title: 'Saved' });
+    expect(selectors.toast(store.state, 'a')?.data).toEqual({ name: 'Draft', count: 2 });
+
+    store.updateToast('a', { data: undefined });
+    expect(selectors.toast(store.state, 'a')?.data).toBe(undefined);
+  });
+
   it('does not invoke onRemove for a toast that is no longer in the store', () => {
     const onRemove = vi.fn();
     const store = createStore([{ id: 'a', onRemove }]);

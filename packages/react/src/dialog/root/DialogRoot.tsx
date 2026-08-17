@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import { fastComponent } from '@base-ui/utils/fastHooks';
 import type { BaseUIChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
 import { DialogHandle } from '../store/DialogHandle';
@@ -12,9 +13,11 @@ import { useRenderDialogRoot } from './useRenderDialogRoot';
  *
  * Documentation: [Base UI Dialog](https://base-ui.com/react/components/dialog)
  */
-export function DialogRoot<Payload>(props: DialogRoot.Props<Payload>) {
+export const DialogRoot = fastComponent(function DialogRoot<Payload>(
+  props: DialogRoot.Props<Payload>,
+) {
   return useRenderDialogRoot('dialog', props);
-}
+});
 
 export interface DialogRootState {}
 

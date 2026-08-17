@@ -7,7 +7,14 @@ import { Field } from '@base-ui/react/field';
 import { Fieldset } from '@base-ui/react/fieldset';
 import { NumberField } from '@base-ui/react/number-field';
 import { Switch } from '@base-ui/react/switch';
-import { createRenderer, fireEvent, screen, waitFor, within } from '@mui/internal-test-utils';
+import {
+  createRenderer,
+  fireEvent,
+  flushMicrotasks,
+  screen,
+  waitFor,
+  within,
+} from '@mui/internal-test-utils';
 import { describeConformance } from '../../test/describeConformance';
 
 describe('<Form />', () => {
@@ -199,6 +206,120 @@ describe('<Form />', () => {
 
     expect(validate).toHaveBeenCalledTimes(1);
     expect(onSubmit).toHaveBeenCalledTimes(1);
+  });
+
+  it('re-runs an onBlur cross-field validator on submit', async () => {
+    const onFormSubmit = vi.fn();
+    const validate = vi.fn((value: unknown, formValues: Form.Values) =>
+      value !== formValues.password ? 'Passwords do not match' : null,
+    );
+
+    await render(
+      <Form onFormSubmit={onFormSubmit}>
+        <Field.Root name="password" validationMode="onBlur">
+          <Field.Control data-testid="password" />
+        </Field.Root>
+        <Field.Root name="confirmPassword" validationMode="onBlur" validate={validate}>
+          <Field.Control data-testid="confirm" />
+          <Field.Error data-testid="confirm-error" />
+        </Field.Root>
+        <button type="submit">Submit</button>
+      </Form>,
+    );
+
+    const password = screen.getByTestId('password');
+    const confirm = screen.getByTestId('confirm');
+
+    fireEvent.change(password, { target: { value: 'secret' } });
+    fireEvent.change(confirm, { target: { value: 'typo' } });
+    fireEvent.blur(confirm);
+
+    expect(validate).toHaveBeenCalledTimes(1);
+    expect(screen.getByTestId('confirm-error')).toHaveTextContent('Passwords do not match');
+
+    fireEvent.change(password, { target: { value: 'typo' } });
+    fireEvent.blur(password);
+
+    fireEvent.click(screen.getByRole('button', { name: 'Submit' }));
+
+    expect(validate).toHaveBeenCalledTimes(2);
+    expect(screen.queryByTestId('confirm-error')).toBe(null);
+    expect(onFormSubmit).toHaveBeenCalledTimes(1);
+  });
+
+  it('retires a stale async validation result on the next submit', async () => {
+    const onFormSubmit = vi.fn();
+    const validate = vi.fn((value: unknown) =>
+      Promise.resolve(value === 'bad' ? 'async error' : null),
+    );
+
+    await render(
+      <Form onFormSubmit={onFormSubmit}>
+        <Field.Root name="field" validationMode="onSubmit" validate={validate}>
+          <Field.Control data-testid="control" defaultValue="bad" />
+          <Field.Error data-testid="error" />
+        </Field.Root>
+        <button type="submit">Submit</button>
+      </Form>,
+    );
+
+    const control = screen.getByTestId('control');
+    const submit = screen.getByRole('button', { name: 'Submit' });
+
+    fireEvent.click(submit);
+
+    expect(onFormSubmit).toHaveBeenCalledTimes(1);
+
+    await flushMicrotasks();
+
+    await waitFor(() => {
+      expect(screen.getByTestId('error')).toHaveTextContent('async error');
+    });
+
+    fireEvent.change(control, { target: { value: 'good' } });
+    fireEvent.click(submit);
+
+    expect(onFormSubmit).toHaveBeenCalledTimes(2);
+
+    expect(screen.queryByTestId('error')).toBe(null);
+
+    await flushMicrotasks();
+  });
+
+  (['onBlur', 'onChange'] as const).forEach((validationMode) => {
+    it(`blocks submission on a resolved async error in ${validationMode} mode`, async () => {
+      const onFormSubmit = vi.fn();
+      const validate = vi.fn((value: unknown) =>
+        Promise.resolve(value === 'taken' ? 'Username is taken' : null),
+      );
+
+      await render(
+        <Form onFormSubmit={onFormSubmit}>
+          <Field.Root name="username" validationMode={validationMode} validate={validate}>
+            <Field.Control data-testid="control" />
+            <Field.Error data-testid="error" />
+          </Field.Root>
+          <button type="submit">Submit</button>
+        </Form>,
+      );
+
+      const control = screen.getByTestId('control');
+
+      fireEvent.change(control, { target: { value: 'taken' } });
+      fireEvent.blur(control);
+      await flushMicrotasks();
+
+      await waitFor(() => {
+        expect(screen.getByTestId('error')).toHaveTextContent('Username is taken');
+      });
+
+      fireEvent.click(screen.getByRole('button', { name: 'Submit' }));
+
+      expect(onFormSubmit).not.toHaveBeenCalled();
+      expect(screen.getByTestId('error')).toHaveTextContent('Username is taken');
+
+      await flushMicrotasks();
+    });
   });
 
   it('does not submit if an unnamed registered field control is invalid', async () => {
@@ -778,6 +899,54 @@ describe('<Form />', () => {
       await user.tab();
       expect(validateSpy.mock.calls.length).toBe(1);
       expect(screen.getByTestId('name-error')).toHaveTextContent('field error');
+    });
+
+    it('removes errors for every field that changes within a single commit', async () => {
+      const errors = { a: 'A error', b: 'B error', c: 'C error' };
+
+      function MultiChangeApp() {
+        const [a, setA] = React.useState(false);
+        const [b, setB] = React.useState(false);
+        const [c, setC] = React.useState(false);
+
+        return (
+          <Form errors={errors}>
+            <Field.Root name="a">
+              <Switch.Root checked={a} onCheckedChange={setA} />
+              <Field.Error data-testid="a-error" />
+            </Field.Root>
+            <Field.Root name="b">
+              <Switch.Root checked={b} onCheckedChange={setB} />
+              <Field.Error data-testid="b-error" />
+            </Field.Root>
+            <Field.Root name="c">
+              <Switch.Root checked={c} onCheckedChange={setC} />
+              <Field.Error data-testid="c-error" />
+            </Field.Root>
+            <button
+              type="button"
+              onClick={() => {
+                setA(true);
+                setB(true);
+              }}
+            >
+              Change both
+            </button>
+          </Form>
+        );
+      }
+
+      render(<MultiChangeApp />);
+
+      expect(screen.queryByTestId('a-error')).not.toBe(null);
+      expect(screen.queryByTestId('b-error')).not.toBe(null);
+      expect(screen.queryByTestId('c-error')).not.toBe(null);
+
+      fireEvent.click(screen.getByText('Change both'));
+
+      expect(screen.queryByTestId('a-error')).toBe(null);
+      expect(screen.queryByTestId('b-error')).toBe(null);
+      expect(screen.queryByTestId('c-error')).not.toBe(null);
     });
   });
 

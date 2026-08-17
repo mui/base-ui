@@ -761,6 +761,35 @@ describe('<RadioGroup />', () => {
     });
   });
 
+  describe('item removal', () => {
+    it('moves the tab stop to the checked radio when the highlighted radio is removed', async () => {
+      function App({ showLast }: { showLast: boolean }) {
+        return (
+          <RadioGroup value="b">
+            <Radio.Root value="a" data-testid="a" />
+            <Radio.Root value="b" data-testid="b" />
+            {showLast && <Radio.Root value="c" data-testid="c" />}
+          </RadioGroup>
+        );
+      }
+
+      const { setProps, user } = await render(<App showLast />);
+
+      await act(async () => {
+        screen.getByTestId('b').focus();
+      });
+
+      await user.keyboard('{ArrowDown}');
+
+      expect(screen.getByTestId('c')).toHaveAttribute('tabindex', '0');
+
+      await setProps({ showLast: false });
+
+      expect(screen.getByTestId('a')).toHaveAttribute('tabindex', '-1');
+      expect(screen.getByTestId('b')).toHaveAttribute('tabindex', '0');
+    });
+  });
+
   describe('style hooks', () => {
     it('should apply data-checked and data-unchecked to radio root and indicator', async () => {
       await render(

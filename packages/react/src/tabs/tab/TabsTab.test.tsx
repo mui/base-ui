@@ -1,8 +1,19 @@
 import { expect, vi } from 'vitest';
 import * as React from 'react';
+import { Link, MemoryRouter } from 'react-router';
 import { act, fireEvent, screen } from '@mui/internal-test-utils';
 import { Tabs } from '@base-ui/react/tabs';
-import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
+import { createRenderer, describeConformance, isJSDOM, mergeRefs } from '#test-utils';
+
+const UnstableRefTab = React.forwardRef(function UnstableRefTab(
+  props: React.ComponentPropsWithoutRef<'a'>,
+  forwardedRef: React.ForwardedRef<HTMLAnchorElement>,
+) {
+  const internalRef = React.useRef<HTMLAnchorElement>(null);
+
+  // Deliberately recreate the merged host ref on every render.
+  return <a {...props} ref={mergeRefs(forwardedRef, internalRef)} />;
+});
 
 describe('<Tabs.Tab />', () => {
   const { render } = createRenderer();
@@ -43,6 +54,47 @@ describe('<Tabs.Tab />', () => {
 
       expect(tabs[0]).toHaveAttribute('aria-selected', 'false');
       expect(tabs[1]).toHaveAttribute('aria-selected', 'true');
+    });
+
+    it('renders a react-router Link', async () => {
+      await render(
+        <MemoryRouter>
+          <Tabs.Root defaultValue="overview">
+            <Tabs.List>
+              <Tabs.Tab nativeButton={false} render={<Link to="/overview" />} value="overview">
+                Overview
+              </Tabs.Tab>
+            </Tabs.List>
+          </Tabs.Root>
+        </MemoryRouter>,
+      );
+
+      expect(screen.getByRole('tab')).toHaveAttribute('href', '/overview');
+    });
+
+    it('settles when the rendered component recreates its merged ref', async () => {
+      await render(
+        <Tabs.Root defaultValue="overview">
+          <Tabs.List>
+            <Tabs.Tab
+              nativeButton={false}
+              render={<UnstableRefTab href="#overview" />}
+              value="overview"
+            >
+              Overview
+            </Tabs.Tab>
+            <Tabs.Tab
+              nativeButton={false}
+              render={<UnstableRefTab href="#details" />}
+              value="details"
+            >
+              Details
+            </Tabs.Tab>
+          </Tabs.List>
+        </Tabs.Root>,
+      );
+
+      expect(screen.getAllByRole('tab').map((tab) => tab.tabIndex)).toEqual([0, -1]);
     });
   });
 

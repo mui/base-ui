@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import { error } from '@base-ui/utils/error';
 import { serializeValue } from './serializeValue';
 
 type ItemRecord = Record<string, React.ReactNode>;
@@ -15,16 +16,34 @@ export interface Group<Item = any> {
   items: ReadonlyArray<Item>;
 }
 
+function isGroup(item: any): item is Group<any> {
+  return typeof item === 'object' && item != null && Array.isArray(item.items);
+}
+
 export function isGroupedItems(
   items: ReadonlyArray<any | Group<any>> | undefined,
 ): items is ReadonlyArray<Group<any>> {
-  return (
-    items != null &&
-    items.length > 0 &&
-    typeof items[0] === 'object' &&
-    items[0] != null &&
-    'items' in items[0]
-  );
+  // A group must carry an actual `items` array: key presence alone would misclassify an item
+  // with an unrelated or optional `items` field.
+  const grouped = isGroup(items?.[0]);
+
+  if (process.env.NODE_ENV !== 'production' && items?.some((item) => isGroup(item) !== grouped)) {
+    error(
+      'Some entries in the items data are groups with an `items` array and others are not, so ' +
+        'the list cannot be interpreted consistently. Use either a flat array of items or an ' +
+        'array of groups whose `items` fields are all arrays.',
+    );
+  }
+
+  return grouped;
+}
+
+export function flattenLeafItems<Item>(
+  items: readonly Item[] | readonly Group<Item>[],
+): readonly Item[] {
+  return isGroupedItems(items)
+    ? (items as readonly Group<Item>[]).flatMap((group) => group.items)
+    : (items as readonly Item[]);
 }
 
 /**
@@ -102,15 +121,14 @@ export function resolveSelectedLabel(
 
   // Items provided as plain record map
   if (items && !Array.isArray(items)) {
-    return (items as any)[value] ?? fallback();
+    const label = Object.hasOwn(items, value) ? (items as any)[value] : undefined;
+    return label ?? fallback();
   }
 
   // Items provided as array (flat or grouped)
   if (Array.isArray(items)) {
     const arrayItems = items as ReadonlyArray<LabeledItem> | ReadonlyArray<Group<any>>;
-    const flatItems: ReadonlyArray<LabeledItem> = isGroupedItems(arrayItems)
-      ? arrayItems.flatMap((group) => group.items)
-      : arrayItems;
+    const flatItems = flattenLeafItems<LabeledItem>(arrayItems);
 
     if (value == null || typeof value !== 'object') {
       const match = flatItems.find((item) => item.value === value);
