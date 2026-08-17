@@ -77,7 +77,7 @@
     "@types/node": "22.18.13",
     "@types/react": "19.2.18",
     "@typescript/native-preview": "7.0.0-dev.20260602.1",
-    "@vitejs/plugin-react": "6.0.1",
+    "@vitejs/plugin-react": "6.0.5",
     "@vitest/browser-playwright": "4.1.10",
     "@vitest/coverage-istanbul": "4.1.10",
     "@vitest/ui": "4.1.10",
@@ -104,7 +104,7 @@
     "terser": "5.47.1",
     "tsx": "4.21.0",
     "typescript": "6.0.3",
-    "vite": "8.0.16",
+    "vite": "8.2.1",
     "vitest": "4.1.10"
   },
   "config": {
