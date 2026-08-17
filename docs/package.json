@@ -25,7 +25,7 @@
     "@react-spring/web": "^10.1.2",
     "@stefanprobst/rehype-extract-toc": "^3.0.0",
     "@tanstack/react-form": "^1.33.4",
-    "@tanstack/react-virtual": "^3.13.24",
+    "@tanstack/react-virtual": "^3.14.9",
     "@types/mdx": "^2.0.14",
     "clipboard-copy": "^4.0.1",
     "clsx": "^2.1.1",
