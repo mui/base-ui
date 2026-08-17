@@ -2,7 +2,8 @@
 import * as React from 'react';
 import { AriaCombobox, type AriaComboboxState } from '../../combobox/root/AriaCombobox';
 import { useCoreFilter } from '../../combobox/root/utils/useFilter';
-import { stringifyAsLabel } from '../../internals/resolveValueLabel';
+import type { BaseUIChangeEventDetails } from '../../internals/createBaseUIEventDetails';
+import { stringifyAsLabel, type Group } from '../../internals/resolveValueLabel';
 import { REASONS } from '../../internals/reasons';
 
 /**
@@ -69,29 +70,9 @@ export function AutocompleteRoot<ItemValue>(
 
   const collator = useCoreFilter({ locale: other.locale });
 
-  const baseFilter = React.useMemo<Exclude<typeof other.filter, undefined>>(() => {
-    if (other.filter !== undefined) {
-      return other.filter;
-    }
-    return collator.contains;
-  }, [other.filter, collator]);
-
-  const resolvedQuery = String(isControlled ? value : internalValue).trim();
-
-  // In "both", wrap filtering to use only the typed value, ignoring the inline value.
-  const resolvedFilter: typeof other.filter = React.useMemo(() => {
-    if (mode !== 'both') {
-      return staticItems ? null : baseFilter;
-    }
-
-    if (baseFilter === null) {
-      return null;
-    }
-
-    return (item, _query, toString) => {
-      return baseFilter(item, resolvedQuery, toString);
-    };
-  }, [baseFilter, mode, resolvedQuery, staticItems]);
+  const resolvedQuery = String((isControlled ? value : internalValue) ?? '').trim();
+  const resolvedFilter =
+    staticItems || other.filter === null ? null : (other.filter ?? collator.contains);
 
   function handleValueChange(nextValue: string, eventDetails: AutocompleteRoot.ChangeEventDetails) {
     setInlineInputValue('');
@@ -126,6 +107,10 @@ export function AutocompleteRoot<ItemValue>(
       selectionMode="none"
       fillInputOnItemPress
       filter={resolvedFilter}
+      filterQuery={
+        // Inline completion temporarily changes the displayed input without changing this query.
+        mode === 'both' ? resolvedQuery : undefined
+      }
       autoComplete={mode}
       inputValue={resolvedInputValue}
       defaultInputValue={defaultValue}
@@ -142,7 +127,8 @@ export interface AutocompleteRootActions {
 }
 
 export type AutocompleteRootChangeEventReason = AriaCombobox.ChangeEventReason;
-export type AutocompleteRootChangeEventDetails = AriaCombobox.ChangeEventDetails;
+export type AutocompleteRootChangeEventDetails =
+  BaseUIChangeEventDetails<AutocompleteRootChangeEventReason>;
 
 export type AutocompleteRootHighlightEventReason = AriaCombobox.HighlightEventReason;
 export type AutocompleteRootHighlightEventDetails = AriaCombobox.HighlightEventDetails;
@@ -172,12 +158,31 @@ export interface AutocompleteRootProps<ItemValue> extends Omit<
   | 'onOpenChange'
   | 'openOnInputClick'
   | 'form'
+  | 'items'
+  | 'filteredItems'
+  | 'filter'
 > {
   /**
    * Identifies the form that owns the internal input.
    * Useful when the autocomplete is rendered outside the form.
    */
   form?: string | undefined;
+  /**
+   * The items to be displayed in the list.
+   * Can be either a flat array of items or an array of groups with items.
+   */
+  items?: readonly ItemValue[] | readonly Group<ItemValue>[] | undefined;
+  /**
+   * Filtered items to display in the list.
+   * When provided, the list will use these items instead of filtering the `items` prop internally.
+   * When `items` is also provided, this array must preserve its flat or grouped structure.
+   * Use when you want to control filtering logic externally with the `useFilter()` hook.
+   */
+  filteredItems?: readonly ItemValue[] | readonly Group<ItemValue>[] | undefined;
+  /**
+   * Filter function used to match items against the input query.
+   */
+  filter?: AriaCombobox.Props<ItemValue, 'none'>['filter'] | undefined;
   /**
    * Controls how the autocomplete behaves with respect to list filtering and inline autocompletion.
    * - `list` (default): items are dynamically filtered based on the input value. The input value does not change based on the active item.
@@ -225,14 +230,12 @@ export interface AutocompleteRootProps<ItemValue> extends Omit<
    * The input value of the autocomplete. Use when controlled.
    */
   value?:
-    | AriaCombobox.Props<React.ComponentProps<'input'>['value'], 'none'>['inputValue']
-    | undefined;
+    AriaCombobox.Props<React.ComponentProps<'input'>['value'], 'none'>['inputValue'] | undefined;
   /**
    * Event handler called when the input value of the autocomplete changes.
    */
   onValueChange?:
-    | ((value: string, eventDetails: AutocompleteRootChangeEventDetails) => void)
-    | undefined;
+    ((value: string, eventDetails: AutocompleteRootChangeEventDetails) => void) | undefined;
   /**
    * Whether clicking an item should submit the autocomplete's owning form.
    * By default, clicking an item via a pointer or <kbd>Enter</kbd> key does not submit the owning form.
@@ -255,8 +258,7 @@ export interface AutocompleteRootProps<ItemValue> extends Omit<
    * Event handler called when the popup is opened or closed.
    */
   onOpenChange?:
-    | ((open: boolean, eventDetails: AutocompleteRootChangeEventDetails) => void)
-    | undefined;
+    ((open: boolean, eventDetails: AutocompleteRootChangeEventDetails) => void) | undefined;
   /**
    * Callback fired when an item is highlighted or unhighlighted.
    * Receives the highlighted item value (or `undefined` if no item is highlighted) and event details with a `reason` property describing why the highlight changed.

@@ -658,8 +658,7 @@ type ToastManagerPositionerProps = {
    * returns a style object based on the component's state.
    */
   style?:
-    | React.CSSProperties
-    | ((state: Toast.Positioner.State) => React.CSSProperties | undefined);
+    React.CSSProperties | ((state: Toast.Positioner.State) => React.CSSProperties | undefined);
   /**
    * CSS class applied to the element, or a function that
    * returns a class based on the component's state.
@@ -823,6 +822,8 @@ type ToastManagerPromiseOptions<Value, Data extends {}> = {
 
 ```typescript
 type ToastManagerUpdateOptions<Data extends {}> = {
+  /** Custom data for the toast. */
+  data?: Partial<Data>;
   /** The title of the toast. */
   title?: React.ReactNode;
   /**
@@ -856,8 +857,6 @@ type ToastManagerUpdateOptions<Data extends {}> = {
   >;
   /** The props forwarded to the toast positioner element when rendering anchored toasts. */
   positionerProps?: ToastManagerPositionerProps;
-  /** Custom data for the toast. */
-  data?: Data;
 };
 ```
 

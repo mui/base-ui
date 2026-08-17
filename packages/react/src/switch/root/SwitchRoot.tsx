@@ -80,11 +80,7 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
 
   const id = useBaseUiId();
 
-  const controlId = useLabelableId({
-    id: idProp,
-    implicit: false,
-    controlRef: switchRef,
-  });
+  const controlId = useLabelableId({ id: idProp });
   const hiddenInputId = nativeButton ? undefined : controlId;
 
   const [checked, setCheckedState] = useControlled({
@@ -307,8 +303,7 @@ export interface SwitchRootProps
    * Event handler called when the switch is activated or deactivated.
    */
   onCheckedChange?:
-    | ((checked: boolean, eventDetails: SwitchRoot.ChangeEventDetails) => void)
-    | undefined;
+    ((checked: boolean, eventDetails: SwitchRoot.ChangeEventDetails) => void) | undefined;
   /**
    * Whether the user should be unable to activate or deactivate the switch.
    * @default false

@@ -36,11 +36,7 @@ export interface SelectPortalProps extends BaseUIComponentProps<'div', SelectPor
    * A parent element to render the portal element into.
    */
   container?:
-    | HTMLElement
-    | ShadowRoot
-    | React.RefObject<HTMLElement | ShadowRoot | null>
-    | null
-    | undefined;
+    HTMLElement | ShadowRoot | React.RefObject<HTMLElement | ShadowRoot | null> | null | undefined;
 }
 
 export namespace SelectPortal {

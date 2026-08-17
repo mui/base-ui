@@ -6,10 +6,12 @@ import { HTMLProps } from '../types';
 export interface LabelableContext {
   /**
    * The `id` of the labelable element.
-   * When `null` the association is implicit.
+   * When `null` the label omits `htmlFor`, either because the association is implicit or
+   * because the control takes its name from `aria-labelledby`.
    */
   controlId: string | null | undefined;
   registerControlId: (source: symbol, id: string | null | undefined) => void;
+  resetControlId: () => void;
   /**
    * The `id` of the label.
    */
@@ -30,6 +32,7 @@ export interface LabelableContext {
 export const LabelableContext = React.createContext<LabelableContext>({
   controlId: undefined,
   registerControlId: NOOP,
+  resetControlId: NOOP,
   labelId: undefined,
   setLabelId: NOOP,
   messageIds: [],
