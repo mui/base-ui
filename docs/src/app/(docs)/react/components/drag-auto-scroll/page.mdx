@@ -28,7 +28,7 @@ import { DragAutoScroll } from '@base-ui/react/drag-auto-scroll';
 <DragAutoScroll.Provider>{children}</DragAutoScroll.Provider>;
 ```
 
-The provider renders no element and does not scope drag-and-drop through React context. Base UI's drag manager is page-global, so while any provider is mounted, inferred auto-scroll is enabled for every drag source managed by Base UI. Set `disabled` to suspend this provider's activation without replacing it in the React tree. Another provider or root can keep auto-scroll active.
+The provider renders no element and does not scope drag-and-drop through React context. Base UI's drag manager is page-global, so while any provider is mounted, inferred auto-scroll is enabled for every drag source managed by Base UI. Set `disabled` to suspend this provider's activation without replacing it in the React tree. Another provider or root can keep auto-scroll active.
 
 ## Which containers scroll
 
