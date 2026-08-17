@@ -1,7 +1,7 @@
 import { expect, vi } from 'vitest';
 import * as React from 'react';
 import * as ReactDOMClient from 'react-dom/client';
-import { createRenderer, isJSDOM } from '#test-utils';
+import { createRenderer, isJSDOM, resetBrowserPointer } from '#test-utils';
 import { PreviewCard } from '@base-ui/react/preview-card';
 import {
   screen,
@@ -17,6 +17,10 @@ const CLOSE_TRANSITION_MS = 50;
 const CLOSE_TRANSITION_TIMEOUT = 300;
 
 describe('<PreviewCard.Root />', () => {
+  // Tests here leave the real pointer resting on a trigger, which the next render would put a
+  // fresh trigger under, opening the card before the test interacts.
+  beforeEach(resetBrowserPointer);
+
   beforeEach(async () => {
     globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
   });
