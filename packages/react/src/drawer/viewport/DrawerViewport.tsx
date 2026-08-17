@@ -511,6 +511,7 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
         ? dragTargetOffset
         : clamp(dragTargetOffset + velocityOffset, 0, popupHeight);
       const snapPointEventDetails = createChangeEventDetails(REASONS.swipe, event);
+
       const settleOnSnapPoint = (snapPoint: ResolvedDrawerSnapPoint) => {
         setActiveSnapPoint(snapPoint.value, snapPointEventDetails);
         // Reset nested swipe state now: the hook's trailing progress update is deduped
@@ -519,6 +520,7 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
         clearSwipeRelease();
         return false;
       };
+
       const closeFromSnapPoints = (fallbackSnapPoint: ResolvedDrawerSnapPoint) => {
         // An unattributed gesture (e.g. a mostly horizontal flick) may settle on a snap
         // point but must not dismiss: `useSwipeDismiss` drops a directionless dismissal,
