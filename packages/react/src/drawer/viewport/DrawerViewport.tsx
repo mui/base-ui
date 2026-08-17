@@ -369,12 +369,12 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
       return true;
     },
     onProgress(progress, details) {
-      if (swipingRef.current) {
-        updateNestedSwipeActive(details);
-      }
+      const swiping = swipingRef.current;
+
+      updateNestedSwipeActive(details);
 
       const hasSnapPoints = Boolean(snapPoints && snapPoints.length > 0);
-      if (swipingRef.current && swipeDirection === 'down' && hasSnapPoints && details) {
+      if (swiping && swipeDirection === 'down' && hasSnapPoints && details) {
         const popupElement = store.context.popupRef.current;
         if (popupElement) {
           popupElement.style.removeProperty('transform');
@@ -385,23 +385,29 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
         }
       }
 
-      // After release, the hook reports zero progress but still carries the final drag
-      // deltas; recomputing from them would re-apply drag progress (and re-notify a
-      // nested parent) after `onRelease` has already settled on a snap point.
       let resolvedProgress = progress;
-      if (snapPointRange && popupHeight > 0 && swipingRef.current) {
+      if (snapPointRange && popupHeight > 0) {
         const baseOffset = activeSnapPointOffset ?? snapPointRange.minOffset;
         const offsetToProgress = (nextOffset: number) =>
           clamp((nextOffset - snapPointRange.minOffset) / snapPointRange.range, 0, 1);
 
-        if (details && Number.isFinite(details.deltaY)) {
+        // Outside a drag the hook still reports the last drag deltas, both after a release and
+        // on a gesture that never started (e.g. a press inside `Drawer.Content`). Recomputing
+        // from them would re-apply drag progress to a drawer that rests on its snap point.
+        if (swiping && details && Number.isFinite(details.deltaY)) {
           resolvedProgress = offsetToProgress(clamp(baseOffset + details.deltaY, 0, popupHeight));
         } else if (snapPointProgress !== null) {
           resolvedProgress = snapPointProgress;
         }
       }
 
-      applySwipeProgress(resolvedProgress, true, true);
+      // A parent drawer follows an active drag only, so drop it back to zero once the drag ends.
+      if (!swiping) {
+        notifyParentSwipeProgressChange?.(0);
+        finishNestedSwipe();
+      }
+
+      applySwipeProgress(resolvedProgress, true, swiping);
     },
     onRelease({
       event,

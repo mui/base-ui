@@ -3148,12 +3148,14 @@ describe('<Drawer.Viewport />', () => {
     vi.useFakeTimers();
     try {
       vi.setSystemTime(new Date(1000));
+      // The taller point is declared first so the expected settle target is not simply the
+      // first resolved snap point.
       await render(
         <Drawer.Root
           open
           onOpenChange={handleOpenChange}
           onSnapPointChange={handleSnapPointChange}
-          snapPoints={['100px', '200px']}
+          snapPoints={['200px', '100px']}
           swipeDirection="down"
         >
           <Drawer.Portal>
@@ -3583,6 +3585,237 @@ describe('<Drawer.Viewport />', () => {
     } finally {
       vi.useRealTimers();
     }
+  });
+
+  it('settles on the nearest snap point when an unattributed drag ends past the last snap point', async () => {
+    const handleOpenChange = vi.fn();
+    const handleSnapPointChange = vi.fn();
+
+    vi.useFakeTimers();
+    try {
+      vi.setSystemTime(new Date(1000));
+      await render(
+        <Drawer.Root
+          open
+          onOpenChange={handleOpenChange}
+          onSnapPointChange={handleSnapPointChange}
+          snapPoints={['200px', '100px']}
+          defaultSnapPoint="100px"
+          swipeDirection="down"
+        >
+          <Drawer.Portal>
+            <Drawer.Viewport data-testid="viewport" ref={(element) => setHeight(element, 400)}>
+              <Drawer.Popup data-testid="popup" ref={(element) => setHeight(element, 300)}>
+                Drawer
+              </Drawer.Popup>
+            </Drawer.Viewport>
+          </Drawer.Portal>
+        </Drawer.Root>,
+      );
+
+      const viewport = screen.getByTestId('viewport');
+      const popup = screen.getByTestId('popup');
+      const originalElementFromPoint = document.elementFromPoint;
+      document.elementFromPoint = () => popup;
+
+      try {
+        // A slow diagonal drag that never attributes a direction and ends nearer the closed
+        // position than to any snap point, so the release resolves through the close branch.
+        fireEvent.pointerDown(viewport, {
+          button: 0,
+          buttons: 1,
+          pointerId: 1,
+          clientX: 100,
+          clientY: 100,
+          pointerType: 'mouse',
+          timeStamp: 1000,
+        });
+        vi.setSystemTime(new Date(1100));
+        fireEvent.pointerMove(viewport, {
+          buttons: 1,
+          pointerId: 1,
+          clientX: 200,
+          clientY: 120,
+          pointerType: 'mouse',
+          timeStamp: 1100,
+        });
+        vi.setSystemTime(new Date(1400));
+        fireEvent.pointerMove(viewport, {
+          buttons: 1,
+          pointerId: 1,
+          clientX: 300,
+          clientY: 170,
+          pointerType: 'mouse',
+          timeStamp: 1400,
+        });
+        vi.setSystemTime(new Date(1900));
+        fireEvent.pointerMove(viewport, {
+          buttons: 1,
+          pointerId: 1,
+          clientX: 400,
+          clientY: 190,
+          pointerType: 'mouse',
+          timeStamp: 1900,
+        });
+        vi.setSystemTime(new Date(1950));
+        fireEvent.pointerUp(viewport, {
+          pointerId: 1,
+          clientX: 400,
+          clientY: 190,
+          pointerType: 'mouse',
+          timeStamp: 1950,
+        });
+        await flushMicrotasks();
+      } finally {
+        document.elementFromPoint = originalElementFromPoint;
+      }
+
+      expect(handleOpenChange).not.toHaveBeenCalled();
+      expect(handleSnapPointChange).not.toHaveBeenCalledWith(null, expect.anything());
+      expect(handleSnapPointChange).toHaveBeenCalledWith('100px', expect.anything());
+      expect(popup).not.toHaveAttribute('data-ending-style');
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it('settles on the nearest snap point when an unattributed drag ends past the last snap point with snapToSequentialPoints', async () => {
+    const handleOpenChange = vi.fn();
+    const handleSnapPointChange = vi.fn();
+
+    vi.useFakeTimers();
+    try {
+      vi.setSystemTime(new Date(1000));
+      await render(
+        <Drawer.Root
+          open
+          onOpenChange={handleOpenChange}
+          onSnapPointChange={handleSnapPointChange}
+          snapPoints={['200px', '100px']}
+          defaultSnapPoint="100px"
+          snapToSequentialPoints
+          swipeDirection="down"
+        >
+          <Drawer.Portal>
+            <Drawer.Viewport data-testid="viewport" ref={(element) => setHeight(element, 400)}>
+              <Drawer.Popup data-testid="popup" ref={(element) => setHeight(element, 300)}>
+                Drawer
+              </Drawer.Popup>
+            </Drawer.Viewport>
+          </Drawer.Portal>
+        </Drawer.Root>,
+      );
+
+      const viewport = screen.getByTestId('viewport');
+      const popup = screen.getByTestId('popup');
+      const originalElementFromPoint = document.elementFromPoint;
+      document.elementFromPoint = () => popup;
+
+      try {
+        // A slow diagonal drag that never attributes a direction and ends nearer the closed
+        // position than to any snap point, so the release resolves through the close branch.
+        fireEvent.pointerDown(viewport, {
+          button: 0,
+          buttons: 1,
+          pointerId: 1,
+          clientX: 100,
+          clientY: 100,
+          pointerType: 'mouse',
+          timeStamp: 1000,
+        });
+        vi.setSystemTime(new Date(1100));
+        fireEvent.pointerMove(viewport, {
+          buttons: 1,
+          pointerId: 1,
+          clientX: 200,
+          clientY: 120,
+          pointerType: 'mouse',
+          timeStamp: 1100,
+        });
+        vi.setSystemTime(new Date(1400));
+        fireEvent.pointerMove(viewport, {
+          buttons: 1,
+          pointerId: 1,
+          clientX: 300,
+          clientY: 170,
+          pointerType: 'mouse',
+          timeStamp: 1400,
+        });
+        vi.setSystemTime(new Date(1900));
+        fireEvent.pointerMove(viewport, {
+          buttons: 1,
+          pointerId: 1,
+          clientX: 400,
+          clientY: 190,
+          pointerType: 'mouse',
+          timeStamp: 1900,
+        });
+        vi.setSystemTime(new Date(1950));
+        fireEvent.pointerUp(viewport, {
+          pointerId: 1,
+          clientX: 400,
+          clientY: 190,
+          pointerType: 'mouse',
+          timeStamp: 1950,
+        });
+        await flushMicrotasks();
+      } finally {
+        document.elementFromPoint = originalElementFromPoint;
+      }
+
+      expect(handleOpenChange).not.toHaveBeenCalled();
+      expect(handleSnapPointChange).not.toHaveBeenCalledWith(null, expect.anything());
+      expect(handleSnapPointChange).toHaveBeenCalledWith('100px', expect.anything());
+      expect(popup).not.toHaveAttribute('data-ending-style');
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it('keeps the resting snap point progress when a press never starts a swipe', async () => {
+    await render(
+      <Drawer.Root open snapPoints={['100px', '200px']} swipeDirection="down">
+        <Drawer.Portal>
+          <Drawer.Backdrop data-testid="backdrop" />
+          <Drawer.Viewport data-testid="viewport" ref={(element) => setHeight(element, 400)}>
+            <Drawer.Popup data-testid="popup" ref={(element) => setHeight(element, 300)}>
+              <Drawer.Content data-testid="content">Drawer</Drawer.Content>
+            </Drawer.Popup>
+          </Drawer.Viewport>
+        </Drawer.Portal>
+      </Drawer.Root>,
+    );
+
+    const backdrop = screen.getByTestId('backdrop');
+    const content = screen.getByTestId('content');
+    const originalElementFromPoint = document.elementFromPoint;
+    document.elementFromPoint = () => content;
+
+    expect(backdrop.style.getPropertyValue('--drawer-swipe-progress')).toBe('1');
+
+    try {
+      // A press inside `Drawer.Content` never starts a swipe, but it still reaches the gesture
+      // hook's release handler, which reports progress carrying the last drag deltas.
+      fireEvent.pointerDown(content, {
+        button: 0,
+        buttons: 1,
+        pointerId: 1,
+        clientX: 100,
+        clientY: 100,
+        pointerType: 'mouse',
+      });
+      fireEvent.pointerUp(content, {
+        pointerId: 1,
+        clientX: 100,
+        clientY: 100,
+        pointerType: 'mouse',
+      });
+      await flushMicrotasks();
+    } finally {
+      document.elementFromPoint = originalElementFromPoint;
+    }
+
+    expect(backdrop.style.getPropertyValue('--drawer-swipe-progress')).toBe('1');
   });
 
   it('does not resolve snap points before the popup has a measurable height', async () => {
