@@ -22,7 +22,7 @@ export const SelectList = React.forwardRef(function SelectList(
   componentProps: SelectList.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { store, scrollHandlerRef, multiple } = useSelectRootContext();
+  const { store, scrollHandlerRef, multiple, virtualFocus } = useSelectRootContext();
   const { alignItemWithTriggerActive } = useSelectPositionerContext();
   const rootId = useStore(store, selectors.id);
   // Resolve once so the list registration uses the same id the DOM element ends up with.
@@ -43,7 +43,6 @@ export const SelectList = React.forwardRef(function SelectList(
 
   const hasScrollArrows = useStore(store, selectors.hasScrollArrows);
   const openMethod = useStore(store, selectors.openMethod);
-  const virtualFocus = useStore(store, selectors.virtualFocus);
 
   const defaultProps: HTMLProps = {
     id,

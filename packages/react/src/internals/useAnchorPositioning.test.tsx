@@ -95,6 +95,7 @@ function TestLazyFlip(props: { mounted?: boolean; align?: 'start' | 'end'; heigh
         ref={positioning.refs.setFloating}
         data-testid="floating"
         data-align={positioning.align}
+        data-preferred-align={align}
         style={{ ...positioning.positionerStyles, width: 100, height }}
       >
         floating
@@ -162,6 +163,9 @@ describe('useAnchorPositioning', () => {
 
     // Asking for a different alignment releases it, so `start` is honoured again.
     await setProps({ align: 'end' });
+    await waitFor(() => {
+      expect(screen.getByTestId('floating')).toHaveAttribute('data-preferred-align', 'end');
+    });
     await setProps({ align: 'start' });
 
     await waitFor(() => {

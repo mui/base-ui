@@ -56,7 +56,7 @@ export const MenuPopup = React.forwardRef(function MenuPopup(
   const hoverEnabled = store.useState('hoverEnabled');
   const disabled = store.useState('disabled');
 
-  const virtualFocus = store.useState('virtualFocus');
+  const virtualFocus = store.select('virtualFocus');
 
   const isContextMenu = parent.type === 'context-menu';
   const shouldFocusPopup = parent.type !== 'menu' || openedByKeyboard;

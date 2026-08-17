@@ -62,25 +62,24 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
     store,
     floatingContext: floatingRootContext,
     listRef,
+    labelsRef,
     alignItemWithTriggerActiveRef,
     initialValueRef,
     popupRef,
+    selectionReconciliationRef,
     setValue,
+    virtualFocus,
   } = useSelectRootContext();
 
   const open = useStore(store, selectors.open);
   const mounted = useStore(store, selectors.mounted);
   const modal = useStore(store, selectors.modal);
   const multiple = useStore(store, selectors.multiple);
-  const value = useStore(store, selectors.value);
   const openMethod = useStore(store, selectors.openMethod);
   const positionerElement = useStore(store, selectors.positionerElement);
   const triggerElement = useStore(store, selectors.triggerElement);
   const isItemEqualToValue = useStore(store, selectors.isItemEqualToValue);
   const transitionStatus = useStore(store, selectors.transitionStatus);
-  const virtualFocus = useStore(store, selectors.virtualFocus);
-  const registeredItems = useStore(store, selectors.registeredItems);
-  const previousRegisteredItemsRef = React.useRef(registeredItems);
 
   const scrollUpArrowRef = React.useRef<HTMLDivElement | null>(null);
   const scrollDownArrowRef = React.useRef<HTMLDivElement | null>(null);
@@ -155,20 +154,52 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
 
   const handleCompositeListChange = useStableCallback(
     (map: Map<Element, ({ index?: number | null | undefined } & SelectItemMetadata) | null>) => {
-      const prevIndexes = store.state.visibleItemIndexes;
       const nextIndexes = new Map<symbol, number>();
-      let hasIndexesChanged = false;
+      const nextRegisteredItems = new Map<symbol, RegisteredItem>();
+      const previousRegisteredItems = store.state.registeredItems;
 
       for (const metadata of map.values()) {
         if (metadata?.index != null) {
           nextIndexes.set(metadata.registrationId, metadata.index);
-          hasIndexesChanged ||= prevIndexes.get(metadata.registrationId) !== metadata.index;
+          nextRegisteredItems.set(metadata.registrationId, metadata);
         }
       }
 
-      if (hasIndexesChanged || prevIndexes.size !== nextIndexes.size) {
-        store.set('visibleItemIndexes', nextIndexes);
+      let nextValue = store.state.value;
+      // Under virtual focus a query unmounts items on every keystroke, which is not a removal.
+      // The filter host reconciles the selection against its complete data instead.
+      if (!virtualFocus && isItemRemoved(previousRegisteredItems, nextRegisteredItems)) {
+        nextValue = getValueAfterItemRemoval(
+          nextRegisteredItems,
+          nextValue,
+          initialValueRef.current,
+          multiple,
+          isItemEqualToValue,
+        );
+
+        if (nextValue !== store.state.value) {
+          const eventDetails = createChangeEventDetails(REASONS.none);
+          setValue(nextValue, eventDetails);
+          if (eventDetails.isCanceled) {
+            nextValue = store.state.value;
+          } else {
+            selectionReconciliationRef.current = { value: nextValue };
+          }
+        }
       }
+
+      const selectionReferenceItemId = findSelectionReferenceItemId(
+        nextRegisteredItems,
+        nextValue,
+        multiple,
+        isItemEqualToValue,
+      );
+
+      store.update({
+        registeredItems: nextRegisteredItems,
+        visibleItemIndexes: nextIndexes,
+        selectionReferenceItemId,
+      });
 
       if (open && alignItemWithTriggerActive) {
         store.update({
@@ -195,66 +226,12 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
     [positioning, renderedSide, alignItemWithTriggerActive, setAlignItemWithTrigger],
   );
 
-  useIsoLayoutEffect(
-    function syncSelectedValueOnItemRemoval() {
-      const previousRegisteredItems = previousRegisteredItemsRef.current;
-      previousRegisteredItemsRef.current = registeredItems;
-
-      // Under virtual focus a query unmounts items on every keystroke, which is not a removal.
-      // The host owns that reconciliation against its own data.
-      if (virtualFocus || !isItemRemoved(previousRegisteredItems, registeredItems)) {
-        return;
-      }
-
-      function getNextSelectedValue() {
-        const isItemRegistered = createItemMatcher(registeredItems, isItemEqualToValue);
-
-        if (multiple) {
-          if (Array.isArray(value)) {
-            const remainingValues = value.filter(isItemRegistered);
-            return remainingValues.length === value.length ? value : remainingValues;
-          }
-        }
-
-        if (value != null && !isItemRegistered(value)) {
-          const initialValue = initialValueRef.current;
-          const hasInitialValue = initialValue != null && isItemRegistered(initialValue);
-          return hasInitialValue ? initialValue : null;
-        }
-
-        return value;
-      }
-
-      const nextSelectedValue = getNextSelectedValue();
-      if (value === nextSelectedValue) {
-        return;
-      }
-
-      const eventDetails = createChangeEventDetails(REASONS.none);
-      setValue(nextSelectedValue, eventDetails);
-
-      const hasNoSelectionReference =
-        nextSelectedValue == null ||
-        (multiple && Array.isArray(nextSelectedValue) && nextSelectedValue.length === 0);
-
-      if (hasNoSelectionReference) {
-        store.set('selectionReferenceItemId', null);
-      }
-    },
-    [
-      store,
-      multiple,
-      registeredItems,
-      setValue,
-      value,
-      isItemEqualToValue,
-      initialValueRef,
-      virtualFocus,
-    ],
-  );
-
   return (
-    <CompositeList elementsRef={listRef} onMapChange={handleCompositeListChange}>
+    <CompositeList
+      elementsRef={listRef}
+      labelsRef={labelsRef}
+      onMapChange={handleCompositeListChange}
+    >
       <SelectPositionerContext.Provider value={contextValue}>
         {mounted && modal && <InternalBackdrop inert={inertValue(!open)} cutout={triggerElement} />}
         {element}
@@ -275,6 +252,48 @@ function createItemMatcher(
     }
     return false;
   };
+}
+
+function getValueAfterItemRemoval(
+  registeredItems: ReadonlyMap<symbol, RegisteredItem>,
+  value: unknown,
+  initialValue: unknown,
+  multiple: boolean,
+  isItemEqualToValue: (a: any, b: any) => boolean,
+) {
+  const isItemRegistered = createItemMatcher(registeredItems, isItemEqualToValue);
+
+  if (multiple && Array.isArray(value)) {
+    const remainingValues = value.filter(isItemRegistered);
+    return remainingValues.length === value.length ? value : remainingValues;
+  }
+
+  if (value != null && !isItemRegistered(value)) {
+    const hasInitialValue = initialValue != null && isItemRegistered(initialValue);
+    return hasInitialValue ? initialValue : null;
+  }
+
+  return value;
+}
+
+function findSelectionReferenceItemId(
+  registeredItems: ReadonlyMap<symbol, RegisteredItem>,
+  value: unknown,
+  multiple: boolean,
+  isItemEqualToValue: (itemValue: any, value: any) => boolean,
+) {
+  const selectionReferenceValue =
+    multiple && Array.isArray(value) ? value[value.length - 1] : value;
+  if (selectionReferenceValue == null) {
+    return null;
+  }
+
+  for (const [id, item] of registeredItems) {
+    if (compareItemEquality(item.getValue(), selectionReferenceValue, isItemEqualToValue)) {
+      return id;
+    }
+  }
+  return null;
 }
 
 function isItemRemoved(

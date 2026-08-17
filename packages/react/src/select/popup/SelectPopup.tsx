@@ -63,9 +63,9 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
     highlightItemOnHover,
     floatingContext,
     virtualFocusInputRef,
+    virtualFocus,
   } = useSelectRootContext();
   const rootId = useStore(store, selectors.id);
-  const virtualFocus = useStore(store, selectors.virtualFocus);
   // Resolve once so the popup registration uses the same id the DOM element ends up with,
   // otherwise a consumer id leaves the trigger pointing at nothing.
   const id = componentProps.id ?? suffixId(rootId, 'popup');
@@ -82,6 +82,8 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
   const mounted = useStore(store, selectors.mounted);
   const popupProps = useStore(store, selectors.popupProps);
   const transitionStatus = useStore(store, selectors.transitionStatus);
+  const registeredItems = useStore(store, selectors.registeredItems);
+  const selectionReferenceItemId = useStore(store, selectors.selectionReferenceItemId);
   const triggerElement = useStore(store, selectors.triggerElement);
   const positionerElement = useStore(store, selectors.positionerElement);
   const listElement = useStore(store, selectors.listElement);
@@ -266,8 +268,6 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
     const restoreTransformStyles = unsetTransformStyles(popupElement);
 
     try {
-      const selectionReferenceItemId = store.state.selectionReferenceItemId;
-      const registeredItems = store.state.registeredItems;
       const selectionReferenceItem =
         selectionReferenceItemId && registeredItems.get(selectionReferenceItemId);
       let textElement = selectionReferenceItem?.getTextElement();
@@ -333,7 +333,9 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
       const idealHeight = availableSpaceBeneathTrigger + offsetY + marginBottom + borderBottom;
       let height = Math.min(viewportHeight, idealHeight);
       const maxHeight = viewportHeight - marginTop - marginBottom;
-      const scrollTop = idealHeight - height;
+      // A controlled value can outlive the option that represented it. In that case there is
+      // no item to align, so reset a scroller retained across option replacement to its start.
+      const scrollTop = textElement ? idealHeight - height : 0;
 
       const maxRight = viewportWidth - paddingRight;
 
@@ -433,6 +435,8 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
     highlightItemOnHover,
     direction,
     isPositioned,
+    registeredItems,
+    selectionReferenceItemId,
   ]);
 
   React.useEffect(() => {

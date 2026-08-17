@@ -10,13 +10,13 @@ export interface SimpleFilterSelectProps<Value> extends Omit<
   FilterSelectRootProps<Value>,
   'children' | 'items'
 > {
-  items?: FilterSelectRootProps<Value>['items'];
+  items: FilterSelectRootProps<Value>['items'];
   label?: string;
 }
 
 export function SimpleFilterSelect<Value>({
   label = 'Select',
-  items = [{ value: null, label }],
+  items,
   ...rest
 }: SimpleFilterSelectProps<Value>) {
   const handleInputValueChange = (
@@ -37,7 +37,7 @@ export function SimpleFilterSelect<Value>({
       <FilterSelect.Portal>
         <FilterSelect.Positioner>
           <FilterSelect.Popup>
-            <FilterSelect.Input aria-label="Filter" />
+            <FilterSelect.Input aria-label={label} />
             <FilterSelect.Clear aria-label="Clear" />
             <FilterSelect.Empty>No matches</FilterSelect.Empty>
             <FilterSelect.List>
@@ -50,4 +50,13 @@ export function SimpleFilterSelect<Value>({
       </FilterSelect.Portal>
     </FilterSelect.Root>
   );
+}
+
+export function StringRecordFilterSelect() {
+  return <FilterSelect.Root<string> items={{ apple: 'Apple' }} />;
+}
+
+export function NumberRecordFilterSelect() {
+  // @ts-expect-error record keys always produce string values
+  return <FilterSelect.Root<number> items={{ 1: 'One' }} />;
 }

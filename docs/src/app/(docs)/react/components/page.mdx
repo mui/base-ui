@@ -913,9 +913,9 @@ A searchable menu for finding and running actions in a dropdown.
     - Handle
 - Exports:
   - Filter Menu - Root
-    - Props: actionsRef, children, closeParentOnEsc, defaultInputValue, defaultOpen, defaultTriggerId, disabled, filter, handle, highlightItemOnHover, inputValue, loopFocus, modal, onInputValueChange, onOpenChange, onOpenChangeComplete, open, orientation, triggerId
+    - Props: actionsRef, children, closeParentOnEsc, defaultInputValue, defaultOpen, defaultTriggerId, disabled, filter, handle, highlightItemOnHover, inputValue, locale, loopFocus, modal, onInputValueChange, onOpenChange, onOpenChangeComplete, open, orientation, triggerId
   - Filter Menu - Trigger
-    - Props: children, className, closeDelay, delay, detached, disabled, handle, id, nativeButton, openOnHover, payload, render, style
+    - Props: children, className, closeDelay, delay, disabled, handle, id, nativeButton, openOnHover, payload, render, style
   - Filter Menu - Input
     - Props: className, render, style
   - Filter Menu - Clear
@@ -945,7 +945,7 @@ A searchable menu for finding and running actions in a dropdown.
   - Filter Menu - Empty
     - Props: className, render, style
   - Filter Menu - SubmenuRoot
-    - Props: actionsRef, children, closeParentOnEsc, defaultInputValue, defaultOpen, disabled, filter, highlightItemOnHover, inputValue, loopFocus, onInputValueChange, onOpenChange, onOpenChangeComplete, open, orientation
+    - Props: actionsRef, children, closeParentOnEsc, defaultInputValue, defaultOpen, disabled, filter, highlightItemOnHover, inputValue, locale, loopFocus, onInputValueChange, onOpenChange, onOpenChangeComplete, open, orientation
   - Filter Menu - SubmenuTrigger
     - Props: className, closeDelay, delay, disabled, id, keywords, label, nativeButton, onClick, openOnHover, render, style
   - Filter Menu - RadioGroup
@@ -962,6 +962,8 @@ A searchable menu for finding and running actions in a dropdown.
   - Filter Menu - Handle
   - Filter Menu - LinkItem
     - Props: className, closeOnClick, keywords, label, render, style
+  - FilterMenuFilter
+    - Parameters: filterText, query, filterValue
 - Types: FilterMenu.Arrow.Props, FilterMenu.Arrow.State, FilterMenu.Backdrop.Props, FilterMenu.Backdrop.State, FilterMenu.CheckboxItem.ChangeEventDetails, FilterMenu.CheckboxItem.ChangeEventReason, FilterMenu.CheckboxItem.Props, FilterMenu.CheckboxItem.State, FilterMenu.CheckboxItemIndicator.Props, FilterMenu.CheckboxItemIndicator.State, FilterMenu.Clear.Props, FilterMenu.Clear.State, FilterMenu.Empty.Props, FilterMenu.Empty.State, FilterMenu.Group.Props, FilterMenu.Group.State, FilterMenu.GroupLabel.Props, FilterMenu.GroupLabel.State, FilterMenu.Input.Props, FilterMenu.Input.State, FilterMenu.Item.Props, FilterMenu.Item.State, FilterMenu.LinkItem.Props, FilterMenu.LinkItem.State, FilterMenu.List.Props, FilterMenu.List.State, FilterMenu.Popup.Props, FilterMenu.Popup.State, FilterMenu.Portal.Props, FilterMenu.Portal.State, FilterMenu.Positioner.Props, FilterMenu.Positioner.State, FilterMenu.RadioGroup.ChangeEventDetails, FilterMenu.RadioGroup.ChangeEventReason, FilterMenu.RadioGroup.Props, FilterMenu.RadioGroup.State, FilterMenu.RadioItem.Props, FilterMenu.RadioItem.State, FilterMenu.RadioItemIndicator.Props, FilterMenu.RadioItemIndicator.State, FilterMenu.Root.Actions, FilterMenu.Root.ChangeEventDetails, FilterMenu.Root.ChangeEventReason, FilterMenu.Root.InputValueChangeEventDetails, FilterMenu.Root.InputValueChangeEventReason, FilterMenu.Root.Props, FilterMenu.Root.State, FilterMenu.Separator.Props, FilterMenu.Separator.State, FilterMenu.SubmenuRoot.ChangeEventDetails, FilterMenu.SubmenuRoot.ChangeEventReason, FilterMenu.SubmenuRoot.InputValueChangeEventDetails, FilterMenu.SubmenuRoot.InputValueChangeEventReason, FilterMenu.SubmenuRoot.Props, FilterMenu.SubmenuRoot.State, FilterMenu.SubmenuTrigger.Props, FilterMenu.SubmenuTrigger.State, FilterMenu.Trigger.Props, FilterMenu.Trigger.State, FilterMenu.Viewport.Props, FilterMenu.Viewport.State
 
 </details>
@@ -1165,7 +1167,7 @@ A list of actions in a dropdown, enhanced with keyboard navigation.
     - Handle
 - Exports:
   - Menu - Root
-    - Props: actionsRef, children, closeParentOnEsc, defaultOpen, defaultTriggerId, disabled, handle, highlightItemOnHover, isSubmenu, loopFocus, modal, onOpenChange, onOpenChangeComplete, open, orientation, triggerId
+    - Props: actionsRef, children, closeParentOnEsc, defaultOpen, defaultTriggerId, disabled, handle, highlightItemOnHover, loopFocus, modal, onOpenChange, onOpenChangeComplete, open, orientation, triggerId
   - Menu - Trigger
     - Props: children, className, closeDelay, delay, disabled, handle, nativeButton, openOnHover, payload, render, style
     - Data Attributes: data-popup-open, data-pressed

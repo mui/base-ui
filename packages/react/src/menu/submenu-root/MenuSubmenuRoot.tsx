@@ -42,7 +42,7 @@ export function isKeyboardOpenReason(details: MenuSubmenuRoot.ChangeEventDetails
  * Documentation: [Base UI Menu](https://base-ui.com/react/components/menu)
  */
 export function MenuSubmenuRoot(props: MenuSubmenuRoot.Props) {
-  const { ...rootProps } = props;
+  const rootProps = props as MenuSubmenuRootInternalProps;
   const parent = useMenuRootContext();
   const parentReferenceRef = React.useRef<ParentReference | null>(null);
 
@@ -137,6 +137,11 @@ export function MenuSubmenuRoot(props: MenuSubmenuRoot.Props) {
     </MenuRootInternal>
   );
 }
+
+/** `MenuSubmenuRoot` with the private virtual-focus prop visible to FilterMenu. */
+export const MenuSubmenuRootInternal = MenuSubmenuRoot as (
+  props: MenuSubmenuRootInternalProps,
+) => React.JSX.Element;
 
 interface MenuSubmenuRootImplProps {
   children: React.ReactNode;
@@ -274,12 +279,6 @@ type MenuSubmenuRootBaseProps = Omit<
 
 export type MenuSubmenuRootProps = MenuSubmenuRootBaseProps & {
   /**
-   * @ignore
-   * Keeps real focus on an element inside the popup and navigates the list with
-   * `aria-activedescendant`.
-   */
-  virtualFocus?: boolean | undefined;
-  /**
    * Event handler called when the menu is opened or closed.
    */
   onOpenChange?:
@@ -296,6 +295,10 @@ export type MenuSubmenuRootProps = MenuSubmenuRootBaseProps & {
    */
   children?: React.ReactNode;
 };
+
+interface MenuSubmenuRootInternalProps extends MenuSubmenuRootProps {
+  virtualFocus?: boolean | undefined;
+}
 
 export interface MenuSubmenuRootState {}
 

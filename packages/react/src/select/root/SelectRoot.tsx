@@ -39,7 +39,6 @@ import {
   isSelectedValueDirty,
 } from '../../internals/itemEquality';
 import { useValueChanged } from '../../internals/useValueChanged';
-import { useItemRegistry } from '../../internals/useItemRegistry';
 import { useOpenInteractionType } from '../../utils/useOpenInteractionType';
 import { getMaxScrollOffset, normalizeScrollOffset } from '../../utils/scrollEdges';
 import { FOCUSABLE_POPUP_PROPS } from '../../utils/popups';
@@ -133,8 +132,8 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     state: 'value',
   });
 
-  const [registeredItems, registerItem] = useItemRegistry<symbol, RegisteredItem>();
   const listRef = React.useRef<Array<HTMLElement | null>>([]);
+  const labelsRef = React.useRef<Array<string | null>>([]);
   const popupRef = React.useRef<HTMLDivElement | null>(null);
   const scrollHandlerRef = React.useRef<((el: HTMLDivElement) => void) | null>(null);
   const scrollArrowsMountedCountRef = React.useRef(0);
@@ -147,6 +146,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     allowUnselectedMouseUp: false,
     dragY: 0,
   });
+  const selectionReconciliationRef = React.useRef<{ value: unknown } | null>(null);
   const alignItemWithTriggerActiveRef = React.useRef(false);
 
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
@@ -167,7 +167,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
         itemToStringLabel,
         itemToStringValue,
         isItemEqualToValue,
-        registeredItems,
+        registeredItems: new Map(),
         visibleItemIndexes: new Map(),
         value,
         open,
@@ -244,8 +244,21 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     setFilled(hasSelectedValue);
   }, [hasSelectedValue, setFilled]);
 
+  const selectionSemanticsRef = React.useRef({ multiple, isItemEqualToValue, value });
+
   useIsoLayoutEffect(
     function syncSelectionReferenceItemId() {
+      const previousSelectionSemantics = selectionSemanticsRef.current;
+      const selectionSemanticsChanged =
+        previousSelectionSemantics.multiple !== multiple ||
+        (Object.is(previousSelectionSemantics.value, value) &&
+          previousSelectionSemantics.isItemEqualToValue !== isItemEqualToValue);
+      selectionSemanticsRef.current = { multiple, isItemEqualToValue, value };
+      const pendingReconciliation = selectionReconciliationRef.current;
+      const reconciledValueChanged =
+        pendingReconciliation != null && !Object.is(pendingReconciliation.value, value);
+      selectionReconciliationRef.current = null;
+
       let selectionReferenceValue: unknown = value;
       let hasNoSelectionReference = false;
 
@@ -256,13 +269,18 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
       }
 
       // Feeds `useListNavigation.selectedIndex`, which moves focus when it changes.
-      if (open) {
+      // Preserve a mounted reference while open so value changes such as deselection don't steal
+      // the highlight. A removed reference or changed comparison semantics must be reconciled.
+      const currentReferenceId = store.state.selectionReferenceItemId;
+      const hasMountedReference =
+        currentReferenceId != null && store.state.registeredItems.has(currentReferenceId);
+      if (open && hasMountedReference && !selectionSemanticsChanged && !reconciledValueChanged) {
         return;
       }
 
       const selectionReferenceItem = hasNoSelectionReference
         ? undefined
-        : findMatchingItem(registeredItems, (item) =>
+        : findMatchingItem(store.state.registeredItems, (item) =>
             compareItemEquality(
               item.getValue(),
               selectionReferenceValue as Value,
@@ -270,9 +288,12 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
             ),
           );
 
-      store.set('selectionReferenceItemId', selectionReferenceItem?.id ?? null);
+      const nextSelectionReferenceId = selectionReferenceItem?.id ?? null;
+      if (nextSelectionReferenceId !== currentReferenceId) {
+        store.set('selectionReferenceItemId', nextSelectionReferenceId);
+      }
     },
-    [multiple, open, value, isItemEqualToValue, registeredItems, store],
+    [multiple, open, value, isItemEqualToValue, store],
   );
 
   useValueChanged(value, () => {
@@ -405,22 +426,11 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     },
   });
 
-  // `useTypeahead` reads `listRef.current` on every keydown, so the labels are resolved once per
-  // item-set change rather than re-reading `textContent` from every item each time.
-  const typeaheadLabels = React.useMemo(() => {
-    const labels: Array<string | null> = [];
-    for (const [id, index] of visibleItemIndexes) {
-      labels[index] = registeredItems.get(id)?.getLabel() ?? null;
-    }
-    return labels;
-  }, [visibleItemIndexes, registeredItems]);
-  const typeaheadLabelsRef = useValueAsRef(typeaheadLabels);
-
   const typeahead = useTypeahead(floatingContext, {
     // While the popup is open under virtual focus, typing goes to the input and drives the query
     // instead. The closed trigger still typeaheads.
     enabled: !readOnly && !disabled && (open ? !virtualFocus : !multiple),
-    listRef: typeaheadLabelsRef,
+    listRef: labelsRef,
     activeIndex,
     selectedIndex: selectionReferenceIndex,
     // Skip disabled items while matching so typeahead advances to the next selectable item
@@ -497,7 +507,6 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     transitionStatus,
     popupProps,
     triggerProps: mergedTriggerProps,
-    registeredItems,
     items,
     itemToStringLabel,
     itemToStringValue,
@@ -512,17 +521,19 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
   const contextValue: SelectRootContext = React.useMemo(
     () => ({
       store,
+      id: generatedId,
       floatingContext,
       required,
       disabled,
       readOnly,
       multiple,
+      virtualFocus,
       items: normalizedItems,
       highlightItemOnHover,
-      registerItem,
       setValue,
       setOpen,
       listRef,
+      labelsRef,
       popupRef,
       scrollHandlerRef,
       handleScrollArrowVisibility,
@@ -531,6 +542,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
       valueRef,
       typingRef,
       selectionRef,
+      selectionReconciliationRef,
       firstItemTextRef,
       virtualFocusInputRef,
       validation,
@@ -540,14 +552,15 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     }),
     [
       store,
+      generatedId,
       floatingContext,
       required,
       disabled,
       readOnly,
       multiple,
+      virtualFocus,
       normalizedItems,
       highlightItemOnHover,
-      registerItem,
       setValue,
       setOpen,
       itemProps,

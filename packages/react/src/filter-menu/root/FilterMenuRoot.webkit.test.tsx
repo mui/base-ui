@@ -40,7 +40,7 @@ function Test() {
 describe('<FilterMenu.Root /> (WebKit)', () => {
   const { render } = createRenderer();
 
-  it('marks the active descendant selected so VoiceOver follows virtual focus', async () => {
+  it('marks the active descendant selected for the WebKit compatibility path', async () => {
     const { user } = await render(<Test />);
 
     const input = screen.getByRole('searchbox', { name: 'Filter actions' });

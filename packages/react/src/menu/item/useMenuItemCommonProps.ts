@@ -72,7 +72,7 @@ export function useMenuItemCommonProps(params: UseMenuItemCommonPropsParameters)
   const contextMenuContext = useContextMenuRootContext(true);
   const isContextMenu = contextMenuContext !== undefined;
   // `-1` rather than omitting it, which leaves links and buttons in the tab order.
-  const virtualFocus = listStore.useState('virtualFocus');
+  const virtualFocus = listStore.select('virtualFocus');
   let tabIndex = -1;
   if (!virtualFocus && open && highlighted) {
     tabIndex = 0;

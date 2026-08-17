@@ -8,6 +8,7 @@ import {
 import { useFilterDropdownRootContext } from '../filter-dropdown/root/FilterDropdownRootContext';
 import { mergeProps } from '../merge-props';
 import type { BaseUIEvent } from '../internals/types';
+import { dispatchClickWithModifiers } from '../utils/dispatchClickWithModifiers';
 
 export const FilterMenuInput = React.forwardRef(function FilterMenuInput(
   componentProps: FilterMenuInput.Props,
@@ -33,7 +34,7 @@ export const FilterMenuInput = React.forwardRef(function FilterMenuInput(
         const activeItem = listRef.current[activeIndex ?? -1];
         if (activeItem) {
           event.preventDefault();
-          activeItem.click();
+          dispatchClickWithModifiers(activeItem, event);
         }
       },
     },

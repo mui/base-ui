@@ -1,20 +1,15 @@
 'use client';
-import * as React from 'react';
-import { FilterDropdownList } from '../../filter-dropdown/list/FilterDropdownList';
-import type { BaseUIComponentProps } from '../../internals/types';
+import {
+  FilterDropdownList,
+  type FilterDropdownListProps,
+  type FilterDropdownListState,
+} from '../../filter-dropdown/list/FilterDropdownList';
 
-export const FilterMenuList = React.forwardRef(function FilterMenuList(
-  props: FilterMenuList.Props,
-  forwardedRef: React.ForwardedRef<HTMLDivElement>,
-) {
-  return <FilterDropdownList {...props} ref={forwardedRef} />;
-});
+export const FilterMenuList = FilterDropdownList;
 
-export interface FilterMenuListState {}
+export interface FilterMenuListState extends FilterDropdownListState {}
 
-export interface FilterMenuListProps extends BaseUIComponentProps<'div', FilterMenuListState> {
-  id?: string | undefined;
-}
+export interface FilterMenuListProps extends FilterDropdownListProps {}
 
 export namespace FilterMenuList {
   export type Props = FilterMenuListProps;

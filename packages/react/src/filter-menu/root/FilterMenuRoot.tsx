@@ -148,7 +148,7 @@ export function FilterMenuProvider(props: FilterMenuProviderProps) {
       query={props.query ?? props.value}
       filter={props.filter}
       locale={props.locale}
-      triggerId={triggerId}
+      triggerId={triggerElement?.id ?? triggerId}
       triggerElement={triggerElement}
       listRef={store.context.itemDomElements}
       activeIndex={activeIndex}

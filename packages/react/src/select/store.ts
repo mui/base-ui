@@ -12,7 +12,7 @@ export interface RegisteredItem {
   getTextElement: () => HTMLElement | null;
 }
 
-export interface SelectItemMetadata {
+export interface SelectItemMetadata extends RegisteredItem {
   registrationId: symbol;
 }
 

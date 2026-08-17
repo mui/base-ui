@@ -39,6 +39,10 @@ export interface UseFilterDropdownItemParameters {
    */
   filterValue?: unknown;
   /**
+   * Keeps the nearest group visible while this filtered-out item must remain mounted.
+   */
+  retainGroup?: boolean | undefined;
+  /**
    * The item's children, watched so a changed label re-registers against the active query.
    */
   children?: React.ReactNode;
@@ -72,7 +76,7 @@ export interface UseFilterDropdownItemReturnValue {
 export function useFilterDropdownItem(
   params: UseFilterDropdownItemParameters,
 ): UseFilterDropdownItemReturnValue {
-  const { label, keywords, filterValue, children, context } = params;
+  const { label, keywords, filterValue, retainGroup = false, children, context } = params;
   const nearestContext = useFilterDropdownRootContext(context !== undefined);
   const owner = context === undefined ? nearestContext : context;
   const { registerItem, store } = owner ?? DETACHED_OWNER;
@@ -82,6 +86,8 @@ export function useFilterDropdownItem(
   const itemId = useRefWithInit(() => Symbol('filter-dropdown-item')).current;
   const ref = React.useRef<HTMLElement | null>(null);
   const previousTextRef = React.useRef<string | undefined>(undefined);
+  const previousFilterValueRef = React.useRef(filterValue);
+  const previousKeywordsKeyRef = React.useRef(keywords?.join('\u0000'));
   const [registered, setRegistered] = React.useState(false);
   const matched = useStore(store, selectors.isItemVisible, itemId);
 
@@ -124,16 +130,23 @@ export function useFilterDropdownItem(
 
   useIsoLayoutEffect(register, [register]);
 
-  useIsoLayoutEffect(() => registerGroupItem?.(itemId), [registerGroupItem, itemId]);
+  useIsoLayoutEffect(
+    () => registerGroupItem?.(itemId, retainGroup),
+    [registerGroupItem, itemId, retainGroup],
+  );
 
-  // Re-register when the rendered text or the keywords change, so the active query runs again.
+  // Re-register when filterable item data changes, so the active query runs again.
   useIsoLayoutEffect(() => {
     const text = resolveText();
-    if (text !== previousTextRef.current) {
+    const filterValueChanged = !Object.is(filterValue, previousFilterValueRef.current);
+    const keywordsChanged = keywordsKey !== previousKeywordsKeyRef.current;
+    if (text !== previousTextRef.current || filterValueChanged || keywordsChanged) {
       previousTextRef.current = text;
+      previousFilterValueRef.current = filterValue;
+      previousKeywordsKeyRef.current = keywordsKey;
       void register();
     }
-  }, [register, resolveText, children, keywordsKey]);
+  }, [register, resolveText, children, keywordsKey, filterValue]);
 
   return { visible: !registered || matched, ref };
 }

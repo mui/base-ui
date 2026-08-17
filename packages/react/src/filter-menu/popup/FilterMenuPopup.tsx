@@ -11,12 +11,13 @@ export const FilterMenuPopup = React.forwardRef(function FilterMenuPopup(
   const { id, ...menuProps } = props;
   const { floatingId, store } = useMenuRootContext();
   const activeTriggerId = store.useState('activeTriggerId');
+  const activeTriggerElement = store.useState('activeTriggerElement');
   const popupId = id ?? floatingId;
 
   return (
     <FilterDropdownPopup
       id={popupId}
-      aria-labelledby={activeTriggerId ?? undefined}
+      aria-labelledby={activeTriggerElement?.id ?? activeTriggerId ?? undefined}
       // The consumer's props and ref go to the inner popup only, so each handler runs once.
       render={<MenuPopup {...menuProps} id={popupId} ref={forwardedRef} role="dialog" />}
     />

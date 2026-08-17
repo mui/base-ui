@@ -103,7 +103,7 @@ const MenuSubmenuTriggerImpl = React.forwardRef(function MenuSubmenuTriggerImpl(
 
   const itemProps = parentMenuStore.useState('itemProps');
   const highlighted = parentMenuStore.useState('isActive', listItem.index);
-  const parentVirtualFocus = parentMenuStore.useState('virtualFocus');
+  const parentVirtualFocus = parentMenuStore.select('virtualFocus');
 
   const itemMetadata = React.useMemo(
     () => ({

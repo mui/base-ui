@@ -354,6 +354,94 @@ describe('<FilterSelect.Root />', () => {
       expect(input).toHaveAttribute('aria-activedescendant', selectedOption.id);
     });
 
+    it('restores the most recently selected item after clearing a query in multiple mode', async () => {
+      const { user } = await render(
+        <FilterSelect.Root
+          multiple
+          defaultOpen
+          defaultValue={['apple']}
+          items={[
+            { value: 'apple', label: 'Apple' },
+            { value: 'banana', label: 'Banana' },
+          ]}
+        >
+          <FilterSelect.Trigger>Fruit</FilterSelect.Trigger>
+          <FilterSelect.Portal>
+            <FilterSelect.Positioner>
+              <FilterSelect.Popup>
+                <FilterSelect.Input aria-label="Filter fruit" />
+                <FilterSelect.List>
+                  {(item: FilterSelectItemData<string>) => (
+                    <FilterSelect.Item key={item.value} value={item.value}>
+                      {item.label}
+                    </FilterSelect.Item>
+                  )}
+                </FilterSelect.List>
+              </FilterSelect.Popup>
+            </FilterSelect.Positioner>
+          </FilterSelect.Portal>
+        </FilterSelect.Root>,
+      );
+
+      const input = screen.getByRole('searchbox', { name: 'Filter fruit' });
+      await waitFor(() => {
+        expect(input).toHaveFocus();
+      });
+      await user.type(input, 'ban');
+      await user.keyboard('[ArrowDown][Enter]');
+      expect(screen.getByRole('option', { name: 'Banana' })).toHaveAttribute('data-selected');
+
+      await user.clear(input);
+
+      const banana = screen.getByRole('option', { name: 'Banana' });
+      await waitFor(() => {
+        expect(banana).toHaveAttribute('data-highlighted');
+      });
+      expect(input).toHaveAttribute('aria-activedescendant', banana.id);
+    });
+
+    it('keeps the highlight on an item deselected in multiple mode', async () => {
+      const { user } = await render(
+        <FilterSelect.Root
+          multiple
+          defaultOpen
+          defaultValue={['apple', 'banana']}
+          items={[
+            { value: 'apple', label: 'Apple' },
+            { value: 'banana', label: 'Banana' },
+          ]}
+        >
+          <FilterSelect.Trigger>Fruit</FilterSelect.Trigger>
+          <FilterSelect.Portal>
+            <FilterSelect.Positioner>
+              <FilterSelect.Popup>
+                <FilterSelect.Input aria-label="Filter fruit" />
+                <FilterSelect.List>
+                  {(item: FilterSelectItemData<string>) => (
+                    <FilterSelect.Item key={item.value} value={item.value}>
+                      {item.label}
+                    </FilterSelect.Item>
+                  )}
+                </FilterSelect.List>
+              </FilterSelect.Popup>
+            </FilterSelect.Positioner>
+          </FilterSelect.Portal>
+        </FilterSelect.Root>,
+      );
+
+      const input = screen.getByRole('searchbox', { name: 'Filter fruit' });
+      const banana = screen.getByRole('option', { name: 'Banana' });
+      await waitFor(() => {
+        expect(banana).toHaveAttribute('data-highlighted');
+      });
+
+      await user.keyboard('[Enter]');
+
+      expect(banana).not.toHaveAttribute('data-selected');
+      expect(banana).toHaveAttribute('data-highlighted');
+      expect(input).toHaveAttribute('aria-activedescendant', banana.id);
+    });
+
     it('hides the input focus indicator only for keyboard highlights', async () => {
       const { user } = await render(
         <FilterSelect.Root
@@ -447,7 +535,9 @@ describe('<FilterSelect.Root />', () => {
       const input = screen.getByRole('searchbox', { name: 'Filter fruit' });
       expect(list).not.toHaveAttribute('aria-activedescendant');
       expect(list).toHaveAttribute('tabindex', '-1');
-      expect(input).toHaveFocus();
+      await waitFor(() => {
+        expect(input).toHaveFocus();
+      });
 
       await user.keyboard('[ArrowDown]');
 
@@ -895,6 +985,53 @@ describe('<FilterSelect.Root />', () => {
 
       expect(screen.queryByRole('option', { name: 'Apple' })).toBe(null);
       expect(screen.getByRole('option', { name: 'Banana' })).toBeVisible();
+    });
+
+    it('re-filters when an item used by a custom filter changes', async () => {
+      type Item = FilterSelectItemData<string> & { category: string };
+      const filter: FilterSelectFilter = (item, query) => (item as Item).category === query;
+
+      function Test() {
+        const [items, setItems] = React.useState<Item[]>([
+          { value: 'settings', label: 'Settings', category: 'user' },
+        ]);
+
+        return (
+          <React.Fragment>
+            <button
+              type="button"
+              onClick={() =>
+                setItems([{ value: 'settings', label: 'Settings', category: 'admin' }])
+              }
+            >
+              Promote
+            </button>
+            <FilterSelect.Root open defaultInputValue="admin" items={items} filter={filter}>
+              <FilterSelect.Trigger>Action</FilterSelect.Trigger>
+              <FilterSelect.Portal>
+                <FilterSelect.Positioner>
+                  <FilterSelect.Popup>
+                    <FilterSelect.Input aria-label="Filter actions" />
+                    <FilterSelect.List>
+                      {(item: Item) => (
+                        <FilterSelect.Item key={item.value} value={item.value}>
+                          {item.label}
+                        </FilterSelect.Item>
+                      )}
+                    </FilterSelect.List>
+                  </FilterSelect.Popup>
+                </FilterSelect.Positioner>
+              </FilterSelect.Portal>
+            </FilterSelect.Root>
+          </React.Fragment>
+        );
+      }
+
+      const { user } = await render(<Test />);
+
+      expect(screen.queryByRole('option', { name: 'Settings' })).toBe(null);
+      await user.click(screen.getByRole('button', { name: 'Promote' }));
+      expect(screen.getByRole('option', { name: 'Settings' })).toBeVisible();
     });
 
     it('preserves the selected value when filtering hides its item', async () => {

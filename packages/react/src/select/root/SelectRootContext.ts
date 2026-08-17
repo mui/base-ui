@@ -1,24 +1,26 @@
 'use client';
 import * as React from 'react';
 import { type FloatingRootContext } from '../../floating-ui-react';
-import type { RegisteredItem, SelectStore } from '../store';
+import type { SelectStore } from '../store';
 import type { UseFieldValidationReturnValue } from '../../field/root/useFieldValidation';
 import type { HTMLProps } from '../../internals/types';
 import type { SelectRoot } from './SelectRoot';
 
 export interface SelectRootContext {
   store: SelectStore;
+  id: string | undefined;
   floatingContext: FloatingRootContext;
   disabled: boolean;
   readOnly: boolean;
   required: boolean;
   multiple: boolean;
+  virtualFocus: boolean;
   items: readonly any[];
   highlightItemOnHover: boolean;
-  registerItem: (id: symbol, item: RegisteredItem) => () => void;
   setValue: (nextValue: any, eventDetails: SelectRoot.ChangeEventDetails) => void;
   setOpen: (open: boolean, eventDetails: SelectRoot.ChangeEventDetails) => void;
   listRef: React.RefObject<Array<HTMLElement | null>>;
+  labelsRef: React.RefObject<Array<string | null>>;
   popupRef: React.RefObject<HTMLDivElement | null>;
   scrollHandlerRef: React.RefObject<((el: HTMLDivElement) => void) | null>;
   handleScrollArrowVisibility: (scroller: HTMLElement) => void;
@@ -31,6 +33,7 @@ export interface SelectRootContext {
     allowSelectedMouseUp: boolean;
     dragY: number;
   }>;
+  selectionReconciliationRef: React.RefObject<{ value: unknown } | null>;
   firstItemTextRef: React.RefObject<HTMLElement | null>;
   /**
    * The element inside the popup that holds real focus while the store's `virtualFocus` is

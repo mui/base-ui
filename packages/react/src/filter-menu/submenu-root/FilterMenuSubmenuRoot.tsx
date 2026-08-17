@@ -3,7 +3,8 @@ import * as React from 'react';
 import { useControlled } from '@base-ui/utils/useControlled';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import {
-  MenuSubmenuRoot,
+  MenuSubmenuRootInternal,
+  type MenuSubmenuRoot,
   type MenuSubmenuRootProps,
 } from '../../menu/submenu-root/MenuSubmenuRoot';
 import { FilterDropdownRoot } from '../../filter-dropdown/root/FilterDropdownRoot';
@@ -74,7 +75,7 @@ export function FilterMenuSubmenuRoot(props: FilterMenuSubmenuRoot.Props): React
   }
 
   return (
-    <MenuSubmenuRoot
+    <MenuSubmenuRootInternal
       {...submenuProps}
       disabled={disabled}
       open={open}
@@ -93,15 +94,12 @@ export function FilterMenuSubmenuRoot(props: FilterMenuSubmenuRoot.Props): React
       >
         {children}
       </FilterMenuProvider>
-    </MenuSubmenuRoot>
+    </MenuSubmenuRootInternal>
   );
 }
 
 export namespace FilterMenuSubmenuRoot {
-  export type Props = Omit<
-    MenuSubmenuRootProps,
-    'open' | 'defaultOpen' | 'onOpenChange' | 'virtualFocus'
-  > & {
+  export type Props = Omit<MenuSubmenuRootProps, 'open' | 'defaultOpen' | 'onOpenChange'> & {
     /**
      * Whether the submenu is currently open.
      */

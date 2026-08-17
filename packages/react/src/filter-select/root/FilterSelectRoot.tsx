@@ -268,7 +268,7 @@ export interface FilterSelectItemData<Value = any> {
 }
 
 export type FilterSelectItems<Value = any> =
-  | Record<string, React.ReactNode>
+  | (string extends Value ? Record<string, React.ReactNode> : never)
   | ReadonlyArray<FilterSelectItemData<Value>>
   | ReadonlyArray<Group<FilterSelectItemData<Value>>>;
 

@@ -45,7 +45,13 @@ export const FilterMenuTrigger = React.forwardRef(function FilterMenuTrigger(
       }
     />
   );
-});
+}) as FilterMenuTrigger;
+
+export interface FilterMenuTrigger {
+  <Payload>(
+    props: FilterMenuTriggerProps<Payload> & React.RefAttributes<HTMLElement>,
+  ): React.JSX.Element;
+}
 
 export interface FilterMenuTriggerProps<Payload = unknown>
   extends

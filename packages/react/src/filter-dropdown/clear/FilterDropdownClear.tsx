@@ -52,11 +52,12 @@ export const FilterDropdownClear = React.forwardRef(function FilterDropdownClear
             return;
           }
 
-          // Indexes are positional, so a kept highlight lands on whatever fills the slot.
-          context.setActiveIndex(null);
-
           const eventDetails = createChangeEventDetails(REASONS.clearPress, event.nativeEvent);
           context.onValueChange('', eventDetails);
+          if (!eventDetails.isCanceled) {
+            // Indexes are positional, so a kept highlight lands on whatever fills the slot.
+            context.setActiveIndex(null);
+          }
           context.focusOwnerRef.current?.focus({ preventScroll: true });
         },
       },

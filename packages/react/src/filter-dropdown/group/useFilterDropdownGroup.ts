@@ -8,17 +8,17 @@ import { FilterDropdownGroupContext } from './FilterDropdownGroupContext';
 import type { State as StoreState } from '../store';
 
 interface GroupMembership {
-  ids: ReadonlySet<symbol>;
+  items: ReadonlyMap<symbol, boolean>;
   version: number;
 }
 
 function isGroupHidden(state: StoreState, membership: GroupMembership) {
   // A group with no members hasn't been filtered out, it hasn't registered yet.
-  if (state.visibleItemIds === null || membership.ids.size === 0) {
+  if (state.visibleItemIds === null || membership.items.size === 0) {
     return false;
   }
-  for (const id of membership.ids) {
-    if (state.visibleItemIds.has(id)) {
+  for (const [id, retained] of membership.items) {
+    if (retained || state.visibleItemIds.has(id)) {
       return false;
     }
   }
@@ -44,21 +44,21 @@ export interface UseFilterDropdownGroupReturnValue {
  */
 export function useFilterDropdownGroup(): UseFilterDropdownGroupReturnValue {
   const { store } = useFilterDropdownRootContext();
-  const itemIds = useRefWithInit(() => new Set<symbol>()).current;
+  const items = useRefWithInit(() => new Map<symbol, boolean>()).current;
   const [membershipVersion, setMembershipVersion] = React.useState(0);
 
-  const registerItem = useStableCallback((id: symbol) => {
-    itemIds.add(id);
+  const registerItem = useStableCallback((id: symbol, retained: boolean) => {
+    items.set(id, retained);
     setMembershipVersion((version) => version + 1);
     return () => {
-      itemIds.delete(id);
+      items.delete(id);
       setMembershipVersion((version) => version + 1);
     };
   });
 
   const membership = React.useMemo<GroupMembership>(
-    () => ({ ids: itemIds, version: membershipVersion }),
-    [itemIds, membershipVersion],
+    () => ({ items, version: membershipVersion }),
+    [items, membershipVersion],
   );
 
   const hidden = useStore(store, isGroupHidden, membership);
