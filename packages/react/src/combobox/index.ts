@@ -8,6 +8,7 @@ export type * from './input-group/ComboboxInputGroup';
 export type * from './popup/ComboboxPopup';
 export type * from './positioner/ComboboxPositioner';
 export type * from './list/ComboboxList';
+export type * from './virtualizer/ComboboxVirtualizer';
 export type * from './item/ComboboxItem';
 export type * from './item-indicator/ComboboxItemIndicator';
 export type * from './value/ComboboxValue';
