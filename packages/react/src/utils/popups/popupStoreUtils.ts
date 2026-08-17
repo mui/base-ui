@@ -544,6 +544,10 @@ export function useImplicitActiveTrigger<State extends PopupStoreState<unknown>>
  * @param open Whether the popup is open.
  * @param store The Store instance managing the popup state.
  * @param onUnmount Optional callback to be called when the popup is unmounted.
+ * @param animateInitialOpen Whether a popup that mounts already open should still play its enter
+ *   transition. Defaults to `false`, so content that was open on the first render (a `defaultOpen`
+ *   popup on page load, SSR'd markup) appears without animating. Opt in for popups whose subtree
+ *   only mounts in response to something the user did, such as a submenu inside a menu popup.
  *
  * @returns A function to forcibly unmount the popup.
  */
@@ -551,8 +555,14 @@ export function useOpenStateTransitions<State extends PopupStoreState<unknown>>(
   open: boolean,
   store: ReactStore<State, PopupStoreContext<never>, typeof popupStoreSelectors>,
   onUnmount?: () => void,
+  animateInitialOpen?: boolean,
 ) {
-  const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
+  const { mounted, setMounted, transitionStatus } = useTransitionStatus(
+    open,
+    false,
+    false,
+    animateInitialOpen,
+  );
   const preventUnmountingOnClose = store.useState('preventUnmountingOnClose');
   // Opening starts a new close cycle. Clear during render so the close-completion hook below
   // reads the synchronized value on the same pass.
