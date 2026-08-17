@@ -213,12 +213,23 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
       return undefined;
     }
 
-    const abortController = new AbortController();
-    runOnceAnimationsFinish(() => {
+    const clearSeededInstantType = () => {
       if (store.state.instantType === seededInstantType) {
         store.set('instantType', undefined);
       }
-    }, abortController.signal);
+    };
+
+    // With no popup element (e.g. its subtree is suspended or waiting on data), there is no
+    // enter transition to protect, and `useAnimationsFinished` would return without invoking the
+    // callback — a ref assignment alone would never rerun this effect, leaving the seed stuck.
+    // Clear immediately: a popup that appears after the reveal settles is page-load-like content.
+    if (store.context.popupRef.current == null) {
+      clearSeededInstantType();
+      return undefined;
+    }
+
+    const abortController = new AbortController();
+    runOnceAnimationsFinish(clearSeededInstantType, abortController.signal);
 
     return () => {
       abortController.abort();

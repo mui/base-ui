@@ -399,6 +399,59 @@ describe.skipIf(isJSDOM)('Menu enter transition', () => {
     expect(screen.getByTestId('submenu-popup')).not.toHaveAttribute('data-instant');
   });
 
+  it('clears the inherited instant type when the popup is not initially rendered', async () => {
+    // With the popup subtree omitted at mount (e.g. suspended or waiting on data), there is no
+    // element for the animations-finished callback to watch, and a ref assignment alone never
+    // reruns the clearing effect. The seed must still be cleared, so a popup rendered after the
+    // reveal settles does not carry a stale `[data-instant]`.
+    function App({ showPopup }: { showPopup: boolean }) {
+      return (
+        <Menu.Root>
+          <Menu.Trigger>Trigger</Menu.Trigger>
+          <Menu.Portal>
+            <Menu.Positioner>
+              <Menu.Popup data-testid="menu-popup">
+                <Menu.Item>Item</Menu.Item>
+                <Menu.SubmenuRoot defaultOpen>
+                  <Menu.SubmenuTrigger>Submenu</Menu.SubmenuTrigger>
+                  {showPopup && (
+                    <Menu.Portal>
+                      <Menu.Positioner>
+                        <Menu.Popup data-testid="submenu-popup">
+                          <Menu.Item>Sub item</Menu.Item>
+                        </Menu.Popup>
+                      </Menu.Positioner>
+                    </Menu.Portal>
+                  )}
+                </Menu.SubmenuRoot>
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
+        </Menu.Root>
+      );
+    }
+
+    const { setProps } = await render(<App showPopup={false} />);
+
+    const trigger = screen.getByRole('button', { name: 'Trigger' });
+    await act(async () => {
+      trigger.focus();
+    });
+    await userEvent.keyboard('[Enter]');
+
+    await waitFor(() => {
+      expect(screen.getByTestId('menu-popup')).toHaveAttribute('data-instant', 'click');
+    });
+    // Give the reveal time to settle while the submenu popup is absent.
+    await waitMs(100);
+
+    await setProps({ showPopup: true });
+    await waitFor(() => {
+      expect(screen.queryByTestId('submenu-popup')).not.toBe(null);
+    });
+    expect(screen.getByTestId('submenu-popup')).not.toHaveAttribute('data-instant');
+  });
+
   it('does not mark a closed submenu as instant when it is later opened programmatically', async () => {
     // A submenu that mounts closed during the parent's enter transition must not inherit the
     // parent's `instantType`: a later programmatic open (controlled `open` flip) does not go
