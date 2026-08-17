@@ -33,15 +33,15 @@ overrides:
   # via @microsoft/api-extractor, html-validate, webpack -> ajv (GHSA-4c8g-83qw-93j6, -v2hh-gcrm-f6hx, -7p8r-x3mc-p8w7)
   fast-uri: '^3.1.5'
   # via lerna -> make-fetch-happen -> socks (GHSA-mwp4-54f8-5fhr, -22jq-vg5j-6vgg, -4xrf-jv44-h6hh)
-  ip-address: '^10.3.1'
+  ip-address: '^10.5.0'
   # via lerna/stylelint -> cosmiconfig (GHSA-5p4m-2wfm-xmqj, -52cp-r559-cp3m, -h67p-54hq-rp68)
   js-yaml@4: '^4.3.1'
   # via postcss (GHSA-2v37-7h3g-55p8)
-  nanoid@3: '^3.3.17'
+  nanoid@3: '^3.3.18'
   # via lerna; also picks up the fixed axios and tmp (GHSA-vp3h-ghgh-jr7g)
   nx: '~22.7.8'
   # via test/bundle-size -> @mui/internal-bundle-size-checker (GHSA-x9g3-xrwr-cwfg)
-  piscina: '^5.2.0'
+  piscina: '^5.3.0'
   # next pins 8.4.31 (GHSA-6g55-p6wh-862q, -r28c-9q8g-f849, -fxqj-rqcc-2cmp)
   postcss: '^8.5.26'
   # optional dependency of next; unused because the docs site is a static export with no next/image
@@ -50,9 +50,9 @@ overrides:
   # Capped below 5, whose engines.node excludes the Node 24.14 line CI runs on.
   sigstore: '^4.1.1'
   # lerna pins 7.5.11 (GHSA-23hp-3jrh-7fpw, -vmf3-w455-68vh, -w8wr-v893-vjvp)
-  tar: '^7.5.19'
+  tar: '^7.5.22'
   # via @vitest/browser (GHSA-96hv-2xvq-fx4p)
-  ws: '^8.21.0'
+  ws: '^8.21.3'
 
 engineStrict: true
 updateNotifier: false
