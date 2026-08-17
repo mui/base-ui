@@ -137,10 +137,11 @@ describe('documentBinding', () => {
     act(() => cleanup());
     expect(callsOfType(removeSpy, 'keydown')).toBe(0);
 
-    // Escape still reaches the (deferred) listener and cancels; the deferred
-    // cleanup runs once the session ends.
+    // Escape still reaches the (deferred) listener and cancels; the two shared
+    // listener cleanups plus the session-owned continuation listener run once
+    // the session ends.
     pressKey(el, 'Escape');
     expect(dragSessionStore.getSnapshot()).toBeNull();
-    expect(callsOfType(removeSpy, 'keydown')).toBe(2);
+    expect(callsOfType(removeSpy, 'keydown')).toBe(3);
   });
 });

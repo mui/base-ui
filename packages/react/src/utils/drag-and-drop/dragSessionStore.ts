@@ -24,6 +24,7 @@ interface DragSessionSlot {
   store: Store<DragSessionState | null>;
   sourceStore: Store<DragSource | null>;
   sourceSnapshot: DragSource | null;
+  sourceVersion: number;
   sourceStoreSubscription?: (() => void) | undefined;
   targetListeners: Map<Element, Set<() => void>>;
   allTargetListeners: Set<() => void>;
@@ -33,12 +34,14 @@ const slot = getSharedSlot<DragSessionSlot>('dragSessionStore', () => ({
   store: new Store<DragSessionState | null>(null),
   sourceStore: new Store<DragSource | null>(null),
   sourceSnapshot: null,
+  sourceVersion: 0,
   targetListeners: new Map<Element, Set<() => void>>(),
   allTargetListeners: new Set<() => void>(),
 }));
 // Forward-compatible with a slot created by an older copy during development.
 slot.sourceStore ??= new Store<DragSource | null>(slot.store.state?.source ?? null);
 slot.sourceSnapshot ??= slot.store.state?.source ?? null;
+slot.sourceVersion ??= 0;
 slot.sourceStoreSubscription ??= slot.store.subscribe((state) => {
   const source = state?.source ?? null;
   if (source !== slot.sourceSnapshot) {
@@ -64,6 +67,9 @@ export function selectDragSource(source: DragSource | null): DragSource | null {
 /** Internal: lifecycle-only writer. Not exported from `index.ts`. */
 export function setDragSession(state: DragSessionState | null): void {
   const previous = slot.store.state;
+  if (previous?.source !== state?.source) {
+    slot.sourceVersion += 1;
+  }
   slot.store.setState(state);
 
   const listeners = new Set<() => void>();
@@ -105,6 +111,8 @@ export const DragTargetState = {
   accepting: 8,
 } as const;
 
+export const dragTargetStateStride = DragTargetState.accepting;
+
 export interface DragTargetStateStore extends ReadonlyStore<number> {
   setElement(element: Element | null): void;
 }
@@ -131,7 +139,11 @@ export function createDragTargetStateStore(): DragTargetStateStore {
         value += DragTargetState.innermost;
       }
     }
-    return value;
+    // React 18's `useSyncExternalStoreWithSelector` does not re-run the selector
+    // unless this raw snapshot changes. Include a source revision so `accepting`
+    // can be recomputed at drag start/end; the selector masks it back out, so a
+    // target whose selected state stays false still does not re-render.
+    return value + slot.sourceVersion * dragTargetStateStride;
   };
 
   function removeFromElement(current: Element | null, listener: () => void): void {

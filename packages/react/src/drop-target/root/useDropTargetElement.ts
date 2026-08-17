@@ -12,6 +12,7 @@ import { useRegistrationRef } from '../../utils/drag-and-drop/useRegistrationRef
 import {
   createDragTargetStateStore,
   dragSourceStore,
+  dragTargetStateStride,
   DragTargetState,
 } from '../../utils/drag-and-drop/dragSessionStore';
 import { matchesAccept } from '../../utils/drag-and-drop/dragKind';
@@ -23,11 +24,12 @@ function selectTargetState(
   disabled: boolean | undefined,
   accept: RegisterDropTargetParameters['accept'],
 ): number {
+  const targetState = state % dragTargetStateStride;
   const source = dragSourceStore.state;
   if (source !== null && !disabled && matchesAccept(accept, source)) {
-    return state + DragTargetState.accepting;
+    return targetState + DragTargetState.accepting;
   }
-  return state;
+  return targetState;
 }
 
 function hasTargetState(state: number, flag: number): boolean {
