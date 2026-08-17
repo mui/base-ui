@@ -36,14 +36,14 @@ importers:
         specifier: workspace:*
         version: link:test
       '@guidepup/guidepup':
-        specifier: 0.29.2
-        version: 0.29.2
+        specifier: 0.33.1
+        version: 0.33.1
       '@guidepup/playwright':
-        specifier: 0.18.0
-        version: 0.18.0(@guidepup/guidepup@0.29.2)(@playwright/test@1.62.1)
+        specifier: 0.19.1
+        version: 0.19.1(@guidepup/guidepup@0.33.1)(@playwright/test@1.62.1)
       '@guidepup/setup':
-        specifier: 0.24.1
-        version: 0.24.1
+        specifier: 0.24.6
+        version: 0.24.6
       '@microsoft/api-extractor':
         specifier: 7.58.12
         version: 7.58.12(@types/node@22.20.1)
@@ -1623,17 +1623,17 @@ packages:
     resolution: {integrity: sha512-GmzA9ckNokPypTg10pgpeHNQe7ph+iIKKmhKu3Ob9ANkswreCx7R3cKmY781K8QK3AqVL3xVh9A42JvIAbkkSA==}
     engines: {node: ^20.17.0 || >=22.9.0}
 
-  '@guidepup/guidepup@0.29.2':
-    resolution: {integrity: sha512-vdYvI68JzpcnknN6d2U83ezt8AN8vSOkc+9qm60snwDgG17l3Nz8exjU4Z7ynKpeWGyKuyuX5FufIqm7Lkr+qg==}
+  '@guidepup/guidepup@0.33.1':
+    resolution: {integrity: sha512-G7kvFCVsllnJdE+UXROgN33aWnXQ3Cg/og6iuAl9bVAPs0PhDUDWFAZVdXbTvBYHsoH9KzDuMdUnIq7G5EhXyg==}
 
-  '@guidepup/playwright@0.18.0':
-    resolution: {integrity: sha512-yIaXzy79hBY7/vIlhPORUXUiXXGXZFpRt6aeYuSvpn5SJ3zzFV0WqZy7s9zxuG0nyzGFF1Wr90t17GQAcqy+Lw==}
+  '@guidepup/playwright@0.19.1':
+    resolution: {integrity: sha512-d0FMH6LFbRbV71l2NGzv2gqV3vQbHDfTVctXsKm6d1ZahpS2/Ozq1WCEoZ7QTAR6iuNzwy03tZfvyijGH+zUDw==}
     peerDependencies:
-      '@guidepup/guidepup': '>=0.27.0'
+      '@guidepup/guidepup': '>=0.33.0'
       '@playwright/test': ^1.57.0
 
-  '@guidepup/setup@0.24.1':
-    resolution: {integrity: sha512-HMkSn/Pf0i2f9z/XicA4GlU9Gs2clnwD7Cvn+uBuIpxALdj+QA0UWQF+smOnUj3p5YP+baRCAxPxT3wp2UEb5w==}
+  '@guidepup/setup@0.24.6':
+    resolution: {integrity: sha512-Oxcb0aXTVhl0iXYYuecUjTU4Bt0P7+qsOktcLNSnhwdynBYesUofTfk9QdboOhqLmg5wesw4qE3hXDHCgCz5OA==}
     hasBin: true
 
   '@html-validate/stylish@6.0.0':
@@ -4362,6 +4362,10 @@ packages:
 
   '@wooorm/starry-night@3.10.0':
     resolution: {integrity: sha512-JRp2va6hfbC14fXgYQTmwdl4j1+4ZID9KKkCD+Mn/+B/j1QMlzZYPUtXOFNxA+CWrEo+IPha6EMVbsap2OFZig==}
+
+  '@xmldom/xmldom@0.9.11':
+    resolution: {integrity: sha512-tW8bcK3hsG0/uqSnNz6TK4BkcuZSezoU7DlnYssILmZDktPnSHHuDJJFM0AJv+13gz2r0iGdrj6qqKeUnxXEDg==}
+    engines: {node: '>=14.6'}
 
   '@xtuc/ieee754@1.2.0':
     resolution: {integrity: sha512-DX8nKgqcGwsc0eJSqYt5lwP4DH5FlHnmuWWBRy7X0NcaGR0ZtuyeESgMwTYVEtxmsNGY+qit4QYT/MIYTOTPeA==}
@@ -7959,6 +7963,10 @@ packages:
     engines: {node: '>=20'}
     hasBin: true
 
+  plist@4.0.0:
+    resolution: {integrity: sha512-4dOqNo0Y2NpfSf9q4+zr4bh7pzNWeckIam34Z0KYJhg8qtNNfh59VbD+Yna5SjwcxawVvLKx5w5FtuCijpEF4Q==}
+    engines: {node: '>=18'}
+
   pngjs@7.0.0:
     resolution: {integrity: sha512-LKWqWJRhstyYo9pGvgor/ivk2w94eSjE3RGVuzLGlr3NmD8bf7RcYGze1mNdEHRP6TRP6rMuDHk5t44hnTRyow==}
     engines: {node: '>=14.19.0'}
@@ -9598,6 +9606,10 @@ packages:
     resolution: {integrity: sha512-EvGK8EJ3DhaHfbRlETOWAS5pO9MZITeauHKJyb8wyajUfQUenkIg2MvLDTZ4T/TgIcm3HU0TFBgWWboAZ30UHg==}
     engines: {node: '>=18'}
 
+  xmlbuilder@15.1.1:
+    resolution: {integrity: sha512-yMqGBqtXyeN1e3TGYvgNgDVZ3j84W4cwkOXQswghol6APgZWaff9lnbvN7MHYJOiXsvGPXtjTYJEiC9J2wv9Eg==}
+    engines: {node: '>=8.0'}
+
   xmlchars@2.2.0:
     resolution: {integrity: sha512-JZnDKK8B0RCDw84FNdDAIpZK+JuJw+s7Lz8nksI7SIuU3UXJJslUthsi+uWBUYOwPFwW7W7PRLRfUKpxjtjFCw==}
 
@@ -10881,14 +10893,16 @@ snapshots:
 
   '@gar/promise-retry@1.0.3': {}
 
-  '@guidepup/guidepup@0.29.2': {}
-
-  '@guidepup/playwright@0.18.0(@guidepup/guidepup@0.29.2)(@playwright/test@1.62.1)':
+  '@guidepup/guidepup@0.33.1':
     dependencies:
-      '@guidepup/guidepup': 0.29.2
+      plist: 4.0.0
+
+  '@guidepup/playwright@0.19.1(@guidepup/guidepup@0.33.1)(@playwright/test@1.62.1)':
+    dependencies:
+      '@guidepup/guidepup': 0.33.1
       '@playwright/test': 1.62.1
 
-  '@guidepup/setup@0.24.1':
+  '@guidepup/setup@0.24.6':
     dependencies:
       chalk: 4.1.2
       commander: 15.0.0
@@ -13878,6 +13892,8 @@ snapshots:
       import-meta-resolve: 4.2.0
       vscode-oniguruma: 2.0.1
       vscode-textmate: 9.3.2
+
+  '@xmldom/xmldom@0.9.11': {}
 
   '@xtuc/ieee754@1.2.0': {}
 
@@ -18454,6 +18470,11 @@ snapshots:
     optionalDependencies:
       fsevents: 2.3.2
 
+  plist@4.0.0:
+    dependencies:
+      '@xmldom/xmldom': 0.9.11
+      xmlbuilder: 15.1.1
+
   pngjs@7.0.0: {}
 
   possible-typed-array-names@1.1.0: {}
@@ -20545,6 +20566,8 @@ snapshots:
       powershell-utils: 0.1.0
 
   xml-name-validator@5.0.0: {}
+
+  xmlbuilder@15.1.1: {}
 
   xmlchars@2.2.0: {}
 
