@@ -271,6 +271,34 @@ describe('<Field.Control />', () => {
     expect(handleSubmit).not.toHaveBeenCalled();
   });
 
+  it.skipIf(isJSDOM)(
+    'validates when a disabled submit button blocks implicit submission',
+    async () => {
+      const { userEvent } = await import('vitest/browser');
+      const user = userEvent.setup();
+      const validate = vi.fn(() => null);
+      const handleSubmit = vi.fn();
+
+      await render(
+        <Form onSubmit={handleSubmit}>
+          <Field.Root validate={validate}>
+            <Field.Control defaultValue="a" />
+          </Field.Root>
+          <button type="submit" disabled>
+            submit
+          </button>
+        </Form>,
+      );
+
+      const control = screen.getByRole<HTMLInputElement>('textbox');
+
+      await act(() => user.type(control, '[Enter]'));
+
+      expect(validate).toHaveBeenCalledTimes(1);
+      expect(handleSubmit).not.toHaveBeenCalled();
+    },
+  );
+
   it.skipIf(isJSDOM)('validates the latest value when Enter does not submit the form', async () => {
     const { userEvent } = await import('vitest/browser');
     const user = userEvent.setup();
