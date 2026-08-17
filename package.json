@@ -64,13 +64,13 @@
   },
   "devDependencies": {
     "@arethetypeswrong/cli": "0.18.5",
-    "@babel/plugin-transform-react-constant-elements": "7.27.1",
+    "@babel/plugin-transform-react-constant-elements": "7.29.7",
     "@base-ui/monorepo-tests": "workspace:*",
     "@microsoft/api-extractor": "7.58.12",
     "@mui/internal-code-infra": "0.0.4-canary.101",
     "@mui/internal-netlify-cache": "0.0.3-canary.5",
     "@mui/internal-test-utils": "2.0.18-canary.25",
-    "@next/eslint-plugin-next": "16.2.10",
+    "@next/eslint-plugin-next": "16.3.0",
     "@playwright/test": "1.59.1",
     "@tailwindcss/postcss": "4.2.4",
     "@testing-library/jest-dom": "6.9.1",
@@ -81,10 +81,10 @@
     "@vitest/browser-playwright": "4.1.10",
     "@vitest/coverage-istanbul": "4.1.10",
     "@vitest/ui": "4.1.10",
-    "concurrently": "^10.0.4",
+    "concurrently": "10.0.4",
     "cross-env": "10.1.0",
     "docs": "workspace:^",
-    "eslint": "10.3.0",
+    "eslint": "10.8.1",
     "globby": "16.2.0",
     "jsdom": "27.4.0",
     "lerna": "9.0.7",
@@ -110,9 +110,9 @@
   "config": {
     "valeVersion": "3.14.1"
   },
-  "packageManager": "pnpm@11.17.0",
+  "packageManager": "pnpm@11.21.0",
   "engines": {
-    "pnpm": "11.17.0",
+    "pnpm": "11.21.0",
     "node": ">=22.22.3"
   }
 }

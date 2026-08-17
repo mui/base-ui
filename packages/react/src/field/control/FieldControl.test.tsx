@@ -1,5 +1,5 @@
-import { expect, vi } from 'vitest';
 import * as React from 'react';
+import { expect, vi } from 'vitest';
 import { createRenderer, fireEvent, screen } from '@mui/internal-test-utils';
 import { Field } from '@base-ui/react/field';
 import { Form } from '@base-ui/react/form';
