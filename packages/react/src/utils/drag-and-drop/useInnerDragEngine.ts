@@ -9,7 +9,6 @@ import type { DraggableConfig } from './draggable';
 // Aliased to avoid shadowing the public `registerDraggable` method name.
 import { registerDraggable as registerDraggableInRegistry } from './draggableRegistry';
 import { registerAutoScroller, registerDropTarget, registerMonitor } from './registrations';
-import { ensureScrollMonitor } from './autoScroller';
 import { onceCleanup } from './utils';
 import { cancelDrag } from './cancelDrag';
 import { startKeyboardDrag } from './keyboard/keyboardSensor';
@@ -63,9 +62,8 @@ export function resolveKeyboardInstructions(
  * in it shipped the drop-target and monitor registries too. Keeping them off
  * this base class is what lets a bundler drop them.
  *
- * The auto-scroller is the exception: inferring scroll containers means a drag
- * scrolls without anything registering one, so `registerDraggable` below arms the
- * scroll monitor and the module comes along with every draggable.
+ * Auto-scroll is armed independently by `DragAutoScroll.Root` or an imperative
+ * auto-scroller registration, so it also stays outside the draggable leaf.
  */
 export class DragEngineBase {
   constructor(
@@ -92,13 +90,6 @@ export class DragEngineBase {
     get: () => RegisterDraggableParameters<TData>,
     cacheParameters = false,
   ): DragCleanupFn => {
-    // Auto-scroll containers are inferred from the DOM around the drag, so
-    // nothing registers them and nothing else would arm the loop: a draggable
-    // existing is the only signal that a drag — and so a scroll container under
-    // it — can happen at all. Idempotent, and the monitor idles until a drag
-    // starts.
-    ensureScrollMonitor();
-
     const initial = get();
 
     // Built per announcement so a language change applies to the next drag.

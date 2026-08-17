@@ -1,6 +1,7 @@
 import { warn } from '@base-ui/utils/warn';
 import type * as React from 'react';
 import type { DragPreviewSettings, DragPreviewRenderEvent } from '../../types/drag';
+import type { DragPreviewElementFactory } from './synthetic/cloneDragPreview';
 
 /**
  * What a mounted preview part tells its draggable. The parts render nothing in
@@ -9,6 +10,8 @@ import type { DragPreviewSettings, DragPreviewRenderEvent } from '../../types/dr
  * the source component when a virtualizer or a live reorder unmounts it mid-drag.
  */
 export interface DragPreviewDeclaration<TData = unknown> extends DragPreviewSettings {
+  /** Builds the engine-owned preview element. @internal */
+  createPreviewElement: DragPreviewElementFactory;
   /**
    * Resolves the preview content at drag start. Returning `null` or `false`
    * declines the preview for this drag.

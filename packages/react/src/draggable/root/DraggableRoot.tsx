@@ -34,8 +34,6 @@ const DEFAULT_KEYBOARD_ROLE_PROPS = { role: 'button' } as const;
  * keyboard and dropped on matching drop targets.
  * Renders a `<div>` element.
  *
- * While dragging, a clone of the element follows the pointer.
- *
  * Documentation: [Base UI Draggable](https://base-ui.com/react/components/draggable)
  */
 export const DraggableRoot = React.forwardRef(function DraggableRoot<TData = undefined>(
@@ -70,7 +68,6 @@ export const DraggableRoot = React.forwardRef(function DraggableRoot<TData = und
     keyboardMovement,
     modifiers,
     finalFocus,
-    trackDisplacement,
     // Event handlers
     onBeforeDragStart,
     onDragStart,
@@ -108,12 +105,8 @@ export const DraggableRoot = React.forwardRef(function DraggableRoot<TData = und
     onDragEnd,
   } as RegisterDraggableParameters<TData>;
 
-  // `trackDisplacement` stays out of `params` on purpose: it is component-level
-  // behavior, not a registration parameter, and the engine never reads it.
-  const { ref, dragging, setHandleElement, previewHandle, hasHandle } = useDraggableElement<TData>(
-    params,
-    { trackDisplacement },
-  );
+  const { ref, dragging, setHandleElement, observeElement, previewHandle, hasHandle } =
+    useDraggableElement<TData>(params);
 
   const state: DraggableRoot.State = { dragging, disabled: disabled ?? false };
 
@@ -124,12 +117,13 @@ export const DraggableRoot = React.forwardRef(function DraggableRoot<TData = und
   const contextValue = React.useMemo(
     () => ({
       setHandleElement,
+      observeElement,
       previewHandle,
       previewContext,
       label,
       disabled: disabled ?? false,
     }),
-    [setHandleElement, previewHandle, previewContext, label, disabled],
+    [setHandleElement, observeElement, previewHandle, previewContext, label, disabled],
   );
 
   // Focusable whenever the element is keyboard-draggable at all: with `'auto'` screen
@@ -197,15 +191,7 @@ type DraggableRootPropsBase<TData> = Omit<
   Omit<
     RegisterDraggableParameters<TData>,
     'dragPreview' | 'dragHandle' | 'payload' | 'getPayload'
-  > & {
-    children?: React.ReactNode | undefined;
-    /**
-     * Whether to expose this element's layout displacement through
-     * `data-displacing`, `data-starting-style`, and the displacement CSS variables.
-     * @default false
-     */
-    trackDisplacement?: boolean | undefined;
-  };
+  > & { children?: React.ReactNode | undefined };
 
 export type DraggableRootProps<TData = undefined> = DraggableRootPropsBase<TData> &
   DraggableRootPayloadField<TData>;

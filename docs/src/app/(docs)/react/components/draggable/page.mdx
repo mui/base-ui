@@ -32,15 +32,17 @@ const itemKind = Draggable.createKind('item');
 <Draggable.PreviewProvider>
   <Draggable.Root kind={itemKind} label="Item">
     <Draggable.Handle />
-    <Draggable.Preview>{/* what follows the pointer */}</Draggable.Preview>
+    <Draggable.ClonedPreview />
+    <Draggable.Displacement />
   </Draggable.Root>
 </Draggable.PreviewProvider>;
 ```
 
-A root takes at most one preview part. Omit it to drag a clone of the source, or
-swap `Draggable.Preview` for a `Draggable.ClonedPreview` to keep that clone and
-only configure how it is placed. Declaring both warns in development; the last
-one mounted wins.
+A root takes at most one preview part. Omit it to render no preview, use
+`Draggable.ClonedPreview` for a full-fidelity clone of the source, or swap it for
+`Draggable.Preview` to render custom content. Declaring both warns in development;
+the last one mounted wins. `Draggable.Displacement` is independent and opts the
+root into reorder animations.
 
 ## Pass data along
 
@@ -196,7 +198,14 @@ function deleteCard(id: string) {
 
 ## Animating displaced items
 
-Set `trackDisplacement` to animate items moved by a reorder. It publishes the offset from the item's previous position as `--drag-displacement-x` and `--drag-displacement-y`, adds `data-starting-style` for the initial frame, and keeps `data-displacing` while the animation runs. A drop or cancellation update made synchronously from `onDragEnd` is included; a deferred update moves immediately.
+Render `Draggable.Displacement` inside each root that should animate when a reorder moves it. The part renders nothing; it publishes the offset from the item's previous position as `--drag-displacement-x` and `--drag-displacement-y`, adds `data-starting-style` for the initial frame, and keeps `data-displacing` while the animation runs. A drop or cancellation update made synchronously from `onDragEnd` is included; a deferred update moves immediately.
+
+```tsx title="Enable displacement tracking"
+<Draggable.Root kind={card} payload={cardData}>
+  <Draggable.Displacement />
+  {cardData.title}
+</Draggable.Root>
+```
 
 The motion is entirely yours, in two rules:
 
@@ -479,11 +488,11 @@ A modifier only moves a point, so it still can't express a keyboard move that ta
 
 ## Drag previews
 
-### Default preview
+### Cloned preview
 
-If no `Draggable.Preview` is provided, the dragged element is cloned. The clone follows the pointer, keeps your element's classes so your own CSS styles it, and renders in the browser's top layer, where no scroll container can clip it and nothing on the page paints over it.
+Render `Draggable.ClonedPreview` to follow the pointer with a full-fidelity clone of the dragged element. The clone keeps your element's classes so your own CSS styles it, and renders in the browser's top layer, where no scroll container can clip it and nothing on the page paints over it. With no preview part, nothing follows the pointer.
 
-Custom elements inside a default clone are replaced with inert native placeholders. Cloning a live custom element would run its constructor and connection callbacks again merely because a drag started. Render a `Draggable.Preview` when the preview must reproduce a custom element's shadow content exactly.
+Custom elements inside a clone are replaced with inert native placeholders. Cloning a live custom element would run its constructor and connection callbacks again merely because a drag started. Render a `Draggable.Preview` when the preview must reproduce a custom element's shadow content exactly.
 
 After a release, the clone moves to the source's final position and receives `data-ending-style`. That includes a release outside a target, when it returns to the unchanged source. Add a `translate` transition under that attribute to animate the handoff; the engine keeps the clone mounted until the transition finishes. The source also receives `data-ending-style` alongside `data-dragging`, so it can remain styled as an empty placeholder until the clone arrives. With no transition, the attributes and clone are removed before the next paint.
 
@@ -532,7 +541,7 @@ To show **no preview for a particular drag**, resolve the children to nothing: `
 
 ### Configure the clone
 
-To keep the clone and only change how it's placed, render a `Draggable.ClonedPreview`. It takes the same placement props as `Draggable.Preview` and renders nothing, since the clone is the engine's and there's no content to own:
+To opt into the clone and configure how it's placed, render a `Draggable.ClonedPreview`. It takes the same placement props as `Draggable.Preview` and renders nothing, since the clone is the engine's and there's no content to own:
 
 ```tsx title="Place the clone under the pointer"
 function Card({ id, label }) {
@@ -545,18 +554,17 @@ function Card({ id, label }) {
 }
 ```
 
-You only need it to configure the clone: a draggable with no preview part at all already clones its source. Style the clone with `[data-drag-preview]`. The part renders no element of its own, so it takes no `className`.
+Style the clone with `[data-drag-preview]`. The part renders no element of its own, so it takes no `className`.
 
 ### Drag without a preview
 
-Use `disabled` to switch the preview off. It works on either preview part: nothing is built, so nothing follows the pointer. The drag itself still runs — targets light up and the drop commits — which suits a surface that draws its own feedback, such as a canvas rendering the moved shape.
+Omit the preview part when nothing should follow the pointer. The drag itself still runs — targets light up and the drop commits — which suits a surface that draws its own feedback, such as a canvas rendering the moved shape.
 
-Omitting the preview part is not the same thing, since a source with no part clones itself. Prefer `Draggable.ClonedPreview` over `Draggable.Preview` here: it declares no content, so it needs no `Draggable.PreviewProvider` above it, while a `Draggable.Preview` throws without one even when `disabled` is set.
+Use `disabled` to conditionally switch off a declared preview while keeping its placement configuration mounted.
 
 ```tsx title="Dragging without a preview"
 <Draggable.Root kind={shape} label={label} payload={id}>
   {label}
-  <Draggable.ClonedPreview disabled />
 </Draggable.Root>
 ```
 

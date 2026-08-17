@@ -118,6 +118,11 @@ export interface CreateDragPreviewElementOptions {
   container?: HTMLElement | null | undefined;
 }
 
+export type DragPreviewElementFactory = (
+  source: HTMLElement,
+  container: HTMLElement | null,
+) => DragPreviewElementHandle | null;
+
 type PreviewHost = HTMLElement | ShadowRoot;
 
 const HTML_NAMESPACE = 'http://www.w3.org/1999/xhtml';
@@ -363,6 +368,38 @@ function copyLiveState(
   };
 }
 
+interface PreparedDragPreviewClone {
+  element: HTMLElement;
+  applyPostInsertion: () => void;
+}
+
+function prepareDragPreviewClone(
+  source: HTMLElement,
+  win: Window & typeof globalThis,
+): PreparedDragPreviewClone {
+  const queriedSourceNodes: Element[] = [source, ...Array.from(source.querySelectorAll('*'))];
+  let element: HTMLElement;
+  let sourceNodes: Element[];
+  let cloneNodes: Element[];
+  if (queriedSourceNodes.some(isCustomElementCandidate)) {
+    ({ element, sourceNodes, cloneNodes } = cloneWithoutCustomElements(source, win));
+  } else {
+    element = source.cloneNode(true) as HTMLElement;
+    sourceNodes = queriedSourceNodes;
+    cloneNodes = [element, ...Array.from(element.querySelectorAll('*'))];
+  }
+
+  const { applyPostInsertion } = copyLiveState(sourceNodes, cloneNodes, win);
+  sanitize(element, cloneNodes, '-drag-preview');
+  element.removeAttribute('data-dragging');
+  element.removeAttribute('data-displacing');
+  element.removeAttribute('data-starting-style');
+  element.style.removeProperty('--drag-displacement-x');
+  element.style.removeProperty('--drag-displacement-y');
+
+  return { element, applyPostInsertion };
+}
+
 /** A `transform` that only translates, which leaves the box's size untouched. */
 const TRANSLATE_ONLY = /^translate(3d|X|Y)?\([^)]*\)$/;
 const MATRIX = /^matrix(3d)?\(([^)]*)\)$/;
@@ -493,9 +530,12 @@ function getUntransformedSourceRect(
  * Returns `null` when there is nowhere to inject it (a detached or parentless
  * source); the drag then simply runs without a preview.
  */
-export function createDragPreviewElement(
+function createPreparedDragPreviewElement(
   source: HTMLElement,
-  options: CreateDragPreviewElementOptions,
+  options: {
+    container?: HTMLElement | null | undefined;
+    clone?: PreparedDragPreviewClone | undefined;
+  },
 ): DragPreviewElementHandle | null {
   const doc = ownerDocument(source);
   let container = options.container ?? null;
@@ -561,41 +601,9 @@ export function createDragPreviewElement(
     ? getUntransformedSourceRect(untransformedRect, width, height, sourceStyle, win)
     : untransformedRect;
 
-  const isClone = options.content === 'clone';
-  let element: HTMLElement = doc.createElement('div');
-
-  let applyPostInsertion = () => {};
-  if (isClone) {
-    // Build the structurally identical node lists once. Live-state copying and
-    // sanitization used to query the complete clone subtree independently for
-    // each node category, multiplying pickup work for complex cards.
-    const queriedSourceNodes: Element[] = [source, ...Array.from(source.querySelectorAll('*'))];
-    let sourceNodes: Element[];
-    let cloneNodes: Element[];
-    if (queriedSourceNodes.some(isCustomElementCandidate)) {
-      ({ element, sourceNodes, cloneNodes } = cloneWithoutCustomElements(source, win));
-    } else {
-      element = source.cloneNode(true) as HTMLElement;
-      sourceNodes = queriedSourceNodes;
-      cloneNodes = [element, ...Array.from(element.querySelectorAll('*'))];
-    }
-    // Zip the live state across first, while the two trees are still structurally
-    // identical — `sanitize()` removes nodes from the clone and would misalign it.
-    applyPostInsertion = copyLiveState(sourceNodes, cloneNodes, win).applyPostInsertion;
-    sanitize(element, cloneNodes, '-drag-preview');
-    // The source is marked `data-dragging` only *after* the preview is built, but a
-    // consumer may render the attribute itself — strip it so the usual
-    // `[data-dragging] { opacity: .4 }` rule dims the source and not the preview.
-    element.removeAttribute('data-dragging');
-    // A row grabbed while a displacement play is still running clones the play
-    // state too, and nothing would ever clear it (the clone is never tracked):
-    // stale `[data-displacing]` styling and delta variables would ride on the
-    // preview for the whole drag.
-    element.removeAttribute('data-displacing');
-    element.removeAttribute('data-starting-style');
-    element.style.removeProperty('--drag-displacement-x');
-    element.style.removeProperty('--drag-displacement-y');
-  }
+  const isClone = options.clone !== undefined;
+  const element = options.clone?.element ?? doc.createElement('div');
+  const applyPostInsertion = options.clone?.applyPostInsertion ?? (() => {});
 
   element.setAttribute(DRAG_PREVIEW_ATTR, '');
   element.setAttribute('aria-hidden', 'true');
@@ -764,4 +772,25 @@ export function createDragPreviewElement(
       wrapper.remove();
     },
   };
+}
+
+export const createDragPreviewHostElement: DragPreviewElementFactory = (source, container) =>
+  createPreparedDragPreviewElement(source, { container });
+
+export const createClonedDragPreviewElement: DragPreviewElementFactory = (source, container) =>
+  source.isConnected
+    ? createPreparedDragPreviewElement(source, {
+        container,
+        clone: prepareDragPreviewClone(source, ownerWindow(source)),
+      })
+    : null;
+
+/** @internal Kept as a test helper for exercising both preview element variants. */
+export function createDragPreviewElement(
+  source: HTMLElement,
+  options: CreateDragPreviewElementOptions,
+): DragPreviewElementHandle | null {
+  return options.content === 'clone'
+    ? createClonedDragPreviewElement(source, options.container ?? null)
+    : createDragPreviewHostElement(source, options.container ?? null);
 }

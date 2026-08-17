@@ -731,7 +731,7 @@ export class DraggableCollectionPlugin<
             getPayload,
             // The collection owns its preview: it renders into the provider's
             // overlay, so it survives the dragged item reordering or unmounting.
-            // Without one, the item falls back to the engine's default clone.
+            // Without one, the item renders no preview.
             // The wrapper (for example `Tree.DragPreview`) supplies the content and
             // the placement settings, mirroring `Draggable.Preview`.
             dragPreview: dragPreview && {
@@ -1533,7 +1533,7 @@ export interface OnDragEndParameters<TItem, TActions = unknown> {
  */
 export interface CollectionDragPreview<TActions = unknown> extends DragPreviewSettings {
   /**
-   * Renders the preview content, replacing the default clone of the dragged item.
+   * Renders the preview content for the dragged item.
    * Return `null` (or `false`) to show no preview for that drag.
    */
   render: (parameters: RenderDragPreviewParameters<TActions>) => React.ReactNode;

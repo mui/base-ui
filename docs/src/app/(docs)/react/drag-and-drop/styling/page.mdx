@@ -82,11 +82,11 @@ The source keeps `data-dragging` and also receives `data-ending-style` while the
 }
 ```
 
-Without a transition, both ending attributes are removed before the next paint. This applies to the default clone and `Draggable.ClonedPreview`; a custom `Draggable.Preview` unmounts when the drag ends.
+Without a transition, both ending attributes are removed before the next paint. This applies to `Draggable.ClonedPreview`; a custom `Draggable.Preview` unmounts when the drag ends.
 
 ## Animating displaced items
 
-A reorder moves the neighbours of the dragged item, and the position they moved from is nothing CSS can know. A draggable with [`trackDisplacement`](/react/components/draggable#animating-displaced-items) has the engine measure it during drags and publish the result: the distance as `--drag-displacement-x`/`--drag-displacement-y`, a `data-starting-style` frame to author the from-state on, and `data-displacing` while the play lasts. Two rules make it move:
+A reorder moves the neighbours of the dragged item, and the position they moved from is nothing CSS can know. A draggable with [`Draggable.Displacement`](/react/components/draggable#animating-displaced-items) has the engine measure it during drags and publish the result: the distance as `--drag-displacement-x`/`--drag-displacement-y`, a `data-starting-style` frame to author the from-state on, and `data-displacing` while the play lasts. Two rules make it move:
 
 ```css title="Easing displaced rows to their new slots"
 .Item[data-displacing][data-starting-style] {
@@ -127,7 +127,7 @@ While a pointer drag runs, the engine pins the cursor across the document so it 
 
 ## Styles the engine writes
 
-The engine writes two sets of inline styles plus one injected stylesheet, all of which matter if you set the same properties. With [`trackDisplacement`](#animating-displaced-items), it additionally writes `--drag-displacement-x`/`--drag-displacement-y` inline on each displaced element for the duration of a play (they inherit, so descendants see them too), and removes them with the attributes when the play ends.
+The engine writes two sets of inline styles plus one injected stylesheet, all of which matter if you set the same properties. With [`Draggable.Displacement`](#animating-displaced-items), it additionally writes `--drag-displacement-x`/`--drag-displacement-y` inline on each displaced element for the duration of a play (they inherit, so descendants see them too), and removes them with the attributes when the play ends.
 
 Each enabled draggable gets `touch-action: manipulation`, `user-select: none` and `-webkit-touch-callout: none` at **registration**, not only during a drag and regardless of modality. A disabled source owns no gesture styles or keyboard-drag ARIA until it is enabled and refreshed. These styles stop a press from selecting text or opening the iOS callout, while still letting a touch scroll start on the element, which is what lets the 250ms press-hold tell a drag from a scroll. When a [`Draggable.Handle`](/react/components/draggable#drag-handle) is attached they go on the handle rather than on the root, since that is the element the gesture starts from. Your own `touch-action` there overrides this and can make touch drags or list scrolling unreliable; set it on a wrapper instead. The originals are restored when the source unregisters.
 

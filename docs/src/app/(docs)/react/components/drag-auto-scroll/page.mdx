@@ -1,9 +1,9 @@
 # Drag Auto Scroll
 
-<Subtitle>A component that customizes the auto-scrolling a drag already does.</Subtitle>
+<Subtitle>A component that enables and configures drag auto-scroll.</Subtitle>
 <Meta
   name="description"
-  content="An unstyled React component for customizing drag auto-scroll and driving surfaces without scroll offsets."
+  content="An unstyled React component for enabling drag auto-scroll, customizing scroll regions, and driving surfaces without scroll offsets."
 />
 
 import { DemoDragAutoScrollHero } from './demos/hero';
@@ -12,25 +12,25 @@ import { DemoDragAutoScrollCanvas } from './demos/canvas';
 
 <DemoDragAutoScrollHero />
 
-Scrollable containers and the page auto-scroll during pointer drags without a `DragAutoScroll` component. The first list above uses the default behavior; the second uses `DragAutoScroll.Root` to reduce its speed.
+Auto-scroll is an explicit feature boundary. Both lists above use `DragAutoScroll.Root`: the first uses inferred scrolling with the defaults, and the second reduces its speed.
 
-So you do not need `DragAutoScroll` to make a container scroll. It covers the two cases the default cannot: [customizing a container that already scrolls](#customize-a-container-that-already-scrolls), and [driving a surface that has none](#drive-a-surface-that-has-no-scroll-container), such as a canvas panned by a CSS `transform`.
+Once a root is registered, the engine infers nested scroll containers around the source, pointer, and drop target. The same component also covers [customizing a container that already scrolls](#customize-a-container-that-already-scrolls), and [driving a surface that has none](#drive-a-surface-that-has-no-scroll-container), such as a canvas panned by a CSS `transform`.
 
 It pairs with [Draggable](/react/components/draggable) and [DropTarget](/react/components/drop-target). For auto-scroll inside a reorderable list, see the [collections guide](/react/drag-and-drop/collections). Auto-scroll runs for pointer drags only; a keyboard drag scrolls the focused target into view instead.
 
 ## Anatomy
 
-Import the component and render it as the element whose behavior you are overriding:
+Import the component and render it as the scroll-region boundary:
 
 ```jsx title="Anatomy"
 import { DragAutoScroll } from '@base-ui/react/drag-auto-scroll';
 
-<DragAutoScroll.Root />;
+<DragAutoScroll.Root className="ScrollableBoard">{children}</DragAutoScroll.Root>;
 ```
 
 ## Which containers scroll
 
-The scrollable ancestors under the pointer and around the dragged element can auto-scroll, including the page.
+While a `DragAutoScroll.Root` is mounted, scrollable ancestors under the pointer and around the dragged element can auto-scroll, including the page.
 
 An element participates on axes whose computed `overflow` is `auto`, `scroll`, or `overlay`. Use `hidden` or `clip` to exclude an axis.
 
@@ -153,11 +153,11 @@ Return the axes you moved (`'horizontal'`, `'vertical'` or `'all'`) so a contain
 
 The innermost container scrolls first and consumes the axes it moves on; an ancestor takes over only on the axes left unconsumed. A card dragged to the bottom of an inner list scrolls that list, and reaches the page only once the list hits its end. A column that scrolls vertically inside a board that scrolls horizontally therefore splits the two axes between them.
 
-The nesting is the DOM's, not anything you declare, since the walk is ancestor-first. This holds for the containers the engine found itself, and a `DragAutoScroll.Root` in the chain takes part on the same terms.
+The nesting is the DOM's, not a separate configuration tree, since the walk is ancestor-first. Inferred containers and a `DragAutoScroll.Root` in the chain take part on the same terms.
 
 ## Both a scroll container and a drop target
 
-You can pass a `DragAutoScroll.Root` to a `DropTarget.Root`'s `render` prop when one element needs both roles. Neither role requires the other to be declared, so reach for this only when the drop zone also wants one of the overrides above:
+You can pass a `DragAutoScroll.Root` to a `DropTarget.Root`'s `render` prop when one element needs both roles:
 
 ```tsx title="One element, both roles"
 <DropTarget.Root
@@ -170,7 +170,7 @@ You can pass a `DragAutoScroll.Root` to a `DropTarget.Root`'s `render` prop when
 
 ## Scrolling the page
 
-The walk ends at the document root, so dragging near the viewport edge scrolls the page with nothing declared. Its edge zones follow the viewport, and inner containers still win.
+The inferred walk ends at the document root, so dragging near the viewport edge can scroll the page after auto-scroll has been enabled by a mounted `DragAutoScroll.Root` or an imperative registration. Its edge zones follow the viewport, and inner containers still win.
 
 You can stop page auto-scroll on an axis with `overflow: hidden` or `clip` on `<html>` or `<body>`.
 

@@ -56,7 +56,17 @@ manager.registerDraggable(element, () => ({ kind: card, payload: id }));
 
 ### Drag preview
 
-With no `Draggable.Preview` to nest, describe the preview on the registration with `dragPreview`. A registered source still gets the default clone; pass `dragPreview` only to configure or replace it.
+With no preview part to nest, describe a custom preview on the registration with `dragPreview`. Omit it to render no preview. For a full-fidelity source clone, use `Draggable.createClonedPreview()`:
+
+```tsx title="A cloned preview for a registered source"
+import { Draggable } from '@base-ui/react/draggable';
+
+manager.registerDraggable(element, () => ({
+  kind: card,
+  payload: id,
+  dragPreview: Draggable.createClonedPreview({ offset: 'pointer' }),
+}));
+```
 
 `offset`, `modifiers`, `disabled`, and `container` work as they do on the [preview parts](/react/components/draggable#drag-previews). Instead of children, pass a `render` function for the content. It resolves once at drag start and receives the drag `source`:
 
@@ -72,7 +82,7 @@ manager.registerDraggable(element, () => ({
 }));
 ```
 
-A `render` needs a [`Draggable.PreviewProvider`](/react/drag-and-drop/overview#setup) in the tree, like a `Draggable.Preview` does, and throws without one. A source that only clones needs no provider.
+A `render` needs a [`Draggable.PreviewProvider`](/react/drag-and-drop/overview#setup) in the tree, like a `Draggable.Preview` does, and throws without one. A source using `createClonedPreview` needs no provider.
 
 ## Drop targets
 

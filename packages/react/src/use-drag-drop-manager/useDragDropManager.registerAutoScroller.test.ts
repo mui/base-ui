@@ -14,7 +14,7 @@ import { reset } from '../utils/drag-and-drop/core/lifecycleManager';
 import { restrictToHorizontalAxis } from '../utils/drag-and-drop/dragModifiers';
 import { createKind } from '../utils/drag-and-drop/dragKind';
 import { dragSessionStore } from '../utils/drag-and-drop/dragSessionStore';
-import type { RegisterAutoScrollerParameters } from '../types/dragRegistration';
+import type { DragDropManager, RegisterAutoScrollerParameters } from '../types/dragRegistration';
 import type { DragAutoScrollFrameContext } from '../utils/drag-and-drop/autoScroller';
 
 // The synthetic-drag test below leaves an active session; clear its rAF tick
@@ -51,6 +51,10 @@ describe('engine.registerAutoScroller', () => {
     Object.defineProperty(scroller, 'scrollHeight', { value: 1000 });
     Object.defineProperty(scroller, 'clientHeight', { value: 200 });
     return scroller;
+  }
+
+  function enableInferredAutoScroll(engine: Pick<DragDropManager, 'registerAutoScroller'>): void {
+    registerCleanup(engine.registerAutoScroller(document.createElement('div'), () => ({})));
   }
 
   // Drive the pointer into the scroller's bottom edge zone and let the loop run
@@ -1095,11 +1099,12 @@ describe('engine.registerAutoScroller', () => {
       const source = makeNestedSource(container.element);
 
       engine.registerDraggable(source, {});
+      enableInferredAutoScroll(engine);
 
       await driveTo(source, container.element, 100, 190);
 
       // Positive control for every negative in this block: this exact fixture,
-      // with no auto-scroll API used anywhere, scrolls in its bottom edge zone.
+      // with no registration on the container itself, scrolls in its bottom edge zone.
       expect(container.scrollBy).toHaveBeenCalled();
       expect(container.scrollBy).toHaveBeenCalledWith(
         expect.objectContaining({ behavior: 'instant' }),
@@ -1117,6 +1122,7 @@ describe('engine.registerAutoScroller', () => {
       const source = makeNestedSource(container.element);
 
       engine.registerDraggable(source, {});
+      enableInferredAutoScroll(engine);
 
       await driveTo(source, container.element, 100, 190);
       expect(container.scrollBy).not.toHaveBeenCalled();
@@ -1146,6 +1152,7 @@ describe('engine.registerAutoScroller', () => {
 
       engine.registerDraggable(source, {});
       engine.registerDropTarget(column, {});
+      enableInferredAutoScroll(engine);
 
       await driveTo(source, list.element, 100, 190);
 
@@ -1161,6 +1168,7 @@ describe('engine.registerAutoScroller', () => {
       const source = makeNestedSource(container.element);
 
       engine.registerDraggable(source, {});
+      enableInferredAutoScroll(engine);
 
       await driveTo(source, container.element, 100, 190);
 
@@ -1177,6 +1185,7 @@ describe('engine.registerAutoScroller', () => {
       const source = makeNestedSource(column.element);
 
       engine.registerDraggable(source, {});
+      enableInferredAutoScroll(engine);
 
       await driveTo(source, column.element, 190, 190);
 
@@ -1209,6 +1218,7 @@ describe('engine.registerAutoScroller', () => {
 
       engine.registerDraggable(source, {});
       engine.registerDropTarget(target, {});
+      enableInferredAutoScroll(engine);
 
       await driveTo(source, target, 100, 190);
 
@@ -1222,6 +1232,7 @@ describe('engine.registerAutoScroller', () => {
 
       engine.registerDraggable(source, {});
       engine.registerDropTarget(target, {});
+      enableInferredAutoScroll(engine);
 
       // The pointer sits over empty space inside the container — on its padding,
       // or in the gap between two rows. Drop targets resolve by walking up to the
@@ -1244,6 +1255,7 @@ describe('engine.registerAutoScroller', () => {
       const outsider = createElement({ top: 150, height: 50, left: 0, width: 200 });
 
       engine.registerDraggable(source, {});
+      enableInferredAutoScroll(engine);
 
       await driveTo(source, outsider, 100, 190);
 
@@ -1383,7 +1395,7 @@ describe('engine.registerAutoScroller', () => {
       await flushRaf();
     }
 
-    it('engages with no registration at all', async () => {
+    it('does not engage with no auto-scroll registration', async () => {
       const { engine } = await renderDnd();
       const source = createElement();
       const page = mockPageScroller();
@@ -1392,9 +1404,7 @@ describe('engine.registerAutoScroller', () => {
 
       await drive(source, 400, 590);
 
-      // The walk from the source ends at the document root, so a drag near the
-      // viewport edge scrolls the page without an app declaring anything.
-      expect(page.scrollBy).toHaveBeenCalled();
+      expect(page.scrollBy).not.toHaveBeenCalled();
     });
 
     it('is suppressed by an imperative registration on the document root', async () => {
@@ -1511,8 +1521,8 @@ describe('engine.registerAutoScroller', () => {
       const { engine } = await renderDnd();
       const source = createElement();
       const page = mockPageScroller();
-      // The same shape as the test below, with nothing registered — which is the
-      // default now that containers are inferred from the DOM. The order the loop
+      // The same shape as the test below, with no region registered on the inner
+      // container. Once auto-scroll is enabled, the order the loop
       // walks its candidates in has to come from DOM depth, not from the order the
       // walk happened to collect them: the document root is a candidate on every
       // drag, and visiting it first would let the page take the vertical axis and
@@ -1528,6 +1538,7 @@ describe('engine.registerAutoScroller', () => {
       inner.appendChild(source);
 
       engine.registerDraggable(source, {});
+      enableInferredAutoScroll(engine);
 
       await drive(source, 400, 590);
 

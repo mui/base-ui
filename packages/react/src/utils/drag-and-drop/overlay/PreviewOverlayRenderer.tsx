@@ -18,7 +18,7 @@ function selectPreviewState(state: DragPreviewState | null): DragPreviewState | 
  *
  * The host is an engine-owned element, injected next to the drag source (or into
  * the configured container) and transformed each frame to follow the pointer — the
- * same treatment the default clone gets, so a custom preview inherits the app's CSS
+ * same treatment a cloned preview gets, so a custom preview inherits the app's CSS
  * the same way. React only portals content into it, which is what lets the preview
  * outlive a source the virtualizer unmounts mid-drag.
  *

@@ -18,7 +18,7 @@ import {
   removeDropTargetRegistration,
   retainRetiringDropTarget,
 } from './dropTarget';
-import { addScrollerRegistration, ensureScrollMonitor } from './autoScroller';
+import { addScrollerRegistration, retainScrollMonitor } from './autoScroller';
 import { monitorRegistry, engageMonitorIfDragging, removeMonitor } from './monitor';
 import { isActive, isHoveredDropTarget, refreshDropTargets } from './core/lifecycleManager';
 import { dragSessionStore } from './dragSessionStore';
@@ -156,13 +156,14 @@ export function registerAutoScroller<TAccept extends AnyDragAccept = DragKind<un
 ): DragCleanupFn {
   // Ref-counted so merged refs on one node don't clobber each other.
   const removeScroller = addScrollerRegistration(element, getParameters);
-  // The first draggable normally armed the monitor already — a registration here
-  // overrides what auto-scroll does rather than turning it on — but it costs
-  // nothing and keeps the two halves of this feature together: the registry and
-  // the monitor that reads it come up in the same call.
-  ensureScrollMonitor();
+  // Auto-scroll is an explicit feature boundary: the first registered region
+  // arms both inferred scrolling and the advanced configuration loop.
+  const releaseScrollMonitor = retainScrollMonitor();
 
-  return onceCleanup(removeScroller);
+  return onceCleanup(() => {
+    removeScroller();
+    releaseScrollMonitor();
+  });
 }
 
 // Keyed on the `accept` value it infers, like every other `accept`-taking API.

@@ -9,7 +9,7 @@ import type {
  * `DragPosition`, or a callback) into a concrete pointer-relative offset.
  *
  * Defaults to `'source'`: the preview keeps the grab point it was picked up by,
- * so the default clone preview lifts off the element without shifting.
+ * so a cloned preview lifts off the element without shifting.
  */
 export function resolveDragPreviewOffset(
   offset: DragPreviewOffset | undefined,

@@ -5,10 +5,10 @@ import type { BaseUIComponentProps } from '../../internals/types';
 import type { DragKind, DragPreviewSettings, DragPreviewRenderEvent } from '../../types/drag';
 import { DraggablePreviewElement } from './DraggablePreviewElement';
 import { useDeclaredPreview } from './useDeclaredPreview';
+import { createDragPreviewHostElement } from '../../utils/drag-and-drop/synthetic/cloneDragPreview';
 
 /**
- * Customizes what follows the pointer while the draggable is dragged, replacing
- * the default clone of the source.
+ * Customizes what follows the pointer while the draggable is dragged.
  * Renders a `<div>` element.
  *
  * Renders nothing where you write it: the content renders in the nearest
@@ -46,7 +46,12 @@ export function DraggablePreview<TData = unknown>(
     return <DraggablePreviewElement componentProps={{ ...componentProps, children: resolved }} />;
   });
 
-  useDeclaredPreview<TData>(getProps, render, props.disabled === true);
+  useDeclaredPreview<TData>(
+    getProps,
+    render,
+    createDragPreviewHostElement,
+    props.disabled === true,
+  );
 
   return null;
 }

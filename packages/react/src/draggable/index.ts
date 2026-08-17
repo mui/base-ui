@@ -4,6 +4,7 @@ export type * from './root/DraggableRoot';
 export type * from './handle/DraggableHandle';
 export type * from './preview/DraggablePreview';
 export type * from './preview/DraggableClonedPreview';
+export type * from './displacement/DraggableDisplacement';
 export type * from './preview-provider/DraggablePreviewProvider';
 export type { UseDraggableActiveDragReturnValue } from './use-active-drag';
 

@@ -64,6 +64,16 @@ const dragAndDropLeafEntrypoints = [
     track: true,
   },
   {
+    id: 'drag-and-drop/leaf/Draggable.Displacement',
+    code: `import { Draggable } from '@base-ui/react/draggable'; console.log(Draggable.Displacement);`,
+    track: true,
+  },
+  {
+    id: 'drag-and-drop/leaf/Draggable.Root+Displacement',
+    code: `import { Draggable } from '@base-ui/react/draggable'; console.log(Draggable.Root, Draggable.Displacement);`,
+    track: true,
+  },
+  {
     id: 'drag-and-drop/leaf/Draggable.Handle',
     code: `import { Draggable } from '@base-ui/react/draggable'; console.log(Draggable.Handle);`,
     track: true,
@@ -74,8 +84,23 @@ const dragAndDropLeafEntrypoints = [
     track: true,
   },
   {
+    id: 'drag-and-drop/leaf/Draggable.Root+Preview',
+    code: `import { Draggable } from '@base-ui/react/draggable'; console.log(Draggable.Root, Draggable.Preview);`,
+    track: true,
+  },
+  {
     id: 'drag-and-drop/leaf/Draggable.ClonedPreview',
     code: `import { Draggable } from '@base-ui/react/draggable'; console.log(Draggable.ClonedPreview);`,
+    track: true,
+  },
+  {
+    id: 'drag-and-drop/leaf/Draggable.Root+ClonedPreview',
+    code: `import { Draggable } from '@base-ui/react/draggable'; console.log(Draggable.Root, Draggable.ClonedPreview);`,
+    track: true,
+  },
+  {
+    id: 'drag-and-drop/leaf/Draggable.createClonedPreview',
+    code: `import { Draggable } from '@base-ui/react/draggable'; console.log(Draggable.createClonedPreview);`,
     track: true,
   },
   {
@@ -91,6 +116,11 @@ const dragAndDropLeafEntrypoints = [
   {
     id: 'drag-and-drop/leaf/DragAutoScroll.Root',
     code: `import { DragAutoScroll } from '@base-ui/react/drag-auto-scroll'; console.log(DragAutoScroll.Root);`,
+    track: true,
+  },
+  {
+    id: 'drag-and-drop/leaf/Draggable.Root+DragAutoScroll.Root',
+    code: `import { Draggable } from '@base-ui/react/draggable'; import { DragAutoScroll } from '@base-ui/react/drag-auto-scroll'; console.log(Draggable.Root, DragAutoScroll.Root);`,
     track: true,
   },
   {

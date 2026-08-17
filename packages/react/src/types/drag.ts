@@ -899,14 +899,15 @@ export interface DragPreviewSettings {
 
 /**
  * The drag preview of a source registered imperatively.
- * Omit it and the source is cloned, in place.
+ * Omit it to render no preview. Use `Draggable.createClonedPreview()` for a
+ * full-fidelity clone of the source.
  *
  * Components describe the preview with `Draggable.Preview` or
  * `Draggable.ClonedPreview` instead.
  */
 export interface DragPreviewParameters<TSourceData = unknown> extends DragPreviewSettings {
   /**
-   * Renders the preview content, replacing the default clone of the source.
+   * Renders the preview content.
    * Return `null` or `false` to show no preview for this drag.
    */
   render?: ((parameters: DragPreviewRenderEvent<TSourceData>) => React.ReactNode) | undefined;

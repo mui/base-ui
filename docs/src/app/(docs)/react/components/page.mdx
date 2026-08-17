@@ -705,7 +705,7 @@ A popup that opens on top of the entire page.
 
 ## Drag Auto Scroll
 
-A component that customizes the auto-scrolling a drag already does.
+A component that enables and configures drag auto-scroll.
 
 <details>
 
@@ -765,7 +765,7 @@ A component that makes its element a drag source.
     - Write your own
     - Gating on a modifier key
   - Drag previews
-    - Default preview
+    - Cloned preview
     - Custom previews
     - Configure the clone
     - Drag without a preview
@@ -793,15 +793,18 @@ A component that makes its element a drag source.
   - useActiveDrag
 - Exports:
   - Draggable - Root
-    - Props: ariaRoleDescription, children, className, disabled, dragCursor, finalFocus, getPayload, keyboardActivation, keyboardAnnouncements, keyboardInstructions, keyboardMovement, kind, label, modifiers, onBeforeDragStart, onDrag, onDragEnd, onDragStart, onDrop, onDropTargetChange, payload, pointerActivation, previewKey, render, style, trackDisplacement
+    - Props: ariaRoleDescription, children, className, disabled, dragCursor, finalFocus, getPayload, keyboardActivation, keyboardAnnouncements, keyboardInstructions, keyboardMovement, kind, label, modifiers, onBeforeDragStart, onDrag, onDragEnd, onDragStart, onDrop, onDropTargetChange, payload, pointerActivation, previewKey, render, style
     - Data Attributes: data-disabled, data-displacing, data-drag-mode, data-dragging, data-ending-style, data-starting-style
     - CSS Variables: --drag-displacement-x, --drag-displacement-y
   - Draggable - ClonedPreview
     - Props: container, disabled, modifiers, offset
+  - Draggable - createClonedPreview
+    - Parameters: settings
   - Draggable - createGlobalKind
     - Parameters: key
   - Draggable - createKind
     - Parameters: name
+  - Draggable - Displacement
   - Draggable - fixedStepKeyboardMovement
     - Parameters: step
   - Draggable - Handle

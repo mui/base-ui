@@ -13,7 +13,7 @@ import { PreviewOverlayRenderer } from '../../utils/drag-and-drop/overlay/Previe
  * and an individual draggable. Place it inside every local context boundary the
  * preview needs. Renders no element of its own.
  *
- * This provider is optional for the default cloned preview.
+ * This provider is optional for `Draggable.ClonedPreview`.
  *
  * Documentation: [Base UI Draggable](https://base-ui.com/react/components/draggable)
  */

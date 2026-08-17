@@ -28,10 +28,6 @@ import {
 } from '../../utils/drag-and-drop/dragSessionStore';
 import { useRegistrationRef } from '../../utils/drag-and-drop/useRegistrationRef';
 import { retargetActivePreviewSource } from '../../utils/drag-and-drop/activePreview';
-import {
-  scheduleDisplacementSweep,
-  trackDisplacedElement,
-} from '../../utils/drag-and-drop/displacement';
 
 // Read the element from `ref` at selection time so `dragging` keeps tracking
 // the node behind the ref even when a virtualizer swaps it. Module-scope
@@ -48,14 +44,15 @@ function selectIsDragging(source: DragSource | null, r: ElementRef): boolean {
  */
 export function useDraggableElement<TData = undefined>(
   parameters: RegisterDraggableParameters<TData>,
-  options?: UseDraggableElementOptions,
 ): UseDraggableElementReturnValue<TData> {
   const registerDraggable = useRegisterDraggable();
   const getParameters = useStableCallback(() => parameters);
-  const trackDisplacement = options?.trackDisplacement ?? false;
 
   // The `dragging` selector reads the live element behind this ref.
   const elementRef = React.useRef<HTMLElement | null>(null);
+  const elementObserversRef = useRefWithInit(
+    () => new Set<(element: HTMLElement | null) => void>(),
+  );
   // Every mounted handle, in mount order, tagged with the token its
   // `Draggable.Handle` identifies itself by. Only the first drives pickup; the
   // rest are tracked so unmounting one falls back to a survivor instead of to
@@ -111,14 +108,11 @@ export function useDraggableElement<TData = undefined>(
   // `a -> b` swap.
   const lastNodeRef = React.useRef<HTMLElement | null>(null);
 
-  // The live displacement-tracking teardown; owned by the tracking effect below,
-  // re-pointed here on a node swap.
-  const displacementCleanupRef = React.useRef<DragCleanupFn | null>(null);
-
   // Forward the attached node to both the engine registration and the local ref.
   // Stable, so this merged callback is created once.
   const ref = useRefWithInit(() => (node: HTMLElement | null) => {
     elementRef.current = node;
+    elementObserversRef.current.forEach((observer) => observer(node));
     if (node) {
       // A virtualizer can remount the item to a fresh node mid-drag. When this
       // draggable was the active source, re-point the session at the new element
@@ -131,18 +125,22 @@ export function useDraggableElement<TData = undefined>(
           // a CSS-only dim would stop applying the moment the row is recycled.
           retargetActivePreviewSource(node);
         }
-        // The displacement tracker is keyed by node and its effect does not
-        // re-run on a swap: follow the swap here, or the new node never
-        // animates while the old one lingers in the registry.
-        if (displacementCleanupRef.current) {
-          displacementCleanupRef.current();
-          displacementCleanupRef.current = trackDisplacedElement(node);
-        }
       }
       lastNodeRef.current = node;
     }
     registrationRef(node);
   }).current;
+
+  const observeElement = useRefWithInit(
+    () =>
+      (observer: (element: HTMLElement | null) => void): DragCleanupFn => {
+        elementObserversRef.current.add(observer);
+        observer(elementRef.current);
+        return () => {
+          elementObserversRef.current.delete(observer);
+        };
+      },
+  ).current;
 
   // A re-registration that was skipped mid-drag (handle swap or reconcile-input
   // change while this element was the active source); flushed once `dragging`
@@ -225,33 +223,6 @@ export function useDraggableElement<TData = undefined>(
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [reconcileKey]);
 
-  // Displacement is component-level behavior, not a registration parameter: it
-  // reads the element and the session store, and the engine never sees it.
-  // A virtualizer swapping the node mid-life goes through the ref callback, not
-  // this effect: the callback re-points the tracking at the new node and the
-  // cleanup stored in the ref stays the live one.
-  useIsoLayoutEffect(() => {
-    const element = elementRef.current;
-    if (!trackDisplacement || !element) {
-      return undefined;
-    }
-    displacementCleanupRef.current = trackDisplacedElement(element);
-    return () => {
-      displacementCleanupRef.current?.();
-      displacementCleanupRef.current = null;
-    };
-  }, [trackDisplacement]);
-  // Dependency-less on purpose: any tracked sibling that re-renders requests
-  // the per-commit sweep, and the first request measures the whole registry, so
-  // a memoized row that moved without re-rendering is still seen. The call is a
-  // latched no-op outside a drag's displacement window; the element identifies
-  // the requester, which is how the module detects a same-task second commit.
-  useIsoLayoutEffect(() => {
-    if (trackDisplacement) {
-      scheduleDisplacementSweep(elementRef.current ?? undefined);
-    }
-  });
-
   const dragging = useStore(dragSourceStore, selectIsDragging, elementRef);
 
   // Flush a reconcile skipped mid-drag: `dragging` flipping false re-renders this
@@ -266,12 +237,7 @@ export function useDraggableElement<TData = undefined>(
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dragging]);
 
-  return { ref, dragging, setHandleElement, previewHandle, hasHandle };
-}
-
-export interface UseDraggableElementOptions {
-  /** See `DraggableRoot`'s `trackDisplacement`. */
-  trackDisplacement?: boolean | undefined;
+  return { ref, dragging, setHandleElement, observeElement, previewHandle, hasHandle };
 }
 
 export interface UseDraggableElementReturnValue<TData = undefined> {
@@ -291,6 +257,8 @@ export interface UseDraggableElementReturnValue<TData = undefined> {
    * identifies the calling handle across attach and detach. Stable.
    */
   setHandleElement: (node: HTMLElement | null, token: object) => void;
+  /** Observe the root element, including node replacements. Stable. */
+  observeElement: (observer: (element: HTMLElement | null) => void) => DragCleanupFn;
   /** The link a `Draggable.Preview` declares into. Stable. */
   previewHandle: DragPreviewHandle<TData>;
 }

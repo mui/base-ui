@@ -65,7 +65,7 @@ describe.skipIf(isJSDOM)('drop target resolution (real hit testing)', () => {
     pointer('pointerdown', source, 50, 25);
     await flushRaf();
 
-    // Onto the target's center, with the default clone preview now between the
+    // Onto the target's center, with any preview between the
     // cursor and the target.
     pointer('pointermove', source, 50, 225);
     await flushRaf();

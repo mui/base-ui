@@ -12,6 +12,7 @@ import { matchesAccept } from './dragKind';
 import {
   monitorRegistry,
   engageMonitorIfDragging,
+  removeMonitor,
   type RegisterMonitorParameters,
 } from './monitor';
 import { createGetterStackRegistry } from './getterStackRegistry';
@@ -64,6 +65,7 @@ const state = getSharedSlot<AutoScrollerState>('registerAutoScroller', () => ({
   scrollWindow: null,
   enabled: false,
   scrollMonitorGetter: null,
+  scrollMonitorRetainers: 0,
   lastTimestamp: 0,
   currentInput: null,
   currentReportedInput: null,
@@ -81,6 +83,7 @@ const state = getSharedSlot<AutoScrollerState>('registerAutoScroller', () => ({
   rtlCache: new WeakMap<HTMLElement, boolean>(),
 }));
 state.idleMutationObserver ??= null;
+state.scrollMonitorRetainers ??= 0;
 
 const holds = createGetterStackRegistry<HTMLElement, ScrollerGetter>({
   entries: state.scrollers,
@@ -950,6 +953,11 @@ export function resetForTests(): void {
   // cleanups the consumer still holds, and dropping them here would unregister a
   // scroller out from under a live test.
   stopScrollLoop();
+  if (state.scrollMonitorGetter) {
+    removeMonitor(state.scrollMonitorGetter);
+    state.scrollMonitorGetter = null;
+  }
+  state.scrollMonitorRetainers = 0;
 }
 
 /**
@@ -1021,28 +1029,32 @@ function getInnermostDropTargetElement(location: DragLocationHistory): Element |
   return location.current.dropTargets[0]?.element ?? null;
 }
 
+function startScrollSession({
+  location,
+  source,
+  mode,
+}: Pick<DragEventMap['onDragStart'], 'location' | 'source' | 'mode'>): void {
+  // A drag that ended abnormally with the loop *parked* leaves `enabled` set
+  // and the last input/source referenced: the loop's own no-session
+  // self-termination only runs when a frame fires. Clear that state before
+  // this drag decides anything.
+  stopScrollLoop();
+  // Keyboard drags scroll via `scrollIntoView` (one step per key); the
+  // edge-based loop would fight that.
+  if (mode === 'keyboard') {
+    return;
+  }
+  state.currentInput = resolveScrollInput(location.current.input);
+  state.currentReportedInput = location.current.input;
+  state.currentSource = source;
+  state.currentDropTargetElement = getInnermostDropTargetElement(location);
+  startScrollLoop();
+}
+
 // The engine-internal monitor that drives the scroll loop, registered from the
-// first draggable (see `ensureScrollMonitor`).
+// first auto-scroller registration.
 const SCROLL_MONITOR_PARAMS: RegisterMonitorParameters = {
-  onDragStart: ({ location, source }) => {
-    // A drag that ended abnormally with the loop *parked* leaves `enabled` set
-    // and the last input/source referenced: the loop's own no-session
-    // self-termination only runs when a frame fires. Clear that state before
-    // this drag decides anything — otherwise a keyboard drag skips the guard
-    // below yet inherits `enabled`, and its `onDrag` events wake the loop.
-    stopScrollLoop();
-    // Keyboard drags scroll via `scrollIntoView` (one step per key); the
-    // edge-based loop would fight that — the virtual cursor parks in the edge
-    // zone and the loop runs away — so skip auto-scroll for keyboard mode.
-    if (dragSessionStore.getSnapshot()?.mode === 'keyboard') {
-      return;
-    }
-    state.currentInput = resolveScrollInput(location.current.input);
-    state.currentReportedInput = location.current.input;
-    state.currentSource = source;
-    state.currentDropTargetElement = getInnermostDropTargetElement(location);
-    startScrollLoop();
-  },
+  onDragStart: startScrollSession,
   onDrag: refreshDragInput,
   onDropTargetChange: refreshDragInput,
   onDragEnd: () => {
@@ -1051,25 +1063,56 @@ const SCROLL_MONITOR_PARAMS: RegisterMonitorParameters = {
 };
 
 /**
- * Register the engine scroll-monitor (idempotent), which arms auto-scroll for
- * every drag that follows.
+ * Retain the engine scroll-monitor, which arms auto-scroll while at least one
+ * explicit auto-scroller registration exists.
  *
- * Called when a draggable registers, not only when a scroller does: the
- * containers are inferred from the DOM, so "nothing registered" no longer means
- * "nothing to scroll" and there is no registry whose emptiness could retire the
- * monitor. It stays for the page's lifetime, which costs one entry in the
- * monitor registry — the loop itself only runs between a drag's start and its
- * end, and parks itself whenever no container is engaged.
+ * Called by each explicit auto-scroller registration. While armed, containers
+ * are also inferred from the DOM. The loop itself only runs between a drag's
+ * start and end, parks whenever no container is engaged, and is removed with the
+ * last registration.
  */
-export function ensureScrollMonitor(): void {
-  if (state.scrollMonitorGetter) {
-    return;
+export function retainScrollMonitor(): () => void {
+  state.scrollMonitorRetainers += 1;
+  if (!state.scrollMonitorGetter) {
+    const getMonitor = () => SCROLL_MONITOR_PARAMS;
+    state.scrollMonitorGetter = getMonitor;
+    monitorRegistry.add(getMonitor);
+    // A scroller mounting mid-drag activates the monitor for the in-progress drag.
+    engageMonitorIfDragging(getMonitor);
+    const session = dragSessionStore.getSnapshot();
+    if (session) {
+      startScrollSession(session);
+    }
   }
-  const getMonitor = () => SCROLL_MONITOR_PARAMS;
-  state.scrollMonitorGetter = getMonitor;
-  monitorRegistry.add(getMonitor);
-  // A scroller mounting mid-drag activates the monitor for the in-progress drag.
-  engageMonitorIfDragging(getMonitor);
+  const retainedMonitor = state.scrollMonitorGetter;
+  let released = false;
+  return () => {
+    if (released) {
+      return;
+    }
+    released = true;
+    // Test teardown can reset the shared feature boundary before a mounted
+    // consumer's cleanup runs. That stale cleanup must not release a monitor
+    // installed by the following test.
+    if (state.scrollMonitorGetter !== retainedMonitor) {
+      return;
+    }
+    state.scrollMonitorRetainers -= 1;
+    if (state.scrollMonitorRetainers === 0 && state.scrollMonitorGetter) {
+      const getMonitor = state.scrollMonitorGetter;
+      // React detaches an old render node before attaching its replacement in
+      // the same commit. Defer the last release so that swap keeps the live drag
+      // input and loop; a replacement registration cancels this retirement by
+      // incrementing the retain count before the microtask runs.
+      queueMicrotask(() => {
+        if (state.scrollMonitorRetainers === 0 && state.scrollMonitorGetter === getMonitor) {
+          state.scrollMonitorGetter = null;
+          stopScrollLoop();
+          removeMonitor(getMonitor);
+        }
+      });
+    }
+  };
 }
 
 /** Which axis (or axes) an auto-scroll container may scroll on. */
@@ -1131,6 +1174,7 @@ interface AutoScrollerState {
    */
   enabled: boolean;
   scrollMonitorGetter: (() => RegisterMonitorParameters) | null;
+  scrollMonitorRetainers: number;
   lastTimestamp: number;
   currentInput: DragInput | null;
   /**

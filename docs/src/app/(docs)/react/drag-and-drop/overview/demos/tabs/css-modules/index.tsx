@@ -168,7 +168,6 @@ function DraggableTab(props: DraggableTabProps) {
           payload={item.id}
           keyboardActivation="off"
           pointerActivation={{ mouse: { type: 'distance', distance: 5 } }}
-          trackDisplacement
           modifiers={modifiers}
           onBeforeDragStart={handleBeforeDragStart}
           onDragStart={onDragStart}

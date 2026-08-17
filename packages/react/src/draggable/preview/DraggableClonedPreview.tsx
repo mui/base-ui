@@ -3,13 +3,14 @@ import type * as React from 'react';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import type { DragPreviewSettings } from '../../types/drag';
 import { useDeclaredPreview } from './useDeclaredPreview';
+import { createClonedDragPreviewElement } from '../../utils/drag-and-drop/synthetic/cloneDragPreview';
 
 /**
- * Configures the drag preview while leaving it a clone of the source, which is what
- * a draggable shows by default.
+ * Enables a full-fidelity clone of the source as the drag preview.
  * Renders nothing.
  *
- * Reach for it to place or constrain the default cloned preview.
+ * Reach for it when the preview should preserve the source's DOM and live form,
+ * canvas, and scroll state.
  * Use a `Draggable.Preview` instead to replace the clone with your own content.
  *
  * The clone carries the source's own classes, so style it with `[data-drag-preview]`
@@ -19,7 +20,7 @@ import { useDeclaredPreview } from './useDeclaredPreview';
  */
 export function DraggableClonedPreview(props: DraggableClonedPreview.Props): React.ReactNode {
   const getProps = useStableCallback(() => props);
-  useDeclaredPreview(getProps, null);
+  useDeclaredPreview(getProps, null, createClonedDragPreviewElement);
   return null;
 }
 

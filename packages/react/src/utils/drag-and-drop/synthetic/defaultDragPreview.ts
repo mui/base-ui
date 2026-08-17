@@ -1,4 +1,3 @@
-import { createDragPreviewElement } from './cloneDragPreview';
 import { resolveDragPreviewOffset } from '../customDragPreview';
 import type { SyntheticPreviewHandle } from './syntheticPreview';
 import type { ResolvedDragPreview } from './dragPreviewSettings';
@@ -7,11 +6,8 @@ import type { DragInput, DragPosition } from '../../../types/drag';
 /**
  * Build the element that follows the pointer, unless the draggable opted out.
  *
- * A preview with content — a `Draggable.Preview`, or an imperative
- * `dragPreview.render` — gets an empty host for React to render into; everything
- * else gets a clone of the source. Both land in the same place — next to the
- * source, or in the configured container — so a custom preview inherits the app's
- * CSS exactly as the clone does.
+ * A custom preview gets an empty host for React to render into; an explicitly
+ * cloned preview gets the source clone prepared by its opt-in factory.
  *
  * Runs before `data-dragging` lands on the source, so the clone never inherits it
  * and the usual `[data-dragging] { opacity: .4 }` rule dims the source alone.
@@ -27,10 +23,7 @@ export function attachDefaultDragPreview(
     return;
   }
 
-  const previewElement = createDragPreviewElement(element, {
-    content: settings.content,
-    container: settings.container,
-  });
+  const previewElement = settings.createPreviewElement?.(element, settings.container);
   if (!previewElement) {
     return;
   }

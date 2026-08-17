@@ -43,12 +43,9 @@ function Row({
     [id, positions, hidden],
   );
   return (
-    <Draggable.Root
-      data-testid={id}
-      kind={testDragKind}
-      trackDisplacement={track}
-      render={<div ref={ref} />}
-    />
+    <Draggable.Root data-testid={id} kind={testDragKind} render={<div ref={ref} />}>
+      {track ? <Draggable.Displacement /> : null}
+    </Draggable.Root>
   );
 }
 
@@ -560,7 +557,7 @@ describe('displacement tracking', () => {
     await flushRaf();
   });
 
-  it('turning trackDisplacement off mid-play removes the play state', async () => {
+  it('removing Draggable.Displacement mid-play removes the play state', async () => {
     const positions = new Map([
       ['a', 0],
       ['b', 40],

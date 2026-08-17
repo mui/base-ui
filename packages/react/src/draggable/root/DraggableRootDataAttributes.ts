@@ -3,7 +3,7 @@ import { TransitionStatusDataAttributes } from '../../internals/stateAttributesM
 export enum DraggableRootDataAttributes {
   /**
    * Present on the source element while it is being dragged.
-   * The default preview clone never carries this attribute, so a `[data-dragging]`
+   * A cloned preview never carries this attribute, so a `[data-dragging]`
    * rule that dims or hides the source leaves the preview fully visible.
    */
   dragging = 'data-dragging',
@@ -21,7 +21,7 @@ export enum DraggableRootDataAttributes {
    */
   endingStyle = TransitionStatusDataAttributes.endingStyle,
   /**
-   * Present while `trackDisplacement` is animating this element being pushed aside
+   * Present while `Draggable.Displacement` is animating this element being pushed aside
    * by a reorder, paired with the `--drag-displacement-x`/`--drag-displacement-y`
    * variables. The hook for the displacement transition.
    */

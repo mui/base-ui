@@ -6,6 +6,7 @@ import type { DragPreviewDeclaration } from '../../utils/drag-and-drop/dragPrevi
 import type { DragPreviewSettings } from '../../types/drag';
 import { useDragPreviewContext } from '../../utils/drag-and-drop/overlay/DragPreviewContext';
 import { throwMissingPreviewProvider } from '../../utils/drag-and-drop/overlay/missingPreviewProvider';
+import type { DragPreviewElementFactory } from '../../utils/drag-and-drop/synthetic/cloneDragPreview';
 
 /**
  * Tell the draggable what its preview is. Pass `render` to own the content, or
@@ -15,6 +16,7 @@ import { throwMissingPreviewProvider } from '../../utils/drag-and-drop/overlay/m
 export function useDeclaredPreview<TData = unknown>(
   getProps: () => DragPreviewSettings,
   render: DragPreviewDeclaration<TData>['render'],
+  createPreviewElement: DragPreviewElementFactory,
   disabled = false,
 ): void {
   const { previewHandle, previewContext: rootPreviewContext } = useDraggableRootContext<TData>();
@@ -47,6 +49,7 @@ export function useDeclaredPreview<TData = unknown>(
       [K in keyof Required<DragPreviewDeclaration<TData>>]: DragPreviewDeclaration<TData>[K];
     } = {
       render,
+      createPreviewElement,
       get offset() {
         return getProps().offset;
       },
@@ -61,7 +64,7 @@ export function useDeclaredPreview<TData = unknown>(
       },
     };
     return declared;
-  }, [getProps, render]);
+  }, [getProps, render, createPreviewElement]);
 
   useIsoLayoutEffect(() => previewHandle.declare(declaration), [previewHandle, declaration]);
 }

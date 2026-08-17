@@ -98,11 +98,14 @@ describe('Draggable.Root', () => {
     expect(screen.getByTestId('moved').hasAttribute('keyboardmovement')).toBe(false);
   });
 
-  it('keeps trackDisplacement off the DOM element', () => {
-    rtlRender(<Draggable.Root kind={testDragKind} data-testid="tracked" trackDisplacement />);
+  it('renders Displacement without adding a DOM element', () => {
+    rtlRender(
+      <Draggable.Root kind={testDragKind} data-testid="tracked">
+        <Draggable.Displacement />
+      </Draggable.Root>,
+    );
     const el = screen.getByTestId('tracked');
-    expect(el.hasAttribute('trackdisplacement')).toBe(false);
-    // Component-level behavior only: nothing drag-scoped applies while idle.
+    expect(el).toBeEmptyDOMElement();
     expect(el).not.toHaveAttribute('data-displacing');
   });
 
@@ -139,7 +142,7 @@ describe('Draggable.Root', () => {
 
   it('needs no PreviewProvider to clone the source', async () => {
     // The clone is engine-built and touches no React, so the provider requirement
-    // is scoped to content: a plain draggable stays zero-config.
+    // is scoped to custom content.
     rtlRender(
       <Draggable.Root kind={testDragKind} data-testid="bare">
         <Draggable.ClonedPreview />
@@ -1336,11 +1339,12 @@ describe('Draggable.Root', () => {
     });
   });
 
-  describe('default clone preview', () => {
+  describe('opt-in clone preview', () => {
     function PlainDraggable(props: { options?: Partial<Draggable.Root.Props> }) {
       return (
         <Draggable.Root kind={testDragKind} {...props.options} data-testid="drag" className="Card">
           Card
+          <Draggable.ClonedPreview />
         </Draggable.Root>
       );
     }
@@ -1448,6 +1452,21 @@ describe('Draggable.Root', () => {
       expect(document.querySelector('[data-drag-preview]')).toBeNull();
       expect(source).not.toHaveAttribute('data-dragging');
     });
+  });
+
+  it('renders no preview when no preview part is declared', async () => {
+    await renderDnd(
+      <Draggable.Root kind={testDragKind} data-testid="drag" className="Card">
+        Card
+      </Draggable.Root>,
+    );
+    const source = screen.getByTestId('drag');
+    source.getBoundingClientRect = () => new DOMRect(0, 0, 200, 100);
+
+    fireEvent.dragStart(source);
+
+    expect(source).toHaveAttribute('data-dragging');
+    expect(document.querySelector('[data-drag-preview]')).toBeNull();
   });
 
   describe('Draggable.ClonedPreview', () => {
@@ -1778,7 +1797,7 @@ describe('Draggable.Root', () => {
       expect(screen.getByTestId('preview')).toHaveTextContent('hello');
     });
 
-    it('replaces the default clone rather than rendering alongside it', async () => {
+    it('renders custom content without cloning the source', async () => {
       function CardWithPreview() {
         return (
           <Draggable.Root kind={testDragKind} data-testid="drag" className="Card">
@@ -2135,7 +2154,7 @@ describe('Draggable.Root', () => {
       fireEvent.dragStart(source);
 
       // The content is portaled into an engine-owned host that sits in the
-      // source's own parent — the same place the default clone goes. A provider
+      // source's own parent — the same place a cloned preview goes. A provider
       // supplies the React tree, and relocates nothing.
       const host = screen.getByTestId('preview').closest('[data-drag-preview]') as HTMLElement;
       expect(host).not.toBeNull();
@@ -2233,14 +2252,16 @@ describe('Draggable.Root', () => {
       ).toBe(screen.getByTestId('from-part'));
     });
 
-    it('relocates the default clone through a provider container too', async () => {
+    it('relocates an opted-in clone through a provider container too', async () => {
       function Wiring() {
         const containerRef = React.useRef<HTMLDivElement>(null);
         return (
           <React.Fragment>
             <div ref={containerRef} data-testid="container" />
             <DraggablePreviewProvider container={containerRef}>
-              <Draggable.Root kind={testDragKind} data-testid="drag" className="Card" />
+              <Draggable.Root kind={testDragKind} data-testid="drag" className="Card">
+                <Draggable.ClonedPreview />
+              </Draggable.Root>
             </DraggablePreviewProvider>
           </React.Fragment>
         );
@@ -2268,7 +2289,9 @@ describe('Draggable.Root', () => {
           <React.Fragment>
             <div ref={setContainer} data-testid="late-container" />
             <DraggablePreviewProvider container={container ?? undefined}>
-              <Draggable.Root kind={testDragKind} data-testid="drag" className="Card" />
+              <Draggable.Root kind={testDragKind} data-testid="drag" className="Card">
+                <Draggable.ClonedPreview />
+              </Draggable.Root>
             </DraggablePreviewProvider>
           </React.Fragment>
         );
@@ -2454,10 +2477,10 @@ describe('Draggable.Root', () => {
             engine.registerDraggable(elementRef.current!, () => ({
               kind: cardKind,
               getPayload: () => ({ id: 'a' }),
-              dragPreview: {
+              dragPreview: Draggable.createClonedPreview({
                 modifiers: Draggable.restrictToElement(boundsRef),
                 offset: 'pointer',
-              },
+              }),
             })),
           [engine],
         );
@@ -2495,7 +2518,7 @@ describe('Draggable.Root', () => {
               engine.registerDraggable(elementRef.current!, () => ({
                 kind: cardKind,
                 getPayload: () => ({ id: 'a' }),
-                dragPreview: { container: host },
+                dragPreview: Draggable.createClonedPreview({ container: host }),
               })),
             [engine],
           );
@@ -2748,6 +2771,7 @@ describe('Draggable.Root', () => {
     it.each([
       ['Draggable.Handle', <Draggable.Handle key="h" />],
       ['Draggable.ClonedPreview', <Draggable.ClonedPreview key="c" />],
+      ['Draggable.Displacement', <Draggable.Displacement key="d" />],
     ])('throws when %s is rendered outside Draggable.Root', (_name, element) => {
       // React logs the uncaught render error through console.error in dev.
       const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});

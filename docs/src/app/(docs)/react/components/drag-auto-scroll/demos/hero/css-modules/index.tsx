@@ -178,17 +178,9 @@ function DropZone({
       }}
     >
       <span className={styles.Label}>{label}</span>
-      {maxSpeed === undefined ? (
-        // Nothing declared: the list scrolls because its `overflow` says it can.
-        <div ref={listRef} className={styles.Cards}>
-          {cards}
-        </div>
-      ) : (
-        // The same list, slowed down.
-        <DragAutoScroll.Root ref={listRef} className={styles.Cards} maxSpeed={maxSpeed}>
-          {cards}
-        </DragAutoScroll.Root>
-      )}
+      <DragAutoScroll.Root ref={listRef} className={styles.Cards} maxSpeed={maxSpeed}>
+        {cards}
+      </DragAutoScroll.Root>
     </DropTarget.Root>
   );
 }

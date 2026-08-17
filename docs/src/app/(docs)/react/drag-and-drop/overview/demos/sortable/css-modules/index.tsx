@@ -57,9 +57,6 @@ function SortableItem({
       label={item.label}
       kind={itemKind}
       payload={item.id}
-      // The engine measures how far each reorder pushes this item and reflects it
-      // as `data-displacing` and the displacement variables; the CSS animates it.
-      trackDisplacement
       // Arrow keys only move between items; a press past either end does nothing.
       keyboardMovement={Draggable.targetsOnlyKeyboardMovement}
       // Lock the drag to the vertical axis and keep it inside the list, for
@@ -88,6 +85,10 @@ function SortableItem({
       role="button"
       className={styles.Item}
     >
+      {/* The opt-in part measures how far each reorder pushes this item and
+          publishes `data-displacing` and the displacement variables. */}
+      <Draggable.Displacement />
+      <Draggable.ClonedPreview />
       <Grip />
       {item.label}
     </Draggable.Root>

@@ -102,7 +102,11 @@ describe('Draggable enum sync', () => {
   });
 
   it('names the source ending attribute per DraggableRootDataAttributes', async () => {
-    const { engine } = await renderDnd(<Draggable.Root kind={testDragKind} data-testid="drag" />);
+    const { engine } = await renderDnd(
+      <Draggable.Root kind={testDragKind} data-testid="drag">
+        <Draggable.ClonedPreview />
+      </Draggable.Root>,
+    );
     const source = screen.getByTestId('drag');
     const target = createElement();
     engine.registerDropTarget(target, {});
@@ -134,12 +138,9 @@ describe('Draggable enum sync', () => {
       const [, setVersion] = React.useState(0);
       bumpApp = () => setVersion((v) => v + 1);
       return (
-        <Draggable.Root
-          kind={testDragKind}
-          data-testid="neighbour"
-          trackDisplacement
-          render={<div ref={ref} />}
-        />
+        <Draggable.Root kind={testDragKind} data-testid="neighbour" render={<div ref={ref} />}>
+          <Draggable.Displacement />
+        </Draggable.Root>
       );
     }
     const { engine } = await renderDnd(<Neighbour />);

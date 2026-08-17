@@ -86,9 +86,10 @@ describe.skipIf(isJSDOM)('displacement (real layout and transitions)', () => {
         <Draggable.Root
           kind={testDragKind}
           data-testid="row"
-          trackDisplacement
           style={{ position: 'fixed', left: 0, top, width: 100, height: 40 }}
-        />
+        >
+          <Draggable.Displacement />
+        </Draggable.Root>
       </div>
     );
   }
@@ -122,7 +123,6 @@ describe.skipIf(isJSDOM)('displacement (real layout and transitions)', () => {
             key={id}
             kind={testDragKind}
             data-testid={`item-${id}`}
-            trackDisplacement
             className={itemClassName}
             style={{
               position: 'fixed',
@@ -131,7 +131,9 @@ describe.skipIf(isJSDOM)('displacement (real layout and transitions)', () => {
               width: 40,
               height: 40,
             }}
-          />
+          >
+            <Draggable.Displacement />
+          </Draggable.Root>
         ))}
       </div>
     );
@@ -305,10 +307,11 @@ describe.skipIf(isJSDOM)('displacement (real layout and transitions)', () => {
           <Draggable.Root
             kind={testDragKind}
             data-testid={swapped ? 'fresh-row' : 'old-row'}
-            trackDisplacement
             style={{ position: 'fixed', left: 0, top, width: 100, height: 40 }}
             render={(props) => <div key={swapped ? 'fresh' : 'old'} {...props} />}
-          />
+          >
+            <Draggable.Displacement />
+          </Draggable.Root>
         </div>
       );
     }
@@ -352,9 +355,10 @@ describe.skipIf(isJSDOM)('displacement (real layout and transitions)', () => {
               key={id}
               kind={testDragKind}
               data-testid={`item-${id}`}
-              trackDisplacement
               style={{ position: 'fixed', left: 0, top: 100 + index * 50, width: 40, height: 40 }}
-            />
+            >
+              <Draggable.Displacement />
+            </Draggable.Root>
           ))}
         </div>
       );
@@ -393,7 +397,6 @@ describe.skipIf(isJSDOM)('displacement (real layout and transitions)', () => {
         <Draggable.Root
           kind={testDragKind}
           data-testid="row"
-          trackDisplacement
           pointerActivation={{ mouse: { type: 'immediate' } }}
           onDragEnd={(event) => {
             if (event.canceled) {
@@ -401,7 +404,9 @@ describe.skipIf(isJSDOM)('displacement (real layout and transitions)', () => {
             }
           }}
           style={{ position: 'fixed', left: 0, top, width: 100, height: 40 }}
-        />
+        >
+          <Draggable.Displacement />
+        </Draggable.Root>
       );
     }
     await renderDnd(<CancelApp />);

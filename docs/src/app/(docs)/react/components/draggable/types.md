@@ -10,8 +10,6 @@ Makes its element a drag source, so it can be picked up with the pointer or the
 keyboard and dropped on matching drop targets.
 Renders a `<div>` element.
 
-While dragging, a clone of the element follows the pointer.
-
 **Root Props:**
 
 | Prop                  | Type                                                                                                                                                                                                                                               | Default      | Description                                                                                                                                                                                                                                                                                                                                          |
@@ -35,7 +33,6 @@ While dragging, a clone of the element follows the pointer.
 | payload               | `TData`                                                                                                                                                                                                                                            | -            | Static payload data. Function values are preserved without being invoked.                                                                                                                                                                                                                                                                            |
 | pointerActivation     | `DragActivationConfig`                                                                                                                                                                                                                             | -            | Determines when a press becomes a drag. Mouse and pen default to a 5px&#xA;distance, touch to a 250ms press-hold. Pass a single `DragActivation` to&#xA;apply to all pointer types, or a per-type map.&#xA;Keyboard pickup is separate: see `keyboardActivation`.                                                                                    |
 | previewKey            | `string \| number`                                                                                                                                                                                                                                 | -            | Stable identity used to reconnect a settling cloned preview to this source&#xA;after it remounts. Use the same key for the same logical item across the move.&#xA;Static payload identity is used as a fallback when it is referentially stable.                                                                                                     |
-| trackDisplacement     | `boolean`                                                                                                                                                                                                                                          | `false`      | Whether to expose this element's layout displacement through&#xA;`data-displacing`, `data-starting-style`, and the displacement CSS variables.                                                                                                                                                                                                       |
 | finalFocus            | `DragKeyboardFinalFocus<TData> \| DragKeyboardFinalFocus<undefined>`                                                                                                                                                                               | `true`       | Determines where focus moves after a keyboard drag. See&#xA;[`DragKeyboardFinalFocus`](#dragkeyboardfinalfocus) for the supported values.&#xA;A pointer drag never moves focus.                                                                                                                                                                      |
 | disabled              | `boolean`                                                                                                                                                                                                                                          | `false`      | Whether the element should ignore user interaction: a press behaves like an&#xA;ordinary click and Space/Enter keep their native behavior. The keyboard-drag&#xA;a11y attributes are also omitted, so screen readers don't announce a drag that&#xA;can't start. For a decision that needs the gesture context, use&#xA;`onBeforeDragStart` instead. |
 | children              | `React.ReactNode`                                                                                                                                                                                                                                  | -            | -                                                                                                                                                                                                                                                                                                                                                    |
@@ -47,9 +44,9 @@ While dragging, a clone of the element follows the pointer.
 
 | Attribute           | Type                      | Description                                                                                                                                                                                                                                                                   |
 | :------------------ | :------------------------ | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| data-dragging       | -                         | Present on the source element while it is being dragged.&#xA;The default preview clone never carries this attribute, so a `[data-dragging]`&#xA;rule that dims or hides the source leaves the preview fully visible.                                                          |
+| data-dragging       | -                         | Present on the source element while it is being dragged.&#xA;A cloned preview never carries this attribute, so a `[data-dragging]`&#xA;rule that dims or hides the source leaves the preview fully visible.                                                                   |
 | data-disabled       | -                         | Present while the draggable is disabled.                                                                                                                                                                                                                                      |
-| data-displacing     | -                         | Present while `trackDisplacement` is animating this element being pushed aside&#xA;by a reorder, paired with the `--drag-displacement-x`/`--drag-displacement-y`&#xA;variables. The hook for the displacement transition.                                                     |
+| data-displacing     | -                         | Present while `Draggable.Displacement` is animating this element being pushed aside&#xA;by a reorder, paired with the `--drag-displacement-x`/`--drag-displacement-y`&#xA;variables. The hook for the displacement transition.                                                |
 | data-drag-mode      | `'pointer' \| 'keyboard'` | The input modality driving the drag: `'pointer'` or `'keyboard'`. Present on the&#xA;source alongside `data-dragging`, and mirrored on the preview element.                                                                                                                   |
 | data-starting-style | -                         | Present alongside `data-displacing` on the first frame of a displacement, while&#xA;the element should still sit at its old position. Style the displaced state&#xA;under it, and the transition under `data-displacing` without it.                                          |
 | data-ending-style   | -                         | Present on the source after a deliberate release while an engine-owned clone&#xA;settles into its final position, including a return after release outside a&#xA;target. Use it to keep the source styled as a placeholder until the preview's&#xA;ending animation finishes. |
@@ -227,22 +224,16 @@ type DraggableRootPropsWithPayload<TData> = (
     eventDetails: DropTargetChangeEventDetails,
   ) => void;
   children?: React.ReactNode;
-  /**
-   * Whether to expose this element's layout displacement through
-   * `data-displacing`, `data-starting-style`, and the displacement CSS variables.
-   * @default false
-   */
-  trackDisplacement?: boolean;
 };
 ```
 
 ### ClonedPreview
 
-Configures the drag preview while leaving it a clone of the source, which is what
-a draggable shows by default.
+Enables a full-fidelity clone of the source as the drag preview.
 Renders nothing.
 
-Reach for it to place or constrain the default cloned preview.
+Reach for it when the preview should preserve the source's DOM and live form,
+canvas, and scroll state.
 Use a `Draggable.Preview` instead to replace the clone with your own content.
 
 The clone carries the source's own classes, so style it with `[data-drag-preview]`
@@ -260,6 +251,23 @@ the way you would without this part.
 ### ClonedPreview.Props
 
 Re-export of [ClonedPreview](#clonedpreview) props.
+
+### createClonedPreview
+
+Creates the full-fidelity cloned preview configuration for a source registered
+with `useDragDropManager`.
+
+**Parameters:**
+
+| Parameter | Type                  | Default | Description |
+| :-------- | :-------------------- | :------ | :---------- |
+| settings? | `DragPreviewSettings` | -       | -           |
+
+**Return Value:**
+
+```tsx
+type ReturnValue = DragPreviewParameters;
+```
 
 ### createGlobalKind
 
@@ -314,6 +322,17 @@ need to share a kind by a namespaced key.
 
 ```tsx
 type ReturnValue = DragKind<TPayload>;
+```
+
+### Displacement
+
+Enables layout-displacement tracking for its parent `Draggable.Root`.
+Renders no element.
+
+**Return Value:**
+
+```tsx
+type ReturnValue = null;
 ```
 
 ### DraggablePayloadGetter
@@ -448,8 +467,7 @@ type DraggableHandleState = {
 
 ### Preview
 
-Customizes what follows the pointer while the draggable is dragged, replacing
-the default clone of the source.
+Customizes what follows the pointer while the draggable is dragged.
 Renders a `<div>` element.
 
 Renders nothing where you write it: the content renders in the nearest
@@ -502,7 +520,7 @@ from providers above this component, but not from providers nested between it
 and an individual draggable. Place it inside every local context boundary the
 preview needs. Renders no element of its own.
 
-This provider is optional for the default cloned preview.
+This provider is optional for `Draggable.ClonedPreview`.
 
 **PreviewProvider Props:**
 
@@ -1552,7 +1570,8 @@ type DragPreviewOffsetParameters = {
 ### DragPreviewParameters
 
 The drag preview of a source registered imperatively.
-Omit it and the source is cloned, in place.
+Omit it to render no preview. Use `Draggable.createClonedPreview()` for a
+full-fidelity clone of the source.
 
 Components describe the preview with `Draggable.Preview` or
 `Draggable.ClonedPreview` instead.
@@ -1560,7 +1579,7 @@ Components describe the preview with `Draggable.Preview` or
 ```typescript
 type DragPreviewParameters<TSourceData = unknown> = {
   /**
-   * Renders the preview content, replacing the default clone of the source.
+   * Renders the preview content.
    * Return `null` or `false` to show no preview for this drag.
    */
   render?: (parameters: DragPreviewRenderEvent<TSourceData>) => React.ReactNode;
@@ -1909,6 +1928,8 @@ type matches =
 - `Draggable.Preview`: `Draggable.Preview`, `Draggable.Preview.State`, `Draggable.Preview.Props`
 - `Draggable.ClonedPreview`: `Draggable.ClonedPreview`, `Draggable.ClonedPreview.Props`
 - `Draggable.PreviewProvider`: `Draggable.PreviewProvider`, `Draggable.PreviewProvider.State`, `Draggable.PreviewProvider.Props`
+- `Draggable.Displacement`
+- `Draggable.createClonedPreview`
 - `Draggable.useActiveDrag`: `Draggable.useActiveDrag`, `Draggable.useActiveDrag.ReturnValue`
 - `Draggable.createKind`
 - `Draggable.createGlobalKind`
