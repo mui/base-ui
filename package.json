@@ -81,7 +81,7 @@
     "@vitest/browser-playwright": "4.1.10",
     "@vitest/coverage-istanbul": "4.1.10",
     "@vitest/ui": "4.1.10",
-    "concurrently": "^10.0.4",
+    "concurrently": "10.0.4",
     "cross-env": "10.1.0",
     "docs": "workspace:^",
     "eslint": "10.3.0",
