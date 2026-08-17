@@ -10,16 +10,16 @@
   },
   "dependencies": {
     "radix-ui": "^1.4.3",
-    "react": "19.2.5",
-    "react-dom": "19.2.5",
+    "react": "19.2.8",
+    "react-dom": "19.2.8",
     "react-router": "7.18.2"
   },
   "devDependencies": {
     "@eslint/js": "10.0.1",
     "@tailwindcss/vite": "4.2.4",
     "@types/node": "22.18.13",
-    "@types/react": "19.2.14",
-    "@types/react-dom": "19.2.3",
+    "@types/react": "19.2.18",
+    "@types/react-dom": "19.2.4",
     "@vitejs/plugin-react": "6.0.1",
     "cross-env": "10.1.0",
     "eslint": "10.8.1",
