@@ -6,7 +6,7 @@ import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { areArraysEqual } from '@base-ui/utils/areArraysEqual';
 import { registerDropTarget } from '../../utils/drag-and-drop/registrations';
-import { refreshDropTargets } from '../../utils/drag-and-drop/core/lifecycleManager';
+import { scheduleDropTargetParameterRefresh } from '../../utils/drag-and-drop/core/lifecycleManager';
 import type { RegisterDropTargetParameters } from '../../types/dragRegistration';
 import { useRegistrationRef } from '../../utils/drag-and-drop/useRegistrationRef';
 import {
@@ -112,7 +112,7 @@ export function useDropTargetElement(
     // identity after its own `onDrag` updates preview state; re-hit-testing the
     // shifted content there can enter another target, update preview state
     // again, and create a synchronous render/refresh loop.
-    refreshDropTargets({ rehitTest: false });
+    scheduleDropTargetParameterRefresh();
   }, [disabled, accept, canDrop]);
 
   const targetState = useStore(

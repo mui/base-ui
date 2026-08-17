@@ -55,6 +55,7 @@ interface LifecycleState {
   dragCancel: (() => void) | null;
   /** See {@link refreshDropTargets}. Set during an active drag, cleared on teardown. */
   refreshDropTargets: ((rehitTest: boolean) => void) | null;
+  parameterRefreshQueued: boolean;
   /**
    * Whether an element currently holds delivered hover state. See
    * {@link isHoveredDropTarget}.
@@ -67,6 +68,7 @@ const state = getSharedSlot<LifecycleState>('lifecycleManager', () => ({
   dragCleanup: null,
   dragCancel: null,
   refreshDropTargets: null,
+  parameterRefreshQueued: false,
   isHovered: null,
 }));
 
@@ -90,6 +92,21 @@ export function isActive(): boolean {
  */
 export function refreshDropTargets(options?: { rehitTest?: boolean | undefined }): void {
   state.refreshDropTargets?.(options?.rehitTest ?? true);
+}
+
+/** Coalesce a React commit's drop-target parameter changes into one resolution. */
+export function scheduleDropTargetParameterRefresh(): void {
+  const refresh = state.refreshDropTargets;
+  if (refresh === null || state.parameterRefreshQueued) {
+    return;
+  }
+  state.parameterRefreshQueued = true;
+  queueMicrotask(() => {
+    state.parameterRefreshQueued = false;
+    if (state.refreshDropTargets === refresh) {
+      refresh(false);
+    }
+  });
 }
 
 /**

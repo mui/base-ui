@@ -841,6 +841,41 @@ describe('DropTarget.Root', () => {
     expect(target).toHaveAttribute('data-drag-over');
   });
 
+  it('coalesces inline canDrop changes from one render into one resolution', async () => {
+    const canDrop = vi.fn(() => true);
+    function Fixture({ revision }: { revision: number }) {
+      return (
+        <div data-revision={revision}>
+          {Array.from({ length: 20 }, (_, index) => (
+            <DropTarget.Root
+              key={index}
+              accept={DropTarget.anyKind}
+              data-testid={`target-${index}`}
+              canDrop={() => canDrop()}
+            />
+          ))}
+        </div>
+      );
+    }
+
+    const { rerender, engine } = await renderDnd(<Fixture revision={0} />);
+    const source = createElement();
+    engine.registerDraggable(source, {});
+    const target = screen.getByTestId('target-0');
+
+    fireEvent.dragStart(source);
+    await flushRaf();
+    fireEvent.dragEnter(target);
+    fireEvent.dragOver(target);
+    await flushRaf();
+
+    canDrop.mockClear();
+    await rerender(<Fixture revision={1} />);
+
+    expect(canDrop).toHaveBeenCalledTimes(1);
+    fireEvent.drop(target);
+  });
+
   it('passes the drag-over state to a className callback', async () => {
     const { engine } = await renderDnd(
       <DropTarget.Root
