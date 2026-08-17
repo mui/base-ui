@@ -33,7 +33,7 @@ overrides:
   # via @microsoft/api-extractor, html-validate, webpack -> ajv (GHSA-4c8g-83qw-93j6, -v2hh-gcrm-f6hx, -7p8r-x3mc-p8w7)
   fast-uri: '^3.1.5'
   # via lerna -> make-fetch-happen -> socks (GHSA-mwp4-54f8-5fhr, -22jq-vg5j-6vgg, -4xrf-jv44-h6hh)
-  ip-address: '^10.3.1'
+  ip-address: '^10.5.0'
   # via lerna/stylelint -> cosmiconfig (GHSA-5p4m-2wfm-xmqj, -52cp-r559-cp3m, -h67p-54hq-rp68)
   js-yaml@4: '^4.3.1'
   # via postcss (GHSA-2v37-7h3g-55p8)
