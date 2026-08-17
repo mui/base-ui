@@ -155,5 +155,10 @@ describe('resolveValueLabel', () => {
 
       expect(resolveSelectedLabel(null, items)).toBe('None');
     });
+
+    it('falls back to the stringified label when an own key has a nullish label', () => {
+      expect(resolveSelectedLabel('sans', { sans: undefined })).toBe('sans');
+      expect(resolveSelectedLabel('sans', { sans: null })).toBe('sans');
+    });
   });
 });
