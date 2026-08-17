@@ -357,7 +357,7 @@ export interface MenuPositionerProps
    * Which side of the anchor element to align the popup against.
    * May automatically change to avoid collisions.
    *
-   * Defaults to `'bottom'` for root menus and horizontal menubars, and to `'inline-end'`
+   * Defaults to `'bottom'` at the root and for horizontal menubars, and to `'inline-end'`
    * for submenus and vertical menubars.
    */
   side?: UseAnchorPositioningSharedParameters['side'] | undefined;

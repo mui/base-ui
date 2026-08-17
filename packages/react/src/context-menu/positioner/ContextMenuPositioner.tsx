@@ -39,9 +39,8 @@ export interface ContextMenuPositionerProps
    */
   anchor?: MenuPositionerProps['anchor'] | undefined;
   /**
-   * Determines which CSS `position` property to use.
-   * Context menus always use fixed positioning, so passing `'absolute'` has no effect.
-   * @default 'fixed'
+   * @ignore
+   * @deprecated This prop has no effect on Context Menu.
    */
   positionMethod?: MenuPositionerProps['positionMethod'] | undefined;
   /**

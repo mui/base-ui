@@ -81,9 +81,6 @@ export interface ContextMenuRootProps extends Omit<
    * @deprecated This prop has no effect on Context Menu.
    */
   closeParentOnEsc?: Menu.Root.Props['closeParentOnEsc'] | undefined;
-  /**
-   * The content of the context menu.
-   */
   children?: React.ReactNode | undefined;
 }
 
