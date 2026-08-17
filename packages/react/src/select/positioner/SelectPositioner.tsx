@@ -168,7 +168,7 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
       let nextValue = store.state.value;
       // Under virtual focus a query unmounts items on every keystroke, which is not a removal.
       // The filter host reconciles the selection against its complete data instead.
-      if (!virtualFocus && isItemRemoved(previousRegisteredItems, nextRegisteredItems)) {
+      if (!virtualFocus && hasRegisteredItemChanged(previousRegisteredItems, nextRegisteredItems)) {
         nextValue = getValueAfterItemRemoval(
           nextRegisteredItems,
           nextValue,
@@ -296,16 +296,12 @@ function findSelectionReferenceItemId(
   return null;
 }
 
-function isItemRemoved(
+function hasRegisteredItemChanged(
   previousMap: ReadonlyMap<symbol, RegisteredItem>,
   currentMap: ReadonlyMap<symbol, RegisteredItem>,
 ) {
-  if (previousMap.size > currentMap.size) {
-    return true;
-  }
-
-  for (const id of previousMap.keys()) {
-    if (!currentMap.has(id)) {
+  for (const [id, previousItem] of previousMap) {
+    if (currentMap.get(id)?.getValue !== previousItem.getValue) {
       return true;
     }
   }

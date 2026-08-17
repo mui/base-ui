@@ -198,11 +198,10 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
   const triggerElement = useStore(store, selectors.triggerElement);
   const positionerElement = useStore(store, selectors.positionerElement);
 
-  const selectionReferenceIndex = React.useMemo(() => {
-    return selectionReferenceItemId == null
+  const selectionReferenceIndex =
+    selectionReferenceItemId == null
       ? null
       : (visibleItemIndexes.get(selectionReferenceItemId) ?? null);
-  }, [visibleItemIndexes, selectionReferenceItemId]);
 
   const serializedValue = React.useMemo(() => {
     // In multiple mode the shared input is nameless; per-value entries are submitted via
@@ -278,9 +277,9 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
         return;
       }
 
-      const selectionReferenceItem = hasNoSelectionReference
+      const nextSelectionReferenceId = hasNoSelectionReference
         ? undefined
-        : findMatchingItem(store.state.registeredItems, (item) =>
+        : findMatchingItemId(store.state.registeredItems, (item) =>
             compareItemEquality(
               item.getValue(),
               selectionReferenceValue as Value,
@@ -288,9 +287,9 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
             ),
           );
 
-      const nextSelectionReferenceId = selectionReferenceItem?.id ?? null;
-      if (nextSelectionReferenceId !== currentReferenceId) {
-        store.set('selectionReferenceItemId', nextSelectionReferenceId);
+      const nextReferenceId = nextSelectionReferenceId ?? null;
+      if (nextReferenceId !== currentReferenceId) {
+        store.set('selectionReferenceItemId', nextReferenceId);
       }
     },
     [multiple, open, value, isItemEqualToValue, store],
@@ -626,21 +625,23 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
               // which browsers can autofill for primitive values like `value="US">United States`.
               const nextValueLower = nextValue.toLowerCase();
 
-              let matchingItem = findMatchingItem(store.state.registeredItems, (item) => {
+              let matchingItemId = findMatchingItemId(store.state.registeredItems, (item) => {
                 const itemValue = item.getValue();
                 const value = stringifyAsValue(itemValue, itemToStringValue).toLowerCase();
                 const label = stringifyAsLabel(itemValue, itemToStringLabel).toLowerCase();
                 return value === nextValueLower || label === nextValueLower;
               });
 
-              if (!matchingItem) {
-                matchingItem = findMatchingItem(store.state.registeredItems, (item) => {
+              if (!matchingItemId) {
+                matchingItemId = findMatchingItemId(store.state.registeredItems, (item) => {
                   const label = item.getLabel();
                   return label != null && label.toLowerCase() === nextValueLower;
                 });
               }
 
-              const matchingValue = matchingItem?.getValue();
+              const matchingValue = matchingItemId
+                ? store.state.registeredItems.get(matchingItemId)?.getValue()
+                : undefined;
               if (matchingValue != null) {
                 // `setValue` may be canceled by `onValueChange`; rely on `useValueChanged` to
                 // mark the field dirty and run validation only when the value actually changes.
@@ -673,13 +674,13 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
   return select;
 }
 
-function findMatchingItem(
+function findMatchingItemId(
   registeredItems: ReadonlyMap<symbol, RegisteredItem>,
   matches: (item: RegisteredItem) => boolean,
 ) {
   for (const [id, item] of registeredItems) {
     if (matches(item)) {
-      return { ...item, id };
+      return id;
     }
   }
   return undefined;

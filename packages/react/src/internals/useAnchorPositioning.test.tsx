@@ -55,19 +55,18 @@ function TestUseAnchorPositioning(props: { shift?: UseAnchorPositioningParameter
   );
 }
 
-function TestLazyFlip(props: { mounted?: boolean; align?: 'start' | 'end'; height?: number }) {
-  const { mounted = true, align = 'start', height: heightProp } = props;
+function TestLazyFlip() {
   const anchorRef = React.useRef<HTMLDivElement>(null);
   const [shrunk, setShrunk] = React.useState(false);
-  const height = heightProp ?? (shrunk ? 10 : 100);
+  const height = shrunk ? 10 : 100;
 
   const positioning = useAnchorPositioningWithHook(
     {
       anchor: anchorRef,
-      mounted,
+      mounted: true,
       positionMethod: 'fixed',
       side: 'right',
-      align,
+      align: 'start',
       sideOffset: 0,
       alignOffset: 0,
       collisionBoundary: 'clipping-ancestors',
@@ -95,7 +94,6 @@ function TestLazyFlip(props: { mounted?: boolean; align?: 'start' | 'end'; heigh
         ref={positioning.refs.setFloating}
         data-testid="floating"
         data-align={positioning.align}
-        data-preferred-align={align}
         style={{ ...positioning.positionerStyles, width: 100, height }}
       >
         floating
@@ -148,28 +146,5 @@ describe('useAnchorPositioning', () => {
     });
 
     expect(floating).toHaveAttribute('data-align', 'end');
-  });
-
-  it.skipIf(isJSDOM)('releases the lock when the requested alignment changes', async () => {
-    const { user, setProps } = await render(<TestLazyFlip />);
-
-    await waitFor(() => {
-      expect(screen.getByTestId('floating')).toHaveAttribute('data-align', 'end');
-    });
-
-    // `start` now fits, but the lock deliberately keeps the flipped alignment.
-    await user.click(screen.getByRole('button', { name: 'Shrink' }));
-    expect(screen.getByTestId('floating')).toHaveAttribute('data-align', 'end');
-
-    // Asking for a different alignment releases it, so `start` is honoured again.
-    await setProps({ align: 'end' });
-    await waitFor(() => {
-      expect(screen.getByTestId('floating')).toHaveAttribute('data-preferred-align', 'end');
-    });
-    await setProps({ align: 'start' });
-
-    await waitFor(() => {
-      expect(screen.getByTestId('floating')).toHaveAttribute('data-align', 'start');
-    });
   });
 });

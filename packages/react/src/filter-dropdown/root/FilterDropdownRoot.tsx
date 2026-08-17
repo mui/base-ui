@@ -73,6 +73,7 @@ export function FilterDropdownRoot(props: FilterDropdownRoot.Props): React.JSX.E
   const focusOwnerRef = externalFocusOwnerRef ?? ownFocusOwnerRef;
   const inputElementRef = React.useRef<HTMLInputElement | null>(null);
   const listElementRef = React.useRef<HTMLDivElement | null>(null);
+  const lastFilterQueryRef = React.useRef<string | null>(null);
   const handleValueChange = useStableCallback(onValueChange ?? NOOP);
   const setInputElement = useStableCallback((element: HTMLInputElement | null) => {
     inputElementRef.current = element;
@@ -110,8 +111,12 @@ export function FilterDropdownRoot(props: FilterDropdownRoot.Props): React.JSX.E
     }
 
     const filterQuery = (query ?? value).trim();
+    const queryChanged =
+      lastFilterQueryRef.current !== null && lastFilterQueryRef.current !== filterQuery;
+    lastFilterQueryRef.current = filterQuery;
     if (filterQuery === '') {
       if (store.state.visibleItemIds !== null) {
+        setActiveIndex(null);
         store.set('visibleItemIds', null);
       }
       return;
@@ -134,9 +139,14 @@ export function FilterDropdownRoot(props: FilterDropdownRoot.Props): React.JSX.E
 
     const currentIds = store.state.visibleItemIds;
     if (currentIds === null || !isSetEqual(currentIds, nextIds)) {
+      // The first filtered snapshot can land after initial keyboard navigation in React 18. It
+      // has no prior result identity to invalidate, unless the controlled query itself changed.
+      if (currentIds !== null || queryChanged) {
+        setActiveIndex(null);
+      }
       store.set('visibleItemIds', nextIds);
     }
-  }, [open, value, query, registeredItems, filter, defaultMatches, store]);
+  }, [open, value, query, registeredItems, filter, defaultMatches, store, setActiveIndex]);
 
   const contextValue: FilterDropdownRootContext = React.useMemo(
     () => ({
@@ -214,10 +224,6 @@ export function FilterDropdownRoot(props: FilterDropdownRoot.Props): React.JSX.E
 }
 
 function isSetEqual<T>(firstSet: ReadonlySet<T>, secondSet: ReadonlySet<T>) {
-  if (firstSet === secondSet) {
-    return true;
-  }
-
   if (firstSet.size !== secondSet.size) {
     return false;
   }

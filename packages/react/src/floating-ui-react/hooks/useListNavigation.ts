@@ -806,13 +806,17 @@ export function useListNavigation(
   ]);
 
   const reference: ElementProps['reference'] = React.useMemo(() => {
+    if (!virtual) {
+      return trigger;
+    }
+
     return {
       ...ariaActiveDescendantProp,
       ...trigger,
       onKeyDown(event) {
         const currentOpen = store.select('open');
 
-        if (virtual && currentOpen) {
+        if (currentOpen) {
           const activeItem = listRef.current[indexRef.current];
           const isEventFromReference = event.target === event.currentTarget;
           const isActivationKey = event.key === 'Enter' || event.key === ' ';
@@ -861,7 +865,7 @@ export function useListNavigation(
           return;
         }
 
-        trigger?.onKeyDown?.(event);
+        trigger.onKeyDown?.(event);
       },
     };
   }, [

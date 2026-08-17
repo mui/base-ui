@@ -1,6 +1,6 @@
 import { expect, vi } from 'vitest';
 import * as React from 'react';
-import { act, screen, waitFor } from '@mui/internal-test-utils';
+import { act, ignoreActWarnings, reactMajor, screen, waitFor } from '@mui/internal-test-utils';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { Menu } from '@base-ui/react/menu';
 import { FilterMenu } from '@base-ui/react/filter-menu';
@@ -620,6 +620,9 @@ describe('<FilterMenu.Root />', () => {
         const { user } = await render(<Test />);
         const input = screen.getByRole('searchbox', { name: 'Filter fruit' });
         await user.type(input, 'ap');
+        await waitFor(() => {
+          expect(input).toHaveValue('ap');
+        });
         await act(async () => {
           closeSubmenu();
         });
@@ -672,7 +675,16 @@ describe('<FilterMenu.Root />', () => {
       );
 
       const input = await screen.findByRole('searchbox', { name: 'Filter fruit' });
+      await waitFor(() => {
+        expect(input).toHaveFocus();
+      });
       await user.keyboard('[ArrowDown]');
+      await waitFor(() => {
+        expect(input).toHaveAttribute(
+          'aria-activedescendant',
+          screen.getByRole('menuitem', { name: 'Apple' }).id,
+        );
+      });
 
       expect(input).toHaveValue('app');
       expect(screen.getByRole('menuitem', { name: 'Apple' })).toBeVisible();
@@ -699,6 +711,50 @@ describe('<FilterMenu.Root />', () => {
         'aria-activedescendant',
         screen.getByRole('menuitem', { name: 'Apple' }).id,
       );
+    });
+
+    it('clears a positional highlight when a controlled query replaces the visible item', async () => {
+      const onAppleClick = vi.fn();
+
+      function Test(props: { inputValue: string }) {
+        return (
+          <FilterMenu.Root open inputValue={props.inputValue} onInputValueChange={() => {}}>
+            <FilterMenu.Trigger>Fruit</FilterMenu.Trigger>
+            <FilterMenu.Portal>
+              <FilterMenu.Positioner>
+                <FilterMenu.Popup>
+                  <FilterMenu.Input aria-label="Filter fruit" />
+                  <FilterMenu.List>
+                    <FilterMenu.Item onClick={onAppleClick}>Apple</FilterMenu.Item>
+                    <FilterMenu.Item>Banana</FilterMenu.Item>
+                  </FilterMenu.List>
+                </FilterMenu.Popup>
+              </FilterMenu.Positioner>
+            </FilterMenu.Portal>
+          </FilterMenu.Root>
+        );
+      }
+
+      const { user, setProps } = await render(<Test inputValue="ban" />);
+      const input = screen.getByRole('searchbox', { name: 'Filter fruit' });
+      await waitFor(() => {
+        expect(input).toHaveFocus();
+      });
+      await user.keyboard('[ArrowDown]');
+      await waitFor(() => {
+        expect(input).toHaveAttribute(
+          'aria-activedescendant',
+          screen.getByRole('menuitem', { name: 'Banana' }).id,
+        );
+      });
+
+      await setProps({ inputValue: 'app' });
+
+      expect(screen.getByRole('menuitem', { name: 'Apple' })).toBeVisible();
+      expect(screen.queryByRole('menuitem', { name: 'Banana' })).toBe(null);
+      expect(input).not.toHaveAttribute('aria-activedescendant');
+      await user.keyboard('[Enter]');
+      expect(onAppleClick).not.toHaveBeenCalled();
     });
 
     it('supports a detached trigger in a filterable menu', async () => {
@@ -1053,8 +1109,13 @@ describe('<FilterMenu.Root />', () => {
 
       const parentInput = screen.getByRole('searchbox', { name: 'Filter actions' });
       const submenuTrigger = screen.getByRole('menuitem', { name: 'Share' });
+      await waitFor(() => {
+        expect(parentInput).toHaveFocus();
+      });
       await user.keyboard('[ArrowDown]');
-      expect(parentInput).toHaveAttribute('aria-activedescendant', submenuTrigger.id);
+      await waitFor(() => {
+        expect(parentInput).toHaveAttribute('aria-activedescendant', submenuTrigger.id);
+      });
 
       await user.keyboard('[Enter]');
 
@@ -2017,6 +2078,12 @@ describe('<FilterMenu.Root />', () => {
     });
 
     it('keeps the query when the popup-close reset is canceled', async () => {
+      if (reactMajor <= 18) {
+        // React 18 reports external-store transition updates after the controlled close event's
+        // act scope, even though the interaction and observable transition are both awaited.
+        ignoreActWarnings();
+      }
+
       function App() {
         const [open, setOpen] = React.useState(true);
         const [inputValue, setInputValue] = React.useState('');

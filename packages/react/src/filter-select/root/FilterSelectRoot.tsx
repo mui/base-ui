@@ -60,6 +60,9 @@ export function FilterSelectRoot<Value, Multiple extends boolean | undefined = f
   const [inputFocusVisible, setInputFocusVisible] = React.useState(false);
 
   const normalizedItems = React.useMemo<readonly any[]>(() => {
+    if (items === undefined) {
+      return [];
+    }
     if (Array.isArray(items)) {
       return items;
     }
@@ -88,7 +91,7 @@ export function FilterSelectRoot<Value, Multiple extends boolean | undefined = f
     // rendering n items cost O(n^2).
     const itemDataByValue = new Map<unknown, any>();
     for (const item of flatItems) {
-      const itemValue = item?.value ?? null;
+      const itemValue = item.value;
       if (!itemDataByValue.has(itemValue)) {
         itemDataByValue.set(itemValue, item);
       }
@@ -98,13 +101,14 @@ export function FilterSelectRoot<Value, Multiple extends boolean | undefined = f
       items: normalizedItems,
       isItemEqualToValue,
       getItemData(itemValue: unknown) {
-        if (itemDataByValue.has(itemValue)) {
-          return itemDataByValue.get(itemValue);
+        const itemData = itemDataByValue.get(itemValue);
+        if (itemData !== undefined) {
+          return itemData;
         }
         // A custom comparer can treat different references as equal, so fall back to a scan.
         return isItemEqualToValue === defaultItemEquality
           ? undefined
-          : flatItems.find((item) => isItemEqualToValue(item?.value ?? null, itemValue as any));
+          : flatItems.find((item) => isItemEqualToValue(item.value, itemValue as any));
       },
     };
   }, [flatItems, isItemEqualToValue, normalizedItems]);
@@ -162,6 +166,7 @@ export function FilterSelectRoot<Value, Multiple extends boolean | undefined = f
           inputValue={inputValue}
           query={closeQuery.query}
           flatItems={flatItems}
+          itemsResolved={items !== undefined}
           locale={locale}
           filter={filterDropdownFilter}
           onInputValueChange={handleInputValueChange}
@@ -180,6 +185,7 @@ interface FilterSelectProviderProps {
   inputValue: string;
   query: string;
   flatItems: readonly any[];
+  itemsResolved: boolean;
   locale: Intl.LocalesArgument | undefined;
   filter: FilterDropdownFilter | undefined;
   onInputValueChange: (
@@ -216,27 +222,25 @@ function FilterSelectProvider(props: FilterSelectProviderProps) {
   }, [props.open, hasQuery, selectedIndex, setActiveIndex]);
 
   useIsoLayoutEffect(() => {
-    // An async `items` starts empty, which would clear `defaultValue` before its data arrives.
-    if (props.flatItems.length === 0) {
+    // `undefined` is the unresolved/loading state. A resolved empty collection is meaningful and
+    // clears values that can no longer be selected or submitted.
+    if (!props.itemsResolved) {
       return;
     }
 
-    const selectedValues = store.state.multiple && Array.isArray(value) ? value : [value];
-    const selectedValueStillExists = selectedValues.every(
-      (selectedValue) =>
-        selectedValue != null &&
-        props.flatItems.some((item) => isEqual(item?.value, selectedValue)),
-    );
-
-    if (value != null && !selectedValueStillExists) {
-      const nextValue = store.state.multiple
-        ? (value as any[]).filter((selectedValue) =>
-            props.flatItems.some((item) => isEqual(item?.value, selectedValue)),
-          )
-        : null;
-      setValue(nextValue, createChangeEventDetails(REASONS.none));
+    if (value == null) {
+      return;
     }
-  }, [isEqual, props.flatItems, setValue, store, value]);
+
+    const multiple = store.state.multiple;
+    const selectedValues = multiple && Array.isArray(value) ? value : [value];
+    const remainingValues = selectedValues.filter((selectedValue) =>
+      props.flatItems.some((item) => isEqual(item.value, selectedValue)),
+    );
+    if (remainingValues.length !== selectedValues.length) {
+      setValue(multiple ? remainingValues : null, createChangeEventDetails(REASONS.none));
+    }
+  }, [isEqual, props.flatItems, props.itemsResolved, setValue, store, value]);
 
   return (
     <FilterDropdownRoot
@@ -279,12 +283,13 @@ export namespace FilterSelectRoot {
   > & {
     /**
      * Data structure of the items rendered in the popup, and the source the query filters.
-     * Required: filtering narrows this data before the list renders.
+     * Required: filtering narrows this data before the list renders. Pass `undefined` while the
+     * data is loading; an empty collection is treated as loaded and clears unavailable values.
      *
      * Render the entries with a function child of `<FilterSelect.List>`, or of
      * `<FilterSelect.Collection>` inside a group.
      */
-    items: FilterSelectItems<Value>;
+    items: FilterSelectItems<Value> | undefined;
     /**
      * Whether the popup is currently open.
      */

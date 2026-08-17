@@ -434,10 +434,15 @@ describe('<FilterSelect.Root />', () => {
       await waitFor(() => {
         expect(banana).toHaveAttribute('data-highlighted');
       });
+      await waitFor(() => {
+        expect(input).toHaveFocus();
+      });
 
       await user.keyboard('[Enter]');
 
-      expect(banana).not.toHaveAttribute('data-selected');
+      await waitFor(() => {
+        expect(banana).not.toHaveAttribute('data-selected');
+      });
       expect(banana).toHaveAttribute('data-highlighted');
       expect(input).toHaveAttribute('aria-activedescendant', banana.id);
     });
@@ -1034,6 +1039,74 @@ describe('<FilterSelect.Root />', () => {
       expect(screen.getByRole('option', { name: 'Settings' })).toBeVisible();
     });
 
+    it('clears a positional highlight when item metadata replaces the visible item', async () => {
+      type Item = FilterSelectItemData<string> & { category: string };
+      const filter: FilterSelectFilter = (item, query) => (item as Item).category === query;
+      const onValueChange = vi.fn();
+      let replaceItems = () => {};
+
+      function Test() {
+        const [items, setItems] = React.useState<Item[]>([
+          { value: 'settings', label: 'Settings', category: 'user' },
+          { value: 'users', label: 'Users', category: 'admin' },
+        ]);
+        replaceItems = () =>
+          setItems([
+            { value: 'settings', label: 'Settings', category: 'admin' },
+            { value: 'users', label: 'Users', category: 'user' },
+          ]);
+
+        return (
+          <FilterSelect.Root
+            open
+            inputValue="user"
+            items={items}
+            filter={filter}
+            onValueChange={onValueChange}
+          >
+            <FilterSelect.Trigger>Action</FilterSelect.Trigger>
+            <FilterSelect.Portal>
+              <FilterSelect.Positioner>
+                <FilterSelect.Popup>
+                  <FilterSelect.Input aria-label="Filter actions" />
+                  <FilterSelect.List>
+                    {(item: Item) => (
+                      <FilterSelect.Item key={item.value} value={item.value}>
+                        {item.label}
+                      </FilterSelect.Item>
+                    )}
+                  </FilterSelect.List>
+                </FilterSelect.Popup>
+              </FilterSelect.Positioner>
+            </FilterSelect.Portal>
+          </FilterSelect.Root>
+        );
+      }
+
+      const { user } = await render(<Test />);
+      const input = screen.getByRole('searchbox', { name: 'Filter actions' });
+      await waitFor(() => {
+        expect(input).toHaveFocus();
+      });
+      await user.keyboard('[ArrowDown]');
+      await waitFor(() => {
+        expect(input).toHaveAttribute(
+          'aria-activedescendant',
+          screen.getByRole('option', { name: 'Settings' }).id,
+        );
+      });
+
+      await act(async () => {
+        replaceItems();
+      });
+
+      expect(screen.getByRole('option', { name: 'Users' })).toBeVisible();
+      expect(screen.queryByRole('option', { name: 'Settings' })).toBe(null);
+      expect(input).not.toHaveAttribute('aria-activedescendant');
+      await user.keyboard('[Enter]');
+      expect(onValueChange).not.toHaveBeenCalled();
+    });
+
     it('preserves the selected value when filtering hides its item', async () => {
       const onValueChange = vi.fn();
 
@@ -1549,7 +1622,7 @@ describe('<FilterSelect.Root />', () => {
       const onValueChange = vi.fn();
 
       function App() {
-        const [items, setItems] = React.useState<FilterSelectItemData[]>([]);
+        const [items, setItems] = React.useState<FilterSelectItemData[] | undefined>(undefined);
         return (
           <React.Fragment>
             <button onClick={() => setItems([{ value: 'banana', label: 'Banana' }])}>load</button>
@@ -1578,12 +1651,94 @@ describe('<FilterSelect.Root />', () => {
 
       const { user } = await render(<App />);
 
-      // The empty collection must not be read as "the selected item was removed".
+      // An unresolved collection must not be read as "the selected item was removed".
       expect(onValueChange).toHaveBeenCalledTimes(0);
 
       await user.click(screen.getByRole('button', { name: 'load' }));
       expect(onValueChange).toHaveBeenCalledTimes(0);
       expect(screen.getByTestId('trigger')).toHaveTextContent('Banana');
+    });
+
+    it('clears and stops submitting a single value when a loaded collection becomes empty', async () => {
+      const onValueChange = vi.fn();
+      let clearItems = () => {};
+
+      function App() {
+        const [items, setItems] = React.useState<FilterSelectItemData[]>([
+          { value: 'banana', label: 'Banana' },
+        ]);
+        clearItems = () => setItems([]);
+
+        return (
+          <form data-testid="form">
+            <FilterSelect.Root
+              items={items}
+              defaultValue="banana"
+              name="fruit"
+              onValueChange={onValueChange}
+            >
+              <FilterSelect.Trigger>
+                <FilterSelect.Value />
+              </FilterSelect.Trigger>
+            </FilterSelect.Root>
+          </form>
+        );
+      }
+
+      await render(<App />);
+      const form = screen.getByTestId('form') as HTMLFormElement;
+      expect(new FormData(form).get('fruit')).toBe('banana');
+
+      await act(async () => {
+        clearItems();
+      });
+
+      await waitFor(() => {
+        expect(onValueChange).toHaveBeenCalledWith(null, expect.any(Object));
+      });
+      expect(new FormData(form).get('fruit')).toBe('');
+    });
+
+    it('clears multiple values when a loaded collection becomes empty', async () => {
+      const onValueChange = vi.fn();
+      let clearItems = () => {};
+
+      function App() {
+        const [items, setItems] = React.useState<FilterSelectItemData[]>([
+          { value: 'apple', label: 'Apple' },
+          { value: 'banana', label: 'Banana' },
+        ]);
+        clearItems = () => setItems([]);
+
+        return (
+          <form data-testid="form">
+            <FilterSelect.Root
+              multiple
+              items={items}
+              defaultValue={['apple', 'banana']}
+              name="fruit"
+              onValueChange={onValueChange}
+            >
+              <FilterSelect.Trigger>
+                <FilterSelect.Value />
+              </FilterSelect.Trigger>
+            </FilterSelect.Root>
+          </form>
+        );
+      }
+
+      await render(<App />);
+      const form = screen.getByTestId('form') as HTMLFormElement;
+      expect(new FormData(form).getAll('fruit')).toEqual(['apple', 'banana']);
+
+      await act(async () => {
+        clearItems();
+      });
+
+      await waitFor(() => {
+        expect(onValueChange).toHaveBeenCalledWith([], expect.any(Object));
+      });
+      expect(new FormData(form).getAll('fruit')).toEqual([]);
     });
 
     it('renders Empty when the collection itself is empty', async () => {

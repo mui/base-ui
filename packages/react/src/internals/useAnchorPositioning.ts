@@ -160,12 +160,6 @@ export function useAnchorPositioningWithHook(
     externalTree,
   } = params;
 
-  const [mountPlacement, setMountPlacement] = React.useState<Placement | null>(null);
-
-  if (!mounted && mountPlacement !== null) {
-    setMountPlacement(null);
-  }
-
   const collisionAvoidanceSide = collisionAvoidance.side || 'flip';
   const collisionAvoidanceAlign = collisionAvoidance.align || 'flip';
   const collisionAvoidanceFallbackAxisSide = collisionAvoidance.fallbackAxisSide || 'end';
@@ -181,19 +175,32 @@ export function useAnchorPositioningWithHook(
   const direction = useDirection();
   const isRtl = direction === 'rtl';
 
-  const preferredSide = (
-    {
-      top: 'top',
-      right: 'right',
-      bottom: 'bottom',
-      left: 'left',
-      'inline-end': isRtl ? 'left' : 'right',
-      'inline-start': isRtl ? 'right' : 'left',
-    } satisfies Record<Side, PhysicalSide>
-  )[sideParam];
-  const preferredPlacement =
-    align === 'center' ? preferredSide : (`${preferredSide}-${align}` as Placement);
-  const placement = mountPlacement ?? preferredPlacement;
+  const [mountSide, setMountSide] = React.useState<PhysicalSide | null>(null);
+  const [mountAlign, setMountAlign] = React.useState<Align | null>(null);
+
+  if (!mounted) {
+    if (mountSide !== null) {
+      setMountSide(null);
+    }
+    if (mountAlign !== null) {
+      setMountAlign(null);
+    }
+  }
+
+  const side =
+    mountSide ||
+    (
+      {
+        top: 'top',
+        right: 'right',
+        bottom: 'bottom',
+        left: 'left',
+        'inline-end': isRtl ? 'left' : 'right',
+        'inline-start': isRtl ? 'right' : 'left',
+      } satisfies Record<Side, PhysicalSide>
+    )[sideParam];
+  const placementAlign = mountAlign || align;
+  const placement = placementAlign === 'center' ? side : (`${side}-${placementAlign}` as Placement);
 
   let collisionPadding = collisionPaddingParam as {
     top: number;
@@ -555,35 +562,17 @@ export function useAnchorPositioningWithHook(
   const renderedAlign = getAlignment(renderedPlacement) || 'center';
   const anchorHidden = Boolean(middlewareData.hide?.referenceHidden);
 
-  // Locks the flip (makes it "sticky") so the popup keeps the placement it first resolved to,
-  // rather than preferring the requested one again. Ideal for filtered lists that resize while
-  // typing. `renderedPlacement` lags `computePosition()`, so the lock is only judged once the
-  // result for the current request has landed, and a new `side`/`align` releases it.
-  const requestedPlacementRef = React.useRef(placement);
-  const preferredPlacementRef = React.useRef(preferredPlacement);
-  if (preferredPlacementRef.current !== preferredPlacement) {
-    preferredPlacementRef.current = preferredPlacement;
-    if (mountPlacement !== null) {
-      setMountPlacement(null);
-    }
-  }
-
+  // Locks each flipped axis while filtering resizes the popup.
   useIsoLayoutEffect(() => {
-    if (requestedPlacementRef.current !== placement) {
-      requestedPlacementRef.current = placement;
-      return;
+    if (lazyFlip && mounted && isPositioned) {
+      if (renderedSide !== side) {
+        setMountSide(renderedSide);
+      }
+      if (renderedAlign !== placementAlign) {
+        setMountAlign(renderedAlign);
+      }
     }
-
-    if (
-      lazyFlip &&
-      mounted &&
-      isPositioned &&
-      mountPlacement === null &&
-      renderedPlacement !== placement
-    ) {
-      setMountPlacement(renderedPlacement);
-    }
-  }, [lazyFlip, mounted, isPositioned, renderedPlacement, placement, mountPlacement]);
+  }, [lazyFlip, mounted, isPositioned, renderedSide, renderedAlign, side, placementAlign]);
 
   const arrowStyles = React.useMemo(
     () => ({

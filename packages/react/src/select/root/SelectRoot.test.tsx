@@ -4423,6 +4423,85 @@ describe('<Select.Root />', () => {
       });
     });
 
+    it('resets the value when a mounted item changes its value', async () => {
+      if (reactMajor <= 18) {
+        ignoreActWarnings();
+      }
+
+      const onValueChange = vi.fn();
+
+      function Test() {
+        const [itemValue, setItemValue] = React.useState('a');
+
+        return (
+          <div>
+            <Select.Root defaultValue="a" onValueChange={onValueChange}>
+              <Select.Trigger>Toggle</Select.Trigger>
+              <Select.Portal>
+                <Select.Positioner>
+                  <Select.Popup>
+                    <Select.Item value={itemValue}>{itemValue}</Select.Item>
+                  </Select.Popup>
+                </Select.Positioner>
+              </Select.Portal>
+            </Select.Root>
+            <button type="button" onClick={() => setItemValue('b')}>
+              Change value
+            </button>
+          </div>
+        );
+      }
+
+      const { user } = await render(<Test />);
+
+      await user.click(screen.getByText('Toggle'));
+      await user.click(screen.getByText('Change value'));
+
+      await waitFor(() => {
+        expect(onValueChange.mock.lastCall?.[0]).toBe(null);
+      });
+    });
+
+    it('removes only changed mounted item values from a multiple selection', async () => {
+      if (reactMajor <= 18) {
+        ignoreActWarnings();
+      }
+
+      const onValueChange = vi.fn();
+
+      function Test() {
+        const [firstValue, setFirstValue] = React.useState('a');
+
+        return (
+          <div>
+            <Select.Root multiple defaultValue={['a', 'b']} onValueChange={onValueChange}>
+              <Select.Trigger>Toggle</Select.Trigger>
+              <Select.Portal>
+                <Select.Positioner>
+                  <Select.Popup>
+                    <Select.Item value={firstValue}>{firstValue}</Select.Item>
+                    <Select.Item value="b">b</Select.Item>
+                  </Select.Popup>
+                </Select.Positioner>
+              </Select.Portal>
+            </Select.Root>
+            <button type="button" onClick={() => setFirstValue('c')}>
+              Change value
+            </button>
+          </div>
+        );
+      }
+
+      const { user } = await render(<Test />);
+
+      await user.click(screen.getByText('Toggle'));
+      await user.click(screen.getByText('Change value'));
+
+      await waitFor(() => {
+        expect(onValueChange.mock.lastCall?.[0]).toEqual(['b']);
+      });
+    });
+
     it('keeps the value when the items are only reordered', async () => {
       if (reactMajor <= 18) {
         ignoreActWarnings();
