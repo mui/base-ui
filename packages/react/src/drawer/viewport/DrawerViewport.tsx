@@ -371,7 +371,9 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
     onProgress(progress, details) {
       const swiping = swipingRef.current;
 
-      updateNestedSwipeActive(details);
+      if (swiping) {
+        updateNestedSwipeActive(details);
+      }
 
       const hasSnapPoints = Boolean(snapPoints && snapPoints.length > 0);
       if (swiping && swipeDirection === 'down' && hasSnapPoints && details) {
