@@ -128,7 +128,7 @@
     "typescript": "tsgo -b tsconfig.json"
   },
   "dependencies": {
-    "@babel/runtime": "^7.29.2",
+    "@babel/runtime": "^7.29.7",
     "@base-ui/utils": "workspace:*",
     "@floating-ui/react-dom": "^2.1.9",
     "@floating-ui/utils": "^0.2.12",

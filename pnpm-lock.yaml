@@ -29,8 +29,8 @@ importers:
         specifier: 0.18.5
         version: 0.18.5
       '@babel/plugin-transform-react-constant-elements':
-        specifier: 7.27.1
-        version: 7.27.1(@babel/core@7.29.7(supports-color@7.2.0))
+        specifier: 7.29.7
+        version: 7.29.7(@babel/core@7.29.7(supports-color@7.2.0))
       '@base-ui/monorepo-tests':
         specifier: workspace:*
         version: link:test
@@ -333,7 +333,7 @@ importers:
   packages/react:
     dependencies:
       '@babel/runtime':
-        specifier: ^7.29.2
+        specifier: ^7.29.7
         version: 7.29.7
       '@base-ui/utils':
         specifier: workspace:*
@@ -398,7 +398,7 @@ importers:
   packages/utils:
     dependencies:
       '@babel/runtime':
-        specifier: ^7.29.2
+        specifier: ^7.29.7
         version: 7.29.7
       '@floating-ui/utils':
         specifier: ^0.2.12
@@ -1086,8 +1086,8 @@ packages:
     peerDependencies:
       '@babel/core': ^7.0.0-0
 
-  '@babel/plugin-transform-react-constant-elements@7.27.1':
-    resolution: {integrity: sha512-edoidOjl/ZxvYo4lSBOQGDSyToYVkTAwyVoa2tkuYTSmjrB1+uAedoL5iROVLXkxH+vRgA7uP4tMg2pUJpZ3Ug==}
+  '@babel/plugin-transform-react-constant-elements@7.29.7':
+    resolution: {integrity: sha512-J0wGhKan+rIiE2OhfhRptySLrJ6SjQYM6b6N1FMlhyhCcw1Mig8vQjWchyB+bgHGDvaWo6Diu6CLRMra2uMtmg==}
     engines: {node: '>=6.9.0'}
     peerDependencies:
       '@babel/core': ^7.0.0-0
@@ -10284,7 +10284,7 @@ snapshots:
       '@babel/core': 7.29.7(supports-color@7.2.0)
       '@babel/helper-plugin-utils': 7.29.7
 
-  '@babel/plugin-transform-react-constant-elements@7.27.1(@babel/core@7.29.7(supports-color@7.2.0))':
+  '@babel/plugin-transform-react-constant-elements@7.29.7(@babel/core@7.29.7(supports-color@7.2.0))':
     dependencies:
       '@babel/core': 7.29.7(supports-color@7.2.0)
       '@babel/helper-plugin-utils': 7.29.7
