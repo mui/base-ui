@@ -26,6 +26,7 @@ export interface ContextMenuPositionerProps
       | keyof BaseUIComponentProps<'div', ContextMenuPositionerState>
       | 'anchor'
       | 'positionMethod'
+      | 'side'
       | 'sideOffset'
       | 'align'
       | 'alignOffset'
@@ -43,6 +44,13 @@ export interface ContextMenuPositionerProps
    * @deprecated This prop has no effect on Context Menu.
    */
   positionMethod?: MenuPositionerProps['positionMethod'] | undefined;
+  /**
+   * Which side of the anchor element to align the popup against.
+   * May automatically change to avoid collisions.
+   *
+   * Defaults to `'bottom'` for root context menus and to `'inline-end'` for submenus.
+   */
+  side?: MenuPositionerProps['side'] | undefined;
   /**
    * Distance between the anchor and the popup in pixels.
    * Also accepts a function that returns the distance to read the dimensions of the anchor
