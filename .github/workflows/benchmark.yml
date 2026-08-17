@@ -1,0 +1,176 @@
+# `/benchmark` starts a dedicated CircleCI pipeline for the exact PR head.
+# The full master/PR comparison remains in one CircleCI job so the code-infra
+# dashboard can update its existing consolidated PR comment.
+name: Full benchmark
+
+on:
+  issue_comment:
+    types: [created]
+
+permissions: {}
+
+jobs:
+  request:
+    if: >-
+      github.event.issue.pull_request &&
+      startsWith(github.event.comment.body, '/benchmark')
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    concurrency:
+      group: full-benchmark-${{ github.event.issue.number }}
+      cancel-in-progress: false
+    permissions:
+      contents: read
+      # Needed to acknowledge the command on the PR. Without it a rejected request or a
+      # missing token is only visible in the Actions tab.
+      pull-requests: write
+    steps:
+      - name: Authorize and request full benchmark
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+        env:
+          CIRCLECI_TOKEN: ${{ secrets.CIRCLECI_TOKEN }}
+        with:
+          script: |
+            // `startsWith` in the job condition is only a cheap pre-filter; `/benchmarking is
+            // slow` should not start a run.
+            if (context.payload.comment.body.trim() !== '/benchmark') {
+              return;
+            }
+
+            const reply = async (body) => {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body,
+              });
+            };
+
+            const attempt = async (request) => {
+              try {
+                return await request;
+              } catch (error) {
+                const message = error instanceof Error ? error.message : String(error);
+                await reply(`Could not start the full benchmark: ${message}`);
+                core.setFailed(message);
+                throw error;
+              }
+            };
+
+            const hasWriteAccess = (permission) =>
+              permission === 'admin' || permission === 'write';
+
+            const { data: commenterPermission } = await attempt(
+              github.rest.repos.getCollaboratorPermissionLevel({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                username: context.payload.comment.user.login,
+              }),
+            );
+            if (!hasWriteAccess(commenterPermission.permission)) {
+              await reply('Only maintainers with write access can request a full benchmark.');
+              core.setFailed('Only maintainers with write access can request a full benchmark.');
+              return;
+            }
+
+            const { data: pr } = await attempt(
+              github.rest.pulls.get({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                pull_number: context.issue.number,
+              }),
+            );
+            if (pr.state !== 'open') {
+              await reply('Full benchmarks can only be requested for an open pull request.');
+              core.setFailed('Full benchmarks can only be requested for an open pull request.');
+              return;
+            }
+
+            const { data: authorPermission } = await attempt(
+              github.rest.repos.getCollaboratorPermissionLevel({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                username: pr.user.login,
+              }),
+            );
+            if (!hasWriteAccess(authorPermission.permission)) {
+              const message =
+                'Full benchmarks can only run on pull requests authored by maintainers with write access.';
+              await reply(message);
+              core.setFailed(message);
+              return;
+            }
+
+            const headSha = pr.head.sha;
+
+            // This is a compatibility check, not a trust boundary. CircleCI loads its job from
+            // master and independently verifies the exact PR SHA before executing PR code.
+            const { data: circleConfig } = await attempt(
+              github.rest.repos.getContent({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                path: '.circleci/config.yml',
+                ref: headSha,
+              }),
+            );
+            const config =
+              !Array.isArray(circleConfig) && circleConfig.type === 'file'
+                ? Buffer.from(circleConfig.content, 'base64').toString('utf8')
+                : '';
+            if (!config.includes('# full-benchmark-protocol: 1')) {
+              const message =
+                'This PR predates the /benchmark workflow. Merge master into it and try again.';
+              await reply(message);
+              core.setFailed(message);
+              return;
+            }
+
+            if (!process.env.CIRCLECI_TOKEN) {
+              const message = 'The CIRCLECI_TOKEN repository secret is not configured.';
+              await reply(message);
+              core.setFailed(message);
+              return;
+            }
+
+            const pipelineResponse = await attempt(
+              fetch(
+                `https://circleci.com/api/v2/project/gh/${context.repo.owner}/${context.repo.repo}/pipeline`,
+                {
+                  method: 'POST',
+                  headers: {
+                    'Circle-Token': process.env.CIRCLECI_TOKEN,
+                    'Content-Type': 'application/json',
+                  },
+                  body: JSON.stringify({
+                    // Load the trusted configuration from master. That job fetches the exact PR
+                    // head below and refuses to execute it if the mutable PR ref has advanced.
+                    branch: 'master',
+                    parameters: {
+                      workflow: 'benchmark',
+                      // An API-triggered pipeline has no PR association, so the report identity
+                      // has to be threaded through explicitly for the consolidated PR comment.
+                      'benchmark-sha': headSha,
+                      'benchmark-pr-number': String(context.issue.number),
+                      'benchmark-branch': pr.head.ref,
+                    },
+                  }),
+                },
+              ),
+            );
+            if (!pipelineResponse.ok) {
+              const message = `CircleCI pipeline request failed (${pipelineResponse.status}): ${await pipelineResponse.text()}`;
+              await reply('Could not start the full benchmark pipeline. See the workflow logs.');
+              core.setFailed(message);
+              return;
+            }
+
+            const pipeline = await pipelineResponse.json();
+            const pipelineUrl =
+              `https://app.circleci.com/pipelines/github/${context.repo.owner}/` +
+              `${context.repo.repo}/${pipeline.number}`;
+            await reply(
+              `Started the full benchmark for \`${headSha}\`. Results replace the consolidated ` +
+                `performance comment when the pipeline finishes. ` +
+                `[View the CircleCI pipeline](${pipelineUrl}).`,
+            );
+            core.notice(`Requested CircleCI benchmark pipeline ${pipeline.id} for ${headSha}.`);

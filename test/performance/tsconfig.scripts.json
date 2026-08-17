@@ -1,0 +1,4 @@
+{
+  "extends": "./tsconfig.json",
+  "include": ["scripts", "benchmark.ts", "renderCountReporter.ts", "vitest.config.ts"]
+}

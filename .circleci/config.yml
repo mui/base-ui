@@ -12,6 +12,18 @@ parameters:
     description: The version of react to be used
     type: string
     default: stable
+  benchmark-sha:
+    description: Exact PR head to benchmark in the dedicated benchmark workflow.
+    type: string
+    default: ''
+  benchmark-pr-number:
+    description: Pull request the dedicated benchmark workflow reports against.
+    type: string
+    default: ''
+  benchmark-branch:
+    description: Head branch of the pull request being benchmarked.
+    type: string
+    default: ''
   workflow:
     description: The name of the workflow to run
     type: string
@@ -107,6 +119,13 @@ jobs:
           command: |
             pnpm inline-scripts
             git add -A && git diff --exit-code --staged
+      # The performance workspace is outside the root project graph, so `pnpm typescript` does
+      # not reach it.
+      - run:
+          name: Test benchmark scripts
+          command: |
+            pnpm --dir test/performance typescript
+            pnpm --dir test/performance test:scripts
   test_types:
     <<: *default-job
     resource_class: medium+
@@ -119,6 +138,11 @@ jobs:
           command: pnpm typescript
           environment:
             NODE_OPTIONS: --max-old-space-size=3072
+      # The fixtures import the built public declarations so this checks benchmark API usage
+      # without recompiling the React package under the performance workspace's TS config.
+      - run:
+          name: Tests benchmark fixture TypeScript definitions
+          command: pnpm --dir test/performance typescript:fixtures
       - run:
           name: Any defect declaration files?
           command: pnpm code-infra validate-built-types
@@ -261,39 +285,117 @@ jobs:
       - store_test_results:
           path: test-results
 
+  # TODO: Remove this job after `ci/circleci: Benchmark tests` is no longer a
+  # required status check. It reports the legacy context without running code.
+  benchmark_required_status:
+    <<: *default-job
+    steps:
+      - run:
+          name: Full benchmarks run only on request
+          command: echo 'Comment /benchmark on a pull request to run the full suite.'
+
+  # full-benchmark-protocol: 1
   test_benchmark:
     <<: *default-job
     executor:
       name: code-infra/mui-node-browser
       playwright-img-version: v1.59.1-noble
+    environment:
+      <<: *default-environment
+      # Pipeline parameters are configuration data, not shell source. Keep them in the job
+      # environment and validate them before using them to fetch any PR-controlled revision.
+      BENCHMARK_SHA: << pipeline.parameters.benchmark-sha >>
+      BENCHMARK_PR_NUMBER: << pipeline.parameters.benchmark-pr-number >>
+      BENCHMARK_PR_BRANCH: << pipeline.parameters.benchmark-branch >>
     steps:
       - checkout
-      - code-infra/install-deps
+      - code-infra/install-pnpm
       - run:
-          name: Build packages
-          command: pnpm release:build
-      - run:
-          name: Run baseline benchmarks at merge-base
+          name: Prepare the exact benchmark revisions
           command: |
-            set -e
-            if [ "$CIRCLE_BRANCH" = "master" ]; then
-              echo "On master branch; no baseline to compare against. Skipping baseline."
-              exit 0
+            set -euo pipefail
+            if [[ ! "$BENCHMARK_SHA" =~ ^[0-9a-f]{40}$ ]]; then
+              echo "The benchmark SHA must be a full commit hash." >&2
+              exit 1
+            fi
+            if [[ ! "$BENCHMARK_PR_NUMBER" =~ ^[1-9][0-9]*$ ]]; then
+              echo "The benchmark PR number must be a positive integer." >&2
+              exit 1
+            fi
+            if [ -z "$BENCHMARK_PR_BRANCH" ]; then
+              echo "The benchmark pipeline needs the PR head branch to report." >&2
+              exit 1
+            fi
+
+            # The pipeline itself is loaded from trusted master. Fetching through the PR ref makes
+            # fork commits available, while this equality check ensures a push after `/benchmark`
+            # fails before dependency installation or any other PR-controlled code executes.
+            git fetch --no-tags origin "pull/$BENCHMARK_PR_NUMBER/head"
+            FETCHED_SHA=$(git rev-parse FETCH_HEAD)
+            if [ "$FETCHED_SHA" != "$BENCHMARK_SHA" ]; then
+              echo "Expected PR head $BENCHMARK_SHA but fetched $FETCHED_SHA." >&2
+              exit 1
             fi
             git fetch --no-tags origin master:refs/remotes/origin/master
-            BASE_SHA=$(git merge-base HEAD origin/master)
+            BASE_SHA=$(git merge-base "$BENCHMARK_SHA" origin/master)
             echo "Baseline commit: $BASE_SHA"
-            git worktree add /tmp/base-worktree "$BASE_SHA"
-            cd /tmp/base-worktree
-            pnpm install --frozen-lockfile
-            pnpm release:build
-            BENCHMARK_BRANCH=master pnpm test:benchmark
-            echo 'export BENCHMARK_BASELINE_PATH=/tmp/base-worktree/test/performance/benchmarks/results.json' >> "$BASH_ENV"
+            git worktree add --detach /tmp/benchmark-head "$BENCHMARK_SHA"
+            git worktree add --detach /tmp/benchmark-master "$BASE_SHA"
       - run:
-          name: Run head benchmarks
-          environment:
-            BENCHMARK_UPLOAD: 'true'
-          command: pnpm test:benchmark
+          name: Install both revisions
+          command: |
+            set -euo pipefail
+            pnpm --dir /tmp/benchmark-head install --frozen-lockfile
+            pnpm --dir /tmp/benchmark-master install --frozen-lockfile
+      - run:
+          name: Build both revisions
+          command: |
+            set -euo pipefail
+            pnpm --dir /tmp/benchmark-master release:build
+            pnpm --dir /tmp/benchmark-head release:build
+      - run:
+          name: Run full benchmark comparison (ABBA)
+          command: |
+            set -euo pipefail
+            RESULTS=/tmp/benchmark-results
+            mkdir -p "$RESULTS"
+
+            CIRCLE_PR_NUMBER="$BENCHMARK_PR_NUMBER" \
+              BENCHMARK_BRANCH=master \
+              BENCHMARK_OUTPUT_PATH=$RESULTS/master-1.json \
+              pnpm --dir /tmp/benchmark-master test:benchmark
+            CIRCLE_PR_NUMBER="$BENCHMARK_PR_NUMBER" \
+              BENCHMARK_BRANCH="$BENCHMARK_PR_BRANCH" \
+              BENCHMARK_OUTPUT_PATH=$RESULTS/head-1.json \
+              pnpm --dir /tmp/benchmark-head test:benchmark
+            CIRCLE_PR_NUMBER="$BENCHMARK_PR_NUMBER" \
+              BENCHMARK_BRANCH="$BENCHMARK_PR_BRANCH" \
+              BENCHMARK_OUTPUT_PATH=$RESULTS/head-2.json \
+              pnpm --dir /tmp/benchmark-head test:benchmark
+            CIRCLE_PR_NUMBER="$BENCHMARK_PR_NUMBER" \
+              BENCHMARK_BRANCH=master \
+              BENCHMARK_OUTPUT_PATH=$RESULTS/master-2.json \
+              pnpm --dir /tmp/benchmark-master test:benchmark
+
+            node /tmp/benchmark-head/test/performance/scripts/aggregateBenchmarks.mts \
+              "$RESULTS/master-combined.json" \
+              "$RESULTS/master-1.json" \
+              "$RESULTS/master-2.json"
+            node /tmp/benchmark-head/test/performance/scripts/aggregateBenchmarks.mts \
+              "$RESULTS/head-combined.json" \
+              "$RESULTS/head-1.json" \
+              "$RESULTS/head-2.json" \
+              "$RESULTS/master-combined.json"
+      - run:
+          name: Publish benchmark comparison
+          command: node /tmp/benchmark-head/test/performance/scripts/publishBenchmark.mts /tmp/benchmark-results/head-combined.json
+      # Aggregation refuses to combine runs that disagree, so a single nondeterministic benchmark
+      # fails the step after four full suite runs. Keep the raw output either way — it is the only
+      # way to tell which benchmark disagreed and by how much.
+      - store_artifacts:
+          path: /tmp/benchmark-results
+          destination: benchmark
+          when: always
 
 workflows:
   pipeline:
@@ -327,8 +429,7 @@ workflows:
       - docs_validate:
           <<: *default-context
           name: 'Validating Docs'
-      - test_benchmark:
-          <<: *default-context
+      - benchmark_required_status:
           name: 'Benchmark tests'
       - test_unit_compiler:
           <<: *default-context
@@ -364,3 +465,10 @@ workflows:
       - test_types_next:
           <<: *default-context
           name: 'Typechecking (typescript@next)'
+  benchmark:
+    when:
+      equal: [benchmark, << pipeline.parameters.workflow >>]
+    jobs:
+      - test_benchmark:
+          <<: *default-context
+          name: 'Full benchmark'

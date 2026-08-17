@@ -167,6 +167,16 @@ so we also need to take into account the rendering engine.
 
 Check out the [visual regression testing readme](./regressions/README.md) for more information.
 
+#### Performance benchmarks
+
+Relevant PRs automatically compare render counts between the merge base and exact head. Count
+changes appear in a trusted check and PR comment; timing measurements are excluded.
+
+For maintainer-authored PRs, a maintainer can comment `/benchmark` to run the full suite in ABBA
+order (base, PR, PR, base) on one CircleCI worker. Both the commenter and PR author must currently
+have write access. Review the exact head first: this command runs its code with the `org-global`
+context and pins that revision before installation. Older PRs must first be updated from `master`.
+
 #### end-to-end tests
 
 Checkout the [end-to-end testing readme](./e2e/README.md) for more information.

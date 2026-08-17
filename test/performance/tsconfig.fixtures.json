@@ -1,0 +1,11 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "paths": {
+      "@base-ui/react": ["../../packages/react/build/index.d.ts"],
+      "@base-ui/react/*": ["../../packages/react/build/*"],
+      "@base-ui/utils/*": ["../../packages/utils/build/*"]
+    }
+  },
+  "include": ["tests"]
+}
