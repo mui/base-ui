@@ -286,9 +286,9 @@ jobs:
             git worktree add /tmp/base-worktree "$BASE_SHA"
             cd /tmp/base-worktree
             pnpm install --frozen-lockfile
-            pnpm exec playwright install chromium
+            PLAYWRIGHT_BROWSERS_PATH=/tmp/base-playwright-browsers pnpm exec playwright install chromium
             pnpm release:build
-            BENCHMARK_BRANCH=master pnpm test:benchmark
+            PLAYWRIGHT_BROWSERS_PATH=/tmp/base-playwright-browsers BENCHMARK_BRANCH=master pnpm test:benchmark
             echo 'export BENCHMARK_BASELINE_PATH=/tmp/base-worktree/test/performance/benchmarks/results.json' >> "$BASH_ENV"
       - run:
           name: Run head benchmarks
