@@ -92,7 +92,7 @@
     "postcss-value-parser": "4.2.0",
     "prettier": "3.8.3",
     "pretty-quick": "4.2.2",
-    "publint": "0.3.23",
+    "publint": "0.3.20",
     "react": "19.2.5",
     "react-dom": "19.2.5",
     "remark-mdx": "3.1.1",
