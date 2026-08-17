@@ -172,9 +172,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
   }
 
   const items = (collection ? collection.data : itemsProp) as
-    | readonly Item[]
-    | readonly Group<Item>[]
-    | undefined;
+    readonly Item[] | readonly Group<Item>[] | undefined;
   const itemToValue = collection?.value;
 
   // A projected collection's items live in the source domain, not the selection-value domain the
@@ -1697,8 +1695,7 @@ interface ComboboxRootProps<ItemValue, Item = ItemValue> {
    * Event handler called when the popup is opened or closed.
    */
   onOpenChange?:
-    | ((open: boolean, eventDetails: AriaCombobox.ChangeEventDetails) => void)
-    | undefined;
+    ((open: boolean, eventDetails: AriaCombobox.ChangeEventDetails) => void) | undefined;
   /**
    * Event handler called after any animations complete when the popup is opened or closed.
    */
@@ -1742,8 +1739,7 @@ interface ComboboxRootProps<ItemValue, Item = ItemValue> {
    * Callback fired when the input value of the combobox changes.
    */
   onInputValueChange?:
-    | ((value: string, eventDetails: AriaCombobox.ChangeEventDetails) => void)
-    | undefined;
+    ((value: string, eventDetails: AriaCombobox.ChangeEventDetails) => void) | undefined;
   /**
    * The uncontrolled input value when initially rendered.
    *
@@ -1783,10 +1779,7 @@ interface ComboboxRootProps<ItemValue, Item = ItemValue> {
    * the `createItems()` function, which derives each item's selection value and label.
    */
   items?:
-    | readonly any[]
-    | readonly Group<any>[]
-    | ComboboxItemCollection<Item, ItemValue>
-    | undefined;
+    readonly any[] | readonly Group<any>[] | ComboboxItemCollection<Item, ItemValue> | undefined;
   /**
    * Filtered items to display in the list.
    * When provided, the list will use these items instead of filtering the `items` prop internally.
@@ -1933,9 +1926,7 @@ export namespace AriaCombobox {
   }
 
   export type HighlightEventReason =
-    | typeof REASONS.keyboard
-    | typeof REASONS.pointer
-    | typeof REASONS.none;
+    typeof REASONS.keyboard | typeof REASONS.pointer | typeof REASONS.none;
   export type HighlightEventDetails = BaseUIGenericEventDetails<
     HighlightEventReason,
     { index: number }

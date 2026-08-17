@@ -276,8 +276,7 @@ type useRenderParameters<
 
 ```typescript
 type useRenderRenderProp<TState = Record<string, unknown>> =
-  | ReactElement
-  | ((props: React.HTMLAttributes<any>, state: TState) => ReactElement);
+  ReactElement | ((props: React.HTMLAttributes<any>, state: TState) => ReactElement);
 ```
 
 ### useRender.ReturnValue
@@ -540,8 +539,7 @@ type UseRenderParameters<
 
 ```typescript
 type UseRenderRenderProp<State = Record<string, unknown>> =
-  | ReactElement
-  | ((props: React.HTMLAttributes<any>, state: State) => ReactElement);
+  ReactElement | ((props: React.HTMLAttributes<any>, state: State) => ReactElement);
 ```
 
 ### UseRenderReturnValue

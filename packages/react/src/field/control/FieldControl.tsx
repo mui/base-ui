@@ -189,8 +189,7 @@ export interface FieldControlProps extends BaseUIComponentProps<'input', FieldCo
    * Callback fired when the `value` changes. Use when controlled.
    */
   onValueChange?:
-    | ((value: string, eventDetails: FieldControl.ChangeEventDetails) => void)
-    | undefined;
+    ((value: string, eventDetails: FieldControl.ChangeEventDetails) => void) | undefined;
   defaultValue?: React.ComponentProps<'input'>['defaultValue'] | undefined;
 }
 

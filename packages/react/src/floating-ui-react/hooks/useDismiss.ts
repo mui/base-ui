@@ -101,9 +101,7 @@ export interface UseDismissProps {
    * floating elements.
    */
   bubbles?:
-    | boolean
-    | { escapeKey?: boolean | undefined; outsidePress?: boolean | undefined }
-    | undefined;
+    boolean | { escapeKey?: boolean | undefined; outsidePress?: boolean | undefined } | undefined;
   /**
    * External FloatingTree to use when the one provided by context can't be used.
    */

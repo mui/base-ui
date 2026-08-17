@@ -213,8 +213,7 @@ export interface FormProps<
    * `preventDefault()` is called on the native submit event when used.
    */
   onFormSubmit?:
-    | ((formValues: FormValues, eventDetails: Form.SubmitEventDetails) => void)
-    | undefined;
+    ((formValues: FormValues, eventDetails: Form.SubmitEventDetails) => void) | undefined;
   /**
    * A ref to imperative actions.
    * - `validate`: Validates all fields when called. Optionally pass a field name to validate a single field.

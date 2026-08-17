@@ -166,8 +166,7 @@ export interface ToggleGroupProps<Value extends string> extends BaseUIComponentP
    * Callback fired when the pressed states of the toggle group changes.
    */
   onValueChange?:
-    | ((groupValue: Value[], eventDetails: ToggleGroup.ChangeEventDetails) => void)
-    | undefined;
+    ((groupValue: Value[], eventDetails: ToggleGroup.ChangeEventDetails) => void) | undefined;
   /**
    * Whether the toggle group should ignore user interaction.
    * @default false

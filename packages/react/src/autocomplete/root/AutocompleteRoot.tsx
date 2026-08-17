@@ -230,14 +230,12 @@ export interface AutocompleteRootProps<ItemValue> extends Omit<
    * The input value of the autocomplete. Use when controlled.
    */
   value?:
-    | AriaCombobox.Props<React.ComponentProps<'input'>['value'], 'none'>['inputValue']
-    | undefined;
+    AriaCombobox.Props<React.ComponentProps<'input'>['value'], 'none'>['inputValue'] | undefined;
   /**
    * Event handler called when the input value of the autocomplete changes.
    */
   onValueChange?:
-    | ((value: string, eventDetails: AutocompleteRootChangeEventDetails) => void)
-    | undefined;
+    ((value: string, eventDetails: AutocompleteRootChangeEventDetails) => void) | undefined;
   /**
    * Whether clicking an item should submit the autocomplete's owning form.
    * By default, clicking an item via a pointer or <kbd>Enter</kbd> key does not submit the owning form.
@@ -260,8 +258,7 @@ export interface AutocompleteRootProps<ItemValue> extends Omit<
    * Event handler called when the popup is opened or closed.
    */
   onOpenChange?:
-    | ((open: boolean, eventDetails: AutocompleteRootChangeEventDetails) => void)
-    | undefined;
+    ((open: boolean, eventDetails: AutocompleteRootChangeEventDetails) => void) | undefined;
   /**
    * Callback fired when an item is highlighted or unhighlighted.
    * Receives the highlighted item value (or `undefined` if no item is highlighted) and event details with a `reason` property describing why the highlight changed.

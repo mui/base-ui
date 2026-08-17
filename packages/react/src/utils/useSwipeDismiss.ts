@@ -1078,16 +1078,13 @@ export interface UseSwipeDismissOptions {
    * @default 40
    */
   swipeThreshold?:
-    | number
-    | ((details: { element: HTMLElement; direction: SwipeDirection }) => number)
-    | undefined;
+    number | ((details: { element: HTMLElement; direction: SwipeDirection }) => number) | undefined;
   /**
    * If provided, swiping will only begin once this returns true.
    * The predicate is evaluated on start and on subsequent move events while the pointer is down.
    */
   canStart?:
-    | ((position: { x: number; y: number }, details: UseSwipeDismissDetails) => boolean)
-    | undefined;
+    ((position: { x: number; y: number }, details: UseSwipeDismissDetails) => boolean) | undefined;
   /**
    * If true, swiping won't start when the gesture begins within a scrollable element.
    * This helps avoid conflicts between scrolling content and swipe-to-dismiss.

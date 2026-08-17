@@ -199,8 +199,7 @@ export interface CheckboxGroupProps extends BaseUIComponentProps<'div', Checkbox
    * Provides the new value as an argument.
    */
   onValueChange?:
-    | ((value: string[], eventDetails: CheckboxGroupChangeEventDetails) => void)
-    | undefined;
+    ((value: string[], eventDetails: CheckboxGroupChangeEventDetails) => void) | undefined;
   /**
    * Names of all checkboxes in the group. Use this when creating a parent checkbox.
    */
