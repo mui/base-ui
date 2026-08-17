@@ -4,6 +4,7 @@ import type {
   DragKind,
   DragStartContext,
   DraggablePayload,
+  DraggablePayloadGetter,
   DragPreviewParameters,
   DragPreviewContainer,
   BeforeDragStartEventDetails,
@@ -438,16 +439,17 @@ export type DraggableConfig<TData = undefined> = {
   disableStyleElements?: boolean | undefined;
   /**
    * The data to attach to this drag, surfaced as `source.payload` on every
-   * drag-and-drop event. Accepts a static value, or a callback evaluated at drag
-   * start for a payload that depends on the gesture.
-   *
-   * A function is always taken as the callback. To attach a function *as* the
-   * payload, return it from one: `payload={() => myFunction}`.
+   * drag-and-drop event. Functions are preserved as ordinary payload values.
    */
   // Optional here so the conditional requirement lives in one place: `Draggable.Root`
   // and `registerDraggable` re-impose it through an overload, which also keeps a
   // wrapper spreading their `Props` from hitting a deferred conditional.
   payload?: DraggablePayload<TData> | undefined;
+  /**
+   * Resolves the data attached to this drag at drag start. Use this instead of
+   * `payload` when the value depends on the pickup gesture.
+   */
+  getPayload?: DraggablePayloadGetter<TData> | undefined;
   /**
    * Human-readable name of this draggable, used by the default screen-reader
    * announcements for keyboard drags. Defaults to a generic "item".
@@ -480,7 +482,7 @@ export type DraggableConfig<TData = undefined> = {
   disabled?: boolean | undefined;
   /**
    * Event handler called when a drag is about to start, once the activation condition
-   * is met and before the preview is built and any `payload` callback runs.
+   * is met and before the preview is built and `getPayload` runs.
    * Call `eventDetails.cancel()` to prevent the drag from starting.
    */
   onBeforeDragStart?:

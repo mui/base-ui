@@ -141,7 +141,7 @@ function resolveEntry(
   // Aim straight at the edge instead — one `canDrop` and one `payload` per
   // candidate rather than two, which is the whole registry on a long list.
   //
-  // Gated on the *declared* payload, never a resolved one: a callback payload can
+  // Gated on the *declared* payload, never a resolved one: `getPayload` can
   // answer differently per point, so only the value form proves the target is a
   // row everywhere. Anything else keeps the centre-first order below, which is
   // what plain zones need.
@@ -155,7 +155,7 @@ function resolveEntry(
   if (centerRecord && !isReorderItemTarget(centerRecord)) {
     return { record: centerRecord, point: center };
   }
-  // Either a reorder row whose payload is a callback — aimed at its entering edge,
+  // Either a reorder row whose payload comes from `getPayload` — aimed at its entering edge,
   // so that is the point that has to accept — or a target that rejected its center,
   // which a row accepting only the half being entered legitimately does.
   const edgeRecord = resolveDropTarget(element, { source, input: remapInput(input, edge) });

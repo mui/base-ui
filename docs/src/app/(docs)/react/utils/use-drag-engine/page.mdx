@@ -46,7 +46,7 @@ Both React-context inputs — the locale used for the default announcements and 
 
 ## Draggables
 
-Register a drag source with `registerDraggable`. Its parameters are the props of [`Draggable.Root`](/react/components/draggable) without the element — `kind`, `payload`, `pointerActivation`, `label`, `disabled`, the drag event callbacks — plus two imperative-only fields the component expresses as parts: `dragHandle` (an element, ref, or resolver restricting pickup to a handle, like `Draggable.Handle`) and `dragPreview` (below). Unlike `Draggable.Root`, registration does not manage `tabIndex`: make the element focusable yourself when keyboard dragging should work.
+Register a drag source with `registerDraggable`. Its parameters are the props of [`Draggable.Root`](/react/components/draggable) without the element — `kind`, `payload` or `getPayload`, `pointerActivation`, `label`, `disabled`, the drag event callbacks — plus two imperative-only fields the component expresses as parts: `dragHandle` (an element, ref, or resolver restricting pickup to a handle, like `Draggable.Handle`) and `dragPreview` (below). Unlike `Draggable.Root`, registration does not manage `tabIndex`: make the element focusable yourself when keyboard dragging should work.
 
 ```tsx title="Register a drag source"
 engine.registerDraggable(element, () => ({ kind: card, payload: id }));

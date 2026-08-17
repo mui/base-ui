@@ -15,6 +15,7 @@ export type {
   BaseDragEvent,
   BeforeDragStartEventDetails,
   DraggablePayload,
+  DraggablePayloadGetter,
   DragAccept,
   DragKind,
   DragModifier,

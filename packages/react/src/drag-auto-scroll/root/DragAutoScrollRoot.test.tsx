@@ -402,6 +402,71 @@ describe('DragAutoScroll.Root', () => {
     warnSpy.mockRestore();
   });
 
+  it('wakes a parked loop when content growth creates scroll room', async () => {
+    const scrollBy = vi.fn();
+    const { engine } = await renderDnd(<Scroller scrollByMock={scrollBy} />);
+    const source = createElement();
+    engine.registerDraggable(source, {});
+    const scroller = screen.getByTestId('scroller');
+    let scrollHeight = 100;
+    Object.defineProperty(scroller, 'scrollHeight', {
+      configurable: true,
+      get: () => scrollHeight,
+    });
+    scroller.scrollTop = 0;
+
+    await liftOutside(source);
+    await dragTo(scroller, 100, 95);
+    expect(scrollBy).not.toHaveBeenCalled();
+
+    await act(async () => {
+      scrollHeight = 1000;
+      scroller.appendChild(document.createElement('div'));
+      await Promise.resolve();
+    });
+    await flushRaf();
+    await flushRaf();
+
+    expect(scrollBy).toHaveBeenCalled();
+    fireEvent.drop(source);
+  });
+
+  it('observes class and style changes on a replacement render node', async () => {
+    const scrollBy = vi.fn();
+    const ref = (node: HTMLElement | null) => {
+      if (node) {
+        stubScrollMetrics(node, scrollBy);
+        node.style.overflow = 'hidden';
+      }
+    };
+    const { engine, rerender } = await renderDnd(
+      <DragAutoScroll.Root ref={ref} render={<div />} data-testid="scroller" />,
+    );
+    const source = createElement();
+    engine.registerDraggable(source, {});
+    const first = screen.getByTestId('scroller');
+
+    await liftOutside(source);
+    await dragTo(first, 100, 95);
+    expect(scrollBy).not.toHaveBeenCalled();
+
+    await rerender(<DragAutoScroll.Root ref={ref} render={<section />} data-testid="scroller" />);
+    const replacement = screen.getByTestId('scroller');
+    expect(replacement).not.toBe(first);
+    await flushRaf();
+    scrollBy.mockClear();
+
+    await act(async () => {
+      replacement.style.overflow = 'auto';
+      await Promise.resolve();
+    });
+    await flushRaf();
+    await flushRaf();
+
+    expect(scrollBy).toHaveBeenCalled();
+    fireEvent.drop(source);
+  });
+
   it('registers exactly once under Strict Mode, and unmount releases the registration', async () => {
     // Strict Mode double-invokes the registration effect (register → cleanup →
     // register). Two failure modes: the re-register tears the live registration

@@ -732,7 +732,7 @@ function commitActivation(): void {
   // Re-check the lifecycle too, as the keyboard sensor does. A keyboard drag can
   // start during the pending window (mouse held still, Space pressed), and the
   // lifecycle would refuse this one anyway — but only after `onBeforeDragStart`,
-  // the `payload` callback and a preview had run. The refused-session undo then
+  // `getPayload` and a preview had run. The refused-session undo then
   // destroys that preview, which strips `data-dragging`/`data-drag-mode` from the
   // element the *keyboard* drag is dragging, killing its dimming for the rest of
   // the drag.

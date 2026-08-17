@@ -490,7 +490,7 @@ function beginKeyboardSession(parameters: {
 
   // The shared bootstrap allocates preview + lifecycle and undoes them itself
   // on a throw or a lifecycle refusal, then re-throws. The throw is most likely
-  // the consumer's `payload` callback (run while the session is built), so
+  // the consumer's `getPayload` callback (run while the session is built), so
   // contain it like `onBeforeDragStart` rather than letting it escape the window
   // keydown listener (or the consumer's `startKeyboardDrag()` call); the engine
   // state is already fully undone.

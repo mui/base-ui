@@ -76,9 +76,11 @@ const state = getSharedSlot<AutoScrollerState>('registerAutoScroller', () => ({
   chainSourceParent: null,
   sortedScrollers: null,
   engagedThisFrame: new Set<HTMLElement>(),
+  idleMutationObserver: null,
   overflowCache: new WeakMap<HTMLElement, OverflowFlags>(),
   rtlCache: new WeakMap<HTMLElement, boolean>(),
 }));
+state.idleMutationObserver ??= null;
 
 const holds = createGetterStackRegistry<HTMLElement, ScrollerGetter>({
   entries: state.scrollers,
@@ -836,6 +838,34 @@ function requestScrollFrame(): number | null {
 function idleScrollLoop(): void {
   state.scrollLoopRaf = null;
   state.lastTimestamp = 0;
+  observeIdleMutations();
+}
+
+function clearIdleMutationObserver(): void {
+  state.idleMutationObserver?.disconnect();
+  state.idleMutationObserver = null;
+}
+
+function observeIdleMutations(): void {
+  if (state.idleMutationObserver !== null || state.currentSource === null) {
+    return;
+  }
+  const doc = ownerDocument(state.currentSource.element);
+  const root = doc.documentElement;
+  if (!root) {
+    return;
+  }
+  const observer = new (ownerWindow(root).MutationObserver)(() => {
+    clearIdleMutationObserver();
+    refreshAutoScroll();
+  });
+  observer.observe(root, {
+    attributes: true,
+    attributeFilter: ['class', 'style'],
+    childList: true,
+    subtree: true,
+  });
+  state.idleMutationObserver = observer;
 }
 
 /** Resume a parked loop when fresh input may have moved the pointer into an edge zone. */
@@ -843,11 +873,13 @@ function wakeScrollLoop(): void {
   if (!state.enabled || state.scrollLoopRaf !== null) {
     return;
   }
+  clearIdleMutationObserver();
   state.lastTimestamp = 0;
   state.scrollLoopRaf = requestScrollFrame();
 }
 
 function startScrollLoop(): void {
+  clearIdleMutationObserver();
   state.enabled = true;
   if (state.scrollLoopRaf !== null) {
     return;
@@ -887,6 +919,7 @@ function stopScrollLoop(): void {
   // Scratch set from the last frame; it would otherwise pin those containers
   // until the next drag's first frame cleared it.
   state.engagedThisFrame.clear();
+  clearIdleMutationObserver();
   clearInferredScrollers();
   resetStyleCaches();
   if (scrollLoopRaf !== null && scrollWindow !== null) {
@@ -1134,6 +1167,8 @@ interface AutoScrollerState {
   sortedScrollers: HTMLElement[] | null;
   /** Scratch set of scrollers engaged in the current frame, reused across frames. */
   engagedThisFrame: Set<HTMLElement>;
+  /** Watches for content/style changes only while the frame loop is parked. */
+  idleMutationObserver: MutationObserver | null;
   /** Per-drag per-axis overflow cache (see `readCached`). */
   overflowCache: WeakMap<HTMLElement, OverflowFlags>;
   /** Per-drag `isRtl` cache (see `readCached`). */

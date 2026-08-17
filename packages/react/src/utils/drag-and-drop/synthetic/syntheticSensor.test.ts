@@ -1118,6 +1118,10 @@ describe('syntheticDrag sensor', () => {
 
   it.each([
     ['role button', () => Object.assign(document.createElement('div'), { role: 'button' })],
+    ['role checkbox', () => Object.assign(document.createElement('div'), { role: 'checkbox' })],
+    ['label', () => document.createElement('label')],
+    ['summary', () => document.createElement('summary')],
+    ['media controls', () => Object.assign(document.createElement('audio'), { controls: true })],
     [
       'focusable custom control',
       () => Object.assign(document.createElement('div'), { tabIndex: 0 }),

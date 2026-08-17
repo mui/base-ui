@@ -95,7 +95,7 @@ describe('DropTarget.Root', () => {
           calls.push('canDrop');
           return true;
         }}
-        payload={() => ({ id: 'slot-1' })}
+        getPayload={() => ({ id: 'slot-1' })}
         snap={() => {
           calls.push('snap');
           return { y: 4 };
@@ -1026,7 +1026,7 @@ describe('DropTarget.Root', () => {
       <DropTarget.Root
         accept={DropTarget.anyKind}
         data-testid="target"
-        payload={() => ({ id: 'slot-1' })}
+        getPayload={() => ({ id: 'slot-1' })}
         onDrop={({ self }) => {
           observed = self.payload.id;
         }}

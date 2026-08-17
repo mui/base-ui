@@ -255,6 +255,21 @@ describe('<Draggable.Handle />', () => {
       expect(screen.getByTestId('handle')).toHaveAttribute('aria-label', 'Drag Card');
     });
 
+    it('still labels a handle whose only text is inside a hidden node', async () => {
+      await renderDnd(
+        <Draggable.Root kind={testDragKind} label="Card">
+          <Draggable.Handle data-testid="handle">
+            <span hidden>Reorder</span>
+            <svg aria-hidden />
+          </Draggable.Handle>
+        </Draggable.Root>,
+      );
+
+      const handle = screen.getByTestId('handle');
+      expect(handle).toHaveAttribute('aria-label', 'Drag Card');
+      expect(handle).toHaveAccessibleName('Drag Card');
+    });
+
     it('still labels a handle hidden with the string form aria-hidden="true"', async () => {
       await renderDnd(
         <Draggable.Root kind={testDragKind} label="Card">

@@ -31,8 +31,14 @@ function hasRenderedText(children: React.ReactNode): boolean {
       // `aria-hidden` subtrees contribute nothing to the accessible name, so an
       // icon that labels itself for sighted users only must not suppress ours.
       // React accepts both the boolean and the `Booleanish` string form.
-      const hidden = (child.props as Record<string, unknown>)['aria-hidden'];
-      if (hidden === true || hidden === 'true') {
+      const childProps = child.props as Record<string, unknown>;
+      const ariaHidden = childProps['aria-hidden'];
+      if (
+        ariaHidden === true ||
+        ariaHidden === 'true' ||
+        childProps.hidden === true ||
+        childProps.inert === true
+      ) {
         return false;
       }
       return hasRenderedText(child.props.children);

@@ -306,13 +306,13 @@ describe('engine.registerDraggable', () => {
     expect(outer.getAttribute('aria-roledescription')).toBe('outer renamed');
   });
 
-  it('calls a payload callback with the gesture, once, and snapshots the result', async () => {
+  it('calls getPayload with the gesture, once, and snapshots the result', async () => {
     const { engine } = await renderDnd();
     const el = createElement();
     const payload = vi.fn((_: DragStartContext) => ({ key: 'value' }));
     const onDragStart = vi.fn();
     const onDrag = vi.fn();
-    engine.registerDraggable(el, { payload, onDragStart, onDrag });
+    engine.registerDraggable(el, { getPayload: payload, onDragStart, onDrag });
 
     fireEvent.dragStart(el);
     await flushRaf();
@@ -335,15 +335,15 @@ describe('engine.registerDraggable', () => {
     );
   });
 
-  it('treats a function payload as the callback, and `() => fn` as the escape hatch', async () => {
+  it('keeps a function payload as data and resolves getPayload separately', async () => {
     const { engine } = await renderDnd();
     const el = createElement();
     const other = createElement();
-    const myFunction = () => 'not a payload';
+    const myFunction = vi.fn(() => 'command result');
     const onDragStart = vi.fn();
     const onOtherDragStart = vi.fn();
-    engine.registerDraggable(el, { payload: () => 'called', onDragStart });
-    engine.registerDraggable(other, { payload: () => myFunction, onDragStart: onOtherDragStart });
+    engine.registerDraggable(el, { getPayload: () => 'called', onDragStart });
+    engine.registerDraggable(other, { payload: myFunction, onDragStart: onOtherDragStart });
 
     fireEvent.dragStart(el);
     await flushRaf();
@@ -354,6 +354,7 @@ describe('engine.registerDraggable', () => {
 
     expect(onDragStart.mock.calls[0][0].source.payload).toBe('called');
     expect(onOtherDragStart.mock.calls[0][0].source.payload).toBe(myFunction);
+    expect(myFunction).not.toHaveBeenCalled();
   });
 
   it('attaches a value payload without calling anything', async () => {
@@ -368,8 +369,7 @@ describe('engine.registerDraggable', () => {
     expect(onDragStart.mock.calls[0][0].source.payload).toEqual({ key: 'value' });
   });
 
-  // The payload is resolved on `typeof`, not nullishness, so a falsy value the
-  // consumer meant to attach survives instead of being replaced by a stand-in.
+  // A falsy static value survives instead of being replaced by a stand-in.
   it.each([
     ['a number', 0],
     ['an empty string', ''],
@@ -500,7 +500,7 @@ describe('engine.registerDraggable', () => {
     const el = createElement();
 
     engine.registerDraggable<MyData>(el, {
-      payload: () => ({ foo: 'bar', count: 1 }),
+      getPayload: () => ({ foo: 'bar', count: 1 }),
       onDragStart: ({ source }) => {
         source.payload.foo.toUpperCase();
         source.payload.count.toFixed();
@@ -512,7 +512,7 @@ describe('engine.registerDraggable', () => {
 
     engine.registerDraggable<MyData>(el, {
       // @ts-expect-error - returned object is missing required `count`
-      payload: () => ({ foo: 'bar' }),
+      getPayload: () => ({ foo: 'bar' }),
     });
   });
 });

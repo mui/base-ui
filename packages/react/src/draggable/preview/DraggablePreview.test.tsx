@@ -69,6 +69,27 @@ describe('Draggable.Preview', () => {
     expect(document.querySelector('[data-drag-preview]')).toBeNull();
   });
 
+  it('does not require a PreviewProvider while disabled and validates when enabled', () => {
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    try {
+      const { rerender } = rtlRender(
+        <Draggable.Root kind={testDragKind}>
+          <Draggable.Preview disabled>Preview</Draggable.Preview>
+        </Draggable.Root>,
+      );
+
+      expect(() =>
+        rerender(
+          <Draggable.Root kind={testDragKind}>
+            <Draggable.Preview>Preview</Draggable.Preview>
+          </Draggable.Root>,
+        ),
+      ).toThrow(/Draggable\.PreviewProvider/);
+    } finally {
+      errorSpy.mockRestore();
+    }
+  });
+
   it('does not call a typed render callback for a mismatched source kind', () => {
     const otherKind = Draggable.createKind('other-preview-kind');
     const renderPreview = vi.fn(() => 'Preview');

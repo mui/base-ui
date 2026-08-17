@@ -793,7 +793,7 @@ A component that makes its element a drag source.
   - useActiveDrag
 - Exports:
   - Draggable - Root
-    - Props: ariaRoleDescription, children, className, disabled, dragCursor, finalFocus, keyboardActivation, keyboardAnnouncements, keyboardInstructions, keyboardMovement, kind, label, modifiers, onBeforeDragStart, onDrag, onDragEnd, onDragStart, onDrop, onDropTargetChange, payload, pointerActivation, render, style, trackDisplacement
+    - Props: ariaRoleDescription, children, className, disabled, dragCursor, finalFocus, getPayload, keyboardActivation, keyboardAnnouncements, keyboardInstructions, keyboardMovement, kind, label, modifiers, onBeforeDragStart, onDrag, onDragEnd, onDragStart, onDrop, onDropTargetChange, payload, pointerActivation, render, style, trackDisplacement
     - Data Attributes: data-disabled, data-displacing, data-drag-mode, data-dragging, data-ending-style, data-starting-style
     - CSS Variables: --drag-displacement-x, --drag-displacement-y
   - Draggable - ClonedPreview
@@ -829,6 +829,8 @@ A component that makes its element a drag source.
     - Props: direction, event, findTarget, getTargets, key, location, position, shiftKey, source, suggestion, target
   - Draggable - useActiveDrag
     - Parameters: accept
+  - DraggablePayloadGetter
+    - Parameters: context
   - DragKeyboardMovement
     - Props: direction, event, findTarget, getTargets, key, location, position, shiftKey, source, suggestion, target
   - DragModifier
@@ -955,12 +957,14 @@ A component that makes its element a drop zone.
     - createGlobalKind
 - Exports:
   - Drop Target - Root
-    - Props: accept, canDrop, className, disabled, kind, label, onDrag, onDragEnter, onDragLeave, onDragStart, onDrop, onDropTargetChange, payload, render, snap, style, trackDragOver
+    - Props: accept, canDrop, className, disabled, getPayload, kind, label, onDrag, onDragEnter, onDragLeave, onDragStart, onDrop, onDropTargetChange, payload, render, snap, style, trackDragOver
     - Data Attributes: data-accepting, data-disabled, data-drag-over, data-drag-over-innermost, data-drop-target, data-rejected
   - Drop Target - createGlobalKind
     - Parameters: key
   - Drop Target - createKind
     - Parameters: name
+  - DropTargetPayloadGetter
+    - Parameters: context
 - Types: DropTarget.Root.Props, DropTarget.Root.PropsWithPayload, DropTarget.Root.State
 
 </details>

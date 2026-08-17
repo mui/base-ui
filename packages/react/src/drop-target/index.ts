@@ -35,6 +35,7 @@ export type {
   DropTargetChangeReason,
   DropTargetEvent,
   DropTargetPayload,
+  DropTargetPayloadGetter,
   DropTargetRecord,
   DropTargetResolutionContext,
   DropTargetSelf,

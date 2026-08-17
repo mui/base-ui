@@ -358,13 +358,13 @@ describe('keyboard sensor', () => {
     expect(errorSpy.mock.calls[0][1]).toBe(el);
   });
 
-  it('contains a throwing payload callback: the pickup is canceled and reported', async () => {
+  it('contains a throwing getPayload callback: the pickup is canceled and reported', async () => {
     const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
     registerCleanup(() => errorSpy.mockRestore());
     const { engine } = await renderDnd();
     const el = createElement();
     engine.registerDraggable(el, {
-      payload: () => {
+      getPayload: () => {
         throw new Error('broken payload');
       },
     });

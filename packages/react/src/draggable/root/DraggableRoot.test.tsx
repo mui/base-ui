@@ -67,7 +67,7 @@ function TestDraggable<TData = undefined>(props: {
   // pass no payload at all — so widen past the overloads rather than making every
   // fixture declare one. `kind` defaults to the shared test kind, and a fixture
   // exercising kind matching (or a typed payload) passes its own.
-  const Root = Draggable.Root as (props: Draggable.Root.Props<any>) => React.JSX.Element;
+  const Root = Draggable.Root as React.ComponentType<any>;
   return (
     <Root
       kind={testDragKind}
@@ -367,14 +367,16 @@ describe('Draggable.Root', () => {
     expect(screen.getByTestId('enabled')).not.toHaveAttribute('data-disabled');
   });
 
-  it('forwards payload into the drag payload', async () => {
+  it('forwards getPayload into the drag payload', async () => {
     const tokenKind = Draggable.createKind<{ token: string }>('token');
     const payload = vi.fn(() => ({ token: 'abc' }));
     const onDragStart = vi.fn();
     await renderDnd(
       // `Props` hides `kind` behind an `Omit`, which TypeScript can't infer through, so
       // the payload type is named here rather than read off the kind.
-      <TestDraggable<{ token: string }> options={{ kind: tokenKind, payload, onDragStart }} />,
+      <TestDraggable<{ token: string }>
+        options={{ kind: tokenKind, getPayload: payload, onDragStart }}
+      />,
     );
     const source = screen.getByTestId('drag');
 
@@ -2287,7 +2289,7 @@ describe('Draggable.Root', () => {
         () =>
           engine.registerDraggable(elementRef.current!, () => ({
             kind: cardKind,
-            payload: () => ({ id: 'a' }),
+            getPayload: () => ({ id: 'a' }),
             dragPreview: { render: () => <span data-testid="preview">chip</span> },
           })),
         [engine],
@@ -2354,7 +2356,7 @@ describe('Draggable.Root', () => {
           () =>
             engine.registerDraggable(elementRef.current!, () => ({
               kind: cardKind,
-              payload: () => ({ id: 'a' }),
+              getPayload: () => ({ id: 'a' }),
               dragPreview: {
                 render: () => <span data-testid="preview">chip</span>,
                 offset: { x: 5, y: 6 },
@@ -2388,7 +2390,7 @@ describe('Draggable.Root', () => {
           () =>
             engine.registerDraggable(elementRef.current!, () => ({
               kind: cardKind,
-              payload: () => ({ id: 'a' }),
+              getPayload: () => ({ id: 'a' }),
               dragPreview: { disabled: true },
             })),
           [engine],
@@ -2415,7 +2417,7 @@ describe('Draggable.Root', () => {
           () =>
             engine.registerDraggable(elementRef.current!, () => ({
               kind: cardKind,
-              payload: () => ({ id: 'a' }),
+              getPayload: () => ({ id: 'a' }),
               dragPreview: {
                 modifiers: Draggable.restrictToElement(boundsRef),
                 offset: 'pointer',
@@ -2456,7 +2458,7 @@ describe('Draggable.Root', () => {
             () =>
               engine.registerDraggable(elementRef.current!, () => ({
                 kind: cardKind,
-                payload: () => ({ id: 'a' }),
+                getPayload: () => ({ id: 'a' }),
                 dragPreview: { container: host },
               })),
             [engine],
@@ -2487,7 +2489,7 @@ describe('Draggable.Root', () => {
             () =>
               engine.registerDraggable(elementRef.current!, () => ({
                 kind: cardKind,
-                payload: () => ({ id: 'a' }),
+                getPayload: () => ({ id: 'a' }),
                 dragPreview: {
                   render: () => <span data-testid="preview">chip</span>,
                   container: host,

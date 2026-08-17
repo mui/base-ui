@@ -129,6 +129,33 @@ describe('useDraggableCollection', () => {
     expect(getRegistration(element)!().label).toBe('Item a');
   });
 
+  it('limits pointer pickup to a dynamic handle without limiting row keyboard pickup', async () => {
+    const { plugin } = setupPlugin({}, { knownItemIds: ['a'] });
+    const row = createElement();
+    const handle = document.createElement('span');
+    row.append(handle);
+    plugin.setupItem('a', row);
+
+    const cleanupHandle = plugin.setupHandle('a', handle);
+
+    await lift(row, { expectNoDrag: true });
+    expect(dragSessionStore.getSnapshot()).toBe(null);
+    fireEvent.dragEnd(row);
+
+    await lift(handle);
+    expect(dragSessionStore.getSnapshot()?.source.element).toBe(row);
+    fireEvent.dragEnd(handle);
+
+    pressKey(row, ' ');
+    expect(dragSessionStore.getSnapshot()?.source.element).toBe(row);
+    pressKey(row, 'Escape');
+
+    cleanupHandle();
+    await lift(row);
+    expect(dragSessionStore.getSnapshot()?.source.element).toBe(row);
+    fireEvent.dragEnd(row);
+  });
+
   it('reconciles mounted rows when displacement tracking is enabled at runtime', async () => {
     const actions = {
       hasItem: () => true,
@@ -1161,6 +1188,36 @@ describe('useDraggableCollection', () => {
   });
 
   describe('root drop', () => {
+    it('does not measure every selected row while tracking root hover', async () => {
+      const itemIds = Array.from({ length: 50 }, (_, index) => `item-${index}`);
+      const selectedItemIds = new Set(itemIds);
+      const { plugin } = setupPlugin(
+        { onRootDrop: vi.fn() },
+        { knownItemIds: itemIds, selectedItemIds },
+      );
+      const root = createElement({ top: 0, height: 1000 });
+      const rectSpies: ReturnType<typeof vi.fn>[] = [];
+      const items = itemIds.map((itemId, index) => {
+        const element = createElement({ top: index * 20, height: 20 });
+        const getRect = vi.fn(element.getBoundingClientRect.bind(element));
+        element.getBoundingClientRect = getRect;
+        rectSpies.push(getRect);
+        root.append(element);
+        plugin.setupItem(itemId, element);
+        return element;
+      });
+      plugin.setupRoot(root);
+
+      await lift(items[0]);
+      rectSpies.forEach((spy) => spy.mockClear());
+
+      await dragEnter(root, { clientY: 990 });
+      await dragOver(root, { clientY: 990 });
+
+      expect(rectSpies.every((spy) => spy.mock.calls.length === 0)).toBe(true);
+      fireEvent.dragEnd(items[0]);
+    });
+
     it('fires onRootDrop only on the originating plugin', async () => {
       const onRootDropA = vi.fn();
       const onRootDropB = vi.fn();

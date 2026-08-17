@@ -46,7 +46,7 @@ export function DraggablePreview<TData = unknown>(
     return <DraggablePreviewElement componentProps={{ ...componentProps, children: resolved }} />;
   });
 
-  useDeclaredPreview<TData>(getProps, render);
+  useDeclaredPreview<TData>(getProps, render, props.disabled === true);
 
   return null;
 }

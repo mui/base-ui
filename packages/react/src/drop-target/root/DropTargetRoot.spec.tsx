@@ -1,6 +1,11 @@
 import * as React from 'react';
 import { expectType } from '#test-utils';
-import type { DropEvent, DropTargetPayload, DropTargetRecord } from '@base-ui/react/drop-target';
+import type {
+  DropEvent,
+  DropTargetPayload,
+  DropTargetPayloadGetter,
+  DropTargetRecord,
+} from '@base-ui/react/drop-target';
 import { Draggable } from '@base-ui/react/draggable';
 import { DropTarget } from '@base-ui/react/drop-target';
 
@@ -49,11 +54,11 @@ const slot = DropTarget.createKind<SlotData>('slot');
   }}
 />;
 
-// A callback payload infers from its return type, and sees the drag it is
+// A payload resolver infers from its return type, and sees the drag it is
 // deriving the payload from.
 <DropTarget.Root
   accept={DropTarget.anyKind}
-  payload={({ source }) => ({ over: source.kind })}
+  getPayload={({ source }) => ({ over: source.kind })}
   onDrop={({ self }) => {
     expectType<{ over: symbol }, typeof self.payload>(self.payload);
   }}
@@ -65,6 +70,15 @@ const slot = DropTarget.createKind<SlotData>('slot');
   payload="inbox"
   onDrop={({ self }) => {
     expectType<string, typeof self.payload>(self.payload);
+  }}
+/>;
+
+const targetCommand = () => 'run';
+<DropTarget.Root
+  accept={DropTarget.anyKind}
+  payload={targetCommand}
+  onDrop={({ self }) => {
+    expectType<typeof targetCommand, typeof self.payload>(self.payload);
   }}
 />;
 
@@ -163,7 +177,7 @@ if (slot.matches(untypedRecord)) {
 <DropTarget.Root<CardPayload, SlotData> accept={card} payload={{ index: 'first' }} />;
 
 // @ts-expect-error the callback's return type must match it too.
-<DropTarget.Root<CardPayload, SlotData> accept={card} payload={() => ({ index: 'first' })} />;
+<DropTarget.Root<CardPayload, SlotData> accept={card} getPayload={() => ({ index: 'first' })} />;
 
 <DropTarget.Root
   accept={DropTarget.anyKind}
@@ -223,11 +237,14 @@ const wideDrop = (parameters: DropEvent<unknown, unknown>) => parameters;
 // wrapper's props reads the same as before.
 type SlotProps = DropTarget.Root.Props<CardPayload, SlotData>;
 const slotValueProps: SlotProps = { accept: card, payload: { index: 0 } };
-const slotCallbackProps: SlotProps = { accept: card, payload: () => ({ index: 0 }) };
-expectType<DropTargetPayload<CardPayload, SlotData>, SlotProps['payload']>(slotValueProps.payload);
-expectType<DropTargetPayload<CardPayload, SlotData>, SlotProps['payload']>(
-  slotCallbackProps.payload,
+const slotCallbackProps: SlotProps = { accept: card, getPayload: () => ({ index: 0 }) };
+expectType<DropTargetPayload<CardPayload, SlotData>, NonNullable<typeof slotValueProps.payload>>(
+  slotValueProps.payload!,
 );
+expectType<
+  DropTargetPayloadGetter<CardPayload, SlotData>,
+  NonNullable<typeof slotCallbackProps.getPayload>
+>(slotCallbackProps.getPayload!);
 
 // @ts-expect-error `Props` mirrors the component: a declared `TLocalData` requires a payload.
 const slotMissingProps: SlotProps = { accept: card };

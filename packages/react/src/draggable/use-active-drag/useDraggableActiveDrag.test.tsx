@@ -16,7 +16,7 @@ function SourceProbe(props: { label?: string }) {
     <Draggable.Root
       kind={probeKind}
       label={props.label}
-      payload={() => ({ kind: 'probe' as const })}
+      getPayload={() => ({ kind: 'probe' as const })}
       data-testid={`source-${props.label ?? 'nolabel'}`}
       data-source-label={source?.label ?? 'none'}
       data-source-kind={source?.payload.kind ?? 'none'}

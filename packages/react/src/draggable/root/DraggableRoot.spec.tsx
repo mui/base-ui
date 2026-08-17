@@ -2,6 +2,7 @@ import * as React from 'react';
 import { expectType } from '#test-utils';
 import type {
   DraggablePayload,
+  DraggablePayloadGetter,
   DragEndReason,
   DragKind,
   DragSource,
@@ -46,10 +47,10 @@ expectType<DragKind<undefined>, typeof marker>(marker);
   }}
 />;
 
-// A callback payload is checked against the kind rather than inferred from.
+// A payload resolver is checked against the kind rather than inferred from.
 <Draggable.Root
   kind={card}
-  payload={() => ({ id: 'a' })}
+  getPayload={() => ({ id: 'a' })}
   onDragStart={({ source }) => {
     expectType<CardPayload, typeof source.payload>(source.payload);
   }}
@@ -68,7 +69,7 @@ expectType<DragKind<undefined>, typeof marker>(marker);
 const grabOffset = Draggable.createKind<{ x: number }>('grab-offset');
 <Draggable.Root
   kind={grabOffset}
-  payload={({ input, element }) => ({ x: input.clientX - element.getBoundingClientRect().left })}
+  getPayload={({ input, element }) => ({ x: input.clientX - element.getBoundingClientRect().left })}
   onDragStart={({ source }) => {
     expectType<{ x: number }, typeof source.payload>(source.payload);
   }}
@@ -86,16 +87,12 @@ const grabOffset = Draggable.createKind<{ x: number }>('grab-offset');
 // @ts-expect-error the kind must carry the explicit type argument's payload.
 <Draggable.Root<CardPayload> kind={text} payload={{ id: 'a' }} />;
 
-// A function-typed payload can never be passed as a bare value: the runtime
-// would invoke it as the drag-start resolver and deliver its return value.
+// Function-valued payloads stay data rather than being invoked as resolvers.
 const command = Draggable.createKind<() => void>('command');
 const runCommand = () => {};
-// @ts-expect-error a bare function value would be called as the resolver.
-<Draggable.Root kind={command} payload={runCommand} />;
-// The documented wrapper delivers the function itself.
 <Draggable.Root
   kind={command}
-  payload={() => runCommand}
+  payload={runCommand}
   onDragStart={({ source }) => {
     expectType<() => void, typeof source.payload>(source.payload);
   }}
@@ -109,7 +106,7 @@ const runCommand = () => {};
 <Draggable.Root kind={card} payload={{ id: 1 }} />;
 
 // @ts-expect-error the callback's return type must match it too.
-<Draggable.Root kind={card} payload={() => ({ id: 1 })} />;
+<Draggable.Root kind={card} getPayload={() => ({ id: 1 })} />;
 
 // @ts-expect-error excess properties are still caught against the kind's payload.
 <Draggable.Root kind={card} payload={{ id: 'a', extra: 1 }} />;
@@ -250,13 +247,16 @@ const boundaryRef: React.RefObject<HTMLDivElement | null> = { current: null };
 const ref: React.Ref<HTMLDivElement> = null;
 <Draggable.Root kind={marker} ref={ref} />;
 
-// `payload` is a union, so the prop type carries both forms rather than a
-// callable signature to take the `ReturnType` of.
+// Static and resolved payloads use distinct fields.
 type CardProps = Draggable.Root.Props<CardPayload>;
 const cardValueProps: CardProps = { kind: card, payload: { id: 'a' } };
-const cardCallbackProps: CardProps = { kind: card, payload: () => ({ id: 'a' }) };
-expectType<DraggablePayload<CardPayload>, CardProps['payload']>(cardValueProps.payload);
-expectType<DraggablePayload<CardPayload>, CardProps['payload']>(cardCallbackProps.payload);
+const cardCallbackProps: CardProps = { kind: card, getPayload: () => ({ id: 'a' }) };
+expectType<DraggablePayload<CardPayload>, NonNullable<typeof cardValueProps.payload>>(
+  cardValueProps.payload!,
+);
+expectType<DraggablePayloadGetter<CardPayload>, NonNullable<typeof cardCallbackProps.getPayload>>(
+  cardCallbackProps.getPayload!,
+);
 
 // @ts-expect-error `Props` mirrors the component: a declared `TData` requires a payload.
 const cardMissingProps: CardProps = { kind: card };

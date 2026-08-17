@@ -27,7 +27,7 @@ export function useDragAutoScrollElement<TSourceData = unknown>(
   const getParameters = useStableCallback(
     () => parameters as RegisterAutoScrollerParameters<unknown>,
   );
-  const elementRef = React.useRef<HTMLElement | null>(null);
+  const observerRef = React.useRef<MutationObserver | null>(null);
 
   // Registering mid-drag needs nothing from this layer: the loop is already
   // armed and running on a live input (the first draggable armed it), so the
@@ -40,8 +40,19 @@ export function useDragAutoScrollElement<TSourceData = unknown>(
   // — and its cached depth order — on every flip of the prop.
   const ref = useRegistrationRef<HTMLElement>((node) => registerAutoScroller(node, getParameters));
   const mergedRef = useRefWithInit(() => (node: HTMLElement | null) => {
-    elementRef.current = node;
+    observerRef.current?.disconnect();
+    observerRef.current = null;
     ref(node);
+    if (node) {
+      const observer = new (ownerWindow(node).MutationObserver)(refreshAutoScroll);
+      observer.observe(node, {
+        attributes: true,
+        attributeFilter: ['class', 'style'],
+        childList: true,
+        subtree: true,
+      });
+      observerRef.current = observer;
+    }
   }).current;
 
   useIsoLayoutEffect(() => {
@@ -57,23 +68,6 @@ export function useDragAutoScrollElement<TSourceData = unknown>(
     parameters.disabled,
     parameters.maxSpeed,
   ]);
-
-  useIsoLayoutEffect(() => {
-    const element = elementRef.current;
-    if (!element) {
-      return undefined;
-    }
-    // Class and inline-style changes can alter overflow or direction without a
-    // parameter change. Observe the actual DOM mutation instead of invalidating
-    // caches after every React commit.
-    const MutationObserver = ownerWindow(element).MutationObserver;
-    const observer = new MutationObserver(refreshAutoScroll);
-    observer.observe(element, {
-      attributes: true,
-      attributeFilter: ['class', 'style'],
-    });
-    return () => observer.disconnect();
-  }, []);
 
   return { ref: mergedRef };
 }

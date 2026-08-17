@@ -16,7 +16,7 @@ describe('dragSessionStore', () => {
   it('publishes a snapshot at drag start and clears on drop', async () => {
     const { engine } = await renderDnd();
     const source = createElement();
-    engine.registerDraggable(source, { payload: () => ({ kind: 'card' }) });
+    engine.registerDraggable(source, { getPayload: () => ({ kind: 'card' }) });
     const target = createElement();
     engine.registerDropTarget(target, {});
 

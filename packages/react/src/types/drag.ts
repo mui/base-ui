@@ -400,7 +400,7 @@ export type DropTargetEvent<
   TLocalData = unknown,
 > = DragEventMap<TSourceData>[K] & DropTargetSelf<TLocalData>;
 
-/** Context passed to a draggable's `payload` and `onBeforeDragStart` callbacks. */
+/** Context passed to a draggable's `getPayload` and `onBeforeDragStart` callbacks. */
 export interface DragStartContext {
   /** Pointer state at drag start. */
   input: DragInput;
@@ -410,25 +410,13 @@ export interface DragStartContext {
   dragHandle: Element | null;
 }
 
-// The runtime invokes any function-valued `payload` as its resolver form, so a
-// payload whose declared type is itself a function can never be passed as a bare
-// value: it would be called with the resolution context and its return value
-// delivered as the payload. `never` turns that into a type error pointing at the
-// documented wrapper (`payload={() => myFunction}`). The inner probe exempts
-// `any` (and bare `Function`), where nothing can be concluded; an intersection
-// rather than a conditional branch so the slot stays an inference site.
-type RejectCallableValue<T> = [T] extends [Function]
-  ? [Function] extends [T]
-    ? unknown
-    : never
-  : unknown;
-
-/** A draggable's `payload`: the value itself, or a callback evaluated at drag start. */
+/** A draggable's payload value. */
 // `NoInfer` because `kind` is what the payload type is inferred from: without it a
 // `payload` that does not match the kind would widen `TData` instead of being rejected.
-export type DraggablePayload<TData> =
-  | (NoInfer<TData> & RejectCallableValue<TData>)
-  | ((context: DragStartContext) => NoInfer<TData>);
+export type DraggablePayload<TData> = NoInfer<TData>;
+
+/** Resolves a draggable's payload once, when the drag starts. */
+export type DraggablePayloadGetter<TData> = (context: DragStartContext) => NoInfer<TData>;
 
 /**
  * Determines the element that must receive the press for a drag to start.
@@ -573,7 +561,7 @@ export interface DragEventDetailsMap {
   onDragEnd: DragEndEventDetails;
 }
 
-/** Context passed to a drop target's `canDrop` and `payload` callbacks. */
+/** Context passed to a drop target's `canDrop` and `getPayload` callbacks. */
 export interface DropTargetResolutionContext<TSourceData = unknown> {
   /** Pointer state at the moment this callback runs. */
   input: DragInput;
@@ -583,19 +571,15 @@ export interface DropTargetResolutionContext<TSourceData = unknown> {
   element: Element;
 }
 
-/** A drop target's `payload`: the value itself, or a callback evaluated on each resolution. */
-// `NoInfer` sits inside this alias rather than at the use site: `TSourceData` is
-// never inferrable, so a props type built from this one has to carry the guard or a
-// wrapper spreading those props back into the component stops resolving.
-// No `RejectCallableValue` here, deliberately: this value branch is the inference
-// site for `TLocalData` (unlike the draggable's, where `kind` infers and `NoInfer`
-// blocks this slot), and TypeScript infers poorly through an intersection. A
-// function-valued `payload` is therefore *consistently* the resolver form in both
-// the inferred type and the runtime; only an explicitly function-typed
-// `TLocalData` needs the `payload={() => myFunction}` wrapper.
-export type DropTargetPayload<TSourceData, TLocalData> =
-  | TLocalData
-  | ((context: DropTargetResolutionContext<NoInfer<TSourceData>>) => TLocalData);
+/** A drop target's payload value. */
+// `TSourceData` stays for source compatibility with the former resolver union.
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export type DropTargetPayload<TSourceData, TLocalData> = TLocalData;
+
+/** Resolves a drop target's payload each time the target is evaluated. */
+export type DropTargetPayloadGetter<TSourceData, TLocalData> = (
+  context: DropTargetResolutionContext<NoInfer<TSourceData>>,
+) => TLocalData;
 
 /** Extra fields included in the events of a drop target. */
 export interface DropTargetSelf<TLocalData = unknown> {

@@ -31,11 +31,12 @@ import { mergeKeyboardAnnouncements } from './a11y/defaultAnnouncements';
 import { buildStaticSetupKey } from './draggable';
 import { createKind, matchesAccept } from './dragKind';
 import { scheduleDisplacementSweep, trackDisplacedElement } from './displacement';
-import { EMPTY_AUTO_SCROLLER_PARAMETERS } from './autoScroller';
+import { getActiveHitElement } from './synthetic/syntheticSensor';
 import type { LatestGetter } from './useRegistrationRef';
-import { isPointInRect, runAllCleanups } from './utils';
+import { getComposedParentElement, isPointInRect, runAllCleanups } from './utils';
 import type {
   DragKind,
+  DragInput,
   DragSource,
   DragLocationHistory,
   DragPreviewSettings,
@@ -208,6 +209,8 @@ export class DraggableCollectionPlugin<
   // Per-item root elements, kept fresh by `setupItem`. Used by keyboard focus
   // restoration to refocus a moved item after the drop commits.
   private itemElements = new Map<CollectionItemId, HTMLElement>();
+
+  private itemIdsByElement = new WeakMap<Element, CollectionItemId>();
 
   private displacementCleanups = new Map<CollectionItemId, () => void>();
 
@@ -638,6 +641,7 @@ export class DraggableCollectionPlugin<
   setupItem(itemId: CollectionItemId, element: HTMLElement): () => void {
     this.retargetActiveSource(itemId, element);
     this.itemElements.set(itemId, element);
+    this.itemIdsByElement.set(element, itemId);
     this.syncDisplacementTracking(itemId, element);
 
     let pendingDraggedItemIds: Set<CollectionItemId> | null = null;
@@ -648,7 +652,7 @@ export class DraggableCollectionPlugin<
       // footprint has to cover the row the user is actually holding.
       this.snapshotDraggedRects(new Set([itemId, ...pendingDraggedItemIds]));
     };
-    const payload = () => {
+    const getPayload = () => {
       const itemIdsSet = pendingDraggedItemIds ?? this.resolveDraggedItemIds(itemId);
       pendingDraggedItemIds = null;
       const actions = this.config.getActions();
@@ -703,7 +707,7 @@ export class DraggableCollectionPlugin<
             pointerDragHandle: () => this.itemHandles.get(itemId) ?? null,
             // Besides supplying the source's accessible name, this gives the
             // settling clone a stable identity when a cross-collection move
-            // remounts the item under a new registration. The payload callback
+            // remounts the item under a new registration. The `getPayload` callback
             // is necessarily a new function in the destination collection.
             label,
             // `canDrag(itemId)` is declarative (no gesture context), so it maps to
@@ -724,7 +728,7 @@ export class DraggableCollectionPlugin<
             // laid out — a consumer rule may legitimately `display: none` the
             // source. See `isSelfRootDrop`, which needs their footprints.
             onBeforeDragStart,
-            payload,
+            getPayload,
             // The collection owns its preview: it renders into the provider's
             // overlay, so it survives the dragged item reordering or unmounting.
             // Without one, the item falls back to the engine's default clone.
@@ -792,6 +796,9 @@ export class DraggableCollectionPlugin<
       }
       if (this.itemRefreshers.get(itemId) === refreshA11y) {
         this.itemRefreshers.delete(itemId);
+      }
+      if (this.itemIdsByElement.get(element) === itemId) {
+        this.itemIdsByElement.delete(element);
       }
       // `draggableCleanup` is re-assigned by `refreshA11y`, so read it late.
       runAllCleanups([() => draggableCleanup(), dropTargetCleanup]);
@@ -900,11 +907,11 @@ export class DraggableCollectionPlugin<
     };
   }
 
-  setupScroller(element: HTMLElement): () => void {
-    // Register unconditionally: whether the element actually scrolls is the loop's
-    // business, resolved once per drag from its computed overflow (`getOverflowFlags`,
-    // cached in `state.overflowCache`) rather than asked of the element here.
-    return this.engine.registerAutoScroller(element, () => EMPTY_AUTO_SCROLLER_PARAMETERS);
+  setupScroller(_element: HTMLElement): () => void {
+    // Ordinary collection scrollers are discovered from the active pointer/source
+    // ancestry. Keeping them out of the explicit global registry avoids measuring
+    // every mounted collection on every auto-scroll frame.
+    return () => {};
   }
 
   /** See {@link LiveDropPositionOwner}. */
@@ -1024,7 +1031,7 @@ export class DraggableCollectionPlugin<
         dropTargetItemId: null,
         dropPosition: null,
       });
-      this.hasNonInitialState = true;
+      this.hasNonInitialState = false;
     }
   }
 
@@ -1061,25 +1068,36 @@ export class DraggableCollectionPlugin<
    * meant "put it back", not "drop on the root's empty area".
    */
   private isSelfRootDrop(src: IncomingSourceData<TItem>, location: DragLocationHistory): boolean {
-    return this.isPointInDraggedFootprint(src, location.current.input);
+    return this.isPointInDraggedFootprint(src, location.current.input, true);
   }
 
   private isPointInDraggedFootprint(
     src: IncomingSourceData<TItem>,
-    input: { clientX: number; clientY: number },
+    input: DragInput,
+    checkConnectedGeometry = false,
   ): boolean {
     if (src?.sourceInstanceId !== this.instanceId || src.itemIds == null) {
       return false;
+    }
+    if (input.pointerType !== null) {
+      for (let node = getActiveHitElement(); node !== null; node = getComposedParentElement(node)) {
+        const itemId = this.itemIdsByElement.get(node);
+        if (itemId !== undefined && (src.itemIds.has(itemId) || src.draggedItemId === itemId)) {
+          return true;
+        }
+      }
+      // The per-frame pointer path is fully answered by the hit ancestry above.
+      // Terminal drop resolution opts into the geometry fallback because the
+      // sensor has already released its active hit element by then.
+      if (!checkConnectedGeometry) {
+        return false;
+      }
     }
     // The grabbed row is unioned in: `itemIds` is the *pruned* set, which can
     // legitimately exclude it (select a folder and a file inside it, then grab the
     // file), and the row the user is holding is exactly the one they can release
     // back onto.
-    const footprintIds = new Set(src.itemIds);
-    if (src.draggedItemId !== undefined) {
-      footprintIds.add(src.draggedItemId);
-    }
-    for (const id of footprintIds) {
+    const isInsideItem = (id: CollectionItemId) => {
       // Prefer the live rect, which stays valid across scrolling — including this
       // engine's own auto-scroll. `draggedRects` are viewport-coordinate rects
       // frozen at pickup, so any scroll during the drag invalidates them, and
@@ -1095,9 +1113,19 @@ export class DraggableCollectionPlugin<
       // and treating that as a live footprint puts the pointer outside it and
       // turns the put-back into a root drop — the case the snapshot exists for.
       const rect = live && live.width > 0 && live.height > 0 ? live : this.draggedRects.get(id);
-      if (rect && isPointInRect(input.clientX, input.clientY, rect)) {
+      return rect != null && isPointInRect(input.clientX, input.clientY, rect);
+    };
+    for (const id of src.itemIds) {
+      if (isInsideItem(id)) {
         return true;
       }
+    }
+    if (
+      src.draggedItemId !== undefined &&
+      !src.itemIds.has(src.draggedItemId) &&
+      isInsideItem(src.draggedItemId)
+    ) {
+      return true;
     }
     return false;
   }
@@ -1309,9 +1337,8 @@ export class DraggableCollectionPlugin<
 
 /**
  * Wires a collection (Tree, Kanban, ListBox…) into the drag engine. Returns a
- * `DraggableCollectionPlugin` whose `setupItem` / `setupRoot` / `setupScroller`
- * methods are wired by the collection wrapper to register draggables, drop
- * targets, and scroll containers per item.
+ * `DraggableCollectionPlugin` whose setup methods are wired by the collection
+ * wrapper to register draggables, drop targets, handles, and scrollers.
  */
 export function useDraggableCollection<
   TItem = unknown,
@@ -1352,7 +1379,7 @@ export function useDraggableCollection<
       ),
   );
 
-  React.useEffect(() => {
+  useIsoLayoutEffect(() => {
     const instance = plugin.current;
     instance.connect();
     return () => instance.destroy();

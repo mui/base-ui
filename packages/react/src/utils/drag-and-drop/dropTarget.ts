@@ -10,7 +10,6 @@ import type {
   DropEvent,
   DropTargetEvent,
   DropTargetResolutionContext,
-  DropTargetPayload,
   DropTargetSelf,
   DropTargetRecord,
   DragSource,
@@ -247,7 +246,7 @@ export function resetForTests(): void {
   retiringRegistrations.clear();
 }
 
-type ConsumerCallbackName = 'canDrop' | 'payload' | 'snap' | 'getParameters';
+type ConsumerCallbackName = 'canDrop' | 'getPayload' | 'snap' | 'getParameters';
 
 /**
  * The active drag's pickup grab offset: the pointer at pickup minus the source's
@@ -268,8 +267,8 @@ export function setSessionGrabOffset(offset: { x: number; y: number } | null): v
 }
 
 /**
- * Sentinel `safeCall` fallback for a `payload` callback, distinguishing a value
- * the callback genuinely returned from a thrown failure: no return value can be
+ * Sentinel `safeCall` fallback for `getPayload`, distinguishing a value the
+ * callback genuinely returned from a thrown failure: no return value can be
  * mistaken for it.
  */
 const PAYLOAD_ERROR = Symbol('payloadError');
@@ -289,11 +288,11 @@ function safeCall<T>(
 
 /**
  * The payload a target declared, when it declared a plain value rather than a
- * callback; `undefined` otherwise, including for an unregistered element.
+ * resolver; `undefined` otherwise, including for an unregistered element.
  *
  * A peek, not a resolution: it runs the parameters getter but never `accept`,
- * `canDrop`, or a `payload` callback, so it costs nothing a caller wasn't going
- * to pay and can't have side effects. Callback payloads deliberately return
+ * `canDrop`, or a `getPayload` callback, so it costs nothing a caller wasn't going
+ * to pay and can't have side effects. Resolved payloads deliberately return
  * `undefined` — evaluating one needs a resolution context, and its answer can
  * differ per point, so a caller must not assume a peeked value stands for every
  * position on the target.
@@ -304,8 +303,7 @@ export function getDeclaredDropTargetPayload(element: Element): unknown {
     return undefined;
   }
   const registration = safeCall('getParameters', element, getRegistration, null);
-  const declared = registration?.payload;
-  return typeof declared === 'function' ? undefined : declared;
+  return registration?.getPayload ? undefined : registration?.payload;
 }
 
 /**
@@ -365,13 +363,11 @@ function resolveDropTargetOutcome(
     return null;
   }
 
-  // A value payload can't throw, so only the callback form needs the boundary.
-  const declaredPayload = registration.payload;
-  const payload =
-    typeof declaredPayload === 'function'
-      ? safeCall('payload', element, () => declaredPayload(fullFeedback), PAYLOAD_ERROR)
-      : declaredPayload;
-  // A throwing `payload` yields the sentinel: treat the target as inactive, like
+  // A value payload can't throw, so only the resolver needs the boundary.
+  const payload = registration.getPayload
+    ? safeCall('getPayload', element, () => registration.getPayload!(fullFeedback), PAYLOAD_ERROR)
+    : registration.payload;
+  // A throwing `getPayload` yields the sentinel: treat the target as inactive, like
   // `canDrop: false`, instead of dispatching `onDrop` with a stand-in cast as the
   // declared payload type.
   if (payload === PAYLOAD_ERROR) {
@@ -753,13 +749,17 @@ export type RegisterDropTargetParameters<TSourceData = unknown, TLocalData = unk
   /**
    * The data to attach to this target, read back as `self.payload` in its own
    * callbacks and on its record in `location.dropTargets`. Use it to identify which
-   * cell, row, or column a drag is over. Accepts a static value, or a callback
-   * evaluated on each resolution for data derived from the current drag.
-   *
-   * A function is always taken as the callback. To attach a function *as* the
-   * payload, return it from one: `payload={() => myFunction}`.
+   * cell, row, or column a drag is over. Functions are preserved as ordinary
+   * payload values.
    */
-  payload?: DropTargetPayload<TSourceData, TLocalData> | undefined;
+  payload?: TLocalData | undefined;
+  /**
+   * Resolves this target's payload each time it is evaluated. Use this instead
+   * of `payload` when the value depends on the current drag or position.
+   */
+  getPayload?:
+    | ((context: DropTargetResolutionContext<NoInfer<TSourceData>>) => TLocalData)
+    | undefined;
   /**
    * Human-readable name of this drop target, used by the default screen-reader
    * announcements for keyboard drags to name where the item is and where it landed.

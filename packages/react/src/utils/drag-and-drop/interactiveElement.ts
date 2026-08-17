@@ -2,6 +2,33 @@ import { ownerWindow } from '@base-ui/utils/owner';
 import { isInteractiveElement } from '../isInteractiveElement';
 import { getComposedParentElement } from './utils';
 
+// Native controls that own pointer gestures but are not covered by the shared
+// focus-oriented selector, plus ARIA widgets that may be implemented without a
+// native focusable element.
+const DRAG_INTERACTIVE_ELEMENT_SELECTOR = [
+  'label',
+  'summary',
+  'audio[controls]',
+  'video[controls]',
+  '[role="checkbox"]',
+  '[role="combobox"]',
+  '[role="listbox"]',
+  '[role="menuitem"]',
+  '[role="menuitemcheckbox"]',
+  '[role="menuitemradio"]',
+  '[role="option"]',
+  '[role="radio"]',
+  '[role="slider"]',
+  '[role="spinbutton"]',
+  '[role="switch"]',
+  '[role="tab"]',
+  '[role="textbox"]',
+].join(',');
+
+function isDragInteractiveElement(element: Element): boolean {
+  return isInteractiveElement(element) || element.matches(DRAG_INTERACTIVE_ELEMENT_SELECTOR);
+}
+
 // Input types that never take text or arrow-key interaction: focusing one
 // mid-drag (a selection checkbox refocused after a re-render, a toolbar button)
 // must not cancel the drag any more than focusing a `<button>` element would.
@@ -55,7 +82,7 @@ export function hasInteractiveAncestorWithin(target: Element, pickupNode: Elemen
     node !== null && node !== pickupNode;
     node = getComposedParentElement(node)
   ) {
-    if (isInteractiveElement(node) && !node.matches(':disabled')) {
+    if (isDragInteractiveElement(node) && !node.matches(':disabled')) {
       return true;
     }
   }

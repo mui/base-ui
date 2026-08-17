@@ -132,7 +132,7 @@ Every handler receives the event payload first and an `eventDetails` second, car
 
 ## Attach data to a target
 
-`payload` attaches data to the target, read back as `self.payload` in its own callbacks. Like a draggable's `payload`, it takes any value, or a callback that runs on each resolution, so it can derive the data from the current drag. Its type is inferred here, separately from the one `accept` brings: `source.payload` is the dragged item's data, `self.payload` this target's own.
+`payload` attaches data to the target, read back as `self.payload` in its own callbacks. Use `getPayload` when that data must be derived from the current drag; it runs on each resolution with the same context as `canDrop`. Its type is inferred separately from the one `accept` brings: `source.payload` is the dragged item's data, `self.payload` this target's own.
 
 ```tsx title="Identifying the target"
 <DropTarget.Root

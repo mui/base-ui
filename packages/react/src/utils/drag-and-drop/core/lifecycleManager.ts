@@ -572,7 +572,7 @@ export function start(parameters: StartParameters): DragSessionHandle | null {
     }
 
     const newDropTargets = resolveStack(rawTarget, input);
-    // A consumer resolver (`payload` / `canDrop`) can synchronously cancel the
+    // A consumer resolver (`getPayload` / `canDrop`) can synchronously cancel the
     // drag. Teardown already delivered the terminal events and cleared the
     // session, so do not mutate or publish location state for the dead drag.
     if (tornDown) {

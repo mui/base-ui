@@ -359,7 +359,7 @@ describe('engine.registerDropTarget', () => {
     expect(observedKind).toBe(cardKind.id);
   });
 
-  it('calls a payload callback with correct feedback args', async () => {
+  it('calls getPayload with correct feedback args', async () => {
     const { engine } = await renderDnd();
     const source = createElement();
     const target = createElement();
@@ -367,9 +367,9 @@ describe('engine.registerDropTarget', () => {
     const sourceKind = Draggable.createKind<{ sourceKey: string }>('payload-source');
     engine.registerDraggable(source, {
       kind: sourceKind,
-      payload: () => ({ sourceKey: 'sourceValue' }),
+      getPayload: () => ({ sourceKey: 'sourceValue' }),
     });
-    engine.registerDropTarget(target, { payload });
+    engine.registerDropTarget(target, { getPayload: payload });
 
     fireEvent.dragStart(source);
     await flushRaf();
@@ -408,8 +408,28 @@ describe('engine.registerDropTarget', () => {
     expect(onDrop.mock.calls[0][0].self.payload).toEqual({ targetKey: 'targetValue' });
   });
 
-  // Resolved on `typeof`, not nullishness, so a falsy value the consumer meant to
-  // attach survives.
+  it('keeps a function payload as data instead of invoking it', async () => {
+    const { engine } = await renderDnd();
+    const source = createElement();
+    const target = createElement();
+    const command = vi.fn(() => 'command result');
+    const onDrop = vi.fn();
+    engine.registerDraggable(source, {});
+    engine.registerDropTarget(target, { payload: command, onDrop });
+
+    fireEvent.dragStart(source);
+    await flushRaf();
+    fireEvent.dragEnter(target);
+    fireEvent.dragOver(target);
+    await flushRaf();
+    fireEvent.drop(target);
+    await flushRaf();
+
+    expect(onDrop.mock.calls[0][0].self.payload).toBe(command);
+    expect(command).not.toHaveBeenCalled();
+  });
+
+  // A falsy static value survives instead of being replaced by a stand-in.
   it.each([
     ['a number', 0],
     ['an empty string', ''],
@@ -754,7 +774,7 @@ describe('engine.registerDropTarget', () => {
     // Targets are the default 200×100 stub rect at (0, 200) throughout, so every
     // expected fraction is arithmetic rather than a snapshot.
     async function dropAt(
-      parameters: RegisterDropTargetParameters<unknown, unknown>,
+      parameters: Omit<RegisterDropTargetParameters<unknown, unknown>, 'accept'>,
       clientX: number,
       clientY: number,
     ) {
@@ -1007,9 +1027,9 @@ describe('engine.registerDropTarget', () => {
     }
   });
 
-  // A throwing `payload` callback must make the target inactive rather than
+  // A throwing `getPayload` callback must make the target inactive rather than
   // dispatching with a stand-in cast as the declared payload type.
-  it('treats a target whose payload callback throws as inactive', async () => {
+  it('treats a target whose getPayload callback throws as inactive', async () => {
     const { engine } = await renderDnd();
     const source = createElement();
     const buggy = document.createElement('div');
@@ -1024,7 +1044,7 @@ describe('engine.registerDropTarget', () => {
     const onDragEnterSane = vi.fn();
     engine.registerDraggable(source, {});
     engine.registerDropTarget(buggy, {
-      payload: () => {
+      getPayload: () => {
         throw new Error('payload boom');
       },
       onDrop: onDropBuggy,
@@ -1201,7 +1221,7 @@ describe('engine.registerDropTarget', () => {
 
     engine.registerDropTarget<MySourceData, MyLocalData>(el, {
       accept: Draggable.createKind<MySourceData>('card'),
-      payload: () => ({ columnId: 'col-1' }),
+      getPayload: () => ({ columnId: 'col-1' }),
       canDrop: ({ source }) => source.payload.id.length > 0,
       onDrop: ({ source, self }) => {
         source.payload.id.toUpperCase();
@@ -1214,13 +1234,15 @@ describe('engine.registerDropTarget', () => {
     });
 
     engine.registerDropTarget<Record<string, unknown>, MyLocalData>(el, {
-      payload: () => ({ columnId: 'col-1' }),
+      accept: Draggable.createKind<Record<string, unknown>>('record'),
+      getPayload: () => ({ columnId: 'col-1' }),
       canDrop: ({ source }) => typeof source.payload.kind === 'string',
     });
 
     engine.registerDropTarget<MySourceData, MyLocalData>(el, {
+      accept: Draggable.createKind<MySourceData>('other-card'),
       // @ts-expect-error - returned object is missing required `columnId`
-      payload: () => ({}),
+      getPayload: () => ({}),
     });
   });
 
@@ -1448,7 +1470,7 @@ describe('engine.registerDropTarget', () => {
 
     engine.registerDraggable(sourceEl, { label: 'src-low' });
     engine.registerDropTarget(targetEl, {
-      payload: () => ({ id: 'tgt-low' }),
+      getPayload: () => ({ id: 'tgt-low' }),
       onDrop: ({ source, self }) => {
         observedSourceLabel = source.label;
         observedTargetId = self.payload.id as string;
@@ -1474,7 +1496,7 @@ describe('engine.registerDropTarget', () => {
     let value = 'entry';
     engine.registerDraggable(source, {});
     engine.registerDropTarget(target, {
-      payload: () => value,
+      getPayload: () => value,
       onDragLeave: ({ self }) => leavePayloads.push(self.payload),
     });
 
@@ -1502,7 +1524,7 @@ describe('engine.registerDropTarget', () => {
     let value = 'entry';
     engine.registerDraggable(source, {});
     engine.registerDropTarget(target, {
-      payload: () => value,
+      getPayload: () => value,
       onDragLeave: ({ self }) => leavePayloads.push(self.payload),
     });
 
@@ -1526,7 +1548,7 @@ describe('engine.registerDropTarget', () => {
     const onDragLeave = vi.fn();
     engine.registerDraggable(source, {});
     const unregisterHovered = engine.registerDropTarget(hovered, {
-      payload: hoveredPayload,
+      getPayload: hoveredPayload,
       onDragLeave,
     });
     const unregisterOther = engine.registerDropTarget(other, {});

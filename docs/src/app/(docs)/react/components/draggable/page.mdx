@@ -60,7 +60,7 @@ const divider = Draggable.createKind('divider');
 <Draggable.Root kind={divider} label="Divider" />;
 ```
 
-Pass a callback instead when the payload depends on the gesture, such as where inside the element the pointer grabbed. It runs once, at drag start. A function is always taken as that callback. To attach a function _as_ the payload, return it from one (`payload={() => myFn}`).
+Pass `getPayload` instead when the payload depends on the gesture, such as where inside the element the pointer grabbed. It runs once, at drag start. `payload` itself is always data, so function-valued payloads are preserved without a wrapper.
 
 ```tsx title="Deriving the payload from the gesture"
 const grabbedCard = Draggable.createKind<{ id: string; grabOffsetX: number }>('card');
@@ -68,7 +68,7 @@ const grabbedCard = Draggable.createKind<{ id: string; grabOffsetX: number }>('c
 <Draggable.Root
   kind={grabbedCard}
   label={title}
-  payload={({ input, element }) => {
+  getPayload={({ input, element }) => {
     const rect = element.getBoundingClientRect();
     return { id, grabOffsetX: input.clientX - rect.left };
   }}

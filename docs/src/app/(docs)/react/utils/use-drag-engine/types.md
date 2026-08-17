@@ -108,11 +108,50 @@ type useDragEngineReturnValue = {
   registerDraggable:
     | (<TData>(
         element: HTMLElement,
+        getParameters: () => {
+          label?: string;
+          kind: DragKind<TData>;
+          dragHandle?: DragHandle;
+          disabled?: boolean;
+          onBeforeDragStart?: (
+            context: DragStartContext,
+            eventDetails: BeforeDragStartEventDetails,
+          ) => void;
+          pointerActivation?: DragActivationConfig;
+          keyboardAnnouncements?: DragKeyboardAnnouncements<TData>;
+          finalFocus?: DragKeyboardFinalFocus<TData>;
+          ariaRoleDescription?: string;
+          keyboardInstructions?: string;
+          keyboardActivation?: DragKeyboardActivation;
+          keyboardMovement?: DragKeyboardMovement<TData>;
+          modifiers?: DragModifiers;
+          dragCursor?: string | false;
+          dragPreview?: DragPreviewParameters<TData>;
+          onDragStart?: (
+            parameters: DragStartEvent<TData>,
+            eventDetails: DragStartEventDetails,
+          ) => void;
+          onDrag?: (parameters: DragMoveEvent<TData>, eventDetails: DragMoveEventDetails) => void;
+          onDropTargetChange?: (
+            parameters: DropTargetChangeEvent<TData>,
+            eventDetails: DropTargetChangeEventDetails,
+          ) => void;
+          onDrop?: (
+            parameters: DragDropEvent<TData>,
+            eventDetails: { reason: 'drop'; event: PointerEvent | KeyboardEvent },
+          ) => void;
+          onDragEnd?: (parameters: DragEndEvent<TData>, eventDetails: DragEndEventDetails) => void;
+          payload?: undefined;
+          getPayload: DraggablePayloadGetter<TData>;
+        },
+      ) => DragCleanupFn)
+    | (<TData>(
+        element: HTMLElement,
         getParameters: () => RegisterDraggableParametersWithPayload<TData>,
       ) => DragCleanupFn)
     | ((
         element: HTMLElement,
-        getParameters: () => Omit<RegisterDraggableParameters, 'payload'>,
+        getParameters: () => WithOptionalPayload<RegisterDraggableParameters>,
       ) => DragCleanupFn);
   /**
    * Registers a drop target, a place a matching drag can be released, and returns a
@@ -159,6 +198,7 @@ type useDragEngineReturnValue = {
             eventDetails: DropTargetChangeEventDetails,
           ) => void;
           payload?: undefined;
+          getPayload?: undefined;
         },
       ) => DragCleanupFn)
     | (<TAccept extends AnyDragAccept, TLocalData>(
@@ -289,11 +329,50 @@ type DragEngine = {
   registerDraggable:
     | (<TData>(
         element: HTMLElement,
+        getParameters: () => {
+          label?: string;
+          kind: DragKind<TData>;
+          dragHandle?: DragHandle;
+          disabled?: boolean;
+          onBeforeDragStart?: (
+            context: DragStartContext,
+            eventDetails: BeforeDragStartEventDetails,
+          ) => void;
+          pointerActivation?: DragActivationConfig;
+          keyboardAnnouncements?: DragKeyboardAnnouncements<TData>;
+          finalFocus?: DragKeyboardFinalFocus<TData>;
+          ariaRoleDescription?: string;
+          keyboardInstructions?: string;
+          keyboardActivation?: DragKeyboardActivation;
+          keyboardMovement?: DragKeyboardMovement<TData>;
+          modifiers?: DragModifiers;
+          dragCursor?: string | false;
+          dragPreview?: DragPreviewParameters<TData>;
+          onDragStart?: (
+            parameters: DragStartEvent<TData>,
+            eventDetails: DragStartEventDetails,
+          ) => void;
+          onDrag?: (parameters: DragMoveEvent<TData>, eventDetails: DragMoveEventDetails) => void;
+          onDropTargetChange?: (
+            parameters: DropTargetChangeEvent<TData>,
+            eventDetails: DropTargetChangeEventDetails,
+          ) => void;
+          onDrop?: (
+            parameters: DragDropEvent<TData>,
+            eventDetails: { reason: 'drop'; event: PointerEvent | KeyboardEvent },
+          ) => void;
+          onDragEnd?: (parameters: DragEndEvent<TData>, eventDetails: DragEndEventDetails) => void;
+          payload?: undefined;
+          getPayload: DraggablePayloadGetter<TData>;
+        },
+      ) => DragCleanupFn)
+    | (<TData>(
+        element: HTMLElement,
         getParameters: () => RegisterDraggableParametersWithPayload<TData>,
       ) => DragCleanupFn)
     | ((
         element: HTMLElement,
-        getParameters: () => Omit<RegisterDraggableParameters, 'payload'>,
+        getParameters: () => WithOptionalPayload<RegisterDraggableParameters>,
       ) => DragCleanupFn);
   /**
    * Registers a drop target, a place a matching drag can be released, and returns a
@@ -340,6 +419,7 @@ type DragEngine = {
             eventDetails: DropTargetChangeEventDetails,
           ) => void;
           payload?: undefined;
+          getPayload?: undefined;
         },
       ) => DragCleanupFn)
     | (<TAccept extends AnyDragAccept, TLocalData>(
@@ -500,13 +580,14 @@ Parameters accepted by `Draggable.Root` and `registerDraggable`, except the elem
 type RegisterDraggableParameters<TData = undefined> = {
   /**
    * The data to attach to this drag, surfaced as `source.payload` on every
-   * drag-and-drop event. Accepts a static value, or a callback evaluated at drag
-   * start for a payload that depends on the gesture.
-   *
-   * A function is always taken as the callback. To attach a function *as* the
-   * payload, return it from one: `payload={() => myFunction}`.
+   * drag-and-drop event. Functions are preserved as ordinary payload values.
    */
-  payload?: DraggablePayload<TData>;
+  payload?: TData;
+  /**
+   * Resolves the data attached to this drag at drag start. Use this instead of
+   * `payload` when the value depends on the pickup gesture.
+   */
+  getPayload?: DraggablePayloadGetter<TData>;
   /**
    * Human-readable name of this draggable, used by the default screen-reader
    * announcements for keyboard drags. Defaults to a generic "item".
@@ -539,7 +620,7 @@ type RegisterDraggableParameters<TData = undefined> = {
   disabled?: boolean;
   /**
    * Event handler called when a drag is about to start, once the activation condition
-   * is met and before the preview is built and any `payload` callback runs.
+   * is met and before the preview is built and `getPayload` runs.
    * Call `eventDetails.cancel()` to prevent the drag from starting.
    */
   onBeforeDragStart?: (
@@ -652,7 +733,10 @@ type RegisterDraggableParameters<TData = undefined> = {
 `RegisterDraggableParameters` for the overload that infers `TData` from a required `payload`.
 
 ```typescript
-type RegisterDraggableParametersWithPayload<TData> = {
+type RegisterDraggableParametersWithPayload<TData> = (
+  | { payload: TData | undefined; getPayload?: undefined }
+  | { payload?: undefined; getPayload: DraggablePayloadGetter<TData> | undefined }
+) & {
   /**
    * Human-readable name of this draggable, used by the default screen-reader
    * announcements for keyboard drags. Defaults to a generic "item".
@@ -685,7 +769,7 @@ type RegisterDraggableParametersWithPayload<TData> = {
   disabled?: boolean;
   /**
    * Event handler called when a drag is about to start, once the activation condition
-   * is met and before the preview is built and any `payload` callback runs.
+   * is met and before the preview is built and `getPayload` runs.
    * Call `eventDetails.cancel()` to prevent the drag from starting.
    */
   onBeforeDragStart?: (
@@ -790,38 +874,27 @@ type RegisterDraggableParametersWithPayload<TData> = {
    * commit the drop from `onDrop`. `eventDetails.reason` carries the exact outcome.
    */
   onDragEnd?: (parameters: DragEndEvent<TData>, eventDetails: DragEndEventDetails) => void;
-  /**
-   * The data to attach to this drag, surfaced as `source.payload` on every
-   * drag-and-drop event. Accepts a static value, or a callback evaluated at drag
-   * start for a payload that depends on the gesture.
-   *
-   * A function is always taken as the callback. To attach a function *as* the
-   * payload, return it from one: `payload={() => myFunction}`.
-   */
-  payload: DraggablePayload<TData>;
 };
 ```
 
 ### RegisterDropTargetParameters
 
-Parameters accepted by `DropTarget.Root` and `registerDropTarget`, except the element.
-
-`TSourceData` is the payload the accepted kinds carry and `TLocalData` this target's
-own. `DropTarget.Root` and `registerDropTarget` infer both, from `accept` and
-`payload` respectively.
+Public drop-target parameters, whose `accept` declaration is required.
 
 ```typescript
 type RegisterDropTargetParameters<TSourceData = unknown, TLocalData = unknown> = {
   /**
    * The data to attach to this target, read back as `self.payload` in its own
    * callbacks and on its record in `location.dropTargets`. Use it to identify which
-   * cell, row, or column a drag is over. Accepts a static value, or a callback
-   * evaluated on each resolution for data derived from the current drag.
-   *
-   * A function is always taken as the callback. To attach a function *as* the
-   * payload, return it from one: `payload={() => myFunction}`.
+   * cell, row, or column a drag is over. Functions are preserved as ordinary
+   * payload values.
    */
-  payload?: DropTargetPayload<TSourceData, TLocalData>;
+  payload?: TLocalData;
+  /**
+   * Resolves this target's payload each time it is evaluated. Use this instead
+   * of `payload` when the value depends on the current drag or position.
+   */
+  getPayload?: (context: DropTargetResolutionContext<TSourceData>) => TLocalData;
   /**
    * Human-readable name of this drop target, used by the default screen-reader
    * announcements for keyboard drags to name where the item is and where it landed.
@@ -837,18 +910,6 @@ type RegisterDropTargetParameters<TSourceData = unknown, TLocalData = unknown> =
    */
   kind?: DragKind<TLocalData>;
   /**
-   * The kinds of drag source this target accepts: one kind, or an array of them.
-   *
-   * Required on a drop target. Every registration joins the same page-global engine
-   * with no subtree scoping, so a target written without one would take every drag in
-   * the application. Pass `DropTarget.anyKind` to opt into exactly that — at the cost
-   * of `source.payload` being `unknown`.
-   *
-   * A source whose kind isn't accepted is ignored by this target, and an ancestor target
-   * can still claim it. Runs before `canDrop`.
-   */
-  accept?: DragAccept<TSourceData>;
-  /**
    * Whether the drop target should ignore user interaction. A disabled target is
    * skipped by target resolution as if it weren't registered, so drags fall through
    * to ancestor targets. A hovered target disabled mid-drag leaves the active stack,
@@ -856,6 +917,45 @@ type RegisterDropTargetParameters<TSourceData = unknown, TLocalData = unknown> =
    * @default false
    */
   disabled?: boolean;
+  /**
+   * Event handler called when a matching drag starts while this target is already
+   * under the pointer. It does not fire for drags that start elsewhere; use a
+   * monitor's `onDragStart` to observe every drag.
+   */
+  onDragStart?: (
+    parameters: DropTargetEvent<'onDragStart', TSourceData, TLocalData>,
+    eventDetails: DragStartEventDetails,
+  ) => void;
+  /**
+   * Event handler called on the frame this target enters the active stack, right
+   * after `onDragEnter`, and on every rAF tick the pointer moves while the target
+   * remains in the stack. Put hover-tracking work here and use `onDragEnter` for
+   * enter-only side effects.
+   */
+  onDrag?: (
+    parameters: DropTargetEvent<'onDrag', TSourceData, TLocalData>,
+    eventDetails: DragMoveEventDetails,
+  ) => void;
+  /**
+   * Event handler called when the active drop targets change, including changes that
+   * don't affect this target's own membership, such as a nested descendant entering
+   * or leaving while this ancestor stays in the stack. Use `onDragEnter` and
+   * `onDragLeave` for this target's own enter and leave.
+   */
+  onDropTargetChange?: (
+    parameters: DropTargetEvent<'onDropTargetChange', TSourceData, TLocalData>,
+    eventDetails: DropTargetChangeEventDetails,
+  ) => void;
+  /**
+   * Event handler called on the innermost active drop target only, when the user
+   * releases the drag over it. Ancestor targets in the same stack do not receive
+   * `onDrop`, and it never fires on a cancel. To observe every drag end regardless of
+   * target depth or cancellation, use the source's or a monitor's `onDragEnd`.
+   */
+  onDrop?: (
+    parameters: DropEvent<TSourceData, TLocalData>,
+    eventDetails: { reason: 'drop'; event: PointerEvent | KeyboardEvent },
+  ) => void;
   /**
    * Predicate for whether this target should be considered a candidate for the
    * current drag. Runs after `accept`.
@@ -891,35 +991,6 @@ type RegisterDropTargetParameters<TSourceData = unknown, TLocalData = unknown> =
   snap?:
     | DragSnapSteps
     | ((context: DropTargetResolutionContext<TSourceData>) => DragSnapSteps | undefined);
-  /**
-   * Event handler called when a matching drag starts while this target is already
-   * under the pointer. It does not fire for drags that start elsewhere; use a
-   * monitor's `onDragStart` to observe every drag.
-   */
-  onDragStart?: (
-    parameters: DropTargetEvent<'onDragStart', TSourceData, TLocalData>,
-    eventDetails: DragStartEventDetails,
-  ) => void;
-  /**
-   * Event handler called on the frame this target enters the active stack, right
-   * after `onDragEnter`, and on every rAF tick the pointer moves while the target
-   * remains in the stack. Put hover-tracking work here and use `onDragEnter` for
-   * enter-only side effects.
-   */
-  onDrag?: (
-    parameters: DropTargetEvent<'onDrag', TSourceData, TLocalData>,
-    eventDetails: DragMoveEventDetails,
-  ) => void;
-  /**
-   * Event handler called when the active drop targets change, including changes that
-   * don't affect this target's own membership, such as a nested descendant entering
-   * or leaving while this ancestor stays in the stack. Use `onDragEnter` and
-   * `onDragLeave` for this target's own enter and leave.
-   */
-  onDropTargetChange?: (
-    parameters: DropTargetEvent<'onDropTargetChange', TSourceData, TLocalData>,
-    eventDetails: DropTargetChangeEventDetails,
-  ) => void;
   /** Event handler called when this target enters the active stack. */
   onDragEnter?: (
     parameters: DropTargetEvent<'onDragEnter', TSourceData, TLocalData>,
@@ -934,16 +1005,7 @@ type RegisterDropTargetParameters<TSourceData = unknown, TLocalData = unknown> =
     parameters: DropTargetEvent<'onDragLeave', TSourceData, TLocalData>,
     eventDetails: DropTargetChangeEventDetails,
   ) => void;
-  /**
-   * Event handler called on the innermost active drop target only, when the user
-   * releases the drag over it. Ancestor targets in the same stack do not receive
-   * `onDrop`, and it never fires on a cancel. To observe every drag end regardless of
-   * target depth or cancellation, use the source's or a monitor's `onDragEnd`.
-   */
-  onDrop?: (
-    parameters: DropEvent<TSourceData, TLocalData>,
-    eventDetails: { reason: 'drop'; event: PointerEvent | KeyboardEvent },
-  ) => void;
+  accept: NonNullable<DragAccept<TSourceData> | undefined>;
 };
 ```
 
@@ -952,140 +1014,79 @@ type RegisterDropTargetParameters<TSourceData = unknown, TLocalData = unknown> =
 Drop target registration parameters whose local payload is required.
 
 ```typescript
-type RegisterDropTargetParametersWithPayload<TSourceData, TLocalData> = {
-  /**
-   * The data to attach to this target, read back as `self.payload` in its own
-   * callbacks and on its record in `location.dropTargets`. Use it to identify which
-   * cell, row, or column a drag is over. Accepts a static value, or a callback
-   * evaluated on each resolution for data derived from the current drag.
-   *
-   * A function is always taken as the callback. To attach a function *as* the
-   * payload, return it from one: `payload={() => myFunction}`.
-   */
-  payload: DropTargetPayload<TSourceData, TLocalData>;
-  /**
-   * Human-readable name of this drop target, used by the default screen-reader
-   * announcements for keyboard drags to name where the item is and where it landed.
-   */
-  label?: string;
-  /**
-   * What this drop target is, created with `Draggable.createKind`. It identifies the
-   * target on its own records — `self.kind` and the entries of `location.dropTargets` —
-   * so a handler watching several kinds of target can tell them apart with the kind's
-   * `matches`. Its payload type must match this target's `payload`.
-   *
-   * Distinct from `accept`, which declares the **source** kinds this target takes.
-   */
-  kind?: DragKind<TLocalData>;
-  /**
-   * The kinds of drag source this target accepts: one kind, or an array of them.
-   *
-   * Required on a drop target. Every registration joins the same page-global engine
-   * with no subtree scoping, so a target written without one would take every drag in
-   * the application. Pass `DropTarget.anyKind` to opt into exactly that — at the cost
-   * of `source.payload` being `unknown`.
-   *
-   * A source whose kind isn't accepted is ignored by this target, and an ancestor target
-   * can still claim it. Runs before `canDrop`.
-   */
-  accept?: DragAccept<TSourceData>;
-  /**
-   * Whether the drop target should ignore user interaction. A disabled target is
-   * skipped by target resolution as if it weren't registered, so drags fall through
-   * to ancestor targets. A hovered target disabled mid-drag leaves the active stack,
-   * with its `onDragLeave`, on the next resolution.
-   * @default false
-   */
-  disabled?: boolean;
-  /**
-   * Predicate for whether this target should be considered a candidate for the
-   * current drag. Runs after `accept`.
-   *
-   * Returning `false` makes the engine treat this target as if it weren't registered
-   * for this dispatch: the DOM walk continues outward and a parent drop target
-   * underneath can claim the drop. Use this rather than blocking inside an `onDrop`
-   * body, which would discard the drop without letting an outer target receive it.
-   *
-   * Returning `'reject'` refuses the drop outright instead of abstaining: no target
-   * resolves at this position (descendants that accepted are overruled, and nothing
-   * behind this target can claim the drop), and the target exposes `data-rejected`
-   * while the drag is over it. Use it for container-level rules such as a capacity
-   * limit, which `false` would silently defeat by falling through to the items inside.
-   */
-  canDrop?: (parameters: DropTargetResolutionContext<TSourceData>) => boolean | 'reject';
-  /**
-   * Quantizes the local point this target reports through `getSnappedLocalPoint`,
-   * as a count of equal steps per axis of its border box: a day column of
-   * 15-minute slots is `{ y: 96 }`, a month grid `{ x: 7, y: 6 }`.
-   *
-   * Counts are unitless fractions, so a target sized at runtime (a column filling
-   * whatever the viewport leaves) declares them with no dimensions in hand; the
-   * engine measures when a drop resolves. Accepts a static value, or a callback
-   * receiving the same resolution context as `canDrop`, evaluated once per
-   * resolution on the first snapped read, for counts derived from the drag itself
-   * (a coarser grid per source kind) or read from live state at drag time; return
-   * `undefined` to not quantize.
-   *
-   * Distinct from the `snapToGrid` modifier, which snaps the drag point itself in
-   * surface pixels for every target: `snap` only quantizes what this target reports.
-   */
-  snap?:
-    | DragSnapSteps
-    | ((context: DropTargetResolutionContext<TSourceData>) => DragSnapSteps | undefined);
-  /**
-   * Event handler called when a matching drag starts while this target is already
-   * under the pointer. It does not fire for drags that start elsewhere; use a
-   * monitor's `onDragStart` to observe every drag.
-   */
-  onDragStart?: (
-    parameters: DropTargetEvent<'onDragStart', TSourceData, TLocalData>,
-    eventDetails: DragStartEventDetails,
-  ) => void;
-  /**
-   * Event handler called on the frame this target enters the active stack, right
-   * after `onDragEnter`, and on every rAF tick the pointer moves while the target
-   * remains in the stack. Put hover-tracking work here and use `onDragEnter` for
-   * enter-only side effects.
-   */
-  onDrag?: (
-    parameters: DropTargetEvent<'onDrag', TSourceData, TLocalData>,
-    eventDetails: DragMoveEventDetails,
-  ) => void;
-  /**
-   * Event handler called when the active drop targets change, including changes that
-   * don't affect this target's own membership, such as a nested descendant entering
-   * or leaving while this ancestor stays in the stack. Use `onDragEnter` and
-   * `onDragLeave` for this target's own enter and leave.
-   */
-  onDropTargetChange?: (
-    parameters: DropTargetEvent<'onDropTargetChange', TSourceData, TLocalData>,
-    eventDetails: DropTargetChangeEventDetails,
-  ) => void;
-  /** Event handler called when this target enters the active stack. */
-  onDragEnter?: (
-    parameters: DropTargetEvent<'onDragEnter', TSourceData, TLocalData>,
-    eventDetails: DropTargetChangeEventDetails,
-  ) => void;
-  /**
-   * Event handler called when this target leaves the active stack, because the
-   * pointer moved off it or the drag ended. `eventDetails.reason` tells the two
-   * apart: a modality for a hover-out, a drag end reason for the drag ending.
-   */
-  onDragLeave?: (
-    parameters: DropTargetEvent<'onDragLeave', TSourceData, TLocalData>,
-    eventDetails: DropTargetChangeEventDetails,
-  ) => void;
-  /**
-   * Event handler called on the innermost active drop target only, when the user
-   * releases the drag over it. Ancestor targets in the same stack do not receive
-   * `onDrop`, and it never fires on a cancel. To observe every drag end regardless of
-   * target depth or cancellation, use the source's or a monitor's `onDragEnd`.
-   */
-  onDrop?: (
-    parameters: DropEvent<TSourceData, TLocalData>,
-    eventDetails: { reason: 'drop'; event: PointerEvent | KeyboardEvent },
-  ) => void;
-};
+type RegisterDropTargetParametersWithPayload<TSourceData, TLocalData> =
+  | {
+      payload: TLocalData;
+      getPayload?: undefined;
+      label?: string;
+      kind?: DragKind<TLocalData>;
+      accept?: DragAccept<TSourceData>;
+      disabled?: boolean;
+      canDrop?: (parameters: DropTargetResolutionContext<TSourceData>) => boolean | 'reject';
+      snap?:
+        | DragSnapSteps
+        | ((context: DropTargetResolutionContext<TSourceData>) => DragSnapSteps | undefined);
+      onDragStart?: (
+        parameters: DropTargetEvent<'onDragStart', TSourceData, TLocalData>,
+        eventDetails: DragStartEventDetails,
+      ) => void;
+      onDrag?: (
+        parameters: DropTargetEvent<'onDrag', TSourceData, TLocalData>,
+        eventDetails: DragMoveEventDetails,
+      ) => void;
+      onDropTargetChange?: (
+        parameters: DropTargetEvent<'onDropTargetChange', TSourceData, TLocalData>,
+        eventDetails: DropTargetChangeEventDetails,
+      ) => void;
+      onDragEnter?: (
+        parameters: DropTargetEvent<'onDragEnter', TSourceData, TLocalData>,
+        eventDetails: DropTargetChangeEventDetails,
+      ) => void;
+      onDragLeave?: (
+        parameters: DropTargetEvent<'onDragLeave', TSourceData, TLocalData>,
+        eventDetails: DropTargetChangeEventDetails,
+      ) => void;
+      onDrop?: (
+        parameters: DropEvent<TSourceData, TLocalData>,
+        eventDetails: { reason: 'drop'; event: PointerEvent | KeyboardEvent },
+      ) => void;
+    }
+  | {
+      payload?: undefined;
+      getPayload: (context: DropTargetResolutionContext<TSourceData>) => TLocalData;
+      label?: string;
+      kind?: DragKind<TLocalData>;
+      accept?: DragAccept<TSourceData>;
+      disabled?: boolean;
+      canDrop?: (parameters: DropTargetResolutionContext<TSourceData>) => boolean | 'reject';
+      snap?:
+        | DragSnapSteps
+        | ((context: DropTargetResolutionContext<TSourceData>) => DragSnapSteps | undefined);
+      onDragStart?: (
+        parameters: DropTargetEvent<'onDragStart', TSourceData, TLocalData>,
+        eventDetails: DragStartEventDetails,
+      ) => void;
+      onDrag?: (
+        parameters: DropTargetEvent<'onDrag', TSourceData, TLocalData>,
+        eventDetails: DragMoveEventDetails,
+      ) => void;
+      onDropTargetChange?: (
+        parameters: DropTargetEvent<'onDropTargetChange', TSourceData, TLocalData>,
+        eventDetails: DropTargetChangeEventDetails,
+      ) => void;
+      onDragEnter?: (
+        parameters: DropTargetEvent<'onDragEnter', TSourceData, TLocalData>,
+        eventDetails: DropTargetChangeEventDetails,
+      ) => void;
+      onDragLeave?: (
+        parameters: DropTargetEvent<'onDragLeave', TSourceData, TLocalData>,
+        eventDetails: DropTargetChangeEventDetails,
+      ) => void;
+      onDrop?: (
+        parameters: DropEvent<TSourceData, TLocalData>,
+        eventDetails: { reason: 'drop'; event: PointerEvent | KeyboardEvent },
+      ) => void;
+    };
 ```
 
 ### RegisterMonitorParameters
@@ -1162,11 +1163,50 @@ type UseDragEngineReturnValue = {
   registerDraggable:
     | (<TData>(
         element: HTMLElement,
+        getParameters: () => {
+          label?: string;
+          kind: DragKind<TData>;
+          dragHandle?: DragHandle;
+          disabled?: boolean;
+          onBeforeDragStart?: (
+            context: DragStartContext,
+            eventDetails: BeforeDragStartEventDetails,
+          ) => void;
+          pointerActivation?: DragActivationConfig;
+          keyboardAnnouncements?: DragKeyboardAnnouncements<TData>;
+          finalFocus?: DragKeyboardFinalFocus<TData>;
+          ariaRoleDescription?: string;
+          keyboardInstructions?: string;
+          keyboardActivation?: DragKeyboardActivation;
+          keyboardMovement?: DragKeyboardMovement<TData>;
+          modifiers?: DragModifiers;
+          dragCursor?: string | false;
+          dragPreview?: DragPreviewParameters<TData>;
+          onDragStart?: (
+            parameters: DragStartEvent<TData>,
+            eventDetails: DragStartEventDetails,
+          ) => void;
+          onDrag?: (parameters: DragMoveEvent<TData>, eventDetails: DragMoveEventDetails) => void;
+          onDropTargetChange?: (
+            parameters: DropTargetChangeEvent<TData>,
+            eventDetails: DropTargetChangeEventDetails,
+          ) => void;
+          onDrop?: (
+            parameters: DragDropEvent<TData>,
+            eventDetails: { reason: 'drop'; event: PointerEvent | KeyboardEvent },
+          ) => void;
+          onDragEnd?: (parameters: DragEndEvent<TData>, eventDetails: DragEndEventDetails) => void;
+          payload?: undefined;
+          getPayload: DraggablePayloadGetter<TData>;
+        },
+      ) => DragCleanupFn)
+    | (<TData>(
+        element: HTMLElement,
         getParameters: () => RegisterDraggableParametersWithPayload<TData>,
       ) => DragCleanupFn)
     | ((
         element: HTMLElement,
-        getParameters: () => Omit<RegisterDraggableParameters, 'payload'>,
+        getParameters: () => WithOptionalPayload<RegisterDraggableParameters>,
       ) => DragCleanupFn);
   /**
    * Registers a drop target, a place a matching drag can be released, and returns a
@@ -1213,6 +1253,7 @@ type UseDragEngineReturnValue = {
             eventDetails: DropTargetChangeEventDetails,
           ) => void;
           payload?: undefined;
+          getPayload?: undefined;
         },
       ) => DragCleanupFn)
     | (<TAccept extends AnyDragAccept, TLocalData>(
@@ -1282,6 +1323,16 @@ type WithInferredAccept<TParameters, TAccept extends AnyDragAccept> = TParameter
 };
 ```
 
+### WithOptionalPayload
+
+Allows at most one of a parameter type's `payload` and `getPayload` fields.
+
+```typescript
+type WithOptionalPayload<TParameters extends { payload?: unknown; getPayload?: unknown }> =
+  | { payload?: unknown; getPayload?: undefined }
+  | { payload?: undefined; getPayload?: unknown };
+```
+
 ### WithRequiredAccept
 
 Preserves the accepted kinds while requiring `accept`.
@@ -1292,28 +1343,17 @@ type WithRequiredAccept<TParameters, TAccept extends AnyDragAccept> = TParameter
 };
 ```
 
-## External Types
+### WithRequiredPayload
 
-### matches
+Requires exactly one of a parameter type's `payload` and `getPayload` fields.
 
 ```typescript
-type matches =
-  | ((source: {
-      element: HTMLElement;
-      label: string | undefined;
-      kind: symbol;
-      dragHandle: Element | null;
-      payload: unknown;
-    }) => boolean)
-  | ((target: {
-      element: Element;
-      label: string | undefined;
-      kind: symbol | undefined;
-      payload: unknown;
-      getLocalPoint: unknown;
-      getSnappedLocalPoint: unknown;
-    }) => boolean);
+type WithRequiredPayload<TParameters extends { payload?: unknown; getPayload?: unknown }> =
+  | { payload: unknown; getPayload?: undefined }
+  | { payload?: undefined; getPayload: unknown };
 ```
+
+## External Types
 
 ### DragKeyboardActivation
 
@@ -1408,6 +1448,49 @@ type DragKeyboardMovement = (details: {
   | 'false'
   | null
   | undefined;
+```
+
+### DraggablePayloadGetter
+
+```typescript
+type DraggablePayloadGetter = (context: {
+  input: {
+    button: number;
+    buttons: number;
+    clientX: number;
+    clientY: number;
+    pageX: number;
+    pageY: number;
+    pointerType: 'mouse' | 'pen' | 'touch' | null;
+    ctrlKey: boolean;
+    shiftKey: boolean;
+    altKey: boolean;
+    metaKey: boolean;
+  };
+  element: HTMLElement;
+  dragHandle: Element | null;
+}) => unknown;
+```
+
+### matches
+
+```typescript
+type matches =
+  | ((source: {
+      element: HTMLElement;
+      label: string | undefined;
+      kind: symbol;
+      dragHandle: Element | null;
+      payload: unknown;
+    }) => boolean)
+  | ((target: {
+      element: Element;
+      label: string | undefined;
+      kind: symbol | undefined;
+      payload: unknown;
+      getLocalPoint: unknown;
+      getSnappedLocalPoint: unknown;
+    }) => boolean);
 ```
 
 ### DragAutoScrollAxis

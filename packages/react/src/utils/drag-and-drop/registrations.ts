@@ -23,11 +23,11 @@ import { monitorRegistry, engageMonitorIfDragging, removeMonitor } from './monit
 import { isActive, isHoveredDropTarget, refreshDropTargets } from './core/lifecycleManager';
 import { dragSessionStore } from './dragSessionStore';
 import type {
-  RegisterDropTargetParameters,
   RegisterAutoScrollerParameters,
   RegisterMonitorParameters,
   WithInferredAccept,
 } from '../../types/dragRegistration';
+import type { RegisterDropTargetParameters } from './dropTarget';
 import type { AcceptedDragPayload, AnyDragAccept, DragCleanupFn, DragKind } from '../../types/drag';
 import { onceCleanup } from './utils';
 

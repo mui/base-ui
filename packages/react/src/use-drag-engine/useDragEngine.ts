@@ -54,6 +54,8 @@ export type {
   RegisterDropTargetParametersWithPayload,
   RegisterAutoScrollerParameters,
   RegisterMonitorParameters,
+  WithOptionalPayload,
+  WithRequiredPayload,
   WithInferredAccept,
   WithRequiredAccept,
 } from '../types/dragRegistration';

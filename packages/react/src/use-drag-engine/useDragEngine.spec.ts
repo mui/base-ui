@@ -4,7 +4,10 @@ import {
   createKind,
   useDragEngine,
 } from '@base-ui/react/use-drag-engine';
-import type { RegisterDraggableParameters } from '@base-ui/react/use-drag-engine';
+import type {
+  RegisterDraggableParameters,
+  RegisterDropTargetParameters,
+} from '@base-ui/react/use-drag-engine';
 import { Draggable } from '@base-ui/react/draggable';
 import type { DragKind, DropTargetRecord } from '@base-ui/react/types';
 import { expectType } from '#test-utils';
@@ -87,6 +90,14 @@ expectType<() => void, ReturnType<typeof engine.registerDraggable>>(
 // registerDropTarget
 // ---------------------------------------------------------------------------
 
+const validDropTargetParameters: RegisterDropTargetParameters = { accept: card };
+expectType<RegisterDropTargetParameters, typeof validDropTargetParameters>(
+  validDropTargetParameters,
+);
+
+// @ts-expect-error every public drop target must declare what it accepts.
+const missingAccept: RegisterDropTargetParameters = {};
+
 // `accept` types the source it hands the callbacks, with no type argument.
 engine.registerDropTarget(element, () => ({
   accept: card,
@@ -112,7 +123,7 @@ engine.registerDropTarget(element, () => ({
 
 engine.registerDropTarget(element, () => ({
   accept: card,
-  payload: ({ source }) => ({ slot: source.payload.id.length }),
+  getPayload: ({ source }) => ({ slot: source.payload.id.length }),
   onDrop: ({ self }) => {
     expectType<{ slot: number }, typeof self.payload>(self.payload);
   },

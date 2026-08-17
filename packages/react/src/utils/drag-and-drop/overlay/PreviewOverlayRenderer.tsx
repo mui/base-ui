@@ -3,7 +3,6 @@ import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { Store, useStore } from '@base-ui/utils/store';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
-import { dragSourceStore, selectDragSource } from '../dragSessionStore';
 import type { DragPreviewState } from './dragPreviewStore';
 import { setActivePreviewOffset } from '../activePreview';
 import { resolveDragPreviewOffset } from '../customDragPreview';
@@ -30,11 +29,10 @@ export function PreviewOverlayRenderer(props: {
   previewStore: Store<DragPreviewState | null>;
 }): React.ReactNode {
   const { previewStore } = props;
-  const source = useStore(dragSourceStore, selectDragSource);
   const preview = useStore(previewStore, selectPreviewState);
 
   // Works for pointer and keyboard drags alike (both publish a preview host).
-  const active = source != null && preview != null;
+  const active = preview != null;
 
   useIsoLayoutEffect(() => {
     if (!active) {
@@ -55,13 +53,6 @@ export function PreviewOverlayRenderer(props: {
       }),
     );
   }, [active, preview]);
-
-  // Release the retained preview node once the drag ends (every teardown path nulls the source).
-  useIsoLayoutEffect(() => {
-    if (source == null) {
-      previewStore.setState(null);
-    }
-  }, [source, previewStore]);
 
   if (!active) {
     return null;

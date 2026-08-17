@@ -18,12 +18,11 @@ import { useDragEngine } from '../src/use-drag-engine';
 import type { DragAccept, DragKind, DragStartContext } from '../src/types/drag';
 import type {
   DragEngine,
-  InternalDragEngine,
   RegisterDraggableParameters,
-  RegisterDropTargetParameters,
   RegisterAutoScrollerParameters,
   RegisterMonitorParameters,
 } from '../src/types/dragRegistration';
+import type { RegisterDropTargetParameters } from '../src/utils/drag-and-drop/dropTarget';
 
 /**
  * The kind {@link DndTestEngine}'s `registerDraggable` defaults to, so a fixture only
@@ -39,14 +38,25 @@ export const testDragKind = createKind<any>('base-ui-test/item');
  */
 type TestDraggableParameters<TData> = Omit<
   RegisterDraggableParameters<TData>,
-  'kind' | 'payload'
+  'kind' | 'payload' | 'getPayload'
 > & {
   kind?: DragKind<TData> | undefined;
-  payload?: TData | ((context: DragStartContext) => TData) | undefined;
+  payload?: TData | undefined;
+  getPayload?: ((context: DragStartContext) => TData) | undefined;
 };
 
 /** A plain value or a getter for it — a test-only convenience (see {@link asGetter}). */
 type MaybeGetter<T> = T | (() => T);
+
+type InternalRegisterDraggable = <TData = undefined>(
+  element: HTMLElement,
+  getParameters: () => RegisterDraggableParameters<TData>,
+) => () => void;
+
+type InternalRegisterDropTarget = <TSourceData = unknown, TLocalData = unknown>(
+  element: HTMLElement,
+  getParameters: () => RegisterDropTargetParameters<TSourceData, TLocalData>,
+) => () => void;
 
 /**
  * The drag engine as exposed to tests: identical to the public
@@ -106,8 +116,7 @@ function withAutoCleanup(engine: DragEngine): DndTestEngine {
       // requires a `payload`. Fixtures declare `TData` and omit the payload all
       // the time (they assert on other things), so register through the engine's
       // internal, payload-optional signature instead.
-      const registerDraggableInternal =
-        engine.registerDraggable as InternalDragEngine['registerDraggable'];
+      const registerDraggableInternal = engine.registerDraggable as InternalRegisterDraggable;
       const getParameters = asGetter(parameters);
       // `kind` is required on a real draggable; default it so only the fixtures that
       // exercise kind matching have to declare one.
@@ -131,8 +140,7 @@ function withAutoCleanup(engine: DragEngine): DndTestEngine {
       // Same as `registerDraggable` above: the public signature is overloaded so
       // an explicit `TLocalData` requires a `payload`, but fixtures declare the
       // type and omit the payload all the time.
-      const registerDropTargetInternal =
-        engine.registerDropTarget as InternalDragEngine['registerDropTarget'];
+      const registerDropTargetInternal = engine.registerDropTarget as InternalRegisterDropTarget;
       const getParameters = asGetter(parameters);
       const cleanup = registerDropTargetInternal<TSourceData, TLocalData>(element, () => {
         const declared = getParameters();
