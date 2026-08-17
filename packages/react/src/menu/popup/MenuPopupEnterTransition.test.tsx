@@ -293,6 +293,52 @@ describe.skipIf(isJSDOM)('Menu enter transition', () => {
     });
   });
 
+  it('plays the enter transition for a submenu whose parent opened instantly', async () => {
+    // `data-instant` is a styling hint: suppressing the enter transition is the consumer's
+    // choice, not the framework's. A consumer without `[data-instant]` CSS gets the parent's
+    // enter transition on a keyboard open, so the submenu must go through `'starting'` alongside
+    // it — skipping the phase would re-create the detached-panel artifact for keyboard users.
+    globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+
+    const submenuTracker = trackStartingStyle('submenu-popup');
+
+    await render(
+      <Menu.Root>
+        <Menu.Trigger>Trigger</Menu.Trigger>
+        <Menu.Portal>
+          <Menu.Positioner>
+            <Menu.Popup data-testid="menu-popup">
+              <Menu.Item>Item</Menu.Item>
+              <Menu.SubmenuRoot defaultOpen>
+                <Menu.SubmenuTrigger>Submenu</Menu.SubmenuTrigger>
+                <Menu.Portal>
+                  <Menu.Positioner>
+                    <Menu.Popup data-testid="submenu-popup">
+                      <Menu.Item>Sub item</Menu.Item>
+                    </Menu.Popup>
+                  </Menu.Positioner>
+                </Menu.Portal>
+              </Menu.SubmenuRoot>
+            </Menu.Popup>
+          </Menu.Positioner>
+        </Menu.Portal>
+      </Menu.Root>,
+    );
+
+    const trigger = screen.getByRole('button', { name: 'Trigger' });
+    await act(async () => {
+      trigger.focus();
+    });
+    await userEvent.keyboard('[Enter]');
+
+    await waitFor(() => {
+      expect(screen.queryByTestId('submenu-popup')).not.toBe(null);
+    });
+    await waitFor(() => {
+      expect(submenuTracker.seen()).toBe(true);
+    });
+  });
+
   it('marks an initially open submenu as instant when its parent opened instantly', async () => {
     globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
 

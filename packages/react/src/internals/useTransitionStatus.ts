@@ -21,7 +21,7 @@ export function useTransitionStatus(
   animateInitialOpen: boolean = false,
 ) {
   const [transitionStatus, setTransitionStatus] = React.useState<TransitionStatus>(
-    open && enableIdleState && !animateInitialOpen ? 'idle' : undefined,
+    open && enableIdleState ? 'idle' : undefined,
   );
   // Starting at `false` while open lets the `open && !mounted` branch below run on the first
   // render, which is what produces the `'starting'` phase. React re-renders before committing, so
