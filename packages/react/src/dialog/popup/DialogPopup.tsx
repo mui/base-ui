@@ -22,7 +22,15 @@ export const DialogPopup = React.forwardRef(function DialogPopup(
   componentProps: DialogPopup.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { render, className, style, finalFocus, initialFocus, ...elementProps } = componentProps;
+  const {
+    render,
+    className,
+    style,
+    finalFocus,
+    initialFocus,
+    onInitiallyFocused,
+    ...elementProps
+  } = componentProps;
 
   const store = useDialogRootContext();
 
@@ -100,6 +108,7 @@ export const DialogPopup = React.forwardRef(function DialogPopup(
       disabled={!mounted}
       closeOnFocusOut={!disablePointerDismissal}
       initialFocus={resolvedInitialFocus}
+      onInitiallyFocused={onInitiallyFocused}
       returnFocus={finalFocus}
       modal={modal !== false}
       restoreFocus="popup"
@@ -126,6 +135,14 @@ export interface DialogPopupProps extends BaseUIComponentProps<'div', DialogPopu
     | React.RefObject<HTMLElement | null>
     | ((openType: InteractionType) => boolean | HTMLElement | null | void)
     | undefined;
+  /**
+   * Called with the element that received initial focus, right after it was focused.
+   *
+   * Runs once the dialog has been positioned, so imperative follow-ups such as selecting an
+   * input's text don't cause the page to scroll. Not called when `initialFocus` is `false` or
+   * when focus was already inside the popup.
+   */
+  onInitiallyFocused?: ((element: HTMLElement | SVGElement) => void) | undefined;
   /**
    * Determines the element to focus when the dialog is closed.
    *

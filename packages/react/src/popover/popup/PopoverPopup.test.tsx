@@ -5,6 +5,11 @@ import { Toolbar } from '@base-ui/react/toolbar';
 import { act, fireEvent, flushMicrotasks, screen, waitFor } from '@mui/internal-test-utils';
 import { createRenderer, describeConformance, isJSDOM, waitSingleFrame } from '#test-utils';
 
+// The narrowing a consumer writes inside `onInitiallyFocused` to reach `select()`.
+function isInputElement(element: Element): element is HTMLInputElement {
+  return element.tagName === 'INPUT';
+}
+
 describe('<Popover.Popup />', () => {
   const { render, clock } = createRenderer();
 
@@ -100,146 +105,142 @@ describe('<Popover.Popup />', () => {
       });
     });
 
-    it('should select the entire text content of an input when focused', async () => {
-      const { user } = await render(
-        <div>
+    describe('prop: onInitiallyFocused', () => {
+      it('is called with the element that received initial focus', async () => {
+        const onInitiallyFocused = vi.fn();
+
+        const { user } = await render(
           <Popover.Root>
             <Popover.Trigger>Open</Popover.Trigger>
             <Popover.Portal>
               <Popover.Positioner>
-                <Popover.Popup>
+                <Popover.Popup onInitiallyFocused={onInitiallyFocused}>
                   <input data-testid="popover-input" defaultValue="Hello World" />
                   <button>Close</button>
                 </Popover.Popup>
               </Popover.Positioner>
             </Popover.Portal>
-          </Popover.Root>
-        </div>,
-      );
+          </Popover.Root>,
+        );
 
-      const trigger = screen.getByText('Open');
-      await user.click(trigger);
+        await user.click(screen.getByText('Open'));
 
-      await waitFor(() => {
-        const input = screen.getByTestId('popover-input') as HTMLInputElement;
-        expect(input).to.toHaveFocus();
-        expect(input.selectionStart).to.equal(0);
-        expect(input.selectionEnd).to.equal(input.value.length);
+        await waitFor(() => {
+          expect(onInitiallyFocused).toHaveBeenCalledTimes(1);
+        });
+        expect(onInitiallyFocused).toHaveBeenCalledWith(screen.getByTestId('popover-input'));
       });
-    });
 
-    it('should not affect non-text inputs like checkboxes', async () => {
-      const { user } = await render(
-        <div>
+      it('lets the handler select the input contents', async () => {
+        const { user } = await render(
           <Popover.Root>
             <Popover.Trigger>Open</Popover.Trigger>
             <Popover.Portal>
               <Popover.Positioner>
-                <Popover.Popup>
-                  <input data-testid="popover-checkbox" type="checkbox" />
+                <Popover.Popup
+                  onInitiallyFocused={(element) => {
+                    if (isInputElement(element)) {
+                      element.select();
+                    }
+                  }}
+                >
+                  <input data-testid="popover-input" defaultValue="Hello World" />
                   <button>Close</button>
                 </Popover.Popup>
               </Popover.Positioner>
             </Popover.Portal>
-          </Popover.Root>
-        </div>,
-      );
+          </Popover.Root>,
+        );
 
-      const trigger = screen.getByText('Open');
-      await user.click(trigger);
+        await user.click(screen.getByText('Open'));
 
-      await waitFor(() => {
-        const checkbox = screen.getByTestId('popover-checkbox') as HTMLInputElement;
-        expect(checkbox).to.toHaveFocus();
-      });
-    });
-
-    it('should handle empty input value without error', async () => {
-      const { user } = await render(
-        <div>
-          <Popover.Root>
-            <Popover.Trigger>Open</Popover.Trigger>
-            <Popover.Portal>
-              <Popover.Positioner>
-                <Popover.Popup>
-                  <input data-testid="popover-input" defaultValue="" />
-                  <button>Close</button>
-                </Popover.Popup>
-              </Popover.Positioner>
-            </Popover.Portal>
-          </Popover.Root>
-        </div>,
-      );
-
-      const trigger = screen.getByText('Open');
-      await user.click(trigger);
-
-      await waitFor(() => {
         const input = screen.getByTestId('popover-input') as HTMLInputElement;
-        expect(input).to.toHaveFocus();
-        expect(input.selectionStart).to.equal(0);
-        expect(input.selectionEnd).to.equal(0);
+
+        await waitFor(() => {
+          expect(input).toHaveFocus();
+        });
+        await waitFor(() => {
+          expect(input.selectionStart).toBe(0);
+        });
+        expect(input.selectionEnd).toBe(input.value.length);
       });
-    });
 
-    it('should select text in readonly input', async () => {
-      const { user } = await render(
-        <div>
-          <Popover.Root>
-            <Popover.Trigger>Open</Popover.Trigger>
-            <Popover.Portal>
-              <Popover.Positioner>
-                <Popover.Popup>
-                  <input data-testid="popover-input" defaultValue="Readonly text" readOnly />
-                  <button>Close</button>
-                </Popover.Popup>
-              </Popover.Positioner>
-            </Popover.Portal>
-          </Popover.Root>
-        </div>,
-      );
+      it('is called with the element resolved from `initialFocus`', async () => {
+        const onInitiallyFocused = vi.fn();
 
-      const trigger = screen.getByText('Open');
-      await user.click(trigger);
-
-      await waitFor(() => {
-        const input = screen.getByTestId('popover-input') as HTMLInputElement;
-        expect(input).to.toHaveFocus();
-        expect(input.selectionStart).to.equal(0);
-        expect(input.selectionEnd).to.equal(input.value.length);
-      });
-    });
-
-    it('should select text when custom initialFocus points to an input', async () => {
-      function TestComponent() {
-        const inputRef = React.useRef<HTMLInputElement>(null);
-        return (
-          <div>
+        function TestComponent() {
+          const inputRef = React.useRef<HTMLInputElement>(null);
+          return (
             <Popover.Root>
               <Popover.Trigger>Open</Popover.Trigger>
               <Popover.Portal>
                 <Popover.Positioner>
-                  <Popover.Popup initialFocus={inputRef}>
+                  <Popover.Popup initialFocus={inputRef} onInitiallyFocused={onInitiallyFocused}>
                     <button>First element</button>
                     <input data-testid="popover-input" ref={inputRef} defaultValue="Custom focus" />
                   </Popover.Popup>
                 </Popover.Positioner>
               </Popover.Portal>
             </Popover.Root>
-          </div>
+          );
+        }
+
+        const { user } = await render(<TestComponent />);
+
+        await user.click(screen.getByText('Open'));
+
+        await waitFor(() => {
+          expect(onInitiallyFocused).toHaveBeenCalledTimes(1);
+        });
+        expect(onInitiallyFocused).toHaveBeenCalledWith(screen.getByTestId('popover-input'));
+      });
+
+      it('is not called when `initialFocus` is `false`', async () => {
+        const onInitiallyFocused = vi.fn();
+
+        const { user } = await render(
+          <Popover.Root>
+            <Popover.Trigger>Open</Popover.Trigger>
+            <Popover.Portal>
+              <Popover.Positioner>
+                <Popover.Popup initialFocus={false} onInitiallyFocused={onInitiallyFocused}>
+                  <input data-testid="popover-input" defaultValue="Hello World" />
+                </Popover.Popup>
+              </Popover.Positioner>
+            </Popover.Portal>
+          </Popover.Root>,
         );
-      }
 
-      const { user } = await render(<TestComponent />);
+        await user.click(screen.getByText('Open'));
 
-      const trigger = screen.getByText('Open');
-      await user.click(trigger);
+        await waitFor(() => {
+          expect(screen.getByTestId('popover-input')).not.toHaveFocus();
+        });
+        expect(onInitiallyFocused).not.toHaveBeenCalled();
+      });
 
-      await waitFor(() => {
-        const input = screen.getByTestId('popover-input') as HTMLInputElement;
-        expect(input).to.toHaveFocus();
-        expect(input.selectionStart).to.equal(0);
-        expect(input.selectionEnd).to.equal(input.value.length);
+      it('is called with the popup itself when it has no tabbable children', async () => {
+        const onInitiallyFocused = vi.fn();
+
+        const { user } = await render(
+          <Popover.Root>
+            <Popover.Trigger>Open</Popover.Trigger>
+            <Popover.Portal>
+              <Popover.Positioner>
+                <Popover.Popup data-testid="popup" onInitiallyFocused={onInitiallyFocused}>
+                  Plain content
+                </Popover.Popup>
+              </Popover.Positioner>
+            </Popover.Portal>
+          </Popover.Root>,
+        );
+
+        await user.click(screen.getByText('Open'));
+
+        await waitFor(() => {
+          expect(onInitiallyFocused).toHaveBeenCalledTimes(1);
+        });
+        expect(onInitiallyFocused).toHaveBeenCalledWith(screen.getByTestId('popup'));
       });
     });
 
