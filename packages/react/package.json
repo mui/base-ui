@@ -128,7 +128,7 @@
     "typescript": "tsgo -b tsconfig.json"
   },
   "dependencies": {
-    "@babel/runtime": "^7.29.2",
+    "@babel/runtime": "^7.29.7",
     "@base-ui/utils": "workspace:*",
     "@floating-ui/react-dom": "^2.1.9",
     "@floating-ui/utils": "^0.2.12",
@@ -137,7 +137,7 @@
   "devDependencies": {
     "@date-fns/tz": "1.4.1",
     "@testing-library/react": "16.3.2",
-    "@testing-library/user-event": "14.6.1",
+    "@testing-library/user-event": "14.6.3",
     "@types/luxon": "3.7.1",
     "@types/react": "19.2.14",
     "@types/react-dom": "19.2.3",
