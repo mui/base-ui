@@ -1,0 +1,149 @@
+# Filter Menu
+
+<Subtitle>A menu with a text input that filters the available actions.</Subtitle>
+<Meta
+  name="description"
+  content="A high-quality, unstyled React filterable menu component that lets users narrow a list of actions with a text input."
+/>
+
+import { DemoFilterMenuHero } from './demos/hero';
+
+<DemoFilterMenuHero />
+
+## Anatomy
+
+Import the component and assemble its parts. It exposes every ordinary [Menu](/react/components/menu) part plus `<FilterMenu.Input>`, `<FilterMenu.Clear>`, and `<FilterMenu.Empty>`, so a filterable menu needs only this one import:
+
+```jsx title="Anatomy"
+import { FilterMenu } from '@base-ui/react/filter-menu';
+
+<FilterMenu.Root>
+  <FilterMenu.Trigger />
+  <FilterMenu.Portal>
+    <FilterMenu.Positioner>
+      <FilterMenu.Popup>
+        <FilterMenu.Input />
+        <FilterMenu.Clear />
+        <FilterMenu.Empty />
+        <FilterMenu.List>
+          <FilterMenu.Item />
+        </FilterMenu.List>
+      </FilterMenu.Popup>
+    </FilterMenu.Positioner>
+  </FilterMenu.Portal>
+</FilterMenu.Root>;
+```
+
+Filtering lives in its own entrypoint so that an ordinary `@base-ui/react/menu` never carries the filtering code. `<Menu.Root>` cannot filter, and the filtering parts throw if placed inside one.
+
+Give `<FilterMenu.Input>` an accessible name with `aria-label` or a native `<label>`.
+
+## Matching
+
+Items are matched on their `label` prop, falling back to their rendered text, so ordinary handcrafted children filter without any extra wiring. Pass `keywords` to an item to match additional terms beyond its label. A `<FilterMenu.Group>` hides itself, label included, when the query filters out every item in it.
+
+Pass a function to `filter` to customize matching. It receives the item's `label` (falling back to its rendered text) and the trimmed query:
+
+```jsx title="Custom filter"
+<FilterMenu.Root filter={(itemText, query) => itemText.startsWith(query)}>
+```
+
+## Submenus
+
+Filterability is scoped to the nearest root. A `<Menu.SubmenuRoot>` inside a filterable menu is not itself filterable; use `<FilterMenu.SubmenuRoot>` for a submenu that filters, as in the demo above.
+
+## API reference
+
+import { TypesFilterMenu } from './types';
+
+### Root
+
+<TypesFilterMenu.Root />
+
+### Trigger
+
+<TypesFilterMenu.Trigger />
+
+### Portal
+
+<TypesFilterMenu.Portal />
+
+### Backdrop
+
+<TypesFilterMenu.Backdrop />
+
+### Positioner
+
+<TypesFilterMenu.Positioner />
+
+### Popup
+
+<TypesFilterMenu.Popup />
+
+### Input
+
+<TypesFilterMenu.Input />
+
+### Clear
+
+<TypesFilterMenu.Clear />
+
+### List
+
+<TypesFilterMenu.List />
+
+### Empty
+
+<TypesFilterMenu.Empty />
+
+### Arrow
+
+<TypesFilterMenu.Arrow />
+
+### Item
+
+<TypesFilterMenu.Item />
+
+### LinkItem
+
+<TypesFilterMenu.LinkItem />
+
+### SubmenuRoot
+
+<TypesFilterMenu.SubmenuRoot />
+
+### SubmenuTrigger
+
+<TypesFilterMenu.SubmenuTrigger />
+
+### Group
+
+<TypesFilterMenu.Group />
+
+### GroupLabel
+
+<TypesFilterMenu.GroupLabel />
+
+### RadioGroup
+
+<TypesFilterMenu.RadioGroup />
+
+### RadioItem
+
+<TypesFilterMenu.RadioItem />
+
+### RadioItemIndicator
+
+<TypesFilterMenu.RadioItemIndicator />
+
+### CheckboxItem
+
+<TypesFilterMenu.CheckboxItem />
+
+### CheckboxItemIndicator
+
+<TypesFilterMenu.CheckboxItemIndicator />
+
+### Separator
+
+<TypesFilterMenu.Separator />

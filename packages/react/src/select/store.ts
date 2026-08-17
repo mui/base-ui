@@ -1,16 +1,24 @@
 import { ReactStore } from '@base-ui/utils/store';
 import { type InteractionType } from '@base-ui/utils/useEnhancedClickHandler';
+import type { SelectFilterIntegration } from './root/SelectFilterIntegrationContext';
 import type { TransitionStatus } from '../internals/useTransitionStatus';
 import type { HTMLProps } from '../internals/types';
 import type { Side } from '../internals/useAnchorPositioning';
 import { compareItemEquality } from '../internals/itemEquality';
 import { type Group, hasNullItemLabel, stringifyAsValue } from '../internals/resolveValueLabel';
 
+export interface SelectItemMetadata {
+  registrationId: symbol;
+}
+
 export type State = {
   id: string | undefined;
   labelId: string | undefined;
   modal: boolean;
   multiple: boolean;
+  filterable: boolean;
+  /** Filtering parts supplied by the `filter-select` entrypoint, or null for an ordinary select. */
+  filterIntegration: SelectFilterIntegration | null;
 
   items:
     | Record<string, React.ReactNode>
@@ -20,6 +28,14 @@ export type State = {
   itemToStringLabel: ((item: any) => string) | undefined;
   itemToStringValue: ((item: any) => string) | undefined;
   isItemEqualToValue: (itemValue: any, selectedValue: any) => boolean;
+  /**
+   * All logically mounted Select items, including items hidden by filtering.
+   */
+  /**
+   * Composite indexes for the items currently rendered in a filterable list, keyed by
+   * registration id. Empty for an ordinary select.
+   */
+  visibleItemIndexes: ReadonlyMap<symbol, number>;
 
   value: any;
 
@@ -30,9 +46,18 @@ export type State = {
   openMethod: InteractionType | null;
 
   activeIndex: number | null;
-  selectedIndex: number | null;
+  selectionReferenceItemId: symbol | null;
+  /**
+   * The composite index of the selected item in an ordinary select, synced while closed.
+   * A filterable select resolves the index from `visibleItemIndexes` instead, because its
+   * items remount as the query changes.
+   */
+  selectionReferenceIndex: number | null;
+  inputFocusVisible: boolean;
 
   popupProps: HTMLProps;
+  inputProps: HTMLProps;
+  listProps: HTMLProps;
   triggerProps: HTMLProps;
   triggerElement: HTMLElement | null;
   positionerElement: HTMLElement | null;
@@ -51,10 +76,14 @@ export const selectors = {
   id: (state: State) => state.id,
   labelId: (state: State) => state.labelId,
   modal: (state: State) => state.modal,
+  multiple: (state: State) => state.multiple,
+  filterable: (state: State) => state.filterable,
+  filterIntegration: (state: State) => state.filterIntegration,
 
   items: (state: State) => state.items,
   itemToStringLabel: (state: State) => state.itemToStringLabel,
   isItemEqualToValue: (state: State) => state.isItemEqualToValue,
+  visibleItemIndexes: (state: State) => state.visibleItemIndexes,
 
   value: (state: State) => state.value,
 
@@ -81,7 +110,9 @@ export const selectors = {
   openMethod: (state: State) => state.openMethod,
 
   activeIndex: (state: State) => state.activeIndex,
-  selectedIndex: (state: State) => state.selectedIndex,
+  selectionReferenceItemId: (state: State) => state.selectionReferenceItemId,
+  selectionReferenceIndex: (state: State) => state.selectionReferenceIndex,
+  inputFocusVisible: (state: State) => state.inputFocusVisible,
   isActive: (state: State, index: number) => state.activeIndex === index,
 
   isSelected: (state: State, itemValue: any) => {
@@ -95,16 +126,23 @@ export const selectors = {
       );
     }
 
-    // The value is the source of truth: a stale `selectedIndex` (e.g. the controlled
-    // value changes while the popup is open, where the index sync is deferred) must not
-    // keep a previously selected item marked as selected.
+    // The value is the source of truth. The selection reference ID only identifies the item used
+    // for navigation and positioning.
     return compareItemEquality(itemValue, storeValue, comparer);
   },
-  isSelectedByFocus: (state: State, index: number) => {
-    return state.selectedIndex === index;
+
+  isSelectionReference: (state: State, itemValue: any) => {
+    // In multiple mode, the last value determines the selection reference.
+    const referenceValue =
+      state.multiple && Array.isArray(state.value)
+        ? state.value[state.value.length - 1]
+        : state.value;
+    return compareItemEquality(itemValue, referenceValue, state.isItemEqualToValue);
   },
 
   popupProps: (state: State) => state.popupProps,
+  inputProps: (state: State) => state.inputProps,
+  listProps: (state: State) => state.listProps,
   triggerProps: (state: State) => state.triggerProps,
   triggerElement: (state: State) => state.triggerElement,
   positionerElement: (state: State) => state.positionerElement,

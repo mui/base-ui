@@ -102,6 +102,38 @@ type MenuRootChangeEventDetails = (
 type MenuRootOrientation = 'horizontal' | 'vertical';
 ```
 
+### Root.InputValueChangeEventDetails
+
+```typescript
+type MenuRootInputValueChangeEventDetails = (
+  | { reason: 'clear-press'; event: KeyboardEvent | MouseEvent | PointerEvent }
+  | { reason: 'input-change'; event: Event | InputEvent }
+  | { reason: 'input-clear'; event: Event | FocusEvent | InputEvent }
+  | { reason: 'popup-close'; event: Event }
+) & {
+  /** Cancels Base UI from handling the event. */
+  cancel: () => void;
+  /** Allows the event to propagate in cases where Base UI will stop the propagation. */
+  allowPropagation: () => void;
+  /** Indicates whether the event has been canceled. */
+  isCanceled: boolean;
+  /** Indicates whether the event is allowed to propagate. */
+  isPropagationAllowed: boolean;
+  /** The element that triggered the event, if applicable. */
+  trigger: Element | undefined;
+};
+```
+
+### Root.InputValueChangeEventReason
+
+```typescript
+type MenuRootInputValueChangeEventReason =
+  | 'input-change'
+  | 'input-clear'
+  | 'clear-press'
+  | 'popup-close';
+```
+
 ### Trigger
 
 A button that opens the menu.
@@ -143,6 +175,29 @@ type MenuTriggerState = {
   /** Whether the trigger is disabled. */
   disabled: boolean;
 };
+```
+
+### List
+
+A container for the menu items.
+Renders a `<div>` element.
+
+**List Props:**
+
+| Prop      | Type                                                                                    | Default | Description                                                                                                                                                                                   |
+| :-------- | :-------------------------------------------------------------------------------------- | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| className | `string \| ((state: Menu.List.State) => string \| undefined)`                           | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
+| style     | `React.CSSProperties \| ((state: Menu.List.State) => React.CSSProperties \| undefined)` | -       | Style applied to the element, or a function that&#xA;returns a style object based on the component's state.                                                                                   |
+| render    | `ReactElement \| ((props: HTMLProps, state: Menu.List.State) => ReactElement)`          | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
+
+### List.Props
+
+Re-export of [List](#list) props.
+
+### List.State
+
+```typescript
+type MenuListState = {};
 ```
 
 ### Portal
@@ -411,9 +466,10 @@ Renders a `<div>` element.
 
 | Prop         | Type                                                                                    | Default | Description                                                                                                                                                                                   |
 | :----------- | :-------------------------------------------------------------------------------------- | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| label        | `string`                                                                                | -       | Overrides the text label to use when the item is matched during keyboard text navigation.                                                                                                     |
+| label        | `string`                                                                                | -       | Overrides the text label to use when the item is matched during keyboard text navigation,&#xA;and when filtering.                                                                             |
 | onClick      | `((event: BaseUIEvent<React.MouseEvent<HTMLDivElement, MouseEvent>>) => void)`          | -       | The click handler for the menu item.                                                                                                                                                          |
 | closeOnClick | `boolean`                                                                               | `true`  | Whether to close the menu when the item is clicked.                                                                                                                                           |
+| keywords     | `string[]`                                                                              | -       | Additional terms the item matches on when filtering, beyond its label.                                                                                                                        |
 | nativeButton | `boolean`                                                                               | `false` | Whether the component renders a native `<button>` element when replacing it&#xA;via the `render` prop.&#xA;Set to `true` if the rendered element is a native button.                          |
 | disabled     | `boolean`                                                                               | `false` | Whether the component should ignore user interaction.                                                                                                                                         |
 | className    | `string \| ((state: Menu.Item.State) => string \| undefined)`                           | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
@@ -657,8 +713,9 @@ Renders a `<div>` element.
 
 | Prop         | Type                                                                                              | Default | Description                                                                                                                                                                                   |
 | :----------- | :------------------------------------------------------------------------------------------------ | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| label        | `string`                                                                                          | -       | Overrides the text label to use when the item is matched during keyboard text navigation.                                                                                                     |
+| label        | `string`                                                                                          | -       | Overrides the text label to use when the item is matched during keyboard text navigation,&#xA;and when filtering.                                                                             |
 | onClick      | `((event: BaseUIEvent<React.MouseEvent<HTMLDivElement, MouseEvent>>) => void)`                    | -       | -                                                                                                                                                                                             |
+| keywords     | `string[]`                                                                                        | -       | Additional terms the item matches on when filtering, beyond its label.                                                                                                                        |
 | nativeButton | `boolean`                                                                                         | `false` | Whether the component renders a native `<button>` element when replacing it&#xA;via the `render` prop.&#xA;Set to `true` if the rendered element is a native button.                          |
 | disabled     | `boolean`                                                                                         | `false` | Whether the component should ignore user interaction.                                                                                                                                         |
 | openOnHover  | `boolean`                                                                                         | -       | Whether the menu should also open when the trigger is hovered.                                                                                                                                |
@@ -788,6 +845,7 @@ Renders a `<div>` element.
 | value\*      | `any`                                                                                        | -       | Value of the radio item.&#xA;This is the value that will be set in the Menu.RadioGroup when the item is selected.                                                                             |
 | onClick      | `((event: BaseUIEvent<React.MouseEvent<HTMLDivElement, MouseEvent>>) => void)`               | -       | The click handler for the menu item.                                                                                                                                                          |
 | closeOnClick | `boolean`                                                                                    | `false` | Whether to close the menu when the item is clicked.                                                                                                                                           |
+| keywords     | `string[]`                                                                                   | -       | Additional terms the item matches on when filtering, beyond its label.                                                                                                                        |
 | nativeButton | `boolean`                                                                                    | `false` | Whether the component renders a native `<button>` element when replacing it&#xA;via the `render` prop.&#xA;Set to `true` if the rendered element is a native button.                          |
 | disabled     | `boolean`                                                                                    | `false` | Whether the component should ignore user interaction.                                                                                                                                         |
 | className    | `string \| ((state: Menu.RadioItem.State) => string \| undefined)`                           | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
@@ -878,6 +936,7 @@ Renders a `<div>` element.
 | onCheckedChange | `((checked: boolean, eventDetails: Menu.CheckboxItem.ChangeEventDetails) => void)`              | -       | Event handler called when the checkbox item is ticked or unticked.                                                                                                                            |
 | onClick         | `((event: BaseUIEvent<React.MouseEvent<HTMLDivElement, MouseEvent>>) => void)`                  | -       | The click handler for the menu item.                                                                                                                                                          |
 | closeOnClick    | `boolean`                                                                                       | `false` | Whether to close the menu when the item is clicked.                                                                                                                                           |
+| keywords        | `string[]`                                                                                      | -       | Additional terms the item matches on when filtering, beyond its label.                                                                                                                        |
 | nativeButton    | `boolean`                                                                                       | `false` | Whether the component renders a native `<button>` element when replacing it&#xA;via the `render` prop.&#xA;Set to `true` if the rendered element is a native button.                          |
 | disabled        | `boolean`                                                                                       | `false` | Whether the component should ignore user interaction.                                                                                                                                         |
 | className       | `string \| ((state: Menu.CheckboxItem.State) => string \| undefined)`                           | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
@@ -1058,6 +1117,7 @@ Renders an `<a>` element.
 | :----------- | :----------------------------------------------------------------------------------------------------------------------------------------------------------------- | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | label        | `string`                                                                                                                                                           | -       | Overrides the text label to use when the item is matched during keyboard text navigation.                                                                                                     |
 | closeOnClick | `boolean`                                                                                                                                                          | `false` | Whether to close the menu when the item is clicked.                                                                                                                                           |
+| keywords     | `string[]`                                                                                                                                                         | -       | Additional terms the item matches on when filtering, beyond its label.                                                                                                                        |
 | className    | `string \| ((state: Menu.LinkItem.State) => string \| undefined)`                                                                                                  | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
 | style        | `React.CSSProperties \| ((state: Menu.LinkItem.State) => React.CSSProperties \| undefined)`                                                                        | -       | Style applied to the element, or a function that&#xA;returns a style object based on the component's state.                                                                                   |
 | render       | `ReactElement \| ((props: React.DetailedHTMLProps<React.AnchorHTMLAttributes<HTMLAnchorElement>, HTMLAnchorElement>, state: Menu.LinkItem.State) => ReactElement)` | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
@@ -1079,6 +1139,21 @@ type MenuLinkItemState = {
   /** Whether the item is highlighted. */
   highlighted: boolean;
 };
+```
+
+### MenuFilter
+
+**Parameters:**
+
+| Parameter | Type     | Default | Description |
+| :-------- | :------- | :------ | :---------- |
+| itemText  | `string` | -       | -           |
+| query     | `string` | -       | -           |
+
+**Return Value:**
+
+```tsx
+type ReturnValue = boolean;
 ```
 
 ## Additional Types
@@ -1147,13 +1222,14 @@ type PayloadChildRenderFunction = (arg: { payload: unknown | undefined }) => Rea
 - `Menu.GroupLabel`: `Menu.GroupLabel`, `Menu.GroupLabel.Props`, `Menu.GroupLabel.State`
 - `Menu.Item`: `Menu.Item`, `Menu.Item.State`, `Menu.Item.Props`
 - `Menu.LinkItem`: `Menu.LinkItem`, `Menu.LinkItem.State`, `Menu.LinkItem.Props`
+- `Menu.List`: `Menu.List`, `Menu.List.State`, `Menu.List.Props`
 - `Menu.Popup`: `Menu.Popup`, `Menu.Popup.Props`, `Menu.Popup.State`
 - `Menu.Portal`: `Menu.Portal`, `Menu.Portal.State`, `Menu.Portal.Props`
 - `Menu.Positioner`: `Menu.Positioner`, `Menu.Positioner.State`, `Menu.Positioner.Props`
 - `Menu.RadioGroup`: `Menu.RadioGroup`, `Menu.RadioGroup.Props`, `Menu.RadioGroup.State`, `Menu.RadioGroup.ChangeEventReason`, `Menu.RadioGroup.ChangeEventDetails`
 - `Menu.RadioItem`: `Menu.RadioItem`, `Menu.RadioItem.State`, `Menu.RadioItem.Props`
 - `Menu.RadioItemIndicator`: `Menu.RadioItemIndicator`, `Menu.RadioItemIndicator.Props`, `Menu.RadioItemIndicator.State`
-- `Menu.Root`: `Menu.Root`, `Menu.Root.State`, `Menu.Root.Props`, `Menu.Root.Actions`, `Menu.Root.ChangeEventReason`, `Menu.Root.ChangeEventDetails`, `Menu.Root.Orientation`
+- `Menu.Root`: `Menu.Root`, `Menu.Root.State`, `Menu.Root.Props`, `Menu.Root.Actions`, `Menu.Root.ChangeEventReason`, `Menu.Root.ChangeEventDetails`, `Menu.Root.InputValueChangeEventReason`, `Menu.Root.InputValueChangeEventDetails`, `Menu.Root.Orientation`
 - `Menu.SubmenuRoot`: `Menu.SubmenuRoot`, `Menu.SubmenuRoot.Props`, `Menu.SubmenuRoot.State`, `Menu.SubmenuRoot.ChangeEventReason`, `Menu.SubmenuRoot.ChangeEventDetails`
 - `Menu.Trigger`: `Menu.Trigger`, `Menu.Trigger.Props`, `Menu.Trigger.State`
 - `Menu.Viewport`: `Menu.Viewport`, `Menu.Viewport.Props`, `Menu.Viewport.State`
@@ -1161,7 +1237,7 @@ type PayloadChildRenderFunction = (arg: { payload: unknown | undefined }) => Rea
 - `Menu.SubmenuTrigger`: `Menu.SubmenuTrigger`, `Menu.SubmenuTrigger.Props`, `Menu.SubmenuTrigger.State`
 - `Menu.Handle`
 - `Menu.createHandle`
-- `Default`: `MenuRootState`, `MenuRootProps`, `MenuRootActions`, `MenuRootChangeEventReason`, `MenuRootChangeEventDetails`, `MenuRootOrientation`, `MenuParent`, `MenuArrowState`, `MenuArrowProps`, `MenuBackdropState`, `MenuBackdropProps`, `MenuCheckboxItemState`, `MenuCheckboxItemProps`, `MenuCheckboxItemChangeEventReason`, `MenuCheckboxItemChangeEventDetails`, `MenuCheckboxItemIndicatorProps`, `MenuCheckboxItemIndicatorState`, `MenuGroupLabelProps`, `MenuGroupLabelState`, `MenuGroupProps`, `MenuGroupState`, `MenuItemState`, `MenuItemProps`, `MenuLinkItemState`, `MenuLinkItemProps`, `MenuPopupProps`, `MenuPopupState`, `MenuPortalState`, `MenuPortalProps`, `MenuPositionerState`, `MenuPositionerProps`, `MenuRadioGroupProps`, `MenuRadioGroupState`, `MenuRadioGroupChangeEventReason`, `MenuRadioGroupChangeEventDetails`, `MenuRadioItemState`, `MenuRadioItemProps`, `MenuRadioItemIndicatorProps`, `MenuRadioItemIndicatorState`, `MenuSubmenuRootProps`, `MenuSubmenuRootState`, `MenuSubmenuRootChangeEventReason`, `MenuSubmenuRootChangeEventDetails`, `MenuTriggerProps`, `MenuTriggerState`, `MenuSubmenuTriggerState`, `MenuSubmenuTriggerProps`, `MenuViewportState`, `MenuViewportProps`
+- `Default`: `MenuRootState`, `MenuFilter`, `MenuRootProps`, `MenuRootActions`, `MenuRootChangeEventReason`, `MenuRootChangeEventDetails`, `MenuRootInputValueChangeEventReason`, `MenuRootInputValueChangeEventDetails`, `MenuRootOrientation`, `MenuParent`, `MenuArrowState`, `MenuArrowProps`, `MenuBackdropState`, `MenuBackdropProps`, `MenuCheckboxItemState`, `MenuCheckboxItemProps`, `MenuCheckboxItemChangeEventReason`, `MenuCheckboxItemChangeEventDetails`, `MenuCheckboxItemIndicatorProps`, `MenuCheckboxItemIndicatorState`, `MenuGroupLabelProps`, `MenuGroupLabelState`, `MenuGroupProps`, `MenuGroupState`, `MenuItemState`, `MenuItemProps`, `MenuLinkItemState`, `MenuLinkItemProps`, `MenuListState`, `MenuListProps`, `MenuPopupProps`, `MenuPopupState`, `MenuPortalState`, `MenuPortalProps`, `MenuPositionerState`, `MenuPositionerProps`, `MenuRadioGroupProps`, `MenuRadioGroupState`, `MenuRadioGroupChangeEventReason`, `MenuRadioGroupChangeEventDetails`, `MenuRadioItemState`, `MenuRadioItemProps`, `MenuRadioItemIndicatorProps`, `MenuRadioItemIndicatorState`, `MenuSubmenuRootProps`, `MenuSubmenuRootState`, `MenuSubmenuRootChangeEventReason`, `MenuSubmenuRootChangeEventDetails`, `MenuTriggerProps`, `MenuTriggerState`, `MenuSubmenuTriggerState`, `MenuSubmenuTriggerProps`, `MenuViewportState`, `MenuViewportProps`
 
 ## Canonical Types
 
@@ -1185,6 +1261,8 @@ Maps `Canonical`: `Alias` — Use Canonical when its namespace is already import
 - `Menu.Item.Props`: `MenuItemProps`
 - `Menu.LinkItem.State`: `MenuLinkItemState`
 - `Menu.LinkItem.Props`: `MenuLinkItemProps`
+- `Menu.List.State`: `MenuListState`
+- `Menu.List.Props`: `MenuListProps`
 - `Menu.Popup.Props`: `MenuPopupProps`
 - `Menu.Popup.State`: `MenuPopupState`
 - `Menu.Portal.State`: `MenuPortalState`
@@ -1204,6 +1282,8 @@ Maps `Canonical`: `Alias` — Use Canonical when its namespace is already import
 - `Menu.Root.Actions`: `MenuRootActions`
 - `Menu.Root.ChangeEventReason`: `MenuRootChangeEventReason`
 - `Menu.Root.ChangeEventDetails`: `MenuRootChangeEventDetails`
+- `Menu.Root.InputValueChangeEventReason`: `MenuRootInputValueChangeEventReason`
+- `Menu.Root.InputValueChangeEventDetails`: `MenuRootInputValueChangeEventDetails`
 - `Menu.Root.Orientation`: `MenuRootOrientation`
 - `Menu.SubmenuRoot.Props`: `MenuSubmenuRootProps`
 - `Menu.SubmenuRoot.State`: `MenuSubmenuRootState`

@@ -15,7 +15,7 @@ export { MenuLinkItem as LinkItem } from '../menu/link-item/MenuLinkItem';
 export { MenuRadioGroup as RadioGroup } from '../menu/radio-group/MenuRadioGroup';
 export { MenuRadioItem as RadioItem } from '../menu/radio-item/MenuRadioItem';
 export { MenuRadioItemIndicator as RadioItemIndicator } from '../menu/radio-item-indicator/MenuRadioItemIndicator';
-export { MenuSubmenuRoot as SubmenuRoot } from '../menu/submenu-root/MenuSubmenuRoot';
+export { ContextMenuSubmenuRoot as SubmenuRoot } from './submenu-root/ContextMenuSubmenuRoot';
 export { MenuSubmenuTrigger as SubmenuTrigger } from '../menu/submenu-trigger/MenuSubmenuTrigger';
 
 export { Separator } from '../separator/Separator';

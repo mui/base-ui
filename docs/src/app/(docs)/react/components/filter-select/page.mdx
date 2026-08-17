@@ -1,0 +1,159 @@
+# Filter Select
+
+<Subtitle>A select with a text input that filters the available options.</Subtitle>
+<Meta
+  name="description"
+  content="A high-quality, unstyled React filterable select component that lets users narrow a list of options with a text input."
+/>
+
+import { DemoFilterSelectHero } from './demos/hero';
+
+<DemoFilterSelectHero />
+
+## Anatomy
+
+Import the component and assemble its parts. It exposes every ordinary [Select](/react/components/select) part plus `<FilterSelect.Input>`, `<FilterSelect.Clear>`, and `<FilterSelect.Empty>`, so a filterable select needs only this one import.
+
+Pass the items to the `items` prop (required) and render them with a function as the `children` of `<FilterSelect.List>`. Filtering narrows `items` before the list renders, so only matching entries are mounted:
+
+```jsx title="Anatomy"
+import { FilterSelect } from '@base-ui/react/filter-select';
+
+const items = [
+  { value: 'apple', label: 'Apple' },
+  { value: 'banana', label: 'Banana' },
+];
+
+<FilterSelect.Root items={items}>
+  <FilterSelect.Trigger>
+    <FilterSelect.Value />
+  </FilterSelect.Trigger>
+  <FilterSelect.Portal>
+    <FilterSelect.Positioner>
+      <FilterSelect.Popup>
+        <FilterSelect.Input />
+        <FilterSelect.Empty />
+        <FilterSelect.List>
+          {(item) => (
+            <FilterSelect.Item key={item.value} value={item.value}>
+              {item.label}
+            </FilterSelect.Item>
+          )}
+        </FilterSelect.List>
+      </FilterSelect.Popup>
+    </FilterSelect.Positioner>
+  </FilterSelect.Portal>
+</FilterSelect.Root>;
+```
+
+Filtering lives in its own entrypoint so that an ordinary `@base-ui/react/select` never carries the filtering code. `<Select.Root>` cannot filter, and the filtering parts throw if placed inside one.
+
+Give `<FilterSelect.Input>` its own accessible name with `aria-label` or a native `<label>`. `<FilterSelect.Label>` labels the trigger, not the input.
+
+## Matching
+
+Items are matched on their `label`. An entry can carry `keywords` to match additional terms beyond its label.
+
+Pass a function to `filter` to customize matching. It is called with the `items` entry and the trimmed query, and returns whether the item matches:
+
+```jsx title="Custom filter"
+<FilterSelect.Root items={items} filter={(item, query) => item.label.startsWith(query)}>
+```
+
+This differs from [Combobox](/react/components/combobox), which filters on item values.
+
+## API reference
+
+import { TypesFilterSelect } from './types';
+
+### Root
+
+<TypesFilterSelect.Root />
+
+### Label
+
+<TypesFilterSelect.Label />
+
+### Trigger
+
+<TypesFilterSelect.Trigger />
+
+### Value
+
+<TypesFilterSelect.Value />
+
+### Icon
+
+<TypesFilterSelect.Icon />
+
+### Backdrop
+
+<TypesFilterSelect.Backdrop />
+
+### Portal
+
+<TypesFilterSelect.Portal />
+
+### Positioner
+
+<TypesFilterSelect.Positioner />
+
+### Popup
+
+<TypesFilterSelect.Popup />
+
+### Input
+
+<TypesFilterSelect.Input />
+
+### Clear
+
+<TypesFilterSelect.Clear />
+
+### Empty
+
+<TypesFilterSelect.Empty />
+
+### List
+
+<TypesFilterSelect.List />
+
+### Collection
+
+<TypesFilterSelect.Collection />
+
+### Arrow
+
+<TypesFilterSelect.Arrow />
+
+### Item
+
+<TypesFilterSelect.Item />
+
+### ItemText
+
+<TypesFilterSelect.ItemText />
+
+### ItemIndicator
+
+<TypesFilterSelect.ItemIndicator />
+
+### Group
+
+<TypesFilterSelect.Group />
+
+### GroupLabel
+
+<TypesFilterSelect.GroupLabel />
+
+### ScrollUpArrow
+
+<TypesFilterSelect.ScrollUpArrow />
+
+### ScrollDownArrow
+
+<TypesFilterSelect.ScrollDownArrow />
+
+### Separator
+
+<TypesFilterSelect.Separator />

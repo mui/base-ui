@@ -30,6 +30,12 @@ export interface UseMenuItemCommonPropsParameters {
    */
   store: MenuStore<any>;
   /**
+   * The store for the list containing the item.
+   * This differs from `store` for submenu triggers, which control their child menu.
+   * @default store
+   */
+  listStore?: MenuStore<any> | undefined;
+  /**
    * Whether a typeahead session is in progress.
    */
   typingRef?: React.RefObject<boolean> | undefined;
@@ -49,18 +55,35 @@ export interface UseMenuItemCommonPropsParameters {
  * onMouseMove, onClick, and onMouseUp handlers.
  */
 export function useMenuItemCommonProps(params: UseMenuItemCommonPropsParameters): HTMLProps {
-  const { closeOnClick, highlighted, id, nodeId, store, typingRef, itemRef, itemMetadata } = params;
+  const {
+    closeOnClick,
+    highlighted,
+    id,
+    nodeId,
+    store,
+    listStore = store,
+    typingRef,
+    itemRef,
+    itemMetadata,
+  } = params;
 
   const { events: menuEvents } = store.useState('floatingTreeRoot');
-  const open = store.useState('open');
+  const open = listStore.useState('open');
+  const filterable = listStore.select('filterable');
   const contextMenuContext = useContextMenuRootContext(true);
   const isContextMenu = contextMenuContext !== undefined;
+  const rovingTabIndex = open && highlighted ? 0 : -1;
+  const tabIndex = filterable ? undefined : rovingTabIndex;
+  // VoiceOver + Safari doesn't announce aria-activedescendant changes while DOM focus is on the
+  // input, but it does announce aria-selected changes on the highlighted item.
+  const ariaSelected = filterable && highlighted ? true : undefined;
 
   return React.useMemo(
     () => ({
       id,
       role: 'menuitem' as const,
-      tabIndex: open && highlighted ? 0 : -1,
+      tabIndex,
+      'aria-selected': ariaSelected,
       onKeyDown(event: React.KeyboardEvent) {
         if (event.key === ' ' && typingRef?.current) {
           event.preventDefault();
@@ -119,18 +142,18 @@ export function useMenuItemCommonProps(params: UseMenuItemCommonPropsParameters)
       },
     }),
     [
-      closeOnClick,
-      highlighted,
       id,
-      menuEvents,
-      nodeId,
-      open,
-      store,
+      tabIndex,
+      ariaSelected,
       typingRef,
-      itemRef,
+      nodeId,
+      menuEvents,
+      closeOnClick,
       contextMenuContext,
+      itemRef,
+      store.context.allowMouseUpTriggerRef,
       isContextMenu,
-      itemMetadata,
+      itemMetadata.type,
     ],
   );
 }

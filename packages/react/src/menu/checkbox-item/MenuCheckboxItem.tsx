@@ -7,7 +7,6 @@ import { REGULAR_ITEM, useMenuItem } from '../item/useMenuItem';
 import { useCompositeListItem } from '../../internals/composite/list/useCompositeListItem';
 import { useMenuRootContext } from '../root/MenuRootContext';
 import { useRenderElement } from '../../internals/useRenderElement';
-import { useBaseUiId } from '../../internals/useBaseUiId';
 import type { BaseUIComponentProps, NonNativeButtonProps } from '../../internals/types';
 import { itemMapping } from '../utils/stateAttributesMapping';
 import { useMenuPositionerContext } from '../positioner/MenuPositionerContext';
@@ -15,13 +14,7 @@ import { createChangeEventDetails } from '../../internals/createBaseUIEventDetai
 import { REASONS } from '../../internals/reasons';
 import type { MenuRoot } from '../root/MenuRoot';
 
-/**
- * A menu item that toggles a setting on or off.
- * Renders a `<div>` element.
- *
- * Documentation: [Base UI Menu](https://base-ui.com/react/components/menu)
- */
-export const MenuCheckboxItem = React.forwardRef(function MenuCheckboxItem(
+const MenuCheckboxItemImpl = React.forwardRef(function MenuCheckboxItemImpl(
   componentProps: MenuCheckboxItem.Props,
   forwardedRef: React.ForwardedRef<HTMLElement>,
 ) {
@@ -42,9 +35,9 @@ export const MenuCheckboxItem = React.forwardRef(function MenuCheckboxItem(
 
   const listItem = useCompositeListItem({ guess: true, label });
   const menuPositionerContext = useMenuPositionerContext(true);
-  const id = useBaseUiId(idProp);
+  const { store, floatingId } = useMenuRootContext();
+  const id = idProp ?? `${floatingId}-${listItem.index}`;
 
-  const { store } = useMenuRootContext();
   const rootDisabled = store.useState('disabled');
   const disabled = disabledProp || rootDisabled;
   const highlighted = store.useState('isActive', listItem.index);
@@ -112,6 +105,34 @@ export const MenuCheckboxItem = React.forwardRef(function MenuCheckboxItem(
   );
 });
 
+/**
+ * A menu item that toggles a setting on or off.
+ * Renders a `<div>` element.
+ *
+ * Documentation: [Base UI Menu](https://base-ui.com/react/components/menu)
+ */
+export const MenuCheckboxItem = React.forwardRef(function MenuCheckboxItem(
+  componentProps: MenuCheckboxItem.Props,
+  forwardedRef: React.ForwardedRef<HTMLElement>,
+) {
+  const { store } = useMenuRootContext();
+  const filterIntegration = store.select('filterIntegration');
+  const menuCheckboxItem = <MenuCheckboxItemImpl {...componentProps} ref={forwardedRef} />;
+
+  return filterIntegration ? (
+    // The filter wrapper composes onto MenuCheckboxItemImpl so its implementation
+    // overrides MenuCheckboxItemImpl's implementation.
+    <filterIntegration.Item
+      label={componentProps.label}
+      keywords={componentProps.keywords}
+      role="menuitemcheckbox"
+      render={menuCheckboxItem}
+    />
+  ) : (
+    menuCheckboxItem
+  );
+});
+
 export interface MenuCheckboxItemState {
   /**
    * Whether the checkbox item should ignore user interaction.
@@ -161,6 +182,10 @@ export interface MenuCheckboxItemProps
    * Overrides the text label to use when the item is matched during keyboard text navigation.
    */
   label?: string | undefined;
+  /**
+   * Additional terms the item matches on when filtering, beyond its label.
+   */
+  keywords?: readonly string[] | undefined;
   /**
    * @ignore
    */

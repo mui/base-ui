@@ -8,6 +8,60 @@ import { useRenderElement } from '../../internals/useRenderElement';
 import { styleDisableScrollbar } from '../../utils/styles';
 import { LIST_FUNCTIONAL_STYLES } from '../popup/utils';
 import { selectors } from '../store';
+import { SelectCollection } from '../collection/SelectCollection';
+
+const SELECT_LIST_ROLE = 'listbox';
+
+const SelectListImpl = React.forwardRef(function SelectListImpl(
+  componentProps: BaseUIComponentProps<'div', SelectListState>,
+  forwardedRef: React.ForwardedRef<HTMLDivElement>,
+) {
+  const { id, render, className, style, ...elementProps } = componentProps;
+
+  const { store, scrollHandlerRef, multiple } = useSelectRootContext();
+  const { alignItemWithTriggerActive } = useSelectPositionerContext();
+
+  const hasScrollArrows = useStore(store, selectors.hasScrollArrows);
+  const openMethod = useStore(store, selectors.openMethod);
+  const filterable = useStore(store, selectors.filterable);
+  const listNavigationProps = useStore(store, selectors.listProps);
+
+  const defaultProps: HTMLProps = {
+    id,
+    role: SELECT_LIST_ROLE,
+    'aria-multiselectable': multiple || undefined,
+    onScroll(event) {
+      scrollHandlerRef.current?.(event.currentTarget);
+    },
+    onFocus(event) {
+      if (event.target === event.currentTarget) {
+        store.set('inputFocusVisible', false);
+      }
+    },
+    onKeyDown(event) {
+      // Unlike the menu, the select cannot reset whenever the input regains focus: the open
+      // sequence focuses the input after the selected item is seeded, which would clear the
+      // open highlight. Reset only when tabbing back out of the focused list.
+      if (event.key === 'Tab' && event.shiftKey) {
+        store.set('activeIndex', null);
+      }
+    },
+    ...(alignItemWithTriggerActive && {
+      style: LIST_FUNCTIONAL_STYLES,
+    }),
+    className:
+      hasScrollArrows && openMethod !== 'touch' ? styleDisableScrollbar.className : undefined,
+  };
+
+  const setListElement = store.useStateSetter('listElement');
+
+  const element = useRenderElement('div', componentProps, {
+    ref: [forwardedRef, setListElement],
+    props: [defaultProps, filterable ? listNavigationProps : undefined, elementProps],
+  });
+
+  return element;
+});
 
 /**
  * A container for the select items.
@@ -19,38 +73,48 @@ export const SelectList = React.forwardRef(function SelectList(
   componentProps: SelectList.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { render, className, style, ...elementProps } = componentProps;
+  const { store } = useSelectRootContext();
+  const filterIntegration = useStore(store, selectors.filterIntegration);
+  const rootId = useStore(store, selectors.id);
+  // Resolve once so the filter wrapper registers the same id the DOM element ends up with,
+  // otherwise a consumer id leaves the trigger and input pointing at nothing.
+  const id = componentProps.id ?? `${rootId}-list`;
+  const { children } = componentProps;
 
-  const { store, scrollHandlerRef, multiple } = useSelectRootContext();
-  const { alignItemWithTriggerActive } = useSelectPositionerContext();
+  // Closed-template API: a function child reads the filtered items from the root, so consumers
+  // don't have to wrap it in `Select.Collection` themselves.
+  const resolvedChildren = React.useMemo(() => {
+    if (typeof children === 'function') {
+      return <SelectCollection>{children}</SelectCollection>;
+    }
+    return children;
+  }, [children]);
 
-  const hasScrollArrows = useStore(store, selectors.hasScrollArrows);
-  const openMethod = useStore(store, selectors.openMethod);
-  const id = useStore(store, selectors.id);
+  const selectList = (
+    <SelectListImpl {...componentProps} id={id} ref={forwardedRef}>
+      {resolvedChildren}
+    </SelectListImpl>
+  );
 
-  const defaultProps: HTMLProps = {
-    id: `${id}-list`,
-    role: 'listbox',
-    'aria-multiselectable': multiple || undefined,
-    onScroll(event) {
-      scrollHandlerRef.current?.(event.currentTarget);
-    },
-    ...(alignItemWithTriggerActive && {
-      style: LIST_FUNCTIONAL_STYLES,
-    }),
-    className:
-      hasScrollArrows && openMethod !== 'touch' ? styleDisableScrollbar.className : undefined,
-  };
-
-  const setListElement = store.useStateSetter('listElement');
-
-  return useRenderElement('div', componentProps, {
-    ref: [forwardedRef, setListElement],
-    props: [defaultProps, elementProps],
-  });
+  return filterIntegration ? (
+    // The filter wrapper composes onto SelectListImpl so its implementation
+    // overrides SelectListImpl's implementation.
+    <filterIntegration.List role={SELECT_LIST_ROLE} id={id} render={selectList} />
+  ) : (
+    selectList
+  );
 });
 
-export interface SelectListProps extends BaseUIComponentProps<'div', SelectListState> {}
+export interface SelectListProps extends Omit<
+  BaseUIComponentProps<'div', SelectListState>,
+  'children'
+> {
+  /**
+   * A function child renders one node per filtered item from the root's `items` prop, the same
+   * shape `Select.Collection` accepts.
+   */
+  children?: React.ReactNode | ((item: any, index: number) => React.ReactNode);
+}
 
 export interface SelectListState {}
 

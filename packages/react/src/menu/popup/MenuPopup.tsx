@@ -1,6 +1,7 @@
 'use client';
 import * as React from 'react';
 import type { InteractionType } from '@base-ui/utils/useEnhancedClickHandler';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { FloatingFocusManager, useHoverFloatingInteraction } from '../../floating-ui-react';
 import { useMenuRootContext } from '../root/MenuRootContext';
 import type { MenuRoot } from '../root/MenuRoot';
@@ -16,40 +17,48 @@ import { REASONS } from '../../internals/reasons';
 import { useToolbarRootContext } from '../../toolbar/root/ToolbarRootContext';
 import { COMPOSITE_KEYS } from '../../internals/composite/composite';
 import { getDisabledMountTransitionStyles } from '../../internals/getDisabledMountTransitionStyles';
+import { useMenuSubmenuRootContext } from '../submenu-root/MenuSubmenuRootContext';
 
-/**
- * A container for the menu items.
- * Renders a `<div>` element.
- *
- * Documentation: [Base UI Menu](https://base-ui.com/react/components/menu)
- */
-export const MenuPopup = React.forwardRef(function MenuPopup(
+const MenuPopupImpl = React.forwardRef(function MenuPopupImpl(
   componentProps: MenuPopup.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { render, className, style, finalFocus, ...elementProps } = componentProps;
-
-  const { store } = useMenuRootContext();
+  const { id, finalFocus, render, className, style, ...elementProps } = componentProps;
+  const { store, setFloatingId } = useMenuRootContext();
+  const submenuRootContext = useMenuSubmenuRootContext();
   const { side, align } = useMenuPositionerContext();
   const insideToolbar = useToolbarRootContext(true) != null;
 
-  const open = store.useState('open');
   const transitionStatus = store.useState('transitionStatus');
   const popupProps = store.useState('popupProps');
-  const mounted = store.useState('mounted');
   const instantType = store.useState('instantType');
-  const activeTriggerElement = store.useState('activeTriggerElement');
+  const activeTriggerId = store.useState('activeTriggerId');
   const parent = store.useState('parent');
-  const lastOpenChangeReason = store.useState('lastOpenChangeReason');
   const rootId = store.useState('rootId');
+  const filterIntegration = store.select('filterIntegration');
+  const listElement = store.useState('listElement');
+  const setPopupElement = store.useStateSetter('popupElement');
+  const open = store.useState('open');
+  const mounted = store.useState('mounted');
+  const activeTriggerElement = store.useState('activeTriggerElement');
   const floatingContext = store.useState('floatingRootContext');
   const floatingTreeRoot = store.useState('floatingTreeRoot');
+  const openMethod = store.useState('openMethod');
+  const openedByKeyboard = store.useState('openedByKeyboard');
+  const lastOpenChangeReason = store.useState('lastOpenChangeReason');
   const closeDelay = store.useState('closeDelay');
   const hoverEnabled = store.useState('hoverEnabled');
   const disabled = store.useState('disabled');
-  const openMethod = store.useState('openMethod');
 
   const isContextMenu = parent.type === 'context-menu';
+  const shouldFocusPopup =
+    parent.type !== 'menu' || (filterIntegration !== null && openedByKeyboard);
+
+  useIsoLayoutEffect(() => {
+    if (id) {
+      setFloatingId(id);
+    }
+  }, [id, setFloatingId]);
 
   useOpenChangeComplete({
     open,
@@ -81,8 +90,6 @@ export const MenuPopup = React.forwardRef(function MenuPopup(
     closeDelay,
   });
 
-  const setPopupElement = store.useStateSetter('popupElement');
-
   const state: MenuPopupState = {
     transitionStatus,
     side,
@@ -99,7 +106,13 @@ export const MenuPopup = React.forwardRef(function MenuPopup(
     props: [
       popupProps,
       {
+        id,
+        // When Menu.List is mounted it owns the menu semantics; exposing the same role here
+        // would create nested menus in the accessibility tree.
+        role: listElement ? 'presentation' : 'menu',
+        'aria-labelledby': activeTriggerId ?? undefined,
         onKeyDown(event) {
+          submenuRootContext?.onPopupKeyDown(event);
           if (insideToolbar && COMPOSITE_KEYS.has(event.key)) {
             event.stopPropagation();
           }
@@ -119,14 +132,16 @@ export const MenuPopup = React.forwardRef(function MenuPopup(
     returnFocus = true;
   }
 
+  const resolvedReturnFocus = submenuRootContext?.getReturnElement ?? returnFocus;
+
   return (
     <FloatingFocusManager
       context={floatingContext}
       openInteractionType={openMethod}
       modal={isContextMenu}
       disabled={!mounted}
-      returnFocus={finalFocus === undefined ? returnFocus : finalFocus}
-      initialFocus={parent.type !== 'menu'}
+      returnFocus={finalFocus === undefined ? resolvedReturnFocus : finalFocus}
+      initialFocus={shouldFocusPopup}
       restoreFocus
       externalTree={parent.type !== 'menubar' ? floatingTreeRoot : undefined}
       previousFocusableElement={activeTriggerElement as HTMLElement | null}
@@ -139,6 +154,31 @@ export const MenuPopup = React.forwardRef(function MenuPopup(
     >
       {element}
     </FloatingFocusManager>
+  );
+});
+
+/**
+ * A container for the menu items.
+ * Renders a `<div>` element.
+ *
+ * Documentation: [Base UI Menu](https://base-ui.com/react/components/menu)
+ */
+export const MenuPopup = React.forwardRef(function MenuPopup(
+  componentProps: MenuPopup.Props,
+  forwardedRef: React.ForwardedRef<HTMLDivElement>,
+) {
+  const { id: idProp } = componentProps;
+  const { store, floatingId } = useMenuRootContext();
+  const filterIntegration = store.select('filterIntegration');
+  const id = idProp ?? floatingId;
+  const menuPopup = <MenuPopupImpl {...componentProps} id={id} ref={forwardedRef} />;
+
+  return filterIntegration ? (
+    // The filter wrapper composes onto MenuPopupImpl so its implementation
+    // overrides MenuPopupImpl's implementation.
+    <filterIntegration.Popup id={id} render={menuPopup} />
+  ) : (
+    menuPopup
   );
 });
 

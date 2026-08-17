@@ -108,6 +108,7 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
 
   const contextMenu = parent.type === 'context-menu';
 
+  const filterable = store.select('filterable');
   const positioner = useAnchorPositioning({
     anchor,
     floatingRootContext,
@@ -133,6 +134,8 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
       : undefined,
     externalTree: floatingTreeRoot,
     adaptiveOrigin,
+    // Filtering resizes the popup as the user types; latch the side so it doesn't flip mid-query.
+    lazyFlip: filterable,
   });
 
   React.useEffect(() => {

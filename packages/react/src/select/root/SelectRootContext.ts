@@ -1,7 +1,8 @@
 'use client';
 import * as React from 'react';
+import { useStore } from '@base-ui/utils/store';
 import { type FloatingRootContext } from '../../floating-ui-react';
-import type { SelectStore } from '../store';
+import { selectors, type SelectStore } from '../store';
 import type { UseFieldValidationReturnValue } from '../../field/root/useFieldValidation';
 import type { HTMLProps } from '../../internals/types';
 import type { SelectRoot } from './SelectRoot';
@@ -17,14 +18,16 @@ export interface SelectRootContext {
   setValue: (nextValue: any, eventDetails: SelectRoot.ChangeEventDetails) => void;
   setOpen: (open: boolean, eventDetails: SelectRoot.ChangeEventDetails) => void;
   listRef: React.RefObject<Array<HTMLElement | null>>;
+  valuesRef: React.RefObject<Array<any>>;
+  labelsRef: React.RefObject<Array<string | null>>;
+  selectedItemTextRef: React.RefObject<HTMLElement | null>;
+  filterInputRef: React.RefObject<HTMLInputElement | null>;
   popupRef: React.RefObject<HTMLDivElement | null>;
   scrollHandlerRef: React.RefObject<((el: HTMLDivElement) => void) | null>;
   handleScrollArrowVisibility: (scroller: HTMLElement) => void;
   scrollArrowsMountedCountRef: React.RefObject<number>;
   itemProps: HTMLProps;
   valueRef: React.RefObject<HTMLSpanElement | null>;
-  valuesRef: React.RefObject<Array<any>>;
-  labelsRef: React.RefObject<Array<string | null>>;
   typingRef: React.RefObject<boolean>;
   selectionRef: React.RefObject<{
     allowUnselectedMouseUp: boolean;
@@ -32,7 +35,6 @@ export interface SelectRootContext {
     dragY: number;
   }>;
   firstItemTextRef: React.RefObject<HTMLElement | null>;
-  selectedItemTextRef: React.RefObject<HTMLElement | null>;
   validation: UseFieldValidationReturnValue;
   onOpenChangeComplete?: ((open: boolean) => void) | undefined;
   alignItemWithTriggerActiveRef: React.RefObject<boolean>;
@@ -48,5 +50,19 @@ export function useSelectRootContext() {
       'Base UI: SelectRootContext is missing. Select parts must be placed within <Select.Root>.',
     );
   }
+  return context;
+}
+
+export function useSelectFilterableRootContext(partName: string) {
+  const context = useSelectRootContext();
+  const filterable = useStore(context.store, selectors.filterable);
+
+  if (!filterable) {
+    throw new Error(
+      `Base UI: <FilterSelect.${partName}> must be placed within <FilterSelect.Root>, ` +
+        'imported from `@base-ui/react/filter-select`. An ordinary <Select.Root> cannot filter.',
+    );
+  }
+
   return context;
 }

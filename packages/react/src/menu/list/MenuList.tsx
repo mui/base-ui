@@ -1,0 +1,68 @@
+'use client';
+import * as React from 'react';
+import type { BaseUIComponentProps } from '../../internals/types';
+import { useRenderElement } from '../../internals/useRenderElement';
+import { useMenuRootContext } from '../root/MenuRootContext';
+
+const MENU_LIST_ROLE = 'menu';
+
+const MenuListImpl = React.forwardRef(function MenuListImpl(
+  componentProps: MenuList.Props,
+  forwardedRef: React.ForwardedRef<HTMLDivElement>,
+) {
+  const { render, className, style, ...elementProps } = componentProps;
+  const { store } = useMenuRootContext();
+  const setListElement = store.useStateSetter('listElement');
+  const filterable = store.select('filterable');
+  const listNavigationProps = store.useState('listProps');
+  const listRole = elementProps.role ?? MENU_LIST_ROLE;
+
+  const element = useRenderElement('div', componentProps, {
+    ref: [forwardedRef, setListElement],
+    props: [
+      filterable ? listNavigationProps : undefined,
+      {
+        role: listRole,
+        onFocus(event) {
+          if (event.target === event.currentTarget) {
+            store.set('inputFocusVisible', false);
+          }
+        },
+      },
+      elementProps,
+    ],
+  });
+
+  return element;
+});
+
+/**
+ * A container for the menu items.
+ * Renders a `<div>` element.
+ *
+ * Documentation: [Base UI Menu](https://base-ui.com/react/components/menu)
+ */
+export const MenuList = React.forwardRef(function MenuList(
+  componentProps: MenuList.Props,
+  forwardedRef: React.ForwardedRef<HTMLDivElement>,
+) {
+  const { store } = useMenuRootContext();
+  const filterIntegration = store.select('filterIntegration');
+  const menuList = <MenuListImpl {...componentProps} ref={forwardedRef} />;
+
+  return filterIntegration ? (
+    // The filter wrapper composes onto MenuListImpl so its implementation
+    // overrides MenuListImpl's implementation.
+    <filterIntegration.List id={componentProps.id} role={MENU_LIST_ROLE} render={menuList} />
+  ) : (
+    menuList
+  );
+});
+
+export interface MenuListState {}
+export interface MenuListProps extends BaseUIComponentProps<'div', MenuListState> {}
+
+export namespace MenuList {
+  export type State = MenuListState;
+  export type Props = MenuListProps;
+}
