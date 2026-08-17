@@ -8,8 +8,12 @@ import { DragPreviewContext } from '../../utils/drag-and-drop/overlay/DragPrevie
 import { PreviewOverlayRenderer } from '../../utils/drag-and-drop/overlay/PreviewOverlayRenderer';
 
 /**
- * The React tree the drag previews of the sources inside it render in, so their
- * content reaches the context around it. Renders no element of its own.
+ * The React tree custom drag previews render in. Preview content receives context
+ * from providers above this component, but not from providers nested between it
+ * and an individual draggable. Place it inside every local context boundary the
+ * preview needs. Renders no element of its own.
+ *
+ * This provider is optional for the default cloned preview.
  *
  * Documentation: [Base UI Draggable](https://base-ui.com/react/components/draggable)
  */
@@ -42,7 +46,7 @@ export interface DraggablePreviewProviderState {}
 
 export interface DraggablePreviewProviderProps {
   /**
-   * The part of your app whose drag previews render in this provider.
+   * The part of your app whose custom drag previews render in this provider.
    */
   children?: React.ReactNode | undefined;
   /**

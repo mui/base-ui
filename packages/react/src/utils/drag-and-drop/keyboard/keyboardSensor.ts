@@ -389,7 +389,7 @@ function resolveImperativePickup(element: HTMLElement): {
       'draggable, and is not inside one, so there is nothing to pick up. ' +
       'Pass the element you rendered `Draggable.Root` on (or registered with ' +
       '`registerDraggable`), and make sure it is mounted when you call this. ' +
-      'See https://base-ui.com/react/utils/use-drag-engine.',
+      'See https://base-ui.com/react/utils/use-drag-drop-manager.',
   );
 }
 

@@ -451,6 +451,12 @@ export type DraggableConfig<TData = undefined> = {
    */
   getPayload?: DraggablePayloadGetter<TData> | undefined;
   /**
+   * Stable identity used to reconnect a settling cloned preview to this source
+   * after it remounts. Use the same key for the same logical item across the move.
+   * Static payload identity is used as a fallback when it is referentially stable.
+   */
+  previewKey?: string | number | undefined;
+  /**
    * Human-readable name of this draggable, used by the default screen-reader
    * announcements for keyboard drags. Defaults to a generic "item".
    * For full control over the announcement text, use `keyboardAnnouncements` instead.

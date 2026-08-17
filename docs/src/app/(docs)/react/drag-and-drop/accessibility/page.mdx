@@ -38,7 +38,7 @@ Give every draggable item an ordinary control that achieves the same result: a "
 
 The drag is then a shortcut rather than the only route.
 
-The same menu can host the keyboard drag itself. `useDragEngine().startKeyboardDrag(element)` picks an item up without a key press, so a "Reorder" entry starts the drag from wherever the item's other actions already live — which is how an item keeps <kbd>Space</kbd> for its menu ([`keyboardActivation="manual"`](/react/components/draggable#moving-the-pickup-elsewhere)).
+The same menu can host the keyboard drag itself. `useDragDropManager().startKeyboardDrag(element)` picks an item up without a key press, so a "Reorder" entry starts the drag from wherever the item's other actions already live — which is how an item keeps <kbd>Space</kbd> for its menu ([`keyboardActivation="manual"`](/react/components/draggable#moving-the-pickup-elsewhere)).
 
 ## Name the source and the destination
 
@@ -66,7 +66,7 @@ A `Draggable.Handle` renders a button. With direct icon-only children and a labe
 - **Override the role when the element already has one.** A `listitem`, `row` or `option` should keep its semantics; pass your own `role` and the engine leaves it alone.
 - **Prefer a handle when the source contains interactive children.** A button may not contain another button or a link, so a card with a menu inside it needs a `Draggable.Handle` rather than a draggable root.
 
-[`registerDraggable`](/react/utils/use-drag-engine) does not manage `tabIndex`, so make those elements focusable yourself.
+[`registerDraggable`](/react/utils/use-drag-drop-manager) does not manage `tabIndex`, so make those elements focusable yourself.
 
 ## What gets announced, and when
 
@@ -127,13 +127,13 @@ The defaults are English. Provide translated strings once through [`Localization
 </LocalizationProvider>
 ```
 
-The locale is read where the drag is registered, so the provider has to sit above your draggables, and above the component calling [`useDragEngine`](/react/utils/use-drag-engine#when-each-parameter-is-read) for imperative registrations.
+The locale is read where the drag is registered, so the provider has to sit above your draggables, and above the component calling [`useDragDropManager`](/react/utils/use-drag-drop-manager#when-each-parameter-is-read) for imperative registrations.
 
 ## When the element already owns its keys
 
 Some elements already own the keys a drag would take: a card that opens a menu on <kbd>Space</kbd>, a listbox option where Space selects, a grid column header the grid reorders with the arrows. There, the engine and your handler would fight over the same press. `keyboardActivation` decides who wins:
 
-- `'manual'` takes only the pickup key away from the engine. The element stays focusable and announced as draggable, and you start the drag from your own UI with [`useDragEngine().startKeyboardDrag(element)`](/react/utils/use-drag-engine) — a "Reorder" item in that menu, say. Prefer this: the keyboard path survives.
+- `'manual'` takes only the pickup key away from the engine. The element stays focusable and announced as draggable, and you start the drag from your own UI with [`useDragDropManager().startKeyboardDrag(element)`](/react/utils/use-drag-drop-manager) — a "Reorder" item in that menu, say. Prefer this: the keyboard path survives.
 - `'off'` takes the whole keyboard away. The hints go too, since they would otherwise promise a path that doesn't exist. Only use it when the element already offers an equivalent keyboard route to the same outcome, or when it is `aria-hidden` decoration beside a control that does.
 
 ## Check it

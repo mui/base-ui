@@ -761,7 +761,7 @@ export type DragKeyboardMovement<TSourceData = unknown> = (
  * How a keyboard drag is started on a draggable.
  *
  * - `'auto'`: Space or Enter picks the element up while it is focused.
- * - `'manual'`: Only `useDragEngine().startKeyboardDrag()` picks it up, so the element
+ * - `'manual'`: Only `useDragDropManager().startKeyboardDrag()` picks it up, so the element
  *   keeps its own Space and Enter. It stays focusable and announced as draggable.
  * - `'off'`: The element is never keyboard-draggable. The keyboard a11y attributes are
  *   omitted too, so screen readers don't announce a gesture that doesn't exist.

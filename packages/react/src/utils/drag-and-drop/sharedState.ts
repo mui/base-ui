@@ -6,7 +6,10 @@
  * the slot, so other copies' references remain valid.
  */
 
-const ROOT_KEY = Symbol.for('@base-ui/react/drag-and-drop');
+// The global symbol is the cross-bundle protocol boundary. Bump the suffix when
+// a release changes the slot contracts so incompatible Base UI copies never cast
+// the same unchecked objects to different internal shapes.
+const ROOT_KEY = Symbol.for('@base-ui/react/drag-and-drop/v1');
 
 interface Root {
   slots: Map<string, unknown>;

@@ -184,7 +184,7 @@ export function createPreviewAndStartSession(
     const previewSettings = resolveDragPreview(draggableParameters, element);
     preview = createSyntheticPreview(element, mode, {
       kind: draggableParameters.kind.id,
-      label: draggableParameters.label,
+      previewKey: draggableParameters.previewKey,
       payload: draggableParameters.payload,
     });
     preview.setModifiers(compileDragModifiers(previewSettings.modifiers));

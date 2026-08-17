@@ -2,7 +2,9 @@
   "private": true,
   "description": "Bundle size measurement workspace for MUI packages",
   "scripts": {
-    "check": "cross-env NODE_OPTIONS=\"--max-old-space-size=4096\" bundle-size-checker --output ../size-snapshot.json"
+    "check": "pnpm snapshot && pnpm check:drag-and-drop-budgets",
+    "snapshot": "cross-env NODE_OPTIONS=\"--max-old-space-size=4096\" bundle-size-checker --output ../size-snapshot.json",
+    "check:drag-and-drop-budgets": "node ./checkDragAndDropBudgets.mjs ../size-snapshot.json"
   },
   "dependencies": {
     "@base-ui/react": "workspace:*",

@@ -317,7 +317,11 @@ describe('syntheticPreview', () => {
         frames.push(callback);
         return frames.length;
       });
-      const identity = { kind: Symbol.for('card'), label: 'Write tests', payload: { id: 'a' } };
+      const identity = {
+        kind: Symbol.for('card'),
+        previewKey: 'card-a',
+        payload: { id: 'a' },
+      };
       const source = createSource();
       const handle = createSyntheticPreview(source, 'pointer', identity);
       activeHandles.push(handle);
@@ -344,10 +348,10 @@ describe('syntheticPreview', () => {
       const destination = createSource();
       destination.getBoundingClientRect = () => new DOMRect(240, 160, 120, 30);
       // Kanban payload objects are recreated as the card mounts in its new column,
-      // so kind + accessible label supplies the stable identity in that case.
+      // so the explicit preview key supplies the stable identity in that case.
       retargetEndingPreviewSource(destination, {
         kind: identity.kind,
-        label: identity.label,
+        previewKey: identity.previewKey,
         payload: { id: 'a' },
       });
 
@@ -364,6 +368,43 @@ describe('syntheticPreview', () => {
       expect(preview.destroyed).toBe(true);
       expect(destination).not.toHaveAttribute('data-dragging');
       expect(destination).not.toHaveAttribute('data-ending-style');
+    });
+
+    it('does not retarget a settling source without an unambiguous identity', () => {
+      const frames: FrameRequestCallback[] = [];
+      vi.spyOn(window, 'requestAnimationFrame').mockImplementation((callback) => {
+        frames.push(callback);
+        return frames.length;
+      });
+      const kind = Symbol.for('untitled-card');
+      const source = createSource();
+      const handle = createSyntheticPreview(source, 'pointer', {
+        kind,
+        previewKey: undefined,
+        payload: undefined,
+      });
+      activeHandles.push(handle);
+      const preview = createPreviewElement(120, 30, false);
+      document.body.appendChild(preview.element);
+      preview.element.getAnimations = () => [];
+
+      handle.setPreviewElement(preview);
+      handle.markSourceDragging();
+      handle.prepareForDrop();
+      handle.destroy();
+      source.remove();
+
+      const destination = createSource();
+      retargetEndingPreviewSource(destination, {
+        kind,
+        previewKey: undefined,
+        payload: undefined,
+      });
+
+      expect(destination).not.toHaveAttribute('data-dragging');
+      expect(destination).not.toHaveAttribute('data-ending-style');
+      frames.shift()!(0);
+      expect(preview.destroyed).toBe(true);
     });
 
     it('destroys a settling clone before paint when no drop transition is authored', () => {

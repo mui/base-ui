@@ -72,7 +72,7 @@ Every handler receives the event payload first and an `eventDetails` second, car
 
 Monitors do not receive `onDragEnter` or `onDragLeave` — those are drop-target events. `onDragEnd` is the single "drag ended" signal for an observer, and `onDrop` the "and it committed somewhere" one.
 
-To reflect what's being dragged without wiring event handlers, [`Draggable.useActiveDrag`](/react/components/draggable#useactivedrag) is the read-only counterpart: it returns the active source and re-renders only when a drag starts or ends. To observe drags from outside React — an effect or a non-React widget — [`useDragEngine`](/react/utils/use-drag-engine#monitor-drags)'s `registerMonitor` is the imperative equivalent.
+To reflect what's being dragged without wiring event handlers, [`Draggable.useActiveDrag`](/react/components/draggable#useactivedrag) is the read-only counterpart: it returns the active source and re-renders only when a drag starts or ends. To observe drags from outside React — an effect or a non-React widget — [`useDragDropManager`](/react/utils/use-drag-drop-manager#monitor-drags)'s `registerMonitor` is the imperative equivalent.
 
 ## API reference
 

@@ -173,6 +173,14 @@ if (slot.matches(untypedRecord)) {
 // engine can never emit `undefined` where a `SlotData` was promised.
 <DropTarget.Root<CardPayload, SlotData> accept={card} />;
 
+declare const maybeSlotData: SlotData | undefined;
+// @ts-expect-error a required target payload cannot be explicitly undefined.
+<DropTarget.Root<CardPayload, SlotData> accept={card} payload={undefined} />;
+// @ts-expect-error a possibly undefined target payload cannot satisfy a required payload.
+<DropTarget.Root<CardPayload, SlotData> accept={card} payload={maybeSlotData} />;
+// @ts-expect-error a required target payload getter cannot be explicitly undefined.
+<DropTarget.Root<CardPayload, SlotData> accept={card} getPayload={undefined} />;
+
 // @ts-expect-error the payload must match the explicit type argument.
 <DropTarget.Root<CardPayload, SlotData> accept={card} payload={{ index: 'first' }} />;
 
@@ -255,7 +263,7 @@ const slotNoAcceptProps: SlotProps = { payload: { index: 0 } };
 // A wrapper forwarding these props satisfies the component's overloads, and the kinds
 // it declared reach the caller's handlers.
 function Slot(props: SlotProps) {
-  return <DropTarget.Root {...props} />;
+  return <DropTarget.Root<CardPayload, SlotData> {...props} />;
 }
 <Slot
   accept={card}

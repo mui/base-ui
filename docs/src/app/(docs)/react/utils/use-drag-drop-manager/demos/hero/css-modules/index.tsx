@@ -2,14 +2,14 @@
 import * as React from 'react';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { Draggable } from '@base-ui/react/draggable';
-import { useDragEngine } from '@base-ui/react/use-drag-engine';
+import { useDragDropManager } from '@base-ui/react/use-drag-drop-manager';
 import styles from '../../hero.module.css';
 
 type ShapeId = 'circle' | 'square' | 'triangle';
 
-const circleKind = Draggable.createKind<ShapeId>('use-drag-engine/shape-circle');
-const squareKind = Draggable.createKind<ShapeId>('use-drag-engine/shape-square');
-const triangleKind = Draggable.createKind<ShapeId>('use-drag-engine/shape-triangle');
+const circleKind = Draggable.createKind<ShapeId>('use-drag-drop-manager/shape-circle');
+const squareKind = Draggable.createKind<ShapeId>('use-drag-drop-manager/shape-square');
+const triangleKind = Draggable.createKind<ShapeId>('use-drag-drop-manager/shape-triangle');
 
 const SHAPES = [
   { id: 'circle', label: 'Circle', kind: circleKind },
@@ -41,7 +41,7 @@ function ShapePiece({
 }
 
 export default function EngineShapeSorter() {
-  const engine = useDragEngine();
+  const manager = useDragDropManager();
   const [placed, setPlaced] = React.useState<ShapeId[]>([]);
   const [activeShape, setActiveShape] = React.useState<ShapeId | null>(null);
   const [overShape, setOverShape] = React.useState<ShapeId | null>(null);
@@ -58,7 +58,7 @@ export default function EngineShapeSorter() {
     pieceElements.current.forEach((element, shapeId) => {
       const shape = SHAPES.find((item) => item.id === shapeId)!;
       cleanups.push(
-        engine.registerDraggable(element, () => ({
+        manager.registerDraggable(element, () => ({
           kind: shape.kind,
           label: shape.label,
           payload: shape.id,
@@ -69,7 +69,7 @@ export default function EngineShapeSorter() {
     targetElements.current.forEach((element, shapeId) => {
       const shape = SHAPES.find((item) => item.id === shapeId)!;
       cleanups.push(
-        engine.registerDropTarget(element, () => ({
+        manager.registerDropTarget(element, () => ({
           accept: shape.kind,
           label: `${shape.label} cutout`,
           onDragEnter: () => setOverShape(shape.id),
@@ -80,10 +80,10 @@ export default function EngineShapeSorter() {
     });
 
     return () => cleanups.forEach((cleanup) => cleanup());
-  }, [engine, placeShape, placed]);
+  }, [manager, placeShape, placed]);
 
   React.useEffect(() => {
-    return engine.registerMonitor(() => ({
+    return manager.registerMonitor(() => ({
       accept: SHAPE_KINDS,
       onDragStart: ({ source }) => setActiveShape(source.payload),
       onDragEnd: () => {
@@ -91,7 +91,7 @@ export default function EngineShapeSorter() {
         setOverShape(null);
       },
     }));
-  }, [engine]);
+  }, [manager]);
 
   const pieceRef = (shape: ShapeId): React.RefCallback<HTMLDivElement> => {
     return (element) => {

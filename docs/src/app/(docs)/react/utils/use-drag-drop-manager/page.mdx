@@ -1,33 +1,35 @@
-# useDragEngine
+# useDragDropManager
 
-<Subtitle>Imperative drag engine API for wiring drags outside the components.</Subtitle>
+<Subtitle>Page-global imperative API for wiring drags outside the components.</Subtitle>
 <Meta
   name="description"
-  content="A React hook that returns the drag engine's imperative API for registering draggables, drop targets, auto-scrollers, and monitors, and canceling a drag."
+  content="A React hook that returns the page-global manager for registering draggables, drop targets, auto-scrollers, and monitors, and canceling a drag."
 />
 
 import { DemoEngineShapeSorter } from './demos/hero';
 
 <DemoEngineShapeSorter />
 
-The `useDragEngine` hook returns the drag engine's imperative API: the four registration methods — `registerDraggable`, `registerDropTarget`, `registerAutoScroller`, and `registerMonitor` — plus `startKeyboardDrag` and `cancelDrag`. The registration methods are the same primitives that [`Draggable.Root`](/react/components/draggable), [`DropTarget.Root`](/react/components/drop-target), [`DragAutoScroll.Root`](/react/components/drag-auto-scroll), and [`useDragMonitor`](/react/utils/use-drag-monitor) are built on.
+The `useDragDropManager` hook returns the page-global imperative API: the four registration methods — `registerDraggable`, `registerDropTarget`, `registerAutoScroller`, and `registerMonitor` — plus `startKeyboardDrag` and `cancelDrag`. The registration methods are the same primitives that [`Draggable.Root`](/react/components/draggable), [`DropTarget.Root`](/react/components/drop-target), [`DragAutoScroll.Root`](/react/components/drag-auto-scroll), and [`useDragMonitor`](/react/utils/use-drag-monitor) are built on.
 
-Use it to register an element you already hold: bridging a non-React widget, wiring a drag from an effect, or centralizing every registration in one parent. The shape sorter above registers its pieces, cutouts, and monitor through a single engine. None of them renders a `Draggable.Root`, a `DropTarget.Root`, or a `useDragMonitor` hook.
+Every call controls the same manager. Calling the hook in two boards does not isolate them, and `cancelDrag()` ends whichever drag is active on the page. Use distinct kinds and target `accept` declarations to keep independent features from interacting.
 
-The hook returns the engine once; call it at the top of your component:
+Use it to register an element you already hold: bridging a non-React widget, wiring a drag from an effect, or centralizing every registration in one parent. The shape sorter above registers its pieces, cutouts, and monitor through a single manager. None of them renders a `Draggable.Root`, a `DropTarget.Root`, or a `useDragMonitor` hook.
 
-```tsx title="Get the engine"
-import { useDragEngine } from '@base-ui/react/use-drag-engine';
+Call the hook at the top of your component:
 
-const engine = useDragEngine();
+```tsx title="Get the manager"
+import { useDragDropManager } from '@base-ui/react/use-drag-drop-manager';
+
+const manager = useDragDropManager();
 ```
 
 `registerDraggable`, `registerDropTarget`, and `registerAutoScroller` take the target element and a getter for its parameters; `registerMonitor` takes only a getter, since a monitor observes every drag rather than an element. All four return a cleanup that unregisters. Register from an effect and return the cleanup:
 
 ```tsx title="Register from an effect"
 React.useEffect(() => {
-  return engine.registerDraggable(element, () => ({ kind: card, payload: id }));
-}, [engine, id]);
+  return manager.registerDraggable(element, () => ({ kind: card, payload: id }));
+}, [manager, id]);
 ```
 
 The methods are reference-stable, so they are safe to list as effect dependencies.
@@ -42,14 +44,14 @@ The getter is re-read as the engine needs each value, which is not the same mome
 
 Monitor eligibility is latched too: `accept` is evaluated once, when the drag starts. A monitor whose `accept` excludes a drag stays out of it for its whole duration, and one registered mid-drag is matched against the drag already in progress.
 
-Both React-context inputs — the locale used for the default announcements and the nearest `Draggable.PreviewProvider` — are read where `useDragEngine` is _called_, not where the registered elements render. Put those providers above the component that calls the hook.
+Both React-context inputs — the locale used for the default announcements and the nearest `Draggable.PreviewProvider` — are read where `useDragDropManager` is _called_, not where the registered elements render. Put those providers above the component that calls the hook.
 
 ## Draggables
 
 Register a drag source with `registerDraggable`. Its parameters are the props of [`Draggable.Root`](/react/components/draggable) without the element — `kind`, `payload` or `getPayload`, `pointerActivation`, `label`, `disabled`, the drag event callbacks — plus two imperative-only fields the component expresses as parts: `dragHandle` (an element, ref, or resolver restricting pickup to a handle, like `Draggable.Handle`) and `dragPreview` (below). Unlike `Draggable.Root`, registration does not manage `tabIndex`: make the element focusable yourself when keyboard dragging should work.
 
 ```tsx title="Register a drag source"
-engine.registerDraggable(element, () => ({ kind: card, payload: id }));
+manager.registerDraggable(element, () => ({ kind: card, payload: id }));
 ```
 
 ### Drag preview
@@ -59,7 +61,7 @@ With no `Draggable.Preview` to nest, describe the preview on the registration wi
 `offset`, `modifiers`, `disabled`, and `container` work as they do on the [preview parts](/react/components/draggable#drag-previews). Instead of children, pass a `render` function for the content. It resolves once at drag start and receives the drag `source`:
 
 ```tsx title="A custom preview for a registered source"
-engine.registerDraggable(element, () => ({
+manager.registerDraggable(element, () => ({
   kind: card,
   label,
   payload: id,
@@ -79,7 +81,7 @@ Register a drop target with `registerDropTarget`. Its parameters are the props o
 Unlike on `DropTarget.Root`, only the payload `accept` promises is inferred here: these parameters reach the engine through a getter, which TypeScript stops inferring the target's own `payload` type from once `accept` is present. Name both type arguments — `registerDropTarget<typeof card, SlotData>` — when a target attaches a payload of its own and reads it back as `self.payload`.
 
 ```tsx title="Register a drop target"
-engine.registerDropTarget(element, () => ({
+manager.registerDropTarget(element, () => ({
   accept: card,
   onDrop: ({ source }) => moveCard(source.payload),
 }));
@@ -90,13 +92,13 @@ engine.registerDropTarget(element, () => ({
 Scroll containers auto-scroll during a drag on their own, including the page, so `registerAutoScroller` is not what turns that on — it changes what one element does. It takes the same parameters as [`DragAutoScroll.Root`](/react/components/drag-auto-scroll): `allowedAxis` to restrict the scroll to one axis, `canScroll` to suspend it, `maxSpeed` to tune how fast it goes, and `applyScroll` to move the surface yourself. That last one is often reached for here rather than through the component: a canvas whose camera is a CSS `transform` is never found by the engine — it has no scroll offsets to detect — and is usually rendered by code that already holds a ref to its viewport.
 
 ```tsx title="A surface that pans itself"
-engine.registerAutoScroller(canvasViewport, () => ({ applyScroll: panBy }));
+manager.registerAutoScroller(canvasViewport, () => ({ applyScroll: panBy }));
 ```
 
 Register `document.documentElement` to customize or disable page auto-scroll.
 
 ```tsx title="A page that never scrolls itself"
-engine.registerAutoScroller(document.documentElement, () => ({ canScroll: () => false }));
+manager.registerAutoScroller(document.documentElement, () => ({ canScroll: () => false }));
 ```
 
 A container that mounts later — one behind data loading, or owned by a third-party widget — needs no advance registration: it is inferred as soon as a drag reaches it. Register it only to change what it does, once you hold the element.
@@ -107,8 +109,8 @@ React.useEffect(() => {
   if (!scrollElement) {
     return undefined;
   }
-  return engine.registerAutoScroller(scrollElement, () => ({ allowedAxis: 'vertical' }));
-}, [engine, gridApi]);
+  return manager.registerAutoScroller(scrollElement, () => ({ allowedAxis: 'vertical' }));
+}, [manager, gridApi]);
 ```
 
 ## Monitor drags
@@ -116,7 +118,7 @@ React.useEffect(() => {
 Observe every drag with `registerMonitor`, like [`useDragMonitor`](/react/utils/use-drag-monitor). It takes only a getter:
 
 ```tsx title="Register a monitor"
-engine.registerMonitor(() => ({
+manager.registerMonitor(() => ({
   accept: card,
   onDragStart: ({ source }) => setActiveId(source.payload),
   onDragEnd: () => setActiveId(null),
@@ -130,7 +132,7 @@ engine.registerMonitor(() => ({
 It exists so the pickup can live somewhere other than the element's own <kbd>Space</kbd> — the case [`keyboardActivation="manual"`](/react/components/draggable#moving-the-pickup-elsewhere) is for, where that key already opens a menu and a "Reorder" item there starts the drag instead.
 
 ```tsx title="Starting from a menu item"
-<Menu.Item onClick={() => engine.startKeyboardDrag(taskRef.current)}>Reorder</Menu.Item>
+<Menu.Item onClick={() => manager.startKeyboardDrag(taskRef.current)}>Reorder</Menu.Item>
 ```
 
 It returns `false` when a drag is already in progress, when the draggable is `disabled` or `keyboardActivation: 'off'`, or when `onBeforeDragStart` cancels. `null` or a detached element returns `false` too, so a pickup deferred to a menu's close callback needs no guard of its own — the source may have unmounted in between. Passing a mounted element that is not inside a registered draggable throws: that one is a wiring mistake rather than a state the UI can reach.
@@ -140,18 +142,18 @@ It returns `false` when a drag is already in progress, when the draggable is `di
 `cancelDrag` ends the drag in progress, firing `onDragEnd` with `canceled: true` and the reason `'imperative-action'`, and, for a keyboard drag, restoring focus and announcing the cancellation. It does nothing when no drag is active. Reach for it when app state invalidates the drag: a route change, a dialog opening over the board, the dragged record being deleted.
 
 ```tsx title="Cancelling programmatically"
-const engine = useDragEngine();
+const manager = useDragDropManager();
 
 React.useEffect(() => {
-  return router.subscribe(() => engine.cancelDrag());
-}, [engine]);
+  return router.subscribe(() => manager.cancelDrag());
+}, [manager]);
 ```
 
 ## API reference
 
-import { TypesUseDragEngine } from './types';
+import { TypesUseDragDropManager } from './types';
 
-<TypesUseDragEngine.useDragEngine />
+<TypesUseDragDropManager.useDragDropManager />
 
 export const metadata =
   /** @type {import('@mui/internal-docs-infra/createSitemap/types').NextMetadata} */ ({

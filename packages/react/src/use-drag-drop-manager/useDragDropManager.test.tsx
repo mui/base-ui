@@ -4,7 +4,7 @@ import { fireEvent, screen } from '@testing-library/react';
 import { act } from '@mui/internal-test-utils';
 import { createDndRenderer } from '#test-utils';
 import { Draggable } from '@base-ui/react/draggable';
-import { useDragEngine } from '@base-ui/react/use-drag-engine';
+import { useDragDropManager } from '@base-ui/react/use-drag-drop-manager';
 import { createElement, flushRaf, setupDragEngineTests } from '../../test/dnd';
 import { frFR } from '../locale-frFR';
 import { LocalizationProvider } from '../localization-provider';
@@ -13,7 +13,7 @@ setupDragEngineTests();
 
 const itemKind = Draggable.createKind('item');
 
-describe('useDragEngine', () => {
+describe('useDragDropManager', () => {
   const { renderDnd } = createDndRenderer();
 
   it('returns the same engine across rerenders, so registrations survive', async () => {
@@ -24,7 +24,7 @@ describe('useDragEngine', () => {
     let registrations = 0;
 
     function Harness({ label }: { label: string }) {
-      const engine = useDragEngine();
+      const engine = useDragDropManager();
       // Collected after commit, not during render: React 18's Strict Mode
       // double-render re-runs ref initializers and discards the first pass, so
       // a render-time push would record an instance that never mounted.
@@ -76,7 +76,7 @@ describe('useDragEngine', () => {
     const second = vi.fn();
 
     function Harness({ onDragStart }: { onDragStart: () => void }) {
-      const engine = useDragEngine();
+      const engine = useDragDropManager();
       const paramsRef = React.useRef({ kind: itemKind, onDragStart });
       // Keep the object identity stable: the imperative getter contract is
       // value-live, so internal React registration caching must not leak here.
@@ -112,7 +112,7 @@ describe('useDragEngine', () => {
     // Translations reach the engine through a ref, so a provider swap applies to
     // the next registration's static setup without a new engine.
     function Harness() {
-      const engine = useDragEngine();
+      const engine = useDragDropManager();
       const cleanupRef = React.useRef<(() => void) | null>(null);
       const ref = React.useCallback(
         (node: HTMLDivElement | null) => {
@@ -144,7 +144,7 @@ describe('useDragEngine', () => {
     const onDragStart = vi.fn();
 
     function Harness() {
-      const engine = useDragEngine();
+      const engine = useDragDropManager();
       React.useEffect(() => engine.registerMonitor(() => ({ onDragStart })), [engine]);
       return null;
     }

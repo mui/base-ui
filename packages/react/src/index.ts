@@ -45,7 +45,7 @@ export * from './toggle';
 export * from './toggle-group';
 export * from './toolbar';
 export * from './tooltip';
-export * from './use-drag-engine';
+export * from './use-drag-drop-manager';
 export * from './use-drag-monitor';
 export * from './use-render';
 

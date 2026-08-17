@@ -156,7 +156,7 @@ The `payload` on records read from `location.current.dropTargets` is typed `unkn
 - **`trackDragOver={false}` on rows that render no drag-over feedback.** Drag-over tracking re-renders a target as a drag enters and leaves it. Rows that exist only so a drop can be resolved on them don't need it, and their callbacks still fire. See [Track the drag-over state](/react/components/drop-target#track-the-drag-over-state).
 - **One monitor rather than a handler per row.** State shared across the collection, such as what is being dragged or where the indicator goes, belongs in a single [`useDragMonitor`](/react/utils/use-drag-monitor). [`Draggable.useActiveDrag`](/react/components/draggable#useactivedrag) is the read-only version, and re-renders only when a drag starts or ends.
 - **Keep modifiers cheap.** A [modifier](/react/components/draggable#movement-modifiers) runs on every frame of a pointer drag, so measuring the DOM inside one costs a layout per frame.
-- **Keep imperative getters current.** React component and hook props stay current across renders. For [`useDragEngine`](/react/utils/use-drag-engine), read changing values from refs or re-register from an effect with the appropriate dependencies.
+- **Keep imperative getters current.** React component and hook props stay current across renders. For [`useDragDropManager`](/react/utils/use-drag-drop-manager), read changing values from refs or re-register from an effect with the appropriate dependencies.
 - **Keep shared context values stable.** A context update re-renders every subscribed row, even through `React.memo`. Split frequently changing values from stable configuration and subscribe each row only to the state it needs.
 - **Hoist static parts.** If a preview declaration is identical for every row, define it once outside the row component.
 
@@ -166,7 +166,7 @@ The `payload` on records read from `location.current.dropTargets` is typed `unkn
 
 **An inner target swallows drops meant for its parent.** The innermost accepting target wins. Return `false` from the inner target's `canDrop`, or set `disabled`, to let the drag fall through.
 
-**A custom preview throws.** Preview content renders in React, so it needs a `Draggable.PreviewProvider` above it, and above the component calling `useDragEngine` for imperative registrations. A source with no preview part clones itself and needs no provider.
+**A custom preview throws.** Preview content renders in React, so it needs a `Draggable.PreviewProvider` above it, and above the component calling `useDragDropManager` for imperative registrations. A source with no preview part clones itself and needs no provider.
 
 **Auto-scroll does nothing.** The container must be scrollable on its own: a scrollable `overflow` plus a size that constrains its content, and something left to scroll on the axis the pointer is pushing toward. A surface with no scrollbar — a canvas moved by a `transform` — is never found by the engine and moves itself through [`applyScroll`](/react/components/drag-auto-scroll#drive-a-surface-that-has-no-scroll-container) instead. Auto-scroll also runs for pointer drags only.
 

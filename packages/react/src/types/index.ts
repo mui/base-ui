@@ -38,7 +38,7 @@ export type {
   WithRequiredPayload,
   WithInferredAccept,
   WithRequiredAccept,
-  DragEngine,
+  DragDropManager,
 } from './dragRegistration';
 
 export type {

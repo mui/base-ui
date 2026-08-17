@@ -182,19 +182,19 @@ html {
 
 That is also why a scroll lock holds during a drag: modal `Dialog` and `Popover` configurations that apply `overflow: hidden` prevent the page behind them from auto-scrolling.
 
-Use [`useDragEngine`](/react/utils/use-drag-engine) to customize page auto-scroll or a scroll container rendered by code you do not control.
+Use [`useDragDropManager`](/react/utils/use-drag-drop-manager) to customize page auto-scroll or a scroll container rendered by code you do not control.
 
 ```tsx title="A page that only ever scrolls down"
-import { useDragEngine } from '@base-ui/react/use-drag-engine';
+import { useDragDropManager } from '@base-ui/react/use-drag-drop-manager';
 
-const engine = useDragEngine();
+const manager = useDragDropManager();
 React.useEffect(
   () =>
-    engine.registerAutoScroller(document.documentElement, () => ({
+    manager.registerAutoScroller(document.documentElement, () => ({
       allowedAxis: 'vertical',
       maxSpeed: 1600,
     })),
-  [engine],
+  [manager],
 );
 ```
 

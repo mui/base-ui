@@ -225,7 +225,7 @@ export class DragEngineBase {
     const unregister = registerDraggableInRegistry(element, getNormalized);
     retargetEndingPreviewSource(element, {
       kind: initial.kind.id,
-      label: initial.label,
+      previewKey: initial.previewKey,
       payload: initial.payload,
     });
     const unbindSensors = bindDraggableSensors(element);
@@ -268,7 +268,7 @@ export function useRegisterDraggable(): DragEngineBase['registerDraggable'] {
 /**
  * The engine's imperative API, used internally by `Draggable.Root`,
  * `DropTarget.Root`, `DragAutoScroll.Root` and `useDragMonitor`, and publicly by
- * `useDragEngine`. The collection plugin builds its own {@link DragEngineImpl}
+ * `useDragDropManager`. The collection plugin builds its own {@link DragEngineImpl}
  * directly rather than calling this hook.
  *
  * The engine needs no provider: the registries, lifecycle and sensors live in a

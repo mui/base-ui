@@ -76,7 +76,7 @@
     "./tooltip": "./src/tooltip/index.ts",
     "./types": "./src/types/index.ts",
     "./unstable-use-media-query": "./src/unstable-use-media-query/index.ts",
-    "./use-drag-engine": "./src/use-drag-engine/index.ts",
+    "./use-drag-drop-manager": "./src/use-drag-drop-manager/index.ts",
     "./use-drag-monitor": "./src/use-drag-monitor/index.ts",
     "./use-render": "./src/use-render/index.ts",
     "./internals/composite": "./src/internals/composite/index.ts",

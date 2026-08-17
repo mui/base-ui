@@ -39,9 +39,9 @@ A `createKind` call has unique identity. Declare it once and share the resulting
 
 If independently evaluated bundles cannot share the same value, use `Draggable.createGlobalKind<Card>('myapp/card')`. Global keys are interned across bundles and hot reloads, so namespace them to your app or package. Reusing one key with incompatible payload types makes unrelated integrations match and bypasses TypeScript's payload safety; prefer `createKind` everywhere else.
 
-**One engine, no provider.** Registration is global: every source and target on the page joins the same engine, wherever they render. Nothing scopes a drag to a subtree — `accept` is what keeps each feature to its own drops, which is why every target has to declare one — `DropTarget.anyKind` is the explicit way to take everything. `Draggable.PreviewProvider` is not a drag scope; it supplies the React tree previews render in.
+**One manager, no provider.** Registration is global: every source and target on the page joins the same manager, wherever they render. Nothing scopes a drag to a subtree — `accept` is what keeps each feature to its own drops, which is why every target has to declare one — `DropTarget.anyKind` is the explicit way to take everything. `Draggable.PreviewProvider` is not a drag scope; it supplies the React tree custom previews render in.
 
-**The engine is synthetic.** It tracks pointer and keyboard input itself rather than using the browser's HTML5 drag-and-drop, so there is no `dataTransfer`, nothing crosses into other applications, and the preview is an ordinary element you style. An OS file drop is handled by [passing native handlers through `render`](/react/components/drop-target#anatomy).
+**Drag and drop is synthetic.** Base UI tracks pointer and keyboard input itself rather than using the browser's HTML5 drag-and-drop, so there is no `dataTransfer`, nothing crosses into other applications, and the preview is an ordinary element you style. An OS file drop is handled by [passing native handlers through `render`](/react/components/drop-target#anatomy).
 
 **Drop targets stack.** A drag can be over several nested targets at once. They arrive innermost-first in `location.current.dropTargets`, and only the innermost receives `onDrop`; ancestors see the drag pass through via `onDragEnter`, `onDrag` and `onDragLeave`. Returning `false` from `canDrop` pops a target off the stack so an ancestor can claim the drop; returning `'reject'` refuses the position outright, and no target resolves there at all.
 
@@ -51,7 +51,7 @@ If independently evaluated bundles cannot share the same value, use `Draggable.c
 
 ## Setup
 
-Wrap the part of your app that has drag and drop in a `Draggable.PreviewProvider`, inside your own providers. It renders no element of its own, so it can go as high as you like:
+You do not need a provider for the default cloned preview. When you render custom content with `Draggable.Preview`, wrap that part of your app in a `Draggable.PreviewProvider`. Put it inside the context providers the preview needs:
 
 ```tsx title="Setting up drag and drop"
 import { Draggable } from '@base-ui/react/draggable';
@@ -67,7 +67,7 @@ function App() {
 }
 ```
 
-The provider is the React tree your drag previews render in, which is what lets them read the same context, themes and stores as the rest of your app.
+Custom preview content renders beside the provider's children, so it receives context only from providers **above the nearest `Draggable.PreviewProvider`**. It does not inherit a theme, direction, or store provider placed between that preview provider and an individual draggable. Put another `Draggable.PreviewProvider` inside any local context boundary the preview must retain. The DOM container a preview is injected into does not change this React-context boundary.
 
 ## Examples
 

@@ -2,19 +2,19 @@ import {
   anyKind,
   createGlobalKind,
   createKind,
-  useDragEngine,
-} from '@base-ui/react/use-drag-engine';
+  useDragDropManager,
+} from '@base-ui/react/use-drag-drop-manager';
 import type {
   RegisterDraggableParameters,
   RegisterDropTargetParameters,
-} from '@base-ui/react/use-drag-engine';
+} from '@base-ui/react/use-drag-drop-manager';
 import { Draggable } from '@base-ui/react/draggable';
 import type { DragKind, DropTargetRecord } from '@base-ui/react/types';
 import { expectType } from '#test-utils';
 
 // Type-only file: nothing here runs, so the hook is never actually called —
 // `declare` gives us its return type without tripping the rules-of-hooks lint.
-declare const engine: ReturnType<typeof useDragEngine>;
+declare const engine: ReturnType<typeof useDragDropManager>;
 declare const element: HTMLElement;
 
 interface CardPayload {
@@ -57,6 +57,14 @@ engine.registerDraggable(element, () => ({
 
 // An explicit type argument is honoured instead of inferred.
 engine.registerDraggable<CardPayload>(element, () => ({ kind: card, payload: { id: 'a' } }));
+
+declare const maybeCardPayload: CardPayload | undefined;
+// @ts-expect-error a required static payload cannot be explicitly undefined.
+engine.registerDraggable<CardPayload>(element, () => ({ kind: card, payload: undefined }));
+// @ts-expect-error a possibly undefined static payload cannot satisfy a required payload.
+engine.registerDraggable<CardPayload>(element, () => ({ kind: card, payload: maybeCardPayload }));
+// @ts-expect-error a required payload getter cannot be explicitly undefined.
+engine.registerDraggable<CardPayload>(element, () => ({ kind: card, getPayload: undefined }));
 
 // @ts-expect-error the payload must match an explicit type argument.
 engine.registerDraggable<CardPayload>(element, () => ({ kind: card, payload: { id: 1 } }));
@@ -140,6 +148,23 @@ engine.registerDropTarget<typeof card, { slot: number }>(element, () => ({
 
 // @ts-expect-error a declared local-data type makes `payload` required.
 engine.registerDropTarget<typeof card, { slot: number }>(element, () => ({ accept: card }));
+
+declare const maybeSlotPayload: { slot: number } | undefined;
+// @ts-expect-error a required target payload cannot be explicitly undefined.
+engine.registerDropTarget<typeof card, { slot: number }>(element, () => ({
+  accept: card,
+  payload: undefined,
+}));
+// @ts-expect-error a possibly undefined target payload cannot satisfy a required payload.
+engine.registerDropTarget<typeof card, { slot: number }>(element, () => ({
+  accept: card,
+  payload: maybeSlotPayload,
+}));
+// @ts-expect-error a required target payload getter cannot be explicitly undefined.
+engine.registerDropTarget<typeof card, { slot: number }>(element, () => ({
+  accept: card,
+  getPayload: undefined,
+}));
 
 engine.registerDropTarget<typeof card, { slot: number }>(element, () => ({
   accept: card,

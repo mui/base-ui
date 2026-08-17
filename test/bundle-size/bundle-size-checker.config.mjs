@@ -57,12 +57,64 @@ async function getUtilsExports() {
   return entrypoints;
 }
 
+const dragAndDropLeafEntrypoints = [
+  {
+    id: 'drag-and-drop/leaf/Draggable.Root',
+    code: `import { Draggable } from '@base-ui/react/draggable'; console.log(Draggable.Root);`,
+    track: true,
+  },
+  {
+    id: 'drag-and-drop/leaf/Draggable.Handle',
+    code: `import { Draggable } from '@base-ui/react/draggable'; console.log(Draggable.Handle);`,
+    track: true,
+  },
+  {
+    id: 'drag-and-drop/leaf/Draggable.Preview',
+    code: `import { Draggable } from '@base-ui/react/draggable'; console.log(Draggable.Preview);`,
+    track: true,
+  },
+  {
+    id: 'drag-and-drop/leaf/Draggable.ClonedPreview',
+    code: `import { Draggable } from '@base-ui/react/draggable'; console.log(Draggable.ClonedPreview);`,
+    track: true,
+  },
+  {
+    id: 'drag-and-drop/leaf/Draggable.PreviewProvider',
+    code: `import { Draggable } from '@base-ui/react/draggable'; console.log(Draggable.PreviewProvider);`,
+    track: true,
+  },
+  {
+    id: 'drag-and-drop/leaf/DropTarget.Root',
+    code: `import { DropTarget } from '@base-ui/react/drop-target'; console.log(DropTarget.Root);`,
+    track: true,
+  },
+  {
+    id: 'drag-and-drop/leaf/DragAutoScroll.Root',
+    code: `import { DragAutoScroll } from '@base-ui/react/drag-auto-scroll'; console.log(DragAutoScroll.Root);`,
+    track: true,
+  },
+  {
+    id: 'drag-and-drop/leaf/useDragMonitor',
+    code: `import { useDragMonitor } from '@base-ui/react/use-drag-monitor'; console.log(useDragMonitor);`,
+    track: true,
+  },
+  {
+    id: 'drag-and-drop/leaf/useDragDropManager',
+    code: `import { useDragDropManager } from '@base-ui/react/use-drag-drop-manager'; console.log(useDragDropManager);`,
+    track: true,
+  },
+];
+
 /**
  * Generates the entrypoints configuration by scanning the exports field in package.json.
  */
 export default defineConfig(async () => {
   return {
-    entrypoints: [...(await getBaseUiExports()), ...(await getUtilsExports())],
+    entrypoints: [
+      ...(await getBaseUiExports()),
+      ...(await getUtilsExports()),
+      ...dragAndDropLeafEntrypoints,
+    ],
     upload: !!process.env.CI,
     comment: true,
   };

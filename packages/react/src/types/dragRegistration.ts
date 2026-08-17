@@ -9,24 +9,30 @@ import type {
   DragCleanupFn,
   DragHandle,
   DragKind,
+  DraggablePayload,
   DraggablePayloadGetter,
+  DropTargetPayload,
+  DropTargetPayloadGetter,
 } from './drag';
 
 /** Requires exactly one of a parameter type's `payload` and `getPayload` fields. */
-export type WithRequiredPayload<TParameters extends { payload?: unknown; getPayload?: unknown }> =
-  Omit<TParameters, 'payload' | 'getPayload'> &
-    (
-      | {
-          /** Static payload data. Function values are preserved without being invoked. */
-          payload: TParameters['payload'];
-          /** Resolves payload data from the current drag context. */
-          getPayload?: never | undefined;
-        }
-      | {
-          payload?: never | undefined;
-          getPayload: TParameters['getPayload'];
-        }
-    );
+export type WithRequiredPayload<
+  TParameters extends { payload?: unknown; getPayload?: unknown },
+  TPayload = Exclude<TParameters['payload'], undefined>,
+  TPayloadGetter = Exclude<TParameters['getPayload'], undefined>,
+> = Omit<TParameters, 'payload' | 'getPayload'> &
+  (
+    | {
+        /** Static payload data. Function values are preserved without being invoked. */
+        payload: TPayload;
+        /** Resolves payload data from the current drag context. */
+        getPayload?: never | undefined;
+      }
+    | {
+        payload?: never | undefined;
+        getPayload: TPayloadGetter;
+      }
+  );
 
 /** Allows at most one of a parameter type's `payload` and `getPayload` fields. */
 export type WithOptionalPayload<TParameters extends { payload?: unknown; getPayload?: unknown }> =
@@ -63,7 +69,9 @@ export type RegisterDraggableParameters<TData = undefined> = Omit<
  * @public
  */
 export type RegisterDraggableParametersWithPayload<TData> = WithRequiredPayload<
-  RegisterDraggableParameters<TData>
+  RegisterDraggableParameters<TData>,
+  DraggablePayload<TData>,
+  DraggablePayloadGetter<TData>
 >;
 
 /** Public drop-target parameters, whose `accept` declaration is required. */
@@ -78,20 +86,11 @@ export type RegisterDropTargetParameters<TSourceData = unknown, TLocalData = unk
  * Drop target registration parameters whose local payload is required.
  * @public
  */
-export type RegisterDropTargetParametersWithPayload<TSourceData, TLocalData> =
-  InternalRegisterDropTargetParameters<TSourceData, NoInfer<TLocalData>> &
-    (
-      | (Required<
-          Pick<InternalRegisterDropTargetParameters<TSourceData, TLocalData>, 'payload'>
-        > & {
-          getPayload?: never | undefined;
-        })
-      | (Required<
-          Pick<InternalRegisterDropTargetParameters<TSourceData, TLocalData>, 'getPayload'>
-        > & {
-          payload?: never | undefined;
-        })
-    );
+export type RegisterDropTargetParametersWithPayload<TSourceData, TLocalData> = WithRequiredPayload<
+  InternalRegisterDropTargetParameters<TSourceData, NoInfer<TLocalData>>,
+  DropTargetPayload<TSourceData, TLocalData>,
+  DropTargetPayloadGetter<TSourceData, TLocalData>
+>;
 
 /**
  * Preserves the accepted kinds while inferring callback payload types.
@@ -110,13 +109,13 @@ export type WithRequiredAccept<TParameters, TAccept extends AnyDragAccept> = TPa
 };
 
 /**
- * {@link DragEngine} with a single, payload-optional `registerDraggable` signature.
+ * {@link DragDropManager} with a single, payload-optional `registerDraggable` signature.
  * `Draggable.Root` enforces the payload requirement at its own boundary and then
  * forwards a uniform parameters object, so the overloads would only get in the way.
  * @internal
  */
 export interface InternalDragEngine extends Omit<
-  DragEngine,
+  DragDropManager,
   'registerDraggable' | 'registerDropTarget'
 > {
   registerDraggable: <TData = undefined>(
@@ -191,14 +190,14 @@ export type RegisterAutoScrollerParameters<TSourceData = unknown> =
 export type { RegisterMonitorParameters };
 
 /**
- * The drag engine's imperative API, returned by `useDragEngine`.
+ * The page-global drag-and-drop manager returned by `useDragDropManager`.
  *
  * Each `register*` method takes a parameter getter and returns a cleanup that
  * unregisters. Callbacks and dynamic options are read when used; source identity,
  * preview settings, monitor eligibility, and idle DOM attributes have the timing
  * documented by their registration methods.
  */
-export interface DragEngine {
+export interface DragDropManager {
   /**
    * Registers a drag source and returns a cleanup that unregisters it.
    *

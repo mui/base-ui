@@ -183,12 +183,12 @@ A drag survives its source element leaving the DOM. A windowed list can unmount 
 <DropTarget.Root accept={card} label="Done" onDrop={({ source }) => move(source.payload)} />
 ```
 
-Deleting the dragged item does not end the drag either. Call [`cancelDrag`](/react/utils/use-drag-engine#cancelling-a-drag) if you want it to stop:
+Deleting the dragged item does not end the drag either. Call [`cancelDrag`](/react/utils/use-drag-drop-manager#cancelling-a-drag) if you want it to stop:
 
 ```tsx title="Ending the drag with the item it was carrying"
 function deleteCard(id: string) {
   if (id === draggingId) {
-    engine.cancelDrag();
+    manager.cancelDrag();
   }
   setCards((prev) => prev.filter((card) => card.id !== id));
 }
@@ -252,7 +252,7 @@ A drag can be completed without a pointer, and it works automatically — `Dragg
 
 The widgets here are plain draggables and the dashboard slots plain drop targets, with no keyboard-specific code — the slots only carry a [`label`](#screen-reader-announcements) so the announcements can name them. Pressing <kbd>←</kbd> or <kbd>→</kbd> moves the focused widget to the empty slot because the engine finds the next accepting drop target by direction — the same behavior falls out of any draggable-and-drop-target setup, reorderable collections included.
 
-The source has to be focusable for any of this to work. `Draggable.Root` defaults `tabIndex={0}` and `role="button"` whenever keyboard dragging is enabled and no [`Draggable.Handle`](#drag-handle) is attached, since a handle renders its own focusable button. Pass your own `tabIndex` or `role` in props to override either — do override the role when the element already has a semantic one (`listitem`, `row`, …), and prefer a handle when the source contains interactive children, since a button may not contain other interactive elements. When using [`registerDraggable`](/react/utils/use-drag-engine), make the registered element focusable yourself.
+The source has to be focusable for any of this to work. `Draggable.Root` defaults `tabIndex={0}` and `role="button"` whenever keyboard dragging is enabled and no [`Draggable.Handle`](#drag-handle) is attached, since a handle renders its own focusable button. Pass your own `tabIndex` or `role` in props to override either — do override the role when the element already has a semantic one (`listitem`, `row`, …), and prefer a handle when the source contains interactive children, since a button may not contain other interactive elements. When using [`registerDraggable`](/react/utils/use-drag-drop-manager), make the registered element focusable yourself.
 
 The default `tabIndex` and `role` are added after mount, once the root knows whether it has a handle. Pass them explicitly when a server-rendered draggable must be keyboard-reachable before hydration.
 
@@ -338,11 +338,11 @@ When a keyboard drag ends, the default behavior tries its handle, its source, an
 event that opens a menu, a listbox option where Space selects, a card that expands. They can't both
 own the same press.
 
-`keyboardActivation="manual"` settles it. The engine stops listening for the pickup key — the element keeps its own <kbd>Space</kbd> and <kbd>Enter</kbd> — and hands you the pickup as [`useDragEngine().startKeyboardDrag(element)`](/react/utils/use-drag-engine) to call from wherever the pickup belongs. From there it is an ordinary keyboard drag, announcements and focus restoration included.
+`keyboardActivation="manual"` settles it. The engine stops listening for the pickup key — the element keeps its own <kbd>Space</kbd> and <kbd>Enter</kbd> — and hands you the pickup as [`useDragDropManager().startKeyboardDrag(element)`](/react/utils/use-drag-drop-manager) to call from wherever the pickup belongs. From there it is an ordinary keyboard drag, announcements and focus restoration included.
 
 ```tsx title="A drag started from the widget's own menu"
 function Widget({ widget }) {
-  const engine = useDragEngine();
+  const manager = useDragDropManager();
   const ref = React.useRef<HTMLButtonElement>(null);
   const startOnCloseRef = React.useRef(false);
 
@@ -351,7 +351,7 @@ function Widget({ widget }) {
       onOpenChangeComplete={(open) => {
         if (!open && startOnCloseRef.current) {
           startOnCloseRef.current = false;
-          engine.startKeyboardDrag(ref.current);
+          manager.startKeyboardDrag(ref.current);
         }
       }}
     >
@@ -524,7 +524,7 @@ function Widget({ id, title, value }) {
 }
 ```
 
-The content renders in the [`Draggable.PreviewProvider`](/react/drag-and-drop/overview#setup)'s tree, so it reads the same context, themes and stores as the rest of your app, and outlives the source when a virtualizer or a live reorder unmounts it mid-drag. The element itself still sits next to the source, so your CSS reaches it either way.
+The content renders beside the nearest [`Draggable.PreviewProvider`](/react/drag-and-drop/overview#setup)'s children and outlives the source when a virtualizer or a live reorder unmounts it mid-drag. It receives context from providers above that preview provider, but not from providers nested between the preview provider and this draggable. Place a preview provider inside each local theme, direction, or store boundary the preview needs. The element itself still sits next to the source, so your CSS reaches it either way.
 
 Pass a function as the children to build the preview from the dragged item's data. To size a custom preview like the element it replaces, use the `--drag-source-width` and `--drag-source-height` CSS variables — see [Sizing a custom preview](/react/drag-and-drop/styling#sizing-a-custom-preview).
 

@@ -1,6 +1,6 @@
 'use client';
 import { useInnerDragEngine } from '../utils/drag-and-drop/useInnerDragEngine';
-import type { DragEngine } from '../types/dragRegistration';
+import type { DragDropManager } from '../types/dragRegistration';
 
 export {
   createKind,
@@ -9,7 +9,7 @@ export {
 } from '../utils/drag-and-drop/dragKind';
 
 /**
- * Returns the drag engine's imperative API: the registration methods that
+ * Returns the page-global drag-and-drop manager: the registration methods that
  * `Draggable.Root`, `DropTarget.Root`, `DragAutoScroll.Root`, and `useDragMonitor`
  * are built on, plus `startKeyboardDrag` to open a keyboard drag from your own
  * trigger and `cancelDrag` to end the drag in progress.
@@ -18,36 +18,36 @@ export {
  * registering an element you already hold, bridging a non-React widget,
  * or centralizing every registration in one place.
  *
- * The engine itself is global, but the two React-context inputs (the locale used
+ * Every call controls the same page-global manager. The two React-context inputs (the locale used
  * for default announcements and the nearest `Draggable.PreviewProvider`) are read
  * at *this hook's* call site, not at each element's position in the tree. Put both
- * providers above the component that calls `useDragEngine`, even when the elements
+ * providers above the component that calls `useDragDropManager`, even when the elements
  * it registers render further down.
  *
- * Documentation: [Base UI useDragEngine](https://base-ui.com/react/utils/use-drag-engine)
+ * Documentation: [Base UI useDragDropManager](https://base-ui.com/react/utils/use-drag-drop-manager)
  *
  * @public
  */
-export function useDragEngine(): UseDragEngineReturnValue {
+export function useDragDropManager(): UseDragDropManagerReturnValue {
   return useInnerDragEngine();
 }
 
-export namespace useDragEngine {
-  export type ReturnValue = UseDragEngineReturnValue;
+export namespace useDragDropManager {
+  export type ReturnValue = UseDragDropManagerReturnValue;
 }
 
 /**
- * The drag engine's imperative API returned by {@link useDragEngine}:
+ * The page-global imperative API returned by {@link useDragDropManager}:
  * `registerDraggable`, `registerDropTarget`, `registerAutoScroller`,
  * `registerMonitor`, `startKeyboardDrag`, and `cancelDrag`.
  */
-export interface UseDragEngineReturnValue extends DragEngine {}
+export interface UseDragDropManagerReturnValue extends DragDropManager {}
 
 // The `WithPayload` variants, the `accept` wrappers and `DragKind` come along
 // because the signatures above reference them: without them the generated
 // reference renders those names with no definition on the page.
 export type {
-  DragEngine,
+  DragDropManager,
   RegisterDraggableParameters,
   RegisterDraggableParametersWithPayload,
   RegisterDropTargetParameters,

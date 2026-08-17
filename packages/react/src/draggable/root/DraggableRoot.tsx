@@ -21,12 +21,13 @@ const stateAttributesMapping: StateAttributesMapping<DraggableRootState> = {
   dragging: () => null,
 };
 
-// Without a role, a focusable `<div>` is exposed as an unnamed `generic` node,
-// which makes assistive technology drop the engine's `aria-roledescription` and
-// leaves the pickup gesture undiscoverable. Passed after `children` and before
-// `elementProps`, so a `role` in the spread props still wins for a semantic
-// override.
-const KEYBOARD_FOCUSABLE_PROPS = { tabIndex: 0, role: 'button' } as const;
+// Without a role, the default focusable `<div>` is exposed as an unnamed `generic`
+// node, which makes assistive technology drop the engine's `aria-roledescription`
+// and leaves the pickup gesture undiscoverable. A polymorphic render target keeps
+// its native semantics instead. Passed before `elementProps`, so an explicit role
+// still wins.
+const KEYBOARD_FOCUSABLE_PROPS = { tabIndex: 0 } as const;
+const DEFAULT_KEYBOARD_ROLE_PROPS = { role: 'button' } as const;
 
 /**
  * Makes its element a drag source, so it can be picked up with the pointer or the
@@ -57,6 +58,7 @@ export const DraggableRoot = React.forwardRef(function DraggableRoot<TData = und
     kind,
     payload,
     getPayload,
+    previewKey,
     disabled,
     pointerActivation,
     dragCursor,
@@ -87,6 +89,7 @@ export const DraggableRoot = React.forwardRef(function DraggableRoot<TData = und
     kind,
     payload,
     getPayload,
+    previewKey,
     disabled,
     pointerActivation,
     dragCursor,
@@ -143,7 +146,12 @@ export const DraggableRoot = React.forwardRef(function DraggableRoot<TData = und
   const element = useRenderElement('div', componentProps, {
     state,
     ref: [forwardedRef, ref],
-    props: [{ children }, keyboardFocusable ? KEYBOARD_FOCUSABLE_PROPS : undefined, elementProps],
+    props: [
+      { children },
+      keyboardFocusable ? KEYBOARD_FOCUSABLE_PROPS : undefined,
+      keyboardFocusable && render === undefined ? DEFAULT_KEYBOARD_ROLE_PROPS : undefined,
+      elementProps,
+    ],
     stateAttributesMapping,
   });
 
@@ -214,7 +222,11 @@ type DraggablePayloadParameters<TData> = Pick<
   'payload' | 'getPayload'
 >;
 
-type RequiredDraggablePayload<TData> = WithRequiredPayload<DraggablePayloadParameters<TData>>;
+type RequiredDraggablePayload<TData> = WithRequiredPayload<
+  DraggablePayloadParameters<TData>,
+  DraggablePayload<TData>,
+  DraggablePayloadGetter<TData>
+>;
 
 /**
  * Requires `payload` when the caller declares a payload type. Generic wrappers

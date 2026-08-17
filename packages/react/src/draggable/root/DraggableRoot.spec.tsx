@@ -102,6 +102,14 @@ const runCommand = () => {};
 // engine can never emit `undefined` where a `CardPayload` was promised.
 <Draggable.Root kind={card} />;
 
+declare const maybeCardPayload: CardPayload | undefined;
+// @ts-expect-error a required static payload cannot be explicitly undefined.
+<Draggable.Root kind={card} payload={undefined} />;
+// @ts-expect-error a possibly undefined static payload cannot satisfy a required payload.
+<Draggable.Root kind={card} payload={maybeCardPayload} />;
+// @ts-expect-error a required payload getter cannot be explicitly undefined.
+<Draggable.Root kind={card} getPayload={undefined} />;
+
 // @ts-expect-error the payload must match the kind.
 <Draggable.Root kind={card} payload={{ id: 1 }} />;
 
@@ -246,6 +254,10 @@ const boundaryRef: React.RefObject<HTMLDivElement | null> = { current: null };
 
 const ref: React.Ref<HTMLDivElement> = null;
 <Draggable.Root kind={marker} ref={ref} />;
+
+// A stable preview key identifies a logical source across a remount without
+// conflating sources that happen to have the same accessible label.
+<Draggable.Root kind={marker} previewKey="card-1" label="Untitled" />;
 
 // Static and resolved payloads use distinct fields.
 type CardProps = Draggable.Root.Props<CardPayload>;

@@ -37,7 +37,7 @@ const endingPreviews = getSharedSlot(
 
 export interface SyntheticPreviewSourceIdentity {
   kind: symbol;
-  label: string | undefined;
+  previewKey: string | number | undefined;
   /** The static declaration, not the value returned by `getPayload`. */
   payload: unknown;
 }
@@ -69,9 +69,10 @@ export function retargetEndingPreviewSource(
 
     const sameDeclaredPayload =
       identity.payload !== undefined && Object.is(registration.identity.payload, identity.payload);
-    const sameLabel =
-      identity.label !== undefined && registration.identity.label === identity.label;
-    if (sameDeclaredPayload || sameLabel) {
+    const samePreviewKey =
+      identity.previewKey !== undefined &&
+      Object.is(registration.identity.previewKey, identity.previewKey);
+    if (sameDeclaredPayload || samePreviewKey) {
       registration.retarget(element);
       return;
     }

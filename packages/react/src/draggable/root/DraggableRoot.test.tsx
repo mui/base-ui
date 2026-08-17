@@ -6,7 +6,7 @@ import { act, fireEvent, screen, render as rtlRender } from '@testing-library/re
 import { createDndRenderer, describeConformance, testDragKind } from '#test-utils';
 import { Draggable } from '@base-ui/react/draggable';
 import { DropTarget } from '@base-ui/react/drop-target';
-import { useDragEngine } from '@base-ui/react/use-drag-engine';
+import { useDragDropManager } from '@base-ui/react/use-drag-drop-manager';
 import {
   cancel,
   createElement,
@@ -1223,6 +1223,42 @@ describe('Draggable.Root', () => {
       expect(el).toHaveAttribute('role', 'listitem');
     });
 
+    it('preserves the semantics of polymorphic render targets', async () => {
+      await renderDnd(
+        <React.Fragment>
+          <ul>
+            <Draggable.Root kind={testDragKind} render={<li data-testid="list-item" />} />
+          </ul>
+          <Draggable.Root
+            kind={testDragKind}
+            render={<a href="#destination" data-testid="link" />}
+          />
+          <table>
+            <tbody>
+              <Draggable.Root kind={testDragKind} render={<tr data-testid="row" />} />
+            </tbody>
+          </table>
+          <Draggable.Root
+            kind={testDragKind}
+            render={<div role="option" aria-selected="false" data-testid="option" />}
+          />
+          <Draggable.Root
+            kind={testDragKind}
+            render={(props) => <section {...props} data-testid="callback" />}
+          />
+        </React.Fragment>,
+      );
+
+      for (const testId of ['list-item', 'link', 'row', 'option', 'callback']) {
+        expect(screen.getByTestId(testId)).toHaveAttribute('tabindex', '0');
+      }
+      expect(screen.getByTestId('list-item')).not.toHaveAttribute('role');
+      expect(screen.getByTestId('link')).not.toHaveAttribute('role');
+      expect(screen.getByTestId('row')).not.toHaveAttribute('role');
+      expect(screen.getByTestId('option')).toHaveAttribute('role', 'option');
+      expect(screen.getByTestId('callback')).not.toHaveAttribute('role');
+    });
+
     it('server-renders a root with a handle without tabindex or role', () => {
       // `hasHandle` starts `null` for a reason: the server can't see handles
       // (they attach through client-side ref callbacks), so the SSR markup must
@@ -2283,7 +2319,7 @@ describe('Draggable.Root', () => {
     // An imperatively registered source has no component to hold a
     // `Draggable.Preview`, so it declares the preview on the registration itself.
     function ImperativeCard() {
-      const engine = useDragEngine();
+      const engine = useDragDropManager();
       const elementRef = React.useRef<HTMLDivElement>(null);
       React.useEffect(
         () =>
@@ -2350,7 +2386,7 @@ describe('Draggable.Root', () => {
 
     it('still honours dragPreview.offset for an imperative preview', async () => {
       function OffsetCard() {
-        const engine = useDragEngine();
+        const engine = useDragDropManager();
         const elementRef = React.useRef<HTMLDivElement>(null);
         React.useEffect(
           () =>
@@ -2384,7 +2420,7 @@ describe('Draggable.Root', () => {
 
     it('shows no preview at all with dragPreview.disabled', async () => {
       function DisabledCard() {
-        const engine = useDragEngine();
+        const engine = useDragDropManager();
         const elementRef = React.useRef<HTMLDivElement>(null);
         React.useEffect(
           () =>
@@ -2410,7 +2446,7 @@ describe('Draggable.Root', () => {
 
     it('clamps an imperative preview to dragPreview.modifiers', async () => {
       function BoundedCard() {
-        const engine = useDragEngine();
+        const engine = useDragDropManager();
         const elementRef = React.useRef<HTMLDivElement>(null);
         const boundsRef = React.useRef<HTMLDivElement>(null);
         React.useEffect(
@@ -2452,7 +2488,7 @@ describe('Draggable.Root', () => {
       document.body.appendChild(host);
       try {
         function ContainedCard() {
-          const engine = useDragEngine();
+          const engine = useDragDropManager();
           const elementRef = React.useRef<HTMLDivElement>(null);
           React.useEffect(
             () =>
@@ -2483,7 +2519,7 @@ describe('Draggable.Root', () => {
       document.body.appendChild(host);
       try {
         function ContainedCard() {
-          const engine = useDragEngine();
+          const engine = useDragDropManager();
           const elementRef = React.useRef<HTMLDivElement>(null);
           React.useEffect(
             () =>

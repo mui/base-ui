@@ -193,7 +193,9 @@ type DropTargetPayloadParameters<TSourceData, TLocalData> = Pick<
 >;
 
 type RequiredDropTargetPayload<TSourceData, TLocalData> = WithRequiredPayload<
-  DropTargetPayloadParameters<TSourceData, TLocalData>
+  DropTargetPayloadParameters<TSourceData, TLocalData>,
+  DropTargetPayload<TSourceData, TLocalData>,
+  DropTargetPayloadGetter<TSourceData, TLocalData>
 >;
 
 /**

@@ -1604,7 +1604,7 @@ export interface UseDraggableCollectionParameters<
    * How a keyboard drag is started on an item.
    *
    * - `'auto'`: Space or Enter picks the focused item up.
-   * - `'manual'`: Only `useDragEngine().startKeyboardDrag()` picks an item up, freeing
+   * - `'manual'`: Only `useDragDropManager().startKeyboardDrag()` picks an item up, freeing
    *   Space and Enter for another action such as inline editing while items stay
    *   focusable and announced as draggable.
    * - `'off'`: Items are only pointer-draggable, and the keyboard-drag screen reader
