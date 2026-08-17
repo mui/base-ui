@@ -217,6 +217,8 @@ The motion is entirely yours, in two rules:
 
 Keep the transition off the `data-starting-style` frame so an interrupted reorder starts from its current position. Use `translate` so the displacement composes with existing `transform` positioning, and restate any other transitions replaced by the shorthand. For reduced-motion users, disable both rules; the starting-style rule alone still paints the previous position for one frame.
 
+Measurement is scoped to the viewport: items outside it are not measured and take their new position without animating, so tracking thousands of mounted items costs no more per drag than tracking the visible ones. An item scrolled into view mid-drag adopts its current position and animates from there on.
+
 ## Activation
 
 A pointer press doesn't start a drag right away. The item is picked up once the gesture reads as a drag rather than a click or a scroll. Mouse and pen activate after the pointer moves **5px**; touch activates after a **250ms** press-hold, with a 5px movement tolerance, so that scrolling a list still scrolls it. Anything short of that stays a plain click or tap and reaches the element underneath.

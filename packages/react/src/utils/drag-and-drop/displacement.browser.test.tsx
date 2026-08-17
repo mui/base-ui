@@ -474,4 +474,115 @@ describe.skipIf(isJSDOM)('displacement (real layout and transitions)', () => {
     pointer('pointerup', held, 50, 20);
     await flushRaf();
   });
+
+  /**
+   * Resolve once the module's visibility observer has delivered its pending
+   * records for `element`. A sentinel observer created now is notified in the
+   * same intersection-observation task as the module's earlier-created one, and
+   * the awaiting continuation runs only after every callback of that task.
+   */
+  function waitForVisibilityDelivery(element: Element): Promise<void> {
+    return new Promise((resolve) => {
+      const sentinel = new IntersectionObserver(() => {
+        sentinel.disconnect();
+        resolve();
+      });
+      sentinel.observe(element);
+    });
+  }
+
+  /** Two tracked rows: one in the viewport, one far below it. */
+  function FarRows({
+    onApi,
+  }: {
+    onApi: (setTops: (tops: { a: number; c: number }) => void) => void;
+  }) {
+    const [tops, setTops] = React.useState({ a: 100, c: 4000 });
+    onApi(setTops);
+    return (
+      <div>
+        <Draggable.Root
+          kind={testDragKind}
+          data-testid="held"
+          pointerActivation={{ mouse: { type: 'immediate' } }}
+          style={{ position: 'fixed', left: 0, top: 0, width: 100, height: 40 }}
+        />
+        <Draggable.Root
+          kind={testDragKind}
+          data-testid="item-a"
+          style={{ position: 'fixed', left: 0, top: tops.a, width: 40, height: 40 }}
+        >
+          <Draggable.Displacement />
+        </Draggable.Root>
+        <Draggable.Root
+          kind={testDragKind}
+          data-testid="item-c"
+          style={{ position: 'fixed', left: 0, top: tops.c, width: 40, height: 40 }}
+        >
+          <Draggable.Displacement />
+        </Draggable.Root>
+      </div>
+    );
+  }
+
+  async function renderFarRows() {
+    let setTops: (tops: { a: number; c: number }) => void = () => {};
+    await renderDnd(
+      <FarRows
+        onApi={(api) => {
+          setTops = api;
+        }}
+      />,
+    );
+    const held = screen.getByTestId('held');
+    const a = screen.getByTestId('item-a');
+    const c = screen.getByTestId('item-c');
+    // Let the observer mark the far row invisible before the drag begins.
+    await waitForVisibilityDelivery(c);
+    pointer('pointerdown', held, 50, 20);
+    await flushRaf();
+    return {
+      a,
+      c,
+      setTops: (tops: { a: number; c: number }) => act(async () => setTops(tops)),
+      release: async () => {
+        pointer('pointerup', held, 50, 20);
+        await flushRaf();
+      },
+    };
+  }
+
+  it('sweeps only rows in the viewport, leaving off-screen movement unmeasured', async () => {
+    setup();
+    const { a, c, setTops, release } = await renderFarRows();
+
+    // Both rows move in one commit; only the visible one plays.
+    await setTops({ a: 150, c: 4050 });
+    expect(a).toHaveAttribute('data-displacing');
+    expect(a.style.getPropertyValue('--drag-displacement-y')).toBe('-50px');
+    expect(c).not.toHaveAttribute('data-displacing');
+
+    await until(() => !a.hasAttribute('data-displacing'), 'visible play cleaned up');
+    await release();
+  });
+
+  it('adopts a row entering the viewport mid-drag: the arrival does not play, later moves do', async () => {
+    setup();
+    const { c, setTops, release } = await renderFarRows();
+
+    // Off-screen → on-screen in one commit: no baseline to diff against, and
+    // flying in from 4,000px away is exactly what must not happen.
+    await setTops({ a: 100, c: 200 });
+    expect(c).not.toHaveAttribute('data-displacing');
+
+    // The observer reports it visible and adopts the current position.
+    await waitForVisibilityDelivery(c);
+
+    await setTops({ a: 100, c: 260 });
+    expect(c).toHaveAttribute('data-displacing');
+    expect(c.style.getPropertyValue('--drag-displacement-y')).toBe('-60px');
+
+    await until(() => !c.hasAttribute('data-displacing'), 'adopted play cleaned up');
+    await release();
+  });
 });
