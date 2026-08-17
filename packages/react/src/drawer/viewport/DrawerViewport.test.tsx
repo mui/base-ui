@@ -3387,6 +3387,204 @@ describe('<Drawer.Viewport />', () => {
     }
   });
 
+  it('clears nested swipe state after an attributed drag settles on a snap point', async () => {
+    vi.useFakeTimers();
+    try {
+      vi.setSystemTime(new Date(1000));
+      await render(
+        <Drawer.Root open swipeDirection="down">
+          <Drawer.Portal>
+            <Drawer.Viewport>
+              <Drawer.Popup data-testid="parent-popup">
+                <Drawer.Root open snapPoints={['100px', '200px']} swipeDirection="down">
+                  <Drawer.Portal>
+                    <Drawer.Viewport
+                      data-testid="child-viewport"
+                      ref={(element) => setHeight(element, 400)}
+                    >
+                      <Drawer.Popup
+                        data-testid="child-popup"
+                        ref={(element) => setHeight(element, 300)}
+                      >
+                        Child
+                      </Drawer.Popup>
+                    </Drawer.Viewport>
+                  </Drawer.Portal>
+                </Drawer.Root>
+              </Drawer.Popup>
+            </Drawer.Viewport>
+          </Drawer.Portal>
+        </Drawer.Root>,
+      );
+
+      const parentPopup = screen.getByTestId('parent-popup');
+      const childPopup = screen.getByTestId('child-popup');
+      const childViewport = screen.getByTestId('child-viewport');
+      const originalElementFromPoint = document.elementFromPoint;
+      document.elementFromPoint = () => childPopup;
+
+      try {
+        // A straight-down drag, so the swipe direction is attributed, ending in a
+        // slight upward reversal: the reversal flips the sampled release velocity
+        // against the drag so the release resolves through the slow fallback velocity
+        // and settles back on the snap point in both test environments.
+        fireEvent.pointerDown(childViewport, {
+          button: 0,
+          buttons: 1,
+          pointerId: 1,
+          clientX: 100,
+          clientY: 10,
+          pointerType: 'mouse',
+          timeStamp: 1000,
+        });
+        vi.setSystemTime(new Date(1050));
+        fireEvent.pointerMove(childViewport, {
+          buttons: 1,
+          pointerId: 1,
+          clientX: 100,
+          clientY: 24,
+          pointerType: 'mouse',
+          timeStamp: 1050,
+        });
+        vi.setSystemTime(new Date(1150));
+        fireEvent.pointerMove(childViewport, {
+          buttons: 1,
+          pointerId: 1,
+          clientX: 100,
+          clientY: 48,
+          pointerType: 'mouse',
+          timeStamp: 1150,
+        });
+        await flushMicrotasks();
+
+        expect(parentPopup).toHaveAttribute('data-nested-drawer-swiping', '');
+        expect(parentPopup.style.getPropertyValue('--drawer-swipe-progress')).not.toBe('0');
+
+        vi.setSystemTime(new Date(1250));
+        fireEvent.pointerMove(childViewport, {
+          buttons: 1,
+          pointerId: 1,
+          clientX: 100,
+          clientY: 44,
+          pointerType: 'mouse',
+          timeStamp: 1250,
+        });
+        vi.setSystemTime(new Date(1600));
+        fireEvent.pointerUp(childViewport, {
+          pointerId: 1,
+          clientX: 100,
+          clientY: 44,
+          pointerType: 'mouse',
+          timeStamp: 1600,
+        });
+        await flushMicrotasks();
+
+        expect(childPopup).not.toHaveAttribute('data-ending-style');
+        expect(childPopup).not.toHaveAttribute('data-swipe-dismiss');
+        expect(parentPopup.style.getPropertyValue('--drawer-swipe-progress')).toBe('0');
+        expect(parentPopup).not.toHaveAttribute('data-nested-drawer-swiping');
+      } finally {
+        document.elementFromPoint = originalElementFromPoint;
+      }
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it('does not dismiss from an unattributed fast swipe with snapToSequentialPoints', async () => {
+    const handleOpenChange = vi.fn();
+    const handleSnapPointChange = vi.fn();
+
+    vi.useFakeTimers();
+    try {
+      vi.setSystemTime(new Date(1000));
+      await render(
+        <Drawer.Root
+          open
+          onOpenChange={handleOpenChange}
+          onSnapPointChange={handleSnapPointChange}
+          snapPoints={['100px', '200px']}
+          snapToSequentialPoints
+          swipeDirection="down"
+        >
+          <Drawer.Portal>
+            <Drawer.Viewport data-testid="viewport" ref={(element) => setHeight(element, 400)}>
+              <Drawer.Popup data-testid="popup" ref={(element) => setHeight(element, 300)}>
+                Drawer
+              </Drawer.Popup>
+            </Drawer.Viewport>
+          </Drawer.Portal>
+        </Drawer.Root>,
+      );
+
+      const viewport = screen.getByTestId('viewport');
+      const popup = screen.getByTestId('popup');
+      const originalElementFromPoint = document.elementFromPoint;
+      document.elementFromPoint = () => popup;
+
+      try {
+        // Same mostly horizontal flick as the non-sequential test, released from the
+        // most-collapsed snap point so the sequential branch has no adjacent point to
+        // advance to and decides to close.
+        fireEvent.pointerDown(viewport, {
+          button: 0,
+          buttons: 1,
+          pointerId: 1,
+          clientX: 100,
+          clientY: 10,
+          pointerType: 'mouse',
+          timeStamp: 1000,
+        });
+        vi.setSystemTime(new Date(1050));
+        fireEvent.pointerMove(viewport, {
+          buttons: 1,
+          pointerId: 1,
+          clientX: 120,
+          clientY: 12,
+          pointerType: 'mouse',
+          timeStamp: 1050,
+        });
+        vi.setSystemTime(new Date(1100));
+        fireEvent.pointerMove(viewport, {
+          buttons: 1,
+          pointerId: 1,
+          clientX: 200,
+          clientY: 20,
+          pointerType: 'mouse',
+          timeStamp: 1100,
+        });
+        vi.setSystemTime(new Date(1120));
+        fireEvent.pointerMove(viewport, {
+          buttons: 1,
+          pointerId: 1,
+          clientX: 240,
+          clientY: 55,
+          pointerType: 'mouse',
+          timeStamp: 1120,
+        });
+        vi.setSystemTime(new Date(1130));
+        fireEvent.pointerUp(viewport, {
+          pointerId: 1,
+          clientX: 240,
+          clientY: 55,
+          pointerType: 'mouse',
+          timeStamp: 1130,
+        });
+        await flushMicrotasks();
+      } finally {
+        document.elementFromPoint = originalElementFromPoint;
+      }
+
+      expect(handleOpenChange).not.toHaveBeenCalled();
+      expect(handleSnapPointChange).not.toHaveBeenCalledWith(null, expect.anything());
+      expect(handleSnapPointChange).toHaveBeenCalledWith('100px', expect.anything());
+      expect(popup).not.toHaveAttribute('data-ending-style');
+      expect(popup).not.toHaveAttribute('data-swipe-dismiss');
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
   it('does not resolve snap points before the popup has a measurable height', async () => {
     const handleOpenChange = vi.fn();
     await render(

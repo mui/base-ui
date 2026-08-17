@@ -16,6 +16,7 @@ import {
   closestSnapPointIndex,
   getSnapPointSwipeMovement,
   useDrawerSnapPoints,
+  type ResolvedDrawerSnapPoint,
 } from '../root/useDrawerSnapPoints';
 import { useDrawerProviderContext } from '../provider/DrawerProviderContext';
 import {
@@ -368,7 +369,9 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
       return true;
     },
     onProgress(progress, details) {
-      updateNestedSwipeActive(details);
+      if (swipingRef.current) {
+        updateNestedSwipeActive(details);
+      }
 
       const hasSnapPoints = Boolean(snapPoints && snapPoints.length > 0);
       if (swipingRef.current && swipeDirection === 'down' && hasSnapPoints && details) {
@@ -382,8 +385,11 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
         }
       }
 
+      // After release, the hook reports zero progress but still carries the final drag
+      // deltas; recomputing from them would re-apply drag progress (and re-notify a
+      // nested parent) after `onRelease` has already settled on a snap point.
       let resolvedProgress = progress;
-      if (snapPointRange && popupHeight > 0) {
+      if (snapPointRange && popupHeight > 0 && swipingRef.current) {
         const baseOffset = activeSnapPointOffset ?? snapPointRange.minOffset;
         const offsetToProgress = (nextOffset: number) =>
           clamp((nextOffset - snapPointRange.minOffset) / snapPointRange.range, 0, 1);
@@ -480,14 +486,6 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
         return undefined;
       }
 
-      // An unattributed gesture (e.g. a mostly horizontal flick) may settle on a snap
-      // point but must not dismiss: `useSwipeDismiss` drops a directionless dismissal,
-      // stranding the popup visually closed while `open` stays `true`. The hook's
-      // trailing progress update is deduped here, so reset nested swipe state now.
-      if (!direction) {
-        applySwipeProgress(0, true, true);
-      }
-
       const dragDelta = swipeDirection === 'down' ? deltaY : -deltaY;
       const dragDirection = Math.sign(dragDelta);
       const releaseDirectionalVelocity =
@@ -513,18 +511,20 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
         ? dragTargetOffset
         : clamp(dragTargetOffset + velocityOffset, 0, popupHeight);
       const snapPointEventDetails = createChangeEventDetails(REASONS.swipe, event);
-      const closeFromSnapPoints = () => {
+      const settleOnSnapPoint = (snapPoint: ResolvedDrawerSnapPoint) => {
+        setActiveSnapPoint(snapPoint.value, snapPointEventDetails);
+        // Reset nested swipe state now: the hook's trailing progress update is deduped
+        // when the drag never produced dismissal progress, so it may not fire.
+        applySwipeProgress(0, true, true);
+        clearSwipeRelease();
+        return false;
+      };
+      const closeFromSnapPoints = (fallbackSnapPoint: ResolvedDrawerSnapPoint) => {
+        // An unattributed gesture (e.g. a mostly horizontal flick) may settle on a snap
+        // point but must not dismiss: `useSwipeDismiss` drops a directionless dismissal,
+        // stranding the popup visually closed while `open` stays `true`.
         if (!direction) {
-          const nearestSnapPoint =
-            resolvedSnapPoints[
-              closestSnapPointIndex(
-                resolvedSnapPoints.map((point) => point.offset),
-                targetOffset,
-              )
-            ];
-          setActiveSnapPoint(nearestSnapPoint.value, snapPointEventDetails);
-          clearSwipeRelease();
-          return false;
+          return settleOnSnapPoint(fallbackSnapPoint);
         }
         pendingSwipeCloseSnapPointRef.current = activeSnapPoint;
         setActiveSnapPoint(null, snapPointEventDetails);
@@ -566,23 +566,17 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
               effectiveTargetOffset = adjacentPoint.offset;
             }
           } else if (dragDirection > 0) {
-            return closeFromSnapPoints();
+            return closeFromSnapPoints(targetSnapPoint);
           }
         }
 
         const closeDistance = Math.abs(effectiveTargetOffset - popupHeight);
         const snapDistance = Math.abs(effectiveTargetOffset - targetSnapPoint.offset);
         if (closeDistance < snapDistance) {
-          return closeFromSnapPoints();
+          return closeFromSnapPoints(targetSnapPoint);
         }
 
-        setActiveSnapPoint(targetSnapPoint.value, snapPointEventDetails);
-        clearSwipeRelease();
-        return false;
-      }
-
-      if (resolvedDirectionalVelocity >= FAST_SWIPE_VELOCITY && dragDelta > 0) {
-        return closeFromSnapPoints();
+        return settleOnSnapPoint(targetSnapPoint);
       }
 
       const closestSnapPoint =
@@ -593,14 +587,16 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
           )
         ];
 
-      const closeDistance = Math.abs(targetOffset - popupHeight);
-      if (closeDistance < Math.abs(targetOffset - closestSnapPoint.offset)) {
-        return closeFromSnapPoints();
+      if (resolvedDirectionalVelocity >= FAST_SWIPE_VELOCITY && dragDelta > 0) {
+        return closeFromSnapPoints(closestSnapPoint);
       }
 
-      setActiveSnapPoint(closestSnapPoint.value, snapPointEventDetails);
-      clearSwipeRelease();
-      return false;
+      const closeDistance = Math.abs(targetOffset - popupHeight);
+      if (closeDistance < Math.abs(targetOffset - closestSnapPoint.offset)) {
+        return closeFromSnapPoints(closestSnapPoint);
+      }
+
+      return settleOnSnapPoint(closestSnapPoint);
     },
     onDismiss(event) {
       visualStateStore?.set({ swipeProgress: 0, frontmostHeight: 0 });
