@@ -67,7 +67,7 @@
     "cross-env": "10.1.0",
     "mdast-util-mdx-jsx": "3.2.0",
     "motion": "12.43.0",
-    "prettier": "3.8.3",
+    "prettier": "3.9.6",
     "remark-parse": "11.0.0",
     "remark-stringify": "11.0.0",
     "rimraf": "6.1.3",

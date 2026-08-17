@@ -74,8 +74,7 @@ export interface ContextMenuRootProps extends Omit<
    * Event handler called when the menu is opened or closed.
    */
   onOpenChange?:
-    | ((open: boolean, eventDetails: ContextMenuRoot.ChangeEventDetails) => void)
-    | undefined;
+    ((open: boolean, eventDetails: ContextMenuRoot.ChangeEventDetails) => void) | undefined;
   children?: React.ReactNode | undefined;
 }
 

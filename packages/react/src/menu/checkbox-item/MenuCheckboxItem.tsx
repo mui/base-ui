@@ -146,8 +146,7 @@ export interface MenuCheckboxItemProps
    * Event handler called when the checkbox item is ticked or unticked.
    */
   onCheckedChange?:
-    | ((checked: boolean, eventDetails: MenuCheckboxItem.ChangeEventDetails) => void)
-    | undefined;
+    ((checked: boolean, eventDetails: MenuCheckboxItem.ChangeEventDetails) => void) | undefined;
   /**
    * The click handler for the menu item.
    */

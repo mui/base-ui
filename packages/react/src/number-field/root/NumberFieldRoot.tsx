@@ -625,8 +625,7 @@ export interface NumberFieldRootProps extends Omit<
    * - `'scrub'` for scrub area drags
    */
   onValueChange?:
-    | ((value: number | null, eventDetails: NumberFieldRoot.ChangeEventDetails) => void)
-    | undefined;
+    ((value: number | null, eventDetails: NumberFieldRoot.ChangeEventDetails) => void) | undefined;
   /**
    * Callback function that is fired when the value is committed.
    * It runs later than `onValueChange`, when:
@@ -639,8 +638,7 @@ export interface NumberFieldRootProps extends Omit<
    * **Warning**: This is a generic event not a change event.
    */
   onValueCommitted?:
-    | ((value: number | null, eventDetails: NumberFieldRoot.CommitEventDetails) => void)
-    | undefined;
+    ((value: number | null, eventDetails: NumberFieldRoot.CommitEventDetails) => void) | undefined;
   /**
    * The locale of the input element.
    * Defaults to the user's runtime locale.

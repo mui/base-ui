@@ -39,7 +39,7 @@ importers:
         version: 7.58.12(@types/node@22.20.1)
       '@mui/internal-code-infra':
         specifier: 0.0.4-canary.101
-        version: 0.0.4-canary.101(122b13ecb23f04164db3561f01eff293)
+        version: 0.0.4-canary.101(83acd8473747390201644dfe04f715a5)
       '@mui/internal-netlify-cache':
         specifier: 0.0.3-canary.5
         version: 0.0.3-canary.5
@@ -107,11 +107,11 @@ importers:
         specifier: 4.2.0
         version: 4.2.0
       prettier:
-        specifier: 3.8.3
-        version: 3.8.3
+        specifier: 3.9.6
+        version: 3.9.6
       pretty-quick:
         specifier: 4.2.2
-        version: 4.2.2(prettier@3.8.3)
+        version: 4.2.2(prettier@3.9.6)
       publint:
         specifier: 0.3.20
         version: 0.3.20
@@ -171,7 +171,7 @@ importers:
         version: 3.1.1(@types/react@19.2.18)(react@19.2.8)
       '@mui/internal-docs-infra':
         specifier: 0.12.1-canary.26
-        version: 0.12.1-canary.26(@types/react@19.2.18)(next@16.3.0(@babel/core@7.29.7(supports-color@10.2.2))(@playwright/test@1.62.1)(@types/node@22.20.1)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.8(react@19.2.8))(react@19.2.8))(prettier@3.8.3)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)(supports-color@10.2.2)(typescript@6.0.3)
+        version: 0.12.1-canary.26(@types/react@19.2.18)(next@16.3.0(@babel/core@7.29.7(supports-color@10.2.2))(@playwright/test@1.62.1)(@types/node@22.20.1)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.8(react@19.2.8))(react@19.2.8))(prettier@3.9.6)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)(supports-color@10.2.2)(typescript@6.0.3)
       '@next/mdx':
         specifier: ^16.3.0
         version: 16.3.0(@mdx-js/loader@3.1.1(supports-color@10.2.2)(webpack@5.109.2(esbuild@0.28.2)(lightningcss@1.33.0)(postcss@8.5.26)(uglify-js@3.19.3)))(@mdx-js/react@3.1.1(@types/react@19.2.18)(react@19.2.8))
@@ -306,8 +306,8 @@ importers:
         specifier: 12.43.0
         version: 12.43.0(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
       prettier:
-        specifier: 3.8.3
-        version: 3.8.3
+        specifier: 3.9.6
+        version: 3.9.6
       remark-stringify:
         specifier: 11.0.0
         version: 11.0.0
@@ -7997,8 +7997,8 @@ packages:
     resolution: {integrity: sha512-vkcDPrRZo1QZLbn5RLGPpg/WmIQ65qoWWhcGKf/b5eplkkarX0m9z8ppCat4mlOqUsWpyNuYgO3VRyrYHSzX5g==}
     engines: {node: '>= 0.8.0'}
 
-  prettier@3.8.3:
-    resolution: {integrity: sha512-7igPTM53cGHMW8xWuVTydi2KO233VFiTNyF5hLJqpilHfmn8C8gPf+PS7dUT64YcXFbiMGZxS9pCSxL/Dxm/Jw==}
+  prettier@3.9.6:
+    resolution: {integrity: sha512-OpN0zzVdiaiAhxpuuj5efpIS4sY9j7bY6uR5mnj5yPzGkdkjNKSJeUThPb60Jw29QuAZgA4o+/iB49kFiaBX6g==}
     engines: {node: '>=14'}
     hasBin: true
 
@@ -11333,7 +11333,7 @@ snapshots:
       - tsx
       - yaml
 
-  '@mui/internal-code-infra@0.0.4-canary.101(122b13ecb23f04164db3561f01eff293)':
+  '@mui/internal-code-infra@0.0.4-canary.101(83acd8473747390201644dfe04f715a5)':
     dependencies:
       '@argos-ci/core': 6.5.0(@types/node@22.20.1)(supports-color@7.2.0)
       '@babel/cli': 7.29.7(@babel/core@7.29.7(supports-color@7.2.0))
@@ -11396,7 +11396,7 @@ snapshots:
       node-html-parser: 9.0.0
       open: 11.0.0
       postcss-styled-syntax: 0.7.2(postcss@8.5.26)
-      prettier: 3.8.3
+      prettier: 3.9.6
       regexp.escape: 2.0.1
       rehype-slug: 6.0.0
       rehype-stringify: 10.0.1
@@ -11446,7 +11446,7 @@ snapshots:
       - supports-color
       - vitest
 
-  '@mui/internal-docs-infra@0.12.1-canary.26(@types/react@19.2.18)(next@16.3.0(@babel/core@7.29.7(supports-color@10.2.2))(@playwright/test@1.62.1)(@types/node@22.20.1)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.8(react@19.2.8))(react@19.2.8))(prettier@3.8.3)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)(supports-color@10.2.2)(typescript@6.0.3)':
+  '@mui/internal-docs-infra@0.12.1-canary.26(@types/react@19.2.18)(next@16.3.0(@babel/core@7.29.7(supports-color@10.2.2))(@playwright/test@1.62.1)(@types/node@22.20.1)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.8(react@19.2.8))(react@19.2.8))(prettier@3.9.6)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)(supports-color@10.2.2)(typescript@6.0.3)':
     dependencies:
       '@babel/runtime': 7.29.7
       '@csstools/postcss-light-dark-function': 3.0.2(postcss@8.5.26)
@@ -11496,7 +11496,7 @@ snapshots:
     optionalDependencies:
       '@types/react': 19.2.18
       next: 16.3.0(@babel/core@7.29.7(supports-color@10.2.2))(@playwright/test@1.62.1)(@types/node@22.20.1)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
-      prettier: 3.8.3
+      prettier: 3.9.6
     transitivePeerDependencies:
       - supports-color
 
@@ -18443,7 +18443,7 @@ snapshots:
 
   prelude-ls@1.2.1: {}
 
-  prettier@3.8.3: {}
+  prettier@3.9.6: {}
 
   pretty-format@27.5.1:
     dependencies:
@@ -18461,14 +18461,14 @@ snapshots:
     dependencies:
       parse-ms: 4.0.0
 
-  pretty-quick@4.2.2(prettier@3.8.3):
+  pretty-quick@4.2.2(prettier@3.9.6):
     dependencies:
       '@pkgr/core': 0.2.9
       ignore: 7.0.5
       mri: 1.2.0
       picocolors: 1.1.1
       picomatch: 4.0.5
-      prettier: 3.8.3
+      prettier: 3.9.6
       tinyexec: 0.3.2
       tslib: 2.8.1
 
