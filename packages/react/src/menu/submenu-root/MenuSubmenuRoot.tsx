@@ -4,7 +4,7 @@ import { EMPTY_ARRAY } from '@base-ui/utils/empty';
 import { ownerDocument } from '@base-ui/utils/owner';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { isHTMLElement } from '@floating-ui/utils/dom';
-import { MenuRoot } from '../root/MenuRoot';
+import { MenuRootInternal, type MenuRoot } from '../root/MenuRoot';
 import { useMenuRootContext } from '../root/MenuRootContext';
 import { MenuSubmenuRootContext } from './MenuSubmenuRootContext';
 import { useDirection } from '../../internals/direction-context/DirectionContext';
@@ -88,12 +88,19 @@ export function MenuSubmenuRoot(props: MenuSubmenuRoot.Props) {
   function handleOpenChange(nextOpen: boolean, eventDetails: MenuSubmenuRoot.ChangeEventDetails) {
     props.onOpenChange?.(nextOpen, eventDetails);
 
-    if (eventDetails.isCanceled || !isHTMLElement(eventDetails.trigger)) {
+    if (eventDetails.isCanceled) {
       return;
     }
 
     if (!nextOpen) {
-      if (eventDetails.reason === REASONS.escapeKey) {
+      if (eventDetails.reason === REASONS.escapeKey && isHTMLElement(eventDetails.trigger)) {
+        // Focus returns to the trigger, so the parent highlight has to follow it.
+        const triggerIndex = parent.store.context.itemDomElements.current.indexOf(
+          eventDetails.trigger,
+        );
+        if (triggerIndex > -1) {
+          parent.store.set('activeIndex', triggerIndex);
+        }
         parentReferenceRef.current = {
           reference: eventDetails.trigger,
           trigger: eventDetails.trigger,
@@ -102,13 +109,16 @@ export function MenuSubmenuRoot(props: MenuSubmenuRoot.Props) {
       return;
     }
 
-    if (isKeyboardOpenReason(eventDetails)) {
+    // Scoped to one open/close cycle, or a hover-open inherits a keyboard session's target.
+    parentReferenceRef.current = null;
+
+    if (isHTMLElement(eventDetails.trigger) && isKeyboardOpenReason(eventDetails)) {
       handleSubmenuEnter(eventDetails.trigger);
     }
   }
 
   return (
-    <MenuRoot {...rootProps} isSubmenu onOpenChange={handleOpenChange}>
+    <MenuRootInternal {...rootProps} isSubmenu onOpenChange={handleOpenChange}>
       <MenuSubmenuRootImpl
         parentOrientation={parent.orientation}
         getReturnElement={() =>
@@ -124,7 +134,7 @@ export function MenuSubmenuRoot(props: MenuSubmenuRoot.Props) {
       >
         {props.children}
       </MenuSubmenuRootImpl>
-    </MenuRoot>
+    </MenuRootInternal>
   );
 }
 
@@ -150,6 +160,11 @@ function MenuSubmenuRootImpl(props: MenuSubmenuRootImplProps) {
   const direction = useDirection();
 
   function close(event: React.KeyboardEvent) {
+    // `setOpen` returns early without cancelling when already closed.
+    if (!store.select('open')) {
+      return;
+    }
+
     if (!isMainOrientationKey(event.key, parentOrientation)) {
       stopEvent(event);
     }

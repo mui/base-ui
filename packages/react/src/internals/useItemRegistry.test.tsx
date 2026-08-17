@@ -33,4 +33,36 @@ describe('useItemRegistry', () => {
     expect(Array.from(snapshots.at(-1)?.keys() ?? [])).toEqual(['b', 'd']);
     expect(Array.from(snapshots[1].keys())).toEqual(['a', 'b', 'c']);
   });
+
+  it('publishes every registration under StrictMode double effects', async () => {
+    const snapshots: ReadonlyMap<string, string>[] = [];
+
+    function Item(props: { id: string; registerItem: (id: string, value: string) => () => void }) {
+      const { id, registerItem } = props;
+
+      useIsoLayoutEffect(() => registerItem(id, `value-${id}`), [id, registerItem]);
+      return null;
+    }
+
+    function App(props: { items: string[] }) {
+      const [registeredItems, registerItem] = useItemRegistry<string, string>();
+      snapshots.push(registeredItems);
+
+      return props.items.map((item) => <Item key={item} id={item} registerItem={registerItem} />);
+    }
+
+    // StrictMode runs register -> cleanup -> register, which is what can leave the update latch
+    // stuck or the map an entry short.
+    const { setProps } = await render(<App items={['a', 'b', 'c']} />);
+
+    const latest = () => snapshots.at(-1)!;
+    expect(Array.from(latest().keys())).toEqual(['a', 'b', 'c']);
+    // The value channel, not just the keys.
+    expect(latest().get('b')).toBe('value-b');
+
+    await setProps({ items: ['b', 'd'] });
+
+    expect(Array.from(latest().keys())).toEqual(['b', 'd']);
+    expect(latest().get('d')).toBe('value-d');
+  });
 });

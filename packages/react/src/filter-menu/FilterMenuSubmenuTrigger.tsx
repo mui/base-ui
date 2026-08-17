@@ -1,6 +1,9 @@
 'use client';
 import * as React from 'react';
 import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
+import { createChangeEventDetails } from '../internals/createBaseUIEventDetails';
+import { REASONS } from '../internals/reasons';
 import { useFilterDropdownItem } from '../filter-dropdown/item/useFilterDropdownItem';
 import { useFilterContextForList } from '../filter-dropdown/root/FilterDropdownRootContext';
 import {
@@ -27,6 +30,14 @@ export const FilterMenuSubmenuTrigger = React.forwardRef(function FilterMenuSubm
     context: parentContext,
   });
   const mergedRef = useMergedRefs(forwardedRef, ref);
+
+  // Filtering the trigger out unmounts it, leaving its submenu open with no anchor.
+  useIsoLayoutEffect(() => {
+    if (visible || !store.select('open')) {
+      return;
+    }
+    store.setOpen(false, createChangeEventDetails(REASONS.none));
+  }, [visible, store]);
 
   if (parentContext === null) {
     // A plain parent menu roves DOM focus across its items and never filters them.

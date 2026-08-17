@@ -2,10 +2,12 @@ import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { expect } from 'vitest';
 import { act, screen, waitFor } from '@mui/internal-test-utils';
-import { createRenderer } from '#test-utils';
+import { createRenderer, resetBrowserPointer } from '#test-utils';
 import { FilterDropdown } from '..';
 
 describe('<FilterDropdown.Root />', () => {
+  beforeEach(resetBrowserPointer);
+
   const { render } = createRenderer();
 
   it('renders the expected markup and ARIA relationships', async () => {

@@ -7,7 +7,7 @@ import { useSelectPositionerContext } from '../positioner/SelectPositionerContex
 import { useRenderElement } from '../../internals/useRenderElement';
 import { styleDisableScrollbar } from '../../utils/styles';
 import { LIST_FUNCTIONAL_STYLES } from '../popup/utils';
-import { selectors } from '../store';
+import { selectors, suffixId } from '../store';
 import { SelectCollection } from '../collection/SelectCollection';
 
 const SELECT_LIST_ROLE = 'listbox';
@@ -26,7 +26,7 @@ export const SelectList = React.forwardRef(function SelectList(
   const { alignItemWithTriggerActive } = useSelectPositionerContext();
   const rootId = useStore(store, selectors.id);
   // Resolve once so the list registration uses the same id the DOM element ends up with.
-  const id = componentProps.id ?? `${rootId}-list`;
+  const id = componentProps.id ?? suffixId(rootId, 'list');
   const { children } = componentProps;
 
   // Closed-template API: a function child reads the root's items, so consumers don't have to

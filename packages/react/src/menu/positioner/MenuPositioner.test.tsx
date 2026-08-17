@@ -77,6 +77,21 @@ describe('<Menu.Positioner />', () => {
     expect(useAnchorPositioningSpy.mock.lastCall?.[0].lazyFlip).toBe(true);
   });
 
+  it('leaves lazy flipping off for a plain menu', async () => {
+    await render(
+      <Menu.Root open>
+        <Menu.Trigger>Actions</Menu.Trigger>
+        <Menu.Portal>
+          <Menu.Positioner>
+            <Menu.Popup />
+          </Menu.Positioner>
+        </Menu.Portal>
+      </Menu.Root>,
+    );
+
+    expect(useAnchorPositioningSpy.mock.lastCall?.[0].lazyFlip).toBe(false);
+  });
+
   describeConformance(<Menu.Positioner />, () => ({
     render: (node) => {
       return render(

@@ -10,8 +10,8 @@ import { visuallyHidden, visuallyHiddenInput } from '@base-ui/utils/visuallyHidd
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { Store, useStore } from '@base-ui/utils/store';
 import { EMPTY_ARRAY, EMPTY_OBJECT } from '@base-ui/utils/empty';
-import { getContainsFilter } from '@base-ui/react/internals/filter';
 import { isHTMLElement } from '@floating-ui/utils/dom';
+import { getContainsFilter } from '../../internals/filter';
 import {
   ElementProps,
   getOverflowAncestors,

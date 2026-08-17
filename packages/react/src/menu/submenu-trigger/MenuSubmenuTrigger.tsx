@@ -198,8 +198,9 @@ const MenuSubmenuTriggerImpl = React.forwardRef(function MenuSubmenuTriggerImpl(
           }
         },
       },
-      getItemProps,
       elementProps,
+      // `getItemProps` stays last so `useButton` keeps gating consumer handlers while disabled.
+      getItemProps,
     ],
     ref: [forwardedRef, listItem.ref, itemRef, registerTrigger, handleTriggerElementRef],
   });

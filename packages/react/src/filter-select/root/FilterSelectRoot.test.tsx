@@ -7,9 +7,10 @@ import {
 } from '@base-ui/react/filter-select';
 import { Field } from '@base-ui/react/field';
 import { act, screen, waitFor } from '@mui/internal-test-utils';
-import { createRenderer, isJSDOM } from '#test-utils';
+import { createRenderer, isJSDOM, resetBrowserPointer } from '#test-utils';
 
 describe('<FilterSelect.Root />', () => {
+  beforeEach(resetBrowserPointer);
   beforeEach(() => {
     globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
   });
@@ -754,7 +755,8 @@ describe('<FilterSelect.Root />', () => {
       await waitFor(() => {
         expect(screen.queryAllByRole('option')).toHaveLength(0);
       });
-      expect(screen.queryAllByText('No fruit found').length).toBeGreaterThan(0);
+      // Rendered in place, and mirrored once into the portalled live region.
+      expect(screen.queryAllByText('No fruit found')).toHaveLength(2);
     });
 
     it('filters grouped items from the items data source', async () => {
@@ -1216,7 +1218,7 @@ describe('<FilterSelect.Root />', () => {
     await waitFor(() => {
       expect(screen.getByRole('option', { name: 'Settings' })).toBeVisible();
     });
-    expect(screen.queryByRole('option', { name: 'Apple' })).to.equal(null);
+    expect(screen.queryByRole('option', { name: 'Apple' })).toBe(null);
   });
 
   describe('keyboard navigation', () => {
@@ -1295,7 +1297,7 @@ describe('<FilterSelect.Root />', () => {
       });
     });
 
-    it('keeps the highlight on the selected option past the end of the list', async () => {
+    it('releases the highlight past the end of the list instead of snapping to the selection', async () => {
       const { user } = await render(<KeyboardNavigationSelect defaultValue="banana" />);
       const input = await openWithKeyboard(user);
 
@@ -1335,7 +1337,7 @@ describe('<FilterSelect.Root />', () => {
 
       await user.keyboard('[Escape]');
       await waitFor(() => {
-        expect(screen.queryByRole('listbox')).to.equal(null);
+        expect(screen.queryByRole('listbox')).toBe(null);
       });
 
       const reopenedInput = await openWithKeyboard(user);
@@ -1388,7 +1390,7 @@ describe('<FilterSelect.Root />', () => {
 
       await user.type(input, 'blue');
       await waitFor(() => {
-        expect(screen.queryByRole('option', { name: 'Banana' })).to.equal(null);
+        expect(screen.queryByRole('option', { name: 'Banana' })).toBe(null);
       });
       expect(input).not.toHaveAttribute('aria-activedescendant');
 
@@ -1402,6 +1404,77 @@ describe('<FilterSelect.Root />', () => {
       await user.clear(input);
       await waitFor(() => {
         expect(screen.getByRole('option', { name: 'Banana' })).toHaveAttribute('data-highlighted');
+      });
+    });
+  });
+  describe('regressions', () => {
+    it('keeps a defaultValue while `items` is still loading', async () => {
+      const onValueChange = vi.fn();
+
+      function App() {
+        const [items, setItems] = React.useState<FilterSelectItemData[]>([]);
+        return (
+          <React.Fragment>
+            <button onClick={() => setItems([{ value: 'banana', label: 'Banana' }])}>load</button>
+            <FilterSelect.Root items={items} defaultValue="banana" onValueChange={onValueChange}>
+              <FilterSelect.Trigger data-testid="trigger">
+                <FilterSelect.Value />
+              </FilterSelect.Trigger>
+              <FilterSelect.Portal>
+                <FilterSelect.Positioner>
+                  <FilterSelect.Popup>
+                    <FilterSelect.Input aria-label="Filter fruit" />
+                    <FilterSelect.List>
+                      {(item: FilterSelectItemData) => (
+                        <FilterSelect.Item key={item.value} value={item.value}>
+                          <FilterSelect.ItemText>{item.label}</FilterSelect.ItemText>
+                        </FilterSelect.Item>
+                      )}
+                    </FilterSelect.List>
+                  </FilterSelect.Popup>
+                </FilterSelect.Positioner>
+              </FilterSelect.Portal>
+            </FilterSelect.Root>
+          </React.Fragment>
+        );
+      }
+
+      const { user } = await render(<App />);
+
+      // The empty collection must not be read as "the selected item was removed".
+      expect(onValueChange).toHaveBeenCalledTimes(0);
+
+      await user.click(screen.getByRole('button', { name: 'load' }));
+      expect(onValueChange).toHaveBeenCalledTimes(0);
+      expect(screen.getByTestId('trigger')).toHaveTextContent('Banana');
+    });
+
+    it('renders Empty when the collection itself is empty', async () => {
+      await render(
+        <FilterSelect.Root items={[]} defaultOpen>
+          <FilterSelect.Trigger data-testid="trigger">
+            <FilterSelect.Value />
+          </FilterSelect.Trigger>
+          <FilterSelect.Portal>
+            <FilterSelect.Positioner>
+              <FilterSelect.Popup>
+                <FilterSelect.Input aria-label="Filter fruit" />
+                <FilterSelect.Empty>No fruit found</FilterSelect.Empty>
+                <FilterSelect.List>
+                  {(item: FilterSelectItemData) => (
+                    <FilterSelect.Item key={item.value} value={item.value}>
+                      <FilterSelect.ItemText>{item.label}</FilterSelect.ItemText>
+                    </FilterSelect.Item>
+                  )}
+                </FilterSelect.List>
+              </FilterSelect.Popup>
+            </FilterSelect.Positioner>
+          </FilterSelect.Portal>
+        </FilterSelect.Root>,
+      );
+
+      await waitFor(() => {
+        expect(screen.queryAllByText('No fruit found').length).toBeGreaterThan(0);
       });
     });
   });

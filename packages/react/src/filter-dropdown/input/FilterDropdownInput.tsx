@@ -55,7 +55,9 @@ export const FilterDropdownInput = React.forwardRef(function FilterDropdownInput
         },
         onMouseEnter(event) {
           context.setKeyboardModality(false);
-          event.currentTarget.focus({ preventScroll: true });
+          if (context.open) {
+            event.currentTarget.focus({ preventScroll: true });
+          }
         },
         onPointerDown() {
           context.setKeyboardModality(false);

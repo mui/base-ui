@@ -86,7 +86,9 @@ export function FilterDropdownRoot(props: FilterDropdownRoot.Props): React.JSX.E
     }
   });
 
-  const store = useRefWithInit(() => new Store<StoreState>({ visibleItemIds: null })).current;
+  const store = useRefWithInit(
+    () => new Store<StoreState>({ visibleItemIds: null, registeredItemCount: 0 }),
+  ).current;
 
   const defaultMatches = React.useMemo(() => getContainsFilter({ locale }), [locale]);
 
@@ -98,6 +100,10 @@ export function FilterDropdownRoot(props: FilterDropdownRoot.Props): React.JSX.E
   // Filtering runs against the registry snapshot published after every item in the commit has
   // registered, and against the committed query, because a controlled consumer can reject a
   // proposed change.
+  useIsoLayoutEffect(() => {
+    store.set('registeredItemCount', registeredItems.size);
+  }, [registeredItems, store]);
+
   useIsoLayoutEffect(() => {
     if (!open && query === undefined) {
       return;

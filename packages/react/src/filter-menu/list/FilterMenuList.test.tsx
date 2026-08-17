@@ -34,7 +34,8 @@ describe('<FilterMenu.List />', () => {
     });
     expect(list).not.toHaveAttribute('aria-hidden');
     expect(list).toHaveAttribute('tabindex', '-1');
-    expect(apple).toHaveAttribute('aria-expanded', 'true');
+    expect(apple).toHaveAttribute('tabindex', '-1');
+    expect(apple).not.toHaveAttribute('aria-expanded');
 
     await user.keyboard('[ArrowDown]');
     await waitFor(() => {

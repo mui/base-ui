@@ -56,13 +56,11 @@ export const MenuItem = React.forwardRef(function MenuItem(
     highlighted,
   };
 
-  const element = useRenderElement('div', componentProps, {
+  return useRenderElement('div', componentProps, {
     state,
     props: [itemProps, elementProps, getItemProps],
     ref: [itemRef, forwardedRef, listItem.ref],
   });
-
-  return element;
 });
 
 export interface MenuItemState {

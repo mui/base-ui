@@ -1,10 +1,11 @@
 'use client';
 import * as React from 'react';
-import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
+import { NOOP } from '@base-ui/utils/empty';
 import type { BaseUIComponentProps, NativeButtonProps } from '../../internals/types';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { pressableTriggerOpenStateMapping } from '../../utils/popupStateMapping';
 import { useFilterDropdownRootContext } from '../root/FilterDropdownRootContext';
+import { useRenderedId } from '../root/useRenderedId';
 
 /**
  * @internal
@@ -19,18 +20,15 @@ export const FilterDropdownTrigger = React.forwardRef(function FilterDropdownTri
     style,
     disabled = false,
     id: idProp,
-    detached,
+    popupState,
     ...elementProps
   } = componentProps;
-  const context = useFilterDropdownRootContext(detached !== undefined);
+  const context = useFilterDropdownRootContext(popupState !== undefined);
   const setTriggerId = context?.setTriggerId;
   const id = idProp ?? context?.triggerId;
-  const open = context?.open ?? detached?.open ?? false;
-  const popupId = context?.popupId ?? detached?.popupId;
-
-  useIsoLayoutEffect(() => {
-    setTriggerId?.(id);
-  }, [id, setTriggerId]);
+  const open = popupState?.open ?? context?.open ?? false;
+  const popupId = popupState?.popupId ?? context?.popupId;
+  const renderedIdRef = useRenderedId(setTriggerId ?? NOOP);
 
   const state: FilterDropdownTriggerState = {
     disabled,
@@ -39,7 +37,7 @@ export const FilterDropdownTrigger = React.forwardRef(function FilterDropdownTri
 
   return useRenderElement('button', componentProps, {
     state,
-    ref: [forwardedRef, context?.setTriggerElement],
+    ref: [forwardedRef, context?.setTriggerElement, renderedIdRef],
     props: [
       {
         id,
@@ -66,11 +64,11 @@ export interface FilterDropdownTriggerState {
 
 export type FilterDropdownTriggerProps = NativeButtonProps &
   BaseUIComponentProps<'button', FilterDropdownTriggerState> & {
-    id: string | undefined;
+    id?: string | undefined;
     /**
-     * State supplied by a detached trigger that cannot access the FilterDropdown root context.
+     * Trigger-scoped popup state from the host, which knows which trigger opened the popup.
      */
-    detached?: { open: boolean; popupId: string | undefined } | undefined;
+    popupState?: { open: boolean; popupId: string | undefined } | undefined;
   };
 
 export namespace FilterDropdownTrigger {

@@ -9,7 +9,7 @@ import {
 } from '../../filter-dropdown/root/FilterDropdownRoot';
 import type { FilterDropdownFilter } from '../../filter-dropdown/root/FilterDropdownRootContext';
 import { useFilterDropdownCloseQuery } from '../../filter-dropdown/root/useFilterDropdownCloseQuery';
-import { MenuRoot } from '../../menu/root/MenuRoot';
+import { MenuRootInternal, type MenuRoot } from '../../menu/root/MenuRoot';
 import { useMenuRootContext } from '../../menu/root/MenuRootContext';
 
 export function FilterMenuRoot<Payload>(props: FilterMenuRoot.Props<Payload>): React.JSX.Element {
@@ -23,6 +23,7 @@ export function FilterMenuRoot<Payload>(props: FilterMenuRoot.Props<Payload>): R
     defaultInputValue = '',
     onInputValueChange,
     filter,
+    locale,
     disabled,
     ...menuProps
   } = props;
@@ -69,7 +70,7 @@ export function FilterMenuRoot<Payload>(props: FilterMenuRoot.Props<Payload>): R
   }
 
   return (
-    <MenuRoot
+    <MenuRootInternal
       {...menuProps}
       disabled={disabled}
       open={open}
@@ -84,12 +85,13 @@ export function FilterMenuRoot<Payload>(props: FilterMenuRoot.Props<Payload>): R
           value={inputValue}
           query={closeQuery.query}
           filter={filter}
+          locale={locale}
           onValueChange={handleInputValueChange}
         >
           {typeof children === 'function' ? children(payload) : children}
         </FilterMenuProvider>
       )}
-    </MenuRoot>
+    </MenuRootInternal>
   );
 }
 
@@ -116,6 +118,7 @@ interface FilterMenuProviderProps {
   value: string;
   query?: string | undefined;
   filter: FilterDropdownFilter | undefined;
+  locale: Intl.LocalesArgument | undefined;
   onValueChange: (value: string, details: FilterMenuRoot.InputValueChangeEventDetails) => void;
   children?: React.ReactNode;
 }
@@ -144,6 +147,7 @@ export function FilterMenuProvider(props: FilterMenuProviderProps) {
       value={props.value}
       query={props.query ?? props.value}
       filter={props.filter}
+      locale={props.locale}
       triggerId={triggerId}
       triggerElement={triggerElement}
       listRef={store.context.itemDomElements}
@@ -159,22 +163,58 @@ export function FilterMenuProvider(props: FilterMenuProviderProps) {
 }
 
 export interface FilterMenuRootFilterProps {
-  filter?: FilterDropdownFilter | undefined;
+  /**
+   * Replaces the default case-insensitive substring matching.
+   * Receives an item's filter text and the trimmed query.
+   */
+  filter?: FilterMenuFilter | undefined;
+  /**
+   * Locale used when comparing an item against the query.
+   * Defaults to the runtime's default locale.
+   */
+  locale?: Intl.LocalesArgument | undefined;
+  /**
+   * The uncontrolled filter query when the menu is initially rendered.
+   * To render a controlled query, use the `inputValue` prop instead.
+   */
   defaultInputValue?: string | undefined;
+  /**
+   * The filter query. Use when controlled.
+   * The query is cleared when the popup closes.
+   */
   inputValue?: string | undefined;
+  /**
+   * Event handler called when the filter query changes.
+   */
   onInputValueChange?:
     | ((value: string, eventDetails: FilterMenuRoot.InputValueChangeEventDetails) => void)
     | undefined;
 }
+
+export type FilterMenuFilter = FilterDropdownFilter;
 
 export namespace FilterMenuRoot {
   export type Props<Payload = unknown> = Omit<
     MenuRoot.Props<Payload>,
     'open' | 'defaultOpen' | 'onOpenChange'
   > & {
+    /**
+     * Whether the menu is currently open.
+     */
     open?: boolean | undefined;
+    /**
+     * Whether the menu is initially open.
+     *
+     * To render a controlled menu, use the `open` prop instead.
+     * @default false
+     */
     defaultOpen?: boolean | undefined;
-    onOpenChange?: ((open: boolean, eventDetails: MenuRoot.ChangeEventDetails) => void) | undefined;
+    /**
+     * Event handler called when the menu is opened or closed.
+     */
+    onOpenChange?:
+      | ((open: boolean, eventDetails: FilterMenuRoot.ChangeEventDetails) => void)
+      | undefined;
   } & FilterMenuRootFilterProps;
   export type State = MenuRoot.State;
   export type Actions = MenuRoot.Actions;

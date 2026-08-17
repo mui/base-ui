@@ -153,8 +153,6 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
     inert: !open,
   });
 
-  const prevMapSizeRef = React.useRef(0);
-
   const handleCompositeListChange = useStableCallback(
     (map: Map<Element, ({ index?: number | null | undefined } & SelectItemMetadata) | null>) => {
       const prevIndexes = store.state.visibleItemIndexes;
@@ -170,13 +168,6 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
 
       if (hasIndexesChanged || prevIndexes.size !== nextIndexes.size) {
         store.set('visibleItemIndexes', nextIndexes);
-      }
-
-      const prevSize = prevMapSizeRef.current;
-      prevMapSizeRef.current = map.size;
-
-      if (map.size === prevSize) {
-        return;
       }
 
       if (open && alignItemWithTriggerActive) {
@@ -209,7 +200,9 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
       const previousRegisteredItems = previousRegisteredItemsRef.current;
       previousRegisteredItemsRef.current = registeredItems;
 
-      if (!isItemRemoved(previousRegisteredItems, registeredItems)) {
+      // Under virtual focus a query unmounts items on every keystroke, which is not a removal.
+      // The host owns that reconciliation against its own data.
+      if (virtualFocus || !isItemRemoved(previousRegisteredItems, registeredItems)) {
         return;
       }
 
@@ -248,7 +241,16 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
         store.set('selectionReferenceItemId', null);
       }
     },
-    [store, multiple, registeredItems, setValue, value, isItemEqualToValue, initialValueRef],
+    [
+      store,
+      multiple,
+      registeredItems,
+      setValue,
+      value,
+      isItemEqualToValue,
+      initialValueRef,
+      virtualFocus,
+    ],
   );
 
   return (

@@ -14,7 +14,7 @@ import type {
 } from '../../internals/types';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { SelectItemContext } from './SelectItemContext';
-import { selectors, type SelectItemMetadata } from '../store';
+import { selectors, suffixId, type SelectItemMetadata } from '../store';
 import { useButton } from '../../internals/use-button';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
@@ -78,7 +78,7 @@ const SelectItemImpl = React.memo(
 
     const itemRef = React.useRef<HTMLDivElement | null>(null);
     const rootId = useStore(store, selectors.id);
-    const id = rootId != null ? `${rootId}-${index}` : undefined;
+    const id = suffixId(rootId, index);
 
     const pointerTypeRef = React.useRef<'mouse' | 'touch' | 'pen'>('mouse');
     const allowMouseSelectionRef = React.useRef(false);
@@ -120,12 +120,9 @@ const SelectItemImpl = React.memo(
       selectionRef.current.dragY = 0;
     }
 
-    // Under virtual focus an element inside the popup keeps real focus and the list is navigated
-    // with `aria-activedescendant`, so items must stay out of the tab order.
-    let rovingTabIndex: number | undefined = -1;
-    if (virtualFocus) {
-      rovingTabIndex = undefined;
-    } else if (open && highlighted) {
+    // `-1` rather than omitting it, which leaves natively focusable items in the tab order.
+    let rovingTabIndex = -1;
+    if (!virtualFocus && open && highlighted) {
       rovingTabIndex = 0;
     }
 

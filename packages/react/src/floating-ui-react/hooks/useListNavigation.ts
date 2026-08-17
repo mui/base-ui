@@ -33,6 +33,7 @@ import {
 } from '../utils/element';
 import { enqueueFocus } from '../utils/enqueueFocus';
 import { isVirtualClick, isVirtualPointerEvent, stopEvent } from '../utils/event';
+import { dispatchClickWithModifiers } from '../../utils/dispatchClickWithModifiers';
 
 export const ESCAPE = 'Escape';
 
@@ -575,7 +576,12 @@ export function useListNavigation(
         forceSyncFocusRef.current = true;
         syncCurrentTarget(event);
       },
-      onClick: ({ currentTarget }) => currentTarget.focus({ preventScroll: true }), // Safari
+      onClick({ currentTarget }) {
+        // Safari. Skipped under virtual focus, which must keep real focus on the reference.
+        if (!virtual) {
+          currentTarget.focus({ preventScroll: true });
+        }
+      },
       onMouseMove(event) {
         if (isStationaryWebKitPointer(event)) {
           return;
@@ -807,19 +813,30 @@ export function useListNavigation(
         const currentOpen = store.select('open');
 
         if (virtual && currentOpen) {
-          const isOpenKey = isCrossOrientationOpenKey(event.key, orientation, rtl);
-          const isCloseKey = isCrossOrientationCloseKey(event.key, orientation, rtl, isGrid);
-          const isActivationKey = event.key === 'Enter' || event.key === ' ';
           const activeItem = listRef.current[indexRef.current];
           const isEventFromReference = event.target === event.currentTarget;
-          const shouldForwardCrossAxisKey = !isGrid && (isOpenKey || isCloseKey);
+          const isActivationKey = event.key === 'Enter' || event.key === ' ';
           const shouldActivate = !isTypeableElement(event.currentTarget) && isActivationKey;
 
-          if (activeItem && isEventFromReference && (shouldForwardCrossAxisKey || shouldActivate)) {
+          // Unset `orientation` matches every arrow key, replaying caret movement onto the item.
+          const hasCrossAxis = orientation !== undefined && !isGrid;
+          const shouldForwardCrossAxisKey =
+            hasCrossAxis &&
+            (isCrossOrientationOpenKey(event.key, orientation, rtl) ||
+              isCrossOrientationCloseKey(event.key, orientation, rtl, isGrid));
+
+          if (activeItem && isEventFromReference && shouldActivate) {
             if (event.key === ' ') {
               // Prevent scrolling when space is pressed
               event.preventDefault();
             }
+            // A click, not a replayed keydown, which skips native link and button activation.
+            stopEvent(event);
+            dispatchClickWithModifiers(activeItem, event);
+            return;
+          }
+
+          if (activeItem && isEventFromReference && shouldForwardCrossAxisKey) {
             const KeyboardEventConstructor = ownerWindow(activeItem).KeyboardEvent;
             // `cancelable` lets the item report that it handled the key, `composed` lets the
             // event escape a shadow root so React's root listener still sees it, and the

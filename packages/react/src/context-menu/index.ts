@@ -60,9 +60,9 @@ export type {
   MenuRadioItemIndicatorState as ContextMenuRadioItemIndicatorState,
 } from '../menu/radio-item-indicator/MenuRadioItemIndicator';
 export type {
-  ContextMenuSubmenuRootProps,
-  ContextMenuSubmenuRootState,
-} from './submenu-root/ContextMenuSubmenuRoot';
+  MenuSubmenuRootProps as ContextMenuSubmenuRootProps,
+  MenuSubmenuRootState as ContextMenuSubmenuRootState,
+} from '../menu/submenu-root/MenuSubmenuRoot';
 export type {
   MenuSubmenuTriggerProps as ContextMenuSubmenuTriggerProps,
   MenuSubmenuTriggerState as ContextMenuSubmenuTriggerState,

@@ -2,11 +2,11 @@
 import * as React from 'react';
 import { useTimeout } from '@base-ui/utils/useTimeout';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
-import { useBaseUiId } from '@base-ui/react/internals/useBaseUiId';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { EMPTY_ARRAY, EMPTY_OBJECT } from '@base-ui/utils/empty';
 import { fastComponent } from '@base-ui/utils/fastHooks';
+import { useBaseUiId } from '../../internals/useBaseUiId';
 import {
   FloatingTree,
   useDismiss,
@@ -51,6 +51,10 @@ import {
 } from '../../utils/popups';
 
 interface MenuRootInternalProps<Payload> extends MenuRoot.Props<Payload> {
+  /**
+   * @ignore
+   * Marks this root as a submenu of the enclosing menu.
+   */
   isSubmenu?: boolean | undefined;
   /**
    * @ignore
@@ -66,9 +70,7 @@ interface MenuRootInternalProps<Payload> extends MenuRoot.Props<Payload> {
  *
  * Documentation: [Base UI Menu](https://base-ui.com/react/components/menu)
  */
-export const MenuRoot = fastComponent(function MenuRoot<Payload>(
-  props: MenuRootInternalProps<Payload>,
-) {
+export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot.Props<Payload>) {
   const {
     children,
     open: openProp,
@@ -87,7 +89,7 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(
     highlightItemOnHover = true,
     isSubmenu = false,
     virtualFocus = false,
-  } = props;
+  } = props as MenuRootInternalProps<Payload>;
 
   const contextMenuContext = useContextMenuRootContext(true);
   const parentMenuRootContext = useMenuRootContext(true);
@@ -165,6 +167,9 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(
     floatingId,
     floatingParentNodeIdFromContext != null,
   );
+
+  // Read by submenu triggers, and not fixed at construction (React 17 ids, `Menu.Popup` id).
+  store.useSyncedValue('floatingId', floatingId);
 
   store.useControlledProp('openProp', openProp);
   store.useControlledProp('triggerIdProp', triggerIdProp);
@@ -678,15 +683,7 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(
     [typeahead.floating, listNavigation.floating, dismiss.floating, store, parent.type],
   );
 
-  const itemProps = React.useMemo<HTMLProps>(() => {
-    if (!virtualFocus) {
-      return listNavigation.item ?? EMPTY_OBJECT;
-    }
-
-    // Safari + VoiceOver only follows a searchbox's virtual focus when the menu items expose an
-    // expanded state. This avoids making the menu itself a fallback tab stop.
-    return { ...listNavigation.item, 'aria-expanded': true };
-  }, [listNavigation.item, virtualFocus]);
+  const itemProps = listNavigation.item ?? EMPTY_OBJECT;
 
   usePopupInteractionProps(store, {
     floatingRootContext,
@@ -893,3 +890,8 @@ export namespace MenuRoot {
   export type ChangeEventDetails = MenuRootChangeEventDetails;
   export type Orientation = MenuRootOrientation;
 }
+
+/** `MenuRoot` with the internal props visible, which the public signature hides. */
+export const MenuRootInternal = MenuRoot as <Payload>(
+  props: MenuRootInternalProps<Payload>,
+) => React.JSX.Element;

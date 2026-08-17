@@ -13,7 +13,8 @@ interface GroupMembership {
 }
 
 function isGroupHidden(state: StoreState, membership: GroupMembership) {
-  if (state.visibleItemIds === null) {
+  // A group with no members hasn't been filtered out, it hasn't registered yet.
+  if (state.visibleItemIds === null || membership.ids.size === 0) {
     return false;
   }
   for (const id of membership.ids) {

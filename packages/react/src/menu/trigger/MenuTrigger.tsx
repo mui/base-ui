@@ -38,69 +38,6 @@ import { PATIENT_CLICK_THRESHOLD } from '../../internals/constants';
 import { FocusGuard } from '../../utils/FocusGuard';
 import { mergeProps } from '../../merge-props';
 
-const MenuTriggerImpl = React.forwardRef(function MenuTriggerImpl(
-  componentProps: MenuTrigger.Props & MenuTriggerImplInternalProps,
-  forwardedRef: React.ForwardedRef<HTMLElement>,
-) {
-  const {
-    render,
-    className,
-    style,
-    disabled: disabledProp,
-    nativeButton,
-    id,
-    openOnHover,
-    delay,
-    closeDelay,
-    handle,
-    payload,
-    isInMenubar,
-    state,
-    refs,
-    props,
-    buttonProps,
-    ...elementProps
-  } = componentProps;
-
-  const element = useRenderElement(
-    'button',
-    { render, className, style },
-    {
-      enabled: !isInMenubar,
-      stateAttributesMapping: pressableTriggerOpenStateMapping,
-      state,
-      ref: [forwardedRef, ...refs],
-      // `buttonProps` stays last so `useButton` keeps gating consumer handlers while disabled.
-      props: [...props, elementProps, buttonProps],
-    },
-  );
-
-  if (!isInMenubar) {
-    return element;
-  }
-
-  return (
-    <CompositeItem
-      tag="button"
-      render={render}
-      className={className}
-      style={style}
-      state={state}
-      refs={refs}
-      props={[...props, elementProps, buttonProps]}
-      stateAttributesMapping={pressableTriggerOpenStateMapping}
-    />
-  );
-});
-
-interface MenuTriggerImplInternalProps {
-  isInMenubar: boolean;
-  state: MenuTriggerState;
-  refs: React.Ref<HTMLElement | null>[];
-  props: Array<Record<string, any> | (() => Record<string, any>)>;
-  buttonProps: Record<string, any> | ((props: Record<string, any>) => Record<string, any>);
-}
-
 /**
  * A button that opens the menu.
  * Renders a `<button>` element.
@@ -112,6 +49,9 @@ export const MenuTrigger = fastComponentRef(function MenuTrigger(
   forwardedRef: React.ForwardedRef<HTMLElement>,
 ) {
   const {
+    render,
+    className,
+    style,
     disabled: disabledProp = false,
     nativeButton = true,
     id: idProp,
@@ -120,6 +60,7 @@ export const MenuTrigger = fastComponentRef(function MenuTrigger(
     closeDelay = 0,
     handle,
     payload,
+    ...elementProps
   } = componentProps;
 
   const rootContext = useMenuRootContext(true);
@@ -283,7 +224,7 @@ export const MenuTrigger = fastComponentRef(function MenuTrigger(
     hoverProps ?? EMPTY_OBJECT,
     rootTriggerProps,
     {
-      'aria-haspopup': 'menu',
+      'aria-haspopup': 'menu' as const,
       'aria-controls': popupId,
       id: thisTriggerId,
       onMouseDown: (event: React.MouseEvent) => {
@@ -302,21 +243,32 @@ export const MenuTrigger = fastComponentRef(function MenuTrigger(
     },
     isInMenubar ? { role: 'menuitem' } : {},
     mixedToggleHandlers,
+    elementProps,
+    // `getButtonProps` stays last so `useButton` keeps gating consumer handlers while disabled.
+    getButtonProps,
   ];
 
-  const trigger = (
-    <MenuTriggerImpl
-      {...componentProps}
-      isInMenubar={isInMenubar}
-      state={state}
-      refs={ref}
-      props={props}
-      buttonProps={getButtonProps}
-    />
-  );
+  const element = useRenderElement('button', componentProps, {
+    enabled: !isInMenubar,
+    stateAttributesMapping: pressableTriggerOpenStateMapping,
+    state,
+    ref,
+    props,
+  });
 
   if (isInMenubar) {
-    return trigger;
+    return (
+      <CompositeItem
+        tag="button"
+        render={render}
+        className={className}
+        style={style}
+        state={state}
+        refs={ref}
+        props={props}
+        stateAttributesMapping={pressableTriggerOpenStateMapping}
+      />
+    );
   }
 
   // A fragment with key is required to ensure that the `element` is mounted to the same DOM node
@@ -330,7 +282,7 @@ export const MenuTrigger = fastComponentRef(function MenuTrigger(
           onFocus={handlePreFocusGuardFocus}
           key={`${thisTriggerId}-pre-focus-guard`}
         />
-        <React.Fragment key={thisTriggerId}>{trigger}</React.Fragment>
+        <React.Fragment key={thisTriggerId}>{element}</React.Fragment>
         <FocusGuard
           ref={store.context.triggerFocusTargetRef}
           onFocus={handleFocusTargetFocus}
@@ -340,7 +292,7 @@ export const MenuTrigger = fastComponentRef(function MenuTrigger(
     );
   }
 
-  return <React.Fragment key={thisTriggerId}>{trigger}</React.Fragment>;
+  return <React.Fragment key={thisTriggerId}>{element}</React.Fragment>;
 }) as MenuTrigger;
 
 export interface MenuTrigger {

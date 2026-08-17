@@ -2,6 +2,7 @@
 import * as React from 'react';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
+import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
 import { useStore } from '@base-ui/utils/store';
 import {
   useFilterDropdownRootContext,
@@ -9,6 +10,20 @@ import {
 } from '../root/FilterDropdownRootContext';
 import { useFilterDropdownGroupContext } from '../group/FilterDropdownGroupContext';
 import { DETACHED_OWNER, selectors } from '../store';
+
+/** Text of the rendered children, for when the element is filtered out and has no DOM node. */
+function childrenText(children: React.ReactNode): string {
+  if (typeof children === 'string' || typeof children === 'number') {
+    return String(children);
+  }
+  if (Array.isArray(children)) {
+    return children.map(childrenText).join('');
+  }
+  if (React.isValidElement(children)) {
+    return childrenText((children.props as { children?: React.ReactNode }).children);
+  }
+  return '';
+}
 
 export interface UseFilterDropdownItemParameters {
   /**
@@ -70,42 +85,55 @@ export function useFilterDropdownItem(
   const [registered, setRegistered] = React.useState(false);
   const matched = useStore(store, selectors.isItemVisible, itemId);
 
+  // Read through refs so `register` stays stable. An inline `keywords` array is a fresh reference
+  // on every render of the consumer's tree, which would otherwise re-register every item.
+  const childrenRef = useValueAsRef(children);
+  const keywordsRef = useValueAsRef(keywords);
+  const filterValueRef = useValueAsRef(filterValue);
+  const keywordsKey = keywords?.join('\u0000');
+
+  const resolveText = React.useCallback(() => {
+    if (label != null) {
+      return label;
+    }
+    // A filtered-out item has no DOM node left, so fall back to its children.
+    return ref.current?.textContent ?? childrenText(childrenRef.current);
+  }, [label, childrenRef]);
+
   const register = React.useCallback(() => {
     const getText = () => {
-      // Return the label before touching the DOM; reading `textContent` is only a fallback.
-      if (label != null) {
-        return label;
+      const text = resolveText();
+      if (text) {
+        previousTextRef.current = text;
       }
-
-      const textContent = ref.current?.textContent ?? previousTextRef.current;
-      if (textContent) {
-        // Cache it so the text survives the item being filtered out and unmounted.
-        previousTextRef.current = textContent;
-      }
-      return textContent;
+      return text || previousTextRef.current;
     };
 
     previousTextRef.current = getText();
     setRegistered(true);
-    return registerItem(itemId, { getText, keywords, filterValue });
-  }, [itemId, registerItem, label, keywords, filterValue]);
+    return registerItem(itemId, {
+      getText,
+      get keywords() {
+        return keywordsRef.current;
+      },
+      get filterValue() {
+        return filterValueRef.current;
+      },
+    });
+  }, [itemId, registerItem, resolveText, keywordsRef, filterValueRef]);
 
   useIsoLayoutEffect(register, [register]);
 
   useIsoLayoutEffect(() => registerGroupItem?.(itemId), [registerGroupItem, itemId]);
 
-  // Re-register when the rendered children change so the active query runs against the new text.
+  // Re-register when the rendered text or the keywords change, so the active query runs again.
   useIsoLayoutEffect(() => {
-    if (label != null) {
-      return;
-    }
-
-    const textContent = ref.current?.textContent;
-    if (textContent && textContent !== previousTextRef.current) {
-      previousTextRef.current = textContent;
+    const text = resolveText();
+    if (text !== previousTextRef.current) {
+      previousTextRef.current = text;
       void register();
     }
-  }, [label, register, children]);
+  }, [register, resolveText, children, keywordsKey]);
 
   return { visible: !registered || matched, ref };
 }

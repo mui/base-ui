@@ -11,10 +11,10 @@ import {
 import type { FilterDropdownFilter } from '../../filter-dropdown/root/FilterDropdownRootContext';
 import { useFilterDropdownCloseQuery } from '../../filter-dropdown/root/useFilterDropdownCloseQuery';
 import type { ItemFilter } from '../../internals/filter';
-import { flattenLeafItems, type Group } from '../../internals/resolveValueLabel';
+import { flattenLeafItems, stringifyAsLabel, type Group } from '../../internals/resolveValueLabel';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
-import { SelectRoot } from '../../select/root/SelectRoot';
+import { SelectRootInternal, type SelectRoot } from '../../select/root/SelectRoot';
 import { selectors } from '../../select/store';
 import { useSelectRootContext } from '../../select/root/SelectRootContext';
 import { useFieldRootContext } from '../../internals/field-root-context/FieldRootContext';
@@ -58,7 +58,6 @@ export function FilterSelectRoot<Value, Multiple extends boolean | undefined = f
     state: 'inputValue',
   });
   const [inputFocusVisible, setInputFocusVisible] = React.useState(false);
-  const removalInProgressRef = React.useRef(false);
 
   const normalizedItems = React.useMemo<readonly any[]>(() => {
     if (Array.isArray(items)) {
@@ -76,11 +75,12 @@ export function FilterSelectRoot<Value, Multiple extends boolean | undefined = f
       return undefined;
     }
 
-    // A custom filter receives the entry from `items`, as documented. Keywords are matched
-    // separately by the popup so a filter written against the item shape never sees a bare
-    // keyword string.
+    // `itemToStringLabel` takes a value; the filter is handed an entry.
+    const itemToString = (item: any) =>
+      stringifyAsLabel(item?.value ?? item, selectProps.itemToStringLabel);
+
     return (filterText: string, filterQuery: string, filterValue?: unknown) =>
-      filter<any>(filterValue ?? filterText, filterQuery, selectProps.itemToStringLabel as any);
+      filter<any>(filterValue ?? filterText, filterQuery, itemToString);
   }, [filter, selectProps.itemToStringLabel]);
 
   const filterSelectContextValue = React.useMemo(() => {
@@ -124,7 +124,6 @@ export function FilterSelectRoot<Value, Multiple extends boolean | undefined = f
     onValueChange: handleInputValueChange,
     onOpenChangeComplete,
   });
-  const query = closeQuery.query.trim();
 
   function handleOpenChange(nextOpen: boolean, details: FilterSelectRoot.ChangeEventDetails) {
     onOpenChange?.(nextOpen, details);
@@ -142,18 +141,8 @@ export function FilterSelectRoot<Value, Multiple extends boolean | undefined = f
     );
   }
 
-  function handleValueChange(nextValue: any, details: SelectRoot.ChangeEventDetails) {
-    // Filtering is data-driven by this owner. Select's ordinary item-removal reconciliation must
-    // not clear a selected value merely because the active query temporarily hides its item.
-    if (details.reason === REASONS.none && query !== '' && !removalInProgressRef.current) {
-      details.cancel();
-      return;
-    }
-    onValueChange?.(nextValue, details);
-  }
-
   return (
-    <SelectRoot
+    <SelectRootInternal
       {...selectProps}
       disabled={disabled}
       isItemEqualToValue={isItemEqualToValue}
@@ -162,7 +151,7 @@ export function FilterSelectRoot<Value, Multiple extends boolean | undefined = f
       open={open}
       onOpenChange={handleOpenChange}
       onOpenChangeComplete={closeQuery.handleOpenChangeComplete}
-      onValueChange={handleValueChange}
+      onValueChange={onValueChange}
       virtualFocus
     >
       <FilterSelectRootContext.Provider value={filterSelectContextValue}>
@@ -174,14 +163,13 @@ export function FilterSelectRoot<Value, Multiple extends boolean | undefined = f
           query={closeQuery.query}
           flatItems={flatItems}
           locale={locale}
-          removalInProgressRef={removalInProgressRef}
           filter={filterDropdownFilter}
           onInputValueChange={handleInputValueChange}
         >
           {children}
         </FilterSelectProvider>
       </FilterSelectRootContext.Provider>
-    </SelectRoot>
+    </SelectRootInternal>
   );
 }
 
@@ -194,7 +182,6 @@ interface FilterSelectProviderProps {
   flatItems: readonly any[];
   locale: Intl.LocalesArgument | undefined;
   filter: FilterDropdownFilter | undefined;
-  removalInProgressRef: React.MutableRefObject<boolean>;
   onInputValueChange: (
     value: string,
     details: FilterSelectRoot.InputValueChangeEventDetails,
@@ -229,6 +216,11 @@ function FilterSelectProvider(props: FilterSelectProviderProps) {
   }, [props.open, hasQuery, selectedIndex, setActiveIndex]);
 
   useIsoLayoutEffect(() => {
+    // An async `items` starts empty, which would clear `defaultValue` before its data arrives.
+    if (props.flatItems.length === 0) {
+      return;
+    }
+
     const selectedValues = store.state.multiple && Array.isArray(value) ? value : [value];
     const selectedValueStillExists = selectedValues.every(
       (selectedValue) =>
@@ -237,16 +229,14 @@ function FilterSelectProvider(props: FilterSelectProviderProps) {
     );
 
     if (value != null && !selectedValueStillExists) {
-      props.removalInProgressRef.current = true;
       const nextValue = store.state.multiple
         ? (value as any[]).filter((selectedValue) =>
             props.flatItems.some((item) => isEqual(item?.value, selectedValue)),
           )
         : null;
       setValue(nextValue, createChangeEventDetails(REASONS.none));
-      props.removalInProgressRef.current = false;
     }
-  }, [isEqual, props.flatItems, props.removalInProgressRef, setValue, store, value]);
+  }, [isEqual, props.flatItems, setValue, store, value]);
 
   return (
     <FilterDropdownRoot
@@ -271,35 +261,76 @@ function FilterSelectProvider(props: FilterSelectProviderProps) {
 
 export type FilterSelectFilter = ItemFilter;
 
-export interface FilterSelectItemData {
+export interface FilterSelectItemData<Value = any> {
   label: React.ReactNode;
-  value: any;
+  value: Value;
   keywords?: readonly string[] | undefined;
 }
 
-export type FilterSelectItems =
+export type FilterSelectItems<Value = any> =
   | Record<string, React.ReactNode>
-  | ReadonlyArray<FilterSelectItemData>
-  | ReadonlyArray<Group<FilterSelectItemData>>;
+  | ReadonlyArray<FilterSelectItemData<Value>>
+  | ReadonlyArray<Group<FilterSelectItemData<Value>>>;
 
 export namespace FilterSelectRoot {
   export type Props<Value = any, Multiple extends boolean | undefined = false> = Omit<
     SelectRoot.Props<Value, Multiple>,
-    'open' | 'defaultOpen' | 'onOpenChange' | 'onValueChange'
+    'open' | 'defaultOpen' | 'onOpenChange' | 'onValueChange' | 'items'
   > & {
-    items: FilterSelectItems;
+    /**
+     * Data structure of the items rendered in the popup, and the source the query filters.
+     * Required: filtering narrows this data before the list renders.
+     *
+     * Render the entries with a function child of `<FilterSelect.List>`, or of
+     * `<FilterSelect.Collection>` inside a group.
+     */
+    items: FilterSelectItems<Value>;
+    /**
+     * Whether the popup is currently open.
+     */
     open?: boolean | undefined;
+    /**
+     * Whether the popup is initially open.
+     *
+     * To render a controlled select, use the `open` prop instead.
+     * @default false
+     */
     defaultOpen?: boolean | undefined;
+    /**
+     * Event handler called when the popup is opened or closed.
+     */
     onOpenChange?:
-      | ((open: boolean, eventDetails: SelectRoot.ChangeEventDetails) => void)
+      | ((open: boolean, eventDetails: FilterSelectRoot.ChangeEventDetails) => void)
       | undefined;
+    /**
+     * Event handler called when the selected value changes.
+     */
     onValueChange?: SelectRoot.Props<Value, Multiple>['onValueChange'] | undefined;
+    /**
+     * Replaces the default case-insensitive substring matching.
+     * Receives an entry from `items` and the trimmed query.
+     */
     filter?: FilterSelectFilter | undefined;
+    /**
+     * Locale used when comparing an item against the query.
+     * Defaults to the runtime's default locale.
+     */
     locale?: Intl.LocalesArgument | undefined;
+    /**
+     * The uncontrolled filter query when the select is initially rendered.
+     * To render a controlled query, use the `inputValue` prop instead.
+     */
     defaultInputValue?: string | undefined;
+    /**
+     * The filter query. Use when controlled.
+     * The query is cleared when the popup closes.
+     */
     inputValue?: string | undefined;
+    /**
+     * Event handler called when the filter query changes.
+     */
     onInputValueChange?:
-      | ((value: string, eventDetails: FilterDropdownRootNamespace.ChangeEventDetails) => void)
+      | ((value: string, eventDetails: FilterSelectRoot.InputValueChangeEventDetails) => void)
       | undefined;
   };
   export type Actions = SelectRoot.Actions;

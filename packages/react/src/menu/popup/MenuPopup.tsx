@@ -67,11 +67,10 @@ export const MenuPopup = React.forwardRef(function MenuPopup(
     initialFocus = store.context.inputRef;
   }
 
+  // Unconditional, so removing the prop releases the override instead of latching.
   useIsoLayoutEffect(() => {
-    if (id) {
-      setFloatingId(id);
-    }
-  }, [id, setFloatingId]);
+    setFloatingId(componentProps.id);
+  }, [componentProps.id, setFloatingId]);
 
   useOpenChangeComplete({
     open,

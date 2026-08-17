@@ -28,12 +28,11 @@ export const FilterMenuTrigger = React.forwardRef(function FilterMenuTrigger(
   const id = useBaseUiId(idProp);
   const open = store.useState('isOpenedByTrigger', id);
   const popupId = store.useState('triggerPopupId', id);
-  const detached = store !== rootContext?.store ? { open, popupId } : undefined;
 
   return (
     <FilterDropdownTrigger
       id={id}
-      detached={detached}
+      popupState={{ open, popupId }}
       // The consumer's props and ref go to the inner trigger only. Applying them to both layers
       // would run each handler twice for one interaction.
       render={
@@ -48,13 +47,15 @@ export const FilterMenuTrigger = React.forwardRef(function FilterMenuTrigger(
   );
 });
 
-export interface FilterMenuTriggerProps
-  extends Omit<MenuTriggerProps, 'id'>, Omit<FilterDropdownTriggerProps, 'id' | 'render'> {
+export interface FilterMenuTriggerProps<Payload = unknown>
+  extends
+    Omit<MenuTriggerProps<Payload>, 'id'>,
+    Omit<FilterDropdownTriggerProps, 'id' | 'render' | 'popupState'> {
   id?: string | undefined;
 }
 export interface FilterMenuTriggerState extends FilterDropdownTriggerState {}
 
 export namespace FilterMenuTrigger {
-  export type Props = FilterMenuTriggerProps;
+  export type Props<Payload = unknown> = FilterMenuTriggerProps<Payload>;
   export type State = FilterMenuTriggerState;
 }

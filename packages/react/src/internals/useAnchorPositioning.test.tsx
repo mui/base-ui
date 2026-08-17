@@ -55,17 +55,19 @@ function TestUseAnchorPositioning(props: { shift?: UseAnchorPositioningParameter
   );
 }
 
-function TestLazyFlip() {
+function TestLazyFlip(props: { mounted?: boolean; align?: 'start' | 'end'; height?: number }) {
+  const { mounted = true, align = 'start', height: heightProp } = props;
   const anchorRef = React.useRef<HTMLDivElement>(null);
-  const [height, setHeight] = React.useState(100);
+  const [shrunk, setShrunk] = React.useState(false);
+  const height = heightProp ?? (shrunk ? 10 : 100);
 
   const positioning = useAnchorPositioningWithHook(
     {
       anchor: anchorRef,
-      mounted: true,
+      mounted,
       positionMethod: 'fixed',
       side: 'right',
-      align: 'start',
+      align,
       sideOffset: 0,
       alignOffset: 0,
       collisionBoundary: 'clipping-ancestors',
@@ -97,7 +99,7 @@ function TestLazyFlip() {
       >
         floating
       </div>
-      <button type="button" onClick={() => setHeight(10)}>
+      <button type="button" onClick={() => setShrunk(true)}>
         Shrink
       </button>
     </React.Fragment>
@@ -145,5 +147,25 @@ describe('useAnchorPositioning', () => {
     });
 
     expect(floating).toHaveAttribute('data-align', 'end');
+  });
+
+  it.skipIf(isJSDOM)('releases the lock when the requested alignment changes', async () => {
+    const { user, setProps } = await render(<TestLazyFlip />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId('floating')).toHaveAttribute('data-align', 'end');
+    });
+
+    // `start` now fits, but the lock deliberately keeps the flipped alignment.
+    await user.click(screen.getByRole('button', { name: 'Shrink' }));
+    expect(screen.getByTestId('floating')).toHaveAttribute('data-align', 'end');
+
+    // Asking for a different alignment releases it, so `start` is honoured again.
+    await setProps({ align: 'end' });
+    await setProps({ align: 'start' });
+
+    await waitFor(() => {
+      expect(screen.getByTestId('floating')).toHaveAttribute('data-align', 'start');
+    });
   });
 });

@@ -1,9 +1,9 @@
 'use client';
 import * as React from 'react';
-import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import type { BaseUIComponentProps, HTMLProps } from '../../internals/types';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { useActiveItemId, useFilterDropdownRootContext } from '../root/FilterDropdownRootContext';
+import { useRenderedId } from '../root/useRenderedId';
 
 /**
  * @internal
@@ -19,10 +19,7 @@ export const FilterDropdownList = React.forwardRef(function FilterDropdownList(
   const id = idProp ?? context.listId;
   const hasAriaLabel = elementProps['aria-label'] || elementProps['aria-labelledby'];
   const ariaLabelledBy = hasAriaLabel ? elementProps['aria-labelledby'] : context.triggerId;
-
-  useIsoLayoutEffect(() => {
-    setListId(id);
-  }, [id, setListId]);
+  const renderedIdRef = useRenderedId(setListId);
 
   const defaultProps: HTMLProps = {
     role: 'menu',
@@ -51,7 +48,7 @@ export const FilterDropdownList = React.forwardRef(function FilterDropdownList(
   };
 
   return useRenderElement('div', componentProps, {
-    ref: [forwardedRef, context.setListElement],
+    ref: [forwardedRef, context.setListElement, renderedIdRef],
     props: [context.hasInput ? undefined : context.inputProps, defaultProps, elementProps],
   });
 });
@@ -62,7 +59,7 @@ export interface FilterDropdownListProps extends BaseUIComponentProps<
   'div',
   FilterDropdownListState
 > {
-  id: string | undefined;
+  id?: string | undefined;
 }
 
 export namespace FilterDropdownList {

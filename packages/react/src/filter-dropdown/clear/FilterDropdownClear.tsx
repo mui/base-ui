@@ -52,9 +52,12 @@ export const FilterDropdownClear = React.forwardRef(function FilterDropdownClear
             return;
           }
 
+          // Indexes are positional, so a kept highlight lands on whatever fills the slot.
+          context.setActiveIndex(null);
+
           const eventDetails = createChangeEventDetails(REASONS.clearPress, event.nativeEvent);
           context.onValueChange('', eventDetails);
-          context.focusOwnerRef.current?.focus();
+          context.focusOwnerRef.current?.focus({ preventScroll: true });
         },
       },
       elementProps,

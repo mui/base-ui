@@ -7,7 +7,7 @@ import {
   type MenuSubmenuRootProps,
 } from '../../menu/submenu-root/MenuSubmenuRoot';
 import { FilterDropdownRoot } from '../../filter-dropdown/root/FilterDropdownRoot';
-import type { FilterDropdownFilter } from '../../filter-dropdown/root/FilterDropdownRootContext';
+import type { FilterMenuFilter } from '../root/FilterMenuRoot';
 import { useFilterDropdownCloseQuery } from '../../filter-dropdown/root/useFilterDropdownCloseQuery';
 import { useMenuRootContext } from '../../menu/root/MenuRootContext';
 import { FilterMenuProvider, isKeyboardOpen } from '../root/FilterMenuRoot';
@@ -23,6 +23,7 @@ export function FilterMenuSubmenuRoot(props: FilterMenuSubmenuRoot.Props): React
     onInputValueChange,
     filter,
     disabled: disabledProp,
+    locale,
     children,
     ...submenuProps
   } = props;
@@ -87,6 +88,7 @@ export function FilterMenuSubmenuRoot(props: FilterMenuSubmenuRoot.Props): React
         value={inputValue}
         query={closeQuery.query}
         filter={filter}
+        locale={locale}
         onValueChange={handleInputValueChange}
       >
         {children}
@@ -100,14 +102,46 @@ export namespace FilterMenuSubmenuRoot {
     MenuSubmenuRootProps,
     'open' | 'defaultOpen' | 'onOpenChange' | 'virtualFocus'
   > & {
+    /**
+     * Whether the submenu is currently open.
+     */
     open?: boolean | undefined;
+    /**
+     * Whether the submenu is initially open.
+     *
+     * To render a controlled submenu, use the `open` prop instead.
+     * @default false
+     */
     defaultOpen?: boolean | undefined;
+    /**
+     * Event handler called when the submenu is opened or closed.
+     */
     onOpenChange?:
-      | ((open: boolean, eventDetails: MenuSubmenuRoot.ChangeEventDetails) => void)
+      | ((open: boolean, eventDetails: FilterMenuSubmenuRoot.ChangeEventDetails) => void)
       | undefined;
-    filter?: FilterDropdownFilter | undefined;
+    /**
+     * Replaces the default case-insensitive substring matching.
+     * Receives an item's filter text and the trimmed query.
+     */
+    filter?: FilterMenuFilter | undefined;
+    /**
+     * Locale used when comparing an item against the query.
+     * Defaults to the runtime's default locale.
+     */
+    locale?: Intl.LocalesArgument | undefined;
+    /**
+     * The uncontrolled filter query when the submenu is initially rendered.
+     * To render a controlled query, use the `inputValue` prop instead.
+     */
     defaultInputValue?: string | undefined;
+    /**
+     * The filter query. Use when controlled.
+     * The query is cleared when the popup closes.
+     */
     inputValue?: string | undefined;
+    /**
+     * Event handler called when the filter query changes.
+     */
     onInputValueChange?:
       | ((value: string, eventDetails: FilterMenuSubmenuRoot.InputValueChangeEventDetails) => void)
       | undefined;

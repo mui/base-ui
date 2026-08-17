@@ -555,13 +555,35 @@ export function useAnchorPositioningWithHook(
   const renderedAlign = getAlignment(renderedPlacement) || 'center';
   const anchorHidden = Boolean(middlewareData.hide?.referenceHidden);
 
-  // Locks the flip (makes it "sticky") so it no longer prefers the requested side or alignment and
-  // flips back eagerly. Ideal for filtered lists that change the popup size while typing.
+  // Locks the flip (makes it "sticky") so the popup keeps the placement it first resolved to,
+  // rather than preferring the requested one again. Ideal for filtered lists that resize while
+  // typing. `renderedPlacement` lags `computePosition()`, so the lock is only judged once the
+  // result for the current request has landed, and a new `side`/`align` releases it.
+  const requestedPlacementRef = React.useRef(placement);
+  const preferredPlacementRef = React.useRef(preferredPlacement);
+  if (preferredPlacementRef.current !== preferredPlacement) {
+    preferredPlacementRef.current = preferredPlacement;
+    if (mountPlacement !== null) {
+      setMountPlacement(null);
+    }
+  }
+
   useIsoLayoutEffect(() => {
-    if (lazyFlip && mounted && isPositioned && renderedPlacement !== placement) {
+    if (requestedPlacementRef.current !== placement) {
+      requestedPlacementRef.current = placement;
+      return;
+    }
+
+    if (
+      lazyFlip &&
+      mounted &&
+      isPositioned &&
+      mountPlacement === null &&
+      renderedPlacement !== placement
+    ) {
       setMountPlacement(renderedPlacement);
     }
-  }, [lazyFlip, mounted, isPositioned, renderedPlacement, placement]);
+  }, [lazyFlip, mounted, isPositioned, renderedPlacement, placement, mountPlacement]);
 
   const arrowStyles = React.useMemo(
     () => ({

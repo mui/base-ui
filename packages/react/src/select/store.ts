@@ -143,3 +143,8 @@ export const selectors = {
 
   hasScrollArrows: (state: State) => state.hasScrollArrows,
 };
+
+/** Guards against React 17, where the root id is undefined until an effect resolves it. */
+export function suffixId(rootId: string | undefined, suffix: string | number) {
+  return rootId != null ? `${rootId}-${suffix}` : undefined;
+}

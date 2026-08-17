@@ -71,21 +71,25 @@ export function useMenuItemCommonProps(params: UseMenuItemCommonPropsParameters)
   const open = listStore.useState('open');
   const contextMenuContext = useContextMenuRootContext(true);
   const isContextMenu = contextMenuContext !== undefined;
-  // Under virtual focus the list is navigated with `aria-activedescendant` while an input keeps
-  // real focus, so items must stay out of the tab order entirely.
+  // `-1` rather than omitting it, which leaves links and buttons in the tab order.
   const virtualFocus = listStore.useState('virtualFocus');
-  let tabIndex: number | undefined = -1;
-  if (virtualFocus) {
-    tabIndex = undefined;
-  } else if (open && highlighted) {
+  let tabIndex = -1;
+  if (!virtualFocus && open && highlighted) {
     tabIndex = 0;
   }
+
+  // WebKit's accessibility tree only follows a searchbox's `aria-activedescendant` into a menu
+  // when the items expose a selection state. `aria-selected` is not valid on `menuitem`, so it is
+  // scoped to the engine whose VoiceOver support needs it.
+  const ariaSelected =
+    virtualFocus && platform.engine.webkit ? (highlighted as boolean) : undefined;
 
   return React.useMemo(
     () => ({
       id,
       role: 'menuitem' as const,
       tabIndex,
+      'aria-selected': ariaSelected,
       onKeyDown(event: React.KeyboardEvent) {
         if (event.key === ' ' && typingRef?.current) {
           event.preventDefault();
@@ -146,6 +150,7 @@ export function useMenuItemCommonProps(params: UseMenuItemCommonPropsParameters)
     [
       id,
       tabIndex,
+      ariaSelected,
       typingRef,
       nodeId,
       menuEvents,

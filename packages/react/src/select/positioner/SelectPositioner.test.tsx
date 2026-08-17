@@ -50,6 +50,21 @@ describe('<Select.Positioner />', () => {
     expect(useAnchorPositioningSpy.mock.lastCall?.[0].lazyFlip).toBe(true);
   });
 
+  it('leaves lazy flipping off for a plain select', async () => {
+    await render(
+      <Select.Root open>
+        <Select.Trigger>Fruit</Select.Trigger>
+        <Select.Portal>
+          <Select.Positioner>
+            <Select.Popup />
+          </Select.Positioner>
+        </Select.Portal>
+      </Select.Root>,
+    );
+
+    expect(useAnchorPositioningSpy.mock.lastCall?.[0].lazyFlip).toBe(false);
+  });
+
   describeConformance(<Select.Positioner />, () => ({
     refInstanceof: window.HTMLDivElement,
     render(node) {

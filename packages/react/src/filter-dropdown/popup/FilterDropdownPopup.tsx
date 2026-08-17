@@ -1,12 +1,12 @@
 'use client';
 import * as React from 'react';
-import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import type { BaseUIComponentProps } from '../../internals/types';
 import { useRenderElement } from '../../internals/useRenderElement';
 import type { StateAttributesMapping } from '../../internals/getStateAttributesProps';
 import { popupStateMapping } from '../../utils/popupStateMapping';
 import { getTarget } from '../../floating-ui-react/utils';
 import { useFilterDropdownRootContext } from '../root/FilterDropdownRootContext';
+import { useRenderedId } from '../root/useRenderedId';
 
 const stateAttributesMapping: StateAttributesMapping<FilterDropdownPopupState> = {
   open: popupStateMapping.open,
@@ -27,14 +27,11 @@ export const FilterDropdownPopup = React.forwardRef(function FilterDropdownPopup
   const ariaLabelledBy = hasAriaLabel ? elementProps['aria-labelledby'] : context.triggerId;
 
   const state: FilterDropdownPopupState = { open: context.open };
-
-  useIsoLayoutEffect(() => {
-    setPopupId(id);
-  }, [id, setPopupId]);
+  const renderedIdRef = useRenderedId(setPopupId);
 
   return useRenderElement('div', componentProps, {
     state,
-    ref: forwardedRef,
+    ref: [forwardedRef, renderedIdRef],
     props: [
       {
         id,
@@ -87,7 +84,7 @@ export interface FilterDropdownPopupProps extends BaseUIComponentProps<
   'div',
   FilterDropdownPopupState
 > {
-  id: string | undefined;
+  id?: string | undefined;
 }
 
 export namespace FilterDropdownPopup {

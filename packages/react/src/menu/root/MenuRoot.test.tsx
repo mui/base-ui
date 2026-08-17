@@ -830,6 +830,97 @@ describe('<Menu.Root />', () => {
         expect(await screen.findByTestId('item-4_1')).toHaveTextContent('Item 4.1');
       });
 
+      // Replaces the deleted `useListNavigation` nested tests. The open key comes from the
+      // parent's orientation and the close key from the submenu's, so they must differ here or
+      // swapping the two arguments still passes.
+      it.skipIf(isJSDOM)(
+        'opens and closes a vertical submenu of a horizontal menu with the right axis keys',
+        async () => {
+          const { user } = await render(
+            <TestMenu
+              rootProps={{ open: true, orientation: 'horizontal' }}
+              submenuProps={{ orientation: 'vertical' }}
+              submenuTriggerProps={{ openOnHover: false }}
+            />,
+          );
+
+          const submenuTrigger = screen.getByTestId('submenu-trigger');
+          await act(async () => {
+            submenuTrigger.focus();
+          });
+          await waitFor(() => {
+            expect(submenuTrigger).toHaveFocus();
+          });
+
+          // Cross-axis of the horizontal parent.
+          await user.keyboard('[ArrowDown]');
+          await screen.findByTestId('submenu');
+          await waitFor(() => {
+            expect(screen.getByTestId('item-4_1')).toHaveFocus();
+          });
+
+          // ArrowLeft is the vertical submenu's close key, distinct from the horizontal parent's
+          // open key, so swapping the two orientations breaks this.
+          await user.keyboard('[ArrowLeft]');
+          await waitFor(() => {
+            expect(screen.queryByTestId('submenu')).toBe(null);
+          });
+
+          // ArrowUp is neither orientation's key here and must not reopen it.
+          await user.keyboard('[ArrowUp]');
+          expect(screen.queryByTestId('submenu')).toBe(null);
+        },
+      );
+
+      it('derives item ids from a custom `Menu.Popup` id', async () => {
+        const { user } = await render(
+          <TestMenu popupProps={{ id: 'my-menu' }} submenuTriggerProps={{ openOnHover: false }} />,
+        );
+
+        await user.click(screen.getByRole('button', { name: 'Toggle' }));
+        await screen.findByTestId('menu');
+
+        expect(screen.getByTestId('item-1')).toHaveAttribute('id', 'my-menu-0');
+        expect(screen.getByTestId('item-2')).toHaveAttribute('id', 'my-menu-1');
+        // The submenu trigger is an item of the parent list, so it shares that namespace.
+        expect(screen.getByTestId('submenu-trigger')).toHaveAttribute('id', 'my-menu-3');
+      });
+
+      it('labels the popup with the id that landed on a `render` trigger element', async () => {
+        const { user } = await render(
+          <TestMenu triggerProps={{ render: <button id="custom-trigger" /> }} />,
+        );
+
+        await user.click(screen.getByRole('button', { name: 'Toggle' }));
+
+        const menu = await screen.findByTestId('menu');
+        expect(menu).toHaveAttribute('role', 'menu');
+        expect(menu).toHaveAttribute('aria-labelledby', 'custom-trigger');
+      });
+
+      it('labels the popup with the generated trigger id by default', async () => {
+        const { user } = await render(<TestMenu />);
+
+        const trigger = screen.getByRole('button', { name: 'Toggle' });
+        await user.click(trigger);
+
+        const menu = await screen.findByTestId('menu');
+        expect(menu).toHaveAttribute('aria-labelledby', trigger.id);
+      });
+
+      it('does not fire consumer handlers on a disabled submenu trigger', async () => {
+        const onClick = vi.fn();
+        const { user } = await render(
+          <TestMenu
+            rootProps={{ open: true }}
+            submenuTriggerProps={{ disabled: true, onClick, openOnHover: false }}
+          />,
+        );
+
+        await user.click(screen.getByTestId('submenu-trigger'));
+        expect(onClick).toHaveBeenCalledTimes(0);
+      });
+
       it('renders root menu portal ownership without an accessibility role', async () => {
         const { user } = await render(<TestMenu />);
 

@@ -23,7 +23,7 @@ import { styleDisableScrollbar } from '../../utils/styles';
 import { transitionStatusMapping } from '../../internals/stateAttributesMapping';
 import { useOpenChangeComplete } from '../../internals/useOpenChangeComplete';
 import { useRenderElement } from '../../internals/useRenderElement';
-import { selectors } from '../store';
+import { selectors, suffixId } from '../store';
 import { clearStyles, LIST_FUNCTIONAL_STYLES } from './utils';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
@@ -68,7 +68,7 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
   const virtualFocus = useStore(store, selectors.virtualFocus);
   // Resolve once so the popup registration uses the same id the DOM element ends up with,
   // otherwise a consumer id leaves the trigger pointing at nothing.
-  const id = componentProps.id ?? `${rootId}-popup`;
+  const id = componentProps.id ?? suffixId(rootId, 'popup');
   const { render, className, style, finalFocus, ...elementProps } = componentProps;
   const { side, align, alignItemWithTriggerActive, isPositioned, setAlignItemWithTrigger } =
     useSelectPositionerContext();

@@ -3,7 +3,7 @@ import * as React from 'react';
 import { useStore } from '@base-ui/utils/store';
 import { FilterDropdownList } from '../../filter-dropdown/list/FilterDropdownList';
 import { useSelectRootContext } from '../../select/root/SelectRootContext';
-import { selectors } from '../../select/store';
+import { selectors, suffixId } from '../../select/store';
 import { SelectList, type SelectListProps } from '../../select/list/SelectList';
 
 export const FilterSelectList = React.forwardRef(function FilterSelectList(
@@ -13,7 +13,7 @@ export const FilterSelectList = React.forwardRef(function FilterSelectList(
   const { id: idProp, ...selectProps } = props;
   const { store } = useSelectRootContext();
   const rootId = useStore(store, selectors.id);
-  const id = idProp ?? `${rootId}-list`;
+  const id = idProp ?? suffixId(rootId, 'list');
 
   return (
     <FilterDropdownList

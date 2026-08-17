@@ -45,6 +45,14 @@ import { getMaxScrollOffset, normalizeScrollOffset } from '../../utils/scrollEdg
 import { FOCUSABLE_POPUP_PROPS } from '../../utils/popups';
 import { mergeProps } from '../../merge-props';
 
+/** `SelectRoot` with the internal props visible, which the public signature hides. */
+export const SelectRootInternal = SelectRoot as <
+  Value,
+  Multiple extends boolean | undefined = false,
+>(
+  props: SelectRootInternalProps<Value, Multiple>,
+) => React.JSX.Element;
+
 interface SelectRootInternalProps<
   Value,
   Multiple extends boolean | undefined,
@@ -64,7 +72,7 @@ interface SelectRootInternalProps<
  * Documentation: [Base UI Select](https://base-ui.com/react/components/select)
  */
 export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
-  componentProps: SelectRootInternalProps<Value, Multiple>,
+  componentProps: SelectRoot.Props<Value, Multiple>,
 ): React.JSX.Element {
   const {
     id,
@@ -92,7 +100,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     highlightItemOnHover = true,
     virtualFocus = false,
     children,
-  } = componentProps;
+  } = componentProps as SelectRootInternalProps<Value, Multiple>;
 
   const { clearErrors } = useFormContext();
   const {
@@ -247,9 +255,14 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
         selectionReferenceValue = currentValue[currentValue.length - 1];
       }
 
+      // Feeds `useListNavigation.selectedIndex`, which moves focus when it changes.
+      if (open) {
+        return;
+      }
+
       const selectionReferenceItem = hasNoSelectionReference
         ? undefined
-        : findMatchingItem(store.state.registeredItems, (item) =>
+        : findMatchingItem(registeredItems, (item) =>
             compareItemEquality(
               item.getValue(),
               selectionReferenceValue as Value,
@@ -259,7 +272,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
 
       store.set('selectionReferenceItemId', selectionReferenceItem?.id ?? null);
     },
-    [multiple, value, isItemEqualToValue, store],
+    [multiple, open, value, isItemEqualToValue, registeredItems, store],
   );
 
   useValueChanged(value, () => {

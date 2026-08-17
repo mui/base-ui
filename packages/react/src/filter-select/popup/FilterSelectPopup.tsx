@@ -4,7 +4,7 @@ import { useStore } from '@base-ui/utils/store';
 import { FilterDropdownPopup } from '../../filter-dropdown/popup/FilterDropdownPopup';
 import { SelectPopup, type SelectPopupProps } from '../../select/popup/SelectPopup';
 import { useSelectRootContext } from '../../select/root/SelectRootContext';
-import { selectors } from '../../select/store';
+import { selectors, suffixId } from '../../select/store';
 
 export const FilterSelectPopup = React.forwardRef(function FilterSelectPopup(
   props: FilterSelectPopup.Props,
@@ -13,7 +13,7 @@ export const FilterSelectPopup = React.forwardRef(function FilterSelectPopup(
   const { id: idProp, ...selectProps } = props;
   const { store } = useSelectRootContext();
   const rootId = useStore(store, selectors.id);
-  const id = idProp ?? `${rootId}-popup`;
+  const id = idProp ?? suffixId(rootId, 'popup');
 
   return (
     <FilterDropdownPopup

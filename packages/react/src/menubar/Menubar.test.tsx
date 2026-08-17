@@ -9,6 +9,7 @@ import {
   wait,
 } from '#test-utils';
 import { Menubar } from '@base-ui/react/menubar';
+import { DirectionProvider } from '@base-ui/react/direction-provider';
 import { Menu } from '@base-ui/react/menu';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { useMenubarContext } from './MenubarContext';
@@ -1118,7 +1119,42 @@ describe('<Menubar />', () => {
         await user.keyboard('[ArrowDown]');
 
         expect(screen.getByTestId('second-trigger')).toHaveFocus();
-        expect(screen.queryByRole('menu')).to.equal(null);
+        expect(screen.queryByRole('menu')).toBe(null);
+      });
+
+      (
+        [
+          ['ltr', 'ArrowRight'],
+          ['rtl', 'ArrowLeft'],
+        ] as const
+      ).forEach(([direction, openKey]) => {
+        it(`opens a menu of a vertical ${direction.toUpperCase()} menubar with ${openKey}`, async () => {
+          const { user } = await render(
+            <DirectionProvider direction={direction}>
+              <Menubar orientation="vertical">
+                <Menu.Root>
+                  <Menu.Trigger data-testid="first-trigger">File</Menu.Trigger>
+                  <Menu.Portal>
+                    <Menu.Positioner>
+                      <Menu.Popup>
+                        <Menu.Item>New</Menu.Item>
+                      </Menu.Popup>
+                    </Menu.Positioner>
+                  </Menu.Portal>
+                </Menu.Root>
+              </Menubar>
+            </DirectionProvider>,
+          );
+
+          const firstTrigger = screen.getByTestId('first-trigger');
+          await act(async () => {
+            firstTrigger.focus();
+          });
+
+          await user.keyboard(`[${openKey}]`);
+
+          expect(await screen.findByRole('menu')).not.toBe(null);
+        });
       });
 
       it('sets role="menuitem" on menu triggers', async () => {
