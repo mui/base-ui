@@ -399,6 +399,72 @@ describe.skipIf(isJSDOM)('Menu enter transition', () => {
     expect(screen.getByTestId('submenu-popup')).not.toHaveAttribute('data-instant');
   });
 
+  it('clears the inherited instant type when a controlled close interrupts the entry', async () => {
+    globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+
+    // The transition keeps the animations-finished cleanup pending long enough for the controlled
+    // close to interrupt it; there is no ending style, so closing unmounts without delay.
+    function App({ submenuOpen }: { submenuOpen: boolean }) {
+      return (
+        <React.Fragment>
+          <style>{`
+            [data-testid='submenu-popup'] {
+              opacity: 1;
+              transition: opacity 300ms linear;
+            }
+            [data-testid='submenu-popup'][data-starting-style] {
+              opacity: 0;
+            }
+          `}</style>
+          <Menu.Root>
+            <Menu.Trigger>Trigger</Menu.Trigger>
+            <Menu.Portal>
+              <Menu.Positioner>
+                <Menu.Popup data-testid="menu-popup">
+                  <Menu.Item>Item</Menu.Item>
+                  <Menu.SubmenuRoot open={submenuOpen}>
+                    <Menu.SubmenuTrigger>Submenu</Menu.SubmenuTrigger>
+                    <Menu.Portal>
+                      <Menu.Positioner>
+                        <Menu.Popup data-testid="submenu-popup">
+                          <Menu.Item>Sub item</Menu.Item>
+                        </Menu.Popup>
+                      </Menu.Positioner>
+                    </Menu.Portal>
+                  </Menu.SubmenuRoot>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
+          </Menu.Root>
+        </React.Fragment>
+      );
+    }
+
+    const { setProps } = await render(<App submenuOpen />);
+
+    const trigger = screen.getByRole('button', { name: 'Trigger' });
+    await act(async () => {
+      trigger.focus();
+    });
+    await userEvent.keyboard('[Enter]');
+
+    await waitFor(() => {
+      expect(screen.queryByTestId('submenu-popup')).not.toBe(null);
+    });
+
+    // Close before the 300ms enter transition finishes, then reopen.
+    await setProps({ submenuOpen: false });
+    await waitFor(() => {
+      expect(screen.queryByTestId('submenu-popup')).toBe(null);
+    });
+
+    await setProps({ submenuOpen: true });
+    await waitFor(() => {
+      expect(screen.queryByTestId('submenu-popup')).not.toBe(null);
+    });
+    expect(screen.getByTestId('submenu-popup')).not.toHaveAttribute('data-instant');
+  });
+
   it('clears the inherited instant type when the popup is not initially rendered', async () => {
     // With the popup subtree omitted at mount (e.g. suspended or waiting on data), there is no
     // element for the animations-finished callback to watch, and a ref assignment alone never

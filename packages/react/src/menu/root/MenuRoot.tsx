@@ -209,7 +209,7 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
   // every subsequent transition. Clear it once the enter phase settles, unless an interactive
   // open change already replaced it.
   React.useEffect(() => {
-    if (seededInstantType === undefined || !open || transitionStatus !== undefined) {
+    if (seededInstantType === undefined) {
       return undefined;
     }
 
@@ -218,6 +218,20 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
         store.set('instantType', undefined);
       }
     };
+
+    // A controlled close can interrupt the initial enter before the animations-finished cleanup
+    // below fires (its abort cancels the pending callback, and a closed popup schedules no new
+    // one). Nothing is left to protect once closing starts — the exit's suppression was already
+    // decided at its trigger commit — so clear now or the next reopen renders a stale
+    // `[data-instant]`.
+    if (!open) {
+      clearSeededInstantType();
+      return undefined;
+    }
+
+    if (transitionStatus !== undefined) {
+      return undefined;
+    }
 
     // With no popup element (e.g. its subtree is suspended or waiting on data), there is no
     // enter transition to protect, and `useAnimationsFinished` would return without invoking the
