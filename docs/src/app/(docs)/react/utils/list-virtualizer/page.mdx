@@ -1,0 +1,113 @@
+# List Virtualizer
+
+<Subtitle>Renders only the visible items of a large list.</Subtitle>
+<Meta
+  name="description"
+  content="A virtualization provider for Base UI lists that renders only the visible items, while handling keyboard navigation, scrolling, and accessibility metadata."
+/>
+
+## Anatomy
+
+Import the component and place it inside the list of a component that supports virtualization:
+
+```jsx title="Anatomy"
+import { ListVirtualizer } from '@base-ui/react/list-virtualizer';
+
+// prettier-ignore
+<Combobox.List>
+  <ListVirtualizer>
+    {(item) => <Combobox.Item value={item}>{item}</Combobox.Item>}
+  </ListVirtualizer>
+</Combobox.List>
+```
+
+`<ListVirtualizer>` renders a window of the visible and overscanned items instead of the whole collection, and connects to the surrounding list so that keyboard navigation, scrolling, selection, and accessibility metadata keep working for items that are not mounted.
+
+It can be used inside `<Combobox.List>` and `<Autocomplete.List>`. Rendering it outside of a list that supports virtualization throws.
+
+## Rendering items
+
+Pass a flat collection to the `items` prop on the list root, and use the virtualizer as the only item-rendering child of the list. Its `children` is a function that receives an item and its index in the filtered collection, and must return exactly one item component:
+
+```jsx title="Rendering items"
+<Combobox.Root items={items} itemToStringLabel={(item) => item.name}>
+  {/* ... */}
+  <Combobox.List>
+    <ListVirtualizer getItemKey={(item) => item.id}>
+      {(item) => <Combobox.Item value={item}>{item.name}</Combobox.Item>}
+    </ListVirtualizer>
+  </Combobox.List>
+</Combobox.Root>
+```
+
+Grouped collections and grid mode are not currently supported.
+
+Use `getItemKey` to provide stable identity when item values are objects or when TypeScript cannot infer the item type. For primitive values, you can instead declare the item type explicitly, such as `<ListVirtualizer<string>>`.
+
+## Styling
+
+The virtualizer is the scroll container, so constrain its height or maximum height. Without a height constraint, every item is rendered and virtualization provides no benefit.
+
+The `--total-size` CSS variable contains the estimated or measured height of the virtual content. It can be combined with `--available-height` from the positioner to keep the popup within the viewport:
+
+```css title="Constraining the scroll container"
+.Scroller {
+  height: min(22.5rem, var(--total-size));
+  max-height: calc(var(--available-height) - 0.5rem);
+  overflow: auto;
+}
+```
+
+CSS `scroll-padding-top` and `scroll-padding-bottom` on the scroll container are respected when keyboard navigation scrolls an item into view.
+
+## Sizing items
+
+`estimatedItemHeight` is the height used for items that have not been measured yet. It defaults to `32` pixels, and a static number is automatically refined with the running average of measured items. Pass a function receiving the item and its index to keep full control over per-item estimates.
+
+`overscanPx` controls the extra pixel buffer rendered before and after the visible range. It defaults to the larger of 150px and the first item's estimated height. Even an explicit value of `0` keeps a minimum render buffer of one estimated row.
+
+## Disabled items
+
+The `disabled` prop only marks a rendered item as disabled, so it is unavailable while the item is outside the rendered window. Pass `isItemDisabled` to the list root instead — it is the predicate keyboard navigation uses, including for items that are not mounted. Its index argument is the item's index in the filtered and limited collection.
+
+## Scrolling to an item
+
+`actionsRef` exposes `scrollToIndex`, which scrolls an item into view by its index in the filtered collection, including when the item is outside the rendered window:
+
+```tsx title="Scrolling to an item"
+const virtualizer = React.useRef<ListVirtualizer.Actions>(null);
+
+// prettier-ignore
+<ListVirtualizer actionsRef={virtualizer}>{/* ... */}</ListVirtualizer>;
+
+virtualizer.current?.scrollToIndex(500, { align: 'center' });
+```
+
+## Third-party virtualizers
+
+A third-party virtualization library can be used instead when your application already uses one, or needs behavior that `<ListVirtualizer>` does not provide. Set the `virtualized` prop on the list root to opt out of the built-in item indexing, and coordinate filtering, item indexes, scrolling, and accessibility metadata yourself. See [virtualized Combobox](/react/components/combobox#virtualized) for a complete example.
+
+## API reference
+
+import { TypesListVirtualizer, TypesListVirtualizerAdditionalTypes } from './types';
+
+### ListVirtualizer
+
+<TypesListVirtualizer />
+
+<TypesListVirtualizerAdditionalTypes />
+
+export const metadata = {
+  keywords: [
+    'Base UI List Virtualizer',
+    'React virtualization',
+    'React windowing',
+    'Virtualized combobox',
+    'Virtualized listbox',
+    'Large lists',
+    'Infinite lists',
+    'Row virtualization',
+    'Overscan',
+    'Estimated item height',
+  ],
+};
