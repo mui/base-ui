@@ -1,11 +1,11 @@
 export enum MenuPositionerCssVars {
   /**
-   * The available width between the trigger and the edge of the viewport.
+   * The available width between the anchor and the edge of the viewport.
    * @type {number}
    */
   availableWidth = '--available-width',
   /**
-   * The available height between the trigger and the edge of the viewport.
+   * The available height between the anchor and the edge of the viewport.
    * @type {number}
    */
   availableHeight = '--available-height',
@@ -25,13 +25,13 @@ export enum MenuPositionerCssVars {
    */
   transformOrigin = '--transform-origin',
   /**
-   * The width of the menu's positioner.
+   * The width of the positioner.
    * It is important to set `width` to this value when using CSS to animate size changes.
    * @type {number}
    */
   positionerWidth = '--positioner-width',
   /**
-   * The height of the menu's positioner.
+   * The height of the positioner.
    * It is important to set `height` to this value when using CSS to animate size changes.
    * @type {number}
    */

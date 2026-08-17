@@ -2,11 +2,11 @@ import { CommonPopupDataAttributes } from '../../utils/popupStateMapping';
 
 export enum MenuPositionerDataAttributes {
   /**
-   * Present when the menu popup is open.
+   * Present when the popup is open.
    */
   open = CommonPopupDataAttributes.open,
   /**
-   * Present when the menu popup is closed.
+   * Present when the popup is closed.
    */
   closed = CommonPopupDataAttributes.closed,
   /**
@@ -14,12 +14,12 @@ export enum MenuPositionerDataAttributes {
    */
   anchorHidden = CommonPopupDataAttributes.anchorHidden,
   /**
-   * Indicates which side the popup is positioned relative to the trigger.
+   * Indicates which side the popup is positioned relative to the anchor.
    * @type {'top' | 'bottom' | 'left' | 'right' | 'inline-end' | 'inline-start'}
    */
   side = CommonPopupDataAttributes.side,
   /**
-   * Indicates how the popup is aligned relative to specified side.
+   * Indicates how the popup is aligned relative to the specified side.
    * @type {'start' | 'center' | 'end'}
    */
   align = CommonPopupDataAttributes.align,

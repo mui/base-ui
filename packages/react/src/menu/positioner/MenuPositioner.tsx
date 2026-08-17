@@ -350,7 +350,18 @@ export interface MenuPositionerState {
 }
 
 export interface MenuPositionerProps
-  extends UseAnchorPositioningSharedParameters, BaseUIComponentProps<'div', MenuPositionerState> {}
+  extends
+    Omit<UseAnchorPositioningSharedParameters, 'side'>,
+    BaseUIComponentProps<'div', MenuPositionerState> {
+  /**
+   * Which side of the anchor element to align the popup against.
+   * May automatically change to avoid collisions.
+   *
+   * Defaults to `'bottom'` for root menus and horizontal menubars, and to `'inline-end'`
+   * for submenus and vertical menubars.
+   */
+  side?: UseAnchorPositioningSharedParameters['side'] | undefined;
+}
 
 export namespace MenuPositioner {
   export type State = MenuPositionerState;
