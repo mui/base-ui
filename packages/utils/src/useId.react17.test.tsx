@@ -1,6 +1,6 @@
 import { expect, vi } from 'vitest';
 import * as React from 'react';
-import { createRenderer, screen, waitFor } from '@mui/internal-test-utils';
+import { createRenderer, screen } from '@mui/internal-test-utils';
 import { useId } from '@base-ui/utils/useId';
 
 vi.mock('@base-ui/utils/safeReact', async (importOriginal) => {
@@ -22,16 +22,20 @@ interface TestComponentProps {
 describe('useId with the React 17 id fallback', () => {
   const { render, renderToString } = createRenderer();
 
-  let lastId: string | undefined;
+  let renderedIds: (string | undefined)[] = [];
+
+  function lastRenderedId() {
+    return renderedIds[renderedIds.length - 1];
+  }
 
   function TestComponent({ id: idProp, prefix }: TestComponentProps) {
     const id = useId(idProp, prefix);
-    lastId = id;
+    renderedIds.push(id);
     return <span data-testid="target" id={id} />;
   }
 
   beforeEach(() => {
-    lastId = undefined;
+    renderedIds = [];
   });
 
   it('returns the provided id', () => {
@@ -52,19 +56,38 @@ describe('useId with the React 17 id fallback', () => {
     expect(screen.getByTestId('target').id).toMatch(/^base-ui-\d+$/);
   });
 
-  it('generates an id when the provided id is removed', async () => {
+  it('generates an id when the provided id is removed', () => {
     const { setProps } = render(<TestComponent id="some-id" />);
 
     expect(screen.getByTestId('target')).toHaveProperty('id', 'some-id');
 
     setProps({ id: undefined });
 
-    await waitFor(() => {
-      expect(screen.getByTestId('target').id).toMatch(/^mui-\d+$/);
-    });
+    expect(screen.getByTestId('target').id).toMatch(/^mui-\d+$/);
   });
 
-  it('keeps the generated id when the provided id is added and removed again', async () => {
+  // Every render is inspected rather than just the resulting DOM.
+  // `act()` flushes a deferred fallback before the assertion runs, so a lazily generated id
+  // is indistinguishable from the outside even though it leaves one commit with no id.
+  it('never renders without an id once the provided id is removed', () => {
+    const { setProps } = render(<TestComponent id="some-id" />);
+
+    renderedIds = [];
+
+    setProps({ id: undefined });
+
+    expect(renderedIds).not.toContain(undefined);
+  });
+
+  // StrictMode renders twice, so a single mount pass is two entries.
+  // Generating the fallback must not schedule a further pass when the caller supplies the id.
+  it('does not rerender after mounting with a provided id', () => {
+    render(<TestComponent id="some-id" />);
+
+    expect(renderedIds).toEqual(['some-id', 'some-id']);
+  });
+
+  it('keeps the generated id when the provided id is added and removed again', () => {
     const { setProps } = render(<TestComponent />);
 
     const generatedId = screen.getByTestId('target').id;
@@ -77,9 +100,7 @@ describe('useId with the React 17 id fallback', () => {
 
     setProps({ id: undefined });
 
-    await waitFor(() => {
-      expect(screen.getByTestId('target')).toHaveProperty('id', generatedId);
-    });
+    expect(screen.getByTestId('target')).toHaveProperty('id', generatedId);
   });
 
   it('does not regenerate the id on subsequent renders', () => {
@@ -87,7 +108,7 @@ describe('useId with the React 17 id fallback', () => {
 
     const generatedId = screen.getByTestId('target').id;
 
-    setProps({ prefix: undefined });
+    setProps({});
 
     expect(screen.getByTestId('target')).toHaveProperty('id', generatedId);
   });
@@ -99,13 +120,13 @@ describe('useId with the React 17 id fallback', () => {
 
     setProps({ id: '' });
 
-    expect(lastId).toBe('');
+    expect(lastRenderedId()).toBe('');
   });
 
   it('returns undefined on the server', () => {
     renderToString(<TestComponent />);
 
-    expect(lastId).toBe(undefined);
+    expect(lastRenderedId()).toBe(undefined);
     expect(screen.getByTestId('target')).not.toHaveAttribute('id');
   });
 });
