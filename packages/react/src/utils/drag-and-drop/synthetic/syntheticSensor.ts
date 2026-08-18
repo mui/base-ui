@@ -230,7 +230,6 @@ function clearActive(
   try {
     runAllCleanups([
       session.rafFrame.cancel,
-      session.terminationFrame.cancel,
       ...session.listeners,
       () => releasePointerCaptureSafely(session.captureTarget, session.pointerId),
       () => session.preview.destroy(),
@@ -870,7 +869,6 @@ function commitActivation(): void {
     movedSinceFrame: true,
     scrolledSinceFrame: false,
     rafFrame: new AnimationFrame(win),
-    terminationFrame: new AnimationFrame(win),
     cursorLockFrame: new AnimationFrame(win),
     listeners: [],
     restoreNativeDrag,
@@ -1102,16 +1100,13 @@ function onActivePointerMove(event: Event): void {
     // Constrained like every reported input, so `onDragEnd` doesn't leak a raw
     // coordinate the drag never reported while it was live.
     const input = modifyActiveInput(active, getInput(pointerEvent));
-    active.terminationFrame.request(() => {
+    active.rafFrame.request(() => {
       if (state.active === active) {
         cancelActive(input, 'missed-release', pointerEvent);
       }
     });
     return;
   }
-  // A held-button sample proves a previously reported `buttons === 0` was
-  // transient rather than a release.
-  active.terminationFrame.cancel();
   // Chorded release: the primary button coming up while another is still held
   // fires `pointermove` (a buttons change), not `pointerup` — and the eventual
   // `pointerup` carries the last button, which `onActivePointerUp` ignores.
@@ -1124,7 +1119,10 @@ function onActivePointerMove(event: Event): void {
   active.lastInput = getInput(pointerEvent);
   active.lastNativeEvent = pointerEvent;
   active.movedSinceFrame = true;
-  scheduleActiveFrame();
+  // Request directly rather than going through the coalescing guard: a prior
+  // `buttons === 0` sample may have put the missed-release fallback in this
+  // slot, and this held-button sample proves that signal was transient.
+  active.rafFrame.request(onActiveFrame);
 }
 
 function onActivePointerUp(event: Event): void {
@@ -1201,7 +1199,7 @@ function onActiveLostPointerCapture(event: Event): void {
   // `pointerup`. Defer the fallback by one frame so a real release remains a
   // drop. `lostpointercapture` often carries (0,0) coordinates; pass `undefined`
   // so a genuine hand-off falls back to the last good input.
-  active.terminationFrame.request(() => {
+  active.rafFrame.request(() => {
     if (state.active === active) {
       cancelActive(undefined, 'capture-lost', pointerEvent);
     }
@@ -1416,8 +1414,6 @@ interface ActiveSession {
    */
   scrolledSinceFrame: boolean;
   rafFrame: AnimationFrame;
-  /** Lets a queued `pointerup` win over Safari's early release/capture-loss signals. */
-  terminationFrame: AnimationFrame;
   /**
    * Defers the cursor lock by one frame (see the `dragCursor.lock` call site).
    * Its own frame rather than {@link rafFrame}, which drives the per-move

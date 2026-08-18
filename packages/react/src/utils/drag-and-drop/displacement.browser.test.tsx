@@ -475,20 +475,18 @@ describe.skipIf(isJSDOM)('displacement (real layout and transitions)', () => {
     await flushRaf();
   });
 
-  /**
-   * Resolve once the module's visibility observer has delivered its pending
-   * records for `element`. A sentinel observer created now is notified in the
-   * same intersection-observation task as the module's earlier-created one, and
-   * the awaiting continuation runs only after every callback of that task.
-   */
-  function waitForVisibilityDelivery(element: Element): Promise<void> {
-    return new Promise((resolve) => {
+  /** Wait until the module's visibility observer has had a rendering update to deliver. */
+  async function waitForVisibilityDelivery(element: Element): Promise<void> {
+    await new Promise<void>((resolve) => {
       const sentinel = new IntersectionObserver(() => {
         sentinel.disconnect();
         resolve();
       });
       sentinel.observe(element);
     });
+    // Individual observers can be delivered in adjacent rendering updates
+    // under load, so let the module's earlier-created observer settle too.
+    await flushRaf();
   }
 
   /** Two tracked rows: one in the viewport, one far below it. */
