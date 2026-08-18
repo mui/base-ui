@@ -1556,6 +1556,49 @@ describe('FloatingFocusManager', () => {
         });
       });
 
+      test('uses the latest explicitReturnFocus value without moving focus while open', async () => {
+        function App(props: { explicitReturnFocus: boolean }) {
+          const [isOpen, setIsOpen] = React.useState(false);
+          const { refs, context } = useFloating({ open: isOpen, onOpenChange: setIsOpen });
+
+          return (
+            <React.Fragment>
+              <button
+                data-testid="reference"
+                ref={refs.setReference}
+                onClick={() => setIsOpen(true)}
+              />
+              <button data-testid="close" onClick={() => setIsOpen(false)} />
+              {isOpen && (
+                <FloatingFocusManager
+                  context={context}
+                  explicitReturnFocus={props.explicitReturnFocus}
+                  modal={false}
+                >
+                  <div ref={refs.setFloating}>
+                    <button data-testid="child" />
+                  </div>
+                </FloatingFocusManager>
+              )}
+            </React.Fragment>
+          );
+        }
+
+        const { rerender } = render(<App explicitReturnFocus />);
+
+        await userEvent.click(screen.getByTestId('reference'));
+        await waitFor(() => {
+          expect(screen.getByTestId('child')).toHaveFocus();
+        });
+
+        rerender(<App explicitReturnFocus={false} />);
+        expect(screen.getByTestId('child')).toHaveFocus();
+
+        const close = screen.getByTestId('close');
+        await userEvent.click(close);
+        expect(close).toHaveFocus();
+      });
+
       test('resets close modality between keep-mounted open sessions', async () => {
         const finalFocus = vi.fn((_closeType: InteractionType) => true);
 
