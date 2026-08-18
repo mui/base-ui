@@ -13,10 +13,13 @@ const EMPTY = null;
 let LAST_RAF = globalThis.requestAnimationFrame;
 
 class Scheduler {
-  /* One native frame serves every callback requested before it fires. IDs index
-   * the callback array, so cancellation only has to null one slot. When every
-   * callback is canceled, the native frame stays armed but `callbacksCount`
-   * turns its tick into a no-op; this avoids request/cancel churn. */
+  /* This implementation uses an array as a backing data-structure for frame callbacks.
+   * It allows `O(1)` callback cancelling by inserting a `null` in the array, though it
+   * never calls the native `cancelAnimationFrame` if there are no frames left. This can
+   * be much more efficient if there is a call pattern that alterns as
+   * "request-cancel-request-cancel-…".
+   * But in the case of "request-request-…-cancel-cancel-…", it leaves the final animation
+   * frame to run anyway. We turn that frame into a `O(1)` no-op via `callbacksCount`. */
 
   callbacks = [] as (FrameRequestCallback | null)[];
 
@@ -77,28 +80,7 @@ class Scheduler {
   }
 }
 
-let scheduler = new Scheduler();
-
-/**
- * Replaces the shared scheduler and drops all pending animation frame callbacks.
- *
- * For test environments only. The scheduler is process-global, so a callback scheduled in one test
- * but never run (e.g. requested under fake timers that were torn down before the frame fired) would
- * otherwise survive into a later test and run there against stale state. Call between tests to drop
- * such leftovers.
- */
-export function resetAnimationFrameScheduler() {
-  const previous = scheduler;
-  scheduler = new Scheduler();
-  // Continue the id sequence so `cancel()` calls from `AnimationFrame` instances created before the
-  // reset cannot cancel callbacks scheduled after it.
-  scheduler.nextId = previous.nextId;
-  scheduler.startId = previous.nextId;
-  // A frame requested before the reset may still be pending and holds the previous scheduler's
-  // `tick`; empty its queue in place so that frame runs nothing when it eventually fires.
-  previous.callbacks = [];
-  previous.callbacksCount = 0;
-}
+const scheduler = new Scheduler();
 
 export class AnimationFrame {
   static create() {
@@ -110,12 +92,14 @@ export class AnimationFrame {
   }
 
   static cancel(id: AnimationFrameId) {
-    scheduler.cancel(id);
+    return scheduler.cancel(id);
   }
 
   currentId: AnimationFrameId | null = EMPTY;
 
-  /** Executes `fn` on the next animation frame, replacing any pending call. */
+  /**
+   * Executes `fn` after `delay`, clearing any previously scheduled call.
+   */
   request(fn: Function) {
     this.cancel();
     this.currentId = scheduler.request(() => {
@@ -126,9 +110,8 @@ export class AnimationFrame {
 
   cancel = () => {
     if (this.currentId !== EMPTY) {
-      const id = this.currentId;
+      scheduler.cancel(this.currentId);
       this.currentId = EMPTY;
-      scheduler.cancel(id);
     }
   };
 
@@ -141,9 +124,9 @@ export class AnimationFrame {
  * A `requestAnimationFrame` with automatic cleanup and guard.
  */
 export function useAnimationFrame() {
-  const frame = useRefWithInit(AnimationFrame.create).current;
+  const timeout = useRefWithInit(AnimationFrame.create).current;
 
-  useOnMount(frame.disposeEffect);
+  useOnMount(timeout.disposeEffect);
 
-  return frame;
+  return timeout;
 }
