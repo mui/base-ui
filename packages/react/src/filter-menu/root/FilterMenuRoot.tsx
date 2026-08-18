@@ -92,6 +92,7 @@ export function FilterMenuRoot<Payload>(props: FilterMenuRoot.Props<Payload>): R
       virtualFocus
       virtualFocusRef={focusOwnerRef}
       virtualFocusPropsRef={inputPropsRef}
+      allowEscape={!autoHighlight}
       resetOnPointerLeave={autoHighlight !== 'always'}
     >
       {(payload) => (
@@ -192,7 +193,7 @@ interface FilterMenuRootFilterProps {
   filter?: FilterMenuFilter | undefined;
   /**
    * Whether the first matching item is highlighted automatically.
-   * - `true`: highlight the first match after the user types.
+   * - `true`: highlight after the user types and keep the highlight while the query changes.
    * - `'always'`: always highlight the first item.
    * @default false
    */
