@@ -41,6 +41,19 @@ createSelector(
 // @ts-expect-error Eight input selectors are not supported.
 createSelector(input, input, input, input, input, input, input, input, (v1: number) => v1);
 
+// The memoized variant delegates to reselect and has no input selector bound.
+createSelectorMemoized(
+  input,
+  input,
+  input,
+  input,
+  input,
+  input,
+  input,
+  input,
+  (v1, v2, v3, v4, v5, v6, v7, v8) => v1 + v2 + v3 + v4 + v5 + v6 + v7 + v8,
+);
+
 // prettier-ignore
 // @ts-expect-error The combiner accepts at most three arguments beyond the selector results.
 createSelector(input, (value, x1: number, x2: number, x3: number, x4: number) => value + x4);

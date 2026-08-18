@@ -41,21 +41,32 @@ type ExtraArgsWithinLimit<
     ? true
     : false;
 
+type CombinerChecks<Selectors extends ReadonlyArray<Fn>, Combiner extends Fn> =
+  ExtraArgsWithinLimit<Selectors, Combiner> extends false
+    ? 'Combiner accepts up to three arguments beyond the input selector results'
+    : NoOptionalParams<Combiner>;
+
 type ValidCombiner<
   Selectors extends ReadonlyArray<Fn>,
   Combiner extends Fn,
-> = Selectors['length'] extends 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7
-  ? ExtraArgsWithinLimit<Selectors, Combiner> extends false
-    ? 'Combiner accepts up to three arguments beyond the input selector results'
-    : NoOptionalParams<Combiner>
-  : 'Up to seven input selectors are supported';
+  BoundedSelectors extends boolean,
+> = BoundedSelectors extends false
+  ? CombinerChecks<Selectors, Combiner>
+  : Selectors['length'] extends 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7
+    ? CombinerChecks<Selectors, Combiner>
+    : 'Up to seven input selectors are supported';
 
-export type CreateSelectorFunction = <
+/**
+ * `createSelector` dispatches through fixed arities and supports at most seven input
+ * selectors; `createSelectorMemoized` delegates to reselect and has no such bound, which
+ * `BoundedSelectors: false` expresses.
+ */
+export type CreateSelectorFunction<BoundedSelectors extends boolean = true> = <
   const Args extends any[],
   const Selectors extends ReadonlyArray<Selector<any>>,
   const Combiner extends (...args: readonly [...ReturnTypes<Selectors>, ...Args]) => any,
 >(
-  ...items: [...Selectors, ValidCombiner<Selectors, Combiner>]
+  ...items: [...Selectors, ValidCombiner<Selectors, Combiner, BoundedSelectors>]
 ) => (
   ...args: Selectors['length'] extends 0
     ? Parameters<Combiner> extends []

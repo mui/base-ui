@@ -25,7 +25,7 @@ export const createSelectorMemoizedWithOptions =
       OverrideMemoizeFunction,
       OverrideArgsMemoizeFunction
     >,
-  ): CreateSelectorFunction =>
+  ): CreateSelectorFunction<false> =>
   (...inputs: any[]) => {
     type CacheKey = { id: number };
 
@@ -122,4 +122,5 @@ export const createSelectorMemoizedWithOptions =
     return selector as any;
   };
 
-export const createSelectorMemoized: CreateSelectorFunction = createSelectorMemoizedWithOptions();
+export const createSelectorMemoized: CreateSelectorFunction<false> =
+  createSelectorMemoizedWithOptions();
