@@ -18,10 +18,12 @@ export function useMenuItem(params: UseMenuItemParameters): UseMenuItemReturnVal
     highlighted,
     id,
     store,
+    listStore,
     typingRef = store.context.typingRef,
     nativeButton,
     itemMetadata,
     nodeId,
+    virtualFocus = false,
   } = params;
 
   const itemRef = React.useRef<HTMLElement | null>(null);
@@ -39,9 +41,11 @@ export function useMenuItem(params: UseMenuItemParameters): UseMenuItemReturnVal
     id,
     nodeId,
     store,
+    listStore,
     typingRef,
     itemRef,
     itemMetadata,
+    virtualFocus,
   });
 
   const getItemProps = React.useCallback(
@@ -112,10 +116,20 @@ export interface UseMenuItemParameters {
    */
   store: MenuStore<any>;
   /**
+   * The store for the list containing the item.
+   * @default store
+   */
+  listStore?: MenuStore<any> | undefined;
+  /**
    * Whether a typeahead session is in progress.
    * @default store.context.typingRef
    */
   typingRef?: React.RefObject<boolean> | undefined;
+  /**
+   * Whether the containing list uses virtual focus.
+   * @default false
+   */
+  virtualFocus?: boolean | undefined;
 }
 
 export type UseMenuItemMetadata =

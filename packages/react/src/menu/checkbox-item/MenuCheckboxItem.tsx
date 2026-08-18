@@ -7,7 +7,6 @@ import { REGULAR_ITEM, useMenuItem } from '../item/useMenuItem';
 import { useCompositeListItem } from '../../internals/composite/list/useCompositeListItem';
 import { useMenuRootContext } from '../root/MenuRootContext';
 import { useRenderElement } from '../../internals/useRenderElement';
-import { useBaseUiId } from '../../internals/useBaseUiId';
 import type { BaseUIComponentProps, NonNativeButtonProps } from '../../internals/types';
 import { itemMapping } from '../utils/stateAttributesMapping';
 import { useMenuPositionerContext } from '../positioner/MenuPositionerContext';
@@ -42,9 +41,11 @@ export const MenuCheckboxItem = React.forwardRef(function MenuCheckboxItem(
 
   const listItem = useCompositeListItem({ guess: true, label });
   const menuPositionerContext = useMenuPositionerContext(true);
-  const id = useBaseUiId(idProp);
+  const { store, floatingId, virtualFocus } = useMenuRootContext();
+  // React 17 resolves generated ids in an effect, so the id can be undefined on the first
+  // render. Interpolating it then would emit a duplicate `undefined-0` on every menu.
+  const id = idProp ?? (floatingId != null ? `${floatingId}-${listItem.index}` : undefined);
 
-  const { store } = useMenuRootContext();
   const rootDisabled = store.useState('disabled');
   const disabled = disabledProp || rootDisabled;
   const highlighted = store.useState('isActive', listItem.index);
@@ -66,6 +67,7 @@ export const MenuCheckboxItem = React.forwardRef(function MenuCheckboxItem(
     nativeButton,
     nodeId: menuPositionerContext?.context.nodeId,
     itemMetadata: REGULAR_ITEM,
+    virtualFocus,
   });
 
   const state: MenuCheckboxItemState = React.useMemo(
