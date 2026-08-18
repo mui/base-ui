@@ -26,14 +26,15 @@ export const FilterDropdownTrigger = React.forwardRef(function FilterDropdownTri
 
   const context = useFilterDropdownRootContext(popupState !== undefined);
   const setTriggerId = context?.setTriggerId;
-  const id = idProp ?? context?.defaultTriggerId;
-  const open = popupState?.open ?? context?.open ?? false;
-  const popupId = popupState?.popupId ?? context?.popupId;
   const renderedIdRef = useRenderedId(
     setTriggerId ?? NOOP,
     context?.defaultTriggerId,
     idProp != null,
   );
+
+  const id = idProp ?? context?.defaultTriggerId;
+  const open = popupState?.open ?? context?.open ?? false;
+  const popupId = popupState?.popupId ?? context?.popupId;
 
   const state: FilterDropdownTriggerState = {
     disabled,

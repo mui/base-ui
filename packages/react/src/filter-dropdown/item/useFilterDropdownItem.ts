@@ -75,9 +75,10 @@ export function useFilterDropdownItem(
   const { label, keywords, retainGroup = false, children, context } = params;
 
   const nearestContext = useFilterDropdownRootContext(context !== undefined);
+  const groupContext = useFilterDropdownGroupContext();
+
   const owner = context === undefined ? nearestContext : context;
   const { registerItem, store } = owner ?? DETACHED_OWNER;
-  const groupContext = useFilterDropdownGroupContext();
   const registerGroupItem = groupContext?.registerItem;
 
   const itemId = useRefWithInit(() => Symbol('filter-dropdown-item')).current;
