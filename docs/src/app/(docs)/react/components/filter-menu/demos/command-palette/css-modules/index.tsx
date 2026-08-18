@@ -20,7 +20,7 @@ export default function ExampleFilterMenuCommandPalette() {
         <Dialog.Backdrop className={styles.Backdrop} />
         <Dialog.Viewport className={styles.Viewport}>
           <Dialog.Popup className={styles.Popup} aria-label="Command palette">
-            <FilterMenu.Root open>
+            <FilterMenu.Root inline open>
               <div className={styles.InputGroup}>
                 <MagnifyingGlassIcon className={styles.InputIcon} aria-hidden />
                 <FilterMenu.Input
