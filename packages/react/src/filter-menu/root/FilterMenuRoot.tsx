@@ -31,6 +31,7 @@ export function FilterMenuRoot<Payload>(props: FilterMenuRoot.Props<Payload>): R
     defaultInputValue = '',
     onInputValueChange,
     filter,
+    autoHighlight = false,
     locale,
     disabled,
     inline = false,
@@ -91,6 +92,7 @@ export function FilterMenuRoot<Payload>(props: FilterMenuRoot.Props<Payload>): R
       virtualFocus
       virtualFocusRef={focusOwnerRef}
       virtualFocusPropsRef={inputPropsRef}
+      resetOnPointerLeave={autoHighlight !== 'always'}
     >
       {(payload) => (
         <FilterMenuProvider
@@ -99,6 +101,7 @@ export function FilterMenuRoot<Payload>(props: FilterMenuRoot.Props<Payload>): R
           value={inputValue}
           query={closeQuery.query}
           filter={filter}
+          autoHighlight={autoHighlight}
           locale={locale}
           inline={inline}
           onValueChange={handleInputValueChange}
@@ -133,6 +136,7 @@ interface FilterMenuProviderProps {
   value: string;
   query?: string | undefined;
   filter: FilterDropdownFilter | undefined;
+  autoHighlight: boolean | 'always';
   locale: Intl.LocalesArgument | undefined;
   inline?: boolean | undefined;
   onValueChange: (value: string, details: FilterMenuRoot.InputValueChangeEventDetails) => void;
@@ -163,6 +167,7 @@ export function FilterMenuProvider(props: FilterMenuProviderProps) {
       value={props.value}
       query={props.query ?? props.value}
       filter={props.filter}
+      autoHighlight={props.autoHighlight}
       locale={props.locale}
       triggerId={triggerElement?.id ?? triggerId}
       triggerElement={triggerElement}
@@ -185,6 +190,13 @@ interface FilterMenuRootFilterProps {
    * authoritative and item keywords are ignored.
    */
   filter?: FilterMenuFilter | undefined;
+  /**
+   * Whether the first matching item is highlighted automatically.
+   * - `true`: highlight the first match after the user types.
+   * - `'always'`: always highlight the first item.
+   * @default false
+   */
+  autoHighlight?: boolean | 'always' | undefined;
   /**
    * Locale used when comparing an item against the query.
    * Defaults to the runtime's default locale.

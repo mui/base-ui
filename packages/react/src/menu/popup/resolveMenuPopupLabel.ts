@@ -18,7 +18,9 @@ export function resolveMenuPopupLabel(
   let ariaLabelledBy = props['aria-labelledby'] ?? renderedElementProps?.['aria-labelledby'];
 
   if (ariaLabelledBy == null && !ariaLabel) {
-    ariaLabelledBy = activeTriggerElement?.id ?? activeTriggerId ?? undefined;
+    ariaLabelledBy = activeTriggerElement
+      ? activeTriggerElement.id || undefined
+      : activeTriggerId || undefined;
   }
 
   return { ariaLabel, ariaLabelledBy };

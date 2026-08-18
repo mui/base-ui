@@ -128,7 +128,11 @@ export function useFilterDropdownItem(
     const text = resolveText();
     const keywordsChanged = keywordsKey !== previousKeywordsKeyRef.current;
     if (text !== previousTextRef.current || keywordsChanged) {
-      previousTextRef.current = text;
+      // Keep the last rendered text when the item is filtered out. A custom child component
+      // cannot be inspected once its host element is unmounted.
+      if (text || ref.current !== null || label != null) {
+        previousTextRef.current = text;
+      }
       previousKeywordsKeyRef.current = keywordsKey;
       void register();
     }
