@@ -824,9 +824,10 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
       // A resolver that produced no element falls back to the default target, so it must not
       // count as an explicit request and skip the "focus moved elsewhere" guard below.
       resolvedExplicitReturnFocus =
-        typeof resolvedReturnFocusValue !== 'boolean' &&
-        resolvedReturnFocusValue != null &&
-        resolveRef(resolvedReturnFocusValue) != null;
+        (typeof returnFocusValueOrFn === 'function' && resolvedReturnFocusValue === true) ||
+        (typeof resolvedReturnFocusValue !== 'boolean' &&
+          resolvedReturnFocusValue != null &&
+          resolveRef(resolvedReturnFocusValue) != null);
 
       // `null` should fallback to default behavior in case of an empty ref.
       if (resolvedReturnFocusValue === undefined || resolvedReturnFocusValue === false) {

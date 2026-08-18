@@ -47,6 +47,7 @@ export function FilterMenuSubmenuRoot(props: FilterMenuSubmenuRoot.Props): React
     defaultInputValue = '',
     onInputValueChange,
     filter,
+    autoHighlight = false,
     disabled: disabledProp,
     locale,
     children,
@@ -169,6 +170,7 @@ export function FilterMenuSubmenuRoot(props: FilterMenuSubmenuRoot.Props): React
       virtualFocus
       virtualFocusRef={focusOwnerRef}
       virtualFocusPropsRef={inputPropsRef}
+      resetOnPointerLeave={autoHighlight !== 'always'}
     >
       <FilterMenuSubmenuNavigation
         parentStore={parentStore}
@@ -189,6 +191,7 @@ export function FilterMenuSubmenuRoot(props: FilterMenuSubmenuRoot.Props): React
           value={inputValue}
           query={closeQuery.query}
           filter={filter}
+          autoHighlight={autoHighlight}
           locale={locale}
           onValueChange={handleInputValueChange}
         >
@@ -379,6 +382,13 @@ export type FilterMenuSubmenuRootProps = Omit<
    * authoritative and item keywords are ignored.
    */
   filter?: FilterMenuFilter | undefined;
+  /**
+   * Whether the first matching item is highlighted automatically.
+   * - `true`: highlight the first match after the user types.
+   * - `'always'`: always highlight the first item.
+   * @default false
+   */
+  autoHighlight?: boolean | 'always' | undefined;
   /**
    * Locale used when comparing an item against the query.
    * Defaults to the runtime's default locale.

@@ -865,7 +865,9 @@ describe('<Menu.Root />', () => {
           await waitFor(() => {
             expect(screen.queryByTestId('submenu')).toBe(null);
           });
-          expect(submenuTrigger).toHaveFocus();
+          // ArrowLeft is also the horizontal parent's previous-item key, so navigation continues
+          // after the submenu closes.
+          expect(screen.getByTestId('item-3')).toHaveFocus();
 
           // ArrowUp is neither orientation's key here and must not reopen it.
           await user.keyboard('[ArrowUp]');
@@ -886,6 +888,59 @@ describe('<Menu.Root />', () => {
         // The submenu trigger is an item of the parent list, so it shares that namespace.
         expect(screen.getByTestId('submenu-trigger')).toHaveAttribute('id', 'my-menu-3');
       });
+
+      it.skipIf(isJSDOM)(
+        'seeds focus for an assistive-technology click after keyboard use',
+        async () => {
+          await render(<TestMenu />);
+
+          const trigger = screen.getByRole('button', { name: 'Toggle' });
+          trigger.focus();
+          await userEvent.keyboard('[Enter]');
+          await waitFor(() => {
+            expect(screen.getByTestId('item-1')).toHaveFocus();
+          });
+
+          await userEvent.keyboard('[Escape]');
+          await waitFor(() => {
+            expect(screen.queryByTestId('menu')).toBe(null);
+          });
+
+          fireEvent.click(trigger, { detail: 0 });
+
+          await waitFor(() => {
+            expect(screen.getByTestId('item-1')).toHaveFocus();
+          });
+        },
+      );
+
+      it.skipIf(isJSDOM)(
+        'does not move focus when a keyboard-closed submenu reopens on hover',
+        async () => {
+          const { user } = await render(
+            <TestMenu rootProps={{ open: true }} submenuTriggerProps={{ delay: 0 }} />,
+          );
+
+          const submenuTrigger = screen.getByTestId('submenu-trigger');
+          await act(async () => {
+            submenuTrigger.focus();
+          });
+          await user.keyboard('[ArrowRight]');
+          await waitFor(() => {
+            expect(screen.getByTestId('item-4_1')).toHaveFocus();
+          });
+
+          await user.keyboard('[ArrowLeft]');
+          await waitFor(() => {
+            expect(submenuTrigger).toHaveFocus();
+          });
+
+          await user.hover(submenuTrigger);
+          await screen.findByTestId('submenu');
+
+          expect(submenuTrigger).toHaveFocus();
+        },
+      );
 
       it('uses the id that landed on a `render` popup element', async () => {
         const { user } = await render(
@@ -925,6 +980,15 @@ describe('<Menu.Root />', () => {
 
         const menu = await screen.findByTestId('menu');
         expect(menu).toHaveAttribute('aria-labelledby', trigger.id);
+      });
+
+      it('does not render an empty popup label reference', async () => {
+        const { user } = await render(<TestMenu triggerProps={{ render: <button id="" /> }} />);
+
+        await user.click(screen.getByRole('button', { name: 'Toggle' }));
+
+        const menu = await screen.findByTestId('menu');
+        expect(menu).not.toHaveAttribute('aria-labelledby');
       });
 
       it('does not fire consumer handlers on a disabled submenu trigger', async () => {
