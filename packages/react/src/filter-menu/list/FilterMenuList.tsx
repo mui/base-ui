@@ -13,8 +13,9 @@ export const FilterMenuList = React.forwardRef(function FilterMenuList(
   componentProps: FilterMenuList.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const handleReferenceKeyDown = useFilterMenuReferenceKeyDown();
   const { orientation } = useMenuRootContext();
+  const handleReferenceKeyDown = useFilterMenuReferenceKeyDown();
+
   const props = mergeProps<typeof FilterDropdownList>(
     {
       'aria-orientation': orientation,
