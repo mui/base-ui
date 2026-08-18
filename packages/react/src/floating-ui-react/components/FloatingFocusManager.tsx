@@ -291,6 +291,9 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
 
   const initialFocusRef = useValueAsRef(initialFocus);
   const returnFocusRef = useValueAsRef(returnFocus);
+  // Read through a ref so a mid-open change can't re-run the return-focus effect, whose cleanup
+  // would move focus while the floating element is still open.
+  const explicitReturnFocusRef = useValueAsRef(explicitReturnFocus);
   const openInteractionTypeRef = useValueAsRef(openInteractionType);
   const openRef = useValueAsRef(open);
 
@@ -881,7 +884,8 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
         // `returnElement` if it is tabbable, otherwise its first tabbable child,
         // otherwise `returnElement` itself (which may not be tabbable at all).
         const tabbableReturnElement = getFirstTabbableElement(returnElement);
-        const hasExplicitReturnFocus = explicitReturnFocus ?? resolvedExplicitReturnFocus;
+        const hasExplicitReturnFocus =
+          explicitReturnFocusRef.current ?? resolvedExplicitReturnFocus;
 
         if (
           returnFocusValueOrFn &&
@@ -909,7 +913,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
     floating,
     floatingFocusElement,
     returnFocusRef,
-    explicitReturnFocus,
+    explicitReturnFocusRef,
     openInteractionTypeRef,
     events,
     tree,

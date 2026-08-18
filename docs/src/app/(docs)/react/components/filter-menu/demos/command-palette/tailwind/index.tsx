@@ -48,7 +48,10 @@ export default function ExampleFilterMenuCommandPalette() {
                       No results found.
                     </FilterMenu.Empty>
 
-                    <FilterMenu.List className="py-1" aria-label="Commands">
+                    <FilterMenu.List
+                      className="py-1 not-has-[>:not([hidden])]:py-0"
+                      aria-label="Commands"
+                    >
                       {groupedItems.map((group) => (
                         <FilterMenu.Group key={group.value} className="not-last:mb-1">
                           <FilterMenu.GroupLabel className="flex min-h-8 items-center pr-6 pl-3 text-sm leading-none font-normal text-neutral-500 select-none outline-none dark:text-neutral-400">

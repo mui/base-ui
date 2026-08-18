@@ -173,16 +173,13 @@ const MenuSubmenuTriggerImpl = React.forwardRef(function MenuSubmenuTriggerImpl(
 
   const state: MenuSubmenuTriggerState = { disabled, highlighted, open };
 
+  const openMethod = store.useState('openMethod');
+  const lastOpenChangeReason = store.useState('lastOpenChangeReason');
   const openedByKeyboard =
-    store.select('lastOpenChangeReason') === REASONS.listNavigation ||
-    store.select('openMethod') === 'keyboard';
+    lastOpenChangeReason === REASONS.listNavigation || openMethod === 'keyboard';
   const shouldOmitExpanded = open && openedByKeyboard && platform.screenReader.voiceOver;
   const submenuKeyDownProps = submenuRootContext?.onTriggerKeyDown
-    ? {
-        onKeyDown(event: React.KeyboardEvent<HTMLElement>) {
-          submenuRootContext.onTriggerKeyDown?.(event);
-        },
-      }
+    ? { onKeyDown: submenuRootContext.onTriggerKeyDown }
     : undefined;
 
   const element = useRenderElement('div', componentProps, {
@@ -206,7 +203,7 @@ const MenuSubmenuTriggerImpl = React.forwardRef(function MenuSubmenuTriggerImpl(
         'aria-controls': popupId,
         // A virtually focused parent keeps real focus on its input, so the trigger must stay out
         // of the tab order.
-        tabIndex: parentVirtualFocus ? -1 : ((open || highlighted ? 0 : -1) as number),
+        tabIndex: parentVirtualFocus || !(open || highlighted) ? -1 : 0,
         onBlur() {
           if (highlighted) {
             parentMenuStore.set('activeIndex', null);
