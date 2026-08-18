@@ -1,7 +1,14 @@
 import * as React from 'react';
-import { FilterSelect } from '@base-ui/react/filter-select';
+import {
+  FilterSelect,
+  type FilterSelectFilter,
+  type FilterSelectItemData,
+} from '@base-ui/react/filter-select';
 
-export type FilterSelectRootProps<Value> = FilterSelect.Root.Props<Value>;
+export type FilterSelectRootProps<
+  Value,
+  Item extends FilterSelectItemData<Value> = FilterSelectItemData<Value>,
+> = FilterSelect.Root.Props<Value, false, Item>;
 export type FilterSelectRootInputValueChangeEventDetails =
   FilterSelect.Root.InputValueChangeEventDetails;
 
@@ -59,4 +66,17 @@ export function StringRecordFilterSelect() {
 export function NumberRecordFilterSelect() {
   // @ts-expect-error record keys always produce string values
   return <FilterSelect.Root<number> items={{ 1: 'One' }} />;
+}
+
+interface CategorizedItem extends FilterSelectItemData<string> {
+  category: string;
+}
+
+const filterByCategory: FilterSelectFilter<CategorizedItem> = (item, query) =>
+  item.category === query;
+
+export function CategorizedFilterSelect() {
+  const items: CategorizedItem[] = [{ value: 'settings', label: 'Settings', category: 'admin' }];
+
+  return <FilterSelect.Root items={items} filter={filterByCategory} />;
 }

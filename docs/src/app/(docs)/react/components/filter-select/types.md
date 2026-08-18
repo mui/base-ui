@@ -23,12 +23,12 @@
 | highlightItemOnHover | `boolean`                                                                                 | `true`  | Whether moving the pointer over items should highlight them.&#xA;Disabling this prop allows CSS `:hover` to be differentiated from the `:focus` (`data-highlighted`) state.                                                                                                                                                                                                                                                                       |
 | actionsRef           | `React.RefObject<SelectRootActions \| null>`                                              | -       | A ref to imperative actions. `unmount`: Manually unmounts the select.&#xA;Call this after any externally controlled closing animation finishes.                                                                                                                                                                                                                                                                                                   |
 | autoComplete         | `string`                                                                                  | -       | Provides a hint to the browser for autofill.                                                                                                                                                                                                                                                                                                                                                                                                      |
-| filter               | `ItemFilter`                                                                              | -       | Replaces the default case-insensitive substring matching.&#xA;Receives an entry from `items` and the trimmed query.                                                                                                                                                                                                                                                                                                                               |
+| filter               | `FilterSelectFilter<FilterSelectItemData>`                                                | -       | Replaces the default case-insensitive substring matching for item labels.&#xA;Receives an entry from `items` and the trimmed query. When provided, this function is&#xA;authoritative; inspect the entry's keywords in the callback if they should also match.                                                                                                                                                                                    |
 | form                 | `string`                                                                                  | -       | Identifies the form that owns the hidden input.&#xA;Useful when the select is rendered outside the form.                                                                                                                                                                                                                                                                                                                                          |
 | isItemEqualToValue   | `((itemValue: Value, value: Value) => boolean)`                                           | -       | Custom comparison logic used to determine if a select item value matches the current selected value. Useful when item values are objects without matching referentially.&#xA;Defaults to `Object.is` comparison.                                                                                                                                                                                                                                  |
 | itemToStringLabel    | `((itemValue: Value) => string)`                                                          | -       | When the item values are objects (`<Select.Item value={object}>`), this function converts the object value to a string representation for display in the trigger.&#xA;If the shape of the object is `{ value, label }`, the label will be used automatically without needing to specify this prop.                                                                                                                                                |
 | itemToStringValue    | `((itemValue: Value) => string)`                                                          | -       | When the item values are objects (`<Select.Item value={object}>`), this function converts the object value to a string representation for form submission.&#xA;If the shape of the object is `{ value, label }`, the value will be used automatically without needing to specify this prop.                                                                                                                                                       |
-| items                | `FilterSelectItems<Value>`                                                                | -       | Data structure of the items rendered in the popup, and the source the query filters.&#xA;Required: filtering narrows this data before the list renders. Pass `undefined` while the&#xA;data is loading; an empty collection is treated as loaded and clears unavailable values. Render the entries with a function child of `<FilterSelect.List>`, or of&#xA;`<FilterSelect.Collection>` inside a group.                                          |
+| items                | `FilterSelectItems<Value, FilterSelectItemData>`                                          | -       | Data structure of the items rendered in the popup, and the source the query filters.&#xA;Required: filtering narrows this data before the list renders. Pass `undefined` while the&#xA;data is loading; an empty collection is treated as loaded and clears unavailable values. Render the entries with a function child of `<FilterSelect.List>`, or of&#xA;`<FilterSelect.Collection>` inside a group.                                          |
 | locale               | `Intl.LocalesArgument`                                                                    | -       | Locale used when comparing an item against the query.&#xA;Defaults to the runtime's default locale.                                                                                                                                                                                                                                                                                                                                               |
 | modal                | `boolean`                                                                                 | `true`  | Determines if the select enters a modal state when open. `true`: user interaction is limited to the select: document page scroll is locked and pointer interactions on outside elements are disabled.`false`: user interaction with the rest of the document is allowed. On touch devices, a `true` modal blocks outside taps but leaves the page scrollable unless the popup spans nearly the full viewport width, matching native iOS behavior. |
 | multiple             | `boolean`                                                                                 | `false` | Whether multiple items can be selected.                                                                                                                                                                                                                                                                                                                                                                                                           |
@@ -128,10 +128,7 @@ type FilterSelectRootInputValueChangeEventDetails = (
 
 ```typescript
 type FilterSelectRootInputValueChangeEventReason =
-  | 'input-change'
-  | 'input-clear'
-  | 'clear-press'
-  | 'popup-close';
+  'input-change' | 'input-clear' | 'clear-press' | 'popup-close';
 ```
 
 ### Trigger
@@ -787,11 +784,10 @@ type FilterSelectScrollDownArrowState = {};
 
 **Parameters:**
 
-| Parameter     | Type                       | Default | Description |
-| :------------ | :------------------------- | :------ | :---------- |
-| item          | `Item`                     | -       | -           |
-| query         | `string`                   | -       | -           |
-| itemToString? | `((item: Item) => string)` | -       | -           |
+| Parameter | Type     | Default | Description |
+| :-------- | :------- | :------ | :---------- |
+| item      | `Item`   | -       | -           |
+| query     | `string` | -       | -           |
 
 **Return Value:**
 
@@ -814,10 +810,13 @@ type FilterSelectItemData<Value = any> = {
 ### FilterSelectItems
 
 ```typescript
-type FilterSelectItems<Value = any> =
+type FilterSelectItems<
+  Value = any,
+  Item extends FilterSelectItemData = FilterSelectItemData<Value>,
+> =
   | Record<string, React.ReactNode>
-  | FilterSelectItemData<Value>[]
-  | Group<FilterSelectItemData<Value>>[];
+  | (Item & FilterSelectItemData<Value>)[]
+  | Group<Item & FilterSelectItemData<Value>>[];
 ```
 
 ## External Types
@@ -857,12 +856,6 @@ type InteractionType = 'mouse' | 'touch' | 'pen' | 'keyboard' | '';
 type Orientation = 'horizontal' | 'vertical';
 ```
 
-### ItemFilter
-
-```typescript
-type ItemFilter = (item: unknown, query: string, itemToString?: unknown | undefined) => boolean;
-```
-
 ## Export Groups
 
 - `FilterSelect.Label`: `FilterSelect.Label`, `FilterSelect.Label.State`, `FilterSelect.Label.Props`
@@ -888,7 +881,7 @@ type ItemFilter = (item: unknown, query: string, itemToString?: unknown | undefi
 - `FilterSelect.Input`: `FilterSelect.Input`, `FilterSelect.Input.State`, `FilterSelect.Input.Props`
 - `FilterSelect.Clear`: `FilterSelect.Clear`, `FilterSelect.Clear.State`, `FilterSelect.Clear.Props`
 - `FilterSelect.Empty`: `FilterSelect.Empty`, `FilterSelect.Empty.State`, `FilterSelect.Empty.Props`
-- `Default`: `FilterSelectFilter`, `FilterSelectItemData`, `FilterSelectItems`, `FilterSelectTriggerProps`, `FilterSelectPopupProps`, `FilterSelectListProps`, `FilterSelectPositionerState`, `FilterSelectPositionerProps`, `FilterSelectItemProps`, `FilterSelectGroupProps`, `FilterSelectInputState`, `FilterSelectInputProps`, `FilterSelectClearState`, `FilterSelectClearProps`, `FilterSelectEmptyState`, `FilterSelectEmptyProps`
+- `Default`: `FilterSelectItemData`, `FilterSelectFilter`, `FilterSelectItems`, `FilterSelectTriggerProps`, `FilterSelectPopupProps`, `FilterSelectListProps`, `FilterSelectPositionerState`, `FilterSelectPositionerProps`, `FilterSelectItemProps`, `FilterSelectGroupProps`, `FilterSelectInputState`, `FilterSelectInputProps`, `FilterSelectClearState`, `FilterSelectClearProps`, `FilterSelectEmptyState`, `FilterSelectEmptyProps`
 
 ## Canonical Types
 

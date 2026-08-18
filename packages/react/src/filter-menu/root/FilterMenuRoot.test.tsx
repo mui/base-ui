@@ -1,7 +1,15 @@
 import { expect, vi } from 'vitest';
 import * as React from 'react';
-import { act, ignoreActWarnings, reactMajor, screen, waitFor } from '@mui/internal-test-utils';
+import {
+  act,
+  fireEvent,
+  ignoreActWarnings,
+  reactMajor,
+  screen,
+  waitFor,
+} from '@mui/internal-test-utils';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
+import { DirectionProvider } from '@base-ui/react/direction-provider';
 import { Menu } from '@base-ui/react/menu';
 import { FilterMenu } from '@base-ui/react/filter-menu';
 import userEvent from '@testing-library/user-event';
@@ -946,7 +954,62 @@ describe('<FilterMenu.Root />', () => {
       expect(parentInput).toHaveAttribute('aria-activedescendant', nextItem.id);
     });
 
-    it('returns focus to a virtually focused submenu trigger on Escape', async () => {
+    it('uses RTL cross-axis keys to enter and leave a filterable submenu', async () => {
+      const { user } = await render(
+        <DirectionProvider direction="rtl">
+          <FilterMenu.Root defaultOpen>
+            <FilterMenu.Trigger>Actions</FilterMenu.Trigger>
+            <FilterMenu.Portal>
+              <FilterMenu.Positioner>
+                <FilterMenu.Popup>
+                  <FilterMenu.Input aria-label="Filter actions" />
+                  <FilterMenu.List>
+                    <FilterMenu.SubmenuRoot>
+                      <FilterMenu.SubmenuTrigger>Move to folder</FilterMenu.SubmenuTrigger>
+                      <FilterMenu.Portal>
+                        <FilterMenu.Positioner>
+                          <FilterMenu.Popup>
+                            <FilterMenu.Input aria-label="Filter folders" />
+                            <FilterMenu.List>
+                              <FilterMenu.Item>Documents</FilterMenu.Item>
+                            </FilterMenu.List>
+                          </FilterMenu.Popup>
+                        </FilterMenu.Positioner>
+                      </FilterMenu.Portal>
+                    </FilterMenu.SubmenuRoot>
+                  </FilterMenu.List>
+                </FilterMenu.Popup>
+              </FilterMenu.Positioner>
+            </FilterMenu.Portal>
+          </FilterMenu.Root>
+        </DirectionProvider>,
+      );
+
+      const parentInput = screen.getByRole('searchbox', { name: 'Filter actions' });
+      await waitFor(() => {
+        expect(parentInput).toHaveFocus();
+      });
+
+      await user.keyboard('[ArrowDown][ArrowLeft]');
+
+      const submenuInput = await screen.findByRole('searchbox', { name: 'Filter folders' });
+      await waitFor(() => {
+        expect(submenuInput).toHaveFocus();
+      });
+
+      await user.keyboard('[ArrowRight]');
+
+      await waitFor(() => {
+        expect(screen.queryByRole('searchbox', { name: 'Filter folders' })).toBe(null);
+      });
+      expect(parentInput).toHaveFocus();
+      expect(parentInput).toHaveAttribute(
+        'aria-activedescendant',
+        screen.getByRole('menuitem', { name: 'Move to folder' }).id,
+      );
+    });
+
+    it('returns virtual focus to the parent input on Escape and resumes filtering', async () => {
       const { user } = await render(
         <FilterMenu.Root defaultOpen>
           <FilterMenu.Trigger>Actions</FilterMenu.Trigger>
@@ -968,6 +1031,7 @@ describe('<FilterMenu.Root />', () => {
                       </FilterMenu.Positioner>
                     </FilterMenu.Portal>
                   </FilterMenu.SubmenuRoot>
+                  <FilterMenu.Item>Rename</FilterMenu.Item>
                 </FilterMenu.List>
               </FilterMenu.Popup>
             </FilterMenu.Positioner>
@@ -991,8 +1055,15 @@ describe('<FilterMenu.Root />', () => {
 
       const submenuTrigger = screen.getByRole('menuitem', { name: 'Move to folder' });
       await waitFor(() => {
-        expect(submenuTrigger).toHaveFocus();
+        expect(parentInput).toHaveFocus();
       });
+      expect(parentInput).toHaveAttribute('aria-activedescendant', submenuTrigger.id);
+
+      await user.type(parentInput, 'ren');
+
+      expect(parentInput).toHaveValue('ren');
+      expect(screen.getByRole('menuitem', { name: 'Rename' })).toBeVisible();
+      expect(screen.queryByRole('menuitem', { name: 'Move to folder' })).toBe(null);
     });
 
     it('opens a submenu from a filterable submenu input', async () => {
@@ -1194,8 +1265,9 @@ describe('<FilterMenu.Root />', () => {
       await user.keyboard('[Escape]');
       const shareTrigger = screen.getByRole('menuitem', { name: 'Share' });
       await waitFor(() => {
-        expect(shareTrigger).toHaveFocus();
+        expect(input).toHaveFocus();
       });
+      expect(input).toHaveAttribute('aria-activedescendant', shareTrigger.id);
 
       await user.keyboard('[ArrowUp]');
       const item = screen.getByRole('menuitem', { name: 'Rename' });
@@ -1431,6 +1503,35 @@ describe('<FilterMenu.Root />', () => {
       expect(onClick).toHaveBeenCalledTimes(1);
     });
 
+    it('does not activate the highlighted item when Enter commits an IME composition', async () => {
+      const onClick = vi.fn();
+      const { user } = await render(
+        <FilterMenu.Root defaultOpen>
+          <FilterMenu.Trigger>Actions</FilterMenu.Trigger>
+          <FilterMenu.Portal>
+            <FilterMenu.Positioner>
+              <FilterMenu.Popup>
+                <FilterMenu.Input aria-label="Filter actions" />
+                <FilterMenu.List>
+                  <FilterMenu.Item onClick={onClick}>Rename</FilterMenu.Item>
+                </FilterMenu.List>
+              </FilterMenu.Popup>
+            </FilterMenu.Positioner>
+          </FilterMenu.Portal>
+        </FilterMenu.Root>,
+      );
+
+      const input = screen.getByRole('searchbox', { name: 'Filter actions' });
+      await waitFor(() => {
+        expect(input).toHaveFocus();
+      });
+      await user.keyboard('[ArrowDown]');
+
+      fireEvent.keyDown(input, { key: 'Enter', keyCode: 229, which: 229 });
+
+      expect(onClick).not.toHaveBeenCalled();
+    });
+
     it('disables filter controls when the root is disabled', async () => {
       await render(
         <FilterMenu.Root open disabled defaultInputValue="a">
@@ -1497,6 +1598,32 @@ describe('<FilterMenu.Root />', () => {
 
       expect(screen.queryByRole('menuitem', { name: 'Apple' })).toBe(null);
       expect(screen.getByRole('menuitem', { name: 'Banana' })).toBeVisible();
+    });
+
+    it('does not fall back to keyword matching when a custom filter rejects an item', async () => {
+      await render(
+        <FilterMenu.Root
+          open
+          defaultInputValue="directory"
+          filter={(itemText, query) => itemText.startsWith(query)}
+        >
+          <FilterMenu.Trigger>Actions</FilterMenu.Trigger>
+          <FilterMenu.Portal>
+            <FilterMenu.Positioner>
+              <FilterMenu.Popup>
+                <FilterMenu.Input aria-label="Filter actions" />
+                <FilterMenu.List>
+                  <FilterMenu.Item keywords={['directory']}>Move to folder</FilterMenu.Item>
+                </FilterMenu.List>
+              </FilterMenu.Popup>
+            </FilterMenu.Positioner>
+          </FilterMenu.Portal>
+        </FilterMenu.Root>,
+      );
+
+      await waitFor(() => {
+        expect(screen.queryByRole('menuitem', { name: 'Move to folder' })).toBe(null);
+      });
     });
 
     it('filters a non-filterable submenu trigger from a filterable parent', async () => {

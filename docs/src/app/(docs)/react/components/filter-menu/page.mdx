@@ -13,7 +13,7 @@ import { DemoMenuFilterable } from '../menu/demos/filterable';
 ## Usage guidelines
 
 - **Use for searchable actions**: Choose `FilterMenu` when users need to find an action from a modest list. Use [Menu](/react/components/menu) for a short list that does not need search.
-- **Use Combobox for values**: Choose [Combobox](/react/components/combobox) when users are searching for a value to select, the list is large, or the results need virtualization or asynchronous loading.
+- **Use value-selection components for values**: Choose [FilterSelect](/react/components/filter-select) for a trigger-first control with a transient filter. Choose [Combobox](/react/components/combobox) when the input is the control or the results are large, virtualized, or loaded asynchronously.
 - **Name the filter input**: Give `<FilterMenu.Input>` an accessible name with `aria-label`, `aria-labelledby`, or a visible native `<label>`.
 
 ## Anatomy
@@ -49,6 +49,8 @@ import { FilterMenu } from '@base-ui/react/filter-menu';
 ### Filtering items
 
 Items are matched against their `label` prop, falling back to their rendered text. Add `keywords` to an item when it should also match alternate names or related terms.
+
+Pass `label` explicitly when text is rendered by a custom component, localized, or can change while the item is filtered out. Filtered-out items are unmounted, so their rendered text is no longer available to inspect.
 
 ```jsx title="Labels and keywords"
 <FilterMenu.List>
@@ -93,6 +95,8 @@ Pass `filter` to replace the default case-insensitive contains matching. The cal
   {/* menu parts */}
 </FilterMenu.Root>
 ```
+
+When a custom filter is provided, it is authoritative and `keywords` are ignored.
 
 ### Filterable submenus
 

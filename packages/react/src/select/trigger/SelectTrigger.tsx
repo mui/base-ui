@@ -46,7 +46,7 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
   const {
     render,
     className,
-    id,
+    id: idProp,
     disabled: disabledProp = false,
     nativeButton = true,
     style,
@@ -80,9 +80,11 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
   const positionerElement = useStore(store, selectors.positionerElement);
   const listElement = useStore(store, selectors.listElement);
   const popupSideValue = useStore(store, selectors.popupSide);
+  const rootId = useStore(store, selectors.id);
   const selectLabelId = useStore(store, selectors.labelId);
   const hasSelectedValue = useStore(store, selectors.hasSelectedValue);
   const popupSide = mounted && positionerElement ? popupSideValue : null;
+  const id = idProp ?? rootId;
   const ariaLabelledBy = resolveAriaLabelledBy(fieldLabelId, selectLabelId);
 
   useLabelableId({ id: idProp });

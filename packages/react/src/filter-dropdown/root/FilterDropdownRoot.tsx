@@ -125,14 +125,11 @@ export function FilterDropdownRoot(props: FilterDropdownRoot.Props): React.JSX.E
     const nextIds = new Set<symbol>();
     registeredItems.forEach(({ getText, keywords, filterValue }, id) => {
       const filterText = getText();
-      const matchesText =
-        filterText != null &&
-        (filter
-          ? filter(filterText, filterQuery, filterValue)
-          : defaultMatches(filterText, filterQuery));
-      // Keywords are alternate search terms rather than items, so they always use the default
-      // matcher. Handing one to a custom filter would give it a bare string instead of an item.
-      if (matchesText || keywords?.some((keyword) => defaultMatches(keyword, filterQuery))) {
+      const matches = filter
+        ? filterText != null && filter(filterText, filterQuery, filterValue)
+        : (filterText != null && defaultMatches(filterText, filterQuery)) ||
+          keywords?.some((keyword) => defaultMatches(keyword, filterQuery));
+      if (matches) {
         nextIds.add(id);
       }
     });

@@ -4,7 +4,10 @@ export type * from './root/FilterMenuRoot';
 export type * from './submenu-root/FilterMenuSubmenuRoot';
 export type * from './checkbox-item/FilterMenuCheckboxItem';
 export type * from './group/FilterMenuGroup';
-export type * from './group-label/FilterMenuGroupLabel';
+export type {
+  MenuGroupLabelProps as FilterMenuGroupLabelProps,
+  MenuGroupLabelState as FilterMenuGroupLabelState,
+} from '../menu/group-label/MenuGroupLabel';
 export type * from './item/FilterMenuItem';
 export type * from './link-item/FilterMenuLinkItem';
 export type * from './list/FilterMenuList';

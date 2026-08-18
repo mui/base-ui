@@ -1,12 +1,11 @@
-// A filterable menu is the ordinary menu plus the filtering parts. Everything except Root,
-// SubmenuRoot, Input, Clear, and Empty is re-exported unchanged, so a filterable menu needs only
-// this one import.
+// A filterable menu reuses unchanged Menu parts and supplies filtering-aware adapters where the
+// interaction, registration, or semantics differ, so consumers need only this one import.
 export { MenuArrow as Arrow } from '../menu/arrow/MenuArrow';
 export { MenuBackdrop as Backdrop } from '../menu/backdrop/MenuBackdrop';
 export { FilterMenuCheckboxItem as CheckboxItem } from './checkbox-item/FilterMenuCheckboxItem';
 export { MenuCheckboxItemIndicator as CheckboxItemIndicator } from '../menu/checkbox-item-indicator/MenuCheckboxItemIndicator';
 export { FilterMenuGroup as Group } from './group/FilterMenuGroup';
-export { FilterMenuGroupLabel as GroupLabel } from './group-label/FilterMenuGroupLabel';
+export { MenuGroupLabel as GroupLabel } from '../menu/group-label/MenuGroupLabel';
 export { FilterMenuItem as Item } from './item/FilterMenuItem';
 export { FilterMenuLinkItem as LinkItem } from './link-item/FilterMenuLinkItem';
 export { FilterMenuList as List } from './list/FilterMenuList';

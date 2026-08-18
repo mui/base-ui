@@ -13,7 +13,7 @@ import { DemoSelectFilterable } from '../select/demos/filterable';
 ## Usage guidelines
 
 - **Use for modest option lists**: Choose `FilterSelect` when users select one or more predefined values and need search to narrow a manageable list. Use [Select](/react/components/select) when search is unnecessary.
-- **Prefer Combobox for large or remote data**: Use [Combobox](/react/components/combobox) when the list is large, virtualized, asynchronously loaded, or users need to enter values that are not in the list.
+- **Prefer Combobox for large or remote data**: Use [Combobox](/react/components/combobox) when the input is the control or the list is large, virtualized, or asynchronously loaded. Use [Autocomplete](/react/components/autocomplete) when users can enter values that are not in the list.
 - **Name both controls**: `<FilterSelect.Label>` labels the select trigger. Give `<FilterSelect.Input>` a separate accessible name with `aria-label`, `aria-labelledby`, or a visible native `<label>`.
 
 ## Anatomy
@@ -86,23 +86,23 @@ The default filter matches the entry's label and its keywords. Keywords are not 
 
 ### Custom matching
 
-Pass `filter` to change how entries match the query. The callback receives the item from `items` and the trimmed query. Narrow the item before reading custom fields so the filter also works with the generic `FilterSelectFilter` type:
+Pass `filter` to change how entries match the query. The callback receives the item from `items` and the trimmed query. Parameterize `FilterSelectFilter` with the item type when declaring a reusable filter:
 
 ```tsx title="Custom filter"
-import type { FilterSelectFilter } from '@base-ui/react/filter-select';
+import type { FilterSelectFilter, FilterSelectItemData } from '@base-ui/react/filter-select';
 
-const filter: FilterSelectFilter = (item, query) => {
-  if (typeof item !== 'object' || item === null || !('label' in item)) {
-    return false;
-  }
+interface Fruit extends FilterSelectItemData<string> {
+  category: string;
+}
 
-  return String(item.label).toLowerCase().startsWith(query.toLowerCase());
-};
+const filter: FilterSelectFilter<Fruit> = (item, query) => item.category === query;
 
 <FilterSelect.Root items={items} filter={filter}>
   {/* select parts */}
 </FilterSelect.Root>;
 ```
+
+When a custom filter is provided, it is authoritative. Inspect `item.keywords` inside it if they should also match.
 
 ### Controlled query
 

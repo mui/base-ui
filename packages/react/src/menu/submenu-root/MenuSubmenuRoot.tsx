@@ -94,7 +94,8 @@ export function MenuSubmenuRoot(props: MenuSubmenuRoot.Props) {
 
     if (!nextOpen) {
       if (eventDetails.reason === REASONS.escapeKey && isHTMLElement(eventDetails.trigger)) {
-        // Focus returns to the trigger, so the parent highlight has to follow it.
+        // The parent highlight follows the trigger. Focus returns to the input for a virtually
+        // focused parent, or to the trigger for an ordinary menu.
         const triggerIndex = parent.store.context.itemDomElements.current.indexOf(
           eventDetails.trigger,
         );
@@ -102,7 +103,9 @@ export function MenuSubmenuRoot(props: MenuSubmenuRoot.Props) {
           parent.store.set('activeIndex', triggerIndex);
         }
         parentReferenceRef.current = {
-          reference: eventDetails.trigger,
+          reference: parent.store.select('virtualFocus')
+            ? (parent.store.context.inputRef.current ?? eventDetails.trigger)
+            : eventDetails.trigger,
           trigger: eventDetails.trigger,
         };
       }
@@ -283,8 +286,7 @@ export type MenuSubmenuRootProps = MenuSubmenuRootBaseProps & {
    * Event handler called when the menu is opened or closed.
    */
   onOpenChange?:
-    | ((open: boolean, eventDetails: MenuSubmenuRoot.ChangeEventDetails) => void)
-    | undefined;
+    ((open: boolean, eventDetails: MenuSubmenuRoot.ChangeEventDetails) => void) | undefined;
   /**
    * When in a submenu, determines whether pressing the Escape key
    * closes the entire menu, or only the current child menu.

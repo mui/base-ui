@@ -10,8 +10,7 @@ import {
 } from '../../filter-dropdown/root/FilterDropdownRoot';
 import type { FilterDropdownFilter } from '../../filter-dropdown/root/FilterDropdownRootContext';
 import { useFilterDropdownCloseQuery } from '../../filter-dropdown/root/useFilterDropdownCloseQuery';
-import type { ItemFilter } from '../../internals/filter';
-import { flattenLeafItems, stringifyAsLabel, type Group } from '../../internals/resolveValueLabel';
+import { flattenLeafItems, type Group } from '../../internals/resolveValueLabel';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
 import { SelectRootInternal, type SelectRoot } from '../../select/root/SelectRoot';
@@ -21,9 +20,11 @@ import { useFieldRootContext } from '../../internals/field-root-context/FieldRoo
 import { defaultItemEquality } from '../../internals/itemEquality';
 import { FilterSelectRootContext } from './FilterSelectRootContext';
 
-export function FilterSelectRoot<Value, Multiple extends boolean | undefined = false>(
-  props: FilterSelectRoot.Props<Value, Multiple>,
-): React.JSX.Element {
+export function FilterSelectRoot<
+  Value,
+  Multiple extends boolean | undefined = false,
+  Item extends FilterSelectItemData<any> = FilterSelectItemData<Value>,
+>(props: FilterSelectRoot.Props<Value, Multiple, Item>): React.JSX.Element {
   const {
     children,
     items,
@@ -79,13 +80,9 @@ export function FilterSelectRoot<Value, Multiple extends boolean | undefined = f
       return undefined;
     }
 
-    // `itemToStringLabel` takes a value; the filter is handed an entry.
-    const itemToString = (item: any) =>
-      stringifyAsLabel(item?.value ?? item, selectProps.itemToStringLabel);
-
-    return (filterText: string, filterQuery: string, filterValue?: unknown) =>
-      filter<any>(filterValue ?? filterText, filterQuery, itemToString);
-  }, [filter, selectProps.itemToStringLabel]);
+    return (_filterText: string, filterQuery: string, filterValue?: unknown) =>
+      filter(filterValue as Item, filterQuery);
+  }, [filter]);
 
   const filterSelectContextValue = React.useMemo(() => {
     // Resolved once for the whole collection. Letting every item scan `items` itself made
@@ -264,21 +261,31 @@ function FilterSelectProvider(props: FilterSelectProviderProps) {
   );
 }
 
-export type FilterSelectFilter = ItemFilter;
-
 export interface FilterSelectItemData<Value = any> {
   label: React.ReactNode;
   value: Value;
   keywords?: readonly string[] | undefined;
 }
 
-export type FilterSelectItems<Value = any> =
+export type FilterSelectFilter<Item = FilterSelectItemData<any>> = (
+  item: Item,
+  query: string,
+) => boolean;
+
+export type FilterSelectItems<
+  Value = any,
+  Item extends FilterSelectItemData<any> = FilterSelectItemData<Value>,
+> =
   | (string extends Value ? Record<string, React.ReactNode> : never)
-  | ReadonlyArray<FilterSelectItemData<Value>>
-  | ReadonlyArray<Group<FilterSelectItemData<Value>>>;
+  | ReadonlyArray<Item & FilterSelectItemData<Value>>
+  | ReadonlyArray<Group<Item & FilterSelectItemData<Value>>>;
 
 export namespace FilterSelectRoot {
-  export type Props<Value = any, Multiple extends boolean | undefined = false> = Omit<
+  export type Props<
+    Value = any,
+    Multiple extends boolean | undefined = false,
+    Item extends FilterSelectItemData<any> = FilterSelectItemData<Value>,
+  > = Omit<
     SelectRoot.Props<Value, Multiple>,
     'open' | 'defaultOpen' | 'onOpenChange' | 'onValueChange' | 'items'
   > & {
@@ -290,7 +297,7 @@ export namespace FilterSelectRoot {
      * Render the entries with a function child of `<FilterSelect.List>`, or of
      * `<FilterSelect.Collection>` inside a group.
      */
-    items: FilterSelectItems<Value> | undefined;
+    items: FilterSelectItems<Value, Item> | undefined;
     /**
      * Whether the popup is currently open.
      */
@@ -306,17 +313,17 @@ export namespace FilterSelectRoot {
      * Event handler called when the popup is opened or closed.
      */
     onOpenChange?:
-      | ((open: boolean, eventDetails: FilterSelectRoot.ChangeEventDetails) => void)
-      | undefined;
+      ((open: boolean, eventDetails: FilterSelectRoot.ChangeEventDetails) => void) | undefined;
     /**
      * Event handler called when the selected value changes.
      */
     onValueChange?: SelectRoot.Props<Value, Multiple>['onValueChange'] | undefined;
     /**
-     * Replaces the default case-insensitive substring matching.
-     * Receives an entry from `items` and the trimmed query.
+     * Replaces the default case-insensitive substring matching for item labels.
+     * Receives an entry from `items` and the trimmed query. When provided, this function is
+     * authoritative; inspect the entry's keywords in the callback if they should also match.
      */
-    filter?: FilterSelectFilter | undefined;
+    filter?: FilterSelectFilter<Item> | undefined;
     /**
      * Locale used when comparing an item against the query.
      * Defaults to the runtime's default locale.

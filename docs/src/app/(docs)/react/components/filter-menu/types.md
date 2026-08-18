@@ -20,7 +20,7 @@
 | actionsRef           | `React.RefObject<MenuRoot.Actions \| null>`                                             | -            | A ref to imperative actions. `unmount`: Manually unmounts the menu.&#xA;Call this after any externally controlled closing animation finishes.`close`: When specified, the menu can be closed imperatively.                                                                                                                                                                                                                                                                                                              |
 | closeParentOnEsc     | `boolean`                                                                               | `false`      | When in a submenu, determines whether pressing the Escape key&#xA;closes the entire menu, or only the current child menu.                                                                                                                                                                                                                                                                                                                                                                                               |
 | defaultTriggerId     | `string \| null`                                                                        | -            | ID of the trigger that the menu is associated with.&#xA;This is useful in conjunction with the `defaultOpen` prop to create an initially open menu.                                                                                                                                                                                                                                                                                                                                                                     |
-| filter               | `FilterDropdownFilter`                                                                  | -            | Replaces the default case-insensitive substring matching.&#xA;Receives an item's filter text and the trimmed query.                                                                                                                                                                                                                                                                                                                                                                                                     |
+| filter               | `FilterDropdownFilter`                                                                  | -            | Replaces the default case-insensitive substring matching for item text.&#xA;Receives an item's filter text and the trimmed query. When provided, this function is&#xA;authoritative and item keywords are ignored.                                                                                                                                                                                                                                                                                                      |
 | handle               | `FilterMenu.Handle<Payload>`                                                            | -            | A handle to associate the menu with a trigger.&#xA;If specified, allows external triggers to control the menu's open state.                                                                                                                                                                                                                                                                                                                                                                                             |
 | locale               | `Intl.LocalesArgument`                                                                  | -            | Locale used when comparing an item against the query.&#xA;Defaults to the runtime's default locale.                                                                                                                                                                                                                                                                                                                                                                                                                     |
 | loopFocus            | `boolean`                                                                               | `true`       | Whether to loop keyboard focus back to the first item&#xA;when the end of the list is reached while using the arrow keys.                                                                                                                                                                                                                                                                                                                                                                                               |
@@ -124,10 +124,7 @@ type FilterMenuRootInputValueChangeEventDetails = (
 
 ```typescript
 type FilterMenuRootInputValueChangeEventReason =
-  | 'input-change'
-  | 'input-clear'
-  | 'clear-press'
-  | 'popup-close';
+  'input-change' | 'input-clear' | 'clear-press' | 'popup-close';
 ```
 
 ### Trigger
@@ -520,13 +517,16 @@ type FilterMenuGroupState = {};
 
 ### GroupLabel
 
+An accessible label that is automatically associated with its parent group.
+Renders a `<div>` element.
+
 **GroupLabel Props:**
 
-| Prop      | Type                                                                                        | Default | Description                                                                                                                                                                                   |
-| :-------- | :------------------------------------------------------------------------------------------ | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| className | `string \| ((state: MenuGroupLabelState) => string \| undefined)`                           | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
-| style     | `React.CSSProperties \| ((state: MenuGroupLabelState) => React.CSSProperties \| undefined)` | -       | Style applied to the element, or a function that&#xA;returns a style object based on the component's state.                                                                                   |
-| render    | `ReactElement \| ((props: HTMLProps, state: MenuGroupLabelState) => ReactElement)`          | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
+| Prop      | Type                                                                                                | Default | Description                                                                                                                                                                                   |
+| :-------- | :-------------------------------------------------------------------------------------------------- | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| className | `string \| ((state: FilterMenu.GroupLabel.State) => string \| undefined)`                           | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
+| style     | `React.CSSProperties \| ((state: FilterMenu.GroupLabel.State) => React.CSSProperties \| undefined)` | -       | Style applied to the element, or a function that&#xA;returns a style object based on the component's state.                                                                                   |
+| render    | `ReactElement \| ((props: HTMLProps, state: FilterMenu.GroupLabel.State) => ReactElement)`          | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
 
 ### GroupLabel.Props
 
@@ -589,24 +589,24 @@ type FilterMenuEmptyState = {};
 
 **SubmenuRoot Props:**
 
-| Prop                 | Type                                                                                           | Default      | Description                                                                                                                                                                                                |
-| :------------------- | :--------------------------------------------------------------------------------------------- | :----------- | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| defaultInputValue    | `string`                                                                                       | -            | The uncontrolled filter query when the submenu is initially rendered.&#xA;To render a controlled query, use the `inputValue` prop instead.                                                                 |
-| inputValue           | `string`                                                                                       | -            | The filter query. Use when controlled.&#xA;The query is cleared when the popup closes.                                                                                                                     |
-| onInputValueChange   | `((value: string, eventDetails: FilterMenu.SubmenuRoot.InputValueChangeEventDetails) => void)` | -            | Event handler called when the filter query changes.                                                                                                                                                        |
-| defaultOpen          | `boolean`                                                                                      | `false`      | Whether the submenu is initially open. To render a controlled submenu, use the `open` prop instead.                                                                                                        |
-| open                 | `boolean`                                                                                      | -            | Whether the submenu is currently open.                                                                                                                                                                     |
-| onOpenChange         | `((open: boolean, eventDetails: FilterMenu.SubmenuRoot.ChangeEventDetails) => void)`           | -            | Event handler called when the submenu is opened or closed.                                                                                                                                                 |
-| highlightItemOnHover | `boolean`                                                                                      | `true`       | Whether moving the pointer over items should highlight them.&#xA;Disabling this prop allows CSS `:hover` to be differentiated from the `:focus` (`data-highlighted`) state.                                |
-| actionsRef           | `React.RefObject<MenuRoot.Actions \| null>`                                                    | -            | A ref to imperative actions. `unmount`: Manually unmounts the menu.&#xA;Call this after any externally controlled closing animation finishes.`close`: When specified, the menu can be closed imperatively. |
-| closeParentOnEsc     | `boolean`                                                                                      | `false`      | When in a submenu, determines whether pressing the Escape key&#xA;closes the entire menu, or only the current child menu.                                                                                  |
-| filter               | `FilterDropdownFilter`                                                                         | -            | Replaces the default case-insensitive substring matching.&#xA;Receives an item's filter text and the trimmed query.                                                                                        |
-| locale               | `Intl.LocalesArgument`                                                                         | -            | Locale used when comparing an item against the query.&#xA;Defaults to the runtime's default locale.                                                                                                        |
-| loopFocus            | `boolean`                                                                                      | `true`       | Whether to loop keyboard focus back to the first item&#xA;when the end of the list is reached while using the arrow keys.                                                                                  |
-| onOpenChangeComplete | `((open: boolean) => void)`                                                                    | -            | Event handler called after any animations complete when the menu is opened or closed.                                                                                                                      |
-| disabled             | `boolean`                                                                                      | `false`      | Whether the component should ignore user interaction.                                                                                                                                                      |
-| orientation          | `MenuRoot.Orientation`                                                                         | `'vertical'` | The visual orientation of the menu.&#xA;Controls whether roving focus uses up/down or left/right arrow keys.                                                                                               |
-| children             | `React.ReactNode`                                                                              | -            | The content of the submenu.                                                                                                                                                                                |
+| Prop                 | Type                                                                                           | Default      | Description                                                                                                                                                                                                        |
+| :------------------- | :--------------------------------------------------------------------------------------------- | :----------- | :----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| defaultInputValue    | `string`                                                                                       | -            | The uncontrolled filter query when the submenu is initially rendered.&#xA;To render a controlled query, use the `inputValue` prop instead.                                                                         |
+| inputValue           | `string`                                                                                       | -            | The filter query. Use when controlled.&#xA;The query is cleared when the popup closes.                                                                                                                             |
+| onInputValueChange   | `((value: string, eventDetails: FilterMenu.SubmenuRoot.InputValueChangeEventDetails) => void)` | -            | Event handler called when the filter query changes.                                                                                                                                                                |
+| defaultOpen          | `boolean`                                                                                      | `false`      | Whether the submenu is initially open. To render a controlled submenu, use the `open` prop instead.                                                                                                                |
+| open                 | `boolean`                                                                                      | -            | Whether the submenu is currently open.                                                                                                                                                                             |
+| onOpenChange         | `((open: boolean, eventDetails: FilterMenu.SubmenuRoot.ChangeEventDetails) => void)`           | -            | Event handler called when the submenu is opened or closed.                                                                                                                                                         |
+| highlightItemOnHover | `boolean`                                                                                      | `true`       | Whether moving the pointer over items should highlight them.&#xA;Disabling this prop allows CSS `:hover` to be differentiated from the `:focus` (`data-highlighted`) state.                                        |
+| actionsRef           | `React.RefObject<MenuRoot.Actions \| null>`                                                    | -            | A ref to imperative actions. `unmount`: Manually unmounts the menu.&#xA;Call this after any externally controlled closing animation finishes.`close`: When specified, the menu can be closed imperatively.         |
+| closeParentOnEsc     | `boolean`                                                                                      | `false`      | When in a submenu, determines whether pressing the Escape key&#xA;closes the entire menu, or only the current child menu.                                                                                          |
+| filter               | `FilterDropdownFilter`                                                                         | -            | Replaces the default case-insensitive substring matching for item text.&#xA;Receives an item's filter text and the trimmed query. When provided, this function is&#xA;authoritative and item keywords are ignored. |
+| locale               | `Intl.LocalesArgument`                                                                         | -            | Locale used when comparing an item against the query.&#xA;Defaults to the runtime's default locale.                                                                                                                |
+| loopFocus            | `boolean`                                                                                      | `true`       | Whether to loop keyboard focus back to the first item&#xA;when the end of the list is reached while using the arrow keys.                                                                                          |
+| onOpenChangeComplete | `((open: boolean) => void)`                                                                    | -            | Event handler called after any animations complete when the menu is opened or closed.                                                                                                                              |
+| disabled             | `boolean`                                                                                      | `false`      | Whether the component should ignore user interaction.                                                                                                                                                              |
+| orientation          | `MenuRoot.Orientation`                                                                         | `'vertical'` | The visual orientation of the menu.&#xA;Controls whether roving focus uses up/down or left/right arrow keys.                                                                                                       |
+| children             | `React.ReactNode`                                                                              | -            | The content of the submenu.                                                                                                                                                                                        |
 
 ### SubmenuRoot.Props
 
@@ -695,10 +695,7 @@ type FilterMenuSubmenuRootInputValueChangeEventDetails = (
 
 ```typescript
 type FilterMenuSubmenuRootInputValueChangeEventReason =
-  | 'input-change'
-  | 'input-clear'
-  | 'clear-press'
-  | 'popup-close';
+  'input-change' | 'input-clear' | 'clear-press' | 'popup-close';
 ```
 
 ### SubmenuTrigger
@@ -1095,8 +1092,9 @@ type FilterMenuLinkItemState = {
 ```typescript
 type FilterMenuRootFilterProps = {
   /**
-   * Replaces the default case-insensitive substring matching.
-   * Receives an item's filter text and the trimmed query.
+   * Replaces the default case-insensitive substring matching for item text.
+   * Receives an item's filter text and the trimmed query. When provided, this function is
+   * authoritative and item keywords are ignored.
    */
   filter?: FilterDropdownFilter;
   /**
@@ -1205,7 +1203,7 @@ type FilterDropdownFilter = (filterText: string, query: string, filterValue?: un
 - `FilterMenu.Input`: `FilterMenu.Input`, `FilterMenu.Input.State`, `FilterMenu.Input.Props`
 - `FilterMenu.Clear`: `FilterMenu.Clear`, `FilterMenu.Clear.State`, `FilterMenu.Clear.Props`
 - `FilterMenu.Empty`: `FilterMenu.Empty`, `FilterMenu.Empty.State`, `FilterMenu.Empty.Props`
-- `Default`: `FilterMenuRootFilterProps`, `FilterMenuFilter`, `FilterMenuCheckboxItemProps`, `FilterMenuGroupProps`, `FilterMenuGroupLabelProps`, `FilterMenuItemProps`, `FilterMenuLinkItemProps`, `FilterMenuListState`, `FilterMenuListProps`, `FilterMenuPopupProps`, `FilterMenuRadioGroupProps`, `FilterMenuRadioItemProps`, `FilterMenuTriggerProps`, `FilterMenuTriggerState`, `FilterMenuSubmenuTriggerProps`, `FilterMenuSubmenuTriggerState`, `FilterMenuInputState`, `FilterMenuInputProps`, `FilterMenuClearState`, `FilterMenuClearProps`, `FilterMenuEmptyState`, `FilterMenuEmptyProps`
+- `Default`: `FilterMenuGroupLabelProps`, `FilterMenuGroupLabelState`, `FilterMenuRootFilterProps`, `FilterMenuFilter`, `FilterMenuCheckboxItemProps`, `FilterMenuGroupProps`, `FilterMenuItemProps`, `FilterMenuLinkItemProps`, `FilterMenuListState`, `FilterMenuListProps`, `FilterMenuPopupProps`, `FilterMenuRadioGroupProps`, `FilterMenuRadioItemProps`, `FilterMenuTriggerProps`, `FilterMenuTriggerState`, `FilterMenuSubmenuTriggerProps`, `FilterMenuSubmenuTriggerState`, `FilterMenuInputState`, `FilterMenuInputProps`, `FilterMenuClearState`, `FilterMenuClearProps`, `FilterMenuEmptyState`, `FilterMenuEmptyProps`
 
 ## Canonical Types
 
@@ -1214,6 +1212,7 @@ Maps `Canonical`: `Alias` — Use Canonical when its namespace is already import
 - `FilterMenu.CheckboxItem.Props`: `FilterMenuCheckboxItemProps`
 - `FilterMenu.Group.Props`: `FilterMenuGroupProps`
 - `FilterMenu.GroupLabel.Props`: `FilterMenuGroupLabelProps`
+- `FilterMenu.GroupLabel.State`: `FilterMenuGroupLabelState`
 - `FilterMenu.Item.Props`: `FilterMenuItemProps`
 - `FilterMenu.LinkItem.Props`: `FilterMenuLinkItemProps`
 - `FilterMenu.List.Props`: `FilterMenuListProps`

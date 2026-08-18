@@ -6,7 +6,7 @@ import {
   type FilterSelectItemData,
 } from '@base-ui/react/filter-select';
 import { Field } from '@base-ui/react/field';
-import { act, screen, waitFor } from '@mui/internal-test-utils';
+import { act, fireEvent, screen, waitFor } from '@mui/internal-test-utils';
 import { createRenderer, isJSDOM, resetBrowserPointer } from '#test-utils';
 
 describe('<FilterSelect.Root />', () => {
@@ -935,14 +935,10 @@ describe('<FilterSelect.Root />', () => {
     });
 
     it('uses an updated custom filter function', async () => {
-      const startsWith: FilterSelectFilter = (item, query) =>
-        String((item as FilterSelectItemData).label)
-          .toLowerCase()
-          .startsWith(query);
-      const endsWith: FilterSelectFilter = (item, query) =>
-        String((item as FilterSelectItemData).label)
-          .toLowerCase()
-          .endsWith(query);
+      const startsWith: FilterSelectFilter<FilterSelectItemData> = (item, query) =>
+        String(item.label).toLowerCase().startsWith(query);
+      const endsWith: FilterSelectFilter<FilterSelectItemData> = (item, query) =>
+        String(item.label).toLowerCase().endsWith(query);
 
       function Test() {
         const [filter, setFilter] = React.useState(() => startsWith);
@@ -992,9 +988,41 @@ describe('<FilterSelect.Root />', () => {
       expect(screen.getByRole('option', { name: 'Banana' })).toBeVisible();
     });
 
+    it('passes a null-valued item to a custom filter without changing its shape', async () => {
+      type Item = FilterSelectItemData<string | null> & { category: string };
+      const items: Item[] = [
+        { value: null, label: 'None', category: 'empty' },
+        { value: 'apple', label: 'Apple', category: 'fruit' },
+      ];
+      const filter: FilterSelectFilter<Item> = (item, query) => item.category === query;
+
+      await render(
+        <FilterSelect.Root open defaultInputValue="empty" items={items} filter={filter}>
+          <FilterSelect.Trigger>Fruit</FilterSelect.Trigger>
+          <FilterSelect.Portal>
+            <FilterSelect.Positioner>
+              <FilterSelect.Popup>
+                <FilterSelect.Input aria-label="Filter fruit" />
+                <FilterSelect.List>
+                  {(item: Item) => (
+                    <FilterSelect.Item key={item.value ?? 'none'} value={item.value}>
+                      {item.label}
+                    </FilterSelect.Item>
+                  )}
+                </FilterSelect.List>
+              </FilterSelect.Popup>
+            </FilterSelect.Positioner>
+          </FilterSelect.Portal>
+        </FilterSelect.Root>,
+      );
+
+      expect(screen.getByRole('option', { name: 'None' })).toBeVisible();
+      expect(screen.queryByRole('option', { name: 'Apple' })).toBe(null);
+    });
+
     it('re-filters when an item used by a custom filter changes', async () => {
       type Item = FilterSelectItemData<string> & { category: string };
-      const filter: FilterSelectFilter = (item, query) => (item as Item).category === query;
+      const filter: FilterSelectFilter<Item> = (item, query) => item.category === query;
 
       function Test() {
         const [items, setItems] = React.useState<Item[]>([
@@ -1041,7 +1069,7 @@ describe('<FilterSelect.Root />', () => {
 
     it('clears a positional highlight when item metadata replaces the visible item', async () => {
       type Item = FilterSelectItemData<string> & { category: string };
-      const filter: FilterSelectFilter = (item, query) => (item as Item).category === query;
+      const filter: FilterSelectFilter<Item> = (item, query) => item.category === query;
       const onValueChange = vi.fn();
       let replaceItems = () => {};
 
@@ -1378,15 +1406,49 @@ describe('<FilterSelect.Root />', () => {
 
       expect(screen.getByTestId('trigger')).toHaveTextContent('Banana');
     });
+
+    it('does not select the highlighted item when Enter commits an IME composition', async () => {
+      const onValueChange = vi.fn();
+      const { user } = await render(
+        <FilterSelect.Root
+          defaultOpen
+          onValueChange={onValueChange}
+          items={[{ value: 'apple', label: 'Apple' }]}
+        >
+          <FilterSelect.Trigger>Fruit</FilterSelect.Trigger>
+          <FilterSelect.Portal>
+            <FilterSelect.Positioner>
+              <FilterSelect.Popup>
+                <FilterSelect.Input aria-label="Filter fruit" />
+                <FilterSelect.List>
+                  {(item: { value: string; label: string }) => (
+                    <FilterSelect.Item key={item.value} value={item.value}>
+                      {item.label}
+                    </FilterSelect.Item>
+                  )}
+                </FilterSelect.List>
+              </FilterSelect.Popup>
+            </FilterSelect.Positioner>
+          </FilterSelect.Portal>
+        </FilterSelect.Root>,
+      );
+
+      const input = screen.getByRole('searchbox', { name: 'Filter fruit' });
+      await waitFor(() => {
+        expect(input).toHaveFocus();
+      });
+      await user.keyboard('[ArrowDown]');
+
+      fireEvent.keyDown(input, { key: 'Enter', keyCode: 229, which: 229 });
+
+      expect(onValueChange).not.toHaveBeenCalled();
+      expect(screen.getByRole('listbox')).toBeVisible();
+    });
   });
 
-  it('matches keywords with the default filter when a custom filter is supplied', async () => {
-    const filter: FilterSelectFilter = (item, query) => {
-      if (typeof item !== 'object' || item === null || !('label' in item)) {
-        return false;
-      }
-      return String(item.label).toLowerCase().startsWith(query.toLowerCase());
-    };
+  it('does not fall back to keyword matching when a custom filter rejects an item', async () => {
+    const filter: FilterSelectFilter<FilterSelectItemData> = (item, query) =>
+      String(item.label).toLowerCase().startsWith(query.toLowerCase());
 
     const { user } = await render(
       <FilterSelect.Root
@@ -1421,12 +1483,10 @@ describe('<FilterSelect.Root />', () => {
     await user.click(screen.getByTestId('trigger'));
     const input = await screen.findByRole('searchbox', { name: 'Filter' });
 
-    // The custom filter only ever sees the item from `items`, so narrowing it does not break
-    // keyword matching.
     await user.type(input, 'prefer');
 
     await waitFor(() => {
-      expect(screen.getByRole('option', { name: 'Settings' })).toBeVisible();
+      expect(screen.queryByRole('option', { name: 'Settings' })).toBe(null);
     });
     expect(screen.queryByRole('option', { name: 'Apple' })).toBe(null);
   });

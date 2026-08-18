@@ -164,8 +164,9 @@ export function FilterMenuProvider(props: FilterMenuProviderProps) {
 
 export interface FilterMenuRootFilterProps {
   /**
-   * Replaces the default case-insensitive substring matching.
-   * Receives an item's filter text and the trimmed query.
+   * Replaces the default case-insensitive substring matching for item text.
+   * Receives an item's filter text and the trimmed query. When provided, this function is
+   * authoritative and item keywords are ignored.
    */
   filter?: FilterMenuFilter | undefined;
   /**
@@ -213,8 +214,7 @@ export namespace FilterMenuRoot {
      * Event handler called when the menu is opened or closed.
      */
     onOpenChange?:
-      | ((open: boolean, eventDetails: FilterMenuRoot.ChangeEventDetails) => void)
-      | undefined;
+      ((open: boolean, eventDetails: FilterMenuRoot.ChangeEventDetails) => void) | undefined;
   } & FilterMenuRootFilterProps;
   export type State = MenuRoot.State;
   export type Actions = MenuRoot.Actions;

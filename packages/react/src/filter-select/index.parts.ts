@@ -1,5 +1,5 @@
-// A filterable select is the ordinary select plus the filtering parts. Everything except Root is
-// re-exported unchanged, so a filterable select needs only this one import.
+// A filterable select reuses unchanged Select parts and supplies filtering-aware adapters where the
+// interaction, registration, or positioning differs, so consumers need only this one import.
 export { SelectLabel as Label } from '../select/label/SelectLabel';
 export { FilterSelectTrigger as Trigger } from './trigger/FilterSelectTrigger';
 export { SelectValue as Value } from '../select/value/SelectValue';
