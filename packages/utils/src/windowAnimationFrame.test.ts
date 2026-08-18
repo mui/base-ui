@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
-import { AnimationFrame } from './useAnimationFrame';
+import { WindowAnimationFrame } from './windowAnimationFrame';
 
 function createFakeWindow() {
   const scheduled = new Map<number, FrameRequestCallback>();
@@ -17,10 +17,10 @@ function createFakeWindow() {
   return { ownerWindow, requestAnimationFrame, cancelAnimationFrame, scheduled };
 }
 
-describe('AnimationFrame with an owner window', () => {
+describe('WindowAnimationFrame', () => {
   it('requests through the owner window and resets currentId before the callback runs', () => {
     const { ownerWindow, requestAnimationFrame, scheduled } = createFakeWindow();
-    const frame = new AnimationFrame(ownerWindow);
+    const frame = new WindowAnimationFrame(ownerWindow);
     const observedIds: Array<number | null> = [];
     const fn = vi.fn(() => {
       observedIds.push(frame.currentId);
@@ -38,7 +38,7 @@ describe('AnimationFrame with an owner window', () => {
 
   it('cancels through the owner window', () => {
     const { ownerWindow, cancelAnimationFrame, scheduled } = createFakeWindow();
-    const frame = new AnimationFrame(ownerWindow);
+    const frame = new WindowAnimationFrame(ownerWindow);
     const fn = vi.fn();
 
     frame.request(fn);
@@ -60,7 +60,7 @@ describe('AnimationFrame with an owner window', () => {
       throw new DOMException('The browsing context is gone', 'InvalidStateError');
     });
     const ownerWindow = { requestAnimationFrame, cancelAnimationFrame } as unknown as Window;
-    const frame = new AnimationFrame(ownerWindow);
+    const frame = new WindowAnimationFrame(ownerWindow);
 
     frame.request(() => {});
     expect(() => frame.cancel()).not.toThrow();

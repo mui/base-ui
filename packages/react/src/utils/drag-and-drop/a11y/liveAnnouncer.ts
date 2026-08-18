@@ -8,20 +8,11 @@
 
 import { ownerDocument } from '@base-ui/utils/owner';
 import { visuallyHidden } from '@base-ui/utils/visuallyHidden';
-import { Timeout } from '@base-ui/utils/useTimeout';
+import { WindowTimeout } from '@base-ui/utils/windowTimeout';
 import { getSharedSlot } from '../sharedState';
 
-export interface AnnounceOptions {
-  /**
-   * Coalesce announcements fired within this window (ms). The last message in
-   * the window wins. Use for move announcements; omit (or `0`) for discrete
-   * events like pick-up and drop, which should announce immediately.
-   */
-  debounceMs?: number | undefined;
-}
-
 export interface Announcer {
-  announce(message: string, options?: AnnounceOptions): void;
+  announce(message: string, debounceMs?: number): void;
   /** Drop a pending debounced announcement without writing it. */
   cancelPending(): void;
   destroy(): void;
@@ -61,7 +52,7 @@ function createAnnouncer(doc: Document): Announcer {
   // is parsed (imperative registration from a head script).
   (doc.body ?? doc.documentElement).appendChild(node);
 
-  const debounceTimer = new Timeout(doc.defaultView ?? window);
+  const debounceTimer = new WindowTimeout(doc.defaultView ?? window);
   let destroyed = false;
   // The last message written, and a toggle used to force a content change when
   // the same message is announced twice in a row (see `write`).
@@ -87,11 +78,10 @@ function createAnnouncer(doc: Document): Announcer {
   }
 
   const announcer: Announcer = {
-    announce(message: string, options?: AnnounceOptions): void {
+    announce(message: string, debounceMs = 0): void {
       if (destroyed) {
         return;
       }
-      const debounceMs = options?.debounceMs ?? 0;
       if (debounceMs > 0) {
         debounceTimer.start(debounceMs, () => write(message));
       } else {

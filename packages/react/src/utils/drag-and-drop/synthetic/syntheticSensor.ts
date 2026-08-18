@@ -8,8 +8,8 @@
 import { NOOP } from '@base-ui/utils/empty';
 import { ownerDocument, ownerWindow } from '@base-ui/utils/owner';
 import { addEventListener } from '@base-ui/utils/addEventListener';
-import { AnimationFrame } from '@base-ui/utils/useAnimationFrame';
-import { Timeout } from '@base-ui/utils/useTimeout';
+import { WindowAnimationFrame } from '@base-ui/utils/windowAnimationFrame';
+import { WindowTimeout } from '@base-ui/utils/windowTimeout';
 import { contains, getTarget } from '@base-ui/utils/shadowDom';
 import { createChangeEventDetails } from '../../../internals/createBaseUIEventDetails';
 import {
@@ -495,7 +495,7 @@ function onPointerDown(event: Event): void {
     lastNativeEvent: pointerEvent,
     startedAt: pointerEvent.timeStamp,
     listeners: [],
-    pressHoldTimer: new Timeout(win),
+    pressHoldTimer: new WindowTimeout(win),
     restoreNativeDrag,
     contextMenuSuppression,
     // iOS Safari quirk: a `{ passive: false }` `touchmove` listener must exist
@@ -583,7 +583,7 @@ function startContextMenuSuppression(win: Window, targets: EventTarget[]): DragC
   state.cleanupContextMenuSuppression?.();
 
   const uniqueTargets = Array.from(new Set(targets));
-  const timeout = new Timeout(win);
+  const timeout = new WindowTimeout(win);
   const cleanups: DragCleanupFn[] = [];
   let disposed = false;
 
@@ -866,7 +866,7 @@ function commitActivation(): void {
     // stationary frame is gated.
     movedSinceFrame: true,
     scrolledSinceFrame: false,
-    rafFrame: new AnimationFrame(win),
+    rafFrame: new WindowAnimationFrame(win),
     listeners: [],
     restoreNativeDrag,
     contextMenuSuppression,
@@ -882,13 +882,11 @@ function commitActivation(): void {
   // no cursor. `false` opts out so a consumer can manage the cursor itself.
   const cursor = parameters.dragCursor ?? DEFAULT_DRAG_CURSOR;
   if (cursor && pointerType !== 'touch') {
-    // Deferred one frame. The lock toggles a class on `<html>` that gates a
-    // universal-selector rule, which invalidates style for the whole document —
-    // 5-30ms on a large tree. That cost is accepted (it is the only thing that
-    // beats per-element cursors), but it does not have to be paid on the same
-    // frame as the clone build and the first preview placement, which is the
-    // frame the user sees as the lift. One frame later nothing else is competing.
-    AnimationFrame.request(() => {
+    // The lock toggles a class on `<html>` that gates a universal-selector rule,
+    // invalidating style for the whole document. Defer that work out of the
+    // pickup task; the first preview is already positioned, so the lift can paint
+    // before this cost.
+    WindowAnimationFrame.request(() => {
       // The drag may have ended before this deferred work runs. Identity also
       // prevents a stale callback from locking the cursor for a newer session.
       if (state.active === activeRef) {
@@ -1060,10 +1058,6 @@ function onActiveFrame(): void {
   active.lastHitElement = target;
   active.preview.update(input.clientX, input.clientY, input);
   active.controller.update(input, target, active.lastNativeEvent);
-  // This callback is already rAF-coalesced by the pointer sensor. Dispatch the
-  // lifecycle update in the same frame instead of adding a second rAF before
-  // consumers and the monitor-driven auto-scroller observe the move.
-  active.controller.flushDrag();
   // A consumer callback that re-rendered synchronously may have torn out the
   // preview's host after it was positioned. Re-home it before the frame ends
   // rather than leaving it detached until the next input. (A commit React defers
@@ -1343,7 +1337,7 @@ interface PendingSession {
   lastNativeEvent: PointerEvent;
   startedAt: number;
   listeners: DragCleanupFn[];
-  pressHoldTimer: Timeout;
+  pressHoldTimer: WindowTimeout;
   restoreNativeDrag: DragCleanupFn;
   /**
    * The contextmenu suppression this gesture armed (touch/pen only), or `null`
@@ -1406,7 +1400,7 @@ interface ActiveSession {
    * stationary pointer is still tracked.
    */
   scrolledSinceFrame: boolean;
-  rafFrame: AnimationFrame;
+  rafFrame: WindowAnimationFrame;
   listeners: DragCleanupFn[];
   /** See {@link PendingSession.touchMoveAnchor}; released when the drag ends. */
   touchMoveAnchor: DragCleanupFn;

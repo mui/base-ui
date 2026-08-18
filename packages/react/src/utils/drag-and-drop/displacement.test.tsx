@@ -378,6 +378,40 @@ describe('displacement tracking', () => {
     expect(row('b')).not.toHaveAttribute('data-displacing');
   });
 
+  it('schedules the end grace frame in the drag source window', async () => {
+    const { engine } = await renderDnd();
+    const row = document.createElement('div');
+    document.body.appendChild(row);
+    const untrack = trackDisplacedElement(row);
+
+    const iframe = document.createElement('iframe');
+    document.body.appendChild(iframe);
+    const source = iframe.contentDocument!.createElement('div');
+    iframe.contentDocument!.body.appendChild(source);
+    engine.registerDraggable(source, { kind: testDragKind, keyboardActivation: 'manual' });
+
+    const mainRequest = vi.spyOn(window, 'requestAnimationFrame');
+    const sourceRequest = vi.spyOn(iframe.contentWindow!, 'requestAnimationFrame');
+
+    act(() => {
+      engine.startKeyboardDrag(source);
+    });
+    mainRequest.mockClear();
+    sourceRequest.mockClear();
+    act(() => {
+      engine.cancelDrag();
+    });
+
+    expect(sourceRequest).toHaveBeenCalled();
+    expect(mainRequest).not.toHaveBeenCalled();
+
+    sourceRequest.mockRestore();
+    mainRequest.mockRestore();
+    untrack();
+    iframe.remove();
+    row.remove();
+  });
+
   it('re-baselines on resize instead of misreading the reflow as displacement', async () => {
     const { source, positions, commit, row } = await renderRows();
 

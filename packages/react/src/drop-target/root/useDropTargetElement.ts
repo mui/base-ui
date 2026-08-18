@@ -82,12 +82,9 @@ export function useDropTargetElement(
     registrationRef(node);
   }).current;
 
-  // Parameter changes never re-register, so the engine re-reads them on the next
-  // resolution — normally the next pointer move. A `disabled` or `accept` change
-  // under a stationary pointer has no next move: the hovered target would keep
-  // `data-drag-over` until a drop silently resolved without it, so re-resolve
-  // eagerly (a no-op while no drag is active). `canDrop` gets no such refresh —
-  // only calling it could reveal a changed verdict, and that means polling.
+  // A changed `disabled`, `accept`, or `canDrop` identity is re-resolved for a
+  // stationary pointer. Mutations hidden behind a stable callback are observed
+  // on the next input.
   // Only on an actual change, compared by content so an inline `accept` array
   // doesn't re-resolve every render: a mount-time refresh would resolve the
   // transient state of a same-commit remount mid-registration and churn a

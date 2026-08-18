@@ -13,13 +13,10 @@ const EMPTY = null;
 let LAST_RAF = globalThis.requestAnimationFrame;
 
 class Scheduler {
-  /* This implementation uses an array as a backing data-structure for frame callbacks.
-   * It allows `O(1)` callback cancelling by inserting a `null` in the array, though it
-   * never calls the native `cancelAnimationFrame` if there are no frames left. This can
-   * be much more efficient if there is a call pattern that alterns as
-   * "request-cancel-request-cancel-…".
-   * But in the case of "request-request-…-cancel-cancel-…", it leaves the final animation
-   * frame to run anyway. We turn that frame into a `O(1)` no-op via `callbacksCount`. */
+  /* One native frame serves every callback requested before it fires. IDs index
+   * the callback array, so cancellation only has to null one slot. When every
+   * callback is canceled, the native frame stays armed but `callbacksCount`
+   * turns its tick into a no-op; this avoids request/cancel churn. */
 
   callbacks = [] as (FrameRequestCallback | null)[];
 
@@ -104,44 +101,34 @@ export function resetAnimationFrameScheduler() {
 }
 
 export class AnimationFrame {
-  static create(ownerWindow?: Window) {
-    return new AnimationFrame(ownerWindow);
+  static create() {
+    return new AnimationFrame();
   }
 
-  static request(fn: FrameRequestCallback, ownerWindow?: Window) {
-    return ownerWindow ? ownerWindow.requestAnimationFrame(fn) : scheduler.request(fn);
+  static request(fn: FrameRequestCallback) {
+    return scheduler.request(fn);
   }
 
-  static cancel(id: AnimationFrameId, ownerWindow?: Window) {
-    if (ownerWindow) {
-      try {
-        ownerWindow.cancelAnimationFrame(id);
-      } catch {
-        // The window may have closed.
-      }
-      return;
-    }
+  static cancel(id: AnimationFrameId) {
     scheduler.cancel(id);
   }
-
-  constructor(private readonly ownerWindow?: Window) {}
 
   currentId: AnimationFrameId | null = EMPTY;
 
   /** Executes `fn` on the next animation frame, replacing any pending call. */
   request(fn: Function) {
     this.cancel();
-    this.currentId = AnimationFrame.request(() => {
+    this.currentId = scheduler.request(() => {
       this.currentId = EMPTY;
       fn();
-    }, this.ownerWindow);
+    });
   }
 
   cancel = () => {
     if (this.currentId !== EMPTY) {
       const id = this.currentId;
       this.currentId = EMPTY;
-      AnimationFrame.cancel(id, this.ownerWindow);
+      scheduler.cancel(id);
     }
   };
 
@@ -154,9 +141,9 @@ export class AnimationFrame {
  * A `requestAnimationFrame` with automatic cleanup and guard.
  */
 export function useAnimationFrame() {
-  const timeout = useRefWithInit(AnimationFrame.create).current;
+  const frame = useRefWithInit(AnimationFrame.create).current;
 
-  useOnMount(timeout.disposeEffect);
+  useOnMount(frame.disposeEffect);
 
-  return timeout;
+  return frame;
 }

@@ -22,7 +22,7 @@
 import { ownerDocument, ownerWindow } from '@base-ui/utils/owner';
 import { addEventListener } from '@base-ui/utils/addEventListener';
 import { clamp } from '@base-ui/utils/clamp';
-import { AnimationFrame } from '@base-ui/utils/useAnimationFrame';
+import { WindowAnimationFrame } from '@base-ui/utils/windowAnimationFrame';
 import { isElement, isHTMLElement } from '@floating-ui/utils/dom';
 import { activeElement, contains, getTarget } from '@base-ui/utils/shadowDom';
 import { createChangeEventDetails } from '../../../internals/createBaseUIEventDetails';
@@ -142,7 +142,7 @@ interface ActiveKeyboardSession {
   finalFocus: DragKeyboardFinalFocus | undefined;
   announcer: Announcer;
   /** Coalesces held-arrow repeats to one collision scan per animation frame. */
-  repeatMoveFrame: AnimationFrame;
+  repeatMoveFrame: WindowAnimationFrame;
   /** The newest repeat to commit when {@link repeatMoveFrame} fires. */
   pendingRepeatMove: { key: DragKeyboardArrowKey; event: KeyboardEvent } | null;
   listeners: DragCleanupFn[];
@@ -153,10 +153,10 @@ interface KeyboardDragState {
   /**
    * The pending end-of-drag focus-restore frame, so a new drag or a teardown can
    * cancel it before it fires. Bound to the window of the drag that scheduled it
-   * (see {@link AnimationFrame}); each schedule replaces the handle, so a
+   * (see {@link WindowAnimationFrame}); each schedule replaces the handle, so a
    * frame pending in a previous drag's window is still cancelable from here.
    */
-  pendingFocusFrame: AnimationFrame | null;
+  pendingFocusFrame: WindowAnimationFrame | null;
   /**
    * Keydown-listener cleanups deferred because they were released while an active
    * keyboard drag still needed them (the dragged source was the last draggable and
@@ -542,7 +542,7 @@ function beginKeyboardSession(parameters: {
     keyboardMovement: draggableParameters.keyboardMovement,
     finalFocus: draggableParameters.finalFocus,
     announcer: getAnnouncer(element),
-    repeatMoveFrame: new AnimationFrame(win),
+    repeatMoveFrame: new WindowAnimationFrame(win),
     pendingRepeatMove: null,
     listeners: [],
   };
@@ -619,7 +619,6 @@ function commitModifierSync(session: ActiveKeyboardSession, event: KeyboardEvent
   const target = resolveTargetUnderCursor(session.doc, session.preview, clientX, clientY);
   session.currentTarget = target;
   session.controller.update(session.lastInput, target, event);
-  session.controller.flushDrag();
 }
 
 /**
@@ -1219,10 +1218,7 @@ function commitMove(
   // can land on a different element than was announced.
   session.currentTarget = target;
   session.controller.update(session.lastInput, target, session.lastNativeEvent);
-  // Flush the throttled onDrag so the announcement reads this move's resolved
-  // position rather than the previous frame's.
-  session.controller.flushDrag();
-  // A consumer handler inside `update`/`flushDrag` can call the public
+  // A consumer handler inside `update` can call the public
   // `cancelDrag()` re-entrantly, tearing this session down (and announcing the
   // cancel). Scrolling or queueing a debounced "moved" announcement for the
   // dead drag would then read out a stale move after "canceled" — bail out.
@@ -1320,7 +1316,7 @@ function dropActive(event?: Event): void {
       outcome = controller.drop(input, target, event, (location) => {
         const resolvedSnapshot = snapshot ? { ...snapshot, location } : null;
         finalSnapshot = resolvedSnapshot;
-        announceOutcome(session, resolvedSnapshot, 'dropped');
+        runAnnouncement(session, resolvedSnapshot, 'dropped');
       });
     } finally {
       // A throwing consumer terminal handler skips `drop`'s return, but the drop
@@ -1350,7 +1346,7 @@ function cancelActive(
     // Announce before cancelling, mirroring `dropActive`: after the cancel the
     // store is empty, so a consumer-supplied `canceled` announcement must read
     // the snapshot captured at the moment of cancellation.
-    announceOutcome(session, snapshot, 'canceled');
+    runAnnouncement(session, snapshot, 'canceled');
   } finally {
     // See `dropActive`: a rethrown consumer error must not cost the user their
     // focus, since `clearActive()` has already run.
@@ -1480,21 +1476,14 @@ function getAnnouncement<K extends keyof DragKeyboardAnnouncements>(
 /**
  * Resolve the announcement callback for `name`, run it against `snapshot`, and
  * write any truthy message to the announcer. Shared by the live and terminal
- * announcers; `cancelPending` drops a queued (debounced) move announcement
- * before announcing, and `announceOptions` carries the move debounce.
+ * announcers; `debounceMs` carries the move debounce.
  */
 function runAnnouncement(
   session: ActiveKeyboardSession,
   snapshot: ReturnType<typeof dragSessionStore.getSnapshot>,
   name: keyof DragKeyboardAnnouncements,
-  options?: {
-    cancelPending?: boolean | undefined;
-    announceOptions?: { debounceMs: number } | undefined;
-  },
+  debounceMs?: number,
 ): void {
-  if (options?.cancelPending) {
-    session.announcer.cancelPending();
-  }
   if (!snapshot) {
     return;
   }
@@ -1515,7 +1504,7 @@ function runAnnouncement(
     '',
   );
   if (message) {
-    session.announcer.announce(message, options?.announceOptions);
+    session.announcer.announce(message, debounceMs);
   }
 }
 
@@ -1539,22 +1528,13 @@ function announce(
   session: ActiveKeyboardSession,
   name: 'pickedUp' | 'moved' | 'reachedEdge',
 ): void {
-  runAnnouncement(session, dragSessionStore.getSnapshot(), name, {
-    // Debounce the repeatable phases so held arrow keys don't flood the queue.
-    announceOptions: name === 'pickedUp' ? undefined : { debounceMs: MOVE_ANNOUNCE_DEBOUNCE_MS },
-  });
-}
-
-/** Announce a terminal phase using a snapshot captured before teardown. */
-function announceOutcome(
-  session: ActiveKeyboardSession,
-  snapshot: ReturnType<typeof dragSessionStore.getSnapshot>,
-  name: 'dropped' | 'canceled',
-): void {
-  // The drag is ending: drop any move announcement still waiting out its
-  // debounce so a stale "moved to…" doesn't land after teardown. A truthy
-  // terminal message below clears it too, but a falsy one would not.
-  runAnnouncement(session, snapshot, name, { cancelPending: true });
+  // Debounce the repeatable phases so held arrow keys don't flood the queue.
+  runAnnouncement(
+    session,
+    dragSessionStore.getSnapshot(),
+    name,
+    name === 'pickedUp' ? undefined : MOVE_ANNOUNCE_DEBOUNCE_MS,
+  );
 }
 
 /**
@@ -1647,9 +1627,12 @@ function scheduleRestoreFocus(
   const location: DragLocationHistory | null = snapshot?.location ?? null;
   // Restore after the commit so a reordering collection has remounted the item.
   cancelPendingFocusRestore();
-  const frame = new AnimationFrame(ownerWindow(session.source.element));
+  const frame = new WindowAnimationFrame(ownerWindow(session.source.element));
   state.pendingFocusFrame = frame;
   frame.request(() => {
+    if (state.pendingFocusFrame === frame) {
+      state.pendingFocusFrame = null;
+    }
     // Contained: the live registration/`dragHandle` getters the default cascade
     // reads are consumer code. A throw inside a rAF is unhandled and would abort
     // the restore silently, leaving focus on `<body>` — the exact failure the

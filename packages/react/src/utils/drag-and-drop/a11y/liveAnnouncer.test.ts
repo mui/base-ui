@@ -79,7 +79,7 @@ describe('liveAnnouncer', () => {
     const el = createElement();
     const announcer = getAnnouncer(el);
     announcer.announce('immediate');
-    announcer.announce('debounced', { debounceMs: 250 });
+    announcer.announce('debounced', 250);
     // The debounced write has not landed yet — the immediate one still stands.
     expect(getRegion()!.textContent).toBe('immediate');
   });
@@ -88,7 +88,7 @@ describe('liveAnnouncer', () => {
     const el = createElement();
     const announcer = getAnnouncer(el);
     announcer.announce('immediate');
-    announcer.announce('debounced', { debounceMs: 1 });
+    announcer.announce('debounced', 1);
     expect(getRegion()!.textContent).toBe('immediate');
 
     await new Promise<void>((resolve) => {
@@ -101,7 +101,7 @@ describe('liveAnnouncer', () => {
     const el = createElement();
     const announcer = getAnnouncer(el);
     announcer.announce('immediate');
-    announcer.announce('debounced', { debounceMs: 1 });
+    announcer.announce('debounced', 1);
     announcer.cancelPending();
 
     await new Promise<void>((resolve) => {

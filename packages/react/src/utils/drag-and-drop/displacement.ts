@@ -46,7 +46,7 @@
 
 import { ownerWindow } from '@base-ui/utils/owner';
 import { addEventListener } from '@base-ui/utils/addEventListener';
-import { AnimationFrame } from '@base-ui/utils/useAnimationFrame';
+import { WindowAnimationFrame } from '@base-ui/utils/windowAnimationFrame';
 import { dragSessionStore, dragSourceStore } from './dragSessionStore';
 import type { DragCleanupFn } from '../../types/drag';
 
@@ -108,7 +108,8 @@ const tracked = new Map<HTMLElement, TrackedState>();
 const resizeListeners = new Map<Window, DragCleanupFn>();
 let storeUnsubscribe: DragCleanupFn | null = null;
 let windowOpen = false;
-let graceFrame: AnimationFrame | null = null;
+let graceFrame: WindowAnimationFrame | null = null;
+let dragWindow: Window | null = null;
 /** Monotonic across all plays, so a remounted record can never reuse a token. */
 let playCounter = 0;
 // One sweep per commit: the first tracked element's layout effect sweeps the
@@ -232,6 +233,10 @@ function detachResizeListeners(): void {
 
 function openWindow(): void {
   windowOpen = true;
+  const source = dragSourceStore.getSnapshot();
+  if (source) {
+    dragWindow = ownerWindow(source.element);
+  }
   // The drag-start frame is already measure-heavy (the preview clone); one read
   // per tracked element rides along so the first reorder diffs against the
   // pre-drag layout rather than against whenever the elements last rendered.
@@ -243,12 +248,14 @@ function openWindow(): void {
 
 function closeWindow(): void {
   windowOpen = false;
+  dragWindow = null;
   detachResizeListeners();
 }
 
 function handleSessionChange(): void {
-  const live = dragSourceStore.getSnapshot() !== null;
-  if (live) {
+  const source = dragSourceStore.getSnapshot();
+  if (source) {
+    dragWindow = ownerWindow(source.element);
     graceFrame?.cancel();
     graceFrame = null;
     if (!windowOpen) {
@@ -262,11 +269,11 @@ function handleSessionChange(): void {
   // Held open one frame: the drop-commit and cancel-revert renders land after
   // the store nulls but before this frame fires, so they still animate. A
   // commit deferred past that (a transition, an `await`) misses the window.
-  // The frame is re-derived per request: a cached one could sit on a throttled
-  // or closed popout window and never deliver the close.
+  // Use the drag's window. A registered row may belong to an inactive opener,
+  // whose throttled frame would leave the animation window open too long.
   const first = tracked.keys().next().value as HTMLElement | undefined;
   graceFrame?.cancel();
-  graceFrame = new AnimationFrame(first ? ownerWindow(first) : window);
+  graceFrame = new WindowAnimationFrame(dragWindow ?? (first ? ownerWindow(first) : window));
   graceFrame.request(closeWindow);
 }
 
@@ -408,7 +415,7 @@ function sweep(): void {
   // carries each element from the published delta back to its stylesheet rest
   // state. One frame per window serves every element it played.
   for (const [win, group] of perWindow) {
-    AnimationFrame.request(() => {
+    WindowAnimationFrame.request(() => {
       for (const play of group) {
         // A newer sweep can retarget the same element before this frame runs.
         // Its starting-style guard and variables belong to that newer token.

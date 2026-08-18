@@ -20,7 +20,7 @@
 
 import { ownerWindow } from '@base-ui/utils/owner';
 import { addEventListener } from '@base-ui/utils/addEventListener';
-import { Timeout } from '@base-ui/utils/useTimeout';
+import { WindowTimeout } from '@base-ui/utils/windowTimeout';
 import { getSharedSlot } from '../sharedState';
 import type { DragCleanupFn } from '../../../types/drag';
 
@@ -66,7 +66,7 @@ export function suppressNextClick(element: Element, heldPointerId?: number): voi
   state.disarm?.();
 
   const win = ownerWindow(element);
-  const timeout = new Timeout(win);
+  const timeout = new WindowTimeout(win);
 
   // Assigned by the listener registrations below; the handlers and the timer all
   // reach them through `disarm`, which only ever runs after that.

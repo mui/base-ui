@@ -15,7 +15,13 @@ import { addDropTargetRegistration, removeDropTargetRegistration } from '../drop
 import { engageMonitorIfDragging, monitorRegistry, removeMonitor } from '../monitor';
 import { cancelDrag } from '../cancelDrag';
 import { dragSessionStore } from '../dragSessionStore';
-import { reset, start, canStart, isActive } from './lifecycleManager';
+import {
+  reset,
+  start,
+  canStart,
+  isActive,
+  scheduleDropTargetParameterRefresh,
+} from './lifecycleManager';
 import type { DragSessionHandle, SourceHandlers } from './lifecycleManager';
 import { createKind } from '../dragKind';
 
@@ -349,52 +355,37 @@ describe('lifecycle manager', () => {
   });
 
   describe('mid-drag drop-target refresh', () => {
-    it('an unrelated refresh does not discard a queued real-movement onDrag', async () => {
-      const { engine } = await renderDnd();
-      const target = createElement();
-      const cleanupTarget = engine.registerDropTarget(target, {});
+    it('does not let a stale session suppress a parameter refresh for the next drag', async () => {
+      const targetA = createElement();
+      const targetB = createElement();
+      const getTargetA = vi.fn(() => ({}));
+      const getTargetB = vi.fn(() => ({}));
+      addDropTargetRegistration(targetA, getTargetA);
+      addDropTargetRegistration(targetB, getTargetB);
 
-      // Capture coordinates at dispatch time: the payload's `location` is
-      // mutated in place, so a stashed payload always reads the latest state.
-      const dragInputs: Array<{ x: number; y: number }> = [];
-      let handle: DragSessionHandle | null = null;
+      let first: DragSessionHandle | null = null;
       act(() => {
-        handle = startDragWithHandlers(
-          {
-            onDrag: ({ location }) => {
-              dragInputs.push({
-                x: location.current.input.clientX,
-                y: location.current.input.clientY,
-              });
-            },
-          },
-          target,
-        );
+        first = startDragWithHandlers({}, targetA);
+        scheduleDropTargetParameterRefresh();
+        first!.controller.cancel();
       });
-      const controller = handle!.controller;
 
-      // A real pointer movement queues the rAF-throttled onDrag.
-      const movedInput = { ...makeInput(), clientX: 40, clientY: 40 };
+      let second: DragSessionHandle | null = null;
       act(() => {
-        controller.update(movedInput, target);
+        second = startDragWithHandlers({}, targetB);
       });
-      expect(dragInputs).toEqual([]);
+      const callsAtStart = getTargetB.mock.calls.length;
 
-      // The hovered target unregisters before the queued onDrag is delivered (a
-      // virtualizer recycling its row). The synchronous refresh re-resolves the
-      // stack with the *same* input object, so it must not cancel the queued
-      // real-movement onDrag — the `input !== previousInput` guard.
-      act(() => {
-        cleanupTarget();
-      });
-      expect(dragInputs).toEqual([]);
+      scheduleDropTargetParameterRefresh();
+      await act(async () => Promise.resolve());
 
-      await flushRaf();
-      expect(dragInputs).toContainEqual({ x: 40, y: 40 });
+      expect(getTargetB).toHaveBeenCalledTimes(callsAtStart + 1);
 
       act(() => {
-        controller.cancel();
+        second!.controller.cancel();
       });
+      removeDropTargetRegistration(targetA, getTargetA);
+      removeDropTargetRegistration(targetB, getTargetB);
     });
   });
 
@@ -827,13 +818,9 @@ describe('lifecycle manager', () => {
       expect(handle).not.toBeNull();
 
       act(() => {
-        handle!.controller.update(makeInput(), target);
+        expect(() => handle!.controller.update(makeInput(), target)).toThrow('boom from onDrag');
       });
       expect(onDragEnter).toHaveBeenCalledTimes(1);
-
-      act(() => {
-        expect(() => handle!.controller.flushDrag()).toThrow('boom from onDrag');
-      });
 
       expect(onDragLeave).toHaveBeenCalledTimes(1);
       expect(onDragLeave.mock.calls[0][1].reason).toBe('handler-error');
@@ -1005,16 +992,14 @@ describe('lifecycle manager', () => {
       expectEngineRecovered();
     });
 
-    it('a throwing onDrag (rAF-throttled, flushed via flushDrag) tears the session down', () => {
+    it('a throwing onDrag tears the session down', () => {
       const handle = startDragWithHandlers({
         onDrag: () => {
           throw new Error('boom from onDrag');
         },
       });
       expect(handle).not.toBeNull();
-      // `update` schedules the throttled onDrag; `flushDrag` dispatches it now.
-      handle!.controller.update(makeInput(), null);
-      expect(() => handle!.controller.flushDrag()).toThrow('boom from onDrag');
+      expect(() => handle!.controller.update(makeInput(), null)).toThrow('boom from onDrag');
       expectEngineRecovered();
     });
 

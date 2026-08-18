@@ -7,11 +7,9 @@ type TimeoutId = number;
 const EMPTY = 0 as TimeoutId;
 
 export class Timeout {
-  static create(ownerWindow?: Window) {
-    return new Timeout(ownerWindow);
+  static create() {
+    return new Timeout();
   }
-
-  constructor(private readonly ownerWindow?: Window) {}
 
   currentId: TimeoutId = EMPTY;
 
@@ -20,8 +18,7 @@ export class Timeout {
    */
   start(delay: number, fn: Function) {
     this.clear();
-    const schedule = this.ownerWindow?.setTimeout.bind(this.ownerWindow) ?? setTimeout;
-    this.currentId = schedule(() => {
+    this.currentId = setTimeout(() => {
       this.currentId = EMPTY;
       fn();
     }, delay) as unknown as number; /* Node.js types are enabled in development */
@@ -35,8 +32,7 @@ export class Timeout {
     if (this.currentId !== EMPTY) {
       const id = this.currentId;
       this.currentId = EMPTY;
-      const clear = this.ownerWindow?.clearTimeout.bind(this.ownerWindow) ?? clearTimeout;
-      clear(id);
+      clearTimeout(id);
     }
   };
 

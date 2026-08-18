@@ -1,6 +1,6 @@
 import { ownerDocument, ownerWindow } from '@base-ui/utils/owner';
 import { warn } from '@base-ui/utils/warn';
-import { AnimationFrame } from '@base-ui/utils/useAnimationFrame';
+import { WindowAnimationFrame } from '@base-ui/utils/windowAnimationFrame';
 import type {
   DragAccept,
   DragSource,
@@ -830,7 +830,7 @@ function requestScrollFrame(): number | null {
   if (state.scrollWindow === null) {
     state.scrollWindow = ownerWindow(source.element);
   }
-  return AnimationFrame.request(scrollLoop, state.scrollWindow);
+  return WindowAnimationFrame.request(scrollLoop, state.scrollWindow);
 }
 
 /**
@@ -926,7 +926,7 @@ function stopScrollLoop(): void {
   clearInferredScrollers();
   resetStyleCaches();
   if (scrollLoopRaf !== null && scrollWindow !== null) {
-    AnimationFrame.cancel(scrollLoopRaf, scrollWindow);
+    WindowAnimationFrame.cancel(scrollLoopRaf, scrollWindow);
   }
 }
 
