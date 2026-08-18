@@ -10,7 +10,7 @@ export interface DragSessionState {
   source: DragSource;
   location: DragLocationHistory;
   mode: DragMode;
-  /** Element refs of every drop target in the active stack. Enables O(1) `isOverElement` lookups. */
+  /** Element refs of every drop target in the active stack. Enables O(1) membership lookups. */
   dropTargetElements: ReadonlySet<Element>;
   /**
    * The target whose `canDrop` returned `'reject'` for the current position, or
@@ -215,54 +215,16 @@ export function updateDragSourceElement(oldElement: Element, newElement: HTMLEle
   return true;
 }
 
-type State = DragSessionState | null;
-
-export const selectors = {
-  /**
-   * Whether `element` is the element currently being dragged. `false` when
-   * `element` is `null` or no drag is active. Drives `Draggable.Root`'s
-   * `isDragging` return value.
-   */
-  isDraggingElement: (state: State, element: Element | null) => {
-    if (!state || !element) {
-      return false;
-    }
-    return state.source.element === element;
-  },
-  /**
-   * Whether `element` is in the active drop-target stack at any depth.
-   * `false` when `element` is `null` or no drag is active. Drives
-   * `DropTarget.Root`'s `over` state.
-   */
-  isOverElement: (state: State, element: Element | null) => {
-    if (!state || !element) {
-      return false;
-    }
-    return state.dropTargetElements.has(element);
-  },
-  /**
-   * Whether `element` is the innermost drop target. A nested ancestor returns
-   * `true` for `isOverElement` but `false` here while a descendant target is
-   * hovered.
-   */
-  isOverInnerElement: (state: State, element: Element | null) => {
-    if (!state || !element) {
-      return false;
-    }
-    return state.location.current.dropTargets[0]?.element === element;
-  },
-  /**
-   * Whether `element` is the target currently refusing the drag (`canDrop`
-   * returned `'reject'` at the current position). Drives `DropTarget.Root`'s
-   * `rejected` state.
-   */
-  isRejectedElement: (state: State, element: Element | null) => {
-    if (!state || !element) {
-      return false;
-    }
-    return state.rejectedTarget === element;
-  },
-};
+/** Whether `element` is the active drag source. */
+export function isDraggingElement(
+  state: DragSessionState | null,
+  element: Element | null,
+): boolean {
+  if (!state || !element) {
+    return false;
+  }
+  return state.source.element === element;
+}
 
 /**
  * Clone a `DragLocationHistory`, giving each entry its own copy of the stack.

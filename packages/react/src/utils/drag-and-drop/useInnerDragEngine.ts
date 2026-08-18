@@ -53,17 +53,8 @@ export function resolveKeyboardInstructions(
 }
 
 /**
- * The half of the engine that depends on React context: `registerDraggable`,
- * which reads the locale and the preview provider, plus `cancelDrag`.
- *
- * Separate from {@link DragEngineImpl} for bundle size. The other three
- * registrations are class fields assigned from `./registrations`, which makes
- * them unconditionally reachable — so a bundle with nothing but `Draggable.Root`
- * in it shipped the drop-target and monitor registries too. Keeping them off
- * this base class is what lets a bundler drop them.
- *
- * Auto-scroll is armed independently by `DragAutoScroll.Root` or an imperative
- * auto-scroller registration, so it also stays outside the draggable leaf.
+ * Draggable registration shared by `Draggable.Root` and the collection engine.
+ * Kept separate from {@link DragEngineImpl} so declarative bundles exclude the full manager.
  */
 export class DragEngineBase {
   constructor(
@@ -80,10 +71,6 @@ export class DragEngineBase {
   private get previewContext(): DragPreviewContext | null {
     return this.getPreviewContext();
   }
-
-  cancelDrag = cancelDrag;
-
-  startKeyboardDrag = startKeyboardDrag;
 
   registerDraggable = <TData = undefined>(
     element: HTMLElement,
@@ -225,8 +212,11 @@ export class DragEngineBase {
   };
 }
 
-/** The full imperative API: the base plus the three standalone registrations. */
 export class DragEngineImpl extends DragEngineBase implements InternalDragEngine {
+  cancelDrag = cancelDrag;
+
+  startKeyboardDrag = startKeyboardDrag;
+
   // The stateless primitives, re-exposed as methods (see `./registrations`).
   registerDropTarget = registerDropTarget;
 
@@ -257,14 +247,8 @@ export function useRegisterDraggable(): DragEngineBase['registerDraggable'] {
 }
 
 /**
- * The engine's imperative API, used internally by `Draggable.Root`,
- * `DropTarget.Root`, `DragAutoScroll.Root` and `useDragMonitor`, and publicly by
- * `useDragDropManager`. The collection plugin builds its own {@link DragEngineImpl}
- * directly rather than calling this hook.
- *
- * The engine needs no provider: the registries, lifecycle and sensors live in a
- * global, cross-bundle slot. The React layer does: a preview with content renders
- * in the nearest `Draggable.PreviewProvider`'s tree, and throws without one.
+ * Full engine hook used by `useDragDropManager`. Preview content resolves through
+ * the provider nearest this hook call; registrations and sensors remain global.
  */
 export function useInnerDragEngine(): InternalDragEngine {
   const translations = useTranslations();

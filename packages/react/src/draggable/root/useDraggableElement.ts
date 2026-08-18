@@ -23,7 +23,7 @@ import type { DragCleanupFn, DragSource } from '../../types/drag';
 import {
   dragSessionStore,
   dragSourceStore,
-  selectors,
+  isDraggingElement,
   updateDragSourceElement,
 } from '../../utils/drag-and-drop/dragSessionStore';
 import { useRegistrationRef } from '../../utils/drag-and-drop/useRegistrationRef';
@@ -176,7 +176,7 @@ export function useDraggableElement<TData = undefined>(
     // would restore `user-select`/`touch-action` and drop the iOS touchmove guard.
     // The live `dragHandle` closure already reads `attachedHandlesRef` fresh, so skip
     // the teardown mid-drag and flush the re-registration when the drag ends.
-    if (selectors.isDraggingElement(dragSessionStore.state, elementRef.current)) {
+    if (isDraggingElement(dragSessionStore.state, elementRef.current)) {
       pendingReconcileRef.current = true;
       return;
     }
@@ -214,7 +214,7 @@ export function useDraggableElement<TData = undefined>(
     if (!element) {
       return;
     }
-    if (selectors.isDraggingElement(dragSessionStore.state, element)) {
+    if (isDraggingElement(dragSessionStore.state, element)) {
       pendingReconcileRef.current = true;
       return;
     }

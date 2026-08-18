@@ -24,7 +24,7 @@ import type {
   RegisterMonitorParameters,
 } from '../../types/dragRegistration';
 import { getSharedSlot } from './sharedState';
-import { dragSessionStore, selectors, updateDragSourceElement } from './dragSessionStore';
+import { dragSessionStore, isDraggingElement, updateDragSourceElement } from './dragSessionStore';
 import { retargetActivePreviewSource } from './activePreview';
 import { mergeKeyboardAnnouncements } from './a11y/defaultAnnouncements';
 import { buildStaticSetupKey } from './draggable';
@@ -791,7 +791,7 @@ export class DraggableCollectionPlugin<
       if (!force && nextKey === a11yKey) {
         return;
       }
-      if (selectors.isDraggingElement(dragSessionStore.state, element)) {
+      if (isDraggingElement(dragSessionStore.state, element)) {
         return;
       }
       a11yKey = nextKey;
