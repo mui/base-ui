@@ -166,7 +166,8 @@
   overflow-y: auto;
   scroll-padding-block: 0.25rem;
 
-  &:empty {
+  /* Filtered-out groups stay mounted with the `hidden` attribute, so `:empty` never applies. */
+  &:not(:has(> :not([hidden]))) {
     padding-block: 0;
   }
 }
