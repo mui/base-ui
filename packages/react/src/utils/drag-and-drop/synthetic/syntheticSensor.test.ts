@@ -430,10 +430,15 @@ describe('syntheticDrag sensor', () => {
     penDown(el, 50, 50, 7);
     await flushRaf();
 
-    // With capture on the body anchor, lostpointercapture can only fire when the
-    // OS steals the pointer (soft keyboard, tab switch, frame steal) — never on
-    // a reorder — so it remains a correct cancel signal.
-    dispatch(window, new PointerEvent('lostpointercapture', { pointerId: 7, bubbles: true }));
+    // With capture on the body anchor, a lostpointercapture targeted at that
+    // anchor means the OS stole the pointer (soft keyboard, tab switch, frame
+    // steal). The sensor waits one frame in case Safari queued pointerup behind
+    // it, then treats the hand-off as a cancel.
+    dispatch(
+      document.body,
+      new PointerEvent('lostpointercapture', { pointerId: 7, bubbles: true }),
+    );
+    await flushRaf();
 
     // A later release is a no-op: the gesture is already torn down.
     penUp(50, 50, 7);
@@ -442,6 +447,53 @@ describe('syntheticDrag sensor', () => {
     expect(onDragEnd.mock.calls[0][0].location.current.dropTargets).toHaveLength(0);
     // A hand-off is a cancel, not a drop over nothing.
     expect(onDragEnd.mock.calls[0][0].canceled).toBe(true);
+  });
+
+  it('lets pointerup win when Safari reports body capture loss first', async () => {
+    const { engine } = await renderDnd();
+    const el = createElement();
+    const onDragEnd = vi.fn();
+    engine.registerDraggable(el, {
+      pointerActivation: { mouse: { type: 'immediate' } },
+      onDragEnd,
+    });
+
+    dispatch(
+      el,
+      new PointerEvent('pointerdown', {
+        pointerType: 'mouse',
+        pointerId: 7,
+        clientX: 50,
+        clientY: 50,
+        button: 0,
+        buttons: 1,
+        bubbles: true,
+        cancelable: true,
+      }),
+    );
+    await flushRaf();
+
+    dispatch(
+      document.body,
+      new PointerEvent('lostpointercapture', { pointerId: 7, bubbles: true }),
+    );
+    dispatch(
+      document.body,
+      new PointerEvent('pointerup', {
+        pointerType: 'mouse',
+        pointerId: 7,
+        clientX: 60,
+        clientY: 60,
+        button: 0,
+        buttons: 0,
+        bubbles: true,
+        cancelable: true,
+      }),
+    );
+    await flushRaf();
+
+    expect(onDragEnd).toHaveBeenCalledTimes(1);
+    expect(onDragEnd.mock.calls[0][0].canceled).toBe(false);
   });
 
   // jsdom-only: a real browser fires `blur` on the iframe window when the frame
@@ -553,12 +605,12 @@ describe('syntheticDrag sensor', () => {
 
     const originalEFP = document.elementFromPoint;
     document.elementFromPoint = (() => tgt) as typeof document.elementFromPoint;
-    // Mimic a real browser: the body anchor holds the pointer after the active
-    // phase redirects capture onto it (jsdom has no real pointer capture).
+    // jsdom has no real pointer capture. Model Safari's timing here: while it
+    // dispatches the original element's capture-loss event, querying the body
+    // anchor may already return false even though the event is not about it.
     const originalHas = document.body.hasPointerCapture;
     const originalRelease = document.body.releasePointerCapture;
-    document.body.hasPointerCapture = ((id: number) =>
-      id === 7) as typeof document.body.hasPointerCapture;
+    document.body.hasPointerCapture = (() => false) as typeof document.body.hasPointerCapture;
     document.body.releasePointerCapture = (() => {}) as typeof document.body.releasePointerCapture;
     registerCleanup(() => {
       document.elementFromPoint = originalEFP;
@@ -571,9 +623,9 @@ describe('syntheticDrag sensor', () => {
 
     // Touch implicitly captures to the pointerdown element; the engine's
     // `setPointerCapture(body)` redirect transfers it and makes that element fire
-    // `lostpointercapture` right before the first move. The anchor still holds
-    // the pointer, so this must NOT cancel the drag (the Android bug).
-    dispatch(window, new PointerEvent('lostpointercapture', { pointerId: 7, bubbles: true }));
+    // `lostpointercapture` right before the first move. The event belongs to the
+    // original element, not the body anchor, so this must NOT cancel the drag.
+    dispatch(src, new PointerEvent('lostpointercapture', { pointerId: 7, bubbles: true }));
     expect(onDragEnd).not.toHaveBeenCalled();
 
     // The drag survives and drops normally over the target.
@@ -1562,6 +1614,7 @@ describe('syntheticDrag sensor', () => {
         cancelable: true,
       }),
     );
+    await flushRaf();
 
     expect(onDragEnd).toHaveBeenCalledTimes(1);
     const payload = onDragEnd.mock.calls[0][0];
@@ -1886,6 +1939,51 @@ describe('syntheticDrag sensor', () => {
       await flushRaf();
 
       expect(onDragEnd).toHaveBeenCalledTimes(1);
+    });
+
+    it('drops when pointerup says the primary is released despite a misreported button', async () => {
+      const { engine } = await renderDnd();
+      const el = createElement();
+      const onDragEnd = vi.fn();
+      engine.registerDraggable(el, {
+        pointerActivation: { mouse: { type: 'immediate' } },
+        onDragEnd,
+      });
+
+      dispatch(
+        el,
+        new PointerEvent('pointerdown', {
+          pointerType: 'mouse',
+          pointerId: 1,
+          clientX: 10,
+          clientY: 10,
+          button: 0,
+          buttons: 1,
+          bubbles: true,
+          cancelable: true,
+        }),
+      );
+      await flushRaf();
+
+      // Safari can disagree between `button` and `buttons` on a quick release.
+      // The bitmask unambiguously says the primary button is no longer held, so
+      // this is still the terminal release rather than a non-primary chord.
+      dispatch(
+        el,
+        new PointerEvent('pointerup', {
+          pointerType: 'mouse',
+          pointerId: 1,
+          clientX: 20,
+          clientY: 20,
+          button: -1,
+          buttons: 0,
+          bubbles: true,
+          cancelable: true,
+        }),
+      );
+
+      expect(onDragEnd).toHaveBeenCalledTimes(1);
+      expect(onDragEnd.mock.calls[0][0].canceled).toBe(false);
     });
 
     it('a chorded primary release mid-drag drops at that position (not a cancel)', async () => {
@@ -3367,7 +3465,21 @@ describe('syntheticDrag sensor', () => {
       expect(onDragEnd).not.toHaveBeenCalled();
     });
 
-    it('cancels with missed-release when buttons drops to 0 mid-drag', async () => {
+    it('cancels with missed-release when buttons drops to 0 and no pointerup follows', async () => {
+      const { engine } = await renderDnd();
+      const source = createElement();
+      const onDragEnd = vi.fn();
+      engine.registerDraggable(source, { onDragEnd });
+
+      pointerDown(source);
+      pointerMove(40, 1);
+      pointerMove(80, 0);
+      await flushRaf();
+
+      expect(onDragEnd.mock.calls.map((call) => call[1].reason)).toEqual(['missed-release']);
+    });
+
+    it('drops when Safari reports a buttons: 0 move immediately before pointerup', async () => {
       const { engine } = await renderDnd();
       const source = createElement();
       const onDragEnd = vi.fn();
@@ -3377,7 +3489,23 @@ describe('syntheticDrag sensor', () => {
       pointerMove(40, 1);
       pointerMove(80, 0);
 
-      expect(onDragEnd.mock.calls.map((call) => call[1].reason)).toEqual(['missed-release']);
+      // A terminal pointerup queued in the same frame wins over the
+      // missed-release fallback scheduled by the preceding move.
+      dispatch(
+        document,
+        new PointerEvent('pointerup', {
+          pointerId: 1,
+          clientX: 0,
+          clientY: 80,
+          button: 0,
+          buttons: 0,
+          bubbles: true,
+        }),
+      );
+      await flushRaf();
+
+      expect(onDragEnd).toHaveBeenCalledTimes(1);
+      expect(onDragEnd.mock.calls[0][0].canceled).toBe(false);
     });
   });
 });

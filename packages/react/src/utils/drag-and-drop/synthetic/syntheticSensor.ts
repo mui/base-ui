@@ -230,6 +230,7 @@ function clearActive(
   try {
     runAllCleanups([
       session.rafFrame.cancel,
+      session.terminationFrame.cancel,
       ...session.listeners,
       () => releasePointerCaptureSafely(session.captureTarget, session.pointerId),
       () => session.preview.destroy(),
@@ -869,6 +870,7 @@ function commitActivation(): void {
     movedSinceFrame: true,
     scrolledSinceFrame: false,
     rafFrame: new AnimationFrame(win),
+    terminationFrame: new AnimationFrame(win),
     cursorLockFrame: new AnimationFrame(win),
     listeners: [],
     restoreNativeDrag,
@@ -1092,14 +1094,24 @@ function onActivePointerMove(event: Event): void {
     return;
   }
   // Missed-release safety net: `buttons === 0` means the button came up without a
-  // terminating event reaching us (some OS hand-offs swallow it). Treat it as a
-  // cancel, not a drop — a release we never saw isn't a deliberate drop.
+  // terminating event reaching us (some OS hand-offs swallow it). Safari can
+  // deliver this move immediately before the corresponding `pointerup`, however,
+  // so give that terminal event until the next frame to win. A genuinely missing
+  // release still cancels rather than becoming a drop we never observed.
   if (pointerEvent.buttons === 0) {
     // Constrained like every reported input, so `onDragEnd` doesn't leak a raw
     // coordinate the drag never reported while it was live.
-    cancelActive(modifyActiveInput(active, getInput(pointerEvent)), 'missed-release', pointerEvent);
+    const input = modifyActiveInput(active, getInput(pointerEvent));
+    active.terminationFrame.request(() => {
+      if (state.active === active) {
+        cancelActive(input, 'missed-release', pointerEvent);
+      }
+    });
     return;
   }
+  // A held-button sample proves a previously reported `buttons === 0` was
+  // transient rather than a release.
+  active.terminationFrame.cancel();
   // Chorded release: the primary button coming up while another is still held
   // fires `pointermove` (a buttons change), not `pointerup` — and the eventual
   // `pointerup` carries the last button, which `onActivePointerUp` ignores.
@@ -1121,11 +1133,11 @@ function onActivePointerUp(event: Event): void {
   if (!active || pointerEvent.pointerId !== active.pointerId) {
     return;
   }
-  // Ignore the release of a non-primary button (right/middle) mid-drag: only
-  // lifting the primary button drops. Otherwise a right-click during a drag
-  // would spuriously end it. On `pointerup`, `button` is the released button
-  // (0 === primary).
-  if (pointerEvent.button !== 0) {
+  // Ignore the release of a non-primary button (right/middle) mid-drag while
+  // the primary is still held. Safari can occasionally report the changed
+  // `button` incorrectly, so the authoritative `buttons` bitmask may also prove
+  // that the primary button is no longer down.
+  if (pointerEvent.button !== 0 && pointerEvent.buttons % 2 !== 0) {
     return;
   }
   dropActiveAtPointer(pointerEvent);
@@ -1176,14 +1188,24 @@ function onActiveLostPointerCapture(event: Event): void {
   // not an OS hand-off. Cancelling on it would tear down every touch/pen drag
   // the moment the finger moves. The anchor still holds the pointer in that
   // case, so only cancel once the anchor itself has lost capture (tab switch,
-  // soft keyboard, sibling frame stealing the pointer). In jsdom there is no
-  // pointer capture, so `hasPointerCapture` is absent and this stays a cancel.
-  if (active.captureTarget.hasPointerCapture?.(pointerEvent.pointerId)) {
+  // soft keyboard, sibling frame stealing the pointer). Checking the event's
+  // target matters because Safari can report the anchor's capture state as
+  // already released while it is dispatching the original element's event.
+  if (
+    getTarget(pointerEvent) !== active.captureTarget ||
+    active.captureTarget.hasPointerCapture?.(pointerEvent.pointerId)
+  ) {
     return;
   }
-  // `lostpointercapture` often carries (0,0) coordinates; pass `undefined` so
-  // the lifecycle falls back to the last good input rather than snapping to origin.
-  cancelActive(undefined, 'capture-lost', pointerEvent);
+  // Safari may dispatch capture loss immediately before the corresponding
+  // `pointerup`. Defer the fallback by one frame so a real release remains a
+  // drop. `lostpointercapture` often carries (0,0) coordinates; pass `undefined`
+  // so a genuine hand-off falls back to the last good input.
+  active.terminationFrame.request(() => {
+    if (state.active === active) {
+      cancelActive(undefined, 'capture-lost', pointerEvent);
+    }
+  });
 }
 
 /**
@@ -1394,6 +1416,8 @@ interface ActiveSession {
    */
   scrolledSinceFrame: boolean;
   rafFrame: AnimationFrame;
+  /** Lets a queued `pointerup` win over Safari's early release/capture-loss signals. */
+  terminationFrame: AnimationFrame;
   /**
    * Defers the cursor lock by one frame (see the `dragCursor.lock` call site).
    * Its own frame rather than {@link rafFrame}, which drives the per-move
