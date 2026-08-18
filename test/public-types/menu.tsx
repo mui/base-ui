@@ -9,3 +9,8 @@ export type MenuRootOrientation = Menu.Root.Orientation;
 export interface SimpleMenuProps extends Omit<MenuRootProps, 'children'> {
   label?: string;
 }
+
+export function InternalSubmenuPropsStayHidden() {
+  // @ts-expect-error virtual focus is internal to FilterMenu
+  return <Menu.SubmenuRoot virtualFocus />;
+}

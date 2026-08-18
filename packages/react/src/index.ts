@@ -13,6 +13,7 @@ export * from './dialog';
 export * from './direction-provider';
 export * from './drawer';
 export * from './field';
+export * from './filter-menu';
 export * from './fieldset';
 export * from './form';
 export * from './input';

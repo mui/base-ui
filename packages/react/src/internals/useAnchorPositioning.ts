@@ -161,12 +161,6 @@ export function useAnchorPositioningWithHook(
     externalTree,
   } = params;
 
-  const [mountSide, setMountSide] = React.useState<PhysicalSide | null>(null);
-
-  if (!mounted && mountSide !== null) {
-    setMountSide(null);
-  }
-
   const collisionAvoidanceSide = collisionAvoidance.side || 'flip';
   const collisionAvoidanceAlign = collisionAvoidance.align || 'flip';
   const collisionAvoidanceFallbackAxisSide = collisionAvoidance.fallbackAxisSide || 'end';
@@ -182,6 +176,14 @@ export function useAnchorPositioningWithHook(
   const direction = useDirection();
   const isRtl = direction === 'rtl';
 
+  const [mountPlacement, setMountPlacement] = React.useState<Placement | null>(null);
+
+  if (!mounted && mountPlacement !== null) {
+    setMountPlacement(null);
+  }
+
+  const mountSide = mountPlacement ? getSide(mountPlacement) : null;
+  const mountAlign = mountPlacement ? getAlignment(mountPlacement) || 'center' : null;
   const side =
     mountSide ||
     (
@@ -194,8 +196,8 @@ export function useAnchorPositioningWithHook(
         'inline-start': isRtl ? 'right' : 'left',
       } satisfies Record<Side, PhysicalSide>
     )[sideParam];
-
-  const placement = align === 'center' ? side : (`${side}-${align}` as Placement);
+  const placementAlign = mountAlign || align;
+  const placement = placementAlign === 'center' ? side : (`${side}-${placementAlign}` as Placement);
 
   let collisionPadding = collisionPaddingParam as {
     top: number;
@@ -582,14 +584,26 @@ export function useAnchorPositioningWithHook(
   const renderedAlign = getAlignment(renderedPlacement) || 'center';
   const anchorHidden = Boolean(middlewareData.hide?.referenceHidden);
 
-  // Locks the flip (makes it "sticky") so it doesn't prefer a given placement
-  // and flips back lazily, not eagerly. Ideal for filtered lists that change
-  // the size of the popup dynamically to avoid unwanted flipping when typing.
+  // Locks each flipped axis while filtering resizes the popup.
   useIsoLayoutEffect(() => {
-    if (lazyFlip && mounted && isPositioned && renderedSide !== side) {
-      setMountSide(renderedSide);
+    if (
+      lazyFlip &&
+      mounted &&
+      isPositioned &&
+      (renderedSide !== side || renderedAlign !== placementAlign)
+    ) {
+      setMountPlacement(renderedPlacement);
     }
-  }, [lazyFlip, mounted, isPositioned, renderedSide, side]);
+  }, [
+    lazyFlip,
+    mounted,
+    isPositioned,
+    renderedPlacement,
+    renderedSide,
+    renderedAlign,
+    side,
+    placementAlign,
+  ]);
 
   const arrowStyles = React.useMemo(
     () => ({
