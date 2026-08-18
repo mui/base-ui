@@ -30,7 +30,9 @@ export default function ExampleFilterMenuCommandPalette() {
                   placeholder="Search for apps and commands…"
                 />
               </div>
-              <Dialog.Close className={styles.VisuallyHidden}>Close command palette</Dialog.Close>
+              <Dialog.Close className={styles.VisuallyHidden} tabIndex={-1}>
+                Close command palette
+              </Dialog.Close>
 
               <ScrollArea.Root className={styles.ListArea}>
                 <ScrollArea.Viewport className={styles.ListViewport}>
