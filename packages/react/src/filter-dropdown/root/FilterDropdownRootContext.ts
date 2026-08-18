@@ -20,6 +20,7 @@ export interface FilterDropdownRootContext {
    */
   parent: FilterDropdownRootContext | null;
   open: boolean;
+  inline: boolean;
   disabled: boolean;
   inputFocusVisible: boolean;
   setInputFocusVisible: (visible: boolean) => void;
