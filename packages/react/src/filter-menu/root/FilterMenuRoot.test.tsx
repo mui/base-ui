@@ -1486,6 +1486,29 @@ describe('<FilterMenu.Root />', () => {
       },
     );
 
+    it('does not focus an inline input on pointer hover', async () => {
+      const { user } = await render(
+        <React.Fragment>
+          <button type="button">Outside</button>
+          <FilterMenu.Root inline open>
+            <FilterMenu.Input aria-label="Filter actions" />
+            <FilterMenu.List>
+              <FilterMenu.Item>Rename</FilterMenu.Item>
+            </FilterMenu.List>
+          </FilterMenu.Root>
+        </React.Fragment>,
+      );
+
+      const outside = screen.getByRole('button', { name: 'Outside' });
+      await act(async () => {
+        outside.focus();
+      });
+
+      await user.hover(screen.getByRole('searchbox', { name: 'Filter actions' }));
+
+      expect(outside).toHaveFocus();
+    });
+
     it.skipIf(isJSDOM)(
       'focuses the input when a filterable submenu opens with the keyboard',
       async () => {
