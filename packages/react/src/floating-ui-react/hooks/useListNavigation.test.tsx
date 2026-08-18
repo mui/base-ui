@@ -11,6 +11,8 @@ import { Main as ComplexGrid } from '../../../test/floating-ui-tests/ComplexGrid
 import { Main as Grid } from '../../../test/floating-ui-tests/Grid';
 import { Main as EmojiPicker } from '../../../test/floating-ui-tests/EmojiPicker';
 import { Main as ListboxFocus } from '../../../test/floating-ui-tests/ListboxFocus';
+import { Main as NestedMenu } from '../../../test/floating-ui-tests/Menu';
+import { HorizontalMenu } from '../../../test/floating-ui-tests/MenuOrientation';
 
 /* eslint-disable testing-library/no-unnecessary-act */
 
@@ -675,6 +677,39 @@ describe('useListNavigation', () => {
       expect(spy).toHaveBeenCalledTimes(2);
       expect(spy.mock.calls.some((args) => args[0] === null)).toBe(true);
       await flushMicrotasks();
+    });
+  });
+
+  describe('reference focus', () => {
+    it('seeds a virtual highlight when a non-typeable open reference receives focus', async () => {
+      render(<App virtual focusItemOnOpen={false} />);
+      const reference = screen.getByRole('button');
+
+      fireEvent.click(reference);
+      expect(screen.getByTestId('item-0')).toHaveAttribute('aria-selected', 'false');
+
+      await act(async () => {
+        reference.blur();
+        reference.focus();
+      });
+
+      expect(screen.getByTestId('item-0')).toHaveAttribute('aria-selected', 'true');
+    });
+
+    it('clears ordinary item focus when the open reference receives focus', async () => {
+      render(<App />);
+      const reference = screen.getByRole('button');
+
+      fireEvent.keyDown(reference, { key: 'ArrowDown' });
+      await waitFor(() => {
+        expect(screen.getByTestId('item-0')).toHaveFocus();
+      });
+
+      await act(async () => {
+        reference.focus();
+      });
+
+      expect(screen.getByTestId('item-0')).toHaveAttribute('aria-selected', 'false');
     });
   });
 
@@ -1389,6 +1424,78 @@ describe('useListNavigation', () => {
       expect(screen.getByTestId('reference')).toHaveFocus();
     });
   });
+
+  // In JSDOM it will not focus the first item, but will in the browser
+  it.skipIf(!isJSDOM)('focus management in nested lists', async () => {
+    render(<NestedMenu />);
+    await userEvent.click(screen.getByRole('button', { name: 'Edit' }));
+    await userEvent.keyboard('{ArrowDown}');
+    await userEvent.keyboard('{ArrowDown}');
+    await userEvent.keyboard('{ArrowDown}');
+    await userEvent.keyboard('{ArrowRight}');
+
+    expect(screen.getByText('Text')).toHaveFocus();
+  });
+
+  // In JSDOM it will not focus the first item, but will in the browser
+  it.skipIf(!isJSDOM)('keyboard navigation in nested menus lists', async () => {
+    render(<NestedMenu />);
+
+    await userEvent.click(screen.getByRole('button', { name: 'Edit' }));
+    await flushMicrotasks();
+    await userEvent.keyboard('{ArrowDown}');
+    await userEvent.keyboard('{ArrowDown}');
+    await userEvent.keyboard('{ArrowDown}');
+    await userEvent.keyboard('{ArrowRight}');
+    await flushMicrotasks();
+
+    await userEvent.keyboard('{ArrowDown}');
+    await userEvent.keyboard('{ArrowDown}');
+    await userEvent.keyboard('{ArrowRight}');
+    await flushMicrotasks();
+
+    expect(screen.getByText('.png')).toHaveFocus();
+
+    await userEvent.keyboard('{ArrowRight}');
+    expect(screen.getByText('.jpg')).toHaveFocus();
+
+    await userEvent.keyboard('{ArrowDown}');
+    expect(screen.getByText('.gif')).toHaveFocus();
+
+    await userEvent.keyboard('{ArrowLeft}');
+    expect(screen.getByText('.svg')).toHaveFocus();
+
+    await userEvent.keyboard('{ArrowUp}');
+    expect(screen.getByText('.png')).toHaveFocus();
+
+    await userEvent.keyboard('{Escape}');
+    expect(screen.getByText('Image')).toHaveFocus();
+  });
+
+  // In JSDOM it will not focus the first item, but will in the browser
+  it.skipIf(!isJSDOM)(
+    'keyboard navigation in nested menus with different orientation',
+    async () => {
+      render(<HorizontalMenu />);
+
+      await userEvent.click(screen.getByRole('button', { name: 'Edit' }));
+      await act(async () => {});
+      await userEvent.keyboard('{ArrowRight}');
+      await userEvent.keyboard('{ArrowRight}');
+      await userEvent.keyboard('{ArrowRight}');
+      await userEvent.keyboard('{ArrowDown}');
+      await act(async () => {});
+
+      await userEvent.keyboard('{ArrowRight}');
+      await userEvent.keyboard('{ArrowDown}');
+      await act(async () => {});
+
+      expect(screen.getByText('Mail')).toHaveFocus();
+
+      await userEvent.keyboard('{ArrowLeft}');
+      expect(screen.getByText('Copy as')).toHaveFocus();
+    },
+  );
 
   it('Home or End key press is ignored for typeable combobox reference', async () => {
     function App() {

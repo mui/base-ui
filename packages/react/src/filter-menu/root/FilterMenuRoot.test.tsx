@@ -170,7 +170,9 @@ describe('<FilterMenu.Root />', () => {
         </div>,
       );
 
-      const input = screen.getByRole('searchbox', { name: 'Filter actions' });
+      const input = screen.getByRole<HTMLInputElement>('searchbox', {
+        name: 'Filter actions',
+      });
       await waitFor(() => {
         expect(input).toHaveFocus();
       });
@@ -215,6 +217,90 @@ describe('<FilterMenu.Root />', () => {
         expect(screen.getByRole('menuitem', { name: 'Delete' })).toBeVisible();
       });
       expect(screen.queryByRole('menuitem', { name: 'Rename' })).toBe(null);
+    });
+
+    it('uses the configured locale for default matching', async () => {
+      await render(
+        <FilterMenu.Root open defaultInputValue="ı" locale="tr">
+          <FilterMenu.Trigger>Actions</FilterMenu.Trigger>
+          <FilterMenu.Portal>
+            <FilterMenu.Positioner>
+              <FilterMenu.Popup>
+                <FilterMenu.Input aria-label="Filter actions" />
+                <FilterMenu.List>
+                  <FilterMenu.Item>Istanbul</FilterMenu.Item>
+                </FilterMenu.List>
+              </FilterMenu.Popup>
+            </FilterMenu.Positioner>
+          </FilterMenu.Portal>
+        </FilterMenu.Root>,
+      );
+
+      await waitFor(() => {
+        expect(screen.getByRole('menuitem', { name: 'Istanbul' })).toBeVisible();
+      });
+    });
+
+    it('keeps Home and End as caret keys until an item is highlighted', async () => {
+      const { user } = await render(
+        <FilterMenu.Root open defaultInputValue="rename">
+          <FilterMenu.Trigger>Actions</FilterMenu.Trigger>
+          <FilterMenu.Portal>
+            <FilterMenu.Positioner>
+              <FilterMenu.Popup>
+                <FilterMenu.Input aria-label="Filter actions" />
+                <FilterMenu.List>
+                  <FilterMenu.Item>Rename</FilterMenu.Item>
+                </FilterMenu.List>
+              </FilterMenu.Popup>
+            </FilterMenu.Positioner>
+          </FilterMenu.Portal>
+        </FilterMenu.Root>,
+      );
+
+      const input = screen.getByRole<HTMLInputElement>('searchbox', {
+        name: 'Filter actions',
+      });
+      await user.click(input);
+      input.setSelectionRange(3, 3);
+
+      await user.keyboard('[Home]');
+      expect(input.selectionStart).toBe(0);
+      expect(input).not.toHaveAttribute('aria-activedescendant');
+
+      await user.keyboard('[End]');
+      expect(input.selectionStart).toBe(input.value.length);
+      expect(input).not.toHaveAttribute('aria-activedescendant');
+    });
+
+    it('uses Home and End for list navigation after an item is highlighted', async () => {
+      const { user } = await render(
+        <FilterMenu.Root open>
+          <FilterMenu.Trigger>Actions</FilterMenu.Trigger>
+          <FilterMenu.Portal>
+            <FilterMenu.Positioner>
+              <FilterMenu.Popup>
+                <FilterMenu.Input aria-label="Filter actions" />
+                <FilterMenu.List>
+                  <FilterMenu.Item>Rename</FilterMenu.Item>
+                  <FilterMenu.Item>Duplicate</FilterMenu.Item>
+                  <FilterMenu.Item>Delete</FilterMenu.Item>
+                </FilterMenu.List>
+              </FilterMenu.Popup>
+            </FilterMenu.Positioner>
+          </FilterMenu.Portal>
+        </FilterMenu.Root>,
+      );
+
+      const input = screen.getByRole('searchbox', { name: 'Filter actions' });
+      const items = screen.getAllByRole('menuitem');
+      await user.keyboard('[ArrowDown][ArrowDown]');
+
+      await user.keyboard('[Home]');
+      expect(input).toHaveAttribute('aria-activedescendant', items[0]?.id);
+
+      await user.keyboard('[End]');
+      expect(input).toHaveAttribute('aria-activedescendant', items[2]?.id);
     });
 
     it('hides a group, label included, when the query filters out all of its items', async () => {
@@ -406,6 +492,30 @@ describe('<FilterMenu.Root />', () => {
       );
     }
 
+    function ParentNavigationMenu(props: { loopFocus: boolean; triggerLast?: boolean }) {
+      const submenu = (
+        <FilterMenu.SubmenuRoot>
+          <FilterMenu.SubmenuTrigger>Move to folder</FilterMenu.SubmenuTrigger>
+        </FilterMenu.SubmenuRoot>
+      );
+
+      return (
+        <Menu.Root defaultOpen loopFocus={props.loopFocus}>
+          <Menu.Trigger>Actions</Menu.Trigger>
+          <Menu.Portal>
+            <Menu.Positioner>
+              <Menu.Popup>
+                {!props.triggerLast && submenu}
+                <Menu.Item disabled>Disabled</Menu.Item>
+                <Menu.Item>Next</Menu.Item>
+                {props.triggerLast && submenu}
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
+        </Menu.Root>
+      );
+    }
+
     it('uses dialog semantics for a filterable submenu', async () => {
       const { user } = await render(<FilterableSubmenu />);
       const submenuTrigger = screen.getByRole('menuitem', { name: 'Move to folder' });
@@ -430,6 +540,42 @@ describe('<FilterMenu.Root />', () => {
 
       expect(screen.getByRole('menuitem', { name: 'Rename' })).toHaveFocus();
       expect(screen.queryByRole('dialog')).toBe(null);
+    });
+
+    it('skips disabled parent items during main-axis navigation', async () => {
+      const { user } = await render(<ParentNavigationMenu loopFocus />);
+      const submenuTrigger = screen.getByRole('menuitem', { name: 'Move to folder' });
+
+      await act(async () => {
+        submenuTrigger.focus();
+      });
+      await user.keyboard('[ArrowDown]');
+
+      expect(screen.getByRole('menuitem', { name: 'Next' })).toHaveFocus();
+    });
+
+    it('wraps parent navigation when loopFocus is enabled', async () => {
+      const { user } = await render(<ParentNavigationMenu loopFocus triggerLast />);
+      const submenuTrigger = screen.getByRole('menuitem', { name: 'Move to folder' });
+
+      await act(async () => {
+        submenuTrigger.focus();
+      });
+      await user.keyboard('[ArrowDown]');
+
+      expect(screen.getByRole('menuitem', { name: 'Next' })).toHaveFocus();
+    });
+
+    it('stops parent navigation at the boundary when loopFocus is disabled', async () => {
+      const { user } = await render(<ParentNavigationMenu loopFocus={false} triggerLast />);
+      const submenuTrigger = screen.getByRole('menuitem', { name: 'Move to folder' });
+
+      await act(async () => {
+        submenuTrigger.focus();
+      });
+      await user.keyboard('[ArrowDown]');
+
+      expect(submenuTrigger).toHaveFocus();
     });
 
     it('uses the root list as the virtual focus owner when only the submenu has an input', async () => {

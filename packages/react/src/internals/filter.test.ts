@@ -1,5 +1,5 @@
 import { expect, describe, it } from 'vitest';
-import { getContainsFilter, getFilter } from './filter';
+import { getFilter } from './filter';
 
 describe('getFilter', () => {
   it('caches different locales separately', () => {
@@ -15,19 +15,10 @@ describe('getFilter', () => {
 
     expect(filter1).toBe(filter2);
   });
-});
 
-describe('getContainsFilter', () => {
   it('matches locale-aware substrings without accent sensitivity', () => {
-    const contains = getContainsFilter({ locale: 'en-US' });
+    const contains = getFilter({ locale: 'en-US' }).contains;
 
     expect(contains('Résumé', 'resume')).toBe(true);
-  });
-
-  it('caches equivalent locale inputs', () => {
-    const filter1 = getContainsFilter({ locale: new Intl.Locale('fr-FR') });
-    const filter2 = getContainsFilter({ locale: 'fr-FR' });
-
-    expect(filter1).toBe(filter2);
   });
 });

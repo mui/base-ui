@@ -39,6 +39,40 @@ describe('<Menu.Popup />', () => {
     }
   });
 
+  it('uses an aria-label instead of the trigger label', async () => {
+    await render(
+      <Menu.Root open>
+        <Menu.Trigger>Actions</Menu.Trigger>
+        <Menu.Portal>
+          <Menu.Positioner>
+            <Menu.Popup aria-label="Commands" />
+          </Menu.Positioner>
+        </Menu.Portal>
+      </Menu.Root>,
+    );
+
+    const popup = screen.getByRole('menu', { name: 'Commands' });
+    expect(popup).not.toHaveAttribute('aria-labelledby');
+  });
+
+  it('uses aria-labelledby from a render element', async () => {
+    await render(
+      <Menu.Root open>
+        <span id="commands-label">Commands</span>
+        <Menu.Portal>
+          <Menu.Positioner>
+            <Menu.Popup render={<section aria-labelledby="commands-label" />} />
+          </Menu.Positioner>
+        </Menu.Portal>
+      </Menu.Root>,
+    );
+
+    expect(screen.getByRole('menu', { name: 'Commands' })).toHaveAttribute(
+      'aria-labelledby',
+      'commands-label',
+    );
+  });
+
   it('stops toolbar navigation keys without blocking ordinary key events', async () => {
     const onParentKeyDown = vi.fn();
 

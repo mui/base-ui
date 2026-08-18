@@ -19,6 +19,7 @@ import { COMPOSITE_KEYS } from '../../internals/composite/composite';
 import { getDisabledMountTransitionStyles } from '../../internals/getDisabledMountTransitionStyles';
 import { useMenuSubmenuRootContext } from '../submenu-root/MenuSubmenuRootContext';
 import { useRenderedId } from '../../internals/useRenderedId';
+import { resolveMenuPopupLabel } from './resolveMenuPopupLabel';
 
 /**
  * A container for the menu items.
@@ -58,14 +59,11 @@ export const MenuPopup = React.forwardRef(function MenuPopup(
   const renderedIdRef = useRenderedId(setFloatingId, defaultFloatingId, idProp != null);
 
   const id = idProp ?? defaultFloatingId;
-  const renderedElementProps = React.isValidElement(render)
-    ? (render.props as React.HTMLAttributes<HTMLElement>)
-    : undefined;
-  const ariaLabel = elementProps['aria-label'] ?? renderedElementProps?.['aria-label'];
-  let ariaLabelledBy = elementProps['aria-labelledby'] ?? renderedElementProps?.['aria-labelledby'];
-  if (ariaLabelledBy == null && !ariaLabel) {
-    ariaLabelledBy = activeTriggerElement?.id ?? activeTriggerId ?? undefined;
-  }
+  const { ariaLabelledBy } = resolveMenuPopupLabel(
+    { ...elementProps, render },
+    activeTriggerElement,
+    activeTriggerId,
+  );
 
   // A separate root can be rendered under a submenu provider (for example in a dialog). Only a
   // root instantiated as the matching submenu may inherit its navigation and focus-return hooks.

@@ -1124,10 +1124,10 @@ describe('<Menubar />', () => {
 
       (
         [
-          ['ltr', 'ArrowRight'],
-          ['rtl', 'ArrowLeft'],
+          ['ltr', 'ArrowRight', 'ArrowLeft'],
+          ['rtl', 'ArrowLeft', 'ArrowRight'],
         ] as const
-      ).forEach(([direction, openKey]) => {
+      ).forEach(([direction, openKey, oppositeKey]) => {
         it(`opens a menu of a vertical ${direction.toUpperCase()} menubar with ${openKey}`, async () => {
           const { user } = await render(
             <DirectionProvider direction={direction}>
@@ -1151,9 +1151,12 @@ describe('<Menubar />', () => {
             firstTrigger.focus();
           });
 
+          await user.keyboard(`[${oppositeKey}]`);
+          expect(screen.queryByRole('menu')).toBe(null);
+
           await user.keyboard(`[${openKey}]`);
 
-          expect(await screen.findByRole('menu')).not.toBe(null);
+          await screen.findByRole('menu');
         });
       });
 
