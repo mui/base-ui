@@ -56,14 +56,20 @@ export const FilterDropdownPopup = React.forwardRef(function FilterDropdownPopup
           // Nested popups are portalled, so their events still bubble through this React tree.
           // The composed path only contains this popup when the pointer is really over it, and a
           // closing popup must not re-capture focus during its exit transition.
-          const nearestPopup = event.nativeEvent
-            .composedPath()
-            .find(
-              (node) =>
-                isHTMLElement(node) &&
-                (node.getAttribute('role') === 'dialog' || node.hasAttribute('data-rootownerid')),
-            );
-          if (context.open && nearestPopup === event.currentTarget) {
+          let overOpenSubmenuTrigger = false;
+          const nearestPopup = event.nativeEvent.composedPath().find((node) => {
+            if (!isHTMLElement(node)) {
+              return false;
+            }
+            if (node.getAttribute('role') === 'dialog' || node.hasAttribute('data-rootownerid')) {
+              return true;
+            }
+            overOpenSubmenuTrigger ||= node.hasAttribute('data-popup-open');
+            return false;
+          });
+          // An open submenu owns focus while the pointer rests on its trigger, so don't pull
+          // focus back from the submenu's input.
+          if (context.open && !overOpenSubmenuTrigger && nearestPopup === event.currentTarget) {
             focusOwnerRef.current?.focus({ preventScroll: true });
           }
         },
