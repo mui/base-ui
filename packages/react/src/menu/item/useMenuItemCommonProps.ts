@@ -8,6 +8,10 @@ import { useContextMenuRootContext } from '../../context-menu/root/ContextMenuRo
 import { dispatchClickWithModifiers } from '../../utils/dispatchClickWithModifiers';
 import type { UseMenuItemMetadata } from './useMenuItem';
 
+function preventMouseDownDefault(event: React.MouseEvent) {
+  event.preventDefault();
+}
+
 export interface UseMenuItemCommonPropsParameters {
   /**
    * Whether to close the menu when the item is clicked.
@@ -54,8 +58,7 @@ export interface UseMenuItemCommonPropsParameters {
 
 /**
  * Returns common props shared by all menu item types.
- * This hook extracts the shared logic for id, role, tabIndex, onKeyDown,
- * onMouseMove, onClick, and onMouseUp handlers.
+ * This hook extracts the shared logic for id, role, tabIndex, and interaction handlers.
  */
 export function useMenuItemCommonProps(params: UseMenuItemCommonPropsParameters): HTMLProps {
   const {
@@ -92,6 +95,8 @@ export function useMenuItemCommonProps(params: UseMenuItemCommonPropsParameters)
       role: 'menuitem' as const,
       tabIndex,
       'aria-selected': ariaSelected,
+      // Real focus stays on the input or list that owns virtual navigation.
+      onMouseDown: virtualFocus ? preventMouseDownDefault : undefined,
       onKeyDown(event: React.KeyboardEvent) {
         if (event.key === ' ' && typingRef?.current) {
           event.preventDefault();
@@ -153,6 +158,7 @@ export function useMenuItemCommonProps(params: UseMenuItemCommonPropsParameters)
       id,
       tabIndex,
       ariaSelected,
+      virtualFocus,
       typingRef,
       nodeId,
       menuEvents,
