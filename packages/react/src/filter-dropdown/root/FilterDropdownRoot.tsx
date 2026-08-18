@@ -39,6 +39,7 @@ export function FilterDropdownRoot(props: FilterDropdownRoot.Props): React.JSX.E
     query,
     onValueChange,
     filter,
+    autoHighlight = false,
     triggerId: externalTriggerId,
     triggerElement: externalTriggerElement,
     listRef,
@@ -114,10 +115,17 @@ export function FilterDropdownRoot(props: FilterDropdownRoot.Props): React.JSX.E
     const queryChanged =
       lastFilterQueryRef.current !== null && lastFilterQueryRef.current !== filterQuery;
     lastFilterQueryRef.current = filterQuery;
+    const autoHighlightEnabled =
+      open && (autoHighlight === 'always' || (autoHighlight && filterQuery !== ''));
     if (filterQuery === '') {
       if (store.state.visibleItemIds !== null) {
-        setActiveIndex(null);
         store.set('visibleItemIds', null);
+        if (!autoHighlightEnabled) {
+          setActiveIndex(null);
+        }
+      }
+      if (autoHighlightEnabled && registeredItems.size > 0) {
+        setActiveIndex(0);
       }
       return;
     }
@@ -138,12 +146,26 @@ export function FilterDropdownRoot(props: FilterDropdownRoot.Props): React.JSX.E
     if (currentIds === null || !isSetEqual(currentIds, nextIds)) {
       // The first filtered snapshot can land after initial keyboard navigation in React 18. It
       // has no prior result identity to invalidate, unless the controlled query itself changed.
-      if (currentIds !== null || queryChanged) {
+      if (autoHighlightEnabled && nextIds.size > 0) {
+        setActiveIndex(0);
+      } else if (currentIds !== null || queryChanged) {
         setActiveIndex(null);
       }
       store.set('visibleItemIds', nextIds);
+    } else if (autoHighlightEnabled && queryChanged && nextIds.size > 0) {
+      setActiveIndex(0);
     }
-  }, [open, value, query, registeredItems, filter, defaultMatches, store, setActiveIndex]);
+  }, [
+    open,
+    value,
+    query,
+    registeredItems,
+    filter,
+    autoHighlight,
+    defaultMatches,
+    store,
+    setActiveIndex,
+  ]);
 
   const contextValue: FilterDropdownRootContext = React.useMemo(
     () => ({
@@ -274,6 +296,8 @@ export interface FilterDropdownRootProps {
    * Custom filter logic used when filtering items.
    */
   filter?: FilterDropdownFilter | undefined;
+  /** Whether the first matching item should be highlighted automatically. */
+  autoHighlight?: boolean | 'always' | undefined;
   /**
    * ID of a trigger rendered outside this root, which cannot register itself through the context.
    */

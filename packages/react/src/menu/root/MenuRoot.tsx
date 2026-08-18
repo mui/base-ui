@@ -73,6 +73,11 @@ interface MenuRootInternalProps<Payload> extends MenuRoot.Props<Payload> {
    * Receives the navigation props for the virtual focus owner.
    */
   virtualFocusPropsRef?: React.RefObject<HTMLProps> | undefined;
+  /**
+   * @ignore
+   * Whether pointer leave should clear the active item.
+   */
+  resetOnPointerLeave?: boolean | undefined;
 }
 
 /**
@@ -103,6 +108,7 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
     virtualFocus = false,
     virtualFocusRef,
     virtualFocusPropsRef,
+    resetOnPointerLeave = true,
   } = props as MenuRootInternalProps<Payload>;
 
   const contextMenuContext = useContextMenuRootContext(true);
@@ -515,7 +521,7 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
 
   const direction = useDirection();
   const openedByKeyboard =
-    lastOpenChangeReason === REASONS.listNavigation || openMethod === 'keyboard';
+    open && (lastOpenChangeReason === REASONS.listNavigation || openMethod === 'keyboard');
   const focusItemOnOpen = (parent.type !== undefined && openedByKeyboard) || undefined;
 
   const listNavigation = useListNavigation(floatingRootContext, {
@@ -541,6 +547,7 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
     externalTree: !virtualFocus && nested ? floatingTreeRoot : undefined,
     nestedReturnFocusRef: parentMenuRootContext?.virtualFocusRef,
     focusItemOnHover: highlightItemOnHover,
+    resetOnPointerLeave,
   });
 
   const onTyping = React.useCallback(

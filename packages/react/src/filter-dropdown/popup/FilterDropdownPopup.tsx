@@ -8,6 +8,7 @@ import { popupStateMapping } from '../../utils/popupStateMapping';
 import { getTarget } from '../../floating-ui-react/utils';
 import { useFilterDropdownRootContext } from '../root/FilterDropdownRootContext';
 import { useRenderedId } from '../../internals/useRenderedId';
+import { useDirection } from '../../internals/direction-context/DirectionContext';
 
 const stateAttributesMapping: StateAttributesMapping<FilterDropdownPopupState> = {
   open: popupStateMapping.open,
@@ -23,6 +24,7 @@ export const FilterDropdownPopup = React.forwardRef(function FilterDropdownPopup
   const { render, className, style, id: idProp, ...elementProps } = componentProps;
 
   const context = useFilterDropdownRootContext();
+  const direction = useDirection();
   const { focusOwnerRef, setPopupId } = context;
   const id = idProp ?? context.defaultPopupId;
   const hasAriaLabel = elementProps['aria-label'] || elementProps['aria-labelledby'];
@@ -71,7 +73,8 @@ export const FilterDropdownPopup = React.forwardRef(function FilterDropdownPopup
           }
         },
         onKeyDown(event) {
-          if (event.key === 'ArrowLeft' && event.target !== focusOwnerRef.current) {
+          const closeKey = direction === 'rtl' ? 'ArrowRight' : 'ArrowLeft';
+          if (event.key === closeKey && getTarget(event.nativeEvent) !== focusOwnerRef.current) {
             focusOwnerRef.current?.focus({ preventScroll: true });
             event.stopPropagation();
           }

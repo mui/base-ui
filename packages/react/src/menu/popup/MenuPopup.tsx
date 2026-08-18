@@ -73,11 +73,11 @@ export const MenuPopup = React.forwardRef(function MenuPopup(
   // Arrow keys open submenus through list navigation without dispatching a click, so
   // `openMethod` remains null; Enter and Space dispatch a click and report `keyboard`.
   const openedByKeyboard =
-    lastOpenChangeReason === REASONS.listNavigation || openMethod === 'keyboard';
+    open && (lastOpenChangeReason === REASONS.listNavigation || openMethod === 'keyboard');
   const shouldFocusPopup = parent.type !== 'menu' || openedByKeyboard;
   // Under virtual focus the popup itself is never the focus target: a child element holds real
   // focus and the list is navigated with `aria-activedescendant`.
-  let initialFocus: FloatingFocusManagerProps['initialFocus'] = shouldFocusPopup;
+  let initialFocus: FloatingFocusManagerProps['initialFocus'] = parent.type !== 'menu';
   if (shouldFocusPopup && virtualFocus) {
     initialFocus = virtualFocusRef;
   }
