@@ -2920,7 +2920,7 @@ describe('<FilterMenu.Root />', () => {
     });
   });
 
-  it('allows pointer interaction with list content while preserving background focus', async () => {
+  it('preserves input focus on item and list presses without blocking the scrollbar', async () => {
     await render(
       <FilterMenu.Root defaultOpen>
         <FilterMenu.Trigger>Actions</FilterMenu.Trigger>
@@ -2957,7 +2957,7 @@ describe('<FilterMenu.Root />', () => {
       list.dispatchEvent(scrollbarMouseDown);
     });
 
-    expect(itemMouseDown.defaultPrevented).toBe(false);
+    expect(itemMouseDown.defaultPrevented).toBe(true);
     expect(backgroundMouseDown.defaultPrevented).toBe(true);
     expect(scrollbarMouseDown.defaultPrevented).toBe(false);
   });

@@ -6,7 +6,7 @@ import { FilterMenu } from '@base-ui/react/filter-menu';
 describe('<FilterMenu.SubmenuTrigger />', () => {
   const { render } = createRenderer();
 
-  it('stays out of the tab order when the parent menu is filterable', async () => {
+  it('keeps real focus on the parent input during keyboard and pointer interaction', async () => {
     const { user } = await render(
       <FilterMenu.Root open>
         <FilterMenu.Trigger>Actions</FilterMenu.Trigger>
@@ -41,6 +41,10 @@ describe('<FilterMenu.SubmenuTrigger />', () => {
 
     const submenuTrigger = screen.getByRole('menuitem', { name: 'Move to folder' });
     expect(submenuTrigger).toHaveAttribute('tabindex', '-1');
+    expect(input).toHaveFocus();
+
+    await user.click(submenuTrigger);
+
     expect(input).toHaveFocus();
   });
 });
