@@ -13,32 +13,24 @@ export const FilterMenuPopup = React.forwardRef(function FilterMenuPopup(
   const { defaultFloatingId, store } = useMenuRootContext();
   const activeTriggerId = store.useState('activeTriggerId');
   const activeTriggerElement = store.useState('activeTriggerElement');
+
   const popupId = id ?? defaultFloatingId;
   const renderedPopupProps = React.isValidElement(menuProps.render)
     ? (menuProps.render.props as React.HTMLAttributes<HTMLElement>)
     : undefined;
   const ariaLabel = menuProps['aria-label'] ?? renderedPopupProps?.['aria-label'];
-  const ariaLabelledBy = menuProps['aria-labelledby'] ?? renderedPopupProps?.['aria-labelledby'];
+  let ariaLabelledBy = menuProps['aria-labelledby'] ?? renderedPopupProps?.['aria-labelledby'];
+  if (ariaLabelledBy == null && !ariaLabel) {
+    ariaLabelledBy = activeTriggerElement?.id ?? activeTriggerId ?? undefined;
+  }
 
   return (
     <FilterDropdownPopup
       id={popupId}
-      idIsFallback={id == null}
       aria-label={ariaLabel}
-      aria-labelledby={
-        ariaLabelledBy ??
-        (ariaLabel ? undefined : (activeTriggerElement?.id ?? activeTriggerId ?? undefined))
-      }
+      aria-labelledby={ariaLabelledBy}
       // The consumer's props and ref go to the inner popup only, so each handler runs once.
-      render={
-        <MenuPopup
-          {...menuProps}
-          id={popupId}
-          idIsFallback={id == null}
-          ref={forwardedRef}
-          role="dialog"
-        />
-      }
+      render={<MenuPopup {...menuProps} id={id} ref={forwardedRef} role="dialog" />}
     />
   );
 });

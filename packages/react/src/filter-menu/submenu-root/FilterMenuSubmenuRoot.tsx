@@ -51,8 +51,6 @@ export function FilterMenuSubmenuRoot(props: FilterMenuSubmenuRoot.Props): React
   const parent = useMenuRootContext();
   const parentStore = parent.store;
   const parentDisabled = parentStore.useState('disabled');
-  const disabled = parentDisabled || disabledProp;
-  const parentReferenceRef = React.useRef<ParentReference | null>(null);
 
   const [open, setOpen] = useControlled({
     controlled: openProp,
@@ -67,8 +65,12 @@ export function FilterMenuSubmenuRoot(props: FilterMenuSubmenuRoot.Props): React
     state: 'inputValue',
   });
   const [inputFocusVisible, setInputFocusVisible] = React.useState(false);
+
+  const parentReferenceRef = React.useRef<ParentReference | null>(null);
   const focusOwnerRef = React.useRef<HTMLElement | null>(null);
   const inputPropsRef = React.useRef<HTMLProps>({});
+
+  const disabled = parentDisabled || disabledProp;
 
   const handleInputValueChange = useStableCallback(
     (nextValue: string, details: FilterMenuSubmenuRoot.InputValueChangeEventDetails) => {

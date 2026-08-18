@@ -30,40 +30,22 @@ export const MenuPopup = React.forwardRef(function MenuPopup(
   componentProps: MenuPopup.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { store, defaultFloatingId, setFloatingId, virtualFocus, virtualFocusRef } =
-    useMenuRootContext();
-  const {
-    finalFocus,
-    idIsFallback = false,
-    render,
-    className,
-    style,
-    ...elementProps
-  } = componentProps;
-  const id = idIsFallback ? defaultFloatingId : (componentProps.id ?? defaultFloatingId);
-  const renderedElementProps = React.isValidElement(render)
-    ? (render.props as React.HTMLAttributes<HTMLElement>)
-    : undefined;
-  const hasAriaLabel = elementProps['aria-label'] ?? renderedElementProps?.['aria-label'];
-  const explicitAriaLabelledBy =
-    elementProps['aria-labelledby'] ?? renderedElementProps?.['aria-labelledby'];
+  const { render, className, style, finalFocus, id: idProp, ...elementProps } = componentProps;
 
+  const rootContext = useMenuRootContext();
+  const { store, defaultFloatingId, setFloatingId, virtualFocus, virtualFocusRef } = rootContext;
   const inheritedSubmenuRootContext = useMenuSubmenuRootContext();
   const { side, align } = useMenuPositionerContext();
   const insideToolbar = useToolbarRootContext(true) != null;
 
-  const transitionStatus = store.useState('transitionStatus');
-  const popupProps = store.useState('popupProps');
-  const instantType = store.useState('instantType');
-  const activeTriggerId = store.useState('activeTriggerId');
-  const parent = store.useState('parent');
-  // A separate root can be rendered under a submenu provider (for example in a dialog). Only a
-  // root instantiated as the matching submenu may inherit its navigation and focus-return hooks.
-  const submenuRootContext = parent.type === 'menu' ? inheritedSubmenuRootContext : undefined;
-  const rootId = store.useState('rootId');
-  const setPopupElement = store.useStateSetter('popupElement');
   const open = store.useState('open');
   const mounted = store.useState('mounted');
+  const popupProps = store.useState('popupProps');
+  const transitionStatus = store.useState('transitionStatus');
+  const instantType = store.useState('instantType');
+  const parent = store.useState('parent');
+  const rootId = store.useState('rootId');
+  const activeTriggerId = store.useState('activeTriggerId');
   const activeTriggerElement = store.useState('activeTriggerElement');
   const floatingContext = store.useState('floatingRootContext');
   const floatingTreeRoot = store.useState('floatingTreeRoot');
@@ -72,8 +54,24 @@ export const MenuPopup = React.forwardRef(function MenuPopup(
   const closeDelay = store.useState('closeDelay');
   const hoverEnabled = store.useState('hoverEnabled');
   const disabled = store.useState('disabled');
+  const setPopupElement = store.useStateSetter('popupElement');
+  const renderedIdRef = useRenderedId(setFloatingId, defaultFloatingId, idProp != null);
 
+  const id = idProp ?? defaultFloatingId;
+  const renderedElementProps = React.isValidElement(render)
+    ? (render.props as React.HTMLAttributes<HTMLElement>)
+    : undefined;
+  const ariaLabel = elementProps['aria-label'] ?? renderedElementProps?.['aria-label'];
+  let ariaLabelledBy = elementProps['aria-labelledby'] ?? renderedElementProps?.['aria-labelledby'];
+  if (ariaLabelledBy == null && !ariaLabel) {
+    ariaLabelledBy = activeTriggerElement?.id ?? activeTriggerId ?? undefined;
+  }
+
+  // A separate root can be rendered under a submenu provider (for example in a dialog). Only a
+  // root instantiated as the matching submenu may inherit its navigation and focus-return hooks.
+  const submenuRootContext = parent.type === 'menu' ? inheritedSubmenuRootContext : undefined;
   const isContextMenu = parent.type === 'context-menu';
+
   // Arrow keys open submenus through list navigation without dispatching a click, so
   // `openMethod` remains null; Enter and Space dispatch a click and report `keyboard`.
   const openedByKeyboard =
@@ -85,12 +83,6 @@ export const MenuPopup = React.forwardRef(function MenuPopup(
   if (shouldFocusPopup && virtualFocus) {
     initialFocus = virtualFocusRef;
   }
-
-  const renderedIdRef = useRenderedId(
-    setFloatingId,
-    defaultFloatingId,
-    componentProps.id != null && !idIsFallback,
-  );
 
   useOpenChangeComplete({
     open,
@@ -142,9 +134,7 @@ export const MenuPopup = React.forwardRef(function MenuPopup(
         role: 'menu',
         // Read the id off the element rather than the registration: a `render` element's own
         // `id` wins in the DOM, and pointing at the registered id would reference nothing.
-        'aria-labelledby':
-          explicitAriaLabelledBy ??
-          (hasAriaLabel ? undefined : (activeTriggerElement?.id ?? activeTriggerId ?? undefined)),
+        'aria-labelledby': ariaLabelledBy,
         onKeyDown(event) {
           submenuRootContext?.onPopupKeyDown?.(event);
           if (insideToolbar && COMPOSITE_KEYS.has(event.key)) {
@@ -200,10 +190,6 @@ export interface MenuPopupProps extends BaseUIComponentProps<'div', MenuPopupSta
    * @ignore
    */
   id?: string | undefined;
-  /**
-   * @ignore
-   */
-  idIsFallback?: boolean | undefined;
   /**
    * Determines the element to focus when the menu is closed.
    *

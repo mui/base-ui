@@ -17,10 +17,11 @@ export const FilterDropdownList = React.forwardRef(function FilterDropdownList(
   const context = useFilterDropdownRootContext();
   const { setListId } = context;
   const activeItemId = useActiveItemId(context);
+  const renderedIdRef = useRenderedId(setListId, context.defaultListId, idProp != null);
+
   const id = idProp ?? context.defaultListId;
   const hasAriaLabel = elementProps['aria-label'] || elementProps['aria-labelledby'];
   const ariaLabelledBy = hasAriaLabel ? elementProps['aria-labelledby'] : context.triggerId;
-  const renderedIdRef = useRenderedId(setListId, context.defaultListId, idProp != null);
 
   const defaultProps: HTMLProps = {
     role: 'menu',
