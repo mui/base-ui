@@ -1,9 +1,16 @@
 'use client';
 import * as React from 'react';
 import { FilterDropdownPopup } from '../../filter-dropdown/popup/FilterDropdownPopup';
-import { MenuPopup, type MenuPopupProps } from '../../menu/popup/MenuPopup';
+import { MenuPopup, type MenuPopupProps, type MenuPopupState } from '../../menu/popup/MenuPopup';
 import { useMenuRootContext } from '../../menu/root/MenuRootContext';
+import { resolveMenuPopupLabel } from '../../menu/popup/resolveMenuPopupLabel';
 
+/**
+ * A container for the filter input and item list.
+ * Renders a `<div>` element with a `dialog` role.
+ *
+ * Documentation: [Base UI Filter Menu](https://base-ui.com/react/components/filter-menu)
+ */
 export const FilterMenuPopup = React.forwardRef(function FilterMenuPopup(
   props: FilterMenuPopup.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
@@ -15,14 +22,11 @@ export const FilterMenuPopup = React.forwardRef(function FilterMenuPopup(
   const activeTriggerElement = store.useState('activeTriggerElement');
 
   const popupId = id ?? defaultFloatingId;
-  const renderedPopupProps = React.isValidElement(menuProps.render)
-    ? (menuProps.render.props as React.HTMLAttributes<HTMLElement>)
-    : undefined;
-  const ariaLabel = menuProps['aria-label'] ?? renderedPopupProps?.['aria-label'];
-  let ariaLabelledBy = menuProps['aria-labelledby'] ?? renderedPopupProps?.['aria-labelledby'];
-  if (ariaLabelledBy == null && !ariaLabel) {
-    ariaLabelledBy = activeTriggerElement?.id ?? activeTriggerId ?? undefined;
-  }
+  const { ariaLabel, ariaLabelledBy } = resolveMenuPopupLabel(
+    menuProps,
+    activeTriggerElement,
+    activeTriggerId,
+  );
 
   return (
     <FilterDropdownPopup
@@ -36,8 +40,9 @@ export const FilterMenuPopup = React.forwardRef(function FilterMenuPopup(
 });
 
 export interface FilterMenuPopupProps extends MenuPopupProps {}
+export interface FilterMenuPopupState extends MenuPopupState {}
 
 export namespace FilterMenuPopup {
   export type Props = FilterMenuPopupProps;
-  export type State = MenuPopup.State;
+  export type State = FilterMenuPopupState;
 }

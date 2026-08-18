@@ -17,8 +17,8 @@ export function useMenuItem(params: UseMenuItemParameters): UseMenuItemReturnVal
     disabled,
     highlighted,
     id,
+    open,
     store,
-    listStore,
     typingRef = store.context.typingRef,
     nativeButton,
     itemMetadata,
@@ -40,8 +40,8 @@ export function useMenuItem(params: UseMenuItemParameters): UseMenuItemReturnVal
     highlighted,
     id,
     nodeId,
+    open,
     store,
-    listStore,
     typingRef,
     itemRef,
     itemMetadata,
@@ -97,6 +97,10 @@ export interface UseMenuItemParameters {
    */
   id: string | undefined;
   /**
+   * Whether the list containing the item is open.
+   */
+  open: boolean;
+  /**
    * Whether the component renders a native `<button>` element when replacing it
    * via the `render` prop.
    * Set to `false` if the rendered element is not a button (for example, `<div>`).
@@ -115,11 +119,6 @@ export interface UseMenuItemParameters {
    * The menu store.
    */
   store: MenuStore<any>;
-  /**
-   * The store for the list containing the item.
-   * @default store
-   */
-  listStore?: MenuStore<any> | undefined;
   /**
    * Whether a typeahead session is in progress.
    * @default store.context.typingRef

@@ -19,6 +19,7 @@ import { useTriggerRegistration } from '../../utils/popups';
 import type { MenuStore } from '../store/MenuStore';
 import { useMenuSubmenuRootContext } from '../submenu-root/MenuSubmenuRootContext';
 import { REASONS } from '../../internals/reasons';
+import { getMenuItemId } from '../utils/getMenuItemId';
 
 const VOICE_OVER_EXPANDED_PROPS = { 'aria-expanded': undefined };
 
@@ -31,13 +32,12 @@ const MenuSubmenuTriggerImpl = React.forwardRef(function MenuSubmenuTriggerImpl(
     className,
     style,
     label,
-    id,
+    id: idProp,
     nativeButton = false,
     openOnHover = true,
     delay = 100,
     closeDelay = 0,
     disabled: disabledProp = false,
-    listItem,
     parentMenuStore,
     parentVirtualFocus,
     ...elementProps
@@ -47,6 +47,10 @@ const MenuSubmenuTriggerImpl = React.forwardRef(function MenuSubmenuTriggerImpl(
 
   const { store } = useMenuRootContext();
   const submenuRootContext = useMenuSubmenuRootContext();
+  const listItem = useCompositeListItem({ guess: true, label });
+  const parentFloatingId = parentMenuStore.useState('floatingId');
+  // The trigger is an item in the parent menu, so its ID uses the parent's namespace.
+  const id = getMenuItemId(idProp, parentFloatingId, listItem.index);
 
   const open = store.useState('open');
   const floatingRootContext = store.useState('floatingRootContext');
@@ -127,8 +131,8 @@ const MenuSubmenuTriggerImpl = React.forwardRef(function MenuSubmenuTriggerImpl(
     disabled,
     highlighted,
     id,
+    open,
     store,
-    listStore: parentMenuStore,
     typingRef: parentMenuStore.context.typingRef,
     nativeButton,
     itemMetadata,
@@ -219,47 +223,10 @@ const MenuSubmenuTriggerImpl = React.forwardRef(function MenuSubmenuTriggerImpl(
   return element;
 });
 
-interface MenuSubmenuTriggerImplProps extends Omit<MenuSubmenuTrigger.Props, 'id'> {
-  id: string | undefined;
-  listItem: ReturnType<typeof useCompositeListItem>;
+interface MenuSubmenuTriggerImplProps extends MenuSubmenuTrigger.Props {
   parentMenuStore: MenuStore<unknown>;
   parentVirtualFocus: boolean;
 }
-
-interface MenuSubmenuTriggerWithListItemProps extends MenuSubmenuTrigger.Props {
-  parentMenuStore: MenuStore<unknown>;
-  parentVirtualFocus: boolean;
-}
-
-const MenuSubmenuTriggerWithListItem = React.forwardRef(function MenuSubmenuTriggerWithListItem(
-  props: MenuSubmenuTriggerWithListItemProps,
-  forwardedRef: React.ForwardedRef<HTMLElement>,
-) {
-  const { parentMenuStore, parentVirtualFocus, ...componentProps } = props;
-
-  useMenuRootContext();
-  const listItem = useCompositeListItem({ guess: true, label: componentProps.label });
-  const parentFloatingId = parentMenuStore.useState('floatingId');
-  // The trigger is an item in the parent menu, so its generated ID must match the parent's
-  // aria-activedescendant namespace rather than the submenu it opens.
-  // React 17 resolves generated ids in an effect, so `parentFloatingId` can be undefined on the
-  // first render; the item id is left unset until it resolves.
-  const triggerId =
-    componentProps.id ??
-    (parentFloatingId != null ? `${parentFloatingId}-${listItem.index}` : undefined);
-  const triggerElement = (
-    <MenuSubmenuTriggerImpl
-      {...componentProps}
-      id={triggerId}
-      listItem={listItem}
-      parentMenuStore={parentMenuStore}
-      parentVirtualFocus={parentVirtualFocus}
-      ref={forwardedRef}
-    />
-  );
-
-  return triggerElement;
-});
 
 /**
  * A menu item that opens a submenu.
@@ -278,7 +245,7 @@ export const MenuSubmenuTrigger = React.forwardRef(function MenuSubmenuTrigger(
   }
 
   return (
-    <MenuSubmenuTriggerWithListItem
+    <MenuSubmenuTriggerImpl
       {...componentProps}
       parentMenuStore={context.parent.store}
       parentVirtualFocus={context.parentVirtualFocus}

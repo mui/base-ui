@@ -9,6 +9,7 @@ import { useMenuItemCommonProps } from '../item/useMenuItemCommonProps';
 import { REGULAR_ITEM } from '../item/useMenuItem';
 import { useButton } from '../../internals/use-button';
 import { mergeProps } from '../../merge-props';
+import { getMenuItemId } from '../utils/getMenuItemId';
 
 /**
  * A link in the menu that can be used to navigate to a different page or section.
@@ -36,11 +37,10 @@ export const MenuLinkItem = React.forwardRef(function MenuLinkItem(
   const menuPositionerContext = useMenuPositionerContext(true);
   const nodeId = menuPositionerContext?.context.nodeId;
   const { store, floatingId, virtualFocus } = useMenuRootContext();
-  // React 17 resolves generated ids in an effect, so the id can be undefined on the first
-  // render. Interpolating it then would emit a duplicate `undefined-0` on every menu.
-  const id = idProp ?? (floatingId != null ? `${floatingId}-${listItem.index}` : undefined);
+  const id = getMenuItemId(idProp, floatingId, listItem.index);
 
   const highlighted = store.useState('isActive', listItem.index);
+  const open = store.useState('open');
   const itemProps = store.useState('itemProps');
   const typingRef = store.context.typingRef;
 
@@ -54,6 +54,7 @@ export const MenuLinkItem = React.forwardRef(function MenuLinkItem(
     highlighted,
     id,
     nodeId,
+    open,
     store,
     typingRef,
     itemRef: linkRef,
