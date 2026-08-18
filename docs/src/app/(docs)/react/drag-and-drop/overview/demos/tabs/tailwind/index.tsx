@@ -327,7 +327,7 @@ export default function DraggableTabs() {
           <div className="col-start-1 row-start-1 flex flex-col items-center justify-center gap-3 text-sm text-neutral-500">
             <p className="m-0">No documents are open.</p>
             <button
-              className="cursor-pointer border border-solid border-neutral-950 bg-transparent px-2.5 py-1.5 font-[inherit] text-neutral-950 dark:border-white dark:text-white"
+              className="cursor-pointer border border-solid border-neutral-950 bg-transparent px-2.5 py-1.5 font-[inherit] text-neutral-950 hover:bg-neutral-100 focus-visible:-outline-offset-1 focus-visible:outline-2 focus-visible:outline-neutral-950 dark:border-white dark:text-white dark:hover:bg-neutral-800 dark:focus-visible:outline-white"
               type="button"
               onClick={handleAdd}
             >

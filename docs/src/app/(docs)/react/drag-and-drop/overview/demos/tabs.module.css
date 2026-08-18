@@ -4,7 +4,7 @@
   width: 100%;
   max-width: 40rem;
   overflow: hidden;
-  border: 1px solid oklch(87% 0 0deg);
+  border: 1px solid oklch(92.2% 0 0deg);
   background-color: white;
   color: oklch(14.5% 0 0deg);
   -webkit-user-select: none;
@@ -29,7 +29,7 @@
   display: flex;
   align-items: stretch;
   height: 2.75rem;
-  border-bottom: 1px solid oklch(87% 0 0deg);
+  border-bottom: 1px solid oklch(92.2% 0 0deg);
   background-color: oklch(97% 0 0deg);
 
   @media (prefers-color-scheme: dark) {
@@ -64,7 +64,7 @@
   margin: 0;
   padding: 0 0.625rem 0 0.875rem;
   border: 0;
-  border-right: 1px solid oklch(87% 0 0deg);
+  border-right: 1px solid oklch(92.2% 0 0deg);
   outline: 0;
   background: transparent;
   color: oklch(43.9% 0 0deg);
@@ -78,11 +78,13 @@
     color: oklch(70.8% 0 0deg);
   }
 
-  &:hover {
-    color: oklch(14.5% 0 0deg);
+  @media (hover: hover) {
+    &:hover {
+      color: oklch(14.5% 0 0deg);
 
-    @media (prefers-color-scheme: dark) {
-      color: white;
+      @media (prefers-color-scheme: dark) {
+        color: white;
+      }
     }
   }
 
@@ -156,13 +158,15 @@
   color: oklch(55.6% 0 0deg);
   cursor: pointer;
 
-  &:hover {
-    background-color: oklch(92.2% 0 0deg);
-    color: oklch(14.5% 0 0deg);
+  @media (hover: hover) {
+    &:hover {
+      background-color: oklch(92.2% 0 0deg);
+      color: oklch(14.5% 0 0deg);
 
-    @media (prefers-color-scheme: dark) {
-      background-color: oklch(37.1% 0 0deg);
-      color: white;
+      @media (prefers-color-scheme: dark) {
+        background-color: oklch(37.1% 0 0deg);
+        color: white;
+      }
     }
   }
 }
@@ -176,7 +180,7 @@
   margin: 0;
   padding: 0;
   border: 0;
-  border-left: 1px solid oklch(87% 0 0deg);
+  border-left: 1px solid oklch(92.2% 0 0deg);
   outline: 0;
   background: transparent;
   color: oklch(43.9% 0 0deg);
@@ -187,13 +191,15 @@
     color: oklch(70.8% 0 0deg);
   }
 
-  &:hover {
-    background-color: oklch(92.2% 0 0deg);
-    color: oklch(14.5% 0 0deg);
+  @media (hover: hover) {
+    &:hover {
+      background-color: oklch(92.2% 0 0deg);
+      color: oklch(14.5% 0 0deg);
 
-    @media (prefers-color-scheme: dark) {
-      background-color: oklch(26.9% 0 0deg);
-      color: white;
+      @media (prefers-color-scheme: dark) {
+        background-color: oklch(26.9% 0 0deg);
+        color: white;
+      }
     }
   }
 
@@ -302,6 +308,7 @@
   gap: 0.75rem;
   color: oklch(55.6% 0 0deg);
   font-size: 0.875rem;
+  line-height: 1.25rem;
 }
 
 .Empty p {
@@ -315,6 +322,25 @@
   color: oklch(14.5% 0 0deg);
   font: inherit;
   cursor: pointer;
+
+  @media (hover: hover) {
+    &:hover {
+      background-color: oklch(97% 0 0deg);
+
+      @media (prefers-color-scheme: dark) {
+        background-color: oklch(26.9% 0 0deg);
+      }
+    }
+  }
+
+  &:focus-visible {
+    outline: 2px solid oklch(14.5% 0 0deg);
+    outline-offset: -1px;
+
+    @media (prefers-color-scheme: dark) {
+      outline-color: white;
+    }
+  }
 
   @media (prefers-color-scheme: dark) {
     border-color: white;

@@ -153,11 +153,13 @@
     color: white;
   }
 
-  &:hover {
-    background-color: oklch(97% 0 0deg);
+  @media (hover: hover) {
+    &:hover {
+      background-color: oklch(97% 0 0deg);
 
-    @media (prefers-color-scheme: dark) {
-      background-color: oklch(26.9% 0 0deg);
+      @media (prefers-color-scheme: dark) {
+        background-color: oklch(26.9% 0 0deg);
+      }
     }
   }
 

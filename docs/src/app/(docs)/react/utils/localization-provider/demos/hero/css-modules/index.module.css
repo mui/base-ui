@@ -6,11 +6,19 @@
   justify-content: center;
   gap: 1rem;
   background-color: oklch(98.5% 0 0deg);
+  -webkit-user-select: none;
   user-select: none;
 
   @media (prefers-color-scheme: dark) {
     background-color: oklch(20.5% 0 0deg);
   }
+}
+
+.Root,
+.Root * {
+  font-synthesis: none;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 .Card {
@@ -23,7 +31,7 @@
 
   &:focus-visible {
     outline: 2px solid currentColor;
-    outline-offset: 2px;
+    outline-offset: -1px;
   }
 
   &[data-drag-preview] {
@@ -34,6 +42,7 @@
     border-color: white;
     background: oklch(14.5% 0 0deg);
     color: white;
+    box-shadow: none;
   }
 }
 
@@ -41,6 +50,7 @@
   margin: 0;
   color: oklch(43.9% 0 0deg);
   font-size: 0.875rem;
+  line-height: 1.25rem;
 
   @media (prefers-color-scheme: dark) {
     color: oklch(70.8% 0 0deg);

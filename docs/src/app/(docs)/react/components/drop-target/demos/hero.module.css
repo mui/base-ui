@@ -44,11 +44,13 @@
     color: oklch(70.8% 0 0deg);
   }
 
-  &:hover {
-    color: oklch(14.5% 0 0deg);
+  @media (hover: hover) {
+    &:hover {
+      color: oklch(14.5% 0 0deg);
 
-    @media (prefers-color-scheme: dark) {
-      color: white;
+      @media (prefers-color-scheme: dark) {
+        color: white;
+      }
     }
   }
 
@@ -85,11 +87,13 @@
     color: white;
   }
 
-  &:hover {
-    background-color: oklch(97% 0 0deg);
+  @media (hover: hover) {
+    &:hover {
+      background-color: oklch(97% 0 0deg);
 
-    @media (prefers-color-scheme: dark) {
-      background-color: oklch(26.9% 0 0deg);
+      @media (prefers-color-scheme: dark) {
+        background-color: oklch(26.9% 0 0deg);
+      }
     }
   }
 

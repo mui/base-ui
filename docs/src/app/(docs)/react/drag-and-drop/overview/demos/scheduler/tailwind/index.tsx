@@ -109,8 +109,8 @@ export default function KeyboardMovementCalendar() {
   };
 
   return (
-    <div className="flex w-full flex-col gap-4 select-none">
-      <div className="grid grid-cols-[3rem_repeat(3,1fr)]">
+    <div className="flex w-full min-w-0 flex-col gap-4 overflow-x-auto select-none">
+      <div className="grid min-w-[28rem] grid-cols-[3rem_repeat(3,1fr)]">
         <div />
         {DAYS.map((day) => (
           <div

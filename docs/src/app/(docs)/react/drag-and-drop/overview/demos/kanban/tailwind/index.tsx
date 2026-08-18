@@ -47,7 +47,7 @@ interface DropPlaceholder {
 }
 
 const COLUMN_BASE =
-  'box-border flex flex-1 flex-col border border-neutral-200 p-3 transition-colors dark:border-neutral-700';
+  'box-border flex w-40 shrink-0 flex-col border border-neutral-200 p-3 transition-colors sm:w-auto sm:flex-1 dark:border-neutral-700';
 const COLUMN_CLASS = `${COLUMN_BASE} data-[active]:border-neutral-950 data-[active]:bg-neutral-100 dark:data-[active]:border-white dark:data-[active]:bg-neutral-800`;
 // The preview is a clone of the card, so it keeps these classes: `data-dragging`
 // dims the source, `data-ending-style` keeps the committed card looking like the
@@ -246,12 +246,12 @@ export default function KanbanBoard() {
     // Catch-all drop target on the demo root, so a release anywhere inside the
     // demo lands on a registered target rather than falling outside every one.
     <DropTarget.Root
-      className="flex w-full flex-col gap-4 select-none"
+      className="flex w-full min-w-0 flex-col gap-4 select-none"
       label="Board"
       accept={cardKind}
       trackDragOver={false}
     >
-      <div className="flex items-start gap-3">
+      <div className="flex w-full items-start gap-3 overflow-x-auto">
         {board.columnOrder.map((id) => {
           const column = board.columns[id];
           return (
