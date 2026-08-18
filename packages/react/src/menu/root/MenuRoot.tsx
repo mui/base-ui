@@ -549,7 +549,10 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
     onNavigate(nextActiveIndex) {
       store.set('activeIndex', nextActiveIndex);
     },
-    openOnArrowKeyDown: parent.type !== 'context-menu',
+    // A virtual-focus submenu's keyboard opening is orchestrated by its navigation wrapper based
+    // on both menus' orientations; the generic arrow-key opening would also react to the parent's
+    // forwarded cross-axis keys while closed.
+    openOnArrowKeyDown: parent.type !== 'context-menu' && !(virtualFocus && isSubmenu),
     externalTree: !virtualFocus && nested ? floatingTreeRoot : undefined,
     nestedReturnFocusRef: parentMenuRootContext?.virtualFocusRef,
     focusItemOnHover: highlightItemOnHover,
@@ -702,14 +705,12 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
     ],
   );
 
-  const menu = (
+  let content = (
     <MenuRootContext.Provider value={context as MenuRootContext}>
       {handle && <PopupHandleAttachment handle={handle} store={store} />}
       {typeof children === 'function' ? children({ payload }) : children}
     </MenuRootContext.Provider>
   );
-
-  let content = menu;
 
   if (parent.type === undefined || parent.type === 'context-menu') {
     // set up a FloatingTree to provide the context to nested menus
