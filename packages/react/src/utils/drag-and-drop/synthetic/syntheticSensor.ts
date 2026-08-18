@@ -667,10 +667,9 @@ function onPendingPointerUp(event: Event): void {
   if (!pending || pointerEvent.pointerId !== pending.pointerId) {
     return;
   }
-  // Ignore the release of a non-primary button (right/middle) while the primary
-  // is still held: only lifting the primary button ends the gesture. On
-  // `pointerup`, `button` is the button that was released (0 === primary).
-  if (pointerEvent.button !== 0) {
+  // Safari can misreport `button` on a quick release. Ignore a non-primary
+  // release only while `buttons` confirms that the primary is still held.
+  if (pointerEvent.button !== 0 && pointerEvent.buttons % 2 !== 0) {
     return;
   }
   // Clean release with no drag: release the contextmenu suppression (see clearPending).
@@ -1123,8 +1122,8 @@ function onActivePointerUp(event: Event): void {
   if (!active || pointerEvent.pointerId !== active.pointerId) {
     return;
   }
-  // Ignore the release of a non-primary button (right/middle) mid-drag.
-  if (pointerEvent.button !== 0) {
+  // See `onPendingPointerUp` for the `buttons` fallback.
+  if (pointerEvent.button !== 0 && pointerEvent.buttons % 2 !== 0) {
     return;
   }
   dropActiveAtPointer(pointerEvent);

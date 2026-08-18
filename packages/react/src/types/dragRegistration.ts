@@ -87,7 +87,7 @@ export type RegisterDropTargetParameters<TSourceData = unknown, TLocalData = unk
  * @public
  */
 export type RegisterDropTargetParametersWithPayload<TSourceData, TLocalData> = WithRequiredPayload<
-  InternalRegisterDropTargetParameters<TSourceData, NoInfer<TLocalData>>,
+  RegisterDropTargetParameters<TSourceData, NoInfer<TLocalData>>,
   DropTargetPayload<TSourceData, TLocalData>,
   DropTargetPayloadGetter<TSourceData, TLocalData>
 >;

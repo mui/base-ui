@@ -15,7 +15,6 @@
  */
 
 import { addEventListener } from '@base-ui/utils/addEventListener';
-import { mergeCleanups } from '@base-ui/utils/mergeCleanups';
 import { getTarget } from '@base-ui/utils/shadowDom';
 import { isElement } from '@floating-ui/utils/dom';
 import { createDocumentBinding } from './documentBinding';
@@ -73,7 +72,10 @@ const documentBinding = createDocumentBinding({
     // Capture-phase, so a consumer handler stopping propagation can't starve it.
     const offPointerDown = addEventListener(doc, 'pointerdown', onInteraction, { capture: true });
     const offFocusIn = addEventListener(doc, 'focusin', onInteraction, { capture: true });
-    return mergeCleanups(offPointerDown, offFocusIn);
+    return () => {
+      offPointerDown();
+      offFocusIn();
+    };
   },
 });
 

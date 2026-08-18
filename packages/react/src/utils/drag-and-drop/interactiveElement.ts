@@ -67,10 +67,6 @@ export function isEditable(node: Element): boolean {
 }
 
 /**
- * Whether `node` owns a press gesture of its own — typing, toggling, activating.
- * A disabled control owns nothing, so it stays transparent to the drag.
- */
-/**
  * Whether the press landed on an interactive control nested *inside* the node the
  * gesture would pick up by — a rename input, a row's action button — rather than
  * on that node itself. `pickupNode` is excluded from the walk, so a draggable (or

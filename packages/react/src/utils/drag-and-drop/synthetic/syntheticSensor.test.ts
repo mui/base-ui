@@ -1861,6 +1861,33 @@ describe('syntheticDrag sensor', () => {
       penUp(60, 50);
     });
 
+    it('clears a pending gesture when pointerup misreports the released button', async () => {
+      const { engine } = await renderDnd();
+      const el = createElement();
+      const onDragStart = vi.fn();
+      engine.registerDraggable(el, { onDragStart });
+
+      penDown(el, 50, 50);
+      dispatch(
+        getTouchDownTarget(),
+        new PointerEvent('pointerup', {
+          pointerType: 'pen',
+          pointerId: 1,
+          clientX: 50,
+          clientY: 50,
+          button: -1,
+          buttons: 0,
+          bubbles: true,
+          cancelable: true,
+        }),
+      );
+
+      penMove(60, 50);
+      await flushRaf();
+
+      expect(onDragStart).not.toHaveBeenCalled();
+    });
+
     it('a secondary-button pointerup mid-drag does not end the drag', async () => {
       const { engine } = await renderDnd();
       const el = createElement();
@@ -1922,6 +1949,48 @@ describe('syntheticDrag sensor', () => {
       await flushRaf();
 
       expect(onDragEnd).toHaveBeenCalledTimes(1);
+    });
+
+    it('drops when pointerup misreports the released button', async () => {
+      const { engine } = await renderDnd();
+      const el = createElement();
+      const onDragEnd = vi.fn();
+      engine.registerDraggable(el, {
+        pointerActivation: { mouse: { type: 'immediate' } },
+        onDragEnd,
+      });
+
+      dispatch(
+        el,
+        new PointerEvent('pointerdown', {
+          pointerType: 'mouse',
+          pointerId: 1,
+          clientX: 10,
+          clientY: 10,
+          button: 0,
+          buttons: 1,
+          bubbles: true,
+          cancelable: true,
+        }),
+      );
+      await flushRaf();
+
+      dispatch(
+        el,
+        new PointerEvent('pointerup', {
+          pointerType: 'mouse',
+          pointerId: 1,
+          clientX: 20,
+          clientY: 20,
+          button: -1,
+          buttons: 0,
+          bubbles: true,
+          cancelable: true,
+        }),
+      );
+
+      expect(onDragEnd).toHaveBeenCalledTimes(1);
+      expect(onDragEnd.mock.calls[0][0].canceled).toBe(false);
     });
 
     it('a chorded primary release mid-drag drops at that position (not a cancel)', async () => {

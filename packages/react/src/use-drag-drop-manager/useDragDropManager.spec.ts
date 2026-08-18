@@ -7,6 +7,7 @@ import {
 import type {
   RegisterDraggableParameters,
   RegisterDropTargetParameters,
+  RegisterDropTargetParametersWithPayload,
 } from '@base-ui/react/use-drag-drop-manager';
 import { Draggable } from '@base-ui/react/draggable';
 import type { DragKind, DropTargetRecord } from '@base-ui/react/types';
@@ -105,6 +106,20 @@ expectType<RegisterDropTargetParameters, typeof validDropTargetParameters>(
 
 // @ts-expect-error every public drop target must declare what it accepts.
 const missingAccept: RegisterDropTargetParameters = {};
+
+const validDropTargetWithPayload: RegisterDropTargetParametersWithPayload<
+  CardPayload,
+  { slot: number }
+> = { accept: card, payload: { slot: 1 } };
+expectType<{ slot: number }, typeof validDropTargetWithPayload.payload>(
+  validDropTargetWithPayload.payload,
+);
+
+// @ts-expect-error adding a local payload does not make `accept` optional.
+const missingAcceptWithPayload: RegisterDropTargetParametersWithPayload<
+  CardPayload,
+  { slot: number }
+> = { payload: { slot: 1 } };
 
 // `accept` types the source it hands the callbacks, with no type argument.
 engine.registerDropTarget(element, () => ({
