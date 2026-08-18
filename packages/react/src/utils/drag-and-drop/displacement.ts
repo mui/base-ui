@@ -91,8 +91,6 @@ interface TrackedState {
    * rather than to nothing.
    */
   visible: boolean;
-  /** The observer maintaining `visible`, kept for `unobserve` at untrack. */
-  visibilityObserver: IntersectionObserver | null;
 }
 
 interface Measurement {
@@ -174,8 +172,9 @@ function handleVisibilityChange(entries: IntersectionObserverEntry[]): void {
     if (!state) {
       continue;
     }
-    state.visible = entry.isIntersecting;
-    if (!entry.isIntersecting) {
+    const visible = entry.isIntersecting;
+    state.visible = visible;
+    if (!visible) {
       // Whatever baseline it had is now unwatchable; a stale one would play a
       // meaningless delta if the element came back.
       state.hasBaseline = false;
@@ -187,7 +186,7 @@ function handleVisibilityChange(entries: IntersectionObserverEntry[]): void {
   }
 }
 
-function observeVisibility(element: HTMLElement, state: TrackedState): void {
+function observeVisibility(element: HTMLElement): void {
   const win = ownerWindow(element);
   // Without the API (jsdom), `visible` stays `true` and every element is
   // measured, matching the pre-observer behavior.
@@ -195,20 +194,17 @@ function observeVisibility(element: HTMLElement, state: TrackedState): void {
     return;
   }
   let observer = visibilityObservers.get(win);
-  if (observer === undefined) {
+  if (!observer) {
     observer = new win.IntersectionObserver(handleVisibilityChange, {
       rootMargin: VISIBILITY_MARGIN,
     });
     visibilityObservers.set(win, observer);
   }
   observer.observe(element);
-  state.visibilityObserver = observer;
 }
 
 function disconnectVisibilityObservers(): void {
-  for (const observer of visibilityObservers.values()) {
-    observer.disconnect();
-  }
+  visibilityObservers.forEach((observer) => observer.disconnect());
   visibilityObservers.clear();
 }
 
@@ -230,9 +226,7 @@ function attachResizeListener(win: Window): void {
 }
 
 function detachResizeListeners(): void {
-  for (const off of resizeListeners.values()) {
-    off();
-  }
+  resizeListeners.forEach((off) => off());
   resizeListeners.clear();
 }
 
@@ -313,7 +307,6 @@ function watchFinish(element: HTMLElement, token: number): void {
 
 interface Play {
   element: HTMLElement;
-  state: TrackedState;
   dx: number;
   dy: number;
   token: number;
@@ -378,7 +371,8 @@ function sweep(): void {
       continue;
     }
     playCounter += 1;
-    plays.push({ element, state, dx, dy, token: playCounter });
+    state.token = playCounter;
+    plays.push({ element, dx, dy, token: playCounter });
   }
 
   if (plays.length === 0) {
@@ -389,7 +383,6 @@ function sweep(): void {
   // whenever the opener is throttled.
   const perWindow = new Map<Window, Play[]>();
   for (const play of plays) {
-    play.state.token = play.token;
     play.element.style.setProperty(VAR_X, `${play.dx}px`);
     play.element.style.setProperty(VAR_Y, `${play.dy}px`);
     play.element.setAttribute(DISPLACING_ATTR, '');
@@ -485,12 +478,11 @@ export function trackDisplacedElement(element: HTMLElement): DragCleanupFn {
     token: 0,
     untracking: false,
     visible: true,
-    visibilityObserver: null,
   };
   state.untracking = false;
   if (!adopted) {
     tracked.set(element, state);
-    observeVisibility(element, state);
+    observeVisibility(element);
     if (windowOpen) {
       // Mounted mid-drag: baseline now, so its later moves animate.
       baseline(element, state);
@@ -515,8 +507,7 @@ export function trackDisplacedElement(element: HTMLElement): DragCleanupFn {
       if (!state.untracking || tracked.get(element) !== state) {
         return;
       }
-      state.untracking = false;
-      state.visibilityObserver?.unobserve(element);
+      visibilityObservers.forEach((observer) => observer.unobserve(element));
       cleanupPlay(element);
       tracked.delete(element);
       if (tracked.size === 0) {
