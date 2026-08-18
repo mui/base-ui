@@ -7,13 +7,14 @@
 />
 
 import { DemoMenuFilterable } from '../menu/demos/filterable';
+import { DemoFilterMenuCommandPalette } from './demos/command-palette';
 
 <DemoMenuFilterable />
 
 ## Usage guidelines
 
-- **Use for searchable actions**: Choose `FilterMenu` when users need to find an action from a modest list. Use [Menu](/react/components/menu) for a short list that does not need search.
-- **Use value-selection components for values**: Choose [Combobox](/react/components/combobox) when users need to filter values, especially when the input is the control or the results are large, virtualized, or loaded asynchronously.
+- **Use for searchable actions**: Choose `FilterMenu` when users need to find an action. Use [Menu](/react/components/menu) for a short list that does not need search.
+- **Use Combobox for values**: Choose [Combobox](/react/components/combobox) when users are selecting a value rather than running an action.
 - **Name the filter input**: Give `<FilterMenu.Input>` an accessible name with `aria-label`, `aria-labelledby`, or a visible native `<label>`.
 
 ## Anatomy
@@ -42,15 +43,19 @@ import { FilterMenu } from '@base-ui/react/filter-menu';
 </FilterMenu.Root>;
 ```
 
-`FilterMenu` uses the same action-item patterns as `Menu`, including checkbox items, radio groups, links, groups, and submenus. Use the `FilterMenu` parts throughout the tree so the filtering behavior and keyboard navigation stay connected.
+`FilterMenu` supports checkbox items, radio groups, links, groups, and submenus like [Menu](/react/components/menu).
 
 ## Examples
 
+### Command palette
+
+Combine `FilterMenu` with [Dialog](/react/components/dialog) to create a command palette.
+
+<DemoFilterMenuCommandPalette />
+
 ### Filtering items
 
-Items are matched against their `label` prop, falling back to their rendered text. Add `keywords` to an item when it should also match alternate names or related terms.
-
-Pass `label` explicitly when text is rendered by a custom component, localized, or can change while the item is filtered out. Filtered-out items are unmounted, so their rendered text is no longer available to inspect.
+Items match their rendered text by default. Use `label` to provide explicit searchable text and `keywords` for alternate terms.
 
 ```jsx title="Labels and keywords"
 <FilterMenu.List>
@@ -63,32 +68,11 @@ Pass `label` explicitly when text is rendered by a custom component, localized, 
 </FilterMenu.List>
 ```
 
-Groups with no matching items are hidden, including their group labels. `FilterMenu.Empty` is shown when no registered items match the query.
-
-### Controlled query
-
-Use `inputValue` and `onInputValueChange` when the query needs to be synchronized with application state. `defaultInputValue` sets the initial query for uncontrolled usage.
-
-```tsx title="Controlling the query"
-import * as React from 'react';
-import { FilterMenu } from '@base-ui/react/filter-menu';
-
-function SearchableActions() {
-  const [inputValue, setInputValue] = React.useState('');
-
-  return (
-    <FilterMenu.Root inputValue={inputValue} onInputValueChange={(value) => setInputValue(value)}>
-      {/* menu parts */}
-    </FilterMenu.Root>
-  );
-}
-```
-
-The query is cleared when the popup closes. If the query is controlled, update the value in `onInputValueChange` for the clear and close events as well as for typing.
+Groups with no matching items are hidden, including their labels. `FilterMenu.Empty` is shown when no items match.
 
 ### Custom matching
 
-Pass `filter` to replace the default case-insensitive contains matching. The callback receives the item's filter text and the trimmed query:
+Use `filter` to replace the default case-insensitive substring matching:
 
 ```jsx title="Custom filter"
 <FilterMenu.Root filter={(itemText, query) => itemText.startsWith(query)}>
@@ -96,11 +80,11 @@ Pass `filter` to replace the default case-insensitive contains matching. The cal
 </FilterMenu.Root>
 ```
 
-When a custom filter is provided, it is authoritative and `keywords` are ignored.
+When supplied, the custom filter replaces keyword matching.
 
 ### Filterable submenus
 
-Filtering is scoped to the nearest filter root. Use `<FilterMenu.SubmenuRoot>` when a submenu needs its own input; a regular `<Menu.SubmenuRoot>` does not become filterable automatically.
+Use `<FilterMenu.SubmenuRoot>` when a submenu needs its own search input.
 
 ```jsx title="A filterable submenu"
 <FilterMenu.SubmenuRoot>
