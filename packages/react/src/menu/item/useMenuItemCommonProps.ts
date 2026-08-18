@@ -30,6 +30,12 @@ export interface UseMenuItemCommonPropsParameters {
    */
   store: MenuStore<any>;
   /**
+   * The store for the list containing the item.
+   * This differs from `store` for submenu triggers, which control their child menu.
+   * @default store
+   */
+  listStore?: MenuStore<any> | undefined;
+  /**
    * Whether a typeahead session is in progress.
    */
   typingRef?: React.RefObject<boolean> | undefined;
@@ -49,18 +55,41 @@ export interface UseMenuItemCommonPropsParameters {
  * onMouseMove, onClick, and onMouseUp handlers.
  */
 export function useMenuItemCommonProps(params: UseMenuItemCommonPropsParameters): HTMLProps {
-  const { closeOnClick, highlighted, id, nodeId, store, typingRef, itemRef, itemMetadata } = params;
+  const {
+    closeOnClick,
+    highlighted,
+    id,
+    nodeId,
+    store,
+    listStore = store,
+    typingRef,
+    itemRef,
+    itemMetadata,
+  } = params;
 
   const { events: menuEvents } = store.useState('floatingTreeRoot');
-  const open = store.useState('open');
+  const open = listStore.useState('open');
   const contextMenuContext = useContextMenuRootContext(true);
   const isContextMenu = contextMenuContext !== undefined;
+  // `-1` rather than omitting it, which leaves links and buttons in the tab order.
+  const virtualFocus = listStore.select('virtualFocus');
+  let tabIndex = -1;
+  if (!virtualFocus && open && highlighted) {
+    tabIndex = 0;
+  }
+
+  // WebKit's accessibility tree only follows a searchbox's `aria-activedescendant` into a menu
+  // when the items expose a selection state. `aria-selected` is not valid on `menuitem`, so it is
+  // scoped to the engine whose VoiceOver support needs it.
+  const ariaSelected =
+    virtualFocus && platform.engine.webkit ? (highlighted as boolean) : undefined;
 
   return React.useMemo(
     () => ({
       id,
       role: 'menuitem' as const,
-      tabIndex: open && highlighted ? 0 : -1,
+      tabIndex,
+      'aria-selected': ariaSelected,
       onKeyDown(event: React.KeyboardEvent) {
         if (event.key === ' ' && typingRef?.current) {
           event.preventDefault();
@@ -119,18 +148,18 @@ export function useMenuItemCommonProps(params: UseMenuItemCommonPropsParameters)
       },
     }),
     [
-      closeOnClick,
-      highlighted,
       id,
-      menuEvents,
-      nodeId,
-      open,
-      store,
+      tabIndex,
+      ariaSelected,
       typingRef,
-      itemRef,
+      nodeId,
+      menuEvents,
+      closeOnClick,
       contextMenuContext,
+      itemRef,
+      store.context.allowMouseUpTriggerRef,
       isContextMenu,
-      itemMetadata,
+      itemMetadata.type,
     ],
   );
 }

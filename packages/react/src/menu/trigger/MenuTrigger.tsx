@@ -66,6 +66,7 @@ export const MenuTrigger = fastComponentRef(function MenuTrigger(
   const rootContext = useMenuRootContext(true);
   const handleStore = usePopupHandleStore(handle);
   const store = handleStore ?? rootContext?.store;
+
   if (!store) {
     throw new Error(
       'Base UI: <Menu.Trigger> must be either used within a <Menu.Root> component or provided with a handle.',
@@ -243,6 +244,7 @@ export const MenuTrigger = fastComponentRef(function MenuTrigger(
     isInMenubar ? { role: 'menuitem' } : {},
     mixedToggleHandlers,
     elementProps,
+    // `getButtonProps` stays last so `useButton` keeps gating consumer handlers while disabled.
     getButtonProps,
   ];
 
@@ -295,6 +297,7 @@ export const MenuTrigger = fastComponentRef(function MenuTrigger(
 
 export interface MenuTrigger {
   <Payload>(
+    // `render` can swap in any element, so the public ref stays widened to `HTMLElement`.
     componentProps: MenuTriggerProps<Payload> & React.RefAttributes<HTMLElement>,
   ): React.JSX.Element;
 }

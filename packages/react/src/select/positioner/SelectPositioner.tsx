@@ -17,10 +17,10 @@ import { SelectPositionerContext } from './SelectPositionerContext';
 import { InternalBackdrop } from '../../utils/InternalBackdrop';
 import { DROPDOWN_COLLISION_AVOIDANCE } from '../../internals/constants';
 import { clearStyles } from '../popup/utils';
-import { selectors } from '../store';
+import { selectors, type RegisteredItem, type SelectItemMetadata } from '../store';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
-import { findItemIndex } from '../../internals/itemEquality';
+import { compareItemEquality } from '../../internals/itemEquality';
 import { usePositioner } from '../../utils/usePositioner';
 import { useAnchoredPopupScrollLock } from '../../utils/useAnchoredPopupScrollLock';
 
@@ -52,7 +52,7 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
     arrowPadding,
     sticky,
     disableAnchorTracking,
-    alignItemWithTrigger = true,
+    alignItemWithTrigger: alignItemWithTriggerProp,
     collisionAvoidance = DROPDOWN_COLLISION_AVOIDANCE,
     style,
     ...elementProps
@@ -60,21 +60,21 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
 
   const {
     store,
+    floatingContext: floatingRootContext,
     listRef,
     labelsRef,
     alignItemWithTriggerActiveRef,
-    selectedItemTextRef,
-    valuesRef,
     initialValueRef,
     popupRef,
+    selectionReconciliationRef,
     setValue,
-    floatingContext: floatingRootContext,
+    virtualFocus,
   } = useSelectRootContext();
 
   const open = useStore(store, selectors.open);
   const mounted = useStore(store, selectors.mounted);
   const modal = useStore(store, selectors.modal);
-  const value = useStore(store, selectors.value);
+  const multiple = useStore(store, selectors.multiple);
   const openMethod = useStore(store, selectors.openMethod);
   const positionerElement = useStore(store, selectors.positionerElement);
   const triggerElement = useStore(store, selectors.triggerElement);
@@ -84,14 +84,20 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
   const scrollUpArrowRef = React.useRef<HTMLDivElement | null>(null);
   const scrollDownArrowRef = React.useRef<HTMLDivElement | null>(null);
 
-  const [controlledAlignItemWithTrigger, setControlledAlignItemWithTrigger] =
-    React.useState(alignItemWithTrigger);
-  const alignItemWithTriggerActive =
-    mounted && controlledAlignItemWithTrigger && openMethod !== 'touch';
+  // The prop is the consumer's preference; the state is a per-open fallback the popup turns off
+  // when alignment can't work (viewport collision, pinch zoom). Keeping them separate lets the
+  // fallback apply even with an explicit `alignItemWithTrigger`, and resetting while unmounted
+  // stops one failed opening from disabling alignment for every later one.
+  const alignItemWithTriggerPreference = alignItemWithTriggerProp ?? true;
+  const [alignItemWithTrigger, setAlignItemWithTrigger] = React.useState(
+    alignItemWithTriggerPreference,
+  );
 
-  if (!mounted && controlledAlignItemWithTrigger !== alignItemWithTrigger) {
-    setControlledAlignItemWithTrigger(alignItemWithTrigger);
+  if (!mounted && alignItemWithTrigger !== alignItemWithTriggerPreference) {
+    setAlignItemWithTrigger(alignItemWithTriggerPreference);
   }
+
+  const alignItemWithTriggerActive = mounted && alignItemWithTrigger && openMethod !== 'touch';
 
   React.useImperativeHandle(alignItemWithTriggerActiveRef, () => alignItemWithTriggerActive);
 
@@ -118,6 +124,7 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
     disableAnchorTracking: disableAnchorTracking ?? alignItemWithTriggerActive,
     collisionAvoidance,
     keepMounted: true,
+    lazyFlip: virtualFocus,
   });
 
   const renderedSide = alignItemWithTriggerActive ? 'none' : positioning.side;
@@ -145,50 +152,54 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
     inert: !open,
   });
 
-  const prevMapSizeRef = React.useRef(0);
+  const handleCompositeListChange = useStableCallback(
+    (map: Map<Element, ({ index?: number | null | undefined } & SelectItemMetadata) | null>) => {
+      const nextIndexes = new Map<symbol, number>();
+      const nextRegisteredItems = new Map<symbol, RegisteredItem>();
+      const previousRegisteredItems = store.state.registeredItems;
 
-  const onMapChange = useStableCallback(
-    (map: Map<Element, { index?: number | null | undefined } | null>) => {
-      if (valuesRef.current.length === 0) {
-        return;
-      }
-
-      const prevSize = prevMapSizeRef.current;
-      prevMapSizeRef.current = map.size;
-
-      const eventDetails = createChangeEventDetails(REASONS.none);
-
-      if (prevSize !== 0 && !store.state.multiple && value !== null) {
-        const selectedValueIndex = findItemIndex(valuesRef.current, value, isItemEqualToValue);
-        if (selectedValueIndex === -1) {
-          const initialSelectedValue = initialValueRef.current;
-          const hasInitial =
-            initialSelectedValue != null &&
-            findItemIndex(valuesRef.current, initialSelectedValue, isItemEqualToValue) !== -1;
-          const nextValue = hasInitial ? initialSelectedValue : null;
-          setValue(nextValue, eventDetails);
-
-          if (nextValue === null) {
-            store.set('selectedIndex', null);
-            selectedItemTextRef.current = null;
-          }
+      for (const metadata of map.values()) {
+        if (metadata?.index != null) {
+          nextIndexes.set(metadata.registrationId, metadata.index);
+          nextRegisteredItems.set(metadata.registrationId, metadata);
         }
       }
 
-      if (prevSize !== 0 && store.state.multiple && Array.isArray(value)) {
-        const nextValue = value.filter(
-          (selectedItemValue) =>
-            findItemIndex(valuesRef.current, selectedItemValue, isItemEqualToValue) !== -1,
+      let nextValue = store.state.value;
+      // Under virtual focus a query unmounts items on every keystroke, which is not a removal.
+      // The filter host reconciles the selection against its complete data instead.
+      if (!virtualFocus && hasRegisteredItemChanged(previousRegisteredItems, nextRegisteredItems)) {
+        nextValue = getValueAfterItemRemoval(
+          nextRegisteredItems,
+          nextValue,
+          initialValueRef.current,
+          multiple,
+          isItemEqualToValue,
         );
-        if (nextValue.length !== value.length) {
-          setValue(nextValue, eventDetails);
 
-          if (nextValue.length === 0) {
-            store.set('selectedIndex', null);
-            selectedItemTextRef.current = null;
+        if (nextValue !== store.state.value) {
+          const eventDetails = createChangeEventDetails(REASONS.none);
+          setValue(nextValue, eventDetails);
+          if (eventDetails.isCanceled) {
+            nextValue = store.state.value;
+          } else {
+            selectionReconciliationRef.current = { value: nextValue };
           }
         }
       }
+
+      const selectionReferenceItemId = findSelectionReferenceItemId(
+        nextRegisteredItems,
+        nextValue,
+        multiple,
+        isItemEqualToValue,
+      );
+
+      store.update({
+        registeredItems: nextRegisteredItems,
+        visibleItemIndexes: nextIndexes,
+        selectionReferenceItemId,
+      });
 
       if (open && alignItemWithTriggerActive) {
         store.update({
@@ -208,15 +219,19 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
       ...positioning,
       side: renderedSide,
       alignItemWithTriggerActive,
-      setControlledAlignItemWithTrigger,
+      setAlignItemWithTrigger,
       scrollUpArrowRef,
       scrollDownArrowRef,
     }),
-    [positioning, renderedSide, alignItemWithTriggerActive, setControlledAlignItemWithTrigger],
+    [positioning, renderedSide, alignItemWithTriggerActive, setAlignItemWithTrigger],
   );
 
   return (
-    <CompositeList elementsRef={listRef} labelsRef={labelsRef} onMapChange={onMapChange}>
+    <CompositeList
+      elementsRef={listRef}
+      labelsRef={labelsRef}
+      onMapChange={handleCompositeListChange}
+    >
       <SelectPositionerContext.Provider value={contextValue}>
         {mounted && modal && <InternalBackdrop inert={inertValue(!open)} cutout={triggerElement} />}
         {element}
@@ -224,6 +239,75 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
     </CompositeList>
   );
 });
+
+function createItemMatcher(
+  registeredItems: ReadonlyMap<symbol, RegisteredItem>,
+  isItemEqualToValue: (a: any, b: any) => boolean,
+) {
+  return (itemValue: any) => {
+    for (const item of registeredItems.values()) {
+      if (compareItemEquality(item.getValue(), itemValue, isItemEqualToValue)) {
+        return true;
+      }
+    }
+    return false;
+  };
+}
+
+function getValueAfterItemRemoval(
+  registeredItems: ReadonlyMap<symbol, RegisteredItem>,
+  value: unknown,
+  initialValue: unknown,
+  multiple: boolean,
+  isItemEqualToValue: (a: any, b: any) => boolean,
+) {
+  const isItemRegistered = createItemMatcher(registeredItems, isItemEqualToValue);
+
+  if (multiple && Array.isArray(value)) {
+    const remainingValues = value.filter(isItemRegistered);
+    return remainingValues.length === value.length ? value : remainingValues;
+  }
+
+  if (value != null && !isItemRegistered(value)) {
+    const hasInitialValue = initialValue != null && isItemRegistered(initialValue);
+    return hasInitialValue ? initialValue : null;
+  }
+
+  return value;
+}
+
+function findSelectionReferenceItemId(
+  registeredItems: ReadonlyMap<symbol, RegisteredItem>,
+  value: unknown,
+  multiple: boolean,
+  isItemEqualToValue: (itemValue: any, value: any) => boolean,
+) {
+  const selectionReferenceValue =
+    multiple && Array.isArray(value) ? value[value.length - 1] : value;
+  if (selectionReferenceValue == null) {
+    return null;
+  }
+
+  for (const [id, item] of registeredItems) {
+    if (compareItemEquality(item.getValue(), selectionReferenceValue, isItemEqualToValue)) {
+      return id;
+    }
+  }
+  return null;
+}
+
+function hasRegisteredItemChanged(
+  previousMap: ReadonlyMap<symbol, RegisteredItem>,
+  currentMap: ReadonlyMap<symbol, RegisteredItem>,
+) {
+  for (const [id, previousItem] of previousMap) {
+    if (currentMap.get(id)?.getValue !== previousItem.getValue) {
+      return true;
+    }
+  }
+
+  return false;
+}
 
 export interface SelectPositionerState {
   /**

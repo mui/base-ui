@@ -23,7 +23,7 @@ import { styleDisableScrollbar } from '../../utils/styles';
 import { transitionStatusMapping } from '../../internals/stateAttributesMapping';
 import { useOpenChangeComplete } from '../../internals/useOpenChangeComplete';
 import { useRenderElement } from '../../internals/useRenderElement';
-import { selectors } from '../store';
+import { selectors, suffixId } from '../store';
 import { clearStyles, LIST_FUNCTIONAL_STYLES } from './utils';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
@@ -49,8 +49,6 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
   componentProps: SelectPopup.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { render, className, style, finalFocus, ...elementProps } = componentProps;
-
   const {
     store,
     popupRef,
@@ -58,32 +56,35 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
     setOpen,
     valueRef,
     firstItemTextRef,
-    selectedItemTextRef,
     multiple,
     handleScrollArrowVisibility,
     scrollHandlerRef,
     listRef,
     highlightItemOnHover,
-    floatingContext: floatingRootContext,
+    floatingContext,
+    virtualFocusInputRef,
+    virtualFocus,
   } = useSelectRootContext();
-  const {
-    side,
-    align,
-    alignItemWithTriggerActive,
-    isPositioned,
-    setControlledAlignItemWithTrigger,
-  } = useSelectPositionerContext();
+  const rootId = useStore(store, selectors.id);
+  // Resolve once so the popup registration uses the same id the DOM element ends up with,
+  // otherwise a consumer id leaves the trigger pointing at nothing.
+  const id = componentProps.id ?? suffixId(rootId, 'popup');
+  const { render, className, style, finalFocus, ...elementProps } = componentProps;
+
+  const { side, align, alignItemWithTriggerActive, isPositioned, setAlignItemWithTrigger } =
+    useSelectPositionerContext();
   const insideToolbar = useToolbarRootContext(true) != null;
   const direction = useDirection();
 
   const { nonce, disableStyleElements } = useCSPContext();
 
-  const id = useStore(store, selectors.id);
   const open = useStore(store, selectors.open);
   const openMethod = useStore(store, selectors.openMethod);
   const mounted = useStore(store, selectors.mounted);
   const popupProps = useStore(store, selectors.popupProps);
   const transitionStatus = useStore(store, selectors.transitionStatus);
+  const registeredItems = useStore(store, selectors.registeredItems);
+  const selectionReferenceItemId = useStore(store, selectors.selectionReferenceItemId);
   const triggerElement = useStore(store, selectors.triggerElement);
   const positionerElement = useStore(store, selectors.positionerElement);
   const listElement = useStore(store, selectors.listElement);
@@ -268,7 +269,9 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
     const restoreTransformStyles = unsetTransformStyles(popupElement);
 
     try {
-      let textElement = selectedItemTextRef.current;
+      const selectionReferenceItem =
+        selectionReferenceItemId && registeredItems.get(selectionReferenceItemId);
+      let textElement = selectionReferenceItem?.getTextElement();
 
       if (!textElement?.isConnected) {
         const hasSelectedValue = selectors.hasSelectedValue(store.state);
@@ -331,7 +334,9 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
       const idealHeight = availableSpaceBeneathTrigger + offsetY + marginBottom + borderBottom;
       let height = Math.min(viewportHeight, idealHeight);
       const maxHeight = viewportHeight - marginTop - marginBottom;
-      const scrollTop = idealHeight - height;
+      // A controlled value can outlive the option that represented it. In that case there is
+      // no item to align, so reset a scroller retained across option replacement to its start.
+      const scrollTop = textElement ? idealHeight - height : 0;
 
       const maxRight = viewportWidth - paddingRight;
 
@@ -367,7 +372,7 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
 
       if (fallbackToAlignPopupToTrigger || isPinchZoomed) {
         clearStyles(positionerElement, originalPositionerStylesRef.current);
-        setControlledAlignItemWithTrigger(false);
+        setAlignItemWithTrigger(false);
         return;
       }
 
@@ -405,7 +410,7 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
 
       if (
         highlightItemOnHover &&
-        store.state.selectedIndex === null &&
+        !selectionReferenceItemId &&
         store.state.activeIndex === null &&
         listRef.current[0] != null
       ) {
@@ -421,17 +426,18 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
     triggerElement,
     valueRef,
     firstItemTextRef,
-    selectedItemTextRef,
     popupRef,
     handleScrollArrowVisibility,
     alignItemWithTriggerActive,
-    setControlledAlignItemWithTrigger,
+    setAlignItemWithTrigger,
     scrollArrowFrame,
     listElement,
     listRef,
     highlightItemOnHover,
     direction,
     isPositioned,
+    registeredItems,
+    selectionReferenceItemId,
   ]);
 
   React.useEffect(() => {
@@ -449,26 +455,21 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
   }, [setOpen, alignItemWithTriggerActive, positionerElement, open]);
 
   const defaultProps: HTMLProps = {
+    id,
+    // Select.List owns the listbox semantics when mounted; exposing the same role here would
+    // create nested listboxes in the accessibility tree.
     ...(listElement
-      ? {
-          role: 'presentation',
-          'aria-orientation': undefined,
-        }
-      : {
-          role: 'listbox',
-          'aria-multiselectable': multiple || undefined,
-          id: `${id}-list`,
-        }),
+      ? { role: 'presentation', 'aria-orientation': undefined }
+      : { role: 'listbox', 'aria-multiselectable': multiple || undefined }),
     onKeyDown(event) {
       if (insideToolbar && COMPOSITE_KEYS.has(event.key)) {
         event.stopPropagation();
       }
     },
     onScroll(event) {
-      if (listElement) {
-        return;
+      if (!listElement) {
+        handleScroll(event.currentTarget);
       }
-      handleScroll(event.currentTarget);
     },
     ...(alignItemWithTriggerActive && {
       style: listElement ? { height: '100%' } : LIST_FUNCTIONAL_STYLES,
@@ -493,11 +494,14 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
     <React.Fragment>
       {!disableStyleElements && styleDisableScrollbar.getElement(nonce)}
       <FloatingFocusManager
-        context={floatingRootContext}
+        context={floatingContext}
         modal={false}
         disabled={!mounted}
         openInteractionType={openMethod}
         returnFocus={finalFocus}
+        // Under virtual focus the popup is never the focus target: a child element holds real
+        // focus and the list is navigated with `aria-activedescendant`.
+        initialFocus={virtualFocus ? virtualFocusInputRef : true}
         restoreFocus
       >
         {element}

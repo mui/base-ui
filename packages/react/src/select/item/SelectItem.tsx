@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
+import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { useStore } from '@base-ui/utils/store';
 import { useSelectRootContext } from '../root/SelectRootContext';
 import { useCompositeListItem } from '../../internals/composite/list/useCompositeListItem';
@@ -12,12 +12,14 @@ import type {
 } from '../../internals/types';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { SelectItemContext } from './SelectItemContext';
-import { selectors } from '../store';
+import { selectors, suffixId, type SelectItemMetadata } from '../store';
 import { useButton } from '../../internals/use-button';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
-import { compareItemEquality, removeItem } from '../../internals/itemEquality';
+import { removeItem } from '../../internals/itemEquality';
 import { isVirtualClick } from '../../floating-ui-react/utils/event';
+
+const SELECT_ITEM_ROLE = 'option';
 
 /**
  * An individual option in the select popup.
@@ -41,23 +43,36 @@ export const SelectItem = React.memo(
       ...elementProps
     } = componentProps;
 
-    const textRef = React.useRef<HTMLElement | null>(null);
+    const registrationId = useRefWithInit(() => Symbol('select-item')).current;
+    const textElementRef = React.useRef<HTMLElement | null>(null);
+    const itemRef = React.useRef<HTMLElement | null>(null);
+    const itemMetadata: SelectItemMetadata = React.useMemo(
+      () => ({
+        registrationId,
+        getValue: () => itemValue,
+        getLabel: () =>
+          label ?? textElementRef.current?.textContent ?? itemRef.current?.textContent ?? undefined,
+        getTextElement: () => textElementRef.current,
+      }),
+      [registrationId, itemValue, label],
+    );
     const listItem = useCompositeListItem({
+      metadata: itemMetadata,
       guess: true,
       label,
-      textRef,
+      textRef: textElementRef,
     });
 
     const {
       store,
+      id: rootId,
       itemProps,
       setOpen,
       setValue,
       selectionRef,
       typingRef,
-      valuesRef,
       multiple,
-      selectedItemTextRef,
+      virtualFocus,
       disabled: selectDisabled,
       readOnly,
     } = useSelectRootContext();
@@ -66,45 +81,11 @@ export const SelectItem = React.memo(
     const highlighted = useStore(store, selectors.isActive, listItem.index);
     const open = useStore(store, selectors.open);
     const selected = useStore(store, selectors.isSelected, itemValue);
-    const selectedByFocus = useStore(store, selectors.isSelectedByFocus, listItem.index);
     const isItemEqualToValue = useStore(store, selectors.isItemEqualToValue);
 
     const index = listItem.index;
 
-    const itemRef = React.useRef<HTMLDivElement | null>(null);
-
-    useIsoLayoutEffect(() => {
-      const values = valuesRef.current;
-      values[index] = itemValue;
-
-      return () => {
-        delete values[index];
-      };
-    }, [index, itemValue, valuesRef]);
-
-    useIsoLayoutEffect(() => {
-      const selectedValue = store.state.value;
-
-      let selectedCandidate = selectedValue;
-      if (multiple && Array.isArray(selectedValue)) {
-        // Compare against the last selected item, or `undefined` when nothing is selected — never
-        // the raw array, which a custom `isItemEqualToValue` isn't expected to receive.
-        selectedCandidate =
-          selectedValue.length > 0 ? selectedValue[selectedValue.length - 1] : undefined;
-      }
-
-      if (
-        selectedCandidate !== undefined &&
-        compareItemEquality(itemValue, selectedCandidate, isItemEqualToValue)
-      ) {
-        store.set('selectedIndex', index);
-        // Make sure SelectPopup can measure the selected item on first open.
-        // SelectItemText can still update this ref later when focus moves.
-        if (textRef.current) {
-          selectedItemTextRef.current = textRef.current;
-        }
-      }
-    }, [index, multiple, isItemEqualToValue, store, itemValue, selectedItemTextRef]);
+    const id = suffixId(rootId, index);
 
     const pointerTypeRef = React.useRef<'mouse' | 'touch' | 'pen'>('mouse');
     const allowMouseSelectionRef = React.useRef(false);
@@ -146,10 +127,17 @@ export const SelectItem = React.memo(
       selectionRef.current.dragY = 0;
     }
 
+    // `-1` rather than omitting it, which leaves natively focusable items in the tab order.
+    let rovingTabIndex = -1;
+    if (!virtualFocus && open && highlighted) {
+      rovingTabIndex = 0;
+    }
+
     const defaultProps: HTMLProps = {
-      role: 'option',
+      id,
+      role: SELECT_ITEM_ROLE,
       'aria-selected': selected,
-      tabIndex: open && highlighted ? 0 : -1,
+      tabIndex: rovingTabIndex,
       onKeyDown(event: BaseUIEvent<React.KeyboardEvent>) {
         store.set('activeIndex', index);
 
@@ -236,10 +224,9 @@ export const SelectItem = React.memo(
       () => ({
         selected,
         index,
-        textRef,
-        selectedByFocus,
+        textElementRef,
       }),
-      [selected, index, textRef, selectedByFocus],
+      [selected, index, textElementRef],
     );
 
     return <SelectItemContext.Provider value={contextValue}>{element}</SelectItemContext.Provider>;
@@ -275,7 +262,7 @@ export interface SelectItemProps
    */
   disabled?: boolean | undefined;
   /**
-   * Specifies the text label to use when the item is matched during keyboard text navigation.
+   * Specifies the text label to use during keyboard text navigation.
    *
    * Defaults to the item text content if not provided.
    */

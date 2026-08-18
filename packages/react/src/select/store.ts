@@ -6,12 +6,21 @@ import type { Side } from '../internals/useAnchorPositioning';
 import { compareItemEquality } from '../internals/itemEquality';
 import { type Group, hasNullItemLabel, stringifyAsValue } from '../internals/resolveValueLabel';
 
+export interface RegisteredItem {
+  getValue: () => any;
+  getLabel: () => string | undefined;
+  getTextElement: () => HTMLElement | null;
+}
+
+export interface SelectItemMetadata extends RegisteredItem {
+  registrationId: symbol;
+}
+
 export type State = {
   id: string | undefined;
   labelId: string | undefined;
   modal: boolean;
   multiple: boolean;
-
   items:
     | Record<string, React.ReactNode>
     | ReadonlyArray<{ label: React.ReactNode; value: any }>
@@ -20,6 +29,14 @@ export type State = {
   itemToStringLabel: ((item: any) => string) | undefined;
   itemToStringValue: ((item: any) => string) | undefined;
   isItemEqualToValue: (itemValue: any, selectedValue: any) => boolean;
+  /**
+   * All logically mounted Select items.
+   */
+  registeredItems: ReadonlyMap<symbol, RegisteredItem>;
+  /**
+   * Composite indexes for the items currently rendered in the list.
+   */
+  visibleItemIndexes: ReadonlyMap<symbol, number>;
 
   value: any;
 
@@ -30,10 +47,20 @@ export type State = {
   openMethod: InteractionType | null;
 
   activeIndex: number | null;
-  selectedIndex: number | null;
+  selectionReferenceItemId: symbol | null;
+
+  /**
+   * Whether real focus stays on an element inside the popup while the list is navigated with
+   * `aria-activedescendant` instead of roving DOM focus.
+   */
+  virtualFocus: boolean;
 
   popupProps: HTMLProps;
   triggerProps: HTMLProps;
+  /**
+   * Props for the element that holds real focus while `virtualFocus` is enabled.
+   */
+  inputProps: HTMLProps;
   triggerElement: HTMLElement | null;
   positionerElement: HTMLElement | null;
   listElement: HTMLDivElement | null;
@@ -51,10 +78,12 @@ export const selectors = {
   id: (state: State) => state.id,
   labelId: (state: State) => state.labelId,
   modal: (state: State) => state.modal,
-
+  multiple: (state: State) => state.multiple,
   items: (state: State) => state.items,
   itemToStringLabel: (state: State) => state.itemToStringLabel,
   isItemEqualToValue: (state: State) => state.isItemEqualToValue,
+  registeredItems: (state: State) => state.registeredItems,
+  visibleItemIndexes: (state: State) => state.visibleItemIndexes,
 
   value: (state: State) => state.value,
 
@@ -81,8 +110,10 @@ export const selectors = {
   openMethod: (state: State) => state.openMethod,
 
   activeIndex: (state: State) => state.activeIndex,
-  selectedIndex: (state: State) => state.selectedIndex,
+  selectionReferenceItemId: (state: State) => state.selectionReferenceItemId,
   isActive: (state: State, index: number) => state.activeIndex === index,
+  virtualFocus: (state: State) => state.virtualFocus,
+  inputProps: (state: State) => state.inputProps,
 
   isSelected: (state: State, itemValue: any) => {
     const comparer = state.isItemEqualToValue;
@@ -95,13 +126,9 @@ export const selectors = {
       );
     }
 
-    // The value is the source of truth: a stale `selectedIndex` (e.g. the controlled
-    // value changes while the popup is open, where the index sync is deferred) must not
-    // keep a previously selected item marked as selected.
+    // The value is the source of truth. The selection reference ID only identifies the item used
+    // for navigation and positioning.
     return compareItemEquality(itemValue, storeValue, comparer);
-  },
-  isSelectedByFocus: (state: State, index: number) => {
-    return state.selectedIndex === index;
   },
 
   popupProps: (state: State) => state.popupProps,
@@ -116,3 +143,8 @@ export const selectors = {
 
   hasScrollArrows: (state: State) => state.hasScrollArrows,
 };
+
+/** Guards against React 17, where the root id is undefined until an effect resolves it. */
+export function suffixId(rootId: string | undefined, suffix: string | number) {
+  return rootId != null ? `${rootId}-${suffix}` : undefined;
+}

@@ -2,11 +2,11 @@
 import * as React from 'react';
 import { useTimeout } from '@base-ui/utils/useTimeout';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
-import { useId } from '@base-ui/utils/useId';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { EMPTY_ARRAY, EMPTY_OBJECT } from '@base-ui/utils/empty';
 import { fastComponent } from '@base-ui/utils/fastHooks';
+import { useBaseUiId } from '../../internals/useBaseUiId';
 import {
   FloatingTree,
   useDismiss,
@@ -30,8 +30,13 @@ import {
   ContextMenuRootContext,
   useContextMenuRootContext,
 } from '../../context-menu/root/ContextMenuRootContext';
-import { mergeProps } from '../../merge-props';
+import { mergeProps, mergePropsN } from '../../merge-props';
 import { useAnimationsFinished } from '../../internals/useAnimationsFinished';
+import {
+  isCrossOrientationOpenKey,
+  isMainOrientationKey,
+} from '../../floating-ui-react/utils/listNavigation';
+import type { BaseUIEvent, HTMLProps } from '../../internals/types';
 import { MenuStore, type State as MenuStoreState } from '../store/MenuStore';
 import { MenuHandle } from '../store/MenuHandle';
 import {
@@ -44,7 +49,20 @@ import {
   useOpenStateTransitions,
   usePopupInteractionProps,
 } from '../../utils/popups';
-import { useMenuSubmenuRootContext } from '../submenu-root/MenuSubmenuRootContext';
+
+interface MenuRootInternalProps<Payload> extends MenuRoot.Props<Payload> {
+  /**
+   * @ignore
+   * Marks this root as a submenu of the enclosing menu.
+   */
+  isSubmenu?: boolean | undefined;
+  /**
+   * @ignore
+   * Keeps real focus on an element inside the popup and navigates the list with
+   * `aria-activedescendant`.
+   */
+  virtualFocus?: boolean | undefined;
+}
 
 /**
  * Groups all parts of the menu.
@@ -69,13 +87,13 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
     triggerId: triggerIdProp,
     defaultTriggerId: defaultTriggerIdProp = null,
     highlightItemOnHover = true,
-  } = props;
+    isSubmenu = false,
+    virtualFocus = false,
+  } = props as MenuRootInternalProps<Payload>;
 
   const contextMenuContext = useContextMenuRootContext(true);
   const parentMenuRootContext = useMenuRootContext(true);
   const menubarContext = useMenubarContext(true);
-  const isSubmenu = useMenuSubmenuRootContext();
-
   const parentFromContext: MenuParent = React.useMemo(() => {
     if (isSubmenu && parentMenuRootContext) {
       return {
@@ -106,8 +124,12 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
     };
   }, [contextMenuContext, parentMenuRootContext, menubarContext, isSubmenu]);
 
-  const rootId = useId();
-  const floatingId = useId();
+  const rootId = useBaseUiId();
+  // React 17 resolves generated ids in an effect, so they must be read live rather than captured
+  // in a state initializer.
+  const defaultFloatingId = useBaseUiId();
+  const [customFloatingId, setFloatingId] = React.useState<string | undefined>(undefined);
+  const floatingId = customFloatingId ?? defaultFloatingId;
   const floatingParentNodeIdFromContext = useFloatingParentNodeId();
 
   const parentMenuStore = parentFromContext.type === 'menu' ? parentFromContext.store : undefined;
@@ -146,6 +168,9 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
     floatingParentNodeIdFromContext != null,
   );
 
+  // Read by submenu triggers, and not fixed at construction (React 17 ids, `Menu.Popup` id).
+  store.useSyncedValue('floatingId', floatingId);
+
   store.useControlledProp('openProp', openProp);
   store.useControlledProp('triggerIdProp', triggerIdProp);
 
@@ -160,6 +185,7 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
   const hoverEnabled = store.useState('hoverEnabled');
   const disabled = store.useState('disabled');
   const lastOpenChangeReason = store.useState('lastOpenChangeReason');
+  const openedByKeyboard = store.useState('openedByKeyboard');
   const parent = store.useState('parent');
 
   const activeIndex = store.useState('activeIndex');
@@ -190,6 +216,7 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
     modal: parent.type === undefined ? modalProp : undefined,
     openMethod,
     rootId,
+    virtualFocus,
   });
 
   useImplicitActiveTrigger(store);
@@ -374,7 +401,6 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
         (reason === REASONS.triggerPress || reason === REASONS.itemPress) &&
         (nativeEvent as MouseEvent).detail === 0;
       const isDismissClose = !nextOpen && (reason === REASONS.escapeKey || reason == null);
-
       openEventRef.current = eventDetails.event;
 
       const popupOpenState = createPopupOpenState(
@@ -478,30 +504,26 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
   });
 
   const direction = useDirection();
-
-  const setActiveIndex = React.useCallback(
-    (index: number | null) => {
-      if (store.select('activeIndex') === index) {
-        return;
-      }
-      store.set('activeIndex', index);
-    },
-    [store],
-  );
+  const focusItemOnOpen = (parent.type !== undefined && openedByKeyboard) || undefined;
 
   const listNavigation = useListNavigation(floatingRootContext, {
+    id: floatingId,
     enabled: !disabled,
     listRef: store.context.itemDomElements,
     activeIndex,
-    nested: parent.type !== undefined,
+    virtual: virtualFocus,
     loopFocus,
+    // Virtual focus opens with the input focused and nothing highlighted, so the first arrow key
+    // enters the list from the top rather than moving off a seeded item.
+    focusItemOnOpen: virtualFocus ? false : focusItemOnOpen,
+    allowEscape: virtualFocus && loopFocus,
     orientation,
-    parentOrientation: parent.type === 'menubar' ? parent.context.orientation : undefined,
     rtl: direction === 'rtl',
     disabledIndices: EMPTY_ARRAY,
-    onNavigate: setActiveIndex,
+    onNavigate(nextActiveIndex) {
+      store.set('activeIndex', nextActiveIndex);
+    },
     openOnArrowKeyDown: parent.type !== 'context-menu',
-    externalTree: nested ? floatingTreeRoot : undefined,
     focusItemOnHover: highlightItemOnHover,
   });
 
@@ -513,7 +535,8 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
   );
 
   const typeahead = useTypeahead(floatingRootContext, {
-    enabled: !disabled,
+    // Typing goes to the input when it owns focus, so typeahead would race the query.
+    enabled: !disabled && !virtualFocus,
     listRef: store.context.itemLabels,
     elementsRef: store.context.itemDomElements,
     activeIndex,
@@ -526,18 +549,68 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
     onTyping,
   });
 
+  // A menubar whose orientation matches this menu's shares its arrow keys with the menubar's own
+  // roving focus. The menubar owns its main axis, so the trigger must leave those keys to the
+  // composite and open on the cross-axis key instead.
+  const menubarOrientation = parent.type === 'menubar' ? parent.context.orientation : undefined;
+  const menubarTriggerProps = React.useMemo<HTMLProps>(() => {
+    if (menubarOrientation !== orientation) {
+      return EMPTY_OBJECT;
+    }
+
+    return {
+      onKeyDown(event: BaseUIEvent<React.KeyboardEvent>) {
+        if (isMainOrientationKey(event.key, menubarOrientation)) {
+          event.preventBaseUIHandler();
+          return;
+        }
+
+        if (
+          !store.select('open') &&
+          isCrossOrientationOpenKey(event.key, menubarOrientation, direction === 'rtl')
+        ) {
+          event.preventBaseUIHandler();
+          event.preventDefault();
+          event.stopPropagation();
+          store.setOpen(
+            true,
+            createChangeEventDetails(
+              REASONS.listNavigation,
+              event.nativeEvent,
+              event.currentTarget,
+            ),
+          );
+        }
+      },
+    };
+  }, [menubarOrientation, orientation, store, direction]);
+
+  // Under virtual focus an element inside the popup holds real focus, so it takes the
+  // navigation's reference props (`aria-activedescendant` and the key handling) and the trigger
+  // keeps only the props that open the menu.
+  let openTriggerProps = listNavigation.reference;
+  if (virtualFocus) {
+    const triggerProps = { ...listNavigation.trigger };
+    // Focusing the trigger while the menu is open must not seed the virtual highlight. This can
+    // happen before a pointer press closes the menu in Safari.
+    delete triggerProps.onFocus;
+    openTriggerProps = triggerProps;
+  }
+  const inputProps = virtualFocus ? (listNavigation.reference ?? EMPTY_OBJECT) : EMPTY_OBJECT;
+
   const activeTriggerProps = React.useMemo(() => {
-    const mergedProps = mergeProps(
+    const mergedProps = mergePropsN([
       typeahead.reference,
-      listNavigation.reference,
+      openTriggerProps,
       dismiss.reference,
       {
         onMouseMove() {
           store.set('allowMouseEnter', true);
         },
       },
+      menubarTriggerProps,
       interactionTypeProps,
-    );
+    ]);
 
     mergedProps['aria-haspopup'] = 'menu';
     mergedProps['aria-expanded'] = open;
@@ -546,20 +619,26 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
   }, [
     store,
     typeahead.reference,
-    listNavigation.reference,
+    openTriggerProps,
     dismiss.reference,
+    menubarTriggerProps,
     interactionTypeProps,
     open,
   ]);
 
   const inactiveTriggerProps = React.useMemo(() => {
-    const mergedProps = mergeProps(listNavigation.trigger, dismiss.trigger, interactionTypeProps);
+    const mergedProps = mergeProps(
+      listNavigation.trigger,
+      dismiss.trigger,
+      menubarTriggerProps,
+      interactionTypeProps,
+    );
 
     mergedProps['aria-haspopup'] = 'menu';
     mergedProps['aria-expanded'] = false;
 
     return mergedProps;
-  }, [listNavigation.trigger, dismiss.trigger, interactionTypeProps]);
+  }, [listNavigation.trigger, dismiss.trigger, menubarTriggerProps, interactionTypeProps]);
 
   // The initial render has no store subscribers yet. Seed these props before triggers render so
   // the synchronization effect below doesn't make every trigger render twice in the first commit.
@@ -573,9 +652,6 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
       mergeProps(
         FOCUSABLE_POPUP_PROPS,
         {
-          id: floatingId,
-          role: 'menu' as const,
-          'aria-labelledby': activeTriggerElement?.id,
           onMouseMove() {
             store.set('allowMouseEnter', true);
             if (parent.type === 'menu') {
@@ -601,15 +677,7 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
         listNavigation.floating,
         dismiss.floating,
       ),
-    [
-      activeTriggerElement,
-      floatingId,
-      parent.type,
-      store,
-      typeahead.floating,
-      listNavigation.floating,
-      dismiss.floating,
-    ],
+    [typeahead.floating, listNavigation.floating, dismiss.floating, store, parent.type],
   );
 
   const itemProps = listNavigation.item ?? EMPTY_OBJECT;
@@ -620,26 +688,33 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
     inactiveTriggerProps,
     popupProps,
     itemProps,
+    inputProps,
   });
 
   const context: MenuRootContext<Payload> = React.useMemo(
     () => ({
       store,
+      type: isSubmenu ? 'submenu' : 'menu',
       parent: parentFromContext,
+      orientation,
+      floatingId,
+      setFloatingId,
     }),
-    [store, parentFromContext],
+    [store, isSubmenu, parentFromContext, orientation, floatingId],
   );
 
-  const content = (
+  const menu = (
     <MenuRootContext.Provider value={context as MenuRootContext}>
       {handle && <PopupHandleAttachment handle={handle} store={store} />}
       {typeof children === 'function' ? children({ payload }) : children}
     </MenuRootContext.Provider>
   );
 
+  let content = menu;
+
   if (parent.type === undefined || parent.type === 'context-menu') {
     // set up a FloatingTree to provide the context to nested menus
-    return <FloatingTree externalTree={floatingTreeRoot}>{content}</FloatingTree>;
+    content = <FloatingTree externalTree={floatingTreeRoot}>{content}</FloatingTree>;
   }
 
   return content;
@@ -664,7 +739,9 @@ function useMenuRootStore<Payload>(
 
 export interface MenuRootState {}
 
-export interface MenuRootProps<Payload = unknown> {
+export type MenuRootProps<Payload = unknown> = MenuRootBaseProps<Payload>;
+
+interface MenuRootBaseProps<Payload = unknown> {
   /**
    * Whether the menu is initially open.
    *
@@ -810,3 +887,8 @@ export namespace MenuRoot {
   export type ChangeEventDetails = MenuRootChangeEventDetails;
   export type Orientation = MenuRootOrientation;
 }
+
+/** `MenuRoot` with the internal props visible, which the public signature hides. */
+export const MenuRootInternal = MenuRoot as <Payload>(
+  props: MenuRootInternalProps<Payload>,
+) => React.JSX.Element;

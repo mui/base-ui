@@ -97,5 +97,8 @@
   "97": "Base UI: SharedCalendarRootContext is missing. Calendar parts must be placed within <Calendar.Root /> and Range Calendar parts must be placed within <RangeCalendar.Root />.",
   "98": "Base UI: OTPFieldRootContext is missing. OTPField parts must be placed within <OTPField.Root>.",
   "99": "Base UI: %sHandle.open() was called with the trigger id \"%s\", but no matching trigger is registered with this handle. An anchored popup cannot open without a trigger to anchor to. Pass the id of a mounted %s.Trigger that has this handle set on its \"handle\" prop.",
-  "100": "Base UI: the `items` prop received an object that is not a collection, so its items cannot be read. Pass an array of items, an array of groups with items, or the result of `createItems()`. See https://base-ui.com/react/components/combobox#createitems"
+  "100": "Base UI: the `items` prop received an object that is not a collection, so its items cannot be read. Pass an array of items, an array of groups with items, or the result of `createItems()`. See https://base-ui.com/react/components/combobox#createitems",
+  "101": "Base UI: <FilterMenu.Trigger> must be either used within <FilterMenu.Root> or provided with a handle.",
+  "102": "Base UI: Filter parts must be placed within a filter root. Wrap them in <FilterMenu.Root>, <FilterMenu.SubmenuRoot>, or <FilterSelect.Root>; a plain <Menu.Root> or <Select.Root> cannot filter.",
+  "103": "Base UI: FilterSelectRootContext is missing. FilterSelect parts must be placed within <FilterSelect.Root>."
 }

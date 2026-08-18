@@ -12,8 +12,8 @@ import { DemoSelectHero } from './demos/hero';
 
 ## Usage guidelines
 
-- **Prefer Combobox for large lists**: Select is not filterable, aside from basic keyboard typeahead functionality to find items by focusing and highlighting them. Prefer [Combobox](/react/components/combobox) instead of Select when the number of items is sufficiently large to warrant filtering.
-- **Special positioning behavior**: The select popup by default overlaps its trigger so the selected item's text is aligned with the trigger's value text. This behavior [can be disabled or customized](/react/components/select#positioning).
+- **Add filtering with FilterSelect, and prefer Combobox for large lists**: Use [FilterSelect](/react/components/filter-select) for a modest list of predefined values that needs filtering. Use [Combobox](/react/components/combobox) when the number of items is sufficiently large or requires virtualization.
+- **Special positioning behavior**: The select popup overlaps its trigger by default so the selected item's text is aligned with the trigger's value text. This behavior [can be disabled or customized](/react/components/select#positioning).
 - **Form controls must have an accessible name**: Prefer `<Select.Label>`, or provide an `aria-label` on `<Select.Trigger>` when no visible label is rendered. See [Labeling a select](#labeling-a-select) and the [forms guide](/react/handbook/forms).
 
 ## Anatomy
@@ -57,11 +57,12 @@ import { Select } from '@base-ui/react/select';
 
 `<Select.Positioner>` has a special prop called `alignItemWithTrigger` which causes the positioning to act differently by default from other `Positioner` components.
 The prop makes the select popup overlap the trigger so the selected item's text is aligned with the trigger's value text.
+It defaults to `true`.
 
-For styling, `data-side` is `"none"` on the `.Popup` and `.Positioner` parts when the mode is active.
+For styling, `data-side` is `"none"` on the `.Popup` and `.Positioner` parts when this positioning mode is active.
 
 To prevent the select popup from overlapping its trigger, set the `alignItemWithTrigger` prop to `false`.
-When set to `true` (its default) there are a few important points to note about its behavior:
+When set to `true`, there are a few important points to note about its behavior:
 
 - **Interaction type dependent**: For UX reasons, the `alignItemWithTrigger` positioning mode is disabled if touch was the pointer type used to open the popup.
 - **Viewport space dependent**: There must be enough space in the viewport to align the selected item's text with the trigger's value text without causing the popup to be too vertically small - otherwise, it falls back to the default positioning mode.
@@ -128,6 +129,43 @@ const items = {
 ```
 
 To avoid lookup, [object values](#object-values) for each item can also be used.
+
+### Rendering from items
+
+`items` is also the data source for the list. Pass a function as the `children` of `<Select.List>` to render one `<Select.Item>` per entry, the same way [Combobox](/react/components/combobox) does:
+
+```jsx title="Rendering from items"
+<Select.Root items={items}>
+  <Select.List>
+    {/* @highlight-start */}
+    {(item) => (
+      <Select.Item key={item.value} value={item.value}>
+        {item.label}
+      </Select.Item>
+    )}
+    {/* @highlight-end */}
+  </Select.List>
+</Select.Root>
+```
+
+For grouped data, pass each group's entries to `<Select.Group>` and render them with `<Select.Collection>`:
+
+```jsx title="Grouped items"
+<Select.List>
+  {(group) => (
+    <Select.Group key={group.value} items={group.items}>
+      <Select.GroupLabel>{group.value}</Select.GroupLabel>
+      <Select.Collection>
+        {(item) => (
+          <Select.Item key={item.value} value={item.value}>
+            {item.label}
+          </Select.Item>
+        )}
+      </Select.Collection>
+    </Select.Group>
+  )}
+</Select.List>
+```
 
 ### Labeling a select
 
@@ -267,6 +305,10 @@ import { TypesSelect } from './types';
 ### List
 
 <TypesSelect.List />
+
+### Collection
+
+<TypesSelect.Collection />
 
 ### Arrow
 

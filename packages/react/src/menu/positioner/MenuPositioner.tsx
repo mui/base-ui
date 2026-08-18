@@ -72,6 +72,7 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
   const positionerElement = store.useState('positionerElement');
   const instantType = store.useState('instantType');
   const adaptiveOrigin = store.useState('adaptiveOrigin');
+  const virtualFocus = store.select('virtualFocus');
   const lastOpenChangeReason = store.useState('lastOpenChangeReason');
   const floatingNodeId = store.useState('floatingNodeId');
   const floatingParentNodeId = store.useState('floatingParentNodeId');
@@ -133,6 +134,7 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
       : undefined,
     externalTree: floatingTreeRoot,
     adaptiveOrigin,
+    lazyFlip: virtualFocus,
   });
 
   React.useEffect(() => {

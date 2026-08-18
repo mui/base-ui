@@ -4423,6 +4423,85 @@ describe('<Select.Root />', () => {
       });
     });
 
+    it('resets the value when a mounted item changes its value', async () => {
+      if (reactMajor <= 18) {
+        ignoreActWarnings();
+      }
+
+      const onValueChange = vi.fn();
+
+      function Test() {
+        const [itemValue, setItemValue] = React.useState('a');
+
+        return (
+          <div>
+            <Select.Root defaultValue="a" onValueChange={onValueChange}>
+              <Select.Trigger>Toggle</Select.Trigger>
+              <Select.Portal>
+                <Select.Positioner>
+                  <Select.Popup>
+                    <Select.Item value={itemValue}>{itemValue}</Select.Item>
+                  </Select.Popup>
+                </Select.Positioner>
+              </Select.Portal>
+            </Select.Root>
+            <button type="button" onClick={() => setItemValue('b')}>
+              Change value
+            </button>
+          </div>
+        );
+      }
+
+      const { user } = await render(<Test />);
+
+      await user.click(screen.getByText('Toggle'));
+      await user.click(screen.getByText('Change value'));
+
+      await waitFor(() => {
+        expect(onValueChange.mock.lastCall?.[0]).toBe(null);
+      });
+    });
+
+    it('removes only changed mounted item values from a multiple selection', async () => {
+      if (reactMajor <= 18) {
+        ignoreActWarnings();
+      }
+
+      const onValueChange = vi.fn();
+
+      function Test() {
+        const [firstValue, setFirstValue] = React.useState('a');
+
+        return (
+          <div>
+            <Select.Root multiple defaultValue={['a', 'b']} onValueChange={onValueChange}>
+              <Select.Trigger>Toggle</Select.Trigger>
+              <Select.Portal>
+                <Select.Positioner>
+                  <Select.Popup>
+                    <Select.Item value={firstValue}>{firstValue}</Select.Item>
+                    <Select.Item value="b">b</Select.Item>
+                  </Select.Popup>
+                </Select.Positioner>
+              </Select.Portal>
+            </Select.Root>
+            <button type="button" onClick={() => setFirstValue('c')}>
+              Change value
+            </button>
+          </div>
+        );
+      }
+
+      const { user } = await render(<Test />);
+
+      await user.click(screen.getByText('Toggle'));
+      await user.click(screen.getByText('Change value'));
+
+      await waitFor(() => {
+        expect(onValueChange.mock.lastCall?.[0]).toEqual(['b']);
+      });
+    });
+
     it('keeps the value when the items are only reordered', async () => {
       if (reactMajor <= 18) {
         ignoreActWarnings();
@@ -4592,6 +4671,55 @@ describe('<Select.Root />', () => {
       const options = await screen.findAllByRole('option');
       options.forEach((opt) => {
         expect(opt).not.toHaveAttribute('data-selected');
+      });
+    });
+
+    it('reconciles the open selection reference when a controlled removal is normalized', async () => {
+      let removeSelectedItem = () => {};
+      let selectRemovableItem = () => {};
+
+      function Test() {
+        const [items, setItems] = React.useState(['b', 'c', 'd']);
+        const [value, setValue] = React.useState<string | null>('b');
+        removeSelectedItem = () => setItems((current) => current.filter((item) => item !== 'c'));
+        selectRemovableItem = () => setValue('c');
+
+        return (
+          <Select.Root open value={value} onValueChange={() => setValue('d')}>
+            <Select.Trigger>
+              <Select.Value />
+            </Select.Trigger>
+            <Select.Portal>
+              <Select.Positioner>
+                <Select.Popup>
+                  {items.map((item) => (
+                    <Select.Item key={item} value={item}>
+                      {item}
+                    </Select.Item>
+                  ))}
+                </Select.Popup>
+              </Select.Positioner>
+            </Select.Portal>
+          </Select.Root>
+        );
+      }
+
+      await render(<Test />);
+      await act(async () => {
+        selectRemovableItem();
+      });
+      expect(screen.getByRole('option', { name: 'c' })).toHaveAttribute('data-selected');
+
+      await act(async () => {
+        removeSelectedItem();
+      });
+
+      const normalizedOption = screen.getByRole('option', { name: 'd' });
+      await waitFor(() => {
+        expect(normalizedOption).toHaveAttribute('data-selected');
+      });
+      await waitFor(() => {
+        expect(normalizedOption).toHaveAttribute('data-highlighted');
       });
     });
 
@@ -4914,6 +5042,36 @@ describe('<Select.Root />', () => {
   });
 
   describe('typeahead', () => {
+    it('starts matching after the selected first item', async () => {
+      const { user } = await render(
+        <Select.Root
+          defaultValue="apple"
+          items={[
+            { value: 'apple', label: 'Apple' },
+            { value: 'apricot', label: 'Apricot' },
+          ]}
+        >
+          <Select.Trigger data-testid="trigger">
+            <Select.Value />
+          </Select.Trigger>
+          <Select.Portal>
+            <Select.Positioner>
+              <Select.Popup>
+                <Select.Item value="apple">Apple</Select.Item>
+                <Select.Item value="apricot">Apricot</Select.Item>
+              </Select.Popup>
+            </Select.Positioner>
+          </Select.Portal>
+        </Select.Root>,
+      );
+
+      const trigger = screen.getByTestId('trigger');
+      await act(async () => trigger.focus());
+      await user.keyboard('a');
+
+      expect(trigger).toHaveTextContent('Apricot');
+    });
+
     it.skipIf(isJSDOM)(
       'does not trigger selection when Space is pressed during text navigation',
       async () => {
@@ -5025,6 +5183,31 @@ describe('<Select.Root />', () => {
       await act(async () => trigger.focus());
       await user.keyboard('c');
       expect(valueEl.textContent).toBe('Cherry');
+    });
+
+    it('uses the item label override for closed-trigger typeahead', async () => {
+      const onValueChange = vi.fn();
+      const { user } = await render(
+        <Select.Root onValueChange={onValueChange}>
+          <Select.Trigger data-testid="trigger">
+            <Select.Value />
+          </Select.Trigger>
+          <Select.Portal>
+            <Select.Positioner>
+              <Select.Popup>
+                <Select.Item value="banana" label="banana">
+                  🍌
+                </Select.Item>
+              </Select.Popup>
+            </Select.Positioner>
+          </Select.Portal>
+        </Select.Root>,
+      );
+
+      await act(async () => screen.getByTestId('trigger').focus());
+      await user.keyboard('b');
+
+      expect(onValueChange).toHaveBeenCalledWith('banana', expect.any(Object));
     });
 
     it('commits nothing when the only typeahead match is disabled (closed trigger)', async () => {
@@ -5567,6 +5750,53 @@ describe('<Select.Root />', () => {
       });
     });
 
+    it('keeps the active item when an inline comparator is recreated during deselection', async () => {
+      const items = [
+        { id: 'a', label: 'a' },
+        { id: 'b', label: 'b' },
+      ];
+
+      function Test() {
+        const [value, setValue] = React.useState(items);
+        return (
+          <Select.Root
+            multiple
+            value={value}
+            onValueChange={setValue}
+            isItemEqualToValue={(item, selectedValue) => item.id === selectedValue.id}
+          >
+            <Select.Trigger>
+              <Select.Value />
+            </Select.Trigger>
+            <Select.Portal>
+              <Select.Positioner alignItemWithTrigger={false}>
+                <Select.Popup>
+                  {items.map((item) => (
+                    <Select.Item key={item.id} value={item}>
+                      {item.label}
+                    </Select.Item>
+                  ))}
+                </Select.Popup>
+              </Select.Positioner>
+            </Select.Portal>
+          </Select.Root>
+        );
+      }
+
+      const { user } = await render(<Test />);
+      await act(async () => screen.getByRole('combobox').focus());
+      await user.keyboard('[ArrowDown]');
+      const optionB = screen.getByRole('option', { name: 'b' });
+      await waitFor(() => {
+        expect(optionB).toHaveAttribute('data-highlighted');
+      });
+
+      await user.click(optionB);
+
+      expect(optionB).not.toHaveAttribute('data-selected');
+      expect(optionB).toHaveAttribute('data-highlighted');
+    });
+
     it('should handle defaultValue as array in multiple mode', async () => {
       await render(
         <Select.Root multiple defaultValue={['a', 'c']}>
@@ -5897,6 +6127,52 @@ describe('<Select.Root />', () => {
 
       expect(screen.getByRole('option', { name: 'Bob' })).toHaveAttribute('data-selected', '');
       expect(screen.getByRole('option', { name: 'Alice' })).not.toHaveAttribute('data-selected');
+    });
+
+    it('reconciles the open selection reference when the comparator changes', async () => {
+      const selectedValue = { id: 2, name: 'Bob' };
+      const itemValue = { id: 2, name: 'Bob' };
+      const compareById = (item: typeof itemValue, value: typeof selectedValue) =>
+        item.id === value.id;
+      let enableComparison = () => {};
+
+      function Test() {
+        const [comparator, setComparator] = React.useState(() => Object.is);
+        enableComparison = () => setComparator(() => compareById);
+
+        return (
+          <Select.Root
+            open
+            value={selectedValue}
+            itemToStringLabel={(item) => item.name}
+            isItemEqualToValue={comparator}
+          >
+            <Select.Trigger>
+              <Select.Value />
+            </Select.Trigger>
+            <Select.Portal>
+              <Select.Positioner>
+                <Select.Popup>
+                  <Select.Item value={itemValue}>Bob</Select.Item>
+                </Select.Popup>
+              </Select.Positioner>
+            </Select.Portal>
+          </Select.Root>
+        );
+      }
+
+      await render(<Test />);
+      const option = screen.getByRole('option', { name: 'Bob' });
+      expect(option).not.toHaveAttribute('data-selected');
+
+      await act(async () => {
+        enableComparison();
+      });
+
+      expect(option).toHaveAttribute('data-selected');
+      await waitFor(() => {
+        expect(option).toHaveAttribute('data-highlighted');
+      });
     });
 
     it('passes item as the first comparator argument in multiple mode', async () => {

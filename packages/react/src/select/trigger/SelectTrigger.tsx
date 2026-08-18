@@ -73,7 +73,6 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
   } = useSelectRootContext();
 
   const disabled = fieldDisabled || selectDisabled || disabledProp;
-
   const open = useStore(store, selectors.open);
   const mounted = useStore(store, selectors.mounted);
   const value = useStore(store, selectors.value);
@@ -85,14 +84,12 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
   const selectLabelId = useStore(store, selectors.labelId);
   const hasSelectedValue = useStore(store, selectors.hasSelectedValue);
   const popupSide = mounted && positionerElement ? popupSideValue : null;
-
   const id = idProp ?? rootId;
   const ariaLabelledBy = resolveAriaLabelledBy(fieldLabelId, selectLabelId);
 
   useLabelableId({ id: idProp });
 
   const positionerRef = useValueAsRef(positionerElement);
-
   const triggerRef = React.useRef<HTMLElement | null>(null);
 
   const { getButtonProps, buttonRef } = useButton({
@@ -230,12 +227,14 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
     placeholder: !hasSelectedValue,
   };
 
-  return useRenderElement('button', componentProps, {
+  const element = useRenderElement('button', componentProps, {
     ref: [forwardedRef, triggerRef, buttonRef, setTriggerElement],
     state,
     stateAttributesMapping,
     props,
   });
+
+  return element;
 });
 
 export interface SelectTriggerState extends FieldRootState {

@@ -2,7 +2,7 @@ import { Menu } from '@base-ui/react/menu';
 import clsx from 'clsx';
 import './Menu.css';
 
-export const Root = Menu.Root;
+export const Root: typeof Menu.Root = Menu.Root;
 
 export const Trigger = Menu.Trigger;
 

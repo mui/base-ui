@@ -7,6 +7,7 @@ import { FloatingTreeStore } from '../../floating-ui-react/components/FloatingTr
 import { HTMLProps } from '../../internals/types';
 import { NullStore } from '../../utils/NullStore';
 import type { AdaptiveOriginMiddleware } from '../../utils/adaptiveOriginConstants';
+import { REASONS } from '../../internals/reasons';
 import {
   createInitialPopupStoreState,
   PopupStoreContext,
@@ -32,6 +33,15 @@ export type State<Payload> = PopupStoreState<Payload> & {
   floatingNodeId: string | undefined;
   floatingParentNodeId: string | null;
   itemProps: HTMLProps;
+  /**
+   * Whether real focus stays on an element inside the popup while the list is navigated with
+   * `aria-activedescendant` instead of roving DOM focus.
+   */
+  virtualFocus: boolean;
+  /**
+   * Props for the element that holds real focus while `virtualFocus` is enabled.
+   */
+  inputProps: HTMLProps;
   closeDelay: number;
   keyboardEventRelay: ((event: React.KeyboardEvent<any>) => void) | undefined;
   adaptiveOrigin: AdaptiveOriginMiddleware | undefined;
@@ -40,6 +50,7 @@ export type State<Payload> = PopupStoreState<Payload> & {
 type Context = PopupStoreContext<MenuRoot.ChangeEventDetails> & {
   readonly positionerRef: React.RefObject<HTMLElement | null>;
   readonly popupRef: React.RefObject<HTMLElement | null>;
+  readonly inputRef: React.RefObject<HTMLElement | null>;
   readonly typingRef: React.RefObject<boolean>;
   readonly itemDomElements: React.RefObject<(HTMLElement | null)[]>;
   readonly itemLabels: React.RefObject<(string | null)[]>;
@@ -57,7 +68,12 @@ const selectors = {
   modal: (state: State<unknown>) =>
     (state.parent.type === undefined || state.parent.type === 'context-menu') &&
     (state.modal ?? true),
+  floatingId: (state: State<unknown>) => state.floatingId,
   openMethod: (state: State<unknown>) => state.openMethod,
+  // Arrow keys open submenus through list navigation without dispatching a click, so
+  // `openMethod` remains null; Enter and Space dispatch a click and report `keyboard`.
+  openedByKeyboard: (state: State<unknown>) =>
+    state.openChangeReason === REASONS.listNavigation || state.openMethod === 'keyboard',
 
   allowMouseEnter: (state: State<unknown>) => state.allowMouseEnter,
   highlightItemOnHover: (state: State<unknown>) => state.highlightItemOnHover,
@@ -84,6 +100,8 @@ const selectors = {
   floatingNodeId: (state: State<unknown>) => state.floatingNodeId,
   floatingParentNodeId: (state: State<unknown>) => state.floatingParentNodeId,
   itemProps: (state: State<unknown>) => state.itemProps,
+  virtualFocus: (state: State<unknown>) => state.virtualFocus,
+  inputProps: (state: State<unknown>) => state.inputProps,
   closeDelay: (state: State<unknown>) => state.closeDelay,
   adaptiveOrigin: (state: State<unknown>): AdaptiveOriginMiddleware | undefined =>
     state.adaptiveOrigin,
@@ -190,6 +208,7 @@ function createInitialContext(triggerElements: PopupTriggerMap): Context {
   return {
     positionerRef: React.createRef<HTMLElement | null>(),
     popupRef: React.createRef<HTMLElement | null>(),
+    inputRef: React.createRef<HTMLElement | null>(),
     typingRef: { current: false },
     itemDomElements: { current: [] },
     itemLabels: { current: [] },
@@ -225,7 +244,9 @@ function createInitialState<Payload>(
     floatingTreeRoot: new FloatingTreeStore(),
     floatingNodeId: undefined,
     floatingParentNodeId: null,
-    itemProps: EMPTY_OBJECT as HTMLProps,
+    itemProps: EMPTY_OBJECT,
+    virtualFocus: false,
+    inputProps: EMPTY_OBJECT,
     keyboardEventRelay: undefined,
     closeDelay: 0,
     adaptiveOrigin: undefined,

@@ -1,8 +1,25 @@
-import { expect } from 'vitest';
+import { beforeEach, expect, vi } from 'vitest';
 import * as React from 'react';
+import { FilterSelect } from '@base-ui/react/filter-select';
 import { Select } from '@base-ui/react/select';
 import { screen, waitFor } from '@mui/internal-test-utils';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
+
+const useAnchorPositioningSpy = vi.hoisted(() => vi.fn());
+
+vi.mock('../../internals/useAnchorPositioning', async () => {
+  const actual = await vi.importActual<typeof import('../../internals/useAnchorPositioning')>(
+    '../../internals/useAnchorPositioning',
+  );
+
+  return {
+    ...actual,
+    useAnchorPositioning: ((...args: Parameters<typeof actual.useAnchorPositioning>) => {
+      useAnchorPositioningSpy(...args);
+      return actual.useAnchorPositioning(...args);
+    }) satisfies typeof actual.useAnchorPositioning,
+  };
+});
 
 const Trigger = React.forwardRef(function Trigger(
   props: Select.Trigger.Props,
@@ -13,6 +30,40 @@ const Trigger = React.forwardRef(function Trigger(
 
 describe('<Select.Positioner />', () => {
   const { render } = createRenderer();
+
+  beforeEach(() => {
+    useAnchorPositioningSpy.mockClear();
+  });
+
+  it('enables lazy flipping for a filter select', async () => {
+    await render(
+      <FilterSelect.Root open items={[{ value: 'apple', label: 'Apple' }]}>
+        <FilterSelect.Trigger>Fruit</FilterSelect.Trigger>
+        <FilterSelect.Portal>
+          <FilterSelect.Positioner>
+            <FilterSelect.Popup />
+          </FilterSelect.Positioner>
+        </FilterSelect.Portal>
+      </FilterSelect.Root>,
+    );
+
+    expect(useAnchorPositioningSpy.mock.lastCall?.[0].lazyFlip).toBe(true);
+  });
+
+  it('leaves lazy flipping off for a plain select', async () => {
+    await render(
+      <Select.Root open>
+        <Select.Trigger>Fruit</Select.Trigger>
+        <Select.Portal>
+          <Select.Positioner>
+            <Select.Popup />
+          </Select.Positioner>
+        </Select.Portal>
+      </Select.Root>,
+    );
+
+    expect(useAnchorPositioningSpy.mock.lastCall?.[0].lazyFlip).toBe(false);
+  });
 
   describeConformance(<Select.Positioner />, () => ({
     refInstanceof: window.HTMLDivElement,

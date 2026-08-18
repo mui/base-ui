@@ -27,7 +27,7 @@ Doesn't render its own HTML element.
 | isItemEqualToValue   | `((itemValue: Value, value: Value) => boolean)`                                             | -       | Custom comparison logic used to determine if a select item value matches the current selected value. Useful when item values are objects without matching referentially.&#xA;Defaults to `Object.is` comparison.                                                                                                                                                                                                                                  |
 | itemToStringLabel    | `((itemValue: Value) => string)`                                                            | -       | When the item values are objects (`<Select.Item value={object}>`), this function converts the object value to a string representation for display in the trigger.&#xA;If the shape of the object is `{ value, label }`, the label will be used automatically without needing to specify this prop.                                                                                                                                                |
 | itemToStringValue    | `((itemValue: Value) => string)`                                                            | -       | When the item values are objects (`<Select.Item value={object}>`), this function converts the object value to a string representation for form submission.&#xA;If the shape of the object is `{ value, label }`, the value will be used automatically without needing to specify this prop.                                                                                                                                                       |
-| items                | `Record<string, React.ReactNode> \| ({ label: React.ReactNode; value: any })[] \| Group[]`  | -       | Data structure of the items rendered in the select popup.&#xA;When specified, `<Select.Value>` renders the label of the selected item instead of the raw value.                                                                                                                                                                                                                                                                                   |
+| items                | `Record<string, React.ReactNode> \| ({ label: React.ReactNode; value: any })[] \| Group[]`  | -       | Data structure of the items rendered in the select popup.&#xA;When specified, `<Select.Value>` renders the label of the selected item instead of the raw value.&#xA;It is also the data source for the list: pass a function child to `<Select.List>` (or use&#xA;`<Select.Collection>`) to render one item per entry.                                                                                                                            |
 | modal                | `boolean`                                                                                   | `true`  | Determines if the select enters a modal state when open. `true`: user interaction is limited to the select: document page scroll is locked and pointer interactions on outside elements are disabled.`false`: user interaction with the rest of the document is allowed. On touch devices, a `true` modal blocks outside taps but leaves the page scrollable unless the popup spans nearly the full viewport width, matching native iOS behavior. |
 | multiple             | `boolean`                                                                                   | `false` | Whether multiple items can be selected.                                                                                                                                                                                                                                                                                                                                                                                                           |
 | onOpenChangeComplete | `((open: boolean) => void)`                                                                 | -       | Event handler called after any animations complete when the select popup is opened or closed.                                                                                                                                                                                                                                                                                                                                                     |
@@ -262,6 +262,7 @@ Renders a `<div>` element.
 
 | Prop      | Type                                                                                      | Default | Description                                                                                                                                                                                   |
 | :-------- | :---------------------------------------------------------------------------------------- | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| children  | `React.ReactNode \| ((item: any, index: number) => React.ReactNode)`                      | -       | A function child renders one node per entry from the root's `items` prop, the same shape&#xA;`Select.Collection` accepts.                                                                     |
 | className | `string \| ((state: Select.List.State) => string \| undefined)`                           | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
 | style     | `React.CSSProperties \| ((state: Select.List.State) => React.CSSProperties \| undefined)` | -       | Style applied to the element, or a function that&#xA;returns a style object based on the component's state.                                                                                   |
 | render    | `ReactElement \| ((props: HTMLProps, state: Select.List.State) => ReactElement)`          | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
@@ -531,7 +532,7 @@ Renders a `<div>` element.
 
 | Prop         | Type                                                                                      | Default | Description                                                                                                                                                                                   |
 | :----------- | :---------------------------------------------------------------------------------------- | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| label        | `string`                                                                                  | -       | Specifies the text label to use when the item is matched during keyboard text navigation. Defaults to the item text content if not provided.                                                  |
+| label        | `string`                                                                                  | -       | Specifies the text label to use during keyboard text navigation. Defaults to the item text content if not provided.                                                                           |
 | value        | `any`                                                                                     | `null`  | A unique value that identifies this select item.                                                                                                                                              |
 | nativeButton | `boolean`                                                                                 | `false` | Whether the component renders a native `<button>` element when replacing it&#xA;via the `render` prop.&#xA;Set to `true` if the rendered element is a native button.                          |
 | disabled     | `boolean`                                                                                 | `false` | Whether the component should ignore user interaction.                                                                                                                                         |
@@ -574,6 +575,7 @@ Renders a `<div>` element.
 
 | Prop      | Type                                                                                       | Default | Description                                                                                                                                                                                   |
 | :-------- | :----------------------------------------------------------------------------------------- | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| items     | `any[]`                                                                                    | -       | The items of this group.&#xA;When provided, child `Collection` components will use these items.                                                                                               |
 | className | `string \| ((state: Select.Group.State) => string \| undefined)`                           | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
 | style     | `React.CSSProperties \| ((state: Select.Group.State) => React.CSSProperties \| undefined)` | -       | Style applied to the element, or a function that&#xA;returns a style object based on the component's state.                                                                                   |
 | render    | `ReactElement \| ((props: HTMLProps, state: Select.Group.State) => ReactElement)`          | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
@@ -672,6 +674,29 @@ type SelectLabelState = {
   /** Whether the field is focused. */
   focused: boolean;
 };
+```
+
+### Collection
+
+Renders list items from the root's data source.
+Doesn't render its own HTML element.
+
+If rendering a flat list, pass a function child to the `List` component instead, which implicitly wraps it.
+
+**Collection Props:**
+
+| Prop       | Type                                              | Default | Description |
+| :--------- | :------------------------------------------------ | :------ | :---------- |
+| children\* | `((item: any, index: number) => React.ReactNode)` | -       | -           |
+
+### Collection.Props
+
+Re-export of [Collection](#collection) props.
+
+### Collection.State
+
+```typescript
+type SelectCollectionState = {};
 ```
 
 ### ItemText
@@ -851,6 +876,7 @@ type Orientation = 'horizontal' | 'vertical';
 - `Select.Positioner`: `Select.Positioner`, `Select.Positioner.State`, `Select.Positioner.Props`
 - `Select.Popup`: `Select.Popup`, `Select.Popup.Props`, `Select.Popup.State`
 - `Select.List`: `Select.List`, `Select.List.Props`, `Select.List.State`
+- `Select.Collection`: `Select.Collection`, `Select.Collection.State`, `Select.Collection.Props`
 - `Select.Item`: `Select.Item`, `Select.Item.State`, `Select.Item.Props`
 - `Select.ItemIndicator`: `Select.ItemIndicator`, `Select.ItemIndicator.State`, `Select.ItemIndicator.Props`
 - `Select.ItemText`: `Select.ItemText`, `Select.ItemText.State`, `Select.ItemText.Props`
