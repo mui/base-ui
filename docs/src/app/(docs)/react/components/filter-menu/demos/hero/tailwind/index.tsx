@@ -2,40 +2,7 @@
 import * as React from 'react';
 import { FilterMenu } from '@base-ui/react/filter-menu';
 
-const sharingOptions = [
-  'Email',
-  'Messages',
-  'AirDrop',
-  'Copy link',
-  'Invite collaborators',
-  'Publish to web',
-  'Send a copy',
-];
-const folderOptions = [
-  'Desktop',
-  'Documents',
-  'Downloads',
-  'Projects',
-  'Archive',
-  'Shared',
-  'Trash',
-];
-const exportOptions = [
-  'PDF document',
-  'Word document',
-  'Plain text',
-  'Rich text',
-  'Markdown',
-  'HTML page',
-  'Image',
-];
-
 export default function FilterMenuDemo() {
-  const [sortBy, setSortBy] = React.useState('date');
-  const [showDetails, setShowDetails] = React.useState(true);
-  const [showSidebar, setShowSidebar] = React.useState(false);
-  const [keepOffline, setKeepOffline] = React.useState(false);
-
   return (
     <FilterMenu.Root>
       <FilterMenu.Trigger className="flex h-8 items-center justify-center gap-1.5 rounded-none border border-neutral-950 bg-white pr-2 pl-3 text-sm leading-none font-normal whitespace-nowrap text-neutral-950 select-none hover:not-data-disabled:bg-neutral-100 active:not-data-disabled:bg-neutral-200 data-pressed:bg-neutral-100 data-disabled:border-neutral-500 data-disabled:text-neutral-500 focus-visible:-outline-offset-1 focus-visible:outline-2 focus-visible:outline-neutral-950 disabled:border-neutral-500 disabled:text-neutral-500 dark:border-white dark:bg-neutral-950 dark:text-white dark:hover:not-data-disabled:bg-neutral-800 dark:active:not-data-disabled:bg-neutral-700 dark:data-pressed:bg-neutral-800 dark:data-disabled:border-neutral-400 dark:data-disabled:text-neutral-400 dark:focus-visible:outline-white">
@@ -94,7 +61,7 @@ export default function FilterMenuDemo() {
                 </FilterMenu.Item>
               </FilterMenu.Group>
 
-              <FilterMenu.RadioGroup data-filter-section value={sortBy} onValueChange={setSortBy}>
+              <FilterMenu.RadioGroup data-filter-section defaultValue="date">
                 <FilterMenu.Separator data-filter-separator className={separatorClass} />
                 <FilterMenu.GroupLabel className={groupLabelClass}>Sort by</FilterMenu.GroupLabel>
                 {[
@@ -114,31 +81,19 @@ export default function FilterMenuDemo() {
               <FilterMenu.Group data-filter-section>
                 <FilterMenu.Separator data-filter-separator className={separatorClass} />
                 <FilterMenu.GroupLabel className={groupLabelClass}>View</FilterMenu.GroupLabel>
-                <FilterMenu.CheckboxItem
-                  className={choiceItemClass}
-                  checked={showDetails}
-                  onCheckedChange={setShowDetails}
-                >
+                <FilterMenu.CheckboxItem className={choiceItemClass} defaultChecked>
                   <FilterMenu.CheckboxItemIndicator className="col-start-1">
                     <CheckIcon />
                   </FilterMenu.CheckboxItemIndicator>
                   <span className="col-start-2 min-w-0">Show details</span>
                 </FilterMenu.CheckboxItem>
-                <FilterMenu.CheckboxItem
-                  className={choiceItemClass}
-                  checked={showSidebar}
-                  onCheckedChange={setShowSidebar}
-                >
+                <FilterMenu.CheckboxItem className={choiceItemClass}>
                   <FilterMenu.CheckboxItemIndicator className="col-start-1">
                     <CheckIcon />
                   </FilterMenu.CheckboxItemIndicator>
                   <span className="col-start-2 min-w-0">Show sidebar</span>
                 </FilterMenu.CheckboxItem>
-                <FilterMenu.CheckboxItem
-                  className={choiceItemClass}
-                  checked={keepOffline}
-                  onCheckedChange={setKeepOffline}
-                >
+                <FilterMenu.CheckboxItem className={choiceItemClass}>
                   <FilterMenu.CheckboxItemIndicator className="col-start-1">
                     <CheckIcon />
                   </FilterMenu.CheckboxItemIndicator>
@@ -287,3 +242,33 @@ function CheckIcon(props: React.ComponentProps<'svg'>) {
     </svg>
   );
 }
+
+const sharingOptions = [
+  'Email',
+  'Messages',
+  'AirDrop',
+  'Copy link',
+  'Invite collaborators',
+  'Publish to web',
+  'Send a copy',
+];
+
+const folderOptions = [
+  'Desktop',
+  'Documents',
+  'Downloads',
+  'Projects',
+  'Archive',
+  'Shared',
+  'Trash',
+];
+
+const exportOptions = [
+  'PDF document',
+  'Word document',
+  'Plain text',
+  'Rich text',
+  'Markdown',
+  'HTML page',
+  'Image',
+];
