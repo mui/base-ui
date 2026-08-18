@@ -241,8 +241,6 @@ function clearActive(
       // Release only the suppression *this* gesture armed (see clearPending).
       session.contextMenuSuppression?.();
     }
-    // Cancel before unlocking in case an earlier cleanup threw.
-    session.cursorLockFrame.cancel();
     // Idempotent: a no-op when the lock was skipped (touch) or already released.
     dragCursor.unlock();
     dragRootLock.unlock();
@@ -869,7 +867,6 @@ function commitActivation(): void {
     movedSinceFrame: true,
     scrolledSinceFrame: false,
     rafFrame: new AnimationFrame(win),
-    cursorLockFrame: new AnimationFrame(win),
     listeners: [],
     restoreNativeDrag,
     contextMenuSuppression,
@@ -891,12 +888,16 @@ function commitActivation(): void {
     // beats per-element cursors), but it does not have to be paid on the same
     // frame as the clone build and the first preview placement, which is the
     // frame the user sees as the lift. One frame later nothing else is competing.
-    activeRef.cursorLockFrame.request(() => {
-      dragCursor.lock(element, cursor, {
-        nonce: parameters.styleNonce,
-        disableStyleElements: parameters.disableStyleElements,
-      });
-    });
+    AnimationFrame.request(() => {
+      // The drag may have ended before this deferred work runs. Identity also
+      // prevents a stale callback from locking the cursor for a newer session.
+      if (state.active === activeRef) {
+        dragCursor.lock(element, cursor, {
+          nonce: parameters.styleNonce,
+          disableStyleElements: parameters.disableStyleElements,
+        });
+      }
+    }, win);
   }
 
   // Active-phase pointer listeners attach to the document. The body-anchor
@@ -1414,12 +1415,6 @@ interface ActiveSession {
    */
   scrolledSinceFrame: boolean;
   rafFrame: AnimationFrame;
-  /**
-   * Defers the cursor lock by one frame (see the `dragCursor.lock` call site).
-   * Its own frame rather than {@link rafFrame}, which drives the per-move
-   * resolution loop and would cancel this one on the very next pointer sample.
-   */
-  cursorLockFrame: AnimationFrame;
   listeners: DragCleanupFn[];
   /** See {@link PendingSession.touchMoveAnchor}; released when the drag ends. */
   touchMoveAnchor: DragCleanupFn;

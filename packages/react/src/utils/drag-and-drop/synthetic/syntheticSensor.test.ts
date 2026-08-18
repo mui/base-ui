@@ -2434,14 +2434,38 @@ describe('syntheticDrag sensor', () => {
 
       // The lock is deferred a frame so its document-wide style invalidation does
       // not land on the frame that builds the clone. A drag that is over before
-      // that frame runs must cancel it — otherwise it applies after teardown, at
-      // lock depth 0, and `grabbing` stays pinned over the page for good.
+      // that frame runs must make the callback a no-op — otherwise it applies
+      // after teardown and `grabbing` stays pinned over the page for good.
       mouseDown(el, 50, 50);
       mouseUp(el, 50, 50);
       await flushRaf();
       await flushRaf();
 
       expect(activeCursorRule()).toBeNull();
+    });
+
+    it('does not let a stale cursor callback overwrite a newer drag', async () => {
+      const { engine } = await renderDnd();
+      const first = createElement();
+      const second = createElement();
+      engine.registerDraggable(first, {
+        pointerActivation: { mouse: { type: 'immediate' } },
+      });
+      engine.registerDraggable(second, {
+        dragCursor: 'move',
+        pointerActivation: { mouse: { type: 'immediate' } },
+      });
+
+      // End the first drag and start the second before either deferred cursor
+      // callback runs. The first callback must not lock its stale value over the
+      // live session's custom cursor.
+      mouseDown(first, 50, 50);
+      mouseUp(first, 50, 50);
+      mouseDown(second, 50, 50);
+      await flushRaf();
+
+      expect(activeCursorRule()).toBe('move');
+      mouseUp(second, 50, 50);
     });
 
     it('clears the cursor when a drag is cancelled', async () => {
@@ -3503,6 +3527,36 @@ describe('syntheticDrag sensor', () => {
         }),
       );
       await flushRaf();
+
+      expect(onDragEnd).toHaveBeenCalledTimes(1);
+      expect(onDragEnd.mock.calls[0][0].canceled).toBe(false);
+    });
+
+    it('keeps dragging when a held-button move follows a transient buttons: 0 move', async () => {
+      const { engine } = await renderDnd();
+      const source = createElement();
+      const onDragEnd = vi.fn();
+      engine.registerDraggable(source, { onDragEnd });
+
+      pointerDown(source);
+      pointerMove(40, 1);
+      pointerMove(80, 0);
+      pointerMove(100, 1);
+      await flushRaf();
+
+      expect(onDragEnd).not.toHaveBeenCalled();
+
+      dispatch(
+        document,
+        new PointerEvent('pointerup', {
+          pointerId: 1,
+          clientX: 0,
+          clientY: 100,
+          button: 0,
+          buttons: 0,
+          bubbles: true,
+        }),
+      );
 
       expect(onDragEnd).toHaveBeenCalledTimes(1);
       expect(onDragEnd.mock.calls[0][0].canceled).toBe(false);
