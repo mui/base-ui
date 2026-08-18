@@ -74,7 +74,10 @@ export const MenuPopup = React.forwardRef(function MenuPopup(
   // `openMethod` remains null; Enter and Space dispatch a click and report `keyboard`.
   const openedByKeyboard =
     open && (lastOpenChangeReason === REASONS.listNavigation || openMethod === 'keyboard');
-  const shouldFocusPopup = parent.type !== 'menu' || openedByKeyboard;
+  // Hovering a trigger hands the submenu ownership of focus, so typing immediately filters the
+  // submenu. Only virtual-focus submenus take focus on hover (see the `initialFocus` gate below).
+  const openedByHover = open && lastOpenChangeReason === REASONS.triggerHover;
+  const shouldFocusPopup = parent.type !== 'menu' || openedByKeyboard || openedByHover;
   // Under virtual focus the popup itself is never the focus target: a child element holds real
   // focus and the list is navigated with `aria-activedescendant`.
   let initialFocus: FloatingFocusManagerProps['initialFocus'] = parent.type !== 'menu';

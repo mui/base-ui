@@ -1994,7 +1994,7 @@ describe('<FilterMenu.Root />', () => {
     });
 
     it.skipIf(isJSDOM)(
-      'focuses the input when entering a hover-opened filterable submenu with the keyboard',
+      'moves focus into the submenu input when its trigger is hovered',
       async () => {
         const { user } = await render(
           <FilterMenu.Root defaultOpen>
@@ -2034,15 +2034,15 @@ describe('<FilterMenu.Root />', () => {
         const submenuTrigger = screen.getByRole('menuitem', { name: 'Move to folder' });
         await user.hover(submenuTrigger);
 
+        // Hovering the trigger hands the submenu ownership of focus so typing filters it.
         const submenuInput = await screen.findByRole('searchbox', { name: 'Filter folders' });
-        expect(parentInput).toHaveFocus();
-
-        await user.keyboard('[ArrowRight]');
-
-        expect(submenuInput).toHaveFocus();
+        await waitFor(() => {
+          expect(submenuInput).toHaveFocus();
+        });
         expect(submenuInput).toHaveAttribute('data-focus-visible');
         expect(submenuInput).not.toHaveAttribute('aria-activedescendant');
-        expect(parentInput).not.toHaveAttribute('aria-activedescendant');
+        // The parent keeps the trigger highlighted as the submenu's origin.
+        expect(parentInput).toHaveAttribute('aria-activedescendant', submenuTrigger.id);
       },
     );
 
@@ -2083,8 +2083,10 @@ describe('<FilterMenu.Root />', () => {
       const submenuTrigger = screen.getByRole('menuitem', { name: 'Move to folder' });
       await user.hover(submenuTrigger);
 
-      await screen.findByRole('searchbox', { name: 'Filter folders' });
-      expect(parentInput).toHaveFocus();
+      const submenuInput = await screen.findByRole('searchbox', { name: 'Filter folders' });
+      await waitFor(() => {
+        expect(submenuInput).toHaveFocus();
+      });
       expect(parentInput).toHaveAttribute('aria-activedescendant', submenuTrigger.id);
 
       await user.keyboard('[ArrowLeft]');
@@ -2092,7 +2094,9 @@ describe('<FilterMenu.Root />', () => {
       await waitFor(() => {
         expect(screen.queryByRole('searchbox', { name: 'Filter folders' })).toBe(null);
       });
-      expect(parentInput).toHaveFocus();
+      await waitFor(() => {
+        expect(parentInput).toHaveFocus();
+      });
       expect(parentInput).toHaveAttribute('aria-activedescendant', submenuTrigger.id);
     });
 
@@ -3547,5 +3551,89 @@ describe('<FilterMenu.Root />', () => {
     // ArrowUp is not the horizontal parent's open key and must not reopen it.
     await user.keyboard('[ArrowUp]');
     expect(screen.queryByRole('searchbox', { name: 'Filter more' })).toBe(null);
+  });
+
+  describe.skipIf(isJSDOM)('hover-opened submenu ownership', () => {
+    function HoverMenu() {
+      return (
+        <FilterMenu.Root>
+          <FilterMenu.Trigger>Actions</FilterMenu.Trigger>
+          <FilterMenu.Portal>
+            <FilterMenu.Positioner sideOffset={8}>
+              <FilterMenu.Popup>
+                <FilterMenu.Input aria-label="Filter actions" />
+                <FilterMenu.List>
+                  <FilterMenu.Item>Rename</FilterMenu.Item>
+                  <FilterMenu.Item>Duplicate</FilterMenu.Item>
+                  <FilterMenu.SubmenuRoot>
+                    <FilterMenu.SubmenuTrigger delay={0}>Share</FilterMenu.SubmenuTrigger>
+                    <FilterMenu.Portal>
+                      <FilterMenu.Positioner sideOffset={4}>
+                        <FilterMenu.Popup>
+                          <FilterMenu.Input aria-label="Filter sharing options" />
+                          <FilterMenu.List>
+                            <FilterMenu.Item>Email</FilterMenu.Item>
+                          </FilterMenu.List>
+                        </FilterMenu.Popup>
+                      </FilterMenu.Positioner>
+                    </FilterMenu.Portal>
+                  </FilterMenu.SubmenuRoot>
+                </FilterMenu.List>
+              </FilterMenu.Popup>
+            </FilterMenu.Positioner>
+          </FilterMenu.Portal>
+        </FilterMenu.Root>
+      );
+    }
+
+    async function openAndHoverTrigger(user: ReturnType<typeof userEvent.setup>) {
+      await user.click(screen.getByRole('button', { name: 'Actions' }));
+      await screen.findByRole('searchbox', { name: 'Filter actions' });
+      await user.hover(screen.getByRole('menuitem', { name: 'Share' }));
+      return screen.findByRole('searchbox', { name: 'Filter sharing options' });
+    }
+
+    it('closes when the pointer sweeps off the trigger', async () => {
+      const { user } = await render(<HoverMenu />);
+      await openAndHoverTrigger(user);
+
+      await user.hover(screen.getByRole('menuitem', { name: 'Rename' }));
+
+      await waitFor(() => {
+        expect(screen.queryByRole('searchbox', { name: 'Filter sharing options' })).toBe(null);
+      });
+    });
+
+    it('closes when the pointer leaves the submenu popup', async () => {
+      const { user } = await render(<HoverMenu />);
+      await openAndHoverTrigger(user);
+
+      await user.hover(await screen.findByRole('menuitem', { name: 'Email' }));
+      await user.hover(screen.getByRole('menuitem', { name: 'Duplicate' }));
+
+      await waitFor(() => {
+        expect(screen.queryByRole('searchbox', { name: 'Filter sharing options' })).toBe(null);
+      });
+    });
+
+    it('closes and resets after a query was typed into the hover-opened submenu', async () => {
+      const { user } = await render(<HoverMenu />);
+      const submenuInput = await openAndHoverTrigger(user);
+
+      // The hover hand-off makes the submenu input the typing target.
+      await waitFor(() => {
+        expect(submenuInput).toHaveFocus();
+      });
+      fireEvent.change(submenuInput, { target: { value: 'em' } });
+      await waitFor(() => {
+        expect(submenuInput).toHaveValue('em');
+      });
+
+      await user.hover(screen.getByRole('menuitem', { name: 'Rename' }));
+
+      await waitFor(() => {
+        expect(screen.queryByRole('searchbox', { name: 'Filter sharing options' })).toBe(null);
+      });
+    });
   });
 });
