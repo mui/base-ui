@@ -1,9 +1,11 @@
 'use client';
 import * as React from 'react';
+import { ownerWindow } from '@base-ui/utils/owner';
 import type { BaseUIComponentProps, HTMLProps } from '../../internals/types';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { useActiveItemId, useFilterDropdownRootContext } from '../root/FilterDropdownRootContext';
 import { useRenderedId } from '../../internals/useRenderedId';
+import { getTarget } from '../../floating-ui-react/utils';
 
 /**
  * @internal
@@ -31,8 +33,14 @@ export const FilterDropdownList = React.forwardRef(function FilterDropdownList(
     'aria-labelledby': ariaLabelledBy,
     'aria-activedescendant': context.hasInput ? undefined : activeItemId,
     onMouseDown(event) {
-      // Keep focus on the virtual focus owner when list content is pressed.
-      event.preventDefault();
+      if (
+        getTarget(event.nativeEvent) === event.currentTarget &&
+        !isScrollbarPress(event.currentTarget, event.nativeEvent)
+      ) {
+        // Keep focus on the virtual focus owner when the list background is pressed, while
+        // allowing items and the scrollbar to receive their native pointer interactions.
+        event.preventDefault();
+      }
     },
     onPointerMove() {
       context.setKeyboardModality(false);
@@ -54,6 +62,23 @@ export const FilterDropdownList = React.forwardRef(function FilterDropdownList(
     props: [context.hasInput ? undefined : context.inputProps, defaultProps, elementProps],
   });
 });
+
+function isScrollbarPress(element: HTMLElement, event: MouseEvent) {
+  const verticalScrollbarWidth = element.offsetWidth - element.clientWidth;
+  const horizontalScrollbarHeight = element.offsetHeight - element.clientHeight;
+  const isRtl = ownerWindow(element).getComputedStyle(element).direction === 'rtl';
+
+  const pressedVerticalScrollbar =
+    element.scrollHeight > element.clientHeight &&
+    verticalScrollbarWidth > 0 &&
+    (isRtl ? event.offsetX <= verticalScrollbarWidth : event.offsetX > element.clientWidth);
+  const pressedHorizontalScrollbar =
+    element.scrollWidth > element.clientWidth &&
+    horizontalScrollbarHeight > 0 &&
+    event.offsetY > element.clientHeight;
+
+  return pressedVerticalScrollbar || pressedHorizontalScrollbar;
+}
 
 export interface FilterDropdownListState {}
 
