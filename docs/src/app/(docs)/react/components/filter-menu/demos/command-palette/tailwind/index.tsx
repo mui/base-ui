@@ -37,7 +37,9 @@ export default function ExampleFilterMenuCommandPalette() {
                   placeholder="Search for apps and commands…"
                 />
               </div>
-              <Dialog.Close className="sr-only">Close command palette</Dialog.Close>
+              <Dialog.Close className="sr-only" tabIndex={-1}>
+                Close command palette
+              </Dialog.Close>
 
               <ScrollArea.Root className="relative flex max-h-[min(60dvh,24rem)] min-h-0 flex-[0_1_auto] overflow-hidden border-t border-neutral-950 dark:border-t-white">
                 <ScrollArea.Viewport className="min-h-0 flex-1 overscroll-contain [scroll-padding-block:0.25rem] focus-visible:outline-2 focus-visible:outline-solid focus-visible:-outline-offset-1 focus-visible:outline-neutral-950 dark:focus-visible:outline-white">

@@ -59,7 +59,7 @@ export const FilterDropdownInput = React.forwardRef(function FilterDropdownInput
         },
         onMouseEnter(event) {
           context.setKeyboardModality(false);
-          if (context.open) {
+          if (context.open && !context.inline) {
             event.currentTarget.focus({ preventScroll: true });
           }
         },
