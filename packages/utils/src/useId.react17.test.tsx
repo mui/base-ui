@@ -93,7 +93,11 @@ describe('useId with the React 17 id fallback', () => {
   });
 
   it('returns an empty string id override as-is', () => {
-    render(<TestComponent id="" />);
+    const { setProps } = render(<TestComponent />);
+
+    expect(screen.getByTestId('target').id).toMatch(/^mui-\d+$/);
+
+    setProps({ id: '' });
 
     expect(lastId).toBe('');
   });
