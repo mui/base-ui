@@ -13,7 +13,7 @@ import {
   isCrossOrientationCloseKey,
   isCrossOrientationOpenKey,
   isMainOrientationKey,
-} from './listNavigation';
+} from '../../floating-ui-react/utils/listNavigation';
 
 /**
  * Handles keys that only a FilterMenu virtual-focus owner needs. The Menu root still owns the

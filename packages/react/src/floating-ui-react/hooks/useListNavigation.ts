@@ -19,7 +19,6 @@ import {
   isIndexOutOfListBounds,
 } from '../utils/composite';
 import type { gridNavigation } from './gridNavigation';
-import { ARROW_DOWN, ARROW_LEFT, ARROW_RIGHT, ARROW_UP } from '../utils/constants';
 import {
   activeElement,
   contains,
@@ -30,6 +29,12 @@ import {
 } from '../utils/element';
 import { enqueueFocus } from '../utils/enqueueFocus';
 import { isVirtualClick, isVirtualPointerEvent, stopEvent } from '../utils/event';
+import {
+  isCrossOrientationCloseKey,
+  isCrossOrientationOpenKey,
+  isMainOrientationKey,
+  isMainOrientationToEndKey,
+} from '../utils/listNavigation';
 
 export const ESCAPE = 'Escape';
 
@@ -38,74 +43,6 @@ export const ESCAPE = 'Escape';
 // https://github.com/mui/base-ui/issues/4002
 function isStationaryWebKitPointer(event: React.MouseEvent | React.PointerEvent) {
   return platform.engine.webkit && event.movementX === 0 && event.movementY === 0;
-}
-
-function matchesOrientation(
-  orientation: UseListNavigationProps['orientation'],
-  vertical: boolean,
-  horizontal: boolean,
-) {
-  switch (orientation) {
-    case 'vertical':
-      return vertical;
-    case 'horizontal':
-      return horizontal;
-    default:
-      return vertical || horizontal;
-  }
-}
-
-function isMainOrientationKey(key: string, orientation: UseListNavigationProps['orientation']) {
-  return matchesOrientation(
-    orientation,
-    key === ARROW_UP || key === ARROW_DOWN,
-    key === ARROW_LEFT || key === ARROW_RIGHT,
-  );
-}
-
-function isMainOrientationToEndKey(
-  key: string,
-  orientation: UseListNavigationProps['orientation'],
-  rtl: boolean,
-) {
-  return (
-    matchesOrientation(
-      orientation,
-      key === ARROW_DOWN,
-      rtl ? key === ARROW_LEFT : key === ARROW_RIGHT,
-    ) ||
-    key === 'Enter' ||
-    key === ' ' ||
-    key === ''
-  );
-}
-
-function isCrossOrientationOpenKey(
-  key: string,
-  orientation: UseListNavigationProps['orientation'],
-  rtl: boolean,
-) {
-  return matchesOrientation(
-    orientation,
-    rtl ? key === ARROW_LEFT : key === ARROW_RIGHT,
-    key === ARROW_DOWN,
-  );
-}
-
-function isCrossOrientationCloseKey(
-  key: string,
-  orientation: UseListNavigationProps['orientation'],
-  rtl: boolean,
-  grid: boolean,
-) {
-  if (orientation === 'both' || (orientation === 'horizontal' && grid)) {
-    return key === ESCAPE;
-  }
-  return matchesOrientation(
-    orientation,
-    rtl ? key === ARROW_RIGHT : key === ARROW_LEFT,
-    key === ARROW_UP,
-  );
 }
 
 export interface UseListNavigationProps {
@@ -373,8 +310,7 @@ export function useListNavigation(
 
   useIsoLayoutEffect(() => {
     dataRef.current.orientation = orientation;
-    dataRef.current.virtual = virtual;
-  }, [dataRef, orientation, virtual]);
+  }, [dataRef, orientation]);
 
   // Sync `selectedIndex` to be the `activeIndex` upon opening the floating
   // element. Also, reset `activeIndex` upon closing the floating element.

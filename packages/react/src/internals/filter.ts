@@ -2,7 +2,6 @@ import { stringifyLocale } from '@base-ui/utils/stringifyLocale';
 import { stringifyAsLabel } from './resolveValueLabel';
 
 const filterCache = new Map<string, Filter>();
-const containsFilterCache = new Map<string, ItemFilter>();
 
 export function getFilter(options: GetFilterParameters = {}): Filter {
   const cacheKey = getCacheKey(options);
@@ -21,19 +20,6 @@ export function getFilter(options: GetFilterParameters = {}): Filter {
   };
 
   filterCache.set(cacheKey, filter);
-  return filter;
-}
-
-export function getContainsFilter(options: GetFilterParameters = {}): ItemFilter {
-  const cacheKey = getCacheKey(options);
-  const cachedFilter = containsFilterCache.get(cacheKey);
-
-  if (cachedFilter) {
-    return cachedFilter;
-  }
-
-  const filter = createContainsFilter(createCollator(options));
-  containsFilterCache.set(cacheKey, filter);
   return filter;
 }
 

@@ -12,7 +12,14 @@ import { useFilterDropdownCloseQuery } from '../../filter-dropdown/root/useFilte
 import { MenuRootInternal, type MenuRoot } from '../../menu/root/MenuRoot';
 import { useMenuRootContext } from '../../menu/root/MenuRootContext';
 import type { HTMLProps } from '../../internals/types';
+import type { FilterMenuHandle } from '../store/FilterMenuHandle';
 
+/**
+ * Groups all parts of a filter menu.
+ * Doesn't render its own HTML element.
+ *
+ * Documentation: [Base UI Filter Menu](https://base-ui.com/react/components/filter-menu)
+ */
 export function FilterMenuRoot<Payload>(props: FilterMenuRoot.Props<Payload>): React.JSX.Element {
   const {
     children,
@@ -190,7 +197,8 @@ interface FilterMenuRootFilterProps {
   defaultInputValue?: string | undefined;
   /**
    * The filter query. Use when controlled.
-   * The query is cleared when the popup closes.
+   * When the popup closes, `onInputValueChange` is called with an empty query. The controlled
+   * value changes only when the consumer updates this prop.
    */
   inputValue?: string | undefined;
   /**
@@ -208,34 +216,38 @@ export type FilterMenuFilter = (itemText: string, query: string) => boolean;
 
 export type FilterMenuRootProps<Payload = unknown> = Omit<
   MenuRoot.Props<Payload>,
-  'open' | 'defaultOpen' | 'onOpenChange'
-> & {
-  /**
-   * Whether the list is rendered inline without using the component's own popup.
-   * Specify `open` in conjunction with this prop so the list is considered visible.
-   * @default false
-   */
-  inline?: boolean | undefined;
-  /**
-   * Whether the menu is currently open.
-   */
-  open?: boolean | undefined;
-  /**
-   * Whether the menu is initially open.
-   *
-   * To render a controlled menu, use the `open` prop instead.
-   * @default false
-   */
-  defaultOpen?: boolean | undefined;
-  /**
-   * Event handler called when the menu is opened or closed.
-   */
-  onOpenChange?:
-    ((open: boolean, eventDetails: FilterMenuRootChangeEventDetails) => void) | undefined;
-} & FilterMenuRootFilterProps;
+  'actionsRef' | 'handle' | 'onOpenChange' | 'orientation'
+> &
+  FilterMenuRootFilterProps & {
+    /**
+     * A ref to imperative actions.
+     */
+    actionsRef?: React.RefObject<FilterMenuRootActions | null> | undefined;
+    /**
+     * A handle that associates the menu with detached triggers.
+     */
+    handle?: FilterMenuHandle<Payload> | undefined;
+    /**
+     * Event handler called when the menu is opened or closed.
+     */
+    onOpenChange?:
+      ((open: boolean, eventDetails: FilterMenuRootChangeEventDetails) => void) | undefined;
+    /**
+     * The visual orientation of the menu.
+     * @default 'vertical'
+     */
+    orientation?: FilterMenuRootOrientation | undefined;
+    /**
+     * Whether the list is rendered inline without using the component's own popup.
+     * Specify `open` in conjunction with this prop so the list is considered visible.
+     * @default false
+     */
+    inline?: boolean | undefined;
+  };
 
-export type FilterMenuRootState = MenuRoot.State;
+export interface FilterMenuRootState extends MenuRoot.State {}
 export type FilterMenuRootActions = MenuRoot.Actions;
+export type FilterMenuRootOrientation = MenuRoot.Orientation;
 export type FilterMenuRootChangeEventReason = MenuRoot.ChangeEventReason;
 export type FilterMenuRootChangeEventDetails = MenuRoot.ChangeEventDetails;
 export type FilterMenuRootInputValueChangeEventReason =
@@ -247,6 +259,7 @@ export namespace FilterMenuRoot {
   export type Props<Payload = unknown> = FilterMenuRootProps<Payload>;
   export type State = FilterMenuRootState;
   export type Actions = FilterMenuRootActions;
+  export type Orientation = FilterMenuRootOrientation;
   export type ChangeEventReason = FilterMenuRootChangeEventReason;
   export type ChangeEventDetails = FilterMenuRootChangeEventDetails;
   export type InputValueChangeEventReason = FilterMenuRootInputValueChangeEventReason;

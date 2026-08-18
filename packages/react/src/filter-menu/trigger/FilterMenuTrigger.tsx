@@ -1,15 +1,22 @@
 'use client';
 import * as React from 'react';
-import { useBaseUiId } from '../internals/useBaseUiId';
-import { FilterDropdownTrigger } from '../filter-dropdown/trigger/FilterDropdownTrigger';
+import { useBaseUiId } from '../../internals/useBaseUiId';
+import { FilterDropdownTrigger } from '../../filter-dropdown/trigger/FilterDropdownTrigger';
 import {
   MenuTrigger,
   type MenuTriggerProps,
   type MenuTriggerState,
-} from '../menu/trigger/MenuTrigger';
-import { useMenuRootContext } from '../menu/root/MenuRootContext';
-import { usePopupHandleStore } from '../utils/popups';
+} from '../../menu/trigger/MenuTrigger';
+import { useMenuRootContext } from '../../menu/root/MenuRootContext';
+import { usePopupHandleStore } from '../../utils/popups';
+import type { FilterMenuHandle } from '../store/FilterMenuHandle';
 
+/**
+ * A button that opens the filter menu.
+ * Renders a `<button>` element.
+ *
+ * Documentation: [Base UI Filter Menu](https://base-ui.com/react/components/filter-menu)
+ */
 export const FilterMenuTrigger = React.forwardRef(function FilterMenuTrigger(
   props: FilterMenuTrigger.Props,
   forwardedRef: React.ForwardedRef<HTMLElement>,
@@ -56,9 +63,12 @@ export interface FilterMenuTrigger {
 
 export interface FilterMenuTriggerProps<Payload = unknown> extends Omit<
   MenuTriggerProps<Payload>,
-  'id'
+  'handle'
 > {
-  id?: string | undefined;
+  /**
+   * A handle that associates the trigger with a filter menu.
+   */
+  handle?: FilterMenuHandle<Payload> | undefined;
 }
 export interface FilterMenuTriggerState extends MenuTriggerState {}
 

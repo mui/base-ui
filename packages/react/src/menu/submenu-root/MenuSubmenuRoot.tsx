@@ -1,10 +1,11 @@
 'use client';
 import * as React from 'react';
 import { MenuRootInternal, type MenuRoot } from '../root/MenuRoot';
-import { useMenuRootContext } from '../root/MenuRootContext';
 import { MenuSubmenuRootContext } from './MenuSubmenuRootContext';
 
 export { useMenuSubmenuRootContext } from './MenuSubmenuRootContext';
+
+const EMPTY_SUBMENU_ROOT_CONTEXT = {};
 
 /**
  * Groups all parts of a submenu.
@@ -13,12 +14,8 @@ export { useMenuSubmenuRootContext } from './MenuSubmenuRootContext';
  * Documentation: [Base UI Menu](https://base-ui.com/react/components/menu)
  */
 export function MenuSubmenuRoot(props: MenuSubmenuRoot.Props) {
-  const parentMenu = useMenuRootContext().store;
-
-  const contextValue = React.useMemo(() => ({ parentMenu }), [parentMenu]);
-
   return (
-    <MenuSubmenuRootContext.Provider value={contextValue}>
+    <MenuSubmenuRootContext.Provider value={EMPTY_SUBMENU_ROOT_CONTEXT}>
       <MenuRootInternal {...props} isSubmenu />
     </MenuSubmenuRootContext.Provider>
   );

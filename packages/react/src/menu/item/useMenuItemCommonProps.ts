@@ -30,11 +30,9 @@ export interface UseMenuItemCommonPropsParameters {
    */
   store: MenuStore<any>;
   /**
-   * The store for the list containing the item.
-   * This differs from `store` for submenu triggers, which control their child menu.
-   * @default store
+   * Whether the list containing the item is open.
    */
-  listStore?: MenuStore<any> | undefined;
+  open: boolean;
   /**
    * Whether a typeahead session is in progress.
    */
@@ -65,8 +63,8 @@ export function useMenuItemCommonProps(params: UseMenuItemCommonPropsParameters)
     highlighted,
     id,
     nodeId,
+    open,
     store,
-    listStore = store,
     typingRef,
     itemRef,
     itemMetadata,
@@ -74,7 +72,6 @@ export function useMenuItemCommonProps(params: UseMenuItemCommonPropsParameters)
   } = params;
 
   const { events: menuEvents } = store.useState('floatingTreeRoot');
-  const open = listStore.useState('open');
   const contextMenuContext = useContextMenuRootContext(true);
   const isContextMenu = contextMenuContext !== undefined;
   // `-1` rather than omitting it, which leaves links and buttons in the tab order.

@@ -3,7 +3,6 @@ import * as React from 'react';
 import { EMPTY_ARRAY } from '@base-ui/utils/empty';
 import { ownerDocument } from '@base-ui/utils/owner';
 import { useControlled } from '@base-ui/utils/useControlled';
-import { isElementDisabled } from '@base-ui/utils/isElementDisabled';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { isHTMLElement } from '@floating-ui/utils/dom';
 import {
@@ -22,16 +21,22 @@ import {
   isCrossOrientationCloseKey,
   isCrossOrientationOpenKey,
   isMainOrientationKey,
-} from '../utils/listNavigation';
+} from '../../floating-ui-react/utils/listNavigation';
 import { activeElement, stopEvent } from '../../floating-ui-react/utils';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
-import { getMinListIndex } from '../../floating-ui-react/utils/composite';
+import { findNonDisabledListIndex, getMinListIndex } from '../../floating-ui-react/utils/composite';
 import { MenuSubmenuRootContext } from '../../menu/submenu-root/MenuSubmenuRootContext';
 import type { MenuStore } from '../../menu/store/MenuStore';
 
 type ParentReference = { reference: HTMLElement; trigger: HTMLElement };
 
+/**
+ * Groups all parts of a filterable submenu.
+ * Doesn't render its own HTML element.
+ *
+ * Documentation: [Base UI Filter Menu](https://base-ui.com/react/components/filter-menu)
+ */
 export function FilterMenuSubmenuRoot(props: FilterMenuSubmenuRoot.Props): React.JSX.Element {
   const {
     open: openProp,
@@ -254,23 +259,20 @@ function FilterMenuSubmenuNavigation(props: FilterMenuSubmenuNavigationProps) {
         parentOrientation === 'vertical'
           ? event.key === 'ArrowDown'
           : event.key === (direction === 'rtl' ? 'ArrowLeft' : 'ArrowRight');
-      let nextIndex = currentIndex;
+      const decrement = !movesForward;
+      let nextIndex = findNonDisabledListIndex(items, { startingIndex: currentIndex, decrement });
 
-      for (let offset = 0; offset < items.length; offset += 1) {
-        nextIndex += movesForward ? 1 : -1;
-        if (nextIndex < 0 || nextIndex >= items.length) {
-          if (!parentLoopFocus) {
-            break;
-          }
-          nextIndex = nextIndex < 0 ? items.length - 1 : 0;
-        }
+      if (parentLoopFocus && (nextIndex < 0 || nextIndex >= items.length)) {
+        nextIndex = findNonDisabledListIndex(items, {
+          startingIndex: decrement ? items.length : -1,
+          decrement,
+        });
+      }
 
-        const item = items[nextIndex];
-        if (item && !isElementDisabled(item)) {
-          parentStore.set('activeIndex', nextIndex);
-          item.focus({ preventScroll: true });
-          break;
-        }
+      const item = items[nextIndex];
+      if (item) {
+        parentStore.set('activeIndex', nextIndex);
+        item.focus({ preventScroll: true });
       }
 
       (event as unknown as BaseUIEvent<React.KeyboardEvent>).preventBaseUIHandler();
@@ -344,8 +346,12 @@ function FilterMenuSubmenuNavigation(props: FilterMenuSubmenuNavigationProps) {
 
 export type FilterMenuSubmenuRootProps = Omit<
   MenuSubmenuRootProps,
-  'open' | 'defaultOpen' | 'onOpenChange'
+  'actionsRef' | 'open' | 'defaultOpen' | 'onOpenChange' | 'orientation'
 > & {
+  /**
+   * A ref to imperative actions.
+   */
+  actionsRef?: React.RefObject<FilterMenuSubmenuRootActions | null> | undefined;
   /**
    * Whether the submenu is currently open.
    */
@@ -362,6 +368,11 @@ export type FilterMenuSubmenuRootProps = Omit<
    */
   onOpenChange?:
     ((open: boolean, eventDetails: FilterMenuSubmenuRoot.ChangeEventDetails) => void) | undefined;
+  /**
+   * The visual orientation of the submenu.
+   * @default 'vertical'
+   */
+  orientation?: FilterMenuSubmenuRootOrientation | undefined;
   /**
    * Replaces the default case-insensitive substring matching for item text.
    * Receives an item's filter text and the trimmed query. When provided, this function is
@@ -380,7 +391,8 @@ export type FilterMenuSubmenuRootProps = Omit<
   defaultInputValue?: string | undefined;
   /**
    * The filter query. Use when controlled.
-   * The query is cleared when the popup closes.
+   * When the popup closes, `onInputValueChange` is called with an empty query. The controlled
+   * value changes only when the consumer updates this prop.
    */
   inputValue?: string | undefined;
   /**
@@ -392,7 +404,9 @@ export type FilterMenuSubmenuRootProps = Omit<
   children?: React.ReactNode;
 };
 
-export type FilterMenuSubmenuRootState = MenuSubmenuRoot.State;
+export interface FilterMenuSubmenuRootState extends MenuSubmenuRoot.State {}
+export type FilterMenuSubmenuRootActions = MenuRoot.Actions;
+export type FilterMenuSubmenuRootOrientation = MenuRoot.Orientation;
 export type FilterMenuSubmenuRootChangeEventReason = MenuSubmenuRoot.ChangeEventReason;
 export type FilterMenuSubmenuRootChangeEventDetails = MenuSubmenuRoot.ChangeEventDetails;
 export type FilterMenuSubmenuRootInputValueChangeEventReason = FilterDropdownRoot.ChangeEventReason;
@@ -402,6 +416,8 @@ export type FilterMenuSubmenuRootInputValueChangeEventDetails =
 export namespace FilterMenuSubmenuRoot {
   export type Props = FilterMenuSubmenuRootProps;
   export type State = FilterMenuSubmenuRootState;
+  export type Actions = FilterMenuSubmenuRootActions;
+  export type Orientation = FilterMenuSubmenuRootOrientation;
   export type ChangeEventReason = FilterMenuSubmenuRootChangeEventReason;
   export type ChangeEventDetails = FilterMenuSubmenuRootChangeEventDetails;
   export type InputValueChangeEventReason = FilterMenuSubmenuRootInputValueChangeEventReason;

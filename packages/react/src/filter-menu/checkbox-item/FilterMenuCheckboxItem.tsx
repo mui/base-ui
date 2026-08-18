@@ -5,8 +5,15 @@ import { useFilterDropdownItem } from '../../filter-dropdown/item/useFilterDropd
 import {
   MenuCheckboxItem,
   type MenuCheckboxItemProps,
+  type MenuCheckboxItemState,
 } from '../../menu/checkbox-item/MenuCheckboxItem';
 
+/**
+ * A filter menu item that toggles a setting on or off.
+ * Renders a `<div>` element.
+ *
+ * Documentation: [Base UI Filter Menu](https://base-ui.com/react/components/filter-menu)
+ */
 export const FilterMenuCheckboxItem = React.forwardRef(function FilterMenuCheckboxItem(
   props: FilterMenuCheckboxItem.Props,
   forwardedRef: React.ForwardedRef<HTMLElement>,
@@ -21,8 +28,14 @@ export const FilterMenuCheckboxItem = React.forwardRef(function FilterMenuCheckb
 
 export interface FilterMenuCheckboxItemProps extends Omit<
   MenuCheckboxItemProps,
-  'label' | 'keywords'
+  'label' | 'onCheckedChange'
 > {
+  /**
+   * Event handler called when the checkbox item is ticked or unticked.
+   */
+  onCheckedChange?:
+    | ((checked: boolean, eventDetails: FilterMenuCheckboxItemChangeEventDetails) => void)
+    | undefined;
   /**
    * A text representation of the item used for filtering and keyboard text navigation.
    * Falls back to the rendered text.
@@ -30,13 +43,17 @@ export interface FilterMenuCheckboxItemProps extends Omit<
   label?: string | undefined;
   /**
    * Additional terms the item matches on when using the default filter.
+   * Ignored when a custom `filter` is provided to the root.
    */
   keywords?: readonly string[] | undefined;
 }
+export interface FilterMenuCheckboxItemState extends MenuCheckboxItemState {}
+export type FilterMenuCheckboxItemChangeEventReason = MenuCheckboxItem.ChangeEventReason;
+export type FilterMenuCheckboxItemChangeEventDetails = MenuCheckboxItem.ChangeEventDetails;
 
 export namespace FilterMenuCheckboxItem {
   export type Props = FilterMenuCheckboxItemProps;
-  export type State = MenuCheckboxItem.State;
-  export type ChangeEventReason = MenuCheckboxItem.ChangeEventReason;
-  export type ChangeEventDetails = MenuCheckboxItem.ChangeEventDetails;
+  export type State = FilterMenuCheckboxItemState;
+  export type ChangeEventReason = FilterMenuCheckboxItemChangeEventReason;
+  export type ChangeEventDetails = FilterMenuCheckboxItemChangeEventDetails;
 }
