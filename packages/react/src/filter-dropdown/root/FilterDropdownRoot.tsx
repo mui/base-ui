@@ -53,27 +53,21 @@ export function FilterDropdownRoot(props: FilterDropdownRoot.Props): React.JSX.E
   const [registeredTriggerId, setTriggerId] = React.useState<string | undefined>(undefined);
   const [registeredPopupId, setPopupId] = React.useState<string | undefined>(undefined);
   const [registeredListId, setListId] = React.useState<string | undefined>(undefined);
-  const [registeredItems, registerItem] = useItemRegistry<symbol, FilterDropdownItemRegistration>();
   const [focusVisible, setFocusVisible] = React.useState(inputFocusVisible);
   const [keyboardModality, setKeyboardModality] = React.useState(inputFocusVisible);
   const [hasInput, setHasInput] = React.useState(false);
-
-  // React 17 resolves generated ids in an effect, so they must be read live rather than captured
-  // in a state initializer.
+  const [registeredItems, registerItem] = useItemRegistry<symbol, FilterDropdownItemRegistration>();
   const defaultId = useBaseUiId();
-  const defaultTriggerId = defaultId ? `${defaultId}-trigger` : undefined;
-  const defaultPopupId = defaultId ? `${defaultId}-popup` : undefined;
-  const defaultListId = defaultId ? `${defaultId}-list` : undefined;
-  const triggerElement = externalTriggerElement ?? registeredTriggerElement;
-  const triggerId = externalTriggerId ?? registeredTriggerId ?? defaultTriggerId;
-  const popupId = registeredPopupId ?? defaultPopupId;
-  const listId = registeredListId ?? defaultListId;
+  const store = useRefWithInit(
+    () => new Store<StoreState>({ visibleItemIds: null, registeredItemCount: 0 }),
+  ).current;
 
   const ownFocusOwnerRef = React.useRef<HTMLElement | null>(null);
   const focusOwnerRef = externalFocusOwnerRef ?? ownFocusOwnerRef;
   const inputElementRef = React.useRef<HTMLInputElement | null>(null);
   const listElementRef = React.useRef<HTMLDivElement | null>(null);
   const lastFilterQueryRef = React.useRef<string | null>(null);
+
   const handleValueChange = useStableCallback(onValueChange ?? NOOP);
   const setInputElement = useStableCallback((element: HTMLInputElement | null) => {
     inputElementRef.current = element;
@@ -86,12 +80,17 @@ export function FilterDropdownRoot(props: FilterDropdownRoot.Props): React.JSX.E
       focusOwnerRef.current = element;
     }
   });
-
-  const store = useRefWithInit(
-    () => new Store<StoreState>({ visibleItemIds: null, registeredItemCount: 0 }),
-  ).current;
-
   const defaultMatches = React.useMemo(() => getContainsFilter({ locale }), [locale]);
+
+  // React 17 resolves generated ids in an effect, so they must be read live rather than captured
+  // in a state initializer.
+  const defaultTriggerId = defaultId ? `${defaultId}-trigger` : undefined;
+  const defaultPopupId = defaultId ? `${defaultId}-popup` : undefined;
+  const defaultListId = defaultId ? `${defaultId}-list` : undefined;
+  const triggerElement = externalTriggerElement ?? registeredTriggerElement;
+  const triggerId = externalTriggerId ?? registeredTriggerId ?? defaultTriggerId;
+  const popupId = registeredPopupId ?? defaultPopupId;
+  const listId = registeredListId ?? defaultListId;
 
   useIsoLayoutEffect(() => {
     setFocusVisible(inputFocusVisible);

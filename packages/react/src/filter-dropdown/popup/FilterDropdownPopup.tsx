@@ -20,14 +20,7 @@ export const FilterDropdownPopup = React.forwardRef(function FilterDropdownPopup
   componentProps: FilterDropdownPopup.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const {
-    id: idProp,
-    idIsFallback = false,
-    render,
-    className,
-    style,
-    ...elementProps
-  } = componentProps;
+  const { render, className, style, id: idProp, ...elementProps } = componentProps;
 
   const context = useFilterDropdownRootContext();
   const { focusOwnerRef, setPopupId } = context;
@@ -35,12 +28,9 @@ export const FilterDropdownPopup = React.forwardRef(function FilterDropdownPopup
   const hasAriaLabel = elementProps['aria-label'] || elementProps['aria-labelledby'];
   const ariaLabelledBy = hasAriaLabel ? elementProps['aria-labelledby'] : context.triggerId;
 
+  const renderedIdRef = useRenderedId(setPopupId, context.defaultPopupId, idProp != null);
+
   const state: FilterDropdownPopupState = { open: context.open };
-  const renderedIdRef = useRenderedId(
-    setPopupId,
-    context.defaultPopupId,
-    idProp != null && !idIsFallback,
-  );
 
   return useRenderElement('div', componentProps, {
     state,
@@ -105,8 +95,6 @@ export interface FilterDropdownPopupProps extends BaseUIComponentProps<
   FilterDropdownPopupState
 > {
   id?: string | undefined;
-  /** @internal */
-  idIsFallback?: boolean | undefined;
 }
 
 export namespace FilterDropdownPopup {
