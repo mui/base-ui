@@ -31,6 +31,7 @@ export function FilterDropdownRoot(props: FilterDropdownRoot.Props): React.JSX.E
   const {
     children,
     open,
+    inline = false,
     disabled = false,
     inputFocusVisible = false,
     locale,
@@ -148,6 +149,7 @@ export function FilterDropdownRoot(props: FilterDropdownRoot.Props): React.JSX.E
     () => ({
       parent: parentContext,
       open,
+      inline,
       disabled,
       inputFocusVisible: focusVisible,
       setInputFocusVisible: setFocusVisible,
@@ -179,6 +181,7 @@ export function FilterDropdownRoot(props: FilterDropdownRoot.Props): React.JSX.E
     [
       parentContext,
       open,
+      inline,
       disabled,
       focusVisible,
       keyboardModality,
@@ -243,6 +246,8 @@ export interface FilterDropdownRootProps {
    * Whether the popup is currently open.
    */
   open: boolean;
+  /** Whether the list is rendered inline without popup parts. */
+  inline?: boolean | undefined;
   /** Whether the filter controls should be disabled. */
   disabled?: boolean | undefined;
   /** Whether the input should render its focus ring. */

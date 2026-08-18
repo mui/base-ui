@@ -1,5 +1,7 @@
 'use client';
 import * as React from 'react';
+import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
+import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import {
   FilterDropdownList,
   type FilterDropdownListProps,
@@ -8,13 +10,21 @@ import {
 import { mergeProps } from '../../merge-props';
 import { useFilterMenuReferenceKeyDown } from '../utils/useFilterMenuReferenceKeyDown';
 import { useMenuRootContext } from '../../menu/root/MenuRootContext';
+import { CompositeList } from '../../internals/composite/list/CompositeList';
+import { useFilterDropdownRootContext } from '../../filter-dropdown/root/FilterDropdownRootContext';
 
 export const FilterMenuList = React.forwardRef(function FilterMenuList(
   componentProps: FilterMenuList.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { orientation } = useMenuRootContext();
+  const { orientation, store } = useMenuRootContext();
+  const { inline } = useFilterDropdownRootContext();
   const handleReferenceKeyDown = useFilterMenuReferenceKeyDown();
+  const setInlinePopupElement = useStableCallback((element: HTMLDivElement | null) => {
+    store.context.popupRef.current = element;
+    store.set('popupElement', element);
+  });
+  const mergedRef = useMergedRefs(forwardedRef, inline ? setInlinePopupElement : null);
 
   const props = mergeProps<typeof FilterDropdownList>(
     {
@@ -24,7 +34,17 @@ export const FilterMenuList = React.forwardRef(function FilterMenuList(
     componentProps,
   );
 
-  return <FilterDropdownList {...props} ref={forwardedRef} />;
+  const element = <FilterDropdownList {...props} ref={mergedRef} />;
+
+  if (!inline) {
+    return element;
+  }
+
+  return (
+    <CompositeList elementsRef={store.context.itemDomElements} labelsRef={store.context.itemLabels}>
+      {element}
+    </CompositeList>
+  );
 });
 
 export interface FilterMenuListState extends FilterDropdownListState {}

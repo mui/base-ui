@@ -26,6 +26,7 @@ export function FilterMenuRoot<Payload>(props: FilterMenuRoot.Props<Payload>): R
     filter,
     locale,
     disabled,
+    inline = false,
     ...menuProps
   } = props;
 
@@ -79,6 +80,7 @@ export function FilterMenuRoot<Payload>(props: FilterMenuRoot.Props<Payload>): R
       open={open}
       onOpenChange={handleOpenChange}
       onOpenChangeComplete={closeQuery.handleOpenChangeComplete}
+      inline={inline}
       virtualFocus
       virtualFocusRef={focusOwnerRef}
       virtualFocusPropsRef={inputPropsRef}
@@ -91,6 +93,7 @@ export function FilterMenuRoot<Payload>(props: FilterMenuRoot.Props<Payload>): R
           query={closeQuery.query}
           filter={filter}
           locale={locale}
+          inline={inline}
           onValueChange={handleInputValueChange}
         >
           {typeof children === 'function' ? children(payload) : children}
@@ -124,6 +127,7 @@ interface FilterMenuProviderProps {
   query?: string | undefined;
   filter: FilterDropdownFilter | undefined;
   locale: Intl.LocalesArgument | undefined;
+  inline?: boolean | undefined;
   onValueChange: (value: string, details: FilterMenuRoot.InputValueChangeEventDetails) => void;
   children?: React.ReactNode;
 }
@@ -146,6 +150,7 @@ export function FilterMenuProvider(props: FilterMenuProviderProps) {
   return (
     <FilterDropdownRoot
       open={props.open}
+      inline={props.inline}
       disabled={disabled}
       inputFocusVisible={props.inputFocusVisible}
       value={props.value}
@@ -205,6 +210,12 @@ export type FilterMenuRootProps<Payload = unknown> = Omit<
   MenuRoot.Props<Payload>,
   'open' | 'defaultOpen' | 'onOpenChange'
 > & {
+  /**
+   * Whether the list is rendered inline without using the component's own popup.
+   * Specify `open` in conjunction with this prop so the list is considered visible.
+   * @default false
+   */
+  inline?: boolean | undefined;
   /**
    * Whether the menu is currently open.
    */
