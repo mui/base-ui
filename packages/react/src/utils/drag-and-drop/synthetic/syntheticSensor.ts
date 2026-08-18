@@ -1092,11 +1092,8 @@ function onActivePointerMove(event: Event): void {
   if (!active || pointerEvent.pointerId !== active.pointerId) {
     return;
   }
-  // Missed-release safety net: `buttons === 0` means the button came up without a
-  // terminating event reaching us (some OS hand-offs swallow it). Safari can
-  // deliver this move immediately before the corresponding `pointerup`, however,
-  // so give that terminal event until the next frame to win. A genuinely missing
-  // release still cancels rather than becoming a drop we never observed.
+  // Wait one frame before treating `buttons === 0` as a missed release. A
+  // terminal event in the same frame must take precedence.
   if (pointerEvent.buttons === 0) {
     // Constrained like every reported input, so `onDragEnd` doesn't leak a raw
     // coordinate the drag never reported while it was live.
@@ -1132,11 +1129,8 @@ function onActivePointerUp(event: Event): void {
   if (!active || pointerEvent.pointerId !== active.pointerId) {
     return;
   }
-  // Ignore the release of a non-primary button (right/middle) mid-drag while
-  // the primary is still held. Safari can occasionally report the changed
-  // `button` incorrectly, so the authoritative `buttons` bitmask may also prove
-  // that the primary button is no longer down.
-  if (pointerEvent.button !== 0 && pointerEvent.buttons % 2 !== 0) {
+  // Ignore the release of a non-primary button (right/middle) mid-drag.
+  if (pointerEvent.button !== 0) {
     return;
   }
   dropActiveAtPointer(pointerEvent);
@@ -1187,19 +1181,17 @@ function onActiveLostPointerCapture(event: Event): void {
   // not an OS hand-off. Cancelling on it would tear down every touch/pen drag
   // the moment the finger moves. The anchor still holds the pointer in that
   // case, so only cancel once the anchor itself has lost capture (tab switch,
-  // soft keyboard, sibling frame stealing the pointer). Checking the event's
-  // target matters because Safari can report the anchor's capture state as
-  // already released while it is dispatching the original element's event.
+  // soft keyboard, sibling frame stealing the pointer). Check the event target
+  // as well as the current capture state because this listener is on `window`.
   if (
     getTarget(pointerEvent) !== active.captureTarget ||
     active.captureTarget.hasPointerCapture?.(pointerEvent.pointerId)
   ) {
     return;
   }
-  // Safari may dispatch capture loss immediately before the corresponding
-  // `pointerup`. Defer the fallback by one frame so a real release remains a
-  // drop. `lostpointercapture` often carries (0,0) coordinates; pass `undefined`
-  // so a genuine hand-off falls back to the last good input.
+  // Give a terminal event in the same frame precedence. `lostpointercapture`
+  // often carries (0,0) coordinates, so a genuine hand-off falls back to the
+  // last good input.
   active.rafFrame.request(() => {
     if (state.active === active) {
       cancelActive(undefined, 'capture-lost', pointerEvent);

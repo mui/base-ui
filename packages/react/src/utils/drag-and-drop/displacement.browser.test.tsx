@@ -484,8 +484,7 @@ describe.skipIf(isJSDOM)('displacement (real layout and transitions)', () => {
       });
       sentinel.observe(element);
     });
-    // Individual observers can be delivered in adjacent rendering updates
-    // under load, so let the module's earlier-created observer settle too.
+    // Let the module's observer settle if it is delivered in the next update.
     await flushRaf();
   }
 
