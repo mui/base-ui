@@ -136,7 +136,7 @@ export function useFilterDropdownItem(
       previousKeywordsKeyRef.current = keywordsKey;
       void register();
     }
-  }, [register, resolveText, children, keywordsKey]);
+  }, [register, resolveText, children, keywordsKey, label]);
 
   return { visible: !registeredRef.current || matched, ref };
 }
