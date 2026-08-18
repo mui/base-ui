@@ -26,6 +26,7 @@ export interface FilterDropdownRootContext {
   setInputFocusVisible: (visible: boolean) => void;
   keyboardModality: boolean;
   setKeyboardModality: (keyboardModality: boolean) => void;
+  autoHighlight: boolean | 'always';
   /**
    * Visibility of every registered item under the committed query.
    */

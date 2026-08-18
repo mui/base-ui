@@ -53,7 +53,7 @@ export const FilterDropdownInput = React.forwardRef(function FilterDropdownInput
           const reason = nextValue === '' ? REASONS.inputClear : REASONS.inputChange;
           const details = createChangeEventDetails(reason, event.nativeEvent);
           context.onValueChange(nextValue, details);
-          if (!details.isCanceled) {
+          if (!details.isCanceled && !context.autoHighlight) {
             context.setActiveIndex(null);
           }
         },

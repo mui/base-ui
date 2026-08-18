@@ -156,6 +156,80 @@ describe('<FilterMenu.Root />', () => {
         expect(input).toHaveAttribute('aria-activedescendant', rename.id);
       });
 
+      it.each([true, 'always'] as const)(
+        'keeps a highlight when typing does not change the trimmed query with autoHighlight=%s',
+        async (autoHighlight) => {
+          const { user } = await render(
+            <FilterMenu.Root inline open autoHighlight={autoHighlight}>
+              <FilterMenu.Input aria-label="Filter actions" />
+              <FilterMenu.List>
+                <FilterMenu.Item>Google Calendar</FilterMenu.Item>
+                <FilterMenu.Item>Google Chrome</FilterMenu.Item>
+              </FilterMenu.List>
+            </FilterMenu.Root>,
+          );
+
+          const input = screen.getByRole('searchbox', { name: 'Filter actions' });
+          await user.type(input, 'Google');
+
+          const firstItem = screen.getByRole('menuitem', { name: 'Google Calendar' });
+          await waitFor(() => {
+            expect(firstItem).toHaveAttribute('data-highlighted');
+          });
+
+          await user.type(input, ' ');
+
+          await waitFor(() => {
+            expect(firstItem).toHaveAttribute('data-highlighted');
+          });
+          expect(input).toHaveAttribute('aria-activedescendant', firstItem.id);
+        },
+      );
+
+      it.each([true, 'always'] as const)(
+        'does not allow arrow navigation to escape when autoHighlight is %s',
+        async (autoHighlight) => {
+          const { user } = await render(
+            <FilterMenu.Root inline open autoHighlight={autoHighlight}>
+              <FilterMenu.Input aria-label="Filter actions" />
+              <FilterMenu.List>
+                <FilterMenu.Item>Rename</FilterMenu.Item>
+                <FilterMenu.Item>Delete</FilterMenu.Item>
+              </FilterMenu.List>
+            </FilterMenu.Root>,
+          );
+
+          const input = screen.getByRole('searchbox', { name: 'Filter actions' });
+          if (autoHighlight === true) {
+            await user.type(input, 'e');
+          } else {
+            await act(async () => {
+              input.focus();
+            });
+          }
+
+          const firstItem = screen.getByRole('menuitem', { name: 'Rename' });
+          await waitFor(() => {
+            expect(firstItem).toHaveAttribute('data-highlighted');
+          });
+
+          await user.keyboard('[ArrowUp]');
+
+          const lastItem = screen.getByRole('menuitem', { name: 'Delete' });
+          await waitFor(() => {
+            expect(lastItem).toHaveAttribute('data-highlighted');
+          });
+          expect(input).toHaveAttribute('aria-activedescendant', lastItem.id);
+
+          await user.keyboard('[ArrowDown]');
+
+          await waitFor(() => {
+            expect(firstItem).toHaveAttribute('data-highlighted');
+          });
+          expect(input).toHaveAttribute('aria-activedescendant', firstItem.id);
+        },
+      );
+
       it('always highlights the first item when mounted inside an opened dialog', async () => {
         function App() {
           const [open, setOpen] = React.useState(false);
@@ -360,8 +434,8 @@ describe('<FilterMenu.Root />', () => {
         expect(input).toHaveAttribute('aria-activedescendant', deleteItem.id);
       });
 
-      it('supports always highlighting inside a filterable submenu', async () => {
-        await render(
+      it('supports persistent always highlighting inside a filterable submenu', async () => {
+        const { user } = await render(
           <Menu.Root open>
             <Menu.Portal>
               <Menu.Positioner>
@@ -392,6 +466,17 @@ describe('<FilterMenu.Root />', () => {
           expect(firstItem).toHaveAttribute('data-highlighted');
         });
         expect(input).toHaveAttribute('aria-activedescendant', firstItem.id);
+
+        await act(async () => {
+          input.focus();
+        });
+        await user.keyboard('[ArrowUp]');
+
+        const lastItem = screen.getByRole('menuitem', { name: 'Downloads' });
+        await waitFor(() => {
+          expect(lastItem).toHaveAttribute('data-highlighted');
+        });
+        expect(input).toHaveAttribute('aria-activedescendant', lastItem.id);
       });
     });
 

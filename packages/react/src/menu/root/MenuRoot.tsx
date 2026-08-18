@@ -75,6 +75,11 @@ interface MenuRootInternalProps<Payload> extends MenuRoot.Props<Payload> {
   virtualFocusPropsRef?: React.RefObject<HTMLProps> | undefined;
   /**
    * @ignore
+   * Whether virtual focus can leave the list during arrow navigation.
+   */
+  allowEscape?: boolean | undefined;
+  /**
+   * @ignore
    * Whether pointer leave should clear the active item.
    */
   resetOnPointerLeave?: boolean | undefined;
@@ -108,6 +113,7 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
     virtualFocus = false,
     virtualFocusRef,
     virtualFocusPropsRef,
+    allowEscape = true,
     resetOnPointerLeave = true,
   } = props as MenuRootInternalProps<Payload>;
 
@@ -536,7 +542,7 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
     // Virtual focus opens with the input focused and nothing highlighted, so the first arrow key
     // enters the list from the top rather than moving off a seeded item.
     focusItemOnOpen: virtualFocus ? false : focusItemOnOpen,
-    allowEscape: virtualFocus && loopFocus,
+    allowEscape: virtualFocus && loopFocus && allowEscape,
     orientation,
     rtl: direction === 'rtl',
     disabledIndices: EMPTY_ARRAY,
