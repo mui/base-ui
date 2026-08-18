@@ -46,7 +46,7 @@
 
 import { ownerWindow } from '@base-ui/utils/owner';
 import { addEventListener } from '@base-ui/utils/addEventListener';
-import { WindowAnimationFrame } from '@base-ui/utils/windowAnimationFrame';
+import { WindowAnimationFrame } from '../windowAnimationFrame';
 import { dragSessionStore, dragSourceStore } from './dragSessionStore';
 import type { DragCleanupFn } from '../../types/drag';
 

@@ -20,7 +20,7 @@
 
 import { ownerWindow } from '@base-ui/utils/owner';
 import { addEventListener } from '@base-ui/utils/addEventListener';
-import { WindowTimeout } from '@base-ui/utils/windowTimeout';
+import { WindowTimeout } from '../../windowTimeout';
 import { getSharedSlot } from '../sharedState';
 import type { DragCleanupFn } from '../../../types/drag';
 

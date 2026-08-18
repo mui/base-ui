@@ -1,5 +1,5 @@
 import { ownerWindow } from '@base-ui/utils/owner';
-import { WindowAnimationFrame } from '@base-ui/utils/windowAnimationFrame';
+import { WindowAnimationFrame } from '../../windowAnimationFrame';
 import type { DragPreviewElementHandle } from './cloneDragPreview';
 import type { DragModifier, DragModifierKeys, DragMode, DragPosition } from '../../../types/drag';
 import { applyDragModifiers } from '../dragModifiers';

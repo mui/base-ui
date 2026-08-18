@@ -8,9 +8,9 @@
 import { NOOP } from '@base-ui/utils/empty';
 import { ownerDocument, ownerWindow } from '@base-ui/utils/owner';
 import { addEventListener } from '@base-ui/utils/addEventListener';
-import { WindowAnimationFrame } from '@base-ui/utils/windowAnimationFrame';
-import { WindowTimeout } from '@base-ui/utils/windowTimeout';
 import { contains, getTarget } from '@base-ui/utils/shadowDom';
+import { WindowAnimationFrame } from '../../windowAnimationFrame';
+import { WindowTimeout } from '../../windowTimeout';
 import { createChangeEventDetails } from '../../../internals/createBaseUIEventDetails';
 import {
   evaluateActivation,

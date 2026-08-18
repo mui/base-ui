@@ -22,9 +22,9 @@
 import { ownerDocument, ownerWindow } from '@base-ui/utils/owner';
 import { addEventListener } from '@base-ui/utils/addEventListener';
 import { clamp } from '@base-ui/utils/clamp';
-import { WindowAnimationFrame } from '@base-ui/utils/windowAnimationFrame';
 import { isElement, isHTMLElement } from '@floating-ui/utils/dom';
 import { activeElement, contains, getTarget } from '@base-ui/utils/shadowDom';
+import { WindowAnimationFrame } from '../../windowAnimationFrame';
 import { createChangeEventDetails } from '../../../internals/createBaseUIEventDetails';
 import {
   canStart as canStartLifecycle,

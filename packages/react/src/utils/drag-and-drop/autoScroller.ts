@@ -1,6 +1,6 @@
 import { ownerDocument, ownerWindow } from '@base-ui/utils/owner';
 import { warn } from '@base-ui/utils/warn';
-import { WindowAnimationFrame } from '@base-ui/utils/windowAnimationFrame';
+import { WindowAnimationFrame } from '../windowAnimationFrame';
 import type {
   DragAccept,
   DragSource,

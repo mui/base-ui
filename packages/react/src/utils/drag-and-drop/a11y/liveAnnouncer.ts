@@ -8,7 +8,7 @@
 
 import { ownerDocument } from '@base-ui/utils/owner';
 import { visuallyHidden } from '@base-ui/utils/visuallyHidden';
-import { WindowTimeout } from '@base-ui/utils/windowTimeout';
+import { WindowTimeout } from '../../windowTimeout';
 import { getSharedSlot } from '../sharedState';
 
 export interface Announcer {
