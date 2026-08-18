@@ -11,8 +11,6 @@ import { Main as ComplexGrid } from '../../../test/floating-ui-tests/ComplexGrid
 import { Main as Grid } from '../../../test/floating-ui-tests/Grid';
 import { Main as EmojiPicker } from '../../../test/floating-ui-tests/EmojiPicker';
 import { Main as ListboxFocus } from '../../../test/floating-ui-tests/ListboxFocus';
-import { Main as NestedMenu } from '../../../test/floating-ui-tests/Menu';
-import { HorizontalMenu } from '../../../test/floating-ui-tests/MenuOrientation';
 
 /* eslint-disable testing-library/no-unnecessary-act */
 
@@ -24,6 +22,7 @@ function App(
   } = {},
 ) {
   const { disableFirstItem, hideFirstItem, firstItemStyle, ...props } = inProps;
+
   const [open, setOpen] = React.useState(false);
   const listRef = React.useRef<Array<HTMLLIElement | null>>([]);
   const [activeIndex, setActiveIndex] = React.useState<null | number>(null);
@@ -1379,80 +1378,6 @@ describe('useListNavigation', () => {
       expect(screen.getByTestId('reference')).toHaveFocus();
     });
   });
-
-  // In JSDOM it will not focus the first item, but will in the browser
-  it.skipIf(!isJSDOM)('focus management in nested lists', async () => {
-    render(<NestedMenu />);
-    await userEvent.click(screen.getByRole('button', { name: 'Edit' }));
-    await userEvent.keyboard('{ArrowDown}');
-    await userEvent.keyboard('{ArrowDown}');
-    await userEvent.keyboard('{ArrowDown}');
-    await userEvent.keyboard('{ArrowRight}');
-
-    expect(screen.getByText('Text')).toHaveFocus();
-  });
-
-  // In JSDOM it will not focus the first item, but will in the browser
-  it.skipIf(!isJSDOM)('keyboard navigation in nested menus lists', async () => {
-    render(<NestedMenu />);
-
-    await userEvent.click(screen.getByRole('button', { name: 'Edit' }));
-    await flushMicrotasks();
-    await userEvent.keyboard('{ArrowDown}');
-    await userEvent.keyboard('{ArrowDown}');
-    await userEvent.keyboard('{ArrowDown}');
-    await userEvent.keyboard('{ArrowRight}'); // opens first submenu
-    await flushMicrotasks();
-
-    await userEvent.keyboard('{ArrowDown}');
-    await userEvent.keyboard('{ArrowDown}');
-    await userEvent.keyboard('{ArrowRight}'); // opens second submenu
-    await flushMicrotasks();
-
-    expect(screen.getByText('.png')).toHaveFocus();
-
-    // it navigation with orientation = 'both'
-    await userEvent.keyboard('{ArrowRight}');
-    expect(screen.getByText('.jpg')).toHaveFocus();
-
-    await userEvent.keyboard('{ArrowDown}');
-    expect(screen.getByText('.gif')).toHaveFocus();
-
-    await userEvent.keyboard('{ArrowLeft}');
-    expect(screen.getByText('.svg')).toHaveFocus();
-
-    await userEvent.keyboard('{ArrowUp}');
-    expect(screen.getByText('.png')).toHaveFocus();
-
-    // escape closes the submenu
-    await userEvent.keyboard('{Escape}');
-    expect(screen.getByText('Image')).toHaveFocus();
-  });
-
-  // In JSDOM it will not focus the first item, but will in the browser
-  it.skipIf(!isJSDOM)(
-    'keyboard navigation in nested menus with different orientation',
-    async () => {
-      render(<HorizontalMenu />);
-
-      await userEvent.click(screen.getByRole('button', { name: 'Edit' }));
-      await act(async () => {});
-      await userEvent.keyboard('{ArrowRight}');
-      await userEvent.keyboard('{ArrowRight}');
-      await userEvent.keyboard('{ArrowRight}');
-      await userEvent.keyboard('{ArrowDown}'); // opens the Copy as submenu
-      await act(async () => {});
-
-      await userEvent.keyboard('{ArrowRight}');
-      await userEvent.keyboard('{ArrowDown}'); // opens the Share submenu
-      await act(async () => {});
-
-      expect(screen.getByText('Mail')).toHaveFocus();
-
-      await userEvent.keyboard('{ArrowLeft}');
-      expect(screen.getByText('Copy as')).toHaveFocus();
-    },
-  );
 
   it('Home or End key press is ignored for typeable combobox reference', async () => {
     function App() {

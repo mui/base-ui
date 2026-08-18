@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { MenuRoot } from '../root/MenuRoot';
+import { MenuRootInternal, type MenuRoot } from '../root/MenuRoot';
 import { useMenuRootContext } from '../root/MenuRootContext';
 import { MenuSubmenuRootContext } from './MenuSubmenuRootContext';
 
@@ -19,7 +19,7 @@ export function MenuSubmenuRoot(props: MenuSubmenuRoot.Props) {
 
   return (
     <MenuSubmenuRootContext.Provider value={contextValue}>
-      <MenuRoot {...props} />
+      <MenuRootInternal {...props} isSubmenu />
     </MenuSubmenuRootContext.Provider>
   );
 }

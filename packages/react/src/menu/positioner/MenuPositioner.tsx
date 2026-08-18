@@ -55,7 +55,7 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
     ...elementProps
   } = componentProps;
 
-  const { store } = useMenuRootContext();
+  const { store, virtualFocus } = useMenuRootContext();
 
   const keepMounted = useMenuPortalContext();
   const contextMenuContext = useContextMenuRootContext(true);
@@ -133,6 +133,7 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
       : undefined,
     externalTree: floatingTreeRoot,
     adaptiveOrigin,
+    lazyFlip: virtualFocus,
   });
 
   React.useEffect(() => {

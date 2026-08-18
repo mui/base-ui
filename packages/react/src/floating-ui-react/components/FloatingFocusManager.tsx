@@ -194,6 +194,12 @@ export interface FloatingFocusManagerProps {
     | ((closeType: InteractionType) => boolean | HTMLElement | null | void)
     | undefined;
   /**
+   * Whether `returnFocus` is an explicit consumer target. Internal dynamic defaults use `false`
+   * so focus that has already moved outside the floating tree is respected.
+   * @internal
+   */
+  explicitReturnFocus?: boolean | undefined;
+  /**
    * Determines where focus should be restored if focus inside the floating element is lost
    * (such as due to the removal of the currently focused element from the DOM).
    *
@@ -255,6 +261,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
     disabled = false,
     initialFocus = true,
     returnFocus = true,
+    explicitReturnFocus,
     restoreFocus = false,
     modal = true,
     closeOnFocusOut = true,
@@ -806,12 +813,20 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
 
     events.on('openchange', onOpenChangeLocal);
 
+    let resolvedExplicitReturnFocus = false;
+
     function getReturnElement(closeType: InteractionType) {
       const returnFocusValueOrFn = returnFocusRef.current;
       let resolvedReturnFocusValue =
         typeof returnFocusValueOrFn === 'function'
           ? returnFocusValueOrFn(closeType)
           : returnFocusValueOrFn;
+      // A resolver that produced no element falls back to the default target, so it must not
+      // count as an explicit request and skip the "focus moved elsewhere" guard below.
+      resolvedExplicitReturnFocus =
+        typeof resolvedReturnFocusValue !== 'boolean' &&
+        resolvedReturnFocusValue != null &&
+        resolveRef(resolvedReturnFocusValue) != null;
 
       // `null` should fallback to default behavior in case of an empty ref.
       if (resolvedReturnFocusValue === undefined || resolvedReturnFocusValue === false) {
@@ -865,7 +880,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
         // `returnElement` if it is tabbable, otherwise its first tabbable child,
         // otherwise `returnElement` itself (which may not be tabbable at all).
         const tabbableReturnElement = getFirstTabbableElement(returnElement);
-        const hasExplicitReturnFocus = typeof returnFocusValueOrFn !== 'boolean';
+        const hasExplicitReturnFocus = explicitReturnFocus ?? resolvedExplicitReturnFocus;
 
         if (
           returnFocusValueOrFn &&
@@ -893,6 +908,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
     floating,
     floatingFocusElement,
     returnFocusRef,
+    explicitReturnFocus,
     openInteractionTypeRef,
     events,
     tree,
