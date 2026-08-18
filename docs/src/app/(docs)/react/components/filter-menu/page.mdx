@@ -3,7 +3,7 @@
 <Subtitle>A searchable menu for finding and running actions in a dropdown.</Subtitle>
 <Meta
   name="description"
-  content="A high-quality, unstyled React menu with a built-in input for filtering actions."
+  content="A high-quality, unstyled React menu component with a built-in input for filtering actions."
 />
 
 import { DemoFilterMenuHero } from './demos/hero';
@@ -50,6 +50,8 @@ import { FilterMenu } from '@base-ui/react/filter-menu';
 ### Command palette
 
 Combine `FilterMenu` with [Dialog](/react/components/dialog) to create a command palette.
+The `inline` prop renders the list directly inside the dialog without the menu's own popup parts; specify `open` together with it so the list is considered visible.
+`autoHighlight="always"` keeps the first match highlighted so Enter always runs a command.
 
 <DemoFilterMenuCommandPalette />
 
@@ -59,9 +61,7 @@ Items match their rendered text by default. Use `label` to provide explicit sear
 
 ```jsx title="Labels and keywords"
 <FilterMenu.List>
-  <FilterMenu.Item label="Rename" keywords={['edit name']}>
-    Rename
-  </FilterMenu.Item>
+  <FilterMenu.Item keywords={['edit name']}>Rename</FilterMenu.Item>
   <FilterMenu.Item label="Move to folder" keywords={['organize']}>
     Move
   </FilterMenu.Item>
@@ -85,6 +85,7 @@ When supplied, the custom filter replaces keyword matching.
 ### Filterable submenus
 
 Use `<FilterMenu.SubmenuRoot>` when a submenu needs its own search input.
+For a submenu without one, use `<Menu.SubmenuRoot>` from [Menu](/react/components/menu) together with `<FilterMenu.SubmenuTrigger>` and plain Menu parts for its popup.
 
 ```jsx title="A filterable submenu"
 <FilterMenu.SubmenuRoot>
