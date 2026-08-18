@@ -13,6 +13,7 @@ import { useMenuPositionerContext } from '../positioner/MenuPositionerContext';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
 import type { MenuRoot } from '../root/MenuRoot';
+import { getMenuItemId } from '../utils/getMenuItemId';
 
 /**
  * A menu item that toggles a setting on or off.
@@ -42,11 +43,10 @@ export const MenuCheckboxItem = React.forwardRef(function MenuCheckboxItem(
   const listItem = useCompositeListItem({ guess: true, label });
   const menuPositionerContext = useMenuPositionerContext(true);
   const { store, floatingId, virtualFocus } = useMenuRootContext();
-  // React 17 resolves generated ids in an effect, so the id can be undefined on the first
-  // render. Interpolating it then would emit a duplicate `undefined-0` on every menu.
-  const id = idProp ?? (floatingId != null ? `${floatingId}-${listItem.index}` : undefined);
+  const id = getMenuItemId(idProp, floatingId, listItem.index);
 
   const rootDisabled = store.useState('disabled');
+  const open = store.useState('open');
   const disabled = disabledProp || rootDisabled;
   const highlighted = store.useState('isActive', listItem.index);
   const itemProps = store.useState('itemProps');
@@ -63,6 +63,7 @@ export const MenuCheckboxItem = React.forwardRef(function MenuCheckboxItem(
     disabled,
     highlighted,
     id,
+    open,
     store,
     nativeButton,
     nodeId: menuPositionerContext?.context.nodeId,

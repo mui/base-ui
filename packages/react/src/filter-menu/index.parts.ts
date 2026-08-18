@@ -15,9 +15,9 @@ export { MenuPositioner as Positioner } from '../menu/positioner/MenuPositioner'
 export { FilterMenuRadioGroup as RadioGroup } from './radio-group/FilterMenuRadioGroup';
 export { FilterMenuRadioItem as RadioItem } from './radio-item/FilterMenuRadioItem';
 export { MenuRadioItemIndicator as RadioItemIndicator } from '../menu/radio-item-indicator/MenuRadioItemIndicator';
-export { FilterMenuTrigger as Trigger } from './FilterMenuTrigger';
+export { FilterMenuTrigger as Trigger } from './trigger/FilterMenuTrigger';
 export { MenuViewport as Viewport } from '../menu/viewport/MenuViewport';
-export { FilterMenuSubmenuTrigger as SubmenuTrigger } from './FilterMenuSubmenuTrigger';
+export { FilterMenuSubmenuTrigger as SubmenuTrigger } from './submenu-trigger/FilterMenuSubmenuTrigger';
 export { Separator } from '../separator/Separator';
 export {
   FilterMenuHandle as Handle,
@@ -27,6 +27,6 @@ export {
 // Filtering-only parts.
 export { FilterMenuRoot as Root } from './root/FilterMenuRoot';
 export { FilterMenuSubmenuRoot as SubmenuRoot } from './submenu-root/FilterMenuSubmenuRoot';
-export { FilterMenuInput as Input } from './FilterMenuInput';
-export { FilterMenuClear as Clear } from './FilterMenuClear';
-export { FilterMenuEmpty as Empty } from './FilterMenuEmpty';
+export { FilterMenuInput as Input } from './input/FilterMenuInput';
+export { FilterMenuClear as Clear } from './clear/FilterMenuClear';
+export { FilterMenuEmpty as Empty } from './empty/FilterMenuEmpty';

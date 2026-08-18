@@ -865,6 +865,7 @@ describe('<Menu.Root />', () => {
           await waitFor(() => {
             expect(screen.queryByTestId('submenu')).toBe(null);
           });
+          expect(submenuTrigger).toHaveFocus();
 
           // ArrowUp is neither orientation's key here and must not reopen it.
           await user.keyboard('[ArrowUp]');

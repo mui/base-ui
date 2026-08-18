@@ -46,8 +46,8 @@ export type {
   SeparatorProps as FilterMenuSeparatorProps,
   SeparatorState as FilterMenuSeparatorState,
 } from '../separator/Separator';
-export type * from './FilterMenuTrigger';
-export type * from './FilterMenuSubmenuTrigger';
-export type * from './FilterMenuInput';
-export type * from './FilterMenuClear';
-export type * from './FilterMenuEmpty';
+export type * from './trigger/FilterMenuTrigger';
+export type * from './submenu-trigger/FilterMenuSubmenuTrigger';
+export type * from './input/FilterMenuInput';
+export type * from './clear/FilterMenuClear';
+export type * from './empty/FilterMenuEmpty';

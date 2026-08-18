@@ -4,13 +4,19 @@ import {
   FilterDropdownInput,
   type FilterDropdownInputProps,
   type FilterDropdownInputState,
-} from '../filter-dropdown/input/FilterDropdownInput';
-import { useFilterDropdownRootContext } from '../filter-dropdown/root/FilterDropdownRootContext';
-import { mergeProps } from '../merge-props';
-import type { BaseUIEvent } from '../internals/types';
-import { dispatchClickWithModifiers } from '../utils/dispatchClickWithModifiers';
-import { useFilterMenuReferenceKeyDown } from './utils/useFilterMenuReferenceKeyDown';
+} from '../../filter-dropdown/input/FilterDropdownInput';
+import { useFilterDropdownRootContext } from '../../filter-dropdown/root/FilterDropdownRootContext';
+import { mergeProps } from '../../merge-props';
+import type { BaseUIEvent } from '../../internals/types';
+import { dispatchClickWithModifiers } from '../../utils/dispatchClickWithModifiers';
+import { useFilterMenuReferenceKeyDown } from '../utils/useFilterMenuReferenceKeyDown';
 
+/**
+ * A search field that filters the menu items.
+ * Renders an `<input>` element.
+ *
+ * Documentation: [Base UI Filter Menu](https://base-ui.com/react/components/filter-menu)
+ */
 export const FilterMenuInput = React.forwardRef(function FilterMenuInput(
   componentProps: FilterMenuInput.Props,
   forwardedRef: React.ForwardedRef<HTMLInputElement>,

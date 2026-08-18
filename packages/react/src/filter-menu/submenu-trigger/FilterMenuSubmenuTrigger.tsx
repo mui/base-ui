@@ -2,16 +2,22 @@
 import * as React from 'react';
 import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
-import { createChangeEventDetails } from '../internals/createBaseUIEventDetails';
-import { REASONS } from '../internals/reasons';
-import { useFilterDropdownItem } from '../filter-dropdown/item/useFilterDropdownItem';
-import { useFilterContextForList } from '../filter-dropdown/root/FilterDropdownRootContext';
+import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
+import { REASONS } from '../../internals/reasons';
+import { useFilterDropdownItem } from '../../filter-dropdown/item/useFilterDropdownItem';
+import { useFilterContextForList } from '../../filter-dropdown/root/FilterDropdownRootContext';
 import {
   MenuSubmenuTrigger,
   type MenuSubmenuTriggerProps,
-} from '../menu/submenu-trigger/MenuSubmenuTrigger';
-import { useMenuRootContext } from '../menu/root/MenuRootContext';
+} from '../../menu/submenu-trigger/MenuSubmenuTrigger';
+import { useMenuRootContext } from '../../menu/root/MenuRootContext';
 
+/**
+ * A filter menu item that opens a submenu.
+ * Renders a `<div>` element.
+ *
+ * Documentation: [Base UI Filter Menu](https://base-ui.com/react/components/filter-menu)
+ */
 export const FilterMenuSubmenuTrigger = React.forwardRef(function FilterMenuSubmenuTrigger(
   props: FilterMenuSubmenuTrigger.Props,
   forwardedRef: React.ForwardedRef<HTMLElement>,
@@ -60,11 +66,7 @@ export const FilterMenuSubmenuTrigger = React.forwardRef(function FilterMenuSubm
   ) : null;
 });
 
-export interface FilterMenuSubmenuTriggerProps extends Omit<
-  MenuSubmenuTriggerProps,
-  'id' | 'label' | 'keywords'
-> {
-  id?: string | undefined;
+export interface FilterMenuSubmenuTriggerProps extends Omit<MenuSubmenuTriggerProps, 'label'> {
   /**
    * A text representation of the item used for filtering and keyboard text navigation.
    * Falls back to the rendered text.
@@ -72,6 +74,7 @@ export interface FilterMenuSubmenuTriggerProps extends Omit<
   label?: string | undefined;
   /**
    * Additional terms the item matches on when using the default filter.
+   * Ignored when a custom `filter` is provided to the root.
    */
   keywords?: readonly string[] | undefined;
 }

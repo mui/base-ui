@@ -2,8 +2,18 @@
 import * as React from 'react';
 import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
 import { useFilterDropdownItem } from '../../filter-dropdown/item/useFilterDropdownItem';
-import { MenuLinkItem, type MenuLinkItemProps } from '../../menu/link-item/MenuLinkItem';
+import {
+  MenuLinkItem,
+  type MenuLinkItemProps,
+  type MenuLinkItemState,
+} from '../../menu/link-item/MenuLinkItem';
 
+/**
+ * A link in the filter menu.
+ * Renders an `<a>` element.
+ *
+ * Documentation: [Base UI Filter Menu](https://base-ui.com/react/components/filter-menu)
+ */
 export const FilterMenuLinkItem = React.forwardRef(function FilterMenuLinkItem(
   props: FilterMenuLinkItem.Props,
   forwardedRef: React.ForwardedRef<HTMLElement>,
@@ -16,7 +26,7 @@ export const FilterMenuLinkItem = React.forwardRef(function FilterMenuLinkItem(
   return visible ? <MenuLinkItem {...menuProps} label={label} ref={mergedRef} /> : null;
 });
 
-export interface FilterMenuLinkItemProps extends Omit<MenuLinkItemProps, 'label' | 'keywords'> {
+export interface FilterMenuLinkItemProps extends Omit<MenuLinkItemProps, 'label'> {
   /**
    * A text representation of the item used for filtering and keyboard text navigation.
    * Falls back to the rendered text.
@@ -24,11 +34,13 @@ export interface FilterMenuLinkItemProps extends Omit<MenuLinkItemProps, 'label'
   label?: string | undefined;
   /**
    * Additional terms the item matches on when using the default filter.
+   * Ignored when a custom `filter` is provided to the root.
    */
   keywords?: readonly string[] | undefined;
 }
+export interface FilterMenuLinkItemState extends MenuLinkItemState {}
 
 export namespace FilterMenuLinkItem {
   export type Props = FilterMenuLinkItemProps;
-  export type State = MenuLinkItem.State;
+  export type State = FilterMenuLinkItemState;
 }

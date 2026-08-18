@@ -8,7 +8,7 @@ import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { Store } from '@base-ui/utils/store';
 import { EMPTY_OBJECT, NOOP } from '@base-ui/utils/empty';
-import { getContainsFilter } from '../../internals/filter';
+import { getFilter } from '../../internals/filter';
 import type { HTMLProps } from '../../internals/types';
 import { useBaseUiId } from '../../internals/useBaseUiId';
 import { useItemRegistry } from '../../internals/useItemRegistry';
@@ -81,7 +81,7 @@ export function FilterDropdownRoot(props: FilterDropdownRoot.Props): React.JSX.E
       focusOwnerRef.current = element;
     }
   });
-  const defaultMatches = React.useMemo(() => getContainsFilter({ locale }), [locale]);
+  const defaultMatches = React.useMemo(() => getFilter({ locale }).contains, [locale]);
 
   // React 17 resolves generated ids in an effect, so they must be read live rather than captured
   // in a state initializer.

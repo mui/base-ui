@@ -13,6 +13,12 @@ import { useMenuRootContext } from '../../menu/root/MenuRootContext';
 import { CompositeList } from '../../internals/composite/list/CompositeList';
 import { useFilterDropdownRootContext } from '../../filter-dropdown/root/FilterDropdownRootContext';
 
+/**
+ * A container for the filter menu items.
+ * Renders a `<div>` element with a `menu` role.
+ *
+ * Documentation: [Base UI Filter Menu](https://base-ui.com/react/components/filter-menu)
+ */
 export const FilterMenuList = React.forwardRef(function FilterMenuList(
   componentProps: FilterMenuList.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
