@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { screen, waitFor } from '@mui/internal-test-utils';
-import { expect } from 'vitest';
+import { expect, vi } from 'vitest';
 import { createRenderer } from '#test-utils';
 import { FilterMenu } from '@base-ui/react/filter-menu';
 
@@ -74,5 +74,28 @@ describe('<FilterMenu.List />', () => {
       expect(input).toHaveAttribute('aria-activedescendant', apple.id);
     });
     expect(input).toHaveFocus();
+  });
+
+  it('ignores Escape and outside clicks when rendered inline', async () => {
+    const onOpenChange = vi.fn();
+    const { user } = await render(
+      <div>
+        <button type="button">Outside</button>
+        <FilterMenu.Root inline open onOpenChange={onOpenChange}>
+          <FilterMenu.Input aria-label="Filter fruit" />
+          <FilterMenu.List>
+            <FilterMenu.Item>Apple</FilterMenu.Item>
+          </FilterMenu.List>
+        </FilterMenu.Root>
+      </div>,
+    );
+
+    const input = screen.getByRole('searchbox', { name: 'Filter fruit' });
+    await user.click(input);
+    await user.keyboard('[Escape]');
+    await user.click(screen.getByRole('button', { name: 'Outside' }));
+
+    expect(onOpenChange).not.toHaveBeenCalled();
+    expect(screen.getByRole('menuitem', { name: 'Apple' })).toBeVisible();
   });
 });

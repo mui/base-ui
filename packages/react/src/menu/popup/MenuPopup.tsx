@@ -60,7 +60,7 @@ export const MenuPopup = React.forwardRef(function MenuPopup(
 
   const id = idProp ?? defaultFloatingId;
   const { ariaLabelledBy } = resolveMenuPopupLabel(
-    { ...elementProps, render },
+    componentProps,
     activeTriggerElement,
     activeTriggerId,
   );

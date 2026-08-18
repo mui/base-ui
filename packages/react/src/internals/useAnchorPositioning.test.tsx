@@ -55,7 +55,8 @@ function TestUseAnchorPositioning(props: { shift?: UseAnchorPositioningParameter
   );
 }
 
-function TestLazyFlip() {
+function TestLazyFlip(props: { side?: 'right' | 'bottom'; align?: 'start' | 'center' }) {
+  const { side = 'right', align = 'start' } = props;
   const anchorRef = React.useRef<HTMLDivElement>(null);
   const [shrunk, setShrunk] = React.useState(false);
   const height = shrunk ? 10 : 100;
@@ -65,8 +66,8 @@ function TestLazyFlip() {
       anchor: anchorRef,
       mounted: true,
       positionMethod: 'fixed',
-      side: 'right',
-      align: 'start',
+      side,
+      align,
       sideOffset: 0,
       alignOffset: 0,
       collisionBoundary: 'clipping-ancestors',
@@ -93,6 +94,7 @@ function TestLazyFlip() {
       <div
         ref={positioning.refs.setFloating}
         data-testid="floating"
+        data-side={positioning.side}
         data-align={positioning.align}
         style={{ ...positioning.positionerStyles, width: 100, height }}
       >
@@ -146,5 +148,26 @@ describe('useAnchorPositioning', () => {
     });
 
     expect(floating).toHaveAttribute('data-align', 'end');
+  });
+
+  it.skipIf(isJSDOM)('locks a flipped side after the popup shrinks', async () => {
+    const { user } = await render(<TestLazyFlip side="bottom" align="center" />);
+    const floating = screen.getByTestId('floating');
+
+    // The anchor sits at the viewport's bottom edge, so the popup flips above it.
+    await waitFor(() => {
+      expect(floating).toHaveAttribute('data-side', 'top');
+    });
+
+    // Shrinking makes the preferred bottom side fit again, but the flip is locked.
+    await user.click(screen.getByRole('button', { name: 'Shrink' }));
+
+    await waitFor(() => {
+      const anchorTop = screen.getByTestId('anchor').getBoundingClientRect().top;
+      const floatingBottom = floating.getBoundingClientRect().bottom;
+      expect(Math.abs(anchorTop - floatingBottom)).toBeLessThan(1);
+    });
+
+    expect(floating).toHaveAttribute('data-side', 'top');
   });
 });
