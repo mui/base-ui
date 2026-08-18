@@ -1,0 +1,245 @@
+# Filter Menu
+
+<Subtitle>A searchable menu for finding and running actions in a dropdown.</Subtitle>
+<Meta
+  name="description"
+  content="A high-quality, unstyled React menu with a built-in input for filtering actions."
+/>
+
+import { DemoMenuFilterable } from '../menu/demos/filterable';
+
+<DemoMenuFilterable />
+
+## Usage guidelines
+
+- **Use for searchable actions**: Choose `FilterMenu` when users need to find an action from a modest list. Use [Menu](/react/components/menu) for a short list that does not need search.
+- **Use value-selection components for values**: Choose [Combobox](/react/components/combobox) when users need to filter values, especially when the input is the control or the results are large, virtualized, or loaded asynchronously.
+- **Name the filter input**: Give `<FilterMenu.Input>` an accessible name with `aria-label`, `aria-labelledby`, or a visible native `<label>`.
+
+## Anatomy
+
+Import the component and assemble its parts:
+
+```jsx title="Anatomy"
+import { FilterMenu } from '@base-ui/react/filter-menu';
+
+<FilterMenu.Root>
+  <FilterMenu.Trigger>Actions</FilterMenu.Trigger>
+  <FilterMenu.Portal>
+    <FilterMenu.Backdrop />
+    <FilterMenu.Positioner>
+      <FilterMenu.Popup>
+        <FilterMenu.Input aria-label="Filter actions" />
+        <FilterMenu.Clear aria-label="Clear filter" />
+        <FilterMenu.Empty>No actions found.</FilterMenu.Empty>
+        <FilterMenu.List>
+          <FilterMenu.Item>Edit</FilterMenu.Item>
+          <FilterMenu.Item>Duplicate</FilterMenu.Item>
+        </FilterMenu.List>
+      </FilterMenu.Popup>
+    </FilterMenu.Positioner>
+  </FilterMenu.Portal>
+</FilterMenu.Root>;
+```
+
+`FilterMenu` uses the same action-item patterns as `Menu`, including checkbox items, radio groups, links, groups, and submenus. Use the `FilterMenu` parts throughout the tree so the filtering behavior and keyboard navigation stay connected.
+
+## Examples
+
+### Filtering items
+
+Items are matched against their `label` prop, falling back to their rendered text. Add `keywords` to an item when it should also match alternate names or related terms.
+
+Pass `label` explicitly when text is rendered by a custom component, localized, or can change while the item is filtered out. Filtered-out items are unmounted, so their rendered text is no longer available to inspect.
+
+```jsx title="Labels and keywords"
+<FilterMenu.List>
+  <FilterMenu.Item label="Rename" keywords={['edit name']}>
+    Rename
+  </FilterMenu.Item>
+  <FilterMenu.Item label="Move to folder" keywords={['organize']}>
+    Move
+  </FilterMenu.Item>
+</FilterMenu.List>
+```
+
+Groups with no matching items are hidden, including their group labels. `FilterMenu.Empty` is shown when no registered items match the query.
+
+### Controlled query
+
+Use `inputValue` and `onInputValueChange` when the query needs to be synchronized with application state. `defaultInputValue` sets the initial query for uncontrolled usage.
+
+```tsx title="Controlling the query"
+import * as React from 'react';
+import { FilterMenu } from '@base-ui/react/filter-menu';
+
+function SearchableActions() {
+  const [inputValue, setInputValue] = React.useState('');
+
+  return (
+    <FilterMenu.Root inputValue={inputValue} onInputValueChange={(value) => setInputValue(value)}>
+      {/* menu parts */}
+    </FilterMenu.Root>
+  );
+}
+```
+
+The query is cleared when the popup closes. If the query is controlled, update the value in `onInputValueChange` for the clear and close events as well as for typing.
+
+### Custom matching
+
+Pass `filter` to replace the default case-insensitive contains matching. The callback receives the item's filter text and the trimmed query:
+
+```jsx title="Custom filter"
+<FilterMenu.Root filter={(itemText, query) => itemText.startsWith(query)}>
+  {/* menu parts */}
+</FilterMenu.Root>
+```
+
+When a custom filter is provided, it is authoritative and `keywords` are ignored.
+
+### Filterable submenus
+
+Filtering is scoped to the nearest filter root. Use `<FilterMenu.SubmenuRoot>` when a submenu needs its own input; a regular `<Menu.SubmenuRoot>` does not become filterable automatically.
+
+```jsx title="A filterable submenu"
+<FilterMenu.SubmenuRoot>
+  <FilterMenu.SubmenuTrigger>More actions</FilterMenu.SubmenuTrigger>
+  <FilterMenu.Portal>
+    <FilterMenu.Positioner>
+      <FilterMenu.Popup>
+        <FilterMenu.Input aria-label="Filter more actions" />
+        <FilterMenu.List>
+          <FilterMenu.Item>Share</FilterMenu.Item>
+          <FilterMenu.Item>Move</FilterMenu.Item>
+        </FilterMenu.List>
+      </FilterMenu.Popup>
+    </FilterMenu.Positioner>
+  </FilterMenu.Portal>
+</FilterMenu.SubmenuRoot>
+```
+
+## API reference
+
+import { TypesFilterMenu } from './types';
+
+### Root
+
+<TypesFilterMenu.Root />
+
+### Trigger
+
+<TypesFilterMenu.Trigger />
+
+### Portal
+
+<TypesFilterMenu.Portal />
+
+### Backdrop
+
+<TypesFilterMenu.Backdrop />
+
+### Positioner
+
+<TypesFilterMenu.Positioner />
+
+### Popup
+
+<TypesFilterMenu.Popup />
+
+### Input
+
+<TypesFilterMenu.Input />
+
+### Clear
+
+<TypesFilterMenu.Clear />
+
+### Empty
+
+<TypesFilterMenu.Empty />
+
+### List
+
+<TypesFilterMenu.List />
+
+### Viewport
+
+<TypesFilterMenu.Viewport />
+
+### Arrow
+
+<TypesFilterMenu.Arrow />
+
+### Item
+
+<TypesFilterMenu.Item />
+
+### LinkItem
+
+<TypesFilterMenu.LinkItem />
+
+### SubmenuRoot
+
+<TypesFilterMenu.SubmenuRoot />
+
+### SubmenuTrigger
+
+<TypesFilterMenu.SubmenuTrigger />
+
+### Group
+
+<TypesFilterMenu.Group />
+
+### GroupLabel
+
+<TypesFilterMenu.GroupLabel />
+
+### RadioGroup
+
+<TypesFilterMenu.RadioGroup />
+
+### RadioItem
+
+<TypesFilterMenu.RadioItem />
+
+### RadioItemIndicator
+
+<TypesFilterMenu.RadioItemIndicator />
+
+### CheckboxItem
+
+<TypesFilterMenu.CheckboxItem />
+
+### CheckboxItemIndicator
+
+<TypesFilterMenu.CheckboxItemIndicator />
+
+### Separator
+
+<TypesFilterMenu.Separator />
+
+## createHandle
+
+<TypesFilterMenu.createHandle />
+
+[//]: # '@exclude-table-of-contents'
+
+### Handle
+
+<TypesFilterMenu.Handle />
+
+export const metadata = {
+  keywords: [
+    'React Filter Menu',
+    'Searchable Menu',
+    'Filterable Menu',
+    'Command Menu',
+    'Action Search',
+    'Search Menu',
+    'Keyboard Navigation Menu',
+    'Accessible React Menu',
+    'Headless React Components',
+    'Base UI',
+  ],
+};

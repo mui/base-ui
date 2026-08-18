@@ -2,7 +2,6 @@
 import * as React from 'react';
 import { useMenuRootContext } from '../root/MenuRootContext';
 import { useRenderElement } from '../../internals/useRenderElement';
-import { useBaseUiId } from '../../internals/useBaseUiId';
 import type { BaseUIComponentProps, HTMLProps } from '../../internals/types';
 import { useCompositeListItem } from '../../internals/composite/list/useCompositeListItem';
 import { useMenuPositionerContext } from '../positioner/MenuPositionerContext';
@@ -36,10 +35,11 @@ export const MenuLinkItem = React.forwardRef(function MenuLinkItem(
   const listItem = useCompositeListItem({ guess: true, label });
   const menuPositionerContext = useMenuPositionerContext(true);
   const nodeId = menuPositionerContext?.context.nodeId;
+  const { store, floatingId, virtualFocus } = useMenuRootContext();
+  // React 17 resolves generated ids in an effect, so the id can be undefined on the first
+  // render. Interpolating it then would emit a duplicate `undefined-0` on every menu.
+  const id = idProp ?? (floatingId != null ? `${floatingId}-${listItem.index}` : undefined);
 
-  const id = useBaseUiId(idProp);
-
-  const { store } = useMenuRootContext();
   const highlighted = store.useState('isActive', listItem.index);
   const itemProps = store.useState('itemProps');
   const typingRef = store.context.typingRef;
@@ -58,6 +58,7 @@ export const MenuLinkItem = React.forwardRef(function MenuLinkItem(
     typingRef,
     itemRef: linkRef,
     itemMetadata: REGULAR_ITEM,
+    virtualFocus,
   });
 
   function getItemProps(externalProps?: HTMLProps): HTMLProps {

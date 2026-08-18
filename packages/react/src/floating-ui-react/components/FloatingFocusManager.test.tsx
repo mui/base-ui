@@ -279,6 +279,57 @@ describe('FloatingFocusManager', () => {
         expect(screen.getByTestId('focus-target')).toHaveFocus();
       });
 
+      test('keeps outside focus when the resolver yields nothing', async () => {
+        function Test() {
+          const emptyRef = React.useRef<HTMLInputElement | null>(null);
+          return (
+            <div>
+              <input data-testid="outside" />
+              <App returnFocus={emptyRef} />
+            </div>
+          );
+        }
+
+        render(<Test />);
+        screen.getByTestId('reference').focus();
+        fireEvent.click(screen.getByTestId('reference'));
+        await flushMicrotasks();
+
+        // Focus moves somewhere unrelated before the popup closes.
+        const outside = screen.getByTestId('outside');
+        outside.focus();
+        await flushMicrotasks();
+
+        fireEvent.click(screen.getByTestId('three'));
+        await flushMicrotasks();
+
+        // An empty ref is not an explicit target, so the guard applies and focus is left alone.
+        expect(outside).toHaveFocus();
+        expect(screen.getByTestId('reference')).not.toHaveFocus();
+      });
+
+      test('keeps outside focus when the resolver returns null', async () => {
+        render(
+          <div>
+            <input data-testid="outside" />
+            <App returnFocus={() => null as unknown as boolean} />
+          </div>,
+        );
+
+        screen.getByTestId('reference').focus();
+        fireEvent.click(screen.getByTestId('reference'));
+        await flushMicrotasks();
+
+        const outside = screen.getByTestId('outside');
+        outside.focus();
+        await flushMicrotasks();
+
+        fireEvent.click(screen.getByTestId('three'));
+        await flushMicrotasks();
+
+        expect(outside).toHaveFocus();
+      });
+
       test('always returns to the reference for nested elements', async () => {
         const NestedDialog: React.FC<DialogProps> = (props) => {
           const parentId = useFloatingParentNodeId();

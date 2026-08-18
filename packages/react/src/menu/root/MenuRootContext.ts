@@ -2,10 +2,21 @@
 import * as React from 'react';
 import { type MenuStore } from '../store/MenuStore';
 import { MenuParent } from './MenuRoot';
+import type { HTMLProps } from '../../internals/types';
 
 export interface MenuRootContext<Payload = unknown> {
+  type: 'menu' | 'submenu';
   store: MenuStore<Payload>;
   parent: MenuParent;
+  orientation: 'vertical' | 'horizontal';
+  loopFocus: boolean;
+  defaultFloatingId: string | undefined;
+  floatingId: string | undefined;
+  setFloatingId: React.Dispatch<React.SetStateAction<string | undefined>>;
+  virtualFocus: boolean;
+  virtualFocusRef: React.RefObject<HTMLElement | null> | undefined;
+  virtualFocusPropsRef: React.RefObject<HTMLProps> | undefined;
+  parentVirtualFocus: boolean;
 }
 
 export const MenuRootContext = React.createContext<MenuRootContext | undefined>(undefined);
