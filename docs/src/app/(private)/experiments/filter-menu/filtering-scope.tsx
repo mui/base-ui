@@ -40,7 +40,7 @@ function RootFilterOnly() {
             <FilterMenu.List>
               <FilterMenu.Item className={classes.Item}>Rename</FilterMenu.Item>
               <Menu.SubmenuRoot>
-                <FilterMenu.SubmenuTrigger className={classes.Item} openOnHover={false}>
+                <FilterMenu.SubmenuTrigger className={classes.Item}>
                   Share <span aria-hidden>›</span>
                 </FilterMenu.SubmenuTrigger>
                 <Menu.Portal>
@@ -70,7 +70,7 @@ function SubmenuFilterOnly() {
           <Menu.Popup className={classes.Popup}>
             <Menu.Item className={classes.Item}>Rename</Menu.Item>
             <FilterMenu.SubmenuRoot>
-              <FilterMenu.SubmenuTrigger className={classes.Item} openOnHover={false}>
+              <FilterMenu.SubmenuTrigger className={classes.Item}>
                 Move to <span aria-hidden>›</span>
               </FilterMenu.SubmenuTrigger>
               <FilterMenu.Portal>

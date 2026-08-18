@@ -3,40 +3,7 @@ import * as React from 'react';
 import { FilterMenu } from '@base-ui/react/filter-menu';
 import styles from './index.module.css';
 
-const sharingOptions = [
-  'Email',
-  'Messages',
-  'AirDrop',
-  'Copy link',
-  'Invite collaborators',
-  'Publish to web',
-  'Send a copy',
-];
-const folderOptions = [
-  'Desktop',
-  'Documents',
-  'Downloads',
-  'Projects',
-  'Archive',
-  'Shared',
-  'Trash',
-];
-const exportOptions = [
-  'PDF document',
-  'Word document',
-  'Plain text',
-  'Rich text',
-  'Markdown',
-  'HTML page',
-  'Image',
-];
-
 export default function FilterMenuDemo() {
-  const [sortBy, setSortBy] = React.useState('date');
-  const [showDetails, setShowDetails] = React.useState(true);
-  const [showSidebar, setShowSidebar] = React.useState(false);
-  const [keepOffline, setKeepOffline] = React.useState(false);
-
   return (
     <FilterMenu.Root>
       <FilterMenu.Trigger className={styles.Trigger}>
@@ -97,11 +64,7 @@ export default function FilterMenuDemo() {
                 </FilterMenu.Item>
               </FilterMenu.Group>
 
-              <FilterMenu.RadioGroup
-                className={styles.Section}
-                value={sortBy}
-                onValueChange={setSortBy}
-              >
+              <FilterMenu.RadioGroup className={styles.Section} defaultValue="date">
                 <FilterMenu.Separator className={styles.Separator} />
                 <FilterMenu.GroupLabel className={styles.GroupLabel}>Sort by</FilterMenu.GroupLabel>
                 {[
@@ -121,31 +84,19 @@ export default function FilterMenuDemo() {
               <FilterMenu.Group className={styles.Section}>
                 <FilterMenu.Separator className={styles.Separator} />
                 <FilterMenu.GroupLabel className={styles.GroupLabel}>View</FilterMenu.GroupLabel>
-                <FilterMenu.CheckboxItem
-                  className={styles.ChoiceItem}
-                  checked={showDetails}
-                  onCheckedChange={setShowDetails}
-                >
+                <FilterMenu.CheckboxItem className={styles.ChoiceItem} defaultChecked>
                   <FilterMenu.CheckboxItemIndicator className={styles.ChoiceIndicator}>
                     <CheckIcon />
                   </FilterMenu.CheckboxItemIndicator>
                   <span className={styles.ChoiceText}>Show details</span>
                 </FilterMenu.CheckboxItem>
-                <FilterMenu.CheckboxItem
-                  className={styles.ChoiceItem}
-                  checked={showSidebar}
-                  onCheckedChange={setShowSidebar}
-                >
+                <FilterMenu.CheckboxItem className={styles.ChoiceItem}>
                   <FilterMenu.CheckboxItemIndicator className={styles.ChoiceIndicator}>
                     <CheckIcon />
                   </FilterMenu.CheckboxItemIndicator>
                   <span className={styles.ChoiceText}>Show sidebar</span>
                 </FilterMenu.CheckboxItem>
-                <FilterMenu.CheckboxItem
-                  className={styles.ChoiceItem}
-                  checked={keepOffline}
-                  onCheckedChange={setKeepOffline}
-                >
+                <FilterMenu.CheckboxItem className={styles.ChoiceItem}>
                   <FilterMenu.CheckboxItemIndicator className={styles.ChoiceIndicator}>
                     <CheckIcon />
                   </FilterMenu.CheckboxItemIndicator>
@@ -272,3 +223,33 @@ function CheckIcon(props: React.ComponentProps<'svg'>) {
     </svg>
   );
 }
+
+const sharingOptions = [
+  'Email',
+  'Messages',
+  'AirDrop',
+  'Copy link',
+  'Invite collaborators',
+  'Publish to web',
+  'Send a copy',
+];
+
+const folderOptions = [
+  'Desktop',
+  'Documents',
+  'Downloads',
+  'Projects',
+  'Archive',
+  'Shared',
+  'Trash',
+];
+
+const exportOptions = [
+  'PDF document',
+  'Word document',
+  'Plain text',
+  'Rich text',
+  'Markdown',
+  'HTML page',
+  'Image',
+];
