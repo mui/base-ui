@@ -3319,4 +3319,233 @@ describe('<FilterMenu.Root />', () => {
     expect(onClick).toHaveBeenCalledTimes(1);
     expect(onClick.mock.calls[0][0]).toHaveProperty('ctrlKey', true);
   });
+
+  it('calls onOpenChangeComplete when the menu opens and closes', async () => {
+    const onOpenChangeComplete = vi.fn();
+    const { user } = await render(
+      <FilterMenu.Root onOpenChangeComplete={onOpenChangeComplete}>
+        <FilterMenu.Trigger>Actions</FilterMenu.Trigger>
+        <FilterMenu.Portal>
+          <FilterMenu.Positioner>
+            <FilterMenu.Popup>
+              <FilterMenu.Input aria-label="Filter actions" />
+              <FilterMenu.List>
+                <FilterMenu.Item>Rename</FilterMenu.Item>
+              </FilterMenu.List>
+            </FilterMenu.Popup>
+          </FilterMenu.Positioner>
+        </FilterMenu.Portal>
+      </FilterMenu.Root>,
+    );
+
+    await user.click(screen.getByRole('button', { name: 'Actions' }));
+    await waitFor(() => {
+      expect(onOpenChangeComplete).toHaveBeenCalledWith(true);
+    });
+
+    await user.keyboard('[Escape]');
+    await waitFor(() => {
+      expect(onOpenChangeComplete).toHaveBeenCalledWith(false);
+    });
+  });
+
+  it('does not seed a highlight when the trigger regains focus while open', async () => {
+    const { user } = await render(
+      <FilterMenu.Root>
+        <FilterMenu.Trigger>Actions</FilterMenu.Trigger>
+        <FilterMenu.Portal>
+          <FilterMenu.Positioner>
+            <FilterMenu.Popup>
+              <FilterMenu.Input aria-label="Filter actions" />
+              <FilterMenu.List>
+                <FilterMenu.Item>Rename</FilterMenu.Item>
+              </FilterMenu.List>
+            </FilterMenu.Popup>
+          </FilterMenu.Positioner>
+        </FilterMenu.Portal>
+      </FilterMenu.Root>,
+    );
+
+    const trigger = screen.getByRole('button', { name: 'Actions' });
+    await user.click(trigger);
+    const input = await screen.findByRole('searchbox', { name: 'Filter actions' });
+    await waitFor(() => {
+      expect(input).toHaveFocus();
+    });
+
+    // Safari focuses the trigger on mousedown before the closing click lands.
+    await act(async () => {
+      trigger.focus();
+    });
+
+    expect(input).not.toHaveAttribute('aria-activedescendant');
+    expect(trigger).not.toHaveAttribute('aria-activedescendant');
+    expect(screen.getByRole('menuitem', { name: 'Rename' })).not.toHaveAttribute(
+      'data-highlighted',
+    );
+  });
+
+  it('prefers the label prop over rendered text for matching', async () => {
+    const { user } = await render(
+      <FilterMenu.Root defaultOpen>
+        <FilterMenu.Trigger>Actions</FilterMenu.Trigger>
+        <FilterMenu.Portal>
+          <FilterMenu.Positioner>
+            <FilterMenu.Popup>
+              <FilterMenu.Input aria-label="Filter actions" />
+              <FilterMenu.List>
+                <FilterMenu.Item label="Apple">Fruit one</FilterMenu.Item>
+                <FilterMenu.Item>Banana</FilterMenu.Item>
+              </FilterMenu.List>
+            </FilterMenu.Popup>
+          </FilterMenu.Positioner>
+        </FilterMenu.Portal>
+      </FilterMenu.Root>,
+    );
+
+    const input = screen.getByRole('searchbox', { name: 'Filter actions' });
+    await user.type(input, 'app');
+    await waitFor(() => {
+      expect(screen.queryByRole('menuitem', { name: 'Banana' })).toBe(null);
+    });
+    expect(screen.getByRole('menuitem', { name: 'Fruit one' })).toBeVisible();
+
+    await user.clear(input);
+    await user.type(input, 'fruit');
+    await waitFor(() => {
+      expect(screen.queryByRole('menuitem', { name: 'Fruit one' })).toBe(null);
+    });
+  });
+
+  it('removes Empty once the query matches again', async () => {
+    const { user } = await render(
+      <FilterMenu.Root defaultOpen>
+        <FilterMenu.Trigger>Actions</FilterMenu.Trigger>
+        <FilterMenu.Portal>
+          <FilterMenu.Positioner>
+            <FilterMenu.Popup>
+              <FilterMenu.Input aria-label="Filter actions" />
+              <FilterMenu.Empty>No actions found</FilterMenu.Empty>
+              <FilterMenu.List>
+                <FilterMenu.Item>Rename</FilterMenu.Item>
+              </FilterMenu.List>
+            </FilterMenu.Popup>
+          </FilterMenu.Positioner>
+        </FilterMenu.Portal>
+      </FilterMenu.Root>,
+    );
+
+    const input = screen.getByRole('searchbox', { name: 'Filter actions' });
+    expect(screen.queryByText('No actions found')).toBe(null);
+
+    await user.type(input, 'zzz');
+    await waitFor(() => {
+      expect(screen.queryAllByText('No actions found').length).toBeGreaterThan(0);
+    });
+
+    await user.clear(input);
+    await user.type(input, 'ren');
+    await waitFor(() => {
+      expect(screen.queryByText('No actions found')).toBe(null);
+    });
+    expect(screen.getByRole('menuitem', { name: 'Rename' })).toBeVisible();
+  });
+
+  it('does not set aria-selected on highlighted items outside WebKit', async () => {
+    const { user } = await render(
+      <FilterMenu.Root defaultOpen>
+        <FilterMenu.Trigger>Actions</FilterMenu.Trigger>
+        <FilterMenu.Portal>
+          <FilterMenu.Positioner>
+            <FilterMenu.Popup>
+              <FilterMenu.Input aria-label="Filter actions" />
+              <FilterMenu.List>
+                <FilterMenu.Item>Rename</FilterMenu.Item>
+              </FilterMenu.List>
+            </FilterMenu.Popup>
+          </FilterMenu.Positioner>
+        </FilterMenu.Portal>
+      </FilterMenu.Root>,
+    );
+
+    const input = screen.getByRole('searchbox', { name: 'Filter actions' });
+    await waitFor(() => {
+      expect(input).toHaveFocus();
+    });
+    await user.keyboard('[ArrowDown]');
+
+    const item = screen.getByRole('menuitem', { name: 'Rename' });
+    await waitFor(() => {
+      expect(item).toHaveAttribute('data-highlighted');
+    });
+    expect(item).not.toHaveAttribute('aria-selected');
+  });
+
+  it('opens and closes a vertical filterable submenu of a horizontal filter menu with the right axis keys', async () => {
+    const { user } = await render(
+      <FilterMenu.Root defaultOpen orientation="horizontal">
+        <FilterMenu.Trigger>Actions</FilterMenu.Trigger>
+        <FilterMenu.Portal>
+          <FilterMenu.Positioner>
+            <FilterMenu.Popup>
+              <FilterMenu.Input aria-label="Filter actions" />
+              <FilterMenu.List>
+                <FilterMenu.Item>Rename</FilterMenu.Item>
+                <FilterMenu.SubmenuRoot>
+                  <FilterMenu.SubmenuTrigger openOnHover={false}>More</FilterMenu.SubmenuTrigger>
+                  <FilterMenu.Portal>
+                    <FilterMenu.Positioner>
+                      <FilterMenu.Popup>
+                        <FilterMenu.Input aria-label="Filter more" />
+                        <FilterMenu.List>
+                          <FilterMenu.Item>Sub one</FilterMenu.Item>
+                          <FilterMenu.Item>Sub two</FilterMenu.Item>
+                        </FilterMenu.List>
+                      </FilterMenu.Popup>
+                    </FilterMenu.Positioner>
+                  </FilterMenu.Portal>
+                </FilterMenu.SubmenuRoot>
+              </FilterMenu.List>
+            </FilterMenu.Popup>
+          </FilterMenu.Positioner>
+        </FilterMenu.Portal>
+      </FilterMenu.Root>,
+    );
+
+    const input = screen.getByRole('searchbox', { name: 'Filter actions' });
+    await waitFor(() => {
+      expect(input).toHaveFocus();
+    });
+
+    // Main axis of the horizontal parent.
+    await user.keyboard('[ArrowRight][ArrowRight]');
+    const submenuTrigger = screen.getByRole('menuitem', { name: 'More' });
+    await waitFor(() => {
+      expect(input).toHaveAttribute('aria-activedescendant', submenuTrigger.id);
+    });
+
+    // Cross axis of the horizontal parent opens the vertical submenu.
+    await user.keyboard('[ArrowDown]');
+    const submenuInput = await screen.findByRole('searchbox', { name: 'Filter more' });
+    await waitFor(() => {
+      expect(submenuInput).toHaveFocus();
+    });
+
+    // ArrowUp is the vertical submenu's own main axis, not its close key.
+    await user.keyboard('[ArrowUp]');
+    expect(screen.getByRole('searchbox', { name: 'Filter more' })).toBeVisible();
+
+    // ArrowLeft is the vertical submenu's close key, distinct from the parent's open key.
+    await user.keyboard('[ArrowLeft]');
+    await waitFor(() => {
+      expect(screen.queryByRole('searchbox', { name: 'Filter more' })).toBe(null);
+    });
+    await waitFor(() => {
+      expect(input).toHaveFocus();
+    });
+
+    // ArrowUp is not the horizontal parent's open key and must not reopen it.
+    await user.keyboard('[ArrowUp]');
+    expect(screen.queryByRole('searchbox', { name: 'Filter more' })).toBe(null);
+  });
 });
