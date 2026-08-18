@@ -1,12 +1,12 @@
 import { expect } from 'vitest';
-import { screen } from '@mui/internal-test-utils';
+import { screen, waitFor } from '@mui/internal-test-utils';
 import { createRenderer } from '#test-utils';
 import { FilterMenu } from '@base-ui/react/filter-menu';
 
 describe('<FilterMenu.SubmenuTrigger />', () => {
   const { render } = createRenderer();
 
-  it('keeps real focus on the parent input during keyboard and pointer interaction', async () => {
+  it('keeps real focus on the parent input until the submenu opens', async () => {
     const { user } = await render(
       <FilterMenu.Root open>
         <FilterMenu.Trigger>Actions</FilterMenu.Trigger>
@@ -21,7 +21,10 @@ describe('<FilterMenu.SubmenuTrigger />', () => {
                   <FilterMenu.Portal>
                     <FilterMenu.Positioner>
                       <FilterMenu.Popup>
-                        <FilterMenu.Item>Documents</FilterMenu.Item>
+                        <FilterMenu.Input aria-label="Filter folders" />
+                        <FilterMenu.List>
+                          <FilterMenu.Item>Documents</FilterMenu.Item>
+                        </FilterMenu.List>
                       </FilterMenu.Popup>
                     </FilterMenu.Positioner>
                   </FilterMenu.Portal>
@@ -43,8 +46,12 @@ describe('<FilterMenu.SubmenuTrigger />', () => {
     expect(submenuTrigger).toHaveAttribute('tabindex', '-1');
     expect(input).toHaveFocus();
 
+    // Opening the submenu hands it ownership of focus.
     await user.click(submenuTrigger);
 
-    expect(input).toHaveFocus();
+    const submenuInput = await screen.findByRole('searchbox', { name: 'Filter folders' });
+    await waitFor(() => {
+      expect(submenuInput).toHaveFocus();
+    });
   });
 });
