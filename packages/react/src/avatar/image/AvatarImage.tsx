@@ -32,16 +32,46 @@ export const AvatarImage = React.forwardRef(function AvatarImage(
     className,
     render,
     onLoadingStatusChange: onLoadingStatusChangeProp,
+    keepMounted = false,
     style,
     ...elementProps
   } = componentProps;
+
   const { setImageLoadingStatus } = useAvatarRootContext();
-  const imageLoadingStatus = useImageLoadingStatus(elementProps.src, elementProps);
+  const preloadedStatus = useImageLoadingStatus(elementProps.src, elementProps, !keepMounted);
+  const [renderedStatus, setRenderedStatus] = React.useState<ImageLoadingStatus>('idle');
+  const imageLoadingStatus = keepMounted ? renderedStatus : preloadedStatus;
 
   const isVisible = imageLoadingStatus === 'loaded';
   const { mounted, transitionStatus, setMounted } = useTransitionStatus(isVisible);
 
   const imageRef = React.useRef<HTMLImageElement | null>(null);
+
+  // With `keepMounted`, the status comes from the rendered element itself, whose `load` event may
+  // have already fired (cached images, or loads completed before hydration).
+  useIsoLayoutEffect(() => {
+    if (!keepMounted) {
+      return;
+    }
+
+    const image = imageRef.current;
+    if (image?.complete) {
+      setRenderedStatus(image.naturalWidth > 0 ? 'loaded' : 'error');
+    } else {
+      setRenderedStatus('loading');
+    }
+  }, [keepMounted, elementProps.src, elementProps.srcSet]);
+
+  const renderedStatusProps = keepMounted
+    ? {
+        onLoad() {
+          setRenderedStatus('loaded');
+        },
+        onError() {
+          setRenderedStatus('error');
+        },
+      }
+    : undefined;
 
   const handleLoadingStatusChange = useStableCallback((status: ImageLoadingStatus) => {
     onLoadingStatusChangeProp?.(status);
@@ -76,12 +106,12 @@ export const AvatarImage = React.forwardRef(function AvatarImage(
   const element = useRenderElement('img', componentProps, {
     state,
     ref: [forwardedRef, imageRef],
-    props: elementProps,
+    props: [renderedStatusProps, elementProps],
     stateAttributesMapping,
-    enabled: mounted,
+    enabled: keepMounted || mounted,
   });
 
-  if (!mounted) {
+  if (!keepMounted && !mounted) {
     return null;
   }
 
@@ -104,6 +134,14 @@ export interface AvatarImageProps extends BaseUIComponentProps<
    * Callback fired when the loading status changes.
    */
   onLoadingStatusChange?: ((status: ImageLoadingStatus) => void) | undefined;
+  /**
+   * Whether the image element remains mounted while loading or after failing to load.
+   * When enabled, the image loads in place instead of being preloaded, which supports
+   * `loading="lazy"` and optimized image components (for example `next/image`) via the
+   * `render` prop.
+   * @default false
+   */
+  keepMounted?: boolean | undefined;
 }
 
 export namespace AvatarImage {

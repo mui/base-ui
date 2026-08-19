@@ -14,10 +14,15 @@ interface UseImageLoadingStatusOptions {
 export function useImageLoadingStatus(
   src: string | undefined,
   { referrerPolicy, crossOrigin, sizes, srcSet }: UseImageLoadingStatusOptions,
+  enabled: boolean,
 ): ImageLoadingStatus {
   const [loadingStatus, setLoadingStatus] = React.useState<ImageLoadingStatus>('idle');
 
   useIsoLayoutEffect(() => {
+    if (!enabled) {
+      return NOOP;
+    }
+
     if (!src && !srcSet) {
       setLoadingStatus('error');
       return NOOP;
@@ -59,7 +64,7 @@ export function useImageLoadingStatus(
     return () => {
       isMounted = false;
     };
-  }, [src, srcSet, sizes, crossOrigin, referrerPolicy]);
+  }, [enabled, src, srcSet, sizes, crossOrigin, referrerPolicy]);
 
   return loadingStatus;
 }

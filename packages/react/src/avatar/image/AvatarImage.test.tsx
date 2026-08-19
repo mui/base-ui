@@ -1,7 +1,7 @@
 import { expect, vi } from 'vitest';
 import * as React from 'react';
 import { Avatar } from '@base-ui/react/avatar';
-import { act, screen, waitFor } from '@mui/internal-test-utils';
+import { act, fireEvent, screen, waitFor } from '@mui/internal-test-utils';
 import { describeConformance, createRenderer, isJSDOM } from '#test-utils';
 
 type MockImage = {
@@ -210,6 +210,172 @@ describe('<Avatar.Image />', () => {
       });
 
       expect(onLoadingStatusChange).not.toHaveBeenCalledWith('idle');
+    });
+  });
+
+  describe('prop: keepMounted', () => {
+    it.skipIf(!isJSDOM)('mounts the image while loading without preloading it', async () => {
+      const imageMock = installImageMock();
+
+      await render(
+        <Avatar.Root>
+          <Avatar.Image data-testid="image" keepMounted src="avatar.png" />
+          <Avatar.Fallback>JD</Avatar.Fallback>
+        </Avatar.Root>,
+      );
+
+      expect(screen.getByTestId('image')).toHaveAttribute('src', 'avatar.png');
+      expect(screen.getByText('JD')).not.toBe(null);
+      expect(imageMock.images.length).toBe(0);
+    });
+
+    it.skipIf(!isJSDOM)('derives the status from the rendered element load event', async () => {
+      installImageMock();
+      const onLoadingStatusChange = vi.fn();
+
+      await render(
+        <Avatar.Root>
+          <Avatar.Image
+            data-testid="image"
+            keepMounted
+            src="avatar.png"
+            onLoadingStatusChange={onLoadingStatusChange}
+          />
+          <Avatar.Fallback>JD</Avatar.Fallback>
+        </Avatar.Root>,
+      );
+
+      fireEvent.load(screen.getByTestId('image'));
+
+      await waitFor(() => {
+        expect(screen.queryByText('JD')).toBe(null);
+      });
+      expect(onLoadingStatusChange.mock.calls.map(([status]) => status)).toEqual([
+        'loading',
+        'loaded',
+      ]);
+    });
+
+    it.skipIf(!isJSDOM)('keeps the image mounted when it fails to load', async () => {
+      installImageMock();
+      const onLoadingStatusChange = vi.fn();
+
+      await render(
+        <Avatar.Root>
+          <Avatar.Image
+            data-testid="image"
+            keepMounted
+            src="avatar.png"
+            onLoadingStatusChange={onLoadingStatusChange}
+          />
+          <Avatar.Fallback>JD</Avatar.Fallback>
+        </Avatar.Root>,
+      );
+
+      fireEvent.error(screen.getByTestId('image'));
+
+      await waitFor(() => {
+        expect(onLoadingStatusChange).toHaveBeenCalledWith('error');
+      });
+      expect(screen.getByTestId('image')).not.toBe(null);
+      expect(screen.getByText('JD')).not.toBe(null);
+    });
+
+    it.skipIf(!isJSDOM)('calls the user onLoad handler', async () => {
+      installImageMock();
+      const onLoad = vi.fn();
+
+      await render(
+        <Avatar.Root>
+          <Avatar.Image data-testid="image" keepMounted src="avatar.png" onLoad={onLoad} />
+          <Avatar.Fallback>JD</Avatar.Fallback>
+        </Avatar.Root>,
+      );
+
+      fireEvent.load(screen.getByTestId('image'));
+
+      await waitFor(() => {
+        expect(onLoad).toHaveBeenCalledTimes(1);
+      });
+      await waitFor(() => {
+        expect(screen.queryByText('JD')).toBe(null);
+      });
+    });
+
+    it.skipIf(isJSDOM)(
+      'renders the image in the server HTML and resolves cached images on hydration',
+      async () => {
+        // 1x1 transparent PNG
+        const dataUri =
+          'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==';
+
+        // Restore real Image so this test exercises actual browser caching
+        restoreImage();
+        restoreImage = () => {};
+
+        // Pre-load so the browser cache has the decoded image
+        await new Promise<void>((resolve, reject) => {
+          const img = new window.Image();
+          img.onload = () => resolve();
+          img.onerror = () => reject(new Error('Failed to preload test image'));
+          img.src = dataUri;
+        });
+
+        const { hydrate } = renderToString(
+          <Avatar.Root>
+            <Avatar.Image keepMounted src={dataUri} alt="Jane Doe" />
+            <Avatar.Fallback>JD</Avatar.Fallback>
+          </Avatar.Root>,
+        );
+
+        // Unlike the default mode, the image is part of the server HTML, so the
+        // browser loads it before hydration.
+        expect(screen.getByRole('img')).toHaveAttribute('src', dataUri);
+        expect(screen.getByText('JD')).toBeVisible();
+        await waitFor(() => {
+          expect((screen.getByRole('img') as HTMLImageElement).complete).toBe(true);
+        });
+
+        hydrate();
+
+        // The hydration layout effect sees `image.complete` and resolves the
+        // status before paint, so the fallback is removed without a flash.
+        expect(screen.getByRole('img')).toHaveAttribute('src', dataUri);
+        expect(screen.queryByText('JD')).toBe(null);
+      },
+    );
+
+    it.skipIf(isJSDOM)('loads the image without a detached preload', async () => {
+      // 1x1 transparent PNG
+      const dataUri =
+        'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==';
+
+      // Fail the test if the detached preload is used
+      restoreImage();
+      const OriginalImage = window.Image;
+      const constructed: unknown[] = [];
+      window.Image = function TrackedImage(this: unknown, ...args: []) {
+        constructed.push(this);
+        return Reflect.construct(OriginalImage, args, TrackedImage);
+      } as unknown as typeof window.Image;
+      Object.setPrototypeOf(window.Image, OriginalImage);
+      window.Image.prototype = OriginalImage.prototype;
+      restoreImage = () => {
+        window.Image = OriginalImage;
+      };
+
+      await render(
+        <Avatar.Root>
+          <Avatar.Image data-testid="image" keepMounted src={dataUri} alt="Jane Doe" />
+          <Avatar.Fallback>JD</Avatar.Fallback>
+        </Avatar.Root>,
+      );
+
+      await waitFor(() => {
+        expect(screen.queryByText('JD')).toBe(null);
+      });
+      expect(screen.getByTestId('image')).toHaveAttribute('src', dataUri);
+      expect(constructed.length).toBe(0);
     });
   });
 
