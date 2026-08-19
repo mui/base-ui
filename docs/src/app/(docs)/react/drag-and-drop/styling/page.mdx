@@ -64,6 +64,15 @@ A pointer drag tracks the cursor, so a transition on the preview only makes it l
 
 Transition `translate` only — the property the engine positions the preview through. `.Card` also matches the source, so an `opacity` transition eases it back from `[data-dragging]` once the preview is already gone, which reads as the item fading in behind the drop.
 
+The same selector can mirror the focus ring onto the preview, so a keyboard drag stays visibly "focused" while the item moves:
+
+```css title="A focus ring for the keyboard-dragged preview"
+.Card[data-drag-preview][data-drag-mode='keyboard'] {
+  outline: 2px solid black;
+  outline-offset: 2px;
+}
+```
+
 ## Animating a drop
 
 After a release, an engine-owned clone receives `data-ending-style` and moves to the source's committed position. A transition in that state keeps the clone mounted until it finishes:

@@ -160,10 +160,17 @@
     }
 
     /* A keyboard drag moves between discrete slots one key at a time; easing the
-     * translate glides the preview instead of teleporting it. Pointer drags keep
+     * translate glides the preview instead of teleporting it, and the focus ring
+     * is mirrored onto it so the moving event reads as focused. Pointer drags keep
      * an instant translate so the preview tracks the cursor without lag. */
     &[data-drag-mode='keyboard'] {
+      outline: 2px solid oklch(14.5% 0 0deg);
+      outline-offset: -1px;
       transition: translate 0.15s ease;
+
+      @media (prefers-color-scheme: dark) {
+        outline-color: white;
+      }
     }
   }
 }

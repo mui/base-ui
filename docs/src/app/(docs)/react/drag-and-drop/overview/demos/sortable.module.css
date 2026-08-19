@@ -107,9 +107,16 @@
     }
 
     /* A keyboard drag moves the preview between discrete slots one key at a time,
-     * so easing its `translate` glides it there instead of teleporting. */
+     * so easing its `translate` glides it there instead of teleporting, and the
+     * focus ring is mirrored onto it so the moving item reads as focused. */
     &[data-drag-mode='keyboard'] {
+      outline: 2px solid oklch(14.5% 0 0deg);
+      outline-offset: -1px;
       transition: translate 0.2s ease;
+
+      @media (prefers-color-scheme: dark) {
+        outline-color: white;
+      }
     }
   }
 }
