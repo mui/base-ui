@@ -9,7 +9,7 @@ import { createClonedDragPreviewElement } from '../../utils/drag-and-drop/synthe
  * Configures the sanitized clone of the source shown by default.
  * Renders nothing.
  *
- * Reach for it to place or constrain the default cloned preview.
+ * Use it to position or constrain the default cloned preview.
  * Use a `Draggable.Preview` instead to replace the clone with your own content.
  *
  * The clone carries the source's own classes, so style it with `[data-drag-preview]`

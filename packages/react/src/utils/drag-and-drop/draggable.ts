@@ -455,9 +455,9 @@ export type DraggableConfig<TData = undefined> = {
    */
   label?: string | undefined;
   /**
-   * What this draggable is, created with `Draggable.createKind`. Drop targets and
-   * monitors declare the kinds they take through their `accept`, and the kind's payload
-   * type is what types `payload` and `source.payload` on every event.
+   * The drag kind created with `Draggable.createKind`. Drop targets and monitors
+   * list accepted kinds in `accept`. The kind determines the type of `payload` and
+   * `source.payload`.
    */
   kind: DragKind<TData>;
   /**
@@ -470,11 +470,9 @@ export type DraggableConfig<TData = undefined> = {
    */
   dragHandle?: DragHandle | undefined;
   /**
-   * Whether the element should ignore user interaction: a press behaves like an
-   * ordinary click and Space/Enter keep their native behavior. The keyboard-drag
-   * a11y attributes are also omitted, so screen readers don't announce a drag that
-   * can't start. For a decision that needs the gesture context, use
-   * `onBeforeDragStart` instead.
+   * Whether to disable dragging. Pointer presses and keyboard events keep their
+   * native behavior, and Base UI omits the keyboard-drag accessibility attributes.
+   * Use `onBeforeDragStart` instead when the decision depends on the gesture.
    * @default false
    */
   disabled?: boolean | undefined;
@@ -487,10 +485,10 @@ export type DraggableConfig<TData = undefined> = {
     | ((context: DragStartContext, eventDetails: BeforeDragStartEventDetails) => void)
     | undefined;
   /**
-   * Determines when a press becomes a drag. Mouse and pen default to a 5px
-   * distance, touch to a 250ms press-hold. Pass a single `DragActivation` to
-   * apply to all pointer types, or a per-type map.
-   * Keyboard pickup is separate: see `keyboardActivation`.
+   * Determines when a pointer press starts a drag. Mouse and pen use a 5px distance
+   * by default. Touch uses a 250ms press and hold. Pass one `DragActivation` for
+   * every pointer type or a map with per-type values. See `keyboardActivation` for
+   * keyboard pickup.
    */
   pointerActivation?: DragActivationConfig | undefined;
   /**
@@ -533,15 +531,15 @@ export type DraggableConfig<TData = undefined> = {
    */
   modifiers?: DragModifiers | undefined;
   /**
-   * CSS cursor pinned across the whole document while a pointer drag is active.
-   * The drag preview has `pointer-events: none`, so without this the cursor would
-   * track whatever sits under the pointer. Touch drags ignore it.
+   * CSS cursor applied across the document during a pointer drag. The drag preview
+   * has `pointer-events: none`, so otherwise the cursor would depend on the element
+   * under the pointer. Touch drags ignore this value.
    * Pass `false` to manage the cursor yourself.
    * @default 'grabbing'
    */
   dragCursor?: string | false | undefined;
   /**
-   * The drag preview: what follows the pointer, and where it lives in the DOM.
+   * The content and DOM container of the drag preview.
    * Omit it to use a sanitized clone of the source. The clone preserves classes
    * and live element state, but rewrites IDs to keep the document unique.
    *
@@ -585,10 +583,9 @@ export type DraggableConfig<TData = undefined> = {
       ) => void)
     | undefined;
   /**
-   * Event handler called, rAF-throttled, as the drag moves — a pointer move, or an
-   * arrow press moving the keyboard drag's virtual cursor. Not dispatched on
-   * drop-target-stack changes, so hover logic belongs on the drop target's
-   * `onDrag`, not here.
+   * Event handler called as the pointer or keyboard cursor moves, limited to one
+   * call per animation frame. Drop target stack changes do not call this handler.
+   * Use the drop target's `onDrag` for hover behavior.
    */
   onDrag?:
     | ((
@@ -607,9 +604,9 @@ export type DraggableConfig<TData = undefined> = {
       ) => void)
     | undefined;
   /**
-   * Event handler called when the drag is released over an accepting drop target,
-   * and only then — the place to commit the move. `dropTarget` is never `null` here.
-   * A drag that ends any other way reaches `onDragEnd` alone.
+   * Event handler called when the drag is released over an accepting drop target.
+   * Commit the move here. `dropTarget` is never `null`. A drag that ends another
+   * way calls only `onDragEnd`.
    */
   onDrop?:
     | ((
@@ -618,9 +615,9 @@ export type DraggableConfig<TData = undefined> = {
       ) => void)
     | undefined;
   /**
-   * Event handler called once when the drag ends, however it ended — dropped,
-   * released over nothing, or canceled. Use it to undo optimistic state and clean up;
-   * commit the drop from `onDrop`. `eventDetails.reason` carries the exact outcome.
+   * Event handler called once when the drag ends after a drop, outside release, or
+   * cancellation. Use it to clean up or revert optimistic state. Commit a drop from
+   * `onDrop`. `eventDetails.reason` identifies the outcome.
    */
   onDragEnd?:
     | ((

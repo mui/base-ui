@@ -7,9 +7,9 @@ import type { AcceptedDragPayload, AnyDragAccept, DragKind } from '../types/drag
 import type { WithInferredAccept } from '../types/dragRegistration';
 
 /**
- * Observes every drag operation, regardless of which element started it, subject
- * to `accept`. Use it for cross-cutting concerns — status indicators,
- * analytics, committing a reorder on drop.
+ * Observes every drag operation that matches `accept`, regardless of which
+ * element started it. Use it for status indicators, analytics, or committing a
+ * reorder on drop.
  *
  * Documentation: [Base UI useDragMonitor](https://base-ui.com/react/utils/use-drag-monitor)
  *
@@ -31,7 +31,7 @@ export namespace useDragMonitor {
 }
 
 /**
- * Parameters for {@link useDragMonitor}: the drag kinds to observe and the
+ * Parameters for {@link useDragMonitor}. Defines the drag kinds to observe and the
  * lifecycle callbacks fired for every matching drag.
  */
 export interface UseDragMonitorParameters<

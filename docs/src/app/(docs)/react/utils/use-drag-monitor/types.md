@@ -6,9 +6,9 @@
 
 ### useDragMonitor
 
-Observes every drag operation, regardless of which element started it, subject
-to `accept`. Use it for cross-cutting concerns — status indicators,
-analytics, committing a reorder on drop.
+Observes every drag operation that matches `accept`, regardless of which
+element started it. Use it for status indicators, analytics, or committing a
+reorder on drop.
 
 **useDragMonitor Parameters:**
 
@@ -27,13 +27,13 @@ type ReturnValue = void;
 ```typescript
 type useDragMonitorParameters<TSourceData = unknown> = {
   /**
-   * The kinds of drag source this monitor observes: one kind, or an array of them. Omit
-   * it to observe every drag, at the cost of `source.payload` being `unknown`.
+   * One or more drag source kinds observed by this monitor. Omit it to observe
+   * every drag with `source.payload` typed as `unknown`.
    *
-   * It is evaluated once when the monitor joins a drag: at drag start for an existing
-   * monitor, or at registration for one added mid-drag. A monitor whose `accept` excludes
-   * that drag stays out for the remainder. For anything finer, return early from the
-   * event callbacks below.
+   * Base UI evaluates this value when the monitor joins a drag, either at drag
+   * start or when the monitor registers during a drag. If the value excludes the
+   * drag, the monitor ignores its remaining events. Return early from callbacks to
+   * apply more specific filters.
    */
   accept?: DragAccept<TSourceData>;
   /**
@@ -66,9 +66,9 @@ type useDragMonitorParameters<TSourceData = unknown> = {
     eventDetails: { reason: 'drop'; event: PointerEvent | KeyboardEvent },
   ) => void;
   /**
-   * Event handler called once when the drag ends, however it ended — dropped,
-   * released over nothing, or canceled. `eventDetails.reason` carries the exact
-   * outcome; `dropTarget` is the target a release landed on (`null` when none).
+   * Event handler called once when the drag ends after a drop, outside release, or
+   * cancellation. `eventDetails.reason` identifies the outcome. `dropTarget` is the
+   * target of a release, or `null` when there was none.
    */
   onDragEnd?: (parameters: DragEndEvent<TSourceData>, eventDetails: DragEndEventDetails) => void;
 };
@@ -91,7 +91,7 @@ type BaseDragEvent<TSourceData = unknown> = {
   location: DragLocationHistory;
   source: DragSource<TSourceData>;
   /**
-   * The input modality driving the drag.
+   * The input method driving the drag.
    * This is the reliable way to detect a keyboard drag, as
    * `location.current.input.pointerType` is `null` for those.
    */
@@ -101,16 +101,16 @@ type BaseDragEvent<TSourceData = unknown> = {
 
 ### DragDropEvent
 
-The event object passed to `onDrop`, which fires only for a drag released over an
-accepting target — so `dropTarget` is never `null` here. On a drop target's own
-`onDrop` it is that target's record, the same one as `self`.
+The event object passed to `onDrop`. This event fires only after release over an
+accepting target, so `dropTarget` is never `null`. In a drop target's `onDrop`,
+it is the same record as `self`.
 
 ```typescript
 type DragDropEvent<TSourceData = unknown> = {
   location: DragLocationHistory;
   source: DragSource<TSourceData>;
   /**
-   * The input modality driving the drag.
+   * The input method driving the drag.
    * This is the reliable way to detect a keyboard drag, as
    * `location.current.input.pointerType` is `null` for those.
    */
@@ -144,7 +144,7 @@ type DragEndEvent<TSourceData = unknown> = {
   location: DragLocationHistory;
   source: DragSource<TSourceData>;
   /**
-   * The input modality driving the drag.
+   * The input method driving the drag.
    * This is the reliable way to detect a keyboard drag, as
    * `location.current.input.pointerType` is `null` for those.
    */
@@ -213,7 +213,7 @@ type DragMoveEvent<TSourceData = unknown> = {
   location: DragLocationHistory;
   source: DragSource<TSourceData>;
   /**
-   * The input modality driving the drag.
+   * The input method driving the drag.
    * This is the reliable way to detect a keyboard drag, as
    * `location.current.input.pointerType` is `null` for those.
    */
@@ -240,7 +240,7 @@ type DragStartEvent<TSourceData = unknown> = {
   location: DragLocationHistory;
   source: DragSource<TSourceData>;
   /**
-   * The input modality driving the drag.
+   * The input method driving the drag.
    * This is the reliable way to detect a keyboard drag, as
    * `location.current.input.pointerType` is `null` for those.
    */
@@ -267,7 +267,7 @@ type DropTargetChangeEvent<TSourceData = unknown> = {
   location: DragLocationHistory;
   source: DragSource<TSourceData>;
   /**
-   * The input modality driving the drag.
+   * The input method driving the drag.
    * This is the reliable way to detect a keyboard drag, as
    * `location.current.input.pointerType` is `null` for those.
    */
@@ -304,13 +304,13 @@ type DropTargetChangeEventDetails =
 ```typescript
 type RegisterMonitorParameters<TSourceData = unknown> = {
   /**
-   * The kinds of drag source this monitor observes: one kind, or an array of them. Omit
-   * it to observe every drag, at the cost of `source.payload` being `unknown`.
+   * One or more drag source kinds observed by this monitor. Omit it to observe
+   * every drag with `source.payload` typed as `unknown`.
    *
-   * It is evaluated once when the monitor joins a drag: at drag start for an existing
-   * monitor, or at registration for one added mid-drag. A monitor whose `accept` excludes
-   * that drag stays out for the remainder. For anything finer, return early from the
-   * event callbacks below.
+   * Base UI evaluates this value when the monitor joins a drag, either at drag
+   * start or when the monitor registers during a drag. If the value excludes the
+   * drag, the monitor ignores its remaining events. Return early from callbacks to
+   * apply more specific filters.
    */
   accept?: DragAccept<TSourceData>;
   /**
@@ -343,9 +343,9 @@ type RegisterMonitorParameters<TSourceData = unknown> = {
     eventDetails: { reason: 'drop'; event: PointerEvent | KeyboardEvent },
   ) => void;
   /**
-   * Event handler called once when the drag ends, however it ended — dropped,
-   * released over nothing, or canceled. `eventDetails.reason` carries the exact
-   * outcome; `dropTarget` is the target a release landed on (`null` when none).
+   * Event handler called once when the drag ends after a drop, outside release, or
+   * cancellation. `eventDetails.reason` identifies the outcome. `dropTarget` is the
+   * target of a release, or `null` when there was none.
    */
   onDragEnd?: (parameters: DragEndEvent<TSourceData>, eventDetails: DragEndEventDetails) => void;
 };
@@ -353,19 +353,19 @@ type RegisterMonitorParameters<TSourceData = unknown> = {
 
 ### UseDragMonitorParameters
 
-Parameters for [`useDragMonitor`](#usedragmonitor): the drag kinds to observe and the
+Parameters for [`useDragMonitor`](#usedragmonitor). Defines the drag kinds to observe and the
 lifecycle callbacks fired for every matching drag.
 
 ```typescript
 type UseDragMonitorParameters<TSourceData = unknown> = {
   /**
-   * The kinds of drag source this monitor observes: one kind, or an array of them. Omit
-   * it to observe every drag, at the cost of `source.payload` being `unknown`.
+   * One or more drag source kinds observed by this monitor. Omit it to observe
+   * every drag with `source.payload` typed as `unknown`.
    *
-   * It is evaluated once when the monitor joins a drag: at drag start for an existing
-   * monitor, or at registration for one added mid-drag. A monitor whose `accept` excludes
-   * that drag stays out for the remainder. For anything finer, return early from the
-   * event callbacks below.
+   * Base UI evaluates this value when the monitor joins a drag, either at drag
+   * start or when the monitor registers during a drag. If the value excludes the
+   * drag, the monitor ignores its remaining events. Return early from callbacks to
+   * apply more specific filters.
    */
   accept?: DragAccept<TSourceData>;
   /**
@@ -398,9 +398,9 @@ type UseDragMonitorParameters<TSourceData = unknown> = {
     eventDetails: { reason: 'drop'; event: PointerEvent | KeyboardEvent },
   ) => void;
   /**
-   * Event handler called once when the drag ends, however it ended — dropped,
-   * released over nothing, or canceled. `eventDetails.reason` carries the exact
-   * outcome; `dropTarget` is the target a release landed on (`null` when none).
+   * Event handler called once when the drag ends after a drop, outside release, or
+   * cancellation. `eventDetails.reason` identifies the outcome. `dropTarget` is the
+   * target of a release, or `null` when there was none.
    */
   onDragEnd?: (parameters: DragEndEvent<TSourceData>, eventDetails: DragEndEventDetails) => void;
 };

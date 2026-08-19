@@ -147,11 +147,10 @@ export interface DropTargetRootState {
    */
   dragOver: boolean;
   /**
-   * Whether the drag in progress is one this target accepts, wherever the pointer
-   * is — the state to key a "valid drop zone" highlight on. `false` when no drag
-   * is running, when the target is `disabled`, and always when `trackDragOver` is
-   * `false`. Matched on `accept` alone: `canDrop` answers per position, so it
-   * cannot describe a target the pointer is nowhere near.
+   * Whether this target accepts the current drag, regardless of pointer position.
+   * Use it to highlight all compatible drop targets. It is `false` when no drag is
+   * active, the target is disabled, or `trackDragOver` is `false`. The value is
+   * based on `accept`; `canDrop` is evaluated only for the current position.
    */
   accepting: boolean;
   /**
@@ -161,10 +160,9 @@ export interface DropTargetRootState {
    */
   dragOverInnermost: boolean;
   /**
-   * Whether this target is currently refusing the drag: its `canDrop` returned
-   * `'reject'` for the current position, the state to key a "column is full"
-   * affordance on. Mutually exclusive with `dragOver`, and always `false` when
-   * `trackDragOver` is `false`.
+   * Whether `canDrop` returned `'reject'` for the current position. Use it to
+   * display feedback such as a full column. It is mutually exclusive with
+   * `dragOver` and always `false` when `trackDragOver` is `false`.
    */
   rejected: boolean;
   /** Whether the drop target is disabled. */

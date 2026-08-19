@@ -2,20 +2,19 @@ import { TransitionStatusDataAttributes } from '../../internals/stateAttributesM
 
 export enum DraggablePreviewDataAttributes {
   /**
-   * Present on the drag preview element the engine renders this part's content
-   * into. A cloned preview keeps the source's classes, so this is what tells the
-   * two apart in CSS.
+   * Present on the drag preview element. A cloned preview keeps the source's
+   * classes, so use this attribute to distinguish them in CSS.
    */
   dragPreview = 'data-drag-preview',
   /**
-   * The input modality driving the drag: `'pointer'` or `'keyboard'`. Use it to ease
-   * the preview's `translate` for keyboard drags, which jump between discrete
-   * positions, while pointer drags track the cursor without a transition.
+   * The input method driving the drag, either `'pointer'` or `'keyboard'`. Use it
+   * to transition the preview's `translate` during keyboard drags without adding
+   * a transition to pointer drags.
    * @type {'pointer' | 'keyboard'}
    */
   dragMode = 'data-drag-mode',
   /**
-   * Present on an engine-owned cloned preview after a deliberate release while
+   * Present on a cloned preview created by Base UI after a deliberate release while
    * it moves to its final position. This also applies when a drag is released
    * outside a target and returns to its source. The clone remains mounted until
    * animations started by this state finish.

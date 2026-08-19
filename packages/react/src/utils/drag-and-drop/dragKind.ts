@@ -11,16 +11,16 @@ const KIND_ID_PREFIX = 'base-ui/drag-kind:';
 const ANY_KIND_ID = Symbol.for('base-ui/drag-kind-sentinel:any');
 
 /**
- * Creates a drag kind: a value you declare once and pass to a draggable's `kind` and to
- * a drop target's `accept`.
+ * Creates a drag kind to pass to a draggable's `kind` and a drop target's
+ * `accept`.
  *
  * ```ts
  * const card = Draggable.createKind<Card>('card');
  * ```
  *
- * Each call creates a unique identity. Declare the kind once and share that value with
- * every draggable and drop target that participates in the interaction. The name is
- * only a human-readable debugging aid and does not make separately created kinds match.
+ * Each call creates a unique identity. Declare the kind once and share it with every
+ * draggable and drop target in the interaction. The name is only a debugging aid.
+ * Separate calls with the same name do not match.
  *
  * Use {@link createGlobalKind} only when independently evaluated bundles deliberately
  * need to share a kind by a namespaced key.
@@ -72,7 +72,7 @@ export function createGlobalKind<TPayload = undefined>(key: string): DragKind<TP
 }
 
 /**
- * The explicit catch-all for `accept`: a drop target that takes every drag on the page.
+ * A catch-all kind for a drop target that accepts every drag on the page.
  *
  * ```tsx
  * <DropTarget.Root accept={DropTarget.anyKind} onDrop={commit} />

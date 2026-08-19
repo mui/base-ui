@@ -6,32 +6,31 @@
 
 ### Root
 
-Configures how its element scrolls during a drag, enabling auto-scroll if no
+Configures how its element scrolls during a drag. It enables auto-scroll if no
 `DragAutoScroll.Provider` is mounted.
 Renders a `<div>` element.
 
-`DragAutoScroll.Provider` enables inferred scrolling without annotating each
-container. Configure a particular region with this root, using
-`applyScroll` for a surface that has no scroll offsets to move, `disabled` or
-`canScroll` to leave it alone, and `allowedAxis`, `maxSpeed`, or `accept` to
-tune the rest.
+`DragAutoScroll.Provider` enables automatic scrolling without adding props to
+each container. Use this root to configure one region. `applyScroll`
+implements custom scrolling, `disabled` and `canScroll` turn scrolling off,
+and `allowedAxis`, `maxSpeed`, and `accept` set the remaining behavior.
 
-Nested containers scroll innermost-first, the outer one taking over only on
-the axes the inner one leaves unconsumed.
+Nested containers scroll from the innermost to the outermost. An outer
+container scrolls only on axes that the inner container does not use.
 
 **Root Props:**
 
-| Prop        | Type                                                                                                                                                                                           | Default | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
-| :---------- | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | :------ | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| accept      | `DragAccept<TSourceData> \| DragAccept<TPayload \| unknown> \| DragKind \| DragKind[]`                                                                                                         | -       | The kinds of drag source this scroller reacts to: one kind, or an array of them.&#xA;Omit it to scroll for every drag. A drag whose kind isn't accepted never engages this element at all, not even as&#xA;the scroll container it may otherwise be, so this is also how a container opts out&#xA;of scrolling for some drags but not others. The payload the per-frame callbacks see&#xA;is typed from it.                                                               |
-| allowedAxis | `DragAutoScrollAxis \| ((parameters: DragAutoScrollFrameContext<TSourceData>) => DragAutoScrollAxis) \| ((parameters: DragAutoScrollFrameContext<TPayload \| unknown>) => DragAutoScrollAxis)` | `'all'` | Which axis to scroll on. Accepts a static value or a callback evaluated every frame.                                                                                                                                                                                                                                                                                                                                                                                      |
-| applyScroll | `DragAutoScrollApply<TSourceData> \| DragAutoScrollApply<TPayload \| unknown>`                                                                                                                 | -       | Applies the frame's scroll delta yourself, for a surface the engine can't&#xA;scroll, such as a canvas moved by a CSS `transform`. The element then needs no&#xA;scrollable overflow, and its scroll extent is never read. Move the surface synchronously, before returning: the engine re-resolves the&#xA;drop target under the pointer on the frame after this call.                                                                                                   |
-| canScroll   | `((parameters: DragAutoScrollFrameContext<TSourceData>) => boolean) \| ((parameters: DragAutoScrollFrameContext<TPayload \| unknown>) => boolean)`                                             | -       | Return `false` to disable scrolling on this element for the current drag.&#xA;Evaluated every frame, so scrolling can be suspended dynamically.                                                                                                                                                                                                                                                                                                                           |
-| maxSpeed    | `number \| ((parameters: DragAutoScrollFrameContext<TSourceData>) => number) \| ((parameters: DragAutoScrollFrameContext<TPayload \| unknown>) => number)`                                     | `900`   | How fast the container moves at the deepest point of an edge zone, in CSS&#xA;pixels per second. Accepts a static value or a callback evaluated every&#xA;frame the container is engaged. The default suits a container a few hundred pixels across: raise it for one&#xA;holding much more content, lower it for a short list. A speed of `0` stops&#xA;this container scrolling and lets the one outside it take over, the same as&#xA;a `canScroll` returning `false`. |
-| disabled    | `boolean`                                                                                                                                                                                      | `false` | Whether the element should never auto-scroll, including as the scroll container&#xA;the engine would otherwise find on its own. The axes it declines pass to the&#xA;container further out. Read every frame, and the registration is kept — so toggling it mid-drag&#xA;suspends and resumes scrolling without the container having to re-join the drag. For a decision that depends on the drag, use `canScroll` instead.                                               |
-| className   | `string \| ((state: DragAutoScroll.Root.State) => string \| undefined)`                                                                                                                        | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                                                                                                                                                                                                                                                                                                  |
-| style       | `React.CSSProperties \| ((state: DragAutoScroll.Root.State) => React.CSSProperties \| undefined)`                                                                                              | -       | Style applied to the element, or a function that&#xA;returns a style object based on the component's state.                                                                                                                                                                                                                                                                                                                                                               |
-| render      | `ReactElement \| ((props: HTMLProps, state: DragAutoScroll.Root.State) => ReactElement)`                                                                                                       | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render.                                                                                                                                                                                                                                                                             |
+| Prop        | Type                                                                                                                                                                                           | Default | Description                                                                                                                                                                                                                                                                                                                                                                                                             |
+| :---------- | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | :------ | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| accept      | `DragAccept<TSourceData> \| DragAccept<TPayload \| unknown> \| DragKind \| DragKind[]`                                                                                                         | -       | One or more drag source kinds that can scroll this element. Omit it to scroll&#xA;for every drag. An unaccepted drag does not scroll this element, even when it is a detected&#xA;scroll container. The accepted kinds determine the payload type passed to&#xA;per-frame callbacks.                                                                                                                                    |
+| allowedAxis | `DragAutoScrollAxis \| ((parameters: DragAutoScrollFrameContext<TSourceData>) => DragAutoScrollAxis) \| ((parameters: DragAutoScrollFrameContext<TPayload \| unknown>) => DragAutoScrollAxis)` | `'all'` | Which axis to scroll on. Accepts a static value or a callback evaluated every frame.                                                                                                                                                                                                                                                                                                                                    |
+| applyScroll | `DragAutoScrollApply<TSourceData> \| DragAutoScrollApply<TPayload \| unknown>`                                                                                                                 | -       | Applies the frame's scroll delta with custom logic. Use it for a canvas moved&#xA;by a CSS `transform`. The element does not need scrollable overflow, and Base UI&#xA;does not read its scroll extent. Apply the movement synchronously before returning. Base UI resolves the drop&#xA;target under the pointer again on the next frame.                                                                              |
+| canScroll   | `((parameters: DragAutoScrollFrameContext<TSourceData>) => boolean) \| ((parameters: DragAutoScrollFrameContext<TPayload \| unknown>) => boolean)`                                             | -       | Return `false` to disable scrolling on this element for the current drag.&#xA;Evaluated every frame, so scrolling can be suspended dynamically.                                                                                                                                                                                                                                                                         |
+| maxSpeed    | `number \| ((parameters: DragAutoScrollFrameContext<TSourceData>) => number) \| ((parameters: DragAutoScrollFrameContext<TPayload \| unknown>) => number)`                                     | `900`   | How fast the container moves at the deepest point of an edge zone, in CSS&#xA;pixels per second. Accepts a static value or a callback evaluated every&#xA;frame the container is engaged. The default is `900`. Increase it for a large scroll range or reduce it for a&#xA;short list. A value of `0` stops this container and lets an ancestor scroll,&#xA;which is equivalent to returning `false` from `canScroll`. |
+| disabled    | `boolean`                                                                                                                                                                                      | `false` | Whether to disable auto-scroll for this element, including when Base UI detects&#xA;it as a scroll container. An ancestor can scroll on the excluded axes. Base UI reads this value every frame and keeps the registration active. Changing&#xA;it during a drag pauses or resumes scrolling without re-registering the element. For a decision that depends on the drag, use `canScroll` instead.                      |
+| className   | `string \| ((state: DragAutoScroll.Root.State) => string \| undefined)`                                                                                                                        | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                                                                                                                                                                                                                                                |
+| style       | `React.CSSProperties \| ((state: DragAutoScroll.Root.State) => React.CSSProperties \| undefined)`                                                                                              | -       | Style applied to the element, or a function that&#xA;returns a style object based on the component's state.                                                                                                                                                                                                                                                                                                             |
+| render      | `ReactElement \| ((props: HTMLProps, state: DragAutoScroll.Root.State) => ReactElement)`                                                                                                       | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render.                                                                                                                                                                                                                           |
 
 **Root Data Attributes:**
 
@@ -54,12 +53,12 @@ type DragAutoScrollRootState = {
 
 ### Provider
 
-Enables inferred auto-scroll for every drag source managed by Base UI.
+Enables automatic scrolling for every drag source managed by Base UI.
 Renders no element.
 
 Scrollable containers do not need to be registered individually. Use
-`DragAutoScroll.Root` only to configure a particular region or drive a custom
-scrolling surface.
+`DragAutoScroll.Root` only to configure a particular region or implement
+custom scrolling.
 
 **Provider Props:**
 
@@ -74,12 +73,11 @@ Re-export of [Provider](#provider) props.
 
 ### DragAutoScrollApply
 
-Applies one frame's scroll delta in place of the engine.
+Applies one frame's scroll delta instead of using element scrolling.
 
-Return which axes moved, so a container further out takes over the ones this
-surface is at the bound of. Return `false`, `'none'` or `null` when the
-surface moved on neither. Returning nothing claims every axis the frame
-engaged.
+Return the axes that moved so an ancestor can scroll on any remaining axis.
+Return `false`, `'none'`, or `null` when neither axis moved. Returning nothing
+claims every active axis.
 
 **Parameters:**
 
@@ -102,20 +100,19 @@ The frame's scroll delta, passed to `applyScroll` with the live drag context.
 ```typescript
 type DragAutoScrollApplyContext<TSourceData = unknown> = {
   /**
-   * How far to move horizontally this frame, in CSS pixels, with `scrollBy`
-   * semantics: a positive value moves the view right, so the content slides left
-   * under the pointer. Already ramped and scaled by the frame's elapsed time.
+   * How far to move horizontally this frame, in CSS pixels, using `scrollBy`
+   * semantics. A positive value moves the view right, so the content moves left.
+   * The value includes the speed ramp and elapsed frame time.
    * `0` when the horizontal axis isn't engaged this frame.
    */
   x: number;
   /** How far to move vertically this frame, in CSS pixels. A positive value moves the view down. */
   y: number;
   /**
-   * The position this container's edge zones were measured from, which is the
-   * physical pointer whenever it is inside the container. A `modifiers` clamp can
-   * hold the reported drag point inside a container the physical pointer has
-   * already left — and the reverse — so the engine probes both and reports
-   * whichever one it used here.
+   * The position used to measure this container's edge zones. Base UI uses the
+   * physical pointer while it is inside the container. Because a modifier can
+   * separate the reported drag position from the pointer, Base UI checks both and
+   * returns the position it used.
    */
   input: DragInput;
   source: DragSource<TSourceData>;
@@ -138,11 +135,10 @@ Live drag context passed to the per-frame callbacks.
 ```typescript
 type DragAutoScrollFrameContext<TSourceData = unknown> = {
   /**
-   * The position this container's edge zones were measured from, which is the
-   * physical pointer whenever it is inside the container. A `modifiers` clamp can
-   * hold the reported drag point inside a container the physical pointer has
-   * already left — and the reverse — so the engine probes both and reports
-   * whichever one it used here.
+   * The position used to measure this container's edge zones. Base UI uses the
+   * physical pointer while it is inside the container. Because a modifier can
+   * separate the reported drag position from the pointer, Base UI checks both and
+   * returns the position it used.
    */
   input: DragInput;
   source: DragSource<TSourceData>;

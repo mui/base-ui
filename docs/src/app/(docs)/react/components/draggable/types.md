@@ -14,51 +14,51 @@ While dragging, a clone of the element follows the pointer by default.
 
 **Root Props:**
 
-| Prop                  | Type                                                                                                                                                                                                                                               | Default      | Description                                                                                                                                                                                                                                                                                                                                          |
-| :-------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | :----------- | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| label                 | `string`                                                                                                                                                                                                                                           | -            | Human-readable name of this draggable, used by the default screen-reader&#xA;announcements for keyboard drags. Defaults to a generic "item".&#xA;For full control over the announcement text, use `keyboardAnnouncements` instead.                                                                                                                   |
-| ariaRoleDescription   | `string`                                                                                                                                                                                                                                           | -            | Value for `aria-roledescription` on the drag handle, announcing the&#xA;element as draggable to screen readers. Defaults to the text of the nearest&#xA;`LocalizationProvider`.                                                                                                                                                                      |
-| dragCursor            | `string \| false`                                                                                                                                                                                                                                  | `'grabbing'` | CSS cursor pinned across the whole document while a pointer drag is active.&#xA;The drag preview has `pointer-events: none`, so without this the cursor would&#xA;track whatever sits under the pointer. Touch drags ignore it.&#xA;Pass `false` to manage the cursor yourself.                                                                      |
-| getPayload            | `DraggablePayloadGetter<TData> \| DraggablePayloadGetter<undefined>`                                                                                                                                                                               | -            | Resolves payload data from the current drag context.                                                                                                                                                                                                                                                                                                 |
-| keyboardActivation    | `DragKeyboardActivation`                                                                                                                                                                                                                           | `'auto'`     | How keyboard dragging is started. See [`DragKeyboardActivation`](#dragkeyboardactivation) for&#xA;the supported modes.                                                                                                                                                                                                                               |
-| keyboardAnnouncements | `DragKeyboardAnnouncements<TData> \| DragKeyboardAnnouncements<undefined>`                                                                                                                                                                         | -            | Screen-reader announcements for keyboard drags.&#xA;Merged over the defaults; omit a callback to keep its default.                                                                                                                                                                                                                                   |
-| keyboardInstructions  | `string`                                                                                                                                                                                                                                           | -            | Text for the shared keyboard-drag instructions node, read by a screen reader when&#xA;the handle is focused. Defaults to the text of the nearest `LocalizationProvider`.                                                                                                                                                                             |
-| keyboardMovement      | `DragKeyboardMovement<TData> \| DragKeyboardMovement<undefined>`                                                                                                                                                                                   | -            | Controls how arrow keys move a keyboard drag. See [`DragKeyboardMovement`](#dragkeyboardmovement).&#xA;Ignored when `keyboardActivation` is `'off'`.                                                                                                                                                                                                 |
-| kind\*                | `DragKind<TData> \| DragKind<undefined>`                                                                                                                                                                                                           | -            | What this draggable is, created with `Draggable.createKind`. Drop targets and&#xA;monitors declare the kinds they take through their `accept`, and the kind's payload&#xA;type is what types `payload` and `source.payload` on every event.                                                                                                          |
-| modifiers             | `DragModifiers`                                                                                                                                                                                                                                    | -            | Constrains pointer and keyboard movement with one modifier or an array applied&#xA;in order. See [`DragModifiers`](#dragmodifiers) and the exported modifier presets.                                                                                                                                                                                |
-| onBeforeDragStart     | `((context: DragStartContext, eventDetails: BeforeDragStartEventDetails) => void)`                                                                                                                                                                 | -            | Event handler called when a drag is about to start, once the activation condition&#xA;is met and before the preview is built and `getPayload` runs.&#xA;Call `eventDetails.cancel()` to prevent the drag from starting.                                                                                                                              |
-| onDrag                | `((parameters: DragMoveEvent<TData>, eventDetails: DragMoveEventDetails) => void) \| ((parameters: DragMoveEvent<undefined>, eventDetails: DragMoveEventDetails) => void)`                                                                         | -            | Event handler called, rAF-throttled, as the drag moves — a pointer move, or an&#xA;arrow press moving the keyboard drag's virtual cursor. Not dispatched on&#xA;drop-target-stack changes, so hover logic belongs on the drop target's&#xA;`onDrag`, not here.                                                                                       |
-| onDragEnd             | `((parameters: DragEndEvent<TData>, eventDetails: DragEndEventDetails) => void) \| ((parameters: DragEndEvent<undefined>, eventDetails: DragEndEventDetails) => void)`                                                                             | -            | Event handler called once when the drag ends, however it ended — dropped,&#xA;released over nothing, or canceled. Use it to undo optimistic state and clean up;&#xA;commit the drop from `onDrop`. `eventDetails.reason` carries the exact outcome.                                                                                                  |
-| onDragStart           | `((parameters: DragStartEvent<TData>, eventDetails: DragStartEventDetails) => void) \| ((parameters: DragStartEvent<undefined>, eventDetails: DragStartEventDetails) => void)`                                                                     | -            | Event handler called once, synchronously when the drag starts. The drag preview&#xA;has already been resolved by then, so it is safe to measure or restyle the&#xA;source from here.                                                                                                                                                                 |
-| onDrop                | `((parameters: DragDropEvent<TData>, eventDetails: { reason: 'drop'; event: PointerEvent \| KeyboardEvent }) => void) \| ((parameters: DragDropEvent<undefined>, eventDetails: { reason: 'drop'; event: PointerEvent \| KeyboardEvent }) => void)` | -            | Event handler called when the drag is released over an accepting drop target,&#xA;and only then — the place to commit the move. `dropTarget` is never `null` here.&#xA;A drag that ends any other way reaches `onDragEnd` alone.                                                                                                                     |
-| onDropTargetChange    | `((parameters: DropTargetChangeEvent<TData>, eventDetails: DropTargetChangeEventDetails) => void) \| ((parameters: DropTargetChangeEvent<undefined>, eventDetails: DropTargetChangeEventDetails) => void)`                                         | -            | Event handler called when the active drop targets change,&#xA;because one was entered or left.                                                                                                                                                                                                                                                       |
-| payload               | `TData`                                                                                                                                                                                                                                            | -            | Static payload data. Function values are preserved without being invoked.                                                                                                                                                                                                                                                                            |
-| pointerActivation     | `DragActivationConfig`                                                                                                                                                                                                                             | -            | Determines when a press becomes a drag. Mouse and pen default to a 5px&#xA;distance, touch to a 250ms press-hold. Pass a single `DragActivation` to&#xA;apply to all pointer types, or a per-type map.&#xA;Keyboard pickup is separate: see `keyboardActivation`.                                                                                    |
-| previewKey            | `string \| number`                                                                                                                                                                                                                                 | -            | Stable identity used to reconnect a settling cloned preview to this source&#xA;after it remounts. Use the same key for the same logical item across the move.&#xA;Static payload identity is used as a fallback when it is referentially stable.                                                                                                     |
-| finalFocus            | `DragKeyboardFinalFocus<TData> \| DragKeyboardFinalFocus<undefined>`                                                                                                                                                                               | `true`       | Determines where focus moves after a keyboard drag. See&#xA;[`DragKeyboardFinalFocus`](#dragkeyboardfinalfocus) for the supported values.&#xA;A pointer drag never moves focus.                                                                                                                                                                      |
-| disabled              | `boolean`                                                                                                                                                                                                                                          | `false`      | Whether the element should ignore user interaction: a press behaves like an&#xA;ordinary click and Space/Enter keep their native behavior. The keyboard-drag&#xA;a11y attributes are also omitted, so screen readers don't announce a drag that&#xA;can't start. For a decision that needs the gesture context, use&#xA;`onBeforeDragStart` instead. |
-| children              | `React.ReactNode`                                                                                                                                                                                                                                  | -            | -                                                                                                                                                                                                                                                                                                                                                    |
-| className             | `string \| ((state: Draggable.Root.State) => string \| undefined)`                                                                                                                                                                                 | -            | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                                                                                                                                                                             |
-| style                 | `React.CSSProperties \| ((state: Draggable.Root.State) => React.CSSProperties \| undefined)`                                                                                                                                                       | -            | Style applied to the element, or a function that&#xA;returns a style object based on the component's state.                                                                                                                                                                                                                                          |
-| render                | `ReactElement \| ((props: HTMLProps, state: Draggable.Root.State) => ReactElement)`                                                                                                                                                                | -            | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render.                                                                                                                                                        |
+| Prop                  | Type                                                                                                                                                                                                                                               | Default      | Description                                                                                                                                                                                                                                                              |
+| :-------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | :----------- | :----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| label                 | `string`                                                                                                                                                                                                                                           | -            | Human-readable name of this draggable, used by the default screen-reader&#xA;announcements for keyboard drags. Defaults to a generic "item".&#xA;For full control over the announcement text, use `keyboardAnnouncements` instead.                                       |
+| ariaRoleDescription   | `string`                                                                                                                                                                                                                                           | -            | Value for `aria-roledescription` on the drag handle, announcing the&#xA;element as draggable to screen readers. Defaults to the text of the nearest&#xA;`LocalizationProvider`.                                                                                          |
+| dragCursor            | `string \| false`                                                                                                                                                                                                                                  | `'grabbing'` | CSS cursor applied across the document during a pointer drag. The drag preview&#xA;has `pointer-events: none`, so otherwise the cursor would depend on the element&#xA;under the pointer. Touch drags ignore this value.&#xA;Pass `false` to manage the cursor yourself. |
+| getPayload            | `DraggablePayloadGetter<TData> \| DraggablePayloadGetter<undefined>`                                                                                                                                                                               | -            | Resolves payload data from the current drag context.                                                                                                                                                                                                                     |
+| keyboardActivation    | `DragKeyboardActivation`                                                                                                                                                                                                                           | `'auto'`     | How keyboard dragging is started. See [`DragKeyboardActivation`](#dragkeyboardactivation) for&#xA;the supported modes.                                                                                                                                                   |
+| keyboardAnnouncements | `DragKeyboardAnnouncements<TData> \| DragKeyboardAnnouncements<undefined>`                                                                                                                                                                         | -            | Screen-reader announcements for keyboard drags.&#xA;Merged over the defaults; omit a callback to keep its default.                                                                                                                                                       |
+| keyboardInstructions  | `string`                                                                                                                                                                                                                                           | -            | Text for the shared keyboard-drag instructions node, read by a screen reader when&#xA;the handle is focused. Defaults to the text of the nearest `LocalizationProvider`.                                                                                                 |
+| keyboardMovement      | `DragKeyboardMovement<TData> \| DragKeyboardMovement<undefined>`                                                                                                                                                                                   | -            | Controls how arrow keys move a keyboard drag. See [`DragKeyboardMovement`](#dragkeyboardmovement).&#xA;Ignored when `keyboardActivation` is `'off'`.                                                                                                                     |
+| kind\*                | `DragKind<TData> \| DragKind<undefined>`                                                                                                                                                                                                           | -            | The drag kind created with `Draggable.createKind`. Drop targets and monitors&#xA;list accepted kinds in `accept`. The kind determines the type of `payload` and&#xA;`source.payload`.                                                                                    |
+| modifiers             | `DragModifiers`                                                                                                                                                                                                                                    | -            | Constrains pointer and keyboard movement with one modifier or an array applied&#xA;in order. See [`DragModifiers`](#dragmodifiers) and the exported modifier presets.                                                                                                    |
+| onBeforeDragStart     | `((context: DragStartContext, eventDetails: BeforeDragStartEventDetails) => void)`                                                                                                                                                                 | -            | Event handler called when a drag is about to start, once the activation condition&#xA;is met and before the preview is built and `getPayload` runs.&#xA;Call `eventDetails.cancel()` to prevent the drag from starting.                                                  |
+| onDrag                | `((parameters: DragMoveEvent<TData>, eventDetails: DragMoveEventDetails) => void) \| ((parameters: DragMoveEvent<undefined>, eventDetails: DragMoveEventDetails) => void)`                                                                         | -            | Event handler called as the pointer or keyboard cursor moves, limited to one&#xA;call per animation frame. Drop target stack changes do not call this handler.&#xA;Use the drop target's `onDrag` for hover behavior.                                                    |
+| onDragEnd             | `((parameters: DragEndEvent<TData>, eventDetails: DragEndEventDetails) => void) \| ((parameters: DragEndEvent<undefined>, eventDetails: DragEndEventDetails) => void)`                                                                             | -            | Event handler called once when the drag ends after a drop, outside release, or&#xA;cancellation. Use it to clean up or revert optimistic state. Commit a drop from&#xA;`onDrop`. `eventDetails.reason` identifies the outcome.                                           |
+| onDragStart           | `((parameters: DragStartEvent<TData>, eventDetails: DragStartEventDetails) => void) \| ((parameters: DragStartEvent<undefined>, eventDetails: DragStartEventDetails) => void)`                                                                     | -            | Event handler called once, synchronously when the drag starts. The drag preview&#xA;has already been resolved by then, so it is safe to measure or restyle the&#xA;source from here.                                                                                     |
+| onDrop                | `((parameters: DragDropEvent<TData>, eventDetails: { reason: 'drop'; event: PointerEvent \| KeyboardEvent }) => void) \| ((parameters: DragDropEvent<undefined>, eventDetails: { reason: 'drop'; event: PointerEvent \| KeyboardEvent }) => void)` | -            | Event handler called when the drag is released over an accepting drop target.&#xA;Commit the move here. `dropTarget` is never `null`. A drag that ends another&#xA;way calls only `onDragEnd`.                                                                           |
+| onDropTargetChange    | `((parameters: DropTargetChangeEvent<TData>, eventDetails: DropTargetChangeEventDetails) => void) \| ((parameters: DropTargetChangeEvent<undefined>, eventDetails: DropTargetChangeEventDetails) => void)`                                         | -            | Event handler called when the active drop targets change,&#xA;because one was entered or left.                                                                                                                                                                           |
+| payload               | `TData`                                                                                                                                                                                                                                            | -            | Static payload data. Function values are preserved without being invoked.                                                                                                                                                                                                |
+| pointerActivation     | `DragActivationConfig`                                                                                                                                                                                                                             | -            | Determines when a pointer press starts a drag. Mouse and pen use a 5px distance&#xA;by default. Touch uses a 250ms press and hold. Pass one `DragActivation` for&#xA;every pointer type or a map with per-type values. See `keyboardActivation` for&#xA;keyboard pickup. |
+| previewKey            | `string \| number`                                                                                                                                                                                                                                 | -            | Stable identity used to reconnect a settling cloned preview to this source&#xA;after it remounts. Use the same key for the same logical item across the move.&#xA;Static payload identity is used as a fallback when it is referentially stable.                         |
+| finalFocus            | `DragKeyboardFinalFocus<TData> \| DragKeyboardFinalFocus<undefined>`                                                                                                                                                                               | `true`       | Determines where focus moves after a keyboard drag. See&#xA;[`DragKeyboardFinalFocus`](#dragkeyboardfinalfocus) for the supported values.&#xA;A pointer drag never moves focus.                                                                                          |
+| disabled              | `boolean`                                                                                                                                                                                                                                          | `false`      | Whether to disable dragging. Pointer presses and keyboard events keep their&#xA;native behavior, and Base UI omits the keyboard-drag accessibility attributes.&#xA;Use `onBeforeDragStart` instead when the decision depends on the gesture.                             |
+| children              | `React.ReactNode`                                                                                                                                                                                                                                  | -            | -                                                                                                                                                                                                                                                                        |
+| className             | `string \| ((state: Draggable.Root.State) => string \| undefined)`                                                                                                                                                                                 | -            | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                                                                                                 |
+| style                 | `React.CSSProperties \| ((state: Draggable.Root.State) => React.CSSProperties \| undefined)`                                                                                                                                                       | -            | Style applied to the element, or a function that&#xA;returns a style object based on the component's state.                                                                                                                                                              |
+| render                | `ReactElement \| ((props: HTMLProps, state: Draggable.Root.State) => ReactElement)`                                                                                                                                                                | -            | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render.                                                                            |
 
 **Root Data Attributes:**
 
-| Attribute           | Type                      | Description                                                                                                                                                                                                                                                                   |
-| :------------------ | :------------------------ | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| data-dragging       | -                         | Present on the source element while it is being dragged.&#xA;A cloned preview never carries this attribute, so a `[data-dragging]`&#xA;rule that dims or hides the source leaves the preview fully visible.                                                                   |
-| data-disabled       | -                         | Present while the draggable is disabled.                                                                                                                                                                                                                                      |
-| data-displacing     | -                         | Present while `Draggable.Displacement` is animating this element being pushed aside&#xA;by a reorder, paired with the `--drag-displacement-x`/`--drag-displacement-y`&#xA;variables. The hook for the displacement transition.                                                |
-| data-drag-mode      | `'pointer' \| 'keyboard'` | The input modality driving the drag: `'pointer'` or `'keyboard'`. Present on the&#xA;source alongside `data-dragging`, and mirrored on the preview element.                                                                                                                   |
-| data-starting-style | -                         | Present alongside `data-displacing` on the first frame of a displacement, while&#xA;the element should still sit at its old position. Style the displaced state&#xA;under it, and the transition under `data-displacing` without it.                                          |
-| data-ending-style   | -                         | Present on the source after a deliberate release while an engine-owned clone&#xA;settles into its final position, including a return after release outside a&#xA;target. Use it to keep the source styled as a placeholder until the preview's&#xA;ending animation finishes. |
+| Attribute           | Type                      | Description                                                                                                                                                                                                                                                                        |
+| :------------------ | :------------------------ | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| data-dragging       | -                         | Present on the source element while it is being dragged.&#xA;A cloned preview never carries this attribute, so a `[data-dragging]`&#xA;rule that dims or hides the source leaves the preview fully visible.                                                                        |
+| data-disabled       | -                         | Present while the draggable is disabled.                                                                                                                                                                                                                                           |
+| data-displacing     | -                         | Present while `Draggable.Displacement` is animating this element being pushed aside&#xA;by a reorder, paired with the `--drag-displacement-x`/`--drag-displacement-y`&#xA;variables. Use it to apply the displacement transition.                                                  |
+| data-drag-mode      | `'pointer' \| 'keyboard'` | The input method driving the drag, either `'pointer'` or `'keyboard'`.&#xA;Present on the source alongside `data-dragging`, and also on the preview.                                                                                                                               |
+| data-starting-style | -                         | Present alongside `data-displacing` on the first frame of a displacement, while&#xA;the element should still sit at its old position. Style the displaced state&#xA;under it, and the transition under `data-displacing` without it.                                               |
+| data-ending-style   | -                         | Present on the source after a deliberate release while a clone created by&#xA;Base UI settles into its final position, including a return after release&#xA;outside a target. Use it to keep the source styled as a placeholder until&#xA;the preview's ending animation finishes. |
 
 **Root CSS Variables:**
 
-| Variable                | Type     | Description                                                                                                                                                                                                                                                                                                               |
-| :---------------------- | :------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `--drag-displacement-x` | `number` | The horizontal distance, in pixels, from this element's new layout position&#xA;back to the one a reorder displaced it from (previous minus current, so a&#xA;row that moved up gets a positive value). Present with `data-displacing`;&#xA;apply it under `data-starting-style` so the transition plays it back to rest. |
-| `--drag-displacement-y` | `number` | The vertical counterpart of `--drag-displacement-x`.                                                                                                                                                                                                                                                                      |
+| Variable                | Type     | Description                                                                                                                                                                                                                                                                                                                    |
+| :---------------------- | :------- | :----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `--drag-displacement-x` | `number` | The horizontal distance, in pixels, from this element's new layout position&#xA;to its previous position. It is calculated as previous minus current, so a&#xA;row that moved up has a positive value. Present with `data-displacing`. Apply&#xA;it under `data-starting-style` to transition the element to its new position. |
+| `--drag-displacement-y` | `number` | The vertical counterpart of `--drag-displacement-x`.                                                                                                                                                                                                                                                                           |
 
 ### Root.Props
 
@@ -106,16 +106,15 @@ type DraggableRootPropsWithPayload<TData> = (
    */
   label?: string;
   /**
-   * Event handler called, rAF-throttled, as the drag moves — a pointer move, or an
-   * arrow press moving the keyboard drag's virtual cursor. Not dispatched on
-   * drop-target-stack changes, so hover logic belongs on the drop target's
-   * `onDrag`, not here.
+   * Event handler called as the pointer or keyboard cursor moves, limited to one
+   * call per animation frame. Drop target stack changes do not call this handler.
+   * Use the drop target's `onDrag` for hover behavior.
    */
   onDrag?: (parameters: DragMoveEvent<TData>, eventDetails: DragMoveEventDetails) => void;
   /**
-   * Event handler called once when the drag ends, however it ended — dropped,
-   * released over nothing, or canceled. Use it to undo optimistic state and clean up;
-   * commit the drop from `onDrop`. `eventDetails.reason` carries the exact outcome.
+   * Event handler called once when the drag ends after a drop, outside release, or
+   * cancellation. Use it to clean up or revert optimistic state. Commit a drop from
+   * `onDrop`. `eventDetails.reason` identifies the outcome.
    */
   onDragEnd?: (parameters: DragEndEvent<TData>, eventDetails: DragEndEventDetails) => void;
   /**
@@ -125,9 +124,9 @@ type DraggableRootPropsWithPayload<TData> = (
    */
   onDragStart?: (parameters: DragStartEvent<TData>, eventDetails: DragStartEventDetails) => void;
   /**
-   * Event handler called when the drag is released over an accepting drop target,
-   * and only then — the place to commit the move. `dropTarget` is never `null` here.
-   * A drag that ends any other way reaches `onDragEnd` alone.
+   * Event handler called when the drag is released over an accepting drop target.
+   * Commit the move here. `dropTarget` is never `null`. A drag that ends another
+   * way calls only `onDragEnd`.
    */
   onDrop?: (
     parameters: DragDropEvent<TData>,
@@ -140,17 +139,15 @@ type DraggableRootPropsWithPayload<TData> = (
    */
   previewKey?: string | number;
   /**
-   * What this draggable is, created with `Draggable.createKind`. Drop targets and
-   * monitors declare the kinds they take through their `accept`, and the kind's payload
-   * type is what types `payload` and `source.payload` on every event.
+   * The drag kind created with `Draggable.createKind`. Drop targets and monitors
+   * list accepted kinds in `accept`. The kind determines the type of `payload` and
+   * `source.payload`.
    */
   kind: DragKind<TData>;
   /**
-   * Whether the element should ignore user interaction: a press behaves like an
-   * ordinary click and Space/Enter keep their native behavior. The keyboard-drag
-   * a11y attributes are also omitted, so screen readers don't announce a drag that
-   * can't start. For a decision that needs the gesture context, use
-   * `onBeforeDragStart` instead.
+   * Whether to disable dragging. Pointer presses and keyboard events keep their
+   * native behavior, and Base UI omits the keyboard-drag accessibility attributes.
+   * Use `onBeforeDragStart` instead when the decision depends on the gesture.
    * @default false
    */
   disabled?: boolean;
@@ -164,10 +161,10 @@ type DraggableRootPropsWithPayload<TData> = (
     eventDetails: BeforeDragStartEventDetails,
   ) => void;
   /**
-   * Determines when a press becomes a drag. Mouse and pen default to a 5px
-   * distance, touch to a 250ms press-hold. Pass a single `DragActivation` to
-   * apply to all pointer types, or a per-type map.
-   * Keyboard pickup is separate: see `keyboardActivation`.
+   * Determines when a pointer press starts a drag. Mouse and pen use a 5px distance
+   * by default. Touch uses a 250ms press and hold. Pass one `DragActivation` for
+   * every pointer type or a map with per-type values. See `keyboardActivation` for
+   * keyboard pickup.
    */
   pointerActivation?: DragActivationConfig;
   /**
@@ -210,9 +207,9 @@ type DraggableRootPropsWithPayload<TData> = (
    */
   modifiers?: DragModifiers;
   /**
-   * CSS cursor pinned across the whole document while a pointer drag is active.
-   * The drag preview has `pointer-events: none`, so without this the cursor would
-   * track whatever sits under the pointer. Touch drags ignore it.
+   * CSS cursor applied across the document during a pointer drag. The drag preview
+   * has `pointer-events: none`, so otherwise the cursor would depend on the element
+   * under the pointer. Touch drags ignore this value.
    * Pass `false` to manage the cursor yourself.
    * @default 'grabbing'
    */
@@ -234,7 +231,7 @@ type DraggableRootPropsWithPayload<TData> = (
 Configures the sanitized clone of the source shown by default.
 Renders nothing.
 
-Reach for it to place or constrain the default cloned preview.
+Use it to position or constrain the default cloned preview.
 Use a `Draggable.Preview` instead to replace the clone with your own content.
 
 The clone carries the source's own classes, so style it with `[data-drag-preview]`
@@ -242,12 +239,12 @@ the way you would without this part.
 
 **ClonedPreview Props:**
 
-| Prop      | Type                   | Default    | Description                                                                                                                                                                                                                                                                                                                                                                                                                                    |
-| :-------- | :--------------------- | :--------- | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| modifiers | `DragModifiers`        | -          | Constrains where the preview is drawn, without affecting the drag itself: which&#xA;drop target resolves, and what `location.current.input` reports, are unchanged.&#xA;Here the modifier's `point` is the preview's proposed top-left and `input` is the&#xA;cursor. Runs on every positioned frame, so keep modifiers cheap. To constrain the drag itself, use `modifiers` on `Draggable.Root`.                                              |
-| offset    | `DragPreviewOffset`    | `'source'` | Determines where the preview sits relative to the pointer. See&#xA;[`DragPreviewOffset`](#dragpreviewoffset) for the supported values.                                                                                                                                                                                                                                                                                                         |
-| container | `DragPreviewContainer` | -          | Determines where the preview is injected in the DOM.&#xA;Defaults to the source's own parent, so the app's CSS still applies to it. Pass a container to opt out of that: it keeps the source's siblings' structural&#xA;selectors (`:nth-child`, `:last-child`) intact and survives the source's subtree&#xA;being torn out mid-drag, at the cost of the contextual rules. A&#xA;`Draggable.PreviewProvider` can set this for a whole subtree. |
-| disabled  | `boolean`              | `false`    | Whether to build no preview at all, so nothing follows the pointer. The drag&#xA;itself still runs.                                                                                                                                                                                                                                                                                                                                            |
+| Prop      | Type                   | Default    | Description                                                                                                                                                                                                                                                                                                                                                                                                                                              |
+| :-------- | :--------------------- | :--------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| modifiers | `DragModifiers`        | -          | Constrains the preview without affecting the drag. The resolved drop target and&#xA;`location.current.input` remain unchanged.&#xA;Here the modifier's `point` is the preview's proposed top-left and `input` is the&#xA;cursor. Runs on every positioned frame, so keep modifiers cheap. To constrain the drag itself, use `modifiers` on `Draggable.Root`.                                                                                             |
+| offset    | `DragPreviewOffset`    | `'source'` | Determines where the preview sits relative to the pointer. See&#xA;[`DragPreviewOffset`](#dragpreviewoffset) for the supported values.                                                                                                                                                                                                                                                                                                                   |
+| container | `DragPreviewContainer` | -          | Determines where the preview is injected in the DOM.&#xA;Defaults to the source's own parent, so the app's CSS still applies to it. Pass a container to keep structural selectors such as `:nth-child` and&#xA;`:last-child` unchanged, or to keep the preview mounted if the source subtree&#xA;unmounts. CSS selectors based on the source's ancestors may no longer match.&#xA;`Draggable.PreviewProvider` can set the container for a whole subtree. |
+| disabled  | `boolean`              | `false`    | Whether to hide the preview. The drag continues while no preview is shown.                                                                                                                                                                                                                                                                                                                                                                               |
 
 ### ClonedPreview.Props
 
@@ -282,16 +279,16 @@ type ReturnValue = DragKind<TPayload>;
 
 ### createKind
 
-Creates a drag kind: a value you declare once and pass to a draggable's `kind` and to
-a drop target's `accept`.
+Creates a drag kind to pass to a draggable's `kind` and a drop target's
+`accept`.
 
 ```ts
 const card = Draggable.createKind<Card>('card');
 ```
 
-Each call creates a unique identity. Declare the kind once and share that value with
-every draggable and drop target that participates in the interaction. The name is
-only a human-readable debugging aid and does not make separately created kinds match.
+Each call creates a unique identity. Declare the kind once and share it with every
+draggable and drop target in the interaction. The name is only a debugging aid.
+Separate calls with the same name do not match.
 
 Use [`createGlobalKind`](#createglobalkind) only when independently evaluated bundles deliberately
 need to share a kind by a namespaced key.
@@ -344,7 +341,7 @@ Called on every arrow press with the press, the drag context, and the suggested 
 
 | Prop         | Type                                                                                   | Default | Description                                                                                                                                                                                                                                                                         |
 | :----------- | :------------------------------------------------------------------------------------- | :------ | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| direction\*  | `DragPosition`                                                                         | -       | Unit vector for `key` (`ArrowUp` is `{ x: 0, y: -1 }`, …).                                                                                                                                                                                                                          |
+| direction\*  | `DragPosition`                                                                         | -       | Unit vector for `key`. `ArrowUp` is `{ x: 0, y: -1 }`.                                                                                                                                                                                                                              |
 | event\*      | `KeyboardEvent`                                                                        | -       | The native `keydown` event.                                                                                                                                                                                                                                                         |
 | findTarget\* | `((options?: { key?: DragKeyboardArrowKey; from?: DragPosition }) => Element \| null)` | -       | Runs the default directional collision and returns the nearest accepting drop&#xA;target ahead of the cursor, or `null` when none lies ahead. Pass `key` to look in&#xA;another direction than the pressed one, and `from` to look from another origin&#xA;than the current cursor. |
 | getTargets\* | `(() => DragKeyboardMoveTarget[])`                                                     | -       | Returns every drop target accepting this drag, with freshly measured rects.                                                                                                                                                                                                         |
@@ -358,8 +355,9 @@ Called on every arrow press with the press, the drag context, and the suggested 
 
 ### DragModifier
 
-Modifies a drag's movement: an axis lock, a grid snap, an element or window clamp.
-Given the point that would be used this frame, returns the point to use instead.
+Modifies the drag position. Use it to lock an axis, snap to a grid, or constrain
+the drag to an element or window. It receives the proposed point and returns the
+point to use.
 
 Prebuilt modifiers: `restrictToVerticalAxis`, `restrictToHorizontalAxis`,
 `restrictToWindowEdges`, `restrictToParentElement`, `restrictToElement`, `snapToGrid`.
@@ -378,16 +376,13 @@ type ReturnValue = DragPosition;
 
 ### fixedStepKeyboardMovement
 
-A `keyboardMovement` preset that always nudges by a fixed step and never seeks a drop target.
+A `keyboardMovement` preset that moves by a fixed step without finding a drop target.
 
-The opposite of [`targetsOnlyKeyboardMovement`](#targetsonlykeyboardmovement), and what a free surface wants: on a
-canvas every point is a valid position, so the default's "snap to the nearest accepting
-target in this direction" sends the source across the board the moment anything registers as
-a target.
+Use it on a canvas where every point is valid. The default target search could
+otherwise move the source across the canvas when a drop target is registered.
 
-`step` is in the source's own coordinate space, so an ancestor `scale()` — a zoomable
-canvas — moves the source by the same distance on the board at any zoom. Holding Shift
-travels four times as far.
+`step` uses the source's coordinate system, so an ancestor `scale()` does not
+change the distance on a zoomable canvas. Holding Shift moves four times as far.
 
 ```jsx
 <Draggable.Root keyboardMovement={Draggable.fixedStepKeyboardMovement(20)} />
@@ -411,30 +406,28 @@ Restricts the drag pickup to this element, leaving the rest of the source
 interactive. Omit it to make the whole source draggable.
 Renders a `<button>` element.
 
-A handle is typically a grip icon with no text, which would expose it as an
-unnamed button. When the root has a `label` and the handle carries neither
-`aria-label` nor `aria-labelledby` nor visible text, it takes a localized
-name built from that label. A handle that renders visible text keeps that text
-as its name; give it an explicit `aria-label` that _starts with_ the visible
-text if it needs a longer one. The subtree returned by a render function or
-rendered internally by a custom component cannot be inspected safely; name an
-icon-only handle explicitly when using either form.
+When the root has a `label` and the handle has no `aria-label`,
+`aria-labelledby`, or visible text, Base UI creates a localized name from the
+label. A handle with visible text keeps that text as its name. If it needs a
+longer `aria-label`, start the label with the visible text. Base UI cannot
+inspect content returned by a render function or custom component. Add an
+explicit name when that content contains only an icon.
 
 **Handle Props:**
 
-| Prop         | Type                                                                                           | Default | Description                                                                                                                                                                                                                                                                                                                                                                            |
-| :----------- | :--------------------------------------------------------------------------------------------- | :------ | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| nativeButton | `boolean`                                                                                      | `true`  | Whether the component renders a native `<button>` element when replacing it&#xA;via the `render` prop.&#xA;Set to `false` if the rendered element is not a button (for example, `<div>`).                                                                                                                                                                                              |
-| disabled     | `undefined`                                                                                    | -       | A handle has no `disabled` of its own: the engine reads `disabled` from&#xA;`Draggable.Root`, so setting it here would natively disable the button while&#xA;leaving the root keyboard-draggable, with no `data-disabled` and the wrong&#xA;button props. Disable the root instead, and the handle follows. Typed `never` so passing it is a compile error rather than a silent no-op. |
-| className    | `string \| ((state: Draggable.Handle.State) => string \| undefined)`                           | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                                                                                                                                                                                                               |
-| style        | `React.CSSProperties \| ((state: Draggable.Handle.State) => React.CSSProperties \| undefined)` | -       | Style applied to the element, or a function that&#xA;returns a style object based on the component's state.                                                                                                                                                                                                                                                                            |
-| render       | `ReactElement \| ((props: HTMLProps, state: Draggable.Handle.State) => ReactElement)`          | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render.                                                                                                                                                                                          |
+| Prop         | Type                                                                                           | Default | Description                                                                                                                                                                                                                                                  |
+| :----------- | :--------------------------------------------------------------------------------------------- | :------ | :----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| nativeButton | `boolean`                                                                                      | `true`  | Whether the component renders a native `<button>` element when replacing it&#xA;via the `render` prop.&#xA;Set to `false` if the rendered element is not a button (for example, `<div>`).                                                                    |
+| disabled     | `undefined`                                                                                    | -       | A handle has no independent disabled state. Setting `disabled` here would&#xA;disable the button while leaving its root keyboard-draggable. Set `disabled`&#xA;on `Draggable.Root` instead. This prop is typed as `never` so passing it causes a type error. |
+| className    | `string \| ((state: Draggable.Handle.State) => string \| undefined)`                           | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                                                                                     |
+| style        | `React.CSSProperties \| ((state: Draggable.Handle.State) => React.CSSProperties \| undefined)` | -       | Style applied to the element, or a function that&#xA;returns a style object based on the component's state.                                                                                                                                                  |
+| render       | `ReactElement \| ((props: HTMLProps, state: Draggable.Handle.State) => ReactElement)`          | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render.                                                                |
 
 **Handle Data Attributes:**
 
-| Attribute     | Type | Description                                                                                                                                                                              |
-| :------------ | :--- | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| data-disabled | -    | Present while the handle's `Draggable.Root` is disabled. A handle has no&#xA;disabled state of its own — it follows the root, which is what the engine&#xA;reads when refusing a pickup. |
+| Attribute     | Type | Description                                                                                                   |
+| :------------ | :--- | :------------------------------------------------------------------------------------------------------------ |
+| data-disabled | -    | Present while the handle's `Draggable.Root` is disabled. A handle follows&#xA;the disabled state of its root. |
 
 ### Handle.Props
 
@@ -455,31 +448,31 @@ Customizes what follows the pointer while the draggable is dragged, replacing
 the default clone of the source.
 Renders a `<div>` element.
 
-Renders nothing where you write it: the content renders in the nearest
-`Draggable.PreviewProvider`, which is required, and is portaled into an
-engine-owned element next to the drag source, where your CSS reaches it.
+The component renders no element in place. Its content renders in the nearest
+required `Draggable.PreviewProvider` and is portaled into an element next to
+the drag source, where the source's CSS can apply.
 
 **Preview Props:**
 
-| Prop      | Type                                                                                                                                               | Default    | Description                                                                                                                                                                                                                                                                                                                                                                                                                                    |
-| :-------- | :------------------------------------------------------------------------------------------------------------------------------------------------- | :--------- | :--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| kind      | `DragKind<TData>`                                                                                                                                  | -          | The source kind whose payload the render callback accepts.                                                                                                                                                                                                                                                                                                                                                                                     |
-| modifiers | `DragModifiers`                                                                                                                                    | -          | Constrains where the preview is drawn, without affecting the drag itself: which&#xA;drop target resolves, and what `location.current.input` reports, are unchanged.&#xA;Here the modifier's `point` is the preview's proposed top-left and `input` is the&#xA;cursor. Runs on every positioned frame, so keep modifiers cheap. To constrain the drag itself, use `modifiers` on `Draggable.Root`.                                              |
-| offset    | `DragPreviewOffset`                                                                                                                                | `'source'` | Determines where the preview sits relative to the pointer. See&#xA;[`DragPreviewOffset`](#dragpreviewoffset) for the supported values.                                                                                                                                                                                                                                                                                                         |
-| container | `DragPreviewContainer`                                                                                                                             | -          | Determines where the preview is injected in the DOM.&#xA;Defaults to the source's own parent, so the app's CSS still applies to it. Pass a container to opt out of that: it keeps the source's siblings' structural&#xA;selectors (`:nth-child`, `:last-child`) intact and survives the source's subtree&#xA;being torn out mid-drag, at the cost of the contextual rules. A&#xA;`Draggable.PreviewProvider` can set this for a whole subtree. |
-| disabled  | `boolean`                                                                                                                                          | `false`    | Show no preview at all: nothing follows the pointer. The drag itself still runs.                                                                                                                                                                                                                                                                                                                                                               |
-| children  | `React.ReactNode \| ((parameters: DragPreviewRenderEvent<TData>) => React.ReactNode) \| ((parameters: DragPreviewRenderEvent) => React.ReactNode)` | -          | Preview content, resolved once at drag start with the kind's payload type.                                                                                                                                                                                                                                                                                                                                                                     |
-| className | `string \| ((state: Draggable.Preview.State) => string \| undefined)`                                                                              | -          | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                                                                                                                                                                                                                                                                       |
-| style     | `React.CSSProperties \| ((state: Draggable.Preview.State) => React.CSSProperties \| undefined)`                                                    | -          | Style applied to the element, or a function that&#xA;returns a style object based on the component's state.                                                                                                                                                                                                                                                                                                                                    |
-| render    | `ReactElement \| ((props: HTMLProps, state: Draggable.Preview.State) => ReactElement)`                                                             | -          | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render.                                                                                                                                                                                                                                                  |
+| Prop      | Type                                                                                                                                               | Default    | Description                                                                                                                                                                                                                                                                                                                                                                                                                                              |
+| :-------- | :------------------------------------------------------------------------------------------------------------------------------------------------- | :--------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| kind      | `DragKind<TData>`                                                                                                                                  | -          | The source kind whose payload the render callback accepts.                                                                                                                                                                                                                                                                                                                                                                                               |
+| modifiers | `DragModifiers`                                                                                                                                    | -          | Constrains the preview without affecting the drag. The resolved drop target and&#xA;`location.current.input` remain unchanged.&#xA;Here the modifier's `point` is the preview's proposed top-left and `input` is the&#xA;cursor. Runs on every positioned frame, so keep modifiers cheap. To constrain the drag itself, use `modifiers` on `Draggable.Root`.                                                                                             |
+| offset    | `DragPreviewOffset`                                                                                                                                | `'source'` | Determines where the preview sits relative to the pointer. See&#xA;[`DragPreviewOffset`](#dragpreviewoffset) for the supported values.                                                                                                                                                                                                                                                                                                                   |
+| container | `DragPreviewContainer`                                                                                                                             | -          | Determines where the preview is injected in the DOM.&#xA;Defaults to the source's own parent, so the app's CSS still applies to it. Pass a container to keep structural selectors such as `:nth-child` and&#xA;`:last-child` unchanged, or to keep the preview mounted if the source subtree&#xA;unmounts. CSS selectors based on the source's ancestors may no longer match.&#xA;`Draggable.PreviewProvider` can set the container for a whole subtree. |
+| disabled  | `boolean`                                                                                                                                          | `false`    | Whether to hide the preview. The drag continues while no preview is shown.                                                                                                                                                                                                                                                                                                                                                                               |
+| children  | `React.ReactNode \| ((parameters: DragPreviewRenderEvent<TData>) => React.ReactNode) \| ((parameters: DragPreviewRenderEvent) => React.ReactNode)` | -          | Preview content, resolved once at drag start with the kind's payload type.                                                                                                                                                                                                                                                                                                                                                                               |
+| className | `string \| ((state: Draggable.Preview.State) => string \| undefined)`                                                                              | -          | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                                                                                                                                                                                                                                                                                 |
+| style     | `React.CSSProperties \| ((state: Draggable.Preview.State) => React.CSSProperties \| undefined)`                                                    | -          | Style applied to the element, or a function that&#xA;returns a style object based on the component's state.                                                                                                                                                                                                                                                                                                                                              |
+| render    | `ReactElement \| ((props: HTMLProps, state: Draggable.Preview.State) => ReactElement)`                                                             | -          | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render.                                                                                                                                                                                                                                                            |
 
 **Preview Data Attributes:**
 
-| Attribute         | Type                      | Description                                                                                                                                                                                                                                                                           |
-| :---------------- | :------------------------ | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| data-drag-mode    | `'pointer' \| 'keyboard'` | The input modality driving the drag: `'pointer'` or `'keyboard'`. Use it to ease&#xA;the preview's `translate` for keyboard drags, which jump between discrete&#xA;positions, while pointer drags track the cursor without a transition.                                              |
-| data-drag-preview | -                         | Present on the drag preview element the engine renders this part's content&#xA;into. A cloned preview keeps the source's classes, so this is what tells the&#xA;two apart in CSS.                                                                                                     |
-| data-ending-style | -                         | Present on an engine-owned cloned preview after a deliberate release while&#xA;it moves to its final position. This also applies when a drag is released&#xA;outside a target and returns to its source. The clone remains mounted until&#xA;animations started by this state finish. |
+| Attribute         | Type                      | Description                                                                                                                                                                                                                                                                                |
+| :---------------- | :------------------------ | :----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| data-drag-mode    | `'pointer' \| 'keyboard'` | The input method driving the drag, either `'pointer'` or `'keyboard'`. Use it&#xA;to transition the preview's `translate` during keyboard drags without adding&#xA;a transition to pointer drags.                                                                                          |
+| data-drag-preview | -                         | Present on the drag preview element. A cloned preview keeps the source's&#xA;classes, so use this attribute to distinguish them in CSS.                                                                                                                                                    |
+| data-ending-style | -                         | Present on a cloned preview created by Base UI after a deliberate release while&#xA;it moves to its final position. This also applies when a drag is released&#xA;outside a target and returns to its source. The clone remains mounted until&#xA;animations started by this state finish. |
 
 **Preview CSS Variables:**
 
@@ -544,7 +537,7 @@ type ReturnValue = DragModifier;
 
 ### restrictToHorizontalAxis
 
-Lock the drag to the horizontal axis: the vertical position stays where the drag began.
+Locks the drag to the horizontal axis at its initial vertical position.
 
 **Parameters:**
 
@@ -576,7 +569,7 @@ type ReturnValue = DragPosition;
 
 ### restrictToVerticalAxis
 
-Lock the drag to the vertical axis: the horizontal position stays where the drag began.
+Locks the drag to the vertical axis at its initial horizontal position.
 
 **Parameters:**
 
@@ -612,9 +605,8 @@ Snap the drag to a grid, anchored at the point where the drag began. Pass a
 single number for a square grid or `{ x, y }` for a rectangular one. A
 non-positive step leaves that axis unsnapped.
 
-The step is in the source's own coordinate space, so it lands on the grid you drew even when
-an ancestor scales it: on a canvas at 70% zoom, `snapToGrid(20)` still snaps to that canvas's
-20-unit grid. Nothing changes where the source is unscaled, which is the common case.
+The step uses the source's coordinate system. For example, `snapToGrid(20)`
+still snaps to a 20-unit grid when the canvas is zoomed to 70%.
 
 **Parameters:**
 
@@ -630,17 +622,16 @@ type ReturnValue = DragModifier;
 
 ### targetsOnlyKeyboardMovement
 
-A `keyboardMovement` preset that only ever moves between accepting drop
-targets: each arrow press snaps to the nearest target in the pressed
-direction, and a press with no target ahead does nothing. Use it when free
-space is never a valid drop position, such as a sortable list or a board —
-without it, a press past the last target nudges the preview into dead space.
+A `keyboardMovement` preset that moves only between accepting drop targets.
+Each arrow press moves to the nearest target in that direction. If no target
+is available, nothing moves. Use it for sortable lists and boards where empty
+space is not a valid drop position.
 
 **targetsOnlyKeyboardMovement Props:**
 
 | Prop         | Type                                                                                   | Default | Description                                                                                                                                                                                                                                                                         |
 | :----------- | :------------------------------------------------------------------------------------- | :------ | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| direction\*  | `DragPosition`                                                                         | -       | Unit vector for `key` (`ArrowUp` is `{ x: 0, y: -1 }`, …).                                                                                                                                                                                                                          |
+| direction\*  | `DragPosition`                                                                         | -       | Unit vector for `key`. `ArrowUp` is `{ x: 0, y: -1 }`.                                                                                                                                                                                                                              |
 | event\*      | `KeyboardEvent`                                                                        | -       | The native `keydown` event.                                                                                                                                                                                                                                                         |
 | findTarget\* | `((options?: { key?: DragKeyboardArrowKey; from?: DragPosition }) => Element \| null)` | -       | Runs the default directional collision and returns the nearest accepting drop&#xA;target ahead of the cursor, or `null` when none lies ahead. Pass `key` to look in&#xA;another direction than the pressed one, and `from` to look from another origin&#xA;than the current cursor. |
 | getTargets\* | `(() => DragKeyboardMoveTarget[])`                                                     | -       | Returns every drop target accepting this drag, with freshly measured rects.                                                                                                                                                                                                         |
@@ -657,8 +648,8 @@ without it, a press past the last target nudges the preview into dead space.
 Subscribes to the drag currently in progress, and returns its source, or `null` if
 there is none. Observes every drag, regardless of which element started it.
 
-Pass `accept` — one kind, or an array of them — to observe only those kinds: other
-drags return `null`, and the source's `payload` is typed from it.
+Pass one kind or an array of kinds to `accept` to observe only matching drags.
+Other drags return `null`, and `accept` determines the source payload type.
 
 **Parameters:**
 
@@ -689,7 +680,7 @@ type BaseDragEvent<TSourceData = unknown> = {
   location: DragLocationHistory;
   source: DragSource<TSourceData>;
   /**
-   * The input modality driving the drag.
+   * The input method driving the drag.
    * This is the reliable way to detect a keyboard drag, as
    * `location.current.input.pointerType` is `null` for those.
    */
@@ -708,7 +699,7 @@ type BeforeDragStartEventDetails = (
 ) & {
   /** Prevents the drag from starting. */
   cancel: () => void;
-  /** Allows the native event to propagate when the engine would stop it. */
+  /** Allows the native event to propagate when Base UI would stop it. */
   allowPropagation: () => void;
   /** Whether `cancel` has been called. */
   isCanceled: boolean;
@@ -721,8 +712,8 @@ type BeforeDragStartEventDetails = (
 
 ### DragAccept
 
-What a drop target's or monitor's `accept` takes: one kind, or an array of kinds.
-`source.payload` is typed from it, as the payload of that kind or the union of theirs.
+One or more drag kinds accepted by a drop target or monitor. The accepted kinds
+determine the type of `source.payload`.
 
 ```typescript
 type DragAccept<TPayload> = DragKind<TPayload> | DragKind<TPayload>[];
@@ -730,12 +721,12 @@ type DragAccept<TPayload> = DragKind<TPayload> | DragKind<TPayload>[];
 
 ### DragActivation
 
-When a `pointerdown` becomes a drag. Discriminated on `type`:
+Determines when a `pointerdown` starts a drag.
 
-- `immediate`: any `pointerdown` starts the drag.
-- `distance`: the drag starts after the pointer has moved by `distance` CSS pixels.
-- `press-hold`: the drag starts after `delay` ms of holding still; movement
-  larger than `tolerance` CSS pixels (default 5) cancels the gesture.
+- `immediate` starts on `pointerdown`.
+- `distance` starts after the pointer moves by `distance` CSS pixels.
+- `press-hold` starts after `delay` milliseconds. Moving farther than
+  `tolerance` CSS pixels cancels the gesture. The default tolerance is 5.
 
 ```typescript
 type DragActivation =
@@ -757,21 +748,20 @@ type DragActivationConfig = DragActivation | Partial<Record<DragPointerType, Dra
 
 Why a drag was aborted.
 
-The first group is the user acting deliberately; the rest are the environment taking
-the drag away, and describe engine mechanics rather than intent — treat them as one
-"interrupted" class unless you have a reason not to, and keep a default branch: a
-future release can add members here.
+Escape and Tab represent deliberate user actions. The other reasons describe an
+interrupted drag. Unless the distinction matters to your app, handle those reasons
+together and include a default branch for reasons added in a future release.
 
 - `'escape-key'` / `'tab-key'`: the user pressed Escape or Tab.
-- `'pointer-down'`: a keyboard drag was interrupted by the user reaching for the pointer.
+- `'pointer-down'`: the user pressed a pointer during a keyboard drag.
 - `'focus-out'`: focus moved into a text input, which needs the keys the drag was swallowing.
 - `'imperative-action'`: the application called `cancelDrag()`.
 - `'window-blur'` / `'page-hidden'`: the window lost focus, or the page was hidden.
 - `'pointer-canceled'`: the browser or OS canceled the pointer stream.
 - `'capture-lost'`: pointer capture moved away mid-gesture.
-- `'missed-release'`: the button came up without a terminating event reaching the engine.
-- `'handler-error'`: one of your own handlers threw, so the engine tore the drag
-  down to avoid wedging. The original error is rethrown separately.
+- `'missed-release'`: the button came up without a terminating event reaching Base UI.
+- `'handler-error'`: one of your own handlers threw, so Base UI ended the drag.
+  The original error is rethrown separately.
 - `'document-detached'`: the drag's document lost its browsing context (iframe removed,
   popout closed).
 
@@ -804,16 +794,16 @@ type DragCompletedReason = 'drop' | 'outside-release';
 
 ### DragDropEvent
 
-The event object passed to `onDrop`, which fires only for a drag released over an
-accepting target — so `dropTarget` is never `null` here. On a drop target's own
-`onDrop` it is that target's record, the same one as `self`.
+The event object passed to `onDrop`. This event fires only after release over an
+accepting target, so `dropTarget` is never `null`. In a drop target's `onDrop`,
+it is the same record as `self`.
 
 ```typescript
 type DragDropEvent<TSourceData = unknown> = {
   location: DragLocationHistory;
   source: DragSource<TSourceData>;
   /**
-   * The input modality driving the drag.
+   * The input method driving the drag.
    * This is the reliable way to detect a keyboard drag, as
    * `location.current.input.pointerType` is `null` for those.
    */
@@ -840,7 +830,7 @@ type DragDropEventDetails = {
 
 ### DragDropReason
 
-Why `onDrop` fired. Narrowed to the one outcome that commits a drop.
+The reason passed to `onDrop`. Always `'drop'`.
 
 ```typescript
 type DragDropReason = 'drop';
@@ -848,9 +838,8 @@ type DragDropReason = 'drop';
 
 ### DragElementReference
 
-A reference to an element: the element itself, a ref object holding it, or a
-function returning it. It is re-resolved on every constrained move, so a ref that
-fills in late is picked up mid-drag.
+An element, a ref object, or a function that returns an element. Base UI resolves
+it on every constrained move, so a ref can become available during a drag.
 
 ```typescript
 type DragElementReference =
@@ -868,7 +857,7 @@ type DragEndEvent<TSourceData = unknown> = {
   location: DragLocationHistory;
   source: DragSource<TSourceData>;
   /**
-   * The input modality driving the drag.
+   * The input method driving the drag.
    * This is the reliable way to detect a keyboard drag, as
    * `location.current.input.pointerType` is `null` for those.
    */
@@ -920,9 +909,9 @@ type DragEndReason = DragCompletedReason | DragCanceledReason;
 ### DragEventDetails
 
 The details of a drag event, passed as the second argument to every handler.
-Carries the `reason` the event fired for and the native `event` behind it, which
-the payload itself doesn't expose. Not cancelable — by the time these fire the
-engine has already acted; `onBeforeDragStart` is the one that can be canceled.
+Contains the event `reason` and native `event`, which are not included in the
+first handler argument. These events cannot be canceled because Base UI has
+already applied the action. Use `onBeforeDragStart` to cancel a drag pickup.
 
 ```typescript
 type DragEventDetails<TReason extends string> = {
@@ -974,7 +963,7 @@ type DragEventMap<TSourceData = unknown> = {
 
 ### Draggable.anyKind
 
-The explicit catch-all for `accept`: a drop target that takes every drag on the page.
+A catch-all kind for a drop target that accepts every drag on the page.
 
 ```tsx
 <DropTarget.Root accept={DropTarget.anyKind} onDrop={commit} />
@@ -985,8 +974,8 @@ The accepted source's payload is `unknown` until narrowed with a specific kind.
 ```typescript
 type DraggableanyKind = {
   /**
-   * The name or global key this kind was created with. Not an accessible name — that
-   * is the `label` on a draggable, a drop target, and `source.label`.
+   * The name or global key used to create this kind. This is not an accessible
+   * name. Use `label` on a draggable or drop target instead.
    */
   name: string;
   /**
@@ -1034,13 +1023,13 @@ type DraggablePreviewTypedProps<TData> = {
    */
   render?: ReactElement | ((props: HTMLProps, state: Draggable.Preview.State) => ReactElement);
   /**
-   * Show no preview at all: nothing follows the pointer. The drag itself still runs.
+   * Whether to hide the preview. The drag continues while no preview is shown.
    * @default false
    */
   disabled?: boolean;
   /**
-   * Constrains where the preview is drawn, without affecting the drag itself: which
-   * drop target resolves, and what `location.current.input` reports, are unchanged.
+   * Constrains the preview without affecting the drag. The resolved drop target and
+   * `location.current.input` remain unchanged.
    * Here the modifier's `point` is the preview's proposed top-left and `input` is the
    * cursor. Runs on every positioned frame, so keep modifiers cheap.
    *
@@ -1057,10 +1046,10 @@ type DraggablePreviewTypedProps<TData> = {
    * Determines where the preview is injected in the DOM.
    * Defaults to the source's own parent, so the app's CSS still applies to it.
    *
-   * Pass a container to opt out of that: it keeps the source's siblings' structural
-   * selectors (`:nth-child`, `:last-child`) intact and survives the source's subtree
-   * being torn out mid-drag, at the cost of the contextual rules. A
-   * `Draggable.PreviewProvider` can set this for a whole subtree.
+   * Pass a container to keep structural selectors such as `:nth-child` and
+   * `:last-child` unchanged, or to keep the preview mounted if the source subtree
+   * unmounts. CSS selectors based on the source's ancestors may no longer match.
+   * `Draggable.PreviewProvider` can set the container for a whole subtree.
    */
   container?: DragPreviewContainer;
   /** The source kind whose payload the render callback accepts. */
@@ -1228,7 +1217,7 @@ Parameters passed to a `keyboardMovement` resolver on every arrow press.
 type DragKeyboardMoveDetails<TSourceData = unknown> = {
   /** The arrow key pressed. */
   key: DragKeyboardArrowKey;
-  /** Unit vector for `key` (`ArrowUp` is `{ x: 0, y: -1 }`, …). */
+  /** Unit vector for `key`. `ArrowUp` is `{ x: 0, y: -1 }`. */
   direction: DragPosition;
   /** Whether the Shift key was held. No multiplier is applied to a resolver result. */
   shiftKey: boolean;
@@ -1308,8 +1297,8 @@ types `source.payload` and `self.payload` everywhere the kind is used.
 ```typescript
 type DragKind<TPayload = unknown> = {
   /**
-   * The name or global key this kind was created with. Not an accessible name — that
-   * is the `label` on a draggable, a drop target, and `source.label`.
+   * The name or global key used to create this kind. This is not an accessible
+   * name. Use `label` on a draggable or drop target instead.
    */
   name: string;
   /**
@@ -1365,7 +1354,7 @@ type DragLocationHistory = {
 
 ### DragMode
 
-The input modality driving a drag.
+The input method driving a drag.
 
 - `'pointer'`: a mouse, pen, or touch gesture.
 - `'keyboard'`: a keyboard gesture, whose coordinates are synthesized.
@@ -1402,13 +1391,12 @@ type DragModifierContext = {
   /** The source element's bounding rect at drag start. */
   sourceRect: DOMRect;
   /**
-   * The scale a CSS transform (or a `zoom`) applies to the source, measured at drag start
-   * over the source and every ancestor.
+   * The scale applied to the source by CSS `transform` or `zoom`, measured at drag
+   * start across the source and its ancestors.
    *
-   * `1` when nothing scales the source, and `1` for a rotation, which is not a scale. On a
-   * zoomable surface it is the zoom, which is what turns a step expressed in the source's own
-   * coordinates into client pixels: the prebuilt `snapToGrid` multiplies by it, and a custom
-   * modifier working in surface units should too.
+   * The value is `1` when the source is not scaled. A rotation alone does not change
+   * it. On a zoomable canvas, multiply a distance in canvas coordinates by this value
+   * to convert it to client pixels. The `snapToGrid` preset does this automatically.
    */
   scale: DragPosition;
   /** The preview element's current rect, or `null` when there is no preview. */
@@ -1418,20 +1406,18 @@ type DragModifierContext = {
    * `point − previewOffset`. `(0, 0)` on a preview part and when there is no preview.
    */
   previewOffset: DragPosition;
-  /** The input modality driving the drag. */
+  /** The input method driving the drag. */
   mode: DragMode;
   /**
    * Whether the Control key was held by the event that produced this move.
    *
-   * During a pointer drag the four flags are live: pressing or releasing one re-applies
-   * the modifiers on the next frame without waiting for the pointer to move, so a
-   * key-gated constraint engages the moment the key goes down. A keyboard drag reports
-   * the keys of each arrow press instead, and never sees Ctrl, Alt or Meta — a chord is
-   * left to the shortcut it belongs to rather than moving the drag.
+   * During a pointer drag, pressing or releasing a modifier key reapplies the drag
+   * modifiers on the next frame. During a keyboard drag, the flags describe each
+   * arrow press. Ctrl, Alt, and Meta chords remain available for other shortcuts.
    *
-   * Read `mode` alongside them. The same key routinely means different things per
-   * modality — Shift already means "travel further" to `fixedStepKeyboardMovement` — so
-   * a gesture bound to Shift on the pointer usually wants `mode === 'pointer'` too.
+   * Check `mode` with these flags because a key may behave differently for pointer
+   * and keyboard drags. For example, Shift increases the step used by
+   * `fixedStepKeyboardMovement`.
    */
   ctrlKey: boolean;
   /** Whether the Shift key was held by the event that produced this move. See `ctrlKey`. */
@@ -1452,7 +1438,7 @@ type DragModifierContext = {
 
 One or more [`DragModifier`](#dragmodifier)s, applied in order, each constraining the previous
 one's result. Falsy array entries are skipped, so a modifier can be applied
-conditionally: `[locked && restrictToVerticalAxis, snapToGrid(8)]`.
+conditionally, as in `[locked && restrictToVerticalAxis, snapToGrid(8)]`.
 
 ```typescript
 type DragModifiers = DragModifier | (false | DragModifier | null | undefined)[];
@@ -1467,7 +1453,7 @@ type DragMoveEvent<TSourceData = unknown> = {
   location: DragLocationHistory;
   source: DragSource<TSourceData>;
   /**
-   * The input modality driving the drag.
+   * The input method driving the drag.
    * This is the reliable way to detect a keyboard drag, as
    * `location.current.input.pointerType` is `null` for those.
    */
@@ -1575,8 +1561,8 @@ type DragPreviewParameters<TSourceData = unknown> = {
    */
   offset?: DragPreviewOffset;
   /**
-   * Constrains where the preview is drawn, without affecting the drag itself: which
-   * drop target resolves, and what `location.current.input` reports, are unchanged.
+   * Constrains the preview without affecting the drag. The resolved drop target and
+   * `location.current.input` remain unchanged.
    * Here the modifier's `point` is the preview's proposed top-left and `input` is the
    * cursor. Runs on every positioned frame, so keep modifiers cheap.
    *
@@ -1584,8 +1570,7 @@ type DragPreviewParameters<TSourceData = unknown> = {
    */
   modifiers?: DragModifiers;
   /**
-   * Whether to build no preview at all, so nothing follows the pointer. The drag
-   * itself still runs.
+   * Whether to hide the preview. The drag continues while no preview is shown.
    * @default false
    */
   disabled?: boolean;
@@ -1593,10 +1578,10 @@ type DragPreviewParameters<TSourceData = unknown> = {
    * Determines where the preview is injected in the DOM.
    * Defaults to the source's own parent, so the app's CSS still applies to it.
    *
-   * Pass a container to opt out of that: it keeps the source's siblings' structural
-   * selectors (`:nth-child`, `:last-child`) intact and survives the source's subtree
-   * being torn out mid-drag, at the cost of the contextual rules. A
-   * `Draggable.PreviewProvider` can set this for a whole subtree.
+   * Pass a container to keep structural selectors such as `:nth-child` and
+   * `:last-child` unchanged, or to keep the preview mounted if the source subtree
+   * unmounts. CSS selectors based on the source's ancestors may no longer match.
+   * `Draggable.PreviewProvider` can set the container for a whole subtree.
    */
   container?: DragPreviewContainer;
 };
@@ -1611,7 +1596,7 @@ type DragPreviewRenderEvent<TSourceData = unknown> = {
   location: DragLocationHistory;
   source: DragSource<TSourceData>;
   /**
-   * The input modality driving the drag.
+   * The input method driving the drag.
    * This is the reliable way to detect a keyboard drag, as
    * `location.current.input.pointerType` is `null` for those.
    */
@@ -1633,8 +1618,8 @@ type DragPreviewSettings = {
    */
   offset?: DragPreviewOffset;
   /**
-   * Constrains where the preview is drawn, without affecting the drag itself: which
-   * drop target resolves, and what `location.current.input` reports, are unchanged.
+   * Constrains the preview without affecting the drag. The resolved drop target and
+   * `location.current.input` remain unchanged.
    * Here the modifier's `point` is the preview's proposed top-left and `input` is the
    * cursor. Runs on every positioned frame, so keep modifiers cheap.
    *
@@ -1642,8 +1627,7 @@ type DragPreviewSettings = {
    */
   modifiers?: DragModifiers;
   /**
-   * Whether to build no preview at all, so nothing follows the pointer. The drag
-   * itself still runs.
+   * Whether to hide the preview. The drag continues while no preview is shown.
    * @default false
    */
   disabled?: boolean;
@@ -1651,10 +1635,10 @@ type DragPreviewSettings = {
    * Determines where the preview is injected in the DOM.
    * Defaults to the source's own parent, so the app's CSS still applies to it.
    *
-   * Pass a container to opt out of that: it keeps the source's siblings' structural
-   * selectors (`:nth-child`, `:last-child`) intact and survives the source's subtree
-   * being torn out mid-drag, at the cost of the contextual rules. A
-   * `Draggable.PreviewProvider` can set this for a whole subtree.
+   * Pass a container to keep structural selectors such as `:nth-child` and
+   * `:last-child` unchanged, or to keep the preview mounted if the source subtree
+   * unmounts. CSS selectors based on the source's ancestors may no longer match.
+   * `Draggable.PreviewProvider` can set the container for a whole subtree.
    */
   container?: DragPreviewContainer;
 };
@@ -1667,12 +1651,10 @@ Options for `DropTargetRecord.getSnappedLocalPoint`.
 ```typescript
 type DragSnappedLocalPointOptions = {
   /**
-   * The point being quantized: `'pointer'` is where the pointer sits; `'source'`
-   * shifts it by the grab offset first (measured at the press, where the user took
-   * hold), so the reported step is the one the dragged element's leading edges are
-   * over. That is the value a *move* commits, since snapping the pointer and then
-   * subtracting a grab offset would un-snap it. Falls back to `'pointer'` when no
-   * grab offset is known.
+   * The point to snap. `'pointer'` uses the pointer position. `'source'` applies
+   * the grab offset first, so the result represents the dragged element's leading
+   * edges. Use `'source'` when committing the element's position. Falls back to
+   * `'pointer'` when no grab offset is available.
    * @default 'pointer'
    */
   anchor?: 'pointer' | 'source';
@@ -1681,11 +1663,10 @@ type DragSnappedLocalPointOptions = {
 
 ### DragSnapSteps
 
-How many equal steps a drop target's local point quantizes to per axis, declared
-with the target's `snap`. An axis left out (or a non-positive count) stays
-unquantized. Counts are unitless fractions of the target's border box, so nothing
-about the target's rendered size is needed to declare them: a day column is
-`{ y: 96 }` (15-minute slots) however tall it ends up.
+The number of equal steps used to snap a drop target's local point on each
+axis. An omitted axis or non-positive count is not snapped. Counts divide the
+target's border box and do not depend on its rendered size. For example,
+`{ y: 96 }` divides a day column into 15-minute slots at any height.
 
 ```typescript
 type DragSnapSteps = { x?: number; y?: number };
@@ -1748,7 +1729,7 @@ type DragStartEvent<TSourceData = unknown> = {
   location: DragLocationHistory;
   source: DragSource<TSourceData>;
   /**
-   * The input modality driving the drag.
+   * The input method driving the drag.
    * This is the reliable way to detect a keyboard drag, as
    * `location.current.input.pointerType` is `null` for those.
    */
@@ -1775,7 +1756,7 @@ type DropTargetChangeEvent<TSourceData = unknown> = {
   location: DragLocationHistory;
   source: DragSource<TSourceData>;
   /**
-   * The input modality driving the drag.
+   * The input method driving the drag.
    * This is the reliable way to detect a keyboard drag, as
    * `location.current.input.pointerType` is `null` for those.
    */
@@ -1845,8 +1826,8 @@ type DropTargetRecord<TLocalData = unknown> = {
    * />
    * ```
    *
-   * The first call measures the target, so call it only where the number is needed.
-   * Later calls on the same record are free, and records are rebuilt on every move.
+   * The first call measures the target. Later calls on the same record reuse the
+   * measurement. Records are rebuilt on every move.
    *
    * Not clamped: an ancestor in the stack can have the pointer outside its own box, so
    * clamp where the domain requires it. Both axes report `0` for a target with no extent,
@@ -1854,8 +1835,8 @@ type DropTargetRecord<TLocalData = unknown> = {
    */
   getLocalPoint: () => DragLocalPoint;
   /**
-   * `getLocalPoint`, quantized to the target's `snap` steps with symmetric rounding
-   * and clamped to `0`–`1`, so the result multiplies into an exact domain value:
+   * Returns `getLocalPoint()` rounded to the target's `snap` steps and clamped
+   * between `0` and `1`:
    *
    * ```tsx
    * <DropTarget.Root
@@ -1868,10 +1849,9 @@ type DropTargetRecord<TLocalData = unknown> = {
    * />
    * ```
    *
-   * Pass `{ anchor: 'source' }` to quantize where the dragged element's leading edges
-   * sit rather than the pointer: the value a move commits. An axis without declared
-   * steps reports its clamped raw fraction. Shares `getLocalPoint`'s measurement, so
-   * the same lazy-measure advice applies.
+   * Pass `{ anchor: 'source' }` to snap the dragged element's leading edges instead
+   * of the pointer. An axis without declared steps returns its clamped raw fraction.
+   * This method shares the measurement from `getLocalPoint()`.
    */
   getSnappedLocalPoint: (options?: DragSnappedLocalPointOptions) => DragLocalPoint;
 };

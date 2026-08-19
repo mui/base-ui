@@ -33,16 +33,16 @@ type ReturnValue = DragKind<TPayload>;
 
 ### createKind
 
-Creates a drag kind: a value you declare once and pass to a draggable's `kind` and to
-a drop target's `accept`.
+Creates a drag kind to pass to a draggable's `kind` and a drop target's
+`accept`.
 
 ```ts
 const card = Draggable.createKind<Card>('card');
 ```
 
-Each call creates a unique identity. Declare the kind once and share that value with
-every draggable and drop target that participates in the interaction. The name is
-only a human-readable debugging aid and does not make separately created kinds match.
+Each call creates a unique identity. Declare the kind once and share it with every
+draggable and drop target in the interaction. The name is only a debugging aid.
+Separate calls with the same name do not match.
 
 Use [`createGlobalKind`](#createglobalkind) only when independently evaluated bundles deliberately
 need to share a kind by a namespaced key.
@@ -69,20 +69,18 @@ type ReturnValue = void;
 
 ### useDragDropManager
 
-Returns the page-global drag-and-drop manager: the registration methods that
+Returns the page-wide drag-and-drop manager. It includes the registration methods that
 `Draggable.Root`, `DropTarget.Root`, `DragAutoScroll.Root`, and `useDragMonitor`
 are built on, plus `startKeyboardDrag` to open a keyboard drag from your own
 trigger and `cancelDrag` to end the drag in progress.
 
-Reach for it to drive drag and drop from your own code rather than the components and hooks:
-registering an element you already hold, bridging a non-React widget,
-or centralizing every registration in one place.
+Use it to register an existing element, integrate a non-React widget, or keep
+registrations in one place.
 
-Every call controls the same page-global manager. The two React-context inputs (the locale used
-for default announcements and the nearest `Draggable.PreviewProvider`) are read
-at _this hook's_ call site, not at each element's position in the tree. Put both
-providers above the component that calls `useDragDropManager`, even when the elements
-it registers render further down.
+Every call controls the same page-wide manager. Base UI reads the locale and
+nearest `Draggable.PreviewProvider` at the hook's call site. Put both providers
+above the component that calls `useDragDropManager`, even when the registered
+elements render elsewhere.
 
 **useDragDropManager Return Value:**
 
@@ -97,13 +95,10 @@ type useDragDropManagerReturnValue = {
   /**
    * Registers a drag source and returns a cleanup that unregisters it.
    *
-   * Behavior is read from the getter on every event, but the static DOM setup
-   * (gesture styles and the `aria-roledescription` / `aria-describedby` a11y
-   * attributes) is applied from the parameters read at registration and
-   * refreshed when the engine next re-reads them — at the next interaction with
-   * the element (a pointer press, or the focus a keyboard pickup starts with).
-   * Until then, a screen reader inspecting the idle element still sees the
-   * previous values; re-register to refresh them immediately.
+   * Base UI reads behavior from the getter on every event. It applies gesture
+   * styles, `aria-roledescription`, and `aria-describedby` when the element
+   * registers, then reads them again on the next pointer press or focus event.
+   * Re-register the element to update these idle DOM attributes immediately.
    */
   registerDraggable:
     | (<TData>(
@@ -213,12 +208,10 @@ type useDragDropManagerReturnValue = {
    * Registers auto-scroll parameters for an element, and returns a cleanup that
    * unregisters them.
    *
-   * A scroll container scrolls during a drag whether or not it is registered, so
-   * this is how to change what it does: `disabled` opts an element out entirely,
-   * and the page also stops when its own `overflow` is `hidden` or `clip` (which
-   * is what keeps a scroll lock holding during a drag). A surface that isn't a
-   * scroll container — a canvas moved by a CSS `transform` — is never found on
-   * its own and registers here to apply the delta itself through `applyScroll`.
+   * Scroll containers work without registration. Register one to change its
+   * behavior. `disabled` excludes the element, and `overflow: hidden` or
+   * `overflow: clip` prevents the page from scrolling. For a canvas moved by a
+   * CSS `transform`, use `applyScroll` to apply the scroll delta yourself.
    */
   registerAutoScroller: <TAccept extends AnyDragAccept = DragKind>(
     element: HTMLElement,
@@ -241,19 +234,19 @@ type useDragDropManagerReturnValue = {
    */
   cancelDrag: () => void;
   /**
-   * Starts a keyboard drag on a registered draggable, as if the user had pressed Space
-   * on it, and returns whether it started. From there the drag is an ordinary keyboard
-   * drag: arrows move it, Space or Enter drops it, Escape cancels.
+   * Starts a keyboard drag on a registered draggable as if the user pressed Space,
+   * and returns whether it started. Arrow keys move the drag, Space or Enter drops
+   * it, and Escape cancels it.
    *
-   * Use it to move the pickup into your own UI — a "Reorder" item in the element's
-   * menu — on a draggable with `keyboardActivation: 'manual'`, whose own Space is spoken for.
+   * With `keyboardActivation: 'manual'`, call this method from another control,
+   * such as a "Reorder" item in the draggable's menu.
    *
-   * Pass the element you registered, or any element inside it; a ref that has emptied
-   * is accepted and simply starts nothing, so a pickup deferred to a menu's close
-   * callback needs no guard of its own. It also does not start when a drag is already
-   * in progress, when the draggable is `disabled` or `keyboardActivation: 'off'`, or when
-   * `onBeforeDragStart` cancels. Passing a mounted element that is not in a registered
-   * draggable throws — that one is a wiring mistake.
+   * Pass the registered element or one of its descendants. A `null` or detached
+   * element returns `false`, which handles a source that unmounts before a deferred
+   * menu-close callback runs. The method also returns `false` if another drag is
+   * active, the draggable is disabled, keyboard activation is off, or
+   * `onBeforeDragStart` cancels. A mounted element outside a registered draggable
+   * throws an error.
    */
   startKeyboardDrag: (element: HTMLElement | null) => boolean;
 };
@@ -263,8 +256,8 @@ type useDragDropManagerReturnValue = {
 
 ### AcceptedDragPayload
 
-The payload promised by an `accept` declaration: the kind's own, the union of an
-array's, or `unknown` when `accept` was omitted.
+The payload type declared by `accept`. An array produces a union, and an omitted
+`accept` produces `unknown`.
 
 ```typescript
 type AcceptedDragPayload = TPayload | unknown;
@@ -280,7 +273,7 @@ type AnyDragAccept = DragKind | DragKind[];
 
 ### anyKind
 
-The explicit catch-all for `accept`: a drop target that takes every drag on the page.
+A catch-all kind for a drop target that accepts every drag on the page.
 
 ```tsx
 <DropTarget.Root accept={DropTarget.anyKind} onDrop={commit} />
@@ -291,8 +284,8 @@ The accepted source's payload is `unknown` until narrowed with a specific kind.
 ```typescript
 type anyKind = {
   /**
-   * The name or global key this kind was created with. Not an accessible name — that
-   * is the `label` on a draggable, a drop target, and `source.label`.
+   * The name or global key used to create this kind. This is not an accessible
+   * name. Use `label` on a draggable or drop target instead.
    */
   name: string;
   /**
@@ -307,7 +300,7 @@ type anyKind = {
 
 ### DragDropManager
 
-The page-global drag-and-drop manager returned by `useDragDropManager`.
+The page-wide drag-and-drop manager returned by `useDragDropManager`.
 
 Each `register*` method takes a parameter getter and returns a cleanup that
 unregisters. Callbacks and dynamic options are read when used; source identity,
@@ -319,13 +312,10 @@ type DragDropManager = {
   /**
    * Registers a drag source and returns a cleanup that unregisters it.
    *
-   * Behavior is read from the getter on every event, but the static DOM setup
-   * (gesture styles and the `aria-roledescription` / `aria-describedby` a11y
-   * attributes) is applied from the parameters read at registration and
-   * refreshed when the engine next re-reads them — at the next interaction with
-   * the element (a pointer press, or the focus a keyboard pickup starts with).
-   * Until then, a screen reader inspecting the idle element still sees the
-   * previous values; re-register to refresh them immediately.
+   * Base UI reads behavior from the getter on every event. It applies gesture
+   * styles, `aria-roledescription`, and `aria-describedby` when the element
+   * registers, then reads them again on the next pointer press or focus event.
+   * Re-register the element to update these idle DOM attributes immediately.
    */
   registerDraggable:
     | (<TData>(
@@ -435,12 +425,10 @@ type DragDropManager = {
    * Registers auto-scroll parameters for an element, and returns a cleanup that
    * unregisters them.
    *
-   * A scroll container scrolls during a drag whether or not it is registered, so
-   * this is how to change what it does: `disabled` opts an element out entirely,
-   * and the page also stops when its own `overflow` is `hidden` or `clip` (which
-   * is what keeps a scroll lock holding during a drag). A surface that isn't a
-   * scroll container — a canvas moved by a CSS `transform` — is never found on
-   * its own and registers here to apply the delta itself through `applyScroll`.
+   * Scroll containers work without registration. Register one to change its
+   * behavior. `disabled` excludes the element, and `overflow: hidden` or
+   * `overflow: clip` prevents the page from scrolling. For a canvas moved by a
+   * CSS `transform`, use `applyScroll` to apply the scroll delta yourself.
    */
   registerAutoScroller: <TAccept extends AnyDragAccept = DragKind>(
     element: HTMLElement,
@@ -463,19 +451,19 @@ type DragDropManager = {
    */
   cancelDrag: () => void;
   /**
-   * Starts a keyboard drag on a registered draggable, as if the user had pressed Space
-   * on it, and returns whether it started. From there the drag is an ordinary keyboard
-   * drag: arrows move it, Space or Enter drops it, Escape cancels.
+   * Starts a keyboard drag on a registered draggable as if the user pressed Space,
+   * and returns whether it started. Arrow keys move the drag, Space or Enter drops
+   * it, and Escape cancels it.
    *
-   * Use it to move the pickup into your own UI — a "Reorder" item in the element's
-   * menu — on a draggable with `keyboardActivation: 'manual'`, whose own Space is spoken for.
+   * With `keyboardActivation: 'manual'`, call this method from another control,
+   * such as a "Reorder" item in the draggable's menu.
    *
-   * Pass the element you registered, or any element inside it; a ref that has emptied
-   * is accepted and simply starts nothing, so a pickup deferred to a menu's close
-   * callback needs no guard of its own. It also does not start when a drag is already
-   * in progress, when the draggable is `disabled` or `keyboardActivation: 'off'`, or when
-   * `onBeforeDragStart` cancels. Passing a mounted element that is not in a registered
-   * draggable throws — that one is a wiring mistake.
+   * Pass the registered element or one of its descendants. A `null` or detached
+   * element returns `false`, which handles a source that unmounts before a deferred
+   * menu-close callback runs. The method also returns `false` if another drag is
+   * active, the draggable is disabled, keyboard activation is off, or
+   * `onBeforeDragStart` cancels. A mounted element outside a registered draggable
+   * throws an error.
    */
   startKeyboardDrag: (element: HTMLElement | null) => boolean;
 };
@@ -492,8 +480,8 @@ types `source.payload` and `self.payload` everywhere the kind is used.
 ```typescript
 type DragKind<TPayload = unknown> = {
   /**
-   * The name or global key this kind was created with. Not an accessible name — that
-   * is the `label` on a draggable, a drop target, and `source.label`.
+   * The name or global key used to create this kind. This is not an accessible
+   * name. Use `label` on a draggable or drop target instead.
    */
   name: string;
   /**
@@ -509,30 +497,27 @@ type DragKind<TPayload = unknown> = {
 ### RegisterAutoScrollerParameters
 
 Parameters accepted by `DragAutoScroll.Root` and `registerAutoScroller`.
-Scroll containers — including the page — auto-scroll on their own, so these
-override that: they suspend it, restrict it to an axis, change its speed, or
-hand the delta to `applyScroll` for a surface that has no scroll offsets to
-move and is therefore never found on its own.
+Scroll containers, including the page, scroll automatically during a drag.
+Use these parameters to disable scrolling, limit the axes, change the speed,
+or implement custom scrolling with `applyScroll`.
 
 ```typescript
 type RegisterAutoScrollerParameters<TSourceData = unknown> = {
   /**
-   * The kinds of drag source this scroller reacts to: one kind, or an array of them.
-   * Omit it to scroll for every drag.
+   * One or more drag source kinds that can scroll this element. Omit it to scroll
+   * for every drag.
    *
-   * A drag whose kind isn't accepted never engages this element at all, not even as
-   * the scroll container it may otherwise be, so this is also how a container opts out
-   * of scrolling for some drags but not others. The payload the per-frame callbacks see
-   * is typed from it.
+   * An unaccepted drag does not scroll this element, even when it is a detected
+   * scroll container. The accepted kinds determine the payload type passed to
+   * per-frame callbacks.
    */
   accept?: DragAccept<TSourceData>;
   /**
-   * Whether the element should never auto-scroll, including as the scroll container
-   * the engine would otherwise find on its own. The axes it declines pass to the
-   * container further out.
+   * Whether to disable auto-scroll for this element, including when Base UI detects
+   * it as a scroll container. An ancestor can scroll on the excluded axes.
    *
-   * Read every frame, and the registration is kept — so toggling it mid-drag
-   * suspends and resumes scrolling without the container having to re-join the drag.
+   * Base UI reads this value every frame and keeps the registration active. Changing
+   * it during a drag pauses or resumes scrolling without re-registering the element.
    *
    * For a decision that depends on the drag, use `canScroll` instead.
    * @default false
@@ -555,20 +540,19 @@ type RegisterAutoScrollerParameters<TSourceData = unknown> = {
    * pixels per second. Accepts a static value or a callback evaluated every
    * frame the container is engaged.
    *
-   * The default suits a container a few hundred pixels across: raise it for one
-   * holding much more content, lower it for a short list. A speed of `0` stops
-   * this container scrolling and lets the one outside it take over, the same as
-   * a `canScroll` returning `false`.
+   * The default is `900`. Increase it for a large scroll range or reduce it for a
+   * short list. A value of `0` stops this container and lets an ancestor scroll,
+   * which is equivalent to returning `false` from `canScroll`.
    * @default 900
    */
   maxSpeed?: number | ((parameters: DragAutoScrollFrameContext<TSourceData>) => number);
   /**
-   * Applies the frame's scroll delta yourself, for a surface the engine can't
-   * scroll, such as a canvas moved by a CSS `transform`. The element then needs no
-   * scrollable overflow, and its scroll extent is never read.
+   * Applies the frame's scroll delta with custom logic. Use it for a canvas moved
+   * by a CSS `transform`. The element does not need scrollable overflow, and Base UI
+   * does not read its scroll extent.
    *
-   * Move the surface synchronously, before returning: the engine re-resolves the
-   * drop target under the pointer on the frame after this call.
+   * Apply the movement synchronously before returning. Base UI resolves the drop
+   * target under the pointer again on the next frame.
    */
   applyScroll?: DragAutoScrollApply<TSourceData>;
 };
@@ -603,9 +587,9 @@ type RegisterDraggableParameters<TData = undefined> = {
    */
   label?: string;
   /**
-   * What this draggable is, created with `Draggable.createKind`. Drop targets and
-   * monitors declare the kinds they take through their `accept`, and the kind's payload
-   * type is what types `payload` and `source.payload` on every event.
+   * The drag kind created with `Draggable.createKind`. Drop targets and monitors
+   * list accepted kinds in `accept`. The kind determines the type of `payload` and
+   * `source.payload`.
    */
   kind: DragKind<TData>;
   /**
@@ -618,11 +602,9 @@ type RegisterDraggableParameters<TData = undefined> = {
    */
   dragHandle?: DragHandle;
   /**
-   * Whether the element should ignore user interaction: a press behaves like an
-   * ordinary click and Space/Enter keep their native behavior. The keyboard-drag
-   * a11y attributes are also omitted, so screen readers don't announce a drag that
-   * can't start. For a decision that needs the gesture context, use
-   * `onBeforeDragStart` instead.
+   * Whether to disable dragging. Pointer presses and keyboard events keep their
+   * native behavior, and Base UI omits the keyboard-drag accessibility attributes.
+   * Use `onBeforeDragStart` instead when the decision depends on the gesture.
    * @default false
    */
   disabled?: boolean;
@@ -636,10 +618,10 @@ type RegisterDraggableParameters<TData = undefined> = {
     eventDetails: BeforeDragStartEventDetails,
   ) => void;
   /**
-   * Determines when a press becomes a drag. Mouse and pen default to a 5px
-   * distance, touch to a 250ms press-hold. Pass a single `DragActivation` to
-   * apply to all pointer types, or a per-type map.
-   * Keyboard pickup is separate: see `keyboardActivation`.
+   * Determines when a pointer press starts a drag. Mouse and pen use a 5px distance
+   * by default. Touch uses a 250ms press and hold. Pass one `DragActivation` for
+   * every pointer type or a map with per-type values. See `keyboardActivation` for
+   * keyboard pickup.
    */
   pointerActivation?: DragActivationConfig;
   /**
@@ -682,15 +664,15 @@ type RegisterDraggableParameters<TData = undefined> = {
    */
   modifiers?: DragModifiers;
   /**
-   * CSS cursor pinned across the whole document while a pointer drag is active.
-   * The drag preview has `pointer-events: none`, so without this the cursor would
-   * track whatever sits under the pointer. Touch drags ignore it.
+   * CSS cursor applied across the document during a pointer drag. The drag preview
+   * has `pointer-events: none`, so otherwise the cursor would depend on the element
+   * under the pointer. Touch drags ignore this value.
    * Pass `false` to manage the cursor yourself.
    * @default 'grabbing'
    */
   dragCursor?: string | false;
   /**
-   * The drag preview: what follows the pointer, and where it lives in the DOM.
+   * The content and DOM container of the drag preview.
    * Omit it to use a sanitized clone of the source. The clone preserves classes
    * and live element state, but rewrites IDs to keep the document unique.
    *
@@ -705,10 +687,9 @@ type RegisterDraggableParameters<TData = undefined> = {
    */
   onDragStart?: (parameters: DragStartEvent<TData>, eventDetails: DragStartEventDetails) => void;
   /**
-   * Event handler called, rAF-throttled, as the drag moves — a pointer move, or an
-   * arrow press moving the keyboard drag's virtual cursor. Not dispatched on
-   * drop-target-stack changes, so hover logic belongs on the drop target's
-   * `onDrag`, not here.
+   * Event handler called as the pointer or keyboard cursor moves, limited to one
+   * call per animation frame. Drop target stack changes do not call this handler.
+   * Use the drop target's `onDrag` for hover behavior.
    */
   onDrag?: (parameters: DragMoveEvent<TData>, eventDetails: DragMoveEventDetails) => void;
   /**
@@ -720,18 +701,18 @@ type RegisterDraggableParameters<TData = undefined> = {
     eventDetails: DropTargetChangeEventDetails,
   ) => void;
   /**
-   * Event handler called when the drag is released over an accepting drop target,
-   * and only then — the place to commit the move. `dropTarget` is never `null` here.
-   * A drag that ends any other way reaches `onDragEnd` alone.
+   * Event handler called when the drag is released over an accepting drop target.
+   * Commit the move here. `dropTarget` is never `null`. A drag that ends another
+   * way calls only `onDragEnd`.
    */
   onDrop?: (
     parameters: DragDropEvent<TData>,
     eventDetails: { reason: 'drop'; event: PointerEvent | KeyboardEvent },
   ) => void;
   /**
-   * Event handler called once when the drag ends, however it ended — dropped,
-   * released over nothing, or canceled. Use it to undo optimistic state and clean up;
-   * commit the drop from `onDrop`. `eventDetails.reason` carries the exact outcome.
+   * Event handler called once when the drag ends after a drop, outside release, or
+   * cancellation. Use it to clean up or revert optimistic state. Commit a drop from
+   * `onDrop`. `eventDetails.reason` identifies the outcome.
    */
   onDragEnd?: (parameters: DragEndEvent<TData>, eventDetails: DragEndEventDetails) => void;
 };
@@ -759,9 +740,9 @@ type RegisterDraggableParametersWithPayload<TData> = (
    */
   label?: string;
   /**
-   * What this draggable is, created with `Draggable.createKind`. Drop targets and
-   * monitors declare the kinds they take through their `accept`, and the kind's payload
-   * type is what types `payload` and `source.payload` on every event.
+   * The drag kind created with `Draggable.createKind`. Drop targets and monitors
+   * list accepted kinds in `accept`. The kind determines the type of `payload` and
+   * `source.payload`.
    */
   kind: DragKind<TData>;
   /**
@@ -774,11 +755,9 @@ type RegisterDraggableParametersWithPayload<TData> = (
    */
   dragHandle?: DragHandle;
   /**
-   * Whether the element should ignore user interaction: a press behaves like an
-   * ordinary click and Space/Enter keep their native behavior. The keyboard-drag
-   * a11y attributes are also omitted, so screen readers don't announce a drag that
-   * can't start. For a decision that needs the gesture context, use
-   * `onBeforeDragStart` instead.
+   * Whether to disable dragging. Pointer presses and keyboard events keep their
+   * native behavior, and Base UI omits the keyboard-drag accessibility attributes.
+   * Use `onBeforeDragStart` instead when the decision depends on the gesture.
    * @default false
    */
   disabled?: boolean;
@@ -792,10 +771,10 @@ type RegisterDraggableParametersWithPayload<TData> = (
     eventDetails: BeforeDragStartEventDetails,
   ) => void;
   /**
-   * Determines when a press becomes a drag. Mouse and pen default to a 5px
-   * distance, touch to a 250ms press-hold. Pass a single `DragActivation` to
-   * apply to all pointer types, or a per-type map.
-   * Keyboard pickup is separate: see `keyboardActivation`.
+   * Determines when a pointer press starts a drag. Mouse and pen use a 5px distance
+   * by default. Touch uses a 250ms press and hold. Pass one `DragActivation` for
+   * every pointer type or a map with per-type values. See `keyboardActivation` for
+   * keyboard pickup.
    */
   pointerActivation?: DragActivationConfig;
   /**
@@ -838,15 +817,15 @@ type RegisterDraggableParametersWithPayload<TData> = (
    */
   modifiers?: DragModifiers;
   /**
-   * CSS cursor pinned across the whole document while a pointer drag is active.
-   * The drag preview has `pointer-events: none`, so without this the cursor would
-   * track whatever sits under the pointer. Touch drags ignore it.
+   * CSS cursor applied across the document during a pointer drag. The drag preview
+   * has `pointer-events: none`, so otherwise the cursor would depend on the element
+   * under the pointer. Touch drags ignore this value.
    * Pass `false` to manage the cursor yourself.
    * @default 'grabbing'
    */
   dragCursor?: string | false;
   /**
-   * The drag preview: what follows the pointer, and where it lives in the DOM.
+   * The content and DOM container of the drag preview.
    * Omit it to use a sanitized clone of the source. The clone preserves classes
    * and live element state, but rewrites IDs to keep the document unique.
    *
@@ -861,10 +840,9 @@ type RegisterDraggableParametersWithPayload<TData> = (
    */
   onDragStart?: (parameters: DragStartEvent<TData>, eventDetails: DragStartEventDetails) => void;
   /**
-   * Event handler called, rAF-throttled, as the drag moves — a pointer move, or an
-   * arrow press moving the keyboard drag's virtual cursor. Not dispatched on
-   * drop-target-stack changes, so hover logic belongs on the drop target's
-   * `onDrag`, not here.
+   * Event handler called as the pointer or keyboard cursor moves, limited to one
+   * call per animation frame. Drop target stack changes do not call this handler.
+   * Use the drop target's `onDrag` for hover behavior.
    */
   onDrag?: (parameters: DragMoveEvent<TData>, eventDetails: DragMoveEventDetails) => void;
   /**
@@ -876,18 +854,18 @@ type RegisterDraggableParametersWithPayload<TData> = (
     eventDetails: DropTargetChangeEventDetails,
   ) => void;
   /**
-   * Event handler called when the drag is released over an accepting drop target,
-   * and only then — the place to commit the move. `dropTarget` is never `null` here.
-   * A drag that ends any other way reaches `onDragEnd` alone.
+   * Event handler called when the drag is released over an accepting drop target.
+   * Commit the move here. `dropTarget` is never `null`. A drag that ends another
+   * way calls only `onDragEnd`.
    */
   onDrop?: (
     parameters: DragDropEvent<TData>,
     eventDetails: { reason: 'drop'; event: PointerEvent | KeyboardEvent },
   ) => void;
   /**
-   * Event handler called once when the drag ends, however it ended — dropped,
-   * released over nothing, or canceled. Use it to undo optimistic state and clean up;
-   * commit the drop from `onDrop`. `eventDetails.reason` carries the exact outcome.
+   * Event handler called once when the drag ends after a drop, outside release, or
+   * cancellation. Use it to clean up or revert optimistic state. Commit a drop from
+   * `onDrop`. `eventDetails.reason` identifies the outcome.
    */
   onDragEnd?: (parameters: DragEndEvent<TData>, eventDetails: DragEndEventDetails) => void;
 };
@@ -917,10 +895,10 @@ type RegisterDropTargetParameters<TSourceData = unknown, TLocalData = unknown> =
    */
   label?: string;
   /**
-   * What this drop target is, created with `Draggable.createKind`. It identifies the
-   * target on its own records — `self.kind` and the entries of `location.dropTargets` —
-   * so a handler watching several kinds of target can tell them apart with the kind's
-   * `matches`. Its payload type must match this target's `payload`.
+   * The target kind created with `Draggable.createKind`. It is available as
+   * `self.kind` and on entries in `location.dropTargets`. Use the kind's `matches`
+   * method to distinguish target kinds and narrow their payload types. Its payload
+   * type must match this target's `payload`.
    *
    * Distinct from `accept`, which declares the **source** kinds this target takes.
    */
@@ -976,33 +954,28 @@ type RegisterDropTargetParameters<TSourceData = unknown, TLocalData = unknown> =
    * Predicate for whether this target should be considered a candidate for the
    * current drag. Runs after `accept`.
    *
-   * Returning `false` makes the engine treat this target as if it weren't registered
-   * for this dispatch: the DOM walk continues outward and a parent drop target
-   * underneath can claim the drop. Use this rather than blocking inside an `onDrop`
-   * body, which would discard the drop without letting an outer target receive it.
+   * Return `false` to skip this target for the current resolution. Base UI continues
+   * through its ancestors, so a parent target can receive the drop. This differs from
+   * ignoring the drop inside `onDrop`, which does not give a parent target a chance.
    *
-   * Returning `'reject'` refuses the drop outright instead of abstaining: no target
-   * resolves at this position (descendants that accepted are overruled, and nothing
-   * behind this target can claim the drop), and the target exposes `data-rejected`
-   * while the drag is over it. Use it for container-level rules such as a capacity
-   * limit, which `false` would silently defeat by falling through to the items inside.
+   * Return `'reject'` to block every drop at this position. Descendants, this target,
+   * and ancestors cannot receive the drop. While the drag is over the target, it has
+   * `data-rejected`. Use this for container rules such as a capacity limit. Returning
+   * `false` would allow an item inside the container to receive the drop.
    */
   canDrop?: (parameters: DropTargetResolutionContext<TSourceData>) => boolean | 'reject';
   /**
-   * Quantizes the local point this target reports through `getSnappedLocalPoint`,
-   * as a count of equal steps per axis of its border box: a day column of
-   * 15-minute slots is `{ y: 96 }`, a month grid `{ x: 7, y: 6 }`.
+   * Divides the target's border box into equal steps for
+   * `getSnappedLocalPoint()`. For example, `{ y: 96 }` creates 15-minute slots in
+   * a day column, and `{ x: 7, y: 6 }` creates a month grid.
    *
-   * Counts are unitless fractions, so a target sized at runtime (a column filling
-   * whatever the viewport leaves) declares them with no dimensions in hand; the
-   * engine measures when a drop resolves. Accepts a static value, or a callback
-   * receiving the same resolution context as `canDrop`, evaluated once per
-   * resolution on the first snapped read, for counts derived from the drag itself
-   * (a coarser grid per source kind) or read from live state at drag time; return
-   * `undefined` to not quantize.
+   * Step counts do not depend on the target's pixel size. Base UI measures the
+   * target when resolving a drag. Pass a static value or a callback that receives
+   * the same context as `canDrop`. The callback runs on the first snapped read for
+   * each resolution. Return `undefined` to skip snapping.
    *
-   * Distinct from the `snapToGrid` modifier, which snaps the drag point itself in
-   * surface pixels for every target: `snap` only quantizes what this target reports.
+   * This differs from `snapToGrid`, which snaps the drag position for every target.
+   * `snap` changes only the value reported by this target.
    */
   snap?:
     | DragSnapSteps
@@ -1014,8 +987,8 @@ type RegisterDropTargetParameters<TSourceData = unknown, TLocalData = unknown> =
   ) => void;
   /**
    * Event handler called when this target leaves the active stack, because the
-   * pointer moved off it or the drag ended. `eventDetails.reason` tells the two
-   * apart: a modality for a hover-out, a drag end reason for the drag ending.
+   * pointer moved away or the drag ended. `eventDetails.reason` identifies whether
+   * the pointer or keyboard left the target, or the drag ended.
    */
   onDragLeave?: (
     parameters: DropTargetEvent<'onDragLeave', TSourceData, TLocalData>,
@@ -1040,10 +1013,10 @@ type RegisterDropTargetParametersWithPayload<TSourceData, TLocalData> = (
    */
   label?: string;
   /**
-   * What this drop target is, created with `Draggable.createKind`. It identifies the
-   * target on its own records — `self.kind` and the entries of `location.dropTargets` —
-   * so a handler watching several kinds of target can tell them apart with the kind's
-   * `matches`. Its payload type must match this target's `payload`.
+   * The target kind created with `Draggable.createKind`. It is available as
+   * `self.kind` and on entries in `location.dropTargets`. Use the kind's `matches`
+   * method to distinguish target kinds and narrow their payload types. Its payload
+   * type must match this target's `payload`.
    *
    * Distinct from `accept`, which declares the **source** kinds this target takes.
    */
@@ -1100,33 +1073,28 @@ type RegisterDropTargetParametersWithPayload<TSourceData, TLocalData> = (
    * Predicate for whether this target should be considered a candidate for the
    * current drag. Runs after `accept`.
    *
-   * Returning `false` makes the engine treat this target as if it weren't registered
-   * for this dispatch: the DOM walk continues outward and a parent drop target
-   * underneath can claim the drop. Use this rather than blocking inside an `onDrop`
-   * body, which would discard the drop without letting an outer target receive it.
+   * Return `false` to skip this target for the current resolution. Base UI continues
+   * through its ancestors, so a parent target can receive the drop. This differs from
+   * ignoring the drop inside `onDrop`, which does not give a parent target a chance.
    *
-   * Returning `'reject'` refuses the drop outright instead of abstaining: no target
-   * resolves at this position (descendants that accepted are overruled, and nothing
-   * behind this target can claim the drop), and the target exposes `data-rejected`
-   * while the drag is over it. Use it for container-level rules such as a capacity
-   * limit, which `false` would silently defeat by falling through to the items inside.
+   * Return `'reject'` to block every drop at this position. Descendants, this target,
+   * and ancestors cannot receive the drop. While the drag is over the target, it has
+   * `data-rejected`. Use this for container rules such as a capacity limit. Returning
+   * `false` would allow an item inside the container to receive the drop.
    */
   canDrop?: (parameters: DropTargetResolutionContext<TSourceData>) => boolean | 'reject';
   /**
-   * Quantizes the local point this target reports through `getSnappedLocalPoint`,
-   * as a count of equal steps per axis of its border box: a day column of
-   * 15-minute slots is `{ y: 96 }`, a month grid `{ x: 7, y: 6 }`.
+   * Divides the target's border box into equal steps for
+   * `getSnappedLocalPoint()`. For example, `{ y: 96 }` creates 15-minute slots in
+   * a day column, and `{ x: 7, y: 6 }` creates a month grid.
    *
-   * Counts are unitless fractions, so a target sized at runtime (a column filling
-   * whatever the viewport leaves) declares them with no dimensions in hand; the
-   * engine measures when a drop resolves. Accepts a static value, or a callback
-   * receiving the same resolution context as `canDrop`, evaluated once per
-   * resolution on the first snapped read, for counts derived from the drag itself
-   * (a coarser grid per source kind) or read from live state at drag time; return
-   * `undefined` to not quantize.
+   * Step counts do not depend on the target's pixel size. Base UI measures the
+   * target when resolving a drag. Pass a static value or a callback that receives
+   * the same context as `canDrop`. The callback runs on the first snapped read for
+   * each resolution. Return `undefined` to skip snapping.
    *
-   * Distinct from the `snapToGrid` modifier, which snaps the drag point itself in
-   * surface pixels for every target: `snap` only quantizes what this target reports.
+   * This differs from `snapToGrid`, which snaps the drag position for every target.
+   * `snap` changes only the value reported by this target.
    */
   snap?:
     | DragSnapSteps
@@ -1138,8 +1106,8 @@ type RegisterDropTargetParametersWithPayload<TSourceData, TLocalData> = (
   ) => void;
   /**
    * Event handler called when this target leaves the active stack, because the
-   * pointer moved off it or the drag ended. `eventDetails.reason` tells the two
-   * apart: a modality for a hover-out, a drag end reason for the drag ending.
+   * pointer moved away or the drag ended. `eventDetails.reason` identifies whether
+   * the pointer or keyboard left the target, or the drag ended.
    */
   onDragLeave?: (
     parameters: DropTargetEvent<'onDragLeave', TSourceData, TLocalData>,
@@ -1153,13 +1121,13 @@ type RegisterDropTargetParametersWithPayload<TSourceData, TLocalData> = (
 ```typescript
 type RegisterMonitorParameters<TSourceData = unknown> = {
   /**
-   * The kinds of drag source this monitor observes: one kind, or an array of them. Omit
-   * it to observe every drag, at the cost of `source.payload` being `unknown`.
+   * One or more drag source kinds observed by this monitor. Omit it to observe
+   * every drag with `source.payload` typed as `unknown`.
    *
-   * It is evaluated once when the monitor joins a drag: at drag start for an existing
-   * monitor, or at registration for one added mid-drag. A monitor whose `accept` excludes
-   * that drag stays out for the remainder. For anything finer, return early from the
-   * event callbacks below.
+   * Base UI evaluates this value when the monitor joins a drag, either at drag
+   * start or when the monitor registers during a drag. If the value excludes the
+   * drag, the monitor ignores its remaining events. Return early from callbacks to
+   * apply more specific filters.
    */
   accept?: DragAccept<TSourceData>;
   /**
@@ -1192,9 +1160,9 @@ type RegisterMonitorParameters<TSourceData = unknown> = {
     eventDetails: { reason: 'drop'; event: PointerEvent | KeyboardEvent },
   ) => void;
   /**
-   * Event handler called once when the drag ends, however it ended — dropped,
-   * released over nothing, or canceled. `eventDetails.reason` carries the exact
-   * outcome; `dropTarget` is the target a release landed on (`null` when none).
+   * Event handler called once when the drag ends after a drop, outside release, or
+   * cancellation. `eventDetails.reason` identifies the outcome. `dropTarget` is the
+   * target of a release, or `null` when there was none.
    */
   onDragEnd?: (parameters: DragEndEvent<TSourceData>, eventDetails: DragEndEventDetails) => void;
 };
@@ -1202,7 +1170,7 @@ type RegisterMonitorParameters<TSourceData = unknown> = {
 
 ### UseDragDropManagerReturnValue
 
-The page-global imperative API returned by [`useDragDropManager`](#usedragdropmanager):
+The page-wide imperative API returned by [`useDragDropManager`](#usedragdropmanager).
 `registerDraggable`, `registerDropTarget`, `registerAutoScroller`,
 `registerMonitor`, `startKeyboardDrag`, and `cancelDrag`.
 
@@ -1211,13 +1179,10 @@ type UseDragDropManagerReturnValue = {
   /**
    * Registers a drag source and returns a cleanup that unregisters it.
    *
-   * Behavior is read from the getter on every event, but the static DOM setup
-   * (gesture styles and the `aria-roledescription` / `aria-describedby` a11y
-   * attributes) is applied from the parameters read at registration and
-   * refreshed when the engine next re-reads them — at the next interaction with
-   * the element (a pointer press, or the focus a keyboard pickup starts with).
-   * Until then, a screen reader inspecting the idle element still sees the
-   * previous values; re-register to refresh them immediately.
+   * Base UI reads behavior from the getter on every event. It applies gesture
+   * styles, `aria-roledescription`, and `aria-describedby` when the element
+   * registers, then reads them again on the next pointer press or focus event.
+   * Re-register the element to update these idle DOM attributes immediately.
    */
   registerDraggable:
     | (<TData>(
@@ -1327,12 +1292,10 @@ type UseDragDropManagerReturnValue = {
    * Registers auto-scroll parameters for an element, and returns a cleanup that
    * unregisters them.
    *
-   * A scroll container scrolls during a drag whether or not it is registered, so
-   * this is how to change what it does: `disabled` opts an element out entirely,
-   * and the page also stops when its own `overflow` is `hidden` or `clip` (which
-   * is what keeps a scroll lock holding during a drag). A surface that isn't a
-   * scroll container — a canvas moved by a CSS `transform` — is never found on
-   * its own and registers here to apply the delta itself through `applyScroll`.
+   * Scroll containers work without registration. Register one to change its
+   * behavior. `disabled` excludes the element, and `overflow: hidden` or
+   * `overflow: clip` prevents the page from scrolling. For a canvas moved by a
+   * CSS `transform`, use `applyScroll` to apply the scroll delta yourself.
    */
   registerAutoScroller: <TAccept extends AnyDragAccept = DragKind>(
     element: HTMLElement,
@@ -1355,19 +1318,19 @@ type UseDragDropManagerReturnValue = {
    */
   cancelDrag: () => void;
   /**
-   * Starts a keyboard drag on a registered draggable, as if the user had pressed Space
-   * on it, and returns whether it started. From there the drag is an ordinary keyboard
-   * drag: arrows move it, Space or Enter drops it, Escape cancels.
+   * Starts a keyboard drag on a registered draggable as if the user pressed Space,
+   * and returns whether it started. Arrow keys move the drag, Space or Enter drops
+   * it, and Escape cancels it.
    *
-   * Use it to move the pickup into your own UI — a "Reorder" item in the element's
-   * menu — on a draggable with `keyboardActivation: 'manual'`, whose own Space is spoken for.
+   * With `keyboardActivation: 'manual'`, call this method from another control,
+   * such as a "Reorder" item in the draggable's menu.
    *
-   * Pass the element you registered, or any element inside it; a ref that has emptied
-   * is accepted and simply starts nothing, so a pickup deferred to a menu's close
-   * callback needs no guard of its own. It also does not start when a drag is already
-   * in progress, when the draggable is `disabled` or `keyboardActivation: 'off'`, or when
-   * `onBeforeDragStart` cancels. Passing a mounted element that is not in a registered
-   * draggable throws — that one is a wiring mistake.
+   * Pass the registered element or one of its descendants. A `null` or detached
+   * element returns `false`, which handles a source that unmounts before a deferred
+   * menu-close callback runs. The method also returns `false` if another drag is
+   * active, the draggable is disabled, keyboard activation is off, or
+   * `onBeforeDragStart` cancels. A mounted element outside a registered draggable
+   * throws an error.
    */
   startKeyboardDrag: (element: HTMLElement | null) => boolean;
 };

@@ -10,14 +10,12 @@ import { useTranslations } from '../../internals/localization-context/Localizati
 
 /**
  * Whether `children` renders text a sighted user would read as the control's
- * name, so the default `aria-label` can stand aside rather than replace it.
+ * name, so the default `aria-label` does not replace it.
  *
- * Walks into elements and fragments: the common styled form is
- * `<Handle><span>Reorder</span></Handle>`, and a check limited to direct
- * children would miss it and inject a name over the visible one. Whitespace-only
- * strings don't count — JSX preserves the spaces in `<Handle> <Icon /> </Handle>`
- * as children, and treating those as text would strip an icon-only handle's name
- * and expose it as an unnamed button.
+ * Walks through elements and fragments because visible text may be nested, as in
+ * `<Handle><span>Reorder</span></Handle>`. Whitespace-only strings do not count.
+ * JSX preserves the spaces in `<Handle> <Icon /> </Handle>` as children, but an
+ * icon-only handle still needs an accessible name.
  */
 function hasRenderedText(children: React.ReactNode): boolean {
   return React.Children.toArray(children).some((child) => {
@@ -52,14 +50,12 @@ function hasRenderedText(children: React.ReactNode): boolean {
  * interactive. Omit it to make the whole source draggable.
  * Renders a `<button>` element.
  *
- * A handle is typically a grip icon with no text, which would expose it as an
- * unnamed button. When the root has a `label` and the handle carries neither
- * `aria-label` nor `aria-labelledby` nor visible text, it takes a localized
- * name built from that label. A handle that renders visible text keeps that text
- * as its name; give it an explicit `aria-label` that *starts with* the visible
- * text if it needs a longer one. The subtree returned by a render function or
- * rendered internally by a custom component cannot be inspected safely; name an
- * icon-only handle explicitly when using either form.
+ * When the root has a `label` and the handle has no `aria-label`,
+ * `aria-labelledby`, or visible text, Base UI creates a localized name from the
+ * label. A handle with visible text keeps that text as its name. If it needs a
+ * longer `aria-label`, start the label with the visible text. Base UI cannot
+ * inspect content returned by a render function or custom component. Add an
+ * explicit name when that content contains only an icon.
  *
  * Documentation: [Base UI Draggable](https://base-ui.com/react/components/draggable)
  */
@@ -157,12 +153,11 @@ export interface DraggableHandleProps
     Omit<BaseUIComponentProps<'button', DraggableHandleState>, 'disabled'>,
     Omit<NativeButtonProps, 'disabled'> {
   /**
-   * A handle has no `disabled` of its own: the engine reads `disabled` from
-   * `Draggable.Root`, so setting it here would natively disable the button while
-   * leaving the root keyboard-draggable, with no `data-disabled` and the wrong
-   * button props. Disable the root instead, and the handle follows.
+   * A handle has no independent disabled state. Setting `disabled` here would
+   * disable the button while leaving its root keyboard-draggable. Set `disabled`
+   * on `Draggable.Root` instead.
    *
-   * Typed `never` so passing it is a compile error rather than a silent no-op.
+   * This prop is typed as `never` so passing it causes a type error.
    */
   disabled?: never | undefined;
 }

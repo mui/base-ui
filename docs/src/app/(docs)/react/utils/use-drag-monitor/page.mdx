@@ -1,24 +1,21 @@
 # useDragMonitor
 
 <Subtitle>Observe every drag on the page without being a source or a drop target.</Subtitle>
-<Meta
-  name="description"
-  content="A React hook to observe every drag globally — for status bars, analytics, or committing a reorder on drop."
-/>
+<Meta name="description" content="A React hook that observes every drag on the page." />
 
 import { DemoMonitorShapeSorter } from './demos/hero';
 
 <DemoMonitorShapeSorter />
 
-`useDragMonitor` runs callbacks for every drag on the page, wherever it starts and wherever it goes. A monitor is neither a drag source nor a drop target: it has no element and renders nothing — it only observes. The drag engine is global, so no provider is required.
+`useDragMonitor` runs callbacks for every drag on the page. A monitor has no element and renders nothing. It only observes, so no provider is required.
 
-Reach for it for cross-cutting concerns: a status bar, analytics, shared "what's being dragged" state, or committing an update from one place instead of from each target's `onDrop`. In the shape sorter above, the cutouts only declare what they accept. A monitor drives the live readout and places each shape after a successful drop.
+Use it for a status bar, analytics, shared drag state, or committing an update from one place instead of each target's `onDrop`. In the shape sorter above, the cutouts only declare what they accept. A monitor updates the live status and places each shape after a successful drop.
 
-A monitor registers once for the component's lifetime — re-renders never re-register — and its callbacks are read fresh on every event, so inline closures never go stale. A monitor that mounts mid-drag still joins the drag already in progress for the remainder.
+A monitor registers once for the component's lifetime. Re-renders do not register it again, and Base UI reads the latest callbacks for every event. A monitor mounted during a drag observes the rest of that drag.
 
 ## Filter by kind
 
-`accept` declares which [kinds](/react/components/draggable#pass-data-along) a monitor observes, exactly as on a drop target: one kind, or an array of them. It is evaluated once when the monitor joins a drag: at drag start for an existing monitor, or at registration for one mounted mid-drag. A monitor whose `accept` excludes that drag stays out of it for the remainder.
+`accept` declares which [kinds](/react/components/draggable#pass-data-along) a monitor observes. Pass one kind or an array. Base UI evaluates it when the monitor joins a drag, either at drag start or when a monitor mounts during a drag. If `accept` excludes that drag, the monitor ignores the rest of it.
 
 ```tsx title="Observe only cards"
 const card = Draggable.createKind<CardPayload>('card');
@@ -26,11 +23,11 @@ const card = Draggable.createKind<CardPayload>('card');
 useDragMonitor({ accept: card, onDragStart: ({ source }) => announce(source.label) });
 ```
 
-The kinds also type the drag: `source.payload` is the payload they declare, or the union of it for an array, which each kind's `matches` narrows. Omit `accept` to observe every drag, at the cost of an `unknown` payload. For anything finer than a kind allowlist, return early from the callbacks.
+The accepted kinds determine the type of `source.payload`. An array produces a union that each kind's `matches` method can narrow. Omit `accept` to observe every drag with an `unknown` payload. Return early from callbacks to apply more specific filters.
 
 ## Drag events
 
-A monitor's event handlers are all optional, and each receives the drag `source`, the `location` history, and the drag `mode` (`'pointer'` or `'keyboard'`). Wire up the ones you need on a single call:
+A monitor's event handlers are optional. Each receives the drag `source`, `location` history, and `mode`, which is either `'pointer'` or `'keyboard'`:
 
 ```tsx title="Reacting to every stage of a drag"
 import { useDragMonitor } from '@base-ui/react/use-drag-monitor';
@@ -68,11 +65,11 @@ function DragActivity() {
 }
 ```
 
-Every handler receives the event payload first and an `eventDetails` second, carrying the `reason` and the native `event`.
+Every handler receives the event payload first. Its second argument, `eventDetails`, contains the `reason` and native `event`.
 
-Monitors do not receive `onDragEnter` or `onDragLeave` — those are drop-target events. `onDragEnd` is the single "drag ended" signal for an observer, and `onDrop` the "and it committed somewhere" one.
+Monitors do not receive `onDragEnter` or `onDragLeave`, which belong to drop targets. `onDragEnd` fires whenever the drag ends. `onDrop` fires only after a successful drop.
 
-To reflect what's being dragged without wiring event handlers, [`Draggable.useActiveDrag`](/react/components/draggable#useactivedrag) is the read-only counterpart: it returns the active source and re-renders only when a drag starts or ends. To observe drags from outside React — an effect or a non-React widget — [`useDragDropManager`](/react/utils/use-drag-drop-manager#monitor-drags)'s `registerMonitor` is the imperative equivalent.
+Use [`Draggable.useActiveDrag`](/react/components/draggable#useactivedrag) to read the active source without event handlers. It re-renders only when a drag starts or ends. Outside React, use [`useDragDropManager`](/react/utils/use-drag-drop-manager#monitor-drags) and its `registerMonitor` method.
 
 ## API reference
 

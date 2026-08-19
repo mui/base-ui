@@ -4,16 +4,16 @@
 
 <Meta
   name="description"
-  content="How to style drag and drop in Base UI: dimming the source, sizing a custom preview, easing keyboard drags, and the styles the engine writes itself."
+  content="How to style Base UI drag sources, previews, drop targets, and displacement animations."
 />
 
-Drag and drop adds no styles of its own. Each state is exposed as a data attribute — see [styling](https://base-ui.com/react/handbook/styling) for how data attributes work, and each component's API reference for the full list ([Draggable](/react/components/draggable#api-reference), [DropTarget](/react/components/drop-target#api-reference), [DragAutoScroll](/react/components/drag-auto-scroll#api-reference)).
+Drag and drop adds no visual styles. Base UI exposes each state as a data attribute. See the [styling guide](https://base-ui.com/react/handbook/styling) for how to use data attributes. The [Draggable](/react/components/draggable#api-reference), [DropTarget](/react/components/drop-target#api-reference), and [DragAutoScroll](/react/components/drag-auto-scroll#api-reference) API references list every attribute.
 
 The sections below cover the attributes that have to be combined to be useful.
 
 ## Dimming the source
 
-`data-dragging` marks the element a drag was lifted from. The clone that follows the pointer does not carry it — the engine strips it while building the preview — so a `[data-dragging]` rule dims the source and leaves the preview at full opacity:
+`data-dragging` marks the source element. Base UI removes it from the cloned preview, so a `[data-dragging]` rule dims the source without changing the preview:
 
 ```css title="Dimming the source"
 .Card {
@@ -42,11 +42,11 @@ The clone is the size of the element it copies; a custom preview is sized by its
 }
 ```
 
-Both are set once, at drag start, from the source's rect. A preview meant to stay compact — a badge, a count — wants [`offset="pointer"`](/react/components/draggable#position-the-preview) instead.
+Base UI sets both values once at drag start from the source's bounding rect. For a compact preview such as a badge or count, use [`offset="pointer"`](/react/components/draggable#position-the-preview) instead.
 
 ## Easing keyboard drags
 
-A pointer drag tracks the cursor, so a transition on the preview only makes it lag. A keyboard drag jumps between drop targets, where a transition makes the move readable. `data-drag-mode` carries the modality on the source and the preview:
+A transition makes a pointer preview lag behind the cursor, but it can make keyboard movement between drop targets easier to follow. Use `data-drag-mode` to apply the transition only to a keyboard preview:
 
 ```css title="Easing the preview for keyboard drags only"
 .Card {
@@ -62,7 +62,7 @@ A pointer drag tracks the cursor, so a transition on the preview only makes it l
 }
 ```
 
-Transition `translate` only — the property the engine positions the preview through. `.Card` also matches the source, so an `opacity` transition eases it back from `[data-dragging]` once the preview is already gone, which reads as the item fading in behind the drop.
+Transition only `translate`, which Base UI uses to position the preview. The `.Card` selector also matches the source, so an `opacity` transition would continue after the preview is removed and make the dropped item fade in.
 
 The same selector can mirror the focus ring onto the preview, so a keyboard drag stays visibly "focused" while the item moves:
 
@@ -95,7 +95,7 @@ Without a transition, both ending attributes are removed before the next paint. 
 
 ## Animating displaced items
 
-A reorder moves the neighbours of the dragged item, and the position they moved from is nothing CSS can know. A draggable with [`Draggable.Displacement`](/react/components/draggable#animating-displaced-items) has the engine measure it during drags and publish the result: the distance as `--drag-displacement-x`/`--drag-displacement-y`, a `data-starting-style` frame to author the from-state on, and `data-displacing` while the play lasts. Two rules make it move:
+CSS cannot determine the previous position of an item moved by a reorder. Add [`Draggable.Displacement`](/react/components/draggable#animating-displaced-items) so Base UI measures the item during drags. It publishes the offset as `--drag-displacement-x` and `--drag-displacement-y`, adds `data-starting-style` for the first frame, and keeps `data-displacing` during the animation:
 
 ```css title="Easing displaced rows to their new slots"
 .Item[data-displacing][data-starting-style] {
@@ -106,11 +106,11 @@ A reorder moves the neighbours of the dragged item, and the position they moved 
 }
 ```
 
-Put the motion on `translate`, not `transform`, so it composes with any `transform` positioning your app already does. Because the second rule replaces the element's `transition` shorthand while a play runs, restate any other transitions the element relies on inside it. The draggable page covers [why the `:not` gate matters](/react/components/draggable#animating-displaced-items) for interrupted reorders, and the reduced-motion story: gate both rules, not only the transition.
+Use `translate` instead of `transform` so the animation composes with existing transform positioning. The second rule replaces the element's `transition` shorthand, so repeat any other transitions the element needs. See [Animating displaced items](/react/components/draggable#animating-displaced-items) for interrupted reorders. For reduced motion, disable both rules rather than only the transition.
 
-## Highlighting the innermost target
+## Highlight the innermost target
 
-Nested drop targets are over at once: a card over a slot inside a column marks both. `data-drag-over` is on every target in the stack, `data-drag-over-innermost` only on the one that would receive the drop:
+Several nested drop targets can be active at once. For example, a card over a slot inside a column marks both targets. `data-drag-over` is present on every target in the stack, while `data-drag-over-innermost` is present only on the target that would receive the drop:
 
 ```css title="Feedback on both levels"
 .Column[data-drag-over] {
@@ -136,11 +136,11 @@ While a pointer drag runs, the engine pins the cursor across the document so it 
 
 ## Styles the engine writes
 
-The engine writes two sets of inline styles plus one injected stylesheet, all of which matter if you set the same properties. With [`Draggable.Displacement`](#animating-displaced-items), it additionally writes `--drag-displacement-x`/`--drag-displacement-y` inline on each displaced element for the duration of a play (they inherit, so descendants see them too), and removes them with the attributes when the play ends.
+Base UI writes inline styles and injects one cursor stylesheet. These styles may override the same properties in your CSS. [`Draggable.Displacement`](#animating-displaced-items) also sets `--drag-displacement-x` and `--drag-displacement-y` on each displaced element during an animation. The variables inherit to descendants and are removed with the data attributes when the animation ends.
 
-Each enabled draggable gets `touch-action: manipulation`, `user-select: none` and `-webkit-touch-callout: none` at **registration**, not only during a drag and regardless of modality. A disabled source owns no gesture styles or keyboard-drag ARIA until it is enabled and refreshed. These styles stop a press from selecting text or opening the iOS callout, while still letting a touch scroll start on the element, which is what lets the 250ms press-hold tell a drag from a scroll. When a [`Draggable.Handle`](/react/components/draggable#drag-handle) is attached they go on the handle rather than on the root, since that is the element the gesture starts from. Your own `touch-action` there overrides this and can make touch drags or list scrolling unreliable; set it on a wrapper instead. The originals are restored when the source unregisters.
+At registration, each enabled draggable receives `touch-action: manipulation`, `user-select: none`, and `-webkit-touch-callout: none`. A disabled source receives none of these styles or the keyboard-drag ARIA attributes. The styles prevent text selection and the iOS callout while still allowing touch scrolling before the 250ms drag delay ends. When a [`Draggable.Handle`](/react/components/draggable#drag-handle) is present, Base UI applies the styles to the handle instead of the root. Setting `touch-action` on the handle overrides this behavior and can interfere with touch dragging or list scrolling, so set it on a wrapper instead. Base UI restores the original styles when the source unregisters.
 
-While a **pointer** drag runs, `<html>` and `<body>` are locked with `touch-action: none`, `user-select: none`, `-webkit-touch-callout: none` and `overscroll-behavior: none`, so the page can't scroll or rubber-band under the drag. They are restored when the drag ends, whether it drops or is canceled. This lock is pointer-only — a keyboard drag never writes it.
+During a pointer drag, Base UI sets `touch-action: none`, `user-select: none`, `-webkit-touch-callout: none`, and `overscroll-behavior: none` on `<html>` and `<body>`. This prevents page scrolling and overscroll. Base UI restores the values when the drag ends. Keyboard drags do not apply this lock.
 
 A pointer drag also adds a `baseui-dragging` class to `<html>` and, once per document, injects a single rule:
 

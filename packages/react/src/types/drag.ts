@@ -3,7 +3,7 @@ import type * as React from 'react';
 export type DragCleanupFn = () => void;
 
 /**
- * The input modality driving a drag.
+ * The input method driving a drag.
  *
  * - `'pointer'`: a mouse, pen, or touch gesture.
  * - `'keyboard'`: a keyboard gesture, whose coordinates are synthesized.
@@ -72,11 +72,10 @@ export interface DragLocalPoint {
 }
 
 /**
- * How many equal steps a drop target's local point quantizes to per axis, declared
- * with the target's `snap`. An axis left out (or a non-positive count) stays
- * unquantized. Counts are unitless fractions of the target's border box, so nothing
- * about the target's rendered size is needed to declare them: a day column is
- * `{ y: 96 }` (15-minute slots) however tall it ends up.
+ * The number of equal steps used to snap a drop target's local point on each
+ * axis. An omitted axis or non-positive count is not snapped. Counts divide the
+ * target's border box and do not depend on its rendered size. For example,
+ * `{ y: 96 }` divides a day column into 15-minute slots at any height.
  */
 export interface DragSnapSteps {
   x?: number | undefined;
@@ -86,12 +85,10 @@ export interface DragSnapSteps {
 /** Options for `DropTargetRecord.getSnappedLocalPoint`. */
 export interface DragSnappedLocalPointOptions {
   /**
-   * The point being quantized: `'pointer'` is where the pointer sits; `'source'`
-   * shifts it by the grab offset first (measured at the press, where the user took
-   * hold), so the reported step is the one the dragged element's leading edges are
-   * over. That is the value a *move* commits, since snapping the pointer and then
-   * subtracting a grab offset would un-snap it. Falls back to `'pointer'` when no
-   * grab offset is known.
+   * The point to snap. `'pointer'` uses the pointer position. `'source'` applies
+   * the grab offset first, so the result represents the dragged element's leading
+   * edges. Use `'source'` when committing the element's position. Falls back to
+   * `'pointer'` when no grab offset is available.
    * @default 'pointer'
    */
   anchor?: 'pointer' | 'source' | undefined;
@@ -131,8 +128,8 @@ export interface DropTargetRecord<TLocalData = unknown> {
    * />
    * ```
    *
-   * The first call measures the target, so call it only where the number is needed.
-   * Later calls on the same record are free, and records are rebuilt on every move.
+   * The first call measures the target. Later calls on the same record reuse the
+   * measurement. Records are rebuilt on every move.
    *
    * Not clamped: an ancestor in the stack can have the pointer outside its own box, so
    * clamp where the domain requires it. Both axes report `0` for a target with no extent,
@@ -140,8 +137,8 @@ export interface DropTargetRecord<TLocalData = unknown> {
    */
   getLocalPoint: () => DragLocalPoint;
   /**
-   * `getLocalPoint`, quantized to the target's `snap` steps with symmetric rounding
-   * and clamped to `0`–`1`, so the result multiplies into an exact domain value:
+   * Returns `getLocalPoint()` rounded to the target's `snap` steps and clamped
+   * between `0` and `1`:
    *
    * ```tsx
    * <DropTarget.Root
@@ -154,10 +151,9 @@ export interface DropTargetRecord<TLocalData = unknown> {
    * />
    * ```
    *
-   * Pass `{ anchor: 'source' }` to quantize where the dragged element's leading edges
-   * sit rather than the pointer: the value a move commits. An axis without declared
-   * steps reports its clamped raw fraction. Shares `getLocalPoint`'s measurement, so
-   * the same lazy-measure advice applies.
+   * Pass `{ anchor: 'source' }` to snap the dragged element's leading edges instead
+   * of the pointer. An axis without declared steps returns its clamped raw fraction.
+   * This method shares the measurement from `getLocalPoint()`.
    */
   getSnappedLocalPoint: (options?: DragSnappedLocalPointOptions) => DragLocalPoint;
 }
@@ -225,8 +221,8 @@ export interface DragSource<TData = unknown> {
  */
 export interface DragKind<TPayload = unknown> {
   /**
-   * The name or global key this kind was created with. Not an accessible name — that
-   * is the `label` on a draggable, a drop target, and `source.label`.
+   * The name or global key used to create this kind. This is not an accessible
+   * name. Use `label` on a draggable or drop target instead.
    */
   readonly name: string;
   /**
@@ -245,8 +241,8 @@ export interface DragKind<TPayload = unknown> {
 }
 
 /**
- * What a drop target's or monitor's `accept` takes: one kind, or an array of kinds.
- * `source.payload` is typed from it, as the payload of that kind or the union of theirs.
+ * One or more drag kinds accepted by a drop target or monitor. The accepted kinds
+ * determine the type of `source.payload`.
  */
 export type DragAccept<TPayload> = DragKind<TPayload> | ReadonlyArray<DragKind<TPayload>>;
 
@@ -257,8 +253,8 @@ export type DragAccept<TPayload> = DragKind<TPayload> | ReadonlyArray<DragKind<T
 export type AnyDragAccept = DragKind<unknown> | ReadonlyArray<DragKind<unknown>>;
 
 /**
- * The payload promised by an `accept` declaration: the kind's own, the union of an
- * array's, or `unknown` when `accept` was omitted.
+ * The payload type declared by `accept`. An array produces a union, and an omitted
+ * `accept` produces `unknown`.
  * @public
  */
 // Distributive on purpose, so both the array entries and an `accept` that is itself a
@@ -277,7 +273,7 @@ export interface BaseDragEvent<TSourceData = unknown> {
   location: DragLocationHistory;
   source: DragSource<TSourceData>;
   /**
-   * The input modality driving the drag.
+   * The input method driving the drag.
    * This is the reliable way to detect a keyboard drag, as
    * `location.current.input.pointerType` is `null` for those.
    */
@@ -368,9 +364,9 @@ export type DragEndEvent<TSourceData = unknown> = BaseDragEvent<TSourceData> & {
 };
 
 /**
- * The event object passed to `onDrop`, which fires only for a drag released over an
- * accepting target — so `dropTarget` is never `null` here. On a drop target's own
- * `onDrop` it is that target's record, the same one as `self`.
+ * The event object passed to `onDrop`. This event fires only after release over an
+ * accepting target, so `dropTarget` is never `null`. In a drop target's `onDrop`,
+ * it is the same record as `self`.
  */
 export type DragDropEvent<TSourceData = unknown> = BaseDragEvent<TSourceData> & {
   dropTarget: DropTargetRecord;
@@ -428,7 +424,7 @@ export type DraggablePayloadGetter<TData> = (context: DragStartContext) => NoInf
  */
 export type DragHandle = Element | { current: Element | null } | (() => Element | null | undefined);
 
-/** The input modality about to drive the drag. */
+/** The input method about to drive the drag. */
 export type DragStartReason = DragMode;
 
 type DragReasonToEvent<TReason extends string> = TReason extends 'pointer'
@@ -446,13 +442,13 @@ type DragReasonToEvent<TReason extends string> = TReason extends 'pointer'
 /** The event details passed to `onBeforeDragStart`. Call `cancel()` to prevent the drag. */
 export type BeforeDragStartEventDetails = {
   [TReason in DragStartReason]: {
-    /** The input modality attempting to start the drag. */
+    /** The input method attempting to start the drag. */
     reason: TReason;
     /** The pointer or keyboard event that attempted the pickup. */
     event: DragReasonToEvent<TReason>;
     /** Prevents the drag from starting. */
     cancel: () => void;
-    /** Allows the native event to propagate when the engine would stop it. */
+    /** Allows the native event to propagate when Base UI would stop it. */
     allowPropagation: () => void;
     /** Whether {@link cancel} has been called. */
     isCanceled: boolean;
@@ -474,21 +470,20 @@ export type DragCompletedReason = 'drop' | 'outside-release';
 /**
  * Why a drag was aborted.
  *
- * The first group is the user acting deliberately; the rest are the environment taking
- * the drag away, and describe engine mechanics rather than intent — treat them as one
- * "interrupted" class unless you have a reason not to, and keep a default branch: a
- * future release can add members here.
+ * Escape and Tab represent deliberate user actions. The other reasons describe an
+ * interrupted drag. Unless the distinction matters to your app, handle those reasons
+ * together and include a default branch for reasons added in a future release.
  *
  * - `'escape-key'` / `'tab-key'`: the user pressed Escape or Tab.
- * - `'pointer-down'`: a keyboard drag was interrupted by the user reaching for the pointer.
+ * - `'pointer-down'`: the user pressed a pointer during a keyboard drag.
  * - `'focus-out'`: focus moved into a text input, which needs the keys the drag was swallowing.
  * - `'imperative-action'`: the application called `cancelDrag()`.
  * - `'window-blur'` / `'page-hidden'`: the window lost focus, or the page was hidden.
  * - `'pointer-canceled'`: the browser or OS canceled the pointer stream.
  * - `'capture-lost'`: pointer capture moved away mid-gesture.
- * - `'missed-release'`: the button came up without a terminating event reaching the engine.
- * - `'handler-error'`: one of your own handlers threw, so the engine tore the drag
- *   down to avoid wedging. The original error is rethrown separately.
+ * - `'missed-release'`: the button came up without a terminating event reaching Base UI.
+ * - `'handler-error'`: one of your own handlers threw, so Base UI ended the drag.
+ *   The original error is rethrown separately.
  * - `'document-detached'`: the drag's document lost its browsing context (iframe removed,
  *   popout closed).
  */
@@ -509,7 +504,7 @@ export type DragCanceledReason =
 /** Why a drag ended, in full. `canceled` on the event is `reason` being a cancel one. */
 export type DragEndReason = DragCompletedReason | DragCanceledReason;
 
-/** Why `onDrop` fired. Narrowed to the one outcome that commits a drop. */
+/** The reason passed to `onDrop`. Always `'drop'`. */
 export type DragDropReason = Extract<DragCompletedReason, 'drop'>;
 
 /**
@@ -520,9 +515,9 @@ export type DropTargetChangeReason = DragMode | DragEndReason;
 
 /**
  * The details of a drag event, passed as the second argument to every handler.
- * Carries the `reason` the event fired for and the native `event` behind it, which
- * the payload itself doesn't expose. Not cancelable — by the time these fire the
- * engine has already acted; `onBeforeDragStart` is the one that can be canceled.
+ * Contains the event `reason` and native `event`, which are not included in the
+ * first handler argument. These events cannot be canceled because Base UI has
+ * already applied the action. Use `onBeforeDragStart` to cancel a drag pickup.
  */
 export type DragEventDetails<TReason extends string> = {
   [Reason in TReason]: {
@@ -700,7 +695,7 @@ export interface DragKeyboardMoveTarget {
 export interface DragKeyboardMoveDetails<TSourceData = unknown> {
   /** The arrow key pressed. */
   key: DragKeyboardArrowKey;
-  /** Unit vector for `key` (`ArrowUp` is `{ x: 0, y: -1 }`, …). */
+  /** Unit vector for `key`. `ArrowUp` is `{ x: 0, y: -1 }`. */
   direction: DragPosition;
   /** Whether the Shift key was held. No multiplier is applied to a resolver result. */
   shiftKey: boolean;
@@ -769,9 +764,8 @@ export type DragKeyboardMovement<TSourceData = unknown> = (
 export type DragKeyboardActivation = 'auto' | 'manual' | 'off';
 
 /**
- * A reference to an element: the element itself, a ref object holding it, or a
- * function returning it. It is re-resolved on every constrained move, so a ref that
- * fills in late is picked up mid-drag.
+ * An element, a ref object, or a function that returns an element. Base UI resolves
+ * it on every constrained move, so a ref can become available during a drag.
  */
 export type DragElementReference =
   | HTMLElement
@@ -798,13 +792,12 @@ export interface DragModifierContext {
   /** The source element's bounding rect at drag start. */
   sourceRect: DOMRect;
   /**
-   * The scale a CSS transform (or a `zoom`) applies to the source, measured at drag start
-   * over the source and every ancestor.
+   * The scale applied to the source by CSS `transform` or `zoom`, measured at drag
+   * start across the source and its ancestors.
    *
-   * `1` when nothing scales the source, and `1` for a rotation, which is not a scale. On a
-   * zoomable surface it is the zoom, which is what turns a step expressed in the source's own
-   * coordinates into client pixels: the prebuilt `snapToGrid` multiplies by it, and a custom
-   * modifier working in surface units should too.
+   * The value is `1` when the source is not scaled. A rotation alone does not change
+   * it. On a zoomable canvas, multiply a distance in canvas coordinates by this value
+   * to convert it to client pixels. The `snapToGrid` preset does this automatically.
    */
   scale: DragPosition;
   /** The preview element's current rect, or `null` when there is no preview. */
@@ -814,20 +807,18 @@ export interface DragModifierContext {
    * `point − previewOffset`. `(0, 0)` on a preview part and when there is no preview.
    */
   previewOffset: DragPosition;
-  /** The input modality driving the drag. */
+  /** The input method driving the drag. */
   mode: DragMode;
   /**
    * Whether the Control key was held by the event that produced this move.
    *
-   * During a pointer drag the four flags are live: pressing or releasing one re-applies
-   * the modifiers on the next frame without waiting for the pointer to move, so a
-   * key-gated constraint engages the moment the key goes down. A keyboard drag reports
-   * the keys of each arrow press instead, and never sees Ctrl, Alt or Meta — a chord is
-   * left to the shortcut it belongs to rather than moving the drag.
+   * During a pointer drag, pressing or releasing a modifier key reapplies the drag
+   * modifiers on the next frame. During a keyboard drag, the flags describe each
+   * arrow press. Ctrl, Alt, and Meta chords remain available for other shortcuts.
    *
-   * Read `mode` alongside them. The same key routinely means different things per
-   * modality — Shift already means "travel further" to `fixedStepKeyboardMovement` — so
-   * a gesture bound to Shift on the pointer usually wants `mode === 'pointer'` too.
+   * Check `mode` with these flags because a key may behave differently for pointer
+   * and keyboard drags. For example, Shift increases the step used by
+   * `fixedStepKeyboardMovement`.
    */
   ctrlKey: boolean;
   /** Whether the Shift key was held by the event that produced this move. See `ctrlKey`. */
@@ -844,8 +835,9 @@ export interface DragModifierContext {
 }
 
 /**
- * Modifies a drag's movement: an axis lock, a grid snap, an element or window clamp.
- * Given the point that would be used this frame, returns the point to use instead.
+ * Modifies the drag position. Use it to lock an axis, snap to a grid, or constrain
+ * the drag to an element or window. It receives the proposed point and returns the
+ * point to use.
  *
  * Prebuilt modifiers: `restrictToVerticalAxis`, `restrictToHorizontalAxis`,
  * `restrictToWindowEdges`, `restrictToParentElement`, `restrictToElement`, `snapToGrid`.
@@ -855,7 +847,7 @@ export type DragModifier = (context: DragModifierContext) => DragPosition;
 /**
  * One or more {@link DragModifier}s, applied in order, each constraining the previous
  * one's result. Falsy array entries are skipped, so a modifier can be applied
- * conditionally: `[locked && restrictToVerticalAxis, snapToGrid(8)]`.
+ * conditionally, as in `[locked && restrictToVerticalAxis, snapToGrid(8)]`.
  */
 export type DragModifiers = DragModifier | ReadonlyArray<DragModifier | false | null | undefined>;
 
@@ -871,8 +863,8 @@ export interface DragPreviewSettings {
    */
   offset?: DragPreviewOffset | undefined;
   /**
-   * Constrains where the preview is drawn, without affecting the drag itself: which
-   * drop target resolves, and what `location.current.input` reports, are unchanged.
+   * Constrains the preview without affecting the drag. The resolved drop target and
+   * `location.current.input` remain unchanged.
    * Here the modifier's `point` is the preview's proposed top-left and `input` is the
    * cursor. Runs on every positioned frame, so keep modifiers cheap.
    *
@@ -880,8 +872,7 @@ export interface DragPreviewSettings {
    */
   modifiers?: DragModifiers | undefined;
   /**
-   * Whether to build no preview at all, so nothing follows the pointer. The drag
-   * itself still runs.
+   * Whether to hide the preview. The drag continues while no preview is shown.
    * @default false
    */
   disabled?: boolean | undefined;
@@ -889,10 +880,10 @@ export interface DragPreviewSettings {
    * Determines where the preview is injected in the DOM.
    * Defaults to the source's own parent, so the app's CSS still applies to it.
    *
-   * Pass a container to opt out of that: it keeps the source's siblings' structural
-   * selectors (`:nth-child`, `:last-child`) intact and survives the source's subtree
-   * being torn out mid-drag, at the cost of the contextual rules. A
-   * `Draggable.PreviewProvider` can set this for a whole subtree.
+   * Pass a container to keep structural selectors such as `:nth-child` and
+   * `:last-child` unchanged, or to keep the preview mounted if the source subtree
+   * unmounts. CSS selectors based on the source's ancestors may no longer match.
+   * `Draggable.PreviewProvider` can set the container for a whole subtree.
    */
   container?: DragPreviewContainer | undefined;
 }

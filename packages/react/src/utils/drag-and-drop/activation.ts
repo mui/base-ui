@@ -67,11 +67,11 @@ export function getActivationDelayMs(activation: DragActivation): number | null 
 }
 
 /**
- * When a `pointerdown` becomes a drag. Discriminated on `type`:
- * - `immediate`: any `pointerdown` starts the drag.
- * - `distance`: the drag starts after the pointer has moved by `distance` CSS pixels.
- * - `press-hold`: the drag starts after `delay` ms of holding still; movement
- *   larger than `tolerance` CSS pixels (default 5) cancels the gesture.
+ * Determines when a `pointerdown` starts a drag.
+ * - `immediate` starts on `pointerdown`.
+ * - `distance` starts after the pointer moves by `distance` CSS pixels.
+ * - `press-hold` starts after `delay` milliseconds. Moving farther than
+ *   `tolerance` CSS pixels cancels the gesture. The default tolerance is 5.
  */
 export type DragActivation =
   | { type: 'immediate' }

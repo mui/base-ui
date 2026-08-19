@@ -2,11 +2,10 @@ import { getElementScale } from '../utils';
 import type { DragKeyboardMovement } from '../../../types/drag';
 
 /**
- * A `keyboardMovement` preset that only ever moves between accepting drop
- * targets: each arrow press snaps to the nearest target in the pressed
- * direction, and a press with no target ahead does nothing. Use it when free
- * space is never a valid drop position, such as a sortable list or a board —
- * without it, a press past the last target nudges the preview into dead space.
+ * A `keyboardMovement` preset that moves only between accepting drop targets.
+ * Each arrow press moves to the nearest target in that direction. If no target
+ * is available, nothing moves. Use it for sortable lists and boards where empty
+ * space is not a valid drop position.
  */
 export const targetsOnlyKeyboardMovement: DragKeyboardMovement = ({ suggestion }) =>
   suggestion.type === 'target' ? suggestion : false;
@@ -15,16 +14,13 @@ export const targetsOnlyKeyboardMovement: DragKeyboardMovement = ({ suggestion }
 const SHIFT_MULTIPLIER = 4;
 
 /**
- * A `keyboardMovement` preset that always nudges by a fixed step and never seeks a drop target.
+ * A `keyboardMovement` preset that moves by a fixed step without finding a drop target.
  *
- * The opposite of {@link targetsOnlyKeyboardMovement}, and what a free surface wants: on a
- * canvas every point is a valid position, so the default's "snap to the nearest accepting
- * target in this direction" sends the source across the board the moment anything registers as
- * a target.
+ * Use it on a canvas where every point is valid. The default target search could
+ * otherwise move the source across the canvas when a drop target is registered.
  *
- * `step` is in the source's own coordinate space, so an ancestor `scale()` — a zoomable
- * canvas — moves the source by the same distance on the board at any zoom. Holding Shift
- * travels four times as far.
+ * `step` uses the source's coordinate system, so an ancestor `scale()` does not
+ * change the distance on a zoomable canvas. Holding Shift moves four times as far.
  *
  * ```jsx
  * <Draggable.Root keyboardMovement={Draggable.fixedStepKeyboardMovement(20)} />

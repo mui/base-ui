@@ -57,13 +57,13 @@ function clampPointToRect(context: DragModifierContext, rect: DOMRect): DragPosi
   };
 }
 
-/** Lock the drag to the vertical axis: the horizontal position stays where the drag began. */
+/** Locks the drag to the vertical axis at its initial horizontal position. */
 export const restrictToVerticalAxis: DragModifier = ({ point, initialPoint }) => ({
   x: initialPoint.x,
   y: point.y,
 });
 
-/** Lock the drag to the horizontal axis: the vertical position stays where the drag began. */
+/** Locks the drag to the horizontal axis at its initial vertical position. */
 export const restrictToHorizontalAxis: DragModifier = ({ point, initialPoint }) => ({
   x: point.x,
   y: initialPoint.y,
@@ -120,9 +120,8 @@ export const restrictToParentElement: DragModifier = (context) => {
  * single number for a square grid or `{ x, y }` for a rectangular one. A
  * non-positive step leaves that axis unsnapped.
  *
- * The step is in the source's own coordinate space, so it lands on the grid you drew even when
- * an ancestor scales it: on a canvas at 70% zoom, `snapToGrid(20)` still snaps to that canvas's
- * 20-unit grid. Nothing changes where the source is unscaled, which is the common case.
+ * The step uses the source's coordinate system. For example, `snapToGrid(20)`
+ * still snaps to a 20-unit grid when the canvas is zoomed to 70%.
  */
 export function snapToGrid(size: number | { x: number; y: number }): DragModifier {
   const sizeX = typeof size === 'number' ? size : size.x;

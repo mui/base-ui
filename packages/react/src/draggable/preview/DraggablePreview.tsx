@@ -12,9 +12,9 @@ import { createDragPreviewHostElement } from '../../utils/drag-and-drop/syntheti
  * the default clone of the source.
  * Renders a `<div>` element.
  *
- * Renders nothing where you write it: the content renders in the nearest
- * `Draggable.PreviewProvider`, which is required, and is portaled into an
- * engine-owned element next to the drag source, where your CSS reaches it.
+ * The component renders no element in place. Its content renders in the nearest
+ * required `Draggable.PreviewProvider` and is portaled into an element next to
+ * the drag source, where the source's CSS can apply.
  *
  * Documentation: [Base UI Draggable](https://base-ui.com/react/components/draggable)
  */
@@ -70,7 +70,7 @@ export interface DraggablePreviewProps
     >,
     DragPreviewSettings {
   /**
-   * Show no preview at all: nothing follows the pointer. The drag itself still runs.
+   * Whether to hide the preview. The drag continues while no preview is shown.
    * @default false
    */
   disabled?: boolean | undefined;

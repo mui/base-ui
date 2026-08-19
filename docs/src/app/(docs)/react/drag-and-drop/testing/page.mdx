@@ -1,10 +1,10 @@
 # Testing
 
-<Subtitle>Driving a drag from a test, and picking an environment that can resolve one.</Subtitle>
+<Subtitle>How to test pointer and keyboard drags.</Subtitle>
 
 <Meta
   name="description"
-  content="How to test Base UI drag and drop: simulating pointer and keyboard drags, activation thresholds, and what jsdom can and cannot resolve."
+  content="How to test Base UI pointer and keyboard drags in jsdom and a browser."
 />
 
 The engine is [synthetic](/react/drag-and-drop/overview#concepts): it listens to pointer and keyboard events and never uses the browser's HTML5 drag-and-drop. There is no `dragstart` to fire. A test drives a drag the way a user does, with `pointerdown`, `pointermove` and `pointerup`.
@@ -13,8 +13,8 @@ The engine is [synthetic](/react/drag-and-drop/overview#concepts): it listens to
 
 A drag resolves drop targets through layout and `document.elementFromPoint`, which jsdom does not provide.
 
-- **Anything that has to land on a target** — `onDrop`, `data-drag-over`, drop indicators, auto-scroll, arrow-key movement — belongs in a browser test.
-- **Everything else works in jsdom**: activation thresholds, `onDragStart`/`onDragEnd` firing, the end `reason` on Escape, `data-dragging` on the source, whether a preview renders, `disabled` and `onBeforeDragStart` vetoes.
+- Use a browser test for behavior that requires a resolved target, including `onDrop`, `data-drag-over`, drop indicators, auto-scroll, and arrow-key movement.
+- Use jsdom for activation thresholds, lifecycle events, cancellation reasons, source state, preview rendering, `disabled`, and `onBeforeDragStart` cancellation.
 
 Stubbing `getBoundingClientRect` in jsdom supplies geometry but not hit-testing. A drag can still start and end there, but it resolves no target and ends as an `'outside-release'`. Use a browser test when the destination matters.
 
@@ -90,11 +90,11 @@ Escape and Tab both cancel and end the drag with `canceled: true`. The default f
 
 Assert on the data attributes and the handler arguments: `data-dragging` on the source, `data-drag-over` and `data-drag-over-innermost` on the target, `data-drag-preview` on the preview element, the `source`, `location` and `canceled` fields on the first argument, and `reason` on the second.
 
-Handlers take two arguments, so a `toHaveBeenCalledWith` that lists only the payload will not match — assert on `mock.calls[0][0]`, or pass a second matcher.
+Handlers take two arguments, so `toHaveBeenCalledWith` does not match when only the payload is listed. Assert on `mock.calls[0][0]` or pass a matcher for the second argument.
 
 ```tsx title="A drop that lands"
 const onDrop = vi.fn();
-// …drive the drag…
+// Drive the drag.
 expect(onDrop).toHaveBeenCalledTimes(1);
 expect(onDrop.mock.calls[0][0].source.payload).toBe('card-1');
 ```

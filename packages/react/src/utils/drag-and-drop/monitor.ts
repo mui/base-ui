@@ -130,13 +130,13 @@ export function clearActiveMonitors(): void {
 
 export interface RegisterMonitorParameters<TSourceData = unknown> {
   /**
-   * The kinds of drag source this monitor observes: one kind, or an array of them. Omit
-   * it to observe every drag, at the cost of `source.payload` being `unknown`.
+   * One or more drag source kinds observed by this monitor. Omit it to observe
+   * every drag with `source.payload` typed as `unknown`.
    *
-   * It is evaluated once when the monitor joins a drag: at drag start for an existing
-   * monitor, or at registration for one added mid-drag. A monitor whose `accept` excludes
-   * that drag stays out for the remainder. For anything finer, return early from the
-   * event callbacks below.
+   * Base UI evaluates this value when the monitor joins a drag, either at drag
+   * start or when the monitor registers during a drag. If the value excludes the
+   * drag, the monitor ignores its remaining events. Return early from callbacks to
+   * apply more specific filters.
    */
   accept?: DragAccept<TSourceData> | undefined;
   /**
@@ -180,9 +180,9 @@ export interface RegisterMonitorParameters<TSourceData = unknown> {
       ) => void)
     | undefined;
   /**
-   * Event handler called once when the drag ends, however it ended — dropped,
-   * released over nothing, or canceled. `eventDetails.reason` carries the exact
-   * outcome; `dropTarget` is the target a release landed on (`null` when none).
+   * Event handler called once when the drag ends after a drop, outside release, or
+   * cancellation. `eventDetails.reason` identifies the outcome. `dropTarget` is the
+   * target of a release, or `null` when there was none.
    */
   onDragEnd?:
     | ((

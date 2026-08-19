@@ -10,8 +10,8 @@ export type UseDraggableActiveDragReturnValue<TData = unknown> = DragSource<TDat
  * Subscribes to the drag currently in progress, and returns its source, or `null` if
  * there is none. Observes every drag, regardless of which element started it.
  *
- * Pass `accept` — one kind, or an array of them — to observe only those kinds: other
- * drags return `null`, and the source's `payload` is typed from it.
+ * Pass one kind or an array of kinds to `accept` to observe only matching drags.
+ * Other drags return `null`, and `accept` determines the source payload type.
  *
  * @public
  */

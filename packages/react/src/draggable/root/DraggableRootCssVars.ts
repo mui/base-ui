@@ -1,9 +1,9 @@
 export enum DraggableRootCssVars {
   /**
    * The horizontal distance, in pixels, from this element's new layout position
-   * back to the one a reorder displaced it from (previous minus current, so a
-   * row that moved up gets a positive value). Present with `data-displacing`;
-   * apply it under `data-starting-style` so the transition plays it back to rest.
+   * to its previous position. It is calculated as previous minus current, so a
+   * row that moved up has a positive value. Present with `data-displacing`. Apply
+   * it under `data-starting-style` to transition the element to its new position.
    * @type {number}
    */
   displacementX = '--drag-displacement-x',
