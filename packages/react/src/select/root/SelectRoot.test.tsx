@@ -2863,8 +2863,32 @@ describe('<Select.Root />', () => {
 
       await user.click(screen.getByTestId('trigger'));
 
-      expect(await screen.findByRole('listbox')).not.toBe(null);
+      const listbox = await screen.findByRole('listbox');
+      expect(listbox).toHaveAttribute('aria-readonly', 'true');
       expect(handleOpenChange.mock.calls.length).toBe(1);
+    });
+
+    it('marks the listbox as readonly when rendered with Select.List', async () => {
+      const { user } = await render(
+        <Select.Root readOnly>
+          <Select.Trigger data-testid="trigger">
+            <Select.Value />
+          </Select.Trigger>
+          <Select.Portal>
+            <Select.Positioner>
+              <Select.Popup>
+                <Select.List>
+                  <Select.Item value="a">a</Select.Item>
+                </Select.List>
+              </Select.Popup>
+            </Select.Positioner>
+          </Select.Portal>
+        </Select.Root>,
+      );
+
+      await user.click(screen.getByTestId('trigger'));
+
+      expect(await screen.findByRole('listbox')).toHaveAttribute('aria-readonly', 'true');
     });
 
     it.each([
