@@ -371,13 +371,13 @@ describe('<PreviewCard.Root />', () => {
       await render(
         <PreviewCard.Root>
           <button type="button" aria-label="Initial focus" autoFocus />
-          <PreviewCard.Trigger href="#" delay={0}>
+          <PreviewCard.Trigger href="#" delay={0} closeDelay={0}>
             Trigger 1
           </PreviewCard.Trigger>
-          <PreviewCard.Trigger href="#" delay={0}>
+          <PreviewCard.Trigger href="#" delay={0} closeDelay={0}>
             Trigger 2
           </PreviewCard.Trigger>
-          <PreviewCard.Trigger href="#" delay={0}>
+          <PreviewCard.Trigger href="#" delay={0} closeDelay={0}>
             Trigger 3
           </PreviewCard.Trigger>
 
@@ -399,7 +399,9 @@ describe('<PreviewCard.Root />', () => {
 
       fireEvent.mouseEnter(trigger1);
       fireEvent.mouseMove(trigger1);
-      expect(screen.queryByTestId(popupId)).toBeVisible();
+      await waitFor(() => {
+        expect(screen.queryByTestId(popupId)).toBeVisible();
+      });
       fireEvent.mouseLeave(trigger1);
       await waitFor(() => {
         expect(screen.queryByTestId(popupId)).toBe(null);
@@ -407,7 +409,9 @@ describe('<PreviewCard.Root />', () => {
 
       fireEvent.mouseEnter(trigger2);
       fireEvent.mouseMove(trigger2);
-      expect(screen.queryByTestId(popupId)).toBeVisible();
+      await waitFor(() => {
+        expect(screen.queryByTestId(popupId)).toBeVisible();
+      });
       fireEvent.mouseLeave(trigger2);
       await waitFor(() => {
         expect(screen.queryByTestId(popupId)).toBe(null);
@@ -415,7 +419,9 @@ describe('<PreviewCard.Root />', () => {
 
       fireEvent.mouseEnter(trigger3);
       fireEvent.mouseMove(trigger3);
-      expect(screen.queryByTestId(popupId)).toBeVisible();
+      await waitFor(() => {
+        expect(screen.queryByTestId(popupId)).toBeVisible();
+      });
       fireEvent.mouseLeave(trigger3);
       await waitFor(() => {
         expect(screen.queryByTestId(popupId)).toBe(null);
@@ -890,13 +896,13 @@ describe('<PreviewCard.Root />', () => {
       await render(
         <div>
           <button type="button" aria-label="Initial focus" autoFocus />
-          <PreviewCard.Trigger href="#" handle={testPreviewCard} delay={0}>
+          <PreviewCard.Trigger href="#" handle={testPreviewCard} delay={0} closeDelay={0}>
             Trigger 1
           </PreviewCard.Trigger>
-          <PreviewCard.Trigger href="#" handle={testPreviewCard} delay={0}>
+          <PreviewCard.Trigger href="#" handle={testPreviewCard} delay={0} closeDelay={0}>
             Trigger 2
           </PreviewCard.Trigger>
-          <PreviewCard.Trigger href="#" handle={testPreviewCard} delay={0}>
+          <PreviewCard.Trigger href="#" handle={testPreviewCard} delay={0} closeDelay={0}>
             Trigger 3
           </PreviewCard.Trigger>
 

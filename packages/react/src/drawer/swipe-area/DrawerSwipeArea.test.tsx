@@ -10,7 +10,7 @@ import {
   screen,
   waitFor,
 } from '@mui/internal-test-utils';
-import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
+import { createRenderer, describeConformance, firePointer, isJSDOM } from '#test-utils';
 import {
   type DrawerProviderContext,
   useDrawerProviderContext,
@@ -1464,7 +1464,7 @@ describe('<Drawer.SwipeArea />', () => {
 
     const swipeArea = screen.getByTestId('swipe-area');
 
-    fireEvent.pointerDown(swipeArea, {
+    firePointer.down(swipeArea, {
       button: 0,
       buttons: 1,
       pointerId: 1,
@@ -1475,7 +1475,7 @@ describe('<Drawer.SwipeArea />', () => {
     });
     await flushMicrotasks();
 
-    fireEvent.pointerMove(swipeArea, {
+    firePointer.move(swipeArea, {
       pointerId: 1,
       clientX: 10,
       clientY: 40,
@@ -1515,7 +1515,7 @@ describe('<Drawer.SwipeArea />', () => {
 
     const swipeArea = screen.getByTestId('swipe-area');
 
-    fireEvent.pointerDown(swipeArea, {
+    firePointer.down(swipeArea, {
       button: 0,
       buttons: 1,
       pointerId: 1,
@@ -1526,7 +1526,7 @@ describe('<Drawer.SwipeArea />', () => {
     });
     await flushMicrotasks();
 
-    fireEvent.pointerMove(swipeArea, {
+    firePointer.move(swipeArea, {
       pointerId: 1,
       clientX: 10,
       clientY: 40,
@@ -1541,7 +1541,7 @@ describe('<Drawer.SwipeArea />', () => {
     expect(handleOpenChange.mock.calls[0][0]).toBe(true);
 
     // The trailing `pointerup` a real browser still delivers must not re-run the release.
-    fireEvent.pointerUp(swipeArea, {
+    firePointer.up(swipeArea, {
       pointerId: 1,
       clientX: 10,
       clientY: 40,
@@ -1600,7 +1600,7 @@ describe('<Drawer.SwipeArea />', () => {
 
     const swipeArea = screen.getByTestId('swipe-area');
 
-    fireEvent.pointerDown(swipeArea, {
+    firePointer.down(swipeArea, {
       button: 0,
       buttons: 1,
       pointerId: 1,
@@ -1612,7 +1612,7 @@ describe('<Drawer.SwipeArea />', () => {
     await flushMicrotasks();
 
     // Released in place: a `buttons: 0` move with no displacement must not open the drawer.
-    fireEvent.pointerMove(swipeArea, {
+    firePointer.move(swipeArea, {
       pointerId: 1,
       clientX: 10,
       clientY: 120,
@@ -1622,7 +1622,7 @@ describe('<Drawer.SwipeArea />', () => {
     });
     await flushMicrotasks();
 
-    fireEvent.pointerUp(swipeArea, {
+    firePointer.up(swipeArea, {
       pointerId: 1,
       clientX: 10,
       clientY: 120,

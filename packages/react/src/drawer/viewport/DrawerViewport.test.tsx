@@ -6,7 +6,7 @@ import { Drawer } from '@base-ui/react/drawer';
 import { Slider } from '@base-ui/react/slider';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { act, fireEvent, flushMicrotasks, screen, waitFor } from '@mui/internal-test-utils';
-import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
+import { createRenderer, describeConformance, firePointer, isJSDOM } from '#test-utils';
 import { useDialogRootContext } from '../../dialog/root/DialogRootContext';
 import { useDrawerProviderContext } from '../provider/DrawerProviderContext';
 import { useDrawerRootContext } from '../root/DrawerRootContext';
@@ -3177,7 +3177,7 @@ describe('<Drawer.Viewport />', () => {
         // A mostly horizontal flick: cumulative |deltaX| stays above |deltaY| on every
         // move so no swipe direction is ever attributed, while the final samples carry
         // fast downward velocity from the finger arcing down at lift.
-        fireEvent.pointerDown(viewport, {
+        firePointer.down(viewport, {
           button: 0,
           buttons: 1,
           pointerId: 1,
@@ -3187,7 +3187,7 @@ describe('<Drawer.Viewport />', () => {
           timeStamp: 1000,
         });
         vi.setSystemTime(new Date(1050));
-        fireEvent.pointerMove(viewport, {
+        firePointer.move(viewport, {
           buttons: 1,
           pointerId: 1,
           clientX: 120,
@@ -3196,7 +3196,7 @@ describe('<Drawer.Viewport />', () => {
           timeStamp: 1050,
         });
         vi.setSystemTime(new Date(1100));
-        fireEvent.pointerMove(viewport, {
+        firePointer.move(viewport, {
           buttons: 1,
           pointerId: 1,
           clientX: 200,
@@ -3205,7 +3205,7 @@ describe('<Drawer.Viewport />', () => {
           timeStamp: 1100,
         });
         vi.setSystemTime(new Date(1120));
-        fireEvent.pointerMove(viewport, {
+        firePointer.move(viewport, {
           buttons: 1,
           pointerId: 1,
           clientX: 240,
@@ -3214,7 +3214,7 @@ describe('<Drawer.Viewport />', () => {
           timeStamp: 1120,
         });
         vi.setSystemTime(new Date(1130));
-        fireEvent.pointerUp(viewport, {
+        firePointer.up(viewport, {
           pointerId: 1,
           clientX: 240,
           clientY: 55,
@@ -3430,7 +3430,7 @@ describe('<Drawer.Viewport />', () => {
         // slight upward reversal: the reversal flips the sampled release velocity
         // against the drag so the release resolves through the slow fallback velocity
         // and settles back on the snap point in both test environments.
-        fireEvent.pointerDown(childViewport, {
+        firePointer.down(childViewport, {
           button: 0,
           buttons: 1,
           pointerId: 1,
@@ -3440,7 +3440,7 @@ describe('<Drawer.Viewport />', () => {
           timeStamp: 1000,
         });
         vi.setSystemTime(new Date(1050));
-        fireEvent.pointerMove(childViewport, {
+        firePointer.move(childViewport, {
           buttons: 1,
           pointerId: 1,
           clientX: 100,
@@ -3449,7 +3449,7 @@ describe('<Drawer.Viewport />', () => {
           timeStamp: 1050,
         });
         vi.setSystemTime(new Date(1150));
-        fireEvent.pointerMove(childViewport, {
+        firePointer.move(childViewport, {
           buttons: 1,
           pointerId: 1,
           clientX: 100,
@@ -3463,7 +3463,7 @@ describe('<Drawer.Viewport />', () => {
         expect(parentPopup.style.getPropertyValue('--drawer-swipe-progress')).not.toBe('0');
 
         vi.setSystemTime(new Date(1250));
-        fireEvent.pointerMove(childViewport, {
+        firePointer.move(childViewport, {
           buttons: 1,
           pointerId: 1,
           clientX: 100,
@@ -3472,7 +3472,7 @@ describe('<Drawer.Viewport />', () => {
           timeStamp: 1250,
         });
         vi.setSystemTime(new Date(1600));
-        fireEvent.pointerUp(childViewport, {
+        firePointer.up(childViewport, {
           pointerId: 1,
           clientX: 100,
           clientY: 44,
@@ -3528,7 +3528,7 @@ describe('<Drawer.Viewport />', () => {
         // Same mostly horizontal flick as the non-sequential test, released from the
         // most-collapsed snap point so the sequential branch has no adjacent point to
         // advance to and decides to close.
-        fireEvent.pointerDown(viewport, {
+        firePointer.down(viewport, {
           button: 0,
           buttons: 1,
           pointerId: 1,
@@ -3538,7 +3538,7 @@ describe('<Drawer.Viewport />', () => {
           timeStamp: 1000,
         });
         vi.setSystemTime(new Date(1050));
-        fireEvent.pointerMove(viewport, {
+        firePointer.move(viewport, {
           buttons: 1,
           pointerId: 1,
           clientX: 120,
@@ -3547,7 +3547,7 @@ describe('<Drawer.Viewport />', () => {
           timeStamp: 1050,
         });
         vi.setSystemTime(new Date(1100));
-        fireEvent.pointerMove(viewport, {
+        firePointer.move(viewport, {
           buttons: 1,
           pointerId: 1,
           clientX: 200,
@@ -3556,7 +3556,7 @@ describe('<Drawer.Viewport />', () => {
           timeStamp: 1100,
         });
         vi.setSystemTime(new Date(1120));
-        fireEvent.pointerMove(viewport, {
+        firePointer.move(viewport, {
           buttons: 1,
           pointerId: 1,
           clientX: 240,
@@ -3565,7 +3565,7 @@ describe('<Drawer.Viewport />', () => {
           timeStamp: 1120,
         });
         vi.setSystemTime(new Date(1130));
-        fireEvent.pointerUp(viewport, {
+        firePointer.up(viewport, {
           pointerId: 1,
           clientX: 240,
           clientY: 55,
@@ -3621,7 +3621,7 @@ describe('<Drawer.Viewport />', () => {
       try {
         // A slow diagonal drag that never attributes a direction and ends nearer the closed
         // position than to any snap point, so the release resolves through the close branch.
-        fireEvent.pointerDown(viewport, {
+        firePointer.down(viewport, {
           button: 0,
           buttons: 1,
           pointerId: 1,
@@ -3631,7 +3631,7 @@ describe('<Drawer.Viewport />', () => {
           timeStamp: 1000,
         });
         vi.setSystemTime(new Date(1100));
-        fireEvent.pointerMove(viewport, {
+        firePointer.move(viewport, {
           buttons: 1,
           pointerId: 1,
           clientX: 200,
@@ -3640,7 +3640,7 @@ describe('<Drawer.Viewport />', () => {
           timeStamp: 1100,
         });
         vi.setSystemTime(new Date(1400));
-        fireEvent.pointerMove(viewport, {
+        firePointer.move(viewport, {
           buttons: 1,
           pointerId: 1,
           clientX: 300,
@@ -3649,7 +3649,7 @@ describe('<Drawer.Viewport />', () => {
           timeStamp: 1400,
         });
         vi.setSystemTime(new Date(1900));
-        fireEvent.pointerMove(viewport, {
+        firePointer.move(viewport, {
           buttons: 1,
           pointerId: 1,
           clientX: 400,
@@ -3658,7 +3658,7 @@ describe('<Drawer.Viewport />', () => {
           timeStamp: 1900,
         });
         vi.setSystemTime(new Date(1950));
-        fireEvent.pointerUp(viewport, {
+        firePointer.up(viewport, {
           pointerId: 1,
           clientX: 400,
           clientY: 190,
@@ -3714,7 +3714,7 @@ describe('<Drawer.Viewport />', () => {
       try {
         // A slow diagonal drag that never attributes a direction and ends nearer the closed
         // position than to any snap point, so the release resolves through the close branch.
-        fireEvent.pointerDown(viewport, {
+        firePointer.down(viewport, {
           button: 0,
           buttons: 1,
           pointerId: 1,
@@ -3724,7 +3724,7 @@ describe('<Drawer.Viewport />', () => {
           timeStamp: 1000,
         });
         vi.setSystemTime(new Date(1100));
-        fireEvent.pointerMove(viewport, {
+        firePointer.move(viewport, {
           buttons: 1,
           pointerId: 1,
           clientX: 200,
@@ -3733,7 +3733,7 @@ describe('<Drawer.Viewport />', () => {
           timeStamp: 1100,
         });
         vi.setSystemTime(new Date(1400));
-        fireEvent.pointerMove(viewport, {
+        firePointer.move(viewport, {
           buttons: 1,
           pointerId: 1,
           clientX: 300,
@@ -3742,7 +3742,7 @@ describe('<Drawer.Viewport />', () => {
           timeStamp: 1400,
         });
         vi.setSystemTime(new Date(1900));
-        fireEvent.pointerMove(viewport, {
+        firePointer.move(viewport, {
           buttons: 1,
           pointerId: 1,
           clientX: 400,
@@ -3751,7 +3751,7 @@ describe('<Drawer.Viewport />', () => {
           timeStamp: 1900,
         });
         vi.setSystemTime(new Date(1950));
-        fireEvent.pointerUp(viewport, {
+        firePointer.up(viewport, {
           pointerId: 1,
           clientX: 400,
           clientY: 190,
