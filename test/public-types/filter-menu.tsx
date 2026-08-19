@@ -6,6 +6,9 @@ const handle = FilterMenu.createHandle<{ id: number }>();
 export function TypedFilterMenuTrigger() {
   return (
     <React.Fragment>
+      <FilterMenu.Root handle={handle}>
+        {({ payload }) => <span>{payload?.id}</span>}
+      </FilterMenu.Root>
       <FilterMenu.Trigger handle={handle} payload={{ id: 1 }}>
         Open
       </FilterMenu.Trigger>

@@ -37,7 +37,9 @@ export default function ExampleFilterMenuCommandPalette() {
               <ScrollArea.Root className={styles.ListArea}>
                 <ScrollArea.Viewport className={styles.ListViewport}>
                   <ScrollArea.Content className={styles.ListContent}>
-                    <FilterMenu.Empty className={styles.Empty}>No results found.</FilterMenu.Empty>
+                    <FilterMenu.Empty>
+                      <div className={styles.Empty}>No results found.</div>
+                    </FilterMenu.Empty>
 
                     <FilterMenu.List className={styles.List} aria-label="Commands">
                       {groupedItems.map((group) => (

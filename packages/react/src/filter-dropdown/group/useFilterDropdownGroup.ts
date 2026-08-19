@@ -1,23 +1,17 @@
 'use client';
 import * as React from 'react';
-import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
-import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useStore } from '@base-ui/utils/store';
-import { useFilterDropdownRootContext } from '../root/FilterDropdownRootContext';
+import { useFilterDropdownItemContext } from '../root/FilterDropdownRootContext';
 import { FilterDropdownGroupContext } from './FilterDropdownGroupContext';
 import type { State as StoreState } from '../store';
+import { useItemRegistry } from '../../internals/useItemRegistry';
 
-interface GroupMembership {
-  items: ReadonlyMap<symbol, boolean>;
-  version: number;
-}
-
-function isGroupHidden(state: StoreState, membership: GroupMembership) {
+function isGroupHidden(state: StoreState, items: ReadonlyMap<symbol, boolean>) {
   // A group with no members hasn't been filtered out, it hasn't registered yet.
-  if (state.visibleItemIds === null || membership.items.size === 0) {
+  if (state.visibleItemIds === null || items.size === 0) {
     return false;
   }
-  for (const [id, retained] of membership.items) {
+  for (const [id, retained] of items) {
     if (retained || state.visibleItemIds.has(id)) {
       return false;
     }
@@ -43,25 +37,9 @@ export interface UseFilterDropdownGroupReturnValue {
  * @internal
  */
 export function useFilterDropdownGroup(): UseFilterDropdownGroupReturnValue {
-  const { store } = useFilterDropdownRootContext();
-  const items = useRefWithInit(() => new Map<symbol, boolean>()).current;
-  const [membershipVersion, setMembershipVersion] = React.useState(0);
-
-  const registerItem = useStableCallback((id: symbol, retained: boolean) => {
-    items.set(id, retained);
-    setMembershipVersion((version) => version + 1);
-    return () => {
-      items.delete(id);
-      setMembershipVersion((version) => version + 1);
-    };
-  });
-
-  const membership = React.useMemo<GroupMembership>(
-    () => ({ items, version: membershipVersion }),
-    [items, membershipVersion],
-  );
-
-  const hidden = useStore(store, isGroupHidden, membership);
+  const { store } = useFilterDropdownItemContext();
+  const [items, registerItem] = useItemRegistry<symbol, boolean>();
+  const hidden = useStore(store, isGroupHidden, items);
 
   const context = React.useMemo<FilterDropdownGroupContext>(
     () => ({ registerItem }),

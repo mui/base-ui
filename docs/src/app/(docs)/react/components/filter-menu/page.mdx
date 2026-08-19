@@ -69,6 +69,8 @@ Items match their rendered text by default. Use `label` to provide explicit sear
 ```
 
 Groups with no matching items are hidden, including their labels. `FilterMenu.Empty` is shown when no items match.
+Its root stays mounted for reliable announcements, so apply layout styles to a child element.
+Use `FilterMenu.Status` to announce other changing messages, such as asynchronous loading progress.
 
 ### Custom matching
 
@@ -143,6 +145,10 @@ import { TypesFilterMenu } from './types';
 ### Empty
 
 <TypesFilterMenu.Empty />
+
+### Status
+
+<TypesFilterMenu.Status />
 
 ### List
 

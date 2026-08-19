@@ -2,7 +2,10 @@
 import * as React from 'react';
 import { ownerWindow } from '@base-ui/utils/owner';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
-import { useFilterDropdownRootContext } from '../../filter-dropdown/root/FilterDropdownRootContext';
+import {
+  useFilterDropdownItemContext,
+  useFilterDropdownRootContext,
+} from '../../filter-dropdown/root/FilterDropdownRootContext';
 import { useMenuRootContext } from '../../menu/root/MenuRootContext';
 import { useDirection } from '../../internals/direction-context/DirectionContext';
 import type { BaseUIEvent } from '../../internals/types';
@@ -20,11 +23,16 @@ import {
  * single list-navigation hook; keeping this relay in the adapter avoids shipping it in plain Menu.
  */
 export function useFilterMenuReferenceKeyDown() {
-  const { listRef, activeIndex } = useFilterDropdownRootContext();
+  const { activeIndex } = useFilterDropdownRootContext();
+  const { listRef } = useFilterDropdownItemContext();
   const { orientation } = useMenuRootContext();
   const direction = useDirection();
 
   return useStableCallback((event: BaseUIEvent<React.KeyboardEvent<HTMLElement>>) => {
+    if (event.which === 229) {
+      return;
+    }
+
     if (isMainOrientationKey(event.key, orientation)) {
       // The reference handler owns main-axis navigation. Keep the same event from reaching the
       // popup's floating handler and moving the virtual cursor a second time.
