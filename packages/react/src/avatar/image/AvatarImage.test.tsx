@@ -281,7 +281,30 @@ describe('<Avatar.Image />', () => {
       await waitFor(() => {
         expect(onLoadingStatusChange).toHaveBeenCalledWith('error');
       });
+      expect(onLoadingStatusChange.mock.calls.map(([status]) => status)).toEqual([
+        'loading',
+        'error',
+      ]);
       expect(screen.getByTestId('image')).not.toBe(null);
+      expect(screen.getByText('JD')).not.toBe(null);
+    });
+
+    it.skipIf(!isJSDOM)('calls the user onError handler', async () => {
+      installImageMock();
+      const onError = vi.fn();
+
+      await render(
+        <Avatar.Root>
+          <Avatar.Image data-testid="image" keepMounted src="avatar.png" onError={onError} />
+          <Avatar.Fallback>JD</Avatar.Fallback>
+        </Avatar.Root>,
+      );
+
+      fireEvent.error(screen.getByTestId('image'));
+
+      await waitFor(() => {
+        expect(onError).toHaveBeenCalledTimes(1);
+      });
       expect(screen.getByText('JD')).not.toBe(null);
     });
 
@@ -316,6 +339,52 @@ describe('<Avatar.Image />', () => {
               keepMounted
               onLoadingStatusChange={onLoadingStatusChange}
               render={<img alt="" data-testid="image" src={src} />}
+            />
+            <Avatar.Fallback>JD</Avatar.Fallback>
+          </Avatar.Root>
+        );
+      }
+
+      const { rerender } = await render(<Test src="avatar-1.png" />);
+
+      fireEvent.load(screen.getByTestId('image'));
+
+      await waitFor(() => {
+        expect(screen.queryByText('JD')).toBe(null);
+      });
+      onLoadingStatusChange.mockClear();
+
+      await rerender(<Test src="avatar-2.png" />);
+
+      await waitFor(() => {
+        expect(onLoadingStatusChange).toHaveBeenCalledWith('loading');
+      });
+      expect(screen.getByText('JD')).not.toBe(null);
+
+      // The reset status must be able to resolve again from the new load.
+      fireEvent.load(screen.getByTestId('image'));
+
+      await waitFor(() => {
+        expect(screen.queryByText('JD')).toBe(null);
+      });
+      expect(onLoadingStatusChange.mock.calls.map(([status]) => status)).toEqual([
+        'loading',
+        'loaded',
+      ]);
+    });
+
+    it.skipIf(!isJSDOM)('resets the status when the src prop changes', async () => {
+      installImageMock();
+      const onLoadingStatusChange = vi.fn();
+
+      function Test({ src }: { src: string }) {
+        return (
+          <Avatar.Root>
+            <Avatar.Image
+              data-testid="image"
+              keepMounted
+              src={src}
+              onLoadingStatusChange={onLoadingStatusChange}
             />
             <Avatar.Fallback>JD</Avatar.Fallback>
           </Avatar.Root>
@@ -383,12 +452,13 @@ describe('<Avatar.Image />', () => {
       restoreImage();
       const OriginalImage = window.Image;
       const constructed: unknown[] = [];
-      window.Image = function TrackedImage(this: unknown, ...args: []) {
-        constructed.push(this);
-        return Reflect.construct(OriginalImage, args, TrackedImage);
-      } as unknown as typeof window.Image;
-      Object.setPrototypeOf(window.Image, OriginalImage);
-      window.Image.prototype = OriginalImage.prototype;
+      class TrackedImage extends OriginalImage {
+        constructor(...args: []) {
+          super(...args);
+          constructed.push(this);
+        }
+      }
+      window.Image = TrackedImage as typeof window.Image;
       restoreImage = () => {
         window.Image = OriginalImage;
       };
@@ -410,6 +480,28 @@ describe('<Avatar.Image />', () => {
       });
       expect(screen.getByTestId('image')).toHaveAttribute('src', TRANSPARENT_IMAGE_DATA_URI);
       expect(constructed.length).toBe(0);
+    });
+
+    it.skipIf(isJSDOM)('reports an error when there is no source', async () => {
+      restoreImage();
+      restoreImage = () => {};
+      const onLoadingStatusChange = vi.fn();
+
+      await render(
+        <Avatar.Root>
+          <Avatar.Image
+            data-testid="image"
+            keepMounted
+            onLoadingStatusChange={onLoadingStatusChange}
+          />
+          <Avatar.Fallback>JD</Avatar.Fallback>
+        </Avatar.Root>,
+      );
+
+      // A source-less image is `complete` with `naturalWidth === 0`, which the
+      // layout effect resolves to `error` without waiting for an event.
+      expect(onLoadingStatusChange.mock.calls.map(([status]) => status)).toEqual(['error']);
+      expect(screen.getByText('JD')).not.toBe(null);
     });
 
     it.skipIf(isJSDOM)('preserves loaded status when the render element changes', async () => {

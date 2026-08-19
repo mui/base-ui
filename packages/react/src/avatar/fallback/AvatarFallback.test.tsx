@@ -4,8 +4,27 @@ import { Avatar } from '@base-ui/react/avatar';
 import { waitFor, screen } from '@mui/internal-test-utils';
 import { describeConformance, createRenderer, isJSDOM } from '#test-utils';
 import { useImageLoadingStatus } from '../image/useImageLoadingStatus';
+import type { ImageLoadingStatus } from '../root/AvatarRoot';
 
 vi.mock('../image/useImageLoadingStatus');
+
+// The hook reports through a setter instead of returning the status, so the stub mirrors that.
+function mockLoadingStatus(getStatus: (src: string | undefined) => ImageLoadingStatus) {
+  (useImageLoadingStatus as Mock).mockImplementation(
+    (
+      src: string | undefined,
+      _options: unknown,
+      enabled: boolean,
+      setLoadingStatus: (status: ImageLoadingStatus) => void,
+    ) => {
+      React.useLayoutEffect(() => {
+        if (enabled) {
+          setLoadingStatus(getStatus(src));
+        }
+      });
+    },
+  );
+}
 
 describe('<Avatar.Fallback />', () => {
   const { render } = createRenderer();
@@ -22,7 +41,7 @@ describe('<Avatar.Fallback />', () => {
   }));
 
   it.skipIf(!isJSDOM)('should not render the children if the image loaded', async () => {
-    (useImageLoadingStatus as Mock).mockReturnValue('loaded');
+    mockLoadingStatus(() => 'loaded');
 
     await render(
       <Avatar.Root>
@@ -37,7 +56,7 @@ describe('<Avatar.Fallback />', () => {
   });
 
   it.skipIf(!isJSDOM)('should render the fallback if the image fails to load', async () => {
-    (useImageLoadingStatus as Mock).mockReturnValue('error');
+    mockLoadingStatus(() => 'error');
 
     await render(
       <Avatar.Root>
@@ -52,7 +71,7 @@ describe('<Avatar.Fallback />', () => {
   });
 
   it.skipIf(!isJSDOM)('shows the fallback when a loaded image is unmounted', async () => {
-    (useImageLoadingStatus as Mock).mockReturnValue('loaded');
+    mockLoadingStatus(() => 'loaded');
 
     function Test() {
       const [showImage, setShowImage] = React.useState(true);
@@ -104,7 +123,7 @@ describe('<Avatar.Fallback />', () => {
     });
 
     it('shows the fallback immediately when delay is 0', async () => {
-      (useImageLoadingStatus as Mock).mockReturnValue('error');
+      mockLoadingStatus(() => 'error');
 
       await renderFakeTimers(
         <Avatar.Root>
@@ -118,7 +137,7 @@ describe('<Avatar.Fallback />', () => {
     });
 
     it('shows the fallback when delay changes to 0', async () => {
-      (useImageLoadingStatus as Mock).mockReturnValue('error');
+      mockLoadingStatus(() => 'error');
 
       function Test(props: { delay?: number }) {
         return (
@@ -139,7 +158,7 @@ describe('<Avatar.Fallback />', () => {
     });
 
     it('keeps the fallback visible when delay changes from undefined to a number', async () => {
-      (useImageLoadingStatus as Mock).mockReturnValue('error');
+      mockLoadingStatus(() => 'error');
 
       function Test(props: { delay?: number }) {
         return (
@@ -160,7 +179,7 @@ describe('<Avatar.Fallback />', () => {
     });
 
     it('keeps the fallback visible across a number -> undefined -> number delay change', async () => {
-      (useImageLoadingStatus as Mock).mockReturnValue('error');
+      mockLoadingStatus(() => 'error');
 
       function Test(props: { delay?: number }) {
         return (
@@ -189,8 +208,7 @@ describe('<Avatar.Fallback />', () => {
   it.skipIf(!isJSDOM)(
     'keeps fallback mounted and image unmounted while the image is loading',
     async () => {
-      const useImageLoadingStatusMock = useImageLoadingStatus as Mock;
-      useImageLoadingStatusMock.mockImplementation((src) => (src ? 'loading' : 'error'));
+      mockLoadingStatus((src) => (src ? 'loading' : 'error'));
 
       function Test() {
         const [showImage, setShowImage] = React.useState(false);
@@ -232,8 +250,7 @@ describe('<Avatar.Fallback />', () => {
     it('keeps only one of image or fallback mounted when switching to image', async () => {
       globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
 
-      const useImageLoadingStatusMock = useImageLoadingStatus as Mock;
-      useImageLoadingStatusMock.mockImplementation((src) => (src ? 'loaded' : 'error'));
+      mockLoadingStatus((src) => (src ? 'loaded' : 'error'));
 
       const style = `
         @keyframes test-exit {

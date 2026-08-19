@@ -102,15 +102,17 @@ export const AvatarImage = React.forwardRef(function AvatarImage(
     transitionStatus,
   };
 
+  const shouldRender = keepMounted || mounted;
+
   const element = useRenderElement('img', componentProps, {
     state,
     ref: [forwardedRef, imageRef],
     props: [renderedStatusProps, elementProps],
     stateAttributesMapping,
-    enabled: keepMounted || mounted,
+    enabled: shouldRender,
   });
 
-  if (!keepMounted && !mounted) {
+  if (!shouldRender) {
     return null;
   }
 
