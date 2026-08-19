@@ -44,6 +44,7 @@ export function FilterDropdownRoot(props: FilterDropdownRoot.Props): React.JSX.E
     setActiveIndex = NOOP,
     inputProps = EMPTY_OBJECT,
     inputRef: externalFocusOwnerRef,
+    onInputElementChange,
   } = props;
 
   const parentItemContext = React.useContext(FilterDropdownItemContext);
@@ -75,6 +76,7 @@ export function FilterDropdownRoot(props: FilterDropdownRoot.Props): React.JSX.E
     inputElementRef.current = element;
     focusOwnerRef.current = element ?? listElementRef.current;
     setHasInput(element !== null);
+    onInputElementChange?.(element !== null);
   });
   const setListElement = useStableCallback((element: HTMLDivElement | null) => {
     listElementRef.current = element;
@@ -315,6 +317,10 @@ export interface FilterDropdownRootProps {
    * The host's ref for the input, or the list when no input is rendered.
    */
   inputRef?: React.RefObject<HTMLElement | null> | undefined;
+  /**
+   * Reports whether an input is currently registered.
+   */
+  onInputElementChange?: ((hasInput: boolean) => void) | undefined;
 }
 
 export namespace FilterDropdownRoot {

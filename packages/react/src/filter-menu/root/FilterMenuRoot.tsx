@@ -51,6 +51,7 @@ export function FilterMenuRoot<Payload>(props: FilterMenuRoot.Props<Payload>): R
     state: 'inputValue',
   });
   const [inputFocusVisible, setInputFocusVisible] = React.useState(false);
+  const [hasInput, setHasInput] = React.useState(false);
   const focusOwnerRef = React.useRef<HTMLElement | null>(null);
 
   const handleInputValueChange = useStableCallback(
@@ -90,7 +91,7 @@ export function FilterMenuRoot<Payload>(props: FilterMenuRoot.Props<Payload>): R
       inline={inline}
       virtualFocus
       virtualFocusRef={focusOwnerRef}
-      allowEscape={!autoHighlight}
+      allowEscape={hasInput && !autoHighlight}
       resetOnPointerLeave={autoHighlight !== 'always'}
       renderVirtualFocusChildren={(payload, inputProps) => (
         <FilterMenuProvider
@@ -104,6 +105,7 @@ export function FilterMenuRoot<Payload>(props: FilterMenuRoot.Props<Payload>): R
           inline={inline}
           inputProps={inputProps}
           onValueChange={handleInputValueChange}
+          onInputElementChange={setHasInput}
         >
           {typeof children === 'function' ? children(payload) : children}
         </FilterMenuProvider>
@@ -140,6 +142,7 @@ interface FilterMenuProviderProps {
   inline?: boolean | undefined;
   inputProps: HTMLProps;
   onValueChange: (value: string, details: FilterMenuRoot.InputValueChangeEventDetails) => void;
+  onInputElementChange: (hasInput: boolean) => void;
   children?: React.ReactNode;
 }
 
@@ -176,6 +179,7 @@ export function FilterMenuProvider(props: FilterMenuProviderProps) {
       inputProps={props.inputProps}
       inputRef={virtualFocusRef}
       onValueChange={props.onValueChange}
+      onInputElementChange={props.onInputElementChange}
     >
       {props.children}
     </FilterDropdownRoot>
