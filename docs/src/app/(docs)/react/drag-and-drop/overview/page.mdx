@@ -106,7 +106,7 @@ const itemKind = Draggable.createKind<string>('item');
 
 ### Draggable tabs
 
-Tabs can be reordered without giving up their standard selection behavior. Pointer dragging is constrained to the tab list, and the tab settles into its final slot when dropped. Keyboard activation is left to `Tabs`, so the arrow keys continue to move focus and select a tab; <kbd>Alt</kbd>+<kbd>←</kbd>/<kbd>→</kbd> reorder the focused tab instead. <kbd>Delete</kbd> closes it, selecting its nearest neighbor, and a canceled drag restores the previous order.
+Tabs can be reordered without giving up their standard selection behavior. Pointer dragging is constrained to the tab list, which auto-scrolls when it overflows, and the tab settles into its final slot when dropped. Keyboard activation is left to `Tabs`, so the arrow keys continue to move focus and select a tab; <kbd>Alt</kbd>+<kbd>←</kbd>/<kbd>→</kbd> reorder the focused tab instead. <kbd>Delete</kbd> closes it, selecting its nearest neighbor, and a canceled drag restores the previous order.
 
 <DemoDraggableTabs />
 

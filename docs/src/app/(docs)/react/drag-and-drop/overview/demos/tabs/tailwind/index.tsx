@@ -5,10 +5,10 @@ import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import {
   Draggable,
   type BeforeDragStartEventDetails,
-  type DragMoveEvent,
   type DragStartContext,
 } from '@base-ui/react/draggable';
-import { DropTarget } from '@base-ui/react/drop-target';
+import { DropTarget, type DropTargetEvent } from '@base-ui/react/drop-target';
+import { DragAutoScroll } from '@base-ui/react/drag-auto-scroll';
 
 interface TabItem {
   id: string;
@@ -129,13 +129,10 @@ function DraggableTab(props: DraggableTabProps) {
     },
   );
 
-  const handleDrag = useStableCallback((event: DragMoveEvent<string>) => {
-    const currentX = event.location.current.input.clientX;
-    const previousX = event.location.previous.input.clientX;
-
-    if (currentX !== previousX) {
-      onDragOverTab(event.source.payload, item.id, currentX > previousX);
-    }
+  const handleDrag = useStableCallback((event: DropTargetEvent<'onDrag', string>) => {
+    // Compare against the tab's midpoint rather than the pointer's direction of
+    // travel: while the list auto-scrolls, tabs slide under a stationary pointer.
+    onDragOverTab(event.source.payload, item.id, event.self.getLocalPoint().x > 0.5);
   });
 
   const handleClosePointerDown = useStableCallback((event: React.PointerEvent) => {
@@ -295,7 +292,14 @@ export default function DraggableTabs() {
           ref={listRef}
           className="flex min-w-0 flex-1 overflow-x-auto overflow-y-hidden overscroll-x-contain [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
           activateOnFocus
-          render={<DropTarget.Root label="Open documents" accept={tabKind} trackDragOver={false} />}
+          render={
+            <DropTarget.Root
+              label="Open documents"
+              accept={tabKind}
+              trackDragOver={false}
+              render={<DragAutoScroll.Root allowedAxis="horizontal" />}
+            />
+          }
         >
           {items.map((item) => (
             <DraggableTab
