@@ -2867,7 +2867,11 @@ describe('<Select.Root />', () => {
       expect(handleOpenChange.mock.calls.length).toBe(1);
     });
 
-    it('opens the popup with the keyboard', async () => {
+    it.each([
+      { name: 'ArrowDown', key: '{ArrowDown}' },
+      { name: 'Enter', key: '{Enter}' },
+      { name: 'Space', key: '[Space]' },
+    ])('opens the popup with $name', async ({ key }) => {
       const handleOpenChange = vi.fn();
       const { user } = await render(
         <Select.Root onOpenChange={handleOpenChange} readOnly>
@@ -2889,7 +2893,7 @@ describe('<Select.Root />', () => {
         screen.getByTestId('trigger').focus();
       });
 
-      await user.keyboard('{ArrowDown}');
+      await user.keyboard(key);
 
       expect(await screen.findByRole('listbox')).not.toBe(null);
       expect(handleOpenChange.mock.calls.length).toBe(1);
