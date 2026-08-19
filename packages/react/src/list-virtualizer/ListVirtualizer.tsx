@@ -271,6 +271,7 @@ export const ListVirtualizer = React.forwardRef(function ListVirtualizer<Value>(
     getItemKey,
     overscanPx,
     render,
+    totalItems,
     style,
     ...elementProps
   } = componentProps;
@@ -289,6 +290,7 @@ export const ListVirtualizer = React.forwardRef(function ListVirtualizer<Value>(
     scrollToRowIndex,
   } = useListVirtualizerAdapter<Value>({
     actionsRef,
+    totalItems,
     children,
     enabled: enabledProp,
     estimatedItemHeight: estimatedItemHeightProp,
@@ -1219,15 +1221,24 @@ export const ListVirtualizer = React.forwardRef(function ListVirtualizer<Value>(
 
       // A distant row measured while the collection was filtered can make the estimate-based first
       // pass look complete even though the expanded collection retained it only as an offscreen
-      // focus proxy. Keep that request pending until the static estimate settles and the real row
-      // is visible; otherwise the first refinement can move it back out of view.
-      if (!pendingScrollRequiresAdaptiveEstimateRef.current) {
-        return true;
-      }
-      if (adaptiveEstimateRef.current == null) {
+      // focus proxy. Keep that request pending until the static estimate settles, so the alignment
+      // is re-applied across the refresh that rewrites every unmeasured row.
+      if (pendingScrollRequiresAdaptiveEstimateRef.current && adaptiveEstimateRef.current == null) {
         return false;
       }
 
+      // Measuring the destination alone does not settle the request either: the rows above it can
+      // still be carrying estimates, and measuring those later moves the destination by however
+      // much they were off. An estimate below the real height pushes it down, so a row that was
+      // scrolled to exactly can end up entirely below the scrollport with nothing to correct it.
+      //
+      // The request is settled once the destination is fully inside the scrollport, which merely
+      // intersecting it does not establish: a row still hanging over an edge is one geometry
+      // update away from leaving again. Until then the request stays pending and the rowsMeta
+      // effect re-runs this alignment on every geometry update. Requiring the rendered row also
+      // covers a distant row that the collection retained only as an offscreen focus proxy, which
+      // is positioned absolutely and never counts as on screen. A row taller than the scrollport
+      // can never fit, so for those covering the scrollport is what counts as arrived.
       const renderedRow = Array.from(renderZoneRef.current?.children ?? []).find(
         (element) =>
           Number((element as HTMLElement).dataset.rowIndex) === rowIndex &&
@@ -1235,11 +1246,15 @@ export const ListVirtualizer = React.forwardRef(function ListVirtualizer<Value>(
       );
       const renderedRowRect = renderedRow?.getBoundingClientRect();
       const scrollElementRect = scrollElement.getBoundingClientRect();
-      return (
-        renderedRowRect != null &&
-        renderedRowRect.bottom > scrollElementRect.top &&
-        renderedRowRect.top < scrollElementRect.bottom
-      );
+      if (renderedRowRect == null) {
+        return false;
+      }
+
+      return renderedRowRect.height <= scrollElementRect.height + 1
+        ? renderedRowRect.top >= scrollElementRect.top - 1 &&
+            renderedRowRect.bottom <= scrollElementRect.bottom + 1
+        : renderedRowRect.top <= scrollElementRect.top + 1 &&
+            renderedRowRect.bottom >= scrollElementRect.bottom - 1;
     },
   );
 
@@ -1812,6 +1827,15 @@ export interface ListVirtualizerBaseProps<Value> extends Omit<
    * always includes at least one estimated row, even when this prop is `0`.
    */
   overscanPx?: number | undefined;
+  /**
+   * Number of items in the whole collection, when the items rendered are only part of it — a page
+   * of a larger result set, say. Rendered items report it as their `aria-setsize`, so assistive
+   * technology describes the collection rather than the part of it currently loaded.
+   *
+   * Pass `-1` when the size is not known yet, which is the ARIA convention for it.
+   * @default the number of items in the list
+   */
+  totalItems?: number | undefined;
 }
 
 /**
