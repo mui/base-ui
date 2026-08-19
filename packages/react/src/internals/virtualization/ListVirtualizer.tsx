@@ -285,6 +285,8 @@ export const ListVirtualizer = React.forwardRef(function ListVirtualizer<
     className,
     enabled = true,
     estimatedItemHeight,
+    endReachedThreshold = 0,
+    onEndReached,
     onUnconstrainedHeight,
     overscanPx,
     pinnedRowIndex,
@@ -925,6 +927,43 @@ export const ListVirtualizer = React.forwardRef(function ListVirtualizer<
       }
     }, [enabled, onUnconstrainedHeight, rows.length, rowsMeta, scrollportPaddingTotal]);
   }
+
+  const handleEndReached = useStableCallback(() => onEndReached?.());
+  /**
+   * Whether reaching the end again would be a new arrival. Held down while the window stays at
+   * the end so a list that renders its last item does not ask for another page on every commit,
+   * and released as soon as the window moves away or the collection grows past it.
+   */
+  const endReachedArmedRef = React.useRef(true);
+
+  useIsoLayoutEffect(() => {
+    if (onEndReached == null || rows.length === 0) {
+      return;
+    }
+
+    // The rendered range is half-open, so the final item is included once the end index reaches
+    // the collection length. The threshold counts items short of that.
+    const reachedEnd =
+      overscannedRenderContext.lastRowIndex >= rows.length - Math.max(0, endReachedThreshold);
+
+    if (!reachedEnd) {
+      endReachedArmedRef.current = true;
+      return;
+    }
+
+    if (!endReachedArmedRef.current) {
+      return;
+    }
+
+    endReachedArmedRef.current = false;
+    handleEndReached();
+  }, [
+    endReachedThreshold,
+    handleEndReached,
+    onEndReached,
+    overscannedRenderContext.lastRowIndex,
+    rows.length,
+  ]);
 
   const pendingVirtualizationUpdateRef = React.useRef(false);
   const restoreViewportRef = React.useRef(false);
@@ -1837,6 +1876,8 @@ export interface ListVirtualizerProps<RowModel extends MuiVirtualizerRow> extend
    * Called when a large enabled collection has no effective height constraint.
    * This is only called in development mode and should be used to alert the developer.
    */
+  endReachedThreshold?: number | undefined;
+  onEndReached?: (() => void) | undefined;
   onUnconstrainedHeight?: (() => void) | undefined;
   /**
    * Pixel buffer rendered before and after the visible range.

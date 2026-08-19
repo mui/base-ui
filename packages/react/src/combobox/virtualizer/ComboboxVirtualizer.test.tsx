@@ -1677,6 +1677,157 @@ describe('<Combobox.Virtualizer />', () => {
     expect(estimatedItemHeight).toHaveBeenCalledWith('longer', 1);
   });
 
+  describe('prop: onEndReached', () => {
+    it.skipIf(isJSDOM)('fires once the last item enters the rendered window', async () => {
+      vi.restoreAllMocks();
+      const onEndReached = vi.fn();
+
+      await render(
+        <Combobox.Root defaultOpen items={createItems(100)}>
+          <Combobox.List>
+            <Combobox.Virtualizer
+              estimatedItemHeight={20}
+              onEndReached={onEndReached}
+              overscanPx={0}
+              render={<div data-testid="virtualizer" style={{ height: 60, width: 200 }} />}
+            >
+              {(item: string) => (
+                <Combobox.Item value={item} style={{ display: 'block', height: 20 }}>
+                  {item}
+                </Combobox.Item>
+              )}
+            </Combobox.Virtualizer>
+          </Combobox.List>
+        </Combobox.Root>,
+      );
+
+      const virtualizer = screen.getByTestId('virtualizer');
+      await waitFor(() => expect(virtualizer.scrollHeight).toBe(2000));
+      expect(onEndReached).not.toHaveBeenCalled();
+
+      virtualizer.scrollTop = virtualizer.scrollHeight;
+      fireEvent.scroll(virtualizer);
+
+      await waitFor(() => expect(onEndReached).toHaveBeenCalledTimes(1));
+    });
+
+    it.skipIf(isJSDOM)('does not repeat while the window stays at the end', async () => {
+      vi.restoreAllMocks();
+      const onEndReached = vi.fn();
+
+      await render(
+        <Combobox.Root defaultOpen items={createItems(100)}>
+          <Combobox.List>
+            <Combobox.Virtualizer
+              estimatedItemHeight={20}
+              onEndReached={onEndReached}
+              overscanPx={0}
+              render={<div data-testid="virtualizer" style={{ height: 60, width: 200 }} />}
+            >
+              {(item: string) => (
+                <Combobox.Item value={item} style={{ display: 'block', height: 20 }}>
+                  {item}
+                </Combobox.Item>
+              )}
+            </Combobox.Virtualizer>
+          </Combobox.List>
+        </Combobox.Root>,
+      );
+
+      const virtualizer = screen.getByTestId('virtualizer');
+      await waitFor(() => expect(virtualizer.scrollHeight).toBe(2000));
+
+      virtualizer.scrollTop = virtualizer.scrollHeight;
+      fireEvent.scroll(virtualizer);
+      await waitFor(() => expect(onEndReached).toHaveBeenCalledTimes(1));
+
+      // Scrolling further within the last window is still the same arrival.
+      virtualizer.scrollTop = virtualizer.scrollHeight;
+      fireEvent.scroll(virtualizer);
+      await flushMicrotasks();
+
+      expect(onEndReached).toHaveBeenCalledTimes(1);
+    });
+
+    it.skipIf(isJSDOM)('arms again once the collection grows past the window', async () => {
+      vi.restoreAllMocks();
+      const onEndReached = vi.fn();
+
+      function Test(props: { itemCount: number }) {
+        return (
+          <Combobox.Root defaultOpen items={createItems(props.itemCount)}>
+            <Combobox.List>
+              <Combobox.Virtualizer
+                estimatedItemHeight={20}
+                onEndReached={onEndReached}
+                overscanPx={0}
+                render={<div data-testid="virtualizer" style={{ height: 60, width: 200 }} />}
+              >
+                {(item: string) => (
+                  <Combobox.Item value={item} style={{ display: 'block', height: 20 }}>
+                    {item}
+                  </Combobox.Item>
+                )}
+              </Combobox.Virtualizer>
+            </Combobox.List>
+          </Combobox.Root>
+        );
+      }
+
+      const { rerender } = await render(<Test itemCount={100} />);
+      const virtualizer = screen.getByTestId('virtualizer');
+      await waitFor(() => expect(virtualizer.scrollHeight).toBe(2000));
+
+      virtualizer.scrollTop = virtualizer.scrollHeight;
+      fireEvent.scroll(virtualizer);
+      await waitFor(() => expect(onEndReached).toHaveBeenCalledTimes(1));
+
+      // The next page arrives, so the window is no longer at the end.
+      await rerender(<Test itemCount={200} />);
+      await waitFor(() => expect(virtualizer.scrollHeight).toBe(4000));
+
+      virtualizer.scrollTop = virtualizer.scrollHeight;
+      fireEvent.scroll(virtualizer);
+
+      await waitFor(() => expect(onEndReached).toHaveBeenCalledTimes(2));
+    });
+
+    it.skipIf(isJSDOM)('fires early by the threshold in items', async () => {
+      vi.restoreAllMocks();
+      const onEndReached = vi.fn();
+
+      await render(
+        <Combobox.Root defaultOpen items={createItems(100)}>
+          <Combobox.List>
+            <Combobox.Virtualizer
+              endReachedThreshold={40}
+              estimatedItemHeight={20}
+              onEndReached={onEndReached}
+              overscanPx={0}
+              render={<div data-testid="virtualizer" style={{ height: 60, width: 200 }} />}
+            >
+              {(item: string) => (
+                <Combobox.Item value={item} style={{ display: 'block', height: 20 }}>
+                  {item}
+                </Combobox.Item>
+              )}
+            </Combobox.Virtualizer>
+          </Combobox.List>
+        </Combobox.Root>,
+      );
+
+      const virtualizer = screen.getByTestId('virtualizer');
+      await waitFor(() => expect(virtualizer.scrollHeight).toBe(2000));
+      expect(onEndReached).not.toHaveBeenCalled();
+
+      // Halfway down, which is within 40 items of the end but well short of it.
+      virtualizer.scrollTop = 1200;
+      fireEvent.scroll(virtualizer);
+
+      await waitFor(() => expect(onEndReached).toHaveBeenCalledTimes(1));
+    });
+  });
+
   describe('actionsRef: remeasure', () => {
     it.skipIf(isJSDOM)('re-measures items against the layout they are in now', async () => {
       vi.restoreAllMocks();

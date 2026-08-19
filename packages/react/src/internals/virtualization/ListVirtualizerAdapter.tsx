@@ -514,6 +514,18 @@ export interface ListVirtualizerAdapterProps<
    * @default items.length
    */
   totalItems?: number | undefined;
+  /**
+   * How many items short of the end `onEndReached` fires. `0` fires once the last item enters the
+   * rendered window, which already extends past the visible range by `overscanPx`.
+   * @default 0
+   */
+  endReachedThreshold?: number | undefined;
+  /**
+   * Called when the rendered window reaches the end of the collection, for loading the next page
+   * of a longer list. Fires once per arrival: it does not repeat while the window stays at the
+   * end, and arms again when the window moves away or the collection grows past it.
+   */
+  onEndReached?: (() => void) | undefined;
   /** Whether virtualization is enabled. When `false`, all items are rendered. @default true */
   enabled?: boolean | undefined;
 }

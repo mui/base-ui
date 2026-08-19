@@ -38,7 +38,9 @@ export const ComboboxVirtualizer = React.forwardRef(function ComboboxVirtualizer
     actionsRef,
     children,
     estimatedItemHeight,
+    endReachedThreshold,
     getItemKey,
+    onEndReached,
     overscanPx,
     totalItems,
     enabled = true,
@@ -106,7 +108,9 @@ export const ComboboxVirtualizer = React.forwardRef(function ComboboxVirtualizer
       {...elementProps}
       apiRef={listVirtualizerRef}
       enabled={virtualizationEnabled}
+      endReachedThreshold={endReachedThreshold}
       estimatedItemHeight={resolvedEstimatedItemHeight}
+      onEndReached={onEndReached}
       onUnconstrainedHeight={handleUnconstrainedHeight}
       overscanPx={overscanPx}
       pinnedRowIndex={focusedRowIndex}
