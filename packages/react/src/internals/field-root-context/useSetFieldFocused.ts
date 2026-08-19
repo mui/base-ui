@@ -17,27 +17,30 @@ export function useSetFieldFocused(
   const { setFocused, focusOwnerRef } = useFieldRootContext();
 
   const setFieldFocused = useStableCallback((focused: boolean) => {
-    if (focused) {
-      focusOwnerRef.current = setFieldFocused;
-    } else if (focusOwnerRef.current === setFieldFocused) {
-      focusOwnerRef.current = undefined;
-    } else {
+    if (!focused && focusOwnerRef.current !== setFieldFocused) {
       return;
     }
 
+    focusOwnerRef.current = focused ? setFieldFocused : undefined;
     onFocusedChange?.(focused);
     setFocused(focused);
   });
 
-  // `disabled` is a dependency so that flipping it to `true` runs this cleanup, which is what
-  // clears the focused state on the disable path as well as on unmount.
+  // Only the disable edge clears: the enable edge must keep the state, since focus can sit on
+  // an `aria-disabled` control that stays focused when it is re-enabled.
+  useIsoLayoutEffect(() => {
+    if (disabled && focusOwnerRef.current === setFieldFocused) {
+      setFieldFocused(false);
+    }
+  }, [disabled, focusOwnerRef, setFieldFocused]);
+
   useIsoLayoutEffect(() => {
     return () => {
       if (focusOwnerRef.current === setFieldFocused) {
         setFieldFocused(false);
       }
     };
-  }, [disabled, focusOwnerRef, setFieldFocused]);
+  }, [focusOwnerRef, setFieldFocused]);
 
   return setFieldFocused;
 }

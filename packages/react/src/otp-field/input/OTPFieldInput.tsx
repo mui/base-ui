@@ -132,7 +132,8 @@ export const OTPFieldInput = React.forwardRef(function OTPFieldInput(
         return;
       }
 
-      setFocused(false);
+      // Focus moving to a sibling slot stays inside the root; `handleInputBlur` clears the
+      // focused state only when focus leaves the root, so slot-to-slot moves don't churn it.
       handleInputBlur(event);
     },
     onChange(event) {

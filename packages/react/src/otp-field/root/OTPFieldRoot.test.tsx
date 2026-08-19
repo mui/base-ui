@@ -1575,7 +1575,35 @@ describe('<OTPField.Root />', () => {
       expect(screen.getByTestId('field')).toHaveAttribute('data-focused', '');
     });
 
+    it('is kept when focus moves between slots', async () => {
+      await render(
+        <Field.Root data-testid="field">
+          <OTPFieldBase.Root length={2} data-testid="otp">
+            <OTPFieldBase.Input />
+            <OTPFieldBase.Input />
+          </OTPFieldBase.Root>
+        </Field.Root>,
+      );
+
+      const inputs = screen.getAllByRole<HTMLInputElement>('textbox');
+
+      await act(async () => {
+        inputs[0].focus();
+      });
+      expect(screen.getByTestId('field')).toHaveAttribute('data-focused', '');
+      expect(screen.getByTestId('otp')).toHaveAttribute('data-focused', '');
+
+      fireEvent.blur(inputs[0], { relatedTarget: inputs[1] });
+
+      expect(screen.getByTestId('field')).toHaveAttribute('data-focused', '');
+      expect(screen.getByTestId('otp')).toHaveAttribute('data-focused', '');
+    });
+
     it('is removed when the focused slot unmounts but its field remains', async () => {
+      // Unmounting one slot leaves `length` out of sync with the rendered inputs, which is
+      // irrelevant to what this test asserts.
+      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+
       function TestCase(props: { firstMounted?: boolean }) {
         const { firstMounted = true } = props;
         return (
@@ -1588,18 +1616,22 @@ describe('<OTPField.Root />', () => {
         );
       }
 
-      const { setProps } = await render(<TestCase />);
+      try {
+        const { setProps } = await render(<TestCase />);
 
-      await act(async () => {
-        screen.getAllByRole<HTMLInputElement>('textbox')[0].focus();
-      });
-      expect(screen.getByTestId('field')).toHaveAttribute('data-focused', '');
-      expect(screen.getByTestId('otp')).toHaveAttribute('data-focused', '');
+        await act(async () => {
+          screen.getAllByRole<HTMLInputElement>('textbox')[0].focus();
+        });
+        expect(screen.getByTestId('field')).toHaveAttribute('data-focused', '');
+        expect(screen.getByTestId('otp')).toHaveAttribute('data-focused', '');
 
-      await setProps({ firstMounted: false });
+        await setProps({ firstMounted: false });
 
-      expect(screen.getByTestId('field')).not.toHaveAttribute('data-focused');
-      expect(screen.getByTestId('otp')).not.toHaveAttribute('data-focused');
+        expect(screen.getByTestId('field')).not.toHaveAttribute('data-focused');
+        expect(screen.getByTestId('otp')).not.toHaveAttribute('data-focused');
+      } finally {
+        warnSpy.mockRestore();
+      }
     });
   });
 

@@ -141,14 +141,6 @@ export const OTPFieldRoot = React.forwardRef(function OTPFieldRoot(
   const [focusedIndex, setFocusedIndex] = React.useState(() => Math.min(value.length, length - 1));
   const [focused, setFocusedState] = React.useState(false);
 
-  // Disabling the slots moves focus away without firing `blur`, so this mirrors the field's own
-  // focused state and clears the local one too.
-  useIsoLayoutEffect(() => {
-    if (disabled) {
-      setFocusedState(false);
-    }
-  }, [disabled]);
-
   const activeIndex = focused
     ? Math.min(focusedIndex, Math.max(length - 1, 0))
     : Math.min(value.length, length - 1);

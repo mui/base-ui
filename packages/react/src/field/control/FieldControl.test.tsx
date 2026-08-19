@@ -427,6 +427,52 @@ describe('<Field.Control />', () => {
       expect(screen.getByTestId('label')).not.toHaveAttribute('data-focused');
     });
 
+    it('is removed when the field root becomes disabled', async () => {
+      function TestCase(props: { disabled?: boolean }) {
+        const { disabled = false } = props;
+        return (
+          <Field.Root data-testid="root" disabled={disabled}>
+            <Field.Control data-testid="control" />
+          </Field.Root>
+        );
+      }
+
+      const { setProps } = await render(<TestCase />);
+
+      act(() => {
+        screen.getByTestId('control').focus();
+      });
+      expect(screen.getByTestId('root')).toHaveAttribute('data-focused', '');
+
+      await setProps({ disabled: true });
+
+      expect(screen.getByTestId('root')).not.toHaveAttribute('data-focused');
+    });
+
+    it('can be re-acquired after the control is re-enabled', async () => {
+      const { setProps } = await render(<Controls />);
+
+      const control = screen.getByTestId('first');
+      act(() => {
+        control.focus();
+      });
+      expect(screen.getByTestId('root')).toHaveAttribute('data-focused', '');
+
+      await setProps({ firstDisabled: true });
+      expect(screen.getByTestId('root')).not.toHaveAttribute('data-focused');
+
+      await setProps({ firstDisabled: false });
+      expect(screen.getByTestId('root')).not.toHaveAttribute('data-focused');
+
+      // jsdom leaves a disabled control as the active element, so blur first to make the
+      // refocus fire a real focus event.
+      act(() => {
+        control.blur();
+        control.focus();
+      });
+      expect(screen.getByTestId('root')).toHaveAttribute('data-focused', '');
+    });
+
     it('is removed when the focused control unmounts', async () => {
       const { setProps } = await render(<Controls />);
 

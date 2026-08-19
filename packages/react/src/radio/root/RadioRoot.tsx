@@ -164,7 +164,11 @@ export const RadioRoot = React.forwardRef(function RadioRoot<Value>(
       setTouched(false);
     },
     onBlur() {
-      setFieldFocused(false);
+      // A grouped radio's exit is cleared by the group's `contains`-guarded blur handler, so
+      // radio-to-radio moves inside the group don't churn the focused state.
+      if (!groupContext) {
+        setFieldFocused(false);
+      }
     },
   };
 
