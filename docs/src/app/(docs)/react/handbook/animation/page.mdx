@@ -216,6 +216,37 @@ function App() {
 }
 ```
 
+## Disabling animations in tests
+
+Base UI waits for a component's animations to finish before running the work that follows them, such as unmounting a popup that has been closed.
+In a test environment that wait makes assertions racy — especially in WebKit — because the test continues before the component has settled.
+
+Set the `BASE_UI_ANIMATIONS_DISABLED` global to `true` to skip the wait. Anything that would have been deferred until animations finished runs immediately instead.
+
+```ts title="setup-tests.ts"
+globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
+```
+
+Set it in a setup file that runs before your tests, such as Vitest's `setupFiles` or Jest's `setupFilesAfterEnv`.
+If TypeScript does not know about the global, declare it once:
+
+```ts title="global.d.ts"
+declare global {
+  var BASE_UI_ANIMATIONS_DISABLED: boolean;
+}
+```
+
+In Playwright the global has to exist before your application scripts run, so set it with `addInitScript`:
+
+```ts title="playwright-fixtures.ts"
+await page.addInitScript(() => {
+  globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
+});
+```
+
+The flag only disables Base UI's internal waiting — it does not stop your CSS transitions and animations from playing.
+Turn those off in your own styles if you need the components to settle instantly.
+
 export const metadata = {
   keywords: [
     'Base UI Animation',
@@ -229,5 +260,6 @@ export const metadata = {
     'Transition Hooks',
     'Animated Components',
     'Keyframe Animations',
+    'Disable Animations in Tests',
   ],
 };
