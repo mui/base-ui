@@ -33,6 +33,7 @@ export const ComboboxList = React.forwardRef(function ComboboxList(
 
   const selectionMode = store.useState('selectionMode');
   const grid = store.useState('grid');
+  const readOnly = store.useState('readOnly');
   const listProps = store.useState('listProps');
   const virtualized = store.useState('virtualized');
   const forceMounted = store.useState('forceMounted');
@@ -76,6 +77,7 @@ export const ComboboxList = React.forwardRef(function ComboboxList(
         id: floatingId,
         role: grid ? 'grid' : 'listbox',
         'aria-multiselectable': multiple ? 'true' : undefined,
+        'aria-readonly': readOnly || undefined,
         onKeyDown(event) {
           if (store.state.disabled || store.state.readOnly) {
             return;

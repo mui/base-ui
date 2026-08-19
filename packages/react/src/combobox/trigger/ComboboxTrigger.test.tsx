@@ -799,6 +799,34 @@ describe('<Combobox.Trigger />', () => {
       expect(trigger).not.toHaveAttribute('aria-required');
     });
 
+    it('sets aria-readonly attribute when readOnly (input inside popup)', async () => {
+      await render(
+        <Combobox.Root readOnly>
+          <Combobox.Trigger data-testid="trigger" />
+        </Combobox.Root>,
+      );
+
+      const trigger = screen.getByTestId('trigger');
+      expect(trigger).toHaveAttribute('role', 'combobox');
+      expect(trigger).toHaveAttribute('aria-readonly', 'true');
+    });
+
+    it('does not set aria-readonly attribute when the input is outside the popup', async () => {
+      await render(
+        <Combobox.Root readOnly>
+          <Combobox.Input data-testid="input" />
+          <Combobox.Trigger data-testid="trigger" />
+        </Combobox.Root>,
+      );
+
+      // Without the `combobox` role the trigger is a plain button, so `aria-readonly` wouldn't
+      // apply to it. The input carries the state instead.
+      const trigger = screen.getByTestId('trigger');
+      expect(trigger).not.toHaveAttribute('role');
+      expect(trigger).not.toHaveAttribute('aria-readonly');
+      expect(screen.getByTestId('input')).toHaveAttribute('aria-readonly', 'true');
+    });
+
     it('sets all aria attributes on the input when closed', async () => {
       await render(
         <Combobox.Root>
