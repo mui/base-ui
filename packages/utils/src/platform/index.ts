@@ -25,3 +25,8 @@
  */
 
 export * as platform from './parts';
+
+// Check support status at:
+// https://developer.apple.com/library/archive/documentation/AppleApplications/Reference/SafariCSSRef/Articles/StandardCSSProperties.html
+/** CSS `@supports` query matching iOS/iPadOS WebKit browsers. */
+export const iOSMediaQuery = '@supports (-webkit-touch-callout: none)';
