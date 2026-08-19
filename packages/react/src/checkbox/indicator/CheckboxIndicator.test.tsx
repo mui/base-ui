@@ -301,5 +301,68 @@ describe('<Checkbox.Indicator />', () => {
         expect(screen.queryByTestId('indicator')).toBe(null);
       });
     });
+
+    it('removes all indicators in a single commit when multiple checkboxes are unchecked', async () => {
+      globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+
+      const style = `
+        @keyframes test-anim {
+          to {
+            opacity: 0;
+          }
+        }
+
+        .animation-test-indicator[data-ending-style] {
+          animation: test-anim 1ms;
+        }
+      `;
+
+      let commitCount = 0;
+
+      function Test() {
+        const [checked, setChecked] = React.useState(true);
+
+        function handleUncheck() {
+          setChecked(false);
+        }
+
+        return (
+          <div>
+            {/* eslint-disable-next-line react/no-danger */}
+            <style dangerouslySetInnerHTML={{ __html: style }} />
+            <button onClick={handleUncheck}>Uncheck</button>
+            <React.Profiler
+              id="checkboxes"
+              onRender={() => {
+                commitCount += 1;
+              }}
+            >
+              {Array.from({ length: 10 }, (_, index) => (
+                <Checkbox.Root checked={checked} key={index}>
+                  <Checkbox.Indicator
+                    className="animation-test-indicator"
+                    data-testid={`indicator-${index}`}
+                  />
+                </Checkbox.Root>
+              ))}
+            </React.Profiler>
+          </div>
+        );
+      }
+
+      const { user } = await render(<Test />);
+
+      const commitCountBefore = commitCount;
+
+      await user.click(screen.getByText('Uncheck'));
+
+      await waitFor(() => {
+        expect(screen.queryByTestId('indicator-0')).toBe(null);
+      });
+      expect(screen.queryByTestId('indicator-9')).toBe(null);
+
+      // One commit for the uncheck itself, one batched commit removing every indicator.
+      expect(commitCount).toBe(commitCountBefore + 2);
+    });
   });
 });

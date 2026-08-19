@@ -5,6 +5,38 @@ import { useAnimationFrame } from '@base-ui/utils/useAnimationFrame';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { resolveRef } from '../utils/resolveRef';
 
+interface PendingCallback {
+  fn: () => void;
+  signal: AbortSignal | null;
+}
+
+let pendingCallbacks: PendingCallback[] | null = null;
+
+/**
+ * Runs the callback in a synchronous flush before the browser paints, so that the
+ * browser doesn't paint an intermediate frame: https://github.com/mui/base-ui/issues/979
+ * Callbacks that become ready within the same microtask checkpoint (e.g. multiple elements
+ * whose animations finish together) are batched into a single commit:
+ * https://github.com/mui/base-ui/issues/5481
+ */
+function flushBeforePaint(fn: () => void, signal: AbortSignal | null) {
+  if (pendingCallbacks === null) {
+    const callbacks: PendingCallback[] = [];
+    pendingCallbacks = callbacks;
+    queueMicrotask(() => {
+      pendingCallbacks = null;
+      ReactDOM.flushSync(() => {
+        for (const callback of callbacks) {
+          if (!callback.signal?.aborted) {
+            callback.fn();
+          }
+        }
+      });
+    });
+  }
+  pendingCallbacks.push({ fn, signal });
+}
+
 /**
  * Executes a function once all animations have finished on the provided element.
  * If an animation is canceled, waits for any replacement animations before executing.
@@ -41,9 +73,7 @@ export function useAnimationsFinished(
       const resolvedElement = element;
 
       const done = () => {
-        // Synchronously flush the unmounting of the component so that the browser doesn't
-        // paint: https://github.com/mui/base-ui/issues/979
-        ReactDOM.flushSync(fnToExecute);
+        flushBeforePaint(fnToExecute, signal);
       };
 
       if (

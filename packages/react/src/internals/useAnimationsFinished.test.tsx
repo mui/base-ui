@@ -1,6 +1,6 @@
 import { expect, vi } from 'vitest';
 import * as React from 'react';
-import { act, flushMicrotasks, waitFor } from '@mui/internal-test-utils';
+import { act, flushMicrotasks, screen, waitFor } from '@mui/internal-test-utils';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { createRenderer } from '#test-utils';
 import { useAnimationsFinished } from './useAnimationsFinished';
@@ -129,6 +129,72 @@ describe('useAnimationsFinished', () => {
       });
 
       expect(onFinished).toHaveBeenCalledTimes(1);
+    } finally {
+      globalThis.BASE_UI_ANIMATIONS_DISABLED = animationsDisabled;
+    }
+  });
+
+  it('batches callbacks that finish in the same microtask into a single commit', async () => {
+    const animationsDisabled = globalThis.BASE_UI_ANIMATIONS_DISABLED;
+    globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+
+    const first = createAnimation();
+    const second = createAnimation();
+    const getAnimationsCallCounts = [0, 0];
+    let commitCount = 0;
+
+    function Item({ index, animation }: { index: number; animation: Animation }) {
+      const ref = React.useRef<HTMLDivElement>(null);
+      const runOnceAnimationsFinish = useAnimationsFinished(ref);
+      const [mounted, setMounted] = React.useState(true);
+
+      useIsoLayoutEffect(() => {
+        if (ref.current) {
+          ref.current.getAnimations = () => {
+            getAnimationsCallCounts[index] += 1;
+            return [animation];
+          };
+        }
+      });
+
+      React.useEffect(() => {
+        runOnceAnimationsFinish(() => setMounted(false));
+      }, [runOnceAnimationsFinish]);
+
+      return mounted ? <div data-testid={`item-${index}`} ref={ref} /> : null;
+    }
+
+    try {
+      await render(
+        <React.Profiler
+          id="test"
+          onRender={() => {
+            commitCount += 1;
+          }}
+        >
+          <Item index={0} animation={first.animation} />
+          <Item index={1} animation={second.animation} />
+        </React.Profiler>,
+      );
+
+      await waitFor(() => {
+        expect(getAnimationsCallCounts[0]).toBeGreaterThan(0);
+      });
+      await waitFor(() => {
+        expect(getAnimationsCallCounts[1]).toBeGreaterThan(0);
+      });
+
+      const commitCountBefore = commitCount;
+
+      await act(async () => {
+        first.finish();
+        second.finish();
+        await flushMicrotasks();
+      });
+
+      expect(screen.queryByTestId('item-0')).toBeNull();
+      expect(screen.queryByTestId('item-1')).toBeNull();
+      expect(commitCount).toBe(commitCountBefore + 1);
     } finally {
       globalThis.BASE_UI_ANIMATIONS_DISABLED = animationsDisabled;
     }
