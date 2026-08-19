@@ -26,6 +26,7 @@ import {
   getFloatingFocusElement,
   getTarget,
   isTypeableCombobox,
+  isTypeableElement,
 } from '../utils/element';
 import { enqueueFocus } from '../utils/enqueueFocus';
 import { isVirtualClick, isVirtualPointerEvent, stopEvent } from '../utils/event';

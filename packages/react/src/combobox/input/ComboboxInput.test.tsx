@@ -6,6 +6,31 @@ import { fireEvent, screen, waitFor } from '@mui/internal-test-utils';
 import { Field } from '@base-ui/react/field';
 import { REASONS } from '../../internals/reasons';
 
+function PopupCombobox() {
+  const items = ['apple', 'banana', 'cherry'];
+  return (
+    <Combobox.Root items={items}>
+      <Combobox.Trigger data-testid="trigger">
+        <Combobox.Value placeholder="Select a fruit" />
+      </Combobox.Trigger>
+      <Combobox.Portal>
+        <Combobox.Positioner>
+          <Combobox.Popup aria-label="Fruits">
+            <Combobox.Input data-testid="input" />
+            <Combobox.List>
+              {(item: string) => (
+                <Combobox.Item key={item} value={item}>
+                  {item}
+                </Combobox.Item>
+              )}
+            </Combobox.List>
+          </Combobox.Popup>
+        </Combobox.Positioner>
+      </Combobox.Portal>
+    </Combobox.Root>
+  );
+}
+
 describe('<Combobox.Input />', () => {
   const { render } = createRenderer();
 
@@ -533,6 +558,89 @@ describe('<Combobox.Input />', () => {
 
       expect(input.selectionStart).toBe(input.value.length);
       expect(input.selectionEnd).toBe(input.value.length);
+    });
+
+    it('does not move the highlight when Shift+Home is pressed inside the popup', async () => {
+      const { user } = await render(<PopupCombobox />);
+
+      await user.click(screen.getByTestId('trigger'));
+      const input = await screen.findByTestId('input');
+      await waitFor(() => expect(input).toHaveFocus());
+
+      await user.keyboard('{ArrowDown}{ArrowDown}{ArrowDown}');
+
+      const cherry = screen.getByRole('option', { name: 'cherry' });
+      await waitFor(() => expect(cherry).toHaveAttribute('data-highlighted'));
+
+      await user.keyboard('{Shift>}{Home}{/Shift}');
+
+      expect(cherry).toHaveAttribute('data-highlighted');
+    });
+
+    it('does not move the highlight when Shift+End is pressed inside the popup', async () => {
+      const { user } = await render(<PopupCombobox />);
+
+      await user.click(screen.getByTestId('trigger'));
+      const input = await screen.findByTestId('input');
+      await waitFor(() => expect(input).toHaveFocus());
+
+      await user.keyboard('{ArrowDown}');
+
+      const apple = screen.getByRole('option', { name: 'apple' });
+      await waitFor(() => expect(apple).toHaveAttribute('data-highlighted'));
+
+      await user.keyboard('{Shift>}{End}{/Shift}');
+
+      expect(apple).toHaveAttribute('data-highlighted');
+    });
+
+    it('does not move the highlight when Ctrl+Home is pressed inside the popup', async () => {
+      const { user } = await render(<PopupCombobox />);
+
+      await user.click(screen.getByTestId('trigger'));
+      const input = await screen.findByTestId('input');
+      await waitFor(() => expect(input).toHaveFocus());
+
+      await user.keyboard('{ArrowDown}{ArrowDown}{ArrowDown}');
+
+      const cherry = screen.getByRole('option', { name: 'cherry' });
+      await waitFor(() => expect(cherry).toHaveAttribute('data-highlighted'));
+
+      await user.keyboard('{Control>}{Home}{/Control}');
+
+      expect(cherry).toHaveAttribute('data-highlighted');
+    });
+
+    it.skipIf(isJSDOM)('extends the text selection with Shift+Home inside the popup', async () => {
+      const { user } = await render(<PopupCombobox />);
+
+      await user.click(screen.getByTestId('trigger'));
+      const input = (await screen.findByTestId('input')) as HTMLInputElement;
+      await waitFor(() => expect(input).toHaveFocus());
+
+      await user.type(input, 'an');
+      expect(input.selectionStart).toBe(2);
+
+      await user.keyboard('{Shift>}{Home}{/Shift}');
+
+      expect(input.selectionStart).toBe(0);
+      expect(input.selectionEnd).toBe(2);
+    });
+
+    it.skipIf(isJSDOM)('extends the text selection with Shift+End inside the popup', async () => {
+      const { user } = await render(<PopupCombobox />);
+
+      await user.click(screen.getByTestId('trigger'));
+      const input = (await screen.findByTestId('input')) as HTMLInputElement;
+      await waitFor(() => expect(input).toHaveFocus());
+
+      await user.type(input, 'an');
+      input.setSelectionRange(0, 0);
+
+      await user.keyboard('{Shift>}{End}{/Shift}');
+
+      expect(input.selectionStart).toBe(0);
+      expect(input.selectionEnd).toBe(2);
     });
 
     it.skipIf(isJSDOM)(
