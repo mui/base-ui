@@ -166,8 +166,7 @@ export interface TooltipRootProps<Payload = unknown> {
    * Event handler called when the tooltip is opened or closed.
    */
   onOpenChange?:
-    | ((open: boolean, eventDetails: TooltipRoot.ChangeEventDetails) => void)
-    | undefined;
+    ((open: boolean, eventDetails: TooltipRoot.ChangeEventDetails) => void) | undefined;
   /**
    * Event handler called after any animations complete when the tooltip is opened or closed.
    */

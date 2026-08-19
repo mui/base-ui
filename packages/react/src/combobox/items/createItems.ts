@@ -7,13 +7,15 @@ import { findCollectionItem, type ComboboxItemCollection } from './itemCollectio
 export type ComboboxPrimitiveValue = string | number | bigint | boolean;
 
 type RemoveIndexSignature<Type> = {
-  [Key in keyof Type as string extends Key
-    ? never
-    : number extends Key
+  [
+    Key in keyof Type as string extends Key
       ? never
-      : symbol extends Key
+      : number extends Key
         ? never
-        : Key]: Type[Key];
+        : symbol extends Key
+          ? never
+          : Key
+  ]: Type[Key];
 };
 
 /** Whether any constituent of `Item` explicitly declares an `items` field that may be an array. */

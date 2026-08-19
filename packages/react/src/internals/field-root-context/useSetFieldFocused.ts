@@ -10,14 +10,22 @@ import { useFieldRootContext } from './FieldRootContext';
  * state would otherwise stay latched. A field can hold several controls, so a control only clears
  * the shared state when focus last landed on itself. The stable callback doubles as that identity.
  */
-export function useSetFieldFocused(disabled: boolean | undefined) {
+export function useSetFieldFocused(
+  disabled: boolean | undefined,
+  onFocusedChange?: ((focused: boolean) => void) | undefined,
+) {
   const { setFocused, focusOwnerRef } = useFieldRootContext();
 
   const setFieldFocused = useStableCallback((focused: boolean) => {
     if (focused) {
       focusOwnerRef.current = setFieldFocused;
+    } else if (focusOwnerRef.current === setFieldFocused) {
+      focusOwnerRef.current = undefined;
+    } else {
+      return;
     }
 
+    onFocusedChange?.(focused);
     setFocused(focused);
   });
 
@@ -26,11 +34,10 @@ export function useSetFieldFocused(disabled: boolean | undefined) {
   useIsoLayoutEffect(() => {
     return () => {
       if (focusOwnerRef.current === setFieldFocused) {
-        focusOwnerRef.current = undefined;
-        setFocused(false);
+        setFieldFocused(false);
       }
     };
-  }, [disabled, focusOwnerRef, setFieldFocused, setFocused]);
+  }, [disabled, focusOwnerRef, setFieldFocused]);
 
   return setFieldFocused;
 }

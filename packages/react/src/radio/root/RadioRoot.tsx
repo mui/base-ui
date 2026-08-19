@@ -17,6 +17,7 @@ import { ACTIVE_COMPOSITE_ITEM } from '../../internals/composite/constants';
 import { CompositeItem } from '../../internals/composite/item/CompositeItem';
 import type { FieldRootState } from '../../field/root/FieldRoot';
 import { useFieldRootContext } from '../../internals/field-root-context/FieldRootContext';
+import { useSetFieldFocused } from '../../internals/field-root-context/useSetFieldFocused';
 import { useFieldItemContext } from '../../field/item/FieldItemContext';
 import { useLabelableContext } from '../../internals/labelable-provider/LabelableContext';
 import { useAriaLabelledBy } from '../../internals/labelable-provider/useAriaLabelledBy';
@@ -76,6 +77,7 @@ export const RadioRoot = React.forwardRef(function RadioRoot<Value>(
   const { labelId, getDescriptionProps } = useLabelableContext();
 
   const disabled = fieldDisabled || fieldItemContext.disabled || disabledGroup || disabledProp;
+  const setFieldFocused = useSetFieldFocused(disabled);
   const readOnly = readOnlyGroup || readOnlyProp;
   const required = requiredGroup || requiredProp;
   const form = formGroup;
@@ -151,6 +153,8 @@ export const RadioRoot = React.forwardRef(function RadioRoot<Value>(
       dispatchClickWithModifiers(input, event);
     },
     onFocus(event) {
+      setFieldFocused(true);
+
       if (event.defaultPrevented || disabled || readOnly || !touched) {
         return;
       }
@@ -158,6 +162,9 @@ export const RadioRoot = React.forwardRef(function RadioRoot<Value>(
       inputRef.current?.click();
 
       setTouched(false);
+    },
+    onBlur() {
+      setFieldFocused(false);
     },
   };
 

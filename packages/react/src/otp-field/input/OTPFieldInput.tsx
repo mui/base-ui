@@ -6,6 +6,7 @@ import { stopEvent } from '../../floating-ui-react/utils';
 import { useCompositeListItem } from '../../internals/composite/list/useCompositeListItem';
 import type { BaseUIComponentProps } from '../../internals/types';
 import { useDirection } from '../../internals/direction-context/DirectionContext';
+import { useSetFieldFocused } from '../../internals/field-root-context/useSetFieldFocused';
 import { useRenderElement } from '../../internals/useRenderElement';
 import {
   createChangeEventDetails,
@@ -56,6 +57,7 @@ export const OTPFieldInput = React.forwardRef(function OTPFieldInput(
     readOnly,
     required,
     normalizeValue,
+    setFocused: setRootFocused,
     setValue,
     state,
     validationType,
@@ -64,6 +66,7 @@ export const OTPFieldInput = React.forwardRef(function OTPFieldInput(
 
   const { ref: listItemRef, index } = useCompositeListItem({ guess: true });
   const inputRef = React.useRef<HTMLInputElement | null>(null);
+  const setFocused = useSetFieldFocused(disabled, setRootFocused);
   const direction = useDirection();
 
   const slotValue = value[index] ?? '';
@@ -121,6 +124,7 @@ export const OTPFieldInput = React.forwardRef(function OTPFieldInput(
         return;
       }
 
+      setFocused(true);
       handleInputFocus(index, event);
     },
     onBlur(event) {
@@ -128,6 +132,7 @@ export const OTPFieldInput = React.forwardRef(function OTPFieldInput(
         return;
       }
 
+      setFocused(false);
       handleInputBlur(event);
     },
     onChange(event) {

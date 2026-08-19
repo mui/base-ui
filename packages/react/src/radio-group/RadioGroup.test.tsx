@@ -1009,6 +1009,31 @@ describe('<RadioGroup />', () => {
 
         expect(screen.getByTestId('field')).toHaveAttribute('data-focused', '');
       });
+
+      it('is removed when the focused radio unmounts but its group remains', async () => {
+        function TestCase(props: { firstMounted?: boolean }) {
+          const { firstMounted = true } = props;
+          return (
+            <Field.Root data-testid="field">
+              <RadioGroup>
+                {firstMounted && <Radio.Root value="a" data-testid="first-radio" />}
+                <Radio.Root value="b" />
+              </RadioGroup>
+            </Field.Root>
+          );
+        }
+
+        const { setProps } = await render(<TestCase />);
+
+        act(() => {
+          screen.getByTestId('first-radio').focus();
+        });
+        expect(screen.getByTestId('field')).toHaveAttribute('data-focused', '');
+
+        await setProps({ firstMounted: false });
+
+        expect(screen.getByTestId('field')).not.toHaveAttribute('data-focused');
+      });
     });
 
     describe('Field.Root', () => {

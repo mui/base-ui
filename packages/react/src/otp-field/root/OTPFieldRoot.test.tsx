@@ -1574,6 +1574,33 @@ describe('<OTPField.Root />', () => {
 
       expect(screen.getByTestId('field')).toHaveAttribute('data-focused', '');
     });
+
+    it('is removed when the focused slot unmounts but its field remains', async () => {
+      function TestCase(props: { firstMounted?: boolean }) {
+        const { firstMounted = true } = props;
+        return (
+          <Field.Root data-testid="field">
+            <OTPFieldBase.Root length={2} data-testid="otp">
+              {firstMounted && <OTPFieldBase.Input />}
+              <OTPFieldBase.Input />
+            </OTPFieldBase.Root>
+          </Field.Root>
+        );
+      }
+
+      const { setProps } = await render(<TestCase />);
+
+      await act(async () => {
+        screen.getAllByRole<HTMLInputElement>('textbox')[0].focus();
+      });
+      expect(screen.getByTestId('field')).toHaveAttribute('data-focused', '');
+      expect(screen.getByTestId('otp')).toHaveAttribute('data-focused', '');
+
+      await setProps({ firstMounted: false });
+
+      expect(screen.getByTestId('field')).not.toHaveAttribute('data-focused');
+      expect(screen.getByTestId('otp')).not.toHaveAttribute('data-focused');
+    });
   });
 
   it('updates standalone filled and focused state on the root', async () => {

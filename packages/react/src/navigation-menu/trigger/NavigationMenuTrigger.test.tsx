@@ -3,7 +3,7 @@ import { expect, vi } from 'vitest';
 import { NavigationMenu } from '@base-ui/react/navigation-menu';
 import { DirectionProvider } from '@base-ui/react/direction-provider';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
-import { screen, flushMicrotasks, waitFor, act } from '@mui/internal-test-utils';
+import { screen, flushMicrotasks, waitFor, act, fireEvent } from '@mui/internal-test-utils';
 import userEvent from '@testing-library/user-event';
 
 const rapidHoverAnimationStyles = `
@@ -134,6 +134,35 @@ describe('<NavigationMenu.Trigger />', () => {
       );
     },
   }));
+
+  it('applies the data-disabled style hook only when disabled', async () => {
+    function App() {
+      const [disabled, setDisabled] = React.useState(true);
+      return (
+        <div>
+          <NavigationMenu.Root>
+            <NavigationMenu.List>
+              <NavigationMenu.Item>
+                <NavigationMenu.Trigger disabled={disabled} data-testid="trigger">
+                  Overview
+                </NavigationMenu.Trigger>
+              </NavigationMenu.Item>
+            </NavigationMenu.List>
+          </NavigationMenu.Root>
+          <button type="button" onClick={() => setDisabled(false)}>
+            enable
+          </button>
+        </div>
+      );
+    }
+
+    await render(<App />);
+    const trigger = screen.getByTestId('trigger');
+    expect(trigger).toHaveAttribute('data-disabled', '');
+
+    fireEvent.click(screen.getByText('enable'));
+    expect(trigger).not.toHaveAttribute('data-disabled');
+  });
 
   it('opens a vertical menu with the mirrored arrow key in RTL mode', async () => {
     await render(

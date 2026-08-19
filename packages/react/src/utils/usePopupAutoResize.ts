@@ -177,8 +177,7 @@ interface UsePopupAutoResizeParameters {
    * @param newDimensions Newly measured dimensions.
    */
   onMeasureLayoutComplete?:
-    | ((previousDimensions: Dimensions | null, newDimensions: Dimensions) => void)
-    | undefined;
+    ((previousDimensions: Dimensions | null, newDimensions: Dimensions) => void) | undefined;
 
   side: Side;
   direction: 'ltr' | 'rtl';

@@ -132,6 +132,7 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
 
   const state: ComboboxTriggerState = {
     ...fieldState,
+    readOnly,
     open,
     disabled,
     popupSide,
@@ -272,6 +273,10 @@ export interface ComboboxTriggerState extends FieldRootState {
    * Whether the component should ignore user interaction.
    */
   disabled: boolean;
+  /**
+   * Whether the component should ignore user edits.
+   */
+  readOnly: boolean;
   /**
    * Indicates which side the corresponding popup is positioned relative to its anchor.
    */

@@ -144,8 +144,7 @@ export interface PopoverRootProps<Payload = unknown> {
    * Event handler called when the popover is opened or closed.
    */
   onOpenChange?:
-    | ((open: boolean, eventDetails: PopoverRoot.ChangeEventDetails) => void)
-    | undefined;
+    ((open: boolean, eventDetails: PopoverRoot.ChangeEventDetails) => void) | undefined;
   /**
    * Event handler called after any animations complete when the popover is opened or closed.
    */

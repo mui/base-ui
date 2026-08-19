@@ -14,6 +14,7 @@ import { useLabelableId } from '../../internals/labelable-provider/useLabelableI
 import { fieldValidityMapping } from '../../internals/field-constants/constants';
 import { BaseUIComponentProps } from '../../internals/types';
 import { useRenderElement } from '../../internals/useRenderElement';
+import { useValueChanged } from '../../internals/useValueChanged';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
 import type { BaseUIChangeEventDetails } from '../../internals/createBaseUIEventDetails';
@@ -75,25 +76,6 @@ export const FieldControl = React.forwardRef(function FieldControl(
   const id = useLabelableId({ id: idProp });
 
   const inputRef = React.useRef<HTMLInputElement>(null);
-
-  // `filled` belongs to the last control to attach; a null ref means the owner unmounted.
-  useIsoLayoutEffect(() => {
-    if (validation.inputRef.current !== null && validation.inputRef.current !== inputRef.current) {
-      return;
-    }
-
-    validation.inputRef.current = inputRef.current;
-    setFilled(valueProp != null ? valueProp !== '' : Boolean(inputRef.current?.value));
-    // No dependency array: a sibling unmounting releases the shared ref without changing anything
-    // this control renders, and the survivor has to reclaim it on the render that follows.
-  });
-
-  useIsoLayoutEffect(() => {
-    if (autoFocus && inputRef.current === activeElement(ownerDocument(inputRef.current))) {
-      setFocused(true);
-    }
-  }, [autoFocus, setFocused]);
-
   const [valueUnwrapped] = useControlled({
     controlled: valueProp,
     default: defaultValue,
@@ -103,11 +85,46 @@ export const FieldControl = React.forwardRef(function FieldControl(
 
   const isControlled = valueProp !== undefined;
   const value = isControlled ? valueUnwrapped : undefined;
+  // The DOM value is always a string, so dirty comparisons must serialize the controlled value.
+  const serializedValue = value == null ? undefined : String(value);
+
+  // `filled` belongs to the last control to attach; a null ref means the owner unmounted.
+  useIsoLayoutEffect(() => {
+    if (validation.inputRef.current !== null && validation.inputRef.current !== inputRef.current) {
+      return;
+    }
+
+    validation.inputRef.current = inputRef.current;
+    setFilled(
+      serializedValue !== undefined ? serializedValue !== '' : Boolean(inputRef.current?.value),
+    );
+    // No dependency array: a sibling unmounting releases the shared ref without changing anything
+    // this control renders, and the survivor has to reclaim it on the render that follows.
+  });
+
   // Read this control's own element, not the mutable shared ref, so the active registration
   // stays readable regardless of which control last touched the shared ref.
   const getValueFromInput = useStableCallback(() => inputRef.current?.value);
 
-  useRegisterFieldControl(inputRef, id, value, getValueFromInput, !disabled, nameProp);
+  useRegisterFieldControl(inputRef, id, serializedValue, getValueFromInput, !disabled, nameProp);
+
+  useValueChanged(serializedValue, () => {
+    if (serializedValue === undefined) {
+      return;
+    }
+
+    clearErrors(name);
+    setDirty(serializedValue !== (validityData.initialValue ?? ''));
+    setFilled(serializedValue !== '');
+
+    validation.change(serializedValue);
+  });
+
+  useIsoLayoutEffect(() => {
+    if (autoFocus && inputRef.current === activeElement(ownerDocument(inputRef.current))) {
+      setFocused(true);
+    }
+  }, [autoFocus, setFocused]);
 
   const element = useRenderElement('input', componentProps, {
     ref: [forwardedRef, inputRef],
@@ -123,13 +140,21 @@ export const FieldControl = React.forwardRef(function FieldControl(
         ...(isControlled ? { value } : { defaultValue }),
         onChange(event) {
           const inputValue = event.currentTarget.value;
-          onValueChange?.(inputValue, createChangeEventDetails(REASONS.none, event.nativeEvent));
+          const details = createChangeEventDetails(REASONS.none, event.nativeEvent);
+          onValueChange?.(inputValue, details);
+
+          // Controlled values sync from the `value` prop instead, so that a value the consumer
+          // rejects or rewrites never reaches the field state.
+          if (isControlled) {
+            return;
+          }
+
           // `validation.change` reads `markedDirtyRef`, so update dirty before validating.
           setDirty(inputValue !== (validityData.initialValue ?? ''));
           setFilled(inputValue !== '');
 
           // Workaround for https://github.com/react/react/issues/9023
-          if (!event.nativeEvent.defaultPrevented) {
+          if (!event.nativeEvent.defaultPrevented && !details.isCanceled) {
             clearErrors(name);
             validation.change(inputValue);
           }
@@ -168,8 +193,7 @@ export interface FieldControlProps extends BaseUIComponentProps<'input', FieldCo
    * Callback fired when the `value` changes. Use when controlled.
    */
   onValueChange?:
-    | ((value: string, eventDetails: FieldControl.ChangeEventDetails) => void)
-    | undefined;
+    ((value: string, eventDetails: FieldControl.ChangeEventDetails) => void) | undefined;
   defaultValue?: React.ComponentProps<'input'>['defaultValue'] | undefined;
 }
 

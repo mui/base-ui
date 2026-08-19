@@ -100,8 +100,10 @@ const groupItemsReadonly = [
 
 <Autocomplete.Root
   defaultValue="test"
-  onValueChange={(value) => {
+  onValueChange={(value, eventDetails) => {
     value.length;
+    // @ts-expect-error isItemPress is only emitted by multiple-selection Combobox
+    eventDetails.isItemPress;
   }}
 />;
 

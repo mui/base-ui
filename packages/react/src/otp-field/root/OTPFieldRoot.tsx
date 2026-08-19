@@ -11,7 +11,6 @@ import { ownerDocument } from '@base-ui/utils/owner';
 import { contains } from '../../floating-ui-react/utils';
 import { CompositeList } from '../../internals/composite/list/CompositeList';
 import { useFieldRootContext } from '../../internals/field-root-context/FieldRootContext';
-import { useSetFieldFocused } from '../../internals/field-root-context/useSetFieldFocused';
 import { useRegisterFieldControl } from '../../internals/field-register-control/useRegisterFieldControl';
 import type { FieldRootState } from '../../field/root/FieldRoot';
 import { useFormContext } from '../../internals/form-context/FormContext';
@@ -84,6 +83,7 @@ export const OTPFieldRoot = React.forwardRef(function OTPFieldRoot(
     state: fieldState,
     validation,
     validationMode,
+    setFocused: setFieldFocused,
     setTouched,
   } = useFieldRootContext();
   const { clearErrors } = useFormContext();
@@ -91,8 +91,6 @@ export const OTPFieldRoot = React.forwardRef(function OTPFieldRoot(
 
   const disabled = fieldDisabled || disabledProp;
   const name = fieldName ?? nameProp;
-
-  const setFocused = useSetFieldFocused(disabled);
 
   const [valueUnwrapped, setValueUnwrapped] = useControlled<string>({
     controlled: valueProp,
@@ -287,8 +285,6 @@ export const OTPFieldRoot = React.forwardRef(function OTPFieldRoot(
       }
 
       setFocusedIndex(index);
-      setFocusedState(true);
-      setFocused(true);
       event.currentTarget.select();
     },
   );
@@ -300,7 +296,7 @@ export const OTPFieldRoot = React.forwardRef(function OTPFieldRoot(
 
     setTouched(true);
     setFocusedState(false);
-    setFocused(false);
+    setFieldFocused(false);
 
     if (validationMode === 'onBlur') {
       validation.commit(valueRef.current);
@@ -355,6 +351,7 @@ export const OTPFieldRoot = React.forwardRef(function OTPFieldRoot(
       required,
       normalizeValue,
       setValue,
+      setFocused: setFocusedState,
       state,
       validationType,
       value,
@@ -380,6 +377,7 @@ export const OTPFieldRoot = React.forwardRef(function OTPFieldRoot(
       required,
       normalizeValue,
       setValue,
+      setFocusedState,
       state,
       validationType,
       value,
@@ -566,8 +564,7 @@ export interface OTPFieldRootProps extends Omit<
    * - `'keyboard'` for keyboard interactions that change the value
    */
   onValueChange?:
-    | ((value: string, eventDetails: OTPFieldRoot.ChangeEventDetails) => void)
-    | undefined;
+    ((value: string, eventDetails: OTPFieldRoot.ChangeEventDetails) => void) | undefined;
   /**
    * Callback fired when entered text contains characters that are rejected by validation or
    * normalization before the OTP value updates.
@@ -575,8 +572,7 @@ export interface OTPFieldRootProps extends Omit<
    * The `value` argument is the attempted user-entered string before normalization.
    */
   onValueInvalid?:
-    | ((value: string, eventDetails: OTPFieldRoot.InvalidEventDetails) => void)
-    | undefined;
+    ((value: string, eventDetails: OTPFieldRoot.InvalidEventDetails) => void) | undefined;
   /**
    * Callback function that is fired when the OTP value becomes complete, or when a complete value
    * is pasted while the OTP is already complete.
@@ -587,8 +583,7 @@ export interface OTPFieldRootProps extends Omit<
    * If `autoSubmit` is enabled, it runs immediately before the owning form is submitted.
    */
   onValueComplete?:
-    | ((value: string, eventDetails: OTPFieldRoot.CompleteEventDetails) => void)
-    | undefined;
+    ((value: string, eventDetails: OTPFieldRoot.CompleteEventDetails) => void) | undefined;
 }
 
 export interface OTPFieldRootState extends FieldRootState {
@@ -631,8 +626,7 @@ export type OTPFieldRootInvalidEventDetails =
   BaseUIGenericEventDetails<OTPFieldRoot.InvalidEventReason>;
 
 export type OTPFieldRootCompleteEventReason =
-  | typeof REASONS.inputChange
-  | typeof REASONS.inputPaste;
+  typeof REASONS.inputChange | typeof REASONS.inputPaste;
 export type OTPFieldRootCompleteEventDetails =
   BaseUIGenericEventDetails<OTPFieldRoot.CompleteEventReason>;
 
