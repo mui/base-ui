@@ -1601,15 +1601,17 @@ describe('<OTPField.Root />', () => {
 
     it('is removed when the focused slot unmounts but its field remains', async () => {
       // Unmounting one slot leaves `length` out of sync with the rendered inputs, which is
-      // irrelevant to what this test asserts.
+      // irrelevant to what this test asserts. `warn` dedupes on the message, so `length={3}`
+      // keeps this silenced warning from consuming the messages other tests assert.
       const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
 
       function TestCase(props: { firstMounted?: boolean }) {
         const { firstMounted = true } = props;
         return (
           <Field.Root data-testid="field">
-            <OTPFieldBase.Root length={2} data-testid="otp">
+            <OTPFieldBase.Root length={3} data-testid="otp">
               {firstMounted && <OTPFieldBase.Input />}
+              <OTPFieldBase.Input />
               <OTPFieldBase.Input />
             </OTPFieldBase.Root>
           </Field.Root>
