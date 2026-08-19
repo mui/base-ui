@@ -369,8 +369,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     onMatch(index) {
       if (open) {
         store.set('activeIndex', index);
-      } else if (!readOnly) {
-        // Guards the case where the popup closes while a typeahead match is still resolving.
+      } else {
         setValue(valuesRef.current[index], createChangeEventDetails(REASONS.none));
       }
     },
