@@ -155,12 +155,16 @@ function DraggableTab(props: DraggableTabProps) {
     <Tabs.Tab
       className={TAB_CLASS}
       value={item.id}
+      // @highlight-start
       render={
         <Draggable.Root
           label={`${item.label} tab`}
           kind={tabKind}
           payload={item.id}
+          // Enter and Space stay with Tabs for selection; reordering is
+          // Alt+Arrow through the button's onKeyDown below.
           keyboardActivation="off"
+          // @highlight-end
           pointerActivation={{ mouse: { type: 'distance', distance: 5 } }}
           modifiers={Draggable.restrictToHorizontalAxis}
           onBeforeDragStart={handleBeforeDragStart}

@@ -13,6 +13,7 @@ import { DemoFigmaBoard } from './demos/figma';
 import { DemoKanbanBoard } from './demos/kanban';
 import { DemoSortableList } from './demos/sortable';
 import { DemoDraggableTabs } from './demos/tabs';
+import { DemoFileExplorer } from './demos/file-explorer';
 
 Base UI includes headless drag-and-drop for making elements draggable and building drop zones. It works across mouse, touch, and pen, with pointer-appropriate defaults for starting a drag (see [Activation](/react/components/draggable#activation)). `Draggable.Root` also supports keyboard dragging by default (see [Keyboard navigation](/react/components/draggable#keyboard-navigation)). The components are unstyled, including the preview that follows the pointer.
 
@@ -73,60 +74,41 @@ Custom preview content renders beside the provider's children, so it receives co
 
 ### Sortable lists
 
-To reorder a list, make each item **both** a drag source and a drop target by passing a `DropTarget.Root` to the `Draggable.Root`'s `render` prop, so both roles land on one element.
+**Do not merge:** a List Box example will replace this one once that component is available.
 
-```tsx title="An item that is both a source and a target"
-import { Draggable } from '@base-ui/react/draggable';
-import { DropTarget } from '@base-ui/react/drop-target';
-
-const itemKind = Draggable.createKind<string>('item');
-
-<Draggable.Root
-  label={item.label}
-  kind={itemKind}
-  payload={item.id}
-  render={
-    <DropTarget.Root
-      accept={itemKind}
-      label={item.label}
-      trackDragOver={false}
-      onDrag={({ source, location }) => {
-        const { clientY } = location.current.input;
-        const previousY = location.previous.input.clientY;
-        if (clientY !== previousY) {
-          reorder(source.payload, item.id, clientY > previousY);
-        }
-      }}
-    />
-  }
-/>;
-```
+To reorder a list, pass a `DropTarget.Root` to each item's `render` prop, so [both roles land on one element](/react/components/drop-target#both-a-source-and-a-target).
 
 <DemoSortableList />
 
 ### Draggable tabs
 
-Tabs can be reordered without giving up their standard selection behavior. The drag preview is constrained to the tab list, which auto-scrolls when it overflows, and the tab settles into its final slot when dropped. Keyboard activation is left to `Tabs`, so the arrow keys continue to move focus and select a tab; <kbd>Alt</kbd>+<kbd>←</kbd>/<kbd>→</kbd> reorder the focused tab instead. <kbd>Delete</kbd> closes it, selecting its nearest neighbor, and a canceled drag restores the previous order.
+Reordering leaves the standard Tabs keyboard behavior in place. The arrow keys still move focus and select, <kbd>Alt</kbd>+<kbd>←</kbd>/<kbd>→</kbd> reorders the focused tab, and <kbd>Delete</kbd> closes it.
 
 <DemoDraggableTabs />
 
 ### Calendar
 
-A custom [modifier](/react/components/draggable#movement-modifiers) on `Draggable.Root` snaps the drag to the calendar's grid: the nearest day column and 15-minute slot. The preview, the drop hit-test, and the reported input all quantize together, so the preview always shows exactly where the event will land. The drop then commits from the resolved column itself: each day declares [`snap`](/react/components/drop-target#snap-to-steps), so `getSnappedLocalPoint` reads the landed slot with no geometry in the handler. Keyboard movement uses a [`keyboardMovement`](/react/components/draggable#controlling-movement) resolver: ↑ and ↓ move by one slot, ← and → switch days.
+A custom [modifier](/react/components/draggable#movement-modifiers) snaps the drag to the nearest day column and 15-minute slot, so the preview shows exactly where the event will land. Each column declares [`snap`](/react/components/drop-target#snap-to-steps), so the drop commits with no geometry in the handler.
 
 <DemoSchedulerWeekView />
 
 ### Free dragging
 
-Cards can be placed at absolute coordinates and dropped anywhere. Keep the preview's `offset` at its `'source'` default to preserve the pickup point. Use `restrictToElement` to keep the drag inside the canvas, then read the new position from `getSnappedLocalPoint({ anchor: 'source' })`. Because the canvas declares no snap steps, the card stays where the preview is released. Moving it to the end of the list places it above overlapping cards.
+Cards sit at absolute coordinates and drop anywhere. `restrictToElement` keeps the drag inside the canvas, and the drop commits the exact position where you release the preview.
 
 <DemoFigmaBoard />
 
 ### Kanban board
 
-The Kanban example renders an empty card at the resolved insertion point. `useDragMonitor` reads the pointer during the drag, finds the closest column and slot, and inserts the placeholder there. The surrounding cards make room before the drop, including when the pointer is between columns.
+[`useDragMonitor`](/react/utils/use-drag-monitor) resolves the closest column and insertion slot on every drag event, and an empty placeholder card marks where the drop will land.
 
 <DemoKanbanBoard />
+
+### File explorer
+
+Drop a node on a folder, on the open grid, or on an ancestor in the breadcrumb to move it there. Hovering a folder mid-drag opens it, and [`canDrop`](/react/components/drop-target#nested-drop-targets) refuses a folder dropped into its own subtree.
+
+<DemoFileExplorer />
 
 export const metadata =
   /** @type {import('@mui/internal-docs-infra/createSitemap/types').NextMetadata} */ ({

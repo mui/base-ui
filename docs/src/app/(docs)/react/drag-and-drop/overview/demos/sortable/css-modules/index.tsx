@@ -65,6 +65,7 @@ function SortableItem({
       onDragStart={onDragStart}
       onDrop={onDrop}
       onDragEnd={onDragEnd}
+      // @highlight-start
       render={
         <DropTarget.Root
           label={item.label}
@@ -82,6 +83,7 @@ function SortableItem({
           }}
         />
       }
+      // @highlight-end
       role="button"
       className={styles.Item}
     >

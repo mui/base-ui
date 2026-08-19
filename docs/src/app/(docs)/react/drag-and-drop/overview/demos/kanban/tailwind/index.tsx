@@ -211,8 +211,10 @@ export default function KanbanBoard() {
     },
   );
 
+  // @highlight-start
   useDragMonitor({
     accept: cardKind,
+    // @highlight-end
     onDragStart: ({ source, location }) => {
       const { clientX, clientY } = location.current.input;
       const slot = computeSlot(clientX, clientY, columnElementsRef.current);

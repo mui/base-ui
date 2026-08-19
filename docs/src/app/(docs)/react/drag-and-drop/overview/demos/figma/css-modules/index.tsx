@@ -44,7 +44,9 @@ function BoardCard({
       // after a 5px move, so a plain click isn't swallowed. (This matches the
       // engine default, so it can be omitted.)
       pointerActivation={{ mouse: { type: 'distance', distance: 5 } }}
+      // @highlight-start
       modifiers={Draggable.restrictToElement(surfaceRef)}
+      // @highlight-end
       role="button"
       className={styles.Card}
       style={{ left: card.x, top: card.y, width: CARD_WIDTH, height: CARD_HEIGHT }}
@@ -125,7 +127,9 @@ export default function FigmaBoard() {
           }
 
           // No snap steps are declared, so this is the exact source-anchored point.
+          // @highlight-start
           const point = self.getSnappedLocalPoint({ anchor: 'source' });
+          // @highlight-end
           const surfaceRect = surface.getBoundingClientRect();
           moveCard(
             source.payload,

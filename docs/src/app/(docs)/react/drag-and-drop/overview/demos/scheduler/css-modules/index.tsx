@@ -124,7 +124,9 @@ export default function KeyboardMovementCalendar() {
               accept={eventKind}
               // One slot per 15 minutes: `getSnappedLocalPoint` reports the
               // landed slot as a fraction, whatever the column's height.
+              // @highlight-start
               snap={{ y: TOTAL_MINUTES / SLOT_MINUTES }}
+              // @highlight-end
               className={styles.DayColumn}
               data-day-column
             >
@@ -135,7 +137,9 @@ export default function KeyboardMovementCalendar() {
                   role="button"
                   className={styles.Event}
                   style={{ top: (event.minute / SLOT_MINUTES) * SLOT_HEIGHT, height: EVENT_HEIGHT }}
+                  // @highlight-start
                   modifiers={snapEventToGrid}
+                  // @highlight-end
                   // The engine can't know this grid's geometry: one 15-minute
                   // slot vertically, the same time in the day column ahead
                   // horizontally. No bounds checks: the modifier clamps at the
