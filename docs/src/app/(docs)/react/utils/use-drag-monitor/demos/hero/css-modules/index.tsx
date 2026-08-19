@@ -41,11 +41,13 @@ export default function MonitorShapeSorter() {
   const [placed, setPlaced] = React.useState<ShapeId[]>([]);
   const [message, setMessage] = React.useState(IDLE_MESSAGE);
 
+  // @highlight-start
   useDragMonitor({
     accept: SHAPE_KINDS,
     onDragStart: ({ source }) => {
       setMessage(`Picked up ${source.label}`);
     },
+    // @highlight-end
     onDropTargetChange: ({ source, location }) => {
       const target = location.current.dropTargets[0];
       setMessage(target ? `${source.label} over ${target.label}` : `${source.label} over nothing`);

@@ -175,9 +175,11 @@ function DropZone({
         {cards}
       </div>
     ) : (
+      // @highlight-start
       <DragAutoScroll.Root ref={listRef} className={LIST_CLASS} maxSpeed={maxSpeed}>
         {cards}
       </DragAutoScroll.Root>
+      // @highlight-end
     );
 
   return (
@@ -245,7 +247,9 @@ export default function AutoScrollBoard() {
   }, [tasks]);
 
   return (
+    // @highlight-start
     <DragAutoScroll.Provider>
+      {/* @highlight-end */}
       <div ref={rootRef} className="flex w-full flex-col gap-4 select-none">
         <p className="m-0 text-sm leading-5 text-neutral-500 dark:text-neutral-400">
           Drag the card into either list, at the slot you want. The provider enables both; only the

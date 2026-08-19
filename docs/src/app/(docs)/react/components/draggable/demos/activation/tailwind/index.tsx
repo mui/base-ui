@@ -62,7 +62,9 @@ function Puck({
       className={`${PUCK_CLASS} cursor-grab`}
       kind={puckKind}
       label="Puck"
+      // @highlight-start
       pointerActivation={mode.activation}
+      // @highlight-end
       aria-label="Puck"
       role="button"
       onPointerDown={() => {

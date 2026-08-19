@@ -63,9 +63,11 @@ function Widget({ widget }: { widget: WidgetData }) {
       className={styles.Widget}
     >
       <div className={styles.WidgetHeader}>
+        {/* @highlight-start */}
         <Draggable.Handle className={styles.Handle}>
           <Grip />
         </Draggable.Handle>
+        {/* @highlight-end */}
         <span>{widget.title}</span>
       </div>
       <div className={styles.WidgetBody}>

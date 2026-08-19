@@ -39,8 +39,10 @@ export default function DropTargetHero() {
       <DropTarget.Root
         className="grid min-h-36 place-items-center border border-dashed border-neutral-300 text-sm leading-5 text-neutral-500 transition-colors data-[drag-over]:border-solid data-[drag-over]:border-neutral-950 data-[drag-over]:bg-neutral-100 dark:border-neutral-600 dark:text-neutral-400 dark:data-[drag-over]:border-white dark:data-[drag-over]:bg-neutral-800"
         label="Drop zone"
+        // @highlight-start
         accept={itemKind}
         onDrop={() => setDropped(true)}
+        // @highlight-end
       >
         {!dropped && <span>Drop here</span>}
       </DropTarget.Root>

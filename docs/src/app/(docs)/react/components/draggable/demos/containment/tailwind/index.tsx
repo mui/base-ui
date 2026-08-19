@@ -64,7 +64,9 @@ function Widget({
       payload={widget.id}
       role="button"
       className={WIDGET_CLASS}
+      // @highlight-start
       modifiers={Draggable.restrictToElement(frameRef)}
+      // @highlight-end
     >
       <div className="flex items-center gap-2 border-b border-neutral-200 px-3 py-2 text-xs leading-4 font-semibold dark:border-neutral-700">
         <Grip />

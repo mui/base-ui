@@ -56,7 +56,9 @@ function Widget({
       payload={widget.id}
       role="button"
       className={styles.Widget}
+      // @highlight-start
       modifiers={Draggable.restrictToElement(frameRef)}
+      // @highlight-end
     >
       <div className={styles.WidgetHeader}>
         <Grip />

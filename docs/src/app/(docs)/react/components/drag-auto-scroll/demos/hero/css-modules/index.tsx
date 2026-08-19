@@ -159,9 +159,11 @@ function DropZone({
         {cards}
       </div>
     ) : (
+      // @highlight-start
       <DragAutoScroll.Root ref={listRef} className={styles.Cards} maxSpeed={maxSpeed}>
         {cards}
       </DragAutoScroll.Root>
+      // @highlight-end
     );
 
   return (
@@ -227,7 +229,9 @@ export default function AutoScrollBoard() {
   }, [tasks]);
 
   return (
+    // @highlight-start
     <DragAutoScroll.Provider>
+      {/* @highlight-end */}
       <div ref={rootRef} className={styles.Root}>
         <p className={styles.Hint}>
           Drag the card into either list, at the slot you want. The provider enables both; only the

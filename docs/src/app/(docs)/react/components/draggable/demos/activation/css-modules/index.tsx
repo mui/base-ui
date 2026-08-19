@@ -60,7 +60,9 @@ function Puck({
       className={styles.Puck}
       kind={puckKind}
       label="Puck"
+      // @highlight-start
       pointerActivation={mode.activation}
+      // @highlight-end
       aria-label="Puck"
       role="button"
       onPointerDown={() => {

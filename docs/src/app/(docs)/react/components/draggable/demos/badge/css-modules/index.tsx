@@ -59,10 +59,12 @@ function Widget({ widget }: { widget: WidgetData }) {
         <strong>{widget.value}</strong>
         <span>{widget.detail}</span>
       </div>
+      {/* @highlight-start */}
       <Draggable.Preview className={styles.Badge} offset="pointer">
         <span className={styles.BadgeValue}>{widget.value}</span>
         {widget.title}
       </Draggable.Preview>
+      {/* @highlight-end */}
     </Draggable.Root>
   );
 }

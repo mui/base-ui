@@ -44,7 +44,9 @@ function ShapePiece({
 }
 
 export default function EngineShapeSorter() {
+  // @highlight-start
   const manager = useDragDropManager();
+  // @highlight-end
   const [placed, setPlaced] = React.useState<ShapeId[]>([]);
   const [activeShape, setActiveShape] = React.useState<ShapeId | null>(null);
   const [overShape, setOverShape] = React.useState<ShapeId | null>(null);
@@ -61,11 +63,13 @@ export default function EngineShapeSorter() {
     pieceElements.current.forEach((element, shapeId) => {
       const shape = SHAPES.find((item) => item.id === shapeId)!;
       cleanups.push(
+        // @highlight-start
         manager.registerDraggable(element, () => ({
           kind: shape.kind,
           label: shape.label,
           payload: shape.id,
         })),
+        // @highlight-end
       );
     });
 

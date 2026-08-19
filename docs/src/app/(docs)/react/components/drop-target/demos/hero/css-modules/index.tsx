@@ -31,8 +31,10 @@ export default function DropTargetHero() {
       <DropTarget.Root
         className={styles.Target}
         label="Drop zone"
+        // @highlight-start
         accept={itemKind}
         onDrop={() => setDropped(true)}
+        // @highlight-end
       >
         {!dropped && <span className={styles.Hint}>Drop here</span>}
       </DropTarget.Root>

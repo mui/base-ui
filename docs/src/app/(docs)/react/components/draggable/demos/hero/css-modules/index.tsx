@@ -36,10 +36,12 @@ export default function DraggableHero() {
           });
         }}
       >
+        {/* @highlight-start */}
         <Draggable.Root
           label="Drag me"
           kind={cardKind}
           modifiers={Draggable.restrictToElement(surfaceRef)}
+          // @highlight-end
           role="button"
           className={styles.Card}
           style={{ left: position.x, top: position.y, width: CARD_WIDTH, height: CARD_HEIGHT }}

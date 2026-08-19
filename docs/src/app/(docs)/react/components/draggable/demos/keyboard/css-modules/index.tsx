@@ -78,7 +78,9 @@ function DockSlot({
     <DropTarget.Root
       className={styles.Slot}
       data-empty={widget ? undefined : ''}
+      // @highlight-start
       label={label}
+      // @highlight-end
       accept={widgetKind}
       canDrop={() => widget === undefined}
       onDrop={({ source }) => onMoveWidget(source.payload, id)}

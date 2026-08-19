@@ -85,19 +85,23 @@ function Widget({ widget, onRemove }: { widget: WidgetData; onRemove: (id: strin
           setOpenedByKeyboard((eventDetails.event as MouseEvent).detail === 0);
         }
       }}
+      // @highlight-start
       onOpenChangeComplete={(open) => {
         if (!open && startOnCloseRef.current) {
           startOnCloseRef.current = false;
           manager.startKeyboardDrag(ref.current);
         }
       }}
+      // @highlight-end
     >
       <Draggable.Root
         kind={widgetKind}
         payload={widget.id}
         label={`${widget.title} widget`}
+        // @highlight-start
         keyboardActivation="manual"
         keyboardInstructions="Press Space to open the widget menu, then choose Move to move it."
+        // @highlight-end
         render={
           <Menu.Trigger render={<button ref={ref} type="button" aria-label={widget.title} />} />
         }

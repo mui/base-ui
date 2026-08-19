@@ -44,9 +44,11 @@ export default function NestedDropTargets() {
         <div className={styles.CanvasLayers}>{location === 'canvas' && <ChartLayer />}</div>
         <DropTarget.Root
           className={styles.Frame}
+          // @highlight-start
           label="Frame"
           accept={layerKind}
           onDrop={() => setLocation('frame')}
+          // @highlight-end
         >
           <span className={styles.Label}>Frame</span>
           <div className={styles.FrameLayers}>

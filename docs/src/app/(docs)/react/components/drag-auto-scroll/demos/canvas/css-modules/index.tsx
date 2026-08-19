@@ -42,6 +42,7 @@ export default function CanvasPan() {
         ref={viewportRef}
         accept={pinKind}
         className={styles.Viewport}
+        // @highlight-start
         applyScroll={({ x, y }) => {
           cameraRef.current = { x: cameraRef.current.x + x, y: cameraRef.current.y + y };
           // Written straight to the DOM, not through state: the engine re-resolves
@@ -51,6 +52,7 @@ export default function CanvasPan() {
             content.style.transform = `translate(${-cameraRef.current.x}px, ${-cameraRef.current.y}px)`;
           }
         }}
+        // @highlight-end
       >
         <div ref={contentRef} className={styles.Content}>
           <DropTarget.Root

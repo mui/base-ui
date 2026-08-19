@@ -73,9 +73,11 @@ function Widget({ widget }: { widget: WidgetData }) {
       className={WIDGET_CLASS}
     >
       <div className="flex items-center gap-2 border-b border-neutral-200 px-3 py-2 text-xs leading-4 font-semibold dark:border-neutral-700">
+        {/* @highlight-start */}
         <Draggable.Handle className={HANDLE_CLASS}>
           <Grip />
         </Draggable.Handle>
+        {/* @highlight-end */}
         <span>{widget.title}</span>
       </div>
       <div className="flex flex-1 flex-col justify-center px-3 py-2.5">

@@ -65,8 +65,10 @@ export default function ShapeSorter() {
               key={shape.id}
               className={styles.Target}
               label={`${shape.label} cutout`}
+              // @highlight-start
               accept={shape.kind}
               onDrop={() => placeShape(shape.id)}
+              // @highlight-end
             >
               <span className={styles.Cutout} data-shape={shape.id} aria-hidden="true" />
               {isPlaced && <ShapePiece shape={shape} />}

@@ -112,10 +112,12 @@ export default function AxisLane() {
         Drag a stop toward the left or right edge and the lane scrolls to follow. It only scrolls
         sideways, so moving the pointer up or down never scrolls it.
       </p>
+      {/* @highlight-start */}
       <DragAutoScroll.Root
         allowedAxis="horizontal"
         className="box-border overflow-x-auto border border-neutral-200 p-3 dark:border-neutral-700"
       >
+        {/* @highlight-end */}
         <DropTarget.Root
           ref={trackRef}
           className="flex w-max gap-1.5"

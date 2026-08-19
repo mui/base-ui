@@ -55,9 +55,11 @@ export default function NestedDropTargets() {
           {location === 'canvas' && <ChartLayer />}
         </div>
         <DropTarget.Root
+          // @highlight-start
           label="Frame"
           accept={layerKind}
           onDrop={() => setLocation('frame')}
+          // @highlight-end
           className="absolute right-3 bottom-3 box-border flex h-32 w-[calc(100%-1.5rem)] flex-col gap-2 border border-dashed border-neutral-400 bg-white p-3 transition-colors data-[drag-over-innermost]:border-solid data-[drag-over-innermost]:border-neutral-950 data-[drag-over-innermost]:bg-neutral-100 sm:w-[min(55%,18rem)] dark:border-neutral-500 dark:bg-neutral-950 dark:data-[drag-over-innermost]:border-white dark:data-[drag-over-innermost]:bg-neutral-800"
         >
           <span className="text-xs leading-4 font-semibold text-neutral-500 dark:text-neutral-400">

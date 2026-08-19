@@ -62,7 +62,9 @@ function Widget({
       label={`${widget.title} widget`}
       kind={widgetKind}
       payload={widget.id}
+      // @highlight-start
       finalFocus={({ dropTarget }) => (dropTarget ? noteRef.current : true)}
+      // @highlight-end
       role="button"
       className={WIDGET_CLASS}
     >

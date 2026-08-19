@@ -74,8 +74,10 @@ export default function ShapeSorter() {
               key={shape.id}
               className="group grid h-24 place-items-center data-[accepting]:[&_[data-cutout]]:bg-neutral-300 data-[drag-over]:[&_[data-cutout]]:bg-neutral-400 dark:data-[accepting]:[&_[data-cutout]]:bg-neutral-600 dark:data-[drag-over]:[&_[data-cutout]]:bg-neutral-500"
               label={`${shape.label} cutout`}
+              // @highlight-start
               accept={shape.kind}
               onDrop={() => placeShape(shape.id)}
+              // @highlight-end
             >
               <span
                 className={CUTOUT_CLASS}

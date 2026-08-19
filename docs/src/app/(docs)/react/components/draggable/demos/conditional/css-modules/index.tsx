@@ -78,7 +78,9 @@ function Widget({ widget }: { widget: WidgetData }) {
       label={`${widget.title} widget`}
       kind={widgetKind}
       payload={widget.id}
+      // @highlight-start
       disabled={widget.locked}
+      // @highlight-end
       role={widget.locked ? undefined : 'button'}
       className={styles.Widget}
       data-locked={widget.locked || undefined}
