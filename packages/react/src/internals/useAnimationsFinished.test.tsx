@@ -199,4 +199,55 @@ describe('useAnimationsFinished', () => {
       globalThis.BASE_UI_ANIMATIONS_DISABLED = animationsDisabled;
     }
   });
+
+  it('runs every batched callback when one throws', async () => {
+    const animationsDisabled = globalThis.BASE_UI_ANIMATIONS_DISABLED;
+    globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+
+    const first = createAnimation();
+    const second = createAnimation();
+    const error = new Error('test');
+    const onSecondFinished = vi.fn();
+    const firstGetAnimations = vi.fn(() => [first.animation]);
+    const secondGetAnimations = vi.fn(() => [second.animation]);
+    let flushQueuedCallbacks: VoidFunction | undefined;
+
+    try {
+      await render(
+        <React.Fragment>
+          <Test
+            getAnimations={firstGetAnimations}
+            onFinished={() => {
+              throw error;
+            }}
+          />
+          <Test getAnimations={secondGetAnimations} onFinished={onSecondFinished} />
+        </React.Fragment>,
+      );
+
+      await waitFor(() => {
+        expect(firstGetAnimations).toHaveBeenCalled();
+      });
+      await waitFor(() => {
+        expect(secondGetAnimations).toHaveBeenCalled();
+      });
+
+      vi.spyOn(globalThis, 'queueMicrotask').mockImplementation((callback) => {
+        flushQueuedCallbacks = callback;
+      });
+
+      await act(async () => {
+        first.finish();
+        second.finish();
+        await flushMicrotasks();
+      });
+
+      expect(flushQueuedCallbacks).not.toBeUndefined();
+      expect(() => flushQueuedCallbacks!()).toThrow(error);
+      expect(onSecondFinished).toHaveBeenCalledTimes(1);
+    } finally {
+      vi.restoreAllMocks();
+      globalThis.BASE_UI_ANIMATIONS_DISABLED = animationsDisabled;
+    }
+  });
 });

@@ -25,13 +25,27 @@ function flushBeforePaint(fn: () => void, signal: AbortSignal | null) {
     pendingCallbacks = callbacks;
     queueMicrotask(() => {
       pendingCallbacks = null;
+      let firstError: unknown;
+      let didError = false;
+
       ReactDOM.flushSync(() => {
         for (const callback of callbacks) {
           if (!callback.signal?.aborted) {
-            callback.fn();
+            try {
+              callback.fn();
+            } catch (error) {
+              if (!didError) {
+                firstError = error;
+                didError = true;
+              }
+            }
           }
         }
       });
+
+      if (didError) {
+        throw firstError;
+      }
     });
   }
   pendingCallbacks.push({ fn, signal });

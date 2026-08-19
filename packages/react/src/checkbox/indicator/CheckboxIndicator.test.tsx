@@ -317,7 +317,7 @@ describe('<Checkbox.Indicator />', () => {
         }
       `;
 
-      let commitCount = 0;
+      const indicatorCounts: number[] = [];
 
       function Test() {
         const [checked, setChecked] = React.useState(true);
@@ -334,7 +334,9 @@ describe('<Checkbox.Indicator />', () => {
             <React.Profiler
               id="checkboxes"
               onRender={() => {
-                commitCount += 1;
+                indicatorCounts.push(
+                  document.querySelectorAll('[data-testid^="indicator-"]').length,
+                );
               }}
             >
               {Array.from({ length: 10 }, (_, index) => (
@@ -352,7 +354,7 @@ describe('<Checkbox.Indicator />', () => {
 
       const { user } = await render(<Test />);
 
-      const commitCountBefore = commitCount;
+      const commitsBeforeUncheck = indicatorCounts.length;
 
       await user.click(screen.getByText('Uncheck'));
 
@@ -361,8 +363,9 @@ describe('<Checkbox.Indicator />', () => {
       });
       expect(screen.queryByTestId('indicator-9')).toBe(null);
 
-      // One commit for the uncheck itself, one batched commit removing every indicator.
-      expect(commitCount).toBe(commitCountBefore + 2);
+      const countsAfterUncheck = indicatorCounts.slice(commitsBeforeUncheck);
+      expect(countsAfterUncheck).toContain(0);
+      expect(countsAfterUncheck.every((count) => count === 0 || count === 10)).toBe(true);
     });
   });
 });
