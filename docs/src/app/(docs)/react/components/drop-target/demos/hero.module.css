@@ -77,9 +77,7 @@
   font-size: 0.875rem;
   line-height: 1.25rem;
   cursor: grab;
-  transition:
-    background-color 0.15s,
-    opacity 0.15s;
+  transition: background-color 0.15s;
 
   @media (prefers-color-scheme: dark) {
     border-color: white;
