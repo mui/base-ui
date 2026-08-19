@@ -157,6 +157,9 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
         'aria-haspopup': inputInsidePopup ? 'dialog' : 'listbox',
         'aria-controls': ariaControls,
         'aria-required': inputInsidePopup ? required || undefined : undefined,
+        // Only valid alongside the `combobox` role; without it the trigger is a plain button, and
+        // the `Combobox.Input` outside the popup already carries `aria-readonly`.
+        'aria-readonly': inputInsidePopup ? readOnly || undefined : undefined,
         'aria-labelledby': ariaLabelledBy,
         onPointerDown: trackPointerType,
         onPointerEnter: trackPointerType,
