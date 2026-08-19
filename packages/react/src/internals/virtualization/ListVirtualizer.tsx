@@ -1280,11 +1280,63 @@ export const ListVirtualizer = React.forwardRef(function ListVirtualizer<
     },
   );
 
-  React.useImperativeHandle(apiRefProp, () => ({ getRowMetrics, resetScroll, scrollToIndex }), [
-    getRowMetrics,
-    resetScroll,
-    scrollToIndex,
-  ]);
+  /**
+   * Drops every height learned so far, so rows are measured again against the layout they are in
+   * now. Heights cached for rows that are not mounted are the reason this exists: a change that
+   * resizes the collection — a breakpoint, a font, a density toggle — resizes the mounted rows
+   * through their own observers, while the rest keep reporting what they measured under the old
+   * layout. Rows currently on screen are re-measured here rather than left to their observers,
+   * which only fire when a size actually changes, so the visible geometry stays exact even when
+   * this is called and nothing moved.
+   */
+  const remeasure = useStableCallback(() => {
+    const api = muiApiRef.current;
+
+    if (api == null) {
+      return;
+    }
+
+    adaptiveEstimateRef.current = null;
+    adaptiveMeasurementsRef.current.heights.clear();
+    adaptiveMeasurementsRef.current.total = 0;
+    measuredRowsRef.current.clear();
+    deferredRowHeightsRef.current.clear();
+    api.rowsMeta.resetRowHeights();
+
+    const renderZone = renderZoneRef.current;
+
+    if (renderZone != null) {
+      for (let index = 0; index < renderZone.children.length; index += 1) {
+        const element = renderZone.children[index] as HTMLElement;
+
+        // The retained focus proxy is out of layout and never carries a usable height.
+        if (element.style.position === 'absolute') {
+          continue;
+        }
+
+        const rowIndex = Number(element.dataset.rowIndex);
+        const row = rowsRef.current[rowIndex];
+        const height = element.getBoundingClientRect().height;
+
+        if (row != null && height > 0) {
+          api.rowsMeta.storeRowHeightMeasurement(row.id, height);
+          measuredRowsRef.current.add(row.id);
+          api.rowsMeta.setLastMeasuredRowIndex(rowIndex);
+        }
+      }
+    }
+
+    api.rowsMeta.hydrateRowsMeta();
+    // Scroll anchoring compensates for whatever the rewrite moved, which is what keeps the
+    // position across an invalidation that remounting to drop the caches would lose.
+    bumpAdaptiveMeasurementRevision();
+  });
+
+  React.useImperativeHandle(
+    apiRefProp,
+    () => ({ getRowMetrics, remeasure, resetScroll, scrollToIndex }),
+    [getRowMetrics, remeasure, resetScroll, scrollToIndex],
+  );
 
   const scrollToRowId = scrollToRowIndex == null ? null : (rows[scrollToRowIndex]?.id ?? null);
 

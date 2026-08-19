@@ -1642,6 +1642,65 @@ describe('<Combobox.Virtualizer />', () => {
     expect(estimatedItemHeight).toHaveBeenCalledWith('longer', 1);
   });
 
+  describe('actionsRef: remeasure', () => {
+    it.skipIf(isJSDOM)('re-measures items against the layout they are in now', async () => {
+      vi.restoreAllMocks();
+      const items = createItems(200);
+      const actionsRef = React.createRef<Combobox.Virtualizer.Actions>();
+
+      function Test(props: { itemHeight: number }) {
+        return (
+          <Combobox.Root defaultOpen items={items}>
+            <Combobox.List>
+              <Combobox.Virtualizer
+                actionsRef={actionsRef}
+                estimatedItemHeight={20}
+                overscanPx={0}
+                render={<div data-testid="virtualizer" style={{ height: 120, width: 200 }} />}
+              >
+                {(item: string) => (
+                  <Combobox.Item
+                    value={item}
+                    style={{ display: 'block', height: props.itemHeight }}
+                  >
+                    {item}
+                  </Combobox.Item>
+                )}
+              </Combobox.Virtualizer>
+            </Combobox.List>
+          </Combobox.Root>
+        );
+      }
+
+      const { rerender } = await render(<Test itemHeight={60} />);
+      const virtualizer = screen.getByTestId('virtualizer');
+
+      // The running average learns 60px from the mounted rows and applies it to the rest.
+      await waitFor(() => expect(virtualizer.scrollHeight).toBeGreaterThanOrEqual(11900));
+
+      // Scroll away from the top, so the items that measured 60px are no longer mounted and only
+      // their cached heights describe them.
+      virtualizer.scrollTop = 3000;
+      fireEvent.scroll(virtualizer);
+      await waitFor(() => expect(virtualizer.scrollTop).toBe(3000));
+
+      await rerender(<Test itemHeight={30} />);
+
+      await act(async () => {
+        actionsRef.current?.remeasure();
+      });
+
+      // Every cached 60px is discarded, so the total converges on the layout in force now.
+      await waitFor(() => expect(virtualizer.scrollHeight).toBeGreaterThanOrEqual(5900), {
+        timeout: 3000,
+      });
+      expect(virtualizer.scrollHeight).toBeLessThanOrEqual(6100);
+      // And the viewport stayed where the user left it, which is what remounting to drop the
+      // caches would have lost.
+      expect(virtualizer.scrollTop).toBeGreaterThan(0);
+    });
+  });
+
   describe('prop: totalItems', () => {
     it('reports the whole collection size to rendered items', async () => {
       const items = createItems(20);

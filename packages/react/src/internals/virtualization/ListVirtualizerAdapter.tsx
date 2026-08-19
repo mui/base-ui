@@ -310,14 +310,15 @@ export function useListVirtualizerAdapter<Value, Item>(
   const getRowMetrics = useStableCallback(
     (rowIndex: number) => apiRef.current?.getRowMetrics(rowIndex) ?? null,
   );
+  const remeasure = useStableCallback(() => apiRef.current?.remeasure());
   const resetScroll = useStableCallback(() => apiRef.current?.resetScroll());
   const scrollToIndex = useStableCallback(
     (index: number, options?: ListVirtualizerScrollToIndexOptions) =>
       apiRef.current?.scrollToIndex(index, options),
   );
   const virtualizerHandle = React.useMemo(
-    () => ({ enabled, getRowMetrics, resetScroll, scrollToIndex }),
-    [enabled, getRowMetrics, resetScroll, scrollToIndex],
+    () => ({ enabled, getRowMetrics, remeasure, resetScroll, scrollToIndex }),
+    [enabled, getRowMetrics, remeasure, resetScroll, scrollToIndex],
   );
 
   useIsoLayoutEffect(() => {
@@ -347,7 +348,10 @@ export function useListVirtualizerAdapter<Value, Item>(
     );
   });
 
-  React.useImperativeHandle(actionsRef, () => ({ scrollToIndex }), [scrollToIndex]);
+  React.useImperativeHandle(actionsRef, () => ({ remeasure, scrollToIndex }), [
+    remeasure,
+    scrollToIndex,
+  ]);
 
   return {
     apiRef,
@@ -364,6 +368,14 @@ export function useListVirtualizerAdapter<Value, Item>(
  * Imperative actions exposed by a built-in list virtualizer.
  */
 export interface ListVirtualizerAdapterActions {
+  /**
+   * Discards the item heights measured so far, so they are taken again against the layout the
+   * items are in now. Call it after a change that resizes items without changing the collection,
+   * such as crossing a layout breakpoint: items on screen resize on their own, while the heights
+   * cached for the rest describe the layout they were last measured in. The scroll position is
+   * kept, which is what remounting the virtualizer to clear them loses.
+   */
+  remeasure: () => void;
   /**
    * Scrolls an item into view by its logical collection index.
    */

@@ -33,6 +33,10 @@ export interface ListVirtualizerHandle {
    */
   scrollToIndex: (index: number, options?: ListVirtualizerScrollToIndexOptions) => void;
   /**
+   * Discards measured item heights so they are taken again against the current layout.
+   */
+  remeasure: () => void;
+  /**
    * Resets the virtualizer's scroll position to the start of the list.
    */
   resetScroll: () => void;
