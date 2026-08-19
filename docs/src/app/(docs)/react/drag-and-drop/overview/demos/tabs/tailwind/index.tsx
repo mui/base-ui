@@ -114,11 +114,6 @@ function DraggableTab(props: DraggableTabProps) {
     onKeyboardMove,
   } = props;
 
-  const modifiers = React.useMemo(
-    () => [Draggable.restrictToHorizontalAxis, Draggable.restrictToElement(listRef)],
-    [listRef],
-  );
-
   const handleBeforeDragStart = useStableCallback(
     (_context: DragStartContext, eventDetails: BeforeDragStartEventDetails) => {
       if (eventDetails.trigger?.closest('[data-close-tab]')) {
@@ -167,7 +162,7 @@ function DraggableTab(props: DraggableTabProps) {
           payload={item.id}
           keyboardActivation="off"
           pointerActivation={{ mouse: { type: 'distance', distance: 5 } }}
-          modifiers={modifiers}
+          modifiers={Draggable.restrictToHorizontalAxis}
           onBeforeDragStart={handleBeforeDragStart}
           onDragStart={onDragStart}
           onDrop={onDrop}
@@ -204,6 +199,8 @@ function DraggableTab(props: DraggableTabProps) {
       >
         <CloseIcon />
       </span>
+      {/* Keep the clone in the list without clamping the pointer used to resolve insertion slots. */}
+      <Draggable.ClonedPreview modifiers={Draggable.restrictToElement(listRef)} />
     </Tabs.Tab>
   );
 }
