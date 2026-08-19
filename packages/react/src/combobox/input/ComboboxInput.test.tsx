@@ -611,6 +611,8 @@ describe('<Combobox.Input />', () => {
       expect(cherry).toHaveAttribute('data-highlighted');
     });
 
+    // `user-event` emulates Home/End by collapsing the caret and never extends the
+    // selection, so these assert against real browser key events instead.
     it.skipIf(isJSDOM)('extends the text selection with Shift+Home inside the popup', async () => {
       const { user } = await render(<PopupCombobox />);
 
@@ -621,7 +623,8 @@ describe('<Combobox.Input />', () => {
       await user.type(input, 'an');
       expect(input.selectionStart).toBe(2);
 
-      await user.keyboard('{Shift>}{Home}{/Shift}');
+      const { userEvent: browserUserEvent } = await import('@vitest/browser/context');
+      await browserUserEvent.keyboard('{Shift>}{Home}{/Shift}');
 
       expect(input.selectionStart).toBe(0);
       expect(input.selectionEnd).toBe(2);
@@ -637,7 +640,8 @@ describe('<Combobox.Input />', () => {
       await user.type(input, 'an');
       input.setSelectionRange(0, 0);
 
-      await user.keyboard('{Shift>}{End}{/Shift}');
+      const { userEvent: browserUserEvent } = await import('@vitest/browser/context');
+      await browserUserEvent.keyboard('{Shift>}{End}{/Shift}');
 
       expect(input.selectionStart).toBe(0);
       expect(input.selectionEnd).toBe(2);

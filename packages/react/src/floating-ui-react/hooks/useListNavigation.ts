@@ -573,6 +573,9 @@ export function useListNavigation(
     const minIndex = getMinListIndex(listRef, disabledIndices);
     const maxIndex = getMaxListIndex(listRef, disabledIndices);
 
+    // The list-level Home/End shortcuts must not swallow the native caret and text-selection
+    // behavior when the key lands in a text field, which happens when a typeable combobox
+    // renders its input inside the popup rather than as the reference element.
     if (!typeableComboboxReference && !isTypeableElement(getTarget(event.nativeEvent))) {
       if (event.key === 'Home') {
         stopEvent(event);
