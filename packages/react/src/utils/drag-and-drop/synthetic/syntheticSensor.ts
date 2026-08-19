@@ -472,7 +472,7 @@ function onPointerDown(event: Event): void {
   // legitimate right-click soon after a left-click that never became a drag.
   let contextMenuSuppression: DragCleanupFn | null = null;
   if (pointerType !== 'mouse') {
-    contextMenuSuppression = startContextMenuSuppression(win, [win, element, handle, target]);
+    contextMenuSuppression = startContextMenuSuppression(win, target);
   }
   const restoreNativeDrag = suppressNativeDragForSyntheticPointer(
     element,
@@ -513,7 +513,6 @@ function onPointerDown(event: Event): void {
     addEventListener(win, 'pointermove', onPendingPointerMove, { capture: true }),
     addEventListener(win, 'pointerup', onPendingPointerUp, { capture: true }),
     addEventListener(win, 'pointercancel', onPendingPointerCancel, { capture: true }),
-    addEventListener(win, 'contextmenu', preventContextMenu, { capture: true }),
     // Suppress native HTML5 drags a natively-draggable descendant (`<img>`,
     // `<a href>`) would otherwise start from the same press.
     addEventListener(win, 'dragstart', preventNativeDragStart, { capture: true }),
@@ -526,6 +525,14 @@ function onPointerDown(event: Event): void {
     addEventListener(win, 'blur', onPendingBlur),
     addEventListener(ownerDocument(element), 'visibilitychange', onPendingVisibilityChange),
   );
+  if (pointerType !== 'mouse') {
+    // The post-cancellation safety net removes itself after one menu. Keep this
+    // phase listener until the pending gesture ends so an early `contextmenu`
+    // cannot leave the rest of a still-held touch/pen gesture unguarded.
+    pendingRef.listeners.push(
+      addEventListener(win, 'contextmenu', preventContextMenu, { capture: true }),
+    );
+  }
 
   const delay = getActivationDelayMs(activation);
   if (delay !== null) {
@@ -579,13 +586,16 @@ function onPendingKeyDown(event: Event): void {
   }
 }
 
-function startContextMenuSuppression(win: Window, targets: EventTarget[]): DragCleanupFn {
+function startContextMenuSuppression(win: Window, target: Element): DragCleanupFn {
   state.cleanupContextMenuSuppression?.();
 
-  // `win` covers normal connected-node dispatch in the capture phase. The node
-  // entries deliberately mirror the active-phase mobile fallback below; they
-  // should be removed together if real-device traces show the window is enough.
-  const uniqueTargets = Array.from(new Set(targets));
+  // Window capture covers the normal connected event path. The Pointer Events
+  // `contextmenu` targeting algorithm nevertheless preserves the causal event's
+  // target, including after `lostpointercapture`, so retain the exact press
+  // target too: a live reorder can detach it before Android delivers the menu,
+  // at which point its event path no longer reaches `window`. The draggable and
+  // handle need no listeners of their own: at pointerdown they contain `target`,
+  // while after detachment only a listener on the preserved target is reliable.
   const timeout = new WindowTimeout(win);
   const cleanups: DragCleanupFn[] = [];
   let disposed = false;
@@ -609,9 +619,10 @@ function startContextMenuSuppression(win: Window, targets: EventTarget[]): DragC
     cleanup();
   };
 
-  for (const target of uniqueTargets) {
-    cleanups.push(addEventListener(target, 'contextmenu', onContextMenu, { capture: true }));
-  }
+  cleanups.push(
+    addEventListener(win, 'contextmenu', onContextMenu, { capture: true }),
+    addEventListener(target, 'contextmenu', onContextMenu, { capture: true }),
+  );
 
   state.cleanupContextMenuSuppression = cleanup;
   timeout.start(CONTEXT_MENU_SUPPRESSION_MS, cleanup);
@@ -854,7 +865,6 @@ function commitActivation(): void {
     // Seeded from the activation hit test, so the first frame's auto-scroll has
     // an anchor before `onActiveFrame` has run.
     lastHitElement: initialTarget,
-    target,
     captureTarget,
     pointerId,
     pointerType,
@@ -930,14 +940,16 @@ function commitActivation(): void {
       }),
     );
   }
-  // The window listener covers standards-conforming dispatch from connected
-  // targets. Retain target listeners as a mobile compatibility fallback for a
-  // post-long-press `contextmenu` delivered directly to the original gesture
-  // nodes; real-device coverage should decide whether this fallback stays.
-  activeRef.listeners.push(
-    addEventListener(target, 'contextmenu', preventContextMenu, { capture: true }),
-    addEventListener(element, 'contextmenu', preventContextMenu, { capture: true }),
-  );
+  if (pointerType !== 'mouse') {
+    // Keep the exact press target armed throughout a touch/pen drag for the same
+    // detached causal-target case covered by `startContextMenuSuppression`. The
+    // source element is an ancestor at pickup, so a second listener there adds
+    // no path. Mouse context menus arise from a separate button action while
+    // capture is anchored on `body`, and the window listener below sees them.
+    activeRef.listeners.push(
+      addEventListener(target, 'contextmenu', preventContextMenu, { capture: true }),
+    );
+  }
   activeRef.listeners.push(
     addEventListener(win, 'keydown', onActiveKeyDown, { capture: true }),
     // Paired with the keydown above only to notice a modifier key being released; the
@@ -1360,12 +1372,6 @@ interface ActiveSession {
   element: HTMLElement;
   /** The last frame's hit test under the pointer, preview excluded; `null` before the first frame. */
   lastHitElement: Element | null;
-  /**
-   * The pointerdown event target. Kept across the active phase for the touch
-   * `touchmove` and the target-level `contextmenu` suppression, both of which
-   * must survive the draggable being unmounted by a virtualizer.
-   */
-  target: Element;
   /** Holds the gesture's pointer capture — the document body, never the dragged element. */
   captureTarget: Element;
   pointerId: number;

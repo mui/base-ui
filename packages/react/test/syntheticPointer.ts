@@ -130,9 +130,15 @@ export function makeTouch(x: number, y: number, identifier = 1): Touch {
     force: 1,
   };
   if (typeof Touch === 'function') {
-    return new Touch(base as unknown as TouchInit);
+    try {
+      return new Touch(base as unknown as TouchInit);
+    } catch {
+      // WebKit exposes `Touch` as a function but does not make its constructor
+      // available to page script. Fall through to the same structural value
+      // used by jsdom.
+    }
   }
-  // jsdom fallback: a plain object that duck-types as Touch.
+  // jsdom/WebKit fallback: a plain object that duck-types as Touch.
   return base as unknown as Touch;
 }
 
@@ -145,13 +151,23 @@ export function dispatchTouchEvent(type: string, x: number, y: number): void {
     bubbles: true,
     cancelable: true,
   };
-  let ev: Event;
+  let ev: Event | undefined;
   if (typeof TouchEvent === 'function') {
-    ev = new TouchEvent(type, init);
-  } else {
-    // jsdom fallback: synthesise a bare Event with touch arrays attached.
+    try {
+      ev = new TouchEvent(type, init);
+    } catch {
+      // WebKit also rejects a structural Touch in the TouchEvent constructor.
+      // Fall through to an Event carrying the same observable touch lists.
+    }
+  }
+  if (!ev) {
+    // jsdom/WebKit fallback: synthesise a bare Event with touch arrays attached.
     const plain = new Event(type, { bubbles: true, cancelable: true });
-    Object.assign(plain, init);
+    Object.defineProperties(plain, {
+      touches: { value: init.touches },
+      targetTouches: { value: init.targetTouches },
+      changedTouches: { value: init.changedTouches },
+    });
     ev = plain;
   }
   dispatch(getTouchDownTarget(), ev);

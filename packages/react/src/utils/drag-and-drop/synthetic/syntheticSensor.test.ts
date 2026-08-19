@@ -718,13 +718,19 @@ describe('syntheticDrag sensor', () => {
   it('prevents contextmenu after a touch drag candidate is cancelled by the browser', async () => {
     const { engine } = await renderDnd();
     const el = createElement();
+    const child = document.createElement('div');
+    el.appendChild(child);
     engine.registerDraggable(el, {});
 
-    touchDown(el, 50, 50);
+    touchDown(child, 50, 50);
     touchCancel();
+    el.remove();
 
+    // Pointer Events preserves the causal target for `contextmenu`. Model the
+    // delayed Android event after a virtualizer detached that target, whose event
+    // path can no longer reach the window listener.
     const contextMenu = new Event('contextmenu', { bubbles: true, cancelable: true });
-    dispatch(el, contextMenu);
+    dispatch(child, contextMenu);
 
     expect(contextMenu.defaultPrevented).toBe(true);
   });
@@ -805,25 +811,29 @@ describe('syntheticDrag sensor', () => {
     }
   });
 
-  it('keeps the original touch target armed for a directly delivered compatibility contextmenu', async () => {
+  it('keeps the original touch target armed throughout a live drag after it is detached', async () => {
     const { engine } = await renderDnd();
     const el = createElement();
     const child = document.createElement('div');
     el.appendChild(child);
     engine.registerDraggable(el, { pointerActivation: { touch: { type: 'immediate' } } });
 
-    touchDown(child, 50, 50);
-    el.remove();
+    vi.useFakeTimers();
+    try {
+      touchDown(child, 50, 50);
+      // Expire the short post-cancellation safety net first. The active phase's
+      // own target listener must last for the full drag, however long it runs.
+      vi.advanceTimersByTime(1500);
+      el.remove();
 
-    // Synthetic dispatch on a detached node models the target-level fallback;
-    // it is not evidence that standards-conforming browser dispatch misses the
-    // window. Real-device traces decide whether this compatibility path remains.
-    const contextMenu = new Event('contextmenu', { bubbles: true, cancelable: true });
-    dispatch(child, contextMenu);
+      const contextMenu = new Event('contextmenu', { bubbles: true, cancelable: true });
+      dispatch(child, contextMenu);
 
-    expect(contextMenu.defaultPrevented).toBe(true);
-
-    touchCancel();
+      expect(contextMenu.defaultPrevented).toBe(true);
+    } finally {
+      touchCancel();
+      vi.useRealTimers();
+    }
   });
 
   it('onBeforeDragStart fires at activation commit with the pointer details', async () => {
@@ -1004,7 +1014,7 @@ describe('syntheticDrag sensor', () => {
     // reservation and the root scroll lock.
     expect(el.hasAttribute('draggable')).toBe(false);
     expect(document.documentElement.style.getPropertyValue('touch-action')).toBe('');
-    expect(document.documentElement.style.userSelect).toBe('');
+    expect(document.documentElement.style.getPropertyValue('user-select')).toBe('');
 
     // A later pickup still drags: nothing stayed armed or locked.
     shouldThrow = false;
@@ -2372,7 +2382,7 @@ describe('syntheticDrag sensor', () => {
     // acquired: the root scroll lock is off (the keyboard sensor never takes
     // it) and no drag cursor is pinned.
     expect(document.documentElement.style.getPropertyValue('touch-action')).toBe('');
-    expect(document.documentElement.style.userSelect).toBe('');
+    expect(document.documentElement.style.getPropertyValue('user-select')).toBe('');
     expect(document.documentElement.classList.contains('baseui-dragging')).toBe(false);
   });
 
