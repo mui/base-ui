@@ -28,9 +28,10 @@ function createAnimation() {
 interface TestProps {
   getAnimations: () => Animation[];
   onFinished: () => void;
+  signal?: AbortSignal;
 }
 
-function Test({ getAnimations, onFinished }: TestProps) {
+function Test({ getAnimations, onFinished, signal }: TestProps) {
   const ref = React.useRef<HTMLDivElement>(null);
   const runOnceAnimationsFinish = useAnimationsFinished(ref);
 
@@ -41,8 +42,8 @@ function Test({ getAnimations, onFinished }: TestProps) {
   }, [getAnimations]);
 
   React.useEffect(() => {
-    runOnceAnimationsFinish(onFinished);
-  }, [onFinished, runOnceAnimationsFinish]);
+    runOnceAnimationsFinish(onFinished, signal ?? null);
+  }, [onFinished, runOnceAnimationsFinish, signal]);
 
   return <div ref={ref} />;
 }
@@ -210,7 +211,6 @@ describe('useAnimationsFinished', () => {
     const onSecondFinished = vi.fn();
     const firstGetAnimations = vi.fn(() => [first.animation]);
     const secondGetAnimations = vi.fn(() => [second.animation]);
-    let flushQueuedCallbacks: VoidFunction | undefined;
 
     try {
       await render(
@@ -232,8 +232,9 @@ describe('useAnimationsFinished', () => {
         expect(secondGetAnimations).toHaveBeenCalled();
       });
 
+      const queued: VoidFunction[] = [];
       vi.spyOn(globalThis, 'queueMicrotask').mockImplementation((callback) => {
-        flushQueuedCallbacks = callback;
+        queued.push(callback);
       });
 
       await act(async () => {
@@ -242,11 +243,66 @@ describe('useAnimationsFinished', () => {
         await flushMicrotasks();
       });
 
-      expect(flushQueuedCallbacks).not.toBeUndefined();
-      expect(() => flushQueuedCallbacks!()).toThrow(error);
+      expect(queued.length).toBeGreaterThan(0);
+
+      const thrown: unknown[] = [];
+      while (queued.length > 0) {
+        const callback = queued.shift()!;
+        try {
+          callback();
+        } catch (caught) {
+          thrown.push(caught);
+        }
+      }
+
+      expect(thrown).toContain(error);
       expect(onSecondFinished).toHaveBeenCalledTimes(1);
     } finally {
       vi.restoreAllMocks();
+      globalThis.BASE_UI_ANIMATIONS_DISABLED = animationsDisabled;
+    }
+  });
+
+  it('skips a callback whose signal aborts while the batch is flushing', async () => {
+    const animationsDisabled = globalThis.BASE_UI_ANIMATIONS_DISABLED;
+    globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+
+    const first = createAnimation();
+    const second = createAnimation();
+    const secondController = new AbortController();
+    const onFirstFinished = vi.fn(() => secondController.abort());
+    const onSecondFinished = vi.fn();
+    const firstGetAnimations = vi.fn(() => [first.animation]);
+    const secondGetAnimations = vi.fn(() => [second.animation]);
+
+    try {
+      await render(
+        <React.Fragment>
+          <Test getAnimations={firstGetAnimations} onFinished={onFirstFinished} />
+          <Test
+            getAnimations={secondGetAnimations}
+            onFinished={onSecondFinished}
+            signal={secondController.signal}
+          />
+        </React.Fragment>,
+      );
+
+      await waitFor(() => {
+        expect(firstGetAnimations).toHaveBeenCalled();
+      });
+      await waitFor(() => {
+        expect(secondGetAnimations).toHaveBeenCalled();
+      });
+
+      await act(async () => {
+        first.finish();
+        second.finish();
+        await flushMicrotasks();
+      });
+
+      expect(onFirstFinished).toHaveBeenCalledTimes(1);
+      expect(onSecondFinished).not.toHaveBeenCalled();
+    } finally {
       globalThis.BASE_UI_ANIMATIONS_DISABLED = animationsDisabled;
     }
   });

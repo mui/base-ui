@@ -5,12 +5,7 @@ import { useAnimationFrame } from '@base-ui/utils/useAnimationFrame';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { resolveRef } from '../utils/resolveRef';
 
-interface PendingCallback {
-  fn: () => void;
-  signal: AbortSignal | null;
-}
-
-let pendingCallbacks: PendingCallback[] | null = null;
+let pendingCallbacks: Array<() => void> | null = null;
 
 /**
  * Runs the callback in a synchronous flush before the browser paints, so that the
@@ -19,36 +14,27 @@ let pendingCallbacks: PendingCallback[] | null = null;
  * whose animations finish together) are batched into a single commit:
  * https://github.com/mui/base-ui/issues/5481
  */
-function flushBeforePaint(fn: () => void, signal: AbortSignal | null) {
-  if (pendingCallbacks === null) {
-    const callbacks: PendingCallback[] = [];
+function flushBeforePaint(fn: () => void) {
+  if (!pendingCallbacks) {
+    const callbacks: Array<() => void> = [];
     pendingCallbacks = callbacks;
     queueMicrotask(() => {
       pendingCallbacks = null;
-      let firstError: unknown;
-      let didError = false;
-
       ReactDOM.flushSync(() => {
         for (const callback of callbacks) {
-          if (!callback.signal?.aborted) {
-            try {
-              callback.fn();
-            } catch (error) {
-              if (!didError) {
-                firstError = error;
-                didError = true;
-              }
-            }
+          try {
+            callback();
+          } catch (error) {
+            // Rethrow asynchronously so one callback's error can't drop the rest of the batch.
+            queueMicrotask(() => {
+              throw error;
+            });
           }
         }
       });
-
-      if (didError) {
-        throw firstError;
-      }
     });
   }
-  pendingCallbacks.push({ fn, signal });
+  pendingCallbacks.push(fn);
 }
 
 /**
@@ -87,7 +73,12 @@ export function useAnimationsFinished(
       const resolvedElement = element;
 
       const done = () => {
-        flushBeforePaint(fnToExecute, signal);
+        flushBeforePaint(() => {
+          // Re-check at flush time: the signal may abort between queueing and the flush.
+          if (!signal?.aborted) {
+            fnToExecute();
+          }
+        });
       };
 
       if (
