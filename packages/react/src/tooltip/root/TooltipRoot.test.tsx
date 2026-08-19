@@ -893,6 +893,9 @@ describe('<Tooltip.Root />', () => {
         await flushMicrotasks();
 
         expect(screen.getByTestId('positioner').style.pointerEvents).toBe('none');
+        // An open tooltip must stay in the accessibility tree even when it isn't hoverable,
+        // so this must not escalate to `inert`.
+        expect(screen.getByTestId('positioner')).not.toHaveAttribute('inert');
       });
 
       it('does not apply pointer-events: none to the positioner when `disableHoverablePopup = false`', async () => {
@@ -913,7 +916,7 @@ describe('<Tooltip.Root />', () => {
     });
 
     describe('prop: trackCursorAxis', () => {
-      it('makes the positioner inert when tracking both axes', async () => {
+      it('makes the positioner non-hoverable but still perceivable when tracking both axes', async () => {
         await render(
           <TestTooltip rootProps={{ trackCursorAxis: 'both' }} triggerProps={{ delay: 0 }} />,
         );
@@ -927,6 +930,9 @@ describe('<Tooltip.Root />', () => {
         await flushMicrotasks();
 
         expect(screen.getByTestId('positioner').style.pointerEvents).toBe('none');
+        // An open tooltip must stay in the accessibility tree even when it isn't hoverable,
+        // so this must not escalate to `inert`.
+        expect(screen.getByTestId('positioner')).not.toHaveAttribute('inert');
       });
 
       it('keeps the positioner hoverable when tracking a single axis', async () => {

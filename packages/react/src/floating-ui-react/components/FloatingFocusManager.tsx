@@ -548,7 +548,12 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
           (isUntrappedTypeableCombobox || relatedTarget !== getPreviouslyFocusedElement())
         ) {
           preventReturnFocusRef.current = true;
-          store.setOpen(false, createChangeEventDetails(REASONS.focusOut, event));
+          // A popup kept mounted for its exit animation is already closed; emitting another
+          // close would fire `onOpenChange` twice for one dismissal and stamp `data-instant`,
+          // cancelling the exit transition.
+          if (store.state.open) {
+            store.setOpen(false, createChangeEventDetails(REASONS.focusOut, event));
+          }
         }
       });
     }
@@ -745,9 +750,11 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
     openRef,
   ]);
 
-  // Track return focus targets and restore focus on unmount/close.
+  // Track return focus targets and restore focus when the popup closes.
+  // Keyed on `open` rather than on the manager unmounting: a popup that stays mounted for an exit
+  // animation is already logically closed, so it must not keep holding focus while it animates out.
   useIsoLayoutEffect(() => {
-    if (disabled || !floatingFocusElement) {
+    if (disabled || !open || !floatingFocusElement) {
       return undefined;
     }
 
@@ -890,6 +897,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
     };
   }, [
     disabled,
+    open,
     floating,
     floatingFocusElement,
     returnFocusRef,
@@ -950,8 +958,11 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
     };
   }, [disabled, floatingFocusElement]);
 
+  // Gated on `open`, not just `mounted`: a guard is `tabindex="0"` + `aria-hidden="true"`, so one
+  // left behind during the exit animation is focusable in its own right. Positioner-based popups
+  // nest their guards in the inert subtree, but Dialog and Drawer put `inert` on the popup itself.
   const shouldRenderGuards =
-    !disabled && (modal ? !isUntrappedTypeableCombobox : true) && (isInsidePortal || modal);
+    open && !disabled && (modal ? !isUntrappedTypeableCombobox : true) && (isInsidePortal || modal);
 
   return (
     <React.Fragment>

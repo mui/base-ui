@@ -153,6 +153,13 @@ export const PopoverTrigger = fastComponentRef(function PopoverTrigger(
   // regardless of whether the focus guards are rendered or not.
   const keyedElement = <React.Fragment key={thisTriggerId}>{element}</React.Fragment>;
 
+  // Mounted, not open: the guards have to outlive the close. Shift-tabbing off an open trigger
+  // fires a focus-out that closes the popup, and the guard must still be in the DOM to catch the
+  // focus already on its way to it and redirect it past the trigger. Gating this on
+  // `isOpenedByThisTrigger` (as `Menu.Trigger` can, because it never reaches that path) unmounts
+  // the guard mid-flight and drops focus to `<body>`. That flow can only be verified in a real
+  // browser — `user-event` picks focus targets itself instead of using sequential navigation, so
+  // the suite stays green either way.
   if (isMountedByThisTrigger && !focusManagerModal) {
     return (
       <React.Fragment>

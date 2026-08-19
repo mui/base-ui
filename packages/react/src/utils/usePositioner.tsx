@@ -1,4 +1,5 @@
 'use client';
+import { inertValue } from '@base-ui/utils/inertValue';
 import { popupStateMapping } from './popupStateMapping';
 import {
   useRenderElement,
@@ -13,12 +14,17 @@ interface UsePositionerOptions {
   props?: React.ComponentProps<'div'> | undefined;
   refs?: React.Ref<HTMLDivElement> | (React.Ref<HTMLDivElement> | undefined)[] | undefined;
   hidden?: boolean | undefined;
+  /**
+   * Takes the subtree out of the accessibility tree, sequential focus navigation, and hit testing.
+   * Set while the popup is logically closed but still mounted for its exit animation, so a closing
+   * popup can't be reached by assistive tech or the Tab key.
+   */
   inert?: boolean | undefined;
 }
 
 /**
  * Renders the shared outer Positioner element used by popup components.
- * Applies the common role, hidden state, transition styles, state attributes, and optional inert styling.
+ * Applies the common role, hidden state, transition styles, state attributes, and interactivity.
  */
 export function usePositioner<State extends Record<string, any>>(
   componentProps: UseRenderElementComponentProps<State>,
@@ -27,6 +33,8 @@ export function usePositioner<State extends Record<string, any>>(
 ) {
   const style: React.CSSProperties = { ...styles };
 
+  // `inert` blocks hit testing on its own; the explicit style keeps that true where `inert` isn't
+  // implemented (jsdom).
   if (inert) {
     style.pointerEvents = 'none';
   }
@@ -35,7 +43,7 @@ export function usePositioner<State extends Record<string, any>>(
     state,
     ref: refs,
     props: [
-      { role: 'presentation', hidden, style },
+      { role: 'presentation', hidden, style, inert: inertValue(inert) },
       getDisabledMountTransitionStyles(transitionStatus),
       props,
     ],

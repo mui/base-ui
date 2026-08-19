@@ -5,6 +5,14 @@
 
 Base UI components can be animated using CSS transitions, CSS animations, or JavaScript animation libraries. Each component provides a number of data attributes to target its states, as well as a few attributes specifically for animation.
 
+## Behavior while animating out
+
+A component that stays in the DOM while closed is already closed. Base UI marks the closed subtree with the [`inert`](https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Global_attributes/inert) attribute for the popups that move focus into themselves when they open: Dialog, Alert dialog, Drawer, Popover, Menu, Context menu, Menubar, Select, Combobox and Autocomplete. Those return focus when the component closes, rather than when the exit animation finishes, so a closing popup is never left holding focus or reachable by the Tab key. This applies whenever the popup is closed and still rendered, including a `keepMounted` popup that has never been opened.
+
+Tooltip, Preview card and Navigation menu are not made inert, because they don't return focus on close. Navigation menu is the notable one: focus can be inside it, and it is only restored once the popup unmounts.
+
+An inert subtree also stops receiving pointer events, so a click during the exit animation passes through to whatever is behind the popup rather than doing nothing. Keep exit animations short if a stray click in that window would be disruptive.
+
 ## CSS transitions
 
 Use the following Base UI attributes for creating transitions when a component becomes visible or hidden:

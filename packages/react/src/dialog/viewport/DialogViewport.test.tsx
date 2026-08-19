@@ -63,4 +63,26 @@ describe('<Dialog.Viewport />', () => {
 
     expect(screen.getByTestId('viewport')).not.toBe(null);
   });
+
+  it('marks a kept-mounted viewport and popup inert once closed', async () => {
+    const { setProps } = await render(
+      <Dialog.Root open modal={false}>
+        <Dialog.Portal keepMounted>
+          <Dialog.Viewport data-testid="viewport">
+            <Dialog.Popup data-testid="popup">Content</Dialog.Popup>
+          </Dialog.Viewport>
+        </Dialog.Portal>
+      </Dialog.Root>,
+    );
+
+    expect(screen.getByTestId('viewport')).not.toHaveAttribute('inert');
+    expect(screen.getByTestId('popup')).not.toHaveAttribute('inert');
+
+    await setProps({ open: false });
+
+    // Closed but still in the DOM: it must be out of the accessibility tree and the tab order
+    // even without an exit animation to wait for.
+    expect(screen.getByTestId('viewport')).toHaveAttribute('inert');
+    expect(screen.getByTestId('popup')).toHaveAttribute('inert');
+  });
 });

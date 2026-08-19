@@ -2,6 +2,8 @@ import * as React from 'react';
 import { expect, vi } from 'vitest';
 import { randomStringValue, screen, waitFor } from '@mui/internal-test-utils';
 import { createRenderer, isJSDOM } from '#test-utils';
+import { activeElement } from '../src/floating-ui-react/utils/element';
+import { createAttribute } from '../src/floating-ui-react/utils/createAttribute';
 
 export function popupConformanceTests(config: PopupTestConfig) {
   const {
@@ -209,8 +211,165 @@ export function popupConformanceTests(config: PopupTestConfig) {
           expect(handleAnimationEnd).toHaveBeenCalledTimes(1);
         });
       });
+
+      it('makes the popup inert while it animates out', async ({ skip }) => {
+        // Only the components that hand focus back when the popup closes go fully inert. The
+        // hover-triggered ones render no `FloatingFocusManager`, so going inert there would blur
+        // whatever is focused inside them for the whole exit animation.
+        if (isJSDOM || triggerMouseAction !== 'click') {
+          skip();
+        }
+
+        const animationName = `anim-${randomStringValue()}`;
+        // Target the attribute rather than a class on a specific part: the `popup` props land on
+        // a different element per component, and the exit animation has to be on whichever
+        // element carries `data-ending-style` for the subtree to stay mounted.
+        const style = `
+          @keyframes ${animationName} {
+            to {
+              opacity: 0;
+            }
+          }
+
+          [data-ending-style] {
+            animation: ${animationName} 500ms linear;
+          }
+        `;
+
+        function Test(props: { open: boolean }) {
+          return (
+            <div>
+              {/* eslint-disable-next-line react/no-danger */}
+              <style dangerouslySetInnerHTML={{ __html: style }} />
+              {prepareComponent({ root: { open: props.open } })}
+            </div>
+          );
+        }
+
+        const { setProps } = await render(<Test open />);
+        await waitFor(() => {
+          expect(getPopup()).not.toBe(null);
+        });
+
+        await setProps({ open: false });
+        await waitFor(() => {
+          expect(document.querySelector('[data-ending-style]')).not.toBe(null);
+        });
+
+        // The popup is logically closed, so the subtree kept mounted for the animation must be
+        // out of the accessibility tree and out of sequential focus navigation. Components with
+        // a Positioner carry `inert` there; Dialog-like popups carry it on the popup itself.
+        expect(isInert(getPopup())).toBe(true);
+      });
+
+      it('keeps keyboard navigation unstuck while the popup animates out', async ({ skip }) => {
+        // Hover-triggered popups reopen as soon as their trigger takes focus, so the premise of
+        // tabbing around a closed-but-animating popup doesn't hold for them. They also have no
+        // trigger focus guards, which is what these moves exercise.
+        if (isJSDOM || triggerMouseAction !== 'click') {
+          skip();
+        }
+
+        const animationName = `anim-${randomStringValue()}`;
+        const style = `
+          @keyframes ${animationName} {
+            to {
+              opacity: 0;
+            }
+          }
+
+          [data-ending-style] {
+            animation: ${animationName} 500ms linear;
+          }
+        `;
+
+        function Test(props: { open: boolean }) {
+          return (
+            <div>
+              {/* eslint-disable-next-line react/no-danger */}
+              <style dangerouslySetInnerHTML={{ __html: style }} />
+              <button type="button" data-testid="tab-before">
+                before
+              </button>
+              {prepareComponent({ root: { open: props.open } })}
+              <button type="button" data-testid="tab-after">
+                after
+              </button>
+            </div>
+          );
+        }
+
+        const { user, setProps } = await render(<Test open />);
+        await waitFor(() => {
+          expect(getPopup()).not.toBe(null);
+        });
+
+        await setProps({ open: false });
+        await waitFor(() => {
+          expect(document.querySelector('[data-ending-style]')).not.toBe(null);
+        });
+
+        // Focus guards around a trigger redirect focus while the popup is open. Once it is closed
+        // and only animating out they must neither swallow focus nor send it back where it came
+        // from, so each move has exactly one correct destination.
+        const before = screen.getByTestId('tab-before');
+        const after = screen.getByTestId('tab-after');
+        const trigger = getTrigger();
+
+        const label = (element: Element | null) => {
+          if (element === before) {
+            return 'tab-before';
+          }
+          if (element === after) {
+            return 'tab-after';
+          }
+          if (element === trigger) {
+            return 'trigger';
+          }
+          if (element?.hasAttribute(createAttribute('focus-guard'))) {
+            return 'focus-guard';
+          }
+          return element ? element.nodeName.toLowerCase() : 'null';
+        };
+
+        const moves = [
+          { name: 'Tab from the trigger', from: trigger, key: '{Tab}', to: 'tab-after' },
+          {
+            name: 'Shift+Tab from the trigger',
+            from: trigger,
+            key: '{Shift>}{Tab}{/Shift}',
+            to: 'tab-before',
+          },
+          { name: 'Tab towards the trigger', from: before, key: '{Tab}', to: 'trigger' },
+          {
+            name: 'Shift+Tab towards the trigger',
+            from: after,
+            key: '{Shift>}{Tab}{/Shift}',
+            to: 'trigger',
+          },
+        ];
+
+        const landed: string[] = [];
+        for (const move of moves) {
+          move.from.focus();
+          // eslint-disable-next-line no-await-in-loop
+          await user.keyboard(move.key);
+          landed.push(`${move.name} -> ${label(activeElement(document))}`);
+        }
+
+        expect(landed).toEqual(moves.map((move) => `${move.name} -> ${move.to}`));
+      });
     });
   });
+}
+
+function isInert(element: Element | null) {
+  for (let node = element; node != null; node = node.parentElement) {
+    if (node.hasAttribute('inert')) {
+      return true;
+    }
+  }
+  return false;
 }
 
 function getTrigger() {

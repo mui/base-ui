@@ -94,12 +94,14 @@ export const PreviewCardPositioner = React.forwardRef(function PreviewCardPositi
   };
 
   const element = usePositioner(componentProps, state, {
-    styles: positioning.positionerStyles,
+    // No `FloatingFocusManager` here; see `NavigationMenuPositioner` for why this isn't `inert`.
+    styles: !open
+      ? { ...positioning.positionerStyles, pointerEvents: 'none' }
+      : positioning.positionerStyles,
     transitionStatus,
     props: elementProps,
     refs: [forwardedRef, store.useStateSetter('positionerElement')],
     hidden: !mounted,
-    inert: !open,
   });
 
   return (
