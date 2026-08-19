@@ -25,6 +25,14 @@ export interface ListVirtualizerScrollToIndexOptions {
  */
 export interface ListVirtualizerActions {
   /**
+   * Discards the item heights measured so far, so they are taken again against the layout the
+   * items are in now. Call it after a change that resizes items without changing the collection,
+   * such as crossing a layout breakpoint: items on screen resize on their own, while the heights
+   * cached for the rest describe the layout they were last measured in. The scroll position is
+   * kept, which is what remounting the virtualizer to clear them loses.
+   */
+  remeasure: () => void;
+  /**
    * Scrolls an item into view by its logical collection index.
    */
   scrollToIndex: (index: number, options?: ListVirtualizerScrollToIndexOptions) => void;
@@ -42,6 +50,10 @@ export interface ListVirtualizerHandle {
    * Scrolls an item into view by its logical collection index.
    */
   scrollToIndex: (index: number, options?: ListVirtualizerScrollToIndexOptions) => void;
+  /**
+   * Discards measured item heights so they are taken again against the current layout.
+   */
+  remeasure: () => void;
   /**
    * Resets the virtualizer's scroll position to the start of the list.
    */
