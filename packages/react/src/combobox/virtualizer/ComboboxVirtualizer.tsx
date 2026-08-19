@@ -40,6 +40,7 @@ export const ComboboxVirtualizer = React.forwardRef(function ComboboxVirtualizer
     estimatedItemHeight,
     getItemKey,
     overscanPx,
+    totalItems,
     enabled = true,
     ...elementProps
   } = componentProps;
@@ -78,6 +79,7 @@ export const ComboboxVirtualizer = React.forwardRef(function ComboboxVirtualizer
     isGrouped,
     items: flatFilteredItems as ReadonlyArray<Value>,
     registry: store.state.virtualizationRegistry,
+    totalItems,
     virtualItemContext: ComboboxVirtualItemContext,
   });
 

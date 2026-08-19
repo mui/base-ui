@@ -84,6 +84,9 @@ function ListVirtualizerItemRowImpl<Item>(props: ListVirtualizerItemRowProps<Ite
       index: model.itemIndex,
       props: {
         'aria-posinset': model.itemIndex + 1,
+        // `-1` is the ARIA convention for a collection whose size is not known, which is what a
+        // list still loading pages of results has. Anything else is the size of the whole
+        // collection, not of the part currently loaded.
         'aria-setsize': itemCount,
         'data-index': model.itemIndex,
       },
@@ -137,6 +140,11 @@ export interface UseListVirtualizerAdapterParameters<Value, Item> {
   isGrouped: boolean;
   items: ReadonlyArray<Item>;
   registry: ListVirtualizationRegistry;
+  /**
+   * Size of the whole collection when the rendered items are only part of it, such as a page of a
+   * larger result set. Defaults to the number of items given.
+   */
+  totalItems: number | undefined;
   virtualItemContext: React.Context<ListVirtualizerItemMetadata | undefined>;
 }
 
@@ -160,6 +168,7 @@ export function useListVirtualizerAdapter<Value, Item>(
     isGrouped,
     items,
     registry,
+    totalItems,
     virtualItemContext,
   } = parameters;
 
@@ -245,14 +254,14 @@ export function useListVirtualizerAdapter<Value, Item>(
     (params: ListVirtualizerRenderRowParameters<ListVirtualizerItemRowModel<Item>>) => (
       <ListVirtualizerItemRow
         componentName={componentName}
-        itemCount={items.length}
+        itemCount={totalItems ?? items.length}
         model={params.row.model}
         virtualItemContext={virtualItemContext}
       >
         {children}
       </ListVirtualizerItemRow>
     ),
-    [children, componentName, items.length, virtualItemContext],
+    [children, componentName, items.length, totalItems, virtualItemContext],
   );
 
   const estimatedItemHeightCacheRef = React.useRef<{
@@ -469,6 +478,15 @@ export interface ListVirtualizerAdapterProps<
    * always includes at least one estimated row, even when this prop is `0`.
    */
   overscanPx?: number | undefined;
+  /**
+   * Number of items in the whole collection, when the items given are only part of it — a page of
+   * a larger result set, say. Rendered items report it as their `aria-setsize`, so assistive
+   * technology describes the collection rather than the part of it currently loaded.
+   *
+   * Pass `-1` when the size is not known yet, which is the ARIA convention for it.
+   * @default items.length
+   */
+  totalItems?: number | undefined;
   /** Whether virtualization is enabled. When `false`, all items are rendered. @default true */
   enabled?: boolean | undefined;
 }
