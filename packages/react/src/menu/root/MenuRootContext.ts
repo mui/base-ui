@@ -2,7 +2,6 @@
 import * as React from 'react';
 import { type MenuStore } from '../store/MenuStore';
 import { MenuParent } from './MenuRoot';
-import type { HTMLProps } from '../../internals/types';
 
 export interface MenuRootContext<Payload = unknown> {
   type: 'menu' | 'submenu';
@@ -15,7 +14,6 @@ export interface MenuRootContext<Payload = unknown> {
   setFloatingId: React.Dispatch<React.SetStateAction<string | undefined>>;
   virtualFocus: boolean;
   virtualFocusRef: React.RefObject<HTMLElement | null> | undefined;
-  virtualFocusPropsRef: React.RefObject<HTMLProps> | undefined;
   parentVirtualFocus: boolean;
 }
 

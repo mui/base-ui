@@ -1,51 +1,11 @@
 'use client';
 import * as React from 'react';
-import * as ReactDOM from 'react-dom';
-import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useStore } from '@base-ui/utils/store';
 import type { BaseUIComponentProps } from '../../internals/types';
 import { useRenderElement } from '../../internals/useRenderElement';
-import { useFilterDropdownRootContext } from '../root/FilterDropdownRootContext';
+import { useFilterDropdownItemContext } from '../root/FilterDropdownRootContext';
 import { selectors } from '../store';
-
-const FilterDropdownEmptyImpl = React.forwardRef(function FilterDropdownEmptyImpl(
-  componentProps: FilterDropdownEmpty.Props,
-  forwardedRef: React.ForwardedRef<HTMLDivElement>,
-) {
-  const { render, className, style, ...elementProps } = componentProps;
-
-  const context = useFilterDropdownRootContext();
-  const sourceRef = React.useRef<HTMLDivElement | null>(null);
-  const [announcementText, setAnnouncementText] = React.useState('');
-
-  // Mirror consumer-rendered content into the live region. Keyed on `children` because the
-  // message can change while Empty stays mounted, for example "No matches for {query}".
-  useIsoLayoutEffect(() => {
-    const textContent = sourceRef.current?.textContent;
-    if (textContent) {
-      setAnnouncementText(textContent);
-    }
-  }, [componentProps.children]);
-
-  const element = useRenderElement('div', componentProps, {
-    ref: [forwardedRef, sourceRef],
-    props: [elementProps],
-  });
-
-  return (
-    <React.Fragment>
-      {element}
-      {/**
-       * Keep the live-region copy outside the popup. If this was in situ, screen readers would
-       * count it as a third dialog item even though users can interact only with the input and list.
-       * The portal also prevents it from affecting layout when styling.
-       */}
-      {announcementText &&
-        context.liveRegionElement &&
-        ReactDOM.createPortal(<div>{announcementText}</div>, context.liveRegionElement)}
-    </React.Fragment>
-  );
-});
+import { useInitialLiveRegionTextMutation } from '../../combobox/utils/useInitialLiveRegionTextMutation';
 
 /**
  * @internal
@@ -54,10 +14,25 @@ export const FilterDropdownEmpty = React.forwardRef(function FilterDropdownEmpty
   componentProps: FilterDropdownEmpty.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { store } = useFilterDropdownRootContext();
-  const isEmpty = useStore(store, selectors.isEmpty);
+  const { render, className, style, children: childrenProp, ...elementProps } = componentProps;
 
-  return isEmpty ? <FilterDropdownEmptyImpl {...componentProps} ref={forwardedRef} /> : null;
+  const { store } = useFilterDropdownItemContext();
+  const isEmpty = useStore(store, selectors.isEmpty);
+  const emptyRef = useInitialLiveRegionTextMutation<HTMLDivElement>();
+  const children = isEmpty ? childrenProp : null;
+
+  return useRenderElement('div', componentProps, {
+    ref: [forwardedRef, emptyRef],
+    props: [
+      {
+        children,
+        role: 'status',
+        'aria-live': 'polite',
+        'aria-atomic': true,
+      },
+      elementProps,
+    ],
+  });
 });
 
 export interface FilterDropdownEmptyState {}

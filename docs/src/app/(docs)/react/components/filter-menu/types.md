@@ -692,9 +692,40 @@ type FilterMenuSeparatorState = {
 };
 ```
 
+### Status
+
+Displays a status message whose content changes are announced politely to screen readers.
+Useful for conveying the status of an asynchronously loaded list.
+This component's root element must remain mounted in the DOM to announce
+changes consistently across screen readers. Avoid hiding or removing the
+component itself with `display: none`, `hidden`, `aria-hidden`, or conditional
+rendering. Prefer updating or conditionally rendering its children instead.
+Renders a `<div>` element.
+
+**Status Props:**
+
+| Prop      | Type                                                                                            | Default | Description                                                                                                                                                                                   |
+| :-------- | :---------------------------------------------------------------------------------------------- | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| className | `string \| ((state: FilterMenu.Status.State) => string \| undefined)`                           | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
+| style     | `React.CSSProperties \| ((state: FilterMenu.Status.State) => React.CSSProperties \| undefined)` | -       | Style applied to the element, or a function that&#xA;returns a style object based on the component's state.                                                                                   |
+| render    | `ReactElement \| ((props: HTMLProps, state: FilterMenu.Status.State) => ReactElement)`          | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
+
+### Status.Props
+
+Re-export of [Status](#status) props.
+
+### Status.State
+
+```typescript
+type FilterMenuStatusState = {};
+```
+
 ### Empty
 
-A message shown when no items match the filter query.
+A message shown when no items match the filter query and announced politely to screen readers.
+This component's root element must remain mounted in the DOM to announce changes consistently
+across screen readers. Avoid hiding or removing the root element, and apply layout styles to a
+child element instead.
 Renders a `<div>` element.
 
 **Empty Props:**
@@ -1369,7 +1400,8 @@ type PayloadChildRenderFunction = (arg: { payload: unknown | undefined }) => Rea
 - `FilterMenu.Input`: `FilterMenu.Input`, `FilterMenu.Input.State`, `FilterMenu.Input.Props`
 - `FilterMenu.Clear`: `FilterMenu.Clear`, `FilterMenu.Clear.State`, `FilterMenu.Clear.Props`
 - `FilterMenu.Empty`: `FilterMenu.Empty`, `FilterMenu.Empty.State`, `FilterMenu.Empty.Props`
-- `Default`: `FilterMenuArrowProps`, `FilterMenuArrowState`, `FilterMenuBackdropProps`, `FilterMenuBackdropState`, `FilterMenuCheckboxItemIndicatorProps`, `FilterMenuCheckboxItemIndicatorState`, `FilterMenuGroupLabelProps`, `FilterMenuGroupLabelState`, `FilterMenuPortalProps`, `FilterMenuPortalState`, `FilterMenuPositionerProps`, `FilterMenuPositionerState`, `FilterMenuRadioItemIndicatorProps`, `FilterMenuRadioItemIndicatorState`, `FilterMenuViewportProps`, `FilterMenuViewportState`, `FilterMenuSeparatorProps`, `FilterMenuSeparatorState`, `FilterMenuFilter`, `FilterMenuRootProps`, `FilterMenuRootState`, `FilterMenuRootActions`, `FilterMenuRootOrientation`, `FilterMenuRootChangeEventReason`, `FilterMenuRootChangeEventDetails`, `FilterMenuRootInputValueChangeEventReason`, `FilterMenuRootInputValueChangeEventDetails`, `FilterMenuSubmenuRootProps`, `FilterMenuSubmenuRootState`, `FilterMenuSubmenuRootActions`, `FilterMenuSubmenuRootOrientation`, `FilterMenuSubmenuRootChangeEventReason`, `FilterMenuSubmenuRootChangeEventDetails`, `FilterMenuSubmenuRootInputValueChangeEventReason`, `FilterMenuSubmenuRootInputValueChangeEventDetails`, `FilterMenuCheckboxItemProps`, `FilterMenuCheckboxItemState`, `FilterMenuCheckboxItemChangeEventReason`, `FilterMenuCheckboxItemChangeEventDetails`, `FilterMenuGroupProps`, `FilterMenuGroupState`, `FilterMenuItemProps`, `FilterMenuItemState`, `FilterMenuLinkItemProps`, `FilterMenuLinkItemState`, `FilterMenuListState`, `FilterMenuListProps`, `FilterMenuPopupProps`, `FilterMenuPopupState`, `FilterMenuRadioGroupProps`, `FilterMenuRadioGroupState`, `FilterMenuRadioGroupChangeEventReason`, `FilterMenuRadioGroupChangeEventDetails`, `FilterMenuRadioItemProps`, `FilterMenuRadioItemState`, `FilterMenuTriggerProps`, `FilterMenuTriggerState`, `FilterMenuSubmenuTriggerProps`, `FilterMenuSubmenuTriggerState`, `FilterMenuInputState`, `FilterMenuInputProps`, `FilterMenuClearState`, `FilterMenuClearProps`, `FilterMenuEmptyState`, `FilterMenuEmptyProps`
+- `FilterMenu.Status`: `FilterMenu.Status`, `FilterMenu.Status.State`, `FilterMenu.Status.Props`
+- `Default`: `FilterMenuArrowProps`, `FilterMenuArrowState`, `FilterMenuBackdropProps`, `FilterMenuBackdropState`, `FilterMenuCheckboxItemIndicatorProps`, `FilterMenuCheckboxItemIndicatorState`, `FilterMenuGroupLabelProps`, `FilterMenuGroupLabelState`, `FilterMenuPortalProps`, `FilterMenuPortalState`, `FilterMenuPositionerProps`, `FilterMenuPositionerState`, `FilterMenuRadioItemIndicatorProps`, `FilterMenuRadioItemIndicatorState`, `FilterMenuViewportProps`, `FilterMenuViewportState`, `FilterMenuSeparatorProps`, `FilterMenuSeparatorState`, `FilterMenuStatusProps`, `FilterMenuStatusState`, `FilterMenuFilter`, `FilterMenuRootProps`, `FilterMenuRootState`, `FilterMenuRootActions`, `FilterMenuRootOrientation`, `FilterMenuRootChangeEventReason`, `FilterMenuRootChangeEventDetails`, `FilterMenuRootInputValueChangeEventReason`, `FilterMenuRootInputValueChangeEventDetails`, `FilterMenuSubmenuRootProps`, `FilterMenuSubmenuRootState`, `FilterMenuSubmenuRootActions`, `FilterMenuSubmenuRootOrientation`, `FilterMenuSubmenuRootChangeEventReason`, `FilterMenuSubmenuRootChangeEventDetails`, `FilterMenuSubmenuRootInputValueChangeEventReason`, `FilterMenuSubmenuRootInputValueChangeEventDetails`, `FilterMenuCheckboxItemProps`, `FilterMenuCheckboxItemState`, `FilterMenuCheckboxItemChangeEventReason`, `FilterMenuCheckboxItemChangeEventDetails`, `FilterMenuGroupProps`, `FilterMenuGroupState`, `FilterMenuItemProps`, `FilterMenuItemState`, `FilterMenuLinkItemProps`, `FilterMenuLinkItemState`, `FilterMenuListState`, `FilterMenuListProps`, `FilterMenuPopupProps`, `FilterMenuPopupState`, `FilterMenuRadioGroupProps`, `FilterMenuRadioGroupState`, `FilterMenuRadioGroupChangeEventReason`, `FilterMenuRadioGroupChangeEventDetails`, `FilterMenuRadioItemProps`, `FilterMenuRadioItemState`, `FilterMenuTriggerProps`, `FilterMenuTriggerState`, `FilterMenuSubmenuTriggerProps`, `FilterMenuSubmenuTriggerState`, `FilterMenuInputState`, `FilterMenuInputProps`, `FilterMenuClearState`, `FilterMenuClearProps`, `FilterMenuEmptyState`, `FilterMenuEmptyProps`
 
 ## Canonical Types
 
@@ -1439,3 +1471,5 @@ Maps `Canonical`: `Alias` — Use Canonical when its namespace is already import
 - `FilterMenu.Clear.Props`: `FilterMenuClearProps`
 - `FilterMenu.Empty.State`: `FilterMenuEmptyState`
 - `FilterMenu.Empty.Props`: `FilterMenuEmptyProps`
+- `FilterMenu.Status.State`: `FilterMenuStatusState`
+- `FilterMenu.Status.Props`: `FilterMenuStatusProps`

@@ -2,6 +2,7 @@
 import * as React from 'react';
 import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import {
   FilterDropdownList,
   type FilterDropdownListProps,
@@ -11,7 +12,11 @@ import { mergeProps } from '../../merge-props';
 import { useFilterMenuReferenceKeyDown } from '../utils/useFilterMenuReferenceKeyDown';
 import { useMenuRootContext } from '../../menu/root/MenuRootContext';
 import { CompositeList } from '../../internals/composite/list/CompositeList';
-import { useFilterDropdownRootContext } from '../../filter-dropdown/root/FilterDropdownRootContext';
+import { useCompositeListContext } from '../../internals/composite/list/CompositeListContext';
+import {
+  useFilterDropdownItemContext,
+  useFilterDropdownRootContext,
+} from '../../filter-dropdown/root/FilterDropdownRootContext';
 
 /**
  * A container for the filter menu items.
@@ -23,12 +28,30 @@ export const FilterMenuList = React.forwardRef(function FilterMenuList(
   componentProps: FilterMenuList.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { orientation, store } = useMenuRootContext();
+  const { orientation, store: menuStore } = useMenuRootContext();
   const { inline } = useFilterDropdownRootContext();
+  const { store } = useFilterDropdownItemContext();
+  const { subscribeMapChange } = useCompositeListContext();
   const handleReferenceKeyDown = useFilterMenuReferenceKeyDown();
+  const syncItemIds = useStableCallback((map: Map<Element, unknown>) => {
+    const items = Array.from(map.keys());
+    // Composite items receive their final indexes from this map update. Read their rendered ids
+    // after those synchronous layout updates commit instead of publishing the previous indexes.
+    queueMicrotask(() => {
+      store.set(
+        'itemIds',
+        items.map((item) => item.id),
+      );
+    });
+  });
+
+  useIsoLayoutEffect(() => {
+    return inline ? undefined : subscribeMapChange(syncItemIds);
+  }, [inline, subscribeMapChange, syncItemIds]);
+
   const setInlinePopupElement = useStableCallback((element: HTMLDivElement | null) => {
-    store.context.popupRef.current = element;
-    store.set('popupElement', element);
+    menuStore.context.popupRef.current = element;
+    menuStore.set('popupElement', element);
   });
   const mergedRef = useMergedRefs(forwardedRef, inline ? setInlinePopupElement : null);
 
@@ -47,7 +70,11 @@ export const FilterMenuList = React.forwardRef(function FilterMenuList(
   }
 
   return (
-    <CompositeList elementsRef={store.context.itemDomElements} labelsRef={store.context.itemLabels}>
+    <CompositeList
+      elementsRef={menuStore.context.itemDomElements}
+      labelsRef={menuStore.context.itemLabels}
+      onMapChange={syncItemIds}
+    >
       {element}
     </CompositeList>
   );

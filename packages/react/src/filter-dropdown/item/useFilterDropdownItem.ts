@@ -5,8 +5,8 @@ import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
 import { useStore } from '@base-ui/utils/store';
 import {
-  useFilterDropdownRootContext,
-  type FilterDropdownRootContext,
+  useFilterDropdownItemContext,
+  type FilterDropdownItemContext,
 } from '../root/FilterDropdownRootContext';
 import { useFilterDropdownGroupContext } from '../group/FilterDropdownGroupContext';
 import { DETACHED_OWNER, selectors } from '../store';
@@ -46,7 +46,7 @@ export interface UseFilterDropdownItemParameters {
    * The dropdown that owns this item, when it isn't the nearest one. A filterable submenu's
    * trigger sits inside its own submenu's root but belongs to the enclosing list.
    */
-  context?: FilterDropdownRootContext | null | undefined;
+  context?: FilterDropdownItemContext | null | undefined;
 }
 
 export interface UseFilterDropdownItemReturnValue {
@@ -74,7 +74,7 @@ export function useFilterDropdownItem(
 ): UseFilterDropdownItemReturnValue {
   const { label, keywords, retainGroup = false, children, context } = params;
 
-  const nearestContext = useFilterDropdownRootContext(context !== undefined);
+  const nearestContext = useFilterDropdownItemContext(context !== undefined);
   const groupContext = useFilterDropdownGroupContext();
 
   const owner = context === undefined ? nearestContext : context;
@@ -85,7 +85,7 @@ export function useFilterDropdownItem(
   const ref = React.useRef<HTMLElement | null>(null);
   const previousTextRef = React.useRef<string | undefined>(undefined);
   const previousKeywordsKeyRef = React.useRef(keywords?.join('\u0000'));
-  const registeredRef = React.useRef(false);
+  const [registered, setRegistered] = React.useState(false);
   const matched = useStore(store, selectors.isItemVisible, itemId);
 
   // Read through refs so `register` stays stable. An inline `keywords` array is a fresh reference
@@ -107,7 +107,6 @@ export function useFilterDropdownItem(
     if (text) {
       previousTextRef.current = text;
     }
-    registeredRef.current = true;
     return registerItem(itemId, {
       getText: () => previousTextRef.current,
       get keywords() {
@@ -116,7 +115,11 @@ export function useFilterDropdownItem(
     });
   }, [itemId, registerItem, resolveText, keywordsRef]);
 
-  useIsoLayoutEffect(register, [register]);
+  useIsoLayoutEffect(() => {
+    const unregister = register();
+    setRegistered(true);
+    return unregister;
+  }, [register]);
 
   useIsoLayoutEffect(
     () => registerGroupItem?.(itemId, retainGroup),
@@ -138,5 +141,5 @@ export function useFilterDropdownItem(
     }
   }, [register, resolveText, children, keywordsKey, label]);
 
-  return { visible: !registeredRef.current || matched, ref };
+  return { visible: !registered || matched, ref };
 }
