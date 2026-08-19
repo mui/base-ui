@@ -1095,18 +1095,7 @@ type RegisterDropTargetParametersWithPayload<TSourceData, TLocalData> = (
     parameters: DropEvent<TSourceData, TLocalData>,
     eventDetails: { reason: 'drop'; event: PointerEvent | KeyboardEvent },
   ) => void;
-  /**
-   * The kinds of drag source this target accepts: one kind, or an array of them.
-   *
-   * Required on a drop target. Every registration joins the same page-global engine
-   * with no subtree scoping, so a target written without one would take every drag in
-   * the application. Pass `DropTarget.anyKind` to opt into exactly that — at the cost
-   * of `source.payload` being `unknown`.
-   *
-   * A source whose kind isn't accepted is ignored by this target, and an ancestor target
-   * can still claim it. Runs before `canDrop`.
-   */
-  accept?: DragAccept<TSourceData>;
+  accept: NonNullable<DragAccept<TSourceData> | undefined>;
   /**
    * Predicate for whether this target should be considered a candidate for the
    * current drag. Runs after `accept`.
