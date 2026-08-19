@@ -326,15 +326,18 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     },
   });
 
+  // `readOnly` locks the value, not the interaction: the popup can be opened and browsed so the
+  // user can see the available options and which one is selected. Committing a value is blocked
+  // separately in `SelectItem` and in the hidden input's autofill handler.
   const click = useClick(floatingContext, {
-    enabled: !readOnly && !disabled,
+    enabled: !disabled,
     event: 'mousedown',
   });
 
   const dismiss = useDismiss(floatingContext);
 
   const listNavigation = useListNavigation(floatingContext, {
-    enabled: !readOnly && !disabled,
+    enabled: !disabled,
     listRef,
     activeIndex,
     selectedIndex,
@@ -351,7 +354,9 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
   });
 
   const typeahead = useTypeahead(floatingContext, {
-    enabled: !readOnly && !disabled && (open || !multiple),
+    // Typeahead on an open popup only moves the highlight, so it remains available while
+    // `readOnly`. The closed-trigger variant commits a value instead, so it doesn't.
+    enabled: !disabled && (open || (!readOnly && !multiple)),
     listRef: labelsRef,
     activeIndex,
     selectedIndex,
