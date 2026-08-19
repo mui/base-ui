@@ -611,40 +611,27 @@ describe('<Combobox.Input />', () => {
       expect(cherry).toHaveAttribute('data-highlighted');
     });
 
-    // `user-event` emulates Home/End by collapsing the caret and never extends the
-    // selection, so these assert against real browser key events instead.
-    it.skipIf(isJSDOM)('extends the text selection with Shift+Home inside the popup', async () => {
+    // The native caret/selection behavior only survives if the key is neither
+    // `preventDefault()`-ed nor stopped before it leaves the component.
+    it.each(['Home', 'End'])('lets Shift+%s reach the browser inside the popup', async (key) => {
       const { user } = await render(<PopupCombobox />);
 
       await user.click(screen.getByTestId('trigger'));
-      const input = (await screen.findByTestId('input')) as HTMLInputElement;
+      const input = await screen.findByTestId('input');
       await waitFor(() => expect(input).toHaveFocus());
 
-      await user.type(input, 'an');
-      expect(input.selectionStart).toBe(2);
+      const seen: boolean[] = [];
+      function handleKeyDown(event: KeyboardEvent) {
+        if (event.key === key) {
+          seen.push(event.defaultPrevented);
+        }
+      }
 
-      const { userEvent: browserUserEvent } = await import('@vitest/browser/context');
-      await browserUserEvent.keyboard('{Shift>}{Home}{/Shift}');
+      document.addEventListener('keydown', handleKeyDown);
+      await user.keyboard(`{Shift>}{${key}}{/Shift}`);
+      document.removeEventListener('keydown', handleKeyDown);
 
-      expect(input.selectionStart).toBe(0);
-      expect(input.selectionEnd).toBe(2);
-    });
-
-    it.skipIf(isJSDOM)('extends the text selection with Shift+End inside the popup', async () => {
-      const { user } = await render(<PopupCombobox />);
-
-      await user.click(screen.getByTestId('trigger'));
-      const input = (await screen.findByTestId('input')) as HTMLInputElement;
-      await waitFor(() => expect(input).toHaveFocus());
-
-      await user.type(input, 'an');
-      input.setSelectionRange(0, 0);
-
-      const { userEvent: browserUserEvent } = await import('@vitest/browser/context');
-      await browserUserEvent.keyboard('{Shift>}{End}{/Shift}');
-
-      expect(input.selectionStart).toBe(0);
-      expect(input.selectionEnd).toBe(2);
+      expect(seen).toEqual([false]);
     });
 
     it.skipIf(isJSDOM)(
