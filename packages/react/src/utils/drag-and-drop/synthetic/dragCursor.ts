@@ -1,6 +1,5 @@
 import { ownerDocument } from '@base-ui/utils/owner';
 import { getSharedSlot } from '../sharedState';
-import { createRefCountedLock } from './refCountedLock';
 
 interface DragCursorState {
   /** The document whose root carries the drag class/var while locked; `null` otherwise. */
@@ -125,14 +124,21 @@ function restoreLockedRoot(): void {
 }
 
 /**
- * Force a cursor across the whole document while a pointer drag is active.
- * Unlocking at depth 0 removes the class and restores the variable to its
- * pre-lock value (a consumer may set it inline to theme the default).
+ * Force a cursor across the whole document while a pointer drag is active. The
+ * global lifecycle admits one pointer session, so `lockedDocument` is also the
+ * single-holder latch and a repeated call cannot overwrite the saved cursor.
  */
-export const { lock, unlock, resetForTests } = createRefCountedLock<
-  [Element, string, DragCursorStyleOptions?]
->({
-  slot: 'dragCursor.lock',
-  acquire: applyCursorLock,
-  release: restoreLockedRoot,
-});
+export function lock(element: Element, cursor: string, options?: DragCursorStyleOptions): void {
+  if (state.lockedDocument !== null) {
+    return;
+  }
+  applyCursorLock(element, cursor, options);
+}
+
+export function unlock(): void {
+  restoreLockedRoot();
+}
+
+export function resetForTests(): void {
+  restoreLockedRoot();
+}

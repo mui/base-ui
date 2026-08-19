@@ -218,6 +218,28 @@ describe.skipIf(isJSDOM)('createDragPreviewElement (top layer)', () => {
     sheet.remove();
   });
 
+  it('keeps ids unique and supports class-based preview styles instead of id selectors', () => {
+    const sheet = document.createElement('style');
+    sheet.textContent = `
+      #drag-card { color: rgb(123, 45, 67); }
+      .Card[data-drag-preview] { opacity: 0.5; }
+    `;
+    document.head.appendChild(sheet);
+    source.id = 'drag-card';
+    source.classList.add('Card');
+    expect(getComputedStyle(source).color).toBe('rgb(123, 45, 67)');
+
+    const handle = createDragPreviewElement(source, { content: 'clone' })!;
+    const computed = getComputedStyle(handle.element);
+
+    expect(handle.element.id).toBe('drag-card-drag-preview');
+    expect(computed.color).not.toBe('rgb(123, 45, 67)');
+    expect(computed.opacity).toBe('0.5');
+
+    handle.destroy();
+    sheet.remove();
+  });
+
   it('lets cascade-layered consumer styles (Tailwind-style) style the preview', () => {
     // Tailwind v4 puts every utility in `@layer utilities`, and unlayered author
     // styles beat layered ones at any specificity. The engine must not ship any

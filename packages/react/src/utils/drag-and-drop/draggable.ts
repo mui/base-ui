@@ -67,8 +67,6 @@ interface StaticSetupHold {
 
 interface StaticSetupEntry {
   count: number;
-  /** Number of enabled registrants that need pointer-gesture styles. */
-  gestureCount: number;
   /**
    * One entry per keyboard-enabled registrant, removed by identity so a registrant's
    * instruction id and role description are always dropped as the pair it
@@ -202,7 +200,6 @@ function applyStaticSetup(parameters: DraggableStaticSetupParameters): {
 
     const created: StaticSetupEntry = {
       count: 0,
-      gestureCount: 0,
       holds: [],
       applyGestureStyles() {
         gestureStyle.touchAction = 'manipulation';
@@ -260,11 +257,10 @@ function applyStaticSetup(parameters: DraggableStaticSetupParameters): {
     entry = created;
     staticSetups.set(gestureElement, entry);
   }
-  entry.count += 1;
-  if (entry.gestureCount === 0) {
+  if (entry.count === 0) {
     entry.applyGestureStyles();
   }
-  entry.gestureCount += 1;
+  entry.count += 1;
 
   const activeEntry = entry;
   // Reconcile on *this* registration, not just the first, so a keyboard-enabled
@@ -282,10 +278,6 @@ function applyStaticSetup(parameters: DraggableStaticSetupParameters): {
     const current = staticSetups.get(gestureElement);
     if (current !== activeEntry) {
       return;
-    }
-    current.gestureCount -= 1;
-    if (current.gestureCount === 0) {
-      current.restoreGestureStyles();
     }
     if (hold !== null) {
       const index = current.holds.indexOf(hold);
@@ -550,7 +542,8 @@ export type DraggableConfig<TData = undefined> = {
   dragCursor?: string | false | undefined;
   /**
    * The drag preview: what follows the pointer, and where it lives in the DOM.
-   * Omit it to use a full-fidelity clone of the source.
+   * Omit it to use a sanitized clone of the source. The clone preserves classes
+   * and live element state, but rewrites IDs to keep the document unique.
    *
    * For sources registered imperatively. A draggable that renders a preview part
    * describes its preview there instead.

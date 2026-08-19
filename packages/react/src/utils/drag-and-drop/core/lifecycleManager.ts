@@ -762,8 +762,8 @@ export function start(parameters: StartParameters): DragSessionHandle | null {
       // Disarm `refreshDropTargets` for the end dispatch: an `onDragEnd` that
       // unregisters a target would otherwise re-enter `updateDropTargets` and
       // shift `location.current` out from under the onDrop/leave dispatch below.
-      // `tearDown()` nulls it anyway, so restoring right after the try is fine.
-      const savedRefreshFn = state.refreshDropTargets;
+      // It stays disarmed: `tearDown()` clears the slot after the terminal
+      // dispatch, and nothing may refresh the committed target stack meanwhile.
       state.refreshDropTargets = null;
 
       // The end sequence is committed: a `cancelDrag()` from one of the end
@@ -851,8 +851,6 @@ export function start(parameters: StartParameters): DragSessionHandle | null {
             hoveredDropTargets,
           );
         }
-
-        state.refreshDropTargets = savedRefreshFn;
       }
     } catch (error) {
       dispatchRecoveryEnd();

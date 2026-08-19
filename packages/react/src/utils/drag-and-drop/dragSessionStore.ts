@@ -39,6 +39,9 @@ const slot = getSharedSlot<DragSessionSlot>('dragSessionStore', () => ({
   allTargetListeners: new Set<() => void>(),
 }));
 // Forward-compatible with a slot created by an older copy during development.
+// Breaking layouts get a new shared-slot protocol; additive fields must be
+// backfilled instead, because bumping the protocol would split the live store
+// and registries between the two copies.
 slot.sourceStore ??= new Store<DragSource | null>(slot.store.state?.source ?? null);
 slot.sourceSnapshot ??= slot.store.state?.source ?? null;
 slot.sourceVersion ??= 0;

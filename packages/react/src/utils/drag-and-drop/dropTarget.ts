@@ -63,6 +63,8 @@ const state = getSharedSlot<DropTargetState>('dropTarget', () => ({
   documents: new Map<Document, Set<Element>>(),
   retainedDocuments: new WeakMap<Element, Document>(),
 }));
+// Additive shared-state evolution: a protocol bump is reserved for incompatible
+// layouts, because two protocol versions must not split the live target registry.
 state.documents ??= new Map<Document, Set<Element>>();
 state.retainedDocuments ??= new WeakMap<Element, Document>();
 
@@ -94,6 +96,9 @@ function retainDocument(element: Element): void {
 }
 
 function releaseDocument(element: Element): void {
+  // Read the document retained at registration, not today's `ownerDocument`:
+  // detachment leaves it unchanged, but `adoptNode` can move a still-registered
+  // target and its eventual cleanup must remove it from the original partition.
   const doc = state.retainedDocuments.get(element);
   if (!doc) {
     return;

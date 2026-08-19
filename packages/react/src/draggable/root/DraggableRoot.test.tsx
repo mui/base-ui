@@ -1686,12 +1686,20 @@ describe('Draggable.Root', () => {
     });
 
     it('tracks arrow keys, and clamps to its modifiers, during a keyboard drag', async () => {
+      const committedXs: number[] = [];
       function BoundedDraggable() {
         const boundsRef = React.useRef<HTMLDivElement>(null);
         return (
           <React.Fragment>
             <div ref={boundsRef} data-testid="bounds" />
-            <Draggable.Root kind={testDragKind} data-testid="drag" className="Card">
+            <Draggable.Root
+              kind={testDragKind}
+              data-testid="drag"
+              className="Card"
+              onDrag={({ location }) => {
+                committedXs.push(location.current.input.clientX);
+              }}
+            >
               <Draggable.ClonedPreview
                 modifiers={Draggable.restrictToElement(boundsRef)}
                 offset="pointer"
@@ -1722,6 +1730,9 @@ describe('Draggable.Root', () => {
 
       const x = Number(/^(-?[\d.]+)px/.exec(clone.style.translate)![1]);
       expect(x).toBeLessThanOrEqual(30);
+      // Preview modifiers never enter the session modifier pipeline: keyboard
+      // collision and the public input continue past the visual clamp.
+      expect(committedXs.at(-1)).toBeGreaterThan(40);
     });
 
     it('swaps back to a Draggable.Preview in a single commit', async () => {
@@ -2089,12 +2100,22 @@ describe('Draggable.Root', () => {
     });
 
     it('clamps the preview to a modifiers element when the pointer leaves it', async () => {
+      const committedPoints: Array<{ x: number; y: number }> = [];
       function BoundedDraggable() {
         const boundsRef = React.useRef<HTMLDivElement>(null);
         return (
           <React.Fragment>
             <div ref={boundsRef} data-testid="bounds" />
-            <Draggable.Root kind={testDragKind} data-testid="drag">
+            <Draggable.Root
+              kind={testDragKind}
+              data-testid="drag"
+              onDrag={({ location }) => {
+                committedPoints.push({
+                  x: location.current.input.clientX,
+                  y: location.current.input.clientY,
+                });
+              }}
+            >
               {/* Pin the preview to the pointer so the assertions below read the
                   clamp alone, not the grab offset the `'source'` default would add. */}
               <Draggable.Preview
@@ -2124,6 +2145,10 @@ describe('Draggable.Root', () => {
       // (200 − preview size: 200−50=150, 200−30=170) instead of following out.
       await dragOver(source, { clientX: 500, clientY: 500 });
       expect(overlay.style.translate).toBe('150px 170px');
+      await flushRaf();
+      // Only the preview is constrained; hit-testing and reported input keep the
+      // pointer's real position rather than inheriting the visual clamp.
+      expect(committedPoints.at(-1)).toEqual({ x: 500, y: 500 });
 
       // Back inside the bounds, the preview tracks the pointer normally.
       await dragOver(source, { clientX: 80, clientY: 90 });

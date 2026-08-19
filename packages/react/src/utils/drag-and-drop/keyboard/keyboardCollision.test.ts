@@ -105,9 +105,10 @@ describe('keyboardCollision', () => {
       });
 
       expect(result?.element).toBe(near);
-      // A held arrow re-runs this scan once per OS repeat tick over every
-      // registered target, so a candidate whose best possible score already loses
-      // must not cost the consumer a `canDrop` (nor the `payload` behind it).
+      // Held key events are coalesced to at most one executed move per frame, but
+      // each move can still scan every registered target. A candidate whose best
+      // possible score already loses must not cost the consumer a `canDrop` (nor
+      // the `payload` behind it).
       expect(nearCanDrop).toHaveBeenCalled();
       expect(farCanDrop).not.toHaveBeenCalled();
       expect(driftedCanDrop).not.toHaveBeenCalled();

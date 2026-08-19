@@ -211,8 +211,9 @@ function cloneWithoutCustomElements(
 /** Strip state the clone must not carry, and neutralize nodes that would re-run. */
 function sanitize(clone: HTMLElement, cloneNodes: Element[], idSuffix: string): void {
   // Duplicate ids would poison `getElementById`, `<label for>` and
-  // `aria-labelledby`. Rewrite them, then re-point the references that live
-  // inside the clone so they keep resolving to the clone's own nodes.
+  // `aria-labelledby`. Rewrite them, then re-point references inside the clone.
+  // This deliberately means external `#id` selectors do not style the preview;
+  // classes and `[data-drag-preview]` are its supported styling hooks.
   const rewritten = new Map<string, string>();
   for (const node of cloneNodes) {
     switch (node.localName) {
@@ -266,7 +267,12 @@ function sanitize(clone: HTMLElement, cloneNodes: Element[], idSuffix: string): 
       if (htmlFor !== null) {
         node.setAttribute('for', remap(htmlFor));
       }
-      for (const attribute of ['aria-labelledby', 'aria-describedby', 'aria-controls']) {
+      for (const attribute of [
+        'aria-labelledby',
+        'aria-describedby',
+        'aria-controls',
+        'aria-owns',
+      ]) {
         const value = node.getAttribute(attribute);
         if (value) {
           node.setAttribute(attribute, value.split(/\s+/).map(remap).join(' '));

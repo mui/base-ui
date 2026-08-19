@@ -267,10 +267,9 @@ export class DraggableCollectionPlugin<
   /**
    * Cached, and invalidated when the inputs it is derived from change.
    *
-   * This getter is read once per `resolveDropTarget` *and* once per
-   * `dispatchToDropTarget`, for every row — so on the keyboard path over a long
-   * list a fresh array per read is hundreds of thousands of allocations a second,
-   * for a value that only changes when the consumer re-declares `accept` or `kind`.
+   * Target resolution and dispatch read this getter for every row. Cache the
+   * derived array so large keyboard-driven collections do not allocate it
+   * repeatedly for a value that changes only with `accept` or `kind`.
    */
   private get accept(): IncomingKinds<TItem> {
     const configured = this.config.accept;
@@ -1186,11 +1185,10 @@ export class DraggableCollectionPlugin<
 
   private handleDrop(location: DragLocationHistory, source: DragSource<IncomingSourceData<TItem>>) {
     const src = source.payload;
-    // A collection can mount mid-drag (a panel revealed while dragging): its item
-    // targets register synchronously in ref callbacks, but `connect()`, which
-    // seeds the dragged ids and items, runs in a passive effect. A drop landing
-    // in that gap performs the seed itself from the event's own payload rather
-    // than silently no-op on a target the drop indicator showed as valid.
+    // A collection can join an already active drag, or become an eligible
+    // destination after drag start. It can therefore receive `onDrop` without
+    // having received the monitor's `onDragStart`. Seed from the terminal event's
+    // payload before committing rather than silently ignoring a valid drop.
     if (this.currentDraggedItemIds.size === 0 && src?.itemIds != null) {
       this.currentDraggedItemIds = new Set(src.itemIds);
       this.currentDragItems = src.items ?? [];

@@ -432,7 +432,9 @@ function sweep(): void {
 /**
  * Request the per-commit sweep. Every tracked component calls this from a
  * dependency-less layout effect; the first call in a commit does the work and
- * the latch absorbs the rest.
+ * the latch absorbs the rest. A parent can also request without an element after
+ * keyed reconciliation moves memoized rows that did not run their own effects;
+ * when a sweep is already latched, that path schedules the required trailing pass.
  */
 export function scheduleDisplacementSweep(requester?: HTMLElement): void {
   if (!windowOpen) {

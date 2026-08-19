@@ -39,23 +39,14 @@ export function parseComputedLinearTransform(
   return [a, b, c, d].every((value) => Number.isFinite(value)) ? { a, b, c, d } : null;
 }
 
-/** Parse any CSS angle unit into degrees. */
-export function angleToDegrees(value: string): number | null {
-  const match = value.match(/^(-?(?:\d+\.?\d*|\.\d+))(deg|grad|rad|turn)$/);
+/** Parse a computed CSS angle, whose canonical unit is degrees. */
+export function parseComputedDegrees(value: string): number | null {
+  const match = value.match(/^([-+]?(?:\d+(?:\.\d*)?|\.\d+)(?:e[-+]?\d+)?)deg$/i);
   if (!match) {
     return null;
   }
   const amount = Number(match[1]);
-  switch (match[2]) {
-    case 'grad':
-      return amount * 0.9;
-    case 'rad':
-      return (amount * 180) / Math.PI;
-    case 'turn':
-      return amount * 360;
-    default:
-      return amount;
-  }
+  return Number.isFinite(amount) ? amount : null;
 }
 
 /** The `scale` longhand, excluding its visually irrelevant z component. */
@@ -78,7 +69,7 @@ export function parseRotateLinearTransform(
     return null;
   }
   const parts = rotate.trim().split(/\s+/);
-  const degrees = angleToDegrees(parts.at(-1) ?? '');
+  const degrees = parseComputedDegrees(parts.at(-1) ?? '');
   if (degrees === null) {
     return null;
   }

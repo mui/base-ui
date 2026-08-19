@@ -1310,7 +1310,7 @@ describe('useDraggableCollection', () => {
       expect(onDragEnd.mock.calls[0][0].canceled).toBe(true);
     });
 
-    it('commits a drop that lands before the passive connect() has seeded the drag', async () => {
+    it('commits a drop when the collection missed onDragStart seeding', async () => {
       const a = setupPlugin({ kind: cardsKind }, { knownItemIds: ['a'] });
       const sourceA = createElement({ top: 0, height: 100 });
       a.plugin.setupItem('a', sourceA);
@@ -1322,9 +1322,8 @@ describe('useDraggableCollection', () => {
       );
       const target = createElement({ top: 200, height: 100 });
       b.plugin.setupItem('x', target);
-      // The mount-mid-drag gap: item targets register synchronously in ref
-      // callbacks, but the monitor seeding runs in a passive effect. Disconnect
-      // the monitor so this collection never hears about the drag.
+      // Model a collection whose targets can accept the drag although its monitor
+      // joined too late (or its eligibility changed too late) to receive onDragStart.
       b.plugin.destroy();
 
       await lift(sourceA);

@@ -56,7 +56,7 @@ manager.registerDraggable(element, () => ({ kind: card, payload: id }));
 
 ### Drag preview
 
-With no preview part to nest, an imperative source uses the same full-fidelity clone by default. Pass `dragPreview` only to configure or replace it:
+With no preview part to nest, an imperative source uses the same sanitized clone by default. It preserves classes and live element state but rewrites IDs to keep the document unique. Pass `dragPreview` only to configure or replace it:
 
 ```tsx title="A cloned preview for a registered source"
 manager.registerDraggable(element, () => ({

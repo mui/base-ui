@@ -7,7 +7,7 @@ import type { DragInput, DragPosition } from '../../../types/drag';
  * Build the element that follows the pointer, unless the draggable opted out.
  *
  * A custom preview gets an empty host for React to render into; otherwise the
- * source is cloned into a full-fidelity preview.
+ * source is cloned into a sanitized preview that preserves its classes and live state.
  *
  * Runs before `data-dragging` lands on the source, so the clone never inherits it
  * and the usual `[data-dragging] { opacity: .4 }` rule dims the source alone.

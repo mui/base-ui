@@ -66,7 +66,7 @@ describe('dragRootLock', () => {
     expect(root.style.userSelect).toBe('text');
   });
 
-  it('nested locks share a single snapshot and only unlock at depth 0', () => {
+  it('ignores a repeated lock while the single pointer session holds it', () => {
     const root = document.documentElement;
     root.style.touchAction = 'pan-x';
 
@@ -75,10 +75,9 @@ describe('dragRootLock', () => {
     expect(root.style.touchAction).toBe('none');
 
     dragRootLock.unlock();
-    expect(root.style.touchAction).toBe('none');
-
-    dragRootLock.unlock();
     expect(root.style.touchAction).toBe('pan-x');
+
+    expect(() => dragRootLock.unlock()).not.toThrow();
   });
 
   it('locks and restores <html> and <body> of the source and every ancestor document', () => {

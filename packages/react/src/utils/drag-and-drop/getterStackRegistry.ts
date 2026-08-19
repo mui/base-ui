@@ -70,9 +70,7 @@ export function createGetterStackRegistry<TElement, TGetter>(options: {
     // Last hold: run the side effects while the entry is still readable (the
     // drop-target lifecycle dispatches this target's leave events from it as it
     // drops out of the stack — deleting first would swallow the leave), and
-    // only then remove the entry. The identity check keeps a stale release from
-    // tearing down a hold it doesn't own; every caller latches its cleanup, so
-    // this is defense in depth rather than a reachable path.
+    // only then remove the entry.
     if (getters.length <= 1 && getters[0] === getter) {
       try {
         onLastRemove?.(element);
@@ -87,14 +85,12 @@ export function createGetterStackRegistry<TElement, TGetter>(options: {
         // finds this still-present entry and pushes onto it rather than registering
         // afresh. Drop only the retiring getter, and when something did re-register,
         // keep it and redo the first-add side effects `onLastRemove` just undid.
-        if (entries.get(element) === getters) {
-          const survivors = getters.filter((held) => held !== getter);
-          if (survivors.length === 0) {
-            entries.delete(element);
-          } else {
-            entries.set(element, survivors);
-            onFirstAdd?.(element);
-          }
+        const survivors = getters.filter((held) => held !== getter);
+        if (survivors.length === 0) {
+          entries.delete(element);
+        } else {
+          entries.set(element, survivors);
+          onFirstAdd?.(element);
         }
       }
       return true;

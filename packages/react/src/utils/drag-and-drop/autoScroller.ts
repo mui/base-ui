@@ -858,6 +858,10 @@ function observeIdleMutations(): void {
   if (!root) {
     return;
   }
+  // A parked inferred scroller can become scrollable without an input event: a
+  // stationary pointer may trigger delayed expansion that appends rows below the
+  // fold. That produces no pointer move, scroll event, target change, or scroller
+  // registration. This one-shot observer is the wake path for that case.
   const observer = new (ownerWindow(root).MutationObserver)(() => {
     clearIdleMutationObserver();
     refreshAutoScroll();

@@ -899,7 +899,8 @@ export interface DragPreviewSettings {
 
 /**
  * The drag preview of a source registered imperatively.
- * Omit it to use a full-fidelity clone of the source.
+ * Omit it to use a sanitized clone of the source. The clone preserves classes
+ * and live element state, but rewrites IDs to keep the document unique.
  *
  * Components describe the preview with `Draggable.Preview` or
  * `Draggable.ClonedPreview` instead.

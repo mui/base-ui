@@ -196,16 +196,15 @@ describe('dragCursor', () => {
     dragCursor.unlock();
   });
 
-  it('nested locks share one activation and only unlock at depth 0', () => {
+  it('ignores a repeated lock while the single pointer session holds it', () => {
     dragCursor.lock(document.body, 'grabbing');
     dragCursor.lock(document.body, 'grabbing');
-    expect(isDragging()).toBe(true);
-
-    dragCursor.unlock();
     expect(isDragging()).toBe(true);
 
     dragCursor.unlock();
     expect(isDragging()).toBe(false);
+
+    expect(() => dragCursor.unlock()).not.toThrow();
   });
 
   it('only the first lock mutates the document root', () => {
@@ -213,7 +212,6 @@ describe('dragCursor', () => {
     // A nested lock with a different cursor must not override the first.
     dragCursor.lock(document.body, 'move');
     expect(activeCursorVar()).toBe('grabbing');
-    dragCursor.unlock();
     dragCursor.unlock();
   });
 

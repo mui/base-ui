@@ -316,7 +316,7 @@ describe('createDragPreviewElement', () => {
 
   it('rewrites ids and the references inside the clone that point at them', () => {
     const source = createSource(
-      '<label for="name-input">Name</label><input id="name-input" aria-describedby="hint" /><p id="hint">Hint</p>',
+      '<label for="name-input">Name</label><input id="name-input" aria-describedby="hint" aria-owns="hint external" /><p id="hint">Hint</p>',
     );
 
     const handle = clone(source);
@@ -328,6 +328,9 @@ describe('createDragPreviewElement', () => {
     );
     expect(handle.element.querySelector('input')!.getAttribute('aria-describedby')).toBe(
       'hint-drag-preview',
+    );
+    expect(handle.element.querySelector('input')!.getAttribute('aria-owns')).toBe(
+      'hint-drag-preview external',
     );
     // The real source still owns the original id.
     expect(document.getElementById('name-input')).toBe(source.querySelector('input'));

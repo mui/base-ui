@@ -1,6 +1,5 @@
 import { ownerDocument } from '@base-ui/utils/owner';
 import { getSharedSlot } from '../sharedState';
-import { createRefCountedLock } from './refCountedLock';
 
 const LOCKED_PROPS: Array<{ style: LockedProperty; value: string }> = [
   { style: 'touchAction', value: 'none' },
@@ -106,12 +105,23 @@ function restoreLockedStyles(): void {
 /**
  * Freeze scrolling, selection and the callout menu on the dragged element's
  * document (and every reachable ancestor document) while a pointer drag runs.
+ * The global lifecycle admits one pointer session, so the saved lock itself is
+ * the single-holder latch; a repeated call must not replace its restoration data.
  */
-export const { lock, unlock, resetForTests } = createRefCountedLock<[Element]>({
-  slot: 'dragRootLock.lock',
-  acquire: applyRootLock,
-  release: restoreLockedStyles,
-});
+export function lock(element: Element): void {
+  if (state.locked !== null) {
+    return;
+  }
+  applyRootLock(element);
+}
+
+export function unlock(): void {
+  restoreLockedStyles();
+}
+
+export function resetForTests(): void {
+  restoreLockedStyles();
+}
 
 type LockedProperty =
   | 'touchAction'

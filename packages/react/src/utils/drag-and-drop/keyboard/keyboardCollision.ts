@@ -297,9 +297,9 @@ function isStrictlyInsideRect(
  * The score below is `along + 2 * cross`, and both aim points `resolveEntry` can
  * choose (the entering edge and the centre) lie inside the rect — so a rect whose
  * *best* case already loses to the current winner cannot win, and can be skipped
- * before paying for the target's `canDrop` and `payload`. That matters because
- * arrow keys are deliberately not `event.repeat`-gated: a held arrow runs this
- * scan once per OS repeat tick, over every registered target.
+ * before paying for the target's `canDrop` and `payload`. Held key events are
+ * coalesced to at most one movement per animation frame, but each executed move
+ * can still scan every registered target.
  *
  * Arrow directions are axis-aligned, so `along` and `cross` fall on separate axes
  * and each minimum is a clamp of the cursor against the rect. `along` is floored
@@ -328,10 +328,9 @@ function bestPossibleScore(
  * or `null` when none lies ahead (the sensor then falls back to a step nudge).
  * The winner carries the entry point it was resolved against.
  *
- * Measures every registered target once per press, through the `rectCache` the
- * sensor invalidates as each press begins — a rect must not survive a press,
- * because committing a move can reorder the DOM and the reveal scroll that
- * follows invalidates every rect anyway.
+ * A first keydown starts with fresh rects. Held repeat frames reuse them until
+ * scroll, resize, a relevant DOM mutation, displacement, or shadow-root handling
+ * invalidates the cache.
  */
 export function findDirectionalTarget({
   key,
@@ -360,7 +359,9 @@ export function findDirectionalTarget({
       // keeps a `→ ←` round trip a no-op. Detect that by the cursor sitting at
       // the row's entry point for the opposite key; an arbitrary position inside
       // a large container never matches, and pressing the same direction again
-      // (cursor off the back edge) advances to the neighbour.
+      // (cursor off the back edge) advances to the neighbour. The source can be an
+      // accepted plain draggable carrying session modifiers, so compare with the
+      // same modified edge where the sensor actually parked it.
       const record = resolveDropTarget(element, { source, input });
       if (!record || !isReorderItemTarget(record)) {
         continue;

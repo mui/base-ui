@@ -6,7 +6,7 @@ import { useDeclaredPreview } from './useDeclaredPreview';
 import { createClonedDragPreviewElement } from '../../utils/drag-and-drop/synthetic/cloneDragPreview';
 
 /**
- * Configures the full-fidelity clone of the source shown by default.
+ * Configures the sanitized clone of the source shown by default.
  * Renders nothing.
  *
  * Reach for it to place or constrain the default cloned preview.

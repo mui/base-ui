@@ -582,6 +582,9 @@ function onPendingKeyDown(event: Event): void {
 function startContextMenuSuppression(win: Window, targets: EventTarget[]): DragCleanupFn {
   state.cleanupContextMenuSuppression?.();
 
+  // `win` covers normal connected-node dispatch in the capture phase. The node
+  // entries deliberately mirror the active-phase mobile fallback below; they
+  // should be removed together if real-device traces show the window is enough.
   const uniqueTargets = Array.from(new Set(targets));
   const timeout = new WindowTimeout(win);
   const cleanups: DragCleanupFn[] = [];
@@ -927,10 +930,10 @@ function commitActivation(): void {
       }),
     );
   }
-  // Suppress contextmenu at the target and draggable element on top of the
-  // window-level capture listener. Android can dispatch `contextmenu`
-  // directly at the gesture target without bubbling, and target-attached
-  // listeners survive virtualizer unmounts of the draggable.
+  // The window listener covers standards-conforming dispatch from connected
+  // targets. Retain target listeners as a mobile compatibility fallback for a
+  // post-long-press `contextmenu` delivered directly to the original gesture
+  // nodes; real-device coverage should decide whether this fallback stays.
   activeRef.listeners.push(
     addEventListener(target, 'contextmenu', preventContextMenu, { capture: true }),
     addEventListener(element, 'contextmenu', preventContextMenu, { capture: true }),

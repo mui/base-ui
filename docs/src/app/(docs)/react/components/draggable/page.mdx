@@ -35,8 +35,8 @@ const itemKind = Draggable.createKind('item');
 </Draggable.Root>;
 ```
 
-A root takes at most one preview part. Omit it to use the full-fidelity clone of
-the source, render `Draggable.ClonedPreview` to configure that clone, or use
+A root takes at most one preview part. Omit it to use a sanitized clone of the
+source, render `Draggable.ClonedPreview` to configure that clone, or use
 `Draggable.Preview` to render custom content. Declaring both warns in development;
 the last one mounted wins. `Draggable.Displacement` is independent and opts the
 root into reorder animations.
@@ -435,7 +435,7 @@ Below, `restrictToElement` clamps each widget to the dashed dashboard frame. The
 
 ### Modifiers on the preview
 
-`Draggable.Preview` and `Draggable.ClonedPreview` take the same `modifiers` prop, applied only to what is drawn: the drag itself — the drop hit-test and the reported input — keeps following the pointer. Reach for it when leaving the area is itself a meaningful gesture the drag must keep expressing. A data grid reordering columns clamps its ghost to the grid so it doesn't trail across the page, but the clamp can't go on the root: releasing away from the grid has to resolve as a cancel, not commit on whichever header sits at the clamped edge. When in doubt, put the modifier on `Draggable.Root`, so what the user sees and what the drop commits always agree.
+`Draggable.Preview` and `Draggable.ClonedPreview` take the same `modifiers` prop, applied only to what is drawn: preview modifiers do not populate the active drag session, so the drop hit-test, keyboard movement, and reported input keep following the unconstrained drag. Reach for them when leaving the area is itself a meaningful gesture the drag must keep expressing. A data grid reordering columns clamps its ghost to the grid so it doesn't trail across the page, but the clamp can't go on the root: releasing away from the grid has to resolve as a cancel, not commit on whichever header sits at the clamped edge. When in doubt, put the modifier on `Draggable.Root`, so what the user sees and what the drop commits always agree.
 
 ### Write your own
 
@@ -489,7 +489,9 @@ A modifier only moves a point, so it still can't express a keyboard move that ta
 
 ### Default preview
 
-With no preview part, a full-fidelity clone of the dragged element follows the pointer. The clone keeps your element's classes so your own CSS styles it, and renders in the browser's top layer, where no scroll container can clip it and nothing on the page paints over it.
+With no preview part, a sanitized clone of the dragged element follows the pointer. The clone keeps your element's classes and live form, canvas, and scroll state, and renders in the browser's top layer, where no scroll container can clip it and nothing on the page paints over it.
+
+The clone rewrites its IDs to keep the document unique and updates fragment references inside the clone. External `#id` selectors therefore do not style it; use classes or `[data-drag-preview]` for preview styles.
 
 Custom elements inside a clone are replaced with inert native placeholders. Cloning a live custom element would run its constructor and connection callbacks again merely because a drag started. Render a `Draggable.Preview` when the preview must reproduce a custom element's shadow content exactly.
 

@@ -271,6 +271,17 @@ describe('getElementScale', () => {
       expect(scale.y).toBeCloseTo(1, 5);
     });
 
+    it.each([
+      ['100grad', '90deg'],
+      ['1.5707963267948966rad', '90deg'],
+      ['0.25turn', '90deg'],
+    ])('receives a computed %s rotate longhand in degrees', (declared, expected) => {
+      const child = makeNested('');
+      child.style.rotate = declared;
+
+      expect(getComputedStyle(child).rotate).toBe(expected);
+    });
+
     // A rotation cannot change a scale by itself, but it reorients which axis an
     // ancestor's scale lands on — dropped from the matrix, these come out swapped
     // as 2 × 1.
@@ -280,6 +291,17 @@ describe('getElementScale', () => {
       const scale = getElementScale(child);
       expect(scale.x).toBeCloseTo(1, 5);
       expect(scale.y).toBeCloseTo(2, 5);
+    });
+
+    it('reads an exponent-serialized rotate longhand under a non-uniform scale', () => {
+      const child = makeNested('transform: matrix(2, 0, 0, 1, 0, 0)');
+      const degrees = 1_000_000;
+      child.style.rotate = `${degrees}deg`;
+      const radians = (degrees * Math.PI) / 180;
+      const scale = getElementScale(child);
+
+      expect(scale.x).toBeCloseTo(Math.hypot(2 * Math.cos(radians), Math.sin(radians)), 4);
+      expect(scale.y).toBeCloseTo(Math.hypot(2 * Math.sin(radians), Math.cos(radians)), 4);
     });
 
     // An off-plane axis squashes what it paints — the same flattening the `matrix3d`

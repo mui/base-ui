@@ -805,7 +805,7 @@ describe('syntheticDrag sensor', () => {
     }
   });
 
-  it('prevents contextmenu on the original touch target even if it no longer bubbles to window', async () => {
+  it('keeps the original touch target armed for a directly delivered compatibility contextmenu', async () => {
     const { engine } = await renderDnd();
     const el = createElement();
     const child = document.createElement('div');
@@ -815,6 +815,9 @@ describe('syntheticDrag sensor', () => {
     touchDown(child, 50, 50);
     el.remove();
 
+    // Synthetic dispatch on a detached node models the target-level fallback;
+    // it is not evidence that standards-conforming browser dispatch misses the
+    // window. Real-device traces decide whether this compatibility path remains.
     const contextMenu = new Event('contextmenu', { bubbles: true, cancelable: true });
     dispatch(child, contextMenu);
 
