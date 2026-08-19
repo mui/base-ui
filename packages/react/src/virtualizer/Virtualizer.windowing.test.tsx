@@ -389,6 +389,53 @@ describe('<Virtualizer /> windowing', () => {
     },
   );
 
+  // Reduced repro for the app-level finding: with the estimate below the measured height,
+  // arrowing past the fold parked the highlighted row entirely below the scrollport and never
+  // self-corrected. Measuring the destination row is not enough to settle a scroll request —
+  // the rows above it are still estimated, and measuring those later moves the destination.
+  it.skipIf(isJSDOM)(
+    'corrects a scrolled row that later geometry pushes out of the scrollport',
+    async () => {
+      vi.restoreAllMocks();
+      const items = createItems(200);
+
+      function Test(props: { scrollToRowIndex?: number | undefined }) {
+        return (
+          <TestVirtualizedList
+            estimatedItemHeight={32}
+            overscanPx={0}
+            render={<div data-testid="virtualizer" style={{ height: 251, width: 200 }} />}
+            items={items}
+            scrollToRowIndex={props.scrollToRowIndex}
+          >
+            {renderItemOf(54)}
+          </TestVirtualizedList>
+        );
+      }
+
+      const { rerender } = await render(<Test />);
+      const virtualizer = screen.getByTestId('virtualizer');
+
+      // One row at a time, the way arrow-key navigation advances the highlight.
+      for (let index = 0; index <= 12; index += 1) {
+        // eslint-disable-next-line no-await-in-loop
+        await rerender(<Test scrollToRowIndex={index} />);
+      }
+
+      // The estimate is refreshed once scrolling goes idle, which rewrites every unmeasured row
+      // and moves the destination. The request must survive that and re-align against it.
+      await waitFor(() => {
+        const row = virtualizer.querySelector('[data-row-index="12"]');
+        expect(row).not.toBe(null);
+
+        const scrollerRect = virtualizer.getBoundingClientRect();
+        const rowRect = (row as HTMLElement).getBoundingClientRect();
+        expect(rowRect.bottom).toBeLessThanOrEqual(scrollerRect.bottom + 1);
+        expect(rowRect.top).toBeGreaterThanOrEqual(scrollerRect.top - 1);
+      });
+    },
+  );
+
   it.skipIf(isJSDOM)('refines a static estimate with the measured row average', async () => {
     vi.restoreAllMocks();
 
@@ -1150,6 +1197,12 @@ function createItems(count: number): TestItem[] {
 
 function renderItem(item: TestItem, _index: number) {
   return <TestListItem style={{ height: 20 }}>{item.label}</TestListItem>;
+}
+
+function renderItemOf(height: number) {
+  return function renderMeasuredItem(item: TestItem) {
+    return <TestListItem style={{ height }}>{item.label}</TestListItem>;
+  };
 }
 
 function renderTallItem(item: TestItem) {

@@ -1641,6 +1641,62 @@ describe('<Virtualizer />', () => {
     expect(estimatedItemHeight).toHaveBeenCalledWith('longer', 1);
   });
 
+  describe('prop: totalItems', () => {
+    it('reports the whole collection size to rendered items', async () => {
+      await render(
+        <Combobox.Root defaultOpen items={createItems(20)}>
+          <Combobox.List>
+            <Virtualizer
+              estimatedItemHeight={20}
+              render={<div ref={setElementClientHeight(40)} />}
+              totalItems={500}
+            >
+              {(item: string) => <Combobox.Item value={item}>{item}</Combobox.Item>}
+            </Virtualizer>
+          </Combobox.List>
+        </Combobox.Root>,
+      );
+
+      const option = await screen.findByRole('option', { name: 'Item 1' });
+      expect(option).to.have.attribute('aria-setsize', '500');
+      expect(option).to.have.attribute('aria-posinset', '1');
+    });
+
+    it('reports an unknown collection size', async () => {
+      await render(
+        <Combobox.Root defaultOpen items={createItems(20)}>
+          <Combobox.List>
+            <Virtualizer
+              estimatedItemHeight={20}
+              render={<div ref={setElementClientHeight(40)} />}
+              totalItems={-1}
+            >
+              {(item: string) => <Combobox.Item value={item}>{item}</Combobox.Item>}
+            </Virtualizer>
+          </Combobox.List>
+        </Combobox.Root>,
+      );
+
+      const option = await screen.findByRole('option', { name: 'Item 1' });
+      expect(option).to.have.attribute('aria-setsize', '-1');
+    });
+
+    it('defaults to the number of items in the list', async () => {
+      await render(
+        <Combobox.Root defaultOpen items={createItems(20)}>
+          <Combobox.List>
+            <Virtualizer estimatedItemHeight={20} render={<div ref={setElementClientHeight(40)} />}>
+              {(item: string) => <Combobox.Item value={item}>{item}</Combobox.Item>}
+            </Virtualizer>
+          </Combobox.List>
+        </Combobox.Root>,
+      );
+
+      const option = await screen.findByRole('option', { name: 'Item 1' });
+      expect(option).to.have.attribute('aria-setsize', '20');
+    });
+  });
+
   it('uses stable item keys for object values', async () => {
     const items = [
       { id: 'a', label: 'Alpha' },

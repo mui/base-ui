@@ -73,6 +73,9 @@ function VirtualizerItemRowImpl<Item>(props: VirtualizerItemRowProps<Item>) {
       index: model.itemIndex,
       props: {
         'aria-posinset': model.itemIndex + 1,
+        // `-1` is the ARIA convention for a collection whose size is not known, which is what a
+        // list still loading pages of results has. Anything else is the size of the whole
+        // collection, not of the part currently loaded.
         'aria-setsize': itemCount,
         'data-index': model.itemIndex,
       },
@@ -136,6 +139,11 @@ export interface UseVirtualizerBindingParameters<Item> {
    */
   items: ReadonlyArray<Item> | undefined;
   listState: ListVirtualizationListState | undefined;
+  /**
+   * Size of the whole collection when the rendered items are only part of it, such as a page of a
+   * larger result set. Defaults to the number of items given.
+   */
+  totalItems: number | undefined;
 }
 
 /**
@@ -157,6 +165,7 @@ export function useVirtualizerBinding<Item>(parameters: UseVirtualizerBindingPar
     host,
     items: itemsProp,
     listState,
+    totalItems,
   } = parameters;
 
   const componentName = host?.componentName;
@@ -263,14 +272,14 @@ export function useVirtualizerBinding<Item>(parameters: UseVirtualizerBindingPar
     (params: VirtualizerRenderRowParameters<VirtualizerItemRowModel<Item>>) => (
       <VirtualizerItemRow
         componentName={componentName}
-        itemCount={items.length}
+        itemCount={totalItems ?? items.length}
         model={params.row.model}
         virtualItemContext={virtualItemContext}
       >
         {children}
       </VirtualizerItemRow>
     ),
-    [children, componentName, items.length, virtualItemContext],
+    [children, componentName, items.length, totalItems, virtualItemContext],
   );
 
   const estimatedItemHeightCacheRef = React.useRef<{
