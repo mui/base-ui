@@ -572,7 +572,7 @@ export function useListNavigation(
     const minIndex = getMinListIndex(listRef, disabledIndices);
     const maxIndex = getMaxListIndex(listRef, disabledIndices);
 
-    if (!typeableComboboxReference) {
+    if (!typeableComboboxReference && !event.shiftKey) {
       if (event.key === 'Home') {
         stopEvent(event);
         indexRef.current = minIndex;
