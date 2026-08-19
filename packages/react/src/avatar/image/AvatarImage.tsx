@@ -37,10 +37,9 @@ export const AvatarImage = React.forwardRef(function AvatarImage(
     ...elementProps
   } = componentProps;
 
-  const { setImageLoadingStatus } = useAvatarRootContext();
-  const preloadedStatus = useImageLoadingStatus(elementProps.src, elementProps, !keepMounted);
-  const [renderedStatus, setRenderedStatus] = React.useState<ImageLoadingStatus>('idle');
-  const imageLoadingStatus = keepMounted ? renderedStatus : preloadedStatus;
+  const { setImageLoadingStatus: setRootImageLoadingStatus } = useAvatarRootContext();
+  const [imageLoadingStatus, setImageLoadingStatus] = React.useState<ImageLoadingStatus>('idle');
+  useImageLoadingStatus(elementProps.src, elementProps, !keepMounted, setImageLoadingStatus);
 
   const isVisible = imageLoadingStatus === 'loaded';
   const { mounted, transitionStatus, setMounted } = useTransitionStatus(isVisible);
@@ -56,26 +55,26 @@ export const AvatarImage = React.forwardRef(function AvatarImage(
 
     const image = imageRef.current;
     if (image?.complete) {
-      setRenderedStatus(image.naturalWidth > 0 ? 'loaded' : 'error');
+      setImageLoadingStatus(image.naturalWidth > 0 ? 'loaded' : 'error');
     } else {
-      setRenderedStatus('loading');
+      setImageLoadingStatus('loading');
     }
-  }, [keepMounted, elementProps.src, elementProps.srcSet]);
+  }, [keepMounted, elementProps.src, elementProps.srcSet, render, setImageLoadingStatus]);
 
   const renderedStatusProps = keepMounted
     ? {
         onLoad() {
-          setRenderedStatus('loaded');
+          setImageLoadingStatus('loaded');
         },
         onError() {
-          setRenderedStatus('error');
+          setImageLoadingStatus('error');
         },
       }
     : undefined;
 
   const handleLoadingStatusChange = useStableCallback((status: ImageLoadingStatus) => {
     onLoadingStatusChangeProp?.(status);
-    setImageLoadingStatus(status);
+    setRootImageLoadingStatus(status);
   });
 
   useIsoLayoutEffect(() => {
@@ -85,8 +84,8 @@ export const AvatarImage = React.forwardRef(function AvatarImage(
   }, [imageLoadingStatus, handleLoadingStatusChange]);
 
   useIsoLayoutEffect(() => {
-    return () => setImageLoadingStatus('idle');
-  }, [setImageLoadingStatus]);
+    return () => setRootImageLoadingStatus('idle');
+  }, [setRootImageLoadingStatus]);
 
   useOpenChangeComplete({
     open: isVisible,

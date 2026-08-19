@@ -1,5 +1,5 @@
 'use client';
-import * as React from 'react';
+import type * as React from 'react';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { NOOP } from '../../internals/noop';
 import type { ImageLoadingStatus } from '../root/AvatarRoot';
@@ -15,9 +15,8 @@ export function useImageLoadingStatus(
   src: string | undefined,
   { referrerPolicy, crossOrigin, sizes, srcSet }: UseImageLoadingStatusOptions,
   enabled: boolean,
-): ImageLoadingStatus {
-  const [loadingStatus, setLoadingStatus] = React.useState<ImageLoadingStatus>('idle');
-
+  setLoadingStatus: (status: ImageLoadingStatus) => void,
+) {
   useIsoLayoutEffect(() => {
     if (!enabled) {
       return NOOP;
@@ -64,7 +63,5 @@ export function useImageLoadingStatus(
     return () => {
       isMounted = false;
     };
-  }, [enabled, src, srcSet, sizes, crossOrigin, referrerPolicy]);
-
-  return loadingStatus;
+  }, [enabled, src, srcSet, sizes, crossOrigin, referrerPolicy, setLoadingStatus]);
 }
