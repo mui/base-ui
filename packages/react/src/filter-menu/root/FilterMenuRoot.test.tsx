@@ -40,6 +40,67 @@ describe('<FilterMenu.Root />', () => {
   const { render } = createRenderer();
 
   describe('filtering', () => {
+    function RootInputOnlyMenu() {
+      return (
+        <FilterMenu.Root defaultOpen>
+          <FilterMenu.Trigger>Actions</FilterMenu.Trigger>
+          <FilterMenu.Portal>
+            <FilterMenu.Positioner>
+              <FilterMenu.Popup>
+                <FilterMenu.Input aria-label="Filter actions" />
+                <FilterMenu.List>
+                  <FilterMenu.SubmenuRoot>
+                    <FilterMenu.SubmenuTrigger delay={0}>Share</FilterMenu.SubmenuTrigger>
+                    <FilterMenu.Portal>
+                      <FilterMenu.Positioner>
+                        <FilterMenu.Popup>
+                          <FilterMenu.List data-testid="submenu-list">
+                            <FilterMenu.Item>Email</FilterMenu.Item>
+                            <FilterMenu.Item>Messages</FilterMenu.Item>
+                          </FilterMenu.List>
+                        </FilterMenu.Popup>
+                      </FilterMenu.Positioner>
+                    </FilterMenu.Portal>
+                  </FilterMenu.SubmenuRoot>
+                </FilterMenu.List>
+              </FilterMenu.Popup>
+            </FilterMenu.Positioner>
+          </FilterMenu.Portal>
+        </FilterMenu.Root>
+      );
+    }
+
+    function SubmenuInputOnlyMenu() {
+      return (
+        <FilterMenu.Root>
+          <FilterMenu.Trigger>Actions</FilterMenu.Trigger>
+          <FilterMenu.Portal>
+            <FilterMenu.Positioner>
+              <FilterMenu.Popup>
+                <FilterMenu.List data-testid="root-list">
+                  <FilterMenu.Item>Rename</FilterMenu.Item>
+                  <FilterMenu.SubmenuRoot>
+                    <FilterMenu.SubmenuTrigger delay={0}>Move to</FilterMenu.SubmenuTrigger>
+                    <FilterMenu.Portal>
+                      <FilterMenu.Positioner>
+                        <FilterMenu.Popup>
+                          <FilterMenu.Input aria-label="Filter destinations" />
+                          <FilterMenu.List>
+                            <FilterMenu.Item>Documents</FilterMenu.Item>
+                          </FilterMenu.List>
+                        </FilterMenu.Popup>
+                      </FilterMenu.Positioner>
+                    </FilterMenu.Portal>
+                  </FilterMenu.SubmenuRoot>
+                  <FilterMenu.Item>Delete</FilterMenu.Item>
+                </FilterMenu.List>
+              </FilterMenu.Popup>
+            </FilterMenu.Positioner>
+          </FilterMenu.Portal>
+        </FilterMenu.Root>
+      );
+    }
+
     it('marks the input focus-visible when the menu is opened with the keyboard', async () => {
       const { user } = await render(
         <FilterMenu.Root>
@@ -94,6 +155,21 @@ describe('<FilterMenu.Root />', () => {
         expect(input).toHaveFocus();
       });
       expect(input).toHaveAttribute('data-focus-visible');
+    });
+
+    it('keeps focus on the trigger when an inputless menu is opened with a pointer', async () => {
+      const { user } = await render(<SubmenuInputOnlyMenu />);
+
+      const trigger = screen.getByRole('button', { name: 'Actions' });
+      await user.click(trigger);
+
+      const list = await screen.findByRole('menu');
+      expect(trigger).toHaveFocus();
+      expect(list).not.toHaveFocus();
+      expect(list).not.toHaveAttribute('aria-activedescendant');
+      expect(screen.getByRole('menuitem', { name: 'Rename' })).not.toHaveAttribute(
+        'data-highlighted',
+      );
     });
 
     describe('prop: autoHighlight', () => {
@@ -1107,6 +1183,70 @@ describe('<FilterMenu.Root />', () => {
       expect(submenuList).toHaveAttribute(
         'aria-activedescendant',
         screen.getByRole('menuitem', { name: 'Messages' }).id,
+      );
+    });
+
+    it('keeps parent focus when an inputless submenu opens on hover', async () => {
+      const { user } = await render(<RootInputOnlyMenu />);
+
+      const parentInput = screen.getByRole('searchbox', { name: 'Filter actions' });
+      await waitFor(() => {
+        expect(parentInput).toHaveFocus();
+      });
+
+      await user.hover(screen.getByRole('menuitem', { name: 'Share' }));
+
+      const submenuList = await screen.findByTestId('submenu-list');
+      expect(parentInput).toHaveFocus();
+      expect(submenuList).not.toHaveFocus();
+      expect(submenuList).not.toHaveAttribute('aria-activedescendant');
+      expect(screen.getByRole('menuitem', { name: 'Email' })).not.toHaveAttribute(
+        'data-highlighted',
+      );
+    });
+
+    it('loops within an inputless submenu instead of allowing navigation to escape', async () => {
+      const { user } = await render(<RootInputOnlyMenu />);
+
+      const parentInput = screen.getByRole('searchbox', { name: 'Filter actions' });
+      await waitFor(() => {
+        expect(parentInput).toHaveFocus();
+      });
+      await user.keyboard('[ArrowDown][ArrowRight]');
+
+      const submenuList = await screen.findByTestId('submenu-list');
+      await waitFor(() => {
+        expect(submenuList).toHaveFocus();
+      });
+      await user.keyboard('[ArrowUp]');
+
+      const lastItem = screen.getByRole('menuitem', { name: 'Messages' });
+      expect(submenuList).toHaveAttribute('aria-activedescendant', lastItem.id);
+      expect(lastItem).toHaveAttribute('data-highlighted');
+    });
+
+    it('restores an inputless root highlight to the submenu trigger on Escape', async () => {
+      const { user } = await render(<SubmenuInputOnlyMenu />);
+
+      await user.click(screen.getByRole('button', { name: 'Actions' }));
+      const rootList = await screen.findByTestId('root-list');
+      const submenuTrigger = screen.getByRole('menuitem', { name: 'Move to' });
+
+      await user.hover(submenuTrigger);
+      const submenuInput = await screen.findByRole('searchbox', { name: 'Filter destinations' });
+      await waitFor(() => {
+        expect(submenuInput).toHaveFocus();
+      });
+
+      await user.keyboard('[Escape]');
+
+      await waitFor(() => {
+        expect(rootList).toHaveFocus();
+      });
+      expect(rootList).toHaveAttribute('aria-activedescendant', submenuTrigger.id);
+      expect(submenuTrigger).toHaveAttribute('data-highlighted');
+      expect(screen.getByRole('menuitem', { name: 'Rename' })).not.toHaveAttribute(
+        'data-highlighted',
       );
     });
 

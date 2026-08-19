@@ -71,6 +71,7 @@ export function FilterMenuSubmenuRoot(props: FilterMenuSubmenuRoot.Props): React
     state: 'inputValue',
   });
   const [inputFocusVisible, setInputFocusVisible] = React.useState(false);
+  const [hasInput, setHasInput] = React.useState(false);
 
   const parentReferenceRef = React.useRef<ParentReference | null>(null);
   const focusOwnerRef = React.useRef<HTMLElement | null>(null);
@@ -168,7 +169,7 @@ export function FilterMenuSubmenuRoot(props: FilterMenuSubmenuRoot.Props): React
       onOpenChangeComplete={closeQuery.handleOpenChangeComplete}
       virtualFocus
       virtualFocusRef={focusOwnerRef}
-      allowEscape={!autoHighlight}
+      allowEscape={hasInput && !autoHighlight}
       resetOnPointerLeave={autoHighlight !== 'always'}
       renderVirtualFocusChildren={(_, inputProps) => (
         <FilterMenuSubmenuNavigation
@@ -194,6 +195,7 @@ export function FilterMenuSubmenuRoot(props: FilterMenuSubmenuRoot.Props): React
             locale={locale}
             inputProps={inputProps}
             onValueChange={handleInputValueChange}
+            onInputElementChange={setHasInput}
           >
             {children}
           </FilterMenuProvider>

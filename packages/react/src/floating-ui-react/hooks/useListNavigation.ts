@@ -878,7 +878,7 @@ export function useListNavigation(
           return;
         }
 
-        if (virtual && !isTypeableElement(event.currentTarget)) {
+        if (virtual && !isTypeableElement(event.currentTarget) && activeIndex == null) {
           indexRef.current = getMinEnabledIndex();
           onNavigate(event);
         } else if (!virtual) {
@@ -904,6 +904,7 @@ export function useListNavigation(
     rtl,
     selectedIndexRef,
     virtual,
+    activeIndex,
   ]);
 
   const reference: ElementProps['reference'] = React.useMemo(() => {

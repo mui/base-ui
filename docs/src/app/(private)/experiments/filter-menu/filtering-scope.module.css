@@ -16,6 +16,13 @@
   gap: 1rem;
 }
 
+.Option {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: max-content;
+}
+
 .Example {
   display: grid;
   align-content: start;
@@ -68,6 +75,11 @@
   background: canvas;
   color: var(--color-gray-900);
   box-shadow: 0 0.5rem 1.5rem rgb(0 0 0 / 15%);
+  outline: 0;
+}
+
+.List {
+  outline: 0;
 }
 
 .Item {
