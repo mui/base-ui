@@ -3,6 +3,7 @@ import { Store } from '@base-ui/utils/store';
 export type State = {
   visibleItemIds: ReadonlySet<symbol> | null;
   registeredItemCount: number;
+  itemIds: readonly string[];
 };
 
 export type FilterDropdownStore = Store<State>;
@@ -15,6 +16,7 @@ export const selectors = {
       : state.visibleItemIds.size === 0,
   isItemVisible: (state: State, id: symbol) =>
     state.visibleItemIds === null || state.visibleItemIds.has(id),
+  activeItemId: (state: State, index: number | null) => state.itemIds[index ?? -1],
 };
 
 /**
@@ -23,5 +25,5 @@ export const selectors = {
  */
 export const DETACHED_OWNER = {
   registerItem: () => () => {},
-  store: new Store<State>({ visibleItemIds: null, registeredItemCount: 0 }),
+  store: new Store<State>({ visibleItemIds: null, registeredItemCount: 0, itemIds: [] }),
 };

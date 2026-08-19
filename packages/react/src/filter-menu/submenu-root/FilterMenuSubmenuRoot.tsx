@@ -15,7 +15,7 @@ import type { FilterMenuFilter } from '../root/FilterMenuRoot';
 import { useFilterDropdownCloseQuery } from '../../filter-dropdown/root/useFilterDropdownCloseQuery';
 import { useMenuRootContext } from '../../menu/root/MenuRootContext';
 import { FilterMenuProvider, isKeyboardOpen } from '../root/FilterMenuRoot';
-import type { BaseUIEvent, HTMLProps } from '../../internals/types';
+import type { BaseUIEvent } from '../../internals/types';
 import { useDirection } from '../../internals/direction-context/DirectionContext';
 import {
   isCrossOrientationCloseKey,
@@ -74,7 +74,6 @@ export function FilterMenuSubmenuRoot(props: FilterMenuSubmenuRoot.Props): React
 
   const parentReferenceRef = React.useRef<ParentReference | null>(null);
   const focusOwnerRef = React.useRef<HTMLElement | null>(null);
-  const inputPropsRef = React.useRef<HTMLProps>({});
 
   const disabled = parentDisabled || disabledProp;
 
@@ -169,37 +168,38 @@ export function FilterMenuSubmenuRoot(props: FilterMenuSubmenuRoot.Props): React
       onOpenChangeComplete={closeQuery.handleOpenChangeComplete}
       virtualFocus
       virtualFocusRef={focusOwnerRef}
-      virtualFocusPropsRef={inputPropsRef}
       allowEscape={!autoHighlight}
       resetOnPointerLeave={autoHighlight !== 'always'}
-    >
-      <FilterMenuSubmenuNavigation
-        parentStore={parentStore}
-        parentOrientation={parent.orientation}
-        parentLoopFocus={parent.loopFocus}
-        getReturnElement={() =>
-          parentReferenceRef.current?.reference ??
-          (parent.virtualFocus ? parent.virtualFocusRef?.current : null) ??
-          null
-        }
-        onSubmenuEnter={handleSubmenuEnter}
-        onSubmenuExit={handleSubmenuExit}
-        onParentNavigation={handleParentNavigation}
-      >
-        <FilterMenuProvider
-          open={open}
-          inputFocusVisible={inputFocusVisible}
-          value={inputValue}
-          query={closeQuery.query}
-          filter={filter}
-          autoHighlight={autoHighlight}
-          locale={locale}
-          onValueChange={handleInputValueChange}
+      renderVirtualFocusChildren={(_, inputProps) => (
+        <FilterMenuSubmenuNavigation
+          parentStore={parentStore}
+          parentOrientation={parent.orientation}
+          parentLoopFocus={parent.loopFocus}
+          getReturnElement={() =>
+            parentReferenceRef.current?.reference ??
+            (parent.virtualFocus ? parent.virtualFocusRef?.current : null) ??
+            null
+          }
+          onSubmenuEnter={handleSubmenuEnter}
+          onSubmenuExit={handleSubmenuExit}
+          onParentNavigation={handleParentNavigation}
         >
-          {children}
-        </FilterMenuProvider>
-      </FilterMenuSubmenuNavigation>
-    </MenuRootInternal>
+          <FilterMenuProvider
+            open={open}
+            inputFocusVisible={inputFocusVisible}
+            value={inputValue}
+            query={closeQuery.query}
+            filter={filter}
+            autoHighlight={autoHighlight}
+            locale={locale}
+            inputProps={inputProps}
+            onValueChange={handleInputValueChange}
+          >
+            {children}
+          </FilterMenuProvider>
+        </FilterMenuSubmenuNavigation>
+      )}
+    />
   );
 }
 

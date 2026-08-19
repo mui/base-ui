@@ -16,15 +16,20 @@ import { useMenuItem } from '../item/useMenuItem';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { useMenuPositionerContext } from '../positioner/MenuPositionerContext';
 import { useTriggerRegistration } from '../../utils/popups';
-import type { MenuStore } from '../store/MenuStore';
 import { useMenuSubmenuRootContext } from '../submenu-root/MenuSubmenuRootContext';
 import { REASONS } from '../../internals/reasons';
 import { getMenuItemId } from '../utils/getMenuItemId';
 
 const VOICE_OVER_EXPANDED_PROPS = { 'aria-expanded': undefined };
 
-const MenuSubmenuTriggerImpl = React.forwardRef(function MenuSubmenuTriggerImpl(
-  componentProps: MenuSubmenuTriggerImplProps,
+/**
+ * A menu item that opens a submenu.
+ * Renders a `<div>` element.
+ *
+ * Documentation: [Base UI Menu](https://base-ui.com/react/components/menu)
+ */
+export const MenuSubmenuTrigger = React.forwardRef(function MenuSubmenuTrigger(
+  componentProps: MenuSubmenuTrigger.Props,
   forwardedRef: React.ForwardedRef<HTMLElement>,
 ) {
   const {
@@ -38,14 +43,18 @@ const MenuSubmenuTriggerImpl = React.forwardRef(function MenuSubmenuTriggerImpl(
     delay = 100,
     closeDelay = 0,
     disabled: disabledProp = false,
-    parentMenuStore,
-    parentVirtualFocus,
     ...elementProps
   } = componentProps;
 
+  const context = useMenuRootContext(true);
+  if (context?.type !== 'submenu' || context.parent.type !== 'menu') {
+    throw new Error('Base UI: <Menu.SubmenuTrigger> must be placed in <Menu.SubmenuRoot>.');
+  }
+
   const menuPositionerContext = useMenuPositionerContext();
 
-  const { store } = useMenuRootContext();
+  const { store, parentVirtualFocus } = context;
+  const parentMenuStore = context.parent.store;
   const submenuRootContext = useMenuSubmenuRootContext();
   const listItem = useCompositeListItem({ guess: true, label });
   const parentFloatingId = parentMenuStore.useState('floatingId');
@@ -218,37 +227,6 @@ const MenuSubmenuTriggerImpl = React.forwardRef(function MenuSubmenuTriggerImpl(
   });
 
   return element;
-});
-
-interface MenuSubmenuTriggerImplProps extends MenuSubmenuTrigger.Props {
-  parentMenuStore: MenuStore<unknown>;
-  parentVirtualFocus: boolean;
-}
-
-/**
- * A menu item that opens a submenu.
- * Renders a `<div>` element.
- *
- * Documentation: [Base UI Menu](https://base-ui.com/react/components/menu)
- */
-export const MenuSubmenuTrigger = React.forwardRef(function MenuSubmenuTrigger(
-  componentProps: MenuSubmenuTrigger.Props,
-  forwardedRef: React.ForwardedRef<HTMLElement>,
-) {
-  const context = useMenuRootContext(true);
-
-  if (context?.type !== 'submenu' || context.parent.type !== 'menu') {
-    throw new Error('Base UI: <Menu.SubmenuTrigger> must be placed in <Menu.SubmenuRoot>.');
-  }
-
-  return (
-    <MenuSubmenuTriggerImpl
-      {...componentProps}
-      parentMenuStore={context.parent.store}
-      parentVirtualFocus={context.parentVirtualFocus}
-      ref={forwardedRef}
-    />
-  );
 });
 
 export interface MenuSubmenuTriggerState {

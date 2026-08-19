@@ -43,7 +43,7 @@ export const FilterDropdownTrigger = React.forwardRef(function FilterDropdownTri
 
   return useRenderElement('button', componentProps, {
     state,
-    ref: [forwardedRef, context?.setTriggerElement, renderedIdRef],
+    ref: [forwardedRef, renderedIdRef],
     props: [
       {
         id,

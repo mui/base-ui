@@ -1,9 +1,11 @@
 'use client';
 import * as React from 'react';
+import { useStore } from '@base-ui/utils/store';
 import type { BaseUIChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import type { REASONS } from '../../internals/reasons';
 import type { HTMLProps } from '../../internals/types';
 import type { FilterDropdownStore } from '../store';
+import { selectors } from '../store';
 
 export interface FilterDropdownItemRegistration {
   getText: () => string | undefined;
@@ -13,12 +15,6 @@ export interface FilterDropdownItemRegistration {
 export type FilterDropdownFilter = (filterText: string, query: string) => boolean;
 
 export interface FilterDropdownRootContext {
-  /**
-   * The enclosing dropdown when this root is nested, such as a filterable submenu. A nested
-   * root's provider shadows the enclosing one for children that belong to the enclosing list,
-   * like the submenu's own trigger.
-   */
-  parent: FilterDropdownRootContext | null;
   open: boolean;
   inline: boolean;
   disabled: boolean;
@@ -40,8 +36,6 @@ export interface FilterDropdownRootContext {
   defaultListId: string | undefined;
   listId: string | undefined;
   setListId: React.Dispatch<React.SetStateAction<string | undefined>>;
-  liveRegionElement: HTMLDivElement | null;
-  setTriggerElement: React.Dispatch<React.SetStateAction<HTMLElement | null>>;
   /**
    * The input when present, or the list when the input is omitted. This element owns real focus
    * while the host uses virtual list navigation.
@@ -50,12 +44,6 @@ export interface FilterDropdownRootContext {
   setInputElement: (element: HTMLInputElement | null) => void;
   setListElement: (element: HTMLDivElement | null) => void;
   hasInput: boolean;
-  registerItem: (id: symbol, registration: FilterDropdownItemRegistration) => () => void;
-  /**
-   * The host's list of item elements, in DOM order, and the index it currently highlights. The
-   * host owns navigation; these are read to point `aria-activedescendant` at the right element.
-   */
-  listRef: React.RefObject<Array<HTMLElement | null>>;
   activeIndex: number | null;
   setActiveIndex: (index: number | null) => void;
   /**
@@ -63,6 +51,32 @@ export interface FilterDropdownRootContext {
    */
   inputProps: HTMLProps;
   onValueChange: (value: string, eventDetails: FilterDropdownRoot.ChangeEventDetails) => void;
+}
+
+export interface FilterDropdownItemContext {
+  /** The enclosing dropdown when this root is nested. */
+  parent: FilterDropdownItemContext | null;
+  store: FilterDropdownStore;
+  registerItem: (id: symbol, registration: FilterDropdownItemRegistration) => () => void;
+  listRef: React.RefObject<Array<HTMLElement | null>>;
+}
+
+export const FilterDropdownItemContext = React.createContext<FilterDropdownItemContext | null>(
+  null,
+);
+
+export function useFilterDropdownItemContext(optional?: false): FilterDropdownItemContext;
+export function useFilterDropdownItemContext(optional: true): FilterDropdownItemContext | null;
+export function useFilterDropdownItemContext(optional: boolean): FilterDropdownItemContext | null;
+export function useFilterDropdownItemContext(optional = false) {
+  const context = React.useContext(FilterDropdownItemContext);
+  if (context === null && !optional) {
+    throw new Error(
+      'Base UI: Filter parts must be placed within a filter root. Wrap them in <FilterMenu.Root> ' +
+        'or <FilterMenu.SubmenuRoot>; a plain <Menu.Root> cannot filter.',
+    );
+  }
+  return context;
 }
 
 export const FilterDropdownRootContext = React.createContext<FilterDropdownRootContext | null>(
@@ -89,7 +103,7 @@ export function useFilterDropdownRootContext(optional = false) {
 export function useFilterContextForList(
   listRef: React.RefObject<Array<HTMLElement | null>> | null,
 ) {
-  let context = React.useContext(FilterDropdownRootContext);
+  let context = React.useContext(FilterDropdownItemContext);
   while (listRef !== null && context !== null && context.listRef !== listRef) {
     context = context.parent;
   }
@@ -100,7 +114,7 @@ export function useFilterContextForList(
  * The element the host currently highlights, used for `aria-activedescendant`.
  */
 export function useActiveItemId(context: FilterDropdownRootContext) {
-  return context.listRef.current[context.activeIndex ?? -1]?.id;
+  return useStore(context.store, selectors.activeItemId, context.activeIndex);
 }
 
 // `value` controls a native input and can't be placed in the store without breaking the caret

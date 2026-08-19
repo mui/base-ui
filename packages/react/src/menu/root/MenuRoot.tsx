@@ -70,11 +70,6 @@ interface MenuRootInternalProps<Payload> extends MenuRoot.Props<Payload> {
   virtualFocusRef?: React.RefObject<HTMLElement | null> | undefined;
   /**
    * @ignore
-   * Receives the navigation props for the virtual focus owner.
-   */
-  virtualFocusPropsRef?: React.RefObject<HTMLProps> | undefined;
-  /**
-   * @ignore
    * Whether virtual focus can leave the list during arrow navigation.
    */
   allowEscape?: boolean | undefined;
@@ -83,6 +78,13 @@ interface MenuRootInternalProps<Payload> extends MenuRoot.Props<Payload> {
    * Whether pointer leave should clear the active item.
    */
   resetOnPointerLeave?: boolean | undefined;
+  /**
+   * @ignore
+   * Renders internal virtual-focus adapters with the current navigation props.
+   */
+  renderVirtualFocusChildren?:
+    | ((payload: { payload: Payload | undefined }, inputProps: HTMLProps) => React.ReactNode)
+    | undefined;
 }
 
 /**
@@ -112,9 +114,9 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
     inline = false,
     virtualFocus = false,
     virtualFocusRef,
-    virtualFocusPropsRef,
     allowEscape = true,
     resetOnPointerLeave = true,
+    renderVirtualFocusChildren,
   } = props as MenuRootInternalProps<Payload>;
 
   const contextMenuContext = useContextMenuRootContext(true);
@@ -593,9 +595,6 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
     openTriggerProps = triggerProps;
   }
   const inputProps = virtualFocus ? (listNavigation.reference ?? EMPTY_OBJECT) : EMPTY_OBJECT;
-  if (virtualFocusPropsRef) {
-    virtualFocusPropsRef.current = inputProps;
-  }
 
   const activeTriggerProps = React.useMemo(() => {
     const mergedProps = mergeProps(
@@ -687,7 +686,6 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
       setFloatingId,
       virtualFocus,
       virtualFocusRef,
-      virtualFocusPropsRef,
       parentVirtualFocus: parentMenuRootContext?.virtualFocus ?? false,
     }),
     [
@@ -700,15 +698,19 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
       floatingId,
       virtualFocus,
       virtualFocusRef,
-      virtualFocusPropsRef,
       parentMenuRootContext,
     ],
   );
 
+  let renderedChildren = typeof children === 'function' ? children({ payload }) : children;
+  if (renderVirtualFocusChildren) {
+    renderedChildren = renderVirtualFocusChildren({ payload }, inputProps);
+  }
+
   let content = (
     <MenuRootContext.Provider value={context as MenuRootContext}>
       {handle && <PopupHandleAttachment handle={handle} store={store} />}
-      {typeof children === 'function' ? children({ payload }) : children}
+      {renderedChildren}
     </MenuRootContext.Provider>
   );
 

@@ -11,8 +11,8 @@ import type { FilterDropdownFilter } from '../../filter-dropdown/root/FilterDrop
 import { useFilterDropdownCloseQuery } from '../../filter-dropdown/root/useFilterDropdownCloseQuery';
 import { MenuRootInternal, type MenuRoot } from '../../menu/root/MenuRoot';
 import { useMenuRootContext } from '../../menu/root/MenuRootContext';
-import type { HTMLProps } from '../../internals/types';
 import type { FilterMenuHandle } from '../store/FilterMenuHandle';
+import type { HTMLProps } from '../../internals/types';
 
 /**
  * Groups all parts of a filter menu.
@@ -52,7 +52,6 @@ export function FilterMenuRoot<Payload>(props: FilterMenuRoot.Props<Payload>): R
   });
   const [inputFocusVisible, setInputFocusVisible] = React.useState(false);
   const focusOwnerRef = React.useRef<HTMLElement | null>(null);
-  const inputPropsRef = React.useRef<HTMLProps>({});
 
   const handleInputValueChange = useStableCallback(
     (nextValue: string, details: FilterMenuRoot.InputValueChangeEventDetails) => {
@@ -91,11 +90,9 @@ export function FilterMenuRoot<Payload>(props: FilterMenuRoot.Props<Payload>): R
       inline={inline}
       virtualFocus
       virtualFocusRef={focusOwnerRef}
-      virtualFocusPropsRef={inputPropsRef}
       allowEscape={!autoHighlight}
       resetOnPointerLeave={autoHighlight !== 'always'}
-    >
-      {(payload) => (
+      renderVirtualFocusChildren={(payload, inputProps) => (
         <FilterMenuProvider
           open={open}
           inputFocusVisible={inputFocusVisible}
@@ -105,12 +102,13 @@ export function FilterMenuRoot<Payload>(props: FilterMenuRoot.Props<Payload>): R
           autoHighlight={autoHighlight}
           locale={locale}
           inline={inline}
+          inputProps={inputProps}
           onValueChange={handleInputValueChange}
         >
           {typeof children === 'function' ? children(payload) : children}
         </FilterMenuProvider>
       )}
-    </MenuRootInternal>
+    />
   );
 }
 
@@ -140,6 +138,7 @@ interface FilterMenuProviderProps {
   autoHighlight: boolean | 'always';
   locale: Intl.LocalesArgument | undefined;
   inline?: boolean | undefined;
+  inputProps: HTMLProps;
   onValueChange: (value: string, details: FilterMenuRoot.InputValueChangeEventDetails) => void;
   children?: React.ReactNode;
 }
@@ -149,7 +148,7 @@ interface FilterMenuProviderProps {
  * list the menu navigates plus the props for the input that holds real focus.
  */
 export function FilterMenuProvider(props: FilterMenuProviderProps) {
-  const { store, virtualFocusRef, virtualFocusPropsRef } = useMenuRootContext();
+  const { store, virtualFocusRef } = useMenuRootContext();
   const triggerId = store.useState('activeTriggerId');
   const triggerElement = store.useState('activeTriggerElement');
   const activeIndex = store.useState('activeIndex');
@@ -171,11 +170,10 @@ export function FilterMenuProvider(props: FilterMenuProviderProps) {
       autoHighlight={props.autoHighlight}
       locale={props.locale}
       triggerId={triggerElement?.id ?? triggerId}
-      triggerElement={triggerElement}
       listRef={store.context.itemDomElements}
       activeIndex={activeIndex}
       setActiveIndex={setActiveIndex}
-      inputProps={virtualFocusPropsRef?.current}
+      inputProps={props.inputProps}
       inputRef={virtualFocusRef}
       onValueChange={props.onValueChange}
     >

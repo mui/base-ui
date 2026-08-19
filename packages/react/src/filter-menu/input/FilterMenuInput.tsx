@@ -5,7 +5,10 @@ import {
   type FilterDropdownInputProps,
   type FilterDropdownInputState,
 } from '../../filter-dropdown/input/FilterDropdownInput';
-import { useFilterDropdownRootContext } from '../../filter-dropdown/root/FilterDropdownRootContext';
+import {
+  useFilterDropdownItemContext,
+  useFilterDropdownRootContext,
+} from '../../filter-dropdown/root/FilterDropdownRootContext';
 import { mergeProps } from '../../merge-props';
 import type { BaseUIEvent } from '../../internals/types';
 import { dispatchClickWithModifiers } from '../../utils/dispatchClickWithModifiers';
@@ -21,7 +24,8 @@ export const FilterMenuInput = React.forwardRef(function FilterMenuInput(
   componentProps: FilterMenuInput.Props,
   forwardedRef: React.ForwardedRef<HTMLInputElement>,
 ) {
-  const { listRef, activeIndex } = useFilterDropdownRootContext();
+  const { activeIndex } = useFilterDropdownRootContext();
+  const { listRef } = useFilterDropdownItemContext();
   const handleReferenceKeyDown = useFilterMenuReferenceKeyDown();
 
   const inputProps = mergeProps<typeof FilterDropdownInput>(
@@ -35,8 +39,7 @@ export const FilterMenuInput = React.forwardRef(function FilterMenuInput(
         }
 
         // Enter that commits an IME composition belongs to the input, not the list.
-        const nativeEvent = event.nativeEvent as KeyboardEvent;
-        if (nativeEvent.isComposing || nativeEvent.keyCode === 229) {
+        if (event.which === 229) {
           return;
         }
 
