@@ -51,3 +51,7 @@ export type * from './submenu-trigger/FilterMenuSubmenuTrigger';
 export type * from './input/FilterMenuInput';
 export type * from './clear/FilterMenuClear';
 export type * from './empty/FilterMenuEmpty';
+export type {
+  ComboboxStatusProps as FilterMenuStatusProps,
+  ComboboxStatusState as FilterMenuStatusState,
+} from '../combobox/status/ComboboxStatus';

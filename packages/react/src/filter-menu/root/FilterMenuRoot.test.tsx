@@ -136,6 +136,40 @@ describe('<FilterMenu.Root />', () => {
         expect(input).toHaveAttribute('aria-activedescendant', deleteItem.id);
       });
 
+      it('updates the active descendant when filtering replaces a custom-id item', async () => {
+        function Test(props: { inputValue: string }) {
+          return (
+            <FilterMenu.Root
+              inline
+              open
+              autoHighlight="always"
+              inputValue={props.inputValue}
+              onInputValueChange={() => {}}
+            >
+              <FilterMenu.Input aria-label="Filter fruit" />
+              <FilterMenu.List>
+                <FilterMenu.Item render={<div id="apple-item" />}>Apple</FilterMenu.Item>
+                <FilterMenu.Item render={<div id="banana-item" />}>Banana</FilterMenu.Item>
+              </FilterMenu.List>
+            </FilterMenu.Root>
+          );
+        }
+
+        const { setProps } = await render(<Test inputValue="" />);
+
+        const input = screen.getByRole('searchbox', { name: 'Filter fruit' });
+        await waitFor(() => {
+          expect(input).toHaveAttribute('aria-activedescendant', 'apple-item');
+        });
+
+        await setProps({ inputValue: 'ban' });
+
+        await waitFor(() => {
+          expect(input).toHaveAttribute('aria-activedescendant', 'banana-item');
+        });
+        expect(screen.queryByRole('menuitem', { name: 'Apple' })).toBe(null);
+      });
+
       it('always highlights the first item when autoHighlight is "always"', async () => {
         await render(
           <FilterMenu.Root inline open autoHighlight="always">
@@ -1360,6 +1394,27 @@ describe('<FilterMenu.Root />', () => {
       });
     });
 
+    it('announces empty results without a trigger in an inline menu', async () => {
+      const { user } = await render(
+        <FilterMenu.Root inline open>
+          <FilterMenu.Input aria-label="Filter fruit" />
+          <FilterMenu.Empty>No fruit found</FilterMenu.Empty>
+          <FilterMenu.List>
+            <FilterMenu.Item>Apple</FilterMenu.Item>
+          </FilterMenu.List>
+        </FilterMenu.Root>,
+      );
+
+      const status = screen.getByRole('status');
+      expect(status).toHaveTextContent('');
+
+      await user.type(screen.getByRole('searchbox', { name: 'Filter fruit' }), 'zz');
+
+      await waitFor(() => {
+        expect(status).toHaveTextContent('No fruit found');
+      });
+    });
+
     it('uses the id from a custom trigger render element for popup labelling', async () => {
       const { user } = await render(
         <FilterMenu.Root>
@@ -2247,6 +2302,53 @@ describe('<FilterMenu.Root />', () => {
       expect(onClick).not.toHaveBeenCalled();
     });
 
+    it('does not forward submenu navigation keys while composing text', async () => {
+      await render(
+        <FilterMenu.Root defaultOpen>
+          <FilterMenu.Trigger>Actions</FilterMenu.Trigger>
+          <FilterMenu.Portal>
+            <FilterMenu.Positioner>
+              <FilterMenu.Popup>
+                <FilterMenu.Input aria-label="Filter actions" />
+                <FilterMenu.List>
+                  <FilterMenu.SubmenuRoot>
+                    <FilterMenu.SubmenuTrigger openOnHover={false}>
+                      Move to folder
+                    </FilterMenu.SubmenuTrigger>
+                    <FilterMenu.Portal>
+                      <FilterMenu.Positioner>
+                        <FilterMenu.Popup>
+                          <FilterMenu.Input aria-label="Filter folders" />
+                          <FilterMenu.List>
+                            <FilterMenu.Item>Documents</FilterMenu.Item>
+                          </FilterMenu.List>
+                        </FilterMenu.Popup>
+                      </FilterMenu.Positioner>
+                    </FilterMenu.Portal>
+                  </FilterMenu.SubmenuRoot>
+                </FilterMenu.List>
+              </FilterMenu.Popup>
+            </FilterMenu.Positioner>
+          </FilterMenu.Portal>
+        </FilterMenu.Root>,
+      );
+
+      const input = screen.getByRole('searchbox', { name: 'Filter actions' });
+      await waitFor(() => {
+        expect(input).toHaveFocus();
+      });
+      await userEvent.keyboard('[ArrowDown]');
+
+      fireEvent.keyDown(input, {
+        key: 'ArrowRight',
+        // React derives SyntheticEvent.which from the native keyCode.
+        keyCode: 229,
+        which: 229,
+      });
+
+      expect(screen.queryByRole('searchbox', { name: 'Filter folders' })).toBe(null);
+    });
+
     it('disables filter controls when the root is disabled', async () => {
       await render(
         <FilterMenu.Root open disabled defaultInputValue="a">
@@ -2720,9 +2822,74 @@ describe('<FilterMenu.Root />', () => {
       expect(screen.getByRole('menuitem', { name: 'Date' })).not.toHaveAttribute('aria-expanded');
       expect(screen.queryByRole('menuitemradio', { name: 'Cherry' })).toBe(null);
     });
+
+    it('preserves uncontrolled checkbox state while the item is filtered out', async () => {
+      const { user } = await render(
+        <FilterMenu.Root inline open>
+          <FilterMenu.Input aria-label="Filter settings" />
+          <FilterMenu.List>
+            <FilterMenu.CheckboxItem defaultChecked>Show details</FilterMenu.CheckboxItem>
+            <FilterMenu.Item>Rename</FilterMenu.Item>
+          </FilterMenu.List>
+        </FilterMenu.Root>,
+      );
+
+      const input = screen.getByRole('searchbox', { name: 'Filter settings' });
+      const checkbox = screen.getByRole('menuitemcheckbox', { name: 'Show details' });
+      await user.click(checkbox);
+      expect(checkbox).toHaveAttribute('aria-checked', 'false');
+
+      await user.type(input, 'rename');
+      expect(screen.queryByRole('menuitemcheckbox', { name: 'Show details' })).toBe(null);
+
+      await user.clear(input);
+      expect(screen.getByRole('menuitemcheckbox', { name: 'Show details' })).toHaveAttribute(
+        'aria-checked',
+        'false',
+      );
+    });
   });
 
   describe('keyboard navigation', () => {
+    it('does not rerender unaffected items when the highlight moves', async () => {
+      const firstRender = vi.fn();
+      const secondRender = vi.fn();
+
+      const { user } = await render(
+        <FilterMenu.Root inline open>
+          <FilterMenu.Input aria-label="Filter actions" />
+          <FilterMenu.List>
+            <FilterMenu.Item
+              render={(props) => {
+                firstRender();
+                return <div {...props} />;
+              }}
+            >
+              Rename
+            </FilterMenu.Item>
+            <FilterMenu.Item
+              render={(props) => {
+                secondRender();
+                return <div {...props} />;
+              }}
+            >
+              Delete
+            </FilterMenu.Item>
+          </FilterMenu.List>
+        </FilterMenu.Root>,
+      );
+
+      const input = screen.getByRole('searchbox', { name: 'Filter actions' });
+      await user.click(input);
+      firstRender.mockClear();
+      secondRender.mockClear();
+
+      await user.keyboard('[ArrowDown]');
+
+      expect(firstRender).toHaveBeenCalled();
+      expect(secondRender).not.toHaveBeenCalled();
+    });
+
     function KeyboardNavigationMenu() {
       return (
         <FilterMenu.Root>

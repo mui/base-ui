@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import { useControlled } from '@base-ui/utils/useControlled';
 import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
 import { useFilterDropdownItem } from '../../filter-dropdown/item/useFilterDropdownItem';
 import {
@@ -18,12 +19,39 @@ export const FilterMenuCheckboxItem = React.forwardRef(function FilterMenuCheckb
   props: FilterMenuCheckboxItem.Props,
   forwardedRef: React.ForwardedRef<HTMLElement>,
 ) {
-  const { label, keywords, ...menuProps } = props;
+  const {
+    label,
+    keywords,
+    checked: checkedProp,
+    defaultChecked,
+    onCheckedChange,
+    ...menuProps
+  } = props;
+
+  const [checked, setChecked] = useControlled({
+    controlled: checkedProp,
+    default: defaultChecked ?? false,
+    name: 'FilterMenuCheckboxItem',
+    state: 'checked',
+  });
 
   const { visible, ref } = useFilterDropdownItem({ label, keywords, children: props.children });
   const mergedRef = useMergedRefs(forwardedRef, ref);
 
-  return visible ? <MenuCheckboxItem {...menuProps} label={label} ref={mergedRef} /> : null;
+  return visible ? (
+    <MenuCheckboxItem
+      {...menuProps}
+      checked={checked}
+      label={label}
+      onCheckedChange={(nextChecked, eventDetails) => {
+        onCheckedChange?.(nextChecked, eventDetails);
+        if (!eventDetails.isCanceled) {
+          setChecked(nextChecked);
+        }
+      }}
+      ref={mergedRef}
+    />
+  ) : null;
 });
 
 export interface FilterMenuCheckboxItemProps extends Omit<

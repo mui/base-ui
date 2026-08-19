@@ -1,19 +1,17 @@
 'use client';
 import * as React from 'react';
-import * as ReactDOM from 'react-dom';
-import { ownerDocument } from '@base-ui/utils/owner';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
-import { visuallyHidden } from '@base-ui/utils/visuallyHidden';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { Store } from '@base-ui/utils/store';
-import { EMPTY_OBJECT, NOOP } from '@base-ui/utils/empty';
+import { EMPTY_ARRAY, EMPTY_OBJECT, NOOP } from '@base-ui/utils/empty';
 import { getFilter } from '../../internals/filter';
 import type { HTMLProps } from '../../internals/types';
 import { useBaseUiId } from '../../internals/useBaseUiId';
 import { useItemRegistry } from '../../internals/useItemRegistry';
 import {
   FilterDropdownRootContext,
+  FilterDropdownItemContext,
   FilterDropdownValueContext,
   type FilterDropdownItemRegistration,
   type FilterDropdownFilter,
@@ -41,7 +39,6 @@ export function FilterDropdownRoot(props: FilterDropdownRoot.Props): React.JSX.E
     filter,
     autoHighlight = false,
     triggerId: externalTriggerId,
-    triggerElement: externalTriggerElement,
     listRef,
     activeIndex = null,
     setActiveIndex = NOOP,
@@ -49,9 +46,7 @@ export function FilterDropdownRoot(props: FilterDropdownRoot.Props): React.JSX.E
     inputRef: externalFocusOwnerRef,
   } = props;
 
-  const parentContext = React.useContext(FilterDropdownRootContext);
-  const [liveRegionElement, setLiveRegionElement] = React.useState<HTMLDivElement | null>(null);
-  const [registeredTriggerElement, setTriggerElement] = React.useState<HTMLElement | null>(null);
+  const parentItemContext = React.useContext(FilterDropdownItemContext);
   const [registeredTriggerId, setTriggerId] = React.useState<string | undefined>(undefined);
   const [registeredPopupId, setPopupId] = React.useState<string | undefined>(undefined);
   const [registeredListId, setListId] = React.useState<string | undefined>(undefined);
@@ -61,7 +56,12 @@ export function FilterDropdownRoot(props: FilterDropdownRoot.Props): React.JSX.E
   const [registeredItems, registerItem] = useItemRegistry<symbol, FilterDropdownItemRegistration>();
   const defaultId = useBaseUiId();
   const store = useRefWithInit(
-    () => new Store<StoreState>({ visibleItemIds: null, registeredItemCount: 0 }),
+    () =>
+      new Store<StoreState>({
+        visibleItemIds: null,
+        registeredItemCount: 0,
+        itemIds: EMPTY_ARRAY,
+      }),
   ).current;
 
   const ownFocusOwnerRef = React.useRef<HTMLElement | null>(null);
@@ -89,7 +89,6 @@ export function FilterDropdownRoot(props: FilterDropdownRoot.Props): React.JSX.E
   const defaultTriggerId = defaultId ? `${defaultId}-trigger` : undefined;
   const defaultPopupId = defaultId ? `${defaultId}-popup` : undefined;
   const defaultListId = defaultId ? `${defaultId}-list` : undefined;
-  const triggerElement = externalTriggerElement ?? registeredTriggerElement;
   const triggerId = externalTriggerId ?? registeredTriggerId ?? defaultTriggerId;
   const popupId = registeredPopupId ?? defaultPopupId;
   const listId = registeredListId ?? defaultListId;
@@ -169,7 +168,6 @@ export function FilterDropdownRoot(props: FilterDropdownRoot.Props): React.JSX.E
 
   const contextValue: FilterDropdownRootContext = React.useMemo(
     () => ({
-      parent: parentContext,
       open,
       inline,
       disabled,
@@ -188,21 +186,16 @@ export function FilterDropdownRoot(props: FilterDropdownRoot.Props): React.JSX.E
       defaultListId,
       listId,
       setListId,
-      liveRegionElement,
-      setTriggerElement,
       focusOwnerRef,
       setInputElement,
       setListElement,
       hasInput,
-      registerItem,
-      listRef,
       activeIndex,
       setActiveIndex,
       inputProps,
       onValueChange: handleValueChange,
     }),
     [
-      parentContext,
       open,
       inline,
       disabled,
@@ -216,13 +209,10 @@ export function FilterDropdownRoot(props: FilterDropdownRoot.Props): React.JSX.E
       triggerId,
       defaultListId,
       listId,
-      liveRegionElement,
       focusOwnerRef,
       setInputElement,
       setListElement,
       hasInput,
-      registerItem,
-      listRef,
       activeIndex,
       setActiveIndex,
       inputProps,
@@ -230,23 +220,24 @@ export function FilterDropdownRoot(props: FilterDropdownRoot.Props): React.JSX.E
     ],
   );
 
+  const itemContextValue: FilterDropdownItemContext = React.useMemo(
+    () => ({
+      parent: parentItemContext,
+      store,
+      registerItem,
+      listRef,
+    }),
+    [parentItemContext, store, registerItem, listRef],
+  );
+
   return (
-    <FilterDropdownRootContext.Provider value={contextValue}>
-      <FilterDropdownValueContext.Provider value={query ?? value}>
-        {children}
-      </FilterDropdownValueContext.Provider>
-      {triggerElement &&
-        ReactDOM.createPortal(
-          <div
-            ref={setLiveRegionElement}
-            role="status"
-            aria-live="polite"
-            aria-atomic="true"
-            style={visuallyHidden}
-          />,
-          ownerDocument(triggerElement).body,
-        )}
-    </FilterDropdownRootContext.Provider>
+    <FilterDropdownItemContext.Provider value={itemContextValue}>
+      <FilterDropdownRootContext.Provider value={contextValue}>
+        <FilterDropdownValueContext.Provider value={query ?? value}>
+          {children}
+        </FilterDropdownValueContext.Provider>
+      </FilterDropdownRootContext.Provider>
+    </FilterDropdownItemContext.Provider>
   );
 }
 
@@ -304,10 +295,6 @@ export interface FilterDropdownRootProps {
    * ID of a trigger rendered outside this root, which cannot register itself through the context.
    */
   triggerId?: string | null | undefined;
-  /**
-   * Trigger rendered outside this root, used to mount the live region in the trigger's document.
-   */
-  triggerElement?: Element | null | undefined;
   /**
    * The host's DOM-ordered list of item elements.
    */
