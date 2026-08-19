@@ -1044,6 +1044,9 @@ describe('<FilterMenu.Root />', () => {
         expect(input).toHaveFocus();
       });
 
+      await user.hover(screen.getByRole('menuitem', { name: 'Share' }));
+      expect(input).toHaveFocus();
+
       await user.keyboard('[ArrowDown]');
       expect(input).toHaveAttribute(
         'aria-activedescendant',
@@ -1091,6 +1094,10 @@ describe('<FilterMenu.Root />', () => {
       await waitFor(() => {
         expect(submenuList).toHaveFocus();
       });
+
+      await user.hover(screen.getByRole('menuitem', { name: 'Share' }));
+      expect(submenuList).toHaveFocus();
+
       expect(submenuList).toHaveAttribute(
         'aria-activedescendant',
         screen.getByRole('menuitem', { name: 'Email' }).id,
