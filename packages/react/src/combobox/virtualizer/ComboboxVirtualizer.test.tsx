@@ -171,20 +171,28 @@ describe('<Combobox.Virtualizer />', () => {
     await waitFor(() => expect(virtualizer.style.getPropertyValue('--total-size')).toBe('120px'));
   });
 
-  it.skipIf(!isJSDOM)(
-    'updates estimated size when an estimate callback changes behavior',
+  it.skipIf(isJSDOM)(
+    'applies a changed estimate callback once remeasure announces it',
     async () => {
-      const items = createItems(3);
+      vi.restoreAllMocks();
+      const items = createItems(100);
+      const actionsRef = React.createRef<Combobox.Virtualizer.Actions>();
 
       function Test(props: { estimatedItemHeight: number }) {
         return (
           <Combobox.Root defaultOpen items={items}>
             <Combobox.List>
               <Combobox.Virtualizer
+                actionsRef={actionsRef}
                 estimatedItemHeight={() => props.estimatedItemHeight}
-                render={<div ref={setElementClientHeight(20)} data-testid="virtualizer" />}
+                overscanPx={0}
+                render={<div data-testid="virtualizer" style={{ height: 60, width: 200 }} />}
               >
-                {(item: string) => <Combobox.Item value={item}>{item}</Combobox.Item>}
+                {(item: string) => (
+                  <Combobox.Item value={item} style={{ display: 'block', height: 20 }}>
+                    {item}
+                  </Combobox.Item>
+                )}
               </Combobox.Virtualizer>
             </Combobox.List>
           </Combobox.Root>
@@ -194,41 +202,66 @@ describe('<Combobox.Virtualizer />', () => {
       const { rerender } = await render(<Test estimatedItemHeight={20} />);
       const virtualizer = screen.getByTestId('virtualizer');
 
-      await waitFor(() => expect(virtualizer.style.getPropertyValue('--total-size')).toBe('60px'));
+      // Every item is 20px tall and estimated at 20px, measured or not.
+      await waitFor(() => expect(virtualizer.scrollHeight).toBe(2000));
 
+      // The estimate is derived per collection, so a callback returning something else is not by
+      // itself a change the virtualizer goes looking for.
       await rerender(<Test estimatedItemHeight={40} />);
+      expect(virtualizer.scrollHeight).toBe(2000);
 
-      await waitFor(() => expect(virtualizer.style.getPropertyValue('--total-size')).toBe('120px'));
+      await act(async () => {
+        actionsRef.current?.remeasure();
+      });
+
+      // The handful of mounted items measure 20px; the rest now carry the 40px estimate.
+      await waitFor(() => expect(virtualizer.scrollHeight).toBeGreaterThan(3500));
+      expect(virtualizer.scrollHeight).toBeLessThanOrEqual(4000);
     },
   );
 
-  it.skipIf(!isJSDOM)('updates cached estimates when later callback results change', async () => {
-    const items = createItems(3);
+  it.skipIf(isJSDOM)(
+    'applies changed per-index estimates once remeasure announces them',
+    async () => {
+      vi.restoreAllMocks();
+      const items = createItems(100);
+      const actionsRef = React.createRef<Combobox.Virtualizer.Actions>();
 
-    function Test(props: { laterItemHeight: number }) {
-      return (
-        <Combobox.Root defaultOpen items={items}>
-          <Combobox.List>
-            <Combobox.Virtualizer
-              estimatedItemHeight={(_, index) => (index === 0 ? 20 : props.laterItemHeight)}
-              render={<div ref={setElementClientHeight(20)} data-testid="virtualizer" />}
-            >
-              {(item: string) => <Combobox.Item value={item}>{item}</Combobox.Item>}
-            </Combobox.Virtualizer>
-          </Combobox.List>
-        </Combobox.Root>
-      );
-    }
+      function Test(props: { laterItemHeight: number }) {
+        return (
+          <Combobox.Root defaultOpen items={items}>
+            <Combobox.List>
+              <Combobox.Virtualizer
+                actionsRef={actionsRef}
+                estimatedItemHeight={(_, index) => (index === 0 ? 20 : props.laterItemHeight)}
+                overscanPx={0}
+                render={<div data-testid="virtualizer" style={{ height: 60, width: 200 }} />}
+              >
+                {(item: string) => (
+                  <Combobox.Item value={item} style={{ display: 'block', height: 20 }}>
+                    {item}
+                  </Combobox.Item>
+                )}
+              </Combobox.Virtualizer>
+            </Combobox.List>
+          </Combobox.Root>
+        );
+      }
 
-    const { rerender } = await render(<Test laterItemHeight={20} />);
-    const virtualizer = screen.getByTestId('virtualizer');
+      const { rerender } = await render(<Test laterItemHeight={20} />);
+      const virtualizer = screen.getByTestId('virtualizer');
 
-    await waitFor(() => expect(virtualizer.style.getPropertyValue('--total-size')).toBe('60px'));
+      await waitFor(() => expect(virtualizer.scrollHeight).toBe(2000));
 
-    await rerender(<Test laterItemHeight={40} />);
+      await rerender(<Test laterItemHeight={40} />);
+      await act(async () => {
+        actionsRef.current?.remeasure();
+      });
 
-    await waitFor(() => expect(virtualizer.style.getPropertyValue('--total-size')).toBe('100px'));
-  });
+      await waitFor(() => expect(virtualizer.scrollHeight).toBeGreaterThan(3500));
+      expect(virtualizer.scrollHeight).toBeLessThanOrEqual(4000);
+    },
+  );
 
   it.skipIf(isJSDOM)('uses real browser geometry to measure and window rows', async () => {
     vi.restoreAllMocks();
@@ -1347,7 +1380,7 @@ describe('<Combobox.Virtualizer />', () => {
     expect(renderItem).not.toHaveBeenCalled();
   });
 
-  it('reuses rows when inline configuration callbacks return the same values', async () => {
+  it('does not re-derive keys or estimates when the feature layer re-renders', async () => {
     type Item = { id: string; label: string; size: number };
     const items: Item[] = Array.from({ length: 10 }, (_, index) => ({
       id: String(index),
@@ -1397,8 +1430,10 @@ describe('<Combobox.Virtualizer />', () => {
 
     await rerender(<Test />);
 
-    expect(handleGetItemKey).toHaveBeenCalledTimes(items.length);
-    expect(handleEstimatedItemHeight).toHaveBeenCalledTimes(items.length);
+    // Inline callbacks change identity on every render of the feature layer. Neither derivation
+    // may walk the collection for that, and the rows they produced are reused as they were.
+    expect(handleGetItemKey).not.toHaveBeenCalled();
+    expect(handleEstimatedItemHeight).not.toHaveBeenCalled();
     expect(renderItem).not.toHaveBeenCalled();
   });
 
