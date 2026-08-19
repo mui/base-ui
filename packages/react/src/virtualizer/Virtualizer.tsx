@@ -274,9 +274,11 @@ export const Virtualizer = React.forwardRef(function Virtualizer<Value>(
     children,
     className,
     enabled: enabledProp = true,
+    endReachedThreshold = 0,
     estimatedItemHeight: estimatedItemHeightProp,
     getItemKey,
     items,
+    onEndReached,
     overscanPx,
     render,
     totalItems,
@@ -938,6 +940,43 @@ export const Virtualizer = React.forwardRef(function Virtualizer<Value>(
     }, [enabled, onUnconstrainedHeight, rows.length, rowsMeta, scrollportPaddingTotal]);
   }
 
+  const handleEndReached = useStableCallback(() => onEndReached?.());
+  /**
+   * Whether reaching the end again would be a new arrival. Held down while the window stays at
+   * the end so a list that renders its last item does not ask for another page on every commit,
+   * and released as soon as the window moves away or the collection grows past it.
+   */
+  const endReachedArmedRef = React.useRef(true);
+
+  useIsoLayoutEffect(() => {
+    if (onEndReached == null || rows.length === 0) {
+      return;
+    }
+
+    // The rendered range is half-open, so the final item is included once the end index reaches
+    // the collection length. The threshold counts items short of that.
+    const reachedEnd =
+      overscannedRenderContext.lastRowIndex >= rows.length - Math.max(0, endReachedThreshold);
+
+    if (!reachedEnd) {
+      endReachedArmedRef.current = true;
+      return;
+    }
+
+    if (!endReachedArmedRef.current) {
+      return;
+    }
+
+    endReachedArmedRef.current = false;
+    handleEndReached();
+  }, [
+    endReachedThreshold,
+    handleEndReached,
+    onEndReached,
+    overscannedRenderContext.lastRowIndex,
+    rows.length,
+  ]);
+
   const pendingVirtualizationUpdateRef = React.useRef(false);
   const restoreViewportRef = React.useRef(false);
   const handledRestoreViewportVersionRef = React.useRef(0);
@@ -1288,11 +1327,63 @@ export const Virtualizer = React.forwardRef(function Virtualizer<Value>(
     },
   );
 
-  React.useImperativeHandle(apiRefProp, () => ({ getRowMetrics, resetScroll, scrollToIndex }), [
-    getRowMetrics,
-    resetScroll,
-    scrollToIndex,
-  ]);
+  /**
+   * Drops every height learned so far, so rows are measured again against the layout they are in
+   * now. Heights cached for rows that are not mounted are the reason this exists: a change that
+   * resizes the collection — a breakpoint, a font, a density toggle — resizes the mounted rows
+   * through their own observers, while the rest keep reporting what they measured under the old
+   * layout. Rows currently on screen are re-measured here rather than left to their observers,
+   * which only fire when a size actually changes, so the visible geometry stays exact even when
+   * this is called and nothing moved.
+   */
+  const remeasure = useStableCallback(() => {
+    const api = muiApiRef.current;
+
+    if (api == null) {
+      return;
+    }
+
+    adaptiveEstimateRef.current = null;
+    adaptiveMeasurementsRef.current.heights.clear();
+    adaptiveMeasurementsRef.current.total = 0;
+    measuredRowsRef.current.clear();
+    deferredRowHeightsRef.current.clear();
+    api.rowsMeta.resetRowHeights();
+
+    const renderZone = renderZoneRef.current;
+
+    if (renderZone != null) {
+      for (let index = 0; index < renderZone.children.length; index += 1) {
+        const element = renderZone.children[index] as HTMLElement;
+
+        // The retained focus proxy is out of layout and never carries a usable height.
+        if (element.style.position === 'absolute') {
+          continue;
+        }
+
+        const rowIndex = Number(element.dataset.rowIndex);
+        const row = rowsRef.current[rowIndex];
+        const height = element.getBoundingClientRect().height;
+
+        if (row != null && height > 0) {
+          api.rowsMeta.storeRowHeightMeasurement(row.id, height);
+          measuredRowsRef.current.add(row.id);
+          api.rowsMeta.setLastMeasuredRowIndex(rowIndex);
+        }
+      }
+    }
+
+    api.rowsMeta.hydrateRowsMeta();
+    // Scroll anchoring compensates for whatever the rewrite moved, which is what keeps the
+    // position across an invalidation that remounting to drop the caches would lose.
+    bumpAdaptiveMeasurementRevision();
+  });
+
+  React.useImperativeHandle(
+    apiRefProp,
+    () => ({ getRowMetrics, remeasure, resetScroll, scrollToIndex }),
+    [getRowMetrics, remeasure, resetScroll, scrollToIndex],
+  );
 
   const scrollToRowId = scrollToRowIndex == null ? null : (rows[scrollToRowIndex]?.id ?? null);
   // Alignment belongs to the activation that requested the scroll, so it is read at that moment
@@ -1858,6 +1949,18 @@ export interface VirtualizerBaseProps<Value> extends Omit<
    * always includes at least one estimated row, even when this prop is `0`.
    */
   overscanPx?: number | undefined;
+  /**
+   * How many items short of the end `onEndReached` fires. `0` fires once the last item enters the
+   * rendered window, which already extends past the visible range by `overscanPx`.
+   * @default 0
+   */
+  endReachedThreshold?: number | undefined;
+  /**
+   * Called when the rendered window reaches the end of the collection, for loading the next page
+   * of a longer list. Fires once per arrival: it does not repeat while the window stays at the
+   * end, and arms again when the window moves away or the collection grows past it.
+   */
+  onEndReached?: (() => void) | undefined;
   /**
    * Number of items in the whole collection, when the items rendered are only part of it — a page
    * of a larger result set, say. Rendered items report it as their `aria-setsize`, so assistive

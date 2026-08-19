@@ -219,14 +219,19 @@ export function useVirtualizerBinding<Item>(parameters: UseVirtualizerBindingPar
 
   const objectKeyRegistry = useRefWithInit(createObjectKeyRegistry).current;
   const hasGetItemKey = getItemKey != null;
-  // A new callback can either be an equivalent inline function or resolve different keys.
-  // Re-evaluate it, then retain the row array when the resolved identity is unchanged.
+  // Read through a ref so the collection, not the callback's identity, decides when these run
+  // again. A feature layer writes them inline, which makes a new identity on each of its renders;
+  // keying on that would re-derive a key and an estimate for every item each time, in the
+  // component whose whole purpose is not to touch every item. They are contracted as pure
+  // functions of the item, and `remeasure()` is how a change in what they return is announced.
+  const getItemKeyRef = React.useRef(getItemKey);
+  getItemKeyRef.current = getItemKey;
   const rowsCacheRef = React.useRef<VirtualizerRow<VirtualizerItemRowModel<Item>>[] | null>(null);
   const rows = React.useMemo<VirtualizerRow<VirtualizerItemRowModel<Item>>[]>(() => {
     const keys = process.env.NODE_ENV === 'production' ? undefined : new Set<VirtualizerItemKey>();
 
     const nextRows = items.map((item, itemIndex) => {
-      const rawKey = hasGetItemKey ? getItemKey(item) : undefined;
+      const rawKey = hasGetItemKey ? getItemKeyRef.current!(item) : undefined;
       const key = hasGetItemKey
         ? normalizeItemKey(rawKey)
         : getDefaultItemKey(item, objectKeyRegistry);
@@ -263,7 +268,7 @@ export function useVirtualizerBinding<Item>(parameters: UseVirtualizerBindingPar
 
     rowsCacheRef.current = nextRows;
     return nextRows;
-  }, [getItemKey, hasGetItemKey, items, objectKeyRegistry]);
+  }, [hasGetItemKey, items, objectKeyRegistry]);
 
   const focusedRowIndex = activeIndex == null ? undefined : activeIndex;
   const scrollToRowIndex = scrollActiveIntoView ? focusedRowIndex : undefined;
@@ -284,10 +289,11 @@ export function useVirtualizerBinding<Item>(parameters: UseVirtualizerBindingPar
 
   const estimatedItemHeightCacheRef = React.useRef<{
     callback: (model: VirtualizerItemRowModel<Item>, rowIndex: number) => number;
-    source: (item: Item, index: number) => number;
     rows: VirtualizerRow<VirtualizerItemRowModel<Item>>[];
     values: number[];
   } | null>(null);
+  const estimatedItemHeightRef = React.useRef(estimatedItemHeight);
+  estimatedItemHeightRef.current = estimatedItemHeight;
 
   let resolvedEstimatedItemHeight:
     | number
@@ -296,26 +302,25 @@ export function useVirtualizerBinding<Item>(parameters: UseVirtualizerBindingPar
 
   if (typeof estimatedItemHeight === 'function') {
     const cache = estimatedItemHeightCacheRef.current;
-    if (cache != null && cache.source === estimatedItemHeight && cache.rows === rows) {
+    if (cache != null && cache.rows === rows) {
       resolvedEstimatedItemHeight = cache.callback;
     } else {
-      const values = items.map((item, index) => estimatedItemHeight(item, index));
+      const estimate = estimatedItemHeightRef.current as (item: Item, index: number) => number;
+      const values = items.map((item, index) => estimate(item, index));
       const cachedValues = cache?.values;
+      // The engine rehydrates row metadata when this callback's identity changes, so the previous
+      // one is kept when the new collection resolves to the same estimates: a re-derived array of
+      // equal numbers is not a geometry change.
       const valuesAreEqual =
         cachedValues != null &&
         cachedValues.length === values.length &&
         values.every((value, index) => Object.is(value, cachedValues[index]));
       const nextCache =
         valuesAreEqual && cache != null
-          ? {
-              ...cache,
-              source: estimatedItemHeight,
-              rows,
-            }
+          ? { ...cache, rows }
           : {
               callback: (_model: VirtualizerItemRowModel<Item>, rowIndex: number) =>
                 values[rowIndex] ?? 1,
-              source: estimatedItemHeight,
               rows,
               values,
             };
@@ -333,14 +338,23 @@ export function useVirtualizerBinding<Item>(parameters: UseVirtualizerBindingPar
   const getRowMetrics = useStableCallback(
     (rowIndex: number) => apiRef.current?.getRowMetrics(rowIndex) ?? null,
   );
+  const [, bumpEstimateRevision] = React.useReducer((value: number) => value + 1, 0);
+  const remeasure = useStableCallback(() => {
+    // A per-item estimate resolves against the layout too, and it is derived per collection
+    // rather than per render, so an invalidation has to reach it as well. Re-rendering is what
+    // re-derives it, and the engine rehydrates again once the new estimates arrive.
+    estimatedItemHeightCacheRef.current = null;
+    bumpEstimateRevision();
+    apiRef.current?.remeasure();
+  });
   const resetScroll = useStableCallback(() => apiRef.current?.resetScroll());
   const scrollToIndex = useStableCallback(
     (index: number, options?: VirtualizerScrollToIndexOptions) =>
       apiRef.current?.scrollToIndex(index, options),
   );
   const virtualizerHandle = React.useMemo(
-    () => ({ enabled, getRowMetrics, resetScroll, scrollToIndex }),
-    [enabled, getRowMetrics, resetScroll, scrollToIndex],
+    () => ({ enabled, getRowMetrics, remeasure, resetScroll, scrollToIndex }),
+    [enabled, getRowMetrics, remeasure, resetScroll, scrollToIndex],
   );
 
   useIsoLayoutEffect(() => {
@@ -375,7 +389,10 @@ export function useVirtualizerBinding<Item>(parameters: UseVirtualizerBindingPar
     );
   });
 
-  React.useImperativeHandle(actionsRef, () => ({ scrollToIndex }), [scrollToIndex]);
+  React.useImperativeHandle(actionsRef, () => ({ remeasure, scrollToIndex }), [
+    remeasure,
+    scrollToIndex,
+  ]);
 
   return {
     apiRef,
