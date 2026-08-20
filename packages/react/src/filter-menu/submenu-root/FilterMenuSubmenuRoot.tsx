@@ -169,6 +169,7 @@ export function FilterMenuSubmenuRoot(props: FilterMenuSubmenuRoot.Props): React
       onOpenChangeComplete={closeQuery.handleOpenChangeComplete}
       virtualFocus
       virtualFocusRef={focusOwnerRef}
+      virtualFocusInput={hasInput}
       allowEscape={hasInput && !autoHighlight}
       resetOnPointerLeave={autoHighlight !== 'always'}
       renderVirtualFocusChildren={(_, inputProps) => (
