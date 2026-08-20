@@ -816,21 +816,12 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
 
     events.on('openchange', onOpenChangeLocal);
 
-    let resolvedExplicitReturnFocus = false;
-
     function getReturnElement(closeType: InteractionType) {
       const returnFocusValueOrFn = returnFocusRef.current;
       let resolvedReturnFocusValue =
         typeof returnFocusValueOrFn === 'function'
           ? returnFocusValueOrFn(closeType)
           : returnFocusValueOrFn;
-      // A resolver that produced no element falls back to the default target, so it must not
-      // count as an explicit request and skip the "focus moved elsewhere" guard below.
-      resolvedExplicitReturnFocus =
-        (typeof returnFocusValueOrFn === 'function' && resolvedReturnFocusValue === true) ||
-        (typeof resolvedReturnFocusValue !== 'boolean' &&
-          resolvedReturnFocusValue != null &&
-          resolveRef(resolvedReturnFocusValue) != null);
 
       // `null` should fallback to default behavior in case of an empty ref.
       if (resolvedReturnFocusValue === undefined || resolvedReturnFocusValue === false) {
@@ -884,10 +875,13 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
         // `returnElement` if it is tabbable, otherwise its first tabbable child,
         // otherwise `returnElement` itself (which may not be tabbable at all).
         const tabbableReturnElement = getFirstTabbableElement(returnElement);
-        // The latest prop value intentionally controls the eventual cleanup behavior.
+        // Consumers opt out through `explicitReturnFocus`; everything else keeps the original
+        // rule, so a `finalFocus` value behaves the same as it does without this prop.
+        // Reading `.current` in the cleanup is deliberate: the latest prop value decides, and
+        // capturing it at effect setup would use a stale opt-out.
         const hasExplicitReturnFocus =
           // eslint-disable-next-line react-hooks/exhaustive-deps
-          explicitReturnFocusRef.current ?? resolvedExplicitReturnFocus;
+          explicitReturnFocusRef.current ?? typeof returnFocusValueOrFn !== 'boolean';
 
         if (
           returnFocusValueOrFn &&
