@@ -2,6 +2,7 @@ import { expect, vi } from 'vitest';
 import * as React from 'react';
 import { act, flushMicrotasks, screen, waitFor } from '@mui/internal-test-utils';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
+import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { createRenderer } from '#test-utils';
 import { useAnimationsFinished } from './useAnimationsFinished';
 
@@ -29,11 +30,12 @@ interface TestProps {
   getAnimations: () => Animation[];
   onFinished: () => void;
   signal?: AbortSignal;
+  batch?: boolean;
 }
 
-function Test({ getAnimations, onFinished, signal }: TestProps) {
+function Test({ getAnimations, onFinished, signal, batch }: TestProps) {
   const ref = React.useRef<HTMLDivElement>(null);
-  const runOnceAnimationsFinish = useAnimationsFinished(ref);
+  const runOnceAnimationsFinish = useAnimationsFinished(ref, false, batch);
 
   useIsoLayoutEffect(() => {
     if (ref.current) {
@@ -135,7 +137,7 @@ describe('useAnimationsFinished', () => {
     }
   });
 
-  it('batches callbacks that finish in the same microtask into a single commit', async () => {
+  it('batches opted-in callbacks that finish in the same microtask into a single commit', async () => {
     const animationsDisabled = globalThis.BASE_UI_ANIMATIONS_DISABLED;
     globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
 
@@ -146,7 +148,7 @@ describe('useAnimationsFinished', () => {
 
     function Item({ index, animation }: { index: number; animation: Animation }) {
       const ref = React.useRef<HTMLDivElement>(null);
-      const runOnceAnimationsFinish = useAnimationsFinished(ref);
+      const runOnceAnimationsFinish = useAnimationsFinished(ref, false, true);
       const [mounted, setMounted] = React.useState(true);
 
       useIsoLayoutEffect(() => {
@@ -216,12 +218,13 @@ describe('useAnimationsFinished', () => {
       await render(
         <React.Fragment>
           <Test
+            batch
             getAnimations={firstGetAnimations}
             onFinished={() => {
               throw error;
             }}
           />
-          <Test getAnimations={secondGetAnimations} onFinished={onSecondFinished} />
+          <Test batch getAnimations={secondGetAnimations} onFinished={onSecondFinished} />
         </React.Fragment>,
       );
 
@@ -278,8 +281,9 @@ describe('useAnimationsFinished', () => {
     try {
       await render(
         <React.Fragment>
-          <Test getAnimations={firstGetAnimations} onFinished={onFirstFinished} />
+          <Test batch getAnimations={firstGetAnimations} onFinished={onFirstFinished} />
           <Test
+            batch
             getAnimations={secondGetAnimations}
             onFinished={onSecondFinished}
             signal={secondController.signal}
@@ -302,6 +306,91 @@ describe('useAnimationsFinished', () => {
 
       expect(onFirstFinished).toHaveBeenCalledTimes(1);
       expect(onSecondFinished).not.toHaveBeenCalled();
+    } finally {
+      globalThis.BASE_UI_ANIMATIONS_DISABLED = animationsDisabled;
+    }
+  });
+
+  it('commits each callback separately by default so later callbacks observe earlier updates', async () => {
+    const animationsDisabled = globalThis.BASE_UI_ANIMATIONS_DISABLED;
+    globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+
+    const first = createAnimation();
+    const second = createAnimation();
+    const firstGetAnimations = vi.fn(() => [first.animation]);
+    const secondGetAnimations = vi.fn(() => [second.animation]);
+    const onSecondUnmount = vi.fn();
+
+    interface PopupProps {
+      open: boolean;
+      getAnimations: () => Animation[];
+      onCloseComplete: () => void;
+    }
+
+    // Mirrors `useOpenChangeComplete`: the completion reads the latest `open` and only
+    // unmounts while the popup is still closed.
+    function Popup({ open, getAnimations, onCloseComplete }: PopupProps) {
+      const ref = React.useRef<HTMLDivElement>(null);
+      const runOnceAnimationsFinish = useAnimationsFinished(ref);
+
+      const onComplete = useStableCallback(() => {
+        if (!open) {
+          onCloseComplete();
+        }
+      });
+
+      useIsoLayoutEffect(() => {
+        if (ref.current) {
+          ref.current.getAnimations = getAnimations;
+        }
+      }, [getAnimations]);
+
+      React.useEffect(() => {
+        const abortController = new AbortController();
+        runOnceAnimationsFinish(onComplete, abortController.signal);
+        return () => abortController.abort();
+      }, [open, onComplete, runOnceAnimationsFinish]);
+
+      return <div ref={ref} />;
+    }
+
+    function App() {
+      const [secondOpen, setSecondOpen] = React.useState(false);
+      return (
+        <React.Fragment>
+          <Popup
+            open={false}
+            getAnimations={firstGetAnimations}
+            onCloseComplete={() => setSecondOpen(true)}
+          />
+          <Popup
+            open={secondOpen}
+            getAnimations={secondGetAnimations}
+            onCloseComplete={onSecondUnmount}
+          />
+        </React.Fragment>
+      );
+    }
+
+    try {
+      await render(<App />);
+
+      await waitFor(() => {
+        expect(firstGetAnimations).toHaveBeenCalled();
+      });
+      await waitFor(() => {
+        expect(secondGetAnimations).toHaveBeenCalled();
+      });
+
+      // Both popups are closing. The first popup's close completion reopens the second,
+      // which must prevent the second popup's queued completion from unmounting it.
+      await act(async () => {
+        first.finish();
+        second.finish();
+        await flushMicrotasks();
+      });
+
+      expect(onSecondUnmount).not.toHaveBeenCalled();
     } finally {
       globalThis.BASE_UI_ANIMATIONS_DISABLED = animationsDisabled;
     }

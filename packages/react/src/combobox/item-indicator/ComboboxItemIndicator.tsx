@@ -62,6 +62,7 @@ const Inner = React.memo(
       });
 
       useOpenChangeComplete({
+        batch: true,
         open: selected,
         ref: indicatorRef,
         onComplete() {
