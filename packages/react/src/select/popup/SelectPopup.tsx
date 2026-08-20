@@ -498,6 +498,7 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
         context={floatingRootContext}
         modal={false}
         disabled={!mounted}
+        initialFocus={() => store.state.selectedIndex === null}
         openInteractionType={openMethod}
         returnFocus={finalFocus}
         restoreFocus

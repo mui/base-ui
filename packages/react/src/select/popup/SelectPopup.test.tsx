@@ -87,6 +87,33 @@ describe('<Select.Popup />', () => {
     expect(screen.getByTestId('next')).not.toHaveFocus();
   });
 
+  it('focuses the selected item instead of the first tabbable element', async () => {
+    const { user } = await render(
+      <Select.Root defaultValue="three">
+        <Select.Trigger data-testid="trigger">
+          <Select.Value />
+        </Select.Trigger>
+        <Select.Portal>
+          <Select.Positioner alignItemWithTrigger={false}>
+            <Select.Popup>
+              <Select.List tabIndex={0}>
+                <Select.Item value="one">one</Select.Item>
+                <Select.Item value="two">two</Select.Item>
+                <Select.Item value="three">three</Select.Item>
+              </Select.List>
+            </Select.Popup>
+          </Select.Positioner>
+        </Select.Portal>
+      </Select.Root>,
+    );
+
+    await user.click(screen.getByTestId('trigger'));
+
+    await waitFor(() => {
+      expect(screen.getByRole('option', { name: 'three' })).toHaveFocus();
+    });
+  });
+
   it('has aria attributes when no Select.List is present', async () => {
     const { user } = await render(
       <Select.Root multiple>
