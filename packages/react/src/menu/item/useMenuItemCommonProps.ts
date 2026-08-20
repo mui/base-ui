@@ -6,7 +6,6 @@ import { MenuStore } from '../store/MenuStore';
 import { REASONS } from '../../internals/reasons';
 import { useContextMenuRootContext } from '../../context-menu/root/ContextMenuRootContext';
 import { dispatchClickWithModifiers } from '../../utils/dispatchClickWithModifiers';
-import { useIsHydrating } from '../../utils/useIsHydrating';
 import type { UseMenuItemMetadata } from './useMenuItem';
 
 function preventMouseDownDefault(event: React.MouseEvent) {
@@ -35,10 +34,6 @@ export interface UseMenuItemCommonPropsParameters {
    */
   store: MenuStore<any>;
   /**
-   * Whether the list containing the item is open.
-   */
-  open: boolean;
-  /**
    * Whether a typeahead session is in progress.
    */
   typingRef?: React.RefObject<boolean> | undefined;
@@ -55,6 +50,11 @@ export interface UseMenuItemCommonPropsParameters {
    * @default false
    */
   virtualFocus?: boolean | undefined;
+  /**
+   * Whether items should expose `aria-selected`. Resolved once per menu root.
+   * @default false
+   */
+  webkitItemSelected?: boolean | undefined;
 }
 
 /**
@@ -67,15 +67,16 @@ export function useMenuItemCommonProps(params: UseMenuItemCommonPropsParameters)
     highlighted,
     id,
     nodeId,
-    open,
     store,
     typingRef,
     itemRef,
     itemMetadata,
     virtualFocus = false,
+    webkitItemSelected = false,
   } = params;
 
   const { events: menuEvents } = store.useState('floatingTreeRoot');
+  const open = store.useState('open');
   const contextMenuContext = useContextMenuRootContext(true);
   const isContextMenu = contextMenuContext !== undefined;
   // `-1` rather than omitting it, which leaves links and buttons in the tab order.
@@ -84,13 +85,9 @@ export function useMenuItemCommonProps(params: UseMenuItemCommonPropsParameters)
     tabIndex = 0;
   }
 
-  // WebKit's accessibility tree only follows a searchbox's `aria-activedescendant` into a menu
-  // when the items expose a selection state. `aria-selected` is not valid on `menuitem`, so it is
-  // scoped to the engine whose VoiceOver support needs it. The server cannot sniff the engine, so
-  // the attribute is withheld until hydration completes to keep the markup consistent.
-  const hydrating = useIsHydrating();
-  const ariaSelected =
-    virtualFocus && !hydrating && platform.engine.webkit ? highlighted : undefined;
+  // `aria-selected` is not valid on `menuitem`, so it is scoped to the engine whose VoiceOver
+  // support needs it. See `webkitItemSelected` on `MenuRootContext`.
+  const ariaSelected = virtualFocus && webkitItemSelected ? highlighted : undefined;
 
   return React.useMemo(
     () => ({

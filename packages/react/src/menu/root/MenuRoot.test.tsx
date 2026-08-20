@@ -843,9 +843,8 @@ describe('<Menu.Root />', () => {
         expect(await screen.findByTestId('item-4_1')).toHaveTextContent('Item 4.1');
       });
 
-      // Replaces the deleted `useListNavigation` nested tests. The open key comes from the
-      // parent's orientation and the close key from the submenu's, so they must differ here or
-      // swapping the two arguments still passes.
+      // The open key comes from the parent's orientation and the close key from the submenu's,
+      // so they must differ here or swapping the two arguments still passes.
       it.skipIf(isJSDOM)(
         'opens and closes a vertical submenu of a horizontal menu with the right axis keys',
         async () => {
@@ -900,6 +899,31 @@ describe('<Menu.Root />', () => {
         expect(screen.getByTestId('item-2')).toHaveAttribute('id', 'my-menu-1');
         // The submenu trigger is an item of the parent list, so it shares that namespace.
         expect(screen.getByTestId('submenu-trigger')).toHaveAttribute('id', 'my-menu-3');
+      });
+
+      it('lets an explicit item id win over the derived one', async () => {
+        const { user } = await render(
+          <TestMenu
+            popupProps={{
+              id: 'my-menu',
+              children: (
+                <React.Fragment>
+                  <Menu.Item data-testid="item-1" id="chosen-by-consumer">
+                    Item 1
+                  </Menu.Item>
+                  <Menu.Item data-testid="item-2">Item 2</Menu.Item>
+                </React.Fragment>
+              ),
+            }}
+          />,
+        );
+
+        await user.click(screen.getByRole('button', { name: 'Toggle' }));
+        await screen.findByTestId('menu');
+
+        expect(screen.getByTestId('item-1')).toHaveAttribute('id', 'chosen-by-consumer');
+        // Sibling ids stay in the popup's namespace, keyed by composite index.
+        expect(screen.getByTestId('item-2')).toHaveAttribute('id', 'my-menu-1');
       });
 
       it.skipIf(isJSDOM)(

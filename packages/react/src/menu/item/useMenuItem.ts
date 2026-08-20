@@ -17,13 +17,13 @@ export function useMenuItem(params: UseMenuItemParameters): UseMenuItemReturnVal
     disabled,
     highlighted,
     id,
-    open,
     store,
     typingRef = store.context.typingRef,
     nativeButton,
     itemMetadata,
     nodeId,
     virtualFocus = false,
+    webkitItemSelected = false,
   } = params;
 
   const itemRef = React.useRef<HTMLElement | null>(null);
@@ -40,12 +40,12 @@ export function useMenuItem(params: UseMenuItemParameters): UseMenuItemReturnVal
     highlighted,
     id,
     nodeId,
-    open,
     store,
     typingRef,
     itemRef,
     itemMetadata,
     virtualFocus,
+    webkitItemSelected,
   });
 
   const getItemProps = React.useCallback(
@@ -97,10 +97,6 @@ export interface UseMenuItemParameters {
    */
   id: string | undefined;
   /**
-   * Whether the list containing the item is open.
-   */
-  open: boolean;
-  /**
    * Whether the component renders a native `<button>` element when replacing it
    * via the `render` prop.
    * Set to `false` if the rendered element is not a button (for example, `<div>`).
@@ -129,6 +125,11 @@ export interface UseMenuItemParameters {
    * @default false
    */
   virtualFocus?: boolean | undefined;
+  /**
+   * Whether items should expose `aria-selected`. Resolved once per menu root.
+   * @default false
+   */
+  webkitItemSelected?: boolean | undefined;
 }
 
 export type UseMenuItemMetadata =
