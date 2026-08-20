@@ -85,8 +85,11 @@ export function useFilterDropdownItem(
   const ref = React.useRef<HTMLElement | null>(null);
   const previousTextRef = React.useRef<string | undefined>(undefined);
   const previousKeywordsKeyRef = React.useRef(keywords?.join('\u0000'));
-  const [registered, setRegistered] = React.useState(false);
   const matched = useStore(store, selectors.isItemVisible, itemId);
+  // An initial item is visible before registration (`visibleItemIds` is null), so start
+  // registered and skip the mount re-render. A late item under an active filter starts
+  // unregistered and renders once so its DOM text can be captured.
+  const [registered, setRegistered] = React.useState(matched);
 
   // Read through refs so `register` stays stable. An inline `keywords` array is a fresh reference
   // on every render of the consumer's tree, which would otherwise re-register every item.

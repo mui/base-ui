@@ -131,11 +131,16 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
   const contextMenuContext = useContextMenuRootContext(true);
   const parentMenuRootContext = useMenuRootContext(true);
   const menubarContext = useMenubarContext(true);
+  // Depend on the stable pieces rather than the parent context object, so a parent context
+  // invalidation doesn't cascade into every descendant root's context.
+  const parentContextStore = parentMenuRootContext?.store;
+  const parentVirtualFocus = parentMenuRootContext?.virtualFocus ?? false;
+  const parentFloatingId = parentMenuRootContext?.floatingId;
   const parentFromContext: MenuParent = React.useMemo(() => {
-    if (isSubmenu && parentMenuRootContext) {
+    if (isSubmenu && parentContextStore) {
       return {
         type: 'menu',
-        store: parentMenuRootContext.store,
+        store: parentContextStore,
       };
     }
 
@@ -149,7 +154,7 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
     // Ensure this is not a Menu nested inside ContextMenu.Trigger.
     // ContextMenu parentContext is always undefined as ContextMenu.Root is instantiated with
     // <MenuRootContext.Provider value={undefined}>
-    if (contextMenuContext && !parentMenuRootContext) {
+    if (contextMenuContext && !parentContextStore) {
       return {
         type: 'context-menu',
         context: contextMenuContext,
@@ -159,7 +164,7 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
     return {
       type: undefined,
     };
-  }, [contextMenuContext, parentMenuRootContext, menubarContext, isSubmenu]);
+  }, [contextMenuContext, parentContextStore, menubarContext, isSubmenu]);
 
   const rootId = useBaseUiId();
   // React 17 resolves generated ids in an effect, so they must be read live rather than captured
@@ -696,8 +701,11 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
   // when the items expose a selection state. Resolved once per menu rather than once per item:
   // the engine is a constant and hydration is global, so every item would compute the same value.
   // The server cannot sniff the engine, so it stays off until hydration completes to keep the
-  // markup consistent.
-  const webkitItemSelected = !useIsHydrating() && platform.engine.webkit;
+  // markup consistent. Only virtual-focus trees consume the value, so keeping it `false`
+  // elsewhere spares plain menus a post-hydration context invalidation in WebKit.
+  const hydrating = useIsHydrating();
+  const webkitItemSelected =
+    (virtualFocus || parentVirtualFocus) && !hydrating && platform.engine.webkit;
 
   const context: MenuRootContext<Payload> = React.useMemo(
     () => ({
@@ -711,8 +719,8 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
       setFloatingId,
       virtualFocus,
       virtualFocusRef,
-      parentVirtualFocus: parentMenuRootContext?.virtualFocus ?? false,
-      parentFloatingId: parentMenuRootContext?.floatingId,
+      parentVirtualFocus,
+      parentFloatingId,
       webkitItemSelected,
     }),
     [
@@ -725,7 +733,8 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
       floatingId,
       virtualFocus,
       virtualFocusRef,
-      parentMenuRootContext,
+      parentVirtualFocus,
+      parentFloatingId,
       webkitItemSelected,
     ],
   );
