@@ -243,7 +243,7 @@ export type FilterMenuFilter = (
 
 export type FilterMenuRootProps<Payload = unknown> = Omit<
   MenuRoot.Props<Payload>,
-  'actionsRef' | 'handle' | 'onOpenChange' | 'orientation'
+  'actionsRef' | 'closeParentOnEsc' | 'handle' | 'onOpenChange' | 'orientation'
 > &
   FilterMenuRootFilterProps & {
     /**
