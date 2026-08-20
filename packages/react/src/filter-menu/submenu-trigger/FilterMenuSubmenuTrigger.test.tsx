@@ -1,9 +1,11 @@
 import { expect } from 'vitest';
 import { screen, waitFor } from '@mui/internal-test-utils';
-import { createRenderer } from '#test-utils';
+import { createRenderer, resetBrowserPointer } from '#test-utils';
 import { FilterMenu } from '@base-ui/react/filter-menu';
 
 describe('<FilterMenu.SubmenuTrigger />', () => {
+  beforeEach(resetBrowserPointer);
+
   const { render } = createRenderer();
 
   it('keeps real focus on the parent input until the submenu opens', async () => {

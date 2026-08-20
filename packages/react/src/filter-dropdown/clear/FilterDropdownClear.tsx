@@ -32,9 +32,10 @@ export const FilterDropdownClear = React.forwardRef(function FilterDropdownClear
   const { buttonRef, getButtonProps } = useButton({ disabled, native: nativeButton });
   const visible = value !== '';
 
+  // `visible` is deliberately absent from the state: the component renders nothing when it is
+  // false, so a `data-visible` attribute would be present on every rendered instance.
   const state: FilterDropdownClearState = {
     disabled,
-    visible,
   };
 
   const element = useRenderElement('button', componentProps, {
@@ -49,10 +50,6 @@ export const FilterDropdownClear = React.forwardRef(function FilterDropdownClear
           event.preventDefault();
         },
         onClick(event) {
-          if (disabled) {
-            return;
-          }
-
           const eventDetails = createChangeEventDetails(REASONS.clearPress, event.nativeEvent);
           context.onValueChange('', eventDetails);
           if (!eventDetails.isCanceled) {
@@ -75,10 +72,6 @@ export interface FilterDropdownClearState {
    * Whether the component should ignore user interaction.
    */
   disabled: boolean;
-  /**
-   * Whether the clear button is visible.
-   */
-  visible: boolean;
 }
 
 export interface FilterDropdownClearProps
