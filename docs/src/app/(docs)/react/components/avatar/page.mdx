@@ -40,11 +40,32 @@ import Image from 'next/image';
 
 ### Stacking
 
-With `keepMounted`, the image and the fallback are both present until the image loads. Stack the two, for example with `position: absolute`, and render the image on top: the fallback shows through until the image covers it.
+With `keepMounted`, the image and the fallback are both present until the image loads. Stack the two and render the image on top, so the fallback shows through until the image covers it.
+
+A loading image paints nothing, so the fallback shows through on its own. An image that failed to load paints a broken-image icon on top of it. Hide the image in either state with the `data-loading` and `data-error` attributes:
+
+```css title="Stacked image and fallback"
+.Root {
+  position: relative;
+}
+
+.Image,
+.Fallback {
+  position: absolute;
+  inset: 0;
+}
+
+.Image[data-loading],
+.Image[data-error] {
+  visibility: hidden;
+}
+```
+
+Avoid `display: none` here: an element without a box never intersects the viewport, so `loading="lazy"` would never fetch the image. `visibility` and `opacity` both keep lazy loading working.
 
 ### Server rendering
 
-With `keepMounted`, the image is part of the server-rendered HTML and starts loading before hydration. A cached image is displayed immediately.
+With `keepMounted`, the image is part of the server-rendered HTML and starts loading before hydration. So is the fallback, which stays visible until hydration resolves the loading status. A cached image is displayed immediately, without an enter animation.
 
 ## API reference
 

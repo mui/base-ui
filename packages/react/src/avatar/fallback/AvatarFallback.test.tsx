@@ -8,26 +8,21 @@ import type { ImageLoadingStatus } from '../root/AvatarRoot';
 
 vi.mock('../image/useImageLoadingStatus');
 
-// The hook reports through a setter instead of returning the status, so the stub mirrors that.
 function mockLoadingStatus(getStatus: (src: string | undefined) => ImageLoadingStatus) {
-  (useImageLoadingStatus as Mock).mockImplementation(
-    (
-      src: string | undefined,
-      _options: unknown,
-      enabled: boolean,
-      setLoadingStatus: (status: ImageLoadingStatus) => void,
-    ) => {
-      React.useLayoutEffect(() => {
-        if (enabled) {
-          setLoadingStatus(getStatus(src));
-        }
-      });
-    },
-  );
+  (useImageLoadingStatus as Mock).mockImplementation((src: string | undefined) => [
+    getStatus(src),
+    () => {},
+  ]);
 }
 
 describe('<Avatar.Fallback />', () => {
   const { render } = createRenderer();
+
+  beforeEach(() => {
+    // The global `vi.resetAllMocks()` teardown clears the implementation, and the component
+    // destructures the hook's return value, so every test needs a stub in place.
+    mockLoadingStatus(() => 'idle');
+  });
 
   afterEach(() => {
     vi.clearAllMocks();
