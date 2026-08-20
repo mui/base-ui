@@ -25,25 +25,50 @@ Import the component and assemble its parts:
 import { FilterMenu } from '@base-ui/react/filter-menu';
 
 <FilterMenu.Root>
-  <FilterMenu.Trigger>Actions</FilterMenu.Trigger>
+  <FilterMenu.Trigger />
   <FilterMenu.Portal>
     <FilterMenu.Backdrop />
     <FilterMenu.Positioner>
       <FilterMenu.Popup>
-        <FilterMenu.Input aria-label="Filter actions" />
-        <FilterMenu.Clear aria-label="Clear filter" />
-        <FilterMenu.Empty>No actions found.</FilterMenu.Empty>
+        <FilterMenu.Arrow />
+
+        <FilterMenu.Input />
+        <FilterMenu.Clear />
+
+        <FilterMenu.Status />
+        <FilterMenu.Empty />
+
         <FilterMenu.List>
-          <FilterMenu.Item>Edit</FilterMenu.Item>
-          <FilterMenu.Item>Duplicate</FilterMenu.Item>
+          <FilterMenu.Item />
+          <FilterMenu.LinkItem />
+          <FilterMenu.Separator />
+
+          <FilterMenu.SubmenuRoot>
+            <FilterMenu.SubmenuTrigger />
+          </FilterMenu.SubmenuRoot>
+
+          <FilterMenu.Group>
+            <FilterMenu.GroupLabel />
+          </FilterMenu.Group>
+
+          <FilterMenu.RadioGroup>
+            <FilterMenu.GroupLabel />
+            <FilterMenu.RadioItem>
+              <FilterMenu.RadioItemIndicator />
+            </FilterMenu.RadioItem>
+          </FilterMenu.RadioGroup>
+
+          <FilterMenu.CheckboxItem>
+            <FilterMenu.CheckboxItemIndicator />
+          </FilterMenu.CheckboxItem>
         </FilterMenu.List>
+
+        <FilterMenu.Viewport />
       </FilterMenu.Popup>
     </FilterMenu.Positioner>
   </FilterMenu.Portal>
 </FilterMenu.Root>;
 ```
-
-`FilterMenu` supports checkbox items, radio groups, links, groups, and submenus like [Menu](/react/components/menu).
 
 ## Examples
 
