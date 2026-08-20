@@ -93,10 +93,13 @@ export function FilterDropdownRoot(props: FilterDropdownRoot.Props): React.JSX.E
   const defaultListId = defaultId ? `${defaultId}-list` : undefined;
   // Inline lists render no trigger, so the generated id would reference nothing and leave the
   // list without an accessible name.
+  // A registered `''` means the element rendered with an explicitly empty id: reference nothing
+  // rather than falling back to a generated id that no element carries.
   const triggerId =
-    externalTriggerId ?? registeredTriggerId ?? (inline ? undefined : defaultTriggerId);
-  const popupId = registeredPopupId ?? defaultPopupId;
-  const listId = registeredListId ?? defaultListId;
+    (externalTriggerId ?? registeredTriggerId ?? (inline ? undefined : defaultTriggerId)) ||
+    undefined;
+  const popupId = (registeredPopupId ?? defaultPopupId) || undefined;
+  const listId = (registeredListId ?? defaultListId) || undefined;
 
   useIsoLayoutEffect(() => {
     setFocusVisible(inputFocusVisible);

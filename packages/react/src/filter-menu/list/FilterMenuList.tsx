@@ -61,9 +61,17 @@ export const FilterMenuList = React.forwardRef(function FilterMenuList(
   });
   const mergedRef = useMergedRefs(forwardedRef, inline ? setInlinePopupElement : null);
 
+  // The inline list registers as the menu's floating element but doesn't spread the full
+  // floating props. Pointer-modality tracking lives in the floating `onPointerMove`; without
+  // it, leaving the list after keyboard navigation retains a stale highlight.
+  const handleInlinePointerMove = useStableCallback((event: React.PointerEvent<HTMLDivElement>) => {
+    menuStore.select('popupProps').onPointerMove?.(event);
+  });
+
   const props = mergeProps<typeof FilterDropdownList>(
     {
       onKeyDown: handleReferenceKeyDown,
+      onPointerMove: inline ? handleInlinePointerMove : undefined,
     },
     componentProps,
   );
