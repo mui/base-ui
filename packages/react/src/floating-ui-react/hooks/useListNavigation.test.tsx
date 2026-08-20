@@ -24,7 +24,6 @@ function App(
   } = {},
 ) {
   const { disableFirstItem, hideFirstItem, firstItemStyle, ...props } = inProps;
-
   const [open, setOpen] = React.useState(false);
   const listRef = React.useRef<Array<HTMLLIElement | null>>([]);
   const [activeIndex, setActiveIndex] = React.useState<null | number>(null);
@@ -1446,16 +1445,17 @@ describe('useListNavigation', () => {
     await userEvent.keyboard('{ArrowDown}');
     await userEvent.keyboard('{ArrowDown}');
     await userEvent.keyboard('{ArrowDown}');
-    await userEvent.keyboard('{ArrowRight}');
+    await userEvent.keyboard('{ArrowRight}'); // opens first submenu
     await flushMicrotasks();
 
     await userEvent.keyboard('{ArrowDown}');
     await userEvent.keyboard('{ArrowDown}');
-    await userEvent.keyboard('{ArrowRight}');
+    await userEvent.keyboard('{ArrowRight}'); // opens second submenu
     await flushMicrotasks();
 
     expect(screen.getByText('.png')).toHaveFocus();
 
+    // it navigation with orientation = 'both'
     await userEvent.keyboard('{ArrowRight}');
     expect(screen.getByText('.jpg')).toHaveFocus();
 
@@ -1468,6 +1468,7 @@ describe('useListNavigation', () => {
     await userEvent.keyboard('{ArrowUp}');
     expect(screen.getByText('.png')).toHaveFocus();
 
+    // escape closes the submenu
     await userEvent.keyboard('{Escape}');
     expect(screen.getByText('Image')).toHaveFocus();
   });
@@ -1483,11 +1484,11 @@ describe('useListNavigation', () => {
       await userEvent.keyboard('{ArrowRight}');
       await userEvent.keyboard('{ArrowRight}');
       await userEvent.keyboard('{ArrowRight}');
-      await userEvent.keyboard('{ArrowDown}');
+      await userEvent.keyboard('{ArrowDown}'); // opens the Copy as submenu
       await act(async () => {});
 
       await userEvent.keyboard('{ArrowRight}');
-      await userEvent.keyboard('{ArrowDown}');
+      await userEvent.keyboard('{ArrowDown}'); // opens the Share submenu
       await act(async () => {});
 
       expect(screen.getByText('Mail')).toHaveFocus();

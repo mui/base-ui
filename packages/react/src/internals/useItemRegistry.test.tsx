@@ -65,4 +65,29 @@ describe('useItemRegistry', () => {
     expect(Array.from(latest().keys())).toEqual(['b', 'd']);
     expect(latest().get('d')).toBe('value-d');
   });
+
+  it('publishes an empty snapshot once the last item unregisters', async () => {
+    const snapshots: ReadonlyMap<string, string>[] = [];
+
+    function Item(props: { id: string; registerItem: (id: string, value: string) => () => void }) {
+      const { id, registerItem } = props;
+
+      useIsoLayoutEffect(() => registerItem(id, id), [id, registerItem]);
+      return null;
+    }
+
+    function App(props: { items: string[] }) {
+      const [registeredItems, registerItem] = useItemRegistry<string, string>();
+      snapshots.push(registeredItems);
+
+      return props.items.map((item) => <Item key={item} id={item} registerItem={registerItem} />);
+    }
+
+    const { setProps } = await render(<App items={['a', 'b']} />, { strict: false });
+    expect(Array.from(snapshots[snapshots.length - 1].keys())).toEqual(['a', 'b']);
+
+    await setProps({ items: [] });
+
+    expect(Array.from(snapshots[snapshots.length - 1].keys())).toEqual([]);
+  });
 });

@@ -42,11 +42,10 @@ export const MenuCheckboxItem = React.forwardRef(function MenuCheckboxItem(
 
   const listItem = useCompositeListItem({ guess: true, label });
   const menuPositionerContext = useMenuPositionerContext(true);
-  const { store, floatingId, virtualFocus } = useMenuRootContext();
+  const { store, floatingId, virtualFocus, webkitItemSelected } = useMenuRootContext();
   const id = getMenuItemId(idProp, floatingId, listItem.index);
 
   const rootDisabled = store.useState('disabled');
-  const open = store.useState('open');
   const disabled = disabledProp || rootDisabled;
   const highlighted = store.useState('isActive', listItem.index);
   const itemProps = store.useState('itemProps');
@@ -63,12 +62,12 @@ export const MenuCheckboxItem = React.forwardRef(function MenuCheckboxItem(
     disabled,
     highlighted,
     id,
-    open,
     store,
     nativeButton,
     nodeId: menuPositionerContext?.context.nodeId,
     itemMetadata: REGULAR_ITEM,
     virtualFocus,
+    webkitItemSelected,
   });
 
   const state: MenuCheckboxItemState = React.useMemo(
