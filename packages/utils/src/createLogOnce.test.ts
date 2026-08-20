@@ -26,6 +26,22 @@ describe('createLogOnce', () => {
     expect(spy).toHaveBeenCalledWith('message');
   });
 
+  it('joins multiple messages with a space', () => {
+    const spy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    const logOnce = createLogOnce('warn');
+    logOnce('first', 'second');
+    expect(spy).toHaveBeenCalledWith('first second');
+  });
+
+  it('deduplicates each severity independently', () => {
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    createLogOnce('warn')('message');
+    createLogOnce('error')('message');
+    expect(warnSpy).toHaveBeenCalledTimes(1);
+    expect(errorSpy).toHaveBeenCalledTimes(1);
+  });
+
   it('logs again after reset', () => {
     const spy = vi.spyOn(console, 'warn').mockImplementation(() => {});
     const logOnce = createLogOnce('warn');
