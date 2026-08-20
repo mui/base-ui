@@ -4,14 +4,22 @@ import { stringifyAsLabel } from './resolveValueLabel';
 const filterCache = new Map<string, Filter>();
 
 export function getFilter(options: GetFilterParameters = {}): Filter {
-  const cacheKey = getCacheKey(options);
+  const { locale, ...restOptions } = options;
+  const collatorOptions: Intl.CollatorOptions = {
+    usage: 'search',
+    sensitivity: 'base',
+    ignorePunctuation: true,
+    ...restOptions,
+  };
+
+  const cacheKey = `${stringifyLocale(locale)}|${JSON.stringify(collatorOptions)}`;
   const cachedFilter = filterCache.get(cacheKey);
 
   if (cachedFilter) {
     return cachedFilter;
   }
 
-  const collator = createCollator(options);
+  const collator = new Intl.Collator(locale, collatorOptions);
 
   const filter: Filter = {
     contains: createContainsFilter(collator),
@@ -21,28 +29,6 @@ export function getFilter(options: GetFilterParameters = {}): Filter {
 
   filterCache.set(cacheKey, filter);
   return filter;
-}
-
-function createCollator(options: GetFilterParameters = {}) {
-  const { locale, ...collatorOptions } = options;
-
-  return new Intl.Collator(locale, getCollatorOptions(collatorOptions));
-}
-
-function getCacheKey(options: GetFilterParameters) {
-  const { locale, ...collatorOptions } = options;
-
-  const mergedOptions = getCollatorOptions(collatorOptions);
-  return `${stringifyLocale(locale)}|${JSON.stringify(mergedOptions)}`;
-}
-
-function getCollatorOptions(options: Intl.CollatorOptions): Intl.CollatorOptions {
-  return {
-    usage: 'search',
-    sensitivity: 'base',
-    ignorePunctuation: true,
-    ...options,
-  };
 }
 
 function createContainsFilter(collator: Intl.Collator): ItemFilter {
