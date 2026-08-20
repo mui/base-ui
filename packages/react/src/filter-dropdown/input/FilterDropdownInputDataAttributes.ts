@@ -1,7 +1,8 @@
 export enum FilterDropdownInputDataAttributes {
   /**
-   * Present while the input holds the virtual cursor, meaning no item is highlighted. The input
-   * and the items share one cursor, so exactly one of them carries this attribute at a time.
+   * Present while the input holds the virtual cursor, so the focus ring stays on it. Keyboard
+   * navigation moves the cursor into the list and removes this, while hovering an item leaves it
+   * in place, because the pointer does not take the cursor away from the input.
    */
   highlighted = 'data-highlighted',
 }

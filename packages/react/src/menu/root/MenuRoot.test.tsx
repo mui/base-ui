@@ -2655,9 +2655,8 @@ describe('<Menu.Root />', () => {
         clock.tick(50);
         expect(screen.queryByTestId('submenu')).not.toBe(null);
 
-        // Submenu should close after the full delay. Use the async clock only to let React flush
-        // the navigation updates caused by closing; it advances the same remaining 50ms.
-        await clock.tickAsync(50);
+        // Submenu should close after the full delay
+        clock.tick(50);
         expect(screen.queryByTestId('submenu')).toBe(null);
       });
 
@@ -2696,9 +2695,8 @@ describe('<Menu.Root />', () => {
         // Move again - this should NOT restart the timer
         fireEvent.mouseMove(siblingItem);
 
-        // After 20 more ms (100ms total from first move), the submenu should close. Use the async
-        // clock only to let React flush the navigation updates caused by closing.
-        await clock.tickAsync(20);
+        // After 20 more ms (100ms total from first move), the submenu should close
+        clock.tick(20);
         expect(screen.queryByTestId('submenu')).toBe(null);
       });
     });
@@ -3389,6 +3387,47 @@ describe('<Menu.Root />', () => {
       await user.keyboard('{ArrowDown}'); // loops back to Add to Library
 
       expect(screen.queryByRole('menuitem', { name: 'Add to Library' })).toHaveFocus();
+    });
+  });
+
+  describe('trigger render cost', () => {
+    it('does not re-render the trigger while navigating the list', async () => {
+      let triggerRenders = 0;
+
+      const { user } = await render(
+        <Menu.Root>
+          <Menu.Trigger
+            render={(props) => {
+              triggerRenders += 1;
+              return <button type="button" {...props} />;
+            }}
+          >
+            Toggle
+          </Menu.Trigger>
+          <Menu.Portal>
+            <Menu.Positioner>
+              <Menu.Popup>
+                {Array.from({ length: 10 }, (_, index) => (
+                  <Menu.Item key={index}>{`Item ${index}`}</Menu.Item>
+                ))}
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
+        </Menu.Root>,
+      );
+
+      await user.click(screen.getByRole('button', { name: 'Toggle' }));
+      await screen.findByRole('menu');
+      await flushMicrotasks();
+
+      triggerRenders = 0;
+      await user.keyboard('[ArrowDown][ArrowDown][ArrowDown]');
+      await flushMicrotasks();
+
+      // The trigger's props do not depend on which item is highlighted. Keeping this at zero is
+      // what stops `useListNavigation` from rebuilding them on every key, which re-rendered every
+      // trigger of every menu and select in the library.
+      expect(triggerRenders).toBe(0);
     });
   });
 });

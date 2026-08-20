@@ -36,8 +36,6 @@ import {
   isMainOrientationToEndKey,
 } from '../utils/listNavigation';
 
-export const ESCAPE = 'Escape';
-
 // WebKit fires zero-delta `mousemove`/`pointermove` events when the list scrolls
 // beneath a stationary pointer, moving the highlight during keyboard navigation.
 // https://github.com/mui/base-ui/issues/4002

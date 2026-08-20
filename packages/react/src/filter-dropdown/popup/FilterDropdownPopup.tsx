@@ -37,11 +37,16 @@ export const FilterDropdownPopup = React.forwardRef(function FilterDropdownPopup
   const ariaLabelledBy = hasAriaLabel ? elementProps['aria-labelledby'] : context.triggerId;
 
   const renderedIdRef = useRenderedId(setPopupId, context.defaultPopupId, idProp != null);
-  // The pointer may only restore focus the owner already had. Moving the pointer into a popup
-  // whose owner has never been focused (an inputless list opened by a pointer, where focus stays
-  // on the trigger) must not hand it focus, because that seeds a highlight on the first item
-  // while the cursor is nowhere near it.
-  const hasHeldFocusRef = React.useRef(false);
+  // The pointer may only restore focus to an owner that held it during THIS open session.
+  // Moving the pointer into a popup whose owner has never been focused (an inputless list opened
+  // by a pointer, where focus stays on the trigger) must not hand it focus, because that seeds a
+  // highlight on the first item while the cursor is nowhere near it. Stores the element rather
+  // than a flag so swapping the owner (an input unmounting, leaving the list) does not inherit
+  // the previous owner's claim, and clears on close so a kept-mounted popup starts over.
+  const heldFocusOwnerRef = React.useRef<HTMLElement | null>(null);
+  if (!context.open && heldFocusOwnerRef.current !== null) {
+    heldFocusOwnerRef.current = null;
+  }
 
   const state: FilterDropdownPopupState = { open: context.open };
 
@@ -80,7 +85,7 @@ export const FilterDropdownPopup = React.forwardRef(function FilterDropdownPopup
           // An input takes focus on pointer enter so typing filters immediately. A list cannot:
           // focusing it seeds the highlight onto the first item, so the pointer may only restore
           // focus it already held (for example after a submenu handed it back).
-          if (!isTypeableElement(focusOwner) && !hasHeldFocusRef.current) {
+          if (!isTypeableElement(focusOwner) && heldFocusOwnerRef.current !== focusOwner) {
             return;
           }
 
@@ -108,7 +113,7 @@ export const FilterDropdownPopup = React.forwardRef(function FilterDropdownPopup
           // `focusin` bubbles, so this also sees the owner itself being focused.
           const target = getTarget(event.nativeEvent);
           if (target === focusOwnerRef.current) {
-            hasHeldFocusRef.current = true;
+            heldFocusOwnerRef.current = focusOwnerRef.current;
           }
 
           if (context.open && target === event.currentTarget) {

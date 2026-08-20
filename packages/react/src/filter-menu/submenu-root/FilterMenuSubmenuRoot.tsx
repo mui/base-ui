@@ -374,8 +374,9 @@ export type FilterMenuSubmenuRootProps = Omit<
     ((open: boolean, eventDetails: FilterMenuSubmenuRoot.ChangeEventDetails) => void) | undefined;
   /**
    * Replaces the default case-insensitive substring matching for item text.
-   * Receives an item's filter text and the trimmed query. When provided, this function is
-   * authoritative and item keywords are ignored.
+   * Receives an item's filter text, the trimmed query, and the item's `keywords`, which it must
+   * match itself if they should participate.
+   * Pass `null` to turn filtering off and decide which items to render yourself.
    */
   filter?: FilterMenuFilter | null | undefined;
   /**
