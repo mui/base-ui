@@ -149,6 +149,18 @@ export function createDragTargetStateStore(): DragTargetStateStore {
     return value + slot.sourceVersion * dragTargetStateStride;
   };
 
+  function addToElement(current: Element | null, listener: () => void): void {
+    if (current === null) {
+      return;
+    }
+    let set = slot.targetListeners.get(current);
+    if (!set) {
+      set = new Set();
+      slot.targetListeners.set(current, set);
+    }
+    set.add(listener);
+  }
+
   function removeFromElement(current: Element | null, listener: () => void): void {
     if (current === null) {
       return;
@@ -169,14 +181,7 @@ export function createDragTargetStateStore(): DragTargetStateStore {
       const notify = () => listener(getSnapshot());
       listeners.add(notify);
       slot.allTargetListeners.add(notify);
-      if (element !== null) {
-        let set = slot.targetListeners.get(element);
-        if (!set) {
-          set = new Set();
-          slot.targetListeners.set(element, set);
-        }
-        set.add(notify);
-      }
+      addToElement(element, notify);
       return () => {
         listeners.delete(notify);
         slot.allTargetListeners.delete(notify);
@@ -191,14 +196,7 @@ export function createDragTargetStateStore(): DragTargetStateStore {
       element = nextElement;
       for (const listener of listeners) {
         removeFromElement(previousElement, listener);
-        if (nextElement !== null) {
-          let set = slot.targetListeners.get(nextElement);
-          if (!set) {
-            set = new Set();
-            slot.targetListeners.set(nextElement, set);
-          }
-          set.add(listener);
-        }
+        addToElement(nextElement, listener);
         listener();
       }
     },
