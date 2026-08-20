@@ -167,12 +167,9 @@ export interface PopoverPopupProps extends BaseUIComponentProps<'div', PopoverPo
   /**
    * Determines the element to focus when the popover is closed.
    *
-   * Falling back to the default behavior is skipped when focus has already moved outside the
-   * popover, so a deliberate focus move is not undone. Returning `true` forces it either way.
-   *
    * - `false`: Do not move focus.
    * - `true`: Move focus based on the default behavior (trigger or previously focused element).
-   * - `RefObject`: Move focus to the ref element, or the default behavior when the ref is empty.
+   * - `RefObject`: Move focus to the ref element.
    * - `function`: Called with the interaction type (`mouse`, `touch`, `pen`, or `keyboard`).
    *   Return an element to focus, `true` to use the default behavior, `null` to fall back to the default behavior, or `false`/`undefined` to do nothing.
    */
