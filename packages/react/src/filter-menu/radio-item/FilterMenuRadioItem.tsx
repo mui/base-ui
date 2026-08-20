@@ -42,6 +42,7 @@ export interface FilterMenuRadioItemProps extends Omit<MenuRadioItemProps, 'labe
    */
   keywords?: readonly string[] | undefined;
 }
+
 export interface FilterMenuRadioItemState extends MenuRadioItemState {}
 
 export namespace FilterMenuRadioItem {
