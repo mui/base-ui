@@ -510,6 +510,8 @@ The clone rewrites its IDs to keep the document unique and updates fragment refe
 
 Custom elements inside a clone are replaced with inert native placeholders. Cloning a live custom element would run its constructor and connection callbacks again merely because a drag started. Render a `Draggable.Preview` when the preview must reproduce a custom element's shadow content exactly.
 
+Base UI reads the computed style of each custom element to size and style its inert placeholder. For a draggable containing many custom elements, use a lightweight `Draggable.Preview` to avoid doing that work when the drag starts.
+
 After a release, the clone moves to the source's final position and receives `data-ending-style`. That includes a release outside a target, when it returns to the unchanged source. Add a `translate` transition under that attribute to animate the handoff; the engine keeps the clone mounted until the transition finishes. The source also receives `data-ending-style` alongside `data-dragging`, so it can remain styled as an empty placeholder until the clone arrives. With no transition, the attributes and clone are removed before the next paint.
 
 ```css title="Animating the preview into its final position"
@@ -527,6 +529,8 @@ Cloning cannot reproduce every browser state. Render a `Draggable.Preview` in th
 ### Custom previews
 
 To show something other than a clone, render a `Draggable.Preview` inside the root. Its children become the preview. Like the clone, it is placed next to the element it was lifted from, so your CSS reaches it the same way.
+
+Keep `pointer-events: none` on the preview and its children. Base UI sets it on the preview element so hit testing reaches the drop targets underneath. If a child overrides it with `pointer-events: auto`, Base UI must hide the preview and repeat the hit test on every drag frame.
 
 The dashboard below drags each widget as a compact badge instead of a copy of itself.
 
