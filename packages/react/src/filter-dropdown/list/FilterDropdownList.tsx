@@ -49,9 +49,12 @@ export const FilterDropdownList = React.forwardRef(function FilterDropdownList(
       context.setKeyboardModality(false);
     },
     onKeyDown(event) {
-      if (!context.hasInput && (event.key === 'ArrowUp' || event.key === 'ArrowDown')) {
-        // The list consumed the reference navigation handler. Do not let the same event reach the
-        // popup's floating handler and move the virtual cursor a second time.
+      const isMainNavigationKey = event.key === 'ArrowUp' || event.key === 'ArrowDown';
+      const isTypeaheadKey =
+        event.key.length === 1 && !event.ctrlKey && !event.metaKey && !event.altKey;
+      if (!context.hasInput && (isMainNavigationKey || isTypeaheadKey)) {
+        // The list consumed the reference navigation and typeahead handlers. Do not let the same
+        // event reach the popup's floating handler and be handled a second time.
         event.stopPropagation();
       }
     },
