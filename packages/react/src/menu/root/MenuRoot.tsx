@@ -80,6 +80,12 @@ interface MenuRootInternalProps<Payload> extends MenuRoot.Props<Payload> {
   resetOnPointerLeave?: boolean | undefined;
   /**
    * @ignore
+   * Whether an input owns typing while virtual focus is active, which disables typeahead so it
+   * doesn't race the filter query.
+   */
+  virtualFocusInput?: boolean | undefined;
+  /**
+   * @ignore
    * Renders internal virtual-focus adapters with the current navigation props.
    */
   renderVirtualFocusChildren?:
@@ -116,6 +122,7 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
     virtualFocusRef,
     allowEscape = true,
     resetOnPointerLeave = true,
+    virtualFocusInput = false,
     renderVirtualFocusChildren,
   } = props as MenuRootInternalProps<Payload>;
 
@@ -569,8 +576,8 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
   );
 
   const typeahead = useTypeahead(floatingRootContext, {
-    // Typing goes to the input when it owns focus, so typeahead would race the query.
-    enabled: !disabled && !virtualFocus,
+    // Typing goes to the input when one is rendered, so typeahead would race the query.
+    enabled: !disabled && !(virtualFocus && virtualFocusInput),
     listRef: store.context.itemLabels,
     elementsRef: store.context.itemDomElements,
     activeIndex,
@@ -594,7 +601,12 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
     delete triggerProps.onFocus;
     openTriggerProps = triggerProps;
   }
-  const inputProps = virtualFocus ? (listNavigation.reference ?? EMPTY_OBJECT) : EMPTY_OBJECT;
+  // Typeahead is included for the inputless case, where the list holds real focus. It is
+  // disabled (empty) when an input owns typing.
+  const inputProps = React.useMemo(
+    () => (virtualFocus ? mergeProps(typeahead.reference, listNavigation.reference) : EMPTY_OBJECT),
+    [virtualFocus, typeahead.reference, listNavigation.reference],
+  );
 
   const activeTriggerProps = React.useMemo(() => {
     const mergedProps = mergeProps(

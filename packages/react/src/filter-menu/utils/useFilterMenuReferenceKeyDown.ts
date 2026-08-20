@@ -25,7 +25,7 @@ import {
 export function useFilterMenuReferenceKeyDown() {
   const { activeIndex } = useFilterDropdownRootContext();
   const { listRef } = useFilterDropdownItemContext();
-  const { orientation } = useMenuRootContext();
+  const { orientation, store } = useMenuRootContext();
   const direction = useDirection();
 
   return useStableCallback((event: BaseUIEvent<React.KeyboardEvent<HTMLElement>>) => {
@@ -47,6 +47,10 @@ export function useFilterMenuReferenceKeyDown() {
     const isActivationKey = event.key === 'Enter' || event.key === ' ';
     if (!isTypeableElement(event.currentTarget) && isActivationKey) {
       if (event.key === ' ') {
+        // Space during an inputless typeahead session belongs to the typed string.
+        if (store.context.typingRef.current) {
+          return;
+        }
         event.preventDefault();
       }
       stopEvent(event);
