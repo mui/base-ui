@@ -2827,9 +2827,8 @@ describe('<Select.Root />', () => {
 
   describe('prop: readOnly', () => {
     it('sets the readOnly state', async () => {
-      const handleOpenChange = vi.fn();
       const { user } = await render(
-        <Select.Root defaultValue="b" onOpenChange={handleOpenChange} readOnly>
+        <Select.Root defaultValue="b" readOnly>
           <Select.Trigger>
             <Select.Value />
           </Select.Trigger>
@@ -2842,58 +2841,206 @@ describe('<Select.Root />', () => {
 
       await user.keyboard('[Tab]');
       expect(trigger).toHaveFocus();
-
-      await user.click(trigger);
-      expect(handleOpenChange.mock.calls.length).toBe(0);
     });
 
-    it('should not open the select when clicked', async () => {
+    it('opens the popup when clicked', async () => {
       const handleOpenChange = vi.fn();
       const { user } = await render(
         <Select.Root onOpenChange={handleOpenChange} readOnly>
-          <Select.Trigger>
+          <Select.Trigger data-testid="trigger">
             <Select.Value />
           </Select.Trigger>
+          <Select.Portal>
+            <Select.Positioner>
+              <Select.Popup>
+                <Select.Item value="a">a</Select.Item>
+                <Select.Item value="b">b</Select.Item>
+              </Select.Popup>
+            </Select.Positioner>
+          </Select.Portal>
         </Select.Root>,
       );
 
-      const trigger = screen.getByRole('combobox');
+      await user.click(screen.getByTestId('trigger'));
 
-      await user.click(trigger);
-      expect(screen.queryByRole('listbox')).toBe(null);
-      expect(handleOpenChange.mock.calls.length).toBe(0);
+      const listbox = await screen.findByRole('listbox');
+      expect(listbox).toHaveAttribute('aria-readonly', 'true');
+      expect(handleOpenChange.mock.calls.length).toBe(1);
     });
 
-    it('should not open the select when using keyboard', async () => {
+    it('marks the listbox as readonly when rendered with Select.List', async () => {
+      const { user } = await render(
+        <Select.Root readOnly>
+          <Select.Trigger data-testid="trigger">
+            <Select.Value />
+          </Select.Trigger>
+          <Select.Portal>
+            <Select.Positioner>
+              <Select.Popup>
+                <Select.List>
+                  <Select.Item value="a">a</Select.Item>
+                </Select.List>
+              </Select.Popup>
+            </Select.Positioner>
+          </Select.Portal>
+        </Select.Root>,
+      );
+
+      await user.click(screen.getByTestId('trigger'));
+
+      expect(await screen.findByRole('listbox')).toHaveAttribute('aria-readonly', 'true');
+    });
+
+    it.each([
+      { name: 'ArrowDown', key: '{ArrowDown}' },
+      { name: 'Enter', key: '{Enter}' },
+      { name: 'Space', key: '[Space]' },
+    ])('opens the popup with $name', async ({ key }) => {
       const handleOpenChange = vi.fn();
       const { user } = await render(
         <Select.Root onOpenChange={handleOpenChange} readOnly>
-          <Select.Trigger>
+          <Select.Trigger data-testid="trigger">
             <Select.Value />
           </Select.Trigger>
+          <Select.Portal>
+            <Select.Positioner>
+              <Select.Popup>
+                <Select.Item value="a">a</Select.Item>
+                <Select.Item value="b">b</Select.Item>
+              </Select.Popup>
+            </Select.Positioner>
+          </Select.Portal>
         </Select.Root>,
       );
-
-      const trigger = screen.getByRole('combobox');
 
       await act(async () => {
-        trigger.focus();
+        screen.getByTestId('trigger').focus();
       });
 
-      expect(screen.queryByRole('listbox')).toBe(null);
-      expect(document.activeElement).toBe(trigger);
+      await user.keyboard(key);
 
-      await user.keyboard('[ArrowDown]');
-      expect(screen.queryByRole('listbox')).toBe(null);
-      expect(handleOpenChange.mock.calls.length).toBe(0);
+      expect(await screen.findByRole('listbox')).not.toBe(null);
+      expect(handleOpenChange.mock.calls.length).toBe(1);
+    });
 
-      await user.keyboard('[Enter]');
-      expect(screen.queryByRole('listbox')).toBe(null);
-      expect(handleOpenChange.mock.calls.length).toBe(0);
+    it('does not commit a value when an item is clicked in a popup the user opened', async () => {
+      const handleValueChange = vi.fn();
+      const { user } = await render(
+        <Select.Root onValueChange={handleValueChange} readOnly>
+          <Select.Trigger data-testid="trigger">
+            <Select.Value data-testid="value" />
+          </Select.Trigger>
+          <Select.Portal>
+            <Select.Positioner>
+              <Select.Popup>
+                <Select.Item value="a">a</Select.Item>
+                <Select.Item value="b">b</Select.Item>
+              </Select.Popup>
+            </Select.Positioner>
+          </Select.Portal>
+        </Select.Root>,
+      );
 
-      await user.keyboard('[Space]');
-      expect(screen.queryByRole('listbox')).toBe(null);
-      expect(handleOpenChange.mock.calls.length).toBe(0);
+      await user.click(screen.getByTestId('trigger'));
+
+      const optionB = await screen.findByRole('option', { name: 'b' });
+      await user.click(optionB);
+
+      expect(handleValueChange.mock.calls.length).toBe(0);
+      expect(optionB).not.toHaveAttribute('data-selected');
+      expect(screen.getByTestId('value').textContent).toBe('');
+    });
+
+    it('does not commit a value with Enter on a highlighted item', async () => {
+      const handleValueChange = vi.fn();
+      const { user } = await render(
+        <Select.Root onValueChange={handleValueChange} readOnly>
+          <Select.Trigger data-testid="trigger">
+            <Select.Value data-testid="value" />
+          </Select.Trigger>
+          <Select.Portal>
+            <Select.Positioner>
+              <Select.Popup>
+                <Select.Item value="a">a</Select.Item>
+                <Select.Item value="b">b</Select.Item>
+              </Select.Popup>
+            </Select.Positioner>
+          </Select.Portal>
+        </Select.Root>,
+      );
+
+      await act(async () => {
+        screen.getByTestId('trigger').focus();
+      });
+
+      await user.keyboard('{ArrowDown}');
+      await screen.findByRole('listbox');
+      await user.keyboard('{Enter}');
+
+      expect(handleValueChange.mock.calls.length).toBe(0);
+      expect(screen.getByTestId('value').textContent).toBe('');
+    });
+
+    it('does not commit a value with typeahead on a closed trigger', async () => {
+      const handleValueChange = vi.fn();
+      const { user } = await render(
+        <Select.Root onValueChange={handleValueChange} readOnly>
+          <Select.Trigger data-testid="trigger">
+            <Select.Value data-testid="value" />
+          </Select.Trigger>
+          <Select.Portal>
+            <Select.Positioner>
+              <Select.Popup>
+                <Select.Item value="apple">apple</Select.Item>
+                <Select.Item value="banana">banana</Select.Item>
+              </Select.Popup>
+            </Select.Positioner>
+          </Select.Portal>
+        </Select.Root>,
+      );
+
+      await act(async () => {
+        screen.getByTestId('trigger').focus();
+      });
+
+      await user.keyboard('b');
+
+      expect(handleValueChange.mock.calls.length).toBe(0);
+      expect(screen.getByTestId('value').textContent).toBe('');
+    });
+
+    it.skipIf(isJSDOM)('moves the highlight with typeahead while the popup is open', async () => {
+      const handleValueChange = vi.fn();
+      const { user } = await render(
+        <Select.Root defaultOpen onValueChange={handleValueChange} readOnly>
+          <Select.Trigger data-testid="trigger">
+            <Select.Value data-testid="value" />
+          </Select.Trigger>
+          <Select.Portal>
+            <Select.Positioner>
+              <Select.Popup>
+                <Select.Item value="apple">apple</Select.Item>
+                <Select.Item value="banana">banana</Select.Item>
+              </Select.Popup>
+            </Select.Positioner>
+          </Select.Portal>
+        </Select.Root>,
+      );
+
+      const apple = await screen.findByRole('option', { name: 'apple' });
+      const banana = screen.getByRole('option', { name: 'banana' });
+
+      await act(async () => {
+        apple.focus();
+      });
+
+      await user.keyboard('b');
+
+      await waitFor(() => {
+        expect(banana).toHaveAttribute('data-highlighted');
+      });
+      expect(handleValueChange.mock.calls.length).toBe(0);
+      expect(screen.getByTestId('value').textContent).toBe('');
     });
   });
 
