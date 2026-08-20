@@ -1,8 +1,9 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { expect } from 'vitest';
-import { act, screen, waitFor } from '@mui/internal-test-utils';
+import { act, fireEvent, screen, waitFor } from '@mui/internal-test-utils';
 import { createRenderer, resetBrowserPointer } from '#test-utils';
+import { FilterMenu } from '@base-ui/react/filter-menu';
 import { FilterDropdown } from '..';
 
 describe('<FilterDropdown.Root />', () => {
@@ -266,6 +267,51 @@ describe('<FilterDropdown.Root />', () => {
 
     await waitFor(() => {
       expect(status).toHaveTextContent('No matches for zzq');
+    });
+  });
+  describe('prop: filter with null', () => {
+    it('clears a stale highlight when the item set changes', async () => {
+      function ServerResults(props: { items: string[] }) {
+        return (
+          <FilterMenu.Root defaultOpen filter={null}>
+            <FilterMenu.Trigger>Actions</FilterMenu.Trigger>
+            <FilterMenu.Portal>
+              <FilterMenu.Positioner>
+                <FilterMenu.Popup>
+                  <FilterMenu.Input aria-label="Filter actions" />
+                  <FilterMenu.List>
+                    {props.items.map((item) => (
+                      <FilterMenu.Item key={item}>{item}</FilterMenu.Item>
+                    ))}
+                  </FilterMenu.List>
+                </FilterMenu.Popup>
+              </FilterMenu.Positioner>
+            </FilterMenu.Portal>
+          </FilterMenu.Root>
+        );
+      }
+
+      const { user, setProps } = await render(<ServerResults items={['A', 'B', 'C']} />);
+
+      const input = screen.getByRole('searchbox', { name: 'Filter actions' });
+      // A query is needed for the filter pass to run at all; `null` keeps every item visible.
+      fireEvent.change(input, { target: { value: 'q' } });
+      await user.keyboard('[ArrowDown][ArrowDown][ArrowDown]');
+
+      await waitFor(() => {
+        expect(input).toHaveAttribute(
+          'aria-activedescendant',
+          screen.getByRole('menuitem', { name: 'C' }).id,
+        );
+      });
+
+      // Results swap under the highlight. Leaving `activeIndex` alone would point the cursor at
+      // whatever moved into that slot, and Enter would run an item the user never chose.
+      await setProps({ items: ['X', 'Y', 'Z'] });
+
+      await waitFor(() => {
+        expect(input).not.toHaveAttribute('aria-activedescendant');
+      });
     });
   });
 });

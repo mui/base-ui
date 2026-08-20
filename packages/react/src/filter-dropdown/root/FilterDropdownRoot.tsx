@@ -121,9 +121,7 @@ export function FilterDropdownRoot(props: FilterDropdownRoot.Props): React.JSX.E
     lastFilterQueryRef.current = filterQuery;
     const autoHighlightEnabled =
       open && (autoHighlight === 'always' || (autoHighlight && filterQuery !== ''));
-    // `filter: null` hands matching to the consumer, so every registered item stays visible
-    // while the query still drives `autoHighlight`.
-    if (filter === null || filterQuery === '') {
+    if (filterQuery === '') {
       if (store.state.visibleItemIds !== null) {
         store.set('visibleItemIds', null);
         if (!autoHighlightEnabled) {
@@ -139,10 +137,19 @@ export function FilterDropdownRoot(props: FilterDropdownRoot.Props): React.JSX.E
     const nextIds = new Set<symbol>();
     registeredItems.forEach(({ getText, keywords }, id) => {
       const filterText = getText();
-      const matches = filter
-        ? filterText != null && filter(filterText, filterQuery, keywords)
-        : (filterText != null && defaultMatches(filterText, filterQuery)) ||
+      // `filter: null` hands matching to the consumer, so every registered item stays visible.
+      // It still goes through the snapshot below rather than short-circuiting, so a changed item
+      // set clears a highlight that would otherwise point at whatever moved into that index.
+      let matches;
+      if (filter === null) {
+        matches = true;
+      } else if (filter) {
+        matches = filterText != null && filter(filterText, filterQuery, keywords);
+      } else {
+        matches =
+          (filterText != null && defaultMatches(filterText, filterQuery)) ||
           keywords?.some((keyword) => defaultMatches(keyword, filterQuery));
+      }
       if (matches) {
         nextIds.add(id);
       }
