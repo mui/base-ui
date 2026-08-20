@@ -1,43 +1,68 @@
 import { lruMemoize, createSelectorCreator } from 'reselect';
 import type { CreateSelectorOptions, UnknownMemoizer, Selector, weakMapMemoize } from 'reselect';
-import type { CreateSelectorFunction } from './createSelector';
+import type { CreateSelectorMemoizedFunction } from './createSelector';
 
 /* eslint-disable no-underscore-dangle */ // __cacheKey__
 
+const MEMOIZE_OPTIONS = {
+  maxSize: 1,
+  equalityCheck: Object.is,
+};
+
 const reselectCreateSelector = createSelectorCreator({
   memoize: lruMemoize,
-  memoizeOptions: {
-    maxSize: 1,
-    equalityCheck: Object.is,
-  },
+  memoizeOptions: MEMOIZE_OPTIONS,
 });
 
 type SelectorWithArgs = ReturnType<typeof reselectCreateSelector> & { selectorArgs: any[3] };
 
-export const createSelectorMemoizedWithOptions =
-  <
-    OverrideMemoizeFunction extends UnknownMemoizer = never,
-    OverrideArgsMemoizeFunction extends UnknownMemoizer = never,
-  >(
-    options?: CreateSelectorOptions<
-      typeof lruMemoize,
-      typeof weakMapMemoize,
-      OverrideMemoizeFunction,
-      OverrideArgsMemoizeFunction
-    >,
-  ): CreateSelectorFunction<false> =>
-  (...inputs: any[]) => {
+/**
+ * Creates a `createSelectorMemoized` variant with custom reselect options.
+ *
+ * Object-form `memoizeOptions` merge over the module defaults (`maxSize: 1`,
+ * `equalityCheck: Object.is`); a custom `memoize` function or a bare equality function
+ * replaces them instead.
+ */
+export const createSelectorMemoizedWithOptions = <
+  OverrideMemoizeFunction extends UnknownMemoizer = never,
+  OverrideArgsMemoizeFunction extends UnknownMemoizer = never,
+>(
+  options?: CreateSelectorOptions<
+    typeof lruMemoize,
+    typeof weakMapMemoize,
+    OverrideMemoizeFunction,
+    OverrideArgsMemoizeFunction
+  >,
+): CreateSelectorMemoizedFunction => {
+  const memoizeOptions = options?.memoizeOptions;
+  // reselect replaces the creator options wholesale with call-site options, which would
+  // silently drop the `Object.is` equality; merge partial object options instead.
+  const resolvedOptions =
+    options !== undefined &&
+    options.memoize === undefined &&
+    typeof memoizeOptions === 'object' &&
+    !Array.isArray(memoizeOptions)
+      ? { ...options, memoizeOptions: { ...MEMOIZE_OPTIONS, ...memoizeOptions } }
+      : options;
+
+  return (...inputs: any[]) => {
     type CacheKey = { id: number };
 
     const cache = new WeakMap<CacheKey, SelectorWithArgs>();
     let nextCacheId = 1;
 
     const combiner = inputs[inputs.length - 1];
-    const nSelectors = inputs.length - 1 || 1;
+    // In the single-function form the combiner doubles as the input selector, wired to an
+    // identity selector so reselect has a dependency to key the cache on.
+    const selectors = inputs.length === 1 ? [(x: any) => x, combiner] : inputs;
+    const nSelectors = selectors.length - 1;
     // (s1, s2, ..., sN, a1, a2, a3) => { ... }
-    const argsLength = Math.max(combiner.length - nSelectors, 0);
+    // A zero-length combiner deliberately ignores every input. Any other length below the
+    // selector count means Function.length under-reports the parameters (rest parameters,
+    // wrapper functions), and the extra-argument wiring would silently drop arguments.
+    const argsLength = combiner.length === 0 ? 0 : combiner.length - nSelectors;
 
-    if (argsLength > 3) {
+    if (argsLength < 0 || argsLength > 3) {
       throw new Error('Unsupported number of arguments');
     }
 
@@ -51,7 +76,6 @@ export const createSelectorMemoizedWithOptions =
 
       let fn = cache.get(cacheKey);
       if (!fn) {
-        const selectors = inputs.length === 1 ? [(x: any) => x, combiner] : inputs;
         let reselectArgs: Array<Selector<any> | (() => unknown) | typeof combiner> = selectors;
         const selectorArgs = [undefined, undefined, undefined];
         switch (argsLength) {
@@ -70,7 +94,7 @@ export const createSelectorMemoizedWithOptions =
             ];
             break;
           }
-          case 3: {
+          default: {
             reselectArgs = [
               ...selectors.slice(0, -1),
               () => selectorArgs[0],
@@ -80,11 +104,9 @@ export const createSelectorMemoizedWithOptions =
             ];
             break;
           }
-          default:
-            throw new Error('Unsupported number of arguments');
         }
-        if (options) {
-          reselectArgs = [...reselectArgs, options];
+        if (resolvedOptions) {
+          reselectArgs = [...reselectArgs, resolvedOptions];
         }
 
         fn = reselectCreateSelector(...(reselectArgs as any)) as unknown as SelectorWithArgs;
@@ -94,7 +116,6 @@ export const createSelectorMemoizedWithOptions =
       }
 
       /* eslint-disable no-fallthrough */
-
       switch (argsLength) {
         case 3:
           fn.selectorArgs[2] = a3;
@@ -105,6 +126,8 @@ export const createSelectorMemoizedWithOptions =
         case 0:
         default:
       }
+      /* eslint-enable no-fallthrough */
+
       switch (argsLength) {
         case 0:
           return fn(state);
@@ -112,15 +135,26 @@ export const createSelectorMemoizedWithOptions =
           return fn(state, a1);
         case 2:
           return fn(state, a1, a2);
-        case 3:
-          return fn(state, a1, a2, a3);
         default:
-          throw /* minify-error-disabled */ new Error('unreachable');
+          return fn(state, a1, a2, a3);
       }
     };
 
     return selector as any;
   };
+};
 
-export const createSelectorMemoized: CreateSelectorFunction<false> =
+/**
+ * Creates a memoized selector that caches its most recent result per state object.
+ *
+ * The single-function form is keyed on the state's identity: every state replacement
+ * re-runs the combiner and produces a new reference. Use separate input selectors (or a
+ * `resultEqualityCheck` via `createSelectorMemoizedWithOptions`) when a stable result
+ * reference is needed.
+ *
+ * The combiner can take up to three arguments beyond the input selector results, and
+ * cannot have optional, default, or rest parameters, because the argument wiring relies
+ * on `Function.length`.
+ */
+export const createSelectorMemoized: CreateSelectorMemoizedFunction =
   createSelectorMemoizedWithOptions();

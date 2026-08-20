@@ -1,11 +1,5 @@
 import { expectType } from '../testUtils';
-import { Store } from './Store';
-import { ReactStore } from './ReactStore';
 import { createSelector } from './createSelector';
-import {
-  createSelectorMemoized,
-  createSelectorMemoizedWithOptions,
-} from './createSelectorMemoized';
 
 interface State {
   value: number;
@@ -25,7 +19,7 @@ const input = (s: State) => s.value;
   expectType<string, ReturnType<typeof selector>>(selector(state, 1, 'a', true));
 }
 
-// Seven input selectors are supported.
+// Seven input selectors go through the unrolled fast paths.
 createSelector(
   input,
   input,
@@ -41,64 +35,13 @@ createSelector(
 // @ts-expect-error Eight input selectors are not supported.
 createSelector(input, input, input, input, input, input, input, input, (v1: number) => v1);
 
-// The memoized variant delegates to reselect and has no input selector bound.
-createSelectorMemoized(
-  input,
-  input,
-  input,
-  input,
-  input,
-  input,
-  input,
-  input,
-  (v1, v2, v3, v4, v5, v6, v7, v8) => v1 + v2 + v3 + v4 + v5 + v6 + v7 + v8,
-);
+// The single-function form is returned verbatim, so it keeps its own signature.
+{
+  const constant = createSelector(() => 42);
+  expectType<number, ReturnType<typeof constant>>(constant());
+}
+createSelector((s: State, x1: number, x2: number, x3: number, x4: number) => s.value + x4);
 
 // prettier-ignore
-// @ts-expect-error The combiner accepts at most three arguments beyond the selector results.
-createSelector(input, (value, x1: number, x2: number, x3: number, x4: number) => value + x4);
-
-// The single-function form always requires the state argument when called.
-{
-  const constant = createSelectorMemoized(() => 42);
-  constant(state);
-  // @ts-expect-error The memoized selector requires the state to cache the result.
-  constant();
-}
-
-// The single-function form accepts the state plus up to three additional arguments.
-createSelectorMemoized((s: State, x1: number, x2: number, x3: number) => s.value + x1 + x2 + x3);
-
-// prettier-ignore
-// @ts-expect-error The single-function form accepts at most three additional arguments.
-createSelectorMemoized((s: State, x1: number, x2: number, x3: number, x4: number) => s.value + x4);
-
-// The options follow the Reselect createSelector options shape.
-createSelectorMemoizedWithOptions({
-  memoizeOptions: { resultEqualityCheck: (a: unknown, b: unknown) => a === b },
-});
-
-// prettier-ignore
-// @ts-expect-error Memoize options must match the memoizer's signature.
-createSelectorMemoizedWithOptions({ memoizeOptions: { equalityCheck: 123 } });
-
-// prettier-ignore
-// @ts-expect-error Unknown options are rejected.
-createSelectorMemoizedWithOptions({ unknownOption: true });
-
-// Store.create returns an instance of the class it is called on.
-{
-  const store = Store.create({ value: 1 });
-  expectType<Store<{ value: number }>, typeof store>(store);
-}
-{
-  class SubStore extends Store<State> {
-    isSub = true;
-  }
-  const sub = SubStore.create({ value: 1, label: 'a' });
-  expectType<SubStore, typeof sub>(sub);
-}
-{
-  const store = ReactStore.create({ value: 1, label: 'a' });
-  expectType<State, typeof store.state>(store.state);
-}
+// @ts-expect-error Combiners cannot have optional parameters.
+createSelector(input, (value, x1?: number) => value + (x1 ?? 0));

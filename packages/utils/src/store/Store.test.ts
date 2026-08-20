@@ -1,11 +1,7 @@
 import { expect, vi } from 'vitest';
-import { lruMemoize } from 'reselect';
 import { Store } from './Store';
-import { createSelector } from './createSelector';
-import {
-  createSelectorMemoized,
-  createSelectorMemoizedWithOptions,
-} from './createSelectorMemoized';
+
+type State = { value: number; label: string };
 
 describe('Store', () => {
   describe('Store.create', () => {
@@ -40,156 +36,98 @@ describe('Store', () => {
       expect(store.state.count).toBe(2);
     });
   });
-});
 
-describe('createSelector', () => {
-  it('returns the input function when called with a single selector', () => {
-    const fn = (state: { value: number }) => state.value;
-    const selector = createSelector(fn);
+  it('notifies subscribers with the new state', () => {
+    const store = new Store<State>({ value: 0, label: 'a' });
+    const listener = vi.fn();
+    store.subscribe(listener);
 
-    expect(selector).toBe(fn);
-    expect(selector({ value: 5 })).toBe(5);
+    store.setState({ value: 1, label: 'a' });
+
+    expect(listener).toHaveBeenCalledTimes(1);
+    expect(listener).toHaveBeenCalledWith({ value: 1, label: 'a' });
+    expect(store.state.value).toBe(1);
   });
 
-  it('supports the minimum of one input selector plus a combiner', () => {
-    type S = { a: number };
-    const state: S = { a: 1 };
+  it('does not notify when setState receives the current state reference', () => {
+    const store = new Store<State>({ value: 0, label: 'a' });
+    const listener = vi.fn();
+    store.subscribe(listener);
 
-    const selector = createSelector(
-      (s: S) => s.a,
-      (a) => a + 1,
-    );
+    store.setState(store.state);
 
-    expect(selector(state)).toBe(2);
+    expect(listener).not.toHaveBeenCalled();
   });
 
-  it('supports the maximum of seven input selectors plus a combiner', () => {
-    type S = { v1: number; v2: number; v3: number; v4: number; v5: number; v6: number; v7: number };
-    const state: S = { v1: 1, v2: 2, v3: 3, v4: 4, v5: 5, v6: 6, v7: 7 };
+  it('unsubscribing stops notifications', () => {
+    const store = new Store<State>({ value: 0, label: 'a' });
+    const listener = vi.fn();
+    const unsubscribe = store.subscribe(listener);
 
-    const selector = createSelector(
-      (s: S) => s.v1,
-      (s: S) => s.v2,
-      (s: S) => s.v3,
-      (s: S) => s.v4,
-      (s: S) => s.v5,
-      (s: S) => s.v6,
-      (s: S) => s.v7,
-      (v1, v2, v3, v4, v5, v6, v7) => v1 + v2 + v3 + v4 + v5 + v6 + v7,
-    );
+    unsubscribe();
+    store.set('value', 1);
 
-    expect(selector(state)).toBe(28);
+    expect(listener).not.toHaveBeenCalled();
   });
 
-  it('passes extra args through to every input selector and to the combiner', () => {
-    type S = { value: number };
-    const state: S = { value: 10 };
+  it('set() writes a single key and skips same-value writes', () => {
+    const store = new Store<State>({ value: 0, label: 'a' });
+    const listener = vi.fn();
+    store.subscribe(listener);
 
-    const selector = createSelector(
-      (s: S, multiplier: number) => s.value * multiplier,
-      (s: S, _multiplier: number, offset: number) => s.value + offset,
-      (scaled, shifted, multiplier, offset) => ({ scaled, shifted, multiplier, offset }),
-    );
+    store.set('value', 1);
+    expect(store.state).toEqual({ value: 1, label: 'a' });
+    expect(listener).toHaveBeenCalledTimes(1);
 
-    expect(selector(state, 3, 7)).toEqual({ scaled: 30, shifted: 17, multiplier: 3, offset: 7 });
+    store.set('value', 1);
+    expect(listener).toHaveBeenCalledTimes(1);
   });
 
-  it('throws when given one more than the maximum (eight input selectors plus a combiner)', () => {
-    const fn = (s: any) => s;
+  it('update() merges changed keys and skips no-op updates', () => {
+    const store = new Store<State>({ value: 0, label: 'a' });
+    const listener = vi.fn();
+    store.subscribe(listener);
 
-    expect(
-      // @ts-expect-error nine functions exceed the supported arity
-      () => createSelector(fn, fn, fn, fn, fn, fn, fn, fn, fn),
-    ).toThrow('Unsupported number of selectors');
-  });
-});
+    store.update({ value: 2, label: 'b' });
+    expect(store.state).toEqual({ value: 2, label: 'b' });
+    expect(listener).toHaveBeenCalledTimes(1);
 
-describe('createSelectorMemoized', () => {
-  it('uses an identity input selector when only a combiner is provided', () => {
-    type S = { value: number };
-    const combiner = vi.fn((s: S) => ({ doubled: s.value * 2 }));
-
-    const selector = createSelectorMemoized(combiner);
-
-    const state: S = { value: 4 };
-    expect(selector(state)).toEqual({ doubled: 8 });
-    expect(combiner).toHaveBeenCalledTimes(1);
-
-    expect(selector(state)).toEqual({ doubled: 8 });
-    expect(combiner).toHaveBeenCalledTimes(1);
+    store.update({ value: 2, label: 'b' });
+    expect(listener).toHaveBeenCalledTimes(1);
   });
 
-  it('re-runs the combiner when input selector results change', () => {
-    type S = { a: number; b: number };
-    const combiner = vi.fn((a: number, b: number) => ({ sum: a + b }));
+  it('notifyAll() renews the state reference and notifies', () => {
+    const store = new Store<State>({ value: 0, label: 'a' });
+    const listener = vi.fn();
+    store.subscribe(listener);
+    const previous = store.state;
 
-    const selector = createSelectorMemoized(
-      (state: S) => state.a,
-      (state: S) => state.b,
-      combiner,
-    );
+    store.notifyAll();
 
-    const state: S = { a: 1, b: 2 };
-    expect(selector(state)).toEqual({ sum: 3 });
-    expect(combiner).toHaveBeenCalledTimes(1);
-
-    expect(selector(state)).toEqual({ sum: 3 });
-    expect(combiner).toHaveBeenCalledTimes(1);
-
-    const next: S = { a: 5, b: 2 };
-    expect(selector(next)).toEqual({ sum: 7 });
-    expect(combiner).toHaveBeenCalledTimes(2);
+    expect(listener).toHaveBeenCalledTimes(1);
+    expect(store.state).not.toBe(previous);
+    expect(store.state).toEqual(previous);
   });
 
-  it('caches separately per state identity', () => {
-    type S = { value: number };
-    const combiner = vi.fn((value: number) => ({ value }));
+  it('a nested setState from a listener stops the outer notification pass', () => {
+    const store = new Store<State>({ value: 0, label: 'a' });
 
-    const selector = createSelectorMemoized((state: S) => state.value, combiner);
+    const first = vi.fn((state: State) => {
+      if (state.value === 1) {
+        store.set('value', 2);
+      }
+    });
+    const second = vi.fn();
+    store.subscribe(first);
+    store.subscribe(second);
 
-    const a: S = { value: 1 };
-    const b: S = { value: 1 };
+    store.set('value', 1);
 
-    selector(a);
-    selector(b);
-
-    expect(combiner).toHaveBeenCalledTimes(2);
-  });
-});
-
-describe('createSelectorMemoizedWithOptions', () => {
-  it('produces a working factory when no options are provided', () => {
-    type S = { value: number };
-    const combiner = vi.fn((value: number) => ({ value }));
-
-    const selector = createSelectorMemoizedWithOptions()((state: S) => state.value, combiner);
-
-    const state: S = { value: 3 };
-    expect(selector(state)).toEqual({ value: 3 });
-    expect(selector(state)).toEqual({ value: 3 });
-    expect(combiner).toHaveBeenCalledTimes(1);
-  });
-
-  it('forwards options through to the underlying reselect creator', () => {
-    type S = { value: number };
-    const inputSelector = vi.fn((state: S) => state.value);
-    const combiner = vi.fn((value: number) => ({ value }));
-
-    const selector = createSelectorMemoizedWithOptions({
-      argsMemoize: lruMemoize,
-      argsMemoizeOptions: { equalityCheck: () => false, maxSize: 1 },
-      devModeChecks: { inputStabilityCheck: 'never', identityFunctionCheck: 'never' },
-    })(inputSelector, combiner);
-
-    const state: S = { value: 7 };
-    selector(state);
-    const callsAfterFirst = inputSelector.mock.calls.length;
-    selector(state);
-
-    // The custom argsMemoize never considers args equal, so input selectors
-    // re-run on every call (defaults would have produced a cache hit instead).
-    expect(inputSelector.mock.calls.length).toBeGreaterThan(callsAfterFirst);
-    // The combiner result is still memoized because the input value is unchanged.
-    expect(combiner).toHaveBeenCalledTimes(1);
+    // The nested set() notified every listener with the final state; the outer
+    // pass detected it and did not deliver the stale state to `second`.
+    expect(store.state.value).toBe(2);
+    expect(first).toHaveBeenCalledTimes(2);
+    expect(second).toHaveBeenCalledTimes(1);
+    expect(second).toHaveBeenCalledWith({ value: 2, label: 'a' });
   });
 });

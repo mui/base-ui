@@ -28,50 +28,66 @@ type ExtraParams<
 type LengthOf<T> = T extends readonly unknown[] ? T['length'] : number;
 
 /**
- * The runtime dispatches the extra combiner arguments through three fixed slots. An
- * open-ended parameter count cannot be validated statically (it occurs both for rest
- * parameters and for combiners typed contextually), so it is left to the runtime guards.
+ * `createSelectorMemoized` wires the extra combiner arguments through three fixed slots
+ * keyed on Function.length, so statically-known argument counts above three are
+ * rejected. An open-ended count cannot be validated statically: it occurs both for rest
+ * parameters and for combiners typed contextually, which are indistinguishable here.
+ * The runtime throws on the parameter counts this check cannot see.
  */
-type ExtraArgsWithinLimit<
-  Selectors extends ReadonlyArray<Fn>,
-  Combiner extends Fn,
-> = number extends Parameters<Combiner>['length']
-  ? true
-  : LengthOf<ExtraParams<Selectors, Combiner>> extends 0 | 1 | 2 | 3
-    ? true
-    : false;
+type ValidMemoizedCombiner<Selectors extends ReadonlyArray<Fn>, Combiner extends Fn> =
+  number extends LengthOf<ExtraParams<Selectors, Combiner>>
+    ? NoOptionalParams<Combiner>
+    : LengthOf<ExtraParams<Selectors, Combiner>> extends 0 | 1 | 2 | 3
+      ? NoOptionalParams<Combiner>
+      : 'Combiner accepts up to three arguments beyond the input selector results';
 
-type CombinerChecks<Selectors extends ReadonlyArray<Fn>, Combiner extends Fn> =
-  ExtraArgsWithinLimit<Selectors, Combiner> extends false
-    ? 'Combiner accepts up to three arguments beyond the input selector results'
-    : NoOptionalParams<Combiner>;
-
+/**
+ * `createSelector` dispatches through unrolled fixed arities and supports at most seven
+ * input selectors. A non-tuple selector list has no statically known count and passes;
+ * the runtime throws for it instead.
+ */
 type ValidCombiner<
   Selectors extends ReadonlyArray<Fn>,
   Combiner extends Fn,
-  BoundedSelectors extends boolean,
-> = BoundedSelectors extends false
-  ? CombinerChecks<Selectors, Combiner>
-  : Selectors['length'] extends 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7
-    ? CombinerChecks<Selectors, Combiner>
+> = Selectors['length'] extends 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7
+  ? NoOptionalParams<Combiner>
+  : number extends Selectors['length']
+    ? NoOptionalParams<Combiner>
     : 'Up to seven input selectors are supported';
 
 /**
- * `createSelector` dispatches through fixed arities and supports at most seven input
- * selectors; `createSelectorMemoized` delegates to reselect and has no such bound, which
- * `BoundedSelectors: false` expresses.
+ * The type of `createSelector`.
  */
-export type CreateSelectorFunction<BoundedSelectors extends boolean = true> = <
+export type CreateSelectorFunction = <
   const Args extends any[],
   const Selectors extends ReadonlyArray<Selector<any>>,
   const Combiner extends (...args: readonly [...ReturnTypes<Selectors>, ...Args]) => any,
 >(
-  ...items: [...Selectors, ValidCombiner<Selectors, Combiner, BoundedSelectors>]
+  ...items: [...Selectors, ValidCombiner<Selectors, Combiner>]
+) => (
+  ...args: Selectors['length'] extends 0
+    ? Parameters<Combiner>
+    : [
+        StateFromSelectorList<Selectors>,
+        ...MergeParams<ReturnTypes<Selectors>, Parameters<Combiner>>,
+      ]
+) => ReturnType<Combiner>;
+
+/**
+ * The type of `createSelectorMemoized`. Unlike `createSelector`, the memoized runtime
+ * dispatches on Function.length, and the single-function form still requires the state
+ * object because it carries the cache key.
+ */
+export type CreateSelectorMemoizedFunction = <
+  const Args extends any[],
+  const Selectors extends ReadonlyArray<Selector<any>>,
+  const Combiner extends (...args: readonly [...ReturnTypes<Selectors>, ...Args]) => any,
+>(
+  ...items: [...Selectors, ValidMemoizedCombiner<Selectors, Combiner>]
 ) => (
   ...args: Selectors['length'] extends 0
     ? Parameters<Combiner> extends []
-      ? // The state is still required for caching when the combiner ignores it.
-        [state: object]
+      ? [state: object]
       : MergeParams<ReturnTypes<Selectors>, Parameters<Combiner>>
     : [
         StateFromSelectorList<Selectors>,
