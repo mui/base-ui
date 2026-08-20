@@ -3,8 +3,8 @@ import * as React from 'react';
 import { Draggable } from '@base-ui/react/draggable';
 import { DropTarget } from '@base-ui/react/drop-target';
 import { DragAutoScroll } from '@base-ui/react/drag-auto-scroll';
+import { useDragDropManager } from '@base-ui/react/use-drag-drop-manager';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
-import { useTimeout } from '@base-ui/utils/useTimeout';
 import { INITIAL_NODES, type FileNode, type FileSystem } from '../data';
 import styles from '../../file-explorer.module.css';
 
@@ -52,6 +52,26 @@ function getPath(nodes: FileSystem, folderId: string): FileNode[] {
   return path;
 }
 
+function useKeyboardControls(onOpen?: () => void) {
+  const manager = useDragDropManager();
+
+  return useStableCallback((event: React.KeyboardEvent<HTMLElement>) => {
+    const hasOtherModifier = event.ctrlKey || event.metaKey || event.shiftKey;
+    const isSpace = event.key === ' ' || event.key === 'Space' || event.key === 'Spacebar';
+    const isActivationKey = isSpace || event.code === 'Space' || event.key === 'Enter';
+    if (event.altKey && !hasOtherModifier && event.key === 'Enter') {
+      event.preventDefault();
+      manager.startKeyboardDrag(event.currentTarget);
+      return;
+    }
+
+    if (!event.altKey && !hasOtherModifier && isActivationKey && onOpen) {
+      event.preventDefault();
+      onOpen();
+    }
+  });
+}
+
 function FolderIcon({ className }: { className: string }) {
   return (
     <svg
@@ -90,8 +110,6 @@ function FileIcon({ className }: { className: string }) {
 }
 
 // A compact card follows the pointer instead of a clone of the whole tile.
-// It renders in the `Draggable.PreviewProvider` tree, so it outlives the tile
-// when a dwell navigation unmounts the grid mid-drag.
 function NodePreview({ node }: { node: FileNode }) {
   return (
     <Draggable.Preview className={styles.Preview} offset="pointer">
@@ -106,10 +124,8 @@ function NodePreview({ node }: { node: FileNode }) {
 }
 
 // A folder is both a drag source and a drop target: `render` puts both roles on
-// the same element. A plain click still opens it, because a mouse drag only
-// starts past the 5px activation distance and the engine swallows the click
-// that follows a completed drag. Enter and Space are keyboard pickup, so
-// keyboard navigation into folders lives in the breadcrumb instead.
+// the same element. A plain click, Space, or Enter opens it. Alt+Enter starts a
+// keyboard drag without taking those keys from navigation.
 function FolderTile({
   node,
   nodes,
@@ -121,9 +137,7 @@ function FolderTile({
   onMove: (sourceId: string, folderId: string) => void;
   onOpen: (folderId: string) => void;
 }) {
-  // Hovering a folder for a moment mid-drag opens it, so one drag can reach any
-  // depth. Only a folder the drag could actually drop into springs open.
-  const dwellTimer = useTimeout();
+  const handleKeyDown = useKeyboardControls(() => onOpen(node.id));
 
   return (
     <Draggable.Root
@@ -133,25 +147,19 @@ function FolderTile({
       // Arrow keys hop between accepting targets only: in a grid, free space is
       // never a valid position.
       keyboardMovement={Draggable.targetsOnlyKeyboardMovement}
+      keyboardActivation="manual"
+      keyboardInstructions="Press Space or Enter to open. Press Alt+Enter to start dragging."
       role="button"
       className={styles.Item}
       onClick={() => onOpen(node.id)}
+      onKeyDownCapture={handleKeyDown}
       // @highlight-start
       render={
         <DropTarget.Root
           label={node.name}
           accept={nodeKind}
           canDrop={({ source }) => canDropInto(nodes, node.id, source.payload)}
-          onDragEnter={({ source }) => {
-            if (canDropInto(nodes, node.id, source.payload) === true) {
-              dwellTimer.start(500, () => onOpen(node.id));
-            }
-          }}
-          onDragLeave={() => dwellTimer.clear()}
-          onDrop={({ source }) => {
-            dwellTimer.clear();
-            onMove(source.payload, node.id);
-          }}
+          onDrop={({ source }) => onMove(source.payload, node.id)}
         />
       }
       // @highlight-end
@@ -164,14 +172,19 @@ function FolderTile({
 }
 
 function FileTile({ node }: { node: FileNode }) {
+  const handleKeyDown = useKeyboardControls();
+
   return (
     <Draggable.Root
       label={node.name}
       kind={nodeKind}
       payload={node.id}
       keyboardMovement={Draggable.targetsOnlyKeyboardMovement}
+      keyboardActivation="manual"
+      keyboardInstructions="Press Alt+Enter to start dragging."
       role="button"
       className={styles.Item}
+      onKeyDownCapture={handleKeyDown}
     >
       <FileIcon className={styles.Icon} />
       <span className={styles.Label}>{node.name}</span>
@@ -197,25 +210,12 @@ function Crumb({
   onMove: (sourceId: string, folderId: string) => void;
   onNavigate: (folderId: string) => void;
 }) {
-  // Ancestors spring the same way the folder tiles do: hover one mid-drag to
-  // climb back up without dropping.
-  const dwellTimer = useTimeout();
-
   return (
     <DropTarget.Root
       label={folder.name}
       accept={nodeKind}
       canDrop={({ source }) => canDropInto(nodes, folder.id, source.payload)}
-      onDragEnter={({ source }) => {
-        if (canDropInto(nodes, folder.id, source.payload) === true) {
-          dwellTimer.start(500, () => onNavigate(folder.id));
-        }
-      }}
-      onDragLeave={() => dwellTimer.clear()}
-      onDrop={({ source }) => {
-        dwellTimer.clear();
-        onMove(source.payload, folder.id);
-      }}
+      onDrop={({ source }) => onMove(source.payload, folder.id)}
       render={
         <button
           type="button"
@@ -265,9 +265,8 @@ export default function FileExplorer() {
           ))}
         </nav>
         {/* The grid is a drop target for the folder it displays, so a release on
-          its background lands in that folder. That is what completes a drop
-          after a dwell opened it. `DragAutoScroll.Root` scrolls the container
-          when a pointer drag nears an edge. */}
+          its background lands in that folder. `DragAutoScroll.Root` scrolls the
+          container when a pointer drag nears an edge. */}
         <DropTarget.Root
           label={nodes[currentFolderId].name}
           accept={nodeKind}
