@@ -778,6 +778,60 @@ describe('<Menu.Root />', () => {
     });
 
     describe('nested menus', () => {
+      it('treats a plain Menu.Root inside a dialog opened from a submenu as an independent root', async () => {
+        const { user } = await render(
+          <Menu.Root open>
+            <Menu.Portal>
+              <Menu.Positioner>
+                <Menu.Popup>
+                  <Menu.SubmenuRoot open>
+                    <Menu.SubmenuTrigger>More</Menu.SubmenuTrigger>
+                    <Menu.Portal>
+                      <Menu.Positioner>
+                        <Menu.Popup data-testid="submenu-popup">
+                          <Dialog.Root open>
+                            <Dialog.Portal>
+                              <Dialog.Popup>
+                                <Menu.Root>
+                                  <Menu.Trigger data-testid="inner-trigger">Inner</Menu.Trigger>
+                                  <Menu.Portal>
+                                    <Menu.Positioner>
+                                      <Menu.Popup data-testid="inner-popup">
+                                        <Menu.Item>One</Menu.Item>
+                                      </Menu.Popup>
+                                    </Menu.Positioner>
+                                  </Menu.Portal>
+                                </Menu.Root>
+                              </Dialog.Popup>
+                            </Dialog.Portal>
+                          </Dialog.Root>
+                        </Menu.Popup>
+                      </Menu.Positioner>
+                    </Menu.Portal>
+                  </Menu.SubmenuRoot>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
+          </Menu.Root>,
+        );
+
+        // A real submenu popup carries the nested state.
+        expect(screen.getByTestId('submenu-popup')).toHaveAttribute('data-nested');
+
+        await user.click(screen.getByTestId('inner-trigger'));
+
+        const innerPopup = await screen.findByTestId('inner-popup');
+        expect(innerPopup).not.toHaveAttribute('data-nested');
+
+        // Cross-axis close keys act on submenus only; an independent root ignores them.
+        const innerItem = screen.getByRole('menuitem', { name: 'One' });
+        await act(async () => {
+          innerItem.focus();
+        });
+        await user.keyboard('[ArrowLeft]');
+        expect(screen.queryByTestId('inner-popup')).not.toBe(null);
+      });
+
       (
         [
           ['vertical', 'ltr', 'ArrowRight', 'ArrowLeft'],
