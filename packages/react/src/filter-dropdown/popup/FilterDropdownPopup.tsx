@@ -2,6 +2,7 @@
 import * as React from 'react';
 import { isHTMLElement } from '@floating-ui/utils/dom';
 import { ownerDocument } from '@base-ui/utils/owner';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import type { BaseUIComponentProps } from '../../internals/types';
 import { useRenderElement } from '../../internals/useRenderElement';
 import type { StateAttributesMapping } from '../../internals/getStateAttributesProps';
@@ -44,9 +45,11 @@ export const FilterDropdownPopup = React.forwardRef(function FilterDropdownPopup
   // than a flag so swapping the owner (an input unmounting, leaving the list) does not inherit
   // the previous owner's claim, and clears on close so a kept-mounted popup starts over.
   const heldFocusOwnerRef = React.useRef<HTMLElement | null>(null);
-  if (!context.open && heldFocusOwnerRef.current !== null) {
-    heldFocusOwnerRef.current = null;
-  }
+  useIsoLayoutEffect(() => {
+    if (!context.open) {
+      heldFocusOwnerRef.current = null;
+    }
+  }, [context.open]);
 
   const state: FilterDropdownPopupState = { open: context.open };
 

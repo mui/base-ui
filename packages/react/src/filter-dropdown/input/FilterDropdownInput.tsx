@@ -104,10 +104,12 @@ export const FilterDropdownInput = React.forwardRef(function FilterDropdownInput
             event.preventDefault();
           }
 
-          if (isTyping || (value !== '' && isInputActive && isMovingCaret)) {
+          const isBoundaryKey = event.key === 'Home' || event.key === 'End';
+          if (isTyping || (isInputActive && isMovingCaret && (value !== '' || isBoundaryKey))) {
             // Keep character input out of parent handlers such as typeahead. With no active
             // descendant the input keeps its native caret navigation instead of moving the
-            // highlight.
+            // highlight; Home and End stay caret keys even when the input is empty. Cross-axis
+            // arrows on an empty input fall through so they can still close or enter a submenu.
             event.stopPropagation();
             event.preventBaseUIHandler();
           }
@@ -120,7 +122,8 @@ export const FilterDropdownInput = React.forwardRef(function FilterDropdownInput
 
 export interface FilterDropdownInputState {
   /**
-   * Whether the input holds the virtual cursor, meaning no item is highlighted.
+   * Whether the input shows its virtual-focus indicator.
+   * Always set under pointer modality; under keyboard modality, set only while no item is highlighted.
    */
   highlighted: boolean;
 }
