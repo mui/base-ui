@@ -769,6 +769,34 @@ describe('<FilterMenu.Root />', () => {
       expect(input).not.toHaveAttribute('aria-activedescendant');
     });
 
+    it('keeps Home and End as caret keys while the input is empty', async () => {
+      const { user } = await render(
+        <FilterMenu.Root open>
+          <FilterMenu.Trigger>Actions</FilterMenu.Trigger>
+          <FilterMenu.Portal>
+            <FilterMenu.Positioner>
+              <FilterMenu.Popup>
+                <FilterMenu.Input aria-label="Filter actions" />
+                <FilterMenu.List>
+                  <FilterMenu.Item>Rename</FilterMenu.Item>
+                  <FilterMenu.Item>Delete</FilterMenu.Item>
+                </FilterMenu.List>
+              </FilterMenu.Popup>
+            </FilterMenu.Positioner>
+          </FilterMenu.Portal>
+        </FilterMenu.Root>,
+      );
+
+      const input = screen.getByRole('searchbox', { name: 'Filter actions' });
+      await user.click(input);
+
+      await user.keyboard('[End]');
+      expect(input).not.toHaveAttribute('aria-activedescendant');
+
+      await user.keyboard('[Home]');
+      expect(input).not.toHaveAttribute('aria-activedescendant');
+    });
+
     it('uses Home and End for list navigation after an item is highlighted', async () => {
       const { user } = await render(
         <FilterMenu.Root open>
@@ -939,9 +967,6 @@ describe('<FilterMenu.Root />', () => {
       await user.click(submenuTrigger);
 
       const submenuInput = await screen.findByRole('searchbox', { name: 'Filter sharing options' });
-      await act(async () => {
-        submenuInput.focus();
-      });
       await waitFor(() => {
         expect(submenuInput).toHaveFocus();
       });
@@ -954,6 +979,59 @@ describe('<FilterMenu.Root />', () => {
       await waitFor(() => {
         expect(screen.queryByRole('searchbox', { name: 'Filter actions' })).toBe(null);
       });
+    });
+
+    it('focuses a click-opened filterable submenu input so typing filters the submenu', async () => {
+      const { user } = await render(
+        <FilterMenu.Root>
+          <FilterMenu.Trigger>Actions</FilterMenu.Trigger>
+          <FilterMenu.Portal>
+            <FilterMenu.Positioner>
+              <FilterMenu.Popup>
+                <FilterMenu.Input aria-label="Filter actions" />
+                <FilterMenu.List>
+                  <FilterMenu.SubmenuRoot>
+                    <FilterMenu.SubmenuTrigger openOnHover={false}>Share</FilterMenu.SubmenuTrigger>
+                    <FilterMenu.Portal>
+                      <FilterMenu.Positioner>
+                        <FilterMenu.Popup>
+                          <FilterMenu.Input aria-label="Filter sharing options" />
+                          <FilterMenu.List>
+                            <FilterMenu.Item>Email</FilterMenu.Item>
+                            <FilterMenu.Item>Link</FilterMenu.Item>
+                          </FilterMenu.List>
+                        </FilterMenu.Popup>
+                      </FilterMenu.Positioner>
+                    </FilterMenu.Portal>
+                  </FilterMenu.SubmenuRoot>
+                  <FilterMenu.Item>Delete</FilterMenu.Item>
+                </FilterMenu.List>
+              </FilterMenu.Popup>
+            </FilterMenu.Positioner>
+          </FilterMenu.Portal>
+        </FilterMenu.Root>,
+      );
+
+      await user.click(screen.getByRole('button', { name: 'Actions' }));
+
+      const submenuTrigger = await screen.findByRole('menuitem', { name: 'Share' });
+      await user.click(submenuTrigger);
+
+      const submenuInput = await screen.findByRole('searchbox', { name: 'Filter sharing options' });
+      await waitFor(() => {
+        expect(submenuInput).toHaveFocus();
+      });
+
+      await user.keyboard('em');
+
+      expect(submenuInput).toHaveValue('em');
+      await waitFor(() => {
+        expect(screen.queryByRole('menuitem', { name: 'Link' })).toBe(null);
+      });
+      expect(screen.getByRole('menuitem', { name: 'Email' })).toBeVisible();
+      // The parent list did not filter: its own items are all still present.
+      expect(screen.getByRole('menuitem', { name: 'Share' })).toBeVisible();
+      expect(screen.getByRole('menuitem', { name: 'Delete' })).toBeVisible();
     });
 
     // Only the submenu filters here; the outer menu is an ordinary one.
@@ -1712,6 +1790,40 @@ describe('<FilterMenu.Root />', () => {
       await user.hover(screen.getByRole('searchbox', { name: 'Filter actions' }));
 
       expect(outside).toHaveFocus();
+    });
+
+    it('clears the highlight after the pointer leaves an inline list following keyboard navigation', async () => {
+      const { user } = await render(
+        <FilterMenu.Root inline open>
+          <FilterMenu.Input aria-label="Filter actions" />
+          <FilterMenu.List>
+            <FilterMenu.Item>Rename</FilterMenu.Item>
+            <FilterMenu.Item>Delete</FilterMenu.Item>
+          </FilterMenu.List>
+        </FilterMenu.Root>,
+      );
+
+      const input = screen.getByRole('searchbox', { name: 'Filter actions' });
+      await act(async () => {
+        input.focus();
+      });
+      await user.keyboard('[ArrowDown]');
+
+      const renameItem = screen.getByRole('menuitem', { name: 'Rename' });
+      await waitFor(() => {
+        expect(renameItem).toHaveAttribute('data-highlighted');
+      });
+
+      const deleteItem = screen.getByRole('menuitem', { name: 'Delete' });
+      await user.hover(deleteItem);
+      await waitFor(() => {
+        expect(deleteItem).toHaveAttribute('data-highlighted');
+      });
+
+      await user.unhover(deleteItem);
+      await waitFor(() => {
+        expect(deleteItem).not.toHaveAttribute('data-highlighted');
+      });
     });
 
     it.skipIf(isJSDOM)(
@@ -4380,6 +4492,76 @@ describe('<FilterMenu.Root />', () => {
 
       const trigger = screen.getByRole('button', { name: 'Actions' });
       expect(screen.getByRole('menu')).toHaveAttribute('aria-labelledby', trigger.id);
+    });
+
+    it('keeps a list label supplied through a render element', async () => {
+      await render(
+        <FilterMenu.Root defaultOpen>
+          <FilterMenu.Trigger>Actions</FilterMenu.Trigger>
+          <FilterMenu.Portal>
+            <FilterMenu.Positioner>
+              <FilterMenu.Popup>
+                <FilterMenu.Input aria-label="Filter actions" />
+                <FilterMenu.List render={<div aria-label="Commands" />}>
+                  <FilterMenu.Item>Rename</FilterMenu.Item>
+                </FilterMenu.List>
+              </FilterMenu.Popup>
+            </FilterMenu.Positioner>
+          </FilterMenu.Portal>
+        </FilterMenu.Root>,
+      );
+
+      const list = screen.getByRole('menu');
+      expect(list).toHaveAttribute('aria-label', 'Commands');
+      expect(list).not.toHaveAttribute('aria-labelledby');
+    });
+
+    it('omits aria-controls when the list renders with an explicitly empty id', async () => {
+      await render(
+        <FilterMenu.Root defaultOpen>
+          <FilterMenu.Trigger>Actions</FilterMenu.Trigger>
+          <FilterMenu.Portal>
+            <FilterMenu.Positioner>
+              <FilterMenu.Popup>
+                <FilterMenu.Input aria-label="Filter actions" />
+                <FilterMenu.List render={<div id="" />}>
+                  <FilterMenu.Item>Rename</FilterMenu.Item>
+                </FilterMenu.List>
+              </FilterMenu.Popup>
+            </FilterMenu.Positioner>
+          </FilterMenu.Portal>
+        </FilterMenu.Root>,
+      );
+
+      const input = screen.getByRole('searchbox', { name: 'Filter actions' });
+      await waitFor(() => {
+        expect(input).not.toHaveAttribute('aria-controls');
+      });
+      expect(screen.getByRole('menu').id).toBe('');
+    });
+
+    it('omits the list label when the trigger renders with an explicitly empty id', async () => {
+      await render(
+        <FilterMenu.Root defaultOpen>
+          <FilterMenu.Trigger render={<button id="" />}>Actions</FilterMenu.Trigger>
+          <FilterMenu.Portal>
+            <FilterMenu.Positioner>
+              <FilterMenu.Popup>
+                <FilterMenu.Input aria-label="Filter actions" />
+                <FilterMenu.List>
+                  <FilterMenu.Item>Rename</FilterMenu.Item>
+                </FilterMenu.List>
+              </FilterMenu.Popup>
+            </FilterMenu.Positioner>
+          </FilterMenu.Portal>
+        </FilterMenu.Root>,
+      );
+
+      const list = screen.getByRole('menu');
+      await waitFor(() => {
+        expect(list).not.toHaveAttribute('aria-labelledby');
+      });
+      expect(screen.getByRole('dialog')).not.toHaveAttribute('aria-labelledby');
     });
   });
 

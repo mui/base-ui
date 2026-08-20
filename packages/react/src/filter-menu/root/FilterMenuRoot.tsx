@@ -173,7 +173,9 @@ export function FilterMenuProvider(props: FilterMenuProviderProps) {
       filter={props.filter}
       autoHighlight={props.autoHighlight}
       locale={props.locale}
-      triggerId={triggerElement?.id ?? triggerId}
+      // Trust the rendered element's id once it exists: an explicitly empty id must not
+      // fall back to a registered id that no element carries.
+      triggerId={triggerElement ? triggerElement.id || undefined : triggerId}
       listRef={store.context.itemDomElements}
       activeIndex={activeIndex}
       setActiveIndex={setActiveIndex}

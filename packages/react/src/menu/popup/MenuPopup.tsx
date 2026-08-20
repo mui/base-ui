@@ -75,10 +75,13 @@ export const MenuPopup = React.forwardRef(function MenuPopup(
   // `openMethod` remains null; Enter and Space dispatch a click and report `keyboard`.
   const openedByKeyboard =
     open && (lastOpenChangeReason === REASONS.listNavigation || openMethod === 'keyboard');
-  // Hovering a trigger hands an input-bearing submenu ownership of focus, so typing immediately
-  // filters it. An inputless virtual-focus list keeps focus in its parent on pointer opens.
+  // Hovering or pressing a trigger hands an input-bearing submenu ownership of focus, so typing
+  // immediately filters it. An inputless virtual-focus list keeps focus in its parent on pointer
+  // opens: the `initialFocus` resolver below refuses pointer focus for a non-typeable owner.
   const openedByHover = open && lastOpenChangeReason === REASONS.triggerHover;
-  const shouldFocusPopup = parent.type !== 'menu' || openedByKeyboard || openedByHover;
+  const openedByPress = open && lastOpenChangeReason === REASONS.triggerPress;
+  const shouldFocusPopup =
+    parent.type !== 'menu' || openedByKeyboard || openedByHover || openedByPress;
   // Under virtual focus the popup itself is never the focus target: a child element holds real
   // focus and the list is navigated with `aria-activedescendant`.
   let initialFocus: FloatingFocusManagerProps['initialFocus'] = parent.type !== 'menu';
