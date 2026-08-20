@@ -340,10 +340,12 @@ export function useAnchorPositioningWithHook(
       );
 
   // https://floating-ui.com/docs/flip#combining-with-shift
+  // Keyed on the alignment actually being requested, not the raw prop: a locked alignment can
+  // differ from `align`, and the ordering has to match the placement that is asked for.
   if (
     collisionAvoidanceSide === 'shift' ||
     collisionAvoidanceAlign === 'shift' ||
-    align === 'center'
+    placementAlign === 'center'
   ) {
     middleware.push(shiftMiddleware, flipMiddleware);
   } else {

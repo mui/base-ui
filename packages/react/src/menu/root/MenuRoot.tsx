@@ -537,9 +537,6 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
   });
 
   const direction = useDirection();
-  const openedByKeyboard =
-    open && (lastOpenChangeReason === REASONS.listNavigation || openMethod === 'keyboard');
-  const focusItemOnOpen = (parent.type !== undefined && openedByKeyboard) || undefined;
 
   const listNavigation = useListNavigation(floatingRootContext, {
     id: floatingId,
@@ -551,8 +548,9 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
     parentOrientation: parent.type === 'menubar' ? parent.context.orientation : undefined,
     loopFocus,
     // Virtual focus opens with the input focused and nothing highlighted, so the first arrow key
-    // enters the list from the top rather than moving off a seeded item.
-    focusItemOnOpen: virtualFocus ? false : focusItemOnOpen,
+    // enters the list from the top rather than moving off a seeded item. Everything else keeps
+    // the hook's `'auto'` default.
+    focusItemOnOpen: virtualFocus ? false : undefined,
     allowEscape: virtualFocus && loopFocus && allowEscape,
     orientation,
     rtl: direction === 'rtl',
