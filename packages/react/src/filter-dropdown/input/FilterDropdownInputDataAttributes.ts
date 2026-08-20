@@ -1,6 +1,7 @@
 export enum FilterDropdownInputDataAttributes {
   /**
-   * Present when the input receives virtual focus via keyboard navigation.
+   * Present while the input holds the virtual cursor, meaning no item is highlighted. The input
+   * and the items share one cursor, so exactly one of them carries this attribute at a time.
    */
-  focusVisible = 'data-focus-visible',
+  highlighted = 'data-highlighted',
 }

@@ -1,11 +1,17 @@
 'use client';
 import * as React from 'react';
 import { isHTMLElement } from '@floating-ui/utils/dom';
+import { ownerDocument } from '@base-ui/utils/owner';
 import type { BaseUIComponentProps } from '../../internals/types';
 import { useRenderElement } from '../../internals/useRenderElement';
 import type { StateAttributesMapping } from '../../internals/getStateAttributesProps';
 import { popupStateMapping } from '../../utils/popupStateMapping';
-import { getTarget } from '../../floating-ui-react/utils';
+import {
+  activeElement,
+  contains,
+  getTarget,
+  isTypeableElement,
+} from '../../floating-ui-react/utils';
 import { useFilterDropdownRootContext } from '../root/FilterDropdownRootContext';
 import { useRenderedId } from '../../internals/useRenderedId';
 import { useDirection } from '../../internals/direction-context/DirectionContext';
@@ -31,6 +37,11 @@ export const FilterDropdownPopup = React.forwardRef(function FilterDropdownPopup
   const ariaLabelledBy = hasAriaLabel ? elementProps['aria-labelledby'] : context.triggerId;
 
   const renderedIdRef = useRenderedId(setPopupId, context.defaultPopupId, idProp != null);
+  // The pointer may only restore focus the owner already had. Moving the pointer into a popup
+  // whose owner has never been focused (an inputless list opened by a pointer, where focus stays
+  // on the trigger) must not hand it focus, because that seeds a highlight on the first item
+  // while the cursor is nowhere near it.
+  const hasHeldFocusRef = React.useRef(false);
 
   const state: FilterDropdownPopupState = { open: context.open };
 
@@ -53,6 +64,26 @@ export const FilterDropdownPopup = React.forwardRef(function FilterDropdownPopup
           }
         },
         onMouseMove(event) {
+          // This fires for every pointer frame over the popup, so bail before the path walk.
+          const focusOwner = focusOwnerRef.current;
+          if (!context.open || !focusOwner) {
+            return;
+          }
+
+          const activeEl = activeElement(ownerDocument(event.currentTarget));
+          // Already where it belongs, or deliberately on another control inside this popup (a
+          // header button, a secondary field). Only focus that drifted outside is pulled back.
+          if (activeEl === focusOwner || contains(event.currentTarget, activeEl)) {
+            return;
+          }
+
+          // An input takes focus on pointer enter so typing filters immediately. A list cannot:
+          // focusing it seeds the highlight onto the first item, so the pointer may only restore
+          // focus it already held (for example after a submenu handed it back).
+          if (!isTypeableElement(focusOwner) && !hasHeldFocusRef.current) {
+            return;
+          }
+
           // Nested popups are portalled, so their events still bubble through this React tree.
           // The composed path only contains this popup when the pointer is really over it, and a
           // closing popup must not re-capture focus during its exit transition.
@@ -69,18 +100,30 @@ export const FilterDropdownPopup = React.forwardRef(function FilterDropdownPopup
           });
           // An open submenu owns focus while the pointer rests on its trigger, so don't pull
           // focus back from the submenu's input.
-          if (context.open && !overOpenSubmenuTrigger && nearestPopup === event.currentTarget) {
-            focusOwnerRef.current?.focus({ preventScroll: true });
+          if (!overOpenSubmenuTrigger && nearestPopup === event.currentTarget) {
+            focusOwner.focus({ preventScroll: true });
           }
         },
         onFocus(event) {
-          if (context.open && getTarget(event.nativeEvent) === event.currentTarget) {
+          // `focusin` bubbles, so this also sees the owner itself being focused.
+          const target = getTarget(event.nativeEvent);
+          if (target === focusOwnerRef.current) {
+            hasHeldFocusRef.current = true;
+          }
+
+          if (context.open && target === event.currentTarget) {
             focusOwnerRef.current?.focus({ preventScroll: true });
           }
         },
         onKeyDown(event) {
+          const target = getTarget(event.nativeEvent);
+          if (target === focusOwnerRef.current || isTypeableElement(target)) {
+            return;
+          }
+
+          // The list is always vertical, so its cross-axis close key is the inline-start arrow.
           const closeKey = direction === 'rtl' ? 'ArrowRight' : 'ArrowLeft';
-          if (event.key === closeKey && getTarget(event.nativeEvent) !== focusOwnerRef.current) {
+          if (event.key === closeKey) {
             focusOwnerRef.current?.focus({ preventScroll: true });
             event.stopPropagation();
           }

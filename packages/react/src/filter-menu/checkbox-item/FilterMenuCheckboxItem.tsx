@@ -70,8 +70,8 @@ export interface FilterMenuCheckboxItemProps extends Omit<
    */
   label?: string | undefined;
   /**
-   * Additional terms the item matches on when using the default filter.
-   * Ignored when a custom `filter` is provided to the root.
+   * Additional terms the item matches on, beyond its label.
+   * A custom `filter` on the root receives these and decides whether to use them.
    */
   keywords?: readonly string[] | undefined;
 }

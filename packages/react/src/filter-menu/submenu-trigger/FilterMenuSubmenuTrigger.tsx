@@ -24,7 +24,13 @@ export const FilterMenuSubmenuTrigger = React.forwardRef(function FilterMenuSubm
 ) {
   const { label, keywords, ...submenuProps } = props;
 
-  const { store } = useMenuRootContext();
+  // `virtualFocus` is set only by `FilterMenu.SubmenuRoot`, so it tells this trigger whether the
+  // submenu it opens renders a `FilterMenu.Popup` (`role="dialog"`) or a plain `Menu.Popup`
+  // (`role="menu"`). The documented plain-submenu recipe relies on the latter.
+  const { store, virtualFocus } = useMenuRootContext();
+  // Spread rather than passed as `aria-haspopup={undefined}`, which would clear the `'menu'`
+  // the menu root already puts on every trigger.
+  const ariaHasPopupProps = virtualFocus ? ({ 'aria-haspopup': 'dialog' } as const) : undefined;
   const open = store.useState('open');
   const mounted = store.useState('mounted');
   const parent = store.useState('parent');
@@ -53,8 +59,8 @@ export const FilterMenuSubmenuTrigger = React.forwardRef(function FilterMenuSubm
     // A plain parent menu roves DOM focus across its items and never filters them.
     return (
       <MenuSubmenuTrigger
+        {...ariaHasPopupProps}
         {...submenuProps}
-        aria-haspopup="dialog"
         label={label}
         ref={forwardedRef}
       />
@@ -62,7 +68,7 @@ export const FilterMenuSubmenuTrigger = React.forwardRef(function FilterMenuSubm
   }
 
   return visible || mounted ? (
-    <MenuSubmenuTrigger {...submenuProps} aria-haspopup="dialog" label={label} ref={mergedRef} />
+    <MenuSubmenuTrigger {...ariaHasPopupProps} {...submenuProps} label={label} ref={mergedRef} />
   ) : null;
 });
 
@@ -73,8 +79,8 @@ export interface FilterMenuSubmenuTriggerProps extends Omit<MenuSubmenuTriggerPr
    */
   label?: string | undefined;
   /**
-   * Additional terms the item matches on when using the default filter.
-   * Ignored when a custom `filter` is provided to the root.
+   * Additional terms the item matches on, beyond its label.
+   * A custom `filter` on the root receives these and decides whether to use them.
    */
   keywords?: readonly string[] | undefined;
 }

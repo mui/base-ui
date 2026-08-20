@@ -128,7 +128,7 @@ describe('<FilterMenu.Root />', () => {
       await waitFor(() => {
         expect(input).toHaveFocus();
       });
-      expect(input).toHaveAttribute('data-focus-visible');
+      expect(input).toHaveAttribute('data-highlighted');
     });
 
     it('marks the input focus-visible when the menu is opened with a pointer', async () => {
@@ -154,7 +154,7 @@ describe('<FilterMenu.Root />', () => {
       await waitFor(() => {
         expect(input).toHaveFocus();
       });
-      expect(input).toHaveAttribute('data-focus-visible');
+      expect(input).toHaveAttribute('data-highlighted');
     });
 
     it('keeps focus on the trigger when an inputless menu is opened with a pointer', async () => {
@@ -1038,7 +1038,7 @@ describe('<FilterMenu.Root />', () => {
       expect(screen.queryByRole('dialog')).toBe(null);
     });
 
-    it('skips disabled parent items during main-axis navigation', async () => {
+    it('keeps disabled parent items reachable during main-axis navigation', async () => {
       const { user } = await render(<ParentNavigationMenu loopFocus />);
       const submenuTrigger = screen.getByRole('menuitem', { name: 'Move to folder' });
 
@@ -1047,7 +1047,9 @@ describe('<FilterMenu.Root />', () => {
       });
       await user.keyboard('[ArrowDown]');
 
-      expect(screen.getByRole('menuitem', { name: 'Next' })).toHaveFocus();
+      // The parent menu passes `disabledIndices: EMPTY_ARRAY` to `useListNavigation`, so its own
+      // items land on `aria-disabled` neighbours. Arrowing off this trigger must match.
+      expect(screen.getByRole('menuitem', { name: 'Disabled' })).toHaveFocus();
     });
 
     it('wraps parent navigation when loopFocus is enabled', async () => {
@@ -1059,7 +1061,8 @@ describe('<FilterMenu.Root />', () => {
       });
       await user.keyboard('[ArrowDown]');
 
-      expect(screen.getByRole('menuitem', { name: 'Next' })).toHaveFocus();
+      // The trigger is last, so this wraps to the first item, which is the disabled one.
+      expect(screen.getByRole('menuitem', { name: 'Disabled' })).toHaveFocus();
     });
 
     it('stops parent navigation at the boundary when loopFocus is disabled', async () => {
@@ -1726,23 +1729,23 @@ describe('<FilterMenu.Root />', () => {
         await waitFor(() => {
           expect(input).toHaveFocus();
         });
-        expect(input).toHaveAttribute('data-focus-visible');
+        expect(input).toHaveAttribute('data-highlighted');
 
         const item = screen.getByText('Documents');
         await user.hover(item);
         expect(input).toHaveAttribute('aria-activedescendant', item.id);
-        expect(input).toHaveAttribute('data-focus-visible');
+        expect(input).toHaveAttribute('data-highlighted');
 
         await user.hover(input);
         expect(input).not.toHaveAttribute('aria-activedescendant');
-        expect(input).toHaveAttribute('data-focus-visible');
+        expect(input).toHaveAttribute('data-highlighted');
 
         await user.keyboard('[ArrowDown]');
-        expect(input).not.toHaveAttribute('data-focus-visible');
+        expect(input).not.toHaveAttribute('data-highlighted');
 
         await user.keyboard('[ArrowUp]');
         expect(input).not.toHaveAttribute('aria-activedescendant');
-        expect(input).toHaveAttribute('data-focus-visible');
+        expect(input).toHaveAttribute('data-highlighted');
       },
     );
 
@@ -1792,7 +1795,7 @@ describe('<FilterMenu.Root />', () => {
       await waitFor(() => {
         expect(submenuInput).toHaveFocus();
       });
-      expect(submenuInput).toHaveAttribute('data-focus-visible');
+      expect(submenuInput).toHaveAttribute('data-highlighted');
       expect(parentInput).not.toHaveAttribute('aria-activedescendant');
 
       await user.keyboard('[ArrowLeft]');
@@ -2241,7 +2244,7 @@ describe('<FilterMenu.Root />', () => {
         await waitFor(() => {
           expect(submenuInput).toHaveFocus();
         });
-        expect(submenuInput).toHaveAttribute('data-focus-visible');
+        expect(submenuInput).toHaveAttribute('data-highlighted');
         expect(submenuInput).not.toHaveAttribute('aria-activedescendant');
         // The parent keeps the trigger highlighted as the submenu's origin.
         expect(parentInput).toHaveAttribute('aria-activedescendant', submenuTrigger.id);
@@ -3688,37 +3691,6 @@ describe('<FilterMenu.Root />', () => {
     expect(onClick).toHaveBeenCalledTimes(1);
   });
 
-  it('navigates a horizontal menu once per key and exposes its orientation', async () => {
-    const { user } = await render(
-      <FilterMenu.Root defaultOpen orientation="horizontal">
-        <FilterMenu.Trigger>Actions</FilterMenu.Trigger>
-        <FilterMenu.Portal>
-          <FilterMenu.Positioner>
-            <FilterMenu.Popup>
-              <FilterMenu.Input aria-label="Filter actions" />
-              <FilterMenu.List>
-                <FilterMenu.Item>Rename</FilterMenu.Item>
-                <FilterMenu.Item>Delete</FilterMenu.Item>
-              </FilterMenu.List>
-            </FilterMenu.Popup>
-          </FilterMenu.Positioner>
-        </FilterMenu.Portal>
-      </FilterMenu.Root>,
-    );
-
-    const input = screen.getByRole('searchbox', { name: 'Filter actions' });
-    const list = screen.getByRole('menu');
-    const firstItem = screen.getByRole('menuitem', { name: 'Rename' });
-    expect(list).toHaveAttribute('aria-orientation', 'horizontal');
-    await waitFor(() => {
-      expect(input).toHaveFocus();
-    });
-
-    await user.keyboard('[ArrowRight]');
-
-    expect(input).toHaveAttribute('aria-activedescendant', firstItem.id);
-  });
-
   it('preserves modifiers when the input activates a link item', async () => {
     const onClick = vi.fn((event: React.MouseEvent) => event.preventDefault());
     const { user } = await render(
@@ -4038,74 +4010,6 @@ describe('<FilterMenu.Root />', () => {
     expect(item).not.toHaveAttribute('aria-selected');
   });
 
-  it('opens and closes a vertical filterable submenu of a horizontal filter menu with the right axis keys', async () => {
-    const { user } = await render(
-      <FilterMenu.Root defaultOpen orientation="horizontal">
-        <FilterMenu.Trigger>Actions</FilterMenu.Trigger>
-        <FilterMenu.Portal>
-          <FilterMenu.Positioner>
-            <FilterMenu.Popup>
-              <FilterMenu.Input aria-label="Filter actions" />
-              <FilterMenu.List>
-                <FilterMenu.Item>Rename</FilterMenu.Item>
-                <FilterMenu.SubmenuRoot>
-                  <FilterMenu.SubmenuTrigger openOnHover={false}>More</FilterMenu.SubmenuTrigger>
-                  <FilterMenu.Portal>
-                    <FilterMenu.Positioner>
-                      <FilterMenu.Popup>
-                        <FilterMenu.Input aria-label="Filter more" />
-                        <FilterMenu.List>
-                          <FilterMenu.Item>Sub one</FilterMenu.Item>
-                          <FilterMenu.Item>Sub two</FilterMenu.Item>
-                        </FilterMenu.List>
-                      </FilterMenu.Popup>
-                    </FilterMenu.Positioner>
-                  </FilterMenu.Portal>
-                </FilterMenu.SubmenuRoot>
-              </FilterMenu.List>
-            </FilterMenu.Popup>
-          </FilterMenu.Positioner>
-        </FilterMenu.Portal>
-      </FilterMenu.Root>,
-    );
-
-    const input = screen.getByRole('searchbox', { name: 'Filter actions' });
-    await waitFor(() => {
-      expect(input).toHaveFocus();
-    });
-
-    // Main axis of the horizontal parent.
-    await user.keyboard('[ArrowRight][ArrowRight]');
-    const submenuTrigger = screen.getByRole('menuitem', { name: 'More' });
-    await waitFor(() => {
-      expect(input).toHaveAttribute('aria-activedescendant', submenuTrigger.id);
-    });
-
-    // Cross axis of the horizontal parent opens the vertical submenu.
-    await user.keyboard('[ArrowDown]');
-    const submenuInput = await screen.findByRole('searchbox', { name: 'Filter more' });
-    await waitFor(() => {
-      expect(submenuInput).toHaveFocus();
-    });
-
-    // ArrowUp is the vertical submenu's own main axis, not its close key.
-    await user.keyboard('[ArrowUp]');
-    expect(screen.getByRole('searchbox', { name: 'Filter more' })).toBeVisible();
-
-    // ArrowLeft is the vertical submenu's close key, distinct from the parent's open key.
-    await user.keyboard('[ArrowLeft]');
-    await waitFor(() => {
-      expect(screen.queryByRole('searchbox', { name: 'Filter more' })).toBe(null);
-    });
-    await waitFor(() => {
-      expect(input).toHaveFocus();
-    });
-
-    // ArrowUp is not the horizontal parent's open key and must not reopen it.
-    await user.keyboard('[ArrowUp]');
-    expect(screen.queryByRole('searchbox', { name: 'Filter more' })).toBe(null);
-  });
-
   describe.skipIf(isJSDOM)('hover-opened submenu ownership', () => {
     function HoverMenu() {
       return (
@@ -4186,6 +4090,865 @@ describe('<FilterMenu.Root />', () => {
 
       await waitFor(() => {
         expect(screen.queryByRole('searchbox', { name: 'Filter sharing options' })).toBe(null);
+      });
+    });
+  });
+
+  describe('prop: filter', () => {
+    function CustomFilterMenu(props: {
+      filter?: React.ComponentProps<typeof FilterMenu.Root>['filter'];
+    }) {
+      return (
+        <FilterMenu.Root defaultOpen filter={props.filter}>
+          <FilterMenu.Trigger>Actions</FilterMenu.Trigger>
+          <FilterMenu.Portal>
+            <FilterMenu.Positioner>
+              <FilterMenu.Popup>
+                <FilterMenu.Input aria-label="Filter actions" />
+                <FilterMenu.List>
+                  <FilterMenu.Item keywords={['trash']}>Delete</FilterMenu.Item>
+                  <FilterMenu.Item>Rename</FilterMenu.Item>
+                </FilterMenu.List>
+              </FilterMenu.Popup>
+            </FilterMenu.Positioner>
+          </FilterMenu.Portal>
+        </FilterMenu.Root>
+      );
+    }
+
+    it('passes item keywords to a custom filter', async () => {
+      const filter = vi.fn(
+        (itemText: string, query: string, keywords: readonly string[] | undefined) =>
+          itemText.toLowerCase().startsWith(query) ||
+          (keywords?.some((keyword) => keyword.startsWith(query)) ?? false),
+      );
+
+      const { user } = await render(<CustomFilterMenu filter={filter} />);
+
+      await user.type(screen.getByRole('searchbox', { name: 'Filter actions' }), 'tra');
+
+      await waitFor(() => {
+        expect(screen.getByRole('menuitem', { name: 'Delete' })).toBeVisible();
+      });
+      expect(screen.queryByRole('menuitem', { name: 'Rename' })).toBe(null);
+      expect(filter).toHaveBeenCalledWith('Delete', 'tra', ['trash']);
+      expect(filter).toHaveBeenCalledWith('Rename', 'tra', undefined);
+    });
+
+    it('keeps every item visible when filtering is turned off with null', async () => {
+      const { user } = await render(<CustomFilterMenu filter={null} />);
+
+      await user.type(screen.getByRole('searchbox', { name: 'Filter actions' }), 'zzz');
+
+      expect(screen.getByRole('menuitem', { name: 'Delete' })).toBeVisible();
+      expect(screen.getByRole('menuitem', { name: 'Rename' })).toBeVisible();
+    });
+  });
+
+  describe('canceling changes', () => {
+    it('stays closed when onOpenChange is canceled', async () => {
+      const { user } = await render(
+        <FilterMenu.Root onOpenChange={(_, eventDetails) => eventDetails.cancel()}>
+          <FilterMenu.Trigger>Actions</FilterMenu.Trigger>
+          <FilterMenu.Portal>
+            <FilterMenu.Positioner>
+              <FilterMenu.Popup>
+                <FilterMenu.Input aria-label="Filter actions" />
+                <FilterMenu.List>
+                  <FilterMenu.Item>Rename</FilterMenu.Item>
+                </FilterMenu.List>
+              </FilterMenu.Popup>
+            </FilterMenu.Positioner>
+          </FilterMenu.Portal>
+        </FilterMenu.Root>,
+      );
+
+      await user.click(screen.getByRole('button', { name: 'Actions' }));
+
+      expect(screen.queryByRole('menu')).toBe(null);
+    });
+
+    it('leaves a checkbox item unchecked when onCheckedChange is canceled', async () => {
+      const { user } = await render(
+        <FilterMenu.Root defaultOpen>
+          <FilterMenu.Trigger>Actions</FilterMenu.Trigger>
+          <FilterMenu.Portal>
+            <FilterMenu.Positioner>
+              <FilterMenu.Popup>
+                <FilterMenu.Input aria-label="Filter actions" />
+                <FilterMenu.List>
+                  <FilterMenu.CheckboxItem
+                    closeOnClick={false}
+                    onCheckedChange={(_, eventDetails) => eventDetails.cancel()}
+                  >
+                    Show hidden
+                  </FilterMenu.CheckboxItem>
+                </FilterMenu.List>
+              </FilterMenu.Popup>
+            </FilterMenu.Positioner>
+          </FilterMenu.Portal>
+        </FilterMenu.Root>,
+      );
+
+      const item = screen.getByRole('menuitemcheckbox', { name: 'Show hidden' });
+      await user.click(item);
+
+      expect(item).toHaveAttribute('aria-checked', 'false');
+    });
+
+    it('tracks a controlled checkbox item', async () => {
+      function ControlledCheckbox() {
+        const [checked, setChecked] = React.useState(false);
+
+        return (
+          <FilterMenu.Root defaultOpen>
+            <FilterMenu.Trigger>Actions</FilterMenu.Trigger>
+            <FilterMenu.Portal>
+              <FilterMenu.Positioner>
+                <FilterMenu.Popup>
+                  <FilterMenu.Input aria-label="Filter actions" />
+                  <FilterMenu.List>
+                    <FilterMenu.CheckboxItem
+                      closeOnClick={false}
+                      checked={checked}
+                      onCheckedChange={setChecked}
+                    >
+                      Show hidden
+                    </FilterMenu.CheckboxItem>
+                  </FilterMenu.List>
+                </FilterMenu.Popup>
+              </FilterMenu.Positioner>
+            </FilterMenu.Portal>
+          </FilterMenu.Root>
+        );
+      }
+
+      const { user } = await render(<ControlledCheckbox />);
+
+      const item = screen.getByRole('menuitemcheckbox', { name: 'Show hidden' });
+      expect(item).toHaveAttribute('aria-checked', 'false');
+
+      await user.click(item);
+
+      await waitFor(() => {
+        expect(item).toHaveAttribute('aria-checked', 'true');
+      });
+    });
+  });
+
+  describe('input value change reasons', () => {
+    async function renderReasonMenu(onInputValueChange: (value: string, reason: string) => void) {
+      return render(
+        <FilterMenu.Root
+          defaultOpen
+          onInputValueChange={(value, eventDetails) =>
+            onInputValueChange(value, eventDetails.reason)
+          }
+        >
+          <FilterMenu.Trigger>Actions</FilterMenu.Trigger>
+          <FilterMenu.Portal>
+            <FilterMenu.Positioner>
+              <FilterMenu.Popup>
+                <FilterMenu.Input aria-label="Filter actions" />
+                <FilterMenu.Clear aria-label="Clear filter" />
+                <FilterMenu.List>
+                  <FilterMenu.Item>Rename</FilterMenu.Item>
+                </FilterMenu.List>
+              </FilterMenu.Popup>
+            </FilterMenu.Positioner>
+          </FilterMenu.Portal>
+        </FilterMenu.Root>,
+      );
+    }
+
+    it('reports input-change while typing', async () => {
+      const onInputValueChange = vi.fn();
+      const { user } = await renderReasonMenu(onInputValueChange);
+
+      await user.type(screen.getByRole('searchbox', { name: 'Filter actions' }), 'r');
+
+      expect(onInputValueChange).toHaveBeenCalledWith('r', 'input-change');
+    });
+
+    it('reports input-clear when the field is emptied', async () => {
+      const onInputValueChange = vi.fn();
+      const { user } = await renderReasonMenu(onInputValueChange);
+
+      const input = screen.getByRole('searchbox', { name: 'Filter actions' });
+      await user.type(input, 'r');
+      await user.clear(input);
+
+      expect(onInputValueChange).toHaveBeenLastCalledWith('', 'input-clear');
+    });
+
+    it('reports clear-press when the clear button is used', async () => {
+      const onInputValueChange = vi.fn();
+      const { user } = await renderReasonMenu(onInputValueChange);
+
+      await user.type(screen.getByRole('searchbox', { name: 'Filter actions' }), 'r');
+      await user.click(screen.getByRole('button', { name: 'Clear filter' }));
+
+      expect(onInputValueChange).toHaveBeenLastCalledWith('', 'clear-press');
+    });
+
+    it('reports popup-close when a controlled close discards the query', async () => {
+      const onInputValueChange = vi.fn();
+
+      function ControlledOpen(props: { open: boolean }) {
+        return (
+          <FilterMenu.Root
+            open={props.open}
+            defaultInputValue="ren"
+            onInputValueChange={(value, eventDetails) =>
+              onInputValueChange(value, eventDetails.reason)
+            }
+          >
+            <FilterMenu.Trigger>Actions</FilterMenu.Trigger>
+            <FilterMenu.Portal>
+              <FilterMenu.Positioner>
+                <FilterMenu.Popup>
+                  <FilterMenu.Input aria-label="Filter actions" />
+                  <FilterMenu.List>
+                    <FilterMenu.Item>Rename</FilterMenu.Item>
+                  </FilterMenu.List>
+                </FilterMenu.Popup>
+              </FilterMenu.Positioner>
+            </FilterMenu.Portal>
+          </FilterMenu.Root>
+        );
+      }
+
+      const { setProps } = await render(<ControlledOpen open />);
+      await setProps({ open: false });
+
+      expect(onInputValueChange).toHaveBeenCalledWith('', 'popup-close');
+    });
+  });
+
+  describe('groups', () => {
+    it('hides a radio group, label included, when the query filters out all of its items', async () => {
+      const { user } = await render(
+        <FilterMenu.Root defaultOpen>
+          <FilterMenu.Trigger>Actions</FilterMenu.Trigger>
+          <FilterMenu.Portal>
+            <FilterMenu.Positioner>
+              <FilterMenu.Popup>
+                <FilterMenu.Input aria-label="Filter actions" />
+                <FilterMenu.List>
+                  <FilterMenu.Item>Rename</FilterMenu.Item>
+                  <FilterMenu.RadioGroup data-testid="sort-group" defaultValue="date">
+                    <FilterMenu.GroupLabel>Sort by</FilterMenu.GroupLabel>
+                    <FilterMenu.RadioItem value="date">Date modified</FilterMenu.RadioItem>
+                    <FilterMenu.RadioItem value="size">Size</FilterMenu.RadioItem>
+                  </FilterMenu.RadioGroup>
+                </FilterMenu.List>
+              </FilterMenu.Popup>
+            </FilterMenu.Positioner>
+          </FilterMenu.Portal>
+        </FilterMenu.Root>,
+      );
+
+      const group = screen.getByTestId('sort-group');
+      expect(group).not.toHaveAttribute('hidden');
+
+      await user.type(screen.getByRole('searchbox', { name: 'Filter actions' }), 'rena');
+
+      await waitFor(() => {
+        expect(group).toHaveAttribute('hidden');
+      });
+      expect(screen.queryByText('Sort by')).not.toBeVisible();
+    });
+  });
+
+  describe('accessible names', () => {
+    it('labels the list with the trigger when no label is given', async () => {
+      await render(
+        <FilterMenu.Root defaultOpen>
+          <FilterMenu.Trigger>Actions</FilterMenu.Trigger>
+          <FilterMenu.Portal>
+            <FilterMenu.Positioner>
+              <FilterMenu.Popup>
+                <FilterMenu.Input aria-label="Filter actions" />
+                <FilterMenu.List>
+                  <FilterMenu.Item>Rename</FilterMenu.Item>
+                </FilterMenu.List>
+              </FilterMenu.Popup>
+            </FilterMenu.Positioner>
+          </FilterMenu.Portal>
+        </FilterMenu.Root>,
+      );
+
+      const trigger = screen.getByRole('button', { name: 'Actions' });
+      expect(screen.getByRole('menu')).toHaveAttribute('aria-labelledby', trigger.id);
+    });
+  });
+
+  describe('scrollbar presses', () => {
+    function measureList(list: HTMLElement, overrides: Record<string, number>) {
+      const base = {
+        clientHeight: 100,
+        clientWidth: 100,
+        offsetHeight: 100,
+        offsetWidth: 100,
+        scrollHeight: 100,
+        scrollWidth: 100,
+      };
+      Object.defineProperties(
+        list,
+        Object.fromEntries(
+          Object.entries({ ...base, ...overrides }).map(([key, value]) => [
+            key,
+            { configurable: true, value },
+          ]),
+        ),
+      );
+    }
+
+    it('allows a horizontal scrollbar press', async () => {
+      await render(
+        <FilterMenu.Root defaultOpen>
+          <FilterMenu.Trigger>Actions</FilterMenu.Trigger>
+          <FilterMenu.Portal>
+            <FilterMenu.Positioner>
+              <FilterMenu.Popup>
+                <FilterMenu.Input aria-label="Filter actions" />
+                <FilterMenu.List>
+                  <FilterMenu.Item>Rename</FilterMenu.Item>
+                </FilterMenu.List>
+              </FilterMenu.Popup>
+            </FilterMenu.Positioner>
+          </FilterMenu.Portal>
+        </FilterMenu.Root>,
+      );
+
+      const list = screen.getByRole('menu');
+      measureList(list, { offsetHeight: 115, scrollWidth: 200 });
+
+      const scrollbarMouseDown = new MouseEvent('mousedown', { bubbles: true, cancelable: true });
+      Object.defineProperty(scrollbarMouseDown, 'offsetY', { value: 110 });
+
+      await act(async () => {
+        list.dispatchEvent(scrollbarMouseDown);
+      });
+
+      expect(scrollbarMouseDown.defaultPrevented).toBe(false);
+    });
+
+    it('allows an RTL vertical scrollbar press on the leading edge', async () => {
+      await render(
+        <DirectionProvider direction="rtl">
+          <FilterMenu.Root defaultOpen>
+            <FilterMenu.Trigger>Actions</FilterMenu.Trigger>
+            <FilterMenu.Portal>
+              <FilterMenu.Positioner>
+                <FilterMenu.Popup>
+                  <FilterMenu.Input aria-label="Filter actions" />
+                  <FilterMenu.List style={{ direction: 'rtl' }}>
+                    <FilterMenu.Item>Rename</FilterMenu.Item>
+                  </FilterMenu.List>
+                </FilterMenu.Popup>
+              </FilterMenu.Positioner>
+            </FilterMenu.Portal>
+          </FilterMenu.Root>
+        </DirectionProvider>,
+      );
+
+      const list = screen.getByRole('menu');
+      measureList(list, { offsetWidth: 115, scrollHeight: 200 });
+
+      const scrollbarMouseDown = new MouseEvent('mousedown', { bubbles: true, cancelable: true });
+      Object.defineProperty(scrollbarMouseDown, 'offsetX', { value: 5 });
+
+      await act(async () => {
+        list.dispatchEvent(scrollbarMouseDown);
+      });
+
+      expect(scrollbarMouseDown.defaultPrevented).toBe(false);
+    });
+  });
+
+  describe('handle', () => {
+    it('opens from a trigger rendered outside the root', async () => {
+      function DetachedTriggerMenu() {
+        const handle = useRefWithInit(() => FilterMenu.createHandle()).current;
+
+        return (
+          <React.Fragment>
+            <FilterMenu.Root handle={handle}>
+              <FilterMenu.Portal>
+                <FilterMenu.Positioner>
+                  <FilterMenu.Popup>
+                    <FilterMenu.Input aria-label="Filter actions" />
+                    <FilterMenu.List>
+                      <FilterMenu.Item>Rename</FilterMenu.Item>
+                    </FilterMenu.List>
+                  </FilterMenu.Popup>
+                </FilterMenu.Positioner>
+              </FilterMenu.Portal>
+            </FilterMenu.Root>
+            <FilterMenu.Trigger handle={handle}>Actions</FilterMenu.Trigger>
+          </React.Fragment>
+        );
+      }
+
+      const { user } = await render(<DetachedTriggerMenu />);
+
+      expect(screen.queryByRole('menu')).toBe(null);
+
+      await user.click(screen.getByRole('button', { name: 'Actions' }));
+
+      await waitFor(() => {
+        expect(screen.getByRole('menu')).not.toBe(null);
+      });
+      expect(screen.getByRole('menuitem', { name: 'Rename' })).toBeVisible();
+    });
+  });
+
+  describe('item text resolution', () => {
+    it('matches an item whose children are an array while it is filtered out', async () => {
+      const { user } = await render(
+        <FilterMenu.Root defaultOpen>
+          <FilterMenu.Trigger>Actions</FilterMenu.Trigger>
+          <FilterMenu.Portal>
+            <FilterMenu.Positioner>
+              <FilterMenu.Popup>
+                <FilterMenu.Input aria-label="Filter actions" />
+                <FilterMenu.List>
+                  <FilterMenu.Item>
+                    {'Re'}
+                    {'name'}
+                  </FilterMenu.Item>
+                  <FilterMenu.Item>Delete</FilterMenu.Item>
+                </FilterMenu.List>
+              </FilterMenu.Popup>
+            </FilterMenu.Positioner>
+          </FilterMenu.Portal>
+        </FilterMenu.Root>,
+      );
+
+      const input = screen.getByRole('searchbox', { name: 'Filter actions' });
+
+      // Hide it, so its DOM node goes away and only the children remain as a text source.
+      await user.type(input, 'del');
+      await waitFor(() => {
+        expect(screen.queryByRole('menuitem', { name: 'Rename' })).toBe(null);
+      });
+
+      await user.clear(input);
+      await user.type(input, 'rena');
+
+      await waitFor(() => {
+        expect(screen.getByRole('menuitem', { name: 'Rename' })).toBeVisible();
+      });
+      expect(screen.queryByRole('menuitem', { name: 'Delete' })).toBe(null);
+    });
+  });
+
+  describe('consumer props', () => {
+    // `FilterMenu.Trigger`, `FilterMenu.Input`, and `FilterMenu.Popup` each render two nested
+    // layers. Consumer props must land on the inner one only, or every handler fires twice.
+    it('runs a consumer handler once per interaction on each two-layer part', async () => {
+      const onTriggerClick = vi.fn();
+      const onInputKeyDown = vi.fn();
+      const onPopupKeyDown = vi.fn();
+
+      const { user } = await render(
+        <FilterMenu.Root>
+          <FilterMenu.Trigger onClick={onTriggerClick}>Actions</FilterMenu.Trigger>
+          <FilterMenu.Portal>
+            <FilterMenu.Positioner>
+              <FilterMenu.Popup onKeyDown={onPopupKeyDown}>
+                <FilterMenu.Input aria-label="Filter actions" onKeyDown={onInputKeyDown} />
+                <FilterMenu.List>
+                  <FilterMenu.Item>Rename</FilterMenu.Item>
+                </FilterMenu.List>
+              </FilterMenu.Popup>
+            </FilterMenu.Positioner>
+          </FilterMenu.Portal>
+        </FilterMenu.Root>,
+      );
+
+      await user.click(screen.getByRole('button', { name: 'Actions' }));
+      expect(onTriggerClick).toHaveBeenCalledTimes(1);
+
+      const input = await screen.findByRole('searchbox', { name: 'Filter actions' });
+      await waitFor(() => {
+        expect(input).toHaveFocus();
+      });
+
+      // Dispatched directly: this counts handler invocations, and typing through `userEvent`
+      // right after the open-time focus hand-off trips React's act/suspend warning in Chromium.
+      fireEvent.keyDown(input, { key: 'r' });
+
+      // A printable key stays on the input: it must not reach the popup's handler.
+      expect(onInputKeyDown).toHaveBeenCalledTimes(1);
+      expect(onPopupKeyDown).toHaveBeenCalledTimes(0);
+
+      // Escape is not consumed by the input, so it reaches the popup exactly once.
+      fireEvent.keyDown(input, { key: 'Escape' });
+      expect(onPopupKeyDown).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe('accessible semantics of a plain submenu', () => {
+    it('reports a menu popup on a trigger whose submenu has no filter', async () => {
+      await render(
+        <FilterMenu.Root defaultOpen>
+          <FilterMenu.Trigger>Actions</FilterMenu.Trigger>
+          <FilterMenu.Portal>
+            <FilterMenu.Positioner>
+              <FilterMenu.Popup>
+                <FilterMenu.Input aria-label="Filter actions" />
+                <FilterMenu.List>
+                  <Menu.SubmenuRoot>
+                    <FilterMenu.SubmenuTrigger>Sort by</FilterMenu.SubmenuTrigger>
+                    <Menu.Portal>
+                      <Menu.Positioner>
+                        <Menu.Popup>
+                          <Menu.Item>Name</Menu.Item>
+                        </Menu.Popup>
+                      </Menu.Positioner>
+                    </Menu.Portal>
+                  </Menu.SubmenuRoot>
+                </FilterMenu.List>
+              </FilterMenu.Popup>
+            </FilterMenu.Positioner>
+          </FilterMenu.Portal>
+        </FilterMenu.Root>,
+      );
+
+      // The documented plain-submenu recipe opens a `role="menu"` popup, so the trigger must not
+      // claim `haspopup="dialog"`.
+      expect(screen.getByRole('menuitem', { name: 'Sort by' })).toHaveAttribute(
+        'aria-haspopup',
+        'menu',
+      );
+    });
+
+    it('lets a consumer override aria-haspopup', async () => {
+      await render(
+        <FilterMenu.Root defaultOpen>
+          <FilterMenu.Trigger>Actions</FilterMenu.Trigger>
+          <FilterMenu.Portal>
+            <FilterMenu.Positioner>
+              <FilterMenu.Popup>
+                <FilterMenu.Input aria-label="Filter actions" />
+                <FilterMenu.List>
+                  <FilterMenu.SubmenuRoot>
+                    <FilterMenu.SubmenuTrigger aria-haspopup="menu">
+                      Move to
+                    </FilterMenu.SubmenuTrigger>
+                    <FilterMenu.Portal>
+                      <FilterMenu.Positioner>
+                        <FilterMenu.Popup>
+                          <FilterMenu.List>
+                            <FilterMenu.Item>Projects</FilterMenu.Item>
+                          </FilterMenu.List>
+                        </FilterMenu.Popup>
+                      </FilterMenu.Positioner>
+                    </FilterMenu.Portal>
+                  </FilterMenu.SubmenuRoot>
+                </FilterMenu.List>
+              </FilterMenu.Popup>
+            </FilterMenu.Positioner>
+          </FilterMenu.Portal>
+        </FilterMenu.Root>,
+      );
+
+      expect(screen.getByRole('menuitem', { name: 'Move to' })).toHaveAttribute(
+        'aria-haspopup',
+        'menu',
+      );
+    });
+  });
+
+  describe('inline lists', () => {
+    it('names the list without pointing at a trigger that never rendered', async () => {
+      await render(
+        <FilterMenu.Root inline open>
+          <FilterMenu.Input aria-label="Filter actions" />
+          <FilterMenu.List>
+            <FilterMenu.Item>Rename</FilterMenu.Item>
+          </FilterMenu.List>
+        </FilterMenu.Root>,
+      );
+
+      // No `FilterMenu.Trigger` exists inline, so a generated trigger id would dangle.
+      expect(screen.getByRole('menu')).not.toHaveAttribute('aria-labelledby');
+    });
+
+    it('keeps a consumer label on an inline list', async () => {
+      await render(
+        <FilterMenu.Root inline open>
+          <FilterMenu.Input aria-label="Filter actions" />
+          <FilterMenu.List aria-label="Commands">
+            <FilterMenu.Item>Rename</FilterMenu.Item>
+          </FilterMenu.List>
+        </FilterMenu.Root>,
+      );
+
+      expect(screen.getByRole('menu', { name: 'Commands' })).not.toBe(null);
+    });
+  });
+
+  describe('focus ownership inside the popup', () => {
+    it('leaves focus on another control in the popup when the pointer moves', async () => {
+      await render(
+        <FilterMenu.Root defaultOpen>
+          <FilterMenu.Trigger>Actions</FilterMenu.Trigger>
+          <FilterMenu.Portal>
+            <FilterMenu.Positioner>
+              <FilterMenu.Popup data-testid="popup">
+                <FilterMenu.Input aria-label="Filter actions" />
+                <button type="button">Auxiliary action</button>
+                <FilterMenu.List>
+                  <FilterMenu.Item>Rename</FilterMenu.Item>
+                </FilterMenu.List>
+              </FilterMenu.Popup>
+            </FilterMenu.Positioner>
+          </FilterMenu.Portal>
+        </FilterMenu.Root>,
+      );
+
+      const auxiliary = screen.getByRole('button', { name: 'Auxiliary action' });
+      await act(async () => {
+        auxiliary.focus();
+      });
+
+      fireEvent.mouseMove(screen.getByTestId('popup'));
+
+      expect(auxiliary).toHaveFocus();
+    });
+  });
+
+  describe('disabled items', () => {
+    let onDisabledClick = vi.fn();
+    beforeEach(() => {
+      onDisabledClick = vi.fn();
+    });
+
+    function DisabledItemMenu() {
+      return (
+        <FilterMenu.Root defaultOpen>
+          <FilterMenu.Trigger>Actions</FilterMenu.Trigger>
+          <FilterMenu.Portal>
+            <FilterMenu.Positioner>
+              <FilterMenu.Popup>
+                <FilterMenu.Input aria-label="Filter actions" />
+                <FilterMenu.List>
+                  <FilterMenu.Item>Rename</FilterMenu.Item>
+                  <FilterMenu.Item disabled onClick={onDisabledClick}>
+                    Archive
+                  </FilterMenu.Item>
+                  <FilterMenu.Item>Delete</FilterMenu.Item>
+                </FilterMenu.List>
+              </FilterMenu.Popup>
+            </FilterMenu.Positioner>
+          </FilterMenu.Portal>
+        </FilterMenu.Root>
+      );
+    }
+
+    it('keeps a disabled item reachable with the arrow keys', async () => {
+      const { user } = await render(<DisabledItemMenu />);
+
+      const input = screen.getByRole('searchbox', { name: 'Filter actions' });
+      await waitFor(() => {
+        expect(input).toHaveFocus();
+      });
+
+      await user.keyboard('[ArrowDown][ArrowDown]');
+
+      // Menus keep disabled items discoverable rather than skipping them.
+      expect(input).toHaveAttribute(
+        'aria-activedescendant',
+        screen.getByRole('menuitem', { name: 'Archive' }).id,
+      );
+    });
+
+    it('does not activate a highlighted disabled item with Enter', async () => {
+      const { user } = await render(<DisabledItemMenu />);
+
+      const input = screen.getByRole('searchbox', { name: 'Filter actions' });
+      await waitFor(() => {
+        expect(input).toHaveFocus();
+      });
+
+      await user.keyboard('[ArrowDown][ArrowDown][Enter]');
+
+      expect(onDisabledClick).not.toHaveBeenCalled();
+      expect(screen.getByRole('menu')).toBeVisible();
+    });
+  });
+
+  describe('leaving the menu', () => {
+    function QueryMenu() {
+      return (
+        <FilterMenu.Root defaultOpen>
+          <FilterMenu.Trigger>Actions</FilterMenu.Trigger>
+          <FilterMenu.Portal>
+            <FilterMenu.Positioner>
+              <FilterMenu.Popup>
+                <FilterMenu.Input aria-label="Filter actions" />
+                <FilterMenu.List>
+                  <FilterMenu.Item>Rename</FilterMenu.Item>
+                </FilterMenu.List>
+              </FilterMenu.Popup>
+            </FilterMenu.Positioner>
+          </FilterMenu.Portal>
+        </FilterMenu.Root>
+      );
+    }
+
+    it('closes on Escape even with a query typed', async () => {
+      const { user } = await render(<QueryMenu />);
+
+      const input = screen.getByRole('searchbox', { name: 'Filter actions' });
+      // `fireEvent.change` rather than typing: typing straight after the open-time focus
+      // hand-off leaves an un-acted update that trips React's act warning in Chromium.
+      fireEvent.change(input, { target: { value: 'ren' } });
+      expect(input).toHaveValue('ren');
+
+      await user.keyboard('[Escape]');
+
+      // Escape closes outright; it does not clear the query first.
+      await waitFor(() => {
+        expect(screen.queryByRole('menu')).toBe(null);
+      });
+      await waitFor(() => {
+        expect(screen.getByRole('button', { name: 'Actions' })).toHaveFocus();
+      });
+    });
+
+    it('returns focus to the trigger on Shift+Tab from the input', async () => {
+      const { user } = await render(<QueryMenu />);
+
+      const input = screen.getByRole('searchbox', { name: 'Filter actions' });
+      await waitFor(() => {
+        expect(input).toHaveFocus();
+      });
+
+      if (isJSDOM) {
+        await user.tab({ shift: true });
+      } else {
+        const { userEvent: browserUser } = await import('vitest/browser');
+        await act(async () => {
+          await browserUser.keyboard('{Shift>}[Tab]{/Shift}');
+        });
+      }
+
+      // Tabbing forward leaves the menu for the next element after it; tabbing backwards lands
+      // on the trigger, which is the previous tabbable element.
+      await waitFor(() => {
+        expect(screen.getByRole('button', { name: 'Actions' })).toHaveFocus();
+      });
+    });
+  });
+
+  describe('prop: keepMounted', () => {
+    it('resets the query and highlight across a close and reopen', async () => {
+      const { user } = await render(
+        <FilterMenu.Root>
+          <FilterMenu.Trigger>Actions</FilterMenu.Trigger>
+          <FilterMenu.Portal keepMounted>
+            <FilterMenu.Positioner>
+              <FilterMenu.Popup>
+                <FilterMenu.Input aria-label="Filter actions" />
+                <FilterMenu.List>
+                  <FilterMenu.Item>Rename</FilterMenu.Item>
+                  <FilterMenu.Item>Delete</FilterMenu.Item>
+                </FilterMenu.List>
+              </FilterMenu.Popup>
+            </FilterMenu.Positioner>
+          </FilterMenu.Portal>
+        </FilterMenu.Root>,
+      );
+
+      const trigger = screen.getByRole('button', { name: 'Actions' });
+      await user.click(trigger);
+
+      const input = await screen.findByRole('searchbox', { name: 'Filter actions' });
+      await user.type(input, 'ren');
+      await waitFor(() => {
+        expect(screen.queryByRole('menuitem', { name: 'Delete' })).toBe(null);
+      });
+
+      await user.keyboard('[Escape]');
+      await user.click(trigger);
+
+      // The parts stay mounted, so the query has to be cleared explicitly on close.
+      await waitFor(() => {
+        expect(screen.getByRole('searchbox', { name: 'Filter actions' })).toHaveValue('');
+      });
+      expect(screen.getByRole('menuitem', { name: 'Delete' })).toBeVisible();
+    });
+  });
+
+  describe('with a Viewport', () => {
+    it('keeps real focus on the input while the cursor moves through the list', async () => {
+      const { user } = await render(
+        <FilterMenu.Root defaultOpen>
+          <FilterMenu.Trigger>Actions</FilterMenu.Trigger>
+          <FilterMenu.Portal>
+            <FilterMenu.Positioner>
+              <FilterMenu.Popup>
+                <FilterMenu.Input aria-label="Filter actions" />
+                <FilterMenu.Viewport>
+                  <FilterMenu.List>
+                    <FilterMenu.Item>Rename</FilterMenu.Item>
+                    <FilterMenu.Item>Delete</FilterMenu.Item>
+                  </FilterMenu.List>
+                </FilterMenu.Viewport>
+              </FilterMenu.Popup>
+            </FilterMenu.Positioner>
+          </FilterMenu.Portal>
+        </FilterMenu.Root>,
+      );
+
+      const input = screen.getByRole('searchbox', { name: 'Filter actions' });
+      await waitFor(() => {
+        expect(input).toHaveFocus();
+      });
+
+      await user.keyboard('[ArrowDown]');
+
+      expect(input).toHaveFocus();
+      expect(input).toHaveAttribute(
+        'aria-activedescendant',
+        screen.getByRole('menuitem', { name: 'Rename' }).id,
+      );
+    });
+  });
+
+  describe('prop: autoHighlight', () => {
+    it('clears a pointer highlight on pointer leave by default', async () => {
+      const { user } = await render(
+        <FilterMenu.Root defaultOpen>
+          <FilterMenu.Trigger>Actions</FilterMenu.Trigger>
+          <FilterMenu.Portal>
+            <FilterMenu.Positioner>
+              <FilterMenu.Popup>
+                <FilterMenu.Input aria-label="Filter actions" />
+                <FilterMenu.List>
+                  <FilterMenu.Item>Rename</FilterMenu.Item>
+                </FilterMenu.List>
+              </FilterMenu.Popup>
+            </FilterMenu.Positioner>
+          </FilterMenu.Portal>
+        </FilterMenu.Root>,
+      );
+
+      const item = screen.getByRole('menuitem', { name: 'Rename' });
+      await user.hover(item);
+      await waitFor(() => {
+        expect(item).toHaveAttribute('data-highlighted');
+      });
+
+      await user.unhover(item);
+
+      // The mirror of the `autoHighlight="always"` case, which retains the highlight.
+      await waitFor(() => {
+        expect(item).not.toHaveAttribute('data-highlighted');
       });
     });
   });

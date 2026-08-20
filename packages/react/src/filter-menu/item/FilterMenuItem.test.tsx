@@ -1,9 +1,11 @@
 import { expect, vi } from 'vitest';
 import { screen } from '@mui/internal-test-utils';
-import { createRenderer } from '#test-utils';
+import { createRenderer, resetBrowserPointer } from '#test-utils';
 import { FilterMenu } from '@base-ui/react/filter-menu';
 
 describe('FilterMenu items', () => {
+  beforeEach(resetBrowserPointer);
+
   const { render } = createRenderer();
 
   it('keeps focus on the input when items are pressed', async () => {

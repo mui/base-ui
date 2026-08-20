@@ -137,7 +137,7 @@ interface FilterMenuProviderProps {
   inputFocusVisible: boolean;
   value: string;
   query?: string | undefined;
-  filter: FilterDropdownFilter | undefined;
+  filter: FilterDropdownFilter | null | undefined;
   autoHighlight: boolean | 'always';
   locale: Intl.LocalesArgument | undefined;
   inline?: boolean | undefined;
@@ -190,10 +190,11 @@ export function FilterMenuProvider(props: FilterMenuProviderProps) {
 interface FilterMenuRootFilterProps {
   /**
    * Replaces the default case-insensitive substring matching for item text.
-   * Receives an item's filter text and the trimmed query. When provided, this function is
-   * authoritative and item keywords are ignored.
+   * Receives an item's filter text, the trimmed query, and the item's `keywords`, which it must
+   * match itself if they should participate.
+   * Pass `null` to turn filtering off and decide which items to render yourself.
    */
-  filter?: FilterMenuFilter | undefined;
+  filter?: FilterMenuFilter | null | undefined;
   /**
    * Whether the first matching item is highlighted automatically.
    * - `true`: highlight after the user types and keep the highlight while the query changes.
@@ -227,8 +228,16 @@ interface FilterMenuRootFilterProps {
 
 /**
  * Determines whether an item matches the current filter query.
+ *
+ * @param itemText The item's `label`, falling back to its rendered text.
+ * @param query The trimmed filter query.
+ * @param keywords The item's `keywords`, if it declared any.
  */
-export type FilterMenuFilter = (itemText: string, query: string) => boolean;
+export type FilterMenuFilter = (
+  itemText: string,
+  query: string,
+  keywords: readonly string[] | undefined,
+) => boolean;
 
 export type FilterMenuRootProps<Payload = unknown> = Omit<
   MenuRoot.Props<Payload>,
@@ -249,13 +258,15 @@ export type FilterMenuRootProps<Payload = unknown> = Omit<
     onOpenChange?:
       ((open: boolean, eventDetails: FilterMenuRootChangeEventDetails) => void) | undefined;
     /**
-     * The visual orientation of the menu.
-     * @default 'vertical'
-     */
-    orientation?: FilterMenuRootOrientation | undefined;
-    /**
      * Whether the list is rendered inline without using the component's own popup.
-     * Specify `open` in conjunction with this prop so the list is considered visible.
+     *
+     * Specify `open` unconditionally in conjunction with this prop so the list is considered
+     * visible: `<FilterMenu.Root inline open>`
+     *
+     * In a `Dialog.Root` > `FilterMenu.Root` composition, bind the FilterMenu's `open` and
+     * `onOpenChange` props to the `Dialog`'s `open` and `onOpenChange` state instead so the
+     * component resets its transient state (filter query and highlighted item) when the dialog
+     * closes. Without that, a `Dialog.Portal` with `keepMounted` reopens with the previous query.
      * @default false
      */
     inline?: boolean | undefined;
@@ -263,7 +274,6 @@ export type FilterMenuRootProps<Payload = unknown> = Omit<
 
 export interface FilterMenuRootState extends MenuRoot.State {}
 export type FilterMenuRootActions = MenuRoot.Actions;
-export type FilterMenuRootOrientation = MenuRoot.Orientation;
 export type FilterMenuRootChangeEventReason = MenuRoot.ChangeEventReason;
 export type FilterMenuRootChangeEventDetails = MenuRoot.ChangeEventDetails;
 export type FilterMenuRootInputValueChangeEventReason =
@@ -275,7 +285,6 @@ export namespace FilterMenuRoot {
   export type Props<Payload = unknown> = FilterMenuRootProps<Payload>;
   export type State = FilterMenuRootState;
   export type Actions = FilterMenuRootActions;
-  export type Orientation = FilterMenuRootOrientation;
   export type ChangeEventReason = FilterMenuRootChangeEventReason;
   export type ChangeEventDetails = FilterMenuRootChangeEventDetails;
   export type InputValueChangeEventReason = FilterMenuRootInputValueChangeEventReason;

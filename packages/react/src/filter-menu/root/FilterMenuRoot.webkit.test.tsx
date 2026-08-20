@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { screen, waitFor } from '@mui/internal-test-utils';
 import { vi, describe, it, expect } from 'vitest';
-import { createRenderer } from '#test-utils';
+import { createRenderer, resetBrowserPointer } from '#test-utils';
 import { FilterMenu } from '@base-ui/react/filter-menu';
 import { Menu } from '@base-ui/react/menu';
 
@@ -38,6 +38,8 @@ function Test() {
 }
 
 describe('<FilterMenu.Root /> (WebKit)', () => {
+  beforeEach(resetBrowserPointer);
+
   const { render, renderToString } = createRenderer();
 
   it('marks the active descendant selected for the WebKit compatibility path', async () => {

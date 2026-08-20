@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { expect, vi } from 'vitest';
 import { FilterMenu } from '@base-ui/react/filter-menu';
+import { Menu } from '@base-ui/react/menu';
 import { createRenderer, describeConformance } from '#test-utils';
 
 describe('FilterMenu conformance', () => {
@@ -135,11 +136,45 @@ describe('FilterMenu conformance', () => {
     }
   });
 
-  it('throws when a filter part is rendered in a plain Menu root', async () => {
+  it('throws when a filter part is rendered without any root', async () => {
     const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
     try {
       await expect(render(<FilterMenu.Input />)).rejects.toThrow(
+        'Base UI: Filter parts must be placed within a filter root.',
+      );
+    } finally {
+      errorSpy.mockRestore();
+    }
+  });
+
+  it('throws when a filter part is rendered in a plain Menu root', async () => {
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+    try {
+      await expect(
+        render(
+          <Menu.Root open>
+            <Menu.Portal>
+              <Menu.Positioner>
+                <Menu.Popup>
+                  <FilterMenu.Input />
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
+          </Menu.Root>,
+        ),
+      ).rejects.toThrow('Base UI: Filter parts must be placed within a filter root.');
+    } finally {
+      errorSpy.mockRestore();
+    }
+  });
+
+  it('throws when an item-context part is rendered without a root', async () => {
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+    try {
+      await expect(render(<FilterMenu.Empty />)).rejects.toThrow(
         'Base UI: Filter parts must be placed within a filter root.',
       );
     } finally {
