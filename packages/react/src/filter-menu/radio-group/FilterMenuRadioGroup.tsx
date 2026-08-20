@@ -34,6 +34,7 @@ export interface FilterMenuRadioGroupProps extends Omit<MenuRadioGroupProps, 'on
   onValueChange?:
     ((value: any, eventDetails: FilterMenuRadioGroupChangeEventDetails) => void) | undefined;
 }
+
 export interface FilterMenuRadioGroupState extends MenuRadioGroupState {}
 export type FilterMenuRadioGroupChangeEventReason = MenuRadioGroup.ChangeEventReason;
 export type FilterMenuRadioGroupChangeEventDetails = MenuRadioGroup.ChangeEventDetails;
