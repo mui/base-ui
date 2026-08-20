@@ -9,6 +9,7 @@ vi.mock('@base-ui/utils/safeReact', async (importOriginal) => {
   return {
     SafeReact: {
       ...original.SafeReact,
+      captureOwnerStack: undefined,
       useId: undefined,
     },
   };
@@ -21,6 +22,7 @@ interface TestComponentProps {
 
 describe('useId with the React 17 id fallback', () => {
   const { render, renderToString } = createRenderer();
+  const { render: renderNonStrict } = createRenderer({ strict: false });
 
   let renderedIds: (string | undefined)[] = [];
 
@@ -79,12 +81,12 @@ describe('useId with the React 17 id fallback', () => {
     expect(renderedIds).not.toContain(undefined);
   });
 
-  // StrictMode renders twice, so a single mount pass is two entries.
-  // Generating the fallback must not schedule a further pass when the caller supplies the id.
+  // Rendered without StrictMode so the assertion counts real passes rather than
+  // React's development-only double render.
   it('does not rerender after mounting with a provided id', () => {
-    render(<TestComponent id="some-id" />);
+    renderNonStrict(<TestComponent id="some-id" />);
 
-    expect(renderedIds).toEqual(['some-id', 'some-id']);
+    expect(renderedIds).toEqual(['some-id']);
   });
 
   it('keeps the generated id when the provided id is added and removed again', () => {
@@ -121,6 +123,19 @@ describe('useId with the React 17 id fallback', () => {
     setProps({ id: '' });
 
     expect(lastRenderedId()).toBe('');
+  });
+
+  it('matches the server markup on the first client render', () => {
+    const { hydrate } = renderToString(<TestComponent />);
+
+    renderedIds = [];
+
+    hydrate();
+
+    // The server emits no id, so generating the fallback any earlier than the passive
+    // effect would put an id on the first client pass and mismatch the markup.
+    expect(renderedIds[0]).toBe(undefined);
+    expect(screen.getByTestId('target').id).toMatch(/^mui-\d+$/);
   });
 
   it('returns undefined on the server', () => {

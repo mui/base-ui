@@ -35,8 +35,9 @@ const maybeReactUseId: undefined | (() => string) = SafeReact.useId;
 /**
  *
  * @example <div id={useId()} />
- * @param idOverride
- * @returns {string}
+ * @param {string | undefined} idOverride overrides the generated id when provided
+ * @param {string | undefined} prefix prefixes the generated id when provided
+ * @returns {string | undefined}
  */
 export function useId(idOverride?: string, prefix?: string): string | undefined {
   // React.useId() is only available from React 18.0.0.
