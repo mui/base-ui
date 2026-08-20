@@ -1,8 +1,9 @@
 import { expect, vi } from 'vitest';
+import type { CDPSession } from '@vitest/browser-playwright';
 import * as React from 'react';
 import { Combobox } from '@base-ui/react/combobox';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
-import { fireEvent, screen, waitFor } from '@mui/internal-test-utils';
+import { act, fireEvent, screen, waitFor } from '@mui/internal-test-utils';
 import { Field } from '@base-ui/react/field';
 import { REASONS } from '../../internals/reasons';
 
@@ -560,56 +561,31 @@ describe('<Combobox.Input />', () => {
       expect(input.selectionEnd).toBe(input.value.length);
     });
 
-    it('does not move the highlight when Shift+Home is pressed inside the popup', async () => {
-      const { user } = await render(<PopupCombobox />);
+    // `banana` sits between `apple` and `cherry`, so a jump in either direction fails.
+    it.each([
+      ['Shift', 'Home'],
+      ['Shift', 'End'],
+      ['Control', 'Home'],
+      ['Control', 'End'],
+    ])(
+      'does not move the highlight when %s+%s is pressed inside the popup',
+      async (modifier, key) => {
+        const { user } = await render(<PopupCombobox />);
 
-      await user.click(screen.getByTestId('trigger'));
-      const input = await screen.findByTestId('input');
-      await waitFor(() => expect(input).toHaveFocus());
+        await user.click(screen.getByTestId('trigger'));
+        const input = await screen.findByTestId('input');
+        await waitFor(() => expect(input).toHaveFocus());
 
-      await user.keyboard('{ArrowDown}{ArrowDown}{ArrowDown}');
+        await user.keyboard('{ArrowDown}{ArrowDown}');
 
-      const cherry = screen.getByRole('option', { name: 'cherry' });
-      await waitFor(() => expect(cherry).toHaveAttribute('data-highlighted'));
+        const banana = screen.getByRole('option', { name: 'banana' });
+        await waitFor(() => expect(banana).toHaveAttribute('data-highlighted'));
 
-      await user.keyboard('{Shift>}{Home}{/Shift}');
+        await user.keyboard(`{${modifier}>}{${key}}{/${modifier}}`);
 
-      expect(cherry).toHaveAttribute('data-highlighted');
-    });
-
-    it('does not move the highlight when Shift+End is pressed inside the popup', async () => {
-      const { user } = await render(<PopupCombobox />);
-
-      await user.click(screen.getByTestId('trigger'));
-      const input = await screen.findByTestId('input');
-      await waitFor(() => expect(input).toHaveFocus());
-
-      await user.keyboard('{ArrowDown}');
-
-      const apple = screen.getByRole('option', { name: 'apple' });
-      await waitFor(() => expect(apple).toHaveAttribute('data-highlighted'));
-
-      await user.keyboard('{Shift>}{End}{/Shift}');
-
-      expect(apple).toHaveAttribute('data-highlighted');
-    });
-
-    it('does not move the highlight when Ctrl+Home is pressed inside the popup', async () => {
-      const { user } = await render(<PopupCombobox />);
-
-      await user.click(screen.getByTestId('trigger'));
-      const input = await screen.findByTestId('input');
-      await waitFor(() => expect(input).toHaveFocus());
-
-      await user.keyboard('{ArrowDown}{ArrowDown}{ArrowDown}');
-
-      const cherry = screen.getByRole('option', { name: 'cherry' });
-      await waitFor(() => expect(cherry).toHaveAttribute('data-highlighted'));
-
-      await user.keyboard('{Control>}{Home}{/Control}');
-
-      expect(cherry).toHaveAttribute('data-highlighted');
-    });
+        expect(banana).toHaveAttribute('data-highlighted');
+      },
+    );
 
     // Unmodified Home/End belong to the caret: the input handles them itself and stops
     // the event, so the list highlight must stay put.
@@ -672,10 +648,51 @@ describe('<Combobox.Input />', () => {
       }
 
       document.addEventListener('keydown', handleKeyDown);
-      await user.keyboard(`{Shift>}{${key}}{/Shift}`);
-      document.removeEventListener('keydown', handleKeyDown);
+      try {
+        await user.keyboard(`{Shift>}{${key}}{/Shift}`);
+      } finally {
+        document.removeEventListener('keydown', handleKeyDown);
+      }
 
       expect(seen).toEqual([false]);
+    });
+
+    // `user-event` emulates Home/End by collapsing the caret, so the selection outcome
+    // this fix exists for can only be asserted with real browser key events.
+    it.skipIf(isJSDOM).each([
+      ['Home', 36],
+      ['End', 35],
+    ])('extends the text selection with Shift+%s inside the popup', async (key, keyCode) => {
+      const { user } = await render(<PopupCombobox />);
+
+      await user.click(screen.getByTestId('trigger'));
+      const input = (await screen.findByTestId('input')) as HTMLInputElement;
+      await waitFor(() => expect(input).toHaveFocus());
+
+      await user.type(input, 'an');
+      await screen.findByRole('option', { name: 'banana' });
+
+      if (key === 'End') {
+        input.setSelectionRange(0, 0);
+      }
+
+      const { cdp } = await import('vitest/browser');
+      const session = cdp() as CDPSession;
+      const event = {
+        windowsVirtualKeyCode: keyCode,
+        nativeVirtualKeyCode: keyCode,
+        key,
+        code: key,
+        modifiers: 8,
+      };
+
+      await act(async () => {
+        await session.send('Input.dispatchKeyEvent', { ...event, type: 'rawKeyDown' });
+        await session.send('Input.dispatchKeyEvent', { ...event, type: 'keyUp' });
+      });
+
+      expect(input.selectionStart).toBe(0);
+      expect(input.selectionEnd).toBe(input.value.length);
     });
 
     it.skipIf(isJSDOM)(
