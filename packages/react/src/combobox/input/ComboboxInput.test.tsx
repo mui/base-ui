@@ -633,6 +633,28 @@ describe('<Combobox.Input />', () => {
       expect(banana).toHaveAttribute('data-highlighted');
     });
 
+    it('moves the caret without moving the highlight when End is pressed inside the popup', async () => {
+      const { user } = await render(<PopupCombobox />);
+
+      await user.click(screen.getByTestId('trigger'));
+      const input = (await screen.findByTestId('input')) as HTMLInputElement;
+      await waitFor(() => expect(input).toHaveFocus());
+
+      await user.type(input, 'an');
+      await user.keyboard('{ArrowDown}');
+
+      const banana = screen.getByRole('option', { name: 'banana' });
+      await waitFor(() => expect(banana).toHaveAttribute('data-highlighted'));
+
+      input.setSelectionRange(0, 0);
+
+      await user.keyboard('{End}');
+
+      expect(input.selectionStart).toBe(input.value.length);
+      expect(input.selectionEnd).toBe(input.value.length);
+      expect(banana).toHaveAttribute('data-highlighted');
+    });
+
     // The native caret/selection behavior only survives if the key is neither
     // `preventDefault()`-ed nor stopped before it leaves the component.
     it.each(['Home', 'End'])('lets Shift+%s reach the browser inside the popup', async (key) => {
