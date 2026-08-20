@@ -275,6 +275,16 @@ describe('<Menu.Root />', () => {
         await waitFor(() => {
           expect(item1).toHaveFocus();
         });
+
+        await userEvent.keyboard('{Control>}{End}{/Control}');
+        await waitFor(() => {
+          expect(item5).toHaveFocus();
+        });
+
+        await userEvent.keyboard('{Control>}{Home}{/Control}');
+        await waitFor(() => {
+          expect(item1).toHaveFocus();
+        });
       });
 
       it('includes disabled items during keyboard navigation', async () => {
