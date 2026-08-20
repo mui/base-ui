@@ -91,6 +91,7 @@ export function FilterMenuRoot<Payload>(props: FilterMenuRoot.Props<Payload>): R
       inline={inline}
       virtualFocus
       virtualFocusRef={focusOwnerRef}
+      virtualFocusInput={hasInput}
       allowEscape={hasInput && !autoHighlight}
       resetOnPointerLeave={autoHighlight !== 'always'}
       renderVirtualFocusChildren={(payload, inputProps) => (
