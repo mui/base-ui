@@ -1337,7 +1337,9 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
       queryChangedAfterOpen || (selectionMode === 'none' && !autoHighlightMode) ? false : 'auto',
     focusItemOnHover: highlightItemOnHover,
     resetOnPointerLeave: !keepHighlight,
-    orientation: grid ? 'horizontal' : undefined,
+    // `orientation` is intentionally not passed here. The grid role does not support
+    // aria-orientation (axe: aria-allowed-attr), and grid navigation is handled by
+    // `gridNavigation` below. The non-grid listbox is vertical by default.
     rtl: direction === 'rtl',
     disabledIndices: EMPTY_ARRAY,
     grid: grid ? gridNavigation : undefined,
