@@ -4952,4 +4952,55 @@ describe('<FilterMenu.Root />', () => {
       });
     });
   });
+
+  describe('pointer focus claims', () => {
+    it('does not seed a highlight when the pointer re-enters a kept-mounted inputless popup', async () => {
+      const { user } = await render(
+        <FilterMenu.Root>
+          <FilterMenu.Trigger>Actions</FilterMenu.Trigger>
+          <FilterMenu.Portal keepMounted>
+            <FilterMenu.Positioner>
+              <FilterMenu.Popup data-testid="popup">
+                <FilterMenu.List>
+                  <FilterMenu.Item>Rename</FilterMenu.Item>
+                  <FilterMenu.Item>Delete</FilterMenu.Item>
+                </FilterMenu.List>
+              </FilterMenu.Popup>
+            </FilterMenu.Positioner>
+          </FilterMenu.Portal>
+        </FilterMenu.Root>,
+      );
+
+      const trigger = screen.getByRole('button', { name: 'Actions' });
+
+      // Keyboard open: the list takes focus, which is what lets the pointer restore it later.
+      await act(async () => {
+        trigger.focus();
+      });
+      await user.keyboard('[Enter]');
+      const list = await screen.findByRole('menu');
+      await waitFor(() => {
+        expect(list).toHaveFocus();
+      });
+
+      await user.keyboard('[Escape]');
+      await waitFor(() => {
+        expect(trigger).toHaveFocus();
+      });
+
+      // Pointer open leaves focus on the trigger. The popup stays mounted, so the claim recorded
+      // during the keyboard session must not carry over into this one.
+      await user.click(trigger);
+      await waitFor(() => {
+        expect(screen.getByRole('menu')).toBeVisible();
+      });
+
+      fireEvent.mouseMove(screen.getByTestId('popup'));
+
+      expect(screen.getByRole('menu')).not.toHaveAttribute('aria-activedescendant');
+      expect(screen.getByRole('menuitem', { name: 'Rename' })).not.toHaveAttribute(
+        'data-highlighted',
+      );
+    });
+  });
 });

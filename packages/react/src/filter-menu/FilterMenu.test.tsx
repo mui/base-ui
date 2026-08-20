@@ -105,6 +105,42 @@ describe('FilterMenu conformance', () => {
     render: renderInList,
   }));
 
+  // Aliases of Menu parts, but they are exported from `FilterMenu` and appear in the documented
+  // anatomy, so pin that they mount inside a filter popup.
+  describeConformance(<FilterMenu.Arrow />, () => ({
+    refInstanceof: window.HTMLDivElement,
+    render: (node) =>
+      render(
+        <FilterMenu.Root open>
+          <FilterMenu.Portal>
+            <FilterMenu.Positioner>
+              <FilterMenu.Popup>{node}</FilterMenu.Popup>
+            </FilterMenu.Positioner>
+          </FilterMenu.Portal>
+        </FilterMenu.Root>,
+      ),
+  }));
+
+  describeConformance(<FilterMenu.Backdrop />, () => ({
+    refInstanceof: window.HTMLDivElement,
+    render: (node) =>
+      render(
+        <FilterMenu.Root open>
+          <FilterMenu.Portal>
+            {node}
+            <FilterMenu.Positioner>
+              <FilterMenu.Popup />
+            </FilterMenu.Positioner>
+          </FilterMenu.Portal>
+        </FilterMenu.Root>,
+      ),
+  }));
+
+  describeConformance(<FilterMenu.Separator />, () => ({
+    refInstanceof: window.HTMLDivElement,
+    render: renderInList,
+  }));
+
   describeConformance(<FilterMenu.SubmenuTrigger />, () => ({
     refInstanceof: window.HTMLDivElement,
     button: true,
