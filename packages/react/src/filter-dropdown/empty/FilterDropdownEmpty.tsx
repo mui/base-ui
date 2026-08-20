@@ -6,6 +6,7 @@ import { useRenderElement } from '../../internals/useRenderElement';
 import { useFilterDropdownItemContext } from '../root/FilterDropdownRootContext';
 import { selectors } from '../store';
 import { useInitialLiveRegionTextMutation } from '../../combobox/utils/useInitialLiveRegionTextMutation';
+import { useIsHydrating } from '../../utils/useIsHydrating';
 
 /**
  * @internal
@@ -19,7 +20,10 @@ export const FilterDropdownEmpty = React.forwardRef(function FilterDropdownEmpty
   const { store } = useFilterDropdownItemContext();
   const isEmpty = useStore(store, selectors.isEmpty);
   const emptyRef = useInitialLiveRegionTextMutation<HTMLDivElement>();
-  const children = isEmpty ? childrenProp : null;
+  // Items register in layout effects, which don't run on the server, so server markup would
+  // otherwise show every item and the empty message at the same time.
+  const hydrating = useIsHydrating();
+  const children = isEmpty && !hydrating ? childrenProp : null;
 
   return useRenderElement('div', componentProps, {
     ref: [forwardedRef, emptyRef],
