@@ -97,10 +97,13 @@ async function swipe(element: HTMLElement, start: Point, end: Point, options: Sw
     beforeRelease,
     input = 'pointer',
     pointerType = 'mouse',
-    timeStepMs,
-    startTimeMs = 0,
+    // Every pointer swipe runs on a fixed timeline. Without one the gesture's velocity is derived
+    // from whatever wall-clock gaps the runner leaves between calls, and `MAX_RELEASE_VELOCITY_AGE_MS`
+    // (80ms) flips the release decision whenever the machine stalls between the last move and the up.
+    timeStepMs = 16,
+    startTimeMs = 1,
   } = options;
-  const useTimeStamp = input === 'pointer' && typeof timeStepMs === 'number';
+  const useTimeStamp = input === 'pointer';
   let timeStamp = startTimeMs;
 
   if (input === 'touch') {
@@ -159,7 +162,7 @@ async function swipe(element: HTMLElement, start: Point, end: Point, options: Sw
     return;
   }
 
-  fireEvent.pointerDown(element, {
+  firePointer.down(element, {
     button: 0,
     buttons: 1,
     pointerId: 1,
@@ -175,7 +178,7 @@ async function swipe(element: HTMLElement, start: Point, end: Point, options: Sw
     timeStamp += timeStepMs;
   }
 
-  fireEvent.pointerMove(element, {
+  firePointer.move(element, {
     pointerId: 1,
     clientX: stepX,
     clientY: stepY,
@@ -190,7 +193,7 @@ async function swipe(element: HTMLElement, start: Point, end: Point, options: Sw
     timeStamp += timeStepMs;
   }
 
-  fireEvent.pointerMove(element, {
+  firePointer.move(element, {
     pointerId: 1,
     clientX: end.x,
     clientY: end.y,
@@ -210,7 +213,7 @@ async function swipe(element: HTMLElement, start: Point, end: Point, options: Sw
     timeStamp += timeStepMs;
   }
 
-  fireEvent.pointerUp(element, {
+  firePointer.up(element, {
     pointerId: 1,
     clientX: end.x,
     clientY: end.y,
@@ -1333,13 +1336,13 @@ describe('<Drawer.SwipeArea />', () => {
 
     const swipeArea = screen.getByTestId('swipe-area');
     const slowSwipe = {
+      // Step the gesture past the flick-velocity window (`MAX_RELEASE_VELOCITY_AGE_MS`, 80ms) so
+      // distance decides the outcome. Expressed on the swipe's own timeline rather than a real
+      // sleep, which previously cleared the threshold by a single millisecond.
+      timeStepMs: 100,
       async beforeRelease() {
         const popup = await screen.findByTestId('popup');
         Object.defineProperty(popup, 'offsetHeight', { value: 200, configurable: true });
-        // Age the last drag sample past the flick-velocity window so distance decides the outcome.
-        await act(async () => {
-          await wait(81);
-        });
       },
     };
 
@@ -1471,7 +1474,7 @@ describe('<Drawer.SwipeArea />', () => {
       clientX: 10,
       clientY: 120,
       pointerType: 'mouse',
-      timeStamp: 0,
+      timeStamp: 1,
     });
     await flushMicrotasks();
 
@@ -1522,7 +1525,7 @@ describe('<Drawer.SwipeArea />', () => {
       clientX: 10,
       clientY: 120,
       pointerType: 'mouse',
-      timeStamp: 0,
+      timeStamp: 1,
     });
     await flushMicrotasks();
 
@@ -1607,7 +1610,7 @@ describe('<Drawer.SwipeArea />', () => {
       clientX: 10,
       clientY: 120,
       pointerType: 'mouse',
-      timeStamp: 0,
+      timeStamp: 1,
     });
     await flushMicrotasks();
 

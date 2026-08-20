@@ -2,7 +2,7 @@ import { beforeAll, describe, expect, it, vi } from 'vitest';
 import * as React from 'react';
 import { Drawer } from '@base-ui/react/drawer';
 import { act, fireEvent, flushMicrotasks, screen, waitFor } from '@mui/internal-test-utils';
-import { createRenderer, isJSDOM, waitSingleFrame } from '#test-utils';
+import { createRenderer, firePointer, isJSDOM, waitSingleFrame } from '#test-utils';
 import { REASONS } from '../../internals/reasons';
 import { useDrawerProviderContext } from '../provider/DrawerProviderContext';
 import { useDrawerRootContext } from './DrawerRootContext';
@@ -330,74 +330,29 @@ type TimedSwipeStep = {
 };
 
 async function simulateTimedSwipe(element: HTMLElement, steps: TimedSwipeStep[]) {
-  if (steps.length === 0) {
-    return;
-  }
+  for (const step of steps) {
+    if (vi.isFakeTimers()) {
+      vi.setSystemTime(new Date(step.time));
+    }
 
-  function fireStep(step: TimedSwipeStep) {
-    const baseEvent = {
+    const init = {
       pointerId: 1,
+      pointerType: 'mouse',
       clientX: step.x,
       clientY: step.y,
-      bubbles: true,
-      pointerType: 'mouse',
+      timeStamp: step.time,
     };
 
     if (step.type === 'down') {
-      fireEvent.pointerDown(element, { ...baseEvent, button: 0, buttons: 1 });
-      return;
+      firePointer.down(element, { ...init, button: 0, buttons: 1 });
+    } else if (step.type === 'move') {
+      firePointer.move(element, { ...init, buttons: 1 });
+    } else {
+      firePointer.up(element, { ...init, button: 0, buttons: 0 });
     }
 
-    if (step.type === 'move') {
-      fireEvent.pointerMove(element, { ...baseEvent, buttons: 1 });
-      return;
-    }
-
-    fireEvent.pointerUp(element, baseEvent);
-  }
-
-  if (isJSDOM) {
-    await steps.reduce(async (previous, step) => {
-      await previous;
-      vi.setSystemTime(new Date(step.time));
-      fireStep(step);
-      await flushMicrotasks();
-    }, Promise.resolve());
-    return;
-  }
-
-  await steps.reduce(async (previous, step, index) => {
-    await previous;
-    const previousTime = steps[index - 1]?.time ?? step.time;
-    const delay = index === 0 ? 0 : Math.max(0, step.time - previousTime);
-    if (delay > 0) {
-      await new Promise((resolve) => {
-        setTimeout(resolve, delay);
-      });
-    }
-
-    fireStep(step);
-    await flushMicrotasks();
-  }, Promise.resolve());
-}
-
-async function simulateTimestampedPointerSwipe(element: HTMLElement, steps: TimedSwipeStep[]) {
-  for (const step of steps) {
-    const event = new MouseEvent(`pointer${step.type}`, { bubbles: true, cancelable: true });
-    Object.defineProperties(event, {
-      pointerId: { value: 1 },
-      pointerType: { value: 'mouse' },
-      clientX: { value: step.x },
-      clientY: { value: step.y },
-      button: { value: 0 },
-      buttons: { value: step.type === 'up' ? 0 : 1 },
-      timeStamp: { value: step.time },
-    });
     // eslint-disable-next-line no-await-in-loop
-    await act(async () => {
-      element.dispatchEvent(event);
-      await flushMicrotasks();
-    });
+    await flushMicrotasks();
   }
 }
 
@@ -1674,7 +1629,7 @@ describe('<Drawer.Root />', () => {
       const viewport = screen.getByTestId('viewport');
       env.pointAt(screen.getByTestId('popup'));
 
-      await simulateTimestampedPointerSwipe(viewport, [
+      await simulateTimedSwipe(viewport, [
         { type: 'down', x: 100, y: 500, time: 1000 },
         { type: 'move', x: 100, y: 499, time: 1010 },
         { type: 'move', x: 100, y: 350, time: 2010 },
@@ -1695,7 +1650,7 @@ describe('<Drawer.Root />', () => {
       const viewport = screen.getByTestId('viewport');
       env.pointAt(screen.getByTestId('popup'));
 
-      await simulateTimestampedPointerSwipe(viewport, [
+      await simulateTimedSwipe(viewport, [
         { type: 'down', x: 100, y: 100, time: 1000 },
         { type: 'move', x: 100, y: 101, time: 1010 },
         { type: 'move', x: 100, y: 140, time: 1020 },
@@ -1716,7 +1671,7 @@ describe('<Drawer.Root />', () => {
       const viewport = screen.getByTestId('viewport');
       env.pointAt(screen.getByTestId('popup'));
 
-      await simulateTimestampedPointerSwipe(viewport, [
+      await simulateTimedSwipe(viewport, [
         { type: 'down', x: 100, y: 100, time: 1000 },
         { type: 'move', x: 100, y: 101, time: 1010 },
         { type: 'move', x: 100, y: 160, time: 1020 },
@@ -1737,7 +1692,7 @@ describe('<Drawer.Root />', () => {
       const viewport = screen.getByTestId('viewport');
       env.pointAt(screen.getByTestId('popup'));
 
-      await simulateTimestampedPointerSwipe(viewport, [
+      await simulateTimedSwipe(viewport, [
         { type: 'down', x: 100, y: 100, time: 1000 },
         { type: 'move', x: 100, y: 101, time: 1010 },
         { type: 'move', x: 100, y: 180, time: 2010 },
@@ -1758,7 +1713,7 @@ describe('<Drawer.Root />', () => {
       const viewport = screen.getByTestId('viewport');
       env.pointAt(screen.getByTestId('popup'));
 
-      await simulateTimestampedPointerSwipe(viewport, [
+      await simulateTimedSwipe(viewport, [
         { type: 'down', x: 100, y: 500, time: 1000 },
         { type: 'move', x: 100, y: 499, time: 1010 },
         { type: 'move', x: 100, y: 420, time: 1020 },
@@ -1779,7 +1734,7 @@ describe('<Drawer.Root />', () => {
       const viewport = screen.getByTestId('viewport');
       env.pointAt(screen.getByTestId('popup'));
 
-      await simulateTimestampedPointerSwipe(viewport, [
+      await simulateTimedSwipe(viewport, [
         { type: 'down', x: 100, y: 100, time: 1000 },
         { type: 'move', x: 100, y: 99, time: 1010 },
         { type: 'move', x: 100, y: 60, time: 1020 },
@@ -1800,7 +1755,7 @@ describe('<Drawer.Root />', () => {
       const viewport = screen.getByTestId('viewport');
       env.pointAt(screen.getByTestId('popup'));
 
-      await simulateTimestampedPointerSwipe(viewport, [
+      await simulateTimedSwipe(viewport, [
         { type: 'down', x: 100, y: 100, time: 1000 },
         { type: 'move', x: 100, y: 101, time: 1010 },
         { type: 'move', x: 100, y: 160, time: 1020 },
@@ -1821,7 +1776,7 @@ describe('<Drawer.Root />', () => {
       const viewport = screen.getByTestId('viewport');
       env.pointAt(screen.getByTestId('popup'));
 
-      await simulateTimestampedPointerSwipe(viewport, [
+      await simulateTimedSwipe(viewport, [
         { type: 'down', x: 100, y: 100, time: 1000 },
         { type: 'move', x: 100, y: 99, time: 1010 },
         { type: 'move', x: 100, y: 40, time: 1020 },
@@ -1842,7 +1797,7 @@ describe('<Drawer.Root />', () => {
       const viewport = screen.getByTestId('viewport');
       env.pointAt(screen.getByTestId('popup'));
 
-      await simulateTimestampedPointerSwipe(viewport, [
+      await simulateTimedSwipe(viewport, [
         { type: 'down', x: 100, y: 100, time: 1000 },
         { type: 'move', x: 100, y: 101, time: 1010 },
         { type: 'move', x: 100, y: 105, time: 2010 },
@@ -1863,7 +1818,7 @@ describe('<Drawer.Root />', () => {
       const viewport = screen.getByTestId('viewport');
       env.pointAt(screen.getByTestId('popup'));
 
-      await simulateTimestampedPointerSwipe(viewport, [
+      await simulateTimedSwipe(viewport, [
         { type: 'down', x: 100, y: 100, time: 1000 },
         { type: 'move', x: 100, y: 101, time: 1010 },
         { type: 'move', x: 100, y: 180, time: 2010 },
@@ -1886,7 +1841,7 @@ describe('<Drawer.Root />', () => {
       const viewport = screen.getByTestId('viewport');
       env.pointAt(screen.getByTestId('popup'));
 
-      await simulateTimestampedPointerSwipe(viewport, [
+      await simulateTimedSwipe(viewport, [
         { type: 'down', x: 100, y: 100, time: 1000 },
         { type: 'move', x: 100, y: 101, time: 1010 },
         { type: 'move', x: 100, y: 160, time: 1020 },
@@ -1914,7 +1869,7 @@ describe('<Drawer.Root />', () => {
         const viewport = screen.getByTestId('viewport');
         env.pointAt(screen.getByTestId('popup'));
 
-        await simulateTimestampedPointerSwipe(viewport, [
+        await simulateTimedSwipe(viewport, [
           { type: 'down', x: 100, y: 100, time: 1000 },
           { type: 'move', x: 100, y: 101, time: 1010 },
           { type: 'move', x: 100, y: 160, time: 1020 },
@@ -1950,7 +1905,7 @@ describe('<Drawer.Root />', () => {
       const viewport = screen.getByTestId('viewport');
       env.pointAt(screen.getByTestId('popup'));
 
-      await simulateTimestampedPointerSwipe(viewport, [
+      await simulateTimedSwipe(viewport, [
         { type: 'down', x: 100, y: 100, time: 1000 },
         { type: 'move', x: 100, y: 101, time: 1010 },
         { type: 'move', x: 100, y: 250, time: 2010 },

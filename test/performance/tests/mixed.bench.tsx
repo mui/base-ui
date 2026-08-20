@@ -23,20 +23,18 @@ const scrollAreaRows = createRows(10, 'Scroll area');
 const listItems = createRows(5, 'Option');
 const tabValues = ['overview', 'details', 'activity'] as const;
 
+const INERT_TO_POINTER: React.CSSProperties = { pointerEvents: 'none' };
+
 function MixedSurface() {
   return (
     <div>
-      <section>
+      {/* Hoverable triggers let the resting real cursor open a tooltip mid-run; see
+          tooltip.bench.tsx. Blocked at the section so the mount path this benchmark times does not
+          also allocate a style object per row. */}
+      <section style={INERT_TO_POINTER}>
         {tooltipRows.map((row) => (
           <Tooltip.Root key={`tooltip-${row.id}`}>
-            <Tooltip.Trigger
-              aria-label={`Open tooltip ${row.id}`}
-              // Hoverable triggers let the resting real cursor open a tooltip mid-run; see
-              // tooltip.bench.tsx. Mount is what this benchmark measures.
-              style={{ pointerEvents: 'none' }}
-            >
-              {row.label}
-            </Tooltip.Trigger>
+            <Tooltip.Trigger aria-label={`Open tooltip ${row.id}`}>{row.label}</Tooltip.Trigger>
             <Tooltip.Portal>
               <Tooltip.Positioner sideOffset={8}>
                 <Tooltip.Popup>Tooltip for {row.label}</Tooltip.Popup>
