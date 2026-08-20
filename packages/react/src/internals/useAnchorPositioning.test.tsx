@@ -55,8 +55,12 @@ function TestUseAnchorPositioning(props: { shift?: UseAnchorPositioningParameter
   );
 }
 
-function TestLazyFlip(props: { side?: 'right' | 'bottom'; align?: 'start' | 'center' }) {
-  const { side = 'right', align = 'start' } = props;
+function TestLazyFlip(props: {
+  side?: 'right' | 'bottom';
+  align?: 'start' | 'center';
+  lazyFlip?: boolean | 'placement';
+}) {
+  const { side = 'right', align = 'start', lazyFlip = true } = props;
   const anchorRef = React.useRef<HTMLDivElement>(null);
   const [shrunk, setShrunk] = React.useState(false);
   const height = shrunk ? 10 : 100;
@@ -77,7 +81,7 @@ function TestLazyFlip(props: { side?: 'right' | 'bottom'; align?: 'start' | 'cen
       disableAnchorTracking: false,
       keepMounted: false,
       collisionAvoidance: { fallbackAxisSide: 'none' },
-      lazyFlip: true,
+      lazyFlip,
     },
     useFloating,
   );
@@ -132,7 +136,9 @@ describe('useAnchorPositioning', () => {
   });
 
   it.skipIf(isJSDOM)('locks a flipped alignment after the popup shrinks', async () => {
-    const { user } = await render(<TestLazyFlip />);
+    // Only `'placement'` locks the align axis. Plain `true` stays side-only so Combobox keeps
+    // recomputing its alignment.
+    const { user } = await render(<TestLazyFlip lazyFlip="placement" />);
     const floating = screen.getByTestId('floating');
 
     await waitFor(() => {
@@ -148,6 +154,21 @@ describe('useAnchorPositioning', () => {
     });
 
     expect(floating).toHaveAttribute('data-align', 'end');
+  });
+
+  it.skipIf(isJSDOM)('leaves the alignment free when lazy flipping is side-only', async () => {
+    const { user } = await render(<TestLazyFlip lazyFlip />);
+    const floating = screen.getByTestId('floating');
+
+    await waitFor(() => {
+      expect(floating).toHaveAttribute('data-align', 'end');
+    });
+
+    await user.click(screen.getByRole('button', { name: 'Shrink' }));
+
+    await waitFor(() => {
+      expect(floating).toHaveAttribute('data-align', 'start');
+    });
   });
 
   it.skipIf(isJSDOM)('locks a flipped side after the popup shrinks', async () => {

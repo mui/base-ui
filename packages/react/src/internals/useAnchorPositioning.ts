@@ -181,8 +181,9 @@ export function useAnchorPositioningWithHook(
     setMountPlacement(null);
   }
 
+  const lockAlign = lazyFlip === 'placement';
   const mountSide = mountPlacement ? getSide(mountPlacement) : null;
-  const mountAlign = mountPlacement ? getAlignment(mountPlacement) || 'center' : null;
+  const mountAlign = mountPlacement && lockAlign ? getAlignment(mountPlacement) || 'center' : null;
   const side =
     mountSide ||
     (
@@ -558,18 +559,20 @@ export function useAnchorPositioningWithHook(
   const renderedAlign = getAlignment(renderedPlacement) || 'center';
   const anchorHidden = Boolean(middlewareData.hide?.referenceHidden);
 
-  // Locks each flipped axis while filtering resizes the popup.
+  // Locks the flipped side, and the alignment too when the consumer opts in, while filtering
+  // resizes the popup.
   useIsoLayoutEffect(() => {
     if (
       lazyFlip &&
       mounted &&
       isPositioned &&
-      (renderedSide !== side || renderedAlign !== placementAlign)
+      (renderedSide !== side || (lockAlign && renderedAlign !== placementAlign))
     ) {
       setMountPlacement(renderedPlacement);
     }
   }, [
     lazyFlip,
+    lockAlign,
     mounted,
     isPositioned,
     renderedPlacement,
@@ -790,7 +793,11 @@ export interface UseAnchorPositioningParameters extends UseAnchorPositioningShar
         rootBoundary?: 'layoutViewport' | undefined;
       }
     | undefined;
-  lazyFlip?: boolean | undefined;
+  /**
+   * Locks a flipped placement so it doesn't flip back eagerly while filtering resizes the
+   * popup. `true` locks the side only; `'placement'` also locks the alignment.
+   */
+  lazyFlip?: boolean | 'placement' | undefined;
   externalTree?: FloatingTreeStore | undefined;
   /**
    * Optional middleware that can replace the measured reference rect before offsets and collision

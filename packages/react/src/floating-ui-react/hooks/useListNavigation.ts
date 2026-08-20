@@ -260,6 +260,7 @@ export function useListNavigation(
   const latestOpenRef = useValueAsRef(open);
   const selectedIndexRef = useValueAsRef(selectedIndex);
   const resetOnPointerLeaveRef = useValueAsRef(resetOnPointerLeave);
+  const activeIndexRef = useValueAsRef(activeIndex);
 
   const focusFrame = useAnimationFrame();
   const waitForListPopulatedFrame = useAnimationFrame();
@@ -785,12 +786,6 @@ export function useListNavigation(
 
     function checkVirtualMouse(event: React.PointerEvent) {
       if (focusItemOnOpen === 'auto' && isVirtualClick(event.nativeEvent)) {
-        // A keyboard-activated click (Enter/Space on a native button, `detail: 0`) is not an
-        // assistive-technology virtual click: its preceding keydown belongs to this gesture.
-        // Keep the open-seeding behavior so `selectedIndex` highlights on keyboard open.
-        if (keyRef.current != null) {
-          return;
-        }
         focusItemOnOpenRef.current = !virtual;
       }
     }
@@ -880,7 +875,7 @@ export function useListNavigation(
           return;
         }
 
-        if (virtual && !isTypeableElement(event.currentTarget) && activeIndex == null) {
+        if (virtual && !isTypeableElement(event.currentTarget) && activeIndexRef.current == null) {
           indexRef.current = getMinEnabledIndex();
           onNavigate(event);
         } else if (!virtual) {
@@ -906,7 +901,7 @@ export function useListNavigation(
     rtl,
     selectedIndexRef,
     virtual,
-    activeIndex,
+    activeIndexRef,
   ]);
 
   const reference: ElementProps['reference'] = React.useMemo(() => {

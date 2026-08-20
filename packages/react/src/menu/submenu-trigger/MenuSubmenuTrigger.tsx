@@ -53,11 +53,10 @@ export const MenuSubmenuTrigger = React.forwardRef(function MenuSubmenuTrigger(
 
   const menuPositionerContext = useMenuPositionerContext();
 
-  const { store, parentVirtualFocus } = context;
+  const { store, parentVirtualFocus, webkitItemSelected, parentFloatingId } = context;
   const parentMenuStore = context.parent.store;
   const submenuRootContext = useMenuSubmenuRootContext();
   const listItem = useCompositeListItem({ guess: true, label });
-  const parentFloatingId = parentMenuStore.useState('floatingId');
   // The trigger is an item in the parent menu, so its ID uses the parent's namespace.
   const id = getMenuItemId(idProp, parentFloatingId, listItem.index);
 
@@ -140,12 +139,12 @@ export const MenuSubmenuTrigger = React.forwardRef(function MenuSubmenuTrigger(
     disabled,
     highlighted,
     id,
-    open,
     store,
     typingRef: parentMenuStore.context.typingRef,
     nativeButton,
     itemMetadata,
     virtualFocus: parentVirtualFocus,
+    webkitItemSelected,
     nodeId: menuPositionerContext?.context.nodeId,
   });
 

@@ -39,11 +39,10 @@ export const MenuRadioItem = React.forwardRef(function MenuRadioItem(
 
   const listItem = useCompositeListItem({ guess: true, label });
   const menuPositionerContext = useMenuPositionerContext(true);
-  const { store, floatingId, virtualFocus } = useMenuRootContext();
+  const { store, floatingId, virtualFocus, webkitItemSelected } = useMenuRootContext();
   const id = getMenuItemId(idProp, floatingId, listItem.index);
 
   const highlighted = store.useState('isActive', listItem.index);
-  const open = store.useState('open');
   const itemProps = store.useState('itemProps');
 
   const {
@@ -61,12 +60,12 @@ export const MenuRadioItem = React.forwardRef(function MenuRadioItem(
     disabled,
     highlighted,
     id,
-    open,
     store,
     nativeButton,
     nodeId: menuPositionerContext?.context.nodeId,
     itemMetadata: REGULAR_ITEM,
     virtualFocus,
+    webkitItemSelected,
   });
 
   const state: MenuRadioItemState = React.useMemo(

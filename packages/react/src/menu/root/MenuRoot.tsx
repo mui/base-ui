@@ -6,6 +6,8 @@ import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { EMPTY_ARRAY, EMPTY_OBJECT } from '@base-ui/utils/empty';
 import { fastComponent } from '@base-ui/utils/fastHooks';
+import { platform } from '@base-ui/utils/platform';
+import { useIsHydrating } from '../../utils/useIsHydrating';
 import { useBaseUiId } from '../../internals/useBaseUiId';
 import {
   FloatingTree,
@@ -593,14 +595,18 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
   // Under virtual focus an element inside the popup holds real focus, so it takes the
   // navigation's reference props (`aria-activedescendant` and the key handling) and the trigger
   // keeps only the props that open the menu.
-  let openTriggerProps = listNavigation.reference;
-  if (virtualFocus) {
-    const triggerProps = { ...listNavigation.trigger };
+  const openTriggerProps = React.useMemo(() => {
+    if (!virtualFocus) {
+      return listNavigation.reference;
+    }
+    if (!listNavigation.trigger) {
+      return EMPTY_OBJECT;
+    }
     // Focusing the trigger while the menu is open must not seed the virtual highlight. This can
     // happen before a pointer press closes the menu in Safari.
-    delete triggerProps.onFocus;
-    openTriggerProps = triggerProps;
-  }
+    const { onFocus, ...rest } = listNavigation.trigger;
+    return rest;
+  }, [virtualFocus, listNavigation.reference, listNavigation.trigger]);
   // Typeahead is included for the inputless case, where the list holds real focus. It is
   // disabled (empty) when an input owns typing.
   const inputProps = React.useMemo(
@@ -686,6 +692,13 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
     itemProps,
   });
 
+  // WebKit's accessibility tree only follows a searchbox's `aria-activedescendant` into a menu
+  // when the items expose a selection state. Resolved once per menu rather than once per item:
+  // the engine is a constant and hydration is global, so every item would compute the same value.
+  // The server cannot sniff the engine, so it stays off until hydration completes to keep the
+  // markup consistent.
+  const webkitItemSelected = !useIsHydrating() && platform.engine.webkit;
+
   const context: MenuRootContext<Payload> = React.useMemo(
     () => ({
       store,
@@ -699,6 +712,8 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
       virtualFocus,
       virtualFocusRef,
       parentVirtualFocus: parentMenuRootContext?.virtualFocus ?? false,
+      parentFloatingId: parentMenuRootContext?.floatingId,
+      webkitItemSelected,
     }),
     [
       store,
@@ -711,6 +726,7 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
       virtualFocus,
       virtualFocusRef,
       parentMenuRootContext,
+      webkitItemSelected,
     ],
   );
 

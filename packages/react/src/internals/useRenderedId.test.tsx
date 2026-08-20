@@ -54,4 +54,22 @@ describe('useRenderedId', () => {
 
     expect(onIdChange).toHaveBeenLastCalledWith(undefined);
   });
+
+  it('releases the override when the element unmounts', async () => {
+    const onIdChange = vi.fn();
+
+    function App(props: { mounted: boolean }) {
+      return props.mounted ? (
+        <Test fallbackId="fallback" id="explicit" onIdChange={onIdChange} />
+      ) : null;
+    }
+
+    const { setProps } = await render(<App mounted />);
+    expect(onIdChange).toHaveBeenLastCalledWith('explicit');
+
+    onIdChange.mockClear();
+    await setProps({ mounted: false });
+
+    expect(onIdChange).toHaveBeenLastCalledWith(undefined);
+  });
 });
