@@ -37,7 +37,7 @@ describe('<FilterMenu.Root />', () => {
     globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
   });
 
-  const { render } = createRenderer();
+  const { render, renderToString } = createRenderer();
 
   describe('filtering', () => {
     function RootInputOnlyMenu() {
@@ -3190,6 +3190,117 @@ describe('<FilterMenu.Root />', () => {
     });
   });
 
+  describe('typeahead', () => {
+    it('highlights matching items as the user types in an inputless menu', async () => {
+      const { user } = await render(
+        <FilterMenu.Root defaultOpen>
+          <FilterMenu.Trigger>Actions</FilterMenu.Trigger>
+          <FilterMenu.Portal>
+            <FilterMenu.Positioner>
+              <FilterMenu.Popup>
+                <FilterMenu.List>
+                  <FilterMenu.Item>Rename</FilterMenu.Item>
+                  <FilterMenu.Item>Duplicate</FilterMenu.Item>
+                  <FilterMenu.Item>Delete</FilterMenu.Item>
+                </FilterMenu.List>
+              </FilterMenu.Popup>
+            </FilterMenu.Positioner>
+          </FilterMenu.Portal>
+        </FilterMenu.Root>,
+      );
+
+      const list = screen.getByRole('menu');
+      await act(async () => {
+        list.focus();
+      });
+
+      await user.keyboard('d');
+      await waitFor(() => {
+        expect(screen.getByRole('menuitem', { name: 'Duplicate' })).toHaveAttribute(
+          'data-highlighted',
+        );
+      });
+      expect(list).toHaveAttribute(
+        'aria-activedescendant',
+        screen.getByRole('menuitem', { name: 'Duplicate' }).id,
+      );
+
+      await user.keyboard('d');
+      await waitFor(() => {
+        expect(screen.getByRole('menuitem', { name: 'Delete' })).toHaveAttribute(
+          'data-highlighted',
+        );
+      });
+    });
+
+    it('does not move the highlight while typing into the input', async () => {
+      const { user } = await render(
+        <FilterMenu.Root defaultOpen>
+          <FilterMenu.Trigger>Actions</FilterMenu.Trigger>
+          <FilterMenu.Portal>
+            <FilterMenu.Positioner>
+              <FilterMenu.Popup>
+                <FilterMenu.Input aria-label="Filter actions" />
+                <FilterMenu.List>
+                  <FilterMenu.Item>Rename</FilterMenu.Item>
+                  <FilterMenu.Item>Duplicate</FilterMenu.Item>
+                </FilterMenu.List>
+              </FilterMenu.Popup>
+            </FilterMenu.Positioner>
+          </FilterMenu.Portal>
+        </FilterMenu.Root>,
+      );
+
+      const input = screen.getByRole('searchbox', { name: 'Filter actions' });
+      await waitFor(() => {
+        expect(input).toHaveFocus();
+      });
+
+      await user.keyboard('d');
+      await waitFor(() => {
+        expect(screen.queryByRole('menuitem', { name: 'Rename' })).toBe(null);
+      });
+      expect(input).not.toHaveAttribute('aria-activedescendant');
+    });
+
+    it('does not activate an item with Space during a typeahead session', async () => {
+      const onFileClick = vi.fn();
+      const onFolderClick = vi.fn();
+      const { user } = await render(
+        <FilterMenu.Root defaultOpen>
+          <FilterMenu.Trigger>Actions</FilterMenu.Trigger>
+          <FilterMenu.Portal>
+            <FilterMenu.Positioner>
+              <FilterMenu.Popup>
+                <FilterMenu.List>
+                  <FilterMenu.Item onClick={onFileClick}>New file</FilterMenu.Item>
+                  <FilterMenu.Item onClick={onFolderClick}>New folder</FilterMenu.Item>
+                </FilterMenu.List>
+              </FilterMenu.Popup>
+            </FilterMenu.Positioner>
+          </FilterMenu.Portal>
+        </FilterMenu.Root>,
+      );
+
+      const list = screen.getByRole('menu');
+      await act(async () => {
+        list.focus();
+      });
+
+      await user.keyboard('new fo');
+      await waitFor(() => {
+        expect(screen.getByRole('menuitem', { name: 'New folder' })).toHaveAttribute(
+          'data-highlighted',
+        );
+      });
+      expect(onFileClick).not.toHaveBeenCalled();
+      expect(onFolderClick).not.toHaveBeenCalled();
+
+      await user.keyboard('[Enter]');
+      expect(onFolderClick).toHaveBeenCalledTimes(1);
+    });
+  });
+
   it('keeps component-rendered item text after the item is filtered out', async () => {
     function Label(props: { text: string }) {
       return <span>{props.text}</span>;
@@ -3638,6 +3749,92 @@ describe('<FilterMenu.Root />', () => {
     expect(onClick.mock.calls[0][0]).toHaveProperty('ctrlKey', true);
   });
 
+  it('leaves modified editing keys to the input while an item is highlighted', async () => {
+    const { user } = await render(
+      <FilterMenu.Root defaultOpen>
+        <FilterMenu.Trigger>Actions</FilterMenu.Trigger>
+        <FilterMenu.Portal>
+          <FilterMenu.Positioner>
+            <FilterMenu.Popup>
+              <FilterMenu.Input aria-label="Filter actions" />
+              <FilterMenu.List>
+                <FilterMenu.Item>Rename</FilterMenu.Item>
+                <FilterMenu.Item>Duplicate</FilterMenu.Item>
+              </FilterMenu.List>
+            </FilterMenu.Popup>
+          </FilterMenu.Positioner>
+        </FilterMenu.Portal>
+      </FilterMenu.Root>,
+    );
+
+    const input = screen.getByRole('searchbox', { name: 'Filter actions' });
+    await waitFor(() => {
+      expect(input).toHaveFocus();
+    });
+
+    await user.keyboard('[ArrowDown]');
+    const rename = screen.getByRole('menuitem', { name: 'Rename' });
+    await waitFor(() => {
+      expect(input).toHaveAttribute('aria-activedescendant', rename.id);
+    });
+
+    // `fireEvent` returns `false` when a handler called `preventDefault`, which would break the
+    // browser-native selection and word/boundary movement these shortcuts perform.
+    expect(fireEvent.keyDown(input, { key: 'ArrowDown', shiftKey: true })).toBe(true);
+    expect(input).toHaveAttribute('aria-activedescendant', rename.id);
+
+    expect(fireEvent.keyDown(input, { key: 'ArrowLeft', shiftKey: true })).toBe(true);
+    expect(fireEvent.keyDown(input, { key: 'ArrowRight', altKey: true })).toBe(true);
+    expect(fireEvent.keyDown(input, { key: 'Home', metaKey: true })).toBe(true);
+    expect(fireEvent.keyDown(input, { key: 'End', shiftKey: true })).toBe(true);
+    expect(input).toHaveAttribute('aria-activedescendant', rename.id);
+  });
+
+  it('does not open a highlighted submenu with a modified cross-axis key from the input', async () => {
+    const { user } = await render(
+      <FilterMenu.Root defaultOpen>
+        <FilterMenu.Trigger>Actions</FilterMenu.Trigger>
+        <FilterMenu.Portal>
+          <FilterMenu.Positioner>
+            <FilterMenu.Popup>
+              <FilterMenu.Input aria-label="Filter actions" />
+              <FilterMenu.List>
+                <FilterMenu.SubmenuRoot>
+                  <FilterMenu.SubmenuTrigger delay={0}>Share</FilterMenu.SubmenuTrigger>
+                  <FilterMenu.Portal>
+                    <FilterMenu.Positioner>
+                      <FilterMenu.Popup>
+                        <FilterMenu.List data-testid="submenu-list">
+                          <FilterMenu.Item>Email</FilterMenu.Item>
+                        </FilterMenu.List>
+                      </FilterMenu.Popup>
+                    </FilterMenu.Positioner>
+                  </FilterMenu.Portal>
+                </FilterMenu.SubmenuRoot>
+              </FilterMenu.List>
+            </FilterMenu.Popup>
+          </FilterMenu.Positioner>
+        </FilterMenu.Portal>
+      </FilterMenu.Root>,
+    );
+
+    const input = screen.getByRole('searchbox', { name: 'Filter actions' });
+    await waitFor(() => {
+      expect(input).toHaveFocus();
+    });
+
+    await user.keyboard('[ArrowDown]');
+    await waitFor(() => {
+      expect(screen.getByRole('menuitem', { name: 'Share' })).toHaveAttribute('data-highlighted');
+    });
+
+    fireEvent.keyDown(input, { key: 'ArrowRight', metaKey: true });
+    expect(screen.queryByTestId('submenu-list')).toBe(null);
+
+    await user.keyboard('[ArrowRight]');
+    await screen.findByTestId('submenu-list');
+  });
+
   it('calls onOpenChangeComplete when the menu opens and closes', async () => {
     const onOpenChangeComplete = vi.fn();
     const { user } = await render(
@@ -3767,6 +3964,48 @@ describe('<FilterMenu.Root />', () => {
       expect(screen.queryByText('No actions found')).toBe(null);
     });
     expect(screen.getByRole('menuitem', { name: 'Rename' })).toBeVisible();
+  });
+
+  describe('server-side rendering', () => {
+    it('does not render the empty state alongside items on the server', async () => {
+      const { hydrate } = renderToString(
+        <FilterMenu.Root inline open>
+          <FilterMenu.Input aria-label="Filter actions" />
+          <FilterMenu.Empty data-testid="empty">No actions found</FilterMenu.Empty>
+          <FilterMenu.List>
+            <FilterMenu.Item>Rename</FilterMenu.Item>
+          </FilterMenu.List>
+        </FilterMenu.Root>,
+      );
+
+      expect(screen.getByRole('menuitem', { name: 'Rename' })).not.toBe(null);
+      expect(screen.getByTestId('empty')).toBeEmptyDOMElement();
+
+      hydrate();
+
+      await waitFor(() => {
+        expect(screen.getByRole('menuitem', { name: 'Rename' })).toBeVisible();
+      });
+      expect(screen.getByTestId('empty')).toBeEmptyDOMElement();
+    });
+
+    it('shows the empty state after hydration when no items are rendered', async () => {
+      const { hydrate } = renderToString(
+        <FilterMenu.Root inline open>
+          <FilterMenu.Input aria-label="Filter actions" />
+          <FilterMenu.Empty data-testid="empty">No actions found</FilterMenu.Empty>
+          <FilterMenu.List />
+        </FilterMenu.Root>,
+      );
+
+      expect(screen.getByTestId('empty')).toBeEmptyDOMElement();
+
+      hydrate();
+
+      await waitFor(() => {
+        expect(screen.getByTestId('empty')).toHaveTextContent('No actions found');
+      });
+    });
   });
 
   it('does not set aria-selected on highlighted items outside WebKit', async () => {

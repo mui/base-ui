@@ -75,6 +75,7 @@ export interface FilterMenuCheckboxItemProps extends Omit<
    */
   keywords?: readonly string[] | undefined;
 }
+
 export interface FilterMenuCheckboxItemState extends MenuCheckboxItemState {}
 export type FilterMenuCheckboxItemChangeEventReason = MenuCheckboxItem.ChangeEventReason;
 export type FilterMenuCheckboxItemChangeEventDetails = MenuCheckboxItem.ChangeEventDetails;
