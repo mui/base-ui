@@ -31,6 +31,7 @@ import { buildStaticSetupKey } from './draggable';
 import { createKind, matchesAccept } from './dragKind';
 import { scheduleDisplacementSweep, trackDisplacedElement } from './displacement';
 import { getActiveHitElement } from './synthetic/syntheticSensor';
+import { startKeyboardDrag as startRegisteredKeyboardDrag } from './keyboard/keyboardSensor';
 import type { LatestGetter } from './useRegistrationRef';
 import { getComposedParentElement, isPointInRect, runAllCleanups } from './utils';
 import type {
@@ -923,6 +924,10 @@ export class DraggableCollectionPlugin<
         this.itemRefreshers.get(itemId)?.(true);
       }
     };
+  }
+
+  startKeyboardDrag(itemId: CollectionItemId): boolean {
+    return startRegisteredKeyboardDrag(this.itemElements.get(itemId) ?? null);
   }
 
   /** See {@link LiveDropPositionOwner}. */

@@ -8,7 +8,11 @@ import { useButton } from '../../internals/use-button';
 import type { BaseUIEvent } from '../../internals/types';
 import { useTranslations } from '../../internals/localization-context/LocalizationContext';
 import { useRenderElement } from '../../internals/useRenderElement';
-import { useDraggableRootContext } from '../root/DraggableRootContext';
+import {
+  throwMissingDraggableRootContext,
+  useDraggableRootContext,
+} from '../root/DraggableRootContext';
+import { DraggableKeyboardHandleContext } from '../keyboard-handle/DraggableKeyboardHandleContext';
 import type { DraggableHandle } from './DraggableHandle';
 
 /** Whether the rendered children contain text that can name the handle. */
@@ -52,8 +56,13 @@ export function useDraggableHandle(
     ...elementProps
   } = componentProps;
 
-  const { setHandleElement, setKeyboardHandleElement, startKeyboardDrag, label, disabled } =
-    useDraggableRootContext();
+  const rootContext = useDraggableRootContext(true);
+  const collectionKeyboardContext = React.useContext(DraggableKeyboardHandleContext);
+  const context = keyboardOnly ? (collectionKeyboardContext ?? rootContext) : rootContext;
+  if (context === undefined) {
+    throwMissingDraggableRootContext();
+  }
+  const { setKeyboardHandleElement, startKeyboardDrag, label, disabled } = context;
 
   const partName = keyboardOnly ? 'Draggable.KeyboardHandle' : 'Draggable.Handle';
   if (process.env.NODE_ENV !== 'production' && disabledProp !== undefined) {
@@ -70,7 +79,7 @@ export function useDraggableHandle(
 
   const handleRef = useRefWithInit(() => {
     const token = {};
-    const setElement = keyboardOnly ? setKeyboardHandleElement : setHandleElement;
+    const setElement = keyboardOnly ? setKeyboardHandleElement : rootContext!.setHandleElement;
     return (node: HTMLElement | null) => setElement(node, token);
   }).current;
 

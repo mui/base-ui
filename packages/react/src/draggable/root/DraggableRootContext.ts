@@ -50,15 +50,25 @@ export const DraggableRootContext = React.createContext<DraggableRootContext<any
   undefined,
 );
 
-export function useDraggableRootContext<TData = unknown>(): DraggableRootContext<TData> {
+export function throwMissingDraggableRootContext(): never {
+  throw new Error(
+    'Base UI: DraggableRootContext is missing. This means a <Draggable.*> part is rendered ' +
+      'outside of <Draggable.Root>, so it cannot reach the draggable it configures and would crash. ' +
+      'Place all Draggable parts within <Draggable.Root />. ' +
+      'See https://base-ui.com/react/components/draggable.',
+  );
+}
+
+export function useDraggableRootContext<TData = unknown>(): DraggableRootContext<TData>;
+export function useDraggableRootContext<TData = unknown>(
+  optional: true,
+): DraggableRootContext<TData> | undefined;
+export function useDraggableRootContext<TData = unknown>(
+  optional = false,
+): DraggableRootContext<TData> | undefined {
   const context = React.useContext(DraggableRootContext);
-  if (context === undefined) {
-    throw new Error(
-      'Base UI: DraggableRootContext is missing. This means a <Draggable.*> part is rendered ' +
-        'outside of <Draggable.Root>, so it cannot reach the draggable it configures and would crash. ' +
-        'Place all Draggable parts within <Draggable.Root />. ' +
-        'See https://base-ui.com/react/components/draggable.',
-    );
+  if (context === undefined && !optional) {
+    throwMissingDraggableRootContext();
   }
   return context;
 }

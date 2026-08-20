@@ -5,4 +5,6 @@
 export * from '../../utils/drag-and-drop/useDraggableCollection';
 export * from '../../utils/drag-and-drop/collectionDrop';
 export * from '../../utils/drag-and-drop/reorderRow';
+export { DraggableKeyboardHandleContext } from '../../draggable/keyboard-handle/DraggableKeyboardHandleContext';
+export type { DraggableKeyboardHandleContext as DraggableKeyboardHandleContextValue } from '../../draggable/keyboard-handle/DraggableKeyboardHandleContext';
 export type * from '../../types/collection';
