@@ -70,6 +70,7 @@ export interface FilterMenuTriggerProps<Payload = unknown> extends Omit<
    */
   handle?: FilterMenuHandle<Payload> | undefined;
 }
+
 export interface FilterMenuTriggerState extends MenuTriggerState {}
 
 export namespace FilterMenuTrigger {

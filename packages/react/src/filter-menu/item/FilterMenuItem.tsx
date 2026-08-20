@@ -34,6 +34,7 @@ export interface FilterMenuItemProps extends Omit<MenuItemProps, 'label'> {
    */
   keywords?: readonly string[] | undefined;
 }
+
 export interface FilterMenuItemState extends MenuItemState {}
 
 export namespace FilterMenuItem {
