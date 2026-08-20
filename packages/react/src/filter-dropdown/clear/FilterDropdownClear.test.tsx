@@ -1,10 +1,12 @@
 import * as React from 'react';
 import { expect, vi } from 'vitest';
 import { screen } from '@mui/internal-test-utils';
-import { createRenderer, describeConformance } from '#test-utils';
+import { createRenderer, describeConformance, resetBrowserPointer } from '#test-utils';
 import { FilterDropdown } from '..';
 
 describe('<FilterDropdown.Clear />', () => {
+  beforeEach(resetBrowserPointer);
+
   const { render } = createRenderer();
 
   describeConformance(<FilterDropdown.Clear />, () => ({
@@ -70,6 +72,28 @@ describe('<FilterDropdown.Clear />', () => {
     await user.click(clear);
 
     expect(screen.getByRole('searchbox', { name: 'Filter countries' })).toHaveValue('can');
+  });
+
+  it('ignores a click on a disabled non-native button', async () => {
+    const onValueChange = vi.fn();
+
+    const { user } = await render(
+      <ControlledFilterDropdownRoot initialValue="can" onValueChange={onValueChange}>
+        <FilterDropdown.Popup id={undefined}>
+          <FilterDropdown.Input aria-label="Filter countries" />
+          <FilterDropdown.Clear
+            aria-label="Clear filter"
+            disabled
+            nativeButton={false}
+            render={<div />}
+          />
+        </FilterDropdown.Popup>
+      </ControlledFilterDropdownRoot>,
+    );
+
+    await user.click(screen.getByLabelText('Clear filter'));
+
+    expect(onValueChange).not.toHaveBeenCalled();
   });
 });
 

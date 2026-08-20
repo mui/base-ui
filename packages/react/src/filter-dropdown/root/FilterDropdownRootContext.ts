@@ -12,7 +12,11 @@ export interface FilterDropdownItemRegistration {
   keywords: readonly string[] | undefined;
 }
 
-export type FilterDropdownFilter = (filterText: string, query: string) => boolean;
+export type FilterDropdownFilter = (
+  filterText: string,
+  query: string,
+  keywords: readonly string[] | undefined,
+) => boolean;
 
 export interface FilterDropdownRootContext {
   open: boolean;
@@ -61,6 +65,13 @@ export interface FilterDropdownItemContext {
   listRef: React.RefObject<Array<HTMLElement | null>>;
 }
 
+function throwMissingFilterRoot(): never {
+  throw new Error(
+    'Base UI: Filter parts must be placed within a filter root. Wrap them in <FilterMenu.Root> ' +
+      'or <FilterMenu.SubmenuRoot>; a plain <Menu.Root> cannot filter.',
+  );
+}
+
 export const FilterDropdownItemContext = React.createContext<FilterDropdownItemContext | null>(
   null,
 );
@@ -71,10 +82,7 @@ export function useFilterDropdownItemContext(optional: boolean): FilterDropdownI
 export function useFilterDropdownItemContext(optional = false) {
   const context = React.useContext(FilterDropdownItemContext);
   if (context === null && !optional) {
-    throw new Error(
-      'Base UI: Filter parts must be placed within a filter root. Wrap them in <FilterMenu.Root> ' +
-        'or <FilterMenu.SubmenuRoot>; a plain <Menu.Root> cannot filter.',
-    );
+    throwMissingFilterRoot();
   }
   return context;
 }
@@ -89,10 +97,7 @@ export function useFilterDropdownRootContext(optional: boolean): FilterDropdownR
 export function useFilterDropdownRootContext(optional = false) {
   const context = React.useContext(FilterDropdownRootContext);
   if (context === null && !optional) {
-    throw new Error(
-      'Base UI: Filter parts must be placed within a filter root. Wrap them in <FilterMenu.Root> ' +
-        'or <FilterMenu.SubmenuRoot>; a plain <Menu.Root> cannot filter.',
-    );
+    throwMissingFilterRoot();
   }
   return context;
 }

@@ -9,7 +9,6 @@ import {
   useFilterDropdownRootContext,
   useFilterDropdownValueContext,
 } from '../root/FilterDropdownRootContext';
-import { FilterDropdownInputDataAttributes } from './FilterDropdownInputDataAttributes';
 
 const MOVE_CARET_KEYS = ['ArrowLeft', 'ArrowRight', 'Home', 'End'];
 
@@ -26,17 +25,20 @@ export const FilterDropdownInput = React.forwardRef(function FilterDropdownInput
   const value = useFilterDropdownValueContext();
   const activeItemId = useActiveItemId(context);
 
+  // Real focus never leaves the input under virtual focus, so the cursor, not focus, is what
+  // moves. The input holds it until arrow keys hand it to an item.
+  const state: FilterDropdownInputState = {
+    highlighted: context.inputFocusVisible && (!context.keyboardModality || activeItemId == null),
+  };
+
   return useRenderElement('input', componentProps, {
+    state,
     ref: [forwardedRef, context.setInputElement],
     props: [
       context.inputProps,
       {
         type: 'text',
         disabled: context.disabled || disabled,
-        [FilterDropdownInputDataAttributes.focusVisible as string]:
-          context.inputFocusVisible && (!context.keyboardModality || activeItemId == null)
-            ? ''
-            : undefined,
         'aria-activedescendant': activeItemId,
         role: 'searchbox',
         inputMode: 'search',
@@ -116,7 +118,12 @@ export const FilterDropdownInput = React.forwardRef(function FilterDropdownInput
   });
 });
 
-export interface FilterDropdownInputState {}
+export interface FilterDropdownInputState {
+  /**
+   * Whether the input holds the virtual cursor, meaning no item is highlighted.
+   */
+  highlighted: boolean;
+}
 
 export interface FilterDropdownInputProps extends BaseUIComponentProps<
   'input',

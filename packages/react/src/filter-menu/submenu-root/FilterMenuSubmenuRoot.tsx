@@ -25,7 +25,7 @@ import {
 import { activeElement, stopEvent } from '../../floating-ui-react/utils';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
-import { findNonDisabledListIndex, getMinListIndex } from '../../floating-ui-react/utils/composite';
+import { findNonDisabledListIndex } from '../../floating-ui-react/utils/composite';
 import { MenuSubmenuRootContext } from '../../menu/submenu-root/MenuSubmenuRootContext';
 import type { MenuStore } from '../../menu/store/MenuStore';
 
@@ -121,12 +121,6 @@ export function FilterMenuSubmenuRoot(props: FilterMenuSubmenuRoot.Props): React
     }
   }
 
-  function handleParentNavigation() {
-    if (parent.virtualFocus) {
-      parent.virtualFocusRef?.current?.focus({ preventScroll: true });
-    }
-  }
-
   function handleOpenChange(nextOpen: boolean, details: FilterMenuSubmenuRoot.ChangeEventDetails) {
     onOpenChange?.(nextOpen, details);
     if (details.isCanceled) {
@@ -184,7 +178,6 @@ export function FilterMenuSubmenuRoot(props: FilterMenuSubmenuRoot.Props): React
           }
           onSubmenuEnter={handleSubmenuEnter}
           onSubmenuExit={handleSubmenuExit}
-          onParentNavigation={handleParentNavigation}
         >
           <FilterMenuProvider
             open={open}
@@ -213,7 +206,6 @@ interface FilterMenuSubmenuNavigationProps {
   parentLoopFocus: boolean;
   onSubmenuEnter(trigger: HTMLElement): void;
   onSubmenuExit(): void;
-  onParentNavigation(): void;
   getReturnElement(): HTMLElement | null;
 }
 
@@ -225,11 +217,10 @@ function FilterMenuSubmenuNavigation(props: FilterMenuSubmenuNavigationProps) {
     parentLoopFocus,
     onSubmenuEnter,
     onSubmenuExit,
-    onParentNavigation,
     getReturnElement,
   } = props;
 
-  const { store, orientation, virtualFocus, virtualFocusRef } = useMenuRootContext();
+  const { store, orientation, virtualFocusRef } = useMenuRootContext();
   const direction = useDirection();
 
   function close(event: React.KeyboardEvent) {
@@ -267,12 +258,21 @@ function FilterMenuSubmenuNavigation(props: FilterMenuSubmenuNavigationProps) {
           ? event.key === 'ArrowDown'
           : event.key === (direction === 'rtl' ? 'ArrowLeft' : 'ArrowRight');
       const decrement = !movesForward;
-      let nextIndex = findNonDisabledListIndex(items, { startingIndex: currentIndex, decrement });
+      // `EMPTY_ARRAY` is what the parent menu passes to `useListNavigation`, and it keeps
+      // `aria-disabled` items reachable so they stay discoverable. Omitting the option makes
+      // `findNonDisabledListIndex` fall back to the attribute check and skip them, which would
+      // make arrowing past this trigger behave differently from arrowing between ordinary items.
+      let nextIndex = findNonDisabledListIndex(items, {
+        startingIndex: currentIndex,
+        decrement,
+        disabledIndices: EMPTY_ARRAY,
+      });
 
       if (parentLoopFocus && (nextIndex < 0 || nextIndex >= items.length)) {
         nextIndex = findNonDisabledListIndex(items, {
           startingIndex: decrement ? items.length : -1,
           decrement,
+          disabledIndices: EMPTY_ARRAY,
         });
       }
 
@@ -280,11 +280,11 @@ function FilterMenuSubmenuNavigation(props: FilterMenuSubmenuNavigationProps) {
       if (item) {
         parentStore.set('activeIndex', nextIndex);
         item.focus({ preventScroll: true });
+        item.scrollIntoView?.({ block: 'nearest', inline: 'nearest' });
       }
 
       (event as unknown as BaseUIEvent<React.KeyboardEvent>).preventBaseUIHandler();
       event.stopPropagation();
-      onParentNavigation();
       return;
     }
 
@@ -305,14 +305,11 @@ function FilterMenuSubmenuNavigation(props: FilterMenuSubmenuNavigationProps) {
     stopEvent(event);
 
     if (open) {
+      // Re-entering an already-open submenu hands the cursor to its own focus owner. The submenu
+      // is always virtually focused, so there is no roving-focus branch here.
       onSubmenuEnter(event.currentTarget);
-      if (virtualFocus) {
-        store.set('activeIndex', null);
-        virtualFocusRef?.current?.focus({ preventScroll: true });
-      } else {
-        const firstItemIndex = getMinListIndex(store.context.itemDomElements, EMPTY_ARRAY);
-        store.set('activeIndex', firstItemIndex === -1 ? null : firstItemIndex);
-      }
+      store.set('activeIndex', null);
+      virtualFocusRef?.current?.focus({ preventScroll: true });
       return;
     }
 
@@ -376,16 +373,11 @@ export type FilterMenuSubmenuRootProps = Omit<
   onOpenChange?:
     ((open: boolean, eventDetails: FilterMenuSubmenuRoot.ChangeEventDetails) => void) | undefined;
   /**
-   * The visual orientation of the submenu.
-   * @default 'vertical'
-   */
-  orientation?: FilterMenuSubmenuRootOrientation | undefined;
-  /**
    * Replaces the default case-insensitive substring matching for item text.
    * Receives an item's filter text and the trimmed query. When provided, this function is
    * authoritative and item keywords are ignored.
    */
-  filter?: FilterMenuFilter | undefined;
+  filter?: FilterMenuFilter | null | undefined;
   /**
    * Whether the first matching item is highlighted automatically.
    * - `true`: highlight after the user types and keep the highlight while the query changes.
@@ -420,7 +412,6 @@ export type FilterMenuSubmenuRootProps = Omit<
 
 export interface FilterMenuSubmenuRootState extends MenuSubmenuRoot.State {}
 export type FilterMenuSubmenuRootActions = MenuRoot.Actions;
-export type FilterMenuSubmenuRootOrientation = MenuRoot.Orientation;
 export type FilterMenuSubmenuRootChangeEventReason = MenuSubmenuRoot.ChangeEventReason;
 export type FilterMenuSubmenuRootChangeEventDetails = MenuSubmenuRoot.ChangeEventDetails;
 export type FilterMenuSubmenuRootInputValueChangeEventReason = FilterDropdownRoot.ChangeEventReason;
@@ -431,7 +422,6 @@ export namespace FilterMenuSubmenuRoot {
   export type Props = FilterMenuSubmenuRootProps;
   export type State = FilterMenuSubmenuRootState;
   export type Actions = FilterMenuSubmenuRootActions;
-  export type Orientation = FilterMenuSubmenuRootOrientation;
   export type ChangeEventReason = FilterMenuSubmenuRootChangeEventReason;
   export type ChangeEventDetails = FilterMenuSubmenuRootChangeEventDetails;
   export type InputValueChangeEventReason = FilterMenuSubmenuRootInputValueChangeEventReason;

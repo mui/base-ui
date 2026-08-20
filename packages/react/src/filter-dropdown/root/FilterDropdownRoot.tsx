@@ -91,7 +91,10 @@ export function FilterDropdownRoot(props: FilterDropdownRoot.Props): React.JSX.E
   const defaultTriggerId = defaultId ? `${defaultId}-trigger` : undefined;
   const defaultPopupId = defaultId ? `${defaultId}-popup` : undefined;
   const defaultListId = defaultId ? `${defaultId}-list` : undefined;
-  const triggerId = externalTriggerId ?? registeredTriggerId ?? defaultTriggerId;
+  // Inline lists render no trigger, so the generated id would reference nothing and leave the
+  // list without an accessible name.
+  const triggerId =
+    externalTriggerId ?? registeredTriggerId ?? (inline ? undefined : defaultTriggerId);
   const popupId = registeredPopupId ?? defaultPopupId;
   const listId = registeredListId ?? defaultListId;
 
@@ -118,7 +121,9 @@ export function FilterDropdownRoot(props: FilterDropdownRoot.Props): React.JSX.E
     lastFilterQueryRef.current = filterQuery;
     const autoHighlightEnabled =
       open && (autoHighlight === 'always' || (autoHighlight && filterQuery !== ''));
-    if (filterQuery === '') {
+    // `filter: null` hands matching to the consumer, so every registered item stays visible
+    // while the query still drives `autoHighlight`.
+    if (filter === null || filterQuery === '') {
       if (store.state.visibleItemIds !== null) {
         store.set('visibleItemIds', null);
         if (!autoHighlightEnabled) {
@@ -135,7 +140,7 @@ export function FilterDropdownRoot(props: FilterDropdownRoot.Props): React.JSX.E
     registeredItems.forEach(({ getText, keywords }, id) => {
       const filterText = getText();
       const matches = filter
-        ? filterText != null && filter(filterText, filterQuery)
+        ? filterText != null && filter(filterText, filterQuery, keywords)
         : (filterText != null && defaultMatches(filterText, filterQuery)) ||
           keywords?.some((keyword) => defaultMatches(keyword, filterQuery));
       if (matches) {
@@ -288,9 +293,9 @@ export interface FilterDropdownRootProps {
     | ((value: string, eventDetails: FilterDropdownRootNamespace.ChangeEventDetails) => void)
     | undefined;
   /**
-   * Custom filter logic used when filtering items.
+   * Custom filter logic used when filtering items. Pass `null` to turn filtering off.
    */
-  filter?: FilterDropdownFilter | undefined;
+  filter?: FilterDropdownFilter | null | undefined;
   /** Whether the first matching item should be highlighted automatically. */
   autoHighlight?: boolean | 'always' | undefined;
   /**

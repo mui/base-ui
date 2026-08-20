@@ -1,3 +1,4 @@
+// Internal, test-only namespace. See `./index.ts`.
 export { FilterDropdownRoot as Root } from './root/FilterDropdownRoot';
 export { FilterDropdownTrigger as Trigger } from './trigger/FilterDropdownTrigger';
 export { FilterDropdownPopup as Popup } from './popup/FilterDropdownPopup';
