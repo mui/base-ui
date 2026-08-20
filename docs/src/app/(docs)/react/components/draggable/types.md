@@ -442,6 +442,41 @@ type DraggableHandleState = {
 };
 ```
 
+### KeyboardHandle
+
+Restricts keyboard drag pickup to this button while leaving the whole source
+draggable with the pointer.
+Renders a `<button>` element.
+
+**KeyboardHandle Props:**
+
+| Prop         | Type                                                                                                   | Default | Description                                                                                                                                                                                   |
+| :----------- | :----------------------------------------------------------------------------------------------------- | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| nativeButton | `boolean`                                                                                              | `true`  | Whether the component renders a native `<button>` element when replacing it&#xA;via the `render` prop.&#xA;Set to `false` if the rendered element is not a button (for example, `<div>`).     |
+| disabled     | `undefined`                                                                                            | -       | A handle has no independent disabled state. Set `disabled` on&#xA;`Draggable.Root` instead.                                                                                                   |
+| className    | `string \| ((state: Draggable.KeyboardHandle.State) => string \| undefined)`                           | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
+| style        | `React.CSSProperties \| ((state: Draggable.KeyboardHandle.State) => React.CSSProperties \| undefined)` | -       | Style applied to the element, or a function that&#xA;returns a style object based on the component's state.                                                                                   |
+| render       | `ReactElement \| ((props: HTMLProps, state: Draggable.KeyboardHandle.State) => ReactElement)`          | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
+
+**KeyboardHandle Data Attributes:**
+
+| Attribute     | Type | Description                                              |
+| :------------ | :--- | :------------------------------------------------------- |
+| data-disabled | -    | Present while the handle's `Draggable.Root` is disabled. |
+
+### KeyboardHandle.Props
+
+Re-export of [KeyboardHandle](#keyboardhandle) props.
+
+### KeyboardHandle.State
+
+```typescript
+type DraggableKeyboardHandleState = {
+  /** Whether the draggable is disabled. */
+  disabled: boolean;
+};
+```
+
 ### Preview
 
 Customizes what follows the pointer while the draggable is dragged, replacing
@@ -1890,6 +1925,7 @@ type matches =
 
 - `Draggable.Root`: `Draggable.Root`, `Draggable.Root.State`, `Draggable.Root.Props`, `Draggable.Root.PropsWithPayload`
 - `Draggable.Handle`: `Draggable.Handle`, `Draggable.Handle.State`, `Draggable.Handle.Props`
+- `Draggable.KeyboardHandle`: `Draggable.KeyboardHandle`, `Draggable.KeyboardHandle.State`, `Draggable.KeyboardHandle.Props`
 - `Draggable.Preview`: `Draggable.Preview`, `Draggable.Preview.State`, `Draggable.Preview.Props`
 - `Draggable.ClonedPreview`: `Draggable.ClonedPreview`, `Draggable.ClonedPreview.Props`
 - `Draggable.PreviewProvider`: `Draggable.PreviewProvider`, `Draggable.PreviewProvider.State`, `Draggable.PreviewProvider.Props`
@@ -1897,7 +1933,7 @@ type matches =
 - `Draggable.useActiveDrag`: `Draggable.useActiveDrag`, `Draggable.useActiveDrag.ReturnValue`
 - `Draggable.createKind`
 - `Draggable.createGlobalKind`
-- `Default`: `Draggable.anyKind`, `UseDraggableActiveDragReturnValue`, `BaseDragEvent`, `BeforeDragStartEventDetails`, `DraggablePayload`, `DraggablePayloadGetter`, `DragAccept`, `DragKind`, `DragModifier`, `DragModifierContext`, `DragModifiers`, `DragElementReference`, `DragDropEvent`, `DragDropEventDetails`, `DragDropReason`, `DragEndEvent`, `DragEndEventDetails`, `DragEndReason`, `DragCanceledReason`, `DragCompletedReason`, `DragEventDetails`, `DragEventDetailsMap`, `DragHandle`, `DragInput`, `DragLocalPoint`, `DragLocation`, `DragLocationHistory`, `DragEventMap`, `DragMode`, `DragMoveEvent`, `DragMoveEventDetails`, `DragStartEventDetails`, `DropTargetChangeEventDetails`, `DragPosition`, `DragPreviewContainer`, `DragPreviewOffset`, `DragPreviewParameters`, `DragPreviewRenderEvent`, `DragPreviewSettings`, `DragSnappedLocalPointOptions`, `DragSnapSteps`, `DragSource`, `DragStartContext`, `DragStartEvent`, `DropTargetChangeEvent`, `DropTargetRecord`, `DragKeyboardActivation`, `DragKeyboardAnnouncementParameters`, `DragKeyboardAnnouncements`, `DragKeyboardArrowKey`, `DragKeyboardFinalFocus`, `DragKeyboardFinalFocusParameters`, `DragKeyboardMoveDetails`, `DragKeyboardMoveResult`, `DragKeyboardMoveSuggestion`, `DragKeyboardMoveTarget`, `DragKeyboardMovement`, `DragPointerType`, `DragPreviewOffsetParameters`, `DragActivation`, `DragActivationConfig`, `DraggableRootState`, `DraggableRootProps`, `DraggableRootPropsWithPayload`, `DraggableHandleState`, `DraggableHandleProps`, `DraggablePreviewState`, `DraggablePreviewProps`, `DraggablePreviewTypedProps`, `DraggableClonedPreviewProps`, `DraggablePreviewProviderState`, `DraggablePreviewProviderProps`
+- `Default`: `Draggable.anyKind`, `UseDraggableActiveDragReturnValue`, `BaseDragEvent`, `BeforeDragStartEventDetails`, `DraggablePayload`, `DraggablePayloadGetter`, `DragAccept`, `DragKind`, `DragModifier`, `DragModifierContext`, `DragModifiers`, `DragElementReference`, `DragDropEvent`, `DragDropEventDetails`, `DragDropReason`, `DragEndEvent`, `DragEndEventDetails`, `DragEndReason`, `DragCanceledReason`, `DragCompletedReason`, `DragEventDetails`, `DragEventDetailsMap`, `DragHandle`, `DragInput`, `DragLocalPoint`, `DragLocation`, `DragLocationHistory`, `DragEventMap`, `DragMode`, `DragMoveEvent`, `DragMoveEventDetails`, `DragStartEventDetails`, `DropTargetChangeEventDetails`, `DragPosition`, `DragPreviewContainer`, `DragPreviewOffset`, `DragPreviewParameters`, `DragPreviewRenderEvent`, `DragPreviewSettings`, `DragSnappedLocalPointOptions`, `DragSnapSteps`, `DragSource`, `DragStartContext`, `DragStartEvent`, `DropTargetChangeEvent`, `DropTargetRecord`, `DragKeyboardActivation`, `DragKeyboardAnnouncementParameters`, `DragKeyboardAnnouncements`, `DragKeyboardArrowKey`, `DragKeyboardFinalFocus`, `DragKeyboardFinalFocusParameters`, `DragKeyboardMoveDetails`, `DragKeyboardMoveResult`, `DragKeyboardMoveSuggestion`, `DragKeyboardMoveTarget`, `DragKeyboardMovement`, `DragPointerType`, `DragPreviewOffsetParameters`, `DragActivation`, `DragActivationConfig`, `DraggableRootState`, `DraggableRootProps`, `DraggableRootPropsWithPayload`, `DraggableHandleState`, `DraggableHandleProps`, `DraggableKeyboardHandleState`, `DraggableKeyboardHandleProps`, `DraggablePreviewState`, `DraggablePreviewProps`, `DraggablePreviewTypedProps`, `DraggableClonedPreviewProps`, `DraggablePreviewProviderState`, `DraggablePreviewProviderProps`
 - `Draggable.targetsOnlyKeyboardMovement`
 - `Draggable.fixedStepKeyboardMovement`
 - `Draggable.restrictToVerticalAxis`
@@ -1916,6 +1952,8 @@ Maps `Canonical`: `Alias` — Use Canonical when its namespace is already import
 - `Draggable.Root.PropsWithPayload`: `DraggableRootPropsWithPayload`
 - `Draggable.Handle.State`: `DraggableHandleState`
 - `Draggable.Handle.Props`: `DraggableHandleProps`
+- `Draggable.KeyboardHandle.State`: `DraggableKeyboardHandleState`
+- `Draggable.KeyboardHandle.Props`: `DraggableKeyboardHandleProps`
 - `Draggable.Preview.State`: `DraggablePreviewState`
 - `Draggable.Preview.Props`: `DraggablePreviewProps`
 - `Draggable.ClonedPreview.Props`: `DraggableClonedPreviewProps`

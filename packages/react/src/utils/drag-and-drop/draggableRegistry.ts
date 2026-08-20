@@ -80,6 +80,18 @@ export interface DraggablePickup {
   dragHandle: Element | null;
 }
 
+/** Resolve the handle that owns pickup for one input method. */
+export function resolveDragHandle(
+  parameters: RegisteredDraggableConfig,
+  modality: 'pointer' | 'keyboard',
+): Element | null {
+  const handleReference =
+    modality === 'pointer'
+      ? (parameters.pointerDragHandle ?? parameters.dragHandle)
+      : (parameters.keyboardDragHandle ?? parameters.dragHandle);
+  return resolveElementReference(handleReference, undefined);
+}
+
 /**
  * Shared pickup resolution for the pointer and keyboard sensors. From a raw event
  * target, find the nearest registered draggable ancestor, read its latest
@@ -110,11 +122,7 @@ export function resolveDraggablePickup(
     const getParameters = getRegistration(element);
     if (getParameters) {
       const parameters = getParameters();
-      const handleReference =
-        modality === 'pointer'
-          ? (parameters.pointerDragHandle ?? parameters.dragHandle)
-          : parameters.dragHandle;
-      const dragHandle = resolveElementReference(handleReference, undefined);
+      const dragHandle = resolveDragHandle(parameters, modality);
       // With a configured drag handle, only pick up if the gesture began within
       // it — so an action control elsewhere inside the draggable keeps its own
       // behaviour. A `disabled` draggable can never start a drag, so it is

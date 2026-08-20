@@ -156,6 +156,37 @@ describe('useDraggableCollection', () => {
     fireEvent.dragEnd(row);
   });
 
+  it('limits keyboard pickup to a handle without limiting pointer pickup to it', async () => {
+    const { plugin } = setupPlugin({}, { knownItemIds: ['a'] });
+    const row = createElement();
+    const handle = document.createElement('button');
+    row.append(handle);
+    plugin.setupItem('a', row);
+
+    const cleanupHandle = plugin.setupKeyboardHandle('a', handle);
+
+    expect(row.style.touchAction).toBe('manipulation');
+    expect(row).not.toHaveAttribute('aria-roledescription');
+    expect(handle).toHaveAttribute('aria-roledescription', 'draggable');
+
+    await lift(row);
+    expect(dragSessionStore.getSnapshot()?.source.element).toBe(row);
+    fireEvent.dragEnd(row);
+
+    pressKey(row, ' ');
+    expect(dragSessionStore.getSnapshot()).toBeNull();
+
+    pressKey(handle, ' ');
+    expect(dragSessionStore.getSnapshot()?.source.element).toBe(row);
+    pressKey(handle, 'Escape');
+
+    cleanupHandle();
+    expect(row).toHaveAttribute('aria-roledescription', 'draggable');
+    pressKey(row, ' ');
+    expect(dragSessionStore.getSnapshot()?.source.element).toBe(row);
+    pressKey(row, 'Escape');
+  });
+
   it('reconciles mounted rows when displacement tracking is enabled at runtime', async () => {
     const actions = {
       hasItem: () => true,

@@ -112,7 +112,7 @@ function getNextInstanceId() {
 
 /** The subset of a plugin the origin needs to find a row another instance remounted. */
 interface CommittedDropOwner {
-  getItemElement(itemId: CollectionItemId): HTMLElement | undefined;
+  getItemFocusElement(itemId: CollectionItemId): HTMLElement | undefined;
 }
 
 /**
@@ -235,6 +235,8 @@ export class DraggableCollectionPlugin<
   private itemRefreshers = new Map<CollectionItemId, (force?: boolean) => void>();
 
   private itemHandles = new Map<CollectionItemId, HTMLElement>();
+
+  private itemKeyboardHandles = new Map<CollectionItemId, HTMLElement>();
 
   /** An a11y sweep requested mid-drag, deferred to drag end (see `refreshItemsA11y`). */
   private pendingA11yRefresh = false;
@@ -720,6 +722,7 @@ export class DraggableCollectionPlugin<
           const parameters: InternalDraggableParameters<DragSourceData<TItem>> = {
             kind,
             pointerDragHandle: () => this.itemHandles.get(itemId) ?? null,
+            keyboardDragHandle: () => this.itemKeyboardHandles.get(itemId) ?? null,
             // Besides supplying the source's accessible name, this gives the
             // settling clone a stable identity when a cross-collection move
             // remounts the item under a new registration. The `getPayload` callback
@@ -911,6 +914,17 @@ export class DraggableCollectionPlugin<
     };
   }
 
+  setupKeyboardHandle(itemId: CollectionItemId, element: HTMLElement): () => void {
+    this.itemKeyboardHandles.set(itemId, element);
+    this.itemRefreshers.get(itemId)?.(true);
+    return () => {
+      if (this.itemKeyboardHandles.get(itemId) === element) {
+        this.itemKeyboardHandles.delete(itemId);
+        this.itemRefreshers.get(itemId)?.(true);
+      }
+    };
+  }
+
   /** See {@link LiveDropPositionOwner}. */
   itemLabel(itemId: CollectionItemId): string {
     return this.config.getItemLabel?.(itemId) ?? String(itemId);
@@ -1003,7 +1017,7 @@ export class DraggableCollectionPlugin<
     // committed the drop when this collection no longer holds it.
     const itemId = parameters.source.payload.draggedItemId;
     const element =
-      this.itemElements.get(itemId) ?? committedDropSlot.owner?.getItemElement(itemId);
+      this.getItemFocusElement(itemId) ?? committedDropSlot.owner?.getItemFocusElement(itemId);
     if (element && element.isConnected) {
       return element;
     }
@@ -1257,8 +1271,8 @@ export class DraggableCollectionPlugin<
   }
 
   /** See {@link CommittedDropOwner}. */
-  getItemElement(itemId: CollectionItemId): HTMLElement | undefined {
-    return this.itemElements.get(itemId);
+  getItemFocusElement(itemId: CollectionItemId): HTMLElement | undefined {
+    return this.itemKeyboardHandles.get(itemId) ?? this.itemElements.get(itemId);
   }
 }
 

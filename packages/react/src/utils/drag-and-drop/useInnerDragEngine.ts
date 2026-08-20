@@ -194,6 +194,8 @@ export class DragEngineBase {
     const restoreStatic = applyDraggableStaticSetup({
       element,
       dragHandle: initial.dragHandle,
+      pointerDragHandle: (initial as InternalDraggableParameters<TData>).pointerDragHandle,
+      keyboardDragHandle: initial.keyboardDragHandle,
       ariaRoleDescription: initial.ariaRoleDescription ?? this.translations.dragRoleDescription,
       keyboardInstructions: resolveKeyboardInstructions(initial, this.translations),
       keyboardActivation: initial.keyboardActivation,

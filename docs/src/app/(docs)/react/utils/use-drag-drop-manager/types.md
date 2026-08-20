@@ -108,6 +108,7 @@ type useDragDropManagerReturnValue = {
           label?: string;
           kind: DragKind<TData>;
           dragHandle?: DragHandle;
+          keyboardDragHandle?: DragHandle;
           disabled?: boolean;
           onBeforeDragStart?: (
             context: DragStartContext,
@@ -325,6 +326,7 @@ type DragDropManager = {
           label?: string;
           kind: DragKind<TData>;
           dragHandle?: DragHandle;
+          keyboardDragHandle?: DragHandle;
           disabled?: boolean;
           onBeforeDragStart?: (
             context: DragStartContext,
@@ -602,6 +604,15 @@ type RegisterDraggableParameters<TData = undefined> = {
    */
   dragHandle?: DragHandle;
   /**
+   * Restricts keyboard pickup to a specific child element, ref, or resolver without
+   * restricting pointer pickup. Space and Enter start a drag only when this element
+   * has focus. Omit it to use `dragHandle`, then the draggable element itself.
+   *
+   * For sources registered imperatively. A draggable component configures this by
+   * rendering a `Draggable.KeyboardHandle` instead.
+   */
+  keyboardDragHandle?: DragHandle;
+  /**
    * Whether to disable dragging. Pointer presses and keyboard events keep their
    * native behavior, and Base UI omits the keyboard-drag accessibility attributes.
    * Use `onBeforeDragStart` instead when the decision depends on the gesture.
@@ -754,6 +765,15 @@ type RegisterDraggableParametersWithPayload<TData> = (
    * by rendering a `Draggable.Handle` instead.
    */
   dragHandle?: DragHandle;
+  /**
+   * Restricts keyboard pickup to a specific child element, ref, or resolver without
+   * restricting pointer pickup. Space and Enter start a drag only when this element
+   * has focus. Omit it to use `dragHandle`, then the draggable element itself.
+   *
+   * For sources registered imperatively. A draggable component configures this by
+   * rendering a `Draggable.KeyboardHandle` instead.
+   */
+  keyboardDragHandle?: DragHandle;
   /**
    * Whether to disable dragging. Pointer presses and keyboard events keep their
    * native behavior, and Base UI omits the keyboard-drag accessibility attributes.
@@ -1192,6 +1212,7 @@ type UseDragDropManagerReturnValue = {
           label?: string;
           kind: DragKind<TData>;
           dragHandle?: DragHandle;
+          keyboardDragHandle?: DragHandle;
           disabled?: boolean;
           onBeforeDragStart?: (
             context: DragStartContext,

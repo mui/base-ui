@@ -15,6 +15,10 @@ export interface DraggableRootContext<TData = unknown> {
    * several handles just left.
    */
   setHandleElement: (node: HTMLElement | null, token: object) => void;
+  /** Attach or detach a handle that owns only keyboard pickup. Stable. */
+  setKeyboardHandleElement: (node: HTMLElement | null, token: object) => void;
+  /** Start a keyboard drag for this root. Stable. */
+  startKeyboardDrag: () => boolean;
   /** Observe the root element, including node replacements. Stable. */
   observeElement: (observer: (element: HTMLElement | null) => void) => DragCleanupFn;
   /** The link a `Draggable.Preview` declares into. Stable. */

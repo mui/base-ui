@@ -107,8 +107,16 @@ export const DraggableRoot = React.forwardRef(function DraggableRoot<TData = und
     onDragEnd,
   } as RegisterDraggableParameters<TData>;
 
-  const { ref, dragging, setHandleElement, observeElement, previewHandle, hasHandle } =
-    useDraggableElement<TData>(params);
+  const {
+    ref,
+    dragging,
+    setHandleElement,
+    setKeyboardHandleElement,
+    startKeyboardDrag,
+    observeElement,
+    previewHandle,
+    hasHandle,
+  } = useDraggableElement<TData>(params);
 
   const state: DraggableRoot.State = { dragging, disabled: disabled ?? false };
 
@@ -119,20 +127,31 @@ export const DraggableRoot = React.forwardRef(function DraggableRoot<TData = und
   const contextValue = React.useMemo(
     () => ({
       setHandleElement,
+      setKeyboardHandleElement,
+      startKeyboardDrag,
       observeElement,
       previewHandle,
       previewContext,
       label,
       disabled: disabled ?? false,
     }),
-    [setHandleElement, observeElement, previewHandle, previewContext, label, disabled],
+    [
+      setHandleElement,
+      setKeyboardHandleElement,
+      startKeyboardDrag,
+      observeElement,
+      previewHandle,
+      previewContext,
+      label,
+      disabled,
+    ],
   );
 
   // Focusable whenever the element is keyboard-draggable at all: with `'auto'` screen
   // readers are told "press Space or Enter to pick up", and with `'manual'` the
   // consumer's own pickup route starts from focus too. Either way the element must be
   // reachable with Tab. With a handle attached, pickup and the a11y attributes live on
-  // the handle instead, so the root stays out of the tab order.
+  // a handle instead, so the root stays out of the tab order.
   // `hasHandle` is `null` until the mount commit resolves it, and an unconfirmed
   // root stays unfocusable: the server can't see handles, so SSR HTML and the
   // hydration render would otherwise put a second tab stop next to every handle.
@@ -192,7 +211,7 @@ type DraggableRootPropsBase<TData> = Omit<
   // never from here.
   Omit<
     RegisterDraggableParameters<TData>,
-    'dragPreview' | 'dragHandle' | 'payload' | 'getPayload'
+    'dragPreview' | 'dragHandle' | 'keyboardDragHandle' | 'payload' | 'getPayload'
   > & { children?: React.ReactNode | undefined };
 
 export type DraggableRootProps<TData = undefined> = DraggableRootPropsBase<TData> &

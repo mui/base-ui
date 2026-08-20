@@ -41,6 +41,7 @@ import { hasInteractiveAncestorWithin, isEditable } from '../interactiveElement'
 import {
   findRegisteredAncestor,
   getRegistration,
+  resolveDragHandle,
   resolveDraggablePickup,
 } from '../draggableRegistry';
 import { getDropTargetShadowRoots } from '../dropTarget';
@@ -58,7 +59,6 @@ import {
   isPointInRect,
   modifierKeysChanged,
   NO_MODIFIER_KEYS,
-  resolveElementReference,
 } from '../utils';
 import {
   modifyDragPoint,
@@ -381,7 +381,7 @@ function resolveImperativePickup(element: HTMLElement): {
     return {
       element: registered,
       parameters,
-      dragHandle: resolveElementReference(parameters.dragHandle, undefined),
+      dragHandle: resolveDragHandle(parameters, 'keyboard'),
     };
   }
   throw new Error(
@@ -1583,7 +1583,7 @@ function applyDefaultFinalFocus(
   // pair would drop focus on `<body>`.
   const registration = getRegistration(sourceElement);
   const currentHandle = registration
-    ? (resolveElementReference(registration().dragHandle, undefined) as HTMLElement | null)
+    ? (resolveDragHandle(registration(), 'keyboard') as HTMLElement | null)
     : null;
   for (const candidate of [currentHandle, session.handle, sourceElement]) {
     if (candidate?.isConnected && focusIfPossible(candidate)) {

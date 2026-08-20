@@ -753,6 +753,7 @@ A component that makes its element a drag source.
   - Anatomy
   - Pass data along
   - Drag handle
+    - Keyboard-only handle
   - Conditional drag
   - Drag events
   - Re-rendering the source mid-drag
@@ -778,6 +779,7 @@ A component that makes its element a drag source.
   - API reference
     - Root
     - Handle
+    - KeyboardHandle
     - Preview
     - ClonedPreview
     - PreviewProvider
@@ -811,6 +813,9 @@ A component that makes its element a drag source.
   - Draggable - Handle
     - Props: className, disabled, nativeButton, render, style
     - Data Attributes: data-disabled
+  - Draggable - KeyboardHandle
+    - Props: className, disabled, nativeButton, render, style
+    - Data Attributes: data-disabled
   - Draggable - Preview
     - Props: children, className, container, disabled, kind, modifiers, offset, render, style
     - Data Attributes: data-drag-mode, data-drag-preview, data-ending-style
@@ -839,7 +844,7 @@ A component that makes its element a drag source.
     - Props: direction, event, findTarget, getTargets, key, location, position, shiftKey, source, suggestion, target
   - DragModifier
     - Parameters: context
-- Types: Draggable.ClonedPreview.Props, Draggable.Handle.Props, Draggable.Handle.State, Draggable.Preview.Props, Draggable.Preview.State, Draggable.PreviewProvider.Props, Draggable.PreviewProvider.State, Draggable.Root.Props, Draggable.Root.PropsWithPayload, Draggable.Root.State, Draggable.useActiveDrag.ReturnValue
+- Types: Draggable.ClonedPreview.Props, Draggable.Handle.Props, Draggable.Handle.State, Draggable.KeyboardHandle.Props, Draggable.KeyboardHandle.State, Draggable.Preview.Props, Draggable.Preview.State, Draggable.PreviewProvider.Props, Draggable.PreviewProvider.State, Draggable.Root.Props, Draggable.Root.PropsWithPayload, Draggable.Root.State, Draggable.useActiveDrag.ReturnValue
 
 </details>
 

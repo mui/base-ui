@@ -91,6 +91,21 @@ When the root has a `label` and the handle renders no text, the handle uses `Dra
 
 <DemoDragHandle />
 
+### Keyboard-only handle
+
+Use `Draggable.KeyboardHandle` when the whole source should remain draggable with the pointer, but keyboard dragging should start only from a dedicated button. Space and Enter pick the source up while this button has focus. Activating the button with assistive technology starts the same keyboard drag.
+
+The root stays out of the tab order while the keyboard handle is mounted. Pointer dragging still starts anywhere on the root, including over the handle.
+
+```tsx title="Keeping pointer pickup on the whole card"
+<Draggable.Root kind={card} label={label} payload={{ id }}>
+  <Draggable.KeyboardHandle>
+    <Grip />
+  </Draggable.KeyboardHandle>
+  {label}
+</Draggable.Root>
+```
+
 ## Conditional drag
 
 Pass `disabled` to stop an item from being picked up with the pointer or keyboard. Clicks and context-menu presses keep their normal behavior, and screen readers no longer receive keyboard-drag instructions. You can change the prop at runtime without re-registering the draggable.
@@ -644,6 +659,10 @@ import { TypesDraggable, TypesDraggableAdditional } from './types';
 ### Handle
 
 <TypesDraggable.Handle hideDescription />
+
+### KeyboardHandle
+
+<TypesDraggable.KeyboardHandle hideDescription />
 
 ### Preview
 

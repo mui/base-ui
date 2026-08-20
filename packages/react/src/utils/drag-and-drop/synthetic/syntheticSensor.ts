@@ -31,7 +31,7 @@ import { suppressNextClick } from './postDragClick';
 import { getSharedSlot } from '../sharedState';
 import { createEventRootBinding, type DragEventRoot } from '../documentBinding';
 import type { DraggableConfig } from '../draggable';
-import { getRegistration, resolveDraggablePickup } from '../draggableRegistry';
+import { getRegistration, resolveDragHandle, resolveDraggablePickup } from '../draggableRegistry';
 import { hasInteractiveAncestorWithin } from '../interactiveElement';
 import { getDropTargetShadowRoots } from '../dropTarget';
 import type {
@@ -57,7 +57,6 @@ import {
   modifierKeysChanged,
   normalizePointerType,
   remapInput,
-  resolveElementReference,
   runAllCleanups,
 } from '../utils';
 
@@ -448,7 +447,9 @@ function onPointerDown(event: Event): void {
   // keyboard sensor applies to Space/Enter. Without it, pressing an inline rename
   // input and moving to select text crosses the activation threshold and the drag
   // `preventDefault()`s the selection away.
-  if (hasInteractiveAncestorWithin(target, handle)) {
+  const keyboardHandle = resolveDragHandle(parameters, 'keyboard');
+  const isKeyboardHandlePress = keyboardHandle !== null && contains(keyboardHandle, target);
+  if (hasInteractiveAncestorWithin(target, handle) && !isKeyboardHandlePress) {
     return;
   }
 
@@ -752,15 +753,20 @@ function commitActivation(): void {
     return;
   }
 
-  const dragHandle = resolveElementReference(
-    parameters.pointerDragHandle ?? parameters.dragHandle,
-    undefined,
-  );
+  const dragHandle = resolveDragHandle(parameters, 'pointer');
 
   // Re-check the handle gate at commit, like `disabled` above: the draggable may
   // have swapped its handle during the press, and the press that armed this
   // gesture was never on the handle that now governs it.
   if (dragHandle && !contains(dragHandle, target)) {
+    clearPending(true);
+    return;
+  }
+
+  const pointerNode = (dragHandle as HTMLElement | null) ?? element;
+  const keyboardHandle = resolveDragHandle(parameters, 'keyboard');
+  const isKeyboardHandlePress = keyboardHandle !== null && contains(keyboardHandle, target);
+  if (hasInteractiveAncestorWithin(target, pointerNode) && !isKeyboardHandlePress) {
     clearPending(true);
     return;
   }
