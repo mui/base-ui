@@ -36,11 +36,10 @@ export const MenuLinkItem = React.forwardRef(function MenuLinkItem(
   const listItem = useCompositeListItem({ guess: true, label });
   const menuPositionerContext = useMenuPositionerContext(true);
   const nodeId = menuPositionerContext?.context.nodeId;
-  const { store, floatingId, virtualFocus } = useMenuRootContext();
+  const { store, floatingId, virtualFocus, webkitItemSelected } = useMenuRootContext();
   const id = getMenuItemId(idProp, floatingId, listItem.index);
 
   const highlighted = store.useState('isActive', listItem.index);
-  const open = store.useState('open');
   const itemProps = store.useState('itemProps');
   const typingRef = store.context.typingRef;
 
@@ -54,12 +53,12 @@ export const MenuLinkItem = React.forwardRef(function MenuLinkItem(
     highlighted,
     id,
     nodeId,
-    open,
     store,
     typingRef,
     itemRef: linkRef,
     itemMetadata: REGULAR_ITEM,
     virtualFocus,
+    webkitItemSelected,
   });
 
   function getItemProps(externalProps?: HTMLProps): HTMLProps {
