@@ -1,10 +1,12 @@
 import * as React from 'react';
 import { screen, waitFor } from '@mui/internal-test-utils';
 import { expect, vi } from 'vitest';
-import { createRenderer } from '#test-utils';
+import { createRenderer, resetBrowserPointer } from '#test-utils';
 import { FilterMenu } from '@base-ui/react/filter-menu';
 
 describe('<FilterMenu.List />', () => {
+  beforeEach(resetBrowserPointer);
+
   const { render } = createRenderer();
 
   it('supports navigation when rendered inline without popup parts', async () => {

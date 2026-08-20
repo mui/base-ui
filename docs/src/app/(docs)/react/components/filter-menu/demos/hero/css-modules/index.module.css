@@ -114,7 +114,7 @@
     border-color: oklch(37.1% 0 0deg);
   }
 
-  &:has(.Input[data-focus-visible]) {
+  &:has(.Input[data-highlighted]) {
     border-color: oklch(14.5% 0 0deg);
     box-shadow: inset 0 0 0 1px oklch(14.5% 0 0deg);
 

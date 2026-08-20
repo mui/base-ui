@@ -28,7 +28,7 @@ export const FilterMenuList = React.forwardRef(function FilterMenuList(
   componentProps: FilterMenuList.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { orientation, store: menuStore } = useMenuRootContext();
+  const { store: menuStore } = useMenuRootContext();
   const { inline } = useFilterDropdownRootContext();
   const { store } = useFilterDropdownItemContext();
   const { subscribeMapChange } = useCompositeListContext();
@@ -38,10 +38,16 @@ export const FilterMenuList = React.forwardRef(function FilterMenuList(
     // Composite items receive their final indexes from this map update. Read their rendered ids
     // after those synchronous layout updates commit instead of publishing the previous indexes.
     queueMicrotask(() => {
-      store.set(
-        'itemIds',
-        items.map((item) => item.id),
-      );
+      const nextIds = items.map((item) => item.id);
+      const currentIds = store.state.itemIds;
+      // A fresh array always fails the store's identity check, and every item, group, and the
+      // input subscribe to it. Filtering rarely changes the ids themselves, so compare first.
+      if (
+        currentIds.length !== nextIds.length ||
+        nextIds.some((id, index) => id !== currentIds[index])
+      ) {
+        store.set('itemIds', nextIds);
+      }
     });
   });
 
@@ -57,7 +63,6 @@ export const FilterMenuList = React.forwardRef(function FilterMenuList(
 
   const props = mergeProps<typeof FilterDropdownList>(
     {
-      'aria-orientation': orientation,
       onKeyDown: handleReferenceKeyDown,
     },
     componentProps,
