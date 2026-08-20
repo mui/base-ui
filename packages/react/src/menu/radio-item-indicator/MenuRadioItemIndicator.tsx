@@ -27,6 +27,7 @@ export const MenuRadioItemIndicator = React.forwardRef(function MenuRadioItemInd
 
   useOpenChangeComplete({
     batch: true,
+    enabled: !item.checked,
     open: item.checked,
     ref: indicatorRef,
     onComplete() {

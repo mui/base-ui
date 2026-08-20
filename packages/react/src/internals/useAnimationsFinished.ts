@@ -22,14 +22,7 @@ function flushBeforePaint(fn: () => void) {
       pendingCallbacks = null;
       ReactDOM.flushSync(() => {
         for (const callback of callbacks) {
-          try {
-            callback();
-          } catch (error) {
-            // Rethrow asynchronously so one callback's error can't drop the rest of the batch.
-            queueMicrotask(() => {
-              throw error;
-            });
-          }
+          callback();
         }
       });
     });

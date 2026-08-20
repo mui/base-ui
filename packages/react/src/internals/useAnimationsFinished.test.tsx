@@ -203,69 +203,6 @@ describe('useAnimationsFinished', () => {
     }
   });
 
-  it('runs every batched callback when one throws', async () => {
-    const animationsDisabled = globalThis.BASE_UI_ANIMATIONS_DISABLED;
-    globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
-
-    const first = createAnimation();
-    const second = createAnimation();
-    const error = new Error('test');
-    const onSecondFinished = vi.fn();
-    const firstGetAnimations = vi.fn(() => [first.animation]);
-    const secondGetAnimations = vi.fn(() => [second.animation]);
-
-    try {
-      await render(
-        <React.Fragment>
-          <Test
-            batch
-            getAnimations={firstGetAnimations}
-            onFinished={() => {
-              throw error;
-            }}
-          />
-          <Test batch getAnimations={secondGetAnimations} onFinished={onSecondFinished} />
-        </React.Fragment>,
-      );
-
-      await waitFor(() => {
-        expect(firstGetAnimations).toHaveBeenCalled();
-      });
-      await waitFor(() => {
-        expect(secondGetAnimations).toHaveBeenCalled();
-      });
-
-      const queued: VoidFunction[] = [];
-      vi.spyOn(globalThis, 'queueMicrotask').mockImplementation((callback) => {
-        queued.push(callback);
-      });
-
-      await act(async () => {
-        first.finish();
-        second.finish();
-        await flushMicrotasks();
-      });
-
-      expect(queued.length).toBeGreaterThan(0);
-
-      const thrown: unknown[] = [];
-      while (queued.length > 0) {
-        const callback = queued.shift()!;
-        try {
-          callback();
-        } catch (caught) {
-          thrown.push(caught);
-        }
-      }
-
-      expect(thrown).toContain(error);
-      expect(onSecondFinished).toHaveBeenCalledTimes(1);
-    } finally {
-      vi.restoreAllMocks();
-      globalThis.BASE_UI_ANIMATIONS_DISABLED = animationsDisabled;
-    }
-  });
-
   it('skips a callback whose signal aborts while the batch is flushing', async () => {
     const animationsDisabled = globalThis.BASE_UI_ANIMATIONS_DISABLED;
     globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
