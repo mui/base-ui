@@ -92,18 +92,14 @@ export class DragEngineBase {
     );
 
     // Always defined so every drag start clears any preview the previous drag left
-    // behind. A drop and the next pickup can land in one React flush, so the
-    // renderer's clear-on-null effect never runs and the previous preview would
-    // otherwise render frozen through the next drag.
+    // behind. This also covers a drop and next pickup landing in one React flush.
     const onGenerateDragPreview: DraggableConfig<TData>['onGenerateDragPreview'] = (payload) => {
       // Read live at dispatch time, not captured at registration: nothing
       // re-registers a draggable when the nearest `Draggable.PreviewProvider`
       // re-renders, so a `container` that arrives after mount must still be seen by
       // the next drag.
       const previewContext = this.previewContext;
-      // The previous drag's store, which is not necessarily one this source can
-      // resolve (another provider's). Clearing only the resolved store below
-      // would strand that content on screen.
+      // Clear any content the previous drag left in the shared overlay store.
       clearPublishedDragPreview();
       // Resolved by the sensor, which built the preview element from them
       // before starting the session this runs inside.
@@ -112,7 +108,6 @@ export class DragEngineBase {
       // `getActivePreview()` below, which reports hosts alone — a clone would
       // read as "no preview" there and get torn straight back down.
       if (settings == null || settings.content !== 'host' || settings.disabled) {
-        previewContext?.previewStore.setState(null);
         return;
       }
       // Authoritative: `useDeclaredPreview` throws earlier for a part, but an
@@ -121,8 +116,6 @@ export class DragEngineBase {
       if (previewContext == null) {
         throwMissingPreviewProvider();
       }
-      const { previewStore } = previewContext;
-      previewStore.setState(null);
       const preview = getActivePreview();
       const previewNode = preview ? settings.render(payload) : null;
       // Content that resolves to nothing declines the preview for this drag. Drop
@@ -131,7 +124,7 @@ export class DragEngineBase {
         removeActivePreview();
         return;
       }
-      publishDragPreview(previewStore, {
+      publishDragPreview(previewContext, {
         node: previewNode,
         host: preview.element,
         offset: settings.offset,

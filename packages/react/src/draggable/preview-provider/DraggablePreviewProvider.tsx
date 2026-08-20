@@ -1,9 +1,7 @@
 'use client';
 import * as React from 'react';
-import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import type { DragPreviewContainer } from '../../types/drag';
-import { createDragPreviewStore } from '../../utils/drag-and-drop/overlay/dragPreviewStore';
 import { DragPreviewContext } from '../../utils/drag-and-drop/overlay/DragPreviewContext';
 import { PreviewOverlayRenderer } from '../../utils/drag-and-drop/overlay/PreviewOverlayRenderer';
 
@@ -21,23 +19,18 @@ export const DraggablePreviewProvider: React.FC<DraggablePreviewProvider.Props> 
   function DraggablePreviewProvider(props) {
     const { children, container } = props;
 
-    const previewStore = useRefWithInit(createDragPreviewStore).current;
-
     // `container` is read at drag start, so it goes into the context through this
     // stable getter rather than by value: every `Draggable.Root` below consumes this
     // context, so an inline `container` callback — a new identity each render —
     // would otherwise churn the context value and re-render them all.
     const getContainer = useStableCallback(() => container);
 
-    const contextValue = React.useMemo(
-      () => ({ previewStore, getContainer }),
-      [previewStore, getContainer],
-    );
+    const contextValue = React.useMemo(() => ({ getContainer }), [getContainer]);
 
     return (
       <DragPreviewContext.Provider value={contextValue}>
         {children}
-        <PreviewOverlayRenderer previewStore={previewStore} />
+        <PreviewOverlayRenderer previewContext={contextValue} />
       </DragPreviewContext.Provider>
     );
   };

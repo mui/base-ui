@@ -1,7 +1,8 @@
-import { Store } from '@base-ui/utils/store';
+import { Store, type ReadonlyStore } from '@base-ui/utils/store';
 import type * as React from 'react';
 import { getSharedSlot } from '../sharedState';
 import type { DragPreviewOffset, DragInput } from '../../../types/drag';
+import type { DragPreviewContext } from './DragPreviewContext';
 
 /**
  * The active drag's custom preview content, published at drag start by the
@@ -16,6 +17,7 @@ import type { DragPreviewOffset, DragInput } from '../../../types/drag';
  * builds it without React.
  */
 export interface DragPreviewState {
+  context: DragPreviewContext;
   node: React.ReactNode;
   host: HTMLElement;
   offset: DragPreviewOffset | undefined;
@@ -23,37 +25,25 @@ export interface DragPreviewState {
   input: DragInput;
 }
 
-/** Create a drag-preview store. One per `Draggable.PreviewProvider`. */
-export function createDragPreviewStore(): Store<DragPreviewState | null> {
-  return new Store<DragPreviewState | null>(null);
-}
+const slot = getSharedSlot<{ store: Store<DragPreviewState | null> }>('dragPreview.store', () => ({
+  store: new Store<DragPreviewState | null>(null),
+}));
 
-// The store the live (or most recent) drag published its preview into. Shared
-// slot so a doubly-bundled engine tracks one, like the sensors' other state.
-const lastPublishedSlot = getSharedSlot<{ store: Store<DragPreviewState | null> | null }>(
-  'dragPreview.lastPublished',
-  () => ({ store: null }),
-);
+/** The active React-rendered preview, shared by every `Draggable.PreviewProvider`. */
+export const dragPreviewStore: ReadonlyStore<DragPreviewState | null> = slot.store;
 
-/** Publish `state` and remember the store, for `clearPublishedDragPreview`. */
+/** Publish `state` for the provider whose React tree should render it. */
 export function publishDragPreview(
-  store: Store<DragPreviewState | null>,
-  state: DragPreviewState,
+  context: DragPreviewContext,
+  state: Omit<DragPreviewState, 'context'>,
 ): void {
-  lastPublishedSlot.store = store;
-  store.setState(state);
+  slot.store.setState({ ...state, context });
 }
 
 /**
- * Clear the preview the previous drag published, whichever store it went to.
- *
- * A new drag can only resolve *its own* store, which is not necessarily the one
- * holding the stale content: the previous source may have published into another
- * `Draggable.PreviewProvider`'s store. When a drop and the next pickup land in one
- * React flush, the renderer's clear-on-null effect never runs, so that content
- * would otherwise stay mounted through the whole next drag.
+ * Clear the React-rendered preview. The engine-owned clone or host is managed by
+ * the active preview handle instead.
  */
 export function clearPublishedDragPreview(): void {
-  lastPublishedSlot.store?.setState(null);
-  lastPublishedSlot.store = null;
+  slot.store.setState(null);
 }

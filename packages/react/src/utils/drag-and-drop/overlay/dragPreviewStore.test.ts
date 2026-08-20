@@ -1,36 +1,51 @@
 import { describe, it, expect } from 'vitest';
 import {
   clearPublishedDragPreview,
-  createDragPreviewStore,
+  dragPreviewStore,
   publishDragPreview,
 } from './dragPreviewStore';
 import type { DragPreviewState } from './dragPreviewStore';
+import type { DragPreviewContext } from './DragPreviewContext';
 
-function makeState(label: string): DragPreviewState {
-  return { content: label } as unknown as DragPreviewState;
+function makeState(label: string): Omit<DragPreviewState, 'context'> {
+  return {
+    node: label,
+    host: document.createElement('div'),
+    offset: undefined,
+    sourceRect: new DOMRect(),
+    input: {
+      button: 0,
+      buttons: 1,
+      clientX: 0,
+      clientY: 0,
+      pageX: 0,
+      pageY: 0,
+      pointerType: 'mouse',
+      ctrlKey: false,
+      shiftKey: false,
+      altKey: false,
+      metaKey: false,
+    },
+  };
+}
+
+function makeContext(): DragPreviewContext {
+  return { getContainer: () => undefined };
 }
 
 describe('dragPreviewStore', () => {
-  it('clears the store the last drag published into, not the newest one', () => {
-    // Two `Draggable.PreviewProvider`s, each with its own store. A drag whose
-    // source lives under the first publishes there; the next drag can only
-    // resolve *its own* store, so without tracking the last publisher the stale
-    // content stays mounted for the whole of the next drag.
-    const first = createDragPreviewStore();
-    const second = createDragPreviewStore();
+  it('publishes one active preview across providers and clears it', () => {
+    const first = makeContext();
+    const second = makeContext();
+    publishDragPreview(first, makeState('first'));
 
-    publishDragPreview(first, makeState('from-first'));
-    expect(first.state).not.toBeNull();
+    expect(dragPreviewStore.state?.context).toBe(first);
 
+    publishDragPreview(second, makeState('second'));
+
+    expect(dragPreviewStore.state?.context).toBe(second);
     clearPublishedDragPreview();
-    expect(first.state).toBeNull();
-
-    // And the tracking follows the most recent publish across providers.
-    publishDragPreview(second, makeState('from-second'));
-    publishDragPreview(first, makeState('from-first-again'));
-    clearPublishedDragPreview();
-    expect(first.state).toBeNull();
-    expect(second.state).not.toBeNull();
+    expect(dragPreviewStore.state).toBeNull();
   });
 
   it('is a no-op when nothing has been published', () => {

@@ -1,16 +1,20 @@
 'use client';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
-import { Store, useStore } from '@base-ui/utils/store';
+import { useStore } from '@base-ui/utils/store';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
-import type { DragPreviewState } from './dragPreviewStore';
+import { dragPreviewStore, type DragPreviewState } from './dragPreviewStore';
+import type { DragPreviewContext } from './DragPreviewContext';
 import { setActivePreviewOffset } from '../activePreview';
 import { resolveDragPreviewOffset } from '../customDragPreview';
 
-// Stable-identity selector so `useStore`'s fast path isn't defeated by a fresh
-// inline `(s) => s` arrow on every overlay render.
-function selectPreviewState(state: DragPreviewState | null): DragPreviewState | null {
-  return state;
+// Stable identity so `useStore`'s selector fast path holds. The provider context
+// is passed separately and selects only the preview published from its subtree.
+function selectPreviewState(
+  state: DragPreviewState | null,
+  context: DragPreviewContext,
+): DragPreviewState | null {
+  return state?.context === context ? state : null;
 }
 
 /**
@@ -22,14 +26,14 @@ function selectPreviewState(state: DragPreviewState | null): DragPreviewState | 
  * the same way. React only portals content into it, which is what lets the preview
  * outlive a source the virtualizer unmounts mid-drag.
  *
- * Subscribes to a single preview store (the nearest `Draggable.PreviewProvider`'s),
- * so it only renders previews published to that store; the drag itself stays global.
+ * Selects previews published by its `Draggable.PreviewProvider`, so the content
+ * renders in the same React tree while the drag itself stays global.
  */
 export function PreviewOverlayRenderer(props: {
-  previewStore: Store<DragPreviewState | null>;
+  previewContext: DragPreviewContext;
 }): React.ReactNode {
-  const { previewStore } = props;
-  const preview = useStore(previewStore, selectPreviewState);
+  const { previewContext } = props;
+  const preview = useStore(dragPreviewStore, selectPreviewState, previewContext);
 
   // Works for pointer and keyboard drags alike (both publish a preview host).
   const active = preview != null;
