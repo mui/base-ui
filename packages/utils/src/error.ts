@@ -1,5 +1,5 @@
-import { createLogOnce } from './warn';
+import { createLogOnce } from './createLogOnce';
 
 export const error = createLogOnce('error', 'Base UI');
 
-export { reset } from './warn';
+export { reset } from './createLogOnce';
