@@ -78,6 +78,16 @@ export const FilterDropdownInput = React.forwardRef(function FilterDropdownInput
           const isMainNavigationKey = event.key === 'ArrowUp' || event.key === 'ArrowDown';
           const isTyping = event.key.length === 1;
           const isInputActive = activeItemId == null;
+          const hasModifier = event.shiftKey || event.ctrlKey || event.altKey || event.metaKey;
+
+          if (hasModifier && (isMovingCaret || isMainNavigationKey)) {
+            // Modified arrows and boundary keys perform native text editing (extend the
+            // selection, move by word or to a text boundary). Keep them away from list
+            // navigation on this element and in the popup.
+            event.stopPropagation();
+            event.preventBaseUIHandler();
+            return;
+          }
 
           if (isMainNavigationKey) {
             // The input already consumed the host's reference handler. Keep the same event from
