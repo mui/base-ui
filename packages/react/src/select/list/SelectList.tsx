@@ -21,7 +21,7 @@ export const SelectList = React.forwardRef(function SelectList(
 ) {
   const { render, className, style, ...elementProps } = componentProps;
 
-  const { store, scrollHandlerRef, multiple } = useSelectRootContext();
+  const { store, scrollHandlerRef, multiple, readOnly } = useSelectRootContext();
   const { alignItemWithTriggerActive } = useSelectPositionerContext();
 
   const hasScrollArrows = useStore(store, selectors.hasScrollArrows);
@@ -32,6 +32,7 @@ export const SelectList = React.forwardRef(function SelectList(
     id: `${id}-list`,
     role: 'listbox',
     'aria-multiselectable': multiple || undefined,
+    'aria-readonly': readOnly || undefined,
     onScroll(event) {
       scrollHandlerRef.current?.(event.currentTarget);
     },

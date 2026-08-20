@@ -75,6 +75,9 @@ class Scheduler {
     if (index < 0 || index >= this.callbacks.length) {
       return;
     }
+    if (this.callbacks[index] === null) {
+      return;
+    }
     this.callbacks[index] = null;
     this.callbacksCount -= 1;
   }
