@@ -1,9 +1,7 @@
 'use client';
-import * as React from 'react';
+import type * as React from 'react';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
-import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
-import { ownerWindow } from '@base-ui/utils/owner';
 import { registerAutoScroller } from '../../utils/drag-and-drop/registrations';
 import { refreshAutoScroll } from '../../utils/drag-and-drop/autoScroller';
 import type { RegisterAutoScrollerParameters } from '../../types/dragRegistration';
@@ -26,7 +24,6 @@ export function useDragAutoScrollElement<TSourceData = unknown>(
   const getParameters = useStableCallback(
     () => parameters as RegisterAutoScrollerParameters<unknown>,
   );
-  const observerRef = React.useRef<MutationObserver | null>(null);
 
   // Registering mid-drag arms and wakes the loop with the latest live input.
   // The public `registerAutoScroller` is keyed on the `accept` value; this
@@ -36,21 +33,6 @@ export function useDragAutoScrollElement<TSourceData = unknown>(
   // rather than gating the registration, which would churn the engine's registry
   // — and its cached depth order — on every flip of the prop.
   const ref = useRegistrationRef<HTMLElement>((node) => registerAutoScroller(node, getParameters));
-  const mergedRef = useRefWithInit(() => (node: HTMLElement | null) => {
-    observerRef.current?.disconnect();
-    observerRef.current = null;
-    ref(node);
-    if (node) {
-      const observer = new (ownerWindow(node).MutationObserver)(refreshAutoScroll);
-      observer.observe(node, {
-        attributes: true,
-        attributeFilter: ['class', 'style'],
-        childList: true,
-        subtree: true,
-      });
-      observerRef.current = observer;
-    }
-  }).current;
 
   useIsoLayoutEffect(() => {
     // A live parameter change must wake a loop that parked while the element was
@@ -66,7 +48,7 @@ export function useDragAutoScrollElement<TSourceData = unknown>(
     parameters.maxSpeed,
   ]);
 
-  return { ref: mergedRef };
+  return { ref };
 }
 
 export type UseDragAutoScrollElementParameters<TSourceData = unknown> =

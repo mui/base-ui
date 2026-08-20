@@ -37,6 +37,12 @@ import { getMaxScrollOffset } from '../scrollEdges';
 const EDGE_THRESHOLD = 0.25;
 const MAX_EDGE_SIZE = 180;
 const DEFAULT_MAX_SPEED = 900;
+const MUTATION_OBSERVER_OPTIONS: MutationObserverInit = {
+  attributes: true,
+  attributeFilter: ['class', 'style'],
+  childList: true,
+  subtree: true,
+};
 // Ramp the speed in over the first engaged frames rather than starting at
 // `maxSpeed`: a pointer that merely clips a container's edge on its way past
 // would otherwise lurch it, and the ramp restarts whenever the pointer leaves and
@@ -78,10 +84,12 @@ const state = getSharedSlot<AutoScrollerState>('registerAutoScroller', () => ({
   chainSourceParent: null,
   sortedScrollers: null,
   engagedThisFrame: new Set<HTMLElement>(),
+  scrollerMutationObservers: new Map<HTMLElement, MutationObserver>(),
   idleMutationObserver: null,
   overflowCache: new WeakMap<HTMLElement, OverflowFlags>(),
   rtlCache: new WeakMap<HTMLElement, boolean>(),
 }));
+state.scrollerMutationObservers ??= new Map();
 state.idleMutationObserver ??= null;
 state.scrollMonitorRetainers ??= 0;
 
@@ -100,6 +108,7 @@ export function addScrollerRegistration(
   getParameters: ScrollerGetter,
 ): () => void {
   const release = holds.hold(element, getParameters);
+  observeScrollerMutations(element);
   invalidateScrollerOrder();
   // Registering mid-drag has to buy a frame: the loop parks itself whenever
   // nothing is engaged, and a container revealed under an already-stationary
@@ -111,6 +120,9 @@ export function addScrollerRegistration(
   wakeScrollLoop();
   return () => {
     release();
+    if (!state.scrollers.has(element)) {
+      clearScrollerMutationObserver(element);
+    }
     invalidateScrollerOrder();
   };
 }
@@ -849,6 +861,30 @@ function clearIdleMutationObserver(): void {
   state.idleMutationObserver = null;
 }
 
+function observeScrollerMutations(element: HTMLElement): void {
+  if (!state.enabled || state.scrollerMutationObservers.has(element)) {
+    return;
+  }
+  // The document observer below only exists while the loop is parked and cannot
+  // see into a shadow root. Keep registered containers fresh while the loop runs,
+  // but pay for these observers only during a pointer drag.
+  const observer = new (ownerWindow(element).MutationObserver)(refreshAutoScroll);
+  observer.observe(element, MUTATION_OBSERVER_OPTIONS);
+  state.scrollerMutationObservers.set(element, observer);
+}
+
+function clearScrollerMutationObserver(element: HTMLElement): void {
+  state.scrollerMutationObservers.get(element)?.disconnect();
+  state.scrollerMutationObservers.delete(element);
+}
+
+function clearScrollerMutationObservers(): void {
+  for (const observer of state.scrollerMutationObservers.values()) {
+    observer.disconnect();
+  }
+  state.scrollerMutationObservers.clear();
+}
+
 function observeIdleMutations(): void {
   if (state.idleMutationObserver !== null || state.currentSource === null) {
     return;
@@ -866,12 +902,7 @@ function observeIdleMutations(): void {
     clearIdleMutationObserver();
     refreshAutoScroll();
   });
-  observer.observe(root, {
-    attributes: true,
-    attributeFilter: ['class', 'style'],
-    childList: true,
-    subtree: true,
-  });
+  observer.observe(root, MUTATION_OBSERVER_OPTIONS);
   state.idleMutationObserver = observer;
 }
 
@@ -888,6 +919,9 @@ function wakeScrollLoop(): void {
 function startScrollLoop(): void {
   clearIdleMutationObserver();
   state.enabled = true;
+  for (const element of state.scrollers.keys()) {
+    observeScrollerMutations(element);
+  }
   if (state.scrollLoopRaf !== null) {
     return;
   }
@@ -926,6 +960,7 @@ function stopScrollLoop(): void {
   // Scratch set from the last frame; it would otherwise pin those containers
   // until the next drag's first frame cleared it.
   state.engagedThisFrame.clear();
+  clearScrollerMutationObservers();
   clearIdleMutationObserver();
   clearInferredScrollers();
   resetStyleCaches();
@@ -1213,6 +1248,8 @@ interface AutoScrollerState {
   sortedScrollers: HTMLElement[] | null;
   /** Scratch set of scrollers engaged in the current frame, reused across frames. */
   engagedThisFrame: Set<HTMLElement>;
+  /** Watches registered scrollers for changes only during a pointer drag. */
+  scrollerMutationObservers: Map<HTMLElement, MutationObserver>;
   /** Watches for content/style changes only while the frame loop is parked. */
   idleMutationObserver: MutationObserver | null;
   /** Per-drag per-axis overflow cache (see `readCached`). */

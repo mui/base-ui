@@ -79,6 +79,27 @@ describe('DragAutoScroll.Root', () => {
     expect(() => unmount()).not.toThrow();
   });
 
+  it('observes a registered scroller only during a pointer drag', async () => {
+    const observe = vi.spyOn(MutationObserver.prototype, 'observe');
+    const { engine } = await renderDnd(<Scroller />);
+    const source = createElement();
+    engine.registerDraggable(source, {});
+    const scroller = screen.getByTestId('scroller');
+
+    expect(observe).not.toHaveBeenCalled();
+
+    await liftOutside(source);
+
+    expect(observe).toHaveBeenCalledWith(scroller, {
+      attributes: true,
+      attributeFilter: ['class', 'style'],
+      childList: true,
+      subtree: true,
+    });
+    fireEvent.drop(source);
+    observe.mockRestore();
+  });
+
   it('does not wake a parked loop after an unchanged re-render', async () => {
     const scrollBy = vi.fn();
     const { engine, rerender } = await renderDnd(<Scroller scrollByMock={scrollBy} />);
@@ -400,6 +421,28 @@ describe('DragAutoScroll.Root', () => {
     expect(screen.getByTestId('scroller')).toBe(scroller);
     expect(scrollBy).toHaveBeenCalled();
     warnSpy.mockRestore();
+  });
+
+  it('re-reads overflow when a scrolling container becomes hidden during a drag', async () => {
+    const scrollBy = vi.fn();
+    const { engine } = await renderDnd(<Scroller scrollByMock={scrollBy} />);
+    const source = createElement();
+    engine.registerDraggable(source, {});
+    const scroller = screen.getByTestId('scroller');
+
+    await liftOutside(source);
+    await dragTo(scroller, 100, 95);
+    expect(scrollBy).toHaveBeenCalled();
+
+    await act(async () => {
+      scroller.style.overflow = 'hidden';
+      await Promise.resolve();
+    });
+    scrollBy.mockClear();
+    await flushRaf();
+
+    expect(scrollBy).not.toHaveBeenCalled();
+    fireEvent.drop(source);
   });
 
   it('wakes a parked loop when content growth creates scroll room', async () => {
