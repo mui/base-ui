@@ -166,7 +166,9 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
   // in a state initializer.
   const defaultFloatingId = useBaseUiId();
   const [customFloatingId, setFloatingId] = React.useState<string | undefined>(undefined);
-  const floatingId = customFloatingId ?? defaultFloatingId;
+  // A registered `''` means the popup rendered with an explicitly empty id: derive no item ids
+  // from the generated fallback, which would dangle.
+  const floatingId = (customFloatingId ?? defaultFloatingId) || undefined;
   const floatingParentNodeIdFromContext = useFloatingParentNodeId();
 
   const parentMenuStore = parentFromContext.type === 'menu' ? parentFromContext.store : undefined;
