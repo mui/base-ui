@@ -33,6 +33,15 @@ export function useFilterMenuReferenceKeyDown() {
       return;
     }
 
+    if (
+      isTypeableElement(event.currentTarget) &&
+      (event.shiftKey || event.ctrlKey || event.metaKey || event.altKey)
+    ) {
+      // Modified arrows and boundary keys are native text-editing commands (extend the selection,
+      // move by word or to a text boundary), which the input's own handler keeps native.
+      return;
+    }
+
     if (isMainOrientationKey(event.key, orientation)) {
       // The reference handler owns main-axis navigation. Keep the same event from reaching the
       // popup's floating handler and moving the virtual cursor a second time.
