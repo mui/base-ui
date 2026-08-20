@@ -29,7 +29,12 @@ function MixedSurface() {
       <section>
         {tooltipRows.map((row) => (
           <Tooltip.Root key={`tooltip-${row.id}`}>
-            <Tooltip.Trigger delay={0} aria-label={`Open tooltip ${row.id}`}>
+            <Tooltip.Trigger
+              aria-label={`Open tooltip ${row.id}`}
+              // Hoverable triggers let the resting real cursor open a tooltip mid-run; see
+              // tooltip.bench.tsx. Mount is what this benchmark measures.
+              style={{ pointerEvents: 'none' }}
+            >
               {row.label}
             </Tooltip.Trigger>
             <Tooltip.Portal>

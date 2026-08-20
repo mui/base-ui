@@ -10,7 +10,14 @@ function ContainedTooltipList() {
     <MountList rows={containedTooltipRows}>
       {(row) => (
         <Tooltip.Root key={row.id}>
-          <Tooltip.Trigger delay={0} aria-label={`Show ${row.label}`}>
+          <Tooltip.Trigger
+            aria-label={`Show ${row.label}`}
+            // The real cursor persists across the run and can come to rest over one of these
+            // triggers, opening a tooltip on its own. That adds ~9 render passes which land inside
+            // the measurement window only some of the time, so iterations stop matching each other.
+            // Mount is what this benchmark measures, so the triggers never need to be hoverable.
+            style={{ pointerEvents: 'none' }}
+          >
             {row.label}
           </Tooltip.Trigger>
           <Tooltip.Portal>
