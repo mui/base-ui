@@ -137,6 +137,7 @@ export const ComboboxPopup = React.forwardRef(function ComboboxPopup(
       getInsideElements={() => [
         store.state.startDismissRef.current,
         store.state.endDismissRef.current,
+        store.state.chipsContainerRef.current
       ]}
     >
       <React.Fragment>
