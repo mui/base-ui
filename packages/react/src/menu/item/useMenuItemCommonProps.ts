@@ -6,6 +6,7 @@ import { MenuStore } from '../store/MenuStore';
 import { REASONS } from '../../internals/reasons';
 import { useContextMenuRootContext } from '../../context-menu/root/ContextMenuRootContext';
 import { dispatchClickWithModifiers } from '../../utils/dispatchClickWithModifiers';
+import { useIsHydrating } from '../../utils/useIsHydrating';
 import type { UseMenuItemMetadata } from './useMenuItem';
 
 function preventMouseDownDefault(event: React.MouseEvent) {
@@ -85,9 +86,11 @@ export function useMenuItemCommonProps(params: UseMenuItemCommonPropsParameters)
 
   // WebKit's accessibility tree only follows a searchbox's `aria-activedescendant` into a menu
   // when the items expose a selection state. `aria-selected` is not valid on `menuitem`, so it is
-  // scoped to the engine whose VoiceOver support needs it.
+  // scoped to the engine whose VoiceOver support needs it. The server cannot sniff the engine, so
+  // the attribute is withheld until hydration completes to keep the markup consistent.
+  const hydrating = useIsHydrating();
   const ariaSelected =
-    virtualFocus && platform.engine.webkit ? (highlighted as boolean) : undefined;
+    virtualFocus && !hydrating && platform.engine.webkit ? highlighted : undefined;
 
   return React.useMemo(
     () => ({
