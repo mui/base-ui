@@ -149,6 +149,8 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
 
   const onMapChange = useStableCallback(
     (map: Map<Element, { index?: number | null | undefined } | null>) => {
+      store.set('itemCount', map.size);
+
       if (valuesRef.current.length === 0) {
         return;
       }

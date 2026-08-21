@@ -674,6 +674,33 @@ type SelectLabelState = {
 };
 ```
 
+### Empty
+
+Renders its children only when no select items are registered.
+The element remains mounted while the select popup is mounted and announces changes politely to
+screen readers. Avoid hiding or removing the component itself with `display: none`, `hidden`,
+`aria-hidden`, or conditional rendering. Prefer updating or conditionally rendering its children
+instead.
+Renders a `<div>` element.
+
+**Empty Props:**
+
+| Prop      | Type                                                                                       | Default | Description                                                                                                                                                                                   |
+| :-------- | :----------------------------------------------------------------------------------------- | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| className | `string \| ((state: Select.Empty.State) => string \| undefined)`                           | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
+| style     | `React.CSSProperties \| ((state: Select.Empty.State) => React.CSSProperties \| undefined)` | -       | Style applied to the element, or a function that&#xA;returns a style object based on the component's state.                                                                                   |
+| render    | `ReactElement \| ((props: HTMLProps, state: Select.Empty.State) => ReactElement)`          | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
+
+### Empty.Props
+
+Re-export of [Empty](#empty) props.
+
+### Empty.State
+
+```typescript
+type SelectEmptyState = {};
+```
+
 ### ItemText
 
 A text label of the select item.
@@ -851,6 +878,7 @@ type Orientation = 'horizontal' | 'vertical';
 - `Select.Positioner`: `Select.Positioner`, `Select.Positioner.State`, `Select.Positioner.Props`
 - `Select.Popup`: `Select.Popup`, `Select.Popup.Props`, `Select.Popup.State`
 - `Select.List`: `Select.List`, `Select.List.Props`, `Select.List.State`
+- `Select.Empty`: `Select.Empty`, `Select.Empty.State`, `Select.Empty.Props`
 - `Select.Item`: `Select.Item`, `Select.Item.State`, `Select.Item.Props`
 - `Select.ItemIndicator`: `Select.ItemIndicator`, `Select.ItemIndicator.State`, `Select.ItemIndicator.Props`
 - `Select.ItemText`: `Select.ItemText`, `Select.ItemText.State`, `Select.ItemText.Props`
@@ -860,7 +888,7 @@ type Orientation = 'horizontal' | 'vertical';
 - `Select.Group`: `Select.Group`, `Select.Group.State`, `Select.Group.Props`
 - `Select.GroupLabel`: `Select.GroupLabel`, `Select.GroupLabel.State`, `Select.GroupLabel.Props`
 - `Select.Separator`: `Select.Separator`, `Select.Separator.Props`, `Select.Separator.State`
-- `Default`: `SelectRootProps`, `SelectRootState`, `SelectRootActions`, `SelectRootChangeEventReason`, `SelectRootChangeEventDetails`, `SelectLabelState`, `SelectLabelProps`, `SelectTriggerState`, `SelectTriggerProps`, `SelectValueState`, `SelectValueProps`, `SelectIconState`, `SelectIconProps`, `SelectPortalState`, `SelectPortalProps`, `SelectBackdropState`, `SelectBackdropProps`, `SelectPositionerState`, `SelectPositionerProps`, `SelectPopupProps`, `SelectPopupState`, `SelectListProps`, `SelectListState`, `SelectItemState`, `SelectItemProps`, `SelectItemIndicatorState`, `SelectItemIndicatorProps`, `SelectItemTextState`, `SelectItemTextProps`, `SelectArrowState`, `SelectArrowProps`, `SelectScrollDownArrowState`, `SelectScrollDownArrowProps`, `SelectScrollUpArrowState`, `SelectScrollUpArrowProps`, `SelectGroupState`, `SelectGroupProps`, `SelectGroupLabelState`, `SelectGroupLabelProps`, `SelectSeparatorProps`, `SelectSeparatorState`
+- `Default`: `SelectRootProps`, `SelectRootState`, `SelectRootActions`, `SelectRootChangeEventReason`, `SelectRootChangeEventDetails`, `SelectLabelState`, `SelectLabelProps`, `SelectTriggerState`, `SelectTriggerProps`, `SelectValueState`, `SelectValueProps`, `SelectIconState`, `SelectIconProps`, `SelectPortalState`, `SelectPortalProps`, `SelectBackdropState`, `SelectBackdropProps`, `SelectPositionerState`, `SelectPositionerProps`, `SelectPopupProps`, `SelectPopupState`, `SelectListProps`, `SelectListState`, `SelectEmptyState`, `SelectEmptyProps`, `SelectItemState`, `SelectItemProps`, `SelectItemIndicatorState`, `SelectItemIndicatorProps`, `SelectItemTextState`, `SelectItemTextProps`, `SelectArrowState`, `SelectArrowProps`, `SelectScrollDownArrowState`, `SelectScrollDownArrowProps`, `SelectScrollUpArrowState`, `SelectScrollUpArrowProps`, `SelectGroupState`, `SelectGroupProps`, `SelectGroupLabelState`, `SelectGroupLabelProps`, `SelectSeparatorProps`, `SelectSeparatorState`
 
 ## Canonical Types
 
@@ -889,6 +917,8 @@ Maps `Canonical`: `Alias` — Use Canonical when its namespace is already import
 - `Select.Popup.State`: `SelectPopupState`
 - `Select.List.Props`: `SelectListProps`
 - `Select.List.State`: `SelectListState`
+- `Select.Empty.State`: `SelectEmptyState`
+- `Select.Empty.Props`: `SelectEmptyProps`
 - `Select.Item.State`: `SelectItemState`
 - `Select.Item.Props`: `SelectItemProps`
 - `Select.ItemIndicator.State`: `SelectItemIndicatorState`

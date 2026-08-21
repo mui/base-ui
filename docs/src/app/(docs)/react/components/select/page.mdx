@@ -36,6 +36,7 @@ import { Select } from '@base-ui/react/select';
       <Select.Popup>
         <Select.ScrollUpArrow />
         <Select.Arrow />
+        <Select.Empty />
         <Select.List>
           <Select.Item>
             <Select.ItemText />
@@ -176,6 +177,17 @@ const items = [
 </Select.Root>;
 ```
 
+### Empty state
+
+Use `<Select.Empty>` to display content when no `<Select.Item>` components are rendered.
+The component checks the rendered items rather than the `items` prop on `<Select.Root>`.
+Disabled items are still treated as rendered items, so they prevent the empty state from appearing.
+Because the root element remains mounted, apply spacing and other layout styles to a child element.
+
+import { DemoSelectEmpty } from './demos/empty';
+
+<DemoSelectEmpty />
+
 ### Multiple selection
 
 Add the `multiple` prop to the `<Select.Root>` component to allow multiple selections.
@@ -267,6 +279,10 @@ import { TypesSelect } from './types';
 ### List
 
 <TypesSelect.List />
+
+### Empty
+
+<TypesSelect.Empty />
 
 ### Arrow
 
