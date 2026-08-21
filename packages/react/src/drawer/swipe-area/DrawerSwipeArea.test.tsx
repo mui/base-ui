@@ -302,6 +302,74 @@ describe('<Drawer.SwipeArea />', () => {
     expect(swipeArea).toHaveAttribute('data-open', '');
   });
 
+  it('passes its payload to the drawer when opened by a swipe', async () => {
+    await render(
+      <Drawer.Root>
+        {({ payload }) => (
+          <React.Fragment>
+            <Drawer.SwipeArea data-testid="swipe-area" payload="drawer screen" />
+            <div data-testid="payload">{String(payload)}</div>
+          </React.Fragment>
+        )}
+      </Drawer.Root>,
+    );
+
+    await swipeUp(screen.getByTestId('swipe-area'), 120, 40);
+
+    expect(screen.getByTestId('payload')).toHaveTextContent('drawer screen');
+  });
+
+  it('uses the payload from the swipe area that opens the drawer', async () => {
+    await render(
+      <Drawer.Root>
+        {({ payload }) => (
+          <React.Fragment>
+            <Drawer.SwipeArea data-testid="first-swipe-area" payload="first drawer" />
+            <Drawer.SwipeArea data-testid="second-swipe-area" payload="second drawer" />
+            <Drawer.Close data-testid="close" />
+            <div data-testid="payload">{String(payload)}</div>
+          </React.Fragment>
+        )}
+      </Drawer.Root>,
+    );
+
+    await swipeUp(screen.getByTestId('first-swipe-area'), 120, 40);
+
+    expect(screen.getByTestId('payload')).toHaveTextContent('first drawer');
+
+    fireEvent.click(screen.getByTestId('close'));
+    await flushMicrotasks();
+    await swipeUp(screen.getByTestId('second-swipe-area'), 120, 40);
+
+    expect(screen.getByTestId('payload')).toHaveTextContent('second drawer');
+  });
+
+  it('clears a previous trigger payload when opened by a swipe without one', async () => {
+    await render(
+      <Drawer.Root>
+        {({ payload }) => (
+          <React.Fragment>
+            <Drawer.Trigger data-testid="trigger" payload="trigger payload" />
+            <Drawer.SwipeArea data-testid="swipe-area" />
+            <Drawer.Close data-testid="close" />
+            <div data-testid="payload">{String(payload)}</div>
+          </React.Fragment>
+        )}
+      </Drawer.Root>,
+    );
+
+    fireEvent.click(screen.getByTestId('trigger'));
+    await flushMicrotasks();
+
+    expect(screen.getByTestId('payload')).toHaveTextContent('trigger payload');
+
+    fireEvent.click(screen.getByTestId('close'));
+    await flushMicrotasks();
+    await swipeUp(screen.getByTestId('swipe-area'), 120, 40);
+
+    expect(screen.getByTestId('payload')).toHaveTextContent('undefined');
+  });
+
   it('does not open when the swipe direction never locks to the open direction', async () => {
     const handleOpenChange = vi.fn();
 
