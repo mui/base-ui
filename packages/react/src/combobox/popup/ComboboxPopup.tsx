@@ -134,6 +134,7 @@ export const ComboboxPopup = React.forwardRef(function ComboboxPopup(
       openInteractionType={openMethod}
       initialFocus={resolvedInitialFocus}
       returnFocus={resolvedFinalFocus}
+      returnFocusIfOrphaned={finalFocus == null}
       getInsideElements={() => [
         store.state.startDismissRef.current,
         store.state.endDismissRef.current,

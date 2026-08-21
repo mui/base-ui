@@ -112,6 +112,7 @@ export const PopoverPopup = React.forwardRef(function PopoverPopup(
       disabled={!mounted || openReason === REASONS.triggerHover}
       initialFocus={resolvedInitialFocus}
       returnFocus={finalFocus}
+      returnFocusIfOrphaned={finalFocus == null}
       restoreFocus="popup"
       previousFocusableElement={
         isHTMLElement(activeTriggerElement) ? activeTriggerElement : undefined

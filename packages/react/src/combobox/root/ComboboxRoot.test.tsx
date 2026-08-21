@@ -534,7 +534,9 @@ describe('<Combobox.Root />', () => {
         // parked inside the subtree that's animating out.
         expect(trigger).toHaveFocus();
 
-        // The closing popup is inert, so focus can't move back into it either.
+        // The closing popup is inert, so focus can't move back into it either. Re-checked here
+        // because an unmounted popup would satisfy the assertions below without testing anything.
+        expect(popup).toHaveAttribute('data-ending-style');
         input.focus();
         expect(input).not.toHaveFocus();
         expect(trigger).toHaveFocus();

@@ -34,9 +34,14 @@ interface TriggerFocusGuardStore {
 /**
  * Provides focus guard handlers for popup triggers (Popover, Menu).
  *
- * When the popup is open, invisible focus guard elements are placed before and after
- * the trigger. These handlers close the popup and move focus to the appropriate
- * tabbable element when the guards receive focus (i.e. when the user tabs out).
+ * Invisible focus guard elements are placed before and after the trigger while the popup is
+ * mounted. Focusing one while the popup is open closes it and forwards focus to the appropriate
+ * tabbable element (i.e. the user tabbed out). Focusing a guard left over during the exit
+ * animation only steers focus past it: the popup is already closed, so emitting another close
+ * would fire `onOpenChange` twice and stamp `data-instant`, cancelling the exit transition.
+ *
+ * `Menu.Trigger` unmounts its guards as soon as the popup closes, so only `Popover.Trigger`
+ * reaches the closed branches.
  */
 export function useTriggerFocusGuards(
   store: TriggerFocusGuardStore,
@@ -58,8 +63,11 @@ export function useTriggerFocusGuards(
     }
   }
 
-  // The first tabbable element after the trigger, skipping anything still inside the popup's
-  // subtree while it animates out.
+  // The first tabbable element after the trigger. An inert positioner is already excluded by
+  // `tabbable()` itself, which rejects anything under an `inert` ancestor — the loop below only
+  // covers a closing positioner that stays non-inert (a hover-opened popover). It does not
+  // advance reliably, because `getNextTabbable` resolves its index from `activeElement` (the
+  // guard) rather than from its argument; fixing that is a separate change.
   function tabbableAfterTrigger(positionerElement: HTMLElement | null, wrap: boolean) {
     let nextTabbable = getTabbableAfterElement(
       store.context.triggerFocusTargetRef.current || triggerElementRef.current,

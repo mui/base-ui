@@ -405,6 +405,7 @@ export const DrawerPopup = React.forwardRef(function DrawerPopup(
       closeOnFocusOut={!disablePointerDismissal}
       initialFocus={resolvedInitialFocus}
       returnFocus={finalFocus}
+      returnFocusIfOrphaned={finalFocus == null}
       modal={modal !== false}
       restoreFocus="popup"
     >

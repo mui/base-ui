@@ -126,6 +126,7 @@ export const MenuPopup = React.forwardRef(function MenuPopup(
       modal={isContextMenu}
       disabled={!mounted}
       returnFocus={finalFocus === undefined ? returnFocus : finalFocus}
+      returnFocusIfOrphaned={finalFocus === undefined}
       initialFocus={parent.type !== 'menu'}
       restoreFocus
       externalTree={parent.type !== 'menubar' ? floatingTreeRoot : undefined}

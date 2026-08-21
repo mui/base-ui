@@ -1,7 +1,7 @@
 import { expect } from 'vitest';
 import * as React from 'react';
 import { Combobox } from '@base-ui/react/combobox';
-import { createRenderer, describeConformance } from '#test-utils';
+import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 import { fireEvent, screen, waitFor } from '@mui/internal-test-utils';
 
 describe('<Combobox.Popup />', () => {
@@ -148,6 +148,104 @@ describe('<Combobox.Popup />', () => {
 
     await waitFor(() => {
       expect(screen.getByRole('button', { name: 'final focus' })).toHaveFocus();
+    });
+  });
+
+  // `inert` is only implemented in a real browser; jsdom keeps focus inside the closing popup.
+  describe.skipIf(isJSDOM)('exit animation', () => {
+    const style = `
+      @keyframes combobox-close-test {
+        to {
+          opacity: 0;
+        }
+      }
+
+      .animation-test-popup[data-ending-style] {
+        animation: combobox-close-test 500ms linear;
+      }
+    `;
+
+    // The common layout: the input sits outside the popup, so the focus manager runs with
+    // `returnFocus: false` on the assumption that focus never left the input. A control inside the
+    // popup breaks that assumption.
+    function AnimatedCombobox() {
+      return (
+        <React.Fragment>
+          {/* eslint-disable-next-line react/no-danger */}
+          <style dangerouslySetInnerHTML={{ __html: style }} />
+          <Combobox.Root items={['a', 'b']}>
+            <Combobox.Input data-testid="input" />
+            <Combobox.Portal>
+              <Combobox.Positioner>
+                <Combobox.Popup data-testid="popup" className="animation-test-popup">
+                  <Combobox.List>
+                    {(item: string) => (
+                      <Combobox.Item key={item} value={item}>
+                        {item}
+                      </Combobox.Item>
+                    )}
+                  </Combobox.List>
+                  <button type="button" data-testid="inside">
+                    Create new
+                  </button>
+                </Combobox.Popup>
+              </Combobox.Positioner>
+            </Combobox.Portal>
+          </Combobox.Root>
+          <button type="button" data-testid="after">
+            After
+          </button>
+        </React.Fragment>
+      );
+    }
+
+    it('returns focus to the input when the closing popup held it', async ({ onTestFinished }) => {
+      globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+      onTestFinished(() => {
+        globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
+      });
+
+      const { user } = await render(<AnimatedCombobox />);
+      await user.click(screen.getByTestId('input'));
+      await user.click(await screen.findByTestId('inside'));
+      expect(screen.getByTestId('inside')).toHaveFocus();
+
+      await user.keyboard('{Escape}');
+      expect(screen.getByTestId('popup')).toHaveAttribute('data-ending-style');
+
+      // Making the closing popup inert blurs whatever it held, so without a fallback focus would
+      // sit on `<body>` for the whole exit animation, restarting the tab order at the top of the
+      // document.
+      await waitFor(() => expect(screen.getByTestId('input')).toHaveFocus());
+
+      await user.keyboard('{Tab}');
+      expect(screen.getByTestId('after')).toHaveFocus();
+    });
+
+    it('leaves focus alone when an outside press moved it out of the popup', async ({
+      onTestFinished,
+    }) => {
+      globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+      onTestFinished(() => {
+        globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
+      });
+
+      const { user } = await render(
+        <React.Fragment>
+          <p data-testid="plain">Not focusable</p>
+          <AnimatedCombobox />
+        </React.Fragment>,
+      );
+      await user.click(screen.getByTestId('input'));
+      await user.click(await screen.findByTestId('inside'));
+      expect(screen.getByTestId('inside')).toHaveFocus();
+
+      // Pressing non-focusable content blurs to `<body>`. That is the user's own gesture rather
+      // than `inert` stranding focus, so the popup must not claw it back to the input.
+      await user.click(screen.getByTestId('plain'));
+      expect(screen.getByTestId('popup')).toHaveAttribute('data-ending-style');
+
+      await waitFor(() => expect(screen.getByTestId('input')).not.toHaveFocus());
     });
   });
 });

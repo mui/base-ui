@@ -82,14 +82,16 @@ export default function ExitAnimationA11y() {
         <div className={styles.Case}>
           <h2 className={styles.CaseTitle}>Combobox — input outside the popup</h2>
           <p className={styles.CaseText}>
-            Unchanged: focus never enters the popup, so typing during the exit animation still
-            reopens and filters.
+            Typing during the exit animation still reopens and filters, because focus stays on the
+            input. Click &ldquo;Create new&rdquo; first and then press Escape: focus was inside the
+            popup, so it is handed back to the input rather than dropped on the page.
           </p>
           <Combobox.Root items={fruits}>
             <Combobox.Input
               className={styles.Input}
               placeholder="Search fruits"
               aria-label="Fruits"
+              data-testid="outside-input"
             />
             <Combobox.Portal>
               <Combobox.Positioner sideOffset={4}>
@@ -101,6 +103,9 @@ export default function ExitAnimationA11y() {
                       </Combobox.Item>
                     )}
                   </Combobox.List>
+                  <button type="button" className={styles.Button} data-testid="popup-footer">
+                    Create new…
+                  </button>
                 </Combobox.Popup>
               </Combobox.Positioner>
             </Combobox.Portal>

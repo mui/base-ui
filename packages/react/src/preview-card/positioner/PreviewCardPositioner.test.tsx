@@ -1132,4 +1132,63 @@ describe('<PreviewCard.Positioner />', () => {
     expect(positioner.style.transform).toBe('');
     unmount();
   });
+  // `PreviewCard.Positioner` deliberately blocks hit testing instead of going `inert`: there is no
+  // focus manager to hand focus back, so `inert` would blur whatever the closing card holds.
+  describe.skipIf(isJSDOM)('closing card', () => {
+    const style = `
+      @keyframes closing-test {
+        to {
+          opacity: 0;
+        }
+      }
+
+      .animation-test-popup[data-ending-style] {
+        animation: closing-test 500ms linear;
+      }
+    `;
+
+    it('stays focusable and non-interactive while it animates out', async ({ onTestFinished }) => {
+      globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+      onTestFinished(() => {
+        globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
+      });
+
+      await render(
+        <React.Fragment>
+          {/* eslint-disable-next-line react/no-danger */}
+          <style dangerouslySetInnerHTML={{ __html: style }} />
+          <PreviewCard.Root>
+            <PreviewCard.Trigger delay={0} closeDelay={0} href="#anchor" data-testid="trigger">
+              Trigger
+            </PreviewCard.Trigger>
+            <PreviewCard.Portal>
+              <PreviewCard.Positioner data-testid="positioner">
+                <PreviewCard.Popup data-testid="popup" className="animation-test-popup">
+                  <a href="#inside" data-testid="inside">
+                    Inside
+                  </a>
+                </PreviewCard.Popup>
+              </PreviewCard.Positioner>
+            </PreviewCard.Portal>
+          </PreviewCard.Root>
+        </React.Fragment>,
+      );
+
+      const trigger = screen.getByTestId('trigger');
+      fireEvent.mouseEnter(trigger);
+      fireEvent.mouseMove(trigger);
+
+      const inside = await screen.findByTestId('inside');
+      inside.focus();
+      expect(inside).toHaveFocus();
+
+      fireEvent.mouseLeave(trigger);
+      await waitFor(() => expect(screen.getByTestId('popup')).toHaveAttribute('data-ending-style'));
+
+      const positioner = screen.getByTestId('positioner');
+      expect(positioner).not.toHaveAttribute('inert');
+      expect(positioner.style.pointerEvents).toBe('none');
+      expect(inside).toHaveFocus();
+    });
+  });
 });

@@ -357,6 +357,11 @@ export function popupConformanceTests(config: PopupTestConfig) {
           landed.push(`${move.name} -> ${label(activeElement(document))}`);
         }
 
+        // Every destination above also resolves through ordinary tab order once the popup has
+        // finished animating out, so a run that overran would pass without testing anything.
+        // Matches the setup's own predicate: components differ on which element carries the
+        // attribute.
+        expect(document.querySelector('[data-ending-style]')).not.toBe(null);
         expect(landed).toEqual(moves.map((move) => `${move.name} -> ${move.to}`));
       });
     });

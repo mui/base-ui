@@ -500,6 +500,7 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
         disabled={!mounted}
         openInteractionType={openMethod}
         returnFocus={finalFocus}
+        returnFocusIfOrphaned={finalFocus == null}
         restoreFocus
       >
         {element}

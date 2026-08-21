@@ -560,6 +560,75 @@ describe('<Popover.Trigger />', () => {
       );
     }
 
+    it('does not strand focus when a hover-opened popup animates out', async ({
+      onTestFinished,
+    }) => {
+      globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+      onTestFinished(() => {
+        globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
+      });
+
+      const { user } = await render(
+        <React.Fragment>
+          {/* eslint-disable-next-line react/no-danger */}
+          <style dangerouslySetInnerHTML={{ __html: style }} />
+          <Popover.Root>
+            <Popover.Trigger openOnHover delay={0} data-testid="trigger">
+              Open
+            </Popover.Trigger>
+            <Popover.Portal>
+              <Popover.Positioner data-testid="positioner">
+                <Popover.Popup data-testid="popup" className="animation-test-popup">
+                  <button type="button" data-testid="inside">
+                    Inside
+                  </button>
+                </Popover.Popup>
+              </Popover.Positioner>
+            </Popover.Portal>
+          </Popover.Root>
+        </React.Fragment>,
+      );
+
+      await user.hover(screen.getByTestId('trigger'));
+      const inside = await screen.findByTestId('inside');
+      inside.focus();
+      expect(inside).toHaveFocus();
+
+      await user.keyboard('{Escape}');
+      expect(screen.getByTestId('popup')).toHaveAttribute('data-ending-style');
+
+      // A hover-opened popup runs with its focus manager disabled, so nothing hands focus back on
+      // close. Going inert would blur the focused element and leave nothing focused at all.
+      expect(screen.getByTestId('positioner')).not.toHaveAttribute('inert');
+      expect(inside).toHaveFocus();
+    });
+
+    it('keeps the trigger focus guards mounted while the popup animates out', async ({
+      onTestFinished,
+    }) => {
+      globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+      onTestFinished(() => {
+        globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
+      });
+
+      const { user } = await render(<AnimatedPopover />);
+
+      const trigger = screen.getByTestId('trigger');
+      await user.click(trigger);
+      await waitFor(() => expect(screen.getByTestId('inside')).toHaveFocus());
+
+      await user.keyboard('{Escape}');
+      expect(screen.getByTestId('popup')).toHaveAttribute('data-ending-style');
+
+      // The guards have to outlive the close: shift-tabbing off an open trigger fires a focus-out
+      // that closes the popup, and the guard must still be there to catch the focus already on its
+      // way to it. Unmounting them at close instead drops that focus to `<body>`, which the tab
+      // order assertions in this suite cannot see because they resolve through ordinary tab order
+      // either way.
+      expect(trigger.previousElementSibling).toHaveAttribute('data-base-ui-focus-guard');
+      expect(trigger.nextElementSibling).toHaveAttribute('data-base-ui-focus-guard');
+    });
+
     it('does not leave a focus guard in the tab order while the popup animates out', async ({
       onTestFinished,
     }) => {

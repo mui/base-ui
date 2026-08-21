@@ -16,8 +16,10 @@ interface UsePositionerOptions {
   hidden?: boolean | undefined;
   /**
    * Takes the subtree out of the accessibility tree, sequential focus navigation, and hit testing.
-   * Set while the popup is logically closed but still mounted for its exit animation, so a closing
-   * popup can't be reached by assistive tech or the Tab key.
+   * Set whenever the popup is logically closed but still mounted — during an exit animation, and
+   * for a `keepMounted` popup that has never been opened — so it can't be reached by assistive
+   * tech or the Tab key. Only safe where something hands focus back on close; see the callers that
+   * deliberately opt out.
    */
   inert?: boolean | undefined;
 }

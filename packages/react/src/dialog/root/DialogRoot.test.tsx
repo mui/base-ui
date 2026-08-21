@@ -2281,8 +2281,13 @@ describe('<Dialog.Root />', () => {
       );
     }
 
-    it('returns focus to the trigger and makes the popup inert while it animates out', async () => {
+    it('returns focus to the trigger and makes the popup inert while it animates out', async ({
+      onTestFinished,
+    }) => {
       globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+      onTestFinished(() => {
+        globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
+      });
 
       const { user } = await render(<AnimatedDialog />);
 
@@ -2307,8 +2312,11 @@ describe('<Dialog.Root />', () => {
       expect(inside).not.toHaveFocus();
     });
 
-    it('removes the focus guards while the popup animates out', async () => {
+    it('removes the focus guards while the popup animates out', async ({ onTestFinished }) => {
       globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+      onTestFinished(() => {
+        globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
+      });
 
       const { user } = await render(<AnimatedDialog />);
       const guards = () => document.querySelectorAll('[data-base-ui-focus-guard]');

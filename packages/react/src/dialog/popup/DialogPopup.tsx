@@ -106,6 +106,7 @@ export const DialogPopup = React.forwardRef(function DialogPopup(
       closeOnFocusOut={!disablePointerDismissal}
       initialFocus={resolvedInitialFocus}
       returnFocus={finalFocus}
+      returnFocusIfOrphaned={finalFocus == null}
       modal={modal !== false}
       restoreFocus="popup"
     >

@@ -367,4 +367,58 @@ describe('<Tooltip.Positioner />', () => {
       expect(positioner.style.transform).not.toBe('');
     });
   });
+  // The tooltip is never made `inert`: an open one that isn't hoverable must stay perceivable to
+  // assistive tech, and there is no focus manager to hand focus back when it closes.
+  describe.skipIf(isJSDOM)('closing tooltip', () => {
+    const style = `
+      @keyframes tooltip-close-test {
+        to {
+          opacity: 0;
+        }
+      }
+
+      .animation-test-popup[data-ending-style] {
+        animation: tooltip-close-test 500ms linear;
+      }
+    `;
+
+    it('blocks hit testing without going inert while it animates out', async ({
+      onTestFinished,
+    }) => {
+      globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+      onTestFinished(() => {
+        globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
+      });
+
+      const { user } = await render(
+        <React.Fragment>
+          {/* eslint-disable-next-line react/no-danger */}
+          <style dangerouslySetInnerHTML={{ __html: style }} />
+          <Tooltip.Root>
+            <Tooltip.Trigger delay={0} closeDelay={0} data-testid="trigger">
+              Trigger
+            </Tooltip.Trigger>
+            <Tooltip.Portal>
+              <Tooltip.Positioner data-testid="positioner">
+                <Tooltip.Popup data-testid="popup" className="animation-test-popup">
+                  Tooltip
+                </Tooltip.Popup>
+              </Tooltip.Positioner>
+            </Tooltip.Portal>
+          </Tooltip.Root>
+        </React.Fragment>,
+      );
+
+      const trigger = screen.getByTestId('trigger');
+      await user.hover(trigger);
+      await screen.findByTestId('popup');
+
+      await user.unhover(trigger);
+      await waitFor(() => expect(screen.getByTestId('popup')).toHaveAttribute('data-ending-style'));
+
+      const positioner = screen.getByTestId('positioner');
+      expect(positioner).not.toHaveAttribute('inert');
+      expect(positioner.style.pointerEvents).toBe('none');
+    });
+  });
 });
