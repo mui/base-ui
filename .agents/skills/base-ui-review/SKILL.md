@@ -1,6 +1,6 @@
 ---
 name: base-ui-review
-description: 'Review the current diff for regressions, correctness bugs, tests, simplifications, and docs issues, scaling depth to a low/medium/high/xhigh/max effort level. Use ONLY when explicitly requested by name: the user runs /base-ui-review, writes $base-ui-review, or asks for "the Base UI review skill". Do NOT use for general review requests such as "review my changes", "review this diff/branch/PR", or after finishing an implementation — handle those without this skill unless the user names it. Pass --comment to post a top-level PR comment, --comment inline for inline PR comments, or --fix to apply findings.'
+description: 'Review the current diff for regressions, correctness bugs, tests, simplifications, and docs issues, scaling depth to a low/medium/high/xhigh/max effort level. Use ONLY when explicitly requested by name: the user runs /base-ui-review, writes $base-ui-review, or asks for "the Base UI review skill". Do NOT use for general review requests such as "review my changes", "review this diff/branch/PR", or after finishing an implementation — handle those without this skill unless the user names it. Pass --comment to post a top-level PR comment, --comment inline for inline PR comments, or --fix to apply findings.'
 ---
 
 # Base UI Review
@@ -12,7 +12,7 @@ Review current diff. Find **regressions and correctness bugs** first. Also find
 Argument hint: `[low|medium|high|xhigh|max] [--fix] [--comment [inline]] [<target>]`
 
 This skill is **opt-in only**: run it when the user explicitly asks for it by
-name (`/base-ui-review`, `$base-ui-review`, "the Base UI review skill", or a CI
+name (`/base-ui-review`, `$base-ui-review`, "the Base UI review skill", or a CI
 job configured to use it). A plain "review my changes" or "review this PR", or
 wrapping up an implementation, is not an invocation — review without this
 workflow unless the user names it.
