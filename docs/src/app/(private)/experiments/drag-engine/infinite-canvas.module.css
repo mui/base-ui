@@ -1,0 +1,106 @@
+.root {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: calc(100vh - 40px);
+  color: var(--dnd-ink);
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+}
+
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--dnd-border);
+}
+
+.readout {
+  padding: 0.125rem 0.5rem;
+  border: 1px solid var(--dnd-border);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.button {
+  padding: 0.25rem 0.625rem;
+  border: 1px solid var(--dnd-ink);
+  background-color: var(--dnd-surface);
+  font: inherit;
+  color: var(--dnd-ink);
+  cursor: pointer;
+
+  &:focus-visible {
+    outline: 2px solid var(--dnd-ink);
+    outline-offset: 1px;
+  }
+}
+
+/*
+ * The clipping viewport: the element registered with `DragAutoScroll.Root`. It
+ * has no scroll offsets of its own — `overflow: hidden` only stops the content
+ * layer painting outside it.
+ */
+.viewport {
+  position: relative;
+  flex: 1;
+  overflow: hidden;
+  background-color: var(--dnd-canvas);
+  background-image:
+    linear-gradient(to right, var(--dnd-border) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--dnd-border) 1px, transparent 1px);
+  background-size: 40px 40px;
+  touch-action: none;
+}
+
+/*
+ * The camera. `applyScroll` writes this element's `transform`; the grid above
+ * stays put, so the pan is visible as content moving against a fixed backdrop.
+ */
+.content {
+  position: absolute;
+  inset: 0;
+  will-change: transform;
+}
+
+.note {
+  position: absolute;
+  box-sizing: border-box;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--dnd-ink);
+  background-color: var(--dnd-surface);
+  color: var(--dnd-ink);
+  white-space: nowrap;
+  cursor: grab;
+
+  &[data-dragging] {
+    opacity: 0.4;
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--dnd-ink);
+    outline-offset: 1px;
+  }
+}
+
+.bin {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  width: 200px;
+  height: 120px;
+  border: 1px dashed var(--dnd-muted);
+  color: var(--dnd-muted);
+
+  &[data-over] {
+    border-style: solid;
+    border-color: var(--dnd-ink);
+    background-color: var(--dnd-surface);
+    color: var(--dnd-ink);
+  }
+}
