@@ -1,4 +1,4 @@
-import { beforeAll, describe, expect, it, vi } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import * as React from 'react';
 import { fireEvent, flushMicrotasks, screen } from '@mui/internal-test-utils';
 import { createRenderer, firePointer, isJSDOM } from '#test-utils';
@@ -51,12 +51,6 @@ function createTouch(target: EventTarget, point: { clientX: number; clientY: num
 }
 
 describe('useSwipeDismiss', () => {
-  beforeAll(function beforeHook() {
-    // PointerEvent not fully implemented in jsdom, causing fireEvent.pointer* to ignore options.
-    // https://github.com/jsdom/jsdom/issues/2527
-    (window as any).PointerEvent = window.MouseEvent;
-  });
-
   const { render } = createRenderer();
 
   it('does not start swiping within a scrollable element when ignoreScrollableAncestors is true', async () => {

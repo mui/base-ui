@@ -1,4 +1,4 @@
-import { beforeAll, describe, expect, it, vi } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { Combobox } from '@base-ui/react/combobox';
@@ -12,12 +12,6 @@ import { useDrawerProviderContext } from '../provider/DrawerProviderContext';
 import { useDrawerRootContext } from '../root/DrawerRootContext';
 
 describe('<Drawer.Viewport />', () => {
-  beforeAll(function beforeHook() {
-    // PointerEvent not fully implemented in jsdom, causing fireEvent.pointer* to ignore options.
-    // https://github.com/jsdom/jsdom/issues/2527
-    (window as any).PointerEvent = window.MouseEvent;
-  });
-
   const { render } = createRenderer();
 
   describeConformance(<Drawer.Viewport />, () => ({

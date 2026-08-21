@@ -1,4 +1,4 @@
-import { beforeAll, describe, expect, it, vi } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import * as React from 'react';
 import { Drawer } from '@base-ui/react/drawer';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
@@ -52,8 +52,16 @@ type Point = {
 
 type SwipeInput = 'pointer' | 'touch';
 
+type SwipeContext = {
+  /** Advances the gesture timeline by one step and returns the new timestamp. */
+  nextTimeStamp: () => number;
+};
+
 type SwipeOptions = {
-  beforeRelease?: (() => Promise<unknown>) | (() => unknown);
+  // Receives the gesture's timeline so any event it injects stays on the same clock as the rest of
+  // the swipe. Firing an untimed event here would stamp it off the real clock, landing it out of
+  // order against the synthetic timestamps and skipping the release-velocity refinement.
+  beforeRelease?: (context: SwipeContext) => Promise<unknown> | unknown;
   input?: SwipeInput;
   // Applies only to `input: 'pointer'`; the `touch` branch always dispatches touch events.
   pointerType?: 'mouse' | 'pen' | 'touch';
@@ -104,6 +112,12 @@ async function swipe(element: HTMLElement, start: Point, end: Point, options: Sw
     startTimeMs = 1,
   } = options;
   let timeStamp = startTimeMs;
+  const swipeContext: SwipeContext = {
+    nextTimeStamp: () => {
+      timeStamp += timeStepMs;
+      return timeStamp;
+    },
+  };
 
   if (input === 'touch') {
     fireEvent.touchStart(element, {
@@ -143,7 +157,7 @@ async function swipe(element: HTMLElement, start: Point, end: Point, options: Sw
     await flushMicrotasks();
 
     if (beforeRelease) {
-      await beforeRelease();
+      await beforeRelease(swipeContext);
       await flushMicrotasks();
     }
 
@@ -200,7 +214,7 @@ async function swipe(element: HTMLElement, start: Point, end: Point, options: Sw
   await flushMicrotasks();
 
   if (beforeRelease) {
-    await beforeRelease();
+    await beforeRelease(swipeContext);
     await flushMicrotasks();
   }
 
@@ -267,12 +281,6 @@ function StoreProbe({ storeRef }: { storeRef: { current: DialogStore<unknown> | 
 }
 
 describe('<Drawer.SwipeArea />', () => {
-  beforeAll(function beforeHook() {
-    // PointerEvent not fully implemented in jsdom, causing fireEvent.pointer* to ignore options.
-    // https://github.com/jsdom/jsdom/issues/2527
-    (window as any).PointerEvent = window.MouseEvent;
-  });
-
   const { render } = createRenderer();
 
   describeConformance(<Drawer.SwipeArea />, () => ({
@@ -394,7 +402,7 @@ describe('<Drawer.SwipeArea />', () => {
     const indent = screen.getByTestId('indent');
 
     await swipeLeft(swipeArea, 200, -50, {
-      async beforeRelease() {
+      async beforeRelease({ nextTimeStamp }) {
         const popup = screen.getByTestId('popup');
         const backdrop = screen.getByTestId('backdrop');
 
@@ -408,23 +416,25 @@ describe('<Drawer.SwipeArea />', () => {
         expect(indent.style.getPropertyValue('--drawer-swipe-progress')).toBe('1');
         expect(indent.style.getPropertyValue('--drawer-height')).toBe('100px');
 
-        fireEvent.pointerMove(swipeArea, {
+        firePointer.move(swipeArea, {
           buttons: 1,
           pointerId: 1,
           clientX: 200,
           clientY: 0,
           pointerType: 'mouse',
+          timeStamp: nextTimeStamp(),
         });
         await flushMicrotasks();
         expect(indent.style.getPropertyValue('--drawer-swipe-progress')).toBe('0');
         expect(indent.style.getPropertyValue('--drawer-height')).toBe('');
 
-        fireEvent.pointerMove(swipeArea, {
+        firePointer.move(swipeArea, {
           buttons: 1,
           pointerId: 1,
           clientX: -50,
           clientY: 0,
           pointerType: 'mouse',
+          timeStamp: nextTimeStamp(),
         });
         await flushMicrotasks();
       },

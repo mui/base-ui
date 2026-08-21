@@ -1,4 +1,4 @@
-import { beforeAll, describe, expect, it, vi } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import * as React from 'react';
 import { Drawer } from '@base-ui/react/drawer';
 import { act, fireEvent, flushMicrotasks, screen, waitFor } from '@mui/internal-test-utils';
@@ -573,12 +573,6 @@ function MissingRootContextConsumer() {
 describe('<Drawer.Root />', () => {
   const { render } = createRenderer();
 
-  beforeAll(function beforeHook() {
-    // PointerEvent not fully implemented in jsdom, causing fireEvent.pointer* to ignore options.
-    // https://github.com/jsdom/jsdom/issues/2527
-    (window as any).PointerEvent = window.MouseEvent;
-  });
-
   it.skipIf(isJSDOM)('uses a size-based swipe threshold', async () => {
     const handleOpenChange = vi.fn();
     await render(<TestCase onOpenChange={handleOpenChange} />);
@@ -593,11 +587,6 @@ describe('<Drawer.Root />', () => {
 
     const originalElementFromPoint = document.elementFromPoint;
     document.elementFromPoint = () => popup;
-
-    const useFakeTimers = isJSDOM;
-    if (useFakeTimers) {
-      vi.useFakeTimers();
-    }
 
     try {
       const startTime = 1000;
@@ -617,9 +606,6 @@ describe('<Drawer.Root />', () => {
       );
       expect(handleOpenChange).toHaveBeenCalledWith(false);
     } finally {
-      if (useFakeTimers) {
-        vi.useRealTimers();
-      }
       document.elementFromPoint = originalElementFromPoint;
     }
   });
@@ -1246,11 +1232,6 @@ describe('<Drawer.Root />', () => {
     async () => {
       const env = setupSwipeTestEnv();
 
-      const useFakeTimers = isJSDOM;
-      if (useFakeTimers) {
-        vi.useFakeTimers();
-      }
-
       try {
         await render(<SnapPointSequentialSkipCase />);
         await flushMicrotasks();
@@ -1268,9 +1249,6 @@ describe('<Drawer.Root />', () => {
 
         expect(screen.getByTestId('active-snap').textContent).toBe('1');
       } finally {
-        if (useFakeTimers) {
-          vi.useRealTimers();
-        }
         env.cleanup();
       }
     },
@@ -1280,11 +1258,6 @@ describe('<Drawer.Root />', () => {
     'advances to the next snap point on fast flicks when snapToSequentialPoints is enabled',
     async () => {
       const env = setupSwipeTestEnv();
-
-      const useFakeTimers = isJSDOM;
-      if (useFakeTimers) {
-        vi.useFakeTimers();
-      }
 
       try {
         await render(<SnapPointSequentialSkipCase />);
@@ -1303,9 +1276,6 @@ describe('<Drawer.Root />', () => {
 
         expect(screen.getByTestId('active-snap').textContent).toBe('300px');
       } finally {
-        if (useFakeTimers) {
-          vi.useRealTimers();
-        }
         env.cleanup();
       }
     },
@@ -1314,11 +1284,6 @@ describe('<Drawer.Root />', () => {
   it.skipIf(isJSDOM)('keeps the drawer open on low-velocity swipes near a snap point', async () => {
     const handleOpenChange = vi.fn();
     const env = setupSwipeTestEnv();
-
-    const useFakeTimers = isJSDOM;
-    if (useFakeTimers) {
-      vi.useFakeTimers();
-    }
 
     try {
       await render(<SnapPointSwipeCase onOpenChange={handleOpenChange} />);
@@ -1339,9 +1304,6 @@ describe('<Drawer.Root />', () => {
       expect(handleOpenChange).not.toHaveBeenCalledWith(false);
       expect(screen.getByTestId('active-snap').textContent).toBe('100px');
     } finally {
-      if (useFakeTimers) {
-        vi.useRealTimers();
-      }
       env.cleanup();
     }
   });
@@ -1351,11 +1313,6 @@ describe('<Drawer.Root />', () => {
     async () => {
       const handleOpenChange = vi.fn();
       const env = setupSwipeTestEnv();
-
-      const useFakeTimers = isJSDOM;
-      if (useFakeTimers) {
-        vi.useFakeTimers();
-      }
 
       try {
         await render(<SnapPointSwipeCase onOpenChange={handleOpenChange} />);
@@ -1382,9 +1339,6 @@ describe('<Drawer.Root />', () => {
 
         expect(handleOpenChange).not.toHaveBeenCalledWith(false);
       } finally {
-        if (useFakeTimers) {
-          vi.useRealTimers();
-        }
         env.cleanup();
       }
     },

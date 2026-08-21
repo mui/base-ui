@@ -140,6 +140,19 @@ export default defineConfig(
     extends: createTestConfig({ useMocha: false }),
     rules: {
       'mui/add-undef-to-optional': 'off',
+      'no-restricted-syntax': [
+        'error',
+        {
+          // `timeStamp` is read-only and not an `EventInit` member, so `fireEvent` accepts it from
+          // the type system and then silently drops it: the event ends up stamped off the
+          // environment's clock instead, which is the real one in a browser. Velocity-sensitive
+          // assertions then depend on how long the runner took between two calls.
+          selector:
+            "CallExpression[callee.object.name='fireEvent'] ObjectExpression > Property[key.name='timeStamp']",
+          message:
+            'fireEvent silently drops `timeStamp`. Use `firePointer` from `#test-utils`, which applies it to the event.',
+        },
+      ],
     },
   },
   baseSpecRules,
