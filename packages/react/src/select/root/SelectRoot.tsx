@@ -151,6 +151,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
         openMethod: null,
         activeIndex: null,
         selectedIndex: null,
+        itemCount: null,
         popupProps: {},
         triggerProps: {},
         triggerElement: null,
@@ -275,6 +276,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     setMounted(false);
     store.update({
       activeIndex: null,
+      itemCount: store.state.forceMount ? store.state.itemCount : null,
       openMethod: null,
       scrollUpArrowVisible: false,
       scrollDownArrowVisible: false,
