@@ -103,7 +103,6 @@ async function swipe(element: HTMLElement, start: Point, end: Point, options: Sw
     timeStepMs = 16,
     startTimeMs = 1,
   } = options;
-  const useTimeStamp = input === 'pointer';
   let timeStamp = startTimeMs;
 
   if (input === 'touch') {
@@ -169,14 +168,12 @@ async function swipe(element: HTMLElement, start: Point, end: Point, options: Sw
     clientX: start.x,
     clientY: start.y,
     pointerType,
-    ...(useTimeStamp ? { timeStamp } : null),
+    timeStamp,
   });
 
   await flushMicrotasks();
 
-  if (useTimeStamp) {
-    timeStamp += timeStepMs;
-  }
+  timeStamp += timeStepMs;
 
   firePointer.move(element, {
     pointerId: 1,
@@ -184,14 +181,12 @@ async function swipe(element: HTMLElement, start: Point, end: Point, options: Sw
     clientY: stepY,
     buttons: 1,
     pointerType,
-    ...(useTimeStamp ? { timeStamp } : null),
+    timeStamp,
   });
 
   await flushMicrotasks();
 
-  if (useTimeStamp) {
-    timeStamp += timeStepMs;
-  }
+  timeStamp += timeStepMs;
 
   firePointer.move(element, {
     pointerId: 1,
@@ -199,7 +194,7 @@ async function swipe(element: HTMLElement, start: Point, end: Point, options: Sw
     clientY: end.y,
     buttons: 1,
     pointerType,
-    ...(useTimeStamp ? { timeStamp } : null),
+    timeStamp,
   });
 
   await flushMicrotasks();
@@ -209,16 +204,14 @@ async function swipe(element: HTMLElement, start: Point, end: Point, options: Sw
     await flushMicrotasks();
   }
 
-  if (useTimeStamp) {
-    timeStamp += timeStepMs;
-  }
+  timeStamp += timeStepMs;
 
   firePointer.up(element, {
     pointerId: 1,
     clientX: end.x,
     clientY: end.y,
     pointerType,
-    ...(useTimeStamp ? { timeStamp } : null),
+    timeStamp,
   });
 
   await flushMicrotasks();

@@ -62,109 +62,12 @@ async function simulateTimedRightSwipe(
   moveTime: number,
   endTime: number,
 ) {
-  if (isJSDOM) {
-    vi.setSystemTime(new Date(startTime));
-    fireEvent.pointerDown(element, {
-      button: 0,
-      buttons: 1,
-      pointerId: 1,
-      clientX: startX,
-      clientY: 100,
-      bubbles: true,
-      pointerType: 'mouse',
-    });
-
-    await flushMicrotasks();
-
-    vi.setSystemTime(new Date(moveTime));
-    fireEvent.pointerMove(element, {
-      buttons: 1,
-      pointerId: 1,
-      clientX: startX + 1,
-      clientY: 100,
-      bubbles: true,
-      pointerType: 'mouse',
-    });
-
-    await flushMicrotasks();
-
-    vi.setSystemTime(new Date(endTime - 1));
-    fireEvent.pointerMove(element, {
-      buttons: 1,
-      pointerId: 1,
-      clientX: endX,
-      clientY: 100,
-      bubbles: true,
-      pointerType: 'mouse',
-    });
-
-    await flushMicrotasks();
-
-    vi.setSystemTime(new Date(endTime));
-    fireEvent.pointerUp(element, {
-      pointerId: 1,
-      clientX: endX,
-      clientY: 100,
-      bubbles: true,
-      pointerType: 'mouse',
-    });
-
-    await flushMicrotasks();
-    return;
-  }
-
-  const moveDelay = Math.max(0, moveTime - startTime);
-  const endDelay = Math.max(0, endTime - moveTime);
-
-  fireEvent.pointerDown(element, {
-    button: 0,
-    buttons: 1,
-    pointerId: 1,
-    clientX: startX,
-    clientY: 100,
-    bubbles: true,
-    pointerType: 'mouse',
-  });
-
-  await flushMicrotasks();
-  await new Promise((resolve) => {
-    setTimeout(resolve, moveDelay);
-  });
-
-  fireEvent.pointerMove(element, {
-    buttons: 1,
-    pointerId: 1,
-    clientX: startX + 1,
-    clientY: 100,
-    bubbles: true,
-    pointerType: 'mouse',
-  });
-
-  await flushMicrotasks();
-  await new Promise((resolve) => {
-    setTimeout(resolve, endDelay);
-  });
-
-  fireEvent.pointerMove(element, {
-    buttons: 1,
-    pointerId: 1,
-    clientX: endX,
-    clientY: 100,
-    bubbles: true,
-    pointerType: 'mouse',
-  });
-
-  await flushMicrotasks();
-
-  fireEvent.pointerUp(element, {
-    pointerId: 1,
-    clientX: endX,
-    clientY: 100,
-    bubbles: true,
-    pointerType: 'mouse',
-  });
-
-  await flushMicrotasks();
+  await simulateTimedSwipe(element, [
+    { type: 'down', x: startX, y: 100, time: startTime },
+    { type: 'move', x: startX + 1, y: 100, time: moveTime },
+    { type: 'move', x: endX, y: 100, time: endTime - 1 },
+    { type: 'up', x: endX, y: 100, time: endTime },
+  ]);
 }
 
 async function simulateTimedDownSwipe(
@@ -178,148 +81,16 @@ async function simulateTimedDownSwipe(
 ) {
   const resolvedSettleTime =
     typeof settleTime === 'number' && Number.isFinite(settleTime) ? settleTime : null;
-  const settleY = endY - 1;
 
-  if (isJSDOM) {
-    vi.setSystemTime(new Date(startTime));
-    fireEvent.pointerDown(element, {
-      button: 0,
-      buttons: 1,
-      pointerId: 1,
-      clientX: 100,
-      clientY: startY,
-      bubbles: true,
-      pointerType: 'mouse',
-    });
-
-    await flushMicrotasks();
-
-    vi.setSystemTime(new Date(moveTime));
-    fireEvent.pointerMove(element, {
-      buttons: 1,
-      pointerId: 1,
-      clientX: 100,
-      clientY: startY + 1,
-      bubbles: true,
-      pointerType: 'mouse',
-    });
-
-    await flushMicrotasks();
-
-    if (resolvedSettleTime !== null) {
-      vi.setSystemTime(new Date(resolvedSettleTime));
-      fireEvent.pointerMove(element, {
-        buttons: 1,
-        pointerId: 1,
-        clientX: 100,
-        clientY: settleY,
-        bubbles: true,
-        pointerType: 'mouse',
-      });
-
-      await flushMicrotasks();
-    }
-
-    vi.setSystemTime(new Date(endTime - 1));
-    fireEvent.pointerMove(element, {
-      buttons: 1,
-      pointerId: 1,
-      clientX: 100,
-      clientY: endY,
-      bubbles: true,
-      pointerType: 'mouse',
-    });
-
-    await flushMicrotasks();
-
-    vi.setSystemTime(new Date(endTime));
-    fireEvent.pointerUp(element, {
-      pointerId: 1,
-      clientX: 100,
-      clientY: endY,
-      bubbles: true,
-      pointerType: 'mouse',
-    });
-
-    await flushMicrotasks();
-    return;
-  }
-
-  const moveDelay = Math.max(0, moveTime - startTime);
-  const settleDelay =
-    resolvedSettleTime !== null ? Math.max(0, resolvedSettleTime - moveTime) : null;
-  const endDelay =
-    resolvedSettleTime !== null
-      ? Math.max(0, endTime - resolvedSettleTime)
-      : Math.max(0, endTime - moveTime);
-
-  fireEvent.pointerDown(element, {
-    button: 0,
-    buttons: 1,
-    pointerId: 1,
-    clientX: 100,
-    clientY: startY,
-    bubbles: true,
-    pointerType: 'mouse',
-  });
-
-  await flushMicrotasks();
-  await new Promise((resolve) => {
-    setTimeout(resolve, moveDelay);
-  });
-
-  fireEvent.pointerMove(element, {
-    buttons: 1,
-    pointerId: 1,
-    clientX: 100,
-    clientY: startY + 1,
-    bubbles: true,
-    pointerType: 'mouse',
-  });
-
-  await flushMicrotasks();
-
-  if (settleDelay !== null) {
-    await new Promise((resolve) => {
-      setTimeout(resolve, settleDelay);
-    });
-
-    fireEvent.pointerMove(element, {
-      buttons: 1,
-      pointerId: 1,
-      clientX: 100,
-      clientY: settleY,
-      bubbles: true,
-      pointerType: 'mouse',
-    });
-
-    await flushMicrotasks();
-  }
-
-  await new Promise((resolve) => {
-    setTimeout(resolve, endDelay);
-  });
-
-  fireEvent.pointerMove(element, {
-    buttons: 1,
-    pointerId: 1,
-    clientX: 100,
-    clientY: endY,
-    bubbles: true,
-    pointerType: 'mouse',
-  });
-
-  await flushMicrotasks();
-
-  fireEvent.pointerUp(element, {
-    pointerId: 1,
-    clientX: 100,
-    clientY: endY,
-    bubbles: true,
-    pointerType: 'mouse',
-  });
-
-  await flushMicrotasks();
+  await simulateTimedSwipe(element, [
+    { type: 'down', x: 100, y: startY, time: startTime },
+    { type: 'move', x: 100, y: startY + 1, time: moveTime },
+    ...(resolvedSettleTime !== null
+      ? ([{ type: 'move', x: 100, y: endY - 1, time: resolvedSettleTime }] as TimedSwipeStep[])
+      : []),
+    { type: 'move', x: 100, y: endY, time: endTime - 1 },
+    { type: 'up', x: 100, y: endY, time: endTime },
+  ]);
 }
 
 type TimedSwipeStep = {
@@ -330,11 +101,9 @@ type TimedSwipeStep = {
 };
 
 async function simulateTimedSwipe(element: HTMLElement, steps: TimedSwipeStep[]) {
+  // Every step carries its own `timeStamp`, so the gesture's timeline no longer depends on the
+  // wall clock and no `vi.setSystemTime` bookkeeping is needed alongside it.
   for (const step of steps) {
-    if (vi.isFakeTimers()) {
-      vi.setSystemTime(new Date(step.time));
-    }
-
     const init = {
       pointerId: 1,
       pointerType: 'mouse',
