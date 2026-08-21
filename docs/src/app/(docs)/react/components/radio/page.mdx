@@ -1,9 +1,9 @@
-# Radio
+# Radio Group
 
-<Subtitle>An easily stylable radio button component.</Subtitle>
+<Subtitle>Provides shared state to a series of radio buttons.</Subtitle>
 <Meta
   name="description"
-  content="A high-quality, unstyled React radio button component that is easy to style."
+  content="A high-quality, unstyled React radio group component that provides shared state to a series of radio buttons."
 />
 
 import { DemoRadioHero } from './demos/hero';
@@ -16,7 +16,7 @@ import { DemoRadioHero } from './demos/hero';
 
 ## Anatomy
 
-Radio is always placed within Radio Group. Import the components and place them together:
+Import the component and assemble its parts:
 
 ```jsx title="Anatomy"
 import { Radio } from '@base-ui/react/radio';
@@ -121,7 +121,7 @@ Use [Field](/react/components/field) and [Fieldset](/react/components/fieldset) 
 
 import { TypesRadioGroup } from '../radio-group/types';
 
-Provides a shared state to a series of radio buttons. Renders a `<div>` element.
+Provides shared state to a series of radio buttons. Renders a `<div>` element.
 
 <TypesRadioGroup />
 
@@ -137,8 +137,10 @@ import { TypesRadio } from './types';
 
 export const metadata = {
   keywords: [
-    'React Radio Button',
+    'React Radio Group',
     'Radio Group Component',
+    'Grouped Radio Buttons',
+    'React Radio Button',
     'Radio Button',
     'Radio Input',
     'Single Choice',
