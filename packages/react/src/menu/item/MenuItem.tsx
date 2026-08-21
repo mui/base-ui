@@ -3,10 +3,10 @@ import * as React from 'react';
 import { REGULAR_ITEM, useMenuItem } from './useMenuItem';
 import { useMenuRootContext } from '../root/MenuRootContext';
 import { useRenderElement } from '../../internals/useRenderElement';
-import { useBaseUiId } from '../../internals/useBaseUiId';
 import type { BaseUIComponentProps, NonNativeButtonProps } from '../../internals/types';
 import { useCompositeListItem } from '../../internals/composite/list/useCompositeListItem';
 import { useMenuPositionerContext } from '../positioner/MenuPositionerContext';
+import { getMenuItemId } from '../utils/getMenuItemId';
 
 /**
  * An individual interactive item in the menu.
@@ -32,14 +32,13 @@ export const MenuItem = React.forwardRef(function MenuItem(
 
   const listItem = useCompositeListItem({ guess: true, label });
   const menuPositionerContext = useMenuPositionerContext(true);
-  const id = useBaseUiId(idProp);
+  const { store, floatingId, virtualFocus, webkitItemSelected } = useMenuRootContext();
+  const id = getMenuItemId(idProp, floatingId, listItem.index);
 
-  const { store } = useMenuRootContext();
   const rootDisabled = store.useState('disabled');
   const disabled = disabledProp || rootDisabled;
   const highlighted = store.useState('isActive', listItem.index);
   const itemProps = store.useState('itemProps');
-
   const { getItemProps, itemRef } = useMenuItem({
     closeOnClick,
     disabled,
@@ -49,6 +48,8 @@ export const MenuItem = React.forwardRef(function MenuItem(
     nativeButton,
     nodeId: menuPositionerContext?.context.nodeId,
     itemMetadata: REGULAR_ITEM,
+    virtualFocus,
+    webkitItemSelected,
   });
 
   const state: MenuItemState = {

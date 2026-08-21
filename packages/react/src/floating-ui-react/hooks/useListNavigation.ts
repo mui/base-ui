@@ -19,81 +19,28 @@ import {
   isIndexOutOfListBounds,
 } from '../utils/composite';
 import type { gridNavigation } from './gridNavigation';
-import { ARROW_DOWN, ARROW_LEFT, ARROW_RIGHT, ARROW_UP } from '../utils/constants';
 import {
   activeElement,
   contains,
   getFloatingFocusElement,
   getTarget,
   isTypeableCombobox,
+  isTypeableElement,
 } from '../utils/element';
 import { enqueueFocus } from '../utils/enqueueFocus';
 import { isVirtualClick, isVirtualPointerEvent, stopEvent } from '../utils/event';
-
-export const ESCAPE = 'Escape';
+import {
+  isCrossOrientationCloseKey,
+  isCrossOrientationOpenKey,
+  isMainOrientationKey,
+  isMainOrientationToEndKey,
+} from '../utils/listNavigation';
 
 // WebKit fires zero-delta `mousemove`/`pointermove` events when the list scrolls
 // beneath a stationary pointer, moving the highlight during keyboard navigation.
 // https://github.com/mui/base-ui/issues/4002
 function isStationaryWebKitPointer(event: React.MouseEvent | React.PointerEvent) {
   return platform.engine.webkit && event.movementX === 0 && event.movementY === 0;
-}
-
-function doSwitch(
-  orientation: UseListNavigationProps['orientation'],
-  vertical: boolean,
-  horizontal: boolean,
-) {
-  switch (orientation) {
-    case 'vertical':
-      return vertical;
-    case 'horizontal':
-      return horizontal;
-    default:
-      return vertical || horizontal;
-  }
-}
-
-function isMainOrientationKey(key: string, orientation: UseListNavigationProps['orientation']) {
-  const vertical = key === ARROW_UP || key === ARROW_DOWN;
-  const horizontal = key === ARROW_LEFT || key === ARROW_RIGHT;
-  return doSwitch(orientation, vertical, horizontal);
-}
-
-function isMainOrientationToEndKey(
-  key: string,
-  orientation: UseListNavigationProps['orientation'],
-  rtl: boolean,
-) {
-  const vertical = key === ARROW_DOWN;
-  const horizontal = rtl ? key === ARROW_LEFT : key === ARROW_RIGHT;
-  return (
-    doSwitch(orientation, vertical, horizontal) || key === 'Enter' || key === ' ' || key === ''
-  );
-}
-
-function isCrossOrientationOpenKey(
-  key: string,
-  orientation: UseListNavigationProps['orientation'],
-  rtl: boolean,
-) {
-  const vertical = rtl ? key === ARROW_LEFT : key === ARROW_RIGHT;
-  const horizontal = key === ARROW_DOWN;
-  return doSwitch(orientation, vertical, horizontal);
-}
-
-function isCrossOrientationCloseKey(
-  key: string,
-  orientation: UseListNavigationProps['orientation'],
-  rtl: boolean,
-  grid: boolean,
-) {
-  const vertical = rtl ? key === ARROW_RIGHT : key === ARROW_LEFT;
-  const horizontal = key === ARROW_UP;
-  if (orientation === 'both' || (orientation === 'horizontal' && grid)) {
-    return key === ESCAPE;
-  }
-  return doSwitch(orientation, vertical, horizontal);
 }
 
 export interface UseListNavigationProps {
@@ -178,8 +125,6 @@ export interface UseListNavigationProps {
   /**
    * Allows to specify the orientation of the parent list, which is used to
    * determine the direction of the navigation.
-   * This is useful when list navigation is used within a Composite,
-   * as the hook can't determine the orientation of the parent list automatically.
    */
   parentOrientation?: UseListNavigationProps['orientation'] | undefined;
   /**
@@ -216,6 +161,10 @@ export interface UseListNavigationProps {
    */
   externalTree?: FloatingTreeStore | undefined;
   /**
+   * Focus target used when a nested list returns to a virtually focused parent.
+   */
+  nestedReturnFocusRef?: React.RefObject<HTMLElement | null> | undefined;
+  /**
    * Computes two-dimensional list navigation for grid-capable consumers.
    */
   grid?: typeof gridNavigation | null | undefined;
@@ -250,8 +199,10 @@ export function useListNavigation(
     id,
     resetOnPointerLeave = true,
     externalTree,
+    nestedReturnFocusRef,
     grid: navigateGrid,
   } = props;
+
   const isGrid = navigateGrid != null;
 
   if (process.env.NODE_ENV !== 'production') {
@@ -307,15 +258,14 @@ export function useListNavigation(
   const latestOpenRef = useValueAsRef(open);
   const selectedIndexRef = useValueAsRef(selectedIndex);
   const resetOnPointerLeaveRef = useValueAsRef(resetOnPointerLeave);
+  const activeIndexRef = useValueAsRef(activeIndex);
 
   const focusFrame = useAnimationFrame();
   const waitForListPopulatedFrame = useAnimationFrame();
 
   const focusItem = useStableCallback(() => {
     function runFocus(item: HTMLElement) {
-      if (virtual) {
-        tree?.events.emit('virtualfocus', item);
-      } else {
+      if (!virtual) {
         cancelQueuedFocusRef.current = enqueueFocus(item, {
           sync: forceSyncFocusRef.current,
           preventScroll: true,
@@ -469,8 +419,7 @@ export function useListNavigation(
     waitForListPopulatedFrame,
   ]);
 
-  // Ensure the parent floating element has focus when a nested child closes
-  // to allow arrow key navigation to work after the pointer leaves the child.
+  // Ensure the parent floating element has focus when an ordinary nested child closes.
   useIsoLayoutEffect(() => {
     if (!enabled || floatingElement || !tree || virtual || !previousMountedRef.current) {
       return;
@@ -549,23 +498,30 @@ export function useListNavigation(
     }
 
     if (nested && isCrossOrientationCloseKey(event.key, orientation, rtl, isGrid)) {
-      // If the nested list's close key is also the parent navigation key,
-      // let the parent navigate. Otherwise, stop propagating the event.
       if (!isMainOrientationKey(event.key, getParentOrientation())) {
         stopEvent(event);
       }
 
       store.setOpen(false, createChangeEventDetails(REASONS.listNavigation, event.nativeEvent));
 
-      if (isHTMLElement(domReferenceElement)) {
-        if (virtual) {
-          tree?.events.emit('virtualfocus', domReferenceElement);
-        } else {
-          domReferenceElement.focus();
-        }
+      const returnElement = nestedReturnFocusRef?.current ?? domReferenceElement;
+      if (isHTMLElement(returnElement)) {
+        returnElement.focus();
       }
 
       return;
+    }
+
+    // The consumer owns `activeIndex` and may decline a navigation this hook proposed, such as a
+    // virtual list keeping its highlight when the reference is refocused. Declining produces no
+    // re-render, so reconcile here: otherwise the cursor drifts from the rendered highlight and
+    // this key moves from the wrong position.
+    if (
+      activeIndex != null &&
+      activeIndex !== indexRef.current &&
+      !isIndexOutOfListBounds(listRef.current, activeIndex)
+    ) {
+      indexRef.current = activeIndex;
     }
 
     const currentIndex = indexRef.current;
@@ -693,7 +649,12 @@ export function useListNavigation(
         forceSyncFocusRef.current = true;
         syncCurrentTarget(event);
       },
-      onClick: ({ currentTarget }) => currentTarget.focus({ preventScroll: true }), // Safari
+      onClick({ currentTarget }) {
+        // Safari. Skipped under virtual focus, which must keep real focus on the reference.
+        if (!virtual) {
+          currentTarget.focus({ preventScroll: true });
+        }
+      },
       onMouseMove(event) {
         if (isStationaryWebKitPointer(event)) {
           return;
@@ -904,7 +865,18 @@ export function useListNavigation(
         return undefined;
       },
       onFocus(event) {
-        if (store.select('open') && !virtual) {
+        if (event.target !== event.currentTarget) {
+          return;
+        }
+
+        if (!store.select('open')) {
+          return;
+        }
+
+        if (virtual && !isTypeableElement(event.currentTarget) && activeIndexRef.current == null) {
+          indexRef.current = getMinEnabledIndex();
+          onNavigate(event);
+        } else if (!virtual) {
           indexRef.current = -1;
           onNavigate(event);
         }
@@ -927,6 +899,7 @@ export function useListNavigation(
     rtl,
     selectedIndexRef,
     virtual,
+    activeIndexRef,
   ]);
 
   const reference: ElementProps['reference'] = React.useMemo(() => {

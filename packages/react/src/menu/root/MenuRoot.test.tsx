@@ -28,6 +28,19 @@ import {
 import { REASONS } from '../../internals/reasons';
 import { PATIENT_CLICK_THRESHOLD } from '../../internals/constants';
 
+// Mainline tests assert the non-VoiceOver submenu-trigger behavior deterministically on every OS.
+vi.mock('@base-ui/utils/platform', async () => {
+  const actual =
+    await vi.importActual<typeof import('@base-ui/utils/platform')>('@base-ui/utils/platform');
+
+  return {
+    platform: {
+      ...actual.platform,
+      screenReader: { ...actual.platform.screenReader, voiceOver: false },
+    },
+  };
+});
+
 describe('<Menu.Root />', () => {
   beforeEach(resetBrowserPointer);
 
@@ -752,6 +765,60 @@ describe('<Menu.Root />', () => {
     });
 
     describe('nested menus', () => {
+      it('treats a plain Menu.Root inside a dialog opened from a submenu as an independent root', async () => {
+        const { user } = await render(
+          <Menu.Root open>
+            <Menu.Portal>
+              <Menu.Positioner>
+                <Menu.Popup>
+                  <Menu.SubmenuRoot open>
+                    <Menu.SubmenuTrigger>More</Menu.SubmenuTrigger>
+                    <Menu.Portal>
+                      <Menu.Positioner>
+                        <Menu.Popup data-testid="submenu-popup">
+                          <Dialog.Root open>
+                            <Dialog.Portal>
+                              <Dialog.Popup>
+                                <Menu.Root>
+                                  <Menu.Trigger data-testid="inner-trigger">Inner</Menu.Trigger>
+                                  <Menu.Portal>
+                                    <Menu.Positioner>
+                                      <Menu.Popup data-testid="inner-popup">
+                                        <Menu.Item>One</Menu.Item>
+                                      </Menu.Popup>
+                                    </Menu.Positioner>
+                                  </Menu.Portal>
+                                </Menu.Root>
+                              </Dialog.Popup>
+                            </Dialog.Portal>
+                          </Dialog.Root>
+                        </Menu.Popup>
+                      </Menu.Positioner>
+                    </Menu.Portal>
+                  </Menu.SubmenuRoot>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
+          </Menu.Root>,
+        );
+
+        // A real submenu popup carries the nested state.
+        expect(screen.getByTestId('submenu-popup')).toHaveAttribute('data-nested');
+
+        await user.click(screen.getByTestId('inner-trigger'));
+
+        const innerPopup = await screen.findByTestId('inner-popup');
+        expect(innerPopup).not.toHaveAttribute('data-nested');
+
+        // Cross-axis close keys act on submenus only; an independent root ignores them.
+        const innerItem = screen.getByRole('menuitem', { name: 'One' });
+        await act(async () => {
+          innerItem.focus();
+        });
+        await user.keyboard('[ArrowLeft]');
+        expect(screen.queryByTestId('inner-popup')).not.toBe(null);
+      });
+
       (
         [
           ['vertical', 'ltr', 'ArrowRight', 'ArrowLeft'],
@@ -815,6 +882,204 @@ describe('<Menu.Root />', () => {
 
         expect(menu).not.toBe(null);
         expect(await screen.findByTestId('item-4_1')).toHaveTextContent('Item 4.1');
+      });
+
+      // The open key comes from the parent's orientation and the close key from the submenu's,
+      // so they must differ here or swapping the two arguments still passes.
+      it.skipIf(isJSDOM)(
+        'opens and closes a vertical submenu of a horizontal menu with the right axis keys',
+        async () => {
+          const { user } = await render(
+            <TestMenu
+              rootProps={{ open: true, orientation: 'horizontal' }}
+              submenuProps={{ orientation: 'vertical' }}
+              submenuTriggerProps={{ openOnHover: false }}
+            />,
+          );
+
+          const submenuTrigger = screen.getByTestId('submenu-trigger');
+          await act(async () => {
+            submenuTrigger.focus();
+          });
+          await waitFor(() => {
+            expect(submenuTrigger).toHaveFocus();
+          });
+
+          // Cross-axis of the horizontal parent.
+          await user.keyboard('[ArrowDown]');
+          await screen.findByTestId('submenu');
+          await waitFor(() => {
+            expect(screen.getByTestId('item-4_1')).toHaveFocus();
+          });
+
+          // ArrowLeft is the vertical submenu's close key, distinct from the horizontal parent's
+          // open key, so swapping the two orientations breaks this.
+          await user.keyboard('[ArrowLeft]');
+          await waitFor(() => {
+            expect(screen.queryByTestId('submenu')).toBe(null);
+          });
+          // ArrowLeft is also the horizontal parent's previous-item key, so navigation continues
+          // after the submenu closes.
+          expect(screen.getByTestId('item-3')).toHaveFocus();
+
+          // ArrowUp is neither orientation's key here and must not reopen it.
+          await user.keyboard('[ArrowUp]');
+          expect(screen.queryByTestId('submenu')).toBe(null);
+        },
+      );
+
+      it('derives item ids from a custom `Menu.Popup` id', async () => {
+        const { user } = await render(
+          <TestMenu popupProps={{ id: 'my-menu' }} submenuTriggerProps={{ openOnHover: false }} />,
+        );
+
+        await user.click(screen.getByRole('button', { name: 'Toggle' }));
+        await screen.findByTestId('menu');
+
+        expect(screen.getByTestId('item-1')).toHaveAttribute('id', 'my-menu-0');
+        expect(screen.getByTestId('item-2')).toHaveAttribute('id', 'my-menu-1');
+        // The submenu trigger is an item of the parent list, so it shares that namespace.
+        expect(screen.getByTestId('submenu-trigger')).toHaveAttribute('id', 'my-menu-3');
+      });
+
+      it('lets an explicit item id win over the derived one', async () => {
+        const { user } = await render(
+          <TestMenu
+            popupProps={{
+              id: 'my-menu',
+              children: (
+                <React.Fragment>
+                  <Menu.Item data-testid="item-1" id="chosen-by-consumer">
+                    Item 1
+                  </Menu.Item>
+                  <Menu.Item data-testid="item-2">Item 2</Menu.Item>
+                </React.Fragment>
+              ),
+            }}
+          />,
+        );
+
+        await user.click(screen.getByRole('button', { name: 'Toggle' }));
+        await screen.findByTestId('menu');
+
+        expect(screen.getByTestId('item-1')).toHaveAttribute('id', 'chosen-by-consumer');
+        // Sibling ids stay in the popup's namespace, keyed by composite index.
+        expect(screen.getByTestId('item-2')).toHaveAttribute('id', 'my-menu-1');
+      });
+
+      it.skipIf(isJSDOM)(
+        'seeds focus for an assistive-technology click after keyboard use',
+        async () => {
+          await render(<TestMenu />);
+
+          const trigger = screen.getByRole('button', { name: 'Toggle' });
+          trigger.focus();
+          await userEvent.keyboard('[Enter]');
+          await waitFor(() => {
+            expect(screen.getByTestId('item-1')).toHaveFocus();
+          });
+
+          await userEvent.keyboard('[Escape]');
+          await waitFor(() => {
+            expect(screen.queryByTestId('menu')).toBe(null);
+          });
+
+          fireEvent.click(trigger, { detail: 0 });
+
+          await waitFor(() => {
+            expect(screen.getByTestId('item-1')).toHaveFocus();
+          });
+        },
+      );
+
+      it.skipIf(isJSDOM)(
+        'does not move focus when a keyboard-closed submenu reopens on hover',
+        async () => {
+          const { user } = await render(
+            <TestMenu rootProps={{ open: true }} submenuTriggerProps={{ delay: 0 }} />,
+          );
+
+          const submenuTrigger = screen.getByTestId('submenu-trigger');
+          await act(async () => {
+            submenuTrigger.focus();
+          });
+          await user.keyboard('[ArrowRight]');
+          await waitFor(() => {
+            expect(screen.getByTestId('item-4_1')).toHaveFocus();
+          });
+
+          await user.keyboard('[ArrowLeft]');
+          await waitFor(() => {
+            expect(submenuTrigger).toHaveFocus();
+          });
+
+          await user.hover(submenuTrigger);
+          await screen.findByTestId('submenu');
+
+          expect(submenuTrigger).toHaveFocus();
+        },
+      );
+
+      it('uses the id that landed on a `render` popup element', async () => {
+        const { user } = await render(
+          <TestMenu
+            popupProps={{ render: <section id="render-popup" /> }}
+            submenuTriggerProps={{ openOnHover: false }}
+          />,
+        );
+
+        const trigger = screen.getByRole('button', { name: 'Toggle' });
+        await user.click(trigger);
+
+        const menu = await screen.findByTestId('menu');
+        expect(menu).toHaveAttribute('id', 'render-popup');
+        expect(trigger).toHaveAttribute('aria-controls', 'render-popup');
+        expect(screen.getByTestId('item-1')).toHaveAttribute('id', 'render-popup-0');
+        expect(screen.getByTestId('submenu-trigger')).toHaveAttribute('id', 'render-popup-3');
+      });
+
+      it('labels the popup with the id that landed on a `render` trigger element', async () => {
+        const { user } = await render(
+          <TestMenu triggerProps={{ render: <button id="custom-trigger" /> }} />,
+        );
+
+        await user.click(screen.getByRole('button', { name: 'Toggle' }));
+
+        const menu = await screen.findByTestId('menu');
+        expect(menu).toHaveAttribute('role', 'menu');
+        expect(menu).toHaveAttribute('aria-labelledby', 'custom-trigger');
+      });
+
+      it('labels the popup with the generated trigger id by default', async () => {
+        const { user } = await render(<TestMenu />);
+
+        const trigger = screen.getByRole('button', { name: 'Toggle' });
+        await user.click(trigger);
+
+        const menu = await screen.findByTestId('menu');
+        expect(menu).toHaveAttribute('aria-labelledby', trigger.id);
+      });
+
+      it('does not render an empty popup label reference', async () => {
+        const { user } = await render(<TestMenu triggerProps={{ render: <button id="" /> }} />);
+
+        await user.click(screen.getByRole('button', { name: 'Toggle' }));
+
+        const menu = await screen.findByTestId('menu');
+        expect(menu).not.toHaveAttribute('aria-labelledby');
+      });
+
+      it('does not fire consumer handlers on a disabled submenu trigger', async () => {
+        const onClick = vi.fn();
+        const { user } = await render(
+          <TestMenu
+            rootProps={{ open: true }}
+            submenuTriggerProps={{ disabled: true, onClick, openOnHover: false }}
+          />,
+        );
+
+        await user.click(screen.getByTestId('submenu-trigger'));
+        expect(onClick).toHaveBeenCalledTimes(0);
       });
 
       it('renders root menu portal ownership without an accessibility role', async () => {
@@ -1057,6 +1322,12 @@ describe('<Menu.Root />', () => {
             expect(screen.queryByTestId('submenu')).toBe(null);
           });
           expect(submenuTrigger).toHaveFocus();
+
+          await user.keyboard('[ArrowDown]');
+
+          await waitFor(() => {
+            expect(screen.getByTestId('item-5')).toHaveFocus();
+          });
         },
       );
     });
@@ -3172,10 +3443,52 @@ describe('<Menu.Root />', () => {
       expect(screen.queryByRole('menuitem', { name: 'Add to Library' })).toHaveFocus();
     });
   });
+
+  describe('trigger render cost', () => {
+    it('does not re-render the trigger while navigating the list', async () => {
+      let triggerRenders = 0;
+
+      const { user } = await render(
+        <Menu.Root>
+          <Menu.Trigger
+            render={(props) => {
+              triggerRenders += 1;
+              return <button type="button" {...props} />;
+            }}
+          >
+            Toggle
+          </Menu.Trigger>
+          <Menu.Portal>
+            <Menu.Positioner>
+              <Menu.Popup>
+                {Array.from({ length: 10 }, (_, index) => (
+                  <Menu.Item key={index}>{`Item ${index}`}</Menu.Item>
+                ))}
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
+        </Menu.Root>,
+      );
+
+      await user.click(screen.getByRole('button', { name: 'Toggle' }));
+      await screen.findByRole('menu');
+      await flushMicrotasks();
+
+      triggerRenders = 0;
+      await user.keyboard('[ArrowDown][ArrowDown][ArrowDown]');
+      await flushMicrotasks();
+
+      // The trigger's props do not depend on which item is highlighted. Keeping this at zero is
+      // what stops `useListNavigation` from rebuilding them on every key, which re-rendered every
+      // trigger of every menu and select in the library.
+      expect(triggerRenders).toBe(0);
+    });
+  });
 });
 
 function ContainedTriggerMenu(props: TestMenuProps) {
   const { triggerProps, ...rest } = props;
+
   return (
     <TestMenuContents {...rest}>
       <Menu.Trigger {...triggerProps}>Toggle</Menu.Trigger>
@@ -3185,6 +3498,7 @@ function ContainedTriggerMenu(props: TestMenuProps) {
 
 function DetachedTriggerMenu(props: TestMenuProps) {
   const { triggerProps, ...rest } = props;
+
   const menuHandle = useRefWithInit(() => new Menu.Handle()).current;
 
   return (
@@ -3212,6 +3526,7 @@ type TestMenuProps = {
 
 function TestMenuContents(props: TestMenuProps) {
   const { children, rootProps, portalProps, submenuProps, submenuTriggerProps, popupProps } = props;
+
   return (
     <Menu.Root {...rootProps}>
       {children}

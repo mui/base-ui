@@ -1,6 +1,7 @@
 import { expect, vi } from 'vitest';
 import * as React from 'react';
-import { createRenderer } from '#test-utils';
+import { screen, waitFor } from '@mui/internal-test-utils';
+import { createRenderer, isJSDOM } from '#test-utils';
 import { useFloating } from '../floating-ui-react';
 import {
   useAnchorPositioningWithHook,
@@ -54,6 +55,62 @@ function TestUseAnchorPositioning(props: { shift?: UseAnchorPositioningParameter
   );
 }
 
+function TestLazyFlip(props: {
+  side?: 'right' | 'bottom';
+  align?: 'start' | 'center';
+  lazyFlip?: boolean | 'placement';
+}) {
+  const { side = 'right', align = 'start', lazyFlip = true } = props;
+  const anchorRef = React.useRef<HTMLDivElement>(null);
+  const [shrunk, setShrunk] = React.useState(false);
+  const height = shrunk ? 10 : 100;
+
+  const positioning = useAnchorPositioningWithHook(
+    {
+      anchor: anchorRef,
+      mounted: true,
+      positionMethod: 'fixed',
+      side,
+      align,
+      sideOffset: 0,
+      alignOffset: 0,
+      collisionBoundary: 'clipping-ancestors',
+      collisionPadding: 5,
+      sticky: false,
+      arrowPadding: 5,
+      disableAnchorTracking: false,
+      keepMounted: false,
+      collisionAvoidance: { fallbackAxisSide: 'none' },
+      lazyFlip,
+    },
+    useFloating,
+  );
+
+  return (
+    <React.Fragment>
+      <div
+        ref={anchorRef}
+        data-testid="anchor"
+        style={{ position: 'fixed', right: 200, bottom: 10, width: 20, height: 20 }}
+      >
+        anchor
+      </div>
+      <div
+        ref={positioning.refs.setFloating}
+        data-testid="floating"
+        data-side={positioning.side}
+        data-align={positioning.align}
+        style={{ ...positioning.positionerStyles, width: 100, height }}
+      >
+        floating
+      </div>
+      <button type="button" onClick={() => setShrunk(true)}>
+        Shrink
+      </button>
+    </React.Fragment>
+  );
+}
+
 describe('useAnchorPositioning', () => {
   const { render } = createRenderer();
 
@@ -76,5 +133,62 @@ describe('useAnchorPositioning', () => {
 
     expect(shiftSpy.mock.calls[0]?.[0].rootBoundary).toBe('layoutViewport');
     expect(shiftSpy.mock.calls[0]?.[0].crossAxis).toBe(crossAxis);
+  });
+
+  it.skipIf(isJSDOM)('locks a flipped alignment after the popup shrinks', async () => {
+    // Only `'placement'` locks the align axis. Plain `true` stays side-only so Combobox keeps
+    // recomputing its alignment.
+    const { user } = await render(<TestLazyFlip lazyFlip="placement" />);
+    const floating = screen.getByTestId('floating');
+
+    await waitFor(() => {
+      expect(floating).toHaveAttribute('data-align', 'end');
+    });
+
+    await user.click(screen.getByRole('button', { name: 'Shrink' }));
+
+    await waitFor(() => {
+      const anchorBottom = screen.getByTestId('anchor').getBoundingClientRect().bottom;
+      const floatingBottom = floating.getBoundingClientRect().bottom;
+      expect(Math.abs(anchorBottom - floatingBottom)).toBeLessThan(1);
+    });
+
+    expect(floating).toHaveAttribute('data-align', 'end');
+  });
+
+  it.skipIf(isJSDOM)('leaves the alignment free when lazy flipping is side-only', async () => {
+    const { user } = await render(<TestLazyFlip lazyFlip />);
+    const floating = screen.getByTestId('floating');
+
+    await waitFor(() => {
+      expect(floating).toHaveAttribute('data-align', 'end');
+    });
+
+    await user.click(screen.getByRole('button', { name: 'Shrink' }));
+
+    await waitFor(() => {
+      expect(floating).toHaveAttribute('data-align', 'start');
+    });
+  });
+
+  it.skipIf(isJSDOM)('locks a flipped side after the popup shrinks', async () => {
+    const { user } = await render(<TestLazyFlip side="bottom" align="center" />);
+    const floating = screen.getByTestId('floating');
+
+    // The anchor sits at the viewport's bottom edge, so the popup flips above it.
+    await waitFor(() => {
+      expect(floating).toHaveAttribute('data-side', 'top');
+    });
+
+    // Shrinking makes the preferred bottom side fit again, but the flip is locked.
+    await user.click(screen.getByRole('button', { name: 'Shrink' }));
+
+    await waitFor(() => {
+      const anchorTop = screen.getByTestId('anchor').getBoundingClientRect().top;
+      const floatingBottom = floating.getBoundingClientRect().bottom;
+      expect(Math.abs(anchorTop - floatingBottom)).toBeLessThan(1);
+    });
+
+    expect(floating).toHaveAttribute('data-side', 'top');
   });
 });

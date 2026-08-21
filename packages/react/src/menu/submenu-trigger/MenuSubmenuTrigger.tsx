@@ -10,7 +10,6 @@ import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { safePolygon, useClick, useHoverReferenceInteraction } from '../../floating-ui-react';
 import { BaseUIComponentProps, NonNativeButtonProps } from '../../internals/types';
 import { useMenuRootContext } from '../root/MenuRootContext';
-import { useBaseUiId } from '../../internals/useBaseUiId';
 import { triggerOpenStateMapping } from '../../utils/popupStateMapping';
 import { useCompositeListItem } from '../../internals/composite/list/useCompositeListItem';
 import { useMenuItem } from '../item/useMenuItem';
@@ -19,6 +18,7 @@ import { useMenuPositionerContext } from '../positioner/MenuPositionerContext';
 import { useTriggerRegistration } from '../../utils/popups';
 import { useMenuSubmenuRootContext } from '../submenu-root/MenuSubmenuRootContext';
 import { REASONS } from '../../internals/reasons';
+import { getMenuItemId } from '../utils/getMenuItemId';
 
 const VOICE_OVER_EXPANDED_PROPS = { 'aria-expanded': undefined };
 
@@ -46,31 +46,38 @@ export const MenuSubmenuTrigger = React.forwardRef(function MenuSubmenuTrigger(
     ...elementProps
   } = componentProps;
 
-  const submenuRootContext = useMenuSubmenuRootContext();
-  if (!submenuRootContext?.parentMenu) {
+  const context = useMenuRootContext(true);
+  if (context?.type !== 'submenu' || context.parent.type !== 'menu') {
     throw new Error('Base UI: <Menu.SubmenuTrigger> must be placed in <Menu.SubmenuRoot>.');
   }
 
-  const listItem = useCompositeListItem({ guess: true, label });
   const menuPositionerContext = useMenuPositionerContext();
 
-  const { store } = useMenuRootContext();
+  const { store, parentVirtualFocus, webkitItemSelected, parentFloatingId } = context;
+  const parentMenuStore = context.parent.store;
+  const submenuRootContext = useMenuSubmenuRootContext();
+  const listItem = useCompositeListItem({ guess: true, label });
+  // The trigger is an item in the parent menu, so its ID uses the parent's namespace.
+  const id = getMenuItemId(idProp, parentFloatingId, listItem.index);
 
-  const thisTriggerId = useBaseUiId(idProp);
   const open = store.useState('open');
   const floatingRootContext = store.useState('floatingRootContext');
   const floatingTreeRoot = store.useState('floatingTreeRoot');
-  const popupId = store.useState('triggerPopupId', thisTriggerId);
-
-  const baseRegisterTrigger = useTriggerRegistration(thisTriggerId, store);
+  const popupId = store.useState('triggerPopupId', id);
+  const baseRegisterTrigger = useTriggerRegistration(id, store);
   // Stable, so the merged ref on the rendered element keeps its identity for the trigger's whole
   // lifetime; the latest `closeDelay` is read when it runs.
   const registerTrigger = useStableCallback((element: Element | null) => {
     baseRegisterTrigger(element);
 
-    if (element !== null && store.select('open') && store.select('activeTriggerId') == null) {
+    const activeTriggerElement = store.select('activeTriggerElement');
+    if (
+      element !== null &&
+      store.select('open') &&
+      (activeTriggerElement === element || store.select('activeTriggerId') == null)
+    ) {
       store.update({
-        activeTriggerId: thisTriggerId ?? null,
+        activeTriggerId: id ?? null,
         activeTriggerElement: element,
         closeDelay,
       });
@@ -79,9 +86,9 @@ export const MenuSubmenuTrigger = React.forwardRef(function MenuSubmenuTrigger(
 
   const triggerElementRef = React.useRef<HTMLElement | null>(null);
   const handleTriggerElementRef = React.useCallback(
-    (el: HTMLElement | null) => {
-      triggerElementRef.current = el;
-      store.set('activeTriggerElement', el);
+    (element: HTMLElement | null) => {
+      triggerElementRef.current = element;
+      store.set('activeTriggerElement', element);
     },
     [store],
   );
@@ -92,11 +99,10 @@ export const MenuSubmenuTrigger = React.forwardRef(function MenuSubmenuTrigger(
   useIsoLayoutEffect(() => {
     registerTrigger(triggerElementRef.current);
     return () => registerTrigger(null);
-  }, [registerTrigger, thisTriggerId, store]);
+  }, [registerTrigger, id, store]);
 
   store.useSyncedValue('closeDelay', closeDelay);
 
-  const parentMenuStore = submenuRootContext.parentMenu;
   const rootDisabled = store.useState('disabled');
   const parentDisabled = parentMenuStore.useState('disabled');
   const disabled = disabledProp || rootDisabled || parentDisabled;
@@ -116,7 +122,6 @@ export const MenuSubmenuTrigger = React.forwardRef(function MenuSubmenuTrigger(
 
   const itemProps = parentMenuStore.useState('itemProps');
   const highlighted = parentMenuStore.useState('isActive', listItem.index);
-
   const itemMetadata = React.useMemo(
     () => ({
       type: 'submenu-trigger' as const,
@@ -133,11 +138,13 @@ export const MenuSubmenuTrigger = React.forwardRef(function MenuSubmenuTrigger(
     closeOnClick: false,
     disabled,
     highlighted,
-    id: thisTriggerId,
+    id,
     store,
     typingRef: parentMenuStore.context.typingRef,
     nativeButton,
     itemMetadata,
+    virtualFocus: parentVirtualFocus,
+    webkitItemSelected,
     nodeId: menuPositionerContext?.context.nodeId,
   });
 
@@ -176,11 +183,12 @@ export const MenuSubmenuTrigger = React.forwardRef(function MenuSubmenuTrigger(
 
   const openMethod = store.useState('openMethod');
   const lastOpenChangeReason = store.useState('lastOpenChangeReason');
-  // Arrow keys open the submenu through list navigation without dispatching a click, so
-  // `openMethod` stays null there; Enter and Space do dispatch one and report `keyboard`.
   const openedByKeyboard =
     lastOpenChangeReason === REASONS.listNavigation || openMethod === 'keyboard';
   const shouldOmitExpanded = open && openedByKeyboard && platform.screenReader.voiceOver;
+  const submenuKeyDownProps = submenuRootContext?.onTriggerKeyDown
+    ? { onKeyDown: submenuRootContext.onTriggerKeyDown }
+    : undefined;
 
   const element = useRenderElement('div', componentProps, {
     state,
@@ -189,6 +197,9 @@ export const MenuSubmenuTrigger = React.forwardRef(function MenuSubmenuTrigger(
       localInteractionProps,
       hoverProps,
       rootTriggerProps,
+      // FilterMenu.SubmenuRoot overrides the generic trigger handler because entry and exit
+      // depend on both the parent and child menu orientations.
+      submenuKeyDownProps,
       itemProps,
       // Opening a submenu changes the trigger's expanded state while the trigger still holds
       // focus, and VoiceOver announces that state change instead of the submenu item that focus
@@ -198,7 +209,9 @@ export const MenuSubmenuTrigger = React.forwardRef(function MenuSubmenuTrigger(
       shouldOmitExpanded ? VOICE_OVER_EXPANDED_PROPS : undefined,
       {
         'aria-controls': popupId,
-        tabIndex: open || highlighted ? 0 : -1,
+        // A virtually focused parent keeps real focus on its input, so the trigger must stay out
+        // of the tab order.
+        tabIndex: parentVirtualFocus || !(open || highlighted) ? -1 : 0,
         onBlur() {
           if (highlighted) {
             parentMenuStore.set('activeIndex', null);
@@ -206,6 +219,7 @@ export const MenuSubmenuTrigger = React.forwardRef(function MenuSubmenuTrigger(
         },
       },
       elementProps,
+      // `getItemProps` stays last so `useButton` keeps gating consumer handlers while disabled.
       getItemProps,
     ],
     ref: [forwardedRef, listItem.ref, itemRef, registerTrigger, handleTriggerElementRef],

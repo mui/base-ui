@@ -2,7 +2,6 @@
 import * as React from 'react';
 import { useMenuRootContext } from '../root/MenuRootContext';
 import { useRenderElement } from '../../internals/useRenderElement';
-import { useBaseUiId } from '../../internals/useBaseUiId';
 import type { BaseUIComponentProps, HTMLProps } from '../../internals/types';
 import { useCompositeListItem } from '../../internals/composite/list/useCompositeListItem';
 import { useMenuPositionerContext } from '../positioner/MenuPositionerContext';
@@ -10,6 +9,7 @@ import { useMenuItemCommonProps } from '../item/useMenuItemCommonProps';
 import { REGULAR_ITEM } from '../item/useMenuItem';
 import { useButton } from '../../internals/use-button';
 import { mergeProps } from '../../merge-props';
+import { getMenuItemId } from '../utils/getMenuItemId';
 
 /**
  * A link in the menu that can be used to navigate to a different page or section.
@@ -36,10 +36,9 @@ export const MenuLinkItem = React.forwardRef(function MenuLinkItem(
   const listItem = useCompositeListItem({ guess: true, label });
   const menuPositionerContext = useMenuPositionerContext(true);
   const nodeId = menuPositionerContext?.context.nodeId;
+  const { store, floatingId, virtualFocus, webkitItemSelected } = useMenuRootContext();
+  const id = getMenuItemId(idProp, floatingId, listItem.index);
 
-  const id = useBaseUiId(idProp);
-
-  const { store } = useMenuRootContext();
   const highlighted = store.useState('isActive', listItem.index);
   const itemProps = store.useState('itemProps');
   const typingRef = store.context.typingRef;
@@ -58,6 +57,8 @@ export const MenuLinkItem = React.forwardRef(function MenuLinkItem(
     typingRef,
     itemRef: linkRef,
     itemMetadata: REGULAR_ITEM,
+    virtualFocus,
+    webkitItemSelected,
   });
 
   function getItemProps(externalProps?: HTMLProps): HTMLProps {

@@ -3,7 +3,6 @@ import * as React from 'react';
 import { NOOP } from '@base-ui/utils/empty';
 import { useMenuRootContext } from '../root/MenuRootContext';
 import { useRenderElement } from '../../internals/useRenderElement';
-import { useBaseUiId } from '../../internals/useBaseUiId';
 import type { BaseUIComponentProps, NonNativeButtonProps } from '../../internals/types';
 import { useMenuRadioGroupContext } from '../radio-group/MenuRadioGroupContext';
 import { MenuRadioItemContext } from './MenuRadioItemContext';
@@ -13,6 +12,7 @@ import { REGULAR_ITEM, useMenuItem } from '../item/useMenuItem';
 import { useMenuPositionerContext } from '../positioner/MenuPositionerContext';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
+import { getMenuItemId } from '../utils/getMenuItemId';
 
 /**
  * A menu item that works like a radio button in a given group.
@@ -39,9 +39,9 @@ export const MenuRadioItem = React.forwardRef(function MenuRadioItem(
 
   const listItem = useCompositeListItem({ guess: true, label });
   const menuPositionerContext = useMenuPositionerContext(true);
-  const id = useBaseUiId(idProp);
+  const { store, floatingId, virtualFocus, webkitItemSelected } = useMenuRootContext();
+  const id = getMenuItemId(idProp, floatingId, listItem.index);
 
-  const { store } = useMenuRootContext();
   const highlighted = store.useState('isActive', listItem.index);
   const itemProps = store.useState('itemProps');
 
@@ -64,6 +64,8 @@ export const MenuRadioItem = React.forwardRef(function MenuRadioItem(
     nativeButton,
     nodeId: menuPositionerContext?.context.nodeId,
     itemMetadata: REGULAR_ITEM,
+    virtualFocus,
+    webkitItemSelected,
   });
 
   const state: MenuRadioItemState = React.useMemo(

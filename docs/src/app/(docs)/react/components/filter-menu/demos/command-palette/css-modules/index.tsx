@@ -1,11 +1,11 @@
 'use client';
 import * as React from 'react';
 import { Dialog } from '@base-ui/react/dialog';
-import { Autocomplete } from '@base-ui/react/autocomplete';
+import { FilterMenu } from '@base-ui/react/filter-menu';
 import { ScrollArea } from '@base-ui/react/scroll-area';
 import styles from './index.module.css';
 
-export default function ExampleAutocompleteCommandPalette() {
+export default function ExampleFilterMenuCommandPalette() {
   const [open, setOpen] = React.useState(false);
   const shortcutsDescriptionId = React.useId();
 
@@ -20,59 +20,49 @@ export default function ExampleAutocompleteCommandPalette() {
         <Dialog.Backdrop className={styles.Backdrop} />
         <Dialog.Viewport className={styles.Viewport}>
           <Dialog.Popup className={styles.Popup} aria-label="Command palette">
-            <Autocomplete.Root
-              open
-              inline
-              items={groupedItems}
-              autoHighlight="always"
-              keepHighlight
-            >
-              <Autocomplete.InputGroup className={styles.InputGroup}>
+            <FilterMenu.Root inline open autoHighlight="always">
+              <div className={styles.InputGroup}>
                 <MagnifyingGlassIcon className={styles.InputIcon} aria-hidden />
-                <Autocomplete.Input
+                <FilterMenu.Input
                   className={styles.Input}
                   aria-label="Search commands"
                   aria-describedby={shortcutsDescriptionId}
                   placeholder="Search for apps and commands…"
                 />
-              </Autocomplete.InputGroup>
-              <Dialog.Close className={styles.VisuallyHidden}>Close command palette</Dialog.Close>
+              </div>
+              <Dialog.Close className={styles.VisuallyHidden} tabIndex={-1}>
+                Close command palette
+              </Dialog.Close>
 
               <ScrollArea.Root className={styles.ListArea}>
                 <ScrollArea.Viewport className={styles.ListViewport}>
                   <ScrollArea.Content className={styles.ListContent}>
-                    <Autocomplete.Empty>
+                    <FilterMenu.Empty>
                       <div className={styles.Empty}>No results found.</div>
-                    </Autocomplete.Empty>
+                    </FilterMenu.Empty>
 
-                    <Autocomplete.List className={styles.List}>
-                      {(group: Group) => (
-                        <Autocomplete.Group
-                          key={group.value}
-                          items={group.items}
-                          className={styles.Group}
-                        >
-                          <Autocomplete.GroupLabel className={styles.GroupLabel}>
+                    <FilterMenu.List className={styles.List} aria-label="Commands">
+                      {groupedItems.map((group) => (
+                        <FilterMenu.Group key={group.value} className={styles.Group}>
+                          <FilterMenu.GroupLabel className={styles.GroupLabel}>
                             {group.value}
-                          </Autocomplete.GroupLabel>
-                          <Autocomplete.Collection>
-                            {(item: Item) => (
-                              <Autocomplete.Item
-                                key={item.value}
-                                value={item}
-                                className={styles.Item}
-                                onClick={handleItemClick}
-                              >
-                                <span className={styles.ItemLabel}>{item.label}</span>
-                                <span className={styles.ItemType}>
-                                  {group.value === 'Suggestions' ? 'Application' : 'Command'}
-                                </span>
-                              </Autocomplete.Item>
-                            )}
-                          </Autocomplete.Collection>
-                        </Autocomplete.Group>
-                      )}
-                    </Autocomplete.List>
+                          </FilterMenu.GroupLabel>
+                          {group.items.map((item) => (
+                            <FilterMenu.Item
+                              key={item.value}
+                              label={item.label}
+                              className={styles.Item}
+                              onClick={handleItemClick}
+                            >
+                              <span className={styles.ItemLabel}>{item.label}</span>
+                              <span className={styles.ItemType}>
+                                {group.value === 'Suggestions' ? 'Application' : 'Command'}
+                              </span>
+                            </FilterMenu.Item>
+                          ))}
+                        </FilterMenu.Group>
+                      ))}
+                    </FilterMenu.List>
                   </ScrollArea.Content>
                 </ScrollArea.Viewport>
                 <ScrollArea.Scrollbar className={styles.Scrollbar}>
@@ -82,14 +72,19 @@ export default function ExampleAutocompleteCommandPalette() {
 
               <div className={styles.Footer}>
                 <span id={shortcutsDescriptionId} className={styles.VisuallyHidden}>
-                  Use Enter to activate the highlighted item.
+                  Use the arrow keys to choose a command and Enter to activate it.
                 </span>
                 <div className={styles.FooterLeft}>
+                  <span>Navigate</span>
+                  <kbd className={styles.Kbd}>↑</kbd>
+                  <kbd className={styles.Kbd}>↓</kbd>
+                </div>
+                <div className={styles.FooterRight}>
                   <span>Activate</span>
                   <kbd className={styles.Kbd}>Enter</kbd>
                 </div>
               </div>
-            </Autocomplete.Root>
+            </FilterMenu.Root>
           </Dialog.Popup>
         </Dialog.Viewport>
       </Dialog.Portal>

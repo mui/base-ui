@@ -7,13 +7,13 @@ import { REGULAR_ITEM, useMenuItem } from '../item/useMenuItem';
 import { useCompositeListItem } from '../../internals/composite/list/useCompositeListItem';
 import { useMenuRootContext } from '../root/MenuRootContext';
 import { useRenderElement } from '../../internals/useRenderElement';
-import { useBaseUiId } from '../../internals/useBaseUiId';
 import type { BaseUIComponentProps, NonNativeButtonProps } from '../../internals/types';
 import { itemMapping } from '../utils/stateAttributesMapping';
 import { useMenuPositionerContext } from '../positioner/MenuPositionerContext';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
 import type { MenuRoot } from '../root/MenuRoot';
+import { getMenuItemId } from '../utils/getMenuItemId';
 
 /**
  * A menu item that toggles a setting on or off.
@@ -42,9 +42,9 @@ export const MenuCheckboxItem = React.forwardRef(function MenuCheckboxItem(
 
   const listItem = useCompositeListItem({ guess: true, label });
   const menuPositionerContext = useMenuPositionerContext(true);
-  const id = useBaseUiId(idProp);
+  const { store, floatingId, virtualFocus, webkitItemSelected } = useMenuRootContext();
+  const id = getMenuItemId(idProp, floatingId, listItem.index);
 
-  const { store } = useMenuRootContext();
   const rootDisabled = store.useState('disabled');
   const disabled = disabledProp || rootDisabled;
   const highlighted = store.useState('isActive', listItem.index);
@@ -66,6 +66,8 @@ export const MenuCheckboxItem = React.forwardRef(function MenuCheckboxItem(
     nativeButton,
     nodeId: menuPositionerContext?.context.nodeId,
     itemMetadata: REGULAR_ITEM,
+    virtualFocus,
+    webkitItemSelected,
   });
 
   const state: MenuCheckboxItemState = React.useMemo(

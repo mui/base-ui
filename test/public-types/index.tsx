@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { FilterMenu } from '@base-ui/react';
 import { Menu } from '@base-ui/react/menu';
 import { Toast } from '@base-ui/react/toast';
 import type { CheckboxProps } from './checkbox';
@@ -21,6 +22,12 @@ import type {
   ToastManagerUpdateOptions,
   ToastProviderProps,
 } from './toast';
+
+const filterMenuHandle = FilterMenu.createHandle();
+
+export function RootFilterMenuExport() {
+  return <FilterMenu.Trigger handle={filterMenuHandle}>Open</FilterMenu.Trigger>;
+}
 
 export const MyCheckbox = React.forwardRef<HTMLDivElement, CheckboxProps>(() => {
   return <div />;
