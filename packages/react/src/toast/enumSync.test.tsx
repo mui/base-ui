@@ -26,6 +26,11 @@ describe('Toast enum sync', () => {
     expect(Object.keys(emitted!)[0]).toBe(ToastRootDataAttributes.swipeDirection);
   });
 
+  it('names the group attribute per ToastRootDataAttributes', () => {
+    const emitted = toastRootStateAttributesMapping.group!('top-right');
+    expect(Object.keys(emitted!)[0]).toBe(ToastRootDataAttributes.group);
+  });
+
   it('names the root CSS variables per ToastRootCssVars', async () => {
     const { user } = await render(
       <Toast.Provider>
@@ -85,6 +90,13 @@ describe('Toast enum sync', () => {
             .getByTestId('viewport')
             .style.getPropertyValue(ToastViewportCssVars.frontmostHeight),
         ).not.toBe(''),
+      );
+
+      // The root shadows the viewport variable with its group-local value,
+      // which for a single toast is its own measured height.
+      const root = screen.getByTestId('root');
+      expect(root.style.getPropertyValue(ToastViewportCssVars.frontmostHeight)).toBe(
+        root.style.getPropertyValue(ToastRootCssVars.height),
       );
     },
   );

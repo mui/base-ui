@@ -1076,6 +1076,48 @@ describe('<Toast.Viewport />', () => {
       expect(oldest).toHaveFocus();
     });
 
+    it.skipIf(!isJSDOM)('prefers a toast in the same group when handing off focus', async () => {
+      const manager = Toast.createToastManager();
+
+      await renderFakeTimers(
+        <Toast.Provider toastManager={manager} timeout={0}>
+          <Toast.Viewport data-testid="viewport">
+            <List />
+          </Toast.Viewport>
+          <Button />
+        </Toast.Provider>,
+      );
+
+      const button = screen.getByRole('button', { name: 'add' });
+      await act(async () => button.focus());
+
+      await act(async () => {
+        manager.add({ id: 'corner-old', title: 'corner old', group: 'top-right' });
+      });
+      await act(async () => {
+        manager.add({ id: 'other', title: 'other' });
+      });
+      await act(async () => {
+        manager.add({ id: 'corner-new', title: 'corner new', group: 'top-right' });
+      });
+
+      const [cornerNew, other, cornerOld] = screen.getAllByTestId('root');
+      expect(other).toHaveTextContent('other');
+
+      fireEvent.keyDown(button, { key: 'F6' });
+      const viewport = screen.getByTestId('viewport');
+      const guard = document.querySelector('[data-base-ui-focus-guard]') as HTMLElement;
+      fireEvent.focus(guard, { relatedTarget: viewport });
+
+      expect(cornerNew).toHaveFocus();
+
+      // Dismissing the focused toast hands focus to the remaining toast in the
+      // same group (same screen position), not the nearer toast in another group.
+      await act(async () => manager.close('corner-new'));
+
+      expect(cornerOld).toHaveFocus();
+    });
+
     it.skipIf(!isJSDOM)('leaves focus alone when it is outside the viewport', async () => {
       const manager = Toast.createToastManager();
 
