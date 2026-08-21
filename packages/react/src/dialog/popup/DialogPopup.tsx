@@ -102,11 +102,10 @@ export const DialogPopup = React.forwardRef(function DialogPopup(
     <FloatingFocusManager
       context={floatingRootContext}
       openInteractionType={openMethod}
-      disabled={!mounted}
+      disabled={!open}
       closeOnFocusOut={!disablePointerDismissal}
       initialFocus={resolvedInitialFocus}
       returnFocus={finalFocus}
-      returnFocusIfOrphaned={finalFocus == null}
       modal={modal !== false}
       restoreFocus="popup"
     >

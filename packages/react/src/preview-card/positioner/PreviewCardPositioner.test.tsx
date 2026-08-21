@@ -1143,7 +1143,7 @@ describe('<PreviewCard.Positioner />', () => {
       }
 
       .animation-test-popup[data-ending-style] {
-        animation: closing-test 500ms linear;
+        animation: closing-test 10s linear;
       }
     `;
 

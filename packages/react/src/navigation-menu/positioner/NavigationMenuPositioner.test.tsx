@@ -81,11 +81,11 @@ describe('<NavigationMenu.Positioner />', () => {
       }
 
       .animation-test-popup[data-ending-style] {
-        animation: navigation-menu-close-test 500ms linear;
+        animation: navigation-menu-close-test 10s linear;
       }
     `;
 
-    it('keeps focus inside and only blocks hit testing while it animates out', async ({
+    it('blocks hit testing without going inert while it animates out', async ({
       onTestFinished,
     }) => {
       globalThis.BASE_UI_ANIMATIONS_DISABLED = false;

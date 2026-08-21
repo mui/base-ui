@@ -168,16 +168,14 @@ export const NavigationMenuPositioner = React.forwardRef(function NavigationMenu
   }, [open, initialInstantTimeout, resizeTimeout, positionerElement]);
 
   const element = usePositioner(componentProps, state, {
-    // No `FloatingFocusManager` here, so nothing hands focus back when the popup closes. Going
-    // fully `inert` would blur whatever is focused inside it for the whole exit animation, so
-    // this only blocks hit testing.
-    styles: !open
-      ? { ...positioning.positionerStyles, pointerEvents: 'none' }
-      : positioning.positionerStyles,
+    styles: positioning.positionerStyles,
     transitionStatus,
     props: elementProps,
     refs: [forwardedRef, setPositionerElement],
     hidden: !mounted,
+    // Navigation Menu owns focus without a FloatingFocusManager. Do not change its focus tree
+    // while it animates out; only make the fading positioner click-through.
+    pointerEventsNone: !open,
   });
 
   return (

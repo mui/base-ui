@@ -124,18 +124,6 @@ export const PopoverPositioner = React.forwardRef(function PopoverPositioner(
 
   const trueModalNonHover = modal === true && openReason !== REASONS.triggerHover;
 
-  // `Popover.Popup` disables its focus manager for a hover-opened popover, so nothing hands focus
-  // back when it closes — making the closing subtree `inert` would blur whatever is inside it and
-  // strand focus on `<body>`, the same reason Tooltip and Preview card are never made inert.
-  // Latched while the popover is open: `openReason` becomes the *close* reason as soon as it
-  // closes, so it can't be read for this during the exit animation.
-  const openedByHoverRef = React.useRef(false);
-  useIsoLayoutEffect(() => {
-    if (open) {
-      openedByHoverRef.current = openReason === REASONS.triggerHover;
-    }
-  }, [open, openReason]);
-
   useAnchoredPopupScrollLock(
     open && trueModalNonHover,
     openMethod === 'touch',
@@ -159,7 +147,9 @@ export const PopoverPositioner = React.forwardRef(function PopoverPositioner(
     props: elementProps,
     refs: [forwardedRef, setPositionerElement],
     hidden: !mounted,
-    inert: !open && !openedByHoverRef.current,
+    // Popover can open with its focus manager disabled, so it does not have one focus handoff
+    // contract shared by every open method. Keep hit testing separate from native `inert`.
+    pointerEventsNone: !open,
   });
 
   return (

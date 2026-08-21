@@ -161,13 +161,12 @@ describe('<Combobox.Popup />', () => {
       }
 
       .animation-test-popup[data-ending-style] {
-        animation: combobox-close-test 500ms linear;
+        animation: combobox-close-test 10s linear;
       }
     `;
 
-    // The common layout: the input sits outside the popup, so the focus manager runs with
-    // `returnFocus: false` on the assumption that focus never left the input. A control inside the
-    // popup breaks that assumption.
+    // The common layout keeps the input outside the popup. Focus usually remains on that input,
+    // but custom controls in the popup can take focus and need an explicit close-time handoff.
     function AnimatedCombobox() {
       return (
         <React.Fragment>
@@ -219,6 +218,7 @@ describe('<Combobox.Popup />', () => {
       await waitFor(() => expect(screen.getByTestId('input')).toHaveFocus());
 
       await user.keyboard('{Tab}');
+      expect(screen.getByTestId('popup')).toHaveAttribute('data-ending-style');
       expect(screen.getByTestId('after')).toHaveFocus();
     });
 
@@ -245,7 +245,40 @@ describe('<Combobox.Popup />', () => {
       await user.click(screen.getByTestId('plain'));
       expect(screen.getByTestId('popup')).toHaveAttribute('data-ending-style');
 
-      await waitFor(() => expect(screen.getByTestId('input')).not.toHaveFocus());
+      expect(document.body).toHaveFocus();
+    });
+
+    it('starts each close with fresh return-focus state while the popup stays mounted', async ({
+      onTestFinished,
+    }) => {
+      globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+      onTestFinished(() => {
+        globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
+      });
+
+      const { user } = await render(<AnimatedCombobox />);
+      const input = screen.getByTestId('input');
+
+      await user.click(input);
+      await user.click(await screen.findByTestId('inside'));
+      await user.keyboard('{Escape}');
+      expect(screen.getByTestId('popup')).toHaveAttribute('data-ending-style');
+      await waitFor(() => expect(input).toHaveFocus());
+
+      await user.keyboard('{Tab}');
+      expect(screen.getByTestId('popup')).toHaveAttribute('data-ending-style');
+      expect(screen.getByTestId('after')).toHaveFocus();
+
+      await user.keyboard('{Shift>}{Tab}{/Shift}');
+      expect(screen.getByTestId('popup')).toHaveAttribute('data-ending-style');
+      expect(input).toHaveFocus();
+
+      await user.keyboard('{ArrowDown}');
+      await user.click(await screen.findByTestId('inside'));
+      await user.keyboard('{Escape}');
+
+      expect(screen.getByTestId('popup')).toHaveAttribute('data-ending-style');
+      await waitFor(() => expect(input).toHaveFocus());
     });
   });
 });

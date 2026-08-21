@@ -97,13 +97,12 @@ export const TooltipPositioner = React.forwardRef(function TooltipPositioner(
   const nonHoverable = !open || trackCursorAxis === 'both' || disableHoverablePopup;
 
   const element = usePositioner(componentProps, state, {
-    styles: nonHoverable
-      ? { ...positioning.positionerStyles, pointerEvents: 'none' }
-      : positioning.positionerStyles,
+    styles: positioning.positionerStyles,
     transitionStatus,
     props: elementProps,
     refs: [forwardedRef, store.useStateSetter('positionerElement')],
     hidden: !mounted,
+    pointerEventsNone: nonHoverable,
   });
 
   return (

@@ -401,11 +401,10 @@ export const DrawerPopup = React.forwardRef(function DrawerPopup(
     <FloatingFocusManager
       context={floatingRootContext}
       openInteractionType={openMethod}
-      disabled={!mounted}
+      disabled={!open}
       closeOnFocusOut={!disablePointerDismissal}
       initialFocus={resolvedInitialFocus}
       returnFocus={finalFocus}
-      returnFocusIfOrphaned={finalFocus == null}
       modal={modal !== false}
       restoreFocus="popup"
     >

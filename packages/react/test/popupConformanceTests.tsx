@@ -14,6 +14,7 @@ export function popupConformanceTests(config: PopupTestConfig) {
     expectedAriaHasPopupValue = expectedPopupRole,
     alwaysMounted: alwaysMountedParam = false,
     combobox = false,
+    inertWhenClosed = triggerMouseAction === 'click',
   } = config;
 
   const alwaysMounted = alwaysMountedParam === 'only-after-open' ? false : alwaysMountedParam;
@@ -213,10 +214,9 @@ export function popupConformanceTests(config: PopupTestConfig) {
       });
 
       it('makes the popup inert while it animates out', async ({ skip }) => {
-        // Only the components that hand focus back when the popup closes go fully inert. The
-        // hover-triggered ones render no `FloatingFocusManager`, so going inert there would blur
-        // whatever is focused inside them for the whole exit animation.
-        if (isJSDOM || triggerMouseAction !== 'click') {
+        // Only components with one explicit close-time focus handoff go fully inert. Components
+        // that do not have that contract opt out and only suppress pointer events while closing.
+        if (isJSDOM || !inertWhenClosed) {
           skip();
         }
 
@@ -232,7 +232,7 @@ export function popupConformanceTests(config: PopupTestConfig) {
           }
 
           [data-ending-style] {
-            animation: ${animationName} 500ms linear;
+            animation: ${animationName} 10s linear;
           }
         `;
 
@@ -263,10 +263,9 @@ export function popupConformanceTests(config: PopupTestConfig) {
       });
 
       it('keeps keyboard navigation unstuck while the popup animates out', async ({ skip }) => {
-        // Hover-triggered popups reopen as soon as their trigger takes focus, so the premise of
-        // tabbing around a closed-but-animating popup doesn't hold for them. They also have no
-        // trigger focus guards, which is what these moves exercise.
-        if (isJSDOM || triggerMouseAction !== 'click') {
+        // Components without one close-time focus handoff do not become inert, so this test does
+        // not apply to them. It specifically exercises the guards around inert closing content.
+        if (isJSDOM || !inertWhenClosed) {
           skip();
         }
 
@@ -279,7 +278,7 @@ export function popupConformanceTests(config: PopupTestConfig) {
           }
 
           [data-ending-style] {
-            animation: ${animationName} 500ms linear;
+            animation: ${animationName} 10s linear;
           }
         `;
 
@@ -354,6 +353,7 @@ export function popupConformanceTests(config: PopupTestConfig) {
           move.from.focus();
           // eslint-disable-next-line no-await-in-loop
           await user.keyboard(move.key);
+          expect(document.querySelector('[data-ending-style]')).not.toBe(null);
           landed.push(`${move.name} -> ${label(activeElement(document))}`);
         }
 
@@ -415,6 +415,12 @@ export interface PopupTestConfig {
    * Whether the popup is a combobox.
    */
   combobox?: boolean;
+  /**
+   * Whether the popup has an explicit focus handoff and therefore becomes natively inert while
+   * it remains mounted after close.
+   * @default `true` for click-triggered popups
+   */
+  inertWhenClosed?: boolean;
 }
 
 interface RootProps {

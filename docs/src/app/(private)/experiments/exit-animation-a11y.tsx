@@ -13,9 +13,9 @@ import styles from './exit-animation-a11y.module.css';
 const fruits = ['Apple', 'Apricot', 'Banana', 'Blueberry', 'Cherry'];
 
 /**
- * While a popup is kept mounted for its exit animation it is already logically closed, so it must
- * not stay reachable by assistive tech or the Tab key. Stretch the duration to inspect the closing
- * window: focus should already be back on the trigger, and the fading popup should be `inert`.
+ * While a popup is kept mounted for its exit animation it is already logically closed. Components
+ * with an explicit close-time focus handoff make the fading subtree inert; the remaining popup
+ * types only block hit testing. Stretch the duration to inspect both policies.
  *
  * See https://github.com/mui/base-ui/issues/5519.
  */
@@ -141,8 +141,9 @@ export default function ExitAnimationA11y() {
         <div className={styles.Case}>
           <h2 className={styles.CaseTitle}>Popover</h2>
           <p className={styles.CaseText}>
-            Press Escape while focus is inside — it returns to the trigger before the animation
-            finishes.
+            Popover can open with its focus manager disabled on hover, so its closing positioner is
+            click-through but not inert. Press Escape while focus is inside: it stays there during
+            the animation and returns to the trigger when the popup unmounts.
           </p>
           <Popover.Root>
             <Popover.Trigger className={styles.Button}>Open popover</Popover.Trigger>

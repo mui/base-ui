@@ -16,12 +16,13 @@ interface UsePositionerOptions {
   hidden?: boolean | undefined;
   /**
    * Takes the subtree out of the accessibility tree, sequential focus navigation, and hit testing.
-   * Set whenever the popup is logically closed but still mounted — during an exit animation, and
-   * for a `keepMounted` popup that has never been opened — so it can't be reached by assistive
-   * tech or the Tab key. Only safe where something hands focus back on close; see the callers that
-   * deliberately opt out.
+   * Only use this when the component has an explicit focus handoff for the close boundary.
    */
   inert?: boolean | undefined;
+  /**
+   * Blocks hit testing without changing accessibility or focus behavior.
+   */
+  pointerEventsNone?: boolean | undefined;
 }
 
 /**
@@ -31,13 +32,21 @@ interface UsePositionerOptions {
 export function usePositioner<State extends Record<string, any>>(
   componentProps: UseRenderElementComponentProps<State>,
   state: State,
-  { styles, transitionStatus, props, refs, hidden, inert = false }: UsePositionerOptions,
+  {
+    styles,
+    transitionStatus,
+    props,
+    refs,
+    hidden,
+    inert = false,
+    pointerEventsNone = false,
+  }: UsePositionerOptions,
 ) {
   const style: React.CSSProperties = { ...styles };
 
-  // `inert` blocks hit testing on its own; the explicit style keeps that true where `inert` isn't
-  // implemented (jsdom).
-  if (inert) {
+  // Native `inert` blocks hit testing on its own. The explicit style also covers environments
+  // without native support and callers that only need to disable hit testing.
+  if (inert || pointerEventsNone) {
     style.pointerEvents = 'none';
   }
 

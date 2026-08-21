@@ -378,7 +378,7 @@ describe('<Tooltip.Positioner />', () => {
       }
 
       .animation-test-popup[data-ending-style] {
-        animation: tooltip-close-test 500ms linear;
+        animation: tooltip-close-test 10s linear;
       }
     `;
 

@@ -2258,7 +2258,7 @@ describe('<Dialog.Root />', () => {
       }
 
       .animation-test-popup[data-ending-style] {
-        animation: dialog-close-test 500ms linear;
+        animation: dialog-close-test 10s linear;
       }
     `;
 
