@@ -129,6 +129,7 @@ Renders a `<button>` element.
 | :-------------- | :--- | :------------------------------------------- |
 | data-popup-open | -    | Present when the corresponding menu is open. |
 | data-pressed    | -    | Present when the trigger is pressed.         |
+| data-disabled   | -    | Present when the trigger is disabled.        |
 
 ### Trigger.Props
 

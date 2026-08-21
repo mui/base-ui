@@ -94,8 +94,7 @@ export interface CollapsibleRootProps extends BaseUIComponentProps<'div', Collap
    * Event handler called when the panel is opened or closed.
    */
   onOpenChange?:
-    | ((open: boolean, eventDetails: CollapsibleRootChangeEventDetails) => void)
-    | undefined;
+    ((open: boolean, eventDetails: CollapsibleRootChangeEventDetails) => void) | undefined;
   /**
    * Whether the component should ignore user interaction.
    * @default false

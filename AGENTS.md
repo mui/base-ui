@@ -14,6 +14,7 @@ This repository contains the source code and documentation for Base UI: a headl
 
 - The shared `/base-ui-review` skill lives in `.agents/skills/base-ui-review/SKILL.md`. Update that file when the Base UI review workflow changes.
 - Claude Code discovers the same shared skill through `.claude/skills/base-ui-review/SKILL.md`, which delegates to the `.agents` copy.
+- The review skill is opt-in: only run it when the user explicitly asks for it by name (`/base-ui-review`). Do not trigger it from a generic review request or after finishing a change.
 
 ## Code guidelines
 

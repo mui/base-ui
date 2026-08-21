@@ -303,8 +303,7 @@ export interface SwitchRootProps
    * Event handler called when the switch is activated or deactivated.
    */
   onCheckedChange?:
-    | ((checked: boolean, eventDetails: SwitchRoot.ChangeEventDetails) => void)
-    | undefined;
+    ((checked: boolean, eventDetails: SwitchRoot.ChangeEventDetails) => void) | undefined;
   /**
    * Whether the user should be unable to activate or deactivate the switch.
    * @default false

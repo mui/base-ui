@@ -658,8 +658,7 @@ type ToastManagerPositionerProps = {
    * returns a style object based on the component's state.
    */
   style?:
-    | React.CSSProperties
-    | ((state: Toast.Positioner.State) => React.CSSProperties | undefined);
+    React.CSSProperties | ((state: Toast.Positioner.State) => React.CSSProperties | undefined);
   /**
    * CSS class applied to the element, or a function that
    * returns a class based on the component's state.
