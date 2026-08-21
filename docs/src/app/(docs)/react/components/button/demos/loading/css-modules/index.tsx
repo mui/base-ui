@@ -8,6 +8,7 @@ export default function ExampleButton() {
 
   return (
     <Button
+      aria-live="polite"
       className={styles.Button}
       disabled={loading}
       focusableWhenDisabled
