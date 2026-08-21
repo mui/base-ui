@@ -142,12 +142,7 @@ function Chart() {
 // ---------------------------------------------------------------------------
 
 type AnnotationType =
-  | 'horizontal-line'
-  | 'vertical-line'
-  | 'line'
-  | 'arrow'
-  | 'parallel-channel'
-  | 'comment';
+  'horizontal-line' | 'vertical-line' | 'line' | 'arrow' | 'parallel-channel' | 'comment';
 
 /** A point in chart values: `x` is a month index, `y` a series value. */
 interface DataPoint {

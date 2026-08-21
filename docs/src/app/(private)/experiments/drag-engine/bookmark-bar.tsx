@@ -108,8 +108,7 @@ type EditorState =
   | { type: 'create'; nodeType: BookmarkNode['type']; parentId: ParentId; index: number };
 
 type BookmarkClipboard =
-  | { type: 'copy'; name: string; seed: BookmarkSeed }
-  | { type: 'cut'; id: string; name: string };
+  { type: 'copy'; name: string; seed: BookmarkSeed } | { type: 'cut'; id: string; name: string };
 
 const bookmarkKind = Draggable.createKind<AcceptedBookmarkDragData>('bookmark-bar:item');
 const tabKind = Draggable.createKind<AcceptedBookmarkDragData>('bookmark-bar:tab');

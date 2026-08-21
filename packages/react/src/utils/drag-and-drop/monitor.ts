@@ -115,8 +115,7 @@ function dispatchToMonitor<K extends keyof DragEventMap & keyof RegisterMonitorP
     null,
     () => {
       const handler = getMonitor()[eventName] as
-        | ((parameters: DragEventMap[K], details: DragEventDetailsMap[K]) => void)
-        | undefined;
+        ((parameters: DragEventMap[K], details: DragEventDetailsMap[K]) => void) | undefined;
       handler?.(payload, eventDetails);
     },
     undefined,

@@ -124,8 +124,4 @@ export function resetForTests(): void {
 }
 
 type LockedProperty =
-  | 'touchAction'
-  | 'userSelect'
-  | 'webkitUserSelect'
-  | 'webkitTouchCallout'
-  | 'overscrollBehavior';
+  'touchAction' | 'userSelect' | 'webkitUserSelect' | 'webkitTouchCallout' | 'overscrollBehavior';

@@ -503,8 +503,7 @@ export type DraggableConfig<TData = undefined> = {
    * Call `eventDetails.cancel()` to prevent the drag from starting.
    */
   onBeforeDragStart?:
-    | ((context: DragStartContext, eventDetails: BeforeDragStartEventDetails) => void)
-    | undefined;
+    ((context: DragStartContext, eventDetails: BeforeDragStartEventDetails) => void) | undefined;
   /**
    * Determines when a pointer press starts a drag. Mouse and pen use a 5px distance
    * by default. Touch uses a 250ms press and hold. Pass one `DragActivation` for
@@ -590,8 +589,7 @@ export type DraggableConfig<TData = undefined> = {
    * @internal
    */
   onGenerateDragPreview?:
-    | ((parameters: DragPreviewRenderEvent<NoInfer<TData>>) => void)
-    | undefined;
+    ((parameters: DragPreviewRenderEvent<NoInfer<TData>>) => void) | undefined;
   /**
    * Event handler called once, synchronously when the drag starts. The drag preview
    * has already been resolved by then, so it is safe to measure or restyle the

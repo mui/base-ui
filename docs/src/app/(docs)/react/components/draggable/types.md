@@ -729,8 +729,7 @@ The event details passed to `onBeforeDragStart`. Call `cancel()` to prevent the 
 
 ```typescript
 type BeforeDragStartEventDetails = (
-  | { reason: 'pointer'; event: PointerEvent }
-  | { reason: 'keyboard'; event: KeyboardEvent }
+  { reason: 'pointer'; event: PointerEvent } | { reason: 'keyboard'; event: KeyboardEvent }
 ) & {
   /** Prevents the drag from starting. */
   cancel: () => void;
@@ -878,9 +877,7 @@ it on every constrained move, so a ref can become available during a drag.
 
 ```typescript
 type DragElementReference =
-  | HTMLElement
-  | { current: HTMLElement | null }
-  | (() => HTMLElement | null | undefined);
+  HTMLElement | { current: HTMLElement | null } | (() => HTMLElement | null | undefined);
 ```
 
 ### DragEndEvent
@@ -1048,8 +1045,7 @@ type DraggablePreviewTypedProps<TData> = {
    * returns a style object based on the component's state.
    */
   style?:
-    | React.CSSProperties
-    | ((state: Draggable.Preview.State) => React.CSSProperties | undefined);
+    React.CSSProperties | ((state: Draggable.Preview.State) => React.CSSProperties | undefined);
   /**
    * Allows you to replace the component's HTML element
    * with a different tag, or compose it with another component.
@@ -1502,8 +1498,7 @@ The event details passed to `onDrag`.
 
 ```typescript
 type DragMoveEventDetails =
-  | { reason: 'pointer'; event: PointerEvent }
-  | { reason: 'keyboard'; event: KeyboardEvent };
+  { reason: 'pointer'; event: PointerEvent } | { reason: 'keyboard'; event: KeyboardEvent };
 ```
 
 ### DragPointerType
@@ -1552,10 +1547,7 @@ Determines where the drag preview sits relative to the pointer.
 
 ```typescript
 type DragPreviewOffset =
-  | DragPosition
-  | 'source'
-  | 'pointer'
-  | ((parameters: DragPreviewOffsetParameters) => DragPosition);
+  DragPosition | 'source' | 'pointer' | ((parameters: DragPreviewOffsetParameters) => DragPosition);
 ```
 
 ### DragPreviewOffsetParameters
@@ -1778,8 +1770,7 @@ The event details passed to `onDragStart`.
 
 ```typescript
 type DragStartEventDetails =
-  | { reason: 'pointer'; event: PointerEvent }
-  | { reason: 'keyboard'; event: KeyboardEvent };
+  { reason: 'pointer'; event: PointerEvent } | { reason: 'keyboard'; event: KeyboardEvent };
 ```
 
 ### DropTargetChangeEvent

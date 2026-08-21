@@ -689,7 +689,7 @@ function createPreparedDragPreviewElement(
   // re-home the preview as close to its original cascade as possible. It ends at
   // `documentElement` (or the shadow root), which outlives any subtree the app tears down.
   const ancestorChain: PreviewHost[] = [];
-  for (let node: PreviewHost | null = host; node !== null; ) {
+  for (let node: PreviewHost | null = host; node !== null;) {
     ancestorChain.push(node);
     // Crossing out through a shadow host leaves that cascade behind, but that step is
     // only ever reached once the shadow root itself has been torn out.

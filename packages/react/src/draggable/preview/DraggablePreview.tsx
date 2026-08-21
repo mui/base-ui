@@ -80,9 +80,7 @@ export interface DraggablePreviewProps
    * supplied through {@link DraggablePreviewTypedProps}.
    */
   children?:
-    | React.ReactNode
-    | ((parameters: DragPreviewRenderEvent) => React.ReactNode)
-    | undefined;
+    React.ReactNode | ((parameters: DragPreviewRenderEvent) => React.ReactNode) | undefined;
   /** Omitted on an untyped preview. */
   kind?: undefined;
 }
@@ -96,9 +94,7 @@ export type DraggablePreviewTypedProps<TData> = Omit<DraggablePreviewProps, 'chi
   kind: DragKind<TData>;
   /** Preview content, resolved once at drag start with the kind's payload type. */
   children?:
-    | React.ReactNode
-    | ((parameters: DragPreviewRenderEvent<TData>) => React.ReactNode)
-    | undefined;
+    React.ReactNode | ((parameters: DragPreviewRenderEvent<TData>) => React.ReactNode) | undefined;
 };
 
 export namespace DraggablePreview {

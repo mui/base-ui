@@ -227,8 +227,7 @@ The event details passed to `onDrag`.
 
 ```typescript
 type DragMoveEventDetails =
-  | { reason: 'pointer'; event: PointerEvent }
-  | { reason: 'keyboard'; event: KeyboardEvent };
+  { reason: 'pointer'; event: PointerEvent } | { reason: 'keyboard'; event: KeyboardEvent };
 ```
 
 ### DragStartEvent
@@ -254,8 +253,7 @@ The event details passed to `onDragStart`.
 
 ```typescript
 type DragStartEventDetails =
-  | { reason: 'pointer'; event: PointerEvent }
-  | { reason: 'keyboard'; event: KeyboardEvent };
+  { reason: 'pointer'; event: PointerEvent } | { reason: 'keyboard'; event: KeyboardEvent };
 ```
 
 ### DropTargetChangeEvent

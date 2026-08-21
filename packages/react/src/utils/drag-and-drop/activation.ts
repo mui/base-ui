@@ -83,7 +83,6 @@ export type DragActivation =
  * Missing entries fall back to the per-pointer defaults.
  */
 export type DragActivationConfig =
-  | DragActivation
-  | Partial<Record<DragPointerType, DragActivation>>;
+  DragActivation | Partial<Record<DragPointerType, DragActivation>>;
 
 export type ActivationDecision = 'pending' | 'activate' | 'cancel';

@@ -1373,8 +1373,7 @@ Allows at most one of a parameter type's `payload` and `getPayload` fields.
 
 ```typescript
 type WithOptionalPayload<TParameters extends { payload?: unknown; getPayload?: unknown }> =
-  | { payload?: unknown; getPayload?: undefined }
-  | { payload?: undefined; getPayload?: unknown };
+  { payload?: unknown; getPayload?: undefined } | { payload?: undefined; getPayload?: unknown };
 ```
 
 ### WithRequiredAccept

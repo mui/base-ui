@@ -302,10 +302,7 @@ export interface DragPreviewOffsetParameters {
  *   pointer state. Return the offset to use.
  */
 export type DragPreviewOffset =
-  | DragPosition
-  | 'source'
-  | 'pointer'
-  | ((parameters: DragPreviewOffsetParameters) => DragPosition);
+  DragPosition | 'source' | 'pointer' | ((parameters: DragPreviewOffsetParameters) => DragPosition);
 
 /**
  * Determines where the drag preview is injected in the DOM.
@@ -605,27 +602,22 @@ export interface DragKeyboardAnnouncementParameters<TSourceData = unknown> {
 export interface DragKeyboardAnnouncements<TSourceData = unknown> {
   /** Announced when the item is picked up. */
   pickedUp?:
-    | ((parameters: DragKeyboardAnnouncementParameters<TSourceData>) => string | null)
-    | undefined;
+    ((parameters: DragKeyboardAnnouncementParameters<TSourceData>) => string | null) | undefined;
   /** Announced, debounced, as the item moves. */
   moved?:
-    | ((parameters: DragKeyboardAnnouncementParameters<TSourceData>) => string | null)
-    | undefined;
+    ((parameters: DragKeyboardAnnouncementParameters<TSourceData>) => string | null) | undefined;
   /**
    * Announced when the item is released with Space or Enter, whether or not it
    * landed on a drop target.
    */
   dropped?:
-    | ((parameters: DragKeyboardAnnouncementParameters<TSourceData>) => string | null)
-    | undefined;
+    ((parameters: DragKeyboardAnnouncementParameters<TSourceData>) => string | null) | undefined;
   /** Announced when the drag is canceled with Escape, Tab, or a blur. */
   canceled?:
-    | ((parameters: DragKeyboardAnnouncementParameters<TSourceData>) => string | null)
-    | undefined;
+    ((parameters: DragKeyboardAnnouncementParameters<TSourceData>) => string | null) | undefined;
   /** Announced when an arrow press moves nowhere. Silent by default. */
   reachedEdge?:
-    | ((parameters: DragKeyboardAnnouncementParameters<TSourceData>) => string | null)
-    | undefined;
+    ((parameters: DragKeyboardAnnouncementParameters<TSourceData>) => string | null) | undefined;
 }
 
 /** Parameters passed to a keyboard drag's `finalFocus` callback. */
@@ -737,12 +729,7 @@ export interface DragKeyboardMoveDetails<TSourceData = unknown> {
  * - `null`/`undefined`: Use the default behavior for this press.
  */
 export type DragKeyboardMoveResult =
-  | DragPosition
-  | Element
-  | DragKeyboardMoveSuggestion
-  | false
-  | null
-  | undefined;
+  DragPosition | Element | DragKeyboardMoveSuggestion | false | null | undefined;
 
 /**
  * Controls how arrow keys move a keyboard drag.
@@ -768,9 +755,7 @@ export type DragKeyboardActivation = 'auto' | 'manual' | 'off';
  * it on every constrained move, so a ref can become available during a drag.
  */
 export type DragElementReference =
-  | HTMLElement
-  | { current: HTMLElement | null }
-  | (() => HTMLElement | null | undefined);
+  HTMLElement | { current: HTMLElement | null } | (() => HTMLElement | null | undefined);
 
 /** Parameters passed to a {@link DragModifier} on every frame of a drag. */
 export interface DragModifierContext {

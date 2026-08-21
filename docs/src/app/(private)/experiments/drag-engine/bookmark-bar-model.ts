@@ -356,7 +356,7 @@ export function updateNode(
  */
 export function getAncestorIds(tree: BookmarkTree, id: ParentId): string[] {
   const ids: string[] = [];
-  for (let current = id; current !== ROOT_ID; ) {
+  for (let current = id; current !== ROOT_ID;) {
     const node = tree.nodes[current];
     if (!node) {
       break;

@@ -533,7 +533,7 @@ describe('displacement tracking', () => {
 
     // Baselined again: later movement animates normally.
     positions.set('b', 160);
-    await act(async () => bumpApp());
+    act(() => bumpApp());
     expect(screen.getByTestId('b')).toHaveAttribute('data-displacing');
     expect(screen.getByTestId('b').style.getPropertyValue(VAR_Y)).toBe('40px');
 

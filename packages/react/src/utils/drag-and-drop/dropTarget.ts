@@ -763,8 +763,7 @@ export type RegisterDropTargetParameters<TSourceData = unknown, TLocalData = unk
    * of `payload` when the value depends on the current drag or position.
    */
   getPayload?:
-    | ((context: DropTargetResolutionContext<NoInfer<TSourceData>>) => TLocalData)
-    | undefined;
+    ((context: DropTargetResolutionContext<NoInfer<TSourceData>>) => TLocalData) | undefined;
   /**
    * Human-readable name of this drop target, used by the default screen-reader
    * announcements for keyboard drags to name where the item is and where it landed.

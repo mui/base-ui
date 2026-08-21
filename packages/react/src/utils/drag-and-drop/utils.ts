@@ -35,10 +35,7 @@ export function onceCleanup(cleanup: () => void): () => void {
  */
 export function resolveElementReference<T extends Element, TArgument = void>(
   reference:
-    | T
-    | { current: T | null }
-    | ((argument: TArgument) => T | null | undefined)
-    | undefined,
+    T | { current: T | null } | ((argument: TArgument) => T | null | undefined) | undefined,
   argument: TArgument,
 ): T | null {
   if (!reference) {

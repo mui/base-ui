@@ -445,8 +445,7 @@ export class DraggableCollectionPlugin<
     // `display: none`, the very case the snapshot exists for. Without it a
     // put-back release would fall through to the root target and reparent the rows.
     const liveSource = dragSessionStore.getSnapshot()?.source.payload as
-      | IncomingSourceData<TItem>
-      | undefined;
+      IncomingSourceData<TItem> | undefined;
     if (liveSource?.sourceInstanceId !== this.instanceId) {
       this.draggedRects.clear();
     }
