@@ -34,6 +34,42 @@ import { NumberField } from '@base-ui/react/number-field';
 </NumberField.Root>;
 ```
 
+## Examples
+
+### Controlling the input text
+
+`value` holds the parsed number, so it can't represent text that isn't a number yet.
+Typing `-1.5` passes through `-` and `-1.`, neither of which parses, and both leave `value` untouched.
+
+To drive those intermediate states, control the raw text with `inputValue`, `defaultInputValue`, and `onInputValueChange`.
+It's independent of `value`, so both can be controlled at once:
+
+```tsx title="Controlling the input text"
+const [value, setValue] = React.useState<number | null>(null);
+const [inputValue, setInputValue] = React.useState('');
+
+<NumberField.Root
+  min={-100}
+  value={value}
+  onValueChange={setValue}
+  // @highlight-start
+  inputValue={inputValue}
+  onInputValueChange={setInputValue}
+  // @highlight-end
+>
+  {/* ... */}
+</NumberField.Root>;
+
+// Puts the field into a valid intermediate state that `value` cannot express.
+setInputValue('-');
+```
+
+The text is never formatted or clamped on the way in, so any string is allowed.
+`onInputValueChange` reports the text two ways. Typing, clearing, and pasting report the raw string verbatim — `input-change`, `input-clear`, and `input-paste` carry exactly what the user produced, with no formatting applied. Blur, stepping, and the `'none'` reason instead propose formatted text, the last of these after an external `value`, `locale`, or `format` change.
+Mirroring every call back into `inputValue` reproduces the uncontrolled behavior. Every call must be answered: mirror it, or refuse it with `eventDetails.cancel()`. Refusing a formatted proposal keeps your own text, and refusing an `input-change` call vetoes the keystroke outright rather than preserving anything. Ignoring a call is neither — the text stays as it was while the rest of the change goes through, so the field can end up showing one number and reporting another.
+
+Intermediate states are transient by design. Blur reconciles any text that isn't a number back to `value` under `'input-blur'`, whether the user typed it or you set it yourself — so a `'-'` you installed programmatically is proposed away as soon as the field is focused and left, even with no edits in between. Refuse the `'input-blur'` call to keep it.
+
 ## API reference
 
 import { TypesNumberField } from './types';
