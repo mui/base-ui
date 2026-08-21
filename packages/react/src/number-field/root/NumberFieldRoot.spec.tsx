@@ -1,3 +1,4 @@
+import * as React from 'react';
 import { expectType } from '#test-utils';
 import { NumberField } from '@base-ui/react/number-field';
 import { REASONS } from '../../internals/reasons';
@@ -72,3 +73,13 @@ const numberFieldEventNarrowing = (
     onValueCommitted={handleNumberFieldCommit}
   />
 );
+
+declare const numberFieldActionsRef: React.RefObject<NumberField.Root.Actions | null>;
+
+const numberFieldImperativeActions = <NumberField.Root actionsRef={numberFieldActionsRef} />;
+
+function assertNumberFieldActions(actions: NumberField.Root.Actions) {
+  actions.setInputValue('-');
+  // @ts-expect-error the raw text is a string, not a number
+  actions.setInputValue(5);
+}
