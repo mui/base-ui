@@ -1337,6 +1337,9 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
       queryChangedAfterOpen || (selectionMode === 'none' && !autoHighlightMode) ? false : 'auto',
     focusItemOnHover: highlightItemOnHover,
     resetOnPointerLeave: !keepHighlight,
+    // Keep `orientation` for grid navigation (horizontal arrows) but suppress the
+    // resulting aria-orientation attribute: the grid role does not support it
+    // (axe: aria-allowed-attr). See listProps below.
     orientation: grid ? 'horizontal' : undefined,
     rtl: direction === 'rtl',
     disabledIndices: EMPTY_ARRAY,
@@ -1391,8 +1394,17 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
   );
 
   const listProps = React.useMemo(
-    () => mergeProps(listNavigation.floating, role.floating),
-    [listNavigation.floating, role.floating],
+    () => {
+      const merged = mergeProps(listNavigation.floating, role.floating);
+      // The grid role does not support aria-orientation (axe: aria-allowed-attr), but
+      // useListNavigation adds it for horizontal grid navigation. Strip it so the
+      // attribute is not rendered on role="grid".
+      if (grid) {
+        delete merged['aria-orientation'];
+      }
+      return merged;
+    },
+    [listNavigation.floating, role.floating, grid],
   );
 
   const itemProps = React.useMemo<HTMLProps>(() => {
