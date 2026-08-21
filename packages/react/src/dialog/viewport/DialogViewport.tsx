@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import { inertValue } from '@base-ui/utils/inertValue';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { type BaseUIComponentProps } from '../../internals/types';
 import { type TransitionStatus } from '../../internals/useTransitionStatus';
@@ -50,6 +51,7 @@ export const DialogViewport = React.forwardRef(function DialogViewport(
       {
         role: 'presentation',
         hidden: !mounted,
+        inert: inertValue(!open),
         style: {
           pointerEvents: !open ? 'none' : undefined,
         },

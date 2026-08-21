@@ -11,6 +11,7 @@ export const FocusGuard = React.forwardRef(function FocusGuard(
   props: React.ComponentPropsWithoutRef<'span'>,
   ref: React.ForwardedRef<HTMLSpanElement>,
 ) {
+  const { tabIndex = 0, ...otherProps } = props;
   const [role, setRole] = React.useState<'button' | undefined>();
 
   useIsoLayoutEffect(() => {
@@ -23,19 +24,15 @@ export const FocusGuard = React.forwardRef(function FocusGuard(
     }
   }, []);
 
-  const restProps = {
-    tabIndex: 0,
-    // Role is only for VoiceOver
-    role,
-  };
-
   return (
     <span
-      {...props}
+      {...otherProps}
       ref={ref}
       style={visuallyHidden}
       aria-hidden={role ? undefined : true}
-      {...restProps}
+      tabIndex={tabIndex}
+      // Role is only for VoiceOver
+      role={role}
       data-base-ui-focus-guard=""
     />
   );

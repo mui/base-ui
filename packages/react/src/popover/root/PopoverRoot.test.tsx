@@ -31,6 +31,7 @@ describe('<Popover.Root />', () => {
     render,
     triggerMouseAction: 'click',
     expectedPopupRole: 'dialog',
+    inertWhenClosed: false,
   });
 
   describe.for([

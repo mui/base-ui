@@ -173,7 +173,9 @@ export const NavigationMenuPositioner = React.forwardRef(function NavigationMenu
     props: elementProps,
     refs: [forwardedRef, setPositionerElement],
     hidden: !mounted,
-    inert: !open,
+    // Navigation Menu owns focus without a FloatingFocusManager. Do not change its focus tree
+    // while it animates out; only make the fading positioner click-through.
+    pointerEventsNone: !open,
   });
 
   return (

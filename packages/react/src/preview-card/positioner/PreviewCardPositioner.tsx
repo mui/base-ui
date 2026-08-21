@@ -99,7 +99,7 @@ export const PreviewCardPositioner = React.forwardRef(function PreviewCardPositi
     props: elementProps,
     refs: [forwardedRef, store.useStateSetter('positionerElement')],
     hidden: !mounted,
-    inert: !open,
+    pointerEventsNone: !open,
   });
 
   return (

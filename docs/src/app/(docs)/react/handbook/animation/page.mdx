@@ -5,6 +5,16 @@
 
 Base UI components can be animated using CSS transitions, CSS animations, or JavaScript animation libraries. Each component provides a number of data attributes to target its states, as well as a few attributes specifically for animation.
 
+## Behavior while animating out
+
+A component that stays in the DOM while closed is already closed. Where a component has an explicit close-time focus handoff, Base UI marks the closed subtree with the [`inert`](https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Global_attributes/inert) attribute. The closing popup is then neither exposed to assistive technology nor reachable by the Tab key. This applies whenever the popup is closed and still rendered, including a `keepMounted` popup that has never been opened.
+
+This applies to [Dialog](/react/components/dialog), [Alert Dialog](/react/components/alert-dialog), [Drawer](/react/components/drawer), [Menu](/react/components/menu), [Context Menu](/react/components/context-menu), [Menubar](/react/components/menubar), [Select](/react/components/select), [Combobox](/react/components/combobox), and [Autocomplete](/react/components/autocomplete). [Popover](/react/components/popover) can open by hover without its focus manager, while [Tooltip](/react/components/tooltip), [Preview Card](/react/components/preview-card), and [Navigation Menu](/react/components/navigation-menu) do not hand focus off at this boundary. Their closing positioners block pointer events but do not become inert.
+
+For components that become inert, focus is handed back when the component closes rather than when the exit animation finishes. A popup closed while focus is inside it moves focus to its trigger, or to whatever was focused before it opened. Passing `finalFocus` opts out, whether it is `false` or a function returning `false`: focus is then yours to move, and if you do not move it, it drops to `<body>` for the rest of the exit animation.
+
+Closing positioners stop receiving pointer events, so a click during the exit animation passes through to whatever is behind the popup rather than doing nothing. A backdrop is not inert, so a modal Dialog or Drawer still absorbs that click. Keep exit animations short if a stray click in that window would be disruptive.
+
 ## CSS transitions
 
 Use the following Base UI attributes for creating transitions when a component becomes visible or hidden:

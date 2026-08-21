@@ -153,12 +153,23 @@ export const PopoverTrigger = fastComponentRef(function PopoverTrigger(
   // regardless of whether the focus guards are rendered or not.
   const keyedElement = <React.Fragment key={thisTriggerId}>{element}</React.Fragment>;
 
+  // Keep the guards connected while the popup animates out so closing during their native focus
+  // event does not make the browser drop focus to <body>. Once closed, `tabIndex={-1}` removes them
+  // from sequential navigation; their handlers only complete a focus move already in flight.
   if (isMountedByThisTrigger && !focusManagerModal) {
     return (
       <React.Fragment>
-        <FocusGuard ref={preFocusGuardRef} onFocus={handlePreFocusGuardFocus} />
+        <FocusGuard
+          ref={preFocusGuardRef}
+          tabIndex={isOpenedByThisTrigger ? 0 : -1}
+          onFocus={handlePreFocusGuardFocus}
+        />
         {keyedElement}
-        <FocusGuard ref={store.context.triggerFocusTargetRef} onFocus={handleFocusTargetFocus} />
+        <FocusGuard
+          ref={store.context.triggerFocusTargetRef}
+          tabIndex={isOpenedByThisTrigger ? 0 : -1}
+          onFocus={handleFocusTargetFocus}
+        />
       </React.Fragment>
     );
   }

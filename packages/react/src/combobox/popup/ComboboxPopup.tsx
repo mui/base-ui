@@ -3,6 +3,8 @@ import * as React from 'react';
 import { InteractionType } from '@base-ui/utils/useEnhancedClickHandler';
 import { useStore } from '@base-ui/utils/store';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
+import { useStableCallback } from '@base-ui/utils/useStableCallback';
+import { ownerDocument } from '@base-ui/utils/owner';
 import { FloatingFocusManager } from '../../floating-ui-react';
 import { BaseUIComponentProps } from '../../internals/types';
 import { useRenderElement } from '../../internals/useRenderElement';
@@ -15,8 +17,10 @@ import { useOpenChangeComplete } from '../../internals/useOpenChangeComplete';
 import type { TransitionStatus } from '../../internals/useTransitionStatus';
 import { transitionStatusMapping } from '../../internals/stateAttributesMapping';
 import { StateAttributesMapping } from '../../internals/getStateAttributesProps';
-import { contains, getTarget } from '../../floating-ui-react/utils';
+import { activeElement, contains, getTarget } from '../../floating-ui-react/utils';
 import { getDisabledMountTransitionStyles } from '../../internals/getDisabledMountTransitionStyles';
+import { REASONS } from '../../internals/reasons';
+import type { FloatingUIOpenChangeDetails } from '../../internals/types';
 import { ComboboxInternalDismissButton } from '../utils/ComboboxInternalDismissButton';
 import { getComboboxPopupId } from '../root/utils';
 import { useListEmpty } from '../utils/parts';
@@ -42,7 +46,6 @@ export const ComboboxPopup = React.forwardRef(function ComboboxPopup(
   const positioning = useComboboxPositionerContext();
   const floatingRootContext = useComboboxFloatingContext();
 
-  const mounted = useStore(store, selectors.mounted);
   const open = useStore(store, selectors.open);
   const openMethod = useStore(store, selectors.openMethod);
   const popupProps = useStore(store, selectors.popupProps);
@@ -117,11 +120,46 @@ export const ComboboxPopup = React.forwardRef(function ComboboxPopup(
   const resolvedInitialFocus =
     initialFocus === undefined ? computedDefaultInitialFocus : initialFocus;
 
+  const closedByOutsidePressRef = React.useRef(false);
+  useIsoLayoutEffect(() => {
+    if (open) {
+      closedByOutsidePressRef.current = false;
+    }
+  }, [open]);
+
+  useIsoLayoutEffect(() => {
+    const events = floatingRootContext.context.events;
+
+    function onOpenChange(details: FloatingUIOpenChangeDetails) {
+      if (!details.open) {
+        closedByOutsidePressRef.current = details.reason === REASONS.outsidePress;
+      }
+    }
+
+    events.on('openchange', onOpenChange);
+    return () => {
+      events.off('openchange', onOpenChange);
+    };
+  }, [floatingRootContext]);
+
+  const returnFocusToExternalInput = useStableCallback(() => {
+    const positionerElement = store.state.positionerElement;
+    if (
+      !closedByOutsidePressRef.current &&
+      positionerElement &&
+      contains(positionerElement, activeElement(ownerDocument(positionerElement)))
+    ) {
+      return inputElement || false;
+    }
+
+    return false;
+  });
+
   let resolvedFinalFocus: ComboboxPopup.Props['finalFocus'] | boolean | undefined;
   if (finalFocus != null) {
     resolvedFinalFocus = finalFocus;
   } else {
-    resolvedFinalFocus = inputInsidePopup ? undefined : false;
+    resolvedFinalFocus = inputInsidePopup ? undefined : returnFocusToExternalInput;
   }
 
   const focusManagerModal = !inputInsidePopup || modal;
@@ -129,7 +167,7 @@ export const ComboboxPopup = React.forwardRef(function ComboboxPopup(
   return (
     <FloatingFocusManager
       context={floatingRootContext}
-      disabled={!mounted}
+      disabled={!open}
       modal={focusManagerModal}
       openInteractionType={openMethod}
       initialFocus={resolvedInitialFocus}

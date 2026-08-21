@@ -411,6 +411,67 @@ describe('<Popover.Popup />', () => {
     });
   });
 
+  it.skipIf(isJSDOM)(
+    'returns focus after a hover-opened popup finishes animating out',
+    async ({ onTestFinished }) => {
+      globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+      onTestFinished(() => {
+        globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
+      });
+
+      const { user } = await render(
+        <React.Fragment>
+          <style>
+            {`
+            [data-ending-style] {
+              animation: popover-exit 500ms linear;
+            }
+
+            @keyframes popover-exit {
+              to {
+                opacity: 0;
+              }
+            }
+          `}
+          </style>
+          <Popover.Root>
+            <Popover.Trigger openOnHover delay={0}>
+              Open
+            </Popover.Trigger>
+            <Popover.Portal>
+              <Popover.Positioner data-testid="positioner">
+                <Popover.Popup data-testid="popup">
+                  <button type="button">Inside</button>
+                </Popover.Popup>
+              </Popover.Positioner>
+            </Popover.Portal>
+          </Popover.Root>
+        </React.Fragment>,
+      );
+
+      const trigger = screen.getByText('Open');
+      fireEvent.mouseEnter(trigger);
+      fireEvent.mouseMove(trigger);
+
+      const inside = await screen.findByRole('button', { name: 'Inside' });
+      await act(async () => {
+        inside.focus();
+      });
+      await user.keyboard('[Escape]');
+
+      await waitFor(() => {
+        expect(screen.getByTestId('popup')).toHaveAttribute('data-ending-style');
+      });
+      expect(screen.getByTestId('positioner')).not.toHaveAttribute('inert');
+      expect(inside).toHaveFocus();
+
+      await waitFor(() => {
+        expect(screen.queryByTestId('popup')).toBe(null);
+      });
+      expect(trigger).toHaveFocus();
+    },
+  );
+
   describe('prop: finalFocus', () => {
     it('should focus the trigger by default when closed', async () => {
       await render(

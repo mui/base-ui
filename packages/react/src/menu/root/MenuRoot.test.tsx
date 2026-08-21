@@ -1737,6 +1737,47 @@ describe('<Menu.Root />', () => {
 
         expect(screen.queryByRole('menu')).toBe(null);
       });
+
+      it.skipIf(isJSDOM)('hands focus back before a hover-closed popup becomes inert', async () => {
+        globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+
+        await render(
+          <React.Fragment>
+            <style>
+              {`
+                  [data-ending-style] {
+                    animation: menu-exit 10s linear;
+                  }
+
+                  @keyframes menu-exit {
+                    to {
+                      opacity: 0;
+                    }
+                  }
+                `}
+            </style>
+            <TestMenu rootProps={{ modal: false }} triggerProps={{ openOnHover: true, delay: 0 }} />
+          </React.Fragment>,
+        );
+
+        const trigger = screen.getByRole('button', { name: 'Toggle' });
+        enterWithMouse(trigger);
+
+        const firstItem = await screen.findByTestId('item-1');
+        await act(async () => {
+          firstItem.focus();
+        });
+
+        const positioner = screen.getByTestId('menu-positioner');
+        fireEvent.mouseEnter(positioner);
+        fireEvent.mouseLeave(positioner, { relatedTarget: document.body });
+
+        await waitFor(() => {
+          expect(screen.getByTestId('menu')).toHaveAttribute('data-ending-style');
+        });
+        expect(positioner).toHaveAttribute('inert');
+        expect(trigger).toHaveFocus();
+      });
     });
 
     describe.skipIf(isJSDOM)('scroll locking', () => {

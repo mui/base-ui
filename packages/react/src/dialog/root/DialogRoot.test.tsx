@@ -2248,6 +2248,90 @@ describe('<Dialog.Root />', () => {
       expect(field).not.toHaveFocus();
     },
   );
+
+  describe.skipIf(isJSDOM)('exit animation', () => {
+    const style = `
+      @keyframes dialog-close-test {
+        to {
+          opacity: 0;
+        }
+      }
+
+      .animation-test-popup[data-ending-style] {
+        animation: dialog-close-test 10s linear;
+      }
+    `;
+
+    function AnimatedDialog() {
+      return (
+        <React.Fragment>
+          {/* eslint-disable-next-line react/no-danger */}
+          <style dangerouslySetInnerHTML={{ __html: style }} />
+          <Dialog.Root>
+            <Dialog.Trigger data-testid="trigger">Open</Dialog.Trigger>
+            <Dialog.Portal>
+              <Dialog.Popup data-testid="popup" className="animation-test-popup">
+                <button type="button" data-testid="inside">
+                  Inside
+                </button>
+              </Dialog.Popup>
+            </Dialog.Portal>
+          </Dialog.Root>
+        </React.Fragment>
+      );
+    }
+
+    it('returns focus to the trigger and makes the popup inert while it animates out', async ({
+      onTestFinished,
+    }) => {
+      globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+      onTestFinished(() => {
+        globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
+      });
+
+      const { user } = await render(<AnimatedDialog />);
+
+      const trigger = screen.getByTestId('trigger');
+      await user.click(trigger);
+
+      const inside = await screen.findByTestId('inside');
+      inside.focus();
+      expect(inside).toHaveFocus();
+
+      await user.keyboard('{Escape}');
+      await waitFor(() => expect(screen.getByTestId('popup')).toHaveAttribute('data-ending-style'));
+
+      // Focus is back on the trigger before the exit animation finishes, rather than parked
+      // inside the subtree that's animating out.
+      await waitFor(() => expect(trigger).toHaveFocus());
+
+      // The dialog is still mounted for the animation, but inert keeps it out of the
+      // accessibility tree and sequential focus navigation.
+      expect(screen.getByTestId('popup')).toHaveAttribute('inert');
+      inside.focus();
+      expect(inside).not.toHaveFocus();
+    });
+
+    it('removes the focus guards while the popup animates out', async ({ onTestFinished }) => {
+      globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+      onTestFinished(() => {
+        globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
+      });
+
+      const { user } = await render(<AnimatedDialog />);
+      const guards = () => document.querySelectorAll('[data-base-ui-focus-guard]');
+
+      await user.click(screen.getByTestId('trigger'));
+      await waitFor(() => expect(guards().length).toBeGreaterThan(0));
+
+      await user.keyboard('{Escape}');
+      await waitFor(() => expect(screen.getByTestId('popup')).toHaveAttribute('data-ending-style'));
+
+      // The dialog has no positioner to carry `inert`, so guards left behind here would stay
+      // focusable in their own right while `aria-hidden="true"`.
+      expect(guards().length).toBe(0);
+    });
+  });
 });
 
 // The viewport takes its overflow from <html>, falling back to <body> when <html> doesn't

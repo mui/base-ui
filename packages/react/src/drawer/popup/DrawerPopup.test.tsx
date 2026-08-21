@@ -916,4 +916,28 @@ describe('<Drawer.Popup />', () => {
       }
     },
   );
+
+  it('marks a kept-mounted popup inert once closed', async () => {
+    const { setProps } = await render(
+      <Drawer.Root open>
+        <Drawer.Portal keepMounted>
+          <Drawer.Viewport>
+            <Drawer.Popup data-testid="popup">
+              <button type="button" data-testid="inside">
+                Inside
+              </button>
+            </Drawer.Popup>
+          </Drawer.Viewport>
+        </Drawer.Portal>
+      </Drawer.Root>,
+    );
+
+    expect(screen.getByTestId('popup')).not.toHaveAttribute('inert');
+
+    await setProps({ open: false });
+
+    // Closed but still in the DOM: out of the accessibility tree and the tab order, whether or
+    // not an exit animation is keeping it around.
+    expect(screen.getByTestId('popup')).toHaveAttribute('inert');
+  });
 });

@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import { inertValue } from '@base-ui/utils/inertValue';
 import { error } from '@base-ui/utils/error';
 import { SafeReact } from '@base-ui/utils/safeReact';
 import type { InteractionType } from '@base-ui/utils/useEnhancedClickHandler';
@@ -365,6 +366,10 @@ export const DrawerPopup = React.forwardRef(function DrawerPopup(
         role,
         ...FOCUSABLE_POPUP_PROPS,
         hidden: !mounted,
+        // Closed but still mounted for the exit animation: keep it out of the accessibility tree
+        // and the tab order. `inert` also removes hit testing, so a click landing during the exit
+        // animation reaches whatever sits behind a non-modal drawer.
+        inert: inertValue(!open),
         onKeyDown(event: React.KeyboardEvent) {
           if (COMPOSITE_KEYS.has(event.key)) {
             event.stopPropagation();
@@ -396,7 +401,7 @@ export const DrawerPopup = React.forwardRef(function DrawerPopup(
     <FloatingFocusManager
       context={floatingRootContext}
       openInteractionType={openMethod}
-      disabled={!mounted}
+      disabled={!open}
       closeOnFocusOut={!disablePointerDismissal}
       initialFocus={resolvedInitialFocus}
       returnFocus={finalFocus}

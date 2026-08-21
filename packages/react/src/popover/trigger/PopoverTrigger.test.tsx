@@ -1,6 +1,8 @@
 import { expect, vi } from 'vitest';
+import type { CDPSession } from '@vitest/browser-playwright';
 import * as React from 'react';
 import { Popover } from '@base-ui/react/popover';
+import { platform } from '@base-ui/utils/platform';
 import {
   createRenderer,
   describeConformance,
@@ -519,4 +521,229 @@ describe('<Popover.Trigger />', () => {
       }
     },
   );
+
+  describe.skipIf(isJSDOM)('exit animation', () => {
+    const style = `
+      @keyframes popover-close-test {
+        to {
+          opacity: 0;
+        }
+      }
+
+      .animation-test-popup[data-ending-style] {
+        animation: popover-close-test 500ms linear;
+      }
+    `;
+
+    function AnimatedPopover(props: { onOpenChange?: Popover.Root.Props['onOpenChange'] }) {
+      return (
+        <React.Fragment>
+          {/* eslint-disable-next-line react/no-danger */}
+          <style dangerouslySetInnerHTML={{ __html: style }} />
+          <button type="button" data-testid="before">
+            Before
+          </button>
+          <Popover.Root onOpenChange={props.onOpenChange}>
+            <Popover.Trigger data-testid="trigger">Open</Popover.Trigger>
+            <Popover.Portal>
+              <Popover.Positioner>
+                <Popover.Popup data-testid="popup" className="animation-test-popup">
+                  <button type="button" data-testid="inside">
+                    Inside
+                  </button>
+                </Popover.Popup>
+              </Popover.Positioner>
+            </Popover.Portal>
+          </Popover.Root>
+          <button type="button" data-testid="after">
+            After
+          </button>
+        </React.Fragment>
+      );
+    }
+
+    it('does not strand focus when a hover-opened popup animates out', async ({
+      onTestFinished,
+    }) => {
+      globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+      onTestFinished(() => {
+        globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
+      });
+
+      const { user } = await render(
+        <React.Fragment>
+          {/* eslint-disable-next-line react/no-danger */}
+          <style dangerouslySetInnerHTML={{ __html: style }} />
+          <Popover.Root>
+            <Popover.Trigger openOnHover delay={0} data-testid="trigger">
+              Open
+            </Popover.Trigger>
+            <Popover.Portal>
+              <Popover.Positioner data-testid="positioner">
+                <Popover.Popup data-testid="popup" className="animation-test-popup">
+                  <button type="button" data-testid="inside">
+                    Inside
+                  </button>
+                </Popover.Popup>
+              </Popover.Positioner>
+            </Popover.Portal>
+          </Popover.Root>
+        </React.Fragment>,
+      );
+
+      await user.hover(screen.getByTestId('trigger'));
+      const inside = await screen.findByTestId('inside');
+      inside.focus();
+      expect(inside).toHaveFocus();
+
+      await user.keyboard('{Escape}');
+      expect(screen.getByTestId('popup')).toHaveAttribute('data-ending-style');
+
+      // A hover-opened popup runs with its focus manager disabled, so nothing hands focus back on
+      // close. Going inert would blur the focused element and leave nothing focused at all.
+      expect(screen.getByTestId('positioner')).not.toHaveAttribute('inert');
+      expect(inside).toHaveFocus();
+    });
+
+    it('keeps the trigger focus guards mounted while the popup animates out', async ({
+      onTestFinished,
+    }) => {
+      globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+      onTestFinished(() => {
+        globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
+      });
+
+      const { user } = await render(<AnimatedPopover />);
+
+      const trigger = screen.getByTestId('trigger');
+      await user.click(trigger);
+      await waitFor(() => expect(screen.getByTestId('inside')).toHaveFocus());
+
+      await user.keyboard('{Escape}');
+      expect(screen.getByTestId('popup')).toHaveAttribute('data-ending-style');
+
+      // The guards have to outlive the close: shift-tabbing off an open trigger fires a focus-out
+      // that closes the popup, and the guard must still be there to catch the focus already on its
+      // way to it. Unmounting them at close instead drops that focus to `<body>`, which the tab
+      // order assertions in this suite cannot see because they resolve through ordinary tab order
+      // either way.
+      expect(trigger.previousElementSibling).toHaveAttribute('data-base-ui-focus-guard');
+      expect(trigger.nextElementSibling).toHaveAttribute('data-base-ui-focus-guard');
+    });
+  });
+
+  describe.skipIf(isJSDOM || !platform.engine.blink)('native tabbing while closing', () => {
+    async function pressTab(session: CDPSession, shift = false) {
+      const modifiers = shift ? 8 : 0;
+      await act(async () => {
+        await session.send('Input.dispatchKeyEvent', {
+          type: 'keyDown',
+          key: 'Tab',
+          code: 'Tab',
+          windowsVirtualKeyCode: 9,
+          nativeVirtualKeyCode: 9,
+          modifiers,
+        });
+        await session.send('Input.dispatchKeyEvent', {
+          type: 'keyUp',
+          key: 'Tab',
+          code: 'Tab',
+          windowsVirtualKeyCode: 9,
+          nativeVirtualKeyCode: 9,
+          modifiers,
+        });
+      });
+    }
+
+    function AnimatedPopover(props: { onOpenChange?: Popover.Root.Props['onOpenChange'] }) {
+      return (
+        <React.Fragment>
+          <style>
+            {`
+              .native-animation-test-popup[data-ending-style] {
+                animation: popover-trigger-exit 10s linear;
+              }
+
+              @keyframes popover-trigger-exit {
+                to {
+                  opacity: 0;
+                }
+              }
+            `}
+          </style>
+          <button type="button" data-testid="before">
+            Before
+          </button>
+          <Popover.Root onOpenChange={props.onOpenChange}>
+            <Popover.Trigger data-testid="trigger">Open</Popover.Trigger>
+            <Popover.Portal>
+              <Popover.Positioner>
+                <Popover.Popup data-testid="popup" className="native-animation-test-popup">
+                  <input data-testid="inside" />
+                </Popover.Popup>
+              </Popover.Positioner>
+            </Popover.Portal>
+          </Popover.Root>
+          <button type="button" data-testid="after">
+            After
+          </button>
+        </React.Fragment>
+      );
+    }
+
+    it('can tab back to the trigger after shift-tabbing out', async ({ onTestFinished }) => {
+      const { cdp } = await import('vitest/browser');
+      globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+      onTestFinished(() => {
+        globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
+      });
+
+      const onOpenChange = vi.fn();
+      const { user } = await render(<AnimatedPopover onOpenChange={onOpenChange} />);
+      const session = cdp() as CDPSession;
+      const trigger = screen.getByTestId('trigger');
+
+      await user.click(trigger);
+      await waitFor(() => expect(screen.getByTestId('inside')).toHaveFocus());
+
+      await pressTab(session, true);
+      expect(trigger).toHaveFocus();
+      await pressTab(session, true);
+      expect(screen.getByTestId('before')).toHaveFocus();
+      expect(screen.getByTestId('popup')).toHaveAttribute('data-ending-style');
+      expect(trigger.previousElementSibling).toHaveAttribute('tabindex', '-1');
+      expect(trigger.nextElementSibling).toHaveAttribute('tabindex', '-1');
+      const callsAfterClose = onOpenChange.mock.calls.length;
+
+      await pressTab(session);
+      expect(trigger).toHaveFocus();
+      expect(screen.getByTestId('popup')).toHaveAttribute('data-ending-style');
+      expect(onOpenChange).toHaveBeenCalledTimes(callsAfterClose);
+    });
+
+    it('can shift-tab back to the trigger after tabbing out', async ({ onTestFinished }) => {
+      const { cdp } = await import('vitest/browser');
+      globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+      onTestFinished(() => {
+        globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
+      });
+
+      const { user } = await render(<AnimatedPopover />);
+      const session = cdp() as CDPSession;
+      const trigger = screen.getByTestId('trigger');
+
+      await user.click(trigger);
+      await waitFor(() => expect(screen.getByTestId('inside')).toHaveFocus());
+
+      await pressTab(session);
+      expect(screen.getByTestId('after')).toHaveFocus();
+      expect(screen.getByTestId('popup')).toHaveAttribute('data-ending-style');
+      expect(trigger.previousElementSibling).toHaveAttribute('tabindex', '-1');
+      expect(trigger.nextElementSibling).toHaveAttribute('tabindex', '-1');
+
+      await pressTab(session, true);
+      expect(trigger).toHaveFocus();
+      expect(screen.getByTestId('popup')).toHaveAttribute('data-ending-style');
+    });
+  });
 });

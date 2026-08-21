@@ -547,8 +547,13 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
           // Allow closing when `isUntrappedTypeableCombobox` regardless of the previously focused element.
           (isUntrappedTypeableCombobox || relatedTarget !== getPreviouslyFocusedElement())
         ) {
-          preventReturnFocusRef.current = true;
-          store.setOpen(false, createChangeEventDetails(REASONS.focusOut, event));
+          // A popup kept mounted for its exit animation is already closed; emitting another
+          // close would fire `onOpenChange` twice for one dismissal and stamp `data-instant`,
+          // cancelling the exit transition.
+          if (store.state.open) {
+            preventReturnFocusRef.current = true;
+            store.setOpen(false, createChangeEventDetails(REASONS.focusOut, event));
+          }
         }
       });
     }
@@ -760,13 +765,29 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
 
     addPreviouslyFocusedElement(elementFocusedBeforeOpen);
 
+    function isFocusInsideFloatingTree(element: Element | null) {
+      const insideElements = getResolvedInsideElements();
+      return (
+        contains(floating, element) ||
+        insideElements.some(
+          (insideElement) => insideElement === element || contains(insideElement, element),
+        ) ||
+        (tree &&
+          getNodeChildren(tree.nodesRef.current, getNodeId(), false).some((node) =>
+            contains(node.context?.elements.floating, element),
+          ))
+      );
+    }
+
     function onOpenChangeLocal(details: FloatingUIOpenChangeDetails) {
       if (!details.open) {
         closeTypeRef.current = getEventType(details.nativeEvent, lastInteractionTypeRef.current);
       }
 
       if (details.reason === REASONS.triggerHover && details.nativeEvent.type === 'mouseleave') {
-        preventReturnFocusRef.current = true;
+        // Mouseleave must not pull focus back after the user moved it elsewhere. If focus is still
+        // inside, however, the close-time handoff must run before the subtree becomes inert.
+        preventReturnFocusRef.current = !isFocusInsideFloatingTree(activeElement(doc));
       }
 
       if (details.reason !== REASONS.outsidePress) {
@@ -847,14 +868,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
       events.off('openchange', onOpenChangeLocal);
 
       const activeEl = activeElement(doc);
-      const insideElements = getResolvedInsideElements();
-      const isFocusInsideFloatingTree =
-        contains(floating, activeEl) ||
-        insideElements.some((element) => element === activeEl || contains(element, activeEl)) ||
-        (tree &&
-          getNodeChildren(tree.nodesRef.current, getNodeId(), false).some((node) =>
-            contains(node.context?.elements.floating, activeEl),
-          ));
+      const focusInsideFloatingTree = isFocusInsideFloatingTree(activeEl);
 
       // eslint-disable-next-line react-hooks/exhaustive-deps
       const returnFocusValueOrFn = returnFocusRef.current;
@@ -875,7 +889,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
           // since it likely entered a different element which should be
           // respected: https://github.com/floating-ui/floating-ui/issues/2607
           (!hasExplicitReturnFocus && tabbableReturnElement !== activeEl && activeEl !== doc.body
-            ? isFocusInsideFloatingTree
+            ? focusInsideFloatingTree
             : true)
         ) {
           const focusOptions: FocusOptions = { preventScroll: true };
@@ -950,8 +964,11 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
     };
   }, [disabled, floatingFocusElement]);
 
+  // Gated on `open`, not just `mounted`: a guard is `tabindex="0"` + `aria-hidden="true"`, so one
+  // left behind during the exit animation is focusable in its own right. Positioner-based popups
+  // nest their guards in the inert subtree, but Dialog and Drawer put `inert` on the popup itself.
   const shouldRenderGuards =
-    !disabled && (modal ? !isUntrappedTypeableCombobox : true) && (isInsidePortal || modal);
+    open && !disabled && (modal ? !isUntrappedTypeableCombobox : true) && (isInsidePortal || modal);
 
   return (
     <React.Fragment>

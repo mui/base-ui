@@ -91,13 +91,18 @@ export const TooltipPositioner = React.forwardRef(function TooltipPositioner(
     ],
   );
 
+  // Blocking hit testing rather than going `inert`: an open tooltip that isn't hoverable must
+  // stay perceivable to assistive tech, and there is no `FloatingFocusManager` here to hand focus
+  // back on close (see `NavigationMenuPositioner`).
+  const nonHoverable = !open || trackCursorAxis === 'both' || disableHoverablePopup;
+
   const element = usePositioner(componentProps, state, {
     styles: positioning.positionerStyles,
     transitionStatus,
     props: elementProps,
     refs: [forwardedRef, store.useStateSetter('positionerElement')],
     hidden: !mounted,
-    inert: !open || trackCursorAxis === 'both' || disableHoverablePopup,
+    pointerEventsNone: nonHoverable,
   });
 
   return (

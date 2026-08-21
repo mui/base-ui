@@ -476,7 +476,7 @@ describe('<Combobox.Root />', () => {
     );
 
     it.skipIf(isJSDOM)(
-      'preserves a typed query when input reopens single-select during the close animation',
+      'returns focus to the trigger and stops the popup being reachable during the close animation',
       async ({ onTestFinished }) => {
         globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
 
@@ -521,7 +521,8 @@ describe('<Combobox.Root />', () => {
           </React.Fragment>,
         );
 
-        await user.click(screen.getByTestId('trigger'));
+        const trigger = screen.getByTestId('trigger');
+        await user.click(trigger);
         const input = await screen.findByTestId('input');
         await user.type(input, 'ap');
         await user.keyboard('{Escape}');
@@ -529,13 +530,27 @@ describe('<Combobox.Root />', () => {
         const popup = screen.getByTestId('popup');
         await waitFor(() => expect(popup).toHaveAttribute('data-ending-style'));
 
-        input.focus();
-        await user.type(input, 'b', { skipClick: true });
+        // The popup is logically closed, so focus is already back on the trigger instead of
+        // parked inside the subtree that's animating out.
+        expect(trigger).toHaveFocus();
 
+        // The closing popup is inert, so focus can't move back into it either. Re-checked here
+        // because an unmounted popup would satisfy the assertions below without testing anything.
+        expect(popup).toHaveAttribute('data-ending-style');
+        input.focus();
+        expect(input).not.toHaveFocus();
+        expect(trigger).toHaveFocus();
+
+        // Reopening from the trigger still works while the exit animation is running, and the
+        // query it reopens with is the one a fresh open would have: cleared, with the full list.
+        await user.click(trigger);
         await waitFor(() => expect(popup).not.toHaveAttribute('data-ending-style'));
-        expect(input).toHaveValue('apb');
-        expect(screen.getByRole('status')).toHaveTextContent('No matches');
-        expect(screen.queryByRole('option')).toBe(null);
+
+        const reopenedInput = await screen.findByTestId('input');
+        expect(reopenedInput).toHaveFocus();
+        expect(reopenedInput).toHaveValue('');
+        expect(screen.getByRole('option', { name: 'Apple' })).not.toBe(null);
+        expect(screen.getByRole('option', { name: 'Banana' })).not.toBe(null);
       },
     );
   });
@@ -6998,29 +7013,43 @@ describe('<Combobox.Root />', () => {
           }
         `;
 
-        const { user } = await render(
-          <React.Fragment>
-            {/* eslint-disable-next-line react/no-danger */}
-            <style dangerouslySetInnerHTML={{ __html: style }} />
-            <Combobox.Root multiple items={['apple', 'apricot', 'banana']}>
-              <Combobox.Trigger data-testid="trigger">Open</Combobox.Trigger>
-              <Combobox.Portal>
-                <Combobox.Positioner>
-                  <Combobox.Popup data-testid="popup" className="animation-test-popup">
-                    <Combobox.Input data-testid="input" />
-                    <Combobox.List>
-                      {(item: string) => (
-                        <Combobox.Item key={item} value={item}>
-                          {item}
-                        </Combobox.Item>
-                      )}
-                    </Combobox.List>
-                  </Combobox.Popup>
-                </Combobox.Positioner>
-              </Combobox.Portal>
-            </Combobox.Root>
-          </React.Fragment>,
-        );
+        function Test() {
+          const [inputValue, setInputValue] = React.useState('');
+          return (
+            <React.Fragment>
+              {/* eslint-disable-next-line react/no-danger */}
+              <style dangerouslySetInnerHTML={{ __html: style }} />
+              {/* The closing popup is inert, so the query can only change from outside it. */}
+              <button type="button" data-testid="external-clear" onClick={() => setInputValue('')}>
+                Clear
+              </button>
+              <Combobox.Root
+                multiple
+                items={['apple', 'apricot', 'banana']}
+                inputValue={inputValue}
+                onInputValueChange={setInputValue}
+              >
+                <Combobox.Trigger data-testid="trigger">Open</Combobox.Trigger>
+                <Combobox.Portal>
+                  <Combobox.Positioner>
+                    <Combobox.Popup data-testid="popup" className="animation-test-popup">
+                      <Combobox.Input data-testid="input" />
+                      <Combobox.List>
+                        {(item: string) => (
+                          <Combobox.Item key={item} value={item}>
+                            {item}
+                          </Combobox.Item>
+                        )}
+                      </Combobox.List>
+                    </Combobox.Popup>
+                  </Combobox.Positioner>
+                </Combobox.Portal>
+              </Combobox.Root>
+            </React.Fragment>
+          );
+        }
+
+        const { user } = await render(<Test />);
 
         await user.click(screen.getByTestId('trigger'));
         const input = await screen.findByTestId('input');
@@ -7030,8 +7059,11 @@ describe('<Combobox.Root />', () => {
         const popup = screen.getByTestId('popup');
         await waitFor(() => expect(popup).toHaveAttribute('data-ending-style'));
 
-        await user.clear(input);
+        await user.click(screen.getByTestId('external-clear'));
+        await waitFor(() => expect(input).toHaveValue(''));
 
+        // The popup content stays frozen at the pre-close filter, so the list doesn't re-filter
+        // while it animates out.
         expect(screen.getByText('apple')).not.toBe(null);
         expect(screen.getByText('apricot')).not.toBe(null);
         expect(screen.queryByText('banana')).toBe(null);

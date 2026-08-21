@@ -147,7 +147,9 @@ export const PopoverPositioner = React.forwardRef(function PopoverPositioner(
     props: elementProps,
     refs: [forwardedRef, setPositionerElement],
     hidden: !mounted,
-    inert: !open,
+    // Popover can open with its focus manager disabled, so it does not have one focus handoff
+    // contract shared by every open method. Keep hit testing separate from native `inert`.
+    pointerEventsNone: !open,
   });
 
   return (
