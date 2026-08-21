@@ -75,9 +75,12 @@ interface DropIntent {
   surfaceId: string;
 }
 
-interface TabDropIntent {
+interface TabDropTargetData {
   index: number;
+  tabId?: string;
 }
+
+type TabDropIntent = { type: 'insert'; index: number } | { type: 'replace'; tabId: string };
 
 type EntryLayout = 'horizontal' | 'vertical';
 
@@ -97,12 +100,13 @@ type BookmarkClipboard =
 
 const bookmarkKind = Draggable.createKind<AcceptedBookmarkDragData>('bookmark-bar:item');
 const tabKind = Draggable.createKind<AcceptedBookmarkDragData>('bookmark-bar:tab');
-const acceptedBookmarkKinds = [bookmarkKind, tabKind] as const;
+const acceptedBookmarkKinds = [bookmarkKind] as const;
+const acceptedTabKinds = [bookmarkKind, tabKind] as const;
 const bookmarkDropKind = DropTarget.createKind<DropIntent>('bookmark-bar:drop-position');
-const tabDropKind = DropTarget.createKind<TabDropIntent>('bookmark-bar:tab-position');
+const tabDropKind = DropTarget.createKind<TabDropTargetData>('bookmark-bar:tab-position');
 const CURRENT_PAGE = {
-  name: 'Drag and drop overview',
-  url: 'https://base-ui.com/react/drag-and-drop/overview',
+  name: 'Artificial intelligence',
+  url: 'https://en.wikipedia.org/wiki/Artificial_intelligence',
 };
 const INITIAL_TABS: BrowserTab[] = [{ id: 'tab-1', ...CURRENT_PAGE }];
 
@@ -125,6 +129,34 @@ function sameIntent(a: DropIntent | null, b: DropIntent | null): boolean {
     a?.index === b?.index &&
     a?.surfaceId === b?.surfaceId
   );
+}
+
+function resolveTabDropIntent(
+  dropTargets: readonly DropTargetRecord[],
+  allowReplace: boolean,
+): TabDropIntent | null {
+  const target = dropTargets.find((candidate) => tabDropKind.matches(candidate));
+  if (!target || !tabDropKind.matches(target)) {
+    return null;
+  }
+  if (!target.payload.tabId) {
+    return { type: 'insert', index: target.payload.index };
+  }
+  const localX = target.getLocalPoint().x;
+  if (allowReplace && localX >= 0.25 && localX <= 0.75) {
+    return { type: 'replace', tabId: target.payload.tabId };
+  }
+  return { type: 'insert', index: target.payload.index + (localX > 0.5 ? 1 : 0) };
+}
+
+function sameTabDropIntent(a: TabDropIntent | null, b: TabDropIntent | null): boolean {
+  if (!a || !b || a.type !== b.type) {
+    return a === b;
+  }
+  if (a.type === 'insert' && b.type === 'insert') {
+    return a.index === b.index;
+  }
+  return a.type === 'replace' && b.type === 'replace' && a.tabId === b.tabId;
 }
 
 function collectBookmarkPages(
@@ -161,7 +193,7 @@ interface BookmarkBarContextValue {
   pasteNode: (parentId: ParentId, index: number) => void;
   canPasteNode: (parentId: ParentId, index: number) => boolean;
   clipboard: BookmarkClipboard | null;
-  openPage: (name: string, url: string) => void;
+  openPageInNewTab: (name: string, url: string) => void;
   openAll: (id: string) => void;
   registerEntry: (id: string, element: HTMLElement | null) => void;
 }
@@ -255,7 +287,7 @@ function DropZone({
 
   const canDrop = useStableCallback(
     ({ source }: { source: { payload: AcceptedBookmarkDragData } }) =>
-      source.payload.type === 'tab' || getMoveValidity(source.payload.id, intent),
+      source.payload.type === 'existing' && getMoveValidity(source.payload.id, intent),
   );
 
   return (
@@ -364,14 +396,6 @@ function DropZones({
   );
 }
 
-function getHostname(url: string): string {
-  try {
-    return new URL(url).hostname.replace(/^www\./, '');
-  } catch {
-    return url;
-  }
-}
-
 function getIframeUrl(url: string): string {
   try {
     const parsedUrl = new URL(url);
@@ -384,9 +408,9 @@ function getIframeUrl(url: string): string {
   return url;
 }
 
-function getHostnameHue(hostname: string): number {
+function getIconHue(value: string): number {
   let hash = 0;
-  for (const character of hostname) {
+  for (const character of value) {
     hash = (hash * 31 + character.charCodeAt(0)) % 360;
   }
   return hash;
@@ -408,12 +432,16 @@ function BookmarkIcon({ node }: { node: Pick<BookmarkNode, 'name' | 'type'> & { 
     );
   }
 
-  const hostname = getHostname(node.url ?? '');
   return (
     <svg className={styles.entryIcon} width="16" height="16" viewBox="0 0 16 16" aria-hidden="true">
-      <rect width="16" height="16" rx="3.5" fill={`hsl(${getHostnameHue(hostname)} 55% 44%)`} />
+      <rect
+        width="16"
+        height="16"
+        rx="3.5"
+        fill={`hsl(${getIconHue(node.url ?? node.name)} 55% 44%)`}
+      />
       <text x="8" y="11.2" fill="white" fontSize="9" fontWeight="700" textAnchor="middle">
-        {(hostname[0] ?? node.name[0] ?? '?').toUpperCase()}
+        {(node.name[0] ?? '?').toUpperCase()}
       </text>
     </svg>
   );
@@ -517,10 +545,10 @@ function DraggableEntry({
   );
 
   if (entryType === 'menu-page') {
-    return <Menu.Item render={draggable} />;
+    return <Menu.Item nativeButton render={draggable} />;
   }
   if (entryType === 'menu-folder') {
-    return <Menu.SubmenuTrigger render={draggable} />;
+    return <Menu.SubmenuTrigger nativeButton render={draggable} />;
   }
   if (entryType === 'toolbar-folder') {
     return <Toolbar.Button render={<Menu.Trigger render={draggable} />} />;
@@ -567,7 +595,7 @@ function EmptyFolderTarget({ folderId, surfaceId }: { folderId: string; surfaceI
   const intent: DropIntent = { type: 'inside', parentId: folderId, index: 0, surfaceId };
   const canDrop = useStableCallback(
     ({ source }: { source: { payload: AcceptedBookmarkDragData } }) =>
-      source.payload.type === 'tab' || getMoveValidity(source.payload.id, intent),
+      source.payload.type === 'existing' && getMoveValidity(source.payload.id, intent),
   );
   const active = dropIntent?.type === 'inside' && dropIntent.parentId === folderId;
 
@@ -694,7 +722,7 @@ function MoreMenu({
   };
   const canDrop = useStableCallback(
     ({ source }: { source: { payload: AcceptedBookmarkDragData } }) =>
-      source.payload.type === 'tab' || getMoveValidity(source.payload.id, intent),
+      source.payload.type === 'existing' && getMoveValidity(source.payload.id, intent),
   );
 
   return (
@@ -781,15 +809,19 @@ function reorderTabs(
 function BrowserTabs({
   tabs,
   activeTabId,
+  dropIntent,
   onActiveTabChange,
   onTabsChange,
   onCloseTab,
+  onCreateTab,
 }: {
   tabs: BrowserTab[];
   activeTabId: string | null;
+  dropIntent: TabDropIntent | null;
   onActiveTabChange: (id: string | null) => void;
   onTabsChange: React.Dispatch<React.SetStateAction<BrowserTab[]>>;
   onCloseTab: (id: string) => void;
+  onCreateTab: () => void;
 }) {
   const { startKeyboardDrag } = useBookmarkBarContext();
   const orderBeforeDragRef = React.useRef<BrowserTab[] | null>(null);
@@ -833,9 +865,9 @@ function BrowserTabs({
         aria-label="Open pages"
         activateOnFocus
         render={
-          <DropTarget.Root<AcceptedBookmarkDragData, TabDropIntent>
+          <DropTarget.Root<AcceptedBookmarkDragData, TabDropTargetData>
             label="Add at end of tab list"
-            accept={acceptedBookmarkKinds}
+            accept={acceptedTabKinds}
             kind={tabDropKind}
             payload={{ index: tabs.length }}
             render={<DragAutoScroll.Root allowedAxis="horizontal" />}
@@ -894,6 +926,12 @@ function BrowserTabs({
               key={tab.id}
               className={styles.browserTab}
               value={tab.id}
+              data-tab-drop-before={
+                dropIntent?.type === 'insert' && dropIntent.index === index ? '' : undefined
+              }
+              data-tab-drop-replace={
+                dropIntent?.type === 'replace' && dropIntent.tabId === tab.id ? '' : undefined
+              }
               title={`${tab.name}\n${tab.url}`}
               render={
                 <Draggable.Root<AcceptedBookmarkDragData>
@@ -902,18 +940,18 @@ function BrowserTabs({
                   payload={{ type: 'tab', ...tab }}
                   keyboardActivation="manual"
                   keyboardMovement={Draggable.targetsOnlyKeyboardMovement}
-                  keyboardInstructions="Press Alt+Enter to drag this tab to the bookmarks bar. Use Alt+Left or Alt+Right to reorder tabs without dragging."
+                  keyboardInstructions="Press Alt+Enter to reorder this tab with the arrow keys. Use Alt+Left or Alt+Right to reorder without dragging."
                   pointerActivation={{ mouse: { type: 'distance', distance: 5 } }}
                   onBeforeDragStart={handleBeforeDragStart}
                   onDragStart={handleDragStart}
                   onDrop={handleDrop}
                   onDragEnd={handleDragEnd}
                   render={
-                    <DropTarget.Root<AcceptedBookmarkDragData, TabDropIntent>
-                      label={`Add before ${tab.name}`}
-                      accept={acceptedBookmarkKinds}
+                    <DropTarget.Root<AcceptedBookmarkDragData, TabDropTargetData>
+                      label={`Open in or beside ${tab.name}`}
+                      accept={acceptedTabKinds}
                       kind={tabDropKind}
-                      payload={{ index }}
+                      payload={{ index, tabId: tab.id }}
                       trackDragOver={false}
                       onDrag={handleDrag}
                       render={
@@ -946,6 +984,18 @@ function BrowserTabs({
           );
         })}
       </Tabs.List>
+      <button
+        type="button"
+        className={styles.newTabButton}
+        data-tab-drop-before={
+          dropIntent?.type === 'insert' && dropIntent.index === tabs.length ? '' : undefined
+        }
+        aria-label="New tab"
+        title="New tab"
+        onClick={onCreateTab}
+      >
+        +
+      </button>
     </Tabs.Root>
   );
 }
@@ -991,7 +1041,7 @@ function ContextActions({
     cutNode,
     pasteNode,
     openAll,
-    openPage,
+    openPageInNewTab,
   } = useBookmarkBarContext();
   const node = location?.nodeId ? tree.nodes[location.nodeId] : undefined;
   const siblings = node ? (tree.children[node.parentId] ?? []) : [];
@@ -1044,7 +1094,7 @@ function ContextActions({
   });
   const handleOpenPage = useStableCallback(() => {
     if (node?.type === 'bookmark') {
-      openPage(node.name, node.url);
+      openPageInNewTab(node.name, node.url);
     }
   });
   const handleCut = useStableCallback(() => {
@@ -1282,6 +1332,7 @@ function BookmarkBar() {
   const [tree, setTree] = React.useState(INITIAL_TREE);
   const [activeDragId, setActiveDragId] = React.useState<string | null>(null);
   const [dropIntent, setDropIntent] = React.useState<DropIntent | null>(null);
+  const [tabDropIntent, setTabDropIntent] = React.useState<TabDropIntent | null>(null);
   const [openMenuIds, setOpenMenuIds] = React.useState<Set<string>>(() => new Set());
   const [editor, setEditor] = React.useState<EditorState | null>(null);
   const [clipboard, setClipboard] = React.useState<BookmarkClipboard | null>(null);
@@ -1299,6 +1350,8 @@ function BookmarkBar() {
   const nextNodeIdRef = React.useRef(0);
   const nextTabIdRef = React.useRef(1);
   const focusTimeout = useTimeout();
+  const tabActivationTimeout = useTimeout();
+  const pendingTabActivationRef = React.useRef<string | null>(null);
 
   const createNodeId = useStableCallback((type: BookmarkNode['type']) => {
     nextNodeIdRef.current += 1;
@@ -1311,7 +1364,7 @@ function BookmarkBar() {
   });
 
   const insertBrowserPages = useStableCallback(
-    (pages: Array<{ name: string; url: string }>, index: number) => {
+    (pages: Array<{ name: string; url: string }>, index: number, activate = true) => {
       if (pages.length === 0) {
         return;
       }
@@ -1321,13 +1374,34 @@ function BookmarkBar() {
         next.splice(Math.max(0, Math.min(index, next.length)), 0, ...newTabs);
         return next;
       });
-      setActiveTabId(newTabs[0].id);
+      if (activate || activeTabId === null) {
+        setActiveTabId(newTabs[0].id);
+      }
     },
   );
 
-  const handleOpenPage = useStableCallback((name: string, url: string) => {
-    insertBrowserPages([{ name, url }], tabs.length);
+  const handleOpenPageInNewTab = useStableCallback((name: string, url: string) => {
+    insertBrowserPages([{ name, url }], tabs.length, false);
     setStatus(`${name} opened in a new browser tab.`);
+  });
+
+  const handleNavigatePage = useStableCallback((name: string, url: string) => {
+    if (!activeTabId || !tabs.some((tab) => tab.id === activeTabId)) {
+      insertBrowserPages([{ name, url }], tabs.length);
+      setStatus(`${name} opened in the browser.`);
+      return;
+    }
+    setTabs((current) =>
+      current.map((tab) => (tab.id === activeTabId ? { ...tab, name, url } : tab)),
+    );
+    setStatus(`${name} opened in the current browser tab.`);
+  });
+
+  const handleCreateTab = useStableCallback(() => {
+    const id = createTabId();
+    setTabs((current) => [...current, { id, name: 'New tab', url: 'about:blank' }]);
+    setActiveTabId(id);
+    setStatus('New browser tab opened.');
   });
 
   const handleCloseTab = useStableCallback((id: string) => {
@@ -1388,71 +1462,92 @@ function BookmarkBar() {
     resolveFocusTarget(editorFocusIdRef.current),
   );
 
-  const syncDropIntent = useStableCallback((dropTargets: readonly DropTargetRecord[]) => {
-    const target = dropTargets.find((candidate) => bookmarkDropKind.matches(candidate));
-    const nextIntent = target && bookmarkDropKind.matches(target) ? target.payload : null;
-    setDropIntent((current) => (sameIntent(current, nextIntent) ? current : nextIntent));
-  });
+  const syncDropIntents = useStableCallback(
+    (dropTargets: readonly DropTargetRecord[], source: AcceptedBookmarkDragData) => {
+      const target = dropTargets.find((candidate) => bookmarkDropKind.matches(candidate));
+      const nextIntent = target && bookmarkDropKind.matches(target) ? target.payload : null;
+      setDropIntent((current) => (sameIntent(current, nextIntent) ? current : nextIntent));
+      const sourceNode = source.type === 'existing' ? tree.nodes[source.id] : null;
+      const nextTabDropIntent =
+        source.type === 'existing'
+          ? resolveTabDropIntent(dropTargets, sourceNode?.type === 'bookmark')
+          : null;
+      setTabDropIntent((current) =>
+        sameTabDropIntent(current, nextTabDropIntent) ? current : nextTabDropIntent,
+      );
+
+      const replacementTabId =
+        nextTabDropIntent?.type === 'replace' ? nextTabDropIntent.tabId : null;
+      if (replacementTabId === pendingTabActivationRef.current) {
+        return;
+      }
+      tabActivationTimeout.clear();
+      pendingTabActivationRef.current = replacementTabId;
+      if (replacementTabId) {
+        tabActivationTimeout.start(450, () => setActiveTabId(replacementTabId));
+      }
+    },
+  );
 
   useDragMonitor({
-    accept: acceptedBookmarkKinds,
+    accept: acceptedTabKinds,
     onDragStart(event) {
       setActiveDragId(event.source.payload.id);
-      syncDropIntent(event.location.current.dropTargets);
+      syncDropIntents(event.location.current.dropTargets, event.source.payload);
     },
     onDrag(event) {
-      syncDropIntent(event.location.current.dropTargets);
+      syncDropIntents(event.location.current.dropTargets, event.source.payload);
     },
     onDropTargetChange(event) {
-      syncDropIntent(event.location.current.dropTargets);
+      syncDropIntents(event.location.current.dropTargets, event.source.payload);
     },
     onDrop(event) {
       const bookmarkTarget = event.location.current.dropTargets.find((candidate) =>
         bookmarkDropKind.matches(candidate),
       );
       if (bookmarkTarget && bookmarkDropKind.matches(bookmarkTarget)) {
+        if (event.source.payload.type !== 'existing') {
+          return;
+        }
         const intent = bookmarkTarget.payload;
         const parentName =
           intent.parentId === ROOT_ID ? 'the bookmarks bar' : tree.nodes[intent.parentId]?.name;
-        if (event.source.payload.type === 'existing') {
-          const sourceId = event.source.payload.id;
-          const sourceName = tree.nodes[sourceId]?.name;
-          setTree(moveNode(tree, sourceId, intent.parentId, intent.index));
-          if (sourceName && parentName) {
-            setStatus(`${sourceName} moved to ${parentName}.`);
-          }
-        } else {
-          const result = insertBookmarkSeed(
-            tree,
-            {
-              id: event.source.payload.id,
-              name: event.source.payload.name,
-              url: event.source.payload.url,
-            },
-            intent.parentId,
-            intent.index,
-            createNodeId,
-          );
-          setTree(result.tree);
-          setStatus(`${event.source.payload.name} added to ${parentName}.`);
+        const sourceId = event.source.payload.id;
+        const sourceName = tree.nodes[sourceId]?.name;
+        setTree(moveNode(tree, sourceId, intent.parentId, intent.index));
+        if (sourceName && parentName) {
+          setStatus(`${sourceName} moved to ${parentName}.`);
         }
         return;
       }
 
-      const tabTarget = event.location.current.dropTargets.find((candidate) =>
-        tabDropKind.matches(candidate),
+      const sourceNode =
+        event.source.payload.type === 'existing' ? tree.nodes[event.source.payload.id] : null;
+      const tabIntent = resolveTabDropIntent(
+        event.location.current.dropTargets,
+        sourceNode?.type === 'bookmark',
       );
-      if (!tabTarget || !tabDropKind.matches(tabTarget)) {
+      if (!tabIntent) {
         return;
       }
       if (event.source.payload.type === 'tab') {
+        if (tabIntent.type === 'insert') {
+          setTabs((current) => moveTabToIndex(current, event.source.payload.id, tabIntent.index));
+        }
+      } else if (tabIntent.type === 'replace' && sourceNode?.type === 'bookmark') {
         setTabs((current) =>
-          moveTabToIndex(current, event.source.payload.id, tabTarget.payload.index),
+          current.map((tab) =>
+            tab.id === tabIntent.tabId
+              ? { ...tab, name: sourceNode.name, url: sourceNode.url }
+              : tab,
+          ),
         );
-      } else {
+        setActiveTabId(tabIntent.tabId);
+        setStatus(`${sourceNode.name} opened in the current browser tab.`);
+      } else if (tabIntent.type === 'insert') {
         const pages: Array<{ name: string; url: string }> = [];
         collectBookmarkPages(tree, event.source.payload.id, pages);
-        insertBrowserPages(pages, tabTarget.payload.index);
+        insertBrowserPages(pages, tabIntent.index);
         const sourceName = tree.nodes[event.source.payload.id]?.name;
         if (sourceName) {
           setStatus(
@@ -1464,6 +1559,9 @@ function BookmarkBar() {
     onDragEnd() {
       setActiveDragId(null);
       setDropIntent(null);
+      setTabDropIntent(null);
+      tabActivationTimeout.clear();
+      pendingTabActivationRef.current = null;
       setOpenMenuIds(new Set());
     },
   });
@@ -1603,7 +1701,7 @@ function BookmarkBar() {
   const handleOpenAll = useStableCallback((id: string) => {
     const pages: Array<{ name: string; url: string }> = [];
     collectBookmarkPages(tree, id, pages);
-    insertBrowserPages(pages, tabs.length);
+    insertBrowserPages(pages, tabs.length, false);
     const folderName = tree.nodes[id]?.name;
     if (folderName) {
       setStatus(`${pages.length} pages from ${folderName} opened in browser tabs.`);
@@ -1743,7 +1841,11 @@ function BookmarkBar() {
     const node = id ? tree.nodes[id] : undefined;
     if (node?.type === 'bookmark') {
       event.preventDefault();
-      handleOpenPage(node.name, node.url);
+      if (event.ctrlKey || event.metaKey) {
+        handleOpenPageInNewTab(node.name, node.url);
+      } else {
+        handleNavigatePage(node.name, node.url);
+      }
     } else if (node?.type === 'folder' && (event.ctrlKey || event.metaKey)) {
       event.preventDefault();
       event.stopPropagation();
@@ -1767,7 +1869,7 @@ function BookmarkBar() {
       event.preventDefault();
       event.stopPropagation();
       if (node.type === 'bookmark') {
-        handleOpenPage(node.name, node.url);
+        handleOpenPageInNewTab(node.name, node.url);
       } else {
         handleOpenAll(node.id);
       }
@@ -1861,7 +1963,7 @@ function BookmarkBar() {
       pasteNode: handlePasteNode,
       canPasteNode,
       clipboard,
-      openPage: handleOpenPage,
+      openPageInNewTab: handleOpenPageInNewTab,
       openAll: handleOpenAll,
       registerEntry,
     }),
@@ -1881,7 +1983,7 @@ function BookmarkBar() {
       handlePasteNode,
       canPasteNode,
       clipboard,
-      handleOpenPage,
+      handleOpenPageInNewTab,
       handleOpenAll,
       registerEntry,
     ],
@@ -1906,7 +2008,7 @@ function BookmarkBar() {
               <h1 className={styles.title}>Bookmark bar</h1>
               <p className={styles.subtitle}>
                 Open bookmarks in embedded browser tabs. Drag bookmarks between the bar, overflow
-                menu, nested folders, and tab strip; drag a tab back to the bar to save it.
+                menu, nested folders, and tab strip. Drag tabs to reorder them.
               </p>
             </header>
 
@@ -1920,9 +2022,11 @@ function BookmarkBar() {
                 <BrowserTabs
                   tabs={tabs}
                   activeTabId={activeTabId}
+                  dropIntent={tabDropIntent}
                   onActiveTabChange={setActiveTabId}
                   onTabsChange={setTabs}
                   onCloseTab={handleCloseTab}
+                  onCreateTab={handleCreateTab}
                 />
               </div>
               <div className={styles.addressRow}>
@@ -1965,16 +2069,16 @@ function BookmarkBar() {
                 />
               ) : (
                 <div className={styles.emptyPage}>
-                  Open or drag a bookmark here to create a tab.
+                  Open a bookmark or create a new tab to start browsing.
                 </div>
               )}
             </section>
 
             <div className={styles.instructions}>
               <p>
-                Keyboard: use arrow keys to navigate. Press Alt+Enter to drag a bookmark or tab, and
-                Alt+Left/Right to reorder tabs. Press Shift+F10 for actions, including Cut, Copy,
-                and Paste. On touch, press and hold to open the same menu.
+                Keyboard: use arrow keys to navigate. Press Alt+Enter to drag bookmarks or reorder
+                tabs, and Alt+Left/Right to reorder tabs directly. Press Shift+F10 for actions,
+                including Cut, Copy, and Paste. On touch, press and hold to open the same menu.
               </p>
               <button
                 ref={resetButtonRef}

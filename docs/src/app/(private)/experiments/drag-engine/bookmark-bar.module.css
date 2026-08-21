@@ -124,18 +124,67 @@
 }
 
 .browserTabs {
+  display: flex;
   min-width: 0;
   flex: 1 1 auto;
 }
 
 .tabList {
   display: flex;
-  gap: 0.125rem;
+  flex: 0 1 auto;
   min-width: 0;
   min-height: 2.25rem;
   overflow-x: auto;
   overflow-y: hidden;
   scrollbar-width: thin;
+}
+
+.newTabButton {
+  position: relative;
+  flex: 0 0 auto;
+  align-self: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background-color: transparent;
+  color: var(--bookmark-muted);
+  font: inherit;
+  font-size: 1.25rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.newTabButton:hover {
+  background-color: var(--bookmark-hover);
+  color: var(--bookmark-ink);
+}
+
+.newTabButton:focus-visible {
+  outline: 2px solid var(--bookmark-accent);
+  outline-offset: -2px;
+}
+
+.browserTab[data-tab-drop-before]::before,
+.newTabButton[data-tab-drop-before]::before,
+.browserTab[data-tab-drop-replace]::after {
+  content: '↑';
+  position: absolute;
+  z-index: 2;
+  bottom: -0.0625rem;
+  left: -0.375rem;
+  color: oklch(100% 0 0deg);
+  font-size: 1.125rem;
+  font-weight: 800;
+  line-height: 1;
+  text-shadow: 0 1px 2px oklch(0% 0 0deg / 65%);
+  pointer-events: none;
+}
+
+.browserTab[data-tab-drop-replace]::after {
+  left: 50%;
+  transform: translateX(-50%);
 }
 
 .browserTab {
@@ -147,7 +196,7 @@
   max-width: 10rem;
   height: 2.25rem;
   padding: 0 0.5rem;
-  overflow: hidden;
+  overflow: visible;
   border: 1px solid transparent;
   border-bottom: 0;
   border-radius: 0.45rem 0.45rem 0 0;
