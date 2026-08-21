@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 import * as React from 'react';
 import { fireEvent, flushMicrotasks, screen } from '@mui/internal-test-utils';
-import { createRenderer, firePointer, isJSDOM } from '#test-utils';
+import { createRenderer, firePointer } from '#test-utils';
 import { useSwipeDismiss } from './useSwipeDismiss';
 
 function SwipeBox() {
@@ -1259,7 +1259,7 @@ describe('useSwipeDismiss', () => {
     expect(onDismiss).not.toHaveBeenCalled();
   });
 
-  it.skipIf(!isJSDOM)('provides swipe velocity on release', async () => {
+  it('provides swipe velocity on release', async () => {
     const onRelease = vi.fn();
 
     function SwipeBoxReleaseVelocity() {
@@ -1284,7 +1284,6 @@ describe('useSwipeDismiss', () => {
 
     vi.useFakeTimers();
     try {
-      vi.setSystemTime(new Date(1000));
       await render(<SwipeBoxReleaseVelocity />);
       const element = screen.getByTestId('release-velocity');
 
@@ -1347,7 +1346,7 @@ describe('useSwipeDismiss', () => {
     }
   });
 
-  it.skipIf(!isJSDOM)('provides release velocity from the latest swipe movement', async () => {
+  it('provides release velocity from the latest swipe movement', async () => {
     const onRelease = vi.fn();
 
     function SwipeBoxReleaseVelocity() {
@@ -1372,7 +1371,6 @@ describe('useSwipeDismiss', () => {
 
     vi.useFakeTimers();
     try {
-      vi.setSystemTime(new Date(1000));
       await render(<SwipeBoxReleaseVelocity />);
       const element = screen.getByTestId('release-velocity-latest');
 
@@ -1448,7 +1446,7 @@ describe('useSwipeDismiss', () => {
     }
   });
 
-  it.skipIf(!isJSDOM)('clamps short swipe durations when computing velocity', async () => {
+  it('clamps short swipe durations when computing velocity', async () => {
     const onRelease = vi.fn();
 
     function SwipeBoxReleaseVelocity() {
@@ -1473,7 +1471,6 @@ describe('useSwipeDismiss', () => {
 
     vi.useFakeTimers();
     try {
-      vi.setSystemTime(new Date(1000));
       await render(<SwipeBoxReleaseVelocity />);
       const element = screen.getByTestId('release-velocity-short');
 

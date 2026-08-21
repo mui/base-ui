@@ -3141,7 +3141,6 @@ describe('<Drawer.Viewport />', () => {
 
     vi.useFakeTimers();
     try {
-      vi.setSystemTime(new Date(1000));
       // The taller point is declared first so the expected settle target is not simply the
       // first resolved snap point.
       await render(
@@ -3382,7 +3381,6 @@ describe('<Drawer.Viewport />', () => {
   it('clears nested swipe state after an attributed drag settles on a snap point', async () => {
     vi.useFakeTimers();
     try {
-      vi.setSystemTime(new Date(1000));
       await render(
         <Drawer.Root open swipeDirection="down">
           <Drawer.Portal>
@@ -3485,7 +3483,6 @@ describe('<Drawer.Viewport />', () => {
 
     vi.useFakeTimers();
     try {
-      vi.setSystemTime(new Date(1000));
       await render(
         <Drawer.Root
           open
@@ -3575,7 +3572,6 @@ describe('<Drawer.Viewport />', () => {
 
     vi.useFakeTimers();
     try {
-      vi.setSystemTime(new Date(1000));
       await render(
         <Drawer.Root
           open
@@ -3663,7 +3659,6 @@ describe('<Drawer.Viewport />', () => {
 
     vi.useFakeTimers();
     try {
-      vi.setSystemTime(new Date(1000));
       await render(
         <Drawer.Root
           open

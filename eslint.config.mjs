@@ -15,6 +15,28 @@ const filename = fileURLToPath(import.meta.url);
 const dirname = path.dirname(filename);
 const playgroundRootDir = path.join(dirname, 'playground', 'vite-app');
 
+const baseConfig = createBaseConfig({
+  baseDirectory: dirname,
+  markdown: true,
+});
+
+// Flat config replaces rule options rather than merging them, so any block that sets
+// `no-restricted-syntax` for a narrower set of files drops everything the base config declared.
+// Re-including these keeps the shared restrictions (React namespace imports, `throw Error()`,
+// the `window.setTimeout` family) in force wherever an override adds an entry of its own.
+const baseRestrictedSyntax = baseConfig
+  .flatMap((entry) => entry.rules?.['no-restricted-syntax'] ?? [])
+  .filter((entry) => typeof entry === 'object');
+
+if (baseRestrictedSyntax.length === 0) {
+  // Extracting nothing would silently drop every shared restriction from the overrides below,
+  // which is the failure this re-inclusion exists to prevent — so fail loudly instead.
+  throw new Error(
+    'eslint.config.mjs: found no `no-restricted-syntax` entries in the base config. ' +
+      'Its shape likely changed; update the extraction above before the overrides lose these rules.',
+  );
+}
+
 const OneLevelImportMessage = [
   'Prefer one level nested imports to avoid bundling everything in dev mode or breaking CJS/ESM split.',
   'See https://github.com/mui/material-ui/pull/24147 for the kind of win it can unlock.',
@@ -34,10 +56,7 @@ const NO_RESTRICTED_IMPORTS_PATHS_TOP_LEVEL_PACKAGES = [
 
 export default defineConfig(
   globalIgnores(['./examples', './playground/vite-app/dist']),
-  createBaseConfig({
-    baseDirectory: dirname,
-    markdown: true,
-  }),
+  baseConfig,
   // eslint-plugin-mdx loads `.remarkrc.mjs` itself, but ESLint doesn't know
   // that file is a config dependency, so `--cache` doesn't invalidate when
   // it changes. Embedding the imported value in a setting puts its content
@@ -142,6 +161,7 @@ export default defineConfig(
       'mui/add-undef-to-optional': 'off',
       'no-restricted-syntax': [
         'error',
+        ...baseRestrictedSyntax,
         {
           // `timeStamp` is read-only and not an `EventInit` member, so `fireEvent` accepts it from
           // the type system and then silently drops it: the event ends up stamped off the
@@ -150,7 +170,9 @@ export default defineConfig(
           selector:
             "CallExpression[callee.object.name='fireEvent'] ObjectExpression > Property[key.name='timeStamp']",
           message:
-            'fireEvent silently drops `timeStamp`. Use `firePointer` from `#test-utils`, which applies it to the event.',
+            '`fireEvent` silently drops `timeStamp`, so the event is stamped off the environment clock ' +
+            '— the real one in a browser. Use `firePointer` from `#test-utils` for pointer events; ' +
+            'touch events have no equivalent helper yet.',
         },
       ],
     },

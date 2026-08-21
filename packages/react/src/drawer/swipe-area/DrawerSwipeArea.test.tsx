@@ -120,6 +120,18 @@ async function swipe(element: HTMLElement, start: Point, end: Point, options: Sw
   };
 
   if (input === 'touch') {
+    // Touch events are still fired untimed, so a timeline handed out here would advance a counter
+    // no event carries. Throwing makes that a loud failure rather than an event silently stamped
+    // off the real clock, which is the trap this helper exists to close.
+    const touchContext: SwipeContext = {
+      nextTimeStamp: () => {
+        throw new Error(
+          "swipe(): `nextTimeStamp` is unavailable for `input: 'touch'` — touch events do not " +
+            'carry timestamps yet, so an event stamped with it would still use the real clock.',
+        );
+      },
+    };
+
     fireEvent.touchStart(element, {
       bubbles: true,
       touches: [
@@ -157,7 +169,7 @@ async function swipe(element: HTMLElement, start: Point, end: Point, options: Sw
     await flushMicrotasks();
 
     if (beforeRelease) {
-      await beforeRelease(swipeContext);
+      await beforeRelease(touchContext);
       await flushMicrotasks();
     }
 

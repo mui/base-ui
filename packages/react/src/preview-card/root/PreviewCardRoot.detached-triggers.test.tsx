@@ -399,9 +399,9 @@ describe('<PreviewCard.Root />', () => {
 
       fireEvent.mouseEnter(trigger1);
       fireEvent.mouseMove(trigger1);
-      await waitFor(() => {
-        expect(screen.queryByTestId(popupId)).toBeVisible();
-      });
+      // `delay={0}` opens synchronously in the handler (see useHover.ts), so this asserts
+      // immediate opening — `waitFor` could not tell that apart from opening a tick later.
+      expect(screen.queryByTestId(popupId)).toBeVisible();
       fireEvent.mouseLeave(trigger1);
       await waitFor(() => {
         expect(screen.queryByTestId(popupId)).toBe(null);
@@ -409,9 +409,7 @@ describe('<PreviewCard.Root />', () => {
 
       fireEvent.mouseEnter(trigger2);
       fireEvent.mouseMove(trigger2);
-      await waitFor(() => {
-        expect(screen.queryByTestId(popupId)).toBeVisible();
-      });
+      expect(screen.queryByTestId(popupId)).toBeVisible();
       fireEvent.mouseLeave(trigger2);
       await waitFor(() => {
         expect(screen.queryByTestId(popupId)).toBe(null);
@@ -419,9 +417,7 @@ describe('<PreviewCard.Root />', () => {
 
       fireEvent.mouseEnter(trigger3);
       fireEvent.mouseMove(trigger3);
-      await waitFor(() => {
-        expect(screen.queryByTestId(popupId)).toBeVisible();
-      });
+      expect(screen.queryByTestId(popupId)).toBeVisible();
       fireEvent.mouseLeave(trigger3);
       await waitFor(() => {
         expect(screen.queryByTestId(popupId)).toBe(null);
