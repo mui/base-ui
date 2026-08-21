@@ -445,7 +445,7 @@ export const DrawerSwipeArea = React.forwardRef(function DrawerSwipeArea(
     stateAttributesMapping,
     props: [
       {
-        role: 'presentation',
+        role: 'none',
         'aria-hidden': true,
         style: {
           pointerEvents: !enabled ? 'none' : undefined,

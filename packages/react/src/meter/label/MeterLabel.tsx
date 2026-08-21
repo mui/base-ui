@@ -27,7 +27,7 @@ export const MeterLabel = React.forwardRef(function MeterLabel(
     props: [
       {
         id,
-        role: 'presentation',
+        role: 'none',
       },
       elementProps,
     ],

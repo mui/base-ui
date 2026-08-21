@@ -98,12 +98,12 @@ function VirtualizedList({
 
   return (
     <div
-      role="presentation"
+      role="none"
       ref={handleScrollElementRef}
       className="h-[min(22.5rem,var(--total-size))] max-h-[var(--available-height)] overflow-auto overscroll-contain scroll-py-1"
       style={{ '--total-size': `${totalSize}px` } as React.CSSProperties}
     >
-      <div role="presentation" className="relative w-full" style={{ height: totalSize }}>
+      <div role="none" className="relative w-full" style={{ height: totalSize }}>
         {virtualizer.getVirtualItems().map((virtualItem) => {
           const item = filteredItems[virtualItem.index];
           if (!item) {

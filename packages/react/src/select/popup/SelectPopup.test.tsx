@@ -148,7 +148,7 @@ describe('<Select.Popup />', () => {
 
     expect(list).toBe(listbox);
     expect(list).toHaveAttribute('aria-multiselectable');
-    expect(popup).toHaveAttribute('role', 'presentation');
+    expect(popup).toHaveAttribute('role', 'none');
     expect(popup).not.toHaveAttribute('aria-multiselectable');
     expect(list.id).not.toBe('');
     expect(trigger).toHaveAttribute('aria-controls', list.id);

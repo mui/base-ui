@@ -41,7 +41,7 @@ export const MenuBackdrop = React.forwardRef(function MenuBackdrop(
     stateAttributesMapping: popupTransitionStateMapping,
     props: [
       {
-        role: 'presentation',
+        role: 'none',
         hidden: !mounted,
         style: {
           pointerEvents: lastOpenChangeReason === REASONS.triggerHover ? 'none' : undefined,

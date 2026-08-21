@@ -36,7 +36,7 @@ describe('<Combobox.Popup />', () => {
     expect(popup).toHaveAttribute('data-open');
   });
 
-  it('sets role to presentation when input renders outside the popup', async () => {
+  it('sets role to none when input renders outside the popup', async () => {
     await render(
       <Combobox.Root defaultOpen items={['Apple']}>
         <Combobox.Input />
@@ -50,7 +50,7 @@ describe('<Combobox.Popup />', () => {
 
     const popup = await screen.findByTestId('popup');
     await waitFor(() => {
-      expect(popup).toHaveAttribute('role', 'presentation');
+      expect(popup).toHaveAttribute('role', 'none');
     });
   });
 

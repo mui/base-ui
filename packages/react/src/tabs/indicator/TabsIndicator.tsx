@@ -147,7 +147,7 @@ export const TabsIndicator = React.forwardRef(function TabsIndicator(
     ref: forwardedRef,
     props: [
       {
-        role: 'presentation',
+        role: 'none',
         style,
         hidden: !displayIndicator, // do not display the indicator before the layout is settled
       },

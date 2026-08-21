@@ -263,7 +263,7 @@ export const ScrollAreaRoot = React.forwardRef(function ScrollAreaRoot(
   );
 
   const props: HTMLProps = {
-    role: 'presentation',
+    role: 'none',
     onPointerEnter: handlePointerEnterOrMove,
     onPointerMove: handlePointerEnterOrMove,
     onPointerDown: handleTouchModalityChange,

@@ -47,7 +47,7 @@ export const NumberFieldScrubAreaCursor = React.forwardRef(function NumberFieldS
     state,
     props: [
       {
-        role: 'presentation',
+        role: 'none',
         style: CURSOR_STYLE,
       },
       elementProps,

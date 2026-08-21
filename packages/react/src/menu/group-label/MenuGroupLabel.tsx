@@ -33,7 +33,7 @@ export const MenuGroupLabel = React.forwardRef(function MenuGroupLabel(
     ref: forwardedRef,
     props: {
       id,
-      role: 'presentation',
+      role: 'none',
       ...elementProps,
     },
   });

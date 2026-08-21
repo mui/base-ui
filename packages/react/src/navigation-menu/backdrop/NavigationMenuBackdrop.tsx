@@ -30,7 +30,7 @@ export const NavigationMenuBackdrop = React.forwardRef(function NavigationMenuBa
     ref: forwardedRef,
     props: [
       {
-        role: 'presentation',
+        role: 'none',
         hidden: !mounted,
         style: {
           userSelect: 'none',

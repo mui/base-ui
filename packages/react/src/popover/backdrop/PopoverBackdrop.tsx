@@ -36,7 +36,7 @@ export const PopoverBackdrop = React.forwardRef(function PopoverBackdrop(
     ref: forwardedRef,
     props: [
       {
-        role: 'presentation',
+        role: 'none',
         hidden: !mounted,
         style: {
           pointerEvents: openReason === REASONS.triggerHover ? 'none' : undefined,
