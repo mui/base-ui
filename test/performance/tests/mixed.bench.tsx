@@ -29,8 +29,8 @@ function MixedSurface() {
   return (
     <div>
       {/* Hoverable triggers let the resting real cursor open a tooltip mid-run; see
-          tooltip.bench.tsx. Blocked at the section so the mount path this benchmark times does not
-          also allocate a style object per row. */}
+          tooltip.bench.tsx. Blocked at the section so React does not write an inline style onto
+          every trigger inside the mount path this benchmark times. */}
       <section style={INERT_TO_POINTER}>
         {tooltipRows.map((row) => (
           <Tooltip.Root key={`tooltip-${row.id}`}>

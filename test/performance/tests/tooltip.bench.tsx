@@ -9,7 +9,8 @@ const containedTooltipRows = createRows(300, 'Tooltip');
 // a tooltip on its own. That adds ~9 render passes which land inside the measurement window only
 // some of the time, so iterations stop matching each other and the harness's equality check fails.
 // Mount is what this benchmark measures, so the triggers never need to be hoverable. Blocked on the
-// container rather than per trigger, to keep 300 style objects out of the path being timed.
+// container rather than per trigger, so React does not write an inline style onto all 300 nodes
+// inside the path being timed.
 const INERT_TO_POINTER: React.CSSProperties = { pointerEvents: 'none' };
 
 function ContainedTooltipList() {

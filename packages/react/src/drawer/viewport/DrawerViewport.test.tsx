@@ -3186,7 +3186,6 @@ describe('<Drawer.Viewport />', () => {
           pointerType: 'mouse',
           timeStamp: 1000,
         });
-        vi.setSystemTime(new Date(1050));
         firePointer.move(viewport, {
           buttons: 1,
           pointerId: 1,
@@ -3195,7 +3194,6 @@ describe('<Drawer.Viewport />', () => {
           pointerType: 'mouse',
           timeStamp: 1050,
         });
-        vi.setSystemTime(new Date(1100));
         firePointer.move(viewport, {
           buttons: 1,
           pointerId: 1,
@@ -3204,7 +3202,6 @@ describe('<Drawer.Viewport />', () => {
           pointerType: 'mouse',
           timeStamp: 1100,
         });
-        vi.setSystemTime(new Date(1120));
         firePointer.move(viewport, {
           buttons: 1,
           pointerId: 1,
@@ -3213,7 +3210,6 @@ describe('<Drawer.Viewport />', () => {
           pointerType: 'mouse',
           timeStamp: 1120,
         });
-        vi.setSystemTime(new Date(1130));
         firePointer.up(viewport, {
           pointerId: 1,
           clientX: 240,
@@ -3439,7 +3435,6 @@ describe('<Drawer.Viewport />', () => {
           pointerType: 'mouse',
           timeStamp: 1000,
         });
-        vi.setSystemTime(new Date(1050));
         firePointer.move(childViewport, {
           buttons: 1,
           pointerId: 1,
@@ -3448,7 +3443,6 @@ describe('<Drawer.Viewport />', () => {
           pointerType: 'mouse',
           timeStamp: 1050,
         });
-        vi.setSystemTime(new Date(1150));
         firePointer.move(childViewport, {
           buttons: 1,
           pointerId: 1,
@@ -3462,7 +3456,6 @@ describe('<Drawer.Viewport />', () => {
         expect(parentPopup).toHaveAttribute('data-nested-drawer-swiping', '');
         expect(parentPopup.style.getPropertyValue('--drawer-swipe-progress')).not.toBe('0');
 
-        vi.setSystemTime(new Date(1250));
         firePointer.move(childViewport, {
           buttons: 1,
           pointerId: 1,
@@ -3471,7 +3464,6 @@ describe('<Drawer.Viewport />', () => {
           pointerType: 'mouse',
           timeStamp: 1250,
         });
-        vi.setSystemTime(new Date(1600));
         firePointer.up(childViewport, {
           pointerId: 1,
           clientX: 100,
@@ -3537,7 +3529,6 @@ describe('<Drawer.Viewport />', () => {
           pointerType: 'mouse',
           timeStamp: 1000,
         });
-        vi.setSystemTime(new Date(1050));
         firePointer.move(viewport, {
           buttons: 1,
           pointerId: 1,
@@ -3546,7 +3537,6 @@ describe('<Drawer.Viewport />', () => {
           pointerType: 'mouse',
           timeStamp: 1050,
         });
-        vi.setSystemTime(new Date(1100));
         firePointer.move(viewport, {
           buttons: 1,
           pointerId: 1,
@@ -3555,7 +3545,6 @@ describe('<Drawer.Viewport />', () => {
           pointerType: 'mouse',
           timeStamp: 1100,
         });
-        vi.setSystemTime(new Date(1120));
         firePointer.move(viewport, {
           buttons: 1,
           pointerId: 1,
@@ -3564,7 +3553,6 @@ describe('<Drawer.Viewport />', () => {
           pointerType: 'mouse',
           timeStamp: 1120,
         });
-        vi.setSystemTime(new Date(1130));
         firePointer.up(viewport, {
           pointerId: 1,
           clientX: 240,
@@ -3630,7 +3618,6 @@ describe('<Drawer.Viewport />', () => {
           pointerType: 'mouse',
           timeStamp: 1000,
         });
-        vi.setSystemTime(new Date(1100));
         firePointer.move(viewport, {
           buttons: 1,
           pointerId: 1,
@@ -3639,7 +3626,6 @@ describe('<Drawer.Viewport />', () => {
           pointerType: 'mouse',
           timeStamp: 1100,
         });
-        vi.setSystemTime(new Date(1400));
         firePointer.move(viewport, {
           buttons: 1,
           pointerId: 1,
@@ -3648,7 +3634,6 @@ describe('<Drawer.Viewport />', () => {
           pointerType: 'mouse',
           timeStamp: 1400,
         });
-        vi.setSystemTime(new Date(1900));
         firePointer.move(viewport, {
           buttons: 1,
           pointerId: 1,
@@ -3657,7 +3642,6 @@ describe('<Drawer.Viewport />', () => {
           pointerType: 'mouse',
           timeStamp: 1900,
         });
-        vi.setSystemTime(new Date(1950));
         firePointer.up(viewport, {
           pointerId: 1,
           clientX: 400,
@@ -3723,7 +3707,6 @@ describe('<Drawer.Viewport />', () => {
           pointerType: 'mouse',
           timeStamp: 1000,
         });
-        vi.setSystemTime(new Date(1100));
         firePointer.move(viewport, {
           buttons: 1,
           pointerId: 1,
@@ -3732,7 +3715,6 @@ describe('<Drawer.Viewport />', () => {
           pointerType: 'mouse',
           timeStamp: 1100,
         });
-        vi.setSystemTime(new Date(1400));
         firePointer.move(viewport, {
           buttons: 1,
           pointerId: 1,
@@ -3741,7 +3723,6 @@ describe('<Drawer.Viewport />', () => {
           pointerType: 'mouse',
           timeStamp: 1400,
         });
-        vi.setSystemTime(new Date(1900));
         firePointer.move(viewport, {
           buttons: 1,
           pointerId: 1,
@@ -3750,7 +3731,6 @@ describe('<Drawer.Viewport />', () => {
           pointerType: 'mouse',
           timeStamp: 1900,
         });
-        vi.setSystemTime(new Date(1950));
         firePointer.up(viewport, {
           pointerId: 1,
           clientX: 400,

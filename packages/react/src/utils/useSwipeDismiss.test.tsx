@@ -1309,7 +1309,6 @@ describe('useSwipeDismiss', () => {
 
       await flushMicrotasks();
 
-      vi.setSystemTime(new Date(1100));
       firePointer.move(element, {
         pointerId: 1,
         buttons: 1,
@@ -1323,7 +1322,6 @@ describe('useSwipeDismiss', () => {
 
       await flushMicrotasks();
 
-      vi.setSystemTime(new Date(1200));
       firePointer.move(element, {
         pointerId: 1,
         buttons: 1,
@@ -1337,7 +1335,6 @@ describe('useSwipeDismiss', () => {
 
       await flushMicrotasks();
 
-      vi.setSystemTime(new Date(1300));
       firePointer.up(element, {
         pointerId: 1,
         clientX: 50,
@@ -1400,7 +1397,6 @@ describe('useSwipeDismiss', () => {
 
       await flushMicrotasks();
 
-      vi.setSystemTime(new Date(1100));
       firePointer.move(element, {
         pointerId: 1,
         buttons: 1,
@@ -1414,7 +1410,6 @@ describe('useSwipeDismiss', () => {
 
       await flushMicrotasks();
 
-      vi.setSystemTime(new Date(1200));
       firePointer.move(element, {
         pointerId: 1,
         buttons: 1,
@@ -1428,7 +1423,6 @@ describe('useSwipeDismiss', () => {
 
       await flushMicrotasks();
 
-      vi.setSystemTime(new Date(1216));
       firePointer.move(element, {
         pointerId: 1,
         buttons: 1,
@@ -1442,7 +1436,6 @@ describe('useSwipeDismiss', () => {
 
       await flushMicrotasks();
 
-      vi.setSystemTime(new Date(1224));
       firePointer.up(element, {
         pointerId: 1,
         clientX: 70,
@@ -1505,7 +1498,6 @@ describe('useSwipeDismiss', () => {
 
       await flushMicrotasks();
 
-      vi.setSystemTime(new Date(1005));
       firePointer.move(element, {
         pointerId: 1,
         buttons: 1,
@@ -1519,7 +1511,6 @@ describe('useSwipeDismiss', () => {
 
       await flushMicrotasks();
 
-      vi.setSystemTime(new Date(1010));
       firePointer.move(element, {
         pointerId: 1,
         buttons: 1,
@@ -1533,7 +1524,6 @@ describe('useSwipeDismiss', () => {
 
       await flushMicrotasks();
 
-      vi.setSystemTime(new Date(1015));
       firePointer.up(element, {
         pointerId: 1,
         clientX: 30,
