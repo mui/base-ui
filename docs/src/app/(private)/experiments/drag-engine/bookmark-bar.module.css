@@ -254,10 +254,12 @@
 }
 
 .bookmarkBar {
+  --bookmark-bar-gap: 0.5rem;
+
   position: relative;
   display: flex;
   align-items: center;
-  gap: 0.125rem;
+  gap: var(--bookmark-bar-gap);
   width: 100%;
   min-width: 0;
   height: 2.375rem;
@@ -369,11 +371,11 @@
 }
 
 .entry[data-layout='horizontal'][data-drop-before]::before {
-  left: -0.15625rem;
+  left: calc(var(--bookmark-bar-gap) / -2 - 0.09375rem);
 }
 
 .entry[data-layout='horizontal'][data-drop-after]::after {
-  right: -0.15625rem;
+  right: calc(var(--bookmark-bar-gap) / -2 - 0.09375rem);
 }
 
 .entry[data-layout='vertical'][data-drop-before]::before,
@@ -403,6 +405,10 @@
   flex-direction: column;
 }
 
+.dropZones[data-layout='horizontal'] {
+  inset-inline: calc(var(--bookmark-bar-gap) / -2);
+}
+
 .dropBefore,
 .dropAfter,
 .dropInside {
@@ -420,9 +426,30 @@
   flex: 2 1 50%;
 }
 
-.dropZones[data-folder] .dropBefore,
-.dropZones[data-folder] .dropAfter {
+.dropZones[data-layout='vertical'][data-folder] .dropBefore,
+.dropZones[data-layout='vertical'][data-folder] .dropAfter {
   flex-basis: 25%;
+}
+
+.dropZones[data-layout='horizontal'][data-folder] .dropBefore,
+.dropZones[data-layout='horizontal'][data-folder] .dropAfter {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: calc(var(--bookmark-bar-gap) / 2);
+}
+
+.dropZones[data-layout='horizontal'][data-folder] .dropBefore {
+  left: 0;
+}
+
+.dropZones[data-layout='horizontal'][data-folder] .dropAfter {
+  right: 0;
+}
+
+.dropZones[data-layout='horizontal'][data-folder] .dropInside {
+  position: absolute;
+  inset: 0 calc(var(--bookmark-bar-gap) / 2);
 }
 
 .moreButton,
@@ -451,7 +478,7 @@
   top: 0;
   left: 0;
   display: flex;
-  gap: 0.125rem;
+  gap: var(--bookmark-bar-gap);
   width: max-content;
   height: 0;
   overflow: hidden;
