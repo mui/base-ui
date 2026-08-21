@@ -13,6 +13,8 @@ import { DropTarget } from '@base-ui/react/drop-target';
 import type {
   DragLocationHistory,
   DragMoveEventDetails,
+  DragStartEventDetails,
+  DropTargetChangeEventDetails,
   DropTargetEvent,
 } from '@base-ui/react/drop-target';
 import { Field } from '@base-ui/react/field';
@@ -22,17 +24,21 @@ import { Toolbar } from '@base-ui/react/toolbar';
 import type { DropTargetRecord } from '@base-ui/react/types';
 import { useDragDropManager } from '@base-ui/react/use-drag-drop-manager';
 import { useDragMonitor } from '@base-ui/react/use-drag-monitor';
+import { clamp } from '@base-ui/utils/clamp';
+import { fastObjectShallowCompare } from '@base-ui/utils/fastObjectShallowCompare';
 import { ownerDocument, ownerWindow } from '@base-ui/utils/owner';
 import { activeElement, getTarget } from '@base-ui/utils/shadowDom';
-import { useAnimationFrame } from '@base-ui/utils/useAnimationFrame';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useTimeout } from '@base-ui/utils/useTimeout';
 import {
   INITIAL_TREE,
   ROOT_ID,
+  getAncestorIds,
+  getBookmarkPages,
   getBookmarkSeed,
   getChildren,
+  getFolderDestinations,
   getFolderPath,
   getInsertionLocationForNode,
   getMoveValidity,
@@ -41,13 +47,14 @@ import {
   isSelfOrDescendant,
   moveNode,
   removeNode,
+  updateNode,
   type BookmarkNode,
+  type BookmarkPage,
   type BookmarkSeed,
   type BookmarkTree,
   type MoveValidity,
   type ParentId,
 } from './bookmark-bar-model';
-import theme from './theme.module.css';
 import styles from './bookmark-bar.module.css';
 
 const MORE_MENU_ID = 'more';
@@ -132,17 +139,8 @@ function moveTabToIndex(tabs: BrowserTab[], id: string, index: number): BrowserT
   const next = [...tabs];
   const [source] = next.splice(sourceIndex, 1);
   const adjustedIndex = sourceIndex < index ? index - 1 : index;
-  next.splice(Math.max(0, Math.min(adjustedIndex, next.length)), 0, source);
+  next.splice(clamp(adjustedIndex, 0, next.length), 0, source);
   return next.every((tab, tabIndex) => tab.id === tabs[tabIndex]?.id) ? tabs : next;
-}
-
-function sameIntent(a: DropIntent | null, b: DropIntent | null): boolean {
-  return (
-    a?.type === b?.type &&
-    a?.parentId === b?.parentId &&
-    a?.index === b?.index &&
-    a?.surfaceId === b?.surfaceId
-  );
 }
 
 function resolveTabDropIntent(
@@ -189,51 +187,37 @@ export function resolveTabTargetIntent(
   return { type: 'insert', index: target.index + (localX > 0.5 ? 1 : 0) };
 }
 
-function getHorizontalDirection(location: DragLocationHistory): HorizontalDirection | null {
-  const distance = location.current.input.clientX - location.previous.input.clientX;
-  if (distance === 0) {
+function getHorizontalDirection(
+  eventDetails: DragStartEventDetails | DragMoveEventDetails | DropTargetChangeEventDetails,
+): HorizontalDirection | null {
+  if (eventDetails.reason !== 'keyboard') {
     return null;
   }
-  return distance < 0 ? -1 : 1;
+  if (eventDetails.event.key === 'ArrowLeft') {
+    return -1;
+  }
+  return eventDetails.event.key === 'ArrowRight' ? 1 : null;
 }
 
 function isStableFocusTarget(element: HTMLElement | null | undefined): element is HTMLElement {
   return Boolean(element?.isConnected && !element.closest('[role="menu"][data-ending-style]'));
 }
 
-function sameTabDropIntent(a: TabDropIntent | null, b: TabDropIntent | null): boolean {
-  if (!a || !b || a.type !== b.type) {
-    return a === b;
-  }
-  if (a.type === 'insert' && b.type === 'insert') {
-    return a.index === b.index;
-  }
-  return a.type === 'replace' && b.type === 'replace' && a.tabId === b.tabId;
+function getEventElement(event: React.SyntheticEvent<HTMLElement>): Element | null {
+  const target = getTarget(event.nativeEvent);
+  const win = ownerWindow(event.currentTarget);
+  return target instanceof win.Element ? target : null;
 }
 
-function collectBookmarkPages(
-  tree: BookmarkTree,
-  id: string,
-  result: Array<{ name: string; url: string }>,
-) {
-  const node = tree.nodes[id];
-  if (!node) {
-    return;
-  }
-  if (node.type === 'bookmark') {
-    result.push({ name: node.name, url: node.url });
-    return;
-  }
-  for (const childId of tree.children[node.id] ?? []) {
-    collectBookmarkPages(tree, childId, result);
-  }
+function getBookmarkId(element: Element | null): string | undefined {
+  return element?.closest<HTMLElement>('[data-bookmark-id]')?.dataset.bookmarkId;
 }
 
 interface BookmarkBarContextValue {
   tree: BookmarkTree;
   dropIntent: DropIntent | null;
   openMenuIds: Set<string>;
-  getMoveValidity: (sourceId: string, intent: DropIntent) => MoveValidity;
+  getMoveValidity: (sourceId: string, parentId: ParentId, index: number) => MoveValidity;
   moveNode: (sourceId: string, parentId: ParentId, index: number) => void;
   setMenuOpen: (id: string, open: boolean) => void;
   startKeyboardDrag: (element: HTMLElement) => void;
@@ -260,6 +244,15 @@ function useBookmarkBarContext() {
   return context;
 }
 
+function useBookmarkCanDrop(intent: DropIntent) {
+  const { getMoveValidity } = useBookmarkBarContext();
+  return useStableCallback(
+    ({ source }: { source: { payload: AcceptedBookmarkDragData } }) =>
+      source.payload.type === 'existing' &&
+      getMoveValidity(source.payload.id, intent.parentId, intent.index),
+  );
+}
+
 function useOverflowCount(
   items: BookmarkNode[],
   barRef: React.RefObject<HTMLDivElement | null>,
@@ -267,7 +260,6 @@ function useOverflowCount(
   frozen: boolean,
 ) {
   const [visibleCount, setVisibleCount] = React.useState(items.length);
-  const measureFrame = useAnimationFrame();
 
   const measure = useStableCallback(() => {
     const bar = barRef.current;
@@ -299,6 +291,10 @@ function useOverflowCount(
     );
   });
 
+  // Items can change without changing the measure row's size (for example a rename
+  // that keeps the same width), so re-measure on every item change.
+  useIsoLayoutEffect(measure, [items, measure]);
+
   useIsoLayoutEffect(() => {
     const bar = barRef.current;
     const measureRow = measureRowRef.current;
@@ -306,14 +302,12 @@ function useOverflowCount(
       return undefined;
     }
 
-    measure();
-    measureFrame.request(measure);
     const ResizeObserverCtor = ownerWindow(bar).ResizeObserver;
     const observer = new ResizeObserverCtor(measure);
     observer.observe(bar);
     observer.observe(measureRow);
     return () => observer.disconnect();
-  }, [frozen, items, measure, measureFrame, barRef, measureRowRef]);
+  }, [frozen, measure, barRef, measureRowRef]);
 
   return Math.min(visibleCount, items.length);
 }
@@ -331,12 +325,7 @@ function DropZone({
   onDragEnter?: (() => void) | undefined;
   onDragLeave?: (() => void) | undefined;
 }) {
-  const { getMoveValidity } = useBookmarkBarContext();
-
-  const canDrop = useStableCallback(
-    ({ source }: { source: { payload: AcceptedBookmarkDragData } }) =>
-      source.payload.type === 'existing' && getMoveValidity(source.payload.id, intent),
-  );
+  const canDrop = useBookmarkCanDrop(intent);
 
   return (
     <DropTarget.Root<AcceptedBookmarkDragData, DropIntent>
@@ -612,7 +601,7 @@ function MenuPopup({ folderId }: { folderId: string }) {
 
   return (
     <Menu.Portal>
-      <Menu.Positioner className={styles.menuPositioner} sideOffset={4} alignOffset={-4}>
+      <Menu.Positioner className={styles.positioner} sideOffset={4} alignOffset={-4}>
         <Menu.Popup
           className={styles.menuPopup}
           data-bookmark-parent-id={folderId}
@@ -640,12 +629,9 @@ function MenuPopup({ folderId }: { folderId: string }) {
 }
 
 function EmptyFolderTarget({ folderId, surfaceId }: { folderId: string; surfaceId: string }) {
-  const { getMoveValidity, dropIntent } = useBookmarkBarContext();
+  const { dropIntent } = useBookmarkBarContext();
   const intent: DropIntent = { type: 'inside', parentId: folderId, index: 0, surfaceId };
-  const canDrop = useStableCallback(
-    ({ source }: { source: { payload: AcceptedBookmarkDragData } }) =>
-      source.payload.type === 'existing' && getMoveValidity(source.payload.id, intent),
-  );
+  const canDrop = useBookmarkCanDrop(intent);
   const active = dropIntent?.type === 'inside' && dropIntent.parentId === folderId;
 
   return (
@@ -761,7 +747,7 @@ function MoreMenu({
   startIndex: number;
   triggerRef: React.RefObject<HTMLButtonElement | null>;
 }) {
-  const { getMoveValidity, openMenuIds, setMenuOpen } = useBookmarkBarContext();
+  const { openMenuIds, setMenuOpen } = useBookmarkBarContext();
   const handleOpenChange = useStableCallback((open: boolean) => setMenuOpen(MORE_MENU_ID, open));
   const handleDragEnter = useStableCallback(() => setMenuOpen(MORE_MENU_ID, true));
   const intent: DropIntent = {
@@ -770,10 +756,7 @@ function MoreMenu({
     index: startIndex,
     surfaceId: 'bar',
   };
-  const canDrop = useStableCallback(
-    ({ source }: { source: { payload: AcceptedBookmarkDragData } }) =>
-      source.payload.type === 'existing' && getMoveValidity(source.payload.id, intent),
-  );
+  const canDrop = useBookmarkCanDrop(intent);
 
   return (
     <Menu.Root modal={false} open={openMenuIds.has(MORE_MENU_ID)} onOpenChange={handleOpenChange}>
@@ -797,7 +780,7 @@ function MoreMenu({
         <span aria-hidden="true">»</span>
       </DropTarget.Root>
       <Menu.Portal>
-        <Menu.Positioner className={styles.menuPositioner} sideOffset={4} align="end">
+        <Menu.Positioner className={styles.positioner} sideOffset={4} align="end">
           <Menu.Popup
             className={styles.menuPopup}
             data-bookmark-parent-id={ROOT_ID}
@@ -837,26 +820,6 @@ function MeasureRow({ items }: { items: BookmarkNode[] }) {
   );
 }
 
-function reorderTabs(
-  tabs: BrowserTab[],
-  sourceId: string,
-  targetId: string,
-  movingRight: boolean,
-): BrowserTab[] {
-  if (sourceId === targetId) {
-    return tabs;
-  }
-  const source = tabs.find((tab) => tab.id === sourceId);
-  const remaining = tabs.filter((tab) => tab.id !== sourceId);
-  const targetIndex = remaining.findIndex((tab) => tab.id === targetId);
-  if (!source || targetIndex === -1) {
-    return tabs;
-  }
-  const next = [...remaining];
-  next.splice(targetIndex + (movingRight ? 1 : 0), 0, source);
-  return next.every((tab, index) => tab.id === tabs[index]?.id) ? tabs : next;
-}
-
 function BrowserTabs({
   tabs,
   dropIntent,
@@ -874,7 +837,6 @@ function BrowserTabs({
 }) {
   const { startKeyboardDrag } = useBookmarkBarContext();
   const orderBeforeDragRef = React.useRef<BrowserTab[] | null>(null);
-  const keyboardDirectionRef = React.useRef<HorizontalDirection | null>(null);
   const tabElementsRef = React.useRef(new Map<string, HTMLElement>());
   const newTabButtonRef = React.useRef<HTMLButtonElement>(null);
   const focusTimeout = useTimeout();
@@ -906,16 +868,13 @@ function BrowserTabs({
   });
   const handleDragStart = useStableCallback(() => {
     orderBeforeDragRef.current = tabs;
-    keyboardDirectionRef.current = null;
   });
   const handleDrop = useStableCallback(() => {
     orderBeforeDragRef.current = null;
-    keyboardDirectionRef.current = null;
   });
   const handleDragEnd = useStableCallback(() => {
     const previousOrder = orderBeforeDragRef.current;
     orderBeforeDragRef.current = null;
-    keyboardDirectionRef.current = null;
     if (previousOrder) {
       onTabsChange(previousOrder);
     }
@@ -923,14 +882,8 @@ function BrowserTabs({
   const handleKeyboardMove = useStableCallback((id: string, offset: -1 | 1) => {
     onTabsChange((current) => {
       const index = current.findIndex((tab) => tab.id === id);
-      const nextIndex = index + offset;
-      if (index === -1 || nextIndex < 0 || nextIndex >= current.length) {
-        return current;
-      }
-      const next = [...current];
-      const [moved] = next.splice(index, 1);
-      next.splice(nextIndex, 0, moved);
-      return next;
+      // Insertion indexes count the source itself, so moving right skips one extra slot.
+      return moveTabToIndex(current, id, offset === 1 ? index + 2 : index - 1);
     });
   });
 
@@ -967,19 +920,15 @@ function BrowserTabs({
             eventDetails: DragMoveEventDetails,
           ) => {
             if (event.source.payload.type === 'tab') {
-              if (eventDetails.reason === 'keyboard') {
-                const direction = getHorizontalDirection(event.location);
-                if (direction !== null) {
-                  keyboardDirectionRef.current = direction;
-                }
-              }
               const movingRight =
                 eventDetails.reason === 'keyboard'
-                  ? keyboardDirectionRef.current === 1
+                  ? getHorizontalDirection(eventDetails) === 1
                   : event.self.getLocalPoint().x > 0.5;
-              onTabsChange((current) =>
-                reorderTabs(current, event.source.payload.id, tab.id, movingRight),
-              );
+              const sourceId = event.source.payload.id;
+              onTabsChange((current) => {
+                const targetIndex = current.findIndex((candidate) => candidate.id === tab.id);
+                return moveTabToIndex(current, sourceId, targetIndex + (movingRight ? 1 : 0));
+              });
             }
           };
           const handleKeyDown = (event: React.KeyboardEvent<HTMLElement>) => {
@@ -1109,14 +1058,34 @@ function MoveDestinationItem({
 }) {
   const { tree, getMoveValidity: getValidity, moveNode: moveBookmark } = useBookmarkBarContext();
   const index = tree.children[parentId]?.length ?? 0;
-  const intent: DropIntent = { type: 'inside', parentId, index, surfaceId: 'context-menu' };
-  const validity = getValidity(nodeId, intent);
+  const validity = getValidity(nodeId, parentId, index);
   const handleClick = useStableCallback(() => moveBookmark(nodeId, parentId, index));
 
   return (
     <Menu.Item className={styles.contextItem} disabled={validity !== true} onClick={handleClick}>
       {label}
     </Menu.Item>
+  );
+}
+
+/**
+ * Rendered inside the "Move to" submenu popup so the folder scan only runs while it is open.
+ */
+function MoveDestinations({ nodeId }: { nodeId: string }) {
+  const { tree } = useBookmarkBarContext();
+
+  return (
+    <React.Fragment>
+      <MoveDestinationItem nodeId={nodeId} parentId={ROOT_ID} label="Bookmarks bar" />
+      {getFolderDestinations(tree, nodeId).map((folderNode) => (
+        <MoveDestinationItem
+          key={folderNode.id}
+          nodeId={nodeId}
+          parentId={folderNode.id}
+          label={getFolderPath(tree, folderNode.id)}
+        />
+      ))}
+    </React.Fragment>
   );
 }
 
@@ -1144,104 +1113,34 @@ function ContextActions({
   const node = location?.nodeId ? tree.nodes[location.nodeId] : undefined;
   const siblings = node ? (tree.children[node.parentId] ?? []) : [];
   const nodeIndex = node ? siblings.indexOf(node.id) : -1;
-  const moveEarlierIntent: DropIntent | null = node
-    ? {
-        type: 'slot',
-        parentId: node.parentId,
-        index: Math.max(0, nodeIndex - 1),
-        surfaceId: 'context-menu',
-      }
-    : null;
-  const moveLaterIntent: DropIntent | null = node
-    ? {
-        type: 'slot',
-        parentId: node.parentId,
-        index: Math.min(siblings.length, nodeIndex + 2),
-        surfaceId: 'context-menu',
-      }
-    : null;
-  const folders = Object.values(tree.nodes).filter(
-    (candidate): candidate is Extract<BookmarkNode, { type: 'folder' }> =>
-      candidate.type === 'folder' && (!node || !isSelfOrDescendant(tree, node.id, candidate.id)),
-  );
-
-  const handleEdit = useStableCallback(() => {
-    if (node) {
-      editNode(node.id);
-    }
-  });
-  const handleDelete = useStableCallback(() => {
-    if (node) {
-      deleteNode(node.id);
-    }
-  });
-  const handleMoveEarlier = useStableCallback(() => {
-    if (node && moveEarlierIntent) {
-      moveBookmark(node.id, moveEarlierIntent.parentId, moveEarlierIntent.index);
-    }
-  });
-  const handleMoveLater = useStableCallback(() => {
-    if (node && moveLaterIntent) {
-      moveBookmark(node.id, moveLaterIntent.parentId, moveLaterIntent.index);
-    }
-  });
-  const handleOpenAll = useStableCallback(() => {
-    if (node) {
-      openAll(node.id);
-    }
-  });
-  const handleOpenPage = useStableCallback(() => {
-    if (node?.type === 'bookmark') {
-      openPageInNewTab(node.name, node.url);
-    }
-  });
-  const handleCut = useStableCallback(() => {
-    if (node) {
-      cutNode(node.id);
-    }
-  });
-  const handleCopy = useStableCallback(() => {
-    if (node) {
-      copyNode(node.id);
-    }
-  });
-  const handlePaste = useStableCallback(() => {
-    if (location) {
-      pasteNode(location.parentId, location.index);
-    }
-  });
-  const handleCreateBookmark = useStableCallback(() => {
-    if (location) {
-      onCreate('bookmark', location.parentId, location.index);
-    }
-  });
-  const handleCreateFolder = useStableCallback(() => {
-    if (location) {
-      onCreate('folder', location.parentId, location.index);
-    }
-  });
+  const earlierIndex = Math.max(0, nodeIndex - 1);
+  const laterIndex = Math.min(siblings.length, nodeIndex + 2);
+  const canPaste = location ? canPasteNode(location.parentId, location.index) : false;
 
   return (
     <ContextMenu.Portal>
-      <ContextMenu.Positioner className={styles.contextPositioner} sideOffset={4}>
+      <ContextMenu.Positioner className={styles.positioner} sideOffset={4}>
         <ContextMenu.Popup className={clsx(styles.menuPopup, styles.contextPopup)}>
           {node && (
             <React.Fragment>
               {node.type === 'bookmark' ? (
-                <ContextMenu.Item className={styles.contextItem} onClick={handleOpenPage}>
+                <ContextMenu.Item
+                  className={styles.contextItem}
+                  onClick={() => openPageInNewTab(node.name, node.url)}
+                >
                   Open in new tab
                 </ContextMenu.Item>
               ) : (
-                <ContextMenu.Item className={styles.contextItem} onClick={handleOpenAll}>
+                <ContextMenu.Item className={styles.contextItem} onClick={() => openAll(node.id)}>
                   Open all in new tabs
                 </ContextMenu.Item>
               )}
               <ContextMenu.Separator className={styles.menuSeparator} />
-              <ContextMenu.Item className={styles.contextItem} onClick={handleCut}>
+              <ContextMenu.Item className={styles.contextItem} onClick={() => cutNode(node.id)}>
                 Cut
                 <span className={styles.shortcut}>Ctrl/Cmd+X</span>
               </ContextMenu.Item>
-              <ContextMenu.Item className={styles.contextItem} onClick={handleCopy}>
+              <ContextMenu.Item className={styles.contextItem} onClick={() => copyNode(node.id)}>
                 Copy
                 <span className={styles.shortcut}>Ctrl/Cmd+C</span>
               </ContextMenu.Item>
@@ -1249,8 +1148,8 @@ function ContextActions({
           )}
           <ContextMenu.Item
             className={styles.contextItem}
-            disabled={!location || !canPasteNode(location.parentId, location.index)}
-            onClick={handlePaste}
+            disabled={!canPaste}
+            onClick={location ? () => pasteNode(location.parentId, location.index) : undefined}
           >
             Paste{clipboard ? ` “${clipboard.name}”` : ''}
             <span className={styles.shortcut}>Ctrl/Cmd+V</span>
@@ -1258,20 +1157,20 @@ function ContextActions({
           {node && (
             <React.Fragment>
               <ContextMenu.Separator className={styles.menuSeparator} />
-              <ContextMenu.Item className={styles.contextItem} onClick={handleEdit}>
+              <ContextMenu.Item className={styles.contextItem} onClick={() => editNode(node.id)}>
                 Edit
               </ContextMenu.Item>
               <ContextMenu.Item
                 className={styles.contextItem}
-                disabled={!moveEarlierIntent || getValidity(node.id, moveEarlierIntent) !== true}
-                onClick={handleMoveEarlier}
+                disabled={getValidity(node.id, node.parentId, earlierIndex) !== true}
+                onClick={() => moveBookmark(node.id, node.parentId, earlierIndex)}
               >
                 Move earlier
               </ContextMenu.Item>
               <ContextMenu.Item
                 className={styles.contextItem}
-                disabled={!moveLaterIntent || getValidity(node.id, moveLaterIntent) !== true}
-                onClick={handleMoveLater}
+                disabled={getValidity(node.id, node.parentId, laterIndex) !== true}
+                onClick={() => moveBookmark(node.id, node.parentId, laterIndex)}
               >
                 Move later
               </ContextMenu.Item>
@@ -1281,38 +1180,36 @@ function ContextActions({
                   <ChevronIcon />
                 </Menu.SubmenuTrigger>
                 <Menu.Portal>
-                  <Menu.Positioner className={styles.contextPositioner} sideOffset={4}>
+                  <Menu.Positioner className={styles.positioner} sideOffset={4}>
                     <Menu.Popup className={clsx(styles.menuPopup, styles.contextPopup)}>
-                      <MoveDestinationItem
-                        nodeId={node.id}
-                        parentId={ROOT_ID}
-                        label="Bookmarks bar"
-                      />
-                      {folders.map((folderNode) => (
-                        <MoveDestinationItem
-                          key={folderNode.id}
-                          nodeId={node.id}
-                          parentId={folderNode.id}
-                          label={getFolderPath(tree, folderNode.id)}
-                        />
-                      ))}
+                      <MoveDestinations nodeId={node.id} />
                     </Menu.Popup>
                   </Menu.Positioner>
                 </Menu.Portal>
               </Menu.SubmenuRoot>
               <ContextMenu.Item
                 className={clsx(styles.contextItem, styles.deleteItem)}
-                onClick={handleDelete}
+                onClick={() => deleteNode(node.id)}
               >
                 Delete
               </ContextMenu.Item>
               <ContextMenu.Separator className={styles.menuSeparator} />
             </React.Fragment>
           )}
-          <ContextMenu.Item className={styles.contextItem} onClick={handleCreateBookmark}>
+          <ContextMenu.Item
+            className={styles.contextItem}
+            onClick={
+              location ? () => onCreate('bookmark', location.parentId, location.index) : undefined
+            }
+          >
             New page
           </ContextMenu.Item>
-          <ContextMenu.Item className={styles.contextItem} onClick={handleCreateFolder}>
+          <ContextMenu.Item
+            className={styles.contextItem}
+            onClick={
+              location ? () => onCreate('folder', location.parentId, location.index) : undefined
+            }
+          >
             New folder
           </ContextMenu.Item>
         </ContextMenu.Popup>
@@ -1452,8 +1349,7 @@ function BookmarkBar() {
   const nextTabIdRef = React.useRef(1);
   const focusTimeout = useTimeout();
   const tabActivationTimeout = useTimeout();
-  const pendingTabActivationRef = React.useRef<string | null>(null);
-  const tabDropKeyboardDirectionRef = React.useRef<HorizontalDirection | null>(null);
+  const keyboardDirectionRef = React.useRef<HorizontalDirection | null>(null);
 
   const createNodeId = useStableCallback((type: BookmarkNode['type']) => {
     nextNodeIdRef.current += 1;
@@ -1486,14 +1382,14 @@ function BookmarkBar() {
   }, [activeTabId]);
 
   const insertBrowserPages = useStableCallback(
-    (pages: Array<{ name: string; url: string }>, index: number, activate = true) => {
+    (pages: BookmarkPage[], index: number, activate = true) => {
       if (pages.length === 0) {
         return;
       }
       const newTabs = pages.map((page) => ({ id: createTabId(), ...page }));
       setTabs((current) => {
         const next = [...current];
-        next.splice(Math.max(0, Math.min(index, next.length)), 0, ...newTabs);
+        next.splice(clamp(index, 0, next.length), 0, ...newTabs);
         return next;
       });
       if (activate || activeTabId === null) {
@@ -1544,6 +1440,10 @@ function BookmarkBar() {
   const overflowItems = rootItems.slice(visibleCount);
   const activeTab = tabs.find((tab) => tab.id === activeTabId) ?? null;
 
+  const getParentName = useStableCallback((parentId: ParentId) =>
+    parentId === ROOT_ID ? 'the bookmarks bar' : tree.nodes[parentId]?.name,
+  );
+
   const resolveFocusTarget = useStableCallback((id: string): HTMLElement | null => {
     const directTarget = entryElementsRef.current.get(id);
     if (isStableFocusTarget(directTarget)) {
@@ -1586,52 +1486,35 @@ function BookmarkBar() {
 
   const syncDropIntents = useStableCallback(
     (
-      dropTargets: readonly DropTargetRecord[],
-      source: AcceptedBookmarkDragData,
-      keyboardDirection: HorizontalDirection | null,
-      keyboardInsert: boolean,
+      event: { location: DragLocationHistory; source: { payload: AcceptedBookmarkDragData } },
+      eventDetails: DragStartEventDetails | DragMoveEventDetails | DropTargetChangeEventDetails,
     ) => {
+      const keyboard = eventDetails.reason === 'keyboard';
+      const direction = getHorizontalDirection(eventDetails);
+      if (direction !== null) {
+        keyboardDirectionRef.current = direction;
+      }
+
+      const { dropTargets, input } = event.location.current;
+      const source = event.source.payload;
       const target = dropTargets.find((candidate) => bookmarkDropKind.matches(candidate));
       const nextIntent = target && bookmarkDropKind.matches(target) ? target.payload : null;
-      setDropIntent((current) => (sameIntent(current, nextIntent) ? current : nextIntent));
+      setDropIntent((current) =>
+        fastObjectShallowCompare(current, nextIntent) ? current : nextIntent,
+      );
       const sourceNode = source.type === 'existing' ? tree.nodes[source.id] : null;
       const nextTabDropIntent =
         source.type === 'existing'
           ? resolveTabDropIntent(
               dropTargets,
               sourceNode?.type === 'bookmark',
-              keyboardDirection,
-              keyboardInsert,
+              keyboard ? keyboardDirectionRef.current : null,
+              keyboard && input.shiftKey,
             )
           : null;
       setTabDropIntent((current) =>
-        sameTabDropIntent(current, nextTabDropIntent) ? current : nextTabDropIntent,
+        fastObjectShallowCompare(current, nextTabDropIntent) ? current : nextTabDropIntent,
       );
-
-      const replacementTabId =
-        nextTabDropIntent?.type === 'replace' ? nextTabDropIntent.tabId : null;
-      if (replacementTabId === pendingTabActivationRef.current) {
-        return;
-      }
-      tabActivationTimeout.clear();
-      pendingTabActivationRef.current = replacementTabId;
-      if (replacementTabId) {
-        tabActivationTimeout.start(450, () => setActiveTabId(replacementTabId));
-      }
-    },
-  );
-
-  const getKeyboardDropDirection = useStableCallback(
-    (location: DragLocationHistory, keyboard: boolean): HorizontalDirection | null => {
-      if (!keyboard) {
-        tabDropKeyboardDirectionRef.current = null;
-        return null;
-      }
-      const direction = getHorizontalDirection(location);
-      if (direction !== null) {
-        tabDropKeyboardDirectionRef.current = direction;
-      }
-      return tabDropKeyboardDirectionRef.current;
     },
   );
 
@@ -1639,34 +1522,13 @@ function BookmarkBar() {
     accept: acceptedTabKinds,
     onDragStart(event, eventDetails) {
       setActiveDragId(event.source.payload.id);
-      const keyboard = eventDetails.reason === 'keyboard';
-      syncDropIntents(
-        event.location.current.dropTargets,
-        event.source.payload,
-        getKeyboardDropDirection(event.location, keyboard),
-        keyboard && event.location.current.input.shiftKey,
-      );
+      syncDropIntents(event, eventDetails);
     },
-    onDrag(event, eventDetails) {
-      const keyboard = eventDetails.reason === 'keyboard';
-      syncDropIntents(
-        event.location.current.dropTargets,
-        event.source.payload,
-        getKeyboardDropDirection(event.location, keyboard),
-        keyboard && event.location.current.input.shiftKey,
-      );
-    },
+    onDrag: syncDropIntents,
     onDropTargetChange(event, eventDetails) {
-      if (eventDetails.reason !== 'pointer' && eventDetails.reason !== 'keyboard') {
-        return;
+      if (eventDetails.reason === 'pointer' || eventDetails.reason === 'keyboard') {
+        syncDropIntents(event, eventDetails);
       }
-      const keyboard = eventDetails.reason === 'keyboard';
-      syncDropIntents(
-        event.location.current.dropTargets,
-        event.source.payload,
-        getKeyboardDropDirection(event.location, keyboard),
-        keyboard && event.location.current.input.shiftKey,
-      );
     },
     onDrop(event) {
       const bookmarkTarget = event.location.current.dropTargets.find((candidate) =>
@@ -1677,8 +1539,7 @@ function BookmarkBar() {
           return;
         }
         const intent = bookmarkTarget.payload;
-        const parentName =
-          intent.parentId === ROOT_ID ? 'the bookmarks bar' : tree.nodes[intent.parentId]?.name;
+        const parentName = getParentName(intent.parentId);
         const sourceId = event.source.payload.id;
         const sourceName = tree.nodes[sourceId]?.name;
         setTree(moveNode(tree, sourceId, intent.parentId, intent.index));
@@ -1693,7 +1554,7 @@ function BookmarkBar() {
       const tabIntent = resolveTabDropIntent(
         event.location.current.dropTargets,
         sourceNode?.type === 'bookmark',
-        event.mode === 'keyboard' ? tabDropKeyboardDirectionRef.current : null,
+        event.mode === 'keyboard' ? keyboardDirectionRef.current : null,
         event.mode === 'keyboard' && event.location.current.input.shiftKey,
       );
       if (!tabIntent) {
@@ -1714,8 +1575,7 @@ function BookmarkBar() {
         setActiveTabId(tabIntent.tabId);
         setStatus(`${sourceNode.name} opened in the current browser tab.`);
       } else if (tabIntent.type === 'insert') {
-        const pages: Array<{ name: string; url: string }> = [];
-        collectBookmarkPages(tree, event.source.payload.id, pages);
+        const pages = getBookmarkPages(tree, event.source.payload.id);
         insertBrowserPages(pages, tabIntent.index);
         const sourceName = tree.nodes[event.source.payload.id]?.name;
         if (sourceName) {
@@ -1729,41 +1589,40 @@ function BookmarkBar() {
       setActiveDragId(null);
       setDropIntent(null);
       setTabDropIntent(null);
-      tabActivationTimeout.clear();
-      pendingTabActivationRef.current = null;
-      tabDropKeyboardDirectionRef.current = null;
+      keyboardDirectionRef.current = null;
       setOpenMenuIds(new Set());
     },
   });
 
+  // Hovering a tab with a bookmark for a moment previews it in that tab.
+  const replacementTabId = tabDropIntent?.type === 'replace' ? tabDropIntent.tabId : null;
+  React.useEffect(() => {
+    if (!replacementTabId) {
+      return undefined;
+    }
+    tabActivationTimeout.start(450, () => setActiveTabId(replacementTabId));
+    return () => tabActivationTimeout.clear();
+  }, [replacementTabId, tabActivationTimeout]);
+
   const setMenuOpen = useStableCallback((id: string, open: boolean) => {
     setOpenMenuIds((current) => {
-      if (open && activeDragId) {
-        const next = new Set<string>();
-        if (id === MORE_MENU_ID) {
-          next.add(MORE_MENU_ID);
-          return next;
-        }
-
-        if (current.has(MORE_MENU_ID)) {
-          next.add(MORE_MENU_ID);
-        }
-        for (let currentId = id; currentId !== ROOT_ID; ) {
-          const node = tree.nodes[currentId];
-          if (!node) {
-            break;
-          }
-          next.add(currentId);
-          currentId = node.parentId;
+      if (!open || !activeDragId) {
+        const next = new Set(current);
+        if (open) {
+          next.add(id);
+        } else {
+          next.delete(id);
         }
         return next;
       }
 
-      const next = new Set(current);
-      if (open) {
-        next.add(id);
-      } else {
-        next.delete(id);
+      // While dragging, only the hovered menu and its ancestors stay open.
+      if (id === MORE_MENU_ID) {
+        return new Set([MORE_MENU_ID]);
+      }
+      const next = new Set(getAncestorIds(tree, id));
+      if (current.has(MORE_MENU_ID)) {
+        next.add(MORE_MENU_ID);
       }
       return next;
     });
@@ -1777,8 +1636,8 @@ function BookmarkBar() {
     }
   });
 
-  const getValidity = useStableCallback((sourceId: string, intent: DropIntent) =>
-    getMoveValidity(tree, sourceId, intent.parentId, intent.index),
+  const getValidity = useStableCallback((sourceId: string, parentId: ParentId, index: number) =>
+    getMoveValidity(tree, sourceId, parentId, index),
   );
 
   const handleMoveNode = useStableCallback(
@@ -1787,7 +1646,7 @@ function BookmarkBar() {
         return;
       }
       const sourceName = tree.nodes[sourceId]?.name;
-      const parentName = parentId === ROOT_ID ? 'the bookmarks bar' : tree.nodes[parentId]?.name;
+      const parentName = getParentName(parentId);
       setTree((current) => moveNode(current, sourceId, parentId, index));
       setOpenMenuIds(new Set());
       if (sourceName && parentName) {
@@ -1850,27 +1709,21 @@ function BookmarkBar() {
     if (!clipboard || !canPasteNode(parentId, index)) {
       return;
     }
-    const parentName = parentId === ROOT_ID ? 'the bookmarks bar' : tree.nodes[parentId]?.name;
     if (clipboard.type === 'cut') {
-      const pastedId = clipboard.id;
-      setTree(moveNode(tree, pastedId, parentId, index));
+      handleMoveNode(clipboard.id, parentId, index);
       setClipboard(null);
-      setOpenMenuIds(new Set());
-      setStatus(`${clipboard.name} moved to ${parentName}.`);
-      focusTimeout.start(0, () => resolveFocusTarget(pastedId)?.focus());
       return;
     }
 
     const result = insertBookmarkSeed(tree, clipboard.seed, parentId, index, createNodeId);
     setTree(result.tree);
     setOpenMenuIds(new Set());
-    setStatus(`${clipboard.name} pasted in ${parentName}.`);
+    setStatus(`${clipboard.name} pasted in ${getParentName(parentId)}.`);
     focusTimeout.start(0, () => resolveFocusTarget(result.rootId)?.focus());
   });
 
   const handleOpenAll = useStableCallback((id: string) => {
-    const pages: Array<{ name: string; url: string }> = [];
-    collectBookmarkPages(tree, id, pages);
+    const pages = getBookmarkPages(tree, id);
     insertBrowserPages(pages, tabs.length, false);
     const folderName = tree.nodes[id]?.name;
     if (folderName) {
@@ -1892,39 +1745,20 @@ function BookmarkBar() {
     }
 
     if (editor.type === 'edit') {
-      const id = editor.id;
-      setTree((current) => {
-        const node = current.nodes[id];
-        if (!node) {
-          return current;
-        }
-        const nextNode =
-          node.type === 'bookmark' && url !== null ? { ...node, name, url } : { ...node, name };
-        return { ...current, nodes: { ...current.nodes, [id]: nextNode } };
-      });
+      setTree((current) => updateNode(current, editor.id, name, url));
       setEditor(null);
       setStatus(`${name} updated.`);
       return;
     }
 
-    const id = createNodeId(editor.nodeType);
-    editorFocusIdRef.current = id;
-    const node: BookmarkNode =
+    // `insertBookmarkSeed` assigns ids through `createNodeId`, so the seed id is a placeholder.
+    const seed: BookmarkSeed =
       editor.nodeType === 'bookmark'
-        ? { id, type: 'bookmark', name, url: url ?? '', parentId: editor.parentId }
-        : { id, type: 'folder', name, parentId: editor.parentId };
-    setTree((current) => {
-      const siblings = [...(current.children[editor.parentId] ?? [])];
-      siblings.splice(Math.max(0, Math.min(editor.index, siblings.length)), 0, id);
-      return {
-        nodes: { ...current.nodes, [id]: node },
-        children: {
-          ...current.children,
-          [editor.parentId]: siblings,
-          ...(node.type === 'folder' ? { [id]: [] } : null),
-        },
-      };
-    });
+        ? { id: '', name, url: url ?? '' }
+        : { id: '', name, children: [] };
+    const result = insertBookmarkSeed(tree, seed, editor.parentId, editor.index, createNodeId);
+    editorFocusIdRef.current = result.rootId;
+    setTree(result.tree);
     setEditor(null);
     setStatus(`${name} added.`);
   });
@@ -1942,7 +1776,7 @@ function BookmarkBar() {
 
   const getContextLocation = useStableCallback(
     (element: Element | null): ContextLocation | null => {
-      const id = element?.closest<HTMLElement>('[data-bookmark-id]')?.dataset.bookmarkId;
+      const id = getBookmarkId(element);
       const node = id ? tree.nodes[id] : undefined;
       if (node) {
         const insertionLocation = getInsertionLocationForNode(tree, node.id);
@@ -1974,20 +1808,16 @@ function BookmarkBar() {
   );
 
   const handlePointerDownCapture = useStableCallback((event: React.PointerEvent<HTMLElement>) => {
-    const target = getTarget(event.nativeEvent);
-    const win = ownerWindow(event.currentTarget);
-    const element = target instanceof win.Element ? target : null;
-    const location = getContextLocation(element);
+    const location = getContextLocation(getEventElement(event));
     if (location) {
-      setContextLocation(location);
+      setContextLocation((current) =>
+        fastObjectShallowCompare(current, location) ? current : location,
+      );
     }
   });
 
   const handleContextMenuCapture = useStableCallback((event: React.MouseEvent<HTMLElement>) => {
-    const target = getTarget(event.nativeEvent);
-    const win = ownerWindow(event.currentTarget);
-    const element = target instanceof win.Element ? target : null;
-    const location = getContextLocation(element);
+    const location = getContextLocation(getEventElement(event));
     if (!location) {
       setContextLocation(null);
       event.stopPropagation();
@@ -1997,18 +1827,11 @@ function BookmarkBar() {
   });
 
   const handleFocusCapture = useStableCallback((event: React.FocusEvent<HTMLElement>) => {
-    const target = getTarget(event.nativeEvent);
-    const win = ownerWindow(event.currentTarget);
-    const element = target instanceof win.Element ? target : null;
-    lastFocusedEntryIdRef.current =
-      element?.closest<HTMLElement>('[data-bookmark-id]')?.dataset.bookmarkId ?? null;
+    lastFocusedEntryIdRef.current = getBookmarkId(getEventElement(event)) ?? null;
   });
 
   const handleBookmarkClickCapture = useStableCallback((event: React.MouseEvent<HTMLElement>) => {
-    const target = getTarget(event.nativeEvent);
-    const win = ownerWindow(event.currentTarget);
-    const element = target instanceof win.Element ? target : null;
-    const id = element?.closest<HTMLElement>('[data-bookmark-id]')?.dataset.bookmarkId;
+    const id = getBookmarkId(getEventElement(event));
     const node = id ? tree.nodes[id] : undefined;
     if (node?.type === 'bookmark') {
       event.preventDefault();
@@ -2029,10 +1852,7 @@ function BookmarkBar() {
       if (event.button !== 1) {
         return;
       }
-      const target = getTarget(event.nativeEvent);
-      const win = ownerWindow(event.currentTarget);
-      const element = target instanceof win.Element ? target : null;
-      const id = element?.closest<HTMLElement>('[data-bookmark-id]')?.dataset.bookmarkId;
+      const id = getBookmarkId(getEventElement(event));
       const node = id ? tree.nodes[id] : undefined;
       if (!node) {
         return;
@@ -2048,9 +1868,8 @@ function BookmarkBar() {
   );
 
   const handleKeyDownCapture = useStableCallback((event: React.KeyboardEvent<HTMLElement>) => {
-    const target = getTarget(event.nativeEvent);
+    const element = getEventElement(event);
     const win = ownerWindow(event.currentTarget);
-    const element = target instanceof win.Element ? target : null;
     if (
       !element ||
       element instanceof win.HTMLInputElement ||
@@ -2164,8 +1983,7 @@ function BookmarkBar() {
     <BookmarkBarContext.Provider value={contextValue}>
       <ContextMenu.Root>
         <div
-          className={clsx(theme.tokens, styles.root)}
-          data-drag-active={activeDragId ? '' : undefined}
+          className={styles.root}
           onPointerDownCapture={handlePointerDownCapture}
           onClickCapture={handleBookmarkClickCapture}
           onAuxClickCapture={handleBookmarkAuxClickCapture}

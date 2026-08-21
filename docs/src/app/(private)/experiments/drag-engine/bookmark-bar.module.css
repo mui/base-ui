@@ -13,7 +13,6 @@
 }
 
 .root {
-  box-sizing: border-box;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -237,10 +236,6 @@
 }
 
 .tabLabel {
-  min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
   pointer-events: none;
 }
 
@@ -305,7 +300,8 @@
   min-width: 0;
 }
 
-.entryLabel {
+.entryLabel,
+.tabLabel {
   min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -499,8 +495,7 @@
   text-align: center;
 }
 
-.menuPositioner,
-.contextPositioner {
+.positioner {
   z-index: 20;
   outline: 0;
 }

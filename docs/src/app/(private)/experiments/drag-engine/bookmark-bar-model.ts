@@ -1,3 +1,5 @@
+import { clamp } from '@base-ui/utils/clamp';
+
 export const ROOT_ID = 'root';
 
 export type ParentId = typeof ROOT_ID | string;
@@ -38,6 +40,11 @@ export interface InsertionLocation {
 export interface InsertBookmarkSeedResult {
   tree: BookmarkTree;
   rootId: string;
+}
+
+export interface BookmarkPage {
+  name: string;
+  url: string;
 }
 
 const bookmark = (id: string, name: string, url: string): BookmarkSeed => ({ id, name, url });
@@ -324,9 +331,40 @@ export function insertBookmarkSeed(
 
   const rootId = insert(seed, parentId);
   const siblings = [...(children[parentId] ?? [])];
-  siblings.splice(Math.max(0, Math.min(index, siblings.length)), 0, rootId);
+  siblings.splice(clamp(index, 0, siblings.length), 0, rootId);
   children[parentId] = siblings;
   return { tree: { nodes, children }, rootId };
+}
+
+export function updateNode(
+  tree: BookmarkTree,
+  id: string,
+  name: string,
+  url: string | null,
+): BookmarkTree {
+  const node = tree.nodes[id];
+  if (!node) {
+    return tree;
+  }
+  const nextNode =
+    node.type === 'bookmark' && url !== null ? { ...node, name, url } : { ...node, name };
+  return { ...tree, nodes: { ...tree.nodes, [id]: nextNode } };
+}
+
+/**
+ * Returns `id` followed by its ancestors, nearest first, stopping before the root.
+ */
+export function getAncestorIds(tree: BookmarkTree, id: ParentId): string[] {
+  const ids: string[] = [];
+  for (let current = id; current !== ROOT_ID; ) {
+    const node = tree.nodes[current];
+    if (!node) {
+      break;
+    }
+    ids.push(current);
+    current = node.parentId;
+  }
+  return ids;
 }
 
 export function isSelfOrDescendant(
@@ -334,17 +372,31 @@ export function isSelfOrDescendant(
   sourceId: string,
   parentId: ParentId,
 ): boolean {
-  for (let current = parentId; current !== ROOT_ID; ) {
-    if (current === sourceId) {
-      return true;
-    }
-    const node = tree.nodes[current];
-    if (!node) {
-      return false;
-    }
-    current = node.parentId;
+  return getAncestorIds(tree, parentId).includes(sourceId);
+}
+
+/**
+ * Folders that `excludeId` can be moved into: every folder except itself and its descendants.
+ */
+export function getFolderDestinations(
+  tree: BookmarkTree,
+  excludeId: string | null,
+): BookmarkFolder[] {
+  return Object.values(tree.nodes).filter(
+    (node): node is BookmarkFolder =>
+      node.type === 'folder' && (!excludeId || !isSelfOrDescendant(tree, excludeId, node.id)),
+  );
+}
+
+export function getBookmarkPages(tree: BookmarkTree, id: string): BookmarkPage[] {
+  const node = tree.nodes[id];
+  if (!node) {
+    return [];
   }
-  return false;
+  if (node.type === 'bookmark') {
+    return [{ name: node.name, url: node.url }];
+  }
+  return (tree.children[node.id] ?? []).flatMap((childId) => getBookmarkPages(tree, childId));
 }
 
 export function getMoveValidity(
@@ -359,7 +411,7 @@ export function getMoveValidity(
   }
 
   const destination = tree.children[parentId] ?? [];
-  const destinationIndex = Math.max(0, Math.min(index, destination.length));
+  const destinationIndex = clamp(index, 0, destination.length);
   if (source.parentId !== parentId) {
     return true;
   }
@@ -383,7 +435,7 @@ export function moveNode(
   const sourceChildren = tree.children[source.parentId] ?? [];
   const sourceIndex = sourceChildren.indexOf(sourceId);
   const destinationChildren = tree.children[parentId] ?? [];
-  let destinationIndex = Math.max(0, Math.min(index, destinationChildren.length));
+  let destinationIndex = clamp(index, 0, destinationChildren.length);
 
   if (source.parentId === parentId && sourceIndex < destinationIndex) {
     destinationIndex -= 1;
@@ -431,16 +483,10 @@ export function removeNode(tree: BookmarkTree, id: string): BookmarkTree {
 }
 
 export function getFolderPath(tree: BookmarkTree, folderId: string): string {
-  const names: string[] = [];
-  for (let current = folderId; current !== ROOT_ID; ) {
-    const node = tree.nodes[current];
-    if (!node) {
-      break;
-    }
-    names.unshift(node.name);
-    current = node.parentId;
-  }
-  return names.join(' / ');
+  return getAncestorIds(tree, folderId)
+    .map((id) => tree.nodes[id].name)
+    .reverse()
+    .join(' / ');
 }
 
 export function getVisibleCount(
