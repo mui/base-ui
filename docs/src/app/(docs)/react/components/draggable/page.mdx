@@ -1,0 +1,762 @@
+# Draggable
+
+<Subtitle>A component that makes its element a drag source.</Subtitle>
+<Meta
+  name="description"
+  content="An unstyled React drag source that supports pointer and keyboard dragging."
+/>
+
+import { DemoDraggableHero } from './demos/hero';
+import { DemoDragHandle } from './demos/handle';
+import { DemoConditionalDrag } from './demos/conditional';
+import { DemoActivation } from './demos/activation';
+import { DemoBadgePreview } from './demos/badge';
+import { DemoContainedDrag } from './demos/containment';
+import { DemoKeyboardNavigation } from './demos/keyboard';
+import { DemoFocusRestoration } from './demos/focus';
+import { DemoMenuDrag } from './demos/menu-drag';
+
+<DemoDraggableHero />
+
+`Draggable` makes an element draggable with the pointer or keyboard. It pairs with [DropTarget](/react/components/drop-target), which defines where a drag can be released. See the [drag and drop overview](/react/drag-and-drop/overview) for examples and the [styling guide](/react/drag-and-drop/styling) for drag states.
+
+## Anatomy
+
+Import the component and assemble its parts:
+
+```jsx title="Anatomy"
+import { Draggable } from '@base-ui/react/draggable';
+
+const itemKind = Draggable.createKind('item');
+
+<Draggable.Root kind={itemKind} label="Item">
+  <Draggable.Handle />
+  <Draggable.Displacement />
+</Draggable.Root>;
+```
+
+A root takes at most one preview part. Omit it to use a sanitized clone of the
+source, render `Draggable.ClonedPreview` to configure that clone, or use
+`Draggable.Preview` to render custom content. Declaring both warns in development;
+the last one mounted wins. `Draggable.Displacement` is independent and opts the
+root into reorder animations.
+
+## Pass data along
+
+Every draggable is of a `kind`, declared once with `Draggable.createKind` and passed to both sides of the drag. Drop targets list the kinds they take in their [`accept`](/react/components/drop-target#choose-which-items-to-accept), and the payload type the kind was created with is what a drop handler receives as `source.payload`:
+
+```tsx title="Declaring a kind and a payload"
+const card = Draggable.createKind<CardPayload>('card');
+
+<Draggable.Root kind={card} label={title} payload={{ id }} />;
+```
+
+A kind with a payload type makes `payload` required, so a target is never handed `undefined` where the kind promised data. Skip the type argument for an item that is only a marker, and `payload` becomes optional:
+
+```tsx title="An item with no data"
+const divider = Draggable.createKind('divider');
+
+<Draggable.Root kind={divider} label="Divider" />;
+```
+
+Pass `getPayload` instead when the payload depends on the gesture, such as where inside the element the pointer grabbed. It runs once, at drag start. `payload` itself is always data, so function-valued payloads are preserved without a wrapper.
+
+```tsx title="Deriving the payload from the gesture"
+const grabbedCard = Draggable.createKind<{ id: string; grabOffsetX: number }>('card');
+
+<Draggable.Root
+  kind={grabbedCard}
+  label={title}
+  getPayload={({ input, element }) => {
+    const rect = element.getBoundingClientRect();
+    return { id, grabOffsetX: input.clientX - rect.left };
+  }}
+/>;
+```
+
+## Drag handle
+
+By default, the whole element is draggable. Render a `Draggable.Handle` inside the root to start drags from a handle while the rest of the card stays interactive. If a draggable has several handles, only the first starts the drag.
+
+When the root has a `label` and the handle renders no text, the handle uses `Drag {label}` as its accessible name. A handle with visible text keeps that text as its accessible name. This lets speech-input users activate it by saying the words they see. If the handle needs a longer name, add an `aria-label` that starts with the visible text. Base UI cannot detect visible text returned by a `render` function or custom component. Add an explicit `aria-label` or `aria-labelledby` when such a handle contains only an icon.
+
+```tsx title="Dragging by a handle"
+<Draggable.Root kind={card} label={label} payload={{ id }}>
+  <Draggable.Handle>
+    <Grip />
+  </Draggable.Handle>
+  {label}
+</Draggable.Root>
+```
+
+<DemoDragHandle />
+
+### Keyboard-only handle
+
+Use `Draggable.KeyboardHandle` when the whole source should remain draggable with the pointer, but keyboard dragging should start only from a dedicated button. Space and Enter pick the source up while this button has focus. Activating the button with assistive technology starts the same keyboard drag.
+
+The root stays out of the tab order while the keyboard handle is mounted. Pointer dragging still starts anywhere on the root, including over the handle.
+
+```tsx title="Keeping pointer pickup on the whole card"
+<Draggable.Root kind={card} label={label} payload={{ id }}>
+  <Draggable.KeyboardHandle>
+    <Grip />
+  </Draggable.KeyboardHandle>
+  {label}
+</Draggable.Root>
+```
+
+## Conditional drag
+
+Pass `disabled` to stop an item from being picked up with the pointer or keyboard. Clicks and context-menu presses keep their normal behavior, and screen readers no longer receive keyboard-drag instructions. You can change the prop at runtime without re-registering the draggable.
+
+<DemoConditionalDrag />
+
+When the decision needs the gesture itself, such as which handle was pressed or whether a modifier key is down, use `onBeforeDragStart` instead. It fires once the drag is about to start, before anything lifts, and calling `eventDetails.cancel()` prevents it:
+
+```tsx title="Canceling a drag as it starts"
+<Draggable.Root
+  kind={card}
+  label={label}
+  payload={{ id }}
+  onBeforeDragStart={({ input }, eventDetails) => {
+    if (input.altKey) {
+      eventDetails.cancel();
+    }
+  }}
+/>
+```
+
+## Drag events
+
+The optional event handlers below fire in order. All except `onBeforeDragStart` receive the drag `source`, `location` history, and `mode`, which is either `'pointer'` or `'keyboard'`.
+
+```tsx title="Following a source through its drag"
+<Draggable.Root
+  kind={card}
+  label={label}
+  payload={id}
+  // Fires once the activation gesture is met but before anything lifts.
+  // Call `eventDetails.cancel()` to veto the drag (see Conditional drag above).
+  onBeforeDragStart={({ input }, eventDetails) => {
+    if (input.altKey) {
+      eventDetails.cancel();
+    }
+  }}
+  // Fires once when the drag starts, after the preview is resolved, so the
+  // source is safe to measure or restyle.
+  onDragStart={({ source }) => console.log('lifted', source.label)}
+  // Fires as the pointer moves, throttled to one call per animation frame.
+  // Hover logic belongs on the drop target's `onDrag`, not here.
+  onDrag={({ location }) => {
+    const { clientX, clientY } = location.current.input;
+    console.log('at', clientX, clientY);
+  }}
+  // Fires when the active drop-target stack changes.
+  onDropTargetChange={({ location }) =>
+    console.log('over', location.current.dropTargets[0]?.label ?? 'nothing')
+  }
+  // Fires only when the drag lands on a drop target that accepts it. Apply the
+  // change here: reorder the list, move the card into its new column.
+  onDrop={({ dropTarget }) => console.log('dropped on', dropTarget.label)}
+  // Fires once whatever the ending: a drop, a release over empty space, or a
+  // cancel. Use it to undo whatever the drag set up.
+  onDragEnd={(event, eventDetails) => console.log('ended:', eventDetails.reason)}
+/>
+```
+
+Every handler receives the event payload first. Its second argument, `eventDetails`, contains the event `reason` and native `event`.
+
+Use [`useDragMonitor`](/react/utils/use-drag-monitor) to observe every drag on the page instead of one source.
+
+These handlers reuse the native drag event names, so the native HTML drag event props are omitted. As a result, `ComponentPropsWithoutRef<'div'>` cannot be spread onto `Draggable.Root`. A wrapper component should declare the element props it forwards instead of exposing every DOM prop:
+
+```tsx title="A wrapper names what it forwards"
+interface CardProps {
+  id: string;
+  label: string;
+  className?: string;
+  style?: React.CSSProperties;
+  children?: React.ReactNode;
+}
+
+function DraggableCard({ id, label, ...forwarded }: CardProps) {
+  return <Draggable.Root kind={card} label={label} payload={id} {...forwarded} />;
+}
+```
+
+The native events stay reachable through the `render` prop, which merges its props onto the rendered element untouched.
+
+## Re-rendering the source mid-drag
+
+A drag continues if its source element leaves the DOM. For example, a virtualized list can unmount the dragged row after it scrolls out of view. The drag still moves and drops normally, so the list does not need to keep the row mounted. The same applies when an item is rendered in a different container.
+
+`source.element` follows a replacement DOM node rendered by the same `Draggable.Root` instance, such as a virtualizer recycling the row in place. After a complete unmount with no surviving root instance, it remains the last registered node. Read `source.payload` when you need to identify what is being dragged; if you specifically need stable pickup-node identity, capture `source.element` in `onDragStart`:
+
+```tsx title="Identifying the dragged item"
+<DropTarget.Root accept={card} label="Done" onDrop={({ source }) => move(source.payload)} />
+```
+
+Deleting the dragged item does not end the drag either. Call [`cancelDrag`](/react/utils/use-drag-drop-manager#cancelling-a-drag) if you want it to stop:
+
+```tsx title="Ending the drag with the item it was carrying"
+function deleteCard(id: string) {
+  if (id === draggingId) {
+    manager.cancelDrag();
+  }
+  setCards((prev) => prev.filter((card) => card.id !== id));
+}
+```
+
+## Animating displaced items
+
+Render `Draggable.Displacement` inside each root that should animate after a reorder. It renders nothing and publishes the offset from the item's previous position as `--drag-displacement-x` and `--drag-displacement-y`. It also adds `data-starting-style` for the first frame and keeps `data-displacing` while the animation runs. A synchronous update from `onDragEnd` is animated after a drop or cancellation. A deferred update is not.
+
+```tsx title="Enable displacement tracking"
+<Draggable.Root kind={card} payload={cardData}>
+  <Draggable.Displacement />
+  {cardData.title}
+</Draggable.Root>
+```
+
+Define the animation with two CSS rules:
+
+```css title="Animating rows to their new slots"
+.Item[data-displacing][data-starting-style] {
+  translate: var(--drag-displacement-x) var(--drag-displacement-y);
+}
+.Item[data-displacing]:not([data-starting-style]) {
+  transition: translate 200ms ease;
+}
+```
+
+Do not apply the transition during the `data-starting-style` frame. This lets an interrupted reorder continue from its current position. Use `translate` so the displacement composes with an existing `transform`, and repeat any other transitions replaced by the shorthand. Disable both rules for users who prefer reduced motion. The starting-style rule alone displays the previous position for one frame.
+
+Base UI measures only items in the viewport. Items outside it move to their new position without an animation, so mounted offscreen items do not add layout measurements. An item scrolled into view during a drag uses its current position as the animation start point.
+
+## Activation
+
+A pointer press doesn't start a drag right away. The item is picked up once the gesture reads as a drag rather than a click or a scroll. Mouse and pen activate after the pointer moves **5px**; touch activates after a **250ms** press-hold, with a 5px movement tolerance, so that scrolling a list still scrolls it. Anything short of that stays a plain click or tap and reaches the element underneath.
+
+The item lifts off exactly where it sat, so the wait never shows up as a jump.
+
+<DemoActivation />
+
+Pass `pointerActivation` to change the thresholds. It takes a single `DragActivation` applied to every pointer type, or a map keyed by `'mouse'`, `'touch'`, and `'pen'`, where unlisted types keep their defaults. A `DragActivation` is one of `{ type: 'immediate' }`, `{ type: 'distance', distance }`, or `{ type: 'press-hold', delay, tolerance? }`.
+
+```tsx title="Customizing activation"
+<Draggable.Root
+  kind={card}
+  label={label}
+  payload={id}
+  // Mouse starts after a longer drag; touch after a shorter hold.
+  pointerActivation={{
+    mouse: { type: 'distance', distance: 10 },
+    touch: { type: 'press-hold', delay: 150 },
+  }}
+/>
+```
+
+Use `{ type: 'immediate' }` to pick the item up on the first `pointerdown`, with no travel. This is a good fit for a canvas where the whole tile is a drag affordance. Avoid it when the item contains buttons or links: a click on them would start a drag instead.
+
+```tsx title="Instant pickup"
+<Draggable.Root kind={tile} label={label} payload={id} pointerActivation={{ type: 'immediate' }} />
+```
+
+## Keyboard navigation
+
+`Draggable.Root` is focusable by default and supports keyboard dragging. Focus a source and use these keys:
+
+- **Space** or **Enter** picks the item up.
+- **Arrow keys** move it toward the nearest drop target in the pressed direction. With no target that way, the item nudges by a fixed step instead (hold **Shift** for a coarser one), so free-form dragging still works.
+- **Space** or **Enter** drops it; **Escape** or **Tab** cancels.
+
+<DemoKeyboardNavigation />
+
+The widgets above use plain draggables and drop targets with no keyboard-specific code. Each slot has a [`label`](#screen-reader-announcements) so announcements can name it. Pressing <kbd>←</kbd> or <kbd>→</kbd> moves the focused widget to the next accepting slot in that direction. The same behavior applies to any draggable and drop target, including reorderable collections.
+
+The source must be focusable. When keyboard dragging is enabled without a [`Draggable.Handle`](#drag-handle), `Draggable.Root` defaults to `tabIndex={0}` and `role="button"`. A handle renders its own focusable button. Pass `tabIndex` or `role` to override either default. Override the role if the element already has semantics such as `listitem` or `row`. Prefer a handle when the source contains interactive children because a button cannot contain other interactive elements. When using [`registerDraggable`](/react/utils/use-drag-drop-manager), make the registered element focusable.
+
+The default `tabIndex` and `role` are added after mount, once the root knows whether it has a handle. Pass them explicitly when a server-rendered draggable must be keyboard-reachable before hydration.
+
+### Screen-reader announcements
+
+Pickup, drop, and cancel are announced automatically. The default announcement uses the item's `label`, for example, "Grabbed Water the plants...", followed by the keyboard instructions. Without a label, it uses "item". Add a `label` to each [`DropTarget.Root`](/react/components/drop-target#name-a-target-for-screen-readers) to announce the destination. For example, moving over a target announces "Water the plants on Done", and dropping announces "Dropped Water the plants on Done." Moves over an unlabeled target are silent, and its drop announcement omits the destination.
+
+Pass `keyboardAnnouncements.moved` (and any of `pickedUp`, `dropped`, `canceled`) to narrate moves yourself. Each callback returns the string to announce, or `null` to stay silent:
+
+```tsx title="Announcing each keyboard move"
+<Draggable.Root
+  kind={card}
+  label={label}
+  payload={id}
+  keyboardAnnouncements={{
+    moved: ({ location }) => {
+      const count = location.current.dropTargets.length;
+      return count > 0 ? 'Over a drop target' : null;
+    },
+  }}
+/>
+```
+
+For localized strings across every draggable, provide them through [`LocalizationProvider`](/react/utils/localization-provider) instead of per-source. Two more per-source options tune what assistive tech reads: `ariaRoleDescription` sets the handle's `aria-roledescription` (a localized "draggable" by default), and `keyboardInstructions` replaces the instructions announced when the handle is focused.
+
+### Controlling movement
+
+By default, an arrow key moves to the nearest drop target or by a fixed step when no target is ahead. Use `keyboardMovement` when the component has its own movement rules. The callback receives the pressed key, drag context, default `suggestion`, and the `findTarget` and `getTargets` helpers. Its return value controls the move:
+
+- `{ x, y }` moves the cursor to those client coordinates, clamped to the viewport. Base UI does not apply an extra Shift multiplier.
+- An `Element` scrolls into view and becomes the destination. Use this to reach an element outside the viewport.
+- The `suggestion` accepts the default move, with an optional adjusted `position`. Returning `{ type: 'target', element, position }` moves onto an element while preserving a coordinate, such as the same height in the adjacent column.
+- `false` handles the key without moving.
+- `null` or `undefined` uses the default behavior for that key.
+
+In a sortable list or a board, free space is never a valid position, so the step-nudge fallback only lets the preview drift into dead space. `Draggable.targetsOnlyKeyboardMovement` is a prebuilt resolver for exactly that: arrows only ever move between accepting drop targets, and a press past the last one does nothing. The [sortable list demo](/react/drag-and-drop/overview#sortable-lists) uses it.
+
+```tsx title="Arrows only move between items"
+<Draggable.Root
+  kind={card}
+  label={label}
+  payload={id}
+  keyboardMovement={Draggable.targetsOnlyKeyboardMovement}
+/>
+```
+
+On a free-form canvas, every point is valid. Moving to the nearest target could send the source across the canvas unexpectedly. `Draggable.fixedStepKeyboardMovement(step)` instead moves by `step` without checking targets. Holding Shift moves four times as far.
+
+```tsx title="Arrows nudge by a fixed step"
+<Draggable.Root
+  kind={card}
+  label={label}
+  payload={id}
+  keyboardMovement={Draggable.fixedStepKeyboardMovement(20)}
+/>
+```
+
+The step is in the source's own coordinate space, so a zoomable canvas moves the source the same distance on the board at any zoom. Write your own resolver when the step depends on more than direction:
+
+```tsx title="Fine-grained pixel movement"
+<Draggable.Root
+  kind={card}
+  label={label}
+  payload={id}
+  keyboardMovement={({ position, direction, shiftKey }) => ({
+    x: position.x + direction.x * (shiftKey ? 32 : 4),
+    y: position.y + direction.y * (shiftKey ? 32 : 4),
+  })}
+/>
+```
+
+For a grid with custom movement rules, see the [calendar example](/react/drag-and-drop/overview#calendar). Vertical movement changes the time, while horizontal movement changes the day. Return `false` to refuse a key press and call `keyboardAnnouncements.reachedEdge`, which is silent by default. Return `null` or `undefined` to use the default movement.
+
+### Restoring focus
+
+When a keyboard drag ends, Base UI tries to focus the handle, source, and then innermost drop target. Pointer drags never move focus. Use `finalFocus` to choose another element. Pass `false` to leave focus unchanged, a ref, or a function that returns the element to focus. From the function, return `true` or `null` for the default behavior. Return `false` or `undefined` to leave focus unchanged.
+
+<DemoFocusRestoration />
+
+### Moving the pickup elsewhere
+
+<kbd>Space</kbd> picks up a draggable, but many elements already use that key. A calendar event may
+open a menu, Space may select a listbox option, or a card may expand. One key press cannot perform
+both actions.
+
+Set `keyboardActivation="manual"` to keep <kbd>Space</kbd> and <kbd>Enter</kbd> for the element. Start the drag from the appropriate control by calling [`useDragDropManager().startKeyboardDrag(element)`](/react/utils/use-drag-drop-manager). Announcements and focus restoration work the same as for an automatically started keyboard drag.
+
+```tsx title="A drag started from the widget's own menu"
+function Widget({ widget }) {
+  const manager = useDragDropManager();
+  const ref = React.useRef<HTMLButtonElement>(null);
+  const startOnCloseRef = React.useRef(false);
+
+  return (
+    <Menu.Root
+      onOpenChangeComplete={(open) => {
+        if (!open && startOnCloseRef.current) {
+          startOnCloseRef.current = false;
+          manager.startKeyboardDrag(ref.current);
+        }
+      }}
+    >
+      <Draggable.Root
+        kind={widgetKind}
+        label={`${widget.title} widget`}
+        payload={widget.id}
+        keyboardActivation="manual"
+        keyboardInstructions="Press Space to open the widget menu, then choose Move to move it."
+        render={<Menu.Trigger render={<button ref={ref} type="button" />} />}
+      >
+        {widget.title}
+      </Draggable.Root>
+      <Menu.Popup>
+        <Menu.Item
+          onClick={() => {
+            startOnCloseRef.current = true;
+          }}
+        >
+          Move
+        </Menu.Item>
+      </Menu.Popup>
+    </Menu.Root>
+  );
+}
+```
+
+The element stays focusable and is still announced as draggable. Because Base UI does not know which control starts the drag, it omits the default "press Space to lift" instructions. Use `keyboardInstructions` to describe how to start the drag.
+
+<DemoMenuDrag />
+
+Each widget above is a menu trigger, so <kbd>Space</kbd> opens the menu and Move starts the drag. Then <kbd>←</kbd> and <kbd>→</kbd> choose an empty dashboard slot, and <kbd>Space</kbd> drops the widget.
+
+- Show Move only when the menu was opened with the keyboard. Pointer users can drag the widget directly.
+- Start the drag from `onOpenChangeComplete` after the menu closes, not from the item's `onClick`. Closing the menu returns focus to its trigger before the drag starts.
+
+Pass `keyboardActivation="off"` to disable keyboard dragging. The element stays pointer-draggable. Base UI leaves every key to your handlers and omits the keyboard-drag instructions, `tabIndex`, and `role` defaults. Use this only when another control provides the same keyboard action, or when the draggable is `aria-hidden` decoration such as a resize handle.
+
+## Movement modifiers
+
+A drag follows the pointer freely by default. Pass `modifiers` to keep it on one axis, snap it to a grid, or hold it inside an element. The same modifiers apply to pointer and keyboard drags. They constrain the preview, drop hit test, and keyboard cursor.
+
+```tsx title="Locking a sortable list to one axis"
+<Draggable.Root
+  kind={card}
+  label={label}
+  payload={id}
+  modifiers={Draggable.restrictToVerticalAxis}
+/>
+```
+
+The prebuilt modifiers:
+
+- `restrictToVerticalAxis` and `restrictToHorizontalAxis` lock the drag to one axis, anchored where it began.
+- `restrictToParentElement` keeps it inside the source's parent, and `restrictToElement(target)` inside any element, ref, or function returning one.
+- `restrictToWindowEdges` keeps it inside the viewport.
+- `snapToGrid(size)` snaps to a grid anchored at the pickup point. Pass a number or `{ x, y }` for a rectangular grid. The step uses the source's coordinate system. For example, `snapToGrid(20)` still snaps to a 20-unit grid when the canvas is zoomed to 70%.
+
+Pass an array to combine them, each clamping the previous one's result.
+
+```tsx title="Combining modifiers"
+<Draggable.Root
+  kind={tile}
+  label={label}
+  payload={id}
+  modifiers={[Draggable.snapToGrid(20), Draggable.restrictToParentElement]}
+/>
+```
+
+Below, `restrictToElement` clamps each widget to the dashed dashboard frame. The preview and drop hit test cannot leave the frame, so the outside slot never activates. Write a custom modifier for behavior the presets do not cover, such as snapping to calendar slots. See [Write your own](#write-your-own) and the [calendar example](/react/drag-and-drop/overview#calendar).
+
+<DemoContainedDrag />
+
+### Modifiers on the preview
+
+`Draggable.Preview` and `Draggable.ClonedPreview` take the same `modifiers` prop. These modifiers affect only the preview. The drop hit test, keyboard movement, and reported input remain unconstrained. Use preview modifiers when leaving an area must still cancel the drag. For example, a data grid can keep the preview inside the grid while allowing a release outside it to cancel instead of dropping on the nearest header. Otherwise, put the modifier on `Draggable.Root` so the preview position matches the drop position.
+
+### Write your own
+
+A modifier takes the point the engine would use and returns the point to use instead. Alongside `point`, it receives where the drag began (`initialPoint`), the cursor (`input`), the source and preview rects, `scale`, and the modifier keys held by the event that produced the move. It runs on every frame of a pointer drag and on every keyboard press, so keep it cheap.
+
+```tsx title="Snapping to fixed rows"
+import type { DragModifier } from '@base-ui/react/draggable';
+
+const snapToRows: DragModifier = ({ point }) => ({
+  x: point.x,
+  y: nearest(ROW_TOPS, point.y),
+});
+```
+
+Points use client pixels, which match measurements from the viewport or another element's bounding rect. To work in a zoomable canvas's coordinate system, multiply distances by `scale`. The value includes CSS `transform` and `zoom` scaling applied to the source or its ancestors. It is `1` when the source is not scaled. A rotation alone does not change it. The `snapToGrid` preset uses this value.
+
+```tsx title="A step measured on the canvas, not the screen"
+const nudgeRight: DragModifier = ({ point, scale }) => ({
+  x: point.x + 20 * scale.x,
+  y: point.y,
+});
+```
+
+### Gating on a modifier key
+
+`ctrlKey`, `shiftKey`, `altKey`, and `metaKey` report the keys held for the event that produced the move. For example, a drawing tool can bind "snap to 45°" to Shift. During a pointer drag, pressing or releasing a modifier key reapplies the modifiers on the next frame. During a keyboard drag, these fields report the keys held for each arrow press. Ctrl, Alt, and Meta chords remain available for other shortcuts.
+
+```tsx title="Snapping to 45° while Shift is held"
+const snapToAngle: DragModifier = ({ point, mode, shiftKey, initialPoint }) => {
+  // Pointer only: Shift already means "travel further" to a keyboard drag.
+  if (mode !== 'pointer' || !shiftKey) {
+    return point;
+  }
+  // Project the drag onto the nearest 45° ray from where it began.
+  const dx = point.x - initialPoint.x;
+  const dy = point.y - initialPoint.y;
+  const angle = Math.round(Math.atan2(dy, dx) / (Math.PI / 4)) * (Math.PI / 4);
+  const distance = dx * Math.cos(angle) + dy * Math.sin(angle);
+  return {
+    x: initialPoint.x + Math.cos(angle) * distance,
+    y: initialPoint.y + Math.sin(angle) * distance,
+  };
+};
+```
+
+Check `mode` with the modifier keys. The same key can behave differently for pointer and keyboard drags. For example, Shift increases the step for [`fixedStepKeyboardMovement`](#controlling-movement), so a pointer-only Shift modifier should also require `mode === 'pointer'`.
+
+A modifier only moves a point, so it still can't express a keyboard move that targets a specific element or refuses the press. Use [`keyboardMovement`](#controlling-movement) for those.
+
+## Drag previews
+
+### Default preview
+
+With no preview part, a sanitized clone of the dragged element follows the pointer. The clone keeps your element's classes and live form, canvas, and scroll state, and renders in the browser's top layer, where no scroll container can clip it and nothing on the page paints over it.
+
+The clone rewrites its IDs to keep the document unique and updates fragment references inside the clone. External `#id` selectors therefore do not style it; use classes or `[data-drag-preview]` for preview styles.
+
+Custom elements inside a clone are replaced with inert native placeholders. Cloning a live custom element would run its constructor and connection callbacks again merely because a drag started. Render a `Draggable.Preview` when the preview must reproduce a custom element's shadow content exactly.
+
+Base UI reads the computed style of each custom element to size and style its inert placeholder. For a draggable containing many custom elements, use a lightweight `Draggable.Preview` to avoid doing that work when the drag starts.
+
+After a release, the clone moves to the source's final position and receives `data-ending-style`. That includes a release outside a target, when it returns to the unchanged source. Add a `translate` transition under that attribute to animate the handoff; the engine keeps the clone mounted until the transition finishes. The source also receives `data-ending-style` alongside `data-dragging`, so it can remain styled as an empty placeholder until the clone arrives. With no transition, the attributes and clone are removed before the next paint.
+
+```css title="Animating the preview into its final position"
+.Card[data-drag-preview][data-ending-style] {
+  transition: translate 200ms ease;
+}
+```
+
+Cloning cannot reproduce every browser state. Render a `Draggable.Preview` in these cases:
+
+- Content drawn outside the DOM: a WebGL `<canvas>`, a playing `<video>`, an element's shadow DOM. Form values, canvas drawings and scroll positions **are** carried over.
+- `:hover`, `:focus` and `:focus-within` don't apply to the preview, so styles that depend on them render in their resting state.
+- A bare native control, such as an unstyled `<button>` or `<input>`, loses its default browser chrome in the top layer. Give it your own styles, or use a `Draggable.Preview`.
+
+### Custom previews
+
+To show something other than a clone, render a `Draggable.Preview` inside the root. Its children become the preview. Like the clone, it is placed next to the element it was lifted from, so your CSS reaches it the same way.
+
+Keep `pointer-events: none` on the preview and its children. Base UI sets it on the preview element so hit testing reaches the drop targets underneath. If a child overrides it with `pointer-events: auto`, Base UI must hide the preview and repeat the hit test on every drag frame.
+
+The dashboard below drags each widget as a compact badge instead of a copy of itself.
+
+<DemoBadgePreview />
+
+```tsx title="A badge instead of a clone"
+import { Draggable } from '@base-ui/react/draggable';
+
+function Widget({ id, title, value }) {
+  return (
+    <Draggable.Root kind={widgetKind} label={`${title} widget`} payload={id}>
+      {title}
+      {/* The badge is much smaller than the widget, so keep it under the pointer. */}
+      <Draggable.Preview className="Badge" offset="pointer">
+        <span>{value}</span>
+        {title}
+      </Draggable.Preview>
+    </Draggable.Root>
+  );
+}
+```
+
+The content renders beside the nearest [`Draggable.PreviewProvider`](/react/drag-and-drop/overview#setup)'s children and outlives the source when a virtualizer or a live reorder unmounts it mid-drag. It receives context from providers above that preview provider, but not from providers nested between the preview provider and this draggable. Place a preview provider inside each local theme, direction, or store boundary the preview needs. The element itself still sits next to the source, so your CSS reaches it either way.
+
+Pass a function as the children to build the preview from the dragged item's data. To match the source size, use the `--drag-source-width` and `--drag-source-height` CSS variables. See [Sizing a custom preview](/react/drag-and-drop/styling#sizing-a-custom-preview).
+
+To show **no preview for a particular drag**, resolve the children to nothing: `null`, or a falsy `{condition && …}`. The engine tears down the host it had already built, so nothing follows the pointer for that drag. To switch the preview off for good, see [Drag without a preview](#drag-without-a-preview).
+
+### Configure the clone
+
+To configure how the default clone is placed, render a `Draggable.ClonedPreview`. It takes the same placement props as `Draggable.Preview` and renders nothing, since the clone is the engine's and there's no content to own:
+
+```tsx title="Place the clone under the pointer"
+function Card({ id, label }) {
+  return (
+    <Draggable.Root kind={card} label={label} payload={id}>
+      {label}
+      <Draggable.ClonedPreview offset="pointer" />
+    </Draggable.Root>
+  );
+}
+```
+
+You only need this part to configure the clone. Style the clone with `[data-drag-preview]`. The part renders no element of its own, so it takes no `className`.
+
+### Drag without a preview
+
+Use `disabled` on a preview part when nothing should follow the pointer. The drag still runs, so targets receive drag state and the drop can complete. This is useful for a canvas that draws its own drag feedback. `Draggable.ClonedPreview` needs no preview provider, even when disabled.
+
+```tsx title="Dragging without a preview"
+<Draggable.Root kind={shape} label={label} payload={id}>
+  {label}
+  <Draggable.ClonedPreview disabled />
+</Draggable.Root>
+```
+
+### Position the preview
+
+Use `offset` to place the preview relative to the pointer. It defaults to `'source'`, which keeps the exact grab point the element was picked up by, so the preview lifts off without shifting.
+
+`offset` works the same on `Draggable.Preview` and `Draggable.ClonedPreview`.
+A `Draggable.Preview` with no children resolves to no preview at all, so give it
+content. Use `Draggable.ClonedPreview`, as shown here, to position the clone.
+
+```tsx title="Place the preview relative to the pointer"
+// The grab point (default): the preview lifts off the source in place.
+<Draggable.ClonedPreview offset="source" />
+
+// The pointer: the preview's top-left sits under the cursor.
+<Draggable.ClonedPreview offset="pointer" />
+
+// A fixed distance from the pointer.
+<Draggable.Preview offset={{ x: 12, y: 12 }}>{label}</Draggable.Preview>
+
+// Computed at drag start, centering the preview under the pointer.
+<Draggable.Preview
+  offset={({ container }) => ({
+    x: container.offsetWidth / 2,
+    y: container.offsetHeight / 2,
+  })}
+>
+  {label}
+</Draggable.Preview>
+```
+
+### Render previews elsewhere
+
+Previews render as the last of the source's siblings, so for the duration of the drag an extra element sits in the list. Two things notice:
+
+- Selectors that count from the end of the list shift, so `:last-child`, `:only-child`, and `:nth-last-child` rules on siblings can flicker. The `:nth-child` selector is unaffected because it counts from the start.
+- DOM scans see it. If you `querySelectorAll` the siblings to work out where a drop lands, filter the preview out:
+  ```js title="Skip the preview when scanning"
+  const cards = list.querySelectorAll('[data-card]:not([data-drag-preview])');
+  ```
+
+To avoid both, pass `container` to inject the preview elsewhere. It accepts an element, a ref, or a callback that resolves the container from the source. The callback is useful when the item has no ref:
+
+```tsx title="Render previews outside the list"
+<Draggable.Preview container={(source) => source.closest('.Board')}>{label}</Draggable.Preview>
+```
+
+Set it on `Draggable.PreviewProvider` to apply to every source inside it, with no per-item prop. A preview's own `container` wins over that:
+
+```tsx title="One container for the whole board"
+<Draggable.PreviewProvider container={boardRef}>
+  <Board ref={boardRef} />
+</Draggable.PreviewProvider>
+```
+
+Prefer the closest suitable container. The preview no longer has the source's ancestors, so selectors such as `.Column .Card` stop matching. A nearby themed wrapper preserves more of the cascade than a container near the document root. Rules based on the preview's own classes still apply. Its DOM container does not affect React context.
+
+### Set the drag cursor
+
+While a pointer drag is in progress the cursor is pinned to `grabbing` across the whole document, so it stays consistent no matter what is under the pointer. Pass a different CSS cursor as `dragCursor`, or `dragCursor={false}` to manage it yourself.
+
+```tsx title="Set the cursor for the drag"
+<Draggable.Root kind={card} label={label} payload={{ id }} dragCursor="move" />
+```
+
+## API reference
+
+The payload type declared by `kind` flows to the root's event handlers and keyboard callbacks.
+
+import { TypesDraggable, TypesDraggableAdditional } from './types';
+
+### Root
+
+<TypesDraggable.Root hideDescription />
+
+### Handle
+
+<TypesDraggable.Handle hideDescription />
+
+### KeyboardHandle
+
+<TypesDraggable.KeyboardHandle hideDescription />
+
+### Preview
+
+<TypesDraggable.Preview hideDescription />
+
+### ClonedPreview
+
+<TypesDraggable.ClonedPreview hideDescription />
+
+### PreviewProvider
+
+<TypesDraggable.PreviewProvider hideDescription />
+
+### restrictToVerticalAxis
+
+<TypesDraggable.restrictToVerticalAxis />
+
+### restrictToHorizontalAxis
+
+<TypesDraggable.restrictToHorizontalAxis />
+
+### restrictToParentElement
+
+<TypesDraggable.restrictToParentElement />
+
+### restrictToElement
+
+<TypesDraggable.restrictToElement />
+
+### restrictToWindowEdges
+
+<TypesDraggable.restrictToWindowEdges />
+
+### snapToGrid
+
+<TypesDraggable.snapToGrid />
+
+### targetsOnlyKeyboardMovement
+
+<TypesDraggable.targetsOnlyKeyboardMovement />
+
+### fixedStepKeyboardMovement
+
+<TypesDraggable.fixedStepKeyboardMovement />
+
+### DragModifier
+
+<TypesDraggable.DragModifier />
+
+### DragKeyboardMovement
+
+<TypesDraggable.DragKeyboardMovement />
+
+### createKind
+
+Creates a drag kind with a unique runtime identity. Declare it once and share the returned value with each draggable, drop target, monitor, and auto-scroller that participates in the interaction. The optional name is only a debugging aid; separately created kinds do not match.
+
+```ts
+const card = Draggable.createKind<Card>('card');
+```
+
+### createGlobalKind
+
+<TypesDraggable.createGlobalKind />
+
+## useActiveDrag
+
+Pass one kind or an array of kinds to `accept`. Other drags return `null`, and `accept` determines the type of `source.payload`.
+
+```tsx title="Usage"
+const anyDrag = Draggable.useActiveDrag();
+const cardDrag = Draggable.useActiveDrag(card);
+```
+
+<TypesDraggable.useActiveDrag />
+
+<TypesDraggableAdditional />
+
+export const metadata =
+  /** @type {import('@mui/internal-docs-infra/createSitemap/types').NextMetadata} */ ({
+    keywords: [
+      'React Draggable',
+      'React Drag and Drop',
+      'React Drag Overlay',
+      'Drag Source',
+      'Drag Handle',
+      'Drag Preview',
+      'Base UI',
+    ],
+    robots: {
+      index: true,
+    },
+  });
