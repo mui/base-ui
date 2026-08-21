@@ -1,7 +1,7 @@
-import { beforeAll, describe, expect, it, vi } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import * as React from 'react';
 import { fireEvent, flushMicrotasks, screen } from '@mui/internal-test-utils';
-import { createRenderer, isJSDOM } from '#test-utils';
+import { createRenderer, firePointer } from '#test-utils';
 import { useSwipeDismiss } from './useSwipeDismiss';
 
 function SwipeBox() {
@@ -51,12 +51,6 @@ function createTouch(target: EventTarget, point: { clientX: number; clientY: num
 }
 
 describe('useSwipeDismiss', () => {
-  beforeAll(function beforeHook() {
-    // PointerEvent not fully implemented in jsdom, causing fireEvent.pointer* to ignore options.
-    // https://github.com/jsdom/jsdom/issues/2527
-    (window as any).PointerEvent = window.MouseEvent;
-  });
-
   const { render } = createRenderer();
 
   it('does not start swiping within a scrollable element when ignoreScrollableAncestors is true', async () => {
@@ -1265,7 +1259,7 @@ describe('useSwipeDismiss', () => {
     expect(onDismiss).not.toHaveBeenCalled();
   });
 
-  it.skipIf(!isJSDOM)('provides swipe velocity on release', async () => {
+  it('provides swipe velocity on release', async () => {
     const onRelease = vi.fn();
 
     function SwipeBoxReleaseVelocity() {
@@ -1290,11 +1284,10 @@ describe('useSwipeDismiss', () => {
 
     vi.useFakeTimers();
     try {
-      vi.setSystemTime(new Date(1000));
       await render(<SwipeBoxReleaseVelocity />);
       const element = screen.getByTestId('release-velocity');
 
-      fireEvent.pointerDown(element, {
+      firePointer.down(element, {
         button: 0,
         buttons: 1,
         pointerId: 1,
@@ -1309,8 +1302,7 @@ describe('useSwipeDismiss', () => {
 
       await flushMicrotasks();
 
-      vi.setSystemTime(new Date(1100));
-      fireEvent.pointerMove(element, {
+      firePointer.move(element, {
         pointerId: 1,
         buttons: 1,
         clientX: 0,
@@ -1323,8 +1315,7 @@ describe('useSwipeDismiss', () => {
 
       await flushMicrotasks();
 
-      vi.setSystemTime(new Date(1200));
-      fireEvent.pointerMove(element, {
+      firePointer.move(element, {
         pointerId: 1,
         buttons: 1,
         clientX: 50,
@@ -1337,8 +1328,7 @@ describe('useSwipeDismiss', () => {
 
       await flushMicrotasks();
 
-      vi.setSystemTime(new Date(1300));
-      fireEvent.pointerUp(element, {
+      firePointer.up(element, {
         pointerId: 1,
         clientX: 50,
         clientY: 0,
@@ -1356,7 +1346,7 @@ describe('useSwipeDismiss', () => {
     }
   });
 
-  it.skipIf(!isJSDOM)('provides release velocity from the latest swipe movement', async () => {
+  it('provides release velocity from the latest swipe movement', async () => {
     const onRelease = vi.fn();
 
     function SwipeBoxReleaseVelocity() {
@@ -1381,11 +1371,10 @@ describe('useSwipeDismiss', () => {
 
     vi.useFakeTimers();
     try {
-      vi.setSystemTime(new Date(1000));
       await render(<SwipeBoxReleaseVelocity />);
       const element = screen.getByTestId('release-velocity-latest');
 
-      fireEvent.pointerDown(element, {
+      firePointer.down(element, {
         button: 0,
         buttons: 1,
         pointerId: 1,
@@ -1400,8 +1389,7 @@ describe('useSwipeDismiss', () => {
 
       await flushMicrotasks();
 
-      vi.setSystemTime(new Date(1100));
-      fireEvent.pointerMove(element, {
+      firePointer.move(element, {
         pointerId: 1,
         buttons: 1,
         clientX: 0,
@@ -1414,8 +1402,7 @@ describe('useSwipeDismiss', () => {
 
       await flushMicrotasks();
 
-      vi.setSystemTime(new Date(1200));
-      fireEvent.pointerMove(element, {
+      firePointer.move(element, {
         pointerId: 1,
         buttons: 1,
         clientX: 50,
@@ -1428,8 +1415,7 @@ describe('useSwipeDismiss', () => {
 
       await flushMicrotasks();
 
-      vi.setSystemTime(new Date(1216));
-      fireEvent.pointerMove(element, {
+      firePointer.move(element, {
         pointerId: 1,
         buttons: 1,
         clientX: 70,
@@ -1442,8 +1428,7 @@ describe('useSwipeDismiss', () => {
 
       await flushMicrotasks();
 
-      vi.setSystemTime(new Date(1224));
-      fireEvent.pointerUp(element, {
+      firePointer.up(element, {
         pointerId: 1,
         clientX: 70,
         clientY: 0,
@@ -1461,7 +1446,7 @@ describe('useSwipeDismiss', () => {
     }
   });
 
-  it.skipIf(!isJSDOM)('clamps short swipe durations when computing velocity', async () => {
+  it('clamps short swipe durations when computing velocity', async () => {
     const onRelease = vi.fn();
 
     function SwipeBoxReleaseVelocity() {
@@ -1486,11 +1471,10 @@ describe('useSwipeDismiss', () => {
 
     vi.useFakeTimers();
     try {
-      vi.setSystemTime(new Date(1000));
       await render(<SwipeBoxReleaseVelocity />);
       const element = screen.getByTestId('release-velocity-short');
 
-      fireEvent.pointerDown(element, {
+      firePointer.down(element, {
         button: 0,
         buttons: 1,
         pointerId: 1,
@@ -1505,8 +1489,7 @@ describe('useSwipeDismiss', () => {
 
       await flushMicrotasks();
 
-      vi.setSystemTime(new Date(1005));
-      fireEvent.pointerMove(element, {
+      firePointer.move(element, {
         pointerId: 1,
         buttons: 1,
         clientX: 0,
@@ -1519,8 +1502,7 @@ describe('useSwipeDismiss', () => {
 
       await flushMicrotasks();
 
-      vi.setSystemTime(new Date(1010));
-      fireEvent.pointerMove(element, {
+      firePointer.move(element, {
         pointerId: 1,
         buttons: 1,
         clientX: 30,
@@ -1533,8 +1515,7 @@ describe('useSwipeDismiss', () => {
 
       await flushMicrotasks();
 
-      vi.setSystemTime(new Date(1015));
-      fireEvent.pointerUp(element, {
+      firePointer.up(element, {
         pointerId: 1,
         clientX: 30,
         clientY: 0,
