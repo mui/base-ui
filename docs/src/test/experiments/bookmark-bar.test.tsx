@@ -4,6 +4,7 @@ import * as React from 'react';
 import '@testing-library/jest-dom/vitest';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import {
+  act,
   createRenderer,
   fireEvent,
   ignoreActWarnings,
@@ -32,7 +33,9 @@ describe('BookmarkBarExperiment', () => {
   });
 
   afterEach(() => {
+    vi.restoreAllMocks();
     vi.unstubAllGlobals();
+    Reflect.deleteProperty(HTMLElement.prototype, 'getAnimations');
   });
 
   function renderExperiment() {
@@ -100,6 +103,45 @@ describe('BookmarkBarExperiment', () => {
     await waitFor(() => {
       expect(scienceFolder).toHaveFocus();
     });
+  });
+
+  it('closes folder menus without a transition after dropping a bookmark inside', async () => {
+    vi.stubGlobal('BASE_UI_ANIMATIONS_DISABLED', false);
+    const animationFinished = new Promise<void>(() => {});
+    Object.defineProperty(HTMLElement.prototype, 'getAnimations', {
+      configurable: true,
+      value: vi.fn(() => [
+        {
+          finished: animationFinished,
+          pending: false,
+          playState: 'running',
+        },
+      ]),
+    });
+    const { user } = renderExperiment();
+    const scienceFolder = screen.getByRole('button', { name: 'Science' });
+
+    await user.click(scienceFolder);
+    const menu = await screen.findByRole('menu');
+    const folderDropZone = scienceFolder.querySelectorAll<HTMLElement>('[data-drop-target]')[1];
+    const wikipedia = screen.getByRole('button', { name: 'Wikipedia' });
+    wikipedia.getBoundingClientRect = () => new DOMRect(0, 0, 100, 30);
+    folderDropZone.getBoundingClientRect = () => new DOMRect(200, 0, 100, 30);
+    vi.spyOn(document, 'elementFromPoint').mockReturnValue(folderDropZone);
+
+    act(() => wikipedia.focus());
+    fireEvent.keyDown(wikipedia, { altKey: true, key: 'Enter' });
+    await waitFor(() => {
+      expect(wikipedia).toHaveAttribute('data-dragging');
+    });
+    fireEvent.keyDown(wikipedia, { key: 'ArrowRight' });
+    await waitFor(() => {
+      expect(scienceFolder).toHaveAttribute('data-drop-inside');
+    });
+    fireEvent.keyDown(wikipedia, { key: 'Enter' });
+
+    expect(menu).toHaveAttribute('data-ending-style');
+    expect(menu).toHaveAttribute('data-instant-close', '');
   });
 });
 

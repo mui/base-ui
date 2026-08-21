@@ -216,6 +216,7 @@ interface BookmarkBarContextValue {
   tree: BookmarkTree;
   dropIntent: DropIntent | null;
   openMenuIds: Set<string>;
+  closeMenusWithoutAnimation: boolean;
   getMoveValidity: (sourceId: string, parentId: ParentId, index: number) => MoveValidity;
   moveNode: (sourceId: string, parentId: ParentId, index: number) => void;
   setMenuOpen: (id: string, open: boolean) => void;
@@ -594,7 +595,7 @@ function DraggableEntry({
 }
 
 function MenuPopup({ folderId }: { folderId: string }) {
-  const { tree } = useBookmarkBarContext();
+  const { tree, closeMenusWithoutAnimation } = useBookmarkBarContext();
   const items = getChildren(tree, folderId);
   const surfaceId = `folder:${folderId}`;
 
@@ -603,6 +604,7 @@ function MenuPopup({ folderId }: { folderId: string }) {
       <Menu.Positioner className={styles.positioner} sideOffset={4} alignOffset={-4}>
         <Menu.Popup
           className={styles.menuPopup}
+          data-instant-close={closeMenusWithoutAnimation ? '' : undefined}
           data-bookmark-parent-id={folderId}
           data-bookmark-insertion-index={items.length}
           render={<DragAutoScroll.Root accept={acceptedBookmarkKinds} allowedAxis="vertical" />}
@@ -746,7 +748,7 @@ function MoreMenu({
   startIndex: number;
   triggerRef: React.RefObject<HTMLButtonElement | null>;
 }) {
-  const { openMenuIds, setMenuOpen } = useBookmarkBarContext();
+  const { closeMenusWithoutAnimation, openMenuIds, setMenuOpen } = useBookmarkBarContext();
   const handleOpenChange = useStableCallback((open: boolean) => setMenuOpen(MORE_MENU_ID, open));
   const handleDragEnter = useStableCallback(() => setMenuOpen(MORE_MENU_ID, true));
   const intent: DropIntent = {
@@ -782,6 +784,7 @@ function MoreMenu({
         <Menu.Positioner className={styles.positioner} sideOffset={4} align="end">
           <Menu.Popup
             className={styles.menuPopup}
+            data-instant-close={closeMenusWithoutAnimation ? '' : undefined}
             data-bookmark-parent-id={ROOT_ID}
             data-bookmark-insertion-index={startIndex + items.length}
             render={<DragAutoScroll.Root accept={acceptedBookmarkKinds} allowedAxis="vertical" />}
@@ -1328,6 +1331,7 @@ function BookmarkBar() {
   const [dropIntent, setDropIntent] = React.useState<DropIntent | null>(null);
   const [tabDropIntent, setTabDropIntent] = React.useState<TabDropIntent | null>(null);
   const [openMenuIds, setOpenMenuIds] = React.useState<Set<string>>(() => new Set());
+  const [closeMenusWithoutAnimation, setCloseMenusWithoutAnimation] = React.useState(false);
   const [editor, setEditor] = React.useState<EditorState | null>(null);
   const [clipboard, setClipboard] = React.useState<BookmarkClipboard | null>(null);
   const [tabs, setTabs] = React.useState<BrowserTab[]>(INITIAL_TABS);
@@ -1541,6 +1545,9 @@ function BookmarkBar() {
         const parentName = getParentName(intent.parentId);
         const sourceId = event.source.payload.id;
         const sourceName = tree.nodes[sourceId]?.name;
+        if (intent.parentId !== ROOT_ID) {
+          setCloseMenusWithoutAnimation(true);
+        }
         setTree(moveNode(tree, sourceId, intent.parentId, intent.index));
         if (sourceName && parentName) {
           setStatus(`${sourceName} moved to ${parentName}.`);
@@ -1604,6 +1611,9 @@ function BookmarkBar() {
   }, [replacementTabId, tabActivationTimeout]);
 
   const setMenuOpen = useStableCallback((id: string, open: boolean) => {
+    if (open) {
+      setCloseMenusWithoutAnimation(false);
+    }
     setOpenMenuIds((current) => {
       if (!open || !activeDragId) {
         const next = new Set(current);
@@ -1940,6 +1950,7 @@ function BookmarkBar() {
       tree,
       dropIntent,
       openMenuIds,
+      closeMenusWithoutAnimation,
       getMoveValidity: getValidity,
       moveNode: handleMoveNode,
       setMenuOpen,
@@ -1960,6 +1971,7 @@ function BookmarkBar() {
       tree,
       dropIntent,
       openMenuIds,
+      closeMenusWithoutAnimation,
       getValidity,
       handleMoveNode,
       setMenuOpen,

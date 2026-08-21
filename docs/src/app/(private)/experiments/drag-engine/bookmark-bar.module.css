@@ -551,6 +551,10 @@
   transform: scale(0.98);
 }
 
+.menuPopup[data-instant-close] {
+  transition: none;
+}
+
 .contextPopup {
   transition: none;
 }
