@@ -199,7 +199,10 @@ function Formisch() {
             <Select.Root items={SERVER_TYPES} value={field.input} onValueChange={field.onChange}>
               <div className="w-fit space-y-1">
                 <Select.Label>Server type</Select.Label>
-                <Select.Trigger className="w-48">
+                <Select.Trigger
+                  className="w-48"
+                  onBlur={field.props.onBlur as React.FocusEventHandler}
+                >
                   <Select.Value />
                   <Select.Icon>
                     <CaretUpDownIcon />
@@ -324,7 +327,10 @@ function Formisch() {
               {['ssd', 'hdd'].map((radioValue) => (
                 <Field.Item key={radioValue}>
                   <Field.Label className="uppercase">
-                    <Radio.Root value={radioValue}>
+                    <Radio.Root
+                      value={radioValue}
+                      onBlur={field.props.onBlur as React.FocusEventHandler}
+                    >
                       <Radio.Indicator />
                     </Radio.Root>
                     {radioValue}
@@ -347,7 +353,11 @@ function Formisch() {
           >
             <Field.Label className="gap-2">
               Restart on failure
-              <Switch.Root checked={field.input} onCheckedChange={field.onChange}>
+              <Switch.Root
+                checked={field.input}
+                onCheckedChange={field.onChange}
+                onBlur={field.props.onBlur as React.FocusEventHandler}
+              >
                 <Switch.Thumb />
               </Switch.Root>
             </Field.Label>
@@ -372,7 +382,10 @@ function Formisch() {
                   return (
                     <Field.Item key={checkboxValue}>
                       <Field.Label className="uppercase">
-                        <Checkbox.Root value={checkboxValue}>
+                        <Checkbox.Root
+                          value={checkboxValue}
+                          onBlur={field.props.onBlur as React.FocusEventHandler}
+                        >
                           <Checkbox.Indicator>
                             <CheckIcon />
                           </Checkbox.Indicator>

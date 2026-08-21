@@ -829,20 +829,14 @@ import type { SubmitHandler } from '@formisch/react';
 
 const form = useForm(/* schema, initialInput */);
 
-{
-  /* @highlight-start */
-}
+// @highlight-start
 const submitForm: SubmitHandler<typeof FormSchema> = async (output) => {
   /* prettier-ignore */
   await fetch(/* POST the validated `output` to an external API */);
 };
-{
-  /* @highlight-end */
-}
+// @highlight-end
 
-{
-  /* @highlight-text "submitForm" */
-}
+// @highlight-text "submitForm"
 <Form of={form} onSubmit={submitForm}>
   {/* form fields */}
   <button type="submit">Submit</button>
