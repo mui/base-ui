@@ -13,9 +13,21 @@ import { transitionStatusMapping } from '../../internals/stateAttributesMapping'
 import { type TransitionStatus, useTransitionStatus } from '../../internals/useTransitionStatus';
 import { useImageLoadingStatus } from './useImageLoadingStatus';
 
+const LOADING_HOOK = { 'data-loading': '' };
+const ERROR_HOOK = { 'data-error': '' };
+
 const stateAttributesMapping: StateAttributesMapping<AvatarImageState> = {
   ...avatarStateAttributesMapping,
   ...transitionStatusMapping,
+  imageLoadingStatus(value): Record<string, string> | null {
+    if (value === 'loading') {
+      return LOADING_HOOK;
+    }
+    if (value === 'error') {
+      return ERROR_HOOK;
+    }
+    return null;
+  },
 };
 
 /**
@@ -32,20 +44,80 @@ export const AvatarImage = React.forwardRef(function AvatarImage(
     className,
     render,
     onLoadingStatusChange: onLoadingStatusChangeProp,
+    keepMounted = false,
     style,
     ...elementProps
   } = componentProps;
-  const { setImageLoadingStatus } = useAvatarRootContext();
-  const imageLoadingStatus = useImageLoadingStatus(elementProps.src, elementProps);
+
+  const { setImageLoadingStatus: setRootImageLoadingStatus } = useAvatarRootContext();
+  const [imageLoadingStatus, setImageLoadingStatus] = useImageLoadingStatus(
+    elementProps.src,
+    elementProps,
+    !keepMounted,
+  );
 
   const isVisible = imageLoadingStatus === 'loaded';
   const { mounted, transitionStatus, setMounted } = useTransitionStatus(isVisible);
 
   const imageRef = React.useRef<HTMLImageElement | null>(null);
+  const initialCommitRef = React.useRef(true);
+
+  // With `keepMounted`, the status comes from the rendered element itself, whose `load` event may
+  // have already fired (cached images, or loads completed before hydration).
+  useIsoLayoutEffect(() => {
+    if (!keepMounted) {
+      return;
+    }
+
+    const isInitialCommit = initialCommitRef.current;
+    initialCommitRef.current = false;
+
+    const image = imageRef.current;
+    if (!image) {
+      // The `render` element didn't forward the ref. Its own `load`/`error` events remain the
+      // only source of truth, so don't overwrite the status they already reported.
+      return;
+    }
+
+    if (!image.complete) {
+      setImageLoadingStatus('loading');
+      return;
+    }
+
+    const status = image.naturalWidth > 0 ? 'loaded' : 'error';
+    setImageLoadingStatus(status);
+
+    // An image that's already complete on the first commit was painted before hydration, so
+    // mount it without going through `'starting'` to avoid replaying the enter animation.
+    if (status === 'loaded' && isInitialCommit) {
+      setMounted(true);
+    }
+  }, [
+    keepMounted,
+    elementProps.src,
+    elementProps.srcSet,
+    elementProps.sizes,
+    elementProps.crossOrigin,
+    elementProps.referrerPolicy,
+    render,
+    setImageLoadingStatus,
+    setMounted,
+  ]);
+
+  const renderedStatusProps = keepMounted
+    ? {
+        onLoad() {
+          setImageLoadingStatus('loaded');
+        },
+        onError() {
+          setImageLoadingStatus('error');
+        },
+      }
+    : undefined;
 
   const handleLoadingStatusChange = useStableCallback((status: ImageLoadingStatus) => {
     onLoadingStatusChangeProp?.(status);
-    setImageLoadingStatus(status);
+    setRootImageLoadingStatus(status);
   });
 
   useIsoLayoutEffect(() => {
@@ -55,8 +127,8 @@ export const AvatarImage = React.forwardRef(function AvatarImage(
   }, [imageLoadingStatus, handleLoadingStatusChange]);
 
   useIsoLayoutEffect(() => {
-    return () => setImageLoadingStatus('idle');
-  }, [setImageLoadingStatus]);
+    return () => setRootImageLoadingStatus('idle');
+  }, [setRootImageLoadingStatus]);
 
   useOpenChangeComplete({
     enabled: !isVisible,
@@ -71,18 +143,22 @@ export const AvatarImage = React.forwardRef(function AvatarImage(
 
   const state: AvatarImageState = {
     imageLoadingStatus,
-    transitionStatus,
+    // The element never unmounts with `keepMounted`, so an exit transition would play and then
+    // reverse itself once the status is cleared. `data-loading`/`data-error` cover that state.
+    transitionStatus: keepMounted && transitionStatus === 'ending' ? undefined : transitionStatus,
   };
+
+  const shouldRender = keepMounted || mounted;
 
   const element = useRenderElement('img', componentProps, {
     state,
     ref: [forwardedRef, imageRef],
-    props: elementProps,
+    props: renderedStatusProps ? [renderedStatusProps, elementProps] : elementProps,
     stateAttributesMapping,
-    enabled: mounted,
+    enabled: shouldRender,
   });
 
-  if (!mounted) {
+  if (!shouldRender) {
     return null;
   }
 
@@ -105,6 +181,12 @@ export interface AvatarImageProps extends BaseUIComponentProps<
    * Callback fired when the loading status changes.
    */
   onLoadingStatusChange?: ((status: ImageLoadingStatus) => void) | undefined;
+  /**
+   * Whether the image element stays mounted and loads in place instead of being preloaded.
+   * Supports `loading="lazy"` and optimized image components such as `next/image`.
+   * @default false
+   */
+  keepMounted?: boolean | undefined;
 }
 
 export namespace AvatarImage {
