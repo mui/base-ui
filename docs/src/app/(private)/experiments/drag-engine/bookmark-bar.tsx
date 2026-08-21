@@ -18,9 +18,10 @@ import type {
   DropTargetEvent,
 } from '@base-ui/react/drop-target';
 import { Field } from '@base-ui/react/field';
+import { CompositeItem } from '@base-ui/react/internals/composite';
 import { Menu } from '@base-ui/react/menu';
+import { Menubar } from '@base-ui/react/menubar';
 import { Tabs } from '@base-ui/react/tabs';
-import { Toolbar } from '@base-ui/react/toolbar';
 import type { DropTargetRecord } from '@base-ui/react/types';
 import { useDragDropManager } from '@base-ui/react/use-drag-drop-manager';
 import { useDragMonitor } from '@base-ui/react/use-drag-monitor';
@@ -217,6 +218,7 @@ interface BookmarkBarContextValue {
   dropIntent: DropIntent | null;
   openMenuIds: Set<string>;
   closeMenusWithoutAnimation: boolean;
+  isDragging: boolean;
   getMoveValidity: (sourceId: string, parentId: ParentId, index: number) => MoveValidity;
   moveNode: (sourceId: string, parentId: ParentId, index: number) => void;
   setMenuOpen: (id: string, open: boolean) => void;
@@ -508,9 +510,10 @@ function DraggableEntry({
   siblingCount: number;
   surfaceId: string;
   layout: EntryLayout;
-  entryType: 'menu-page' | 'menu-folder' | 'toolbar-page' | 'toolbar-folder';
+  entryType: 'menu-page' | 'menu-folder' | 'menubar-page' | 'menubar-folder';
 }) {
-  const { clipboard, dropIntent, registerEntry, resolveFocusTarget } = useBookmarkBarContext();
+  const { clipboard, dropIntent, isDragging, registerEntry, resolveFocusTarget } =
+    useBookmarkBarContext();
 
   const indicatorBefore =
     dropIntent?.type === 'slot' &&
@@ -588,10 +591,10 @@ function DraggableEntry({
   if (entryType === 'menu-folder') {
     return <Menu.SubmenuTrigger nativeButton render={draggable} />;
   }
-  if (entryType === 'toolbar-folder') {
-    return <Toolbar.Button render={<Menu.Trigger render={draggable} />} />;
+  if (entryType === 'menubar-folder') {
+    return <Menu.Trigger openOnHover={isDragging ? false : undefined} render={draggable} />;
   }
-  return <Toolbar.Button render={draggable} />;
+  return <CompositeItem tag="button" render={draggable} props={[{ role: 'menuitem' }]} />;
 }
 
 function MenuPopup({ folderId }: { folderId: string }) {
@@ -697,7 +700,7 @@ function MenuEntry({
   );
 }
 
-function ToolbarEntry({
+function MenubarEntry({
   node,
   index,
   siblingCount,
@@ -718,13 +721,13 @@ function ToolbarEntry({
         siblingCount={siblingCount}
         surfaceId="bar"
         layout="horizontal"
-        entryType="toolbar-page"
+        entryType="menubar-page"
       />
     );
   }
 
   return (
-    <Menu.Root modal={false} open={openMenuIds.has(node.id)} onOpenChange={handleOpenChange}>
+    <Menu.Root open={openMenuIds.has(node.id)} onOpenChange={handleOpenChange}>
       <DraggableEntry
         node={node}
         parentId={ROOT_ID}
@@ -732,7 +735,7 @@ function ToolbarEntry({
         siblingCount={siblingCount}
         surfaceId="bar"
         layout="horizontal"
-        entryType="toolbar-folder"
+        entryType="menubar-folder"
       />
       <MenuPopup folderId={node.id} />
     </Menu.Root>
@@ -748,7 +751,8 @@ function MoreMenu({
   startIndex: number;
   triggerRef: React.RefObject<HTMLButtonElement | null>;
 }) {
-  const { closeMenusWithoutAnimation, openMenuIds, setMenuOpen } = useBookmarkBarContext();
+  const { closeMenusWithoutAnimation, isDragging, openMenuIds, setMenuOpen } =
+    useBookmarkBarContext();
   const handleOpenChange = useStableCallback((open: boolean) => setMenuOpen(MORE_MENU_ID, open));
   const handleDragEnter = useStableCallback(() => setMenuOpen(MORE_MENU_ID, true));
   const intent: DropIntent = {
@@ -760,7 +764,7 @@ function MoreMenu({
   const canDrop = useBookmarkCanDrop(intent);
 
   return (
-    <Menu.Root modal={false} open={openMenuIds.has(MORE_MENU_ID)} onOpenChange={handleOpenChange}>
+    <Menu.Root open={openMenuIds.has(MORE_MENU_ID)} onOpenChange={handleOpenChange}>
       <DropTarget.Root<AcceptedBookmarkDragData, DropIntent>
         label="Place before hidden bookmarks"
         accept={acceptedBookmarkKinds}
@@ -770,11 +774,11 @@ function MoreMenu({
         trackDragOver={false}
         onDragEnter={handleDragEnter}
         render={
-          <Toolbar.Button
+          <Menu.Trigger
             ref={triggerRef}
             className={styles.moreButton}
             aria-label={`More bookmarks, ${items.length} hidden`}
-            render={<Menu.Trigger />}
+            openOnHover={isDragging ? false : undefined}
           />
         }
       >
@@ -1951,6 +1955,7 @@ function BookmarkBar() {
       dropIntent,
       openMenuIds,
       closeMenusWithoutAnimation,
+      isDragging: activeDragId !== null,
       getMoveValidity: getValidity,
       moveNode: handleMoveNode,
       setMenuOpen,
@@ -1972,6 +1977,7 @@ function BookmarkBar() {
       dropIntent,
       openMenuIds,
       closeMenusWithoutAnimation,
+      activeDragId,
       getValidity,
       handleMoveNode,
       setMenuOpen,
@@ -2038,14 +2044,15 @@ function BookmarkBar() {
                   {activeTab?.url ?? 'No page open'}
                 </span>
               </div>
-              <Toolbar.Root
+              <Menubar
                 ref={barRef}
+                modal={false}
                 className={styles.bookmarkBar}
                 aria-label="Bookmarks"
                 data-bookmark-bar=""
               >
                 {visibleItems.map((item, index) => (
-                  <ToolbarEntry
+                  <MenubarEntry
                     key={item.id}
                     node={item}
                     index={index}
@@ -2062,7 +2069,7 @@ function BookmarkBar() {
                 <div ref={measureRowRef} className={styles.measureRow} aria-hidden="true">
                   <MeasureRow items={rootItems} />
                 </div>
-              </Toolbar.Root>
+              </Menubar>
               {tabs.map((tab) => (
                 <Tabs.Panel
                   key={tab.id}

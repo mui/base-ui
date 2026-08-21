@@ -42,6 +42,23 @@ describe('BookmarkBarExperiment', () => {
     return render(React.createElement(BookmarkBarExperiment));
   }
 
+  it('exposes the bookmark row as a menubar with navigable items', async () => {
+    const { user } = renderExperiment();
+    const menubar = screen.getByRole('menubar', { name: 'Bookmarks' });
+    const wikipedia = screen.getByRole('menuitem', { name: 'Wikipedia' });
+    const artificialIntelligence = screen.getByRole('menuitem', {
+      name: 'Artificial intelligence',
+    });
+
+    expect(menubar).toContainElement(wikipedia);
+    expect(menubar).toContainElement(screen.getByRole('menuitem', { name: 'Science' }));
+
+    await user.click(wikipedia);
+    await user.keyboard('{ArrowRight}');
+
+    expect(artificialIntelligence).toHaveFocus();
+  });
+
   it('associates tabs with persistent panels', async () => {
     const { user } = renderExperiment();
     const initialTab = screen.getByRole('tab', { name: 'Artificial intelligence' });
@@ -89,7 +106,7 @@ describe('BookmarkBarExperiment', () => {
     // Menu's document-level pointer tracking updates after the synthetic click's act boundary.
     ignoreActWarnings();
     const { user } = renderExperiment();
-    const scienceFolder = screen.getByRole('button', { name: 'Science' });
+    const scienceFolder = screen.getByRole('menuitem', { name: 'Science' });
 
     fireEvent.click(scienceFolder);
     const physics = await screen.findByRole('menuitem', { name: 'Physics' });
@@ -119,12 +136,12 @@ describe('BookmarkBarExperiment', () => {
       ]),
     });
     const { user } = renderExperiment();
-    const scienceFolder = screen.getByRole('button', { name: 'Science' });
+    const scienceFolder = screen.getByRole('menuitem', { name: 'Science' });
 
     await user.click(scienceFolder);
     const menu = await screen.findByRole('menu');
     const folderDropZone = scienceFolder.querySelectorAll<HTMLElement>('[data-drop-target]')[1];
-    const wikipedia = screen.getByRole('button', { name: 'Wikipedia' });
+    const wikipedia = screen.getByRole('menuitem', { name: 'Wikipedia' });
     wikipedia.getBoundingClientRect = () => new DOMRect(0, 0, 100, 30);
     folderDropZone.getBoundingClientRect = () => new DOMRect(200, 0, 100, 30);
     vi.spyOn(document, 'elementFromPoint').mockReturnValue(folderDropZone);
