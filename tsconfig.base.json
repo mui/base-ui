@@ -2,7 +2,7 @@
   "compilerOptions": {
     "module": "nodenext",
     "target": "es2022",
-    "lib": ["es2022", "dom"],
+    "lib": ["es2022", "esnext.disposable", "dom"],
     "jsx": "react-jsx",
     "forceConsistentCasingInFileNames": true,
     "strict": true,
