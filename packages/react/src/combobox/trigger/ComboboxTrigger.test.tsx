@@ -225,6 +225,74 @@ describe('<Combobox.Trigger />', () => {
     expect(onValueChange).not.toHaveBeenCalled();
   });
 
+  describe('key: Escape', () => {
+    function PopupCombobox(props: { onValueChange?: (value: any) => void }) {
+      return (
+        <Combobox.Root items={['apple', 'banana']} onValueChange={props.onValueChange}>
+          <Combobox.Trigger data-testid="trigger">
+            <Combobox.Value placeholder="Select a fruit" />
+          </Combobox.Trigger>
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.Input data-testid="input" />
+                <Combobox.List>
+                  {(item: string) => (
+                    <Combobox.Item key={item} value={item}>
+                      {item}
+                    </Combobox.Item>
+                  )}
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>
+      );
+    }
+
+    it('clears the selected value when the closed trigger is focused', async () => {
+      const onValueChange = vi.fn();
+      const { user } = await render(<PopupCombobox onValueChange={onValueChange} />);
+
+      const trigger = screen.getByTestId('trigger');
+      await user.click(trigger);
+
+      const input = await screen.findByTestId('input');
+      await waitFor(() => expect(input).toHaveFocus());
+
+      await user.keyboard('{ArrowDown}{Enter}');
+
+      await waitFor(() => expect(trigger).toHaveTextContent('apple'));
+      await waitFor(() => expect(trigger).toHaveFocus());
+
+      await user.keyboard('{Escape}');
+
+      await waitFor(() => expect(trigger).toHaveTextContent('Select a fruit'));
+      expect(onValueChange).toHaveBeenLastCalledWith(
+        null,
+        expect.objectContaining({ reason: REASONS.escapeKey }),
+      );
+    });
+
+    it('does not clear the selected value while the popup is open', async () => {
+      const { user } = await render(<PopupCombobox />);
+
+      const trigger = screen.getByTestId('trigger');
+      await user.click(trigger);
+      await user.keyboard('{ArrowDown}{Enter}');
+      await waitFor(() => expect(trigger).toHaveTextContent('apple'));
+
+      // Reopen: Escape now belongs to dismissal, not clearing.
+      await user.click(trigger);
+      await screen.findByTestId('input');
+
+      await user.keyboard('{Escape}');
+
+      await waitFor(() => expect(screen.queryByTestId('input')).toBe(null));
+      expect(trigger).toHaveTextContent('apple');
+    });
+  });
+
   describe('prop: readOnly', () => {
     it('applies the data-readonly style hook only when readOnly', async () => {
       const { setProps } = await render(
