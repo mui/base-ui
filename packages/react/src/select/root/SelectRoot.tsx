@@ -262,6 +262,8 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
         (eventDetails.reason === REASONS.focusOut || eventDetails.reason === REASONS.outsidePress)
       ) {
         setTouched(true);
+        // Unguarded on purpose: focus has already left the trigger by the time this close reason
+        // is reported, so there is no owner left to defer to.
         setFocused(false);
 
         if (validationMode === 'onBlur') {

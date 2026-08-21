@@ -1417,6 +1417,68 @@ describe('<Checkbox.Root />', () => {
       expect(button).not.toHaveAttribute('data-focused');
     });
 
+    describe('[data-focused] without a blur event', () => {
+      function Checkboxes(props: {
+        firstMounted?: boolean;
+        firstDisabled?: boolean;
+        secondMounted?: boolean;
+      }) {
+        const { firstMounted = true, firstDisabled = false, secondMounted = false } = props;
+        return (
+          <Field.Root data-testid="root">
+            {firstMounted && <Checkbox.Root data-testid="first" disabled={firstDisabled} />}
+            {secondMounted && <Checkbox.Root data-testid="second" />}
+          </Field.Root>
+        );
+      }
+
+      it('is removed when the focused checkbox becomes disabled', async () => {
+        const { setProps } = await render(<Checkboxes />);
+
+        const button = screen.getByTestId('first');
+        act(() => {
+          button.focus();
+        });
+
+        expect(screen.getByTestId('root')).toHaveAttribute('data-focused', '');
+
+        await setProps({ firstDisabled: true });
+
+        expect(screen.getByTestId('root')).not.toHaveAttribute('data-focused');
+        expect(button).not.toHaveAttribute('data-focused');
+      });
+
+      it('is removed when the focused checkbox unmounts', async () => {
+        const { setProps } = await render(<Checkboxes />);
+
+        act(() => {
+          screen.getByTestId('first').focus();
+        });
+
+        expect(screen.getByTestId('root')).toHaveAttribute('data-focused', '');
+
+        await setProps({ firstMounted: false });
+
+        expect(screen.getByTestId('root')).not.toHaveAttribute('data-focused');
+      });
+
+      it('is kept when a different checkbox in the field is disabled or unmounted', async () => {
+        const { setProps } = await render(<Checkboxes secondMounted />);
+
+        act(() => {
+          screen.getByTestId('second').focus();
+        });
+
+        await setProps({ firstDisabled: true });
+
+        expect(screen.getByTestId('root')).toHaveAttribute('data-focused', '');
+
+        await setProps({ firstMounted: false });
+
+        expect(screen.getByTestId('root')).toHaveAttribute('data-focused', '');
+      });
+    });
+
     it('[data-invalid]', async () => {
       await render(
         <Field.Root invalid>
@@ -1715,6 +1777,72 @@ describe('<Checkbox.Root />', () => {
       expect(labelB.id).not.toBe('');
       expect(labelA.id).not.toBe(labelB.id);
       expect(checkbox).toHaveAttribute('aria-labelledby', labelB.id);
+    });
+  });
+
+  // Association is re-checked whenever the control commits. Label changes that occur with no
+  // control rerender at all (e.g. next to a memoized control) are not tracked in v1.
+  describe('fallback `aria-labelledby` with an independently rendered label', () => {
+    it('tracks a label toggled in a different container than the wrapped control', async () => {
+      function WrappedTestCase() {
+        const [showLabel, setShowLabel] = React.useState(false);
+
+        return (
+          <div>
+            <div>{showLabel && <label htmlFor="checkbox-input">Label</label>}</div>
+            <div>
+              <Checkbox.Root id="checkbox-input" />
+            </div>
+            <button type="button" onClick={() => setShowLabel((prev) => !prev)}>
+              Toggle label
+            </button>
+          </div>
+        );
+      }
+
+      await render(<WrappedTestCase />);
+
+      const checkbox = screen.getByRole('checkbox');
+      expect(checkbox).not.toHaveAttribute('aria-labelledby');
+
+      fireEvent.click(screen.getByRole('button', { name: 'Toggle label' }));
+
+      await waitFor(() => {
+        expect(checkbox).toHaveAttribute('aria-labelledby', screen.getByText('Label').id);
+      });
+
+      fireEvent.click(screen.getByRole('button', { name: 'Toggle label' }));
+
+      await waitFor(() => {
+        expect(checkbox).not.toHaveAttribute('aria-labelledby');
+      });
+    });
+
+    it('tracks a label whose `htmlFor` is retargeted to the control', async () => {
+      function RetargetTestCase() {
+        const [target, setTarget] = React.useState('other-input');
+
+        return (
+          <div>
+            <label htmlFor={target}>Label</label>
+            <Checkbox.Root id="checkbox-input" />
+            <button type="button" onClick={() => setTarget('checkbox-input')}>
+              Retarget
+            </button>
+          </div>
+        );
+      }
+
+      await render(<RetargetTestCase />);
+
+      const checkbox = screen.getByRole('checkbox');
+      expect(checkbox).not.toHaveAttribute('aria-labelledby');
+
+      fireEvent.click(screen.getByRole('button', { name: 'Retarget' }));
+
+      await waitFor(() => {
+        expect(checkbox).toHaveAttribute('aria-labelledby', screen.getByText('Label').id);
+      });
     });
   });
 

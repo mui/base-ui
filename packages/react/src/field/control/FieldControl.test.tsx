@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { expect, vi } from 'vitest';
-import { createRenderer, fireEvent, screen } from '@mui/internal-test-utils';
+import { act, createRenderer, fireEvent, screen } from '@mui/internal-test-utils';
 import { Field } from '@base-ui/react/field';
 import { Form } from '@base-ui/react/form';
 import { describeConformance, isJSDOM } from '#test-utils';
@@ -239,6 +239,296 @@ describe('<Field.Control />', () => {
 
     expect(control).toHaveAttribute('aria-invalid', 'true');
     expect(screen.getByText('Required')).toBeInTheDocument();
+  });
+
+  describe('filled state ownership', () => {
+    it('publishes an empty state when a filled control is replaced by a fresh one', async () => {
+      function TestCase() {
+        const [instance, setInstance] = React.useState(0);
+
+        return (
+          <Field.Root data-testid="root">
+            <Field.Control key={instance} />
+            <button type="button" onClick={() => setInstance(1)}>
+              Replace
+            </button>
+          </Field.Root>
+        );
+      }
+
+      await render(<TestCase />);
+
+      fireEvent.change(screen.getByRole('textbox'), { target: { value: 'a' } });
+      expect(screen.getByTestId('root')).toHaveAttribute('data-filled', '');
+
+      fireEvent.click(screen.getByRole('button', { name: 'Replace' }));
+
+      expect(screen.getByRole('textbox')).toHaveValue('');
+      expect(screen.getByTestId('root')).not.toHaveAttribute('data-filled');
+    });
+
+    it('does not let a superseded control clear the active control state', async () => {
+      function TestCase() {
+        const [value, setValue] = React.useState('a');
+
+        return (
+          <Field.Root data-testid="root">
+            <Field.Control value={value} onValueChange={setValue} />
+            <Field.Control defaultValue="filled" />
+            <button type="button" onClick={() => setValue('')}>
+              Clear first
+            </button>
+          </Field.Root>
+        );
+      }
+
+      await render(<TestCase />);
+
+      expect(screen.getByTestId('root')).toHaveAttribute('data-filled', '');
+
+      fireEvent.click(screen.getByRole('button', { name: 'Clear first' }));
+
+      expect(screen.getByTestId('root')).toHaveAttribute('data-filled', '');
+    });
+
+    it('keeps the active control readable after a superseded control unmounts', async () => {
+      const validate = vi.fn<(value: unknown) => string | null>(() => null);
+
+      function TestCase() {
+        const actionsRef = React.useRef<Field.Root.Actions>(null);
+        const [oldMounted, setOldMounted] = React.useState(true);
+
+        return (
+          <div>
+            <Field.Root validate={validate} actionsRef={actionsRef}>
+              {oldMounted && <Field.Control key="old" defaultValue="old" />}
+              <Field.Control key="new" defaultValue="new" />
+            </Field.Root>
+            <button type="button" onClick={() => setOldMounted(false)}>
+              Unmount old
+            </button>
+            <button type="button" onClick={() => actionsRef.current?.validate()}>
+              Validate
+            </button>
+          </div>
+        );
+      }
+
+      await render(<TestCase />);
+
+      fireEvent.click(screen.getByRole('button', { name: 'Unmount old' }));
+      fireEvent.click(screen.getByRole('button', { name: 'Validate' }));
+
+      expect(validate).toHaveBeenCalledTimes(1);
+      expect(validate.mock.lastCall?.[0]).toBe('new');
+    });
+
+    it('lets a remaining control publish after the owning control unmounts', async () => {
+      function TestCase() {
+        const [value, setValue] = React.useState('a');
+        const [mounted, setMounted] = React.useState(true);
+
+        return (
+          <Field.Root data-testid="root">
+            <Field.Control value={value} onValueChange={setValue} />
+            {mounted && <Field.Control defaultValue="filled" />}
+            <button type="button" onClick={() => setMounted(false)}>
+              Unmount second
+            </button>
+            <button type="button" onClick={() => setValue('')}>
+              Clear first
+            </button>
+          </Field.Root>
+        );
+      }
+
+      await render(<TestCase />);
+
+      expect(screen.getByTestId('root')).toHaveAttribute('data-filled', '');
+
+      fireEvent.click(screen.getByRole('button', { name: 'Unmount second' }));
+      fireEvent.click(screen.getByRole('button', { name: 'Clear first' }));
+
+      expect(screen.getByTestId('root')).not.toHaveAttribute('data-filled');
+    });
+
+    it('releases data-filled as soon as the filled owner unmounts', async () => {
+      function App(props: { showSecond?: boolean }) {
+        const { showSecond = true } = props;
+        return (
+          <Field.Root data-testid="root">
+            <Field.Control />
+            {showSecond && <Field.Control defaultValue="filled" />}
+          </Field.Root>
+        );
+      }
+
+      const { setProps } = await render(<App />);
+
+      expect(screen.getByTestId('root')).toHaveAttribute('data-filled', '');
+
+      await setProps({ showSecond: false });
+
+      expect(screen.getByTestId('root')).not.toHaveAttribute('data-filled');
+    });
+
+    it('lets an uncontrolled survivor republish after the owner unmounts', async () => {
+      function App(props: { showSecond?: boolean }) {
+        const { showSecond = true } = props;
+        return (
+          <Field.Root data-testid="root">
+            <Field.Control defaultValue="survivor" />
+            {showSecond && <Field.Control />}
+          </Field.Root>
+        );
+      }
+
+      const { setProps } = await render(<App />);
+
+      expect(screen.getByTestId('root')).not.toHaveAttribute('data-filled');
+
+      await setProps({ showSecond: false });
+
+      expect(screen.getByTestId('root')).toHaveAttribute('data-filled', '');
+    });
+  });
+
+  describe('[data-focused]', () => {
+    function Controls(props: {
+      firstMounted?: boolean;
+      firstDisabled?: boolean;
+      secondMounted?: boolean;
+    }) {
+      const { firstMounted = true, firstDisabled = false, secondMounted = false } = props;
+      return (
+        <Field.Root data-testid="root">
+          <Field.Label data-testid="label">Name</Field.Label>
+          {firstMounted && <Field.Control data-testid="first" disabled={firstDisabled} />}
+          {secondMounted && <Field.Control data-testid="second" />}
+        </Field.Root>
+      );
+    }
+
+    it('is removed when the focused control becomes disabled', async () => {
+      const { setProps } = await render(<Controls />);
+
+      const control = screen.getByTestId('first');
+      act(() => {
+        control.focus();
+      });
+
+      expect(screen.getByTestId('root')).toHaveAttribute('data-focused', '');
+      expect(control).toHaveAttribute('data-focused', '');
+
+      await setProps({ firstDisabled: true });
+
+      expect(screen.getByTestId('root')).not.toHaveAttribute('data-focused');
+      expect(control).not.toHaveAttribute('data-focused');
+      expect(screen.getByTestId('label')).not.toHaveAttribute('data-focused');
+    });
+
+    it('is removed when the field root becomes disabled', async () => {
+      function TestCase(props: { disabled?: boolean }) {
+        const { disabled = false } = props;
+        return (
+          <Field.Root data-testid="root" disabled={disabled}>
+            <Field.Control data-testid="control" />
+          </Field.Root>
+        );
+      }
+
+      const { setProps } = await render(<TestCase />);
+
+      act(() => {
+        screen.getByTestId('control').focus();
+      });
+      expect(screen.getByTestId('root')).toHaveAttribute('data-focused', '');
+
+      await setProps({ disabled: true });
+
+      expect(screen.getByTestId('root')).not.toHaveAttribute('data-focused');
+    });
+
+    it('can be re-acquired after the control is re-enabled', async () => {
+      const { setProps } = await render(<Controls />);
+
+      const control = screen.getByTestId('first');
+      act(() => {
+        control.focus();
+      });
+      expect(screen.getByTestId('root')).toHaveAttribute('data-focused', '');
+
+      await setProps({ firstDisabled: true });
+      expect(screen.getByTestId('root')).not.toHaveAttribute('data-focused');
+
+      await setProps({ firstDisabled: false });
+      expect(screen.getByTestId('root')).not.toHaveAttribute('data-focused');
+
+      // jsdom leaves a disabled control as the active element, so blur first to make the
+      // refocus fire a real focus event.
+      act(() => {
+        control.blur();
+        control.focus();
+      });
+      expect(screen.getByTestId('root')).toHaveAttribute('data-focused', '');
+    });
+
+    it('is removed when the focused control unmounts', async () => {
+      const { setProps } = await render(<Controls />);
+
+      act(() => {
+        screen.getByTestId('first').focus();
+      });
+
+      expect(screen.getByTestId('root')).toHaveAttribute('data-focused', '');
+
+      await setProps({ firstMounted: false });
+
+      expect(screen.getByTestId('root')).not.toHaveAttribute('data-focused');
+      expect(screen.getByTestId('label')).not.toHaveAttribute('data-focused');
+    });
+
+    it('is kept when a different control in the field is disabled or unmounted', async () => {
+      const { setProps } = await render(<Controls secondMounted />);
+
+      const second = screen.getByTestId('second');
+      act(() => {
+        second.focus();
+      });
+
+      expect(screen.getByTestId('root')).toHaveAttribute('data-focused', '');
+
+      await setProps({ firstDisabled: true });
+
+      expect(screen.getByTestId('root')).toHaveAttribute('data-focused', '');
+      expect(second).toHaveAttribute('data-focused', '');
+
+      await setProps({ firstMounted: false });
+
+      expect(screen.getByTestId('root')).toHaveAttribute('data-focused', '');
+      expect(second).toHaveAttribute('data-focused', '');
+    });
+
+    // A control that blurred earlier must not release state that focus has since moved to.
+    it('does not let a blurred control release the focused state of another control', async () => {
+      const { setProps } = await render(<Controls secondMounted />);
+
+      const first = screen.getByTestId('first');
+      const second = screen.getByTestId('second');
+
+      act(() => {
+        first.focus();
+      });
+      act(() => {
+        second.focus();
+      });
+
+      expect(screen.getByTestId('root')).toHaveAttribute('data-focused', '');
+
+      await setProps({ firstMounted: false });
+
+      expect(screen.getByTestId('root')).toHaveAttribute('data-focused', '');
+    });
   });
 
   it.skipIf(isJSDOM)('should sync focused state when autoFocus is used with SSR', async () => {

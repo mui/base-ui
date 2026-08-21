@@ -51,7 +51,6 @@ export const RadioGroup = React.forwardRef(function RadioGroup<Value>(
 
   const {
     setTouched: setFieldTouched,
-    setFocused,
     validationMode,
     name: fieldName,
     disabled: fieldDisabled,
@@ -59,6 +58,7 @@ export const RadioGroup = React.forwardRef(function RadioGroup<Value>(
     validation,
     setDirty,
     setFilled,
+    setFocused,
     validityData,
   } = useFieldRootContext();
   const { labelId } = useLabelableContext();

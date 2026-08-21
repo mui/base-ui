@@ -6,6 +6,7 @@ import { ownerDocument } from '@base-ui/utils/owner';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { type FieldRootState } from '../root/FieldRoot';
 import { useFieldRootContext } from '../../internals/field-root-context/FieldRootContext';
+import { useSetFieldFocused } from '../../internals/field-root-context/useSetFieldFocused';
 import { useRegisterFieldControl } from '../../internals/field-register-control/useRegisterFieldControl';
 import { useFormContext } from '../../internals/form-context/FormContext';
 import { useLabelableContext } from '../../internals/labelable-provider/LabelableContext';
@@ -54,7 +55,6 @@ export const FieldControl = React.forwardRef(function FieldControl(
     setTouched,
     setDirty,
     validityData,
-    setFocused,
     setFilled,
     validationMode,
     validation,
@@ -63,6 +63,8 @@ export const FieldControl = React.forwardRef(function FieldControl(
 
   const disabled = fieldDisabled || disabledProp;
   const name = fieldName ?? nameProp;
+
+  const setFocused = useSetFieldFocused(disabled);
 
   const state: FieldControlState = {
     ...fieldState,
@@ -73,6 +75,7 @@ export const FieldControl = React.forwardRef(function FieldControl(
 
   const id = useLabelableId({ id: idProp });
 
+  const inputRef = React.useRef<HTMLInputElement>(null);
   const [valueUnwrapped] = useControlled({
     controlled: valueProp,
     default: defaultValue,
@@ -85,22 +88,25 @@ export const FieldControl = React.forwardRef(function FieldControl(
   // The DOM value is always a string, so dirty comparisons must serialize the controlled value.
   const serializedValue = value == null ? undefined : String(value);
 
-  const getValueFromInput = useStableCallback(() => validation.inputRef.current?.value);
-
-  useRegisterFieldControl(
-    validation.inputRef,
-    id,
-    serializedValue,
-    getValueFromInput,
-    !disabled,
-    nameProp,
-  );
-
+  // `filled` belongs to the last control to attach; a null ref means the owner unmounted.
   useIsoLayoutEffect(() => {
-    if (validation.inputRef.current?.value) {
-      setFilled(true);
+    if (validation.inputRef.current !== null && validation.inputRef.current !== inputRef.current) {
+      return;
     }
-  }, [validation.inputRef, setFilled]);
+
+    validation.inputRef.current = inputRef.current;
+    setFilled(
+      serializedValue !== undefined ? serializedValue !== '' : Boolean(inputRef.current?.value),
+    );
+    // No dependency array: a sibling unmounting releases the shared ref without changing anything
+    // this control renders, and the survivor has to reclaim it on the render that follows.
+  });
+
+  // Read this control's own element, not the mutable shared ref, so the active registration
+  // stays readable regardless of which control last touched the shared ref.
+  const getValueFromInput = useStableCallback(() => inputRef.current?.value);
+
+  useRegisterFieldControl(inputRef, id, serializedValue, getValueFromInput, !disabled, nameProp);
 
   useValueChanged(serializedValue, () => {
     if (serializedValue === undefined) {
@@ -113,8 +119,6 @@ export const FieldControl = React.forwardRef(function FieldControl(
 
     validation.change(serializedValue);
   });
-
-  const inputRef = React.useRef<HTMLElement>(null);
 
   useIsoLayoutEffect(() => {
     if (autoFocus && inputRef.current === activeElement(ownerDocument(inputRef.current))) {
