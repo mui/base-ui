@@ -178,6 +178,15 @@ export interface FloatingFocusManagerProps {
     | ((openType: InteractionType) => boolean | HTMLElement | null | void)
     | undefined;
   /**
+   * Called with the element that received initial focus, right after it was focused.
+   *
+   * Runs in the same animation frame as the focus itself, once the floating element has been
+   * positioned, so imperative follow-ups such as selecting an input's text don't cause the page
+   * to scroll. Not called when `initialFocus` is `false` or when focus was already inside the
+   * floating element.
+   */
+  onInitiallyFocused?: ((element: HTMLElement | SVGElement) => void) | undefined;
+  /**
    * Determines the element to focus when the floating element is closed.
    *
    * - `false`: Do not move focus.
@@ -254,6 +263,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
     children,
     disabled = false,
     initialFocus = true,
+    onInitiallyFocused: onInitiallyFocusedProp,
     returnFocus = true,
     restoreFocus = false,
     modal = true,
@@ -283,6 +293,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
   const isUntrappedTypeableCombobox = isTypeableCombobox(domReference) && ignoreInitialFocus;
 
   const initialFocusRef = useValueAsRef(initialFocus);
+  const onInitiallyFocused = useStableCallback(onInitiallyFocusedProp);
   const returnFocusRef = useValueAsRef(returnFocus);
   const openInteractionTypeRef = useValueAsRef(openInteractionType);
   const openRef = useValueAsRef(open);
@@ -714,6 +725,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
       // enqueueFocus returns a rAF-cancel function; we intentionally don't cancel this focus.
       void enqueueFocus(elToFocus, {
         preventScroll: elToFocus === floatingFocusElement,
+        onFocused: onInitiallyFocused,
         shouldFocus() {
           // This focus is queued on the next animation frame. If the floating element has closed
           // before it runs — e.g. tabbing out of a kept-mounted popup — don't pull focus back
@@ -741,6 +753,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
     floatingFocusElement,
     getTabbableContent,
     initialFocusRef,
+    onInitiallyFocused,
     openInteractionTypeRef,
     openRef,
   ]);

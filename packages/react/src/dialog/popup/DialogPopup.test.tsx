@@ -57,6 +57,85 @@ describe('<Dialog.Popup />', () => {
     });
   });
 
+  describe('prop: onInitiallyFocused', () => {
+    it('is called with the element that received initial focus', async () => {
+      const onInitiallyFocused = vi.fn();
+
+      const { user } = await render(
+        <Dialog.Root modal={false}>
+          <Dialog.Trigger>Open</Dialog.Trigger>
+          <Dialog.Portal>
+            <Dialog.Popup onInitiallyFocused={onInitiallyFocused}>
+              <input data-testid="dialog-input" defaultValue="Hello World" />
+              <button>Close</button>
+            </Dialog.Popup>
+          </Dialog.Portal>
+        </Dialog.Root>,
+      );
+
+      await user.click(screen.getByText('Open'));
+
+      await waitFor(() => {
+        expect(onInitiallyFocused).toHaveBeenCalledTimes(1);
+      });
+      expect(onInitiallyFocused).toHaveBeenCalledWith(screen.getByTestId('dialog-input'));
+    });
+
+    it('lets the handler select the input contents', async () => {
+      const { user } = await render(
+        <Dialog.Root modal={false}>
+          <Dialog.Trigger>Open</Dialog.Trigger>
+          <Dialog.Portal>
+            <Dialog.Popup
+              onInitiallyFocused={(element) => {
+                if (element.tagName === 'INPUT') {
+                  (element as HTMLInputElement).select();
+                }
+              }}
+            >
+              <input data-testid="dialog-input" defaultValue="Hello World" />
+              <button>Close</button>
+            </Dialog.Popup>
+          </Dialog.Portal>
+        </Dialog.Root>,
+      );
+
+      await user.click(screen.getByText('Open'));
+
+      const input = screen.getByTestId('dialog-input') as HTMLInputElement;
+
+      await waitFor(() => {
+        expect(input).toHaveFocus();
+      });
+      await waitFor(() => {
+        expect(input.selectionStart).toBe(0);
+      });
+      expect(input.selectionEnd).toBe(input.value.length);
+    });
+
+    it('is not called when `initialFocus` is `false`', async () => {
+      const onInitiallyFocused = vi.fn();
+
+      const { user } = await render(
+        <Dialog.Root modal={false}>
+          <Dialog.Trigger>Open</Dialog.Trigger>
+          <Dialog.Portal>
+            <Dialog.Popup initialFocus={false} onInitiallyFocused={onInitiallyFocused}>
+              <input data-testid="dialog-input" defaultValue="Hello World" />
+            </Dialog.Popup>
+          </Dialog.Portal>
+        </Dialog.Root>,
+      );
+
+      await user.click(screen.getByText('Open'));
+
+      await waitFor(() => {
+        expect(screen.getByTestId('dialog-input')).not.toHaveFocus();
+      });
+      expect(onInitiallyFocused).not.toHaveBeenCalled();
+    });
+  });
+
   describe('prop: initialFocus', () => {
     it('should focus the first focusable element within the popup', async () => {
       await render(
