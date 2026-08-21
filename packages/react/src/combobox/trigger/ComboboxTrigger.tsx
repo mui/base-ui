@@ -243,6 +243,28 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
             return;
           }
 
+          // While the popup is closed, Escape clears the value. `ComboboxInput` owns this for
+          // the layouts where it is the focused control, but with the input inside the popup
+          // the input is unmounted precisely when this branch applies, leaving the trigger as
+          // the only element that can handle it.
+          if (!store.state.mounted && event.key === 'Escape') {
+            const isClear =
+              selectionMode === 'multiple' && Array.isArray(selectedValue)
+                ? selectedValue.length === 0
+                : selectedValue === null;
+
+            const details = createChangeEventDetails(REASONS.escapeKey, event.nativeEvent);
+            const value = selectionMode === 'multiple' ? [] : null;
+            store.state.setInputValue('', details);
+            store.state.setSelectedValue(value, details);
+
+            if (!isClear && !store.state.inline && !details.isPropagationAllowed) {
+              event.stopPropagation();
+            }
+
+            return;
+          }
+
           if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
             stopEvent(event);
             store.state.setOpen(
