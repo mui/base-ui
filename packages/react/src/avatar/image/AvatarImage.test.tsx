@@ -222,8 +222,16 @@ describe('<Avatar.Image />', () => {
       globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
 
       let transitionFinished = false;
+      const getAnimations = vi.fn((): Animation[] => []);
+
       function notifyTransitionFinished() {
         transitionFinished = true;
+      }
+
+      function handleImageRef(element: HTMLImageElement | null) {
+        if (element) {
+          element.getAnimations = getAnimations;
+        }
       }
 
       const style = `
@@ -254,6 +262,7 @@ describe('<Avatar.Image />', () => {
                 className="animation-test-image"
                 data-testid="image"
                 onTransitionEnd={notifyTransitionFinished}
+                ref={handleImageRef}
                 src={showImage ? 'avatar.png' : undefined}
               />
             </Avatar.Root>
@@ -271,6 +280,7 @@ describe('<Avatar.Image />', () => {
       });
 
       expect(screen.getByTestId('image')).not.toBe(null);
+      expect(getAnimations).not.toHaveBeenCalled();
     });
 
     it('applies data-ending-style before unmount', async () => {
