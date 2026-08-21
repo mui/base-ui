@@ -900,6 +900,18 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
         }
 
         setOpen(false, eventDetails);
+
+        const closeWasPrevented =
+          eventDetails.isCanceled || (openProp === true && props.onOpenChange === undefined);
+        const inputInsideDialog = store.state.inputElement?.closest('[role="dialog"]') != null;
+
+        if (inline && (!single || !inputInsideDialog || closeWasPrevented)) {
+          // Fill the Autocomplete value, or the Combobox input unless its dialog closes.
+          setInputValue(
+            stringifyAsLabel(itemValue, itemToStringLabel),
+            createChangeEventDetails(eventDetails.reason, eventDetails.event),
+          );
+        }
       }
     },
   );
