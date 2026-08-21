@@ -37,7 +37,7 @@ const LONG_LIST = [
   { href: '/react/components/popover', label: 'Popover' },
   { href: '/react/components/preview-card', label: 'Preview Card' },
   { href: '/react/components/progress', label: 'Progress' },
-  { href: '/react/components/radio', label: 'Radio' },
+  { href: '/react/components/radio', label: 'Radio Group' },
   { href: '/react/components/scroll-area', label: 'Scroll Area' },
   { href: '/react/components/select', label: 'Select' },
   { href: '/react/components/separator', label: 'Separator' },
