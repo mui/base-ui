@@ -49,7 +49,7 @@ importers:
         version: 7.58.12(@types/node@22.20.1)
       '@mui/internal-code-infra':
         specifier: 0.0.4-canary.101
-        version: 0.0.4-canary.101(4c6243aed1f3c8d993ccce0bc6817d78)
+        version: 0.0.4-canary.101(4dd64b75bdb2e090bf30a93c72a30a32)
       '@mui/internal-netlify-cache':
         specifier: 0.0.3-canary.5
         version: 0.0.3-canary.5
@@ -11410,7 +11410,7 @@ snapshots:
       - tsx
       - yaml
 
-  '@mui/internal-code-infra@0.0.4-canary.101(4c6243aed1f3c8d993ccce0bc6817d78)':
+  '@mui/internal-code-infra@0.0.4-canary.101(4dd64b75bdb2e090bf30a93c72a30a32)':
     dependencies:
       '@argos-ci/core': 6.5.0(@types/node@22.20.1)(supports-color@7.2.0)
       '@babel/cli': 7.29.7(@babel/core@7.29.7(supports-color@7.2.0))
