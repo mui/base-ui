@@ -10,7 +10,7 @@ export enum MenuArrowDataAttributes {
    */
   closed = CommonPopupDataAttributes.closed,
   /**
-   * Indicates which side the popup is positioned relative to the trigger.
+   * Indicates which side the popup is positioned relative to the anchor.
    * @type {'top' | 'bottom' | 'left' | 'right' | 'inline-end' | 'inline-start'}
    */
   side = CommonPopupDataAttributes.side,

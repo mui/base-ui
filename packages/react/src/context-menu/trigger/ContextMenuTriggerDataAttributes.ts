@@ -6,7 +6,7 @@ export enum ContextMenuTriggerDataAttributes {
    */
   popupOpen = CommonTriggerDataAttributes.popupOpen,
   /**
-   * Present when the trigger is pressed.
+   * Present when the corresponding context menu is open.
    */
   pressed = CommonTriggerDataAttributes.pressed,
 }

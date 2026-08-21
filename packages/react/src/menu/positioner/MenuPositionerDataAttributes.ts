@@ -14,12 +14,12 @@ export enum MenuPositionerDataAttributes {
    */
   anchorHidden = CommonPopupDataAttributes.anchorHidden,
   /**
-   * Indicates which side the popup is positioned relative to the trigger.
+   * Indicates which side the popup is positioned relative to the anchor.
    * @type {'top' | 'bottom' | 'left' | 'right' | 'inline-end' | 'inline-start'}
    */
   side = CommonPopupDataAttributes.side,
   /**
-   * Indicates how the popup is aligned relative to specified side.
+   * Indicates how the popup is aligned relative to the specified side.
    * @type {'start' | 'center' | 'end'}
    */
   align = CommonPopupDataAttributes.align,

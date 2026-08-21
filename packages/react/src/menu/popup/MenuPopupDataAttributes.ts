@@ -18,7 +18,7 @@ export enum MenuPopupDataAttributes {
    */
   endingStyle = CommonPopupDataAttributes.endingStyle,
   /**
-   * Indicates which side the popup is positioned relative to the trigger.
+   * Indicates which side the popup is positioned relative to the anchor.
    * @type {'top' | 'bottom' | 'left' | 'right' | 'inline-end' | 'inline-start'}
    */
   side = CommonPopupDataAttributes.side,
