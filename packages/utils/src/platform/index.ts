@@ -22,6 +22,7 @@
  *   - `engine.*` for rendering-engine bugs (CSS, layout, focus).
  *   - `screenReader.*` for AT-specific accessibility workarounds.
  *   - `env.*` for test-environment gating.
+ *   - `mediaQuery.*` for CSS-side platform detection (`@supports`/`@media` query strings).
  */
 
 export * as platform from './parts';
