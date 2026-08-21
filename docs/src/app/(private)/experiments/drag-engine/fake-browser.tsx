@@ -1320,7 +1320,7 @@ function BookmarkDialog({
   );
 }
 
-export default function BookmarkBarExperiment() {
+export default function FakeBrowserExperiment() {
   return (
     <Draggable.PreviewProvider>
       <BookmarkBar />
@@ -2011,7 +2011,7 @@ function BookmarkBar() {
           <ContextMenu.Trigger className={styles.triggerSurface} render={<div />}>
             <header className={styles.header}>
               <p className={styles.eyebrow}>Drag engine experiment</p>
-              <h1 className={styles.title}>Bookmark bar</h1>
+              <h1 className={styles.title}>Fake browser</h1>
               <p className={styles.subtitle}>
                 Open bookmarks in embedded browser tabs. Drag bookmarks between the bar, overflow
                 menu, nested folders, and tab strip. Drag tabs to reorder them.
@@ -2022,7 +2022,7 @@ function BookmarkBar() {
               className={styles.demo}
               value={activeTabId}
               onValueChange={handleTabValueChange}
-              render={<section aria-label="Bookmark bar demo" />}
+              render={<section aria-label="Fake browser demo" />}
             >
               <div className={styles.browserChrome}>
                 <span className={styles.trafficLights} aria-hidden="true">

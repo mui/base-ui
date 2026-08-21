@@ -11,11 +11,11 @@ import {
   screen,
   waitFor,
 } from '@mui/internal-test-utils';
-import BookmarkBarExperiment, {
+import FakeBrowserExperiment, {
   resolveTabTargetIntent,
-} from '../../app/(private)/experiments/drag-engine/bookmark-bar';
+} from '../../app/(private)/experiments/drag-engine/fake-browser';
 
-describe('BookmarkBarExperiment', () => {
+describe('FakeBrowserExperiment', () => {
   const { render } = createRenderer();
 
   beforeEach(() => {
@@ -39,7 +39,7 @@ describe('BookmarkBarExperiment', () => {
   });
 
   function renderExperiment() {
-    return render(React.createElement(BookmarkBarExperiment));
+    return render(React.createElement(FakeBrowserExperiment));
   }
 
   it('exposes the bookmark row as a menubar with navigable items', async () => {
