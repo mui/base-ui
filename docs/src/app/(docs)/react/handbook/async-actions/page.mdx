@@ -1,0 +1,201 @@
+# Async Actions
+
+<Subtitle>A guide to handling async component interactions with React actions.</Subtitle>
+<Meta
+  name="description"
+  content="A guide to handling async component interactions in Base UI with React actions."
+/>
+
+Use action props when a component interaction performs async work. Regular callback props are still the right tool for synchronous updates, observation, analytics, and canceling a change. When the callback saves data, submits a mutation, or waits for server-derived state, prefer an action prop.
+
+Base UI provides action props for async interaction points:
+
+- `Button` uses `clickAction` for async clicks.
+- `Select` uses `valueChangeAction` for async value changes.
+
+The action is run in a React transition. Select also applies the next value optimistically while the action is pending, so the interface reflects the user's intent immediately.
+
+## Why use actions?
+
+Actions make async interactions part of React's update model instead of a separate side effect that each component has to coordinate manually.
+
+When you use an action with `useActionState`, React owns the pending state for the async operation:
+
+```tsx
+const [value, updateValue, isPending] = React.useActionState(async (previousValue, nextValue) => {
+  await saveValue(nextValue);
+  return nextValue;
+}, initialValue);
+```
+
+Then pass the dispatcher to the component action prop:
+
+```tsx
+<Select.Root value={value} valueChangeAction={updateValue}>
+  {/* ... */}
+</Select.Root>
+```
+
+This keeps the committed value, pending state, and optimistic UI path aligned with the same async transaction.
+
+## Why not manage the state yourself?
+
+You can build the same behavior with regular callback props, but you have to reimplement the async state machine in userland.
+
+## Examples
+
+### Select menu
+
+For example, this Select waits to update its controlled value until the request finishes:
+
+```tsx
+function handleValueChange(nextValue) {
+  saveValue(nextValue).then(() => setValue(nextValue));
+}
+
+<Select.Root value={value} onValueChange={handleValueChange}>
+  {/* ... */}
+</Select.Root>;
+```
+
+The visible selection stays on the old value while the request is pending, which makes the interaction feel frozen.
+
+To make the regular callback version feel as responsive as an action, you need to manage:
+
+- The committed value from the server.
+- A separate optimistic value for the displayed selection.
+- Pending state for the in-flight request.
+- Stale request cancellation when the user chooses another value.
+- Rollback behavior when the request fails or is canceled.
+- Server-normalized values when the response differs from the requested value.
+
+That usually turns into a custom state machine:
+
+```tsx
+const [committedValue, setCommittedValue] = React.useState(initialValue);
+const [optimisticValue, setOptimisticValue] = React.useState(initialValue);
+const [isPending, setIsPending] = React.useState(false);
+const abortRef = React.useRef<AbortController | null>(null);
+
+function handleValueChange(nextValue) {
+  abortRef.current?.abort();
+  abortRef.current = new AbortController();
+
+  setOptimisticValue(nextValue);
+  setIsPending(true);
+
+  saveValue(nextValue, {
+    signal: abortRef.current.signal,
+  })
+    .then((savedValue) => {
+      setCommittedValue(savedValue);
+      setOptimisticValue(savedValue);
+    })
+    .catch(() => setOptimisticValue(committedValue))
+    .finally(() => setIsPending(false));
+}
+```
+
+With an action, React owns the pending state and Base UI keeps the selected value optimistic while the action is pending:
+
+```tsx
+const abortRef = React.useRef<AbortController | null>(null);
+
+const [value, dispatchValueChange, isPending] = React.useActionState(
+  (previousValue, { value: nextValue, signal }) =>
+    saveValue(nextValue, { signal })
+      .then(() => nextValue)
+      .catch(() => previousValue),
+  initialValue,
+);
+
+async function saveValueAction(nextValue) {
+  abortRef.current?.abort();
+  abortRef.current = new AbortController();
+
+  await dispatchValueChange({
+    value: nextValue,
+    signal: abortRef.current.signal,
+  });
+}
+
+<Select.Root value={value} valueChangeAction={saveValueAction}>
+  {/* ... */}
+</Select.Root>;
+```
+
+Actions do not make this behavior impossible with regular callbacks. They make the responsive version the default shape instead of requiring every component consumer to write this coordination code.
+
+## When to use regular callbacks
+
+Use regular callback props when the work is synchronous:
+
+```tsx
+<Button
+  onClick={() => {
+    setOpen(true);
+  }}
+>
+  Open
+</Button>
+```
+
+Also use regular callbacks for observation and cancellation:
+
+```tsx
+<Select.Root
+  onValueChange={(nextValue, eventDetails) => {
+    if (!canChoose(nextValue)) {
+      eventDetails.cancel();
+    }
+  }}
+/>
+```
+
+Use action props when the interaction itself performs async work:
+
+```tsx
+const [message, save, isPending] = React.useActionState(
+  () => saveSettings().then(() => 'Saved'),
+  null,
+);
+
+<Button clickAction={save}>Save</Button>;
+```
+
+React owns the pending state, and Button guards against duplicate activations while the returned promise is pending.
+
+## Canceling stale work
+
+React actions are queued. If the user can make several async changes quickly, use an `AbortController` in the action payload to cancel stale requests:
+
+```tsx
+const abortRef = React.useRef<AbortController | null>(null);
+
+async function updateValue(nextValue) {
+  abortRef.current?.abort();
+  abortRef.current = new AbortController();
+
+  await dispatchValueChange({
+    value: nextValue,
+    signal: abortRef.current.signal,
+  });
+}
+```
+
+Canceling stale work keeps the latest interaction from waiting behind obsolete requests.
+
+export const metadata = {
+  keywords: [
+    'Base UI Async Actions',
+    'React Actions',
+    'useActionState',
+    'Optimistic UI',
+    'Pending State',
+    'Async Components',
+    'Async Select',
+    'Async Button',
+    'React Transitions',
+    'Headless Components Async',
+  ],
+};

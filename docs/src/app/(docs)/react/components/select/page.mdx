@@ -15,6 +15,7 @@ import { DemoSelectHero } from './demos/hero';
 - **Prefer Combobox for large lists**: Select is not filterable, aside from basic keyboard typeahead functionality to find items by focusing and highlighting them. Prefer [Combobox](/react/components/combobox) instead of Select when the number of items is sufficiently large to warrant filtering.
 - **Special positioning behavior**: The select popup by default overlaps its trigger so the selected item's text is aligned with the trigger's value text. This behavior [can be disabled or customized](/react/components/select#positioning).
 - **Form controls must have an accessible name**: Prefer `<Select.Label>`, or provide an `aria-label` on `<Select.Trigger>` when no visible label is rendered. See [Labeling a select](#labeling-a-select) and the [forms guide](/react/handbook/forms).
+- **Async work**: Use `valueChangeAction` instead of `onValueChange` for async value changes so React manages pending state and optimistic updates. See [Async](#async).
 
 ## Anatomy
 
@@ -192,6 +193,16 @@ This lets you access the full object in custom render functions, and can avoid n
 import { DemoSelectObjectValues } from './demos/object-values';
 
 <DemoSelectObjectValues />
+
+### Async
+
+Use the `valueChangeAction` prop for value changes that perform async work. Select runs the action in a React transition and updates the displayed value optimistically while the action is pending.
+
+See the [Async Actions guide](/react/handbook/async-actions) for details.
+
+import { DemoSelectAsync } from './demos/async';
+
+<DemoSelectAsync />
 
 ### Grouped
 
