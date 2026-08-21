@@ -430,20 +430,6 @@ export function removeNode(tree: BookmarkTree, id: string): BookmarkTree {
   return { nodes, children };
 }
 
-export function collectUrls(tree: BookmarkTree, id: string, result: string[]) {
-  const node = tree.nodes[id];
-  if (!node) {
-    return;
-  }
-  if (node.type === 'bookmark') {
-    result.push(node.url);
-    return;
-  }
-  for (const childId of tree.children[id] ?? []) {
-    collectUrls(tree, childId, result);
-  }
-}
-
 export function getFolderPath(tree: BookmarkTree, folderId: string): string {
   const names: string[] = [];
   for (let current = folderId; current !== ROOT_ID; ) {

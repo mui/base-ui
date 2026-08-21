@@ -1,7 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
   ROOT_ID,
-  collectUrls,
   createBookmarkTree,
   getBookmarkSeed,
   getFolderPath,
@@ -79,15 +78,6 @@ describe('bookmark bar model', () => {
     expect(tree.nodes.c).toBeUndefined();
     expect(tree.nodes.d).toBeUndefined();
     expect(tree.children.nested).toBeUndefined();
-  });
-
-  it('collects folder URLs in display order', () => {
-    const tree = createBookmarkTree(seed);
-    const urls: string[] = [];
-
-    collectUrls(tree, 'folder', urls);
-
-    expect(urls).toEqual(['https://c.example', 'https://d.example']);
   });
 
   it('inserts after a page but inside a folder', () => {

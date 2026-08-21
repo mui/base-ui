@@ -10,7 +10,11 @@ import {
   type DragStartContext,
 } from '@base-ui/react/draggable';
 import { DropTarget } from '@base-ui/react/drop-target';
-import type { DropTargetEvent } from '@base-ui/react/drop-target';
+import type {
+  DragLocationHistory,
+  DragMoveEventDetails,
+  DropTargetEvent,
+} from '@base-ui/react/drop-target';
 import { Field } from '@base-ui/react/field';
 import { Menu } from '@base-ui/react/menu';
 import { Tabs } from '@base-ui/react/tabs';
@@ -75,12 +79,14 @@ interface DropIntent {
   surfaceId: string;
 }
 
-interface TabDropTargetData {
+export interface TabDropTargetData {
   index: number;
   tabId?: string;
 }
 
 type TabDropIntent = { type: 'insert'; index: number } | { type: 'replace'; tabId: string };
+
+type HorizontalDirection = -1 | 1;
 
 type EntryLayout = 'horizontal' | 'vertical';
 
@@ -110,6 +116,14 @@ const CURRENT_PAGE = {
 };
 const INITIAL_TABS: BrowserTab[] = [{ id: 'tab-1', ...CURRENT_PAGE }];
 
+function getBrowserTabElementId(tabId: string) {
+  return `bookmark-bar-tab-${tabId}`;
+}
+
+function getBrowserTabPanelId(tabId: string) {
+  return `bookmark-bar-panel-${tabId}`;
+}
+
 function moveTabToIndex(tabs: BrowserTab[], id: string, index: number): BrowserTab[] {
   const sourceIndex = tabs.findIndex((tab) => tab.id === id);
   if (sourceIndex === -1) {
@@ -134,19 +148,57 @@ function sameIntent(a: DropIntent | null, b: DropIntent | null): boolean {
 function resolveTabDropIntent(
   dropTargets: readonly DropTargetRecord[],
   allowReplace: boolean,
+  keyboardDirection: HorizontalDirection | null = null,
+  keyboardInsert = false,
 ): TabDropIntent | null {
   const target = dropTargets.find((candidate) => tabDropKind.matches(candidate));
   if (!target || !tabDropKind.matches(target)) {
     return null;
   }
-  if (!target.payload.tabId) {
-    return { type: 'insert', index: target.payload.index };
+  return resolveTabTargetIntent(
+    target.payload,
+    target.getLocalPoint().x,
+    allowReplace,
+    keyboardDirection,
+    keyboardInsert,
+  );
+}
+
+export function resolveTabTargetIntent(
+  target: TabDropTargetData,
+  localX: number,
+  allowReplace: boolean,
+  keyboardDirection: HorizontalDirection | null = null,
+  keyboardInsert = false,
+): TabDropIntent {
+  if (!target.tabId) {
+    return { type: 'insert', index: target.index };
   }
-  const localX = target.getLocalPoint().x;
+  if (keyboardDirection !== null) {
+    if (allowReplace && !keyboardInsert) {
+      return { type: 'replace', tabId: target.tabId };
+    }
+    return {
+      type: 'insert',
+      index: target.index + (keyboardDirection > 0 ? 1 : 0),
+    };
+  }
   if (allowReplace && localX >= 0.25 && localX <= 0.75) {
-    return { type: 'replace', tabId: target.payload.tabId };
+    return { type: 'replace', tabId: target.tabId };
   }
-  return { type: 'insert', index: target.payload.index + (localX > 0.5 ? 1 : 0) };
+  return { type: 'insert', index: target.index + (localX > 0.5 ? 1 : 0) };
+}
+
+function getHorizontalDirection(location: DragLocationHistory): HorizontalDirection | null {
+  const distance = location.current.input.clientX - location.previous.input.clientX;
+  if (distance === 0) {
+    return null;
+  }
+  return distance < 0 ? -1 : 1;
+}
+
+function isStableFocusTarget(element: HTMLElement | null | undefined): element is HTMLElement {
+  return Boolean(element?.isConnected && !element.closest('[role="menu"][data-ending-style]'));
 }
 
 function sameTabDropIntent(a: TabDropIntent | null, b: TabDropIntent | null): boolean {
@@ -263,10 +315,6 @@ function useOverflowCount(
     return () => observer.disconnect();
   }, [frozen, items, measure, measureFrame, barRef, measureRowRef]);
 
-  React.useEffect(() => {
-    measure();
-  }, [frozen, items, measure]);
-
   return Math.min(visibleCount, items.length);
 }
 
@@ -298,6 +346,7 @@ function DropZone({
       kind={bookmarkDropKind}
       payload={intent}
       canDrop={canDrop}
+      trackDragOver={false}
       onDragEnter={onDragEnter}
       onDragLeave={onDragLeave}
       aria-hidden="true"
@@ -521,7 +570,7 @@ function DraggableEntry({
       title={node.type === 'bookmark' ? `${node.name}\n${node.url}` : node.name}
       keyboardActivation="manual"
       keyboardMovement={Draggable.targetsOnlyKeyboardMovement}
-      keyboardInstructions="Press Alt+Enter to start dragging. Use the arrow keys to choose a position, Enter or Space to drop, and Escape to cancel. Press Shift+F10 for move actions without dragging."
+      keyboardInstructions="Press Alt+Enter to start dragging. Use the arrow keys to choose a target. Hold Shift while moving onto a browser tab to insert beside it instead of replacing it. Press Enter or Space to drop, Escape to cancel, or Shift+F10 for actions without dragging."
       pointerActivation={{ mouse: { type: 'distance', distance: 4 } }}
       finalFocus={() => resolveFocusTarget(node.id) ?? true}
       onBeforeDragStart={handleBeforeDragStart}
@@ -608,6 +657,7 @@ function EmptyFolderTarget({ folderId, surfaceId }: { folderId: string; surfaceI
       kind={bookmarkDropKind}
       payload={intent}
       canDrop={canDrop}
+      trackDragOver={false}
     >
       Empty folder
     </DropTarget.Root>
@@ -733,6 +783,7 @@ function MoreMenu({
         kind={bookmarkDropKind}
         payload={intent}
         canDrop={canDrop}
+        trackDragOver={false}
         onDragEnter={handleDragEnter}
         render={
           <Toolbar.Button
@@ -808,7 +859,6 @@ function reorderTabs(
 
 function BrowserTabs({
   tabs,
-  activeTabId,
   dropIntent,
   onActiveTabChange,
   onTabsChange,
@@ -816,7 +866,6 @@ function BrowserTabs({
   onCreateTab,
 }: {
   tabs: BrowserTab[];
-  activeTabId: string | null;
   dropIntent: TabDropIntent | null;
   onActiveTabChange: (id: string | null) => void;
   onTabsChange: React.Dispatch<React.SetStateAction<BrowserTab[]>>;
@@ -825,21 +874,48 @@ function BrowserTabs({
 }) {
   const { startKeyboardDrag } = useBookmarkBarContext();
   const orderBeforeDragRef = React.useRef<BrowserTab[] | null>(null);
+  const keyboardDirectionRef = React.useRef<HorizontalDirection | null>(null);
+  const tabElementsRef = React.useRef(new Map<string, HTMLElement>());
+  const newTabButtonRef = React.useRef<HTMLButtonElement>(null);
+  const focusTimeout = useTimeout();
 
-  const handleValueChange = useStableCallback((value: Tabs.Tab.Value) => {
-    if (typeof value === 'string' || value === null) {
-      onActiveTabChange(value);
+  const registerTabElement = useStableCallback((id: string, element: HTMLElement | null) => {
+    if (element) {
+      tabElementsRef.current.set(id, element);
+    } else {
+      tabElementsRef.current.delete(id);
+    }
+  });
+  const closeTab = useStableCallback((id: string) => {
+    const index = tabs.findIndex((tab) => tab.id === id);
+    const tabElement = tabElementsRef.current.get(id);
+    const shouldRestoreFocus =
+      tabElement != null && activeElement(ownerDocument(tabElement)) === tabElement;
+    const nextFocusId = tabs[index + 1]?.id ?? tabs[index - 1]?.id ?? null;
+
+    onCloseTab(id);
+    if (shouldRestoreFocus) {
+      focusTimeout.start(0, () => {
+        if (nextFocusId) {
+          tabElementsRef.current.get(nextFocusId)?.focus();
+        } else {
+          newTabButtonRef.current?.focus();
+        }
+      });
     }
   });
   const handleDragStart = useStableCallback(() => {
     orderBeforeDragRef.current = tabs;
+    keyboardDirectionRef.current = null;
   });
   const handleDrop = useStableCallback(() => {
     orderBeforeDragRef.current = null;
+    keyboardDirectionRef.current = null;
   });
   const handleDragEnd = useStableCallback(() => {
     const previousOrder = orderBeforeDragRef.current;
     orderBeforeDragRef.current = null;
+    keyboardDirectionRef.current = null;
     if (previousOrder) {
       onTabsChange(previousOrder);
     }
@@ -859,7 +935,7 @@ function BrowserTabs({
   });
 
   return (
-    <Tabs.Root className={styles.browserTabs} value={activeTabId} onValueChange={handleValueChange}>
+    <div className={styles.browserTabs}>
       <Tabs.List
         className={styles.tabList}
         aria-label="Open pages"
@@ -870,6 +946,7 @@ function BrowserTabs({
             accept={acceptedTabKinds}
             kind={tabDropKind}
             payload={{ index: tabs.length }}
+            trackDragOver={false}
             render={<DragAutoScroll.Root allowedAxis="horizontal" />}
           />
         }
@@ -885,22 +962,30 @@ function BrowserTabs({
             }
             onActiveTabChange(tab.id);
           };
-          const handleDrag = (event: DropTargetEvent<'onDrag', AcceptedBookmarkDragData>) => {
+          const handleDrag = (
+            event: DropTargetEvent<'onDrag', AcceptedBookmarkDragData>,
+            eventDetails: DragMoveEventDetails,
+          ) => {
             if (event.source.payload.type === 'tab') {
+              if (eventDetails.reason === 'keyboard') {
+                const direction = getHorizontalDirection(event.location);
+                if (direction !== null) {
+                  keyboardDirectionRef.current = direction;
+                }
+              }
+              const movingRight =
+                eventDetails.reason === 'keyboard'
+                  ? keyboardDirectionRef.current === 1
+                  : event.self.getLocalPoint().x > 0.5;
               onTabsChange((current) =>
-                reorderTabs(
-                  current,
-                  event.source.payload.id,
-                  tab.id,
-                  event.self.getLocalPoint().x > 0.5,
-                ),
+                reorderTabs(current, event.source.payload.id, tab.id, movingRight),
               );
             }
           };
           const handleKeyDown = (event: React.KeyboardEvent<HTMLElement>) => {
             if (event.key === 'Delete') {
               event.preventDefault();
-              onCloseTab(tab.id);
+              closeTab(tab.id);
             } else if (event.altKey && (event.key === 'ArrowLeft' || event.key === 'ArrowRight')) {
               event.preventDefault();
               event.stopPropagation();
@@ -917,13 +1002,16 @@ function BrowserTabs({
           };
           const handleCloseClick = (event: React.MouseEvent) => {
             event.stopPropagation();
-            onCloseTab(tab.id);
+            closeTab(tab.id);
           };
           const node = { name: tab.name, type: 'bookmark' as const, url: tab.url };
 
           return (
             <Tabs.Tab
               key={tab.id}
+              id={getBrowserTabElementId(tab.id)}
+              aria-controls={getBrowserTabPanelId(tab.id)}
+              ref={(element) => registerTabElement(tab.id, element)}
               className={styles.browserTab}
               value={tab.id}
               data-tab-drop-before={
@@ -984,19 +1072,29 @@ function BrowserTabs({
           );
         })}
       </Tabs.List>
-      <button
-        type="button"
-        className={styles.newTabButton}
-        data-tab-drop-before={
-          dropIntent?.type === 'insert' && dropIntent.index === tabs.length ? '' : undefined
-        }
-        aria-label="New tab"
-        title="New tab"
-        onClick={onCreateTab}
+      <DropTarget.Root<AcceptedBookmarkDragData, TabDropTargetData>
+        className={styles.endTabDropArea}
+        label="Add at end of tab list"
+        accept={acceptedTabKinds}
+        kind={tabDropKind}
+        payload={{ index: tabs.length }}
+        trackDragOver={false}
       >
-        +
-      </button>
-    </Tabs.Root>
+        <button
+          ref={newTabButtonRef}
+          type="button"
+          className={styles.newTabButton}
+          data-tab-drop-before={
+            dropIntent?.type === 'insert' && dropIntent.index === tabs.length ? '' : undefined
+          }
+          aria-label="New tab"
+          title="New tab"
+          onClick={onCreateTab}
+        >
+          +
+        </button>
+      </DropTarget.Root>
+    </div>
   );
 }
 
@@ -1338,6 +1436,9 @@ function BookmarkBar() {
   const [clipboard, setClipboard] = React.useState<BookmarkClipboard | null>(null);
   const [tabs, setTabs] = React.useState<BrowserTab[]>(INITIAL_TABS);
   const [activeTabId, setActiveTabId] = React.useState<string | null>(INITIAL_TABS[0].id);
+  const [loadedTabIds, setLoadedTabIds] = React.useState<Set<string>>(
+    () => new Set([INITIAL_TABS[0].id]),
+  );
   const [contextLocation, setContextLocation] = React.useState<ContextLocation | null>(null);
   const [status, setStatus] = React.useState('');
   const barRef = React.useRef<HTMLDivElement>(null);
@@ -1352,6 +1453,7 @@ function BookmarkBar() {
   const focusTimeout = useTimeout();
   const tabActivationTimeout = useTimeout();
   const pendingTabActivationRef = React.useRef<string | null>(null);
+  const tabDropKeyboardDirectionRef = React.useRef<HorizontalDirection | null>(null);
 
   const createNodeId = useStableCallback((type: BookmarkNode['type']) => {
     nextNodeIdRef.current += 1;
@@ -1362,6 +1464,26 @@ function BookmarkBar() {
     nextTabIdRef.current += 1;
     return `tab-${nextTabIdRef.current}`;
   });
+
+  const handleTabValueChange = useStableCallback((value: Tabs.Tab.Value) => {
+    if (typeof value === 'string' || value === null) {
+      setActiveTabId(value);
+    }
+  });
+
+  useIsoLayoutEffect(() => {
+    if (activeTabId === null) {
+      return;
+    }
+    setLoadedTabIds((current) => {
+      if (current.has(activeTabId)) {
+        return current;
+      }
+      const next = new Set(current);
+      next.add(activeTabId);
+      return next;
+    });
+  }, [activeTabId]);
 
   const insertBrowserPages = useStableCallback(
     (pages: Array<{ name: string; url: string }>, index: number, activate = true) => {
@@ -1424,7 +1546,7 @@ function BookmarkBar() {
 
   const resolveFocusTarget = useStableCallback((id: string): HTMLElement | null => {
     const directTarget = entryElementsRef.current.get(id);
-    if (directTarget?.isConnected) {
+    if (isStableFocusTarget(directTarget)) {
       return directTarget;
     }
 
@@ -1432,7 +1554,7 @@ function BookmarkBar() {
     while (node && node.parentId !== ROOT_ID) {
       const parentNode = tree.nodes[node.parentId];
       const parentTarget = parentNode ? entryElementsRef.current.get(parentNode.id) : null;
-      if (parentTarget?.isConnected) {
+      if (isStableFocusTarget(parentTarget)) {
         return parentTarget;
       }
       node = parentNode;
@@ -1440,14 +1562,14 @@ function BookmarkBar() {
 
     if (id === ROOT_ID || node?.parentId === ROOT_ID) {
       const moreButton = moreButtonRef.current;
-      if (moreButton?.isConnected) {
+      if (isStableFocusTarget(moreButton)) {
         return moreButton;
       }
     }
 
     for (const rootId of tree.children[ROOT_ID] ?? []) {
       const rootTarget = entryElementsRef.current.get(rootId);
-      if (rootTarget?.isConnected) {
+      if (isStableFocusTarget(rootTarget)) {
         return rootTarget;
       }
     }
@@ -1463,14 +1585,24 @@ function BookmarkBar() {
   );
 
   const syncDropIntents = useStableCallback(
-    (dropTargets: readonly DropTargetRecord[], source: AcceptedBookmarkDragData) => {
+    (
+      dropTargets: readonly DropTargetRecord[],
+      source: AcceptedBookmarkDragData,
+      keyboardDirection: HorizontalDirection | null,
+      keyboardInsert: boolean,
+    ) => {
       const target = dropTargets.find((candidate) => bookmarkDropKind.matches(candidate));
       const nextIntent = target && bookmarkDropKind.matches(target) ? target.payload : null;
       setDropIntent((current) => (sameIntent(current, nextIntent) ? current : nextIntent));
       const sourceNode = source.type === 'existing' ? tree.nodes[source.id] : null;
       const nextTabDropIntent =
         source.type === 'existing'
-          ? resolveTabDropIntent(dropTargets, sourceNode?.type === 'bookmark')
+          ? resolveTabDropIntent(
+              dropTargets,
+              sourceNode?.type === 'bookmark',
+              keyboardDirection,
+              keyboardInsert,
+            )
           : null;
       setTabDropIntent((current) =>
         sameTabDropIntent(current, nextTabDropIntent) ? current : nextTabDropIntent,
@@ -1489,17 +1621,52 @@ function BookmarkBar() {
     },
   );
 
+  const getKeyboardDropDirection = useStableCallback(
+    (location: DragLocationHistory, keyboard: boolean): HorizontalDirection | null => {
+      if (!keyboard) {
+        tabDropKeyboardDirectionRef.current = null;
+        return null;
+      }
+      const direction = getHorizontalDirection(location);
+      if (direction !== null) {
+        tabDropKeyboardDirectionRef.current = direction;
+      }
+      return tabDropKeyboardDirectionRef.current;
+    },
+  );
+
   useDragMonitor({
     accept: acceptedTabKinds,
-    onDragStart(event) {
+    onDragStart(event, eventDetails) {
       setActiveDragId(event.source.payload.id);
-      syncDropIntents(event.location.current.dropTargets, event.source.payload);
+      const keyboard = eventDetails.reason === 'keyboard';
+      syncDropIntents(
+        event.location.current.dropTargets,
+        event.source.payload,
+        getKeyboardDropDirection(event.location, keyboard),
+        keyboard && event.location.current.input.shiftKey,
+      );
     },
-    onDrag(event) {
-      syncDropIntents(event.location.current.dropTargets, event.source.payload);
+    onDrag(event, eventDetails) {
+      const keyboard = eventDetails.reason === 'keyboard';
+      syncDropIntents(
+        event.location.current.dropTargets,
+        event.source.payload,
+        getKeyboardDropDirection(event.location, keyboard),
+        keyboard && event.location.current.input.shiftKey,
+      );
     },
-    onDropTargetChange(event) {
-      syncDropIntents(event.location.current.dropTargets, event.source.payload);
+    onDropTargetChange(event, eventDetails) {
+      if (eventDetails.reason !== 'pointer' && eventDetails.reason !== 'keyboard') {
+        return;
+      }
+      const keyboard = eventDetails.reason === 'keyboard';
+      syncDropIntents(
+        event.location.current.dropTargets,
+        event.source.payload,
+        getKeyboardDropDirection(event.location, keyboard),
+        keyboard && event.location.current.input.shiftKey,
+      );
     },
     onDrop(event) {
       const bookmarkTarget = event.location.current.dropTargets.find((candidate) =>
@@ -1526,6 +1693,8 @@ function BookmarkBar() {
       const tabIntent = resolveTabDropIntent(
         event.location.current.dropTargets,
         sourceNode?.type === 'bookmark',
+        event.mode === 'keyboard' ? tabDropKeyboardDirectionRef.current : null,
+        event.mode === 'keyboard' && event.location.current.input.shiftKey,
       );
       if (!tabIntent) {
         return;
@@ -1562,6 +1731,7 @@ function BookmarkBar() {
       setTabDropIntent(null);
       tabActivationTimeout.clear();
       pendingTabActivationRef.current = null;
+      tabDropKeyboardDirectionRef.current = null;
       setOpenMenuIds(new Set());
     },
   });
@@ -1763,6 +1933,7 @@ function BookmarkBar() {
     setTree(INITIAL_TREE);
     setTabs(INITIAL_TABS);
     setActiveTabId(INITIAL_TABS[0].id);
+    setLoadedTabIds(new Set([INITIAL_TABS[0].id]));
     setOpenMenuIds(new Set());
     setEditor(null);
     setClipboard(null);
@@ -1935,7 +2106,7 @@ function BookmarkBar() {
   useIsoLayoutEffect(() => {
     const bar = barRef.current;
     const id = lastFocusedEntryIdRef.current;
-    if (!bar || !id || entryElementsRef.current.get(id)?.isConnected) {
+    if (!bar || !id || isStableFocusTarget(entryElementsRef.current.get(id))) {
       return;
     }
     const doc = ownerDocument(bar);
@@ -2012,7 +2183,12 @@ function BookmarkBar() {
               </p>
             </header>
 
-            <section className={styles.demo} aria-label="Bookmark bar demo">
+            <Tabs.Root
+              className={styles.demo}
+              value={activeTabId}
+              onValueChange={handleTabValueChange}
+              render={<section aria-label="Bookmark bar demo" />}
+            >
               <div className={styles.browserChrome}>
                 <span className={styles.trafficLights} aria-hidden="true">
                   <span className={styles.trafficLight} />
@@ -2021,7 +2197,6 @@ function BookmarkBar() {
                 </span>
                 <BrowserTabs
                   tabs={tabs}
-                  activeTabId={activeTabId}
                   dropIntent={tabDropIntent}
                   onActiveTabChange={setActiveTabId}
                   onTabsChange={setTabs}
@@ -2059,26 +2234,39 @@ function BookmarkBar() {
                   <MeasureRow items={rootItems} />
                 </div>
               </Toolbar.Root>
-              {activeTab ? (
-                <iframe
-                  key={activeTab.id}
-                  className={styles.pageFrame}
-                  src={getIframeUrl(activeTab.url)}
-                  title={activeTab.name}
-                  referrerPolicy="no-referrer"
-                />
-              ) : (
+              {tabs.map((tab) => (
+                <Tabs.Panel
+                  key={tab.id}
+                  id={getBrowserTabPanelId(tab.id)}
+                  aria-labelledby={getBrowserTabElementId(tab.id)}
+                  className={styles.pagePanel}
+                  value={tab.id}
+                  keepMounted
+                >
+                  {(loadedTabIds.has(tab.id) || tab.id === activeTabId) && (
+                    <iframe
+                      className={styles.pageFrame}
+                      src={getIframeUrl(tab.url)}
+                      title={tab.name}
+                      referrerPolicy="no-referrer"
+                    />
+                  )}
+                </Tabs.Panel>
+              ))}
+              {tabs.length === 0 && (
                 <div className={styles.emptyPage}>
                   Open a bookmark or create a new tab to start browsing.
                 </div>
               )}
-            </section>
+            </Tabs.Root>
 
             <div className={styles.instructions}>
               <p>
                 Keyboard: use arrow keys to navigate. Press Alt+Enter to drag bookmarks or reorder
-                tabs, and Alt+Left/Right to reorder tabs directly. Press Shift+F10 for actions,
-                including Cut, Copy, and Paste. On touch, press and hold to open the same menu.
+                tabs. While dragging a bookmark over tabs, hold Shift to insert it beside a tab
+                instead of replacing that tab. Use Alt+Left/Right to reorder tabs directly. Press
+                Shift+F10 for actions, including Cut, Copy, and Paste. On touch, press and hold to
+                open the same menu.
               </p>
               <button
                 ref={resetButtonRef}
