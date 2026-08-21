@@ -3,9 +3,12 @@ import {
   ROOT_ID,
   collectUrls,
   createBookmarkTree,
+  getBookmarkSeed,
   getFolderPath,
+  getInsertionLocationForNode,
   getMoveValidity,
   getVisibleCount,
+  insertBookmarkSeed,
   moveNode,
   removeNode,
   type BookmarkSeed,
@@ -85,6 +88,35 @@ describe('bookmark bar model', () => {
     collectUrls(tree, 'folder', urls);
 
     expect(urls).toEqual(['https://c.example', 'https://d.example']);
+  });
+
+  it('inserts after a page but inside a folder', () => {
+    const tree = createBookmarkTree(seed);
+
+    expect(getInsertionLocationForNode(tree, 'a')).toEqual({ parentId: ROOT_ID, index: 1 });
+    expect(getInsertionLocationForNode(tree, 'folder')).toEqual({ parentId: 'folder', index: 2 });
+  });
+
+  it('copies nested folders with new IDs', () => {
+    const tree = createBookmarkTree(seed);
+    const folderSeed = getBookmarkSeed(tree, 'folder');
+    let id = 0;
+
+    expect(folderSeed).not.toBeNull();
+    const result = insertBookmarkSeed(tree, folderSeed!, ROOT_ID, 1, (type) => {
+      id += 1;
+      return `copy-${type}-${id}`;
+    });
+
+    expect(result.rootId).toBe('copy-folder-1');
+    expect(result.tree.children[ROOT_ID]).toEqual(['a', 'copy-folder-1', 'b', 'folder']);
+    expect(result.tree.children['copy-folder-1']).toEqual(['copy-bookmark-2', 'copy-folder-3']);
+    expect(result.tree.nodes['copy-bookmark-4']).toMatchObject({
+      name: 'D',
+      parentId: 'copy-folder-3',
+      type: 'bookmark',
+    });
+    expect(tree.nodes['copy-folder-1']).toBeUndefined();
   });
 });
 

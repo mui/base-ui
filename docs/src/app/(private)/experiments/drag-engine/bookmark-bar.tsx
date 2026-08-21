@@ -10,29 +10,35 @@ import {
   type DragStartContext,
 } from '@base-ui/react/draggable';
 import { DropTarget } from '@base-ui/react/drop-target';
+import type { DropTargetEvent } from '@base-ui/react/drop-target';
 import { Field } from '@base-ui/react/field';
 import { Menu } from '@base-ui/react/menu';
+import { Tabs } from '@base-ui/react/tabs';
 import { Toolbar } from '@base-ui/react/toolbar';
 import type { DropTargetRecord } from '@base-ui/react/types';
 import { useDragDropManager } from '@base-ui/react/use-drag-drop-manager';
 import { useDragMonitor } from '@base-ui/react/use-drag-monitor';
 import { ownerDocument, ownerWindow } from '@base-ui/utils/owner';
 import { activeElement, getTarget } from '@base-ui/utils/shadowDom';
+import { useAnimationFrame } from '@base-ui/utils/useAnimationFrame';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useTimeout } from '@base-ui/utils/useTimeout';
 import {
   INITIAL_TREE,
   ROOT_ID,
-  collectUrls,
+  getBookmarkSeed,
   getChildren,
   getFolderPath,
+  getInsertionLocationForNode,
   getMoveValidity,
   getVisibleCount,
+  insertBookmarkSeed,
   isSelfOrDescendant,
   moveNode,
   removeNode,
   type BookmarkNode,
+  type BookmarkSeed,
   type BookmarkTree,
   type MoveValidity,
   type ParentId,
@@ -43,7 +49,23 @@ import styles from './bookmark-bar.module.css';
 const MORE_MENU_ID = 'more';
 
 interface BookmarkDragData {
+  type: 'existing';
   id: string;
+}
+
+interface TabDragData {
+  type: 'tab';
+  id: string;
+  name: string;
+  url: string;
+}
+
+type AcceptedBookmarkDragData = BookmarkDragData | TabDragData;
+
+interface BrowserTab {
+  id: string;
+  name: string;
+  url: string;
 }
 
 interface DropIntent {
@@ -51,6 +73,10 @@ interface DropIntent {
   parentId: ParentId;
   index: number;
   surfaceId: string;
+}
+
+interface TabDropIntent {
+  index: number;
 }
 
 type EntryLayout = 'horizontal' | 'vertical';
@@ -65,8 +91,32 @@ type EditorState =
   | { type: 'edit'; id: string }
   | { type: 'create'; nodeType: BookmarkNode['type']; parentId: ParentId; index: number };
 
-const bookmarkKind = Draggable.createKind<BookmarkDragData>('bookmark-bar:item');
+type BookmarkClipboard =
+  | { type: 'copy'; name: string; seed: BookmarkSeed }
+  | { type: 'cut'; id: string; name: string };
+
+const bookmarkKind = Draggable.createKind<AcceptedBookmarkDragData>('bookmark-bar:item');
+const tabKind = Draggable.createKind<AcceptedBookmarkDragData>('bookmark-bar:tab');
+const acceptedBookmarkKinds = [bookmarkKind, tabKind] as const;
 const bookmarkDropKind = DropTarget.createKind<DropIntent>('bookmark-bar:drop-position');
+const tabDropKind = DropTarget.createKind<TabDropIntent>('bookmark-bar:tab-position');
+const CURRENT_PAGE = {
+  name: 'Drag and drop overview',
+  url: 'https://base-ui.com/react/drag-and-drop/overview',
+};
+const INITIAL_TABS: BrowserTab[] = [{ id: 'tab-1', ...CURRENT_PAGE }];
+
+function moveTabToIndex(tabs: BrowserTab[], id: string, index: number): BrowserTab[] {
+  const sourceIndex = tabs.findIndex((tab) => tab.id === id);
+  if (sourceIndex === -1) {
+    return tabs;
+  }
+  const next = [...tabs];
+  const [source] = next.splice(sourceIndex, 1);
+  const adjustedIndex = sourceIndex < index ? index - 1 : index;
+  next.splice(Math.max(0, Math.min(adjustedIndex, next.length)), 0, source);
+  return next.every((tab, tabIndex) => tab.id === tabs[tabIndex]?.id) ? tabs : next;
+}
 
 function sameIntent(a: DropIntent | null, b: DropIntent | null): boolean {
   return (
@@ -75,6 +125,24 @@ function sameIntent(a: DropIntent | null, b: DropIntent | null): boolean {
     a?.index === b?.index &&
     a?.surfaceId === b?.surfaceId
   );
+}
+
+function collectBookmarkPages(
+  tree: BookmarkTree,
+  id: string,
+  result: Array<{ name: string; url: string }>,
+) {
+  const node = tree.nodes[id];
+  if (!node) {
+    return;
+  }
+  if (node.type === 'bookmark') {
+    result.push({ name: node.name, url: node.url });
+    return;
+  }
+  for (const childId of tree.children[node.id] ?? []) {
+    collectBookmarkPages(tree, childId, result);
+  }
 }
 
 interface BookmarkBarContextValue {
@@ -88,7 +156,13 @@ interface BookmarkBarContextValue {
   resolveFocusTarget: (id: string) => HTMLElement | null;
   editNode: (id: string) => void;
   deleteNode: (id: string) => void;
-  openAll: (id: string, element: Element) => void;
+  cutNode: (id: string) => void;
+  copyNode: (id: string) => void;
+  pasteNode: (parentId: ParentId, index: number) => void;
+  canPasteNode: (parentId: ParentId, index: number) => boolean;
+  clipboard: BookmarkClipboard | null;
+  openPage: (name: string, url: string) => void;
+  openAll: (id: string) => void;
   registerEntry: (id: string, element: HTMLElement | null) => void;
 }
 
@@ -109,6 +183,7 @@ function useOverflowCount(
   frozen: boolean,
 ) {
   const [visibleCount, setVisibleCount] = React.useState(items.length);
+  const measureFrame = useAnimationFrame();
 
   const measure = useStableCallback(() => {
     const bar = barRef.current;
@@ -148,12 +223,17 @@ function useOverflowCount(
     }
 
     measure();
+    measureFrame.request(measure);
     const ResizeObserverCtor = ownerWindow(bar).ResizeObserver;
     const observer = new ResizeObserverCtor(measure);
     observer.observe(bar);
     observer.observe(measureRow);
     return () => observer.disconnect();
-  }, [frozen, items, measure, barRef]);
+  }, [frozen, items, measure, measureFrame, barRef, measureRowRef]);
+
+  React.useEffect(() => {
+    measure();
+  }, [frozen, items, measure]);
 
   return Math.min(visibleCount, items.length);
 }
@@ -173,15 +253,16 @@ function DropZone({
 }) {
   const { getMoveValidity } = useBookmarkBarContext();
 
-  const canDrop = useStableCallback(({ source }: { source: { payload: BookmarkDragData } }) =>
-    getMoveValidity(source.payload.id, intent),
+  const canDrop = useStableCallback(
+    ({ source }: { source: { payload: AcceptedBookmarkDragData } }) =>
+      source.payload.type === 'tab' || getMoveValidity(source.payload.id, intent),
   );
 
   return (
-    <DropTarget.Root<BookmarkDragData, DropIntent>
+    <DropTarget.Root<AcceptedBookmarkDragData, DropIntent>
       className={className}
       label={label}
-      accept={bookmarkKind}
+      accept={acceptedBookmarkKinds}
       kind={bookmarkDropKind}
       payload={intent}
       canDrop={canDrop}
@@ -283,8 +364,36 @@ function DropZones({
   );
 }
 
-function BookmarkIcon({ folder = false }: { folder?: boolean | undefined }) {
-  if (folder) {
+function getHostname(url: string): string {
+  try {
+    return new URL(url).hostname.replace(/^www\./, '');
+  } catch {
+    return url;
+  }
+}
+
+function getIframeUrl(url: string): string {
+  try {
+    const parsedUrl = new URL(url);
+    if (parsedUrl.hostname === 'base-ui.com' || parsedUrl.hostname === 'www.base-ui.com') {
+      return `${parsedUrl.pathname}${parsedUrl.search}${parsedUrl.hash}`;
+    }
+  } catch {
+    // Let the iframe handle relative URLs and invalid destinations.
+  }
+  return url;
+}
+
+function getHostnameHue(hostname: string): number {
+  let hash = 0;
+  for (const character of hostname) {
+    hash = (hash * 31 + character.charCodeAt(0)) % 360;
+  }
+  return hash;
+}
+
+function BookmarkIcon({ node }: { node: Pick<BookmarkNode, 'name' | 'type'> & { url?: string } }) {
+  if (node.type === 'folder') {
     return (
       <svg
         className={styles.entryIcon}
@@ -299,14 +408,13 @@ function BookmarkIcon({ folder = false }: { folder?: boolean | undefined }) {
     );
   }
 
+  const hostname = getHostname(node.url ?? '');
   return (
     <svg className={styles.entryIcon} width="16" height="16" viewBox="0 0 16 16" aria-hidden="true">
-      <circle cx="8" cy="8" r="5.75" fill="none" stroke="currentColor" />
-      <path
-        d="M2.5 8h11M8 2.25c1.5 1.6 2.25 3.52 2.25 5.75S9.5 12.15 8 13.75C6.5 12.15 5.75 10.23 5.75 8S6.5 3.85 8 2.25Z"
-        fill="none"
-        stroke="currentColor"
-      />
+      <rect width="16" height="16" rx="3.5" fill={`hsl(${getHostnameHue(hostname)} 55% 44%)`} />
+      <text x="8" y="11.2" fill="white" fontSize="9" fontWeight="700" textAnchor="middle">
+        {(hostname[0] ?? node.name[0] ?? '?').toUpperCase()}
+      </text>
     </svg>
   );
 }
@@ -326,7 +434,7 @@ function DraggableEntry({
   siblingCount,
   surfaceId,
   layout,
-  render,
+  entryType,
 }: {
   node: BookmarkNode;
   parentId: ParentId;
@@ -334,10 +442,9 @@ function DraggableEntry({
   siblingCount: number;
   surfaceId: string;
   layout: EntryLayout;
-  render: React.ReactElement;
+  entryType: 'menu-page' | 'menu-folder' | 'toolbar-page' | 'toolbar-folder';
 }) {
-  const { dropIntent, registerEntry, resolveFocusTarget, startKeyboardDrag } =
-    useBookmarkBarContext();
+  const { clipboard, dropIntent, registerEntry, resolveFocusTarget } = useBookmarkBarContext();
 
   const indicatorBefore =
     dropIntent?.type === 'slot' &&
@@ -353,20 +460,6 @@ function DraggableEntry({
   const indicatorInside =
     node.type === 'folder' && dropIntent?.type === 'inside' && dropIntent.parentId === node.id;
 
-  const handleKeyDownCapture = useStableCallback((event: React.KeyboardEvent<HTMLElement>) => {
-    if (
-      event.altKey &&
-      !event.ctrlKey &&
-      !event.metaKey &&
-      !event.shiftKey &&
-      event.key === 'Enter'
-    ) {
-      event.preventDefault();
-      event.stopPropagation();
-      startKeyboardDrag(event.currentTarget);
-    }
-  });
-
   const handleBeforeDragStart = useStableCallback(
     (context: DragStartContext, eventDetails: BeforeDragStartEventDetails) => {
       if (context.input.pointerType === 'touch') {
@@ -379,8 +472,8 @@ function DraggableEntry({
     registerEntry(node.id, element);
   });
 
-  return (
-    <Draggable.Root<BookmarkDragData>
+  const draggable = (
+    <Draggable.Root<AcceptedBookmarkDragData>
       ref={handleRef}
       className={clsx(styles.entry, layout === 'horizontal' ? styles.barItem : styles.menuItem)}
       data-bookmark-id={node.id}
@@ -388,20 +481,25 @@ function DraggableEntry({
       data-drop-before={indicatorBefore ? '' : undefined}
       data-drop-after={indicatorAfter ? '' : undefined}
       data-drop-inside={indicatorInside ? '' : undefined}
-      aria-keyshortcuts="Alt+Enter Shift+F10"
+      data-cut={clipboard?.type === 'cut' && clipboard.id === node.id ? '' : undefined}
+      aria-keyshortcuts={
+        node.type === 'folder'
+          ? 'Alt+Enter Control+Enter Meta+Enter Shift+F10'
+          : 'Alt+Enter Shift+F10'
+      }
       label={node.name}
       kind={bookmarkKind}
-      payload={{ id: node.id }}
+      payload={{ type: 'existing', id: node.id }}
+      title={node.type === 'bookmark' ? `${node.name}\n${node.url}` : node.name}
       keyboardActivation="manual"
       keyboardMovement={Draggable.targetsOnlyKeyboardMovement}
       keyboardInstructions="Press Alt+Enter to start dragging. Use the arrow keys to choose a position, Enter or Space to drop, and Escape to cancel. Press Shift+F10 for move actions without dragging."
       pointerActivation={{ mouse: { type: 'distance', distance: 4 } }}
       finalFocus={() => resolveFocusTarget(node.id) ?? true}
       onBeforeDragStart={handleBeforeDragStart}
-      onKeyDownCapture={handleKeyDownCapture}
-      render={render}
+      render={<button type="button" aria-label={node.name} />}
     >
-      <BookmarkIcon folder={node.type === 'folder'} />
+      <BookmarkIcon node={node} />
       <span className={styles.entryLabel}>{node.name}</span>
       {node.type === 'folder' && layout === 'vertical' && <ChevronIcon />}
       <DropZones
@@ -412,11 +510,22 @@ function DraggableEntry({
         layout={layout}
       />
       <Draggable.Preview className={styles.dragPreview} offset="pointer">
-        <BookmarkIcon folder={node.type === 'folder'} />
+        <BookmarkIcon node={node} />
         <span>{node.name}</span>
       </Draggable.Preview>
     </Draggable.Root>
   );
+
+  if (entryType === 'menu-page') {
+    return <Menu.Item render={draggable} />;
+  }
+  if (entryType === 'menu-folder') {
+    return <Menu.SubmenuTrigger render={draggable} />;
+  }
+  if (entryType === 'toolbar-folder') {
+    return <Toolbar.Button render={<Menu.Trigger render={draggable} />} />;
+  }
+  return <Toolbar.Button render={draggable} />;
 }
 
 function MenuPopup({ folderId }: { folderId: string }) {
@@ -431,7 +540,7 @@ function MenuPopup({ folderId }: { folderId: string }) {
           className={styles.menuPopup}
           data-bookmark-parent-id={folderId}
           data-bookmark-insertion-index={items.length}
-          render={<DragAutoScroll.Root accept={bookmarkKind} allowedAxis="vertical" />}
+          render={<DragAutoScroll.Root accept={acceptedBookmarkKinds} allowedAxis="vertical" />}
         >
           {items.length === 0 ? (
             <EmptyFolderTarget folderId={folderId} surfaceId={surfaceId} />
@@ -456,17 +565,18 @@ function MenuPopup({ folderId }: { folderId: string }) {
 function EmptyFolderTarget({ folderId, surfaceId }: { folderId: string; surfaceId: string }) {
   const { getMoveValidity, dropIntent } = useBookmarkBarContext();
   const intent: DropIntent = { type: 'inside', parentId: folderId, index: 0, surfaceId };
-  const canDrop = useStableCallback(({ source }: { source: { payload: BookmarkDragData } }) =>
-    getMoveValidity(source.payload.id, intent),
+  const canDrop = useStableCallback(
+    ({ source }: { source: { payload: AcceptedBookmarkDragData } }) =>
+      source.payload.type === 'tab' || getMoveValidity(source.payload.id, intent),
   );
   const active = dropIntent?.type === 'inside' && dropIntent.parentId === folderId;
 
   return (
-    <DropTarget.Root<BookmarkDragData, DropIntent>
+    <DropTarget.Root<AcceptedBookmarkDragData, DropIntent>
       className={styles.emptyFolder}
       data-drop-inside={active ? '' : undefined}
       label="Move into empty folder"
-      accept={bookmarkKind}
+      accept={acceptedBookmarkKinds}
       kind={bookmarkDropKind}
       payload={intent}
       canDrop={canDrop}
@@ -501,11 +611,7 @@ function MenuEntry({
         siblingCount={siblingCount}
         surfaceId={surfaceId}
         layout="vertical"
-        render={
-          <Menu.Item
-            render={<a href={node.url} target="_blank" rel="noreferrer" aria-label={node.name} />}
-          />
-        }
+        entryType="menu-page"
       />
     );
   }
@@ -519,7 +625,7 @@ function MenuEntry({
         siblingCount={siblingCount}
         surfaceId={surfaceId}
         layout="vertical"
-        render={<Menu.SubmenuTrigger />}
+        entryType="menu-folder"
       />
       <MenuPopup folderId={node.id} />
     </Menu.SubmenuRoot>
@@ -547,7 +653,7 @@ function ToolbarEntry({
         siblingCount={siblingCount}
         surfaceId="bar"
         layout="horizontal"
-        render={<Toolbar.Link href={node.url} target="_blank" rel="noreferrer" />}
+        entryType="toolbar-page"
       />
     );
   }
@@ -561,7 +667,7 @@ function ToolbarEntry({
         siblingCount={siblingCount}
         surfaceId="bar"
         layout="horizontal"
-        render={<Toolbar.Button render={<Menu.Trigger />} />}
+        entryType="toolbar-folder"
       />
       <MenuPopup folderId={node.id} />
     </Menu.Root>
@@ -586,15 +692,16 @@ function MoreMenu({
     index: startIndex,
     surfaceId: 'bar',
   };
-  const canDrop = useStableCallback(({ source }: { source: { payload: BookmarkDragData } }) =>
-    getMoveValidity(source.payload.id, intent),
+  const canDrop = useStableCallback(
+    ({ source }: { source: { payload: AcceptedBookmarkDragData } }) =>
+      source.payload.type === 'tab' || getMoveValidity(source.payload.id, intent),
   );
 
   return (
     <Menu.Root modal={false} open={openMenuIds.has(MORE_MENU_ID)} onOpenChange={handleOpenChange}>
-      <DropTarget.Root<BookmarkDragData, DropIntent>
+      <DropTarget.Root<AcceptedBookmarkDragData, DropIntent>
         label="Place before hidden bookmarks"
-        accept={bookmarkKind}
+        accept={acceptedBookmarkKinds}
         kind={bookmarkDropKind}
         payload={intent}
         canDrop={canDrop}
@@ -616,7 +723,7 @@ function MoreMenu({
             className={styles.menuPopup}
             data-bookmark-parent-id={ROOT_ID}
             data-bookmark-insertion-index={startIndex + items.length}
-            render={<DragAutoScroll.Root accept={bookmarkKind} allowedAxis="vertical" />}
+            render={<DragAutoScroll.Root accept={acceptedBookmarkKinds} allowedAxis="vertical" />}
           >
             {items.map((item, localIndex) => (
               <MenuEntry
@@ -640,7 +747,7 @@ function MeasureRow({ items }: { items: BookmarkNode[] }) {
     <React.Fragment>
       {items.map((item) => (
         <span key={item.id} className={styles.measureItem} data-measure-bookmark="">
-          <BookmarkIcon folder={item.type === 'folder'} />
+          <BookmarkIcon node={item} />
           <span>{item.name}</span>
         </span>
       ))}
@@ -648,6 +755,198 @@ function MeasureRow({ items }: { items: BookmarkNode[] }) {
         »
       </span>
     </React.Fragment>
+  );
+}
+
+function reorderTabs(
+  tabs: BrowserTab[],
+  sourceId: string,
+  targetId: string,
+  movingRight: boolean,
+): BrowserTab[] {
+  if (sourceId === targetId) {
+    return tabs;
+  }
+  const source = tabs.find((tab) => tab.id === sourceId);
+  const remaining = tabs.filter((tab) => tab.id !== sourceId);
+  const targetIndex = remaining.findIndex((tab) => tab.id === targetId);
+  if (!source || targetIndex === -1) {
+    return tabs;
+  }
+  const next = [...remaining];
+  next.splice(targetIndex + (movingRight ? 1 : 0), 0, source);
+  return next.every((tab, index) => tab.id === tabs[index]?.id) ? tabs : next;
+}
+
+function BrowserTabs({
+  tabs,
+  activeTabId,
+  onActiveTabChange,
+  onTabsChange,
+  onCloseTab,
+}: {
+  tabs: BrowserTab[];
+  activeTabId: string | null;
+  onActiveTabChange: (id: string | null) => void;
+  onTabsChange: React.Dispatch<React.SetStateAction<BrowserTab[]>>;
+  onCloseTab: (id: string) => void;
+}) {
+  const { startKeyboardDrag } = useBookmarkBarContext();
+  const orderBeforeDragRef = React.useRef<BrowserTab[] | null>(null);
+
+  const handleValueChange = useStableCallback((value: Tabs.Tab.Value) => {
+    if (typeof value === 'string' || value === null) {
+      onActiveTabChange(value);
+    }
+  });
+  const handleDragStart = useStableCallback(() => {
+    orderBeforeDragRef.current = tabs;
+  });
+  const handleDrop = useStableCallback(() => {
+    orderBeforeDragRef.current = null;
+  });
+  const handleDragEnd = useStableCallback(() => {
+    const previousOrder = orderBeforeDragRef.current;
+    orderBeforeDragRef.current = null;
+    if (previousOrder) {
+      onTabsChange(previousOrder);
+    }
+  });
+  const handleKeyboardMove = useStableCallback((id: string, offset: -1 | 1) => {
+    onTabsChange((current) => {
+      const index = current.findIndex((tab) => tab.id === id);
+      const nextIndex = index + offset;
+      if (index === -1 || nextIndex < 0 || nextIndex >= current.length) {
+        return current;
+      }
+      const next = [...current];
+      const [moved] = next.splice(index, 1);
+      next.splice(nextIndex, 0, moved);
+      return next;
+    });
+  });
+
+  return (
+    <Tabs.Root className={styles.browserTabs} value={activeTabId} onValueChange={handleValueChange}>
+      <Tabs.List
+        className={styles.tabList}
+        aria-label="Open pages"
+        activateOnFocus
+        render={
+          <DropTarget.Root<AcceptedBookmarkDragData, TabDropIntent>
+            label="Add at end of tab list"
+            accept={acceptedBookmarkKinds}
+            kind={tabDropKind}
+            payload={{ index: tabs.length }}
+            render={<DragAutoScroll.Root allowedAxis="horizontal" />}
+          />
+        }
+      >
+        {tabs.map((tab, index) => {
+          const handleBeforeDragStart = (
+            _context: DragStartContext,
+            eventDetails: BeforeDragStartEventDetails,
+          ) => {
+            if (eventDetails.trigger?.closest('[data-close-tab]')) {
+              eventDetails.cancel();
+              return;
+            }
+            onActiveTabChange(tab.id);
+          };
+          const handleDrag = (event: DropTargetEvent<'onDrag', AcceptedBookmarkDragData>) => {
+            if (event.source.payload.type === 'tab') {
+              onTabsChange((current) =>
+                reorderTabs(
+                  current,
+                  event.source.payload.id,
+                  tab.id,
+                  event.self.getLocalPoint().x > 0.5,
+                ),
+              );
+            }
+          };
+          const handleKeyDown = (event: React.KeyboardEvent<HTMLElement>) => {
+            if (event.key === 'Delete') {
+              event.preventDefault();
+              onCloseTab(tab.id);
+            } else if (event.altKey && (event.key === 'ArrowLeft' || event.key === 'ArrowRight')) {
+              event.preventDefault();
+              event.stopPropagation();
+              handleKeyboardMove(tab.id, event.key === 'ArrowLeft' ? -1 : 1);
+            } else if (event.altKey && event.key === 'Enter') {
+              event.preventDefault();
+              event.stopPropagation();
+              startKeyboardDrag(event.currentTarget);
+            }
+          };
+          const handleClosePointerDown = (event: React.PointerEvent) => {
+            event.preventDefault();
+            event.stopPropagation();
+          };
+          const handleCloseClick = (event: React.MouseEvent) => {
+            event.stopPropagation();
+            onCloseTab(tab.id);
+          };
+          const node = { name: tab.name, type: 'bookmark' as const, url: tab.url };
+
+          return (
+            <Tabs.Tab
+              key={tab.id}
+              className={styles.browserTab}
+              value={tab.id}
+              title={`${tab.name}\n${tab.url}`}
+              render={
+                <Draggable.Root<AcceptedBookmarkDragData>
+                  label={`${tab.name} tab`}
+                  kind={tabKind}
+                  payload={{ type: 'tab', ...tab }}
+                  keyboardActivation="manual"
+                  keyboardMovement={Draggable.targetsOnlyKeyboardMovement}
+                  keyboardInstructions="Press Alt+Enter to drag this tab to the bookmarks bar. Use Alt+Left or Alt+Right to reorder tabs without dragging."
+                  pointerActivation={{ mouse: { type: 'distance', distance: 5 } }}
+                  onBeforeDragStart={handleBeforeDragStart}
+                  onDragStart={handleDragStart}
+                  onDrop={handleDrop}
+                  onDragEnd={handleDragEnd}
+                  render={
+                    <DropTarget.Root<AcceptedBookmarkDragData, TabDropIntent>
+                      label={`Add before ${tab.name}`}
+                      accept={acceptedBookmarkKinds}
+                      kind={tabDropKind}
+                      payload={{ index }}
+                      trackDragOver={false}
+                      onDrag={handleDrag}
+                      render={
+                        <button
+                          type="button"
+                          aria-label={tab.name}
+                          aria-keyshortcuts="Alt+Enter Alt+ArrowLeft Alt+ArrowRight Delete"
+                          onKeyDown={handleKeyDown}
+                        />
+                      }
+                    />
+                  }
+                />
+              }
+            >
+              <BookmarkIcon node={node} />
+              <span className={styles.tabLabel}>{tab.name}</span>
+              <span
+                className={styles.closeTab}
+                data-close-tab=""
+                title={`Close ${tab.name}`}
+                onPointerDown={handleClosePointerDown}
+                onClick={handleCloseClick}
+                aria-hidden="true"
+              >
+                ×
+              </span>
+              <Draggable.ClonedPreview />
+            </Tabs.Tab>
+          );
+        })}
+      </Tabs.List>
+    </Tabs.Root>
   );
 }
 
@@ -686,7 +985,13 @@ function ContextActions({
     deleteNode,
     getMoveValidity: getValidity,
     moveNode: moveBookmark,
+    canPasteNode,
+    clipboard,
+    copyNode,
+    cutNode,
+    pasteNode,
     openAll,
+    openPage,
   } = useBookmarkBarContext();
   const node = location?.nodeId ? tree.nodes[location.nodeId] : undefined;
   const siblings = node ? (tree.children[node.parentId] ?? []) : [];
@@ -732,9 +1037,29 @@ function ContextActions({
       moveBookmark(node.id, moveLaterIntent.parentId, moveLaterIntent.index);
     }
   });
-  const handleOpenAll = useStableCallback((event: React.MouseEvent<HTMLElement>) => {
+  const handleOpenAll = useStableCallback(() => {
     if (node) {
-      openAll(node.id, event.currentTarget);
+      openAll(node.id);
+    }
+  });
+  const handleOpenPage = useStableCallback(() => {
+    if (node?.type === 'bookmark') {
+      openPage(node.name, node.url);
+    }
+  });
+  const handleCut = useStableCallback(() => {
+    if (node) {
+      cutNode(node.id);
+    }
+  });
+  const handleCopy = useStableCallback(() => {
+    if (node) {
+      copyNode(node.id);
+    }
+  });
+  const handlePaste = useStableCallback(() => {
+    if (location) {
+      pasteNode(location.parentId, location.index);
     }
   });
   const handleCreateBookmark = useStableCallback(() => {
@@ -755,17 +1080,7 @@ function ContextActions({
           {node && (
             <React.Fragment>
               {node.type === 'bookmark' ? (
-                <ContextMenu.Item
-                  className={styles.contextItem}
-                  render={
-                    <a
-                      href={node.url}
-                      target="_blank"
-                      rel="noreferrer"
-                      aria-label={`Open ${node.name} in a new tab`}
-                    />
-                  }
-                >
+                <ContextMenu.Item className={styles.contextItem} onClick={handleOpenPage}>
                   Open in new tab
                 </ContextMenu.Item>
               ) : (
@@ -773,6 +1088,27 @@ function ContextActions({
                   Open all in new tabs
                 </ContextMenu.Item>
               )}
+              <ContextMenu.Separator className={styles.menuSeparator} />
+              <ContextMenu.Item className={styles.contextItem} onClick={handleCut}>
+                Cut
+                <span className={styles.shortcut}>Ctrl/Cmd+X</span>
+              </ContextMenu.Item>
+              <ContextMenu.Item className={styles.contextItem} onClick={handleCopy}>
+                Copy
+                <span className={styles.shortcut}>Ctrl/Cmd+C</span>
+              </ContextMenu.Item>
+            </React.Fragment>
+          )}
+          <ContextMenu.Item
+            className={styles.contextItem}
+            disabled={!location || !canPasteNode(location.parentId, location.index)}
+            onClick={handlePaste}
+          >
+            Paste{clipboard ? ` “${clipboard.name}”` : ''}
+            <span className={styles.shortcut}>Ctrl/Cmd+V</span>
+          </ContextMenu.Item>
+          {node && (
+            <React.Fragment>
               <ContextMenu.Separator className={styles.menuSeparator} />
               <ContextMenu.Item className={styles.contextItem} onClick={handleEdit}>
                 Edit
@@ -948,6 +1284,9 @@ function BookmarkBar() {
   const [dropIntent, setDropIntent] = React.useState<DropIntent | null>(null);
   const [openMenuIds, setOpenMenuIds] = React.useState<Set<string>>(() => new Set());
   const [editor, setEditor] = React.useState<EditorState | null>(null);
+  const [clipboard, setClipboard] = React.useState<BookmarkClipboard | null>(null);
+  const [tabs, setTabs] = React.useState<BrowserTab[]>(INITIAL_TABS);
+  const [activeTabId, setActiveTabId] = React.useState<string | null>(INITIAL_TABS[0].id);
   const [contextLocation, setContextLocation] = React.useState<ContextLocation | null>(null);
   const [status, setStatus] = React.useState('');
   const barRef = React.useRef<HTMLDivElement>(null);
@@ -958,12 +1297,56 @@ function BookmarkBar() {
   const lastFocusedEntryIdRef = React.useRef<string | null>(null);
   const editorFocusIdRef = React.useRef<string>(ROOT_ID);
   const nextNodeIdRef = React.useRef(0);
+  const nextTabIdRef = React.useRef(1);
   const focusTimeout = useTimeout();
+
+  const createNodeId = useStableCallback((type: BookmarkNode['type']) => {
+    nextNodeIdRef.current += 1;
+    return `new-${type}-${nextNodeIdRef.current}`;
+  });
+
+  const createTabId = useStableCallback(() => {
+    nextTabIdRef.current += 1;
+    return `tab-${nextTabIdRef.current}`;
+  });
+
+  const insertBrowserPages = useStableCallback(
+    (pages: Array<{ name: string; url: string }>, index: number) => {
+      if (pages.length === 0) {
+        return;
+      }
+      const newTabs = pages.map((page) => ({ id: createTabId(), ...page }));
+      setTabs((current) => {
+        const next = [...current];
+        next.splice(Math.max(0, Math.min(index, next.length)), 0, ...newTabs);
+        return next;
+      });
+      setActiveTabId(newTabs[0].id);
+    },
+  );
+
+  const handleOpenPage = useStableCallback((name: string, url: string) => {
+    insertBrowserPages([{ name, url }], tabs.length);
+    setStatus(`${name} opened in a new browser tab.`);
+  });
+
+  const handleCloseTab = useStableCallback((id: string) => {
+    const index = tabs.findIndex((tab) => tab.id === id);
+    if (index === -1) {
+      return;
+    }
+    const next = tabs.filter((tab) => tab.id !== id);
+    setTabs(next);
+    if (activeTabId === id) {
+      setActiveTabId(next[index]?.id ?? next[index - 1]?.id ?? null);
+    }
+  });
 
   const rootItems = React.useMemo(() => getChildren(tree, ROOT_ID), [tree]);
   const visibleCount = useOverflowCount(rootItems, barRef, measureRowRef, activeDragId !== null);
   const visibleItems = rootItems.slice(0, visibleCount);
   const overflowItems = rootItems.slice(visibleCount);
+  const activeTab = tabs.find((tab) => tab.id === activeTabId) ?? null;
 
   const resolveFocusTarget = useStableCallback((id: string): HTMLElement | null => {
     const directTarget = entryElementsRef.current.get(id);
@@ -1012,7 +1395,7 @@ function BookmarkBar() {
   });
 
   useDragMonitor({
-    accept: bookmarkKind,
+    accept: acceptedBookmarkKinds,
     onDragStart(event) {
       setActiveDragId(event.source.payload.id);
       syncDropIntent(event.location.current.dropTargets);
@@ -1024,21 +1407,58 @@ function BookmarkBar() {
       syncDropIntent(event.location.current.dropTargets);
     },
     onDrop(event) {
-      const target = event.location.current.dropTargets.find((candidate) =>
+      const bookmarkTarget = event.location.current.dropTargets.find((candidate) =>
         bookmarkDropKind.matches(candidate),
       );
-      if (!target || !bookmarkDropKind.matches(target)) {
+      if (bookmarkTarget && bookmarkDropKind.matches(bookmarkTarget)) {
+        const intent = bookmarkTarget.payload;
+        const parentName =
+          intent.parentId === ROOT_ID ? 'the bookmarks bar' : tree.nodes[intent.parentId]?.name;
+        if (event.source.payload.type === 'existing') {
+          const sourceId = event.source.payload.id;
+          const sourceName = tree.nodes[sourceId]?.name;
+          setTree(moveNode(tree, sourceId, intent.parentId, intent.index));
+          if (sourceName && parentName) {
+            setStatus(`${sourceName} moved to ${parentName}.`);
+          }
+        } else {
+          const result = insertBookmarkSeed(
+            tree,
+            {
+              id: event.source.payload.id,
+              name: event.source.payload.name,
+              url: event.source.payload.url,
+            },
+            intent.parentId,
+            intent.index,
+            createNodeId,
+          );
+          setTree(result.tree);
+          setStatus(`${event.source.payload.name} added to ${parentName}.`);
+        }
         return;
       }
 
-      const sourceId = event.source.payload.id;
-      const intent = target.payload;
-      const sourceName = tree.nodes[sourceId]?.name;
-      const parentName =
-        intent.parentId === ROOT_ID ? 'the bookmarks bar' : tree.nodes[intent.parentId]?.name;
-      setTree((current) => moveNode(current, sourceId, intent.parentId, intent.index));
-      if (sourceName && parentName) {
-        setStatus(`${sourceName} moved to ${parentName}.`);
+      const tabTarget = event.location.current.dropTargets.find((candidate) =>
+        tabDropKind.matches(candidate),
+      );
+      if (!tabTarget || !tabDropKind.matches(tabTarget)) {
+        return;
+      }
+      if (event.source.payload.type === 'tab') {
+        setTabs((current) =>
+          moveTabToIndex(current, event.source.payload.id, tabTarget.payload.index),
+        );
+      } else {
+        const pages: Array<{ name: string; url: string }> = [];
+        collectBookmarkPages(tree, event.source.payload.id, pages);
+        insertBrowserPages(pages, tabTarget.payload.index);
+        const sourceName = tree.nodes[event.source.payload.id]?.name;
+        if (sourceName) {
+          setStatus(
+            `${sourceName} opened in ${pages.length} browser tab${pages.length === 1 ? '' : 's'}.`,
+          );
+        }
       }
     },
     onDragEnd() {
@@ -1123,16 +1543,70 @@ function BookmarkBar() {
     const index = siblings.indexOf(id);
     const focusId = siblings[index + 1] ?? siblings[index - 1] ?? node.parentId;
     setTree((current) => removeNode(current, id));
+    if (clipboard?.type === 'cut' && isSelfOrDescendant(tree, id, clipboard.id)) {
+      setClipboard(null);
+    }
     setStatus(`${node.name} deleted.`);
     focusTimeout.start(0, () => resolveFocusTarget(focusId)?.focus());
   });
 
-  const handleOpenAll = useStableCallback((id: string, element: Element) => {
-    const urls: string[] = [];
-    collectUrls(tree, id, urls);
-    const win = ownerWindow(element);
-    for (const url of urls) {
-      win.open(url, '_blank', 'noopener,noreferrer');
+  const handleCutNode = useStableCallback((id: string) => {
+    const node = tree.nodes[id];
+    if (!node) {
+      return;
+    }
+    setClipboard({ type: 'cut', id, name: node.name });
+    setStatus(`${node.name} cut. Choose where to paste it.`);
+  });
+
+  const handleCopyNode = useStableCallback((id: string) => {
+    const node = tree.nodes[id];
+    const seed = getBookmarkSeed(tree, id);
+    if (!node || !seed) {
+      return;
+    }
+    setClipboard({ type: 'copy', name: node.name, seed });
+    setStatus(`${node.name} copied.`);
+  });
+
+  const canPasteNode = useStableCallback((parentId: ParentId, index: number) => {
+    if (!clipboard) {
+      return false;
+    }
+    return (
+      clipboard.type === 'copy' || getMoveValidity(tree, clipboard.id, parentId, index) === true
+    );
+  });
+
+  const handlePasteNode = useStableCallback((parentId: ParentId, index: number) => {
+    if (!clipboard || !canPasteNode(parentId, index)) {
+      return;
+    }
+    const parentName = parentId === ROOT_ID ? 'the bookmarks bar' : tree.nodes[parentId]?.name;
+    if (clipboard.type === 'cut') {
+      const pastedId = clipboard.id;
+      setTree(moveNode(tree, pastedId, parentId, index));
+      setClipboard(null);
+      setOpenMenuIds(new Set());
+      setStatus(`${clipboard.name} moved to ${parentName}.`);
+      focusTimeout.start(0, () => resolveFocusTarget(pastedId)?.focus());
+      return;
+    }
+
+    const result = insertBookmarkSeed(tree, clipboard.seed, parentId, index, createNodeId);
+    setTree(result.tree);
+    setOpenMenuIds(new Set());
+    setStatus(`${clipboard.name} pasted in ${parentName}.`);
+    focusTimeout.start(0, () => resolveFocusTarget(result.rootId)?.focus());
+  });
+
+  const handleOpenAll = useStableCallback((id: string) => {
+    const pages: Array<{ name: string; url: string }> = [];
+    collectBookmarkPages(tree, id, pages);
+    insertBrowserPages(pages, tabs.length);
+    const folderName = tree.nodes[id]?.name;
+    if (folderName) {
+      setStatus(`${pages.length} pages from ${folderName} opened in browser tabs.`);
     }
   });
 
@@ -1165,8 +1639,7 @@ function BookmarkBar() {
       return;
     }
 
-    nextNodeIdRef.current += 1;
-    const id = `new-${editor.nodeType}-${nextNodeIdRef.current}`;
+    const id = createNodeId(editor.nodeType);
     editorFocusIdRef.current = id;
     const node: BookmarkNode =
       editor.nodeType === 'bookmark'
@@ -1190,8 +1663,11 @@ function BookmarkBar() {
 
   const handleReset = useStableCallback(() => {
     setTree(INITIAL_TREE);
+    setTabs(INITIAL_TABS);
+    setActiveTabId(INITIAL_TABS[0].id);
     setOpenMenuIds(new Set());
     setEditor(null);
+    setClipboard(null);
     setStatus('Bookmarks reset.');
   });
 
@@ -1200,11 +1676,13 @@ function BookmarkBar() {
       const id = element?.closest<HTMLElement>('[data-bookmark-id]')?.dataset.bookmarkId;
       const node = id ? tree.nodes[id] : undefined;
       if (node) {
-        const siblings = tree.children[node.parentId] ?? [];
+        const insertionLocation = getInsertionLocationForNode(tree, node.id);
+        if (!insertionLocation) {
+          return null;
+        }
         return {
           nodeId: node.id,
-          parentId: node.parentId,
-          index: siblings.indexOf(node.id) + 1,
+          ...insertionLocation,
         };
       }
       const container = element?.closest<HTMLElement>('[data-bookmark-parent-id]');
@@ -1257,6 +1735,101 @@ function BookmarkBar() {
       element?.closest<HTMLElement>('[data-bookmark-id]')?.dataset.bookmarkId ?? null;
   });
 
+  const handleBookmarkClickCapture = useStableCallback((event: React.MouseEvent<HTMLElement>) => {
+    const target = getTarget(event.nativeEvent);
+    const win = ownerWindow(event.currentTarget);
+    const element = target instanceof win.Element ? target : null;
+    const id = element?.closest<HTMLElement>('[data-bookmark-id]')?.dataset.bookmarkId;
+    const node = id ? tree.nodes[id] : undefined;
+    if (node?.type === 'bookmark') {
+      event.preventDefault();
+      handleOpenPage(node.name, node.url);
+    } else if (node?.type === 'folder' && (event.ctrlKey || event.metaKey)) {
+      event.preventDefault();
+      event.stopPropagation();
+      handleOpenAll(node.id);
+    }
+  });
+
+  const handleBookmarkAuxClickCapture = useStableCallback(
+    (event: React.MouseEvent<HTMLElement>) => {
+      if (event.button !== 1) {
+        return;
+      }
+      const target = getTarget(event.nativeEvent);
+      const win = ownerWindow(event.currentTarget);
+      const element = target instanceof win.Element ? target : null;
+      const id = element?.closest<HTMLElement>('[data-bookmark-id]')?.dataset.bookmarkId;
+      const node = id ? tree.nodes[id] : undefined;
+      if (!node) {
+        return;
+      }
+      event.preventDefault();
+      event.stopPropagation();
+      if (node.type === 'bookmark') {
+        handleOpenPage(node.name, node.url);
+      } else {
+        handleOpenAll(node.id);
+      }
+    },
+  );
+
+  const handleKeyDownCapture = useStableCallback((event: React.KeyboardEvent<HTMLElement>) => {
+    const target = getTarget(event.nativeEvent);
+    const win = ownerWindow(event.currentTarget);
+    const element = target instanceof win.Element ? target : null;
+    if (
+      !element ||
+      element instanceof win.HTMLInputElement ||
+      element instanceof win.HTMLTextAreaElement ||
+      (element instanceof win.HTMLElement && element.isContentEditable)
+    ) {
+      return;
+    }
+    const bookmarkElement = element.closest<HTMLElement>('[data-bookmark-id]');
+    const id = bookmarkElement?.dataset.bookmarkId;
+    const node = id ? tree.nodes[id] : undefined;
+    if (
+      bookmarkElement &&
+      event.altKey &&
+      !event.ctrlKey &&
+      !event.metaKey &&
+      !event.shiftKey &&
+      event.key === 'Enter'
+    ) {
+      event.preventDefault();
+      event.stopPropagation();
+      startKeyboardDrag(bookmarkElement);
+      return;
+    }
+    if (
+      node?.type === 'folder' &&
+      (event.ctrlKey || event.metaKey) &&
+      !event.altKey &&
+      !event.shiftKey &&
+      event.key === 'Enter'
+    ) {
+      event.preventDefault();
+      event.stopPropagation();
+      handleOpenAll(node.id);
+      return;
+    }
+    if (!(event.ctrlKey || event.metaKey) || event.altKey || event.shiftKey) {
+      return;
+    }
+    const location = getContextLocation(element);
+    if (event.key.toLowerCase() === 'c' && id) {
+      event.preventDefault();
+      handleCopyNode(id);
+    } else if (event.key.toLowerCase() === 'x' && id) {
+      event.preventDefault();
+      handleCutNode(id);
+    } else if (event.key.toLowerCase() === 'v' && location) {
+      event.preventDefault();
+      handlePasteNode(location.parentId, location.index);
+    }
+  });
+
   useIsoLayoutEffect(() => {
     const bar = barRef.current;
     const id = lastFocusedEntryIdRef.current;
@@ -1283,6 +1856,12 @@ function BookmarkBar() {
       resolveFocusTarget,
       editNode: handleEditNode,
       deleteNode: handleDeleteNode,
+      cutNode: handleCutNode,
+      copyNode: handleCopyNode,
+      pasteNode: handlePasteNode,
+      canPasteNode,
+      clipboard,
+      openPage: handleOpenPage,
       openAll: handleOpenAll,
       registerEntry,
     }),
@@ -1297,6 +1876,12 @@ function BookmarkBar() {
       resolveFocusTarget,
       handleEditNode,
       handleDeleteNode,
+      handleCutNode,
+      handleCopyNode,
+      handlePasteNode,
+      canPasteNode,
+      clipboard,
+      handleOpenPage,
       handleOpenAll,
       registerEntry,
     ],
@@ -1305,81 +1890,106 @@ function BookmarkBar() {
   return (
     <BookmarkBarContext.Provider value={contextValue}>
       <ContextMenu.Root>
-        <ContextMenu.Trigger
+        <div
           className={clsx(theme.tokens, styles.root)}
           data-drag-active={activeDragId ? '' : undefined}
           onPointerDownCapture={handlePointerDownCapture}
+          onClickCapture={handleBookmarkClickCapture}
+          onAuxClickCapture={handleBookmarkAuxClickCapture}
           onContextMenuCapture={handleContextMenuCapture}
           onFocusCapture={handleFocusCapture}
-          render={<div />}
+          onKeyDownCapture={handleKeyDownCapture}
         >
-          <header className={styles.header}>
-            <p className={styles.eyebrow}>Drag engine experiment</p>
-            <h1 className={styles.title}>Bookmark bar</h1>
-            <p className={styles.subtitle}>
-              Resize the page to move bookmarks into the overflow menu. Drag items between the bar,
-              overflow menu, and nested folders. Right-click the bar or a bookmark for more actions.
-            </p>
-          </header>
+          <ContextMenu.Trigger className={styles.triggerSurface} render={<div />}>
+            <header className={styles.header}>
+              <p className={styles.eyebrow}>Drag engine experiment</p>
+              <h1 className={styles.title}>Bookmark bar</h1>
+              <p className={styles.subtitle}>
+                Open bookmarks in embedded browser tabs. Drag bookmarks between the bar, overflow
+                menu, nested folders, and tab strip; drag a tab back to the bar to save it.
+              </p>
+            </header>
 
-          <section className={styles.demo} aria-label="Bookmark bar demo">
-            <div className={styles.browserChrome} aria-hidden="true">
-              <span className={styles.trafficLight} />
-              <span className={styles.trafficLight} />
-              <span className={styles.trafficLight} />
-              <span className={styles.addressBar}>base-ui.com</span>
-            </div>
-            <Toolbar.Root
-              ref={barRef}
-              className={styles.bookmarkBar}
-              aria-label="Bookmarks"
-              data-bookmark-bar=""
-            >
-              {visibleItems.map((item, index) => (
-                <ToolbarEntry
-                  key={item.id}
-                  node={item}
-                  index={index}
-                  siblingCount={visibleItems.length}
+            <section className={styles.demo} aria-label="Bookmark bar demo">
+              <div className={styles.browserChrome}>
+                <span className={styles.trafficLights} aria-hidden="true">
+                  <span className={styles.trafficLight} />
+                  <span className={styles.trafficLight} />
+                  <span className={styles.trafficLight} />
+                </span>
+                <BrowserTabs
+                  tabs={tabs}
+                  activeTabId={activeTabId}
+                  onActiveTabChange={setActiveTabId}
+                  onTabsChange={setTabs}
+                  onCloseTab={handleCloseTab}
                 />
-              ))}
-              {overflowItems.length > 0 && (
-                <MoreMenu
-                  items={overflowItems}
-                  startIndex={visibleCount}
-                  triggerRef={moreButtonRef}
-                />
-              )}
-              <div ref={measureRowRef} className={styles.measureRow} aria-hidden="true">
-                <MeasureRow items={rootItems} />
               </div>
-            </Toolbar.Root>
-            <div className={styles.pagePreview} aria-hidden="true">
-              <span />
-              <span />
-              <span />
-            </div>
-          </section>
+              <div className={styles.addressRow}>
+                <span className={styles.addressBar} title={activeTab?.url}>
+                  {activeTab?.url ?? 'No page open'}
+                </span>
+              </div>
+              <Toolbar.Root
+                ref={barRef}
+                className={styles.bookmarkBar}
+                aria-label="Bookmarks"
+                data-bookmark-bar=""
+              >
+                {visibleItems.map((item, index) => (
+                  <ToolbarEntry
+                    key={item.id}
+                    node={item}
+                    index={index}
+                    siblingCount={visibleItems.length}
+                  />
+                ))}
+                {overflowItems.length > 0 && (
+                  <MoreMenu
+                    items={overflowItems}
+                    startIndex={visibleCount}
+                    triggerRef={moreButtonRef}
+                  />
+                )}
+                <div ref={measureRowRef} className={styles.measureRow} aria-hidden="true">
+                  <MeasureRow items={rootItems} />
+                </div>
+              </Toolbar.Root>
+              {activeTab ? (
+                <iframe
+                  key={activeTab.id}
+                  className={styles.pageFrame}
+                  src={getIframeUrl(activeTab.url)}
+                  title={activeTab.name}
+                  referrerPolicy="no-referrer"
+                />
+              ) : (
+                <div className={styles.emptyPage}>
+                  Open or drag a bookmark here to create a tab.
+                </div>
+              )}
+            </section>
 
-          <div className={styles.instructions}>
-            <p>
-              Keyboard: use arrow keys to move through the bar and menus. Press Alt+Enter on a
-              bookmark to start dragging, then use arrow keys to choose a drop position. Press
-              Shift+F10 for move and edit actions. On touch, press and hold to open those actions.
+            <div className={styles.instructions}>
+              <p>
+                Keyboard: use arrow keys to navigate. Press Alt+Enter to drag a bookmark or tab, and
+                Alt+Left/Right to reorder tabs. Press Shift+F10 for actions, including Cut, Copy,
+                and Paste. On touch, press and hold to open the same menu.
+              </p>
+              <button
+                ref={resetButtonRef}
+                type="button"
+                className={styles.resetButton}
+                onClick={handleReset}
+              >
+                Reset bookmarks
+              </button>
+            </div>
+            <p className={styles.liveRegion} aria-live="polite">
+              {status}
             </p>
-            <button
-              ref={resetButtonRef}
-              type="button"
-              className={styles.resetButton}
-              onClick={handleReset}
-            >
-              Reset bookmarks
-            </button>
-          </div>
-          <p className={styles.liveRegion} aria-live="polite">
-            {status}
-          </p>
-        </ContextMenu.Trigger>
+          </ContextMenu.Trigger>
+        </div>
         <ContextActions location={contextLocation} onCreate={handleCreateNode} />
         <BookmarkDialog
           editor={editor}

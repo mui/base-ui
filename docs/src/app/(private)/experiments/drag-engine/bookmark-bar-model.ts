@@ -30,6 +30,16 @@ export type BookmarkSeed =
 
 export type MoveValidity = boolean | 'reject';
 
+export interface InsertionLocation {
+  parentId: ParentId;
+  index: number;
+}
+
+export interface InsertBookmarkSeedResult {
+  tree: BookmarkTree;
+  rootId: string;
+}
+
 const bookmark = (id: string, name: string, url: string): BookmarkSeed => ({ id, name, url });
 const folder = (id: string, name: string, children: BookmarkSeed[]): BookmarkSeed => ({
   id,
@@ -147,6 +157,67 @@ export const INITIAL_TREE = createBookmarkTree(INITIAL_BOOKMARKS);
 
 export function getChildren(tree: BookmarkTree, parentId: ParentId): BookmarkNode[] {
   return (tree.children[parentId] ?? []).map((id) => tree.nodes[id]).filter(Boolean);
+}
+
+export function getInsertionLocationForNode(
+  tree: BookmarkTree,
+  id: string,
+): InsertionLocation | null {
+  const node = tree.nodes[id];
+  if (!node) {
+    return null;
+  }
+  if (node.type === 'folder') {
+    return { parentId: node.id, index: tree.children[node.id]?.length ?? 0 };
+  }
+
+  const siblings = tree.children[node.parentId] ?? [];
+  return { parentId: node.parentId, index: siblings.indexOf(node.id) + 1 };
+}
+
+export function getBookmarkSeed(tree: BookmarkTree, id: string): BookmarkSeed | null {
+  const node = tree.nodes[id];
+  if (!node) {
+    return null;
+  }
+  if (node.type === 'bookmark') {
+    return { id: node.id, name: node.name, url: node.url };
+  }
+  return {
+    id: node.id,
+    name: node.name,
+    children: (tree.children[node.id] ?? [])
+      .map((childId) => getBookmarkSeed(tree, childId))
+      .filter((child): child is BookmarkSeed => child !== null),
+  };
+}
+
+export function insertBookmarkSeed(
+  tree: BookmarkTree,
+  seed: BookmarkSeed,
+  parentId: ParentId,
+  index: number,
+  createId: (type: BookmarkNode['type']) => string,
+): InsertBookmarkSeedResult {
+  const nodes = { ...tree.nodes };
+  const children = { ...tree.children };
+
+  function insert(item: BookmarkSeed, nextParentId: ParentId): string {
+    const id = createId('url' in item ? 'bookmark' : 'folder');
+    if ('url' in item) {
+      nodes[id] = { id, type: 'bookmark', name: item.name, url: item.url, parentId: nextParentId };
+    } else {
+      nodes[id] = { id, type: 'folder', name: item.name, parentId: nextParentId };
+      children[id] = item.children.map((child) => insert(child, id));
+    }
+    return id;
+  }
+
+  const rootId = insert(seed, parentId);
+  const siblings = [...(children[parentId] ?? [])];
+  siblings.splice(Math.max(0, Math.min(index, siblings.length)), 0, rootId);
+  children[parentId] = siblings;
+  return { tree: { nodes, children }, rootId };
 }
 
 export function isSelfOrDescendant(
