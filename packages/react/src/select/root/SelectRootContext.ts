@@ -33,6 +33,7 @@ export interface SelectRootContext {
   }>;
   firstItemTextRef: React.RefObject<HTMLElement | null>;
   selectedItemTextRef: React.RefObject<HTMLElement | null>;
+  registeredItemValuesRef: React.RefObject<any[]>;
   validation: UseFieldValidationReturnValue;
   onOpenChangeComplete?: ((open: boolean) => void) | undefined;
   alignItemWithTriggerActiveRef: React.RefObject<boolean>;

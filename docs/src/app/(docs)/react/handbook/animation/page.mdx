@@ -166,14 +166,6 @@ function App() {
 }
 ```
 
-### Animating Select component with Motion
-
-The Select component is initially unmounted but remains mounted after interaction. To animate it with Motion, a mix of the two previous approaches is needed.
-
-import { DemoAnimatedSelectMotion } from './demos/animated-select-motion';
-
-<DemoAnimatedSelectMotion />
-
 ### Manual unmounting
 
 For full control, you can manually unmount the component when it's closed once animations have finished using an `actionsRef` passed to the `<Root>`:
