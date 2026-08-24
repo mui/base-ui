@@ -6,7 +6,7 @@ import {
 } from '../../filter-dropdown/clear/FilterDropdownClear';
 
 /**
- * A button that clears the filter query.
+ * A button that clears the filter query. Renders nothing while the query is empty.
  * Renders a `<button>` element.
  *
  * Documentation: [Base UI Filter Menu](https://base-ui.com/react/components/filter-menu)
