@@ -103,11 +103,7 @@ export default function ExampleEmojiPicker() {
                         </FilterMenu.GroupLabel>
                         <div className="px-2 pb-1 pt-0" role="presentation">
                           {chunkArray(category.emojis, COLUMNS).map((row, rowIdx) => (
-                            <FilterMenu.Row
-                              key={rowIdx}
-                              className="grid grid-cols-5"
-                              aria-label={`${category.label}, row ${rowIdx + 1}`}
-                            >
+                            <FilterMenu.Row key={rowIdx} className="grid grid-cols-5">
                               {row.map((rowItem) => (
                                 <FilterMenu.Item
                                   key={rowItem.emoji}

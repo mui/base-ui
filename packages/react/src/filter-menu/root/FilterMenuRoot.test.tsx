@@ -70,7 +70,10 @@ describe('<FilterMenu.Root />', () => {
       );
     }
 
-    function SubmenuInputOnlyMenu(props: { onRenameClick?: (() => void) | undefined }) {
+    function SubmenuInputOnlyMenu(props: {
+      onRenameClick?: (() => void) | undefined;
+      onDeleteClick?: (() => void) | undefined;
+    }) {
       return (
         <FilterMenu.Root>
           <FilterMenu.Trigger>Actions</FilterMenu.Trigger>
@@ -92,7 +95,7 @@ describe('<FilterMenu.Root />', () => {
                       </FilterMenu.Positioner>
                     </FilterMenu.Portal>
                   </FilterMenu.SubmenuRoot>
-                  <FilterMenu.Item>Delete</FilterMenu.Item>
+                  <FilterMenu.Item onClick={props.onDeleteClick}>Delete</FilterMenu.Item>
                 </FilterMenu.List>
               </FilterMenu.Popup>
             </FilterMenu.Positioner>
@@ -158,36 +161,78 @@ describe('<FilterMenu.Root />', () => {
     });
 
     it.each([
-      ['arrow navigation', '[ArrowDown]'],
-      ['typeahead', 'r'],
-    ])('moves focus into a pointer-opened inputless menu with %s', async (_description, keys) => {
-      const onRenameClick = vi.fn();
-      const { user } = await render(<SubmenuInputOnlyMenu onRenameClick={onRenameClick} />);
+      ['ArrowDown', '[ArrowDown]', 'Rename'],
+      ['ArrowUp', '[ArrowUp]', 'Delete'],
+      ['typeahead', 'r', 'Rename'],
+    ])(
+      'moves focus into a pointer-opened inputless menu with %s',
+      async (_description, keys, itemName) => {
+        const onItemClick = vi.fn();
+        const { user } = await render(
+          <SubmenuInputOnlyMenu onRenameClick={onItemClick} onDeleteClick={onItemClick} />,
+        );
 
-      const trigger = screen.getByRole('button', { name: 'Actions' });
-      await user.click(trigger);
+        const trigger = screen.getByRole('button', { name: 'Actions' });
+        await user.click(trigger);
 
-      const list = await screen.findByRole('menu');
-      // Focus moves are scheduled in a frame, so let one pass before asserting it never happens.
-      await act(async () => {
-        await waitSingleFrame();
-      });
-      expect(trigger).toHaveFocus();
-      expect(list).not.toHaveFocus();
-      expect(list).not.toHaveAttribute('aria-activedescendant');
-      expect(screen.getByRole('menuitem', { name: 'Rename' })).not.toHaveAttribute(
-        'data-highlighted',
-      );
+        const list = await screen.findByRole('menu');
+        // Focus moves are scheduled in a frame, so let one pass before asserting it never happens.
+        await act(async () => {
+          await waitSingleFrame();
+        });
+        expect(trigger).toHaveFocus();
+        expect(list).not.toHaveFocus();
+        expect(list).not.toHaveAttribute('aria-activedescendant');
+        expect(screen.getByRole('menuitem', { name: 'Rename' })).not.toHaveAttribute(
+          'data-highlighted',
+        );
 
-      await user.keyboard(keys);
+        await user.keyboard(keys);
 
-      const renameItem = screen.getByRole('menuitem', { name: 'Rename' });
+        const item = screen.getByRole('menuitem', { name: itemName });
+        expect(list).toHaveFocus();
+        expect(list).toHaveAttribute('aria-activedescendant', item.id);
+
+        await user.keyboard('[Enter]');
+
+        expect(onItemClick).toHaveBeenCalledOnce();
+      },
+    );
+
+    it.each(['ArrowLeft', 'ArrowRight'])(
+      'keeps focus on the trigger when pressing %s in a pointer-opened vertical menu',
+      async (key) => {
+        const { user } = await render(<SubmenuInputOnlyMenu />);
+
+        const trigger = screen.getByRole('button', { name: 'Actions' });
+        await user.click(trigger);
+
+        const list = await screen.findByRole('menu');
+        await act(async () => {
+          await waitSingleFrame();
+        });
+
+        await user.keyboard(`[${key}]`);
+
+        expect(trigger).toHaveFocus();
+        expect(list).not.toHaveAttribute('aria-activedescendant');
+      },
+    );
+
+    it('continues arrow navigation from the pointer-highlighted item', async () => {
+      const { user } = await render(<SubmenuInputOnlyMenu />);
+
+      await user.click(screen.getByRole('button', { name: 'Actions' }));
+      const renameItem = await screen.findByRole('menuitem', { name: 'Rename' });
+      await user.hover(renameItem);
+      expect(renameItem).toHaveAttribute('data-highlighted');
+
+      await user.keyboard('[ArrowDown]');
+
+      const list = screen.getByRole('menu');
+      const moveItem = screen.getByRole('menuitem', { name: 'Move to' });
       expect(list).toHaveFocus();
-      expect(list).toHaveAttribute('aria-activedescendant', renameItem.id);
-
-      await user.keyboard('[Enter]');
-
-      expect(onRenameClick).toHaveBeenCalledOnce();
+      expect(list).toHaveAttribute('aria-activedescendant', moveItem.id);
     });
 
     describe('prop: autoHighlight', () => {
@@ -5303,6 +5348,7 @@ describe('<FilterMenu.Root />', () => {
   describe('prop: grid', () => {
     function GridMenu(props: {
       defaultOpen?: boolean | undefined;
+      inputless?: boolean | undefined;
       onPress?: (() => void) | undefined;
     }) {
       return (
@@ -5311,7 +5357,7 @@ describe('<FilterMenu.Root />', () => {
           <FilterMenu.Portal>
             <FilterMenu.Positioner>
               <FilterMenu.Popup>
-                <FilterMenu.Input aria-label="Search emoji" />
+                {!props.inputless && <FilterMenu.Input aria-label="Search emoji" />}
                 <FilterMenu.List>
                   <FilterMenu.Row>
                     <FilterMenu.Item>One</FilterMenu.Item>
@@ -5348,6 +5394,46 @@ describe('<FilterMenu.Root />', () => {
         expect(screen.getByRole('searchbox', { name: 'Search emoji' })).toHaveFocus();
       });
     });
+
+    it.each([
+      ['ArrowDown', 'One'],
+      ['ArrowUp', 'Five'],
+    ])('enters a pointer-opened inputless grid with %s', async (key, itemName) => {
+      const { user } = await render(<GridMenu defaultOpen={false} inputless />);
+      const trigger = screen.getByRole('button', { name: 'Emoji' });
+
+      await user.click(trigger);
+      const grid = await screen.findByRole('grid');
+      await act(async () => {
+        await waitSingleFrame();
+      });
+      expect(trigger).toHaveFocus();
+
+      await user.keyboard(`[${key}]`);
+
+      const item = screen.getByRole('gridcell', { name: itemName });
+      expect(grid).toHaveFocus();
+      expect(grid).toHaveAttribute('aria-activedescendant', item.id);
+    });
+
+    it.each(['ArrowLeft', 'ArrowRight'])(
+      'keeps focus on the trigger when pressing %s in a pointer-opened inputless grid',
+      async (key) => {
+        const { user } = await render(<GridMenu defaultOpen={false} inputless />);
+        const trigger = screen.getByRole('button', { name: 'Emoji' });
+
+        await user.click(trigger);
+        const grid = await screen.findByRole('grid');
+        await act(async () => {
+          await waitSingleFrame();
+        });
+
+        await user.keyboard(`[${key}]`);
+
+        expect(trigger).toHaveFocus();
+        expect(grid).not.toHaveAttribute('aria-activedescendant');
+      },
+    );
 
     it('uses grid semantics and navigates across rows and columns', async () => {
       const { user } = await render(<GridMenu />);
