@@ -31,6 +31,10 @@ export default function ExampleEmojiPicker() {
   }
 
   function handleOpenChangeComplete(open: boolean) {
+    if (!open) {
+      setSearchValue('');
+    }
+
     const caretPosition = caretPositionRef.current;
     const input = textInputRef.current;
     if (!open && input && caretPosition !== null) {
@@ -58,7 +62,11 @@ export default function ExampleEmojiPicker() {
           filter={null}
           inputValue={searchValue}
           open={pickerOpen}
-          onInputValueChange={setSearchValue}
+          onInputValueChange={(value, details) => {
+            if (details.reason !== 'popup-close') {
+              setSearchValue(value);
+            }
+          }}
           onOpenChange={setPickerOpen}
           onOpenChangeComplete={handleOpenChangeComplete}
         >
@@ -102,7 +110,9 @@ export default function ExampleEmojiPicker() {
                                   className={styles.Item}
                                   onClick={() => handleInsertEmoji(rowItem.emoji)}
                                 >
-                                  <span className={styles.Emoji}>{rowItem.emoji}</span>
+                                  <span className={styles.Emoji} aria-hidden>
+                                    {rowItem.emoji}
+                                  </span>
                                 </FilterMenu.Item>
                               ))}
                             </FilterMenu.Row>

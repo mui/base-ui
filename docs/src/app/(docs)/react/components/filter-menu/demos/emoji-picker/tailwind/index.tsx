@@ -30,6 +30,10 @@ export default function ExampleEmojiPicker() {
   }
 
   function handleOpenChangeComplete(open: boolean) {
+    if (!open) {
+      setSearchValue('');
+    }
+
     const caretPosition = caretPositionRef.current;
     const input = textInputRef.current;
     if (!open && input && caretPosition !== null) {
@@ -57,7 +61,11 @@ export default function ExampleEmojiPicker() {
           filter={null}
           inputValue={searchValue}
           open={pickerOpen}
-          onInputValueChange={setSearchValue}
+          onInputValueChange={(value, details) => {
+            if (details.reason !== 'popup-close') {
+              setSearchValue(value);
+            }
+          }}
           onOpenChange={setPickerOpen}
           onOpenChangeComplete={handleOpenChangeComplete}
         >
@@ -108,7 +116,9 @@ export default function ExampleEmojiPicker() {
                                   className="group flex h-10 min-w-[var(--anchor-width)] cursor-default flex-col items-center justify-center bg-transparent px-0.5 py-2 text-neutral-950 outline-0 select-none data-highlighted:relative data-highlighted:z-0 data-highlighted:text-white data-highlighted:before:absolute data-highlighted:before:inset-0 data-highlighted:before:z-[-1] data-highlighted:before:bg-neutral-100 dark:text-white dark:data-highlighted:text-neutral-950 dark:data-highlighted:before:bg-neutral-800"
                                   onClick={() => handleInsertEmoji(rowItem.emoji)}
                                 >
-                                  <span className="text-2xl leading-none">{rowItem.emoji}</span>
+                                  <span className="text-2xl leading-none" aria-hidden>
+                                    {rowItem.emoji}
+                                  </span>
                                 </FilterMenu.Item>
                               ))}
                             </FilterMenu.Row>

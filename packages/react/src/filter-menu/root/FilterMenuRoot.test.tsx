@@ -1501,6 +1501,100 @@ describe('<FilterMenu.Root />', () => {
       },
     );
 
+    it.skipIf(isJSDOM)(
+      'keeps externally filtered grid cells hidden during the exit transition',
+      async ({ onTestFinished }) => {
+        globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+        onTestFinished(() => {
+          globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
+        });
+
+        let setMenuOpen = (_open: boolean) => {};
+
+        function Test() {
+          const [open, setOpen] = React.useState(true);
+          const [searchValue, setSearchValue] = React.useState('');
+          const visibleItems = ['Apple', 'Banana'].filter((item) =>
+            item.toLowerCase().includes(searchValue),
+          );
+          setMenuOpen = setOpen;
+
+          return (
+            <React.Fragment>
+              <style>{`
+                @keyframes filter-menu-close-test {
+                  to { opacity: 0; }
+                }
+                .filter-menu-close-test[data-ending-style] {
+                  animation: filter-menu-close-test 10s linear;
+                }
+              `}</style>
+              <FilterMenu.Root
+                grid
+                filter={null}
+                inputValue={searchValue}
+                open={open}
+                onInputValueChange={(value, details) => {
+                  if (details.reason !== 'popup-close') {
+                    setSearchValue(value);
+                  }
+                }}
+                onOpenChangeComplete={(nextOpen) => {
+                  if (!nextOpen) {
+                    setSearchValue('');
+                  }
+                }}
+              >
+                <FilterMenu.Trigger>Fruit</FilterMenu.Trigger>
+                <FilterMenu.Portal>
+                  <FilterMenu.Positioner>
+                    <FilterMenu.Popup data-testid="popup" className="filter-menu-close-test">
+                      <FilterMenu.Input aria-label="Filter fruit" />
+                      <FilterMenu.List>
+                        <FilterMenu.Row>
+                          {visibleItems.map((item) => (
+                            <FilterMenu.Item key={item}>{item}</FilterMenu.Item>
+                          ))}
+                        </FilterMenu.Row>
+                      </FilterMenu.List>
+                    </FilterMenu.Popup>
+                  </FilterMenu.Positioner>
+                </FilterMenu.Portal>
+              </FilterMenu.Root>
+            </React.Fragment>
+          );
+        }
+
+        const { user } = await render(<Test />);
+        const input = screen.getByRole('searchbox', { name: 'Filter fruit' });
+        await user.type(input, 'app');
+        expect(screen.getAllByRole('gridcell')).toHaveLength(1);
+
+        await act(async () => {
+          setMenuOpen(false);
+        });
+
+        const popup = screen.getByTestId('popup');
+        await waitFor(() => {
+          expect(popup).toHaveAttribute('data-ending-style');
+        });
+        expect(input).toHaveValue('app');
+        expect(screen.getAllByRole('gridcell')).toHaveLength(1);
+        expect(screen.queryByRole('gridcell', { name: 'Banana' })).toBe(null);
+
+        popup.getAnimations().forEach((animation) => animation.finish());
+        await waitFor(() => {
+          expect(screen.queryByTestId('popup')).toBe(null);
+        });
+
+        await act(async () => {
+          setMenuOpen(true);
+        });
+        expect(await screen.findByRole('searchbox', { name: 'Filter fruit' })).toHaveValue('');
+        expect(await screen.findAllByRole('gridcell')).toHaveLength(2);
+      },
+    );
+
     it('leaves the uncontrolled query and visible items unchanged when a change is canceled', async () => {
       const { user } = await render(
         <FilterMenu.Root
