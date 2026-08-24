@@ -11,7 +11,7 @@ import {
 } from '../../menu/submenu-root/MenuSubmenuRoot';
 import { MenuRootInternal, type MenuRoot } from '../../menu/root/MenuRoot';
 import { FilterDropdownRoot } from '../../filter-dropdown/root/FilterDropdownRoot';
-import type { FilterMenuFilter } from '../root/FilterMenuRoot';
+import type { FilterMenuRootFilterProps } from '../utils/FilterMenuRootFilterProps';
 import { useFilterDropdownCloseQuery } from '../../filter-dropdown/root/useFilterDropdownCloseQuery';
 import { useMenuRootContext } from '../../menu/root/MenuRootContext';
 import { FilterMenuProvider, isKeyboardOpen } from '../root/FilterMenuRoot';
@@ -105,20 +105,21 @@ export function FilterMenuSubmenuRoot(props: FilterMenuSubmenuRoot.Props): React
     }
   }
 
+  function highlightTrigger(trigger: HTMLElement) {
+    const triggerIndex = parentStore.context.itemDomElements.current.indexOf(trigger);
+    if (triggerIndex > -1) {
+      parentStore.set('activeIndex', triggerIndex);
+    }
+  }
+
   function handleSubmenuExit() {
     const parentReference = parentReferenceRef.current;
     if (!parentReference) {
       return;
     }
 
-    const triggerIndex = parentStore.context.itemDomElements.current.indexOf(
-      parentReference.trigger,
-    );
-
     parentReference.reference.focus({ preventScroll: true });
-    if (triggerIndex > -1) {
-      parentStore.set('activeIndex', triggerIndex);
-    }
+    highlightTrigger(parentReference.trigger);
   }
 
   function handleOpenChange(nextOpen: boolean, details: FilterMenuSubmenuRoot.ChangeEventDetails) {
@@ -133,10 +134,10 @@ export function FilterMenuSubmenuRoot(props: FilterMenuSubmenuRoot.Props): React
 
     if (!nextOpen) {
       if (details.reason === REASONS.escapeKey && isHTMLElement(details.trigger)) {
-        const triggerIndex = parentStore.context.itemDomElements.current.indexOf(details.trigger);
-        if (triggerIndex > -1) {
-          parentStore.set('activeIndex', triggerIndex);
-        }
+        highlightTrigger(details.trigger);
+        // `MenuPopup` returns focus through `getReturnElement`, so point it at the element that
+        // can hold real focus: the parent's input under virtual focus, not its tabbable-less
+        // trigger.
         parentReferenceRef.current = {
           reference: parent.virtualFocus
             ? (parent.virtualFocusRef?.current ?? details.trigger)
@@ -351,65 +352,41 @@ function FilterMenuSubmenuNavigation(props: FilterMenuSubmenuNavigationProps) {
 export type FilterMenuSubmenuRootProps = Omit<
   MenuSubmenuRootProps,
   'actionsRef' | 'open' | 'defaultOpen' | 'onOpenChange' | 'orientation'
-> & {
-  /**
-   * A ref to imperative actions.
-   */
-  actionsRef?: React.RefObject<FilterMenuSubmenuRootActions | null> | undefined;
-  /**
-   * Whether the submenu is currently open.
-   */
-  open?: boolean | undefined;
-  /**
-   * Whether the submenu is initially open.
-   *
-   * To render a controlled submenu, use the `open` prop instead.
-   * @default false
-   */
-  defaultOpen?: boolean | undefined;
-  /**
-   * Event handler called when the submenu is opened or closed.
-   */
-  onOpenChange?:
-    ((open: boolean, eventDetails: FilterMenuSubmenuRoot.ChangeEventDetails) => void) | undefined;
-  /**
-   * Replaces the default case-insensitive substring matching for item text.
-   * Receives an item's filter text, the trimmed query, and the item's `keywords`, which it must
-   * match itself if they should participate.
-   * Pass `null` to turn filtering off and decide which items to render yourself.
-   */
-  filter?: FilterMenuFilter | null | undefined;
-  /**
-   * Whether the first matching item is highlighted automatically.
-   * - `true`: highlight after the user types and keep the highlight while the query changes.
-   * - `'always'`: always highlight the first item.
-   * @default false
-   */
-  autoHighlight?: boolean | 'always' | undefined;
-  /**
-   * Locale used when comparing an item against the query.
-   * Defaults to the runtime's default locale.
-   */
-  locale?: Intl.LocalesArgument | undefined;
-  /**
-   * The uncontrolled filter query when the submenu is initially rendered.
-   * To render a controlled query, use the `inputValue` prop instead.
-   */
-  defaultInputValue?: string | undefined;
-  /**
-   * The filter query. Use when controlled.
-   * When the popup closes, `onInputValueChange` is called with an empty query. The controlled
-   * value changes only when the consumer updates this prop.
-   */
-  inputValue?: string | undefined;
-  /**
-   * Event handler called when the filter query changes.
-   */
-  onInputValueChange?:
-    | ((value: string, eventDetails: FilterMenuSubmenuRoot.InputValueChangeEventDetails) => void)
-    | undefined;
-  children?: React.ReactNode;
-};
+> &
+  Omit<FilterMenuRootFilterProps, 'defaultInputValue' | 'onInputValueChange'> & {
+    /**
+     * A ref to imperative actions.
+     */
+    actionsRef?: React.RefObject<FilterMenuSubmenuRootActions | null> | undefined;
+    /**
+     * Whether the submenu is currently open.
+     */
+    open?: boolean | undefined;
+    /**
+     * Whether the submenu is initially open.
+     *
+     * To render a controlled submenu, use the `open` prop instead.
+     * @default false
+     */
+    defaultOpen?: boolean | undefined;
+    /**
+     * Event handler called when the submenu is opened or closed.
+     */
+    onOpenChange?:
+      ((open: boolean, eventDetails: FilterMenuSubmenuRoot.ChangeEventDetails) => void) | undefined;
+    /**
+     * The uncontrolled filter query when the submenu is initially rendered.
+     * To render a controlled query, use the `inputValue` prop instead.
+     */
+    defaultInputValue?: string | undefined;
+    /**
+     * Event handler called when the filter query changes.
+     */
+    onInputValueChange?:
+      | ((value: string, eventDetails: FilterMenuSubmenuRoot.InputValueChangeEventDetails) => void)
+      | undefined;
+    children?: React.ReactNode;
+  };
 
 export interface FilterMenuSubmenuRootState extends MenuSubmenuRoot.State {}
 export type FilterMenuSubmenuRootActions = MenuRoot.Actions;

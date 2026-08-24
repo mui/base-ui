@@ -81,10 +81,12 @@ export function useFilterDropdownItem(
   const { registerItem, store } = owner ?? DETACHED_OWNER;
   const registerGroupItem = groupContext?.registerItem;
 
+  const keywordsKey = keywords?.join('\u0000');
+
   const itemId = useRefWithInit(() => Symbol('filter-dropdown-item')).current;
   const ref = React.useRef<HTMLElement | null>(null);
   const previousTextRef = React.useRef<string | undefined>(undefined);
-  const previousKeywordsKeyRef = React.useRef(keywords?.join('\u0000'));
+  const previousKeywordsKeyRef = React.useRef(keywordsKey);
   const matched = useStore(store, selectors.isItemVisible, itemId);
   // An initial item is visible before registration (`visibleItemIds` is null), so start
   // registered and skip the mount re-render. A late item under an active filter starts
@@ -95,7 +97,6 @@ export function useFilterDropdownItem(
   // on every render of the consumer's tree, which would otherwise re-register every item.
   const childrenRef = useValueAsRef(children);
   const keywordsRef = useValueAsRef(keywords);
-  const keywordsKey = keywords?.join('\u0000');
 
   const resolveText = React.useCallback(() => {
     if (label != null) {
@@ -105,18 +106,21 @@ export function useFilterDropdownItem(
     return ref.current?.textContent ?? childrenText(childrenRef.current);
   }, [label, childrenRef]);
 
-  const register = React.useCallback(() => {
-    const text = resolveText();
-    if (text) {
-      previousTextRef.current = text;
-    }
-    return registerItem(itemId, {
-      getText: () => previousTextRef.current,
-      get keywords() {
-        return keywordsRef.current;
-      },
-    });
-  }, [itemId, registerItem, resolveText, keywordsRef]);
+  const register = React.useCallback(
+    (resolvedText?: string) => {
+      const text = resolvedText ?? resolveText();
+      if (text) {
+        previousTextRef.current = text;
+      }
+      return registerItem(itemId, {
+        getText: () => previousTextRef.current,
+        get keywords() {
+          return keywordsRef.current;
+        },
+      });
+    },
+    [itemId, registerItem, resolveText, keywordsRef],
+  );
 
   useIsoLayoutEffect(() => {
     const unregister = register();
@@ -140,7 +144,7 @@ export function useFilterDropdownItem(
         previousTextRef.current = text;
       }
       previousKeywordsKeyRef.current = keywordsKey;
-      void register();
+      void register(text);
     }
   }, [register, resolveText, children, keywordsKey, label]);
 
