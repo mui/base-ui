@@ -77,7 +77,6 @@ export const ComboboxList = React.forwardRef(function ComboboxList(
         tabIndex: -1,
         id: floatingId,
         role: grid ? 'grid' : 'listbox',
-        'aria-orientation': grid ? undefined : 'vertical',
         'aria-multiselectable': multiple ? 'true' : undefined,
         onKeyDown(event) {
           if (store.state.disabled || store.state.readOnly) {

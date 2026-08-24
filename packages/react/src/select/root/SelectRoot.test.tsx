@@ -550,7 +550,8 @@ describe('<Select.Root />', () => {
 
       const listbox = screen.getByRole('listbox', { hidden: false });
       expect(listbox).toBeVisible();
-      expect(listbox).toHaveAttribute('aria-orientation', 'vertical');
+      // `listbox` is implicitly vertical.
+      expect(listbox).not.toHaveAttribute('aria-orientation');
     });
 
     it('should select an item and close when clicked while opened by default', async () => {

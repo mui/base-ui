@@ -64,13 +64,7 @@ function Listbox({ children }: { children: React.ReactNode }) {
       <button onClick={() => setSelectedIndex(1)} data-testid="reference" type="button">
         Select
       </button>
-      <div
-        ref={refs.setFloating}
-        id={context.floatingId}
-        role="listbox"
-        aria-orientation="vertical"
-        {...getFloatingProps()}
-      >
+      <div ref={refs.setFloating} id={context.floatingId} role="listbox" {...getFloatingProps()}>
         <CompositeList elementsRef={elementsRef} labelsRef={labelsRef}>
           {children}
         </CompositeList>

@@ -456,7 +456,6 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
         }
       : {
           role: 'listbox',
-          'aria-orientation': 'vertical',
           'aria-multiselectable': multiple || undefined,
           'aria-readonly': readOnly || undefined,
           id: `${id}-list`,

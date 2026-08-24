@@ -109,10 +109,17 @@ describe('<Menu.Root />', () => {
     { name: 'contained triggers', Component: ContainedTriggerMenu },
     { name: 'detached triggers', Component: DetachedTriggerMenu },
   ])('when using $name', ({ Component: TestMenu }) => {
-    it('sets aria-orientation on the popup', async () => {
+    it('sets aria-orientation on a horizontal popup', async () => {
       await render(<TestMenu rootProps={{ defaultOpen: true, orientation: 'horizontal' }} />);
 
       expect(screen.getByRole('menu')).toHaveAttribute('aria-orientation', 'horizontal');
+    });
+
+    it('does not render aria-orientation on a vertical popup', async () => {
+      await render(<TestMenu rootProps={{ defaultOpen: true }} />);
+
+      // `menu` is implicitly vertical.
+      expect(screen.getByRole('menu')).not.toHaveAttribute('aria-orientation');
     });
 
     describe('keyboard navigation', () => {
