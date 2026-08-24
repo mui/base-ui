@@ -21,10 +21,6 @@ vi.mock('@base-ui/utils/platform', async () => {
 describe('<FilterMenu.SubmenuRoot />', () => {
   beforeEach(resetBrowserPointer);
 
-  beforeEach(() => {
-    globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
-  });
-
   const { render } = createRenderer();
 
   /** A filterable submenu whose parent is a plain, roving-focus `Menu.Root`. */
@@ -119,7 +115,7 @@ describe('<FilterMenu.SubmenuRoot />', () => {
       });
     });
 
-    it('keeps the controlled query when the change is canceled', async () => {
+    it('keeps the uncontrolled query when the change is canceled', async () => {
       function CancelingSubmenu() {
         return (
           <FilterMenu.Root defaultOpen>

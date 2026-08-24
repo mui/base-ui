@@ -1,5 +1,5 @@
 import { expect } from 'vitest';
-import { screen, waitFor } from '@mui/internal-test-utils';
+import { act, screen, waitFor } from '@mui/internal-test-utils';
 import { createRenderer, resetBrowserPointer } from '#test-utils';
 import { FilterMenu } from '@base-ui/react/filter-menu';
 
@@ -39,12 +39,15 @@ describe('<FilterMenu.SubmenuTrigger />', () => {
     );
 
     const input = screen.getByRole('searchbox', { name: 'Filter actions' });
-    input.focus();
+    await act(async () => {
+      input.focus();
+    });
 
     // Move virtual focus onto the submenu trigger; real focus stays on the input.
     await user.keyboard('[ArrowDown][ArrowDown]');
 
     const submenuTrigger = screen.getByRole('menuitem', { name: 'Move to folder' });
+    expect(input).toHaveAttribute('aria-activedescendant', submenuTrigger.id);
     expect(submenuTrigger).toHaveAttribute('tabindex', '-1');
     expect(input).toHaveFocus();
 
