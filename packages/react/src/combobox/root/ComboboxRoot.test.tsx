@@ -5835,6 +5835,20 @@ describe('<Combobox.Root />', () => {
     });
   });
 
+  it('does not render aria-orientation on the listbox role', async () => {
+    await render(
+      <Combobox.Root defaultOpen>
+        <Combobox.Input />
+        <Combobox.List>
+          <Combobox.Item value="1">1</Combobox.Item>
+        </Combobox.List>
+      </Combobox.Root>,
+    );
+
+    // `listbox` is implicitly vertical.
+    expect(screen.getByRole('listbox')).not.toHaveAttribute('aria-orientation');
+  });
+
   describe('prop: grid', () => {
     it('sets grid roles when grid is enabled and rows are used', async () => {
       await render(
@@ -6197,6 +6211,30 @@ describe('<Combobox.Root />', () => {
 
       await user.keyboard('{ArrowDown}');
       await waitFor(() => expect(onItemHighlighted.mock.lastCall?.[0]).toBe('7'));
+    });
+
+    it('does not render aria-orientation on the grid role', async () => {
+      await render(
+        <Combobox.Root grid defaultOpen>
+          <Combobox.Input />
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  <Combobox.Row>
+                    <Combobox.Item value="1">1</Combobox.Item>
+                    <Combobox.Item value="2">2</Combobox.Item>
+                  </Combobox.Row>
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      // The grid role does not support aria-orientation (axe: aria-allowed-attr).
+      const grid = screen.getByRole('grid');
+      expect(grid).not.toHaveAttribute('aria-orientation');
     });
   });
 
