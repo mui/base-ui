@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import { ownerWindow } from '@base-ui/utils/owner';
 import {
   MenuTrigger,
   type MenuTriggerProps,
@@ -34,7 +35,11 @@ export const FilterMenuTrigger = React.forwardRef(function FilterMenuTrigger(
     {
       onKeyDown(event: BaseUIEvent<React.KeyboardEvent<HTMLElement>>) {
         const focusOwner = rootContext?.virtualFocusRef?.current;
-        const isArrowKey = event.key.startsWith('Arrow');
+        if (!rootContext?.store.select('open') || !focusOwner) {
+          return;
+        }
+
+        const isNavigationArrow = event.key === 'ArrowUp' || event.key === 'ArrowDown';
         const isTypeaheadKey =
           event.key.length === 1 &&
           event.key !== ' ' &&
@@ -42,12 +47,17 @@ export const FilterMenuTrigger = React.forwardRef(function FilterMenuTrigger(
           !event.metaKey &&
           !event.altKey;
 
-        if ((isArrowKey || isTypeaheadKey) && rootContext?.store.select('open') && focusOwner) {
+        if (isNavigationArrow) {
+          const KeyboardEventConstructor = ownerWindow(focusOwner).KeyboardEvent;
+          focusOwner.dispatchEvent(new KeyboardEventConstructor(event.type, event.nativeEvent));
+          // Let the forwarded navigation commit before focus would seed the first item.
+          queueMicrotask(() => focusOwner.focus({ preventScroll: true }));
+          event.preventDefault();
+          event.preventBaseUIHandler();
+        } else if (event.key === 'ArrowLeft' || event.key === 'ArrowRight') {
+          event.preventBaseUIHandler();
+        } else if (isTypeaheadKey) {
           focusOwner.focus({ preventScroll: true });
-          if (isArrowKey) {
-            event.preventDefault();
-            event.preventBaseUIHandler();
-          }
         }
       },
     },
