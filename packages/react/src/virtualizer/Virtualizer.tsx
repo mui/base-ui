@@ -901,23 +901,39 @@ export const Virtualizer = React.forwardRef(function Virtualizer<Value>(
     handleScrollChange({ top: 0 });
   });
 
-  const getRowMetrics = useStableCallback((rowIndex: number) => {
-    if (rowsRef.current[rowIndex] == null) {
+  // Reported in scroll coordinates rather than the engine's: the scrollport's block padding is
+  // the offset between the two, and a consumer holding a `scrollTop` has no way to know it.
+  const getItemMetrics = useStableCallback((index: number) => {
+    if (rowsRef.current[index] == null) {
       return null;
     }
 
     const currentRowsMeta = virtualizer.store.state.rowsMeta;
-    const offset = currentRowsMeta.positions[rowIndex];
-    const end = currentRowsMeta.positions[rowIndex + 1] ?? currentRowsMeta.currentPageTotalHeight;
+    const offset = currentRowsMeta.positions[index];
+    const end = currentRowsMeta.positions[index + 1] ?? currentRowsMeta.currentPageTotalHeight;
 
     if (offset == null || end == null) {
       return null;
     }
 
     return {
-      offset,
+      offset: offset + scrollportPadding.start,
       size: end - offset,
     };
+  });
+
+  const getIndexAtOffset = useStableCallback((offset: number) => {
+    const rowCount = rowsRef.current.length;
+    if (rowCount === 0) {
+      return null;
+    }
+
+    const currentRowsMeta = virtualizer.store.state.rowsMeta;
+    return findRowIndexAtOffset(
+      currentRowsMeta.positions,
+      rowCount,
+      Math.max(0, offset - scrollportPadding.start),
+    );
   });
 
   if (process.env.NODE_ENV !== 'production') {
@@ -1381,8 +1397,8 @@ export const Virtualizer = React.forwardRef(function Virtualizer<Value>(
 
   React.useImperativeHandle(
     apiRefProp,
-    () => ({ getRowMetrics, remeasure, resetScroll, scrollToIndex }),
-    [getRowMetrics, remeasure, resetScroll, scrollToIndex],
+    () => ({ getIndexAtOffset, getItemMetrics, remeasure, resetScroll, scrollToIndex }),
+    [getIndexAtOffset, getItemMetrics, remeasure, resetScroll, scrollToIndex],
   );
 
   const scrollToRowId = scrollToRowIndex == null ? null : (rows[scrollToRowIndex]?.id ?? null);
@@ -1904,6 +1920,9 @@ export interface VirtualizerBaseProps<Value> extends Omit<
 > {
   /**
    * A ref to imperative actions.
+   * - `getIndexAtOffset`: Returns the item a scroll position lands on.
+   * - `getItemMetrics`: Returns an item's logical offset and size, including outside the window.
+   * - `remeasure`: Discards measured item heights so they are taken again.
    * - `scrollToIndex`: Scrolls an item into view by its logical collection index.
    */
   actionsRef?: React.RefObject<VirtualizerActions | null> | undefined;

@@ -3,7 +3,7 @@ export { Virtualizer } from './index.parts';
 export type { VirtualizerProps, VirtualizerState } from './Virtualizer';
 export type {
   VirtualizerActions,
-  VirtualizerRowMetrics,
+  VirtualizerItemMetrics,
   VirtualizerScrollAlignment,
   VirtualizerScrollToIndexOptions,
 } from '../internals/virtualization/ListVirtualizationRegistry';

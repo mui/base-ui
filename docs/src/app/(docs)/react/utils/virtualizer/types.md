@@ -22,7 +22,7 @@ Grouped collections and grid mode are not currently supported.
 
 | Prop                | Type                                                                                      | Default                           | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
 | :------------------ | :---------------------------------------------------------------------------------------- | :-------------------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| actionsRef          | `React.RefObject<Virtualizer.Actions \| null>`                                            | -                                 | A ref to imperative actions. `scrollToIndex`: Scrolls an item into view by its logical collection index.                                                                                                                                                                                                                                                                                                                                                                                           |
+| actionsRef          | `React.RefObject<Virtualizer.Actions \| null>`                                            | -                                 | A ref to imperative actions. `getIndexAtOffset`: Returns the item a scroll position lands on.`getItemMetrics`: Returns an item's logical offset and size, including outside the window.`remeasure`: Discards measured item heights so they are taken again.`scrollToIndex`: Scrolls an item into view by its logical collection index.                                                                                                                                                             |
 | activeIndex         | `Virtualizer.ActiveIndex \| null`                                                         | -                                 | The active item in `items`, kept mounted even when it falls outside the rendered window so it&#xA;can hold focus or be referenced by `aria-activedescendant`. An index alone scrolls the item into view. Pass `{ index, scroll: false }` for activations&#xA;that must leave the viewport alone, such as a highlight following the pointer, and `align` to&#xA;choose where a scrolled item lands. Ignored without the `items` prop: a list that provides the collection tracks its own highlight. |
 | enabled             | `boolean`                                                                                 | `true`                            | Whether virtualization is enabled. When `false`, all items are rendered.                                                                                                                                                                                                                                                                                                                                                                                                                           |
 | endReachedThreshold | `number`                                                                                  | `0`                               | How many items short of the end `onEndReached` fires. `0` fires once the last item enters the&#xA;rendered window, which already extends past the visible range by `overscanPx`.                                                                                                                                                                                                                                                                                                                   |
@@ -73,6 +73,17 @@ Imperative actions exposed by the component.
 ```typescript
 type VirtualizerActions = {
   /**
+   * Returns the index of the last item starting at or before the given scroll position, or `null`
+   * when the collection is empty. Inverse of `getItemMetrics`, for answering which item a scroll
+   * position lands on without mounting the items in between.
+   */
+  getIndexAtOffset: (offset: number) => number | null;
+  /**
+   * Returns the logical geometry of an item, including when it is outside the rendered window, or
+   * `null` when the index is outside the collection.
+   */
+  getItemMetrics: (index: number) => VirtualizerItemMetrics | null;
+  /**
    * Discards the item heights measured so far, so they are taken again against the layout the
    * items are in now. Call it after a change that resizes items without changing the collection,
    * such as crossing a layout breakpoint: items on screen resize on their own, while the heights
@@ -117,6 +128,21 @@ type VirtualizerActiveItem = {
 
 ## Additional Types
 
+### VirtualizerItemMetrics
+
+```typescript
+type VirtualizerItemMetrics = {
+  /**
+   * The scroll position at which the item's start edge meets the start of the scrollport's
+   * content box, so it can be passed straight to `scrollTo`. Logical: it includes estimates for
+   * items that have not been measured yet, and it accounts for the scrollport's block padding.
+   */
+  offset: number;
+  /** Logical item size, including estimates for items that have not been measured yet. */
+  size: number;
+};
+```
+
 ### VirtualizerItemProps
 
 Accessibility and collection metadata for a virtualized item.
@@ -127,17 +153,6 @@ argument of the item renderer, to spread onto the element that represents the it
 ```typescript
 type VirtualizerItemProps = React.HTMLAttributes<any> & { ref?: React.Ref<any> } & {
   'data-index': number;
-};
-```
-
-### VirtualizerRowMetrics
-
-```typescript
-type VirtualizerRowMetrics = {
-  /** Logical offset from the start of the virtualized content. */
-  offset: number;
-  /** Logical row size, including estimates for rows that have not been measured yet. */
-  size: number;
 };
 ```
 

@@ -1,10 +1,12 @@
-export interface VirtualizerRowMetrics {
+export interface VirtualizerItemMetrics {
   /**
-   * Logical offset from the start of the virtualized content.
+   * The scroll position at which the item's start edge meets the start of the scrollport's
+   * content box, so it can be passed straight to `scrollTo`. Logical: it includes estimates for
+   * items that have not been measured yet, and it accounts for the scrollport's block padding.
    */
   offset: number;
   /**
-   * Logical row size, including estimates for rows that have not been measured yet.
+   * Logical item size, including estimates for items that have not been measured yet.
    */
   size: number;
 }
@@ -25,6 +27,17 @@ export interface VirtualizerScrollToIndexOptions {
  */
 export interface VirtualizerActions {
   /**
+   * Returns the index of the last item starting at or before the given scroll position, or `null`
+   * when the collection is empty. Inverse of `getItemMetrics`, for answering which item a scroll
+   * position lands on without mounting the items in between.
+   */
+  getIndexAtOffset: (offset: number) => number | null;
+  /**
+   * Returns the logical geometry of an item, including when it is outside the rendered window, or
+   * `null` when the index is outside the collection.
+   */
+  getItemMetrics: (index: number) => VirtualizerItemMetrics | null;
+  /**
    * Discards the item heights measured so far, so they are taken again against the layout the
    * items are in now. Call it after a change that resizes items without changing the collection,
    * such as crossing a layout breakpoint: items on screen resize on their own, while the heights
@@ -43,9 +56,13 @@ export interface VirtualizerActions {
  */
 export interface VirtualizerHandle {
   /**
-   * Returns the logical geometry for a row, including when it is outside the rendered window.
+   * Returns the index of the last item starting at or before the given scroll position.
    */
-  getRowMetrics: (rowIndex: number) => VirtualizerRowMetrics | null;
+  getIndexAtOffset: (offset: number) => number | null;
+  /**
+   * Returns the logical geometry for an item, including when it is outside the rendered window.
+   */
+  getItemMetrics: (index: number) => VirtualizerItemMetrics | null;
   /**
    * Scrolls an item into view by its logical collection index.
    */

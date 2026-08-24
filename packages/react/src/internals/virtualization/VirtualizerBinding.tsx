@@ -335,8 +335,11 @@ export function useVirtualizerBinding<Item>(parameters: UseVirtualizerBindingPar
   const enabled = enabledProp && !renderAllRows;
 
   const apiRef = React.useRef<VirtualizerHandle | null>(null);
-  const getRowMetrics = useStableCallback(
-    (rowIndex: number) => apiRef.current?.getRowMetrics(rowIndex) ?? null,
+  const getItemMetrics = useStableCallback(
+    (index: number) => apiRef.current?.getItemMetrics(index) ?? null,
+  );
+  const getIndexAtOffset = useStableCallback(
+    (offset: number) => apiRef.current?.getIndexAtOffset(offset) ?? null,
   );
   const [, bumpEstimateRevision] = React.useReducer((value: number) => value + 1, 0);
   const remeasure = useStableCallback(() => {
@@ -353,8 +356,8 @@ export function useVirtualizerBinding<Item>(parameters: UseVirtualizerBindingPar
       apiRef.current?.scrollToIndex(index, options),
   );
   const virtualizerHandle = React.useMemo(
-    () => ({ enabled, getRowMetrics, remeasure, resetScroll, scrollToIndex }),
-    [enabled, getRowMetrics, remeasure, resetScroll, scrollToIndex],
+    () => ({ enabled, getIndexAtOffset, getItemMetrics, remeasure, resetScroll, scrollToIndex }),
+    [enabled, getIndexAtOffset, getItemMetrics, remeasure, resetScroll, scrollToIndex],
   );
 
   useIsoLayoutEffect(() => {
@@ -389,10 +392,11 @@ export function useVirtualizerBinding<Item>(parameters: UseVirtualizerBindingPar
     );
   });
 
-  React.useImperativeHandle(actionsRef, () => ({ remeasure, scrollToIndex }), [
-    remeasure,
-    scrollToIndex,
-  ]);
+  React.useImperativeHandle(
+    actionsRef,
+    () => ({ getIndexAtOffset, getItemMetrics, remeasure, scrollToIndex }),
+    [getIndexAtOffset, getItemMetrics, remeasure, scrollToIndex],
+  );
 
   return {
     apiRef,
