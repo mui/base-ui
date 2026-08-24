@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import { EMPTY_ARRAY } from '@base-ui/utils/empty';
 import { ownerWindow } from '@base-ui/utils/owner';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import {
@@ -52,7 +53,7 @@ export function useFilterMenuReferenceKeyDown() {
         'horizontal',
         loopFocus,
         isRtl,
-        undefined,
+        EMPTY_ARRAY,
         0,
         listRef.current.length - 1,
       );

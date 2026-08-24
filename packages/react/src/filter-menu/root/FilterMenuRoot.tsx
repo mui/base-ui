@@ -90,6 +90,7 @@ export function FilterMenuRoot<Payload>(props: FilterMenuRoot.Props<Payload>): R
       onOpenChangeComplete={closeQuery.handleOpenChangeComplete}
       inline={inline}
       orientation={grid ? 'horizontal' : undefined}
+      triggerOrientation="vertical"
       virtualFocus
       virtualFocusRef={focusOwnerRef}
       virtualFocusInput={hasInput}
@@ -179,7 +180,7 @@ export function FilterMenuProvider(props: FilterMenuProviderProps) {
       locale={props.locale}
       // Trust the rendered element's id once it exists: an explicitly empty id must not
       // fall back to a registered id that no element carries.
-      triggerId={triggerElement ? triggerElement.id || undefined : triggerId}
+      triggerId={triggerElement ? triggerElement.id || null : triggerId}
       listRef={store.context.itemDomElements}
       activeIndex={activeIndex}
       setActiveIndex={setActiveIndex}
@@ -239,7 +240,8 @@ export type FilterMenuRootProps<Payload = unknown> = Omit<
     inline?: boolean | undefined;
     /**
      * Whether the items are arranged in a two-dimensional grid.
-     * Wrap each row in `<FilterMenu.Row>` when enabled.
+     * Wrap regular `<FilterMenu.Item>` actions in `<FilterMenu.Row>` when enabled. Other item
+     * variants do not support grid semantics.
      * @default false
      */
     grid?: boolean | undefined;

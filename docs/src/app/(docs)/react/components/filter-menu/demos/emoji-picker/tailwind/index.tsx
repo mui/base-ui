@@ -4,10 +4,18 @@ import { FilterMenu } from '@base-ui/react/filter-menu';
 
 export default function ExampleEmojiPicker() {
   const [pickerOpen, setPickerOpen] = React.useState(false);
+  const [searchValue, setSearchValue] = React.useState('');
   const [textValue, setTextValue] = React.useState('');
 
   const textInputRef = React.useRef<HTMLInputElement | null>(null);
   const caretPositionRef = React.useRef<number | null>(null);
+  const query = searchValue.trim().toLocaleLowerCase();
+  const filteredCategories = emojiCategories
+    .map((category) => ({
+      ...category,
+      emojis: category.emojis.filter((item) => item.name.toLocaleLowerCase().includes(query)),
+    }))
+    .filter((category) => category.emojis.length > 0);
 
   function handleInsertEmoji(emoji: string) {
     if (!textInputRef.current) {
@@ -46,7 +54,10 @@ export default function ExampleEmojiPicker() {
 
         <FilterMenu.Root
           grid
+          filter={null}
+          inputValue={searchValue}
           open={pickerOpen}
+          onInputValueChange={setSearchValue}
           onOpenChange={setPickerOpen}
           onOpenChangeComplete={handleOpenChangeComplete}
         >
@@ -77,14 +88,18 @@ export default function ExampleEmojiPicker() {
                     aria-label="Emoji results"
                     className="max-h-[min(calc(20.5rem-var(--input-container-height)-2px),calc(var(--available-height)-var(--input-container-height)-2px))] overflow-auto scroll-pt-1 scroll-pb-[0.35rem] overscroll-contain py-2 empty:p-0"
                   >
-                    {emojiCategories.map((category) => (
+                    {filteredCategories.map((category) => (
                       <FilterMenu.Group key={category.label} className="block">
                         <FilterMenu.GroupLabel className="p-2 text-sm leading-4 text-neutral-500 select-none dark:text-neutral-400">
                           {category.label}
                         </FilterMenu.GroupLabel>
                         <div className="px-2 pb-1 pt-0" role="presentation">
                           {chunkArray(category.emojis, COLUMNS).map((row, rowIdx) => (
-                            <FilterMenu.Row key={rowIdx} className="grid grid-cols-5">
+                            <FilterMenu.Row
+                              key={rowIdx}
+                              className="grid grid-cols-5"
+                              aria-label={`${category.label}, row ${rowIdx + 1}`}
+                            >
                               {row.map((rowItem) => (
                                 <FilterMenu.Item
                                   key={rowItem.emoji}
