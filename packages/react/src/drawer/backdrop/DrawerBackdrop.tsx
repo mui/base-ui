@@ -38,7 +38,7 @@ export const DrawerBackdrop = React.forwardRef(function DrawerBackdrop(
     stateAttributesMapping: popupTransitionStateMapping,
     props: [
       {
-        role: 'presentation',
+        role: 'none',
         hidden: !mounted,
         style: {
           pointerEvents: !open ? 'none' : undefined,

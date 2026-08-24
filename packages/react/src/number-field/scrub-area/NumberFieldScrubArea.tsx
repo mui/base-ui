@@ -296,7 +296,7 @@ export const NumberFieldScrubArea = React.forwardRef(function NumberFieldScrubAr
   );
 
   const defaultProps: HTMLProps = {
-    role: 'presentation',
+    role: 'none',
     style: SCRUB_AREA_STYLE,
     async onPointerDown(event) {
       if (event.defaultPrevented || readOnly || event.button || disabled) {

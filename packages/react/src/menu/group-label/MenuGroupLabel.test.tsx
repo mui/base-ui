@@ -41,7 +41,7 @@ describe('<Menu.GroupLabel />', () => {
   });
 
   describe('a11y attributes', () => {
-    it('should have the role `presentation`', async () => {
+    it('should have the role `none`', async () => {
       await render(
         <Menu.Root open>
           <Menu.Portal>
@@ -57,7 +57,7 @@ describe('<Menu.GroupLabel />', () => {
       );
 
       const groupLabel = screen.getByText('Test group');
-      expect(groupLabel).toHaveAttribute('role', 'presentation');
+      expect(groupLabel).toHaveAttribute('role', 'none');
     });
 
     it("should reference the generated id in Group's `aria-labelledby`", async () => {

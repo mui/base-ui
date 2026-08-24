@@ -122,6 +122,7 @@ export default defineConfig(
       // This prevents us from creating components like `<h1 {...props} />`
       'jsx-a11y/heading-has-content': 'off',
       'jsx-a11y/anchor-has-content': 'off',
+      'mui/no-presentation-role': 'error',
 
       // This rule doesn't recognise <label> wrapped around custom controls
       'jsx-a11y/label-has-associated-control': 'off',
@@ -149,6 +150,16 @@ export default defineConfig(
       'mui/add-undef-to-optional': 'error',
       'mui/disallow-react-api-in-server-components': 'error',
       'mui/no-floating-cleanup': 'error',
+      // `mui/no-presentation-role` only visits JSX attributes, but components mostly
+      // set the role through a props object, so guard that form here too.
+      'no-restricted-syntax': [
+        'error',
+        {
+          selector: "Property[key.name='role'][value.value='presentation']",
+          message:
+            "Use role: 'none' instead of role: 'presentation'. They are equivalent, but role=\"none\" is preferred.",
+        },
+      ],
     },
   },
   {

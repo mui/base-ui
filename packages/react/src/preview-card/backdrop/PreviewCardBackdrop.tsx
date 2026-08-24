@@ -33,7 +33,7 @@ export const PreviewCardBackdrop = React.forwardRef(function PreviewCardBackdrop
     ref: [forwardedRef],
     props: [
       {
-        role: 'presentation',
+        role: 'none',
         hidden: !mounted,
         style: {
           pointerEvents: 'none',

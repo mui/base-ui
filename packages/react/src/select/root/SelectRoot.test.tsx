@@ -1380,7 +1380,7 @@ describe('<Select.Root />', () => {
 
       const positioner = screen.getByTestId('positioner');
 
-      expect(positioner.previousElementSibling).toHaveAttribute('role', 'presentation');
+      expect(positioner.previousElementSibling).toHaveAttribute('role', 'none');
     });
 
     it('should not render an internal backdrop when `false`', async () => {

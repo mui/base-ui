@@ -89,7 +89,7 @@ export const ComboboxPopup = React.forwardRef(function ComboboxPopup(
       popupProps,
       {
         id: popupId,
-        role: inputInsidePopup ? 'dialog' : 'presentation',
+        role: inputInsidePopup ? 'dialog' : 'none',
         onFocus(event) {
           const target = getTarget(event.nativeEvent) as Element | null;
           if (
