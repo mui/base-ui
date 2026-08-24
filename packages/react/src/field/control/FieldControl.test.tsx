@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { expect, vi } from 'vitest';
-import { createRenderer, fireEvent, screen } from '@mui/internal-test-utils';
+import { act, createRenderer, fireEvent, screen, waitFor } from '@mui/internal-test-utils';
 import { Field } from '@base-ui/react/field';
 import { Form } from '@base-ui/react/form';
 import { describeConformance, isJSDOM } from '#test-utils';
@@ -223,6 +223,124 @@ describe('<Field.Control />', () => {
     expect(handleValueChange).toHaveBeenCalledTimes(1);
     expect(validate).not.toHaveBeenCalled();
     expect(screen.getByText('Server error')).toBeInTheDocument();
+  });
+
+  it.skipIf(isJSDOM)('validates once when Enter implicitly submits a form', async () => {
+    const { userEvent } = await import('vitest/browser');
+    const user = userEvent.setup();
+    const validate = vi.fn(() => null);
+    const handleSubmit = vi.fn((event: React.FormEvent) => event.preventDefault());
+
+    await render(
+      <Form onSubmit={handleSubmit}>
+        <Field.Root validate={validate}>
+          <Field.Control defaultValue="a" />
+        </Field.Root>
+        <button type="submit">submit</button>
+      </Form>,
+    );
+
+    const control = screen.getByRole<HTMLInputElement>('textbox');
+
+    await act(() => user.type(control, '[Enter]'));
+
+    expect(validate).toHaveBeenCalledTimes(1);
+    expect(handleSubmit).toHaveBeenCalledTimes(1);
+  });
+
+  it.skipIf(isJSDOM)('validates when Enter does not implicitly submit the form', async () => {
+    const { userEvent } = await import('vitest/browser');
+    const user = userEvent.setup();
+    const validate = vi.fn(() => null);
+    const handleSubmit = vi.fn();
+
+    await render(
+      <Form onSubmit={handleSubmit}>
+        <Field.Root validate={validate}>
+          <Field.Control defaultValue="a" />
+        </Field.Root>
+        <input />
+      </Form>,
+    );
+
+    const control = screen.getByDisplayValue<HTMLInputElement>('a');
+
+    await act(() => user.type(control, '[Enter]'));
+
+    expect(validate).toHaveBeenCalledTimes(1);
+    expect(handleSubmit).not.toHaveBeenCalled();
+  });
+
+  it.skipIf(isJSDOM)(
+    'validates when a disabled submit button blocks implicit submission',
+    async () => {
+      const { userEvent } = await import('vitest/browser');
+      const user = userEvent.setup();
+      const validate = vi.fn(() => null);
+      const handleSubmit = vi.fn();
+
+      await render(
+        <Form onSubmit={handleSubmit}>
+          <Field.Root validate={validate}>
+            <Field.Control defaultValue="a" />
+          </Field.Root>
+          <button type="submit" disabled>
+            submit
+          </button>
+        </Form>,
+      );
+
+      const control = screen.getByRole<HTMLInputElement>('textbox');
+
+      await act(() => user.type(control, '[Enter]'));
+
+      expect(validate).toHaveBeenCalledTimes(1);
+      expect(handleSubmit).not.toHaveBeenCalled();
+    },
+  );
+
+  it('validates the latest value when Enter does not submit the form', async () => {
+    const validate = vi.fn((_value: unknown) => null);
+
+    function App() {
+      const [value, setValue] = React.useState('a');
+      return (
+        <Form onKeyDown={() => setValue('')}>
+          <Field.Root validate={validate}>
+            <Field.Control value={value} onValueChange={setValue} />
+          </Field.Root>
+          <input />
+        </Form>
+      );
+    }
+
+    await render(<App />);
+
+    const control = screen.getByDisplayValue<HTMLInputElement>('a');
+    act(() => control.focus());
+    fireEvent.keyDown(control, { key: 'Enter' });
+
+    await waitFor(() => {
+      expect(validate).toHaveBeenCalledTimes(1);
+    });
+
+    expect(validate.mock.lastCall?.[0]).toBe('');
+  });
+
+  it('validates when Enter is pressed outside a form', async () => {
+    const validate = vi.fn(() => null);
+
+    await render(
+      <Field.Root validate={validate}>
+        <Field.Control defaultValue="a" />
+      </Field.Root>,
+    );
+
+    const control = screen.getByRole('textbox');
+    act(() => control.focus());
+    fireEvent.keyDown(control, { key: 'Enter' });
+
+    expect(validate).toHaveBeenCalledTimes(1);
   });
 
   it('shows a required error when a prefilled value is cleared', async () => {
