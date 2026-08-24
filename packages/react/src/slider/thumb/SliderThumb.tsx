@@ -31,7 +31,6 @@ import { PrehydrationScript } from '../../internals/PrehydrationScript';
 import { useFieldRootContext } from '../../internals/field-root-context/FieldRootContext';
 import { contains } from '../../floating-ui-react/utils';
 import { matchesFocusVisible } from '../../floating-ui-react/utils/element';
-import { type LabelableContext } from '../../internals/labelable-provider/LabelableContext';
 import { useLabelableId } from '../../internals/labelable-provider/useLabelableId';
 import { getMidpoint } from '../utils/getMidpoint';
 import { getSliderValue } from '../utils/getSliderValue';
@@ -494,7 +493,7 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
 });
 
 export interface ThumbMetadata {
-  inputId: LabelableContext['controlId'];
+  inputId: string | undefined;
 }
 
 export interface SliderThumbState extends SliderRootState {}
@@ -522,9 +521,7 @@ export interface SliderThumbProps extends Omit<
    * This is important for screen reader users.
    */
   getAriaValueText?:
-    | ((formattedValue: string, value: number, index: number) => string)
-    | null
-    | undefined;
+    ((formattedValue: string, value: number, index: number) => string) | null | undefined;
   /**
    * The index of the thumb which corresponds to the index of its value in the
    * `value` or `defaultValue` array.

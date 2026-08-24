@@ -1,6 +1,6 @@
 import { expect } from 'vitest';
 import * as React from 'react';
-import { screen, waitFor } from '@mui/internal-test-utils';
+import { fireEvent, screen, waitFor } from '@mui/internal-test-utils';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 import { Radio } from '@base-ui/react/radio';
 import { RadioGroup } from '@base-ui/react/radio-group';
@@ -218,16 +218,12 @@ describe('<Radio.Indicator />', () => {
         );
       }
 
-      const { user } = await render(<Test />);
+      await render(<Test />);
       expect(screen.getByTestId('indicator-a')).not.toBe(null);
 
-      await user.click(screen.getByText('Select b'));
+      fireEvent.click(screen.getByText('Select b'));
 
-      await waitFor(() => {
-        const indicator = screen.queryByTestId('indicator-a');
-        expect(indicator).not.toBe(null);
-        expect(indicator).toHaveAttribute('data-ending-style');
-      });
+      expect(screen.getByTestId('indicator-a')).toHaveAttribute('data-ending-style');
 
       await waitFor(() => {
         expect(screen.queryByTestId('indicator-a')).toBe(null);

@@ -13,6 +13,7 @@ import { useLabelableId } from '../../internals/labelable-provider/useLabelableI
 import { fieldValidityMapping } from '../../internals/field-constants/constants';
 import { BaseUIComponentProps } from '../../internals/types';
 import { useRenderElement } from '../../internals/useRenderElement';
+import { useValueChanged } from '../../internals/useValueChanged';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
 import type { BaseUIChangeEventDetails } from '../../internals/createBaseUIEventDetails';
@@ -72,23 +73,6 @@ export const FieldControl = React.forwardRef(function FieldControl(
 
   const id = useLabelableId({ id: idProp });
 
-  useIsoLayoutEffect(() => {
-    const hasExternalValue = valueProp != null;
-    if (validation.inputRef.current?.value || (hasExternalValue && valueProp !== '')) {
-      setFilled(true);
-    } else if (hasExternalValue && valueProp === '') {
-      setFilled(false);
-    }
-  }, [validation.inputRef, setFilled, valueProp]);
-
-  const inputRef = React.useRef<HTMLElement>(null);
-
-  useIsoLayoutEffect(() => {
-    if (autoFocus && inputRef.current === activeElement(ownerDocument(inputRef.current))) {
-      setFocused(true);
-    }
-  }, [autoFocus, setFocused]);
-
   const [valueUnwrapped] = useControlled({
     controlled: valueProp,
     default: defaultValue,
@@ -98,9 +82,45 @@ export const FieldControl = React.forwardRef(function FieldControl(
 
   const isControlled = valueProp !== undefined;
   const value = isControlled ? valueUnwrapped : undefined;
+  // The DOM value is always a string, so dirty comparisons must serialize the controlled value.
+  const serializedValue = value == null ? undefined : String(value);
+
   const getValueFromInput = useStableCallback(() => validation.inputRef.current?.value);
 
-  useRegisterFieldControl(validation.inputRef, id, value, getValueFromInput, !disabled, nameProp);
+  useRegisterFieldControl(
+    validation.inputRef,
+    id,
+    serializedValue,
+    getValueFromInput,
+    !disabled,
+    nameProp,
+  );
+
+  useIsoLayoutEffect(() => {
+    if (validation.inputRef.current?.value) {
+      setFilled(true);
+    }
+  }, [validation.inputRef, setFilled]);
+
+  useValueChanged(serializedValue, () => {
+    if (serializedValue === undefined) {
+      return;
+    }
+
+    clearErrors(name);
+    setDirty(serializedValue !== (validityData.initialValue ?? ''));
+    setFilled(serializedValue !== '');
+
+    validation.change(serializedValue);
+  });
+
+  const inputRef = React.useRef<HTMLElement>(null);
+
+  useIsoLayoutEffect(() => {
+    if (autoFocus && inputRef.current === activeElement(ownerDocument(inputRef.current))) {
+      setFocused(true);
+    }
+  }, [autoFocus, setFocused]);
 
   const element = useRenderElement('input', componentProps, {
     ref: [forwardedRef, inputRef],
@@ -116,13 +136,21 @@ export const FieldControl = React.forwardRef(function FieldControl(
         ...(isControlled ? { value } : { defaultValue }),
         onChange(event) {
           const inputValue = event.currentTarget.value;
-          onValueChange?.(inputValue, createChangeEventDetails(REASONS.none, event.nativeEvent));
+          const details = createChangeEventDetails(REASONS.none, event.nativeEvent);
+          onValueChange?.(inputValue, details);
+
+          // Controlled values sync from the `value` prop instead, so that a value the consumer
+          // rejects or rewrites never reaches the field state.
+          if (isControlled) {
+            return;
+          }
+
           // `validation.change` reads `markedDirtyRef`, so update dirty before validating.
           setDirty(inputValue !== (validityData.initialValue ?? ''));
           setFilled(inputValue !== '');
 
           // Workaround for https://github.com/react/react/issues/9023
-          if (!event.nativeEvent.defaultPrevented) {
+          if (!event.nativeEvent.defaultPrevented && !details.isCanceled) {
             clearErrors(name);
             validation.change(inputValue);
           }
@@ -161,8 +189,7 @@ export interface FieldControlProps extends BaseUIComponentProps<'input', FieldCo
    * Callback fired when the `value` changes. Use when controlled.
    */
   onValueChange?:
-    | ((value: string, eventDetails: FieldControl.ChangeEventDetails) => void)
-    | undefined;
+    ((value: string, eventDetails: FieldControl.ChangeEventDetails) => void) | undefined;
   defaultValue?: React.ComponentProps<'input'>['defaultValue'] | undefined;
 }
 

@@ -180,6 +180,8 @@ type AutocompleteTriggerState = {
   popupSide: Side | null;
   /** Present when the corresponding items list is empty. */
   listEmpty: boolean;
+  /** Whether the component should ignore user edits. */
+  readOnly: boolean;
   /** Whether the field has been touched. */
   touched: boolean;
   /** Whether the field value has changed from its initial value. */
@@ -555,9 +557,9 @@ Renders a `<div>` element.
 | :------------------ | :------------------------------------------------------------------------- | :-------------------------------------------------------------------- |
 | data-open           | -                                                                          | Present when the popup is open.                                       |
 | data-closed         | -                                                                          | Present when the popup is closed.                                     |
+| data-anchor-hidden  | -                                                                          | Present when the anchor is hidden.                                    |
 | data-align          | `'start' \| 'center' \| 'end'`                                             | Indicates how the popup is aligned relative to specified side.        |
 | data-empty          | -                                                                          | Present when the items list is empty.                                 |
-| data-instant        | `'click' \| 'dismiss'`                                                     | Present if animations should be instant.                              |
 | data-side           | `'top' \| 'bottom' \| 'left' \| 'right' \| 'inline-end' \| 'inline-start'` | Indicates which side the popup is positioned relative to the trigger. |
 | data-starting-style | -                                                                          | Present when the popup begins animating in.                           |
 | data-ending-style   | -                                                                          | Present when the popup is animating out.                              |

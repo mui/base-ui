@@ -23,8 +23,7 @@ export interface FloatingRootState {
 
 export interface FloatingRootStoreContext {
   onOpenChange:
-    | ((open: boolean, eventDetails: BaseUIChangeEventDetails<string>) => void)
-    | undefined;
+    ((open: boolean, eventDetails: BaseUIChangeEventDetails<string>) => void) | undefined;
   readonly dataRef: React.RefObject<ContextData>;
   readonly events: FloatingEvents;
   nested: boolean;
@@ -54,8 +53,7 @@ interface FloatingRootStoreOptions {
   syncOnly: boolean;
   nested: boolean;
   onOpenChange:
-    | ((open: boolean, eventDetails: BaseUIChangeEventDetails<string>) => void)
-    | undefined;
+    ((open: boolean, eventDetails: BaseUIChangeEventDetails<string>) => void) | undefined;
 }
 
 export class FloatingRootStore extends ReactStore<

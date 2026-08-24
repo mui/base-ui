@@ -10,54 +10,59 @@ export const LabelableProvider: React.FC<LabelableProvider.Props> = function Lab
   props,
 ) {
   const defaultId = useBaseUiId();
-  const [controlIdState, setControlIdState] = React.useState<string | undefined>(defaultId);
+
+  const [controlIdState, setControlIdState] = React.useState<string | null | undefined>(defaultId);
   const [labelId, setLabelId] = React.useState<string | undefined>();
   const [messageIds, setMessageIds] = React.useState<string[]>([]);
 
-  // `undefined` only survives until the React 17 fallback id is assigned.
-  const controlId = controlIdState ?? defaultId;
+  // `undefined` only survives until the React 17 fallback id is assigned. Do not use `??`:
+  // `null` deliberately suppresses `htmlFor`.
+  const controlId = controlIdState === undefined ? defaultId : controlIdState;
 
-  const registrationsRef = useRefWithInit(() => new Map<symbol, string>());
+  const registrationsRef = useRefWithInit(() => new Map<symbol, string | null>());
 
   const { messageIds: parentMessageIds } = useLabelableContext();
 
-  const registerControlId = useStableCallback((source: symbol, nextId: string | undefined) => {
-    const registrations = registrationsRef.current;
+  const registerControlId = useStableCallback(
+    (source: symbol, nextId: string | null | undefined) => {
+      const registrations = registrationsRef.current;
 
-    if (nextId === undefined) {
-      registrations.delete(source);
-
-      // A hidden subtree (React Activity, a re-suspending Suspense) destroys effects but keeps
-      // its DOM, so an empty map is indistinguishable from a real unmount. Keep the selection
-      // so a control that is still rendered stays paired with the label.
-      if (registrations.size === 0) {
-        return;
-      }
-    } else {
-      registrations.set(source, nextId);
-    }
-
-    // Keep the previously selected id while it is still registered so an unrelated
-    // registration doesn't steal the selection.
-    setControlIdState((prev) => {
-      if (registrations.size === 0) {
-        return prev;
+      if (nextId === undefined) {
+        registrations.delete(source);
+      } else {
+        registrations.set(source, nextId);
       }
 
-      let nextControlId: string | undefined;
-
-      for (const id of registrations.values()) {
-        if (id === prev) {
+      setControlIdState((prev) => {
+        if (registrations.size === 0) {
+          // A hidden subtree (React Activity, a re-suspending Suspense) destroys effects but keeps
+          // its DOM, so preserve its selected control.
           return prev;
         }
 
-        if (nextControlId === undefined) {
-          nextControlId = id;
-        }
-      }
+        let nextControlId: string | null | undefined;
 
-      return nextControlId;
-    });
+        for (const id of registrations.values()) {
+          // Keep the current selection while it is still registered, so rapid unmount/remount
+          // cycles don't churn it.
+          if (id === prev) {
+            return prev;
+          }
+
+          if (nextControlId === undefined) {
+            nextControlId = id;
+          }
+        }
+
+        return nextControlId;
+      });
+    },
+  );
+
+  const resetControlId = useStableCallback(() => {
+    if (registrationsRef.current.size === 0) {
+      setControlIdState(defaultId);
+    }
   });
 
   const getDescriptionProps = React.useCallback(
@@ -79,6 +84,7 @@ export const LabelableProvider: React.FC<LabelableProvider.Props> = function Lab
     () => ({
       controlId,
       registerControlId,
+      resetControlId,
       labelId,
       setLabelId,
       messageIds,
@@ -88,6 +94,7 @@ export const LabelableProvider: React.FC<LabelableProvider.Props> = function Lab
     [
       controlId,
       registerControlId,
+      resetControlId,
       labelId,
       setLabelId,
       messageIds,

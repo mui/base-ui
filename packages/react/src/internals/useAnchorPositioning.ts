@@ -437,6 +437,7 @@ export function useAnchorPositioningWithHook(
 
   const autoUpdateOptions: AutoUpdateOptions = React.useMemo(
     () => ({
+      ancestorScroll: !disableAnchorTracking,
       elementResize: !disableAnchorTracking && typeof ResizeObserver !== 'undefined',
       layoutShift: !disableAnchorTracking && typeof IntersectionObserver !== 'undefined',
     }),

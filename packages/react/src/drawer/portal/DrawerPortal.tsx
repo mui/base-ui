@@ -24,11 +24,7 @@ export interface DrawerPortalProps extends BaseUIComponentProps<'div', DrawerPor
    * A parent element to render the portal element into.
    */
   container?:
-    | HTMLElement
-    | ShadowRoot
-    | React.RefObject<HTMLElement | ShadowRoot | null>
-    | null
-    | undefined;
+    HTMLElement | ShadowRoot | React.RefObject<HTMLElement | ShadowRoot | null> | null | undefined;
 }
 
 export interface DrawerPortal {

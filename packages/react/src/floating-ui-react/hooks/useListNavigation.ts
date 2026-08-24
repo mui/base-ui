@@ -115,8 +115,7 @@ export interface UseListNavigationProps {
    * passed in a new `activeIndex`.
    */
   onNavigate?:
-    | ((activeIndex: number | null, event: React.SyntheticEvent | undefined) => void)
-    | undefined;
+    ((activeIndex: number | null, event: React.SyntheticEvent | undefined) => void) | undefined;
   /**
    * Whether the Hook is enabled, including all internal Effects and event
    * handlers.

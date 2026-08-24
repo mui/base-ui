@@ -133,14 +133,12 @@ export type ComboboxRootProps<
    * Event handler called when the popup is opened or closed.
    */
   onOpenChange?:
-    | ((open: boolean, eventDetails: ComboboxRoot.ChangeEventDetails) => void)
-    | undefined;
+    ((open: boolean, eventDetails: ComboboxRoot.ChangeEventDetails) => void) | undefined;
   /**
    * Event handler called when the input value changes.
    */
   onInputValueChange?:
-    | ((inputValue: string, eventDetails: ComboboxRoot.ChangeEventDetails) => void)
-    | undefined;
+    ((inputValue: string, eventDetails: ComboboxRoot.ChangeEventDetails) => void) | undefined;
   /**
    * Callback fired when an item is highlighted or unhighlighted.
    * Receives the highlighted item value (or `undefined` if no item is highlighted) and event details with a `reason` property describing why the highlight changed.
