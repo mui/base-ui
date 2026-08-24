@@ -14,7 +14,7 @@ import {
   isTypeableElement,
 } from '../../floating-ui-react/utils';
 import { useFilterDropdownRootContext } from '../root/FilterDropdownRootContext';
-import { useRenderedId } from '../../internals/useRenderedId';
+import { resolveRenderedId } from '../../internals/resolveRenderedId';
 import { useDirection } from '../../internals/direction-context/DirectionContext';
 import { resolveMenuPopupLabel } from '../../menu/popup/resolveMenuPopupLabel';
 
@@ -34,10 +34,14 @@ export const FilterDropdownPopup = React.forwardRef(function FilterDropdownPopup
   const context = useFilterDropdownRootContext();
   const direction = useDirection();
   const { focusOwnerRef, setPopupId } = context;
-  const id = idProp ?? context.defaultPopupId;
+  const id = resolveRenderedId(componentProps, context.defaultPopupId);
+  const registeredId = id === context.defaultPopupId ? undefined : id;
+  const registerIdRef = React.useCallback(
+    (element: HTMLElement | null) => setPopupId(element ? registeredId : undefined),
+    [registeredId, setPopupId],
+  );
   const { ariaLabelledBy } = resolveMenuPopupLabel(componentProps, null, context.triggerId ?? null);
 
-  const renderedIdRef = useRenderedId(setPopupId, context.defaultPopupId, idProp != null);
   // The pointer may only restore focus to an owner that held it during this open session, or
   // hovering an inputless list would seed a highlight. Stores the element rather than a flag so
   // an owner swap doesn't inherit the claim, and clears on close for kept-mounted popups.
@@ -52,7 +56,7 @@ export const FilterDropdownPopup = React.forwardRef(function FilterDropdownPopup
 
   return useRenderElement('div', componentProps, {
     state,
-    ref: [forwardedRef, renderedIdRef],
+    ref: [forwardedRef, registerIdRef],
     props: [
       {
         id,

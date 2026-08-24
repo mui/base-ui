@@ -5,10 +5,18 @@ import styles from './index.module.css';
 
 export default function ExampleEmojiPicker() {
   const [pickerOpen, setPickerOpen] = React.useState(false);
+  const [searchValue, setSearchValue] = React.useState('');
   const [textValue, setTextValue] = React.useState('');
 
   const textInputRef = React.useRef<HTMLInputElement | null>(null);
   const caretPositionRef = React.useRef<number | null>(null);
+  const query = searchValue.trim().toLocaleLowerCase();
+  const filteredCategories = emojiCategories
+    .map((category) => ({
+      ...category,
+      emojis: category.emojis.filter((item) => item.name.toLocaleLowerCase().includes(query)),
+    }))
+    .filter((category) => category.emojis.length > 0);
 
   function handleInsertEmoji(emoji: string) {
     if (!textInputRef.current) {
@@ -47,7 +55,10 @@ export default function ExampleEmojiPicker() {
 
         <FilterMenu.Root
           grid
+          filter={null}
+          inputValue={searchValue}
           open={pickerOpen}
+          onInputValueChange={setSearchValue}
           onOpenChange={setPickerOpen}
           onOpenChangeComplete={handleOpenChangeComplete}
         >
@@ -71,14 +82,18 @@ export default function ExampleEmojiPicker() {
                     className={styles.List}
                     style={{ '--cols': COLUMNS } as React.CSSProperties}
                   >
-                    {emojiCategories.map((category) => (
+                    {filteredCategories.map((category) => (
                       <FilterMenu.Group key={category.label} className={styles.Group}>
                         <FilterMenu.GroupLabel className={styles.GroupLabel}>
                           {category.label}
                         </FilterMenu.GroupLabel>
                         <div className={styles.Grid} role="presentation">
                           {chunkArray(category.emojis, COLUMNS).map((row, rowIdx) => (
-                            <FilterMenu.Row key={rowIdx} className={styles.Row}>
+                            <FilterMenu.Row
+                              key={rowIdx}
+                              className={styles.Row}
+                              aria-label={`${category.label}, row ${rowIdx + 1}`}
+                            >
                               {row.map((rowItem) => (
                                 <FilterMenu.Item
                                   key={rowItem.emoji}

@@ -18,7 +18,7 @@ import { useToolbarRootContext } from '../../toolbar/root/ToolbarRootContext';
 import { COMPOSITE_KEYS } from '../../internals/composite/composite';
 import { getDisabledMountTransitionStyles } from '../../internals/getDisabledMountTransitionStyles';
 import { useMenuSubmenuRootContext } from '../submenu-root/MenuSubmenuRootContext';
-import { useRenderedId } from '../../internals/useRenderedId';
+import { resolveRenderedId } from '../../internals/resolveRenderedId';
 import { resolveMenuPopupLabel } from './resolveMenuPopupLabel';
 import { isTypeableElement } from '../../floating-ui-react/utils/element';
 
@@ -57,9 +57,13 @@ export const MenuPopup = React.forwardRef(function MenuPopup(
   const hoverEnabled = store.useState('hoverEnabled');
   const disabled = store.useState('disabled');
   const setPopupElement = store.useStateSetter('popupElement');
-  const renderedIdRef = useRenderedId(setFloatingId, defaultFloatingId, idProp != null);
 
-  const id = idProp ?? defaultFloatingId;
+  const id = resolveRenderedId(componentProps, defaultFloatingId);
+  const registeredId = id === defaultFloatingId ? undefined : id;
+  const registerIdRef = React.useCallback(
+    (element: HTMLElement | null) => setFloatingId(element ? registeredId : undefined),
+    [registeredId, setFloatingId],
+  );
   const { ariaLabelledBy } = resolveMenuPopupLabel(
     componentProps,
     activeTriggerElement,
@@ -131,7 +135,7 @@ export const MenuPopup = React.forwardRef(function MenuPopup(
 
   const element = useRenderElement('div', componentProps, {
     state,
-    ref: [forwardedRef, store.context.popupRef, setPopupElement, renderedIdRef],
+    ref: [forwardedRef, store.context.popupRef, setPopupElement, registerIdRef],
     stateAttributesMapping: popupTransitionStateMapping,
     props: [
       popupProps,

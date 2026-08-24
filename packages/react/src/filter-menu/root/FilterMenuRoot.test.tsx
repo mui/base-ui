@@ -70,7 +70,7 @@ describe('<FilterMenu.Root />', () => {
       );
     }
 
-    function SubmenuInputOnlyMenu() {
+    function SubmenuInputOnlyMenu(props: { onRenameClick?: (() => void) | undefined }) {
       return (
         <FilterMenu.Root>
           <FilterMenu.Trigger>Actions</FilterMenu.Trigger>
@@ -78,7 +78,7 @@ describe('<FilterMenu.Root />', () => {
             <FilterMenu.Positioner>
               <FilterMenu.Popup>
                 <FilterMenu.List data-testid="root-list">
-                  <FilterMenu.Item>Rename</FilterMenu.Item>
+                  <FilterMenu.Item onClick={props.onRenameClick}>Rename</FilterMenu.Item>
                   <FilterMenu.SubmenuRoot>
                     <FilterMenu.SubmenuTrigger delay={0}>Move to</FilterMenu.SubmenuTrigger>
                     <FilterMenu.Portal>
@@ -157,8 +157,12 @@ describe('<FilterMenu.Root />', () => {
       expect(input).toHaveAttribute('data-highlighted');
     });
 
-    it('keeps focus on the trigger when an inputless menu is opened with a pointer', async () => {
-      const { user } = await render(<SubmenuInputOnlyMenu />);
+    it.each([
+      ['arrow navigation', '[ArrowDown]'],
+      ['typeahead', 'r'],
+    ])('moves focus into a pointer-opened inputless menu with %s', async (_description, keys) => {
+      const onRenameClick = vi.fn();
+      const { user } = await render(<SubmenuInputOnlyMenu onRenameClick={onRenameClick} />);
 
       const trigger = screen.getByRole('button', { name: 'Actions' });
       await user.click(trigger);
@@ -174,6 +178,16 @@ describe('<FilterMenu.Root />', () => {
       expect(screen.getByRole('menuitem', { name: 'Rename' })).not.toHaveAttribute(
         'data-highlighted',
       );
+
+      await user.keyboard(keys);
+
+      const renameItem = screen.getByRole('menuitem', { name: 'Rename' });
+      expect(list).toHaveFocus();
+      expect(list).toHaveAttribute('aria-activedescendant', renameItem.id);
+
+      await user.keyboard('[Enter]');
+
+      expect(onRenameClick).toHaveBeenCalledOnce();
     });
 
     describe('prop: autoHighlight', () => {
@@ -5193,9 +5207,12 @@ describe('<FilterMenu.Root />', () => {
   });
 
   describe('prop: grid', () => {
-    function GridMenu(props: { onPress?: (() => void) | undefined }) {
+    function GridMenu(props: {
+      defaultOpen?: boolean | undefined;
+      onPress?: (() => void) | undefined;
+    }) {
       return (
-        <FilterMenu.Root grid defaultOpen>
+        <FilterMenu.Root grid defaultOpen={props.defaultOpen ?? true}>
           <FilterMenu.Trigger>Emoji</FilterMenu.Trigger>
           <FilterMenu.Portal>
             <FilterMenu.Positioner>
@@ -5218,6 +5235,25 @@ describe('<FilterMenu.Root />', () => {
         </FilterMenu.Root>
       );
     }
+
+    it('opens with vertical trigger arrows, not horizontal grid arrows', async () => {
+      const { user } = await render(<GridMenu defaultOpen={false} />);
+      const trigger = screen.getByRole('button', { name: 'Emoji' });
+
+      await act(async () => {
+        trigger.focus();
+      });
+      await user.keyboard('[ArrowRight]');
+
+      expect(screen.queryByRole('grid')).toBe(null);
+
+      await user.keyboard('[ArrowDown]');
+
+      expect(await screen.findByRole('grid')).toBeVisible();
+      await waitFor(() => {
+        expect(screen.getByRole('searchbox', { name: 'Search emoji' })).toHaveFocus();
+      });
+    });
 
     it('uses grid semantics and navigates across rows and columns', async () => {
       const { user } = await render(<GridMenu />);
@@ -5313,6 +5349,33 @@ describe('<FilterMenu.Root />', () => {
       expect(input.selectionStart).toBe(1);
       expect(input.selectionEnd).toBe(1);
       expect(input).not.toHaveAttribute('aria-activedescendant');
+    });
+
+    it('keeps disabled cells reachable during vertical grid navigation', async () => {
+      const { user } = await render(
+        <FilterMenu.Root grid inline open>
+          <FilterMenu.Input aria-label="Search actions" />
+          <FilterMenu.List aria-label="Actions">
+            <FilterMenu.Row>
+              <FilterMenu.Item>One</FilterMenu.Item>
+            </FilterMenu.Row>
+            <FilterMenu.Row>
+              <FilterMenu.Item disabled>Two</FilterMenu.Item>
+            </FilterMenu.Row>
+          </FilterMenu.List>
+        </FilterMenu.Root>,
+      );
+      const input = screen.getByRole('searchbox', { name: 'Search actions' });
+      const cells = screen.getAllByRole('gridcell');
+
+      await act(async () => {
+        input.focus();
+      });
+      await user.keyboard('[ArrowDown]');
+      expect(input).toHaveAttribute('aria-activedescendant', cells[0].id);
+
+      await user.keyboard('[ArrowDown]');
+      expect(input).toHaveAttribute('aria-activedescendant', cells[1].id);
     });
   });
 
