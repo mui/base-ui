@@ -66,24 +66,17 @@ export const MenuPopup = React.forwardRef(function MenuPopup(
     activeTriggerId,
   );
 
-  // A separate root can be rendered under a submenu provider (for example in a dialog). Only a
-  // root instantiated as the matching submenu may inherit its navigation and focus-return hooks.
+  // A dialog's menu can render under a submenu provider; only the actual submenu inherits it.
   const submenuRootContext = parent.type === 'menu' ? inheritedSubmenuRootContext : undefined;
   const isContextMenu = parent.type === 'context-menu';
 
-  // Arrow keys open submenus through list navigation without dispatching a click, so
-  // `openMethod` remains null; Enter and Space dispatch a click and report `keyboard`.
   const openedByKeyboard =
     open && (lastOpenChangeReason === REASONS.listNavigation || openMethod === 'keyboard');
-  // Hovering or pressing a trigger hands an input-bearing submenu ownership of focus, so typing
-  // immediately filters it. An inputless virtual-focus list keeps focus in its parent on pointer
-  // opens: the `initialFocus` resolver below refuses pointer focus for a non-typeable owner.
   const openedByHover = open && lastOpenChangeReason === REASONS.triggerHover;
   const openedByPress = open && lastOpenChangeReason === REASONS.triggerPress;
   const shouldFocusPopup =
     parent.type !== 'menu' || openedByKeyboard || openedByHover || openedByPress;
-  // Under virtual focus the popup itself is never the focus target: a child element holds real
-  // focus and the list is navigated with `aria-activedescendant`.
+  // Under virtual focus a child element holds real focus; the popup is never the focus target.
   let initialFocus: FloatingFocusManagerProps['initialFocus'] = parent.type !== 'menu';
   if (shouldFocusPopup && virtualFocus) {
     initialFocus = (openType) => {
@@ -145,8 +138,6 @@ export const MenuPopup = React.forwardRef(function MenuPopup(
       {
         id,
         role: 'menu',
-        // Read the id off the element rather than the registration: a `render` element's own
-        // `id` wins in the DOM, and pointing at the registered id would reference nothing.
         'aria-labelledby': ariaLabelledBy,
         onKeyDown(event) {
           submenuRootContext?.onPopupKeyDown?.(event);

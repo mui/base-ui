@@ -197,6 +197,7 @@ export function useAnchorPositioningWithHook(
         'inline-start': isRtl ? 'right' : 'left',
       } satisfies Record<Side, PhysicalSide>
     )[sideParam];
+
   const placementAlign = mountAlign || align;
   const placement = placementAlign === 'center' ? side : (`${side}-${placementAlign}` as Placement);
 

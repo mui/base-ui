@@ -64,6 +64,7 @@ export const MenuSubmenuTrigger = React.forwardRef(function MenuSubmenuTrigger(
   const floatingRootContext = store.useState('floatingRootContext');
   const floatingTreeRoot = store.useState('floatingTreeRoot');
   const popupId = store.useState('triggerPopupId', id);
+
   const baseRegisterTrigger = useTriggerRegistration(id, store);
   // Stable, so the merged ref on the rendered element keeps its identity for the trigger's whole
   // lifetime; the latest `closeDelay` is read when it runs.
@@ -86,9 +87,9 @@ export const MenuSubmenuTrigger = React.forwardRef(function MenuSubmenuTrigger(
 
   const triggerElementRef = React.useRef<HTMLElement | null>(null);
   const handleTriggerElementRef = React.useCallback(
-    (element: HTMLElement | null) => {
-      triggerElementRef.current = element;
-      store.set('activeTriggerElement', element);
+    (el: HTMLElement | null) => {
+      triggerElementRef.current = el;
+      store.set('activeTriggerElement', el);
     },
     [store],
   );
@@ -122,6 +123,7 @@ export const MenuSubmenuTrigger = React.forwardRef(function MenuSubmenuTrigger(
 
   const itemProps = parentMenuStore.useState('itemProps');
   const highlighted = parentMenuStore.useState('isActive', listItem.index);
+
   const itemMetadata = React.useMemo(
     () => ({
       type: 'submenu-trigger' as const,
@@ -183,6 +185,8 @@ export const MenuSubmenuTrigger = React.forwardRef(function MenuSubmenuTrigger(
 
   const openMethod = store.useState('openMethod');
   const lastOpenChangeReason = store.useState('lastOpenChangeReason');
+  // Arrow keys open the submenu through list navigation without dispatching a click, so
+  // `openMethod` stays null there; Enter and Space do dispatch one and report `keyboard`.
   const openedByKeyboard =
     lastOpenChangeReason === REASONS.listNavigation || openMethod === 'keyboard';
   const shouldOmitExpanded = open && openedByKeyboard && platform.screenReader.voiceOver;
