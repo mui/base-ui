@@ -59,6 +59,7 @@ export function Main({ orientation = 'horizontal', loopFocus = false }: Props) {
           <FloatingFocusManager context={context}>
             <div
               role="menu"
+              aria-orientation={orientation === 'both' ? undefined : orientation}
               ref={refs.setFloating}
               data-testid="floating"
               className={styles.Grid}

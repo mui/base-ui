@@ -144,6 +144,7 @@ export function Main() {
       floating: {
         id: context.floatingId,
         role: 'menu' as const,
+        'aria-orientation': 'horizontal' as const,
       },
     }),
     [context.floatingId, open],

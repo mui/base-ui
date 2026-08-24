@@ -109,6 +109,12 @@ describe('<Menu.Root />', () => {
     { name: 'contained triggers', Component: ContainedTriggerMenu },
     { name: 'detached triggers', Component: DetachedTriggerMenu },
   ])('when using $name', ({ Component: TestMenu }) => {
+    it('sets aria-orientation on the popup', async () => {
+      await render(<TestMenu rootProps={{ defaultOpen: true, orientation: 'horizontal' }} />);
+
+      expect(screen.getByRole('menu')).toHaveAttribute('aria-orientation', 'horizontal');
+    });
+
     describe('keyboard navigation', () => {
       it('changes the highlighted item using the arrow keys', async () => {
         await render(<TestMenu />);

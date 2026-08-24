@@ -267,6 +267,7 @@ export const MenuComponent = React.forwardRef<
                   ref={refs.setFloating}
                   id={context.floatingId}
                   role="menu"
+                  aria-orientation={orientation === 'both' ? undefined : orientation}
                   aria-labelledby={triggerId}
                   className={c(
                     styles.Panel,

@@ -5835,6 +5835,19 @@ describe('<Combobox.Root />', () => {
     });
   });
 
+  it('sets aria-orientation on a non-grid listbox', async () => {
+    await render(
+      <Combobox.Root defaultOpen>
+        <Combobox.Input />
+        <Combobox.List>
+          <Combobox.Item value="1">1</Combobox.Item>
+        </Combobox.List>
+      </Combobox.Root>,
+    );
+
+    expect(screen.getByRole('listbox')).toHaveAttribute('aria-orientation', 'vertical');
+  });
+
   describe('prop: grid', () => {
     it('sets grid roles when grid is enabled and rows are used', async () => {
       await render(
