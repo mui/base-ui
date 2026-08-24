@@ -5,7 +5,7 @@ export { createDndRenderer, testDragKind } from './dndEngine';
 export type { DndRenderResult, DndTestRenderer, DndTestEngine } from './dndEngine';
 export { describeConformance } from './describeConformance';
 export { createDOMRect, setElementClientHeight, setElementScrollState } from './layoutMocks';
-export { enterWithMouse, moveMouse } from './pointer';
+export { enterWithMouse, firePointer, moveMouse } from './pointer';
 export { mergeRefs } from './mergeRefs';
 export { popupConformanceTests } from './popupConformanceTests';
 export { resetBrowserPointer } from './resetBrowserPointer';
