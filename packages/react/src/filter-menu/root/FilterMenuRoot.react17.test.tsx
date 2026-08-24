@@ -49,7 +49,7 @@ describe('<FilterMenu.Root /> with the React 17 id fallback', () => {
       expect(trigger).toHaveAttribute('aria-controls', popup.id);
     });
     expect(input).toHaveAttribute('aria-controls', list.id);
-    expect(item.id).not.toBe('');
-    expect(item.id).not.toContain('undefined');
+    // Ids come from the fallback counter, which proves `React.useId` really is unavailable here.
+    expect(item.id).toMatch(/^base-ui-\d+/);
   });
 });

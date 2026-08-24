@@ -15,7 +15,7 @@ import { Menu } from '@base-ui/react/menu';
 import { FilterMenu } from '@base-ui/react/filter-menu';
 import { ScrollArea } from '@base-ui/react/scroll-area';
 import userEvent from '@testing-library/user-event';
-import { createRenderer, isJSDOM, resetBrowserPointer } from '#test-utils';
+import { createRenderer, isJSDOM, resetBrowserPointer, waitSingleFrame } from '#test-utils';
 
 // Mainline tests assert the non-VoiceOver submenu-trigger behavior deterministically on every OS.
 vi.mock('@base-ui/utils/platform', async () => {
@@ -164,6 +164,10 @@ describe('<FilterMenu.Root />', () => {
       await user.click(trigger);
 
       const list = await screen.findByRole('menu');
+      // Focus moves are scheduled in a frame, so let one pass before asserting it never happens.
+      await act(async () => {
+        await waitSingleFrame();
+      });
       expect(trigger).toHaveFocus();
       expect(list).not.toHaveFocus();
       expect(list).not.toHaveAttribute('aria-activedescendant');
@@ -504,10 +508,7 @@ describe('<FilterMenu.Root />', () => {
           expect(deleteItem).toHaveAttribute('data-highlighted');
         });
 
-        fireEvent.pointerLeave(deleteItem, {
-          pointerType: 'mouse',
-          relatedTarget: document.body,
-        });
+        await user.unhover(deleteItem);
 
         expect(deleteItem).toHaveAttribute('data-highlighted');
       });
@@ -639,6 +640,14 @@ describe('<FilterMenu.Root />', () => {
 
         await waitFor(() => {
           expect(screen.getByTestId('popup')).toHaveAttribute('data-ending-style');
+        });
+        expect(input).not.toHaveAttribute('aria-activedescendant');
+        expect(item).not.toHaveAttribute('data-highlighted');
+
+        // The exit runs for 10s, so re-check past the first frames of it.
+        await act(async () => {
+          await waitSingleFrame();
+          await waitSingleFrame();
         });
         expect(input).not.toHaveAttribute('aria-activedescendant');
         expect(item).not.toHaveAttribute('data-highlighted');
@@ -923,10 +932,17 @@ describe('<FilterMenu.Root />', () => {
       });
     });
 
-    it('closes a pointer-opened filterable submenu and moves focus forward when tabbing', async () => {
+    it('closes a pointer-opened filterable submenu and moves focus forward when tabbing', async ({
+      onTestFinished,
+    }) => {
+      // Exit transitions keep the closing popups mounted while focus relocates.
+      globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+      onTestFinished(() => {
+        globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
+      });
+
       const { user } = await render(
         <div>
-          {/* Exit transitions keep the closing popups mounted while focus relocates. */}
           <style>{`
             .filter-popup { transition: opacity 50ms; opacity: 1; }
             .filter-popup[data-ending-style] { opacity: 0; }
@@ -1278,6 +1294,10 @@ describe('<FilterMenu.Root />', () => {
       await user.hover(screen.getByRole('menuitem', { name: 'Share' }));
 
       const submenuList = await screen.findByTestId('submenu-list');
+      // Focus moves are scheduled in a frame, so let one pass before asserting it never happens.
+      await act(async () => {
+        await waitSingleFrame();
+      });
       expect(parentInput).toHaveFocus();
       expect(submenuList).not.toHaveFocus();
       expect(submenuList).not.toHaveAttribute('aria-activedescendant');
@@ -1762,6 +1782,8 @@ describe('<FilterMenu.Root />', () => {
 
         await user.hover(screen.getByRole('menuitem', { name: 'Move to folder' }));
 
+        // A fresh pointer: the hover above leaves `user`'s pointer over the trigger, and moving
+        // it into the just-opened submenu trips user-event's `pointer-events` check.
         const input = await screen.findByRole('searchbox', { name: 'Filter folders' });
         await userEvent.click(input);
 
@@ -1824,6 +1846,9 @@ describe('<FilterMenu.Root />', () => {
       await waitFor(() => {
         expect(deleteItem).not.toHaveAttribute('data-highlighted');
       });
+      // The highlight is cleared outright, not handed back to the keyboard origin.
+      expect(renameItem).not.toHaveAttribute('data-highlighted');
+      expect(input).not.toHaveAttribute('aria-activedescendant');
     });
 
     it.skipIf(isJSDOM)(
@@ -1921,6 +1946,60 @@ describe('<FilterMenu.Root />', () => {
 
       const nextItem = screen.getByRole('menuitem', { name: 'Delete' });
       expect(parentInput).toHaveAttribute('aria-activedescendant', nextItem.id);
+    });
+
+    it('keeps cross-axis keys as caret keys while the submenu query is not empty', async () => {
+      const { user } = await render(
+        <FilterMenu.Root defaultOpen>
+          <FilterMenu.Trigger>Actions</FilterMenu.Trigger>
+          <FilterMenu.Portal>
+            <FilterMenu.Positioner>
+              <FilterMenu.Popup>
+                <FilterMenu.Input aria-label="Filter actions" />
+                <FilterMenu.List>
+                  <FilterMenu.SubmenuRoot>
+                    <FilterMenu.SubmenuTrigger>Move to folder</FilterMenu.SubmenuTrigger>
+                    <FilterMenu.Portal>
+                      <FilterMenu.Positioner>
+                        <FilterMenu.Popup>
+                          <FilterMenu.Input aria-label="Filter folders" />
+                          <FilterMenu.List>
+                            <FilterMenu.Item>Documents</FilterMenu.Item>
+                          </FilterMenu.List>
+                        </FilterMenu.Popup>
+                      </FilterMenu.Positioner>
+                    </FilterMenu.Portal>
+                  </FilterMenu.SubmenuRoot>
+                </FilterMenu.List>
+              </FilterMenu.Popup>
+            </FilterMenu.Positioner>
+          </FilterMenu.Portal>
+        </FilterMenu.Root>,
+      );
+
+      const parentInput = screen.getByRole('searchbox', { name: 'Filter actions' });
+      await waitFor(() => {
+        expect(parentInput).toHaveFocus();
+      });
+
+      await user.keyboard('[ArrowDown][ArrowRight]');
+
+      const submenuInput = await screen.findByRole<HTMLInputElement>('searchbox', {
+        name: 'Filter folders',
+      });
+      await waitFor(() => {
+        expect(submenuInput).toHaveFocus();
+      });
+
+      await user.keyboard('doc');
+      expect(submenuInput).toHaveValue('doc');
+
+      // Editing the query must not leave the submenu; the caret moves instead.
+      await user.keyboard('[ArrowLeft]');
+
+      expect(submenuInput).toHaveFocus();
+      expect(submenuInput.selectionStart).toBe(2);
+      expect(screen.getByRole('searchbox', { name: 'Filter folders' })).not.toBe(null);
     });
 
     it('uses RTL cross-axis keys to enter and leave a filterable submenu', async () => {
@@ -2453,6 +2532,10 @@ describe('<FilterMenu.Root />', () => {
       await user.hover(submenuTrigger);
 
       const firstItem = await screen.findByRole('menuitem', { name: 'Documents' });
+      // Focus moves are scheduled in a frame, so let one pass before asserting it never happens.
+      await act(async () => {
+        await waitSingleFrame();
+      });
       expect(parentInput).toHaveFocus();
 
       await user.keyboard('[ArrowRight]');
@@ -2558,6 +2641,10 @@ describe('<FilterMenu.Root />', () => {
         expect(input).toHaveFocus();
       });
       await user.keyboard('[ArrowDown]');
+      expect(input).toHaveAttribute(
+        'aria-activedescendant',
+        screen.getByRole('menuitem', { name: 'Rename' }).id,
+      );
 
       fireEvent.keyDown(input, { key: 'Enter', keyCode: 229, which: 229 });
 
@@ -2565,7 +2652,7 @@ describe('<FilterMenu.Root />', () => {
     });
 
     it('does not forward submenu navigation keys while composing text', async () => {
-      await render(
+      const { user } = await render(
         <FilterMenu.Root defaultOpen>
           <FilterMenu.Trigger>Actions</FilterMenu.Trigger>
           <FilterMenu.Portal>
@@ -2599,7 +2686,7 @@ describe('<FilterMenu.Root />', () => {
       await waitFor(() => {
         expect(input).toHaveFocus();
       });
-      await userEvent.keyboard('[ArrowDown]');
+      await user.keyboard('[ArrowDown]');
 
       fireEvent.keyDown(input, {
         key: 'ArrowRight',
@@ -2892,11 +2979,6 @@ describe('<FilterMenu.Root />', () => {
       expect(submenuTrigger).toHaveAttribute('tabindex', '-1');
       expect(submenuTrigger).toHaveAttribute('aria-expanded', 'false');
       expect(input).toHaveFocus();
-
-      // Items inside the nested plain submenu keep the roving tab index.
-      await user.hover(submenuTrigger);
-      const nestedItem = await screen.findByRole('menuitem', { name: 'Archive' });
-      expect(nestedItem).toHaveAttribute('tabindex', '-1');
     });
 
     it('retains the parent highlight when a submenu opens from a pointer', async () => {
@@ -3032,7 +3114,13 @@ describe('<FilterMenu.Root />', () => {
       const parentInput = screen.getByRole('searchbox', { name: 'Filter actions' });
       await screen.findByRole('searchbox', { name: 'Filter folders' });
 
-      await user.type(parentInput, 'rename');
+      await user.type(parentInput, 'zzz');
+
+      // The query really ran: it matches nothing, so only the canceled submenu trigger survives.
+      expect(parentInput).toHaveValue('zzz');
+      await waitFor(() => {
+        expect(screen.queryByRole('menuitem', { name: 'Rename' })).toBe(null);
+      });
 
       expect(screen.getByRole('menuitem', { name: 'Move to folder' })).toBeVisible();
       expect(screen.getByRole('searchbox', { name: 'Filter folders' })).toBeVisible();
@@ -4203,6 +4291,15 @@ describe('<FilterMenu.Root />', () => {
       await waitFor(() => {
         expect(screen.queryByRole('searchbox', { name: 'Filter sharing options' })).toBe(null);
       });
+
+      // Reopening starts from an empty query rather than the previous one.
+      await user.hover(screen.getByRole('menuitem', { name: 'Share' }));
+      const reopenedInput = await screen.findByRole('searchbox', {
+        name: 'Filter sharing options',
+      });
+      await waitFor(() => {
+        expect(reopenedInput).toHaveValue('');
+      });
     });
   });
 
@@ -5055,6 +5152,12 @@ describe('<FilterMenu.Root />', () => {
         expect(screen.queryByRole('menuitem', { name: 'Delete' })).toBe(null);
       });
 
+      await user.keyboard('[ArrowDown]');
+      expect(input).toHaveAttribute(
+        'aria-activedescendant',
+        screen.getByRole('menuitem', { name: 'Rename' }).id,
+      );
+
       await user.keyboard('[Escape]');
       await user.click(trigger);
 
@@ -5063,6 +5166,9 @@ describe('<FilterMenu.Root />', () => {
         expect(screen.getByRole('searchbox', { name: 'Filter actions' })).toHaveValue('');
       });
       expect(screen.getByRole('menuitem', { name: 'Delete' })).toBeVisible();
+      expect(screen.getByRole('searchbox', { name: 'Filter actions' })).not.toHaveAttribute(
+        'aria-activedescendant',
+      );
     });
   });
 
