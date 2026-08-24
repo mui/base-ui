@@ -18,6 +18,7 @@ export function resolveMenuPopupLabel(
   let ariaLabelledBy = props['aria-labelledby'] ?? renderedElementProps?.['aria-labelledby'];
 
   if (ariaLabelledBy == null && !ariaLabel) {
+    // Prefer the element's live id: a `render` element's own id wins over the registered one.
     ariaLabelledBy = activeTriggerElement
       ? activeTriggerElement.id || undefined
       : activeTriggerId || undefined;

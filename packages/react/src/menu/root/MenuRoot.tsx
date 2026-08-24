@@ -440,6 +440,7 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
         (reason === REASONS.triggerPress || reason === REASONS.itemPress) &&
         (nativeEvent as MouseEvent).detail === 0;
       const isDismissClose = !nextOpen && (reason === REASONS.escapeKey || reason == null);
+
       openEventRef.current = eventDetails.event;
 
       const popupOpenState = createPopupOpenState(
@@ -684,7 +685,7 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
         listNavigation.floating,
         dismiss.floating,
       ),
-    [typeahead.floating, listNavigation.floating, dismiss.floating, store, parent.type],
+    [parent.type, store, typeahead.floating, listNavigation.floating, dismiss.floating],
   );
 
   const itemProps = listNavigation.item ?? EMPTY_OBJECT;

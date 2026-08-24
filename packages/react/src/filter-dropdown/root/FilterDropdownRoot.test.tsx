@@ -269,6 +269,7 @@ describe('<FilterDropdown.Root />', () => {
       expect(status).toHaveTextContent('No matches for zzq');
     });
   });
+
   describe('prop: filter with null', () => {
     it('clears a stale highlight when the item set changes', async () => {
       function ServerResults(props: { items: string[] }) {

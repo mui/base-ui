@@ -25,8 +25,6 @@ export const FilterDropdownInput = React.forwardRef(function FilterDropdownInput
   const value = useFilterDropdownValueContext();
   const activeItemId = useActiveItemId(context);
 
-  // Real focus never leaves the input under virtual focus, so the cursor, not focus, is what
-  // moves. The input holds it until arrow keys hand it to an item.
   const state: FilterDropdownInputState = {
     highlighted: context.inputFocusVisible && (!context.keyboardModality || activeItemId == null),
   };

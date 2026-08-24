@@ -38,12 +38,9 @@ export const FilterDropdownPopup = React.forwardRef(function FilterDropdownPopup
   const ariaLabelledBy = hasAriaLabel ? elementProps['aria-labelledby'] : context.triggerId;
 
   const renderedIdRef = useRenderedId(setPopupId, context.defaultPopupId, idProp != null);
-  // The pointer may only restore focus to an owner that held it during THIS open session.
-  // Moving the pointer into a popup whose owner has never been focused (an inputless list opened
-  // by a pointer, where focus stays on the trigger) must not hand it focus, because that seeds a
-  // highlight on the first item while the cursor is nowhere near it. Stores the element rather
-  // than a flag so swapping the owner (an input unmounting, leaving the list) does not inherit
-  // the previous owner's claim, and clears on close so a kept-mounted popup starts over.
+  // The pointer may only restore focus to an owner that held it during this open session, or
+  // hovering an inputless list would seed a highlight. Stores the element rather than a flag so
+  // an owner swap doesn't inherit the claim, and clears on close for kept-mounted popups.
   const heldFocusOwnerRef = React.useRef<HTMLElement | null>(null);
   useIsoLayoutEffect(() => {
     if (!context.open) {
@@ -79,15 +76,13 @@ export const FilterDropdownPopup = React.forwardRef(function FilterDropdownPopup
           }
 
           const activeEl = activeElement(ownerDocument(event.currentTarget));
-          // Already where it belongs, or deliberately on another control inside this popup (a
-          // header button, a secondary field). Only focus that drifted outside is pulled back.
+          // Only pull back focus that drifted outside the popup.
           if (activeEl === focusOwner || contains(event.currentTarget, activeEl)) {
             return;
           }
 
-          // An input takes focus on pointer enter so typing filters immediately. A list cannot:
-          // focusing it seeds the highlight onto the first item, so the pointer may only restore
-          // focus it already held (for example after a submenu handed it back).
+          // An input takes focus on pointer enter so typing filters immediately. A list may only
+          // restore focus it already held, since focusing it seeds the highlight.
           if (!isTypeableElement(focusOwner) && heldFocusOwnerRef.current !== focusOwner) {
             return;
           }
@@ -106,8 +101,7 @@ export const FilterDropdownPopup = React.forwardRef(function FilterDropdownPopup
             overOpenSubmenuTrigger ||= node.hasAttribute('data-popup-open');
             return false;
           });
-          // An open submenu owns focus while the pointer rests on its trigger, so don't pull
-          // focus back from the submenu's input.
+          // An open submenu owns focus while the pointer rests on its trigger.
           if (!overOpenSubmenuTrigger && nearestPopup === event.currentTarget) {
             focusOwner.focus({ preventScroll: true });
           }
