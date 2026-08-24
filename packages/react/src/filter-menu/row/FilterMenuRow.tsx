@@ -4,7 +4,7 @@ import type { BaseUIComponentProps } from '../../internals/types';
 import { useRenderElement } from '../../internals/useRenderElement';
 
 /**
- * Displays a single row of items in a grid filter menu.
+ * Displays a single row of regular items in a grid filter menu.
  * Renders a `<div>` element.
  *
  * Documentation: [Base UI Filter Menu](https://base-ui.com/react/components/filter-menu)

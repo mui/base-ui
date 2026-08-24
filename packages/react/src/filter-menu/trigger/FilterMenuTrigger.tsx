@@ -1,14 +1,13 @@
 'use client';
 import * as React from 'react';
-import { useBaseUiId } from '../../internals/useBaseUiId';
-import { FilterDropdownTrigger } from '../../filter-dropdown/trigger/FilterDropdownTrigger';
 import {
   MenuTrigger,
   type MenuTriggerProps,
   type MenuTriggerState,
 } from '../../menu/trigger/MenuTrigger';
 import { useMenuRootContext } from '../../menu/root/MenuRootContext';
-import { usePopupHandleStore } from '../../utils/popups';
+import { mergeProps } from '../../merge-props';
+import type { BaseUIEvent } from '../../internals/types';
 import type { FilterMenuHandle } from '../store/FilterMenuHandle';
 
 /**
@@ -21,36 +20,46 @@ export const FilterMenuTrigger = React.forwardRef(function FilterMenuTrigger(
   props: FilterMenuTrigger.Props,
   forwardedRef: React.ForwardedRef<HTMLElement>,
 ) {
-  const { id: idProp, handle, ...menuProps } = props;
+  const { handle, ...menuProps } = props;
 
   const rootContext = useMenuRootContext(true);
-  const handleStore = usePopupHandleStore(handle);
-  const store = handleStore ?? rootContext?.store;
 
-  if (!store) {
+  if (!rootContext && !handle) {
     throw new Error(
       'Base UI: <FilterMenu.Trigger> must be either used within a <FilterMenu.Root> component or provided with a handle.',
     );
   }
 
-  const id = useBaseUiId(idProp);
-  const open = store.useState('isOpenedByTrigger', id);
-  const popupId = store.useState('triggerPopupId', id);
+  const triggerProps = mergeProps<typeof MenuTrigger>(
+    {
+      onKeyDown(event: BaseUIEvent<React.KeyboardEvent<HTMLElement>>) {
+        const focusOwner = rootContext?.virtualFocusRef?.current;
+        const isArrowKey = event.key.startsWith('Arrow');
+        const isTypeaheadKey =
+          event.key.length === 1 &&
+          event.key !== ' ' &&
+          !event.ctrlKey &&
+          !event.metaKey &&
+          !event.altKey;
+
+        if ((isArrowKey || isTypeaheadKey) && rootContext?.store.select('open') && focusOwner) {
+          focusOwner.focus({ preventScroll: true });
+          if (isArrowKey) {
+            event.preventDefault();
+            event.preventBaseUIHandler();
+          }
+        }
+      },
+    },
+    menuProps,
+  );
 
   return (
-    <FilterDropdownTrigger
-      id={id}
-      popupState={{ open, popupId }}
-      // The consumer's props and ref go to the inner trigger only. Applying them to both layers
-      // would run each handler twice for one interaction.
-      render={
-        <MenuTrigger
-          {...menuProps}
-          handle={handle}
-          id={id}
-          ref={forwardedRef as React.Ref<HTMLButtonElement>}
-        />
-      }
+    <MenuTrigger
+      {...triggerProps}
+      aria-haspopup={triggerProps['aria-haspopup'] ?? 'dialog'}
+      handle={handle}
+      ref={forwardedRef as React.Ref<HTMLButtonElement>}
     />
   );
 }) as FilterMenuTrigger;

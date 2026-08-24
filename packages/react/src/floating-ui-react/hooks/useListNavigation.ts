@@ -150,6 +150,11 @@ export interface UseListNavigationProps {
    */
   orientation?: 'vertical' | 'horizontal' | 'both' | undefined;
   /**
+   * The orientation used to open the list from its trigger.
+   * @default orientation
+   */
+  triggerOrientation?: 'vertical' | 'horizontal' | 'both' | undefined;
+  /**
    * The id of the root component.
    */
   id?: string | undefined;
@@ -197,6 +202,7 @@ export function useListNavigation(
     openOnArrowKeyDown = true,
     disabledIndices = undefined,
     orientation = 'vertical',
+    triggerOrientation = orientation,
     parentOrientation,
     id,
     resetOnPointerLeave = true,
@@ -811,7 +817,10 @@ export function useListNavigation(
           getParentOrientation(),
           rtl,
         );
-        const isMainKey = isMainOrientationKey(event.key, orientation);
+        const isMainKey = isMainOrientationKey(
+          event.key,
+          currentOpen ? orientation : triggerOrientation,
+        );
         const isNavigationKey =
           (nested ? isParentCrossOpenKey : isMainKey) ||
           event.key === 'Enter' ||
@@ -898,6 +907,7 @@ export function useListNavigation(
     store,
     openOnArrowKeyDown,
     orientation,
+    triggerOrientation,
     getParentOrientation,
     rtl,
     selectedIndexRef,

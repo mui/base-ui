@@ -1,11 +1,10 @@
 'use client';
 import * as React from 'react';
-import { NOOP } from '@base-ui/utils/empty';
 import type { BaseUIComponentProps, NativeButtonProps } from '../../internals/types';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { pressableTriggerOpenStateMapping } from '../../utils/popupStateMapping';
 import { useFilterDropdownRootContext } from '../root/FilterDropdownRootContext';
-import { useRenderedId } from '../../internals/useRenderedId';
+import { resolveRenderedId } from '../../internals/resolveRenderedId';
 
 /**
  * @internal
@@ -26,13 +25,13 @@ export const FilterDropdownTrigger = React.forwardRef(function FilterDropdownTri
 
   const context = useFilterDropdownRootContext(popupState !== undefined);
   const setTriggerId = context?.setTriggerId;
-  const renderedIdRef = useRenderedId(
-    setTriggerId ?? NOOP,
-    context?.defaultTriggerId,
-    idProp != null,
+  const id = resolveRenderedId(componentProps, context?.defaultTriggerId);
+  const registeredId = id === context?.defaultTriggerId ? undefined : id;
+  const registerIdRef = React.useCallback(
+    (element: HTMLElement | null) => setTriggerId?.(element ? registeredId : undefined),
+    [registeredId, setTriggerId],
   );
 
-  const id = idProp ?? context?.defaultTriggerId;
   const open = popupState?.open ?? context?.open ?? false;
   const popupId = popupState?.popupId ?? context?.popupId;
 
@@ -43,7 +42,7 @@ export const FilterDropdownTrigger = React.forwardRef(function FilterDropdownTri
 
   return useRenderElement('button', componentProps, {
     state,
-    ref: [forwardedRef, renderedIdRef],
+    ref: [forwardedRef, registerIdRef],
     props: [
       {
         id,

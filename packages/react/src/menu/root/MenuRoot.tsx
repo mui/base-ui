@@ -93,6 +93,11 @@ interface MenuRootInternalProps<Payload> extends MenuRoot.Props<Payload> {
   renderVirtualFocusChildren?:
     | ((payload: { payload: Payload | undefined }, inputProps: HTMLProps) => React.ReactNode)
     | undefined;
+  /**
+   * @ignore
+   * The orientation used to open the popup from its trigger when it differs from list navigation.
+   */
+  triggerOrientation?: MenuRoot.Orientation | undefined;
 }
 
 /**
@@ -126,6 +131,7 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
     resetOnPointerLeave = true,
     virtualFocusInput = false,
     renderVirtualFocusChildren,
+    triggerOrientation = orientation,
   } = props as MenuRootInternalProps<Payload>;
 
   const contextMenuContext = useContextMenuRootContext(true);
@@ -561,6 +567,7 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
     focusItemOnOpen: virtualFocus ? false : undefined,
     allowEscape: virtualFocus && loopFocus && allowEscape,
     orientation,
+    triggerOrientation,
     rtl: direction === 'rtl',
     disabledIndices: EMPTY_ARRAY,
     onNavigate(nextActiveIndex) {

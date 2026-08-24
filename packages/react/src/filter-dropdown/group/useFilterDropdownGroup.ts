@@ -29,6 +29,8 @@ export interface UseFilterDropdownGroupReturnValue {
    * Provider value that collects the group's items.
    */
   context: FilterDropdownGroupContext;
+  /** Whether the owning dropdown presents items in a grid. */
+  grid: boolean;
 }
 
 /**
@@ -37,7 +39,7 @@ export interface UseFilterDropdownGroupReturnValue {
  * @internal
  */
 export function useFilterDropdownGroup(): UseFilterDropdownGroupReturnValue {
-  const { store } = useFilterDropdownItemContext();
+  const { grid, store } = useFilterDropdownItemContext();
   const [items, registerItem] = useItemRegistry<symbol, boolean>();
   const hidden = useStore(store, isGroupHidden, items);
 
@@ -46,5 +48,5 @@ export function useFilterDropdownGroup(): UseFilterDropdownGroupReturnValue {
     [registerItem],
   );
 
-  return { hidden, context };
+  return { hidden, context, grid };
 }
