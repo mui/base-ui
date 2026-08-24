@@ -35,7 +35,9 @@ describe('<FilterMenu.Row />', () => {
       <FilterMenu.Root grid inline open>
         <FilterMenu.List>
           <FilterMenu.Row aria-label="Smileys & Emotion, row 1">
-            <FilterMenu.Item>Grinning face</FilterMenu.Item>
+            <FilterMenu.Item aria-label="Grinning face">
+              <span aria-hidden>😀</span>
+            </FilterMenu.Item>
             <FilterMenu.Item>Smiling face</FilterMenu.Item>
           </FilterMenu.Row>
         </FilterMenu.List>
@@ -43,6 +45,9 @@ describe('<FilterMenu.Row />', () => {
     );
 
     expect(screen.getByRole('row', { name: 'Smileys & Emotion, row 1' })).toBeVisible();
+    expect(screen.getByRole('gridcell', { name: 'Grinning face' })).toHaveAccessibleName(
+      'Grinning face',
+    );
   });
 
   it('renders groups as rowgroups in a grid filter menu', async () => {
