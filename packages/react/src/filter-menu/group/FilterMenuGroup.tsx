@@ -15,15 +15,15 @@ export const FilterMenuGroup = React.forwardRef(function FilterMenuGroup(
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const { hidden, context, grid } = useFilterDropdownGroup();
+  const gridProps = grid ? { role: 'rowgroup' as const, 'aria-labelledby': undefined } : undefined;
 
   return (
     <FilterDropdownGroupContext.Provider value={context}>
       <MenuGroup
         {...props}
+        {...gridProps}
         hidden={hidden || props.hidden || undefined}
         ref={forwardedRef}
-        role={grid ? 'rowgroup' : props.role}
-        aria-labelledby={grid ? undefined : props['aria-labelledby']}
       />
     </FilterDropdownGroupContext.Provider>
   );

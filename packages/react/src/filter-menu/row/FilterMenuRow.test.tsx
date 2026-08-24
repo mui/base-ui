@@ -48,4 +48,19 @@ describe('<FilterMenu.Row />', () => {
     expect(rowgroup).toBeVisible();
     expect(rowgroup).not.toHaveAttribute('aria-labelledby');
   });
+
+  it('keeps groups labelled outside grid mode', async () => {
+    await render(
+      <FilterMenu.Root inline open>
+        <FilterMenu.List>
+          <FilterMenu.Group>
+            <FilterMenu.GroupLabel>Actions</FilterMenu.GroupLabel>
+            <FilterMenu.Item>Rename</FilterMenu.Item>
+          </FilterMenu.Group>
+        </FilterMenu.List>
+      </FilterMenu.Root>,
+    );
+
+    expect(screen.getByRole('group', { name: 'Actions' })).toBeVisible();
+  });
 });
