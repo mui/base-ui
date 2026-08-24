@@ -127,6 +127,7 @@ export const FilterDropdownPopup = React.forwardRef(function FilterDropdownPopup
           const closeKey = direction === 'rtl' ? 'ArrowRight' : 'ArrowLeft';
           if (event.key === closeKey) {
             focusOwnerRef.current?.focus({ preventScroll: true });
+            // Nested popups bubble through this React tree, so keep the key from the parent.
             event.stopPropagation();
           }
         },

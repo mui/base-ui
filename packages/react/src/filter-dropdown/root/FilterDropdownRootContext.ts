@@ -27,9 +27,6 @@ export interface FilterDropdownRootContext {
   keyboardModality: boolean;
   setKeyboardModality: (keyboardModality: boolean) => void;
   autoHighlight: boolean | 'always';
-  /**
-   * Visibility of every registered item under the committed query.
-   */
   store: FilterDropdownStore;
   defaultPopupId: string | undefined;
   popupId: string | undefined;
@@ -120,7 +117,7 @@ export function useFilterContextForList(
 }
 
 /**
- * The element the host currently highlights, used for `aria-activedescendant`.
+ * The id of the highlighted item, for `aria-activedescendant`.
  */
 export function useActiveItemId(context: FilterDropdownRootContext) {
   return useStore(context.store, selectors.activeItemId, context.activeIndex);

@@ -29,7 +29,7 @@ export const FilterMenuTrigger = React.forwardRef(function FilterMenuTrigger(
 
   if (!store) {
     throw new Error(
-      'Base UI: <FilterMenu.Trigger> must be either used within <FilterMenu.Root> or provided with a handle.',
+      'Base UI: <FilterMenu.Trigger> must be either used within a <FilterMenu.Root> component or provided with a handle.',
     );
   }
 

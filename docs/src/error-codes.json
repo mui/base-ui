@@ -100,5 +100,7 @@
   "100": "Base UI: the `items` prop received an object that is not a collection, so its items cannot be read. Pass an array of items, an array of groups with items, or the result of `createItems()`. See https://base-ui.com/react/components/combobox#createitems",
   "101": "Base UI: SelectRootPropsContext is missing. Select parts must be placed within <Select.Root>.",
   "102": "Base UI: <FilterMenu.Trigger> must be either used within <FilterMenu.Root> or provided with a handle.",
-  "103": "Base UI: Filter parts must be placed within a filter root. Wrap them in <FilterMenu.Root> or <FilterMenu.SubmenuRoot>; a plain <Menu.Root> cannot filter."
+  "103": "Base UI: Filter parts must be placed within a filter root. Wrap them in <FilterMenu.Root> or <FilterMenu.SubmenuRoot>; a plain <Menu.Root> cannot filter.",
+  "104": "Base UI: <FilterMenu.Trigger> must be either used within a <FilterMenu.Root> component or provided with a handle.",
+  "105": "Base UI: Filter parts must be placed within a filter root. Wrap them in <FilterMenu.Root> or <FilterMenu.SubmenuRoot>; a plain <Menu.Root> cannot filter."
 }

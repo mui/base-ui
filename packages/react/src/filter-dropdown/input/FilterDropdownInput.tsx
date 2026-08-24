@@ -59,6 +59,7 @@ export const FilterDropdownInput = React.forwardRef(function FilterDropdownInput
         },
         onMouseEnter(event) {
           context.setKeyboardModality(false);
+          // Take focus so typing filters immediately, unless the list is inline on the page.
           if (context.open && !context.inline) {
             event.currentTarget.focus({ preventScroll: true });
           }
@@ -90,8 +91,8 @@ export const FilterDropdownInput = React.forwardRef(function FilterDropdownInput
           }
 
           if (isMainNavigationKey) {
-            // The input already consumed the host's reference handler. Keep the same event from
-            // reaching the popup's floating handler and moving the virtual cursor a second time.
+            // The reference handler runs on this element, so keep the same event from reaching
+            // the popup's floating handler and moving the virtual cursor a second time.
             event.stopPropagation();
           } else if (!isInputActive && isMovingCaret) {
             // Cross-axis and boundary keys were forwarded to the active item by the reference.
@@ -117,8 +118,8 @@ export const FilterDropdownInput = React.forwardRef(function FilterDropdownInput
 
 export interface FilterDropdownInputState {
   /**
-   * Whether the input shows its virtual-focus indicator.
-   * Always set under pointer modality; under keyboard modality, set only while no item is highlighted.
+   * Whether the input shows its focus ring.
+   * Under keyboard modality it is cleared while an item is highlighted.
    */
   highlighted: boolean;
 }

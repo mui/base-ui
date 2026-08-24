@@ -165,7 +165,7 @@ describe('FilterMenu conformance', () => {
 
     try {
       await expect(render(<FilterMenu.Trigger />)).rejects.toThrow(
-        'Base UI: <FilterMenu.Trigger> must be either used within <FilterMenu.Root> or provided with a handle.',
+        'Base UI: <FilterMenu.Trigger> must be either used within a <FilterMenu.Root> component or provided with a handle.',
       );
     } finally {
       errorSpy.mockRestore();
