@@ -109,10 +109,14 @@ export function useFilterContextForList(
   listRef: React.RefObject<Array<HTMLElement | null>> | null,
 ) {
   let context = React.useContext(FilterDropdownItemContext);
-  while (listRef !== null && context !== null && context.listRef !== listRef) {
+  if (listRef === null) {
+    return null;
+  }
+
+  while (context !== null && context.listRef !== listRef) {
     context = context.parent;
   }
-  return listRef === null ? null : context;
+  return context;
 }
 
 /**

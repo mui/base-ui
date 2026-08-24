@@ -96,9 +96,6 @@ export const FilterDropdownInput = React.forwardRef(function FilterDropdownInput
           } else if (!isInputActive && isMovingCaret) {
             // Cross-axis and boundary keys were forwarded to the active item by the reference.
             event.stopPropagation();
-          }
-
-          if (isMovingCaret && !isInputActive) {
             event.preventDefault();
           }
 

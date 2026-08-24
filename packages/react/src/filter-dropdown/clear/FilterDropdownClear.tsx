@@ -38,7 +38,7 @@ export const FilterDropdownClear = React.forwardRef(function FilterDropdownClear
     disabled,
   };
 
-  const element = useRenderElement('button', componentProps, {
+  return useRenderElement('button', componentProps, {
     enabled: visible,
     state,
     ref: [forwardedRef, buttonRef],
@@ -63,8 +63,6 @@ export const FilterDropdownClear = React.forwardRef(function FilterDropdownClear
       getButtonProps,
     ],
   });
-
-  return visible ? element : null;
 });
 
 export interface FilterDropdownClearState {
