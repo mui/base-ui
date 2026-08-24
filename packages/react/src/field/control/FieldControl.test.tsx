@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { expect, vi } from 'vitest';
-import { act, createRenderer, fireEvent, screen } from '@mui/internal-test-utils';
+import { act, createRenderer, fireEvent, screen, waitFor } from '@mui/internal-test-utils';
 import { Field } from '@base-ui/react/field';
 import { Form } from '@base-ui/react/form';
 import { describeConformance, isJSDOM } from '#test-utils';
@@ -299,9 +299,7 @@ describe('<Field.Control />', () => {
     },
   );
 
-  it.skipIf(isJSDOM)('validates the latest value when Enter does not submit the form', async () => {
-    const { userEvent } = await import('vitest/browser');
-    const user = userEvent.setup();
+  it('validates the latest value when Enter does not submit the form', async () => {
     const validate = vi.fn((_value: unknown) => null);
 
     function App() {
@@ -318,9 +316,14 @@ describe('<Field.Control />', () => {
 
     await render(<App />);
 
-    await act(() => user.type(screen.getByDisplayValue('a'), '[Enter]'));
+    const control = screen.getByDisplayValue<HTMLInputElement>('a');
+    act(() => control.focus());
+    fireEvent.keyDown(control, { key: 'Enter' });
 
-    expect(validate).toHaveBeenCalledTimes(1);
+    await waitFor(() => {
+      expect(validate).toHaveBeenCalledTimes(1);
+    });
+
     expect(validate.mock.lastCall?.[0]).toBe('');
   });
 
