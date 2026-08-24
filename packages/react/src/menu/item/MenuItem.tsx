@@ -39,6 +39,7 @@ export const MenuItem = React.forwardRef(function MenuItem(
   const disabled = disabledProp || rootDisabled;
   const highlighted = store.useState('isActive', listItem.index);
   const itemProps = store.useState('itemProps');
+
   const { getItemProps, itemRef } = useMenuItem({
     closeOnClick,
     disabled,

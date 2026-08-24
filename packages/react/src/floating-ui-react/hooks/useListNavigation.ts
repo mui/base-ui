@@ -125,6 +125,8 @@ export interface UseListNavigationProps {
   /**
    * Allows to specify the orientation of the parent list, which is used to
    * determine the direction of the navigation.
+   * This is useful when list navigation is used within a Composite,
+   * as the hook can't determine the orientation of the parent list automatically.
    */
   parentOrientation?: UseListNavigationProps['orientation'] | undefined;
   /**
@@ -419,7 +421,8 @@ export function useListNavigation(
     waitForListPopulatedFrame,
   ]);
 
-  // Ensure the parent floating element has focus when an ordinary nested child closes.
+  // Ensure the parent floating element has focus when a nested child closes
+  // to allow arrow key navigation to work after the pointer leaves the child.
   useIsoLayoutEffect(() => {
     if (!enabled || floatingElement || !tree || virtual || !previousMountedRef.current) {
       return;
@@ -498,6 +501,8 @@ export function useListNavigation(
     }
 
     if (nested && isCrossOrientationCloseKey(event.key, orientation, rtl, isGrid)) {
+      // If the nested list's close key is also the parent navigation key,
+      // let the parent navigate. Otherwise, stop propagating the event.
       if (!isMainOrientationKey(event.key, getParentOrientation())) {
         stopEvent(event);
       }
