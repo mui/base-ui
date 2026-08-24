@@ -95,16 +95,7 @@ export function useFilterMenuReferenceKeyDown() {
     }
 
     const KeyboardEventConstructor = ownerWindow(activeItem).KeyboardEvent;
-    const forwardEvent = new KeyboardEventConstructor(event.type, {
-      key: event.key,
-      bubbles: true,
-      cancelable: true,
-      composed: true,
-      altKey: event.altKey,
-      ctrlKey: event.ctrlKey,
-      metaKey: event.metaKey,
-      shiftKey: event.shiftKey,
-    });
+    const forwardEvent = new KeyboardEventConstructor(event.type, event.nativeEvent);
     if (!activeItem.dispatchEvent(forwardEvent) || forwardEvent.cancelBubble) {
       stopEvent(event);
       event.preventBaseUIHandler();
