@@ -24,6 +24,7 @@ export const selectors = {
  * inside a plain parent menu. Nothing registers and every item stays visible.
  */
 export const DETACHED_OWNER = {
+  grid: false,
   registerItem: () => () => {},
   store: new Store<State>({ visibleItemIds: null, registeredItemCount: 0, itemIds: [] }),
 };

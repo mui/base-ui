@@ -9,6 +9,7 @@ import {
 import { useMenuRootContext } from '../../menu/root/MenuRootContext';
 import { useDirection } from '../../internals/direction-context/DirectionContext';
 import type { BaseUIEvent } from '../../internals/types';
+import { gridNavigation } from '../../floating-ui-react/hooks/gridNavigation';
 import { isTypeableElement } from '../../floating-ui-react/utils/element';
 import { stopEvent } from '../../floating-ui-react/utils/event';
 import { dispatchClickWithModifiers } from '../../utils/dispatchClickWithModifiers';
@@ -24,8 +25,8 @@ import {
  */
 export function useFilterMenuReferenceKeyDown() {
   const { activeIndex } = useFilterDropdownRootContext();
-  const { listRef } = useFilterDropdownItemContext();
-  const { orientation, store } = useMenuRootContext();
+  const { grid, listRef } = useFilterDropdownItemContext();
+  const { loopFocus, orientation, store } = useMenuRootContext();
   const direction = useDirection();
 
   return useStableCallback((event: BaseUIEvent<React.KeyboardEvent<HTMLElement>>) => {
@@ -39,6 +40,25 @@ export function useFilterMenuReferenceKeyDown() {
     ) {
       // Modified arrows and boundary keys are native text-editing commands (extend the selection,
       // move by word or to a text boundary), which the input's own handler keeps native.
+      return;
+    }
+
+    const isRtl = direction === 'rtl';
+    if (grid && (event.key === 'ArrowUp' || event.key === 'ArrowDown')) {
+      const nextIndex = gridNavigation(
+        event,
+        activeIndex ?? -1,
+        listRef,
+        'horizontal',
+        loopFocus,
+        isRtl,
+        undefined,
+        0,
+        listRef.current.length - 1,
+      );
+      if (nextIndex !== undefined) {
+        store.set('activeIndex', nextIndex);
+      }
       return;
     }
 
@@ -66,7 +86,6 @@ export function useFilterMenuReferenceKeyDown() {
       return;
     }
 
-    const isRtl = direction === 'rtl';
     const shouldForwardCrossAxisKey =
       isCrossOrientationOpenKey(event.key, orientation, isRtl) ||
       isCrossOrientationCloseKey(event.key, orientation, isRtl, false);

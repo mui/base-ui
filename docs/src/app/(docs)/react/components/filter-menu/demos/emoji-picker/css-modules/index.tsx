@@ -1,32 +1,34 @@
 'use client';
 import * as React from 'react';
-import { Autocomplete } from '@base-ui/react/autocomplete';
+import { FilterMenu } from '@base-ui/react/filter-menu';
 import styles from './index.module.css';
 
 export default function ExampleEmojiPicker() {
   const [pickerOpen, setPickerOpen] = React.useState(false);
   const [textValue, setTextValue] = React.useState('');
-  const [searchValue, setSearchValue] = React.useState('');
 
   const textInputRef = React.useRef<HTMLInputElement | null>(null);
+  const caretPositionRef = React.useRef<number | null>(null);
 
-  function handleInsertEmoji(value: string | null) {
-    if (!value || !textInputRef.current) {
+  function handleInsertEmoji(emoji: string) {
+    if (!textInputRef.current) {
       return;
     }
 
-    const emoji = value;
     const start = textInputRef.current.selectionStart ?? textInputRef.current.value.length ?? 0;
     const end = textInputRef.current.selectionEnd ?? textInputRef.current.value.length ?? 0;
 
     setTextValue((prev) => prev.slice(0, start) + emoji + prev.slice(end));
-    setPickerOpen(false);
+    caretPositionRef.current = start + emoji.length;
+  }
 
+  function handleOpenChangeComplete(open: boolean) {
+    const caretPosition = caretPositionRef.current;
     const input = textInputRef.current;
-    if (input) {
+    if (!open && input && caretPosition !== null) {
       input.focus();
-      const caretPos = start + emoji.length;
-      input.setSelectionRange(caretPos, caretPos);
+      input.setSelectionRange(caretPosition, caretPosition);
+      caretPositionRef.current = null;
     }
   }
 
@@ -43,75 +45,62 @@ export default function ExampleEmojiPicker() {
           onChange={(event) => setTextValue(event.target.value)}
         />
 
-        <Autocomplete.Root
-          items={emojiGroups}
+        <FilterMenu.Root
           grid
           open={pickerOpen}
           onOpenChange={setPickerOpen}
-          onOpenChangeComplete={() => setSearchValue('')}
-          value={searchValue}
-          onValueChange={(value, details) => {
-            if (details.reason !== 'item-press') {
-              setSearchValue(value);
-            }
-          }}
+          onOpenChangeComplete={handleOpenChangeComplete}
         >
-          <Autocomplete.Trigger className={styles.EmojiButton} aria-label="Choose emoji">
+          <FilterMenu.Trigger className={styles.EmojiButton} aria-label="Choose emoji">
             😀
-          </Autocomplete.Trigger>
-          <Autocomplete.Portal>
-            <Autocomplete.Positioner className={styles.Positioner} sideOffset={4} align="end">
-              <Autocomplete.Popup className={styles.Popup} aria-label="Select emoji">
-                <Autocomplete.Input
+          </FilterMenu.Trigger>
+          <FilterMenu.Portal>
+            <FilterMenu.Positioner className={styles.Positioner} sideOffset={4} align="end">
+              <FilterMenu.Popup className={styles.Popup} aria-label="Select emoji">
+                <FilterMenu.Input
                   aria-label="Search emojis"
                   placeholder="Search emojis…"
                   className={styles.Input}
                 />
                 <div className={styles.Viewport}>
-                  <Autocomplete.Empty>
+                  <FilterMenu.Empty>
                     <div className={styles.Empty}>No emojis found</div>
-                  </Autocomplete.Empty>
-                  <Autocomplete.List
+                  </FilterMenu.Empty>
+                  <FilterMenu.List
                     aria-label="Emoji results"
                     className={styles.List}
                     style={{ '--cols': COLUMNS } as React.CSSProperties}
                   >
-                    {(group: EmojiGroup) => (
-                      <Autocomplete.Group
-                        key={group.value}
-                        items={group.items}
-                        className={styles.Group}
-                      >
-                        <Autocomplete.GroupLabel className={styles.GroupLabel}>
-                          {group.label}
-                        </Autocomplete.GroupLabel>
+                    {emojiCategories.map((category) => (
+                      <FilterMenu.Group key={category.label} className={styles.Group}>
+                        <FilterMenu.GroupLabel className={styles.GroupLabel}>
+                          {category.label}
+                        </FilterMenu.GroupLabel>
                         <div className={styles.Grid} role="presentation">
-                          {chunkArray(group.items, COLUMNS).map((row, rowIdx) => (
-                            <Autocomplete.Row key={rowIdx} className={styles.Row}>
+                          {chunkArray(category.emojis, COLUMNS).map((row, rowIdx) => (
+                            <FilterMenu.Row key={rowIdx} className={styles.Row}>
                               {row.map((rowItem) => (
-                                <Autocomplete.Item
+                                <FilterMenu.Item
                                   key={rowItem.emoji}
-                                  value={rowItem}
+                                  label={rowItem.name}
+                                  aria-label={rowItem.name}
                                   className={styles.Item}
-                                  onClick={() => {
-                                    handleInsertEmoji(rowItem.emoji);
-                                    setPickerOpen(false);
-                                  }}
+                                  onClick={() => handleInsertEmoji(rowItem.emoji)}
                                 >
                                   <span className={styles.Emoji}>{rowItem.emoji}</span>
-                                </Autocomplete.Item>
+                                </FilterMenu.Item>
                               ))}
-                            </Autocomplete.Row>
+                            </FilterMenu.Row>
                           ))}
                         </div>
-                      </Autocomplete.Group>
-                    )}
-                  </Autocomplete.List>
+                      </FilterMenu.Group>
+                    ))}
+                  </FilterMenu.List>
                 </div>
-              </Autocomplete.Popup>
-            </Autocomplete.Positioner>
-          </Autocomplete.Portal>
-        </Autocomplete.Root>
+              </FilterMenu.Popup>
+            </FilterMenu.Positioner>
+          </FilterMenu.Portal>
+        </FilterMenu.Root>
       </div>
     </div>
   );
@@ -125,18 +114,6 @@ function chunkArray<T>(array: T[], size: number): T[][] {
     result.push(array.slice(i, i + size));
   }
   return result;
-}
-
-interface EmojiItem {
-  emoji: string;
-  value: string;
-  name: string;
-}
-
-interface EmojiGroup {
-  value: string;
-  label: string;
-  items: EmojiItem[];
 }
 
 export const emojiCategories = [
@@ -246,12 +223,3 @@ export const emojiCategories = [
     ],
   },
 ];
-
-const emojiGroups: EmojiGroup[] = emojiCategories.map((category) => ({
-  value: category.label,
-  label: category.label,
-  items: category.emojis.map((emoji) => ({
-    ...emoji,
-    value: emoji.name.toLowerCase(),
-  })),
-}));

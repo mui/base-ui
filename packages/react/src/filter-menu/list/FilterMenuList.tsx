@@ -20,7 +20,7 @@ import {
 
 /**
  * A container for the filter menu items.
- * Renders a `<div>` element with a `menu` role.
+ * Renders a `<div>` element with a `menu` role, or a `grid` role in grid mode.
  *
  * Documentation: [Base UI Filter Menu](https://base-ui.com/react/components/filter-menu)
  */
@@ -30,7 +30,7 @@ export const FilterMenuList = React.forwardRef(function FilterMenuList(
 ) {
   const { store: menuStore } = useMenuRootContext();
   const { inline } = useFilterDropdownRootContext();
-  const { store } = useFilterDropdownItemContext();
+  const { grid, store } = useFilterDropdownItemContext();
   const { subscribeMapChange } = useCompositeListContext();
   const handleReferenceKeyDown = useFilterMenuReferenceKeyDown();
   const syncItemIds = useStableCallback((map: Map<Element, unknown>) => {
@@ -70,6 +70,7 @@ export const FilterMenuList = React.forwardRef(function FilterMenuList(
 
   const props = mergeProps<typeof FilterDropdownList>(
     {
+      role: grid ? 'grid' : 'menu',
       onKeyDown: handleReferenceKeyDown,
       onPointerMove: inline ? handleInlinePointerMove : undefined,
     },

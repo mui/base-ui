@@ -30,6 +30,7 @@ export function FilterDropdownRoot(props: FilterDropdownRoot.Props): React.JSX.E
     children,
     open,
     inline = false,
+    grid = false,
     disabled = false,
     inputFocusVisible = false,
     locale,
@@ -239,11 +240,12 @@ export function FilterDropdownRoot(props: FilterDropdownRoot.Props): React.JSX.E
   const itemContextValue: FilterDropdownItemContext = React.useMemo(
     () => ({
       parent: parentItemContext,
+      grid,
       store,
       registerItem,
       listRef,
     }),
-    [parentItemContext, store, registerItem, listRef],
+    [parentItemContext, grid, store, registerItem, listRef],
   );
 
   return (
@@ -279,6 +281,8 @@ export interface FilterDropdownRootProps {
   open: boolean;
   /** Whether the list is rendered inline without popup parts. */
   inline?: boolean | undefined;
+  /** Whether the host presents items in a grid. */
+  grid?: boolean | undefined;
   /** Whether the filter controls should be disabled. */
   disabled?: boolean | undefined;
   /** Whether the input should render its focus ring. */

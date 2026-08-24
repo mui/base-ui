@@ -26,6 +26,7 @@ export type * from './list/FilterMenuList';
 export type * from './popup/FilterMenuPopup';
 export type * from './radio-group/FilterMenuRadioGroup';
 export type * from './radio-item/FilterMenuRadioItem';
+export type * from './row/FilterMenuRow';
 export type {
   MenuPortalProps as FilterMenuPortalProps,
   MenuPortalState as FilterMenuPortalState,

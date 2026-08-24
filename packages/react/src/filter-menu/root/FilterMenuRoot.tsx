@@ -35,6 +35,7 @@ export function FilterMenuRoot<Payload>(props: FilterMenuRoot.Props<Payload>): R
     autoHighlight = false,
     locale,
     inline = false,
+    grid = false,
     ...menuProps
   } = props;
 
@@ -88,6 +89,7 @@ export function FilterMenuRoot<Payload>(props: FilterMenuRoot.Props<Payload>): R
       onOpenChange={handleOpenChange}
       onOpenChangeComplete={closeQuery.handleOpenChangeComplete}
       inline={inline}
+      orientation={grid ? 'horizontal' : undefined}
       virtualFocus
       virtualFocusRef={focusOwnerRef}
       virtualFocusInput={hasInput}
@@ -103,6 +105,7 @@ export function FilterMenuRoot<Payload>(props: FilterMenuRoot.Props<Payload>): R
           autoHighlight={autoHighlight}
           locale={locale}
           inline={inline}
+          grid={grid}
           inputProps={inputProps}
           onValueChange={handleInputValueChange}
           onInputElementChange={setHasInput}
@@ -140,6 +143,7 @@ interface FilterMenuProviderProps {
   autoHighlight: boolean | 'always';
   locale: Intl.LocalesArgument | undefined;
   inline?: boolean | undefined;
+  grid?: boolean | undefined;
   inputProps: HTMLProps;
   onValueChange: (value: string, details: FilterMenuRoot.InputValueChangeEventDetails) => void;
   onInputElementChange: (hasInput: boolean) => void;
@@ -165,6 +169,7 @@ export function FilterMenuProvider(props: FilterMenuProviderProps) {
     <FilterDropdownRoot
       open={props.open}
       inline={props.inline}
+      grid={props.grid}
       disabled={disabled}
       inputFocusVisible={props.inputFocusVisible}
       value={props.value}
@@ -232,6 +237,12 @@ export type FilterMenuRootProps<Payload = unknown> = Omit<
      * @default false
      */
     inline?: boolean | undefined;
+    /**
+     * Whether the items are arranged in a two-dimensional grid.
+     * Wrap each row in `<FilterMenu.Row>` when enabled.
+     * @default false
+     */
+    grid?: boolean | undefined;
   };
 
 export interface FilterMenuRootState extends MenuRoot.State {}
