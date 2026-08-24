@@ -3,9 +3,13 @@ import * as React from 'react';
 import { Tooltip } from '@base-ui/react/tooltip';
 import { Toolbar } from '@base-ui/react/toolbar';
 import { act, fireEvent, flushMicrotasks, screen, waitFor } from '@mui/internal-test-utils';
-import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
+import { createRenderer, describeConformance, isJSDOM, resetBrowserPointer } from '#test-utils';
 
 describe('<Tooltip.Trigger />', () => {
+  // Tests here hover triggers with the real pointer and leave it resting on one, which the next
+  // render would put a fresh trigger under, opening the tooltip before the test interacts.
+  beforeEach(resetBrowserPointer);
+
   const { render } = createRenderer();
 
   describeConformance(<Tooltip.Trigger />, () => ({
