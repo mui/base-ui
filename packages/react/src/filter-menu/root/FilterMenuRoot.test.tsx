@@ -4570,6 +4570,26 @@ describe('<FilterMenu.Root />', () => {
   });
 
   describe('accessible names', () => {
+    it('does not point the popup or list at a trigger that never rendered', async () => {
+      await render(
+        <FilterMenu.Root defaultOpen>
+          <FilterMenu.Portal>
+            <FilterMenu.Positioner>
+              <FilterMenu.Popup>
+                <FilterMenu.Input aria-label="Filter actions" />
+                <FilterMenu.List>
+                  <FilterMenu.Item>Rename</FilterMenu.Item>
+                </FilterMenu.List>
+              </FilterMenu.Popup>
+            </FilterMenu.Positioner>
+          </FilterMenu.Portal>
+        </FilterMenu.Root>,
+      );
+
+      expect(screen.getByRole('dialog')).not.toHaveAttribute('aria-labelledby');
+      expect(screen.getByRole('menu')).not.toHaveAttribute('aria-labelledby');
+    });
+
     it('labels the list with the trigger when no label is given', async () => {
       await render(
         <FilterMenu.Root defaultOpen>

@@ -91,10 +91,12 @@ export function FilterDropdownRoot(props: FilterDropdownRoot.Props): React.JSX.E
   const defaultTriggerId = defaultId ? `${defaultId}-trigger` : undefined;
   const defaultPopupId = defaultId ? `${defaultId}-popup` : undefined;
   const defaultListId = defaultId ? `${defaultId}-list` : undefined;
-  // Never point at an id no element carries: inline lists render no trigger, and a registered
-  // `''` means the element rendered with an explicitly empty id.
+  // Never point at an id no element carries: `null` means the host has no active trigger, inline
+  // lists render no trigger, and a registered `''` means the element rendered with an empty id.
   const triggerId =
-    (externalTriggerId ?? registeredTriggerId ?? (inline ? undefined : defaultTriggerId)) ||
+    (externalTriggerId ??
+      registeredTriggerId ??
+      (externalTriggerId === null || inline ? undefined : defaultTriggerId)) ||
     undefined;
   const popupId = (registeredPopupId ?? defaultPopupId) || undefined;
   const listId = (registeredListId ?? defaultListId) || undefined;
