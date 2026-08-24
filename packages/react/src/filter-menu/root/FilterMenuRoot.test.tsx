@@ -5192,6 +5192,130 @@ describe('<FilterMenu.Root />', () => {
     });
   });
 
+  describe('prop: grid', () => {
+    function GridMenu(props: { onPress?: (() => void) | undefined }) {
+      return (
+        <FilterMenu.Root grid defaultOpen>
+          <FilterMenu.Trigger>Emoji</FilterMenu.Trigger>
+          <FilterMenu.Portal>
+            <FilterMenu.Positioner>
+              <FilterMenu.Popup>
+                <FilterMenu.Input aria-label="Search emoji" />
+                <FilterMenu.List>
+                  <FilterMenu.Row>
+                    <FilterMenu.Item>One</FilterMenu.Item>
+                    <FilterMenu.Item>Two</FilterMenu.Item>
+                    <FilterMenu.Item>Three</FilterMenu.Item>
+                  </FilterMenu.Row>
+                  <FilterMenu.Row>
+                    <FilterMenu.Item>Four</FilterMenu.Item>
+                    <FilterMenu.Item onClick={props.onPress}>Five</FilterMenu.Item>
+                  </FilterMenu.Row>
+                </FilterMenu.List>
+              </FilterMenu.Popup>
+            </FilterMenu.Positioner>
+          </FilterMenu.Portal>
+        </FilterMenu.Root>
+      );
+    }
+
+    it('uses grid semantics and navigates across rows and columns', async () => {
+      const { user } = await render(<GridMenu />);
+      const input = screen.getByRole('searchbox', { name: 'Search emoji' });
+      const cells = screen.getAllByRole('gridcell');
+
+      expect(screen.getByRole('grid')).toBeVisible();
+      expect(screen.queryByRole('menu')).toBe(null);
+      expect(screen.getAllByRole('row')).toHaveLength(2);
+      expect(cells).toHaveLength(5);
+      await waitFor(() => {
+        expect(input).toHaveFocus();
+      });
+
+      await user.keyboard('[ArrowDown]');
+      expect(input).toHaveAttribute('aria-activedescendant', cells[0].id);
+
+      await user.keyboard('[ArrowRight]');
+      expect(input).toHaveAttribute('aria-activedescendant', cells[1].id);
+
+      await user.keyboard('[ArrowDown]');
+      expect(input).toHaveAttribute('aria-activedescendant', cells[4].id);
+
+      await user.keyboard('[ArrowLeft]');
+      expect(input).toHaveAttribute('aria-activedescendant', cells[3].id);
+
+      await user.keyboard('[ArrowUp]');
+      expect(input).toHaveAttribute('aria-activedescendant', cells[0].id);
+    });
+
+    it('runs the highlighted grid action with Enter', async () => {
+      const onPress = vi.fn();
+      const { user } = await render(<GridMenu onPress={onPress} />);
+      const input = screen.getByRole('searchbox', { name: 'Search emoji' });
+      const cells = screen.getAllByRole('gridcell');
+      await waitFor(() => {
+        expect(input).toHaveFocus();
+      });
+
+      await user.keyboard('[ArrowDown]');
+      expect(input).toHaveAttribute('aria-activedescendant', cells[0].id);
+
+      await user.keyboard('[ArrowRight]');
+      expect(input).toHaveAttribute('aria-activedescendant', cells[1].id);
+
+      await user.keyboard('[ArrowDown]');
+      expect(input).toHaveAttribute('aria-activedescendant', cells[4].id);
+
+      await user.keyboard('[Enter]');
+
+      expect(onPress).toHaveBeenCalledOnce();
+    });
+
+    it('navigates between rows after filtering removes other cells', async () => {
+      const { user } = await render(
+        <FilterMenu.Root grid inline open>
+          <FilterMenu.Input aria-label="Search fruit" />
+          <FilterMenu.List aria-label="Fruit">
+            <FilterMenu.Row>
+              <FilterMenu.Item>Apple</FilterMenu.Item>
+              <FilterMenu.Item>Banana</FilterMenu.Item>
+            </FilterMenu.Row>
+            <FilterMenu.Row>
+              <FilterMenu.Item>Blueberry</FilterMenu.Item>
+              <FilterMenu.Item>Cherry</FilterMenu.Item>
+            </FilterMenu.Row>
+          </FilterMenu.List>
+        </FilterMenu.Root>,
+      );
+      const input = screen.getByRole('searchbox', { name: 'Search fruit' });
+
+      await user.type(input, 'b');
+      await waitFor(() => {
+        expect(screen.getAllByRole('gridcell')).toHaveLength(2);
+      });
+      const cells = screen.getAllByRole('gridcell');
+
+      await user.keyboard('[ArrowDown]');
+      expect(input).toHaveAttribute('aria-activedescendant', cells[0].id);
+
+      await user.keyboard('[ArrowDown]');
+      expect(input).toHaveAttribute('aria-activedescendant', cells[1].id);
+    });
+
+    it('keeps horizontal arrow keys on the input when no cell is highlighted', async () => {
+      const { user } = await render(<GridMenu />);
+      const input = screen.getByRole<HTMLInputElement>('searchbox', { name: 'Search emoji' });
+
+      await user.type(input, 'abc');
+      input.setSelectionRange(2, 2);
+      await user.keyboard('[ArrowLeft]');
+
+      expect(input.selectionStart).toBe(1);
+      expect(input.selectionEnd).toBe(1);
+      expect(input).not.toHaveAttribute('aria-activedescendant');
+    });
+  });
+
   describe('with a Viewport', () => {
     it('keeps real focus on the input while the cursor moves through the list', async () => {
       const { user } = await render(

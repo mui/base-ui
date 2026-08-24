@@ -8,6 +8,7 @@
 
 import { DemoFilterMenuHero } from './demos/hero';
 import { DemoFilterMenuCommandPalette } from './demos/command-palette';
+import { DemoFilterMenuEmojiPicker } from './demos/emoji-picker';
 
 <DemoFilterMenuHero />
 
@@ -82,6 +83,12 @@ The `inline` prop renders the list directly inside the dialog without the menu's
 Bind the menu's `open` and `onOpenChange` to the dialog's own state when the dialog stays mounted. `Dialog.Portal` unmounts its contents by default, which discards the query for you; with `keepMounted` the palette reopens showing the previous query unless the menu closes with the dialog.
 
 <DemoFilterMenuCommandPalette />
+
+### Emoji picker
+
+Set `grid` on the Root and wrap each row in `<FilterMenu.Row>` to create a searchable action grid.
+
+<DemoFilterMenuEmojiPicker />
 
 ### Filtering items
 
@@ -207,6 +214,10 @@ import { TypesFilterMenu } from './types';
 ### List
 
 <TypesFilterMenu.List />
+
+### Row
+
+<TypesFilterMenu.Row />
 
 ### Viewport
 

@@ -57,6 +57,7 @@ export interface FilterDropdownRootContext {
 export interface FilterDropdownItemContext {
   /** The enclosing dropdown when this root is nested. */
   parent: FilterDropdownItemContext | null;
+  grid: boolean;
   store: FilterDropdownStore;
   registerItem: (id: symbol, registration: FilterDropdownItemRegistration) => () => void;
   listRef: React.RefObject<Array<HTMLElement | null>>;

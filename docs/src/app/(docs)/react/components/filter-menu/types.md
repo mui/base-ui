@@ -24,6 +24,7 @@ Doesn't render its own HTML element.
 | actionsRef           | `React.RefObject<FilterMenu.Root.Actions \| null>`                                      | -       | A ref to imperative actions.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
 | defaultTriggerId     | `string \| null`                                                                        | -       | ID of the trigger that the menu is associated with.&#xA;This is useful in conjunction with the `defaultOpen` prop to create an initially open menu.                                                                                                                                                                                                                                                                                                                                                                                                                                          |
 | filter               | `FilterMenuFilter \| null`                                                              | -       | Replaces the default case-insensitive substring matching for item text.&#xA;Receives an item's filter text, the trimmed query, and the item's `keywords`, which it must&#xA;match itself if they should participate.&#xA;Pass `null` to turn filtering off and decide which items to render yourself.                                                                                                                                                                                                                                                                                        |
+| grid                 | `boolean`                                                                               | `false` | Whether the items are arranged in a two-dimensional grid.&#xA;Wrap each row in `<FilterMenu.Row>` when enabled.                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
 | handle               | `FilterMenu.Handle<Payload>`                                                            | -       | A handle that associates the menu with detached triggers.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
 | inline               | `boolean`                                                                               | `false` | Whether the list is rendered inline without using the component's own popup. Specify `open` unconditionally in conjunction with this prop so the list is considered&#xA;visible: `<FilterMenu.Root inline open>` In a `Dialog.Root` > `FilterMenu.Root` composition, bind the FilterMenu's `open` and&#xA;`onOpenChange` props to the `Dialog`'s `open` and `onOpenChange` state instead so the&#xA;component resets its transient state (filter query and highlighted item) when the dialog&#xA;closes. Without that, a `Dialog.Portal` with `keepMounted` reopens with the previous query. |
 | locale               | `Intl.LocalesArgument`                                                                  | -       | Locale used when comparing an item against the query.&#xA;Defaults to the runtime's default locale.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
@@ -238,7 +239,7 @@ type FilterMenuClearState = {
 ### List
 
 A container for the filter menu items.
-Renders a `<div>` element with a `menu` role.
+Renders a `<div>` element with a `menu` role, or a `grid` role in grid mode.
 
 **List Props:**
 
@@ -719,6 +720,29 @@ Re-export of [Empty](#empty) props.
 
 ```typescript
 type FilterMenuEmptyState = {};
+```
+
+### Row
+
+Displays a single row of items in a grid filter menu.
+Renders a `<div>` element.
+
+**Row Props:**
+
+| Prop      | Type                                                                                         | Default | Description                                                                                                                                                                                   |
+| :-------- | :------------------------------------------------------------------------------------------- | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| className | `string \| ((state: FilterMenu.Row.State) => string \| undefined)`                           | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
+| style     | `React.CSSProperties \| ((state: FilterMenu.Row.State) => React.CSSProperties \| undefined)` | -       | Style applied to the element, or a function that&#xA;returns a style object based on the component's state.                                                                                   |
+| render    | `ReactElement \| ((props: HTMLProps, state: FilterMenu.Row.State) => ReactElement)`          | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
+
+### Row.Props
+
+Re-export of [Row](#row) props.
+
+### Row.State
+
+```typescript
+type FilterMenuRowState = {};
 ```
 
 ### SubmenuRoot
@@ -1331,6 +1355,7 @@ type PayloadChildRenderFunction = (arg: { payload: unknown | undefined }) => Rea
 - `FilterMenu.Positioner`: `FilterMenu.Positioner`, `FilterMenu.Positioner.State`, `FilterMenu.Positioner.Props`
 - `FilterMenu.RadioGroup`: `FilterMenu.RadioGroup`, `FilterMenu.RadioGroup.Props`, `FilterMenu.RadioGroup.State`, `FilterMenu.RadioGroup.ChangeEventReason`, `FilterMenu.RadioGroup.ChangeEventDetails`
 - `FilterMenu.RadioItem`: `FilterMenu.RadioItem`, `FilterMenu.RadioItem.Props`, `FilterMenu.RadioItem.State`
+- `FilterMenu.Row`: `FilterMenu.Row`, `FilterMenu.Row.State`, `FilterMenu.Row.Props`
 - `FilterMenu.RadioItemIndicator`: `FilterMenu.RadioItemIndicator`, `FilterMenu.RadioItemIndicator.Props`, `FilterMenu.RadioItemIndicator.State`
 - `FilterMenu.Trigger`: `FilterMenu.Trigger`, `FilterMenu.Trigger.Props`, `FilterMenu.Trigger.State`
 - `FilterMenu.Viewport`: `FilterMenu.Viewport`, `FilterMenu.Viewport.Props`, `FilterMenu.Viewport.State`
@@ -1344,7 +1369,7 @@ type PayloadChildRenderFunction = (arg: { payload: unknown | undefined }) => Rea
 - `FilterMenu.Clear`: `FilterMenu.Clear`, `FilterMenu.Clear.State`, `FilterMenu.Clear.Props`
 - `FilterMenu.Empty`: `FilterMenu.Empty`, `FilterMenu.Empty.State`, `FilterMenu.Empty.Props`
 - `FilterMenu.Status`: `FilterMenu.Status`, `FilterMenu.Status.State`, `FilterMenu.Status.Props`
-- `Default`: `FilterMenuArrowProps`, `FilterMenuArrowState`, `FilterMenuBackdropProps`, `FilterMenuBackdropState`, `FilterMenuCheckboxItemIndicatorProps`, `FilterMenuCheckboxItemIndicatorState`, `FilterMenuGroupLabelProps`, `FilterMenuGroupLabelState`, `FilterMenuPortalProps`, `FilterMenuPortalState`, `FilterMenuPositionerProps`, `FilterMenuPositionerState`, `FilterMenuRadioItemIndicatorProps`, `FilterMenuRadioItemIndicatorState`, `FilterMenuViewportProps`, `FilterMenuViewportState`, `FilterMenuSeparatorProps`, `FilterMenuSeparatorState`, `FilterMenuFilter`, `FilterMenuRootProps`, `FilterMenuRootState`, `FilterMenuRootActions`, `FilterMenuRootChangeEventReason`, `FilterMenuRootChangeEventDetails`, `FilterMenuRootInputValueChangeEventReason`, `FilterMenuRootInputValueChangeEventDetails`, `FilterMenuSubmenuRootProps`, `FilterMenuSubmenuRootState`, `FilterMenuSubmenuRootActions`, `FilterMenuSubmenuRootChangeEventReason`, `FilterMenuSubmenuRootChangeEventDetails`, `FilterMenuSubmenuRootInputValueChangeEventReason`, `FilterMenuSubmenuRootInputValueChangeEventDetails`, `FilterMenuCheckboxItemProps`, `FilterMenuCheckboxItemState`, `FilterMenuCheckboxItemChangeEventReason`, `FilterMenuCheckboxItemChangeEventDetails`, `FilterMenuGroupProps`, `FilterMenuGroupState`, `FilterMenuItemProps`, `FilterMenuItemState`, `FilterMenuLinkItemProps`, `FilterMenuLinkItemState`, `FilterMenuListState`, `FilterMenuListProps`, `FilterMenuPopupProps`, `FilterMenuPopupState`, `FilterMenuRadioGroupProps`, `FilterMenuRadioGroupState`, `FilterMenuRadioGroupChangeEventReason`, `FilterMenuRadioGroupChangeEventDetails`, `FilterMenuRadioItemProps`, `FilterMenuRadioItemState`, `FilterMenuTriggerProps`, `FilterMenuTriggerState`, `FilterMenuSubmenuTriggerProps`, `FilterMenuSubmenuTriggerState`, `FilterMenuInputState`, `FilterMenuInputProps`, `FilterMenuClearState`, `FilterMenuClearProps`, `FilterMenuEmptyState`, `FilterMenuEmptyProps`, `FilterMenuStatusState`, `FilterMenuStatusProps`
+- `Default`: `FilterMenuArrowProps`, `FilterMenuArrowState`, `FilterMenuBackdropProps`, `FilterMenuBackdropState`, `FilterMenuCheckboxItemIndicatorProps`, `FilterMenuCheckboxItemIndicatorState`, `FilterMenuGroupLabelProps`, `FilterMenuGroupLabelState`, `FilterMenuPortalProps`, `FilterMenuPortalState`, `FilterMenuPositionerProps`, `FilterMenuPositionerState`, `FilterMenuRadioItemIndicatorProps`, `FilterMenuRadioItemIndicatorState`, `FilterMenuViewportProps`, `FilterMenuViewportState`, `FilterMenuSeparatorProps`, `FilterMenuSeparatorState`, `FilterMenuFilter`, `FilterMenuRootProps`, `FilterMenuRootState`, `FilterMenuRootActions`, `FilterMenuRootChangeEventReason`, `FilterMenuRootChangeEventDetails`, `FilterMenuRootInputValueChangeEventReason`, `FilterMenuRootInputValueChangeEventDetails`, `FilterMenuSubmenuRootProps`, `FilterMenuSubmenuRootState`, `FilterMenuSubmenuRootActions`, `FilterMenuSubmenuRootChangeEventReason`, `FilterMenuSubmenuRootChangeEventDetails`, `FilterMenuSubmenuRootInputValueChangeEventReason`, `FilterMenuSubmenuRootInputValueChangeEventDetails`, `FilterMenuCheckboxItemProps`, `FilterMenuCheckboxItemState`, `FilterMenuCheckboxItemChangeEventReason`, `FilterMenuCheckboxItemChangeEventDetails`, `FilterMenuGroupProps`, `FilterMenuGroupState`, `FilterMenuItemProps`, `FilterMenuItemState`, `FilterMenuLinkItemProps`, `FilterMenuLinkItemState`, `FilterMenuListState`, `FilterMenuListProps`, `FilterMenuPopupProps`, `FilterMenuPopupState`, `FilterMenuRadioGroupProps`, `FilterMenuRadioGroupState`, `FilterMenuRadioGroupChangeEventReason`, `FilterMenuRadioGroupChangeEventDetails`, `FilterMenuRadioItemProps`, `FilterMenuRadioItemState`, `FilterMenuRowState`, `FilterMenuRowProps`, `FilterMenuTriggerProps`, `FilterMenuTriggerState`, `FilterMenuSubmenuTriggerProps`, `FilterMenuSubmenuTriggerState`, `FilterMenuInputState`, `FilterMenuInputProps`, `FilterMenuClearState`, `FilterMenuClearProps`, `FilterMenuEmptyState`, `FilterMenuEmptyProps`, `FilterMenuStatusState`, `FilterMenuStatusProps`
 
 ## Canonical Types
 
@@ -1382,6 +1407,8 @@ Maps `Canonical`: `Alias` — Use Canonical when its namespace is already import
 - `FilterMenu.RadioGroup.ChangeEventDetails`: `FilterMenuRadioGroupChangeEventDetails`
 - `FilterMenu.RadioItem.Props`: `FilterMenuRadioItemProps`
 - `FilterMenu.RadioItem.State`: `FilterMenuRadioItemState`
+- `FilterMenu.Row.State`: `FilterMenuRowState`
+- `FilterMenu.Row.Props`: `FilterMenuRowProps`
 - `FilterMenu.RadioItemIndicator.Props`: `FilterMenuRadioItemIndicatorProps`
 - `FilterMenu.RadioItemIndicator.State`: `FilterMenuRadioItemIndicatorState`
 - `FilterMenu.Trigger.Props`: `FilterMenuTriggerProps`

@@ -58,6 +58,8 @@ export interface UseFilterDropdownItemReturnValue {
    * Ref for the rendered element, used to read its text when no `label` is given.
    */
   ref: React.RefObject<HTMLElement | null>;
+  /** Whether the owning dropdown presents items in a grid. */
+  grid: boolean;
 }
 
 /**
@@ -78,7 +80,7 @@ export function useFilterDropdownItem(
   const groupContext = useFilterDropdownGroupContext();
 
   const owner = context === undefined ? nearestContext : context;
-  const { registerItem, store } = owner ?? DETACHED_OWNER;
+  const { grid = false, registerItem, store } = owner ?? DETACHED_OWNER;
   const registerGroupItem = groupContext?.registerItem;
 
   const keywordsKey = keywords?.join('\u0000');
@@ -148,5 +150,5 @@ export function useFilterDropdownItem(
     }
   }, [register, resolveText, children, keywordsKey, label]);
 
-  return { visible: !registered || matched, ref };
+  return { visible: !registered || matched, ref, grid };
 }

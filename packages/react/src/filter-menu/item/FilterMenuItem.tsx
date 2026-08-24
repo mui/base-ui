@@ -17,10 +17,21 @@ export const FilterMenuItem = React.forwardRef(function FilterMenuItem(
 ) {
   const { label, keywords, ...menuProps } = props;
 
-  const { visible, ref } = useFilterDropdownItem({ label, keywords, children: props.children });
+  const { visible, ref, grid } = useFilterDropdownItem({
+    label,
+    keywords,
+    children: props.children,
+  });
   const mergedRef = useMergedRefs(forwardedRef, ref);
 
-  return visible ? <MenuItem {...menuProps} label={label} ref={mergedRef} /> : null;
+  return visible ? (
+    <MenuItem
+      {...menuProps}
+      {...(grid ? { role: 'gridcell' as const } : {})}
+      label={label}
+      ref={mergedRef}
+    />
+  ) : null;
 });
 
 export interface FilterMenuItemProps
