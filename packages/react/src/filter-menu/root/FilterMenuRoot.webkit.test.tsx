@@ -66,6 +66,38 @@ describe('<FilterMenu.Root /> (WebKit)', () => {
     expect(banana).toHaveAttribute('aria-selected', 'true');
   });
 
+  it('preserves checked state on checkbox and radio items in the WebKit compatibility path', async () => {
+    const { user } = await render(
+      <FilterMenu.Root defaultOpen>
+        <FilterMenu.Trigger>Actions</FilterMenu.Trigger>
+        <FilterMenu.Portal>
+          <FilterMenu.Positioner>
+            <FilterMenu.Popup>
+              <FilterMenu.Input aria-label="Filter actions" />
+              <FilterMenu.List>
+                <FilterMenu.CheckboxItem defaultChecked>Details</FilterMenu.CheckboxItem>
+                <FilterMenu.RadioGroup defaultValue="date">
+                  <FilterMenu.RadioItem value="date">Date</FilterMenu.RadioItem>
+                </FilterMenu.RadioGroup>
+              </FilterMenu.List>
+            </FilterMenu.Popup>
+          </FilterMenu.Positioner>
+        </FilterMenu.Portal>
+      </FilterMenu.Root>,
+    );
+
+    const checkbox = screen.getByRole('menuitemcheckbox', { name: 'Details' });
+    const radio = screen.getByRole('menuitemradio', { name: 'Date' });
+
+    await user.keyboard('[ArrowDown]');
+    expect(checkbox).toHaveAttribute('aria-selected', 'true');
+    expect(checkbox).toHaveAttribute('aria-checked', 'true');
+
+    await user.keyboard('[ArrowDown]');
+    expect(radio).toHaveAttribute('aria-selected', 'true');
+    expect(radio).toHaveAttribute('aria-checked', 'true');
+  });
+
   it('leaves plain menu items alone, which navigate with real focus', async () => {
     await render(
       <Menu.Root defaultOpen>

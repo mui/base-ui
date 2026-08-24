@@ -25,12 +25,22 @@ export const FilterMenuInput = React.forwardRef(function FilterMenuInput(
   forwardedRef: React.ForwardedRef<HTMLInputElement>,
 ) {
   const { activeIndex } = useFilterDropdownRootContext();
-  const { listRef } = useFilterDropdownItemContext();
+  const { grid, listRef } = useFilterDropdownItemContext();
   const handleReferenceKeyDown = useFilterMenuReferenceKeyDown();
 
   const inputProps = mergeProps<typeof FilterDropdownInput>(
     {
       onKeyDown(event: BaseUIEvent<React.KeyboardEvent<HTMLInputElement>>) {
+        if (
+          grid &&
+          activeIndex == null &&
+          (event.key === 'ArrowLeft' || event.key === 'ArrowRight')
+        ) {
+          event.stopPropagation();
+          event.preventBaseUIHandler();
+          return;
+        }
+
         handleReferenceKeyDown(event);
         // List navigation forwards cross-axis keys to the highlighted item but leaves activation
         // keys to a typeable reference, so Enter is committed here.
