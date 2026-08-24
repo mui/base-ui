@@ -11,6 +11,7 @@ import {
   type MenuSubmenuTriggerProps,
 } from '../../menu/submenu-trigger/MenuSubmenuTrigger';
 import { useMenuRootContext } from '../../menu/root/MenuRootContext';
+import type { FilterMenuItemFilterProps } from '../utils/FilterMenuItemFilterProps';
 
 /**
  * A filter menu item that opens a submenu.
@@ -72,18 +73,8 @@ export const FilterMenuSubmenuTrigger = React.forwardRef(function FilterMenuSubm
   ) : null;
 });
 
-export interface FilterMenuSubmenuTriggerProps extends Omit<MenuSubmenuTriggerProps, 'label'> {
-  /**
-   * A text representation of the item used for filtering and keyboard text navigation.
-   * Falls back to the rendered text.
-   */
-  label?: string | undefined;
-  /**
-   * Additional terms the item matches on, beyond its label.
-   * A custom `filter` on the root receives these and decides whether to use them.
-   */
-  keywords?: readonly string[] | undefined;
-}
+export interface FilterMenuSubmenuTriggerProps
+  extends Omit<MenuSubmenuTriggerProps, 'label'>, FilterMenuItemFilterProps {}
 
 export interface FilterMenuSubmenuTriggerState extends MenuSubmenuTrigger.State {}
 

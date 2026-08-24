@@ -55,13 +55,11 @@ export function useFilterMenuReferenceKeyDown() {
 
     const isActivationKey = event.key === 'Enter' || event.key === ' ';
     if (!isTypeableElement(event.currentTarget) && isActivationKey) {
-      if (event.key === ' ') {
-        // Space during an inputless typeahead session belongs to the typed string.
-        if (store.context.typingRef.current) {
-          return;
-        }
-        event.preventDefault();
+      // Space during an inputless typeahead session belongs to the typed string.
+      if (event.key === ' ' && store.context.typingRef.current) {
+        return;
       }
+
       stopEvent(event);
       event.preventBaseUIHandler();
       dispatchClickWithModifiers(activeItem, event);
@@ -70,9 +68,8 @@ export function useFilterMenuReferenceKeyDown() {
 
     const isRtl = direction === 'rtl';
     const shouldForwardCrossAxisKey =
-      orientation !== undefined &&
-      (isCrossOrientationOpenKey(event.key, orientation, isRtl) ||
-        isCrossOrientationCloseKey(event.key, orientation, isRtl, false));
+      isCrossOrientationOpenKey(event.key, orientation, isRtl) ||
+      isCrossOrientationCloseKey(event.key, orientation, isRtl, false);
     if (!shouldForwardCrossAxisKey) {
       return;
     }

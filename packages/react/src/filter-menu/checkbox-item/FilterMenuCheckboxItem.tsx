@@ -8,6 +8,7 @@ import {
   type MenuCheckboxItemProps,
   type MenuCheckboxItemState,
 } from '../../menu/checkbox-item/MenuCheckboxItem';
+import type { FilterMenuItemFilterProps } from '../utils/FilterMenuItemFilterProps';
 
 /**
  * A filter menu item that toggles a setting on or off.
@@ -54,26 +55,14 @@ export const FilterMenuCheckboxItem = React.forwardRef(function FilterMenuCheckb
   ) : null;
 });
 
-export interface FilterMenuCheckboxItemProps extends Omit<
-  MenuCheckboxItemProps,
-  'label' | 'onCheckedChange'
-> {
+export interface FilterMenuCheckboxItemProps
+  extends Omit<MenuCheckboxItemProps, 'label' | 'onCheckedChange'>, FilterMenuItemFilterProps {
   /**
    * Event handler called when the checkbox item is ticked or unticked.
    */
   onCheckedChange?:
     | ((checked: boolean, eventDetails: FilterMenuCheckboxItemChangeEventDetails) => void)
     | undefined;
-  /**
-   * A text representation of the item used for filtering and keyboard text navigation.
-   * Falls back to the rendered text.
-   */
-  label?: string | undefined;
-  /**
-   * Additional terms the item matches on, beyond its label.
-   * A custom `filter` on the root receives these and decides whether to use them.
-   */
-  keywords?: readonly string[] | undefined;
 }
 
 export interface FilterMenuCheckboxItemState extends MenuCheckboxItemState {}

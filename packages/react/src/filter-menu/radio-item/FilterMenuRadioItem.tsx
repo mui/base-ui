@@ -7,6 +7,7 @@ import {
   type MenuRadioItemProps,
   type MenuRadioItemState,
 } from '../../menu/radio-item/MenuRadioItem';
+import type { FilterMenuItemFilterProps } from '../utils/FilterMenuItemFilterProps';
 
 /**
  * A filter menu item that selects a value in a radio group.
@@ -26,21 +27,12 @@ export const FilterMenuRadioItem = React.forwardRef(function FilterMenuRadioItem
   return visible ? <MenuRadioItem {...menuProps} label={label} ref={mergedRef} /> : null;
 });
 
-export interface FilterMenuRadioItemProps extends Omit<MenuRadioItemProps, 'label' | 'value'> {
+export interface FilterMenuRadioItemProps
+  extends Omit<MenuRadioItemProps, 'label' | 'value'>, FilterMenuItemFilterProps {
   /**
    * The value selected in the `FilterMenu.RadioGroup` when this item is activated.
    */
   value: any;
-  /**
-   * A text representation of the item used for filtering and keyboard text navigation.
-   * Falls back to the rendered text.
-   */
-  label?: string | undefined;
-  /**
-   * Additional terms the item matches on, beyond its label.
-   * A custom `filter` on the root receives these and decides whether to use them.
-   */
-  keywords?: readonly string[] | undefined;
 }
 
 export interface FilterMenuRadioItemState extends MenuRadioItemState {}
