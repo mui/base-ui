@@ -151,14 +151,6 @@ Renders a `<button>` element.
 | style        | `React.CSSProperties \| ((state: FilterMenu.Trigger.State) => React.CSSProperties \| undefined)` | -       | Style applied to the element, or a function that&#xA;returns a style object based on the component's state.                                                                                   |
 | render       | `ReactElement \| ((props: HTMLProps, state: FilterMenu.Trigger.State) => ReactElement)`          | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
 
-**Trigger Data Attributes:**
-
-| Attribute       | Type | Description                                  |
-| :-------------- | :--- | :------------------------------------------- |
-| data-popup-open | -    | Present when the corresponding menu is open. |
-| data-pressed    | -    | Present when the trigger is pressed.         |
-| data-disabled   | -    | Present when the trigger is disabled.        |
-
 ### Trigger.Props
 
 Re-export of [Trigger](#trigger) props.
@@ -189,9 +181,9 @@ Renders an `<input>` element.
 
 **Input Data Attributes:**
 
-| Attribute        | Type | Description                                                                                                                                                                                                                                                                |
-| :--------------- | :--- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| data-highlighted | -    | Present while the input holds the virtual cursor, so the focus ring stays on it. Keyboard&#xA;navigation moves the cursor into the list and removes this, while hovering an item leaves it&#xA;in place, because the pointer does not take the cursor away from the input. |
+| Attribute        | Type | Description                                                                                                           |
+| :--------------- | :--- | :-------------------------------------------------------------------------------------------------------------------- |
+| data-highlighted | -    | Present while the input shows its focus ring.&#xA;Under keyboard modality it is cleared while an item is highlighted. |
 
 ### Input.Props
 
@@ -202,8 +194,8 @@ Re-export of [Input](#input) props.
 ```typescript
 type FilterMenuInputState = {
   /**
-   * Whether the input shows its virtual-focus indicator.
-   * Always set under pointer modality; under keyboard modality, set only while no item is highlighted.
+   * Whether the input shows its focus ring.
+   * Under keyboard modality it is cleared while an item is highlighted.
    */
   highlighted: boolean;
 };
@@ -211,7 +203,7 @@ type FilterMenuInputState = {
 
 ### Clear
 
-A button that clears the filter query.
+A button that clears the filter query. Renders nothing while the query is empty.
 Renders a `<button>` element.
 
 **Clear Props:**
@@ -447,18 +439,6 @@ Renders a `<div>` element with a `dialog` role.
 | style      | `React.CSSProperties \| ((state: FilterMenu.Popup.State) => React.CSSProperties \| undefined)`                                | -       | Style applied to the element, or a function that&#xA;returns a style object based on the component's state.                                                                                                                                                                                                                                                                                                              |
 | render     | `ReactElement \| ((props: HTMLProps, state: FilterMenu.Popup.State) => ReactElement)`                                         | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render.                                                                                                                                                                                                                            |
 
-**Popup Data Attributes:**
-
-| Attribute           | Type                                                                       | Description                                                           |
-| :------------------ | :------------------------------------------------------------------------- | :-------------------------------------------------------------------- |
-| data-open           | -                                                                          | Present when the menu is open.                                        |
-| data-closed         | -                                                                          | Present when the menu is closed.                                      |
-| data-align          | `'start' \| 'center' \| 'end'`                                             | Indicates how the popup is aligned relative to specified side.        |
-| data-instant        | `'click' \| 'dismiss' \| 'group' \| 'trigger-change'`                      | Present if animations should be instant.                              |
-| data-side           | `'top' \| 'bottom' \| 'left' \| 'right' \| 'inline-end' \| 'inline-start'` | Indicates which side the popup is positioned relative to the trigger. |
-| data-starting-style | -                                                                          | Present when the menu begins animating in.                            |
-| data-ending-style   | -                                                                          | Present when the menu is animating out.                               |
-
 ### Popup.Props
 
 Re-export of [Popup](#popup) props.
@@ -542,13 +522,6 @@ Renders a `<div>` element.
 | className    | `string \| ((state: FilterMenu.Item.State) => string \| undefined)`                           | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
 | style        | `React.CSSProperties \| ((state: FilterMenu.Item.State) => React.CSSProperties \| undefined)` | -       | Style applied to the element, or a function that&#xA;returns a style object based on the component's state.                                                                                   |
 | render       | `ReactElement \| ((props: HTMLProps, state: FilterMenu.Item.State) => ReactElement)`          | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
-
-**Item Data Attributes:**
-
-| Attribute        | Type | Description                                |
-| :--------------- | :--- | :----------------------------------------- |
-| data-highlighted | -    | Present when the menu item is highlighted. |
-| data-disabled    | -    | Present when the menu item is disabled.    |
 
 ### Item.Props
 
@@ -891,14 +864,6 @@ Renders a `<div>` element.
 | style        | `React.CSSProperties \| ((state: FilterMenu.SubmenuTrigger.State) => React.CSSProperties \| undefined)` | -       | Style applied to the element, or a function that&#xA;returns a style object based on the component's state.                                                                                   |
 | render       | `ReactElement \| ((props: HTMLProps, state: FilterMenu.SubmenuTrigger.State) => ReactElement)`          | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
 
-**SubmenuTrigger Data Attributes:**
-
-| Attribute        | Type | Description                                      |
-| :--------------- | :--- | :----------------------------------------------- |
-| data-popup-open  | -    | Present when the corresponding submenu is open.  |
-| data-highlighted | -    | Present when the submenu trigger is highlighted. |
-| data-disabled    | -    | Present when the submenu trigger is disabled.    |
-
 ### SubmenuTrigger.Props
 
 Re-export of [SubmenuTrigger](#submenutrigger) props.
@@ -1018,15 +983,6 @@ Renders a `<div>` element.
 | style        | `React.CSSProperties \| ((state: FilterMenu.RadioItem.State) => React.CSSProperties \| undefined)` | -       | Style applied to the element, or a function that&#xA;returns a style object based on the component's state.                                                                                   |
 | render       | `ReactElement \| ((props: HTMLProps, state: FilterMenu.RadioItem.State) => ReactElement)`          | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
 
-**RadioItem Data Attributes:**
-
-| Attribute        | Type | Description                                       |
-| :--------------- | :--- | :------------------------------------------------ |
-| data-checked     | -    | Present when the menu radio item is selected.     |
-| data-unchecked   | -    | Present when the menu radio item is not selected. |
-| data-highlighted | -    | Present when the menu radio item is highlighted.  |
-| data-disabled    | -    | Present when the menu radio item is disabled.     |
-
 ### RadioItem.Props
 
 Re-export of [RadioItem](#radioitem) props.
@@ -1108,15 +1064,6 @@ Renders a `<div>` element.
 | className       | `string \| ((state: FilterMenu.CheckboxItem.State) => string \| undefined)`                           | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
 | style           | `React.CSSProperties \| ((state: FilterMenu.CheckboxItem.State) => React.CSSProperties \| undefined)` | -       | Style applied to the element, or a function that&#xA;returns a style object based on the component's state.                                                                                   |
 | render          | `ReactElement \| ((props: HTMLProps, state: FilterMenu.CheckboxItem.State) => ReactElement)`          | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
-
-**CheckboxItem Data Attributes:**
-
-| Attribute        | Type | Description                                         |
-| :--------------- | :--- | :-------------------------------------------------- |
-| data-checked     | -    | Present when the menu checkbox item is checked.     |
-| data-unchecked   | -    | Present when the menu checkbox item is not checked. |
-| data-highlighted | -    | Present when the menu checkbox item is highlighted. |
-| data-disabled    | -    | Present when the menu checkbox item is disabled.    |
 
 ### CheckboxItem.Props
 
@@ -1305,12 +1252,6 @@ Renders an `<a>` element.
 | className    | `string \| ((state: FilterMenu.LinkItem.State) => string \| undefined)`                                                                                                  | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
 | style        | `React.CSSProperties \| ((state: FilterMenu.LinkItem.State) => React.CSSProperties \| undefined)`                                                                        | -       | Style applied to the element, or a function that&#xA;returns a style object based on the component's state.                                                                                   |
 | render       | `ReactElement \| ((props: React.DetailedHTMLProps<React.AnchorHTMLAttributes<HTMLAnchorElement>, HTMLAnchorElement>, state: FilterMenu.LinkItem.State) => ReactElement)` | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
-
-**LinkItem Data Attributes:**
-
-| Attribute        | Type | Description                           |
-| :--------------- | :--- | :------------------------------------ |
-| data-highlighted | -    | Present when the link is highlighted. |
 
 ### LinkItem.Props
 

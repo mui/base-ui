@@ -29,6 +29,7 @@ export const FilterMenuCheckboxItem = React.forwardRef(function FilterMenuCheckb
     ...menuProps
   } = props;
 
+  // Hoisted so uncontrolled state survives the unmount while the item is filtered out.
   const [checked, setChecked] = useControlled({
     controlled: checkedProp,
     default: defaultChecked ?? false,

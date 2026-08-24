@@ -136,8 +136,7 @@ export function FilterMenuSubmenuRoot(props: FilterMenuSubmenuRoot.Props): React
       if (details.reason === REASONS.escapeKey && isHTMLElement(details.trigger)) {
         highlightTrigger(details.trigger);
         // `MenuPopup` returns focus through `getReturnElement`, so point it at the element that
-        // can hold real focus: the parent's input under virtual focus, not its tabbable-less
-        // trigger.
+        // can hold real focus: the parent's input, not its untabbable trigger.
         parentReferenceRef.current = {
           reference: parent.virtualFocus
             ? (parent.virtualFocusRef?.current ?? details.trigger)
@@ -229,6 +228,8 @@ function FilterMenuSubmenuNavigation(props: FilterMenuSubmenuNavigationProps) {
       return;
     }
 
+    // If this close key is also the parent's navigation key, let it through so the parent
+    // navigates too. Otherwise stop propagating it.
     if (!isMainOrientationKey(event.key, parentOrientation)) {
       stopEvent(event);
     }
@@ -240,6 +241,7 @@ function FilterMenuSubmenuNavigation(props: FilterMenuSubmenuNavigationProps) {
       onSubmenuExit();
     }
 
+    // `onSubmenuExit` bails when the submenu was opened by pointer, so return focus here.
     const returnElement = getReturnElement() ?? store.select('activeTriggerElement');
     if (
       !store.select('open') &&

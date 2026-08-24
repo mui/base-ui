@@ -21,7 +21,7 @@ import type { State as StoreState } from '../store';
 
 /**
  * Holds the filter query, matches it against the registered items, and publishes the result. The
- * host owns list navigation; this root only reads the index the host highlights.
+ * host owns list navigation; this root moves the highlight through `setActiveIndex`.
  *
  * @internal
  */
@@ -91,10 +91,8 @@ export function FilterDropdownRoot(props: FilterDropdownRoot.Props): React.JSX.E
   const defaultTriggerId = defaultId ? `${defaultId}-trigger` : undefined;
   const defaultPopupId = defaultId ? `${defaultId}-popup` : undefined;
   const defaultListId = defaultId ? `${defaultId}-list` : undefined;
-  // Inline lists render no trigger, so the generated id would reference nothing and leave the
-  // list without an accessible name.
-  // A registered `''` means the element rendered with an explicitly empty id: reference nothing
-  // rather than falling back to a generated id that no element carries.
+  // Never point at an id no element carries: inline lists render no trigger, and a registered
+  // `''` means the element rendered with an explicitly empty id.
   const triggerId =
     (externalTriggerId ?? registeredTriggerId ?? (inline ? undefined : defaultTriggerId)) ||
     undefined;
@@ -106,13 +104,12 @@ export function FilterDropdownRoot(props: FilterDropdownRoot.Props): React.JSX.E
     setKeyboardModality(inputFocusVisible);
   }, [inputFocusVisible]);
 
-  // Filtering runs against the registry snapshot published after every item in the commit has
-  // registered, and against the committed query, because a controlled consumer can reject a
-  // proposed change.
   useIsoLayoutEffect(() => {
     store.set('registeredItemCount', registeredItems.size);
   }, [registeredItems, store]);
 
+  // Runs against the registry snapshot published once every item in the commit has registered,
+  // and against the committed query, because a controlled consumer can reject a proposed change.
   useIsoLayoutEffect(() => {
     if (!open && query === undefined) {
       return;
@@ -289,7 +286,7 @@ export interface FilterDropdownRootProps {
    */
   locale?: Intl.LocalesArgument | undefined;
   /**
-   * The filter input value. Use when controlled.
+   * The filter input value.
    */
   value: string;
   /**
