@@ -233,6 +233,7 @@ describe('<Field.Control />', () => {
 
     await flushMicrotasks();
 
+    expect(validate).toHaveBeenCalledTimes(2);
     expect(validate.mock.lastCall?.[0]).toBe('foo');
 
     resolvers.foo('Invalid email');
@@ -240,7 +241,7 @@ describe('<Field.Control />', () => {
 
     expect(screen.getByText('Invalid email')).toBeInTheDocument();
 
-    resolvers['foo ']?.('Stale error');
+    resolvers['foo ']('Stale error');
     await flushMicrotasks();
 
     expect(screen.getByText('Invalid email')).toBeInTheDocument();
