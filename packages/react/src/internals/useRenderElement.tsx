@@ -57,8 +57,8 @@ function useRenderElementProps<
   Enabled extends boolean | undefined,
 >(
   componentProps: UseRenderElementComponentProps<State>,
-  params: UseRenderElementParameters<State, RenderedElementType, TagName, Enabled> = {},
-  renderProp?: UseRenderElementComponentProps<State>['render'],
+  params: UseRenderElementParameters<State, RenderedElementType, TagName, Enabled>,
+  renderProp: UseRenderElementComponentProps<State>['render'],
 ): React.HTMLAttributes<any> & React.RefAttributes<any> {
   const { className: classNameProp, style: styleProp } = componentProps;
 
@@ -146,11 +146,12 @@ function unwrapLazyRenderProp<State>(
   render: UseRenderElementComponentProps<State>['render'],
 ): UseRenderElementComponentProps<State>['render'] {
   // `$$typeof` is a React internal, absent from the public element types.
-  const maybeLazy = render as { $$typeof?: symbol | undefined } | undefined;
-  if (typeof render === 'object' && maybeLazy?.$$typeof === REACT_LAZY_TYPE) {
-    return React.Children.toArray(render)[0] as React.ReactElement;
+  if ((render as { $$typeof?: symbol | undefined } | undefined)?.$$typeof !== REACT_LAZY_TYPE) {
+    return render;
   }
-  return render;
+  // Keep the wrapper when it unwraps to nothing, so an invalid render prop is still
+  // reported as one instead of silently falling back to the default element.
+  return (React.Children.toArray(render as React.ReactNode)[0] as React.ReactElement) ?? render;
 }
 
 function evaluateRenderProp<T extends React.ElementType, S>(

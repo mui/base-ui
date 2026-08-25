@@ -514,14 +514,17 @@ describe('useRenderElement', () => {
     });
 
     // The Flight client hands a Client Component a `react.lazy` wrapper in place of a
-    // render element created in a Server Component. React 18's Children.toArray() does
-    // not unwrap lazy elements, and this shape only occurs with React 19+ anyway.
+    // render element created in a Server Component. Skipped below React 19, whose
+    // Children.toArray() is the first to unwrap lazy elements.
     describe.skipIf(reactMajor < 19)('lazy-wrapped render element (Flight shape)', () => {
-      function wrapLazy(element: React.ReactElement): React.ReactElement {
+      function wrapLazy(
+        element: React.ReactElement,
+        init: (payload: unknown) => unknown = (payload) => payload,
+      ): React.ReactElement {
         return {
           $$typeof: Symbol.for('react.lazy'),
           _payload: element,
-          _init: (payload: unknown) => payload,
+          _init: init,
         } as unknown as React.ReactElement;
       }
 
@@ -555,6 +558,43 @@ describe('useRenderElement', () => {
         const element = container.firstElementChild;
         expect(renderRef.current).toBe(element);
         expect(componentRef.current).toBe(element);
+      });
+
+      it('does not unwrap a pending element when disabled', async () => {
+        const init = vi.fn(() => {
+          throw new Promise(() => {});
+        });
+
+        function DisabledLazyComponent(props: { render: React.ReactElement }) {
+          return useRenderElement('div', props, { enabled: false });
+        }
+
+        const { container } = await render(
+          <React.Suspense fallback={<div data-testid="fallback" />}>
+            <DisabledLazyComponent render={wrapLazy(<div />, init)} />
+          </React.Suspense>,
+        );
+
+        expect(container.innerHTML).toBe('');
+        expect(init).not.toHaveBeenCalled();
+      });
+
+      it('reports a wrapper that unwraps to nothing as an invalid render element', async () => {
+        const originalEnv = process.env.NODE_ENV;
+
+        let error: Error | null = null;
+        try {
+          process.env.NODE_ENV = 'development';
+          await render(<TestComponent render={wrapLazy(null as any)} />);
+        } catch (err) {
+          error = err as Error;
+        } finally {
+          process.env.NODE_ENV = originalEnv;
+        }
+
+        expect(error?.message).toMatch(
+          /Base UI: The `render` prop was provided an invalid React element/,
+        );
       });
     });
 
