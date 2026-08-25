@@ -145,8 +145,7 @@ This suits a submenu that is short enough not to need its own search field while
 
 ### Filterable submenus
 
-Use `<FilterMenu.SubmenuRoot>` when a submenu needs its own search input.
-For a submenu without one, use `<Menu.SubmenuRoot>` from [Menu](/react/components/menu) together with `<FilterMenu.SubmenuTrigger>` and plain Menu parts for its popup.
+Each `<FilterMenu.SubmenuRoot>` can have its own optional input, independently of the root menu. Add one when the submenu should be searchable.
 
 ```jsx title="A filterable submenu"
 <FilterMenu.SubmenuRoot>

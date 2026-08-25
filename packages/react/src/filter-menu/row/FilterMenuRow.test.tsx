@@ -44,9 +44,9 @@ describe('<FilterMenu.Row />', () => {
       </FilterMenu.Root>,
     );
 
-    const rowgroup = screen.getByRole('rowgroup');
+    const rowgroup = screen.getByRole('rowgroup', { name: 'Actions' });
     expect(rowgroup).toBeVisible();
-    expect(rowgroup).not.toHaveAttribute('aria-labelledby');
+    expect(rowgroup).toHaveAttribute('aria-labelledby');
   });
 
   it('keeps groups labelled outside grid mode', async () => {
