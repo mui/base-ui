@@ -13,29 +13,25 @@ describe('<FilterDropdown.Root />', () => {
 
   it('renders the expected markup and ARIA relationships', async () => {
     await render(
-      <TestFilterDropdownRoot open value="">
-        <FilterDropdown.Trigger id={undefined}>Choose a country</FilterDropdown.Trigger>
-        <FilterDropdown.Popup id={undefined}>
-          <FilterDropdown.Input aria-label="Filter countries" />
-          <FilterDropdown.List id={undefined} data-testid="list" />
-        </FilterDropdown.Popup>
-      </TestFilterDropdownRoot>,
+      <React.Fragment>
+        <button type="button" id="host-trigger">
+          Choose a country
+        </button>
+        <TestFilterDropdownRoot open value="" triggerId="host-trigger">
+          <FilterDropdown.Popup id={undefined}>
+            <FilterDropdown.Input aria-label="Filter countries" />
+            <FilterDropdown.List id={undefined} data-testid="list" />
+          </FilterDropdown.Popup>
+        </TestFilterDropdownRoot>
+      </React.Fragment>,
     );
-
-    const trigger = screen.getByRole('button', { name: 'Choose a country' });
-
-    expect(trigger).toHaveAttribute('aria-haspopup', 'dialog');
-    expect(trigger).toHaveAttribute('aria-expanded', 'true');
-    expect(trigger).toHaveAttribute('aria-controls');
 
     const popup = screen.getByRole('dialog', { name: 'Choose a country' });
     const input = screen.getByRole('searchbox', { name: 'Filter countries' });
     const list = screen.getByRole('menu', { name: 'Choose a country' });
 
-    expect(trigger.tagName).toBe('BUTTON');
-    expect(trigger.getAttribute('aria-controls')).toBe(popup.id);
     expect(popup.tagName).toBe('DIV');
-    expect(popup).toHaveAttribute('aria-labelledby', trigger.id);
+    expect(popup).toHaveAttribute('aria-labelledby', 'host-trigger');
     expect(input.tagName).toBe('INPUT');
     expect(input).toHaveAttribute('type', 'text');
     expect(input).toHaveAttribute('inputmode', 'search');
@@ -47,20 +43,6 @@ describe('<FilterDropdown.Root />', () => {
     expect(list).toHaveAttribute('tabindex', '-1');
     expect(input).toHaveAttribute('aria-controls', list.id);
     expect(input).not.toHaveAttribute('aria-activedescendant');
-  });
-
-  it('does not associate the trigger with the popup while closed', async () => {
-    await render(
-      <TestFilterDropdownRoot open={false} value="">
-        <FilterDropdown.Trigger id={undefined}>Choose a country</FilterDropdown.Trigger>
-        <FilterDropdown.Popup id={undefined} />
-      </TestFilterDropdownRoot>,
-    );
-
-    const trigger = screen.getByRole('button', { name: 'Choose a country' });
-
-    expect(trigger).toHaveAttribute('aria-expanded', 'false');
-    expect(trigger).not.toHaveAttribute('aria-controls');
   });
 
   it('keeps focus on the input when the list or popup background is clicked', async () => {
@@ -174,7 +156,6 @@ describe('<FilterDropdown.Root />', () => {
 
       return (
         <TestFilterDropdownRoot open value="">
-          <FilterDropdown.Trigger id={`${version}-trigger`}>Actions</FilterDropdown.Trigger>
           <FilterDropdown.Popup id={`${version}-popup`}>
             <FilterDropdown.Input aria-label="Filter actions" />
             <FilterDropdown.List id={`${version}-list`} />
@@ -187,20 +168,15 @@ describe('<FilterDropdown.Root />', () => {
     }
 
     const { user } = await render(<App />);
-    const trigger = screen.getByRole('button', { name: 'Actions' });
     const popup = screen.getByRole('dialog');
     const input = screen.getByRole('searchbox', { name: 'Filter actions' });
     const list = screen.getByRole('menu');
 
     await user.click(screen.getByRole('button', { name: 'Change ids' }));
 
-    expect(trigger).toHaveAttribute('id', 'second-trigger');
-    expect(trigger).toHaveAttribute('aria-controls', 'second-popup');
     expect(popup).toHaveAttribute('id', 'second-popup');
-    expect(popup).toHaveAttribute('aria-labelledby', 'second-trigger');
     expect(input).toHaveAttribute('aria-controls', 'second-list');
     expect(list).toHaveAttribute('id', 'second-list');
-    expect(list).toHaveAttribute('aria-labelledby', 'second-trigger');
   });
 
   it('releases id overrides when their props are removed', async () => {
@@ -209,9 +185,6 @@ describe('<FilterDropdown.Root />', () => {
 
       return (
         <TestFilterDropdownRoot open value="">
-          <FilterDropdown.Trigger id={customIds ? 'custom-trigger' : undefined}>
-            Actions
-          </FilterDropdown.Trigger>
           <FilterDropdown.Popup id={customIds ? 'custom-popup' : undefined}>
             <FilterDropdown.Input aria-label="Filter actions" />
             <FilterDropdown.List id={customIds ? 'custom-list' : undefined} />
@@ -224,7 +197,6 @@ describe('<FilterDropdown.Root />', () => {
     }
 
     const { user } = await render(<App />);
-    const trigger = screen.getByRole('button', { name: 'Actions' });
     const popup = screen.getByRole('dialog');
     const input = screen.getByRole('searchbox', { name: 'Filter actions' });
     const list = screen.getByRole('menu');
@@ -232,11 +204,11 @@ describe('<FilterDropdown.Root />', () => {
     await user.click(screen.getByRole('button', { name: 'Remove ids' }));
 
     await waitFor(() => {
-      expect(trigger).not.toHaveAttribute('id', 'custom-trigger');
+      expect(popup).not.toHaveAttribute('id', 'custom-popup');
     });
-    expect(popup).not.toHaveAttribute('id', 'custom-popup');
     expect(list).not.toHaveAttribute('id', 'custom-list');
-    expect(trigger.getAttribute('aria-controls')).toBe(popup.id);
+    // Removing an explicit id must return the element to its generated one, not leave it dangling.
+    expect(popup.id).not.toBe('');
     expect(input.getAttribute('aria-controls')).toBe(list.id);
   });
 
@@ -246,7 +218,6 @@ describe('<FilterDropdown.Root />', () => {
 
       return (
         <TestFilterDropdownRoot open value={value} onValueChange={setValue}>
-          <FilterDropdown.Trigger id={undefined}>Choose a country</FilterDropdown.Trigger>
           <FilterDropdown.Popup id={undefined}>
             <FilterDropdown.Input aria-label="Filter countries" />
             <FilterDropdown.Empty>No matches for {value}</FilterDropdown.Empty>
@@ -295,7 +266,8 @@ describe('<FilterDropdown.Root />', () => {
       const { user, setProps } = await render(<ServerResults items={['A', 'B', 'C']} />);
 
       const input = screen.getByRole('searchbox', { name: 'Filter actions' });
-      // A query is needed for the filter pass to run at all; `null` keeps every item visible.
+      // `null` runs no match pass, but the query still has to change for the highlight to be
+      // reconciled against the new results.
       fireEvent.change(input, { target: { value: 'q' } });
       await user.keyboard('[ArrowDown][ArrowDown][ArrowDown]');
 
@@ -312,6 +284,58 @@ describe('<FilterDropdown.Root />', () => {
 
       await waitFor(() => {
         expect(input).not.toHaveAttribute('aria-activedescendant');
+      });
+    });
+
+    it('keeps autoHighlight seeding the first item', async () => {
+      function ServerResults(props: { items: string[] }) {
+        return (
+          <FilterMenu.Root autoHighlight defaultOpen filter={null}>
+            <FilterMenu.Trigger>Actions</FilterMenu.Trigger>
+            <FilterMenu.Portal>
+              <FilterMenu.Positioner>
+                <FilterMenu.Popup>
+                  <FilterMenu.Input aria-label="Filter actions" />
+                  <FilterMenu.List>
+                    {props.items.map((item) => (
+                      <FilterMenu.Item key={item}>{item}</FilterMenu.Item>
+                    ))}
+                  </FilterMenu.List>
+                </FilterMenu.Popup>
+              </FilterMenu.Positioner>
+            </FilterMenu.Portal>
+          </FilterMenu.Root>
+        );
+      }
+
+      const { setProps } = await render(<ServerResults items={['A', 'B']} />);
+      const input = screen.getByRole('searchbox', { name: 'Filter actions' });
+
+      // The consumer owns matching, so the rendered set never changes here. Seeding must still
+      // follow the query.
+      fireEvent.change(input, { target: { value: 'q' } });
+
+      await waitFor(() => {
+        expect(input).toHaveAttribute(
+          'aria-activedescendant',
+          screen.getByRole('menuitem', { name: 'A' }).id,
+        );
+      });
+
+      // A query that matches nothing, then results returning, must seed again rather than leave
+      // the list unhighlighted.
+      await setProps({ items: [] });
+      await waitFor(() => {
+        expect(input).not.toHaveAttribute('aria-activedescendant');
+      });
+
+      await setProps({ items: ['X', 'Y'] });
+
+      await waitFor(() => {
+        expect(input).toHaveAttribute(
+          'aria-activedescendant',
+          screen.getByRole('menuitem', { name: 'X' }).id,
+        );
       });
     });
   });

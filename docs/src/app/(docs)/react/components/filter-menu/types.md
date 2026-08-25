@@ -725,6 +725,7 @@ type FilterMenuEmptyState = {};
 ### Row
 
 Displays a single row of regular items in a grid filter menu.
+Enable `grid` on the root component to turn the list into a grid.
 Renders a `<div>` element.
 
 **Row Props:**
@@ -1355,8 +1356,8 @@ type PayloadChildRenderFunction = (arg: { payload: unknown | undefined }) => Rea
 - `FilterMenu.Positioner`: `FilterMenu.Positioner`, `FilterMenu.Positioner.State`, `FilterMenu.Positioner.Props`
 - `FilterMenu.RadioGroup`: `FilterMenu.RadioGroup`, `FilterMenu.RadioGroup.Props`, `FilterMenu.RadioGroup.State`, `FilterMenu.RadioGroup.ChangeEventReason`, `FilterMenu.RadioGroup.ChangeEventDetails`
 - `FilterMenu.RadioItem`: `FilterMenu.RadioItem`, `FilterMenu.RadioItem.Props`, `FilterMenu.RadioItem.State`
-- `FilterMenu.Row`: `FilterMenu.Row`, `FilterMenu.Row.State`, `FilterMenu.Row.Props`
 - `FilterMenu.RadioItemIndicator`: `FilterMenu.RadioItemIndicator`, `FilterMenu.RadioItemIndicator.Props`, `FilterMenu.RadioItemIndicator.State`
+- `FilterMenu.Row`: `FilterMenu.Row`, `FilterMenu.Row.State`, `FilterMenu.Row.Props`
 - `FilterMenu.Trigger`: `FilterMenu.Trigger`, `FilterMenu.Trigger.Props`, `FilterMenu.Trigger.State`
 - `FilterMenu.Viewport`: `FilterMenu.Viewport`, `FilterMenu.Viewport.Props`, `FilterMenu.Viewport.State`
 - `FilterMenu.SubmenuTrigger`: `FilterMenu.SubmenuTrigger`, `FilterMenu.SubmenuTrigger.Props`, `FilterMenu.SubmenuTrigger.State`
@@ -1407,10 +1408,10 @@ Maps `Canonical`: `Alias` — Use Canonical when its namespace is already import
 - `FilterMenu.RadioGroup.ChangeEventDetails`: `FilterMenuRadioGroupChangeEventDetails`
 - `FilterMenu.RadioItem.Props`: `FilterMenuRadioItemProps`
 - `FilterMenu.RadioItem.State`: `FilterMenuRadioItemState`
-- `FilterMenu.Row.State`: `FilterMenuRowState`
-- `FilterMenu.Row.Props`: `FilterMenuRowProps`
 - `FilterMenu.RadioItemIndicator.Props`: `FilterMenuRadioItemIndicatorProps`
 - `FilterMenu.RadioItemIndicator.State`: `FilterMenuRadioItemIndicatorState`
+- `FilterMenu.Row.State`: `FilterMenuRowState`
+- `FilterMenu.Row.Props`: `FilterMenuRowProps`
 - `FilterMenu.Trigger.Props`: `FilterMenuTriggerProps`
 - `FilterMenu.Trigger.State`: `FilterMenuTriggerState`
 - `FilterMenu.Viewport.Props`: `FilterMenuViewportProps`

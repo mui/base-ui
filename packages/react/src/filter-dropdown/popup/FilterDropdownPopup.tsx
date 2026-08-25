@@ -33,13 +33,8 @@ export const FilterDropdownPopup = React.forwardRef(function FilterDropdownPopup
 
   const context = useFilterDropdownRootContext();
   const direction = useDirection();
-  const { focusOwnerRef, setPopupId } = context;
+  const { focusOwnerRef } = context;
   const id = resolveRenderedId(componentProps, context.defaultPopupId);
-  const registeredId = id === context.defaultPopupId ? undefined : id;
-  const registerIdRef = React.useCallback(
-    (element: HTMLElement | null) => setPopupId(element ? registeredId : undefined),
-    [registeredId, setPopupId],
-  );
   const { ariaLabelledBy } = resolveMenuPopupLabel(componentProps, null, context.triggerId ?? null);
 
   // The pointer may only restore focus to an owner that held it during this open session, or
@@ -56,7 +51,7 @@ export const FilterDropdownPopup = React.forwardRef(function FilterDropdownPopup
 
   return useRenderElement('div', componentProps, {
     state,
-    ref: [forwardedRef, registerIdRef],
+    ref: forwardedRef,
     props: [
       {
         id,

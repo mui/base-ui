@@ -142,6 +142,51 @@ describe('<FilterMenu.Root /> (WebKit)', () => {
     expect(input).toHaveAttribute('aria-activedescendant', submenuTrigger.id);
   });
 
+  it('marks items inside an opened submenu selected', async () => {
+    const { user } = await render(
+      <FilterMenu.Root defaultOpen>
+        <FilterMenu.Trigger>Actions</FilterMenu.Trigger>
+        <FilterMenu.Portal>
+          <FilterMenu.Positioner>
+            <FilterMenu.Popup>
+              <FilterMenu.Input aria-label="Filter actions" />
+              <FilterMenu.List>
+                <FilterMenu.SubmenuRoot>
+                  <FilterMenu.SubmenuTrigger>More actions</FilterMenu.SubmenuTrigger>
+                  <FilterMenu.Portal>
+                    <FilterMenu.Positioner>
+                      <FilterMenu.Popup>
+                        <FilterMenu.Input aria-label="Filter more actions" />
+                        <FilterMenu.List>
+                          <FilterMenu.Item>Share</FilterMenu.Item>
+                        </FilterMenu.List>
+                      </FilterMenu.Popup>
+                    </FilterMenu.Positioner>
+                  </FilterMenu.Portal>
+                </FilterMenu.SubmenuRoot>
+              </FilterMenu.List>
+            </FilterMenu.Popup>
+          </FilterMenu.Positioner>
+        </FilterMenu.Portal>
+      </FilterMenu.Root>,
+    );
+
+    await user.keyboard('[ArrowDown][ArrowRight]');
+
+    const submenuInput = await screen.findByRole('searchbox', { name: 'Filter more actions' });
+    await waitFor(() => {
+      expect(submenuInput).toHaveFocus();
+    });
+
+    const shareItem = screen.getByRole('menuitem', { name: 'Share' });
+    expect(shareItem).toHaveAttribute('aria-selected', 'false');
+
+    await user.keyboard('[ArrowDown]');
+
+    expect(shareItem).toHaveAttribute('aria-selected', 'true');
+    expect(submenuInput).toHaveAttribute('aria-activedescendant', shareItem.id);
+  });
+
   it('leaves plain menu items alone, which navigate with real focus', async () => {
     await render(
       <Menu.Root defaultOpen>

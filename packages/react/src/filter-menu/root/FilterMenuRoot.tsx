@@ -2,20 +2,14 @@
 import * as React from 'react';
 import { useControlled } from '@base-ui/utils/useControlled';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
-import { platform } from '@base-ui/utils/platform';
-import { REASONS } from '../../internals/reasons';
-import {
-  FilterDropdownRoot,
-  type FilterDropdownRoot as FilterDropdownRootNamespace,
-} from '../../filter-dropdown/root/FilterDropdownRoot';
-import type { FilterDropdownFilter } from '../../filter-dropdown/root/FilterDropdownRootContext';
+import type { FilterDropdownRoot as FilterDropdownRootNamespace } from '../../filter-dropdown/root/FilterDropdownRoot';
 import { useFilterDropdownCloseQuery } from '../../filter-dropdown/root/useFilterDropdownCloseQuery';
 import { MenuRootInternal, type MenuRoot } from '../../menu/root/MenuRoot';
-import { useMenuRootContext } from '../../menu/root/MenuRootContext';
 import type { FilterMenuHandle } from '../store/FilterMenuHandle';
-import type { HTMLProps } from '../../internals/types';
 import type { FilterMenuRootFilterProps } from '../utils/FilterMenuRootFilterProps';
-import { useIsHydrating } from '../../utils/useIsHydrating';
+import { FilterMenuProvider } from '../utils/FilterMenuProvider';
+import { isKeyboardOpen } from '../utils/isKeyboardOpen';
+import { useFilterMenuWebkitItemSelected } from '../utils/useFilterMenuWebkitItemSelected';
 
 /**
  * Groups all parts of a filter menu.
@@ -55,6 +49,7 @@ export function FilterMenuRoot<Payload>(props: FilterMenuRoot.Props<Payload>): R
   });
   const [inputFocusVisible, setInputFocusVisible] = React.useState(false);
   const [hasInput, setHasInput] = React.useState(false);
+
   const focusOwnerRef = React.useRef<HTMLElement | null>(null);
   const webkitItemSelected = useFilterMenuWebkitItemSelected();
 
@@ -74,16 +69,18 @@ export function FilterMenuRoot<Payload>(props: FilterMenuRoot.Props<Payload>): R
     onOpenChangeComplete,
   });
 
-  function handleOpenChange(nextOpen: boolean, details: FilterMenuRoot.ChangeEventDetails) {
-    onOpenChange?.(nextOpen, details);
-    if (details.isCanceled) {
-      return;
-    }
+  const handleOpenChange = useStableCallback(
+    (nextOpen: boolean, details: FilterMenuRoot.ChangeEventDetails) => {
+      onOpenChange?.(nextOpen, details);
+      if (details.isCanceled) {
+        return;
+      }
 
-    closeQuery.handleOpenChange(nextOpen);
-    setOpen(nextOpen);
-    setInputFocusVisible(nextOpen && isKeyboardOpen(details));
-  }
+      closeQuery.handleOpenChange(nextOpen);
+      setOpen(nextOpen);
+      setInputFocusVisible(nextOpen && isKeyboardOpen(details));
+    },
+  );
 
   return (
     <MenuRootInternal
@@ -93,12 +90,13 @@ export function FilterMenuRoot<Payload>(props: FilterMenuRoot.Props<Payload>): R
       onOpenChangeComplete={closeQuery.handleOpenChangeComplete}
       inline={inline}
       orientation={grid ? 'horizontal' : undefined}
-      triggerOrientation="vertical"
       virtualFocus
       webkitItemSelected={webkitItemSelected}
       virtualFocusRef={focusOwnerRef}
       virtualFocusInput={hasInput}
-      allowEscape={hasInput && !autoHighlight}
+      // Escaping returns the highlight to the input along the main axis. A grid's main axis is
+      // horizontal, so escaping there would strand the highlight between cells instead.
+      allowEscape={hasInput && !autoHighlight && !grid}
       resetOnPointerLeave={autoHighlight !== 'always'}
       renderVirtualFocusChildren={(payload, inputProps) => (
         <FilterMenuProvider
@@ -119,92 +117,6 @@ export function FilterMenuRoot<Payload>(props: FilterMenuRoot.Props<Payload>): R
         </FilterMenuProvider>
       )}
     />
-  );
-}
-
-/**
- * WebKit only follows a searchbox's `aria-activedescendant` into a menu when its items expose a
- * selection state. Delay the engine-specific markup until after hydration so server and client
- * output agree.
- */
-export function useFilterMenuWebkitItemSelected() {
-  const hydrating = useIsHydrating();
-  return !hydrating && platform.engine.webkit;
-}
-
-/**
- * A keyboard open is the one that lands focus in the popup, so the input shows its focus ring.
- * Arrow keys report `list-navigation`; Enter and Space dispatch a click carrying no pointer detail.
- */
-export function isKeyboardOpen(details: {
-  reason: string | null;
-  event: Event | undefined;
-}): boolean {
-  if (details.reason === REASONS.listNavigation) {
-    return true;
-  }
-  return (
-    (details.reason === REASONS.triggerPress || details.reason === REASONS.itemPress) &&
-    (details.event as MouseEvent | undefined)?.detail === 0
-  );
-}
-
-interface FilterMenuProviderProps {
-  open: boolean;
-  inputFocusVisible: boolean;
-  value: string;
-  query: string;
-  filter: FilterDropdownFilter | null | undefined;
-  autoHighlight: boolean | 'always';
-  locale: Intl.LocalesArgument | undefined;
-  inline?: boolean | undefined;
-  grid?: boolean | undefined;
-  inputProps: HTMLProps;
-  onValueChange: (value: string, details: FilterMenuRoot.InputValueChangeEventDetails) => void;
-  onInputElementChange: (hasInput: boolean) => void;
-  children?: React.ReactNode;
-}
-
-/**
- * Reads the menu store, which is only available below `Menu.Root`, and hands the filter root the
- * list the menu navigates plus the props for the input that holds real focus.
- */
-export function FilterMenuProvider(props: FilterMenuProviderProps) {
-  const { store, virtualFocusRef } = useMenuRootContext();
-  const triggerId = store.useState('activeTriggerId');
-  const triggerElement = store.useState('activeTriggerElement');
-  const activeIndex = store.useState('activeIndex');
-  const disabled = store.useState('disabled');
-
-  const setActiveIndex = useStableCallback((index: number | null) => {
-    store.set('activeIndex', index);
-  });
-
-  return (
-    <FilterDropdownRoot
-      open={props.open}
-      inline={props.inline}
-      grid={props.grid}
-      disabled={disabled}
-      inputFocusVisible={props.inputFocusVisible}
-      value={props.value}
-      query={props.query}
-      filter={props.filter}
-      autoHighlight={props.autoHighlight}
-      locale={props.locale}
-      // Trust the rendered element's id once it exists: an explicitly empty id must not
-      // fall back to a registered id that no element carries.
-      triggerId={triggerElement ? triggerElement.id || null : triggerId}
-      listRef={store.context.itemDomElements}
-      activeIndex={activeIndex}
-      setActiveIndex={setActiveIndex}
-      inputProps={props.inputProps}
-      inputRef={virtualFocusRef}
-      onValueChange={props.onValueChange}
-      onInputElementChange={props.onInputElementChange}
-    >
-      {props.children}
-    </FilterDropdownRoot>
   );
 }
 

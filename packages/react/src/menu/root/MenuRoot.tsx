@@ -93,11 +93,6 @@ interface MenuRootInternalProps<Payload> extends MenuRoot.Props<Payload> {
     | undefined;
   /**
    * @ignore
-   * The orientation used to open the popup from its trigger when it differs from list navigation.
-   */
-  triggerOrientation?: MenuRoot.Orientation | undefined;
-  /**
-   * @ignore
    * Whether virtual-focus items need WebKit's `aria-selected` compatibility state.
    */
   webkitItemSelected?: boolean | undefined;
@@ -134,7 +129,6 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
     resetOnPointerLeave = true,
     virtualFocusInput = false,
     renderVirtualFocusChildren,
-    triggerOrientation = orientation,
     webkitItemSelected: webkitItemSelectedProp = false,
   } = props as MenuRootInternalProps<Payload>;
 
@@ -266,8 +260,11 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
     modal: parent.type === undefined ? modalProp : undefined,
     openMethod,
     rootId,
-    virtualFocusRef,
   });
+
+  useIsoLayoutEffect(() => {
+    store.context.virtualFocusRef = virtualFocusRef;
+  }, [store, virtualFocusRef]);
 
   useImplicitActiveTrigger(store);
   const { forceUnmount, transitionStatus } = useOpenStateTransitions(
@@ -572,7 +569,9 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
     focusItemOnOpen: virtualFocus ? false : undefined,
     allowEscape: virtualFocus && loopFocus && allowEscape,
     orientation,
-    triggerOrientation,
+    // A virtual-focus list can navigate on either axis, but its trigger always opens on the
+    // vertical one.
+    triggerOrientation: virtualFocus ? 'vertical' : orientation,
     rtl: direction === 'rtl',
     disabledIndices: EMPTY_ARRAY,
     onNavigate(nextActiveIndex) {
@@ -710,8 +709,7 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
     itemProps,
   });
 
-  const webkitItemSelected =
-    webkitItemSelectedProp || parentMenuRootContext?.webkitItemSelected || false;
+  const webkitItemSelected = webkitItemSelectedProp;
 
   const context: MenuRootContext<Payload> = React.useMemo(
     () => ({

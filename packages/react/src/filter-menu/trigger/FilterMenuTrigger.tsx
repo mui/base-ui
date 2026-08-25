@@ -28,7 +28,8 @@ export const FilterMenuTrigger = React.forwardRef(function FilterMenuTrigger(
   const handleStore = usePopupHandleStore(handle);
   const store = handleStore ?? rootContext?.store;
 
-  if (!rootContext?.virtualFocus && !handle) {
+  // `virtualFocus` marks a FilterMenu root; a plain <Menu.Root> never sets it.
+  if (!store || (!rootContext?.virtualFocus && !handle)) {
     throw new Error(
       'Base UI: <FilterMenu.Trigger> must be either used within a <FilterMenu.Root> component or provided with a handle.',
     );
@@ -36,13 +37,14 @@ export const FilterMenuTrigger = React.forwardRef(function FilterMenuTrigger(
 
   const triggerProps = mergeProps<typeof MenuTrigger>(
     {
+      'aria-haspopup': 'dialog',
       onKeyDown(event: BaseUIEvent<React.KeyboardEvent<HTMLElement>>) {
-        const focusOwner = store?.select('virtualFocusRef')?.current;
-        if (!store?.select('open') || !focusOwner) {
+        const focusOwner = store.context.virtualFocusRef?.current;
+        if (!store.select('open') || !focusOwner) {
           return;
         }
 
-        const isNavigationArrow = event.key === 'ArrowUp' || event.key === 'ArrowDown';
+        const isVerticalArrow = event.key === 'ArrowUp' || event.key === 'ArrowDown';
         const isTypeaheadKey =
           event.key.length === 1 &&
           event.key !== ' ' &&
@@ -50,7 +52,7 @@ export const FilterMenuTrigger = React.forwardRef(function FilterMenuTrigger(
           !event.metaKey &&
           !event.altKey;
 
-        if (isNavigationArrow) {
+        if (isVerticalArrow) {
           const KeyboardEventConstructor = ownerWindow(focusOwner).KeyboardEvent;
           focusOwner.dispatchEvent(new KeyboardEventConstructor(event.type, event.nativeEvent));
           // Let the forwarded navigation commit before focus would seed the first item.
@@ -58,6 +60,7 @@ export const FilterMenuTrigger = React.forwardRef(function FilterMenuTrigger(
           event.preventDefault();
           event.preventBaseUIHandler();
         } else if (event.key === 'ArrowLeft' || event.key === 'ArrowRight') {
+          // Cross-axis keys drive submenu open/close, which the trigger must not relay.
           event.preventBaseUIHandler();
         } else if (isTypeaheadKey) {
           focusOwner.focus({ preventScroll: true });
@@ -70,7 +73,6 @@ export const FilterMenuTrigger = React.forwardRef(function FilterMenuTrigger(
   return (
     <MenuTrigger
       {...triggerProps}
-      aria-haspopup={triggerProps['aria-haspopup'] ?? 'dialog'}
       handle={handle}
       ref={forwardedRef as React.Ref<HTMLButtonElement>}
     />

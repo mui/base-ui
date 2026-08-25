@@ -48,8 +48,6 @@ export function FilterDropdownRoot(props: FilterDropdownRoot.Props): React.JSX.E
   } = props;
 
   const parentItemContext = React.useContext(FilterDropdownItemContext);
-  const [registeredTriggerId, setTriggerId] = React.useState<string | undefined>(undefined);
-  const [registeredPopupId, setPopupId] = React.useState<string | undefined>(undefined);
   const [registeredListId, setListId] = React.useState<string | undefined>(undefined);
   const [focusVisible, setFocusVisible] = React.useState(inputFocusVisible);
   const [keyboardModality, setKeyboardModality] = React.useState(inputFocusVisible);
@@ -96,17 +94,10 @@ export function FilterDropdownRoot(props: FilterDropdownRoot.Props): React.JSX.E
 
   // React 17 resolves generated ids in an effect, so they must be read live rather than captured
   // in a state initializer.
-  const defaultTriggerId = defaultId ? `${defaultId}-trigger` : undefined;
   const defaultPopupId = defaultId ? `${defaultId}-popup` : undefined;
   const defaultListId = defaultId ? `${defaultId}-list` : undefined;
-  // Never point at an id no element carries: `null` means the host has no active trigger, inline
-  // lists render no trigger, and a registered `''` means the element rendered with an empty id.
-  const triggerId =
-    (externalTriggerId ??
-      registeredTriggerId ??
-      (externalTriggerId === null || inline ? undefined : defaultTriggerId)) ||
-    undefined;
-  const popupId = (registeredPopupId ?? defaultPopupId) || undefined;
+  // The host owns the trigger. `null` and `''` both mean no element carries an id to point at.
+  const triggerId = externalTriggerId || undefined;
   const listId = (registeredListId ?? defaultListId) || undefined;
 
   useIsoLayoutEffect(() => {
@@ -134,9 +125,7 @@ export function FilterDropdownRoot(props: FilterDropdownRoot.Props): React.JSX.E
     const autoHighlightEnabled =
       open && (autoHighlight === 'always' || (autoHighlight && filterQuery !== ''));
     if (filterQuery === '') {
-      if (store.state.visibleItemIds !== null) {
-        store.set('visibleItemIds', null);
-      }
+      store.set('visibleItemIds', null);
       if (autoHighlightEnabled && registeredItems.size > 0) {
         setActiveIndex(0);
       } else if (queryChanged) {
@@ -145,9 +134,13 @@ export function FilterDropdownRoot(props: FilterDropdownRoot.Props): React.JSX.E
       return;
     }
 
+    // `filter: null` hands matching to the consumer, so there is no match pass and no visible-set
+    // change to react to. `autoHighlight` must still follow the query; a highlight left on the
+    // wrong item is invalidated by the item set changing instead.
     if (filter === null) {
-      if (store.state.visibleItemIds !== null) {
-        store.set('visibleItemIds', null);
+      store.set('visibleItemIds', null);
+      if (autoHighlightEnabled && registeredItems.size > 0) {
+        setActiveIndex(0);
       }
       return;
     }
@@ -205,11 +198,7 @@ export function FilterDropdownRoot(props: FilterDropdownRoot.Props): React.JSX.E
       autoHighlight,
       store,
       defaultPopupId,
-      popupId,
-      setPopupId,
-      defaultTriggerId,
       triggerId,
-      setTriggerId,
       defaultListId,
       listId,
       setListId,
@@ -230,8 +219,6 @@ export function FilterDropdownRoot(props: FilterDropdownRoot.Props): React.JSX.E
       autoHighlight,
       store,
       defaultPopupId,
-      popupId,
-      defaultTriggerId,
       triggerId,
       defaultListId,
       listId,

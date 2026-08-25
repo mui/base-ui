@@ -7,6 +7,7 @@ export type State = {
   registeredItemCount: number;
   itemIds: readonly string[];
   activeIndex: number | null;
+  /** The host's navigation props for the element that holds real focus while the popup is open. */
   inputProps: HTMLProps;
 };
 

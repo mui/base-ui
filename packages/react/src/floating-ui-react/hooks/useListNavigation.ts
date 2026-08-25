@@ -266,6 +266,7 @@ export function useListNavigation(
   const latestOpenRef = useValueAsRef(open);
   const selectedIndexRef = useValueAsRef(selectedIndex);
   const resetOnPointerLeaveRef = useValueAsRef(resetOnPointerLeave);
+  const activeIndexRef = useValueAsRef(activeIndex);
 
   const focusFrame = useAnimationFrame();
   const waitForListPopulatedFrame = useAnimationFrame();
@@ -316,8 +317,7 @@ export function useListNavigation(
 
   useIsoLayoutEffect(() => {
     dataRef.current.orientation = orientation;
-    dataRef.current.listNavigationActiveIndex = activeIndex;
-  }, [activeIndex, dataRef, orientation]);
+  }, [dataRef, orientation]);
 
   // Sync `selectedIndex` to be the `activeIndex` upon opening the floating
   // element. Also, reset `activeIndex` upon closing the floating element.
@@ -885,11 +885,7 @@ export function useListNavigation(
           return;
         }
 
-        if (
-          virtual &&
-          !isTypeableElement(event.currentTarget) &&
-          dataRef.current.listNavigationActiveIndex == null
-        ) {
+        if (virtual && !isTypeableElement(event.currentTarget) && activeIndexRef.current == null) {
           indexRef.current = getMinEnabledIndex();
           onNavigate(event);
         } else if (!virtual) {
@@ -916,7 +912,7 @@ export function useListNavigation(
     rtl,
     selectedIndexRef,
     virtual,
-    dataRef,
+    activeIndexRef,
   ]);
 
   const reference: ElementProps['reference'] = React.useMemo(() => {

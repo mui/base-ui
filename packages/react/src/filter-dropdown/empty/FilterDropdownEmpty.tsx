@@ -5,7 +5,7 @@ import type { BaseUIComponentProps } from '../../internals/types';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { useFilterDropdownItemContext } from '../root/FilterDropdownRootContext';
 import { selectors } from '../store';
-import { useInitialLiveRegionTextMutation } from '../../combobox/utils/useInitialLiveRegionTextMutation';
+import { useInitialLiveRegionTextMutation } from '../../internals/useInitialLiveRegionTextMutation';
 import { useIsHydrating } from '../../utils/useIsHydrating';
 
 /**

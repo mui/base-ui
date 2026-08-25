@@ -26,11 +26,7 @@ export interface FilterDropdownRootContext {
   autoHighlight: boolean | 'always';
   store: FilterDropdownStore;
   defaultPopupId: string | undefined;
-  popupId: string | undefined;
-  setPopupId: React.Dispatch<React.SetStateAction<string | undefined>>;
-  defaultTriggerId: string | undefined;
   triggerId: string | undefined;
-  setTriggerId: React.Dispatch<React.SetStateAction<string | undefined>>;
   defaultListId: string | undefined;
   listId: string | undefined;
   setListId: React.Dispatch<React.SetStateAction<string | undefined>>;
@@ -115,11 +111,6 @@ export function useFilterContextForList(
  */
 export function useActiveItemId(context: FilterDropdownRootContext) {
   return context.store.useState('activeItemId');
-}
-
-export function useFilterDropdownActiveIndex() {
-  const context = useFilterDropdownRootContext();
-  return context.store.useState('activeIndex');
 }
 
 // `value` controls a native input and can't be placed in the store without breaking the caret

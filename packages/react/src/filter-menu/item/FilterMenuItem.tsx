@@ -4,6 +4,7 @@ import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
 import { useFilterDropdownItem } from '../../filter-dropdown/item/useFilterDropdownItem';
 import { MenuItem, type MenuItemProps, type MenuItemState } from '../../menu/item/MenuItem';
 import type { FilterMenuItemFilterProps } from '../utils/FilterMenuItemFilterProps';
+import { useFilterMenuRowContext } from '../row/FilterMenuRowContext';
 
 /**
  * An interactive item in the filter menu.
@@ -17,7 +18,8 @@ export const FilterMenuItem = React.forwardRef(function FilterMenuItem(
 ) {
   const { label, keywords, ...menuProps } = props;
 
-  const { visible, ref, grid } = useFilterDropdownItem({
+  const isGridCell = useFilterMenuRowContext();
+  const { visible, ref } = useFilterDropdownItem({
     label,
     keywords,
     children: props.children,
@@ -26,8 +28,8 @@ export const FilterMenuItem = React.forwardRef(function FilterMenuItem(
 
   return visible ? (
     <MenuItem
+      {...(isGridCell ? { role: 'gridcell' as const } : undefined)}
       {...menuProps}
-      {...(grid ? { role: 'gridcell' as const } : {})}
       label={label}
       ref={mergedRef}
     />
