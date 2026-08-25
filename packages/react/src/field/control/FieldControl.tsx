@@ -165,7 +165,18 @@ export const FieldControl = React.forwardRef(function FieldControl(
           setFocused(false);
 
           if (validationMode === 'onBlur') {
-            validation.commit(event.currentTarget.value);
+            const inputValue = event.currentTarget.value;
+            validation.commit(inputValue);
+
+            if (isControlled) {
+              // Controlled blur handlers can normalize the value before this microtask runs.
+              queueMicrotask(() => {
+                const nextValue = validation.inputRef.current?.value;
+                if (nextValue !== undefined && nextValue !== inputValue) {
+                  validation.commit(nextValue);
+                }
+              });
+            }
           }
         },
         onKeyDown(event) {

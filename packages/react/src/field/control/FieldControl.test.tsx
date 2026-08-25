@@ -1,6 +1,13 @@
 import * as React from 'react';
 import { expect, vi } from 'vitest';
-import { act, createRenderer, fireEvent, screen, waitFor } from '@mui/internal-test-utils';
+import {
+  act,
+  createRenderer,
+  fireEvent,
+  flushMicrotasks,
+  screen,
+  waitFor,
+} from '@mui/internal-test-utils';
 import { Field } from '@base-ui/react/field';
 import { Form } from '@base-ui/react/form';
 import { describeConformance, isJSDOM } from '#test-utils';
@@ -164,6 +171,79 @@ describe('<Field.Control />', () => {
     expect(root).toHaveAttribute('data-dirty', '');
     expect(validate).toHaveBeenCalledTimes(1);
     expect(validate.mock.lastCall?.[0]).toBe('external');
+  });
+
+  it('validates the final controlled value when it is normalized on blur', async () => {
+    const validate = vi.fn((value) => (String(value).includes('@') ? null : 'Invalid email'));
+
+    function App() {
+      const [value, setValue] = React.useState('');
+      return (
+        <Field.Root validationMode="onBlur" validate={validate}>
+          <Field.Control
+            value={value}
+            onValueChange={setValue}
+            onBlur={() => setValue((currentValue) => currentValue.trim())}
+          />
+          <Field.Error />
+        </Field.Root>
+      );
+    }
+
+    await render(<App />);
+
+    const control = screen.getByRole('textbox');
+    fireEvent.change(control, { target: { value: 'foo ' } });
+    fireEvent.blur(control);
+
+    await flushMicrotasks();
+
+    expect(validate.mock.lastCall?.[0]).toBe('foo');
+    expect(screen.getByText('Invalid email')).toBeInTheDocument();
+  });
+
+  it('keeps the final async validation when a controlled value is normalized on blur', async () => {
+    const resolvers: Record<string, (value: string | null) => void> = {};
+    const validate = vi.fn(
+      (value) =>
+        new Promise<string | null>((resolve) => {
+          resolvers[String(value)] = resolve;
+        }),
+    );
+
+    function App() {
+      const [value, setValue] = React.useState('');
+      return (
+        <Field.Root validationMode="onBlur" validate={validate}>
+          <Field.Control
+            value={value}
+            onValueChange={setValue}
+            onBlur={() => setValue((currentValue) => currentValue.trim())}
+          />
+          <Field.Error />
+        </Field.Root>
+      );
+    }
+
+    await render(<App />);
+
+    const control = screen.getByRole('textbox');
+    fireEvent.change(control, { target: { value: 'foo ' } });
+    fireEvent.blur(control);
+
+    await flushMicrotasks();
+
+    expect(validate.mock.lastCall?.[0]).toBe('foo');
+
+    resolvers.foo('Invalid email');
+    await flushMicrotasks();
+
+    expect(screen.getByText('Invalid email')).toBeInTheDocument();
+
+    resolvers['foo ']?.('Stale error');
+    await flushMicrotasks();
+
+    expect(screen.getByText('Invalid email')).toBeInTheDocument();
   });
 
   it('sets filled state on mount when the control is prefilled', async () => {
