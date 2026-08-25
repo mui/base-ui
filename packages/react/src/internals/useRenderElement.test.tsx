@@ -513,6 +513,51 @@ describe('useRenderElement', () => {
       expect(element?.className).toContain('test-component');
     });
 
+    // The Flight client hands a Client Component a `react.lazy` wrapper in place of a
+    // render element created in a Server Component. React 18's Children.toArray() does
+    // not unwrap lazy elements, and this shape only occurs with React 19+ anyway.
+    describe.skipIf(reactMajor < 19)('lazy-wrapped render element (Flight shape)', () => {
+      function wrapLazy(element: React.ReactElement): React.ReactElement {
+        return {
+          $$typeof: Symbol.for('react.lazy'),
+          _payload: element,
+          _init: (payload: unknown) => payload,
+        } as unknown as React.ReactElement;
+      }
+
+      it('merges props with the same precedence as a plain render element', async () => {
+        const { container } = await render(
+          <TestComponent
+            active
+            data-slot="component"
+            render={wrapLazy(
+              <div className="render-class" style={{ fontSize: '16px' }} data-slot="render" />,
+            )}
+          />,
+        );
+
+        const element = container.firstElementChild as HTMLElement;
+        expect(element.getAttribute('data-slot')).toBe('render');
+        expect(element.className).toContain('render-class');
+        expect(element.className).toContain('test-component');
+        expect(element.style.fontSize).toBe('16px');
+        expect(element.style.padding).toBe('10px');
+      });
+
+      it('attaches the render element ref', async () => {
+        const renderRef = React.createRef<HTMLDivElement>();
+        const componentRef = React.createRef<HTMLDivElement>();
+
+        const { container } = await render(
+          <TestComponent ref={componentRef} render={wrapLazy(<div ref={renderRef} />)} />,
+        );
+
+        const element = container.firstElementChild;
+        expect(renderRef.current).toBe(element);
+        expect(componentRef.current).toBe(element);
+      });
+    });
+
     // React 18 also log console error, React 19 fixed that. Ignoring this test for React 18.
     it.skipIf(reactMajor < 19)(
       'throws error for invalid render element in development',

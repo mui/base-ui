@@ -29,8 +29,14 @@ export function useRenderElement<
   componentProps: UseRenderElementComponentProps<State>,
   params: UseRenderElementParameters<State, RenderedElementType, TagName, Enabled> = {},
 ): Enabled extends false ? null : React.ReactElement {
-  const renderProp = componentProps.render;
-  const outProps = useRenderElementProps(componentProps, params);
+  let renderProp = componentProps.render;
+  if (params.enabled !== false) {
+    // A pending lazy element suspends when unwrapped, so leave it wrapped while disabled.
+    renderProp = unwrapLazyRenderProp(renderProp);
+  }
+
+  const outProps = useRenderElementProps(componentProps, params, renderProp);
+
   if (params.enabled === false) {
     return null as Enabled extends false ? null : React.ReactElement;
   }
@@ -52,8 +58,9 @@ function useRenderElementProps<
 >(
   componentProps: UseRenderElementComponentProps<State>,
   params: UseRenderElementParameters<State, RenderedElementType, TagName, Enabled> = {},
+  renderProp?: UseRenderElementComponentProps<State>['render'],
 ): React.HTMLAttributes<any> & React.RefAttributes<any> {
-  const { className: classNameProp, style: styleProp, render: renderProp } = componentProps;
+  const { className: classNameProp, style: styleProp } = componentProps;
 
   const {
     state = EMPTY_OBJECT as State,
@@ -129,6 +136,23 @@ const REACT_LAZY_TYPE = Symbol.for('react.lazy');
 const COMPONENT_IDENTIFIER_PATTERN = /^[A-Z][A-Za-z0-9$]*$/;
 const LOWERCASE_CHARACTER_PATTERN = /[a-z]/;
 
+// Workaround for https://github.com/react/react/issues/32392
+// The Flight client hands over a lazy wrapper in place of a render element created in a
+// Server Component. The wrapper exposes no `.props` or `.ref`, so it must be unwrapped
+// before those are read. This works because the toArray() logic unwraps the lazy
+// element type in
+// https://github.com/react/react/blob/a0566250b210499b4c5677f5ac2eedbd71d51a1b/packages/react/src/ReactChildren.js#L186
+function unwrapLazyRenderProp<State>(
+  render: UseRenderElementComponentProps<State>['render'],
+): UseRenderElementComponentProps<State>['render'] {
+  // `$$typeof` is a React internal, absent from the public element types.
+  const maybeLazy = render as { $$typeof?: symbol | undefined } | undefined;
+  if (typeof render === 'object' && maybeLazy?.$$typeof === REACT_LAZY_TYPE) {
+    return React.Children.toArray(render)[0] as React.ReactElement;
+  }
+  return render;
+}
+
 function evaluateRenderProp<T extends React.ElementType, S>(
   element: IntrinsicTagName | undefined,
   render: BaseUIComponentProps<T, S>['render'],
@@ -147,15 +171,6 @@ function evaluateRenderProp<T extends React.ElementType, S>(
 
     mergedProps.ref = props.ref;
 
-    let newElement = render;
-    // Workaround for https://github.com/react/react/issues/32392
-    // This works because the toArray() logic unwrap lazy element type in
-    // https://github.com/react/react/blob/a0566250b210499b4c5677f5ac2eedbd71d51a1b/packages/react/src/ReactChildren.js#L186
-    if (newElement?.$$typeof === REACT_LAZY_TYPE) {
-      const children = React.Children.toArray(render);
-      newElement = children[0] as BaseUIComponentProps<T, S>['render'];
-    }
-
     // There is a high number of indirections, the error message thrown by React.cloneElement() is
     // hard to use for developers, this logic provides a better context.
     //
@@ -163,7 +178,7 @@ function evaluateRenderProp<T extends React.ElementType, S>(
     // However, React.cloneElement() throws if React.isValidElement() is false,
     // so we can throw before with custom message.
     if (process.env.NODE_ENV !== 'production') {
-      if (!React.isValidElement(newElement)) {
+      if (!React.isValidElement(render)) {
         // TODO: fix mui/no-guarded-throw
         // eslint-disable-next-line mui/no-guarded-throw
         throw new Error(
@@ -176,7 +191,7 @@ function evaluateRenderProp<T extends React.ElementType, S>(
       }
     }
 
-    return React.cloneElement(newElement, mergedProps);
+    return React.cloneElement(render, mergedProps);
   }
   if (element) {
     if (typeof element === 'string') {
