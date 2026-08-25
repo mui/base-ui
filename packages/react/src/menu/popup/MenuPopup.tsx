@@ -35,7 +35,8 @@ export const MenuPopup = React.forwardRef(function MenuPopup(
   const { render, className, style, finalFocus, id: idProp, ...elementProps } = componentProps;
 
   const rootContext = useMenuRootContext();
-  const { store, defaultFloatingId, setFloatingId, virtualFocus, virtualFocusRef } = rootContext;
+  const { store, defaultFloatingId, setFloatingId, virtualFocus, virtualFocusRef, orientation } =
+    rootContext;
   const inheritedSubmenuRootContext = useMenuSubmenuRootContext();
   const { side, align } = useMenuPositionerContext();
   const insideToolbar = useToolbarRootContext(true) != null;
@@ -142,6 +143,8 @@ export const MenuPopup = React.forwardRef(function MenuPopup(
       {
         id,
         role: 'menu',
+        // `menu` is implicitly vertical, so only the non-default value needs to be rendered.
+        'aria-orientation': orientation === 'horizontal' ? 'horizontal' : undefined,
         'aria-labelledby': ariaLabelledBy,
         onKeyDown(event) {
           submenuRootContext?.onPopupKeyDown?.(event);
