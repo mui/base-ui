@@ -28,7 +28,6 @@ describe('dragSessionStore', () => {
     expect(startSnapshot).not.toBeNull();
     expect(startSnapshot!.source.element).toBe(source);
     expect(startSnapshot!.source.payload).toEqual({ kind: 'card' });
-    expect(startSnapshot!.mode).toBe('pointer');
 
     await flushRaf();
 

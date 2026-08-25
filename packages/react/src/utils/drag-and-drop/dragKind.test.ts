@@ -5,7 +5,6 @@ import { anyDragKind, createGlobalKind, createKind, matchesAccept } from './drag
 function sourceOfKind(kind: symbol): DragSource<unknown> {
   return {
     element: document.createElement('div'),
-    label: undefined,
     kind,
     dragHandle: null,
     payload: undefined,
@@ -15,7 +14,6 @@ function sourceOfKind(kind: symbol): DragSource<unknown> {
 function recordOfKind(kind: symbol | undefined): DropTargetRecord<unknown> {
   return {
     element: document.createElement('div'),
-    label: undefined,
     kind,
     payload: undefined,
     getLocalPoint: () => ({ x: 0, y: 0 }),

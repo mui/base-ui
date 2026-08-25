@@ -6,7 +6,6 @@ import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { DragAutoScroll } from '@base-ui/react/drag-auto-scroll';
 import { Draggable } from '@base-ui/react/draggable';
 import { DropTarget } from '@base-ui/react/drop-target';
-import { useDragDropManager } from '@base-ui/react/use-drag-drop-manager';
 import { useDragMonitor } from '@base-ui/react/use-drag-monitor';
 import theme from './theme.module.css';
 import styles from './data-grid-mui-x.module.css';
@@ -180,31 +179,12 @@ function ColumnHeader({
   onDragOver: (columnId: string, beforeHalf: boolean) => void;
   boundaryRef: React.RefObject<HTMLDivElement | null>;
 }) {
-  const engine = useDragDropManager();
-  const draggableRef = React.useRef<HTMLDivElement>(null);
-  const [openedByKeyboard, setOpenedByKeyboard] = React.useState(false);
-  const startOnCloseRef = React.useRef(false);
-  // The last direction a keyboard drag travelled over this column (see `onDrag`).
-  const keyboardBeforeRef = React.useRef<boolean | null>(null);
-
   return (
     <DropTarget.Root
       accept={columnKind}
       trackDragOver={false}
-      onDrag={({ self, location }, eventDetails) => {
-        if (eventDetails.reason !== 'keyboard') {
-          onDragOver(column.id, self.getLocalPoint().x < 0.5);
-          return;
-        }
-        // A keyboard press aims at the target's *center*, so the local point can't
-        // say which side the drag came from — and the settled second sample of each
-        // press has zero travel, which `localX < 0.5` reads as "after", clobbering
-        // the gap the press just chose. Latch the last real direction instead.
-        const travelled = location.current.input.clientX - location.previous.input.clientX;
-        if (travelled !== 0) {
-          keyboardBeforeRef.current = travelled < 0;
-        }
-        onDragOver(column.id, keyboardBeforeRef.current ?? self.getLocalPoint().x < 0.5);
+      onDrag={({ self }) => {
+        onDragOver(column.id, self.getLocalPoint().x < 0.5);
       }}
       className={styles.headerCell}
       style={{ width: column.width }}
@@ -213,22 +193,8 @@ function ColumnHeader({
           menu button is a sibling rather than a child, so the draggable never
           contains a button. */}
       <Draggable.Root
-        ref={draggableRef}
-        label={column.label}
         kind={columnKind}
         payload={column.id}
-        // The keyboard route is the column menu, so the engine leaves every key
-        // alone and `startKeyboardDrag` does the pickup.
-        keyboardActivation="manual"
-        keyboardInstructions="Use the column menu to move this column."
-        // Not a tab stop, and not a `button`: the menu button beside it is the
-        // header's only keyboard affordance. `-1` keeps it focusable for the
-        // end-of-drag focus restore.
-        tabIndex={-1}
-        role={undefined}
-        // Columns only land on other columns: keyboard arrows never nudge into
-        // dead space.
-        keyboardMovement={Draggable.targetsOnlyKeyboardMovement}
         // A column only ever travels along the header row. The lock pins the
         // drop hit-test to that row too, so the header cell under the pointer's
         // x keeps resolving however far down the grid the pointer wanders — no
@@ -242,22 +208,7 @@ function ColumnHeader({
             trailing the pointer off the page. */}
         <Draggable.ClonedPreview modifiers={Draggable.restrictToElement(boundaryRef)} />
       </Draggable.Root>
-      <Menu.Root
-        onOpenChange={(open, eventDetails) => {
-          if (open) {
-            // A click synthesized from Space or Enter reports `detail: 0`.
-            setOpenedByKeyboard((eventDetails.event as MouseEvent).detail === 0);
-          }
-        }}
-        // Once the menu is gone, not from the item's own click: an open menu owns
-        // focus, and hands it back to the trigger on the way out.
-        onOpenChangeComplete={(open) => {
-          if (!open && startOnCloseRef.current) {
-            startOnCloseRef.current = false;
-            engine.startKeyboardDrag(draggableRef.current);
-          }
-        }}
-      >
+      <Menu.Root>
         <Menu.Trigger
           className={styles.headerMenuButton}
           aria-label={`${column.label} column menu`}
@@ -268,17 +219,6 @@ function ColumnHeader({
           {/* Portaled out of the experiment root, so it carries the tokens itself. */}
           <Menu.Positioner sideOffset={4} align="end" className={theme.tokens}>
             <Menu.Popup className={styles.menuPopup}>
-              {/* Keyboard only: with a mouse the header is already draggable. */}
-              {openedByKeyboard && (
-                <Menu.Item
-                  className={styles.menuItem}
-                  onClick={() => {
-                    startOnCloseRef.current = true;
-                  }}
-                >
-                  Move this column
-                </Menu.Item>
-              )}
               {/* Stand-ins for the rest of a real column menu. */}
               <Menu.Item className={styles.menuItem} disabled>
                 Pin column
@@ -310,25 +250,12 @@ function GridRow({
   onDragOver: (rowId: string, beforeHalf: boolean) => void;
   boundaryRef: React.RefObject<HTMLDivElement | null>;
 }) {
-  // The last direction a keyboard drag travelled over this row (see `onDrag`).
-  const keyboardBeforeRef = React.useRef<boolean | null>(null);
-
   return (
     <DropTarget.Root
       accept={rowKind}
       trackDragOver={false}
-      onDrag={({ self, location }, eventDetails) => {
-        if (eventDetails.reason !== 'keyboard') {
-          onDragOver(row.id, self.getLocalPoint().y < 0.5);
-          return;
-        }
-        // See `ColumnHeader`'s `onDrag`: the side has to come from the latched
-        // travel direction, not the local point.
-        const travelled = location.current.input.clientY - location.previous.input.clientY;
-        if (travelled !== 0) {
-          keyboardBeforeRef.current = travelled < 0;
-        }
-        onDragOver(row.id, keyboardBeforeRef.current ?? self.getLocalPoint().y < 0.5);
+      onDrag={({ self }) => {
+        onDragOver(row.id, self.getLocalPoint().y < 0.5);
       }}
       className={styles.row}
       style={{ height: ROW_HEIGHT }}
@@ -336,9 +263,6 @@ function GridRow({
       <Draggable.Root
         kind={rowKind}
         payload={row.id}
-        // Rows only land on other rows: a keyboard press past the first/last
-        // row does nothing.
-        keyboardMovement={Draggable.targetsOnlyKeyboardMovement}
         // A row only ever travels up and down the grid.
         modifiers={Draggable.restrictToVerticalAxis}
         className={styles.rowInner}

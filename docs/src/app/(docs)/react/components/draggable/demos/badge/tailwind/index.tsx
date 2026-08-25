@@ -55,13 +55,7 @@ const BADGE_VALUE_CLASS = 'bg-neutral-950 px-1 text-white dark:bg-white dark:tex
 
 function Widget({ widget }: { widget: WidgetData }) {
   return (
-    <Draggable.Root
-      label={`${widget.title} widget`}
-      kind={widgetKind}
-      payload={widget.id}
-      role="button"
-      className={WIDGET_CLASS}
-    >
+    <Draggable.Root kind={widgetKind} payload={widget.id} role="button" className={WIDGET_CLASS}>
       <div className="flex items-center gap-2 border-b border-neutral-200 px-3 py-2 text-xs leading-4 font-semibold dark:border-neutral-700">
         <Grip />
         <span>{widget.title}</span>
@@ -95,9 +89,9 @@ function DockSlot({
 }) {
   return (
     <DropTarget.Root
+      aria-label={label}
       className="box-border flex min-h-32 items-stretch data-[empty]:items-center data-[empty]:justify-center data-[empty]:border data-[empty]:border-dashed data-[empty]:border-neutral-300 data-[drag-over]:border-solid data-[drag-over]:border-neutral-950 data-[drag-over]:bg-neutral-100 dark:data-[empty]:border-neutral-700 dark:data-[drag-over]:border-white dark:data-[drag-over]:bg-neutral-800"
       data-empty={widget ? undefined : ''}
-      label={label}
       accept={widgetKind}
       canDrop={() => widget === undefined}
       onDrop={({ source }) => onMoveWidget(source.payload, id)}

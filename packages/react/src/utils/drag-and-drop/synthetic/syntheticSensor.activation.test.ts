@@ -7,7 +7,6 @@ import {
   registerCleanup,
   setupDragEngineTests,
 } from '../../../../test/dnd';
-import { cancelDrag } from '../cancelDrag';
 import * as syntheticSensor from './syntheticSensor';
 import { resetTouchTarget, touchDown, touchMove, touchUp } from '../../../../test/syntheticPointer';
 
@@ -191,35 +190,6 @@ describe('syntheticDrag activation', () => {
     expect(onDragStart).toHaveBeenCalledTimes(1);
 
     touchUp(50, 50);
-  });
-
-  it('releases the implicit pointer capture when the activation commit is refused', async () => {
-    const { engine } = await renderDnd();
-    const el = createElement();
-    const releasePointerCapture = vi.fn();
-    el.hasPointerCapture = ((id: number) => id === 1) as typeof el.hasPointerCapture;
-    el.releasePointerCapture = releasePointerCapture as typeof el.releasePointerCapture;
-    engine.registerDraggable(el, { pointerActivation: { type: 'distance', distance: 5 } });
-    const other = createElement();
-    engine.registerDraggable(other, {});
-
-    // Arm the pending touch gesture, then start a keyboard drag before the
-    // distance threshold clears: the commit reaches the lifecycle and is refused.
-    touchDown(el, 50, 50);
-    other.focus();
-    act(() => {
-      other.dispatchEvent(
-        new KeyboardEvent('keydown', { key: ' ', bubbles: true, cancelable: true }),
-      );
-    });
-    touchMove(80, 50); // past the threshold — commitActivation runs and is refused
-
-    // The refusal path bypasses `clearPending`, but touch's implicit capture on
-    // the pointerdown target must still be released, or the abandoned gesture
-    // keeps routing the pointer to a dead candidate.
-    expect(releasePointerCapture).toHaveBeenCalledWith(1);
-
-    act(() => cancelDrag());
   });
 
   it('mouse default activation requires 5px of movement before starting a drag', async () => {

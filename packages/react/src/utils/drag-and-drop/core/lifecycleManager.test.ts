@@ -60,8 +60,7 @@ describe('lifecycle manager', () => {
   ): DragSessionHandle | null {
     const element = createElement();
     return start({
-      mode: 'pointer',
-      payload: { element, label: undefined, kind: TEST_KIND.id, dragHandle: null, payload: {} },
+      payload: { element, kind: TEST_KIND.id, dragHandle: null, payload: {} },
       getSourceHandlers: () => handlers,
       initialInput: makeInput(),
       initialTarget,
@@ -187,10 +186,8 @@ describe('lifecycle manager', () => {
       // commits React state.
       act(() => {
         start({
-          mode: 'pointer',
           payload: {
             element: source,
-            label: undefined,
             kind: TEST_KIND.id,
             dragHandle: null,
             payload: {},
@@ -242,10 +239,8 @@ describe('lifecycle manager', () => {
       under.appendChild(source);
       act(() => {
         start({
-          mode: 'pointer',
           payload: {
             element: source,
-            label: undefined,
             kind: TEST_KIND.id,
             dragHandle: null,
             payload: {},
@@ -303,10 +298,8 @@ describe('lifecycle manager', () => {
       inner.appendChild(source);
       act(() => {
         start({
-          mode: 'pointer',
           payload: {
             element: source,
-            label: undefined,
             kind: TEST_KIND.id,
             dragHandle: null,
             payload: {},
@@ -700,8 +693,7 @@ describe('lifecycle manager', () => {
       const element = createElement();
       const onForceCleanup = vi.fn();
       const handle = start({
-        mode: 'pointer',
-        payload: { element, label: undefined, kind: TEST_KIND.id, dragHandle: null, payload: {} },
+        payload: { element, kind: TEST_KIND.id, dragHandle: null, payload: {} },
         initialInput: {
           button: 0,
           buttons: 1,

@@ -33,7 +33,7 @@ function clamp(value: number, min: number, max: number): number {
   return Math.min(max, Math.max(min, value));
 }
 
-export default function KeyboardMovementCalendar() {
+export default function SchedulerCalendar() {
   const [event, setEvent] = React.useState<CalendarEvent>({ day: 1, minute: 60 });
   const gridRef = React.useRef<HTMLDivElement>(null);
 
@@ -56,8 +56,7 @@ export default function KeyboardMovementCalendar() {
   // The event position a drag would commit, read off the day column the engine
   // resolved: its payload names the day, and its snapped local point the slot.
   // `anchor: 'source'` shifts by the grab offset, so the event's top edge
-  // decides, wherever on it the user grabbed. Shared by the drop commit and
-  // the keyboard announcement so both agree.
+  // decides, wherever on it the user grabbed.
   const eventAfterDrag = (location: DragLocationHistory): CalendarEvent => {
     const column = location.current.dropTargets[0];
     if (!column || !dayColumnKind.matches(column)) {
@@ -118,7 +117,6 @@ export default function KeyboardMovementCalendar() {
           {DAYS.map((day, index) => (
             <DropTarget.Root
               key={day}
-              label={day}
               kind={dayColumnKind}
               payload={index}
               accept={eventKind}
@@ -132,7 +130,6 @@ export default function KeyboardMovementCalendar() {
             >
               {event.day === index && (
                 <Draggable.Root
-                  label="Design review"
                   kind={eventKind}
                   role="button"
                   className={styles.Event}
@@ -145,24 +142,7 @@ export default function KeyboardMovementCalendar() {
                   // horizontally. No bounds checks: the modifier clamps at the
                   // grid's edges, and a press that moves nothing announces the
                   // edge on its own.
-                  keyboardMovement={({ position, direction, findTarget }) => {
-                    if (direction.y !== 0) {
-                      return { x: position.x, y: position.y + direction.y * SLOT_HEIGHT };
-                    }
-                    const next = findTarget();
-                    if (!next) {
-                      return false; // already on the first/last day
-                    }
-                    const rect = next.getBoundingClientRect();
-                    return { x: rect.left + rect.width / 2, y: position.y };
-                  }}
-                  keyboardAnnouncements={{
-                    moved: ({ location }) => {
-                      const next = eventAfterDrag(location);
-                      return `${DAYS[next.day]}, ${formatTime(next.minute)}`;
-                    },
-                    reachedEdge: () => 'Edge of the calendar',
-                  }}
+
                   // Only a drop over an accepting slot moves the event; a cancel
                   // or a release off the grid never reaches `onDrop`.
                   onDrop={({ location }) => setEvent(eventAfterDrag(location))}

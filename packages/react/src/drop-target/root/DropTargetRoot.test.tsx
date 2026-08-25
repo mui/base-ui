@@ -52,7 +52,6 @@ describe('DropTarget.Root', () => {
     await renderDnd(
       <DropTarget.Root
         data-testid="target"
-        label="x"
         kind={slotKind}
         accept={cardKind}
         payload={{ id: 'slot-1' }}
@@ -69,7 +68,6 @@ describe('DropTarget.Root', () => {
     expect(el).not.toHaveAttribute('accept');
     expect(el).not.toHaveAttribute('trackDragOver');
     expect(el).not.toHaveAttribute('disabled');
-    expect(el).not.toHaveAttribute('label');
     expect(el).not.toHaveAttribute('payload');
     expect(el).not.toHaveAttribute('canDrop');
     expect(el).not.toHaveAttribute('snap');
@@ -83,12 +81,11 @@ describe('DropTarget.Root', () => {
     const record = (name: string) => () => {
       calls.push(name);
     };
-    let observed: { kind?: symbol; label?: string; data?: unknown; snapped?: number } = {};
+    let observed: { kind?: symbol; data?: unknown; snapped?: number } = {};
 
     const { engine } = await renderDnd(
       <DropTarget.Root
         data-testid="target"
-        label="Slot one"
         kind={slotKind}
         accept={cardKind}
         canDrop={() => {
@@ -108,7 +105,6 @@ describe('DropTarget.Root', () => {
           calls.push('onDrop');
           observed = {
             kind: self.kind,
-            label: self.label,
             data: self.payload.id,
             // 35 / 100 of the stub rect, quantized to 4 steps. The raw fraction
             // (0.35) here would mean `snap` never reached the registration.
@@ -130,7 +126,6 @@ describe('DropTarget.Root', () => {
     fireEvent.drop(target, { clientY: 35 });
 
     expect(observed.kind).toBe(slotKind.id);
-    expect(observed.label).toBe('Slot one');
     expect(observed.data).toBe('slot-1');
     expect(observed.snapped).toBe(0.25);
     // `onDragLeave` fires terminally on the drop, so the drop drives every entry.
@@ -1091,7 +1086,6 @@ describe('DropTarget.Root', () => {
     it('registers both roles on a single element', async () => {
       await renderDnd(
         <Draggable.Root
-          label="card"
           kind={cardKind}
           payload={{ id: 'a' }}
           render={<DropTarget.Root accept={cardKind} />}
@@ -1101,16 +1095,15 @@ describe('DropTarget.Root', () => {
       );
 
       const el = screen.getByText('Card');
-      // One node carries both registrations: the drop target attribute, and the
-      // a11y setup the engine applies to a drag source.
+      // One node carries both registrations: the drop target attribute and the
+      // gesture setup the engine applies to a drag source.
       expect(el).toHaveAttribute('data-drop-target', '');
-      expect(el).toHaveAttribute('aria-roledescription', 'draggable');
+      expect(el.style.touchAction).toBe('manipulation');
     });
 
     it('reflects the drop target drag-over state on the composed element', async () => {
       const { engine } = await renderDnd(
         <Draggable.Root
-          label="card"
           kind={cardKind}
           payload={{ id: 'a' }}
           render={<DropTarget.Root data-testid="item" accept={cardKind} />}
@@ -1140,12 +1133,10 @@ describe('DropTarget.Root', () => {
       await renderDnd(
         <React.Fragment>
           <Draggable.Root
-            label="a"
             kind={itemKind}
             render={<DropTarget.Root data-testid="a" accept={itemKind} />}
           />
           <Draggable.Root
-            label="b"
             kind={itemKind}
             render={<DropTarget.Root data-testid="b" accept={itemKind} />}
           />

@@ -35,7 +35,7 @@ export function PreviewOverlayRenderer(props: {
   const { previewContext } = props;
   const preview = useStore(dragPreviewStore, selectPreviewState, previewContext);
 
-  // Works for pointer and keyboard drags alike (both publish a preview host).
+  // The pointer sensor publishes the preview host before this renders.
   const active = preview != null;
 
   useIsoLayoutEffect(() => {

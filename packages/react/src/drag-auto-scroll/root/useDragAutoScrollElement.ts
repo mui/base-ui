@@ -1,9 +1,10 @@
 'use client';
-import type * as React from 'react';
+import * as React from 'react';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { registerAutoScroller } from '../../utils/drag-and-drop/registrations';
-import { refreshAutoScroll } from '../../utils/drag-and-drop/autoScroller';
+import { wakeAutoScroll } from '../../utils/drag-and-drop/autoScroller';
+import { sameAccept } from '../../utils/drag-and-drop/dragKind';
 import type { RegisterAutoScrollerParameters } from '../../types/dragRegistration';
 import { useRegistrationRef } from '../../utils/drag-and-drop/useRegistrationRef';
 
@@ -34,19 +35,36 @@ export function useDragAutoScrollElement<TSourceData = unknown>(
   // — and its cached depth order — on every flip of the prop.
   const ref = useRegistrationRef<HTMLElement>((node) => registerAutoScroller(node, getParameters));
 
+  // A live parameter change must wake a loop that parked while the element was
+  // disabled or declined scrolling. Compared against the previous values — by
+  // content for `accept`, commonly an inline array — rather than trusted as
+  // effect deps, so a render that changes nothing wakes nothing. A wake is all a
+  // change needs: the loop reads the parameters through `getParameters` every
+  // frame, so no shared geometry/style cache has to be dropped for it to apply.
+  const { accept, allowedAxis, applyScroll, canScroll, disabled, maxSpeed } = parameters;
+  const previousRef = React.useRef({
+    accept,
+    allowedAxis,
+    applyScroll,
+    canScroll,
+    disabled,
+    maxSpeed,
+  });
   useIsoLayoutEffect(() => {
-    // A live parameter change must wake a loop that parked while the element was
-    // disabled or declined scrolling. Stable parameters no longer discard the
-    // shared geometry/style caches on every unrelated parent render.
-    refreshAutoScroll();
-  }, [
-    parameters.accept,
-    parameters.allowedAxis,
-    parameters.applyScroll,
-    parameters.canScroll,
-    parameters.disabled,
-    parameters.maxSpeed,
-  ]);
+    const previous = previousRef.current;
+    if (
+      sameAccept(previous.accept, accept) &&
+      previous.allowedAxis === allowedAxis &&
+      previous.applyScroll === applyScroll &&
+      previous.canScroll === canScroll &&
+      previous.disabled === disabled &&
+      previous.maxSpeed === maxSpeed
+    ) {
+      return;
+    }
+    previousRef.current = { accept, allowedAxis, applyScroll, canScroll, disabled, maxSpeed };
+    wakeAutoScroll();
+  }, [accept, allowedAxis, applyScroll, canScroll, disabled, maxSpeed]);
 
   return { ref };
 }

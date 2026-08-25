@@ -5,12 +5,7 @@ import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { warn } from '@base-ui/utils/warn';
-import { useTranslations } from '../../internals/localization-context/LocalizationContext';
-import {
-  resolveKeyboardInstructions,
-  useRegisterDraggable,
-} from '../../utils/drag-and-drop/useInnerDragEngine';
-import { buildStaticSetupKey } from '../../utils/drag-and-drop/draggable';
+import { useRegisterDraggable } from '../../utils/drag-and-drop/useInnerDragEngine';
 import {
   createDragPreviewHandle,
   type DragPreviewHandle,
@@ -28,7 +23,6 @@ import {
 } from '../../utils/drag-and-drop/dragSessionStore';
 import { useRegistrationRef } from '../../utils/drag-and-drop/useRegistrationRef';
 import { retargetActivePreviewSource } from '../../utils/drag-and-drop/activePreview';
-import { startKeyboardDrag as startRegisteredKeyboardDrag } from '../../utils/drag-and-drop/keyboard/keyboardSensor';
 
 // Read the element from `ref` at selection time so `dragging` keeps tracking
 // the node behind the ref even when a virtualizer swaps it. Module-scope
@@ -59,24 +53,15 @@ export function useDraggableElement<TData = undefined>(
   // rest are tracked so unmounting one falls back to a survivor instead of to
   // "no handle", which would silently make the whole element draggable.
   const attachedHandlesRef = React.useRef<Array<{ token: object; node: HTMLElement }>>([]);
-  const attachedKeyboardHandlesRef = React.useRef<Array<{ token: object; node: HTMLElement }>>([]);
 
   // The link a `Draggable.Preview` declares into. Created once, so carrying it on
   // context never re-registers anything.
   const previewHandle = useRefWithInit(createDragPreviewHandle<TData>).current;
 
-  // Whether either handle part is attached, `null` while unknown, which drives
-  // `Draggable.Root`'s default `tabIndex`. Handles only announce themselves through
-  // their client-side ref callback, so the server (and the hydration render) cannot
-  // know — starting at `false` there would emit a second tab stop on the root next
-  // to every SSR'd handle. The unknown resolves in the mount effect below.
-  const [hasHandle, setHasHandle] = React.useState<boolean | null>(null);
-
   const registrationRef = useRegistrationRef<HTMLElement>((element) => {
     // These accessors only read stable refs, so keep one function per
     // registration instead of rebuilding both on every engine dispatch.
     const getAttachedHandle = () => attachedHandlesRef.current[0]?.node ?? null;
-    const getAttachedKeyboardHandle = () => attachedKeyboardHandlesRef.current[0]?.node ?? null;
     const getDragPreviewDeclaration = () => previewHandle.getDeclaration();
     let lastParams: RegisterDraggableParameters<TData> | null = null;
     let normalized: InternalDraggableParameters<TData> | null = null;
@@ -94,9 +79,6 @@ export function useDraggableElement<TData = undefined>(
         normalized = {
           ...params,
           dragHandle: params.dragHandle ?? getAttachedHandle,
-          keyboardDragHandle:
-            params.keyboardDragHandle ??
-            (attachedKeyboardHandlesRef.current.length > 0 ? getAttachedKeyboardHandle : undefined),
           getDragPreviewDeclaration,
         };
         return normalized;
@@ -159,7 +141,6 @@ export function useDraggableElement<TData = undefined>(
     handles: Array<{ token: object; node: HTMLElement }>,
     node: HTMLElement | null,
     token: object,
-    partName: 'Handle' | 'KeyboardHandle',
   ) => {
     const index = handles.findIndex((handle) => handle.token === token);
     if (node) {
@@ -172,7 +153,7 @@ export function useDraggableElement<TData = undefined>(
       if (process.env.NODE_ENV !== 'production') {
         if (handles.length > 1) {
           warn(
-            `Base UI: a Draggable.Root contains more than one mounted Draggable.${partName}. ` +
+            'Base UI: a Draggable.Root contains more than one mounted Draggable.Handle. ' +
               'Pickup is restricted to the first one, so the others are inert and look broken. ' +
               'Render a single handle, switching its content or position instead of mounting a second.',
           );
@@ -181,9 +162,6 @@ export function useDraggableElement<TData = undefined>(
     } else if (index !== -1) {
       handles.splice(index, 1);
     }
-    setHasHandle(
-      attachedHandlesRef.current.length > 0 || attachedKeyboardHandlesRef.current.length > 0,
-    );
     // Re-registration tears the static setup down and rebuilds it, which mid-gesture
     // would restore `user-select`/`touch-action` and drop the iOS touchmove guard.
     // The live `dragHandle` closure already reads `attachedHandlesRef` fresh, so skip
@@ -196,38 +174,12 @@ export function useDraggableElement<TData = undefined>(
   };
 
   const setHandleElement = useRefWithInit(() => (node: HTMLElement | null, token: object) => {
-    updateHandleElement(attachedHandlesRef.current, node, token, 'Handle');
+    updateHandleElement(attachedHandlesRef.current, node, token);
   }).current;
 
-  const setKeyboardHandleElement = useRefWithInit(
-    () => (node: HTMLElement | null, token: object) => {
-      updateHandleElement(attachedKeyboardHandlesRef.current, node, token, 'KeyboardHandle');
-    },
-  ).current;
-
-  // Resolve the unknown initial `hasHandle`: a handle's ref callback runs during
-  // the mount commit, before this layout effect, so `attachedHandlesRef` is
-  // already accurate here and the resolving re-render lands before first paint.
-  useIsoLayoutEffect(() => {
-    setHasHandle(
-      (previous) =>
-        previous ??
-        (attachedHandlesRef.current.length > 0 || attachedKeyboardHandlesRef.current.length > 0),
-    );
-  }, []);
-
-  // The static a11y setup is captured once at registration. Reconcile it when the
-  // inputs that feed it change without a node swap: `keyboardActivation` and
-  // `disabled`, the explicit aria and instruction overrides, and the active locale's
-  // defaults. Skipped while this element is the active drag source so the reconcile
-  // never tears down the live gesture setup mid-drag.
-  const translations = useTranslations();
-  const reconcileKey = buildStaticSetupKey({
-    disabled: parameters.disabled,
-    keyboardActivation: parameters.keyboardActivation,
-    ariaRoleDescription: parameters.ariaRoleDescription ?? translations.dragRoleDescription,
-    keyboardInstructions: resolveKeyboardInstructions(parameters, translations),
-  });
+  // Reconcile the static gesture setup when `disabled` changes without a node
+  // swap. Skipped while this element is the active source.
+  const reconcileKey = Boolean(parameters.disabled);
   const isFirstReconcile = React.useRef(true);
   useIsoLayoutEffect(() => {
     if (isFirstReconcile.current) {
@@ -263,19 +215,12 @@ export function useDraggableElement<TData = undefined>(
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dragging]);
 
-  const startKeyboardDrag = useRefWithInit(
-    () => () => startRegisteredKeyboardDrag(elementRef.current),
-  ).current;
-
   return {
     ref,
     dragging,
     setHandleElement,
-    setKeyboardHandleElement,
-    startKeyboardDrag,
     observeElement,
     previewHandle,
-    hasHandle,
   };
 }
 
@@ -285,21 +230,11 @@ export interface UseDraggableElementReturnValue<TData = undefined> {
   /** Whether this element is the one currently being dragged. */
   dragging: boolean;
   /**
-   * Whether a `Draggable.Handle` or `Draggable.KeyboardHandle` is attached. `null` until the mount
-   * commit resolves it (handles attach through client-side ref callbacks, so
-   * the server render cannot know).
-   */
-  hasHandle: boolean | null;
-  /**
    * Attach or detach the child that should be the drag handle — pickup is then
    * restricted to it. Never called means the whole source is draggable. `token`
    * identifies the calling handle across attach and detach. Stable.
    */
   setHandleElement: (node: HTMLElement | null, token: object) => void;
-  /** Attach or detach a child that restricts keyboard pickup without limiting pointer pickup. */
-  setKeyboardHandleElement: (node: HTMLElement | null, token: object) => void;
-  /** Start a keyboard drag for the currently mounted root element. */
-  startKeyboardDrag: () => boolean;
   /** Observe the root element, including node replacements. Stable. */
   observeElement: (observer: (element: HTMLElement | null) => void) => DragCleanupFn;
   /** The link a `Draggable.Preview` declares into. Stable. */

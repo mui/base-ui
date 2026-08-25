@@ -6,8 +6,6 @@ import { createDndRenderer } from '#test-utils';
 import { Draggable } from '@base-ui/react/draggable';
 import { useDragDropManager } from '@base-ui/react/use-drag-drop-manager';
 import { createElement, flushRaf, setupDragEngineTests } from '../../test/dnd';
-import { frFR } from '../locale-frFR';
-import { LocalizationProvider } from '../localization-provider';
 
 setupDragEngineTests();
 
@@ -42,7 +40,7 @@ describe('useDragDropManager', () => {
             registrations += 1;
             cleanupRef.current = engine.registerDraggable(node, () => ({
               kind: itemKind,
-              label: labelRef.current,
+              onDragStart: () => labelRef.current,
             }));
           } else {
             cleanupRef.current?.();
@@ -106,38 +104,6 @@ describe('useDragDropManager', () => {
 
     expect(first).not.toHaveBeenCalled();
     expect(second).toHaveBeenCalledTimes(1);
-  });
-
-  it('picks up a locale change for the next drag without re-registering', async () => {
-    // Translations reach the engine through a ref, so a provider swap applies to
-    // the next registration's static setup without a new engine.
-    function Harness() {
-      const engine = useDragDropManager();
-      const cleanupRef = React.useRef<(() => void) | null>(null);
-      const ref = React.useCallback(
-        (node: HTMLDivElement | null) => {
-          if (node) {
-            cleanupRef.current = engine.registerDraggable(node, () => ({ kind: itemKind }));
-          } else {
-            cleanupRef.current?.();
-            cleanupRef.current = null;
-          }
-        },
-        [engine],
-      );
-      return <div ref={ref} data-testid="source" />;
-    }
-
-    const { rerender } = await renderDnd(<Harness />);
-    expect(screen.getByTestId('source')).toHaveAttribute('aria-roledescription', 'draggable');
-
-    await rerender(
-      <LocalizationProvider translations={frFR}>
-        <Harness />
-      </LocalizationProvider>,
-    );
-
-    expect(screen.getByTestId('source')).toHaveAttribute('aria-roledescription', 'déplaçable');
   });
 
   it('registers a monitor from a getter alone, with no element', async () => {

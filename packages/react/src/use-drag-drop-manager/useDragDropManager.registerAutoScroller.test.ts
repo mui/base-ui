@@ -617,88 +617,6 @@ describe('engine.registerAutoScroller', () => {
     expect(onDragEnter).toHaveBeenCalled();
   });
 
-  it('does not engage the loop for a scroller registered during a keyboard drag', async () => {
-    const { engine } = await renderDnd();
-    // The source's centre (y=10) sits in the scroller's top edge zone, so a
-    // pointer drag parked there would scroll (see the positive control above).
-    const source = createElement({ top: 0, height: 20, left: 0, width: 200 });
-    const scroller = makeEngageableScroller();
-
-    engine.registerDraggable(source, {});
-
-    // Start a KEYBOARD drag with no scroller registered yet.
-    source.focus();
-    act(() => {
-      source.dispatchEvent(new KeyboardEvent('keydown', { key: ' ', bubbles: true }));
-    });
-    await flushRaf();
-
-    // Registering the scroller mid-drag asks the loop for a frame, which the
-    // never-armed `enabled` must refuse for a keyboard session: keyboard drags
-    // scroll via `scrollIntoView` (one step per key) and the edge loop would run
-    // away from the parked cursor.
-    engine.registerAutoScroller(scroller, {});
-    await flushRaf();
-    await flushRaf();
-
-    // A keyboard move keeps feeding the scroll monitor's onDrag; that must not
-    // start the loop either.
-    act(() => {
-      source.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true }));
-    });
-    await flushRaf();
-    await flushRaf();
-
-    expect(scroller.scrollBy).not.toHaveBeenCalled();
-
-    act(() => {
-      source.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
-    });
-  });
-
-  it('a drag ending abnormally while the loop is parked does not arm auto-scroll for a later keyboard drag', async () => {
-    const { engine } = await renderDnd();
-    // Keyboard pickup parks the virtual cursor at the source's center (y=10),
-    // inside the scroller's top edge zone — where a wrongly armed loop scrolls
-    // every frame.
-    const source = createElement({ top: 0, height: 20, left: 0, width: 200 });
-    const scroller = makeEngageableScroller();
-
-    engine.registerDraggable(source, {});
-    engine.registerAutoScroller(scroller, {});
-
-    // A pointer drag parked OUTSIDE any edge zone: the loop starts, finds
-    // nothing to scroll, and parks. `reset()` then force-ends the drag the way
-    // the consumer-throw recovery does — monitors are cleared without an
-    // `onDragEnd`, so nothing told the parked loop to stop.
-    await lift(source, { clientX: 100, clientY: 100 });
-    await flushRaf();
-    await flushRaf();
-    expect(scroller.scrollBy).not.toHaveBeenCalled();
-    act(() => {
-      reset();
-    });
-
-    // A keyboard drag next: its moves feed the scroll monitor's `onDrag`, which
-    // must not resurrect the previous drag's loop state.
-    source.focus();
-    act(() => {
-      source.dispatchEvent(new KeyboardEvent('keydown', { key: ' ', bubbles: true }));
-    });
-    await flushRaf();
-    act(() => {
-      source.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true }));
-    });
-    await flushRaf();
-    await flushRaf();
-
-    expect(scroller.scrollBy).not.toHaveBeenCalled();
-
-    act(() => {
-      source.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
-    });
-  });
-
   it('stops scrolling when the pointer leaves the edge zone and re-engages on return', async () => {
     const { engine } = await renderDnd();
     const source = createElement();
@@ -1942,31 +1860,6 @@ describe('engine.registerAutoScroller', () => {
       expect(leftEdgeDeltas.some((left) => left < 0)).toBe(true);
       endTouchDrag(10, 100);
     });
-
-    it('does not auto-scroll during a keyboard drag', async () => {
-      const { engine } = await renderDnd();
-      // The source's center (y=10) sits in the scroller's top edge zone, so a
-      // pointer drag there auto-scrolls — a keyboard drag must not, or it would
-      // run past many items instead of stepping one per key.
-      const source = createElement({ top: 0, height: 20, left: 0, width: 200 });
-      const scroller = createElement({ top: 0, height: 200, left: 0, width: 200 });
-      scroller.style.overflow = 'auto';
-      scroller.scrollBy = vi.fn();
-      Object.defineProperty(scroller, 'scrollTop', { value: 400, writable: true });
-      Object.defineProperty(scroller, 'scrollHeight', { value: 1000 });
-      Object.defineProperty(scroller, 'clientHeight', { value: 200 });
-
-      engine.registerDraggable(source, {});
-      engine.registerAutoScroller(scroller, {});
-
-      source.focus();
-      act(() => {
-        source.dispatchEvent(new KeyboardEvent('keydown', { key: ' ', bubbles: true }));
-      });
-      await waitForRampUp();
-
-      expect(scroller.scrollBy).not.toHaveBeenCalled();
-    });
   });
 
   // ---------------------------------------------------------------------------
@@ -2595,28 +2488,6 @@ describe('engine.registerAutoScroller', () => {
 
       expect(applyScroll).toHaveBeenCalled();
       expect(applyScroll.mock.calls.every(([context]) => context.x === 0)).toBe(true);
-    });
-
-    it('does not call applyScroll during a keyboard drag', async () => {
-      const { engine } = await renderDnd();
-      // The source's centre sits in the viewport's top edge zone, so a pointer
-      // drag there would engage immediately.
-      const source = createElement({ top: 0, height: 20, left: 0, width: 200 });
-      const viewport = makeViewport();
-      const applyScroll = vi.fn();
-
-      engine.registerDraggable(source, {});
-      engine.registerAutoScroller(viewport, { applyScroll });
-
-      source.focus();
-      act(() => {
-        source.dispatchEvent(new KeyboardEvent('keydown', { key: ' ', bubbles: true }));
-      });
-      await flushRaf();
-      await flushRaf();
-      await flushRaf();
-
-      expect(applyScroll).not.toHaveBeenCalled();
     });
 
     // What a delegating surface returns is the only thing deciding which axes an

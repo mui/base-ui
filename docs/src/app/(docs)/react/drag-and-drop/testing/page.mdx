@@ -1,19 +1,16 @@
 # Testing
 
-<Subtitle>How to test pointer and keyboard drags.</Subtitle>
+<Subtitle>How to test pointer drags.</Subtitle>
 
-<Meta
-  name="description"
-  content="How to test Base UI pointer and keyboard drags in jsdom and a browser."
-/>
+<Meta name="description" content="How to test Base UI pointer drags in jsdom and a browser." />
 
-The engine is [synthetic](/react/drag-and-drop/overview#concepts): it listens to pointer and keyboard events and never uses the browser's HTML5 drag-and-drop. There is no `dragstart` to fire. A test drives a drag the way a user does, with `pointerdown`, `pointermove` and `pointerup`.
+The engine is [synthetic](/react/drag-and-drop/overview#concepts): it listens to pointer events and never uses the browser's HTML5 drag-and-drop. There is no `dragstart` to fire. A test drives a drag the way a user does, with `pointerdown`, `pointermove` and `pointerup`.
 
 ## Pick the environment first
 
 A drag resolves drop targets through layout and `document.elementFromPoint`, which jsdom does not provide.
 
-- Use a browser test for behavior that requires a resolved target, including `onDrop`, `data-drag-over`, drop indicators, auto-scroll, and arrow-key movement.
+- Use a browser test for behavior that requires a resolved target, including `onDrop`, `data-drag-over`, drop indicators, and auto-scroll.
 - Use jsdom for activation thresholds, lifecycle events, cancellation reasons, source state, preview rendering, `disabled`, and `onBeforeDragStart` cancellation.
 
 Stubbing `getBoundingClientRect` in jsdom supplies geometry but not hit-testing. A drag can still start and end there, but it resolves no target and ends as an `'outside-release'`. Use a browser test when the destination matters.
@@ -70,21 +67,6 @@ expect(screen.getByTestId('zone')).toHaveAttribute('data-drag-over');
 ```
 
 `onDragStart` and `onDragEnd` are not throttled and fire synchronously with the event that caused them.
-
-## Keyboard drags
-
-Starting a keyboard drag needs no geometry, so the lifecycle can be tested anywhere. Where the drag goes is still resolved from the targets' rects, so assert on the destination only in a browser test.
-
-```tsx title="Pick up, move, drop"
-const source = screen.getByRole('button', { name: 'Water the plants' });
-source.focus();
-
-await user.keyboard('[Space]'); // pick up
-await user.keyboard('[ArrowDown]'); // move toward the next target
-await user.keyboard('[Space]'); // drop
-```
-
-Escape and Tab both cancel and end the drag with `canceled: true`. The default focus behavior then tries the handle, source, and innermost drop target. The second handler argument distinguishes the keys: `eventDetails.reason` is `'escape-key'` or `'tab-key'`.
 
 ## Assert on what a user can observe
 

@@ -57,7 +57,6 @@ export const DropTargetRoot = React.forwardRef(function DropTargetRoot<
     // Drop target props. Listed explicitly because whatever stays in
     // `elementProps` is spread onto the `<div>`, where an engine parameter would
     // land as an attribute.
-    label,
     kind,
     accept,
     canDrop,
@@ -80,7 +79,6 @@ export const DropTargetRoot = React.forwardRef(function DropTargetRoot<
   // A fresh object per render is fine: `useDropTargetElement` reads it through a
   // ref and never compares it.
   const params = {
-    label,
     kind,
     accept,
     canDrop,

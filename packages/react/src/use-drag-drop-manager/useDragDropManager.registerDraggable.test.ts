@@ -53,10 +53,7 @@ describe('engine.registerDraggable', () => {
     style.touchAction = 'auto';
     el.setAttribute('aria-roledescription', 'original role');
 
-    const cleanup = engine.registerDraggable(el, {
-      disabled: true,
-      ariaRoleDescription: 'unused role',
-    });
+    const cleanup = engine.registerDraggable(el, { disabled: true });
 
     style.touchAction = 'pan-y';
     el.setAttribute('aria-roledescription', 'consumer role');
@@ -180,130 +177,6 @@ describe('engine.registerDraggable', () => {
     expect(onInnerStart).not.toHaveBeenCalled();
     expect(onOuterStart).toHaveBeenCalledTimes(1);
     expect(onOuterStart.mock.calls[0][0].source.element).toBe(outer);
-  });
-
-  it('restores the surviving registrant’s aria-roledescription when a later one unregisters', async () => {
-    const { engine } = await renderDnd();
-    // Two registrations sharing one gesture element with different role
-    // descriptions: the most recent wins while both are held, and unregistering
-    // it must revert to the survivor's — not strand the unregistered value.
-    const el = createElement();
-    engine.registerDraggable(el, { ariaRoleDescription: 'sortable card' });
-    const cleanupSecond = engine.registerDraggable(el, { ariaRoleDescription: 'kanban card' });
-
-    expect(el.getAttribute('aria-roledescription')).toBe('kanban card');
-
-    cleanupSecond();
-
-    expect(el.getAttribute('aria-roledescription')).toBe('sortable card');
-  });
-
-  it('re-applies the static a11y setup at the next interaction after the parameters change', async () => {
-    // The getter contract re-reads behavior on every event, but the static DOM
-    // setup is applied from the registration-time read. An imperative consumer
-    // whose parameters change afterwards must not keep stale attributes past
-    // the next interaction (the React layer re-registers instead).
-    const { engine } = await renderDnd();
-    const el = createElement();
-    el.tabIndex = 0;
-    let role = 'sortable card';
-    let disabled = false;
-    engine.registerDraggable(el, () => ({ ariaRoleDescription: role, disabled }));
-
-    expect(el.getAttribute('aria-roledescription')).toBe('sortable card');
-    expect(el.getAttribute('aria-describedby')).toBeTruthy();
-
-    // A later change is not re-applied eagerly (nothing re-reads the getter)...
-    role = 'kanban card';
-    expect(el.getAttribute('aria-roledescription')).toBe('sortable card');
-
-    // ...but the next pointer interaction re-reads the parameters and refreshes it.
-    fireEvent.pointerDown(el);
-    expect(el.getAttribute('aria-roledescription')).toBe('kanban card');
-
-    // Disabling drops the keyboard-drag hints once keyboard focus lands.
-    disabled = true;
-    el.focus();
-    expect(el.hasAttribute('aria-roledescription')).toBe(false);
-    expect(el.hasAttribute('aria-describedby')).toBe(false);
-
-    // Re-enabling restores them at the next interaction.
-    disabled = false;
-    el.blur();
-    el.focus();
-    expect(el.getAttribute('aria-roledescription')).toBe('kanban card');
-    expect(el.getAttribute('aria-describedby')).toBeTruthy();
-  });
-
-  it('re-applies the keyboard-instructions idref a consumer rewrite dropped', async () => {
-    // `aria-describedby` is shared DOM: a consumer that controls it (React
-    // re-rendering the prop) overwrites the engine's token wholesale. The refresh
-    // early-returns when none of the setup's *inputs* changed — which is exactly
-    // this case — so without an idempotent re-apply the idref is gone for good and
-    // a screen-reader user silently loses the gesture hint.
-    const { engine } = await renderDnd();
-    const el = createElement();
-    el.tabIndex = 0;
-    engine.registerDraggable(el, {});
-
-    const instructionsId = el.getAttribute('aria-describedby');
-    expect(instructionsId).toBeTruthy();
-
-    // A consumer-controlled rewrite, with nothing about the registration changed.
-    el.setAttribute('aria-describedby', 'consumer-hint');
-
-    fireEvent.pointerDown(el);
-
-    // Both tokens survive: the engine re-adds its own without dropping the
-    // consumer's.
-    const describedBy = el.getAttribute('aria-describedby')!.split(/\s+/);
-    expect(describedBy).toContain('consumer-hint');
-    expect(describedBy).toContain(instructionsId);
-  });
-
-  it('keeps refreshing the surviving registrant after a merged-ref hold is released', async () => {
-    // The refresh callbacks are held per registration, like every other
-    // per-element registry in the engine. A single slot per element let the
-    // second registration overwrite the first's callback, and the second
-    // cleanup then deleted the survivor's — freezing its attributes silently.
-    const { engine } = await renderDnd();
-    const el = createElement();
-    let role = 'sortable card';
-    engine.registerDraggable(el, () => ({ ariaRoleDescription: role }));
-    const cleanupSecond = engine.registerDraggable(el, { ariaRoleDescription: 'kanban card' });
-
-    cleanupSecond();
-    expect(el.getAttribute('aria-roledescription')).toBe('sortable card');
-
-    role = 'renamed card';
-    fireEvent.pointerDown(el);
-
-    expect(el.getAttribute('aria-roledescription')).toBe('renamed card');
-  });
-
-  it('refreshes from an interaction on a descendant, and refreshes nested draggables together', async () => {
-    // The per-document listener walks up from the event target, so a press on a
-    // handle or label inside the draggable still refreshes it — and every
-    // registered ancestor on the way, since draggables nest.
-    const { engine } = await renderDnd();
-    const outer = createElement();
-    const inner = document.createElement('div');
-    const label = document.createElement('span');
-    inner.appendChild(label);
-    outer.appendChild(inner);
-
-    let outerRole = 'outer card';
-    let innerRole = 'inner card';
-    engine.registerDraggable(outer, () => ({ ariaRoleDescription: outerRole }));
-    engine.registerDraggable(inner, () => ({ ariaRoleDescription: innerRole }));
-
-    outerRole = 'outer renamed';
-    innerRole = 'inner renamed';
-    // The press lands on a plain descendant of the *inner* draggable.
-    fireEvent.pointerDown(label);
-
-    expect(inner.getAttribute('aria-roledescription')).toBe('inner renamed');
-    expect(outer.getAttribute('aria-roledescription')).toBe('outer renamed');
   });
 
   it('calls getPayload with the gesture, once, and snapshots the result', async () => {

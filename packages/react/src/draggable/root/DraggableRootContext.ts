@@ -7,7 +7,7 @@ import type { DragCleanupFn } from '../../types/drag';
 export interface DraggableRootContext<TData = unknown> {
   /**
    * Attach or detach a drag handle. Re-registers the draggable so the static
-   * gesture and a11y setup follows a handle that mounts later. Stable.
+   * gesture setup follows a handle that mounts later. Stable.
    *
    * `token` identifies the calling handle across its attach (`node`) and detach
    * (`null`) calls — React passes no identity with the `null`, and the node is
@@ -15,10 +15,6 @@ export interface DraggableRootContext<TData = unknown> {
    * several handles just left.
    */
   setHandleElement: (node: HTMLElement | null, token: object) => void;
-  /** Attach or detach a handle that owns only keyboard pickup. Stable. */
-  setKeyboardHandleElement: (node: HTMLElement | null, token: object) => void;
-  /** Start a keyboard drag for this root. Stable. */
-  startKeyboardDrag: () => boolean;
   /** Observe the root element, including node replacements. Stable. */
   observeElement: (observer: (element: HTMLElement | null) => void) => DragCleanupFn;
   /** The link a `Draggable.Preview` declares into. Stable. */
@@ -30,11 +26,6 @@ export interface DraggableRootContext<TData = unknown> {
    * drag start, when a provider is mounted inside the root.
    */
   previewContext: DragPreviewContext | null;
-  /**
-   * The root's `label`, so a handle with no accessible name of its own can build
-   * one from it — the canonical anatomy renders a grip-only button.
-   */
-  label: string | undefined;
   /**
    * The root's `disabled`, so the handle drops out of the tab order along with
    * it — the engine refuses the pickup either way, but a focusable button that

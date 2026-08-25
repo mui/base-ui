@@ -52,7 +52,7 @@ const INITIAL_TABS: TabItem[] = [
 ];
 
 const TAB_CLASS =
-  'relative inline-flex h-full min-w-26 max-w-36 shrink-0 cursor-grab items-center gap-1.5 border-0 border-r border-solid border-neutral-200 bg-transparent py-0 pr-2.5 pl-3.5 text-[0.8125rem] leading-4 text-neutral-600 outline-none after:pointer-events-none after:absolute after:right-3 after:bottom-0 after:left-3 after:hidden after:h-0.5 after:bg-current data-[active]:bg-white data-[active]:text-neutral-950 data-[active]:after:block data-[dragging]:opacity-0 data-[drag-preview]:border data-[drag-preview]:border-solid data-[drag-preview]:border-neutral-950 data-[drag-preview]:bg-white data-[drag-preview]:text-neutral-950 data-[drag-preview]:opacity-100 data-[drag-preview]:shadow-[0.25rem_0.25rem_0_rgb(0_0_0_/_12%)] data-[drag-preview]:transition-none motion-safe:data-[drag-preview]:data-ending-style:transition-[translate] motion-safe:data-[drag-preview]:data-ending-style:duration-200 motion-safe:data-[drag-preview]:data-ending-style:ease-[cubic-bezier(0.2,0,0,1)] motion-safe:data-displacing:data-starting-style:[translate:var(--drag-displacement-x)_var(--drag-displacement-y)] motion-safe:data-displacing:not-data-starting-style:[transition:translate_0.2s_ease] hover:text-neutral-950 focus-visible:z-10 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-neutral-950 dark:border-neutral-700 dark:text-neutral-400 dark:data-[active]:bg-neutral-950 dark:data-[active]:text-white dark:data-[drag-preview]:border-white dark:data-[drag-preview]:bg-neutral-950 dark:data-[drag-preview]:text-white dark:data-[drag-preview]:shadow-none dark:hover:text-white dark:focus-visible:outline-white';
+  'relative inline-flex h-full min-w-26 max-w-36 shrink-0 cursor-grab items-center gap-1.5 border-0 border-r border-solid border-neutral-200 bg-transparent py-0 pr-2.5 pl-3.5 text-[0.8125rem] leading-4 text-neutral-600 outline-none after:pointer-events-none after:absolute after:right-3 after:bottom-0 after:left-3 after:hidden after:h-0.5 after:bg-current data-[active]:bg-white data-[active]:text-neutral-950 data-[active]:after:block data-[dragging]:opacity-0 data-[drag-preview]:border data-[drag-preview]:border-solid data-[drag-preview]:border-neutral-950 data-[drag-preview]:bg-white data-[drag-preview]:text-neutral-950 data-[drag-preview]:opacity-100 data-[drag-preview]:shadow-[0.25rem_0.25rem_0_rgb(0_0_0_/_12%)] data-[drag-preview]:transition-none motion-safe:data-[drag-preview]:data-ending-style:transition-[translate] motion-safe:data-[drag-preview]:data-ending-style:duration-200 motion-safe:data-[drag-preview]:data-ending-style:ease-[cubic-bezier(0.2,0,0,1)] hover:text-neutral-950 focus-visible:z-10 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-neutral-950 dark:border-neutral-700 dark:text-neutral-400 dark:data-[active]:bg-neutral-950 dark:data-[active]:text-white dark:data-[drag-preview]:border-white dark:data-[drag-preview]:bg-neutral-950 dark:data-[drag-preview]:text-white dark:data-[drag-preview]:shadow-none dark:hover:text-white dark:focus-visible:outline-white';
 
 function reorderTabs(items: TabItem[], draggedId: string, overId: string, movingRight: boolean) {
   if (draggedId === overId) {
@@ -158,12 +158,8 @@ function DraggableTab(props: DraggableTabProps) {
       // @highlight-start
       render={
         <Draggable.Root
-          label={`${item.label} tab`}
           kind={tabKind}
           payload={item.id}
-          // Enter and Space stay with Tabs for selection; reordering is
-          // Alt+Arrow through the button's onKeyDown below.
-          keyboardActivation="off"
           // @highlight-end
           pointerActivation={{ mouse: { type: 'distance', distance: 5 } }}
           modifiers={Draggable.restrictToHorizontalAxis}
@@ -173,7 +169,6 @@ function DraggableTab(props: DraggableTabProps) {
           onDragEnd={onDragEnd}
           render={
             <DropTarget.Root
-              label={`${item.label} tab`}
               accept={tabKind}
               trackDragOver={false}
               onDrag={handleDrag}
@@ -295,7 +290,6 @@ export default function DraggableTabs() {
           activateOnFocus
           render={
             <DropTarget.Root
-              label="Open documents"
               accept={tabKind}
               trackDragOver={false}
               render={<DragAutoScroll.Root allowedAxis="horizontal" />}

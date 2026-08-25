@@ -211,7 +211,6 @@ const ref: React.Ref<HTMLDivElement> = null;
 
 // One element, both roles: the drop target composes onto the drag source.
 <Draggable.Root
-  label="Card"
   kind={card}
   payload={{ id: 'a' }}
   render={<DropTarget.Root accept={card} payload={{ index: 0 }} />}

@@ -1,6 +1,4 @@
 import * as React from 'react';
-import * as ReactDOMServer from 'react-dom/server';
-import * as ReactDOMClient from 'react-dom/client';
 import { describe, it, expect, vi } from 'vitest';
 import { act, fireEvent, screen, render as rtlRender } from '@testing-library/react';
 import { createDndRenderer, describeConformance, testDragKind } from '#test-utils';
@@ -18,24 +16,12 @@ import {
 import { dragSessionStore } from '../../utils/drag-and-drop/dragSessionStore';
 import { getRegistration } from '../../utils/drag-and-drop/draggableRegistry';
 import { DraggablePreviewProvider } from '../preview-provider/DraggablePreviewProvider';
-import { enUS } from '../../locale-enUS';
-import { frFR } from '../../locale-frFR';
-import { LocalizationProvider } from '../../localization-provider';
 import { CSPProvider } from '../../csp-provider';
 
 setupDragEngineTests();
 
-const TEST_DRAGGABLE_LABEL = 'test-draggable';
-
 /** Kind for the fixtures that carry a payload, so its type reaches their handlers. */
 const cardKind = Draggable.createKind<{ id: string }>('card');
-
-/** Outer wrapper that puts the tree in a French `LocalizationProvider`. Passed as
- * `renderDnd`'s wrapper so the `Draggable.PreviewProvider` it mounts reads French translations
- * for its draggable registrations. */
-function FrenchProvider({ children }: { children?: React.ReactNode }) {
-  return <LocalizationProvider translations={frFR}>{children}</LocalizationProvider>;
-}
 
 /** `data-dragging` is owned by the engine, so `state.dragging` is probed through
  * `className` instead. */
@@ -68,15 +54,7 @@ function TestDraggable<TData = undefined>(props: {
   // fixture declare one. `kind` defaults to the shared test kind, and a fixture
   // exercising kind matching (or a typed payload) passes its own.
   const Root = Draggable.Root as React.ComponentType<any>;
-  return (
-    <Root
-      kind={testDragKind}
-      label={TEST_DRAGGABLE_LABEL}
-      {...options}
-      data-testid={testId}
-      className={draggingClass}
-    />
-  );
+  return <Root kind={testDragKind} {...options} data-testid={testId} className={draggingClass} />;
 }
 
 describe('Draggable.Root', () => {
@@ -88,26 +66,6 @@ describe('Draggable.Root', () => {
       return renderDnd(node);
     },
   }));
-
-  it('keeps keyboardMovement off the DOM element', () => {
-    rtlRender(
-      <Draggable.Root kind={testDragKind} data-testid="moved" keyboardMovement={() => null} />,
-    );
-    // Engine parameters are plucked from the spread props; a miss would land
-    // here as a `keyboardmovement` attribute.
-    expect(screen.getByTestId('moved').hasAttribute('keyboardmovement')).toBe(false);
-  });
-
-  it('renders Displacement without adding a DOM element', () => {
-    rtlRender(
-      <Draggable.Root kind={testDragKind} data-testid="tracked">
-        <Draggable.Displacement />
-      </Draggable.Root>,
-    );
-    const el = screen.getByTestId('tracked');
-    expect(el).toBeEmptyDOMElement();
-    expect(el).not.toHaveAttribute('data-displacing');
-  });
 
   it('registers with no PreviewProvider ancestor (the engine is global)', () => {
     // The engine lives in a global slot, so a draggable works with no provider
@@ -176,80 +134,6 @@ describe('Draggable.Root', () => {
     expect(el.style.userSelect).toBe('');
   });
 
-  it('wires keyboard a11y attributes and restores them on unmount', async () => {
-    const { unmount } = await renderDnd(<TestDraggable />);
-    const el = screen.getByTestId('drag');
-    expect(el.getAttribute('aria-roledescription')).toBe('draggable');
-    const describedBy = el.getAttribute('aria-describedby');
-    expect(describedBy).toBeTruthy();
-    expect(document.getElementById(describedBy!)).not.toBeNull();
-    unmount();
-    expect(el.hasAttribute('aria-roledescription')).toBe(false);
-    expect(el.hasAttribute('aria-describedby')).toBe(false);
-  });
-
-  it('honours a custom ariaRoleDescription', async () => {
-    await renderDnd(<TestDraggable options={{ ariaRoleDescription: 'sortable card' }} />);
-    const el = screen.getByTestId('drag');
-    expect(el.getAttribute('aria-roledescription')).toBe('sortable card');
-  });
-
-  it('restricts the gesture/a11y setup to the element behind Draggable.Handle', async () => {
-    await renderDnd(
-      <Draggable.Root kind={testDragKind} data-testid="card">
-        <Draggable.Handle data-testid="handle">grip</Draggable.Handle>
-      </Draggable.Root>,
-    );
-    const handle = screen.getByTestId('handle');
-    const card = screen.getByTestId('card');
-
-    // The gesture styles and keyboard a11y attributes land on the handle, not
-    // the whole card — no `dragHandle` parameter needed.
-    expect(handle.style.touchAction).toBe('manipulation');
-    expect(card.style.getPropertyValue('touch-action')).toBe('');
-    expect(handle.getAttribute('aria-roledescription')).toBe('draggable');
-    expect(card.hasAttribute('aria-roledescription')).toBe(false);
-  });
-
-  it('moves the gesture/a11y setup onto a handle that mounts after the root', async () => {
-    // A handle attaches through a ref callback, so mounting one re-registers the
-    // draggable and the setup moves off the root.
-    function Card({ withHandle }: { withHandle: boolean }) {
-      return (
-        <Draggable.Root kind={testDragKind} data-testid="card">
-          {withHandle && <Draggable.Handle data-testid="handle">grip</Draggable.Handle>}
-        </Draggable.Root>
-      );
-    }
-
-    const { rerender } = await renderDnd(<Card withHandle={false} />);
-    const card = screen.getByTestId('card');
-    expect(card.style.touchAction).toBe('manipulation');
-
-    await rerender(<Card withHandle />);
-
-    const handle = screen.getByTestId('handle');
-    expect(handle.style.touchAction).toBe('manipulation');
-    expect(handle.getAttribute('aria-roledescription')).toBe('draggable');
-    expect(card.style.touchAction).toBe('');
-    expect(card.hasAttribute('aria-roledescription')).toBe(false);
-
-    // The reverse leg: removing the handle moves the setup — and keyboard
-    // pickup — back to the whole root.
-    await rerender(<Card withHandle={false} />);
-
-    expect(card.style.touchAction).toBe('manipulation');
-    expect(card.getAttribute('aria-roledescription')).toBe('draggable');
-    expect(card.getAttribute('aria-describedby')).toBeTruthy();
-
-    card.getBoundingClientRect = () => new DOMRect(0, 0, 200, 100);
-    fireEvent.keyDown(card, { key: ' ' });
-    await flushRaf();
-    expect(dragSessionStore.getSnapshot()?.source.element).toBe(card);
-    fireEvent.keyDown(card, { key: 'Escape' });
-    await flushRaf();
-  });
-
   it('applies the static setup to a handle swapped mid-drag once the drag ends', async () => {
     // Swapping the handle node during the element's own drag skips the
     // re-registration (tearing the gesture styles down would disrupt the live
@@ -284,8 +168,6 @@ describe('Draggable.Root', () => {
     await flushRaf();
 
     expect(secondHandle.style.touchAction).toBe('manipulation');
-    expect(secondHandle.getAttribute('aria-roledescription')).toBe('draggable');
-    expect(secondHandle.getAttribute('aria-describedby')).toBeTruthy();
   });
 
   it('exposes state.dragging reflecting the active drag session', async () => {
@@ -556,37 +438,6 @@ describe('Draggable.Root', () => {
     expect(first).not.toHaveAttribute('data-dragging');
   });
 
-  it('keeps a keyboard drag when the source is rendered into a different parent', async () => {
-    // Not the swap above: there React keeps one `Draggable.Root` and hands it a new node, so
-    // the hook sees the change and re-points the session. Moving the item between containers
-    // unmounts one instance and mounts another, which nothing connects — the session is left
-    // on a detached node. The drag has to run on regardless, because an app that reflows its
-    // layout under a live drag is doing something ordinary.
-    function Board({ inB }: { inB: boolean }) {
-      const chip = <Draggable.Root kind={testDragKind} data-testid="chip" label="chip" />;
-      return (
-        <div>
-          <div data-testid="col-a">{!inB && chip}</div>
-          <div data-testid="col-b">{inB && chip}</div>
-        </div>
-      );
-    }
-
-    const { rerender } = await renderDnd(<Board inB={false} />);
-    const chip = screen.getByTestId('chip');
-    chip.getBoundingClientRect = () => new DOMRect(0, 0, 200, 100);
-
-    chip.focus();
-    fireEvent.keyDown(chip, { key: ' ' });
-    await flushRaf();
-    expect(dragSessionStore.getSnapshot()?.source.element).toBe(chip);
-
-    await rerender(<Board inB />);
-    await flushRaf();
-
-    expect(dragSessionStore.getSnapshot()).not.toBeNull();
-  });
-
   it('defers a disabled flip mid-drag: the drag survives, the setup lands at drag end', async () => {
     // A reconcile-input change while this element is the active source must not
     // tear down the live gesture; the re-registration flushes at drag end.
@@ -609,7 +460,7 @@ describe('Draggable.Root', () => {
     cancel();
     await flushRaf();
 
-    // The skipped reconcile flushed: the a11y attributes now reflect `disabled`.
+    // The skipped reconcile flushed: the gesture styles now reflect `disabled`.
     expect(dragSessionStore.getSnapshot()).toBeNull();
     expect(el.style.userSelect).toBe('');
     expect(el.style.touchAction).toBe('');
@@ -689,28 +540,6 @@ describe('Draggable.Root', () => {
   });
 
   describe('Strict Mode', () => {
-    it('mounts a single set of keyboard a11y attributes', async () => {
-      // Strict Mode double-invokes the registration effect (register → cleanup →
-      // register); the re-register must leave exactly one live setup behind, not
-      // duplicated or torn-down attributes.
-      await renderDnd(
-        <React.StrictMode>
-          <TestDraggable />
-        </React.StrictMode>,
-      );
-      const el = screen.getByTestId('drag');
-      expect(el.getAttribute('aria-roledescription')).toBe('draggable');
-
-      const describedBy = el.getAttribute('aria-describedby');
-      expect(describedBy).toBeTruthy();
-      // A single instructions id, resolving to exactly one node still in the
-      // document — the cleanup leg must not have removed it or left a duplicate.
-      const ids = describedBy!.split(/\s+/);
-      expect(ids).toHaveLength(1);
-      expect(document.getElementById(ids[0])).not.toBeNull();
-      expect(document.querySelectorAll(`[id="${ids[0]}"]`)).toHaveLength(1);
-    });
-
     it('fires onDragStart, onDrop and onDragEnd exactly once for a full drag', async () => {
       const onDragStart = vi.fn();
       const onDragEnd = vi.fn();
@@ -821,60 +650,6 @@ describe('Draggable.Root', () => {
       await flushRaf();
     });
 
-    it('forwards keyboardMovement: the resolver drives each arrow press', async () => {
-      const presses: Array<{ key: string; direction: { x: number; y: number } }> = [];
-      await renderDnd(
-        <Draggable.Root
-          kind={testDragKind}
-          data-testid="drag"
-          keyboardMovement={(details) => {
-            presses.push({ key: details.key, direction: details.direction });
-            return null;
-          }}
-        />,
-      );
-      const el = screen.getByTestId('drag');
-      el.getBoundingClientRect = () => new DOMRect(0, 0, 200, 100);
-
-      el.focus();
-      fireEvent.keyDown(el, { key: ' ' });
-      await flushRaf();
-      fireEvent.keyDown(el, { key: 'ArrowDown' });
-      await flushRaf();
-
-      expect(presses).toEqual([{ key: 'ArrowDown', direction: { x: 0, y: 1 } }]);
-
-      fireEvent.keyDown(el, { key: 'Escape' });
-      await flushRaf();
-    });
-
-    it('forwards finalFocus: it takes over the keyboard drop focus', async () => {
-      const focusSpot = createElement();
-      focusSpot.tabIndex = 0;
-      const outcomes: Array<{ canceled: boolean; landed: boolean }> = [];
-      await renderDnd(
-        <Draggable.Root
-          kind={testDragKind}
-          data-testid="drag"
-          finalFocus={(parameters) => {
-            outcomes.push({ canceled: parameters.canceled, landed: parameters.dropTarget != null });
-            return focusSpot;
-          }}
-        />,
-      );
-      const el = screen.getByTestId('drag');
-      el.getBoundingClientRect = () => new DOMRect(0, 0, 200, 100);
-
-      el.focus();
-      fireEvent.keyDown(el, { key: ' ' });
-      await flushRaf();
-      fireEvent.keyDown(el, { key: ' ' }); // drop over nothing
-      await flushRaf(); // focus restoration runs one frame later
-
-      expect(outcomes).toEqual([{ canceled: false, landed: false }]);
-      expect(document.activeElement).toBe(focusSpot);
-    });
-
     it('forwards onDropTargetChange: it fires with the entered target', async () => {
       const onDropTargetChange = vi.fn();
       const { engine } = await renderDnd(<TestDraggable options={{ onDropTargetChange }} />);
@@ -961,46 +736,6 @@ describe('Draggable.Root', () => {
       await flushRaf();
     });
 
-    it('forwards keyboardInstructions into the aria-describedby node', async () => {
-      await renderDnd(
-        <Draggable.Root
-          kind={testDragKind}
-          data-testid="drag"
-          keyboardInstructions="Press X to levitate."
-        />,
-      );
-      const el = screen.getByTestId('drag');
-      const describedBy = el.getAttribute('aria-describedby');
-      expect(describedBy).toBeTruthy();
-      expect(document.getElementById(describedBy!)?.textContent).toBe('Press X to levitate.');
-    });
-
-    it('re-applies the keyboard a11y affordances when disabled flips', async () => {
-      // The static DOM setup is captured at registration, so a prop change has to
-      // re-register to land: a stale `aria-roledescription` would keep announcing
-      // a keyboard drag the engine now refuses.
-      const { rerender } = await renderDnd(
-        <Draggable.Root kind={testDragKind} data-testid="drag" />,
-      );
-      const el = screen.getByTestId('drag');
-      expect(el).toHaveAttribute('aria-roledescription', 'draggable');
-      expect(el).toHaveAttribute('aria-describedby');
-      expect(el).toHaveAttribute('tabindex', '0');
-
-      await rerender(<Draggable.Root kind={testDragKind} data-testid="drag" disabled />);
-      expect(el.style.touchAction).toBe('');
-      expect(el.style.userSelect).toBe('');
-      expect(el).not.toHaveAttribute('aria-roledescription');
-      expect(el).not.toHaveAttribute('aria-describedby');
-      expect(el).not.toHaveAttribute('tabindex');
-
-      await rerender(<Draggable.Root kind={testDragKind} data-testid="drag" />);
-      expect(el.style.touchAction).toBe('manipulation');
-      expect(el.style.userSelect).toBe('none');
-      expect(el).toHaveAttribute('aria-roledescription', 'draggable');
-      expect(el).toHaveAttribute('aria-describedby');
-    });
-
     it('preserves inline gesture styles changed while disabling', async () => {
       const { rerender } = await renderDnd(
         <Draggable.Root
@@ -1025,31 +760,6 @@ describe('Draggable.Root', () => {
       expect(el.style.touchAction).toBe('none');
       expect(el.style.userSelect).toBe('auto');
     });
-
-    it('re-applies the a11y strings when the locale changes, without remounting', async () => {
-      // The provider is present in both trees and only its `translations` change,
-      // so the tree shape is identical and React keeps the same node. Wrapping a
-      // previously-unwrapped root would remount it instead, and a remount takes
-      // the fresh strings through the registration path — leaving the live
-      // `reconcileKey` effect, which exists for exactly this case, unexercised.
-      const { rerender } = await renderDnd(
-        <LocalizationProvider translations={enUS}>
-          <Draggable.Root kind={testDragKind} data-testid="drag" />
-        </LocalizationProvider>,
-      );
-      const el = screen.getByTestId('drag');
-      expect(el).toHaveAttribute('aria-roledescription', 'draggable');
-
-      await rerender(
-        <LocalizationProvider translations={frFR}>
-          <Draggable.Root kind={testDragKind} data-testid="drag" />
-        </LocalizationProvider>,
-      );
-
-      // Same node, new strings.
-      expect(screen.getByTestId('drag')).toBe(el);
-      expect(el).toHaveAttribute('aria-roledescription', 'déplaçable');
-    });
   });
 
   describe('same-commit node swap', () => {
@@ -1060,24 +770,12 @@ describe('Draggable.Root', () => {
       const onDragStart = vi.fn();
       const first = vi.fn();
       const { rerender } = await renderDnd(
-        <Draggable.Root
-          kind={testDragKind}
-          key="a"
-          data-testid="drag"
-          label="first"
-          onDragStart={first}
-        />,
+        <Draggable.Root kind={testDragKind} key="a" data-testid="drag" onDragStart={first} />,
       );
       const before = screen.getByTestId('drag');
 
       await rerender(
-        <Draggable.Root
-          kind={testDragKind}
-          key="b"
-          data-testid="drag"
-          label="second"
-          onDragStart={onDragStart}
-        />,
+        <Draggable.Root kind={testDragKind} key="b" data-testid="drag" onDragStart={onDragStart} />,
       );
       const after = screen.getByTestId('drag');
       expect(after).not.toBe(before);
@@ -1087,7 +785,6 @@ describe('Draggable.Root', () => {
 
       expect(first).not.toHaveBeenCalled();
       expect(onDragStart).toHaveBeenCalledTimes(1);
-      expect(onDragStart.mock.calls[0][0].source.label).toBe('second');
     });
 
     it('applies the same commit’s disabled to the new draggable node', async () => {
@@ -1149,193 +846,6 @@ describe('Draggable.Root', () => {
       expect(stale).not.toHaveBeenCalled();
       expect(onDrop).toHaveBeenCalledTimes(1);
       expect(onDrop.mock.calls[0][0].self.payload).toEqual({ slot: 2 });
-    });
-  });
-
-  describe('default tabIndex', () => {
-    it('defaults tabIndex to 0 so the keyboard pickup is reachable with Tab', async () => {
-      await renderDnd(<TestDraggable />);
-      const el = screen.getByTestId('drag');
-      expect(el).toHaveAttribute('tabindex', '0');
-      // A focusable `<div>` that consumes Space and Enter must expose itself as
-      // more than an unnamed `generic` node.
-      expect(el).toHaveAttribute('role', 'button');
-    });
-
-    it('makes a handle-less root focusable synchronously on mount', () => {
-      // `hasHandle` starts unknown (SSR can't see handles), so the resolving
-      // layout effect must land the attributes in the mount commit, before
-      // first paint — a plain synchronous render already shows them.
-      rtlRender(<TestDraggable />);
-      const el = screen.getByTestId('drag');
-      expect(el).toHaveAttribute('tabindex', '0');
-      expect(el).toHaveAttribute('role', 'button');
-    });
-
-    it('does not default tabIndex when keyboard drag is off', async () => {
-      // No keyboard gesture is announced, so the element must not join the tab
-      // order just to expose a pickup that can never start.
-      await renderDnd(<TestDraggable options={{ keyboardActivation: 'off' }} />);
-      const el = screen.getByTestId('drag');
-      expect(el).not.toHaveAttribute('tabindex');
-      expect(el).not.toHaveAttribute('role');
-
-      // The prop's real contract: Space starts nothing, pointer pickup still works.
-      el.getBoundingClientRect = () => new DOMRect(0, 0, 200, 100);
-      fireEvent.keyDown(el, { key: ' ' });
-      await flushRaf();
-      expect(dragSessionStore.getSnapshot()).toBeNull();
-
-      await lift(el);
-      expect(dragSessionStore.getSnapshot()?.source.element).toBe(el);
-
-      cancel();
-      await flushRaf();
-    });
-
-    it('keeps tabIndex and role when keyboard drag is manual', async () => {
-      // `'manual'` moves the pickup elsewhere rather than removing it, so the
-      // element still has to be reachable with Tab.
-      await renderDnd(<TestDraggable options={{ keyboardActivation: 'manual' }} />);
-      const el = screen.getByTestId('drag');
-      expect(el).toHaveAttribute('tabindex', '0');
-      expect(el).toHaveAttribute('role', 'button');
-      // Still announced as draggable, without the hint it no longer honours.
-      expect(el).toHaveAttribute('aria-roledescription');
-      expect(el).not.toHaveAttribute('aria-describedby');
-    });
-
-    it('drops the instructions when keyboard drag switches to manual', async () => {
-      // The reconcile path keys off `keyboardActivation`, so flipping it at runtime must
-      // not strand the hint.
-      const { setProps } = await renderDnd(
-        <TestDraggable options={{ keyboardActivation: 'auto' }} />,
-      );
-      const el = screen.getByTestId('drag');
-      expect(el).toHaveAttribute('aria-describedby');
-
-      await setProps({ options: { keyboardActivation: 'manual' } });
-      expect(el).toHaveAttribute('aria-roledescription');
-      expect(el).not.toHaveAttribute('aria-describedby');
-    });
-
-    it('lets user-passed tabIndex and role override the defaults', async () => {
-      await renderDnd(<TestDraggable options={{ tabIndex: -1, role: 'listitem' }} />);
-      const el = screen.getByTestId('drag');
-      expect(el).toHaveAttribute('tabindex', '-1');
-      expect(el).toHaveAttribute('role', 'listitem');
-    });
-
-    it('preserves the semantics of polymorphic render targets', async () => {
-      await renderDnd(
-        <React.Fragment>
-          <ul>
-            <Draggable.Root kind={testDragKind} render={<li data-testid="list-item" />} />
-          </ul>
-          <Draggable.Root
-            kind={testDragKind}
-            render={<a href="#destination" data-testid="link" />}
-          />
-          <table>
-            <tbody>
-              <Draggable.Root kind={testDragKind} render={<tr data-testid="row" />} />
-            </tbody>
-          </table>
-          <Draggable.Root
-            kind={testDragKind}
-            render={<div role="option" aria-selected="false" data-testid="option" />}
-          />
-          <Draggable.Root
-            kind={testDragKind}
-            render={(props) => <section {...props} data-testid="callback" />}
-          />
-        </React.Fragment>,
-      );
-
-      for (const testId of ['list-item', 'link', 'row', 'option', 'callback']) {
-        expect(screen.getByTestId(testId)).toHaveAttribute('tabindex', '0');
-      }
-      expect(screen.getByTestId('list-item')).not.toHaveAttribute('role');
-      expect(screen.getByTestId('link')).not.toHaveAttribute('role');
-      expect(screen.getByTestId('row')).not.toHaveAttribute('role');
-      expect(screen.getByTestId('option')).toHaveAttribute('role', 'option');
-      expect(screen.getByTestId('callback')).not.toHaveAttribute('role');
-    });
-
-    it('server-renders a root with a handle without tabindex or role', () => {
-      // `hasHandle` starts `null` for a reason: the server can't see handles
-      // (they attach through client-side ref callbacks), so the SSR markup must
-      // not carry a tab stop next to the handle's own.
-      const container = document.createElement('div');
-      container.innerHTML = ReactDOMServer.renderToString(
-        <Draggable.Root kind={testDragKind}>
-          <Draggable.Handle>grip</Draggable.Handle>
-        </Draggable.Root>,
-      );
-      const root = container.firstElementChild as HTMLElement;
-      expect(root).not.toBeNull();
-      expect(root).not.toHaveAttribute('tabindex');
-      expect(root).not.toHaveAttribute('role');
-    });
-
-    it('keeps the root out of the tab order when a Draggable.Handle is mounted', async () => {
-      // With a handle, pickup and the a11y attributes live on the handle (an
-      // already-focusable button), so the root itself must not be focusable.
-      await renderDnd(
-        <Draggable.Root kind={testDragKind} data-testid="card">
-          <Draggable.Handle data-testid="handle" render={<button type="button" />}>
-            grip
-          </Draggable.Handle>
-        </Draggable.Root>,
-      );
-      const card = screen.getByTestId('card');
-      expect(card).not.toHaveAttribute('tabindex');
-      expect(card).not.toHaveAttribute('role');
-    });
-
-    it('never puts the root in the tab order, even transiently, when a handle mounts with it', () => {
-      // Immediately after a synchronous mount the root must already have
-      // resolved to "handle present": one tab stop per item from the start.
-      rtlRender(
-        <Draggable.Root kind={testDragKind} data-testid="card">
-          <Draggable.Handle data-testid="handle" render={<button type="button" />}>
-            grip
-          </Draggable.Handle>
-        </Draggable.Root>,
-      );
-      const card = screen.getByTestId('card');
-      expect(card).not.toHaveAttribute('tabindex');
-      expect(card).not.toHaveAttribute('role');
-      expect(screen.getByTestId('handle')).toHaveAttribute('aria-roledescription', 'draggable');
-    });
-
-    it('moves the tab stop between the root and a handle mounting or unmounting later', async () => {
-      function Card({ withHandle }: { withHandle: boolean }) {
-        return (
-          <Draggable.Root kind={testDragKind} data-testid="card">
-            {withHandle && (
-              <Draggable.Handle data-testid="handle" render={<button type="button" />}>
-                grip
-              </Draggable.Handle>
-            )}
-          </Draggable.Root>
-        );
-      }
-
-      const { rerender } = await renderDnd(<Card withHandle={false} />);
-      const card = screen.getByTestId('card');
-      expect(card).toHaveAttribute('tabindex', '0');
-      expect(card).toHaveAttribute('role', 'button');
-
-      // A handle mounting takes over pickup, so the root leaves the tab order.
-      await rerender(<Card withHandle />);
-      expect(card).not.toHaveAttribute('tabindex');
-      expect(card).not.toHaveAttribute('role');
-
-      // And unmounting it hands pickup — and the tab stop — back to the root.
-      await rerender(<Card withHandle={false} />);
-      expect(card).toHaveAttribute('tabindex', '0');
-      expect(card).toHaveAttribute('role', 'button');
     });
   });
 
@@ -1405,25 +915,6 @@ describe('Draggable.Root', () => {
       cancel();
       await flushRaf();
 
-      expect(document.querySelector('[data-drag-preview]')).toBeNull();
-      expect(source).not.toHaveAttribute('data-dragging');
-    });
-
-    it('clones the source for a keyboard pickup too', async () => {
-      rtlRender(<PlainDraggable />);
-      const source = screen.getByTestId('drag');
-      source.getBoundingClientRect = () => new DOMRect(0, 0, 200, 100);
-
-      source.focus();
-      fireEvent.keyDown(source, { key: ' ' });
-      await flushRaf();
-
-      const clone = document.querySelector('[data-drag-preview]') as HTMLElement;
-      expect(clone).toHaveClass('Card');
-      expect(source).toHaveAttribute('data-dragging');
-
-      fireEvent.keyDown(source, { key: 'Escape' });
-      await flushRaf();
       expect(document.querySelector('[data-drag-preview]')).toBeNull();
       expect(source).not.toHaveAttribute('data-dragging');
     });
@@ -1685,56 +1176,6 @@ describe('Draggable.Root', () => {
       expect(document.querySelector('.Card[data-drag-preview]')).not.toBeNull();
     });
 
-    it('tracks arrow keys, and clamps to its modifiers, during a keyboard drag', async () => {
-      const committedXs: number[] = [];
-      function BoundedDraggable() {
-        const boundsRef = React.useRef<HTMLDivElement>(null);
-        return (
-          <React.Fragment>
-            <div ref={boundsRef} data-testid="bounds" />
-            <Draggable.Root
-              kind={testDragKind}
-              data-testid="drag"
-              className="Card"
-              onDrag={({ location }) => {
-                committedXs.push(location.current.input.clientX);
-              }}
-            >
-              <Draggable.ClonedPreview
-                modifiers={Draggable.restrictToElement(boundsRef)}
-                offset="pointer"
-              />
-            </Draggable.Root>
-          </React.Fragment>
-        );
-      }
-
-      await renderDnd(<BoundedDraggable />);
-      const source = screen.getByTestId('drag');
-      source.getBoundingClientRect = () => new DOMRect(0, 0, 40, 20);
-      // A bounds element far narrower than the keyboard step, so one press overshoots it.
-      screen.getByTestId('bounds').getBoundingClientRect = () => new DOMRect(0, 0, 40, 20);
-
-      source.focus();
-      fireEvent.keyDown(source, { key: ' ' });
-      await flushRaf();
-
-      const clone = document.querySelector('.Card[data-drag-preview]') as HTMLElement;
-      expect(clone).not.toBeNull();
-      clone.getBoundingClientRect = () => new DOMRect(0, 0, 10, 10);
-
-      // A preview part's modifiers apply to keyboard drags the same way they
-      // do to pointer drags; arrowing past the edge must pin rather than run off.
-      fireEvent.keyDown(source, { key: 'ArrowRight' });
-      await flushRaf();
-
-      const x = Number(/^(-?[\d.]+)px/.exec(clone.style.translate)![1]);
-      expect(x).toBeLessThanOrEqual(30);
-      // Preview modifiers never enter the session modifier pipeline: keyboard
-      // collision and the public input continue past the visual clamp.
-      expect(committedXs.at(-1)).toBeGreaterThan(40);
-    });
-
     it('swaps back to a Draggable.Preview in a single commit', async () => {
       // The reverse order: a host declaring after a clone's cleanup.
       function Swappable(props: { cloned: boolean }) {
@@ -1766,7 +1207,7 @@ describe('Draggable.Root', () => {
 
   describe('Draggable.Preview', () => {
     function DraggableWithPreview(props: {
-      options?: Partial<Draggable.Root.Props>;
+      options?: Partial<Draggable.Root.Props<any>>;
       preview?: Draggable.Preview.Props['children'];
       previewProps?: Omit<Draggable.Preview.Props, 'children'>;
       testId?: string;
@@ -2016,10 +1457,8 @@ describe('Draggable.Root', () => {
     it('builds the preview from the drag payload when the children are a function', async () => {
       renderWithPreviewProvider(
         <DraggableWithPreview
-          preview={({ source, mode }) => (
-            <span data-testid="preview">{`${mode}:${source.label}`}</span>
-          )}
-          options={{ label: 'card-1' }}
+          preview={({ source }) => <span data-testid="preview">{source.payload as string}</span>}
+          options={{ payload: 'card-1' }}
         />,
       );
       const source = screen.getByTestId('drag');
@@ -2029,7 +1468,7 @@ describe('Draggable.Root', () => {
       // eslint-disable-next-line testing-library/no-unnecessary-act -- flushing the detached fallback root, not the RTL tree
       await act(async () => {});
 
-      expect(screen.getByTestId('preview')).toHaveTextContent('pointer:card-1');
+      expect(screen.getByTestId('preview')).toHaveTextContent('card-1');
     });
 
     it('invokes an offset callback with the overlay element', async () => {
@@ -2083,20 +1522,6 @@ describe('Draggable.Root', () => {
       const overlay = screen.getByTestId('preview').closest('[data-drag-preview]') as HTMLElement;
       expect(overlay.style.getPropertyValue('--drag-source-width')).toBe('200px');
       expect(overlay.style.getPropertyValue('--drag-source-height')).toBe('100px');
-    });
-
-    it('renders the preview for a keyboard drag too', async () => {
-      await renderDnd(<DraggableWithPreview preview={<span data-testid="preview">kbd</span>} />);
-      const source = screen.getByTestId('drag');
-      source.getBoundingClientRect = () => new DOMRect(0, 0, 200, 100);
-
-      // Keyboard pick-up publishes its own preview handle, so the overlay
-      // adopts it just like a pointer drag.
-      source.focus();
-      fireEvent.keyDown(source, { key: ' ' });
-      await flushRaf();
-
-      expect(screen.getByTestId('preview')).toHaveTextContent('kbd');
     });
 
     it('clamps the preview to a modifiers element when the pointer leaves it', async () => {
@@ -2585,202 +2010,12 @@ describe('Draggable.Root', () => {
     });
   });
 
-  describe('localization', () => {
-    function liveRegionText(): string {
-      return document.querySelector('[aria-live="polite"]')?.textContent ?? '';
-    }
-
-    it('localizes aria-roledescription and the keyboard instructions', async () => {
-      await renderDnd(<TestDraggable />, { wrapper: FrenchProvider });
-      const el = screen.getByTestId('drag');
-      expect(el.getAttribute('aria-roledescription')).toBe('déplaçable');
-      const describedBy = el.getAttribute('aria-describedby');
-      expect(document.getElementById(describedBy!)?.textContent).toContain('Échap pour annuler');
-    });
-
-    it('keeps a custom ariaRoleDescription over the localized default', async () => {
-      await renderDnd(<TestDraggable options={{ ariaRoleDescription: 'carte déplaçable' }} />, {
-        wrapper: FrenchProvider,
-      });
-      expect(screen.getByTestId('drag').getAttribute('aria-roledescription')).toBe(
-        'carte déplaçable',
-      );
-    });
-
-    it('announces a keyboard drag in the provider language', async () => {
-      await renderDnd(<TestDraggable />, { wrapper: FrenchProvider });
-      const el = screen.getByTestId('drag');
-      el.focus();
-      fireEvent.keyDown(el, { key: ' ' });
-      expect(liveRegionText()).toBe(
-        'test-draggable saisi. Utilisez les flèches pour déplacer, Espace ou Entrée pour déposer, Échap pour annuler.',
-      );
-
-      await flushRaf();
-      fireEvent.keyDown(el, { key: 'Escape' });
-      // `canceled` is not overridden, so it falls back to the French default.
-      expect(liveRegionText()).toBe('Déplacement de test-draggable annulé.');
-    });
-
-    it('routes the moved announcement through the locale default', async () => {
-      // The stock locales stay silent on `moved` (they only speak with a
-      // position phrase), so a locale overriding `dragAnnouncementMoved` proves
-      // the React wrapper falls back to the locale default rather than
-      // hard-coding silence.
-      const translations = {
-        ...frFR,
-        dragAnnouncementMoved: ({ label }: { label: string; positionPhrase: string | null }) =>
-          `${label} en mouvement.`,
-      };
-      function Provider({ children }: { children?: React.ReactNode }) {
-        return <LocalizationProvider translations={translations}>{children}</LocalizationProvider>;
-      }
-
-      await renderDnd(<TestDraggable />, { wrapper: Provider });
-      const el = screen.getByTestId('drag');
-      el.getBoundingClientRect = () => new DOMRect(0, 0, 200, 100);
-      el.focus();
-      fireEvent.keyDown(el, { key: ' ' });
-      await flushRaf();
-
-      fireEvent.keyDown(el, { key: 'ArrowDown' });
-      await flushRaf();
-      // Move announcements are debounced (held arrow keys would flood the queue).
-      await act(async () => {
-        await new Promise((resolve) => {
-          setTimeout(resolve, 300);
-        });
-      });
-
-      expect(liveRegionText()).toBe('test-draggable en mouvement.');
-
-      fireEvent.keyDown(el, { key: 'Escape' });
-    });
-
-    it('falls back to the localized generic label when the draggable has none', async () => {
-      await renderDnd(<TestDraggable options={{ label: undefined }} />, {
-        wrapper: FrenchProvider,
-      });
-      const el = screen.getByTestId('drag');
-      el.focus();
-      fireEvent.keyDown(el, { key: ' ' });
-      expect(liveRegionText()).toBe(
-        'élément saisi. Utilisez les flèches pour déplacer, Espace ou Entrée pour déposer, Échap pour annuler.',
-      );
-    });
-
-    it('merges a consumer announcement override under the localized defaults', async () => {
-      await renderDnd(
-        <TestDraggable options={{ keyboardAnnouncements: { pickedUp: () => 'Ramassé' } }} />,
-        {
-          wrapper: FrenchProvider,
-        },
-      );
-      const el = screen.getByTestId('drag');
-      el.focus();
-      fireEvent.keyDown(el, { key: ' ' });
-      expect(liveRegionText()).toBe('Ramassé');
-
-      await flushRaf();
-      fireEvent.keyDown(el, { key: 'Escape' });
-      // The non-overridden cancel still uses the French default.
-      expect(liveRegionText()).toBe('Déplacement de test-draggable annulé.');
-    });
-
-    it('gives draggables with different instructions their own node', async () => {
-      function Mixed() {
-        return (
-          <React.Fragment>
-            <DraggablePreviewProvider>
-              <TestDraggable testId="english" />
-            </DraggablePreviewProvider>
-            <LocalizationProvider translations={frFR}>
-              <DraggablePreviewProvider>
-                <TestDraggable testId="french" />
-              </DraggablePreviewProvider>
-            </LocalizationProvider>
-          </React.Fragment>
-        );
-      }
-      await render(<Mixed />);
-      // Each handle references its own language's instructions node rather than
-      // sharing (and clobbering) a single one.
-      const englishId = screen.getByTestId('english').getAttribute('aria-describedby');
-      const frenchId = screen.getByTestId('french').getAttribute('aria-describedby');
-      expect(englishId).not.toBe(frenchId);
-      expect(document.getElementById(englishId!)?.textContent).toContain('arrow keys');
-      expect(document.getElementById(frenchId!)?.textContent).toContain('Échap pour annuler');
-    });
-  });
-
-  describe('server rendering', () => {
-    const toServerHtml = (node: React.ReactElement) => ReactDOMServer.renderToString(node);
-
-    it('emits no tabIndex or role until the mount commit resolves whether a handle exists', () => {
-      // Handles announce themselves only through a client ref callback, so the
-      // server cannot know whether one exists. Emitting `tabIndex={0}` there
-      // would put a second tab stop next to every SSR'd handle; emitting nothing
-      // means a handle-less draggable is not keyboard-reachable until hydration.
-      // That trade-off is deliberate — the docs tell SSR apps to pass `tabIndex`
-      // and `role` explicitly — and this pins which side of it we are on.
-      expect(
-        toServerHtml(<Draggable.Root kind={testDragKind} data-testid="source" />),
-      ).not.toContain('tabindex');
-      expect(
-        toServerHtml(<Draggable.Root kind={testDragKind} data-testid="source" />),
-      ).not.toContain('role=');
-    });
-
-    it('honours an explicit tabIndex and role in the server HTML', () => {
-      const withExplicitProps = (
-        <Draggable.Root kind={testDragKind} tabIndex={0} role="button" data-testid="source" />
-      );
-
-      expect(toServerHtml(withExplicitProps)).toContain('tabindex="0"');
-      expect(toServerHtml(withExplicitProps)).toContain('role="button"');
-    });
-
-    it.each([
-      ['without a handle', false],
-      ['with a handle', true],
-    ])('hydrates %s without a mismatch and resolves one tab stop', (_name, withHandle) => {
-      const node = (
-        <Draggable.Root kind={testDragKind} data-testid="source">
-          {withHandle ? <Draggable.Handle data-testid="handle" /> : null}
-        </Draggable.Root>
-      );
-      const container = document.createElement('div');
-      container.innerHTML = toServerHtml(node);
-      document.body.appendChild(container);
-      const recoverableErrors: unknown[] = [];
-      let root!: ReactDOMClient.Root;
-      act(() => {
-        root = ReactDOMClient.hydrateRoot(container, node, {
-          onRecoverableError: (error) => recoverableErrors.push(error),
-        });
-      });
-
-      try {
-        expect(recoverableErrors).toEqual([]);
-        const source = container.querySelector<HTMLElement>('[data-testid="source"]')!;
-        const handle = container.querySelector<HTMLElement>('[data-testid="handle"]');
-        expect(Array.from(container.querySelectorAll('[tabindex="0"]'))).toEqual([
-          withHandle ? handle : source,
-        ]);
-      } finally {
-        act(() => root.unmount());
-        container.remove();
-      }
-    });
-  });
-
   describe('parts outside the root', () => {
     // The error exists so a misplaced part fails loudly instead of silently
     // configuring nothing; nothing pinned that it actually fires.
     it.each([
       ['Draggable.Handle', <Draggable.Handle key="h" />],
       ['Draggable.ClonedPreview', <Draggable.ClonedPreview key="c" />],
-      ['Draggable.Displacement', <Draggable.Displacement key="d" />],
     ])('throws when %s is rendered outside Draggable.Root', (_name, element) => {
       // React logs the uncaught render error through console.error in dev.
       const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});

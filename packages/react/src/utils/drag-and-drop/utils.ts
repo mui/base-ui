@@ -68,6 +68,8 @@ export function getDragEventRoot(node: Element): Document | ShadowRoot {
   return isShadowRoot(root) ? root : ownerDocument(node);
 }
 
+const EMPTY_SHADOW_ROOTS: readonly ShadowRoot[] = [];
+
 /**
  * Hit-test what sits under (`clientX`, `clientY`), descending into open shadow
  * roots: `elementFromPoint` on the document stops at the shadow *host*, so a drop
@@ -85,10 +87,13 @@ export function deepElementFromPoint(
   doc: Document,
   clientX: number,
   clientY: number,
-  retainedShadowRoots: Iterable<ShadowRoot> = [],
+  retainedShadowRoots: Iterable<ShadowRoot> = EMPTY_SHADOW_ROOTS,
 ): Element | null {
-  const rootsByHost = new Map<Element, ShadowRoot>();
+  // Allocated on the first retained root only: this runs on every pointer frame,
+  // and the retained-root registry is empty in almost every app.
+  let rootsByHost: Map<Element, ShadowRoot> | null = null;
   for (const retained of retainedShadowRoots) {
+    rootsByHost ??= new Map<Element, ShadowRoot>();
     let root: Node = retained;
     // A target's retained root can itself be nested in a closed outer root.
     // Walking out through each host recovers those otherwise-invisible roots
@@ -99,14 +104,14 @@ export function deepElementFromPoint(
     }
   }
   let hit = doc.elementFromPoint?.(clientX, clientY) ?? null;
-  let innerRoot = hit ? (hit.shadowRoot ?? rootsByHost.get(hit)) : undefined;
+  let innerRoot = hit ? (hit.shadowRoot ?? rootsByHost?.get(hit)) : undefined;
   while (innerRoot) {
     const inner = innerRoot.elementFromPoint?.(clientX, clientY);
     if (!inner || inner === hit) {
       break;
     }
     hit = inner;
-    innerRoot = hit.shadowRoot ?? rootsByHost.get(hit);
+    innerRoot = hit.shadowRoot ?? rootsByHost?.get(hit);
   }
   return hit;
 }
@@ -125,9 +130,14 @@ export function elementFromPointIgnoring(
   clientX: number,
   clientY: number,
   ignore: HTMLElement | null,
-  retainedShadowRoots: Iterable<ShadowRoot> = [],
+  retainedShadowRoots: Iterable<ShadowRoot> = EMPTY_SHADOW_ROOTS,
 ): Element | null {
-  const shadowRoots = [...retainedShadowRoots];
+  // The registry hands out a one-shot iterator and the hit-test below may run
+  // twice, so the roots are collected — but only once there is one to collect.
+  let shadowRoots: ShadowRoot[] | undefined;
+  for (const root of retainedShadowRoots) {
+    (shadowRoots ??= []).push(root);
+  }
   const found = deepElementFromPoint(doc, clientX, clientY, shadowRoots);
   if (!found || ignore == null || !contains(ignore, found)) {
     return found;
@@ -183,8 +193,7 @@ export function isDetachedDocument(doc: Document): boolean {
  * The layout viewport size. Prefers `documentElement.clientWidth/Height` over
  * `innerWidth/innerHeight`, which include the scrollbar gutter where
  * `elementFromPoint` resolves nothing; falls back to the window size when layout
- * reports 0 (a detached document, or jsdom). Shared by the keyboard sensor's
- * cursor clamp and `restrictToWindowEdges` so both agree on where the edge is.
+ * reports 0 (a detached document, or jsdom).
  */
 export function getViewportSize(win: Window): { width: number; height: number } {
   const docEl = win.document.documentElement;
@@ -196,8 +205,7 @@ export function getViewportSize(win: Window): { width: number; height: number } 
 
 /**
  * Whether the client point (`x`, `y`) lies within `rect`, inclusive of all four
- * edges. Shared by the auto-scroller (pointer-in-scroller test) and keyboard
- * collision (skip a container the cursor is already inside).
+ * edges. Shared by pointer hit testing and auto-scroll.
  */
 export function isPointInRect(
   x: number,
@@ -275,36 +283,6 @@ export function modifierKeysChanged(a: DragModifierKeys, b: DragModifierKeys): b
     a.altKey !== b.altKey ||
     a.metaKey !== b.metaKey
   );
-}
-
-/**
- * Build a synthetic `DragInput` for the keyboard sensor, which has no real pointer
- * event. `pointerType` is `null` (there is no pointer device); the keyboard
- * modality is carried by `DragMode` instead.
- *
- * `keys` are the modifier flags of the keydown that drove the move, so a keyboard drag
- * reports the same key state a pointer drag does. Omit them where no event is in hand.
- */
-export function createSyntheticInput(
-  reference: Element,
-  clientX: number,
-  clientY: number,
-  keys: DragModifierKeys = NO_MODIFIER_KEYS,
-): DragInput {
-  const win = ownerWindow(reference);
-  return {
-    button: 0,
-    buttons: 0,
-    clientX,
-    clientY,
-    pageX: clientX + win.scrollX,
-    pageY: clientY + win.scrollY,
-    pointerType: null,
-    ctrlKey: keys.ctrlKey,
-    shiftKey: keys.shiftKey,
-    altKey: keys.altKey,
-    metaKey: keys.metaKey,
-  };
 }
 
 /**

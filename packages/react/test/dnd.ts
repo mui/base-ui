@@ -9,15 +9,11 @@ import { act, fireEvent } from '@mui/internal-test-utils';
 import { installDndPolyfill } from './dndPolyfill';
 import { reset, isActive as isDragActive } from '../src/utils/drag-and-drop/core/lifecycleManager';
 import { resetForTests as resetSyntheticSensor } from '../src/utils/drag-and-drop/synthetic/syntheticSensor';
-import { resetForTests as resetKeyboardSensor } from '../src/utils/drag-and-drop/keyboard/keyboardSensor';
-import { resetAnnouncerForTests } from '../src/utils/drag-and-drop/a11y/liveAnnouncer';
-import { resetKeyboardInstructionsForTests } from '../src/utils/drag-and-drop/a11y/keyboardInstructions';
 import { resetForTests as resetDropTargets } from '../src/utils/drag-and-drop/dropTarget';
 import { resetForTests as resetDragRootLock } from '../src/utils/drag-and-drop/synthetic/dragRootLock';
 import { resetForTests as resetDragCursor } from '../src/utils/drag-and-drop/synthetic/dragCursor';
 import { resetForTests as resetPostDragClick } from '../src/utils/drag-and-drop/synthetic/postDragClick';
 import { resetForTests as resetAutoScroller } from '../src/utils/drag-and-drop/autoScroller';
-import { resetDisplacementForTests } from '../src/utils/drag-and-drop/displacement';
 import { clearPublishedDragPreview } from '../src/utils/drag-and-drop/overlay/dragPreviewStore';
 import { resetTouchTarget } from './syntheticPointer';
 
@@ -418,7 +414,6 @@ export function resetDrag(): void {
   act(() => {
     reset();
     resetSyntheticSensor();
-    resetKeyboardSensor();
     // The published preview is React state, so it has to be cleared inside `act`
     // like the rest. A test that aborts mid-drag would otherwise leave the
     // overlay rendering the previous test's preview.
@@ -435,15 +430,9 @@ export function resetDrag(): void {
   // scheduling frames — and calling `scrollBy` — into the next test, while
   // holding the previous test's detached source alive.
   resetAutoScroller();
-  resetAnnouncerForTests();
-  resetKeyboardInstructionsForTests();
   // Clear any drop targets still registered on detached nodes so a failed/aborted
   // test can't leak them into the next one.
   resetDropTargets();
-  // A test that fails mid-drag would otherwise leave the displacement window
-  // open (plus a live store subscription), and the next test's first commit
-  // would animate.
-  resetDisplacementForTests();
   restoreElementFromPoint();
   bridgeSource = null;
   // Clear the synthetic-pointer helpers' latched touch target so one test's

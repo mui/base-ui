@@ -16,7 +16,6 @@ export default function DropTargetHero() {
           className={styles.Item}
           data-dropped={dropped || undefined}
           kind={itemKind}
-          label="Item"
           role="button"
           tabIndex={0}
         >
@@ -30,7 +29,6 @@ export default function DropTargetHero() {
       </div>
       <DropTarget.Root
         className={styles.Target}
-        label="Drop zone"
         // @highlight-start
         accept={itemKind}
         onDrop={() => setDropped(true)}

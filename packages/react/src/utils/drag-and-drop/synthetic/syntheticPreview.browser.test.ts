@@ -39,7 +39,7 @@ describe.skipIf(isJSDOM)('syntheticPreview drop transition', () => {
       const clone = createDragPreviewElement(source, { content: 'clone' });
       expect(clone).not.toBeNull();
 
-      const preview = createSyntheticPreview(source, 'pointer');
+      const preview = createSyntheticPreview(source);
       preview.setPreviewElement(clone);
       preview.update(10, 20);
       preview.markSourceDragging();

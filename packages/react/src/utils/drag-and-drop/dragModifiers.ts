@@ -1,7 +1,7 @@
 /**
  * The prebuilt `modifiers`. A modifier clamps or snaps the drag point
  * each frame: on `Draggable.Root` it governs the preview, the drop hit-test and
- * the keyboard's virtual cursor; on a preview part it governs the preview alone.
+ * the pointer hit test; on a preview part it governs the preview alone.
  */
 
 import { ownerWindow } from '@base-ui/utils/owner';
@@ -20,7 +20,6 @@ import type {
   DragModifierKeys,
   DragModifiers,
   DragElementReference,
-  DragMode,
   DragPosition,
 } from '../../types/drag';
 
@@ -171,7 +170,6 @@ interface ApplyDragModifiersOptions {
   sourceRect: DOMRect;
   scale: DragPosition;
   previewOffset: DragPosition;
-  mode: DragMode;
   /** The modifier keys held by the event that produced this move. */
   keys: DragModifierKeys;
   ownerWindow: Window;
@@ -198,8 +196,8 @@ export function applyDragModifiers(
     }
     return previewRect;
   };
-  // Contained: modifiers run inside the pointer sensor's animation frame and
-  // the keydown handler, where an uncaught throw would strand the drag. One
+  // Contained: modifiers run inside the pointer sensor's animation frame, where
+  // an uncaught throw would strand the drag. One
   // unconstrained move beats a broken gesture.
   return containConsumerError(
     'Base UI: a drag "modifiers" function threw, leaving this move unconstrained.',
@@ -218,7 +216,6 @@ export function applyDragModifiers(
             return readPreviewRect();
           },
           previewOffset: options.previewOffset,
-          mode: options.mode,
           ctrlKey: options.keys.ctrlKey,
           shiftKey: options.keys.shiftKey,
           altKey: options.keys.altKey,
@@ -274,7 +271,6 @@ export function createDragModifiersState(
   declared: DragModifiers | undefined,
   sourceElement: HTMLElement,
   startPoint: DragPosition,
-  mode: DragMode,
   options: {
     /** The pickup event's modifier keys, for the initial apply. */
     keys?: DragModifierKeys | undefined;
@@ -300,13 +296,12 @@ export function createDragModifiersState(
   // No preview exists yet at drag start; rect modifiers clamp the bare point. The keys
   // are the pickup event's, so a drag begun with a modifier already held starts
   // constrained rather than waiting for the first move.
-  state.initialPoint = modifyDragPoint(state, startPoint, mode, null, keys);
+  state.initialPoint = modifyDragPoint(state, startPoint, null, keys);
   return state;
 }
 
 /**
- * Apply a session's compiled modifiers to a sensor point (the cursor, or the
- * keyboard's virtual cursor). The preview handle supplies the measures only some
+ * Apply a session's compiled modifiers to a pointer position. The preview handle supplies the measures only some
  * modifiers read: its rect, and the offset from its top-left to the cursor, so
  * rect modifiers contain the preview rather than the bare cursor.
  * @internal
@@ -314,7 +309,6 @@ export function createDragModifiersState(
 export function modifyDragPoint(
   state: DragModifiersState,
   point: DragPosition,
-  mode: DragMode,
   preview: ModifierPreviewLike | null,
   keys: DragModifierKeys = NO_MODIFIER_KEYS,
 ): DragPosition {
@@ -325,7 +319,6 @@ export function modifyDragPoint(
     sourceRect: state.sourceRect,
     scale: state.scale,
     previewOffset: preview?.getPreviewOffset() ?? ZERO_OFFSET,
-    mode,
     keys,
     ownerWindow: ownerWindow(state.sourceElement),
     getPreviewRect: () => preview?.getPreviewElement()?.element.getBoundingClientRect() ?? null,

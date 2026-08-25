@@ -59,7 +59,6 @@ function Puck({
     <Draggable.Root
       className={styles.Puck}
       kind={puckKind}
-      label="Puck"
       // @highlight-start
       pointerActivation={mode.activation}
       // @highlight-end
@@ -144,7 +143,6 @@ export default function ActivationLab() {
           <DropTarget.Root
             className={styles.Target}
             accept={puckKind}
-            label="Target"
             onDrop={() => {
               setDropped(true);
               setPhase('dropped');

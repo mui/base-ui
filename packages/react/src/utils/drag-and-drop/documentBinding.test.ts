@@ -55,17 +55,7 @@ function dispatchPointer(
   });
 }
 
-/** Dispatch a `keydown` inside `act` (the capture listener lives on the window). */
-function pressKey(target: EventTarget, key: string): void {
-  act(() => {
-    target.dispatchEvent(new KeyboardEvent('keydown', { key, bubbles: true, cancelable: true }));
-  });
-}
-
-function callsOfType(
-  spy: { mock: { calls: unknown[][] } },
-  type: 'pointerdown' | 'keydown',
-): number {
+function callsOfType(spy: { mock: { calls: unknown[][] } }, type: 'pointerdown'): number {
   return spy.mock.calls.filter(([eventType]) => eventType === type).length;
 }
 
@@ -103,45 +93,46 @@ describe('documentBinding', () => {
     // Documents keep a capture path for light DOM plus a bubble fallback for
     // events deliberately deferred to an inner closed-shadow binding.
     expect(callsOfType(addSpy, 'pointerdown')).toBe(2);
-    expect(callsOfType(addSpy, 'keydown')).toBe(2);
 
     // A second draggable in the same document reuses the installed listeners.
     const cleanupSecond = engine.registerDraggable(second, {});
     expect(callsOfType(addSpy, 'pointerdown')).toBe(2);
-    expect(callsOfType(addSpy, 'keydown')).toBe(2);
 
     // Releasing a non-last holder keeps the listeners installed.
     cleanupFirst();
     expect(callsOfType(removeSpy, 'pointerdown')).toBe(0);
-    expect(callsOfType(removeSpy, 'keydown')).toBe(0);
 
     // The last holder tears them down.
     cleanupSecond();
     expect(callsOfType(removeSpy, 'pointerdown')).toBe(2);
-    expect(callsOfType(removeSpy, 'keydown')).toBe(2);
   });
 
-  it('defers the keydown teardown while a keyboard drag from that document is active', async () => {
+  it('walks the composed path only once a shadow root is bound', async () => {
     const { engine } = await renderDnd();
     const { doc, win } = createIframeRealm();
-    const removeSpy = vi.spyOn(win, 'removeEventListener');
+    const addSpy = vi.spyOn(win, 'addEventListener');
     const el = createIframeElement(doc);
-    const cleanup = engine.registerDraggable(el, {});
+    engine.registerDraggable(el, {});
+    const pointerListeners = addSpy.mock.calls
+      .filter(([type]) => type === 'pointerdown')
+      .map(([, listener]) => listener as EventListener);
+    expect(pointerListeners).toHaveLength(2);
 
-    pressKey(el, ' ');
-    expect(dragSessionStore.getSnapshot()?.mode).toBe('keyboard');
+    // The window wrappers see every press on the page; with nothing bound in a
+    // shadow tree there is no path to check, so none is materialized.
+    const event = new Event('pointerdown');
+    const composedPath = vi.spyOn(event, 'composedPath');
+    pointerListeners.forEach((listener) => listener(event));
+    expect(composedPath).not.toHaveBeenCalled();
 
-    // The dragged source was the last draggable in its document: the ref-count
-    // hits zero, but removing the keydown listener now would leave the live
-    // drag uncontrollable — the cleanup must be deferred to the session's end.
-    act(() => cleanup());
-    expect(callsOfType(removeSpy, 'keydown')).toBe(0);
+    const host = createIframeElement(doc);
+    const shadow = host.attachShadow({ mode: 'closed' });
+    const inner = doc.createElement('div');
+    shadow.appendChild(inner);
+    engine.registerDraggable(inner, {});
 
-    // Escape still reaches the (deferred) listener and cancels; the two shared
-    // listener cleanups plus the session-owned continuation listener run once
-    // the session ends.
-    pressKey(el, 'Escape');
-    expect(dragSessionStore.getSnapshot()).toBeNull();
-    expect(callsOfType(removeSpy, 'keydown')).toBe(3);
+    composedPath.mockReturnValue([host]);
+    pointerListeners.forEach((listener) => listener(event));
+    expect(composedPath).toHaveBeenCalledTimes(2);
   });
 });

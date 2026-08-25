@@ -157,7 +157,7 @@ export function setupPlugin(
 
   // The drag engine is global, but a preview with content renders in the React
   // tree a `Draggable.PreviewProvider` supplies, so item drag previews need one.
-  // Any caller-supplied wrapper (e.g. a `LocalizationProvider`) stays outside it
+  // Any caller-supplied wrapper stays outside it
   // so the drag engine reads the active translations.
   const Outer = renderOptions?.wrapper ?? React.Fragment;
   const wrapper: React.JSXElementConstructor<{ children: React.ReactNode }> = ({ children }) =>

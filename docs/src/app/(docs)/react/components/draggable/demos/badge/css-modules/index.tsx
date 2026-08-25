@@ -44,13 +44,7 @@ function Grip() {
 
 function Widget({ widget }: { widget: WidgetData }) {
   return (
-    <Draggable.Root
-      label={`${widget.title} widget`}
-      kind={widgetKind}
-      payload={widget.id}
-      role="button"
-      className={styles.Widget}
-    >
+    <Draggable.Root kind={widgetKind} payload={widget.id} role="button" className={styles.Widget}>
       <div className={styles.WidgetHeader}>
         <Grip />
         <span>{widget.title}</span>
@@ -82,9 +76,9 @@ function DockSlot({
 }) {
   return (
     <DropTarget.Root
+      aria-label={label}
       className={styles.Slot}
       data-empty={widget ? undefined : ''}
-      label={label}
       accept={widgetKind}
       canDrop={() => widget === undefined}
       onDrop={({ source }) => onMoveWidget(source.payload, id)}

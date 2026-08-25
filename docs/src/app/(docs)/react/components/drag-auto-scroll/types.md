@@ -168,11 +168,8 @@ type DragInput = {
   pageX: number;
   /** Pointer Y relative to the document, in CSS pixels (includes scroll). */
   pageY: number;
-  /**
-   * The pointer device that produced this input, or `null` for a keyboard drag.
-   * Read the event's `mode` to detect a keyboard drag.
-   */
-  pointerType: DragPointerType | null;
+  /** The pointer device that produced this input. */
+  pointerType: DragPointerType;
   /** Whether the Control key was held. */
   ctrlKey: boolean;
   /** Whether the Shift key was held. */
@@ -197,11 +194,6 @@ this contract and would use a separate adapter and event family.
 type DragSource<TData = unknown> = {
   /** The draggable's own DOM element. */
   element: HTMLElement;
-  /**
-   * Human-readable name supplied by the draggable's `label`, used by the default
-   * screen-reader announcements. `undefined` when the source was registered without one.
-   */
-  label: string | undefined;
   /**
    * Identity of the kind supplied by the draggable's `kind`. Test it with the kind's
    * `matches`, which narrows `payload` at the same time.

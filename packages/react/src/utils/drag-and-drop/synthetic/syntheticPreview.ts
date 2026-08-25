@@ -1,7 +1,7 @@
 import { ownerWindow } from '@base-ui/utils/owner';
 import { WindowAnimationFrame } from '../../windowAnimationFrame';
 import type { DragPreviewElementHandle } from './cloneDragPreview';
-import type { DragModifier, DragModifierKeys, DragMode, DragPosition } from '../../../types/drag';
+import type { DragModifier, DragModifierKeys, DragPosition } from '../../../types/drag';
 import { applyDragModifiers } from '../dragModifiers';
 import { getSharedSlot } from '../sharedState';
 import { getElementScale, NO_MODIFIER_KEYS } from '../utils';
@@ -19,13 +19,6 @@ const DEFAULT_SCALE: DragPosition = { x: 1, y: 1 };
  */
 const DRAGGING_ATTR = 'data-dragging';
 
-/**
- * Set to the drag's input modality (`'pointer'` or `'keyboard'`) on both the source
- * and the preview, so CSS can tell the two apart. The main use is easing the
- * preview's `translate` for keyboard drags — which jump between discrete positions —
- * while leaving pointer drags to track the cursor without lag.
- */
-const DRAG_MODE_ATTR = 'data-drag-mode';
 const ENDING_STYLE_ATTR = 'data-ending-style';
 
 // A new pickup from the same source interrupts its previous drop transition.
@@ -81,7 +74,6 @@ export function retargetEndingPreviewSource(
 
 export function createSyntheticPreview(
   initialSourceElement: Element,
-  mode: DragMode,
   sourceIdentity?: SyntheticPreviewSourceIdentity,
 ): SyntheticPreviewHandle {
   // Re-pointed when a virtualizer remounts the dragged item to a fresh node, so the
@@ -93,19 +85,13 @@ export function createSyntheticPreview(
 
   // The element that follows the pointer: a clone of the source, or the host a
   // `Draggable.Preview` renders into. Either way it lives in the source's own DOM
-  // position, and both sensors drive `update`, so it works for pointer and keyboard
-  // drags alike.
+  // position, and the sensor drives `update`.
   let previewElement: DragPreviewElementHandle | null = null;
   let previewOffsetX = 0;
   let previewOffsetY = 0;
   let lastX = 0;
   let lastY = 0;
   let hasPosition = false;
-  // The preview is tagged with `data-drag-mode` only after it has been positioned
-  // once, so easing a keyboard drag's `translate` never animates the jump from the
-  // preview's off-screen parking spot to the pickup point. Reset when a new preview
-  // element is adopted.
-  let previewModeApplied = false;
   // Opt-in preview-level `modifiers`, compiled to a non-empty list, or
   // `null` for none. Constrains where the preview is drawn without touching the
   // drag itself (the root's `modifiers` does that).
@@ -172,7 +158,6 @@ export function createSyntheticPreview(
             scale: previewScale,
             // `point` is the top-left itself here, so the offset is zero.
             previewOffset: ZERO_OFFSET,
-            mode,
             keys: lastKeys,
             ownerWindow: ownerWindow(element),
             getPreviewRect: () => element.getBoundingClientRect(),
@@ -195,17 +180,6 @@ export function createSyntheticPreview(
         positionedX = proposedX;
         positionedY = proposedY;
       }
-      if (!previewModeApplied) {
-        previewModeApplied = true;
-        // Wait a frame so this first position is committed before the transition
-        // turns on — otherwise a keyboard drag would ease in from off-screen.
-        const { element } = previewElement;
-        WindowAnimationFrame.request(() => {
-          if (!destroyed && previewElement?.element === element) {
-            element.setAttribute(DRAG_MODE_ATTR, mode);
-          }
-        }, ownerWindow(element));
-      }
     }
   }
 
@@ -216,7 +190,6 @@ export function createSyntheticPreview(
 
     const previousSource = sourceElement;
     previousSource.removeAttribute(DRAGGING_ATTR);
-    previousSource.removeAttribute(DRAG_MODE_ATTR);
     previousSource.removeAttribute(ENDING_STYLE_ATTR);
     if (endingCleanup && endingPreviews.get(previousSource) === endingCleanup) {
       endingPreviews.delete(previousSource);
@@ -233,7 +206,6 @@ export function createSyntheticPreview(
       endingPreviews.set(sourceElement, endingCleanup);
     }
     sourceElement.setAttribute(DRAGGING_ATTR, '');
-    sourceElement.setAttribute(DRAG_MODE_ATTR, mode);
     if (endingCleanup) {
       sourceElement.setAttribute(ENDING_STYLE_ATTR, '');
     }
@@ -260,7 +232,6 @@ export function createSyntheticPreview(
       positionedElement = null;
       previewScale = DEFAULT_SCALE;
       previewScaleMeasured = false;
-      previewModeApplied = false;
       previewOffsetX = offset?.x ?? 0;
       previewOffsetY = offset?.y ?? 0;
       initialProposed = null;
@@ -274,14 +245,12 @@ export function createSyntheticPreview(
       // the source's geometry (or hides it outright) would otherwise corrupt the
       // measurement the clone is sized from.
       sourceElement.setAttribute(DRAGGING_ATTR, '');
-      sourceElement.setAttribute(DRAG_MODE_ATTR, mode);
     },
     retargetSource,
     setPreviewOffset(offset: DragPosition): void {
       // A `Draggable.Preview` whose offset is a callback can only be resolved once React
       // has rendered its content and the element has a size, which happens after
       // the engine placed it. Re-anchor it then, without waiting for a pointer move
-      // (a keyboard drag has no frame loop to self-heal).
       previewOffsetX = offset.x;
       previewOffsetY = offset.y;
       initialProposed = null;
@@ -337,7 +306,6 @@ export function createSyntheticPreview(
           if (endingPreviews.get(sourceElement) === cleanup) {
             endingPreviews.delete(sourceElement);
             sourceElement.removeAttribute(DRAGGING_ATTR);
-            sourceElement.removeAttribute(DRAG_MODE_ATTR);
             sourceElement.removeAttribute(ENDING_STYLE_ATTR);
           }
           endingCleanup = null;
@@ -389,7 +357,6 @@ export function createSyntheticPreview(
 
       endingPreview?.destroy();
       sourceElement.removeAttribute(DRAGGING_ATTR);
-      sourceElement.removeAttribute(DRAG_MODE_ATTR);
     },
   };
 }

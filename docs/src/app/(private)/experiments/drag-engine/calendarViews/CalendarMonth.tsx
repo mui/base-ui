@@ -252,11 +252,10 @@ function MonthEventBar(props: { event: CalendarEvent; segment: WeekEventSegment 
 
   return (
     <Draggable.Root
-      label={event.title}
       kind={calEventMoveKind}
       // The day cells form a grid the default navigation already walks; the
       // preset removes the pixel-nudge fallback at the month's edges.
-      keyboardMovement={Draggable.targetsOnlyKeyboardMovement}
+
       payload={{
         eventId: eventRef.current.id,
         anchorStart: eventRef.current.start,
@@ -323,7 +322,7 @@ function MonthResizeHandle(props: { event: CalendarEvent; edge: 'start' | 'end' 
       kind={calEventResizeKind}
       // The handle is `aria-hidden`; without this it would still get
       // `tabIndex={0}` — focusable but invisible to screen readers.
-      keyboardActivation="off"
+
       payload={{
         eventId: eventRef.current.id,
         edge,

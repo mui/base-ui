@@ -75,7 +75,6 @@ function Lock() {
 function Widget({ widget }: { widget: WidgetData }) {
   return (
     <Draggable.Root
-      label={`${widget.title} widget`}
       kind={widgetKind}
       payload={widget.id}
       // @highlight-start
@@ -110,9 +109,9 @@ function DockSlot({
 }) {
   return (
     <DropTarget.Root
+      aria-label={label}
       className={styles.Slot}
       data-empty={widget ? undefined : ''}
-      label={label}
       accept={widgetKind}
       canDrop={() => widget === undefined}
       onDrop={({ source }) => onMoveWidget(source.payload, id)}

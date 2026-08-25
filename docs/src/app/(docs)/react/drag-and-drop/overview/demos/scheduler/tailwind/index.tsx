@@ -37,13 +37,11 @@ const DAY_COLUMN_CLASS =
   'relative box-border border border-l-0 border-neutral-200 first:border-l bg-[repeating-linear-gradient(to_bottom,var(--color-neutral-200)_0_1px,transparent_1px_64px)] transition-colors data-[drag-over]:bg-neutral-100 dark:border-neutral-700 dark:bg-[repeating-linear-gradient(to_bottom,var(--color-neutral-700)_0_1px,transparent_1px_64px)] dark:data-[drag-over]:bg-neutral-800';
 
 // The preview is a clone of the event, so it keeps these classes: `data-dragging`
-// dims the source, `data-drag-preview` lifts the clone above the grid, and the
-// keyboard drag mode eases the transform so slot-by-slot moves glide instead of
-// teleporting (pointer drags keep an instant transform to track the cursor).
+// dims the source and `data-drag-preview` lifts the clone above the grid.
 const EVENT_CLASS =
-  'absolute inset-x-1 box-border flex flex-col gap-0.5 border border-neutral-950 bg-white px-2 py-1 text-neutral-950 dark:border-white dark:bg-neutral-950 dark:text-white cursor-grab transition-[background-color,opacity] data-[dragging]:opacity-40 data-[drag-preview]:shadow-[0.25rem_0.25rem_0_rgb(0_0_0_/_12%)] dark:data-[drag-preview]:shadow-none data-[drag-preview]:data-[drag-mode=keyboard]:transition-transform data-[drag-preview]:data-[drag-mode=keyboard]:duration-150 data-[drag-preview]:data-[drag-mode=keyboard]:ease-out data-[drag-preview]:data-[drag-mode=keyboard]:outline-2 data-[drag-preview]:data-[drag-mode=keyboard]:-outline-offset-1 data-[drag-preview]:data-[drag-mode=keyboard]:outline-neutral-950 dark:data-[drag-preview]:data-[drag-mode=keyboard]:outline-white hover:bg-neutral-100 dark:hover:bg-neutral-800 focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-neutral-950 dark:focus-visible:outline-white';
+  'absolute inset-x-1 box-border flex flex-col gap-0.5 border border-neutral-950 bg-white px-2 py-1 text-neutral-950 dark:border-white dark:bg-neutral-950 dark:text-white cursor-grab transition-[background-color,opacity] data-[dragging]:opacity-40 data-[drag-preview]:shadow-[0.25rem_0.25rem_0_rgb(0_0_0_/_12%)] dark:data-[drag-preview]:shadow-none hover:bg-neutral-100 dark:hover:bg-neutral-800 focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-neutral-950 dark:focus-visible:outline-white';
 
-export default function KeyboardMovementCalendar() {
+export default function SchedulerCalendar() {
   const [event, setEvent] = React.useState<CalendarEvent>({ day: 1, minute: 60 });
   const gridRef = React.useRef<HTMLDivElement>(null);
 
@@ -66,8 +64,7 @@ export default function KeyboardMovementCalendar() {
   // The event position a drag would commit, read off the day column the engine
   // resolved: its payload names the day, and its snapped local point the slot.
   // `anchor: 'source'` shifts by the grab offset, so the event's top edge
-  // decides, wherever on it the user grabbed. Shared by the drop commit and
-  // the keyboard announcement so both agree.
+  // decides, wherever on it the user grabbed.
   const eventAfterDrag = (location: DragLocationHistory): CalendarEvent => {
     const column = location.current.dropTargets[0];
     if (!column || !dayColumnKind.matches(column)) {
@@ -135,7 +132,6 @@ export default function KeyboardMovementCalendar() {
           {DAYS.map((day, index) => (
             <DropTarget.Root
               key={day}
-              label={day}
               kind={dayColumnKind}
               payload={index}
               accept={eventKind}
@@ -149,7 +145,6 @@ export default function KeyboardMovementCalendar() {
             >
               {event.day === index && (
                 <Draggable.Root
-                  label="Design review"
                   kind={eventKind}
                   role="button"
                   className={EVENT_CLASS}
@@ -162,24 +157,7 @@ export default function KeyboardMovementCalendar() {
                   // horizontally. No bounds checks: the modifier clamps at the
                   // grid's edges, and a press that moves nothing announces the
                   // edge on its own.
-                  keyboardMovement={({ position, direction, findTarget }) => {
-                    if (direction.y !== 0) {
-                      return { x: position.x, y: position.y + direction.y * SLOT_HEIGHT };
-                    }
-                    const next = findTarget();
-                    if (!next) {
-                      return false; // already on the first/last day
-                    }
-                    const rect = next.getBoundingClientRect();
-                    return { x: rect.left + rect.width / 2, y: position.y };
-                  }}
-                  keyboardAnnouncements={{
-                    moved: ({ location }) => {
-                      const next = eventAfterDrag(location);
-                      return `${DAYS[next.day]}, ${formatTime(next.minute)}`;
-                    },
-                    reachedEdge: () => 'Edge of the calendar',
-                  }}
+
                   // Only a drop over an accepting slot moves the event; a cancel
                   // or a release off the grid never reaches `onDrop`.
                   onDrop={({ location }) => setEvent(eventAfterDrag(location))}

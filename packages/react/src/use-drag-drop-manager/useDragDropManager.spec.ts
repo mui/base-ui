@@ -215,19 +215,8 @@ engine.registerAutoScroller(element, () => ({
 engine.registerAutoScroller(element, () => ({ allowedAxis: 'diagonal' }));
 
 // ---------------------------------------------------------------------------
-// cancelDrag / startKeyboardDrag
+// cancelDrag
 // ---------------------------------------------------------------------------
 
-// The two methods that register nothing. `cancelDrag` takes nothing and returns
-// nothing; `startKeyboardDrag` names the source and reports whether it started.
+// The method registers nothing, takes nothing, and returns nothing.
 expectType<() => void, typeof engine.cancelDrag>(engine.cancelDrag);
-expectType<(element: HTMLElement | null) => boolean, typeof engine.startKeyboardDrag>(
-  engine.startKeyboardDrag,
-);
-
-// A ref that has emptied is accepted, so a deferred pickup needs no guard.
-const maybeElement: HTMLElement | null = null;
-engine.startKeyboardDrag(maybeElement);
-
-// @ts-expect-error the element is required — there is no "whichever is focused" default.
-engine.startKeyboardDrag();

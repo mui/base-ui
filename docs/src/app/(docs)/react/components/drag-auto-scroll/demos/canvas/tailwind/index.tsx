@@ -63,7 +63,6 @@ export default function CanvasPan() {
       >
         <div ref={contentRef} className="absolute inset-0 will-change-transform">
           <DropTarget.Root
-            label="Archive"
             accept={pinKind}
             className="absolute box-border flex h-[90px] w-[160px] items-center justify-center border border-dashed border-neutral-400 text-[0.875rem] leading-5 text-neutral-500 data-[drag-over]:border-solid data-[drag-over]:border-neutral-950 data-[drag-over]:text-neutral-950 dark:border-neutral-500 dark:text-neutral-400 dark:data-[drag-over]:border-white dark:data-[drag-over]:text-white"
             style={{ left: ARCHIVE.x, top: ARCHIVE.y }}
@@ -80,7 +79,6 @@ export default function CanvasPan() {
               key={pin.id}
               kind={pinKind}
               payload={pin.id}
-              label={pin.label}
               role="button"
               className={PIN_CLASS}
               style={{ left: pin.x, top: pin.y }}

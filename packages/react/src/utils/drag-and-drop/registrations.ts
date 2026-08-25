@@ -2,11 +2,11 @@
  * The engine's stateless registration primitives.
  *
  * Deliberately their own module, separate from `DragEngineImpl`: a drop target,
- * a monitor or an auto-scroller needs none of the engine's locale-aware
- * announcements, preview wiring or draggable static setup. Importing them from
+ * a monitor or an auto-scroller needs none of the engine's preview wiring or
+ * draggable static setup. Importing them from
  * here keeps `DropTarget.Root`, `DragAutoScroll.Root` and `useDragMonitor` off
- * that whole graph — the preview clone, both sensors, the live announcer and the
- * localization provider — so an app that only accepts drops pays for what it uses.
+ * that whole graph — the preview clone and pointer sensor — so an app that only
+ * accepts drops pays for what it uses.
  *
  * They carry no per-instance state, so they are plain functions rather than
  * methods; the engine simply re-exposes them.
@@ -104,7 +104,7 @@ export function registerDropTarget<TSourceData = unknown, TLocalData = unknown>(
   //
   // Not gated on `firstRegistration`: an element re-registering from inside its own
   // `onDragLeave` keeps its existing entry, yet still needs the refresh to rejoin
-  // the stack — a keyboard drag would otherwise not see it again until the next press.
+  // the stack before the next pointer update.
   if (isActive()) {
     scheduleDropTargetRefresh();
   }

@@ -83,6 +83,12 @@ export function createEventRootBinding(options: CreateEventRootBindingOptions): 
   );
 
   const crossesBoundShadowRoot = (event: Event, doc: Document): boolean => {
+    // Both window wrappers below ask this for every event of `type` anywhere on
+    // the page, for as long as one binding exists; `composedPath()` materializes
+    // the whole ancestor chain, so don't build it unless a shadow root is bound.
+    if (boundShadowRoots.size === 0) {
+      return false;
+    }
     const path = event.composedPath();
     for (const root of boundShadowRoots.keys()) {
       if (ownerDocument(root.host) === doc && path.includes(root.host)) {

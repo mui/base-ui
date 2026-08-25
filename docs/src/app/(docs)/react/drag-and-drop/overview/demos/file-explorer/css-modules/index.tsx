@@ -3,7 +3,6 @@ import * as React from 'react';
 import { Draggable } from '@base-ui/react/draggable';
 import { DropTarget } from '@base-ui/react/drop-target';
 import { DragAutoScroll } from '@base-ui/react/drag-auto-scroll';
-import { useDragDropManager } from '@base-ui/react/use-drag-drop-manager';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { INITIAL_NODES, type FileNode, type FileSystem } from '../data';
 import styles from '../../file-explorer.module.css';
@@ -53,19 +52,11 @@ function getPath(nodes: FileSystem, folderId: string): FileNode[] {
 }
 
 function useKeyboardControls(onOpen?: () => void) {
-  const manager = useDragDropManager();
-
   return useStableCallback((event: React.KeyboardEvent<HTMLElement>) => {
-    const hasOtherModifier = event.ctrlKey || event.metaKey || event.shiftKey;
+    const hasModifier = event.altKey || event.ctrlKey || event.metaKey || event.shiftKey;
     const isSpace = event.key === ' ' || event.key === 'Space' || event.key === 'Spacebar';
     const isActivationKey = isSpace || event.code === 'Space' || event.key === 'Enter';
-    if (event.altKey && !hasOtherModifier && event.key === 'Enter') {
-      event.preventDefault();
-      manager.startKeyboardDrag(event.currentTarget);
-      return;
-    }
-
-    if (!event.altKey && !hasOtherModifier && isActivationKey && onOpen) {
+    if (!hasModifier && isActivationKey && onOpen) {
       event.preventDefault();
       onOpen();
     }
@@ -124,8 +115,7 @@ function NodePreview({ node }: { node: FileNode }) {
 }
 
 // A folder is both a drag source and a drop target: `render` puts both roles on
-// the same element. A plain click, Space, or Enter opens it. Alt+Enter starts a
-// keyboard drag without taking those keys from navigation.
+// the same element. A plain click, Space, or Enter opens it.
 function FolderTile({
   node,
   nodes,
@@ -141,14 +131,11 @@ function FolderTile({
 
   return (
     <Draggable.Root
-      label={node.name}
       kind={nodeKind}
       payload={node.id}
       // Arrow keys hop between accepting targets only: in a grid, free space is
       // never a valid position.
-      keyboardMovement={Draggable.targetsOnlyKeyboardMovement}
-      keyboardActivation="manual"
-      keyboardInstructions="Press Space or Enter to open. Press Alt+Enter to start dragging."
+
       role="button"
       className={styles.Item}
       onClick={() => onOpen(node.id)}
@@ -156,7 +143,6 @@ function FolderTile({
       // @highlight-start
       render={
         <DropTarget.Root
-          label={node.name}
           accept={nodeKind}
           canDrop={({ source }) => canDropInto(nodes, node.id, source.payload)}
           onDrop={({ source }) => onMove(source.payload, node.id)}
@@ -176,12 +162,8 @@ function FileTile({ node }: { node: FileNode }) {
 
   return (
     <Draggable.Root
-      label={node.name}
       kind={nodeKind}
       payload={node.id}
-      keyboardMovement={Draggable.targetsOnlyKeyboardMovement}
-      keyboardActivation="manual"
-      keyboardInstructions="Press Alt+Enter to start dragging."
       role="button"
       className={styles.Item}
       onKeyDownCapture={handleKeyDown}
@@ -212,7 +194,6 @@ function Crumb({
 }) {
   return (
     <DropTarget.Root
-      label={folder.name}
       accept={nodeKind}
       canDrop={({ source }) => canDropInto(nodes, folder.id, source.payload)}
       onDrop={({ source }) => onMove(source.payload, folder.id)}
@@ -268,7 +249,6 @@ export default function FileExplorer() {
           its background lands in that folder. `DragAutoScroll.Root` scrolls the
           container when a pointer drag nears an edge. */}
         <DropTarget.Root
-          label={nodes[currentFolderId].name}
           accept={nodeKind}
           canDrop={({ source }) => canDropInto(nodes, currentFolderId, source.payload)}
           onDrop={({ source }) => moveNode(source.payload, currentFolderId)}

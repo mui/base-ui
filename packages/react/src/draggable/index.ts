@@ -2,10 +2,8 @@ export * as Draggable from './index.parts';
 
 export type * from './root/DraggableRoot';
 export type * from './handle/DraggableHandle';
-export type * from './keyboard-handle/DraggableKeyboardHandle';
 export type * from './preview/DraggablePreview';
 export type * from './preview/DraggableClonedPreview';
-export type * from './displacement/DraggableDisplacement';
 export type * from './preview-provider/DraggablePreviewProvider';
 export type { UseDraggableActiveDragReturnValue } from './use-active-drag';
 
@@ -40,7 +38,6 @@ export type {
   DragLocation,
   DragLocationHistory,
   DragEventMap,
-  DragMode,
   DragMoveEvent,
   DragMoveEventDetails,
   DragStartEventDetails,
@@ -58,17 +55,6 @@ export type {
   DragStartEvent,
   DropTargetChangeEvent,
   DropTargetRecord,
-  DragKeyboardActivation,
-  DragKeyboardAnnouncementParameters,
-  DragKeyboardAnnouncements,
-  DragKeyboardArrowKey,
-  DragKeyboardFinalFocus,
-  DragKeyboardFinalFocusParameters,
-  DragKeyboardMoveDetails,
-  DragKeyboardMoveResult,
-  DragKeyboardMoveSuggestion,
-  DragKeyboardMoveTarget,
-  DragKeyboardMovement,
   DragPointerType,
   DragPreviewOffsetParameters,
 } from '../types/drag';

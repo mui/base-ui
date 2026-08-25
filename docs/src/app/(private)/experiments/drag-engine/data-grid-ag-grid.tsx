@@ -6,7 +6,6 @@ import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { DragAutoScroll } from '@base-ui/react/drag-auto-scroll';
 import { Draggable } from '@base-ui/react/draggable';
 import { DropTarget } from '@base-ui/react/drop-target';
-import { useDragDropManager } from '@base-ui/react/use-drag-drop-manager';
 import theme from './theme.module.css';
 import styles from './data-grid-ag-grid.module.css';
 
@@ -200,15 +199,8 @@ function ColumnHeader({
   onReorder: (draggedId: string, targetId: string, pointer: number, initial: number) => void;
   boundaryRef: React.RefObject<HTMLDivElement | null>;
 }) {
-  const engine = useDragDropManager();
-  const draggableRef = React.useRef<HTMLDivElement>(null);
-  const [openedByKeyboard, setOpenedByKeyboard] = React.useState(false);
-  const startOnCloseRef = React.useRef(false);
-
   // The same header is also a drop target: the moment the dragged column crosses
-  // this one's near edge, shift it into place (see `afterFromDirection`). One arrow
-  // press moves the cursor onto the next column, so the keyboard gets the same
-  // one-position-per-step reorder.
+  // this one's near edge, shift it into place (see `afterFromDirection`).
   return (
     <DropTarget.Root
       accept={columnKind}
@@ -231,22 +223,8 @@ function ColumnHeader({
       {/* Grab anywhere on the label area (no `Draggable.Handle`). The menu button is
           a sibling rather than a child, so the draggable never contains a button. */}
       <Draggable.Root
-        ref={draggableRef}
-        label={column.label}
         kind={columnKind}
         payload={column.id}
-        // The keyboard route is the column menu, so the engine leaves every key
-        // alone and `startKeyboardDrag` does the pickup.
-        keyboardActivation="manual"
-        keyboardInstructions="Use the column menu to move this column."
-        // Not a tab stop, and not a `button`: the menu button beside it is the
-        // header's only keyboard affordance. `-1` keeps it focusable for the
-        // end-of-drag focus restore.
-        tabIndex={-1}
-        role={undefined}
-        // Columns only land on other columns: keyboard arrows never nudge into
-        // dead space.
-        keyboardMovement={Draggable.targetsOnlyKeyboardMovement}
         // A column only ever travels along the header row. The lock pins the
         // drop hit-test to that row too, so the header cell under the pointer's
         // x keeps resolving however far down the grid the pointer wanders — no
@@ -269,22 +247,7 @@ function ColumnHeader({
           {column.label}
         </Draggable.Preview>
       </Draggable.Root>
-      <Menu.Root
-        onOpenChange={(open, eventDetails) => {
-          if (open) {
-            // A click synthesized from Space or Enter reports `detail: 0`.
-            setOpenedByKeyboard((eventDetails.event as MouseEvent).detail === 0);
-          }
-        }}
-        // Once the menu is gone, not from the item's own click: an open menu owns
-        // focus, and hands it back to the trigger on the way out.
-        onOpenChangeComplete={(open) => {
-          if (!open && startOnCloseRef.current) {
-            startOnCloseRef.current = false;
-            engine.startKeyboardDrag(draggableRef.current);
-          }
-        }}
-      >
+      <Menu.Root>
         <Menu.Trigger
           className={styles.headerMenuButton}
           aria-label={`${column.label} column menu`}
@@ -295,17 +258,6 @@ function ColumnHeader({
           {/* Portaled out of the experiment root, so it carries the tokens itself. */}
           <Menu.Positioner sideOffset={4} align="end" className={theme.tokens}>
             <Menu.Popup className={styles.menuPopup}>
-              {/* Keyboard only: with a mouse the header is already draggable. */}
-              {openedByKeyboard && (
-                <Menu.Item
-                  className={styles.menuItem}
-                  onClick={() => {
-                    startOnCloseRef.current = true;
-                  }}
-                >
-                  Move this column
-                </Menu.Item>
-              )}
               {/* Stand-ins for the rest of a real column menu. */}
               <Menu.Item className={styles.menuItem} disabled>
                 Pin column
@@ -361,9 +313,6 @@ function GridRow({
       <Draggable.Root
         kind={rowKind}
         payload={row.id}
-        // Rows only land on other rows: a keyboard press past the first/last
-        // row does nothing.
-        keyboardMovement={Draggable.targetsOnlyKeyboardMovement}
         // A row only ever travels up and down the grid.
         modifiers={Draggable.restrictToVerticalAxis}
         className={styles.rowInner}
@@ -378,12 +327,7 @@ function GridRow({
           {row.cells.name}
         </Draggable.Preview>
         {/* Rows initiate from the grip only, so cell text stays selectable. */}
-        <Draggable.Handle
-          render={<span />}
-          nativeButton={false}
-          className={styles.rowGrip}
-          aria-hidden
-        >
+        <Draggable.Handle render={<span />} className={styles.rowGrip} aria-hidden>
           <Grip />
         </Draggable.Handle>
         {/* Spacers stand in for the unmounted columns either side of the window,

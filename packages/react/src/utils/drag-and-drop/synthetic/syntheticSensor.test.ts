@@ -10,7 +10,6 @@ import {
 import { cancelDrag } from '../cancelDrag';
 import { dragSessionStore } from '../dragSessionStore';
 import type { DragModifier, DropTargetRecord } from '../../../types/drag';
-import { retargetActivePreviewSource } from '../activePreview';
 import { restrictToVerticalAxis } from '../dragModifiers';
 import * as syntheticSensor from './syntheticSensor';
 import {
@@ -172,8 +171,6 @@ describe('syntheticDrag sensor', () => {
     await flushRaf();
     expect(onDragStart).toHaveBeenCalledTimes(1);
     expect(onDragStart.mock.calls[0][0].location.current.input.pointerType).toBe('pen');
-    // A pointer drag reports `mode: 'pointer'` on the payload.
-    expect(onDragStart.mock.calls[0][0].mode).toBe('pointer');
 
     penUp(60, 50);
   });
@@ -2272,7 +2269,7 @@ describe('syntheticDrag sensor', () => {
 
     expect(onDragStart).toHaveBeenCalledTimes(1);
     expect(onDragStart).toHaveBeenCalledWith(
-      expect.objectContaining({ mode: 'pointer' }),
+      expect.anything(),
       expect.objectContaining({ reason: 'pointer' }),
     );
     expect(onDragStart.mock.calls[0][0].location.current.input.pointerType).toBe('mouse');
@@ -2352,38 +2349,6 @@ describe('syntheticDrag sensor', () => {
     } finally {
       document.elementFromPoint = originalEFP;
     }
-  });
-
-  it('a refused pointer pickup restores the running keyboard drag preview handle', async () => {
-    const { engine } = await renderDnd();
-    const keyboardSource = createElement();
-    const pointerSource = createElement();
-    engine.registerDraggable(keyboardSource, {});
-    engine.registerDraggable(pointerSource, {}); // default pen activation: 5px distance
-
-    // Arm the pointer pending phase while the lifecycle is still idle...
-    penDown(pointerSource, 50, 50);
-    // ...then pick up a keyboard drag before the pointer gesture commits.
-    dispatch(keyboardSource, new KeyboardEvent('keydown', { key: ' ', bubbles: true }));
-    expect(keyboardSource).toHaveAttribute('data-dragging');
-
-    // Clearing the distance threshold commits the pointer pickup, which the
-    // lifecycle refuses (a drag is already running).
-    penMove(60, 50);
-    await flushRaf();
-
-    // The refusal must not strand the keyboard drag's preview handle: a
-    // retarget (virtualizer remount) still reaches it.
-    const replacement = createElement();
-    retargetActivePreviewSource(replacement);
-    expect(replacement).toHaveAttribute('data-dragging');
-
-    // The refusal also undid every pointer-phase resource the commit had
-    // acquired: the root scroll lock is off (the keyboard sensor never takes
-    // it) and no drag cursor is pinned.
-    expect(document.documentElement.style.getPropertyValue('touch-action')).toBe('');
-    expect(document.documentElement.style.getPropertyValue('user-select')).toBe('');
-    expect(document.documentElement.classList.contains('baseui-dragging')).toBe(false);
   });
 
   describe('drag cursor', () => {
@@ -3137,55 +3102,6 @@ describe('syntheticDrag sensor', () => {
     act(() => cancelDrag());
   });
 
-  it('refuses a pointer commit once a keyboard drag has claimed the lifecycle', async () => {
-    const { engine } = await renderDnd();
-    const el = createElement();
-    const other = createElement();
-    const onBeforeDragStart = vi.fn();
-    engine.registerDraggable(el, { onBeforeDragStart });
-    engine.registerDraggable(other, {});
-
-    // Press and hold without crossing the threshold: the gesture is pending.
-    dispatch(
-      el,
-      new PointerEvent('pointerdown', {
-        pointerId: 1,
-        clientX: 0,
-        clientY: 0,
-        button: 0,
-        buttons: 1,
-        bubbles: true,
-        cancelable: true,
-      }),
-    );
-
-    // A keyboard drag claims the lifecycle mid-press.
-    other.focus();
-    act(() => {
-      other.dispatchEvent(new KeyboardEvent('keydown', { key: ' ', bubbles: true }));
-    });
-    expect(dragSessionStore.getSnapshot()?.source.element).toBe(other);
-
-    // Crossing the threshold now must abandon rather than run consumer callbacks
-    // and build a preview whose undo would strip the keyboard drag's attributes.
-    dispatch(
-      document,
-      new PointerEvent('pointermove', {
-        pointerId: 1,
-        clientX: 0,
-        clientY: 40,
-        buttons: 1,
-        bubbles: true,
-      }),
-    );
-    await flushRaf();
-
-    expect(onBeforeDragStart).not.toHaveBeenCalled();
-    expect(dragSessionStore.getSnapshot()?.source.element).toBe(other);
-
-    act(() => cancelDrag());
-  });
-
   describe('post-drag click', () => {
     it('swallows the compatibility click that follows a drag', async () => {
       const { engine } = await renderDnd();
@@ -3486,6 +3402,35 @@ describe('syntheticDrag sensor', () => {
         }),
       );
     }
+
+    it('coalesces held-button moves into the pending frame without re-requesting it', async () => {
+      const { engine } = await renderDnd();
+      const source = createElement();
+      engine.registerDraggable(source, {});
+
+      pointerDown(source);
+      pointerMove(40, 1);
+      await flushRaf();
+      expect(dragSessionStore.getSnapshot()).not.toBeNull();
+
+      const request = vi.spyOn(window, 'requestAnimationFrame');
+      const cancelFrame = vi.spyOn(window, 'cancelAnimationFrame');
+      registerCleanup(() => {
+        request.mockRestore();
+        cancelFrame.mockRestore();
+      });
+
+      // Several samples between two paints, as a high-rate pointer delivers
+      // them: at most the first one requests a frame (none, if one is already
+      // pending), and none of them cancels a pending one to re-request it.
+      pointerMove(60, 1);
+      pointerMove(80, 1);
+      pointerMove(100, 1);
+      expect(cancelFrame).not.toHaveBeenCalled();
+      expect(request.mock.calls.length).toBeLessThanOrEqual(1);
+
+      pointerUp(100);
+    });
 
     it('drops when every move carries buttons: 1', async () => {
       const { engine } = await renderDnd();

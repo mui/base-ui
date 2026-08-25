@@ -50,7 +50,6 @@ function makeContext(overrides: Partial<DragModifierContext> = {}): DragModifier
     scale: { x: 1, y: 1 },
     previewRect: null,
     previewOffset: { x: 0, y: 0 },
-    mode: 'pointer',
     ctrlKey: false,
     shiftKey: false,
     altKey: false,
@@ -70,7 +69,6 @@ function makeApplyOptions(overrides: Partial<ApplyOptions> = {}): ApplyOptions {
     sourceRect: makeRect(0, 0, 0, 0),
     scale: { x: 1, y: 1 },
     previewOffset: { x: 0, y: 0 },
-    mode: 'pointer',
     keys: { ctrlKey: false, shiftKey: false, altKey: false, metaKey: false },
     ownerWindow: window,
     getPreviewRect: () => null,
@@ -400,13 +398,11 @@ describe('createDragModifiersState', () => {
     const source = document.createElement('div');
     const start = { x: 0, y: 0 };
     expect(
-      createDragModifiersState(undefined, source, start, 'pointer', { measureSourceRect: measure }),
+      createDragModifiersState(undefined, source, start, { measureSourceRect: measure }),
     ).toBeNull();
+    expect(createDragModifiersState([], source, start, { measureSourceRect: measure })).toBeNull();
     expect(
-      createDragModifiersState([], source, start, 'pointer', { measureSourceRect: measure }),
-    ).toBeNull();
-    expect(
-      createDragModifiersState([false, null], source, start, 'pointer', {
+      createDragModifiersState([false, null], source, start, {
         measureSourceRect: measure,
       }),
     ).toBeNull();
@@ -422,7 +418,6 @@ describe('createDragModifiersState', () => {
       restrictToElement(boundary),
       source,
       { x: 50, y: 350 },
-      'pointer',
       { measureSourceRect: measure },
     )!;
     expect(state.initialPoint).toEqual({ x: 100, y: 300 });
@@ -446,7 +441,6 @@ describe('modifyDragPoint', () => {
       [probe, restrictToElement(boundary)],
       source,
       { x: 50, y: 50 },
-      'pointer',
       { measureSourceRect: () => makeRect(0, 0, 20, 20) },
     )!;
     // State creation applies the modifiers with no preview yet.
@@ -459,7 +453,7 @@ describe('modifyDragPoint', () => {
       getPreviewElement: () => ({ element: previewElement }),
       getPreviewOffset: () => ({ x: 5, y: 7 }),
     };
-    const result = modifyDragPoint(state, { x: 500, y: 500 }, 'pointer', previewLike);
+    const result = modifyDragPoint(state, { x: 500, y: 500 }, previewLike);
     expect(offsets[1]).toEqual({ x: 5, y: 7 });
     // Edges shifted by the offset and inset by the preview rect:
     // max x = 200 − 50 + 5, max y = 200 − 30 + 7.
@@ -472,7 +466,6 @@ describe('modifyDragPoint', () => {
       restrictToVerticalAxis,
       source,
       { x: 10, y: 10 },
-      'pointer',
       { measureSourceRect: () => makeRect(0, 0, 20, 20) },
     )!;
     const previewElement = document.createElement('div');
@@ -482,7 +475,7 @@ describe('modifyDragPoint', () => {
       getPreviewElement: () => ({ element: previewElement }),
       getPreviewOffset: () => ({ x: 0, y: 0 }),
     };
-    const result = modifyDragPoint(state, { x: 40, y: 60 }, 'pointer', previewLike);
+    const result = modifyDragPoint(state, { x: 40, y: 60 }, previewLike);
     expect(result).toEqual({ x: 10, y: 60 });
     expect(getRect).not.toHaveBeenCalled();
   });

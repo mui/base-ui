@@ -31,13 +31,14 @@ const INITIAL_LAYOUT: { id: string; fx: number; fy: number; label: string }[] = 
 function BoardCard({
   card,
   surfaceRef,
+  onNudge,
 }: {
   card: Card;
   surfaceRef: React.RefObject<HTMLDivElement | null>;
+  onNudge: (id: string, dx: number, dy: number) => void;
 }) {
   return (
     <Draggable.Root
-      label={card.label}
       kind={cardKind}
       payload={card.id}
       // Spell out the default mouse activation for clarity: a drag starts only
@@ -48,6 +49,23 @@ function BoardCard({
       modifiers={Draggable.restrictToElement(surfaceRef)}
       // @highlight-end
       role="button"
+      tabIndex={0}
+      aria-label={card.label}
+      aria-keyshortcuts="ArrowUp ArrowDown ArrowLeft ArrowRight"
+      onKeyDown={(event) => {
+        const step = event.shiftKey ? 10 : 1;
+        const directions: Record<string, [number, number]> = {
+          ArrowUp: [0, -step],
+          ArrowDown: [0, step],
+          ArrowLeft: [-step, 0],
+          ArrowRight: [step, 0],
+        };
+        const delta = directions[event.key];
+        if (delta) {
+          event.preventDefault();
+          onNudge(card.id, delta[0], delta[1]);
+        }
+      }}
       className={styles.Card}
       style={{ left: card.x, top: card.y, width: CARD_WIDTH, height: CARD_HEIGHT }}
     >
@@ -110,6 +128,29 @@ export default function FigmaBoard() {
     });
   });
 
+  const nudgeCard = useStableCallback((id: string, dx: number, dy: number) => {
+    const surface = surfaceRef.current;
+    if (!surface) {
+      return;
+    }
+    const maxX = Math.max(surface.clientWidth - CARD_WIDTH, 0);
+    const maxY = Math.max(surface.clientHeight - CARD_HEIGHT, 0);
+    setCards((prev) => {
+      const moved = prev.find((card) => card.id === id);
+      if (!moved) {
+        return prev;
+      }
+      return [
+        ...prev.filter((card) => card.id !== id),
+        {
+          ...moved,
+          x: Math.min(Math.max(moved.x + dx, 0), maxX),
+          y: Math.min(Math.max(moved.y + dy, 0), maxY),
+        },
+      ];
+    });
+  });
+
   return (
     <div className={styles.Root}>
       {/* The whole surface is a drop target, so a release on it counts as a real
@@ -117,7 +158,6 @@ export default function FigmaBoard() {
       <DropTarget.Root
         className={styles.Surface}
         ref={surfaceRef}
-        label="Canvas"
         accept={cardKind}
         trackDragOver={false}
         onDrop={({ self, source }) => {
@@ -139,7 +179,7 @@ export default function FigmaBoard() {
         }}
       >
         {cards.map((card) => (
-          <BoardCard key={card.id} card={card} surfaceRef={surfaceRef} />
+          <BoardCard key={card.id} card={card} surfaceRef={surfaceRef} onNudge={nudgeCard} />
         ))}
       </DropTarget.Root>
     </div>

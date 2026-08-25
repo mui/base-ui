@@ -523,6 +523,24 @@ describe('engine.registerDropTarget', () => {
     );
   });
 
+  it('delivers onDrag once to a target on the frame it enters', async () => {
+    const { engine } = await renderDnd();
+    const source = createElement();
+    const target = createElement();
+    const onDrag = vi.fn();
+    engine.registerDraggable(source, {});
+    engine.registerDropTarget(target, { onDrag });
+
+    fireEvent.dragStart(source);
+    await flushRaf();
+    fireEvent.dragEnter(target);
+    await flushRaf();
+
+    // The entry round and the frame's own move dispatch share one delivery, so a
+    // consumer measuring in `onDrag` pays for it once per frame, not twice.
+    expect(onDrag).toHaveBeenCalledTimes(1);
+  });
+
   it('fires onDragLeave when leaving a target', async () => {
     const { engine } = await renderDnd();
     const source = createElement();
@@ -1459,20 +1477,18 @@ describe('engine.registerDropTarget', () => {
     });
   });
 
-  it('surfaces the source `label` and own `id` on the drop payload', async () => {
+  it('surfaces its own payload on drop', async () => {
     const { engine } = await renderDnd();
     const sourceEl = createElement();
     const targetEl = createElement();
     targetEl.getBoundingClientRect = () => new DOMRect(0, 0, 200, 100);
 
-    let observedSourceLabel: string | undefined;
     let observedTargetId: string | undefined;
 
-    engine.registerDraggable(sourceEl, { label: 'src-low' });
+    engine.registerDraggable(sourceEl, {});
     engine.registerDropTarget(targetEl, {
       getPayload: () => ({ id: 'tgt-low' }),
-      onDrop: ({ source, self }) => {
-        observedSourceLabel = source.label;
+      onDrop: ({ self }) => {
         observedTargetId = self.payload.id as string;
       },
     });
@@ -1484,7 +1500,6 @@ describe('engine.registerDropTarget', () => {
     await flushRaf();
     fireEvent.drop(targetEl);
 
-    expect(observedSourceLabel).toBe('src-low');
     expect(observedTargetId).toBe('tgt-low');
   });
 

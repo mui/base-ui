@@ -340,36 +340,6 @@ describe.skipIf(isJSDOM)('drop target resolution (real hit testing)', () => {
       measure.mockRestore();
     });
 
-    it('reports the virtual cursor position for a keyboard drag', async () => {
-      const { engine } = await renderDnd();
-      const source = createBox(0, 0);
-      const target = createBox(0, 200);
-      source.tabIndex = 0;
-
-      const onDrop = vi.fn();
-      engine.registerDraggable(source, { kind: cardKind, payload: 'card-1' });
-      engine.registerDropTarget(target, { accept: cardKind, onDrop });
-
-      const press = (key: string) => {
-        act(() => {
-          source.dispatchEvent(
-            new KeyboardEvent('keydown', { key, bubbles: true, cancelable: true }),
-          );
-        });
-      };
-
-      act(() => source.focus());
-      press(' '); // pick up
-      await flushRaf();
-      press('ArrowDown'); // aim the virtual cursor at the plain zone's center, (50, 225)
-      press(' '); // drop
-
-      // The record's input is the aim point the sensor committed, not a pointer
-      // position, so a plain zone entered by arrow key reports its center.
-      expect(onDrop).toHaveBeenCalledTimes(1);
-      expect(onDrop.mock.calls[0][0].self.getLocalPoint()).toEqual({ x: 0.5, y: 0.5 });
-    });
-
     it('reports the origin for a target with no extent', async () => {
       const { engine } = await renderDnd();
       const source = createBox(0, 0);

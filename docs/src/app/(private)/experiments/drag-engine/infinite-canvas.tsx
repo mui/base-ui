@@ -199,7 +199,6 @@ export default function InfiniteCanvas() {
               key={note.id}
               kind={noteKind}
               payload={note.id}
-              label={note.label}
               role="button"
               className={styles.note}
               style={{ left: note.x, top: note.y }}

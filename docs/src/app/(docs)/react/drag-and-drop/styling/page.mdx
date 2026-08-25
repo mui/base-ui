@@ -4,7 +4,7 @@
 
 <Meta
   name="description"
-  content="How to style Base UI drag sources, previews, drop targets, and displacement animations."
+  content="How to style Base UI drag sources, previews, drop targets, and drop animations."
 />
 
 Drag and drop adds no visual styles. Base UI exposes each state as a data attribute. See the [styling guide](https://base-ui.com/react/handbook/styling) for how to use data attributes. The [Draggable](/react/components/draggable#api-reference), [DropTarget](/react/components/drop-target#api-reference), and [DragAutoScroll](/react/components/drag-auto-scroll#api-reference) API references list every attribute.
@@ -44,35 +44,6 @@ The clone is the size of the element it copies; a custom preview is sized by its
 
 Base UI sets both values once at drag start from the source's bounding rect. For a compact preview such as a badge or count, use [`offset="pointer"`](/react/components/draggable#position-the-preview) instead.
 
-## Easing keyboard drags
-
-A transition makes a pointer preview lag behind the cursor, but it can make keyboard movement between drop targets easier to follow. Use `data-drag-mode` to apply the transition only to a keyboard preview:
-
-```css title="Easing the preview for keyboard drags only"
-.Card {
-  &[data-drag-preview] {
-    transition: none;
-
-    /* A keyboard drag moves the preview between discrete slots one key at a
-     * time, so easing its `translate` glides it there instead of teleporting. */
-    &[data-drag-mode='keyboard'] {
-      transition: translate 0.2s ease;
-    }
-  }
-}
-```
-
-Transition only `translate`, which Base UI uses to position the preview. The `.Card` selector also matches the source, so an `opacity` transition would continue after the preview is removed and make the dropped item fade in.
-
-The same selector can mirror the focus ring onto the preview, so a keyboard drag stays visibly "focused" while the item moves:
-
-```css title="A focus ring for the keyboard-dragged preview"
-.Card[data-drag-preview][data-drag-mode='keyboard'] {
-  outline: 2px solid black;
-  outline-offset: 2px;
-}
-```
-
 ## Animating a drop
 
 After a release, an engine-owned clone receives `data-ending-style` and moves to the source's committed position. A transition in that state keeps the clone mounted until it finishes:
@@ -92,21 +63,6 @@ The source keeps `data-dragging` and also receives `data-ending-style` while the
 ```
 
 Without a transition, both ending attributes are removed before the next paint. This applies to `Draggable.ClonedPreview`; a custom `Draggable.Preview` unmounts when the drag ends.
-
-## Animating displaced items
-
-CSS cannot determine the previous position of an item moved by a reorder. Add [`Draggable.Displacement`](/react/components/draggable#animating-displaced-items) so Base UI measures the item during drags. It publishes the offset as `--drag-displacement-x` and `--drag-displacement-y`, adds `data-starting-style` for the first frame, and keeps `data-displacing` during the animation:
-
-```css title="Easing displaced rows to their new slots"
-.Item[data-displacing][data-starting-style] {
-  translate: var(--drag-displacement-x) var(--drag-displacement-y);
-}
-.Item[data-displacing]:not([data-starting-style]) {
-  transition: translate 200ms ease;
-}
-```
-
-Use `translate` instead of `transform` so the animation composes with existing transform positioning. The second rule replaces the element's `transition` shorthand, so repeat any other transitions the element needs. See [Animating displaced items](/react/components/draggable#animating-displaced-items) for interrupted reorders. For reduced motion, disable both rules rather than only the transition.
 
 ## Highlight the innermost target
 
@@ -136,11 +92,11 @@ While a pointer drag runs, the engine pins the cursor across the document so it 
 
 ## Styles the engine writes
 
-Base UI writes inline styles and injects one cursor stylesheet. These styles may override the same properties in your CSS. [`Draggable.Displacement`](#animating-displaced-items) also sets `--drag-displacement-x` and `--drag-displacement-y` on each displaced element during an animation. The variables inherit to descendants and are removed with the data attributes when the animation ends.
+Base UI writes inline styles and injects one cursor stylesheet. These styles may override the same properties in your CSS.
 
-At registration, each enabled draggable receives `touch-action: manipulation`, `user-select: none`, and `-webkit-touch-callout: none`. A disabled source receives none of these styles or the keyboard-drag ARIA attributes. The styles prevent text selection and the iOS callout while still allowing touch scrolling before the 250ms drag delay ends. When a [`Draggable.Handle`](/react/components/draggable#drag-handle) is present, Base UI applies the styles to the handle instead of the root. Setting `touch-action` on the handle overrides this behavior and can interfere with touch dragging or list scrolling, so set it on a wrapper instead. Base UI restores the original styles when the source unregisters.
+At registration, each enabled draggable receives `touch-action: manipulation`, `user-select: none`, and `-webkit-touch-callout: none`. A disabled source receives none of these styles. The styles prevent text selection and the iOS callout while still allowing touch scrolling before the 250ms drag delay ends. When a [`Draggable.Handle`](/react/components/draggable#drag-handle) is present, Base UI applies the styles to the handle instead of the root. Setting `touch-action` on the handle overrides this behavior and can interfere with touch dragging or list scrolling, so set it on a wrapper instead. Base UI restores the original styles when the source unregisters.
 
-During a pointer drag, Base UI sets `touch-action: none`, `user-select: none`, `-webkit-touch-callout: none`, and `overscroll-behavior: none` on `<html>` and `<body>`. This prevents page scrolling and overscroll. Base UI restores the values when the drag ends. Keyboard drags do not apply this lock.
+During a pointer drag, Base UI sets `touch-action: none`, `user-select: none`, `-webkit-touch-callout: none`, and `overscroll-behavior: none` on `<html>` and `<body>`. This prevents page scrolling and overscroll. Base UI restores the values when the drag ends.
 
 A pointer drag also adds a `baseui-dragging` class to `<html>` and, once per document, injects a single rule:
 
@@ -150,7 +106,7 @@ html.baseui-dragging.baseui-dragging-styles * {
 }
 ```
 
-The universal selector with `!important` is what makes the drag cursor hold over elements that set their own (a handle's `grab`, an input's `text`). `--drag-cursor` is set on `<html>` for the duration of the drag from the source's [`dragCursor`](/react/components/draggable#set-the-drag-cursor), so you can also set it yourself for a scope the engine doesn't know about. When the drag ends, whether it drops or is canceled, the classes are removed and the custom property is restored. The injected rule remains installed for reuse by later drags; keyboard drags write none of this state.
+The universal selector with `!important` is what makes the drag cursor hold over elements that set their own (a handle's `grab`, an input's `text`). `--drag-cursor` is set on `<html>` for the duration of the drag from the source's [`dragCursor`](/react/components/draggable#set-the-drag-cursor), so you can also set it yourself for a scope the engine doesn't know about. When the drag ends, whether it drops or is canceled, the classes are removed and the custom property is restored. The injected rule remains installed for reuse by later drags.
 
 The stylesheet receives the nonce from [`CSPProvider`](/react/utils/csp-provider). When `disableStyleElements` is enabled, Base UI does not inject or activate its cursor rule, but it still adds `baseui-dragging` and sets `--drag-cursor`. Add the following equivalent rule to an external stylesheet to retain the document-wide cursor:
 
@@ -165,7 +121,7 @@ html.baseui-dragging * {
 The engine animates nothing, so a drag has no motion unless you add a transition. Guard the ones you add:
 
 ```css title="Guarding an added transition"
-.Card[data-drag-preview][data-drag-mode='keyboard'] {
+.Card[data-drag-preview][data-ending-style] {
   @media (prefers-reduced-motion: no-preference) {
     transition: translate 0.2s ease;
   }

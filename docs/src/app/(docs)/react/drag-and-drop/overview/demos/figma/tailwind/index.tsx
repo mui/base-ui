@@ -30,18 +30,19 @@ const INITIAL_LAYOUT: { id: string; fx: number; fy: number; label: string }[] = 
 // The preview is a clone of the card, so it keeps these classes: `data-dragging`
 // hides the source, `data-drag-preview` lifts the clone above the canvas.
 const CARD_CLASS =
-  'absolute box-border flex items-center border border-neutral-950 bg-white px-3 py-2.5 text-sm leading-5 text-neutral-950 dark:border-white dark:bg-neutral-950 dark:text-white cursor-grab transition-colors data-[dragging]:opacity-0 data-[drag-preview]:shadow-[0.25rem_0.25rem_0_rgb(0_0_0_/_12%)] dark:data-[drag-preview]:shadow-none data-[drag-preview]:data-[drag-mode=keyboard]:outline-2 data-[drag-preview]:data-[drag-mode=keyboard]:-outline-offset-1 data-[drag-preview]:data-[drag-mode=keyboard]:outline-neutral-950 dark:data-[drag-preview]:data-[drag-mode=keyboard]:outline-white hover:bg-neutral-100 dark:hover:bg-neutral-800 focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-neutral-950 dark:focus-visible:outline-white';
+  'absolute box-border flex items-center border border-neutral-950 bg-white px-3 py-2.5 text-sm leading-5 text-neutral-950 dark:border-white dark:bg-neutral-950 dark:text-white cursor-grab transition-colors data-[dragging]:opacity-0 data-[drag-preview]:shadow-[0.25rem_0.25rem_0_rgb(0_0_0_/_12%)] dark:data-[drag-preview]:shadow-none hover:bg-neutral-100 dark:hover:bg-neutral-800 focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-neutral-950 dark:focus-visible:outline-white';
 
 function BoardCard({
   card,
   surfaceRef,
+  onNudge,
 }: {
   card: Card;
   surfaceRef: React.RefObject<HTMLDivElement | null>;
+  onNudge: (id: string, dx: number, dy: number) => void;
 }) {
   return (
     <Draggable.Root
-      label={card.label}
       kind={cardKind}
       payload={card.id}
       // Spell out the default mouse activation for clarity: a drag starts only
@@ -52,6 +53,23 @@ function BoardCard({
       modifiers={Draggable.restrictToElement(surfaceRef)}
       // @highlight-end
       role="button"
+      tabIndex={0}
+      aria-label={card.label}
+      aria-keyshortcuts="ArrowUp ArrowDown ArrowLeft ArrowRight"
+      onKeyDown={(event) => {
+        const step = event.shiftKey ? 10 : 1;
+        const directions: Record<string, [number, number]> = {
+          ArrowUp: [0, -step],
+          ArrowDown: [0, step],
+          ArrowLeft: [-step, 0],
+          ArrowRight: [step, 0],
+        };
+        const delta = directions[event.key];
+        if (delta) {
+          event.preventDefault();
+          onNudge(card.id, delta[0], delta[1]);
+        }
+      }}
       className={CARD_CLASS}
       style={{ left: card.x, top: card.y, width: CARD_WIDTH, height: CARD_HEIGHT }}
     >
@@ -114,6 +132,29 @@ export default function FigmaBoard() {
     });
   });
 
+  const nudgeCard = useStableCallback((id: string, dx: number, dy: number) => {
+    const surface = surfaceRef.current;
+    if (!surface) {
+      return;
+    }
+    const maxX = Math.max(surface.clientWidth - CARD_WIDTH, 0);
+    const maxY = Math.max(surface.clientHeight - CARD_HEIGHT, 0);
+    setCards((prev) => {
+      const moved = prev.find((card) => card.id === id);
+      if (!moved) {
+        return prev;
+      }
+      return [
+        ...prev.filter((card) => card.id !== id),
+        {
+          ...moved,
+          x: Math.min(Math.max(moved.x + dx, 0), maxX),
+          y: Math.min(Math.max(moved.y + dy, 0), maxY),
+        },
+      ];
+    });
+  });
+
   return (
     // Full-bleed: cancel the shared demo playground padding (2rem 1.5rem) so the
     // canvas reaches the demo frame, with no inset gap and no inner border.
@@ -122,7 +163,6 @@ export default function FigmaBoard() {
           drop rather than a cancel. */}
       <DropTarget.Root
         ref={surfaceRef}
-        label="Canvas"
         accept={cardKind}
         trackDragOver={false}
         className="relative box-border h-64 overflow-hidden bg-neutral-50 sm:h-80 bg-[radial-gradient(var(--color-neutral-300)_1px,transparent_1px)] [background-size:20px_20px] dark:bg-neutral-900 dark:bg-[radial-gradient(var(--color-neutral-700)_1px,transparent_1px)]"
@@ -145,7 +185,7 @@ export default function FigmaBoard() {
         }}
       >
         {cards.map((card) => (
-          <BoardCard key={card.id} card={card} surfaceRef={surfaceRef} />
+          <BoardCard key={card.id} card={card} surfaceRef={surfaceRef} onNudge={nudgeCard} />
         ))}
       </DropTarget.Root>
     </div>

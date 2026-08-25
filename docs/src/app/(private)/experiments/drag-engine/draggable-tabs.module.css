@@ -262,14 +262,6 @@
   .tab[data-drag-preview][data-ending-style] {
     transition: translate 0.2s cubic-bezier(0.2, 0, 0, 1);
   }
-
-  .tab[data-displacing][data-starting-style] {
-    translate: var(--drag-displacement-x) var(--drag-displacement-y);
-  }
-
-  .tab[data-displacing]:not([data-starting-style]) {
-    transition: translate 0.2s ease;
-  }
 }
 
 @media (max-width: 650px) {

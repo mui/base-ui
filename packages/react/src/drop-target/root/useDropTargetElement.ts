@@ -4,7 +4,6 @@ import { useStore, type ReadonlyStore } from '@base-ui/utils/store';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
-import { areArraysEqual } from '@base-ui/utils/areArraysEqual';
 import { registerDropTarget } from '../../utils/drag-and-drop/registrations';
 import { scheduleDropTargetParameterRefresh } from '../../utils/drag-and-drop/core/lifecycleManager';
 import type { RegisterDropTargetParameters } from '../../types/dragRegistration';
@@ -15,7 +14,7 @@ import {
   dragTargetStateStride,
   DragTargetState,
 } from '../../utils/drag-and-drop/dragSessionStore';
-import { matchesAccept } from '../../utils/drag-and-drop/dragKind';
+import { matchesAccept, sameAccept } from '../../utils/drag-and-drop/dragKind';
 
 // Stable scalar selector: the per-target store already resolves the live node
 // and publishes only when this target's rendered state can change.
@@ -41,19 +40,6 @@ const untrackedTargetStateStore: ReadonlyStore<number> = {
   getSnapshot: () => 0,
   subscribe: () => () => {},
 };
-
-// Content comparison, not identity: `accept` is commonly an inline array
-// (`accept={[card, file]}`) whose identity changes every render while the kinds
-// inside don't.
-function sameAccept(
-  a: RegisterDropTargetParameters['accept'],
-  b: RegisterDropTargetParameters['accept'],
-): boolean {
-  if (a === b) {
-    return true;
-  }
-  return Array.isArray(a) && Array.isArray(b) && areArraysEqual(a, b);
-}
 
 /**
  * Registers the element the returned `ref` is attached to as a drop target, and

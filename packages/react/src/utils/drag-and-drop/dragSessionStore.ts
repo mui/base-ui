@@ -1,5 +1,5 @@
 import { Store, type ReadonlyStore } from '@base-ui/utils/store';
-import type { DragLocationHistory, DragMode, DragSource } from '../../types/drag';
+import type { DragLocationHistory, DragSource } from '../../types/drag';
 import { getSharedSlot } from './sharedState';
 
 /**
@@ -9,7 +9,6 @@ import { getSharedSlot } from './sharedState';
 export interface DragSessionState {
   source: DragSource;
   location: DragLocationHistory;
-  mode: DragMode;
   /** Element refs of every drop target in the active stack. Enables O(1) membership lookups. */
   dropTargetElements: ReadonlySet<Element>;
   /**
@@ -254,10 +253,9 @@ export function cloneLocationHistory(location: DragLocationHistory): DragLocatio
 export function buildSessionSnapshot(parameters: {
   source: DragSource;
   location: DragLocationHistory;
-  mode: DragMode;
   rejectedTarget: Element | null;
 }): DragSessionState {
-  const { source, location, mode, rejectedTarget } = parameters;
+  const { source, location, rejectedTarget } = parameters;
   const currentDropTargets = location.current.dropTargets;
   const dropTargetElements = new Set<Element>();
   for (let i = 0; i < currentDropTargets.length; i += 1) {
@@ -265,7 +263,6 @@ export function buildSessionSnapshot(parameters: {
   }
   return {
     source,
-    mode,
     location: cloneLocationHistory(location),
     dropTargetElements,
     rejectedTarget,

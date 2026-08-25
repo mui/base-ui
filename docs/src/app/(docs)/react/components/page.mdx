@@ -757,17 +757,10 @@ A component that makes its element a drag source.
   - Anatomy
   - Pass data along
   - Drag handle
-    - Keyboard-only handle
   - Conditional drag
   - Drag events
   - Re-rendering the source mid-drag
-  - Animating displaced items
   - Activation
-  - Keyboard navigation
-    - Screen-reader announcements
-    - Controlling movement
-    - Restoring focus
-    - Moving the pickup elsewhere
   - Movement modifiers
     - Modifiers on the preview
     - Write your own
@@ -783,7 +776,6 @@ A component that makes its element a drag source.
   - API reference
     - Root
     - Handle
-    - KeyboardHandle
     - Preview
     - ClonedPreview
     - PreviewProvider
@@ -793,36 +785,26 @@ A component that makes its element a drag source.
     - restrictToElement
     - restrictToWindowEdges
     - snapToGrid
-    - targetsOnlyKeyboardMovement
-    - fixedStepKeyboardMovement
     - DragModifier
-    - DragKeyboardMovement
     - createKind
     - createGlobalKind
   - useActiveDrag
 - Exports:
   - Draggable - Root
-    - Props: ariaRoleDescription, children, className, disabled, dragCursor, finalFocus, getPayload, keyboardActivation, keyboardAnnouncements, keyboardInstructions, keyboardMovement, kind, label, modifiers, onBeforeDragStart, onDrag, onDragEnd, onDragStart, onDrop, onDropTargetChange, payload, pointerActivation, previewKey, render, style
-    - Data Attributes: data-disabled, data-displacing, data-drag-mode, data-dragging, data-ending-style, data-starting-style
-    - CSS Variables: --drag-displacement-x, --drag-displacement-y
+    - Props: children, className, disabled, dragCursor, getPayload, kind, modifiers, onBeforeDragStart, onDrag, onDragEnd, onDragStart, onDrop, onDropTargetChange, payload, pointerActivation, previewKey, render, style
+    - Data Attributes: data-disabled, data-dragging, data-ending-style
   - Draggable - ClonedPreview
     - Props: container, disabled, modifiers, offset
   - Draggable - createGlobalKind
     - Parameters: key
   - Draggable - createKind
     - Parameters: name
-  - Draggable - Displacement
-  - Draggable - fixedStepKeyboardMovement
-    - Parameters: step
   - Draggable - Handle
-    - Props: className, disabled, nativeButton, render, style
-    - Data Attributes: data-disabled
-  - Draggable - KeyboardHandle
-    - Props: className, disabled, nativeButton, render, style
+    - Props: className, disabled, render, style
     - Data Attributes: data-disabled
   - Draggable - Preview
     - Props: children, className, container, disabled, kind, modifiers, offset, render, style
-    - Data Attributes: data-drag-mode, data-drag-preview, data-ending-style
+    - Data Attributes: data-drag-preview, data-ending-style
     - CSS Variables: --drag-source-height, --drag-source-width
   - Draggable - PreviewProvider
     - Props: children, container
@@ -838,17 +820,13 @@ A component that makes its element a drag source.
     - Parameters: context
   - Draggable - snapToGrid
     - Parameters: size
-  - Draggable - targetsOnlyKeyboardMovement
-    - Props: direction, event, findTarget, getTargets, key, location, position, shiftKey, source, suggestion, target
   - Draggable - useActiveDrag
     - Parameters: accept
   - DraggablePayloadGetter
     - Parameters: context
-  - DragKeyboardMovement
-    - Props: direction, event, findTarget, getTargets, key, location, position, shiftKey, source, suggestion, target
   - DragModifier
     - Parameters: context
-- Types: Draggable.ClonedPreview.Props, Draggable.Handle.Props, Draggable.Handle.State, Draggable.KeyboardHandle.Props, Draggable.KeyboardHandle.State, Draggable.Preview.Props, Draggable.Preview.State, Draggable.PreviewProvider.Props, Draggable.PreviewProvider.State, Draggable.Root.Props, Draggable.Root.PropsWithPayload, Draggable.Root.State, Draggable.useActiveDrag.ReturnValue
+- Types: Draggable.ClonedPreview.Props, Draggable.Handle.Props, Draggable.Handle.State, Draggable.Preview.Props, Draggable.Preview.State, Draggable.PreviewProvider.Props, Draggable.PreviewProvider.State, Draggable.Root.Props, Draggable.Root.PropsWithPayload, Draggable.Root.State, Draggable.useActiveDrag.ReturnValue
 
 </details>
 
@@ -960,7 +938,6 @@ A component that makes its element a drop zone.
   - Attach data to a target
   - Read where in the target the pointer landed
   - Snap to steps
-  - Name a target for screen readers
   - Nested drop targets
   - Track the drag-over state
   - Both a source and a target
@@ -970,7 +947,7 @@ A component that makes its element a drop zone.
     - createGlobalKind
 - Exports:
   - Drop Target - Root
-    - Props: accept, canDrop, className, disabled, getPayload, kind, label, onDrag, onDragEnter, onDragLeave, onDragStart, onDrop, onDropTargetChange, payload, render, snap, style, trackDragOver
+    - Props: accept, canDrop, className, disabled, getPayload, kind, onDrag, onDragEnter, onDragLeave, onDragStart, onDrop, onDropTargetChange, payload, render, snap, style, trackDragOver
     - Data Attributes: data-accepting, data-disabled, data-drag-over, data-drag-over-innermost, data-drop-target, data-rejected
   - Drop Target - createGlobalKind
     - Parameters: key

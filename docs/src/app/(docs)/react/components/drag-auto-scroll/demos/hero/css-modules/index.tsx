@@ -113,7 +113,6 @@ function Card({ task, draggable }: { task: Task; draggable?: boolean }) {
   }
   return (
     <Draggable.Root
-      label={task.label}
       kind={taskKind}
       payload={task}
       data-card
@@ -169,7 +168,6 @@ function DropZone({
   return (
     <DropTarget.Root
       className={styles.Zone}
-      label={label}
       accept={taskKind}
       onDrag={({ location }) => {
         const container = listRef.current;

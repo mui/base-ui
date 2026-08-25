@@ -53,7 +53,7 @@ const COLUMN_CLASS = `${COLUMN_BASE} data-[active]:border-neutral-950 data-[acti
 // dims the source, `data-ending-style` keeps the committed card looking like the
 // placeholder until the clone arrives, and `data-drag-preview` lifts the clone.
 const CARD_CLASS =
-  'box-border border border-neutral-950 bg-white px-2.5 py-2 text-sm leading-5 text-neutral-950 dark:border-white dark:bg-neutral-950 dark:text-white cursor-grab transition data-[dragging]:opacity-40 data-ending-style:not-data-[drag-preview]:text-transparent motion-safe:data-[drag-preview]:data-ending-style:transition-[translate] motion-safe:data-[drag-preview]:data-ending-style:duration-200 motion-safe:data-[drag-preview]:data-ending-style:ease-[cubic-bezier(0.2,0,0,1)] data-[drag-preview]:shadow-[0.25rem_0.25rem_0_rgb(0_0_0_/_12%)] dark:data-[drag-preview]:shadow-none data-[drag-preview]:data-[drag-mode=keyboard]:outline-2 data-[drag-preview]:data-[drag-mode=keyboard]:-outline-offset-1 data-[drag-preview]:data-[drag-mode=keyboard]:outline-neutral-950 dark:data-[drag-preview]:data-[drag-mode=keyboard]:outline-white hover:bg-neutral-100 dark:hover:bg-neutral-800 focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-neutral-950 dark:focus-visible:outline-white';
+  'box-border border border-neutral-950 bg-white px-2.5 py-2 text-sm leading-5 text-neutral-950 dark:border-white dark:bg-neutral-950 dark:text-white cursor-grab transition data-[dragging]:opacity-40 data-ending-style:not-data-[drag-preview]:text-transparent motion-safe:data-[drag-preview]:data-ending-style:transition-[translate] motion-safe:data-[drag-preview]:data-ending-style:duration-200 motion-safe:data-[drag-preview]:data-ending-style:ease-[cubic-bezier(0.2,0,0,1)] data-[drag-preview]:shadow-[0.25rem_0.25rem_0_rgb(0_0_0_/_12%)] dark:data-[drag-preview]:shadow-none hover:bg-neutral-100 dark:hover:bg-neutral-800 focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-neutral-950 dark:focus-visible:outline-white';
 // An empty ghost card marking where the dropped card will land.
 const PLACEHOLDER_CLASS =
   'pointer-events-none box-border shrink-0 border border-neutral-950 bg-white opacity-40 dark:border-white dark:bg-neutral-950';
@@ -249,7 +249,6 @@ export default function KanbanBoard() {
     // demo lands on a registered target rather than falling outside every one.
     <DropTarget.Root
       className="flex w-full min-w-0 flex-col gap-4 select-none"
-      label="Board"
       accept={cardKind}
       trackDragOver={false}
     >
@@ -319,7 +318,6 @@ function KanbanColumn({
 function DraggableCard({ card, columnId }: { card: Card; columnId: ColumnId }) {
   return (
     <Draggable.Root
-      label={card.title}
       kind={cardKind}
       payload={{ id: card.id, fromColumn: columnId }}
       data-card

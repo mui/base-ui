@@ -2,11 +2,7 @@
 import * as React from 'react';
 import clsx from 'clsx';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
-import {
-  Draggable,
-  type DragKeyboardMovement,
-  type DragKeyboardAnnouncements,
-} from '@base-ui/react/draggable';
+import { Draggable } from '@base-ui/react/draggable';
 import { useDragMonitor } from '@base-ui/react/use-drag-monitor';
 import theme from './theme.module.css';
 import styles from './kanban-snap.module.css';
@@ -215,52 +211,6 @@ export default function KanbanSnap() {
     },
   );
 
-  // Keyboard moves step between the slots the indicator resolves: ↑/↓ one
-  // insertion slot, ←/→ the adjacent column. There are no drop targets at all —
-  // the snap resolves purely from the pointer/cursor position, and `onDragEnd`
-  // reads `canceled` to tell a real release from an Escape — so movement goes
-  // through this custom resolver rather than default target navigation.
-  const keyboardMovement = useStableCallback<DragKeyboardMovement<CardDragData>>(
-    ({ position, direction }) => {
-      const columnElements = columnElementsRef.current;
-      const columnId = findClosestColumn(position.x, columnElements);
-      const columnEl = columnId ? columnElements.get(columnId) : undefined;
-      if (!columnId || !columnEl) {
-        return undefined;
-      }
-      if (direction.x !== 0) {
-        const order = board.columnOrder;
-        const nextId = order[order.indexOf(columnId) + direction.x];
-        const nextEl = nextId ? columnElements.get(nextId) : undefined;
-        if (!nextEl) {
-          return false;
-        }
-        const rect = nextEl.getBoundingClientRect();
-        return { x: rect.left + rect.width / 2, y: position.y };
-      }
-      const slotYs = computeSlotYs(columnEl);
-      const { index } = findClosestSlot(slotYs, position.y);
-      const nextY = slotYs[index + direction.y];
-      if (nextY === undefined) {
-        return false;
-      }
-      return { x: position.x, y: nextY };
-    },
-  );
-
-  // Narrate each keyboard move with the same column/slot the indicator shows.
-  const announceMove = useStableCallback(
-    (parameters: Parameters<NonNullable<DragKeyboardAnnouncements<CardDragData>['moved']>>[0]) => {
-      const { clientX, clientY } = parameters.location.current.input;
-      const drop = computeIndicator(clientX, clientY, columnElementsRef.current);
-      if (!drop) {
-        return null;
-      }
-      const column = board.columns[drop.columnId];
-      return column ? `${column.title}, position ${drop.insertIndex + 1}` : null;
-    },
-  );
-
   useDragMonitor({
     accept: cardKind,
     onDragStart: ({ location }) => {
@@ -304,8 +254,6 @@ export default function KanbanSnap() {
               indicator={indicator?.columnId === id ? indicator : null}
               registerElement={registerColumnElement}
               boundaryRef={boardRef}
-              keyboardMovement={keyboardMovement}
-              announceMove={announceMove}
             />
           );
         })}
@@ -320,16 +268,12 @@ function KanbanColumn({
   indicator,
   registerElement,
   boundaryRef,
-  keyboardMovement,
-  announceMove,
 }: {
   column: Column;
   cards: Card[];
   indicator: DropIndicator | null;
   registerElement: (id: ColumnId, el: HTMLElement | null) => void;
   boundaryRef: React.RefObject<HTMLDivElement | null>;
-  keyboardMovement: DragKeyboardMovement<CardDragData>;
-  announceMove: NonNullable<DragKeyboardAnnouncements<CardDragData>['moved']>;
 }) {
   const setRef = React.useCallback(
     (el: HTMLDivElement | null) => {
@@ -343,14 +287,7 @@ function KanbanColumn({
       <div className={styles.columnHeader}>{column.title}</div>
       <div className={styles.columnBody} data-column-body>
         {cards.map((card) => (
-          <DraggableCard
-            key={card.id}
-            card={card}
-            columnId={column.id}
-            boundaryRef={boundaryRef}
-            keyboardMovement={keyboardMovement}
-            announceMove={announceMove}
-          />
+          <DraggableCard key={card.id} card={card} columnId={column.id} boundaryRef={boundaryRef} />
         ))}
         {cards.length === 0 && <div className={styles.emptyHint}>(empty)</div>}
         {indicator && (
@@ -365,25 +302,18 @@ function DraggableCard({
   card,
   columnId,
   boundaryRef,
-  keyboardMovement,
-  announceMove,
 }: {
   card: Card;
   columnId: ColumnId;
   boundaryRef: React.RefObject<HTMLDivElement | null>;
-  keyboardMovement: DragKeyboardMovement<CardDragData>;
-  announceMove: NonNullable<DragKeyboardAnnouncements<CardDragData>['moved']>;
 }) {
   // No preview code: the engine clones the card, so the preview is the card
   // itself (`.card[data-drag-preview]` only deepens its shadow), lifted from the
   // grab point.
   return (
     <Draggable.Root
-      label={card.title}
       kind={cardKind}
       payload={{ id: card.id, fromColumn: columnId }}
-      keyboardMovement={keyboardMovement}
-      keyboardAnnouncements={{ moved: announceMove }}
       data-card
       role="button"
       tabIndex={0}

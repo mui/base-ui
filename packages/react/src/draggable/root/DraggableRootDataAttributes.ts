@@ -8,30 +8,12 @@ export enum DraggableRootDataAttributes {
    */
   dragging = 'data-dragging',
   /**
-   * The input method driving the drag, either `'pointer'` or `'keyboard'`.
-   * Present on the source alongside `data-dragging`, and also on the preview.
-   * @type {'pointer' | 'keyboard'}
-   */
-  dragMode = 'data-drag-mode',
-  /**
    * Present on the source after a deliberate release while a clone created by
    * Base UI settles into its final position, including a return after release
    * outside a target. Use it to keep the source styled as a placeholder until
    * the preview's ending animation finishes.
    */
   endingStyle = TransitionStatusDataAttributes.endingStyle,
-  /**
-   * Present while `Draggable.Displacement` is animating this element being pushed aside
-   * by a reorder, paired with the `--drag-displacement-x`/`--drag-displacement-y`
-   * variables. Use it to apply the displacement transition.
-   */
-  displacing = 'data-displacing',
-  /**
-   * Present alongside `data-displacing` on the first frame of a displacement, while
-   * the element should still sit at its old position. Style the displaced state
-   * under it, and the transition under `data-displacing` without it.
-   */
-  startingStyle = TransitionStatusDataAttributes.startingStyle,
   /**
    * Present while the draggable is disabled.
    */

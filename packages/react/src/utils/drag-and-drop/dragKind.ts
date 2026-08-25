@@ -3,6 +3,7 @@
  * kinds they accept. Each kind carries the payload type of the things it tags.
  */
 
+import { areArraysEqual } from '@base-ui/utils/areArraysEqual';
 import type { AnyDragAccept, DragKind, DragSource, DropTargetRecord } from '../../types/drag';
 
 /** Namespaces explicitly global identities, so a key can't collide with another `Symbol.for`. */
@@ -109,4 +110,16 @@ export function matchesAccept(
     return accept.some((kind) => kind.id === ANY_KIND_ID || kind.id === source.kind);
   }
   return (accept as DragKind<unknown>).id === source.kind;
+}
+
+/**
+ * Content comparison for an `accept` value, not identity: it is commonly an
+ * inline array (`accept={[card, file]}`) whose identity changes every render
+ * while the kinds inside don't.
+ */
+export function sameAccept(a: AnyDragAccept | undefined, b: AnyDragAccept | undefined): boolean {
+  if (a === b) {
+    return true;
+  }
+  return Array.isArray(a) && Array.isArray(b) && areArraysEqual(a, b);
 }

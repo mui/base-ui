@@ -4,7 +4,13 @@ import { fireEvent, screen } from '@testing-library/react';
 import { act } from '@mui/internal-test-utils';
 import { createDndRenderer, describeConformance, testDragKind } from '#test-utils';
 import { DragAutoScroll } from '@base-ui/react/drag-auto-scroll';
-import { createElement, flushRaf, lift, setupDragEngineTests } from '../../../test/dnd';
+import {
+  createElement,
+  flushRaf,
+  lift,
+  registerCleanup,
+  setupDragEngineTests,
+} from '../../../test/dnd';
 import { createKind } from '../../utils/drag-and-drop/dragKind';
 
 type RootProps = DragAutoScroll.Root.Props;
@@ -116,6 +122,87 @@ describe('DragAutoScroll.Root', () => {
     await flushRaf();
 
     expect(measure).not.toHaveBeenCalled();
+    fireEvent.drop(source);
+  });
+
+  it('keeps one idle observer across parks instead of constructing one per wake', async () => {
+    const { engine } = await renderDnd(<Scroller />);
+    const source = createElement();
+    engine.registerDraggable(source, {});
+    const scroller = screen.getByTestId('scroller');
+    const OriginalObserver = window.MutationObserver;
+    let constructed = 0;
+    class CountingObserver extends OriginalObserver {
+      constructor(callback: MutationCallback) {
+        super(callback);
+        constructed += 1;
+      }
+    }
+    window.MutationObserver = CountingObserver;
+    registerCleanup(() => {
+      window.MutationObserver = OriginalObserver;
+    });
+
+    await liftOutside(source);
+    // The center is outside every edge zone: this input parks the loop, and the
+    // park attaches the idle observer.
+    await dragTo(scroller, 100, 50);
+    const afterFirstPark = constructed;
+
+    // Each further input wakes the loop and parks it again.
+    await dragTo(scroller, 110, 50);
+    await dragTo(scroller, 120, 50);
+
+    expect(constructed).toBe(afterFirstPark);
+    fireEvent.drop(source);
+  });
+
+  it('wakes a parked loop for content growth without re-reading any computed style', async () => {
+    const { engine } = await renderDnd(<Scroller />);
+    const source = createElement();
+    engine.registerDraggable(source, {});
+    const scroller = screen.getByTestId('scroller');
+
+    await liftOutside(source);
+    await dragTo(scroller, 100, 50);
+    const measure = vi.spyOn(scroller, 'getBoundingClientRect');
+    const computedStyle = vi.spyOn(window, 'getComputedStyle');
+    registerCleanup(() => computedStyle.mockRestore());
+
+    // Rows appended below the fold can give the container room to scroll, so
+    // the next frame re-reads its geometry — but nothing about which elements
+    // scroll, or which way, can have changed, so the cached styles stand.
+    act(() => {
+      scroller.appendChild(document.createElement('div'));
+    });
+    await flushRaf();
+    await flushRaf();
+
+    expect(measure).toHaveBeenCalled();
+    expect(computedStyle).not.toHaveBeenCalled();
+    fireEvent.drop(source);
+  });
+
+  it('re-reads computed styles when a parked container itself is restyled', async () => {
+    const { engine } = await renderDnd(<Scroller />);
+    const source = createElement();
+    engine.registerDraggable(source, {});
+    const scroller = screen.getByTestId('scroller');
+
+    await liftOutside(source);
+    await dragTo(scroller, 100, 50);
+    const computedStyle = vi.spyOn(window, 'getComputedStyle');
+    registerCleanup(() => computedStyle.mockRestore());
+
+    // A class on the container can flip its overflow or direction: the cached
+    // answers are dropped and the chain is walked again.
+    act(() => {
+      scroller.classList.add('restyled');
+    });
+    await flushRaf();
+    await flushRaf();
+
+    expect(computedStyle).toHaveBeenCalled();
     fireEvent.drop(source);
   });
 

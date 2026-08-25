@@ -2,7 +2,6 @@
 import * as React from 'react';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
-import { ownerDocument } from '@base-ui/utils/owner';
 import { DragAutoScroll } from '@base-ui/react/drag-auto-scroll';
 import { Draggable } from '@base-ui/react/draggable';
 import { DropTarget } from '@base-ui/react/drop-target';
@@ -243,22 +242,6 @@ function WeekAllDayCell(props: { dayMs: number }) {
   );
 }
 
-// The cells matching `selector` in document order, plus the index of the one
-// the cursor's x currently sits in (`-1` when outside all of them). Shared by
-// the keyboard-movement resolvers, which step between adjacent cells.
-function cellsUnderCursor(
-  doc: Document,
-  selector: string,
-  x: number,
-): { cells: HTMLElement[]; current: number } {
-  const cells = Array.from(doc.querySelectorAll<HTMLElement>(selector));
-  const current = cells.findIndex((cell) => {
-    const rect = cell.getBoundingClientRect();
-    return x >= rect.left && x < rect.right;
-  });
-  return { cells, current };
-}
-
 function WeekAllDayBar(props: { event: CalendarEvent; segment: WeekEventSegment }) {
   const { event, segment } = props;
   const { dispatch, consumeDropPreview } = useCalendarView();
@@ -266,24 +249,10 @@ function WeekAllDayBar(props: { event: CalendarEvent; segment: WeekEventSegment 
 
   return (
     <Draggable.Root
-      label={event.title}
       kind={calEventMoveKind}
       // An all-day bar only moves between days: ←/→ snap to the adjacent cell,
       // vertical arrows do nothing (the timed grid refuses all-day drags).
-      keyboardMovement={({ direction, position, source }) => {
-        if (direction.x === 0) {
-          return null;
-        }
-        const { cells, current } = cellsUnderCursor(
-          ownerDocument(source.element),
-          '[data-cal-allday-cell]',
-          position.x,
-        );
-        if (current === -1) {
-          return undefined;
-        }
-        return cells[current + direction.x] ?? null;
-      }}
+
       payload={{
         eventId: eventRef.current.id,
         anchorStart: eventRef.current.start,
@@ -505,48 +474,14 @@ function WeekDayColumn(props: { dayMs: number; events: CalendarEvent[] }) {
 function WeekTimedEvent(props: { dayMs: number; segment: TimedSegment }) {
   const { dayMs, segment } = props;
   const { event } = segment;
-  const { dispatch, hourPx, snapMinutes, consumeDropPreview } = useCalendarView();
+  const { dispatch, hourPx, consumeDropPreview } = useCalendarView();
   const eventRef = useValueAsRef(event);
   const top = ((segment.visibleStart - dayMs) / HOUR_MS) * hourPx;
   const height = Math.max(20, ((segment.visibleEnd - segment.visibleStart) / HOUR_MS) * hourPx);
 
   return (
     <Draggable.Root
-      label={event.title}
       kind={calEventMoveKind}
-      // ↑/↓ move one `snapMinutes` increment within the day column, ←/→ jump to
-      // the same time in the adjacent day. Day columns are single targets, not
-      // per-slot ones, so the default target navigation can't express this.
-      keyboardMovement={({ position, direction, source }) => {
-        const { cells: columns, current } = cellsUnderCursor(
-          ownerDocument(source.element),
-          '[data-cal-day-column]',
-          position.x,
-        );
-        if (current === -1) {
-          return undefined;
-        }
-        if (direction.x !== 0) {
-          const next = columns[current + direction.x];
-          if (!next) {
-            return null;
-          }
-          // A target result keeps the time (`position.y`) even when entering
-          // the column scrolls it into view.
-          const rect = next.getBoundingClientRect();
-          return {
-            type: 'target',
-            element: next,
-            position: { x: rect.left + rect.width / 2, y: position.y },
-          };
-        }
-        const rect = columns[current].getBoundingClientRect();
-        const y = position.y + direction.y * (snapMinutes / 60) * hourPx;
-        if (y < rect.top || y > rect.bottom) {
-          return null;
-        }
-        return { x: position.x, y };
-      }}
       getPayload={() => ({
         eventId: eventRef.current.id,
         anchorStart: eventRef.current.start,
@@ -604,7 +539,7 @@ function WeekResizeHandle(props: { event: CalendarEvent; edge: 'start' | 'end' }
       kind={calEventResizeKind}
       // The handle is `aria-hidden`; without this it would still get
       // `tabIndex={0}` — focusable but invisible to screen readers.
-      keyboardActivation="off"
+
       payload={{
         eventId: eventRef.current.id,
         edge,

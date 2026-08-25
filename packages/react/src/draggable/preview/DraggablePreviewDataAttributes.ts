@@ -7,13 +7,6 @@ export enum DraggablePreviewDataAttributes {
    */
   dragPreview = 'data-drag-preview',
   /**
-   * The input method driving the drag, either `'pointer'` or `'keyboard'`. Use it
-   * to transition the preview's `translate` during keyboard drags without adding
-   * a transition to pointer drags.
-   * @type {'pointer' | 'keyboard'}
-   */
-  dragMode = 'data-drag-mode',
-  /**
    * Present on a cloned preview created by Base UI after a deliberate release while
    * it moves to its final position. This also applies when a drag is released
    * outside a target and returns to its source. The clone remains mounted until

@@ -2,18 +2,6 @@ import type * as React from 'react';
 
 export type DragCleanupFn = () => void;
 
-/**
- * The input method driving a drag.
- *
- * - `'pointer'`: a mouse, pen, or touch gesture.
- * - `'keyboard'`: a keyboard gesture, whose coordinates are synthesized.
- *
- * This event family covers Base UI registered draggable elements. Native
- * and external OS drags are outside it and would use a separate adapter and
- * event family rather than widening this union.
- */
-export type DragMode = 'pointer' | 'keyboard';
-
 /** Pointer device that initiated the drag. */
 export type DragPointerType = 'mouse' | 'pen' | 'touch';
 
@@ -35,11 +23,8 @@ export interface DragInput {
   pageX: number;
   /** Pointer Y relative to the document, in CSS pixels (includes scroll). */
   pageY: number;
-  /**
-   * The pointer device that produced this input, or `null` for a keyboard drag.
-   * Read the event's `mode` to detect a keyboard drag.
-   */
-  pointerType: DragPointerType | null;
+  /** The pointer device that produced this input. */
+  pointerType: DragPointerType;
   /** Whether the Control key was held. */
   ctrlKey: boolean;
   /** Whether the Shift key was held. */
@@ -98,11 +83,6 @@ export interface DragSnappedLocalPointOptions {
 export interface DropTargetRecord<TLocalData = unknown> {
   /** The drop target's own DOM element. */
   element: Element;
-  /**
-   * Human-readable name supplied by the drop target's `label`, used by the default
-   * screen-reader announcements. `undefined` when the target was registered without one.
-   */
-  label: string | undefined;
   /**
    * Identity of the kind supplied by the drop target's `kind`, or `undefined` when the
    * target was registered without one. Test it with the kind's `matches`, which narrows
@@ -194,11 +174,6 @@ export interface DragSource<TData = unknown> {
   /** The draggable's own DOM element. */
   element: HTMLElement;
   /**
-   * Human-readable name supplied by the draggable's `label`, used by the default
-   * screen-reader announcements. `undefined` when the source was registered without one.
-   */
-  label: string | undefined;
-  /**
    * Identity of the kind supplied by the draggable's `kind`. Test it with the kind's
    * `matches`, which narrows `payload` at the same time.
    */
@@ -221,8 +196,8 @@ export interface DragSource<TData = unknown> {
  */
 export interface DragKind<TPayload = unknown> {
   /**
-   * The name or global key used to create this kind. This is not an accessible
-   * name. Use `label` on a draggable or drop target instead.
+   * The name or global key used to create this kind. This is a debugging aid,
+   * not an accessible name.
    */
   readonly name: string;
   /**
@@ -272,12 +247,6 @@ export type AcceptedDragPayload<TAccept> =
 export interface BaseDragEvent<TSourceData = unknown> {
   location: DragLocationHistory;
   source: DragSource<TSourceData>;
-  /**
-   * The input method driving the drag.
-   * This is the reliable way to detect a keyboard drag, as
-   * `location.current.input.pointerType` is `null` for those.
-   */
-  mode: DragMode;
 }
 
 /** Parameters passed to a drag preview's `offset` callback. */
@@ -421,27 +390,27 @@ export type DraggablePayloadGetter<TData> = (context: DragStartContext) => NoInf
  */
 export type DragHandle = Element | { current: Element | null } | (() => Element | null | undefined);
 
-/** The input method about to drive the drag. */
-export type DragStartReason = DragMode;
+/** Why a drag pickup started. */
+export type DragStartReason = 'pointer';
 
 type DragReasonToEvent<TReason extends string> = TReason extends 'pointer'
   ? PointerEvent
-  : TReason extends 'keyboard' | 'escape-key' | 'tab-key'
+  : TReason extends 'escape-key' | 'tab-key'
     ? KeyboardEvent
-    : TReason extends 'pointer-down' | 'pointer-canceled' | 'capture-lost' | 'missed-release'
+    : TReason extends 'pointer-canceled' | 'capture-lost' | 'missed-release'
       ? PointerEvent
-      : TReason extends 'focus-out' | 'window-blur'
+      : TReason extends 'window-blur'
         ? FocusEvent
         : TReason extends 'drop' | 'outside-release'
-          ? PointerEvent | KeyboardEvent
+          ? PointerEvent
           : Event;
 
 /** The event details passed to `onBeforeDragStart`. Call `cancel()` to prevent the drag. */
 export type BeforeDragStartEventDetails = {
   [TReason in DragStartReason]: {
-    /** The input method attempting to start the drag. */
+    /** Why the pickup started. */
     reason: TReason;
-    /** The pointer or keyboard event that attempted the pickup. */
+    /** The pointer event that attempted the pickup. */
     event: DragReasonToEvent<TReason>;
     /** Prevents the drag from starting. */
     cancel: () => void;
@@ -472,8 +441,6 @@ export type DragCompletedReason = 'drop' | 'outside-release';
  * together and include a default branch for reasons added in a future release.
  *
  * - `'escape-key'` / `'tab-key'`: the user pressed Escape or Tab.
- * - `'pointer-down'`: the user pressed a pointer during a keyboard drag.
- * - `'focus-out'`: focus moved into a text input, which needs the keys the drag was swallowing.
  * - `'imperative-action'`: the application called `cancelDrag()`.
  * - `'window-blur'` / `'page-hidden'`: the window lost focus, or the page was hidden.
  * - `'pointer-canceled'`: the browser or OS canceled the pointer stream.
@@ -487,8 +454,6 @@ export type DragCompletedReason = 'drop' | 'outside-release';
 export type DragCanceledReason =
   | 'escape-key'
   | 'tab-key'
-  | 'pointer-down'
-  | 'focus-out'
   | 'imperative-action'
   | 'window-blur'
   | 'page-hidden'
@@ -505,10 +470,10 @@ export type DragEndReason = DragCompletedReason | DragCanceledReason;
 export type DragDropReason = Extract<DragCompletedReason, 'drop'>;
 
 /**
- * Why the hovered drop targets changed: an input moved the drag (`'pointer'` /
- * `'keyboard'`), or the drag ended and the targets are being released.
+ * Why the hovered drop targets changed: the pointer moved, or the drag ended
+ * and the targets are being released.
  */
-export type DropTargetChangeReason = DragMode | DragEndReason;
+export type DropTargetChangeReason = DragStartReason | DragEndReason;
 
 /**
  * The details of a drag event, passed as the second argument to every handler.
@@ -531,7 +496,7 @@ export type DragEventDetails<TReason extends string> = {
 /** The event details passed to `onDragStart`. */
 export type DragStartEventDetails = DragEventDetails<DragStartReason>;
 /** The event details passed to `onDrag`. */
-export type DragMoveEventDetails = DragEventDetails<DragMode>;
+export type DragMoveEventDetails = DragEventDetails<DragStartReason>;
 /** The event details passed to `onDropTargetChange`, `onDragEnter` and `onDragLeave`. */
 export type DropTargetChangeEventDetails = DragEventDetails<DropTargetChangeReason>;
 /** The event details passed to `onDrop`. */
@@ -579,177 +544,6 @@ export interface DropTargetSelf<TLocalData = unknown> {
   self: DropTargetRecord<TLocalData>;
 }
 
-// ---------------------------------------------------------------------------
-// Keyboard dragging
-// ---------------------------------------------------------------------------
-
-/** The arrow keys a keyboard drag responds to. */
-export type DragKeyboardArrowKey = 'ArrowUp' | 'ArrowDown' | 'ArrowLeft' | 'ArrowRight';
-
-/** Parameters passed to every {@link DragKeyboardAnnouncements} callback. */
-export interface DragKeyboardAnnouncementParameters<TSourceData = unknown> {
-  /** The drag source being announced. */
-  source: DragSource<TSourceData>;
-  /** Where the drag started and where it is now, including its drop targets. */
-  location: DragLocationHistory;
-}
-
-/**
- * Screen-reader announcements for a keyboard drag, pushed to a polite live region.
- * Each callback returns the text to announce, or `null` to stay silent.
- * Omit a callback to keep its default, localized by the nearest `LocalizationProvider`.
- */
-export interface DragKeyboardAnnouncements<TSourceData = unknown> {
-  /** Announced when the item is picked up. */
-  pickedUp?:
-    ((parameters: DragKeyboardAnnouncementParameters<TSourceData>) => string | null) | undefined;
-  /** Announced, debounced, as the item moves. */
-  moved?:
-    ((parameters: DragKeyboardAnnouncementParameters<TSourceData>) => string | null) | undefined;
-  /**
-   * Announced when the item is released with Space or Enter, whether or not it
-   * landed on a drop target.
-   */
-  dropped?:
-    ((parameters: DragKeyboardAnnouncementParameters<TSourceData>) => string | null) | undefined;
-  /** Announced when the drag is canceled with Escape, Tab, or a blur. */
-  canceled?:
-    ((parameters: DragKeyboardAnnouncementParameters<TSourceData>) => string | null) | undefined;
-  /** Announced when an arrow press moves nowhere. Silent by default. */
-  reachedEdge?:
-    ((parameters: DragKeyboardAnnouncementParameters<TSourceData>) => string | null) | undefined;
-}
-
-/** Parameters passed to a keyboard drag's `finalFocus` callback. */
-export interface DragKeyboardFinalFocusParameters<TSourceData = unknown> {
-  /** The drag source whose keyboard drag just ended. */
-  source: DragSource<TSourceData>;
-  /** The final location snapshot, captured before teardown. */
-  location: DragLocationHistory;
-  /** Whether the drag was aborted instead of released by the user. */
-  canceled: boolean;
-  /**
-   * The innermost drop target the release landed on, or `null` when the release was
-   * over no target or the drag was canceled.
-   */
-  dropTarget: DropTargetRecord | null;
-}
-
-/**
- * Determines the element to focus when a keyboard drag ends.
- *
- * - `false`: Do not move focus.
- * - `true`: Move focus based on the default behavior (the drag handle, the source
- *   element, or the drop target if the handle unmounted).
- * - `RefObject`: Move focus to the ref element.
- * - `function`: Called with the drag outcome. Return an element to focus, `true` or
- *   `null` to use the default behavior, or `false`/`undefined` to do nothing.
- */
-export type DragKeyboardFinalFocus<TSourceData = unknown> =
-  | boolean
-  | { current: HTMLElement | null }
-  | ((
-      parameters: DragKeyboardFinalFocusParameters<TSourceData>,
-    ) => boolean | HTMLElement | null | void);
-
-/** What the default behavior would do for an arrow press during a keyboard drag. */
-export type DragKeyboardMoveSuggestion =
-  | {
-      /** A drop target lies ahead in the pressed direction. */
-      type: 'target';
-      /** The target element the default collision chose. */
-      element: Element;
-      /**
-       * Where the virtual cursor will be aimed inside `element`, measured before any
-       * scrolling. Adjust it to aim at a different point of the target, for example to
-       * keep a cross-axis coordinate.
-       */
-      position: DragPosition;
-    }
-  | {
-      /** No target lies ahead, so the default is a fixed pixel step. */
-      type: 'step';
-      /** The stepped cursor position, clamped to the viewport. */
-      position: DragPosition;
-    };
-
-/** A drop target that accepts the current drag, with a freshly measured rect. */
-export interface DragKeyboardMoveTarget {
-  /** The drop target element. */
-  element: Element;
-  /** The element's bounding rect, measured when `getTargets` was called. */
-  rect: DOMRect;
-  /** The resolved drop target record. */
-  record: DropTargetRecord;
-}
-
-/** Parameters passed to a `keyboardMovement` resolver on every arrow press. */
-export interface DragKeyboardMoveDetails<TSourceData = unknown> {
-  /** The arrow key pressed. */
-  key: DragKeyboardArrowKey;
-  /** Unit vector for `key`. `ArrowUp` is `{ x: 0, y: -1 }`. */
-  direction: DragPosition;
-  /** Whether the Shift key was held. No multiplier is applied to a resolver result. */
-  shiftKey: boolean;
-  /** The native `keydown` event. */
-  event: KeyboardEvent;
-  /** The virtual cursor before this press, in client coordinates. */
-  position: DragPosition;
-  /** The drag source being moved. */
-  source: DragSource<TSourceData>;
-  /** The innermost drop target currently under the virtual cursor, or `null`. */
-  target: DropTargetRecord | null;
-  /** Where the drag started and where it is now, including its drop targets. */
-  location: DragLocationHistory;
-  /** What the default behavior would do for this press. */
-  suggestion: DragKeyboardMoveSuggestion;
-  /**
-   * Runs the default directional collision and returns the nearest accepting drop
-   * target ahead of the cursor, or `null` when none lies ahead. Pass `key` to look in
-   * another direction than the pressed one, and `from` to look from another origin
-   * than the current cursor.
-   */
-  findTarget: (options?: {
-    key?: DragKeyboardArrowKey | undefined;
-    from?: DragPosition | undefined;
-  }) => Element | null;
-  /** Returns every drop target accepting this drag, with freshly measured rects. */
-  getTargets: () => DragKeyboardMoveTarget[];
-}
-
-/**
- * Determines what an arrow press does during a keyboard drag.
- *
- * - `DragPosition`: Move the virtual cursor to these client coordinates, clamped to
- *   the viewport.
- * - `Element`: Scroll the element into view and move onto it.
- * - `DragKeyboardMoveSuggestion`: Accept the suggested move, as is or with an adjusted
- *   `position`.
- * - `false`: Ignore the press, so nothing moves.
- * - `null`/`undefined`: Use the default behavior for this press.
- */
-export type DragKeyboardMoveResult =
-  DragPosition | Element | DragKeyboardMoveSuggestion | false | null | undefined;
-
-/**
- * Controls how arrow keys move a keyboard drag.
- * Called on every arrow press with the press, the drag context, and the suggested move.
- */
-export type DragKeyboardMovement<TSourceData = unknown> = (
-  details: DragKeyboardMoveDetails<TSourceData>,
-) => DragKeyboardMoveResult;
-
-/**
- * How a keyboard drag is started on a draggable.
- *
- * - `'auto'`: Space or Enter picks the element up while it is focused.
- * - `'manual'`: Only `useDragDropManager().startKeyboardDrag()` picks it up, so the element
- *   keeps its own Space and Enter. It stays focusable and announced as draggable.
- * - `'off'`: The element is never keyboard-draggable. The keyboard a11y attributes are
- *   omitted too, so screen readers don't announce a gesture that doesn't exist.
- */
-export type DragKeyboardActivation = 'auto' | 'manual' | 'off';
-
 /**
  * An element, a ref object, or a function that returns an element. Base UI resolves
  * it on every constrained move, so a ref can become available during a drag.
@@ -792,18 +586,10 @@ export interface DragModifierContext {
    * `point − previewOffset`. `(0, 0)` on a preview part and when there is no preview.
    */
   previewOffset: DragPosition;
-  /** The input method driving the drag. */
-  mode: DragMode;
   /**
    * Whether the Control key was held by the event that produced this move.
    *
-   * During a pointer drag, pressing or releasing a modifier key reapplies the drag
-   * modifiers on the next frame. During a keyboard drag, the flags describe each
-   * arrow press. Ctrl, Alt, and Meta chords remain available for other shortcuts.
-   *
-   * Check `mode` with these flags because a key may behave differently for pointer
-   * and keyboard drags. For example, Shift increases the step used by
-   * `fixedStepKeyboardMovement`.
+   * Pressing or releasing a modifier key reapplies the drag modifiers on the next frame.
    */
   ctrlKey: boolean;
   /** Whether the Shift key was held by the event that produced this move. See `ctrlKey`. */

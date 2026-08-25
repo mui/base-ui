@@ -3,7 +3,6 @@ import * as React from 'react';
 import { Draggable } from '@base-ui/react/draggable';
 import { DropTarget } from '@base-ui/react/drop-target';
 import { DragAutoScroll } from '@base-ui/react/drag-auto-scroll';
-import { useDragDropManager } from '@base-ui/react/use-drag-drop-manager';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { INITIAL_NODES, type FileNode, type FileSystem } from '../data';
 
@@ -17,10 +16,8 @@ const ITEM_CLASS =
   'box-border flex cursor-grab flex-col items-center gap-1.5 border border-transparent px-2 py-3 text-center text-xs leading-4 text-neutral-950 transition-colors dark:text-white hover:bg-neutral-100 dark:hover:bg-neutral-800 focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-neutral-950 dark:focus-visible:outline-white data-[dragging]:opacity-40 data-[accepting]:not-data-dragging:border-neutral-400 dark:data-[accepting]:not-data-dragging:border-neutral-500 data-[drag-over-innermost]:border-neutral-950 data-[drag-over-innermost]:bg-neutral-100 dark:data-[drag-over-innermost]:border-white dark:data-[drag-over-innermost]:bg-neutral-800 data-[rejected]:border-dashed data-[rejected]:border-neutral-400 dark:data-[rejected]:border-neutral-500';
 
 // The compact card that follows the pointer in place of a clone of the tile.
-// A keyboard drag eases its `translate` between targets and mirrors the focus
-// ring so the moving card reads as focused.
 const PREVIEW_CLASS =
-  'box-border flex items-center gap-1.5 whitespace-nowrap border border-neutral-950 bg-white px-2 py-1 text-xs leading-4 text-neutral-950 shadow-[0.25rem_0.25rem_0_rgb(0_0_0_/_12%)] dark:border-white dark:bg-neutral-950 dark:text-white dark:shadow-none data-[drag-mode=keyboard]:outline-2 data-[drag-mode=keyboard]:-outline-offset-1 data-[drag-mode=keyboard]:outline-neutral-950 dark:data-[drag-mode=keyboard]:outline-white data-[drag-mode=keyboard]:[transition:translate_0.2s_ease] motion-safe:data-ending-style:transition-[translate] motion-safe:data-ending-style:duration-200 motion-safe:data-ending-style:ease-[cubic-bezier(0.2,0,0,1)]';
+  'box-border flex items-center gap-1.5 whitespace-nowrap border border-neutral-950 bg-white px-2 py-1 text-xs leading-4 text-neutral-950 shadow-[0.25rem_0.25rem_0_rgb(0_0_0_/_12%)] dark:border-white dark:bg-neutral-950 dark:text-white dark:shadow-none motion-safe:data-ending-style:transition-[translate] motion-safe:data-ending-style:duration-200 motion-safe:data-ending-style:ease-[cubic-bezier(0.2,0,0,1)]';
 
 const ICON_CLASS = 'shrink-0 text-neutral-500 dark:text-neutral-400';
 
@@ -75,19 +72,11 @@ function getPath(nodes: FileSystem, folderId: string): FileNode[] {
 }
 
 function useKeyboardControls(onOpen?: () => void) {
-  const manager = useDragDropManager();
-
   return useStableCallback((event: React.KeyboardEvent<HTMLElement>) => {
-    const hasOtherModifier = event.ctrlKey || event.metaKey || event.shiftKey;
+    const hasModifier = event.altKey || event.ctrlKey || event.metaKey || event.shiftKey;
     const isSpace = event.key === ' ' || event.key === 'Space' || event.key === 'Spacebar';
     const isActivationKey = isSpace || event.code === 'Space' || event.key === 'Enter';
-    if (event.altKey && !hasOtherModifier && event.key === 'Enter') {
-      event.preventDefault();
-      manager.startKeyboardDrag(event.currentTarget);
-      return;
-    }
-
-    if (!event.altKey && !hasOtherModifier && isActivationKey && onOpen) {
+    if (!hasModifier && isActivationKey && onOpen) {
       event.preventDefault();
       onOpen();
     }
@@ -146,8 +135,7 @@ function NodePreview({ node }: { node: FileNode }) {
 }
 
 // A folder is both a drag source and a drop target: `render` puts both roles on
-// the same element. A plain click, Space, or Enter opens it. Alt+Enter starts a
-// keyboard drag without taking those keys from navigation.
+// the same element. A plain click, Space, or Enter opens it.
 function FolderTile({
   node,
   nodes,
@@ -163,14 +151,11 @@ function FolderTile({
 
   return (
     <Draggable.Root
-      label={node.name}
       kind={nodeKind}
       payload={node.id}
       // Arrow keys hop between accepting targets only: in a grid, free space is
       // never a valid position.
-      keyboardMovement={Draggable.targetsOnlyKeyboardMovement}
-      keyboardActivation="manual"
-      keyboardInstructions="Press Space or Enter to open. Press Alt+Enter to start dragging."
+
       role="button"
       className={ITEM_CLASS}
       onClick={() => onOpen(node.id)}
@@ -178,7 +163,6 @@ function FolderTile({
       // @highlight-start
       render={
         <DropTarget.Root
-          label={node.name}
           accept={nodeKind}
           canDrop={({ source }) => canDropInto(nodes, node.id, source.payload)}
           onDrop={({ source }) => onMove(source.payload, node.id)}
@@ -198,12 +182,8 @@ function FileTile({ node }: { node: FileNode }) {
 
   return (
     <Draggable.Root
-      label={node.name}
       kind={nodeKind}
       payload={node.id}
-      keyboardMovement={Draggable.targetsOnlyKeyboardMovement}
-      keyboardActivation="manual"
-      keyboardInstructions="Press Alt+Enter to start dragging."
       role="button"
       className={ITEM_CLASS}
       onKeyDownCapture={handleKeyDown}
@@ -234,7 +214,6 @@ function Crumb({
 }) {
   return (
     <DropTarget.Root
-      label={folder.name}
       accept={nodeKind}
       canDrop={({ source }) => canDropInto(nodes, folder.id, source.payload)}
       onDrop={({ source }) => onMove(source.payload, folder.id)}
@@ -290,7 +269,6 @@ export default function FileExplorer() {
           its background lands in that folder. `DragAutoScroll.Root` scrolls the
           container when a pointer drag nears an edge. */}
         <DropTarget.Root
-          label={nodes[currentFolderId].name}
           accept={nodeKind}
           canDrop={({ source }) => canDropInto(nodes, currentFolderId, source.payload)}
           onDrop={({ source }) => moveNode(source.payload, currentFolderId)}

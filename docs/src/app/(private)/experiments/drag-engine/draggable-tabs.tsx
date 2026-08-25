@@ -143,13 +143,12 @@ function DraggableTab(props: DraggableTabProps) {
       data-drag-disabled={draggable ? undefined : ''}
       render={
         <Draggable.Root<string>
-          label={`${item.label} tab`}
           kind={kind}
           payload={item.id}
           disabled={!draggable}
           // Enter and Space stay with Tabs. Alt+Arrow provides the equivalent
           // keyboard reorder action without taking over tab selection.
-          keyboardActivation="off"
+
           pointerActivation={{ mouse: { type: 'distance', distance: 5 } }}
           modifiers={Draggable.restrictToHorizontalAxis}
           onBeforeDragStart={handleBeforeDragStart}
@@ -158,7 +157,6 @@ function DraggableTab(props: DraggableTabProps) {
           onDragEnd={onDragEnd}
           render={
             <DropTarget.Root
-              label={`${item.label} tab`}
               accept={kind}
               trackDragOver={false}
               onDrag={handleDrag}
@@ -288,7 +286,6 @@ function SortableTabs(props: SortableTabsProps) {
         activateOnFocus
         render={
           <DropTarget.Root
-            label="Tab list"
             accept={kind}
             trackDragOver={false}
             render={<DragAutoScroll.Root allowedAxis="horizontal" />}

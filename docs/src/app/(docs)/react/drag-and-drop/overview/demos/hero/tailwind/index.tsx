@@ -17,7 +17,7 @@ type Shape = (typeof SHAPES)[number];
 type ShapeId = Shape['id'];
 
 const PIECE_CLASS =
-  'z-10 size-14 cursor-grab bg-neutral-950 transition-opacity data-[dragging]:opacity-0 motion-safe:data-[drag-preview]:data-ending-style:transition-[translate] motion-safe:data-[drag-preview]:data-ending-style:duration-200 motion-safe:data-[drag-preview]:data-ending-style:ease-[cubic-bezier(0.2,0,0,1)] data-[drag-preview]:data-[drag-mode=keyboard]:outline-2 data-[drag-preview]:data-[drag-mode=keyboard]:outline-offset-4 data-[drag-preview]:data-[drag-mode=keyboard]:outline-neutral-950 dark:data-[drag-preview]:data-[drag-mode=keyboard]:outline-white focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-neutral-950 dark:bg-white dark:focus-visible:outline-white data-[shape=circle]:rounded-full data-[shape=triangle]:[clip-path:polygon(50%_4%,96%_96%,4%_96%)]';
+  'z-10 size-14 cursor-grab bg-neutral-950 transition-opacity data-[dragging]:opacity-0 motion-safe:data-[drag-preview]:data-ending-style:transition-[translate] motion-safe:data-[drag-preview]:data-ending-style:duration-200 motion-safe:data-[drag-preview]:data-ending-style:ease-[cubic-bezier(0.2,0,0,1)] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-neutral-950 dark:bg-white dark:focus-visible:outline-white data-[shape=circle]:rounded-full data-[shape=triangle]:[clip-path:polygon(50%_4%,96%_96%,4%_96%)]';
 
 const CUTOUT_CLASS =
   'col-start-1 row-start-1 size-14 bg-neutral-200 transition-colors dark:bg-neutral-700 data-[shape=circle]:rounded-full data-[shape=triangle]:[clip-path:polygon(50%_4%,96%_96%,4%_96%)]';
@@ -28,7 +28,6 @@ function ShapePiece({ shape }: { shape: Shape }) {
       className={PIECE_CLASS}
       data-shape={shape.id}
       kind={shape.kind}
-      label={shape.label}
       aria-label={shape.label}
       role="button"
       tabIndex={0}
@@ -73,7 +72,6 @@ export default function ShapeSorter() {
             <DropTarget.Root
               key={shape.id}
               className="group grid h-24 place-items-center data-[accepting]:[&_[data-cutout]]:bg-neutral-300 data-[drag-over]:[&_[data-cutout]]:bg-neutral-400 dark:data-[accepting]:[&_[data-cutout]]:bg-neutral-600 dark:data-[drag-over]:[&_[data-cutout]]:bg-neutral-500"
-              label={`${shape.label} cutout`}
               // @highlight-start
               accept={shape.kind}
               onDrop={() => placeShape(shape.id)}

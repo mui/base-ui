@@ -16,7 +16,7 @@ Auto-scroll is opt-in. The board above uses one `DragAutoScroll.Provider` to ena
 
 Once a provider is mounted, Base UI detects nested scroll containers around drag sources, the pointer, and drop targets. Scrollable elements need no additional props. Use `DragAutoScroll.Root` to [configure an existing scroll container](#customize-a-container-that-already-scrolls) or [implement custom scrolling](#implement-custom-scrolling), such as panning a canvas with a CSS `transform`.
 
-It pairs with [Draggable](/react/components/draggable) and [DropTarget](/react/components/drop-target). For auto-scroll inside a reorderable list, see the [collections guide](/react/drag-and-drop/collections). Auto-scroll runs for pointer drags only; a keyboard drag scrolls the focused target into view instead.
+It pairs with [Draggable](/react/components/draggable) and [DropTarget](/react/components/drop-target). Auto-scroll runs while a pointer drag approaches the edge of a scrollable container.
 
 ## Anatomy
 

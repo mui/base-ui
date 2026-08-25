@@ -71,16 +71,13 @@ type ReturnValue = void;
 
 Returns the page-wide drag-and-drop manager. It includes the registration methods that
 `Draggable.Root`, `DropTarget.Root`, `DragAutoScroll.Root`, and `useDragMonitor`
-are built on, plus `startKeyboardDrag` to open a keyboard drag from your own
-trigger and `cancelDrag` to end the drag in progress.
+are built on, plus `cancelDrag` to end the drag in progress.
 
 Use it to register an existing element, integrate a non-React widget, or keep
 registrations in one place.
 
-Every call controls the same page-wide manager. Base UI reads the locale and
-nearest `Draggable.PreviewProvider` at the hook's call site. Put both providers
-above the component that calls `useDragDropManager`, even when the registered
-elements render elsewhere.
+Every call controls the same page-wide manager. Base UI reads the nearest
+`Draggable.PreviewProvider` at the hook's call site.
 
 **useDragDropManager Return Value:**
 
@@ -96,46 +93,40 @@ type useDragDropManagerReturnValue = {
    * Registers a drag source and returns a cleanup that unregisters it.
    *
    * Base UI reads behavior from the getter on every event. It applies gesture
-   * styles, `aria-roledescription`, and `aria-describedby` when the element
-   * registers, then reads them again on the next pointer press or focus event.
-   * Re-register the element to update these idle DOM attributes immediately.
+   * styles when the element registers, then reads them again on the next pointer
+   * press. Re-register the element to update the idle styles immediately.
    */
   registerDraggable:
     | (<TData>(
         element: HTMLElement,
         getParameters: () => {
           previewKey?: string | number;
-          label?: string;
           kind: DragKind<TData>;
           dragHandle?: DragHandle;
-          keyboardDragHandle?: DragHandle;
           disabled?: boolean;
           onBeforeDragStart?: (
             context: DragStartContext,
             eventDetails: BeforeDragStartEventDetails,
           ) => void;
           pointerActivation?: DragActivationConfig;
-          keyboardAnnouncements?: DragKeyboardAnnouncements<TData>;
-          finalFocus?: DragKeyboardFinalFocus<TData>;
-          ariaRoleDescription?: string;
-          keyboardInstructions?: string;
-          keyboardActivation?: DragKeyboardActivation;
-          keyboardMovement?: DragKeyboardMovement<TData>;
           modifiers?: DragModifiers;
           dragCursor?: string | false;
           dragPreview?: DragPreviewParameters<TData>;
           onDragStart?: (
             parameters: DragStartEvent<TData>,
-            eventDetails: DragStartEventDetails,
+            eventDetails: { reason: 'pointer'; event: PointerEvent },
           ) => void;
-          onDrag?: (parameters: DragMoveEvent<TData>, eventDetails: DragMoveEventDetails) => void;
+          onDrag?: (
+            parameters: DragMoveEvent<TData>,
+            eventDetails: { reason: 'pointer'; event: PointerEvent },
+          ) => void;
           onDropTargetChange?: (
             parameters: DropTargetChangeEvent<TData>,
             eventDetails: DropTargetChangeEventDetails,
           ) => void;
           onDrop?: (
             parameters: DragDropEvent<TData>,
-            eventDetails: { reason: 'drop'; event: PointerEvent | KeyboardEvent },
+            eventDetails: { reason: 'drop'; event: PointerEvent },
           ) => void;
           onDragEnd?: (parameters: DragEndEvent<TData>, eventDetails: DragEndEventDetails) => void;
           payload?: undefined;
@@ -158,16 +149,15 @@ type useDragDropManagerReturnValue = {
     | (<TAccept extends AnyDragAccept = DragKind>(
         element: HTMLElement,
         getParameters?: () => {
-          label?: string;
           kind?: DragKind<undefined>;
           disabled?: boolean;
           onDragStart?: (
             parameters: DropTargetEvent<'onDragStart', TPayload | unknown, undefined>,
-            eventDetails: DragStartEventDetails,
+            eventDetails: { reason: 'pointer'; event: PointerEvent },
           ) => void;
           onDrag?: (
             parameters: DropTargetEvent<'onDrag', TPayload | unknown, undefined>,
-            eventDetails: DragMoveEventDetails,
+            eventDetails: { reason: 'pointer'; event: PointerEvent },
           ) => void;
           onDropTargetChange?: (
             parameters: DropTargetEvent<'onDropTargetChange', TPayload | unknown, undefined>,
@@ -175,7 +165,7 @@ type useDragDropManagerReturnValue = {
           ) => void;
           onDrop?: (
             parameters: DropEvent<TPayload | unknown, undefined>,
-            eventDetails: { reason: 'drop'; event: PointerEvent | KeyboardEvent },
+            eventDetails: { reason: 'drop'; event: PointerEvent },
           ) => void;
           accept: TAccept;
           canDrop?: (
@@ -230,26 +220,9 @@ type useDragDropManagerReturnValue = {
   ) => DragCleanupFn;
   /**
    * Cancels the drag in progress, if any.
-   * Fires `onDragEnd` with `canceled: true` and, for a keyboard drag, restores focus
-   * and announces the cancellation.
+   * Fires `onDragEnd` with `canceled: true`.
    */
   cancelDrag: () => void;
-  /**
-   * Starts a keyboard drag on a registered draggable as if the user pressed Space,
-   * and returns whether it started. Arrow keys move the drag, Space or Enter drops
-   * it, and Escape cancels it.
-   *
-   * With `keyboardActivation: 'manual'`, call this method from another control,
-   * such as a "Reorder" item in the draggable's menu.
-   *
-   * Pass the registered element or one of its descendants. A `null` or detached
-   * element returns `false`, which handles a source that unmounts before a deferred
-   * menu-close callback runs. The method also returns `false` if another drag is
-   * active, the draggable is disabled, keyboard activation is off, or
-   * `onBeforeDragStart` cancels. A mounted element outside a registered draggable
-   * throws an error.
-   */
-  startKeyboardDrag: (element: HTMLElement | null) => boolean;
 };
 ```
 
@@ -285,8 +258,8 @@ The accepted source's payload is `unknown` until narrowed with a specific kind.
 ```typescript
 type anyKind = {
   /**
-   * The name or global key used to create this kind. This is not an accessible
-   * name. Use `label` on a draggable or drop target instead.
+   * The name or global key used to create this kind. This is a debugging aid,
+   * not an accessible name.
    */
   name: string;
   /**
@@ -305,7 +278,7 @@ The page-wide drag-and-drop manager returned by `useDragDropManager`.
 
 Each `register*` method takes a parameter getter and returns a cleanup that
 unregisters. Callbacks and dynamic options are read when used; source identity,
-preview settings, monitor eligibility, and idle DOM attributes have the timing
+preview settings, monitor eligibility, and idle gesture styles have the timing
 documented by their registration methods.
 
 ```typescript
@@ -314,46 +287,40 @@ type DragDropManager = {
    * Registers a drag source and returns a cleanup that unregisters it.
    *
    * Base UI reads behavior from the getter on every event. It applies gesture
-   * styles, `aria-roledescription`, and `aria-describedby` when the element
-   * registers, then reads them again on the next pointer press or focus event.
-   * Re-register the element to update these idle DOM attributes immediately.
+   * styles when the element registers, then reads them again on the next pointer
+   * press. Re-register the element to update the idle styles immediately.
    */
   registerDraggable:
     | (<TData>(
         element: HTMLElement,
         getParameters: () => {
           previewKey?: string | number;
-          label?: string;
           kind: DragKind<TData>;
           dragHandle?: DragHandle;
-          keyboardDragHandle?: DragHandle;
           disabled?: boolean;
           onBeforeDragStart?: (
             context: DragStartContext,
             eventDetails: BeforeDragStartEventDetails,
           ) => void;
           pointerActivation?: DragActivationConfig;
-          keyboardAnnouncements?: DragKeyboardAnnouncements<TData>;
-          finalFocus?: DragKeyboardFinalFocus<TData>;
-          ariaRoleDescription?: string;
-          keyboardInstructions?: string;
-          keyboardActivation?: DragKeyboardActivation;
-          keyboardMovement?: DragKeyboardMovement<TData>;
           modifiers?: DragModifiers;
           dragCursor?: string | false;
           dragPreview?: DragPreviewParameters<TData>;
           onDragStart?: (
             parameters: DragStartEvent<TData>,
-            eventDetails: DragStartEventDetails,
+            eventDetails: { reason: 'pointer'; event: PointerEvent },
           ) => void;
-          onDrag?: (parameters: DragMoveEvent<TData>, eventDetails: DragMoveEventDetails) => void;
+          onDrag?: (
+            parameters: DragMoveEvent<TData>,
+            eventDetails: { reason: 'pointer'; event: PointerEvent },
+          ) => void;
           onDropTargetChange?: (
             parameters: DropTargetChangeEvent<TData>,
             eventDetails: DropTargetChangeEventDetails,
           ) => void;
           onDrop?: (
             parameters: DragDropEvent<TData>,
-            eventDetails: { reason: 'drop'; event: PointerEvent | KeyboardEvent },
+            eventDetails: { reason: 'drop'; event: PointerEvent },
           ) => void;
           onDragEnd?: (parameters: DragEndEvent<TData>, eventDetails: DragEndEventDetails) => void;
           payload?: undefined;
@@ -376,16 +343,15 @@ type DragDropManager = {
     | (<TAccept extends AnyDragAccept = DragKind>(
         element: HTMLElement,
         getParameters?: () => {
-          label?: string;
           kind?: DragKind<undefined>;
           disabled?: boolean;
           onDragStart?: (
             parameters: DropTargetEvent<'onDragStart', TPayload | unknown, undefined>,
-            eventDetails: DragStartEventDetails,
+            eventDetails: { reason: 'pointer'; event: PointerEvent },
           ) => void;
           onDrag?: (
             parameters: DropTargetEvent<'onDrag', TPayload | unknown, undefined>,
-            eventDetails: DragMoveEventDetails,
+            eventDetails: { reason: 'pointer'; event: PointerEvent },
           ) => void;
           onDropTargetChange?: (
             parameters: DropTargetEvent<'onDropTargetChange', TPayload | unknown, undefined>,
@@ -393,7 +359,7 @@ type DragDropManager = {
           ) => void;
           onDrop?: (
             parameters: DropEvent<TPayload | unknown, undefined>,
-            eventDetails: { reason: 'drop'; event: PointerEvent | KeyboardEvent },
+            eventDetails: { reason: 'drop'; event: PointerEvent },
           ) => void;
           accept: TAccept;
           canDrop?: (
@@ -448,26 +414,9 @@ type DragDropManager = {
   ) => DragCleanupFn;
   /**
    * Cancels the drag in progress, if any.
-   * Fires `onDragEnd` with `canceled: true` and, for a keyboard drag, restores focus
-   * and announces the cancellation.
+   * Fires `onDragEnd` with `canceled: true`.
    */
   cancelDrag: () => void;
-  /**
-   * Starts a keyboard drag on a registered draggable as if the user pressed Space,
-   * and returns whether it started. Arrow keys move the drag, Space or Enter drops
-   * it, and Escape cancels it.
-   *
-   * With `keyboardActivation: 'manual'`, call this method from another control,
-   * such as a "Reorder" item in the draggable's menu.
-   *
-   * Pass the registered element or one of its descendants. A `null` or detached
-   * element returns `false`, which handles a source that unmounts before a deferred
-   * menu-close callback runs. The method also returns `false` if another drag is
-   * active, the draggable is disabled, keyboard activation is off, or
-   * `onBeforeDragStart` cancels. A mounted element outside a registered draggable
-   * throws an error.
-   */
-  startKeyboardDrag: (element: HTMLElement | null) => boolean;
 };
 ```
 
@@ -482,8 +431,8 @@ types `source.payload` and `self.payload` everywhere the kind is used.
 ```typescript
 type DragKind<TPayload = unknown> = {
   /**
-   * The name or global key used to create this kind. This is not an accessible
-   * name. Use `label` on a draggable or drop target instead.
+   * The name or global key used to create this kind. This is a debugging aid,
+   * not an accessible name.
    */
   name: string;
   /**
@@ -583,12 +532,6 @@ type RegisterDraggableParameters<TData = undefined> = {
    */
   previewKey?: string | number;
   /**
-   * Human-readable name of this draggable, used by the default screen-reader
-   * announcements for keyboard drags. Defaults to a generic "item".
-   * For full control over the announcement text, use `keyboardAnnouncements` instead.
-   */
-  label?: string;
-  /**
    * The drag kind created with `Draggable.createKind`. Drop targets and monitors
    * list accepted kinds in `accept`. The kind determines the type of `payload` and
    * `source.payload`.
@@ -597,24 +540,14 @@ type RegisterDraggableParameters<TData = undefined> = {
   /**
    * Restricts drag initiation to a specific child element, ref, or resolver.
    * The handle should be available when the draggable is registered so it receives
-   * the gesture styles and keyboard attributes.
+   * the gesture styles.
    *
    * For sources registered imperatively. A draggable component restricts pickup
    * by rendering a `Draggable.Handle` instead.
    */
   dragHandle?: DragHandle;
   /**
-   * Restricts keyboard pickup to a specific child element, ref, or resolver without
-   * restricting pointer pickup. Space and Enter start a drag only when this element
-   * has focus. Omit it to use `dragHandle`, then the draggable element itself.
-   *
-   * For sources registered imperatively. A draggable component configures this by
-   * rendering a `Draggable.KeyboardHandle` instead.
-   */
-  keyboardDragHandle?: DragHandle;
-  /**
-   * Whether to disable dragging. Pointer presses and keyboard events keep their
-   * native behavior, and Base UI omits the keyboard-drag accessibility attributes.
+   * Whether to disable dragging. Pointer presses keep their native behavior.
    * Use `onBeforeDragStart` instead when the decision depends on the gesture.
    * @default false
    */
@@ -631,46 +564,11 @@ type RegisterDraggableParameters<TData = undefined> = {
   /**
    * Determines when a pointer press starts a drag. Mouse and pen use a 5px distance
    * by default. Touch uses a 250ms press and hold. Pass one `DragActivation` for
-   * every pointer type or a map with per-type values. See `keyboardActivation` for
-   * keyboard pickup.
+   * every pointer type or a map with per-type values.
    */
   pointerActivation?: DragActivationConfig;
   /**
-   * Screen-reader announcements for keyboard drags.
-   * Merged over the defaults; omit a callback to keep its default.
-   */
-  keyboardAnnouncements?: DragKeyboardAnnouncements<TData>;
-  /**
-   * Determines where focus moves after a keyboard drag. See
-   * `DragKeyboardFinalFocus` for the supported values.
-   * A pointer drag never moves focus.
-   * @default true
-   */
-  finalFocus?: DragKeyboardFinalFocus<TData>;
-  /**
-   * Value for `aria-roledescription` on the drag handle, announcing the
-   * element as draggable to screen readers. Defaults to the text of the nearest
-   * `LocalizationProvider`.
-   */
-  ariaRoleDescription?: string;
-  /**
-   * Text for the shared keyboard-drag instructions node, read by a screen reader when
-   * the handle is focused. Defaults to the text of the nearest `LocalizationProvider`.
-   */
-  keyboardInstructions?: string;
-  /**
-   * How keyboard dragging is started. See `DragKeyboardActivation` for
-   * the supported modes.
-   * @default 'auto'
-   */
-  keyboardActivation?: DragKeyboardActivation;
-  /**
-   * Controls how arrow keys move a keyboard drag. See `DragKeyboardMovement`.
-   * Ignored when `keyboardActivation` is `'off'`.
-   */
-  keyboardMovement?: DragKeyboardMovement<TData>;
-  /**
-   * Constrains pointer and keyboard movement with one modifier or an array applied
+   * Constrains pointer movement with one modifier or an array applied
    * in order. See `DragModifiers` and the exported modifier presets.
    */
   modifiers?: DragModifiers;
@@ -696,13 +594,19 @@ type RegisterDraggableParameters<TData = undefined> = {
    * has already been resolved by then, so it is safe to measure or restyle the
    * source from here.
    */
-  onDragStart?: (parameters: DragStartEvent<TData>, eventDetails: DragStartEventDetails) => void;
+  onDragStart?: (
+    parameters: DragStartEvent<TData>,
+    eventDetails: { reason: 'pointer'; event: PointerEvent },
+  ) => void;
   /**
-   * Event handler called as the pointer or keyboard cursor moves, limited to one
+   * Event handler called as the pointer moves, limited to one
    * call per animation frame. Drop target stack changes do not call this handler.
    * Use the drop target's `onDrag` for hover behavior.
    */
-  onDrag?: (parameters: DragMoveEvent<TData>, eventDetails: DragMoveEventDetails) => void;
+  onDrag?: (
+    parameters: DragMoveEvent<TData>,
+    eventDetails: { reason: 'pointer'; event: PointerEvent },
+  ) => void;
   /**
    * Event handler called when the active drop targets change,
    * because one was entered or left.
@@ -718,7 +622,7 @@ type RegisterDraggableParameters<TData = undefined> = {
    */
   onDrop?: (
     parameters: DragDropEvent<TData>,
-    eventDetails: { reason: 'drop'; event: PointerEvent | KeyboardEvent },
+    eventDetails: { reason: 'drop'; event: PointerEvent },
   ) => void;
   /**
    * Event handler called once when the drag ends after a drop, outside release, or
@@ -745,12 +649,6 @@ type RegisterDraggableParametersWithPayload<TData> = (
    */
   previewKey?: string | number;
   /**
-   * Human-readable name of this draggable, used by the default screen-reader
-   * announcements for keyboard drags. Defaults to a generic "item".
-   * For full control over the announcement text, use `keyboardAnnouncements` instead.
-   */
-  label?: string;
-  /**
    * The drag kind created with `Draggable.createKind`. Drop targets and monitors
    * list accepted kinds in `accept`. The kind determines the type of `payload` and
    * `source.payload`.
@@ -759,24 +657,14 @@ type RegisterDraggableParametersWithPayload<TData> = (
   /**
    * Restricts drag initiation to a specific child element, ref, or resolver.
    * The handle should be available when the draggable is registered so it receives
-   * the gesture styles and keyboard attributes.
+   * the gesture styles.
    *
    * For sources registered imperatively. A draggable component restricts pickup
    * by rendering a `Draggable.Handle` instead.
    */
   dragHandle?: DragHandle;
   /**
-   * Restricts keyboard pickup to a specific child element, ref, or resolver without
-   * restricting pointer pickup. Space and Enter start a drag only when this element
-   * has focus. Omit it to use `dragHandle`, then the draggable element itself.
-   *
-   * For sources registered imperatively. A draggable component configures this by
-   * rendering a `Draggable.KeyboardHandle` instead.
-   */
-  keyboardDragHandle?: DragHandle;
-  /**
-   * Whether to disable dragging. Pointer presses and keyboard events keep their
-   * native behavior, and Base UI omits the keyboard-drag accessibility attributes.
+   * Whether to disable dragging. Pointer presses keep their native behavior.
    * Use `onBeforeDragStart` instead when the decision depends on the gesture.
    * @default false
    */
@@ -793,46 +681,11 @@ type RegisterDraggableParametersWithPayload<TData> = (
   /**
    * Determines when a pointer press starts a drag. Mouse and pen use a 5px distance
    * by default. Touch uses a 250ms press and hold. Pass one `DragActivation` for
-   * every pointer type or a map with per-type values. See `keyboardActivation` for
-   * keyboard pickup.
+   * every pointer type or a map with per-type values.
    */
   pointerActivation?: DragActivationConfig;
   /**
-   * Screen-reader announcements for keyboard drags.
-   * Merged over the defaults; omit a callback to keep its default.
-   */
-  keyboardAnnouncements?: DragKeyboardAnnouncements<TData>;
-  /**
-   * Determines where focus moves after a keyboard drag. See
-   * `DragKeyboardFinalFocus` for the supported values.
-   * A pointer drag never moves focus.
-   * @default true
-   */
-  finalFocus?: DragKeyboardFinalFocus<TData>;
-  /**
-   * Value for `aria-roledescription` on the drag handle, announcing the
-   * element as draggable to screen readers. Defaults to the text of the nearest
-   * `LocalizationProvider`.
-   */
-  ariaRoleDescription?: string;
-  /**
-   * Text for the shared keyboard-drag instructions node, read by a screen reader when
-   * the handle is focused. Defaults to the text of the nearest `LocalizationProvider`.
-   */
-  keyboardInstructions?: string;
-  /**
-   * How keyboard dragging is started. See `DragKeyboardActivation` for
-   * the supported modes.
-   * @default 'auto'
-   */
-  keyboardActivation?: DragKeyboardActivation;
-  /**
-   * Controls how arrow keys move a keyboard drag. See `DragKeyboardMovement`.
-   * Ignored when `keyboardActivation` is `'off'`.
-   */
-  keyboardMovement?: DragKeyboardMovement<TData>;
-  /**
-   * Constrains pointer and keyboard movement with one modifier or an array applied
+   * Constrains pointer movement with one modifier or an array applied
    * in order. See `DragModifiers` and the exported modifier presets.
    */
   modifiers?: DragModifiers;
@@ -858,13 +711,19 @@ type RegisterDraggableParametersWithPayload<TData> = (
    * has already been resolved by then, so it is safe to measure or restyle the
    * source from here.
    */
-  onDragStart?: (parameters: DragStartEvent<TData>, eventDetails: DragStartEventDetails) => void;
+  onDragStart?: (
+    parameters: DragStartEvent<TData>,
+    eventDetails: { reason: 'pointer'; event: PointerEvent },
+  ) => void;
   /**
-   * Event handler called as the pointer or keyboard cursor moves, limited to one
+   * Event handler called as the pointer moves, limited to one
    * call per animation frame. Drop target stack changes do not call this handler.
    * Use the drop target's `onDrag` for hover behavior.
    */
-  onDrag?: (parameters: DragMoveEvent<TData>, eventDetails: DragMoveEventDetails) => void;
+  onDrag?: (
+    parameters: DragMoveEvent<TData>,
+    eventDetails: { reason: 'pointer'; event: PointerEvent },
+  ) => void;
   /**
    * Event handler called when the active drop targets change,
    * because one was entered or left.
@@ -880,7 +739,7 @@ type RegisterDraggableParametersWithPayload<TData> = (
    */
   onDrop?: (
     parameters: DragDropEvent<TData>,
-    eventDetails: { reason: 'drop'; event: PointerEvent | KeyboardEvent },
+    eventDetails: { reason: 'drop'; event: PointerEvent },
   ) => void;
   /**
    * Event handler called once when the drag ends after a drop, outside release, or
@@ -910,11 +769,6 @@ type RegisterDropTargetParameters<TSourceData = unknown, TLocalData = unknown> =
    */
   getPayload?: (context: DropTargetResolutionContext<TSourceData>) => TLocalData;
   /**
-   * Human-readable name of this drop target, used by the default screen-reader
-   * announcements for keyboard drags to name where the item is and where it landed.
-   */
-  label?: string;
-  /**
    * The target kind created with `Draggable.createKind`. It is available as
    * `self.kind` and on entries in `location.dropTargets`. Use the kind's `matches`
    * method to distinguish target kinds and narrow their payload types. Its payload
@@ -938,7 +792,7 @@ type RegisterDropTargetParameters<TSourceData = unknown, TLocalData = unknown> =
    */
   onDragStart?: (
     parameters: DropTargetEvent<'onDragStart', TSourceData, TLocalData>,
-    eventDetails: DragStartEventDetails,
+    eventDetails: { reason: 'pointer'; event: PointerEvent },
   ) => void;
   /**
    * Event handler called on the frame this target enters the active stack, right
@@ -948,7 +802,7 @@ type RegisterDropTargetParameters<TSourceData = unknown, TLocalData = unknown> =
    */
   onDrag?: (
     parameters: DropTargetEvent<'onDrag', TSourceData, TLocalData>,
-    eventDetails: DragMoveEventDetails,
+    eventDetails: { reason: 'pointer'; event: PointerEvent },
   ) => void;
   /**
    * Event handler called when the active drop targets change, including changes that
@@ -968,7 +822,7 @@ type RegisterDropTargetParameters<TSourceData = unknown, TLocalData = unknown> =
    */
   onDrop?: (
     parameters: DropEvent<TSourceData, TLocalData>,
-    eventDetails: { reason: 'drop'; event: PointerEvent | KeyboardEvent },
+    eventDetails: { reason: 'drop'; event: PointerEvent },
   ) => void;
   /**
    * Predicate for whether this target should be considered a candidate for the
@@ -1008,7 +862,7 @@ type RegisterDropTargetParameters<TSourceData = unknown, TLocalData = unknown> =
   /**
    * Event handler called when this target leaves the active stack, because the
    * pointer moved away or the drag ended. `eventDetails.reason` identifies whether
-   * the pointer or keyboard left the target, or the drag ended.
+   * the pointer left the target, or the drag ended.
    */
   onDragLeave?: (
     parameters: DropTargetEvent<'onDragLeave', TSourceData, TLocalData>,
@@ -1028,11 +882,6 @@ type RegisterDropTargetParametersWithPayload<TSourceData, TLocalData> = (
   | { payload?: undefined; getPayload: DropTargetPayloadGetter<TSourceData, TLocalData> }
 ) & {
   /**
-   * Human-readable name of this drop target, used by the default screen-reader
-   * announcements for keyboard drags to name where the item is and where it landed.
-   */
-  label?: string;
-  /**
    * The target kind created with `Draggable.createKind`. It is available as
    * `self.kind` and on entries in `location.dropTargets`. Use the kind's `matches`
    * method to distinguish target kinds and narrow their payload types. Its payload
@@ -1056,7 +905,7 @@ type RegisterDropTargetParametersWithPayload<TSourceData, TLocalData> = (
    */
   onDragStart?: (
     parameters: DropTargetEvent<'onDragStart', TSourceData, TLocalData>,
-    eventDetails: DragStartEventDetails,
+    eventDetails: { reason: 'pointer'; event: PointerEvent },
   ) => void;
   /**
    * Event handler called on the frame this target enters the active stack, right
@@ -1066,7 +915,7 @@ type RegisterDropTargetParametersWithPayload<TSourceData, TLocalData> = (
    */
   onDrag?: (
     parameters: DropTargetEvent<'onDrag', TSourceData, TLocalData>,
-    eventDetails: DragMoveEventDetails,
+    eventDetails: { reason: 'pointer'; event: PointerEvent },
   ) => void;
   /**
    * Event handler called when the active drop targets change, including changes that
@@ -1086,7 +935,7 @@ type RegisterDropTargetParametersWithPayload<TSourceData, TLocalData> = (
    */
   onDrop?: (
     parameters: DropEvent<TSourceData, TLocalData>,
-    eventDetails: { reason: 'drop'; event: PointerEvent | KeyboardEvent },
+    eventDetails: { reason: 'drop'; event: PointerEvent },
   ) => void;
   accept: NonNullable<DragAccept<TSourceData> | undefined>;
   /**
@@ -1127,7 +976,7 @@ type RegisterDropTargetParametersWithPayload<TSourceData, TLocalData> = (
   /**
    * Event handler called when this target leaves the active stack, because the
    * pointer moved away or the drag ended. `eventDetails.reason` identifies whether
-   * the pointer or keyboard left the target, or the drag ended.
+   * the pointer left the target, or the drag ended.
    */
   onDragLeave?: (
     parameters: DropTargetEvent<'onDragLeave', TSourceData, TLocalData>,
@@ -1156,13 +1005,16 @@ type RegisterMonitorParameters<TSourceData = unknown> = {
    */
   onDragStart?: (
     parameters: DragStartEvent<TSourceData>,
-    eventDetails: DragStartEventDetails,
+    eventDetails: { reason: 'pointer'; event: PointerEvent },
   ) => void;
   /**
    * Event handler called (rAF-throttled) as the pointer moves during any
    * matching drag.
    */
-  onDrag?: (parameters: DragMoveEvent<TSourceData>, eventDetails: DragMoveEventDetails) => void;
+  onDrag?: (
+    parameters: DragMoveEvent<TSourceData>,
+    eventDetails: { reason: 'pointer'; event: PointerEvent },
+  ) => void;
   /**
    * Event handler called when the active drop-target stack changes during any
    * matching drag.
@@ -1177,7 +1029,7 @@ type RegisterMonitorParameters<TSourceData = unknown> = {
    */
   onDrop?: (
     parameters: DragDropEvent<TSourceData>,
-    eventDetails: { reason: 'drop'; event: PointerEvent | KeyboardEvent },
+    eventDetails: { reason: 'drop'; event: PointerEvent },
   ) => void;
   /**
    * Event handler called once when the drag ends after a drop, outside release, or
@@ -1192,7 +1044,7 @@ type RegisterMonitorParameters<TSourceData = unknown> = {
 
 The page-wide imperative API returned by [`useDragDropManager`](#usedragdropmanager).
 `registerDraggable`, `registerDropTarget`, `registerAutoScroller`,
-`registerMonitor`, `startKeyboardDrag`, and `cancelDrag`.
+`registerMonitor` and `cancelDrag`.
 
 ```typescript
 type UseDragDropManagerReturnValue = {
@@ -1200,46 +1052,40 @@ type UseDragDropManagerReturnValue = {
    * Registers a drag source and returns a cleanup that unregisters it.
    *
    * Base UI reads behavior from the getter on every event. It applies gesture
-   * styles, `aria-roledescription`, and `aria-describedby` when the element
-   * registers, then reads them again on the next pointer press or focus event.
-   * Re-register the element to update these idle DOM attributes immediately.
+   * styles when the element registers, then reads them again on the next pointer
+   * press. Re-register the element to update the idle styles immediately.
    */
   registerDraggable:
     | (<TData>(
         element: HTMLElement,
         getParameters: () => {
           previewKey?: string | number;
-          label?: string;
           kind: DragKind<TData>;
           dragHandle?: DragHandle;
-          keyboardDragHandle?: DragHandle;
           disabled?: boolean;
           onBeforeDragStart?: (
             context: DragStartContext,
             eventDetails: BeforeDragStartEventDetails,
           ) => void;
           pointerActivation?: DragActivationConfig;
-          keyboardAnnouncements?: DragKeyboardAnnouncements<TData>;
-          finalFocus?: DragKeyboardFinalFocus<TData>;
-          ariaRoleDescription?: string;
-          keyboardInstructions?: string;
-          keyboardActivation?: DragKeyboardActivation;
-          keyboardMovement?: DragKeyboardMovement<TData>;
           modifiers?: DragModifiers;
           dragCursor?: string | false;
           dragPreview?: DragPreviewParameters<TData>;
           onDragStart?: (
             parameters: DragStartEvent<TData>,
-            eventDetails: DragStartEventDetails,
+            eventDetails: { reason: 'pointer'; event: PointerEvent },
           ) => void;
-          onDrag?: (parameters: DragMoveEvent<TData>, eventDetails: DragMoveEventDetails) => void;
+          onDrag?: (
+            parameters: DragMoveEvent<TData>,
+            eventDetails: { reason: 'pointer'; event: PointerEvent },
+          ) => void;
           onDropTargetChange?: (
             parameters: DropTargetChangeEvent<TData>,
             eventDetails: DropTargetChangeEventDetails,
           ) => void;
           onDrop?: (
             parameters: DragDropEvent<TData>,
-            eventDetails: { reason: 'drop'; event: PointerEvent | KeyboardEvent },
+            eventDetails: { reason: 'drop'; event: PointerEvent },
           ) => void;
           onDragEnd?: (parameters: DragEndEvent<TData>, eventDetails: DragEndEventDetails) => void;
           payload?: undefined;
@@ -1262,16 +1108,15 @@ type UseDragDropManagerReturnValue = {
     | (<TAccept extends AnyDragAccept = DragKind>(
         element: HTMLElement,
         getParameters?: () => {
-          label?: string;
           kind?: DragKind<undefined>;
           disabled?: boolean;
           onDragStart?: (
             parameters: DropTargetEvent<'onDragStart', TPayload | unknown, undefined>,
-            eventDetails: DragStartEventDetails,
+            eventDetails: { reason: 'pointer'; event: PointerEvent },
           ) => void;
           onDrag?: (
             parameters: DropTargetEvent<'onDrag', TPayload | unknown, undefined>,
-            eventDetails: DragMoveEventDetails,
+            eventDetails: { reason: 'pointer'; event: PointerEvent },
           ) => void;
           onDropTargetChange?: (
             parameters: DropTargetEvent<'onDropTargetChange', TPayload | unknown, undefined>,
@@ -1279,7 +1124,7 @@ type UseDragDropManagerReturnValue = {
           ) => void;
           onDrop?: (
             parameters: DropEvent<TPayload | unknown, undefined>,
-            eventDetails: { reason: 'drop'; event: PointerEvent | KeyboardEvent },
+            eventDetails: { reason: 'drop'; event: PointerEvent },
           ) => void;
           accept: TAccept;
           canDrop?: (
@@ -1334,26 +1179,9 @@ type UseDragDropManagerReturnValue = {
   ) => DragCleanupFn;
   /**
    * Cancels the drag in progress, if any.
-   * Fires `onDragEnd` with `canceled: true` and, for a keyboard drag, restores focus
-   * and announces the cancellation.
+   * Fires `onDragEnd` with `canceled: true`.
    */
   cancelDrag: () => void;
-  /**
-   * Starts a keyboard drag on a registered draggable as if the user pressed Space,
-   * and returns whether it started. Arrow keys move the drag, Space or Enter drops
-   * it, and Escape cancels it.
-   *
-   * With `keyboardActivation: 'manual'`, call this method from another control,
-   * such as a "Reorder" item in the draggable's menu.
-   *
-   * Pass the registered element or one of its descendants. A `null` or detached
-   * element returns `false`, which handles a source that unmounts before a deferred
-   * menu-close callback runs. The method also returns `false` if another drag is
-   * active, the draggable is disabled, keyboard activation is off, or
-   * `onBeforeDragStart` cancels. A mounted element outside a registered draggable
-   * throws an error.
-   */
-  startKeyboardDrag: (element: HTMLElement | null) => boolean;
 };
 ```
 
@@ -1402,101 +1230,6 @@ type WithRequiredPayload<
 
 ## External Types
 
-### DragKeyboardActivation
-
-```typescript
-type DragKeyboardActivation = 'auto' | 'manual' | 'off';
-```
-
-### DragKeyboardMovement
-
-```typescript
-type DragKeyboardMovement = (details: {
-  key: 'ArrowUp' | 'ArrowDown' | 'ArrowLeft' | 'ArrowRight';
-  direction: { x: number; y: number };
-  shiftKey: boolean;
-  event: KeyboardEvent;
-  position: { x: number; y: number };
-  source: {
-    element: HTMLElement;
-    label: string | undefined;
-    kind: symbol;
-    dragHandle: Element | null;
-    payload: unknown;
-  };
-  target: {
-    element: Element;
-    label: string | undefined;
-    kind: symbol | undefined;
-    payload: unknown;
-    getLocalPoint: unknown;
-    getSnappedLocalPoint: unknown;
-  } | null;
-  location: {
-    initial: {
-      input: {
-        button: number;
-        buttons: number;
-        clientX: number;
-        clientY: number;
-        pageX: number;
-        pageY: number;
-        pointerType: 'mouse' | 'pen' | 'touch' | null;
-        ctrlKey: boolean;
-        shiftKey: boolean;
-        altKey: boolean;
-        metaKey: boolean;
-      };
-      dropTargets: unknown;
-    };
-    current: {
-      input: {
-        button: number;
-        buttons: number;
-        clientX: number;
-        clientY: number;
-        pageX: number;
-        pageY: number;
-        pointerType: 'mouse' | 'pen' | 'touch' | null;
-        ctrlKey: boolean;
-        shiftKey: boolean;
-        altKey: boolean;
-        metaKey: boolean;
-      };
-      dropTargets: unknown;
-    };
-    previous: {
-      input: {
-        button: number;
-        buttons: number;
-        clientX: number;
-        clientY: number;
-        pageX: number;
-        pageY: number;
-        pointerType: 'mouse' | 'pen' | 'touch' | null;
-        ctrlKey: boolean;
-        shiftKey: boolean;
-        altKey: boolean;
-        metaKey: boolean;
-      };
-      dropTargets: unknown;
-    };
-  };
-  suggestion:
-    | { type: 'target'; element: Element; position: { x: number; y: number } }
-    | { type: 'step'; position: { x: number; y: number } };
-  findTarget: unknown;
-  getTargets: unknown;
-}) =>
-  | { x: number; y: number }
-  | Element
-  | { type: 'target'; element: Element; position: { x: number; y: number } }
-  | { type: 'step'; position: { x: number; y: number } }
-  | 'false'
-  | null
-  | undefined;
-```
-
 ### DraggablePayloadGetter
 
 ```typescript
@@ -1508,7 +1241,7 @@ type DraggablePayloadGetter = (context: {
     clientY: number;
     pageX: number;
     pageY: number;
-    pointerType: 'mouse' | 'pen' | 'touch' | null;
+    pointerType: 'mouse' | 'pen' | 'touch';
     ctrlKey: boolean;
     shiftKey: boolean;
     altKey: boolean;
@@ -1525,14 +1258,12 @@ type DraggablePayloadGetter = (context: {
 type matches =
   | ((source: {
       element: HTMLElement;
-      label: string | undefined;
       kind: symbol;
       dragHandle: Element | null;
       payload: unknown;
     }) => boolean)
   | ((target: {
       element: Element;
-      label: string | undefined;
       kind: symbol | undefined;
       payload: unknown;
       getLocalPoint: unknown;
@@ -1551,19 +1282,13 @@ type DropTargetPayloadGetter = (context: {
     clientY: number;
     pageX: number;
     pageY: number;
-    pointerType: 'mouse' | 'pen' | 'touch' | null;
+    pointerType: 'mouse' | 'pen' | 'touch';
     ctrlKey: boolean;
     shiftKey: boolean;
     altKey: boolean;
     metaKey: boolean;
   };
-  source: {
-    element: HTMLElement;
-    label: string | undefined;
-    kind: symbol;
-    dragHandle: Element | null;
-    payload: unknown;
-  };
+  source: { element: HTMLElement; kind: symbol; dragHandle: Element | null; payload: unknown };
   element: Element;
 }) => unknown;
 ```
@@ -1587,19 +1312,13 @@ type DragAutoScrollApply = (parameters: {
     clientY: number;
     pageX: number;
     pageY: number;
-    pointerType: 'mouse' | 'pen' | 'touch' | null;
+    pointerType: 'mouse' | 'pen' | 'touch';
     ctrlKey: boolean;
     shiftKey: boolean;
     altKey: boolean;
     metaKey: boolean;
   };
-  source: {
-    element: HTMLElement;
-    label: string | undefined;
-    kind: symbol;
-    dragHandle: Element | null;
-    payload: unknown;
-  };
+  source: { element: HTMLElement; kind: symbol; dragHandle: Element | null; payload: unknown };
   element: HTMLElement;
 }) => 'false' | void | 'vertical' | 'horizontal' | 'all' | 'none' | null;
 ```

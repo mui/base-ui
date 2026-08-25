@@ -17,7 +17,6 @@ export default function DraggableHero() {
       {/* The surface is the drop target, so a release on it reaches `onDrop`. */}
       <DropTarget.Root
         ref={surfaceRef}
-        label="Canvas"
         accept={cardKind}
         trackDragOver={false}
         className={styles.Surface}
@@ -38,7 +37,6 @@ export default function DraggableHero() {
       >
         {/* @highlight-start */}
         <Draggable.Root
-          label="Drag me"
           kind={cardKind}
           modifiers={Draggable.restrictToElement(surfaceRef)}
           // @highlight-end

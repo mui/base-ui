@@ -1,4 +1,5 @@
 import { ownerDocument, ownerWindow } from '@base-ui/utils/owner';
+import { contains } from '@base-ui/utils/shadowDom';
 import { warn } from '@base-ui/utils/warn';
 import { WindowAnimationFrame } from '../windowAnimationFrame';
 import type {
@@ -43,6 +44,8 @@ const MUTATION_OBSERVER_OPTIONS: MutationObserverInit = {
   childList: true,
   subtree: true,
 };
+const PREVIEW_ATTR = 'data-drag-preview';
+const ELEMENT_NODE = 1;
 // Ramp the speed in over the first engaged frames rather than starting at
 // `maxSpeed`: a pointer that merely clips a container's edge on its way past
 // would otherwise lurch it, and the ramp restarts whenever the pointer leaves and
@@ -86,11 +89,13 @@ const state = getSharedSlot<AutoScrollerState>('registerAutoScroller', () => ({
   engagedThisFrame: new Set<HTMLElement>(),
   scrollerMutationObservers: new Map<HTMLElement, MutationObserver>(),
   idleMutationObserver: null,
+  idleObserving: false,
   overflowCache: new WeakMap<HTMLElement, OverflowFlags>(),
   rtlCache: new WeakMap<HTMLElement, boolean>(),
 }));
 state.scrollerMutationObservers ??= new Map();
 state.idleMutationObserver ??= null;
+state.idleObserving ??= false;
 state.scrollMonitorRetainers ??= 0;
 
 const holds = createGetterStackRegistry<HTMLElement, ScrollerGetter>({
@@ -116,7 +121,6 @@ export function addScrollerRegistration(
   // to wake it with — so without this it would sit still until the user moved.
   // The input the woken frame reads is not stale: the loop only parks after a
   // frame that saw the latest input, and any input since would have woken it.
-  // A keyboard drag is filtered out by `enabled` inside `wakeScrollLoop`.
   wakeScrollLoop();
   return () => {
     release();
@@ -128,23 +132,101 @@ export function addScrollerRegistration(
 }
 
 /**
- * Re-evaluate live auto-scroll parameters for the current pointer position.
- * React registrations call this after a parameter change because the loop may
- * have parked while the element was disabled or dynamically declined scrolling.
+ * Wake a parked loop so the next frame re-evaluates the live parameters at the
+ * current pointer position. React registrations call this after a parameter
+ * change, because the loop may have parked while the element was disabled or
+ * dynamically declined scrolling. The parameters are read through the getter
+ * every frame, so nothing cached has to be dropped for a change to apply.
  * @internal
  */
-export function refreshAutoScroll(): void {
+export function wakeAutoScroll(): void {
+  wakeScrollLoop();
+}
+
+/**
+ * Drop every per-drag cache and wake the loop, for a restyle that can alter
+ * whether a candidate scrolls or which side is its inline end without changing
+ * the inferred ancestor chain. The next frame re-reads both computed-style
+ * facts and rebuilds that chain (see `handleObservedMutations` for when this is
+ * warranted — it is the expensive answer, not the default one).
+ */
+function refreshAutoScroll(): void {
   if (!state.enabled) {
     return;
   }
-  // A same-node class/style change can alter whether it scrolls and which side
-  // is its inline end without changing the inferred ancestor chain. Force the
-  // next frame to re-read both computed-style facts and rebuild that chain.
   state.overflowCache = new WeakMap();
   state.rtlCache = new WeakMap();
   state.chainAnchor = null;
   invalidateScrollerOrder();
   wakeScrollLoop();
+}
+
+/**
+ * Route one batch of observed mutations to the cheapest adequate response.
+ *
+ * Both observers watch whole subtrees, and most of what they see during a drag
+ * has nothing to do with scroll containers: a consumer's `onDrag`-driven
+ * re-render restyling a drop indicator, or a virtualizer swapping rows in and out
+ * under an auto-scroll. Answering each with `refreshAutoScroll` discarded the
+ * per-drag style caches and rebuilt the inferred chain (a `getComputedStyle`
+ * per composed ancestor, plus a depth sort) on practically every commit of a
+ * reorder-with-auto-scroll drag.
+ *
+ * - Engine-owned preview writes change neither a container's overflow nor its
+ *   scroll extent: ignored.
+ * - Content changes (`childList`) and restyles outside the candidate chain can
+ *   give a container something to scroll — rows appended below the fold — but
+ *   not change which elements are containers or which way they scroll: the
+ *   loop is woken so the next frame re-reads the scroll extents.
+ * - A `class`/`style` change on a registered container, or on an ancestor of
+ *   the chain anchor or the source (where a descendant selector can flip an
+ *   overflow or a direction), is what the caches cannot survive: full refresh.
+ *
+ * An `:has()` rule turning an ancestor into a scroller off a descendant's class
+ * change is the one restyle this routing picks up a frame late (on the next
+ * chain change); rare enough to trade for a quiet loop.
+ */
+function handleObservedMutations(records: MutationRecord[]): void {
+  if (!state.enabled) {
+    return;
+  }
+  let wake = false;
+  for (const record of records) {
+    const target = record.target;
+    if (record.type === 'childList' || target.nodeType !== ELEMENT_NODE) {
+      wake = true;
+      continue;
+    }
+    const element = target as Element;
+    if (element.closest(`[${PREVIEW_ATTR}]`) !== null) {
+      continue;
+    }
+    if (affectsCandidateChain(element)) {
+      refreshAutoScroll();
+      return;
+    }
+    wake = true;
+  }
+  if (wake) {
+    wakeScrollLoop();
+  }
+}
+
+/**
+ * Whether a restyle of `element` can change a candidate's overflow or
+ * direction: it is a registered container itself, or it contains the element
+ * the inferred chain was walked from (or the source, whose chain is unioned in).
+ */
+function affectsCandidateChain(element: Element): boolean {
+  if (state.scrollers.has(element as HTMLElement)) {
+    return true;
+  }
+  const anchor = state.chainAnchor;
+  if (anchor === null) {
+    // No chain walked yet, so nothing to compare against: stay conservative.
+    return true;
+  }
+  return contains(element, anchor) || contains(element, state.currentSource?.element ?? null);
 }
 
 /** Invalidate the cached inner-first ordering; recomputed lazily in `scrollLoop`. */
@@ -336,8 +418,8 @@ function resolveRtl(scrollTarget: HTMLElement): boolean {
 
 // The viewport in client coordinates. `getViewportSize` is the engine's single
 // viewport definition (scrollbar-excluding, with the detached-document/jsdom
-// fallback), so the edge zones here agree with the keyboard cursor clamp and
-// `restrictToWindowEdges` on where the edge is.
+// fallback), so the edge zones here agree with `restrictToWindowEdges` on where
+// the edge is.
 function getViewportRect(element: HTMLElement) {
   const { width, height } = getViewportSize(ownerWindow(element));
   return {
@@ -856,8 +938,19 @@ function idleScrollLoop(): void {
   observeIdleMutations();
 }
 
+/**
+ * Stop delivering idle mutations. The observer itself is kept for the next
+ * park (see `observeIdleMutations`); `clearIdleMutationObserver` releases it.
+ */
+function pauseIdleMutationObserver(): void {
+  if (state.idleObserving) {
+    state.idleMutationObserver?.disconnect();
+    state.idleObserving = false;
+  }
+}
+
 function clearIdleMutationObserver(): void {
-  state.idleMutationObserver?.disconnect();
+  pauseIdleMutationObserver();
   state.idleMutationObserver = null;
 }
 
@@ -868,7 +961,7 @@ function observeScrollerMutations(element: HTMLElement): void {
   // The document observer below only exists while the loop is parked and cannot
   // see into a shadow root. Keep registered containers fresh while the loop runs,
   // but pay for these observers only during a pointer drag.
-  const observer = new (ownerWindow(element).MutationObserver)(refreshAutoScroll);
+  const observer = new (ownerWindow(element).MutationObserver)(handleObservedMutations);
   observer.observe(element, MUTATION_OBSERVER_OPTIONS);
   state.scrollerMutationObservers.set(element, observer);
 }
@@ -886,7 +979,7 @@ function clearScrollerMutationObservers(): void {
 }
 
 function observeIdleMutations(): void {
-  if (state.idleMutationObserver !== null || state.currentSource === null) {
+  if (state.idleObserving || state.currentSource === null) {
     return;
   }
   const doc = ownerDocument(state.currentSource.element);
@@ -897,13 +990,15 @@ function observeIdleMutations(): void {
   // A parked inferred scroller can become scrollable without an input event: a
   // stationary pointer may trigger delayed expansion that appends rows below the
   // fold. That produces no pointer move, scroll event, target change, or scroller
-  // registration. This one-shot observer is the wake path for that case.
-  const observer = new (ownerWindow(root).MutationObserver)(() => {
-    clearIdleMutationObserver();
-    refreshAutoScroll();
-  });
-  observer.observe(root, MUTATION_OBSERVER_OPTIONS);
-  state.idleMutationObserver = observer;
+  // registration. This observer is the wake path for that case.
+  //
+  // One instance per drag, connected while parked and disconnected on wake: a
+  // pointer crossing the middle of the page parks and wakes the loop on every
+  // frame, and constructing a fresh document-wide observer for each park was
+  // the most expensive thing such a frame did.
+  state.idleMutationObserver ??= new (ownerWindow(root).MutationObserver)(handleObservedMutations);
+  state.idleMutationObserver.observe(root, MUTATION_OBSERVER_OPTIONS);
+  state.idleObserving = true;
 }
 
 /** Resume a parked loop when fresh input may have moved the pointer into an edge zone. */
@@ -911,7 +1006,7 @@ function wakeScrollLoop(): void {
   if (!state.enabled || state.scrollLoopRaf !== null) {
     return;
   }
-  clearIdleMutationObserver();
+  pauseIdleMutationObserver();
   state.lastTimestamp = 0;
   state.scrollLoopRaf = requestScrollFrame();
 }
@@ -1071,18 +1166,12 @@ function getInnermostDropTargetElement(location: DragLocationHistory): Element |
 function startScrollSession({
   location,
   source,
-  mode,
-}: Pick<DragEventMap['onDragStart'], 'location' | 'source' | 'mode'>): void {
+}: Pick<DragEventMap['onDragStart'], 'location' | 'source'>): void {
   // A drag that ended abnormally with the loop *parked* leaves `enabled` set
   // and the last input/source referenced: the loop's own no-session
   // self-termination only runs when a frame fires. Clear that state before
   // this drag decides anything.
   stopScrollLoop();
-  // Keyboard drags scroll via `scrollIntoView` (one step per key); the
-  // edge-based loop would fight that.
-  if (mode === 'keyboard') {
-    return;
-  }
   state.currentInput = resolveScrollInput(location.current.input);
   state.currentReportedInput = location.current.input;
   state.currentSource = source;
@@ -1202,10 +1291,9 @@ interface AutoScrollerState {
   scrollLoopRaf: number | null;
   scrollWindow: Window | null;
   /**
-   * Auto-scroll is armed for the current drag — set by the scroll monitor's
-   * `onDragStart`, and so the one place keyboard drags are filtered out: every
-   * other entry point (`wakeScrollLoop`, `refreshDragInput`) reads this rather
-   * than re-testing the mode. Distinct from `scrollLoopRaf !== null`, which is
+   * Auto-scroll is armed for the current drag by the scroll monitor's
+   * `onDragStart`. Every other entry point (`wakeScrollLoop`, `refreshDragInput`)
+   * reads this flag. Distinct from `scrollLoopRaf !== null`, which is
    * false while the loop is merely parked between edge engagements (see
    * `idleScrollLoop`).
    */
@@ -1252,6 +1340,8 @@ interface AutoScrollerState {
   scrollerMutationObservers: Map<HTMLElement, MutationObserver>;
   /** Watches for content/style changes only while the frame loop is parked. */
   idleMutationObserver: MutationObserver | null;
+  /** Whether `idleMutationObserver` is currently connected (the loop is parked). */
+  idleObserving: boolean;
   /** Per-drag per-axis overflow cache (see `readCached`). */
   overflowCache: WeakMap<HTMLElement, OverflowFlags>;
   /** Per-drag `isRtl` cache (see `readCached`). */

@@ -32,7 +32,6 @@ function ShapePiece({ shape }: { shape: Shape }) {
       data-shape={shape.id}
       kind={shape.kind}
       payload={shape.id}
-      label={shape.label}
       aria-label={shape.label}
       role="button"
       tabIndex={0}
@@ -48,24 +47,32 @@ export default function MonitorShapeSorter() {
   useDragMonitor({
     accept: SHAPE_KINDS,
     onDragStart: ({ source }) => {
-      setMessage(`Picked up ${source.label}`);
+      setMessage(`Picked up ${SHAPES.find((shape) => shape.id === source.payload)?.label}`);
     },
     // @highlight-end
     onDropTargetChange: ({ source, location }) => {
       const target = location.current.dropTargets[0];
-      setMessage(target ? `${source.label} over ${target.label}` : `${source.label} over nothing`);
+      const sourceLabel = SHAPES.find((shape) => shape.id === source.payload)?.label;
+      const targetLabel = SHAPES.find((shape) => shape.id === target?.payload)?.label;
+      setMessage(target ? `${sourceLabel} over ${targetLabel}` : `${sourceLabel} over nothing`);
     },
     onDrop: ({ source, dropTarget }) => {
       setPlaced((current) =>
         current.includes(source.payload) ? current : [...current, source.payload],
       );
-      setMessage(`Dropped ${source.label} on ${dropTarget.label}`);
+      const sourceLabel = SHAPES.find((shape) => shape.id === source.payload)?.label;
+      const targetLabel = SHAPES.find((shape) => shape.id === dropTarget.payload)?.label;
+      setMessage(`Dropped ${sourceLabel} on ${targetLabel}`);
     },
     onDragEnd: ({ source }, eventDetails) => {
       if (eventDetails.reason === 'outside-release') {
-        setMessage(`Released ${source.label} over nothing`);
+        setMessage(
+          `Released ${SHAPES.find((shape) => shape.id === source.payload)?.label} over nothing`,
+        );
       } else if (eventDetails.reason !== 'drop') {
-        setMessage(`Canceled dragging ${source.label}`);
+        setMessage(
+          `Canceled dragging ${SHAPES.find((shape) => shape.id === source.payload)?.label}`,
+        );
       }
     },
   });
@@ -105,7 +112,8 @@ export default function MonitorShapeSorter() {
             <DropTarget.Root
               key={shape.id}
               className="grid h-24 place-items-center data-[accepting]:[&_[data-cutout]]:bg-neutral-300 data-[drag-over]:[&_[data-cutout]]:bg-neutral-400 dark:data-[accepting]:[&_[data-cutout]]:bg-neutral-600 dark:data-[drag-over]:[&_[data-cutout]]:bg-neutral-500"
-              label={`${shape.label} cutout`}
+              kind={shape.kind}
+              payload={shape.id}
               accept={shape.kind}
             >
               <span

@@ -398,10 +398,6 @@ function prepareDragPreviewClone(
   const { applyPostInsertion } = copyLiveState(sourceNodes, cloneNodes, win);
   sanitize(element, cloneNodes, '-drag-preview');
   element.removeAttribute('data-dragging');
-  element.removeAttribute('data-displacing');
-  element.removeAttribute('data-starting-style');
-  element.style.removeProperty('--drag-displacement-x');
-  element.style.removeProperty('--drag-displacement-y');
 
   return { element, applyPostInsertion };
 }

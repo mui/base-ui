@@ -10,7 +10,7 @@ import { DemoEngineShapeSorter } from './demos/hero';
 
 <DemoEngineShapeSorter />
 
-The `useDragDropManager` hook returns the page-wide imperative API. It has four registration methods, `registerDraggable`, `registerDropTarget`, `registerAutoScroller`, and `registerMonitor`. It also provides `startKeyboardDrag` and `cancelDrag`. The React components and hooks use the same registration methods internally.
+The `useDragDropManager` hook returns the page-wide imperative API. It has four registration methods, `registerDraggable`, `registerDropTarget`, `registerAutoScroller`, and `registerMonitor`. It also provides `cancelDrag`. The React components and hooks use the same registration methods internally.
 
 Every call controls the same manager. Calling the hook in two boards does not isolate them, and `cancelDrag()` ends whichever drag is active on the page. Use distinct kinds and target `accept` declarations to keep independent features from interacting.
 
@@ -39,16 +39,16 @@ The methods are reference-stable, so they are safe to list as effect dependencie
 Base UI reads parameters from the getter at different times:
 
 - **Every dispatch.** Event callbacks such as `onDragStart`, `onDrag`, and `onDrop`, and conditions such as `canDrop`, `canScroll`, and `allowedAxis`, are read from the getter each time. Base UI does not make the getter's closure reactive. Re-register from an effect when its dependencies change, or read mutable refs from the getter when the registration must stay mounted.
-- **Once at pickup.** Base UI reads `kind`, `payload`, `label`, and preview settings when the drag starts. Changes during the drag apply to the next drag.
-- **At registration and the next interaction.** Base UI applies gesture styles, `aria-roledescription`, `aria-describedby`, and `dragHandle` when the element registers. It reads them again on the next `pointerdown` or `focusin`. Drag behavior, including `disabled`, `keyboardActivation`, and `dragHandle`, is always checked at pickup. Re-register the element to update the idle DOM attributes immediately.
+- **Once at pickup.** Base UI reads `kind`, `payload`, and preview settings when the drag starts. Changes during the drag apply to the next drag.
+- **At registration and the next interaction.** Base UI applies gesture styles and `dragHandle` when the element registers. It reads them again on the next `pointerdown`. Drag behavior, including `disabled` and `dragHandle`, is always checked at pickup. Re-register the element to update the idle DOM state immediately.
 
 Base UI evaluates a monitor's `accept` once when it joins a drag. A monitor whose `accept` excludes a drag ignores it until it ends. A monitor registered during a drag is matched against the drag already in progress.
 
-Base UI reads the locale and nearest `Draggable.PreviewProvider` where `useDragDropManager` is called. Put those providers above the component that calls the hook, regardless of where the registered elements render.
+Base UI reads the nearest `Draggable.PreviewProvider` where `useDragDropManager` is called. Put that provider above the component that calls the hook, regardless of where the registered elements render.
 
 ## Draggables
 
-Register a drag source with `registerDraggable`. It accepts the [`Draggable.Root`](/react/components/draggable) options, including `kind`, `payload` or `getPayload`, `pointerActivation`, `label`, `disabled`, and the drag event callbacks. It also accepts `dragHandle` and `dragPreview`. `dragHandle` can be an element, ref, or function that restricts pickup to a handle. Unlike `Draggable.Root`, `registerDraggable` does not manage `tabIndex`. Make the element focusable to support keyboard dragging.
+Register a drag source with `registerDraggable`. It accepts the [`Draggable.Root`](/react/components/draggable) options, including `kind`, `payload` or `getPayload`, `pointerActivation`, `disabled`, and the drag event callbacks. It also accepts `dragHandle` and `dragPreview`. `dragHandle` can be an element, ref, or function that restricts pickup to a handle.
 
 ```tsx title="Register a drag source"
 manager.registerDraggable(element, () => ({ kind: card, payload: id }));
@@ -71,10 +71,9 @@ manager.registerDraggable(element, () => ({
 ```tsx title="A custom preview for a registered source"
 manager.registerDraggable(element, () => ({
   kind: card,
-  label,
   payload: id,
   dragPreview: {
-    render: ({ source }) => <span className="CardChip">{source.label}</span>,
+    render: ({ source }) => <span className="CardChip">{source.payload}</span>,
     offset: 'pointer',
   },
 }));
@@ -133,21 +132,9 @@ manager.registerMonitor(() => ({
 }));
 ```
 
-## Starting a keyboard drag
-
-`startKeyboardDrag` starts a drag as if the user pressed <kbd>Space</kbd>. It focuses the source or handle and returns whether the drag started. Pass the registered element or one of its descendants. The arrow keys move the drag, <kbd>Space</kbd> or <kbd>Enter</kbd> drops it, and <kbd>Escape</kbd> cancels it. Announcements and focus restoration work normally.
-
-Use it with [`keyboardActivation="manual"`](/react/components/draggable#moving-the-pickup-elsewhere) when the element needs <kbd>Space</kbd> for another action. For example, a "Reorder" menu item can start the drag after <kbd>Space</kbd> opens the menu.
-
-```tsx title="Starting from a menu item"
-<Menu.Item onClick={() => manager.startKeyboardDrag(taskRef.current)}>Reorder</Menu.Item>
-```
-
-It returns `false` if another drag is active, the draggable is disabled, keyboard activation is off, or `onBeforeDragStart` cancels. It also returns `false` for `null` or a detached element. This handles a source that unmounts before a deferred menu-close callback runs. Passing a mounted element outside a registered draggable throws an error.
-
 ## Cancelling a drag
 
-`cancelDrag` ends the active drag and fires `onDragEnd` with `canceled: true` and the reason `'imperative-action'`. For a keyboard drag, it also restores focus and announces the cancellation. It does nothing when no drag is active. Use it when a route change, dialog, or deleted record invalidates the drag.
+`cancelDrag` ends the active drag and fires `onDragEnd` with `canceled: true` and the reason `'imperative-action'`. It does nothing when no drag is active. Use it when a route change, dialog, or deleted record invalidates the drag.
 
 ```tsx title="Cancelling programmatically"
 const manager = useDragDropManager();

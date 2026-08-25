@@ -11,15 +11,14 @@ import { DemoShapeSorter } from './demos/hero';
 import { DemoSchedulerWeekView } from './demos/scheduler';
 import { DemoFigmaBoard } from './demos/figma';
 import { DemoKanbanBoard } from './demos/kanban';
-import { DemoSortableList } from './demos/sortable';
 import { DemoDraggableTabs } from './demos/tabs';
 import { DemoFileExplorer } from './demos/file-explorer';
 
-Base UI includes headless drag-and-drop for making elements draggable and building drop zones. It works across mouse, touch, and pen, with pointer-appropriate defaults for starting a drag (see [Activation](/react/components/draggable#activation)). `Draggable.Root` also supports keyboard dragging by default (see [Keyboard navigation](/react/components/draggable#keyboard-navigation)). The components are unstyled, including the preview that follows the pointer.
+Base UI includes headless drag-and-drop for making elements draggable and building drop zones. It works across mouse, touch, and pen, with pointer-appropriate defaults for starting a drag (see [Activation](/react/components/draggable#activation)). The components are unstyled, including the preview that follows the pointer.
 
 <DemoShapeSorter />
 
-The two main components have their own pages. [Draggable](/react/components/draggable) makes an element a drag source, and [DropTarget](/react/components/drop-target) marks where a drag can be released. The other guides cover [styling](/react/drag-and-drop/styling), [accessibility](/react/drag-and-drop/accessibility), [collections](/react/drag-and-drop/collections), and [testing](/react/drag-and-drop/testing).
+The two main components have their own pages. [Draggable](/react/components/draggable) makes an element a drag source, and [DropTarget](/react/components/drop-target) marks where a drag can be released. The other guides cover [styling](/react/drag-and-drop/styling), [accessibility](/react/drag-and-drop/accessibility), and [testing](/react/drag-and-drop/testing).
 
 ## Concepts
 
@@ -31,18 +30,18 @@ import { DropTarget } from '@base-ui/react/drop-target';
 
 const card = Draggable.createKind<Card>('card');
 
-<Draggable.Root kind={card} label={cardData.title} payload={cardData} />;
+<Draggable.Root kind={card} payload={cardData} />;
 
-<DropTarget.Root accept={card} label="Done" onDrop={({ source }) => move(source.payload.id)} />;
+<DropTarget.Root accept={card} onDrop={({ source }) => move(source.payload.id)} />;
 ```
 
-A `createKind` call has a unique identity. Declare it once and share the returned value with every draggable and target in the interaction. Two separate `createKind('card')` calls do not match. The name is only a debugging aid. Use `label` to set the accessible name of a draggable or drop target.
+A `createKind` call has a unique identity. Declare it once and share the returned value with every draggable and target in the interaction. Two separate `createKind('card')` calls do not match. The name is only a debugging aid.
 
 If independently evaluated bundles cannot share the same value, use `Draggable.createGlobalKind<Card>('myapp/card')`. Global keys are interned across bundles and hot reloads, so namespace them to your app or package. Reusing one key with incompatible payload types makes unrelated integrations match and bypasses TypeScript's payload safety; prefer `createKind` everywhere else.
 
 **One manager, no provider.** Every source and target on the page uses the same drag manager. The required `accept` prop prevents unrelated interactions from matching. Use `DropTarget.anyKind` to accept every drag. `Draggable.PreviewProvider` does not scope a drag. It provides the React tree where custom previews render.
 
-**Drag and drop is synthetic.** Base UI tracks pointer and keyboard input itself rather than using the browser's HTML5 drag-and-drop, so there is no `dataTransfer`, nothing crosses into other applications, and the preview is an ordinary element you style. An OS file drop is handled by [passing native handlers through `render`](/react/components/drop-target#anatomy).
+**Drag and drop is synthetic.** Base UI tracks pointer input itself rather than using the browser's HTML5 drag-and-drop, so there is no `dataTransfer`, nothing crosses into other applications, and the preview is an ordinary element you style. An OS file drop is handled by [passing native handlers through `render`](/react/components/drop-target#anatomy).
 
 **Drop targets stack.** A drag can be over several nested targets at once. They arrive innermost-first in `location.current.dropTargets`, and only the innermost receives `onDrop`; ancestors see the drag pass through via `onDragEnter`, `onDrag` and `onDragLeave`. Returning `false` from `canDrop` pops a target off the stack so an ancestor can claim the drop; returning `'reject'` refuses the position outright, and no target resolves there at all.
 
@@ -72,14 +71,6 @@ Custom preview content renders beside the provider's children, so it receives co
 
 ## Examples
 
-### Sortable lists
-
-**Do not merge:** a List Box example will replace this one once that component is available.
-
-To reorder a list, pass a `DropTarget.Root` to each item's `render` prop, so [both roles land on one element](/react/components/drop-target#both-a-source-and-a-target).
-
-<DemoSortableList />
-
 ### Draggable tabs
 
 Reordering leaves the standard Tabs keyboard behavior in place. The arrow keys still move focus and select, <kbd>Alt</kbd>+<kbd>←</kbd>/<kbd>→</kbd> reorders the focused tab, and <kbd>Delete</kbd> closes it.
@@ -94,7 +85,7 @@ A custom [modifier](/react/components/draggable#movement-modifiers) snaps the dr
 
 ### Free dragging
 
-Cards sit at absolute coordinates and drop anywhere. `restrictToElement` keeps the drag inside the canvas, and the drop commits the exact position where you release the preview.
+Cards sit at absolute coordinates and drop anywhere. `restrictToElement` keeps pointer drags inside the canvas, while arrow keys move the focused card directly without starting a drag session.
 
 <DemoFigmaBoard />
 
@@ -106,7 +97,7 @@ Cards sit at absolute coordinates and drop anywhere. `restrictToElement` keeps t
 
 ### File explorer
 
-Drop a node on a folder, on the open grid, or on an ancestor in the breadcrumb to move it there. With a tile focused, press <kbd>Alt</kbd>+<kbd>Enter</kbd> to start a keyboard drag; plain <kbd>Space</kbd> or <kbd>Enter</kbd> opens a folder. [`canDrop`](/react/components/drop-target#nested-drop-targets) refuses a folder dropped into its own subtree.
+Drop a node on a folder, on the open grid, or on an ancestor in the breadcrumb to move it there. Plain <kbd>Space</kbd> or <kbd>Enter</kbd> opens a focused folder. [`canDrop`](/react/components/drop-target#nested-drop-targets) refuses a folder dropped into its own subtree.
 
 <DemoFileExplorer />
 

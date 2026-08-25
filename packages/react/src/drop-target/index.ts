@@ -23,7 +23,6 @@ export type {
   DragLocalPoint,
   DragLocation,
   DragLocationHistory,
-  DragMode,
   DragMoveEventDetails,
   DragSnappedLocalPointOptions,
   DragSnapSteps,

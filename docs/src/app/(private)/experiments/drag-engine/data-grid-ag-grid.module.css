@@ -169,8 +169,7 @@
   white-space: nowrap;
 }
 
-/* The header's only tab stop: the drag itself is pointer-only, and the keyboard
-   route runs through this menu (see `keyboardActivation="manual"`). */
+/* The header menu remains separate from the pointer drag affordance. */
 .headerMenuButton {
   flex: none;
   display: flex;

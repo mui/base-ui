@@ -43,8 +43,7 @@ export type CollectionOrientation = 'vertical' | 'horizontal';
  *
  * A `'horizontal'` list in an RTL container reads right-to-left, so the visual
  * "before" is the right half — the axis is flipped so before/after stay aligned
- * with reading order, matching the keyboard collision and auto-scroller RTL
- * handling.
+ * with reading order and the auto-scroller's RTL handling.
  */
 // `getComputedStyle` forces style resolution and this runs per hovered frame for
 // horizontal lists, so the direction is cached per row element — but only for the

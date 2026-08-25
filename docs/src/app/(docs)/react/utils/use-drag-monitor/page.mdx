@@ -20,14 +20,14 @@ A monitor registers once for the component's lifetime. Re-renders do not registe
 ```tsx title="Observe only cards"
 const card = Draggable.createKind<CardPayload>('card');
 
-useDragMonitor({ accept: card, onDragStart: ({ source }) => announce(source.label) });
+useDragMonitor({ accept: card, onDragStart: ({ source }) => announce(source.payload.title) });
 ```
 
 The accepted kinds determine the type of `source.payload`. An array produces a union that each kind's `matches` method can narrow. Omit `accept` to observe every drag with an `unknown` payload. Return early from callbacks to apply more specific filters.
 
 ## Drag events
 
-A monitor's event handlers are optional. Each receives the drag `source`, `location` history, and `mode`, which is either `'pointer'` or `'keyboard'`:
+A monitor's event handlers are optional. Each receives the drag `source` and `location` history:
 
 ```tsx title="Reacting to every stage of a drag"
 import { useDragMonitor } from '@base-ui/react/use-drag-monitor';
@@ -37,7 +37,7 @@ function DragActivity() {
     accept: card,
     // Fires once when a matching drag begins, wherever it started.
     onDragStart: ({ source }) => {
-      console.log('picked up', source.label);
+      console.log('picked up', source.payload.title);
     },
     // Fires as the pointer moves, throttled to one call per animation frame.
     // Read `location.current.input` for the pointer position.
@@ -48,16 +48,16 @@ function DragActivity() {
     // Fires when the drop target under the drag changes. The innermost target
     // is `location.current.dropTargets[0]`.
     onDropTargetChange: ({ location }) => {
-      console.log('now over', location.current.dropTargets[0]?.label ?? 'nothing');
+      console.log('now over', location.current.dropTargets[0]?.payload ?? 'nothing');
     },
     // Fires only when a matching drag lands on a target that accepts it.
     onDrop: ({ source, dropTarget }) => {
-      console.log('dropped', source.label, 'on', dropTarget.label);
+      console.log('dropped', source.payload.title, 'on', dropTarget.payload);
     },
     // Fires once whatever the ending: a drop, a release over empty space, or a
     // cancel.
     onDragEnd: ({ source }, eventDetails) => {
-      console.log('ended', source.label, eventDetails.reason);
+      console.log('ended', source.payload.title, eventDetails.reason);
     },
   });
 

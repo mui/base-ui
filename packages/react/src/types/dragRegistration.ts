@@ -7,7 +7,6 @@ import type {
   AcceptedDragPayload,
   AnyDragAccept,
   DragCleanupFn,
-  DragHandle,
   DragKind,
   DraggablePayload,
   DraggablePayloadGetter,
@@ -138,8 +137,6 @@ export interface InternalDragEngine extends Omit<
  */
 export type InternalDraggableParameters<TData = undefined> = RegisterDraggableParameters<TData> & {
   getDragPreviewDeclaration?: (() => DragPreviewDeclaration<NoInfer<TData>> | null) | undefined;
-  /** Pointer-only handle gate used by composite widgets that retain keyboard pickup on the root. */
-  pointerDragHandle?: DragHandle | undefined;
 };
 
 /**
@@ -193,7 +190,7 @@ export type { RegisterMonitorParameters };
  *
  * Each `register*` method takes a parameter getter and returns a cleanup that
  * unregisters. Callbacks and dynamic options are read when used; source identity,
- * preview settings, monitor eligibility, and idle DOM attributes have the timing
+ * preview settings, monitor eligibility, and idle gesture styles have the timing
  * documented by their registration methods.
  */
 export interface DragDropManager {
@@ -201,9 +198,8 @@ export interface DragDropManager {
    * Registers a drag source and returns a cleanup that unregisters it.
    *
    * Base UI reads behavior from the getter on every event. It applies gesture
-   * styles, `aria-roledescription`, and `aria-describedby` when the element
-   * registers, then reads them again on the next pointer press or focus event.
-   * Re-register the element to update these idle DOM attributes immediately.
+   * styles when the element registers, then reads them again on the next pointer
+   * press. Re-register the element to update the idle styles immediately.
    */
   // Overloaded so `payload` both drives inference and stays required once the
   // caller declares a `TData` of their own, mirroring `Draggable.Root`.
@@ -279,24 +275,7 @@ export interface DragDropManager {
   ) => DragCleanupFn;
   /**
    * Cancels the drag in progress, if any.
-   * Fires `onDragEnd` with `canceled: true` and, for a keyboard drag, restores focus
-   * and announces the cancellation.
+   * Fires `onDragEnd` with `canceled: true`.
    */
   cancelDrag: () => void;
-  /**
-   * Starts a keyboard drag on a registered draggable as if the user pressed Space,
-   * and returns whether it started. Arrow keys move the drag, Space or Enter drops
-   * it, and Escape cancels it.
-   *
-   * With `keyboardActivation: 'manual'`, call this method from another control,
-   * such as a "Reorder" item in the draggable's menu.
-   *
-   * Pass the registered element or one of its descendants. A `null` or detached
-   * element returns `false`, which handles a source that unmounts before a deferred
-   * menu-close callback runs. The method also returns `false` if another drag is
-   * active, the draggable is disabled, keyboard activation is off, or
-   * `onBeforeDragStart` cancels. A mounted element outside a registered draggable
-   * throws an error.
-   */
-  startKeyboardDrag: (element: HTMLElement | null) => boolean;
 }

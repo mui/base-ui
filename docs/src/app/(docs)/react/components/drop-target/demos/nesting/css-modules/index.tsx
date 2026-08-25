@@ -21,7 +21,7 @@ function ChartIcon() {
 
 function ChartLayer() {
   return (
-    <Draggable.Root label="Chart layer" kind={layerKind} role="button" className={styles.Layer}>
+    <Draggable.Root kind={layerKind} role="button" className={styles.Layer}>
       <ChartIcon />
       Chart
     </Draggable.Root>
@@ -36,7 +36,6 @@ export default function NestedDropTargets() {
       <div className={styles.Palette}>{location === 'palette' && <ChartLayer />}</div>
       <DropTarget.Root
         className={styles.Canvas}
-        label="Canvas"
         accept={layerKind}
         onDrop={() => setLocation('canvas')}
       >
@@ -45,7 +44,7 @@ export default function NestedDropTargets() {
         <DropTarget.Root
           className={styles.Frame}
           // @highlight-start
-          label="Frame"
+
           accept={layerKind}
           onDrop={() => setLocation('frame')}
           // @highlight-end

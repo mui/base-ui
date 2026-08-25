@@ -121,7 +121,6 @@ export default function AxisLane() {
         <DropTarget.Root
           ref={trackRef}
           className="flex w-max gap-1.5"
-          label="Stop lane"
           accept={stopKind}
           trackDragOver={false}
           onDrop={({ source, location }) => {
@@ -134,7 +133,6 @@ export default function AxisLane() {
           {stops.map((stop) => (
             <Draggable.Root
               key={stop.id}
-              label={stop.label}
               kind={stopKind}
               payload={stop.id}
               data-stop

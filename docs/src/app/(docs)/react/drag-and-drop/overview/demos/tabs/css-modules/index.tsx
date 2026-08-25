@@ -156,12 +156,8 @@ function DraggableTab(props: DraggableTabProps) {
       // @highlight-start
       render={
         <Draggable.Root
-          label={`${item.label} tab`}
           kind={tabKind}
           payload={item.id}
-          // Enter and Space stay with Tabs for selection; reordering is
-          // Alt+Arrow through the button's onKeyDown below.
-          keyboardActivation="off"
           // @highlight-end
           pointerActivation={{ mouse: { type: 'distance', distance: 5 } }}
           modifiers={Draggable.restrictToHorizontalAxis}
@@ -171,7 +167,6 @@ function DraggableTab(props: DraggableTabProps) {
           onDragEnd={onDragEnd}
           render={
             <DropTarget.Root
-              label={`${item.label} tab`}
               accept={tabKind}
               trackDragOver={false}
               onDrag={handleDrag}
@@ -287,7 +282,6 @@ export default function DraggableTabs() {
           activateOnFocus
           render={
             <DropTarget.Root
-              label="Open documents"
               accept={tabKind}
               trackDragOver={false}
               render={<DragAutoScroll.Root allowedAxis="horizontal" />}

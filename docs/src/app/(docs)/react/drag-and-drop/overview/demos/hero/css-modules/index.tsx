@@ -23,7 +23,6 @@ function ShapePiece({ shape }: { shape: Shape }) {
       className={styles.Piece}
       data-shape={shape.id}
       kind={shape.kind}
-      label={shape.label}
       aria-label={shape.label}
       role="button"
       tabIndex={0}
@@ -64,7 +63,6 @@ export default function ShapeSorter() {
             <DropTarget.Root
               key={shape.id}
               className={styles.Target}
-              label={`${shape.label} cutout`}
               // @highlight-start
               accept={shape.kind}
               onDrop={() => placeShape(shape.id)}

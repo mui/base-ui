@@ -296,8 +296,6 @@ const POINTER_AT_CANCEL: Record<DragCanceledReason, PointerAtTeardown> = {
   // The rest interrupt a gesture whose button is still down.
   'escape-key': 'held',
   'tab-key': 'held',
-  'pointer-down': 'held',
-  'focus-out': 'held',
   'imperative-action': 'held',
   'window-blur': 'held',
   'page-hidden': 'held',
@@ -426,7 +424,7 @@ function onPointerDown(event: Event): void {
     return;
   }
 
-  const pickup = resolveDraggablePickup(getTarget(pointerEvent), 'pointer');
+  const pickup = resolveDraggablePickup(getTarget(pointerEvent));
   if (!pickup) {
     return;
   }
@@ -443,13 +441,10 @@ function onPointerDown(event: Event): void {
     return;
   }
 
-  // A control nested inside the draggable owns its own press — the same rule the
-  // keyboard sensor applies to Space/Enter. Without it, pressing an inline rename
+  // A control nested inside the draggable owns its own press. Without it, pressing an inline rename
   // input and moving to select text crosses the activation threshold and the drag
   // `preventDefault()`s the selection away.
-  const keyboardHandle = resolveDragHandle(parameters, 'keyboard');
-  const isKeyboardHandlePress = keyboardHandle !== null && contains(keyboardHandle, target);
-  if (hasInteractiveAncestorWithin(target, handle) && !isKeyboardHandlePress) {
+  if (hasInteractiveAncestorWithin(target, handle)) {
     return;
   }
 
@@ -741,19 +736,15 @@ function commitActivation(): void {
     return;
   }
 
-  // Re-check the lifecycle too, as the keyboard sensor does. A keyboard drag can
-  // start during the pending window (mouse held still, Space pressed), and the
-  // lifecycle would refuse this one anyway — but only after `onBeforeDragStart`,
-  // `getPayload` and a preview had run. The refused-session undo then
-  // destroys that preview, which strips `data-dragging`/`data-drag-mode` from the
-  // element the *keyboard* drag is dragging, killing its dimming for the rest of
-  // the drag.
+  // Re-check the lifecycle in case another pointer started a drag during the
+  // pending window. Avoid running callbacks and building a preview for a session
+  // the lifecycle would refuse.
   if (!canStartLifecycle()) {
     clearPending(true);
     return;
   }
 
-  const dragHandle = resolveDragHandle(parameters, 'pointer');
+  const dragHandle = resolveDragHandle(parameters);
 
   // Re-check the handle gate at commit, like `disabled` above: the draggable may
   // have swapped its handle during the press, and the press that armed this
@@ -764,9 +755,7 @@ function commitActivation(): void {
   }
 
   const pointerNode = (dragHandle as HTMLElement | null) ?? element;
-  const keyboardHandle = resolveDragHandle(parameters, 'keyboard');
-  const isKeyboardHandlePress = keyboardHandle !== null && contains(keyboardHandle, target);
-  if (hasInteractiveAncestorWithin(target, pointerNode) && !isKeyboardHandlePress) {
+  if (hasInteractiveAncestorWithin(target, pointerNode)) {
     clearPending(true);
     return;
   }
@@ -802,7 +791,6 @@ function commitActivation(): void {
     parameters.modifiers,
     element,
     { x: lastX, y: lastY },
-    'pointer',
     { keys: lastInput },
   );
   // Start at the constrained point, so the initial target, the session's first
@@ -825,7 +813,6 @@ function commitActivation(): void {
   let result: PreviewSessionHandle | null;
   try {
     result = createPreviewAndStartSession({
-      mode: 'pointer',
       draggableParameters: parameters,
       element,
       dragHandle,
@@ -885,6 +872,7 @@ function commitActivation(): void {
     movedSinceFrame: true,
     scrolledSinceFrame: false,
     rafFrame: new WindowAnimationFrame(win),
+    terminalFrameQueued: false,
     listeners: [],
     restoreNativeDrag,
     contextMenuSuppression,
@@ -1041,7 +1029,6 @@ function modifyActiveInput(active: ActiveSession, input: DragInput): DragInput {
     modifyDragPoint(
       active.modifiers,
       { x: input.clientX, y: input.clientY },
-      'pointer',
       active.preview,
       input,
     ),
@@ -1112,6 +1099,7 @@ function onActivePointerMove(event: Event): void {
     // Constrained like every reported input, so `onDragEnd` doesn't leak a raw
     // coordinate the drag never reported while it was live.
     const input = modifyActiveInput(active, getInput(pointerEvent));
+    active.terminalFrameQueued = true;
     active.rafFrame.request(() => {
       if (state.active === active) {
         cancelActive(input, 'missed-release', pointerEvent);
@@ -1131,10 +1119,14 @@ function onActivePointerMove(event: Event): void {
   active.lastInput = getInput(pointerEvent);
   active.lastNativeEvent = pointerEvent;
   active.movedSinceFrame = true;
-  // Request directly rather than going through the coalescing guard: a prior
-  // `buttons === 0` sample may have put the missed-release fallback in this
-  // slot, and this held-button sample proves that signal was transient.
-  active.rafFrame.request(onActiveFrame);
+  // Bypass the coalescing guard only when a terminal fallback occupies the slot:
+  // a prior `buttons === 0` sample (or a lost capture) may have queued it, and
+  // this held-button sample proves that signal was transient. With
+  // `onActiveFrame` already pending, the set `movedSinceFrame` is all it needs.
+  if (active.terminalFrameQueued || active.rafFrame.currentId === null) {
+    active.terminalFrameQueued = false;
+    active.rafFrame.request(onActiveFrame);
+  }
 }
 
 function onActivePointerUp(event: Event): void {
@@ -1206,6 +1198,7 @@ function onActiveLostPointerCapture(event: Event): void {
   // Give a terminal event in the same frame precedence. `lostpointercapture`
   // often carries (0,0) coordinates, so a genuine hand-off falls back to the
   // last good input.
+  active.terminalFrameQueued = true;
   active.rafFrame.request(() => {
     if (state.active === active) {
       cancelActive(undefined, 'capture-lost', pointerEvent);
@@ -1256,7 +1249,7 @@ function onActiveKeyDown(event: Event): void {
   keyEvent.preventDefault();
   // Escape is consumed by the cancel: without this, the same keydown would also
   // reach an enclosing dialog/popover and close it — one keypress, two
-  // destructive actions. Mirrors the keyboard sensor's Escape handling.
+  // destructive actions.
   keyEvent.stopImmediatePropagation();
   cancelActive(undefined, 'escape-key', keyEvent);
 }
@@ -1415,6 +1408,14 @@ interface ActiveSession {
    */
   scrolledSinceFrame: boolean;
   rafFrame: WindowAnimationFrame;
+  /**
+   * Whether `rafFrame` currently holds a deferred terminal callback (a missed
+   * release or a lost capture) rather than `onActiveFrame`. A held-button move
+   * must displace that callback, but need not replace a pending `onActiveFrame`:
+   * on a 120–240 Hz pointer several moves land between two paints, and a
+   * cancel/request pair for each is pure churn.
+   */
+  terminalFrameQueued: boolean;
   listeners: DragCleanupFn[];
   /** See {@link PendingSession.touchMoveAnchor}; released when the drag ends. */
   touchMoveAnchor: DragCleanupFn;

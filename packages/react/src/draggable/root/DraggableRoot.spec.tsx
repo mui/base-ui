@@ -255,9 +255,8 @@ const boundaryRef: React.RefObject<HTMLDivElement | null> = { current: null };
 const ref: React.Ref<HTMLDivElement> = null;
 <Draggable.Root kind={marker} ref={ref} />;
 
-// A stable preview key identifies a logical source across a remount without
-// conflating sources that happen to have the same accessible label.
-<Draggable.Root kind={marker} previewKey="card-1" label="Untitled" />;
+// A stable preview key identifies a logical source across a remount.
+<Draggable.Root kind={marker} previewKey="card-1" />;
 
 // Static and resolved payloads use distinct fields.
 type CardProps = Draggable.Root.Props<CardPayload>;
@@ -290,34 +289,6 @@ function GenericCard<TData>(
   return <Draggable.Root {...props} />;
 }
 <GenericCard kind={card} payload={{ id: 'a' }} />;
-
-// `keyboardMovement` sees the typed payload and accepts every result kind of
-// its union: a position, an element, the suggestion, `null`, and `undefined`.
-<Draggable.Root
-  kind={card}
-  payload={{ id: 'a' }}
-  keyboardMovement={({ key, position, source, suggestion }) => {
-    expectType<CardPayload, typeof source.payload>(source.payload);
-    switch (key) {
-      case 'ArrowUp':
-        return { x: position.x, y: position.y - 15 };
-      case 'ArrowDown':
-        return suggestion.type === 'target' ? suggestion.element : null;
-      case 'ArrowLeft':
-        return suggestion;
-      default:
-        return undefined;
-    }
-  }}
-/>;
-
-// The preset is assignable regardless of the payload type.
-<Draggable.Root
-  kind={card}
-  payload={{ id: 'a' }}
-  keyboardMovement={Draggable.targetsOnlyKeyboardMovement}
-/>;
-<Draggable.Root kind={marker} keyboardMovement={Draggable.targetsOnlyKeyboardMovement} />;
 
 // The native HTML5 drag props are omitted on purpose: the engine's `onDragStart`
 // / `onDrag` / `onDragEnd` take their names, and the rest would compile but never
@@ -367,22 +338,14 @@ function GenericCard<TData>(
   }
 />;
 
-// `reason` is the discriminator for the native input behind every event.
+// Pointer drag events carry their native pointer input.
 <Draggable.Root
   kind={marker}
   onBeforeDragStart={(_, eventDetails) => {
-    if (eventDetails.reason === 'pointer') {
-      expectType<PointerEvent, typeof eventDetails.event>(eventDetails.event);
-    } else {
-      expectType<KeyboardEvent, typeof eventDetails.event>(eventDetails.event);
-    }
+    expectType<PointerEvent, typeof eventDetails.event>(eventDetails.event);
   }}
   onDrag={(_, eventDetails) => {
-    if (eventDetails.reason === 'pointer') {
-      expectType<PointerEvent, typeof eventDetails.event>(eventDetails.event);
-    } else {
-      expectType<KeyboardEvent, typeof eventDetails.event>(eventDetails.event);
-    }
+    expectType<PointerEvent, typeof eventDetails.event>(eventDetails.event);
   }}
   onDragEnd={(_, eventDetails) => {
     if (eventDetails.reason === 'pointer-canceled') {

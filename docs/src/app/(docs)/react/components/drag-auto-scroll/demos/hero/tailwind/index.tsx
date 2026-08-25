@@ -125,7 +125,6 @@ function Card({ task, draggable }: { task: Task; draggable?: boolean }) {
   }
   return (
     <Draggable.Root
-      label={task.label}
       kind={taskKind}
       payload={task}
       data-card
@@ -185,7 +184,6 @@ function DropZone({
   return (
     <DropTarget.Root
       className="box-border flex h-52 flex-col gap-2 border border-neutral-200 p-3 transition-colors data-[drag-over]:border-neutral-950 data-[drag-over]:bg-neutral-100 dark:border-neutral-700 dark:data-[drag-over]:border-white dark:data-[drag-over]:bg-neutral-800"
-      label={label}
       accept={taskKind}
       onDrag={({ location }) => {
         const container = listRef.current;

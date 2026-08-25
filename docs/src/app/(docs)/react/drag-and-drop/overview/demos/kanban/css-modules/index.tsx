@@ -236,7 +236,7 @@ export default function KanbanBoard() {
   return (
     // Catch-all drop target on the demo root, so a release anywhere inside the
     // demo lands on a registered target rather than falling outside every one.
-    <DropTarget.Root className={styles.Root} label="Board" accept={cardKind} trackDragOver={false}>
+    <DropTarget.Root className={styles.Root} accept={cardKind} trackDragOver={false}>
       <div className={styles.Board}>
         {board.columnOrder.map((id) => {
           const column = board.columns[id];
@@ -297,7 +297,6 @@ function KanbanColumn({
 function DraggableCard({ card, columnId }: { card: Card; columnId: ColumnId }) {
   return (
     <Draggable.Root
-      label={card.title}
       kind={cardKind}
       payload={{ id: card.id, fromColumn: columnId }}
       data-card

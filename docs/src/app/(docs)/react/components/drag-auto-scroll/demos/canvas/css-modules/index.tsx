@@ -56,7 +56,6 @@ export default function CanvasPan() {
       >
         <div ref={contentRef} className={styles.Content}>
           <DropTarget.Root
-            label="Archive"
             accept={pinKind}
             className={styles.Archive}
             style={{ left: ARCHIVE.x, top: ARCHIVE.y }}
@@ -73,7 +72,6 @@ export default function CanvasPan() {
               key={pin.id}
               kind={pinKind}
               payload={pin.id}
-              label={pin.label}
               role="button"
               className={styles.Pin}
               style={{ left: pin.x, top: pin.y }}

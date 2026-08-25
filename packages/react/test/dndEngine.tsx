@@ -81,7 +81,6 @@ export interface DndTestEngine {
     parameters: MaybeGetter<RegisterMonitorParameters<TSourceData>>,
   ) => ReturnType<DragDropManager['registerMonitor']>;
   cancelDrag: DragDropManager['cancelDrag'];
-  startKeyboardDrag: DragDropManager['startKeyboardDrag'];
 }
 
 export interface DndRenderResult extends BaseUIRenderResult {
@@ -183,7 +182,6 @@ function withAutoCleanup(engine: DragDropManager): DndTestEngine {
     },
     // Nothing to queue: they register nothing.
     cancelDrag: engine.cancelDrag,
-    startKeyboardDrag: engine.startKeyboardDrag,
   };
 }
 
@@ -197,8 +195,7 @@ export interface DndTestRenderer extends ReturnType<typeof createRenderer> {
    * Render `ui` inside a `Draggable.PreviewProvider` and return the render result
    * plus the `engine` itself. Call with no element to mount just
    * the provider (for engine-level tests that need nothing rendered). An
-   * `options.wrapper`, if given, wraps *outside* the `Draggable.PreviewProvider` —
-   * e.g. a `LocalizationProvider` so the drag engine reads its translations.
+   * `options.wrapper`, if given, wraps *outside* the `Draggable.PreviewProvider`.
    *
    * The provider is required for any preview with content, so it is the default
    * here. A test that needs a draggable *without* one — to assert the throw, or

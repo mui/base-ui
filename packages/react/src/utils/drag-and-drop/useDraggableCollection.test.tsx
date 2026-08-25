@@ -1,10 +1,8 @@
 import * as React from 'react';
-import { describe, it, expect, vi, afterEach } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import { fireEvent, renderHook } from '@testing-library/react';
 import { act } from '@mui/internal-test-utils';
 import { installDndPolyfill } from '../../../test/dndPolyfill';
-import { frFR } from '../../locale-frFR';
-import { LocalizationProvider } from '../../localization-provider';
 import {
   createElement,
   dragEnter,
@@ -22,28 +20,13 @@ import { dragSessionStore } from './dragSessionStore';
 import { getRegistration } from './draggableRegistry';
 import { captureDropTargetRegistration } from './dropTarget';
 import { monitorRegistry } from './monitor';
-import { scheduleDisplacementSweep } from './displacement';
-import type { DragKeyboardMoveDetails, DragKind, DropTargetRecord } from '../../types/drag';
+import type { DragKind, DropTargetRecord } from '../../types/drag';
 import { createKind } from './dragKind';
 
 const cardsKind = createKind<any>('cards');
 const columnsKind = createKind<any>('columns');
 
 installDndPolyfill();
-
-// Spy/mock restores registered here run in `afterEach` even if a test throws, so
-// a failed assertion can't leave a `console`/`elementFromPoint` mock installed for
-// the rest of the suite.
-const pendingRestores: Array<() => void> = [];
-function restoreOnCleanup(restore: () => void): void {
-  pendingRestores.push(restore);
-}
-
-afterEach(() => {
-  while (pendingRestores.length > 0) {
-    pendingRestores.pop()!();
-  }
-});
 
 // Drains the `registerCleanup` queue, removes created elements, and force-ends
 // any in-flight drag — even when an assertion threw mid-test.
@@ -69,15 +52,6 @@ function setupPlainDraggable(
 ) {
   const { result } = renderHook(() => useInnerDragEngine());
   registerCleanup(result.current.registerDraggable(element, () => parameters));
-}
-
-/** Dispatch a `keydown` the window-level keyboard sensor listener will receive. */
-function pressKey(target: EventTarget, key: string): void {
-  // The keyboard sensor publishes the drag session synchronously on keydown, so
-  // the mounted `Draggable.PreviewProvider` re-renders in response — wrap it in `act`.
-  act(() => {
-    target.dispatchEvent(new KeyboardEvent('keydown', { key, bubbles: true, cancelable: true }));
-  });
 }
 
 describe('useDraggableCollection', () => {
@@ -108,7 +82,6 @@ describe('useDraggableCollection', () => {
 
     const record: DropTargetRecord = {
       element,
-      label: undefined,
       kind: undefined,
       payload: undefined,
       getLocalPoint: () => ({ x: 0, y: 0 }),
@@ -116,109 +89,6 @@ describe('useDraggableCollection', () => {
     };
     const getDropTarget = captureDropTargetRegistration(record)!;
     expect(getDropTarget()).toBe(getDropTarget());
-  });
-
-  it('gives an item a stable label for cross-collection preview settling', () => {
-    const { plugin } = setupPlugin(
-      { getItemLabel: (itemId) => `Item ${itemId}` },
-      { knownItemIds: ['a'] },
-    );
-    const element = createElement();
-    registerCleanup(plugin.setupItem('a', element));
-
-    expect(getRegistration(element)!().label).toBe('Item a');
-  });
-
-  it('limits pointer pickup to a dynamic handle without limiting row keyboard pickup', async () => {
-    const { plugin } = setupPlugin({}, { knownItemIds: ['a'] });
-    const row = createElement();
-    const handle = document.createElement('span');
-    row.append(handle);
-    plugin.setupItem('a', row);
-
-    const cleanupHandle = plugin.setupHandle('a', handle);
-
-    await lift(row, { expectNoDrag: true });
-    expect(dragSessionStore.getSnapshot()).toBe(null);
-    fireEvent.dragEnd(row);
-
-    await lift(handle);
-    expect(dragSessionStore.getSnapshot()?.source.element).toBe(row);
-    fireEvent.dragEnd(handle);
-
-    pressKey(row, ' ');
-    expect(dragSessionStore.getSnapshot()?.source.element).toBe(row);
-    pressKey(row, 'Escape');
-
-    cleanupHandle();
-    await lift(row);
-    expect(dragSessionStore.getSnapshot()?.source.element).toBe(row);
-    fireEvent.dragEnd(row);
-  });
-
-  it('limits keyboard pickup to a handle without limiting pointer pickup to it', async () => {
-    const { plugin } = setupPlugin({}, { knownItemIds: ['a'] });
-    const row = createElement();
-    const handle = document.createElement('button');
-    row.append(handle);
-    plugin.setupItem('a', row);
-
-    const cleanupHandle = plugin.setupKeyboardHandle('a', handle);
-
-    expect(row.style.touchAction).toBe('manipulation');
-    expect(row).not.toHaveAttribute('aria-roledescription');
-    expect(handle).toHaveAttribute('aria-roledescription', 'draggable');
-
-    await lift(row);
-    expect(dragSessionStore.getSnapshot()?.source.element).toBe(row);
-    fireEvent.dragEnd(row);
-
-    pressKey(row, ' ');
-    expect(dragSessionStore.getSnapshot()).toBeNull();
-
-    pressKey(handle, ' ');
-    expect(dragSessionStore.getSnapshot()?.source.element).toBe(row);
-    pressKey(handle, 'Escape');
-
-    cleanupHandle();
-    expect(row).toHaveAttribute('aria-roledescription', 'draggable');
-    pressKey(row, ' ');
-    expect(dragSessionStore.getSnapshot()?.source.element).toBe(row);
-    pressKey(row, 'Escape');
-  });
-
-  it('reconciles mounted rows when displacement tracking is enabled at runtime', async () => {
-    const actions = {
-      hasItem: () => true,
-      getSelectedItemIds: () => new Set<string | number>(),
-      getItemModels: () => [],
-    };
-    const { result, rerender, unmount } = renderHook(
-      ({ trackDisplacement }) =>
-        useDraggableCollection({ getActions: () => actions, trackDisplacement }),
-      { initialProps: { trackDisplacement: false } },
-    );
-    registerCleanup(unmount);
-    const source = createElement();
-    const target = createElement();
-    let targetTop = 100;
-    Object.defineProperties(target, {
-      offsetTop: { configurable: true, get: () => targetTop },
-      offsetLeft: { configurable: true, get: () => 0 },
-      offsetWidth: { configurable: true, get: () => 200 },
-      offsetHeight: { configurable: true, get: () => 40 },
-    });
-    registerCleanup(result.current.setupItem('a', source));
-    registerCleanup(result.current.setupItem('b', target));
-
-    await lift(source);
-    rerender({ trackDisplacement: true });
-    await Promise.resolve();
-
-    targetTop = 50;
-    scheduleDisplacementSweep(target);
-
-    expect(target).toHaveAttribute('data-displacing');
   });
 
   it('adapts collection preview content and placement settings to the draggable', async () => {
@@ -578,6 +448,27 @@ describe('useDraggableCollection', () => {
       expect(onDrop).not.toHaveBeenCalled();
     });
 
+    it('measures the hovered row once per frame when canDrop is configured', async () => {
+      const onDrop = vi.fn();
+      const canDrop = vi.fn(() => true);
+      const { plugin } = setupPlugin({ onDrop, canDrop }, { knownItemIds: ['a', 'b'] });
+      const source = createElement({ top: 0, height: 100 });
+      const target = createElement({ top: 200, height: 100 });
+      plugin.setupItem('a', source);
+      plugin.setupItem('b', target);
+
+      await lift(source);
+      await dragEnter(target, { clientY: 210 });
+      const measure = vi.spyOn(target, 'getBoundingClientRect');
+
+      await dragOver(target, { clientY: 260 });
+
+      // `canDrop` computed the position while the stack resolved, and the row's
+      // `onDrag` in the same frame reused it rather than measuring again.
+      expect(canDrop).toHaveBeenLastCalledWith(expect.objectContaining({ position: 'on' }));
+      expect(measure).toHaveBeenCalledTimes(1);
+    });
+
     it('blocks the pickup when canDrag returns false', async () => {
       const onDrop = vi.fn();
       const canDrag = vi.fn(() => false);
@@ -596,77 +487,6 @@ describe('useDraggableCollection', () => {
 
       expect(canDrag).toHaveBeenCalledWith('a');
       expect(onDrop).not.toHaveBeenCalled();
-    });
-
-    it('blocks keyboard pickup and omits the a11y hints on a canDrag-locked item', async () => {
-      const onDrop = vi.fn();
-      // `canDrag` is declarative, so it maps to `disabled`: the locked item must
-      // gate the keyboard pickup and never advertise a keyboard drag it can't
-      // start, while a draggable sibling keeps its hints.
-      const { plugin } = setupPlugin(
-        { onDrop, canDrag: (id) => id !== 'a' },
-        { knownItemIds: ['a', 'b'] },
-      );
-      const a = createElement({ top: 0, height: 100 });
-      const b = createElement({ top: 200, height: 100 });
-      a.tabIndex = 0;
-      plugin.setupItem('a', a);
-      plugin.setupItem('b', b);
-
-      expect(a.hasAttribute('aria-roledescription')).toBe(false);
-      expect(a.hasAttribute('aria-describedby')).toBe(false);
-      expect(b.hasAttribute('aria-roledescription')).toBe(true);
-
-      a.focus();
-      // Space/Enter must not pick the locked item up, and must stay un-prevented
-      // so the key keeps its native behavior.
-      for (const key of [' ', 'Enter']) {
-        const event = new KeyboardEvent('keydown', { key, bubbles: true, cancelable: true });
-        act(() => {
-          a.dispatchEvent(event);
-        });
-        expect(dragSessionStore.getSnapshot()).toBeNull();
-        expect(event.defaultPrevented).toBe(false);
-      }
-      expect(onDrop).not.toHaveBeenCalled();
-    });
-
-    it('re-applies the item a11y setup when canDrag flips via a config change', () => {
-      // The static setup (gesture styles, keyboard-drag hints) is captured at
-      // registration; a config change that flips `canDrag` must re-apply it, or
-      // the unlocked item stays keyboard-draggable without any screen-reader
-      // hints (and vice versa).
-      const el = createElement({ top: 0, height: 100 });
-      const actions = {
-        hasItem: () => true,
-        getSelectedItemIds: () => new Set<string | number>(),
-        getItemModels: (ids: ReadonlyArray<string | number>) => [...ids],
-      };
-      const { result, rerender } = renderHook(
-        ({ locked }: { locked: boolean }) =>
-          useDraggableCollection({
-            onDrop: () => {},
-            canDrag: () => !locked,
-            getActions: () => actions,
-          }),
-        { initialProps: { locked: true } },
-      );
-      registerCleanup(result.current.setupItem('a', el));
-
-      // Locked: no keyboard-drag hints are advertised.
-      expect(el.hasAttribute('aria-roledescription')).toBe(false);
-      expect(el.hasAttribute('aria-describedby')).toBe(false);
-
-      rerender({ locked: false });
-
-      // Unlocked: the setup lands without remounting the item.
-      expect(el.getAttribute('aria-roledescription')).toBe('draggable');
-      expect(el.getAttribute('aria-describedby')).toBeTruthy();
-
-      rerender({ locked: true });
-
-      expect(el.hasAttribute('aria-roledescription')).toBe(false);
-      expect(el.hasAttribute('aria-describedby')).toBe(false);
     });
 
     it('applies a config change made mid-drag once the drag ends', async () => {
@@ -692,19 +512,19 @@ describe('useDraggableCollection', () => {
       );
       registerCleanup(result.current.setupItem('a', a));
       registerCleanup(result.current.setupItem('b', b));
-      expect(b.getAttribute('aria-roledescription')).toBe('draggable');
+      expect(b.style.touchAction).toBe('manipulation');
 
       await lift(a);
       rerender({ locked: true });
       // Deferred: the live gesture keeps the registration it started with.
-      expect(b.getAttribute('aria-roledescription')).toBe('draggable');
+      expect(b.style.touchAction).toBe('manipulation');
 
       drop(b, { clientY: 250 });
       // The sweep runs in a microtask once the session is gone.
       await Promise.resolve();
       await Promise.resolve();
 
-      expect(b.hasAttribute('aria-roledescription')).toBe(false);
+      expect(b.style.touchAction).toBe('');
     });
   });
 
@@ -1367,318 +1187,6 @@ describe('useDraggableCollection', () => {
       expect(onDrop).toHaveBeenCalledTimes(1);
       expect([...onDrop.mock.calls[0][0].itemIds]).toEqual(['a']);
       expect(onDrop.mock.calls[0][0].target).toEqual({ itemId: 'x', position: 'before' });
-    });
-  });
-
-  describe('keyboard navigation', () => {
-    // Resolve the element whose bounding rect vertically contains `y`.
-    function hitTest(elements: HTMLElement[]) {
-      return (_x: number, y: number): Element | null => {
-        for (const el of elements) {
-          const rect = el.getBoundingClientRect();
-          if (y >= rect.top && y < rect.top + rect.height) {
-            return el;
-          }
-        }
-        return null;
-      };
-    }
-
-    it('reorders with arrow keys: Space picks up, ArrowDown targets the next item, Space drops', async () => {
-      const onDrop = vi.fn();
-      const { plugin } = setupPlugin({ onDrop }, { knownItemIds: ['a', 'b'] });
-      const a = createElement({ top: 0, height: 100 });
-      const b = createElement({ top: 200, height: 100 });
-      a.tabIndex = 0;
-      b.tabIndex = 0;
-      plugin.setupItem('a', a);
-      plugin.setupItem('b', b);
-
-      const spy = vi.spyOn(document, 'elementFromPoint').mockImplementation(hitTest([a, b]));
-      restoreOnCleanup(() => spy.mockRestore());
-
-      a.focus();
-      pressKey(a, ' '); // pick up "a"
-      await flushRaf(); // collection monitor records the dragged item
-      pressKey(a, 'ArrowDown'); // jump to the slot after "b"
-      pressKey(a, ' '); // drop
-
-      expect(onDrop).toHaveBeenCalledTimes(1);
-      expect(onDrop).toHaveBeenLastCalledWith(
-        expect.objectContaining({ target: { itemId: 'b', position: 'after' } }),
-      );
-    });
-
-    it('restores focus to the dragged item after a keyboard drop', async () => {
-      const onDrop = vi.fn();
-      const { plugin } = setupPlugin({ onDrop }, { knownItemIds: ['a', 'b'] });
-      const a = createElement({ top: 0, height: 100 });
-      const b = createElement({ top: 200, height: 100 });
-      a.tabIndex = 0;
-      b.tabIndex = 0;
-      plugin.setupItem('a', a);
-      plugin.setupItem('b', b);
-
-      const spy = vi.spyOn(document, 'elementFromPoint').mockImplementation(hitTest([a, b]));
-      restoreOnCleanup(() => spy.mockRestore());
-
-      a.focus();
-      pressKey(a, ' ');
-      await flushRaf();
-      pressKey(a, 'ArrowDown');
-      pressKey(a, ' '); // drop
-      await flushRaf(); // focus restoration runs one frame later
-
-      expect(document.activeElement).toBe(a);
-    });
-
-    it('restores focus to the destination row after a cross-collection root drop', async () => {
-      const origin = setupPlugin({ kind: cardsKind, onDragEnd: vi.fn() }, { knownItemIds: ['a'] });
-      const rowA = createElement({ top: 0, height: 100 });
-      rowA.tabIndex = 0;
-      const cleanupRowA = origin.plugin.setupItem('a', rowA);
-
-      let movedRow: HTMLElement | null = null;
-      const destination = setupPlugin(
-        {
-          onDrop: () => {
-            // The destination commits the move: the origin unmounts its row and
-            // the destination remounts it, before the deferred focus restore.
-            cleanupRowA();
-            movedRow = createElement({ top: 200, height: 100 });
-            movedRow.tabIndex = 0;
-            destination.plugin.setupItem('a', movedRow);
-          },
-          kind: columnsKind,
-          accept: cardsKind,
-        },
-        { knownItemIds: [] },
-      );
-      const rootB = createElement({ top: 200, height: 200 });
-      destination.plugin.setupRoot(rootB);
-
-      const spy = vi.spyOn(document, 'elementFromPoint').mockImplementation(hitTest([rowA, rootB]));
-      restoreOnCleanup(() => spy.mockRestore());
-
-      rowA.focus();
-      pressKey(rowA, ' '); // pick up "a"
-      await flushRaf();
-      pressKey(rowA, 'ArrowDown'); // onto the destination's empty root
-      pressKey(rowA, ' '); // drop
-      await flushRaf(); // focus restoration runs one frame later
-
-      // The root-drop path claims the committed-drop slot like an item drop
-      // does, so the origin's finalFocus can find the row the destination
-      // remounted instead of falling back to default focus.
-      expect(movedRow).not.toBeNull();
-      expect(document.activeElement).toBe(movedRow);
-    });
-
-    it('threads a config keyboardMovement resolver into the item draggables', async () => {
-      const onDrop = vi.fn();
-      const moves: DragKeyboardMoveDetails[] = [];
-      const { plugin } = setupPlugin(
-        {
-          onDrop,
-          keyboardMovement: (details) => {
-            moves.push(details);
-            return null;
-          },
-        },
-        { knownItemIds: ['a', 'b'] },
-      );
-      const a = createElement({ top: 0, height: 100 });
-      const b = createElement({ top: 200, height: 100 });
-      a.tabIndex = 0;
-      b.tabIndex = 0;
-      plugin.setupItem('a', a);
-      plugin.setupItem('b', b);
-
-      a.focus();
-      pressKey(a, ' ');
-      await flushRaf();
-      pressKey(a, 'ArrowDown');
-      pressKey(a, ' '); // drop
-
-      // The resolver decided the press (null swallows it), replacing the default
-      // target navigation: nothing moved, so the drop reorders nothing.
-      expect(moves).toHaveLength(1);
-      expect(moves[0].direction).toEqual({ x: 0, y: 1 });
-      expect(onDrop).not.toHaveBeenCalled();
-    });
-
-    it('does not start a keyboard drag when keyboardActivation is off', async () => {
-      const onDrop = vi.fn();
-      const { plugin } = setupPlugin(
-        { onDrop, keyboardActivation: 'off' },
-        { knownItemIds: ['a', 'b'] },
-      );
-      const a = createElement({ top: 0, height: 100 });
-      const b = createElement({ top: 200, height: 100 });
-      a.tabIndex = 0;
-      b.tabIndex = 0;
-      plugin.setupItem('a', a);
-      plugin.setupItem('b', b);
-
-      a.focus();
-      // Space/Enter must not pick the item up, and must stay un-prevented so the
-      // consumer can bind them to another action (e.g. inline editing).
-      for (const key of [' ', 'Enter']) {
-        const event = new KeyboardEvent('keydown', { key, bubbles: true, cancelable: true });
-        act(() => {
-          a.dispatchEvent(event);
-        });
-        expect(dragSessionStore.getSnapshot()).toBeNull();
-        expect(event.defaultPrevented).toBe(false);
-      }
-    });
-
-    it('with keyboardActivation manual, keeps items draggable but drops the Space hint', async () => {
-      const { plugin } = setupPlugin({ keyboardActivation: 'manual' }, { knownItemIds: ['a'] });
-      const a = createElement({ top: 0, height: 100 });
-      a.tabIndex = 0;
-      plugin.setupItem('a', a);
-
-      a.focus();
-      // Space belongs to the consumer now, so it must pass through un-prevented...
-      const event = new KeyboardEvent('keydown', { key: ' ', bubbles: true, cancelable: true });
-      act(() => {
-        a.dispatchEvent(event);
-      });
-      expect(dragSessionStore.getSnapshot()).toBeNull();
-      expect(event.defaultPrevented).toBe(false);
-
-      // ...and the item must not keep advertising the pickup it gave up. The role
-      // description stays: still draggable, just not by a key.
-      expect(a.hasAttribute('aria-roledescription')).toBe(true);
-      expect(a.hasAttribute('aria-describedby')).toBe(false);
-    });
-  });
-
-  describe('localized keyboardAnnouncements', () => {
-    function FrenchProvider({ children }: { children: React.ReactNode }) {
-      return <LocalizationProvider translations={frFR}>{children}</LocalizationProvider>;
-    }
-
-    function liveRegionText(): string {
-      return document.querySelector('[aria-live="polite"]')?.textContent ?? '';
-    }
-
-    // Resolve the element whose bounding rect vertically contains `y`.
-    function hitTest(elements: HTMLElement[]) {
-      return (_x: number, y: number): Element | null => {
-        for (const el of elements) {
-          const rect = el.getBoundingClientRect();
-          if (y >= rect.top && y < rect.top + rect.height) {
-            return el;
-          }
-        }
-        return null;
-      };
-    }
-
-    it('announces a keyboard reorder in the provider language with item labels', async () => {
-      const onDrop = vi.fn();
-      const { plugin } = setupPlugin(
-        {
-          onDrop,
-          getItemLabel: (id) => (id === 'a' ? 'Acheter du lait' : 'Promener le chien'),
-        },
-        { knownItemIds: ['a', 'b'] },
-        { wrapper: FrenchProvider },
-      );
-      const a = createElement({ top: 0, height: 100 });
-      const b = createElement({ top: 200, height: 100 });
-      a.tabIndex = 0;
-      b.tabIndex = 0;
-      plugin.setupItem('a', a);
-      plugin.setupItem('b', b);
-
-      const spy = vi.spyOn(document, 'elementFromPoint').mockImplementation(hitTest([a, b]));
-      restoreOnCleanup(() => spy.mockRestore());
-
-      a.focus();
-      pressKey(a, ' '); // pick up "a"
-      expect(liveRegionText()).toBe(
-        'Acheter du lait saisi. Utilisez les flèches pour déplacer, Espace ou Entrée pour déposer, Échap pour annuler.',
-      );
-
-      await flushRaf(); // collection monitor records the dragged item
-      pressKey(a, 'ArrowDown'); // jump to the slot after "b"
-      pressKey(a, ' '); // drop
-
-      expect(onDrop).toHaveBeenLastCalledWith(
-        expect.objectContaining({ target: { itemId: 'b', position: 'after' } }),
-      );
-      expect(liveRegionText()).toBe('Acheter du lait déposé après Promener le chien.');
-    });
-
-    it('uses the localized multi-item label when several items are dragged', async () => {
-      const onDrop = vi.fn();
-      const { plugin } = setupPlugin(
-        { onDrop, getItemLabel: (id) => String(id) },
-        { knownItemIds: ['a', 'b', 'c'], selectedItemIds: new Set(['a', 'b']) },
-        { wrapper: FrenchProvider },
-      );
-      const a = createElement({ top: 0, height: 100 });
-      const b = createElement({ top: 200, height: 100 });
-      a.tabIndex = 0;
-      plugin.setupItem('a', a);
-      plugin.setupItem('b', b);
-
-      a.focus();
-      pressKey(a, ' '); // pick up the multi-selection
-      // "saisis", not "saisi": the participle agrees with the several items the
-      // drag carries, which the locale reads from `count`.
-      expect(liveRegionText()).toBe(
-        '2 éléments saisis. Utilisez les flèches pour déplacer, Espace ou Entrée pour déposer, Échap pour annuler.',
-      );
-    });
-
-    it('announces another collection’s hovered row through the plugin that owns it', async () => {
-      // A keyboard drag from collection A over collection B's rows: the
-      // announcements come from A (the origin), but only B tracks the hovered
-      // row. The position must still be announced on every move — and the row's
-      // label must resolve through B's items, not A's.
-      const onDrop = vi.fn();
-      const a = setupPlugin(
-        { kind: cardsKind, getItemLabel: (id) => `Origin ${id}` },
-        { knownItemIds: ['a1'] },
-      );
-      const b = setupPlugin(
-        {
-          onDrop,
-          kind: columnsKind,
-          accept: cardsKind,
-          getItemLabel: (id) => (id === 'b1' ? 'Berry' : String(id)),
-        },
-        { knownItemIds: ['b1'] },
-      );
-      const aRow = createElement({ top: 0, height: 100 });
-      const bRow = createElement({ top: 200, height: 100 });
-      aRow.tabIndex = 0;
-      a.plugin.setupItem('a1', aRow);
-      b.plugin.setupItem('b1', bRow);
-
-      const spy = vi.spyOn(document, 'elementFromPoint').mockImplementation(hitTest([aRow, bRow]));
-      restoreOnCleanup(() => spy.mockRestore());
-
-      aRow.focus();
-      pressKey(aRow, ' '); // pick up "a1"
-      await flushRaf(); // both collection monitors record the dragged item
-      pressKey(aRow, 'ArrowDown'); // move onto B's row
-
-      // The move announcement is debounced; wait for it to land in the region.
-      await vi.waitFor(() => {
-        expect(liveRegionText()).toBe('Origin a1 after Berry');
-      });
-
-      pressKey(aRow, ' '); // drop
-
-      expect(onDrop).toHaveBeenCalledTimes(1);
-      expect(onDrop.mock.calls[0][0].target).toEqual({ itemId: 'b1', position: 'after' });
-      // The terminal announcement carries the same owner-resolved phrase.
-      expect(liveRegionText()).toBe('Dropped Origin a1 after Berry.');
     });
   });
 });

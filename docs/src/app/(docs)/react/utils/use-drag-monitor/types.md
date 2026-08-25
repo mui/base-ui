@@ -42,13 +42,16 @@ type useDragMonitorParameters<TSourceData = unknown> = {
    */
   onDragStart?: (
     parameters: DragStartEvent<TSourceData>,
-    eventDetails: DragStartEventDetails,
+    eventDetails: { reason: 'pointer'; event: PointerEvent },
   ) => void;
   /**
    * Event handler called (rAF-throttled) as the pointer moves during any
    * matching drag.
    */
-  onDrag?: (parameters: DragMoveEvent<TSourceData>, eventDetails: DragMoveEventDetails) => void;
+  onDrag?: (
+    parameters: DragMoveEvent<TSourceData>,
+    eventDetails: { reason: 'pointer'; event: PointerEvent },
+  ) => void;
   /**
    * Event handler called when the active drop-target stack changes during any
    * matching drag.
@@ -63,7 +66,7 @@ type useDragMonitorParameters<TSourceData = unknown> = {
    */
   onDrop?: (
     parameters: DragDropEvent<TSourceData>,
-    eventDetails: { reason: 'drop'; event: PointerEvent | KeyboardEvent },
+    eventDetails: { reason: 'drop'; event: PointerEvent },
   ) => void;
   /**
    * Event handler called once when the drag ends after a drop, outside release, or
@@ -90,12 +93,6 @@ Fields included in every drag-and-drop event.
 type BaseDragEvent<TSourceData = unknown> = {
   location: DragLocationHistory;
   source: DragSource<TSourceData>;
-  /**
-   * The input method driving the drag.
-   * This is the reliable way to detect a keyboard drag, as
-   * `location.current.input.pointerType` is `null` for those.
-   */
-  mode: DragMode;
 };
 ```
 
@@ -109,12 +106,6 @@ it is the same record as `self`.
 type DragDropEvent<TSourceData = unknown> = {
   location: DragLocationHistory;
   source: DragSource<TSourceData>;
-  /**
-   * The input method driving the drag.
-   * This is the reliable way to detect a keyboard drag, as
-   * `location.current.input.pointerType` is `null` for those.
-   */
-  mode: DragMode;
   dropTarget: DropTargetRecord;
 };
 ```
@@ -131,7 +122,7 @@ type DragDropEventDetails = {
    * The native event behind the dispatch. Programmatic and lifecycle-only
    * reasons carry a generic `Event` placeholder.
    */
-  event: PointerEvent | KeyboardEvent;
+  event: PointerEvent;
 };
 ```
 
@@ -143,12 +134,6 @@ The event object passed to `onDragEnd`.
 type DragEndEvent<TSourceData = unknown> = {
   location: DragLocationHistory;
   source: DragSource<TSourceData>;
-  /**
-   * The input method driving the drag.
-   * This is the reliable way to detect a keyboard drag, as
-   * `location.current.input.pointerType` is `null` for those.
-   */
-  mode: DragMode;
   /**
    * Whether the drag was aborted instead of released by the user.
    * A drag released outside of any drop target is not canceled; read `dropTarget` for that,
@@ -169,12 +154,10 @@ The event details passed to `onDragEnd`.
 
 ```typescript
 type DragEndEventDetails =
+  | { reason: 'drop'; event: PointerEvent }
+  | { reason: 'outside-release'; event: PointerEvent }
   | { reason: 'escape-key'; event: KeyboardEvent }
   | { reason: 'tab-key'; event: KeyboardEvent }
-  | { reason: 'drop'; event: PointerEvent | KeyboardEvent }
-  | { reason: 'outside-release'; event: PointerEvent | KeyboardEvent }
-  | { reason: 'pointer-down'; event: PointerEvent }
-  | { reason: 'focus-out'; event: FocusEvent }
   | { reason: 'imperative-action'; event: Event }
   | { reason: 'window-blur'; event: FocusEvent }
   | { reason: 'page-hidden'; event: Event }
@@ -212,12 +195,6 @@ The event object passed to `onDrag`.
 type DragMoveEvent<TSourceData = unknown> = {
   location: DragLocationHistory;
   source: DragSource<TSourceData>;
-  /**
-   * The input method driving the drag.
-   * This is the reliable way to detect a keyboard drag, as
-   * `location.current.input.pointerType` is `null` for those.
-   */
-  mode: DragMode;
 };
 ```
 
@@ -226,8 +203,15 @@ type DragMoveEvent<TSourceData = unknown> = {
 The event details passed to `onDrag`.
 
 ```typescript
-type DragMoveEventDetails =
-  { reason: 'pointer'; event: PointerEvent } | { reason: 'keyboard'; event: KeyboardEvent };
+type DragMoveEventDetails = {
+  /** Why the event fired. */
+  reason: 'pointer';
+  /**
+   * The native event behind the dispatch. Programmatic and lifecycle-only
+   * reasons carry a generic `Event` placeholder.
+   */
+  event: PointerEvent;
+};
 ```
 
 ### DragStartEvent
@@ -238,12 +222,6 @@ The event object passed to `onDragStart`.
 type DragStartEvent<TSourceData = unknown> = {
   location: DragLocationHistory;
   source: DragSource<TSourceData>;
-  /**
-   * The input method driving the drag.
-   * This is the reliable way to detect a keyboard drag, as
-   * `location.current.input.pointerType` is `null` for those.
-   */
-  mode: DragMode;
 };
 ```
 
@@ -252,8 +230,15 @@ type DragStartEvent<TSourceData = unknown> = {
 The event details passed to `onDragStart`.
 
 ```typescript
-type DragStartEventDetails =
-  { reason: 'pointer'; event: PointerEvent } | { reason: 'keyboard'; event: KeyboardEvent };
+type DragStartEventDetails = {
+  /** Why the event fired. */
+  reason: 'pointer';
+  /**
+   * The native event behind the dispatch. Programmatic and lifecycle-only
+   * reasons carry a generic `Event` placeholder.
+   */
+  event: PointerEvent;
+};
 ```
 
 ### DropTargetChangeEvent
@@ -264,12 +249,6 @@ The event object passed to `onDropTargetChange`.
 type DropTargetChangeEvent<TSourceData = unknown> = {
   location: DragLocationHistory;
   source: DragSource<TSourceData>;
-  /**
-   * The input method driving the drag.
-   * This is the reliable way to detect a keyboard drag, as
-   * `location.current.input.pointerType` is `null` for those.
-   */
-  mode: DragMode;
 };
 ```
 
@@ -280,13 +259,10 @@ The event details passed to `onDropTargetChange`, `onDragEnter` and `onDragLeave
 ```typescript
 type DropTargetChangeEventDetails =
   | { reason: 'pointer'; event: PointerEvent }
-  | { reason: 'keyboard'; event: KeyboardEvent }
+  | { reason: 'drop'; event: PointerEvent }
+  | { reason: 'outside-release'; event: PointerEvent }
   | { reason: 'escape-key'; event: KeyboardEvent }
   | { reason: 'tab-key'; event: KeyboardEvent }
-  | { reason: 'drop'; event: PointerEvent | KeyboardEvent }
-  | { reason: 'outside-release'; event: PointerEvent | KeyboardEvent }
-  | { reason: 'pointer-down'; event: PointerEvent }
-  | { reason: 'focus-out'; event: FocusEvent }
   | { reason: 'imperative-action'; event: Event }
   | { reason: 'window-blur'; event: FocusEvent }
   | { reason: 'page-hidden'; event: Event }
@@ -317,13 +293,16 @@ type RegisterMonitorParameters<TSourceData = unknown> = {
    */
   onDragStart?: (
     parameters: DragStartEvent<TSourceData>,
-    eventDetails: DragStartEventDetails,
+    eventDetails: { reason: 'pointer'; event: PointerEvent },
   ) => void;
   /**
    * Event handler called (rAF-throttled) as the pointer moves during any
    * matching drag.
    */
-  onDrag?: (parameters: DragMoveEvent<TSourceData>, eventDetails: DragMoveEventDetails) => void;
+  onDrag?: (
+    parameters: DragMoveEvent<TSourceData>,
+    eventDetails: { reason: 'pointer'; event: PointerEvent },
+  ) => void;
   /**
    * Event handler called when the active drop-target stack changes during any
    * matching drag.
@@ -338,7 +317,7 @@ type RegisterMonitorParameters<TSourceData = unknown> = {
    */
   onDrop?: (
     parameters: DragDropEvent<TSourceData>,
-    eventDetails: { reason: 'drop'; event: PointerEvent | KeyboardEvent },
+    eventDetails: { reason: 'drop'; event: PointerEvent },
   ) => void;
   /**
    * Event handler called once when the drag ends after a drop, outside release, or
@@ -372,13 +351,16 @@ type UseDragMonitorParameters<TSourceData = unknown> = {
    */
   onDragStart?: (
     parameters: DragStartEvent<TSourceData>,
-    eventDetails: DragStartEventDetails,
+    eventDetails: { reason: 'pointer'; event: PointerEvent },
   ) => void;
   /**
    * Event handler called (rAF-throttled) as the pointer moves during any
    * matching drag.
    */
-  onDrag?: (parameters: DragMoveEvent<TSourceData>, eventDetails: DragMoveEventDetails) => void;
+  onDrag?: (
+    parameters: DragMoveEvent<TSourceData>,
+    eventDetails: { reason: 'pointer'; event: PointerEvent },
+  ) => void;
   /**
    * Event handler called when the active drop-target stack changes during any
    * matching drag.
@@ -393,7 +375,7 @@ type UseDragMonitorParameters<TSourceData = unknown> = {
    */
   onDrop?: (
     parameters: DragDropEvent<TSourceData>,
-    eventDetails: { reason: 'drop'; event: PointerEvent | KeyboardEvent },
+    eventDetails: { reason: 'drop'; event: PointerEvent },
   ) => void;
   /**
    * Event handler called once when the drag ends after a drop, outside release, or
@@ -402,12 +384,4 @@ type UseDragMonitorParameters<TSourceData = unknown> = {
    */
   onDragEnd?: (parameters: DragEndEvent<TSourceData>, eventDetails: DragEndEventDetails) => void;
 };
-```
-
-## External Types
-
-### DragMode
-
-```typescript
-type DragMode = 'pointer' | 'keyboard';
 ```

@@ -1,10 +1,8 @@
 /**
- * Shared session bootstrap for the pointer and keyboard sensors.
+ * Session bootstrap for the pointer sensor.
  *
- * Both sensors build the same preview, drag payload, and source-handler map
- * from a draggable's parameters and hand them to the lifecycle
- * ({@link createPreviewAndStartSession}). Sensor-specific resources (the
- * pointer sensor's root lock) plug in through `acquire`/`release`.
+ * It builds the preview, drag payload, and source-handler map from a draggable's
+ * parameters and hands them to the lifecycle.
  */
 
 import { start, type DragSessionHandle, type SourceHandlers } from './lifecycleManager';
@@ -15,11 +13,10 @@ import { compileDragModifiers } from '../dragModifiers';
 import { attachDefaultDragPreview } from '../synthetic/defaultDragPreview';
 import { createSyntheticPreview, type SyntheticPreviewHandle } from '../synthetic/syntheticPreview';
 import type { DraggableConfig } from '../draggable';
-import type { DragMode, DragSource, DragInput } from '../../../types/drag';
+import type { DragSource, DragInput } from '../../../types/drag';
 
 export interface StartSensorSessionParameters {
-  mode: DragMode;
-  /** The draggable's latest parameters (label/kind/payload/event handlers). */
+  /** The draggable's latest parameters (kind/payload/event handlers). */
   draggableParameters: DraggableConfig<any>;
   element: HTMLElement;
   dragHandle: Element | null;
@@ -49,7 +46,6 @@ export interface StartSensorSessionParameters {
  */
 function startSensorSession(parameters: StartSensorSessionParameters): DragSessionHandle | null {
   const {
-    mode,
     draggableParameters: source,
     element,
     dragHandle,
@@ -67,7 +63,6 @@ function startSensorSession(parameters: StartSensorSessionParameters): DragSessi
 
   const dragSource: DragSource = {
     element,
-    label: source.label,
     kind: source.kind.id,
     dragHandle,
     payload,
@@ -76,7 +71,7 @@ function startSensorSession(parameters: StartSensorSessionParameters): DragSessi
   // Read the draggable's latest parameters live on each dispatch so a source that
   // re-renders mid-drag runs its current handler closures. Falls back to the
   // start-time `source` snapshot if the element unregisters mid-drag.
-  // `label`/`kind`/`payload` stay start-time (they live in `dragSource`); only
+  // `kind`/`payload` stay start-time (they live in `dragSource`); only
   // handlers are read fresh.
   //
   // Read `dragSource.element` rather than the start-time `element`: a virtualizer
@@ -95,7 +90,6 @@ function startSensorSession(parameters: StartSensorSessionParameters): DragSessi
   };
 
   return start({
-    mode,
     payload: dragSource,
     getSourceHandlers,
     initialInput,
@@ -115,16 +109,15 @@ export interface CreatePreviewSessionParameters extends Omit<
 > {
   /**
    * Resolve the initial drop target. Called once the preview exists, so the
-   * keyboard sensor can hit-test around its own preview element; the pointer
-   * sensor resolves the target before the preview is built and ignores the
-   * argument.
+   * pointer sensor resolves the target before the preview is built and ignores
+   * the argument.
    */
   getInitialTarget: (preview: SyntheticPreviewHandle) => Element | null;
   /**
    * Where the user pressed, when the gesture has a press. The grab offset
    * anchors here rather than at `initialInput`: the activation threshold puts
    * the committed input a few pixels past the press, and the point the user
-   * took hold of is the press. Omitted (keyboard), the seed input stands in.
+   * took hold of is the press.
    */
   pressPoint?: { x: number; y: number } | undefined;
   /**
@@ -154,7 +147,7 @@ export function createPreviewAndStartSession(
   parameters: CreatePreviewSessionParameters,
 ): PreviewSessionHandle | null {
   const { getInitialTarget, pressPoint, acquire, release, ...sessionParameters } = parameters;
-  const { draggableParameters, element, initialInput, mode } = sessionParameters;
+  const { draggableParameters, element, initialInput } = sessionParameters;
 
   let preview: SyntheticPreviewHandle | null = null;
   let restoreActivePreviewSlot: (() => void) | null = null;
@@ -182,7 +175,7 @@ export function createPreviewAndStartSession(
     };
 
     const previewSettings = resolveDragPreview(draggableParameters, element);
-    preview = createSyntheticPreview(element, mode, {
+    preview = createSyntheticPreview(element, {
       kind: draggableParameters.kind.id,
       previewKey: draggableParameters.previewKey,
       payload: draggableParameters.payload,

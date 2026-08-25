@@ -51,7 +51,6 @@ function Widget({
 }) {
   return (
     <Draggable.Root
-      label={`${widget.title} widget`}
       kind={widgetKind}
       payload={widget.id}
       role="button"
@@ -87,9 +86,9 @@ function DockSlot({
 }) {
   return (
     <DropTarget.Root
+      aria-label={label}
       className={styles.Slot}
       data-empty={widget ? undefined : ''}
-      label={label}
       accept={widgetKind}
       canDrop={() => widget === undefined}
       onDrop={({ source }) => onMoveWidget(source.payload, id)}
@@ -129,7 +128,7 @@ export default function ContainedDashboard() {
           ))}
         </div>
       </div>
-      <DropTarget.Root className={styles.OutsideSlot} label="Outside slot" accept={widgetKind}>
+      <DropTarget.Root className={styles.OutsideSlot} accept={widgetKind}>
         <strong>Outside slot</strong>
         <span>The drag cannot reach this target.</span>
       </DropTarget.Root>

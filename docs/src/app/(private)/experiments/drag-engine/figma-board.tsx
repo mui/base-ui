@@ -472,7 +472,6 @@ function BoardCard({
   return (
     <Draggable.Root
       ref={cardRef}
-      label={card.text}
       kind={cardKind}
       // Capture where in the card the pointer grabbed (client px). The drop maps it
       // back to a surface position from a fresh surface rect, so it stays correct
@@ -491,7 +490,7 @@ function BoardCard({
       // — and the second click of a double-click-to-edit — must not be swallowed by
       // a drag that commits on pointerdown. A real drag still starts after a 5px move.
       pointerActivation={{ mouse: { type: 'distance', distance: 5 } }}
-      // Clamp the drag to the surface for pointer and keyboard alike. A modifier
+      // Clamp the drag to the surface. A modifier
       // governs drop resolution too, so a release off the board resolves the
       // surface instead of cancelling. The surface rect is client-space, so this
       // stays correct at any zoom with no conversion.
@@ -525,6 +524,7 @@ function BoardCard({
       role="button"
       tabIndex={0}
       aria-label={card.text || 'Empty card'}
+      aria-keyshortcuts="ArrowUp ArrowDown ArrowLeft ArrowRight Delete Backspace"
       onPointerDown={(event) => {
         if (editing) {
           return;
@@ -539,6 +539,22 @@ function BoardCard({
         if (event.key === 'Delete' || event.key === 'Backspace') {
           event.preventDefault();
           onDelete(card.id);
+          return;
+        }
+        const step = event.shiftKey ? 10 : 1;
+        const directions: Record<string, [number, number]> = {
+          ArrowUp: [0, -step],
+          ArrowDown: [0, step],
+          ArrowLeft: [-step, 0],
+          ArrowRight: [step, 0],
+        };
+        const delta = directions[event.key];
+        if (delta) {
+          event.preventDefault();
+          const height = cardRef.current?.offsetHeight ?? CARD_MIN_HEIGHT;
+          const position = clampToSurface(card.x + delta[0], card.y + delta[1], height);
+          onMove(card.id, Math.round(position.x), Math.round(position.y));
+          onSelect(card.id);
         }
       }}
       onDoubleClick={(event) => {

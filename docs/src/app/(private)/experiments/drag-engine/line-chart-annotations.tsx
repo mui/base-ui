@@ -6,7 +6,6 @@ import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { ownerDocument } from '@base-ui/utils/owner';
 import {
   Draggable,
-  type DragKeyboardActivation,
   type DragLocationHistory,
   type DragModifier,
   type DragModifiers,
@@ -17,10 +16,9 @@ import styles from './line-chart-annotations.module.css';
 
 // Moves the rendered annotations directly instead of drawing a drag preview.
 // State is updated during `onDrag`, so cancellation restores the pickup snapshot.
-// Modifiers still constrain the reported input, and fixed-step keyboard movement
-// is required because the plot has no drop targets. Angle snapping operates in
-// screen pixels: a modifier handles endpoint drags, while annotation creation
-// applies the same helper outside a drag session.
+// Modifiers still constrain the reported input. Angle snapping operates in screen
+// pixels: a modifier handles endpoint drags, while annotation creation applies the
+// same helper outside a drag session.
 
 interface LineChartAnnotationsSettings {
   snapToDataPoints: boolean;
@@ -212,9 +210,6 @@ const annotationKind = Draggable.createKind<AnnotationDragData>('lineChartAnnota
 const COMMENT_WIDTH = 168;
 /** Keeps a comment box from hanging off the right edge of the chart. */
 const COMMENT_MAX_X = xInvert(CHART_WIDTH - COMMENT_WIDTH - 8);
-/** How far one arrow press moves an annotation, in pixels. Shift travels further. */
-const KEYBOARD_STEP = 4;
-
 const INITIAL_ANNOTATIONS: Annotation[] = [
   { id: 'annotation-1', type: 'horizontal-line', value: 84, dashed: true },
   {
@@ -520,45 +515,6 @@ function describeAnnotation(annotation: Annotation): string {
   }
 }
 
-function describeEnds(
-  annotation: SegmentAnnotation | ChannelAnnotation,
-  handle: AnnotationHandle,
-): string {
-  if (handle === 'start') {
-    return `Start at ${formatPoint(annotation.start)}`;
-  }
-  if (handle === 'end') {
-    return `End at ${formatPoint(annotation.end)}`;
-  }
-  return `${formatPoint(annotation.start)} to ${formatPoint(annotation.end)}`;
-}
-
-/**
- * Where the part being dragged has got to, for the keyboard's "moved"
- * announcement. It reports the handle rather than the annotation, because they
- * do not always move together: a comment's box and its anchor are separate
- * positions, and `describeAnnotation` names only the anchor.
- */
-function describeMovement(annotation: Annotation, handle: AnnotationHandle): string {
-  switch (annotation.type) {
-    case 'horizontal-line':
-      return `At ${formatValue(annotation.value)}`;
-    case 'vertical-line':
-      return `At ${formatMonth(annotation.value)}`;
-    case 'line':
-    case 'arrow':
-      return describeEnds(annotation, handle);
-    case 'parallel-channel':
-      return handle === 'height'
-        ? `${formatValue(Math.abs(annotation.height))} wide`
-        : describeEnds(annotation, handle);
-    default: // comment
-      return handle === 'anchor'
-        ? `Anchor at ${formatPoint(annotation.anchor)}`
-        : `Box at ${formatPoint(annotation.position)}`;
-  }
-}
-
 // ---------------------------------------------------------------------------
 // Shared drag wiring
 // ---------------------------------------------------------------------------
@@ -586,19 +542,14 @@ function useAnnotationsContext(): AnnotationsContextValue {
  * nearest 45° ray from the annotation's *other* end.
  *
  * A modifier is the right home for it because it constrains what the engine reports as
- * the input — so the pointer, the keyboard's virtual cursor, and anything that later
- * hit-tests against that point all agree, instead of each re-deriving the snap. `shiftKey`
- * comes off the context, and the engine re-applies on the key itself, so the snap engages
- * with the pointer standing still.
+ * the input, so the pointer and anything that later hit-tests against that point agree
+ * instead of each re-deriving the snap.
  */
 function angleSnapModifier(
   getGeometry: () => { pivot: PxPoint; bounds: Bounds } | null,
 ): DragModifier {
-  return ({ point, mode, shiftKey }) => {
-    // Pointer only. During a keyboard drag Shift already means "travel four times as
-    // far" (`fixedStepKeyboardMovement`), and AG Charts splits the two the same way:
-    // Shift+drag snaps to 45°, Shift+arrow moves by 10px instead of 1.
-    if (mode !== 'pointer' || !shiftKey) {
+  return ({ point, shiftKey }) => {
+    if (!shiftKey) {
       return point;
     }
     const geometry = getGeometry();
@@ -619,7 +570,6 @@ function AnnotationDraggable(props: {
   style: React.CSSProperties;
   modifiers?: DragModifiers | undefined;
   disabled?: boolean | undefined;
-  keyboardActivation?: DragKeyboardActivation | undefined;
   onDoubleClick?: (() => void) | undefined;
   children?: React.ReactNode | undefined;
 }) {
@@ -631,7 +581,6 @@ function AnnotationDraggable(props: {
     style,
     modifiers,
     disabled,
-    keyboardActivation,
     onDoubleClick,
     children,
   } = props;
@@ -640,7 +589,6 @@ function AnnotationDraggable(props: {
   return (
     <Draggable.Root
       kind={annotationKind}
-      label={label}
       aria-label={label}
       // Read at pickup, which is exactly when the annotation has to be remembered:
       // from here on the state moves under the pointer and the original is gone.
@@ -651,18 +599,14 @@ function AnnotationDraggable(props: {
       pointerActivation={{ mouse: { type: 'distance', distance: 3 } }}
       // Nothing in the plot is a drop target, so the default "snap to the nearest
       // accepting target in this direction" has nothing to aim at: nudge instead.
-      keyboardMovement={Draggable.fixedStepKeyboardMovement(KEYBOARD_STEP)}
+
       // `annotation` is the live one, already moved by the presses so far, so these
       // report where the drag has got to rather than where it began. The default
       // `dropped` names the drop target it landed on, and ends with "No drop
       // target" for every drag here, where landing on nothing is the whole design.
-      keyboardAnnouncements={{
-        moved: () => describeMovement(annotation, handle),
-        dropped: () => `Placed. ${describeMovement(annotation, handle)}`,
-      }}
+
       modifiers={modifiers}
       disabled={disabled}
-      keyboardActivation={keyboardActivation}
       onDrag={({ source, location }) => {
         change(
           dragAnnotation(
@@ -683,12 +627,8 @@ function AnnotationDraggable(props: {
       className={className}
       style={style}
       onDoubleClick={onDoubleClick}
-      // Selection follows focus, which is what puts the endpoint handles within reach of
-      // the keyboard: they are rendered only for the selected annotation, so with
-      // selection on press alone, tabbing to a line showed no handles and the only
-      // keyboard gesture left was moving the whole thing. Now Tab lands on the line,
-      // its handles appear as the next tab stops, and Space on one of them starts a
-      // drag that moves that end alone — which is how a line's angle is changed.
+      // Selection follows focus so keyboard selection and deletion target the
+      // annotation consistently with pointer selection.
       onFocus={() => select(annotation.id)}
       onPointerDown={(event) => {
         select(annotation.id);
@@ -940,13 +880,11 @@ function ChannelView({
       {/* The band between the two lines, grabbable over its exact shape: a
           full-plot box clipped to the parallelogram takes pointer events only
           where it paints. A pointer convenience only — an outline on a clipped
-          element is clipped away too, so the keyboard route to the same `body`
-          handle is the two lines. */}
+          element is clipped away too. */}
       <AnnotationDraggable
         annotation={annotation}
         handle="body"
         label={label}
-        keyboardActivation="off"
         className={clsx(styles.channelFill, selected && styles.channelFillSelected)}
         style={{
           clipPath: `polygon(${corners.map((point) => `${point.x}px ${point.y}px`).join(', ')})`,
@@ -1410,8 +1348,6 @@ export default function LineChartAnnotations() {
 
       <p className={styles.hint}>
         {creationHint(pending, activeTool?.label ?? null)}
-        {/* States the condition rather than claiming the snap is running: Shift is also
-            held during keyboard drags, where it means a bigger step. */}
         {shiftHeld && <span className={styles.hintActive}>Shift · 45° on pointer drags</span>}
       </p>
 

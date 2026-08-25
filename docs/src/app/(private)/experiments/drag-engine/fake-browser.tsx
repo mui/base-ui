@@ -10,20 +10,13 @@ import {
   type DragStartContext,
 } from '@base-ui/react/draggable';
 import { DropTarget } from '@base-ui/react/drop-target';
-import type {
-  DragLocationHistory,
-  DragMoveEventDetails,
-  DragStartEventDetails,
-  DropTargetChangeEventDetails,
-  DropTargetEvent,
-} from '@base-ui/react/drop-target';
+import type { DragLocationHistory, DropTargetEvent } from '@base-ui/react/drop-target';
 import { Field } from '@base-ui/react/field';
 import { CompositeItem } from '@base-ui/react/internals/composite';
 import { Menu } from '@base-ui/react/menu';
 import { Menubar } from '@base-ui/react/menubar';
 import { Tabs } from '@base-ui/react/tabs';
 import type { DropTargetRecord } from '@base-ui/react/types';
-import { useDragDropManager } from '@base-ui/react/use-drag-drop-manager';
 import { useDragMonitor } from '@base-ui/react/use-drag-monitor';
 import { clamp } from '@base-ui/utils/clamp';
 import { fastObjectShallowCompare } from '@base-ui/utils/fastObjectShallowCompare';
@@ -94,8 +87,6 @@ export interface TabDropTargetData {
 
 type TabDropIntent = { type: 'insert'; index: number } | { type: 'replace'; tabId: string };
 
-type HorizontalDirection = -1 | 1;
-
 type EntryLayout = 'horizontal' | 'vertical';
 
 interface ContextLocation {
@@ -146,57 +137,26 @@ function moveTabToIndex(tabs: BrowserTab[], id: string, index: number): BrowserT
 function resolveTabDropIntent(
   dropTargets: readonly DropTargetRecord[],
   allowReplace: boolean,
-  keyboardDirection: HorizontalDirection | null = null,
-  keyboardInsert = false,
 ): TabDropIntent | null {
   const target = dropTargets.find((candidate) => tabDropKind.matches(candidate));
   if (!target || !tabDropKind.matches(target)) {
     return null;
   }
-  return resolveTabTargetIntent(
-    target.payload,
-    target.getLocalPoint().x,
-    allowReplace,
-    keyboardDirection,
-    keyboardInsert,
-  );
+  return resolveTabTargetIntent(target.payload, target.getLocalPoint().x, allowReplace);
 }
 
 export function resolveTabTargetIntent(
   target: TabDropTargetData,
   localX: number,
   allowReplace: boolean,
-  keyboardDirection: HorizontalDirection | null = null,
-  keyboardInsert = false,
 ): TabDropIntent {
   if (!target.tabId) {
     return { type: 'insert', index: target.index };
-  }
-  if (keyboardDirection !== null) {
-    if (allowReplace && !keyboardInsert) {
-      return { type: 'replace', tabId: target.tabId };
-    }
-    return {
-      type: 'insert',
-      index: target.index + (keyboardDirection > 0 ? 1 : 0),
-    };
   }
   if (allowReplace && localX >= 0.25 && localX <= 0.75) {
     return { type: 'replace', tabId: target.tabId };
   }
   return { type: 'insert', index: target.index + (localX > 0.5 ? 1 : 0) };
-}
-
-function getHorizontalDirection(
-  eventDetails: DragStartEventDetails | DragMoveEventDetails | DropTargetChangeEventDetails,
-): HorizontalDirection | null {
-  if (eventDetails.reason !== 'keyboard') {
-    return null;
-  }
-  if (eventDetails.event.key === 'ArrowLeft') {
-    return -1;
-  }
-  return eventDetails.event.key === 'ArrowRight' ? 1 : null;
 }
 
 function isStableFocusTarget(element: HTMLElement | null | undefined): element is HTMLElement {
@@ -222,7 +182,6 @@ interface BookmarkBarContextValue {
   getMoveValidity: (sourceId: string, parentId: ParentId, index: number) => MoveValidity;
   moveNode: (sourceId: string, parentId: ParentId, index: number) => void;
   setMenuOpen: (id: string, open: boolean) => void;
-  startKeyboardDrag: (element: HTMLElement) => void;
   resolveFocusTarget: (id: string) => HTMLElement | null;
   editNode: (id: string) => void;
   deleteNode: (id: string) => void;
@@ -316,7 +275,7 @@ function useOverflowCount(
 
 function DropZone({
   intent,
-  label,
+  label: _label,
   className,
   onDragEnter,
   onDragLeave,
@@ -332,7 +291,6 @@ function DropZone({
   return (
     <DropTarget.Root<AcceptedBookmarkDragData, DropIntent>
       className={className}
-      label={label}
       accept={acceptedBookmarkKinds}
       kind={bookmarkDropKind}
       payload={intent}
@@ -512,8 +470,7 @@ function DraggableEntry({
   layout: EntryLayout;
   entryType: 'menu-page' | 'menu-folder' | 'menubar-page' | 'menubar-folder';
 }) {
-  const { clipboard, dropIntent, isDragging, registerEntry, resolveFocusTarget } =
-    useBookmarkBarContext();
+  const { clipboard, dropIntent, isDragging, registerEntry } = useBookmarkBarContext();
 
   const indicatorBefore =
     dropIntent?.type === 'slot' &&
@@ -552,19 +509,12 @@ function DraggableEntry({
       data-drop-inside={indicatorInside ? '' : undefined}
       data-cut={clipboard?.type === 'cut' && clipboard.id === node.id ? '' : undefined}
       aria-keyshortcuts={
-        node.type === 'folder'
-          ? 'Alt+Enter Control+Enter Meta+Enter Shift+F10'
-          : 'Alt+Enter Shift+F10'
+        node.type === 'folder' ? 'Control+Enter Meta+Enter Shift+F10' : 'Shift+F10'
       }
-      label={node.name}
       kind={bookmarkKind}
       payload={{ type: 'existing', id: node.id }}
       title={node.type === 'bookmark' ? `${node.name}\n${node.url}` : node.name}
-      keyboardActivation="manual"
-      keyboardMovement={Draggable.targetsOnlyKeyboardMovement}
-      keyboardInstructions="Press Alt+Enter to start dragging. Use the arrow keys to choose a target. Hold Shift while moving onto a browser tab to insert beside it instead of replacing it. Press Enter or Space to drop, Escape to cancel, or Shift+F10 for actions without dragging."
       pointerActivation={{ mouse: { type: 'distance', distance: 4 } }}
-      finalFocus={() => resolveFocusTarget(node.id) ?? true}
       onBeforeDragStart={handleBeforeDragStart}
       render={<button type="button" aria-label={node.name} />}
     >
@@ -642,7 +592,6 @@ function EmptyFolderTarget({ folderId, surfaceId }: { folderId: string; surfaceI
     <DropTarget.Root<AcceptedBookmarkDragData, DropIntent>
       className={styles.emptyFolder}
       data-drop-inside={active ? '' : undefined}
-      label="Move into empty folder"
       accept={acceptedBookmarkKinds}
       kind={bookmarkDropKind}
       payload={intent}
@@ -766,7 +715,6 @@ function MoreMenu({
   return (
     <Menu.Root open={openMenuIds.has(MORE_MENU_ID)} onOpenChange={handleOpenChange}>
       <DropTarget.Root<AcceptedBookmarkDragData, DropIntent>
-        label="Place before hidden bookmarks"
         accept={acceptedBookmarkKinds}
         kind={bookmarkDropKind}
         payload={intent}
@@ -841,7 +789,6 @@ function BrowserTabs({
   onCloseTab: (id: string) => void;
   onCreateTab: () => void;
 }) {
-  const { startKeyboardDrag } = useBookmarkBarContext();
   const orderBeforeDragRef = React.useRef<BrowserTab[] | null>(null);
   const tabElementsRef = React.useRef(new Map<string, HTMLElement>());
   const newTabButtonRef = React.useRef<HTMLButtonElement>(null);
@@ -901,7 +848,6 @@ function BrowserTabs({
         activateOnFocus
         render={
           <DropTarget.Root<AcceptedBookmarkDragData, TabDropTargetData>
-            label="Add at end of tab list"
             accept={acceptedTabKinds}
             kind={tabDropKind}
             payload={{ index: tabs.length }}
@@ -921,15 +867,9 @@ function BrowserTabs({
             }
             onActiveTabChange(tab.id);
           };
-          const handleDrag = (
-            event: DropTargetEvent<'onDrag', AcceptedBookmarkDragData>,
-            eventDetails: DragMoveEventDetails,
-          ) => {
+          const handleDrag = (event: DropTargetEvent<'onDrag', AcceptedBookmarkDragData>) => {
             if (event.source.payload.type === 'tab') {
-              const movingRight =
-                eventDetails.reason === 'keyboard'
-                  ? getHorizontalDirection(eventDetails) === 1
-                  : event.self.getLocalPoint().x > 0.5;
+              const movingRight = event.self.getLocalPoint().x > 0.5;
               const sourceId = event.source.payload.id;
               onTabsChange((current) => {
                 const targetIndex = current.findIndex((candidate) => candidate.id === tab.id);
@@ -945,10 +885,6 @@ function BrowserTabs({
               event.preventDefault();
               event.stopPropagation();
               handleKeyboardMove(tab.id, event.key === 'ArrowLeft' ? -1 : 1);
-            } else if (event.altKey && event.key === 'Enter') {
-              event.preventDefault();
-              event.stopPropagation();
-              startKeyboardDrag(event.currentTarget);
             }
           };
           const handleClosePointerDown = (event: React.PointerEvent) => {
@@ -978,12 +914,8 @@ function BrowserTabs({
               title={`${tab.name}\n${tab.url}`}
               render={
                 <Draggable.Root<AcceptedBookmarkDragData>
-                  label={`${tab.name} tab`}
                   kind={tabKind}
                   payload={{ type: 'tab', ...tab }}
-                  keyboardActivation="manual"
-                  keyboardMovement={Draggable.targetsOnlyKeyboardMovement}
-                  keyboardInstructions="Press Alt+Enter to reorder this tab with the arrow keys. Use Alt+Left or Alt+Right to reorder without dragging."
                   pointerActivation={{ mouse: { type: 'distance', distance: 5 } }}
                   onBeforeDragStart={handleBeforeDragStart}
                   onDragStart={handleDragStart}
@@ -991,7 +923,6 @@ function BrowserTabs({
                   onDragEnd={handleDragEnd}
                   render={
                     <DropTarget.Root<AcceptedBookmarkDragData, TabDropTargetData>
-                      label={`Open in or beside ${tab.name}`}
                       accept={acceptedTabKinds}
                       kind={tabDropKind}
                       payload={{ index, tabId: tab.id }}
@@ -1029,7 +960,6 @@ function BrowserTabs({
       </Tabs.List>
       <DropTarget.Root<AcceptedBookmarkDragData, TabDropTargetData>
         className={styles.endTabDropArea}
-        label="Add at end of tab list"
         accept={acceptedTabKinds}
         kind={tabDropKind}
         payload={{ index: tabs.length }}
@@ -1329,7 +1259,6 @@ export default function FakeBrowserExperiment() {
 }
 
 function BookmarkBar() {
-  const manager = useDragDropManager();
   const [tree, setTree] = React.useState(INITIAL_TREE);
   const [activeDragId, setActiveDragId] = React.useState<string | null>(null);
   const [dropIntent, setDropIntent] = React.useState<DropIntent | null>(null);
@@ -1356,7 +1285,6 @@ function BookmarkBar() {
   const nextTabIdRef = React.useRef(1);
   const focusTimeout = useTimeout();
   const tabActivationTimeout = useTimeout();
-  const keyboardDirectionRef = React.useRef<HorizontalDirection | null>(null);
 
   const createNodeId = useStableCallback((type: BookmarkNode['type']) => {
     nextNodeIdRef.current += 1;
@@ -1446,6 +1374,12 @@ function BookmarkBar() {
   const visibleItems = rootItems.slice(0, visibleCount);
   const overflowItems = rootItems.slice(visibleCount);
   const activeTab = tabs.find((tab) => tab.id === activeTabId) ?? null;
+  // Keep panels in creation order. Moving an iframe in the DOM reloads its browsing context,
+  // so the panel order must not follow tabs while they are being reordered.
+  const panelTabs = React.useMemo(
+    () => [...tabs].sort((a, b) => Number(a.id.slice(4)) - Number(b.id.slice(4))),
+    [tabs],
+  );
 
   const getParentName = useStableCallback((parentId: ParentId) =>
     parentId === ROOT_ID ? 'the bookmarks bar' : tree.nodes[parentId]?.name,
@@ -1483,26 +1417,13 @@ function BookmarkBar() {
     return moreButtonRef.current ?? resetButtonRef.current;
   });
 
-  const startKeyboardDrag = useStableCallback((element: HTMLElement) => {
-    manager.startKeyboardDrag(element);
-  });
-
   const resolveEditorFinalFocus = useStableCallback(() =>
     resolveFocusTarget(editorFocusIdRef.current),
   );
 
   const syncDropIntents = useStableCallback(
-    (
-      event: { location: DragLocationHistory; source: { payload: AcceptedBookmarkDragData } },
-      eventDetails: DragStartEventDetails | DragMoveEventDetails | DropTargetChangeEventDetails,
-    ) => {
-      const keyboard = eventDetails.reason === 'keyboard';
-      const direction = getHorizontalDirection(eventDetails);
-      if (direction !== null) {
-        keyboardDirectionRef.current = direction;
-      }
-
-      const { dropTargets, input } = event.location.current;
+    (event: { location: DragLocationHistory; source: { payload: AcceptedBookmarkDragData } }) => {
+      const { dropTargets } = event.location.current;
       const source = event.source.payload;
       const target = dropTargets.find((candidate) => bookmarkDropKind.matches(candidate));
       const nextIntent = target && bookmarkDropKind.matches(target) ? target.payload : null;
@@ -1512,12 +1433,7 @@ function BookmarkBar() {
       const sourceNode = source.type === 'existing' ? tree.nodes[source.id] : null;
       const nextTabDropIntent =
         source.type === 'existing'
-          ? resolveTabDropIntent(
-              dropTargets,
-              sourceNode?.type === 'bookmark',
-              keyboard ? keyboardDirectionRef.current : null,
-              keyboard && input.shiftKey,
-            )
+          ? resolveTabDropIntent(dropTargets, sourceNode?.type === 'bookmark')
           : null;
       setTabDropIntent((current) =>
         fastObjectShallowCompare(current, nextTabDropIntent) ? current : nextTabDropIntent,
@@ -1527,15 +1443,13 @@ function BookmarkBar() {
 
   useDragMonitor({
     accept: acceptedTabKinds,
-    onDragStart(event, eventDetails) {
+    onDragStart(event) {
       setActiveDragId(event.source.payload.id);
-      syncDropIntents(event, eventDetails);
+      syncDropIntents(event);
     },
     onDrag: syncDropIntents,
-    onDropTargetChange(event, eventDetails) {
-      if (eventDetails.reason === 'pointer' || eventDetails.reason === 'keyboard') {
-        syncDropIntents(event, eventDetails);
-      }
+    onDropTargetChange(event) {
+      syncDropIntents(event);
     },
     onDrop(event) {
       const bookmarkTarget = event.location.current.dropTargets.find((candidate) =>
@@ -1564,8 +1478,6 @@ function BookmarkBar() {
       const tabIntent = resolveTabDropIntent(
         event.location.current.dropTargets,
         sourceNode?.type === 'bookmark',
-        event.mode === 'keyboard' ? keyboardDirectionRef.current : null,
-        event.mode === 'keyboard' && event.location.current.input.shiftKey,
       );
       if (!tabIntent) {
         return;
@@ -1599,7 +1511,6 @@ function BookmarkBar() {
       setActiveDragId(null);
       setDropIntent(null);
       setTabDropIntent(null);
-      keyboardDirectionRef.current = null;
       setOpenMenuIds(new Set());
     },
   });
@@ -1895,19 +1806,6 @@ function BookmarkBar() {
     const id = bookmarkElement?.dataset.bookmarkId;
     const node = id ? tree.nodes[id] : undefined;
     if (
-      bookmarkElement &&
-      event.altKey &&
-      !event.ctrlKey &&
-      !event.metaKey &&
-      !event.shiftKey &&
-      event.key === 'Enter'
-    ) {
-      event.preventDefault();
-      event.stopPropagation();
-      startKeyboardDrag(bookmarkElement);
-      return;
-    }
-    if (
       node?.type === 'folder' &&
       (event.ctrlKey || event.metaKey) &&
       !event.altKey &&
@@ -1959,7 +1857,6 @@ function BookmarkBar() {
       getMoveValidity: getValidity,
       moveNode: handleMoveNode,
       setMenuOpen,
-      startKeyboardDrag,
       resolveFocusTarget,
       editNode: handleEditNode,
       deleteNode: handleDeleteNode,
@@ -1981,7 +1878,6 @@ function BookmarkBar() {
       getValidity,
       handleMoveNode,
       setMenuOpen,
-      startKeyboardDrag,
       resolveFocusTarget,
       handleEditNode,
       handleDeleteNode,
@@ -2070,7 +1966,7 @@ function BookmarkBar() {
                   <MeasureRow items={rootItems} />
                 </div>
               </Menubar>
-              {tabs.map((tab) => (
+              {panelTabs.map((tab) => (
                 <Tabs.Panel
                   key={tab.id}
                   id={getBrowserTabPanelId(tab.id)}
@@ -2098,11 +1994,9 @@ function BookmarkBar() {
 
             <div className={styles.instructions}>
               <p>
-                Keyboard: use arrow keys to navigate. Press Alt+Enter to drag bookmarks or reorder
-                tabs. While dragging a bookmark over tabs, hold Shift to insert it beside a tab
-                instead of replacing that tab. Use Alt+Left/Right to reorder tabs directly. Press
-                Shift+F10 for actions, including Cut, Copy, and Paste. On touch, press and hold to
-                open the same menu.
+                Keyboard: use arrow keys to navigate and Alt+Left/Right to reorder tabs. Press
+                Shift+F10 for bookmark actions, including Cut, Copy, and Paste. On touch, press and
+                hold to open the same menu.
               </p>
               <button
                 ref={resetButtonRef}

@@ -1,5 +1,4 @@
 import { isShadowRoot } from '@floating-ui/utils/dom';
-import { ownerDocument } from '@base-ui/utils/owner';
 import { clamp } from '@base-ui/utils/clamp';
 import type {
   DragAccept,
@@ -48,68 +47,27 @@ interface DropTargetState {
    * decrements what the retain incremented even if the node has since moved.
    */
   retainedRoots: WeakMap<Element, ShadowRoot>;
-  /** Registered elements partitioned by client-coordinate space. */
-  documents: Map<Document, Set<Element>>;
-  /** The document counted at registration time, resilient to later adoption. */
-  retainedDocuments: WeakMap<Element, Document>;
 }
 
 const state = getSharedSlot<DropTargetState>('dropTarget', () => ({
-  // A plain `Map` rather than a `WeakMap`: the keyboard sensor iterates the keys for
-  // directional collision, and every entry is removed by its registration's cleanup.
   registry: new Map<Element, DropTargetGetter[]>(),
   shadowRoots: new Map<ShadowRoot, number>(),
   retainedRoots: new WeakMap<Element, ShadowRoot>(),
-  documents: new Map<Document, Set<Element>>(),
-  retainedDocuments: new WeakMap<Element, Document>(),
 }));
-// Additive shared-state evolution: a protocol bump is reserved for incompatible
-// layouts, because two protocol versions must not split the live target registry.
-state.documents ??= new Map<Document, Set<Element>>();
-state.retainedDocuments ??= new WeakMap<Element, Document>();
 
 const holds = createGetterStackRegistry<Element, DropTargetGetter>({
   entries: state.registry,
   onFirstAdd: (element) => {
     element.setAttribute(DROP_TARGET_ATTR, '');
     retainShadowRoot(element);
-    retainDocument(element);
   },
   // Runs before `beforeDelete`, so the attribute is already gone when the
   // caller refreshes the lifecycle and the refreshed stack excludes this element.
   onLastRemove: (element) => {
     element.removeAttribute(DROP_TARGET_ATTR);
     releaseShadowRoot(element);
-    releaseDocument(element);
   },
 });
-
-function retainDocument(element: Element): void {
-  const doc = ownerDocument(element);
-  let elements = state.documents.get(doc);
-  if (!elements) {
-    elements = new Set();
-    state.documents.set(doc, elements);
-  }
-  elements.add(element);
-  state.retainedDocuments.set(element, doc);
-}
-
-function releaseDocument(element: Element): void {
-  // Read the document retained at registration, not today's `ownerDocument`:
-  // detachment leaves it unchanged, but `adoptNode` can move a still-registered
-  // target and its eventual cleanup must remove it from the original partition.
-  const doc = state.retainedDocuments.get(element);
-  if (!doc) {
-    return;
-  }
-  state.retainedDocuments.delete(element);
-  const elements = state.documents.get(doc);
-  elements?.delete(element);
-  if (elements?.size === 0) {
-    state.documents.delete(doc);
-  }
-}
 
 /**
  * Ref-count the shadow root a target lives in, so the pointer sensor can read the
@@ -247,7 +205,6 @@ export function resetForTests(): void {
   }
   state.registry.clear();
   state.shadowRoots.clear();
-  state.documents.clear();
   retiringRegistrations.clear();
 }
 
@@ -314,7 +271,7 @@ export function getDeclaredDropTargetPayload(element: Element): unknown {
 /**
  * `resolveDropTargetOutcome`'s third answer: the target's `canDrop` returned
  * `'reject'`, refusing the drop outright rather than abstaining. Internal: the
- * walk turns it into an empty stack and the keyboard collision into a skip.
+ * walk turns it into an empty stack.
  */
 const DROP_REJECTED = Symbol('base-ui.dropTarget.rejected');
 
@@ -323,8 +280,7 @@ const DROP_REJECTED = Symbol('base-ui.dropTarget.rejected');
  * when the element is registered, not `disabled`, and its `accept` and
  * `canDrop` both pass; `null` when it abstains; {@link DROP_REJECTED} when its
  * `canDrop` refuses the drop outright. Shared by the DOM walk in
- * `getDropTargetsOver` and the keyboard sensor's collision so both honour the
- * same rules.
+ * `getDropTargetsOver` so pointer resolution uses one set of rules.
  */
 function resolveDropTargetOutcome(
   element: Element,
@@ -348,9 +304,8 @@ function resolveDropTargetOutcome(
   if (registration.disabled) {
     return null;
   }
-  // Cheap kind filter first, before allocating the feedback object. This path runs per
-  // walked target per frame, and per registered target per keyboard press, where most
-  // targets fail here.
+  // Cheap kind filter first, before allocating the feedback object. This path
+  // runs per walked target per frame, where most targets fail here.
   if (!matchesAccept(registration.accept, feedback.source as DragSource)) {
     return null;
   }
@@ -380,25 +335,10 @@ function resolveDropTargetOutcome(
   }
   return {
     element,
-    label: registration.label,
     kind: registration.kind?.id,
     payload,
     ...createLocalPointReaders(element, fullFeedback, registration.snap),
   };
-}
-
-/**
- * {@link resolveDropTargetOutcome} with rejection normalized to `null`. The
- * keyboard collision treats a rejecting target like a non-candidate: rejection
- * is positional (this point, this drag), and a directional search over
- * registered targets has no subtree to veto.
- */
-export function resolveDropTarget(
-  element: Element,
-  feedback: Omit<DropTargetResolutionContext, 'element'>,
-): DropTargetRecord | null {
-  const outcome = resolveDropTargetOutcome(element, feedback);
-  return outcome === DROP_REJECTED ? null : outcome;
 }
 
 /**
@@ -502,17 +442,6 @@ function createLocalPointReaders(
   };
 
   return { getLocalPoint, getSnappedLocalPoint };
-}
-
-/**
- * Snapshot of every currently-registered drop target element. Used by the
- * keyboard sensor to find candidates in the pressed direction; callers must
- * still run `resolveDropTarget` to honour `disabled`/`accept`/`canDrop`.
- */
-export function getRegisteredDropTargetElements(doc?: Document): Iterable<Element> {
-  // An iterator, not an array: both consumers only iterate, and materializing one
-  // allocates a slot per registered target on the keyboard sensor's per-press scan.
-  return doc ? (state.documents.get(doc) ?? []) : state.registry.keys();
 }
 
 /**
@@ -765,11 +694,6 @@ export type RegisterDropTargetParameters<TSourceData = unknown, TLocalData = unk
   getPayload?:
     ((context: DropTargetResolutionContext<NoInfer<TSourceData>>) => TLocalData) | undefined;
   /**
-   * Human-readable name of this drop target, used by the default screen-reader
-   * announcements for keyboard drags to name where the item is and where it landed.
-   */
-  label?: string | undefined;
-  /**
    * The target kind created with `Draggable.createKind`. It is available as
    * `self.kind` and on entries in `location.dropTargets`. Use the kind's `matches`
    * method to distinguish target kinds and narrow their payload types. Its payload
@@ -879,7 +803,7 @@ export type RegisterDropTargetParameters<TSourceData = unknown, TLocalData = unk
   /**
    * Event handler called when this target leaves the active stack, because the
    * pointer moved away or the drag ended. `eventDetails.reason` identifies whether
-   * the pointer or keyboard left the target, or the drag ended.
+   * the pointer left the target, or the drag ended.
    */
   onDragLeave?:
     | ((

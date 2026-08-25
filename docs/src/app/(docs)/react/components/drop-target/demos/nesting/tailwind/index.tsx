@@ -29,7 +29,7 @@ const LAYER_CLASS =
 
 function ChartLayer() {
   return (
-    <Draggable.Root label="Chart layer" kind={layerKind} role="button" className={LAYER_CLASS}>
+    <Draggable.Root kind={layerKind} role="button" className={LAYER_CLASS}>
       <ChartIcon />
       Chart
     </Draggable.Root>
@@ -43,7 +43,6 @@ export default function NestedDropTargets() {
     <div className="flex w-full flex-col gap-3 select-none">
       <div className="flex min-h-9 items-start">{location === 'palette' && <ChartLayer />}</div>
       <DropTarget.Root
-        label="Canvas"
         accept={layerKind}
         onDrop={() => setLocation('canvas')}
         className="relative box-border min-h-60 overflow-hidden border border-neutral-200 bg-neutral-50 bg-[radial-gradient(theme(colors.neutral.300)_1px,transparent_1px)] bg-size-[20px_20px] p-3 transition-colors data-[drag-over-innermost]:border-neutral-950 data-[drag-over-innermost]:bg-neutral-100 dark:border-neutral-700 dark:bg-neutral-900 dark:bg-[radial-gradient(theme(colors.neutral.700)_1px,transparent_1px)] dark:data-[drag-over-innermost]:border-white dark:data-[drag-over-innermost]:bg-neutral-800"
@@ -56,7 +55,7 @@ export default function NestedDropTargets() {
         </div>
         <DropTarget.Root
           // @highlight-start
-          label="Frame"
+
           accept={layerKind}
           onDrop={() => setLocation('frame')}
           // @highlight-end

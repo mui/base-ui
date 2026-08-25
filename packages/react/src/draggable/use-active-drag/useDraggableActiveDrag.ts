@@ -20,11 +20,23 @@ export type UseDraggableActiveDragReturnValue<TData = unknown> = DragSource<TDat
 export function useDraggableActiveDrag<TAccept extends AnyDragAccept = DragKind<unknown>>(
   accept?: TAccept,
 ): UseDraggableActiveDragReturnValue<AcceptedDragPayload<TAccept>> {
-  const source = useStore(dragSourceStore, selectDragSource);
-  if (source === null || !matchesAccept(accept, source)) {
+  // The filter lives inside the selector so a drag this consumer rejects stays
+  // `null` across the store's publishes: a drag of another kind starting, ending,
+  // or retargeting then re-renders none of the (possibly many) rejecting
+  // consumers. An inline `accept` array only re-runs the selector once per render.
+  const source = useStore(dragSourceStore, selectAcceptedDragSource, accept);
+  return source as DragSource<AcceptedDragPayload<TAccept>> | null;
+}
+
+function selectAcceptedDragSource(
+  source: DragSource | null,
+  accept: AnyDragAccept | undefined,
+): DragSource | null {
+  const current = selectDragSource(source);
+  if (current === null || !matchesAccept(accept, current)) {
     return null;
   }
-  return source as DragSource<AcceptedDragPayload<TAccept>>;
+  return current;
 }
 
 // Keyed on the observed payload rather than on an `accept` value, like the props types.

@@ -2,16 +2,14 @@
  * Per-document dispatch for the draggable static-setup refresh.
  *
  * The refresh contract is documented on `registerDraggable`: the gesture styles
- * and a11y attributes are applied from the parameters read at registration and
- * refreshed "at the next interaction with the element (a pointer press, or the
- * focus a keyboard pickup starts with)", so an imperative consumer that mutates
- * parameters in place isn't left with stale attributes forever.
+ * are applied from the parameters read at registration and
+ * refreshed at the next pointer press, so an imperative consumer that mutates
+ * parameters in place isn't left with stale styles forever.
  *
- * The two entry points are the same events the sensors already watch, so one
- * capture pair per document or shadow root covers every draggable there — a
- * thousand-row list would otherwise carry two thousand listeners that almost
- * always hit the no-change early-out. Each interaction walks up from its target
- * and refreshes every registered draggable on the way.
+ * The entry point is the event the pointer sensor already watches, so one
+ * capture listener per document or shadow root covers every draggable there.
+ * Each interaction walks up from its target and refreshes every registered
+ * draggable on the way.
  */
 
 import { addEventListener } from '@base-ui/utils/addEventListener';
@@ -48,12 +46,12 @@ function onInteraction(event: Event): void {
   if (!isElement(target)) {
     return;
   }
-  // Walk up, crossing shadow boundaries: the press or focus lands on whatever is
+  // Walk up, crossing shadow boundaries: the press lands on whatever is
   // inside the draggable — a handle button, a label — not on the draggable itself.
   //
   // Every registered ancestor is refreshed, not just the innermost: draggables
   // nest (`resolveDraggablePickup` falls through from an inner one to an outer),
-  // so stopping at the first match leaves an outer draggable's ARIA stale
+  // so stopping at the first match leaves an outer draggable's setup stale
   // whenever the press happens to land inside a nested one.
   for (let node: Element | null = target; node !== null; node = getComposedParentElement(node)) {
     const refreshes = state.refreshes.get(node);
@@ -71,16 +69,14 @@ const documentBinding = createDocumentBinding({
   install: (doc) => {
     // Capture-phase, so a consumer handler stopping propagation can't starve it.
     const offPointerDown = addEventListener(doc, 'pointerdown', onInteraction, { capture: true });
-    const offFocusIn = addEventListener(doc, 'focusin', onInteraction, { capture: true });
     return () => {
       offPointerDown();
-      offFocusIn();
     };
   },
 });
 
 /**
- * Refresh `element`'s static setup on the next pointer press or focus inside it.
+ * Refresh `element`'s static setup on the next pointer press inside it.
  * Returns a cleanup releasing both the callback and this event root's listener share.
  */
 export function registerStaticSetupRefresh(element: Element, refresh: () => void): DragCleanupFn {

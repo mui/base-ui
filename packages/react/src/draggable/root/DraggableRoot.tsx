@@ -21,17 +21,9 @@ const stateAttributesMapping: StateAttributesMapping<DraggableRootState> = {
   dragging: () => null,
 };
 
-// Without a role, the default focusable `<div>` is exposed as an unnamed `generic`
-// node, which makes assistive technology drop the engine's `aria-roledescription`
-// and leaves the pickup gesture undiscoverable. A polymorphic render target keeps
-// its native semantics instead. Passed before `elementProps`, so an explicit role
-// still wins.
-const KEYBOARD_FOCUSABLE_PROPS = { tabIndex: 0 } as const;
-const DEFAULT_KEYBOARD_ROLE_PROPS = { role: 'button' } as const;
-
 /**
- * Makes its element a drag source, so it can be picked up with the pointer or the
- * keyboard and dropped on matching drop targets.
+ * Makes its element a drag source, so it can be picked up with the pointer and
+ * dropped on matching drop targets.
  * Renders a `<div>` element.
  *
  * While dragging, a clone of the element follows the pointer by default.
@@ -54,7 +46,6 @@ export const DraggableRoot = React.forwardRef(function DraggableRoot<TData = und
     // Drag source props. Listed explicitly because whatever stays in
     // `elementProps` is spread onto the `<div>`, where an engine parameter would
     // land as an attribute.
-    label,
     kind,
     payload,
     getPayload,
@@ -62,14 +53,7 @@ export const DraggableRoot = React.forwardRef(function DraggableRoot<TData = und
     disabled,
     pointerActivation,
     dragCursor,
-    // Accessibility props
-    ariaRoleDescription,
-    keyboardInstructions,
-    keyboardAnnouncements,
-    keyboardActivation,
-    keyboardMovement,
     modifiers,
-    finalFocus,
     // Event handlers
     onBeforeDragStart,
     onDragStart,
@@ -84,7 +68,6 @@ export const DraggableRoot = React.forwardRef(function DraggableRoot<TData = und
   // A fresh object per render is fine: `useDraggableElement` reads it through a
   // ref and never compares it.
   const params = {
-    label,
     kind,
     payload,
     getPayload,
@@ -92,13 +75,7 @@ export const DraggableRoot = React.forwardRef(function DraggableRoot<TData = und
     disabled,
     pointerActivation,
     dragCursor,
-    ariaRoleDescription,
-    keyboardInstructions,
-    keyboardAnnouncements,
-    keyboardActivation,
-    keyboardMovement,
     modifiers,
-    finalFocus,
     onBeforeDragStart,
     onDragStart,
     onDrag,
@@ -107,16 +84,8 @@ export const DraggableRoot = React.forwardRef(function DraggableRoot<TData = und
     onDragEnd,
   } as RegisterDraggableParameters<TData>;
 
-  const {
-    ref,
-    dragging,
-    setHandleElement,
-    setKeyboardHandleElement,
-    startKeyboardDrag,
-    observeElement,
-    previewHandle,
-    hasHandle,
-  } = useDraggableElement<TData>(params);
+  const { ref, dragging, setHandleElement, observeElement, previewHandle } =
+    useDraggableElement<TData>(params);
 
   const state: DraggableRoot.State = { dragging, disabled: disabled ?? false };
 
@@ -127,46 +96,18 @@ export const DraggableRoot = React.forwardRef(function DraggableRoot<TData = und
   const contextValue = React.useMemo(
     () => ({
       setHandleElement,
-      setKeyboardHandleElement,
-      startKeyboardDrag,
       observeElement,
       previewHandle,
       previewContext,
-      label,
       disabled: disabled ?? false,
     }),
-    [
-      setHandleElement,
-      setKeyboardHandleElement,
-      startKeyboardDrag,
-      observeElement,
-      previewHandle,
-      previewContext,
-      label,
-      disabled,
-    ],
+    [setHandleElement, observeElement, previewHandle, previewContext, disabled],
   );
-
-  // Focusable whenever the element is keyboard-draggable at all: with `'auto'` screen
-  // readers are told "press Space or Enter to pick up", and with `'manual'` the
-  // consumer's own pickup route starts from focus too. Either way the element must be
-  // reachable with Tab. With a handle attached, pickup and the a11y attributes live on
-  // a handle instead, so the root stays out of the tab order.
-  // `hasHandle` is `null` until the mount commit resolves it, and an unconfirmed
-  // root stays unfocusable: the server can't see handles, so SSR HTML and the
-  // hydration render would otherwise put a second tab stop next to every handle.
-  // A user-supplied `tabIndex` in the spread props overrides this.
-  const keyboardFocusable = !disabled && keyboardActivation !== 'off' && hasHandle === false;
 
   const element = useRenderElement('div', componentProps, {
     state,
     ref: [forwardedRef, ref],
-    props: [
-      { children },
-      keyboardFocusable ? KEYBOARD_FOCUSABLE_PROPS : undefined,
-      keyboardFocusable && render === undefined ? DEFAULT_KEYBOARD_ROLE_PROPS : undefined,
-      elementProps,
-    ],
+    props: [{ children }, elementProps],
     stateAttributesMapping,
   });
 
@@ -211,7 +152,7 @@ type DraggableRootPropsBase<TData> = Omit<
   // never from here.
   Omit<
     RegisterDraggableParameters<TData>,
-    'dragPreview' | 'dragHandle' | 'keyboardDragHandle' | 'payload' | 'getPayload'
+    'dragPreview' | 'dragHandle' | 'payload' | 'getPayload'
   > & { children?: React.ReactNode | undefined };
 
 export type DraggableRootProps<TData = undefined> = DraggableRootPropsBase<TData> &

@@ -1,13 +1,11 @@
 import * as React from 'react';
 import { describe, it, expect } from 'vitest';
 import { fireEvent, screen } from '@testing-library/react';
-import { act } from '@mui/internal-test-utils';
 import { createDndRenderer, testDragKind } from '#test-utils';
 import { Draggable } from '@base-ui/react/draggable';
 import { createElement, flushRaf, lift, setupDragEngineTests } from '../../test/dnd';
 import { DraggablePreviewCssVars } from './preview/DraggablePreviewCssVars';
 import { DraggablePreviewDataAttributes } from './preview/DraggablePreviewDataAttributes';
-import { DraggableRootCssVars } from './root/DraggableRootCssVars';
 import { DraggableRootDataAttributes } from './root/DraggableRootDataAttributes';
 
 setupDragEngineTests();
@@ -54,20 +52,6 @@ describe('Draggable enum sync', () => {
     // `dragPreview` is the selector `getPreview` matched on, so reaching this line already
     // pins it; assert it anyway so a rename fails here rather than in an unrelated query.
     expect(getPreview()).toHaveAttribute(DraggablePreviewDataAttributes.dragPreview);
-    expect(getPreview()).toHaveAttribute(DraggablePreviewDataAttributes.dragMode, 'pointer');
-  });
-
-  it('names the preview attributes per DraggablePreviewDataAttributes for a keyboard drag', async () => {
-    await renderDnd(<DraggableWithPreview />);
-    const source = screen.getByTestId('drag');
-
-    source.focus();
-    fireEvent.keyDown(source, { key: ' ' });
-    // The mode lands one frame after the preview is positioned (see `syntheticPreview.ts`).
-    await flushRaf();
-
-    expect(getPreview()).toHaveAttribute(DraggablePreviewDataAttributes.dragPreview);
-    expect(getPreview()).toHaveAttribute(DraggablePreviewDataAttributes.dragMode, 'keyboard');
   });
 
   it('names the source attributes per DraggableRootDataAttributes for a pointer drag', async () => {
@@ -85,20 +69,6 @@ describe('Draggable enum sync', () => {
     await lift(source);
 
     expect(source).toHaveAttribute(DraggableRootDataAttributes.dragging);
-    expect(source).toHaveAttribute(DraggableRootDataAttributes.dragMode, 'pointer');
-  });
-
-  it('names the source attributes per DraggableRootDataAttributes for a keyboard drag', async () => {
-    await renderDnd(<Draggable.Root kind={testDragKind} data-testid="drag" />);
-    const source = screen.getByTestId('drag');
-    source.getBoundingClientRect = () => new DOMRect(0, 0, 200, 100);
-
-    source.focus();
-    fireEvent.keyDown(source, { key: ' ' });
-    await flushRaf();
-
-    expect(source).toHaveAttribute(DraggableRootDataAttributes.dragging);
-    expect(source).toHaveAttribute(DraggableRootDataAttributes.dragMode, 'keyboard');
   });
 
   it('names the source ending attribute per DraggableRootDataAttributes', async () => {
@@ -119,49 +89,5 @@ describe('Draggable enum sync', () => {
     expect(source).toHaveAttribute(DraggableRootDataAttributes.endingStyle);
     await flushRaf();
     expect(source).not.toHaveAttribute(DraggableRootDataAttributes.endingStyle);
-  });
-
-  it('names the displacement attributes and variables per the root enums', async () => {
-    let top = 40;
-    let bumpApp: () => void = () => {};
-    function Neighbour() {
-      const ref = React.useCallback((node: HTMLElement | null) => {
-        if (node) {
-          Object.defineProperties(node, {
-            offsetTop: { configurable: true, get: () => top },
-            offsetLeft: { configurable: true, get: () => 0 },
-            offsetWidth: { configurable: true, value: 200 },
-            offsetHeight: { configurable: true, value: 40 },
-          });
-        }
-      }, []);
-      const [, setVersion] = React.useState(0);
-      bumpApp = () => setVersion((v) => v + 1);
-      return (
-        <Draggable.Root kind={testDragKind} data-testid="neighbour" render={<div ref={ref} />}>
-          <Draggable.Displacement />
-        </Draggable.Root>
-      );
-    }
-    const { engine } = await renderDnd(<Neighbour />);
-    const source = createElement();
-    const cleanup = engine.registerDraggable(source, { kind: testDragKind });
-
-    fireEvent.dragStart(source);
-    await flushRaf();
-
-    // A reorder mid-drag moves the neighbour up by 40px.
-    top = 0;
-    act(() => bumpApp());
-
-    const neighbour = screen.getByTestId('neighbour');
-    expect(neighbour).toHaveAttribute(DraggableRootDataAttributes.displacing);
-    expect(neighbour).toHaveAttribute(DraggableRootDataAttributes.startingStyle);
-    expect(neighbour.style.getPropertyValue(DraggableRootCssVars.displacementY)).toBe('40px');
-    expect(neighbour.style.getPropertyValue(DraggableRootCssVars.displacementX)).toBe('0px');
-
-    fireEvent.dragEnd(source);
-    await flushRaf();
-    cleanup();
   });
 });
