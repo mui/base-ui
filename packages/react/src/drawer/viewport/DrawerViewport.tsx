@@ -536,8 +536,14 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
         if (!direction) {
           return settleOnSnapPoint(fallbackSnapPoint);
         }
-        pendingSwipeCloseSnapPointRef.current = activeSnapPoint;
         setActiveSnapPoint(null, snapPointEventDetails);
+        if (snapPointEventDetails.isCanceled) {
+          // A canceled null snap point rejects dismissal before exit styles start.
+          applySwipeProgress(0, true, true);
+          clearSwipeRelease();
+          return false;
+        }
+        pendingSwipeCloseSnapPointRef.current = activeSnapPoint;
         startSwipeRelease(swipeDirection);
         return true;
       };

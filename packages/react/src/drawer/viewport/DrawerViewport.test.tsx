@@ -3566,6 +3566,108 @@ describe('<Drawer.Viewport />', () => {
     }
   });
 
+  it('does not start swipe dismissal when closing the snap point is canceled', async () => {
+    const handleOpenChange = vi.fn();
+    const handleSnapPointChange = vi.fn(
+      (
+        nextSnapPoint: Drawer.Root.SnapPoint | null,
+        eventDetails: Drawer.Root.SnapPointChangeEventDetails,
+      ) => {
+        if (nextSnapPoint === null) {
+          eventDetails.cancel();
+        }
+      },
+    );
+
+    vi.useFakeTimers();
+    try {
+      await render(
+        <Drawer.Root
+          open
+          defaultSnapPoint="100px"
+          onOpenChange={handleOpenChange}
+          onSnapPointChange={handleSnapPointChange}
+          snapPoints={['100px', '200px']}
+          snapToSequentialPoints
+          swipeDirection="down"
+        >
+          <Drawer.Portal>
+            <Drawer.Viewport data-testid="viewport" ref={(element) => setHeight(element, 400)}>
+              <Drawer.Popup data-testid="popup" ref={(element) => setHeight(element, 300)}>
+                Drawer
+              </Drawer.Popup>
+            </Drawer.Viewport>
+          </Drawer.Portal>
+        </Drawer.Root>,
+      );
+
+      const viewport = screen.getByTestId('viewport');
+      const popup = screen.getByTestId('popup');
+      const releaseAttributes: string[] = [];
+      const observer = new MutationObserver((records) => {
+        records.forEach((record) => {
+          if (record.attributeName) {
+            releaseAttributes.push(record.attributeName);
+          }
+        });
+      });
+      observer.observe(popup, {
+        attributeFilter: ['data-ending-style', 'data-swipe-dismiss'],
+        attributes: true,
+      });
+
+      const originalElementFromPoint = document.elementFromPoint;
+      document.elementFromPoint = () => popup;
+
+      try {
+        firePointer.down(viewport, {
+          button: 0,
+          buttons: 1,
+          pointerId: 1,
+          clientX: 100,
+          clientY: 10,
+          pointerType: 'mouse',
+          timeStamp: 1000,
+        });
+        firePointer.move(viewport, {
+          buttons: 1,
+          pointerId: 1,
+          clientX: 100,
+          clientY: 30,
+          pointerType: 'mouse',
+          timeStamp: 1050,
+        });
+        firePointer.move(viewport, {
+          buttons: 1,
+          pointerId: 1,
+          clientX: 100,
+          clientY: 80,
+          pointerType: 'mouse',
+          timeStamp: 1100,
+        });
+        firePointer.up(viewport, {
+          pointerId: 1,
+          clientX: 100,
+          clientY: 100,
+          pointerType: 'mouse',
+          timeStamp: 1120,
+        });
+        await flushMicrotasks();
+      } finally {
+        document.elementFromPoint = originalElementFromPoint;
+        observer.disconnect();
+      }
+
+      expect(handleSnapPointChange).toHaveBeenCalledWith(null, expect.anything());
+      expect(handleOpenChange).not.toHaveBeenCalled();
+      expect(releaseAttributes).toEqual([]);
+      expect(popup).not.toHaveAttribute('data-ending-style');
+      expect(popup).not.toHaveAttribute('data-swipe-dismiss');
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
   it('settles on the nearest snap point when an unattributed drag ends past the last snap point', async () => {
     const handleOpenChange = vi.fn();
     const handleSnapPointChange = vi.fn();
