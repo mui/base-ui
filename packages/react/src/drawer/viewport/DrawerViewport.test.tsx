@@ -1344,6 +1344,83 @@ describe('<Drawer.Viewport />', () => {
     }
   });
 
+  it.skipIf(isJSDOM)(
+    'starts a swipe away from the page scroll edge when the body is a scroll container',
+    async () => {
+      const html = document.documentElement;
+      const { body } = document;
+      const previousHtmlStyle = html.style.cssText;
+      const previousBodyStyle = body.style.cssText;
+      // A common reset that turns `body` into a real scroll container instead of letting its
+      // overflow propagate to the viewport.
+      html.style.cssText = 'height: 100%; overflow-y: auto';
+      body.style.cssText = 'height: 100%; overflow-y: auto';
+      const filler = body.appendChild(document.createElement('div'));
+      filler.style.height = '5000px';
+
+      try {
+        await render(
+          <Drawer.Root open modal={false} swipeDirection="down" snapPoints={[300, 100]}>
+            <Drawer.Portal>
+              <Drawer.Backdrop data-testid="backdrop" />
+              <Drawer.Viewport style={{ position: 'fixed', inset: 0, pointerEvents: 'none' }}>
+                <Drawer.Popup
+                  data-testid="popup"
+                  style={{
+                    position: 'absolute',
+                    left: 0,
+                    right: 0,
+                    bottom: 0,
+                    height: 300,
+                    pointerEvents: 'auto',
+                    transform:
+                      'translateY(calc(var(--drawer-snap-point-offset) + var(--drawer-swipe-movement-y)))',
+                  }}
+                >
+                  <div data-testid="drag" style={{ height: 100 }}>
+                    Drag
+                  </div>
+                </Drawer.Popup>
+              </Drawer.Viewport>
+            </Drawer.Portal>
+          </Drawer.Root>,
+        );
+
+        const popup = screen.getByTestId('popup');
+        const drag = screen.getByTestId('drag');
+        const backdrop = screen.getByTestId('backdrop');
+
+        await waitFor(() => {
+          expect(popup.style.getPropertyValue('--drawer-snap-point-offset')).toBe('0px');
+        });
+
+        expect(body.scrollTop).toBe(0);
+        expect(body.scrollHeight).toBeGreaterThan(body.clientHeight);
+
+        const rect = drag.getBoundingClientRect();
+        const clientX = rect.left + 20;
+        const clientY = rect.top + 80;
+
+        fireEvent.touchStart(drag, { touches: [createTouch(drag, { clientX, clientY })] });
+        fireEvent.touchMove(drag, {
+          touches: [createTouch(drag, { clientX, clientY: clientY - 30 })],
+        });
+
+        await waitFor(() => {
+          expect(backdrop).toHaveAttribute('data-swiping', '');
+        });
+
+        fireEvent.touchEnd(drag, {
+          changedTouches: [createTouch(drag, { clientX, clientY: clientY - 30 })],
+        });
+      } finally {
+        filler.remove();
+        html.style.cssText = previousHtmlStyle;
+        body.style.cssText = previousBodyStyle;
+      }
+    },
+  );
+
   it('prevents touchmove when there is no scroll container', async () => {
     await render(
       <Drawer.Root open swipeDirection="down">

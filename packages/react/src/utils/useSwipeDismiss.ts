@@ -331,18 +331,28 @@ export function useSwipeDismiss(options: UseSwipeDismissOptions): UseSwipeDismis
     target: EventTarget | null,
     root: HTMLElement,
   ): HTMLElement | null {
+    let scrollTarget: HTMLElement | null;
     if (hasHorizontal && !hasVertical) {
-      return findScrollableTouchTarget(target, root, 'horizontal');
+      scrollTarget = findScrollableTouchTarget(target, root, 'horizontal');
+    } else if (hasVertical && !hasHorizontal) {
+      scrollTarget = findScrollableTouchTarget(target, root, 'vertical');
+    } else {
+      scrollTarget =
+        findScrollableTouchTarget(target, root, 'vertical') ??
+        findScrollableTouchTarget(target, root, 'horizontal');
     }
 
-    if (hasVertical && !hasHorizontal) {
-      return findScrollableTouchTarget(target, root, 'vertical');
+    // The swiped element is positioned relative to the viewport, so the page scroller must not
+    // gate the gesture. Otherwise a page that overflows (for example with
+    // `html, body { height: 100%; overflow: auto }`) blocks swipes away from its scroll edge.
+    if (scrollTarget) {
+      const doc = ownerDocument(scrollTarget);
+      if (scrollTarget === doc.body || scrollTarget === doc.documentElement) {
+        return null;
+      }
     }
 
-    return (
-      findScrollableTouchTarget(target, root, 'vertical') ??
-      findScrollableTouchTarget(target, root, 'horizontal')
-    );
+    return scrollTarget;
   }
 
   function startSwipeAtPosition(
