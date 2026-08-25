@@ -175,14 +175,11 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
       // Re-assert on `checked` changes too: clicking the input natively resets `indeterminate`.
       inputRef.current.indeterminate = computedIndeterminate;
     }
-  }, [checked, computedIndeterminate]);
-
-  useIsoLayoutEffect(() => {
     // Inside a group, the group derives the filled state from its value.
     if (!groupContext) {
       setFilled(checked);
     }
-  }, [checked, groupContext, setFilled]);
+  }, [checked, computedIndeterminate, groupContext, setFilled]);
 
   useValueChanged(checked, () => {
     if (groupContext) {
