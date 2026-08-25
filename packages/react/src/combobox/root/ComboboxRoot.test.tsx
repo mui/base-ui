@@ -6236,6 +6236,34 @@ describe('<Combobox.Root />', () => {
       const grid = screen.getByRole('grid');
       expect(grid).not.toHaveAttribute('aria-orientation');
     });
+
+    it('renders groups with the rowgroup role', async () => {
+      await render(
+        <Combobox.Root grid defaultOpen>
+          <Combobox.Input />
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  <Combobox.Group>
+                    <Combobox.GroupLabel>Fruits</Combobox.GroupLabel>
+                    <Combobox.Row>
+                      <Combobox.Item value="1">1</Combobox.Item>
+                      <Combobox.Item value="2">2</Combobox.Item>
+                    </Combobox.Row>
+                  </Combobox.Group>
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      // `grid` may only own `row`/`rowgroup` elements (axe: aria-required-children),
+      // and `row` must be owned by `grid`, `rowgroup`, or `treegrid` (axe: aria-required-parent).
+      expect(screen.queryByRole('group')).toBeNull();
+      expect(screen.getByRole('rowgroup')).toHaveAccessibleName('Fruits');
+    });
   });
 
   describe('prop: multiple', () => {
