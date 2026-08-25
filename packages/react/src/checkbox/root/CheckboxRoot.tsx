@@ -172,9 +172,10 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
 
   useIsoLayoutEffect(() => {
     if (inputRef.current) {
+      // Re-assert on `checked` changes too: clicking the input natively resets `indeterminate`.
       inputRef.current.indeterminate = computedIndeterminate;
     }
-  }, [computedIndeterminate]);
+  }, [checked, computedIndeterminate]);
 
   useIsoLayoutEffect(() => {
     // Inside a group, the group derives the filled state from its value.

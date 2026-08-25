@@ -467,6 +467,31 @@ describe('<Checkbox.Root />', () => {
       expect(input.indeterminate).toBe(true);
     });
 
+    it('keeps the native input state when checked changes while indeterminate remains', async () => {
+      function App() {
+        const [checked, setChecked] = React.useState(false);
+        return (
+          <Checkbox.Root
+            data-testid="button"
+            indeterminate
+            checked={checked}
+            onCheckedChange={setChecked}
+          />
+        );
+      }
+
+      await render(<App />);
+
+      // Clicking the hidden input natively clears `indeterminate` before toggling.
+      fireEvent.click(screen.getByTestId('button'));
+
+      const [, input] = screen.getAllByRole<HTMLInputElement>('checkbox', {
+        hidden: true,
+      });
+      expect(input.checked).toBe(true);
+      expect(input.indeterminate).toBe(true);
+    });
+
     it('sets indeterminate style hooks on the root and indicator', async () => {
       await render(
         <Checkbox.Root indeterminate>
