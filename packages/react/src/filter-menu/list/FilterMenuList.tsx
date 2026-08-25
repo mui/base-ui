@@ -29,15 +29,29 @@ export const FilterMenuList = React.forwardRef(function FilterMenuList(
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const { store: menuStore } = useMenuRootContext();
-  const { inline } = useFilterDropdownRootContext();
+  const { inline, onItemsChange } = useFilterDropdownRootContext();
   const { grid, store } = useFilterDropdownItemContext();
   const { subscribeMapChange } = useCompositeListContext();
   const handleReferenceKeyDown = useFilterMenuReferenceKeyDown();
+  const previousItemsRef = React.useRef<readonly Element[]>([]);
+
   const syncItemIds = useStableCallback((map: Map<Element, unknown>) => {
     const items = Array.from(map.keys());
+    const previousItems = previousItemsRef.current;
+    const itemsChanged =
+      previousItems.length > 0 &&
+      (previousItems.length !== items.length ||
+        items.some((item, index) => item !== previousItems[index]));
+    previousItemsRef.current = items;
+
     // Composite items receive their final indexes from this map update. Read their rendered ids
     // after those synchronous layout updates commit instead of publishing the previous indexes.
     queueMicrotask(() => {
+      if (itemsChanged) {
+        // A positional highlight must not silently move to another action when live items are
+        // inserted, removed, or reordered.
+        onItemsChange(items.length > 0);
+      }
       const nextIds = items.map((item) => item.id);
       const currentIds = store.state.itemIds;
       // A fresh array always fails the store's identity check, and every item, group, and the

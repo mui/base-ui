@@ -34,6 +34,7 @@ export type State<Payload> = PopupStoreState<Payload> & {
   itemProps: HTMLProps;
   closeDelay: number;
   keyboardEventRelay: ((event: React.KeyboardEvent<any>) => void) | undefined;
+  virtualFocusRef: React.RefObject<HTMLElement | null> | undefined;
   adaptiveOrigin: AdaptiveOriginMiddleware | undefined;
 };
 
@@ -99,6 +100,7 @@ const selectors = {
 
     return undefined;
   },
+  virtualFocusRef: (state: State<unknown>) => state.virtualFocusRef,
 };
 
 type Selectors = typeof selectors;
@@ -228,6 +230,7 @@ function createInitialState<Payload>(
     floatingParentNodeId: null,
     itemProps: EMPTY_OBJECT,
     keyboardEventRelay: undefined,
+    virtualFocusRef: undefined,
     closeDelay: 0,
     adaptiveOrigin: undefined,
     ...initialState,

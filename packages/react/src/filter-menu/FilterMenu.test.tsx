@@ -172,6 +172,24 @@ describe('FilterMenu conformance', () => {
     }
   });
 
+  it('throws when Trigger is rendered in a plain Menu root', async () => {
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+    try {
+      await expect(
+        render(
+          <Menu.Root>
+            <FilterMenu.Trigger>Actions</FilterMenu.Trigger>
+          </Menu.Root>,
+        ),
+      ).rejects.toThrow(
+        'Base UI: <FilterMenu.Trigger> must be either used within a <FilterMenu.Root> component or provided with a handle.',
+      );
+    } finally {
+      errorSpy.mockRestore();
+    }
+  });
+
   it('throws when a filter part is rendered without any root', async () => {
     const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 

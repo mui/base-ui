@@ -3,8 +3,7 @@ import * as React from 'react';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
-import { Store } from '@base-ui/utils/store';
-import { EMPTY_ARRAY, EMPTY_OBJECT, NOOP } from '@base-ui/utils/empty';
+import { EMPTY_OBJECT, NOOP } from '@base-ui/utils/empty';
 import { getFilter } from '../../internals/filter';
 import type { HTMLProps } from '../../internals/types';
 import { useBaseUiId } from '../../internals/useBaseUiId';
@@ -17,7 +16,7 @@ import {
   type FilterDropdownFilter,
   type FilterDropdownRoot as FilterDropdownRootNamespace,
 } from './FilterDropdownRootContext';
-import type { State as StoreState } from '../store';
+import { FilterDropdownStore } from '../store';
 
 /**
  * Holds the filter query, matches it against the registered items, and publishes the result. The
@@ -59,10 +58,9 @@ export function FilterDropdownRoot(props: FilterDropdownRoot.Props): React.JSX.E
   const defaultId = useBaseUiId();
   const store = useRefWithInit(
     () =>
-      new Store<StoreState>({
-        visibleItemIds: null,
-        registeredItemCount: 0,
-        itemIds: EMPTY_ARRAY,
+      new FilterDropdownStore({
+        activeIndex,
+        inputProps,
       }),
   ).current;
 
@@ -71,21 +69,30 @@ export function FilterDropdownRoot(props: FilterDropdownRoot.Props): React.JSX.E
   const inputElementRef = React.useRef<HTMLInputElement | null>(null);
   const listElementRef = React.useRef<HTMLDivElement | null>(null);
   const lastFilterQueryRef = React.useRef<string | null>(null);
+  const defaultMatches = React.useMemo(() => getFilter({ locale }).contains, [locale]);
 
   const handleValueChange = useStableCallback(onValueChange ?? NOOP);
+
   const setInputElement = useStableCallback((element: HTMLInputElement | null) => {
     inputElementRef.current = element;
     focusOwnerRef.current = element ?? listElementRef.current;
     setHasInput(element !== null);
     onInputElementChange?.(element !== null);
   });
+
   const setListElement = useStableCallback((element: HTMLDivElement | null) => {
     listElementRef.current = element;
     if (inputElementRef.current === null) {
       focusOwnerRef.current = element;
     }
   });
-  const defaultMatches = React.useMemo(() => getFilter({ locale }).contains, [locale]);
+
+  const onItemsChange = useStableCallback((hasItems: boolean) => {
+    const filterQuery = (query ?? value).trim();
+    const autoHighlightEnabled =
+      open && (autoHighlight === 'always' || (autoHighlight && filterQuery !== ''));
+    setActiveIndex(autoHighlightEnabled && hasItems ? 0 : null);
+  });
 
   // React 17 resolves generated ids in an effect, so they must be read live rather than captured
   // in a state initializer.
@@ -111,6 +118,8 @@ export function FilterDropdownRoot(props: FilterDropdownRoot.Props): React.JSX.E
     store.set('registeredItemCount', registeredItems.size);
   }, [registeredItems, store]);
 
+  store.useSyncedValues({ activeIndex, inputProps });
+
   // Runs against the registry snapshot published once every item in the commit has registered,
   // and against the committed query, because a controlled consumer can reject a proposed change.
   useIsoLayoutEffect(() => {
@@ -127,12 +136,18 @@ export function FilterDropdownRoot(props: FilterDropdownRoot.Props): React.JSX.E
     if (filterQuery === '') {
       if (store.state.visibleItemIds !== null) {
         store.set('visibleItemIds', null);
-        if (!autoHighlightEnabled) {
-          setActiveIndex(null);
-        }
       }
       if (autoHighlightEnabled && registeredItems.size > 0) {
         setActiveIndex(0);
+      } else if (queryChanged) {
+        setActiveIndex(null);
+      }
+      return;
+    }
+
+    if (filter === null) {
+      if (store.state.visibleItemIds !== null) {
+        store.set('visibleItemIds', null);
       }
       return;
     }
@@ -140,13 +155,8 @@ export function FilterDropdownRoot(props: FilterDropdownRoot.Props): React.JSX.E
     const nextIds = new Set<symbol>();
     registeredItems.forEach(({ getText, keywords }, id) => {
       const filterText = getText();
-      // `filter: null` hands matching to the consumer, so every registered item stays visible.
-      // It still goes through the snapshot below rather than short-circuiting, so a changed item
-      // set clears a highlight that would otherwise point at whatever moved into that index.
       let matches;
-      if (filter === null) {
-        matches = true;
-      } else if (filter) {
+      if (filter) {
         matches = filterText != null && filter(filterText, filterQuery, keywords);
       } else {
         matches =
@@ -207,9 +217,8 @@ export function FilterDropdownRoot(props: FilterDropdownRoot.Props): React.JSX.E
       setInputElement,
       setListElement,
       hasInput,
-      activeIndex,
       setActiveIndex,
-      inputProps,
+      onItemsChange,
       onValueChange: handleValueChange,
     }),
     [
@@ -230,9 +239,8 @@ export function FilterDropdownRoot(props: FilterDropdownRoot.Props): React.JSX.E
       setInputElement,
       setListElement,
       hasInput,
-      activeIndex,
       setActiveIndex,
-      inputProps,
+      onItemsChange,
       handleValueChange,
     ],
   );

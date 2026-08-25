@@ -18,6 +18,7 @@ export const FilterDropdownList = React.forwardRef(function FilterDropdownList(
   const { render, className, style, id: idProp, ...elementProps } = componentProps;
 
   const context = useFilterDropdownRootContext();
+  const inputProps = context.store.useState('inputProps');
   const { setListId } = context;
   const activeItemId = useActiveItemId(context);
 
@@ -68,7 +69,7 @@ export const FilterDropdownList = React.forwardRef(function FilterDropdownList(
 
   return useRenderElement('div', componentProps, {
     ref: [forwardedRef, context.setListElement, registerIdRef],
-    props: [context.hasInput ? undefined : context.inputProps, defaultProps, elementProps],
+    props: [context.hasInput ? undefined : inputProps, defaultProps, elementProps],
   });
 });
 

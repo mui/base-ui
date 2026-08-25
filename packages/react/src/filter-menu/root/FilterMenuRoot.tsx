@@ -2,6 +2,7 @@
 import * as React from 'react';
 import { useControlled } from '@base-ui/utils/useControlled';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
+import { platform } from '@base-ui/utils/platform';
 import { REASONS } from '../../internals/reasons';
 import {
   FilterDropdownRoot,
@@ -14,6 +15,7 @@ import { useMenuRootContext } from '../../menu/root/MenuRootContext';
 import type { FilterMenuHandle } from '../store/FilterMenuHandle';
 import type { HTMLProps } from '../../internals/types';
 import type { FilterMenuRootFilterProps } from '../utils/FilterMenuRootFilterProps';
+import { useIsHydrating } from '../../utils/useIsHydrating';
 
 /**
  * Groups all parts of a filter menu.
@@ -54,6 +56,7 @@ export function FilterMenuRoot<Payload>(props: FilterMenuRoot.Props<Payload>): R
   const [inputFocusVisible, setInputFocusVisible] = React.useState(false);
   const [hasInput, setHasInput] = React.useState(false);
   const focusOwnerRef = React.useRef<HTMLElement | null>(null);
+  const webkitItemSelected = useFilterMenuWebkitItemSelected();
 
   const handleInputValueChange = useStableCallback(
     (nextValue: string, details: FilterMenuRoot.InputValueChangeEventDetails) => {
@@ -92,6 +95,7 @@ export function FilterMenuRoot<Payload>(props: FilterMenuRoot.Props<Payload>): R
       orientation={grid ? 'horizontal' : undefined}
       triggerOrientation="vertical"
       virtualFocus
+      webkitItemSelected={webkitItemSelected}
       virtualFocusRef={focusOwnerRef}
       virtualFocusInput={hasInput}
       allowEscape={hasInput && !autoHighlight}
@@ -116,6 +120,16 @@ export function FilterMenuRoot<Payload>(props: FilterMenuRoot.Props<Payload>): R
       )}
     />
   );
+}
+
+/**
+ * WebKit only follows a searchbox's `aria-activedescendant` into a menu when its items expose a
+ * selection state. Delay the engine-specific markup until after hydration so server and client
+ * output agree.
+ */
+export function useFilterMenuWebkitItemSelected() {
+  const hydrating = useIsHydrating();
+  return !hydrating && platform.engine.webkit;
 }
 
 /**

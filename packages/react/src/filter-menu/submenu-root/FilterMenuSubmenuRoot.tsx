@@ -14,7 +14,11 @@ import { FilterDropdownRoot } from '../../filter-dropdown/root/FilterDropdownRoo
 import type { FilterMenuRootFilterProps } from '../utils/FilterMenuRootFilterProps';
 import { useFilterDropdownCloseQuery } from '../../filter-dropdown/root/useFilterDropdownCloseQuery';
 import { useMenuRootContext } from '../../menu/root/MenuRootContext';
-import { FilterMenuProvider, isKeyboardOpen } from '../root/FilterMenuRoot';
+import {
+  FilterMenuProvider,
+  isKeyboardOpen,
+  useFilterMenuWebkitItemSelected,
+} from '../root/FilterMenuRoot';
 import type { BaseUIEvent } from '../../internals/types';
 import { useDirection } from '../../internals/direction-context/DirectionContext';
 import {
@@ -75,6 +79,7 @@ export function FilterMenuSubmenuRoot(props: FilterMenuSubmenuRoot.Props): React
 
   const parentReferenceRef = React.useRef<ParentReference | null>(null);
   const focusOwnerRef = React.useRef<HTMLElement | null>(null);
+  const webkitItemSelected = useFilterMenuWebkitItemSelected();
 
   const disabled = parentDisabled || disabledProp;
 
@@ -162,6 +167,7 @@ export function FilterMenuSubmenuRoot(props: FilterMenuSubmenuRoot.Props): React
       onOpenChange={handleOpenChange}
       onOpenChangeComplete={closeQuery.handleOpenChangeComplete}
       virtualFocus
+      webkitItemSelected={webkitItemSelected}
       virtualFocusRef={focusOwnerRef}
       virtualFocusInput={hasInput}
       allowEscape={hasInput && !autoHighlight}
