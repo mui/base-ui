@@ -93,15 +93,12 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
   useRegisterFieldControl(switchRef, id, checked, undefined, !disabled, nameProp);
 
   useIsoLayoutEffect(() => {
-    if (inputRef.current) {
-      setFilled(inputRef.current.checked);
-    }
-  }, [setFilled]);
+    setFilled(checked);
+  }, [checked, setFilled]);
 
   useValueChanged(checked, () => {
     clearErrors(name);
     setDirty(checked !== validityData.initialValue);
-    setFilled(checked);
 
     validation.change(checked);
   });
