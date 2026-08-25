@@ -149,9 +149,10 @@ function unwrapLazyRenderProp<State>(
   if ((render as { $$typeof?: symbol | undefined } | undefined)?.$$typeof !== REACT_LAZY_TYPE) {
     return render;
   }
-  // Keep the wrapper when it unwraps to nothing, so an invalid render prop is still
+  // Keep the wrapper unless it unwraps to an element, so an invalid render prop is still
   // reported as one instead of silently falling back to the default element.
-  return (React.Children.toArray(render as React.ReactNode)[0] as React.ReactElement) ?? render;
+  const unwrapped = React.Children.toArray(render as React.ReactNode)[0];
+  return React.isValidElement(unwrapped) ? unwrapped : render;
 }
 
 function evaluateRenderProp<T extends React.ElementType, S>(

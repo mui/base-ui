@@ -579,23 +579,33 @@ describe('useRenderElement', () => {
         expect(init).not.toHaveBeenCalled();
       });
 
-      it('reports a wrapper that unwraps to nothing as an invalid render element', async () => {
-        const originalEnv = process.env.NODE_ENV;
+      // `Children.toArray` drops nullish and boolean children but keeps strings and
+      // numbers, so both shapes have to survive as invalid render elements.
+      it.each([
+        ['null', null],
+        ['false', false],
+        ['the number 0', 0],
+        ['an empty string', ''],
+      ])(
+        'reports a wrapper that unwraps to %s as an invalid render element',
+        async (_, payload) => {
+          const originalEnv = process.env.NODE_ENV;
 
-        let error: Error | null = null;
-        try {
-          process.env.NODE_ENV = 'development';
-          await render(<TestComponent render={wrapLazy(null as any)} />);
-        } catch (err) {
-          error = err as Error;
-        } finally {
-          process.env.NODE_ENV = originalEnv;
-        }
+          let error: Error | null = null;
+          try {
+            process.env.NODE_ENV = 'development';
+            await render(<TestComponent render={wrapLazy(payload as any)} />);
+          } catch (err) {
+            error = err as Error;
+          } finally {
+            process.env.NODE_ENV = originalEnv;
+          }
 
-        expect(error?.message).toMatch(
-          /Base UI: The `render` prop was provided an invalid React element/,
-        );
-      });
+          expect(error?.message).toMatch(
+            /Base UI: The `render` prop was provided an invalid React element/,
+          );
+        },
+      );
     });
 
     // React 18 also log console error, React 19 fixed that. Ignoring this test for React 18.
