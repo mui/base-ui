@@ -398,6 +398,28 @@ describe('<CheckboxGroup />', () => {
       expect(group).not.toHaveAttribute('data-dirty');
     });
 
+    it('[data-filled] follows the group value even without a matching rendered checkbox', () => {
+      render(
+        <Field.Root name="fruits">
+          <CheckboxGroup defaultValue={['cherry']}>
+            <Field.Item>
+              <Checkbox.Root value="apple" data-testid="apple" />
+            </Field.Item>
+          </CheckboxGroup>
+        </Field.Root>,
+      );
+
+      const group = screen.getByRole('group');
+      const apple = screen.getByTestId('apple');
+
+      expect(group).toHaveAttribute('data-filled', '');
+
+      fireEvent.click(apple);
+      fireEvent.click(apple);
+
+      expect(group).toHaveAttribute('data-filled', '');
+    });
+
     it('keeps a required error while another required checkbox in the group is unchecked', async () => {
       const { user } = render(
         <Form onSubmit={(event) => event.preventDefault()}>

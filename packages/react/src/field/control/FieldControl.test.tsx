@@ -1,6 +1,13 @@
 import * as React from 'react';
 import { expect, vi } from 'vitest';
-import { act, createRenderer, fireEvent, screen, waitFor } from '@mui/internal-test-utils';
+import {
+  act,
+  createRenderer,
+  fireEvent,
+  flushMicrotasks,
+  screen,
+  waitFor,
+} from '@mui/internal-test-utils';
 import { Field } from '@base-ui/react/field';
 import { Form } from '@base-ui/react/form';
 import { describeConformance, isJSDOM } from '#test-utils';
@@ -166,6 +173,107 @@ describe('<Field.Control />', () => {
     expect(validate.mock.lastCall?.[0]).toBe('external');
   });
 
+  it('validates the final controlled value when it is normalized on blur', async () => {
+    const validate = vi.fn((value) => (String(value).includes('@') ? null : 'Invalid email'));
+
+    function App() {
+      const [value, setValue] = React.useState('');
+      return (
+        <Field.Root validationMode="onBlur" validate={validate}>
+          <Field.Control
+            value={value}
+            onValueChange={setValue}
+            onBlur={() => setValue((currentValue) => currentValue.trim())}
+          />
+          <Field.Error />
+        </Field.Root>
+      );
+    }
+
+    await render(<App />);
+
+    const control = screen.getByRole('textbox');
+    fireEvent.change(control, { target: { value: 'foo ' } });
+    fireEvent.blur(control);
+
+    await flushMicrotasks();
+
+    expect(validate.mock.lastCall?.[0]).toBe('foo');
+    expect(screen.getByText('Invalid email')).toBeInTheDocument();
+  });
+
+  it('keeps the final async validation when a controlled value is normalized on blur', async () => {
+    const resolvers: Record<string, (value: string | null) => void> = {};
+    const validate = vi.fn(
+      (value) =>
+        new Promise<string | null>((resolve) => {
+          resolvers[String(value)] = resolve;
+        }),
+    );
+
+    function App() {
+      const [value, setValue] = React.useState('');
+      return (
+        <Field.Root validationMode="onBlur" validate={validate}>
+          <Field.Control
+            value={value}
+            onValueChange={setValue}
+            onBlur={() => setValue((currentValue) => currentValue.trim())}
+          />
+          <Field.Error />
+        </Field.Root>
+      );
+    }
+
+    await render(<App />);
+
+    const control = screen.getByRole('textbox');
+    fireEvent.change(control, { target: { value: 'foo ' } });
+    fireEvent.blur(control);
+
+    await flushMicrotasks();
+
+    expect(validate).toHaveBeenCalledTimes(2);
+    expect(validate.mock.lastCall?.[0]).toBe('foo');
+
+    resolvers.foo('Invalid email');
+    await flushMicrotasks();
+
+    expect(screen.getByText('Invalid email')).toBeInTheDocument();
+
+    resolvers['foo ']('Stale error');
+    await flushMicrotasks();
+
+    expect(screen.getByText('Invalid email')).toBeInTheDocument();
+  });
+
+  it('does not validate when a controlled value is reset to the initial value on blur', async () => {
+    function App() {
+      const [value, setValue] = React.useState('');
+      return (
+        <Field.Root validationMode="onBlur">
+          <Field.Control
+            required
+            value={value}
+            onValueChange={setValue}
+            onBlur={() => setValue('')}
+          />
+          <Field.Error match="valueMissing">Required</Field.Error>
+        </Field.Root>
+      );
+    }
+
+    await render(<App />);
+
+    const control = screen.getByRole('textbox');
+    fireEvent.change(control, { target: { value: 'foo' } });
+    fireEvent.blur(control);
+
+    await flushMicrotasks();
+
+    expect(screen.queryByText('Required')).toBe(null);
+  });
+
   it('sets filled state on mount when the control is prefilled', async () => {
     await render(
       <Field.Root data-testid="root">
@@ -184,6 +292,66 @@ describe('<Field.Control />', () => {
     );
 
     expect(screen.getByTestId('root')).not.toHaveAttribute('data-filled');
+  });
+
+  it('clears filled state when a controlled control remounts empty', async () => {
+    function App() {
+      const [empty, setEmpty] = React.useState(false);
+      return (
+        <Field.Root data-testid="root">
+          <Field.Control
+            key={String(empty)}
+            value={empty ? '' : 'value'}
+            onValueChange={() => {}}
+          />
+          <button type="button" onClick={() => setEmpty(true)}>
+            clear
+          </button>
+        </Field.Root>
+      );
+    }
+
+    await render(<App />);
+
+    const root = screen.getByTestId('root');
+    expect(root).toHaveAttribute('data-filled', '');
+
+    fireEvent.click(screen.getByRole('button'));
+
+    expect(root).not.toHaveAttribute('data-filled');
+  });
+
+  it('clears filled state when an uncontrolled control remounts empty', async () => {
+    function App() {
+      const [empty, setEmpty] = React.useState(false);
+      return (
+        <Field.Root data-testid="root">
+          <Field.Control key={String(empty)} defaultValue={empty ? '' : 'value'} />
+          <button type="button" onClick={() => setEmpty(true)}>
+            clear
+          </button>
+        </Field.Root>
+      );
+    }
+
+    await render(<App />);
+
+    const root = screen.getByTestId('root');
+    expect(root).toHaveAttribute('data-filled', '');
+
+    fireEvent.click(screen.getByRole('button'));
+
+    expect(root).not.toHaveAttribute('data-filled');
+  });
+
+  it('sets filled state from a controlled value on a custom element', async () => {
+    await render(
+      <Field.Root data-testid="root">
+        <Field.Control value="value" onValueChange={() => {}} render={<div />} />
+      </Field.Root>,
+    );
+
+    expect(screen.getByTestId('root')).toHaveAttribute('data-filled', '');
   });
 
   it('does not validate when the change is canceled', async () => {

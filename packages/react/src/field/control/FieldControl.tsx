@@ -98,10 +98,11 @@ export const FieldControl = React.forwardRef(function FieldControl(
   );
 
   useIsoLayoutEffect(() => {
-    if (validation.inputRef.current?.value) {
-      setFilled(true);
+    const currentValue = serializedValue ?? validation.inputRef.current?.value;
+    if (currentValue !== undefined) {
+      setFilled(currentValue !== '');
     }
-  }, [validation.inputRef, setFilled]);
+  }, [serializedValue, validation.inputRef, setFilled]);
 
   useValueChanged(serializedValue, () => {
     if (serializedValue === undefined) {
@@ -110,7 +111,6 @@ export const FieldControl = React.forwardRef(function FieldControl(
 
     clearErrors(name);
     setDirty(serializedValue !== (validityData.initialValue ?? ''));
-    setFilled(serializedValue !== '');
 
     validation.change(serializedValue);
   });
@@ -165,7 +165,24 @@ export const FieldControl = React.forwardRef(function FieldControl(
           setFocused(false);
 
           if (validationMode === 'onBlur') {
-            validation.commit(event.currentTarget.value);
+            const inputValue = event.currentTarget.value;
+            validation.commit(inputValue);
+
+            if (isControlled) {
+              // Controlled blur handlers can normalize the value before this microtask runs.
+              // A rewrite back to the initial value is a programmatic reset: the field looks
+              // pristine, so committing it would only surface `valueMissing` noise.
+              queueMicrotask(() => {
+                const nextValue = validation.inputRef.current?.value;
+                if (
+                  nextValue !== undefined &&
+                  nextValue !== inputValue &&
+                  nextValue !== (validityData.initialValue ?? '')
+                ) {
+                  validation.commit(nextValue);
+                }
+              });
+            }
           }
         },
         onKeyDown(event) {
