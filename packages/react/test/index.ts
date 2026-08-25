@@ -2,7 +2,7 @@ export * from '@base-ui/utils/testUtils';
 export { advanceReactClock } from './advanceReactClock';
 export { createRenderer } from './createRenderer';
 export { describeConformance } from './describeConformance';
-export { enterWithMouse, moveMouse } from './pointer';
+export { enterWithMouse, firePointer, moveMouse } from './pointer';
 export { mergeRefs } from './mergeRefs';
 export { popupConformanceTests } from './popupConformanceTests';
 export { resetBrowserPointer } from './resetBrowserPointer';
