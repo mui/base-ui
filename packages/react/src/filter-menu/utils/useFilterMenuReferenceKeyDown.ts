@@ -3,10 +3,7 @@ import * as React from 'react';
 import { EMPTY_ARRAY } from '@base-ui/utils/empty';
 import { ownerWindow } from '@base-ui/utils/owner';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
-import {
-  useFilterDropdownItemContext,
-  useFilterDropdownActiveIndex,
-} from '../../filter-dropdown/root/FilterDropdownRootContext';
+import { useFilterDropdownItemContext } from '../../filter-dropdown/root/FilterDropdownRootContext';
 import { useMenuRootContext } from '../../menu/root/MenuRootContext';
 import { useDirection } from '../../internals/direction-context/DirectionContext';
 import type { BaseUIEvent } from '../../internals/types';
@@ -25,10 +22,11 @@ import {
  * single list-navigation hook; keeping this relay in the adapter avoids shipping it in plain Menu.
  */
 export function useFilterMenuReferenceKeyDown() {
-  const activeIndex = useFilterDropdownActiveIndex();
-  const { grid, listRef } = useFilterDropdownItemContext();
-  const { loopFocus, orientation, store } = useMenuRootContext();
+  const { grid, listRef, store: filterStore } = useFilterDropdownItemContext();
+  const { loopFocus, orientation, store: menuStore } = useMenuRootContext();
   const direction = useDirection();
+
+  const activeIndex = filterStore.useState('activeIndex');
 
   return useStableCallback((event: BaseUIEvent<React.KeyboardEvent<HTMLElement>>) => {
     if (event.which === 229) {
@@ -45,12 +43,16 @@ export function useFilterMenuReferenceKeyDown() {
     }
 
     const isRtl = direction === 'rtl';
-    if (grid && (event.key === 'ArrowUp' || event.key === 'ArrowDown')) {
+    if (
+      grid &&
+      (event.key === 'ArrowUp' || event.key === 'ArrowDown') &&
+      event.target === event.currentTarget
+    ) {
       const nextIndex = gridNavigation(
         event,
         activeIndex ?? -1,
         listRef,
-        'horizontal',
+        orientation,
         loopFocus,
         isRtl,
         EMPTY_ARRAY,
@@ -58,7 +60,7 @@ export function useFilterMenuReferenceKeyDown() {
         listRef.current.length - 1,
       );
       if (nextIndex !== undefined) {
-        store.set('activeIndex', nextIndex);
+        menuStore.set('activeIndex', nextIndex);
       }
       return;
     }
@@ -77,7 +79,7 @@ export function useFilterMenuReferenceKeyDown() {
     const isActivationKey = event.key === 'Enter' || event.key === ' ';
     if (!isTypeableElement(event.currentTarget) && isActivationKey) {
       // Space during an inputless typeahead session belongs to the typed string.
-      if (event.key === ' ' && store.context.typingRef.current) {
+      if (event.key === ' ' && menuStore.context.typingRef.current) {
         return;
       }
 

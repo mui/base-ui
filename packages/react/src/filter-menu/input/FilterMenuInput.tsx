@@ -5,10 +5,7 @@ import {
   type FilterDropdownInputProps,
   type FilterDropdownInputState,
 } from '../../filter-dropdown/input/FilterDropdownInput';
-import {
-  useFilterDropdownItemContext,
-  useFilterDropdownActiveIndex,
-} from '../../filter-dropdown/root/FilterDropdownRootContext';
+import { useFilterDropdownItemContext } from '../../filter-dropdown/root/FilterDropdownRootContext';
 import { mergeProps } from '../../merge-props';
 import type { BaseUIEvent } from '../../internals/types';
 import { dispatchClickWithModifiers } from '../../utils/dispatchClickWithModifiers';
@@ -24,8 +21,8 @@ export const FilterMenuInput = React.forwardRef(function FilterMenuInput(
   componentProps: FilterMenuInput.Props,
   forwardedRef: React.ForwardedRef<HTMLInputElement>,
 ) {
-  const activeIndex = useFilterDropdownActiveIndex();
-  const { grid, listRef } = useFilterDropdownItemContext();
+  const { grid, listRef, store } = useFilterDropdownItemContext();
+  const activeIndex = store.useState('activeIndex');
   const handleReferenceKeyDown = useFilterMenuReferenceKeyDown();
 
   const inputProps = mergeProps<typeof FilterDropdownInput>(

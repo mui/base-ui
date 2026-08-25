@@ -6,7 +6,7 @@ import {
   useComboboxDerivedItemsContext,
   useComboboxRootContext,
 } from '../root/ComboboxRootContext';
-import { useInitialLiveRegionTextMutation } from '../utils/useInitialLiveRegionTextMutation';
+import { useInitialLiveRegionTextMutation } from '../../internals/useInitialLiveRegionTextMutation';
 
 /**
  * Renders its children only when the list is empty.

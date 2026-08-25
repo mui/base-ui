@@ -40,7 +40,10 @@ import { FilterMenu } from '@base-ui/react/filter-menu';
         <FilterMenu.Empty />
 
         <FilterMenu.List>
-          <FilterMenu.Item />
+          <FilterMenu.Row>
+            <FilterMenu.Item />
+          </FilterMenu.Row>
+
           <FilterMenu.LinkItem />
           <FilterMenu.Separator />
 
@@ -85,6 +88,7 @@ The `inline` prop renders the list directly inside the dialog without the menu's
 
 Set `grid` on the Root and wrap each row in `<FilterMenu.Row>` to create a searchable action grid.
 Grid rows support only regular `<FilterMenu.Item>` actions.
+Give any element between the list and its rows `role="presentation"`.
 
 <DemoFilterMenuEmojiPicker />
 
