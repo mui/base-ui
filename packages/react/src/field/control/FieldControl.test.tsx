@@ -293,6 +293,29 @@ describe('<Field.Control />', () => {
     expect(root).not.toHaveAttribute('data-filled');
   });
 
+  it('clears filled state when an uncontrolled control remounts empty', async () => {
+    function App() {
+      const [empty, setEmpty] = React.useState(false);
+      return (
+        <Field.Root data-testid="root">
+          <Field.Control key={String(empty)} defaultValue={empty ? '' : 'value'} />
+          <button type="button" onClick={() => setEmpty(true)}>
+            clear
+          </button>
+        </Field.Root>
+      );
+    }
+
+    await render(<App />);
+
+    const root = screen.getByTestId('root');
+    expect(root).toHaveAttribute('data-filled', '');
+
+    fireEvent.click(screen.getByRole('button'));
+
+    expect(root).not.toHaveAttribute('data-filled');
+  });
+
   it('sets filled state from a controlled value on a custom element', async () => {
     await render(
       <Field.Root data-testid="root">
