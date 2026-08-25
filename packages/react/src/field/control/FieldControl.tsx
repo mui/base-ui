@@ -170,9 +170,15 @@ export const FieldControl = React.forwardRef(function FieldControl(
 
             if (isControlled) {
               // Controlled blur handlers can normalize the value before this microtask runs.
+              // A rewrite back to the initial value is a programmatic reset: the field looks
+              // pristine, so committing it would only surface `valueMissing` noise.
               queueMicrotask(() => {
                 const nextValue = validation.inputRef.current?.value;
-                if (nextValue !== undefined && nextValue !== inputValue) {
+                if (
+                  nextValue !== undefined &&
+                  nextValue !== inputValue &&
+                  nextValue !== (validityData.initialValue ?? '')
+                ) {
                   validation.commit(nextValue);
                 }
               });

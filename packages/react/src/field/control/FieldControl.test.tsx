@@ -246,6 +246,33 @@ describe('<Field.Control />', () => {
     expect(screen.getByText('Invalid email')).toBeInTheDocument();
   });
 
+  it('does not validate when a controlled value is reset to the initial value on blur', async () => {
+    function App() {
+      const [value, setValue] = React.useState('');
+      return (
+        <Field.Root validationMode="onBlur">
+          <Field.Control
+            required
+            value={value}
+            onValueChange={setValue}
+            onBlur={() => setValue('')}
+          />
+          <Field.Error match="valueMissing">Required</Field.Error>
+        </Field.Root>
+      );
+    }
+
+    await render(<App />);
+
+    const control = screen.getByRole('textbox');
+    fireEvent.change(control, { target: { value: 'foo' } });
+    fireEvent.blur(control);
+
+    await flushMicrotasks();
+
+    expect(screen.queryByText('Required')).toBe(null);
+  });
+
   it('sets filled state on mount when the control is prefilled', async () => {
     await render(
       <Field.Root data-testid="root">
