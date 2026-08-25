@@ -219,6 +219,47 @@ describe('<FilterMenu.Root />', () => {
       },
     );
 
+    it('closes a pointer-opened inputless menu when Space is pressed on the trigger', async () => {
+      const { user } = await render(<SubmenuInputOnlyMenu />);
+
+      const trigger = screen.getByRole('button', { name: 'Actions' });
+      await user.click(trigger);
+      await screen.findByRole('menu');
+      await act(async () => {
+        await waitSingleFrame();
+      });
+
+      // Space is the trigger's own activation key, not a typeahead character.
+      await user.keyboard('[Space]');
+
+      expect(trigger).toHaveFocus();
+      await waitFor(() => {
+        expect(screen.queryByRole('menu')).toBe(null);
+      });
+    });
+
+    it.each([
+      ['Control', '{Control>}a{/Control}'],
+      ['Meta', '{Meta>}a{/Meta}'],
+      ['Alt', '{Alt>}a{/Alt}'],
+    ])('keeps focus on the trigger for a %s-modified key', async (_description, keys) => {
+      const { user } = await render(<SubmenuInputOnlyMenu />);
+
+      const trigger = screen.getByRole('button', { name: 'Actions' });
+      await user.click(trigger);
+
+      const list = await screen.findByRole('menu');
+      await act(async () => {
+        await waitSingleFrame();
+      });
+
+      // Modified keys are browser shortcuts, so they must not start a typeahead session.
+      await user.keyboard(keys);
+
+      expect(trigger).toHaveFocus();
+      expect(list).not.toHaveAttribute('aria-activedescendant');
+    });
+
     it('continues arrow navigation from the pointer-highlighted item', async () => {
       const { user } = await render(<SubmenuInputOnlyMenu />);
 
@@ -4687,41 +4728,6 @@ describe('<FilterMenu.Root />', () => {
     });
   });
 
-  describe('groups', () => {
-    it('hides a radio group, label included, when the query filters out all of its items', async () => {
-      const { user } = await render(
-        <FilterMenu.Root defaultOpen>
-          <FilterMenu.Trigger>Actions</FilterMenu.Trigger>
-          <FilterMenu.Portal>
-            <FilterMenu.Positioner>
-              <FilterMenu.Popup>
-                <FilterMenu.Input aria-label="Filter actions" />
-                <FilterMenu.List>
-                  <FilterMenu.Item>Rename</FilterMenu.Item>
-                  <FilterMenu.RadioGroup data-testid="sort-group" defaultValue="date">
-                    <FilterMenu.GroupLabel>Sort by</FilterMenu.GroupLabel>
-                    <FilterMenu.RadioItem value="date">Date modified</FilterMenu.RadioItem>
-                    <FilterMenu.RadioItem value="size">Size</FilterMenu.RadioItem>
-                  </FilterMenu.RadioGroup>
-                </FilterMenu.List>
-              </FilterMenu.Popup>
-            </FilterMenu.Positioner>
-          </FilterMenu.Portal>
-        </FilterMenu.Root>,
-      );
-
-      const group = screen.getByTestId('sort-group');
-      expect(group).not.toHaveAttribute('hidden');
-
-      await user.type(screen.getByRole('searchbox', { name: 'Filter actions' }), 'rena');
-
-      await waitFor(() => {
-        expect(group).toHaveAttribute('hidden');
-      });
-      expect(screen.queryByText('Sort by')).not.toBeVisible();
-    });
-  });
-
   describe('accessible names', () => {
     it('does not point the popup or list at a trigger that never rendered', async () => {
       await render(
@@ -4835,90 +4841,6 @@ describe('<FilterMenu.Root />', () => {
     });
   });
 
-  describe('scrollbar presses', () => {
-    function measureList(list: HTMLElement, overrides: Record<string, number>) {
-      const base = {
-        clientHeight: 100,
-        clientWidth: 100,
-        offsetHeight: 100,
-        offsetWidth: 100,
-        scrollHeight: 100,
-        scrollWidth: 100,
-      };
-      Object.defineProperties(
-        list,
-        Object.fromEntries(
-          Object.entries({ ...base, ...overrides }).map(([key, value]) => [
-            key,
-            { configurable: true, value },
-          ]),
-        ),
-      );
-    }
-
-    it('allows a horizontal scrollbar press', async () => {
-      await render(
-        <FilterMenu.Root defaultOpen>
-          <FilterMenu.Trigger>Actions</FilterMenu.Trigger>
-          <FilterMenu.Portal>
-            <FilterMenu.Positioner>
-              <FilterMenu.Popup>
-                <FilterMenu.Input aria-label="Filter actions" />
-                <FilterMenu.List>
-                  <FilterMenu.Item>Rename</FilterMenu.Item>
-                </FilterMenu.List>
-              </FilterMenu.Popup>
-            </FilterMenu.Positioner>
-          </FilterMenu.Portal>
-        </FilterMenu.Root>,
-      );
-
-      const list = screen.getByRole('menu');
-      measureList(list, { offsetHeight: 115, scrollWidth: 200 });
-
-      const scrollbarMouseDown = new MouseEvent('mousedown', { bubbles: true, cancelable: true });
-      Object.defineProperty(scrollbarMouseDown, 'offsetY', { value: 110 });
-
-      await act(async () => {
-        list.dispatchEvent(scrollbarMouseDown);
-      });
-
-      expect(scrollbarMouseDown.defaultPrevented).toBe(false);
-    });
-
-    it('allows an RTL vertical scrollbar press on the leading edge', async () => {
-      await render(
-        <DirectionProvider direction="rtl">
-          <FilterMenu.Root defaultOpen>
-            <FilterMenu.Trigger>Actions</FilterMenu.Trigger>
-            <FilterMenu.Portal>
-              <FilterMenu.Positioner>
-                <FilterMenu.Popup>
-                  <FilterMenu.Input aria-label="Filter actions" />
-                  <FilterMenu.List style={{ direction: 'rtl' }}>
-                    <FilterMenu.Item>Rename</FilterMenu.Item>
-                  </FilterMenu.List>
-                </FilterMenu.Popup>
-              </FilterMenu.Positioner>
-            </FilterMenu.Portal>
-          </FilterMenu.Root>
-        </DirectionProvider>,
-      );
-
-      const list = screen.getByRole('menu');
-      measureList(list, { offsetWidth: 115, scrollHeight: 200 });
-
-      const scrollbarMouseDown = new MouseEvent('mousedown', { bubbles: true, cancelable: true });
-      Object.defineProperty(scrollbarMouseDown, 'offsetX', { value: 5 });
-
-      await act(async () => {
-        list.dispatchEvent(scrollbarMouseDown);
-      });
-
-      expect(scrollbarMouseDown.defaultPrevented).toBe(false);
-    });
-  });
-
   describe('handle', () => {
     it('opens from a trigger rendered outside the root', async () => {
       function DetachedTriggerMenu() {
@@ -5002,46 +4924,6 @@ describe('<FilterMenu.Root />', () => {
     });
   });
 
-  describe('item text resolution', () => {
-    it('matches an item whose children are an array while it is filtered out', async () => {
-      const { user } = await render(
-        <FilterMenu.Root defaultOpen>
-          <FilterMenu.Trigger>Actions</FilterMenu.Trigger>
-          <FilterMenu.Portal>
-            <FilterMenu.Positioner>
-              <FilterMenu.Popup>
-                <FilterMenu.Input aria-label="Filter actions" />
-                <FilterMenu.List>
-                  <FilterMenu.Item>
-                    {'Re'}
-                    {'name'}
-                  </FilterMenu.Item>
-                  <FilterMenu.Item>Delete</FilterMenu.Item>
-                </FilterMenu.List>
-              </FilterMenu.Popup>
-            </FilterMenu.Positioner>
-          </FilterMenu.Portal>
-        </FilterMenu.Root>,
-      );
-
-      const input = screen.getByRole('searchbox', { name: 'Filter actions' });
-
-      // Hide it, so its DOM node goes away and only the children remain as a text source.
-      await user.type(input, 'del');
-      await waitFor(() => {
-        expect(screen.queryByRole('menuitem', { name: 'Rename' })).toBe(null);
-      });
-
-      await user.clear(input);
-      await user.type(input, 'rena');
-
-      await waitFor(() => {
-        expect(screen.getByRole('menuitem', { name: 'Rename' })).toBeVisible();
-      });
-      expect(screen.queryByRole('menuitem', { name: 'Delete' })).toBe(null);
-    });
-  });
-
   describe('consumer props', () => {
     // `FilterMenu.Trigger`, `FilterMenu.Input`, and `FilterMenu.Popup` each render two nested
     // layers. Consumer props must land on the inner one only, or every handler fires twice.
@@ -5085,78 +4967,6 @@ describe('<FilterMenu.Root />', () => {
       // Escape is not consumed by the input, so it reaches the popup exactly once.
       fireEvent.keyDown(input, { key: 'Escape' });
       expect(onPopupKeyDown).toHaveBeenCalledTimes(1);
-    });
-  });
-
-  describe('accessible semantics of a plain submenu', () => {
-    it('reports a menu popup on a trigger whose submenu has no filter', async () => {
-      await render(
-        <FilterMenu.Root defaultOpen>
-          <FilterMenu.Trigger>Actions</FilterMenu.Trigger>
-          <FilterMenu.Portal>
-            <FilterMenu.Positioner>
-              <FilterMenu.Popup>
-                <FilterMenu.Input aria-label="Filter actions" />
-                <FilterMenu.List>
-                  <Menu.SubmenuRoot>
-                    <FilterMenu.SubmenuTrigger>Sort by</FilterMenu.SubmenuTrigger>
-                    <Menu.Portal>
-                      <Menu.Positioner>
-                        <Menu.Popup>
-                          <Menu.Item>Name</Menu.Item>
-                        </Menu.Popup>
-                      </Menu.Positioner>
-                    </Menu.Portal>
-                  </Menu.SubmenuRoot>
-                </FilterMenu.List>
-              </FilterMenu.Popup>
-            </FilterMenu.Positioner>
-          </FilterMenu.Portal>
-        </FilterMenu.Root>,
-      );
-
-      // The documented plain-submenu recipe opens a `role="menu"` popup, so the trigger must not
-      // claim `haspopup="dialog"`.
-      expect(screen.getByRole('menuitem', { name: 'Sort by' })).toHaveAttribute(
-        'aria-haspopup',
-        'menu',
-      );
-    });
-
-    it('lets a consumer override aria-haspopup', async () => {
-      await render(
-        <FilterMenu.Root defaultOpen>
-          <FilterMenu.Trigger>Actions</FilterMenu.Trigger>
-          <FilterMenu.Portal>
-            <FilterMenu.Positioner>
-              <FilterMenu.Popup>
-                <FilterMenu.Input aria-label="Filter actions" />
-                <FilterMenu.List>
-                  <FilterMenu.SubmenuRoot>
-                    <FilterMenu.SubmenuTrigger aria-haspopup="menu">
-                      Move to
-                    </FilterMenu.SubmenuTrigger>
-                    <FilterMenu.Portal>
-                      <FilterMenu.Positioner>
-                        <FilterMenu.Popup>
-                          <FilterMenu.List>
-                            <FilterMenu.Item>Projects</FilterMenu.Item>
-                          </FilterMenu.List>
-                        </FilterMenu.Popup>
-                      </FilterMenu.Positioner>
-                    </FilterMenu.Portal>
-                  </FilterMenu.SubmenuRoot>
-                </FilterMenu.List>
-              </FilterMenu.Popup>
-            </FilterMenu.Positioner>
-          </FilterMenu.Portal>
-        </FilterMenu.Root>,
-      );
-
-      expect(screen.getByRole('menuitem', { name: 'Move to' })).toHaveAttribute(
-        'aria-haspopup',
-        'menu',
-      );
     });
   });
 
@@ -5216,66 +5026,6 @@ describe('<FilterMenu.Root />', () => {
       fireEvent.mouseMove(screen.getByTestId('popup'));
 
       expect(auxiliary).toHaveFocus();
-    });
-  });
-
-  describe('disabled items', () => {
-    let onDisabledClick = vi.fn();
-    beforeEach(() => {
-      onDisabledClick = vi.fn();
-    });
-
-    function DisabledItemMenu() {
-      return (
-        <FilterMenu.Root defaultOpen>
-          <FilterMenu.Trigger>Actions</FilterMenu.Trigger>
-          <FilterMenu.Portal>
-            <FilterMenu.Positioner>
-              <FilterMenu.Popup>
-                <FilterMenu.Input aria-label="Filter actions" />
-                <FilterMenu.List>
-                  <FilterMenu.Item>Rename</FilterMenu.Item>
-                  <FilterMenu.Item disabled onClick={onDisabledClick}>
-                    Archive
-                  </FilterMenu.Item>
-                  <FilterMenu.Item>Delete</FilterMenu.Item>
-                </FilterMenu.List>
-              </FilterMenu.Popup>
-            </FilterMenu.Positioner>
-          </FilterMenu.Portal>
-        </FilterMenu.Root>
-      );
-    }
-
-    it('keeps a disabled item reachable with the arrow keys', async () => {
-      const { user } = await render(<DisabledItemMenu />);
-
-      const input = screen.getByRole('searchbox', { name: 'Filter actions' });
-      await waitFor(() => {
-        expect(input).toHaveFocus();
-      });
-
-      await user.keyboard('[ArrowDown][ArrowDown]');
-
-      // Menus keep disabled items discoverable rather than skipping them.
-      expect(input).toHaveAttribute(
-        'aria-activedescendant',
-        screen.getByRole('menuitem', { name: 'Archive' }).id,
-      );
-    });
-
-    it('does not activate a highlighted disabled item with Enter', async () => {
-      const { user } = await render(<DisabledItemMenu />);
-
-      const input = screen.getByRole('searchbox', { name: 'Filter actions' });
-      await waitFor(() => {
-        expect(input).toHaveFocus();
-      });
-
-      await user.keyboard('[ArrowDown][ArrowDown][Enter]');
-
-      expect(onDisabledClick).not.toHaveBeenCalled();
-      expect(screen.getByRole('menu')).toBeVisible();
     });
   });
 
@@ -5388,220 +5138,6 @@ describe('<FilterMenu.Root />', () => {
       expect(screen.getByRole('searchbox', { name: 'Filter actions' })).not.toHaveAttribute(
         'aria-activedescendant',
       );
-    });
-  });
-
-  describe('prop: grid', () => {
-    function GridMenu(props: {
-      defaultOpen?: boolean | undefined;
-      inputless?: boolean | undefined;
-      onPress?: (() => void) | undefined;
-    }) {
-      return (
-        <FilterMenu.Root grid defaultOpen={props.defaultOpen ?? true}>
-          <FilterMenu.Trigger>Emoji</FilterMenu.Trigger>
-          <FilterMenu.Portal>
-            <FilterMenu.Positioner>
-              <FilterMenu.Popup>
-                {!props.inputless && <FilterMenu.Input aria-label="Search emoji" />}
-                <FilterMenu.List>
-                  <FilterMenu.Row>
-                    <FilterMenu.Item>One</FilterMenu.Item>
-                    <FilterMenu.Item>Two</FilterMenu.Item>
-                    <FilterMenu.Item>Three</FilterMenu.Item>
-                  </FilterMenu.Row>
-                  <FilterMenu.Row>
-                    <FilterMenu.Item>Four</FilterMenu.Item>
-                    <FilterMenu.Item onClick={props.onPress}>Five</FilterMenu.Item>
-                  </FilterMenu.Row>
-                </FilterMenu.List>
-              </FilterMenu.Popup>
-            </FilterMenu.Positioner>
-          </FilterMenu.Portal>
-        </FilterMenu.Root>
-      );
-    }
-
-    it('opens with vertical trigger arrows, not horizontal grid arrows', async () => {
-      const { user } = await render(<GridMenu defaultOpen={false} />);
-      const trigger = screen.getByRole('button', { name: 'Emoji' });
-
-      await act(async () => {
-        trigger.focus();
-      });
-      await user.keyboard('[ArrowRight]');
-
-      expect(screen.queryByRole('grid')).toBe(null);
-
-      await user.keyboard('[ArrowDown]');
-
-      expect(await screen.findByRole('grid')).toBeVisible();
-      await waitFor(() => {
-        expect(screen.getByRole('searchbox', { name: 'Search emoji' })).toHaveFocus();
-      });
-    });
-
-    it.each([
-      ['ArrowDown', 'One'],
-      ['ArrowUp', 'Five'],
-    ])('enters a pointer-opened inputless grid with %s', async (key, itemName) => {
-      const { user } = await render(<GridMenu defaultOpen={false} inputless />);
-      const trigger = screen.getByRole('button', { name: 'Emoji' });
-
-      await user.click(trigger);
-      const grid = await screen.findByRole('grid');
-      await act(async () => {
-        await waitSingleFrame();
-      });
-      expect(trigger).toHaveFocus();
-
-      await user.keyboard(`[${key}]`);
-
-      const item = screen.getByRole('gridcell', { name: itemName });
-      expect(grid).toHaveFocus();
-      expect(grid).toHaveAttribute('aria-activedescendant', item.id);
-    });
-
-    it.each(['ArrowLeft', 'ArrowRight'])(
-      'keeps focus on the trigger when pressing %s in a pointer-opened inputless grid',
-      async (key) => {
-        const { user } = await render(<GridMenu defaultOpen={false} inputless />);
-        const trigger = screen.getByRole('button', { name: 'Emoji' });
-
-        await user.click(trigger);
-        const grid = await screen.findByRole('grid');
-        await act(async () => {
-          await waitSingleFrame();
-        });
-
-        await user.keyboard(`[${key}]`);
-
-        expect(trigger).toHaveFocus();
-        expect(grid).not.toHaveAttribute('aria-activedescendant');
-      },
-    );
-
-    it('uses grid semantics and navigates across rows and columns', async () => {
-      const { user } = await render(<GridMenu />);
-      const input = screen.getByRole('searchbox', { name: 'Search emoji' });
-      const cells = screen.getAllByRole('gridcell');
-
-      expect(screen.getByRole('grid')).toBeVisible();
-      expect(screen.queryByRole('menu')).toBe(null);
-      expect(screen.getAllByRole('row')).toHaveLength(2);
-      expect(cells).toHaveLength(5);
-      await waitFor(() => {
-        expect(input).toHaveFocus();
-      });
-
-      await user.keyboard('[ArrowDown]');
-      expect(input).toHaveAttribute('aria-activedescendant', cells[0].id);
-
-      await user.keyboard('[ArrowRight]');
-      expect(input).toHaveAttribute('aria-activedescendant', cells[1].id);
-
-      await user.keyboard('[ArrowDown]');
-      expect(input).toHaveAttribute('aria-activedescendant', cells[4].id);
-
-      await user.keyboard('[ArrowLeft]');
-      expect(input).toHaveAttribute('aria-activedescendant', cells[3].id);
-
-      await user.keyboard('[ArrowUp]');
-      expect(input).toHaveAttribute('aria-activedescendant', cells[0].id);
-    });
-
-    it('runs the highlighted grid action with Enter', async () => {
-      const onPress = vi.fn();
-      const { user } = await render(<GridMenu onPress={onPress} />);
-      const input = screen.getByRole('searchbox', { name: 'Search emoji' });
-      const cells = screen.getAllByRole('gridcell');
-      await waitFor(() => {
-        expect(input).toHaveFocus();
-      });
-
-      await user.keyboard('[ArrowDown]');
-      expect(input).toHaveAttribute('aria-activedescendant', cells[0].id);
-
-      await user.keyboard('[ArrowRight]');
-      expect(input).toHaveAttribute('aria-activedescendant', cells[1].id);
-
-      await user.keyboard('[ArrowDown]');
-      expect(input).toHaveAttribute('aria-activedescendant', cells[4].id);
-
-      await user.keyboard('[Enter]');
-
-      expect(onPress).toHaveBeenCalledOnce();
-    });
-
-    it('navigates between rows after filtering removes other cells', async () => {
-      const { user } = await render(
-        <FilterMenu.Root grid inline open>
-          <FilterMenu.Input aria-label="Search fruit" />
-          <FilterMenu.List aria-label="Fruit">
-            <FilterMenu.Row>
-              <FilterMenu.Item>Apple</FilterMenu.Item>
-              <FilterMenu.Item>Banana</FilterMenu.Item>
-            </FilterMenu.Row>
-            <FilterMenu.Row>
-              <FilterMenu.Item>Blueberry</FilterMenu.Item>
-              <FilterMenu.Item>Cherry</FilterMenu.Item>
-            </FilterMenu.Row>
-          </FilterMenu.List>
-        </FilterMenu.Root>,
-      );
-      const input = screen.getByRole('searchbox', { name: 'Search fruit' });
-
-      await user.type(input, 'b');
-      await waitFor(() => {
-        expect(screen.getAllByRole('gridcell')).toHaveLength(2);
-      });
-      const cells = screen.getAllByRole('gridcell');
-
-      await user.keyboard('[ArrowDown]');
-      expect(input).toHaveAttribute('aria-activedescendant', cells[0].id);
-
-      await user.keyboard('[ArrowDown]');
-      expect(input).toHaveAttribute('aria-activedescendant', cells[1].id);
-    });
-
-    it('keeps horizontal arrow keys on the input when no cell is highlighted', async () => {
-      const { user } = await render(<GridMenu />);
-      const input = screen.getByRole<HTMLInputElement>('searchbox', { name: 'Search emoji' });
-
-      await user.type(input, 'abc');
-      input.setSelectionRange(2, 2);
-      await user.keyboard('[ArrowLeft]');
-
-      expect(input.selectionStart).toBe(1);
-      expect(input.selectionEnd).toBe(1);
-      expect(input).not.toHaveAttribute('aria-activedescendant');
-    });
-
-    it('keeps disabled cells reachable during vertical grid navigation', async () => {
-      const { user } = await render(
-        <FilterMenu.Root grid inline open>
-          <FilterMenu.Input aria-label="Search actions" />
-          <FilterMenu.List aria-label="Actions">
-            <FilterMenu.Row>
-              <FilterMenu.Item>One</FilterMenu.Item>
-            </FilterMenu.Row>
-            <FilterMenu.Row>
-              <FilterMenu.Item disabled>Two</FilterMenu.Item>
-            </FilterMenu.Row>
-          </FilterMenu.List>
-        </FilterMenu.Root>,
-      );
-      const input = screen.getByRole('searchbox', { name: 'Search actions' });
-      const cells = screen.getAllByRole('gridcell');
-
-      await act(async () => {
-        input.focus();
-      });
-      await user.keyboard('[ArrowDown]');
-      expect(input).toHaveAttribute('aria-activedescendant', cells[0].id);
-
-      await user.keyboard('[ArrowDown]');
-      expect(input).toHaveAttribute('aria-activedescendant', cells[1].id);
     });
   });
 

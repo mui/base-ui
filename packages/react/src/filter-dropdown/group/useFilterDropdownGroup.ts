@@ -1,8 +1,13 @@
 'use client';
 import * as React from 'react';
 import { useStore } from '@base-ui/utils/store';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
+import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { useFilterDropdownItemContext } from '../root/FilterDropdownRootContext';
-import { FilterDropdownGroupContext } from './FilterDropdownGroupContext';
+import {
+  FilterDropdownGroupContext,
+  useFilterDropdownGroupContext,
+} from './FilterDropdownGroupContext';
 import type { State as StoreState } from '../store';
 import { useItemRegistry } from '../../internals/useItemRegistry';
 
@@ -40,8 +45,18 @@ export interface UseFilterDropdownGroupReturnValue {
  */
 export function useFilterDropdownGroup(): UseFilterDropdownGroupReturnValue {
   const { grid, store } = useFilterDropdownItemContext();
+  const parentContext = useFilterDropdownGroupContext();
   const [items, registerItem] = useItemRegistry<symbol, boolean>();
   const hidden = useStore(store, isGroupHidden, items);
+
+  // A nested container collects its own items, so the enclosing one only ever sees this
+  // registration. Report visibility upward or a group of grid rows would look empty.
+  const groupId = useRefWithInit(() => Symbol('filter-dropdown-group')).current;
+  const registerInParent = parentContext?.registerItem;
+  useIsoLayoutEffect(
+    () => registerInParent?.(groupId, !hidden),
+    [registerInParent, groupId, hidden],
+  );
 
   const context = React.useMemo<FilterDropdownGroupContext>(
     () => ({ registerItem }),

@@ -14,11 +14,9 @@ import { FilterDropdownRoot } from '../../filter-dropdown/root/FilterDropdownRoo
 import type { FilterMenuRootFilterProps } from '../utils/FilterMenuRootFilterProps';
 import { useFilterDropdownCloseQuery } from '../../filter-dropdown/root/useFilterDropdownCloseQuery';
 import { useMenuRootContext } from '../../menu/root/MenuRootContext';
-import {
-  FilterMenuProvider,
-  isKeyboardOpen,
-  useFilterMenuWebkitItemSelected,
-} from '../root/FilterMenuRoot';
+import { FilterMenuProvider } from '../utils/FilterMenuProvider';
+import { isKeyboardOpen } from '../utils/isKeyboardOpen';
+import { useFilterMenuWebkitItemSelected } from '../utils/useFilterMenuWebkitItemSelected';
 import type { BaseUIEvent } from '../../internals/types';
 import { useDirection } from '../../internals/direction-context/DirectionContext';
 import {

@@ -34,7 +34,6 @@ export type State<Payload> = PopupStoreState<Payload> & {
   itemProps: HTMLProps;
   closeDelay: number;
   keyboardEventRelay: ((event: React.KeyboardEvent<any>) => void) | undefined;
-  virtualFocusRef: React.RefObject<HTMLElement | null> | undefined;
   adaptiveOrigin: AdaptiveOriginMiddleware | undefined;
 };
 
@@ -45,6 +44,8 @@ type Context = PopupStoreContext<MenuRoot.ChangeEventDetails> & {
   readonly itemDomElements: React.RefObject<(HTMLElement | null)[]>;
   readonly itemLabels: React.RefObject<(string | null)[]>;
   allowMouseUpTriggerRef: React.RefObject<boolean>;
+  /** The element that holds real focus while virtual list navigation is active. */
+  virtualFocusRef: React.RefObject<HTMLElement | null> | undefined;
   readonly triggerFocusTargetRef: React.RefObject<HTMLElement | null>;
   readonly beforeContentFocusGuardRef: React.RefObject<HTMLElement | null>;
 };
@@ -100,7 +101,6 @@ const selectors = {
 
     return undefined;
   },
-  virtualFocusRef: (state: State<unknown>) => state.virtualFocusRef,
 };
 
 type Selectors = typeof selectors;
@@ -197,6 +197,7 @@ function createInitialContext(triggerElements: PopupTriggerMap): Context {
     itemDomElements: { current: [] },
     itemLabels: { current: [] },
     allowMouseUpTriggerRef: { current: false },
+    virtualFocusRef: undefined,
     triggerFocusTargetRef: React.createRef<HTMLElement>(),
     beforeContentFocusGuardRef: React.createRef<HTMLElement>(),
     onOpenChangeComplete: undefined,
@@ -230,7 +231,6 @@ function createInitialState<Payload>(
     floatingParentNodeId: null,
     itemProps: EMPTY_OBJECT,
     keyboardEventRelay: undefined,
-    virtualFocusRef: undefined,
     closeDelay: 0,
     adaptiveOrigin: undefined,
     ...initialState,

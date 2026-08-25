@@ -1,5 +1,5 @@
 import { expect, vi } from 'vitest';
-import { screen } from '@mui/internal-test-utils';
+import { screen, waitFor } from '@mui/internal-test-utils';
 import { createRenderer, resetBrowserPointer } from '#test-utils';
 import { FilterMenu } from '@base-ui/react/filter-menu';
 
@@ -45,5 +45,105 @@ describe('FilterMenu items', () => {
     await user.click(radioItem);
     expect(input).toHaveFocus();
     expect(radioItem).toHaveAttribute('aria-checked', 'true');
+  });
+
+  describe('item text resolution', () => {
+    it('matches an item whose children are an array while it is filtered out', async () => {
+      const { user } = await render(
+        <FilterMenu.Root defaultOpen>
+          <FilterMenu.Trigger>Actions</FilterMenu.Trigger>
+          <FilterMenu.Portal>
+            <FilterMenu.Positioner>
+              <FilterMenu.Popup>
+                <FilterMenu.Input aria-label="Filter actions" />
+                <FilterMenu.List>
+                  <FilterMenu.Item>
+                    {'Re'}
+                    {'name'}
+                  </FilterMenu.Item>
+                  <FilterMenu.Item>Delete</FilterMenu.Item>
+                </FilterMenu.List>
+              </FilterMenu.Popup>
+            </FilterMenu.Positioner>
+          </FilterMenu.Portal>
+        </FilterMenu.Root>,
+      );
+
+      const input = screen.getByRole('searchbox', { name: 'Filter actions' });
+
+      // Hide it, so its DOM node goes away and only the children remain as a text source.
+      await user.type(input, 'del');
+      await waitFor(() => {
+        expect(screen.queryByRole('menuitem', { name: 'Rename' })).toBe(null);
+      });
+
+      await user.clear(input);
+      await user.type(input, 'rena');
+
+      await waitFor(() => {
+        expect(screen.getByRole('menuitem', { name: 'Rename' })).toBeVisible();
+      });
+      expect(screen.queryByRole('menuitem', { name: 'Delete' })).toBe(null);
+    });
+  });
+
+  describe('disabled items', () => {
+    let onDisabledClick = vi.fn();
+    beforeEach(() => {
+      onDisabledClick = vi.fn();
+    });
+
+    function DisabledItemMenu() {
+      return (
+        <FilterMenu.Root defaultOpen>
+          <FilterMenu.Trigger>Actions</FilterMenu.Trigger>
+          <FilterMenu.Portal>
+            <FilterMenu.Positioner>
+              <FilterMenu.Popup>
+                <FilterMenu.Input aria-label="Filter actions" />
+                <FilterMenu.List>
+                  <FilterMenu.Item>Rename</FilterMenu.Item>
+                  <FilterMenu.Item disabled onClick={onDisabledClick}>
+                    Archive
+                  </FilterMenu.Item>
+                  <FilterMenu.Item>Delete</FilterMenu.Item>
+                </FilterMenu.List>
+              </FilterMenu.Popup>
+            </FilterMenu.Positioner>
+          </FilterMenu.Portal>
+        </FilterMenu.Root>
+      );
+    }
+
+    it('keeps a disabled item reachable with the arrow keys', async () => {
+      const { user } = await render(<DisabledItemMenu />);
+
+      const input = screen.getByRole('searchbox', { name: 'Filter actions' });
+      await waitFor(() => {
+        expect(input).toHaveFocus();
+      });
+
+      await user.keyboard('[ArrowDown][ArrowDown]');
+
+      // Menus keep disabled items discoverable rather than skipping them.
+      expect(input).toHaveAttribute(
+        'aria-activedescendant',
+        screen.getByRole('menuitem', { name: 'Archive' }).id,
+      );
+    });
+
+    it('does not activate a highlighted disabled item with Enter', async () => {
+      const { user } = await render(<DisabledItemMenu />);
+
+      const input = screen.getByRole('searchbox', { name: 'Filter actions' });
+      await waitFor(() => {
+        expect(input).toHaveFocus();
+      });
+
+      await user.keyboard('[ArrowDown][ArrowDown][Enter]');
+
+      expect(onDisabledClick).not.toHaveBeenCalled();
+      expect(screen.getByRole('menu')).toBeVisible();
+    });
   });
 });

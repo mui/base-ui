@@ -4,7 +4,7 @@ import { ownerWindow } from '@base-ui/utils/owner';
 import type { BaseUIComponentProps, HTMLProps } from '../../internals/types';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { useActiveItemId, useFilterDropdownRootContext } from '../root/FilterDropdownRootContext';
-import { resolveRenderedId } from '../../internals/resolveRenderedId';
+import { useRenderedId } from '../../internals/resolveRenderedId';
 import { getTarget } from '../../floating-ui-react/utils';
 import { resolveMenuPopupLabel } from '../../menu/popup/resolveMenuPopupLabel';
 
@@ -22,12 +22,7 @@ export const FilterDropdownList = React.forwardRef(function FilterDropdownList(
   const { setListId } = context;
   const activeItemId = useActiveItemId(context);
 
-  const id = resolveRenderedId(componentProps, context.defaultListId);
-  const registeredId = id === context.defaultListId ? undefined : id;
-  const registerIdRef = React.useCallback(
-    (element: HTMLElement | null) => setListId(element ? registeredId : undefined),
-    [registeredId, setListId],
-  );
+  const [id, registerIdRef] = useRenderedId(componentProps, context.defaultListId, setListId);
   // Also inspects a label supplied through a `render` element, which never appears in
   // `elementProps`, so the trigger fallback doesn't override it.
   const { ariaLabelledBy } = resolveMenuPopupLabel(componentProps, null, context.triggerId ?? null);

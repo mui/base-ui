@@ -30,19 +30,24 @@ export const FilterMenuList = React.forwardRef(function FilterMenuList(
 ) {
   const { store: menuStore } = useMenuRootContext();
   const { inline, onItemsChange } = useFilterDropdownRootContext();
-  const { grid, store } = useFilterDropdownItemContext();
+  const { grid, store: filterStore } = useFilterDropdownItemContext();
   const { subscribeMapChange } = useCompositeListContext();
   const handleReferenceKeyDown = useFilterMenuReferenceKeyDown();
-  const previousItemsRef = React.useRef<readonly Element[]>([]);
 
-  const syncItemIds = useStableCallback((map: Map<Element, unknown>) => {
+  const previousItemsRef = React.useRef<readonly Element[]>([]);
+  // Distinguishes "no snapshot yet" from "the last snapshot was empty". Comparing against the
+  // empty initial value would also skip the list repopulating after a query matched nothing.
+  const hasPublishedItemsRef = React.useRef(false);
+
+  const handleItemMapChange = useStableCallback((map: Map<Element, unknown>) => {
     const items = Array.from(map.keys());
     const previousItems = previousItemsRef.current;
     const itemsChanged =
-      previousItems.length > 0 &&
+      hasPublishedItemsRef.current &&
       (previousItems.length !== items.length ||
         items.some((item, index) => item !== previousItems[index]));
     previousItemsRef.current = items;
+    hasPublishedItemsRef.current = true;
 
     // Composite items receive their final indexes from this map update. Read their rendered ids
     // after those synchronous layout updates commit instead of publishing the previous indexes.
@@ -53,21 +58,21 @@ export const FilterMenuList = React.forwardRef(function FilterMenuList(
         onItemsChange(items.length > 0);
       }
       const nextIds = items.map((item) => item.id);
-      const currentIds = store.state.itemIds;
+      const currentIds = filterStore.state.itemIds;
       // A fresh array always fails the store's identity check, and every item, group, and the
       // input subscribe to it. Filtering rarely changes the ids themselves, so compare first.
       if (
         currentIds.length !== nextIds.length ||
         nextIds.some((id, index) => id !== currentIds[index])
       ) {
-        store.set('itemIds', nextIds);
+        filterStore.set('itemIds', nextIds);
       }
     });
   });
 
   useIsoLayoutEffect(() => {
-    return inline ? undefined : subscribeMapChange(syncItemIds);
-  }, [inline, subscribeMapChange, syncItemIds]);
+    return inline ? undefined : subscribeMapChange(handleItemMapChange);
+  }, [inline, subscribeMapChange, handleItemMapChange]);
 
   const setInlinePopupElement = useStableCallback((element: HTMLDivElement | null) => {
     menuStore.context.popupRef.current = element;
@@ -82,7 +87,7 @@ export const FilterMenuList = React.forwardRef(function FilterMenuList(
     menuStore.select('popupProps').onPointerMove?.(event);
   });
 
-  const props = mergeProps<typeof FilterDropdownList>(
+  const listProps = mergeProps<typeof FilterDropdownList>(
     {
       role: grid ? 'grid' : 'menu',
       onKeyDown: handleReferenceKeyDown,
@@ -91,7 +96,7 @@ export const FilterMenuList = React.forwardRef(function FilterMenuList(
     componentProps,
   );
 
-  const element = <FilterDropdownList {...props} ref={mergedRef} />;
+  const element = <FilterDropdownList {...listProps} ref={mergedRef} />;
 
   if (!inline) {
     return element;
@@ -101,7 +106,7 @@ export const FilterMenuList = React.forwardRef(function FilterMenuList(
     <CompositeList
       elementsRef={menuStore.context.itemDomElements}
       labelsRef={menuStore.context.itemLabels}
-      onMapChange={syncItemIds}
+      onMapChange={handleItemMapChange}
     >
       {element}
     </CompositeList>

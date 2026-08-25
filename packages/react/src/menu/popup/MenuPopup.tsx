@@ -18,7 +18,7 @@ import { useToolbarRootContext } from '../../toolbar/root/ToolbarRootContext';
 import { COMPOSITE_KEYS } from '../../internals/composite/composite';
 import { getDisabledMountTransitionStyles } from '../../internals/getDisabledMountTransitionStyles';
 import { useMenuSubmenuRootContext } from '../submenu-root/MenuSubmenuRootContext';
-import { resolveRenderedId } from '../../internals/resolveRenderedId';
+import { useRenderedId } from '../../internals/resolveRenderedId';
 import { resolveMenuPopupLabel } from './resolveMenuPopupLabel';
 import { isTypeableElement } from '../../floating-ui-react/utils/element';
 
@@ -59,12 +59,7 @@ export const MenuPopup = React.forwardRef(function MenuPopup(
   const disabled = store.useState('disabled');
   const setPopupElement = store.useStateSetter('popupElement');
 
-  const id = resolveRenderedId(componentProps, defaultFloatingId);
-  const registeredId = id === defaultFloatingId ? undefined : id;
-  const registerIdRef = React.useCallback(
-    (element: HTMLElement | null) => setFloatingId(element ? registeredId : undefined),
-    [registeredId, setFloatingId],
-  );
+  const [id, registerIdRef] = useRenderedId(componentProps, defaultFloatingId, setFloatingId);
   const { ariaLabelledBy } = resolveMenuPopupLabel(
     componentProps,
     activeTriggerElement,
