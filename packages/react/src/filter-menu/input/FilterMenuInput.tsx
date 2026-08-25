@@ -7,7 +7,7 @@ import {
 } from '../../filter-dropdown/input/FilterDropdownInput';
 import {
   useFilterDropdownItemContext,
-  useFilterDropdownRootContext,
+  useFilterDropdownActiveIndex,
 } from '../../filter-dropdown/root/FilterDropdownRootContext';
 import { mergeProps } from '../../merge-props';
 import type { BaseUIEvent } from '../../internals/types';
@@ -24,7 +24,7 @@ export const FilterMenuInput = React.forwardRef(function FilterMenuInput(
   componentProps: FilterMenuInput.Props,
   forwardedRef: React.ForwardedRef<HTMLInputElement>,
 ) {
-  const { activeIndex } = useFilterDropdownRootContext();
+  const activeIndex = useFilterDropdownActiveIndex();
   const { grid, listRef } = useFilterDropdownItemContext();
   const handleReferenceKeyDown = useFilterMenuReferenceKeyDown();
 

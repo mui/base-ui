@@ -10,6 +10,7 @@ import { useMenuRootContext } from '../../menu/root/MenuRootContext';
 import { mergeProps } from '../../merge-props';
 import type { BaseUIEvent } from '../../internals/types';
 import type { FilterMenuHandle } from '../store/FilterMenuHandle';
+import { usePopupHandleStore } from '../../utils/popups';
 
 /**
  * A button that opens the filter menu.
@@ -24,8 +25,10 @@ export const FilterMenuTrigger = React.forwardRef(function FilterMenuTrigger(
   const { handle, ...menuProps } = props;
 
   const rootContext = useMenuRootContext(true);
+  const handleStore = usePopupHandleStore(handle);
+  const store = handleStore ?? rootContext?.store;
 
-  if (!rootContext && !handle) {
+  if (!rootContext?.virtualFocus && !handle) {
     throw new Error(
       'Base UI: <FilterMenu.Trigger> must be either used within a <FilterMenu.Root> component or provided with a handle.',
     );
@@ -34,8 +37,8 @@ export const FilterMenuTrigger = React.forwardRef(function FilterMenuTrigger(
   const triggerProps = mergeProps<typeof MenuTrigger>(
     {
       onKeyDown(event: BaseUIEvent<React.KeyboardEvent<HTMLElement>>) {
-        const focusOwner = rootContext?.virtualFocusRef?.current;
-        if (!rootContext?.store.select('open') || !focusOwner) {
+        const focusOwner = store?.select('virtualFocusRef')?.current;
+        if (!store?.select('open') || !focusOwner) {
           return;
         }
 

@@ -5,7 +5,7 @@ import { ownerWindow } from '@base-ui/utils/owner';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import {
   useFilterDropdownItemContext,
-  useFilterDropdownRootContext,
+  useFilterDropdownActiveIndex,
 } from '../../filter-dropdown/root/FilterDropdownRootContext';
 import { useMenuRootContext } from '../../menu/root/MenuRootContext';
 import { useDirection } from '../../internals/direction-context/DirectionContext';
@@ -25,7 +25,7 @@ import {
  * single list-navigation hook; keeping this relay in the adapter avoids shipping it in plain Menu.
  */
 export function useFilterMenuReferenceKeyDown() {
-  const { activeIndex } = useFilterDropdownRootContext();
+  const activeIndex = useFilterDropdownActiveIndex();
   const { grid, listRef } = useFilterDropdownItemContext();
   const { loopFocus, orientation, store } = useMenuRootContext();
   const direction = useDirection();

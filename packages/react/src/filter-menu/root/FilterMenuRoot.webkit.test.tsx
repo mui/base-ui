@@ -98,6 +98,50 @@ describe('<FilterMenu.Root /> (WebKit)', () => {
     expect(radio).toHaveAttribute('aria-checked', 'true');
   });
 
+  it('marks link items and submenu triggers selected for the WebKit compatibility path', async () => {
+    const { user } = await render(
+      <FilterMenu.Root defaultOpen>
+        <FilterMenu.Trigger>Actions</FilterMenu.Trigger>
+        <FilterMenu.Portal>
+          <FilterMenu.Positioner>
+            <FilterMenu.Popup>
+              <FilterMenu.Input aria-label="Filter actions" />
+              <FilterMenu.List>
+                <FilterMenu.LinkItem href="#docs">Documentation</FilterMenu.LinkItem>
+                <FilterMenu.SubmenuRoot>
+                  <FilterMenu.SubmenuTrigger>More actions</FilterMenu.SubmenuTrigger>
+                  <FilterMenu.Portal>
+                    <FilterMenu.Positioner>
+                      <FilterMenu.Popup>
+                        <FilterMenu.List>
+                          <FilterMenu.Item>Share</FilterMenu.Item>
+                        </FilterMenu.List>
+                      </FilterMenu.Popup>
+                    </FilterMenu.Positioner>
+                  </FilterMenu.Portal>
+                </FilterMenu.SubmenuRoot>
+              </FilterMenu.List>
+            </FilterMenu.Popup>
+          </FilterMenu.Positioner>
+        </FilterMenu.Portal>
+      </FilterMenu.Root>,
+    );
+
+    const input = screen.getByRole('searchbox', { name: 'Filter actions' });
+    const link = screen.getByRole('menuitem', { name: 'Documentation' });
+    const submenuTrigger = screen.getByRole('menuitem', { name: 'More actions' });
+
+    await user.keyboard('[ArrowDown]');
+    expect(link).toHaveAttribute('aria-selected', 'true');
+    expect(submenuTrigger).toHaveAttribute('aria-selected', 'false');
+    expect(input).toHaveAttribute('aria-activedescendant', link.id);
+
+    await user.keyboard('[ArrowDown]');
+    expect(link).toHaveAttribute('aria-selected', 'false');
+    expect(submenuTrigger).toHaveAttribute('aria-selected', 'true');
+    expect(input).toHaveAttribute('aria-activedescendant', submenuTrigger.id);
+  });
+
   it('leaves plain menu items alone, which navigate with real focus', async () => {
     await render(
       <Menu.Root defaultOpen>

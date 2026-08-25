@@ -1,11 +1,8 @@
 'use client';
 import * as React from 'react';
-import { useStore } from '@base-ui/utils/store';
 import type { BaseUIChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import type { REASONS } from '../../internals/reasons';
-import type { HTMLProps } from '../../internals/types';
 import type { FilterDropdownStore } from '../store';
-import { selectors } from '../store';
 
 export interface FilterDropdownItemRegistration {
   getText: () => string | undefined;
@@ -45,12 +42,8 @@ export interface FilterDropdownRootContext {
   setInputElement: (element: HTMLInputElement | null) => void;
   setListElement: (element: HTMLDivElement | null) => void;
   hasInput: boolean;
-  activeIndex: number | null;
   setActiveIndex: (index: number | null) => void;
-  /**
-   * The host's navigation props for the element that holds real focus while the popup is open.
-   */
-  inputProps: HTMLProps;
+  onItemsChange: (hasItems: boolean) => void;
   onValueChange: (value: string, eventDetails: FilterDropdownRoot.ChangeEventDetails) => void;
 }
 
@@ -121,7 +114,12 @@ export function useFilterContextForList(
  * The id of the highlighted item, for `aria-activedescendant`.
  */
 export function useActiveItemId(context: FilterDropdownRootContext) {
-  return useStore(context.store, selectors.activeItemId, context.activeIndex);
+  return context.store.useState('activeItemId');
+}
+
+export function useFilterDropdownActiveIndex() {
+  const context = useFilterDropdownRootContext();
+  return context.store.useState('activeIndex');
 }
 
 // `value` controls a native input and can't be placed in the store without breaking the caret

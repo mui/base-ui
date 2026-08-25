@@ -22,58 +22,44 @@ export function getFilter(options: GetFilterParameters = {}): Filter {
   const collator = new Intl.Collator(locale, collatorOptions);
 
   const filter: Filter = {
-    contains: createContainsFilter(collator),
-    startsWith: createStartsWithFilter(collator),
-    endsWith: createEndsWithFilter(collator),
+    contains(item, query, itemToString) {
+      if (!query) {
+        return true;
+      }
+
+      const itemString = stringifyAsLabel(item, itemToString);
+      for (let i = 0; i <= itemString.length - query.length; i += 1) {
+        if (collator.compare(itemString.slice(i, i + query.length), query) === 0) {
+          return true;
+        }
+      }
+
+      return false;
+    },
+    startsWith(item, query, itemToString) {
+      if (!query) {
+        return true;
+      }
+
+      const itemString = stringifyAsLabel(item, itemToString);
+      return collator.compare(itemString.slice(0, query.length), query) === 0;
+    },
+    endsWith(item, query, itemToString) {
+      if (!query) {
+        return true;
+      }
+
+      const itemString = stringifyAsLabel(item, itemToString);
+      const queryLength = query.length;
+      return (
+        itemString.length >= queryLength &&
+        collator.compare(itemString.slice(itemString.length - queryLength), query) === 0
+      );
+    },
   };
 
   filterCache.set(cacheKey, filter);
   return filter;
-}
-
-function createContainsFilter(collator: Intl.Collator): ItemFilter {
-  return (item, query, itemToString) => {
-    if (!query) {
-      return true;
-    }
-
-    const itemString = stringifyAsLabel(item, itemToString);
-
-    for (let i = 0; i <= itemString.length - query.length; i += 1) {
-      if (collator.compare(itemString.slice(i, i + query.length), query) === 0) {
-        return true;
-      }
-    }
-
-    return false;
-  };
-}
-
-function createStartsWithFilter(collator: Intl.Collator): ItemFilter {
-  return (item, query, itemToString) => {
-    if (!query) {
-      return true;
-    }
-
-    const itemString = stringifyAsLabel(item, itemToString);
-    return collator.compare(itemString.slice(0, query.length), query) === 0;
-  };
-}
-
-function createEndsWithFilter(collator: Intl.Collator): ItemFilter {
-  return (item, query, itemToString) => {
-    if (!query) {
-      return true;
-    }
-
-    const itemString = stringifyAsLabel(item, itemToString);
-    const queryLength = query.length;
-
-    return (
-      itemString.length >= queryLength &&
-      collator.compare(itemString.slice(itemString.length - queryLength), query) === 0
-    );
-  };
 }
 
 export interface GetFilterParameters extends Intl.CollatorOptions {
@@ -83,12 +69,6 @@ export interface GetFilterParameters extends Intl.CollatorOptions {
    */
   locale?: Intl.LocalesArgument | undefined;
 }
-
-export type ItemFilter = <Item>(
-  item: Item,
-  query: string,
-  itemToString?: (item: Item) => string,
-) => boolean;
 
 export interface Filter {
   /** Returns whether the item matches the query anywhere. */

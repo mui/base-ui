@@ -4952,7 +4952,53 @@ describe('<FilterMenu.Root />', () => {
       await waitFor(() => {
         expect(screen.getByRole('menu')).not.toBe(null);
       });
+      await waitFor(() => {
+        expect(screen.getByRole('searchbox', { name: 'Filter actions' })).toHaveFocus();
+      });
       expect(screen.getByRole('menuitem', { name: 'Rename' })).toBeVisible();
+    });
+
+    it('moves focus into a detached inputless list before activating an item', async () => {
+      const onClick = vi.fn();
+
+      function DetachedInputlessMenu() {
+        const handle = useRefWithInit(() => FilterMenu.createHandle()).current;
+
+        return (
+          <React.Fragment>
+            <FilterMenu.Root handle={handle}>
+              <FilterMenu.Portal>
+                <FilterMenu.Positioner>
+                  <FilterMenu.Popup>
+                    <FilterMenu.List>
+                      <FilterMenu.Item onClick={onClick}>Rename</FilterMenu.Item>
+                    </FilterMenu.List>
+                  </FilterMenu.Popup>
+                </FilterMenu.Positioner>
+              </FilterMenu.Portal>
+            </FilterMenu.Root>
+            <FilterMenu.Trigger handle={handle}>Actions</FilterMenu.Trigger>
+          </React.Fragment>
+        );
+      }
+
+      const { user } = await render(<DetachedInputlessMenu />);
+      const trigger = screen.getByRole('button', { name: 'Actions' });
+
+      await user.click(trigger);
+
+      const list = await screen.findByRole('menu');
+      const item = screen.getByRole('menuitem', { name: 'Rename' });
+      expect(trigger).toHaveFocus();
+
+      await user.keyboard('[ArrowDown]');
+
+      expect(list).toHaveFocus();
+      expect(list).toHaveAttribute('aria-activedescendant', item.id);
+
+      await user.keyboard('[Enter]');
+
+      expect(onClick).toHaveBeenCalledOnce();
     });
   });
 

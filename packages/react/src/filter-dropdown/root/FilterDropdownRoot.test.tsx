@@ -315,6 +315,43 @@ describe('<FilterDropdown.Root />', () => {
       });
     });
   });
+
+  it('clears a stale highlight when items change with an empty query', async () => {
+    function Results(props: { items: string[] }) {
+      return (
+        <FilterMenu.Root defaultOpen>
+          <FilterMenu.Trigger>Actions</FilterMenu.Trigger>
+          <FilterMenu.Portal>
+            <FilterMenu.Positioner>
+              <FilterMenu.Popup>
+                <FilterMenu.Input aria-label="Filter actions" />
+                <FilterMenu.List>
+                  {props.items.map((item) => (
+                    <FilterMenu.Item key={item}>{item}</FilterMenu.Item>
+                  ))}
+                </FilterMenu.List>
+              </FilterMenu.Popup>
+            </FilterMenu.Positioner>
+          </FilterMenu.Portal>
+        </FilterMenu.Root>
+      );
+    }
+
+    const { user, setProps } = await render(<Results items={['A', 'B']} />);
+    const input = screen.getByRole('searchbox', { name: 'Filter actions' });
+
+    await user.keyboard('[ArrowDown][ArrowDown]');
+    expect(input).toHaveAttribute(
+      'aria-activedescendant',
+      screen.getByRole('menuitem', { name: 'B' }).id,
+    );
+
+    await setProps({ items: ['B', 'A'] });
+
+    await waitFor(() => {
+      expect(input).not.toHaveAttribute('aria-activedescendant');
+    });
+  });
 });
 
 function TestFilterDropdownRoot(

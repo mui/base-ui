@@ -6,8 +6,6 @@ import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { EMPTY_ARRAY, EMPTY_OBJECT } from '@base-ui/utils/empty';
 import { fastComponent } from '@base-ui/utils/fastHooks';
-import { platform } from '@base-ui/utils/platform';
-import { useIsHydrating } from '../../utils/useIsHydrating';
 import { useBaseUiId } from '../../internals/useBaseUiId';
 import {
   FloatingTree,
@@ -98,6 +96,11 @@ interface MenuRootInternalProps<Payload> extends MenuRoot.Props<Payload> {
    * The orientation used to open the popup from its trigger when it differs from list navigation.
    */
   triggerOrientation?: MenuRoot.Orientation | undefined;
+  /**
+   * @ignore
+   * Whether virtual-focus items need WebKit's `aria-selected` compatibility state.
+   */
+  webkitItemSelected?: boolean | undefined;
 }
 
 /**
@@ -132,6 +135,7 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
     virtualFocusInput = false,
     renderVirtualFocusChildren,
     triggerOrientation = orientation,
+    webkitItemSelected: webkitItemSelectedProp = false,
   } = props as MenuRootInternalProps<Payload>;
 
   const contextMenuContext = useContextMenuRootContext(true);
@@ -262,6 +266,7 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
     modal: parent.type === undefined ? modalProp : undefined,
     openMethod,
     rootId,
+    virtualFocusRef,
   });
 
   useImplicitActiveTrigger(store);
@@ -705,15 +710,8 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
     itemProps,
   });
 
-  // WebKit's accessibility tree only follows a searchbox's `aria-activedescendant` into a menu
-  // when the items expose a selection state. Resolved once per menu rather than once per item:
-  // the engine is a constant and hydration is global, so every item would compute the same value.
-  // The server cannot sniff the engine, so it stays off until hydration completes to keep the
-  // markup consistent. Only virtual-focus trees consume the value, so keeping it `false`
-  // elsewhere spares plain menus a post-hydration context invalidation in WebKit.
-  const hydrating = useIsHydrating();
   const webkitItemSelected =
-    (virtualFocus || parentVirtualFocus) && !hydrating && platform.engine.webkit;
+    webkitItemSelectedProp || parentMenuRootContext?.webkitItemSelected || false;
 
   const context: MenuRootContext<Payload> = React.useMemo(
     () => ({

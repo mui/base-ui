@@ -22,6 +22,7 @@ export const FilterDropdownInput = React.forwardRef(function FilterDropdownInput
   const { render, className, style, disabled, ...elementProps } = componentProps;
 
   const context = useFilterDropdownRootContext();
+  const inputProps = context.store.useState('inputProps');
   const value = useFilterDropdownValueContext();
   const activeItemId = useActiveItemId(context);
 
@@ -33,7 +34,7 @@ export const FilterDropdownInput = React.forwardRef(function FilterDropdownInput
     state,
     ref: [forwardedRef, context.setInputElement],
     props: [
-      context.inputProps,
+      inputProps,
       {
         type: 'text',
         disabled: context.disabled || disabled,
