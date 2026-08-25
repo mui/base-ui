@@ -98,10 +98,12 @@ export const FieldControl = React.forwardRef(function FieldControl(
   );
 
   useIsoLayoutEffect(() => {
-    if (validation.inputRef.current?.value) {
+    if (serializedValue !== undefined) {
+      setFilled(serializedValue !== '');
+    } else if (validation.inputRef.current?.value) {
       setFilled(true);
     }
-  }, [validation.inputRef, setFilled]);
+  }, [serializedValue, validation.inputRef, setFilled]);
 
   useValueChanged(serializedValue, () => {
     if (serializedValue === undefined) {
@@ -110,7 +112,6 @@ export const FieldControl = React.forwardRef(function FieldControl(
 
     clearErrors(name);
     setDirty(serializedValue !== (validityData.initialValue ?? ''));
-    setFilled(serializedValue !== '');
 
     validation.change(serializedValue);
   });
