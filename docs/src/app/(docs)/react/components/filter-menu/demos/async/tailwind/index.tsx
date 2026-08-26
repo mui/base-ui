@@ -3,9 +3,8 @@ import * as React from 'react';
 import { FilterMenu } from '@base-ui/react/filter-menu';
 
 export default function ExampleAsyncFilterMenu() {
-  const [assignee, setAssignee] = React.useState<Person | null>(null);
   const [searchValue, setSearchValue] = React.useState('');
-  const [searchResults, setSearchResults] = React.useState<Person[]>([]);
+  const [searchResults, setSearchResults] = React.useState<SearchResults>(SUGGESTIONS);
   const [error, setError] = React.useState<string | null>(null);
 
   const [isPending, startTransition] = React.useTransition();
@@ -20,53 +19,57 @@ export default function ExampleAsyncFilterMenu() {
     startTransition(async () => {
       setError(null);
 
-      const result = await searchPeople(query);
+      const result = await searchIndex(query);
       if (controller.signal.aborted) {
         return;
       }
 
       startTransition(() => {
-        setSearchResults(result.people);
+        setSearchResults(result.results);
         setError(result.error);
       });
     });
   }
 
-  const status = isPending ? (
-    <React.Fragment>
-      <span
-        className="inline-block size-3 animate-spin rounded-full border border-current border-r-transparent rtl:border-r-current rtl:border-l-transparent"
-        aria-hidden
-      />
-      Searching…
-    </React.Fragment>
-  ) : (
-    error
-  );
+  let status: React.ReactNode = null;
+  if (error) {
+    status = error;
+  } else if (searchResults.total > searchResults.shown) {
+    status = `Showing top ${searchResults.shown} of ${searchResults.total} results`;
+  }
 
   return (
     <FilterMenu.Root
       filter={null}
       inputValue={searchValue}
       onInputValueChange={(value, details) => {
-        if (details.reason !== 'popup-close') {
-          setSearchValue(value);
-          runSearch(value);
+        if (details.reason === 'popup-close') {
+          return;
         }
-      }}
-      onOpenChange={(open) => {
-        if (open) {
-          runSearch('');
+
+        setSearchValue(value);
+
+        // The suggestions are local, so an emptied query restores them without a request.
+        if (value.trim() === '') {
+          abortControllerRef.current?.abort();
+          setSearchResults(SUGGESTIONS);
+          setError(null);
+          return;
         }
+
+        runSearch(value);
       }}
       onOpenChangeComplete={(open) => {
         if (!open) {
+          abortControllerRef.current?.abort();
           setSearchValue('');
+          setSearchResults(SUGGESTIONS);
+          setError(null);
         }
       }}
     >
       <FilterMenu.Trigger className="flex h-8 items-center justify-center gap-1.5 rounded-none border border-neutral-950 bg-white px-3 text-sm leading-none font-normal whitespace-nowrap text-neutral-950 select-none hover:not-data-disabled:bg-neutral-100 active:not-data-disabled:bg-neutral-200 data-pressed:bg-neutral-100 focus-visible:-outline-offset-1 focus-visible:outline-2 focus-visible:outline-neutral-950 dark:border-white dark:bg-neutral-950 dark:text-white dark:hover:not-data-disabled:bg-neutral-800 dark:active:not-data-disabled:bg-neutral-700 dark:data-pressed:bg-neutral-800 dark:focus-visible:outline-white">
-        {assignee ? `Assigned to ${assignee.name}` : 'Assign to…'}
+        Search…
       </FilterMenu.Trigger>
       <FilterMenu.Portal>
         <FilterMenu.Positioner className="outline-0" sideOffset={8} align="start">
@@ -77,32 +80,43 @@ export default function ExampleAsyncFilterMenu() {
             <div className="flex items-center border-b border-neutral-300 has-data-highlighted:border-neutral-950 has-data-highlighted:ring-1 has-data-highlighted:ring-neutral-950 has-data-highlighted:ring-inset dark:border-neutral-700 dark:has-data-highlighted:border-white dark:has-data-highlighted:ring-white">
               <FilterMenu.Input
                 className="min-h-8 w-0 flex-1 bg-transparent px-2.5 text-sm leading-none outline-hidden placeholder:text-neutral-500 dark:placeholder:text-neutral-400"
-                aria-label="Search people"
-                placeholder="e.g. Ada"
+                aria-label="Search apps, documents, and settings"
+                placeholder="e.g. Sales Report Q3"
               />
+              <span className="flex size-8 items-center justify-center text-neutral-500 dark:text-neutral-400">
+                {isPending && (
+                  <span
+                    className="inline-block size-3 animate-spin rounded-full border border-current border-r-transparent rtl:border-r-current rtl:border-l-transparent"
+                    aria-hidden
+                  />
+                )}
+              </span>
             </div>
-            <FilterMenu.Status className="flex items-center gap-2 p-3 text-sm leading-4 text-neutral-500 dark:text-neutral-400">
-              {status}
-            </FilterMenu.Status>
             {!isPending && !error && (
               <FilterMenu.Empty className="p-3 text-sm text-neutral-500 dark:text-neutral-400">
-                No people found.
+                No results found.
               </FilterMenu.Empty>
             )}
             <FilterMenu.List className="max-h-[min(22rem,var(--available-height))] overflow-y-auto py-1 outline-hidden scroll-py-1 empty:py-0">
-              {searchResults.map((person) => (
-                <FilterMenu.Item
-                  key={person.id}
-                  className="group flex cursor-default items-baseline gap-4 px-4 py-2 text-sm leading-4 outline-hidden select-none data-highlighted:relative data-highlighted:z-0 data-highlighted:text-white data-highlighted:before:absolute data-highlighted:before:inset-x-1 data-highlighted:before:inset-y-0 data-highlighted:before:z-[-1] data-highlighted:before:bg-neutral-950 data-highlighted:before:content-[''] dark:data-highlighted:text-neutral-950 dark:data-highlighted:before:bg-white"
-                  onClick={() => setAssignee(person)}
-                >
-                  {person.name}
-                  <span className="ms-auto text-xs text-neutral-500 group-data-highlighted:text-neutral-300 dark:text-neutral-400 dark:group-data-highlighted:text-neutral-700">
-                    {person.role}
-                  </span>
-                </FilterMenu.Item>
+              {searchResults.groups.map((group) => (
+                <FilterMenu.Group key={group.label}>
+                  <FilterMenu.GroupLabel className="pt-1.5 pr-8 pb-1 pl-4 text-xs leading-4 font-medium text-neutral-500 select-none dark:text-neutral-400">
+                    {group.label}
+                  </FilterMenu.GroupLabel>
+                  {group.items.map((item) => (
+                    <FilterMenu.Item
+                      key={item}
+                      className="flex cursor-default py-2 pr-8 pl-4 text-sm leading-4 outline-hidden select-none data-highlighted:relative data-highlighted:z-0 data-highlighted:text-white data-highlighted:before:absolute data-highlighted:before:inset-x-1 data-highlighted:before:inset-y-0 data-highlighted:before:z-[-1] data-highlighted:before:bg-neutral-950 data-highlighted:before:content-[''] dark:data-highlighted:text-neutral-950 dark:data-highlighted:before:bg-white"
+                    >
+                      {item}
+                    </FilterMenu.Item>
+                  ))}
+                </FilterMenu.Group>
               ))}
             </FilterMenu.List>
+            <FilterMenu.Status className="border-t border-neutral-300 px-3 py-2 text-xs leading-4 text-neutral-500 dark:border-neutral-700 dark:text-neutral-400">
+              {status}
+            </FilterMenu.Status>
           </FilterMenu.Popup>
         </FilterMenu.Positioner>
       </FilterMenu.Portal>
@@ -110,7 +124,11 @@ export default function ExampleAsyncFilterMenu() {
   );
 }
 
-async function searchPeople(query: string): Promise<{ people: Person[]; error: string | null }> {
+const RESULTS_PER_GROUP = 6;
+
+async function searchIndex(
+  query: string,
+): Promise<{ results: SearchResults; error: string | null }> {
   // Simulate network delay
   await new Promise((resolve) => {
     setTimeout(resolve, Math.random() * 400 + 100);
@@ -119,42 +137,119 @@ async function searchPeople(query: string): Promise<{ people: Person[]; error: s
   // Simulate occasional network errors (1% chance)
   if (Math.random() < 0.01 || query === 'will_error') {
     return {
-      people: [],
-      error: 'Failed to fetch people. Please try again.',
+      results: EMPTY_RESULTS,
+      error: 'Failed to search. Please try again.',
     };
   }
 
   const loweredQuery = query.trim().toLowerCase();
-  const people = team.filter((person) =>
-    `${person.name} ${person.role}`.toLowerCase().includes(loweredQuery),
-  );
+
+  const groups: ResultGroup[] = [];
+  let total = 0;
+  let shown = 0;
+
+  for (const source of sources) {
+    const matches = source.items.filter((item) => item.toLowerCase().includes(loweredQuery));
+    total += matches.length;
+
+    if (matches.length > 0) {
+      const topMatches = matches.slice(0, RESULTS_PER_GROUP);
+      shown += topMatches.length;
+      groups.push({ label: source.label, items: topMatches });
+    }
+  }
 
   return {
-    people,
+    results: { groups, total, shown },
     error: null,
   };
 }
 
-interface Person {
-  id: string;
-  name: string;
-  role: string;
+interface ResultGroup {
+  label: string;
+  items: string[];
 }
 
-const team: Person[] = [
-  { id: '1', name: 'Ada Sitompul', role: 'Design' },
-  { id: '2', name: 'Bruno Costa', role: 'Engineering' },
-  { id: '3', name: 'Chidi Okafor', role: 'Engineering' },
-  { id: '4', name: 'Dana Whitfield', role: 'Support' },
-  { id: '5', name: 'Emil Novak', role: 'Engineering' },
-  { id: '6', name: 'Farah Haddad', role: 'Product' },
-  { id: '7', name: 'Grete Lindqvist', role: 'Design' },
-  { id: '8', name: 'Hiro Tanaka', role: 'Engineering' },
-  { id: '9', name: 'Imani Njoroge', role: 'Product' },
-  { id: '10', name: 'Jonas Berg', role: 'Support' },
-  { id: '11', name: 'Katya Morozova', role: 'Engineering' },
-  { id: '12', name: 'Luca Moretti', role: 'Design' },
-  { id: '13', name: 'Maren Vogel', role: 'Product' },
-  { id: '14', name: 'Nadia Rahal', role: 'Engineering' },
-  { id: '15', name: 'Oskar Jensen', role: 'Support' },
+interface SearchResults {
+  groups: ResultGroup[];
+  total: number;
+  shown: number;
+}
+
+const EMPTY_RESULTS: SearchResults = { groups: [], total: 0, shown: 0 };
+
+const applications = [
+  'Calendar',
+  'Mail',
+  'Notes',
+  'Music',
+  'Photos',
+  'Terminal',
+  'Maps',
+  'Messages',
+  'Reminders',
+  'Weather',
+  'Calculator',
+  'Contacts',
+  'Books',
+  'Podcasts',
+  'News',
 ];
+
+const settingsPanes = [
+  'Wi-Fi',
+  'Bluetooth',
+  'Display',
+  'Sound',
+  'Keyboard',
+  'Trackpad',
+  'Battery',
+  'Storage',
+  'Network',
+  'Privacy',
+  'Notifications',
+  'Wallpaper',
+];
+
+// A generated index of 1,280 document names stands in for a server-side source.
+const documents: string[] = [];
+for (const team of [
+  'Sales',
+  'Marketing',
+  'Finance',
+  'Design',
+  'Platform',
+  'Support',
+  'Growth',
+  'Legal',
+]) {
+  for (const kind of [
+    'Report',
+    'Forecast',
+    'Roadmap',
+    'Notes',
+    'Summary',
+    'Review',
+    'Budget',
+    'Plan',
+  ]) {
+    for (const quarter of ['Q1', 'Q2', 'Q3', 'Q4']) {
+      for (const year of [2022, 2023, 2024, 2025, 2026]) {
+        documents.push(`${team} ${kind} ${quarter} ${year}`);
+      }
+    }
+  }
+}
+
+const sources: ResultGroup[] = [
+  { label: 'Applications', items: applications },
+  { label: 'Documents', items: documents },
+  { label: 'System Settings', items: settingsPanes },
+];
+
+const suggestedApplications = applications.slice(0, 8);
+const SUGGESTIONS: SearchResults = {
+  groups: [{ label: 'Suggestions', items: suggestedApplications }],
+  total: suggestedApplications.length,
+  shown: suggestedApplications.length,
+};
