@@ -640,7 +640,6 @@ describe('<Popover.Positioner />', () => {
         </Popover.Root>,
       );
 
-      // The popup is centered on the anchor, so the anchor's center maps to the popup's center.
       expect(getTransformOrigin()).toBe(`${popupWidth / 2}px 0px`);
     });
 
@@ -813,6 +812,52 @@ describe('<Popover.Positioner />', () => {
       expect(getTransformOrigin()).toBe('0% 0px');
     });
 
+    it('does not let the virtual arrow displace the popup on a narrow anchor', async () => {
+      await render(
+        <Popover.Root open>
+          <Trigger style={{ width: 2, height: 20, position: 'fixed', left: 50, top: 50 }}>
+            Trigger
+          </Trigger>
+          <Popover.Portal>
+            <Popover.Positioner data-testid="positioner" align="start" arrowPadding={20}>
+              <Popover.Popup style={popupStyle}>Popup</Popover.Popup>
+            </Popover.Positioner>
+          </Popover.Portal>
+        </Popover.Root>,
+      );
+
+      const trigger = screen.getByText('Trigger');
+      const positioner = screen.getByTestId('positioner');
+
+      // The arrow padding must not move a popup that has no arrow to keep off its corners.
+      expect(positioner.getBoundingClientRect().left).toBe(trigger.getBoundingClientRect().left);
+      expect(getTransformOrigin()).toBe('0% 0px');
+    });
+
+    it('points to the flipped edge when the alignment flips', async () => {
+      await render(
+        <Popover.Root open>
+          <Trigger style={{ ...triggerStyle, position: 'fixed', top: 50, right: 4 }}>
+            Trigger
+          </Trigger>
+          <Popover.Portal>
+            <Popover.Positioner
+              data-testid="positioner"
+              align="start"
+              collisionAvoidance={{ align: 'flip' }}
+            >
+              <Popover.Popup style={{ ...popupStyle, width: 240 }}>Popup</Popover.Popup>
+            </Popover.Positioner>
+          </Popover.Portal>
+        </Popover.Root>,
+      );
+
+      const positioner = screen.getByTestId('positioner');
+
+      expect(positioner.getAttribute('data-align')).toBe('end');
+      expect(getTransformOrigin()).toBe('100% 0px');
+    });
+
     it('keeps the popup start edge as the origin for a 1px cross-axis shift', async () => {
       await render(
         <Popover.Root open>
@@ -961,8 +1006,7 @@ describe('<Popover.Positioner />', () => {
         </Popover.Root>,
       );
 
-      // The arrow is centered against the anchor, whose center sits at half the anchor's
-      // width from the popup's left edge with start alignment.
+      // With start alignment the anchor's center sits half an anchor width into the popup.
       expect(getTransformOrigin()).toBe(`${anchorWidth / 2}px 0px`);
     });
 
@@ -985,8 +1029,6 @@ describe('<Popover.Positioner />', () => {
       const anchorRect = trigger.getBoundingClientRect();
       const positionerRect = positioner.getBoundingClientRect();
 
-      // The popup doesn't fit below the anchor, so it shifts up and overlaps it. The
-      // side-axis origin then points to the anchor's vertical center within the popup.
       expect(positionerRect.top).toBeLessThan(anchorRect.bottom);
       expect(getTransformOrigin()).toBe(
         `${popupWidth / 2}px ${anchorRect.y + anchorHeight / 2 - positionerRect.y}px`,

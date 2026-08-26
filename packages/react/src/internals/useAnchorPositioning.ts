@@ -373,7 +373,8 @@ export function useAnchorPositioningWithHook(
         // `transform-origin` calculations rely on an element existing. If the arrow hasn't been set,
         // we'll create a fake element.
         element: arrowRef.current || ownerDocument(state.elements.floating).createElement('div'),
-        padding: arrowPadding,
+        // No padding for the fake arrow: it would displace aligned popups on narrow anchors.
+        padding: arrowRef.current ? arrowPadding : 0,
         offsetParent: 'floating',
       }),
       [arrowPadding],
@@ -400,19 +401,17 @@ export function useAnchorPositioningWithHook(
             ? sideOffset(getOffsetData(state, sideParam, isRtl))
             : sideOffset;
 
-        // On the cross axis, the origin points to the arrow when present. Without an arrow,
-        // it points to the anchor's center for `center` alignment (tracked by a zero-size
-        // virtual arrow), or to the popup's aligned edge for unshifted `start`/`end` alignment.
-        // Shifted aligned placements fall through to the virtual arrow center because the popup
-        // edge no longer lines up with the anchor edge.
+        // An aligned arrowless popup grows from its aligned edge, until a shift (beyond subpixel)
+        // breaks its alignment with the anchor. Everything else grows from the arrow, real or fake.
         let crossOrigin: string;
         if (
           !arrowEl &&
           renderedAlign &&
           Math.abs(isVertical ? middlewareData.shift?.x || 0 : middlewareData.shift?.y || 0) <= 1
         ) {
+          // The platform direction, not `isRtl`: it must match what Floating UI placed with.
           crossOrigin =
-            (renderedAlign === 'start') === (isVertical && platform.isRTL!(floating))
+            (renderedAlign === 'start') === (isVertical && platform.isRTL?.(floating) === true)
               ? '100%'
               : '0%';
         } else {
@@ -423,9 +422,7 @@ export function useAnchorPositioningWithHook(
           crossOrigin = `${arrowOffset + arrowSize / 2}px`;
         }
 
-        // On the side axis, the origin sits on the anchor-facing edge, pushed out by the
-        // side offset. When the popup is shifted to overlap the anchor (e.g. context menus),
-        // it points to the anchor's center instead.
+        // Side axis: the anchor-facing edge, or the anchor's center when the popup overlaps it.
         let sideOrigin =
           renderedSide === 'top' || renderedSide === 'left'
             ? `calc(100% + ${sideOffsetValue}px)`
