@@ -45,6 +45,7 @@ export function FilterDropdownRoot(props: FilterDropdownRoot.Props): React.JSX.E
     inputProps = EMPTY_OBJECT,
     inputRef: externalFocusOwnerRef,
     onInputElementChange,
+    virtualized = false,
   } = props;
 
   const parentItemContext = React.useContext(FilterDropdownItemContext);
@@ -206,6 +207,7 @@ export function FilterDropdownRoot(props: FilterDropdownRoot.Props): React.JSX.E
       setInputElement,
       setListElement,
       hasInput,
+      virtualized,
       setActiveIndex,
       onItemsChange,
       onValueChange: handleValueChange,
@@ -226,6 +228,7 @@ export function FilterDropdownRoot(props: FilterDropdownRoot.Props): React.JSX.E
       setInputElement,
       setListElement,
       hasInput,
+      virtualized,
       setActiveIndex,
       onItemsChange,
       handleValueChange,
@@ -334,6 +337,11 @@ export interface FilterDropdownRootProps {
    * Reports whether an input is currently registered.
    */
   onInputElementChange?: ((hasInput: boolean) => void) | undefined;
+  /**
+   * Whether the host's items are windowed by an external virtualizer, so a changed rendered set
+   * does not invalidate the positional highlight.
+   */
+  virtualized?: boolean | undefined;
 }
 
 export namespace FilterDropdownRoot {

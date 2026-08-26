@@ -1,9 +1,11 @@
 'use client';
 import * as React from 'react';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { FilterDropdownRoot } from '../../filter-dropdown/root/FilterDropdownRoot';
 import type { FilterDropdownFilter } from '../../filter-dropdown/root/FilterDropdownRootContext';
 import { useMenuRootContext } from '../../menu/root/MenuRootContext';
+import { createGenericEventDetails } from '../../internals/createBaseUIEventDetails';
 import type { HTMLProps } from '../../internals/types';
 import type { FilterMenuRoot } from '../root/FilterMenuRoot';
 
@@ -17,9 +19,13 @@ export interface FilterMenuProviderProps {
   locale: Intl.LocalesArgument | undefined;
   inline?: boolean | undefined;
   grid?: boolean | undefined;
+  virtualized?: boolean | undefined;
   inputProps: HTMLProps;
   onValueChange: (value: string, details: FilterMenuRoot.InputValueChangeEventDetails) => void;
   onInputElementChange: (hasInput: boolean) => void;
+  onItemHighlighted?:
+    | ((index: number | null, eventDetails: FilterMenuRoot.HighlightEventDetails) => void)
+    | undefined;
   children?: React.ReactNode;
 }
 
@@ -35,14 +41,34 @@ export function FilterMenuProvider(props: FilterMenuProviderProps) {
   const disabled = store.useState('disabled');
 
   const setActiveIndex = useStableCallback((index: number | null) => {
+    store.context.highlightReason = 'none';
     store.set('activeIndex', index);
   });
+
+  const onItemHighlighted = useStableCallback(
+    (index: number | null, eventDetails: FilterMenuRoot.HighlightEventDetails) => {
+      props.onItemHighlighted?.(index, eventDetails);
+    },
+  );
+  const previousActiveIndexRef = React.useRef<number | null>(null);
+  useIsoLayoutEffect(() => {
+    if (previousActiveIndexRef.current === activeIndex) {
+      return;
+    }
+    previousActiveIndexRef.current = activeIndex;
+    // The tag left by the write that produced this committed value; untagged writers mean a
+    // programmatic move.
+    const reason = store.context.highlightReason;
+    store.context.highlightReason = 'none';
+    onItemHighlighted(activeIndex, createGenericEventDetails(reason));
+  }, [activeIndex, store, onItemHighlighted]);
 
   return (
     <FilterDropdownRoot
       open={props.open}
       inline={props.inline}
       grid={props.grid}
+      virtualized={props.virtualized}
       disabled={disabled}
       inputFocusVisible={props.inputFocusVisible}
       value={props.value}
