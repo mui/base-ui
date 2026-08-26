@@ -6,6 +6,7 @@ import type { InteractionType } from '@base-ui/utils/useEnhancedClickHandler';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { EMPTY_OBJECT } from '@base-ui/utils/empty';
+import { inertValue } from '@base-ui/utils/inertValue';
 import { FloatingFocusManager } from '../../floating-ui-react';
 import { useDialogRootContext } from '../../dialog/root/DialogRootContext';
 import { useRenderElement } from '../../internals/useRenderElement';
@@ -365,6 +366,10 @@ export const DrawerPopup = React.forwardRef(function DrawerPopup(
         role,
         ...FOCUSABLE_POPUP_PROPS,
         hidden: !mounted,
+        // Drawers have no Positioner, so the popup carries `inert` itself. Scoped to `!swiping`
+        // because the swipe handlers live on the Viewport inside this element:
+        // going inert mid-gesture would kill the dismissal the user is still performing.
+        inert: inertValue(!open && !swiping),
         onKeyDown(event: React.KeyboardEvent) {
           if (COMPOSITE_KEYS.has(event.key)) {
             event.stopPropagation();

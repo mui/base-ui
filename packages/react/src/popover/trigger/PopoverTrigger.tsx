@@ -153,7 +153,10 @@ export const PopoverTrigger = fastComponentRef(function PopoverTrigger(
   // regardless of whether the focus guards are rendered or not.
   const keyedElement = <React.Fragment key={thisTriggerId}>{element}</React.Fragment>;
 
-  if (isMountedByThisTrigger && !focusManagerModal) {
+  // Gated on `isOpenedByThisTrigger`, matching `Menu.Trigger`. `isMountedByThisTrigger` stays
+  // true through the exit animation, which would leave `aria-hidden` guards in the tab order of a
+  // popover that is already logically closed.
+  if (isOpenedByThisTrigger && !focusManagerModal) {
     return (
       <React.Fragment>
         <FocusGuard ref={preFocusGuardRef} onFocus={handlePreFocusGuardFocus} />

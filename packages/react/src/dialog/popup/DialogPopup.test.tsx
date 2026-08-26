@@ -996,4 +996,62 @@ describe('<Dialog.Popup />', () => {
       expect(nestedDialog).not.toHaveAttribute('data-nested-dialog-open');
     });
   });
+
+  // Dialog has no Positioner, so `inert` goes on the Popup itself and the focus manager's own
+  // guards are rendered as its siblings — outside that inert subtree. Gating the guards on `open`
+  // is therefore the only thing keeping them out of the tab order while a Dialog animates out.
+  it.skipIf(isJSDOM)(
+    'renders no tabbable focus guards while closing',
+    async ({ onTestFinished }) => {
+      globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+      onTestFinished(() => {
+        globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
+      });
+
+      const style = `
+      @keyframes dialog-close-test {
+        to {
+          opacity: 0;
+        }
+      }
+
+      .closing-test-dialog[data-ending-style] {
+        animation: dialog-close-test 5s linear;
+      }
+    `;
+
+      const { user } = await render(
+        <React.Fragment>
+          {/* eslint-disable-next-line react/no-danger */}
+          <style dangerouslySetInnerHTML={{ __html: style }} />
+          <Dialog.Root>
+            <Dialog.Trigger>Open</Dialog.Trigger>
+            <Dialog.Portal>
+              <Dialog.Popup data-testid="popup" className="closing-test-dialog">
+                <Dialog.Close>Close</Dialog.Close>
+              </Dialog.Popup>
+            </Dialog.Portal>
+          </Dialog.Root>
+        </React.Fragment>,
+      );
+
+      await user.click(screen.getByRole('button', { name: 'Open' }));
+      const popup = screen.getByTestId('popup');
+
+      const openGuards = document.querySelectorAll('[data-base-ui-focus-guard]');
+      expect(openGuards.length).toBeGreaterThan(0);
+
+      await user.click(screen.getByRole('button', { name: 'Close' }));
+      await waitFor(() => expect(popup).toHaveAttribute('data-ending-style'));
+
+      const reachableGuards = (
+        Array.from(document.querySelectorAll('[data-base-ui-focus-guard]')) as HTMLElement[]
+      ).filter((guard) => guard.tabIndex >= 0 && guard.closest('[inert]') === null);
+      expect(reachableGuards).toHaveLength(0);
+
+      await act(async () => {
+        popup.getAnimations().forEach((animation) => animation.finish());
+      });
+    },
+  );
 });

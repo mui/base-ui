@@ -1,6 +1,7 @@
 'use client';
 import * as React from 'react';
 import { InteractionType } from '@base-ui/utils/useEnhancedClickHandler';
+import { inertValue } from '@base-ui/utils/inertValue';
 import { FloatingFocusManager } from '../../floating-ui-react';
 import { useDialogRootContext } from '../root/DialogRootContext';
 import { useRenderElement } from '../../internals/useRenderElement';
@@ -86,6 +87,9 @@ export const DialogPopup = React.forwardRef(function DialogPopup(
         style: {
           '--nested-dialogs': nestedOpenDialogCount,
         } as React.CSSProperties,
+        // Dialogs have no Positioner, so the popup itself carries `inert` while it is logically
+        // closed but still mounted for its exit animation.
+        inert: inertValue(!open),
       },
       elementProps,
     ],

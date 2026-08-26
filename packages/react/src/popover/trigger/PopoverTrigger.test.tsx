@@ -519,4 +519,230 @@ describe('<Popover.Trigger />', () => {
       }
     },
   );
+
+  it.skipIf(isJSDOM)(
+    'moves focus before the trigger when tabbing backwards out of an open popover',
+    async () => {
+      const { userEvent: browserUserEvent } = await import('vitest/browser');
+
+      await render(
+        <div>
+          <button data-testid="before">before</button>
+          <Popover.Root>
+            <Popover.Trigger openOnHover delay={0}>
+              Open
+            </Popover.Trigger>
+            <Popover.Portal>
+              <Popover.Positioner>
+                <Popover.Popup>
+                  <button type="button">Inside</button>
+                </Popover.Popup>
+              </Popover.Positioner>
+            </Popover.Portal>
+          </Popover.Root>
+          <button data-testid="after">after</button>
+        </div>,
+      );
+
+      const trigger = screen.getByRole('button', { name: 'Open' });
+      const before = screen.getByTestId('before');
+
+      // Hover-opening leaves focus on the trigger, which is what makes the pre-trigger focus
+      // guard reachable by a backwards Tab.
+      await act(async () => trigger.focus());
+      enterWithMouse(trigger);
+
+      await waitFor(() => expect(screen.queryByRole('dialog')).not.toBe(null));
+      expect(trigger).toHaveFocus();
+
+      const focusedGuards: Element[] = [];
+      const recordGuard = (event: FocusEvent) => {
+        const target = event.target as HTMLElement;
+        if (target.hasAttribute?.('data-base-ui-focus-guard')) {
+          focusedGuards.push(target);
+        }
+      };
+      document.addEventListener('focusin', recordGuard, true);
+
+      try {
+        // The pre-trigger guard's handler closes the popover, which unmounts that guard inside the
+        // same `flushSync`. The destination must have been resolved before the close, otherwise
+        // focus is stranded on the removed guard.
+        await act(async () => {
+          await browserUserEvent.tab({ shift: true });
+        });
+
+        await waitFor(() => expect(before).toHaveFocus());
+      } finally {
+        document.removeEventListener('focusin', recordGuard, true);
+      }
+
+      // A guard is traversed on the way out, but focus must never come to rest on one.
+      expect(focusedGuards.length).toBeGreaterThan(0);
+      expect(
+        (document.activeElement as HTMLElement | null)?.hasAttribute('data-base-ui-focus-guard') ??
+          false,
+      ).toBe(false);
+    },
+  );
+
+  describe.skipIf(isJSDOM)('sequential focus navigation while closing', () => {
+    beforeEach(() => {
+      globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+    });
+
+    afterEach(() => {
+      finishClosingAnimation();
+      globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
+    });
+
+    // A deliberately long exit animation holds the popup mounted-but-closed for the whole
+    // sequence. Without it the window this guards against is ~0ms and the test proves nothing.
+    const closingStyle = `
+      @keyframes popover-trigger-close-test {
+        to {
+          opacity: 0;
+        }
+      }
+
+      .closing-test-popup[data-ending-style] {
+        animation: popover-trigger-close-test 5s linear;
+      }
+    `;
+
+    function TabApp() {
+      return (
+        <div>
+          {/* eslint-disable-next-line react/no-danger */}
+          <style dangerouslySetInnerHTML={{ __html: closingStyle }} />
+          <button data-testid="before">before</button>
+          <Popover.Root>
+            <Popover.Trigger>Open</Popover.Trigger>
+            <Popover.Portal>
+              <Popover.Positioner>
+                <Popover.Popup data-testid="popup" className="closing-test-popup">
+                  <button data-testid="inside">Inside</button>
+                </Popover.Popup>
+              </Popover.Positioner>
+            </Popover.Portal>
+          </Popover.Root>
+          <button data-testid="after">after</button>
+        </div>
+      );
+    }
+
+    function finishClosingAnimation() {
+      screen
+        .queryAllByTestId('popup')
+        .forEach((popup) => popup.getAnimations().forEach((animation) => animation.finish()));
+    }
+
+    /** Records every element that receives focus during the sequence, so the test can assert on
+     * where focus went, not only where it ended up. */
+    function recordFocus() {
+      const seen: HTMLElement[] = [];
+      const handler = (event: FocusEvent) => seen.push(event.target as HTMLElement);
+      document.addEventListener('focusin', handler, true);
+      return {
+        seen,
+        reset: () => {
+          seen.length = 0;
+        },
+        stop: () => document.removeEventListener('focusin', handler, true),
+      };
+    }
+
+    /** Focus guards are `aria-hidden` and `tabindex=0`. While the popup is logically closed none
+     * may remain reachable by sequential focus navigation — that is the `aria-hidden-focus`
+     * violation in mui/base-ui#5519. Guards inside an `inert` subtree are already excluded. */
+    function expectNoTabbableGuards() {
+      const reachable = (
+        Array.from(document.querySelectorAll('[data-base-ui-focus-guard]')) as HTMLElement[]
+      ).filter((guard) => guard.tabIndex >= 0 && guard.closest('[inert]') === null);
+      expect(reachable).toHaveLength(0);
+    }
+
+    function assertNoGuardRetainedFocus(seen: HTMLElement[]) {
+      const active = document.activeElement as HTMLElement | null;
+      expect(active?.hasAttribute('data-base-ui-focus-guard') ?? false).toBe(false);
+      expect(active).not.toBe(document.body);
+      // Sequential navigation must never walk back into the popup that is animating out — this is
+      // what the recording is for, since focus could enter and leave again before the end state.
+      const popup = screen.queryByTestId('popup');
+      expect(seen.filter((el) => popup !== null && popup.contains(el))).toHaveLength(0);
+    }
+
+    it('tabs out of an open popover and back with Shift+Tab', async () => {
+      const { userEvent: browserUserEvent } = await import('vitest/browser');
+      await render(<TabApp />);
+
+      const trigger = screen.getByRole('button', { name: 'Open' });
+      await act(async () => trigger.focus());
+      fireEvent.click(trigger);
+      await waitFor(() => expect(screen.queryByRole('dialog')).not.toBe(null));
+
+      const recorder = recordFocus();
+      try {
+        // Tab forward until focus leaves the popup, which closes it.
+        await act(async () => {
+          await browserUserEvent.tab();
+        });
+        await act(async () => {
+          await browserUserEvent.tab();
+        });
+        // Logically closed, still mounted for the exit animation: this is the window where a
+        // stale `aria-hidden` guard would still be in the tab order.
+        await waitFor(() =>
+          expect(screen.getByTestId('popup')).toHaveAttribute('data-ending-style'),
+        );
+
+        expectNoTabbableGuards();
+        // Only post-close navigation is interesting; focus was legitimately inside while open.
+        recorder.reset();
+
+        // Coming back must reach a real control, not a guard and not the body.
+        await act(async () => {
+          await browserUserEvent.tab({ shift: true });
+        });
+
+        assertNoGuardRetainedFocus(recorder.seen);
+      } finally {
+        recorder.stop();
+      }
+    });
+
+    it('shift-tabs out of an open popover and back with Tab', async () => {
+      const { userEvent: browserUserEvent } = await import('vitest/browser');
+      await render(<TabApp />);
+
+      const trigger = screen.getByRole('button', { name: 'Open' });
+      await act(async () => trigger.focus());
+      fireEvent.click(trigger);
+      await waitFor(() => expect(screen.queryByRole('dialog')).not.toBe(null));
+
+      const recorder = recordFocus();
+      try {
+        await act(async () => {
+          await browserUserEvent.tab({ shift: true });
+        });
+        await act(async () => {
+          await browserUserEvent.tab({ shift: true });
+        });
+        await waitFor(() =>
+          expect(screen.getByTestId('popup')).toHaveAttribute('data-ending-style'),
+        );
+
+        expectNoTabbableGuards();
+        recorder.reset();
+
+        await act(async () => {
+          await browserUserEvent.tab();
+        });
+
+        assertNoGuardRetainedFocus(recorder.seen);
+      } finally {
+        recorder.stop();
+      }
+    });
+  });
 });

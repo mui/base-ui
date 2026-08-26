@@ -143,6 +143,7 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
     refs: [forwardedRef, setPositionerElement],
     hidden: !mounted,
     inert: !open,
+    closed: !open,
   });
 
   const prevMapSizeRef = React.useRef(0);
