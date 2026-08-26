@@ -574,7 +574,12 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
     triggerOrientation: virtualFocus ? 'vertical' : orientation,
     rtl: direction === 'rtl',
     disabledIndices: EMPTY_ARRAY,
-    onNavigate(nextActiveIndex) {
+    onNavigate(nextActiveIndex, event) {
+      if (event == null) {
+        store.context.highlightReason = 'none';
+      } else {
+        store.context.highlightReason = event.type.startsWith('key') ? 'keyboard' : 'pointer';
+      }
       store.set('activeIndex', nextActiveIndex);
     },
     // A virtual-focus submenu's keyboard opening is orchestrated by its navigation wrapper based
@@ -603,6 +608,7 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
     resetMs: TYPEAHEAD_RESET_MS,
     onMatch: (index) => {
       if (open && index !== activeIndex) {
+        store.context.highlightReason = 'keyboard';
         store.set('activeIndex', index);
       }
     },

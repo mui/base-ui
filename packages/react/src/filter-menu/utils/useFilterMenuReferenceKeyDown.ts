@@ -60,6 +60,7 @@ export function useFilterMenuReferenceKeyDown() {
         listRef.current.length - 1,
       );
       if (nextIndex !== undefined) {
+        menuStore.context.highlightReason = 'keyboard';
         menuStore.set('activeIndex', nextIndex);
       }
       return;

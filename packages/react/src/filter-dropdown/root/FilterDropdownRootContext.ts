@@ -38,6 +38,8 @@ export interface FilterDropdownRootContext {
   setInputElement: (element: HTMLInputElement | null) => void;
   setListElement: (element: HTMLDivElement | null) => void;
   hasInput: boolean;
+  /** Whether the host's items are windowed by an external virtualizer. */
+  virtualized: boolean;
   setActiveIndex: (index: number | null) => void;
   onItemsChange: (hasItems: boolean) => void;
   onValueChange: (value: string, eventDetails: FilterDropdownRoot.ChangeEventDetails) => void;

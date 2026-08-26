@@ -23,6 +23,7 @@ export const MenuItem = React.forwardRef(function MenuItem(
     className,
     id: idProp,
     label,
+    index: indexProp,
     nativeButton = false,
     disabled: disabledProp = false,
     closeOnClick = true,
@@ -30,7 +31,7 @@ export const MenuItem = React.forwardRef(function MenuItem(
     ...elementProps
   } = componentProps;
 
-  const listItem = useCompositeListItem({ guess: true, label });
+  const listItem = useCompositeListItem({ guess: true, label, index: indexProp });
   const menuPositionerContext = useMenuPositionerContext(true);
   const { store, floatingId, virtualFocus, webkitItemSelected } = useMenuRootContext();
   const id = getMenuItemId(idProp, floatingId, listItem.index);
@@ -91,6 +92,11 @@ export interface MenuItemProps
    * Overrides the text label to use when the item is matched during keyboard text navigation.
    */
   label?: string | undefined;
+  /**
+   * The index of the item in the list. Improves performance when specified by avoiding the need to calculate the index automatically from the DOM.
+   * Required when the list is windowed by an external virtualizer, so partial rendering keeps every item's real position.
+   */
+  index?: number | undefined;
   /**
    * @ignore
    */

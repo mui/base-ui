@@ -31,7 +31,8 @@ export const FilterMenuList = React.forwardRef(function FilterMenuList(
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const { store: menuStore } = useMenuRootContext();
-  const { inline, onItemsChange, hasInput, focusOwnerRef } = useFilterDropdownRootContext();
+  const { inline, onItemsChange, hasInput, focusOwnerRef, virtualized } =
+    useFilterDropdownRootContext();
   const { grid, store: filterStore } = useFilterDropdownItemContext();
   const { subscribeMapChange } = useCompositeListContext();
   const handleReferenceKeyDown = useFilterMenuReferenceKeyDown();
@@ -64,10 +65,13 @@ export const FilterMenuList = React.forwardRef(function FilterMenuList(
   // empty initial value would also skip the list repopulating after a query matched nothing.
   const hasPublishedItemsRef = React.useRef(false);
 
-  const handleItemMapChange = useStableCallback((map: Map<Element, unknown>) => {
+  const handleItemMapChange = useStableCallback((map: Map<Element, { index: number }>) => {
     const items = Array.from(map.keys());
     const previousItems = previousItemsRef.current;
+    // A virtualized window remounts items while scrolling; the consumer owns the item set, so a
+    // window shift must not invalidate the positional highlight.
     const itemsChanged =
+      !virtualized &&
       hasPublishedItemsRef.current &&
       (previousItems.length !== items.length ||
         items.some((item, index) => item !== previousItems[index]));
@@ -82,14 +86,20 @@ export const FilterMenuList = React.forwardRef(function FilterMenuList(
         // inserted, removed, or reordered.
         onItemsChange(items.length > 0);
       }
-      const nextIds = items.map((item) => item.id);
+      // Store each id at the item's list index: a windowed list registers a sparse subset, and
+      // `activeItemId` reads `itemIds[activeIndex]`, so positions must stay absolute.
+      const nextIds: (string | undefined)[] = [];
+      map.forEach((metadata, element) => {
+        nextIds[metadata.index] = element.id;
+      });
       const currentIds = filterStore.state.itemIds;
       // A fresh array always fails the store's identity check, and every item, group, and the
       // input subscribe to it. Filtering rarely changes the ids themselves, so compare first.
-      if (
-        currentIds.length !== nextIds.length ||
-        nextIds.some((id, index) => id !== currentIds[index])
-      ) {
+      let idsChanged = currentIds.length !== nextIds.length;
+      for (let i = 0; !idsChanged && i < nextIds.length; i += 1) {
+        idsChanged = nextIds[i] !== currentIds[i];
+      }
+      if (idsChanged) {
         filterStore.set('itemIds', nextIds);
       }
     });
