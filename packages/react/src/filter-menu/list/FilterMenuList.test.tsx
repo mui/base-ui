@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { screen, waitFor } from '@mui/internal-test-utils';
+import { act, fireEvent, screen, waitFor } from '@mui/internal-test-utils';
 import { expect, vi } from 'vitest';
 import { createRenderer, resetBrowserPointer } from '#test-utils';
 import { FilterMenu } from '@base-ui/react/filter-menu';
@@ -76,6 +76,113 @@ describe('<FilterMenu.List />', () => {
       expect(input).toHaveAttribute('aria-activedescendant', apple.id);
     });
     expect(input).toHaveFocus();
+  });
+
+  describe('keys on a focused list', () => {
+    function App(props: { onPress?: (() => void) | undefined }) {
+      return (
+        <FilterMenu.Root defaultOpen>
+          <FilterMenu.Trigger>Fruit</FilterMenu.Trigger>
+          <FilterMenu.Portal>
+            <FilterMenu.Positioner>
+              <FilterMenu.Popup>
+                <FilterMenu.Input aria-label="Filter fruit" />
+                <FilterMenu.List data-testid="list">
+                  <FilterMenu.Item onClick={props.onPress}>Apple</FilterMenu.Item>
+                  <FilterMenu.Item>Banana</FilterMenu.Item>
+                </FilterMenu.List>
+              </FilterMenu.Popup>
+            </FilterMenu.Positioner>
+          </FilterMenu.Portal>
+        </FilterMenu.Root>
+      );
+    }
+
+    it('replays navigation keys on the input instead of scrolling', async () => {
+      await render(<App />);
+
+      const input = screen.getByRole('searchbox', { name: 'Filter fruit' });
+      const list = screen.getByTestId('list');
+      const apple = screen.getByRole('menuitem', { name: 'Apple' });
+
+      await waitFor(() => {
+        expect(input).toHaveFocus();
+      });
+      await act(async () => {
+        list.focus();
+      });
+      expect(list).toHaveFocus();
+
+      const scrolls = fireEvent.keyDown(list, { key: 'ArrowDown' });
+
+      expect(scrolls).toBe(false);
+      await waitFor(() => {
+        expect(input).toHaveAttribute('aria-activedescendant', apple.id);
+      });
+      expect(input).toHaveFocus();
+    });
+
+    it('commits the highlighted item when Enter lands on the list', async () => {
+      const onPress = vi.fn();
+      const { user } = await render(<App onPress={onPress} />);
+
+      const input = screen.getByRole('searchbox', { name: 'Filter fruit' });
+      const list = screen.getByTestId('list');
+      const apple = screen.getByRole('menuitem', { name: 'Apple' });
+
+      await waitFor(() => {
+        expect(input).toHaveFocus();
+      });
+      await user.keyboard('[ArrowDown]');
+      await waitFor(() => {
+        expect(input).toHaveAttribute('aria-activedescendant', apple.id);
+      });
+
+      await act(async () => {
+        list.focus();
+      });
+      fireEvent.keyDown(list, { key: 'Enter' });
+
+      expect(onPress).toHaveBeenCalledTimes(1);
+    });
+
+    it('still closes the menu with Escape', async () => {
+      await render(<App />);
+
+      const list = screen.getByTestId('list');
+
+      await waitFor(() => {
+        expect(screen.getByRole('searchbox', { name: 'Filter fruit' })).toHaveFocus();
+      });
+      await act(async () => {
+        list.focus();
+      });
+      fireEvent.keyDown(list, { key: 'Escape' });
+
+      await waitFor(() => {
+        expect(screen.queryByRole('dialog')).toBe(null);
+      });
+    });
+
+    it('hands typing keys back to the input', async () => {
+      await render(<App />);
+
+      const input = screen.getByRole('searchbox', { name: 'Filter fruit' });
+      const list = screen.getByTestId('list');
+
+      await waitFor(() => {
+        expect(input).toHaveFocus();
+      });
+      await act(async () => {
+        list.focus();
+      });
+
+      const types = fireEvent.keyDown(list, { key: 'z' });
+
+      // Not canceled, so the native default action types into the refocused input.
+      expect(types).toBe(true);
+      expect(input).toHaveFocus();
+    });
   });
 
   it('ignores Escape and outside clicks when rendered inline', async () => {
