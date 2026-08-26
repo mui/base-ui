@@ -41,7 +41,7 @@ export function useNumberFieldStepperButton(
   } = componentProps;
 
   const {
-    allowInputSyncRef,
+    isTextUserAuthored,
     formatOptionsRef,
     getStepAmount,
     id,
@@ -67,8 +67,9 @@ export function useNumberFieldStepperButton(
     : REASONS.decrementPress;
 
   function commitValue(nativeEvent: MouseEvent) {
-    const shouldCommitInputValue = !allowInputSyncRef.current;
-    allowInputSyncRef.current = true;
+    // The step that follows reconciles the text itself, so this only has to decide whether typed
+    // text needs flushing into the value first.
+    const shouldCommitInputValue = isTextUserAuthored();
 
     if (!shouldCommitInputValue) {
       // The input is already synced, so step from the authoritative numeric value rather than

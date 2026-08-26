@@ -65,10 +65,31 @@ const handleNumberFieldCommit: NumberFieldCommitHandler = (value, details) => {
   assertNumberFieldCommit(details);
 };
 
+type NumberFieldInputValueHandler = NonNullable<NumberField.Root.Props['onInputValueChange']>;
+
+const handleNumberFieldInputValueChange: NumberFieldInputValueHandler = (inputValue, details) => {
+  expectType<string, typeof inputValue>(inputValue);
+  assertNumberFieldChange(details);
+};
+
 const numberFieldEventNarrowing = (
   <NumberField.Root
     defaultValue={0}
     onValueChange={handleNumberFieldChange}
     onValueCommitted={handleNumberFieldCommit}
+    onInputValueChange={handleNumberFieldInputValueChange}
   />
+);
+
+const numberFieldControlledInputValue = (
+  <NumberField.Root
+    value={null}
+    inputValue="-"
+    onValueChange={handleNumberFieldChange}
+    onInputValueChange={handleNumberFieldInputValueChange}
+  />
+);
+
+const numberFieldUncontrolledInputValue = (
+  <NumberField.Root defaultValue={0} defaultInputValue="0" />
 );

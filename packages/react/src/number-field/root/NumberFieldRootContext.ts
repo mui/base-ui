@@ -1,7 +1,12 @@
 'use client';
 import * as React from 'react';
 import type { NumberFieldRoot, NumberFieldRootState } from './NumberFieldRoot';
-import type { EventWithOptionalKeyState, IncrementValueParameters } from '../utils/types';
+import type {
+  EventWithOptionalKeyState,
+  IncrementValueParameters,
+  SetValueOptions,
+  TextSource,
+} from '../utils/types';
 
 export type InputMode = 'numeric' | 'decimal' | 'text';
 
@@ -9,11 +14,26 @@ export interface NumberFieldRootContext {
   minWithDefault: number;
   maxWithDefault: number;
   id: string | undefined;
-  setValue: (value: number | null, details: NumberFieldRoot.ChangeEventDetails) => boolean;
+  setValue: (
+    value: number | null,
+    details: NumberFieldRoot.ChangeEventDetails,
+    options?: SetValueOptions,
+  ) => boolean;
   getStepAmount: (event?: EventWithOptionalKeyState) => number;
   incrementValue: (amount: number, params: IncrementValueParameters) => boolean;
   inputRef: React.RefObject<HTMLInputElement | null>;
-  allowInputSyncRef: React.RefObject<boolean | null>;
+  /**
+   * Whether the text in the input was authored by the user rather than derived from `value`.
+   * Read-only: authorship changes only as a side effect of `setInputValue` landing a write.
+   */
+  isTextUserAuthored: () => boolean;
+  /**
+   * Hands the text back to `value` without touching what's on screen, given the text the field
+   * would have shown. Call it when an interaction that meant to reconcile the text was refused, so
+   * the edit survives but the field still re-derives its text on the next `value`, `locale`, or
+   * `format` change.
+   */
+  releaseTextOwnership: (derivedText: string) => void;
   formatOptionsRef: React.RefObject<Intl.NumberFormatOptions | undefined>;
   valueRef: React.RefObject<number | null>;
   lastChangedValueRef: React.RefObject<number | null>;
@@ -24,7 +44,11 @@ export interface NumberFieldRootContext {
   getAllowedNonNumericKeys: () => Set<string>;
   min: number | undefined;
   max: number | undefined;
-  setInputValue: React.Dispatch<React.SetStateAction<string>>;
+  setInputValue: (
+    value: string,
+    details: NumberFieldRoot.ChangeEventDetails,
+    source: TextSource,
+  ) => void;
   locale: Intl.LocalesArgument;
   setIsScrubbing: React.Dispatch<React.SetStateAction<boolean>>;
   state: NumberFieldRootState;

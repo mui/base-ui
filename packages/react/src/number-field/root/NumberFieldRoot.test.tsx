@@ -167,7 +167,756 @@ describe('<NumberField />', () => {
     expect(form.checkValidity()).toBe(true);
   });
 
+  describe('prop: inputValue', () => {
+    it('should render the raw text it is given', async () => {
+      await render(<NumberField inputValue="1,234" onInputValueChange={() => {}} />);
+      expect(screen.getByRole('textbox')).toHaveValue('1,234');
+    });
+
+    it('should hold an intermediate string that no number formats to', async () => {
+      const { rerender } = await render(
+        <NumberField min={-10} inputValue="" onInputValueChange={() => {}} />,
+      );
+      const input = screen.getByRole('textbox');
+
+      await rerender(<NumberField min={-10} inputValue="-" onInputValueChange={() => {}} />);
+      expect(input).toHaveValue('-');
+
+      await rerender(<NumberField min={-10} inputValue="." onInputValueChange={() => {}} />);
+      expect(input).toHaveValue('.');
+    });
+
+    it('should not ask a controlled input to drop an intermediate string it is holding', async () => {
+      function App() {
+        const [text, setText] = React.useState('');
+        return (
+          <React.Fragment>
+            <NumberField min={-10} inputValue={text} onInputValueChange={setText} />
+            <button onClick={() => setText('-')}>set minus</button>
+            <button onClick={() => setText('.')}>set dot</button>
+          </React.Fragment>
+        );
+      }
+
+      await render(<App />);
+      const input = screen.getByRole('textbox');
+
+      // Mirroring `onInputValueChange` straight back into `inputValue` must not fight the
+      // component's own formatting sync, which would immediately reset the text.
+      fireEvent.click(screen.getByRole('button', { name: 'set minus' }));
+      expect(input).toHaveValue('-');
+
+      fireEvent.click(screen.getByRole('button', { name: 'set dot' }));
+      expect(input).toHaveValue('.');
+    });
+
+    it('should let typing continue from a programmatically set intermediate string', async () => {
+      const onValueChange = vi.fn();
+
+      function App() {
+        const [text, setText] = React.useState('');
+        return (
+          <React.Fragment>
+            <NumberField
+              min={-10}
+              inputValue={text}
+              onInputValueChange={setText}
+              onValueChange={onValueChange}
+            />
+            <button onClick={() => setText('-')}>set minus</button>
+          </React.Fragment>
+        );
+      }
+
+      await render(<App />);
+      const input = screen.getByRole('textbox');
+
+      fireEvent.click(screen.getByRole('button', { name: 'set minus' }));
+      expect(onValueChange).not.toHaveBeenCalled();
+
+      fireEvent.change(input, { target: { value: '-5' } });
+      expect(input).toHaveValue('-5');
+      expect(onValueChange).toHaveBeenCalledTimes(1);
+      expect(onValueChange.mock.calls[0][0]).toBe(-5);
+    });
+
+    it('should not repeatedly notify when the callback is ignored', async () => {
+      const onInputValueChange = vi.fn();
+
+      function App() {
+        const [, forceRerender] = React.useReducer((count) => count + 1, 0);
+        return (
+          <React.Fragment>
+            <NumberField min={-10} inputValue="-" onInputValueChange={onInputValueChange} />
+            <button onClick={forceRerender}>rerender</button>
+          </React.Fragment>
+        );
+      }
+
+      await render(<App />);
+
+      fireEvent.click(screen.getByRole('button', { name: 'rerender' }));
+      fireEvent.click(screen.getByRole('button', { name: 'rerender' }));
+
+      expect(onInputValueChange).not.toHaveBeenCalled();
+    });
+
+    it('should still report typing after a declined proposal for the same string', async () => {
+      const onInputValueChange = vi.fn();
+
+      function App({ value }: { value: number }) {
+        const [text, setText] = React.useState('1');
+        return (
+          <NumberField
+            value={value}
+            inputValue={text}
+            onInputValueChange={(next, eventDetails) => {
+              onInputValueChange(next, eventDetails);
+              // The documented "keep your own text" pattern: decline the formatting proposals
+              // the component derives from `value`.
+              if (eventDetails.reason === REASONS.none) {
+                return;
+              }
+              setText(next);
+            }}
+          />
+        );
+      }
+
+      const { rerender } = await render(<App value={1} />);
+      const input = screen.getByRole('textbox');
+
+      // Declined: the component proposes '5' but the owner keeps '1'.
+      await rerender(<App value={5} />);
+      expect(input).toHaveValue('1');
+      onInputValueChange.mockClear();
+
+      // Typing that same string is a real change and must be reported.
+      fireEvent.change(input, { target: { value: '5' } });
+
+      expect(onInputValueChange).toHaveBeenCalledTimes(1);
+      expect(onInputValueChange.mock.calls[0][0]).toBe('5');
+      expect(onInputValueChange.mock.calls[0][1].reason).toBe(REASONS.inputChange);
+      expect(input).toHaveValue('5');
+    });
+
+    it('should stay in sync when the numeric value changes externally', async () => {
+      const onInputValueChange = vi.fn();
+      const { rerender } = await render(
+        <NumberField value={1} onInputValueChange={onInputValueChange} />,
+      );
+      const input = screen.getByRole('textbox');
+
+      await rerender(<NumberField value={2} onInputValueChange={onInputValueChange} />);
+
+      expect(input).toHaveValue('2');
+      expect(onInputValueChange).toHaveBeenCalledTimes(1);
+      expect(onInputValueChange.mock.calls[0][0]).toBe('2');
+      expect(onInputValueChange.mock.calls[0][1].reason).toBe(REASONS.none);
+    });
+
+    it('should re-format the text when the locale changes externally', async () => {
+      const onInputValueChange = vi.fn();
+      const { rerender } = await render(
+        <NumberField value={1234} locale="en-US" onInputValueChange={onInputValueChange} />,
+      );
+      const input = screen.getByRole('textbox');
+      expect(input).toHaveValue('1,234');
+
+      await rerender(
+        <NumberField value={1234} locale="de-DE" onInputValueChange={onInputValueChange} />,
+      );
+
+      expect(input).toHaveValue('1.234');
+      expect(onInputValueChange).toHaveBeenCalledTimes(1);
+      expect(onInputValueChange.mock.calls[0][1].reason).toBe(REASONS.none);
+    });
+
+    it('should re-derive the text when a controlled value refuses a step', async () => {
+      // `setValue` projects the stepped text before it knows whether the owner stored the value,
+      // so a refused step must not leave the field displaying a number it never took.
+      await render(<NumberField value={5} />);
+
+      fireEvent.click(screen.getByLabelText('Increase'));
+
+      expect(screen.getByRole('textbox')).toHaveValue('5');
+    });
+
+    it('should re-derive the text on blur when a controlled value refuses the change', async () => {
+      await render(<NumberField value={5} onValueChange={() => {}} />);
+      const input = screen.getByRole('textbox');
+
+      fireEvent.change(input, { target: { value: '7' } });
+      expect(input).toHaveValue('7');
+
+      fireEvent.blur(input);
+
+      expect(input).toHaveValue('5');
+    });
+
+    it('should re-derive the text identically inside a Field', async () => {
+      // The repair must not depend on whether an unrelated ancestor happens to re-render.
+      await render(
+        <Field.Root>
+          <NumberField value={5} onValueChange={() => {}} />
+        </Field.Root>,
+      );
+      const input = screen.getByRole('textbox');
+      await act(async () => {
+        input.focus();
+      });
+
+      fireEvent.change(input, { target: { value: '7' } });
+      fireEvent.blur(input);
+
+      expect(input).toHaveValue('5');
+    });
+
+    it('should re-derive the text when a controlled value refuses a step after typing', async () => {
+      await render(<NumberField value={5} onValueChange={() => {}} />);
+      const input = screen.getByRole('textbox');
+
+      fireEvent.change(input, { target: { value: '7' } });
+      fireEvent.click(screen.getByLabelText('Increase'));
+
+      expect(input).toHaveValue('5');
+    });
+
+    it('should follow later external values after an empty field is blurred', async () => {
+      const { rerender } = await render(<NumberField value={null} onValueChange={() => {}} />);
+      const input = screen.getByRole('textbox');
+      await act(async () => {
+        input.focus();
+      });
+
+      // Blur has to hand the text back to `value` even though there was nothing to clear.
+      fireEvent.change(input, { target: { value: '' } });
+      fireEvent.blur(input);
+
+      await rerender(<NumberField value={7} onValueChange={() => {}} />);
+
+      expect(input).toHaveValue('7');
+    });
+
+    it('should follow later external values after a canceled blur change', async () => {
+      // Refusing the change keeps the edit on screen, but it must not also stop the field from
+      // ever re-deriving its text again.
+      const cancel = (_value: number | null, eventDetails: { cancel: () => void }) =>
+        eventDetails.cancel();
+      const { rerender } = await render(<NumberField value={10} onValueChange={cancel} />);
+      const input = screen.getByRole('textbox');
+
+      fireEvent.change(input, { target: { value: '13' } });
+      fireEvent.blur(input);
+      expect(input).toHaveValue('13');
+
+      await rerender(<NumberField value={20} onValueChange={cancel} />);
+
+      expect(input).toHaveValue('20');
+    });
+
+    it('should follow later external values after a canceled clear on blur', async () => {
+      const cancel = (_value: number | null, eventDetails: { cancel: () => void }) =>
+        eventDetails.cancel();
+      const { rerender } = await render(<NumberField value={5} onValueChange={cancel} />);
+      const input = screen.getByRole('textbox');
+
+      fireEvent.change(input, { target: { value: '' } });
+      fireEvent.blur(input);
+      expect(input).toHaveValue('');
+
+      await rerender(<NumberField value={42} onValueChange={cancel} />);
+
+      expect(input).toHaveValue('42');
+    });
+
+    it('should follow later external values after a canceled blur text proposal', async () => {
+      // The value change lands; only the text normalization is refused. Keeping the typed text
+      // must not cost the field its ability to re-derive from a later `value`.
+      function App() {
+        const [value, setValue] = React.useState<number | null>(10);
+        return (
+          <React.Fragment>
+            <button type="button" onClick={() => setValue(20)}>
+              set
+            </button>
+            <NumberField
+              value={value}
+              onValueChange={setValue}
+              onInputValueChange={(_next, eventDetails) => {
+                if (eventDetails.reason === REASONS.inputBlur) {
+                  eventDetails.cancel();
+                }
+              }}
+            />
+          </React.Fragment>
+        );
+      }
+
+      await render(<App />);
+      const input = screen.getByRole('textbox');
+
+      fireEvent.change(input, { target: { value: '13.5000' } });
+      fireEvent.blur(input);
+      expect(input).toHaveValue('13.5000');
+
+      fireEvent.click(screen.getByRole('button', { name: 'set' }));
+
+      expect(input).toHaveValue('20');
+    });
+
+    it('should re-format after a canceled blur when the locale changes', async () => {
+      const cancel = (_value: number | null, eventDetails: { cancel: () => void }) =>
+        eventDetails.cancel();
+      const { rerender } = await render(
+        <NumberField value={1234.5} locale="en-US" onValueChange={cancel} />,
+      );
+      const input = screen.getByRole('textbox');
+
+      fireEvent.change(input, { target: { value: '99' } });
+      fireEvent.blur(input);
+      expect(input).toHaveValue('99');
+
+      await rerender(<NumberField value={1234.5} locale="de-DE" onValueChange={cancel} />);
+
+      expect(input).toHaveValue('1.234,5');
+    });
+  });
+
+  describe('prop: defaultInputValue', () => {
+    it('should set the initial raw text', async () => {
+      await render(<NumberField min={-10} defaultInputValue="-" />);
+      expect(screen.getByRole('textbox')).toHaveValue('-');
+    });
+
+    it('should take precedence over the formatted defaultValue', async () => {
+      await render(<NumberField defaultValue={5} defaultInputValue="5.00" />);
+      expect(screen.getByRole('textbox')).toHaveValue('5.00');
+    });
+
+    it('should still be replaced by typing', async () => {
+      await render(<NumberField min={-10} defaultInputValue="-" />);
+      const input = screen.getByRole('textbox');
+      fireEvent.change(input, { target: { value: '-3' } });
+      expect(input).toHaveValue('-3');
+    });
+  });
+
+  describe('prop: onInputValueChange', () => {
+    it('should fire while typing a parseable value', async () => {
+      const onInputValueChange = vi.fn();
+      await render(<NumberField onInputValueChange={onInputValueChange} />);
+      const input = screen.getByRole('textbox');
+
+      fireEvent.change(input, { target: { value: '12' } });
+
+      expect(onInputValueChange).toHaveBeenCalledTimes(1);
+      expect(onInputValueChange.mock.calls[0][0]).toBe('12');
+      expect(onInputValueChange.mock.calls[0][1].reason).toBe(REASONS.inputChange);
+    });
+
+    it('should fire for an unparseable string that leaves the value alone', async () => {
+      const onInputValueChange = vi.fn();
+      const onValueChange = vi.fn();
+      await render(
+        <NumberField
+          min={-10}
+          onInputValueChange={onInputValueChange}
+          onValueChange={onValueChange}
+        />,
+      );
+      const input = screen.getByRole('textbox');
+
+      fireEvent.change(input, { target: { value: '-' } });
+
+      expect(onInputValueChange).toHaveBeenCalledTimes(1);
+      expect(onInputValueChange.mock.calls[0][0]).toBe('-');
+      expect(onValueChange).not.toHaveBeenCalled();
+    });
+
+    it('should fire with `input-clear` when the field is emptied', async () => {
+      const onInputValueChange = vi.fn();
+      await render(<NumberField defaultValue={5} onInputValueChange={onInputValueChange} />);
+      const input = screen.getByRole('textbox');
+
+      fireEvent.change(input, { target: { value: '' } });
+
+      expect(onInputValueChange).toHaveBeenCalledTimes(1);
+      expect(onInputValueChange.mock.calls[0][0]).toBe('');
+      expect(onInputValueChange.mock.calls[0][1].reason).toBe(REASONS.inputClear);
+    });
+
+    it('should fire once with `input-blur` when the text is normalized on blur', async () => {
+      const onInputValueChange = vi.fn();
+      await render(<NumberField onInputValueChange={onInputValueChange} />);
+      const input = screen.getByRole('textbox');
+
+      fireEvent.change(input, { target: { value: '5.50' } });
+      onInputValueChange.mockClear();
+      fireEvent.blur(input);
+
+      expect(onInputValueChange).toHaveBeenCalledTimes(1);
+      expect(onInputValueChange.mock.calls[0][0]).toBe('5.5');
+      expect(onInputValueChange.mock.calls[0][1].reason).toBe(REASONS.inputBlur);
+    });
+
+    it('should not re-propose a canceled blur normalization', async () => {
+      const onInputValueChange = vi.fn();
+      await render(
+        <NumberField
+          min={10}
+          onInputValueChange={(next, eventDetails) => {
+            onInputValueChange(next, eventDetails);
+            if (eventDetails.reason === REASONS.inputBlur) {
+              eventDetails.cancel();
+            }
+          }}
+        />,
+      );
+      const input = screen.getByRole('textbox');
+
+      // Clamps the value to 10 while the text stays '5', so blur both stores the clamped value
+      // and normalizes the text — two writes of '10' that must still collapse when canceled.
+      fireEvent.change(input, { target: { value: '5' } });
+      onInputValueChange.mockClear();
+
+      fireEvent.blur(input);
+
+      const blurCalls = onInputValueChange.mock.calls.filter(
+        (call) => call[1].reason === REASONS.inputBlur,
+      );
+      expect(blurCalls).toHaveLength(1);
+    });
+
+    it('should fire with the step reason when incrementing', async () => {
+      const onInputValueChange = vi.fn();
+      await render(<NumberField defaultValue={1} onInputValueChange={onInputValueChange} />);
+
+      fireEvent.click(screen.getByLabelText('Increase'));
+
+      expect(onInputValueChange).toHaveBeenCalledTimes(1);
+      expect(onInputValueChange.mock.calls[0][0]).toBe('2');
+      expect(onInputValueChange.mock.calls[0][1].reason).toBe(REASONS.incrementPress);
+    });
+
+    it('should fire once when blur both clamps the value and normalizes the text', async () => {
+      const onInputValueChange = vi.fn();
+      await render(<NumberField min={10} onInputValueChange={onInputValueChange} />);
+      const input = screen.getByRole('textbox');
+
+      fireEvent.change(input, { target: { value: '5' } });
+      onInputValueChange.mockClear();
+
+      // Blur stores the clamped value (which syncs the text) and then normalizes the text again;
+      // both land on '10' in the same batch and must not be reported twice.
+      fireEvent.blur(input);
+
+      expect(input).toHaveValue('10');
+      expect(onInputValueChange).toHaveBeenCalledTimes(1);
+      expect(onInputValueChange.mock.calls[0][0]).toBe('10');
+    });
+
+    it('should reconcile a stale unparseable string on blur', async () => {
+      const onInputValueChange = vi.fn();
+      await render(
+        <NumberField min={-10} defaultValue={5} onInputValueChange={onInputValueChange} />,
+      );
+      const input = screen.getByRole('textbox');
+
+      fireEvent.change(input, { target: { value: '-' } });
+      expect(input).toHaveValue('-');
+      onInputValueChange.mockClear();
+
+      fireEvent.blur(input);
+
+      expect(input).toHaveValue('5');
+      expect(onInputValueChange).toHaveBeenCalledTimes(1);
+      expect(onInputValueChange.mock.calls[0][0]).toBe('5');
+      expect(onInputValueChange.mock.calls[0][1].reason).toBe(REASONS.inputBlur);
+    });
+
+    it('should report a pasted intermediate string verbatim', async () => {
+      // Typing `-` reaches this state, so pasting it has to as well; otherwise paste is the one
+      // route that can't produce a string `inputValue` is documented to hold.
+      const onInputValueChange = vi.fn();
+      await render(<NumberField min={-100} onInputValueChange={onInputValueChange} />);
+      const input = screen.getByRole('textbox');
+
+      pasteText(input, '-');
+
+      expect(input).toHaveValue('-');
+      expect(onInputValueChange).toHaveBeenCalledTimes(1);
+      expect(onInputValueChange.mock.calls[0][0]).toBe('-');
+      expect(onInputValueChange.mock.calls[0][1].reason).toBe(REASONS.inputPaste);
+    });
+
+    it('should not report a pasted string the format can never render', async () => {
+      const onInputValueChange = vi.fn();
+      await render(<NumberField defaultValue={5} onInputValueChange={onInputValueChange} />);
+      const input = screen.getByRole('textbox') as HTMLInputElement;
+      input.setSelectionRange(0, input.value.length);
+
+      pasteText(input, 'abc');
+
+      expect(input).toHaveValue('5');
+      expect(onInputValueChange).not.toHaveBeenCalled();
+    });
+
+    it('should keep the text when the blur normalization is canceled', async () => {
+      // Blur proposes the normalized text twice (once through `setValue`, once on its own). The
+      // second proposal is deduped, and that must not hand the text back to `value` and let the
+      // formatting sync write the string the consumer just refused.
+      await render(
+        <NumberField
+          min={10}
+          onInputValueChange={(_next, eventDetails) => {
+            if (eventDetails.reason === REASONS.inputBlur) {
+              eventDetails.cancel();
+            }
+          }}
+        />,
+      );
+      const input = screen.getByRole('textbox');
+
+      fireEvent.change(input, { target: { value: '5' } });
+      fireEvent.blur(input);
+
+      expect(input).toHaveValue('5');
+    });
+
+    it('should normalize whitespace-only text on blur', async () => {
+      const onInputValueChange = vi.fn();
+      await render(<NumberField onInputValueChange={onInputValueChange} />);
+      const input = screen.getByRole('textbox');
+
+      fireEvent.change(input, { target: { value: '  ' } });
+      onInputValueChange.mockClear();
+
+      fireEvent.blur(input);
+
+      expect(input).toHaveValue('');
+      expect(onInputValueChange).toHaveBeenCalledTimes(1);
+      expect(onInputValueChange.mock.calls[0][0]).toBe('');
+      expect(onInputValueChange.mock.calls[0][1].reason).toBe(REASONS.inputBlur);
+    });
+
+    it('should reconcile a stale unparseable string identically inside a Field', async () => {
+      // Blur used to leave this text alone and rely on an unrelated re-render to trigger the
+      // formatting sync, so the result depended on whether a `Field.Root` happened to re-render.
+      await render(
+        <Field.Root>
+          <NumberField min={-10} defaultValue={5} />
+        </Field.Root>,
+      );
+      const input = screen.getByRole('textbox');
+
+      fireEvent.change(input, { target: { value: '-' } });
+      fireEvent.blur(input);
+
+      expect(input).toHaveValue('5');
+    });
+
+    it('should report the text before the value for both typing and pasting', async () => {
+      const calls: string[] = [];
+      await render(
+        <NumberField
+          onInputValueChange={(next) => calls.push(`text:${next}`)}
+          onValueChange={(next) => calls.push(`value:${next}`)}
+        />,
+      );
+      const input = screen.getByRole('textbox') as HTMLInputElement;
+
+      fireEvent.change(input, { target: { value: '1' } });
+      input.setSelectionRange(1, 1);
+      pasteText(input, '2');
+
+      expect(calls).toEqual(['text:1', 'value:1', 'text:12', 'value:12']);
+    });
+
+    it('should keep earlier accepted text when a later keystroke is vetoed', async () => {
+      function App() {
+        const [, forceRerender] = React.useReducer((count) => count + 1, 0);
+        return (
+          <React.Fragment>
+            <NumberField
+              onInputValueChange={(next, eventDetails) => {
+                // A filtering consumer: accept until the string gets too long, then reject and
+                // re-render to surface the rejection.
+                if (next.length > 2) {
+                  forceRerender();
+                  eventDetails.cancel();
+                }
+              }}
+            />
+            <button onClick={forceRerender}>rerender</button>
+          </React.Fragment>
+        );
+      }
+
+      await render(<App />);
+      const input = screen.getByRole('textbox');
+
+      fireEvent.change(input, { target: { value: '5' } });
+      fireEvent.change(input, { target: { value: '5.' } });
+      expect(input).toHaveValue('5.');
+
+      // Vetoed: the text must stay exactly as the user left it, trailing decimal included.
+      fireEvent.change(input, { target: { value: '5.0' } });
+      expect(input).toHaveValue('5.');
+
+      // An unrelated re-render must not let the formatting sync reclaim the in-progress text.
+      fireEvent.click(screen.getByRole('button', { name: 'rerender' }));
+      expect(input).toHaveValue('5.');
+    });
+
+    it('should step from the typed text after a vetoed keystroke', async () => {
+      const onValueChange = vi.fn();
+
+      function App() {
+        const [value, setValue] = React.useState<number | null>(null);
+        return (
+          <React.Fragment>
+            <NumberField
+              value={value}
+              onValueChange={(next, eventDetails) => {
+                onValueChange(next, eventDetails);
+                setValue(next);
+              }}
+              onInputValueChange={(next, eventDetails) => {
+                if (next.length > 2) {
+                  eventDetails.cancel();
+                }
+              }}
+            />
+            <button onClick={() => setValue(999)}>set 999</button>
+          </React.Fragment>
+        );
+      }
+
+      await render(<App />);
+      const input = screen.getByRole('textbox');
+      await act(async () => input.focus());
+
+      fireEvent.change(input, { target: { value: '50' } });
+      // An external change the user hasn't seen: the text still shows the in-progress '50'.
+      fireEvent.click(screen.getByRole('button', { name: 'set 999' }));
+      fireEvent.change(input, { target: { value: '50.' } });
+      onValueChange.mockClear();
+
+      fireEvent.keyDown(input, { key: 'ArrowUp' });
+
+      // Stepping must continue from the typed 50, not from the external 999 the field would
+      // treat as authoritative if the veto had cleared its manual-edit state.
+      expect(onValueChange.mock.calls[0][0]).toBe(51);
+    });
+
+    it('should reject the whole keystroke when the text update is canceled', async () => {
+      const onValueChange = vi.fn();
+      const onValueCommitted = vi.fn();
+      await render(
+        <NumberField
+          onValueChange={onValueChange}
+          onValueCommitted={onValueCommitted}
+          onInputValueChange={(_, eventDetails) => eventDetails.cancel()}
+        />,
+      );
+      const input = screen.getByRole('textbox');
+
+      fireEvent.change(input, { target: { value: '7' } });
+
+      // The numeric value is derived from the text that was just refused, so applying it would
+      // leave the field incoherent — and blur would then read the empty text and clear it again.
+      expect(input).toHaveValue('');
+      expect(onValueChange).not.toHaveBeenCalled();
+
+      fireEvent.blur(input);
+
+      expect(input).toHaveValue('');
+      expect(onValueChange).not.toHaveBeenCalled();
+      expect(onValueCommitted).not.toHaveBeenCalled();
+    });
+
+    it('should not clear an accepted value on blur after a canceled clear', async () => {
+      const onValueChange = vi.fn();
+      await render(
+        <NumberField
+          defaultValue={5}
+          onValueChange={onValueChange}
+          onInputValueChange={(_, eventDetails) => eventDetails.cancel()}
+        />,
+      );
+      const input = screen.getByRole('textbox');
+
+      fireEvent.change(input, { target: { value: '' } });
+
+      expect(input).toHaveValue('5');
+      expect(onValueChange).not.toHaveBeenCalled();
+    });
+  });
+
   describe('prop: onValueChange', () => {
+    it('should not report the clear a second time when the field is blurred', async () => {
+      const onValueChange = vi.fn();
+      const onValueCommitted = vi.fn();
+      await render(
+        <NumberField
+          defaultValue={5}
+          onValueChange={onValueChange}
+          onValueCommitted={onValueCommitted}
+        />,
+      );
+      const input = screen.getByRole('textbox');
+
+      fireEvent.change(input, { target: { value: '' } });
+      expect(onValueChange).toHaveBeenCalledTimes(1);
+
+      // The value is already empty by now, so blur has nothing left to clear.
+      fireEvent.blur(input);
+
+      expect(onValueChange).toHaveBeenCalledTimes(1);
+      expect(onValueCommitted).toHaveBeenCalledTimes(1);
+    });
+
+    it('should keep the empty text when the clear is canceled on blur', async () => {
+      await render(
+        <NumberField
+          defaultValue={5}
+          onValueChange={(_value, eventDetails) => {
+            eventDetails.cancel();
+          }}
+        />,
+      );
+      const input = screen.getByRole('textbox');
+
+      fireEvent.change(input, { target: { value: '' } });
+      fireEvent.blur(input);
+
+      // A refused change leaves the edit with the user, matching the non-empty blur path.
+      expect(input).toHaveValue('');
+    });
+
+    it('should keep the empty text when the clear is canceled on blur inside a Field', async () => {
+      await render(
+        <Field.Root>
+          <NumberField
+            defaultValue={5}
+            onValueChange={(_value, eventDetails) => {
+              eventDetails.cancel();
+            }}
+          />
+        </Field.Root>,
+      );
+      const input = screen.getByRole('textbox');
+      await act(async () => {
+        input.focus();
+      });
+
+      fireEvent.change(input, { target: { value: '' } });
+      fireEvent.blur(input);
+
+      expect(input).toHaveValue('');
+    });
+
     it('should be called when the value changes', async () => {
       const onValueChange = vi.fn();
       function App() {
