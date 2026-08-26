@@ -94,9 +94,9 @@ export function FilterMenuRoot<Payload>(props: FilterMenuRoot.Props<Payload>): R
       webkitItemSelected={webkitItemSelected}
       virtualFocusRef={focusOwnerRef}
       virtualFocusInput={hasInput}
-      // Escaping returns the highlight to the input along the main axis. A grid's main axis is
-      // horizontal, so escaping there would strand the highlight between cells instead.
-      allowEscape={hasInput && !autoHighlight && !grid}
+      // Escaping past either end of the list returns the highlight to the input; in a grid the
+      // main axis is horizontal, so the inline arrows escape, matching the Combobox grid.
+      allowEscape={hasInput && !autoHighlight}
       resetOnPointerLeave={autoHighlight !== 'always'}
       renderVirtualFocusChildren={(payload, inputProps) => (
         <FilterMenuProvider
