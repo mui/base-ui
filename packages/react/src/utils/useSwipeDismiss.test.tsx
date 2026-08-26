@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 import * as React from 'react';
 import { fireEvent, flushMicrotasks, screen } from '@mui/internal-test-utils';
-import { createRenderer, firePointer } from '#test-utils';
+import { createRenderer, firePointer, isJSDOM } from '#test-utils';
 import { useSwipeDismiss } from './useSwipeDismiss';
 
 function SwipeBox() {
@@ -134,6 +134,136 @@ describe('useSwipeDismiss', () => {
       document.elementFromPoint = originalElementFromPoint;
     }
   });
+
+  it.skipIf(isJSDOM)('starts a touch swipe when the page scroller is `body`', async () => {
+    const onSwipeStart = vi.fn();
+
+    function SwipeBoxFixed() {
+      const ref = React.useRef<HTMLDivElement>(null);
+      const swipe = useSwipeDismiss({
+        enabled: true,
+        directions: ['down'],
+        elementRef: ref,
+        movementCssVars: { x: '--x', y: '--y' },
+        onSwipeStart,
+      });
+
+      return (
+        <div
+          data-testid="el"
+          ref={ref}
+          style={{ ...swipe.getDragStyles(), position: 'fixed', inset: 0 }}
+          {...swipe.getTouchProps()}
+        />
+      );
+    }
+
+    const { body } = document;
+    const html = document.documentElement;
+    const previousBodyStyle = body.style.cssText;
+    const previousHtmlStyle = html.style.cssText;
+    // A reset that turns `body` into a real scroll container instead of letting its overflow
+    // propagate to the viewport.
+    html.style.cssText = 'height: 100%; overflow-y: auto';
+    body.style.cssText = 'height: 100%; overflow-y: auto';
+
+    try {
+      await render(
+        <React.Fragment>
+          <div style={{ height: 5000 }} />
+          <SwipeBoxFixed />
+        </React.Fragment>,
+      );
+
+      // Being at the start edge is what made the upward move fail: it can only pass the
+      // scroll-edge gate when the container is scrolled to the end.
+      expect(body.scrollTop).toBe(0);
+      expect(body.scrollHeight).toBeGreaterThan(body.clientHeight);
+
+      const element = screen.getByTestId('el');
+      fireEvent.touchStart(element, {
+        touches: [createTouch(element, { clientX: 50, clientY: 300 })],
+      });
+      fireEvent.touchMove(element, {
+        touches: [createTouch(element, { clientX: 50, clientY: 260 })],
+      });
+
+      expect(onSwipeStart).toHaveBeenCalledTimes(1);
+    } finally {
+      body.style.cssText = previousBodyStyle;
+      html.style.cssText = previousHtmlStyle;
+    }
+  });
+
+  it.skipIf(isJSDOM)(
+    'keeps gating on a scrollable descendant of the other axis when `body` scrolls the page',
+    async () => {
+      const onSwipeStart = vi.fn();
+
+      function SwipeBoxCrossAxis() {
+        const ref = React.useRef<HTMLDivElement>(null);
+        const swipe = useSwipeDismiss({
+          enabled: true,
+          directions: ['down', 'right'],
+          elementRef: ref,
+          movementCssVars: { x: '--x', y: '--y' },
+          onSwipeStart,
+        });
+
+        return (
+          <div
+            data-testid="el"
+            ref={ref}
+            style={{ ...swipe.getDragStyles(), position: 'fixed', inset: 0 }}
+            {...swipe.getTouchProps()}
+          >
+            <div
+              data-testid="scroll"
+              style={{ overflowX: 'auto', overflowY: 'hidden', width: '100%', height: '100%' }}
+            >
+              <div style={{ width: 5000, height: 20 }} />
+            </div>
+          </div>
+        );
+      }
+
+      const { body } = document;
+      const html = document.documentElement;
+      const previousBodyStyle = body.style.cssText;
+      const previousHtmlStyle = html.style.cssText;
+      html.style.cssText = 'height: 100%; overflow-y: auto';
+      body.style.cssText = 'height: 100%; overflow-y: auto';
+
+      try {
+        await render(
+          <React.Fragment>
+            <div style={{ height: 5000 }} />
+            <SwipeBoxCrossAxis />
+          </React.Fragment>,
+        );
+
+        const scroll = screen.getByTestId('scroll');
+        // Away from the start edge, so the horizontal scroller must refuse the rightward swipe.
+        scroll.scrollLeft = 20;
+
+        expect(body.scrollHeight).toBeGreaterThan(body.clientHeight);
+        expect(scroll.scrollWidth).toBeGreaterThan(scroll.clientWidth);
+        expect(scroll.scrollLeft).toBeGreaterThan(0);
+
+        fireEvent.touchStart(scroll, {
+          touches: [createTouch(scroll, { clientX: 50, clientY: 300 })],
+        });
+        fireEvent.touchMove(scroll, {
+          touches: [createTouch(scroll, { clientX: 90, clientY: 300 })],
+        });
+
+        expect(onSwipeStart).not.toHaveBeenCalled();
+      } finally {
+        body.style.cssText = previousBodyStyle;
+        html.style.cssText = previousHtmlStyle;
+      }
+    },
+  );
 
   it('does not prevent touch scrolling during swipe interactions', async () => {
     await render(<SwipeBox />);
