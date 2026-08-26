@@ -1,6 +1,10 @@
 /**
- * Static platform-detection flags, evaluated once at module load. SSR-safe —
- * every flag is `false` when `navigator` is undefined.
+ * Static platform detection, evaluated once at module load.
+ *
+ * The boolean groups (`os`, `engine`, `screenReader`, `env`) derive their flags
+ * from `navigator` and are SSR-safe — every flag is `false` when `navigator` is
+ * undefined. The `mediaQuery` group instead exposes CSS query strings, constant
+ * in every environment and evaluated by the browser at style-resolution time.
  *
  * Scope is intentionally limited to traits that don't change at runtime (OS,
  * rendering engine, environment). Dynamic capabilities like input modality
