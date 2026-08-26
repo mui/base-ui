@@ -66,6 +66,7 @@ afterEach(() => {
   }
   // Several tests use `document.body` itself as the source.
   document.body.removeAttribute('data-dragging');
+  vi.useRealTimers();
   vi.unstubAllGlobals();
   vi.restoreAllMocks();
 });
@@ -204,6 +205,46 @@ describe('syntheticPreview', () => {
       finishAnimation!();
       await finished;
       await Promise.resolve();
+      expect(preview.destroyed).toBe(true);
+      expect(source).not.toHaveAttribute('data-dragging');
+      expect(source).not.toHaveAttribute('data-ending-style');
+    });
+
+    it('cleans up a settling preview whose animation stays paused', () => {
+      vi.useFakeTimers();
+      vi.stubGlobal('BASE_UI_ANIMATIONS_DISABLED', false);
+      const frames: FrameRequestCallback[] = [];
+      vi.spyOn(window, 'requestAnimationFrame').mockImplementation((callback) => {
+        frames.push(callback);
+        return frames.length;
+      });
+      const source = createSource();
+      source.getBoundingClientRect = () => new DOMRect(40, 50, 120, 30);
+      const handle = createHandle(source);
+      const preview = createPreviewElement(120, 30, false);
+      document.body.appendChild(preview.element);
+      preview.element.getAnimations = () =>
+        [
+          {
+            effect: {
+              getTiming: () => ({ iterations: 1 }),
+              getComputedTiming: () => ({ endTime: 200 }),
+            },
+            finished: new Promise<void>(() => {}),
+            playState: 'paused',
+          },
+        ] as unknown as Animation[];
+
+      handle.setPreviewElement(preview);
+      handle.markSourceDragging();
+      handle.prepareForDrop();
+      handle.destroy();
+      frames.shift()!(0);
+
+      expect(preview.destroyed).toBe(false);
+      vi.advanceTimersByTime(999);
+      expect(preview.destroyed).toBe(false);
+      vi.advanceTimersByTime(1);
       expect(preview.destroyed).toBe(true);
       expect(source).not.toHaveAttribute('data-dragging');
       expect(source).not.toHaveAttribute('data-ending-style');

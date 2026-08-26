@@ -243,7 +243,8 @@ describe('syntheticDrag activation', () => {
     function renderScrollableChild({
       rtl = false,
       borderLeft = 0,
-    }: { rtl?: boolean; borderLeft?: number } = {}): {
+      scale = 1,
+    }: { rtl?: boolean; borderLeft?: number; scale?: number } = {}): {
       card: HTMLElement;
       list: HTMLElement;
     } {
@@ -257,7 +258,7 @@ describe('syntheticDrag activation', () => {
       // the padding box is 185 wide and the gutter is whichever 15px strip the
       // writing direction leaves over. jsdom does no layout, so the geometry the
       // guard reads has to be supplied.
-      list.getBoundingClientRect = () => new DOMRect(0, 0, 200 + borderLeft, 400);
+      list.getBoundingClientRect = () => new DOMRect(0, 0, (200 + borderLeft) * scale, 400 * scale);
       // `clientLeft` is the left border width *plus* the scrollbar when the
       // scrollbar is on the left, which is what browsers report in RTL — so the
       // padding edge, and with it the sign of a press in the gutter, follows the
@@ -267,6 +268,8 @@ describe('syntheticDrag activation', () => {
       Object.defineProperty(list, 'scrollHeight', { value: 1000 });
       Object.defineProperty(list, 'clientHeight', { value: 400 });
       Object.defineProperty(list, 'clientWidth', { value: 185 });
+      Object.defineProperty(list, 'offsetWidth', { value: 200 + borderLeft });
+      Object.defineProperty(list, 'offsetHeight', { value: 400 });
       card.appendChild(list);
       registerCleanup(() => list.remove());
       return { card, list };
@@ -336,6 +339,24 @@ describe('syntheticDrag activation', () => {
       expect(onDragStart).toHaveBeenCalledTimes(1);
 
       dispatchOn(list, 'pointerup', 100, 80, 0);
+    });
+
+    it('uses layout coordinates for a transformed scrollable child', async () => {
+      const { engine } = await renderDnd();
+      const { card, list } = renderScrollableChild({ scale: 2 });
+      const onDragStart = vi.fn();
+      engine.registerDraggable(card, { onDragStart });
+
+      // Visual x=300 maps to layout x=150, inside the 185px content box. Without
+      // removing the transform scale, it is mistaken for the right scrollbar.
+      dispatchOn(list, 'pointerdown', 300, 100, 1);
+      await flushRaf();
+      dispatchOn(list, 'pointermove', 300, 130, 1);
+      await flushRaf();
+
+      expect(onDragStart).toHaveBeenCalledTimes(1);
+
+      dispatchOn(list, 'pointerup', 300, 130, 0);
     });
 
     it('rejects the gutter on the leading side, where RTL puts the vertical scrollbar', async () => {

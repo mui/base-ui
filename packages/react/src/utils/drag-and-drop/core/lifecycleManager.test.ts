@@ -879,6 +879,41 @@ describe('lifecycle manager', () => {
       removeMonitor(getMonitor);
     });
 
+    it('a throwing target onDrop still lets monitors and terminal leaves run', () => {
+      const target = createElement();
+      const targetOnDragLeave = vi.fn();
+      const monitorDrop = vi.fn();
+      const monitorEnd = vi.fn();
+      const getTargetParams = () => ({
+        onDrop: () => {
+          throw new Error('boom from target onDrop');
+        },
+        onDragLeave: targetOnDragLeave,
+      });
+      addDropTargetRegistration(target, getTargetParams);
+      const getMonitor = () => ({ onDrop: monitorDrop, onDragEnd: monitorEnd });
+      monitorRegistry.add(getMonitor);
+      engageMonitorIfDragging(getMonitor);
+
+      const sourceOnDragEnd = vi.fn();
+      const handle = startDragWithHandlers({ onDragEnd: sourceOnDragEnd });
+
+      act(() => {
+        expect(() => handle!.controller.drop(makeInput(), target)).toThrow(
+          'boom from target onDrop',
+        );
+      });
+
+      expect(sourceOnDragEnd).toHaveBeenCalledTimes(1);
+      expect(monitorDrop).toHaveBeenCalledTimes(1);
+      expect(monitorEnd).toHaveBeenCalledTimes(1);
+      expect(targetOnDragLeave).toHaveBeenCalledTimes(1);
+      expectEngineRecovered();
+
+      removeDropTargetRegistration(target, getTargetParams);
+      removeMonitor(getMonitor);
+    });
+
     it('a throwing source onDragEnd on cancel still reaches the monitors', () => {
       const target = createElement();
       const targetOnDragLeave = vi.fn();

@@ -19,7 +19,7 @@ import type {
 import { matchesAccept } from './dragKind';
 import { createGetterStackRegistry } from './getterStackRegistry';
 import { getSharedSlot } from './sharedState';
-import { getComposedParentElement, getShadowHost, safeCallConsumer } from './utils';
+import { getComposedParentElement, safeCallConsumer } from './utils';
 
 /** Attribute the engine sets on a registered drop target element. */
 const DROP_TARGET_ATTR = 'data-drop-target';
@@ -48,12 +48,18 @@ interface DropTargetState {
    * decrements what the retain incremented even if the node has since moved.
    */
   retainedRoots: WeakMap<Element, ShadowRoot>;
+  /** Closed shadow roots indexed by host for pointer hit-testing. */
+  shadowRootsByHost?: Map<Element, ShadowRoot> | undefined;
+  /** Whether the host index needs to be rebuilt. */
+  shadowRootsByHostDirty?: boolean | undefined;
 }
 
 const state = getSharedSlot<DropTargetState>('dropTarget', () => ({
   registry: new Map<Element, DropTargetGetter[]>(),
   shadowRoots: new Map<ShadowRoot, number>(),
   retainedRoots: new WeakMap<Element, ShadowRoot>(),
+  shadowRootsByHost: new Map<Element, ShadowRoot>(),
+  shadowRootsByHostDirty: true,
 }));
 
 type ShadowRootChangeListener = (root: ShadowRoot, registered: boolean) => void;
@@ -101,6 +107,7 @@ function retainShadowRoot(element: Element): void {
     // targets, silently costing it its `scroll` listener mid-drag.
     state.retainedRoots.set(element, root);
     if (count === 0) {
+      state.shadowRootsByHostDirty = true;
       for (const listener of shadowRootChangeListeners) {
         listener(root, true);
       }
@@ -120,6 +127,7 @@ function releaseShadowRoot(element: Element): void {
   }
   if (count <= 1) {
     state.shadowRoots.delete(root);
+    state.shadowRootsByHostDirty = true;
     for (const listener of shadowRootChangeListeners) {
       listener(root, false);
     }
@@ -134,6 +142,36 @@ function releaseShadowRoot(element: Element): void {
  */
 export function getDropTargetShadowRoots(): Iterable<ShadowRoot> {
   return state.shadowRoots.keys();
+}
+
+/**
+ * Closed shadow roots indexed by host for pointer hit-testing. The index changes
+ * only when the registered root set changes, so drag frames can reuse it.
+ */
+export function getDropTargetShadowRootsByHost(): ReadonlyMap<Element, ShadowRoot> {
+  let cached = state.shadowRootsByHost;
+  if (cached === undefined) {
+    cached = new Map<Element, ShadowRoot>();
+    state.shadowRootsByHost = cached;
+  }
+  if (state.shadowRootsByHostDirty === false) {
+    return cached;
+  }
+
+  cached.clear();
+  for (const retained of state.shadowRoots.keys()) {
+    let root: Node = retained;
+    // A retained root can sit inside another shadow tree. Index each closed
+    // boundary on the chain; open roots remain reachable through `host.shadowRoot`.
+    while (isShadowRoot(root)) {
+      if (root.mode === 'closed') {
+        cached.set(root.host, root);
+      }
+      root = root.host.getRootNode();
+    }
+  }
+  state.shadowRootsByHostDirty = false;
+  return cached;
 }
 
 /** Watch roots entering and leaving the registered drop-target set. */
@@ -230,6 +268,9 @@ export function resetForTests(): void {
   }
   state.registry.clear();
   state.shadowRoots.clear();
+  state.retainedRoots = new WeakMap<Element, ShadowRoot>();
+  state.shadowRootsByHost?.clear();
+  state.shadowRootsByHostDirty = true;
   shadowRootChangeListeners.clear();
   retiringRegistrations.clear();
 }
@@ -372,11 +413,11 @@ function resolveDropTargetOutcome(
  * of `steps` equal fractions. `Math.round`, deliberately: it is symmetric around
  * every step midpoint, so drags carry no directional bias, where a `ceil` or
  * `floor` would shift every drop one way.
- * A missing or non-positive count leaves the axis unquantized (still clamped).
+ * A missing, non-integer, or non-positive count leaves the axis unquantized.
  */
 function snapAxis(value: number, steps: number | undefined): number {
   const clamped = clamp(value, 0, 1);
-  if (steps === undefined || !Number.isFinite(steps) || steps <= 0) {
+  if (steps === undefined || !Number.isInteger(steps) || steps <= 0) {
     return clamped;
   }
   return Math.round(clamped * steps) / steps;
@@ -506,7 +547,9 @@ export function getDropTargetsOver(
       }
       current = getComposedParentElement(found);
     } else {
-      current = getShadowHost(current);
+      // Enter an assigned slot before climbing through its shadow tree. A plain
+      // DOM ancestry walk cannot discover a target wrapping slotted content.
+      current = getComposedParentElement(current);
     }
   }
 

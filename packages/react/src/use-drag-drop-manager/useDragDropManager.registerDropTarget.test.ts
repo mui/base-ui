@@ -832,6 +832,12 @@ describe('engine.registerDropTarget', () => {
       expect(record.getLocalPoint().y).toBeCloseTo(1.2);
     });
 
+    it('ignores a fractional step count and keeps the result clamped', async () => {
+      const record = await dropAt({ snap: { x: 1.5, y: 1.5 } }, 125, 320);
+
+      expect(record.getSnappedLocalPoint()).toEqual({ x: 0.625, y: 1 });
+    });
+
     it('evaluates a snap callback lazily, once per record, with the resolution context', async () => {
       const snap = vi.fn(({ element }: { element: Element }) => {
         expect(element).toHaveAttribute('data-drop-target');

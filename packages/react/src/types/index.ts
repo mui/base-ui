@@ -25,8 +25,6 @@ export type BaseUIEvent<E extends React.SyntheticEvent<Element, Event>> = E & {
   readonly baseUIHandlerPrevented?: boolean | undefined;
 };
 
-export type { CollectionItemId } from './collection';
-
 export type {
   RegisterDraggableParameters,
   RegisterDropTargetParameters,
@@ -98,6 +96,8 @@ export type {
   DragLocalPoint,
   DragPointerType,
   DragPosition,
+  DragSnappedLocalPointOptions,
+  DragSnapSteps,
   DragPreviewOffsetParameters,
   DragStartContext,
   DraggablePayload,

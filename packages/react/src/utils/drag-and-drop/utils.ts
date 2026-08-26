@@ -50,16 +50,6 @@ export function resolveElementReference<T extends Element, TArgument = void>(
   return reference;
 }
 
-/**
- * The host of the shadow root a node lives in, or `null` when the node is not
- * inside a shadow tree. Realm-safe (`isShadowRoot` resolves `ShadowRoot` from the
- * node's own window).
- */
-export function getShadowHost(node: Element): Element | null {
-  const root = node.getRootNode();
-  return isShadowRoot(root) ? root.host : null;
-}
-
 export { getComposedParentElement };
 
 /** The event root that can observe a node before closed-shadow retargeting. */
@@ -68,7 +58,7 @@ export function getDragEventRoot(node: Element): Document | ShadowRoot {
   return isShadowRoot(root) ? root : ownerDocument(node);
 }
 
-const EMPTY_SHADOW_ROOTS: readonly ShadowRoot[] = [];
+const EMPTY_SHADOW_ROOTS_BY_HOST: ReadonlyMap<Element, ShadowRoot> = new Map();
 
 /**
  * Hit-test what sits under (`clientX`, `clientY`), descending into open shadow
@@ -87,31 +77,17 @@ export function deepElementFromPoint(
   doc: Document,
   clientX: number,
   clientY: number,
-  retainedShadowRoots: Iterable<ShadowRoot> = EMPTY_SHADOW_ROOTS,
+  rootsByHost: ReadonlyMap<Element, ShadowRoot> = EMPTY_SHADOW_ROOTS_BY_HOST,
 ): Element | null {
-  // Allocated on the first retained root only: this runs on every pointer frame,
-  // and the retained-root registry is empty in almost every app.
-  let rootsByHost: Map<Element, ShadowRoot> | null = null;
-  for (const retained of retainedShadowRoots) {
-    rootsByHost ??= new Map<Element, ShadowRoot>();
-    let root: Node = retained;
-    // A target's retained root can itself be nested in a closed outer root.
-    // Walking out through each host recovers those otherwise-invisible roots
-    // without making the registry retain/count the same target more than once.
-    while (isShadowRoot(root)) {
-      rootsByHost.set(root.host, root);
-      root = root.host.getRootNode();
-    }
-  }
   let hit = doc.elementFromPoint?.(clientX, clientY) ?? null;
-  let innerRoot = hit ? (hit.shadowRoot ?? rootsByHost?.get(hit)) : undefined;
+  let innerRoot = hit ? (hit.shadowRoot ?? rootsByHost.get(hit)) : undefined;
   while (innerRoot) {
     const inner = innerRoot.elementFromPoint?.(clientX, clientY);
     if (!inner || inner === hit) {
       break;
     }
     hit = inner;
-    innerRoot = hit.shadowRoot ?? rootsByHost?.get(hit);
+    innerRoot = hit.shadowRoot ?? rootsByHost.get(hit);
   }
   return hit;
 }
@@ -130,15 +106,9 @@ export function elementFromPointIgnoring(
   clientX: number,
   clientY: number,
   ignore: HTMLElement | null,
-  retainedShadowRoots: Iterable<ShadowRoot> = EMPTY_SHADOW_ROOTS,
+  rootsByHost: ReadonlyMap<Element, ShadowRoot> = EMPTY_SHADOW_ROOTS_BY_HOST,
 ): Element | null {
-  // The registry hands out a one-shot iterator and the hit-test below may run
-  // twice, so the roots are collected — but only once there is one to collect.
-  let shadowRoots: ShadowRoot[] | undefined;
-  for (const root of retainedShadowRoots) {
-    (shadowRoots ??= []).push(root);
-  }
-  const found = deepElementFromPoint(doc, clientX, clientY, shadowRoots);
+  const found = deepElementFromPoint(doc, clientX, clientY, rootsByHost);
   if (!found || ignore == null || !contains(ignore, found)) {
     return found;
   }
@@ -154,7 +124,7 @@ export function elementFromPointIgnoring(
   const wasPopoverOpen = isPopoverOpen(ignore);
   const previousDisplay = ignore.style.display;
   ignore.style.display = 'none';
-  const behind = deepElementFromPoint(doc, clientX, clientY, shadowRoots);
+  const behind = deepElementFromPoint(doc, clientX, clientY, rootsByHost);
   ignore.style.display = previousDisplay;
   if (wasPopoverOpen && !isPopoverOpen(ignore)) {
     try {

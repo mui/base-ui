@@ -112,6 +112,40 @@ describe.skipIf(isJSDOM)('drop target resolution (real hit testing)', () => {
     expect(onDrop.mock.calls[0][0].self.element).toBe(target);
   });
 
+  it('resolves a shadow-tree target around slotted content', async () => {
+    const { engine } = await renderDnd();
+    const source = createBox(0, 0);
+    const host = createBox(0, 200);
+    const shadowRoot = host.attachShadow({ mode: 'open' });
+    const target = document.createElement('div');
+    target.style.cssText = 'display: block; width: 100%; height: 100%;';
+    target.appendChild(document.createElement('slot'));
+    shadowRoot.appendChild(target);
+    const slotted = document.createElement('button');
+    slotted.style.cssText = 'display: block; width: 100%; height: 100%;';
+    host.appendChild(slotted);
+
+    const onDrop = vi.fn();
+    engine.registerDraggable(source, {
+      kind: cardKind,
+      payload: 'card-1',
+      pointerActivation: { mouse: { type: 'immediate' } },
+    });
+    engine.registerDropTarget(target, { accept: cardKind, onDrop });
+
+    pointer('pointerdown', source, 50, 25);
+    await flushRaf();
+    pointer('pointermove', source, 50, 225);
+    await flushRaf();
+    await flushRaf();
+    pointer('pointerup', source, 50, 225);
+    await flushRaf();
+
+    expect(document.elementFromPoint(50, 225)).toBe(slotted);
+    expect(onDrop).toHaveBeenCalledTimes(1);
+    expect(onDrop.mock.calls[0][0].self.element).toBe(target);
+  });
+
   it('resolves the innermost target when they nest', async () => {
     const { engine } = await renderDnd();
     const source = createBox(0, 0);

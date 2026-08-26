@@ -32,7 +32,7 @@ import {
   dispatchDropTargetChange,
   dispatchToAllDropTargets,
   dispatchToDropTarget,
-  getDropTargetShadowRoots,
+  getDropTargetShadowRootsByHost,
   getDropTargetsOver,
   refreshHoveredRecords,
 } from '../dropTarget';
@@ -338,23 +338,19 @@ export function start(parameters: StartParameters): DragSessionHandle | null {
   }
 
   /**
-   * The first error thrown by a *source* handler inside the terminal sequence,
+   * The first error thrown by a consumer handler inside the terminal sequence,
    * rethrown once that sequence has finished (see {@link captureTerminalError}).
    */
   let terminalError: { error: unknown } | null = null;
 
   /**
-   * Run one source-side terminal handler, holding any throw until the rest of the
+   * Run one terminal handler, holding any throw until the rest of the
    * end sequence has run.
    *
-   * Everywhere else in the engine a broken consumer costs only its own callback —
-   * `containConsumerError` per monitor, `safeCall` per drop target. The source's
-   * `onDrop`/`onDragEnd` were the exception: an uncontained throw there skipped
-   * the drop target's `onDrop`, both monitor dispatches, and every terminal
-   * `onDragLeave` — and `dispatchRecoveryEnd` cannot make up for it, since
-   * `endDispatched` is already latched by then. So the throw is captured, the
-   * sequence completes, and it is rethrown at the end: the same shape
-   * `runAllCleanups` uses.
+   * The source and drop target callbacks run before monitors and terminal leaves.
+   * An uncontained throw there would skip the remaining notifications, and
+   * `dispatchRecoveryEnd` cannot make them up once `endDispatched` is latched.
+   * Capture the throw, complete the sequence, and rethrow it after teardown.
    */
   function captureTerminalError(run: () => void): void {
     try {
@@ -364,14 +360,14 @@ export function start(parameters: StartParameters): DragSessionHandle | null {
     }
   }
 
-  /** Take the swallowed source error, clearing it so it can only surface once. */
+  /** Take the swallowed consumer error, clearing it so it can only surface once. */
   function popTerminalError(): unknown {
     const held = terminalError;
     terminalError = null;
     return held?.error;
   }
 
-  /** Rethrow whatever a source terminal handler swallowed above, after teardown. */
+  /** Rethrow whatever a terminal handler swallowed above, after teardown. */
   function rethrowTerminalError(): void {
     if (terminalError !== null) {
       throw popTerminalError();
@@ -490,7 +486,7 @@ export function start(parameters: StartParameters): DragSessionHandle | null {
         clientX,
         clientY,
         synthetic.getPreviewElement(),
-        getDropTargetShadowRoots(),
+        getDropTargetShadowRootsByHost(),
       );
       // A `null` hit with a still-connected last target means the pointer is
       // outside the viewport (captured pointer drag); keep the last target so the
@@ -802,12 +798,14 @@ export function start(parameters: StartParameters): DragSessionHandle | null {
             source,
             dropTarget: innermostDropTarget,
           };
-          dispatchToDropTarget(
-            innermostDropTarget,
-            'onDrop',
-            dropPayload,
-            dropDetails,
-            innermostRegistration,
+          captureTerminalError(() =>
+            dispatchToDropTarget(
+              innermostDropTarget,
+              'onDrop',
+              dropPayload,
+              dropDetails,
+              innermostRegistration,
+            ),
           );
           dispatchToMonitors('onDrop', dropPayload, dropDetails);
         }
@@ -843,15 +841,14 @@ export function start(parameters: StartParameters): DragSessionHandle | null {
     } catch (error) {
       dispatchRecoveryEnd();
       reset();
-      // A source terminal handler that already threw wins: it is the consumer's
-      // own error and the first one, and `captureTerminalError` promised to
-      // surface it. Anything raised afterwards is downstream of it.
+      // The first terminal handler error wins. Anything raised afterwards is
+      // downstream of it.
       throw terminalError ? popTerminalError() : error;
     }
 
     tearDown();
     // The engine is fully restored and every other consumer has had its terminal
-    // event; only now does a throwing source handler surface.
+    // event; only now does a throwing terminal handler surface.
     rethrowTerminalError();
     return { canceled: false, dropTarget: innermostDropTarget };
   }

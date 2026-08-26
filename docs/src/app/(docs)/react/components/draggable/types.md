@@ -1282,8 +1282,8 @@ type DragSnappedLocalPointOptions = {
 ### DragSnapSteps
 
 The number of equal steps used to snap a drop target's local point on each
-axis. An omitted axis or non-positive count is not snapped. Counts divide the
-target's border box and do not depend on its rendered size. For example,
+axis. An omitted axis, non-integer count, or non-positive count is not snapped.
+Counts divide the target's border box and do not depend on its rendered size. For example,
 `{ y: 96 }` divides a day column into 15-minute slots at any height.
 
 ```typescript

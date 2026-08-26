@@ -10,7 +10,12 @@ import type {
   RegisterDropTargetParametersWithPayload,
 } from '@base-ui/react/use-drag-drop-manager';
 import { Draggable } from '@base-ui/react/draggable';
-import type { DragKind, DropTargetRecord } from '@base-ui/react/types';
+import type {
+  DragKind,
+  DragSnappedLocalPointOptions,
+  DragSnapSteps,
+  DropTargetRecord,
+} from '@base-ui/react/types';
 import { expectType } from '#test-utils';
 
 // Type-only file: nothing here runs, so the hook is never actually called —
@@ -32,6 +37,10 @@ const globalItem = createGlobalKind('app/item');
 expectType<DragKind<CardPayload>, typeof engineCard>(engineCard);
 expectType<DragKind<undefined>, typeof globalItem>(globalItem);
 expectType<DragKind<unknown>, typeof anyKind>(anyKind);
+const snapSteps: DragSnapSteps = { x: 4, y: 8 };
+const snappedPointOptions: DragSnappedLocalPointOptions = { anchor: 'source' };
+expectType<DragSnapSteps, typeof snapSteps>(snapSteps);
+expectType<DragSnappedLocalPointOptions, typeof snappedPointOptions>(snappedPointOptions);
 
 // A bare observational DragKind accepts payload-bearing kinds. The factory's
 // default remains `undefined`, as asserted by `marker` above.

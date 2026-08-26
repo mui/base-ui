@@ -85,11 +85,16 @@ export function createGetterStackRegistry<TElement, TGetter>(options: {
         // finds this still-present entry and pushes onto it rather than registering
         // afresh. Drop only the retiring getter, and when something did re-register,
         // keep it and redo the first-add side effects `onLastRemove` just undid.
-        const survivors = getters.filter((held) => held !== getter);
-        if (survivors.length === 0) {
+        // This branch started with exactly one hold at index zero. Remove only
+        // that occurrence. A callback above may have pushed the same stable
+        // getter again, and filtering by value would delete the new hold too.
+        if (getters[0] === getter) {
+          getters.splice(0, 1);
+        }
+        if (getters.length === 0) {
           entries.delete(element);
         } else {
-          entries.set(element, survivors);
+          entries.set(element, getters);
           onFirstAdd?.(element);
         }
       }

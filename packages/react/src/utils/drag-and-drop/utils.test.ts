@@ -115,9 +115,17 @@ describe('deepElementFromPoint', () => {
     (innerShadow as unknown as { elementFromPoint: () => Element }).elementFromPoint = () => leaf;
     vi.spyOn(document, 'elementFromPoint').mockReturnValue(outerHost);
 
-    // Only the target's immediate root is retained. Walking outward through its
-    // hosts recovers the closed outer boundary needed to reach it from document.
-    expect(deepElementFromPoint(document, 10, 20, [innerShadow])).toBe(leaf);
+    expect(
+      deepElementFromPoint(
+        document,
+        10,
+        20,
+        new Map([
+          [outerHost, outerShadow],
+          [innerHost, innerShadow],
+        ]),
+      ),
+    ).toBe(leaf);
   });
 
   // Covers the jsdom quirk where ShadowRoot lacks elementFromPoint; in a real

@@ -33,7 +33,11 @@ import { createEventRootBinding, type DragEventRoot } from '../documentBinding';
 import type { DraggableConfig } from '../draggable';
 import { getRegistration, resolveDragHandle, resolveDraggablePickup } from '../draggableRegistry';
 import { hasInteractiveAncestorWithin } from '../interactiveElement';
-import { getDropTargetShadowRoots, subscribeDropTargetShadowRoots } from '../dropTarget';
+import {
+  getDropTargetShadowRoots,
+  getDropTargetShadowRootsByHost,
+  subscribeDropTargetShadowRoots,
+} from '../dropTarget';
 import type {
   DragCanceledReason,
   DragCleanupFn,
@@ -379,8 +383,10 @@ function isScrollbarPress(event: PointerEvent, element: Element): boolean {
   // the other's box. `clientLeft`/`clientTop` are the top/left border widths, so
   // this lands at the padding edge either way.
   const rect = element.getBoundingClientRect();
-  const offsetX = event.clientX - rect.left - element.clientLeft;
-  const offsetY = event.clientY - rect.top - element.clientTop;
+  const scaleX = element.offsetWidth > 0 ? rect.width / element.offsetWidth : 1;
+  const scaleY = element.offsetHeight > 0 ? rect.height / element.offsetHeight : 1;
+  const offsetX = (event.clientX - rect.left) / scaleX - element.clientLeft;
+  const offsetY = (event.clientY - rect.top) / scaleY - element.clientTop;
   // The gutter sits past the padding box on the trailing side, and before it on
   // the leading side — RTL puts the vertical scrollbar on the left. Only the side
   // the scrollbar is actually on is tested: the opposite side of the padding box
@@ -814,7 +820,7 @@ function commitActivation(): void {
     doc,
     startInput.clientX,
     startInput.clientY,
-    getDropTargetShadowRoots(),
+    getDropTargetShadowRootsByHost(),
   );
 
   // The shared bootstrap allocates preview + lock + lifecycle and undoes them
@@ -1052,7 +1058,7 @@ function resolveTargetUnderPointer(
     clientX,
     clientY,
     active.preview.getPreviewElement()?.element ?? null,
-    getDropTargetShadowRoots(),
+    getDropTargetShadowRootsByHost(),
   );
 }
 

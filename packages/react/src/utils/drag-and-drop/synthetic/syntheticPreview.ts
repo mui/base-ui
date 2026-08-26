@@ -1,5 +1,6 @@
 import { ownerWindow } from '@base-ui/utils/owner';
 import { WindowAnimationFrame } from '../../windowAnimationFrame';
+import { WindowTimeout } from '../../windowTimeout';
 import type { DragPreviewElementHandle } from './cloneDragPreview';
 import type { DragModifier, DragModifierKeys, DragPosition } from '../../../types/drag';
 import { applyDragModifiers } from '../dragModifiers';
@@ -9,6 +10,8 @@ import { getElementScale, NO_MODIFIER_KEYS } from '../utils';
 const ZERO_OFFSET: DragPosition = { x: 0, y: 0 };
 /** No ancestor transform: what `getElementScale` reports for an unscaled element. */
 const DEFAULT_SCALE: DragPosition = { x: 1, y: 1 };
+const MIN_SETTLING_WATCHDOG_MS = 1000;
+const MAX_SETTLING_WATCHDOG_MS = 30000;
 
 /**
  * Set on the drag source for the whole drag, so the source can be dimmed in one
@@ -297,8 +300,10 @@ export function createSyntheticPreview(
         const frame = new WindowAnimationFrame(ownerWindow(element));
         let registration: EndingPreviewRegistration | null = null;
 
+        const settlingWatchdog = new WindowTimeout(ownerWindow(element));
         const cleanup = () => {
           frame.cancel();
+          settlingWatchdog.clear();
           endingPreview.destroy();
           if (registration) {
             endingPreviewRegistrations.delete(registration);
@@ -350,6 +355,19 @@ export function createSyntheticPreview(
             cleanup();
             return;
           }
+          const longestAnimationMs = animations.reduce((longest, animation) => {
+            const endTime = animation.effect?.getComputedTiming?.().endTime;
+            return typeof endTime === 'number' && Number.isFinite(endTime)
+              ? Math.max(longest, endTime)
+              : longest;
+          }, 0);
+          settlingWatchdog.start(
+            Math.min(
+              Math.max(longestAnimationMs + 100, MIN_SETTLING_WATCHDOG_MS),
+              MAX_SETTLING_WATCHDOG_MS,
+            ),
+            cleanup,
+          );
           Promise.allSettled(animations.map((animation) => animation.finished)).then(cleanup);
         });
         return;

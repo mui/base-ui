@@ -491,7 +491,7 @@ import { TypesDraggable, TypesDraggableAdditional } from './types';
 
 ### createKind
 
-Creates a drag kind with a unique runtime identity. Declare it once and share the returned value with each draggable, drop target, monitor, and auto-scroller that participates in the interaction. The optional name is only a debugging aid; separately created kinds do not match.
+Creates a drag kind with a unique runtime identity. Declare it once and share the returned value with each draggable, drop target, monitor, and auto-scroller that participates in the interaction. The name is only a debugging aid; separately created kinds do not match.
 
 ```ts
 const card = Draggable.createKind<Card>('card');
