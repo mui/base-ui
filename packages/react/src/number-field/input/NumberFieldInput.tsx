@@ -70,6 +70,7 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
     setInputValue,
     locale,
     inputRef,
+    registerElementWheelListener,
     onValueCommitted,
     lastChangedValueRef,
     hasPendingCommitRef,
@@ -108,6 +109,12 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
 
     validation.change(value);
   });
+
+  // Registering from here rather than the root ties the listener to the input's own lifecycle,
+  // so it follows the element across remounts and late mounts.
+  React.useEffect(() => {
+    return registerElementWheelListener(inputRef.current);
+  }, [registerElementWheelListener, inputRef]);
 
   const inputProps: React.ComponentProps<'input'> = {
     id,

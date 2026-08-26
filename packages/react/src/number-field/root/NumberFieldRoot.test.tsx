@@ -1493,6 +1493,105 @@ describe('<NumberField />', () => {
       expect(onValueChange.mock.lastCall?.[0]).toBe(10);
     });
 
+    it('keeps scrubbing after the input is remounted', async () => {
+      function App() {
+        const [inputKey, setInputKey] = React.useState(0);
+
+        return (
+          <React.Fragment>
+            <button type="button" onClick={() => setInputKey((previous) => previous + 1)}>
+              remount
+            </button>
+            <NumberFieldBase.Root defaultValue={5} allowWheelScrub>
+              <NumberFieldBase.Group>
+                <NumberFieldBase.Input key={inputKey} />
+              </NumberFieldBase.Group>
+            </NumberFieldBase.Root>
+          </React.Fragment>
+        );
+      }
+
+      const { user } = await render(<App />);
+
+      const input = screen.getByRole('textbox');
+      await act(async () => input.focus());
+
+      fireEvent.wheel(input, { deltaY: -1 });
+      expect(input).toHaveValue('6');
+
+      await user.click(screen.getByRole('button', { name: 'remount' }));
+
+      const remountedInput = screen.getByRole('textbox');
+      await act(async () => remountedInput.focus());
+
+      fireEvent.wheel(remountedInput, { deltaY: -1 });
+      expect(remountedInput).toHaveValue('7');
+    });
+
+    it('scrubs on an input that mounts after the root', async () => {
+      function App() {
+        const [mounted, setMounted] = React.useState(false);
+
+        return (
+          <React.Fragment>
+            <button type="button" onClick={() => setMounted(true)}>
+              mount
+            </button>
+            <NumberFieldBase.Root defaultValue={5} allowWheelScrub>
+              <NumberFieldBase.Group>{mounted && <NumberFieldBase.Input />}</NumberFieldBase.Group>
+            </NumberFieldBase.Root>
+          </React.Fragment>
+        );
+      }
+
+      const { user } = await render(<App />);
+
+      expect(screen.queryByRole('textbox')).toBe(null);
+
+      await user.click(screen.getByRole('button', { name: 'mount' }));
+
+      const input = screen.getByRole('textbox');
+      await act(async () => input.focus());
+
+      fireEvent.wheel(input, { deltaY: -1 });
+      expect(input).toHaveValue('6');
+    });
+
+    it('leaves exactly one live wheel listener on the input, and none after it unmounts', async () => {
+      const addSpy = vi.spyOn(HTMLInputElement.prototype, 'addEventListener');
+      const removeSpy = vi.spyOn(HTMLInputElement.prototype, 'removeEventListener');
+      const countWheel = (spy: typeof addSpy) =>
+        spy.mock.calls.filter(([type]) => type === 'wheel').length;
+
+      function App() {
+        const [mounted, setMounted] = React.useState(true);
+
+        return (
+          <React.Fragment>
+            <button type="button" onClick={() => setMounted(false)}>
+              unmount
+            </button>
+            <NumberFieldBase.Root defaultValue={5} allowWheelScrub>
+              <NumberFieldBase.Group>{mounted && <NumberFieldBase.Input />}</NumberFieldBase.Group>
+            </NumberFieldBase.Root>
+          </React.Fragment>
+        );
+      }
+
+      try {
+        const { user } = await render(<App />);
+
+        expect(countWheel(addSpy) - countWheel(removeSpy)).toBe(1);
+
+        await user.click(screen.getByRole('button', { name: 'unmount' }));
+
+        expect(countWheel(addSpy) - countWheel(removeSpy)).toBe(0);
+      } finally {
+        addSpy.mockRestore();
+        removeSpy.mockRestore();
+      }
+    });
+
     it('calls onValueChange and onValueCommitted on wheel', async () => {
       const onValueChange = vi.fn();
       const onValueCommitted = vi.fn();

@@ -340,9 +340,8 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
 
   // React attaches `onWheel` as a passive listener, so calling `preventDefault` there is ignored.
   // Attach a native (non-passive) `wheel` listener to the input instead to prevent page scrolling.
-  React.useEffect(
-    function registerElementWheelListener() {
-      const element = inputRef.current;
+  const registerElementWheelListener = React.useCallback(
+    (element: HTMLInputElement | null) => {
       if (disabled || readOnly || !allowWheelScrub || !element) {
         return undefined;
       }
@@ -399,7 +398,6 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
       getStepAmount,
       onValueCommitted,
       lastChangedValueRef,
-      valueRef,
     ],
   );
 
@@ -418,6 +416,7 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
 
   const contextValue: NumberFieldRootContext = React.useMemo(
     () => ({
+      registerElementWheelListener,
       inputRef,
       minWithDefault,
       maxWithDefault,
@@ -443,6 +442,7 @@ export const NumberFieldRoot = React.forwardRef(function NumberFieldRoot(
       onValueCommitted,
     }),
     [
+      registerElementWheelListener,
       inputRef,
       minWithDefault,
       maxWithDefault,
