@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import { ownerWindow } from '@base-ui/utils/owner';
 import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
@@ -17,6 +18,7 @@ import {
   useFilterDropdownItemContext,
   useFilterDropdownRootContext,
 } from '../../filter-dropdown/root/FilterDropdownRootContext';
+import type { BaseUIEvent } from '../../internals/types';
 
 /**
  * A container for the filter menu items.
@@ -29,10 +31,33 @@ export const FilterMenuList = React.forwardRef(function FilterMenuList(
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const { store: menuStore } = useMenuRootContext();
-  const { inline, onItemsChange } = useFilterDropdownRootContext();
+  const { inline, onItemsChange, hasInput, focusOwnerRef } = useFilterDropdownRootContext();
   const { grid, store: filterStore } = useFilterDropdownItemContext();
   const { subscribeMapChange } = useCompositeListContext();
   const handleReferenceKeyDown = useFilterMenuReferenceKeyDown();
+
+  const handleKeyDown = useStableCallback(
+    (event: BaseUIEvent<React.KeyboardEvent<HTMLElement>>) => {
+      const owner = focusOwnerRef.current;
+      if (!hasInput || owner == null || event.target !== event.currentTarget) {
+        handleReferenceKeyDown(event);
+        return;
+      }
+
+      // A scrollbar press moves real focus onto the list itself while the input still owns the
+      // keyboard. Hand focus back and replay the key on the input so its handlers run instead of
+      // the list scrolling; a typing key's default action follows the moved focus into the input.
+      owner.focus({ preventScroll: true });
+      const KeyboardEventConstructor = ownerWindow(owner).KeyboardEvent;
+      const replayedEvent = new KeyboardEventConstructor(event.type, event.nativeEvent);
+      const handled = !owner.dispatchEvent(replayedEvent) || replayedEvent.cancelBubble;
+      // The replay already bubbled from the input through this tree; don't deliver it twice.
+      event.stopPropagation();
+      if (handled) {
+        event.preventDefault();
+      }
+    },
+  );
 
   const previousItemsRef = React.useRef<readonly Element[]>([]);
   // Distinguishes "no snapshot yet" from "the last snapshot was empty". Comparing against the
@@ -90,7 +115,7 @@ export const FilterMenuList = React.forwardRef(function FilterMenuList(
   const listProps = mergeProps<typeof FilterDropdownList>(
     {
       role: grid ? 'grid' : 'menu',
-      onKeyDown: handleReferenceKeyDown,
+      onKeyDown: handleKeyDown,
       onPointerMove: inline ? handleInlinePointerMove : undefined,
     },
     componentProps,
