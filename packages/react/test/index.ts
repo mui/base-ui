@@ -4,7 +4,7 @@ export { createRenderer } from './createRenderer';
 export { createDndRenderer, testDragKind } from './dndEngine';
 export type { DndRenderResult, DndTestRenderer, DndTestEngine } from './dndEngine';
 export { describeConformance } from './describeConformance';
-export { enterWithMouse, moveMouse } from './pointer';
+export { enterWithMouse, firePointer, moveMouse } from './pointer';
 export { mergeRefs } from './mergeRefs';
 export { popupConformanceTests } from './popupConformanceTests';
 export { resetBrowserPointer } from './resetBrowserPointer';
