@@ -3,7 +3,10 @@ import * as React from 'react';
 import { EMPTY_ARRAY } from '@base-ui/utils/empty';
 import { ownerWindow } from '@base-ui/utils/owner';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
-import { useFilterDropdownItemContext } from '../../filter-dropdown/root/FilterDropdownRootContext';
+import {
+  useFilterDropdownItemContext,
+  useFilterDropdownRootContext,
+} from '../../filter-dropdown/root/FilterDropdownRootContext';
 import { useMenuRootContext } from '../../menu/root/MenuRootContext';
 import { useDirection } from '../../internals/direction-context/DirectionContext';
 import type { BaseUIEvent } from '../../internals/types';
@@ -23,6 +26,7 @@ import {
  */
 export function useFilterMenuReferenceKeyDown() {
   const { grid, listRef, store: filterStore } = useFilterDropdownItemContext();
+  const { virtualized } = useFilterDropdownRootContext();
   const { loopFocus, orientation, store: menuStore } = useMenuRootContext();
   const direction = useDirection();
 
@@ -31,6 +35,14 @@ export function useFilterMenuReferenceKeyDown() {
   return useStableCallback((event: BaseUIEvent<React.KeyboardEvent<HTMLElement>>) => {
     if (event.which === 229) {
       return;
+    }
+
+    // A windowed registry ends at the mounted window's edge, so boundary keys would treat that
+    // edge as the end of the list. Stretch it to the full count before the navigation handlers
+    // read it; the trailing holes are navigable and the virtualizer mounts them once highlighted.
+    // Re-applied on every key because the composite registry resets the length on each flush.
+    if (typeof virtualized === 'number' && listRef.current.length !== virtualized) {
+      listRef.current.length = virtualized;
     }
 
     if (

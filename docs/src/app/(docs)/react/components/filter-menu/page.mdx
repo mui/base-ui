@@ -105,7 +105,7 @@ Use `<FilterMenu.Status>` to announce the progress and how much of the source ma
 ### Virtualized
 
 Efficiently handle large preknown lists using a virtualization library like `@tanstack/react-virtual`.
-Set `virtualized` on the Root, give each rendered item its absolute `index`, and scroll the highlight into view with `onItemHighlighted`.
+Pass the filtered item count to `virtualized` on the Root, give each rendered item its absolute `index`, and scroll the highlight into view with `onItemHighlighted`.
 Filtering stays yours through `filter={null}`, and the virtualizer's overscan keeps keyboard navigation an adjacent item to move to.
 
 <DemoFilterMenuVirtualized />

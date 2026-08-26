@@ -5259,7 +5259,7 @@ describe('<FilterMenu.Root />', () => {
       return (
         <FilterMenu.Root
           defaultOpen
-          virtualized
+          virtualized={TOTAL}
           filter={null}
           onItemHighlighted={(index, details) => {
             props.onItemHighlighted?.(index, details);
@@ -5329,6 +5329,25 @@ describe('<FilterMenu.Root />', () => {
       await user.keyboard('[ArrowUp]');
       await waitFor(() => {
         expect(input).toHaveAttribute('aria-activedescendant', screen.getByTestId('item-9').id);
+      });
+    });
+
+    it('enters at the true last index with ArrowUp', async () => {
+      const { user } = await render(<VirtualizedMenu />);
+
+      const input = screen.getByRole('searchbox', { name: 'Search' });
+      await waitFor(() => {
+        expect(input).toHaveFocus();
+      });
+
+      // The registry is stretched to the passed count, so entering from the bottom targets the
+      // list's real end rather than the mounted window's edge.
+      await user.keyboard('[ArrowUp]');
+      await waitFor(() => {
+        expect(input).toHaveAttribute(
+          'aria-activedescendant',
+          screen.getByTestId(`item-${TOTAL - 1}`).id,
+        );
       });
     });
 

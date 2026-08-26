@@ -19,7 +19,7 @@ export default function ExampleVirtualizedFilterMenu() {
 
   return (
     <FilterMenu.Root
-      virtualized
+      virtualized={filteredItems.length}
       filter={null}
       inputValue={searchValue}
       onInputValueChange={(value, details) => {
@@ -113,6 +113,8 @@ function VirtualizedList({
   return (
     <div
       role="presentation"
+      // Chromium adds scrollable elements without focusable content to the tab order.
+      tabIndex={-1}
       ref={handleScrollElementRef}
       className={styles.Scroller}
       style={{ '--total-size': `${totalSize}px` } as React.CSSProperties}
