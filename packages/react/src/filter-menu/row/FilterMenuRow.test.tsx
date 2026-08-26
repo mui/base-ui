@@ -354,7 +354,7 @@ describe('<FilterMenu.Row />', () => {
       expect(input).toHaveAttribute('aria-activedescendant', cells[1].id);
     });
 
-    it('wraps within the row instead of stranding the highlight at the first cell', async () => {
+    it('returns the highlight to the input past either end of the grid', async () => {
       const { user } = await render(<GridMenu />);
       const input = screen.getByRole('searchbox', { name: 'Search emoji' });
       const cells = screen.getAllByRole('gridcell');
@@ -365,12 +365,22 @@ describe('<FilterMenu.Row />', () => {
       await user.keyboard('[ArrowDown]');
       expect(input).toHaveAttribute('aria-activedescendant', cells[0].id);
 
-      // A grid navigates on the horizontal axis, so moving back past the first cell must wrap
-      // rather than clear the highlight the way escaping out of a vertical list does.
+      // Moving back past the first cell escapes to the input, matching the Combobox grid.
       await user.keyboard('[ArrowLeft]');
-      expect(input).toHaveAttribute('aria-activedescendant', cells[4].id);
+      expect(input).not.toHaveAttribute('aria-activedescendant');
 
+      // Horizontal keys stay caret keys while nothing is highlighted; vertical keys re-enter.
       await user.keyboard('[ArrowRight]');
+      expect(input).not.toHaveAttribute('aria-activedescendant');
+      await user.keyboard('[ArrowDown]');
+      expect(input).toHaveAttribute('aria-activedescendant', cells[0].id);
+
+      // Moving forward past the last cell escapes as well.
+      await user.keyboard('[ArrowRight][ArrowRight][ArrowRight][ArrowRight]');
+      expect(input).toHaveAttribute('aria-activedescendant', cells[4].id);
+      await user.keyboard('[ArrowRight]');
+      expect(input).not.toHaveAttribute('aria-activedescendant');
+      await user.keyboard('[ArrowDown]');
       expect(input).toHaveAttribute('aria-activedescendant', cells[0].id);
     });
 
@@ -406,9 +416,11 @@ describe('<FilterMenu.Row />', () => {
       await user.keyboard('[ArrowRight]');
       expect(input).toHaveAttribute('aria-activedescendant', cells[0].id);
 
-      // Moving back past the first cell wraps; it must not strand the highlight.
+      // Moving back past the first cell escapes to the input; vertical keys re-enter.
       await user.keyboard('[ArrowRight]');
-      expect(input).toHaveAttribute('aria-activedescendant', cells[2].id);
+      expect(input).not.toHaveAttribute('aria-activedescendant');
+      await user.keyboard('[ArrowDown]');
+      expect(input).toHaveAttribute('aria-activedescendant', cells[0].id);
     });
 
     it('leaves an item outside a row as a plain menu item', async () => {
