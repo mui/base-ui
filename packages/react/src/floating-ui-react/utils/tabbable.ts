@@ -247,12 +247,6 @@ export function getTabbableAfterElement(referenceElement: Element | null): Focus
   return getTabbableNearElement(referenceElement, 1);
 }
 
-export function getTabbableBeforeElement(
-  referenceElement: Element | null,
-): FocusableElement | null {
-  return getTabbableNearElement(referenceElement, -1);
-}
-
 export function isOutsideEvent(event: FocusEvent | React.FocusEvent, container?: Element) {
   const containerElement = container || (event.currentTarget as Element);
   const relatedTarget = event.relatedTarget as HTMLElement | null;
