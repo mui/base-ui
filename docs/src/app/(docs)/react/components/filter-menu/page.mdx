@@ -95,8 +95,9 @@ Give any element between the list and its rows `role="presentation"`.
 
 ### Async search
 
-Pass `filter={null}` and fetch matches yourself to search a source too large to render, such as a server-side directory.
-Keep the previous results rendered while a request is pending, and use `FilterMenu.Status` to announce the progress.
+Pass `filter={null}` and fetch matches yourself to search a source too large to render, such as a server-side index.
+Open with a short list of suggestions, return only the top matches for each query, and keep the previous results rendered while a request is pending.
+Use `<FilterMenu.Status>` to announce the progress and how much of the source matched.
 
 <DemoFilterMenuAsync />
 
