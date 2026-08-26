@@ -77,7 +77,7 @@ function startSensorSession(parameters: StartSensorSessionParameters): DragSessi
   // Read `dragSource.element` rather than the start-time `element`: a virtualizer
   // can remount the source to a fresh node mid-drag, which re-registers under
   // the new element and re-points `dragSource.element` at it (see
-  // `updateDragSourceElement`). The old element's registration is gone, so
+  // `retargetDragSource`). The old element's registration is gone, so
   // resolving against the live node keeps the fresh handler closures flowing.
   const getLatestParameters = (): DraggableConfig<any> =>
     getRegistration(dragSource.element)?.() ?? source;
@@ -107,12 +107,8 @@ export interface CreatePreviewSessionParameters extends Omit<
   StartSensorSessionParameters,
   'initialTarget' | 'preview'
 > {
-  /**
-   * Resolve the initial drop target. Called once the preview exists, so the
-   * pointer sensor resolves the target before the preview is built and ignores
-   * the argument.
-   */
-  getInitialTarget: (preview: SyntheticPreviewHandle) => Element | null;
+  /** The initial drop target, resolved before the preview is built and moved under the pointer. */
+  initialTarget: Element | null;
   /**
    * Where the user pressed, when the gesture has a press. The grab offset
    * anchors here rather than at `initialInput`: the activation threshold puts
@@ -146,7 +142,7 @@ export interface PreviewSessionHandle {
 export function createPreviewAndStartSession(
   parameters: CreatePreviewSessionParameters,
 ): PreviewSessionHandle | null {
-  const { getInitialTarget, pressPoint, acquire, release, ...sessionParameters } = parameters;
+  const { pressPoint, acquire, release, ...sessionParameters } = parameters;
   const { draggableParameters, element, initialInput } = sessionParameters;
 
   let preview: SyntheticPreviewHandle | null = null;
@@ -200,7 +196,6 @@ export function createPreviewAndStartSession(
 
     session = startSensorSession({
       ...sessionParameters,
-      initialTarget: getInitialTarget(preview),
       preview,
       grabOffset,
     });

@@ -2,7 +2,6 @@
 import * as React from 'react';
 import type { DragPreviewHandle } from '../../utils/drag-and-drop/dragPreviewDeclaration';
 import type { DragPreviewContext } from '../../utils/drag-and-drop/overlay/DragPreviewContext';
-import type { DragCleanupFn } from '../../types/drag';
 
 export interface DraggableRootContext<TData = unknown> {
   /**
@@ -15,8 +14,6 @@ export interface DraggableRootContext<TData = unknown> {
    * several handles just left.
    */
   setHandleElement: (node: HTMLElement | null, token: object) => void;
-  /** Observe the root element, including node replacements. Stable. */
-  observeElement: (observer: (element: HTMLElement | null) => void) => DragCleanupFn;
   /** The link a `Draggable.Preview` declares into. Stable. */
   previewHandle: DragPreviewHandle<TData>;
   /**

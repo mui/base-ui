@@ -84,8 +84,7 @@ export const DraggableRoot = React.forwardRef(function DraggableRoot<TData = und
     onDragEnd,
   } as RegisterDraggableParameters<TData>;
 
-  const { ref, dragging, setHandleElement, observeElement, previewHandle } =
-    useDraggableElement<TData>(params);
+  const { ref, dragging, setHandleElement, previewHandle } = useDraggableElement<TData>(params);
 
   const state: DraggableRoot.State = { dragging, disabled: disabled ?? false };
 
@@ -96,12 +95,11 @@ export const DraggableRoot = React.forwardRef(function DraggableRoot<TData = und
   const contextValue = React.useMemo(
     () => ({
       setHandleElement,
-      observeElement,
       previewHandle,
       previewContext,
       disabled: disabled ?? false,
     }),
-    [setHandleElement, observeElement, previewHandle, previewContext, disabled],
+    [setHandleElement, previewHandle, previewContext, disabled],
   );
 
   const element = useRenderElement('div', componentProps, {

@@ -1,8 +1,11 @@
 import { ownerDocument, ownerWindow } from '@base-ui/utils/owner';
+import { NOOP } from '@base-ui/utils/empty';
 import { isShadowRoot } from '@floating-ui/utils/dom';
 import { applySourceSizeVars } from '../customDragPreview';
 import { getSharedSlot } from '../sharedState';
+import { DRAG_PREVIEW_ATTR, DRAGGING_ATTR } from '../dragAttributes';
 import {
+  COMPUTED_MATRIX,
   identityLinearTransform,
   multiplyLinearTransforms,
   parseComputedLinearTransform,
@@ -10,14 +13,6 @@ import {
   parseScaleLinearTransform,
   type LinearTransform,
 } from '../linearTransform';
-
-/**
- * Marks the preview so consumers can style it with the source's own selector —
- * `.Card[data-drag-preview] { box-shadow: … }`. This only works because the clone
- * keeps the source's classes and the engine writes *geometry* inline and nothing
- * else; any visual property written inline would beat every class rule.
- */
-const DRAG_PREVIEW_ATTR = 'data-drag-preview';
 
 /**
  * Properties the preview must not inherit from the source. The preview is
@@ -104,18 +99,6 @@ export interface DragPreviewElementHandle {
    */
   ensureConnected(): void;
   destroy(): void;
-}
-
-export interface CreateDragPreviewElementOptions {
-  /**
-   * `'clone'` copies the source element. `'host'` creates an empty element for a
-   * `Draggable.Preview` to render its content into — it sits in the same place and
-   * gets the same treatment, so custom previews inherit the app's CSS exactly as
-   * the clone does.
-   */
-  content: 'clone' | 'host';
-  /** Where to inject the preview. Defaults to the source's parent (in place). */
-  container?: HTMLElement | null | undefined;
 }
 
 export type DragPreviewElementFactory = (
@@ -397,14 +380,13 @@ function prepareDragPreviewClone(
 
   const { applyPostInsertion } = copyLiveState(sourceNodes, cloneNodes, win);
   sanitize(element, cloneNodes, '-drag-preview');
-  element.removeAttribute('data-dragging');
+  element.removeAttribute(DRAGGING_ATTR);
 
   return { element, applyPostInsertion };
 }
 
 /** A `transform` that only translates, which leaves the box's size untouched. */
 const TRANSLATE_ONLY = /^translate(3d|X|Y)?\([^)]*\)$/;
-const MATRIX = /^matrix(3d)?\(([^)]*)\)$/;
 
 /**
  * Whether a computed `transform` only translates. Browsers resolve the computed
@@ -417,7 +399,7 @@ function isTranslationOnly(transform: string): boolean {
   if (TRANSLATE_ONLY.test(transform)) {
     return true;
   }
-  const matrix = transform.match(MATRIX);
+  const matrix = transform.match(COMPUTED_MATRIX);
   if (!matrix) {
     return false;
   }
@@ -605,7 +587,7 @@ function createPreparedDragPreviewElement(
 
   const isClone = options.clone !== undefined;
   const element = options.clone?.element ?? doc.createElement('div');
-  const applyPostInsertion = options.clone?.applyPostInsertion ?? (() => {});
+  const applyPostInsertion = options.clone?.applyPostInsertion ?? NOOP;
 
   element.setAttribute(DRAG_PREVIEW_ATTR, '');
   element.setAttribute('aria-hidden', 'true');
@@ -786,13 +768,3 @@ export const createClonedDragPreviewElement: DragPreviewElementFactory = (source
         clone: prepareDragPreviewClone(source, ownerWindow(source)),
       })
     : null;
-
-/** @internal Kept as a test helper for exercising both preview element variants. */
-export function createDragPreviewElement(
-  source: HTMLElement,
-  options: CreateDragPreviewElementOptions,
-): DragPreviewElementHandle | null {
-  return options.content === 'clone'
-    ? createClonedDragPreviewElement(source, options.container ?? null)
-    : createDragPreviewHostElement(source, options.container ?? null);
-}

@@ -19,6 +19,7 @@
  */
 
 import { ownerWindow } from '@base-ui/utils/owner';
+import { NOOP } from '@base-ui/utils/empty';
 import { addEventListener } from '@base-ui/utils/addEventListener';
 import { WindowTimeout } from '../../windowTimeout';
 import { getSharedSlot } from '../sharedState';
@@ -74,9 +75,9 @@ export function suppressNextClick(
 
   // Assigned by the listener registrations below; the handlers and the timer all
   // reach them through `disarm`, which only ever runs after that.
-  let offClick: DragCleanupFn = () => {};
-  let offPointerDown: DragCleanupFn = () => {};
-  let offPointerUp: DragCleanupFn = () => {};
+  let offClick: DragCleanupFn = NOOP;
+  let offPointerDown: DragCleanupFn = NOOP;
+  let offPointerUp: DragCleanupFn = NOOP;
 
   const disarm = () => {
     if (state.disarm !== disarm) {

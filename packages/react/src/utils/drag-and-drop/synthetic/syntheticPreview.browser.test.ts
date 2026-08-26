@@ -1,7 +1,7 @@
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { isJSDOM } from '#test-utils';
 import { flushRaf } from '../../../../test/dnd';
-import { createDragPreviewElement } from './cloneDragPreview';
+import { createClonedDragPreviewElement } from './cloneDragPreview';
 import { createSyntheticPreview } from './syntheticPreview';
 
 describe.skipIf(isJSDOM)('syntheticPreview drop transition', () => {
@@ -36,7 +36,7 @@ describe.skipIf(isJSDOM)('syntheticPreview drop transition', () => {
     document.body.appendChild(source);
 
     try {
-      const clone = createDragPreviewElement(source, { content: 'clone' });
+      const clone = createClonedDragPreviewElement(source, null);
       expect(clone).not.toBeNull();
 
       const preview = createSyntheticPreview(source);

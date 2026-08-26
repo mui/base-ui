@@ -1,6 +1,7 @@
 import { Store, type ReadonlyStore } from '@base-ui/utils/store';
 import type { DragLocationHistory, DragSource } from '../../types/drag';
 import { getSharedSlot } from './sharedState';
+import { retargetActivePreviewSource } from './activePreview';
 
 /**
  * Snapshot of the active drag, mirrored from the lifecycle for reactive
@@ -61,10 +62,6 @@ slot.allTargetListeners ??= new Set<() => void>();
 export const dragSessionStore: ReadonlyStore<DragSessionState | null> = slot.store;
 
 export const dragSourceStore: ReadonlyStore<DragSource | null> = slot.sourceStore;
-
-export function selectDragSource(source: DragSource | null): DragSource | null {
-  return source;
-}
 
 /** Internal: lifecycle-only writer. Not exported from `index.ts`. */
 export function setDragSession(state: DragSessionState | null): void {
@@ -203,7 +200,7 @@ export function createDragTargetStateStore(): DragTargetStateStore {
   return store;
 }
 
-export function updateDragSourceElement(oldElement: Element, newElement: HTMLElement): boolean {
+function updateDragSourceElement(oldElement: Element, newElement: HTMLElement): boolean {
   const state = slot.store.state;
   if (!state || state.source.element !== oldElement) {
     return false;
@@ -213,6 +210,18 @@ export function updateDragSourceElement(oldElement: Element, newElement: HTMLEle
   // Wake subscribers whose selector returns the source.
   slot.sourceStore.setState({ ...state.source });
   return true;
+}
+
+/**
+ * Follow the active drag source to a fresh node (a virtualizer remounting the
+ * dragged row): re-point the session at it, and move the preview's source
+ * marking (`data-dragging`) with it. A no-op unless `oldElement` is the active
+ * source, so a swap from an unrelated draggable can't hijack the session.
+ */
+export function retargetDragSource(oldElement: Element, newElement: HTMLElement): void {
+  if (updateDragSourceElement(oldElement, newElement)) {
+    retargetActivePreviewSource(newElement);
+  }
 }
 
 /** Whether `element` is the active drag source. */

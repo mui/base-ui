@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { useStore, type ReadonlyStore } from '@base-ui/utils/store';
+import { Store, useStore } from '@base-ui/utils/store';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
@@ -35,11 +35,8 @@ function hasTargetState(state: number, flag: number): boolean {
   return Math.floor(state / flag) % 2 === 1;
 }
 
-const untrackedTargetStateStore: ReadonlyStore<number> = {
-  state: 0,
-  getSnapshot: () => 0,
-  subscribe: () => () => {},
-};
+// Never written to, so a target that opted out of tracking never re-renders.
+const untrackedTargetStateStore = new Store(0);
 
 /**
  * Registers the element the returned `ref` is attached to as a drop target, and

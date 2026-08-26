@@ -4,52 +4,17 @@ import { Draggable } from '@base-ui/react/draggable';
 import { DropTarget } from '@base-ui/react/drop-target';
 import { DragAutoScroll } from '@base-ui/react/drag-auto-scroll';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
-import { INITIAL_NODES, type FileNode, type FileSystem } from '../data';
+import {
+  INITIAL_NODES,
+  canDropInto,
+  getChildren,
+  getPath,
+  type FileNode,
+  type FileSystem,
+} from '../data';
 import styles from '../../file-explorer.module.css';
 
 const nodeKind = Draggable.createKind<string>('file-explorer-node');
-
-// Whether `folderId` is `nodeId` itself or sits anywhere inside it.
-function isSelfOrInside(nodes: FileSystem, nodeId: string, folderId: string): boolean {
-  for (let current: string | null = folderId; current !== null; current = nodes[current].parentId) {
-    if (current === nodeId) {
-      return true;
-    }
-  }
-  return false;
-}
-
-// The file-system rules, shared by the folder tiles and the breadcrumb segments.
-// 'reject' blocks the position outright and turns on `data-rejected`, while
-// `false` quietly withdraws the target, so releasing there is a no-op.
-function canDropInto(nodes: FileSystem, folderId: string, sourceId: string): boolean | 'reject' {
-  if (isSelfOrInside(nodes, sourceId, folderId)) {
-    return 'reject';
-  }
-  if (nodes[sourceId].parentId === folderId) {
-    return false;
-  }
-  return true;
-}
-
-function getChildren(nodes: FileSystem, folderId: string): FileNode[] {
-  return Object.values(nodes)
-    .filter((node) => node.parentId === folderId)
-    .sort((a, b) => {
-      if (a.type !== b.type) {
-        return a.type === 'folder' ? -1 : 1;
-      }
-      return a.name.localeCompare(b.name);
-    });
-}
-
-function getPath(nodes: FileSystem, folderId: string): FileNode[] {
-  const path: FileNode[] = [];
-  for (let current: string | null = folderId; current !== null; current = nodes[current].parentId) {
-    path.unshift(nodes[current]);
-  }
-  return path;
-}
 
 function useKeyboardControls(onOpen?: () => void) {
   return useStableCallback((event: React.KeyboardEvent<HTMLElement>) => {

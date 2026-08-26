@@ -14,15 +14,14 @@ import type {
   InternalDraggableParameters,
   RegisterDraggableParameters,
 } from '../../types/dragRegistration';
-import type { DragCleanupFn, DragSource } from '../../types/drag';
+import type { DragSource } from '../../types/drag';
 import {
   dragSessionStore,
   dragSourceStore,
   isDraggingElement,
-  updateDragSourceElement,
+  retargetDragSource,
 } from '../../utils/drag-and-drop/dragSessionStore';
 import { useRegistrationRef } from '../../utils/drag-and-drop/useRegistrationRef';
-import { retargetActivePreviewSource } from '../../utils/drag-and-drop/activePreview';
 
 // Read the element from `ref` at selection time so `dragging` keeps tracking
 // the node behind the ref even when a virtualizer swaps it. Module-scope
@@ -45,9 +44,6 @@ export function useDraggableElement<TData = undefined>(
 
   // The `dragging` selector reads the live element behind this ref.
   const elementRef = React.useRef<HTMLElement | null>(null);
-  const elementObserversRef = useRefWithInit(
-    () => new Set<(element: HTMLElement | null) => void>(),
-  );
   // Every mounted handle, in mount order, tagged with the token its
   // `Draggable.Handle` identifies itself by. Only the first drives pickup; the
   // rest are tracked so unmounting one falls back to a survivor instead of to
@@ -100,35 +96,19 @@ export function useDraggableElement<TData = undefined>(
   // Stable, so this merged callback is created once.
   const ref = useRefWithInit(() => (node: HTMLElement | null) => {
     elementRef.current = node;
-    elementObserversRef.current.forEach((observer) => observer(node));
     if (node) {
       // A virtualizer can remount the item to a fresh node mid-drag. When this
       // draggable was the active source, re-point the session at the new element
       // so `dragging` keeps tracking it (it went stale, then false, otherwise).
-      // `updateDragSourceElement` already guards against cross-drag misfires.
+      // `retargetDragSource` already guards against cross-drag misfires.
       const previous = lastNodeRef.current;
       if (previous && previous !== node) {
-        if (updateDragSourceElement(previous, node)) {
-          // The session now points at the new node; move `data-dragging` with it, or
-          // a CSS-only dim would stop applying the moment the row is recycled.
-          retargetActivePreviewSource(node);
-        }
+        retargetDragSource(previous, node);
       }
       lastNodeRef.current = node;
     }
     registrationRef(node);
   }).current;
-
-  const observeElement = useRefWithInit(
-    () =>
-      (observer: (element: HTMLElement | null) => void): DragCleanupFn => {
-        elementObserversRef.current.add(observer);
-        observer(elementRef.current);
-        return () => {
-          elementObserversRef.current.delete(observer);
-        };
-      },
-  ).current;
 
   // A re-registration that was skipped mid-drag (handle swap or reconcile-input
   // change while this element was the active source); flushed once `dragging`
@@ -219,7 +199,6 @@ export function useDraggableElement<TData = undefined>(
     ref,
     dragging,
     setHandleElement,
-    observeElement,
     previewHandle,
   };
 }
@@ -235,8 +214,6 @@ export interface UseDraggableElementReturnValue<TData = undefined> {
    * identifies the calling handle across attach and detach. Stable.
    */
   setHandleElement: (node: HTMLElement | null, token: object) => void;
-  /** Observe the root element, including node replacements. Stable. */
-  observeElement: (observer: (element: HTMLElement | null) => void) => DragCleanupFn;
   /** The link a `Draggable.Preview` declares into. Stable. */
   previewHandle: DragPreviewHandle<TData>;
 }

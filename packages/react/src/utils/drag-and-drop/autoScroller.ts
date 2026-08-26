@@ -19,6 +19,7 @@ import {
 import { createGetterStackRegistry } from './getterStackRegistry';
 import { getSharedSlot } from './sharedState';
 import {
+  onceCleanup,
   safeCallConsumer,
   getComposedParentElement,
   getOverflowFlags,
@@ -33,6 +34,7 @@ import {
   notifyExternalScroll,
 } from './synthetic/syntheticSensor';
 import { dragSessionStore } from './dragSessionStore';
+import { DRAG_PREVIEW_ATTR } from './dragAttributes';
 import { getMaxScrollOffset } from '../scrollEdges';
 
 const EDGE_THRESHOLD = 0.25;
@@ -44,7 +46,7 @@ const MUTATION_OBSERVER_OPTIONS: MutationObserverInit = {
   childList: true,
   subtree: true,
 };
-const PREVIEW_ATTR = 'data-drag-preview';
+const PREVIEW_SELECTOR = `[${DRAG_PREVIEW_ATTR}]`;
 const ELEMENT_NODE = 1;
 // Ramp the speed in over the first engaged frames rather than starting at
 // `maxSpeed`: a pointer that merely clips a container's edge on its way past
@@ -198,7 +200,7 @@ function handleObservedMutations(records: MutationRecord[]): void {
       continue;
     }
     const element = target as Element;
-    if (element.closest(`[${PREVIEW_ATTR}]`) !== null) {
+    if (element.closest(PREVIEW_SELECTOR) !== null) {
       continue;
     }
     if (affectsCandidateChain(element)) {
@@ -406,8 +408,8 @@ function directionSourceFor(scrollTarget: HTMLElement): HTMLElement {
   if (!isPageScroller) {
     return scrollTarget;
   }
-  // Only when `body` carries a direction of its own: an unstyled `body` inherits
-  // the root's, so reading either gives the same answer.
+  // Always read `body` for the page scroller: an unstyled `body` inherits the
+  // root's direction, so this is right whether or not it carries one of its own.
   const body = doc.body as HTMLElement | null;
   return body ?? scrollTarget;
 }
@@ -1166,11 +1168,15 @@ function refreshDragInput({
   if (!state.enabled) {
     return;
   }
+  setDragInput(location, source);
+  wakeScrollLoop();
+}
+
+function setDragInput(location: DragLocationHistory, source: DragSource): void {
   state.currentInput = resolveScrollInput(location.current.input);
   state.currentReportedInput = location.current.input;
   state.currentSource = source;
   state.currentDropTargetElement = getInnermostDropTargetElement(location);
-  wakeScrollLoop();
 }
 
 /**
@@ -1192,10 +1198,7 @@ function startScrollSession({
   // self-termination only runs when a frame fires. Clear that state before
   // this drag decides anything.
   stopScrollLoop();
-  state.currentInput = resolveScrollInput(location.current.input);
-  state.currentReportedInput = location.current.input;
-  state.currentSource = source;
-  state.currentDropTargetElement = getInnermostDropTargetElement(location);
+  setDragInput(location, source);
   startScrollLoop();
 }
 
@@ -1233,12 +1236,7 @@ export function retainScrollMonitor(): () => void {
     }
   }
   const retainedMonitor = state.scrollMonitorGetter;
-  let released = false;
-  return () => {
-    if (released) {
-      return;
-    }
-    released = true;
+  return onceCleanup(() => {
     // Test teardown can reset the shared feature boundary before a mounted
     // consumer's cleanup runs. That stale cleanup must not release a monitor
     // installed by the following test.
@@ -1260,7 +1258,7 @@ export function retainScrollMonitor(): () => void {
         }
       });
     }
-  };
+  });
 }
 
 /** Which axis (or axes) an auto-scroll container may scroll on. */

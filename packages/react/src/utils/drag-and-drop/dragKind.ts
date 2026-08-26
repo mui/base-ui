@@ -27,14 +27,7 @@ const ANY_KIND_ID = Symbol.for('base-ui/drag-kind-sentinel:any');
  * need to share a kind by a namespaced key.
  */
 export function createKind<TPayload = undefined>(name: string): DragKind<TPayload> {
-  const id = Symbol(name);
-  const matches = (value: DragSource<unknown> | DropTargetRecord<unknown>) => value.kind === id;
-  return {
-    name,
-    id,
-    // A type predicate can't be inferred from an implementation, so it is asserted here.
-    matches: matches as DragKind<TPayload>['matches'],
-  };
+  return makeKind(name, Symbol(name));
 }
 
 /**
@@ -62,10 +55,13 @@ export function createGlobalKind<TPayload = undefined>(key: string): DragKind<TP
         'See https://base-ui.com/react/drag-and-drop/overview',
     );
   }
-  const id = Symbol.for(KIND_ID_PREFIX + key);
+  return makeKind(key, Symbol.for(KIND_ID_PREFIX + key));
+}
+
+function makeKind<TPayload>(name: string, id: symbol): DragKind<TPayload> {
   const matches = (value: DragSource<unknown> | DropTargetRecord<unknown>) => value.kind === id;
   return {
-    name: key,
+    name,
     id,
     // A type predicate can't be inferred from an implementation, so it is asserted here.
     matches: matches as DragKind<TPayload>['matches'],

@@ -51,3 +51,49 @@ export const INITIAL_NODES: FileSystem = {
   homepage: { id: 'homepage', name: 'index.html', type: 'file', parentId: 'website' },
   stylesheet: { id: 'stylesheet', name: 'styles.css', type: 'file', parentId: 'website' },
 };
+
+// Whether `folderId` is `nodeId` itself or sits anywhere inside it.
+export function isSelfOrInside(nodes: FileSystem, nodeId: string, folderId: string): boolean {
+  for (let current: string | null = folderId; current !== null; current = nodes[current].parentId) {
+    if (current === nodeId) {
+      return true;
+    }
+  }
+  return false;
+}
+
+// The file-system rules, shared by the folder tiles and the breadcrumb segments.
+// 'reject' blocks the position outright and turns on `data-rejected`, while
+// `false` quietly withdraws the target, so releasing there is a no-op.
+export function canDropInto(
+  nodes: FileSystem,
+  folderId: string,
+  sourceId: string,
+): boolean | 'reject' {
+  if (isSelfOrInside(nodes, sourceId, folderId)) {
+    return 'reject';
+  }
+  if (nodes[sourceId].parentId === folderId) {
+    return false;
+  }
+  return true;
+}
+
+export function getChildren(nodes: FileSystem, folderId: string): FileNode[] {
+  return Object.values(nodes)
+    .filter((node) => node.parentId === folderId)
+    .sort((a, b) => {
+      if (a.type !== b.type) {
+        return a.type === 'folder' ? -1 : 1;
+      }
+      return a.name.localeCompare(b.name);
+    });
+}
+
+export function getPath(nodes: FileSystem, folderId: string): FileNode[] {
+  const path: FileNode[] = [];
+  for (let current: string | null = folderId; current !== null; current = nodes[current].parentId) {
+    path.unshift(nodes[current]);
+  }
+  return path;
+}

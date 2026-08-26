@@ -20,9 +20,9 @@ import { matchesAccept } from './dragKind';
 import { createGetterStackRegistry } from './getterStackRegistry';
 import { getSharedSlot } from './sharedState';
 import { getComposedParentElement, safeCallConsumer } from './utils';
+import { DROP_TARGET_ATTR } from './dragAttributes';
 
 /** Attribute the engine sets on a registered drop target element. */
-const DROP_TARGET_ATTR = 'data-drop-target';
 const DROP_TARGET_SELECTOR = `[${DROP_TARGET_ATTR}]`;
 
 /** Getter for a single hook's latest drop-target parameters. */
@@ -313,26 +313,6 @@ function safeCall<T>(
   fallback: T,
 ): T {
   return safeCallConsumer('drop target', callbackName, element, call, fallback);
-}
-
-/**
- * The payload a target declared, when it declared a plain value rather than a
- * resolver; `undefined` otherwise, including for an unregistered element.
- *
- * A peek, not a resolution: it runs the parameters getter but never `accept`,
- * `canDrop`, or a `getPayload` callback, so it costs nothing a caller wasn't going
- * to pay and can't have side effects. Resolved payloads deliberately return
- * `undefined` — evaluating one needs a resolution context, and its answer can
- * differ per point, so a caller must not assume a peeked value stands for every
- * position on the target.
- */
-export function getDeclaredDropTargetPayload(element: Element): unknown {
-  const getRegistration = getActiveRegistration(element);
-  if (!getRegistration) {
-    return undefined;
-  }
-  const registration = safeCall('getParameters', element, getRegistration, null);
-  return registration?.getPayload ? undefined : registration?.payload;
 }
 
 /**
@@ -662,35 +642,30 @@ export function dispatchDropTargetChange(
   current: readonly DropTargetRecord[],
   payload: DragEventMap['onDropTargetChange'],
   eventDetails: DragEventDetailsMap['onDropTargetChange'],
-  shouldContinue?: (() => boolean) | undefined,
-  hovered?: DropTargetRecord[] | undefined,
+  shouldContinue: () => boolean,
+  hovered: DropTargetRecord[],
 ): void {
-  const live = () => shouldContinue === undefined || shouldContinue();
   const currByElement = new Map(current.map((r) => [r.element, r] as const));
   const visited = new Set<Element>();
 
   for (const record of previous) {
-    if (!live()) {
+    if (!shouldContinue()) {
       return;
     }
     visited.add(record.element);
     // For a persisting target, dispatch the fresh record so `self.payload` reflects this frame.
     const fresh = currByElement.get(record.element);
     if (fresh) {
-      if (hovered) {
-        replaceHoveredRecord(hovered, fresh);
-      }
+      replaceHoveredRecord(hovered, fresh);
       dispatchToDropTarget(fresh, 'onDropTargetChange', payload, eventDetails);
     } else {
       dispatchToDropTarget(record, 'onDropTargetChange', payload, eventDetails);
-      if (!live()) {
+      if (!shouldContinue()) {
         return;
       }
       // Removed before the leave is delivered: if the leave handler cancels the
       // drag, the terminal dispatch must not re-leave this target.
-      if (hovered) {
-        removeHoveredRecord(hovered, record.element);
-      }
+      removeHoveredRecord(hovered, record.element);
       dispatchToDropTarget(record, 'onDragLeave', payload, eventDetails);
       // The leave this element was owed has now gone out, so a retiring hold kept
       // for it has done its job.
@@ -699,7 +674,7 @@ export function dispatchDropTargetChange(
   }
 
   for (const record of current) {
-    if (!live()) {
+    if (!shouldContinue()) {
       return;
     }
     if (visited.has(record.element)) {
@@ -707,21 +682,17 @@ export function dispatchDropTargetChange(
     }
     // Added before delivery: if the enter (or its change) handler cancels the
     // drag, the terminal dispatch owes this target a balancing leave.
-    if (hovered) {
-      hovered.push(record);
-    }
+    hovered.push(record);
     dispatchToDropTarget(record, 'onDropTargetChange', payload, eventDetails);
-    if (!live()) {
+    if (!shouldContinue()) {
       return;
     }
     dispatchToDropTarget(record, 'onDragEnter', payload, eventDetails);
   }
 
   // Fully delivered: sync the bookkeeping to the canonical, bubble-ordered stack.
-  if (hovered) {
-    hovered.length = 0;
-    hovered.push(...current);
-  }
+  hovered.length = 0;
+  hovered.push(...current);
 }
 
 export function dispatchToAllDropTargets<K extends DropTargetEventName>(
@@ -729,12 +700,12 @@ export function dispatchToAllDropTargets<K extends DropTargetEventName>(
   eventName: K,
   payload: DragEventMap[K],
   eventDetails: DragEventDetailsMap[K],
-  shouldContinue?: (() => boolean) | undefined,
+  shouldContinue: () => boolean,
 ): void {
   for (const record of targets) {
     // A handler can cancel the drag re-entrantly; the remaining targets must then
     // receive nothing.
-    if (shouldContinue !== undefined && !shouldContinue()) {
+    if (!shouldContinue()) {
       return;
     }
     dispatchToDropTarget(record, eventName, payload, eventDetails);

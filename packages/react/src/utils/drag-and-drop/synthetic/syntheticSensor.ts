@@ -61,6 +61,7 @@ import {
   isDetachedDocument,
   modifierKeysChanged,
   normalizePointerType,
+  onceCleanup,
   remapInput,
   runAllCleanups,
 } from '../utils';
@@ -117,14 +118,9 @@ function suppressNativeDragForSyntheticPointer(
   win: Window,
 ): DragCleanupFn {
   const previousDraggable = element.getAttribute('draggable');
-  let restored = false;
   const cleanupListeners: DragCleanupFn[] = [];
 
-  const restore = () => {
-    if (restored) {
-      return;
-    }
-    restored = true;
+  const restore = onceCleanup(() => {
     for (const off of cleanupListeners) {
       off();
     }
@@ -137,7 +133,7 @@ function suppressNativeDragForSyntheticPointer(
     } else {
       element.setAttribute('draggable', previousDraggable);
     }
-  };
+  });
 
   const restoreForPointer = (event: Event) => {
     const pointerEvent = event as PointerEvent;
@@ -369,10 +365,17 @@ function isScrollbarPress(event: PointerEvent, element: Element): boolean {
   }
   // An element with no scrollable overflow has no gutter at all, and the offsets
   // below would be measuring its borders instead — a press on the border of a
-  // draggable is an ordinary press and must still pick it up.
+  // draggable is an ordinary press and must still pick it up. The extents are
+  // tested before the computed overflow: this runs on every press on a draggable,
+  // and almost none of them overflow, so the style resolution is skipped for them.
+  const overflowsY = element.scrollHeight > element.clientHeight;
+  const overflowsX = element.scrollWidth > element.clientWidth;
+  if (!overflowsX && !overflowsY) {
+    return false;
+  }
   const overflow = getOverflowFlags(element);
-  const scrollsY = overflow.y && element.scrollHeight > element.clientHeight;
-  const scrollsX = overflow.x && element.scrollWidth > element.clientWidth;
+  const scrollsY = overflow.y && overflowsY;
+  const scrollsX = overflow.x && overflowsX;
   if (!scrollsX && !scrollsY) {
     return false;
   }
@@ -445,7 +448,7 @@ function onPointerDown(event: Event): void {
     return;
   }
   const { element, target, parameters, dragHandle } = pickup;
-  const handle = (dragHandle as HTMLElement | null) ?? element;
+  const handle = dragHandle ?? element;
 
   const initialInput = getInput(pointerEvent);
 
@@ -610,13 +613,8 @@ function startContextMenuSuppression(win: Window, target: Element): DragCleanupF
   // while after detachment only a listener on the preserved target is reliable.
   const timeout = new WindowTimeout(win);
   const cleanups: DragCleanupFn[] = [];
-  let disposed = false;
 
-  const cleanup = () => {
-    if (disposed) {
-      return;
-    }
-    disposed = true;
+  const cleanup = onceCleanup(() => {
     timeout.clear();
     for (const off of cleanups) {
       off();
@@ -624,7 +622,7 @@ function startContextMenuSuppression(win: Window, target: Element): DragCleanupF
     if (state.cleanupContextMenuSuppression === cleanup) {
       state.cleanupContextMenuSuppression = null;
     }
-  };
+  });
 
   const onContextMenu = (event: Event) => {
     event.preventDefault();
@@ -770,7 +768,7 @@ function commitActivation(): void {
     return;
   }
 
-  const pointerNode = (dragHandle as HTMLElement | null) ?? element;
+  const pointerNode = dragHandle ?? element;
   if (hasInteractiveAncestorWithin(target, pointerNode)) {
     clearPending(true);
     return;
@@ -838,8 +836,7 @@ function commitActivation(): void {
       // The press, not the committed input: the grab offset must reflect where
       // the user took hold, and the activation threshold sits between the two.
       pressPoint: { x: pending.originX, y: pending.originY },
-      // Resolved above, before the preview was built and moved under the pointer.
-      getInitialTarget: () => initialTarget,
+      initialTarget,
       onForceCleanup: clearActive,
       acquire: () => dragRootLock.lock(element),
       release: () => dragRootLock.unlock(),
@@ -946,27 +943,23 @@ function commitActivation(): void {
     addEventListener(doc, 'pointercancel', onActivePointerCancel),
   );
   if (pointerType !== 'mouse') {
-    // Attach to the document (capture) rather than `target`: touch retargets to
-    // the pointerdown node, but a virtualizer can unmount it mid-drag — a
-    // target-bound listener would die with it and let the page scroll under the
-    // active drag. `touchmove` bubbles, so a capture listener on the document
-    // still observes it and can prevent the scroll. Installed for pen too:
-    // Apple Pencil reports `pointerType: 'pen'` but iOS still scrolls the page
-    // through the touch event stream it synthesizes for it.
     activeRef.listeners.push(
+      // Attach to the document (capture) rather than `target`: touch retargets to
+      // the pointerdown node, but a virtualizer can unmount it mid-drag — a
+      // target-bound listener would die with it and let the page scroll under the
+      // active drag. `touchmove` bubbles, so a capture listener on the document
+      // still observes it and can prevent the scroll. Installed for pen too:
+      // Apple Pencil reports `pointerType: 'pen'` but iOS still scrolls the page
+      // through the touch event stream it synthesizes for it.
       addEventListener(doc, 'touchmove', preventActiveTouchScroll, {
         passive: false,
         capture: true,
       }),
-    );
-  }
-  if (pointerType !== 'mouse') {
-    // Keep the exact press target armed throughout a touch/pen drag for the same
-    // detached causal-target case covered by `startContextMenuSuppression`. The
-    // source element is an ancestor at pickup, so a second listener there adds
-    // no path. Mouse context menus arise from a separate button action while
-    // capture is anchored on `body`, and the window listener below sees them.
-    activeRef.listeners.push(
+      // Keep the exact press target armed throughout a touch/pen drag for the same
+      // detached causal-target case covered by `startContextMenuSuppression`. The
+      // source element is an ancestor at pickup, so a second listener there adds
+      // no path. Mouse context menus arise from a separate button action while
+      // capture is anchored on `body`, and the window listener below sees them.
       addEventListener(target, 'contextmenu', preventContextMenu, { capture: true }),
     );
   }
@@ -982,7 +975,7 @@ function commitActivation(): void {
     // the document still observes scrolling in any descendant container —
     // including auto-scroll's `scrollBy`. Flag a dirty bit so the next frame
     // re-resolves the target the moved content put under a stationary pointer.
-    addEventListener(doc, 'scroll', onActiveScroll, { capture: true, passive: true }),
+    addEventListener(doc, 'scroll', notifyExternalScroll, { capture: true, passive: true }),
   );
 
   // `scroll` is also not *composed*, so the document listener above never sees a
@@ -997,7 +990,7 @@ function commitActivation(): void {
       if (!shadowRootScrollListeners.has(shadowRoot)) {
         shadowRootScrollListeners.set(
           shadowRoot,
-          addEventListener(shadowRoot, 'scroll', onActiveScroll, {
+          addEventListener(shadowRoot, 'scroll', notifyExternalScroll, {
             capture: true,
             passive: true,
           }),
@@ -1324,14 +1317,6 @@ function onActiveVisibilityChange(event: Event): void {
   cancelActive(undefined, 'page-hidden', event);
 }
 
-function onActiveScroll(): void {
-  const active = state.active;
-  if (active) {
-    active.scrolledSinceFrame = true;
-    scheduleActiveFrame();
-  }
-}
-
 /**
  * The active synthetic drag's physical pointer position — before `modifiers`,
  * unlike every reported input — or `null` when no pointer drag is running.
@@ -1369,10 +1354,11 @@ export function getActiveHitElement(): Element | null {
 }
 
 /**
- * Report a scroll the document capture listener can't observe: `scroll` is not
- * composed, so scrolling inside a shadow root never reaches it. Sets the same
- * dirty bit so the next frame re-resolves the drop target. A no-op when no
- * pointer drag is active.
+ * Flag that something scrolled under the active drag, so the next frame
+ * re-resolves the target the moved content put under a stationary pointer.
+ * Bound to the document's capture-phase `scroll` and to each shadow root holding
+ * a drop target, and exported for scrolls neither can observe (auto-scroll's own
+ * `scrollBy`). A no-op when no pointer drag is active.
  */
 export function notifyExternalScroll(): void {
   const active = state.active;
@@ -1395,8 +1381,8 @@ interface PendingSession {
   element: HTMLElement;
   /**
    * The pointerdown event target. Forwarded to `ActiveSession` at activation
-   * so the active phase can attach pointer/touch listeners directly to it, and
-   * the phase where touch's implicit pointer capture is released.
+   * for its target-bound `contextmenu` listener and for releasing touch's
+   * implicit pointer capture.
    */
   target: Element;
   pointerId: number;

@@ -18,7 +18,6 @@ export function installDndPolyfill(): void {
   polyfillInstalled = true;
   polyfillDOMRect();
   polyfillDragEvent();
-  polyfillElementFromPoint();
 }
 
 // ---------------------------------------------------------------------------
@@ -91,11 +90,4 @@ function polyfillDragEvent() {
   }
 
   (window as any).DragEvent = DragEventPolyfill;
-}
-
-// Polyfill document.elementFromPoint for auto-scroll (returns null in JSDOM)
-function polyfillElementFromPoint() {
-  if (typeof document !== 'undefined' && typeof document.elementFromPoint !== 'function') {
-    document.elementFromPoint = () => null;
-  }
 }

@@ -7,6 +7,7 @@
 import { afterEach } from 'vitest';
 import { act, fireEvent } from '@mui/internal-test-utils';
 import { installDndPolyfill } from './dndPolyfill';
+import { waitSingleFrame } from './wait';
 import { reset, isActive as isDragActive } from '../src/utils/drag-and-drop/core/lifecycleManager';
 import { resetForTests as resetSyntheticSensor } from '../src/utils/drag-and-drop/synthetic/syntheticSensor';
 import { resetForTests as resetDropTargets } from '../src/utils/drag-and-drop/dropTarget';
@@ -314,9 +315,7 @@ export function installDndTestEnv(): void {
  */
 export async function flushRaf(): Promise<void> {
   await act(async () => {
-    await new Promise<void>((resolve) => {
-      requestAnimationFrame(() => resolve());
-    });
+    await waitSingleFrame();
   });
 }
 

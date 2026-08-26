@@ -89,8 +89,8 @@ export function isActive(): boolean {
  * element un-registers mid-drag, so subscribers see it leave `dropTargets`
  * without a pointer event.
  */
-export function refreshDropTargets(options?: { rehitTest?: boolean | undefined }): void {
-  state.refreshDropTargets?.(options?.rehitTest ?? true);
+export function refreshDropTargets(): void {
+  state.refreshDropTargets?.(true);
 }
 
 /** Coalesce a React commit's drop-target parameter changes into one resolution. */
@@ -175,11 +175,13 @@ export function start(parameters: StartParameters): DragSessionHandle | null {
   let rejectedTarget: Element | null = null;
   let publishedRejectedTarget: Element | null = null;
 
+  const onReject = (element: Element) => {
+    rejectedTarget = element;
+  };
+
   function resolveStack(target: Element | null, input: DragInput): DropTargetRecord[] {
     rejectedTarget = null;
-    return getDropTargetsOver(target, { input, source }, (element) => {
-      rejectedTarget = element;
-    });
+    return getDropTargetsOver(target, { input, source }, onReject);
   }
 
   const initialDropTargets = resolveStack(initialTarget, initialInput);
@@ -212,6 +214,24 @@ export function start(parameters: StartParameters): DragSessionHandle | null {
    */
   function snapshotLocation(): DragLocationHistory {
     return cloneLocationHistory(location);
+  }
+
+  /**
+   * The payload for the terminal `onDragLeave` the still-hovered targets are owed
+   * at the end of a drag: a forked location that already shows them out of
+   * `current.dropTargets`, without mutating the location the end handlers saw
+   * (and may have stashed) with the drop stack.
+   */
+  function createTerminalLeavePayload(input: DragInput): DragEventMap['onDropTargetChange'] {
+    const leaveLocation = snapshotLocation();
+    return {
+      location: {
+        initial: leaveLocation.initial,
+        previous: leaveLocation.current,
+        current: { input, dropTargets: [] },
+      },
+      source,
+    };
   }
 
   // The location snapshot at the last delivered event. Sensors can coalesce
@@ -285,15 +305,7 @@ export function start(parameters: StartParameters): DragSessionHandle | null {
     // into recovery may be the one that throws, and must not prevent the leaves.
     const departedDropTargets = hoveredDropTargets.slice();
     if (departedDropTargets.length > 0) {
-      const leaveLocation = snapshotLocation();
-      const leavePayload: DragEventMap['onDropTargetChange'] = {
-        location: {
-          initial: leaveLocation.initial,
-          previous: leaveLocation.current,
-          current: { input: leaveLocation.current.input, dropTargets: [] },
-        },
-        source,
-      };
+      const leavePayload = createTerminalLeavePayload(location.current.input);
       containConsumerError(
         'Base UI: a drag handler threw while another handler error was being recovered. ' +
           'The remaining target cleanup is best-effort.',
@@ -427,10 +439,7 @@ export function start(parameters: StartParameters): DragSessionHandle | null {
     if (tornDown) {
       return;
     }
-    lastDispatched = {
-      input: location.current.input,
-      dropTargets: location.current.dropTargets,
-    };
+    lastDispatched = location.current;
     startDispatched = true;
     drainPendingRefresh();
   }
@@ -463,10 +472,7 @@ export function start(parameters: StartParameters): DragSessionHandle | null {
     } finally {
       dispatching = false;
     }
-    lastDispatched = {
-      input: location.current.input,
-      dropTargets: location.current.dropTargets,
-    };
+    lastDispatched = location.current;
     drainPendingRefresh();
   }
 
@@ -622,7 +628,7 @@ export function start(parameters: StartParameters): DragSessionHandle | null {
       // session down mid-flight; publishing here would re-populate the store after
       // teardown nulled it, so skip it once torn down.
       if (!tornDown) {
-        lastDispatched = { input, dropTargets: newDropTargets };
+        lastDispatched = location.current;
         publishSession();
       }
       drainPendingRefresh();
@@ -813,21 +819,10 @@ export function start(parameters: StartParameters): DragSessionHandle | null {
 
         // Fire final `onDragLeave` for any targets still hovered so imperative
         // hover state clears (the success path never emits a change to empty).
-        // Dispatched with a forked location so the leave reports the same shape
-        // as the cancel path — the departing targets already out of
-        // `current.dropTargets` — without mutating the location `onDrop` /
-        // `onDragEnd` handlers saw (and may have stashed) with the drop stack.
+        // Same forked shape as the cancel path (see `createTerminalLeavePayload`).
         const departedDropTargets = hoveredDropTargets.slice();
         if (departedDropTargets.length > 0) {
-          const leaveLocation = snapshotLocation();
-          const leavePayload: DragEventMap['onDropTargetChange'] = {
-            location: {
-              initial: leaveLocation.initial,
-              previous: leaveLocation.current,
-              current: { input, dropTargets: [] },
-            },
-            source,
-          };
+          const leavePayload = createTerminalLeavePayload(input);
           dispatchDropTargetChange(
             departedDropTargets,
             [],

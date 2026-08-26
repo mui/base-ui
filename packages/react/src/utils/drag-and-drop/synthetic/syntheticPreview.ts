@@ -5,6 +5,7 @@ import type { DragPreviewElementHandle } from './cloneDragPreview';
 import type { DragModifier, DragModifierKeys, DragPosition } from '../../../types/drag';
 import { applyDragModifiers } from '../dragModifiers';
 import { getSharedSlot } from '../sharedState';
+import { DRAGGING_ATTR, ENDING_STYLE_ATTR } from '../dragAttributes';
 import { getElementScale, NO_MODIFIER_KEYS } from '../utils';
 
 const ZERO_OFFSET: DragPosition = { x: 0, y: 0 };
@@ -12,17 +13,6 @@ const ZERO_OFFSET: DragPosition = { x: 0, y: 0 };
 const DEFAULT_SCALE: DragPosition = { x: 1, y: 1 };
 const MIN_SETTLING_WATCHDOG_MS = 1000;
 const MAX_SETTLING_WATCHDOG_MS = 30000;
-
-/**
- * Set on the drag source for the whole drag, so the source can be dimmed in one
- * CSS rule — `[data-dragging] { opacity: 0.4 }`. The default preview is a clone
- * anchored to the grab point, so it starts out exactly on top of the source;
- * without dimming the two read as one element. The engine deliberately does not
- * hide the source itself — that is an opinion the CSS should own.
- */
-const DRAGGING_ATTR = 'data-dragging';
-
-const ENDING_STYLE_ATTR = 'data-ending-style';
 
 // A new pickup from the same source interrupts its previous drop transition.
 // Shared across bundles for the same reason the active drag engine state is.

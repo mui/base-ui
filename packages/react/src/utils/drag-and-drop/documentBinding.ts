@@ -19,12 +19,10 @@ export interface DocumentBinding {
 interface CreateDocumentBindingOptions {
   slot: string;
   install: (root: DragEventRoot) => DragCleanupFn;
-  shouldDefer?: ((root: DragEventRoot) => boolean) | undefined;
-  onDefer?: ((cleanup: DragCleanupFn) => void) | undefined;
 }
 
 export function createDocumentBinding(options: CreateDocumentBindingOptions): DocumentBinding {
-  const { slot, install, shouldDefer, onDefer } = options;
+  const { slot, install } = options;
   const bindings = getSharedSlot<WeakMap<DragEventRoot, DocumentBindingEntry>>(
     slot,
     () => new WeakMap<DragEventRoot, DocumentBindingEntry>(),
@@ -47,11 +45,7 @@ export function createDocumentBinding(options: CreateDocumentBindingOptions): Do
       entry.count -= 1;
       if (entry.count === 0) {
         bindings.delete(root);
-        if (shouldDefer?.(root)) {
-          onDefer?.(entry.cleanup);
-        } else {
-          entry.cleanup();
-        }
+        entry.cleanup();
       }
     },
   };
@@ -63,20 +57,10 @@ interface CreateEventRootBindingOptions {
   type: string;
   listener: (event: Event) => void;
   options?: Omit<AddEventListenerOptions, 'capture'> | undefined;
-  shouldDefer?: ((root: DragEventRoot) => boolean) | undefined;
-  onDefer?: ((cleanup: DragCleanupFn) => void) | undefined;
 }
 
 export function createEventRootBinding(options: CreateEventRootBindingOptions): DocumentBinding {
-  const {
-    slot,
-    shadowRootsSlot,
-    type,
-    listener,
-    options: listenerOptions,
-    shouldDefer,
-    onDefer,
-  } = options;
+  const { slot, shadowRootsSlot, type, listener, options: listenerOptions } = options;
   const boundShadowRoots = getSharedSlot<Map<ShadowRoot, number>>(
     shadowRootsSlot,
     () => new Map<ShadowRoot, number>(),
@@ -140,7 +124,5 @@ export function createEventRootBinding(options: CreateEventRootBindingOptions): 
         offBubble();
       };
     },
-    shouldDefer,
-    onDefer,
   });
 }

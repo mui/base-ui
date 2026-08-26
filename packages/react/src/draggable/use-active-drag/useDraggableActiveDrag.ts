@@ -1,6 +1,6 @@
 'use client';
 import { useStore } from '@base-ui/utils/store';
-import { dragSourceStore, selectDragSource } from '../../utils/drag-and-drop/dragSessionStore';
+import { dragSourceStore } from '../../utils/drag-and-drop/dragSessionStore';
 import { matchesAccept } from '../../utils/drag-and-drop/dragKind';
 import type { AcceptedDragPayload, AnyDragAccept, DragKind, DragSource } from '../../types/drag';
 
@@ -32,11 +32,10 @@ function selectAcceptedDragSource(
   source: DragSource | null,
   accept: AnyDragAccept | undefined,
 ): DragSource | null {
-  const current = selectDragSource(source);
-  if (current === null || !matchesAccept(accept, current)) {
+  if (source === null || !matchesAccept(accept, source)) {
     return null;
   }
-  return current;
+  return source;
 }
 
 // Keyed on the observed payload rather than on an `accept` value, like the props types.

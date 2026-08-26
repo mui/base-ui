@@ -3,6 +3,7 @@ import { isShadowRoot } from '@floating-ui/utils/dom';
 import { contains } from '@base-ui/utils/shadowDom';
 import type { DragInput, DragModifierKeys, DragPointerType, DragPosition } from '../../types/drag';
 import { getParentElement as getComposedParentElement } from '../getParentElement';
+import { getElementAtPoint } from '../getElementAtPoint';
 import {
   identityLinearTransform,
   multiplyLinearTransforms,
@@ -67,11 +68,11 @@ const EMPTY_SHADOW_ROOTS_BY_HOST: ReadonlyMap<Element, ShadowRoot> = new Map();
  * roots can be supplied because their host does not expose them through
  * `Element.shadowRoot`.
  *
- * Optional-chained at both levels: jsdom implements `elementFromPoint` on neither
- * `Document` nor `ShadowRoot`. This runs from the activation commit, outside every
- * containment boundary and after the pending listeners are gone, so a `TypeError`
- * here would strand the sensor and refuse every later pickup. Degrade to "nothing
- * under the pointer" instead.
+ * Guarded at both levels (see {@link getElementAtPoint}): jsdom implements
+ * `elementFromPoint` on neither `Document` nor `ShadowRoot`. This runs from the
+ * activation commit, outside every containment boundary and after the pending
+ * listeners are gone, so a `TypeError` here would strand the sensor and refuse
+ * every later pickup. Degrade to "nothing under the pointer" instead.
  */
 export function deepElementFromPoint(
   doc: Document,
@@ -79,10 +80,10 @@ export function deepElementFromPoint(
   clientY: number,
   rootsByHost: ReadonlyMap<Element, ShadowRoot> = EMPTY_SHADOW_ROOTS_BY_HOST,
 ): Element | null {
-  let hit = doc.elementFromPoint?.(clientX, clientY) ?? null;
+  let hit = getElementAtPoint(doc, clientX, clientY);
   let innerRoot = hit ? (hit.shadowRoot ?? rootsByHost.get(hit)) : undefined;
   while (innerRoot) {
-    const inner = innerRoot.elementFromPoint?.(clientX, clientY);
+    const inner = getElementAtPoint(innerRoot, clientX, clientY);
     if (!inner || inner === hit) {
       break;
     }
@@ -274,12 +275,16 @@ export function containConsumerError<T>(
   try {
     return call();
   } catch (error) {
-    if (element === null) {
-      console.error(message, error);
-    } else {
-      console.error(message, element, error);
-    }
+    reportConsumerError(message, element, error);
     return fallback;
+  }
+}
+
+function reportConsumerError(message: string, element: Element | null, error: unknown): void {
+  if (element === null) {
+    console.error(message, error);
+  } else {
+    console.error(message, element, error);
   }
 }
 
@@ -306,6 +311,9 @@ export function runAllCleanups(cleanups: ReadonlyArray<() => void>): void {
  * {@link containConsumerError} for a named callback declared on a registered
  * element. One shared wording for every registry — drop targets, auto-scrollers —
  * so the diagnostic prose is written once instead of per module.
+ *
+ * Runs per target and per auto-scroll candidate on every frame, so the message
+ * is only built once something actually threw.
  */
 export function safeCallConsumer<T>(
   subject: string,
@@ -314,12 +322,16 @@ export function safeCallConsumer<T>(
   call: () => T,
   fallback: T,
 ): T {
-  return containConsumerError(
-    `Base UI: ${subject} "${callbackName}" threw and was skipped for this drag.`,
-    element,
-    call,
-    fallback,
-  );
+  try {
+    return call();
+  } catch (error) {
+    reportConsumerError(
+      `Base UI: ${subject} "${callbackName}" threw and was skipped for this drag.`,
+      element,
+      error,
+    );
+    return fallback;
+  }
 }
 
 /**

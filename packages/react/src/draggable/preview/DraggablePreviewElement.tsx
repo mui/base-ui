@@ -1,10 +1,11 @@
 'use client';
 import * as React from 'react';
+import { EMPTY_OBJECT } from '@base-ui/utils/empty';
 import { useRenderElement } from '../../internals/useRenderElement';
 import type { DragPreviewSettings } from '../../types/drag';
 import type { DraggablePreview } from './DraggablePreview';
 
-const EMPTY_STATE: DraggablePreview.State = {};
+const EMPTY_STATE: DraggablePreview.State = EMPTY_OBJECT;
 
 /**
  * The element a `Draggable.Preview` declares. Rendered by the overlay, inside the

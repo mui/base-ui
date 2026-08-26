@@ -8,7 +8,8 @@ export interface LinearTransform {
 
 export const identityLinearTransform: LinearTransform = { a: 1, b: 0, c: 0, d: 1 };
 
-const COMPUTED_MATRIX = /^matrix(3d)?\(([^)]*)\)$/;
+/** A computed `transform` in its resolved `matrix()` / `matrix3d()` form. */
+export const COMPUTED_MATRIX = /^matrix(3d)?\(([^)]*)\)$/;
 
 /** `left · right`, using CSS's column-vector convention. */
 export function multiplyLinearTransforms(
