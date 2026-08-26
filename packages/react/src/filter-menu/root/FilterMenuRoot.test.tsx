@@ -7,6 +7,7 @@ import {
   reactMajor,
   screen,
   waitFor,
+  within,
 } from '@mui/internal-test-utils';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { DirectionProvider } from '@base-ui/react/direction-provider';
@@ -1827,7 +1828,7 @@ describe('<FilterMenu.Root />', () => {
       expect(trigger).toHaveAttribute('aria-controls', popup.id);
       expect(popup).toHaveAttribute('aria-labelledby', trigger.id);
       expect(list).toHaveAttribute('aria-labelledby', trigger.id);
-      expect(screen.getByRole('status')).toHaveTextContent('');
+      expect(screen.queryByRole('status')).toBe(null);
 
       await user.type(input, 'zz');
 
@@ -1847,13 +1848,12 @@ describe('<FilterMenu.Root />', () => {
         </FilterMenu.Root>,
       );
 
-      const status = screen.getByRole('status');
-      expect(status).toHaveTextContent('');
+      expect(screen.queryByRole('status')).toBe(null);
 
       await user.type(screen.getByRole('searchbox', { name: 'Filter fruit' }), 'zz');
 
       await waitFor(() => {
-        expect(status).toHaveTextContent('No fruit found');
+        expect(screen.getByRole('status')).toHaveTextContent('No fruit found');
       });
     });
 
@@ -4298,6 +4298,38 @@ describe('<FilterMenu.Root />', () => {
     });
   });
 
+  it('keeps Status and Empty out of the popup while they have nothing to show', async () => {
+    const { user } = await render(
+      <FilterMenu.Root defaultOpen>
+        <FilterMenu.Trigger>Actions</FilterMenu.Trigger>
+        <FilterMenu.Portal>
+          <FilterMenu.Positioner>
+            <FilterMenu.Popup>
+              <FilterMenu.Input aria-label="Filter actions" />
+              <FilterMenu.Status />
+              <FilterMenu.Empty>No actions found</FilterMenu.Empty>
+              <FilterMenu.List>
+                <FilterMenu.Item>Rename</FilterMenu.Item>
+              </FilterMenu.List>
+            </FilterMenu.Popup>
+          </FilterMenu.Positioner>
+        </FilterMenu.Portal>
+      </FilterMenu.Root>,
+    );
+
+    const dialog = screen.getByRole('dialog');
+    // Screen readers count the dialog's children, so a live region with nothing
+    // to say must not add a node.
+    expect(within(dialog).queryByRole('status')).toBe(null);
+
+    const input = screen.getByRole('searchbox', { name: 'Filter actions' });
+    await user.type(input, 'zzz');
+
+    await waitFor(() => {
+      expect(within(dialog).getByRole('status')).toHaveTextContent('No actions found');
+    });
+  });
+
   it('removes Empty once the query matches again', async () => {
     const { user } = await render(
       <FilterMenu.Root defaultOpen>
@@ -4345,14 +4377,14 @@ describe('<FilterMenu.Root />', () => {
       );
 
       expect(screen.getByRole('menuitem', { name: 'Rename' })).not.toBe(null);
-      expect(screen.getByTestId('empty')).toBeEmptyDOMElement();
+      expect(screen.queryByTestId('empty')).toBe(null);
 
       hydrate();
 
       await waitFor(() => {
         expect(screen.getByRole('menuitem', { name: 'Rename' })).toBeVisible();
       });
-      expect(screen.getByTestId('empty')).toBeEmptyDOMElement();
+      expect(screen.queryByTestId('empty')).toBe(null);
     });
 
     it('shows the empty state after hydration when no items are rendered', async () => {
@@ -4364,7 +4396,7 @@ describe('<FilterMenu.Root />', () => {
         </FilterMenu.Root>,
       );
 
-      expect(screen.getByTestId('empty')).toBeEmptyDOMElement();
+      expect(screen.queryByTestId('empty')).toBe(null);
 
       hydrate();
 

@@ -82,9 +82,7 @@ export default function ExampleEmojiPicker() {
                   className={styles.Input}
                 />
                 <div className={styles.Viewport}>
-                  <FilterMenu.Empty>
-                    <div className={styles.Empty}>No emojis found</div>
-                  </FilterMenu.Empty>
+                  <FilterMenu.Empty className={styles.Empty}>No emojis found</FilterMenu.Empty>
                   <FilterMenu.List
                     aria-label="Emoji results"
                     className={styles.List}

@@ -46,7 +46,7 @@ describe('FilterMenu conformance', () => {
     render: renderInline,
   }));
 
-  describeConformance(<FilterMenu.Status />, () => ({
+  describeConformance(<FilterMenu.Status>Loading</FilterMenu.Status>, () => ({
     refInstanceof: window.HTMLDivElement,
     render: renderInline,
   }));

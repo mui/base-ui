@@ -21,9 +21,7 @@ export default function FilterMenuDemo() {
                 <ClearIcon />
               </FilterMenu.Clear>
             </div>
-            <FilterMenu.Empty>
-              <div className={emptyClass}>No actions found.</div>
-            </FilterMenu.Empty>
+            <FilterMenu.Empty className={emptyClass}>No actions found.</FilterMenu.Empty>
             <FilterMenu.List className={listClass}>
               <FilterMenu.Group data-filter-section>
                 <FilterMenu.GroupLabel className={groupLabelClass}>File</FilterMenu.GroupLabel>
@@ -142,9 +140,7 @@ function FilterableSubmenu(props: FilterableSubmenuProps) {
                 <ClearIcon />
               </FilterMenu.Clear>
             </div>
-            <FilterMenu.Empty>
-              <div className={emptyClass}>{props.emptyText}</div>
-            </FilterMenu.Empty>
+            <FilterMenu.Empty className={emptyClass}>{props.emptyText}</FilterMenu.Empty>
             <FilterMenu.List className={submenuListClass}>
               {props.options.map((option) => (
                 <FilterMenu.Item key={option} className={itemClass}>
