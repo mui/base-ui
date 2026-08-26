@@ -9,6 +9,7 @@
 import { DemoFilterMenuHero } from './demos/hero';
 import { DemoFilterMenuCommandPalette } from './demos/command-palette';
 import { DemoFilterMenuEmojiPicker } from './demos/emoji-picker';
+import { DemoFilterMenuAsync } from './demos/async';
 
 <DemoFilterMenuHero />
 
@@ -92,6 +93,13 @@ Give any element between the list and its rows `role="presentation"`.
 
 <DemoFilterMenuEmojiPicker />
 
+### Async search
+
+Pass `filter={null}` and fetch matches yourself to search a source too large to render, such as a server-side directory.
+Keep the previous results rendered while a request is pending, and use `FilterMenu.Status` to announce the progress.
+
+<DemoFilterMenuAsync />
+
 ### Filtering items
 
 Items match their rendered text by default. Use `label` to provide explicit searchable text and `keywords` for alternate terms.
@@ -124,6 +132,7 @@ It receives the item's text, the trimmed query, and the item's `keywords`, so it
 ```
 
 Pass `filter={null}` to turn matching off and render only the items you want yourself, such as when a server returns the results.
+See [Async search](#async-search) for a complete example.
 
 ### Menus without a search field
 
