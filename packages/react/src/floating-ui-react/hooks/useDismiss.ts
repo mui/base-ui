@@ -723,9 +723,18 @@ export function useDismiss(
           addEventListener(doc, 'pointercancel', handlePressEndCapture, true),
           addEventListener(doc, 'mousedown', closeOnPressOutsideCapture, true),
           addEventListener(doc, 'mouseup', handlePressEndCapture, true),
-          addEventListener(doc, 'touchstart', handleTouchStartCapture, true),
-          addEventListener(doc, 'touchmove', handleTouchMoveCapture, true),
-          addEventListener(doc, 'touchend', handleTouchEndCapture, true),
+          addEventListener(doc, 'touchstart', handleTouchStartCapture, {
+            capture: true,
+            passive: true,
+          }),
+          addEventListener(doc, 'touchmove', handleTouchMoveCapture, {
+            capture: true,
+            passive: true,
+          }),
+          addEventListener(doc, 'touchend', handleTouchEndCapture, {
+            capture: true,
+            passive: true,
+          }),
         ),
     );
 

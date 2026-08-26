@@ -70,6 +70,23 @@ function App(
 
 describe.skipIf(!isJSDOM)('useDismiss', () => {
   describe('default options', () => {
+    test('registers outside press touch listeners as passive', async () => {
+      const addEventListenerSpy = vi.spyOn(document, 'addEventListener');
+
+      render(<App />);
+
+      await Promise.all(
+        ['touchstart', 'touchmove', 'touchend'].map((eventName) =>
+          waitFor(() => {
+            expect(addEventListenerSpy).toHaveBeenCalledWith(eventName, expect.any(Function), {
+              capture: true,
+              passive: true,
+            });
+          }),
+        ),
+      );
+    });
+
     test('dismisses with escape key', async () => {
       render(<App />);
       fireEvent.keyDown(document.body, { key: 'Escape' });
