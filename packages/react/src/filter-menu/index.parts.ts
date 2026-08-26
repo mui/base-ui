@@ -32,3 +32,5 @@ export { FilterMenuInput as Input } from './input/FilterMenuInput';
 export { FilterMenuClear as Clear } from './clear/FilterMenuClear';
 export { FilterMenuEmpty as Empty } from './empty/FilterMenuEmpty';
 export { FilterMenuStatus as Status } from './status/FilterMenuStatus';
+
+export { useCoreFilter as useFilter } from '../combobox/root/utils/useFilter';

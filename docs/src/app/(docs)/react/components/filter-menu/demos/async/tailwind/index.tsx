@@ -11,6 +11,8 @@ export default function ExampleAsyncFilterMenu() {
 
   const abortControllerRef = React.useRef<AbortController | null>(null);
 
+  const { contains } = FilterMenu.useFilter();
+
   function runSearch(query: string) {
     const controller = new AbortController();
     abortControllerRef.current?.abort();
@@ -19,7 +21,7 @@ export default function ExampleAsyncFilterMenu() {
     startTransition(async () => {
       setError(null);
 
-      const result = await searchIndex(query);
+      const result = await searchIndex(query, contains);
       if (controller.signal.aborted) {
         return;
       }
@@ -128,6 +130,7 @@ const RESULTS_PER_GROUP = 6;
 
 async function searchIndex(
   query: string,
+  filter: (itemText: string, query: string) => boolean,
 ): Promise<{ results: SearchResults; error: string | null }> {
   // Simulate network delay
   await new Promise((resolve) => {
@@ -142,14 +145,14 @@ async function searchIndex(
     };
   }
 
-  const loweredQuery = query.trim().toLowerCase();
+  const trimmedQuery = query.trim();
 
   const groups: ResultGroup[] = [];
   let total = 0;
   let shown = 0;
 
   for (const source of sources) {
-    const matches = source.items.filter((item) => item.toLowerCase().includes(loweredQuery));
+    const matches = source.items.filter((item) => filter(item, trimmedQuery));
     total += matches.length;
 
     if (matches.length > 0) {

@@ -9,13 +9,15 @@ export default function ExampleVirtualizedFilterMenu() {
 
   const virtualizerRef = React.useRef<Virtualizer | null>(null);
 
-  const query = searchValue.trim().toLowerCase();
+  const { contains } = FilterMenu.useFilter();
+
+  const query = searchValue.trim();
   const filteredItems = React.useMemo(() => {
     if (query === '') {
       return virtualizedItems;
     }
-    return virtualizedItems.filter((item) => item.name.toLowerCase().includes(query));
-  }, [query]);
+    return virtualizedItems.filter((item) => contains(item.name, query));
+  }, [contains, query]);
 
   return (
     <FilterMenu.Root
