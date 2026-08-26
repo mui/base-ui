@@ -1,6 +1,6 @@
 import { expect } from 'vitest';
 import * as React from 'react';
-import { act, screen, waitFor } from '@mui/internal-test-utils';
+import { act, fireEvent, screen, waitFor } from '@mui/internal-test-utils';
 import { FilterMenu } from '@base-ui/react/filter-menu';
 import { DirectionProvider } from '@base-ui/react/direction-provider';
 import { createRenderer, describeConformance, waitSingleFrame } from '#test-utils';
@@ -219,6 +219,29 @@ describe('<FilterMenu.Row />', () => {
 
       await user.keyboard('[ArrowUp]');
       expect(input).toHaveAttribute('aria-activedescendant', cells[0].id);
+    });
+
+    it('steps a single row when arrows land on the focused grid', async () => {
+      const { user } = await render(<GridMenu />);
+      const input = screen.getByRole('searchbox', { name: 'Search emoji' });
+      const grid = screen.getByRole('grid');
+      const cells = screen.getAllByRole('gridcell');
+
+      await waitFor(() => {
+        expect(input).toHaveFocus();
+      });
+      await user.keyboard('[ArrowDown]');
+      expect(input).toHaveAttribute('aria-activedescendant', cells[0].id);
+
+      await act(async () => {
+        grid.focus();
+      });
+      fireEvent.keyDown(grid, { key: 'ArrowDown' });
+
+      await waitFor(() => {
+        expect(input).toHaveAttribute('aria-activedescendant', cells[3].id);
+      });
+      expect(input).toHaveFocus();
     });
 
     it('runs the highlighted grid action with Enter', async () => {
