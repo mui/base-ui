@@ -29,6 +29,9 @@ export default function ExampleFilterMenuCommandPalette() {
                   aria-describedby={shortcutsDescriptionId}
                   placeholder="Search for apps and commands…"
                 />
+                <span id={shortcutsDescriptionId} hidden>
+                  Use the arrow keys to choose a command and Enter to activate it.
+                </span>
               </div>
               <Dialog.Close className={styles.VisuallyHidden} tabIndex={-1}>
                 Close command palette
@@ -68,10 +71,7 @@ export default function ExampleFilterMenuCommandPalette() {
                 </ScrollArea.Scrollbar>
               </ScrollArea.Root>
 
-              <div className={styles.Footer}>
-                <span id={shortcutsDescriptionId} className={styles.VisuallyHidden}>
-                  Use the arrow keys to choose a command and Enter to activate it.
-                </span>
+              <div className={styles.Footer} aria-hidden>
                 <div className={styles.FooterLeft}>
                   <span>Navigate</span>
                   <kbd className={styles.Kbd}>↑</kbd>
