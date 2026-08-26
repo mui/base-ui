@@ -5,7 +5,8 @@ import type { HTMLProps } from '../internals/types';
 export type State = {
   visibleItemIds: ReadonlySet<symbol> | null;
   registeredItemCount: number;
-  itemIds: readonly string[];
+  /** Rendered item ids by list index. Sparse when an external virtualizer windows the items. */
+  itemIds: readonly (string | undefined)[];
   activeIndex: number | null;
   /** The host's navigation props for the element that holds real focus while the popup is open. */
   inputProps: HTMLProps;

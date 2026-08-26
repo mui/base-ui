@@ -3,6 +3,7 @@ import * as React from 'react';
 import { useControlled } from '@base-ui/utils/useControlled';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import type { FilterDropdownRoot as FilterDropdownRootNamespace } from '../../filter-dropdown/root/FilterDropdownRoot';
+import type { BaseUIGenericEventDetails } from '../../internals/createBaseUIEventDetails';
 import { useFilterDropdownCloseQuery } from '../../filter-dropdown/root/useFilterDropdownCloseQuery';
 import { MenuRootInternal, type MenuRoot } from '../../menu/root/MenuRoot';
 import type { FilterMenuHandle } from '../store/FilterMenuHandle';
@@ -32,6 +33,8 @@ export function FilterMenuRoot<Payload>(props: FilterMenuRoot.Props<Payload>): R
     locale,
     inline = false,
     grid = false,
+    virtualized = false,
+    onItemHighlighted,
     ...menuProps
   } = props;
 
@@ -109,9 +112,11 @@ export function FilterMenuRoot<Payload>(props: FilterMenuRoot.Props<Payload>): R
           locale={locale}
           inline={inline}
           grid={grid}
+          virtualized={virtualized}
           inputProps={inputProps}
           onValueChange={handleInputValueChange}
           onInputElementChange={setHasInput}
+          onItemHighlighted={onItemHighlighted}
         >
           {typeof children === 'function' ? children(payload) : children}
         </FilterMenuProvider>
@@ -171,6 +176,26 @@ export type FilterMenuRootProps<Payload = unknown> = Omit<
      * @default false
      */
     grid?: boolean | undefined;
+    /**
+     * Whether the items are windowed by an external virtualizer.
+     * Pass `index` to each rendered `<FilterMenu.Item>` and use `filter={null}` with your own
+     * data filtering; keep at least one screenful of overscan so keyboard navigation always has
+     * an adjacent item to move to.
+     * @default false
+     */
+    virtualized?: boolean | undefined;
+    /**
+     * Event handler called when an item is highlighted or unhighlighted.
+     * Receives the highlighted item's index (or `null` when the highlight clears) and event
+     * details with a `reason` property describing why the highlight changed.
+     * The `reason` can be:
+     * - `'keyboard'`: the highlight changed due to keyboard navigation.
+     * - `'pointer'`: the highlight changed due to pointer hovering.
+     * - `'none'`: the highlight changed programmatically.
+     */
+    onItemHighlighted?:
+      | ((index: number | null, eventDetails: FilterMenuRootHighlightEventDetails) => void)
+      | undefined;
   };
 
 export interface FilterMenuRootState extends MenuRoot.State {}
@@ -181,6 +206,9 @@ export type FilterMenuRootInputValueChangeEventReason =
   FilterDropdownRootNamespace.ChangeEventReason;
 export type FilterMenuRootInputValueChangeEventDetails =
   FilterDropdownRootNamespace.ChangeEventDetails;
+export type FilterMenuRootHighlightEventReason = 'keyboard' | 'pointer' | 'none';
+export type FilterMenuRootHighlightEventDetails =
+  BaseUIGenericEventDetails<FilterMenuRootHighlightEventReason>;
 
 export namespace FilterMenuRoot {
   export type Props<Payload = unknown> = FilterMenuRootProps<Payload>;
@@ -190,4 +218,6 @@ export namespace FilterMenuRoot {
   export type ChangeEventDetails = FilterMenuRootChangeEventDetails;
   export type InputValueChangeEventReason = FilterMenuRootInputValueChangeEventReason;
   export type InputValueChangeEventDetails = FilterMenuRootInputValueChangeEventDetails;
+  export type HighlightEventReason = FilterMenuRootHighlightEventReason;
+  export type HighlightEventDetails = FilterMenuRootHighlightEventDetails;
 }

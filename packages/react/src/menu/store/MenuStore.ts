@@ -46,6 +46,8 @@ type Context = PopupStoreContext<MenuRoot.ChangeEventDetails> & {
   allowMouseUpTriggerRef: React.RefObject<boolean>;
   /** The element that holds real focus while virtual list navigation is active. */
   virtualFocusRef: React.RefObject<HTMLElement | null> | undefined;
+  /** Why the next `activeIndex` write happens. Consumed by FilterMenu's `onItemHighlighted`. */
+  highlightReason: 'keyboard' | 'pointer' | 'none';
   readonly triggerFocusTargetRef: React.RefObject<HTMLElement | null>;
   readonly beforeContentFocusGuardRef: React.RefObject<HTMLElement | null>;
 };
@@ -198,6 +200,7 @@ function createInitialContext(triggerElements: PopupTriggerMap): Context {
     itemLabels: { current: [] },
     allowMouseUpTriggerRef: { current: false },
     virtualFocusRef: undefined,
+    highlightReason: 'none',
     triggerFocusTargetRef: React.createRef<HTMLElement>(),
     beforeContentFocusGuardRef: React.createRef<HTMLElement>(),
     onOpenChangeComplete: undefined,

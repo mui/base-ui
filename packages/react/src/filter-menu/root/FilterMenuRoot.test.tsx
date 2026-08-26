@@ -5242,6 +5242,130 @@ describe('<FilterMenu.Root />', () => {
     });
   });
 
+  describe('prop: virtualized', () => {
+    const TOTAL = 30;
+    const WINDOW = 10;
+
+    function VirtualizedMenu(props: {
+      onItemHighlighted?: FilterMenu.Root.Props['onItemHighlighted'] | undefined;
+    }) {
+      const [windowStart, setWindowStart] = React.useState(0);
+
+      const indexes = [];
+      for (let i = windowStart; i < Math.min(windowStart + WINDOW, TOTAL); i += 1) {
+        indexes.push(i);
+      }
+
+      return (
+        <FilterMenu.Root
+          defaultOpen
+          virtualized
+          filter={null}
+          onItemHighlighted={(index, details) => {
+            props.onItemHighlighted?.(index, details);
+            if (index === null) {
+              return;
+            }
+            // Stand-in for a virtualizer: keep overscan mounted ahead of the highlight, the way
+            // scrolling the highlighted row into view slides a real virtualizer's window.
+            const nearStart = index - windowStart < 2;
+            const nearEnd = windowStart + WINDOW - index <= 2;
+            if (nearStart || nearEnd) {
+              const nextStart = Math.max(0, Math.min(index - WINDOW / 2, TOTAL - WINDOW));
+              if (nextStart !== windowStart) {
+                setWindowStart(nextStart);
+              }
+            }
+          }}
+        >
+          <FilterMenu.Trigger>Open</FilterMenu.Trigger>
+          <FilterMenu.Portal>
+            <FilterMenu.Positioner>
+              <FilterMenu.Popup>
+                <FilterMenu.Input aria-label="Search" />
+                <FilterMenu.List>
+                  {indexes.map((index) => (
+                    <FilterMenu.Item key={index} index={index} data-testid={`item-${index}`}>
+                      {`Item ${index}`}
+                    </FilterMenu.Item>
+                  ))}
+                </FilterMenu.List>
+              </FilterMenu.Popup>
+            </FilterMenu.Positioner>
+          </FilterMenu.Portal>
+        </FilterMenu.Root>
+      );
+    }
+
+    it('navigates a windowed list with absolute indexes', async () => {
+      const { user } = await render(<VirtualizedMenu />);
+
+      const input = screen.getByRole('searchbox', { name: 'Search' });
+      await waitFor(() => {
+        expect(input).toHaveFocus();
+      });
+
+      await user.keyboard('[ArrowDown]');
+      await waitFor(() => {
+        expect(input).toHaveAttribute('aria-activedescendant', screen.getByTestId('item-0').id);
+      });
+
+      await user.keyboard('[ArrowDown][ArrowDown]');
+      await waitFor(() => {
+        expect(input).toHaveAttribute('aria-activedescendant', screen.getByTestId('item-2').id);
+      });
+
+      // Walking past the window edge highlights an unmounted index, which the stand-in
+      // virtualizer then mounts.
+      await user.keyboard(
+        '[ArrowDown][ArrowDown][ArrowDown][ArrowDown][ArrowDown][ArrowDown][ArrowDown][ArrowDown]',
+      );
+      await waitFor(() => {
+        expect(input).toHaveAttribute('aria-activedescendant', screen.getByTestId('item-10').id);
+      });
+      expect(screen.queryByTestId('item-0')).toBe(null);
+
+      // The window shift did not invalidate the highlight: navigation continues from it.
+      await user.keyboard('[ArrowUp]');
+      await waitFor(() => {
+        expect(input).toHaveAttribute('aria-activedescendant', screen.getByTestId('item-9').id);
+      });
+    });
+
+    it('reports highlight changes through onItemHighlighted', async () => {
+      const calls: Array<[number | null, string]> = [];
+      const { user } = await render(
+        <VirtualizedMenu
+          onItemHighlighted={(index, details) => {
+            calls.push([index, details.reason]);
+          }}
+        />,
+      );
+
+      const input = screen.getByRole('searchbox', { name: 'Search' });
+      await waitFor(() => {
+        expect(input).toHaveFocus();
+      });
+
+      await user.keyboard('[ArrowDown]');
+      await waitFor(() => {
+        expect(calls).toContainEqual([0, 'keyboard']);
+      });
+
+      // Typing clears the highlight programmatically. The input already holds focus, so no
+      // pointer movement clears it first.
+      await user.keyboard('x');
+      await waitFor(() => {
+        expect(calls).toContainEqual([null, 'none']);
+      });
+
+      await user.hover(screen.getByTestId('item-3'));
+      await waitFor(() => {
+        expect(calls).toContainEqual([3, 'pointer']);
+      });
+    });
+  });
+
   describe('pointer focus claims', () => {
     it('does not seed a highlight when the pointer re-enters a kept-mounted inputless popup', async () => {
       const { user } = await render(
