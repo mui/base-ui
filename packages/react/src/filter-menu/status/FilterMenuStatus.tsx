@@ -1,24 +1,45 @@
 'use client';
-import {
-  ComboboxStatus,
-  type ComboboxStatusProps,
-  type ComboboxStatusState,
-} from '../../combobox/status/ComboboxStatus';
+import * as React from 'react';
+import type { BaseUIComponentProps } from '../../internals/types';
+import { useRenderElement } from '../../internals/useRenderElement';
+import { useInitialLiveRegionTextMutation } from '../../internals/useInitialLiveRegionTextMutation';
 
 /**
  * A status message whose content changes are announced politely to screen readers.
  * Useful for conveying the status of an asynchronously loaded list.
- * This component's root element must remain mounted in the DOM to announce changes consistently
- * across screen readers. Avoid hiding or removing the root element, and apply layout styles to a
- * child element instead.
+ * Renders nothing while it has no children, so screen readers don't count an
+ * empty node among the popup's contents.
  * Renders a `<div>` element.
  *
  * Documentation: [Base UI Filter Menu](https://base-ui.com/react/components/filter-menu)
  */
-export const FilterMenuStatus = ComboboxStatus;
+export const FilterMenuStatus = React.forwardRef(function FilterMenuStatus(
+  componentProps: FilterMenuStatus.Props,
+  forwardedRef: React.ForwardedRef<HTMLDivElement>,
+) {
+  const { render, className, style, children, ...elementProps } = componentProps;
 
-export interface FilterMenuStatusState extends ComboboxStatusState {}
-export interface FilterMenuStatusProps extends ComboboxStatusProps {}
+  const hasChildren = children != null && children !== false && children !== '';
+  const statusRef = useInitialLiveRegionTextMutation<HTMLDivElement>(hasChildren);
+
+  return useRenderElement('div', componentProps, {
+    enabled: hasChildren,
+    ref: [forwardedRef, statusRef],
+    props: [
+      {
+        children,
+        role: 'status',
+        'aria-live': 'polite',
+        'aria-atomic': true,
+      },
+      elementProps,
+    ],
+  });
+});
+
+export interface FilterMenuStatusState {}
+
+export interface FilterMenuStatusProps extends BaseUIComponentProps<'div', FilterMenuStatusState> {}
 
 export namespace FilterMenuStatus {
   export type State = FilterMenuStatusState;
