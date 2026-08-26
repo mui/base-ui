@@ -61,7 +61,11 @@ const state = getSharedSlot<PostDragClickState>('postDragClick', () => ({
  * the button was still down would let the drag's own click through and activate
  * the very control the drag was picked up from.
  */
-export function suppressNextClick(element: Element, heldPointerId?: number): void {
+export function suppressNextClick(
+  element: Element,
+  heldPointerId?: number,
+  shouldAllowClick?: ((event: Event) => boolean) | undefined,
+): void {
   // Re-arming replaces the previous window rather than stacking listeners.
   state.disarm?.();
 
@@ -94,6 +98,9 @@ export function suppressNextClick(element: Element, heldPointerId?: number): voi
     win,
     'click',
     (event) => {
+      if (shouldAllowClick?.(event)) {
+        return;
+      }
       // In the held-pointer mode the click being waited on is the held pointer's
       // own compatibility click, and the window stays armed for seconds — long
       // enough for a genuine interaction from *another* input to land (a mouse

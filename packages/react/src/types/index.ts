@@ -77,6 +77,7 @@ export type {
   DragStartReason,
   DragStartEventDetails,
   DragMoveEvent,
+  DragMoveReason,
   DragMoveEventDetails,
   DropTargetChangeEvent,
   DropTargetChangeReason,

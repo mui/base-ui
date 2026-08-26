@@ -7,7 +7,7 @@
   content="Accessible alternatives for pointer drag and drop in Base UI, including menus, shortcuts, focus, and announcements."
 />
 
-Base UI's drag engine responds to pointer input. Every action available by dragging must also be available without a drag gesture. Implement that alternative in the application, where the available destinations and the meaning of a move are known.
+Base UI's drag engine responds to pointer input. Every action available by dragging must also be available without a drag gesture. Implement that alternative in the application, where the available destinations and the meaning of a move are known.
 
 ## Provide an alternative to dragging
 
@@ -78,7 +78,7 @@ Avoid announcing continuous pointer movement. Announce the committed result, and
 
 `Draggable.Handle` is a pointer affordance and renders a `span` by default. Do not turn it into an extra keyboard stop when another control owns the keyboard action. If the handle contains only a decorative grip icon, mark it `aria-hidden="true"`.
 
-The draggable item may still be focusable for its normal widget behavior. Base UI does not add a role or `tabIndex`; use the semantics appropriate to the application.
+The draggable item may still be focusable for its normal widget behavior. Base UI does not add a role or `tabIndex`; use the semantics appropriate to the application.
 
 ## Check it
 

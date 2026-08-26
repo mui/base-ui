@@ -261,8 +261,8 @@ export type DraggableConfig<TData = undefined> = {
       ) => void)
     | undefined;
   /**
-   * Event handler called as the pointer moves, limited to one
-   * call per animation frame. Drop target stack changes do not call this handler.
+   * Event handler called as the pointer moves or a modifier key changes, limited
+   * to one call per animation frame. Drop target stack changes do not call this handler.
    * Use the drop target's `onDrag` for hover behavior.
    */
   onDrag?:

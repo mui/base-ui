@@ -33,12 +33,13 @@ import { createEventRootBinding, type DragEventRoot } from '../documentBinding';
 import type { DraggableConfig } from '../draggable';
 import { getRegistration, resolveDragHandle, resolveDraggablePickup } from '../draggableRegistry';
 import { hasInteractiveAncestorWithin } from '../interactiveElement';
-import { getDropTargetShadowRoots } from '../dropTarget';
+import { getDropTargetShadowRoots, subscribeDropTargetShadowRoots } from '../dropTarget';
 import type {
   DragCanceledReason,
   DragCleanupFn,
   DragHandle,
   DragInput,
+  DragMoveReason,
   DragPointerType,
 } from '../../../types/drag';
 import {
@@ -65,12 +66,15 @@ interface SyntheticDragState {
   pending: PendingSession | null;
   active: ActiveSession | null;
   cleanupContextMenuSuppression: DragCleanupFn | null;
+  /** Lets terminal handlers run intentional `.click()` calls before suppression. */
+  terminalCallbacksRunning: boolean;
 }
 
 const state = getSharedSlot<SyntheticDragState>('syntheticDrag', () => ({
   pending: null,
   active: null,
   cleanupContextMenuSuppression: null,
+  terminalCallbacksRunning: false,
 }));
 const handledPointerDownEvents = getSharedSlot<WeakSet<Event>>(
   'syntheticDrag.handledPointerDownEvents',
@@ -223,6 +227,7 @@ function clearActive(
     suppressNextClick(
       session.element,
       pointerAtTeardown === 'held' ? session.pointerId : undefined,
+      () => state.terminalCallbacksRunning,
     );
   }
 
@@ -319,10 +324,15 @@ function cancelActive(
   // cancel would leave the lifecycle active forever — `canStart()` false for the
   // rest of the page's life — so the lifecycle is ended either way. `tearDown` is
   // idempotent, so this is safe even when `clearActive` already forced it.
+  state.terminalCallbacksRunning = true;
   try {
-    clearActive(false, POINTER_AT_CANCEL[reason]);
+    try {
+      clearActive(false, POINTER_AT_CANCEL[reason]);
+    } finally {
+      controller.cancel(input, reason, event);
+    }
   } finally {
-    controller.cancel(input, reason, event);
+    state.terminalCallbacksRunning = false;
   }
 }
 
@@ -865,6 +875,7 @@ function commitActivation(): void {
     preview,
     lastInput,
     lastNativeEvent: pending.lastNativeEvent,
+    lastMoveReason: 'pointer',
     modifiers,
     // Resolve once on the first active frame: confirms the entered target and
     // emits the initial `onDrag`. Cleared immediately after, so every later
@@ -879,6 +890,15 @@ function commitActivation(): void {
     touchMoveAnchor: pending.touchMoveAnchor,
   };
   state.active = activeRef;
+
+  // A start callback can remove the source iframe after the pending blur
+  // listener has gone but before the active listeners below exist. End the
+  // lifecycle now instead of waiting for a future pointerdown to discover the
+  // dead document.
+  if (isDetachedDocument(doc)) {
+    cancelActive(undefined, 'document-detached', pending.lastNativeEvent);
+    return;
+  }
 
   // Override touch's implicit capture onto the body anchor, and give pen/mouse
   // explicit capture, so pointer events route here regardless of cursor position.
@@ -963,13 +983,34 @@ function commitActivation(): void {
   // container scrolled inside a shadow root: wheel-scrolling a shadow-contained
   // drop area under a stationary pointer would leave the resolved target and its
   // indicator stale until the pointer moved again. Attach to each shadow root
-  // holding a registered drop target. (A target registered into a *new* shadow
-  // root mid-drag is not covered; it can call `notifyExternalScroll()`.)
+  // holding a registered drop target. Keep the bindings current when a target
+  // mounts or unmounts in a new root during the drag.
+  const shadowRootScrollListeners = new Map<ShadowRoot, DragCleanupFn>();
+  const updateShadowRootScrollListener = (shadowRoot: ShadowRoot, registered: boolean) => {
+    if (registered) {
+      if (!shadowRootScrollListeners.has(shadowRoot)) {
+        shadowRootScrollListeners.set(
+          shadowRoot,
+          addEventListener(shadowRoot, 'scroll', onActiveScroll, {
+            capture: true,
+            passive: true,
+          }),
+        );
+      }
+      return;
+    }
+    shadowRootScrollListeners.get(shadowRoot)?.();
+    shadowRootScrollListeners.delete(shadowRoot);
+  };
   for (const shadowRoot of getDropTargetShadowRoots()) {
-    activeRef.listeners.push(
-      addEventListener(shadowRoot, 'scroll', onActiveScroll, { capture: true, passive: true }),
-    );
+    updateShadowRootScrollListener(shadowRoot, true);
   }
+  activeRef.listeners.push(subscribeDropTargetShadowRoots(updateShadowRootScrollListener), () => {
+    for (const cleanup of shadowRootScrollListeners.values()) {
+      cleanup();
+    }
+    shadowRootScrollListeners.clear();
+  });
 
   // Window-level safety net: if the OS hands off the pointer (Android
   // soft-keyboard, browser tab switch, sibling frame stealing capture) no
@@ -1064,7 +1105,7 @@ function onActiveFrame(): void {
   // `getActiveHitElement`) rather than paying for a second hit test.
   active.lastHitElement = target;
   active.preview.update(input.clientX, input.clientY, input);
-  active.controller.update(input, target, active.lastNativeEvent);
+  active.controller.update(input, target, active.lastNativeEvent, active.lastMoveReason);
   // A consumer callback that re-rendered synchronously may have torn out the
   // preview's host after it was positioned. Re-home it before the frame ends
   // rather than leaving it detached until the next input. (A commit React defers
@@ -1118,6 +1159,7 @@ function onActivePointerMove(event: Event): void {
   }
   active.lastInput = getInput(pointerEvent);
   active.lastNativeEvent = pointerEvent;
+  active.lastMoveReason = 'pointer';
   active.movedSinceFrame = true;
   // Bypass the coalescing guard only when a terminal fallback occupies the slot:
   // a prior `buttons === 0` sample (or a lost capture) may have queued it, and
@@ -1156,10 +1198,15 @@ function dropActiveAtPointer(pointerEvent: PointerEvent): void {
   // See `cancelActive`: the lifecycle has to be ended even if the sensor-side
   // teardown throws, or no drag can ever start again.
   active.preview.prepareForDrop();
+  state.terminalCallbacksRunning = true;
   try {
-    clearActive(true, 'released');
+    try {
+      clearActive(true, 'released');
+    } finally {
+      controller.drop(input, target, pointerEvent);
+    }
   } finally {
-    controller.drop(input, target, pointerEvent);
+    state.terminalCallbacksRunning = false;
   }
 }
 
@@ -1228,6 +1275,7 @@ function syncActiveModifierKeys(event: KeyboardEvent): void {
   // `onDrag` should report — otherwise `eventDetails.event.shiftKey` and
   // `location.current.input.shiftKey` disagree inside the same callback.
   active.lastNativeEvent = event;
+  active.lastMoveReason = 'modifier-key';
   active.movedSinceFrame = true;
   scheduleActiveFrame();
 }
@@ -1243,6 +1291,10 @@ function onActiveKeyDown(event: Event): void {
     return;
   }
   syncActiveModifierKeys(keyEvent);
+  if (keyEvent.key === 'Tab') {
+    cancelActive(undefined, 'tab-key', keyEvent);
+    return;
+  }
   if (keyEvent.key !== 'Escape') {
     return;
   }
@@ -1329,6 +1381,7 @@ export function resetForTests(): void {
   // No click suppression: a test reset must not leave a window-capture `click`
   // handler armed for the next test.
   clearActive(false, 'none');
+  state.terminalCallbacksRunning = false;
   state.cleanupContextMenuSuppression?.();
 }
 
@@ -1389,6 +1442,8 @@ interface ActiveSession {
    * read from, so reporting the stale `pointermove` would contradict them.
    */
   lastNativeEvent: PointerEvent | KeyboardEvent;
+  /** Why `lastNativeEvent` caused the next movement frame. */
+  lastMoveReason: DragMoveReason;
   /** Compiled `modifiers`, or `null` when the draggable declared none. */
   modifiers: DragModifiersState | null;
   /**

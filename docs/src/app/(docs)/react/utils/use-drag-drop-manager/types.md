@@ -116,10 +116,7 @@ type useDragDropManagerReturnValue = {
             parameters: DragStartEvent<TData>,
             eventDetails: { reason: 'pointer'; event: PointerEvent },
           ) => void;
-          onDrag?: (
-            parameters: DragMoveEvent<TData>,
-            eventDetails: { reason: 'pointer'; event: PointerEvent },
-          ) => void;
+          onDrag?: (parameters: DragMoveEvent<TData>, eventDetails: DragMoveEventDetails) => void;
           onDropTargetChange?: (
             parameters: DropTargetChangeEvent<TData>,
             eventDetails: DropTargetChangeEventDetails,
@@ -157,7 +154,7 @@ type useDragDropManagerReturnValue = {
           ) => void;
           onDrag?: (
             parameters: DropTargetEvent<'onDrag', TPayload | unknown, undefined>,
-            eventDetails: { reason: 'pointer'; event: PointerEvent },
+            eventDetails: DragMoveEventDetails,
           ) => void;
           onDropTargetChange?: (
             parameters: DropTargetEvent<'onDropTargetChange', TPayload | unknown, undefined>,
@@ -310,10 +307,7 @@ type DragDropManager = {
             parameters: DragStartEvent<TData>,
             eventDetails: { reason: 'pointer'; event: PointerEvent },
           ) => void;
-          onDrag?: (
-            parameters: DragMoveEvent<TData>,
-            eventDetails: { reason: 'pointer'; event: PointerEvent },
-          ) => void;
+          onDrag?: (parameters: DragMoveEvent<TData>, eventDetails: DragMoveEventDetails) => void;
           onDropTargetChange?: (
             parameters: DropTargetChangeEvent<TData>,
             eventDetails: DropTargetChangeEventDetails,
@@ -351,7 +345,7 @@ type DragDropManager = {
           ) => void;
           onDrag?: (
             parameters: DropTargetEvent<'onDrag', TPayload | unknown, undefined>,
-            eventDetails: { reason: 'pointer'; event: PointerEvent },
+            eventDetails: DragMoveEventDetails,
           ) => void;
           onDropTargetChange?: (
             parameters: DropTargetEvent<'onDropTargetChange', TPayload | unknown, undefined>,
@@ -599,14 +593,11 @@ type RegisterDraggableParameters<TData = undefined> = {
     eventDetails: { reason: 'pointer'; event: PointerEvent },
   ) => void;
   /**
-   * Event handler called as the pointer moves, limited to one
-   * call per animation frame. Drop target stack changes do not call this handler.
+   * Event handler called as the pointer moves or a modifier key changes, limited
+   * to one call per animation frame. Drop target stack changes do not call this handler.
    * Use the drop target's `onDrag` for hover behavior.
    */
-  onDrag?: (
-    parameters: DragMoveEvent<TData>,
-    eventDetails: { reason: 'pointer'; event: PointerEvent },
-  ) => void;
+  onDrag?: (parameters: DragMoveEvent<TData>, eventDetails: DragMoveEventDetails) => void;
   /**
    * Event handler called when the active drop targets change,
    * because one was entered or left.
@@ -716,14 +707,11 @@ type RegisterDraggableParametersWithPayload<TData> = (
     eventDetails: { reason: 'pointer'; event: PointerEvent },
   ) => void;
   /**
-   * Event handler called as the pointer moves, limited to one
-   * call per animation frame. Drop target stack changes do not call this handler.
+   * Event handler called as the pointer moves or a modifier key changes, limited
+   * to one call per animation frame. Drop target stack changes do not call this handler.
    * Use the drop target's `onDrag` for hover behavior.
    */
-  onDrag?: (
-    parameters: DragMoveEvent<TData>,
-    eventDetails: { reason: 'pointer'; event: PointerEvent },
-  ) => void;
+  onDrag?: (parameters: DragMoveEvent<TData>, eventDetails: DragMoveEventDetails) => void;
   /**
    * Event handler called when the active drop targets change,
    * because one was entered or left.
@@ -796,13 +784,13 @@ type RegisterDropTargetParameters<TSourceData = unknown, TLocalData = unknown> =
   ) => void;
   /**
    * Event handler called on the frame this target enters the active stack, right
-   * after `onDragEnter`, and on every rAF tick the pointer moves while the target
-   * remains in the stack. Put hover-tracking work here and use `onDragEnter` for
-   * enter-only side effects.
+   * after `onDragEnter`, and on every rAF tick the pointer or modifier keys change
+   * while the target remains in the stack. Put hover-tracking work here and use
+   * `onDragEnter` for enter-only side effects.
    */
   onDrag?: (
     parameters: DropTargetEvent<'onDrag', TSourceData, TLocalData>,
-    eventDetails: { reason: 'pointer'; event: PointerEvent },
+    eventDetails: DragMoveEventDetails,
   ) => void;
   /**
    * Event handler called when the active drop targets change, including changes that
@@ -861,8 +849,8 @@ type RegisterDropTargetParameters<TSourceData = unknown, TLocalData = unknown> =
   ) => void;
   /**
    * Event handler called when this target leaves the active stack, because the
-   * pointer moved away or the drag ended. `eventDetails.reason` identifies whether
-   * the pointer left the target, or the drag ended.
+   * pointer or modifier keys moved it away, or the drag ended. `eventDetails.reason`
+   * identifies what changed.
    */
   onDragLeave?: (
     parameters: DropTargetEvent<'onDragLeave', TSourceData, TLocalData>,
@@ -909,13 +897,13 @@ type RegisterDropTargetParametersWithPayload<TSourceData, TLocalData> = (
   ) => void;
   /**
    * Event handler called on the frame this target enters the active stack, right
-   * after `onDragEnter`, and on every rAF tick the pointer moves while the target
-   * remains in the stack. Put hover-tracking work here and use `onDragEnter` for
-   * enter-only side effects.
+   * after `onDragEnter`, and on every rAF tick the pointer or modifier keys change
+   * while the target remains in the stack. Put hover-tracking work here and use
+   * `onDragEnter` for enter-only side effects.
    */
   onDrag?: (
     parameters: DropTargetEvent<'onDrag', TSourceData, TLocalData>,
-    eventDetails: { reason: 'pointer'; event: PointerEvent },
+    eventDetails: DragMoveEventDetails,
   ) => void;
   /**
    * Event handler called when the active drop targets change, including changes that
@@ -975,8 +963,8 @@ type RegisterDropTargetParametersWithPayload<TSourceData, TLocalData> = (
   ) => void;
   /**
    * Event handler called when this target leaves the active stack, because the
-   * pointer moved away or the drag ended. `eventDetails.reason` identifies whether
-   * the pointer left the target, or the drag ended.
+   * pointer or modifier keys moved it away, or the drag ended. `eventDetails.reason`
+   * identifies what changed.
    */
   onDragLeave?: (
     parameters: DropTargetEvent<'onDragLeave', TSourceData, TLocalData>,
@@ -1008,13 +996,10 @@ type RegisterMonitorParameters<TSourceData = unknown> = {
     eventDetails: { reason: 'pointer'; event: PointerEvent },
   ) => void;
   /**
-   * Event handler called (rAF-throttled) as the pointer moves during any
-   * matching drag.
+   * Event handler called (rAF-throttled) as the pointer moves or a modifier key
+   * changes during any matching drag.
    */
-  onDrag?: (
-    parameters: DragMoveEvent<TSourceData>,
-    eventDetails: { reason: 'pointer'; event: PointerEvent },
-  ) => void;
+  onDrag?: (parameters: DragMoveEvent<TSourceData>, eventDetails: DragMoveEventDetails) => void;
   /**
    * Event handler called when the active drop-target stack changes during any
    * matching drag.
@@ -1075,10 +1060,7 @@ type UseDragDropManagerReturnValue = {
             parameters: DragStartEvent<TData>,
             eventDetails: { reason: 'pointer'; event: PointerEvent },
           ) => void;
-          onDrag?: (
-            parameters: DragMoveEvent<TData>,
-            eventDetails: { reason: 'pointer'; event: PointerEvent },
-          ) => void;
+          onDrag?: (parameters: DragMoveEvent<TData>, eventDetails: DragMoveEventDetails) => void;
           onDropTargetChange?: (
             parameters: DropTargetChangeEvent<TData>,
             eventDetails: DropTargetChangeEventDetails,
@@ -1116,7 +1098,7 @@ type UseDragDropManagerReturnValue = {
           ) => void;
           onDrag?: (
             parameters: DropTargetEvent<'onDrag', TPayload | unknown, undefined>,
-            eventDetails: { reason: 'pointer'; event: PointerEvent },
+            eventDetails: DragMoveEventDetails,
           ) => void;
           onDropTargetChange?: (
             parameters: DropTargetEvent<'onDropTargetChange', TPayload | unknown, undefined>,

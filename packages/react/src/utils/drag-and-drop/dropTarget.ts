@@ -2,6 +2,7 @@ import { isShadowRoot } from '@floating-ui/utils/dom';
 import { clamp } from '@base-ui/utils/clamp';
 import type {
   DragAccept,
+  DragCleanupFn,
   DragKind,
   DragLocalPoint,
   DragSnappedLocalPointOptions,
@@ -55,6 +56,13 @@ const state = getSharedSlot<DropTargetState>('dropTarget', () => ({
   retainedRoots: new WeakMap<Element, ShadowRoot>(),
 }));
 
+type ShadowRootChangeListener = (root: ShadowRoot, registered: boolean) => void;
+
+const shadowRootChangeListeners = getSharedSlot<Set<ShadowRootChangeListener>>(
+  'dropTarget.shadowRootChangeListeners',
+  () => new Set(),
+);
+
 const holds = createGetterStackRegistry<Element, DropTargetGetter>({
   entries: state.registry,
   onFirstAdd: (element) => {
@@ -84,13 +92,19 @@ function retainShadowRoot(element: Element): void {
   const root = element.getRootNode();
   // Realm-safe: a target inside an iframe has its own `ShadowRoot` constructor.
   if (isShadowRoot(root)) {
-    state.shadowRoots.set(root, (state.shadowRoots.get(root) ?? 0) + 1);
+    const count = state.shadowRoots.get(root) ?? 0;
+    state.shadowRoots.set(root, count + 1);
     // Remembered rather than re-derived on release: `getRootNode()` answers for
     // where the element is *now*, and a node moved (or detached) while registered
     // would release a root it never retained — leaking this one, and decrementing
     // the other below its true count until it is dropped while it still holds
     // targets, silently costing it its `scroll` listener mid-drag.
     state.retainedRoots.set(element, root);
+    if (count === 0) {
+      for (const listener of shadowRootChangeListeners) {
+        listener(root, true);
+      }
+    }
   }
 }
 
@@ -106,6 +120,9 @@ function releaseShadowRoot(element: Element): void {
   }
   if (count <= 1) {
     state.shadowRoots.delete(root);
+    for (const listener of shadowRootChangeListeners) {
+      listener(root, false);
+    }
   } else {
     state.shadowRoots.set(root, count - 1);
   }
@@ -117,6 +134,14 @@ function releaseShadowRoot(element: Element): void {
  */
 export function getDropTargetShadowRoots(): Iterable<ShadowRoot> {
   return state.shadowRoots.keys();
+}
+
+/** Watch roots entering and leaving the registered drop-target set. */
+export function subscribeDropTargetShadowRoots(listener: ShadowRootChangeListener): DragCleanupFn {
+  shadowRootChangeListeners.add(listener);
+  return () => {
+    shadowRootChangeListeners.delete(listener);
+  };
 }
 
 /**
@@ -205,6 +230,7 @@ export function resetForTests(): void {
   }
   state.registry.clear();
   state.shadowRoots.clear();
+  shadowRootChangeListeners.clear();
   retiringRegistrations.clear();
 }
 
@@ -767,9 +793,9 @@ export type RegisterDropTargetParameters<TSourceData = unknown, TLocalData = unk
     | undefined;
   /**
    * Event handler called on the frame this target enters the active stack, right
-   * after `onDragEnter`, and on every rAF tick the pointer moves while the target
-   * remains in the stack. Put hover-tracking work here and use `onDragEnter` for
-   * enter-only side effects.
+   * after `onDragEnter`, and on every rAF tick the pointer or modifier keys change
+   * while the target remains in the stack. Put hover-tracking work here and use
+   * `onDragEnter` for enter-only side effects.
    */
   onDrag?:
     | ((
@@ -802,8 +828,8 @@ export type RegisterDropTargetParameters<TSourceData = unknown, TLocalData = unk
     | undefined;
   /**
    * Event handler called when this target leaves the active stack, because the
-   * pointer moved away or the drag ended. `eventDetails.reason` identifies whether
-   * the pointer left the target, or the drag ended.
+   * pointer or modifier keys moved it away, or the drag ended. `eventDetails.reason`
+   * identifies what changed.
    */
   onDragLeave?:
     | ((

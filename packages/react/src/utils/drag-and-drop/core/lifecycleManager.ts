@@ -16,6 +16,7 @@ import type {
   DragEndReason,
   DragLocation,
   DragLocationHistory,
+  DragMoveReason,
   DropTargetRecord,
   DragSource,
   DragEventDetailsMap,
@@ -165,6 +166,7 @@ export function start(parameters: StartParameters): DragSessionHandle | null {
   // A drag driven with no event at all (a programmatic session, a test harness)
   // keeps the placeholder `createDragEventDetails` falls back to.
   let lastInputEvent: Event | undefined = initialEvent;
+  let lastInputReason: DragMoveReason = 'pointer';
 
   // The target refusing the drag at the current position (`canDrop` returned
   // `'reject'`), and the value the last published snapshot carried. A rejection
@@ -441,7 +443,7 @@ export function start(parameters: StartParameters): DragSessionHandle | null {
     // See `lastDispatched`: `previous` reflects the last delivered event.
     location.previous = lastDispatched;
     const dragPayload: DragEventMap['onDrag'] = { location: snapshotLocation(), source };
-    const dragDetails = createDragEventDetails('pointer', lastInputEvent);
+    const dragDetails = createDragEventDetails(lastInputReason, lastInputEvent);
     dispatching = true;
     // recover on throw (see dispatchDragStart)
     try {
@@ -552,6 +554,7 @@ export function start(parameters: StartParameters): DragSessionHandle | null {
     input: DragInput,
     rawTarget: Element | null,
     event?: Event,
+    reason?: DragMoveReason,
     dragDispatchFollows = false,
   ): void {
     lastTarget = rawTarget;
@@ -560,6 +563,9 @@ export function start(parameters: StartParameters): DragSessionHandle | null {
     // unregister) keeps the last real one rather than regressing to a placeholder.
     if (event !== undefined) {
       lastInputEvent = event;
+    }
+    if (reason !== undefined) {
+      lastInputReason = reason;
     }
 
     const newDropTargets = resolveStack(rawTarget, input);
@@ -587,7 +593,7 @@ export function start(parameters: StartParameters): DragSessionHandle | null {
         location: snapshotLocation(),
         source,
       };
-      const moveDetails = createDragEventDetails('pointer', lastInputEvent);
+      const moveDetails = createDragEventDetails(lastInputReason, lastInputEvent);
       dispatching = true;
       // recover on throw (see dispatchDragStart)
       try {
@@ -924,8 +930,8 @@ export function start(parameters: StartParameters): DragSessionHandle | null {
   }
 
   const controller: DragSessionController = {
-    update(input, target, event) {
-      updateDropTargets(input, target, event, true);
+    update(input, target, event, reason = 'pointer') {
+      updateDropTargets(input, target, event, reason, true);
       // Sensors coalesce input before `update`, so deliver in that sensor frame.
       // `updateDropTargets` can re-enter `cancelDrag()` via a consumer callback.
       if (!tornDown) {
@@ -1051,14 +1057,13 @@ export type DropOutcome = Pick<DragEventMap['onDragEnd'], 'canceled' | 'dropTarg
 
 export interface DragSessionController {
   /**
-   * `event` is the native input this sample came from — the `pointermove` or
-   * `pointermove` the sensor is reacting to. It reaches `eventDetails.event` on
+   * `event` is the native input this sample came from. It reaches `eventDetails.event` on
    * `onDrag`, `onDropTargetChange`, `onDragEnter` and `onDragLeave`, so those
    * handlers can read modifier keys off a real event rather than a placeholder.
    * Sensors may coalesce several raw samples before calling `update`, which then
    * reports the last sample's event alongside its `location.current`.
    */
-  update(input: DragInput, target: Element | null, event?: Event): void;
+  update(input: DragInput, target: Element | null, event?: Event, reason?: DragMoveReason): void;
   /**
    * End the drag as a release at `input` over `target`. Returns the outcome the
    * resulting `onDragEnd` reported. See {@link DropOutcome}.

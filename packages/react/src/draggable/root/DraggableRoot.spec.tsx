@@ -345,7 +345,11 @@ function GenericCard<TData>(
     expectType<PointerEvent, typeof eventDetails.event>(eventDetails.event);
   }}
   onDrag={(_, eventDetails) => {
-    expectType<PointerEvent, typeof eventDetails.event>(eventDetails.event);
+    if (eventDetails.reason === 'modifier-key') {
+      expectType<KeyboardEvent, typeof eventDetails.event>(eventDetails.event);
+    } else {
+      expectType<PointerEvent, typeof eventDetails.event>(eventDetails.event);
+    }
   }}
   onDragEnd={(_, eventDetails) => {
     if (eventDetails.reason === 'pointer-canceled') {

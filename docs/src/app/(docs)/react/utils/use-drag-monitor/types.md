@@ -45,13 +45,10 @@ type useDragMonitorParameters<TSourceData = unknown> = {
     eventDetails: { reason: 'pointer'; event: PointerEvent },
   ) => void;
   /**
-   * Event handler called (rAF-throttled) as the pointer moves during any
-   * matching drag.
+   * Event handler called (rAF-throttled) as the pointer moves or a modifier key
+   * changes during any matching drag.
    */
-  onDrag?: (
-    parameters: DragMoveEvent<TSourceData>,
-    eventDetails: { reason: 'pointer'; event: PointerEvent },
-  ) => void;
+  onDrag?: (parameters: DragMoveEvent<TSourceData>, eventDetails: DragMoveEventDetails) => void;
   /**
    * Event handler called when the active drop-target stack changes during any
    * matching drag.
@@ -154,10 +151,10 @@ The event details passed to `onDragEnd`.
 
 ```typescript
 type DragEndEventDetails =
-  | { reason: 'drop'; event: PointerEvent }
-  | { reason: 'outside-release'; event: PointerEvent }
   | { reason: 'escape-key'; event: KeyboardEvent }
   | { reason: 'tab-key'; event: KeyboardEvent }
+  | { reason: 'drop'; event: PointerEvent }
+  | { reason: 'outside-release'; event: PointerEvent }
   | { reason: 'imperative-action'; event: Event }
   | { reason: 'window-blur'; event: FocusEvent }
   | { reason: 'page-hidden'; event: Event }
@@ -203,15 +200,16 @@ type DragMoveEvent<TSourceData = unknown> = {
 The event details passed to `onDrag`.
 
 ```typescript
-type DragMoveEventDetails = {
-  /** Why the event fired. */
-  reason: 'pointer';
-  /**
-   * The native event behind the dispatch. Programmatic and lifecycle-only
-   * reasons carry a generic `Event` placeholder.
-   */
-  event: PointerEvent;
-};
+type DragMoveEventDetails =
+  { reason: 'pointer'; event: PointerEvent } | { reason: 'modifier-key'; event: KeyboardEvent };
+```
+
+### DragMoveReason
+
+Why a drag movement frame ran: pointer activity or a modifier-key change.
+
+```typescript
+type DragMoveReason = 'pointer' | 'modifier-key';
 ```
 
 ### DragStartEvent
@@ -259,10 +257,11 @@ The event details passed to `onDropTargetChange`, `onDragEnter` and `onDragLeave
 ```typescript
 type DropTargetChangeEventDetails =
   | { reason: 'pointer'; event: PointerEvent }
-  | { reason: 'drop'; event: PointerEvent }
-  | { reason: 'outside-release'; event: PointerEvent }
+  | { reason: 'modifier-key'; event: KeyboardEvent }
   | { reason: 'escape-key'; event: KeyboardEvent }
   | { reason: 'tab-key'; event: KeyboardEvent }
+  | { reason: 'drop'; event: PointerEvent }
+  | { reason: 'outside-release'; event: PointerEvent }
   | { reason: 'imperative-action'; event: Event }
   | { reason: 'window-blur'; event: FocusEvent }
   | { reason: 'page-hidden'; event: Event }
@@ -296,13 +295,10 @@ type RegisterMonitorParameters<TSourceData = unknown> = {
     eventDetails: { reason: 'pointer'; event: PointerEvent },
   ) => void;
   /**
-   * Event handler called (rAF-throttled) as the pointer moves during any
-   * matching drag.
+   * Event handler called (rAF-throttled) as the pointer moves or a modifier key
+   * changes during any matching drag.
    */
-  onDrag?: (
-    parameters: DragMoveEvent<TSourceData>,
-    eventDetails: { reason: 'pointer'; event: PointerEvent },
-  ) => void;
+  onDrag?: (parameters: DragMoveEvent<TSourceData>, eventDetails: DragMoveEventDetails) => void;
   /**
    * Event handler called when the active drop-target stack changes during any
    * matching drag.
@@ -354,13 +350,10 @@ type UseDragMonitorParameters<TSourceData = unknown> = {
     eventDetails: { reason: 'pointer'; event: PointerEvent },
   ) => void;
   /**
-   * Event handler called (rAF-throttled) as the pointer moves during any
-   * matching drag.
+   * Event handler called (rAF-throttled) as the pointer moves or a modifier key
+   * changes during any matching drag.
    */
-  onDrag?: (
-    parameters: DragMoveEvent<TSourceData>,
-    eventDetails: { reason: 'pointer'; event: PointerEvent },
-  ) => void;
+  onDrag?: (parameters: DragMoveEvent<TSourceData>, eventDetails: DragMoveEventDetails) => void;
   /**
    * Event handler called when the active drop-target stack changes during any
    * matching drag.

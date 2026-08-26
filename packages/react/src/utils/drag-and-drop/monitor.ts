@@ -149,8 +149,8 @@ export interface RegisterMonitorParameters<TSourceData = unknown> {
       ) => void)
     | undefined;
   /**
-   * Event handler called (rAF-throttled) as the pointer moves during any
-   * matching drag.
+   * Event handler called (rAF-throttled) as the pointer moves or a modifier key
+   * changes during any matching drag.
    */
   onDrag?:
     | ((

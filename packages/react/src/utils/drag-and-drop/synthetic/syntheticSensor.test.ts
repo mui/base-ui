@@ -571,6 +571,48 @@ describe('syntheticDrag sensor', () => {
     },
   );
 
+  it('cancels when a start handler detaches the source document', async () => {
+    const { engine } = await renderDnd();
+    const iframe = document.createElement('iframe');
+    document.body.appendChild(iframe);
+    registerCleanup(() => iframe.remove());
+    const iframeDoc = iframe.contentDocument!;
+    iframeDoc.elementFromPoint = () => null;
+    const iframeEl = iframeDoc.createElement('div');
+    iframeEl.getBoundingClientRect = () => new DOMRect(0, 0, 200, 100);
+    iframeDoc.body.appendChild(iframeEl);
+    const onDragEnd = vi.fn();
+    engine.registerDraggable(iframeEl, {
+      pointerActivation: { mouse: { type: 'immediate' } },
+      onDragStart() {
+        iframe.remove();
+        if (isJSDOM) {
+          Object.defineProperty(iframeDoc, 'defaultView', { value: null, configurable: true });
+        }
+      },
+      onDragEnd,
+    });
+
+    dispatch(
+      iframeEl,
+      new PointerEvent('pointerdown', {
+        pointerType: 'mouse',
+        pointerId: 1,
+        clientX: 10,
+        clientY: 10,
+        button: 0,
+        buttons: 1,
+        bubbles: true,
+        cancelable: true,
+      }),
+    );
+
+    expect(onDragEnd).toHaveBeenCalledOnce();
+    expect(onDragEnd.mock.calls[0][0].canceled).toBe(true);
+    expect(onDragEnd.mock.calls[0][1].reason).toBe('document-detached');
+    expect(dragSessionStore.getSnapshot()).toBeNull();
+  });
+
   it('ignores the spurious lostpointercapture fired by the capture redirect (touch/Android)', async () => {
     const { engine } = await renderDnd();
     const src = createElement();
@@ -1278,6 +1320,34 @@ describe('syntheticDrag sensor', () => {
     expect(onDragEnd.mock.calls[0][0].location.current.dropTargets).toEqual([]);
     expect(onDragEnd.mock.calls[0][0].canceled).toBe(true);
     expect(onDragEnd.mock.calls[0][1].reason).toBe('escape-key');
+  });
+
+  it('Tab cancels an active synthetic drag without consuming the key', async () => {
+    const { engine } = await renderDnd();
+    const el = createElement();
+    const onDragEnd = vi.fn();
+    engine.registerDraggable(el, {
+      pointerActivation: { touch: { type: 'immediate' } },
+      onDragEnd,
+    });
+
+    const onKeyDown = vi.fn();
+    document.addEventListener('keydown', onKeyDown);
+    registerCleanup(() => document.removeEventListener('keydown', onKeyDown));
+
+    touchDown(el, 50, 50);
+    await flushRaf();
+
+    const tab = new KeyboardEvent('keydown', { key: 'Tab', bubbles: true, cancelable: true });
+    dispatch(document, tab);
+
+    expect(onDragEnd).toHaveBeenCalledTimes(1);
+    expect(onDragEnd.mock.calls[0][0].canceled).toBe(true);
+    expect(onDragEnd.mock.calls[0][1]).toEqual(
+      expect.objectContaining({ reason: 'tab-key', event: tab }),
+    );
+    expect(tab.defaultPrevented).toBe(false);
+    expect(onKeyDown).toHaveBeenCalledOnce();
   });
 
   it.each([
@@ -2656,6 +2726,44 @@ describe('syntheticDrag sensor', () => {
       touchUp(10, 10);
     });
 
+    it('watches a shadow root whose first drop target registers during the drag', async () => {
+      const { engine } = await renderDnd();
+      const src = createElement();
+      const host = createElement();
+      const shadow = host.attachShadow({ mode: 'open' });
+      const scroller = document.createElement('div');
+      const inner = document.createElement('div');
+      inner.getBoundingClientRect = () => new DOMRect(0, 0, 200, 100);
+      scroller.appendChild(inner);
+      shadow.appendChild(scroller);
+      const onDragEnter = vi.fn();
+      engine.registerDraggable(src, { pointerActivation: { touch: { type: 'immediate' } } });
+
+      const originalEFP = document.elementFromPoint;
+      const hit = { current: null as Element | null };
+      document.elementFromPoint = (() => hit.current) as typeof document.elementFromPoint;
+      registerCleanup(() => {
+        document.elementFromPoint = originalEFP;
+      });
+
+      touchDown(src, 10, 10);
+      await flushRaf();
+      await flushRaf();
+
+      engine.registerDropTarget(inner, { onDragEnter });
+      await Promise.resolve();
+      expect(onDragEnter).not.toHaveBeenCalled();
+
+      hit.current = inner;
+      dispatch(scroller, new Event('scroll'));
+      await flushRaf();
+      await flushRaf();
+
+      expect(onDragEnter).toHaveBeenCalledOnce();
+
+      touchUp(10, 10);
+    });
+
     it('keeps watching a shadow root while any of its targets is still registered', async () => {
       // The set of watched roots is ref-counted per registration: one root holds
       // many targets, and only the last one leaving retires it. Releasing a
@@ -2848,14 +2956,15 @@ describe('syntheticDrag sensor', () => {
       // Both halves of what the press produces: what the modifier was handed, and what
       // the frame goes on to report. A dispatch skipped because the point did not move
       // would leave the second stale while the first still looked right.
-      const reported: Array<{ input: boolean; event: boolean }> = [];
+      const reported: Array<{ input: boolean; event: boolean; reason: string }> = [];
       engine.registerDraggable(el, {
         pointerActivation: { touch: { type: 'immediate' } },
         modifiers: modifier,
         onDrag: ({ location }, eventDetails) => {
           reported.push({
             input: location.current.input.shiftKey,
-            event: (eventDetails.event as KeyboardEvent | PointerEvent).shiftKey,
+            event: eventDetails.event.shiftKey,
+            reason: eventDetails.reason,
           });
         },
       });
@@ -2873,14 +2982,54 @@ describe('syntheticDrag sensor', () => {
       // modifier change without another frame of latency.
       // The two agree: the reported input and `eventDetails.event` both come from the
       // press, so a consumer reading either sees Shift down.
-      expect(reported.at(-1)).toEqual({ input: true, event: true });
+      expect(reported.at(-1)).toEqual({ input: true, event: true, reason: 'modifier-key' });
 
       pressKey('keyup', false);
       await flushRaf();
       expect(seen.at(-1)).toBe(false);
-      expect(reported.at(-1)).toEqual({ input: false, event: false });
+      expect(reported.at(-1)).toEqual({ input: false, event: false, reason: 'modifier-key' });
 
-      touchUp(50, 50);
+      touchMove(60, 60);
+      await flushRaf();
+      expect(reported.at(-1)?.reason).toBe('pointer');
+
+      touchUp(60, 60);
+    });
+
+    it('reports a modifier-key reason when a key-driven frame changes targets', async () => {
+      const { engine } = await renderDnd();
+      const source = createElement();
+      const targetA = createElement();
+      const targetB = createElement();
+      const onDropTargetChange = vi.fn();
+      engine.registerDraggable(source, {
+        pointerActivation: { touch: { type: 'immediate' } },
+        modifiers: ({ point, shiftKey }) => (shiftKey ? { ...point, x: 100 } : point),
+      });
+      engine.registerDropTarget(targetA, {});
+      engine.registerDropTarget(targetB, {});
+      engine.registerMonitor({ onDropTargetChange });
+
+      const originalEFP = document.elementFromPoint;
+      document.elementFromPoint = ((x: number) =>
+        x === 100 ? targetB : targetA) as typeof document.elementFromPoint;
+      registerCleanup(() => {
+        document.elementFromPoint = originalEFP;
+      });
+
+      touchDown(source, 10, 10);
+      await flushRaf();
+      onDropTargetChange.mockClear();
+
+      pressKey('keydown', true);
+      await flushRaf();
+
+      expect(onDropTargetChange).toHaveBeenCalledOnce();
+      const eventDetails = onDropTargetChange.mock.calls[0][1];
+      expect(eventDetails.reason).toBe('modifier-key');
+      expect(eventDetails.event).toBeInstanceOf(KeyboardEvent);
+
+      touchUp(10, 10);
     });
 
     it('does not re-apply for a key press that changes no modifier', async () => {
@@ -3103,6 +3252,46 @@ describe('syntheticDrag sensor', () => {
   });
 
   describe('post-drag click', () => {
+    it('allows a programmatic click from onDrop and still swallows the compatibility click', async () => {
+      const { engine } = await renderDnd();
+      const source = createElement();
+      const target = createElement();
+      const button = document.createElement('button');
+      document.body.appendChild(button);
+      registerCleanup(() => button.remove());
+      const onButtonClick = vi.fn();
+      button.addEventListener('click', onButtonClick);
+      registerCleanup(() => button.removeEventListener('click', onButtonClick));
+      const onOutsideClick = vi.fn();
+      document.addEventListener('click', onOutsideClick, { capture: true });
+      registerCleanup(() => document.removeEventListener('click', onOutsideClick, true));
+
+      engine.registerDraggable(source, {
+        pointerActivation: { touch: { type: 'immediate' } },
+        onDrop() {
+          button.click();
+        },
+      });
+      engine.registerDropTarget(target, {});
+      const originalEFP = document.elementFromPoint;
+      document.elementFromPoint = () => target;
+      registerCleanup(() => {
+        document.elementFromPoint = originalEFP;
+      });
+
+      touchDown(source, 50, 50);
+      await flushRaf();
+      touchUp(50, 50);
+
+      expect(onButtonClick).toHaveBeenCalledOnce();
+      expect(onOutsideClick).toHaveBeenCalledOnce();
+
+      act(() => {
+        source.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
+      });
+      expect(onOutsideClick).toHaveBeenCalledOnce();
+    });
+
     it('swallows the compatibility click that follows a drag', async () => {
       const { engine } = await renderDnd();
       const el = createElement();

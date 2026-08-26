@@ -523,6 +523,18 @@ function collectInferredScrollers(...anchors: (Element | null)[]): Set<HTMLEleme
   return scrollers;
 }
 
+function setsEqual<T>(a: Set<T>, b: Set<T>): boolean {
+  if (a.size !== b.size) {
+    return false;
+  }
+  for (const value of a) {
+    if (!b.has(value)) {
+      return false;
+    }
+  }
+  return true;
+}
+
 function sortByDepthDesc(elements: HTMLElement[]): HTMLElement[] {
   const depths = new Map<HTMLElement, number>();
   for (const el of elements) {
@@ -627,23 +639,31 @@ function runScrollFrame(timestamp: number): void {
   // reorder that moves the dragged row into another column changes its chain
   // while the pointer stays over the very same hit element.
   const sourceParent = getComposedParentElement(currentSource.element);
-  if (
-    chainAnchor !== state.chainAnchor ||
-    chainAnchorParent !== state.chainAnchorParent ||
-    sourceParent !== state.chainSourceParent
-  ) {
+  const anchorChanged = chainAnchor !== state.chainAnchor;
+  const ancestryChanged =
+    chainAnchorParent !== state.chainAnchorParent || sourceParent !== state.chainSourceParent;
+  if (anchorChanged || ancestryChanged) {
     state.chainAnchor = chainAnchor;
     state.chainAnchorParent = chainAnchorParent;
     state.chainSourceParent = sourceParent;
     // Drop the per-drag overflow cache before the fresh walk: entering a target
     // can restyle a container from `overflow: hidden` to scrollable (a collapsed
     // section auto-expanding from `onDragEnter`), and a stale entry would keep it
-    // out of the chain for the rest of the drag. A chain change is the only
-    // moment such a restyle matters, and it is rare enough that the re-resolve
-    // costs nothing per frame.
-    state.overflowCache = new WeakMap();
-    state.inferredScrollers = collectInferredScrollers(chainAnchor, currentSource.element);
-    invalidateScrollerOrder();
+    // out of the chain for the rest of the drag. A changed ancestry is the point
+    // where such a restyle matters. Merely moving to a sibling keeps the shared
+    // ancestor readings below.
+    // Moving between siblings does not invalidate any shared ancestor's cached
+    // overflow. Preserve those readings and measure only the new leaf. A changed
+    // ancestry still resets the cache so a container restyled on entry is picked
+    // up immediately.
+    if (ancestryChanged) {
+      state.overflowCache = new WeakMap();
+    }
+    const nextInferredScrollers = collectInferredScrollers(chainAnchor, currentSource.element);
+    if (!setsEqual(state.inferredScrollers, nextInferredScrollers)) {
+      state.inferredScrollers = nextInferredScrollers;
+      invalidateScrollerOrder();
+    }
   }
 
   // Cache the inner-first ordering across frames; it only depends on DOM

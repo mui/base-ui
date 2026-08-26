@@ -39,6 +39,7 @@ export type {
   DragLocationHistory,
   DragEventMap,
   DragMoveEvent,
+  DragMoveReason,
   DragMoveEventDetails,
   DragStartEventDetails,
   DropTargetChangeEventDetails,

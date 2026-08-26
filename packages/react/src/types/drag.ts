@@ -393,9 +393,12 @@ export type DragHandle = Element | { current: Element | null } | (() => Element 
 /** Why a drag pickup started. */
 export type DragStartReason = 'pointer';
 
+/** Why a drag movement frame ran: pointer activity or a modifier-key change. */
+export type DragMoveReason = DragStartReason | 'modifier-key';
+
 type DragReasonToEvent<TReason extends string> = TReason extends 'pointer'
   ? PointerEvent
-  : TReason extends 'escape-key' | 'tab-key'
+  : TReason extends 'modifier-key' | 'escape-key' | 'tab-key'
     ? KeyboardEvent
     : TReason extends 'pointer-canceled' | 'capture-lost' | 'missed-release'
       ? PointerEvent
@@ -470,10 +473,10 @@ export type DragEndReason = DragCompletedReason | DragCanceledReason;
 export type DragDropReason = Extract<DragCompletedReason, 'drop'>;
 
 /**
- * Why the hovered drop targets changed: the pointer moved, or the drag ended
- * and the targets are being released.
+ * Why the hovered drop targets changed: pointer activity, a modifier-key change,
+ * or the drag ending and releasing its targets.
  */
-export type DropTargetChangeReason = DragStartReason | DragEndReason;
+export type DropTargetChangeReason = DragMoveReason | DragEndReason;
 
 /**
  * The details of a drag event, passed as the second argument to every handler.
@@ -496,7 +499,7 @@ export type DragEventDetails<TReason extends string> = {
 /** The event details passed to `onDragStart`. */
 export type DragStartEventDetails = DragEventDetails<DragStartReason>;
 /** The event details passed to `onDrag`. */
-export type DragMoveEventDetails = DragEventDetails<DragStartReason>;
+export type DragMoveEventDetails = DragEventDetails<DragMoveReason>;
 /** The event details passed to `onDropTargetChange`, `onDragEnter` and `onDragLeave`. */
 export type DropTargetChangeEventDetails = DragEventDetails<DropTargetChangeReason>;
 /** The event details passed to `onDrop`. */
