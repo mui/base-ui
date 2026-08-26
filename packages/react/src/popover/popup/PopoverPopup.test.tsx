@@ -729,4 +729,113 @@ describe('<Popover.Popup />', () => {
       expect(screen.getByRole('button', { name: 'Last' })).not.toHaveFocus();
     });
   });
+
+  describe.skipIf(isJSDOM)('focus session during the exit animation', () => {
+    const closingStyle = `
+      @keyframes popover-popup-close-test {
+        to {
+          opacity: 0;
+        }
+      }
+
+      .closing-test-popup[data-ending-style] {
+        animation: popover-popup-close-test 5s linear;
+      }
+    `;
+
+    beforeEach(() => {
+      globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+    });
+
+    afterEach(() => {
+      globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
+    });
+
+    // The return runs at the logical close. The session must not also install a closed-state
+    // subscription whose teardown queues a second return once the animation finishes.
+    it('returns focus exactly once across close and unmount', async () => {
+      const { user } = await render(
+        <React.Fragment>
+          {/* eslint-disable-next-line react/no-danger */}
+          <style dangerouslySetInnerHTML={{ __html: closingStyle }} />
+          <Popover.Root>
+            <Popover.Trigger>Open</Popover.Trigger>
+            <Popover.Portal>
+              <Popover.Positioner>
+                <Popover.Popup data-testid="popup" className="closing-test-popup">
+                  <button type="button">Inside</button>
+                </Popover.Popup>
+              </Popover.Positioner>
+            </Popover.Portal>
+          </Popover.Root>
+        </React.Fragment>,
+      );
+
+      const trigger = screen.getByRole('button', { name: 'Open' });
+      await user.click(trigger);
+      const popup = screen.getByTestId('popup');
+
+      const focusSpy = vi.spyOn(trigger, 'focus');
+      try {
+        await user.keyboard('{Escape}');
+        await waitFor(() => expect(popup).toHaveAttribute('data-ending-style'));
+        await flushMicrotasks();
+        expect(focusSpy).toHaveBeenCalledTimes(1);
+
+        await act(async () => {
+          popup.getAnimations().forEach((animation) => animation.finish());
+        });
+        await waitFor(() => expect(screen.queryByTestId('popup')).toBe(null));
+        await flushMicrotasks();
+
+        expect(focusSpy).toHaveBeenCalledTimes(1);
+      } finally {
+        focusSpy.mockRestore();
+      }
+    });
+
+    // The focus-out listener's effect does not depend on `open`, so it stays attached while the
+    // popup animates out. A late focusout must not dispatch a second `onOpenChange(false)`.
+    it('does not dispatch a second close from a focusout during the exit animation', async () => {
+      const onOpenChange = vi.fn();
+      const { user } = await render(
+        <React.Fragment>
+          {/* eslint-disable-next-line react/no-danger */}
+          <style dangerouslySetInnerHTML={{ __html: closingStyle }} />
+          <button data-testid="outside">outside</button>
+          <Popover.Root onOpenChange={onOpenChange}>
+            <Popover.Trigger>Open</Popover.Trigger>
+            <Popover.Portal>
+              <Popover.Positioner>
+                <Popover.Popup data-testid="popup" className="closing-test-popup">
+                  <button type="button">Inside</button>
+                </Popover.Popup>
+              </Popover.Positioner>
+            </Popover.Portal>
+          </Popover.Root>
+        </React.Fragment>,
+      );
+
+      const trigger = screen.getByRole('button', { name: 'Open' });
+      await user.click(trigger);
+      const popup = screen.getByTestId('popup');
+
+      await user.keyboard('{Escape}');
+      await waitFor(() => expect(popup).toHaveAttribute('data-ending-style'));
+
+      const closeCallsAfterEscape = onOpenChange.mock.calls.filter(
+        ([open]) => open === false,
+      ).length;
+      expect(closeCallsAfterEscape).toBe(1);
+
+      fireEvent.focusOut(trigger, { relatedTarget: screen.getByTestId('outside') });
+      await flushMicrotasks();
+
+      expect(onOpenChange.mock.calls.filter(([open]) => open === false)).toHaveLength(1);
+
+      await act(async () => {
+        popup.getAnimations().forEach((animation) => animation.finish());
+      });
+    });
+  });
 });
