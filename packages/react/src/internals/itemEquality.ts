@@ -71,13 +71,41 @@ export function findSelectionIndex<Item, Value>(
   comparer: ItemEqualityComparer<Item, Value>,
   multiple: boolean,
 ): number | null {
-  // Only unwrap in multiple mode: an array can itself be a valid single-select value.
-  const lastValue =
-    multiple && Array.isArray(selectedValue)
-      ? selectedValue[selectedValue.length - 1]
-      : selectedValue;
-  const index = findItemIndex(itemValues, lastValue as Value, comparer);
+  // Only treat the value as a list in multiple mode: an array can itself be a valid
+  // single-select value.
+  if (multiple && Array.isArray(selectedValue)) {
+    // Anchor to the first selected item in rendered order so the index does not depend
+    // on the order in which the values were added to the array.
+    const index =
+      itemValues?.findIndex(
+        (itemValue) =>
+          itemValue !== undefined && selectedValueIncludes(selectedValue, itemValue, comparer),
+      ) ?? -1;
+    return index === -1 ? null : index;
+  }
+  const index = findItemIndex(itemValues, selectedValue as Value, comparer);
   return index === -1 ? null : index;
+}
+
+/** Whether an item should become the first selected index in rendered order. */
+export function shouldClaimSelectedIndex<Item, Value>(
+  index: number,
+  itemValue: Item,
+  registry: readonly Item[],
+  selectedValues: readonly Value[],
+  comparer: ItemEqualityComparer<Item, Value>,
+  currentIndex: number | null,
+): boolean {
+  if (!selectedValueIncludes(selectedValues, itemValue, comparer)) {
+    return false;
+  }
+  if (currentIndex == null || index <= currentIndex) {
+    return true;
+  }
+  const currentValue = registry[currentIndex];
+  return (
+    currentValue === undefined || !selectedValueIncludes(selectedValues, currentValue, comparer)
+  );
 }
 
 export function removeItem<Item, Value>(

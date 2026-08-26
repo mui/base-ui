@@ -61,6 +61,7 @@ import {
 import {
   compareItemEquality,
   defaultItemEquality,
+  findItemIndex,
   findSelectionIndex,
   isSelectedValueDirty,
   removeItem,
@@ -259,6 +260,9 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
   const pendingQueryHighlightRef = React.useRef<null | {
     hasQuery: boolean;
     selection?: boolean | undefined;
+    // The value a selection-driven clear just added, so the restore can keep it
+    // highlighted instead of returning to the open anchor.
+    toggledValue?: any;
   }>(null);
 
   /**
@@ -894,6 +898,12 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
               isItemPress: true,
             }),
           );
+          // A newly selected item stays highlighted through the clear; a deselection
+          // falls back to the standard selection anchor.
+          const pendingHighlight = pendingQueryHighlightRef.current;
+          if (pendingHighlight?.selection && !isCurrentlySelected) {
+            pendingHighlight.toggledValue = itemValue;
+          }
         } else {
           setOpen(false, eventDetails);
         }
@@ -1054,6 +1064,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
         pendingQueryHighlightRef.current = null;
         if (listIsNavigable) {
           const clearedBySelection = pendingHighlight.selection;
+          const toggledValue = pendingHighlight.toggledValue;
           if (
             autoHighlightMode === 'always' &&
             !clearedBySelection &&
@@ -1080,28 +1091,36 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
             // re-running this effect on every render.
             const currentSelectedValue = store.state.selectedValue;
             const isMultiple = store.state.selectionMode === 'multiple';
-            const lastSelectedValue =
-              isMultiple && Array.isArray(currentSelectedValue)
-                ? currentSelectedValue[currentSelectedValue.length - 1]
-                : currentSelectedValue;
-            const hasSelection = store.state.selectionMode !== 'none' && lastSelectedValue != null;
+            const hasSelection =
+              store.state.selectionMode !== 'none' &&
+              (isMultiple && Array.isArray(currentSelectedValue)
+                ? currentSelectedValue.length > 0
+                : currentSelectedValue != null);
 
             if (hasSelection || clearedBySelection) {
               const registry =
                 hasItems || hasFilteredItemsProp ? flatFilteredValues : valuesRef.current;
-              // A selection that is no longer in the list drops the highlight rather than
-              // leaving it on whichever item now occupies that index.
-              store.set(
-                'activeIndex',
-                hasSelection
-                  ? findSelectionIndex(
-                      registry,
-                      currentSelectedValue,
-                      store.state.isItemEqualToValue,
-                      isMultiple,
-                    )
-                  : null,
-              );
+              let nextIndex: number | null = null;
+              if (hasSelection) {
+                // A selection-driven clear keeps the just-selected item highlighted;
+                // otherwise return to the open anchor. A selection that is no longer in
+                // the list drops the highlight rather than leaving it on whichever item
+                // now occupies that index.
+                const toggledIndex =
+                  toggledValue === undefined
+                    ? -1
+                    : findItemIndex(registry, toggledValue, store.state.isItemEqualToValue);
+                nextIndex =
+                  toggledIndex !== -1
+                    ? toggledIndex
+                    : findSelectionIndex(
+                        registry,
+                        currentSelectedValue,
+                        store.state.isItemEqualToValue,
+                        isMultiple,
+                      );
+              }
+              store.set('activeIndex', nextIndex);
             } else if (autoHighlightMode === 'always') {
               store.set('activeIndex', 0);
             }

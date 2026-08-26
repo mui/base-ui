@@ -14,7 +14,11 @@ import { SelectItemContext } from './SelectItemContext';
 import { useButton } from '../../internals/use-button';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
-import { compareItemEquality, removeItem } from '../../internals/itemEquality';
+import {
+  compareItemEquality,
+  removeItem,
+  shouldClaimSelectedIndex,
+} from '../../internals/itemEquality';
 import { isVirtualClick } from '../../floating-ui-react/utils/event';
 
 /**
@@ -71,18 +75,26 @@ export const SelectItem = React.memo(
     useIsoLayoutEffect(() => {
       const selectedValue = store.state.value;
 
-      let selectedCandidate = selectedValue;
+      let claims: boolean;
       if (multiple && Array.isArray(selectedValue)) {
-        // Compare against the last selected item, or `undefined` when nothing is selected — never
-        // the raw array, which a custom `isItemEqualToValue` isn't expected to receive.
-        selectedCandidate =
-          selectedValue.length > 0 ? selectedValue[selectedValue.length - 1] : undefined;
+        // The first selected item in rendered order owns the index (and the text ref that
+        // aligns the popup), so the anchor does not depend on the order in which the
+        // values were added to the array.
+        claims = shouldClaimSelectedIndex(
+          index,
+          itemValue,
+          store.context.valuesRef.current,
+          selectedValue,
+          isItemEqualToValue,
+          store.state.selectedIndex,
+        );
+      } else {
+        claims =
+          selectedValue !== undefined &&
+          compareItemEquality(itemValue, selectedValue, isItemEqualToValue);
       }
 
-      if (
-        selectedCandidate !== undefined &&
-        compareItemEquality(itemValue, selectedCandidate, isItemEqualToValue)
-      ) {
+      if (claims) {
         store.set('selectedIndex', index);
         // Make sure SelectPopup can measure the selected item on first open.
         // SelectItemText can still update this ref later when focus moves.

@@ -5717,6 +5717,33 @@ describe('<Select.Root />', () => {
       });
     });
 
+    it('highlights the first selected item in rendered order regardless of value order', async () => {
+      const { user } = await render(
+        <Select.Root multiple defaultValue={['b', 'c']}>
+          <Select.Trigger data-testid="trigger">
+            <Select.Value />
+          </Select.Trigger>
+          <Select.Portal>
+            <Select.Positioner>
+              <Select.Popup>
+                <Select.Item value="a">a</Select.Item>
+                <Select.Item value="b">b</Select.Item>
+                <Select.Item value="c">c</Select.Item>
+              </Select.Popup>
+            </Select.Positioner>
+          </Select.Portal>
+        </Select.Root>,
+      );
+
+      await user.click(screen.getByTestId('trigger'));
+
+      const optionB = await screen.findByRole('option', { name: 'b' });
+      await waitFor(() => {
+        expect(optionB).toHaveAttribute('data-highlighted');
+      });
+      expect(screen.getByRole('option', { name: 'c' })).not.toHaveAttribute('data-highlighted');
+    });
+
     it('should handle defaultValue as array in multiple mode', async () => {
       await render(
         <Select.Root multiple defaultValue={['a', 'c']}>

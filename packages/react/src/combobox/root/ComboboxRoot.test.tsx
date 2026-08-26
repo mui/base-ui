@@ -1510,7 +1510,7 @@ describe('<Combobox.Root />', () => {
       );
 
       it.skipIf(isJSDOM)(
-        'highlights the last selected item on mount and keeps the highlight when toggling in a multiple inline list (items prop)',
+        'highlights the first selected item on mount and keeps the highlight when toggling in a multiple inline list (items prop)',
         async () => {
           const { user } = await render(
             <Combobox.Root
@@ -1535,12 +1535,12 @@ describe('<Combobox.Root />', () => {
           const date = await screen.findByRole('option', { name: 'date' });
           const apple = screen.getByRole('option', { name: 'apple' });
 
-          // Initial highlight follows the last selected value.
+          // Initial highlight follows the first selected value in rendered order.
           await waitFor(() => {
-            expect(date).toHaveAttribute('data-highlighted');
+            expect(apple).toHaveAttribute('data-highlighted');
           });
           await waitFor(() => {
-            expect(input).toHaveAttribute('aria-activedescendant', date.id);
+            expect(input).toHaveAttribute('aria-activedescendant', apple.id);
           });
 
           // Deselecting must not jump the highlight (and scroll) to the other selected item.
@@ -2524,7 +2524,7 @@ describe('<Combobox.Root />', () => {
         expect(handleValueChange.mock.calls[1][0]).toEqual(['a', 'b']);
       });
 
-      it('opens with an empty input and highlights the last selected item (input inside popup)', async () => {
+      it('opens with an empty input and highlights the first selected item (input inside popup)', async () => {
         const onItemHighlighted = vi.fn();
         const { user } = await render(
           <MultiplePopupCombobox onItemHighlighted={onItemHighlighted} />,
@@ -2539,23 +2539,72 @@ describe('<Combobox.Root />', () => {
         expect(appleItem).toHaveAttribute('aria-selected', 'true');
         expect(bananaItem).toHaveAttribute('aria-selected', 'true');
         await waitFor(() => {
+          expect(appleItem).toHaveAttribute('data-highlighted');
+        });
+        await waitFor(() => {
+          expect(input).toHaveAttribute('aria-activedescendant', appleItem.id);
+        });
+        await waitFor(() => {
+          expect(screen.getByTestId('active-index')).toHaveTextContent('0');
+        });
+        await waitFor(() => {
+          expect(onItemHighlighted).toHaveBeenCalledWith(
+            'apple',
+            expect.objectContaining({ reason: REASONS.none, index: 0 }),
+          );
+        });
+      });
+
+      it('anchors the highlight to the first selected item in rendered order regardless of value order', async () => {
+        const { user } = await render(
+          <MultiplePopupCombobox defaultValue={['banana', 'cherry']} />,
+        );
+
+        await user.click(screen.getByTestId('trigger'));
+        const input = await screen.findByTestId('input');
+        const bananaItem = screen.getByRole('option', { name: 'banana' });
+
+        await waitFor(() => {
           expect(bananaItem).toHaveAttribute('data-highlighted');
         });
         await waitFor(() => {
           expect(input).toHaveAttribute('aria-activedescendant', bananaItem.id);
         });
+      });
+
+      it('anchors the highlight to the first selected item with individually rendered items', async () => {
+        const { user } = await render(
+          <Combobox.Root multiple defaultValue={['banana', 'cherry']}>
+            <Combobox.Input data-testid="input" />
+            <Combobox.Portal>
+              <Combobox.Positioner>
+                <Combobox.Popup>
+                  <Combobox.List>
+                    {['apple', 'banana', 'cherry'].map((item) => (
+                      <Combobox.Item key={item} value={item}>
+                        {item}
+                      </Combobox.Item>
+                    ))}
+                  </Combobox.List>
+                </Combobox.Popup>
+              </Combobox.Positioner>
+            </Combobox.Portal>
+          </Combobox.Root>,
+        );
+
+        const input = screen.getByTestId('input');
+        await user.click(input);
+        const bananaItem = await screen.findByRole('option', { name: 'banana' });
+
         await waitFor(() => {
-          expect(screen.getByTestId('active-index')).toHaveTextContent('1');
+          expect(bananaItem).toHaveAttribute('data-highlighted');
         });
         await waitFor(() => {
-          expect(onItemHighlighted).toHaveBeenCalledWith(
-            'banana',
-            expect.objectContaining({ reason: REASONS.none, index: 1 }),
-          );
+          expect(input).toHaveAttribute('aria-activedescendant', bananaItem.id);
         });
       });
 
-      it('restores the highlight to the last selected item when clearing (input inside popup)', async () => {
+      it('restores the highlight to the first selected item when clearing (input inside popup)', async () => {
         const onItemHighlighted = vi.fn();
         const { user } = await render(
           <MultiplePopupCombobox onItemHighlighted={onItemHighlighted} />,
@@ -2564,28 +2613,28 @@ describe('<Combobox.Root />', () => {
         await user.click(screen.getByTestId('trigger'));
         const input = await screen.findByTestId('input');
 
-        await user.type(input, 'apple');
+        await user.type(input, 'banana');
         await waitFor(() => {
-          expect(screen.queryByRole('option', { name: 'banana' })).toBe(null);
+          expect(screen.queryByRole('option', { name: 'apple' })).toBe(null);
         });
 
         onItemHighlighted.mockClear();
         await user.clear(input);
 
-        const bananaItem = await screen.findByRole('option', { name: 'banana' });
+        const appleItem = await screen.findByRole('option', { name: 'apple' });
         await waitFor(() => {
-          expect(bananaItem).toHaveAttribute('data-highlighted');
+          expect(appleItem).toHaveAttribute('data-highlighted');
         });
         await waitFor(() => {
-          expect(input).toHaveAttribute('aria-activedescendant', bananaItem.id);
+          expect(input).toHaveAttribute('aria-activedescendant', appleItem.id);
         });
         await waitFor(() => {
-          expect(screen.getByTestId('active-index')).toHaveTextContent('1');
+          expect(screen.getByTestId('active-index')).toHaveTextContent('0');
         });
         await waitFor(() => {
           expect(onItemHighlighted).toHaveBeenCalledWith(
-            'banana',
-            expect.objectContaining({ reason: REASONS.none, index: 1 }),
+            'apple',
+            expect.objectContaining({ reason: REASONS.none, index: 0 }),
           );
         });
         expect(onItemHighlighted).toHaveBeenCalledTimes(1);
@@ -2633,7 +2682,7 @@ describe('<Combobox.Root />', () => {
         });
       });
 
-      it('keeps the toggled item highlighted when deselecting the last selected item', async () => {
+      it('keeps the toggled item highlighted when deselecting a selected item', async () => {
         const { user } = await render(<MultiplePopupCombobox />);
 
         await user.click(screen.getByTestId('trigger'));
@@ -2642,7 +2691,7 @@ describe('<Combobox.Root />', () => {
         const bananaItem = screen.getByRole('option', { name: 'banana' });
 
         await waitFor(() => {
-          expect(bananaItem).toHaveAttribute('data-highlighted');
+          expect(appleItem).toHaveAttribute('data-highlighted');
         });
         await user.click(bananaItem);
 
@@ -2680,7 +2729,7 @@ describe('<Combobox.Root />', () => {
         ).toBe(false);
       });
 
-      it('clears a closing query and restores the last selected item on reopen', async () => {
+      it('clears a closing query and restores the first selected item on reopen', async () => {
         const onItemHighlighted = vi.fn();
         const { user } = await render(
           <MultiplePopupCombobox onItemHighlighted={onItemHighlighted} />,
@@ -2702,27 +2751,27 @@ describe('<Combobox.Root />', () => {
         await user.click(screen.getByTestId('trigger'));
 
         const reopenedInput = await screen.findByTestId('input');
-        const bananaItem = await screen.findByRole('option', { name: 'banana' });
+        const appleItem = await screen.findByRole('option', { name: 'apple' });
         expect(reopenedInput).toHaveValue('');
         await waitFor(() => {
-          expect(bananaItem).toHaveAttribute('data-highlighted');
+          expect(appleItem).toHaveAttribute('data-highlighted');
         });
         await waitFor(() => {
-          expect(reopenedInput).toHaveAttribute('aria-activedescendant', bananaItem.id);
+          expect(reopenedInput).toHaveAttribute('aria-activedescendant', appleItem.id);
         });
         await waitFor(() => {
-          expect(screen.getByTestId('active-index')).toHaveTextContent('1');
+          expect(screen.getByTestId('active-index')).toHaveTextContent('0');
         });
         await waitFor(() => {
           expect(onItemHighlighted).toHaveBeenCalledWith(
-            'banana',
-            expect.objectContaining({ reason: REASONS.none, index: 1 }),
+            'apple',
+            expect.objectContaining({ reason: REASONS.none, index: 0 }),
           );
         });
       });
 
       it.skipIf(isJSDOM)(
-        'scrolls the last selected item into view when clearing (input inside popup)',
+        'scrolls the first selected item into view when clearing (input inside popup)',
         async ({ onTestFinished }) => {
           const scrollIntoView = vi.spyOn(HTMLElement.prototype, 'scrollIntoView');
           onTestFinished(() => scrollIntoView.mockRestore());
@@ -2741,12 +2790,12 @@ describe('<Combobox.Root />', () => {
           scrollIntoView.mockClear();
           await user.clear(input);
 
-          const selectedItem = await screen.findByRole('option', { name: 'item 80' });
+          const selectedItem = await screen.findByRole('option', { name: 'item 1' });
           await waitFor(() => {
             expect(selectedItem).toHaveAttribute('data-highlighted');
           });
           await waitFor(() => {
-            expect(screen.getByTestId('active-index')).toHaveTextContent('80');
+            expect(screen.getByTestId('active-index')).toHaveTextContent('1');
           });
           await waitFor(() => {
             expect(scrollIntoView.mock.contexts).toEqual([selectedItem]);
@@ -2781,15 +2830,15 @@ describe('<Combobox.Root />', () => {
 
         const input = screen.getByTestId('input');
         await user.click(input);
-        await user.type(input, 'apple');
-        await waitFor(() => expect(screen.queryByRole('option', { name: 'banana' })).toBe(null));
+        await user.type(input, 'banana');
+        await waitFor(() => expect(screen.queryByRole('option', { name: 'apple' })).toBe(null));
 
-        // Opening already highlights the last selected item in this layout, so clearing
+        // Opening already highlights the first selected item in this layout, so clearing
         // the query returns to the same anchor.
         await user.clear(input);
-        const banana = await screen.findByRole('option', { name: 'banana' });
-        await waitFor(() => expect(banana).toHaveAttribute('data-highlighted'));
-        expect(input).toHaveAttribute('aria-activedescendant', banana.id);
+        const apple = await screen.findByRole('option', { name: 'apple' });
+        await waitFor(() => expect(apple).toHaveAttribute('data-highlighted'));
+        expect(input).toHaveAttribute('aria-activedescendant', apple.id);
       });
 
       it('resets selectedIndex when clearing all selections while open', async () => {
@@ -2829,7 +2878,7 @@ describe('<Combobox.Root />', () => {
         await user.click(screen.getByTestId('input'));
 
         expect(await screen.findByRole('listbox')).not.toBe(null);
-        expect(screen.getByTestId('selected-index').textContent).toBe('1');
+        expect(screen.getByTestId('selected-index').textContent).toBe('0');
 
         await user.click(screen.getByTestId('clear'));
 
@@ -2929,7 +2978,7 @@ describe('<Combobox.Root />', () => {
         await user.click(input);
         expect(await screen.findByRole('listbox')).not.toBe(null);
         await waitFor(() => {
-          expect(screen.getByTestId('selected-index').textContent).toBe('1');
+          expect(screen.getByTestId('selected-index').textContent).toBe('0');
         });
 
         await user.keyboard('{Escape}');
@@ -8918,7 +8967,7 @@ describe('<Combobox.Root />', () => {
       await user.click(input);
       await waitFor(() => expect(screen.getByRole('listbox')).not.toBe(null));
 
-      await user.keyboard('{ArrowUp}');
+      await user.keyboard('{ArrowDown}');
 
       await waitFor(() => {
         expect(input).toHaveAttribute('aria-activedescendant');

@@ -13,7 +13,11 @@ import { useRenderElement } from '../../internals/useRenderElement';
 import { ComboboxItemContext } from './ComboboxItemContext';
 import { useButton } from '../../internals/use-button';
 import { useComboboxRowContext } from '../row/ComboboxRowContext';
-import { compareItemEquality, findItemIndex } from '../../internals/itemEquality';
+import {
+  compareItemEquality,
+  findItemIndex,
+  shouldClaimSelectedIndex,
+} from '../../internals/itemEquality';
 
 interface ComboboxItemInnerProps {
   componentProps: ComboboxItem.Props;
@@ -111,11 +115,26 @@ function ComboboxItemInner(props: ComboboxItemInnerProps) {
     // force-mount) so the index tracks the item's composite position, keeping features
     // like closed-trigger typeahead in sync when the rendered order changes.
     const selectedValue = store.state.selectedValue;
-    const lastSelectedValue = Array.isArray(selectedValue)
-      ? selectedValue[selectedValue.length - 1]
-      : selectedValue;
 
-    if (compareItemEquality(itemValue, lastSelectedValue, isItemEqualToValue)) {
+    if (store.state.selectionMode === 'multiple' && Array.isArray(selectedValue)) {
+      // The first selected item in rendered order owns the index, so the anchor does not
+      // depend on the order in which the values were added to the array.
+      if (
+        shouldClaimSelectedIndex(
+          index,
+          itemValue,
+          store.context.valuesRef.current,
+          selectedValue,
+          isItemEqualToValue,
+          store.state.selectedIndex,
+        )
+      ) {
+        store.set('selectedIndex', index);
+      }
+      return;
+    }
+
+    if (compareItemEquality(itemValue, selectedValue, isItemEqualToValue)) {
       store.set('selectedIndex', index);
     }
   }, [hasRegistered, hasItems, store, index, itemValue, isItemEqualToValue]);
