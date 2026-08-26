@@ -105,9 +105,8 @@ Items match their rendered text by default. Use `label` to provide explicit sear
 </FilterMenu.List>
 ```
 
-Groups with no matching items are hidden, including their labels. `FilterMenu.Empty` is shown when no items match.
-Its root stays mounted for reliable announcements, so apply layout styles to a child element.
-Use `FilterMenu.Status` to announce other changing messages, such as asynchronous loading progress.
+Groups with no matching items are hidden, including their labels. `FilterMenu.Empty` is shown when no items match and renders nothing otherwise.
+Use `FilterMenu.Status` to announce other changing messages, such as asynchronous loading progress. It renders nothing while it has no children.
 
 ### Custom matching
 

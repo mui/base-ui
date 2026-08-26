@@ -44,10 +44,8 @@ export default function ExampleFilterMenuCommandPalette() {
               <ScrollArea.Root className="relative flex max-h-[min(60dvh,24rem)] min-h-0 flex-[0_1_auto] overflow-hidden border-t border-neutral-950 dark:border-t-white">
                 <ScrollArea.Viewport className="min-h-0 flex-1 overscroll-contain [scroll-padding-block:0.25rem] focus-visible:outline-2 focus-visible:outline-solid focus-visible:-outline-offset-1 focus-visible:outline-neutral-950 dark:focus-visible:outline-white">
                   <ScrollArea.Content style={{ minWidth: '100%' }}>
-                    <FilterMenu.Empty>
-                      <div className="flex min-h-32 items-center justify-start py-4 pr-4 pl-2 text-sm leading-4 text-neutral-500 dark:text-neutral-400">
-                        No results found.
-                      </div>
+                    <FilterMenu.Empty className="flex min-h-32 items-center justify-start py-4 pr-4 pl-2 text-sm leading-4 text-neutral-500 dark:text-neutral-400">
+                      No results found.
                     </FilterMenu.Empty>
 
                     <FilterMenu.List

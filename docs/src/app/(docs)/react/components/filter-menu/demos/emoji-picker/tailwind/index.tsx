@@ -87,10 +87,8 @@ export default function ExampleEmojiPicker() {
                   className="h-8 w-64 max-w-full border border-neutral-950 bg-white px-2 text-sm any-pointer-coarse:text-base font-normal text-neutral-950 placeholder:text-neutral-500 dark:placeholder:text-neutral-400 focus:outline-2 focus:-outline-offset-2 focus:outline-solid focus:outline-neutral-950 dark:focus:outline-white dark:border-white dark:bg-neutral-950 dark:text-white"
                 />
                 <div className="border border-t-0 border-neutral-950 dark:border-white">
-                  <FilterMenu.Empty>
-                    <div className="px-2 py-3 text-sm leading-4 text-neutral-500 dark:text-neutral-400">
-                      No emojis found
-                    </div>
+                  <FilterMenu.Empty className="px-2 py-3 text-sm leading-4 text-neutral-500 dark:text-neutral-400">
+                    No emojis found
                   </FilterMenu.Empty>
                   <FilterMenu.List
                     aria-label="Emoji results"
