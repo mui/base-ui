@@ -8,7 +8,6 @@ export default function ExampleEmojiPicker() {
   const [textValue, setTextValue] = React.useState('');
 
   const textInputRef = React.useRef<HTMLInputElement | null>(null);
-  const caretPositionRef = React.useRef<number | null>(null);
   const query = searchValue.trim().toLocaleLowerCase();
   const filteredCategories = emojiCategories
     .map((category) => ({
@@ -18,28 +17,24 @@ export default function ExampleEmojiPicker() {
     .filter((category) => category.emojis.length > 0);
 
   function handleInsertEmoji(emoji: string) {
-    if (!textInputRef.current) {
+    const input = textInputRef.current;
+    if (!input) {
       return;
     }
 
-    const start = textInputRef.current.selectionStart ?? textInputRef.current.value.length ?? 0;
-    const end = textInputRef.current.selectionEnd ?? textInputRef.current.value.length ?? 0;
+    const start = input.selectionStart ?? input.value.length;
+    const end = input.selectionEnd ?? input.value.length;
 
     setTextValue((prev) => prev.slice(0, start) + emoji + prev.slice(end));
-    caretPositionRef.current = start + emoji.length;
+
+    input.focus();
+    const caretPosition = start + emoji.length;
+    input.setSelectionRange(caretPosition, caretPosition);
   }
 
   function handleOpenChangeComplete(open: boolean) {
     if (!open) {
       setSearchValue('');
-    }
-
-    const caretPosition = caretPositionRef.current;
-    const input = textInputRef.current;
-    if (!open && input && caretPosition !== null) {
-      input.focus();
-      input.setSelectionRange(caretPosition, caretPosition);
-      caretPositionRef.current = null;
     }
   }
 
