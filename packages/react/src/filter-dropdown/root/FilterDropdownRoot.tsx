@@ -339,9 +339,10 @@ export interface FilterDropdownRootProps {
   onInputElementChange?: ((hasInput: boolean) => void) | undefined;
   /**
    * Whether the host's items are windowed by an external virtualizer, so a changed rendered set
-   * does not invalidate the positional highlight.
+   * does not invalidate the positional highlight. Pass the total item count so navigation can
+   * target the list's real ends rather than the mounted window's.
    */
-  virtualized?: boolean | undefined;
+  virtualized?: boolean | number | undefined;
 }
 
 export namespace FilterDropdownRoot {
