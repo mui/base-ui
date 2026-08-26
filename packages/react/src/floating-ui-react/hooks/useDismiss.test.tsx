@@ -73,18 +73,22 @@ describe.skipIf(!isJSDOM)('useDismiss', () => {
     test('registers outside press touch listeners as passive', async () => {
       const addEventListenerSpy = vi.spyOn(document, 'addEventListener');
 
-      render(<App />);
+      try {
+        render(<App />);
 
-      await Promise.all(
-        ['touchstart', 'touchmove', 'touchend'].map((eventName) =>
-          waitFor(() => {
-            expect(addEventListenerSpy).toHaveBeenCalledWith(eventName, expect.any(Function), {
-              capture: true,
-              passive: true,
-            });
-          }),
-        ),
-      );
+        await Promise.all(
+          ['touchstart', 'touchmove', 'touchend'].map((eventName) =>
+            waitFor(() => {
+              expect(addEventListenerSpy).toHaveBeenCalledWith(eventName, expect.any(Function), {
+                capture: true,
+                passive: true,
+              });
+            }),
+          ),
+        );
+      } finally {
+        addEventListenerSpy.mockRestore();
+      }
     });
 
     test('dismisses with escape key', async () => {
