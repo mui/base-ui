@@ -1307,6 +1307,22 @@ type FilterMenuLinkItemState = {
 };
 ```
 
+### useFilter
+
+Matches items against a query using `Intl.Collator` for robust string matching.
+
+**Parameters:**
+
+| Parameter | Type                  | Default | Description |
+| :-------- | :-------------------- | :------ | :---------- |
+| options?  | `GetFilterParameters` | `{}`    | -           |
+
+**Return Value:**
+
+```tsx
+type ReturnValue = Filter;
+```
+
 ## External Types
 
 ### Side
@@ -1386,6 +1402,7 @@ type PayloadChildRenderFunction = (arg: { payload: unknown | undefined }) => Rea
 - `FilterMenu.Clear`: `FilterMenu.Clear`, `FilterMenu.Clear.State`, `FilterMenu.Clear.Props`
 - `FilterMenu.Empty`: `FilterMenu.Empty`, `FilterMenu.Empty.State`, `FilterMenu.Empty.Props`
 - `FilterMenu.Status`: `FilterMenu.Status`, `FilterMenu.Status.State`, `FilterMenu.Status.Props`
+- `FilterMenu.useFilter`
 - `Default`: `FilterMenuArrowProps`, `FilterMenuArrowState`, `FilterMenuBackdropProps`, `FilterMenuBackdropState`, `FilterMenuCheckboxItemIndicatorProps`, `FilterMenuCheckboxItemIndicatorState`, `FilterMenuGroupLabelProps`, `FilterMenuGroupLabelState`, `FilterMenuPortalProps`, `FilterMenuPortalState`, `FilterMenuPositionerProps`, `FilterMenuPositionerState`, `FilterMenuRadioItemIndicatorProps`, `FilterMenuRadioItemIndicatorState`, `FilterMenuViewportProps`, `FilterMenuViewportState`, `FilterMenuSeparatorProps`, `FilterMenuSeparatorState`, `FilterMenuFilter`, `FilterMenuRootProps`, `FilterMenuRootState`, `FilterMenuRootActions`, `FilterMenuRootChangeEventReason`, `FilterMenuRootChangeEventDetails`, `FilterMenuRootInputValueChangeEventReason`, `FilterMenuRootInputValueChangeEventDetails`, `FilterMenuRootHighlightEventReason`, `FilterMenuRootHighlightEventDetails`, `FilterMenuSubmenuRootProps`, `FilterMenuSubmenuRootState`, `FilterMenuSubmenuRootActions`, `FilterMenuSubmenuRootChangeEventReason`, `FilterMenuSubmenuRootChangeEventDetails`, `FilterMenuSubmenuRootInputValueChangeEventReason`, `FilterMenuSubmenuRootInputValueChangeEventDetails`, `FilterMenuCheckboxItemProps`, `FilterMenuCheckboxItemState`, `FilterMenuCheckboxItemChangeEventReason`, `FilterMenuCheckboxItemChangeEventDetails`, `FilterMenuGroupProps`, `FilterMenuGroupState`, `FilterMenuItemProps`, `FilterMenuItemState`, `FilterMenuLinkItemProps`, `FilterMenuLinkItemState`, `FilterMenuListState`, `FilterMenuListProps`, `FilterMenuPopupProps`, `FilterMenuPopupState`, `FilterMenuRadioGroupProps`, `FilterMenuRadioGroupState`, `FilterMenuRadioGroupChangeEventReason`, `FilterMenuRadioGroupChangeEventDetails`, `FilterMenuRadioItemProps`, `FilterMenuRadioItemState`, `FilterMenuRowState`, `FilterMenuRowProps`, `FilterMenuTriggerProps`, `FilterMenuTriggerState`, `FilterMenuSubmenuTriggerProps`, `FilterMenuSubmenuTriggerState`, `FilterMenuInputState`, `FilterMenuInputProps`, `FilterMenuClearState`, `FilterMenuClearProps`, `FilterMenuEmptyState`, `FilterMenuEmptyProps`, `FilterMenuStatusState`, `FilterMenuStatusProps`
 
 ## Canonical Types
