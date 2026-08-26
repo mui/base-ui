@@ -331,28 +331,24 @@ export function useSwipeDismiss(options: UseSwipeDismissOptions): UseSwipeDismis
     target: EventTarget | null,
     root: HTMLElement,
   ): HTMLElement | null {
-    let scrollTarget: HTMLElement | null;
-    if (hasHorizontal && !hasVertical) {
-      scrollTarget = findScrollableTouchTarget(target, root, 'horizontal');
-    } else if (hasVertical && !hasHorizontal) {
-      scrollTarget = findScrollableTouchTarget(target, root, 'vertical');
-    } else {
-      scrollTarget =
-        findScrollableTouchTarget(target, root, 'vertical') ??
-        findScrollableTouchTarget(target, root, 'horizontal');
-    }
-
     // The swiped element is positioned relative to the viewport, so the page scroller must not
-    // gate the gesture. Otherwise a page that overflows (for example with
-    // `html, body { height: 100%; overflow: auto }`) blocks swipes away from its scroll edge.
-    if (scrollTarget) {
+    // gate the gesture (a reset like `html, body { height: 100%; overflow: auto }` makes `body`
+    // a real scroll container). The drawer viewport's native touchmove handler already ignores it.
+    const find = (axis: ScrollAxis) => {
+      const scrollTarget = findScrollableTouchTarget(target, root, axis);
       const doc = ownerDocument(scrollTarget);
-      if (scrollTarget === doc.body || scrollTarget === doc.documentElement) {
-        return null;
-      }
-    }
+      return scrollTarget === doc.body || scrollTarget === doc.documentElement
+        ? null
+        : scrollTarget;
+    };
 
-    return scrollTarget;
+    if (hasHorizontal && !hasVertical) {
+      return find('horizontal');
+    }
+    if (hasVertical && !hasHorizontal) {
+      return find('vertical');
+    }
+    return find('vertical') ?? find('horizontal');
   }
 
   function startSwipeAtPosition(

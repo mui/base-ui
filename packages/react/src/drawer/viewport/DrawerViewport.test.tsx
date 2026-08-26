@@ -1355,35 +1355,36 @@ describe('<Drawer.Viewport />', () => {
       // overflow propagate to the viewport.
       html.style.cssText = 'height: 100%; overflow-y: auto';
       body.style.cssText = 'height: 100%; overflow-y: auto';
-      const filler = body.appendChild(document.createElement('div'));
-      filler.style.height = '5000px';
 
       try {
         await render(
-          <Drawer.Root open modal={false} swipeDirection="down" snapPoints={[300, 100]}>
-            <Drawer.Portal>
-              <Drawer.Backdrop data-testid="backdrop" />
-              <Drawer.Viewport style={{ position: 'fixed', inset: 0, pointerEvents: 'none' }}>
-                <Drawer.Popup
-                  data-testid="popup"
-                  style={{
-                    position: 'absolute',
-                    left: 0,
-                    right: 0,
-                    bottom: 0,
-                    height: 300,
-                    pointerEvents: 'auto',
-                    transform:
-                      'translateY(calc(var(--drawer-snap-point-offset) + var(--drawer-swipe-movement-y)))',
-                  }}
-                >
-                  <div data-testid="drag" style={{ height: 100 }}>
-                    Drag
-                  </div>
-                </Drawer.Popup>
-              </Drawer.Viewport>
-            </Drawer.Portal>
-          </Drawer.Root>,
+          <React.Fragment>
+            <div style={{ height: 5000 }} />
+            <Drawer.Root open modal={false} swipeDirection="down" snapPoints={[300, 100]}>
+              <Drawer.Portal>
+                <Drawer.Backdrop data-testid="backdrop" />
+                <Drawer.Viewport style={{ position: 'fixed', inset: 0, pointerEvents: 'none' }}>
+                  <Drawer.Popup
+                    data-testid="popup"
+                    style={{
+                      position: 'absolute',
+                      left: 0,
+                      right: 0,
+                      bottom: 0,
+                      height: 300,
+                      pointerEvents: 'auto',
+                      transform:
+                        'translateY(calc(var(--drawer-snap-point-offset) + var(--drawer-swipe-movement-y)))',
+                    }}
+                  >
+                    <div data-testid="drag" style={{ height: 100 }}>
+                      Drag
+                    </div>
+                  </Drawer.Popup>
+                </Drawer.Viewport>
+              </Drawer.Portal>
+            </Drawer.Root>
+          </React.Fragment>,
         );
 
         const popup = screen.getByTestId('popup');
@@ -1394,6 +1395,8 @@ describe('<Drawer.Viewport />', () => {
           expect(popup.style.getPropertyValue('--drawer-snap-point-offset')).toBe('0px');
         });
 
+        // The old code refused swipes away from the page scroll edge, so being at the top
+        // with a scrollable body is the precondition that made the up-swipe fail.
         expect(body.scrollTop).toBe(0);
         expect(body.scrollHeight).toBeGreaterThan(body.clientHeight);
 
@@ -1414,7 +1417,6 @@ describe('<Drawer.Viewport />', () => {
           changedTouches: [createTouch(drag, { clientX, clientY: clientY - 30 })],
         });
       } finally {
-        filler.remove();
         html.style.cssText = previousHtmlStyle;
         body.style.cssText = previousBodyStyle;
       }
