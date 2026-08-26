@@ -10,6 +10,7 @@ import { DemoFilterMenuHero } from './demos/hero';
 import { DemoFilterMenuCommandPalette } from './demos/command-palette';
 import { DemoFilterMenuEmojiPicker } from './demos/emoji-picker';
 import { DemoFilterMenuAsync } from './demos/async';
+import { DemoFilterMenuVirtualized } from './demos/virtualized';
 
 <DemoFilterMenuHero />
 
@@ -100,6 +101,14 @@ Open with a short list of suggestions, return only the top matches for each quer
 Use `<FilterMenu.Status>` to announce the progress and how much of the source matched.
 
 <DemoFilterMenuAsync />
+
+### Virtualized
+
+Efficiently handle large preknown lists using a virtualization library like `@tanstack/react-virtual`.
+Set `virtualized` on the Root, give each rendered item its absolute `index`, and scroll the highlight into view with `onItemHighlighted`.
+Filtering stays yours through `filter={null}`, and the virtualizer's overscan keeps keyboard navigation an adjacent item to move to.
+
+<DemoFilterMenuVirtualized />
 
 ### Filtering items
 
