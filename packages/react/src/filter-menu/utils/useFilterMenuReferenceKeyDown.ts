@@ -3,12 +3,15 @@ import * as React from 'react';
 import { EMPTY_ARRAY } from '@base-ui/utils/empty';
 import { ownerWindow } from '@base-ui/utils/owner';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
+import { isHTMLElement } from '@floating-ui/utils/dom';
 import {
   useFilterDropdownItemContext,
   useFilterDropdownRootContext,
 } from '../../filter-dropdown/root/FilterDropdownRootContext';
 import { useMenuRootContext } from '../../menu/root/MenuRootContext';
 import { useDirection } from '../../internals/direction-context/DirectionContext';
+import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
+import { REASONS } from '../../internals/reasons';
 import type { BaseUIEvent } from '../../internals/types';
 import { gridNavigation } from '../../floating-ui-react/hooks/gridNavigation';
 import { isTypeableElement } from '../../floating-ui-react/utils/element';
@@ -26,7 +29,7 @@ import {
  */
 export function useFilterMenuReferenceKeyDown() {
   const { grid, listRef, store: filterStore } = useFilterDropdownItemContext();
-  const { virtualized } = useFilterDropdownRootContext();
+  const { inline, virtualized } = useFilterDropdownRootContext();
   const { loopFocus, orientation, store: menuStore } = useMenuRootContext();
   const direction = useDirection();
 
@@ -43,6 +46,21 @@ export function useFilterMenuReferenceKeyDown() {
     // Re-applied on every key because the composite registry resets the length on each flush.
     if (typeof virtualized === 'number' && listRef.current.length !== virtualized) {
       listRef.current.length = virtualized;
+    }
+
+    if (event.key === 'Tab') {
+      // Mirror the plain menu: Shift+Tab closes the popup and returns focus to the trigger.
+      // The generic close branch in `useListNavigation` skips virtual focus, and a forward Tab
+      // already closes through focus-out once focus leaves the popup.
+      if (event.shiftKey && !inline) {
+        stopEvent(event);
+        const trigger = menuStore.state.activeTriggerElement;
+        menuStore.setOpen(false, createChangeEventDetails(REASONS.focusOut, event.nativeEvent));
+        if (isHTMLElement(trigger)) {
+          trigger.focus();
+        }
+      }
+      return;
     }
 
     if (

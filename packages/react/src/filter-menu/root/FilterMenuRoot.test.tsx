@@ -5100,7 +5100,7 @@ describe('<FilterMenu.Root />', () => {
       });
     });
 
-    it('returns focus to the trigger on Shift+Tab from the input', async () => {
+    it('closes and returns focus to the trigger on Shift+Tab from the input', async () => {
       const { user } = await render(<QueryMenu />);
 
       const input = screen.getByRole('searchbox', { name: 'Filter actions' });
@@ -5117,8 +5117,10 @@ describe('<FilterMenu.Root />', () => {
         });
       }
 
-      // Tabbing forward leaves the menu for the next element after it; tabbing backwards lands
-      // on the trigger, which is the previous tabbable element.
+      // Backward tabbing mirrors a plain menu: the popup closes and the trigger regains focus.
+      await waitFor(() => {
+        expect(screen.queryByRole('menu')).toBe(null);
+      });
       await waitFor(() => {
         expect(screen.getByRole('button', { name: 'Actions' })).toHaveFocus();
       });
