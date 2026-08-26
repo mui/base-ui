@@ -520,13 +520,17 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
         : clamp(dragTargetOffset + velocityOffset, 0, popupHeight);
       const snapPointEventDetails = createChangeEventDetails(REASONS.swipe, event);
 
-      const settleOnSnapPoint = (snapPoint: ResolvedDrawerSnapPoint) => {
-        setActiveSnapPoint(snapPoint.value, snapPointEventDetails);
+      const settleInPlace = () => {
         // Reset nested swipe state now: the hook's trailing progress update is deduped
         // when the drag never produced dismissal progress, so it may not fire.
         applySwipeProgress(0, true, true);
         clearSwipeRelease();
         return false;
+      };
+
+      const settleOnSnapPoint = (snapPoint: ResolvedDrawerSnapPoint) => {
+        setActiveSnapPoint(snapPoint.value, snapPointEventDetails);
+        return settleInPlace();
       };
 
       const closeFromSnapPoints = (fallbackSnapPoint: ResolvedDrawerSnapPoint) => {
@@ -539,9 +543,7 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
         setActiveSnapPoint(null, snapPointEventDetails);
         if (snapPointEventDetails.isCanceled) {
           // A canceled null snap point rejects dismissal before exit styles start.
-          applySwipeProgress(0, true, true);
-          clearSwipeRelease();
-          return false;
+          return settleInPlace();
         }
         pendingSwipeCloseSnapPointRef.current = activeSnapPoint;
         startSwipeRelease(swipeDirection);
