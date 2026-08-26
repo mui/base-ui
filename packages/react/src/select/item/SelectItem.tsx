@@ -77,9 +77,7 @@ export const SelectItem = React.memo(
 
       let claims: boolean;
       if (multiple && Array.isArray(selectedValue)) {
-        // The first selected item in rendered order owns the index (and the text ref that
-        // aligns the popup), so the anchor does not depend on the order in which the
-        // values were added to the array.
+        // The claiming item also owns the text ref that aligns the popup.
         claims = shouldClaimSelectedIndex(
           index,
           itemValue,

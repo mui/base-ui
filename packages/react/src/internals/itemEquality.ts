@@ -96,16 +96,15 @@ export function shouldClaimSelectedIndex<Item, Value>(
   comparer: ItemEqualityComparer<Item, Value>,
   currentIndex: number | null,
 ): boolean {
-  if (!selectedValueIncludes(selectedValues, itemValue, comparer)) {
+  // A later item only takes over once the current anchor stops being selected.
+  if (
+    currentIndex != null &&
+    index > currentIndex &&
+    selectedValueIncludes(selectedValues, registry[currentIndex], comparer)
+  ) {
     return false;
   }
-  if (currentIndex == null || index <= currentIndex) {
-    return true;
-  }
-  const currentValue = registry[currentIndex];
-  return (
-    currentValue === undefined || !selectedValueIncludes(selectedValues, currentValue, comparer)
-  );
+  return selectedValueIncludes(selectedValues, itemValue, comparer);
 }
 
 export function removeItem<Item, Value>(

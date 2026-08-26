@@ -2557,7 +2557,7 @@ describe('<Combobox.Root />', () => {
 
       it('anchors the highlight to the first selected item in rendered order regardless of value order', async () => {
         const { user } = await render(
-          <MultiplePopupCombobox defaultValue={['banana', 'cherry']} />,
+          <MultiplePopupCombobox defaultValue={['cherry', 'banana']} />,
         );
 
         await user.click(screen.getByTestId('trigger'));
@@ -2574,7 +2574,7 @@ describe('<Combobox.Root />', () => {
 
       it('anchors the highlight to the first selected item with individually rendered items', async () => {
         const { user } = await render(
-          <Combobox.Root multiple defaultValue={['banana', 'cherry']}>
+          <Combobox.Root multiple defaultValue={['cherry', 'banana']}>
             <Combobox.Input data-testid="input" />
             <Combobox.Portal>
               <Combobox.Positioner>
@@ -2602,6 +2602,76 @@ describe('<Combobox.Root />', () => {
         await waitFor(() => {
           expect(input).toHaveAttribute('aria-activedescendant', bananaItem.id);
         });
+      });
+
+      it('moves the anchor to the next selected item when the anchor item leaves the list', async () => {
+        function App(props: { hideApple?: boolean }) {
+          const visible = props.hideApple ? ['banana', 'cherry'] : ['apple', 'banana', 'cherry'];
+
+          return (
+            <Combobox.Root multiple defaultValue={['apple', 'cherry']}>
+              <Combobox.Input data-testid="input" />
+              <SelectedIndexProbe />
+              <Combobox.Portal>
+                <Combobox.Positioner>
+                  <Combobox.Popup>
+                    <Combobox.List>
+                      {visible.map((item) => (
+                        <Combobox.Item key={item} value={item}>
+                          {item}
+                        </Combobox.Item>
+                      ))}
+                    </Combobox.List>
+                  </Combobox.Popup>
+                </Combobox.Positioner>
+              </Combobox.Portal>
+            </Combobox.Root>
+          );
+        }
+
+        const { user, setProps } = await render(<App />);
+
+        await user.click(screen.getByTestId('input'));
+        expect(await screen.findByRole('listbox')).not.toBe(null);
+        await waitFor(() => {
+          expect(screen.getByTestId('selected-index').textContent).toBe('0');
+        });
+
+        await setProps({ hideApple: true });
+        await waitFor(() => {
+          expect(screen.queryByRole('option', { name: 'apple' })).toBe(null);
+        });
+
+        // `banana` now occupies index 0 but is not selected, so `cherry` takes the anchor.
+        await waitFor(() => {
+          expect(screen.getByTestId('selected-index').textContent).toBe('1');
+        });
+      });
+
+      it('restores the anchor rather than the toggled item when deselecting while filtering', async () => {
+        const { user } = await render(<MultiplePopupCombobox />);
+
+        await user.click(screen.getByTestId('trigger'));
+        const input = await screen.findByTestId('input');
+
+        await user.type(input, 'banana');
+        await waitFor(() => {
+          expect(screen.queryByRole('option', { name: 'apple' })).toBe(null);
+        });
+
+        await user.click(screen.getByRole('option', { name: 'banana' }));
+        await waitFor(() => {
+          expect(input).toHaveValue('');
+        });
+
+        const appleItem = await screen.findByRole('option', { name: 'apple' });
+        await waitFor(() => {
+          expect(appleItem).toHaveAttribute('data-highlighted');
+        });
+        expect(screen.getByRole('option', { name: 'banana' })).not.toHaveAttribute(
+          'data-highlighted',
+        );
+        expect(screen.getByTestId('active-index')).toHaveTextContent('0');
       });
 
       it('restores the highlight to the first selected item when clearing (input inside popup)', async () => {
@@ -2777,7 +2847,7 @@ describe('<Combobox.Root />', () => {
           onTestFinished(() => scrollIntoView.mockRestore());
           const items = Array.from({ length: 100 }, (_, index) => `item ${index}`);
           const { user } = await render(
-            <MultiplePopupCombobox items={items} defaultValue={['item 1', 'item 80']} />,
+            <MultiplePopupCombobox items={items} defaultValue={['item 90', 'item 80']} />,
           );
 
           await user.click(screen.getByTestId('trigger'));
@@ -2790,12 +2860,12 @@ describe('<Combobox.Root />', () => {
           scrollIntoView.mockClear();
           await user.clear(input);
 
-          const selectedItem = await screen.findByRole('option', { name: 'item 1' });
+          const selectedItem = await screen.findByRole('option', { name: 'item 80' });
           await waitFor(() => {
             expect(selectedItem).toHaveAttribute('data-highlighted');
           });
           await waitFor(() => {
-            expect(screen.getByTestId('active-index')).toHaveTextContent('1');
+            expect(screen.getByTestId('active-index')).toHaveTextContent('80');
           });
           await waitFor(() => {
             expect(scrollIntoView.mock.contexts).toEqual([selectedItem]);

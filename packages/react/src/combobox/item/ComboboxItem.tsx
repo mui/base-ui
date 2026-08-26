@@ -117,8 +117,6 @@ function ComboboxItemInner(props: ComboboxItemInnerProps) {
     const selectedValue = store.state.selectedValue;
 
     if (store.state.selectionMode === 'multiple' && Array.isArray(selectedValue)) {
-      // The first selected item in rendered order owns the index, so the anchor does not
-      // depend on the order in which the values were added to the array.
       if (
         shouldClaimSelectedIndex(
           index,

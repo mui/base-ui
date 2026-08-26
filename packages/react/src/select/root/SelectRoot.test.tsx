@@ -5719,7 +5719,7 @@ describe('<Select.Root />', () => {
 
     it('highlights the first selected item in rendered order regardless of value order', async () => {
       const { user } = await render(
-        <Select.Root multiple defaultValue={['b', 'c']}>
+        <Select.Root multiple defaultValue={['c', 'b']}>
           <Select.Trigger data-testid="trigger">
             <Select.Value />
           </Select.Trigger>

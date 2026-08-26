@@ -241,8 +241,6 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
 
   useIsoLayoutEffect(
     function syncSelectedIndex() {
-      // In multiple mode this resolves to the first selected item in rendered order, so
-      // the anchor does not depend on the order of the value array.
       const nextIndex = findSelectionIndex(valuesRef.current, value, isItemEqualToValue, multiple);
 
       if (nextIndex === null) {
