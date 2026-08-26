@@ -637,6 +637,25 @@ describe('<Popover.Trigger />', () => {
         .forEach((popup) => popup.getAnimations().forEach((animation) => animation.finish()));
     }
 
+    /** Tabs in one direction until the popover is logically closed, bounded so a genuine
+     * failure surfaces as an assertion rather than a timeout. `data-ending-style` rather than a
+     * role query, because the popup stays in the DOM (and matchable) while it animates out. */
+    async function tabUntilClosed(
+      browserUserEvent: { tab: (options?: { shift?: boolean }) => Promise<void> },
+      shift: boolean,
+    ) {
+      for (let step = 0; step < 6; step += 1) {
+        if (screen.getByTestId('popup').hasAttribute('data-ending-style')) {
+          return;
+        }
+        // eslint-disable-next-line no-await-in-loop
+        await act(async () => {
+          await browserUserEvent.tab({ shift });
+        });
+      }
+      await waitFor(() => expect(screen.getByTestId('popup')).toHaveAttribute('data-ending-style'));
+    }
+
     /** Records every element that receives focus during the sequence, so the test can assert on
      * where focus went, not only where it ended up. */
     function recordFocus() {
@@ -680,16 +699,16 @@ describe('<Popover.Trigger />', () => {
       await act(async () => trigger.focus());
       fireEvent.click(trigger);
       await waitFor(() => expect(screen.queryByRole('dialog')).not.toBe(null));
+      // Native Tab acts on whatever is focused right now, so the popup's own initial focus has
+      // to have landed before the sequence starts — otherwise the tab count is a race.
+      await waitFor(() => expect(screen.getByTestId('inside')).toHaveFocus());
 
       const recorder = recordFocus();
       try {
-        // Tab forward until focus leaves the popup, which closes it.
-        await act(async () => {
-          await browserUserEvent.tab();
-        });
-        await act(async () => {
-          await browserUserEvent.tab();
-        });
+        // Tab forward until focus leaves the popup, which closes it. The number of stops
+        // depends on the guards the manager renders, so drive it by the outcome rather than
+        // by a fixed count.
+        await tabUntilClosed(browserUserEvent, false);
         // Logically closed, still mounted for the exit animation: this is the window where a
         // stale `aria-hidden` guard would still be in the tab order.
         await waitFor(() =>
@@ -697,6 +716,7 @@ describe('<Popover.Trigger />', () => {
         );
 
         expectNoTabbableGuards();
+        expect(screen.getByTestId('popup').closest('[inert]')).not.toBe(null);
         // Only post-close navigation is interesting; focus was legitimately inside while open.
         recorder.reset();
 
@@ -719,20 +739,19 @@ describe('<Popover.Trigger />', () => {
       await act(async () => trigger.focus());
       fireEvent.click(trigger);
       await waitFor(() => expect(screen.queryByRole('dialog')).not.toBe(null));
+      // Native Tab acts on whatever is focused right now, so the popup's own initial focus has
+      // to have landed before the sequence starts — otherwise the tab count is a race.
+      await waitFor(() => expect(screen.getByTestId('inside')).toHaveFocus());
 
       const recorder = recordFocus();
       try {
-        await act(async () => {
-          await browserUserEvent.tab({ shift: true });
-        });
-        await act(async () => {
-          await browserUserEvent.tab({ shift: true });
-        });
+        await tabUntilClosed(browserUserEvent, true);
         await waitFor(() =>
           expect(screen.getByTestId('popup')).toHaveAttribute('data-ending-style'),
         );
 
         expectNoTabbableGuards();
+        expect(screen.getByTestId('popup').closest('[inert]')).not.toBe(null);
         recorder.reset();
 
         await act(async () => {

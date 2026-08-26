@@ -28,21 +28,18 @@ interface TriggerFocusGuardStore {
   };
 }
 
-/** How far past the anchor to look for a destination that survives the close. */
-const MAX_CANDIDATES = 8;
-
 /**
  * Collects the tabbable elements that follow `anchor` in `dir` order, as a single ordered
  * snapshot of the document's tab order taken *before* the popup closes.
  *
  * Closing a popup synchronously (`flushSync`) unmounts the guard that received focus, so the
- * destination cannot be resolved afterwards: `getTabbableBeforeElement`/`getTabbableAfterElement`
- * locate their reference by index and return `null` once it is detached. Elements inside the
- * positioner are dropped here because the positioner becomes `inert` on close.
+ * destination cannot be resolved afterwards: the index-based tabbable helpers locate their
+ * reference by position in the document tab order and return `null` once it is detached.
+ * Elements inside the positioner are dropped here because it becomes `inert` on close.
  *
- * The list wraps around, mirroring how the previous index-based helpers behaved, and stops after
- * `MAX_CANDIDATES`: `focusFirstAvailable` almost always takes the first entry, and the rest only
- * cover the rare case where the destination did not survive the close.
+ * The list wraps around, mirroring how the previous index-based helpers behaved, and is bounded
+ * by the already-finite tabbable snapshot: `focusFirstAvailable` almost always takes the first
+ * entry, and the rest only cover the case where the destination did not survive the close.
  */
 function getOrderedCandidates(
   anchor: HTMLElement | null,
@@ -60,7 +57,7 @@ function getOrderedCandidates(
   }
 
   const candidates: FocusableElement[] = [];
-  for (let step = 1; step < list.length && candidates.length < MAX_CANDIDATES; step += 1) {
+  for (let step = 1; step < list.length; step += 1) {
     const nextIndex = (((index + dir * step) % list.length) + list.length) % list.length;
     const candidate = list[nextIndex];
     if (!contains(positionerElement, candidate)) {

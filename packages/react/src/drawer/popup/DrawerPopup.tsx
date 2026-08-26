@@ -367,8 +367,9 @@ export const DrawerPopup = React.forwardRef(function DrawerPopup(
         ...FOCUSABLE_POPUP_PROPS,
         hidden: !mounted,
         // Drawers have no Positioner, so the popup carries `inert` itself. Scoped to `!swiping`
-        // because the swipe handlers live on the Viewport inside this element:
-        // going inert mid-gesture would kill the dismissal the user is still performing.
+        // because `Drawer.Viewport` binds the swipe listeners to this very element
+        // (`useSwipeDismiss({ elementRef: popupRef })`): going inert mid-gesture would stop it
+        // being a pointer-event target and kill the dismissal the user is still performing.
         inert: inertValue(!open && !swiping),
         onKeyDown(event: React.KeyboardEvent) {
           if (COMPOSITE_KEYS.has(event.key)) {

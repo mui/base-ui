@@ -948,7 +948,7 @@ describe('<Drawer.Popup />', () => {
     const popup = screen.getByTestId('popup');
     const inside = screen.getByTestId('inside');
 
-    expect(popup.hasAttribute('inert')).toBe(false);
+    expect(popup).not.toHaveAttribute('inert');
 
     const originalElementFromPoint = document.elementFromPoint;
     document.elementFromPoint = () => inside;
@@ -963,13 +963,34 @@ describe('<Drawer.Popup />', () => {
       // Logically closed, but the gesture is still live: the popup must remain interactive.
       await setProps({ open: false });
       expect(popup).toHaveAttribute('data-swiping', '');
-      expect(popup.hasAttribute('inert')).toBe(false);
+      expect(popup).not.toHaveAttribute('inert');
 
-      // That a closed Drawer *does* go inert once no gesture is active is covered by the
-      // `!open` half of the same expression, which every other popup test exercises; ending a
-      // real gesture deterministically here would mean driving the snap-point settle.
+      // That a closed Drawer with no gesture in flight *does* go inert is covered by the
+      // sibling test below; ending a touch gesture deterministically here would mean driving
+      // the snap-point settle.
     } finally {
       document.elementFromPoint = originalElementFromPoint;
     }
+  });
+
+  it.skipIf(isJSDOM)('makes the popup inert once closed', async () => {
+    function TestCase({ open }: { open: boolean }) {
+      return (
+        <Drawer.Root open={open}>
+          <Drawer.Portal>
+            <Drawer.Viewport>
+              <Drawer.Popup data-testid="popup">Drawer</Drawer.Popup>
+            </Drawer.Viewport>
+          </Drawer.Portal>
+        </Drawer.Root>
+      );
+    }
+
+    const { setProps } = await render(<TestCase open />);
+    const popup = screen.getByTestId('popup');
+    expect(popup).not.toHaveAttribute('inert');
+
+    await setProps({ open: false });
+    await waitFor(() => expect(popup).toHaveAttribute('inert'));
   });
 });

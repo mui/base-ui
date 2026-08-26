@@ -1044,6 +1044,8 @@ describe('<Dialog.Popup />', () => {
       await user.click(screen.getByRole('button', { name: 'Close' }));
       await waitFor(() => expect(popup).toHaveAttribute('data-ending-style'));
 
+      expect(popup).toHaveAttribute('inert');
+
       const reachableGuards = (
         Array.from(document.querySelectorAll('[data-base-ui-focus-guard]')) as HTMLElement[]
       ).filter((guard) => guard.tabIndex >= 0 && guard.closest('[inert]') === null);

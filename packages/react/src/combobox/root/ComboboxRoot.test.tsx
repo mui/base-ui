@@ -7104,11 +7104,16 @@ describe('<Combobox.Root />', () => {
         const popup = screen.getByTestId('popup');
         await waitFor(() => expect(popup).toHaveAttribute('data-ending-style'));
 
-        // The input is inside the closing popup, which is now inert, so the filter cannot be
-        // changed while it animates out — the rendered list stays exactly as it was.
+        // The input is inside the closing popup, which is now inert, so a user can no longer
+        // change the filter while it animates out.
         expect(popup.closest('[inert]')).not.toBe(null);
         await act(async () => input.focus());
         expect(input).not.toHaveFocus();
+
+        // `inert` blocks user interaction, not dispatched events, so the deferred filter can
+        // still be perturbed programmatically — the rendered list must stay as it was.
+        fireEvent.input(input, { target: { value: '' } });
+        await flushMicrotasks();
 
         expect(screen.getByText('apple')).not.toBe(null);
         expect(screen.getByText('apricot')).not.toBe(null);

@@ -670,8 +670,15 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
           // Ignore a focus-out that belongs to a session which has since ended or been replaced:
           // during an exit animation the listener is still attached, and closing again would
           // dispatch a duplicate `onOpenChange`.
-          if (session && sessionRef.current === session && sessionActiveRef.current) {
-            store.setOpen(false, createChangeEventDetails(REASONS.focusOut, event));
+          if (session && getCurrentSession() === session) {
+            const eventDetails = createChangeEventDetails(REASONS.focusOut, event);
+            store.setOpen(false, eventDetails);
+            // Only a close that was actually accepted may suppress the return. Setting this
+            // before `setOpen` would leak into the next close whenever a consumer cancels
+            // this one.
+            if (!eventDetails.isCanceled) {
+              session.preventReturnFocus = true;
+            }
           }
         }
       });
@@ -903,15 +910,6 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
     function onOpenChangeLocal(details: FloatingUIOpenChangeDetails) {
       if (!details.open) {
         session.closeType = getEventType(details.nativeEvent, lastInteractionTypeRef.current);
-
-        // Focus deliberately left the popup, so whatever moved it owns the destination — the
-        // trigger's own focus guards move focus past the trigger, and pulling it back here would
-        // both override that and double-focus. Set from the `openchange` event because it only
-        // fires for a close that was actually accepted; setting it at the call site would leak
-        // into the next close whenever a consumer cancels this one.
-        if (details.reason === REASONS.focusOut) {
-          session.preventReturnFocus = true;
-        }
       }
 
       if (details.reason === REASONS.triggerHover && details.nativeEvent.type === 'mouseleave') {
