@@ -49,11 +49,11 @@ export function clickHighlightedItem(
   activeIndex: number,
   nativeEvent: KeyboardEvent,
 ) {
-  const listItem = store.state.listRef.current[activeIndex];
+  const listItem = store.context.listRef.current[activeIndex];
 
   if (listItem) {
-    store.state.selectionEventRef.current = nativeEvent;
+    store.context.selectionEventRef.current = nativeEvent;
     listItem.click();
-    store.state.selectionEventRef.current = null;
+    store.context.selectionEventRef.current = null;
   }
 }

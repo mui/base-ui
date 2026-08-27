@@ -57,7 +57,7 @@ export const ComboboxPopup = React.forwardRef(function ComboboxPopup(
 
   useIsoLayoutEffect(() => {
     // Prefer the rendered DOM id, which a `render` prop element or function may override.
-    store.set('popupId', store.state.popupRef.current?.id || popupId);
+    store.set('popupId', store.context.popupRef.current?.id || popupId);
     return () => {
       store.set('popupId', undefined);
     };
@@ -65,7 +65,7 @@ export const ComboboxPopup = React.forwardRef(function ComboboxPopup(
 
   useOpenChangeComplete({
     open,
-    ref: store.state.popupRef,
+    ref: store.context.popupRef,
     onComplete() {
       if (open) {
         store.state.onOpenChangeComplete(true);
@@ -84,7 +84,7 @@ export const ComboboxPopup = React.forwardRef(function ComboboxPopup(
 
   const element = useRenderElement('div', componentProps, {
     state,
-    ref: [forwardedRef, store.state.popupRef],
+    ref: [forwardedRef, store.context.popupRef],
     props: [
       popupProps,
       {
@@ -96,7 +96,7 @@ export const ComboboxPopup = React.forwardRef(function ComboboxPopup(
             openMethod !== 'touch' &&
             (contains(store.state.listElement, target) || target === event.currentTarget)
           ) {
-            store.state.inputRef.current?.focus();
+            store.context.inputRef.current?.focus();
           }
         },
       },
@@ -111,7 +111,7 @@ export const ComboboxPopup = React.forwardRef(function ComboboxPopup(
   // (this is required for Android specifically as iOS handles this automatically).
   const computedDefaultInitialFocus = inputInsidePopup
     ? (interactionType: InteractionType) =>
-        interactionType === 'touch' ? store.state.popupRef.current : inputElement
+        interactionType === 'touch' ? store.context.popupRef.current : inputElement
     : false;
 
   const resolvedInitialFocus =
@@ -135,13 +135,13 @@ export const ComboboxPopup = React.forwardRef(function ComboboxPopup(
       initialFocus={resolvedInitialFocus}
       returnFocus={resolvedFinalFocus}
       getInsideElements={() => [
-        store.state.startDismissRef.current,
-        store.state.endDismissRef.current,
+        store.context.startDismissRef.current,
+        store.context.endDismissRef.current,
       ]}
     >
       <React.Fragment>
         {element}
-        {focusManagerModal && <ComboboxInternalDismissButton ref={store.state.endDismissRef} />}
+        {focusManagerModal && <ComboboxInternalDismissButton ref={store.context.endDismissRef} />}
       </React.Fragment>
     </FloatingFocusManager>
   );

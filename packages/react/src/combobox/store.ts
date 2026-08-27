@@ -46,20 +46,6 @@ export type State = {
 
   selectionMode: 'single' | 'multiple' | 'none';
 
-  listRef: React.RefObject<Array<HTMLElement | null>>;
-  labelsRef: React.RefObject<Array<string | null>>;
-  popupRef: React.RefObject<HTMLDivElement | null>;
-  emptyRef: React.RefObject<HTMLDivElement | null>;
-  inputRef: React.RefObject<HTMLInputElement | null>;
-  startDismissRef: React.RefObject<HTMLSpanElement | null>;
-  endDismissRef: React.RefObject<HTMLSpanElement | null>;
-  keyboardActiveRef: React.RefObject<boolean>;
-  chipsContainerRef: React.RefObject<HTMLDivElement | null>;
-  clearRef: React.RefObject<HTMLButtonElement | null>;
-  valuesRef: React.RefObject<Array<any>>;
-  pointerDownItemRef: React.RefObject<Element | null>;
-  selectionEventRef: React.RefObject<MouseEvent | PointerEvent | KeyboardEvent | null>;
-
   setOpen: (open: boolean, eventDetails: AriaCombobox.ChangeEventDetails) => void;
   setInputValue: (value: string, eventDetails: AriaCombobox.ChangeEventDetails) => void;
   setSelectedValue: (value: any, eventDetails: AriaCombobox.ChangeEventDetails) => void;
@@ -89,7 +75,40 @@ export type State = {
   hasInputValue: boolean;
 };
 
-export type ComboboxStore = ReactStore<State>;
+/**
+ * Non-reactive values shared with the combobox parts. Nothing here is observable through
+ * `selectors`, so writing to a ref never notifies subscribers.
+ */
+export type ComboboxStoreContext = {
+  /** Item elements in list order, owned by `Combobox.List`. */
+  readonly listRef: React.RefObject<Array<HTMLElement | null>>;
+  /** Item text labels in list order, used for typeahead. */
+  readonly labelsRef: React.RefObject<Array<string | null>>;
+  /** The popup element. */
+  readonly popupRef: React.RefObject<HTMLDivElement | null>;
+  /** The empty-state element. */
+  readonly emptyRef: React.RefObject<HTMLDivElement | null>;
+  /** The input element that owns the combobox role. */
+  readonly inputRef: React.RefObject<HTMLInputElement | null>;
+  /** Internal dismiss button rendered before the popup content. */
+  readonly startDismissRef: React.RefObject<HTMLSpanElement | null>;
+  /** Internal dismiss button rendered after the popup content. */
+  readonly endDismissRef: React.RefObject<HTMLSpanElement | null>;
+  /** Whether the last interaction came from the keyboard. */
+  readonly keyboardActiveRef: React.RefObject<boolean>;
+  /** Container holding the selection chips. */
+  readonly chipsContainerRef: React.RefObject<HTMLDivElement | null>;
+  /** The clear button. */
+  readonly clearRef: React.RefObject<HTMLButtonElement | null>;
+  /** Item values in list order. */
+  readonly valuesRef: React.RefObject<Array<any>>;
+  /** Item element that received the last pointerdown, to pair it with a mouseup. */
+  readonly pointerDownItemRef: React.RefObject<Element | null>;
+  /** Native event that triggered the in-flight selection. */
+  readonly selectionEventRef: React.RefObject<MouseEvent | PointerEvent | KeyboardEvent | null>;
+};
+
+export type ComboboxStore = ReactStore<State, ComboboxStoreContext>;
 
 export const selectors = {
   id: (state: State) => state.id,

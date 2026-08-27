@@ -116,7 +116,7 @@ export const ComboboxChip = React.forwardRef(function ComboboxChip(
           });
 
           if (nextIndex === undefined) {
-            store.state.inputRef.current?.focus();
+            store.context.inputRef.current?.focus();
           } else {
             chipsRef.current[nextIndex]?.focus();
           }

@@ -79,7 +79,7 @@ export const ComboboxClear = React.forwardRef(function ComboboxClear(
 
   useOpenChangeComplete({
     open: visible,
-    ref: store.state.clearRef,
+    ref: store.context.clearRef,
     onComplete() {
       if (!visible) {
         setMounted(false);
@@ -89,7 +89,7 @@ export const ComboboxClear = React.forwardRef(function ComboboxClear(
 
   const element = useRenderElement('button', componentProps, {
     state,
-    ref: [forwardedRef, buttonRef, store.state.clearRef],
+    ref: [forwardedRef, buttonRef, store.context.clearRef],
     props: [
       {
         tabIndex: -1,
@@ -103,7 +103,7 @@ export const ComboboxClear = React.forwardRef(function ComboboxClear(
             return;
           }
 
-          const type = store.state.keyboardActiveRef.current ? REASONS.keyboard : REASONS.pointer;
+          const type = store.context.keyboardActiveRef.current ? REASONS.keyboard : REASONS.pointer;
 
           store.state.setInputValue(
             '',
@@ -122,7 +122,7 @@ export const ComboboxClear = React.forwardRef(function ComboboxClear(
             store.state.setIndices({ activeIndex: null, type });
           }
 
-          store.state.inputRef.current?.focus();
+          store.context.inputRef.current?.focus();
         },
       },
       elementProps,

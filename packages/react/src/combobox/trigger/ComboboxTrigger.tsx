@@ -107,11 +107,11 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
 
   const { reference: triggerTypeaheadProps } = useTypeahead(floatingRootContext, {
     enabled: !open && !readOnly && !comboboxDisabled && selectionMode === 'single',
-    listRef: store.state.labelsRef,
+    listRef: store.context.labelsRef,
     activeIndex,
     selectedIndex,
     onMatch(index) {
-      const nextSelectedValue = store.state.valuesRef.current[index];
+      const nextSelectedValue = store.context.valuesRef.current[index];
       if (nextSelectedValue !== undefined) {
         store.state.setSelectedValue(nextSelectedValue, createChangeEventDetails(REASONS.none));
       }
@@ -196,7 +196,7 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
           store.state.forceMount();
 
           if (currentPointerTypeRef.current !== 'touch') {
-            store.state.inputRef.current?.focus();
+            store.context.inputRef.current?.focus();
 
             if (!inputInsidePopup) {
               event.preventDefault();
@@ -249,7 +249,7 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
               true,
               createChangeEventDetails(REASONS.listNavigation, event.nativeEvent),
             );
-            store.state.inputRef.current?.focus();
+            store.context.inputRef.current?.focus();
           }
         },
       },

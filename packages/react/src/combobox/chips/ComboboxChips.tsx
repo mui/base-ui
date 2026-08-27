@@ -38,7 +38,7 @@ export const ComboboxChips = React.forwardRef(function ComboboxChips(
   const chipsRef = React.useRef<Array<HTMLButtonElement | null>>([]);
 
   const element = useRenderElement('div', componentProps, {
-    ref: [forwardedRef, store.state.chipsContainerRef],
+    ref: [forwardedRef, store.context.chipsContainerRef],
     // NVDA enters browse mode instead of staying in focus mode when navigating with
     // arrow keys inside a container unless it has a toolbar role.
     props: [

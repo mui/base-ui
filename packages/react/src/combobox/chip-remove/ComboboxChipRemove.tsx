@@ -61,14 +61,14 @@ export const ComboboxChipRemove = React.forwardRef(function ComboboxChipRemove(
     // Try current visible list first; if not found, it's filtered out.
     // No need to clear highlight in that case since it can't equal activeIndex.
     const removedIndex = findItemIndex(
-      store.state.valuesRef.current,
+      store.context.valuesRef.current,
       removedItem,
       isItemEqualToValue,
     );
     if (removedIndex !== -1 && activeIndex === removedIndex) {
       store.state.setIndices({
         activeIndex: null,
-        type: store.state.keyboardActiveRef.current ? REASONS.keyboard : REASONS.pointer,
+        type: store.context.keyboardActiveRef.current ? REASONS.keyboard : REASONS.pointer,
       });
     }
   }
@@ -86,7 +86,7 @@ export const ComboboxChipRemove = React.forwardRef(function ComboboxChipRemove(
       eventDetails,
     );
 
-    store.state.inputRef.current?.focus();
+    store.context.inputRef.current?.focus();
     return eventDetails;
   }
 

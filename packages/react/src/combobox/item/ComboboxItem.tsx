@@ -83,7 +83,7 @@ function ComboboxItemInner(props: ComboboxItemInnerProps) {
       return undefined;
     }
 
-    const list = store.state.listRef.current;
+    const list = store.context.listRef.current;
     list[index] = itemRef.current;
 
     return () => {
@@ -96,7 +96,7 @@ function ComboboxItemInner(props: ComboboxItemInnerProps) {
       return undefined;
     }
 
-    const visibleValues = store.state.valuesRef.current;
+    const visibleValues = store.context.valuesRef.current;
     visibleValues[index] = itemValue;
 
     return () => {
@@ -161,7 +161,7 @@ function ComboboxItemInner(props: ComboboxItemInnerProps) {
       // touch must not overwrite the shared ref — a mismatch would make the primary
       // pointer's release read as a drag-select and commit a second time after `click`.
       if (event.isPrimary) {
-        store.state.pointerDownItemRef.current = event.currentTarget;
+        store.context.pointerDownItemRef.current = event.currentTarget;
       }
       event.preventDefault();
     },
@@ -178,8 +178,8 @@ function ComboboxItemInner(props: ComboboxItemInnerProps) {
       commitSelection(event.nativeEvent);
     },
     onMouseUp(event) {
-      const pointerStartedOnItem = store.state.pointerDownItemRef.current === event.currentTarget;
-      store.state.pointerDownItemRef.current = null;
+      const pointerStartedOnItem = store.context.pointerDownItemRef.current === event.currentTarget;
+      store.context.pointerDownItemRef.current = null;
 
       if (disabled || readOnly || event.button !== 0 || pointerStartedOnItem || !highlighted) {
         return;

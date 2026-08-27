@@ -125,12 +125,12 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
     store.state.setIndices({
       activeIndex: null,
       selectedIndex: null,
-      type: store.state.keyboardActiveRef.current ? REASONS.keyboard : REASONS.pointer,
+      type: store.context.keyboardActiveRef.current ? REASONS.keyboard : REASONS.pointer,
     });
   }
 
   function markPointerActive() {
-    store.state.keyboardActiveRef.current = false;
+    store.context.keyboardActiveRef.current = false;
   }
 
   const state: ComboboxInputState = {
@@ -192,7 +192,7 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
 
   const element = useRenderElement('input', componentProps, {
     state,
-    ref: [forwardedRef, store.state.inputRef, setInputElement],
+    ref: [forwardedRef, store.context.inputRef, setInputElement],
     props: [
       inputProps,
       triggerProps,
@@ -220,7 +220,7 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
           if (
             nextActiveIndex == null ||
             // `valuesRef` can be sparse, so guard against restoring a removed slot.
-            !Object.hasOwn(store.state.valuesRef.current, nextActiveIndex)
+            !Object.hasOwn(store.context.valuesRef.current, nextActiveIndex)
           ) {
             return;
           }
@@ -344,7 +344,7 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
             return;
           }
 
-          store.state.keyboardActiveRef.current = true;
+          store.context.keyboardActiveRef.current = true;
           const input = event.currentTarget;
           const scrollAmount = input.scrollWidth - input.clientWidth;
           const isRTL = direction === 'rtl';
@@ -416,7 +416,7 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
           if (nextIndex !== undefined) {
             comboboxChipsContext?.chipsRef.current[nextIndex]?.focus();
           } else if (hadHighlightedChip) {
-            store.state.inputRef.current?.focus();
+            store.context.inputRef.current?.focus();
           }
 
           // event.isComposing
@@ -461,7 +461,7 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
   return (
     <React.Fragment>
       {open && focusManagerModal && (
-        <ComboboxInternalDismissButton ref={store.state.startDismissRef} />
+        <ComboboxInternalDismissButton ref={store.context.startDismissRef} />
       )}
       {renderedInput}
     </React.Fragment>

@@ -84,9 +84,9 @@ describe('combobox store synchronization', () => {
     }
 
     // Splitting the synchronization into two writes would publish this intermediate snapshot.
-    expect(
-      snapshots.some((snapshot) => snapshot.inline && !snapshot.inputOwnsFormValue),
-    ).toBe(false);
+    expect(snapshots.some((snapshot) => snapshot.inline && !snapshot.inputOwnsFormValue)).toBe(
+      false,
+    );
 
     const changed = snapshots.filter(
       (snapshot, index) =>

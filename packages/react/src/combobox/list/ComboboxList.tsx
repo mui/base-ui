@@ -96,10 +96,10 @@ export const ComboboxList = React.forwardRef(function ComboboxList(
           }
         },
         onKeyDownCapture() {
-          store.state.keyboardActiveRef.current = true;
+          store.context.keyboardActiveRef.current = true;
         },
         onPointerMoveCapture() {
-          store.state.keyboardActiveRef.current = false;
+          store.context.keyboardActiveRef.current = false;
         },
       },
       elementProps,
@@ -113,10 +113,10 @@ export const ComboboxList = React.forwardRef(function ComboboxList(
   // With the `items` prop, typeahead labels are derived from the items so they survive the list
   // unmounting (unmounting clears the registered labels). Rendered labels only need to be
   // registered when the list is force-mounted to match browser autofill against rendered text.
-  const labelsRef = hasItems && !forceMounted ? undefined : store.state.labelsRef;
+  const labelsRef = hasItems && !forceMounted ? undefined : store.context.labelsRef;
 
   return (
-    <CompositeList elementsRef={store.state.listRef} labelsRef={labelsRef}>
+    <CompositeList elementsRef={store.context.listRef} labelsRef={labelsRef}>
       {element}
     </CompositeList>
   );
