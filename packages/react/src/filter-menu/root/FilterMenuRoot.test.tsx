@@ -2963,7 +2963,7 @@ describe('<FilterMenu.Root />', () => {
       expect(screen.getByRole('menuitem', { name: 'Banana' })).toBeVisible();
     });
 
-    it('does not fall back to keyword matching when a custom filter rejects an item', async () => {
+    it('applies a custom filter to item keywords', async () => {
       await render(
         <FilterMenu.Root
           open
@@ -2985,7 +2985,7 @@ describe('<FilterMenu.Root />', () => {
       );
 
       await waitFor(() => {
-        expect(screen.queryByRole('menuitem', { name: 'Move to folder' })).toBe(null);
+        expect(screen.getByRole('menuitem', { name: 'Move to folder' })).toBeVisible();
       });
     });
 
@@ -4563,12 +4563,8 @@ describe('<FilterMenu.Root />', () => {
       );
     }
 
-    it('passes item keywords to a custom filter', async () => {
-      const filter = vi.fn(
-        (itemText: string, query: string, keywords: readonly string[] | undefined) =>
-          itemText.toLowerCase().startsWith(query) ||
-          (keywords?.some((keyword) => keyword.startsWith(query)) ?? false),
-      );
+    it('applies a custom filter to item text and keywords', async () => {
+      const filter = vi.fn((text: string, query: string) => text.toLowerCase().startsWith(query));
 
       const { user } = await render(<CustomFilterMenu filter={filter} />);
 
@@ -4578,8 +4574,10 @@ describe('<FilterMenu.Root />', () => {
         expect(screen.getByRole('menuitem', { name: 'Delete' })).toBeVisible();
       });
       expect(screen.queryByRole('menuitem', { name: 'Rename' })).toBe(null);
-      expect(filter).toHaveBeenCalledWith('Delete', 'tra', ['trash']);
-      expect(filter).toHaveBeenCalledWith('Rename', 'tra', undefined);
+      expect(filter).toHaveBeenCalledWith('Delete', 'tra');
+      expect(filter).toHaveBeenCalledWith('trash', 'tra');
+      expect(filter).toHaveBeenCalledWith('Rename', 'tra');
+      expect(filter.mock.calls.every((args) => args.length === 2)).toBe(true);
     });
 
     it('keeps every item visible when filtering is turned off with null', async () => {

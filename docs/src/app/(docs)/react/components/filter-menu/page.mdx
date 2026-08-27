@@ -128,20 +128,17 @@ Use `FilterMenu.Status` to announce other changing messages, such as asynchronou
 
 ### Custom matching
 
-Use `filter` to replace the default case-insensitive substring matching.
-It receives the item's text, the trimmed query, and the item's `keywords`, so it decides whether keywords participate:
+Use `filter` to replace the default case-insensitive substring matching while Filter Menu controls which registered items remain visible.
+It receives the item's text and each keyword individually, together with the trimmed query.
+The item matches when the function returns `true` for any of them:
 
 ```jsx title="Custom filter"
-<FilterMenu.Root
-  filter={(itemText, query, keywords) =>
-    itemText.startsWith(query) || (keywords?.some((keyword) => keyword.startsWith(query)) ?? false)
-  }
->
+<FilterMenu.Root filter={(text, query) => text.startsWith(query)}>
   {/* menu parts */}
 </FilterMenu.Root>
 ```
 
-Pass `filter={null}` to turn matching off and render only the items you want yourself, such as when a server returns the results.
+Pass `filter={null}` when filtering mapped items yourself and rendering only the results you want, such as when a server returns them.
 See [Async search](#async-search) for a complete example.
 
 ### Menus without a search field

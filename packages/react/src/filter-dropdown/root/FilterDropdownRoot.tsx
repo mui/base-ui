@@ -146,18 +146,14 @@ export function FilterDropdownRoot(props: FilterDropdownRoot.Props): React.JSX.E
       return;
     }
 
+    const matches = filter ?? defaultMatches;
     const nextIds = new Set<symbol>();
     registeredItems.forEach(({ getText, keywords }, id) => {
       const filterText = getText();
-      let matches;
-      if (filter) {
-        matches = filterText != null && filter(filterText, filterQuery, keywords);
-      } else {
-        matches =
-          (filterText != null && defaultMatches(filterText, filterQuery)) ||
-          keywords?.some((keyword) => defaultMatches(keyword, filterQuery));
-      }
-      if (matches) {
+      const itemMatches =
+        (filterText != null && matches(filterText, filterQuery)) ||
+        keywords?.some((keyword) => matches(keyword, filterQuery));
+      if (itemMatches) {
         nextIds.add(id);
       }
     });
