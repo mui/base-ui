@@ -26,6 +26,8 @@ export const MenuRadioItemIndicator = React.forwardRef(function MenuRadioItemInd
   const { transitionStatus, mounted, setMounted } = useTransitionStatus(item.checked);
 
   useOpenChangeComplete({
+    batch: true,
+    enabled: !item.checked,
     open: item.checked,
     ref: indicatorRef,
     onComplete() {

@@ -134,6 +134,7 @@ export const AvatarImage = React.forwardRef(function AvatarImage(
   }, [setRootImageLoadingStatus]);
 
   useOpenChangeComplete({
+    enabled: !isVisible,
     open: isVisible,
     ref: imageRef,
     onComplete() {

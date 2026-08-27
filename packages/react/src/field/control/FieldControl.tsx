@@ -4,6 +4,7 @@ import { useControlled } from '@base-ui/utils/useControlled';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { ownerDocument } from '@base-ui/utils/owner';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
+import { useTimeout } from '@base-ui/utils/useTimeout';
 import { type FieldRootState } from '../root/FieldRoot';
 import { useFieldRootContext } from '../../internals/field-root-context/FieldRootContext';
 import { useRegisterFieldControl } from '../../internals/field-register-control/useRegisterFieldControl';
@@ -59,7 +60,7 @@ export const FieldControl = React.forwardRef(function FieldControl(
     validationMode,
     validation,
   } = useFieldRootContext();
-  const { clearErrors } = useFormContext();
+  const { clearErrors, elementRef: formElementRef, submitCountRef } = useFormContext();
 
   const disabled = fieldDisabled || disabledProp;
   const name = fieldName ?? nameProp;
@@ -97,10 +98,11 @@ export const FieldControl = React.forwardRef(function FieldControl(
   );
 
   useIsoLayoutEffect(() => {
-    if (validation.inputRef.current?.value) {
-      setFilled(true);
+    const currentValue = serializedValue ?? validation.inputRef.current?.value;
+    if (currentValue !== undefined) {
+      setFilled(currentValue !== '');
     }
-  }, [validation.inputRef, setFilled]);
+  }, [serializedValue, validation.inputRef, setFilled]);
 
   useValueChanged(serializedValue, () => {
     if (serializedValue === undefined) {
@@ -109,12 +111,12 @@ export const FieldControl = React.forwardRef(function FieldControl(
 
     clearErrors(name);
     setDirty(serializedValue !== (validityData.initialValue ?? ''));
-    setFilled(serializedValue !== '');
 
     validation.change(serializedValue);
   });
 
   const inputRef = React.useRef<HTMLElement>(null);
+  const enterValidationTimeout = useTimeout();
 
   useIsoLayoutEffect(() => {
     if (autoFocus && inputRef.current === activeElement(ownerDocument(inputRef.current))) {
@@ -163,13 +165,44 @@ export const FieldControl = React.forwardRef(function FieldControl(
           setFocused(false);
 
           if (validationMode === 'onBlur') {
-            validation.commit(event.currentTarget.value);
+            const inputValue = event.currentTarget.value;
+            validation.commit(inputValue);
+
+            if (isControlled) {
+              // Controlled blur handlers can normalize the value before this microtask runs.
+              // A rewrite back to the initial value is a programmatic reset: the field looks
+              // pristine, so committing it would only surface `valueMissing` noise.
+              queueMicrotask(() => {
+                const nextValue = validation.inputRef.current?.value;
+                if (
+                  nextValue !== undefined &&
+                  nextValue !== inputValue &&
+                  nextValue !== (validityData.initialValue ?? '')
+                ) {
+                  validation.commit(nextValue);
+                }
+              });
+            }
           }
         },
         onKeyDown(event) {
           if (event.currentTarget.tagName === 'INPUT' && event.key === 'Enter') {
             setTouched(true);
-            validation.commit(event.currentTarget.value);
+            const value = event.currentTarget.value;
+            const form = event.currentTarget.form;
+            if (form && form === formElementRef.current && !event.defaultPrevented) {
+              const input = event.currentTarget;
+              const submitCount = submitCountRef.current;
+
+              // Implicit submission runs after keydown. Fall back unless Form handles it first.
+              enterValidationTimeout.start(0, () => {
+                if (submitCountRef.current === submitCount) {
+                  validation.commit(input.value);
+                }
+              });
+            } else {
+              validation.commit(value);
+            }
           }
         },
       },

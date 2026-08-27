@@ -60,6 +60,7 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
     firstItemTextRef,
     selectedItemTextRef,
     multiple,
+    readOnly,
     handleScrollArrowVisibility,
     scrollHandlerRef,
     listRef,
@@ -452,11 +453,11 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
     ...(listElement
       ? {
           role: 'presentation',
-          'aria-orientation': undefined,
         }
       : {
           role: 'listbox',
           'aria-multiselectable': multiple || undefined,
+          'aria-readonly': readOnly || undefined,
           id: `${id}-list`,
         }),
     onKeyDown(event) {
