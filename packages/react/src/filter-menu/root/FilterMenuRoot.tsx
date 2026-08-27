@@ -33,7 +33,7 @@ export function FilterMenuRoot<Payload>(props: FilterMenuRoot.Props<Payload>): R
     locale,
     inline = false,
     grid = false,
-    virtualized = false,
+    virtualized,
     onItemHighlighted,
     ...menuProps
   } = props;
@@ -177,15 +177,13 @@ export type FilterMenuRootProps<Payload = unknown> = Omit<
      */
     grid?: boolean | undefined;
     /**
-     * Whether the items are windowed by an external virtualizer.
-     * Pass the total item count, after your own filtering, so keyboard navigation can target the
-     * list's real ends; `true` keeps navigation within the mounted window.
+     * The total number of items when they are windowed by an external virtualizer, counted after
+     * your own filtering, so keyboard navigation can target the list's real ends.
      * Give each rendered `<FilterMenu.Item>` its `index`, use `filter={null}` with your own data
      * filtering, and keep at least one screenful of overscan mounted so navigation always has an
      * adjacent item to move to.
-     * @default false
      */
-    virtualized?: boolean | number | undefined;
+    virtualized?: number | undefined;
     /**
      * Event handler called when an item is highlighted or unhighlighted.
      * Receives the highlighted item's index (or `null` when the highlight clears) and event

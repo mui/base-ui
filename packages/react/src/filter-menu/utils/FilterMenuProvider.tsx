@@ -19,7 +19,7 @@ export interface FilterMenuProviderProps {
   locale: Intl.LocalesArgument | undefined;
   inline?: boolean | undefined;
   grid?: boolean | undefined;
-  virtualized?: boolean | number | undefined;
+  virtualized?: number | undefined;
   inputProps: HTMLProps;
   onValueChange: (value: string, details: FilterMenuRoot.InputValueChangeEventDetails) => void;
   onInputElementChange: (hasInput: boolean) => void;
