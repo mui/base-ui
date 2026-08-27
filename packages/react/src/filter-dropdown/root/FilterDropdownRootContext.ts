@@ -9,11 +9,7 @@ export interface FilterDropdownItemRegistration {
   keywords: readonly string[] | undefined;
 }
 
-export type FilterDropdownFilter = (
-  filterText: string,
-  query: string,
-  keywords: readonly string[] | undefined,
-) => boolean;
+export type FilterDropdownFilter = (text: string, query: string) => boolean;
 
 export interface FilterDropdownRootContext {
   open: boolean;
