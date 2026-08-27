@@ -106,6 +106,9 @@ export const AvatarImage = React.forwardRef(function AvatarImage(
 
   const renderedStatusProps = keepMounted
     ? {
+        // Until the image is displayable, the fallback owns the accessible name; without this
+        // both would be exposed to assistive technology at once (including in server HTML).
+        'aria-hidden': imageLoadingStatus !== 'loaded' || undefined,
         onLoad() {
           setImageLoadingStatus('loaded');
         },

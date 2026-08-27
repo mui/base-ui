@@ -420,24 +420,36 @@ describe('<Avatar.Image />', () => {
 
         const { hydrate } = renderToString(
           <Avatar.Root>
-            <Avatar.Image keepMounted src={TRANSPARENT_IMAGE_DATA_URI} alt="Jane Doe" />
+            <Avatar.Image
+              data-testid="image"
+              keepMounted
+              src={TRANSPARENT_IMAGE_DATA_URI}
+              alt="Jane Doe"
+            />
             <Avatar.Fallback>JD</Avatar.Fallback>
           </Avatar.Root>,
         );
 
         // Unlike the default mode, the image is part of the server HTML, so the
-        // browser loads it before hydration.
-        expect(screen.getByRole('img')).toHaveAttribute('src', TRANSPARENT_IMAGE_DATA_URI);
+        // browser loads it before hydration. Until hydration resolves the status,
+        // the fallback owns the accessible name and the image is aria-hidden.
+        expect(screen.getByTestId('image')).toHaveAttribute('src', TRANSPARENT_IMAGE_DATA_URI);
+        expect(screen.getByTestId('image')).toHaveAttribute('aria-hidden', 'true');
+        expect(screen.queryByRole('img')).toBe(null);
         expect(screen.getByText('JD')).toBeVisible();
         await waitFor(() => {
-          expect((screen.getByRole('img') as HTMLImageElement).complete).toBe(true);
+          expect((screen.getByTestId('image') as HTMLImageElement).complete).toBe(true);
         });
 
         hydrate();
 
         // The hydration layout effect sees `image.complete` and resolves the
         // status before paint, so the fallback is removed without a flash.
-        expect(screen.getByRole('img')).toHaveAttribute('src', TRANSPARENT_IMAGE_DATA_URI);
+        expect(screen.getByRole('img', { name: 'Jane Doe' })).toHaveAttribute(
+          'src',
+          TRANSPARENT_IMAGE_DATA_URI,
+        );
+        expect(screen.getByTestId('image')).not.toHaveAttribute('aria-hidden');
         expect(screen.queryByText('JD')).toBe(null);
       },
     );
@@ -535,6 +547,98 @@ describe('<Avatar.Image />', () => {
 
       expect(screen.getByTestId('image')).toHaveClass('updated');
       expect(onLoadingStatusChange).not.toHaveBeenCalled();
+    });
+
+    it.skipIf(!isJSDOM)('hides the image from assistive technology until it loads', async () => {
+      await render(
+        <Avatar.Root>
+          <Avatar.Image alt="Jane Doe" data-testid="image" keepMounted src="avatar.png" />
+          <Avatar.Fallback>JD</Avatar.Fallback>
+        </Avatar.Root>,
+      );
+
+      // Only the fallback names the avatar while both are in the DOM.
+      expect(screen.getByTestId('image')).toHaveAttribute('aria-hidden', 'true');
+      expect(screen.queryByRole('img')).toBe(null);
+
+      fireEvent.load(screen.getByTestId('image'));
+
+      await waitFor(() => {
+        expect(screen.getByTestId('image')).not.toHaveAttribute('aria-hidden');
+      });
+      expect(screen.getByRole('img', { name: 'Jane Doe' })).not.toBe(null);
+    });
+
+    it.skipIf(!isJSDOM)(
+      'keeps the image hidden from assistive technology after an error',
+      async () => {
+        await render(
+          <Avatar.Root>
+            <Avatar.Image alt="Jane Doe" data-testid="image" keepMounted src="avatar.png" />
+            <Avatar.Fallback>JD</Avatar.Fallback>
+          </Avatar.Root>,
+        );
+
+        fireEvent.error(screen.getByTestId('image'));
+
+        await waitFor(() => {
+          expect(screen.getByTestId('image')).toHaveAttribute('data-error');
+        });
+        expect(screen.getByTestId('image')).toHaveAttribute('aria-hidden', 'true');
+        expect(screen.getByText('JD')).not.toBe(null);
+      },
+    );
+
+    it.skipIf(!isJSDOM)(
+      'hides the image from assistive technology again when the source changes',
+      async () => {
+        function Test({ src }: { src: string }) {
+          return (
+            <Avatar.Root>
+              <Avatar.Image alt="Jane Doe" data-testid="image" keepMounted src={src} />
+              <Avatar.Fallback>JD</Avatar.Fallback>
+            </Avatar.Root>
+          );
+        }
+
+        const { rerender } = await render(<Test src="avatar-1.png" />);
+
+        fireEvent.load(screen.getByTestId('image'));
+
+        await waitFor(() => {
+          expect(screen.getByTestId('image')).not.toHaveAttribute('aria-hidden');
+        });
+
+        await rerender(<Test src="avatar-2.png" />);
+
+        await waitFor(() => {
+          expect(screen.getByTestId('image')).toHaveAttribute('aria-hidden', 'true');
+        });
+      },
+    );
+
+    it.skipIf(!isJSDOM)('preserves an explicitly provided aria-hidden value', async () => {
+      await render(
+        <Avatar.Root>
+          <Avatar.Image
+            alt="Jane Doe"
+            aria-hidden={false}
+            data-testid="image"
+            keepMounted
+            src="avatar.png"
+          />
+          <Avatar.Fallback>JD</Avatar.Fallback>
+        </Avatar.Root>,
+      );
+
+      expect(screen.getByTestId('image')).toHaveAttribute('aria-hidden', 'false');
+
+      fireEvent.load(screen.getByTestId('image'));
+
+      await waitFor(() => {
+        expect(screen.queryByText('JD')).toBe(null);
+      });
+      expect(screen.getByTestId('image')).toHaveAttribute('aria-hidden', 'false');
     });
 
     it.skipIf(!isJSDOM)('marks the not-loaded states with data attributes', async () => {
