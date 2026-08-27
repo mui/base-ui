@@ -1520,6 +1520,25 @@ describe('<NumberField.Input />', () => {
     });
   });
 
+  describe('focus selection', () => {
+    it('keeps the selection the browser set when focus moves into the input', async () => {
+      await render(
+        <NumberField.Root defaultValue={100}>
+          <NumberField.Input />
+        </NumberField.Root>,
+      );
+
+      const input = screen.getByRole<HTMLInputElement>('textbox');
+
+      // Tabbing into an input natively selects the whole value before the focus event fires.
+      input.setSelectionRange(0, input.value.length);
+      await act(async () => input.focus());
+
+      expect(input.selectionStart).toBe(0);
+      expect(input.selectionEnd).toBe(input.value.length);
+    });
+  });
+
   describe('consumer-prevented defaults', () => {
     it('does not mark the field focused when the focus default is prevented', async () => {
       await render(
