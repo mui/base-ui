@@ -75,11 +75,12 @@ export const SelectItem = React.memo(
     useIsoLayoutEffect(() => {
       const selectedValue = store.state.value;
 
+      const currentIndex = store.state.selectedIndex;
+      let nextIndex = currentIndex;
       let claims: boolean;
       if (multiple && Array.isArray(selectedValue)) {
         // The claiming item also owns the text ref that aligns the popup.
-        const currentIndex = store.state.selectedIndex;
-        const nextIndex = resolveSelectedIndex(
+        nextIndex = resolveSelectedIndex(
           index,
           itemValue,
           store.context.valuesRef.current,
@@ -87,28 +88,24 @@ export const SelectItem = React.memo(
           isItemEqualToValue,
           currentIndex,
         );
-        if (nextIndex !== currentIndex) {
-          store.set('selectedIndex', nextIndex);
-          if (index === currentIndex) {
-            store.context.selectedItemTextRef.current = null;
-          }
-        }
         claims = nextIndex === index;
+        if (index === currentIndex && !claims) {
+          store.context.selectedItemTextRef.current = null;
+        }
       } else {
         claims =
           selectedValue !== undefined &&
           compareItemEquality(itemValue, selectedValue, isItemEqualToValue);
         if (claims) {
-          store.set('selectedIndex', index);
+          nextIndex = index;
         }
       }
+      store.set('selectedIndex', nextIndex);
 
-      if (claims) {
-        // Make sure SelectPopup can measure the selected item on first open.
-        // SelectItemText can still update this ref later when focus moves.
-        if (textRef.current) {
-          store.context.selectedItemTextRef.current = textRef.current;
-        }
+      // Make sure SelectPopup can measure the selected item on first open.
+      // SelectItemText can still update this ref later when focus moves.
+      if (claims && textRef.current) {
+        store.context.selectedItemTextRef.current = textRef.current;
       }
     }, [index, multiple, isItemEqualToValue, store, itemValue]);
 

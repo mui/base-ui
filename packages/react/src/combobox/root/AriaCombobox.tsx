@@ -901,7 +901,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
           // A newly selected item stays highlighted through the clear; a deselection
           // falls back to the standard selection anchor.
           const pendingHighlight = pendingQueryHighlightRef.current;
-          if (pendingHighlight?.selection && !isCurrentlySelected) {
+          if (pendingHighlight && !isCurrentlySelected) {
             pendingHighlight.toggledValue = itemValue;
           }
         } else {
@@ -1064,7 +1064,6 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
         pendingQueryHighlightRef.current = null;
         if (listIsNavigable) {
           const clearedBySelection = pendingHighlight.selection;
-          const toggledValue = pendingHighlight.toggledValue;
           if (
             autoHighlightMode === 'always' &&
             !clearedBySelection &&
@@ -1092,10 +1091,9 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
             const currentSelectedValue = store.state.selectedValue;
             const isMultiple = store.state.selectionMode === 'multiple';
             const hasSelection =
-              store.state.selectionMode !== 'none' &&
-              (isMultiple && Array.isArray(currentSelectedValue)
+              isMultiple && Array.isArray(currentSelectedValue)
                 ? currentSelectedValue.length > 0
-                : currentSelectedValue != null);
+                : store.state.selectionMode !== 'none' && currentSelectedValue != null;
 
             if (hasSelection || clearedBySelection) {
               const registry =
@@ -1106,10 +1104,12 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
                 // otherwise return to the open anchor. A selection that is no longer in
                 // the list drops the highlight rather than leaving it on whichever item
                 // now occupies that index.
-                const toggledIndex =
-                  toggledValue === undefined
-                    ? -1
-                    : findItemIndex(registry, toggledValue, store.state.isItemEqualToValue);
+                // `findItemIndex` resolves to -1 when no value was toggled.
+                const toggledIndex = findItemIndex(
+                  registry,
+                  pendingHighlight.toggledValue,
+                  store.state.isItemEqualToValue,
+                );
                 nextIndex =
                   toggledIndex !== -1
                     ? toggledIndex

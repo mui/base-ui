@@ -38,7 +38,7 @@ export function selectedValueIncludes<Item, Value>(
   itemValue: Value,
   comparer: ItemEqualityComparer<Value, Item>,
 ): boolean {
-  if (!selectedValues || selectedValues.length === 0) {
+  if (!selectedValues) {
     return false;
   }
   return selectedValues.some((selectedValue) => {
@@ -54,7 +54,7 @@ export function findItemIndex<Item, Value>(
   selectedValue: Value,
   comparer: ItemEqualityComparer<Item, Value>,
 ): number {
-  if (!itemValues || itemValues.length === 0) {
+  if (!itemValues) {
     return -1;
   }
   return itemValues.findIndex((itemValue) => {
@@ -66,24 +66,22 @@ export function findItemIndex<Item, Value>(
 }
 
 export function findSelectionIndex<Item, Value>(
-  itemValues: readonly Item[] | undefined | null,
+  itemValues: readonly Item[],
   selectedValue: Value | readonly Value[] | null | undefined,
   comparer: ItemEqualityComparer<Item, Value>,
   multiple: boolean,
 ): number | null {
   // Only treat the value as a list in multiple mode: an array can itself be a valid
   // single-select value.
-  if (multiple && Array.isArray(selectedValue)) {
-    // Anchor to the first selected item in rendered order so the index does not depend
-    // on the order in which the values were added to the array.
-    const index =
-      itemValues?.findIndex(
-        (itemValue) =>
-          itemValue !== undefined && selectedValueIncludes(selectedValue, itemValue, comparer),
-      ) ?? -1;
-    return index === -1 ? null : index;
-  }
-  const index = findItemIndex(itemValues, selectedValue as Value, comparer);
+  const index =
+    multiple && Array.isArray(selectedValue)
+      ? // Anchor to the first selected item in rendered order so the index does not depend
+        // on the order in which the values were added to the array.
+        // A hole (`undefined`) never matches: `selectedValueIncludes` rejects it.
+        itemValues.findIndex((itemValue) =>
+          selectedValueIncludes(selectedValue, itemValue, comparer),
+        )
+      : findItemIndex(itemValues, selectedValue as Value, comparer);
   return index === -1 ? null : index;
 }
 
@@ -96,21 +94,18 @@ export function resolveSelectedIndex<Item, Value>(
   comparer: ItemEqualityComparer<Item, Value>,
   currentIndex: number | null,
 ): number | null {
-  if (index === currentIndex) {
-    return selectedValueIncludes(selectedValues, itemValue, comparer)
-      ? index
-      : findSelectionIndex(registry, selectedValues, comparer, true);
+  if (selectedValueIncludes(selectedValues, itemValue, comparer)) {
+    // A later item only takes over once the current anchor stops being selected.
+    return currentIndex != null &&
+      index > currentIndex &&
+      selectedValueIncludes(selectedValues, registry[currentIndex], comparer)
+      ? currentIndex
+      : index;
   }
-
-  // A later item only takes over once the current anchor stops being selected.
-  if (
-    currentIndex != null &&
-    index > currentIndex &&
-    selectedValueIncludes(selectedValues, registry[currentIndex], comparer)
-  ) {
-    return currentIndex;
-  }
-  return selectedValueIncludes(selectedValues, itemValue, comparer) ? index : currentIndex;
+  // The holder re-elects the anchor once it stops being selected.
+  return index === currentIndex
+    ? findSelectionIndex(registry, selectedValues, comparer, true)
+    : currentIndex;
 }
 
 export function removeItem<Item, Value>(

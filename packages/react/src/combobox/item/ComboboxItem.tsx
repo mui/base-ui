@@ -116,25 +116,20 @@ function ComboboxItemInner(props: ComboboxItemInnerProps) {
     // like closed-trigger typeahead in sync when the rendered order changes.
     const selectedValue = store.state.selectedValue;
 
+    let nextIndex = store.state.selectedIndex;
     if (store.state.selectionMode === 'multiple' && Array.isArray(selectedValue)) {
-      const currentIndex = store.state.selectedIndex;
-      const nextIndex = resolveSelectedIndex(
+      nextIndex = resolveSelectedIndex(
         index,
         itemValue,
         store.context.valuesRef.current,
         selectedValue,
         isItemEqualToValue,
-        currentIndex,
+        nextIndex,
       );
-      if (nextIndex !== currentIndex) {
-        store.set('selectedIndex', nextIndex);
-      }
-      return;
+    } else if (compareItemEquality(itemValue, selectedValue, isItemEqualToValue)) {
+      nextIndex = index;
     }
-
-    if (compareItemEquality(itemValue, selectedValue, isItemEqualToValue)) {
-      store.set('selectedIndex', index);
-    }
+    store.set('selectedIndex', nextIndex);
   }, [hasRegistered, hasItems, store, index, itemValue, isItemEqualToValue]);
 
   const { getButtonProps, buttonRef } = useButton({
