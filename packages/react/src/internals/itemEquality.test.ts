@@ -1,5 +1,5 @@
 import { expect } from 'vitest';
-import { defaultItemEquality, findSelectionIndex, shouldClaimSelectedIndex } from './itemEquality';
+import { defaultItemEquality, findSelectionIndex, resolveSelectedIndex } from './itemEquality';
 
 describe('findSelectionIndex', () => {
   const items = ['a', 'b', 'c'];
@@ -30,11 +30,11 @@ describe('findSelectionIndex', () => {
   });
 });
 
-describe('shouldClaimSelectedIndex', () => {
+describe('resolveSelectedIndex', () => {
   const registry = ['a', 'b', 'c'];
 
-  function claims(index: number, selectedValues: string[], currentIndex: number | null) {
-    return shouldClaimSelectedIndex(
+  function resolve(index: number, selectedValues: string[], currentIndex: number | null) {
+    return resolveSelectedIndex(
       index,
       registry[index],
       registry,
@@ -45,25 +45,25 @@ describe('shouldClaimSelectedIndex', () => {
   }
 
   it('does not claim an unselected item', () => {
-    expect(claims(1, ['a', 'c'], null)).toBe(false);
+    expect(resolve(1, ['a', 'c'], null)).toBe(null);
   });
 
   it('claims when no item holds the index yet', () => {
-    expect(claims(2, ['c'], null)).toBe(true);
+    expect(resolve(2, ['c'], null)).toBe(2);
   });
 
   it('claims from a later holder', () => {
-    expect(claims(0, ['a', 'c'], 2)).toBe(true);
+    expect(resolve(0, ['a', 'c'], 2)).toBe(0);
   });
 
   it('leaves the index with an earlier selected holder', () => {
-    expect(claims(2, ['a', 'c'], 0)).toBe(false);
+    expect(resolve(2, ['a', 'c'], 0)).toBe(0);
   });
 
   it('takes over from an earlier holder that is no longer selected', () => {
     // `a` held the index but has been deselected, so `b` takes it and `c` then defers.
-    expect(claims(1, ['b', 'c'], 0)).toBe(true);
-    expect(claims(2, ['b', 'c'], 1)).toBe(false);
+    expect(resolve(0, ['b', 'c'], 0)).toBe(1);
+    expect(resolve(2, ['b', 'c'], 1)).toBe(1);
   });
 
   it('takes over when the earlier holder has left the registry', () => {
@@ -71,8 +71,6 @@ describe('shouldClaimSelectedIndex', () => {
     sparseRegistry[1] = 'b';
     sparseRegistry[2] = 'c';
 
-    expect(shouldClaimSelectedIndex(2, 'c', sparseRegistry, ['c'], defaultItemEquality, 0)).toBe(
-      true,
-    );
+    expect(resolveSelectedIndex(2, 'c', sparseRegistry, ['c'], defaultItemEquality, 0)).toBe(2);
   });
 });

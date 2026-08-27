@@ -16,7 +16,7 @@ import { useComboboxRowContext } from '../row/ComboboxRowContext';
 import {
   compareItemEquality,
   findItemIndex,
-  shouldClaimSelectedIndex,
+  resolveSelectedIndex,
 } from '../../internals/itemEquality';
 
 interface ComboboxItemInnerProps {
@@ -117,17 +117,17 @@ function ComboboxItemInner(props: ComboboxItemInnerProps) {
     const selectedValue = store.state.selectedValue;
 
     if (store.state.selectionMode === 'multiple' && Array.isArray(selectedValue)) {
-      if (
-        shouldClaimSelectedIndex(
-          index,
-          itemValue,
-          store.context.valuesRef.current,
-          selectedValue,
-          isItemEqualToValue,
-          store.state.selectedIndex,
-        )
-      ) {
-        store.set('selectedIndex', index);
+      const currentIndex = store.state.selectedIndex;
+      const nextIndex = resolveSelectedIndex(
+        index,
+        itemValue,
+        store.context.valuesRef.current,
+        selectedValue,
+        isItemEqualToValue,
+        currentIndex,
+      );
+      if (nextIndex !== currentIndex) {
+        store.set('selectedIndex', nextIndex);
       }
       return;
     }

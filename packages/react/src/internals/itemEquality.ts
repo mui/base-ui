@@ -87,24 +87,30 @@ export function findSelectionIndex<Item, Value>(
   return index === -1 ? null : index;
 }
 
-/** Whether an item should become the first selected index in rendered order. */
-export function shouldClaimSelectedIndex<Item, Value>(
+/** Resolves the first selected index as items register or change. */
+export function resolveSelectedIndex<Item, Value>(
   index: number,
   itemValue: Item,
   registry: readonly Item[],
   selectedValues: readonly Value[],
   comparer: ItemEqualityComparer<Item, Value>,
   currentIndex: number | null,
-): boolean {
+): number | null {
+  if (index === currentIndex) {
+    return selectedValueIncludes(selectedValues, itemValue, comparer)
+      ? index
+      : findSelectionIndex(registry, selectedValues, comparer, true);
+  }
+
   // A later item only takes over once the current anchor stops being selected.
   if (
     currentIndex != null &&
     index > currentIndex &&
     selectedValueIncludes(selectedValues, registry[currentIndex], comparer)
   ) {
-    return false;
+    return currentIndex;
   }
-  return selectedValueIncludes(selectedValues, itemValue, comparer);
+  return selectedValueIncludes(selectedValues, itemValue, comparer) ? index : currentIndex;
 }
 
 export function removeItem<Item, Value>(

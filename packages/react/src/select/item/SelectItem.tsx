@@ -17,7 +17,7 @@ import { REASONS } from '../../internals/reasons';
 import {
   compareItemEquality,
   removeItem,
-  shouldClaimSelectedIndex,
+  resolveSelectedIndex,
 } from '../../internals/itemEquality';
 import { isVirtualClick } from '../../floating-ui-react/utils/event';
 
@@ -78,22 +78,32 @@ export const SelectItem = React.memo(
       let claims: boolean;
       if (multiple && Array.isArray(selectedValue)) {
         // The claiming item also owns the text ref that aligns the popup.
-        claims = shouldClaimSelectedIndex(
+        const currentIndex = store.state.selectedIndex;
+        const nextIndex = resolveSelectedIndex(
           index,
           itemValue,
           store.context.valuesRef.current,
           selectedValue,
           isItemEqualToValue,
-          store.state.selectedIndex,
+          currentIndex,
         );
+        if (nextIndex !== currentIndex) {
+          store.set('selectedIndex', nextIndex);
+          if (index === currentIndex) {
+            store.context.selectedItemTextRef.current = null;
+          }
+        }
+        claims = nextIndex === index;
       } else {
         claims =
           selectedValue !== undefined &&
           compareItemEquality(itemValue, selectedValue, isItemEqualToValue);
+        if (claims) {
+          store.set('selectedIndex', index);
+        }
       }
 
       if (claims) {
-        store.set('selectedIndex', index);
         // Make sure SelectPopup can measure the selected item on first open.
         // SelectItemText can still update this ref later when focus moves.
         if (textRef.current) {

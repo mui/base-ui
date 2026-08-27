@@ -2604,23 +2604,21 @@ describe('<Combobox.Root />', () => {
         });
       });
 
-      it('moves the anchor to the next selected item when the anchor item leaves the list', async () => {
-        function App(props: { hideApple?: boolean }) {
-          const visible = props.hideApple ? ['banana', 'cherry'] : ['apple', 'banana', 'cherry'];
-
+      it('moves the anchor when the anchor item value changes', async () => {
+        function App(props: { replaceApple?: boolean }) {
           return (
             <Combobox.Root multiple defaultValue={['apple', 'cherry']}>
               <Combobox.Input data-testid="input" />
               <SelectedIndexProbe />
-              <Combobox.Portal>
+              <Combobox.Portal keepMounted>
                 <Combobox.Positioner>
                   <Combobox.Popup>
                     <Combobox.List>
-                      {visible.map((item) => (
-                        <Combobox.Item key={item} value={item}>
-                          {item}
-                        </Combobox.Item>
-                      ))}
+                      <Combobox.Item value={props.replaceApple ? 'date' : 'apple'}>
+                        {props.replaceApple ? 'date' : 'apple'}
+                      </Combobox.Item>
+                      <Combobox.Item value="banana">banana</Combobox.Item>
+                      <Combobox.Item value="cherry">cherry</Combobox.Item>
                     </Combobox.List>
                   </Combobox.Popup>
                 </Combobox.Positioner>
@@ -2629,22 +2627,16 @@ describe('<Combobox.Root />', () => {
           );
         }
 
-        const { user, setProps } = await render(<App />);
+        const { setProps } = await render(<App />);
 
-        await user.click(screen.getByTestId('input'));
-        expect(await screen.findByRole('listbox')).not.toBe(null);
         await waitFor(() => {
           expect(screen.getByTestId('selected-index').textContent).toBe('0');
         });
 
-        await setProps({ hideApple: true });
-        await waitFor(() => {
-          expect(screen.queryByRole('option', { name: 'apple' })).toBe(null);
-        });
+        await setProps({ replaceApple: true });
 
-        // `banana` now occupies index 0 but is not selected, so `cherry` takes the anchor.
         await waitFor(() => {
-          expect(screen.getByTestId('selected-index').textContent).toBe('1');
+          expect(screen.getByTestId('selected-index').textContent).toBe('2');
         });
       });
 
