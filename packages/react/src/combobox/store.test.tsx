@@ -20,20 +20,16 @@ describe('combobox store synchronization', () => {
     globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
   });
 
-  // The default renderer wraps in `React.StrictMode`, which double-renders and makes a raw render
-  // count meaningless. The non-strict renderer is used only where the count itself is the subject.
   const { render, renderToString } = createRenderer();
-  const { render: renderNonStrict } = createRenderer({ strict: false });
 
   /**
-   * Every rendered control carrying the form name, visible or visually hidden. The visible input
-   * has the `combobox` role and the hidden one has `textbox`, so both are collected.
+   * Every rendered control carrying the form name. Queried by attribute rather than by role
+   * because the controls that can carry it span three shapes: the visible `combobox` input, the
+   * visually hidden `textbox`, and the `type="hidden"` inputs that `multiple` mode renders, which
+   * expose no role at all.
    */
   function namedControls(name: string) {
-    return [
-      ...screen.queryAllByRole('textbox', { hidden: true }),
-      ...screen.queryAllByRole('combobox', { hidden: true }),
-    ].filter((element) => element.getAttribute('name') === name);
+    return Array.from(document.querySelectorAll(`[name="${name}"]`));
   }
 
   function StoreProbe({ storeRef }: { storeRef: { current: ComboboxStore | null } }) {
@@ -121,7 +117,7 @@ describe('combobox store synchronization', () => {
     const storeRef: { current: ComboboxStore | null } = { current: null };
     const observed: string[] = [];
 
-    // Memoized so the parent's re-render does not count as a subscription re-render.
+    // Memoized so it re-renders from its own store subscription, not from the parent.
     const OwnershipProbe = React.memo(function OwnershipProbe() {
       const store = useComboboxRootContext();
       const inline = useStore(store, selectors.inline);
@@ -130,7 +126,7 @@ describe('combobox store synchronization', () => {
       return null;
     });
 
-    const { setProps } = await renderNonStrict(
+    const { setProps } = await render(
       <InlineOwnershipFixture inline={false} storeRef={storeRef}>
         <OwnershipProbe />
       </InlineOwnershipFixture>,
