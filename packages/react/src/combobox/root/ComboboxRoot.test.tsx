@@ -3107,6 +3107,68 @@ describe('<Combobox.Root />', () => {
       });
     });
 
+    it('uses isItemDisabled to skip static items during navigation', async () => {
+      const { user } = await render(
+        <Combobox.Root isItemDisabled={(item) => item === 'banana'}>
+          <Combobox.Input data-testid="input" />
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  <Combobox.Item value="apple">apple</Combobox.Item>
+                  <Combobox.Item value="banana">banana</Combobox.Item>
+                  <Combobox.Item value="cherry">cherry</Combobox.Item>
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      const input = screen.getByTestId('input');
+      await user.click(input);
+      await user.keyboard('{ArrowDown}{ArrowDown}');
+
+      const cherry = screen.getByRole('option', { name: 'cherry' });
+      expect(input).toHaveAttribute('aria-activedescendant', cherry.id);
+      expect(screen.getByRole('option', { name: 'banana' })).toHaveAttribute(
+        'aria-disabled',
+        'true',
+      );
+    });
+
+    it('combines isItemDisabled with rendered item disabled state', async () => {
+      const { user } = await render(
+        <Combobox.Root isItemDisabled={() => false}>
+          <Combobox.Input data-testid="input" />
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  <Combobox.Item value="apple">apple</Combobox.Item>
+                  <Combobox.Item value="banana" disabled>
+                    banana
+                  </Combobox.Item>
+                  <Combobox.Item value="cherry">cherry</Combobox.Item>
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      const input = screen.getByTestId('input');
+      await user.click(input);
+      await user.keyboard('{ArrowDown}{ArrowDown}');
+
+      const cherry = screen.getByRole('option', { name: 'cherry' });
+      expect(input).toHaveAttribute('aria-activedescendant', cherry.id);
+      expect(screen.getByRole('option', { name: 'banana' })).toHaveAttribute(
+        'aria-disabled',
+        'true',
+      );
+    });
+
     it('opens, navigates with ArrowDown, and Enter selects', async () => {
       const items = ['apple', 'banana', 'cherry'];
 
@@ -8269,6 +8331,70 @@ describe('<Combobox.Root />', () => {
 
       const cherry = await screen.findByRole('option', { name: 'cherry' });
       expect(input).toHaveAttribute('aria-activedescendant', cherry.id);
+    });
+
+    it('highlights the first enabled matching item after typing', async () => {
+      const { user } = await render(
+        <Combobox.Root
+          items={['alpha', 'alpine', 'beta']}
+          autoHighlight
+          isItemDisabled={(item) => item === 'alpha'}
+        >
+          <Combobox.Input />
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  {(item: string) => (
+                    <Combobox.Item key={item} value={item}>
+                      {item}
+                    </Combobox.Item>
+                  )}
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      const input = screen.getByRole('combobox');
+      await user.type(input, 'al');
+
+      const alpha = await screen.findByRole('option', { name: 'alpha' });
+      const alpine = screen.getByRole('option', { name: 'alpine' });
+      expect(alpha).toHaveAttribute('aria-disabled', 'true');
+      expect(input).toHaveAttribute('aria-activedescendant', alpine.id);
+    });
+
+    it('does not highlight an item when every match is disabled', async () => {
+      const { user } = await render(
+        <Combobox.Root
+          items={['alpha', 'alpine', 'beta']}
+          autoHighlight
+          isItemDisabled={() => true}
+        >
+          <Combobox.Input />
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  {(item: string) => (
+                    <Combobox.Item key={item} value={item}>
+                      {item}
+                    </Combobox.Item>
+                  )}
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      const input = screen.getByRole('combobox');
+      await user.type(input, 'al');
+
+      await screen.findByRole('option', { name: 'alpha' });
+      expect(input).not.toHaveAttribute('aria-activedescendant');
     });
 
     it('highlights the first matching item after IME composition', async () => {

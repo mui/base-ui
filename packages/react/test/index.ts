@@ -1,7 +1,10 @@
 export * from '@base-ui/utils/testUtils';
 export { advanceReactClock } from './advanceReactClock';
 export { createRenderer } from './createRenderer';
+export { createDndRenderer, testDragKind } from './dndEngine';
+export type { DndRenderResult, DndTestRenderer, DndTestEngine } from './dndEngine';
 export { describeConformance } from './describeConformance';
+export { createDOMRect, setElementClientHeight, setElementScrollState } from './layoutMocks';
 export { enterWithMouse, firePointer, moveMouse } from './pointer';
 export { mergeRefs } from './mergeRefs';
 export { popupConformanceTests } from './popupConformanceTests';

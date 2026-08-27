@@ -16,7 +16,9 @@ import {
   findNonDisabledListIndex,
   getMaxListIndex,
   getMinListIndex,
+  isExplicitlyDisabledIndex,
   isIndexOutOfListBounds,
+  isListIndexDisabled,
 } from '../utils/composite';
 import type { gridNavigation } from './gridNavigation';
 import { ARROW_DOWN, ARROW_LEFT, ARROW_RIGHT, ARROW_UP } from '../utils/constants';
@@ -212,6 +214,14 @@ export interface UseListNavigationProps {
    */
   resetOnPointerLeave?: boolean | undefined;
   /**
+   * Whether to scroll the active item into view when navigating, evaluated when a scroll would
+   * occur. Return `false` when an external mechanism owns the scroll position of the list (such
+   * as a virtualizer): the DOM scroll here is asynchronous, so it can operate on a stale layout
+   * and drag the scroll position away from where that mechanism placed it.
+   * @default undefined (scrolls into view)
+   */
+  scrollItemIntoView?: (() => boolean) | undefined;
+  /**
    * External FloatingTree to use when the one provided by context can't be used.
    */
   externalTree?: FloatingTreeStore | undefined;
@@ -249,6 +259,7 @@ export function useListNavigation(
     parentOrientation,
     id,
     resetOnPointerLeave = true,
+    scrollItemIntoView,
     externalTree,
     grid: navigateGrid,
   } = props;
@@ -347,7 +358,9 @@ export function useListNavigation(
 
       const shouldScrollIntoView =
         // eslint-disable-next-line @typescript-eslint/no-use-before-define
-        item && (forceScrollIntoView || !isPointerModalityRef.current);
+        item &&
+        (forceScrollIntoView || !isPointerModalityRef.current) &&
+        (scrollItemIntoView?.() ?? true);
 
       if (shouldScrollIntoView) {
         // JSDOM doesn't support `.scrollIntoView()` but it's widely supported
@@ -432,16 +445,21 @@ export function useListNavigation(
             }
             runs += 1;
           } else {
-            // Initially focus the first non-disabled item. `disabledIndices` is deliberately
-            // omitted here so attribute-disabled items (`disabled`/`aria-disabled`) are skipped
-            // on open even when the consumer passes an empty `disabledIndices` array. Passing it
-            // would regress that behavior (see mui/base-ui#2604).
+            // Initially focus the first non-disabled item. `disabledIndices` is deliberately not
+            // forwarded as-is so attribute-disabled items (`disabled`/`aria-disabled`) are skipped
+            // on open even when the consumer passes an empty `disabledIndices` array (see
+            // mui/base-ui#2604). The consumer predicate is still consulted alongside the DOM
+            // state: a virtualized list leaves offscreen items unmounted, and a `null` slot is
+            // otherwise indistinguishable from an enabled item.
+            const isInitialIndexDisabled = (index: number) =>
+              isExplicitlyDisabledIndex(index, disabledIndicesRef.current) ||
+              isListIndexDisabled(listRef.current, index);
             indexRef.current =
               keyRef.current == null ||
               isMainOrientationToEndKey(keyRef.current, orientation, rtl) ||
               nested
-                ? getMinListIndex(listRef)
-                : getMaxListIndex(listRef);
+                ? getMinListIndex(listRef, isInitialIndexDisabled)
+                : getMaxListIndex(listRef, isInitialIndexDisabled);
             keyRef.current = null;
             onNavigate();
           }
@@ -460,6 +478,7 @@ export function useListNavigation(
     floatingElement,
     activeIndex,
     selectedIndexRef,
+    disabledIndicesRef,
     nested,
     listRef,
     orientation,

@@ -13,7 +13,10 @@
 - Combobox - ([Outline](#combobox), [Contents](./combobox/page.mdx))
 - Context Menu - ([Outline](#context-menu), [Contents](./context-menu/page.mdx))
 - Dialog - ([Outline](#dialog), [Contents](./dialog/page.mdx))
+- Drag Auto Scroll [New] - ([Outline](#drag-auto-scroll), [Contents](./drag-auto-scroll/page.mdx))
+- Draggable [New] - ([Outline](#draggable), [Contents](./draggable/page.mdx))
 - Drawer - ([Outline](#drawer), [Contents](./drawer/page.mdx))
+- Drop Target [New] - ([Outline](#drop-target), [Contents](./drop-target/page.mdx))
 - Field - ([Outline](#field), [Contents](./field/page.mdx))
 - Fieldset - ([Outline](#fieldset), [Contents](./fieldset/page.mdx))
 - Form - ([Outline](#form), [Contents](./form/page.mdx))
@@ -434,6 +437,7 @@ An input combined with a list of predefined items to select.
     - Async search (multiple)
     - Creatable
     - Virtualized
+      - Third-party virtualizers
       - Memoizing items
   - API reference
     - Root
@@ -467,7 +471,7 @@ An input combined with a list of predefined items to select.
   - createItems
 - Exports:
   - Combobox - Root
-    - Props: actionsRef, autoComplete, autoHighlight, children, defaultInputValue, defaultOpen, defaultValue, disabled, filter, filteredItems, form, grid, highlightItemOnHover, id, inline, inputRef, inputValue, isItemEqualToValue, itemToStringLabel, itemToStringValue, items, limit, locale, loopFocus, modal, multiple, name, onInputValueChange, onItemHighlighted, onOpenChange, onOpenChangeComplete, onValueChange, open, openOnInputClick, readOnly, required, value, virtualized
+    - Props: actionsRef, autoComplete, autoHighlight, children, defaultInputValue, defaultOpen, defaultValue, disabled, filter, filteredItems, form, grid, highlightItemOnHover, id, inline, inputRef, inputValue, isItemDisabled, isItemEqualToValue, itemToStringLabel, itemToStringValue, items, limit, locale, loopFocus, modal, multiple, name, onInputValueChange, onItemHighlighted, onOpenChange, onOpenChangeComplete, onValueChange, open, openOnInputClick, readOnly, required, value, virtualized
   - Combobox - Trigger
     - Props: className, disabled, nativeButton, render, style
     - Data Attributes: data-dirty, data-disabled, data-filled, data-focused, data-invalid, data-list-empty, data-placeholder, data-popup-open, data-popup-side, data-pressed, data-readonly, data-required, data-touched, data-valid
@@ -704,6 +708,153 @@ A popup that opens on top of the entire page.
 
 [Read more](./dialog/page.mdx)
 
+## Drag Auto Scroll
+
+A component that enables and configures drag auto-scroll.
+
+<details>
+
+<summary>Outline</summary>
+
+- Keywords: React Auto Scroll, React Drag and Drop, Drag Scroll, Scroll Container, Base UI
+- Sections:
+  - Anatomy
+  - Which containers scroll
+  - Customize a container that already scrolls
+    - Control when it scrolls
+    - Constrain the direction
+    - Tune the speed
+  - Implement custom scrolling
+  - Nested containers
+  - Both a scroll container and a drop target
+  - Scrolling the page
+  - API reference
+    - Provider
+    - Root
+- Exports:
+  - Drag Auto Scroll - Root
+    - Props: accept, allowedAxis, applyScroll, canScroll, className, disabled, maxSpeed, render, style
+    - Data Attributes: data-disabled
+  - Drag Auto Scroll - Provider
+    - Props: children, disabled
+  - DragAutoScrollApply
+    - Parameters: parameters
+- Types: DragAutoScroll.Provider.Props, DragAutoScroll.Root.Props, DragAutoScroll.Root.State
+
+</details>
+
+[Read more](./drag-auto-scroll/page.mdx)
+
+## Draggable
+
+A component that makes its element a drag source.
+
+<details>
+
+<summary>Outline</summary>
+
+- Keywords: React Draggable, React Drag and Drop, React Drag Overlay, Drag Source, Drag Handle, Drag Preview, Base UI
+- Sections:
+  - Anatomy
+  - Pass data along
+  - Drag handle
+    - Keyboard-only handle
+  - Conditional drag
+  - Drag events
+  - Re-rendering the source mid-drag
+  - Animating displaced items
+  - Activation
+  - Keyboard navigation
+    - Screen-reader announcements
+    - Controlling movement
+    - Restoring focus
+    - Moving the pickup elsewhere
+  - Movement modifiers
+    - Modifiers on the preview
+    - Write your own
+    - Gating on a modifier key
+  - Drag previews
+    - Default preview
+    - Custom previews
+    - Configure the clone
+    - Drag without a preview
+    - Position the preview
+    - Render previews elsewhere
+    - Set the drag cursor
+  - API reference
+    - Root
+    - Handle
+    - KeyboardHandle
+    - Preview
+    - ClonedPreview
+    - PreviewProvider
+    - restrictToVerticalAxis
+    - restrictToHorizontalAxis
+    - restrictToParentElement
+    - restrictToElement
+    - restrictToWindowEdges
+    - snapToGrid
+    - targetsOnlyKeyboardMovement
+    - fixedStepKeyboardMovement
+    - DragModifier
+    - DragKeyboardMovement
+    - createKind
+    - createGlobalKind
+  - useActiveDrag
+- Exports:
+  - Draggable - Root
+    - Props: ariaRoleDescription, children, className, disabled, dragCursor, finalFocus, getPayload, keyboardActivation, keyboardAnnouncements, keyboardInstructions, keyboardMovement, kind, label, modifiers, onBeforeDragStart, onDrag, onDragEnd, onDragStart, onDrop, onDropTargetChange, payload, pointerActivation, previewKey, render, style
+    - Data Attributes: data-disabled, data-displacing, data-drag-mode, data-dragging, data-ending-style, data-starting-style
+    - CSS Variables: --drag-displacement-x, --drag-displacement-y
+  - Draggable - ClonedPreview
+    - Props: container, disabled, modifiers, offset
+  - Draggable - createGlobalKind
+    - Parameters: key
+  - Draggable - createKind
+    - Parameters: name
+  - Draggable - Displacement
+  - Draggable - fixedStepKeyboardMovement
+    - Parameters: step
+  - Draggable - Handle
+    - Props: className, disabled, nativeButton, render, style
+    - Data Attributes: data-disabled
+  - Draggable - KeyboardHandle
+    - Props: className, disabled, nativeButton, render, style
+    - Data Attributes: data-disabled
+  - Draggable - Preview
+    - Props: children, className, container, disabled, kind, modifiers, offset, render, style
+    - Data Attributes: data-drag-mode, data-drag-preview, data-ending-style
+    - CSS Variables: --drag-source-height, --drag-source-width
+  - Draggable - PreviewProvider
+    - Props: children, container
+  - Draggable - restrictToElement
+    - Parameters: element
+  - Draggable - restrictToHorizontalAxis
+    - Parameters: context
+  - Draggable - restrictToParentElement
+    - Parameters: context
+  - Draggable - restrictToVerticalAxis
+    - Parameters: context
+  - Draggable - restrictToWindowEdges
+    - Parameters: context
+  - Draggable - snapToGrid
+    - Parameters: size
+  - Draggable - targetsOnlyKeyboardMovement
+    - Props: direction, event, findTarget, getTargets, key, location, position, shiftKey, source, suggestion, target
+  - Draggable - useActiveDrag
+    - Parameters: accept
+  - DraggablePayloadGetter
+    - Parameters: context
+  - DragKeyboardMovement
+    - Props: direction, event, findTarget, getTargets, key, location, position, shiftKey, source, suggestion, target
+  - DragModifier
+    - Parameters: context
+- Types: Draggable.ClonedPreview.Props, Draggable.Handle.Props, Draggable.Handle.State, Draggable.KeyboardHandle.Props, Draggable.KeyboardHandle.State, Draggable.Preview.Props, Draggable.Preview.State, Draggable.PreviewProvider.Props, Draggable.PreviewProvider.State, Draggable.Root.Props, Draggable.Root.PropsWithPayload, Draggable.Root.State, Draggable.useActiveDrag.ReturnValue
+
+</details>
+
+[Read more](./draggable/page.mdx)
+
 ## Drawer
 
 A panel that slides in from the edge of the screen.
@@ -793,6 +944,46 @@ A panel that slides in from the edge of the screen.
 </details>
 
 [Read more](./drawer/page.mdx)
+
+## Drop Target
+
+A component that makes its element a drop zone.
+
+<details>
+
+<summary>Outline</summary>
+
+- Keywords: React Drop Target, React Drag and Drop, Drop Zone, Sortable List, Base UI
+- Sections:
+  - Anatomy
+  - Choose which items to accept
+  - Drop events
+  - Attach data to a target
+  - Read where in the target the pointer landed
+  - Snap to steps
+  - Name a target for screen readers
+  - Nested drop targets
+  - Track the drag-over state
+  - Both a source and a target
+  - API reference
+    - Root
+    - createKind
+    - createGlobalKind
+- Exports:
+  - Drop Target - Root
+    - Props: accept, canDrop, className, disabled, getPayload, kind, label, onDrag, onDragEnter, onDragLeave, onDragStart, onDrop, onDropTargetChange, payload, render, snap, style, trackDragOver
+    - Data Attributes: data-accepting, data-disabled, data-drag-over, data-drag-over-innermost, data-drop-target, data-rejected
+  - Drop Target - createGlobalKind
+    - Parameters: key
+  - Drop Target - createKind
+    - Parameters: name
+  - DropTargetPayloadGetter
+    - Parameters: context
+- Types: DropTarget.Root.Props, DropTarget.Root.PropsWithPayload, DropTarget.Root.State
+
+</details>
+
+[Read more](./drop-target/page.mdx)
 
 ## Field
 
