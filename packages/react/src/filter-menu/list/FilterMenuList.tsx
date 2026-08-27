@@ -71,7 +71,7 @@ export const FilterMenuList = React.forwardRef(function FilterMenuList(
     // A virtualized window remounts items while scrolling; the consumer owns the item set, so a
     // window shift must not invalidate the positional highlight.
     const itemsChanged =
-      !virtualized &&
+      virtualized === undefined &&
       hasPublishedItemsRef.current &&
       (previousItems.length !== items.length ||
         items.some((item, index) => item !== previousItems[index]));
