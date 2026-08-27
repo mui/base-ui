@@ -28,13 +28,13 @@ type ExtraParams<
 type LengthOf<T> = T extends readonly unknown[] ? T['length'] : number;
 
 /**
- * `createSelectorMemoized` wires the extra combiner arguments through three fixed slots
- * keyed on Function.length, so statically-known argument counts above three are
- * rejected. An open-ended count cannot be validated statically: it occurs both for rest
- * parameters and for combiners typed contextually, which are indistinguishable here.
- * The runtime throws on the parameter counts this check cannot see.
+ * Both variants forward at most three arguments beyond the input selector results, so a
+ * statically-known count above three is rejected. An open-ended count cannot be validated
+ * statically: it occurs both for rest parameters and for combiners typed contextually,
+ * which are indistinguishable here. `createSelectorMemoized` throws on the parameter
+ * counts this check cannot see; `createSelector` passes three arguments regardless.
  */
-type ValidMemoizedCombiner<Selectors extends ReadonlyArray<Fn>, Combiner extends Fn> =
+type ValidExtraArgs<Selectors extends ReadonlyArray<Fn>, Combiner extends Fn> =
   number extends LengthOf<ExtraParams<Selectors, Combiner>>
     ? NoOptionalParams<Combiner>
     : LengthOf<ExtraParams<Selectors, Combiner>> extends 0 | 1 | 2 | 3
@@ -44,16 +44,19 @@ type ValidMemoizedCombiner<Selectors extends ReadonlyArray<Fn>, Combiner extends
 /**
  * `createSelector` dispatches through unrolled fixed arities and supports at most seven
  * input selectors. A non-tuple selector list has no statically known count and passes;
- * the runtime throws for it instead.
+ * the runtime throws for it instead. The single-function form is returned verbatim, so it
+ * keeps its own signature and is not bound by the extra-argument limit.
  */
 type ValidCombiner<
   Selectors extends ReadonlyArray<Fn>,
   Combiner extends Fn,
-> = Selectors['length'] extends 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7
+> = Selectors['length'] extends 0
   ? NoOptionalParams<Combiner>
   : number extends Selectors['length']
     ? NoOptionalParams<Combiner>
-    : 'Up to seven input selectors are supported';
+    : Selectors['length'] extends 1 | 2 | 3 | 4 | 5 | 6 | 7
+      ? ValidExtraArgs<Selectors, Combiner>
+      : 'Up to seven input selectors are supported';
 
 /**
  * The type of `createSelector`.
@@ -83,7 +86,7 @@ export type CreateSelectorMemoizedFunction = <
   const Selectors extends ReadonlyArray<Selector<any>>,
   const Combiner extends (...args: readonly [...ReturnTypes<Selectors>, ...Args]) => any,
 >(
-  ...items: [...Selectors, ValidMemoizedCombiner<Selectors, Combiner>]
+  ...items: [...Selectors, ValidExtraArgs<Selectors, Combiner>]
 ) => (
   ...args: Selectors['length'] extends 0
     ? Parameters<Combiner> extends []

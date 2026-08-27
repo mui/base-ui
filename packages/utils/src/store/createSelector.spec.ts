@@ -35,7 +35,20 @@ createSelector(
 // @ts-expect-error Eight input selectors are not supported.
 createSelector(input, input, input, input, input, input, input, input, (v1: number) => v1);
 
-// The single-function form is returned verbatim, so it keeps its own signature.
+// A composed combiner takes at most three arguments beyond the input selector results,
+// since the runtime forwards only three.
+createSelector(input, (value, x1: number, x2: number, x3: number) => value + x1 + x2 + x3);
+
+// prettier-ignore
+// @ts-expect-error A composed combiner cannot take a fourth extra argument.
+createSelector(input, (value, x1: number, x2: number, x3: number, x4: number) => value + x4);
+
+// prettier-ignore
+// @ts-expect-error The limit counts the arguments left after the input selector results.
+createSelector(input, input, (v1, v2, x1: number, x2: number, x3: number, x4: number) => v1 + v2 + x4);
+
+// The single-function form is returned verbatim, so it keeps its own signature and is not
+// bound by the extra-argument limit.
 {
   const constant = createSelector(() => 42);
   expectType<number, ReturnType<typeof constant>>(constant());

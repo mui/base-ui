@@ -188,6 +188,83 @@ describe('createSelectorMemoizedWithOptions', () => {
     expect(combiner).toHaveBeenCalledTimes(1);
   });
 
+  it('does not forward the lruMemoize defaults to a custom memoizer', () => {
+    type S = { value: number };
+    const seenOptions: unknown[] = [];
+    const customMemoize = (fn: (...args: any[]) => any, ...memoizeOptions: unknown[]) => {
+      seenOptions.push(...memoizeOptions);
+      return fn;
+    };
+
+    const selector = createSelectorMemoizedWithOptions({
+      memoize: customMemoize,
+      // The pass-through memoizer above would trip reselect's stability warning.
+      devModeChecks: { inputStabilityCheck: 'never', identityFunctionCheck: 'never' },
+    })(
+      (state: S) => state.value,
+      (value: number) => ({ value }),
+    );
+
+    selector({ value: 1 });
+
+    // The module defaults describe lruMemoize; a custom memoizer must not receive them.
+    expect(seenOptions).toEqual([]);
+  });
+
+  it('does not break a custom memoizer that defaults its options parameter', () => {
+    type S = { value: number };
+    const customMemoize = (
+      fn: (...args: any[]) => any,
+      equalityCheck: (a: unknown, b: unknown) => boolean = Object.is,
+    ) => {
+      let lastArgs: any[] | null = null;
+      let lastResult: any;
+      return (...args: any[]) => {
+        if (
+          lastArgs !== null &&
+          lastArgs.length === args.length &&
+          args.every((arg, index) => equalityCheck(arg, lastArgs![index]))
+        ) {
+          return lastResult;
+        }
+        lastArgs = args;
+        lastResult = fn(...args);
+        return lastResult;
+      };
+    };
+
+    const selector = createSelectorMemoizedWithOptions({ memoize: customMemoize })(
+      (state: S) => state.value,
+      (value: number) => ({ value }),
+    );
+
+    // Leaking the defaults passed the options object as `equalityCheck`, which threw here.
+    expect(selector({ value: 1 })).toEqual({ value: 1 });
+  });
+
+  it('forwards custom memoizeOptions to a custom memoizer verbatim', () => {
+    type S = { value: number };
+    const seenOptions: unknown[] = [];
+    const customOptions = { maxEntries: 4 };
+    const customMemoize = (fn: (...args: any[]) => any, ...memoizeOptions: unknown[]) => {
+      seenOptions.push(...memoizeOptions);
+      return fn;
+    };
+
+    const selector = createSelectorMemoizedWithOptions({
+      memoize: customMemoize,
+      memoizeOptions: customOptions,
+      devModeChecks: { inputStabilityCheck: 'never', identityFunctionCheck: 'never' },
+    })(
+      (state: S) => state.value,
+      (value: number) => ({ value }),
+    );
+
+    selector({ value: 1 });
+
+    expect(seenOptions).toEqual([customOptions]);
+  });
+
   it('preserves the result reference with a resultEqualityCheck option', () => {
     type S = { value: number };
 

@@ -20,8 +20,8 @@ type SelectorWithArgs = ReturnType<typeof reselectCreateSelector> & { selectorAr
  * Creates a `createSelectorMemoized` variant with custom reselect options.
  *
  * Object-form `memoizeOptions` merge over the module defaults (`maxSize: 1`,
- * `equalityCheck: Object.is`); a custom `memoize` function or a bare equality function
- * replaces them instead.
+ * `equalityCheck: Object.is`); a bare equality function replaces them. Overriding
+ * `memoize` drops the defaults entirely, since they describe `lruMemoize`.
  */
 export const createSelectorMemoizedWithOptions = <
   OverrideMemoizeFunction extends UnknownMemoizer = never,
@@ -35,15 +35,25 @@ export const createSelectorMemoizedWithOptions = <
   >,
 ): CreateSelectorMemoizedFunction => {
   const memoizeOptions = options?.memoizeOptions;
-  // reselect replaces the creator options wholesale with call-site options, which would
-  // silently drop the `Object.is` equality; merge partial object options instead.
-  const resolvedOptions =
-    options !== undefined &&
-    options.memoize === undefined &&
-    typeof memoizeOptions === 'object' &&
-    !Array.isArray(memoizeOptions)
-      ? { ...options, memoizeOptions: { ...MEMOIZE_OPTIONS, ...memoizeOptions } }
-      : options;
+  let resolvedOptions = options;
+  if (options !== undefined) {
+    if (options.memoize !== undefined) {
+      // The module defaults are `lruMemoize`'s. reselect shallow-merges the creator options
+      // into the call-site ones, so they would reach a custom memoizer that never asked for
+      // them; clear them unless the caller supplied options of its own.
+      if (memoizeOptions === undefined) {
+        resolvedOptions = { ...options, memoizeOptions: undefined };
+      }
+    } else if (
+      typeof memoizeOptions === 'object' &&
+      memoizeOptions !== null &&
+      !Array.isArray(memoizeOptions)
+    ) {
+      // Conversely, reselect lets call-site options replace the creator options wholesale,
+      // which would silently drop the `Object.is` equality; merge object options instead.
+      resolvedOptions = { ...options, memoizeOptions: { ...MEMOIZE_OPTIONS, ...memoizeOptions } };
+    }
+  }
 
   return (...inputs: any[]) => {
     type CacheKey = { id: number };
