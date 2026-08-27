@@ -25,6 +25,17 @@ describe('combobox store synchronization', () => {
   const { render, renderToString } = createRenderer();
   const { render: renderNonStrict } = createRenderer({ strict: false });
 
+  /**
+   * Every rendered control carrying the form name, visible or visually hidden. The visible input
+   * has the `combobox` role and the hidden one has `textbox`, so both are collected.
+   */
+  function namedControls(name: string) {
+    return [
+      ...screen.queryAllByRole('textbox', { hidden: true }),
+      ...screen.queryAllByRole('combobox', { hidden: true }),
+    ].filter((element) => element.getAttribute('name') === name);
+  }
+
   function StoreProbe({ storeRef }: { storeRef: { current: ComboboxStore | null } }) {
     storeRef.current = useComboboxRootContext();
     return null;
@@ -40,10 +51,12 @@ describe('combobox store synchronization', () => {
     inline,
     storeRef,
     children,
+    withPopupInput = true,
   }: {
     inline: boolean;
     storeRef: { current: ComboboxStore | null };
     children?: React.ReactNode;
+    withPopupInput?: boolean;
   }) {
     return (
       <Autocomplete.Root items={['alpha', 'beta']} inline={inline} name="search">
@@ -53,7 +66,7 @@ describe('combobox store synchronization', () => {
         <Autocomplete.Portal keepMounted>
           <Autocomplete.Positioner>
             <Autocomplete.Popup>
-              <Autocomplete.Input data-testid="popup-input" />
+              {withPopupInput && <Autocomplete.Input data-testid="popup-input" />}
             </Autocomplete.Popup>
           </Autocomplete.Positioner>
         </Autocomplete.Portal>
@@ -83,11 +96,17 @@ describe('combobox store synchronization', () => {
       unsubscribe();
     }
 
-    // Splitting the synchronization into two writes would publish this intermediate snapshot.
+    // Catches a forward split (inline published before ownership).
     expect(snapshots.some((snapshot) => snapshot.inline && !snapshot.inputOwnsFormValue)).toBe(
       false,
     );
 
+    // Catches a reverse-order split (ownership published before inline), which the assertion
+    // above cannot see. Both assertions are load-bearing; neither subsumes the other.
+    //
+    // The projections are deduplicated on purpose: this transition legitimately emits three
+    // notifications, one from the synchronization effect and two more from prop-bag identity
+    // churn on the same re-render. Asserting a raw notification count fails on correct code.
     const changed = snapshots.filter(
       (snapshot, index) =>
         index === 0 ||
@@ -98,7 +117,7 @@ describe('combobox store synchronization', () => {
     expect(changed).toHaveLength(1);
   });
 
-  it('never exposes a torn inline/ownership pair to subscribers', async () => {
+  it('settles inputOwnsFormValue through the useStore path when inline is set', async () => {
     const storeRef: { current: ComboboxStore | null } = { current: null };
     const observed: string[] = [];
 
@@ -120,8 +139,11 @@ describe('combobox store synchronization', () => {
     observed.length = 0;
     await setProps({ inline: true });
 
-    // The `useStore` path must never surface the state the root and `ComboboxInput` disagree on.
-    expect(observed).not.toContain('true:false');
+    // This does NOT detect a split transaction: React batches the two listener sweeps, so
+    // `useStore` re-reads only the settled snapshot either way. Transaction shape is guarded by
+    // the test above, which subscribes to the store directly. What this pins is that the
+    // subscription path converges on the value the root computes, not the one `ComboboxInput`
+    // wrote from its ref callback.
     expect(observed[observed.length - 1]).toBe('true:true');
   });
 
@@ -168,23 +190,44 @@ describe('combobox store synchronization', () => {
     expect(handleOpenChange.mock.calls[0][0]).toBe(true);
   });
 
-  it('keeps form value ownership stable under StrictMode double-rendering', async () => {
+  it('gives form value ownership to the hidden input when the input is inside the popup', async () => {
     const storeRef: { current: ComboboxStore | null } = { current: null };
 
     // `render` is the StrictMode renderer, so this exercises callback-ref replay and the
     // double-invoked render that re-runs the root's context assignment.
-    await render(<InlineOwnershipFixture inline={false} storeRef={storeRef} />);
+    const { setProps } = await render(
+      <InlineOwnershipFixture inline={false} storeRef={storeRef} />,
+    );
 
     const store = storeRef.current!;
 
     expect(store.state.inputInsidePopup).toBe(true);
     expect(store.state.inputOwnsFormValue).toBe(false);
+    // Ownership is a two-sided invariant: asserting only that the popup input lacks the name
+    // would still pass if the name were dropped from both controls and the form submitted
+    // nothing at all.
     expect(screen.getByTestId('popup-input')).not.toHaveAttribute('name');
+    expect(namedControls('search')).toHaveLength(1);
+    expect(namedControls('search')[0]).toHaveAttribute('aria-hidden', 'true');
+
+    // Unmounting and remounting the popup input replays its ref callback, which is the other
+    // writer of `inputOwnsFormValue`.
+    await setProps({ withPopupInput: false });
+    expect(namedControls('search')).toHaveLength(1);
+
+    await setProps({ withPopupInput: true });
+    expect(store.state.inputOwnsFormValue).toBe(false);
+    expect(screen.getByTestId('popup-input')).not.toHaveAttribute('name');
+    expect(namedControls('search')).toHaveLength(1);
+    expect(namedControls('search')[0]).toHaveAttribute('aria-hidden', 'true');
   });
 
-  it('keeps combobox aria attributes across hydration', async () => {
+  it('keeps form value ownership across hydration', async () => {
+    // The complementary configuration to the test above: the input is not inside a popup, so it
+    // owns the form value itself. The existing SSR suite already covers the ARIA attributes
+    // (`ComboboxRoot.test.tsx`), so this asserts the ownership that survives into hydration.
     const { hydrate } = await renderToString(
-      <Autocomplete.Root items={['alpha', 'beta']}>
+      <Autocomplete.Root items={['alpha', 'beta']} name="search">
         <Autocomplete.Input data-testid="input" />
         <Autocomplete.Portal>
           <Autocomplete.Positioner />
@@ -192,14 +235,14 @@ describe('combobox store synchronization', () => {
       </Autocomplete.Root>,
     );
 
-    const serverInput = screen.getByTestId('input');
-    expect(serverInput).toHaveAttribute('role', 'combobox');
-    expect(serverInput).toHaveAttribute('aria-expanded', 'false');
+    expect(screen.getByTestId('input')).toHaveAttribute('role', 'combobox');
+    expect(namedControls('search')).toHaveLength(1);
+    expect(namedControls('search')[0]).toBe(screen.getByTestId('input'));
 
     hydrate();
 
-    const clientInput = screen.getByTestId('input');
-    expect(clientInput).toHaveAttribute('role', 'combobox');
-    expect(clientInput).toHaveAttribute('aria-expanded', 'false');
+    expect(screen.getByTestId('input')).toHaveAttribute('role', 'combobox');
+    expect(namedControls('search')).toHaveLength(1);
+    expect(namedControls('search')[0]).toBe(screen.getByTestId('input'));
   });
 });
