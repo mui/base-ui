@@ -928,6 +928,9 @@ describe('<FilterMenu.Root />', () => {
 
       const input = screen.getByRole('searchbox', { name: 'Filter actions' });
       const items = screen.getAllByRole('menuitem');
+      await waitFor(() => {
+        expect(input).toHaveFocus();
+      });
       await user.keyboard('[ArrowDown][ArrowDown]');
 
       await user.keyboard('[Home]');
@@ -3343,6 +3346,9 @@ describe('<FilterMenu.Root />', () => {
       );
 
       const input = screen.getByRole('searchbox', { name: 'Filter fruit' });
+      await waitFor(() => {
+        expect(input).toHaveFocus();
+      });
       await user.keyboard('[ArrowDown]');
 
       expect(screen.getByRole('menuitemcheckbox', { name: 'Banana' })).not.toHaveAttribute(
@@ -3460,7 +3466,13 @@ describe('<FilterMenu.Root />', () => {
         trigger.focus();
       });
       await user.keyboard('[Enter]');
-      return screen.findByRole('searchbox', { name: 'Filter actions' });
+      const input = await screen.findByRole('searchbox', { name: 'Filter actions' });
+      // The popup hands focus to the input asynchronously, so keys pressed before it lands
+      // reach the body instead.
+      await waitFor(() => {
+        expect(input).toHaveFocus();
+      });
+      return input;
     }
 
     it('walks the list with the arrow keys and releases the highlight at the end', async () => {
@@ -5088,6 +5100,9 @@ describe('<FilterMenu.Root />', () => {
       // hand-off leaves an un-acted update that trips React's act warning in Chromium.
       fireEvent.change(input, { target: { value: 'ren' } });
       expect(input).toHaveValue('ren');
+      await waitFor(() => {
+        expect(input).toHaveFocus();
+      });
 
       await user.keyboard('[Escape]');
 
