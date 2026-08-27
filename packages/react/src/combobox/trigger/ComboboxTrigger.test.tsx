@@ -205,8 +205,8 @@ describe('<Combobox.Trigger />', () => {
     function SparseRegistry() {
       const store = useComboboxRootContext();
       useIsoLayoutEffect(() => {
-        store.state.labelsRef.current[0] = 'apple';
-        delete store.state.valuesRef.current[0];
+        store.context.labelsRef.current[0] = 'apple';
+        delete store.context.valuesRef.current[0];
       }, [store]);
       return null;
     }

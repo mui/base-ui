@@ -1,6 +1,5 @@
 'use client';
 import * as React from 'react';
-import { useStore } from '@base-ui/utils/store';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useTimeout } from '@base-ui/utils/useTimeout';
 import { ownerDocument } from '@base-ui/utils/owner';
@@ -13,7 +12,6 @@ import {
   useComboboxRootContext,
 } from '../root/ComboboxRootContext';
 import { triggerStateAttributesMapping } from '../utils/stateAttributesMapping';
-import { selectors } from '../store';
 import { useFieldRootContext } from '../../internals/field-root-context/FieldRootContext';
 import { useLabelableContext } from '../../internals/labelable-provider/LabelableContext';
 import { stopEvent, contains, getTarget } from '../../floating-ui-react/utils';
@@ -59,22 +57,22 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
   const { labelId: fieldLabelId } = useLabelableContext();
   const store = useComboboxRootContext();
 
-  const selectionMode = useStore(store, selectors.selectionMode);
-  const comboboxDisabled = useStore(store, selectors.disabled);
-  const readOnly = useStore(store, selectors.readOnly);
-  const required = useStore(store, selectors.required);
-  const positionerElement = useStore(store, selectors.positionerElement);
-  const listElement = useStore(store, selectors.listElement);
-  const storedPopupId = useStore(store, selectors.popupId);
-  const triggerProps = useStore(store, selectors.triggerProps);
-  const inputInsidePopup = useStore(store, selectors.inputInsidePopup);
-  const rootId = useStore(store, selectors.id);
-  const comboboxLabelId = useStore(store, selectors.labelId);
-  const open = useStore(store, selectors.open);
-  const selectedValue = useStore(store, selectors.selectedValue);
-  const activeIndex = useStore(store, selectors.activeIndex);
-  const selectedIndex = useStore(store, selectors.selectedIndex);
-  const hasSelectedValue = useStore(store, selectors.hasSelectedValue);
+  const selectionMode = store.useState('selectionMode');
+  const comboboxDisabled = store.useState('disabled');
+  const readOnly = store.useState('readOnly');
+  const required = store.useState('required');
+  const positionerElement = store.useState('positionerElement');
+  const listElement = store.useState('listElement');
+  const storedPopupId = store.useState('popupId');
+  const triggerProps = store.useState('triggerProps');
+  const inputInsidePopup = store.useState('inputInsidePopup');
+  const rootId = store.useState('id');
+  const comboboxLabelId = store.useState('labelId');
+  const open = store.useState('open');
+  const selectedValue = store.useState('selectedValue');
+  const activeIndex = store.useState('activeIndex');
+  const selectedIndex = store.useState('selectedIndex');
+  const hasSelectedValue = store.useState('hasSelectedValue');
 
   const floatingRootContext = useComboboxFloatingContext();
   const inputValue = useComboboxInputValueContext();
@@ -107,13 +105,13 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
 
   const { reference: triggerTypeaheadProps } = useTypeahead(floatingRootContext, {
     enabled: !open && !readOnly && !comboboxDisabled && selectionMode === 'single',
-    listRef: store.state.labelsRef,
+    listRef: store.context.labelsRef,
     activeIndex,
     selectedIndex,
     onMatch(index) {
-      const nextSelectedValue = store.state.valuesRef.current[index];
+      const nextSelectedValue = store.context.valuesRef.current[index];
       if (nextSelectedValue !== undefined) {
-        store.state.setSelectedValue(nextSelectedValue, createChangeEventDetails(REASONS.none));
+        store.context.setSelectedValue(nextSelectedValue, createChangeEventDetails(REASONS.none));
       }
     },
   });
@@ -167,7 +165,7 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
             return;
           }
 
-          focusTimeout.start(0, store.state.forceMount);
+          focusTimeout.start(0, store.context.forceMount);
         },
         onBlur(event) {
           // If focus is moving into the popup, don't count it as a blur.
@@ -193,10 +191,10 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
           }
 
           // Ensure items are registered for initial selection highlight.
-          store.state.forceMount();
+          store.context.forceMount();
 
           if (currentPointerTypeRef.current !== 'touch') {
-            store.state.inputRef.current?.focus();
+            store.context.inputRef.current?.focus();
 
             if (!inputInsidePopup) {
               event.preventDefault();
@@ -231,7 +229,7 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
               return;
             }
 
-            store.state.setOpen(false, createChangeEventDetails(REASONS.cancelOpen, mouseEvent));
+            store.context.setOpen(false, createChangeEventDetails(REASONS.cancelOpen, mouseEvent));
           }
 
           if (inputInsidePopup) {
@@ -245,11 +243,11 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
 
           if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
             stopEvent(event);
-            store.state.setOpen(
+            store.context.setOpen(
               true,
               createChangeEventDetails(REASONS.listNavigation, event.nativeEvent),
             );
-            store.state.inputRef.current?.focus();
+            store.context.inputRef.current?.focus();
           }
         },
       },

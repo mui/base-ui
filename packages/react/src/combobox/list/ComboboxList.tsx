@@ -1,6 +1,5 @@
 'use client';
 import * as React from 'react';
-import { useStore } from '@base-ui/utils/store';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import type { BaseUIComponentProps } from '../../internals/types';
 import { useRenderElement } from '../../internals/useRenderElement';
@@ -10,7 +9,6 @@ import {
   useComboboxRootContext,
 } from '../root/ComboboxRootContext';
 import { useComboboxPositionerContext } from '../positioner/ComboboxPositionerContext';
-import { selectors } from '../store';
 import { ComboboxCollection } from '../collection/ComboboxCollection';
 import { CompositeList } from '../../internals/composite/list/CompositeList';
 import { stopEvent } from '../../floating-ui-react/utils';
@@ -33,11 +31,11 @@ export const ComboboxList = React.forwardRef(function ComboboxList(
   const hasPositionerContext = Boolean(useComboboxPositionerContext(true));
   const { filteredItems, hasItems } = useComboboxDerivedItemsContext();
 
-  const selectionMode = useStore(store, selectors.selectionMode);
-  const grid = useStore(store, selectors.grid);
-  const listProps = useStore(store, selectors.listProps);
-  const virtualized = useStore(store, selectors.virtualized);
-  const forceMounted = useStore(store, selectors.forceMounted);
+  const selectionMode = store.useState('selectionMode');
+  const grid = store.useState('grid');
+  const listProps = store.useState('listProps');
+  const virtualized = store.useState('virtualized');
+  const forceMounted = store.useState('forceMounted');
 
   const multiple = selectionMode === 'multiple';
   const empty = filteredItems.length === 0;
@@ -96,10 +94,10 @@ export const ComboboxList = React.forwardRef(function ComboboxList(
           }
         },
         onKeyDownCapture() {
-          store.state.keyboardActiveRef.current = true;
+          store.context.keyboardActiveRef.current = true;
         },
         onPointerMoveCapture() {
-          store.state.keyboardActiveRef.current = false;
+          store.context.keyboardActiveRef.current = false;
         },
       },
       elementProps,
@@ -113,10 +111,10 @@ export const ComboboxList = React.forwardRef(function ComboboxList(
   // With the `items` prop, typeahead labels are derived from the items so they survive the list
   // unmounting (unmounting clears the registered labels). Rendered labels only need to be
   // registered when the list is force-mounted to match browser autofill against rendered text.
-  const labelsRef = hasItems && !forceMounted ? undefined : store.state.labelsRef;
+  const labelsRef = hasItems && !forceMounted ? undefined : store.context.labelsRef;
 
   return (
-    <CompositeList elementsRef={store.state.listRef} labelsRef={labelsRef}>
+    <CompositeList elementsRef={store.context.listRef} labelsRef={labelsRef}>
       {element}
     </CompositeList>
   );

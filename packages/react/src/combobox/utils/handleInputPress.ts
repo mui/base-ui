@@ -31,9 +31,9 @@ export function handleInputPress(
     return;
   }
 
-  store.state.inputRef.current?.focus();
+  store.context.inputRef.current?.focus();
 
   if (store.state.openOnInputClick) {
-    store.state.setOpen(true, createChangeEventDetails(REASONS.inputPress, event.nativeEvent));
+    store.context.setOpen(true, createChangeEventDetails(REASONS.inputPress, event.nativeEvent));
   }
 }
