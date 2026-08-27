@@ -82,7 +82,6 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
     useFieldRootContext();
   const { labelId } = useLabelableContext();
 
-  const hasTouchedInputRef = React.useRef(false);
   const blockRevalidationRef = React.useRef(false);
   const pendingCaretRef = React.useRef<number | null>(null);
 
@@ -133,18 +132,6 @@ export const NumberFieldInput = React.forwardRef(function NumberFieldInput(
       }
 
       setFocused(true);
-
-      if (hasTouchedInputRef.current) {
-        return;
-      }
-
-      hasTouchedInputRef.current = true;
-
-      // Browsers set selection at the start of the input field by default. We want to set it at
-      // the end for the first focus.
-      const target = event.currentTarget;
-      const length = target.value.length;
-      target.setSelectionRange(length, length);
     },
     onBlur(event) {
       if (event.defaultPrevented || disabled) {

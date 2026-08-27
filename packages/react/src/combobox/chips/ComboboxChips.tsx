@@ -1,13 +1,11 @@
 'use client';
 import * as React from 'react';
-import { useStore } from '@base-ui/utils/store';
 import { EMPTY_OBJECT } from '@base-ui/utils/empty';
 import { useRenderElement } from '../../internals/useRenderElement';
 import type { BaseUIComponentProps } from '../../internals/types';
 import { ComboboxChipsContext } from './ComboboxChipsContext';
 import { CompositeList } from '../../internals/composite/list/CompositeList';
 import { useComboboxRootContext } from '../root/ComboboxRootContext';
-import { selectors } from '../store';
 import { handleInputPress } from '../utils/handleInputPress';
 
 /**
@@ -24,8 +22,8 @@ export const ComboboxChips = React.forwardRef(function ComboboxChips(
 
   const store = useComboboxRootContext();
 
-  const open = useStore(store, selectors.open);
-  const hasSelectionChips = useStore(store, selectors.hasSelectionChips);
+  const open = store.useState('open');
+  const hasSelectionChips = store.useState('hasSelectionChips');
 
   const [highlightedChipIndex, setHighlightedChipIndex] = React.useState<number | undefined>(
     undefined,
@@ -38,7 +36,7 @@ export const ComboboxChips = React.forwardRef(function ComboboxChips(
   const chipsRef = React.useRef<Array<HTMLButtonElement | null>>([]);
 
   const element = useRenderElement('div', componentProps, {
-    ref: [forwardedRef, store.state.chipsContainerRef],
+    ref: [forwardedRef, store.context.chipsContainerRef],
     // NVDA enters browse mode instead of staying in focus mode when navigating with
     // arrow keys inside a container unless it has a toolbar role.
     props: [

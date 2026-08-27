@@ -373,7 +373,8 @@ export function useAnchorPositioningWithHook(
         // `transform-origin` calculations rely on an element existing. If the arrow hasn't been set,
         // we'll create a fake element.
         element: arrowRef.current || ownerDocument(state.elements.floating).createElement('div'),
-        padding: arrowPadding,
+        // No padding for the fake arrow: it would displace aligned popups on narrow anchors.
+        padding: arrowRef.current ? arrowPadding : 0,
         offsetParent: 'floating',
       }),
       [arrowPadding],
@@ -381,38 +382,62 @@ export function useAnchorPositioningWithHook(
     {
       name: 'transformOrigin',
       fn(state) {
-        const { elements, middlewareData, placement: renderedPlacement, rects, y } = state;
+        const {
+          elements: { floating },
+          middlewareData,
+          placement: renderedPlacement,
+          platform,
+          rects,
+          y,
+        } = state;
 
-        const currentRenderedSide = getSide(renderedPlacement);
-        const currentRenderedAxis = getSideAxis(currentRenderedSide);
+        const renderedSide = getSide(renderedPlacement);
+        const renderedAlign = getAlignment(renderedPlacement);
+        const isVertical = getSideAxis(renderedSide) === 'y';
         const arrowEl = arrowRef.current;
-        const arrowX = middlewareData.arrow?.x || 0;
-        const arrowY = middlewareData.arrow?.y || 0;
-        const arrowWidth = arrowEl?.clientWidth || 0;
-        const arrowHeight = arrowEl?.clientHeight || 0;
-        const transformX = arrowX + arrowWidth / 2;
-        const transformY = arrowY + arrowHeight / 2;
-        const shiftY = Math.abs(middlewareData.shift?.y || 0);
-        const halfAnchorHeight = rects.reference.height / 2;
+
         const sideOffsetValue =
           typeof sideOffset === 'function'
             ? sideOffset(getOffsetData(state, sideParam, isRtl))
             : sideOffset;
-        const isOverlappingAnchor = shiftY > sideOffsetValue;
 
-        const adjacentTransformOrigin = {
-          top: `${transformX}px calc(100% + ${sideOffsetValue}px)`,
-          bottom: `${transformX}px ${-sideOffsetValue}px`,
-          left: `calc(100% + ${sideOffsetValue}px) ${transformY}px`,
-          right: `${-sideOffsetValue}px ${transformY}px`,
-        }[currentRenderedSide];
-        const overlapTransformOrigin = `${transformX}px ${rects.reference.y + halfAnchorHeight - y}px`;
+        // An aligned arrowless popup grows from its aligned edge, until a shift (beyond subpixel)
+        // breaks its alignment with the anchor. Everything else grows from the arrow, real or fake.
+        let crossOrigin: string;
+        if (
+          !arrowEl &&
+          renderedAlign &&
+          Math.abs(isVertical ? middlewareData.shift?.x || 0 : middlewareData.shift?.y || 0) <= 1
+        ) {
+          // The platform direction, not `isRtl`: it must match what Floating UI placed with.
+          crossOrigin =
+            (renderedAlign === 'start') === (isVertical && platform.isRTL?.(floating) === true)
+              ? '100%'
+              : '0%';
+        } else {
+          const arrowOffset = isVertical
+            ? middlewareData.arrow?.x || 0
+            : middlewareData.arrow?.y || 0;
+          const arrowSize = isVertical ? arrowEl?.clientWidth || 0 : arrowEl?.clientHeight || 0;
+          crossOrigin = `${arrowOffset + arrowSize / 2}px`;
+        }
 
-        elements.floating.style.setProperty(
+        // Side axis: the anchor-facing edge, or the anchor's center when the popup overlaps it.
+        let sideOrigin =
+          renderedSide === 'top' || renderedSide === 'left'
+            ? `calc(100% + ${sideOffsetValue}px)`
+            : `${-sideOffsetValue}px`;
+        if (
+          crossAxisShiftEnabled &&
+          isVertical &&
+          Math.abs(middlewareData.shift?.y || 0) > sideOffsetValue
+        ) {
+          sideOrigin = `${rects.reference.y + rects.reference.height / 2 - y}px`;
+        }
+
+        floating.style.setProperty(
           '--transform-origin',
-          crossAxisShiftEnabled && currentRenderedAxis === 'y' && isOverlappingAnchor
-            ? overlapTransformOrigin
-            : adjacentTransformOrigin,
+          isVertical ? `${crossOrigin} ${sideOrigin}` : `${sideOrigin} ${crossOrigin}`,
         );
 
         return {};

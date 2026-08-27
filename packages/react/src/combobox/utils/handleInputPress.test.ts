@@ -17,8 +17,10 @@ describe('handleInputPress', () => {
     } as unknown as React.MouseEvent<HTMLElement>;
     const store = {
       state: {
-        inputRef: { current: { focus } },
         openOnInputClick: false,
+      },
+      context: {
+        inputRef: { current: { focus } },
       },
     } as unknown as ComboboxStore;
 
