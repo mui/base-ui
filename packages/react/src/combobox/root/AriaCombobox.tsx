@@ -270,6 +270,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
    * `mouseup` on an item belongs to a drag-select gesture that started elsewhere.
    */
   const pointerDownItemRef = React.useRef<Element | null>(null);
+  const endComposingRef = React.useRef<(() => void) | null>(null);
 
   const disabled = fieldDisabled || disabledProp;
   const name = fieldName ?? nameProp;
@@ -532,6 +533,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
         valuesRef,
         pointerDownItemRef,
         selectionEventRef,
+        endComposingRef,
       },
       selectors,
     );
@@ -648,6 +650,11 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
       if (eventDetails.isCanceled) {
         return;
       }
+
+      // An accepted write must be displayed even while the input renders an in-progress
+      // IME composition, e.g. when a pointer item press fills the input mid-composition.
+      // https://github.com/mui/base-ui/issues/5574
+      endComposingRef.current?.();
 
       // A canceled selection clear must not suppress close-completion cleanup.
       hadInputClearRef.current = eventDetails.reason === REASONS.inputClear;

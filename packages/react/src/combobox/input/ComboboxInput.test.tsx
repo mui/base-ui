@@ -1,8 +1,10 @@
 import { expect, vi } from 'vitest';
+import type { CDPSession } from '@vitest/browser-playwright';
 import * as React from 'react';
 import { Combobox } from '@base-ui/react/combobox';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
-import { fireEvent, screen, waitFor } from '@mui/internal-test-utils';
+import { act, fireEvent, screen, waitFor } from '@mui/internal-test-utils';
+import { platform } from '@base-ui/utils/platform';
 import { Field } from '@base-ui/react/field';
 import { REASONS } from '../../internals/reasons';
 
@@ -898,6 +900,161 @@ describe('<Combobox.Input />', () => {
       expect(screen.getByRole('listbox')).not.toBe(null);
       expect(input).not.toHaveAttribute('aria-activedescendant');
     });
+
+    it('replaces in-progress composition text when an item is selected with the pointer', async () => {
+      const { user } = await render(
+        <Combobox.Root items={['창세기', '출애굽기']}>
+          <Combobox.Input />
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  {(item: string) => (
+                    <Combobox.Item key={item} value={item}>
+                      {item}
+                    </Combobox.Item>
+                  )}
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      const input = screen.getByRole('combobox');
+      await user.click(input);
+      fireEvent.compositionStart(input);
+      fireEvent.change(input, { target: { value: '창' } });
+      expect(input).toHaveValue('창');
+
+      await user.click(screen.getByRole('option', { name: '창세기' }));
+
+      expect(input).toHaveValue('창세기');
+    });
+
+    it('replaces composition text when the pressed item matches the current input value', async () => {
+      const { user } = await render(
+        <Combobox.Root items={['창세기', '출애굽기']} defaultValue="창세기" filter={null}>
+          <Combobox.Input />
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  {(item: string) => (
+                    <Combobox.Item key={item} value={item}>
+                      {item}
+                    </Combobox.Item>
+                  )}
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      const input = screen.getByRole('combobox');
+      await user.click(input);
+      fireEvent.compositionStart(input);
+      fireEvent.change(input, { target: { value: '창세기창' } });
+      expect(input).toHaveValue('창세기창');
+
+      await user.click(screen.getByRole('option', { name: '창세기' }));
+
+      expect(input).toHaveValue('창세기');
+    });
+
+    it.skipIf(isJSDOM || !platform.engine.blink)(
+      'replaces a real IME composition when an item is selected with the mouse',
+      async () => {
+        const { cdp } = await import('vitest/browser');
+        const session = cdp() as CDPSession;
+
+        await render(
+          <Combobox.Root items={['창세기', '출애굽기']}>
+            <Combobox.Input />
+            <Combobox.Portal>
+              <Combobox.Positioner>
+                <Combobox.Popup>
+                  <Combobox.List>
+                    {(item: string) => (
+                      <Combobox.Item key={item} value={item}>
+                        {item}
+                      </Combobox.Item>
+                    )}
+                  </Combobox.List>
+                </Combobox.Popup>
+              </Combobox.Positioner>
+            </Combobox.Portal>
+          </Combobox.Root>,
+        );
+
+        const input = screen.getByRole('combobox');
+        await act(async () => input.focus());
+
+        // Drive a genuine in-progress composition (Korean 2-Set: ㅊ ㅏ ㅇ → 창).
+        await act(async () => {
+          await session.send('Input.imeSetComposition', {
+            text: 'ㅊ',
+            selectionStart: 1,
+            selectionEnd: 1,
+          });
+          await session.send('Input.imeSetComposition', {
+            text: '차',
+            selectionStart: 1,
+            selectionEnd: 1,
+          });
+          await session.send('Input.imeSetComposition', {
+            text: '창',
+            selectionStart: 1,
+            selectionEnd: 1,
+          });
+        });
+
+        expect(input).toHaveValue('창');
+
+        const option = await screen.findByRole('option', { name: '창세기' });
+        const frame = window.frameElement as HTMLIFrameElement | null;
+        const frameRect = frame?.getBoundingClientRect();
+        const optionRect = option.getBoundingClientRect();
+        const optionCenter = {
+          x:
+            (frameRect?.left ?? 0) +
+            (frame?.clientLeft ?? 0) +
+            optionRect.left +
+            optionRect.width / 2,
+          y:
+            (frameRect?.top ?? 0) +
+            (frame?.clientTop ?? 0) +
+            optionRect.top +
+            optionRect.height / 2,
+        };
+
+        await act(async () => {
+          await session.send('Input.dispatchMouseEvent', {
+            type: 'mouseMoved',
+            ...optionCenter,
+          });
+          await session.send('Input.dispatchMouseEvent', {
+            type: 'mousePressed',
+            ...optionCenter,
+            button: 'left',
+            buttons: 1,
+            clickCount: 1,
+          });
+          await session.send('Input.dispatchMouseEvent', {
+            type: 'mouseReleased',
+            ...optionCenter,
+            button: 'left',
+            buttons: 0,
+            clickCount: 1,
+          });
+        });
+
+        await waitFor(() => {
+          expect(input).toHaveValue('창세기');
+        });
+      },
+    );
 
     it('removes the last rendered chip when pressing Backspace in an empty input', async () => {
       const handleValueChange = vi.fn();
