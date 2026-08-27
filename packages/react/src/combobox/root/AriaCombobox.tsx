@@ -1432,54 +1432,23 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
     });
   });
 
-  useIsoLayoutEffect(() => {
-    store.update({
-      id,
-      selectedValue,
-      open,
-      mounted,
-      transitionStatus,
-      items: storeItems,
-      inline: inlineProp,
-      popupProps,
-      listProps,
-      inputProps,
-      triggerProps,
-      openMethod,
-      itemProps,
-      selectionMode,
-      name,
-      form,
-      disabled,
-      readOnly,
-      required,
-      grid,
-      virtualized,
-      openOnInputClick,
-      itemToStringLabel,
-      modal,
-      autoHighlight: autoHighlightMode,
-      isItemEqualToValue,
-      submitOnItemClick,
-      hasInputValue,
-      inputOwnsFormValue: selectionMode === 'none' && (inlineProp || !store.state.inputInsidePopup),
-    });
-  }, [
-    store,
+  const syncedValues = {
     id,
     selectedValue,
     open,
     mounted,
     transitionStatus,
-    storeItems,
+    items: storeItems,
+    inline: inlineProp,
     popupProps,
     listProps,
     inputProps,
+    triggerProps,
     itemProps,
     openMethod,
-    triggerProps,
     selectionMode,
     name,
+    form,
     disabled,
     readOnly,
     required,
@@ -1488,13 +1457,24 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
     openOnInputClick,
     itemToStringLabel,
     modal,
+    autoHighlight: autoHighlightMode,
     isItemEqualToValue,
     submitOnItemClick,
     hasInputValue,
-    inlineProp,
-    autoHighlightMode,
-    form,
-  ]);
+  };
+
+  useIsoLayoutEffect(() => {
+    // `inputOwnsFormValue` is derived here rather than during render because `ComboboxInput`
+    // writes it from a ref callback earlier in the same commit, and it has to land in this same
+    // `update` so subscribers never observe an intermediate snapshot. That is also why
+    // `store.useSyncedValues` can't be used yet: it would need a second write. The dependencies
+    // are derived from `syncedValues` so a newly synchronized field can't be forgotten here.
+    store.update({
+      ...syncedValues,
+      inputOwnsFormValue: selectionMode === 'none' && (inlineProp || !store.state.inputInsidePopup),
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [store, ...Object.values(syncedValues)]);
 
   const hiddenInputRef = useMergedRefs(inputRefProp, validation.inputRef);
 
