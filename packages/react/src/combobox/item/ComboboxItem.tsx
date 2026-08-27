@@ -137,12 +137,12 @@ function ComboboxItemInner(props: ComboboxItemInnerProps) {
 
   function commitSelection(nativeEvent: MouseEvent) {
     function selectItem() {
-      store.state.handleSelection(nativeEvent, itemValue);
+      store.context.handleSelection(nativeEvent, itemValue);
     }
 
     if (store.state.submitOnItemClick) {
       ReactDOM.flushSync(selectItem);
-      store.state.requestSubmit();
+      store.context.requestSubmit();
     } else {
       selectItem();
     }

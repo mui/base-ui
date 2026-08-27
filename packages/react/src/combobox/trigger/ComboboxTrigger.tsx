@@ -113,7 +113,7 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
     onMatch(index) {
       const nextSelectedValue = store.context.valuesRef.current[index];
       if (nextSelectedValue !== undefined) {
-        store.state.setSelectedValue(nextSelectedValue, createChangeEventDetails(REASONS.none));
+        store.context.setSelectedValue(nextSelectedValue, createChangeEventDetails(REASONS.none));
       }
     },
   });
@@ -167,7 +167,7 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
             return;
           }
 
-          focusTimeout.start(0, store.state.forceMount);
+          focusTimeout.start(0, store.context.forceMount);
         },
         onBlur(event) {
           // If focus is moving into the popup, don't count it as a blur.
@@ -193,7 +193,7 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
           }
 
           // Ensure items are registered for initial selection highlight.
-          store.state.forceMount();
+          store.context.forceMount();
 
           if (currentPointerTypeRef.current !== 'touch') {
             store.context.inputRef.current?.focus();
@@ -231,7 +231,7 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
               return;
             }
 
-            store.state.setOpen(false, createChangeEventDetails(REASONS.cancelOpen, mouseEvent));
+            store.context.setOpen(false, createChangeEventDetails(REASONS.cancelOpen, mouseEvent));
           }
 
           if (inputInsidePopup) {
@@ -245,7 +245,7 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
 
           if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
             stopEvent(event);
-            store.state.setOpen(
+            store.context.setOpen(
               true,
               createChangeEventDetails(REASONS.listNavigation, event.nativeEvent),
             );

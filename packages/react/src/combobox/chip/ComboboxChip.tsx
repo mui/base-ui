@@ -60,12 +60,12 @@ export const ComboboxChip = React.forwardRef(function ComboboxChip(
 
       stopEvent(event);
 
-      store.state.setIndices({
+      store.context.setIndices({
         activeIndex: null,
         selectedIndex: null,
         type: REASONS.keyboard,
       });
-      store.state.setSelectedValue(
+      store.context.setSelectedValue(
         selectedValue.filter((_: any, i: number) => i !== index),
         createChangeEventDetails(REASONS.none, event.nativeEvent),
       );
@@ -74,7 +74,7 @@ export const ComboboxChip = React.forwardRef(function ComboboxChip(
       nextIndex = undefined;
     } else if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
       stopEvent(event);
-      store.state.setOpen(
+      store.context.setOpen(
         true,
         createChangeEventDetails(REASONS.listNavigation, event.nativeEvent),
       );

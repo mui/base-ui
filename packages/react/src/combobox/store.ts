@@ -46,18 +46,6 @@ export type State = {
 
   selectionMode: 'single' | 'multiple' | 'none';
 
-  setOpen: (open: boolean, eventDetails: AriaCombobox.ChangeEventDetails) => void;
-  setInputValue: (value: string, eventDetails: AriaCombobox.ChangeEventDetails) => void;
-  setSelectedValue: (value: any, eventDetails: AriaCombobox.ChangeEventDetails) => void;
-  setIndices: (indices: {
-    activeIndex?: number | null | undefined;
-    selectedIndex?: number | null | undefined;
-    type?: AriaCombobox.HighlightEventReason | undefined;
-  }) => void;
-  forceMount: () => void;
-  handleSelection: (event: MouseEvent | PointerEvent | KeyboardEvent, itemValue: any) => void;
-  requestSubmit: () => void;
-
   name: string | undefined;
   form: string | undefined;
   disabled: boolean;
@@ -65,7 +53,6 @@ export type State = {
   required: boolean;
   grid: boolean;
   virtualized: boolean;
-  onOpenChangeComplete: (open: boolean) => void;
   openOnInputClick: boolean;
   itemToStringLabel?: ((item: any) => string) | undefined;
   isItemEqualToValue: (itemValue: any, selectedValue: any) => boolean;
@@ -106,6 +93,30 @@ export type ComboboxStoreContext = {
   readonly pointerDownItemRef: React.RefObject<Element | null>;
   /** Native event that triggered the in-flight selection. */
   readonly selectionEventRef: React.RefObject<MouseEvent | PointerEvent | KeyboardEvent | null>;
+
+  // Commands. Seeded with `NOOP` when the store is constructed and assigned during the root's
+  // first render, so they are not `readonly`.
+
+  /** Opens or closes the popup. */
+  setOpen: (open: boolean, eventDetails: AriaCombobox.ChangeEventDetails) => void;
+  /** Sets the input value. */
+  setInputValue: (value: string, eventDetails: AriaCombobox.ChangeEventDetails) => void;
+  /** Sets the selected value. */
+  setSelectedValue: (value: any, eventDetails: AriaCombobox.ChangeEventDetails) => void;
+  /** Sets the active and/or selected index. */
+  setIndices: (indices: {
+    activeIndex?: number | null | undefined;
+    selectedIndex?: number | null | undefined;
+    type?: AriaCombobox.HighlightEventReason | undefined;
+  }) => void;
+  /** Mounts the popup subtree without opening it, to resolve derived item labels. */
+  forceMount: () => void;
+  /** Applies a selection originating from an item. */
+  handleSelection: (event: MouseEvent | PointerEvent | KeyboardEvent, itemValue: any) => void;
+  /** Requests submission of the owning form. */
+  requestSubmit: () => void;
+  /** Called when the open state change animation completes. */
+  onOpenChangeComplete: (open: boolean) => void;
 };
 
 export type ComboboxStore = ReactStore<State, ComboboxStoreContext>;

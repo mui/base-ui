@@ -34,6 +34,6 @@ export function handleInputPress(
   store.context.inputRef.current?.focus();
 
   if (store.state.openOnInputClick) {
-    store.state.setOpen(true, createChangeEventDetails(REASONS.inputPress, event.nativeEvent));
+    store.context.setOpen(true, createChangeEventDetails(REASONS.inputPress, event.nativeEvent));
   }
 }

@@ -66,7 +66,7 @@ export const ComboboxChipRemove = React.forwardRef(function ComboboxChipRemove(
       isItemEqualToValue,
     );
     if (removedIndex !== -1 && activeIndex === removedIndex) {
-      store.state.setIndices({
+      store.context.setIndices({
         activeIndex: null,
         type: store.context.keyboardActiveRef.current ? REASONS.keyboard : REASONS.pointer,
       });
@@ -81,7 +81,7 @@ export const ComboboxChipRemove = React.forwardRef(function ComboboxChipRemove(
 
     clearActiveIndexForRemovedItem(removedItem);
 
-    store.state.setSelectedValue(
+    store.context.setSelectedValue(
       selectedValue.filter((_: any, i: number) => i !== index),
       eventDetails,
     );

@@ -87,7 +87,7 @@ function ClearActiveIndexButton() {
   const store = useComboboxRootContext();
 
   return (
-    <button type="button" onClick={() => store.state.setIndices({ activeIndex: null })}>
+    <button type="button" onClick={() => store.context.setIndices({ activeIndex: null })}>
       Clear highlight
     </button>
   );

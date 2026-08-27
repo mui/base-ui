@@ -23,7 +23,7 @@ export const ComboboxInternalDismissButton = React.forwardRef<HTMLSpanElement>(
     const mergedRef = useMergedRefs(forwardedRef, buttonRef);
 
     function handleDismiss(event: DismissEvent) {
-      store.state.setOpen(
+      store.context.setOpen(
         false,
         createChangeEventDetails(REASONS.closePress, event.nativeEvent, event.currentTarget),
       );

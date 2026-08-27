@@ -508,6 +508,8 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
         // Avoid duplicate names in the server HTML. Popup inputs aren't rendered
         // until after hydration, so the hidden input takes over then if needed.
         inputOwnsFormValue: selectionMode === 'none',
+      },
+      {
         // Placeholder callbacks replaced on first render
         onOpenChangeComplete: NOOP,
         setOpen: NOOP,
@@ -517,8 +519,6 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
         handleSelection: NOOP,
         forceMount: NOOP,
         requestSubmit: NOOP,
-      },
-      {
         listRef,
         labelsRef,
         popupRef,
@@ -1410,6 +1410,17 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
     return { ...listNavigationItemProps, onFocus: undefined };
   }, [listNavigation.item]);
 
+  store.useContextCallback('setOpen', setOpen);
+  store.useContextCallback('setInputValue', setInputValue);
+  store.useContextCallback('setSelectedValue', setSelectedValue);
+  store.useContextCallback('setIndices', setIndices);
+  store.useContextCallback('handleSelection', handleSelection);
+  store.useContextCallback('forceMount', forceMount);
+  store.useContextCallback('requestSubmit', requestSubmit);
+  store.useContextCallback('onOpenChangeComplete', onOpenChangeCompleteProp);
+
+  // The prop bags must be in the store before the parts render: they read them with `useStore`
+  // during render, and a layout effect commits only after all children have rendered.
   useOnFirstRender(() => {
     store.update({
       inline: inlineProp,
@@ -1418,14 +1429,6 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
       inputProps,
       triggerProps,
       itemProps,
-      setOpen,
-      setInputValue,
-      setSelectedValue,
-      setIndices,
-      handleSelection,
-      forceMount,
-      requestSubmit,
-      onOpenChangeComplete,
     });
   });
 
