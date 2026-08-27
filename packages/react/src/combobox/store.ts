@@ -1,4 +1,4 @@
-import { Store } from '@base-ui/utils/store';
+import { ReactStore } from '@base-ui/utils/store';
 import type { InteractionType } from '@base-ui/utils/useEnhancedClickHandler';
 import type { TransitionStatus } from '../internals/useTransitionStatus';
 import type { HTMLProps } from '../internals/types';
@@ -89,7 +89,7 @@ export type State = {
   hasInputValue: boolean;
 };
 
-export type ComboboxStore = Store<State>;
+export type ComboboxStore = ReactStore<State>;
 
 export const selectors = {
   id: (state: State) => state.id,

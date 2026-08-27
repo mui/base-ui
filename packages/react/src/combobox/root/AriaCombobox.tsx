@@ -8,7 +8,7 @@ import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
 import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
 import { visuallyHidden, visuallyHiddenInput } from '@base-ui/utils/visuallyHidden';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
-import { Store, useStore } from '@base-ui/utils/store';
+import { ReactStore, useStore } from '@base-ui/utils/store';
 import { EMPTY_ARRAY, EMPTY_OBJECT } from '@base-ui/utils/empty';
 import { isHTMLElement } from '@floating-ui/utils/dom';
 import {
@@ -463,7 +463,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
       );
     }
 
-    return new Store<StoreState>({
+    return new ReactStore<StoreState>({
       id,
       labelId: undefined,
       selectedValue,
