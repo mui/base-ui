@@ -1,6 +1,7 @@
 import { expect, vi } from 'vitest';
 import * as React from 'react';
 import { Popover } from '@base-ui/react/popover';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import {
   createRenderer,
   describeConformance,
@@ -726,6 +727,10 @@ describe('<Popover.Trigger />', () => {
         });
 
         assertNoGuardRetainedFocus(recorder.seen);
+        // The reverse leg must reach the trigger specifically, not merely "some control that is
+        // not a guard" — landing on an arbitrary outside element would also satisfy the checks
+        // above while being wrong.
+        expect(trigger).toHaveFocus();
       } finally {
         recorder.stop();
       }
@@ -752,6 +757,13 @@ describe('<Popover.Trigger />', () => {
 
         expectNoTabbableGuards();
         expect(screen.getByTestId('popup').closest('[inert]')).not.toBe(null);
+
+        // Known gap: leaving backwards drops focus to `document.body` rather than to the control
+        // before the trigger. Introduced on this branch by 95e6f2f0d ("Make closing popups
+        // non-tabbable"); `upstream/master` lands on `before`. Pinned rather than asserted
+        // around, so this test reports the day it is fixed.
+        expect(document.activeElement).toBe(document.body);
+
         recorder.reset();
 
         await act(async () => {
@@ -759,9 +771,154 @@ describe('<Popover.Trigger />', () => {
         });
 
         assertNoGuardRetainedFocus(recorder.seen);
+        // Because the exit dropped to `body`, the forward Tab resumes past the trigger.
+        expect(screen.getByTestId('after')).toHaveFocus();
       } finally {
         recorder.stop();
       }
+    });
+  });
+
+  describe.skipIf(isJSDOM)('finalFocus versus the trigger focus guard', () => {
+    // Hover-opening leaves focus on the trigger, which is what makes the pre-trigger guard
+    // reachable by a backwards Tab. That guard chooses its own destination, so these cases pin
+    // when the caller's `finalFocus` outranks it and when it does not.
+    function GuardApp({ finalFocus }: { finalFocus?: Popover.Popup.Props['finalFocus'] }) {
+      return (
+        <div>
+          <button data-testid="before">before</button>
+          <Popover.Root>
+            <Popover.Trigger openOnHover delay={0}>
+              Open
+            </Popover.Trigger>
+            <Popover.Portal>
+              <Popover.Positioner>
+                <Popover.Popup finalFocus={finalFocus}>
+                  <button type="button">Inside</button>
+                </Popover.Popup>
+              </Popover.Positioner>
+            </Popover.Portal>
+          </Popover.Root>
+          <button data-testid="after">after</button>
+          <button data-testid="explicit">explicit</button>
+        </div>
+      );
+    }
+
+    async function openThenShiftTab() {
+      const { userEvent: browserUserEvent } = await import('vitest/browser');
+      const trigger = screen.getByRole('button', { name: 'Open' });
+
+      await act(async () => trigger.focus());
+      enterWithMouse(trigger);
+      await waitFor(() => expect(screen.queryByRole('dialog')).not.toBe(null));
+      expect(trigger).toHaveFocus();
+
+      await act(async () => {
+        await browserUserEvent.tab({ shift: true });
+      });
+    }
+
+    // Known gap: everything in this matrix opens by hover. `PopoverPopup` disables the focus
+    // manager for hover opens, so a session exists only for the single transient commit inside
+    // the guard's `flushSync` — which is what gives `finalFocus` any effect here. On a
+    // click-opened popover the same gesture still ignores `finalFocus` and lands on
+    // `document.body`, identically at base. Pinned so the matrix cannot be read as covering
+    // the mainstream path.
+    it('does not yet honour finalFocus when the popover was opened by click', async () => {
+      const { userEvent: browserUserEvent } = await import('vitest/browser');
+
+      function Test() {
+        return (
+          <div>
+            <button data-testid="before">before</button>
+            <Popover.Root>
+              <Popover.Trigger>Open</Popover.Trigger>
+              <Popover.Portal>
+                <Popover.Positioner>
+                  <Popover.Popup finalFocus={() => screen.getByTestId('explicit')}>
+                    <button data-testid="inside">Inside</button>
+                  </Popover.Popup>
+                </Popover.Positioner>
+              </Popover.Portal>
+            </Popover.Root>
+            <button data-testid="after">after</button>
+            <button data-testid="explicit">explicit</button>
+          </div>
+        );
+      }
+
+      await render(<Test />);
+      const trigger = screen.getByRole('button', { name: 'Open' });
+      await act(async () => trigger.focus());
+      fireEvent.click(trigger);
+      await waitFor(() => expect(screen.getByTestId('inside')).toHaveFocus());
+
+      // Out through the popup guard to the trigger, then out through the trigger's own guard.
+      await act(async () => {
+        await browserUserEvent.tab({ shift: true });
+      });
+      await act(async () => {
+        await browserUserEvent.tab({ shift: true });
+      });
+
+      await waitFor(() => expect(screen.queryByRole('dialog')).toBe(null));
+      // Pin the actual destination, not merely "not the explicit target" — a partial fix that
+      // moved focus to the trigger would otherwise keep this green while the comment went stale.
+      expect(document.activeElement).toBe(document.body);
+      expect(screen.getByTestId('explicit')).not.toHaveFocus();
+    });
+
+    it('honours an explicit ref over the guard destination', async () => {
+      function Test() {
+        const ref = React.useRef<HTMLButtonElement>(null);
+        useIsoLayoutEffect(() => {
+          ref.current = screen.getByTestId('explicit') as HTMLButtonElement;
+        }, []);
+        return <GuardApp finalFocus={ref} />;
+      }
+
+      await render(<Test />);
+      await openThenShiftTab();
+
+      await waitFor(() => expect(screen.getByTestId('explicit')).toHaveFocus());
+    });
+
+    it('honours a callback returning an element over the guard destination', async () => {
+      await render(<GuardApp finalFocus={() => screen.getByTestId('explicit')} />);
+      await openThenShiftTab();
+
+      await waitFor(() => expect(screen.getByTestId('explicit')).toHaveFocus());
+    });
+
+    // The three forms below all resolve to the default target rather than naming an element, so
+    // none may count as an explicit instruction: the guard's own destination must still win.
+    // (`before` is that destination — `getPreviousTabbable(domReference)` — not the default
+    // return target, which is the trigger.)
+    it('lets the guard destination win for a callback returning true', async () => {
+      await render(<GuardApp finalFocus={() => true} />);
+      await openThenShiftTab();
+
+      await waitFor(() => expect(screen.getByTestId('before')).toHaveFocus());
+    });
+
+    it('lets the guard destination win for a callback returning null', async () => {
+      await render(<GuardApp finalFocus={() => null} />);
+      await openThenShiftTab();
+
+      await waitFor(() => expect(screen.getByTestId('before')).toHaveFocus());
+    });
+
+    it('lets the guard destination win for an empty ref', async () => {
+      function Test() {
+        const ref = React.useRef<HTMLButtonElement>(null);
+        return <GuardApp finalFocus={ref} />;
+      }
+
+      await render(<Test />);
+      await openThenShiftTab();
+
+      await waitFor(() => expect(screen.getByTestId('before')).toHaveFocus());
     });
   });
 });

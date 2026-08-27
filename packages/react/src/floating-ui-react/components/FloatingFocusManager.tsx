@@ -949,7 +949,17 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
 
     events.on('openchange', onOpenChangeLocal);
 
-    function getReturnElement(closeType: InteractionType) {
+    /**
+     * Resolves where focus should go, and whether the caller named that element outright.
+     *
+     * `isExplicitElement` is deliberately narrower than "the prop is not a boolean":
+     * `finalFocus={() => true}`, `finalFocus={() => null}` and a ref that is empty all fall back
+     * to the default target, so none of them counts as an explicit instruction.
+     */
+    function getReturnElement(closeType: InteractionType): {
+      element: Element | null;
+      isExplicitElement: boolean;
+    } {
       const returnFocusValueOrFn = returnFocusRef.current;
       let resolvedReturnFocusValue =
         typeof returnFocusValueOrFn === 'function'
@@ -958,7 +968,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
 
       // `null` should fallback to default behavior in case of an empty ref.
       if (resolvedReturnFocusValue === undefined || resolvedReturnFocusValue === false) {
-        return null;
+        return { element: null, isExplicitElement: false };
       }
 
       if (resolvedReturnFocusValue === null) {
@@ -981,10 +991,14 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
       }
 
       if (typeof resolvedReturnFocusValue === 'boolean') {
-        return defaultReturnElement;
+        return { element: defaultReturnElement, isExplicitElement: false };
       }
 
-      return resolveRef(resolvedReturnFocusValue) || defaultReturnElement || null;
+      const explicitElement = resolveRef(resolvedReturnFocusValue);
+      return {
+        element: explicitElement || defaultReturnElement || null,
+        isExplicitElement: explicitElement != null,
+      };
     }
 
     return () => {
@@ -996,7 +1010,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
       // eslint-disable-next-line react-hooks/exhaustive-deps
       const returnFocusValueOrFn = returnFocusRef.current;
       const closeType = session.closeType;
-      const returnElement = getReturnElement(closeType);
+      const { element: returnElement, isExplicitElement } = getReturnElement(closeType);
 
       const entry: PendingReturn = {
         session,
@@ -1007,7 +1021,9 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
           // guard closing the popup inside `flushSync` and then moving focus onward itself.
           // Re-check now: if something outside this tree has since taken focus, it owns the
           // destination and returning would both override it and double-focus.
-          if (activeEl === doc.body) {
+          // An explicitly named target is an instruction from the caller and outranks whatever
+          // moved focus during the close, so the handoff check below is skipped for it.
+          if (!isExplicitElement && activeEl === doc.body) {
             const currentActiveEl = activeElement(doc);
             if (
               currentActiveEl &&

@@ -1,7 +1,7 @@
 import { afterEach, expect, vi } from 'vitest';
 import * as React from 'react';
 import { PreviewCard } from '@base-ui/react/preview-card';
-import { fireEvent, screen, waitFor } from '@mui/internal-test-utils';
+import { act, fireEvent, screen, waitFor } from '@mui/internal-test-utils';
 import { createRenderer, describeConformance, isJSDOM, waitForPositioned } from '#test-utils';
 
 const Trigger = React.forwardRef(function Trigger(
@@ -1131,5 +1131,79 @@ describe('<PreviewCard.Positioner />', () => {
     await waitForPositioned(positioner);
     expect(positioner.style.transform).toBe('');
     unmount();
+  });
+
+  // A preview card kept mounted for its exit animation must not leave its content — typically
+  // links — in sequential focus navigation while it is already logically closed.
+  describe.skipIf(isJSDOM)('closing while mounted', () => {
+    const closingStyle = `
+      @keyframes preview-card-close-test {
+        to {
+          opacity: 0;
+        }
+      }
+
+      .closing-test-popup[data-ending-style] {
+        animation: preview-card-close-test 5s linear;
+      }
+    `;
+
+    function Test({ open }: { open: boolean }) {
+      return (
+        <React.Fragment>
+          {/* eslint-disable-next-line react/no-danger */}
+          <style dangerouslySetInnerHTML={{ __html: closingStyle }} />
+          <PreviewCard.Root open={open}>
+            <Trigger>Trigger</Trigger>
+            <PreviewCard.Portal>
+              <PreviewCard.Positioner data-testid="positioner">
+                <PreviewCard.Popup data-testid="popup" className="closing-test-popup">
+                  <a data-testid="link" href="#link">
+                    Link
+                  </a>
+                </PreviewCard.Popup>
+              </PreviewCard.Positioner>
+            </PreviewCard.Portal>
+          </PreviewCard.Root>
+        </React.Fragment>
+      );
+    }
+
+    beforeEach(() => {
+      globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+    });
+
+    // Runs even when an assertion throws, so a 5s exit animation never leaks into cleanup.
+    afterEach(async () => {
+      await act(async () => {
+        screen
+          .queryAllByTestId('popup')
+          .forEach((popup) => popup.getAnimations().forEach((animation) => animation.finish()));
+      });
+      globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
+    });
+
+    // A preview card kept mounted for its exit animation must not leave its content — typically
+    // links — in sequential focus navigation, and must not keep focus inside the closed subtree.
+    // PreviewCard has no close-time focus handoff (the Root wires only `useDismiss`), so what
+    // must hold is that focus ends up outside, not that anything moves it to a chosen target.
+    it('makes the positioner inert and releases focus from inside it', async () => {
+      const { setProps } = await render(<Test open />);
+      const positioner = screen.getByTestId('positioner');
+      const popup = screen.getByTestId('popup');
+      const link = screen.getByTestId('link');
+
+      expect(positioner).not.toHaveAttribute('inert');
+
+      await act(async () => link.focus());
+      expect(link).toHaveFocus();
+
+      await setProps({ open: false });
+      await waitFor(() => expect(popup).toHaveAttribute('data-ending-style'));
+
+      expect(positioner).toHaveAttribute('inert');
+      // Not merely "the link lost focus" — focus must be outside the closed subtree entirely.
+      await waitFor(() => expect(popup.contains(document.activeElement)).toBe(false));
+    });
   });
 });
