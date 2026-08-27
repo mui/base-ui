@@ -5744,6 +5744,42 @@ describe('<Select.Root />', () => {
       expect(screen.getByRole('option', { name: 'c' })).not.toHaveAttribute('data-highlighted');
     });
 
+    it('re-elects the anchor when the anchor item value changes in place', async () => {
+      function App(props: { replaceA?: boolean }) {
+        return (
+          <Select.Root multiple defaultValue={['a', 'c']}>
+            <Select.Trigger data-testid="trigger">
+              <Select.Value />
+            </Select.Trigger>
+            <Select.Portal>
+              <Select.Positioner>
+                <Select.Popup>
+                  <Select.Item value={props.replaceA ? 'x' : 'a'}>
+                    {props.replaceA ? 'x' : 'a'}
+                  </Select.Item>
+                  <Select.Item value="b">b</Select.Item>
+                  <Select.Item value="c">c</Select.Item>
+                </Select.Popup>
+              </Select.Positioner>
+            </Select.Portal>
+          </Select.Root>
+        );
+      }
+
+      const { user, setProps } = await render(<App />);
+
+      // The list stays mounted while closed, so the swap happens in place.
+      await setProps({ replaceA: true });
+
+      await user.click(screen.getByTestId('trigger'));
+
+      const optionC = await screen.findByRole('option', { name: 'c' });
+      await waitFor(() => {
+        expect(optionC).toHaveAttribute('data-highlighted');
+      });
+      expect(screen.getByRole('option', { name: 'x' })).not.toHaveAttribute('data-highlighted');
+    });
+
     it('should handle defaultValue as array in multiple mode', async () => {
       await render(
         <Select.Root multiple defaultValue={['a', 'c']}>

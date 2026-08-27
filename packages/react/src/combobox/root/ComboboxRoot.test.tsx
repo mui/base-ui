@@ -2640,6 +2640,45 @@ describe('<Combobox.Root />', () => {
         });
       });
 
+      it('moves the anchor to the next selected item when the anchor item leaves the list', async () => {
+        function App(props: { hideApple?: boolean }) {
+          const visible = props.hideApple ? ['banana', 'cherry'] : ['apple', 'banana', 'cherry'];
+
+          return (
+            <Combobox.Root multiple defaultValue={['apple', 'cherry']}>
+              <Combobox.Input data-testid="input" />
+              <SelectedIndexProbe />
+              <Combobox.Portal keepMounted>
+                <Combobox.Positioner>
+                  <Combobox.Popup>
+                    <Combobox.List>
+                      {visible.map((item) => (
+                        <Combobox.Item key={item} value={item}>
+                          {item}
+                        </Combobox.Item>
+                      ))}
+                    </Combobox.List>
+                  </Combobox.Popup>
+                </Combobox.Positioner>
+              </Combobox.Portal>
+            </Combobox.Root>
+          );
+        }
+
+        const { setProps } = await render(<App />);
+
+        await waitFor(() => {
+          expect(screen.getByTestId('selected-index').textContent).toBe('0');
+        });
+
+        await setProps({ hideApple: true });
+
+        // `banana` now occupies index 0 but is not selected, so `cherry` takes the anchor.
+        await waitFor(() => {
+          expect(screen.getByTestId('selected-index').textContent).toBe('1');
+        });
+      });
+
       it('restores the anchor rather than the toggled item when deselecting while filtering', async () => {
         const { user } = await render(<MultiplePopupCombobox />);
 
