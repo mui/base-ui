@@ -44,7 +44,7 @@ export function useFilterMenuReferenceKeyDown() {
     // edge as the end of the list. Stretch it to the full count before the navigation handlers
     // read it; the trailing holes are navigable and the virtualizer mounts them once highlighted.
     // Re-applied on every key because the composite registry resets the length on each flush.
-    if (typeof virtualized === 'number' && listRef.current.length !== virtualized) {
+    if (virtualized !== undefined && listRef.current.length !== virtualized) {
       listRef.current.length = virtualized;
     }
 

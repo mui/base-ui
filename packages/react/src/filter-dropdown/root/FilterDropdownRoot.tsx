@@ -45,7 +45,7 @@ export function FilterDropdownRoot(props: FilterDropdownRoot.Props): React.JSX.E
     inputProps = EMPTY_OBJECT,
     inputRef: externalFocusOwnerRef,
     onInputElementChange,
-    virtualized = false,
+    virtualized,
   } = props;
 
   const parentItemContext = React.useContext(FilterDropdownItemContext);
@@ -342,7 +342,7 @@ export interface FilterDropdownRootProps {
    * does not invalidate the positional highlight. Pass the total item count so navigation can
    * target the list's real ends rather than the mounted window's.
    */
-  virtualized?: boolean | number | undefined;
+  virtualized?: number | undefined;
 }
 
 export namespace FilterDropdownRoot {
