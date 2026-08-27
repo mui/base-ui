@@ -19,13 +19,11 @@ import { Field } from '@base-ui/react/field';
 import { Form } from '@base-ui/react/form';
 import { Input } from '@base-ui/react/input';
 import { Popover } from '@base-ui/react/popover';
-import { useStore } from '@base-ui/utils/store';
 import { useTimeout } from '@base-ui/utils/useTimeout';
 import { CompositeRoot } from '../../internals/composite/root/CompositeRoot';
 import { CompositeItem } from '../../internals/composite/item/CompositeItem';
 import { REASONS } from '../../internals/reasons';
 import { useComboboxRootContext } from './ComboboxRootContext';
-import { selectors } from '../store';
 
 function AsyncItemsCombobox() {
   const [items, setItems] = React.useState(['Apple', 'Banana', 'Cherry']);
@@ -63,7 +61,7 @@ function AsyncItemsCombobox() {
 
 function SelectedIndexProbe() {
   const store = useComboboxRootContext();
-  const selectedIndex = useStore(store, selectors.selectedIndex);
+  const selectedIndex = store.useState('selectedIndex');
 
   return (
     <div data-testid="selected-index">{selectedIndex === null ? 'null' : `${selectedIndex}`}</div>
@@ -78,7 +76,7 @@ function getHiddenControl() {
 
 function ActiveIndexProbe() {
   const store = useComboboxRootContext();
-  const activeIndex = useStore(store, selectors.activeIndex);
+  const activeIndex = store.useState('activeIndex');
 
   return <div data-testid="active-index">{activeIndex === null ? 'null' : `${activeIndex}`}</div>;
 }

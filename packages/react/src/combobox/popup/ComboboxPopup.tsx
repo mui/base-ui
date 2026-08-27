@@ -1,13 +1,11 @@
 'use client';
 import * as React from 'react';
 import { InteractionType } from '@base-ui/utils/useEnhancedClickHandler';
-import { useStore } from '@base-ui/utils/store';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { FloatingFocusManager } from '../../floating-ui-react';
 import { BaseUIComponentProps } from '../../internals/types';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { useComboboxFloatingContext, useComboboxRootContext } from '../root/ComboboxRootContext';
-import { selectors } from '../store';
 import { popupStateMapping } from '../../utils/popupStateMapping';
 import { useComboboxPositionerContext } from '../positioner/ComboboxPositionerContext';
 import type { Side, Align } from '../../internals/useAnchorPositioning';
@@ -42,15 +40,15 @@ export const ComboboxPopup = React.forwardRef(function ComboboxPopup(
   const positioning = useComboboxPositionerContext();
   const floatingRootContext = useComboboxFloatingContext();
 
-  const mounted = useStore(store, selectors.mounted);
-  const open = useStore(store, selectors.open);
-  const openMethod = useStore(store, selectors.openMethod);
-  const popupProps = useStore(store, selectors.popupProps);
-  const transitionStatus = useStore(store, selectors.transitionStatus);
-  const inputInsidePopup = useStore(store, selectors.inputInsidePopup);
-  const inputElement = useStore(store, selectors.inputElement);
-  const modal = useStore(store, selectors.modal);
-  const rootId = useStore(store, selectors.id);
+  const mounted = store.useState('mounted');
+  const open = store.useState('open');
+  const openMethod = store.useState('openMethod');
+  const popupProps = store.useState('popupProps');
+  const transitionStatus = store.useState('transitionStatus');
+  const inputInsidePopup = store.useState('inputInsidePopup');
+  const inputElement = store.useState('inputElement');
+  const modal = store.useState('modal');
+  const rootId = store.useState('id');
 
   const empty = useListEmpty();
   const popupId = elementProps.id ?? (inputInsidePopup ? getComboboxPopupId(rootId) : undefined);

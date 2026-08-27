@@ -1,13 +1,11 @@
 'use client';
 import * as React from 'react';
-import { useStore } from '@base-ui/utils/store';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { BaseUIComponentProps, NativeButtonProps } from '../../internals/types';
 import { useComboboxRootContext } from '../root/ComboboxRootContext';
 import { useComboboxChipContext } from '../chip/ComboboxChipContext';
 import { useButton } from '../../internals/use-button';
 import { stopEvent } from '../../floating-ui-react/utils';
-import { selectors } from '../store';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
 import { findItemIndex } from '../../internals/itemEquality';
@@ -34,10 +32,10 @@ export const ComboboxChipRemove = React.forwardRef(function ComboboxChipRemove(
   const store = useComboboxRootContext();
   const { index } = useComboboxChipContext();
 
-  const comboboxDisabled = useStore(store, selectors.disabled);
-  const readOnly = useStore(store, selectors.readOnly);
-  const selectedValue = useStore(store, selectors.selectedValue);
-  const isItemEqualToValue = useStore(store, selectors.isItemEqualToValue);
+  const comboboxDisabled = store.useState('disabled');
+  const readOnly = store.useState('readOnly');
+  const selectedValue = store.useState('selectedValue');
+  const isItemEqualToValue = store.useState('isItemEqualToValue');
 
   const disabled = comboboxDisabled || disabledProp;
 

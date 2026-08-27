@@ -1,13 +1,11 @@
 'use client';
 import * as React from 'react';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
-import { useStore } from '@base-ui/utils/store';
 import { useRenderElement } from '../../internals/useRenderElement';
 import type { BaseUIComponentProps } from '../../internals/types';
 import { useFieldRootContext } from '../../internals/field-root-context/FieldRootContext';
 import type { FieldRoot } from '../../field/root/FieldRoot';
 import { useComboboxRootContext } from '../root/ComboboxRootContext';
-import { selectors } from '../store';
 import type { Side } from '../../internals/useAnchorPositioning';
 import { triggerStateAttributesMapping } from '../utils/stateAttributesMapping';
 import { handleInputPress } from '../utils/handleInputPress';
@@ -29,11 +27,11 @@ export const ComboboxInputGroup = React.forwardRef(function ComboboxInputGroup(
   const { state: fieldState } = useFieldRootContext();
   const store = useComboboxRootContext();
 
-  const open = useStore(store, selectors.open);
-  const comboboxDisabled = useStore(store, selectors.disabled);
-  const readOnly = useStore(store, selectors.readOnly);
-  const hasSelectedValue = useStore(store, selectors.hasSelectedValue);
-  const selectionMode = useStore(store, selectors.selectionMode);
+  const open = store.useState('open');
+  const comboboxDisabled = store.useState('disabled');
+  const readOnly = store.useState('readOnly');
+  const hasSelectedValue = store.useState('hasSelectedValue');
+  const selectionMode = store.useState('selectionMode');
 
   const popupSide = usePopupSide(store);
   const disabled = comboboxDisabled;

@@ -1,6 +1,5 @@
 'use client';
 import * as React from 'react';
-import { useStore } from '@base-ui/utils/store';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { platform } from '@base-ui/utils/platform';
 import { BaseUIComponentProps } from '../../internals/types';
@@ -8,7 +7,6 @@ import { useBaseUiId } from '../../internals/useBaseUiId';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { useComboboxInputValueContext, useComboboxRootContext } from '../root/ComboboxRootContext';
 import { triggerStateAttributesMapping } from '../utils/stateAttributesMapping';
-import { selectors } from '../store';
 import type { FieldRootState } from '../../field/root/FieldRoot';
 import {
   DEFAULT_FIELD_ROOT_CONTEXT,
@@ -70,21 +68,21 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
   const inputValue = useComboboxInputValueContext();
   const direction = useDirection();
 
-  const required = useStore(store, selectors.required);
-  const comboboxDisabled = useStore(store, selectors.disabled);
-  const readOnly = useStore(store, selectors.readOnly);
-  const name = useStore(store, selectors.name);
-  const form = useStore(store, selectors.form);
-  const selectionMode = useStore(store, selectors.selectionMode);
-  const autoHighlightMode = useStore(store, selectors.autoHighlight);
-  const inputProps = useStore(store, selectors.inputProps);
-  const triggerProps = useStore(store, selectors.triggerProps);
-  const open = useStore(store, selectors.open);
-  const mounted = useStore(store, selectors.mounted);
-  const selectedValue = useStore(store, selectors.selectedValue);
-  const rootId = useStore(store, selectors.id);
-  const inline = useStore(store, selectors.inline);
-  const modal = useStore(store, selectors.modal);
+  const required = store.useState('required');
+  const comboboxDisabled = store.useState('disabled');
+  const readOnly = store.useState('readOnly');
+  const name = store.useState('name');
+  const form = store.useState('form');
+  const selectionMode = store.useState('selectionMode');
+  const autoHighlightMode = store.useState('autoHighlight');
+  const inputProps = store.useState('inputProps');
+  const triggerProps = store.useState('triggerProps');
+  const open = store.useState('open');
+  const mounted = store.useState('mounted');
+  const selectedValue = store.useState('selectedValue');
+  const rootId = store.useState('id');
+  const inline = store.useState('inline');
+  const modal = store.useState('modal');
 
   const autoHighlightEnabled = Boolean(autoHighlightMode);
   const popupSide = usePopupSide(store);

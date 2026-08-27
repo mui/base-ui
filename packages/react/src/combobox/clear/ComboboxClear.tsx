@@ -1,10 +1,8 @@
 'use client';
 import * as React from 'react';
-import { useStore } from '@base-ui/utils/store';
 import { useComboboxInputValueContext, useComboboxRootContext } from '../root/ComboboxRootContext';
 import type { BaseUIComponentProps, NativeButtonProps } from '../../internals/types';
 import { useRenderElement } from '../../internals/useRenderElement';
-import { selectors } from '../store';
 import { useButton } from '../../internals/use-button';
 import { useFieldRootContext } from '../../internals/field-root-context/FieldRootContext';
 import { TransitionStatus, useTransitionStatus } from '../../internals/useTransitionStatus';
@@ -43,12 +41,12 @@ export const ComboboxClear = React.forwardRef(function ComboboxClear(
   const { disabled: fieldDisabled } = useFieldRootContext();
   const store = useComboboxRootContext();
 
-  const selectionMode = useStore(store, selectors.selectionMode);
-  const comboboxDisabled = useStore(store, selectors.disabled);
-  const readOnly = useStore(store, selectors.readOnly);
-  const open = useStore(store, selectors.open);
-  const selectedValue = useStore(store, selectors.selectedValue);
-  const hasSelectionChips = useStore(store, selectors.hasSelectionChips);
+  const selectionMode = store.useState('selectionMode');
+  const comboboxDisabled = store.useState('disabled');
+  const readOnly = store.useState('readOnly');
+  const open = store.useState('open');
+  const selectedValue = store.useState('selectedValue');
+  const hasSelectionChips = store.useState('hasSelectionChips');
 
   const inputValue = useComboboxInputValueContext();
 

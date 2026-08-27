@@ -3,9 +3,8 @@ import * as React from 'react';
 import { screen } from '@mui/internal-test-utils';
 import { createRenderer } from '#test-utils';
 import { Autocomplete } from '@base-ui/react/autocomplete';
-import { useStore } from '@base-ui/utils/store';
 import { useComboboxRootContext } from './root/ComboboxRootContext';
-import { selectors, type ComboboxStore } from './store';
+import type { ComboboxStore } from './store';
 
 /**
  * Characterization tests for how `AriaCombobox` synchronizes external values into the store.
@@ -120,8 +119,8 @@ describe('combobox store synchronization', () => {
     // Memoized so it re-renders from its own store subscription, not from the parent.
     const OwnershipProbe = React.memo(function OwnershipProbe() {
       const store = useComboboxRootContext();
-      const inline = useStore(store, selectors.inline);
-      const inputOwnsFormValue = useStore(store, selectors.inputOwnsFormValue);
+      const inline = store.useState('inline');
+      const inputOwnsFormValue = store.useState('inputOwnsFormValue');
       observed.push(`${inline}:${inputOwnsFormValue}`);
       return null;
     });

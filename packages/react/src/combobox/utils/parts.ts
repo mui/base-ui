@@ -1,7 +1,6 @@
 'use client';
-import { useStore } from '@base-ui/utils/store';
 import { useComboboxDerivedItemsContext } from '../root/ComboboxRootContext';
-import { selectors, type ComboboxStore } from '../store';
+import type { ComboboxStore } from '../store';
 import type { Side } from '../../internals/useAnchorPositioning';
 
 /**
@@ -9,9 +8,9 @@ import type { Side } from '../../internals/useAnchorPositioning';
  * last resolved side after the popup unmounts.
  */
 export function usePopupSide(store: ComboboxStore): Side | null {
-  const mounted = useStore(store, selectors.mounted);
-  const popupSide = useStore(store, selectors.popupSide);
-  const positionerElement = useStore(store, selectors.positionerElement);
+  const mounted = store.useState('mounted');
+  const popupSide = store.useState('popupSide');
+  const positionerElement = store.useState('positionerElement');
 
   return mounted && positionerElement ? popupSide : null;
 }

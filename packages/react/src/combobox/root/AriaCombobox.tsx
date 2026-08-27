@@ -8,7 +8,7 @@ import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
 import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
 import { visuallyHidden, visuallyHiddenInput } from '@base-ui/utils/visuallyHidden';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
-import { ReactStore, useStore } from '@base-ui/utils/store';
+import { ReactStore } from '@base-ui/utils/store';
 import { EMPTY_ARRAY, EMPTY_OBJECT } from '@base-ui/utils/empty';
 import { isHTMLElement } from '@floating-ui/utils/dom';
 import {
@@ -463,7 +463,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
       );
     }
 
-    return new ReactStore<StoreState, ComboboxStoreContext>(
+    return new ReactStore<StoreState, ComboboxStoreContext, typeof selectors>(
       {
         id,
         labelId: undefined,
@@ -533,6 +533,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
         pointerDownItemRef,
         selectionEventRef,
       },
+      selectors,
     );
   }).current;
 
@@ -550,16 +551,16 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
   const onItemHighlighted = useStableCallback(onItemHighlightedProp);
   const onOpenChangeComplete = useStableCallback(onOpenChangeCompleteProp);
 
-  const activeIndex = useStore(store, selectors.activeIndex);
-  const selectedIndex = useStore(store, selectors.selectedIndex);
-  const positionerElement = useStore(store, selectors.positionerElement);
-  const listElement = useStore(store, selectors.listElement);
-  const triggerElement = useStore(store, selectors.triggerElement);
-  const inputElement = useStore(store, selectors.inputElement);
-  const inputGroupElement = useStore(store, selectors.inputGroupElement);
-  const inline = useStore(store, selectors.inline);
-  const inputInsidePopup = useStore(store, selectors.inputInsidePopup);
-  const inputOwnsFormValue = useStore(store, selectors.inputOwnsFormValue);
+  const activeIndex = store.useState('activeIndex');
+  const selectedIndex = store.useState('selectedIndex');
+  const positionerElement = store.useState('positionerElement');
+  const listElement = store.useState('listElement');
+  const triggerElement = store.useState('triggerElement');
+  const inputElement = store.useState('inputElement');
+  const inputGroupElement = store.useState('inputGroupElement');
+  const inline = store.useState('inline');
+  const inputInsidePopup = store.useState('inputInsidePopup');
+  const inputOwnsFormValue = store.useState('inputOwnsFormValue');
   const inputMatchesSelectedValue =
     single && !inputInsidePopup && inputValue === selectedLabelString;
 

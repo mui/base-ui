@@ -119,8 +119,6 @@ export type ComboboxStoreContext = {
   onOpenChangeComplete: (open: boolean) => void;
 };
 
-export type ComboboxStore = ReactStore<State, ComboboxStoreContext>;
-
 export const selectors = {
   id: (state: State) => state.id,
   labelId: (state: State) => state.labelId,
@@ -203,3 +201,5 @@ export const selectors = {
   modal: (state: State) => state.modal,
   autoHighlight: (state: State) => state.autoHighlight,
 };
+
+export type ComboboxStore = ReactStore<State, ComboboxStoreContext, typeof selectors>;
