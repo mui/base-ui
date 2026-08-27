@@ -79,6 +79,12 @@ interface FocusSession {
   preferPreviousFocus: boolean;
   /** Set by the close paths that must not pull focus back (focus-out, hover-leave, outside press). */
   preventReturnFocus: boolean;
+  /**
+   * Set when one of this popup's own focus guards drove the close. The guard already resolved
+   * where focus should go, so the default return must not fire on top of it — but an explicitly
+   * named `finalFocus` still outranks the guard.
+   */
+  guardOwnsDestination: boolean;
   /** How this session was closed, used to decide `focusVisible`. */
   closeType: InteractionType;
 }
@@ -420,6 +426,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
       // here as nullish and is intentionally not treated as programmatic.
       preferPreviousFocus: openInteractionTypeRef.current == null,
       preventReturnFocus: false,
+      guardOwnsDestination: false,
       closeType: '',
     };
     sessionActiveRef.current = true;
@@ -910,6 +917,22 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
     function onOpenChangeLocal(details: FloatingUIOpenChangeDetails) {
       if (!details.open) {
         session.closeType = getEventType(details.nativeEvent, lastInteractionTypeRef.current);
+
+        // A close driven by one of this popup's own focus guards already owns the destination —
+        // the guard resolved where focus should go before closing. Returning focus on top of it
+        // would undo the movement the user asked for. Scoped to elements this popup declared as
+        // inside, so a focus-out close dispatched by anything else still returns focus normally.
+        if (details.reason === REASONS.focusOut) {
+          const closeTarget = getTarget(details.nativeEvent) as Element | null;
+          if (
+            closeTarget &&
+            getResolvedInsideElements().some(
+              (inside) => inside === closeTarget || contains(inside, closeTarget),
+            )
+          ) {
+            session.guardOwnsDestination = true;
+          }
+        }
       }
 
       if (details.reason === REASONS.triggerHover && details.nativeEvent.type === 'mouseleave') {
@@ -1042,6 +1065,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
           if (
             returnFocusValueOrFn &&
             !session.preventReturnFocus &&
+            (!session.guardOwnsDestination || isExplicitElement) &&
             isHTMLElement(tabbableReturnElement) &&
             // If the focus moved somewhere else after mount, avoid returning focus
             // since it likely entered a different element which should be
@@ -1080,6 +1104,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
     tree,
     domReference,
     getNodeId,
+    getResolvedInsideElements,
     isInsideFloatingTree,
   ]);
 

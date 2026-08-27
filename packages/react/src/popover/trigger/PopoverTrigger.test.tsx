@@ -758,11 +758,9 @@ describe('<Popover.Trigger />', () => {
         expectNoTabbableGuards();
         expect(screen.getByTestId('popup').closest('[inert]')).not.toBe(null);
 
-        // Known gap: leaving backwards drops focus to `document.body` rather than to the control
-        // before the trigger. Introduced on this branch by 95e6f2f0d ("Make closing popups
-        // non-tabbable"); `upstream/master` lands on `before`. Pinned rather than asserted
-        // around, so this test reports the day it is fixed.
-        expect(document.activeElement).toBe(document.body);
+        // Leaving backwards hands focus to the control before the trigger, matching what a plain
+        // Shift+Tab would have done had the popup never been there.
+        expect(screen.getByTestId('before')).toHaveFocus();
 
         recorder.reset();
 
@@ -771,8 +769,8 @@ describe('<Popover.Trigger />', () => {
         });
 
         assertNoGuardRetainedFocus(recorder.seen);
-        // Because the exit dropped to `body`, the forward Tab resumes past the trigger.
-        expect(screen.getByTestId('after')).toHaveFocus();
+        // Tabbing forward from `before` reaches the trigger, where the popup was.
+        expect(trigger).toHaveFocus();
       } finally {
         recorder.stop();
       }
@@ -819,13 +817,9 @@ describe('<Popover.Trigger />', () => {
       });
     }
 
-    // Known gap: everything in this matrix opens by hover. `PopoverPopup` disables the focus
-    // manager for hover opens, so a session exists only for the single transient commit inside
-    // the guard's `flushSync` — which is what gives `finalFocus` any effect here. On a
-    // click-opened popover the same gesture still ignores `finalFocus` and lands on
-    // `document.body`, identically at base. Pinned so the matrix cannot be read as covering
-    // the mainstream path.
-    it('does not yet honour finalFocus when the popover was opened by click', async () => {
+    // The rest of this matrix opens by hover, which disables the focus manager entirely. This
+    // case covers the mainstream click-opened path, where the manager is live throughout.
+    it('honours finalFocus when the popover was opened by click', async () => {
       const { userEvent: browserUserEvent } = await import('vitest/browser');
 
       function Test() {
@@ -863,10 +857,7 @@ describe('<Popover.Trigger />', () => {
       });
 
       await waitFor(() => expect(screen.queryByRole('dialog')).toBe(null));
-      // Pin the actual destination, not merely "not the explicit target" — a partial fix that
-      // moved focus to the trigger would otherwise keep this green while the comment went stale.
-      expect(document.activeElement).toBe(document.body);
-      expect(screen.getByTestId('explicit')).not.toHaveFocus();
+      await waitFor(() => expect(screen.getByTestId('explicit')).toHaveFocus());
     });
 
     it('honours an explicit ref over the guard destination', async () => {

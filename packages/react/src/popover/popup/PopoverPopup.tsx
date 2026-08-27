@@ -117,6 +117,7 @@ export const PopoverPopup = React.forwardRef(function PopoverPopup(
         isHTMLElement(activeTriggerElement) ? activeTriggerElement : undefined
       }
       nextFocusableElement={store.context.triggerFocusTargetRef}
+      getInsideElements={() => [store.context.triggerPreFocusGuardRef.current]}
       beforeContentFocusGuardRef={store.context.beforeContentFocusGuardRef}
     >
       <ClosePartContext.Provider value={closePartContext}>{element}</ClosePartContext.Provider>

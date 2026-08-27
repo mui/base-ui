@@ -25,6 +25,7 @@ interface TriggerFocusGuardStore {
   context: {
     readonly beforeContentFocusGuardRef: React.RefObject<HTMLElement | null>;
     readonly triggerFocusTargetRef: React.RefObject<HTMLElement | null>;
+    readonly triggerPreFocusGuardRef?: React.RefObject<HTMLElement | null> | undefined;
   };
 }
 
@@ -94,7 +95,10 @@ export function useTriggerFocusGuards(
   store: TriggerFocusGuardStore,
   triggerElementRef: React.RefObject<HTMLElement | null>,
 ) {
-  const preFocusGuardRef = React.useRef<HTMLElement>(null);
+  const localPreFocusGuardRef = React.useRef<HTMLElement>(null);
+  // Prefer the store's ref when the store carries one, so the popup can declare this guard as an
+  // inside element to its focus manager.
+  const preFocusGuardRef = store.context.triggerPreFocusGuardRef ?? localPreFocusGuardRef;
 
   function closeAndMoveFocus(
     event: React.FocusEvent,
