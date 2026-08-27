@@ -250,6 +250,10 @@ The typed filter still resets once the popup closes.
 
 `<Combobox.Input>` can be rendered inside `<Combobox.Popup>` to create a searchable select popup.
 
+In this layout, focus returns to the trigger as soon as the popup closes, so the input can no
+longer be typed into while the popup plays its exit animation. Reopen from the trigger — the typed
+filter resets. When the input sits outside the popup instead, it keeps both focus and its filter.
+
 import { DemoComboboxInputInsidePopup } from './demos/input-inside-popup';
 
 <DemoComboboxInputInsidePopup />
