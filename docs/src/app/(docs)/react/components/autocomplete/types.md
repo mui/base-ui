@@ -934,7 +934,7 @@ Matches items against a query using `Intl.Collator` for robust string matching.
 
 | Parameter | Type                        | Default | Description |
 | :-------- | :-------------------------- | :------ | :---------- |
-| options?  | `AutocompleteFilterOptions` | -       | -           |
+| options?  | `AutocompleteFilterOptions` | `{}`    | -           |
 
 **Return Value:**
 

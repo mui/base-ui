@@ -343,6 +343,12 @@ Renders a `<div>` element.
 | style     | `React.CSSProperties \| ((state: Drawer.Content.State) => React.CSSProperties \| undefined)` | -       | Style applied to the element, or a function that&#xA;returns a style object based on the component's state.                                                                                   |
 | render    | `ReactElement \| ((props: HTMLProps, state: Drawer.Content.State) => ReactElement)`          | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
 
+**Content Data Attributes:**
+
+| Attribute           | Type | Description |
+| :------------------ | :--- | :---------- |
+| data-drawer-content | -    | -           |
+
 ### Content.Props
 
 Re-export of [Content](#content) props.
