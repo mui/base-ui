@@ -269,6 +269,9 @@ describe('<FilterDropdown.Root />', () => {
       // `null` runs no match pass, but the query still has to change for the highlight to be
       // reconciled against the new results.
       fireEvent.change(input, { target: { value: 'q' } });
+      await waitFor(() => {
+        expect(input).toHaveFocus();
+      });
       await user.keyboard('[ArrowDown][ArrowDown][ArrowDown]');
 
       await waitFor(() => {
@@ -363,6 +366,9 @@ describe('<FilterDropdown.Root />', () => {
 
     const { user, setProps } = await render(<Results items={['A', 'B']} />);
     const input = screen.getByRole('searchbox', { name: 'Filter actions' });
+    await waitFor(() => {
+      expect(input).toHaveFocus();
+    });
 
     await user.keyboard('[ArrowDown][ArrowDown]');
     expect(input).toHaveAttribute(
