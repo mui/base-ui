@@ -88,6 +88,9 @@ describe('<FilterMenu.Root /> (WebKit)', () => {
 
     const checkbox = screen.getByRole('menuitemcheckbox', { name: 'Details' });
     const radio = screen.getByRole('menuitemradio', { name: 'Date' });
+    await waitFor(() => {
+      expect(screen.getByRole('searchbox', { name: 'Filter actions' })).toHaveFocus();
+    });
 
     await user.keyboard('[ArrowDown]');
     expect(checkbox).toHaveAttribute('aria-selected', 'true');
@@ -130,6 +133,9 @@ describe('<FilterMenu.Root /> (WebKit)', () => {
     const input = screen.getByRole('searchbox', { name: 'Filter actions' });
     const link = screen.getByRole('menuitem', { name: 'Documentation' });
     const submenuTrigger = screen.getByRole('menuitem', { name: 'More actions' });
+    await waitFor(() => {
+      expect(input).toHaveFocus();
+    });
 
     await user.keyboard('[ArrowDown]');
     expect(link).toHaveAttribute('aria-selected', 'true');
@@ -171,6 +177,9 @@ describe('<FilterMenu.Root /> (WebKit)', () => {
       </FilterMenu.Root>,
     );
 
+    await waitFor(() => {
+      expect(screen.getByRole('searchbox', { name: 'Filter actions' })).toHaveFocus();
+    });
     await user.keyboard('[ArrowDown][ArrowRight]');
 
     const submenuInput = await screen.findByRole('searchbox', { name: 'Filter more actions' });
