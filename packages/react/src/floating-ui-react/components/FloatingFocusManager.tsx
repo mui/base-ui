@@ -918,6 +918,12 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
       if (!details.open) {
         session.closeType = getEventType(details.nativeEvent, lastInteractionTypeRef.current);
 
+        // Re-derive guard ownership for every close request. A consumer can refuse a close by
+        // ignoring it instead of calling `cancel()`, which leaves this session live. Without the
+        // reset, the refused request's ownership would still be set when a later close is
+        // accepted, suppressing that close's return focus and stranding focus on `<body>`.
+        session.guardOwnsDestination = false;
+
         // A close driven by one of this popup's own focus guards already owns the destination —
         // the guard resolved where focus should go before closing. Returning focus on top of it
         // would undo the movement the user asked for. Scoped to elements this popup declared as

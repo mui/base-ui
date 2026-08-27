@@ -912,4 +912,71 @@ describe('<Popover.Trigger />', () => {
       await waitFor(() => expect(screen.getByTestId('before')).toHaveFocus());
     });
   });
+
+  describe.skipIf(isJSDOM)('close requests refused by the consumer', () => {
+    // A consumer may decline an open change by ignoring it rather than calling `cancel()`, which
+    // leaves the popover open and its focus session live. The declined request must not leave any
+    // close-scoped policy behind, or the next accepted close inherits it and strands focus.
+    function RefusingApp({ onOpenChangeSpy }: { onOpenChangeSpy: (reason: string) => void }) {
+      const [open, setOpen] = React.useState(false);
+      return (
+        <div>
+          <button data-testid="before">before</button>
+          <Popover.Root
+            open={open}
+            onOpenChange={(nextOpen, details) => {
+              onOpenChangeSpy(details.reason);
+              if (details.reason === 'focus-out') {
+                return;
+              }
+              setOpen(nextOpen);
+            }}
+          >
+            <Popover.Trigger>Open</Popover.Trigger>
+            <Popover.Portal>
+              <Popover.Positioner>
+                <Popover.Popup>
+                  <button data-testid="inside">Inside</button>
+                </Popover.Popup>
+              </Popover.Positioner>
+            </Popover.Portal>
+          </Popover.Root>
+          <button data-testid="after">after</button>
+        </div>
+      );
+    }
+
+    it('returns focus to the trigger when an earlier focus-out close was refused', async () => {
+      const { userEvent: browserUserEvent } = await import('vitest/browser');
+      const reasons: string[] = [];
+      await render(<RefusingApp onOpenChangeSpy={(reason) => reasons.push(reason)} />);
+
+      const trigger = screen.getByRole('button', { name: 'Open' });
+      await act(async () => trigger.focus());
+      await act(async () => {
+        await browserUserEvent.keyboard('[Enter]');
+      });
+      await waitFor(() => expect(screen.queryByRole('dialog')).not.toBe(null));
+
+      // Tab backwards until the trigger's leading guard requests the close the consumer refuses.
+      for (let step = 0; step < 4 && !reasons.includes('focus-out'); step += 1) {
+        // eslint-disable-next-line no-await-in-loop
+        await act(async () => {
+          await browserUserEvent.tab({ shift: true });
+        });
+      }
+      expect(reasons).toContain('focus-out');
+      // Refused, so the popover is still open.
+      expect(screen.queryByRole('dialog')).not.toBe(null);
+
+      // Focus goes back inside, then a close the consumer accepts.
+      await act(async () => screen.getByTestId('inside').focus());
+      await act(async () => {
+        await browserUserEvent.keyboard('[Escape]');
+      });
+
+      await waitFor(() => expect(trigger).toHaveFocus());
+      expect(document.activeElement).not.toBe(document.body);
+    });
+  });
 });
