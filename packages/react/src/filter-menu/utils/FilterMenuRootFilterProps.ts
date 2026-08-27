@@ -3,10 +3,11 @@ import type { FilterMenuFilter, FilterMenuRoot } from '../root/FilterMenuRoot';
 /** Filtering props shared by `FilterMenu.Root` and `FilterMenu.SubmenuRoot`. */
 export interface FilterMenuRootFilterProps {
   /**
-   * Replaces the default case-insensitive substring matching for item text.
-   * Receives an item's filter text, the trimmed query, and the item's `keywords`, which it must
-   * match itself if they should participate.
-   * Pass `null` to turn filtering off and decide which items to render yourself.
+   * Replaces the default case-insensitive substring matching while FilterMenu controls which
+   * registered items remain visible.
+   * Receives an item's label or rendered text and each of its keywords individually, together
+   * with the trimmed query. The item matches when the function returns `true` for any of them.
+   * Pass `null` when filtering mapped items yourself and deciding which items to render.
    */
   filter?: FilterMenuFilter | null | undefined;
   /**

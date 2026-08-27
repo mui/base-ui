@@ -128,15 +128,10 @@ export function FilterMenuRoot<Payload>(props: FilterMenuRoot.Props<Payload>): R
 /**
  * Determines whether an item matches the current filter query.
  *
- * @param itemText The item's `label`, falling back to its rendered text.
+ * @param text The item's `label`, rendered text, or one of its `keywords`.
  * @param query The trimmed filter query.
- * @param keywords The item's `keywords`, if it declared any.
  */
-export type FilterMenuFilter = (
-  itemText: string,
-  query: string,
-  keywords: readonly string[] | undefined,
-) => boolean;
+export type FilterMenuFilter = (text: string, query: string) => boolean;
 
 export type FilterMenuRootProps<Payload = unknown> = Omit<
   MenuRoot.Props<Payload>,
