@@ -78,7 +78,6 @@ function TestVirtualizedList(
       activeIndex: scrollToRowIndex ?? pinnedRowIndex ?? null,
       items,
       renderAllRows: false,
-      renderAllRowsRestoreVersion: 0,
       // A pinned row is kept mounted without being scrolled to; a scroll target is scrolled to.
       scrollActiveIntoView: scrollToRowIndex != null,
     }),

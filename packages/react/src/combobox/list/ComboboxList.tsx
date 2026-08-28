@@ -113,7 +113,6 @@ export const ComboboxList = React.forwardRef(function ComboboxList(
       activeIndex,
       items: flatFilteredItems,
       renderAllRows: virtualizationState.renderAllRows,
-      renderAllRowsRestoreVersion: virtualizationState.renderAllRowsRestoreVersion,
       // Pointer highlights follow the cursor; scrolling to them would move the list under it.
       scrollActiveIntoView: highlightType !== 'pointer',
     }),

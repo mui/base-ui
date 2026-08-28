@@ -10,7 +10,6 @@ import type { ListVirtualizationRegistry } from '../internals/virtualization/Lis
 
 export type VirtualizationState = {
   renderAllRows: boolean;
-  renderAllRowsRestoreVersion: number;
 };
 
 export type State = {
@@ -142,11 +141,7 @@ export function setVirtualizationRenderAllRows(store: VirtualizationStore, rende
     return;
   }
 
-  store.set('virtualizationState', {
-    renderAllRows,
-    renderAllRowsRestoreVersion:
-      virtualizationState.renderAllRowsRestoreVersion + (renderAllRows ? 0 : 1),
-  });
+  store.set('virtualizationState', { renderAllRows });
 }
 
 export const selectors = {

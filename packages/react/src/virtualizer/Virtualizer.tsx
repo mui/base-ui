@@ -246,7 +246,6 @@ export const Virtualizer = React.forwardRef(function Virtualizer<Value>(
     onUnconstrainedHeight,
     pinnedRowIndex,
     renderRow: renderRowProp,
-    restoreViewportVersion,
     scrollToRowAlignment,
     scrollToRowIndex,
   } = useListBinding<Value>({
@@ -642,20 +641,6 @@ export const Virtualizer = React.forwardRef(function Virtualizer<Value>(
     onWindowingSuspended: viewportRestore.disarm,
     store: virtualizer.store,
   });
-
-  const handledRestoreViewportVersionRef = React.useRef(0);
-
-  useIsoLayoutEffect(() => {
-    if (
-      restoreViewportVersion === 0 ||
-      restoreViewportVersion === handledRestoreViewportVersionRef.current
-    ) {
-      return;
-    }
-
-    handledRestoreViewportVersionRef.current = restoreViewportVersion;
-    viewportRestore.arm();
-  }, [restoreViewportVersion, viewportRestore]);
 
   // The scrollport's padding is only read when its box changes, so unpadded lists never pay for
   // the style lookup. Padding always resizes the content box the engine observes, unless the

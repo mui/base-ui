@@ -152,8 +152,6 @@ export interface ListBinding<Item> {
   renderRow: (
     params: VirtualizerRenderRowParameters<VirtualizerItemRowModel<Item>>,
   ) => React.ReactElement;
-  /** Bumped when a render-all pass ends and the windowed viewport has to be re-established. */
-  restoreViewportVersion: number;
   scrollToRowAlignment: VirtualizerScrollAlignment;
   scrollToRowIndex: number | undefined;
 }
@@ -203,11 +201,9 @@ export function useListBinding<Item>(
     ? (activeItem?.scroll ?? true)
     : listState?.scrollActiveIntoView === true;
   const scrollActiveAlignment = (hasOwnCollection && activeItem?.align) || 'auto';
-  // Only a list asks for every row at once, and only a list restores its viewport afterwards.
+  // Only a list asks for every row at once. The virtualizer sees the end of that as its own mode
+  // returning to windowed, which is the transition it restores its viewport on.
   const renderAllRows = hasOwnCollection ? false : (listState?.renderAllRows ?? false);
-  const renderAllRowsRestoreVersion = hasOwnCollection
-    ? 0
-    : (listState?.renderAllRowsRestoreVersion ?? 0);
 
   if (process.env.NODE_ENV !== 'production') {
     // The build-time environment never changes during a component's lifetime.
@@ -314,7 +310,6 @@ export function useListBinding<Item>(
     onUnconstrainedHeight,
     pinnedRowIndex: focusedRowIndex,
     renderRow,
-    restoreViewportVersion: renderAllRowsRestoreVersion,
     scrollToRowAlignment: scrollActiveAlignment,
     scrollToRowIndex,
   };

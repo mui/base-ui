@@ -501,7 +501,6 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
         externallyVirtualized: virtualized,
         virtualizationState: {
           renderAllRows: false,
-          renderAllRowsRestoreVersion: 0,
         },
         isItemDisabled,
         highlightType: 'none',

@@ -52,11 +52,6 @@ export interface ListVirtualizationListState {
    */
   renderAllRows: boolean;
   /**
-   * Version incremented after a temporary render-all pass. Changing it restores the constrained
-   * client height as the virtualizer viewport, including when the component remounts.
-   */
-  renderAllRowsRestoreVersion: number;
-  /**
    * Whether the active item should be scrolled into view. Lists that highlight on hover pass
    * `false` for pointer-driven changes, which would otherwise move the list under the cursor.
    */
