@@ -151,7 +151,17 @@ export const AvatarImage = React.forwardRef(function AvatarImage(
   };
 
   const shouldRender = keepMounted || mounted;
-  const sourceProps = { sizes, srcSet, src };
+  const sourceProps: React.ComponentPropsWithRef<'img'> = {};
+
+  if (sizes !== undefined) {
+    sourceProps.sizes = sizes;
+  }
+  if (srcSet !== undefined) {
+    sourceProps.srcSet = srcSet;
+  }
+  if (src !== undefined) {
+    sourceProps.src = src;
+  }
 
   const element = useRenderElement('img', componentProps, {
     state,

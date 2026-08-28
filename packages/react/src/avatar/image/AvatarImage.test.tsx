@@ -688,6 +688,32 @@ describe('<Avatar.Image />', () => {
       });
     });
 
+    it.skipIf(!isJSDOM)('does not override source props in a render callback', async () => {
+      await render(
+        <Avatar.Root>
+          <Avatar.Image
+            keepMounted
+            render={(props) => (
+              <img
+                alt=""
+                data-testid="image"
+                sizes="48px"
+                src="avatar.png"
+                srcSet="avatar.png 1x"
+                {...props}
+              />
+            )}
+          />
+          <Avatar.Fallback>JD</Avatar.Fallback>
+        </Avatar.Root>,
+      );
+
+      const image = screen.getByTestId('image');
+      expect(image).toHaveAttribute('sizes', '48px');
+      expect(image).toHaveAttribute('src', 'avatar.png');
+      expect(image).toHaveAttribute('srcset', 'avatar.png 1x');
+    });
+
     it.skipIf(!isJSDOM)(
       'applies the source props after the ones configuring the request',
       async () => {
