@@ -71,16 +71,11 @@ describe('slider store', () => {
     }
 
     const { setProps } = await render(<Fixture value={10} />);
-    const initialValue = storeRef.current!.select('value');
-    const initialValues = storeRef.current!.select('values', initialValue, 0, 100);
+    expect(storeRef.current!.select('value')).toBe(10);
 
     await setProps({ value: 40 });
 
-    const value = storeRef.current!.select('value');
-    const values = storeRef.current!.select('values', value, 0, 100);
-    expect(value).toBe(40);
-    expect(values).toEqual([40]);
-    expect(values).not.toBe(initialValues);
+    expect(storeRef.current!.select('value')).toBe(40);
     expect(screen.getByRole('slider')).toHaveValue('40');
   });
 
@@ -101,24 +96,6 @@ describe('slider store', () => {
     await setProps({ max: 30 });
 
     expect(screen.getByRole('slider')).toHaveAttribute('aria-valuenow', '30');
-  });
-
-  it('keeps the values of the previous arguments cached', async () => {
-    const storeRef: { current: SliderStore | null } = { current: null };
-
-    await render(
-      <Slider.Root defaultValue={10}>
-        <StoreProbe storeRef={storeRef} />
-      </Slider.Root>,
-    );
-
-    const store = storeRef.current!;
-    const first = store.select('values', 10, 0, 100);
-    const second = store.select('values', 20, 0, 100);
-
-    expect(store.select('values', 10, 0, 100)).toBe(first);
-    expect(store.select('values', 20, 0, 100)).toBe(second);
-    expect(store.select('values', NaN, 0, 100)).toBe(store.select('values', NaN, 0, 100));
   });
 
   it('renders a NaN value without an update loop', async () => {

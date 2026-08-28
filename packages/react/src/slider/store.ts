@@ -1,5 +1,4 @@
 import { areArraysEqual } from '@base-ui/utils/areArraysEqual';
-import { clamp } from '@base-ui/utils/clamp';
 import { NOOP } from '@base-ui/utils/empty';
 import { ReactStore } from '@base-ui/utils/store';
 import type { CompositeMetadata } from '../internals/composite/list/CompositeList';
@@ -12,7 +11,7 @@ import type { SliderRoot } from './root/SliderRoot';
 import type { ThumbMetadata } from './thumb/SliderThumb';
 import { getSliderValue } from './utils/getSliderValue';
 import { validateMinimumDistance } from './utils/validateMinimumDistance';
-import { asc } from './utils/asc';
+import { normalizeValues } from './utils/normalizeValues';
 
 export interface SliderStoreState {
   /**
@@ -81,77 +80,26 @@ export interface SliderStoreContext {
   setTouched: (touched: boolean) => void;
 }
 
-interface ValuesCacheEntry {
-  value: number | readonly number[];
-  min: number;
-  max: number;
-  values: readonly number[];
-}
-
-// Created per store: `values` is keyed on render-time arguments (the store is only synchronized
-// in a layout effect) and keeps the two most recent results, because `useSyncExternalStore`
-// still reads through the previous render's arguments until its passive effect runs.
-function createSelectors() {
-  let current: ValuesCacheEntry | undefined;
-  let previous: ValuesCacheEntry | undefined;
-
-  function matches(entry: ValuesCacheEntry | undefined, value: unknown, min: number, max: number) {
-    return (
-      entry !== undefined &&
-      Object.is(entry.value, value) &&
-      Object.is(entry.min, min) &&
-      Object.is(entry.max, max)
-    );
-  }
-
-  return {
-    value: (storeState: SliderStoreState) => storeState.valueProp ?? storeState.value,
-    // Takes the `value` prop as an argument because `state.valueProp` is stale during the render
-    // that changed it.
-    renderValue: (
-      storeState: SliderStoreState,
-      valueProp: number | readonly number[] | undefined,
-    ) => valueProp ?? storeState.value,
-    values: (
-      _storeState: SliderStoreState,
-      value: number | readonly number[],
-      min: number,
-      max: number,
-    ) => {
-      if (matches(current, value, min, max)) {
-        return current!.values;
-      }
-
-      if (matches(previous, value, min, max)) {
-        return previous!.values;
-      }
-
-      const values = Array.isArray(value)
-        ? value.map((item) => clamp(item, min, max)).sort(asc)
-        : [clamp(value as number, min, max)];
-
-      previous = current;
-      current = { value, min, max, values };
-
-      return values;
-    },
-    active: (storeState: SliderStoreState) => storeState.active,
-    activeWhileDisabled: (storeState: SliderStoreState) =>
-      storeState.disabled && storeState.active !== -1,
-    dragging: (storeState: SliderStoreState) => storeState.dragging,
-    lastUsedThumbIndex: (storeState: SliderStoreState) => storeState.lastUsedThumbIndex,
-    indicatorPosition: (storeState: SliderStoreState) => storeState.indicatorPosition,
-    registeredLabelId: (storeState: SliderStoreState) => storeState.registeredLabelId,
-    thumbMap: (storeState: SliderStoreState) => storeState.thumbMap,
-  };
-}
-
-type SliderStoreSelectors = ReturnType<typeof createSelectors>;
+export const selectors = {
+  value: (storeState: SliderStoreState) => storeState.valueProp ?? storeState.value,
+  // Takes the `value` prop as an argument because `state.valueProp` is stale during the render
+  // that changed it.
+  renderValue: (storeState: SliderStoreState, valueProp: number | readonly number[] | undefined) =>
+    valueProp ?? storeState.value,
+  active: (storeState: SliderStoreState) => storeState.active,
+  activeWhileDisabled: (storeState: SliderStoreState) =>
+    storeState.disabled && storeState.active !== -1,
+  dragging: (storeState: SliderStoreState) => storeState.dragging,
+  lastUsedThumbIndex: (storeState: SliderStoreState) => storeState.lastUsedThumbIndex,
+  indicatorPosition: (storeState: SliderStoreState) => storeState.indicatorPosition,
+  registeredLabelId: (storeState: SliderStoreState) => storeState.registeredLabelId,
+  thumbMap: (storeState: SliderStoreState) => storeState.thumbMap,
+};
 
 export class SliderStore extends ReactStore<
   SliderStoreState,
   SliderStoreContext,
-  SliderStoreSelectors
+  typeof selectors
 > {
   constructor(state: SliderStoreState) {
     super(
@@ -167,7 +115,7 @@ export class SliderStore extends ReactStore<
         onValueCommitted: NOOP,
         setTouched: NOOP,
       },
-      createSelectors(),
+      selectors,
     );
 
     // Must be the first listener registered on the store so React subscribers never observe
@@ -260,7 +208,7 @@ export class SliderStore extends ReactStore<
   ) => {
     const { max, min, minStepsBetweenValues, step } = this.state;
     const value = this.select('value');
-    const values = this.select('values', value, min, max);
+    const values = normalizeValues(value, min, max);
     const newValue = getSliderValue(valueInput, index, min, max, Array.isArray(value), values);
 
     if (!validateMinimumDistance(newValue, step, minStepsBetweenValues)) {

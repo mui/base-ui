@@ -28,6 +28,7 @@ import {
   type SliderRootPropsContextValue,
 } from './SliderRootContext';
 import { SliderStore } from '../store';
+import { normalizeValues } from '../utils/normalizeValues';
 import type { REASONS } from '../../internals/reasons';
 
 /**
@@ -115,7 +116,10 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
   const valueUnwrapped = store.useState('renderValue', valueProp);
   const range = Array.isArray(valueUnwrapped);
 
-  const values = store.useState('values', valueUnwrapped, min, max);
+  const values = React.useMemo(
+    () => normalizeValues(valueUnwrapped, min, max),
+    [max, min, valueUnwrapped],
+  );
 
   const fieldValue = range ? values : values[0];
 
