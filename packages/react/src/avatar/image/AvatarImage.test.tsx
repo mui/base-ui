@@ -325,6 +325,29 @@ describe('<Avatar.Image />', () => {
       });
     });
 
+    it.skipIf(!isJSDOM)('lets a user handler prevent the status update', async () => {
+      const onLoadingStatusChange = vi.fn();
+
+      await render(
+        <Avatar.Root>
+          <Avatar.Image
+            data-testid="image"
+            keepMounted
+            onLoad={(event) => event.preventBaseUIHandler()}
+            onLoadingStatusChange={onLoadingStatusChange}
+            src="avatar.png"
+          />
+          <Avatar.Fallback>JD</Avatar.Fallback>
+        </Avatar.Root>,
+      );
+
+      fireEvent.load(screen.getByTestId('image'));
+
+      expect(screen.getByTestId('image')).toHaveAttribute('data-loading');
+      expect(screen.getByText('JD')).not.toBe(null);
+      expect(onLoadingStatusChange.mock.calls.map(([status]) => status)).toEqual(['loading']);
+    });
+
     it.skipIf(!isJSDOM)('resets the status when a rendered image changes source', async () => {
       const onLoadingStatusChange = vi.fn();
 
@@ -911,6 +934,58 @@ describe('<Avatar.Image />', () => {
       await waitFor(() => {
         expect(screen.queryByTestId('image')).toBe(null);
       });
+    });
+
+    it('does not apply the not-loaded state attributes without keepMounted', async () => {
+      globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+
+      const style = `
+        @keyframes test-anim {
+          to {
+            opacity: 0;
+          }
+        }
+
+        .animation-test-image[data-ending-style] {
+          animation: test-anim 200ms;
+        }
+      `;
+
+      function Test() {
+        const [showImage, setShowImage] = React.useState(true);
+
+        function handleHideImage() {
+          setShowImage(false);
+        }
+
+        return (
+          <div>
+            {/* eslint-disable-next-line react/no-danger */}
+            <style dangerouslySetInnerHTML={{ __html: style }} />
+            <button onClick={handleHideImage}>Hide image</button>
+            <Avatar.Root>
+              <Avatar.Image
+                className="animation-test-image"
+                data-testid="image"
+                src={showImage ? 'avatar.png' : undefined}
+              />
+            </Avatar.Root>
+          </div>
+        );
+      }
+
+      const { user } = await render(<Test />);
+
+      await user.click(screen.getByText('Hide image'));
+
+      await waitFor(() => {
+        expect(screen.getByTestId('image')).toHaveAttribute('data-ending-style');
+      });
+
+      // The status attributes belong to `keepMounted`. In the default mode the element only
+      // exists once the image loaded, so it must not pick them up while it animates out.
+      expect(screen.getByTestId('image')).not.toHaveAttribute('data-error');
+      expect(screen.getByTestId('image')).not.toHaveAttribute('data-loading');
     });
 
     it('does not apply data-ending-style with keepMounted', async () => {

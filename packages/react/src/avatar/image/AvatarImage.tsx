@@ -13,21 +13,9 @@ import { transitionStatusMapping } from '../../internals/stateAttributesMapping'
 import { type TransitionStatus, useTransitionStatus } from '../../internals/useTransitionStatus';
 import { useImageLoadingStatus } from './useImageLoadingStatus';
 
-const LOADING_HOOK = { 'data-loading': '' };
-const ERROR_HOOK = { 'data-error': '' };
-
 const stateAttributesMapping: StateAttributesMapping<AvatarImageState> = {
   ...avatarStateAttributesMapping,
   ...transitionStatusMapping,
-  imageLoadingStatus(value): Record<string, string> | null {
-    if (value === 'loading') {
-      return LOADING_HOOK;
-    }
-    if (value === 'error') {
-      return ERROR_HOOK;
-    }
-    return null;
-  },
 };
 
 /**
@@ -112,6 +100,11 @@ export const AvatarImage = React.forwardRef(function AvatarImage(
 
   const renderedStatusProps = keepMounted
     ? {
+        // Presence no longer implies the image loaded, so the not-loaded states need their own
+        // styling hooks. Scoped to `keepMounted` so the default mode, where the element only
+        // exists once loaded, doesn't pick them up while it animates out.
+        'data-loading': imageLoadingStatus === 'loading' ? '' : undefined,
+        'data-error': imageLoadingStatus === 'error' ? '' : undefined,
         // Until the image is displayable, the fallback owns the accessible name; without this
         // both would be exposed to assistive technology at once (including in server HTML).
         'aria-hidden': imageLoadingStatus !== 'loaded' || undefined,
@@ -163,9 +156,7 @@ export const AvatarImage = React.forwardRef(function AvatarImage(
   const element = useRenderElement('img', componentProps, {
     state,
     ref: [forwardedRef, imageRef],
-    props: renderedStatusProps
-      ? [renderedStatusProps, elementProps, sourceProps]
-      : [elementProps, sourceProps],
+    props: [renderedStatusProps, elementProps, sourceProps],
     stateAttributesMapping,
     enabled: shouldRender,
   });
