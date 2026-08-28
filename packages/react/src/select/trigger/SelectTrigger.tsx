@@ -3,7 +3,7 @@ import * as React from 'react';
 import { ownerDocument } from '@base-ui/utils/owner';
 import { useTimeout } from '@base-ui/utils/useTimeout';
 import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
-import { useSelectRootContext, useSelectRootPropsContext } from '../root/SelectRootContext';
+import { useSelectRootContext } from '../root/SelectRootContext';
 import { BaseUIComponentProps, HTMLProps, NativeButtonProps } from '../../internals/types';
 import { useFieldRootContext } from '../../internals/field-root-context/FieldRootContext';
 import { useLabelableContext } from '../../internals/labelable-provider/LabelableContext';
@@ -61,7 +61,9 @@ export const SelectTrigger = React.forwardRef(function SelectTrigger(
   } = useFieldRootContext();
   const { labelId: fieldLabelId } = useLabelableContext();
   const store = useSelectRootContext();
-  const { readOnly, required, disabled: selectDisabled } = useSelectRootPropsContext();
+  const readOnly = store.useState('readOnly');
+  const required = store.useState('required');
+  const selectDisabled = store.useState('disabled');
   const disabled = fieldDisabled || selectDisabled || disabledProp;
 
   const open = store.useState('open');
