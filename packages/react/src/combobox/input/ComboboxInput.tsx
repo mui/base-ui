@@ -337,15 +337,21 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
           }
         },
         onKeyDown(event) {
-          if (disabled || readOnly) {
-            return;
-          }
-
           if (event.ctrlKey || event.shiftKey || event.altKey || event.metaKey) {
             return;
           }
 
+          // Tracked before the guards so `readOnly` browsing reports keyboard highlight reasons.
           store.context.keyboardActiveRef.current = true;
+
+          if (disabled || readOnly) {
+            // Browsing can highlight an item, and Enter there must not submit the form.
+            if (readOnly && event.key === 'Enter' && open && store.state.activeIndex !== null) {
+              stopEvent(event);
+            }
+            return;
+          }
+
           const input = event.currentTarget;
           const scrollAmount = input.scrollWidth - input.clientWidth;
           const isRTL = direction === 'rtl';

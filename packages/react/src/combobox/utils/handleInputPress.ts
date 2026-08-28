@@ -9,10 +9,9 @@ export function handleInputPress(
   event: React.MouseEvent<HTMLElement> & { baseUIHandlerPrevented?: boolean | undefined },
   store: ComboboxStore,
   disabled: boolean,
-  readOnly: boolean,
   shouldIgnoreTarget?: ((target: Element | null) => boolean) | undefined,
 ) {
-  if (event.baseUIHandlerPrevented || readOnly) {
+  if (event.baseUIHandlerPrevented) {
     return;
   }
 

@@ -196,7 +196,7 @@ describe('<Combobox.Input />', () => {
       expect(input).toHaveAttribute('readonly');
     });
 
-    it('should not open popup when readOnly', async () => {
+    it('should open popup when readOnly', async () => {
       const { user } = await render(
         <Combobox.Root readOnly>
           <Combobox.Input data-testid="input" />
@@ -216,12 +216,13 @@ describe('<Combobox.Input />', () => {
       const input = screen.getByTestId('input');
       await user.click(input);
 
-      expect(screen.queryByRole('listbox')).toBe(null);
+      expect(await screen.findByRole('listbox')).toHaveAttribute('aria-readonly', 'true');
     });
 
-    it('should prevent keyboard interactions when readOnly', async () => {
+    it('should not change the input value when typing while readOnly', async () => {
+      const onInputValueChange = vi.fn();
       const { user } = await render(
-        <Combobox.Root readOnly>
+        <Combobox.Root readOnly onInputValueChange={onInputValueChange}>
           <Combobox.Input data-testid="input" />
           <Combobox.Portal>
             <Combobox.Positioner>
@@ -239,7 +240,9 @@ describe('<Combobox.Input />', () => {
       const input = screen.getByTestId('input');
 
       await user.type(input, 'a');
-      expect(screen.queryByRole('listbox')).toBe(null);
+
+      expect(input).toHaveValue('');
+      expect(onInputValueChange).not.toHaveBeenCalled();
     });
 
     it('allows interactions when readOnly={false}', async () => {

@@ -104,6 +104,8 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
   }
 
   const { reference: triggerTypeaheadProps } = useTypeahead(floatingRootContext, {
+    // Typeahead on a closed trigger commits a value rather than moving a highlight, so it stays
+    // gated on `readOnly`.
     enabled: !open && !readOnly && !comboboxDisabled && selectionMode === 'single',
     listRef: store.context.labelsRef,
     activeIndex,
@@ -117,7 +119,7 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
   });
 
   const { reference: triggerClickProps } = useClick(floatingRootContext, {
-    enabled: !readOnly && !comboboxDisabled,
+    enabled: !comboboxDisabled,
     event: 'mousedown',
   });
 
@@ -155,13 +157,16 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
         'aria-haspopup': inputInsidePopup ? 'dialog' : 'listbox',
         'aria-controls': ariaControls,
         'aria-required': inputInsidePopup ? required || undefined : undefined,
+        // Only valid alongside the `combobox` role; without it the trigger is a plain button, and
+        // the `Combobox.Input` outside the popup already carries `aria-readonly`.
+        'aria-readonly': inputInsidePopup ? readOnly || undefined : undefined,
         'aria-labelledby': ariaLabelledBy,
         onPointerDown: trackPointerType,
         onPointerEnter: trackPointerType,
         onFocus() {
           setFocused(true);
 
-          if (disabled || readOnly) {
+          if (disabled) {
             return;
           }
 
@@ -182,7 +187,7 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
           }
         },
         onMouseDown(event) {
-          if (disabled || readOnly) {
+          if (disabled) {
             return;
           }
 
@@ -237,10 +242,6 @@ export const ComboboxTrigger = React.forwardRef(function ComboboxTrigger(
           }
         },
         onKeyDown(event) {
-          if (readOnly) {
-            return;
-          }
-
           if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
             stopEvent(event);
             store.context.setOpen(

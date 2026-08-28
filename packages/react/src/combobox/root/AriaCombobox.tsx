@@ -1288,17 +1288,21 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
       reference['aria-expanded'] = ariaExpanded;
       reference['aria-haspopup'] = ariaHasPopup;
       reference['aria-controls'] = expanded ? listElement?.id : undefined;
-      reference['aria-autocomplete'] = autoComplete;
+      // `readOnly` accepts no input, so no completion of any kind is offered.
+      reference['aria-autocomplete'] = readOnly ? 'none' : autoComplete;
     }
 
     return {
       reference,
       floating: { role: 'presentation' },
     };
-  }, [inputElement, expanded, ariaExpanded, ariaHasPopup, listElement?.id, autoComplete]);
+  }, [inputElement, expanded, ariaExpanded, ariaHasPopup, listElement?.id, autoComplete, readOnly]);
 
+  // `readOnly` locks the value, not the interaction: the popup opens and can be browsed.
+  // Value changes stay blocked in `ComboboxItem`, `ComboboxInput`'s keydown, `ComboboxTrigger`'s
+  // typeahead, the clear/remove parts, and the hidden input's autofill handler.
   const click = useClick(floatingRootContext, {
-    enabled: !readOnly && !disabled && openOnInputClick,
+    enabled: !disabled && openOnInputClick,
     event: 'mousedown-only',
     toggle: false,
     // Apply a small delay for touch to let mobile viewport/keyboard positioning settle.
@@ -1308,7 +1312,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
   });
 
   const dismiss = useDismiss(floatingRootContext, {
-    enabled: !readOnly && !disabled && !inline,
+    enabled: !disabled && !inline,
     outsidePressEvent: {
       mouse: 'sloppy',
       // The visual viewport (affected by the mobile software keyboard) can be
@@ -1330,7 +1334,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
   });
 
   const listNavigation = useListNavigation(floatingRootContext, {
-    enabled: !readOnly && !disabled,
+    enabled: !disabled,
     id,
     listRef,
     activeIndex,

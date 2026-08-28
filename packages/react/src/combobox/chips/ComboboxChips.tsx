@@ -43,7 +43,7 @@ export const ComboboxChips = React.forwardRef(function ComboboxChips(
       hasSelectionChips ? { role: 'toolbar' } : EMPTY_OBJECT,
       {
         onMouseDown(event) {
-          handleInputPress(event, store, store.state.disabled, store.state.readOnly);
+          handleInputPress(event, store, store.state.disabled);
         },
       },
       elementProps,

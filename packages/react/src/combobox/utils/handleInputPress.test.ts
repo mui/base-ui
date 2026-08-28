@@ -24,7 +24,7 @@ describe('handleInputPress', () => {
       },
     } as unknown as ComboboxStore;
 
-    handleInputPress(event, store, false, false);
+    handleInputPress(event, store, false);
 
     expect(preventDefault).toHaveBeenCalledOnce();
     expect(focus).toHaveBeenCalledOnce();
