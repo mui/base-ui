@@ -32,11 +32,14 @@ import type {
   VirtualizerRenderRowParameters,
   VirtualizerRow,
 } from '../internals/virtualization/types';
+import { EMPTY_SCROLLPORT_PADDING, getScrollportPadding } from './scrollport';
 import { useAdaptiveEstimate, useAdaptiveEstimateRefresh } from './useAdaptiveEstimate';
+import { useEngineMode } from './useEngineMode';
 import { useItemHeightEstimate } from './useItemHeightEstimate';
 import { usePendingScroll, usePendingScrollRetry, type PendingScroll } from './usePendingScroll';
 import { useScrollAnchor } from './useScrollAnchor';
 import { useScrollGesture } from './useScrollGesture';
+import { useViewportRestore } from './useViewportRestore';
 import { VirtualizerCssVars } from './VirtualizerCssVars';
 
 interface VirtualRowProps<RowModel> {
@@ -108,16 +111,6 @@ const VirtualRow = React.memo(VirtualRowImpl) as typeof VirtualRowImpl;
 function getRenderZoneTransform(offsetTop: number, scrollTop: number, paddingStart: number) {
   return `translate3d(0, ${offsetTop - scrollTop + paddingStart}px, 0)`;
 }
-
-/**
- * Block padding of the scrollport, which the rows are laid out inside of.
- */
-interface ScrollportPadding {
-  start: number;
-  end: number;
-}
-
-const EMPTY_SCROLLPORT_PADDING: ScrollportPadding = { start: 0, end: 0 };
 
 /**
  * Stands in for the rendered window before the first render has computed one, so the concerns
@@ -383,10 +376,6 @@ export const Virtualizer = React.forwardRef(function Virtualizer<Value>(
     updateRenderZoneTransform();
   });
 
-  const [virtualizationRevision, bumpVirtualizationRevision] = React.useReducer(
-    (value) => value + 1,
-    0,
-  );
   const layout = useRefWithInit(
     () =>
       new LayoutList({
@@ -631,8 +620,29 @@ export const Virtualizer = React.forwardRef(function Virtualizer<Value>(
     return () => observer.disconnect();
   }, [trailing]);
 
-  const pendingVirtualizationUpdateRef = React.useRef(false);
-  const restoreViewportRef = React.useRef(false);
+  // Declared before the mode publication below, which arms it: the request then lands on the
+  // commit that publication already schedules.
+  const viewportRestore = useViewportRestore({
+    api: virtualizer.api,
+    dimensionsReady: dimensions.isReady,
+    enabled,
+    renderContext,
+    rootSize,
+    rowCount: rows.length,
+    scrollElementRef,
+    scrollportPaddingTotal,
+    store: virtualizer.store,
+    totalSize,
+  });
+
+  useEngineMode({
+    api: virtualizer.api,
+    enabled,
+    onWindowingResumed: viewportRestore.arm,
+    onWindowingSuspended: viewportRestore.disarm,
+    store: virtualizer.store,
+  });
+
   const handledRestoreViewportVersionRef = React.useRef(0);
 
   useIsoLayoutEffect(() => {
@@ -644,51 +654,8 @@ export const Virtualizer = React.forwardRef(function Virtualizer<Value>(
     }
 
     handledRestoreViewportVersionRef.current = restoreViewportVersion;
-    restoreViewportRef.current = true;
-  }, [restoreViewportVersion]);
-
-  useIsoLayoutEffect(() => {
-    const virtualization = virtualizer.store.state.virtualization;
-
-    if (!enabled) {
-      restoreViewportRef.current = false;
-    }
-
-    if (
-      virtualization.enabled === enabled &&
-      virtualization.enabledForRows === enabled &&
-      virtualization.enabledForColumns === false
-    ) {
-      return;
-    }
-
-    if (enabled) {
-      restoreViewportRef.current = true;
-    }
-
-    // Updating the store flag alone does not recompute the rendered range. Schedule the MUI Virtualizer
-    // render-context update before publishing the new virtualization mode.
-    pendingVirtualizationUpdateRef.current = true;
-    virtualizer.api.scheduleUpdateRenderContext();
-    virtualizer.store.set('virtualization', {
-      ...virtualization,
-      enabled,
-      enabledForColumns: false,
-      enabledForRows: enabled,
-    });
-    // The mode fields are consumed inside the MUI Virtualizer hook. Guarantee another render before forcing
-    // the update so the API closes over the new enabled state.
-    bumpVirtualizationRevision();
-  }, [enabled, virtualizer.api, virtualizer.store]);
-
-  useIsoLayoutEffect(() => {
-    if (!pendingVirtualizationUpdateRef.current) {
-      return;
-    }
-
-    pendingVirtualizationUpdateRef.current = false;
-    virtualizer.api.forceUpdateRenderContext();
-  }, [virtualizationRevision, virtualizer.api]);
+    viewportRestore.arm();
+  }, [restoreViewportVersion, viewportRestore]);
 
   // The scrollport's padding is only read when its box changes, so unpadded lists never pay for
   // the style lookup. Padding always resizes the content box the engine observes, unless the
@@ -707,70 +674,6 @@ export const Virtualizer = React.forwardRef(function Virtualizer<Value>(
         : nextPadding,
     );
   }, [enabled, rootSize]);
-
-  useIsoLayoutEffect(() => {
-    const element = scrollElementRef.current;
-    const viewportHeight = element ? getContentHeight(element) : 0;
-
-    if (!restoreViewportRef.current || viewportHeight <= 0) {
-      return;
-    }
-
-    // A completed render-all pass needs this correction at most once. Keeping the flag armed
-    // would overwrite every later ResizeObserver update.
-    restoreViewportRef.current = false;
-
-    if (Math.abs(rootSize.height - viewportHeight) < 1) {
-      return;
-    }
-
-    // MUI Virtualizer stores the ResizeObserver content-box height. Preserve that same box model even if a
-    // preceding render-all pass temporarily expanded the observed content box.
-    virtualizer.store.set('rootSize', {
-      ...rootSize,
-      height: viewportHeight,
-    });
-    virtualizer.api.updateDimensions();
-    virtualizer.api.forceUpdateRenderContext();
-  }, [enabled, rootSize, virtualizer.api, virtualizer.store]);
-
-  const staleRenderAllRangeRef = React.useRef<string | null>(null);
-  useIsoLayoutEffect(() => {
-    const element = scrollElementRef.current;
-    const isRenderAllRange =
-      renderContext.firstRowIndex === 0 && renderContext.lastRowIndex >= rows.length;
-    const needsWindowRefresh =
-      restoreViewportRef.current &&
-      rows.length > 0 &&
-      dimensions.isReady &&
-      element != null &&
-      element.clientHeight - scrollportPaddingTotal < totalSize &&
-      isRenderAllRange;
-
-    if (!needsWindowRefresh) {
-      staleRenderAllRangeRef.current = null;
-      return;
-    }
-
-    const refreshKey = `${rows.length}:${element.clientHeight}:${totalSize}`;
-    if (staleRenderAllRangeRef.current === refreshKey) {
-      return;
-    }
-
-    // Enabling while hidden can make the scheduled update run before dimensions are ready.
-    // Retry after a constrained viewport renders so reopening cannot retain the render-all range.
-    staleRenderAllRangeRef.current = refreshKey;
-    virtualizer.api.forceUpdateRenderContext();
-  }, [
-    dimensions.isReady,
-    enabled,
-    renderContext.firstRowIndex,
-    renderContext.lastRowIndex,
-    rows.length,
-    scrollportPaddingTotal,
-    totalSize,
-    virtualizer.api,
-  ]);
 
   // Declared after the effects that publish the virtualization mode, so a request made as a list
   // opens is applied against the enabled window.
@@ -1350,17 +1253,4 @@ export namespace Virtualizer {
    * Props accepted by the component.
    */
   export type Props<Value = unknown> = VirtualizerProps<Value>;
-}
-
-function getScrollportPadding(element: HTMLElement): ScrollportPadding {
-  const styles = ownerWindow(element).getComputedStyle(element);
-  return {
-    start: Math.max(0, Number.parseFloat(styles.paddingTop) || 0),
-    end: Math.max(0, Number.parseFloat(styles.paddingBottom) || 0),
-  };
-}
-
-function getContentHeight(element: HTMLElement) {
-  const padding = getScrollportPadding(element);
-  return Math.max(0, element.clientHeight - padding.start - padding.end);
 }
