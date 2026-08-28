@@ -110,7 +110,6 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
   const direction = useDirection();
 
   const stickIfOpenTimeout = useTimeout();
-  const focusFrame = useAnimationFrame();
   const mutationFrame = useAnimationFrame();
   const resizeFrame = useAnimationFrame();
   const sizeFrame = useAnimationFrame();
@@ -120,7 +119,6 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
   const [pointerType, setPointerType] = React.useState<'mouse' | 'touch' | 'pen' | ''>('');
 
   const triggerElementRef = React.useRef<HTMLElement | null>(null);
-  const allowFocusRef = React.useRef(false);
   const prevSizeRef = React.useRef(DEFAULT_SIZE);
   const skipAutoSizeSyncRef = React.useRef(false);
 
@@ -409,19 +407,6 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
     syncCurrentSize,
   ]);
 
-  React.useEffect(() => {
-    if (isActiveItem && open && popupElement && allowFocusRef.current) {
-      allowFocusRef.current = false;
-      focusFrame.request(() => {
-        beforeOutsideRef.current?.focus();
-      });
-    }
-
-    return () => {
-      focusFrame.cancel();
-    };
-  }, [beforeOutsideRef, focusFrame, isActiveItem, open, popupElement]);
-
   useIsoLayoutEffect(() => {
     if (isActiveItemRef.current && open && popupElement && positionerElement) {
       if (skipAutoSizeSyncRef.current) {
@@ -682,17 +667,12 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
       }
       setViewportInert(false);
     },
-    onMouseMove() {
-      allowFocusRef.current = false;
-    },
     onMouseLeave() {
       if (value == null) {
         clearSafePolygonPointerEventsMutation(hoverInteractionState);
       }
     },
     onKeyDown(event) {
-      allowFocusRef.current = true;
-
       // For nested (submenu) triggers, don't intercept arrow keys that are used for
       // navigation in the parent content. The arrow keys should be handled by the
       // parent's CompositeRoot for navigating between items.
