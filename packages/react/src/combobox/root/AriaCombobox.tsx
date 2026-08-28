@@ -444,7 +444,8 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
   ]);
 
   /**
-   * The filtered items flattened across groups and projected to their selection values.
+   * The filtered items flattened across groups, before any projection to selection values. This is
+   * what gets rendered, so the built-in virtualizer windows this rather than the values below.
    */
   const flatFilteredItems: any[] = React.useMemo(
     // Explicit type argument: inferring it from a union of both shapes resolves `Item` to
@@ -453,6 +454,9 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
     [filteredItems],
   );
 
+  /**
+   * The filtered items flattened across groups and projected to their selection values.
+   */
   const flatFilteredValues: any[] = React.useMemo(() => {
     if (externalWindow && filteredItems === filteredItemsProp) {
       return externalWindow.values;

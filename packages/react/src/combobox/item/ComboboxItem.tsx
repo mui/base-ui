@@ -25,7 +25,7 @@ import { useListVirtualizationHost } from '../../internals/virtualization/ListVi
 import {
   useNonVirtualizedItemRegistration,
   useVirtualItemDiagnostics,
-} from '../../internals/virtualization/ListVirtualizerAdapter';
+} from '../../internals/virtualization/VirtualizerBinding';
 
 interface ComboboxItemInnerProps {
   componentProps: ComboboxItem.Props;
@@ -69,7 +69,7 @@ function ComboboxItemInner(props: ComboboxItemInnerProps) {
     if (virtualItem && indexProp != null && indexProp !== virtualItem.index) {
       warn(
         '<Combobox.Item> received an `index` prop that conflicts with the index provided by ' +
-          '<ListVirtualizer>. Remove the `index` prop from virtualized items.',
+          '<Virtualizer>. Remove the `index` prop from virtualized items.',
       );
     }
   }
@@ -348,7 +348,7 @@ export interface ComboboxItemProps
   /**
    * The index of the item in the filtered list. Improves performance when specified by avoiding
    * the need to calculate the index automatically from the DOM. It is supplied automatically by
-   * the built-in `<ListVirtualizer>`; pass it only for static items or external virtualization.
+   * the built-in `<Virtualizer>`; pass it only for static items or external virtualization.
    */
   index?: number | undefined;
   /**

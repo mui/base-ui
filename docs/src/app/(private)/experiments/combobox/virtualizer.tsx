@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import { Combobox } from '@base-ui/react/combobox';
-import { ListVirtualizer } from '@base-ui/react/list-virtualizer';
+import { Virtualizer } from '@base-ui/react/virtualizer';
 import { useVirtualizer } from '@tanstack/react-virtual';
 import { SettingsMetadata, useExperimentSettings } from '../_components/SettingsPanel';
 import styles from './virtualizer.module.css';
@@ -26,7 +26,7 @@ export default function ComboboxVirtualizerExperiment() {
       <header className={styles.Header}>
         <h1>Combobox virtualizers</h1>
         <p>
-          Compare the built-in <code>ListVirtualizer</code> with the external{' '}
+          Compare the built-in <code>Virtualizer</code> with the external{' '}
           <code>@tanstack/react-virtual</code> integration, and with a plain list that renders every
           item. Each list contains 10,000 items.
         </p>
@@ -70,7 +70,7 @@ function BuiltInVirtualizer(props: { varyingHeights: boolean }) {
           <Combobox.Popup className={styles.Popup}>
             <Combobox.Empty className={styles.Empty}>No items found.</Combobox.Empty>
             <Combobox.List className={styles.List}>
-              <ListVirtualizer
+              <Virtualizer
                 className={styles.Scroller}
                 estimatedItemHeight={12}
                 getItemKey={(item) => item.id}
@@ -79,7 +79,7 @@ function BuiltInVirtualizer(props: { varyingHeights: boolean }) {
                 {(item: VirtualizedItem) => (
                   <VirtualizedItemRow item={item} varyingHeights={props.varyingHeights} />
                 )}
-              </ListVirtualizer>
+              </Virtualizer>
             </Combobox.List>
           </Combobox.Popup>
         </Combobox.Positioner>
