@@ -111,13 +111,17 @@ export const MenuPopup = React.forwardRef(function MenuPopup(
     ],
   });
 
-  let returnFocus = parent.type === undefined || isContextMenu;
-  if (
-    activeTriggerElement ||
-    (parent.type === 'menubar' && lastOpenChangeReason !== REASONS.outsidePress)
-  ) {
-    returnFocus = true;
-  }
+  // A menubar child that closes while a sibling menu is open must not pull
+  // focus back to its own trigger: the sibling now owns focus, and this
+  // trigger's `useFocus` — enabled for exactly as long as the menubar has a
+  // submenu open — would immediately reopen the menu that was just closed.
+  const siblingMenuOpen = parent.type === 'menubar' && parent.context.hasSubmenuOpen;
+  const returnFocus =
+    !siblingMenuOpen &&
+    (parent.type === undefined ||
+      isContextMenu ||
+      Boolean(activeTriggerElement) ||
+      (parent.type === 'menubar' && lastOpenChangeReason !== REASONS.outsidePress));
 
   return (
     <FloatingFocusManager
