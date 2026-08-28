@@ -64,6 +64,7 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
     labelsRef,
     alignItemWithTriggerActiveRef,
     selectedItemTextRef,
+    registeredItemValuesRef,
     valuesRef,
     initialValueRef,
     popupRef,
@@ -145,63 +146,82 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
     inert: !open,
   });
 
-  const prevMapSizeRef = React.useRef(0);
+  const clearSelection = useStableCallback(() => {
+    store.set('selectedIndex', null);
+    selectedItemTextRef.current = null;
+  });
 
-  const onMapChange = useStableCallback(
-    (map: Map<Element, { index?: number | null | undefined } | null>) => {
-      if (valuesRef.current.length === 0) {
-        return;
-      }
+  // Clear the selection bookkeeping when the positioner unmounts. Leaving a stale index
+  // behind lets `SelectItemText` re-adopt it on the next mount, before the value has been
+  // re-matched against the items that are actually rendered then.
+  useIsoLayoutEffect(() => clearSelection, [clearSelection]);
 
-      const prevSize = prevMapSizeRef.current;
-      prevMapSizeRef.current = map.size;
+  const onMapChange = useStableCallback(() => {
+    const rawValues = valuesRef.current;
+    // `filter` compacts by hole-presence. Reading positionally is unsafe: under React 18
+    // Strict Mode the value slots can sit at stale guessed indices at flush time.
+    const nextValues = rawValues.filter(() => true);
 
+    // An empty flush is indeterminate: the mount-commit flush fires before items rendered
+    // in a later commit (lazy or effect-gated options) have registered. Keep the previous
+    // snapshot so that flush still reconciles, instead of wiping the value here.
+    if (nextValues.length === 0) {
+      return;
+    }
+
+    const prevValues = registeredItemValuesRef.current;
+    registeredItemValuesRef.current = nextValues;
+
+    // Validate the selection whenever the registered values change, including a replacement
+    // of equal size. Flushes that keep the values identical (a remount re-registering the
+    // same items, or label/index refreshes) skip it, so a controlled value that deliberately
+    // matches no item isn't pruned by re-registration churn.
+    const valuesChanged =
+      nextValues.length !== prevValues.length ||
+      nextValues.some((itemValue, index) => !Object.is(itemValue, prevValues[index]));
+
+    if (prevValues.length !== 0 && valuesChanged) {
       const eventDetails = createChangeEventDetails(REASONS.none);
 
-      if (prevSize !== 0 && !store.state.multiple && value !== null) {
-        const selectedValueIndex = findItemIndex(valuesRef.current, value, isItemEqualToValue);
-        if (selectedValueIndex === -1) {
-          const initialSelectedValue = initialValueRef.current;
-          const hasInitial =
-            initialSelectedValue != null &&
-            findItemIndex(valuesRef.current, initialSelectedValue, isItemEqualToValue) !== -1;
-          const nextValue = hasInitial ? initialSelectedValue : null;
-          setValue(nextValue, eventDetails);
+      if (store.state.multiple) {
+        if (Array.isArray(value)) {
+          const nextValue = value.filter(
+            (selectedItemValue) =>
+              findItemIndex(rawValues, selectedItemValue, isItemEqualToValue) !== -1,
+          );
+          if (nextValue.length !== value.length) {
+            setValue(nextValue, eventDetails);
 
-          if (nextValue === null) {
-            store.set('selectedIndex', null);
-            selectedItemTextRef.current = null;
+            if (nextValue.length === 0) {
+              clearSelection();
+            }
           }
         }
-      }
+      } else if (value !== null && findItemIndex(rawValues, value, isItemEqualToValue) === -1) {
+        const initialSelectedValue = initialValueRef.current;
+        const hasInitial =
+          initialSelectedValue != null &&
+          findItemIndex(rawValues, initialSelectedValue, isItemEqualToValue) !== -1;
+        const nextValue = hasInitial ? initialSelectedValue : null;
+        setValue(nextValue, eventDetails);
 
-      if (prevSize !== 0 && store.state.multiple && Array.isArray(value)) {
-        const nextValue = value.filter(
-          (selectedItemValue) =>
-            findItemIndex(valuesRef.current, selectedItemValue, isItemEqualToValue) !== -1,
-        );
-        if (nextValue.length !== value.length) {
-          setValue(nextValue, eventDetails);
-
-          if (nextValue.length === 0) {
-            store.set('selectedIndex', null);
-            selectedItemTextRef.current = null;
-          }
+        if (nextValue === null) {
+          clearSelection();
         }
       }
+    }
 
-      if (open && alignItemWithTriggerActive) {
-        store.update({
-          scrollUpArrowVisible: false,
-          scrollDownArrowVisible: false,
-        });
+    if (open && alignItemWithTriggerActive) {
+      store.update({
+        scrollUpArrowVisible: false,
+        scrollDownArrowVisible: false,
+      });
 
-        const stylesToClear: React.CSSProperties = { height: '' };
-        clearStyles(positionerElement, stylesToClear);
-        clearStyles(popupRef.current, stylesToClear);
-      }
-    },
-  );
+      const stylesToClear: React.CSSProperties = { height: '' };
+      clearStyles(positionerElement, stylesToClear);
+      clearStyles(popupRef.current, stylesToClear);
+    }
+  });
 
   const contextValue: SelectPositionerContext = React.useMemo(
     () => ({

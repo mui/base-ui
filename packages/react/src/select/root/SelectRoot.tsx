@@ -12,6 +12,8 @@ import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
 import { useStore, ReactStore } from '@base-ui/utils/store';
 import { EMPTY_ARRAY, EMPTY_OBJECT } from '@base-ui/utils/empty';
+import { ownerDocument } from '@base-ui/utils/owner';
+import { useTimeout } from '@base-ui/utils/useTimeout';
 import {
   useClick,
   useDismiss,
@@ -19,6 +21,7 @@ import {
   useListNavigation,
   useTypeahead,
 } from '../../floating-ui-react';
+import { activeElement, contains } from '../../floating-ui-react/utils';
 import { SelectRootContext } from './SelectRootContext';
 import { useFieldRootContext } from '../../internals/field-root-context/FieldRootContext';
 import { useRegisterFieldControl } from '../../internals/field-register-control/useRegisterFieldControl';
@@ -128,6 +131,9 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     dragY: 0,
   });
   const alignItemWithTriggerActiveRef = React.useRef(false);
+  // Lives on the root so an unmounting positioner doesn't erase what was registered
+  // before — the dynamic-items reconciliation must still run on the next mount.
+  const registeredItemValuesRef = React.useRef<any[]>([]);
 
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
   const { openMethod, triggerProps: interactionTypeProps } = useOpenInteractionType(open);
@@ -271,6 +277,16 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     },
   );
 
+  // The items must stay mounted while the trigger is focused so closed-trigger typeahead can
+  // read the registered labels and values. Containment (not identity) so focus inside a
+  // shadow-backed or composite trigger still counts as trigger focus.
+  const syncForceMount = useStableCallback(() => {
+    const trigger = store.state.triggerElement;
+    store.set('forceMount', contains(trigger, activeElement(ownerDocument(trigger))));
+  });
+
+  const forceMountReleaseTimeout = useTimeout();
+
   const handleUnmount = useStableCallback(() => {
     setMounted(false);
     store.update({
@@ -279,6 +295,10 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
       scrollUpArrowVisible: false,
       scrollDownArrowVisible: false,
     });
+    // Defer the release until after `FloatingFocusManager` has returned focus (a microtask),
+    // so a close that restores trigger focus keeps the items mounted instead of unmounting
+    // and remounting them.
+    forceMountReleaseTimeout.start(0, syncForceMount);
     onOpenChangeComplete?.(false);
   });
 
@@ -459,6 +479,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
       selectionRef,
       firstItemTextRef,
       selectedItemTextRef,
+      registeredItemValuesRef,
       validation,
       onOpenChangeComplete,
       alignItemWithTriggerActiveRef,
@@ -528,35 +549,38 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
             const details = createChangeEventDetails(REASONS.none, event.nativeEvent);
 
             function handleChange() {
-              if (multiple) {
-                // Browser autofill only writes a single scalar value.
-                return;
+              // Browser autofill only writes a single scalar value.
+              if (!multiple) {
+                // Preserve the original serialized matching, then fall back to rendered text,
+                // which browsers can autofill for primitive values like `value="US">United States`.
+                const nextValueLower = nextValue.toLowerCase();
+                let matchingIndex = valuesRef.current.findIndex(
+                  (candidate) =>
+                    stringifyAsValue(candidate, itemToStringValue).toLowerCase() ===
+                      nextValueLower ||
+                    stringifyAsLabel(candidate, itemToStringLabel).toLowerCase() === nextValueLower,
+                );
+
+                if (matchingIndex === -1) {
+                  matchingIndex = valuesRef.current.findIndex((_, index) => {
+                    const renderedLabel = labelsRef.current[index];
+                    return renderedLabel != null && renderedLabel.toLowerCase() === nextValueLower;
+                  });
+                }
+
+                const matchingValue = valuesRef.current[matchingIndex];
+                if (matchingValue != null) {
+                  // `setValue` may be canceled by `onValueChange`; rely on `useValueChanged` to
+                  // mark the field dirty and run validation only when the value actually changes.
+                  setValue(matchingValue, details);
+                }
               }
 
-              // Preserve the original serialized matching, then fall back to rendered text,
-              // which browsers can autofill for primitive values like `value="US">United States`.
-              const nextValueLower = nextValue.toLowerCase();
-              let matchingIndex = valuesRef.current.findIndex(
-                (candidate) =>
-                  stringifyAsValue(candidate, itemToStringValue).toLowerCase() === nextValueLower ||
-                  stringifyAsLabel(candidate, itemToStringLabel).toLowerCase() === nextValueLower,
-              );
-
-              if (matchingIndex === -1) {
-                matchingIndex = valuesRef.current.findIndex((_, index) => {
-                  const renderedLabel = labelsRef.current[index];
-                  return renderedLabel != null && renderedLabel.toLowerCase() === nextValueLower;
-                });
-              }
-
-              const matchingValue = valuesRef.current[matchingIndex];
-              if (matchingValue != null) {
-                // `setValue` may be canceled by `onValueChange`; rely on `useValueChanged` to
-                // mark the field dirty and run validation only when the value actually changes.
-                setValue(matchingValue, details);
-              }
+              syncForceMount();
             }
 
+            // Mount the items for a single microtask so the autofilled value can be matched
+            // against their registered values and labels.
             store.set('forceMount', true);
             queueMicrotask(handleChange);
           },
