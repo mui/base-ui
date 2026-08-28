@@ -92,14 +92,6 @@ export const SliderControl = React.forwardRef(function SliderControl(
   const { disabled, inset, renderBeforeHydration, state, thumbCollisionBehavior } =
     useSliderRootPropsContext();
   const { dragging, max, min, minStepsBetweenValues, orientation, step, values } = state;
-  const { registerFieldControlRef, setActive, setDragging, setValue } = store;
-  const {
-    lastChangeReasonRef,
-    pressedThumbCenterOffsetRef,
-    pressedThumbIndexRef,
-    pressedValuesRef,
-    thumbRefs,
-  } = store.context;
 
   const direction = useDirection();
   const range = values.length > 1;
@@ -128,15 +120,15 @@ export const SliderControl = React.forwardRef(function SliderControl(
   }
 
   function updatePressedThumb(nextIndex: number) {
-    pressedThumbIndexRef.current = nextIndex;
-    if (!thumbRefs.current[nextIndex]) {
-      pressedThumbCenterOffsetRef.current = null;
+    store.context.pressedThumbIndexRef.current = nextIndex;
+    if (!store.context.thumbRefs.current[nextIndex]) {
+      store.context.pressedThumbCenterOffsetRef.current = null;
     }
   }
 
   function resetPressedThumb() {
-    pressedThumbIndexRef.current = -1;
-    pressedThumbCenterOffsetRef.current = null;
+    store.context.pressedThumbIndexRef.current = -1;
+    store.context.pressedThumbCenterOffsetRef.current = null;
   }
 
   function isTargetDisabledThumb(target: EventTarget | null) {
@@ -144,7 +136,7 @@ export const SliderControl = React.forwardRef(function SliderControl(
       return false;
     }
 
-    return thumbRefs.current.some((thumbEl) => {
+    return store.context.thumbRefs.current.some((thumbEl) => {
       if (!isElement(thumbEl) || !contains(thumbEl, target)) {
         return false;
       }
@@ -155,7 +147,7 @@ export const SliderControl = React.forwardRef(function SliderControl(
 
   function getFingerState(fingerCoords: Coords): FingerState | null {
     const control = controlRef.current;
-    const thumbIndex = pressedThumbIndexRef.current;
+    const thumbIndex = store.context.pressedThumbIndexRef.current;
 
     if (!control || thumbIndex < 0 || thumbIndex >= values.length) {
       if (thumbIndex >= values.length) {
@@ -170,7 +162,7 @@ export const SliderControl = React.forwardRef(function SliderControl(
     const insetThumbOffset = insetThumbOffsetRef.current;
     const controlSize =
       (vertical ? height : width) - controlOffset.start - controlOffset.end - insetThumbOffset * 2;
-    const thumbCenterOffset = pressedThumbCenterOffsetRef.current ?? 0;
+    const thumbCenterOffset = store.context.pressedThumbCenterOffsetRef.current ?? 0;
     const fingerX = fingerCoords.x - thumbCenterOffset;
     const fingerY = fingerCoords.y - thumbCenterOffset;
 
@@ -196,7 +188,7 @@ export const SliderControl = React.forwardRef(function SliderControl(
       thumbCollisionBehavior,
       values,
       latestValuesRef.current,
-      pressedValuesRef.current,
+      store.context.pressedValuesRef.current,
       thumbIndex,
       newValue,
       min,
@@ -207,11 +199,11 @@ export const SliderControl = React.forwardRef(function SliderControl(
   }
 
   function startPressing(fingerCoords: Coords) {
-    pressedValuesRef.current = range ? values.slice() : null;
+    store.context.pressedValuesRef.current = range ? values.slice() : null;
     currentInteractionValueRef.current = null;
     latestValuesRef.current = values;
 
-    const pressedThumbIndex = pressedThumbIndexRef.current;
+    const pressedThumbIndex = store.context.pressedThumbIndexRef.current;
     let closestThumbIndex = pressedThumbIndex;
 
     if (pressedThumbIndex > -1 && pressedThumbIndex < values.length) {
@@ -231,8 +223,8 @@ export const SliderControl = React.forwardRef(function SliderControl(
 
       closestThumbIndex = -1;
 
-      for (let i = 0; i < thumbRefs.current.length; i += 1) {
-        const thumbEl = thumbRefs.current[i];
+      for (let i = 0; i < store.context.thumbRefs.current.length; i += 1) {
+        const thumbEl = store.context.thumbRefs.current[i];
         if (isElement(thumbEl) && !getThumbInput(thumbEl)?.disabled) {
           const midpoint = getMidpoint(thumbEl, vertical);
           const distance = Math.abs(fingerCoords[axis] - midpoint);
@@ -250,7 +242,7 @@ export const SliderControl = React.forwardRef(function SliderControl(
     }
 
     if (inset) {
-      const thumbEl = thumbRefs.current[closestThumbIndex];
+      const thumbEl = store.context.thumbRefs.current[closestThumbIndex];
       if (isElement(thumbEl)) {
         const thumbRect = thumbEl.getBoundingClientRect();
         const side = !vertical ? 'width' : 'height';
@@ -260,7 +252,7 @@ export const SliderControl = React.forwardRef(function SliderControl(
   }
 
   function focusThumb(thumbIndex: number) {
-    const input = getThumbInput(thumbRefs.current?.[thumbIndex]);
+    const input = getThumbInput(store.context.thumbRefs.current?.[thumbIndex]);
     if (!input) {
       return;
     }
@@ -278,7 +270,7 @@ export const SliderControl = React.forwardRef(function SliderControl(
     reason: typeof REASONS.trackPress | typeof REASONS.drag,
     nativeEvent: TouchEvent | PointerEvent,
   ) {
-    const applied = setValue(
+    const applied = store.setValue(
       finger.value,
       createChangeEventDetails(reason, nativeEvent, undefined, {
         activeThumbIndex: finger.thumbIndex,
@@ -324,7 +316,7 @@ export const SliderControl = React.forwardRef(function SliderControl(
 
     if (validateMinimumDistance(finger.value, step, minStepsBetweenValues)) {
       if (!dragging && moveCountRef.current > INTENTIONAL_DRAG_COUNT_THRESHOLD) {
-        setDragging(true);
+        store.setDragging(true);
       }
 
       setValueFromPointer(finger, REASONS.drag, nativeEvent);
@@ -332,10 +324,10 @@ export const SliderControl = React.forwardRef(function SliderControl(
   });
 
   const handleTouchEnd = useStableCallback((nativeEvent: TouchEvent | PointerEvent) => {
-    setActive(-1);
-    setDragging(false);
+    store.setActive(-1);
+    store.setDragging(false);
 
-    pressedThumbCenterOffsetRef.current = null;
+    store.context.pressedThumbCenterOffsetRef.current = null;
 
     // If the value array shrank or grew mid-drag, the cached interaction value no longer
     // matches the current thumbs (the pressed index can still be in range), so dropping it
@@ -346,7 +338,7 @@ export const SliderControl = React.forwardRef(function SliderControl(
     }
 
     if (currentInteractionValueRef.current != null) {
-      const commitReason = lastChangeReasonRef.current;
+      const commitReason = store.context.lastChangeReasonRef.current;
       store.context.onValueCommitted(
         currentInteractionValueRef.current,
         createGenericEventDetails(commitReason, nativeEvent),
@@ -360,7 +352,7 @@ export const SliderControl = React.forwardRef(function SliderControl(
       controlRef.current?.releasePointerCapture(nativeEvent.pointerId);
     }
 
-    pressedThumbIndexRef.current = -1;
+    store.context.pressedThumbIndexRef.current = -1;
     touchIdRef.current = null;
     // eslint-disable-next-line @typescript-eslint/no-use-before-define
     stopListening();
@@ -407,7 +399,7 @@ export const SliderControl = React.forwardRef(function SliderControl(
     doc.removeEventListener('pointerup', handleTouchEnd);
     doc.removeEventListener('touchmove', handleTouchMove);
     doc.removeEventListener('touchend', handleTouchEnd);
-    pressedValuesRef.current = null;
+    store.context.pressedValuesRef.current = null;
     currentInteractionValueRef.current = null;
   });
 
@@ -439,7 +431,7 @@ export const SliderControl = React.forwardRef(function SliderControl(
 
   const element = useRenderElement('div', componentProps, {
     state,
-    ref: [forwardedRef, registerFieldControlRef, controlRef, setStylesRef],
+    ref: [forwardedRef, store.registerFieldControlRef, controlRef, setStylesRef],
     props: [
       {
         ['data-base-ui-slider-control' as string]: renderBeforeHydration ? '' : undefined,
@@ -473,7 +465,7 @@ export const SliderControl = React.forwardRef(function SliderControl(
           }
 
           const pressedOnFocusedThumb = contains(
-            thumbRefs.current[finger.thumbIndex],
+            store.context.thumbRefs.current[finger.thumbIndex],
             activeElement(ownerDocument(control)),
           );
 
@@ -485,9 +477,9 @@ export const SliderControl = React.forwardRef(function SliderControl(
             });
           }
 
-          setDragging(true);
+          store.setDragging(true);
 
-          const pressedOnAnyThumb = pressedThumbCenterOffsetRef.current != null;
+          const pressedOnAnyThumb = store.context.pressedThumbCenterOffsetRef.current != null;
           if (!pressedOnAnyThumb) {
             setValueFromPointer(finger, REASONS.trackPress, event.nativeEvent);
           }

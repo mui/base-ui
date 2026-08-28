@@ -397,8 +397,6 @@ describe('slider store', () => {
     const stateRef: { current: SliderRootState | null } = { current: null };
     const observed: Array<{ disabled: boolean; active: number }> = [];
 
-    // Passive effects run after every layout effect of the commit, which is the earliest
-    // anything outside the slider (or the browser paint) can observe the new `disabled` prop.
     function EffectProbe() {
       const store = useSliderRootContext();
       const { disabled } = useSliderRootPropsContext();

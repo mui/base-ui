@@ -4,16 +4,11 @@ import type { UseFieldValidationReturnValue } from '../../field/root/useFieldVal
 import type { SliderStore } from '../store';
 import type { SliderRoot, SliderRootState } from './SliderRoot';
 
-/**
- * Derived from the public prop so the literal union stays the single source of truth.
- */
 export type SliderThumbCollisionBehavior = NonNullable<SliderRoot.Props['thumbCollisionBehavior']>;
 
 /**
  * Root values consumed during render. Keep these outside `useSyncedValues` so descendant ref
- * callbacks see the current props during the same commit: the store is only synchronized in a
- * layout effect, after descendants have rendered. `state` lives here for the same reason, since
- * it carries `values`, `activeThumbIndex`, and `dragging`.
+ * callbacks see the current props during the same commit.
  */
 export interface SliderRootPropsContextValue {
   disabled: boolean;

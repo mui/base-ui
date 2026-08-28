@@ -115,8 +115,6 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
   const valueUnwrapped = store.useState('renderValue', valueProp);
   const range = Array.isArray(valueUnwrapped);
 
-  // Derived from the render-time value and bounds so descendants (including ref callbacks) see
-  // the current props in this commit, before the store is synchronized in a layout effect.
   const values = store.useState('values', valueUnwrapped, min, max);
 
   const fieldValue = range ? values : values[0];

@@ -23,8 +23,6 @@ export interface SliderStoreState {
   value: number | readonly number[];
   /**
    * The value of the slider (external prop).
-   * Synchronized by `useControlledProp` in a layout effect, so it lags one commit behind the
-   * render that received a new prop. Use the `renderValue` selector during render.
    */
   readonly valueProp: number | readonly number[] | undefined;
   disabled: boolean;
@@ -74,12 +72,8 @@ export interface SliderStoreContext {
   readonly thumbRefs: React.RefObject<(HTMLElement | null)[]>;
 
   // Callback props. Seeded with `NOOP` when the store is constructed and assigned during the
-  // root's render through `useContextCallback`, so they are not `readonly`.
+  // root's render, so they are not `readonly`.
   onValueChange: (value: number | number[], eventDetails: SliderRoot.ChangeEventDetails) => void;
-  /**
-   * Called when a value change is committed: when a drag ends, or immediately for keyboard
-   * and input changes.
-   */
   onValueCommitted: (
     value: number | readonly number[],
     eventDetails: SliderRoot.CommitEventDetails,
@@ -94,20 +88,9 @@ interface ValuesCacheEntry {
   values: readonly number[];
 }
 
-/**
- * Selectors are created per store because `values` memoizes its result.
- *
- * `values` is keyed on its `(value, min, max)` arguments rather than on the store state: the
- * root passes render-time props so it can derive `values` during the render that received
- * them, before `useControlledProp` and `useSyncedValues` write them into the store in a layout
- * effect. Descendant ref callbacks therefore see the current values in the same commit.
- *
- * The cache keeps the two most recent entries. `useSyncExternalStore` only swaps a
- * subscription's snapshot function in a passive effect, so a store write during layout effects
- * (`useControlledProp`, `setIndicatorPosition`) still reads through the previous render's
- * arguments. A single entry would be evicted by the new arguments, produce a new array reference
- * for the old ones, and force an extra render of the whole slider on every value change.
- */
+// Created per store: `values` is keyed on render-time arguments (the store is only synchronized
+// in a layout effect) and keeps the two most recent results, because `useSyncExternalStore`
+// still reads through the previous render's arguments until its passive effect runs.
 function createSelectors() {
   let current: ValuesCacheEntry | undefined;
   let previous: ValuesCacheEntry | undefined;
@@ -122,21 +105,13 @@ function createSelectors() {
   }
 
   return {
-    /**
-     * The current value, used by commands after the store has been synchronized.
-     */
     value: (storeState: SliderStoreState) => storeState.valueProp ?? storeState.value,
-    /**
-     * The value to render. Takes the `value` prop as an argument because `state.valueProp` is
-     * only synchronized in a layout effect and is stale during the render that changed it.
-     */
+    // Takes the `value` prop as an argument because `state.valueProp` is stale during the render
+    // that changed it.
     renderValue: (
       storeState: SliderStoreState,
       valueProp: number | readonly number[] | undefined,
     ) => valueProp ?? storeState.value,
-    /**
-     * The normalized values: one per thumb, clamped to the bounds and sorted.
-     */
     values: (
       _storeState: SliderStoreState,
       value: number | readonly number[],
@@ -195,13 +170,8 @@ export class SliderStore extends ReactStore<
       createSelectors(),
     );
 
-    // Resets the active thumb when the slider becomes disabled.
-    // This must stay the first listener registered on the store: `Store.setState` stops
-    // notifying the remaining listeners once a nested update has run, so React subscribers only
-    // ever observe `{ disabled: true, active: -1 }` as a single transaction. Registering it
-    // later (for example from an effect in the root) would let them render the intermediate
-    // state. The unsubscribe function is discarded on purpose: the observer only references
-    // this store and shares its lifetime.
+    // Must be the first listener registered on the store so React subscribers never observe
+    // `disabled` with an active thumb. Never unsubscribed: the observer shares the store's lifetime.
     void this.observe('activeWhileDisabled', (activeWhileDisabled) => {
       if (activeWhileDisabled) {
         this.setActive(-1);
@@ -209,13 +179,13 @@ export class SliderStore extends ReactStore<
     });
   }
 
-  readonly registerFieldControlRef = (element: HTMLElement | null) => {
+  registerFieldControlRef = (element: HTMLElement | null) => {
     if (element) {
       this.context.controlRef.current = element;
     }
   };
 
-  readonly setActive = (index: number) => {
+  setActive = (index: number) => {
     if (index === -1) {
       this.set('active', -1);
     } else {
@@ -223,23 +193,23 @@ export class SliderStore extends ReactStore<
     }
   };
 
-  readonly setDragging = (dragging: boolean) => {
+  setDragging = (dragging: boolean) => {
     this.set('dragging', dragging);
   };
 
-  readonly setIndicatorPosition = (index: 0 | 1, value: number | undefined) => {
+  setIndicatorPosition = (index: 0 | 1, value: number | undefined) => {
     const current = this.state.indicatorPosition;
     if (current[index] !== value) {
       this.set('indicatorPosition', index === 0 ? [value, current[1]] : [current[0], value]);
     }
   };
 
-  readonly setLabelId: React.Dispatch<React.SetStateAction<string | undefined>> = (value) => {
+  setLabelId: React.Dispatch<React.SetStateAction<string | undefined>> = (value) => {
     const current = this.state.registeredLabelId;
     this.set('registeredLabelId', typeof value === 'function' ? value(current) : value);
   };
 
-  readonly setThumbMap = (thumbMap: Map<Node, CompositeMetadata<ThumbMetadata>>) => {
+  setThumbMap = (thumbMap: Map<Node, CompositeMetadata<ThumbMetadata>>) => {
     this.set('thumbMap', thumbMap);
   };
 
@@ -248,7 +218,7 @@ export class SliderStore extends ReactStore<
    * and drag interactions. Returns `true` when the value was applied, or `false`
    * when it was invalid (NaN), unchanged, or the change was canceled.
    */
-  readonly setValue = (newValue: number | number[], details: SliderRoot.ChangeEventDetails) => {
+  setValue = (newValue: number | number[], details: SliderRoot.ChangeEventDetails) => {
     const value = this.select('value');
     if (Number.isNaN(newValue) || areValuesEqual(newValue, value)) {
       return false;
@@ -276,8 +246,6 @@ export class SliderStore extends ReactStore<
 
     this.context.lastChangeReasonRef.current = details.reason;
 
-    // Only the uncontrolled value lives in the store. When controlled, the parent owns the
-    // value and reflects the change through the `value` prop.
     if (this.state.valueProp === undefined) {
       this.set('value', newValue);
     }
@@ -285,7 +253,7 @@ export class SliderStore extends ReactStore<
     return true;
   };
 
-  readonly handleInputChange = (
+  handleInputChange = (
     valueInput: number,
     index: number,
     event: React.KeyboardEvent | React.ChangeEvent,

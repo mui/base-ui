@@ -26,8 +26,6 @@ export const SliderLabel = React.forwardRef(function SliderLabel(
 
   const store = useSliderRootContext();
   const { rootLabelId, state } = useSliderRootPropsContext();
-  const { setLabelId } = store;
-  const { controlRef } = store.context;
 
   function focusControl(event: React.MouseEvent, controlId: string | undefined) {
     if (controlId) {
@@ -38,7 +36,8 @@ export const SliderLabel = React.forwardRef(function SliderLabel(
       }
     }
 
-    const fallbackInputs = controlRef.current?.querySelectorAll('input[type="range"]');
+    const fallbackInputs =
+      store.context.controlRef.current?.querySelectorAll('input[type="range"]');
     const fallbackInput = fallbackInputs?.length === 1 ? fallbackInputs[0] : null;
     if (isHTMLElement(fallbackInput)) {
       focusElementWithVisible(fallbackInput);
@@ -47,7 +46,7 @@ export const SliderLabel = React.forwardRef(function SliderLabel(
 
   const labelProps = useLabel({
     id: rootLabelId,
-    setLabelId,
+    setLabelId: store.setLabelId,
     focusControl,
   });
 
