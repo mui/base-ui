@@ -23,7 +23,7 @@ import { useListVirtualizationHost } from '../../internals/virtualization/ListVi
 import {
   useNonVirtualizedItemRegistration,
   useVirtualItemDiagnostics,
-} from '../../internals/virtualization/VirtualizerBinding';
+} from '../../internals/virtualization/useListBinding';
 
 interface ComboboxItemInnerProps {
   componentProps: ComboboxItem.Props;

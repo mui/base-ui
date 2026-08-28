@@ -1,11 +1,10 @@
 'use client';
 import * as React from 'react';
-import { ownerDocument, ownerWindow } from '@base-ui/utils/owner';
-import { useAnimationFrame } from '@base-ui/utils/useAnimationFrame';
+import { ownerWindow } from '@base-ui/utils/owner';
+import { useForcedRerendering } from '@base-ui/utils/useForcedRerendering';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
-import { useTimeout } from '@base-ui/utils/useTimeout';
 import {
   Dimensions,
   LayoutList,
@@ -17,18 +16,14 @@ import {
   type RenderContext,
   type Virtualizer as MuiVirtualizer,
 } from '@mui/x-virtualizer';
-import { clamp } from '@base-ui/utils/clamp';
 import { getMaxScrollOffset } from '../utils/scrollEdges';
 import type { StateAttributesMapping } from '../internals/getStateAttributesProps';
 import type { BaseUIComponentProps, HTMLProps } from '../internals/types';
 import { useRenderElement } from '../internals/useRenderElement';
-import type {
-  VirtualizerActions,
-  VirtualizerScrollAlignment,
-  VirtualizerScrollToIndexOptions,
-} from '../internals/virtualization/ListVirtualizationRegistry';
+import type { VirtualizerActions } from '../internals/virtualization/ListVirtualizationRegistry';
 import { useListVirtualization } from '../internals/virtualization/ListVirtualizationHostContext';
-import { useVirtualizerBinding } from '../internals/virtualization/VirtualizerBinding';
+import { useListBinding } from '../internals/virtualization/useListBinding';
+import { useRowModels } from '../internals/virtualization/useRowModels';
 import type {
   VirtualizerActiveIndex,
   VirtualizerActiveItem,
@@ -37,6 +32,11 @@ import type {
   VirtualizerRenderRowParameters,
   VirtualizerRow,
 } from '../internals/virtualization/types';
+import { useAdaptiveEstimate, useAdaptiveEstimateRefresh } from './useAdaptiveEstimate';
+import { useItemHeightEstimate } from './useItemHeightEstimate';
+import { usePendingScroll, usePendingScrollRetry, type PendingScroll } from './usePendingScroll';
+import { useScrollAnchor } from './useScrollAnchor';
+import { useScrollGesture } from './useScrollGesture';
 import { VirtualizerCssVars } from './VirtualizerCssVars';
 
 interface VirtualRowProps<RowModel> {
@@ -120,6 +120,17 @@ interface ScrollportPadding {
 const EMPTY_SCROLLPORT_PADDING: ScrollportPadding = { start: 0, end: 0 };
 
 /**
+ * Stands in for the rendered window before the first render has computed one, so the concerns
+ * that read it from a ref never have to describe a state that cannot reach them.
+ */
+const EMPTY_RENDER_CONTEXT: RenderContext = {
+  firstColumnIndex: 0,
+  lastColumnIndex: 0,
+  firstRowIndex: 0,
+  lastRowIndex: 0,
+};
+
+/**
  * Index of the last row starting at or before the given virtual offset.
  */
 function findRowIndexAtOffset(rowPositions: readonly number[], rowCount: number, offset: number) {
@@ -191,60 +202,6 @@ function getOverscannedRenderContext(
   };
 }
 
-/**
- * Returns the topmost row element intersecting the scrollport, with its position relative to the
- * scroller's top edge. The retained focus-proxy row is absolutely positioned out of layout and is
- * never a valid anchor.
- */
-function findAnchorRowElement(
-  renderZone: HTMLElement,
-  scrollerTop: number,
-  scrollerBottom: number,
-) {
-  for (let index = 0; index < renderZone.children.length; index += 1) {
-    const child = renderZone.children[index] as HTMLElement;
-
-    if (child.style.position === 'absolute') {
-      continue;
-    }
-
-    const rect = child.getBoundingClientRect();
-    if (rect.height > 0 && rect.bottom > scrollerTop && rect.top < scrollerBottom) {
-      return {
-        element: child,
-        rowIndex: Number(child.dataset.rowIndex),
-        relativeTop: rect.top - scrollerTop,
-      };
-    }
-  }
-
-  return null;
-}
-
-/**
- * Minimum number of measured rows before a static estimate is replaced with their running
- * average, so a single unusual first row cannot skew the whole virtual geometry while still
- * allowing tall rows to reduce the settled render window.
- */
-const ADAPTIVE_ESTIMATE_MIN_SAMPLES = 3;
-
-/**
- * Nearby rows do not accumulate enough estimate error to justify delaying scroll completion.
- */
-const ADAPTIVE_SCROLL_TARGET_MIN_DISTANCE = 10;
-
-/**
- * How long after the last scroll position change a gesture is considered finished. Refreshing the
- * estimate rewrites the height of every unmeasured row at once, so it is held back until then.
- */
-const SCROLL_IDLE_MS = 150;
-
-/**
- * How recently a wheel or touch event must have occurred for a scroll event to be attributed to
- * it. Scroll bursts without such input while a mouse button is held are native scrollbar drags.
- */
-const DIRECT_INPUT_WINDOW_MS = 250;
-
 const stateAttributesMapping: StateAttributesMapping<VirtualizerState> = {
   totalSize: () => null,
 };
@@ -292,26 +249,31 @@ export const Virtualizer = React.forwardRef(function Virtualizer<Value>(
   const {
     apiRef: apiRefProp,
     enabled,
-    estimatedItemHeight,
+    items: collection,
     onUnconstrainedHeight,
     pinnedRowIndex,
     renderRow: renderRowProp,
     restoreViewportVersion,
-    rows,
     scrollToRowAlignment,
     scrollToRowIndex,
-  } = useVirtualizerBinding<Value>({
+  } = useListBinding<Value>({
     actionsRef,
     activeIndex,
     totalItems,
     children,
     enabled: enabledProp,
-    estimatedItemHeight: estimatedItemHeightProp,
-    getItemKey,
     host,
     items,
     listState,
   });
+
+  const rows = useRowModels<Value>({ getItemKey, items: collection });
+  const itemHeightEstimate = useItemHeightEstimate<Value>({
+    estimatedItemHeight: estimatedItemHeightProp,
+    items: collection,
+    rows,
+  });
+  const { defaultEstimatedItemHeight, getEstimatedItemHeight } = itemHeightEstimate;
 
   const scrollElementRef = React.useRef<HTMLDivElement | null>(null);
   const renderZoneRef = React.useRef<HTMLDivElement | null>(null);
@@ -338,133 +300,22 @@ export const Virtualizer = React.forwardRef(function Virtualizer<Value>(
 
   const scrollportPaddingTotal = scrollportPadding.start + scrollportPadding.end;
 
-  const useAdaptiveEstimate = typeof estimatedItemHeight === 'number';
-  const adaptiveEstimateRef = React.useRef<number | null>(null);
-  const adaptiveMeasurementsRef = useRefWithInit(() => ({
-    heights: new Map<React.Key, number>(),
-    total: 0,
-  }));
-  const measuredRowsRef = useRefWithInit(() => new Set<React.Key>());
-  const adaptiveRowsRef = React.useRef(rows);
-  const adaptiveEstimatedItemHeightRef = React.useRef(
-    typeof estimatedItemHeight === 'number' ? estimatedItemHeight : null,
-  );
-  // Filtering replaces the row array, but measurements from the same keyed collection remain
-  // useful when the full list returns. Reset only when the estimate or logical collection changes.
-  const adaptiveKnownRowIdsRef = useRefWithInit(() => new Set(rows.map((row) => row.id)));
-  const staticEstimatedItemHeight =
-    typeof estimatedItemHeight === 'number' ? estimatedItemHeight : null;
-  // Whether the running average still describes the collection this render shows. The decision is
-  // made during render because the estimate it invalidates is part of this render's geometry, but
-  // the caches behind it are only rewritten in the layout effect below: a concurrent render that
-  // React discards must not clear measurements the committed tree is still using.
-  let adaptiveEstimateInvalidated = false;
-  if (
-    adaptiveRowsRef.current !== rows ||
-    adaptiveEstimatedItemHeightRef.current !== staticEstimatedItemHeight
-  ) {
-    const knownRowIds = adaptiveKnownRowIdsRef.current;
-    const nextRowIds = new Set(rows.map((row) => row.id));
-    const estimateChanged = adaptiveEstimatedItemHeightRef.current !== staticEstimatedItemHeight;
-    const addsUnknownRows = rows.some((row) => !knownRowIds.has(row.id));
-    let omitsKnownRows = false;
-    for (const rowId of knownRowIds) {
-      if (!nextRowIds.has(rowId)) {
-        omitsKnownRows = true;
-        break;
-      }
-    }
-    // A subset is filtering and a superset is expansion. Adding and removing IDs in the same
-    // update is a partial replacement, even if a selected item keeps the collections overlapping.
-    const collectionChanged =
-      rows.length > 0 &&
-      knownRowIds.size > 0 &&
-      (!rows.some((row) => knownRowIds.has(row.id)) || (addsUnknownRows && omitsKnownRows));
-
-    adaptiveEstimateInvalidated = estimateChanged || collectionChanged;
-  }
-
-  useIsoLayoutEffect(() => {
-    if (
-      adaptiveRowsRef.current === rows &&
-      adaptiveEstimatedItemHeightRef.current === staticEstimatedItemHeight
-    ) {
-      return;
-    }
-
-    adaptiveRowsRef.current = rows;
-    adaptiveEstimatedItemHeightRef.current = staticEstimatedItemHeight;
-
-    const knownRowIds = adaptiveKnownRowIdsRef.current;
-
-    if (adaptiveEstimateInvalidated) {
-      adaptiveEstimateRef.current = null;
-      adaptiveMeasurementsRef.current.heights.clear();
-      adaptiveMeasurementsRef.current.total = 0;
-      measuredRowsRef.current.clear();
-      knownRowIds.clear();
-    }
-
-    rows.forEach((row) => knownRowIds.add(row.id));
-  }, [
-    adaptiveEstimateInvalidated,
-    adaptiveKnownRowIdsRef,
-    adaptiveMeasurementsRef,
-    measuredRowsRef,
+  const gesture = useScrollGesture({ apiRef: muiApiRef, scrollElementRef });
+  const adaptive = useAdaptiveEstimate({
     rows,
-    staticEstimatedItemHeight,
-  ]);
+    staticEstimatedItemHeight: itemHeightEstimate.staticEstimatedItemHeight,
+  });
 
-  const pendingScrollRowIndexRef = React.useRef<number | null>(null);
-  const pendingScrollRowIdRef = React.useRef<React.Key | null>(null);
-  const pendingScrollAlignmentRef = React.useRef<VirtualizerScrollAlignment>('auto');
-  const pendingScrollRequiresMeasurementRef = React.useRef(false);
-  const pendingScrollRequiresAdaptiveEstimateRef = React.useRef(false);
-  /**
-   * The last `scrollTop` this component itself wrote, so user-driven scrolling can be told apart
-   * from the scroll events of our own corrective writes.
-   */
-  const programmaticScrollTopRef = React.useRef<number | null>(null);
-  /**
-   * Position the scrollport should be at while the browser still refuses to scroll there. A scroll
-   * container gains its scrollable overflow only on the frame after the one that mounts it, so the
-   * write that opens a popup at a distant row is clamped back to zero. The rendered window and the
-   * render zone follow this offset instead of the DOM, which keeps the destination on screen from
-   * the first paint: the rows are positioned inside a sticky viewport, so what they paint over
-   * does not depend on `scrollTop` at all.
-   */
-  const pendingViewportScrollTopRef = React.useRef<number | null>(null);
-  const pendingViewportScrollFrame = useAnimationFrame();
-
-  // Scrolling is treated as ongoing until this long without a scroll position change, so that
-  // geometry rewrites can be held back for the duration of a gesture.
-  const scrollIdleTimeout = useTimeout();
-  const isScrollingRef = React.useRef(false);
-  const [scrollIdleRevision, bumpScrollIdleRevision] = React.useReducer((value) => value + 1, 0);
   // Forces the rendered window to recompute after a corrective scroll write moved the viewport
-  // beyond the rows the current commit mounted. Bumped from a layout effect, so the follow-up
+  // beyond the rows the current commit mounted. Called from a layout effect, so the follow-up
   // commit still lands before paint.
-  const [, bumpWindowRevision] = React.useReducer((value) => value + 1, 0);
+  const refreshWindow = useForcedRerendering();
   const renderScrollTopRef = React.useRef(0);
-  const adaptiveEstimateTimeout = useTimeout();
-  const adaptiveRowsMetaRef = React.useRef<unknown>(null);
-  const [adaptiveMeasurementRevision, bumpAdaptiveMeasurementRevision] = React.useReducer(
-    (value) => value + 1,
-    0,
-  );
-
-  /** Timestamp of the last wheel/touch input on the scroller. */
-  const lastDirectInputTimeRef = React.useRef(Number.NEGATIVE_INFINITY);
-  /** Whether a pointer or mouse button is currently pressed, tracked on the owner document. */
-  const pointerDownRef = React.useRef(false);
-  /**
-   * Whether the current scroll burst arrives without wheel/touch input while a mouse button is
-   * held — a native scrollbar drag. The user then dictates the absolute scroll position, so
-   * anchoring corrections and estimate refreshes are suspended until release.
-   */
-  const isScrollbarDragRef = React.useRef(false);
-  const deferredRowHeightsRef = useRefWithInit(() => new Map<React.Key, number>());
-  const releaseScrollbarDragFrame = useAnimationFrame();
+  const overscannedRenderContextRef = React.useRef<RenderContext>(EMPTY_RENDER_CONTEXT);
+  // The scroll-to-row and anchoring concerns both write corrective scroll positions, and both are
+  // declared below the callbacks that read them. Their handle is published here so those
+  // callbacks — which only ever run after the render that publishes it — can reach it.
+  const pendingScrollRef = React.useRef<PendingScroll | null>(null);
 
   /**
    * Positions the render zone for the scroll position last processed by the engine. Rows are
@@ -489,7 +340,7 @@ export const Virtualizer = React.forwardRef(function Virtualizer<Value>(
     // While a requested position is still waiting for the scrollport to accept it, that position
     // is what the rows are rendered for, so the transform must use it too.
     const scrollTop =
-      pendingViewportScrollTopRef.current ??
+      pendingScrollRef.current?.getViewportScrollTop() ??
       scrollElementRef.current?.scrollTop ??
       scrollTopRef.current;
     const stacked = renderZoneOffsetTopRef.current - scrollTop + scrollportPadding.start;
@@ -516,98 +367,22 @@ export const Virtualizer = React.forwardRef(function Virtualizer<Value>(
   // MUI Virtualizer has synchronously committed the next row window.
   const handleScrollChange = useStableCallback((scrollPosition: { top: number }) => {
     // Scroll events matching the last position this component wrote are echoes of its own
-    // corrective writes; only genuine user scrolling affects gesture state below.
-    const hasRecentDirectInput =
-      performance.now() - lastDirectInputTimeRef.current <= DIRECT_INPUT_WINDOW_MS;
-    const isProgrammatic =
-      (programmaticScrollTopRef.current != null &&
-        Math.abs(scrollPosition.top - programmaticScrollTopRef.current) <= 1) ||
-      // Expanding a collection can queue several corrective native scroll events while its
-      // adaptive estimate settles. None of those are user takeovers unless direct input occurred.
-      (pendingScrollRequiresAdaptiveEstimateRef.current &&
-        !hasRecentDirectInput &&
-        !pointerDownRef.current);
+    // corrective writes; only genuine user scrolling affects gesture state.
+    const isUserScroll = gesture.noteScroll(
+      (evidence) =>
+        pendingScrollRef.current?.isProgrammaticEcho(scrollPosition.top, evidence) ?? false,
+    );
 
-    if (!isProgrammatic) {
-      isScrollingRef.current = true;
-      scrollIdleTimeout.start(SCROLL_IDLE_MS, () => {
-        isScrollingRef.current = false;
-        bumpScrollIdleRevision();
-      });
-
-      const isScrollbarDrag = pointerDownRef.current && !hasRecentDirectInput;
-      isScrollbarDragRef.current = isScrollbarDrag;
-
+    if (isUserScroll) {
       // User scrolling supersedes a pending scroll-to-row request: retrying the retained
       // destination after the user took over would yank the list away from where they scrolled.
-      pendingScrollRowIndexRef.current = null;
-      pendingScrollRowIdRef.current = null;
-      pendingScrollRequiresAdaptiveEstimateRef.current = false;
-      pendingViewportScrollTopRef.current = null;
-      pendingViewportScrollFrame.cancel();
+      pendingScrollRef.current?.cancel();
     }
 
     scrollTopRef.current = scrollPosition.top;
     updateRenderZoneTransform();
   });
 
-  React.useEffect(() => {
-    const scrollElement = scrollElementRef.current;
-    if (!scrollElement) {
-      return undefined;
-    }
-
-    const doc = ownerDocument(scrollElement);
-    const win = ownerWindow(scrollElement);
-    const commitScrollbarDrag = () => {
-      if (!isScrollbarDragRef.current && deferredRowHeightsRef.current.size === 0) {
-        return;
-      }
-
-      isScrollbarDragRef.current = false;
-      releaseScrollbarDragFrame.request(() => {
-        // Commit real heights collected during the drag in one geometry update after release.
-        muiApiRef.current?.rowsMeta.hydrateRowsMeta();
-        bumpScrollIdleRevision();
-      });
-    };
-    const onDirectInput = () => {
-      lastDirectInputTimeRef.current = performance.now();
-      commitScrollbarDrag();
-    };
-    const onPressStart = () => {
-      pointerDownRef.current = true;
-    };
-    const endScrollbarDrag = () => {
-      pointerDownRef.current = false;
-      commitScrollbarDrag();
-    };
-
-    const options: AddEventListenerOptions = { passive: true };
-    scrollElement.addEventListener('wheel', onDirectInput, options);
-    scrollElement.addEventListener('touchmove', onDirectInput, options);
-    // Pointer and compat mouse events complement each other: list items cancel `pointerdown` to
-    // protect the anchor's focus, which suppresses the compat `mousedown`/`mouseup` for that
-    // press, while native scrollbar presses may dispatch only mouse events. Setting the shared
-    // flag twice for the same press is harmless.
-    doc.addEventListener('pointerdown', onPressStart, options);
-    doc.addEventListener('mousedown', onPressStart, options);
-    doc.addEventListener('pointerup', endScrollbarDrag, options);
-    doc.addEventListener('pointercancel', endScrollbarDrag, options);
-    doc.addEventListener('mouseup', endScrollbarDrag, options);
-    // A drag can end outside the window; treat losing focus as releasing the button.
-    win.addEventListener('blur', endScrollbarDrag);
-    return () => {
-      scrollElement.removeEventListener('wheel', onDirectInput, options);
-      scrollElement.removeEventListener('touchmove', onDirectInput, options);
-      doc.removeEventListener('pointerdown', onPressStart, options);
-      doc.removeEventListener('mousedown', onPressStart, options);
-      doc.removeEventListener('pointerup', endScrollbarDrag, options);
-      doc.removeEventListener('pointercancel', endScrollbarDrag, options);
-      doc.removeEventListener('mouseup', endScrollbarDrag, options);
-      win.removeEventListener('blur', endScrollbarDrag);
-    };
-  }, [deferredRowHeightsRef, releaseScrollbarDragFrame]);
   const [virtualizationRevision, bumpVirtualizationRevision] = React.useReducer(
     (value) => value + 1,
     0,
@@ -619,22 +394,6 @@ export const Virtualizer = React.forwardRef(function Virtualizer<Value>(
         scroller: scrollElementRef,
       }),
   ).current;
-
-  const getEstimatedItemHeight = React.useCallback(
-    (row: VirtualizerRow<VirtualizerItemRowModel<Value>>, rowIndex: number) => {
-      const size =
-        typeof estimatedItemHeight === 'function'
-          ? estimatedItemHeight(row.model, rowIndex)
-          : estimatedItemHeight;
-      return Math.max(1, size);
-    },
-    [estimatedItemHeight],
-  );
-
-  const defaultEstimatedItemHeight =
-    rows.length === 0
-      ? Math.max(1, typeof estimatedItemHeight === 'number' ? estimatedItemHeight : 1)
-      : getEstimatedItemHeight(rows[0], 0);
 
   const rowsRef = React.useRef(rows);
   rowsRef.current = rows;
@@ -692,65 +451,69 @@ export const Virtualizer = React.forwardRef(function Virtualizer<Value>(
 
   // MUI Virtualizer rehydrates row metadata when these callback identities change. This intentionally uses
   // a dependency-sensitive callback so estimate changes invalidate cached geometry.
-  // The layout effect that clears an invalidated running average has not run yet in the render
-  // that invalidates it, so the ref must be ignored until it has.
-  const activeAdaptiveEstimate = adaptiveEstimateInvalidated ? null : adaptiveEstimateRef.current;
+  const adaptiveEnabled = adaptive.enabled;
+  const adaptiveInvalidated = adaptive.invalidated;
+  const readAdaptiveEstimate = adaptive.readEstimate;
   const getEstimatedRowHeight = React.useCallback(
     (row: RowEntry) => {
       // A static estimate is refined with the running average of measured rows so the virtual
       // geometry converges quickly. Per-row estimate functions encode knowledge that a global
-      // average would override, so they are used as provided. The average is read through the ref
-      // because the adaptive effect republishes it without a re-render.
-      const adaptiveEstimate = adaptiveEstimateInvalidated ? null : adaptiveEstimateRef.current;
-      if (useAdaptiveEstimate && adaptiveEstimate != null) {
+      // average would override, so they are used as provided. The average is read through the
+      // module's own ref because the refresh republishes it without a re-render.
+      const adaptiveEstimate = adaptiveInvalidated ? null : readAdaptiveEstimate();
+      if (adaptiveEnabled && adaptiveEstimate != null) {
         return adaptiveEstimate;
       }
 
       const rowIndex = rowIndexById.get(row.id as React.Key) ?? -1;
-      const listRow = rows[rowIndex];
-      return listRow ? getEstimatedItemHeight(listRow, rowIndex) : defaultEstimatedItemHeight;
+      return rows[rowIndex] != null ? getEstimatedItemHeight(rowIndex) : defaultEstimatedItemHeight;
     },
     [
-      adaptiveEstimateInvalidated,
+      adaptiveEnabled,
+      adaptiveInvalidated,
       defaultEstimatedItemHeight,
       getEstimatedItemHeight,
+      readAdaptiveEstimate,
       rowIndexById,
       rows,
-      useAdaptiveEstimate,
     ],
   );
   const resolvedEstimatedItemHeight =
-    useAdaptiveEstimate && activeAdaptiveEstimate != null
-      ? activeAdaptiveEstimate
-      : defaultEstimatedItemHeight;
+    adaptiveEnabled && adaptive.estimate != null ? adaptive.estimate : defaultEstimatedItemHeight;
+  // Depends on the individual members rather than the whole handles: the engine rehydrates its
+  // geometry when this identity changes, and the handles are republished on every settled gesture
+  // and every measurement pass.
+  const { deferRowHeight, isScrollbarDrag, releaseRowHeight } = gesture;
+  const { isMeasured, markMeasured } = adaptive;
   const applyRowHeight = React.useCallback(
     (entry: HeightEntry, row: RowEntry) => {
-      const deferredHeight = deferredRowHeightsRef.current.get(row.id as React.Key);
+      const rowId = row.id as React.Key;
 
-      if (!isScrollbarDragRef.current) {
-        if (deferredHeight != null) {
-          entry.content = deferredHeight;
-          deferredRowHeightsRef.current.delete(row.id as React.Key);
+      if (!isScrollbarDrag()) {
+        const releasedHeight = releaseRowHeight(rowId);
+        if (releasedHeight != null) {
+          entry.content = releasedHeight;
         }
         if (!entry.needsFirstMeasurement) {
-          measuredRowsRef.current.add(row.id as React.Key);
+          markMeasured(rowId);
         }
         return;
       }
 
-      if (entry.needsFirstMeasurement || measuredRowsRef.current.has(row.id as React.Key)) {
+      if (entry.needsFirstMeasurement || isMeasured(rowId)) {
         return;
       }
 
-      const estimatedHeight = getEstimatedRowHeight(row);
-      // ResizeObserver may report the same mounted row more than once during a drag. Preserve the
-      // newest real height, but do not mistake our committed estimate for a new measurement.
-      if (deferredHeight == null || entry.content !== estimatedHeight) {
-        deferredRowHeightsRef.current.set(row.id as React.Key, entry.content);
-      }
-      entry.content = estimatedHeight;
+      entry.content = deferRowHeight(rowId, entry.content, getEstimatedRowHeight(row));
     },
-    [deferredRowHeightsRef, getEstimatedRowHeight, measuredRowsRef],
+    [
+      deferRowHeight,
+      getEstimatedRowHeight,
+      isMeasured,
+      isScrollbarDrag,
+      markMeasured,
+      releaseRowHeight,
+    ],
   );
   const range = React.useMemo(
     () =>
@@ -769,16 +532,13 @@ export const Virtualizer = React.forwardRef(function Virtualizer<Value>(
   // than the real rows, even when the requested overscan is smaller.
   const renderBufferPx = Math.max(rowBufferPx, resolvedEstimatedItemHeight);
 
-  const scrollAnchorRef = React.useRef<{
-    element: HTMLElement;
-    rowIndex: number;
-    relativeTop: number;
-    maxScrollTop: number;
-    scrollTop: number;
-    virtualOffset: number | null;
-    rowsMeta: unknown;
-    rows: VirtualizerRow<VirtualizerItemRowModel<Value>>[];
-  } | null>(null);
+  const refreshWindowAfterCorrectiveScroll = useStableCallback((scrollTop: number) => {
+    // A correction that lands far from the position this commit's window was rendered for can
+    // move the viewport beyond the mounted rows. Re-render before paint so the window follows.
+    if (Math.abs(scrollTop - renderScrollTopRef.current) >= renderBufferPx) {
+      refreshWindow();
+    }
+  });
 
   const virtualizer = useVirtualizer({
     layout,
@@ -824,129 +584,6 @@ export const Virtualizer = React.forwardRef(function Virtualizer<Value>(
   const positionerProps = virtualizer.store.use(LayoutList.selectors.positionerProps);
   const renderContext = virtualizer.store.use(Virtualization.selectors.renderContext);
 
-  // The engine publishes a recomputed render context inside the scroll event before this
-  // component's own scroll bookkeeping observes it, while corrective writes below move the
-  // scrollport before the engine hears about them. The live scroll position is the only basis
-  // consistent with both orderings.
-  const liveScrollTop = scrollElementRef.current?.scrollTop ?? 0;
-  const currentMaxScrollTop =
-    dimensions.viewportInnerSize.height > 0
-      ? getMaxScrollOffset(
-          rowsMeta.currentPageTotalHeight + trailingHeight,
-          dimensions.viewportInnerSize.height,
-        )
-      : null;
-  // When a geometry rewrite shrinks the content below the current scroll position, the browser
-  // clamps `scrollTop` the moment the commit lays out — before any scroll event reports it.
-  // Target that inevitable position now so this commit's window and transform match what paints.
-  const clampedLiveScrollTop =
-    currentMaxScrollTop === null ? liveScrollTop : Math.min(liveScrollTop, currentMaxScrollTop);
-
-  // A geometry rewrite that lands while the viewport rests at the maximum scroll position is
-  // followed by a bottom pin in the scroll-anchoring effect below, within this same commit.
-  // The engine's render context was computed for the pre-rewrite scroll position, so the rows it
-  // mounts end short of the rewritten content end; painting that window at the pinned position
-  // would briefly blank the bottom of the scrollport. Render the window for the anticipated
-  // pinned position instead so the same commit that moves the viewport also covers it.
-  const scrollAnchor = scrollAnchorRef.current;
-  const anticipatedMaxScrollTop =
-    enabled &&
-    currentMaxScrollTop !== null &&
-    scrollAnchor !== null &&
-    scrollAnchor.rows === rows &&
-    scrollAnchor.rowsMeta !== rowsMeta &&
-    scrollAnchor.maxScrollTop > 0 &&
-    Math.abs(scrollAnchor.scrollTop - scrollAnchor.maxScrollTop) < 1 &&
-    !isScrollbarDragRef.current &&
-    pendingScrollRowIndexRef.current == null
-      ? currentMaxScrollTop
-      : null;
-  const anticipateBottomPin =
-    anticipatedMaxScrollTop !== null &&
-    scrollAnchor !== null &&
-    // Mirrors the effect's own takeover guard: the user has not scrolled away since the snapshot.
-    (Math.abs(liveScrollTop - scrollAnchor.scrollTop) < 1 ||
-      Math.abs(liveScrollTop - anticipatedMaxScrollTop) < 1);
-  const settledRenderScrollTop =
-    anticipateBottomPin && anticipatedMaxScrollTop !== null
-      ? anticipatedMaxScrollTop
-      : clampedLiveScrollTop;
-  // A position the scrollport has not accepted yet still decides what the user sees, because the
-  // rows paint inside the sticky viewport rather than at `scrollTop`. Render for it so the first
-  // paint after a scroll request already shows the destination.
-  const renderScrollTop = pendingViewportScrollTopRef.current ?? settledRenderScrollTop;
-
-  const overscannedRenderContext = getOverscannedRenderContext(
-    anticipateBottomPin
-      ? // Seed the overscan expansion from the final row; it walks back to cover the new bottom.
-        { ...renderContext, firstRowIndex: rows.length - 1, lastRowIndex: rows.length }
-      : renderContext,
-    rowsMeta.positions,
-    rows.length,
-    validPinnedRowIndex,
-    renderBufferPx,
-    // Row positions exclude the scrollport's padding, but rows are visible inside it, so the
-    // window is computed for the whole scrollport in the engine's coordinates.
-    renderScrollTop - scrollportPadding.start,
-    dimensions.viewportInnerSize.height + scrollportPaddingTotal,
-  );
-  const overscannedRenderContextRef = React.useRef(overscannedRenderContext);
-  overscannedRenderContextRef.current = overscannedRenderContext;
-  renderScrollTopRef.current = renderScrollTop;
-  const renderZoneOffsetTop = rowsMeta.positions[overscannedRenderContext.firstRowIndex] ?? 0;
-  renderZoneOffsetTopRef.current = renderZoneOffsetTop;
-  // When the whole collection is rendered, the first row's exact position (zero) takes priority
-  // over the estimated content end, so tail anchoring must stay off.
-  renderZoneVirtualEndRef.current =
-    overscannedRenderContext.firstRowIndex > 0 &&
-    overscannedRenderContext.lastRowIndex >= rows.length
-      ? rowsMeta.currentPageTotalHeight
-      : null;
-
-  const resetScroll = useStableCallback(() => {
-    programmaticScrollTopRef.current = 0;
-    scrollElementRef.current?.scrollTo({
-      behavior: 'instant' as ScrollBehavior,
-      top: 0,
-    });
-    handleScrollChange({ top: 0 });
-  });
-
-  // Reported in scroll coordinates rather than the engine's: the scrollport's block padding is
-  // the offset between the two, and a consumer holding a `scrollTop` has no way to know it.
-  const getItemMetrics = useStableCallback((index: number) => {
-    if (rowsRef.current[index] == null) {
-      return null;
-    }
-
-    const currentRowsMeta = virtualizer.store.state.rowsMeta;
-    const offset = currentRowsMeta.positions[index];
-    const end = currentRowsMeta.positions[index + 1] ?? currentRowsMeta.currentPageTotalHeight;
-
-    if (offset == null || end == null) {
-      return null;
-    }
-
-    return {
-      offset: offset + scrollportPadding.start,
-      size: end - offset,
-    };
-  });
-
-  const getIndexAtOffset = useStableCallback((offset: number) => {
-    const rowCount = rowsRef.current.length;
-    if (rowCount === 0) {
-      return null;
-    }
-
-    const currentRowsMeta = virtualizer.store.state.rowsMeta;
-    return findRowIndexAtOffset(
-      currentRowsMeta.positions,
-      rowCount,
-      Math.max(0, offset - scrollportPadding.start),
-    );
-  });
-
   if (process.env.NODE_ENV !== 'production') {
     // NODE_ENV doesn't change at runtime
     // eslint-disable-next-line react-hooks/rules-of-hooks
@@ -966,43 +603,6 @@ export const Virtualizer = React.forwardRef(function Virtualizer<Value>(
       }
     }, [enabled, onUnconstrainedHeight, rows.length, rowsMeta, scrollportPaddingTotal]);
   }
-
-  const handleEndReached = useStableCallback(() => onEndReached?.());
-  /**
-   * Whether reaching the end again would be a new arrival. Held down while the window stays at
-   * the end so a list that renders its last item does not ask for another page on every commit,
-   * and released as soon as the window moves away or the collection grows past it.
-   */
-  const endReachedArmedRef = React.useRef(true);
-
-  useIsoLayoutEffect(() => {
-    if (onEndReached == null || rows.length === 0) {
-      return;
-    }
-
-    // The rendered range is half-open, so the final item is included once the end index reaches
-    // the collection length. The threshold counts items short of that.
-    const reachedEnd =
-      overscannedRenderContext.lastRowIndex >= rows.length - Math.max(0, endReachedThreshold);
-
-    if (!reachedEnd) {
-      endReachedArmedRef.current = true;
-      return;
-    }
-
-    if (!endReachedArmedRef.current) {
-      return;
-    }
-
-    endReachedArmedRef.current = false;
-    handleEndReached();
-  }, [
-    endReachedThreshold,
-    handleEndReached,
-    onEndReached,
-    overscannedRenderContext.lastRowIndex,
-    rows.length,
-  ]);
 
   useIsoLayoutEffect(() => {
     const element = trailingRef.current;
@@ -1172,214 +772,71 @@ export const Virtualizer = React.forwardRef(function Virtualizer<Value>(
     virtualizer.api,
   ]);
 
-  /**
-   * Re-applies a position the scrollport rejected, on the frame where its scrollable overflow
-   * exists. The rows already paint at that position, so this only brings `scrollTop` and the
-   * scrollbar in line. A single attempt is enough to schedule: the pending scroll request retries
-   * the write on each of its own measurement passes, and the rows keep rendering for the requested
-   * position until one of them lands, so a scrollport that stays unscrollable never spins a frame
-   * loop for as long as the request stands.
-   */
-  const applyPendingViewportScroll = useStableCallback(() => {
-    const scrollElement = scrollElementRef.current;
-    const pendingScrollTop = pendingViewportScrollTopRef.current;
+  // Declared after the effects that publish the virtualization mode, so a request made as a list
+  // opens is applied against the enabled window.
+  const pendingScroll = usePendingScroll<VirtualizerItemRowModel<Value>>({
+    adaptive,
+    api: virtualizer.api,
+    enabled,
+    onScrollApplied: (scrollTop) => handleScrollChange({ top: scrollTop }),
+    refreshWindow,
+    refreshWindowAfterCorrectiveScroll,
+    renderContextRef: overscannedRenderContextRef,
+    renderZoneRef,
+    rows,
+    rowsRef,
+    scrollElementRef,
+    scrollportPadding,
+    scrollToRowAlignment,
+    scrollToRowIndex,
+    store: virtualizer.store,
+    trailingHeight,
+  });
+  pendingScrollRef.current = pendingScroll;
 
-    if (pendingScrollTop == null) {
-      return;
-    }
-
-    if (scrollElement == null || pendingScrollRowIndexRef.current == null) {
-      pendingViewportScrollTopRef.current = null;
-      return;
-    }
-
-    programmaticScrollTopRef.current = pendingScrollTop;
-    scrollElement.scrollTo({ behavior: 'instant' as ScrollBehavior, top: pendingScrollTop });
-    const appliedScrollTop = scrollElement.scrollTop;
-
-    if (Math.abs(appliedScrollTop - pendingScrollTop) <= 1) {
-      pendingViewportScrollTopRef.current = null;
-      handleScrollChange({ top: appliedScrollTop });
-    }
+  const resetScroll = useStableCallback(() => {
+    pendingScroll.noteProgrammaticScroll(0);
+    scrollElementRef.current?.scrollTo({
+      behavior: 'instant' as ScrollBehavior,
+      top: 0,
+    });
+    handleScrollChange({ top: 0 });
   });
 
-  const scrollRowIntoView = useStableCallback(
-    (rowIndex: number, requireMeasurement = false, align: VirtualizerScrollAlignment = 'auto') => {
-      const scrollElement = scrollElementRef.current;
-      const row = rowsRef.current[rowIndex];
+  // Reported in scroll coordinates rather than the engine's: the scrollport's block padding is
+  // the offset between the two, and a consumer holding a `scrollTop` has no way to know it.
+  const getItemMetrics = useStableCallback((index: number) => {
+    if (rowsRef.current[index] == null) {
+      return null;
+    }
 
-      if (!scrollElement || !row) {
-        return false;
-      }
+    const currentRowsMeta = virtualizer.store.state.rowsMeta;
+    const offset = currentRowsMeta.positions[index];
+    const end = currentRowsMeta.positions[index + 1] ?? currentRowsMeta.currentPageTotalHeight;
 
-      const measured = !virtualizer.api.rowsMeta.getRowHeightEntry(row.id).needsFirstMeasurement;
+    if (offset == null || end == null) {
+      return null;
+    }
 
-      // The first pass may scroll using estimates so the destination mounts. The retry waits for
-      // the real row measurement; treating an estimated position as final can leave only the
-      // zero-sized focus proxy mounted after row heights expand.
-      if (requireMeasurement && !measured) {
-        return false;
-      }
+    return {
+      offset: offset + scrollportPadding.start,
+      size: end - offset,
+    };
+  });
 
-      const currentRowsMeta = virtualizer.store.state.rowsMeta;
-      const rowStart = currentRowsMeta.positions[rowIndex];
-      const rowEnd =
-        currentRowsMeta.positions[rowIndex + 1] ?? currentRowsMeta.currentPageTotalHeight;
+  const getIndexAtOffset = useStableCallback((offset: number) => {
+    const rowCount = rowsRef.current.length;
+    if (rowCount === 0) {
+      return null;
+    }
 
-      if (rowStart == null || rowEnd == null) {
-        return false;
-      }
-
-      // Scroll offsets are measured from the scrollport's padding edge, so the row's virtual
-      // position moves down by the padding the rows are laid out inside of.
-      const start = rowStart + scrollportPadding.start;
-      const end = rowEnd + scrollportPadding.start;
-
-      const styles = ownerWindow(scrollElement).getComputedStyle(scrollElement);
-      const scrollPaddingStart = resolveScrollPadding(scrollElement, styles.scrollPaddingTop);
-      const scrollPaddingEnd = resolveScrollPadding(scrollElement, styles.scrollPaddingBottom);
-      const viewportStart = scrollElement.scrollTop + scrollPaddingStart;
-      const viewportEnd = scrollElement.scrollTop + scrollElement.clientHeight - scrollPaddingEnd;
-      const viewportSize = Math.max(
-        0,
-        scrollElement.clientHeight - scrollPaddingStart - scrollPaddingEnd,
-      );
-      const rowSize = end - start;
-      let nextScrollTop: number | null = null;
-      let resolvedAlignment = align;
-
-      if (align === 'start') {
-        nextScrollTop = start - scrollPaddingStart;
-      } else if (align === 'center') {
-        nextScrollTop = start - scrollPaddingStart - (viewportSize - rowSize) / 2;
-      } else if (align === 'end') {
-        nextScrollTop = end - scrollElement.clientHeight + scrollPaddingEnd;
-      } else if (rowSize > viewportSize || start < viewportStart) {
-        resolvedAlignment = 'start';
-        nextScrollTop = start - scrollPaddingStart;
-      } else if (end > viewportEnd) {
-        resolvedAlignment = 'end';
-        nextScrollTop = end - scrollElement.clientHeight + scrollPaddingEnd;
-      }
-
-      if (
-        align === 'auto' &&
-        resolvedAlignment !== 'auto' &&
-        pendingScrollRowIndexRef.current === rowIndex
-      ) {
-        // Measurements can move the requested row across the opposite viewport edge. Keep the
-        // edge chosen by the initial estimated pass so corrective retries do not visibly move a
-        // selected row from the bottom of the popup to the top (or vice versa).
-        pendingScrollAlignmentRef.current = resolvedAlignment;
-      }
-
-      if (nextScrollTop != null) {
-        const maxScrollTop = getMaxScrollOffset(
-          currentRowsMeta.currentPageTotalHeight + scrollportPaddingTotal + trailingHeight,
-          scrollElement.clientHeight,
-        );
-        const clampedScrollTop = clamp(nextScrollTop, 0, maxScrollTop);
-        programmaticScrollTopRef.current = clampedScrollTop;
-        scrollElement.scrollTo({
-          behavior: 'instant' as ScrollBehavior,
-          top: clampedScrollTop,
-        });
-        const appliedScrollTop = scrollElement.scrollTop;
-        const scrollApplied = Math.abs(appliedScrollTop - clampedScrollTop) <= 1;
-
-        if (scrollApplied) {
-          pendingViewportScrollTopRef.current = null;
-          pendingViewportScrollFrame.cancel();
-          pendingScrollRequiresMeasurementRef.current = true;
-          // The native scroll event is asynchronous. Realign the sticky render zone immediately so
-          // keyboard navigation cannot expose a blank edge or leave the highlighted row offscreen
-          // for a frame while the virtual window catches up.
-          handleScrollChange({ top: appliedScrollTop });
-          if (Math.abs(appliedScrollTop - renderScrollTopRef.current) >= renderBufferPx) {
-            bumpWindowRevision();
-          }
-        } else {
-          // A newly opened popup runs this before its scrollable overflow exists, and the browser
-          // clamps the write back to the top. The destination is still known, so hold it as the
-          // position to render for: the window below is built from it and the sticky render zone
-          // is offset by it, which puts the requested row on screen in this same commit. Only the
-          // scrollbar still lags, until the retry below lands once the scrollport can accept it.
-          programmaticScrollTopRef.current = clampedScrollTop;
-          pendingViewportScrollTopRef.current = clampedScrollTop;
-          pendingScrollRequiresMeasurementRef.current = false;
-          bumpWindowRevision();
-          pendingViewportScrollFrame.request(applyPendingViewportScroll);
-          return false;
-        }
-      } else {
-        pendingScrollRequiresMeasurementRef.current = true;
-      }
-
-      if (!measured) {
-        return false;
-      }
-
-      // A distant row measured while the collection was filtered can make the estimate-based first
-      // pass look complete even though the expanded collection retained it only as an offscreen
-      // focus proxy. Keep that request pending until the static estimate settles, so the alignment
-      // is re-applied across the refresh that rewrites every unmeasured row.
-      if (pendingScrollRequiresAdaptiveEstimateRef.current && adaptiveEstimateRef.current == null) {
-        return false;
-      }
-
-      // Measuring the destination alone does not settle the request either: the rows above it can
-      // still be carrying estimates, and measuring those later moves the destination by however
-      // much they were off. An estimate below the real height pushes it down, so a row that was
-      // scrolled to exactly can end up entirely below the scrollport with nothing to correct it.
-      //
-      // The request is settled once the destination is fully inside the scrollport, which merely
-      // intersecting it does not establish: a row still hanging over an edge is one geometry
-      // update away from leaving again. Until then the request stays pending and the rowsMeta
-      // effect re-runs this alignment on every geometry update. Requiring the rendered row also
-      // covers a distant row that the collection retained only as an offscreen focus proxy, which
-      // is positioned absolutely and never counts as on screen. A row taller than the scrollport
-      // can never fit, so for those covering the scrollport is what counts as arrived.
-      const renderedRow = Array.from(renderZoneRef.current?.children ?? []).find(
-        (element) =>
-          Number((element as HTMLElement).dataset.rowIndex) === rowIndex &&
-          (element as HTMLElement).style.position !== 'absolute',
-      );
-      const renderedRowRect = renderedRow?.getBoundingClientRect();
-      const scrollElementRect = scrollElement.getBoundingClientRect();
-      if (renderedRowRect == null) {
-        return false;
-      }
-
-      return renderedRowRect.height <= scrollElementRect.height + 1
-        ? renderedRowRect.top >= scrollElementRect.top - 1 &&
-            renderedRowRect.bottom <= scrollElementRect.bottom + 1
-        : renderedRowRect.top <= scrollElementRect.top + 1 &&
-            renderedRowRect.bottom >= scrollElementRect.bottom - 1;
-    },
-  );
-
-  const scrollToIndex = useStableCallback(
-    (rowIndex: number, options?: VirtualizerScrollToIndexOptions) => {
-      const row = rowsRef.current[rowIndex];
-
-      if (!Number.isInteger(rowIndex) || rowIndex < 0 || !row) {
-        return;
-      }
-
-      const align = options?.align ?? 'auto';
-      pendingScrollRowIndexRef.current = rowIndex;
-      pendingScrollRowIdRef.current = row.id;
-      pendingScrollAlignmentRef.current = align;
-      pendingScrollRequiresMeasurementRef.current = false;
-      pendingScrollRequiresAdaptiveEstimateRef.current = false;
-
-      if (scrollRowIntoView(rowIndex, false, align)) {
-        pendingScrollRowIndexRef.current = null;
-        pendingScrollRowIdRef.current = null;
-        pendingScrollRequiresAdaptiveEstimateRef.current = false;
-      }
-    },
-  );
+    const currentRowsMeta = virtualizer.store.state.rowsMeta;
+    return findRowIndexAtOffset(
+      currentRowsMeta.positions,
+      rowCount,
+      Math.max(0, offset - scrollportPadding.start),
+    );
+  });
 
   /**
    * Drops every height learned so far, so rows are measured again against the layout they are in
@@ -1391,47 +848,50 @@ export const Virtualizer = React.forwardRef(function Virtualizer<Value>(
    * this is called and nothing moved.
    */
   const remeasure = useStableCallback(() => {
+    // A per-item estimate resolves against the layout too, and it is derived per collection rather
+    // than per render, so an invalidation has to reach it as well. Re-rendering is what re-derives
+    // it, and the engine rehydrates again once the new estimates arrive.
+    itemHeightEstimate.invalidate();
+    adaptive.reset();
+    gesture.clearDeferredRowHeights();
+
     const api = muiApiRef.current;
 
-    if (api == null) {
-      return;
-    }
+    if (api != null) {
+      api.rowsMeta.resetRowHeights();
 
-    adaptiveEstimateRef.current = null;
-    adaptiveMeasurementsRef.current.heights.clear();
-    adaptiveMeasurementsRef.current.total = 0;
-    measuredRowsRef.current.clear();
-    deferredRowHeightsRef.current.clear();
-    api.rowsMeta.resetRowHeights();
+      const renderZone = renderZoneRef.current;
 
-    const renderZone = renderZoneRef.current;
+      if (renderZone != null) {
+        for (let index = 0; index < renderZone.children.length; index += 1) {
+          const element = renderZone.children[index] as HTMLElement;
 
-    if (renderZone != null) {
-      for (let index = 0; index < renderZone.children.length; index += 1) {
-        const element = renderZone.children[index] as HTMLElement;
+          // The retained focus proxy is out of layout and never carries a usable height.
+          if (element.style.position === 'absolute') {
+            continue;
+          }
 
-        // The retained focus proxy is out of layout and never carries a usable height.
-        if (element.style.position === 'absolute') {
-          continue;
-        }
+          const rowIndex = Number(element.dataset.rowIndex);
+          const row = rowsRef.current[rowIndex];
+          const height = element.getBoundingClientRect().height;
 
-        const rowIndex = Number(element.dataset.rowIndex);
-        const row = rowsRef.current[rowIndex];
-        const height = element.getBoundingClientRect().height;
-
-        if (row != null && height > 0) {
-          api.rowsMeta.storeRowHeightMeasurement(row.id, height);
-          measuredRowsRef.current.add(row.id);
-          api.rowsMeta.setLastMeasuredRowIndex(rowIndex);
+          if (row != null && height > 0) {
+            api.rowsMeta.storeRowHeightMeasurement(row.id, height);
+            adaptive.markMeasured(row.id);
+            api.rowsMeta.setLastMeasuredRowIndex(rowIndex);
+          }
         }
       }
+
+      api.rowsMeta.hydrateRowsMeta();
     }
 
-    api.rowsMeta.hydrateRowsMeta();
     // Scroll anchoring compensates for whatever the rewrite moved, which is what keeps the
     // position across an invalidation that remounting to drop the caches would lose.
-    bumpAdaptiveMeasurementRevision();
+    adaptive.noteMeasurements();
   });
+
+  const scrollToIndex = pendingScroll.scrollToIndex;
 
   React.useImperativeHandle(
     apiRefProp,
@@ -1439,359 +899,158 @@ export const Virtualizer = React.forwardRef(function Virtualizer<Value>(
     [getIndexAtOffset, getItemMetrics, remeasure, resetScroll, scrollToIndex],
   );
 
-  const scrollToRowId = scrollToRowIndex == null ? null : (rows[scrollToRowIndex]?.id ?? null);
-  // Alignment belongs to the activation that requested the scroll, so it is read at that moment
-  // rather than depended on: changing only the alignment describes no new activation and must not
-  // move the viewport on its own.
-  const scrollToRowAlignmentRef = React.useRef(scrollToRowAlignment);
-  scrollToRowAlignmentRef.current = scrollToRowAlignment;
-
-  useIsoLayoutEffect(() => {
-    if (!enabled || scrollToRowIndex == null || scrollToRowIndex < 0 || scrollToRowId == null) {
-      pendingScrollRowIndexRef.current = null;
-      pendingScrollRowIdRef.current = null;
-      pendingScrollRequiresAdaptiveEstimateRef.current = false;
-      pendingViewportScrollTopRef.current = null;
-      pendingViewportScrollFrame.cancel();
-      return;
-    }
-
-    const alignment = scrollToRowAlignmentRef.current;
-    pendingScrollRowIndexRef.current = scrollToRowIndex;
-    pendingScrollRowIdRef.current = scrollToRowId;
-    pendingScrollAlignmentRef.current = alignment;
-    pendingScrollRequiresMeasurementRef.current = false;
-    const currentRenderContext = overscannedRenderContextRef.current;
-    pendingScrollRequiresAdaptiveEstimateRef.current =
-      pendingScrollRequiresAdaptiveEstimateRef.current ||
-      (useAdaptiveEstimate &&
-        adaptiveEstimateRef.current == null &&
-        (scrollToRowIndex <
-          currentRenderContext.firstRowIndex - ADAPTIVE_SCROLL_TARGET_MIN_DISTANCE ||
-          scrollToRowIndex >
-            currentRenderContext.lastRowIndex + ADAPTIVE_SCROLL_TARGET_MIN_DISTANCE));
-
-    // Try immediately with estimated metadata. If the destination is still unmeasured, the
-    // rowsMeta effect below corrects the position once ResizeObserver updates it.
-    if (scrollRowIntoView(scrollToRowIndex, false, alignment)) {
-      pendingScrollRowIndexRef.current = null;
-      pendingScrollRowIdRef.current = null;
-      pendingScrollRequiresAdaptiveEstimateRef.current = false;
-    }
-  }, [
+  const anchor = useScrollAnchor<VirtualizerItemRowModel<Value>>({
     enabled,
-    pendingViewportScrollFrame,
-    scrollRowIntoView,
-    scrollToRowId,
-    scrollToRowIndex,
-    useAdaptiveEstimate,
-  ]);
-
-  // Scroll anchoring: geometry updates (measurements replacing estimates, mounts realizing real
-  // heights, estimate refreshes) can move the rendered rows relative to the scrollport while the
-  // browser keeps `scrollTop` unchanged, so the content the user is looking at would jump. Track
-  // the on-screen position of the topmost visible row element and compensate by scrolling by
-  // however much it actually moved beyond the user's own scrolling. Comparing real DOM positions
-  // rather than virtual position deltas matters: a row measured after the window has already
-  // scrolled past it changes its virtual position without moving anything on screen, and
-  // "correcting" for that would push the viewport around for no visual reason. When the viewport
-  // was at the previous maximum scroll position, keep the bottom pinned instead: preserving the
-  // top row in that case would leave newly measured content below the viewport.
-  // TODO: If this proves to be an improvement, move it upstream into @mui/x-virtualizer (next to
-  // `hydrateRowsMeta`, where it can set `ignoreNextScrollEvent` and avoid the redundant
-  // scroll-event round trip that an external `scrollTop` write causes).
-  useIsoLayoutEffect(() => {
-    const scrollElement = scrollElementRef.current;
-    const renderZone = renderZoneRef.current;
-
-    if (!enabled || scrollElement == null || renderZone == null) {
-      scrollAnchorRef.current = null;
-      return;
-    }
-
-    // The inline render style stacks rows from the top without DOM knowledge. Re-anchor the
-    // rendered tail before any measurement below so anchor snapshots see final positions.
-    updateRenderZoneTransform();
-
-    // A pending scrollToIndex request repositions absolutely from the fresh geometry instead.
-    if (pendingScrollRowIndexRef.current != null) {
-      scrollAnchorRef.current = null;
-      return;
-    }
-
-    const latestRowsMeta = virtualizer.store.state.rowsMeta;
-    // MUI publishes the store update before React commits the matching row positions. We can still
-    // compensate from the logical row offsets, but must not snapshot the stale DOM in that commit.
-    const hasPendingRowsMeta = rowsMeta !== latestRowsMeta;
-    const previous = scrollAnchorRef.current;
-    const geometryChanged = previous?.rowsMeta !== latestRowsMeta;
-    const scrollerRect = scrollElement.getBoundingClientRect();
-    const scrollerTop = scrollerRect.top;
-    let scrollTop = scrollElement.scrollTop;
-    const maxScrollTop = getMaxScrollOffset(
-      latestRowsMeta.currentPageTotalHeight + scrollportPaddingTotal + trailingHeight,
-      scrollElement.clientHeight,
-    );
-    const shouldPinToBottom =
-      previous !== null &&
-      previous.maxScrollTop > 0 &&
-      Math.abs(previous.scrollTop - previous.maxScrollTop) < 1 &&
-      (Math.abs(scrollTop - previous.scrollTop) < 1 || Math.abs(scrollTop - maxScrollTop) < 1);
-
-    if (
-      previous !== null &&
-      previous.rows === rows &&
-      geometryChanged &&
-      // During a scrollbar drag the user dictates the absolute position and corrections would
-      // fight the pointer; the snapshot below simply absorbs whatever shifted.
-      !isScrollbarDragRef.current &&
-      // When pinned to the very top, stay there, mirroring native scroll anchoring.
-      scrollTop > 0
-    ) {
-      let shift = 0;
-
-      const elementStillRepresentsRow =
-        previous.element.isConnected &&
-        Number(previous.element.dataset.rowIndex) === previous.rowIndex;
-
-      if (!hasPendingRowsMeta && elementStillRepresentsRow) {
-        const anchorTop = previous.element.getBoundingClientRect().top - scrollerTop;
-        // How far the anchor actually moved on screen beyond what user scrolling accounts for.
-        shift = anchorTop - previous.relativeTop + (scrollTop - previous.scrollTop);
-      } else if (
-        previous.virtualOffset != null &&
-        // A geometry refresh can replace the entire render window before this effect runs. In
-        // that case the DOM anchor is gone, but the old row's virtual offset still tells us by
-        // how much the content above it moved. Use this fallback when the user did not scroll in
-        // between; a position at the new maximum is the browser's own clamp after the content
-        // shrank under the current scroll position, not user scrolling.
-        (Math.abs(scrollTop - previous.scrollTop) < 1 || Math.abs(scrollTop - maxScrollTop) < 1)
-      ) {
-        const currentVirtualOffset = latestRowsMeta.positions[previous.rowIndex];
-        if (currentVirtualOffset != null) {
-          // Apply the geometry shift to the position the user last held; a browser clamp has
-          // already absorbed part of that shift into `scrollTop`.
-          shift = currentVirtualOffset - previous.virtualOffset - (scrollTop - previous.scrollTop);
-        }
-      }
-
-      if (shouldPinToBottom || Math.abs(shift) >= 1) {
-        const nextScrollTop = shouldPinToBottom
-          ? maxScrollTop
-          : clamp(scrollTop + shift, 0, maxScrollTop);
-
-        if (Math.abs(nextScrollTop - scrollTop) >= 1) {
-          scrollTop = nextScrollTop;
-          programmaticScrollTopRef.current = nextScrollTop;
-          scrollElement.scrollTo({ behavior: 'instant' as ScrollBehavior, top: nextScrollTop });
-          // Realign the mounted rows before paint. The engine observes the same value when the
-          // asynchronous scroll event arrives, making this idempotent.
-          handleScrollChange({ top: nextScrollTop });
-          // A correction that lands far from the position this commit's window was rendered for
-          // can move the viewport beyond the mounted rows. Re-render before paint so the window
-          // follows the corrected position.
-          if (Math.abs(nextScrollTop - renderScrollTopRef.current) >= renderBufferPx) {
-            bumpWindowRevision();
-          }
-        }
-      }
-    }
-
-    if (hasPendingRowsMeta) {
-      if (previous != null) {
-        const virtualOffset = latestRowsMeta.positions[previous.rowIndex];
-        if (virtualOffset != null) {
-          scrollAnchorRef.current = {
-            ...previous,
-            maxScrollTop,
-            // The element position was measured at the snapshot's scroll position. Keep the pair
-            // consistent while carrying the snapshot forward, or the next on-screen comparison
-            // double-counts the scrolling that happened in between as a geometry shift.
-            relativeTop: previous.relativeTop - (scrollTop - previous.scrollTop),
-            scrollTop,
-            virtualOffset,
-            rowsMeta: latestRowsMeta,
-          };
-        }
-      }
-      return;
-    }
-
-    const userScrollDelta = previous == null ? 0 : scrollTop - previous.scrollTop;
-    if (
-      previous != null &&
-      previous.rows === rows &&
-      !previous.element.isConnected &&
-      !isScrollbarDragRef.current &&
-      Math.abs(userScrollDelta) >= 1 &&
-      Math.abs(userScrollDelta) <= scrollElement.clientHeight
-    ) {
-      const virtualOffset = rowsMeta.positions[previous.rowIndex];
-      if (virtualOffset != null) {
-        // A small scroll can replace the whole virtual window before its newly mounted rows are
-        // measured. Keep the prior logical anchor for one measurement cycle so growth between the
-        // old and new windows is not lost merely because its DOM node was recycled.
-        scrollAnchorRef.current = {
-          ...previous,
-          maxScrollTop,
-          relativeTop: previous.relativeTop - userScrollDelta,
-          scrollTop,
-          virtualOffset,
-          rowsMeta,
-        };
-        return;
-      }
-    }
-
-    const anchor = findAnchorRowElement(renderZone, scrollerTop, scrollerRect.bottom);
-    scrollAnchorRef.current =
-      anchor === null
-        ? null
-        : {
-            element: anchor.element,
-            rowIndex: anchor.rowIndex,
-            relativeTop: anchor.relativeTop,
-            maxScrollTop,
-            scrollTop,
-            virtualOffset: rowsMeta.positions[anchor.rowIndex] ?? null,
-            rowsMeta,
-            rows,
-          };
+    gesture,
+    onScrollApplied: (scrollTop) => handleScrollChange({ top: scrollTop }),
+    pendingScroll,
+    refreshWindowAfterCorrectiveScroll,
+    renderZoneRef,
+    rows,
+    rowsMeta,
+    scrollElementRef,
+    scrollportPaddingTotal,
+    store: virtualizer.store,
+    trailingHeight,
+    updateRenderZoneTransform,
   });
 
-  // Adaptive estimates: a static `estimatedItemHeight` is replaced with the running average of
-  // settled rendered rows once enough samples exist, so the virtual total converges after the
-  // first measured window instead of accumulating the estimate error row by row.
-  //
-  // The refresh is deferred until scrolling stops. It reassigns the height of every unmeasured
-  // row, so on a long list even a small change in the average moves the total by thousands of
-  // pixels; doing that mid-gesture is what drags the scrollbar thumb out from under the pointer.
-  // Waiting for idle also lets the first measurements settle, which keeps the list from chasing
-  // an average that is still wrong. Re-estimating rows above the viewport shifts their positions;
-  // the scroll-anchoring effect above compensates on the resulting commit, which is why it must
-  // be declared first.
-  useIsoLayoutEffect(() => {
-    if (!useAdaptiveEstimate) {
-      return;
-    }
+  // The engine publishes a recomputed render context inside the scroll event before this
+  // component's own scroll bookkeeping observes it, while corrective writes move the
+  // scrollport before the engine hears about them. The live scroll position is the only basis
+  // consistent with both orderings.
+  const liveScrollTop = scrollElementRef.current?.scrollTop ?? 0;
+  const currentMaxScrollTop =
+    dimensions.viewportInnerSize.height > 0
+      ? getMaxScrollOffset(
+          rowsMeta.currentPageTotalHeight + trailingHeight,
+          dimensions.viewportInnerSize.height,
+        )
+      : null;
+  // When a geometry rewrite shrinks the content below the current scroll position, the browser
+  // clamps `scrollTop` the moment the commit lays out — before any scroll event reports it.
+  // Target that inevitable position now so this commit's window and transform match what paints.
+  const clampedLiveScrollTop =
+    currentMaxScrollTop === null ? liveScrollTop : Math.min(liveScrollTop, currentMaxScrollTop);
 
-    // Coalesce ResizeObserver hydrations before accepting measurements. Opening popups can
-    // temporarily lay rows out at an intermediate width; those sizes must not seed a collection-
-    // wide estimate before the final layout has settled.
-    if (adaptiveRowsMetaRef.current !== rowsMeta) {
-      adaptiveRowsMetaRef.current = rowsMeta;
-      adaptiveEstimateTimeout.start(SCROLL_IDLE_MS, bumpAdaptiveMeasurementRevision);
-      return;
-    }
+  // A geometry rewrite that lands while the viewport rests at the maximum scroll position is
+  // followed by a bottom pin in the scroll-anchoring effect, within this same commit.
+  // The engine's render context was computed for the pre-rewrite scroll position, so the rows it
+  // mounts end short of the rewritten content end; painting that window at the pinned position
+  // would briefly blank the bottom of the scrollport. Render the window for the anticipated
+  // pinned position instead so the same commit that moves the viewport also covers it.
+  const scrollAnchor = anchor.readSnapshot();
+  const anticipatedMaxScrollTop =
+    enabled &&
+    currentMaxScrollTop !== null &&
+    scrollAnchor !== null &&
+    scrollAnchor.rows === rows &&
+    scrollAnchor.rowsMeta !== rowsMeta &&
+    scrollAnchor.maxScrollTop > 0 &&
+    Math.abs(scrollAnchor.scrollTop - scrollAnchor.maxScrollTop) < 1 &&
+    !gesture.isScrollbarDrag() &&
+    !pendingScroll.isPending()
+      ? currentMaxScrollTop
+      : null;
+  const anticipateBottomPin =
+    anticipatedMaxScrollTop !== null &&
+    scrollAnchor !== null &&
+    // Mirrors the effect's own takeover guard: the user has not scrolled away since the snapshot.
+    (Math.abs(liveScrollTop - scrollAnchor.scrollTop) < 1 ||
+      Math.abs(liveScrollTop - anticipatedMaxScrollTop) < 1);
+  const settledRenderScrollTop =
+    anticipateBottomPin && anticipatedMaxScrollTop !== null
+      ? anticipatedMaxScrollTop
+      : clampedLiveScrollTop;
+  // A position the scrollport has not accepted yet still decides what the user sees, because the
+  // rows paint inside the sticky viewport rather than at `scrollTop`. Render for it so the first
+  // paint after a scroll request already shows the destination.
+  const renderScrollTop = pendingScroll.getViewportScrollTop() ?? settledRenderScrollTop;
 
-    // While a scrollbar drag is in progress the gesture owns the geometry even when the thumb is
-    // held still, so the idle timer alone must not release the refresh.
-    if (isScrollingRef.current || isScrollbarDragRef.current) {
-      return;
-    }
-
-    // Only sample the settled rendered range. MUI's cache retains measurements after rows unmount,
-    // including transient measurements taken while a popup is initially resolving its width.
-    // Treating every cached entry as authoritative biases the estimate long after the DOM settles.
-    const heightCache = virtualizer.store.state.rowHeights as Map<React.Key, HeightEntry>;
-    const measurements = adaptiveMeasurementsRef.current;
-    for (
-      let rowIndex = overscannedRenderContext.firstRowIndex;
-      rowIndex < overscannedRenderContext.lastRowIndex;
-      rowIndex += 1
-    ) {
-      const row = rows[rowIndex];
-      const entry = row == null ? undefined : heightCache.get(row.id);
-      if (row != null && entry != null && !entry.needsFirstMeasurement) {
-        const previousHeight = measurements.heights.get(row.id);
-        if (previousHeight !== entry.content) {
-          measurements.heights.set(row.id, entry.content);
-          measurements.total += entry.content - (previousHeight ?? 0);
-        }
-      }
-    }
-    const measuredCount = measurements.heights.size;
-
-    if (measuredCount < ADAPTIVE_ESTIMATE_MIN_SAMPLES) {
-      return;
-    }
-
-    const average = measurements.total / measuredCount;
-    const applied = adaptiveEstimateRef.current;
-
-    // Judge refinements by their aggregate effect on the unmeasured collection. A sub-pixel
-    // per-row error is still thousands of pixels on a long list and visibly changes its scrollbar.
-    const unmeasuredRowCount = Math.max(1, rows.length - measuredCount);
-    if (applied != null && Math.abs(average - applied) * unmeasuredRowCount < 1) {
-      return;
-    }
-
-    // Rows measured during a transient layout or an active gesture were deliberately excluded from
-    // the settled sample above. Do not let those stale entries continue overriding the new estimate
-    // in the collection total; they will be measured again if they re-enter the rendered window.
-    for (const [rowId, entry] of heightCache) {
-      if (!entry.needsFirstMeasurement && !measurements.heights.has(rowId)) {
-        entry.content = average;
-        entry.needsFirstMeasurement = true;
-        // A demoted row's real height is no longer part of the geometry. Leaving it marked as
-        // measured would let a remeasurement commit that height mid-drag, moving the scrollbar
-        // under the pointer — the drag deferral trusts this set to skip already-settled rows.
-        measuredRowsRef.current.delete(rowId as React.Key);
-      }
-    }
-
-    adaptiveEstimateRef.current = average;
-    muiApiRef.current?.rowsMeta.hydrateRowsMeta();
-  }, [
-    adaptiveEstimateTimeout,
-    adaptiveMeasurementRevision,
-    adaptiveMeasurementsRef,
-    defaultEstimatedItemHeight,
-    measuredRowsRef,
+  const overscannedRenderContext = getOverscannedRenderContext(
+    anticipateBottomPin
+      ? // Seed the overscan expansion from the final row; it walks back to cover the new bottom.
+        { ...renderContext, firstRowIndex: rows.length - 1, lastRowIndex: rows.length }
+      : renderContext,
+    rowsMeta.positions,
     rows.length,
-    rowsMeta,
-    scrollIdleRevision,
-    useAdaptiveEstimate,
-    virtualizer.store,
-    overscannedRenderContext.firstRowIndex,
-    overscannedRenderContext.lastRowIndex,
-    rows,
-  ]);
+    validPinnedRowIndex,
+    renderBufferPx,
+    // Row positions exclude the scrollport's padding, but rows are visible inside it, so the
+    // window is computed for the whole scrollport in the engine's coordinates.
+    renderScrollTop - scrollportPadding.start,
+    dimensions.viewportInnerSize.height + scrollportPaddingTotal,
+  );
+  overscannedRenderContextRef.current = overscannedRenderContext;
+  renderScrollTopRef.current = renderScrollTop;
+  const renderZoneOffsetTop = rowsMeta.positions[overscannedRenderContext.firstRowIndex] ?? 0;
+  renderZoneOffsetTopRef.current = renderZoneOffsetTop;
+  // When the whole collection is rendered, the first row's exact position (zero) takes priority
+  // over the estimated content end, so tail anchoring must stay off.
+  renderZoneVirtualEndRef.current =
+    overscannedRenderContext.firstRowIndex > 0 &&
+    overscannedRenderContext.lastRowIndex >= rows.length
+      ? rowsMeta.currentPageTotalHeight
+      : null;
+
+  const handleEndReached = useStableCallback(() => onEndReached?.());
+  /**
+   * Whether reaching the end again would be a new arrival. Held down while the window stays at
+   * the end so a list that renders its last item does not ask for another page on every commit,
+   * and released as soon as the window moves away or the collection grows past it.
+   */
+  const endReachedArmedRef = React.useRef(true);
 
   useIsoLayoutEffect(() => {
-    const rowIndex = pendingScrollRowIndexRef.current;
-
-    // Array identity may change without the logical destination changing. Only invalidate a
-    // pending correction when a different row now occupies the requested collection index.
-    if (rowIndex != null && rowsRef.current[rowIndex]?.id !== pendingScrollRowIdRef.current) {
-      pendingScrollRowIndexRef.current = null;
-      pendingScrollRowIdRef.current = null;
-      pendingScrollRequiresAdaptiveEstimateRef.current = false;
-      pendingViewportScrollTopRef.current = null;
-      pendingViewportScrollFrame.cancel();
+    if (onEndReached == null || rows.length === 0) {
       return;
     }
 
-    if (
-      rowIndex != null &&
-      scrollRowIntoView(
-        rowIndex,
-        pendingScrollRequiresMeasurementRef.current,
-        pendingScrollAlignmentRef.current,
-      )
-    ) {
-      pendingScrollRowIndexRef.current = null;
-      pendingScrollRowIdRef.current = null;
-      pendingScrollRequiresAdaptiveEstimateRef.current = false;
+    // The rendered range is half-open, so the final item is included once the end index reaches
+    // the collection length. The threshold counts items short of that.
+    const reachedEnd =
+      overscannedRenderContext.lastRowIndex >= rows.length - Math.max(0, endReachedThreshold);
+
+    if (!reachedEnd) {
+      endReachedArmedRef.current = true;
+      return;
     }
+
+    if (!endReachedArmedRef.current) {
+      return;
+    }
+
+    endReachedArmedRef.current = false;
+    handleEndReached();
   }, [
-    overscannedRenderContext.firstRowIndex,
+    endReachedThreshold,
+    handleEndReached,
+    onEndReached,
     overscannedRenderContext.lastRowIndex,
-    pendingViewportScrollFrame,
+    rows.length,
+  ]);
+
+  // Declared after `useScrollAnchor`: refreshing the estimate re-positions rows above the
+  // viewport, and anchoring compensates for that on the resulting commit.
+  useAdaptiveEstimateRefresh<VirtualizerItemRowModel<Value>>({
+    adaptive,
+    apiRef: muiApiRef,
+    defaultEstimatedItemHeight,
+    gesture,
+    renderContext: overscannedRenderContext,
     rows,
     rowsMeta,
-    scrollRowIntoView,
-  ]);
+    store: virtualizer.store,
+  });
+
+  // Declared last: anchoring reads an outstanding request while it still stands, and a request
+  // waiting on a settled estimate sees the refresh above in the same commit.
+  usePendingScrollRetry<VirtualizerItemRowModel<Value>>({
+    pendingScroll,
+    renderContext: overscannedRenderContext,
+    rows,
+    rowsMeta,
+  });
 
   const rowsRenderContext: RenderContext = enabled
     ? overscannedRenderContext
@@ -2091,34 +1350,6 @@ export namespace Virtualizer {
    * Props accepted by the component.
    */
   export type Props<Value = unknown> = VirtualizerProps<Value>;
-}
-
-function resolveScrollPadding(scrollElement: HTMLElement, value: string) {
-  if (!value || value === 'auto') {
-    return 0;
-  }
-
-  if (value.endsWith('px')) {
-    const pixels = Number.parseFloat(value);
-    return Number.isFinite(pixels) ? Math.max(0, pixels) : 0;
-  }
-
-  // Computed scroll-padding preserves percentages and calculations. Resolve them through layout
-  // against the scrollport's corresponding dimension, as required by CSS Scroll Snap.
-  const probe = ownerDocument(scrollElement).createElement('div');
-  Object.assign(probe.style, {
-    boxSizing: 'border-box',
-    height: value,
-    pointerEvents: 'none',
-    position: 'absolute',
-    visibility: 'hidden',
-    width: '0px',
-  });
-  scrollElement.append(probe);
-  const pixels = probe.getBoundingClientRect().height;
-  probe.remove();
-
-  return Number.isFinite(pixels) ? Math.max(0, pixels) : 0;
 }
 
 function getScrollportPadding(element: HTMLElement): ScrollportPadding {

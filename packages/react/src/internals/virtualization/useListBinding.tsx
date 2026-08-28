@@ -1,15 +1,14 @@
 'use client';
 import * as React from 'react';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
-import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { warn } from '@base-ui/utils/warn';
 import { EMPTY_ARRAY } from '@base-ui/utils/empty';
-import { areArraysEqual } from '@base-ui/utils/areArraysEqual';
 import type {
   ListVirtualizationRegistry,
   VirtualizerActions,
   VirtualizerHandle,
+  VirtualizerScrollAlignment,
   VirtualizerScrollToIndexOptions,
 } from './ListVirtualizationRegistry';
 import type {
@@ -22,13 +21,9 @@ import type {
   VirtualizerItemProps,
   VirtualizerItemRowModel,
   VirtualizerRenderRowParameters,
-  VirtualizerRow,
 } from './types';
 
 type ComponentName = string;
-type VirtualizerItemKey = string;
-
-const DEFAULT_ESTIMATED_ITEM_HEIGHT = 32;
 
 interface VirtualizerItemRowProps<Item> {
   children: (item: Item, index: number, itemProps: VirtualizerItemProps) => React.ReactElement;
@@ -116,7 +111,7 @@ const VirtualizerItemRow = React.memo(
   areVirtualizerItemRowPropsEqual,
 ) as typeof VirtualizerItemRowImpl;
 
-export interface UseVirtualizerBindingParameters<Item> {
+export interface UseListBindingParameters<Item> {
   actionsRef: React.RefObject<VirtualizerActions | null> | undefined;
   /**
    * The item to keep mounted and scroll to, for a virtualizer given its own collection.
@@ -130,8 +125,6 @@ export interface UseVirtualizerBindingParameters<Item> {
    * fall back to the scrolling it uses for static collections.
    */
   enabled: boolean;
-  estimatedItemHeight: number | ((item: Item, index: number) => number) | undefined;
-  getItemKey: ((item: Item) => string | number) | undefined;
   host: ListVirtualizationHost | undefined;
   /**
    * The collection to window, when the virtualizer is given one directly. Takes precedence over a
@@ -146,22 +139,41 @@ export interface UseVirtualizerBindingParameters<Item> {
   totalItems: number | undefined;
 }
 
+export interface ListBinding<Item> {
+  /** The virtualizer's own imperative handle, which this binding republishes to the list. */
+  apiRef: React.RefObject<VirtualizerHandle | null>;
+  /** Whether the window may be active. A list asking for every row suspends it. */
+  enabled: boolean;
+  /** The collection to window, from whichever of the two sources supplies it. */
+  items: ReadonlyArray<Item>;
+  onUnconstrainedHeight: () => void;
+  /** The row to keep mounted even outside the window. */
+  pinnedRowIndex: number | undefined;
+  renderRow: (
+    params: VirtualizerRenderRowParameters<VirtualizerItemRowModel<Item>>,
+  ) => React.ReactElement;
+  /** Bumped when a render-all pass ends and the windowed viewport has to be re-established. */
+  restoreViewportVersion: number;
+  scrollToRowAlignment: VirtualizerScrollAlignment;
+  scrollToRowIndex: number | undefined;
+}
+
 /**
- * Resolves what `<Virtualizer>` windows, from either of its two sources: an `items` prop, or
- * the surrounding list's collection and highlight state. Turns that collection into stable rows,
- * supplies each row's item metadata, and registers the imperative handle with the list, if any.
+ * Resolves what `<Virtualizer>` windows, from either of its two sources: an `items` prop, or the
+ * surrounding list's collection and highlight state. Supplies each row's item metadata, and
+ * registers the imperative handle with the list, if any.
  *
  * The collection's source and the row's item channel are independent: a virtualizer given its own
  * `items` inside a list still publishes metadata through that list's `<Item>` context.
  */
-export function useVirtualizerBinding<Item>(parameters: UseVirtualizerBindingParameters<Item>) {
+export function useListBinding<Item>(
+  parameters: UseListBindingParameters<Item>,
+): ListBinding<Item> {
   const {
     actionsRef,
     activeIndex: activeIndexProp,
     children,
     enabled: enabledProp,
-    estimatedItemHeight,
-    getItemKey,
     host,
     items: itemsProp,
     listState,
@@ -217,59 +229,6 @@ export function useVirtualizerBinding<Item>(parameters: UseVirtualizerBindingPar
     }, [componentName, hasOwnCollection]);
   }
 
-  const objectKeyRegistry = useRefWithInit(createObjectKeyRegistry).current;
-  const hasGetItemKey = getItemKey != null;
-  // Read through a ref so the collection, not the callback's identity, decides when these run
-  // again. A feature layer writes them inline, which makes a new identity on each of its renders;
-  // keying on that would re-derive a key and an estimate for every item each time, in the
-  // component whose whole purpose is not to touch every item. They are contracted as pure
-  // functions of the item, and `remeasure()` is how a change in what they return is announced.
-  const getItemKeyRef = React.useRef(getItemKey);
-  getItemKeyRef.current = getItemKey;
-  const rowsCacheRef = React.useRef<VirtualizerRow<VirtualizerItemRowModel<Item>>[] | null>(null);
-  const rows = React.useMemo<VirtualizerRow<VirtualizerItemRowModel<Item>>[]>(() => {
-    const keys = process.env.NODE_ENV === 'production' ? undefined : new Set<VirtualizerItemKey>();
-
-    const nextRows = items.map((item, itemIndex) => {
-      const rawKey = hasGetItemKey ? getItemKeyRef.current!(item) : undefined;
-      const key = hasGetItemKey
-        ? normalizeItemKey(rawKey)
-        : getDefaultItemKey(item, objectKeyRegistry);
-
-      if (process.env.NODE_ENV !== 'production') {
-        if (isObjectValue(item) && !hasGetItemKey) {
-          warn(
-            '<Virtualizer> requires `getItemKey` when item values are objects. ' +
-              'Return a stable string or number that uniquely identifies each item.',
-          );
-        }
-        if (keys?.has(key)) {
-          warn(
-            '<Virtualizer> received the duplicate item key ' +
-              `\`${String(rawKey ?? item)}\`. Each item must have a unique key.`,
-          );
-        }
-        keys?.add(key);
-      }
-
-      return {
-        id: key,
-        model: {
-          item,
-          itemIndex,
-        },
-      };
-    });
-
-    const previousRows = rowsCacheRef.current;
-    if (previousRows != null && areVirtualizerRowsEqual(previousRows, nextRows)) {
-      return previousRows;
-    }
-
-    rowsCacheRef.current = nextRows;
-    return nextRows;
-  }, [hasGetItemKey, items, objectKeyRegistry]);
-
   const focusedRowIndex = activeIndex == null ? undefined : activeIndex;
   const scrollToRowIndex = scrollActiveIntoView ? focusedRowIndex : undefined;
 
@@ -287,47 +246,6 @@ export function useVirtualizerBinding<Item>(parameters: UseVirtualizerBindingPar
     [children, componentName, items.length, totalItems, virtualItemContext],
   );
 
-  const estimatedItemHeightCacheRef = React.useRef<{
-    callback: (model: VirtualizerItemRowModel<Item>, rowIndex: number) => number;
-    rows: VirtualizerRow<VirtualizerItemRowModel<Item>>[];
-    values: number[];
-  } | null>(null);
-  const estimatedItemHeightRef = React.useRef(estimatedItemHeight);
-  estimatedItemHeightRef.current = estimatedItemHeight;
-
-  let resolvedEstimatedItemHeight:
-    number | ((model: VirtualizerItemRowModel<Item>, rowIndex: number) => number) =
-    typeof estimatedItemHeight === 'number' ? estimatedItemHeight : DEFAULT_ESTIMATED_ITEM_HEIGHT;
-
-  if (typeof estimatedItemHeight === 'function') {
-    const cache = estimatedItemHeightCacheRef.current;
-    if (cache != null && cache.rows === rows) {
-      resolvedEstimatedItemHeight = cache.callback;
-    } else {
-      const estimate = estimatedItemHeightRef.current as (item: Item, index: number) => number;
-      const values = items.map((item, index) => estimate(item, index));
-      const cachedValues = cache?.values;
-      // The engine rehydrates row metadata when this callback's identity changes, so the previous
-      // one is kept when the new collection resolves to the same estimates: a re-derived array of
-      // equal numbers is not a geometry change.
-      const valuesAreEqual =
-        cachedValues != null &&
-        cachedValues.length === values.length &&
-        values.every((value, index) => Object.is(value, cachedValues[index]));
-      const nextCache =
-        valuesAreEqual && cache != null
-          ? { ...cache, rows }
-          : {
-              callback: (_model: VirtualizerItemRowModel<Item>, rowIndex: number) =>
-                values[rowIndex] ?? 1,
-              rows,
-              values,
-            };
-      estimatedItemHeightCacheRef.current = nextCache;
-      resolvedEstimatedItemHeight = nextCache.callback;
-    }
-  }
-
   // Some list-level operations need every item mounted briefly (for example, collecting rendered
   // labels for browser autofill), which suspends windowing until they finish. The list root reads
   // this off the registry to know whether the virtualizer currently owns scrolling.
@@ -340,15 +258,7 @@ export function useVirtualizerBinding<Item>(parameters: UseVirtualizerBindingPar
   const getIndexAtOffset = useStableCallback(
     (offset: number) => apiRef.current?.getIndexAtOffset(offset) ?? null,
   );
-  const [, bumpEstimateRevision] = React.useReducer((value: number) => value + 1, 0);
-  const remeasure = useStableCallback(() => {
-    // A per-item estimate resolves against the layout too, and it is derived per collection
-    // rather than per render, so an invalidation has to reach it as well. Re-rendering is what
-    // re-derives it, and the engine rehydrates again once the new estimates arrive.
-    estimatedItemHeightCacheRef.current = null;
-    bumpEstimateRevision();
-    apiRef.current?.remeasure();
-  });
+  const remeasure = useStableCallback(() => apiRef.current?.remeasure());
   const resetScroll = useStableCallback(() => apiRef.current?.resetScroll());
   const scrollToIndex = useStableCallback(
     (index: number, options?: VirtualizerScrollToIndexOptions) =>
@@ -400,12 +310,11 @@ export function useVirtualizerBinding<Item>(parameters: UseVirtualizerBindingPar
   return {
     apiRef,
     enabled,
-    estimatedItemHeight: resolvedEstimatedItemHeight,
+    items,
     onUnconstrainedHeight,
     pinnedRowIndex: focusedRowIndex,
     renderRow,
     restoreViewportVersion: renderAllRowsRestoreVersion,
-    rows,
     scrollToRowAlignment: scrollActiveAlignment,
     scrollToRowIndex,
   };
@@ -476,72 +385,6 @@ export function useNonVirtualizedItemRegistration(
       };
     }, [componentName, insideList, registry, virtualized]);
   }
-}
-
-function areVirtualizerRowsEqual<Item>(
-  previous: VirtualizerRow<VirtualizerItemRowModel<Item>>[],
-  next: VirtualizerRow<VirtualizerItemRowModel<Item>>[],
-) {
-  return areArraysEqual(
-    previous,
-    next,
-    (previousRow, nextRow) =>
-      previousRow.id === nextRow.id &&
-      previousRow.model.item === nextRow.model.item &&
-      previousRow.model.itemIndex === nextRow.model.itemIndex,
-  );
-}
-
-/**
- * Creates an identity registry used to generate stable keys for object and symbol item values.
- */
-function createObjectKeyRegistry() {
-  return {
-    objectKeys: new WeakMap<object, number>(),
-    symbolKeys: new Map<symbol, number>(),
-    nextObjectKey: 0,
-    nextSymbolKey: 0,
-  };
-}
-
-function getDefaultItemKey<Value>(
-  item: Value,
-  registry: ReturnType<typeof createObjectKeyRegistry>,
-): VirtualizerItemKey {
-  if (isObjectValue(item)) {
-    const objectItem = item as object;
-    let key = registry.objectKeys.get(objectItem);
-    if (key === undefined) {
-      key = registry.nextObjectKey;
-      registry.nextObjectKey += 1;
-      registry.objectKeys.set(objectItem, key);
-    }
-    return `object:${key}`;
-  }
-
-  if (typeof item === 'symbol') {
-    let key = registry.symbolKeys.get(item);
-    if (key === undefined) {
-      key = registry.nextSymbolKey;
-      registry.nextSymbolKey += 1;
-      registry.symbolKeys.set(item, key);
-    }
-    return `symbol:${key}`;
-  }
-
-  return normalizeItemKey(item);
-}
-
-function normalizeItemKey(key: unknown): VirtualizerItemKey {
-  if (key === null) {
-    return 'null';
-  }
-  // React coerces keys to strings, so include the primitive type before that coercion happens.
-  return `${typeof key}:${String(key)}`;
-}
-
-function isObjectValue(value: unknown): value is object {
-  return (typeof value === 'object' && value !== null) || typeof value === 'function';
 }
 
 function warnAboutStaticItems(componentName: ComponentName) {
