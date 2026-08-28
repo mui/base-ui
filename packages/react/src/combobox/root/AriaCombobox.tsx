@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import * as ReactDOM from 'react-dom';
 import { useControlled } from '@base-ui/utils/useControlled';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useOnFirstRender } from '@base-ui/utils/useOnFirstRender';
@@ -8,6 +9,8 @@ import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
 import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
 import { visuallyHidden, visuallyHiddenInput } from '@base-ui/utils/visuallyHidden';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
+import { isElementDisabled } from '@base-ui/utils/isElementDisabled';
+import { warn } from '@base-ui/utils/warn';
 import { Store, useStore } from '@base-ui/utils/store';
 import { EMPTY_ARRAY, EMPTY_OBJECT } from '@base-ui/utils/empty';
 import { isHTMLElement } from '@floating-ui/utils/dom';
@@ -35,7 +38,7 @@ import {
   ComboboxRootContext,
   ComboboxInputValueContext,
 } from './ComboboxRootContext';
-import { selectors, type State as StoreState } from '../store';
+import { selectors, setVirtualizationRenderAllRows, type State as StoreState } from '../store';
 import { useOpenChangeComplete } from '../../internals/useOpenChangeComplete';
 import { useFieldRootContext } from '../../internals/field-root-context/FieldRootContext';
 import { useRegisterFieldControl } from '../../internals/field-register-control/useRegisterFieldControl';
@@ -68,11 +71,14 @@ import {
 } from '../../internals/itemEquality';
 import { INITIAL_LAST_HIGHLIGHT, NO_ACTIVE_VALUE } from './utils/constants';
 import { useDirection } from '../../internals/direction-context/DirectionContext';
+import { createListVirtualizationRegistry } from '../../internals/virtualization/ListVirtualizationRegistry';
 import {
   findCollectionItem,
   type ComboboxItemCollection,
   type ItemCollection,
 } from '../items/itemCollection';
+
+const MAX_RENDERED_AUTOFILL_ITEMS = 1000;
 
 type InternalAriaComboboxProps<Value, Mode extends SelectionMode, Item = Value> = AriaComboboxProps<
   Value,
@@ -92,7 +98,7 @@ export function AriaCombobox<Value, Mode extends SelectionMode = 'none', Item = 
 ): React.JSX.Element;
 export function AriaCombobox<Value, Mode extends SelectionMode = 'none', Item = Value>(
   props: Omit<InternalAriaComboboxProps<Value, Mode, Item>, 'items'> & {
-    items?: readonly any[] | ComboboxItemCollection<Item, any> | undefined;
+    items?: readonly any[] | readonly Group<any>[] | ComboboxItemCollection<Item, any> | undefined;
   },
 ): React.JSX.Element;
 export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', Item = Value>(
@@ -128,6 +134,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
     loopFocus = true,
     itemToStringLabel: itemToStringLabelProp,
     itemToStringValue,
+    isItemDisabled,
     isItemEqualToValue = defaultItemEquality,
     virtualized = false,
     inline: inlineProp = false,
@@ -262,6 +269,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
     hasQuery: boolean;
     selection?: boolean | undefined;
   }>(null);
+  const virtualizationRegistry = useRefWithInit(createListVirtualizationRegistry).current;
 
   /**
    * Contains the currently visible list of item values post-filtering.
@@ -438,15 +446,19 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
   /**
    * The filtered items flattened across groups and projected to their selection values.
    */
+  const flatFilteredItems: any[] = React.useMemo(
+    // Explicit type argument: inferring it from a union of both shapes resolves `Item` to
+    // `Group<Item>`, which tsc rejects and tsgo does not.
+    () => flattenLeafItems<Item>(filteredItems) as any[],
+    [filteredItems],
+  );
+
   const flatFilteredValues: any[] = React.useMemo(() => {
     if (externalWindow && filteredItems === filteredItemsProp) {
       return externalWindow.values;
     }
-    // Explicit type argument: inferring it from a union of both shapes resolves `Item` to
-    // `Group<Item>`, which tsc rejects and tsgo does not.
-    const flat = flattenLeafItems<Item>(filteredItems);
-    return itemToValue ? flat.map((item) => itemToValue(item)) : (flat as any[]);
-  }, [filteredItems, filteredItemsProp, externalWindow, itemToValue]);
+    return itemToValue ? flatFilteredItems.map((item) => itemToValue(item)) : flatFilteredItems;
+  }, [flatFilteredItems, filteredItems, filteredItemsProp, externalWindow, itemToValue]);
 
   const store = useRefWithInit(() => {
     // An inline list open on the first render never gets a closed pass of the closed-state
@@ -491,9 +503,15 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
       readOnly,
       required,
       grid,
-      virtualized,
+      externallyVirtualized: virtualized,
+      virtualizationState: {
+        renderAllRows: false,
+        renderAllRowsRestoreVersion: 0,
+      },
+      virtualizationRegistry,
       openOnInputClick,
       itemToStringLabel,
+      isItemDisabled,
       isItemEqualToValue,
       modal,
       autoHighlight: autoHighlightMode,
@@ -504,6 +522,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
       transitionStatus: 'idle',
       inline: inlineProp,
       activeIndex: null,
+      highlightType: 'none',
       selectedIndex: initialSelectedIndex,
       popupProps: {},
       listProps: {},
@@ -609,24 +628,25 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
       selectedIndex?: number | null | undefined;
       type?: AriaCombobox.HighlightEventReason | undefined;
     }) => {
-      const update = {} as Pick<StoreState, 'activeIndex' | 'selectedIndex'>;
-
-      if (options.activeIndex !== undefined) {
-        update.activeIndex = options.activeIndex;
-      }
-
-      if (options.selectedIndex !== undefined) {
-        update.selectedIndex = options.selectedIndex;
-      }
-
-      store.update(update);
-
       const activeIndexOption = options.activeIndex;
+      const type: AriaCombobox.HighlightEventReason = options.type || 'none';
+      // Only the keys set below are written. The store rejects `undefined` values, so the object
+      // is built up rather than typed as partial.
+      const nextIndices = {} as Pick<StoreState, 'activeIndex' | 'highlightType' | 'selectedIndex'>;
+
+      if (activeIndexOption !== undefined) {
+        nextIndices.activeIndex = activeIndexOption;
+        nextIndices.highlightType = type;
+      }
+      if (options.selectedIndex !== undefined) {
+        nextIndices.selectedIndex = options.selectedIndex;
+      }
+
+      store.update(nextIndices);
+
       if (activeIndexOption === undefined) {
         return;
       }
-
-      const type: AriaCombobox.HighlightEventReason = options.type || REASONS.none;
 
       if (activeIndexOption === null) {
         emitHighlight(undefined, -1, type);
@@ -635,6 +655,29 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
       }
     },
   );
+
+  const isIndexDisabled = useStableCallback((index: number) => {
+    if (!hasItems && !(index in valuesRef.current)) {
+      return true;
+    }
+
+    const itemValue = hasItems ? flatFilteredValues[index] : valuesRef.current[index];
+    const itemElement = listRef.current[index];
+    return (
+      isItemDisabled?.(itemValue, index) === true ||
+      (itemElement != null && isElementDisabled(itemElement))
+    );
+  });
+
+  const getFirstEnabledIndex = useStableCallback((itemCount: number) => {
+    for (let index = 0; index < itemCount; index += 1) {
+      if (!isIndexDisabled(index)) {
+        return index;
+      }
+    }
+
+    return null;
+  });
 
   const setInputValue = useStableCallback(
     (next: string, eventDetails: AriaCombobox.ChangeEventDetails) => {
@@ -671,23 +714,29 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
           // `onItemHighlighted` receives the latest item.
           pendingQueryHighlightRef.current = { hasQuery };
 
-          // Virtualized lists own their scroller. Reset regular lists directly so a stale
-          // composite registry cannot select a reordered item and scrolling cannot escape
-          // the popup.
-          const list = store.state.listElement;
-          if (!store.state.virtualized && list) {
-            const popup = popupRef.current;
-            for (const ancestor of getOverflowAncestors(list.firstElementChild ?? list)) {
-              if (
-                !isHTMLElement(ancestor) ||
-                (popup ? !contains(popup, ancestor) : ancestor.getAttribute('role') === 'dialog')
-              ) {
-                break;
-              }
+          const builtInVirtualizer = store.state.virtualizationRegistry.virtualizer;
 
-              if (isScrollableY(ancestor)) {
-                ancestor.scrollTop = 0;
-                break;
+          if (builtInVirtualizer) {
+            builtInVirtualizer.resetScroll();
+          } else if (!store.state.externallyVirtualized) {
+            // Externally virtualized lists own their scroller. Reset regular lists directly
+            // so a stale composite registry cannot select a reordered item and scrolling
+            // cannot escape the popup.
+            const list = store.state.listElement;
+            if (list) {
+              const popup = popupRef.current;
+              for (const ancestor of getOverflowAncestors(list.firstElementChild ?? list)) {
+                if (
+                  !isHTMLElement(ancestor) ||
+                  (popup ? !contains(popup, ancestor) : ancestor.getAttribute('role') === 'dialog')
+                ) {
+                  break;
+                }
+
+                if (isScrollableY(ancestor)) {
+                  ancestor.scrollTop = 0;
+                  break;
+                }
               }
             }
           }
@@ -698,7 +747,8 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
             store.state.activeIndex == null &&
             (open || inline)
           ) {
-            store.set('activeIndex', 0);
+            const itemCount = hasItems ? flatFilteredValues.length : valuesRef.current.length;
+            updateActiveIndexState(store, getFirstEnabledIndex(itemCount));
           }
         }
       } else if (
@@ -1000,9 +1050,11 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
   useIsoLayoutEffect(() => {
     if (items) {
       valuesRef.current = flatFilteredValues;
-      listRef.current.length = flatFilteredValues.length;
+      if (virtualized) {
+        listRef.current.length = flatFilteredValues.length;
+      }
     }
-  }, [items, flatFilteredValues]);
+  }, [flatFilteredValues, items, virtualized]);
 
   useIsoLayoutEffect(() => {
     const pendingHighlight = pendingQueryHighlightRef.current;
@@ -1012,7 +1064,8 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
       const listIsNavigable = open || inline || store.state.positionerElement?.hidden === false;
       if (pendingHighlight.hasQuery) {
         if (autoHighlightMode && listIsNavigable) {
-          store.set('activeIndex', 0);
+          const itemCount = hasItems ? flatFilteredValues.length : valuesRef.current.length;
+          updateActiveIndexState(store, getFirstEnabledIndex(itemCount));
         }
         pendingQueryHighlightRef.current = null;
       } else if (String(inputValue).trim() === '') {
@@ -1028,7 +1081,8 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
           ) {
             // There is no selection to restore in Autocomplete. Keep the first-item reset
             // synchronous so list navigation sees it before a directly rendered list closes.
-            store.set('activeIndex', 0);
+            const itemCount = hasItems ? flatFilteredValues.length : valuesRef.current.length;
+            updateActiveIndexState(store, getFirstEnabledIndex(itemCount));
           }
 
           // Items re-mounted by the clear publish their composite indices in a follow-up
@@ -1058,8 +1112,8 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
                 hasItems || hasFilteredItemsProp ? flatFilteredValues : valuesRef.current;
               // A selection that is no longer in the list drops the highlight rather than
               // leaving it on whichever item now occupies that index.
-              store.set(
-                'activeIndex',
+              updateActiveIndexState(
+                store,
                 hasSelection
                   ? findSelectionIndex(
                       registry,
@@ -1070,7 +1124,11 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
                   : null,
               );
             } else if (autoHighlightMode === 'always') {
-              store.set('activeIndex', 0);
+              const itemCount =
+                hasItems || hasFilteredItemsProp
+                  ? flatFilteredValues.length
+                  : valuesRef.current.length;
+              updateActiveIndexState(store, getFirstEnabledIndex(itemCount));
             }
           });
         }
@@ -1087,7 +1145,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
 
     if (storeActiveIndex == null) {
       if (autoHighlightMode === 'always' && candidateItems.length > 0) {
-        store.set('activeIndex', 0);
+        updateActiveIndexState(store, getFirstEnabledIndex(candidateItems.length));
         return;
       }
       emitHighlight(undefined, -1, REASONS.none);
@@ -1096,7 +1154,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
 
     if (storeActiveIndex >= candidateItems.length) {
       emitHighlight(undefined, -1, REASONS.none);
-      store.set('activeIndex', null);
+      updateActiveIndexState(store, null);
       return;
     }
 
@@ -1120,6 +1178,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
     hasFilteredItemsProp,
     hasItems,
     flatFilteredValues,
+    getFirstEnabledIndex,
     inline,
     open,
     store,
@@ -1298,8 +1357,14 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
     resetOnPointerLeave: !keepHighlight,
     orientation: grid ? 'horizontal' : undefined,
     rtl: direction === 'rtl',
-    disabledIndices: EMPTY_ARRAY,
+    disabledIndices: isItemDisabled ? isIndexDisabled : EMPTY_ARRAY,
     grid: grid ? gridNavigation : undefined,
+    // An enabled built-in virtualizer owns the scroll position and scrolls highlighted rows
+    // itself. The DOM scroll here is deferred by a frame, so it can read a stale window layout and
+    // drag the scroll position away from where the virtualizer just placed it. A disabled
+    // virtualizer renders the whole collection and scrolls no rows, so it must keep the DOM scroll
+    // that static lists rely on.
+    scrollItemIntoView: () => store.state.virtualizationRegistry.virtualizer?.enabled !== true,
     onNavigate(nextActiveIndex, event) {
       // Retain the highlight only while actually transitioning out or closed.
       if ((!event && !open) || transitionStatus === 'ending') {
@@ -1406,9 +1471,10 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
       readOnly,
       required,
       grid,
-      virtualized,
+      externallyVirtualized: virtualized,
       openOnInputClick,
       itemToStringLabel,
+      isItemDisabled,
       modal,
       autoHighlight: autoHighlightMode,
       isItemEqualToValue,
@@ -1439,6 +1505,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
     virtualized,
     openOnInputClick,
     itemToStringLabel,
+    isItemDisabled,
     modal,
     isItemEqualToValue,
     submitOnItemClick,
@@ -1454,10 +1521,12 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
     () => ({
       query,
       hasItems,
+      isGrouped,
       filteredItems,
+      flatFilteredItems,
       flatFilteredValues,
     }),
-    [query, hasItems, filteredItems, flatFilteredValues],
+    [query, hasItems, isGrouped, filteredItems, flatFilteredItems, flatFilteredValues],
   );
 
   const serializedValue = React.useMemo(() => {
@@ -1555,19 +1624,109 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
               }
             }
 
+            let collectedRenderedLabels = false;
+            let restoreRenderAllRows = false;
+            let restoreForceMounted = false;
+
+            function mountRenderedLabels(renderAllRows: boolean) {
+              const shouldRenderAllRows =
+                renderAllRows && !store.state.virtualizationState.renderAllRows;
+              // `forceMounted` also enables rendered-label registration for lists that are
+              // already open, so it is needed independently of the popup's mounted state.
+              const shouldForceMount = !store.state.forceMounted;
+
+              restoreRenderAllRows ||= shouldRenderAllRows;
+              restoreForceMounted ||= shouldForceMount;
+
+              if (!shouldRenderAllRows && !shouldForceMount) {
+                return;
+              }
+
+              ReactDOM.flushSync(() => {
+                if (shouldRenderAllRows) {
+                  setVirtualizationRenderAllRows(store, true);
+                }
+                if (shouldForceMount) {
+                  store.set('forceMounted', true);
+                }
+              });
+            }
+
+            function restoreRenderedLabels() {
+              // Restore the virtual window before releasing a temporary mount. Keeping these in
+              // separate commits lets an open max-height list recover its measured viewport before
+              // a closed list is removed again.
+              if (restoreRenderAllRows) {
+                ReactDOM.flushSync(() => {
+                  setVirtualizationRenderAllRows(store, false);
+                });
+              }
+              if (restoreForceMounted) {
+                ReactDOM.flushSync(() => {
+                  store.set('forceMounted', false);
+                });
+              }
+            }
+
+            function warnAboutLargeVirtualizedCollection() {
+              warn(
+                'Browser autofill could not match a rendered item label in a collection with ' +
+                  `more than ${MAX_RENDERED_AUTOFILL_ITEMS} items. Provide the ` +
+                  '`itemToStringLabel` prop so labels can be matched without rendering the ' +
+                  'entire collection.',
+              );
+            }
+
             // Only single-selection autofill matches against the registered values/labels.
             // `multiple` ignores autofill and `none` just writes the input value, so avoid the
             // sticky `forceMounted` mount (which never resets) for those modes.
             if (single) {
               forceMount();
               if (items && findSerializedMatchIndex() === -1) {
-                // `forceMount` only refreshes the derived labels for the `items` prop. When
-                // serialized matching misses, also mount the list so rendered labels (which can
-                // differ from the serialized values) are registered for autofill matching.
-                store.set('forceMounted', true);
+                try {
+                  if (flatFilteredValues.length <= MAX_RENDERED_AUTOFILL_ITEMS) {
+                    // `forceMount` only refreshes labels derived from the `items` prop. For smaller
+                    // collections, mount the list once so custom rendered text remains available to
+                    // browser autofill.
+                    mountRenderedLabels(true);
+                    collectedRenderedLabels = true;
+                  } else if (store.state.externallyVirtualized) {
+                    warnAboutLargeVirtualizedCollection();
+                  } else {
+                    // A built-in virtualizer is not registered while its closed popup is
+                    // unmounted. Briefly mount the list to distinguish it from a regular static
+                    // collection without ever disabling its virtual window.
+                    mountRenderedLabels(false);
+
+                    if (store.state.virtualizationRegistry.virtualizer != null) {
+                      warnAboutLargeVirtualizedCollection();
+                    } else {
+                      // Static lists retain their legacy rendered-label matching regardless of
+                      // collection size. Their items are already all mounted at this point.
+                      collectedRenderedLabels = true;
+                    }
+
+                    // A temporarily mounted built-in virtualizer must also be released after the
+                    // queued match reads its bounded set of registered labels.
+                    collectedRenderedLabels ||= restoreForceMounted;
+                  }
+                } catch (error) {
+                  restoreRenderedLabels();
+                  throw error;
+                }
               }
             }
-            queueMicrotask(handleChange);
+            queueMicrotask(() => {
+              try {
+                handleChange();
+              } finally {
+                if (collectedRenderedLabels) {
+                  // The render-all pass committed synchronously, so labels have been read by the
+                  // time this runs. Restore the window even if a consumer callback throws.
+                  restoreRenderedLabels();
+                }
+              }
+            });
           },
         })}
         id={id && hiddenInputName == null ? `${id}-hidden-input` : undefined}
@@ -1601,6 +1760,10 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
       </ComboboxFloatingContext.Provider>
     </ComboboxRootContext.Provider>
   );
+}
+
+function updateActiveIndexState(store: Store<StoreState>, activeIndex: number | null) {
+  store.update({ activeIndex, highlightType: 'none' });
 }
 
 type SelectionMode = 'single' | 'multiple' | 'none';
@@ -1762,7 +1925,10 @@ interface ComboboxRootProps<ItemValue, Item = ItemValue> {
     | ((item: Item, query: string, itemToString?: (item: Item) => string) => boolean)
     | undefined;
   /**
-   * When the item values are objects (`<Combobox.Item value={object}>`), this function converts the object value to a string representation for display in the input.
+   * Converts an item value to the string used for filtering and display in the input.
+   * Provide this for object values and for primitive values whose rendered labels differ from
+   * their values, especially in large or virtualized collections, so browser autofill can match
+   * labels without mounting every item.
    * If the shape of the object is `{ value, label }`, the label will be used automatically without needing to specify this prop.
    * With a `createItems()` collection, this receives the derived value, and the collection's
    * `getLabel` takes precedence for values it can resolve.
@@ -1775,13 +1941,22 @@ interface ComboboxRootProps<ItemValue, Item = ItemValue> {
    */
   itemToStringValue?: ((itemValue: ItemValue) => string) | undefined;
   /**
+   * Determines whether an item is disabled from its value and logical index in the filtered,
+   * limited collection used for keyboard navigation.
+   *
+   * Use this prop when disabled state must be known before an item is rendered, such as when
+   * virtualizing the list. The `disabled` prop only marks a rendered item; this callback is what
+   * makes keyboard navigation skip disabled items and gives rendered items their disabled state.
+   */
+  isItemDisabled?: ((itemValue: ItemValue, index: number) => boolean) | undefined;
+  /**
    * Custom comparison logic used to determine if a combobox item value matches the current selected value. Useful when item values are objects without matching referentially.
    * With a `createItems()` collection, both arguments are derived values.
    * Defaults to `Object.is` comparison.
    */
   isItemEqualToValue?: ((itemValue: ItemValue, value: ItemValue) => boolean) | undefined;
   /**
-   * Whether the items are being externally virtualized.
+   * Whether the items are being virtualized by an external, third-party virtualizer.
    * @default false
    */
   virtualized?: boolean | undefined;
