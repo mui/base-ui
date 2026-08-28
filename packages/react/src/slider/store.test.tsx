@@ -172,6 +172,42 @@ describe('slider store', () => {
     expect(storeRef.current!.state.value).toBe(0);
   });
 
+  it('falls back to the internal value when the controlled value is removed', async () => {
+    const storeRef: { current: SliderStore | null } = { current: null };
+    const onValueChange = vi.fn();
+
+    function Fixture({ value }: { value: number | undefined }) {
+      return (
+        <Slider.Root value={value} onValueChange={onValueChange}>
+          <StoreProbe storeRef={storeRef} />
+          <Slider.Control>
+            <Slider.Thumb />
+          </Slider.Control>
+        </Slider.Root>
+      );
+    }
+
+    const { setProps, user } = await render(<Fixture value={40} />);
+    const input = screen.getByRole('slider');
+    expect(input).toHaveAttribute('aria-valuenow', '40');
+
+    await expect(async () => {
+      await setProps({ value: undefined });
+    }).toErrorDev([
+      'A component is changing the controlled state of valueProp to be uncontrolled. Elements should not switch from uncontrolled to controlled (or vice versa).',
+    ]);
+
+    // Renders the internal (default) value, and commands compute from the same value.
+    expect(input).toHaveAttribute('aria-valuenow', '0');
+    expect(storeRef.current!.select('value')).toBe(0);
+
+    act(() => input.focus());
+    await user.keyboard('[ArrowRight]');
+
+    expect(onValueChange).toHaveBeenCalledWith(1, expect.any(Object));
+    expect(input).toHaveAttribute('aria-valuenow', '1');
+  });
+
   it('provides commands to descendant ref callbacks on the first commit', async () => {
     const storeRef: { current: SliderStore | null } = { current: null };
     const stateRef: { current: SliderRootState | null } = { current: null };
