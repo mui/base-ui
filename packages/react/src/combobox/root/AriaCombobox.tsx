@@ -8,7 +8,7 @@ import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
 import { useValueAsRef } from '@base-ui/utils/useValueAsRef';
 import { visuallyHidden, visuallyHiddenInput } from '@base-ui/utils/visuallyHidden';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
-import { Store, useStore } from '@base-ui/utils/store';
+import { ReactStore } from '@base-ui/utils/store';
 import { EMPTY_ARRAY, EMPTY_OBJECT } from '@base-ui/utils/empty';
 import { isHTMLElement } from '@floating-ui/utils/dom';
 import {
@@ -35,7 +35,7 @@ import {
   ComboboxRootContext,
   ComboboxInputValueContext,
 } from './ComboboxRootContext';
-import { selectors, type State as StoreState } from '../store';
+import { selectors, type ComboboxStoreContext, type State as StoreState } from '../store';
 import { useOpenChangeComplete } from '../../internals/useOpenChangeComplete';
 import { useFieldRootContext } from '../../internals/field-root-context/FieldRootContext';
 import { useRegisterFieldControl } from '../../internals/field-register-control/useRegisterFieldControl';
@@ -463,73 +463,78 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
       );
     }
 
-    return new Store<StoreState>({
-      id,
-      labelId: undefined,
-      selectedValue,
-      open,
-      items: storeItems,
-      selectionMode,
-      listRef,
-      labelsRef,
-      popupRef,
-      emptyRef,
-      inputRef,
-      startDismissRef,
-      endDismissRef,
-      keyboardActiveRef,
-      chipsContainerRef,
-      clearRef,
-      valuesRef,
-      pointerDownItemRef,
-      selectionEventRef,
-      name,
-      form,
-      disabled,
-      readOnly,
-      required,
-      grid,
-      virtualized,
-      openOnInputClick,
-      itemToStringLabel,
-      isItemEqualToValue,
-      modal,
-      autoHighlight: autoHighlightMode,
-      submitOnItemClick,
-      hasInputValue,
-      mounted: false,
-      forceMounted: false,
-      transitionStatus: 'idle',
-      inline: inlineProp,
-      activeIndex: null,
-      selectedIndex: initialSelectedIndex,
-      popupProps: {},
-      listProps: {},
-      inputProps: {},
-      triggerProps: {},
-      itemProps: EMPTY_OBJECT,
-      positionerElement: null,
-      listElement: null,
-      popupId: undefined,
-      triggerElement: null,
-      inputElement: null,
-      inputGroupElement: null,
-      popupSide: null,
-      openMethod: null,
-      inputInsidePopup: true,
-      // Avoid duplicate names in the server HTML. Popup inputs aren't rendered
-      // until after hydration, so the hidden input takes over then if needed.
-      inputOwnsFormValue: selectionMode === 'none',
-      // Placeholder callbacks replaced on first render
-      onOpenChangeComplete: NOOP,
-      setOpen: NOOP,
-      setInputValue: NOOP,
-      setSelectedValue: NOOP,
-      setIndices: NOOP,
-      handleSelection: NOOP,
-      forceMount: NOOP,
-      requestSubmit: NOOP,
-    });
+    return new ReactStore<StoreState, ComboboxStoreContext, typeof selectors>(
+      {
+        id,
+        labelId: undefined,
+        selectedValue,
+        open,
+        items: storeItems,
+        selectionMode,
+        name,
+        form,
+        disabled,
+        readOnly,
+        required,
+        grid,
+        virtualized,
+        openOnInputClick,
+        itemToStringLabel,
+        isItemEqualToValue,
+        modal,
+        autoHighlight: autoHighlightMode,
+        submitOnItemClick,
+        hasInputValue,
+        mounted: false,
+        forceMounted: false,
+        transitionStatus: 'idle',
+        inline: inlineProp,
+        activeIndex: null,
+        selectedIndex: initialSelectedIndex,
+        popupProps: {},
+        listProps: {},
+        inputProps: {},
+        triggerProps: {},
+        itemProps: EMPTY_OBJECT,
+        positionerElement: null,
+        listElement: null,
+        popupId: undefined,
+        triggerElement: null,
+        inputElement: null,
+        inputGroupElement: null,
+        popupSide: null,
+        openMethod: null,
+        inputInsidePopup: true,
+        // Avoid duplicate names in the server HTML. Popup inputs aren't rendered
+        // until after hydration, so the hidden input takes over then if needed.
+        inputOwnsFormValue: selectionMode === 'none',
+      },
+      {
+        // Placeholder callbacks replaced on first render
+        onOpenChangeComplete: NOOP,
+        setOpen: NOOP,
+        setInputValue: NOOP,
+        setSelectedValue: NOOP,
+        setIndices: NOOP,
+        handleSelection: NOOP,
+        forceMount: NOOP,
+        requestSubmit: NOOP,
+        listRef,
+        labelsRef,
+        popupRef,
+        emptyRef,
+        inputRef,
+        startDismissRef,
+        endDismissRef,
+        keyboardActiveRef,
+        chipsContainerRef,
+        clearRef,
+        valuesRef,
+        pointerDownItemRef,
+        selectionEventRef,
+      },
+      selectors,
+    );
   }).current;
 
   const fieldRawValue = selectionMode === 'none' ? inputValue : selectedValue;
@@ -546,16 +551,16 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
   const onItemHighlighted = useStableCallback(onItemHighlightedProp);
   const onOpenChangeComplete = useStableCallback(onOpenChangeCompleteProp);
 
-  const activeIndex = useStore(store, selectors.activeIndex);
-  const selectedIndex = useStore(store, selectors.selectedIndex);
-  const positionerElement = useStore(store, selectors.positionerElement);
-  const listElement = useStore(store, selectors.listElement);
-  const triggerElement = useStore(store, selectors.triggerElement);
-  const inputElement = useStore(store, selectors.inputElement);
-  const inputGroupElement = useStore(store, selectors.inputGroupElement);
-  const inline = useStore(store, selectors.inline);
-  const inputInsidePopup = useStore(store, selectors.inputInsidePopup);
-  const inputOwnsFormValue = useStore(store, selectors.inputOwnsFormValue);
+  const activeIndex = store.useState('activeIndex');
+  const selectedIndex = store.useState('selectedIndex');
+  const positionerElement = store.useState('positionerElement');
+  const listElement = store.useState('listElement');
+  const triggerElement = store.useState('triggerElement');
+  const inputElement = store.useState('inputElement');
+  const inputGroupElement = store.useState('inputGroupElement');
+  const inline = store.useState('inline');
+  const inputInsidePopup = store.useState('inputInsidePopup');
+  const inputOwnsFormValue = store.useState('inputOwnsFormValue');
   const inputMatchesSelectedValue =
     single && !inputInsidePopup && inputValue === selectedLabelString;
 
@@ -1283,17 +1288,21 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
       reference['aria-expanded'] = ariaExpanded;
       reference['aria-haspopup'] = ariaHasPopup;
       reference['aria-controls'] = expanded ? listElement?.id : undefined;
-      reference['aria-autocomplete'] = autoComplete;
+      // `readOnly` accepts no input, so no completion of any kind is offered.
+      reference['aria-autocomplete'] = readOnly ? 'none' : autoComplete;
     }
 
     return {
       reference,
       floating: { role: 'presentation' },
     };
-  }, [inputElement, expanded, ariaExpanded, ariaHasPopup, listElement?.id, autoComplete]);
+  }, [inputElement, expanded, ariaExpanded, ariaHasPopup, listElement?.id, autoComplete, readOnly]);
 
+  // `readOnly` locks the value, not the interaction: the popup opens and can be browsed.
+  // Value changes stay blocked in `ComboboxItem`, `ComboboxInput`'s keydown, `ComboboxTrigger`'s
+  // typeahead, the clear/remove parts, and the hidden input's autofill handler.
   const click = useClick(floatingRootContext, {
-    enabled: !readOnly && !disabled && openOnInputClick,
+    enabled: !disabled && openOnInputClick,
     event: 'mousedown-only',
     toggle: false,
     // Apply a small delay for touch to let mobile viewport/keyboard positioning settle.
@@ -1303,7 +1312,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
   });
 
   const dismiss = useDismiss(floatingRootContext, {
-    enabled: !readOnly && !disabled && !inline,
+    enabled: !disabled && !inline,
     outsidePressEvent: {
       mouse: 'sloppy',
       // The visual viewport (affected by the mobile software keyboard) can be
@@ -1325,7 +1334,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
   });
 
   const listNavigation = useListNavigation(floatingRootContext, {
-    enabled: !readOnly && !disabled,
+    enabled: !disabled,
     id,
     listRef,
     activeIndex,
@@ -1406,6 +1415,17 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
     return { ...listNavigationItemProps, onFocus: undefined };
   }, [listNavigation.item]);
 
+  store.useContextCallback('setOpen', setOpen);
+  store.useContextCallback('setInputValue', setInputValue);
+  store.useContextCallback('setSelectedValue', setSelectedValue);
+  store.useContextCallback('setIndices', setIndices);
+  store.useContextCallback('handleSelection', handleSelection);
+  store.useContextCallback('forceMount', forceMount);
+  store.useContextCallback('requestSubmit', requestSubmit);
+  store.useContextCallback('onOpenChangeComplete', onOpenChangeCompleteProp);
+
+  // The prop bags must be in the store before the parts render: they read them with `useStore`
+  // during render, and a layout effect commits only after all children have rendered.
   useOnFirstRender(() => {
     store.update({
       inline: inlineProp,
@@ -1414,65 +1434,26 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
       inputProps,
       triggerProps,
       itemProps,
-      setOpen,
-      setInputValue,
-      setSelectedValue,
-      setIndices,
-      handleSelection,
-      forceMount,
-      requestSubmit,
-      onOpenChangeComplete,
     });
   });
 
-  useIsoLayoutEffect(() => {
-    store.update({
-      id,
-      selectedValue,
-      open,
-      mounted,
-      transitionStatus,
-      items: storeItems,
-      inline: inlineProp,
-      popupProps,
-      listProps,
-      inputProps,
-      triggerProps,
-      openMethod,
-      itemProps,
-      selectionMode,
-      name,
-      form,
-      disabled,
-      readOnly,
-      required,
-      grid,
-      virtualized,
-      openOnInputClick,
-      itemToStringLabel,
-      modal,
-      autoHighlight: autoHighlightMode,
-      isItemEqualToValue,
-      submitOnItemClick,
-      hasInputValue,
-      inputOwnsFormValue: selectionMode === 'none' && (inlineProp || !store.state.inputInsidePopup),
-    });
-  }, [
-    store,
+  const syncedValues = {
     id,
     selectedValue,
     open,
     mounted,
     transitionStatus,
-    storeItems,
+    items: storeItems,
+    inline: inlineProp,
     popupProps,
     listProps,
     inputProps,
+    triggerProps,
     itemProps,
     openMethod,
-    triggerProps,
     selectionMode,
     name,
+    form,
     disabled,
     readOnly,
     required,
@@ -1481,13 +1462,24 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
     openOnInputClick,
     itemToStringLabel,
     modal,
+    autoHighlight: autoHighlightMode,
     isItemEqualToValue,
     submitOnItemClick,
     hasInputValue,
-    inlineProp,
-    autoHighlightMode,
-    form,
-  ]);
+  };
+
+  useIsoLayoutEffect(() => {
+    // `inputOwnsFormValue` is derived here rather than during render because `ComboboxInput`
+    // writes it from a ref callback earlier in the same commit, and it has to land in this same
+    // `update` so subscribers never observe an intermediate snapshot. That is also why
+    // `store.useSyncedValues` can't be used yet: it would need a second write. The dependencies
+    // are derived from `syncedValues` so a newly synchronized field can't be forgotten here.
+    store.update({
+      ...syncedValues,
+      inputOwnsFormValue: selectionMode === 'none' && (inlineProp || !store.state.inputInsidePopup),
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [store, ...Object.values(syncedValues)]);
 
   const hiddenInputRef = useMergedRefs(inputRefProp, validation.inputRef);
 

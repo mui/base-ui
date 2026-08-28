@@ -165,7 +165,7 @@ describe('<Combobox.InputGroup />', () => {
     expect(screen.queryByRole('listbox')).toBe(null);
   });
 
-  it('does not focus or open when readOnly', async () => {
+  it('focuses the input and opens when readOnly', async () => {
     await render(
       <Combobox.Root items={['a', 'b']} multiple readOnly defaultValue={['a']}>
         <Combobox.InputGroup data-testid="group" style={{ padding: 10 }}>
@@ -190,8 +190,8 @@ describe('<Combobox.InputGroup />', () => {
 
     fireEvent.mouseDown(screen.getByTestId('group'));
 
-    expect(screen.getByTestId('input')).not.toHaveFocus();
-    expect(screen.queryByRole('listbox')).toBe(null);
+    expect(screen.getByTestId('input')).toHaveFocus();
+    expect(screen.queryByRole('listbox')).not.toBe(null);
   });
 
   it('has role prop', async () => {
