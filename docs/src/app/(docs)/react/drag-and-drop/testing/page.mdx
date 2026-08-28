@@ -1,0 +1,101 @@
+# Testing
+
+<Subtitle>How to test pointer drags.</Subtitle>
+
+<Meta name="description" content="How to test Base UI pointer drags in jsdom and a browser." />
+
+The engine is [synthetic](/react/drag-and-drop/overview#concepts): it listens to pointer events and never uses the browser's HTML5 drag-and-drop. There is no `dragstart` to fire. A test drives a drag the way a user does, with `pointerdown`, `pointermove` and `pointerup`.
+
+## Pick the environment first
+
+A drag resolves drop targets through layout and `document.elementFromPoint`, which jsdom does not provide.
+
+- Use a browser test for behavior that requires a resolved target, including `onDrop`, `data-drag-over`, drop indicators, and auto-scroll.
+- Use jsdom for activation thresholds, lifecycle events, cancellation reasons, source state, preview rendering, `disabled`, and `onBeforeDragStart` cancellation.
+
+Stubbing `getBoundingClientRect` in jsdom supplies geometry but not hit-testing. A drag can still start and end there, but it resolves no target and ends as an `'outside-release'`. Use a browser test when the destination matters.
+
+## Start a pointer drag
+
+A press is not a drag. Mouse and pen activate once the pointer has moved 5px from where it went down; touch activates after a 250ms press-hold, with a 5px tolerance so a list scroll still scrolls. A test that dispatches `pointerdown` then `pointerup` has simulated a click.
+
+```tsx title="A mouse drag from one element to another"
+const source = screen.getByTestId('card');
+
+fireEvent.pointerDown(source, { pointerId: 1, clientX: 0, clientY: 0, button: 0, buttons: 1 });
+// Past the 5px threshold: this is what commits the drag.
+fireEvent.pointerMove(document, { pointerId: 1, clientX: 0, clientY: 40, buttons: 1 });
+fireEvent.pointerMove(document, { pointerId: 1, clientX: 0, clientY: 120, buttons: 1 });
+fireEvent.pointerUp(document, { pointerId: 1, clientX: 0, clientY: 120 });
+```
+
+Three details matter:
+
+- **Dispatch moves on `document`, not on `window`.** This reaches the drag's active pointer listeners.
+- **Carry the same `pointerId` through.** The engine tracks one gesture by id and ignores events from another pointer.
+- **Keep `buttons: 1` on every move.** A move reporting `buttons: 0` means the button came up without the engine seeing it. Omit it on the move that would cross the threshold and the press is abandoned before it commits, so no drag starts and no handler fires at all; drop it mid-drag and the drag cancels with the reason `'missed-release'`.
+
+For touch, advance timers past the press-hold instead of moving:
+
+```tsx title="A touch drag"
+vi.useFakeTimers();
+fireEvent.pointerDown(source, { pointerId: 1, pointerType: 'touch', clientX: 0, clientY: 0 });
+await act(async () => {
+  vi.advanceTimersByTime(300);
+});
+fireEvent.pointerMove(document, {
+  pointerId: 1,
+  pointerType: 'touch',
+  clientX: 0,
+  clientY: 120,
+  buttons: 1,
+});
+```
+
+Set `pointerActivation={{ type: 'immediate' }}` on the draggable under test when the threshold is not what you are testing: the drag then starts on `pointerdown`.
+
+## Let a frame pass
+
+`onDrag` and the drag-over state it drives are throttled to one call per animation frame, so an assertion made right after a move reads the state from before it. Await a frame in between:
+
+```tsx title="Assert after the frame lands"
+fireEvent.pointerMove(document, { pointerId: 1, clientX: 0, clientY: 120, buttons: 1 });
+await act(async () => {
+  await new Promise(requestAnimationFrame);
+});
+expect(screen.getByTestId('zone')).toHaveAttribute('data-drag-over');
+```
+
+`onDragStart` and `onDragEnd` are not throttled and fire synchronously with the event that caused them.
+
+## Assert on what a user can observe
+
+Assert on the data attributes and the handler arguments: `data-dragging` on the source, `data-drag-over` and `data-drag-over-innermost` on the target, `data-drag-preview` on the preview element, the `source`, `location` and `canceled` fields on the first argument, and `reason` on the second.
+
+Handlers take two arguments, so `toHaveBeenCalledWith` does not match when only the payload is listed. Assert on `mock.calls[0][0]` or pass a matcher for the second argument.
+
+```tsx title="A drop that lands"
+const onDrop = vi.fn();
+// Drive the drag.
+expect(onDrop).toHaveBeenCalledTimes(1);
+expect(onDrop.mock.calls[0][0].source.payload).toBe('card-1');
+```
+
+## Clean up between tests
+
+A drag left running leaks into the next test: the engine is global, the cursor stays pinned, and `<html>` stays scroll-locked. End every drag a test starts, with a `pointerup` or an Escape, including on the failure path. For a test that asserts mid-drag, release in an `afterEach`.
+
+export const metadata =
+  /** @type {import('@mui/internal-docs-infra/createSitemap/types').NextMetadata} */ ({
+    keywords: [
+      'React Drag and Drop',
+      'Testing Drag and Drop',
+      'Vitest',
+      'Testing Library',
+      'jsdom',
+      'Base UI',
+    ],
+    robots: {
+      index: true,
+    },
+  });

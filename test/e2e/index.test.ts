@@ -352,4 +352,55 @@ describe('e2e', () => {
       await expect(compositionPopup).toBeVisible();
     }, 10000);
   });
+
+  describe('drag and drop', () => {
+    it('keeps pointer capture after the source unmounts', { timeout: 10000 }, async () => {
+      await renderFixture('drag-and-drop/PointerCapture');
+
+      const source = page.getByTestId('drag-source');
+      const target = page.getByTestId('drop-target');
+      const sourceBox = await source.boundingBox();
+      const targetBox = await target.boundingBox();
+      if (sourceBox == null || targetBox == null) {
+        throw new Error('Could not measure the drag-and-drop fixture.');
+      }
+
+      await page.mouse.move(sourceBox.x + 20, sourceBox.y + 20);
+      await page.mouse.down();
+      await page.mouse.move(sourceBox.x + 40, sourceBox.y + 20);
+      await expect(page.getByTestId('drag-status')).toContainText('"sourceMounted":false');
+      await page.mouse.move(targetBox.x + targetBox.width / 2, targetBox.y + targetBox.height / 2);
+      await page.mouse.up();
+
+      await expect(page.getByTestId('drag-status')).toHaveText(
+        JSON.stringify({ sourceMounted: false, captureCount: 1, dropCount: 1, endCount: 1 }),
+      );
+    });
+
+    it('suppresses the browser compatibility click after a drag', async () => {
+      await renderFixture('drag-and-drop/PostDragClick');
+
+      const source = page.getByTestId('drag-source');
+      const sourceBox = await source.boundingBox();
+      if (sourceBox == null) {
+        throw new Error('Could not measure the draggable fixture.');
+      }
+      const startX = sourceBox.x + 40;
+      const startY = sourceBox.y + 40;
+
+      await page.mouse.move(startX, startY);
+      await page.mouse.down();
+      await page.mouse.move(startX + 20, startY);
+      await page.mouse.up();
+
+      await expect(page.getByTestId('click-status')).toHaveText(
+        JSON.stringify({ documentClicks: 0, sourceClicks: 0, endCount: 1 }),
+      );
+
+      await page.mouse.click(startX, startY);
+      await expect(page.getByTestId('click-status')).toHaveText(
+        JSON.stringify({ documentClicks: 1, sourceClicks: 1, endCount: 1 }),
+      );
+    });
+  });
 });

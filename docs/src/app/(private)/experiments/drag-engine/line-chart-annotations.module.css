@@ -1,0 +1,378 @@
+.root {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: calc(100vh - 40px);
+  color: var(--dnd-ink);
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+}
+
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--dnd-border);
+  background: var(--dnd-surface);
+}
+
+.title {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.tools {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.375rem;
+}
+
+.hint {
+  margin: 0;
+  padding: 0.5rem 1rem;
+  border-bottom: 1px solid var(--dnd-border);
+  background: var(--dnd-surface);
+  color: var(--dnd-muted);
+}
+
+/* The live 45°-snap indicator. Called out rather than colored — the palette is
+   monochrome. */
+.hintActive {
+  margin-left: 0.75rem;
+  padding: 0 0.375rem;
+  border: 1px solid var(--dnd-ink);
+  color: var(--dnd-ink);
+}
+
+.button {
+  padding: 0.375rem 0.875rem;
+  border: 1px solid var(--dnd-ink);
+  background: var(--dnd-surface);
+  color: var(--dnd-ink);
+  font: inherit;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  cursor: pointer;
+  transition: background-color 0.15s;
+}
+
+.button:hover {
+  background: var(--dnd-surface-hover);
+}
+
+/* The armed tool, inverted so it reads as held down in a monochrome palette. */
+.button[aria-pressed='true'] {
+  background: var(--dnd-ink);
+  color: var(--dnd-surface);
+}
+
+.button:disabled {
+  border-color: var(--dnd-muted);
+  color: var(--dnd-muted);
+  background: var(--dnd-surface);
+  cursor: default;
+}
+
+.button:focus-visible {
+  outline: 2px solid var(--dnd-ink);
+  outline-offset: -1px;
+}
+
+.canvas {
+  display: flex;
+  flex: 1;
+  justify-content: center;
+  align-items: flex-start;
+  min-width: 0;
+  min-height: 0;
+  padding: 1.5rem;
+  overflow: auto;
+  background-color: var(--dnd-canvas);
+}
+
+.plot {
+  position: relative;
+  flex: none;
+  border: 1px solid var(--dnd-border);
+  background: var(--dnd-surface);
+
+  /* Focused only from code, to receive Delete once something is selected. */
+  outline: none;
+}
+
+/* ---------------------------------------------------------------------------
+   The chart
+   --------------------------------------------------------------------------- */
+
+.chartLayer {
+  position: absolute;
+  inset: 0;
+}
+
+.chart {
+  display: block;
+}
+
+.gridLine {
+  stroke: var(--dnd-border);
+  stroke-width: 1;
+}
+
+.axisLabel {
+  fill: var(--dnd-muted);
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+}
+
+.series {
+  fill: none;
+  stroke: var(--dnd-ink);
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.seriesDot {
+  fill: var(--dnd-surface);
+  stroke: var(--dnd-ink);
+  stroke-width: 1.5;
+}
+
+/* ---------------------------------------------------------------------------
+   Annotations
+
+   The overlay covers the chart but lets presses through, so a press that lands
+   on nothing reaches the chart underneath and clears the selection. Each part
+   that can be grabbed takes its events back explicitly.
+   --------------------------------------------------------------------------- */
+
+.overlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+/* A strip laid along the line, wide enough to be grabbable, holding the 1px rule
+   that is actually visible. `transform-origin` puts the rotation pivot on the
+   line's first point. */
+.segment {
+  position: absolute;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  height: 14px;
+  transform-origin: 0 50%;
+  pointer-events: auto;
+  cursor: grab;
+  outline: none;
+}
+
+.segmentLine {
+  width: 100%;
+  border-top: 1.5px solid var(--dnd-ink);
+}
+
+.segmentLineDashed {
+  border-top-style: dashed;
+}
+
+.segmentSelected .segmentLine {
+  border-top-width: 3px;
+}
+
+.segment:focus-visible {
+  outline: 2px solid var(--dnd-ink);
+}
+
+.segment[data-dragging] {
+  cursor: grabbing;
+}
+
+/* Sits at the far end of the strip, so it turns with the line. */
+.arrowHead {
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  border-top: 5px solid transparent;
+  border-bottom: 5px solid transparent;
+  border-left: 10px solid var(--dnd-ink);
+}
+
+.handle {
+  position: absolute;
+  z-index: 3;
+  box-sizing: border-box;
+  width: 12px;
+  height: 12px;
+  border: 1.5px solid var(--dnd-ink);
+  background: var(--dnd-surface);
+  pointer-events: auto;
+  cursor: grab;
+  outline: none;
+}
+
+.handle:hover,
+.handle[data-dragging] {
+  background: var(--dnd-ink);
+}
+
+.handle:focus-visible {
+  outline: 2px solid var(--dnd-ink);
+  outline-offset: 2px;
+}
+
+/* A box the size of the whole plot, clipped to the channel's parallelogram: the
+   clipped-away part paints nothing and catches nothing, so the fill is grabbable
+   over exactly its own shape. */
+.channelFill {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background: var(--dnd-ink);
+  opacity: 0.08;
+  pointer-events: auto;
+  cursor: grab;
+}
+
+.channelFillSelected {
+  opacity: 0.14;
+}
+
+.valueLabel {
+  position: absolute;
+  padding: 0 0.25rem;
+  border: 1px solid var(--dnd-ink);
+  background: var(--dnd-surface);
+  font-size: 0.6875rem;
+  line-height: 1rem;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+/* The comment's tail, drawn from the box's corner to the point it refers to and
+   passing under the box. */
+.stem {
+  position: absolute;
+  z-index: 0;
+  border-top: 1px dashed var(--dnd-muted);
+  transform-origin: 0 0;
+}
+
+.commentBox {
+  position: absolute;
+  z-index: 2;
+  box-sizing: border-box;
+  padding: 0.375rem 0.5rem;
+  border: 1px solid var(--dnd-ink);
+  background: var(--dnd-surface);
+  box-shadow: var(--dnd-shadow);
+  font-size: 0.75rem;
+  line-height: 1rem;
+  pointer-events: auto;
+  cursor: grab;
+  outline: none;
+}
+
+.commentBoxSelected {
+  outline: 2px solid var(--dnd-ink);
+  outline-offset: -1px;
+}
+
+.commentBoxEditing {
+  cursor: text;
+}
+
+.commentBox:focus-visible {
+  outline: 2px solid var(--dnd-ink);
+  outline-offset: 2px;
+}
+
+.commentText {
+  display: block;
+  white-space: pre-wrap;
+  word-break: break-word;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+.commentTextarea {
+  display: block;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  white-space: pre-wrap;
+  resize: none;
+  overflow: hidden;
+  outline: none;
+}
+
+.commentTextarea::placeholder {
+  color: var(--dnd-muted);
+}
+
+.floatingToolbar {
+  position: absolute;
+  z-index: 4;
+  display: flex;
+  transform: translate(-50%, -100%);
+  border: 1px solid var(--dnd-ink);
+  background: var(--dnd-surface);
+  box-shadow: var(--dnd-shadow);
+  pointer-events: auto;
+}
+
+.floatingButton {
+  padding: 0.1875rem 0.5rem;
+  border: none;
+  border-right: 1px solid var(--dnd-border);
+  background: transparent;
+  color: var(--dnd-ink);
+  font: inherit;
+  font-size: 0.75rem;
+  line-height: 1rem;
+  cursor: pointer;
+}
+
+.floatingButton:last-child {
+  border-right: none;
+}
+
+.floatingButton:hover {
+  background: var(--dnd-surface-hover);
+}
+
+.floatingButton:focus-visible {
+  outline: 2px solid var(--dnd-ink);
+  outline-offset: -2px;
+}
+
+/* ---------------------------------------------------------------------------
+   Creating annotations
+   --------------------------------------------------------------------------- */
+
+/* Only mounted while a tool is armed, and above everything so a click during
+   creation places a point instead of selecting whatever it landed on. */
+.creationLayer {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  cursor: crosshair;
+}
+
+.ghost {
+  position: absolute;
+  z-index: 4;
+  border-top: 1.5px dashed var(--dnd-ink);
+  transform-origin: 0 0;
+  opacity: 0.6;
+  pointer-events: none;
+}

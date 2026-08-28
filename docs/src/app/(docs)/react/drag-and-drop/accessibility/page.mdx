@@ -1,0 +1,104 @@
+# Accessibility
+
+<Subtitle>Provide keyboard controls that perform the same actions as pointer dragging.</Subtitle>
+
+<Meta
+  name="description"
+  content="Accessible alternatives for pointer drag and drop in Base UI, including menus, shortcuts, focus, and announcements."
+/>
+
+Base UI's drag engine responds to pointer input. Every action available by dragging must also be available without a drag gesture. Implement that alternative in the application, where the available destinations and the meaning of a move are known.
+
+## Provide an alternative to dragging
+
+A "Move to…" menu, move buttons, or a destination select can perform the same operation without requiring the user to track and aim a moving object.
+
+```tsx title="A menu next to the pointer handle"
+<Draggable.Root kind={taskKind} payload={task.id}>
+  <Draggable.Handle aria-hidden="true">
+    <Grip />
+  </Draggable.Handle>
+  {task.title}
+  <Menu.Root>
+    <Menu.Trigger aria-label={`Move ${task.title}`}>
+      <Ellipsis />
+    </Menu.Trigger>
+    <Menu.Popup>
+      {columns.map((column) => (
+        <Menu.Item key={column.id} onClick={() => move(task.id, column.id)}>
+          Move to {column.name}
+        </Menu.Item>
+      ))}
+    </Menu.Popup>
+  </Menu.Root>
+</Draggable.Root>
+```
+
+The menu changes application state directly; it does not start a drag session.
+
+## Add shortcuts for frequent moves
+
+When the operation has a natural direction, add a shortcut to the application's existing focusable control. For example, tabs can use <kbd>Alt</kbd>+<kbd>←</kbd> and <kbd>Alt</kbd>+<kbd>→</kbd> to reorder one position at a time.
+
+```tsx title="Reordering a tab without a drag session"
+function handleKeyDown(event: React.KeyboardEvent) {
+  if (!event.altKey || (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight')) {
+    return;
+  }
+
+  event.preventDefault();
+  moveTab(tab.id, event.key === 'ArrowLeft' ? -1 : 1);
+}
+
+<Tabs.Tab onKeyDown={handleKeyDown} aria-keyshortcuts="Alt+ArrowLeft Alt+ArrowRight" />;
+```
+
+Choose shortcuts that fit the widget's normal keyboard model. Document them near the control, expose them through `aria-keyshortcuts`, and keep a menu or buttons available for users who do not know the shortcut.
+
+## Keep the operation focused
+
+After a keyboard command, keep focus on the item that moved. If the operation unmounts and recreates it, focus the replacement after the state update. Do not move focus during a pointer drag.
+
+```tsx title="Restoring focus after a reorder"
+const focusFrame = useAnimationFrame();
+
+moveTask(task.id, destination.id);
+focusFrame.request(() => {
+  document.querySelector<HTMLElement>(`[data-task-id="${task.id}"]`)?.focus();
+});
+```
+
+## Announce state changes
+
+The non-drag control should expose its result like any other application command. A menu item already communicates its chosen destination. For a shortcut whose result is otherwise only visual, update an application-owned polite live region with a concise message such as "Moved Research before Design" or "Card moved to Done, position 3 of 8."
+
+Avoid announcing continuous pointer movement. Announce the committed result, and use human positions such as "3 of 8" instead of zero-based indexes.
+
+## Keep pointer handles out of the tab order
+
+`Draggable.Handle` is a pointer affordance and renders a `span` by default. Do not turn it into an extra keyboard stop when another control owns the keyboard action. If the handle contains only a decorative grip icon, mark it `aria-hidden="true"`.
+
+The draggable item may still be focusable for its normal widget behavior. Base UI does not add a role or `tabIndex`; use the semantics appropriate to the application.
+
+## Check it
+
+- Complete every move with dragging disabled or unavailable.
+- Confirm menus, buttons, and shortcuts reach every valid destination.
+- Confirm focus remains on the moved item after a reorder.
+- Confirm shortcut results are understandable without seeing the pointer interaction.
+- Test touch, mouse, keyboard, screen-reader, zoom, and reduced-motion paths independently.
+
+export const metadata =
+  /** @type {import('@mui/internal-docs-infra/createSitemap/types').NextMetadata} */ ({
+    keywords: [
+      'React Drag and Drop',
+      'Accessible Drag and Drop',
+      'Keyboard Shortcuts',
+      'Screen Reader',
+      'ARIA',
+      'Base UI',
+    ],
+    robots: {
+      index: true,
+    },
+  });

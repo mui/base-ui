@@ -1,0 +1,101 @@
+.Root {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  -webkit-user-select: none;
+  user-select: none;
+
+  /* Full-bleed: cancel the shared demo playground padding (2rem 1.5rem) so the
+   * canvas reaches the demo frame, with no inset gap and no inner border. */
+  width: calc(100% + 3rem);
+  margin: -2rem -1.5rem;
+}
+
+/*
+ * CSS Modules demos revert Tailwind's preflight with `all: revert-layer`, which
+ * also drops the page's font smoothing and renders text heavier than the
+ * Tailwind variant. Restore it so both variants render text identically.
+ */
+.Root,
+.Root * {
+  font-synthesis: none;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* The canvas the cards live on. */
+.Surface {
+  position: relative;
+  box-sizing: border-box;
+  height: 16rem;
+  background-color: oklch(98.5% 0 0deg);
+  background-image: radial-gradient(oklch(87% 0 0deg) 1px, transparent 1px);
+  background-size: 20px 20px;
+  overflow: hidden;
+
+  @media (min-width: 640px) {
+    height: 20rem;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    background-color: oklch(20.5% 0 0deg);
+    background-image: radial-gradient(oklch(37.1% 0 0deg) 1px, transparent 1px);
+  }
+}
+
+.Card {
+  position: absolute;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  padding: 0.625rem 0.75rem;
+  border: 1px solid oklch(14.5% 0 0deg);
+  background-color: white;
+  /* Inherit the page font; CSS Modules demos revert Tailwind's preflight. */
+  font: inherit;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  color: oklch(14.5% 0 0deg);
+  cursor: grab;
+  /* Not `opacity`: it would fade the card back in at its new position on drop. */
+  transition: background-color 0.15s;
+
+  @media (prefers-color-scheme: dark) {
+    border-color: white;
+    background-color: oklch(14.5% 0 0deg);
+    color: white;
+  }
+
+  @media (hover: hover) {
+    &:hover {
+      background-color: oklch(97% 0 0deg);
+
+      @media (prefers-color-scheme: dark) {
+        background-color: oklch(26.9% 0 0deg);
+      }
+    }
+  }
+
+  &:focus-visible {
+    outline: 2px solid oklch(14.5% 0 0deg);
+    outline-offset: -1px;
+
+    @media (prefers-color-scheme: dark) {
+      outline-color: white;
+    }
+  }
+
+  &[data-dragging] {
+    opacity: 0;
+  }
+
+  /* The preview is a clone of the card and keeps its classes, so the source's own
+   * selector styles it. Only the shadow differs, to raise it above the canvas. */
+  &[data-drag-preview] {
+    box-shadow: 0.25rem 0.25rem 0 rgb(0 0 0 / 12%);
+
+    @media (prefers-color-scheme: dark) {
+      box-shadow: none;
+    }
+  }
+}
