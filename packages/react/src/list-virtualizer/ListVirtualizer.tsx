@@ -18,45 +18,25 @@ import {
   type Virtualizer,
 } from '@mui/x-virtualizer';
 import { clamp } from '@base-ui/utils/clamp';
-import { getMaxScrollOffset } from '../../utils/scrollEdges';
-import type { StateAttributesMapping } from '../getStateAttributesProps';
-import type { BaseUIComponentProps, HTMLProps } from '../types';
-import { useRenderElement } from '../useRenderElement';
+import { getMaxScrollOffset } from '../utils/scrollEdges';
+import type { StateAttributesMapping } from '../internals/getStateAttributesProps';
+import type { BaseUIComponentProps, HTMLProps } from '../internals/types';
+import { useRenderElement } from '../internals/useRenderElement';
 import type {
-  ListVirtualizerHandle,
+  ListVirtualizerActions,
   ListVirtualizerScrollAlignment,
   ListVirtualizerScrollToIndexOptions,
-} from './ListVirtualizationRegistry';
+} from '../internals/virtualization/ListVirtualizationRegistry';
+import { useListVirtualization } from '../internals/virtualization/ListVirtualizationHostContext';
+import { useListVirtualizerAdapter } from '../internals/virtualization/ListVirtualizerAdapter';
+import type {
+  ListVirtualizerItemRowModel,
+  ListVirtualizerRenderRowParameters,
+  ListVirtualizerRow,
+} from '../internals/virtualization/types';
+import { ListVirtualizerCssVars } from './ListVirtualizerCssVars';
 
-/**
- * A row consumed by the internal list virtualizer.
- */
-export interface ListVirtualizerRow<RowModel extends MuiVirtualizerRow> {
-  /**
-   * Stable identity used by React and the measurement cache.
-   */
-  id: React.Key;
-  /**
-   * Component-specific data associated with the row.
-   */
-  model: RowModel;
-}
-
-/**
- * Parameters provided when rendering a row.
- */
-export interface ListVirtualizerRenderRowParameters<RowModel extends MuiVirtualizerRow> {
-  /**
-   * The row being rendered.
-   */
-  row: ListVirtualizerRow<RowModel>;
-  /**
-   * Index in the virtual row collection.
-   */
-  rowIndex: number;
-}
-
-interface ListVirtualRowProps<RowModel extends MuiVirtualizerRow> {
+interface ListVirtualRowProps<RowModel> {
   apiRef: React.RefObject<Virtualizer['api'] | null>;
   isVirtualFocusRow: boolean;
   renderRow: (params: ListVirtualizerRenderRowParameters<RowModel>) => React.ReactElement;
@@ -80,9 +60,7 @@ const virtualRowStyle: React.CSSProperties = {
   display: 'flow-root',
 };
 
-function ListVirtualRowImpl<RowModel extends MuiVirtualizerRow>(
-  props: ListVirtualRowProps<RowModel>,
-) {
+function ListVirtualRowImpl<RowModel>(props: ListVirtualRowProps<RowModel>) {
   const { apiRef, isVirtualFocusRow, renderRow, row, rowIndex } = props;
 
   const measureCleanupRef = React.useRef<(() => void) | undefined>(undefined);
@@ -269,37 +247,60 @@ const stateAttributesMapping: StateAttributesMapping<ListVirtualizerState> = {
 };
 
 /**
- * Internal component-agnostic engine for virtualized one-dimensional lists.
+ * Renders a window of visible and overscanned items in a flat list.
+ * Renders a scrollable `<div>` element.
  *
- * Component adapters supply stable rows and render their own semantic item elements. This
- * component owns layout, measurement, windowing, focus-row retention, and scroll correction.
+ * Requires the `items` prop on the list root and must be the only item-rendering child of the
+ * list. The element must have a constrained height or maximum height for virtualization to limit
+ * the number of mounted items.
+ *
+ * Grouped collections and grid mode are not currently supported.
+ *
+ * Documentation: [Base UI List Virtualizer](https://base-ui.com/react/utils/list-virtualizer)
  */
-export const ListVirtualizer = React.forwardRef(function ListVirtualizer<
-  RowModel extends MuiVirtualizerRow,
->(
-  componentProps: ListVirtualizer.Props<RowModel>,
+export const ListVirtualizer = React.forwardRef(function ListVirtualizer<Value>(
+  componentProps: ListVirtualizer.Props<Value>,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const {
-    apiRef: apiRefProp,
+    actionsRef,
+    children,
     className,
-    enabled = true,
-    estimatedItemHeight,
+    enabled: enabledProp = true,
     endReachedThreshold = 0,
+    estimatedItemHeight: estimatedItemHeightProp,
+    getItemKey,
     onEndReached,
-    onUnconstrainedHeight,
     trailing,
     overscanPx,
-    pinnedRowIndex,
     render,
-    renderRow: renderRowProp,
-    restoreViewportVersion = 0,
-    rows,
-    scrollToRowIndex,
+    totalItems,
     style,
-    totalSizeCssVariable,
     ...elementProps
   } = componentProps;
+
+  const { host, listState } = useListVirtualization();
+
+  const {
+    apiRef: apiRefProp,
+    enabled,
+    estimatedItemHeight,
+    onUnconstrainedHeight,
+    pinnedRowIndex,
+    renderRow: renderRowProp,
+    restoreViewportVersion,
+    rows,
+    scrollToRowIndex,
+  } = useListVirtualizerAdapter<Value>({
+    actionsRef,
+    totalItems,
+    children,
+    enabled: enabledProp,
+    estimatedItemHeight: estimatedItemHeightProp,
+    getItemKey,
+    host,
+    listState,
+  });
 
   const scrollElementRef = React.useRef<HTMLDivElement | null>(null);
   const renderZoneRef = React.useRef<HTMLDivElement | null>(null);
@@ -609,7 +610,7 @@ export const ListVirtualizer = React.forwardRef(function ListVirtualizer<
   ).current;
 
   const getEstimatedItemHeight = React.useCallback(
-    (row: ListVirtualizerRow<RowModel>, rowIndex: number) => {
+    (row: ListVirtualizerRow<ListVirtualizerItemRowModel<Value>>, rowIndex: number) => {
       const size =
         typeof estimatedItemHeight === 'function'
           ? estimatedItemHeight(row.model, rowIndex)
@@ -765,7 +766,7 @@ export const ListVirtualizer = React.forwardRef(function ListVirtualizer<
     scrollTop: number;
     virtualOffset: number | null;
     rowsMeta: unknown;
-    rows: ListVirtualizerRow<RowModel>[];
+    rows: ListVirtualizerRow<ListVirtualizerItemRowModel<Value>>[];
   } | null>(null);
 
   const virtualizer = useVirtualizer({
@@ -1803,7 +1804,7 @@ export const ListVirtualizer = React.forwardRef(function ListVirtualizer<
     ...restContainerProps,
     style: {
       ...containerStyle,
-      ...(totalSizeCssVariable ? { [totalSizeCssVariable]: `${scrollableSize}px` } : null),
+      [ListVirtualizerCssVars.totalSize]: `${scrollableSize}px`,
       overflow: 'auto',
     } as React.CSSProperties,
     // The absolute content establishes the full scroll height without expanding an unconstrained
@@ -1892,13 +1893,13 @@ export const ListVirtualizer = React.forwardRef(function ListVirtualizer<
     props: [defaultProps, elementProps],
   });
 }) as {
-  <RowModel extends MuiVirtualizerRow>(
-    props: ListVirtualizer.Props<RowModel> & React.RefAttributes<HTMLDivElement>,
+  <Value>(
+    props: ListVirtualizer.Props<Value> & React.RefAttributes<HTMLDivElement>,
   ): React.JSX.Element;
 };
 
 /**
- * State exposed by the internal list virtualizer.
+ * State metadata exposed to the `ListVirtualizer` render props.
  */
 export interface ListVirtualizerState {
   /**
@@ -1911,69 +1912,127 @@ export interface ListVirtualizerState {
   totalSize: number;
 }
 
-export interface ListVirtualizerProps<RowModel extends MuiVirtualizerRow> extends Omit<
+/**
+ * Makes stable keys optional for primitive values and required for object or unknown values.
+ */
+export type ListVirtualizerKeyProps<Value> = unknown extends Value
+  ? {
+      /**
+       * Returns a stable key for the item value.
+       *
+       * Primitive item values use the value itself by default. Required when item values are
+       * objects or the item type cannot be inferred.
+       */
+      getItemKey: (item: Value) => string | number;
+    }
+  : [Extract<Value, object>] extends [never]
+    ? {
+        /**
+         * Returns a stable key for the item value.
+         *
+         * Primitive item values use the value itself by default. Required when item values are
+         * objects.
+         */
+        getItemKey?: ((item: Value) => string | number) | undefined;
+      }
+    : {
+        /**
+         * Returns a stable key for the item value.
+         *
+         * Primitive item values use the value itself by default. Required when item values are
+         * objects.
+         */
+        getItemKey: (item: Value) => string | number;
+      };
+
+export interface ListVirtualizerBaseProps<Value> extends Omit<
   BaseUIComponentProps<'div', ListVirtualizerState>,
   'children'
 > {
   /**
-   * Ref to the virtualizer's imperative operations.
+   * A ref to imperative actions.
+   * - `scrollToIndex`: Scrolls an item into view by its logical collection index.
    */
-  apiRef?: React.Ref<ListVirtualizerHandle> | undefined;
+  actionsRef?: React.RefObject<ListVirtualizerActions | null> | undefined;
   /**
-   * Whether row virtualization is enabled.
+   * Renders exactly one item for the given value and its index in the filtered collection.
+   */
+  children: (item: Value, index: number) => React.ReactElement;
+  /**
+   * Whether virtualization is enabled. When `false`, all items are rendered.
    * @default true
    */
   enabled?: boolean | undefined;
   /**
-   * Estimated item height in CSS pixels used before measuring the rendered element.
-   * A static number is automatically refined with the running average of measured rows;
-   * provide a function to keep full control over per-row estimates.
+   * Estimated item height in CSS pixels used before item elements have been measured.
+   * A static number is automatically refined with the running average of measured items.
+   * Provide a function to keep full control over per-item estimates.
+   * @default 32
    */
-  estimatedItemHeight: number | ((row: RowModel, rowIndex: number) => number);
-  /**
-   * Called when a large enabled collection has no effective height constraint.
-   * This is only called in development mode and should be used to alert the developer.
-   */
-  endReachedThreshold?: number | undefined;
-  onEndReached?: (() => void) | undefined;
-  onUnconstrainedHeight?: (() => void) | undefined;
-  trailing?: React.ReactNode | undefined;
+  estimatedItemHeight?: number | ((item: Value, index: number) => number) | undefined;
   /**
    * Pixel buffer rendered before and after the visible range.
-   * Defaults to the larger of 150px and the estimated item height. The render buffer always
-   * includes at least one estimated row, even when this prop is `0`.
+   * Defaults to the larger of 150px and the estimated size of the first item. The render buffer
+   * always includes at least one estimated row, even when this prop is `0`.
    */
   overscanPx?: number | undefined;
   /**
-   * Row retained outside the rendered range for component-specific focus semantics.
-   */
-  pinnedRowIndex?: number | undefined;
-  /**
-   * Renders the component-specific semantic content for a virtual row.
-   */
-  renderRow: (params: ListVirtualizerRenderRowParameters<RowModel>) => React.ReactElement;
-  /**
-   * Version incremented after a temporary render-all pass. Changing it restores the constrained
-   * client height as the virtualizer viewport, including when the component remounts.
+   * How many items short of the end `onEndReached` fires. `0` fires once the last item enters the
+   * rendered window, which already extends past the visible range by `overscanPx`.
    * @default 0
    */
-  restoreViewportVersion?: number | undefined;
+  endReachedThreshold?: number | undefined;
   /**
-   * Virtual rows to measure and window.
+   * Called when the rendered window reaches the end of the collection, for loading the next page
+   * of a longer list. Fires once per arrival: it does not repeat while the window stays at the
+   * end, and arms again when the window moves away or the collection grows past it.
    */
-  rows: ListVirtualizerRow<RowModel>[];
+  onEndReached?: (() => void) | undefined;
   /**
-   * Row that should be scrolled into view, or `undefined` when no scroll is requested.
+   * Content rendered after the last item, inside the scroll container, for a loading indicator or
+   * an end-of-results note. It scrolls with the items and is measured into the scrollable height,
+   * rather than being pinned below the list.
+   *
+   * It is not an item: it takes no index, and is left out of `aria-setsize` and `aria-posinset`.
+   * A list is only allowed to contain options, so this content must not present itself as one —
+   * keep it out of the accessibility tree and convey the state it stands for another way, such as
+   * `aria-busy` on the list with a live region outside it. Interactive controls belong outside the
+   * list, where they can be reached with the keyboard.
    */
-  scrollToRowIndex?: number | undefined;
+  trailing?: React.ReactNode | undefined;
   /**
-   * CSS custom property populated with the total virtual content size.
+   * Number of items in the whole collection, when the items rendered are only part of it — a page
+   * of a larger result set, say. Rendered items report it as their `aria-setsize`, so assistive
+   * technology describes the collection rather than the part of it currently loaded.
+   *
+   * Pass `-1` when the size is not known yet, which is the ARIA convention for it.
+   * @default the number of items in the list
    */
-  totalSizeCssVariable?: string | undefined;
+  totalItems?: number | undefined;
 }
 
+/**
+ * Props accepted by the `ListVirtualizer` component.
+ */
+export type ListVirtualizerProps<Value = unknown> = ListVirtualizerBaseProps<Value> &
+  ListVirtualizerKeyProps<Value>;
+
+/**
+ * Type helpers for the `ListVirtualizer` component.
+ */
 export namespace ListVirtualizer {
-  export type Props<RowModel extends MuiVirtualizerRow> = ListVirtualizerProps<RowModel>;
+  /**
+   * Imperative actions exposed by the component.
+   */
+  export type Actions = ListVirtualizerActions;
+  /**
+   * State metadata exposed to render props.
+   */
+  export type State = ListVirtualizerState;
+  /**
+   * Props accepted by the component.
+   */
+  export type Props<Value = unknown> = ListVirtualizerProps<Value>;
 }
 
 function resolveScrollPadding(scrollElement: HTMLElement, value: string) {

@@ -20,8 +20,8 @@ import { compareItemEquality, findItemIndex } from '../../internals/itemEquality
 import {
   useComboboxVirtualItemContext,
   type ComboboxVirtualItemMetadata,
-} from '../virtualizer/ComboboxVirtualItemContext';
-import { useVirtualizationListContext } from '../../internals/virtualization/VirtualizationListContext';
+} from './ComboboxVirtualItemContext';
+import { useListVirtualizationHost } from '../../internals/virtualization/ListVirtualizationHostContext';
 import {
   useNonVirtualizedItemRegistration,
   useVirtualItemDiagnostics,
@@ -69,7 +69,7 @@ function ComboboxItemInner(props: ComboboxItemInnerProps) {
     if (virtualItem && indexProp != null && indexProp !== virtualItem.index) {
       warn(
         '<Combobox.Item> received an `index` prop that conflicts with the index provided by ' +
-          '<Combobox.Virtualizer>. Remove the `index` prop from virtualized items.',
+          '<ListVirtualizer>. Remove the `index` prop from virtualized items.',
       );
     }
   }
@@ -291,7 +291,7 @@ export const ComboboxItem = React.memo(
     const store = useComboboxRootContext();
     const externallyVirtualized = useStore(store, selectors.externallyVirtualized);
     const virtualItem = useComboboxVirtualItemContext();
-    const insideList = useVirtualizationListContext();
+    const insideList = useListVirtualizationHost() != null;
 
     useNonVirtualizedItemRegistration({
       componentName: 'Combobox',
@@ -348,7 +348,7 @@ export interface ComboboxItemProps
   /**
    * The index of the item in the filtered list. Improves performance when specified by avoiding
    * the need to calculate the index automatically from the DOM. It is supplied automatically by
-   * the built-in `<Combobox.Virtualizer>`; pass it only for static items or external virtualization.
+   * the built-in `<ListVirtualizer>`; pass it only for static items or external virtualization.
    */
   index?: number | undefined;
   /**

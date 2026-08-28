@@ -2,19 +2,110 @@ import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { expect, vi } from 'vitest';
 import { act, fireEvent, screen, waitFor } from '@mui/internal-test-utils';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { createRenderer, isJSDOM, createDOMRect, setElementClientHeight } from '#test-utils';
 import {
-  ListVirtualizer,
-  type ListVirtualizerRenderRowParameters,
-  type ListVirtualizerRow,
-} from './ListVirtualizer';
-import type { ListVirtualizerHandle } from './ListVirtualizationRegistry';
+  ListVirtualizationHostContext,
+  ListVirtualizationListStateContext,
+  type ListVirtualizationHost,
+  type ListVirtualizationListState,
+} from '../internals/virtualization/ListVirtualizationHostContext';
+import {
+  createListVirtualizationRegistry,
+  type ListVirtualizerHandle,
+} from '../internals/virtualization/ListVirtualizationRegistry';
+import type { ListVirtualizerItemMetadata } from '../internals/virtualization/types';
+import { ListVirtualizer } from './ListVirtualizer';
 
-interface TestRowModel {
+interface TestItem {
   label: string;
+  /** Overrides the identity derived from the label, for tests that vary row identity. */
+  key?: string | number | undefined;
 }
 
-describe('<ListVirtualizer />', () => {
+const TestVirtualItemContext = React.createContext<ListVirtualizerItemMetadata | undefined>(
+  undefined,
+);
+
+/**
+ * Stands in for a list's `<Item>`: applies the collection metadata the virtualizer supplies and
+ * registers itself as the single item rendered for its row.
+ */
+function TestListItem(props: { children: React.ReactNode; style?: React.CSSProperties }) {
+  const virtualItem = React.useContext(TestVirtualItemContext);
+
+  useIsoLayoutEffect(() => virtualItem?.registerItem?.(), [virtualItem]);
+
+  return (
+    <div role="listitem" {...virtualItem?.props} style={props.style}>
+      {props.children}
+    </div>
+  );
+}
+
+/**
+ * Minimal list host, standing in for a component like `<Combobox.List>`. It keeps these tests on
+ * the windowing behavior itself, and doubles as a check that the host contract is implementable
+ * outside of the components that ship with it.
+ */
+function TestVirtualizedList(
+  props: {
+    /** Row retained outside the rendered window. Mapped to a pointer highlight, which never scrolls. */
+    pinnedRowIndex?: number | undefined;
+    /** Row that should be scrolled into view. Mapped to a keyboard highlight. */
+    scrollToRowIndex?: number | undefined;
+    /** Receives the imperative handle the virtualizer registers with the list. */
+    apiRef?: React.RefObject<ListVirtualizerHandle | null> | undefined;
+    items: TestItem[];
+    children: (item: TestItem, index: number) => React.ReactElement;
+    getItemKey?: ((item: TestItem) => string | number) | undefined;
+  } & Omit<ListVirtualizer.Props<TestItem>, 'children' | 'getItemKey'>,
+) {
+  const { apiRef, getItemKey, items, pinnedRowIndex, scrollToRowIndex, ...virtualizerProps } =
+    props;
+
+  const registry = React.useRef(createListVirtualizationRegistry()).current;
+
+  const host = React.useMemo<ListVirtualizationHost>(
+    () => ({
+      componentName: 'Combobox',
+      registry,
+      virtualItemContext: TestVirtualItemContext,
+    }),
+    [registry],
+  );
+
+  const listState = React.useMemo<ListVirtualizationListState>(
+    () => ({
+      activeIndex: scrollToRowIndex ?? pinnedRowIndex ?? null,
+      items,
+      renderAllRows: false,
+      renderAllRowsRestoreVersion: 0,
+      // A pinned row is kept mounted without being scrolled to; a scroll target is scrolled to.
+      scrollActiveIntoView: scrollToRowIndex != null,
+    }),
+    [items, pinnedRowIndex, scrollToRowIndex],
+  );
+
+  React.useImperativeHandle<ListVirtualizerHandle | null, ListVirtualizerHandle | null>(
+    apiRef,
+    () => registry.virtualizer,
+    [registry],
+  );
+
+  return (
+    <ListVirtualizationHostContext.Provider value={host}>
+      <ListVirtualizationListStateContext.Provider value={listState}>
+        <ListVirtualizer<TestItem>
+          getItemKey={getItemKey ?? ((item) => item.key ?? item.label)}
+          {...virtualizerProps}
+        />
+      </ListVirtualizationListStateContext.Provider>
+    </ListVirtualizationHostContext.Provider>
+  );
+}
+
+describe('<ListVirtualizer /> windowing', () => {
   const { render } = createRenderer();
 
   beforeEach(() => {
@@ -30,17 +121,17 @@ describe('<ListVirtualizer />', () => {
   });
 
   it('windows component-specific row content', async () => {
-    const rows = createRows(100);
+    const items = createItems(100);
 
     await render(
-      <ListVirtualizer
+      <TestVirtualizedList
         estimatedItemHeight={20}
         overscanPx={20}
         render={<div ref={setElementClientHeight(60)} data-testid="virtualizer" role="list" />}
-        renderRow={renderRow}
-        rows={rows}
-        totalSizeCssVariable="--list-size"
-      />,
+        items={items}
+      >
+        {renderItem}
+      </TestVirtualizedList>,
     );
 
     await waitFor(() => expect(screen.getAllByRole('listitem')).toHaveLength(5));
@@ -50,19 +141,20 @@ describe('<ListVirtualizer />', () => {
 
     const virtualizer = screen.getByTestId('virtualizer');
     expect(virtualizer).toHaveStyle({ overflow: 'auto' });
-    expect(virtualizer.style.getPropertyValue('--list-size')).toBe('2000px');
+    expect(virtualizer.style.getPropertyValue('--total-size')).toBe('2000px');
   });
 
   it('retains a pinned row outside the rendered window', async () => {
     await render(
-      <ListVirtualizer
+      <TestVirtualizedList
         estimatedItemHeight={20}
         overscanPx={0}
         pinnedRowIndex={50}
         render={<div ref={setElementClientHeight(40)} />}
-        renderRow={renderRow}
-        rows={createRows(100)}
-      />,
+        items={createItems(100)}
+      >
+        {renderItem}
+      </TestVirtualizedList>,
     );
 
     const pinnedRow = await screen.findByText('Item 51');
@@ -75,39 +167,37 @@ describe('<ListVirtualizer />', () => {
 
   it('renders a pinned row at the half-open bottom boundary', async () => {
     await render(
-      <ListVirtualizer
+      <TestVirtualizedList
         estimatedItemHeight={20}
         overscanPx={0}
         pinnedRowIndex={3}
         render={<div ref={setElementClientHeight(40)} />}
-        renderRow={renderRow}
-        rows={createRows(100)}
-      />,
+        items={createItems(100)}
+      >
+        {renderItem}
+      </TestVirtualizedList>,
     );
 
     expect(await screen.findByText('Item 4')).not.toBe(null);
   });
 
   it('does not rerender rows retained between virtual windows', async () => {
-    const renderRowSpy = vi.fn(renderRow);
+    const renderItemSpy = vi.fn(renderItem);
 
     await render(
-      <ListVirtualizer
+      <TestVirtualizedList
         estimatedItemHeight={20}
         overscanPx={0}
         render={<div ref={setElementClientHeight(60)} data-testid="virtualizer" />}
-        renderRow={renderRowSpy}
-        rows={createRows(100)}
-      />,
+        items={createItems(100)}
+      >
+        {renderItemSpy}
+      </TestVirtualizedList>,
     );
 
     await screen.findByText('Item 2');
-    const initiallyRenderedIndexes = new Set(
-      renderRowSpy.mock.calls.map(([params]) => params.rowIndex),
-    );
-    const initialRenderCount = renderRowSpy.mock.calls.filter(
-      ([params]) => params.rowIndex === 1,
-    ).length;
+    const initiallyRenderedIndexes = new Set(renderItemSpy.mock.calls.map(([, index]) => index));
+    const initialRenderCount = renderItemSpy.mock.calls.filter(([, index]) => index === 1).length;
 
     const virtualizer = screen.getByTestId('virtualizer');
     virtualizer.scrollTop = 20;
@@ -115,10 +205,10 @@ describe('<ListVirtualizer />', () => {
 
     await waitFor(() =>
       expect(
-        renderRowSpy.mock.calls.some(([params]) => !initiallyRenderedIndexes.has(params.rowIndex)),
+        renderItemSpy.mock.calls.some(([, index]) => !initiallyRenderedIndexes.has(index)),
       ).toBe(true),
     );
-    expect(renderRowSpy.mock.calls.filter(([params]) => params.rowIndex === 1)).toHaveLength(
+    expect(renderItemSpy.mock.calls.filter(([, index]) => index === 1)).toHaveLength(
       initialRenderCount,
     );
     expect(virtualizer.scrollTop).toBe(20);
@@ -129,7 +219,7 @@ describe('<ListVirtualizer />', () => {
 
     const scrollTo = vi.fn();
     await render(
-      <ListVirtualizer
+      <TestVirtualizedList
         estimatedItemHeight={20}
         overscanPx={0}
         render={
@@ -145,10 +235,11 @@ describe('<ListVirtualizer />', () => {
             style={{ height: 100, scrollPaddingBottom: 'calc(20% + 5px)', width: 200 }}
           />
         }
-        renderRow={renderRow}
-        rows={createRows(20)}
+        items={createItems(20)}
         scrollToRowIndex={17}
-      />,
+      >
+        {renderItem}
+      </TestVirtualizedList>,
     );
 
     await waitFor(() =>
@@ -163,7 +254,7 @@ describe('<ListVirtualizer />', () => {
   describe.skipIf(isJSDOM)('scrollport padding', () => {
     function renderPaddedList(scrollToRowIndex?: number) {
       return render(
-        <ListVirtualizer
+        <TestVirtualizedList
           estimatedItemHeight={20}
           overscanPx={0}
           render={
@@ -172,11 +263,11 @@ describe('<ListVirtualizer />', () => {
               style={{ boxSizing: 'border-box', height: 100, paddingBlock: 10, width: 200 }}
             />
           }
-          renderRow={renderRow}
-          rows={createRows(20)}
+          items={createItems(20)}
           scrollToRowIndex={scrollToRowIndex}
-          totalSizeCssVariable="--list-size"
-        />,
+        >
+          {renderItem}
+        </TestVirtualizedList>,
       );
     }
 
@@ -188,7 +279,7 @@ describe('<ListVirtualizer />', () => {
       const virtualizer = screen.getByTestId('virtualizer');
       const firstRow = await screen.findByText('Item 1');
 
-      await waitFor(() => expect(virtualizer.style.getPropertyValue('--list-size')).toBe('420px'));
+      await waitFor(() => expect(virtualizer.style.getPropertyValue('--total-size')).toBe('420px'));
       expect(
         firstRow.getBoundingClientRect().top - virtualizer.getBoundingClientRect().top,
       ).toBeCloseTo(10, 1);
@@ -263,13 +354,14 @@ describe('<ListVirtualizer />', () => {
         await render(
           <React.Fragment>
             {ReactDOM.createPortal(
-              <ListVirtualizer
+              <TestVirtualizedList
                 estimatedItemHeight={20}
                 overscanPx={0}
                 render={<div data-testid="virtualizer" style={{ height: 120, width: 200 }} />}
-                renderRow={renderMixedRow}
-                rows={createRows(300)}
-              />,
+                items={createItems(300)}
+              >
+                {renderMixedItem}
+              </TestVirtualizedList>,
               portalContainer,
             )}
           </React.Fragment>,
@@ -307,18 +399,19 @@ describe('<ListVirtualizer />', () => {
     'corrects a scrolled row that later geometry pushes out of the scrollport',
     async () => {
       vi.restoreAllMocks();
-      const rows = createRows(200);
+      const items = createItems(200);
 
       function Test(props: { scrollToRowIndex?: number | undefined }) {
         return (
-          <ListVirtualizer
+          <TestVirtualizedList
             estimatedItemHeight={32}
             overscanPx={0}
             render={<div data-testid="virtualizer" style={{ height: 251, width: 200 }} />}
-            renderRow={renderRowOf(54)}
-            rows={rows}
+            items={items}
             scrollToRowIndex={props.scrollToRowIndex}
-          />
+          >
+            {renderItemOf(54)}
+          </TestVirtualizedList>
         );
       }
 
@@ -349,13 +442,14 @@ describe('<ListVirtualizer />', () => {
     vi.restoreAllMocks();
 
     await render(
-      <ListVirtualizer
+      <TestVirtualizedList
         estimatedItemHeight={20}
         overscanPx={0}
         render={<div data-testid="virtualizer" style={{ height: 120, width: 200 }} />}
-        renderRow={renderTallRow}
-        rows={createRows(200)}
-      />,
+        items={createItems(200)}
+      >
+        {renderTallItem}
+      </TestVirtualizedList>,
     );
 
     const virtualizer = screen.getByTestId('virtualizer');
@@ -371,19 +465,20 @@ describe('<ListVirtualizer />', () => {
     'retains the refined estimate when a filtered collection expands around an offscreen target',
     async () => {
       vi.restoreAllMocks();
-      const rows = createRows(200);
-      const filteredRows = [rows[100]];
+      const items = createItems(200);
+      const filteredItems = [items[100]];
 
       function Test(props: { filtered?: boolean; scrollToRowIndex?: number }) {
         return (
-          <ListVirtualizer
+          <TestVirtualizedList
             estimatedItemHeight={20}
             overscanPx={0}
             render={<div data-testid="virtualizer" style={{ height: 120, width: 200 }} />}
-            renderRow={renderTallRow}
-            rows={props.filtered ? filteredRows : rows}
+            items={props.filtered ? filteredItems : items}
             scrollToRowIndex={props.scrollToRowIndex}
-          />
+          >
+            {renderTallItem}
+          </TestVirtualizedList>
         );
       }
 
@@ -406,35 +501,34 @@ describe('<ListVirtualizer />', () => {
     'resets the refined estimate when a replacement collection partially overlaps',
     async () => {
       vi.restoreAllMocks();
-      const initialRows = createRows(200).map((row) => ({
-        ...row,
-        model: { label: `Tall ${row.model.label}` },
+      const initialItems = createItems(200).map((item, index) => ({
+        label: `Tall ${item.label}`,
+        key: index,
       }));
-      const replacementRows = createRows(200).map((row, index) => ({
-        id: index === 0 ? initialRows[0].id : index + 1000,
-        model: { label: `Short ${row.model.label}` },
+      // Only the first row keeps its identity, so the replacement partially overlaps.
+      const replacementItems = createItems(200).map((item, index) => ({
+        label: `Short ${item.label}`,
+        key: index === 0 ? 0 : index + 1000,
       }));
 
-      function renderVariableRow(params: ListVirtualizerRenderRowParameters<TestRowModel>) {
+      function renderVariableItem(item: TestItem) {
         return (
-          <div
-            role="listitem"
-            style={{ height: params.row.model.label.startsWith('Tall') ? 60 : 20 }}
-          >
-            {params.row.model.label}
-          </div>
+          <TestListItem style={{ height: item.label.startsWith('Tall') ? 60 : 20 }}>
+            {item.label}
+          </TestListItem>
         );
       }
 
       function Test(props: { replaced?: boolean }) {
         return (
-          <ListVirtualizer
+          <TestVirtualizedList
             estimatedItemHeight={20}
             overscanPx={0}
             render={<div data-testid="virtualizer" style={{ height: 120, width: 200 }} />}
-            renderRow={renderVariableRow}
-            rows={props.replaced ? replacementRows : initialRows}
-          />
+            items={props.replaced ? replacementItems : initialItems}
+          >
+            {renderVariableItem}
+          </TestVirtualizedList>
         );
       }
 
@@ -452,21 +546,18 @@ describe('<ListVirtualizer />', () => {
 
   it.skipIf(isJSDOM)('does not seed the estimate with transient mount measurements', async () => {
     vi.restoreAllMocks();
-    const rows = createRows(200);
+    const items = createItems(200);
 
     function Test(props: { rowHeight: number }) {
       return (
-        <ListVirtualizer
+        <TestVirtualizedList
           estimatedItemHeight={20}
           overscanPx={0}
           render={<div data-testid="virtualizer" style={{ height: 120, width: 200 }} />}
-          renderRow={(params) => (
-            <div role="listitem" style={{ height: props.rowHeight }}>
-              {params.row.model.label}
-            </div>
-          )}
-          rows={rows}
-        />
+          items={items}
+        >
+          {(item) => <TestListItem style={{ height: props.rowHeight }}>{item.label}</TestListItem>}
+        </TestVirtualizedList>
       );
     }
 
@@ -488,13 +579,14 @@ describe('<ListVirtualizer />', () => {
     vi.restoreAllMocks();
 
     await render(
-      <ListVirtualizer
+      <TestVirtualizedList
         estimatedItemHeight={20}
         overscanPx={0}
         render={<div data-testid="virtualizer" style={{ height: 120, width: 200 }} />}
-        renderRow={renderMixedRow}
-        rows={createRows(300)}
-      />,
+        items={createItems(300)}
+      >
+        {renderMixedItem}
+      </TestVirtualizedList>,
     );
 
     const virtualizer = screen.getByTestId('virtualizer');
@@ -534,13 +626,14 @@ describe('<ListVirtualizer />', () => {
       vi.restoreAllMocks();
 
       await render(
-        <ListVirtualizer
+        <TestVirtualizedList
           estimatedItemHeight={20}
           overscanPx={0}
           render={<div data-testid="virtualizer" style={{ height: 120, width: 200 }} />}
-          renderRow={renderMixedRow}
-          rows={createRows(300)}
-        />,
+          items={createItems(300)}
+        >
+          {renderMixedItem}
+        </TestVirtualizedList>,
       );
 
       const virtualizer = screen.getByTestId('virtualizer');
@@ -584,26 +677,23 @@ describe('<ListVirtualizer />', () => {
       // Three height bands: the middle band is measured mid-drag and later demoted, and its real
       // height must differ from the average the collection settles on, so a stale remeasurement
       // produces an observable geometry change.
-      const renderBandedRow = (params: ListVirtualizerRenderRowParameters<TestRowModel>) => {
+      const renderBandedItem = (item: TestItem, index: number) => {
         let height = 20;
-        if (params.rowIndex >= 50) {
-          height = params.rowIndex < 100 ? 100 : 40;
+        if (index >= 50) {
+          height = index < 100 ? 100 : 40;
         }
-        return (
-          <div role="listitem" style={{ height }}>
-            {params.row.model.label}
-          </div>
-        );
+        return <TestListItem style={{ height }}>{item.label}</TestListItem>;
       };
 
       await render(
-        <ListVirtualizer
+        <TestVirtualizedList
           estimatedItemHeight={20}
           overscanPx={0}
           render={<div data-testid="virtualizer" style={{ height: 120, width: 200 }} />}
-          renderRow={renderBandedRow}
-          rows={createRows(300)}
-        />,
+          items={createItems(300)}
+        >
+          {renderBandedItem}
+        </TestVirtualizedList>,
       );
 
       const virtualizer = screen.getByTestId('virtualizer');
@@ -678,13 +768,14 @@ describe('<ListVirtualizer />', () => {
       vi.restoreAllMocks();
 
       await render(
-        <ListVirtualizer
+        <TestVirtualizedList
           estimatedItemHeight={20}
           overscanPx={0}
           render={<div data-testid="virtualizer" style={{ height: 120, width: 200 }} />}
-          renderRow={renderMixedRow}
-          rows={createRows(300)}
-        />,
+          items={createItems(300)}
+        >
+          {renderMixedItem}
+        </TestVirtualizedList>,
       );
 
       const virtualizer = screen.getByTestId('virtualizer');
@@ -717,13 +808,14 @@ describe('<ListVirtualizer />', () => {
       vi.restoreAllMocks();
 
       await render(
-        <ListVirtualizer
+        <TestVirtualizedList
           estimatedItemHeight={20}
           overscanPx={0}
           render={<div data-testid="virtualizer" style={{ height: 120, width: 200 }} />}
-          renderRow={renderMixedRow}
-          rows={createRows(300)}
-        />,
+          items={createItems(300)}
+        >
+          {renderMixedItem}
+        </TestVirtualizedList>,
       );
 
       const virtualizer = screen.getByTestId('virtualizer');
@@ -769,13 +861,14 @@ describe('<ListVirtualizer />', () => {
       vi.restoreAllMocks();
 
       await render(
-        <ListVirtualizer
+        <TestVirtualizedList
           estimatedItemHeight={20}
           overscanPx={0}
           render={<div data-testid="virtualizer" style={{ height: 120, width: 200 }} />}
-          renderRow={renderMixedRow}
-          rows={createRows(300)}
-        />,
+          items={createItems(300)}
+        >
+          {renderMixedItem}
+        </TestVirtualizedList>,
       );
 
       const virtualizer = screen.getByTestId('virtualizer');
@@ -853,20 +946,19 @@ describe('<ListVirtualizer />', () => {
 
       // Tall rows up front seed a high estimate; the short remainder keeps lowering the average
       // as it is measured, so each refresh shrinks the virtual total.
-      const renderShrinkingRow = (params: ListVirtualizerRenderRowParameters<TestRowModel>) => (
-        <div role="listitem" style={{ height: params.rowIndex < 10 ? 100 : 20 }}>
-          {params.row.model.label}
-        </div>
+      const renderShrinkingItem = (item: TestItem, index: number) => (
+        <TestListItem style={{ height: index < 10 ? 100 : 20 }}>{item.label}</TestListItem>
       );
 
       await render(
-        <ListVirtualizer
+        <TestVirtualizedList
           estimatedItemHeight={20}
           overscanPx={0}
           render={<div data-testid="virtualizer" style={{ height: 120, width: 200 }} />}
-          renderRow={renderShrinkingRow}
-          rows={createRows(300)}
-        />,
+          items={createItems(300)}
+        >
+          {renderShrinkingItem}
+        </TestVirtualizedList>,
       );
 
       const virtualizer = screen.getByTestId('virtualizer');
@@ -971,7 +1063,7 @@ describe('<ListVirtualizer />', () => {
     let scrollTop = 0;
 
     await render(
-      <ListVirtualizer
+      <TestVirtualizedList
         apiRef={apiRef}
         estimatedItemHeight={20}
         overscanPx={0}
@@ -1002,9 +1094,10 @@ describe('<ListVirtualizer />', () => {
             data-testid="virtualizer"
           />
         }
-        renderRow={renderRow}
-        rows={createRows(100)}
-      />,
+        items={createItems(100)}
+      >
+        {renderItem}
+      </TestVirtualizedList>,
     );
 
     const renderZone = screen
@@ -1039,7 +1132,7 @@ describe('<ListVirtualizer />', () => {
     let scrollTop = 0;
 
     await render(
-      <ListVirtualizer
+      <TestVirtualizedList
         apiRef={apiRef}
         estimatedItemHeight={20}
         overscanPx={0}
@@ -1072,9 +1165,10 @@ describe('<ListVirtualizer />', () => {
             data-testid="virtualizer"
           />
         }
-        renderRow={renderRow}
-        rows={createRows(100)}
-      />,
+        items={createItems(100)}
+      >
+        {renderItem}
+      </TestVirtualizedList>,
     );
 
     const renderZone = screen
@@ -1097,46 +1191,27 @@ describe('<ListVirtualizer />', () => {
   });
 });
 
-function createRows(count: number): ListVirtualizerRow<TestRowModel>[] {
+function createItems(count: number): TestItem[] {
   return Array.from({ length: count }, (_, index) => ({
-    id: index,
-    model: {
-      label: `Item ${index + 1}`,
-    },
+    label: `Item ${index + 1}`,
   }));
 }
 
-function renderRow(params: ListVirtualizerRenderRowParameters<TestRowModel>) {
-  return (
-    <div role="listitem" style={{ height: 20 }}>
-      {params.row.model.label}
-    </div>
-  );
+function renderItem(item: TestItem, _index: number) {
+  return <TestListItem style={{ height: 20 }}>{item.label}</TestListItem>;
 }
 
-function renderRowOf(height: number) {
-  return function renderMeasuredRow(params: ListVirtualizerRenderRowParameters<TestRowModel>) {
-    return (
-      <div role="listitem" style={{ height }}>
-        {params.row.model.label}
-      </div>
-    );
+function renderItemOf(height: number) {
+  return function renderMeasuredItem(item: TestItem) {
+    return <TestListItem style={{ height }}>{item.label}</TestListItem>;
   };
 }
 
-function renderTallRow(params: ListVirtualizerRenderRowParameters<TestRowModel>) {
-  return (
-    <div role="listitem" style={{ height: 60 }}>
-      {params.row.model.label}
-    </div>
-  );
+function renderTallItem(item: TestItem) {
+  return <TestListItem style={{ height: 60 }}>{item.label}</TestListItem>;
 }
 
 /** Short rows up front and tall rows later, so the measured average changes while scrolling. */
-function renderMixedRow(params: ListVirtualizerRenderRowParameters<TestRowModel>) {
-  return (
-    <div role="listitem" style={{ height: params.rowIndex < 50 ? 20 : 100 }}>
-      {params.row.model.label}
-    </div>
-  );
+function renderMixedItem(item: TestItem, index: number) {
+  return <TestListItem style={{ height: index < 50 ? 20 : 100 }}>{item.label}</TestListItem>;
 }

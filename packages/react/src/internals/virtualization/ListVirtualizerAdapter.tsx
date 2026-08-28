@@ -5,46 +5,27 @@ import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { warn } from '@base-ui/utils/warn';
 import { areArraysEqual } from '@base-ui/utils/areArraysEqual';
-import type { BaseUIComponentProps, HTMLProps } from '../types';
-import type {
-  ListVirtualizerRenderRowParameters,
-  ListVirtualizerRow,
-  ListVirtualizerState,
-} from './ListVirtualizer';
 import type {
   ListVirtualizationRegistry,
+  ListVirtualizerActions,
   ListVirtualizerHandle,
   ListVirtualizerScrollToIndexOptions,
 } from './ListVirtualizationRegistry';
-import { useVirtualizationListContext } from './VirtualizationListContext';
+import type {
+  ListVirtualizationHost,
+  ListVirtualizationListState,
+} from './ListVirtualizationHostContext';
+import type {
+  ListVirtualizerItemMetadata,
+  ListVirtualizerItemRowModel,
+  ListVirtualizerRenderRowParameters,
+  ListVirtualizerRow,
+} from './types';
 
-type ComponentName = 'Combobox' | 'Select';
+type ComponentName = string;
 type VirtualizerItemKey = string;
 
 const DEFAULT_ESTIMATED_ITEM_HEIGHT = 32;
-
-/**
- * Row model shared by flat collection virtualizers.
- */
-export interface ListVirtualizerItemRowModel<Item> {
-  item: Item;
-  itemIndex: number;
-}
-
-/**
- * Metadata provided to an item rendered by a built-in list virtualizer.
- */
-export interface ListVirtualizerItemMetadata {
-  /** Logical index in the full collection. */
-  index: number;
-  /** Accessibility and collection metadata applied to the item. */
-  props: HTMLProps & {
-    /** Logical index exposed as a DOM data attribute. */
-    'data-index': number;
-  };
-  /** Registers the item rendered for this virtual row. */
-  registerItem: (() => () => void) | undefined;
-}
 
 interface ListVirtualizerItemRowProps<Item> {
   children: (item: Item, index: number) => React.ReactElement;
@@ -71,7 +52,7 @@ function ListVirtualizerItemRowImpl<Item>(props: ListVirtualizerItemRowProps<Ite
     useIsoLayoutEffect(() => {
       if (registeredItemCountRef.current !== 1) {
         warn(
-          `Each <${componentName}.Virtualizer> item renderer must render exactly one ` +
+          'Each <ListVirtualizer> item renderer must render exactly one ' +
             `<${componentName}.Item>. Rendered ${registeredItemCountRef.current} items for the ` +
             `value at index ${model.itemIndex}.`,
         );
@@ -122,77 +103,56 @@ const ListVirtualizerItemRow = React.memo(
   areListVirtualizerItemRowPropsEqual,
 ) as typeof ListVirtualizerItemRowImpl;
 
-export interface UseListVirtualizerAdapterParameters<Value, Item> {
-  actionsRef: React.RefObject<ListVirtualizerAdapterActions | null> | undefined;
-  activeIndex: number | null;
+export interface UseListVirtualizerAdapterParameters<Item> {
+  actionsRef: React.RefObject<ListVirtualizerActions | null> | undefined;
   children: (item: Item, index: number) => React.ReactElement;
-  componentName: ComponentName;
   /**
-   * Whether the virtual window is active. A disabled virtualizer renders every row, so the list
-   * root must fall back to the scrolling it uses for static collections.
+   * Whether virtualization is requested. The resolved window can still be inactive while the list
+   * needs every row mounted, and a disabled virtualizer renders every row, so the list root must
+   * fall back to the scrolling it uses for static collections.
    */
   enabled: boolean;
   estimatedItemHeight: number | ((item: Item, index: number) => number) | undefined;
   getItemKey: ((item: Item) => string | number) | undefined;
-  getItemValue: (item: Item) => Value;
-  hasItems: boolean;
-  highlightType: 'none' | 'keyboard' | 'pointer';
-  isGrouped: boolean;
-  items: ReadonlyArray<Item>;
-  registry: ListVirtualizationRegistry;
+  host: ListVirtualizationHost;
+  listState: ListVirtualizationListState;
   /**
    * Size of the whole collection when the rendered items are only part of it, such as a page of a
    * larger result set. Defaults to the number of items given.
    */
   totalItems: number | undefined;
-  virtualItemContext: React.Context<ListVirtualizerItemMetadata | undefined>;
 }
 
 /**
- * Builds and registers the component-agnostic parts of a flat collection virtualizer adapter.
+ * Binds `<ListVirtualizer>` to its surrounding list: turns the filtered collection into stable
+ * rows, supplies each row's item metadata, and registers the imperative handle with the list.
  */
-export function useListVirtualizerAdapter<Value, Item>(
-  parameters: UseListVirtualizerAdapterParameters<Value, Item>,
+export function useListVirtualizerAdapter<Item>(
+  parameters: UseListVirtualizerAdapterParameters<Item>,
 ) {
   const {
     actionsRef,
-    activeIndex,
     children,
-    componentName,
-    enabled,
+    enabled: enabledProp,
     estimatedItemHeight,
     getItemKey,
-    getItemValue,
-    hasItems,
-    highlightType,
-    isGrouped,
-    items,
-    registry,
+    host,
+    listState,
     totalItems,
-    virtualItemContext,
   } = parameters;
 
-  const insideList = useVirtualizationListContext();
+  const { componentName, registry, virtualItemContext, warnUnsupportedConfiguration } = host;
+  const { activeIndex, renderAllRows, renderAllRowsRestoreVersion, scrollActiveIntoView } =
+    listState;
+  const items = listState.items as ReadonlyArray<Item>;
 
   if (process.env.NODE_ENV !== 'production') {
     // The build-time environment never changes during a component's lifetime.
     // eslint-disable-next-line react-hooks/rules-of-hooks
     React.useEffect(() => {
-      if (!hasItems) {
-        warn(
-          `<${componentName}.Virtualizer> requires the \`items\` prop on <${componentName}.Root>.`,
-        );
-      }
-      if (!insideList) {
-        warn(`<${componentName}.Virtualizer> must be placed inside <${componentName}.List>.`);
-      }
-      if (isGrouped) {
-        warn(
-          `<${componentName}.Virtualizer> does not currently support grouped collections. ` +
-            'Render a flat item collection instead.',
-        );
-      }
-    }, [componentName, hasItems, insideList, isGrouped]);
+      // Only a mounted virtualizer makes an unwindowable configuration a problem worth reporting.
+      warnUnsupportedConfiguration?.();
+    }, [warnUnsupportedConfiguration]);
   }
 
   const objectKeyRegistry = useRefWithInit(createObjectKeyRegistry).current;
@@ -204,8 +164,6 @@ export function useListVirtualizerAdapter<Value, Item>(
   // functions of the item, and `remeasure()` is how a change in what they return is announced.
   const getItemKeyRef = React.useRef(getItemKey);
   getItemKeyRef.current = getItemKey;
-  const getItemValueRef = React.useRef(getItemValue);
-  getItemValueRef.current = getItemValue;
   const rowsCacheRef = React.useRef<ListVirtualizerRow<ListVirtualizerItemRowModel<Item>>[] | null>(
     null,
   );
@@ -213,23 +171,22 @@ export function useListVirtualizerAdapter<Value, Item>(
     const keys = process.env.NODE_ENV === 'production' ? undefined : new Set<VirtualizerItemKey>();
 
     const nextRows = items.map((item, itemIndex) => {
-      const itemValue = getItemValueRef.current(item);
       const rawKey = hasGetItemKey ? getItemKeyRef.current!(item) : undefined;
       const key = hasGetItemKey
         ? normalizeItemKey(rawKey)
-        : getDefaultItemKey(itemValue, objectKeyRegistry);
+        : getDefaultItemKey(item, objectKeyRegistry);
 
       if (process.env.NODE_ENV !== 'production') {
-        if (isObjectValue(itemValue) && !hasGetItemKey) {
+        if (isObjectValue(item) && !hasGetItemKey) {
           warn(
-            `<${componentName}.Virtualizer> requires \`getItemKey\` when item values are objects. ` +
+            '<ListVirtualizer> requires `getItemKey` when item values are objects. ' +
               'Return a stable string or number that uniquely identifies each item.',
           );
         }
         if (keys?.has(key)) {
           warn(
-            `<${componentName}.Virtualizer> received the duplicate item key ` +
-              `\`${String(rawKey ?? itemValue)}\`. Each item must have a unique key.`,
+            '<ListVirtualizer> received the duplicate item key ' +
+              `\`${String(rawKey ?? item)}\`. Each item must have a unique key.`,
           );
         }
         keys?.add(key);
@@ -251,11 +208,10 @@ export function useListVirtualizerAdapter<Value, Item>(
 
     rowsCacheRef.current = nextRows;
     return nextRows;
-  }, [componentName, hasGetItemKey, items, objectKeyRegistry]);
+  }, [hasGetItemKey, items, objectKeyRegistry]);
 
   const focusedRowIndex = activeIndex == null ? undefined : activeIndex;
-  // Pointer highlights follow the cursor; scrolling to them would move the list under it.
-  const scrollToRowIndex = highlightType === 'pointer' ? undefined : focusedRowIndex;
+  const scrollToRowIndex = scrollActiveIntoView ? focusedRowIndex : undefined;
 
   const renderRow = React.useCallback(
     (params: ListVirtualizerRenderRowParameters<ListVirtualizerItemRowModel<Item>>) => (
@@ -313,6 +269,11 @@ export function useListVirtualizerAdapter<Value, Item>(
     }
   }
 
+  // Some list-level operations need every item mounted briefly (for example, collecting rendered
+  // labels for browser autofill), which suspends windowing until they finish. The list root reads
+  // this off the registry to know whether the virtualizer currently owns scrolling.
+  const enabled = enabledProp && !renderAllRows;
+
   const apiRef = React.useRef<ListVirtualizerHandle | null>(null);
   const getRowMetrics = useStableCallback(
     (rowIndex: number) => apiRef.current?.getRowMetrics(rowIndex) ?? null,
@@ -339,9 +300,7 @@ export function useListVirtualizerAdapter<Value, Item>(
   useIsoLayoutEffect(() => {
     if (process.env.NODE_ENV !== 'production') {
       if (registry.virtualizer != null) {
-        warn(
-          `<${componentName}.Root> must not contain more than one <${componentName}.Virtualizer>.`,
-        );
+        warn(`<${componentName}.Root> must not contain more than one <ListVirtualizer>.`);
       }
       if (registry.nonVirtualItemCount > 0) {
         warnAboutStaticItems(componentName);
@@ -358,7 +317,7 @@ export function useListVirtualizerAdapter<Value, Item>(
 
   const onUnconstrainedHeight = useStableCallback(() => {
     warn(
-      `<${componentName}.Virtualizer> must have a constrained height or maximum height. ` +
+      '<ListVirtualizer> must have a constrained height or maximum height. ' +
         'Without one, all items are rendered and virtualization provides no benefit.',
     );
   });
@@ -370,31 +329,15 @@ export function useListVirtualizerAdapter<Value, Item>(
 
   return {
     apiRef,
+    enabled,
     estimatedItemHeight: resolvedEstimatedItemHeight,
-    focusedRowIndex,
     onUnconstrainedHeight,
+    pinnedRowIndex: focusedRowIndex,
     renderRow,
+    restoreViewportVersion: renderAllRowsRestoreVersion,
     rows,
     scrollToRowIndex,
   };
-}
-
-/**
- * Imperative actions exposed by a built-in list virtualizer.
- */
-export interface ListVirtualizerAdapterActions {
-  /**
-   * Discards the item heights measured so far, so they are taken again against the layout the
-   * items are in now. Call it after a change that resizes items without changing the collection,
-   * such as crossing a layout breakpoint: items on screen resize on their own, while the heights
-   * cached for the rest describe the layout they were last measured in. The scroll position is
-   * kept, which is what remounting the virtualizer to clear them loses.
-   */
-  remeasure: () => void;
-  /**
-   * Scrolls an item into view by its logical collection index.
-   */
-  scrollToIndex: (index: number, options?: ListVirtualizerScrollToIndexOptions) => void;
 }
 
 export interface UseVirtualItemDiagnosticsParameters {
@@ -464,11 +407,6 @@ export function useNonVirtualizedItemRegistration(
   }
 }
 
-/**
- * Shared public state exposed by flat collection virtualizer adapters.
- */
-export type ListVirtualizerAdapterState = ListVirtualizerState;
-
 function areListVirtualizerRowsEqual<Item>(
   previous: ListVirtualizerRow<ListVirtualizerItemRowModel<Item>>[],
   next: ListVirtualizerRow<ListVirtualizerItemRowModel<Item>>[],
@@ -482,98 +420,6 @@ function areListVirtualizerRowsEqual<Item>(
       previousRow.model.itemIndex === nextRow.model.itemIndex,
   );
 }
-
-/**
- * Shared public props for flat collection virtualizer adapters.
- */
-export interface ListVirtualizerAdapterProps<
-  Item,
-  State extends ListVirtualizerAdapterState = ListVirtualizerAdapterState,
-> extends Omit<BaseUIComponentProps<'div', State>, 'children'> {
-  /** Renders exactly one item for the given value and logical index. */
-  children: (item: Item, index: number) => React.ReactElement;
-  /**
-   * Estimated item height in CSS pixels used before item elements have been measured.
-   * A static number is automatically refined with the running average of measured items.
-   * Provide a function to keep full control over per-item estimates.
-   * @default 32
-   */
-  estimatedItemHeight?: number | ((item: Item, index: number) => number) | undefined;
-  /**
-   * Pixel buffer rendered before and after the visible range.
-   * Defaults to the larger of 150px and the estimated size of the first item. The render buffer
-   * always includes at least one estimated row, even when this prop is `0`.
-   */
-  overscanPx?: number | undefined;
-  /**
-   * Number of items in the whole collection, when the items given are only part of it — a page of
-   * a larger result set, say. Rendered items report it as their `aria-setsize`, so assistive
-   * technology describes the collection rather than the part of it currently loaded.
-   *
-   * Pass `-1` when the size is not known yet, which is the ARIA convention for it.
-   * @default items.length
-   */
-  totalItems?: number | undefined;
-  /**
-   * How many items short of the end `onEndReached` fires. `0` fires once the last item enters the
-   * rendered window, which already extends past the visible range by `overscanPx`.
-   * @default 0
-   */
-  endReachedThreshold?: number | undefined;
-  /**
-   * Called when the rendered window reaches the end of the collection, for loading the next page
-   * of a longer list. Fires once per arrival: it does not repeat while the window stays at the
-   * end, and arms again when the window moves away or the collection grows past it.
-   */
-  onEndReached?: (() => void) | undefined;
-  /**
-   * Content rendered after the last item, inside the scroll container, for a loading indicator or
-   * an end-of-results note. It scrolls with the items and is measured into the scrollable height,
-   * rather than being pinned below the list.
-   *
-   * It is not an item: it takes no index, and is left out of `aria-setsize` and `aria-posinset`.
-   * A list is only allowed to contain options, so this content must not present itself as one —
-   * keep it out of the accessibility tree and convey the state it stands for another way, such as
-   * `aria-busy` on the list with a live region outside it. Interactive controls belong outside the
-   * list, where they can be reached with the keyboard.
-   */
-  trailing?: React.ReactNode | undefined;
-  /** Whether virtualization is enabled. When `false`, all items are rendered. @default true */
-  enabled?: boolean | undefined;
-}
-
-/**
- * Makes stable keys optional for primitive values and required for object or unknown values.
- */
-export type ListVirtualizerKeyProps<Value, Item> = unknown extends Value
-  ? {
-      /**
-       * Returns a stable key for the item value.
-       *
-       * Primitive item values use the value itself by default. Required when item values are
-       * objects or the item type cannot be inferred.
-       */
-      getItemKey: (item: Item) => string | number;
-    }
-  : [Extract<Value, object>] extends [never]
-    ? {
-        /**
-         * Returns a stable key for the item value.
-         *
-         * Primitive item values use the value itself by default. Required when item values are
-         * objects.
-         */
-        getItemKey?: ((item: Item) => string | number) | undefined;
-      }
-    : {
-        /**
-         * Returns a stable key for the item value.
-         *
-         * Primitive item values use the value itself by default. Required when item values are
-         * objects.
-         */
-        getItemKey: (item: Item) => string | number;
-      };
 
 /**
  * Creates an identity registry used to generate stable keys for object and symbol item values.
@@ -630,6 +476,6 @@ function isObjectValue(value: unknown): value is object {
 function warnAboutStaticItems(componentName: ComponentName) {
   warn(
     `<${componentName}.List> must not render static <${componentName}.Item> elements alongside ` +
-      `<${componentName}.Virtualizer>. Render every list item through the virtualizer.`,
+      '<ListVirtualizer>. Render every list item through the virtualizer.',
   );
 }

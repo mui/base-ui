@@ -23,6 +23,7 @@ Import the components and place them together:
 
 ```jsx title="Anatomy"
 import { Combobox } from '@base-ui/react/combobox';
+import { ListVirtualizer } from '@base-ui/react/list-virtualizer';
 
 <Combobox.Root>
   <Combobox.Label />
@@ -65,7 +66,7 @@ import { Combobox } from '@base-ui/react/combobox';
 
           <Combobox.Collection />
 
-          <Combobox.Virtualizer />
+          <ListVirtualizer />
         </Combobox.List>
       </Combobox.Popup>
     </Combobox.Positioner>
@@ -291,9 +292,20 @@ import { DemoComboboxCreatable } from './demos/creatable';
 
 ### Virtualized
 
-For most large datasets, use the built-in `<Combobox.Virtualizer>`. It is the recommended approach because it renders only the visible items while handling Combobox keyboard navigation, scrolling, selection, and accessibility metadata for you.
+For most large datasets, use the [`<ListVirtualizer>`](/react/utils/list-virtualizer) component. It is the recommended approach because it renders only the visible items while handling Combobox keyboard navigation, scrolling, selection, and accessibility metadata for you.
 
 Pass a flat collection to the `items` prop on `<Combobox.Root>`, and use the virtualizer as the only item-rendering child of `<Combobox.List>`. Each item renderer must return exactly one `<Combobox.Item>`. Grouped collections and grid mode are not currently supported.
+
+```jsx title="Anatomy"
+import { ListVirtualizer } from '@base-ui/react/list-virtualizer';
+
+// prettier-ignore
+<Combobox.List>
+  <ListVirtualizer getItemKey={(item) => item.id}>
+    {(item) => <Combobox.Item value={item}>{item.name}</Combobox.Item>}
+  </ListVirtualizer>
+</Combobox.List>
+```
 
 The virtualizer is the scroll container, so constrain its height or maximum height. The `--total-size` CSS variable contains the estimated or measured height of the virtual content, including the virtualizer's own block padding, and can be combined with `--available-height` from `<Combobox.Positioner>`:
 
@@ -311,7 +323,7 @@ Padding on the virtualizer behaves as it does on a plain scrolling list: items s
 
 Sizing depends on what constrains the scroll container. Inside a popup, which is sized by its content, `height` must come from `--total-size` as above: without it the container would size itself from the items it happened to render, which changes how many it renders, and the two chase each other. Where the height is already definite — a panel in a page layout, say — that is not needed, and `max-height` alone is enough.
 
-Use `getItemKey` to provide stable identity when item values are objects or when TypeScript cannot infer the item type. For primitive values, you can instead declare the type explicitly, such as `<Combobox.Virtualizer<string>>`. `estimatedItemHeight` defaults to 32 pixels and adapts to measured items. It can also be a number or a function receiving the item and its filtered index. `overscanPx` controls the extra pixel buffer around the visible range. It defaults to the larger of 150px and the first item's estimated height; even an explicit value of `0` keeps a minimum render buffer of one estimated row. CSS `scroll-padding-top` and `scroll-padding-bottom` are respected when keyboard navigation scrolls an item into view.
+Use `getItemKey` to provide stable identity when item values are objects or when TypeScript cannot infer the item type. For primitive values, you can instead declare the type explicitly, such as `<ListVirtualizer<string>>`. `estimatedItemHeight` defaults to 32 pixels and adapts to measured items. It can also be a number or a function receiving the item and its filtered index. `overscanPx` controls the extra pixel buffer around the visible range. It defaults to the larger of 150px and the first item's estimated height; even an explicit value of `0` keeps a minimum render buffer of one estimated row. CSS `scroll-padding-top` and `scroll-padding-bottom` are respected when keyboard navigation scrolls an item into view.
 
 The scroll container the virtualizer renders is deliberately not a tab stop. Focus stays in the input for the whole interaction, as the combobox pattern requires, and the list is driven by `aria-activedescendant`: arrow keys move the highlight one item at a time, <kbd>Page&nbsp;Down</kbd> and <kbd>Page&nbsp;Up</kbd> move it ten at a time, and the list scrolls to follow it. Every item is reachable that way, including items that have never been rendered, which is why <kbd>Tab</kbd> is left to dismiss the popup rather than to enter the list.
 
@@ -322,12 +334,12 @@ Content that is not an item — a loading indicator, an end-of-results note — 
 A list may only contain options, so `trailing` content must not present itself as one. Keep it out of the accessibility tree and convey what it stands for another way — `aria-busy` on the list while a page is loading, with a live region outside it to announce the result:
 
 ```jsx title="A loading row"
-<Combobox.Virtualizer
+<ListVirtualizer
   trailing={loading ? <Spinner aria-hidden="true" /> : null}
   onEndReached={loadNextPage}
 >
   {(item) => <Combobox.Item value={item}>{item.name}</Combobox.Item>}
-</Combobox.Virtualizer>
+</ListVirtualizer>
 ```
 
 Interactive affordances are a different case: a control inside the list would be neither valid there nor reachable, since focus stays in the input. Keep buttons such as a create-new action outside the list, where they are in the tab order.
@@ -340,7 +352,7 @@ import { DemoComboboxVirtualized } from './demos/virtualized';
 
 #### Third-party virtualizers
 
-You can instead integrate a third-party virtualization library when your application already uses one or needs behavior that the built-in virtualizer does not provide. The built-in `<Combobox.Virtualizer>` is recommended for most cases because a third-party integration must coordinate filtering, item indexes, scrolling, and accessibility metadata itself.
+You can instead integrate a third-party virtualization library when your application already uses one or needs behavior that the built-in virtualizer does not provide. `<ListVirtualizer>` is recommended for most cases because a third-party integration must coordinate filtering, item indexes, scrolling, and accessibility metadata itself.
 
 Set the `virtualized` prop on `<Combobox.Root>` only for an external virtualizer. Read the current filtered collection with `useFilteredItems()`, render the virtual rows as `<Combobox.Item>` elements, and pass each item its index in the filtered collection. The following example integrates [`@tanstack/react-virtual`](https://tanstack.com/virtual/latest):
 
@@ -421,10 +433,6 @@ import { TypesCombobox } from './types';
 ### List
 
 <TypesCombobox.List />
-
-### Virtualizer
-
-<TypesCombobox.Virtualizer />
 
 ### Portal
 
