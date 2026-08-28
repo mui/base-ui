@@ -1,7 +1,6 @@
 'use client';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
-import { useStore } from '@base-ui/utils/store';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { warn } from '@base-ui/utils/warn';
 import {
@@ -13,7 +12,6 @@ import { useCompositeListItem } from '../../internals/composite/list/useComposit
 import type { BaseUIComponentProps, HTMLProps, NonNativeButtonProps } from '../../internals/types';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { ComboboxItemContext } from './ComboboxItemContext';
-import { selectors } from '../store';
 import { useButton } from '../../internals/use-button';
 import { useComboboxRowContext } from '../row/ComboboxRowContext';
 import { compareItemEquality, findItemIndex } from '../../internals/itemEquality';
@@ -85,11 +83,11 @@ function ComboboxItemInner(props: ComboboxItemInnerProps) {
   const isRow = useComboboxRowContext();
   const hasItems = useComboboxHasItemsContext();
 
-  const selectionMode = useStore(store, selectors.selectionMode);
-  const rootDisabled = useStore(store, selectors.disabled);
-  const readOnly = useStore(store, selectors.readOnly);
-  const isItemDisabled = useStore(store, selectors.isItemDisabled);
-  const isItemEqualToValue = useStore(store, selectors.isItemEqualToValue);
+  const selectionMode = store.useState('selectionMode');
+  const rootDisabled = store.useState('disabled');
+  const readOnly = store.useState('readOnly');
+  const isItemDisabled = store.useState('isItemDisabled');
+  const isItemEqualToValue = store.useState('isItemEqualToValue');
 
   const selectable = selectionMode !== 'none';
   const index = explicitIndex ?? (virtualized ? (indexFromFilter ?? -1) : listItem.index);
@@ -97,10 +95,10 @@ function ComboboxItemInner(props: ComboboxItemInnerProps) {
   const disabled =
     rootDisabled || disabledProp || (index >= 0 && isItemDisabled?.(itemValue, index) === true);
 
-  const rootId = useStore(store, selectors.id);
-  const highlighted = useStore(store, selectors.isActive, index);
-  const matchesSelectedValue = useStore(store, selectors.isSelected, itemValue);
-  const itemProps = useStore(store, selectors.itemProps);
+  const rootId = store.useState('id');
+  const highlighted = store.useState('isActive', index);
+  const matchesSelectedValue = store.useState('isSelected', itemValue);
+  const itemProps = store.useState('itemProps');
 
   const itemRef = React.useRef<HTMLDivElement | null>(null);
 
@@ -120,7 +118,7 @@ function ComboboxItemInner(props: ComboboxItemInnerProps) {
       return undefined;
     }
 
-    const list = store.state.listRef.current;
+    const list = store.context.listRef.current;
     list[index] = itemRef.current;
 
     return () => {
@@ -133,7 +131,7 @@ function ComboboxItemInner(props: ComboboxItemInnerProps) {
       return undefined;
     }
 
-    const visibleValues = store.state.valuesRef.current;
+    const visibleValues = store.context.valuesRef.current;
     visibleValues[index] = itemValue;
 
     return () => {
@@ -174,12 +172,12 @@ function ComboboxItemInner(props: ComboboxItemInnerProps) {
 
   function commitSelection(nativeEvent: MouseEvent) {
     function selectItem() {
-      store.state.handleSelection(nativeEvent, itemValue);
+      store.context.handleSelection(nativeEvent, itemValue);
     }
 
     if (store.state.submitOnItemClick) {
       ReactDOM.flushSync(selectItem);
-      store.state.requestSubmit();
+      store.context.requestSubmit();
     } else {
       selectItem();
     }
@@ -198,7 +196,7 @@ function ComboboxItemInner(props: ComboboxItemInnerProps) {
       // touch must not overwrite the shared ref — a mismatch would make the primary
       // pointer's release read as a drag-select and commit a second time after `click`.
       if (event.isPrimary) {
-        store.state.pointerDownItemRef.current = event.currentTarget;
+        store.context.pointerDownItemRef.current = event.currentTarget;
       }
       event.preventDefault();
     },
@@ -215,8 +213,8 @@ function ComboboxItemInner(props: ComboboxItemInnerProps) {
       commitSelection(event.nativeEvent);
     },
     onMouseUp(event) {
-      const pointerStartedOnItem = store.state.pointerDownItemRef.current === event.currentTarget;
-      store.state.pointerDownItemRef.current = null;
+      const pointerStartedOnItem = store.context.pointerDownItemRef.current === event.currentTarget;
+      store.context.pointerDownItemRef.current = null;
 
       if (disabled || readOnly || event.button !== 0 || pointerStartedOnItem || !highlighted) {
         return;
@@ -259,7 +257,7 @@ function ComboboxItemVirtualizedIndex(props: {
   const { componentProps, forwardedRef } = props;
 
   const store = useComboboxRootContext();
-  const isItemEqualToValue = useStore(store, selectors.isItemEqualToValue);
+  const isItemEqualToValue = store.useState('isItemEqualToValue');
   const { flatFilteredValues } = useComboboxDerivedItemsContext();
 
   const lookupValue = componentProps.value ?? null;
@@ -289,14 +287,14 @@ export const ComboboxItem = React.memo(
     forwardedRef: React.ForwardedRef<HTMLDivElement>,
   ) {
     const store = useComboboxRootContext();
-    const externallyVirtualized = useStore(store, selectors.externallyVirtualized);
+    const externallyVirtualized = store.useState('externallyVirtualized');
     const virtualItem = useComboboxVirtualItemContext();
     const insideList = useListVirtualizationHost() != null;
 
     useNonVirtualizedItemRegistration({
       componentName: 'Combobox',
       insideList,
-      registry: store.state.virtualizationRegistry,
+      registry: store.context.virtualizationRegistry,
       virtualized: virtualItem != null,
     });
 

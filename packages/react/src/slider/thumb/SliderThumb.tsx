@@ -31,7 +31,6 @@ import { PrehydrationScript } from '../../internals/PrehydrationScript';
 import { useFieldRootContext } from '../../internals/field-root-context/FieldRootContext';
 import { contains } from '../../floating-ui-react/utils';
 import { matchesFocusVisible } from '../../floating-ui-react/utils/element';
-import { type LabelableContext } from '../../internals/labelable-provider/LabelableContext';
 import { useLabelableId } from '../../internals/labelable-provider/useLabelableId';
 import { getMidpoint } from '../utils/getMidpoint';
 import { getSliderValue } from '../utils/getSliderValue';
@@ -39,6 +38,7 @@ import { getDecimalPrecision, roundValueToStep } from '../utils/roundValueToStep
 import type { SliderRootState } from '../root/SliderRoot';
 import { useSliderRootContext } from '../root/SliderRootContext';
 import { sliderStateAttributesMapping } from '../root/stateAttributesMapping';
+import * as SliderThumbDataAttributes from './SliderThumbDataAttributes';
 
 const ALL_KEYS = new Set([...COMPOSITE_KEYS, PAGE_UP, PAGE_DOWN]);
 
@@ -459,7 +459,7 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
     ref: [forwardedRef, listItemRef, thumbRef],
     props: [
       {
-        ['data-index' as string]: index,
+        [SliderThumbDataAttributes.index as string]: index,
         children: (
           <React.Fragment>
             {childrenProp}
@@ -494,7 +494,7 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
 });
 
 export interface ThumbMetadata {
-  inputId: LabelableContext['controlId'];
+  inputId: string | undefined;
 }
 
 export interface SliderThumbState extends SliderRootState {}
@@ -522,9 +522,7 @@ export interface SliderThumbProps extends Omit<
    * This is important for screen reader users.
    */
   getAriaValueText?:
-    | ((formattedValue: string, value: number, index: number) => string)
-    | null
-    | undefined;
+    ((formattedValue: string, value: number, index: number) => string) | null | undefined;
   /**
    * The index of the thumb which corresponds to the index of its value in the
    * `value` or `defaultValue` array.

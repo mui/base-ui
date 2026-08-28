@@ -8,7 +8,10 @@ import { Form } from '@base-ui/react/form';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 
 describe('<Checkbox.Root />', () => {
-  const { render } = createRenderer();
+  const { render, renderToString } = createRenderer();
+  // StrictMode re-runs a newly mounted control's layout effect after the outgoing control's
+  // cleanup, which hides id-handoff bugs that only show up in production.
+  const { render: renderNonStrict } = createRenderer({ strict: false });
 
   describeConformance(<Checkbox.Root />, () => ({
     refInstanceof: window.HTMLSpanElement,
@@ -33,6 +36,98 @@ describe('<Checkbox.Root />', () => {
       const { container } = await render(<Checkbox.Root role="switch" />);
       expect(container.firstElementChild as HTMLElement).toHaveAttribute('role', 'switch');
     });
+  });
+
+  describe('id', () => {
+    function TestCase(props: {
+      checkboxId?: string | undefined;
+      checkboxKey?: React.Key | undefined;
+      nativeButton: boolean;
+    }) {
+      const { checkboxId, checkboxKey, nativeButton } = props;
+
+      return (
+        <Field.Root>
+          <Field.Label data-testid="label">Label</Field.Label>
+          <Checkbox.Root
+            key={checkboxKey}
+            id={checkboxId}
+            nativeButton={nativeButton}
+            render={nativeButton ? <button /> : undefined}
+          />
+        </Field.Root>
+      );
+    }
+
+    function getLabelControl(nativeButton: boolean) {
+      return nativeButton
+        ? screen.getByRole('checkbox')
+        : document.querySelector<HTMLInputElement>('input[type="checkbox"]')!;
+    }
+
+    it.each([false, true])(
+      'drops an explicit id when the prop is removed (nativeButton=%s)',
+      async (nativeButton) => {
+        const { rerender } = await render(
+          <TestCase checkboxId="explicit" nativeButton={nativeButton} />,
+        );
+
+        const label = screen.getByTestId('label');
+        expect(getLabelControl(nativeButton)).toHaveAttribute('id', 'explicit');
+        expect(label).toHaveAttribute('for', 'explicit');
+
+        await rerender(<TestCase nativeButton={nativeButton} />);
+
+        const control = getLabelControl(nativeButton);
+        expect(control.id).not.toBe('');
+        expect(control).not.toHaveAttribute('id', 'explicit');
+        expect(label).toHaveAttribute('for', control.id);
+      },
+    );
+
+    it.each([false, true])(
+      'does not reuse an unmounted Checkbox id for a keyed id-less Checkbox (nativeButton=%s)',
+      async (nativeButton) => {
+        const { rerender } = await renderNonStrict(
+          <TestCase checkboxKey="explicit" checkboxId="explicit" nativeButton={nativeButton} />,
+        );
+
+        const label = screen.getByTestId('label');
+        expect(getLabelControl(nativeButton)).toHaveAttribute('id', 'explicit');
+        expect(label).toHaveAttribute('for', 'explicit');
+
+        await rerender(<TestCase checkboxKey="generated" nativeButton={nativeButton} />);
+
+        const control = getLabelControl(nativeButton);
+        expect(control.id).not.toBe('');
+        expect(control).not.toHaveAttribute('id', 'explicit');
+        expect(label).toHaveAttribute('for', control.id);
+      },
+    );
+
+    // An explicit `id` only reaches the DOM once registration runs, so the server markup carries
+    // the provider's generated id on both the label and the control. Rendering `id` right away
+    // would instead leave `Field.Label`'s `for` pointing at nothing until hydration.
+    it.each([false, true])(
+      'defers an explicit id until hydration but keeps Field.Label associated during SSR (nativeButton=%s)',
+      async (nativeButton) => {
+        const { hydrate } = renderToString(
+          <TestCase checkboxId="explicit" nativeButton={nativeButton} />,
+        );
+
+        const control = getLabelControl(nativeButton);
+        expect(control.id).not.toBe('');
+        expect(control).not.toHaveAttribute('id', 'explicit');
+        expect(screen.getByTestId('label')).toHaveAttribute('for', control.id);
+
+        hydrate();
+
+        await waitFor(() => {
+          expect(getLabelControl(nativeButton)).toHaveAttribute('id', 'explicit');
+        });
+        expect(screen.getByTestId('label')).toHaveAttribute('for', 'explicit');
+      },
+    );
   });
 
   describe('prop: onClick', () => {
@@ -369,6 +464,31 @@ describe('<Checkbox.Root />', () => {
       const [, input] = screen.getAllByRole<HTMLInputElement>('checkbox', {
         hidden: true,
       });
+      expect(input.indeterminate).toBe(true);
+    });
+
+    it('keeps the native input state when checked changes while indeterminate remains', async () => {
+      function App() {
+        const [checked, setChecked] = React.useState(false);
+        return (
+          <Checkbox.Root
+            data-testid="button"
+            indeterminate
+            checked={checked}
+            onCheckedChange={setChecked}
+          />
+        );
+      }
+
+      await render(<App />);
+
+      // Clicking the hidden input natively clears `indeterminate` before toggling.
+      fireEvent.click(screen.getByTestId('button'));
+
+      const [, input] = screen.getAllByRole<HTMLInputElement>('checkbox', {
+        hidden: true,
+      });
+      expect(input.checked).toBe(true);
       expect(input.indeterminate).toBe(true);
     });
 
@@ -1258,6 +1378,33 @@ describe('<Checkbox.Root />', () => {
         fireEvent.click(button);
 
         expect(button).not.toHaveAttribute('data-filled', '');
+      });
+
+      it('clears [data-filled] when a controlled checkbox remounts unchecked', async () => {
+        function App() {
+          const [unchecked, setUnchecked] = React.useState(false);
+          return (
+            <Field.Root data-testid="root">
+              <Checkbox.Root
+                key={String(unchecked)}
+                checked={!unchecked}
+                onCheckedChange={() => {}}
+              />
+              <button type="button" onClick={() => setUnchecked(true)}>
+                clear
+              </button>
+            </Field.Root>
+          );
+        }
+
+        await render(<App />);
+
+        const root = screen.getByTestId('root');
+        expect(root).toHaveAttribute('data-filled', '');
+
+        fireEvent.click(screen.getByText('clear'));
+
+        expect(root).not.toHaveAttribute('data-filled');
       });
 
       it('adds [data-filled] attribute when any checkbox is filled when inside a group', async () => {

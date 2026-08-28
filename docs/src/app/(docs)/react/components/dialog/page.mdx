@@ -99,46 +99,9 @@ It's also common to use `onOpenChange` if your app needs to do something when th
 
 In order to open a dialog using a menu, control the dialog state and open it imperatively using the `onClick` handler on the menu item.
 
-```tsx title="Connecting a dialog to a menu"
-import * as React from 'react';
-import { Dialog } from '@base-ui/react/dialog';
-import { Menu } from '@base-ui/react/menu';
+import { DemoDialogOpenFromMenu } from './demos/open-from-menu';
 
-function ExampleMenu() {
-  const [dialogOpen, setDialogOpen] = React.useState(false);
-
-  return (
-    <React.Fragment>
-      <Menu.Root>
-        <Menu.Trigger>Open menu</Menu.Trigger>
-        <Menu.Portal>
-          <Menu.Positioner>
-            <Menu.Popup>
-              {/* @highlight-start */}
-              {/* Open the dialog when the menu item is clicked */}
-              <Menu.Item onClick={() => setDialogOpen(true)}>Open dialog</Menu.Item>
-              {/* @highlight-end */}
-            </Menu.Popup>
-          </Menu.Positioner>
-        </Menu.Portal>
-      </Menu.Root>
-
-      {/* @highlight-start */}
-      {/* Control the dialog state */}
-      <Dialog.Root open={dialogOpen} onOpenChange={setDialogOpen}>
-        {/* @highlight-end */}
-        <Dialog.Portal>
-          <Dialog.Backdrop />
-          <Dialog.Popup>
-            {/* prettier-ignore */}
-            {/* Rest of the dialog */}
-          </Dialog.Popup>
-        </Dialog.Portal>
-      </Dialog.Root>
-    </React.Fragment>
-  );
-}
-```
+<DemoDialogOpenFromMenu />
 
 ### Nested dialogs
 

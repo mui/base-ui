@@ -1,10 +1,14 @@
 import { expect } from 'vitest';
 import { Tooltip } from '@base-ui/react/tooltip';
 import { screen, fireEvent, flushMicrotasks } from '@mui/internal-test-utils';
-import { advanceReactClock, createRenderer } from '#test-utils';
+import { advanceReactClock, createRenderer, resetBrowserPointer } from '#test-utils';
 import { OPEN_DELAY } from '../utils/constants';
 
 describe('<Tooltip.Provider />', () => {
+  // These tests drive hover with synthetic events, so a real pointer left resting on a trigger by
+  // an earlier test would open a tooltip the fake clock never accounts for.
+  beforeEach(resetBrowserPointer);
+
   const { render, clock } = createRenderer();
 
   async function tick(ms: number) {

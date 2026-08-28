@@ -10,12 +10,14 @@ import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { clamp } from '@base-ui/utils/clamp';
 import { useDialogRootContext } from '../../dialog/root/DialogRootContext';
 import { DialogViewport } from '../../dialog/viewport/DialogViewport';
+import * as DialogViewportDataAttributes from '../../dialog/viewport/DialogViewportDataAttributes';
 import { mergeProps } from '../../merge-props';
 import { useDrawerRootContext } from '../root/DrawerRootContext';
 import {
   closestSnapPointIndex,
   getSnapPointSwipeMovement,
   useDrawerSnapPoints,
+  type ResolvedDrawerSnapPoint,
 } from '../root/useDrawerSnapPoints';
 import { useDrawerProviderContext } from '../provider/DrawerProviderContext';
 import {
@@ -24,10 +26,10 @@ import {
   type SwipeDirection,
   type UseSwipeDismissProgressDetails,
 } from '../../utils/useSwipeDismiss';
-import { DrawerPopupCssVars } from '../popup/DrawerPopupCssVars';
-import { DrawerPopupDataAttributes } from '../popup/DrawerPopupDataAttributes';
-import { DrawerBackdropCssVars } from '../backdrop/DrawerBackdropCssVars';
-import { DRAWER_CONTENT_ATTRIBUTE } from '../content/DrawerContentDataAttributes';
+import * as DrawerPopupCssVars from '../popup/DrawerPopupCssVars';
+import * as DrawerPopupDataAttributes from '../popup/DrawerPopupDataAttributes';
+import * as DrawerBackdropCssVars from '../backdrop/DrawerBackdropCssVars';
+import { DRAWER_CONTENT_ATTRIBUTE } from '../content/drawerContentAttribute';
 import { REASONS } from '../../internals/reasons';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { activeElement, contains, getTarget } from '../../floating-ui-react/utils';
@@ -368,10 +370,14 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
       return true;
     },
     onProgress(progress, details) {
-      updateNestedSwipeActive(details);
+      const swiping = swipingRef.current;
+
+      if (swiping) {
+        updateNestedSwipeActive(details);
+      }
 
       const hasSnapPoints = Boolean(snapPoints && snapPoints.length > 0);
-      if (swipingRef.current && swipeDirection === 'down' && hasSnapPoints && details) {
+      if (swiping && swipeDirection === 'down' && hasSnapPoints && details) {
         const popupElement = store.context.popupRef.current;
         if (popupElement) {
           popupElement.style.removeProperty('transform');
@@ -388,14 +394,23 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
         const offsetToProgress = (nextOffset: number) =>
           clamp((nextOffset - snapPointRange.minOffset) / snapPointRange.range, 0, 1);
 
-        if (details && Number.isFinite(details.deltaY)) {
+        // Outside a drag the hook still reports the last drag deltas, both after a release and
+        // on a gesture that never started (e.g. a press inside `Drawer.Content`). Recomputing
+        // from them would re-apply drag progress to a drawer that rests on its snap point.
+        if (swiping && details && Number.isFinite(details.deltaY)) {
           resolvedProgress = offsetToProgress(clamp(baseOffset + details.deltaY, 0, popupHeight));
         } else if (snapPointProgress !== null) {
           resolvedProgress = snapPointProgress;
         }
       }
 
-      applySwipeProgress(resolvedProgress, true, true);
+      // A parent drawer follows an active drag only, so drop it back to zero once the drag ends.
+      if (!swiping) {
+        notifyParentSwipeProgressChange?.(0);
+        finishNestedSwipe();
+      }
+
+      applySwipeProgress(resolvedProgress, true, swiping);
     },
     onRelease({
       event,
@@ -505,9 +520,33 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
         ? dragTargetOffset
         : clamp(dragTargetOffset + velocityOffset, 0, popupHeight);
       const snapPointEventDetails = createChangeEventDetails(REASONS.swipe, event);
-      const closeFromSnapPoints = () => {
-        pendingSwipeCloseSnapPointRef.current = activeSnapPoint;
+
+      const settleInPlace = () => {
+        // Reset nested swipe state now: the hook's trailing progress update is deduped
+        // when the drag never produced dismissal progress, so it may not fire.
+        applySwipeProgress(0, true, true);
+        clearSwipeRelease();
+        return false;
+      };
+
+      const settleOnSnapPoint = (snapPoint: ResolvedDrawerSnapPoint) => {
+        setActiveSnapPoint(snapPoint.value, snapPointEventDetails);
+        return settleInPlace();
+      };
+
+      const closeFromSnapPoints = (fallbackSnapPoint: ResolvedDrawerSnapPoint) => {
+        // An unattributed gesture (e.g. a mostly horizontal flick) may settle on a snap
+        // point but must not dismiss: `useSwipeDismiss` drops a directionless dismissal,
+        // stranding the popup visually closed while `open` stays `true`.
+        if (!direction) {
+          return settleOnSnapPoint(fallbackSnapPoint);
+        }
         setActiveSnapPoint(null, snapPointEventDetails);
+        if (snapPointEventDetails.isCanceled) {
+          // A canceled null snap point rejects dismissal before exit styles start.
+          return settleInPlace();
+        }
+        pendingSwipeCloseSnapPointRef.current = activeSnapPoint;
         startSwipeRelease(swipeDirection);
         return true;
       };
@@ -546,23 +585,17 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
               effectiveTargetOffset = adjacentPoint.offset;
             }
           } else if (dragDirection > 0) {
-            return closeFromSnapPoints();
+            return closeFromSnapPoints(targetSnapPoint);
           }
         }
 
         const closeDistance = Math.abs(effectiveTargetOffset - popupHeight);
         const snapDistance = Math.abs(effectiveTargetOffset - targetSnapPoint.offset);
         if (closeDistance < snapDistance) {
-          return closeFromSnapPoints();
+          return closeFromSnapPoints(targetSnapPoint);
         }
 
-        setActiveSnapPoint(targetSnapPoint.value, snapPointEventDetails);
-        clearSwipeRelease();
-        return false;
-      }
-
-      if (resolvedDirectionalVelocity >= FAST_SWIPE_VELOCITY && dragDelta > 0) {
-        return closeFromSnapPoints();
+        return settleOnSnapPoint(targetSnapPoint);
       }
 
       const closestSnapPoint =
@@ -573,14 +606,16 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
           )
         ];
 
-      const closeDistance = Math.abs(targetOffset - popupHeight);
-      if (closeDistance < Math.abs(targetOffset - closestSnapPoint.offset)) {
-        return closeFromSnapPoints();
+      if (resolvedDirectionalVelocity >= FAST_SWIPE_VELOCITY && dragDelta > 0) {
+        return closeFromSnapPoints(closestSnapPoint);
       }
 
-      setActiveSnapPoint(closestSnapPoint.value, snapPointEventDetails);
-      clearSwipeRelease();
-      return false;
+      const closeDistance = Math.abs(targetOffset - popupHeight);
+      if (closeDistance < Math.abs(targetOffset - closestSnapPoint.offset)) {
+        return closeFromSnapPoints(closestSnapPoint);
+      }
+
+      return settleOnSnapPoint(closestSnapPoint);
     },
     onDismiss(event) {
       visualStateStore?.set({ swipeProgress: 0, frontmostHeight: 0 });
@@ -984,7 +1019,7 @@ export const DrawerViewport = React.forwardRef(function DrawerViewport(
         },
         // Drawer popups use drawer-specific nested state attributes.
         // Suppress DialogViewport's generic nested dialog attribute.
-        ['data-nested-dialog-open' as string]: undefined,
+        [DialogViewportDataAttributes.nestedDialogOpen as string]: undefined,
       })}
     >
       <DrawerViewportContext.Provider value={swipeProviderValue}>

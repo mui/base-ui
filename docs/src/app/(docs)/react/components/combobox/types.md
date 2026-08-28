@@ -122,6 +122,11 @@ type ComboboxRootChangeEventDetails = (
   isPropagationAllowed: boolean;
   /** The element that triggered the event, if applicable. */
   trigger: Element | undefined;
+  /**
+   * When `reason` is `input-clear` in multiple mode, indicates whether an item press caused the
+   * clear. Automatic cleanup clears omit this property.
+   */
+  isItemPress?: boolean;
 };
 ```
 
@@ -186,6 +191,8 @@ type ComboboxTriggerState = {
   open: boolean;
   /** Whether the component should ignore user interaction. */
   disabled: boolean;
+  /** Whether the component should ignore user edits. */
+  readOnly: boolean;
   /** Indicates which side the corresponding popup is positioned relative to its anchor. */
   popupSide: Side | null;
   /** Present when the corresponding items list is empty. */
@@ -568,9 +575,9 @@ Renders a `<div>` element.
 | :------------------ | :------------------------------------------------------------------------- | :-------------------------------------------------------------------- |
 | data-open           | -                                                                          | Present when the popup is open.                                       |
 | data-closed         | -                                                                          | Present when the popup is closed.                                     |
+| data-anchor-hidden  | -                                                                          | Present when the anchor is hidden.                                    |
 | data-align          | `'start' \| 'center' \| 'end'`                                             | Indicates how the popup is aligned relative to specified side.        |
 | data-empty          | -                                                                          | Present when the items list is empty.                                 |
-| data-instant        | `'click' \| 'dismiss'`                                                     | Present if animations should be instant.                              |
 | data-side           | `'top' \| 'bottom' \| 'left' \| 'right' \| 'inline-end' \| 'inline-start'` | Indicates which side the popup is positioned relative to the trigger. |
 | data-starting-style | -                                                                          | Present when the popup begins animating in.                           |
 | data-ending-style   | -                                                                          | Present when the popup is animating out.                              |
@@ -1138,7 +1145,7 @@ Matches items against a query using `Intl.Collator` for robust string matching.
 
 | Parameter | Type                    | Default | Description |
 | :-------- | :---------------------- | :------ | :---------- |
-| options?  | `ComboboxFilterOptions` | -       | -           |
+| options?  | `ComboboxFilterOptions` | `{}`    | -           |
 
 **Return Value:**
 

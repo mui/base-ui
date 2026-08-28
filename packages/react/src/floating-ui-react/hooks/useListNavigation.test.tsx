@@ -241,6 +241,17 @@ function VirtualizedListbox({
 }
 
 describe('useListNavigation', () => {
+  it('does not add role-dependent aria-orientation', async () => {
+    render(<App orientation="horizontal" />);
+
+    fireEvent.keyDown(screen.getByRole('button'), { key: 'ArrowRight' });
+    await waitFor(() => {
+      expect(screen.getByTestId('item-0')).toHaveFocus();
+    });
+
+    expect(screen.getByRole('menu')).not.toHaveAttribute('aria-orientation');
+  });
+
   it('opens on ArrowDown and focuses first item', async () => {
     render(<App />);
 

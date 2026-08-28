@@ -12,6 +12,49 @@ allowBuilds:
   sharp: true
   unrs-resolver: true
 
+# Advisories in transitive dev-tooling dependencies that we can't reach through a direct bump,
+# because the parent package pins the vulnerable version. None of these are reachable from the
+# published packages (`@base-ui/react`, `@base-ui/utils`), so the impact is limited to CI and
+# local development.
+#
+# Every entry is constrained to the major its dependents already expect. Do not relax these to a
+# bare `>=`: an open range silently resolves to the newest major, which both breaks callers written
+# against the old API and can pull in a package whose engines.node excludes the Node version CI
+# runs on.
+#
+# Remove each entry once the parent dependency ships the fixed version on its own.
+overrides:
+  # Screen recording is not needed for the tests and pulls in ffmpeg-static.
+  '@guidepup/setup>@guidepup/record': '-'
+  # via lerna -> minimatch, eslint-plugin-* -> minimatch (GHSA-3jxr-9vmj-r5cp)
+  brace-expansion@1: '1.1.18'
+  brace-expansion@2: '2.1.4'
+  brace-expansion@5: '5.0.9'
+  # via nx -> axios (GHSA-hmw2-7cc7-3qxx)
+  form-data: '^4.0.6'
+  # via @microsoft/api-extractor, html-validate, webpack -> ajv (GHSA-4c8g-83qw-93j6, -v2hh-gcrm-f6hx, -7p8r-x3mc-p8w7)
+  fast-uri: '^3.1.5'
+  # via lerna -> make-fetch-happen -> socks (GHSA-mwp4-54f8-5fhr, -22jq-vg5j-6vgg, -4xrf-jv44-h6hh)
+  ip-address: '^10.5.0'
+  # via lerna/stylelint -> cosmiconfig (GHSA-5p4m-2wfm-xmqj, -52cp-r559-cp3m, -h67p-54hq-rp68)
+  js-yaml@4: '^4.3.1'
+  # via postcss (GHSA-2v37-7h3g-55p8)
+  nanoid@3: '^3.3.18'
+  # via lerna; also picks up the fixed axios and tmp (GHSA-vp3h-ghgh-jr7g)
+  nx: '~22.7.8'
+  # via test/bundle-size -> @mui/internal-bundle-size-checker (GHSA-x9g3-xrwr-cwfg)
+  piscina: '^5.3.0'
+  # next pins 8.4.31 (GHSA-6g55-p6wh-862q, -r28c-9q8g-f849, -fxqj-rqcc-2cmp)
+  postcss: '^8.5.26'
+  # optional dependency of next; unused because the docs site is a static export with no next/image
+  sharp: '^0.35.3'
+  # via lerna -> pacote/libnpmpublish; also picks up the fixed @sigstore/core and @sigstore/verify.
+  # Capped below 5, whose engines.node excludes the Node 24.14 line CI runs on.
+  sigstore: '^4.1.1'
+  # lerna pins 7.5.11 (GHSA-23hp-3jrh-7fpw, -vmf3-w455-68vh, -w8wr-v893-vjvp)
+  tar: '^7.5.22'
+  # via @vitest/browser (GHSA-96hv-2xvq-fx4p)
+  ws: '^8.21.3'
 engineStrict: true
 updateNotifier: false
 blockExoticSubdeps: true

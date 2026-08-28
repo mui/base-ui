@@ -1,6 +1,7 @@
 'use client';
 import * as React from 'react';
 import { useControlled } from '@base-ui/utils/useControlled';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { EMPTY_ARRAY } from '@base-ui/utils/empty';
 import { areArraysEqual } from '@base-ui/utils/areArraysEqual';
@@ -12,6 +13,7 @@ import { isEligibleInput } from '../field/root/useFieldValidation';
 import { useFieldRootContext } from '../internals/field-root-context/FieldRootContext';
 import { useRegisterFieldControl } from '../internals/field-register-control/useRegisterFieldControl';
 import { useLabelableContext } from '../internals/labelable-provider/LabelableContext';
+import { useLabelableId } from '../internals/labelable-provider/useLabelableId';
 import type { BaseUIComponentProps } from '../internals/types';
 import { fieldValidityMapping } from '../internals/field-constants/constants';
 import { useCheckboxGroupParent } from './useCheckboxGroupParent';
@@ -51,7 +53,7 @@ export const CheckboxGroup = React.forwardRef(function CheckboxGroup(
     setDirty,
     validityData,
   } = useFieldRootContext();
-  const { labelId, getDescriptionProps } = useLabelableContext();
+  const { labelId, registerControlId, getDescriptionProps } = useLabelableContext();
   const { clearErrors, elementRef } = useFormContext();
 
   const disabled = fieldDisabled || disabledProp;
@@ -81,6 +83,10 @@ export const CheckboxGroup = React.forwardRef(function CheckboxGroup(
     value,
     onValueChange: setValue,
   });
+
+  // The group is the field's control and takes its name from `aria-labelledby`, so `Field.Label`
+  // must not point `htmlFor` at one arbitrary checkbox inside the group.
+  useLabelableId({ id: null });
 
   const id = useBaseUiId(idProp);
   const getInputControl = validation.getInputControl;
@@ -116,6 +122,10 @@ export const CheckboxGroup = React.forwardRef(function CheckboxGroup(
 
   useRegisterFieldControl(controlRef, id, value, getFormValue, !!fieldName && !disabled, fieldName);
 
+  useIsoLayoutEffect(() => {
+    setFilled(value.length > 0);
+  }, [value, setFilled]);
+
   useValueChanged(value, () => {
     if (fieldName) {
       clearErrors(fieldName);
@@ -125,7 +135,6 @@ export const CheckboxGroup = React.forwardRef(function CheckboxGroup(
       ? (validityData.initialValue as readonly string[])
       : EMPTY_ARRAY;
 
-    setFilled(value.length > 0);
     setDirty(!areArraysEqual(value, initialValue));
 
     validation.change(value);
@@ -144,8 +153,9 @@ export const CheckboxGroup = React.forwardRef(function CheckboxGroup(
       parent,
       disabled,
       validation,
+      registerControlId,
     }),
-    [allValues, value, setValue, parent, disabled, validation],
+    [allValues, value, setValue, parent, disabled, validation, registerControlId],
   );
 
   const element = useRenderElement('div', componentProps, {
@@ -193,8 +203,7 @@ export interface CheckboxGroupProps extends BaseUIComponentProps<'div', Checkbox
    * Provides the new value as an argument.
    */
   onValueChange?:
-    | ((value: string[], eventDetails: CheckboxGroupChangeEventDetails) => void)
-    | undefined;
+    ((value: string[], eventDetails: CheckboxGroupChangeEventDetails) => void) | undefined;
   /**
    * Names of all checkboxes in the group. Use this when creating a parent checkbox.
    */

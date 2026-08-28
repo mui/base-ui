@@ -1,7 +1,7 @@
-import { beforeAll, describe, expect, it, vi } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import * as React from 'react';
 import { fireEvent, flushMicrotasks, screen } from '@mui/internal-test-utils';
-import { createRenderer, isJSDOM } from '#test-utils';
+import { createRenderer, firePointer, isJSDOM } from '#test-utils';
 import { useSwipeDismiss } from './useSwipeDismiss';
 
 function SwipeBox() {
@@ -51,12 +51,6 @@ function createTouch(target: EventTarget, point: { clientX: number; clientY: num
 }
 
 describe('useSwipeDismiss', () => {
-  beforeAll(function beforeHook() {
-    // PointerEvent not fully implemented in jsdom, causing fireEvent.pointer* to ignore options.
-    // https://github.com/jsdom/jsdom/issues/2527
-    (window as any).PointerEvent = window.MouseEvent;
-  });
-
   const { render } = createRenderer();
 
   it('does not start swiping within a scrollable element when ignoreScrollableAncestors is true', async () => {
@@ -140,6 +134,136 @@ describe('useSwipeDismiss', () => {
       document.elementFromPoint = originalElementFromPoint;
     }
   });
+
+  it.skipIf(isJSDOM)('starts a touch swipe when the page scroller is `body`', async () => {
+    const onSwipeStart = vi.fn();
+
+    function SwipeBoxFixed() {
+      const ref = React.useRef<HTMLDivElement>(null);
+      const swipe = useSwipeDismiss({
+        enabled: true,
+        directions: ['down'],
+        elementRef: ref,
+        movementCssVars: { x: '--x', y: '--y' },
+        onSwipeStart,
+      });
+
+      return (
+        <div
+          data-testid="el"
+          ref={ref}
+          style={{ ...swipe.getDragStyles(), position: 'fixed', inset: 0 }}
+          {...swipe.getTouchProps()}
+        />
+      );
+    }
+
+    const { body } = document;
+    const html = document.documentElement;
+    const previousBodyStyle = body.style.cssText;
+    const previousHtmlStyle = html.style.cssText;
+    // A reset that turns `body` into a real scroll container instead of letting its overflow
+    // propagate to the viewport.
+    html.style.cssText = 'height: 100%; overflow-y: auto';
+    body.style.cssText = 'height: 100%; overflow-y: auto';
+
+    try {
+      await render(
+        <React.Fragment>
+          <div style={{ height: 5000 }} />
+          <SwipeBoxFixed />
+        </React.Fragment>,
+      );
+
+      // Being at the start edge is what made the upward move fail: it can only pass the
+      // scroll-edge gate when the container is scrolled to the end.
+      expect(body.scrollTop).toBe(0);
+      expect(body.scrollHeight).toBeGreaterThan(body.clientHeight);
+
+      const element = screen.getByTestId('el');
+      fireEvent.touchStart(element, {
+        touches: [createTouch(element, { clientX: 50, clientY: 300 })],
+      });
+      fireEvent.touchMove(element, {
+        touches: [createTouch(element, { clientX: 50, clientY: 260 })],
+      });
+
+      expect(onSwipeStart).toHaveBeenCalledTimes(1);
+    } finally {
+      body.style.cssText = previousBodyStyle;
+      html.style.cssText = previousHtmlStyle;
+    }
+  });
+
+  it.skipIf(isJSDOM)(
+    'keeps gating on a scrollable descendant of the other axis when `body` scrolls the page',
+    async () => {
+      const onSwipeStart = vi.fn();
+
+      function SwipeBoxCrossAxis() {
+        const ref = React.useRef<HTMLDivElement>(null);
+        const swipe = useSwipeDismiss({
+          enabled: true,
+          directions: ['down', 'right'],
+          elementRef: ref,
+          movementCssVars: { x: '--x', y: '--y' },
+          onSwipeStart,
+        });
+
+        return (
+          <div
+            data-testid="el"
+            ref={ref}
+            style={{ ...swipe.getDragStyles(), position: 'fixed', inset: 0 }}
+            {...swipe.getTouchProps()}
+          >
+            <div
+              data-testid="scroll"
+              style={{ overflowX: 'auto', overflowY: 'hidden', width: '100%', height: '100%' }}
+            >
+              <div style={{ width: 5000, height: 20 }} />
+            </div>
+          </div>
+        );
+      }
+
+      const { body } = document;
+      const html = document.documentElement;
+      const previousBodyStyle = body.style.cssText;
+      const previousHtmlStyle = html.style.cssText;
+      html.style.cssText = 'height: 100%; overflow-y: auto';
+      body.style.cssText = 'height: 100%; overflow-y: auto';
+
+      try {
+        await render(
+          <React.Fragment>
+            <div style={{ height: 5000 }} />
+            <SwipeBoxCrossAxis />
+          </React.Fragment>,
+        );
+
+        const scroll = screen.getByTestId('scroll');
+        // Away from the start edge, so the horizontal scroller must refuse the rightward swipe.
+        scroll.scrollLeft = 20;
+
+        expect(body.scrollHeight).toBeGreaterThan(body.clientHeight);
+        expect(scroll.scrollWidth).toBeGreaterThan(scroll.clientWidth);
+        expect(scroll.scrollLeft).toBeGreaterThan(0);
+
+        fireEvent.touchStart(scroll, {
+          touches: [createTouch(scroll, { clientX: 50, clientY: 300 })],
+        });
+        fireEvent.touchMove(scroll, {
+          touches: [createTouch(scroll, { clientX: 90, clientY: 300 })],
+        });
+
+        expect(onSwipeStart).not.toHaveBeenCalled();
+      } finally {
+        body.style.cssText = previousBodyStyle;
+        html.style.cssText = previousHtmlStyle;
+      }
+    },
+  );
 
   it('does not prevent touch scrolling during swipe interactions', async () => {
     await render(<SwipeBox />);
@@ -1265,7 +1389,7 @@ describe('useSwipeDismiss', () => {
     expect(onDismiss).not.toHaveBeenCalled();
   });
 
-  it.skipIf(!isJSDOM)('provides swipe velocity on release', async () => {
+  it('provides swipe velocity on release', async () => {
     const onRelease = vi.fn();
 
     function SwipeBoxReleaseVelocity() {
@@ -1290,11 +1414,10 @@ describe('useSwipeDismiss', () => {
 
     vi.useFakeTimers();
     try {
-      vi.setSystemTime(new Date(1000));
       await render(<SwipeBoxReleaseVelocity />);
       const element = screen.getByTestId('release-velocity');
 
-      fireEvent.pointerDown(element, {
+      firePointer.down(element, {
         button: 0,
         buttons: 1,
         pointerId: 1,
@@ -1309,8 +1432,7 @@ describe('useSwipeDismiss', () => {
 
       await flushMicrotasks();
 
-      vi.setSystemTime(new Date(1100));
-      fireEvent.pointerMove(element, {
+      firePointer.move(element, {
         pointerId: 1,
         buttons: 1,
         clientX: 0,
@@ -1323,8 +1445,7 @@ describe('useSwipeDismiss', () => {
 
       await flushMicrotasks();
 
-      vi.setSystemTime(new Date(1200));
-      fireEvent.pointerMove(element, {
+      firePointer.move(element, {
         pointerId: 1,
         buttons: 1,
         clientX: 50,
@@ -1337,8 +1458,7 @@ describe('useSwipeDismiss', () => {
 
       await flushMicrotasks();
 
-      vi.setSystemTime(new Date(1300));
-      fireEvent.pointerUp(element, {
+      firePointer.up(element, {
         pointerId: 1,
         clientX: 50,
         clientY: 0,
@@ -1356,7 +1476,7 @@ describe('useSwipeDismiss', () => {
     }
   });
 
-  it.skipIf(!isJSDOM)('provides release velocity from the latest swipe movement', async () => {
+  it('provides release velocity from the latest swipe movement', async () => {
     const onRelease = vi.fn();
 
     function SwipeBoxReleaseVelocity() {
@@ -1381,11 +1501,10 @@ describe('useSwipeDismiss', () => {
 
     vi.useFakeTimers();
     try {
-      vi.setSystemTime(new Date(1000));
       await render(<SwipeBoxReleaseVelocity />);
       const element = screen.getByTestId('release-velocity-latest');
 
-      fireEvent.pointerDown(element, {
+      firePointer.down(element, {
         button: 0,
         buttons: 1,
         pointerId: 1,
@@ -1400,8 +1519,7 @@ describe('useSwipeDismiss', () => {
 
       await flushMicrotasks();
 
-      vi.setSystemTime(new Date(1100));
-      fireEvent.pointerMove(element, {
+      firePointer.move(element, {
         pointerId: 1,
         buttons: 1,
         clientX: 0,
@@ -1414,8 +1532,7 @@ describe('useSwipeDismiss', () => {
 
       await flushMicrotasks();
 
-      vi.setSystemTime(new Date(1200));
-      fireEvent.pointerMove(element, {
+      firePointer.move(element, {
         pointerId: 1,
         buttons: 1,
         clientX: 50,
@@ -1428,8 +1545,7 @@ describe('useSwipeDismiss', () => {
 
       await flushMicrotasks();
 
-      vi.setSystemTime(new Date(1216));
-      fireEvent.pointerMove(element, {
+      firePointer.move(element, {
         pointerId: 1,
         buttons: 1,
         clientX: 70,
@@ -1442,8 +1558,7 @@ describe('useSwipeDismiss', () => {
 
       await flushMicrotasks();
 
-      vi.setSystemTime(new Date(1224));
-      fireEvent.pointerUp(element, {
+      firePointer.up(element, {
         pointerId: 1,
         clientX: 70,
         clientY: 0,
@@ -1461,7 +1576,7 @@ describe('useSwipeDismiss', () => {
     }
   });
 
-  it.skipIf(!isJSDOM)('clamps short swipe durations when computing velocity', async () => {
+  it('clamps short swipe durations when computing velocity', async () => {
     const onRelease = vi.fn();
 
     function SwipeBoxReleaseVelocity() {
@@ -1486,11 +1601,10 @@ describe('useSwipeDismiss', () => {
 
     vi.useFakeTimers();
     try {
-      vi.setSystemTime(new Date(1000));
       await render(<SwipeBoxReleaseVelocity />);
       const element = screen.getByTestId('release-velocity-short');
 
-      fireEvent.pointerDown(element, {
+      firePointer.down(element, {
         button: 0,
         buttons: 1,
         pointerId: 1,
@@ -1505,8 +1619,7 @@ describe('useSwipeDismiss', () => {
 
       await flushMicrotasks();
 
-      vi.setSystemTime(new Date(1005));
-      fireEvent.pointerMove(element, {
+      firePointer.move(element, {
         pointerId: 1,
         buttons: 1,
         clientX: 0,
@@ -1519,8 +1632,7 @@ describe('useSwipeDismiss', () => {
 
       await flushMicrotasks();
 
-      vi.setSystemTime(new Date(1010));
-      fireEvent.pointerMove(element, {
+      firePointer.move(element, {
         pointerId: 1,
         buttons: 1,
         clientX: 30,
@@ -1533,8 +1645,7 @@ describe('useSwipeDismiss', () => {
 
       await flushMicrotasks();
 
-      vi.setSystemTime(new Date(1015));
-      fireEvent.pointerUp(element, {
+      firePointer.up(element, {
         pointerId: 1,
         clientX: 30,
         clientY: 0,

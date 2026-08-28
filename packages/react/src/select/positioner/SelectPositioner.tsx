@@ -3,8 +3,7 @@ import * as React from 'react';
 import { inertValue } from '@base-ui/utils/inertValue';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
-import { useStore } from '@base-ui/utils/store';
-import { useSelectRootContext } from '../root/SelectRootContext';
+import { useSelectFloatingContext, useSelectRootContext } from '../root/SelectRootContext';
 import { CompositeList } from '../../internals/composite/list/CompositeList';
 import type { BaseUIComponentProps } from '../../internals/types';
 import {
@@ -17,7 +16,6 @@ import { SelectPositionerContext } from './SelectPositionerContext';
 import { InternalBackdrop } from '../../utils/InternalBackdrop';
 import { DROPDOWN_COLLISION_AVOIDANCE } from '../../internals/constants';
 import { clearStyles } from '../popup/utils';
-import { selectors } from '../store';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
 import { findItemIndex } from '../../internals/itemEquality';
@@ -58,28 +56,18 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
     ...elementProps
   } = componentProps;
 
-  const {
-    store,
-    listRef,
-    labelsRef,
-    alignItemWithTriggerActiveRef,
-    selectedItemTextRef,
-    valuesRef,
-    initialValueRef,
-    popupRef,
-    setValue,
-    floatingContext: floatingRootContext,
-  } = useSelectRootContext();
+  const store = useSelectRootContext();
+  const floatingRootContext = useSelectFloatingContext();
 
-  const open = useStore(store, selectors.open);
-  const mounted = useStore(store, selectors.mounted);
-  const modal = useStore(store, selectors.modal);
-  const value = useStore(store, selectors.value);
-  const openMethod = useStore(store, selectors.openMethod);
-  const positionerElement = useStore(store, selectors.positionerElement);
-  const triggerElement = useStore(store, selectors.triggerElement);
-  const isItemEqualToValue = useStore(store, selectors.isItemEqualToValue);
-  const transitionStatus = useStore(store, selectors.transitionStatus);
+  const open = store.useState('open');
+  const mounted = store.useState('mounted');
+  const modal = store.useState('modal');
+  const value = store.useState('value');
+  const openMethod = store.useState('openMethod');
+  const positionerElement = store.useState('positionerElement');
+  const triggerElement = store.useState('triggerElement');
+  const isItemEqualToValue = store.useState('isItemEqualToValue');
+  const transitionStatus = store.useState('transitionStatus');
 
   const scrollUpArrowRef = React.useRef<HTMLDivElement | null>(null);
   const scrollDownArrowRef = React.useRef<HTMLDivElement | null>(null);
@@ -93,7 +81,10 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
     setControlledAlignItemWithTrigger(alignItemWithTrigger);
   }
 
-  React.useImperativeHandle(alignItemWithTriggerActiveRef, () => alignItemWithTriggerActive);
+  React.useImperativeHandle(
+    store.context.alignItemWithTriggerActiveRef,
+    () => alignItemWithTriggerActive,
+  );
 
   useAnchoredPopupScrollLock(
     (alignItemWithTriggerActive || modal) && open,
@@ -149,32 +140,36 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
 
   const onMapChange = useStableCallback(
     (map: Map<Element, { index?: number | null | undefined } | null>) => {
-      if (valuesRef.current.length === 0) {
+      if (store.context.valuesRef.current.length === 0) {
         return;
       }
 
       const prevSize = prevMapSizeRef.current;
       prevMapSizeRef.current = map.size;
 
-      if (map.size === prevSize) {
-        return;
-      }
-
       const eventDetails = createChangeEventDetails(REASONS.none);
 
       if (prevSize !== 0 && !store.state.multiple && value !== null) {
-        const selectedValueIndex = findItemIndex(valuesRef.current, value, isItemEqualToValue);
+        const selectedValueIndex = findItemIndex(
+          store.context.valuesRef.current,
+          value,
+          isItemEqualToValue,
+        );
         if (selectedValueIndex === -1) {
-          const initialSelectedValue = initialValueRef.current;
+          const initialSelectedValue = store.context.initialValueRef.current;
           const hasInitial =
             initialSelectedValue != null &&
-            findItemIndex(valuesRef.current, initialSelectedValue, isItemEqualToValue) !== -1;
+            findItemIndex(
+              store.context.valuesRef.current,
+              initialSelectedValue,
+              isItemEqualToValue,
+            ) !== -1;
           const nextValue = hasInitial ? initialSelectedValue : null;
-          setValue(nextValue, eventDetails);
+          store.context.setValue(nextValue, eventDetails);
 
           if (nextValue === null) {
             store.set('selectedIndex', null);
-            selectedItemTextRef.current = null;
+            store.context.selectedItemTextRef.current = null;
           }
         }
       }
@@ -182,14 +177,18 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
       if (prevSize !== 0 && store.state.multiple && Array.isArray(value)) {
         const nextValue = value.filter(
           (selectedItemValue) =>
-            findItemIndex(valuesRef.current, selectedItemValue, isItemEqualToValue) !== -1,
+            findItemIndex(
+              store.context.valuesRef.current,
+              selectedItemValue,
+              isItemEqualToValue,
+            ) !== -1,
         );
         if (nextValue.length !== value.length) {
-          setValue(nextValue, eventDetails);
+          store.context.setValue(nextValue, eventDetails);
 
           if (nextValue.length === 0) {
             store.set('selectedIndex', null);
-            selectedItemTextRef.current = null;
+            store.context.selectedItemTextRef.current = null;
           }
         }
       }
@@ -202,7 +201,7 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
 
         const stylesToClear: React.CSSProperties = { height: '' };
         clearStyles(positionerElement, stylesToClear);
-        clearStyles(popupRef.current, stylesToClear);
+        clearStyles(store.context.popupRef.current, stylesToClear);
       }
     },
   );
@@ -220,7 +219,11 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
   );
 
   return (
-    <CompositeList elementsRef={listRef} labelsRef={labelsRef} onMapChange={onMapChange}>
+    <CompositeList
+      elementsRef={store.context.listRef}
+      labelsRef={store.context.labelsRef}
+      onMapChange={onMapChange}
+    >
       <SelectPositionerContext.Provider value={contextValue}>
         {mounted && modal && <InternalBackdrop inert={inertValue(!open)} cutout={triggerElement} />}
         {element}

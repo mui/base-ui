@@ -2,7 +2,7 @@ import { vi, expect } from 'vitest';
 import * as React from 'react';
 import * as ReactDOMClient from 'react-dom/client';
 import * as ReactDOMServer from 'react-dom/server';
-import { createRenderer, isJSDOM } from '#test-utils';
+import { createRenderer, isJSDOM, resetBrowserPointer } from '#test-utils';
 import { Tooltip } from '@base-ui/react/tooltip';
 import {
   screen,
@@ -14,6 +14,10 @@ import {
 } from '@mui/internal-test-utils';
 
 describe('<Tooltip.Root />', () => {
+  // Tests here leave the real pointer resting on a trigger, which the next render would put a
+  // fresh trigger under, opening the tooltip before the test interacts.
+  beforeEach(resetBrowserPointer);
+
   beforeEach(async () => {
     globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
 

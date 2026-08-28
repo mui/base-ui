@@ -31,6 +31,7 @@ import {
   useContextMenuRootContext,
 } from '../../context-menu/root/ContextMenuRootContext';
 import { mergeProps } from '../../merge-props';
+import { useAnimationsFinished } from '../../internals/useAnimationsFinished';
 import { MenuStore, type State as MenuStoreState } from '../store/MenuStore';
 import { MenuHandle } from '../store/MenuHandle';
 import {
@@ -109,6 +110,25 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
   const floatingId = useId();
   const floatingParentNodeIdFromContext = useFloatingParentNodeId();
 
+  const parentMenuStore = parentFromContext.type === 'menu' ? parentFromContext.store : undefined;
+  // An initially open submenu should animate in only when the user watches it appear, i.e. when
+  // its subtree mounts because the parent popup is playing its own enter transition. A parent
+  // that was `defaultOpen` at page load never passes through `'starting'`, and under a
+  // `keepMounted` parent these initializers run at page load while the parent's status is still
+  // `undefined` — in both cases the submenu is page-load content that must not animate. Gated on
+  // being open at mount so a closed submenu doesn't seed `instantType` it would never clear. Read
+  // during the first render only — consumed exclusively by first-render initializers below
+  // (`useState` and the store's initial state).
+  const animateInitialOpen =
+    (openProp ?? defaultOpen) && parentMenuStore?.state.transitionStatus === 'starting';
+
+  // Mirror an instantly-opened parent (e.g. keyboard click) so `[data-instant]` styling
+  // suppresses the enter transition on both popups or neither. Captured once —
+  // `animateInitialOpen` is only meaningful during the first render.
+  const seededInstantType = useRefWithInit(() =>
+    animateInitialOpen ? parentMenuStore?.state.instantType : undefined,
+  ).current;
+
   const store = useMenuRootStore<Payload>(
     {
       open: defaultOpen,
@@ -120,6 +140,7 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
       highlightItemOnHover,
       modal: parentFromContext.type === undefined ? modalProp : undefined,
       rootId,
+      instantType: seededInstantType,
     },
     floatingId,
     floatingParentNodeIdFromContext != null,
@@ -172,9 +193,62 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
   });
 
   useImplicitActiveTrigger(store);
-  const { forceUnmount } = useOpenStateTransitions(open, store, () => {
-    store.set('allowMouseEnter', false);
-  });
+  const { forceUnmount, transitionStatus } = useOpenStateTransitions(
+    open,
+    store,
+    () => {
+      store.set('allowMouseEnter', false);
+    },
+    animateInitialOpen,
+  );
+
+  const runOnceAnimationsFinish = useAnimationsFinished(store.context.popupRef);
+
+  // An inherited `instantType` is only for the initial reveal. A later controlled `open` flip
+  // bypasses `setOpen`, so nothing would reset it and `[data-instant]` would wrongly suppress
+  // every subsequent transition. Clear it once the enter phase settles, unless an interactive
+  // open change already replaced it.
+  React.useEffect(() => {
+    if (seededInstantType === undefined) {
+      return undefined;
+    }
+
+    const clearSeededInstantType = () => {
+      if (store.state.instantType === seededInstantType) {
+        store.set('instantType', undefined);
+      }
+    };
+
+    // A controlled close can interrupt the initial enter before the animations-finished cleanup
+    // below fires (its abort cancels the pending callback, and a closed popup schedules no new
+    // one). Nothing is left to protect once closing starts — the exit's suppression was already
+    // decided at its trigger commit — so clear now or the next reopen renders a stale
+    // `[data-instant]`.
+    if (!open) {
+      clearSeededInstantType();
+      return undefined;
+    }
+
+    if (transitionStatus !== undefined) {
+      return undefined;
+    }
+
+    // With no popup element (e.g. its subtree is suspended or waiting on data), there is no
+    // enter transition to protect, and `useAnimationsFinished` would return without invoking the
+    // callback — a ref assignment alone would never rerun this effect, leaving the seed stuck.
+    // Clear immediately: a popup that appears after the reveal settles is page-load-like content.
+    if (store.context.popupRef.current == null) {
+      clearSeededInstantType();
+      return undefined;
+    }
+
+    const abortController = new AbortController();
+    runOnceAnimationsFinish(clearSeededInstantType, abortController.signal);
+
+    return () => {
+      abortController.abort();
+    };
+  }, [seededInstantType, open, transitionStatus, runOnceAnimationsFinish, store]);
 
   useIsoLayoutEffect(() => {
     if (contextMenuContext && !parentMenuRootContext) {
@@ -310,10 +384,10 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
         shouldPreventUnmountOnClose(),
       ) as ReturnType<typeof createPopupOpenState> & {
         openChangeReason: MenuRoot.ChangeEventReason;
+        instantType: MenuStoreState<Payload>['instantType'];
       };
 
       popupOpenState.openChangeReason = reason;
-      store.update(popupOpenState);
 
       if (
         parent.type === 'menubar' &&
@@ -323,12 +397,18 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
           reason === REASONS.listNavigation ||
           reason === REASONS.siblingOpen)
       ) {
-        store.set('instantType', 'group');
+        popupOpenState.instantType = 'group';
       } else if (isKeyboardClick || isDismissClose) {
-        store.set('instantType', isKeyboardClick ? 'click' : 'dismiss');
+        popupOpenState.instantType = isKeyboardClick ? 'click' : 'dismiss';
       } else {
-        store.set('instantType', undefined);
+        popupOpenState.instantType = undefined;
       }
+
+      // `instantType` must land in the same update that mounts the popup subtree: in React 17
+      // legacy mode this `update` can flush synchronously, and a separate `instantType` write
+      // after it would come too late for an initially open submenu seeding its own store from
+      // this one during that flush.
+      store.update(popupOpenState);
     },
   );
 
@@ -495,6 +575,8 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
         {
           id: floatingId,
           role: 'menu' as const,
+          // `menu` is implicitly vertical, so only the non-default value needs to be rendered.
+          'aria-orientation': orientation === 'horizontal' ? 'horizontal' : undefined,
           'aria-labelledby': activeTriggerElement?.id,
           onMouseMove() {
             store.set('allowMouseEnter', true);
@@ -524,6 +606,7 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
     [
       activeTriggerElement,
       floatingId,
+      orientation,
       parent.type,
       store,
       typeahead.floating,

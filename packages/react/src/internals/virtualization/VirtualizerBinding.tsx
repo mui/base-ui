@@ -296,8 +296,7 @@ export function useVirtualizerBinding<Item>(parameters: UseVirtualizerBindingPar
   estimatedItemHeightRef.current = estimatedItemHeight;
 
   let resolvedEstimatedItemHeight:
-    | number
-    | ((model: VirtualizerItemRowModel<Item>, rowIndex: number) => number) =
+    number | ((model: VirtualizerItemRowModel<Item>, rowIndex: number) => number) =
     typeof estimatedItemHeight === 'number' ? estimatedItemHeight : DEFAULT_ESTIMATED_ITEM_HEIGHT;
 
   if (typeof estimatedItemHeight === 'function') {

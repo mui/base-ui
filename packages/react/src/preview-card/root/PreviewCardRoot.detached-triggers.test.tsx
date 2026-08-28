@@ -1,7 +1,7 @@
 import { expect, vi } from 'vitest';
 import * as React from 'react';
 import * as ReactDOMClient from 'react-dom/client';
-import { createRenderer, isJSDOM } from '#test-utils';
+import { createRenderer, isJSDOM, resetBrowserPointer } from '#test-utils';
 import { PreviewCard } from '@base-ui/react/preview-card';
 import {
   screen,
@@ -17,6 +17,10 @@ const CLOSE_TRANSITION_MS = 50;
 const CLOSE_TRANSITION_TIMEOUT = 300;
 
 describe('<PreviewCard.Root />', () => {
+  // Tests here leave the real pointer resting on a trigger, which the next render would put a
+  // fresh trigger under, opening the card before the test interacts.
+  beforeEach(resetBrowserPointer);
+
   beforeEach(async () => {
     globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
   });
@@ -367,13 +371,13 @@ describe('<PreviewCard.Root />', () => {
       await render(
         <PreviewCard.Root>
           <button type="button" aria-label="Initial focus" autoFocus />
-          <PreviewCard.Trigger href="#" delay={0}>
+          <PreviewCard.Trigger href="#" delay={0} closeDelay={0}>
             Trigger 1
           </PreviewCard.Trigger>
-          <PreviewCard.Trigger href="#" delay={0}>
+          <PreviewCard.Trigger href="#" delay={0} closeDelay={0}>
             Trigger 2
           </PreviewCard.Trigger>
-          <PreviewCard.Trigger href="#" delay={0}>
+          <PreviewCard.Trigger href="#" delay={0} closeDelay={0}>
             Trigger 3
           </PreviewCard.Trigger>
 
@@ -395,6 +399,8 @@ describe('<PreviewCard.Root />', () => {
 
       fireEvent.mouseEnter(trigger1);
       fireEvent.mouseMove(trigger1);
+      // `delay={0}` opens synchronously in the handler (see useHover.ts), so this asserts
+      // immediate opening — `waitFor` could not tell that apart from opening a tick later.
       expect(screen.queryByTestId(popupId)).toBeVisible();
       fireEvent.mouseLeave(trigger1);
       await waitFor(() => {
@@ -886,13 +892,13 @@ describe('<PreviewCard.Root />', () => {
       await render(
         <div>
           <button type="button" aria-label="Initial focus" autoFocus />
-          <PreviewCard.Trigger href="#" handle={testPreviewCard} delay={0}>
+          <PreviewCard.Trigger href="#" handle={testPreviewCard} delay={0} closeDelay={0}>
             Trigger 1
           </PreviewCard.Trigger>
-          <PreviewCard.Trigger href="#" handle={testPreviewCard} delay={0}>
+          <PreviewCard.Trigger href="#" handle={testPreviewCard} delay={0} closeDelay={0}>
             Trigger 2
           </PreviewCard.Trigger>
-          <PreviewCard.Trigger href="#" handle={testPreviewCard} delay={0}>
+          <PreviewCard.Trigger href="#" handle={testPreviewCard} delay={0} closeDelay={0}>
             Trigger 3
           </PreviewCard.Trigger>
 

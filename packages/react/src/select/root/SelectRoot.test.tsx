@@ -548,7 +548,10 @@ describe('<Select.Root />', () => {
         </Select.Root>,
       );
 
-      expect(screen.getByRole('listbox', { hidden: false })).toBeVisible();
+      const listbox = screen.getByRole('listbox', { hidden: false });
+      expect(listbox).toBeVisible();
+      // `listbox` is implicitly vertical.
+      expect(listbox).not.toHaveAttribute('aria-orientation');
     });
 
     it('should select an item and close when clicked while opened by default', async () => {
@@ -2827,9 +2830,8 @@ describe('<Select.Root />', () => {
 
   describe('prop: readOnly', () => {
     it('sets the readOnly state', async () => {
-      const handleOpenChange = vi.fn();
       const { user } = await render(
-        <Select.Root defaultValue="b" onOpenChange={handleOpenChange} readOnly>
+        <Select.Root defaultValue="b" readOnly>
           <Select.Trigger>
             <Select.Value />
           </Select.Trigger>
@@ -2842,58 +2844,206 @@ describe('<Select.Root />', () => {
 
       await user.keyboard('[Tab]');
       expect(trigger).toHaveFocus();
-
-      await user.click(trigger);
-      expect(handleOpenChange.mock.calls.length).toBe(0);
     });
 
-    it('should not open the select when clicked', async () => {
+    it('opens the popup when clicked', async () => {
       const handleOpenChange = vi.fn();
       const { user } = await render(
         <Select.Root onOpenChange={handleOpenChange} readOnly>
-          <Select.Trigger>
+          <Select.Trigger data-testid="trigger">
             <Select.Value />
           </Select.Trigger>
+          <Select.Portal>
+            <Select.Positioner>
+              <Select.Popup>
+                <Select.Item value="a">a</Select.Item>
+                <Select.Item value="b">b</Select.Item>
+              </Select.Popup>
+            </Select.Positioner>
+          </Select.Portal>
         </Select.Root>,
       );
 
-      const trigger = screen.getByRole('combobox');
+      await user.click(screen.getByTestId('trigger'));
 
-      await user.click(trigger);
-      expect(screen.queryByRole('listbox')).toBe(null);
-      expect(handleOpenChange.mock.calls.length).toBe(0);
+      const listbox = await screen.findByRole('listbox');
+      expect(listbox).toHaveAttribute('aria-readonly', 'true');
+      expect(handleOpenChange.mock.calls.length).toBe(1);
     });
 
-    it('should not open the select when using keyboard', async () => {
+    it('marks the listbox as readonly when rendered with Select.List', async () => {
+      const { user } = await render(
+        <Select.Root readOnly>
+          <Select.Trigger data-testid="trigger">
+            <Select.Value />
+          </Select.Trigger>
+          <Select.Portal>
+            <Select.Positioner>
+              <Select.Popup>
+                <Select.List>
+                  <Select.Item value="a">a</Select.Item>
+                </Select.List>
+              </Select.Popup>
+            </Select.Positioner>
+          </Select.Portal>
+        </Select.Root>,
+      );
+
+      await user.click(screen.getByTestId('trigger'));
+
+      expect(await screen.findByRole('listbox')).toHaveAttribute('aria-readonly', 'true');
+    });
+
+    it.each([
+      { name: 'ArrowDown', key: '{ArrowDown}' },
+      { name: 'Enter', key: '{Enter}' },
+      { name: 'Space', key: '[Space]' },
+    ])('opens the popup with $name', async ({ key }) => {
       const handleOpenChange = vi.fn();
       const { user } = await render(
         <Select.Root onOpenChange={handleOpenChange} readOnly>
-          <Select.Trigger>
+          <Select.Trigger data-testid="trigger">
             <Select.Value />
           </Select.Trigger>
+          <Select.Portal>
+            <Select.Positioner>
+              <Select.Popup>
+                <Select.Item value="a">a</Select.Item>
+                <Select.Item value="b">b</Select.Item>
+              </Select.Popup>
+            </Select.Positioner>
+          </Select.Portal>
         </Select.Root>,
       );
-
-      const trigger = screen.getByRole('combobox');
 
       await act(async () => {
-        trigger.focus();
+        screen.getByTestId('trigger').focus();
       });
 
-      expect(screen.queryByRole('listbox')).toBe(null);
-      expect(document.activeElement).toBe(trigger);
+      await user.keyboard(key);
 
-      await user.keyboard('[ArrowDown]');
-      expect(screen.queryByRole('listbox')).toBe(null);
-      expect(handleOpenChange.mock.calls.length).toBe(0);
+      expect(await screen.findByRole('listbox')).not.toBe(null);
+      expect(handleOpenChange.mock.calls.length).toBe(1);
+    });
 
-      await user.keyboard('[Enter]');
-      expect(screen.queryByRole('listbox')).toBe(null);
-      expect(handleOpenChange.mock.calls.length).toBe(0);
+    it('does not commit a value when an item is clicked in a popup the user opened', async () => {
+      const handleValueChange = vi.fn();
+      const { user } = await render(
+        <Select.Root onValueChange={handleValueChange} readOnly>
+          <Select.Trigger data-testid="trigger">
+            <Select.Value data-testid="value" />
+          </Select.Trigger>
+          <Select.Portal>
+            <Select.Positioner>
+              <Select.Popup>
+                <Select.Item value="a">a</Select.Item>
+                <Select.Item value="b">b</Select.Item>
+              </Select.Popup>
+            </Select.Positioner>
+          </Select.Portal>
+        </Select.Root>,
+      );
 
-      await user.keyboard('[Space]');
-      expect(screen.queryByRole('listbox')).toBe(null);
-      expect(handleOpenChange.mock.calls.length).toBe(0);
+      await user.click(screen.getByTestId('trigger'));
+
+      const optionB = await screen.findByRole('option', { name: 'b' });
+      await user.click(optionB);
+
+      expect(handleValueChange.mock.calls.length).toBe(0);
+      expect(optionB).not.toHaveAttribute('data-selected');
+      expect(screen.getByTestId('value').textContent).toBe('');
+    });
+
+    it('does not commit a value with Enter on a highlighted item', async () => {
+      const handleValueChange = vi.fn();
+      const { user } = await render(
+        <Select.Root onValueChange={handleValueChange} readOnly>
+          <Select.Trigger data-testid="trigger">
+            <Select.Value data-testid="value" />
+          </Select.Trigger>
+          <Select.Portal>
+            <Select.Positioner>
+              <Select.Popup>
+                <Select.Item value="a">a</Select.Item>
+                <Select.Item value="b">b</Select.Item>
+              </Select.Popup>
+            </Select.Positioner>
+          </Select.Portal>
+        </Select.Root>,
+      );
+
+      await act(async () => {
+        screen.getByTestId('trigger').focus();
+      });
+
+      await user.keyboard('{ArrowDown}');
+      await screen.findByRole('listbox');
+      await user.keyboard('{Enter}');
+
+      expect(handleValueChange.mock.calls.length).toBe(0);
+      expect(screen.getByTestId('value').textContent).toBe('');
+    });
+
+    it('does not commit a value with typeahead on a closed trigger', async () => {
+      const handleValueChange = vi.fn();
+      const { user } = await render(
+        <Select.Root onValueChange={handleValueChange} readOnly>
+          <Select.Trigger data-testid="trigger">
+            <Select.Value data-testid="value" />
+          </Select.Trigger>
+          <Select.Portal>
+            <Select.Positioner>
+              <Select.Popup>
+                <Select.Item value="apple">apple</Select.Item>
+                <Select.Item value="banana">banana</Select.Item>
+              </Select.Popup>
+            </Select.Positioner>
+          </Select.Portal>
+        </Select.Root>,
+      );
+
+      await act(async () => {
+        screen.getByTestId('trigger').focus();
+      });
+
+      await user.keyboard('b');
+
+      expect(handleValueChange.mock.calls.length).toBe(0);
+      expect(screen.getByTestId('value').textContent).toBe('');
+    });
+
+    it.skipIf(isJSDOM)('moves the highlight with typeahead while the popup is open', async () => {
+      const handleValueChange = vi.fn();
+      const { user } = await render(
+        <Select.Root defaultOpen onValueChange={handleValueChange} readOnly>
+          <Select.Trigger data-testid="trigger">
+            <Select.Value data-testid="value" />
+          </Select.Trigger>
+          <Select.Portal>
+            <Select.Positioner>
+              <Select.Popup>
+                <Select.Item value="apple">apple</Select.Item>
+                <Select.Item value="banana">banana</Select.Item>
+              </Select.Popup>
+            </Select.Positioner>
+          </Select.Portal>
+        </Select.Root>,
+      );
+
+      const apple = await screen.findByRole('option', { name: 'apple' });
+      const banana = screen.getByRole('option', { name: 'banana' });
+
+      await act(async () => {
+        apple.focus();
+      });
+
+      await user.keyboard('b');
+
+      await waitFor(() => {
+        expect(banana).toHaveAttribute('data-highlighted');
+      });
+      expect(handleValueChange.mock.calls.length).toBe(0);
+      expect(screen.getByTestId('value').textContent).toBe('');
     });
   });
 
@@ -4302,6 +4452,189 @@ describe('<Select.Root />', () => {
       expect(screen.queryByRole('option', { name: 'a' })).not.toHaveAttribute('data-selected');
     });
 
+    it('resets the value when the selected item is replaced and the item count is unchanged', async () => {
+      if (reactMajor <= 18) {
+        ignoreActWarnings();
+      }
+
+      const onValueChange = vi.fn();
+
+      function Test() {
+        const [items, setItems] = React.useState(['a', 'b', 'c']);
+        const [value, setValue] = React.useState<string | null>('c');
+
+        return (
+          <div>
+            <Select.Root
+              value={value}
+              onValueChange={(next) => {
+                setValue(next);
+                onValueChange(next);
+              }}
+            >
+              <Select.Trigger data-testid="trigger">
+                <Select.Value />
+              </Select.Trigger>
+              <Select.Portal>
+                <Select.Positioner>
+                  <Select.Popup>
+                    {items.map((item) => (
+                      <Select.Item key={item} value={item}>
+                        {item}
+                      </Select.Item>
+                    ))}
+                  </Select.Popup>
+                </Select.Positioner>
+              </Select.Portal>
+            </Select.Root>
+            <button data-testid="swap" onClick={() => setItems(['a', 'b', 'd'])}>
+              Swap C for D
+            </button>
+          </div>
+        );
+      }
+
+      const { user } = await render(<Test />);
+
+      const trigger = screen.getByTestId('trigger');
+      expect(trigger).toHaveTextContent('c');
+
+      // The items only register once the popup has mounted.
+      await user.click(trigger);
+      await waitFor(() => {
+        expect(screen.getByRole('listbox')).toBeVisible();
+      });
+
+      // Replace "c" with "d" while the popup is open, keeping the count at three.
+      fireEvent.click(screen.getByTestId('swap'));
+
+      await waitFor(() => {
+        expect(onValueChange.mock.lastCall?.[0]).toBe(null);
+      });
+
+      expect(trigger).not.toHaveTextContent('c');
+    });
+
+    it('resets the value when every item is replaced and the item count is unchanged', async () => {
+      if (reactMajor <= 18) {
+        ignoreActWarnings();
+      }
+
+      const onValueChange = vi.fn();
+
+      function Test() {
+        const [items, setItems] = React.useState(['a', 'b', 'c']);
+        const [value, setValue] = React.useState<string | null>('c');
+
+        return (
+          <div>
+            <Select.Root
+              value={value}
+              onValueChange={(next) => {
+                setValue(next);
+                onValueChange(next);
+              }}
+            >
+              <Select.Trigger data-testid="trigger">
+                <Select.Value />
+              </Select.Trigger>
+              <Select.Portal>
+                <Select.Positioner>
+                  <Select.Popup>
+                    {items.map((item) => (
+                      <Select.Item key={item} value={item}>
+                        {item}
+                      </Select.Item>
+                    ))}
+                  </Select.Popup>
+                </Select.Positioner>
+              </Select.Portal>
+            </Select.Root>
+            <button data-testid="swap" onClick={() => setItems(['x', 'y', 'z'])}>
+              Swap all
+            </button>
+          </div>
+        );
+      }
+
+      const { user } = await render(<Test />);
+
+      const trigger = screen.getByTestId('trigger');
+
+      await user.click(trigger);
+      await waitFor(() => {
+        expect(screen.getByRole('listbox')).toBeVisible();
+      });
+
+      fireEvent.click(screen.getByTestId('swap'));
+
+      await waitFor(() => {
+        expect(onValueChange.mock.lastCall?.[0]).toBe(null);
+      });
+    });
+
+    it('keeps the value when the items are only reordered', async () => {
+      if (reactMajor <= 18) {
+        ignoreActWarnings();
+      }
+
+      const onValueChange = vi.fn();
+
+      function Test() {
+        const [items, setItems] = React.useState(['a', 'b', 'c']);
+        const [value, setValue] = React.useState<string | null>('c');
+
+        return (
+          <div>
+            <Select.Root
+              value={value}
+              onValueChange={(next) => {
+                setValue(next);
+                onValueChange(next);
+              }}
+            >
+              <Select.Trigger data-testid="trigger">
+                <Select.Value />
+              </Select.Trigger>
+              <Select.Portal>
+                <Select.Positioner>
+                  <Select.Popup>
+                    {items.map((item) => (
+                      <Select.Item key={item} value={item}>
+                        {item}
+                      </Select.Item>
+                    ))}
+                  </Select.Popup>
+                </Select.Positioner>
+              </Select.Portal>
+            </Select.Root>
+            <button data-testid="reorder" onClick={() => setItems(['c', 'a', 'b'])}>
+              Reorder
+            </button>
+          </div>
+        );
+      }
+
+      const { user } = await render(<Test />);
+
+      const trigger = screen.getByTestId('trigger');
+
+      await user.click(trigger);
+      await waitFor(() => {
+        expect(screen.getByRole('listbox')).toBeVisible();
+      });
+
+      fireEvent.click(screen.getByTestId('reorder'));
+
+      await waitFor(() => {
+        expect(screen.getByRole('option', { name: 'c' })).toHaveAttribute('data-selected', '');
+      });
+
+      // The item set is unchanged, so nothing should have been reconciled away.
+      expect(onValueChange).not.toHaveBeenCalled();
+      expect(trigger).toHaveTextContent('c');
+    });
+
     it('resets to default when the selected item is removed from the list', async () => {
       if (reactMajor <= 18) {
         ignoreActWarnings();
@@ -5107,6 +5440,58 @@ describe('<Select.Root />', () => {
       options.forEach((opt) => {
         expect(opt).not.toHaveAttribute('data-selected');
       });
+    });
+
+    it('removes selections replaced without changing the item count', async () => {
+      const onValueChange = vi.fn();
+
+      function Test() {
+        const [items, setItems] = React.useState(['a', 'b', 'c']);
+        const [value, setValue] = React.useState(['a', 'c']);
+
+        return (
+          <div>
+            <Select.Root
+              multiple
+              defaultOpen
+              value={value}
+              onValueChange={(nextValue) => {
+                setValue(nextValue);
+                onValueChange(nextValue);
+              }}
+            >
+              <Select.Trigger>
+                <Select.Value />
+              </Select.Trigger>
+              <Select.Portal>
+                <Select.Positioner>
+                  <Select.Popup>
+                    {items.map((item) => (
+                      <Select.Item key={item} value={item}>
+                        {item}
+                      </Select.Item>
+                    ))}
+                  </Select.Popup>
+                </Select.Positioner>
+              </Select.Portal>
+            </Select.Root>
+            <button onClick={() => setItems(['a', 'b', 'd'])}>Replace C with D</button>
+          </div>
+        );
+      }
+
+      await render(<Test />);
+
+      expect(screen.getByRole('option', { name: 'a' })).toHaveAttribute('data-selected', '');
+      expect(screen.getByRole('option', { name: 'c' })).toHaveAttribute('data-selected', '');
+
+      fireEvent.click(screen.getByRole('button', { name: 'Replace C with D' }));
+
+      await waitFor(() => {
+        expect(onValueChange.mock.lastCall?.[0]).toEqual(['a']);
+      });
+      expect(screen.getByRole('option', { name: 'a' })).toHaveAttribute('data-selected', '');
+      expect(screen.getByRole('option', { name: 'd' })).not.toHaveAttribute('data-selected');
     });
 
     it('should allow multiple selections when multiple is true', async () => {

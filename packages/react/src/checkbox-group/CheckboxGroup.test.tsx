@@ -2,7 +2,7 @@ import { expect, vi } from 'vitest';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
-import { createRenderer, screen, fireEvent } from '@mui/internal-test-utils';
+import { createRenderer, screen, fireEvent, waitFor } from '@mui/internal-test-utils';
 import { CheckboxGroup } from '@base-ui/react/checkbox-group';
 import { Checkbox } from '@base-ui/react/checkbox';
 import { Field } from '@base-ui/react/field';
@@ -10,7 +10,7 @@ import { Form } from '@base-ui/react/form';
 import { describeConformance, isJSDOM } from '#test-utils';
 
 describe('<CheckboxGroup />', () => {
-  const { render } = createRenderer();
+  const { render, renderToString } = createRenderer();
 
   describeConformance(<CheckboxGroup />, () => ({
     inheritComponent: 'div',
@@ -396,6 +396,28 @@ describe('<CheckboxGroup />', () => {
       fireEvent.click(banana);
 
       expect(group).not.toHaveAttribute('data-dirty');
+    });
+
+    it('[data-filled] follows the group value even without a matching rendered checkbox', () => {
+      render(
+        <Field.Root name="fruits">
+          <CheckboxGroup defaultValue={['cherry']}>
+            <Field.Item>
+              <Checkbox.Root value="apple" data-testid="apple" />
+            </Field.Item>
+          </CheckboxGroup>
+        </Field.Root>,
+      );
+
+      const group = screen.getByRole('group');
+      const apple = screen.getByTestId('apple');
+
+      expect(group).toHaveAttribute('data-filled', '');
+
+      fireEvent.click(apple);
+      fireEvent.click(apple);
+
+      expect(group).toHaveAttribute('data-filled', '');
     });
 
     it('keeps a required error while another required checkbox in the group is unchecked', async () => {
@@ -853,6 +875,199 @@ describe('<CheckboxGroup />', () => {
   });
 
   describe('Field.Label', () => {
+    function SharedFieldRootGroup(props: { nativeButton: boolean }) {
+      const { nativeButton } = props;
+      const checkboxProps = { nativeButton, render: nativeButton ? <button /> : undefined };
+
+      return (
+        <Field.Root name="apples">
+          <Field.Label>Apples</Field.Label>
+          <CheckboxGroup allValues={['fuji', 'gala']}>
+            <Checkbox.Root parent data-testid="parent" {...checkboxProps} />
+            <Checkbox.Root value="fuji" data-testid="fuji" {...checkboxProps} />
+            <Checkbox.Root value="gala" data-testid="gala" {...checkboxProps} />
+          </CheckboxGroup>
+        </Field.Root>
+      );
+    }
+
+    // `expectedCount` is required: a set of unique ids is trivially unique when it is empty,
+    // so a regression that drops every id would otherwise pass.
+    function expectUniqueIds(expectedCount: number) {
+      const ids = Array.from(document.querySelectorAll('[id]'), (element) => element.id);
+      expect(ids).toHaveLength(expectedCount);
+      expect(new Set(ids).size).toBe(ids.length);
+    }
+
+    it.each([false, true])(
+      'keeps checkbox ids unique when the group shares one Field.Root (nativeButton=%s)',
+      async (nativeButton) => {
+        await render(<SharedFieldRootGroup nativeButton={nativeButton} />);
+
+        expectUniqueIds(nativeButton ? 4 : 7);
+        // Queried without `hidden`, so the relationship has to reach the exposed checkboxes
+        // rather than the hidden inputs behind them.
+        expect(screen.getByTestId('parent').getAttribute('aria-controls')!.split(' ')).toEqual([
+          screen.getByTestId('fuji').id,
+          screen.getByTestId('gala').id,
+        ]);
+      },
+    );
+
+    it.each([false, true])(
+      'keeps checkbox ids unique in a shared Field.Root during SSR (nativeButton=%s)',
+      (nativeButton) => {
+        renderToString(<SharedFieldRootGroup nativeButton={nativeButton} />);
+        expectUniqueIds(nativeButton ? 4 : 7);
+      },
+    );
+
+    it.each([false, true])(
+      'keeps ids unique without allValues in a shared Field.Root (nativeButton=%s)',
+      async (nativeButton) => {
+        const checkboxProps = { nativeButton, render: nativeButton ? <button /> : undefined };
+
+        await render(
+          <Field.Root name="apples">
+            <Field.Label>Apples</Field.Label>
+            <CheckboxGroup>
+              <Checkbox.Root value="fuji" {...checkboxProps} />
+              <Checkbox.Root value="gala" {...checkboxProps} />
+            </CheckboxGroup>
+          </Field.Root>,
+        );
+
+        expectUniqueIds(nativeButton ? 3 : 5);
+      },
+    );
+
+    // The suppression runs in a layout effect, so server markup still carries the `htmlFor`
+    // the provider resolved before the group registered.
+    it('labels the group rather than pointing Field.Label at one checkbox inside it', async () => {
+      const { hydrate } = renderToString(<SharedFieldRootGroup nativeButton={false} />);
+
+      expect(screen.getByText('Apples')).toHaveAttribute('for');
+
+      hydrate();
+
+      const label = screen.getByText('Apples');
+      await waitFor(() => {
+        expect(label).not.toHaveAttribute('for');
+      });
+      expect(screen.getByRole('group')).toHaveAttribute('aria-labelledby', label.id);
+    });
+
+    it('gives each checkbox in a shared Field.Root its own accessible name', async () => {
+      await render(
+        <Field.Root name="apples">
+          <CheckboxGroup allValues={['fuji', 'gala']}>
+            <label>
+              <Checkbox.Root parent data-testid="parent" />
+              All
+            </label>
+            <label>
+              <Checkbox.Root value="fuji" data-testid="fuji" />
+              Fuji
+            </label>
+            <label>
+              <Checkbox.Root value="gala" data-testid="gala" />
+              Gala
+            </label>
+          </CheckboxGroup>
+        </Field.Root>,
+      );
+
+      ['All', 'Fuji', 'Gala'].forEach((name, index) => {
+        const testId = ['parent', 'fuji', 'gala'][index];
+        const labelId = screen.getByTestId(testId).getAttribute('aria-labelledby')!;
+        expect(document.getElementById(labelId)).toHaveTextContent(name);
+      });
+    });
+
+    it.each([
+      { nativeButton: false, parent: false },
+      { nativeButton: true, parent: false },
+      { nativeButton: false, parent: true },
+      { nativeButton: true, parent: true },
+    ])(
+      'associates Field.Label with a grouped Checkbox during SSR (nativeButton=$nativeButton, parent=$parent)',
+      ({ nativeButton, parent }) => {
+        renderToString(
+          <Field.Root name="apple">
+            <CheckboxGroup allValues={['fuji']}>
+              <Field.Item>
+                <Field.Label data-testid="label">Fuji</Field.Label>
+                <Checkbox.Root
+                  parent={parent}
+                  value={parent ? undefined : 'fuji'}
+                  nativeButton={nativeButton}
+                  render={nativeButton ? <button /> : undefined}
+                />
+              </Field.Item>
+            </CheckboxGroup>
+          </Field.Root>,
+        );
+
+        const control = nativeButton
+          ? screen.getByRole('checkbox')
+          : document.querySelector<HTMLInputElement>('input[type="checkbox"]')!;
+        expect(control.id).not.toBe('');
+        expect(screen.getByTestId('label')).toHaveAttribute('for', control.id);
+      },
+    );
+
+    it.each([false, true])(
+      'points parent aria-controls at the children once they register (nativeButton=%s)',
+      async (nativeButton) => {
+        const { hydrate } = renderToString(
+          <Field.Root name="apple">
+            <CheckboxGroup allValues={['fuji']}>
+              <Field.Item>
+                <Field.Label data-testid="label">All</Field.Label>
+                <Checkbox.Root
+                  parent
+                  data-testid="parent"
+                  nativeButton={nativeButton}
+                  render={nativeButton ? <button /> : undefined}
+                />
+              </Field.Item>
+              <Field.Item>
+                <Field.Label data-testid="label">Fuji</Field.Label>
+                <Checkbox.Root
+                  value="fuji"
+                  data-testid="fuji"
+                  nativeButton={nativeButton}
+                  render={nativeButton ? <button /> : undefined}
+                />
+              </Field.Item>
+            </CheckboxGroup>
+          </Field.Root>,
+        );
+
+        // Server markup claims nothing: the parent can't control a child that hasn't mounted.
+        expect(screen.getByTestId('parent')).not.toHaveAttribute('aria-controls');
+
+        // Each label must reach its own item's labelable element: the button itself with
+        // `nativeButton`, the hidden input rendered next to it otherwise.
+        [screen.getByTestId('parent'), screen.getByTestId('fuji')].forEach((control, index) => {
+          const labelable = nativeButton ? control : control.nextElementSibling;
+          expect(labelable).not.toBe(null);
+          expect(screen.getAllByTestId('label')[index]).toHaveAttribute('for', labelable!.id);
+        });
+
+        hydrate();
+
+        // Queried without `hidden`, so the relationship has to reach the exposed checkbox
+        // rather than the hidden input behind it.
+        await waitFor(() => {
+          expect(screen.getByTestId('parent')).toHaveAttribute(
+            'aria-controls',
+            screen.getByTestId('fuji').id,
+          );
+        });
+      },
+    );
+
     it('implicit association', async () => {
       const changeSpy = vi.fn();
       render(

@@ -10,7 +10,7 @@ describe('Combobox part utilities', () => {
   it('does nothing when the highlighted item is not rendered', () => {
     const nativeEvent = new KeyboardEvent('keydown', { key: 'Enter' });
     const store = {
-      state: {
+      context: {
         listRef: { current: [] },
         selectionEventRef: { current: null },
       },
@@ -18,7 +18,7 @@ describe('Combobox part utilities', () => {
 
     clickHighlightedItem(store, 1, nativeEvent);
 
-    expect(store.state.selectionEventRef.current).toBe(null);
+    expect(store.context.selectionEventRef.current).toBe(null);
   });
 
   it('clicks the rendered highlighted item with the originating event', () => {
@@ -26,19 +26,19 @@ describe('Combobox part utilities', () => {
     const nativeEvent = new KeyboardEvent('keydown', { key: 'Enter' });
     let selectionEventAtClick: Event | null = null;
     const store = {
-      state: {
+      context: {
         listRef: { current: [{ click }] },
         selectionEventRef: { current: null },
       },
     } as unknown as ComboboxStore;
     click.mockImplementation(() => {
-      selectionEventAtClick = store.state.selectionEventRef.current;
+      selectionEventAtClick = store.context.selectionEventRef.current;
     });
 
     clickHighlightedItem(store, 0, nativeEvent);
 
     expect(click).toHaveBeenCalledOnce();
     expect(selectionEventAtClick).toBe(nativeEvent);
-    expect(store.state.selectionEventRef.current).toBe(null);
+    expect(store.context.selectionEventRef.current).toBe(null);
   });
 });

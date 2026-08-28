@@ -74,9 +74,10 @@ function TestMultiThumbSlider(props: SliderRoot.Props) {
 
 describe('<Slider.Root />', () => {
   beforeAll(function beforeHook() {
-    // PointerEvent not fully implemented in jsdom, causing
-    // fireEvent.pointer* to ignore options
-    // https://github.com/jsdom/jsdom/issues/2527
+    // jsdom implements PointerEvent now (jsdom#2527 is fixed), but not the pointer capture methods
+    // on Element, so the slider throws on `setPointerCapture`/`hasPointerCapture` without this.
+    // Note this also applies in real browsers, where it costs `pointerId` and `pointerType` on
+    // every event. Replace with stubs for the three capture methods to drop it.
     (window as any).PointerEvent = window.MouseEvent;
   });
 
@@ -3362,8 +3363,9 @@ describe('<Slider.Root />', () => {
 
       it('receives an array value for range sliders', async () => {
         const validateSpy = vi.fn();
+        const onSubmit = vi.fn((event: React.FormEvent) => event.preventDefault());
         await render(
-          <Form>
+          <Form onSubmit={onSubmit}>
             <Field.Root validate={validateSpy}>
               <Slider.Root defaultValue={[5, 12]}>
                 <Slider.Control>
@@ -3380,6 +3382,7 @@ describe('<Slider.Root />', () => {
         fireEvent.click(screen.getByText('submit'));
         expect(validateSpy.mock.calls.length).toBe(1);
         expect(validateSpy.mock.calls[0][0]).toEqual([5, 12]);
+        expect(onSubmit).toHaveBeenCalledTimes(1);
       });
 
       it('does not call validate on change when validationMode is omitted', async () => {

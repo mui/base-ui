@@ -1,4 +1,4 @@
-import { Store } from '@base-ui/utils/store';
+import { ReactStore } from '@base-ui/utils/store';
 import type { InteractionType } from '@base-ui/utils/useEnhancedClickHandler';
 import type { TransitionStatus } from '../internals/useTransitionStatus';
 import type { HTMLProps } from '../internals/types';
@@ -53,32 +53,6 @@ export type State = {
 
   selectionMode: 'single' | 'multiple' | 'none';
 
-  listRef: React.RefObject<Array<HTMLElement | null>>;
-  labelsRef: React.RefObject<Array<string | null>>;
-  popupRef: React.RefObject<HTMLDivElement | null>;
-  emptyRef: React.RefObject<HTMLDivElement | null>;
-  inputRef: React.RefObject<HTMLInputElement | null>;
-  startDismissRef: React.RefObject<HTMLSpanElement | null>;
-  endDismissRef: React.RefObject<HTMLSpanElement | null>;
-  keyboardActiveRef: React.RefObject<boolean>;
-  chipsContainerRef: React.RefObject<HTMLDivElement | null>;
-  clearRef: React.RefObject<HTMLButtonElement | null>;
-  valuesRef: React.RefObject<Array<any>>;
-  pointerDownItemRef: React.RefObject<Element | null>;
-  selectionEventRef: React.RefObject<MouseEvent | PointerEvent | KeyboardEvent | null>;
-
-  setOpen: (open: boolean, eventDetails: AriaCombobox.ChangeEventDetails) => void;
-  setInputValue: (value: string, eventDetails: AriaCombobox.ChangeEventDetails) => void;
-  setSelectedValue: (value: any, eventDetails: AriaCombobox.ChangeEventDetails) => void;
-  setIndices: (indices: {
-    activeIndex?: number | null | undefined;
-    selectedIndex?: number | null | undefined;
-    type?: AriaCombobox.HighlightEventReason | undefined;
-  }) => void;
-  forceMount: () => void;
-  handleSelection: (event: MouseEvent | PointerEvent | KeyboardEvent, itemValue: any) => void;
-  requestSubmit: () => void;
-
   name: string | undefined;
   form: string | undefined;
   disabled: boolean;
@@ -87,8 +61,6 @@ export type State = {
   grid: boolean;
   externallyVirtualized: boolean;
   virtualizationState: VirtualizationState;
-  virtualizationRegistry: ListVirtualizationRegistry;
-  onOpenChangeComplete: (open: boolean) => void;
   openOnInputClick: boolean;
   itemToStringLabel?: ((item: any) => string) | undefined;
   isItemDisabled?: ((item: any, index: number) => boolean) | undefined;
@@ -99,7 +71,64 @@ export type State = {
   hasInputValue: boolean;
 };
 
-export type ComboboxStore = Store<State>;
+/**
+ * Non-reactive values shared with the combobox parts. Nothing here is observable through
+ * `selectors`, so writing to a ref never notifies subscribers.
+ */
+export type ComboboxStoreContext = {
+  /** Coordinates the built-in virtualizer with the items rendered outside it. */
+  readonly virtualizationRegistry: ListVirtualizationRegistry;
+  /** Item elements in list order, owned by `Combobox.List`. */
+  readonly listRef: React.RefObject<Array<HTMLElement | null>>;
+  /** Item text labels in list order, used for typeahead. */
+  readonly labelsRef: React.RefObject<Array<string | null>>;
+  /** The popup element. */
+  readonly popupRef: React.RefObject<HTMLDivElement | null>;
+  /** The empty-state element. */
+  readonly emptyRef: React.RefObject<HTMLDivElement | null>;
+  /** The input element that owns the combobox role. */
+  readonly inputRef: React.RefObject<HTMLInputElement | null>;
+  /** Internal dismiss button rendered before the popup content. */
+  readonly startDismissRef: React.RefObject<HTMLSpanElement | null>;
+  /** Internal dismiss button rendered after the popup content. */
+  readonly endDismissRef: React.RefObject<HTMLSpanElement | null>;
+  /** Whether the last interaction came from the keyboard. */
+  readonly keyboardActiveRef: React.RefObject<boolean>;
+  /** Container holding the selection chips. */
+  readonly chipsContainerRef: React.RefObject<HTMLDivElement | null>;
+  /** The clear button. */
+  readonly clearRef: React.RefObject<HTMLButtonElement | null>;
+  /** Item values in list order. */
+  readonly valuesRef: React.RefObject<Array<any>>;
+  /** Item element that received the last pointerdown, to pair it with a mouseup. */
+  readonly pointerDownItemRef: React.RefObject<Element | null>;
+  /** Native event that triggered the in-flight selection. */
+  readonly selectionEventRef: React.RefObject<MouseEvent | PointerEvent | KeyboardEvent | null>;
+
+  // Commands. Seeded with `NOOP` when the store is constructed and assigned during the root's
+  // first render, so they are not `readonly`.
+
+  /** Opens or closes the popup. */
+  setOpen: (open: boolean, eventDetails: AriaCombobox.ChangeEventDetails) => void;
+  /** Sets the input value. */
+  setInputValue: (value: string, eventDetails: AriaCombobox.ChangeEventDetails) => void;
+  /** Sets the selected value. */
+  setSelectedValue: (value: any, eventDetails: AriaCombobox.ChangeEventDetails) => void;
+  /** Sets the active and/or selected index. */
+  setIndices: (indices: {
+    activeIndex?: number | null | undefined;
+    selectedIndex?: number | null | undefined;
+    type?: AriaCombobox.HighlightEventReason | undefined;
+  }) => void;
+  /** Mounts the popup subtree without opening it, to resolve derived item labels. */
+  forceMount: () => void;
+  /** Applies a selection originating from an item. */
+  handleSelection: (event: MouseEvent | PointerEvent | KeyboardEvent, itemValue: any) => void;
+  /** Requests submission of the owning form. */
+  requestSubmit: () => void;
+  /** Called when the open state change animation completes. */
+  onOpenChangeComplete: (open: boolean) => void;
+};
 
 type VirtualizationStore = {
   state: { virtualizationState: VirtualizationState };
@@ -205,3 +234,5 @@ export const selectors = {
   modal: (state: State) => state.modal,
   autoHighlight: (state: State) => state.autoHighlight,
 };
+
+export type ComboboxStore = ReactStore<State, ComboboxStoreContext, typeof selectors>;

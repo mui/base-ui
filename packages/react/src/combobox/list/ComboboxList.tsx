@@ -1,6 +1,5 @@
 'use client';
 import * as React from 'react';
-import { useStore } from '@base-ui/utils/store';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { warn } from '@base-ui/utils/warn';
 import type { BaseUIComponentProps } from '../../internals/types';
@@ -11,7 +10,6 @@ import {
   useComboboxRootContext,
 } from '../root/ComboboxRootContext';
 import { useComboboxPositionerContext } from '../positioner/ComboboxPositionerContext';
-import { selectors } from '../store';
 import { ComboboxCollection } from '../collection/ComboboxCollection';
 import { CompositeList } from '../../internals/composite/list/CompositeList';
 import { stopEvent } from '../../floating-ui-react/utils';
@@ -42,16 +40,17 @@ export const ComboboxList = React.forwardRef(function ComboboxList(
   const { filteredItems, flatFilteredItems, hasItems, isGrouped } =
     useComboboxDerivedItemsContext();
 
-  const selectionMode = useStore(store, selectors.selectionMode);
-  const grid = useStore(store, selectors.grid);
-  const listProps = useStore(store, selectors.listProps);
-  const externallyVirtualized = useStore(store, selectors.externallyVirtualized);
-  const forceMounted = useStore(store, selectors.forceMounted);
+  const selectionMode = store.useState('selectionMode');
+  const grid = store.useState('grid');
+  const readOnly = store.useState('readOnly');
+  const listProps = store.useState('listProps');
+  const externallyVirtualized = store.useState('externallyVirtualized');
+  const forceMounted = store.useState('forceMounted');
   // `listProps` already carries `aria-activedescendant`, so this component re-renders on every
   // highlight change regardless. Reading the virtualizer's state here adds no extra renders.
-  const activeIndex = useStore(store, selectors.activeIndex);
-  const highlightType = useStore(store, selectors.highlightType);
-  const virtualizationState = useStore(store, selectors.virtualizationState);
+  const activeIndex = store.useState('activeIndex');
+  const highlightType = store.useState('highlightType');
+  const virtualizationState = store.useState('virtualizationState');
 
   const multiple = selectionMode === 'multiple';
   const empty = filteredItems.length === 0;
@@ -101,7 +100,7 @@ export const ComboboxList = React.forwardRef(function ComboboxList(
   const virtualizationHost = React.useMemo<ListVirtualizationHost>(
     () => ({
       componentName: 'Combobox',
-      registry: store.state.virtualizationRegistry,
+      registry: store.context.virtualizationRegistry,
       virtualItemContext: ComboboxVirtualItemContext,
       warnUnsupportedConfiguration:
         process.env.NODE_ENV === 'production' ? undefined : warnUnsupportedConfiguration,
@@ -138,6 +137,9 @@ export const ComboboxList = React.forwardRef(function ComboboxList(
         id: floatingId,
         role: grid ? 'grid' : 'listbox',
         'aria-multiselectable': multiple ? 'true' : undefined,
+        // On a grid the attribute describes cell editability, not selection, so it's left to the
+        // combobox element in that mode.
+        'aria-readonly': !grid && readOnly ? true : undefined,
         onKeyDown(event) {
           if (store.state.disabled || store.state.readOnly) {
             return;
@@ -156,10 +158,10 @@ export const ComboboxList = React.forwardRef(function ComboboxList(
           }
         },
         onKeyDownCapture() {
-          store.state.keyboardActiveRef.current = true;
+          store.context.keyboardActiveRef.current = true;
         },
         onPointerMoveCapture() {
-          store.state.keyboardActiveRef.current = false;
+          store.context.keyboardActiveRef.current = false;
         },
       },
       elementProps,
@@ -181,11 +183,11 @@ export const ComboboxList = React.forwardRef(function ComboboxList(
   // With the `items` prop, typeahead labels are derived from the items so they survive the list
   // unmounting (unmounting clears the registered labels). Rendered labels only need to be
   // registered when the list is force-mounted to match browser autofill against rendered text.
-  const labelsRef = hasItems && !forceMounted ? undefined : store.state.labelsRef;
+  const labelsRef = hasItems && !forceMounted ? undefined : store.context.labelsRef;
 
   return (
     <CompositeList
-      elementsRef={store.state.listRef}
+      elementsRef={store.context.listRef}
       itemCount={hasItems ? flatFilteredItems.length : undefined}
       labelsRef={labelsRef}
     >
