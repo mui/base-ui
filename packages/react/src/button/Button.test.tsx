@@ -1,7 +1,7 @@
 import { expect, vi } from 'vitest';
 import * as React from 'react';
 import { Button } from '@base-ui/react/button';
-import { fireEvent, screen, waitFor } from '@mui/internal-test-utils';
+import { act, fireEvent, screen, waitFor } from '@mui/internal-test-utils';
 import { describeConformance, createRenderer, isJSDOM } from '#test-utils';
 
 describe('<Button />', () => {
@@ -12,6 +12,67 @@ describe('<Button />', () => {
     refInstanceof: window.HTMLButtonElement,
     button: true,
   }));
+
+  describe('prop: clickAction', () => {
+    it('runs the action when clicked', async () => {
+      const clickAction = vi.fn();
+
+      const { user } = await render(<Button clickAction={clickAction}>Save</Button>);
+
+      const button = screen.getByRole('button', { name: 'Save' });
+
+      await user.click(button);
+
+      expect(clickAction.mock.calls.length).toBe(1);
+      expect(button).not.toBeDisabled();
+    });
+
+    it('does not run the action again while the previous action is pending', async () => {
+      let resolveAction: () => void = () => {};
+      const clickAction = vi.fn(
+        () =>
+          new Promise<void>((resolve) => {
+            resolveAction = resolve;
+          }),
+      );
+
+      const { user } = await render(<Button clickAction={clickAction}>Save</Button>);
+
+      const button = screen.getByRole('button', { name: 'Save' });
+
+      await user.click(button);
+      await user.click(button);
+
+      expect(clickAction.mock.calls.length).toBe(1);
+
+      await act(async () => {
+        resolveAction();
+        await Promise.resolve();
+      });
+
+      await user.click(button);
+
+      expect(clickAction.mock.calls.length).toBe(2);
+    });
+
+    it('does not run when the click handler prevents the Base UI handler', async () => {
+      const clickAction = vi.fn();
+      const handleClick = vi.fn((event: React.MouseEvent & { preventBaseUIHandler(): void }) => {
+        event.preventBaseUIHandler();
+      });
+
+      const { user } = await render(
+        <Button clickAction={clickAction} onClick={handleClick}>
+          Save
+        </Button>,
+      );
+
+      await user.click(screen.getByRole('button', { name: 'Save' }));
+
+      expect(handleClick.mock.calls.length).toBe(1);
+      expect(clickAction.mock.calls.length).toBe(0);
+    });
+  });
 
   describe('prop: nativeButton', () => {
     it('custom link element: Space activates the link without scrolling the page', async () => {
