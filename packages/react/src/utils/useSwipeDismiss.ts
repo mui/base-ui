@@ -1,11 +1,12 @@
 'use client';
 import * as React from 'react';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
-import { ownerDocument, ownerWindow } from '@base-ui/utils/owner';
+import { ownerDocument } from '@base-ui/utils/owner';
 import { clamp } from '@base-ui/utils/clamp';
 import { contains, getTarget } from '../floating-ui-react/utils';
 import { findScrollableTouchTarget, hasScrollableAncestor, type ScrollAxis } from './scrollable';
 import { getElementAtPoint } from './getElementAtPoint';
+import { getElementTransform } from './getElementTransform';
 
 export type SwipeDirection = 'up' | 'down' | 'left' | 'right';
 
@@ -48,32 +49,6 @@ export function getDisplacement(direction: SwipeDirection, deltaX: number, delta
     default:
       return 0;
   }
-}
-
-export function getElementTransform(element: HTMLElement) {
-  const computedStyle = ownerWindow(element).getComputedStyle(element);
-  const transform = computedStyle.transform;
-  let translateX = 0;
-  let translateY = 0;
-  let scale = 1;
-
-  if (transform && transform !== 'none') {
-    const matrix = transform.match(/matrix(?:3d)?\(([^)]+)\)/);
-    if (matrix) {
-      const values = matrix[1].split(', ').map(parseFloat);
-      if (values.length === 6) {
-        translateX = values[4];
-        translateY = values[5];
-        scale = Math.sqrt(values[0] * values[0] + values[1] * values[1]);
-      } else if (values.length === 16) {
-        translateX = values[12];
-        translateY = values[13];
-        scale = values[0];
-      }
-    }
-  }
-
-  return { x: translateX, y: translateY, scale };
 }
 
 function getValidTimeStamp(timeStamp: number): number | null {
@@ -356,18 +331,24 @@ export function useSwipeDismiss(options: UseSwipeDismissOptions): UseSwipeDismis
     target: EventTarget | null,
     root: HTMLElement,
   ): HTMLElement | null {
+    // The swiped element is positioned relative to the viewport, so the page scroller must not
+    // gate the gesture (a reset like `html, body { height: 100%; overflow: auto }` makes `body`
+    // a real scroll container). The drawer viewport's native touchmove handler already ignores it.
+    const find = (axis: ScrollAxis) => {
+      const scrollTarget = findScrollableTouchTarget(target, root, axis);
+      const doc = ownerDocument(scrollTarget);
+      return scrollTarget === doc.body || scrollTarget === doc.documentElement
+        ? null
+        : scrollTarget;
+    };
+
     if (hasHorizontal && !hasVertical) {
-      return findScrollableTouchTarget(target, root, 'horizontal');
+      return find('horizontal');
     }
-
     if (hasVertical && !hasHorizontal) {
-      return findScrollableTouchTarget(target, root, 'vertical');
+      return find('vertical');
     }
-
-    return (
-      findScrollableTouchTarget(target, root, 'vertical') ??
-      findScrollableTouchTarget(target, root, 'horizontal')
-    );
+    return find('vertical') ?? find('horizontal');
   }
 
   function startSwipeAtPosition(
@@ -1103,16 +1084,13 @@ export interface UseSwipeDismissOptions {
    * @default 40
    */
   swipeThreshold?:
-    | number
-    | ((details: { element: HTMLElement; direction: SwipeDirection }) => number)
-    | undefined;
+    number | ((details: { element: HTMLElement; direction: SwipeDirection }) => number) | undefined;
   /**
    * If provided, swiping will only begin once this returns true.
    * The predicate is evaluated on start and on subsequent move events while the pointer is down.
    */
   canStart?:
-    | ((position: { x: number; y: number }, details: UseSwipeDismissDetails) => boolean)
-    | undefined;
+    ((position: { x: number; y: number }, details: UseSwipeDismissDetails) => boolean) | undefined;
   /**
    * If true, swiping won't start when the gesture begins within a scrollable element.
    * This helps avoid conflicts between scrolling content and swipe-to-dismiss.

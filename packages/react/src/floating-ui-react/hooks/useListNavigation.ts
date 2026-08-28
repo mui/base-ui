@@ -113,8 +113,7 @@ export interface UseListNavigationProps {
    * passed in a new `activeIndex`.
    */
   onNavigate?:
-    | ((activeIndex: number | null, event: React.SyntheticEvent | undefined) => void)
-    | undefined;
+    ((activeIndex: number | null, event: React.SyntheticEvent | undefined) => void) | undefined;
   /**
    * Whether the Hook is enabled, including all internal Effects and event
    * handlers.
@@ -766,7 +765,6 @@ export function useListNavigation(
 
   const floating: ElementProps['floating'] = React.useMemo(() => {
     return {
-      'aria-orientation': orientation === 'both' ? undefined : orientation,
       ...(!typeableComboboxReference ? ariaActiveDescendantProp : {}),
       onKeyDown(event: React.KeyboardEvent) {
         // Close submenu on Shift+Tab
@@ -802,7 +800,6 @@ export function useListNavigation(
     ariaActiveDescendantProp,
     commonOnKeyDown,
     floatingFocusElementRef,
-    orientation,
     typeableComboboxReference,
     store,
     open,

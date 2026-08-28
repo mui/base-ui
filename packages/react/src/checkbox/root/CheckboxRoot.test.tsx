@@ -467,6 +467,31 @@ describe('<Checkbox.Root />', () => {
       expect(input.indeterminate).toBe(true);
     });
 
+    it('keeps the native input state when checked changes while indeterminate remains', async () => {
+      function App() {
+        const [checked, setChecked] = React.useState(false);
+        return (
+          <Checkbox.Root
+            data-testid="button"
+            indeterminate
+            checked={checked}
+            onCheckedChange={setChecked}
+          />
+        );
+      }
+
+      await render(<App />);
+
+      // Clicking the hidden input natively clears `indeterminate` before toggling.
+      fireEvent.click(screen.getByTestId('button'));
+
+      const [, input] = screen.getAllByRole<HTMLInputElement>('checkbox', {
+        hidden: true,
+      });
+      expect(input.checked).toBe(true);
+      expect(input.indeterminate).toBe(true);
+    });
+
     it('sets indeterminate style hooks on the root and indicator', async () => {
       await render(
         <Checkbox.Root indeterminate>
@@ -1353,6 +1378,33 @@ describe('<Checkbox.Root />', () => {
         fireEvent.click(button);
 
         expect(button).not.toHaveAttribute('data-filled', '');
+      });
+
+      it('clears [data-filled] when a controlled checkbox remounts unchecked', async () => {
+        function App() {
+          const [unchecked, setUnchecked] = React.useState(false);
+          return (
+            <Field.Root data-testid="root">
+              <Checkbox.Root
+                key={String(unchecked)}
+                checked={!unchecked}
+                onCheckedChange={() => {}}
+              />
+              <button type="button" onClick={() => setUnchecked(true)}>
+                clear
+              </button>
+            </Field.Root>
+          );
+        }
+
+        await render(<App />);
+
+        const root = screen.getByTestId('root');
+        expect(root).toHaveAttribute('data-filled', '');
+
+        fireEvent.click(screen.getByText('clear'));
+
+        expect(root).not.toHaveAttribute('data-filled');
       });
 
       it('adds [data-filled] attribute when any checkbox is filled when inside a group', async () => {

@@ -55,6 +55,7 @@ A set of collapsible panels with headings.
   - Anatomy
   - Examples
     - Open multiple panels
+    - Hidden until found
   - API reference
     - Root
     - Item
@@ -386,6 +387,8 @@ A collapsible panel controlled by a button.
 - Keywords: React Collapsible, Collapsible Component, Expandable Panel, Toggle Panel Button, Disclosure Widget, Show/Hide Content, Accordion Item, Accessible Disclosure, Headless React Components, Collapsible Trigger Panel, Base UI
 - Sections:
   - Anatomy
+  - Examples
+    - Hidden until found
   - API reference
     - Root
     - Trigger
@@ -558,6 +561,7 @@ A menu that appears at the pointer on right click or long press.
     - Root
     - Trigger
     - Portal
+    - Backdrop
     - Positioner
     - Popup
     - Arrow
@@ -964,7 +968,7 @@ A list of actions in a dropdown, enhanced with keyboard navigation.
     - Props: actionsRef, children, closeParentOnEsc, defaultOpen, defaultTriggerId, disabled, handle, highlightItemOnHover, loopFocus, modal, onOpenChange, onOpenChangeComplete, open, orientation, triggerId
   - Menu - Trigger
     - Props: children, className, closeDelay, delay, disabled, handle, nativeButton, openOnHover, payload, render, style
-    - Data Attributes: data-popup-open, data-pressed
+    - Data Attributes: data-disabled, data-popup-open, data-pressed
   - Menu - Portal
     - Props: className, container, keepMounted, render, style
   - Menu - Backdrop
@@ -1113,8 +1117,8 @@ A collection of links and menus for website navigation.
   - Navigation Menu - Root
     - Props: actionsRef, className, closeDelay, defaultValue, delay, onOpenChangeComplete, onValueChange, orientation, render, style, value
   - Navigation Menu - Trigger
-    - Props: className, nativeButton, render, style
-    - Data Attributes: data-popup-open, data-pressed
+    - Props: className, disabled, nativeButton, render, style
+    - Data Attributes: data-disabled, data-popup-open, data-pressed
   - Navigation Menu - Icon
     - Props: className, render, style
     - Data Attributes: data-popup-open
@@ -1277,7 +1281,7 @@ An accessible popup anchored to a button.
     - Props: actionsRef, children, defaultOpen, defaultTriggerId, handle, modal, onOpenChange, onOpenChangeComplete, open, triggerId
   - Popover - Trigger
     - Props: className, closeDelay, delay, handle, id, nativeButton, openOnHover, payload, render, style
-    - Data Attributes: data-popup-open, data-pressed
+    - Data Attributes: data-disabled, data-popup-open, data-pressed
   - Popover - Portal
     - Props: className, container, keepMounted, render, style
   - Popover - Backdrop

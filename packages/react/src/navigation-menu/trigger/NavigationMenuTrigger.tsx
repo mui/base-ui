@@ -74,7 +74,7 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
     className,
     style,
     nativeButton = true,
-    disabled,
+    disabled = false,
     ...elementProps
   } = componentProps;
 
@@ -640,6 +640,7 @@ export const NavigationMenuTrigger = React.forwardRef(function NavigationMenuTri
 
   const state: NavigationMenuTriggerState = {
     open: isActiveItem,
+    disabled,
   };
 
   function handleSetPointerType(event: React.PointerEvent) {
@@ -787,10 +788,20 @@ export interface NavigationMenuTriggerState {
    * If `true`, the popup is open and the item is active.
    */
   open: boolean;
+  /**
+   * Whether the component should ignore user interaction.
+   */
+  disabled: boolean;
 }
 
 export interface NavigationMenuTriggerProps
-  extends NativeButtonProps, BaseUIComponentProps<'button', NavigationMenuTriggerState> {}
+  extends NativeButtonProps, BaseUIComponentProps<'button', NavigationMenuTriggerState> {
+  /**
+   * Whether the component should ignore user interaction.
+   * @default false
+   */
+  disabled?: boolean | undefined;
+}
 
 export namespace NavigationMenuTrigger {
   export type State = NavigationMenuTriggerState;

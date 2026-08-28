@@ -121,7 +121,8 @@ export function resolveSelectedLabel(
 
   // Items provided as plain record map
   if (items && !Array.isArray(items)) {
-    return (items as any)[value] ?? fallback();
+    const label = Object.hasOwn(items, value) ? (items as any)[value] : undefined;
+    return label ?? fallback();
   }
 
   // Items provided as array (flat or grouped)

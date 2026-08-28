@@ -133,4 +133,32 @@ describe('resolveValueLabel', () => {
       expect(hasNullItemLabel(undefined)).toBe(false);
     });
   });
+
+  describe('record items with prototype member names', () => {
+    it('falls back to the stringified label when the value matches an Object.prototype member', () => {
+      const items = { sans: 'Sans-serif', serif: 'Serif', mono: 'Monospace' };
+
+      expect(resolveSelectedLabel('constructor', items)).toBe('constructor');
+      expect(resolveSelectedLabel('toString', items)).toBe('toString');
+      expect(resolveSelectedLabel('hasOwnProperty', items)).toBe('hasOwnProperty');
+      expect(resolveSelectedLabel('__proto__', items)).toBe('__proto__');
+    });
+
+    it('resolves an own key that matches an Object.prototype member', () => {
+      const items = { constructor: 'Custom constructor', sans: 'Sans-serif' };
+
+      expect(resolveSelectedLabel('constructor', items)).toBe('Custom constructor');
+    });
+
+    it('keeps resolving the null placeholder key in a record', () => {
+      const items = { null: 'None', sans: 'Sans-serif' };
+
+      expect(resolveSelectedLabel(null, items)).toBe('None');
+    });
+
+    it('falls back to the stringified label when an own key has a nullish label', () => {
+      expect(resolveSelectedLabel('sans', { sans: undefined })).toBe('sans');
+      expect(resolveSelectedLabel('sans', { sans: null })).toBe('sans');
+    });
+  });
 });
