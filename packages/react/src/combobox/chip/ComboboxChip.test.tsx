@@ -195,7 +195,7 @@ describe('<Combobox.Chip />', () => {
       expect(screen.getByTestId('chip-banana')).not.toBe(null);
     });
 
-    it('moves focus to the input when a chip is pressed', async () => {
+    it('moves focus to the input when a chip is pressed while readOnly', async () => {
       const { user } = await render(
         <Combobox.Root multiple readOnly defaultValue={['apple']}>
           <Combobox.Chips>

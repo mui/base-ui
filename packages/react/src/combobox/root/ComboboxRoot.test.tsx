@@ -4708,6 +4708,39 @@ describe('<Combobox.Root />', () => {
       expect(handleValueChange.mock.calls.length).toBe(0);
     });
 
+    it('should report arrow-key highlights as keyboard-driven when readOnly', async () => {
+      const onItemHighlighted = vi.fn();
+      const { user } = await render(
+        <Combobox.Root readOnly onItemHighlighted={onItemHighlighted}>
+          <Combobox.Input data-testid="input" />
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  <Combobox.Item value="a">a</Combobox.Item>
+                  <Combobox.Item value="b">b</Combobox.Item>
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      // Opening by pointer marks pointer activity, which the arrow key must clear.
+      await user.click(screen.getByTestId('input'));
+      await screen.findByRole('listbox');
+      onItemHighlighted.mockClear();
+
+      await user.keyboard('{ArrowDown}');
+
+      await waitFor(() => {
+        expect(onItemHighlighted).toHaveBeenCalledWith(
+          'a',
+          expect.objectContaining({ reason: 'keyboard' }),
+        );
+      });
+    });
+
     it('should not commit a value with Enter on a highlighted item when readOnly', async () => {
       const handleValueChange = vi.fn();
       const { user } = await render(
@@ -4731,6 +4764,10 @@ describe('<Combobox.Root />', () => {
       await screen.findByRole('listbox');
 
       await user.keyboard('{ArrowDown}');
+      await waitFor(() => {
+        expect(screen.getByRole('option', { name: 'a' })).toHaveAttribute('data-highlighted');
+      });
+
       await user.keyboard('{Enter}');
 
       expect(handleValueChange.mock.calls.length).toBe(0);

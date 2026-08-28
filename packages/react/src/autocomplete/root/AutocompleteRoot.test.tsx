@@ -227,7 +227,7 @@ describe('<Autocomplete.Root />', () => {
     expect(input.value).toBe('');
   });
 
-  it('browses the list with the arrow keys but does not fill the input when readOnly', async () => {
+  it('opens the list with the arrow keys but does not commit on item press when readOnly', async () => {
     const onValueChange = vi.fn();
     const { user } = await render(
       <Autocomplete.Root defaultValue="" readOnly onValueChange={onValueChange}>
@@ -255,6 +255,38 @@ describe('<Autocomplete.Root />', () => {
 
     expect(onValueChange).not.toHaveBeenCalled();
     expect(input.value).toBe('');
+  });
+
+  it('does not fill the input with the highlighted item when readOnly', async () => {
+    const { user } = await render(
+      <Autocomplete.Root defaultValue="" readOnly mode="both">
+        <Autocomplete.Input data-testid="input" />
+        <Autocomplete.Portal>
+          <Autocomplete.Positioner>
+            <Autocomplete.Popup>
+              <Autocomplete.List>
+                <Autocomplete.Item value="alpha">alpha</Autocomplete.Item>
+                <Autocomplete.Item value="beta">beta</Autocomplete.Item>
+              </Autocomplete.List>
+            </Autocomplete.Popup>
+          </Autocomplete.Positioner>
+        </Autocomplete.Portal>
+      </Autocomplete.Root>,
+    );
+
+    const input = screen.getByTestId<HTMLInputElement>('input');
+    // Focused without a pointer event so the highlight is reported as keyboard-driven.
+    await act(async () => {
+      input.focus();
+    });
+
+    await user.keyboard('{ArrowDown}');
+    await user.keyboard('{ArrowDown}');
+
+    await waitFor(() => {
+      expect(screen.getByRole('option', { name: 'alpha' })).toHaveAttribute('data-highlighted');
+    });
+    expect(input).toHaveValue('');
   });
 
   it('ignores hidden-input autofill when disabled', async () => {

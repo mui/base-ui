@@ -43,7 +43,8 @@ export function AutocompleteRoot<ItemValue>(
     ...other
   } = props;
 
-  const enableInline = mode === 'inline' || mode === 'both';
+  // Inline completion writes the highlighted label into the input, which `readOnly` must prevent.
+  const enableInline = (mode === 'inline' || mode === 'both') && !props.readOnly;
   const staticItems = mode === 'inline' || mode === 'none';
 
   // Mirror the typed value for uncontrolled usage so we can compose the temporary

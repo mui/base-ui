@@ -1297,10 +1297,9 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
     };
   }, [inputElement, expanded, ariaExpanded, ariaHasPopup, listElement?.id, autoComplete]);
 
-  // `readOnly` locks the value, not the interaction: the popup can be opened and browsed so the
-  // user can see the available options and which one is selected. Committing a value is blocked
-  // separately in `ComboboxItem`, in the parts that clear or remove values, and in the hidden
-  // input's autofill handler.
+  // `readOnly` locks the value, not the interaction: the popup opens and can be browsed.
+  // Value changes stay blocked in `ComboboxItem`, `ComboboxInput`'s keydown, `ComboboxTrigger`'s
+  // typeahead, the clear/remove parts, and the hidden input's autofill handler.
   const click = useClick(floatingRootContext, {
     enabled: !disabled && openOnInputClick,
     event: 'mousedown-only',
