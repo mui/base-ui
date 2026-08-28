@@ -838,4 +838,75 @@ describe('<Popover.Popup />', () => {
       });
     });
   });
+
+  // A controlled consumer can refuse a close simply by keeping `open` at `true` — no
+  // `cancel()` call involved. Policy scoped to that refused close must not survive into the
+  // next, accepted one.
+  it.skipIf(isJSDOM)(
+    'returns focus after an accepted close that follows a refused guard close',
+    async () => {
+      const { userEvent: browserUserEvent } = await import('vitest/browser');
+      const refused: string[] = [];
+
+      function Test() {
+        const [open, setOpen] = React.useState(false);
+        return (
+          <div>
+            <button data-testid="before">before</button>
+            <Popover.Root
+              modal={false}
+              open={open}
+              onOpenChange={(nextOpen, details) => {
+                // Refuse focus-out closes by simply not updating state; accept everything else.
+                if (!nextOpen && details.reason === 'focus-out') {
+                  refused.push(details.reason);
+                  return;
+                }
+                setOpen(nextOpen);
+              }}
+            >
+              <Popover.Trigger openOnHover delay={0}>
+                Open
+              </Popover.Trigger>
+              <Popover.Portal>
+                <Popover.Positioner>
+                  <Popover.Popup>
+                    <button data-testid="inside">Inside</button>
+                  </Popover.Popup>
+                </Popover.Positioner>
+              </Popover.Portal>
+            </Popover.Root>
+            <button data-testid="after">after</button>
+          </div>
+        );
+      }
+
+      await render(<Test />);
+      const trigger = screen.getByRole('button', { name: 'Open' });
+
+      // Hover-opening leaves focus on the trigger, so Shift+Tab reaches the trigger's own
+      // pre-guard — the close path that hands the destination to the guard.
+      await act(async () => trigger.focus());
+      fireEvent.pointerEnter(trigger, { pointerType: 'mouse' });
+      fireEvent.mouseEnter(trigger);
+      fireEvent.mouseMove(trigger);
+      await waitFor(() => expect(screen.queryByRole('dialog')).not.toBe(null));
+
+      await act(async () => {
+        await browserUserEvent.tab({ shift: true });
+      });
+      await flushMicrotasks();
+
+      // The guard asked to close and the consumer refused, so the popup is still open.
+      expect(refused.length).toBeGreaterThan(0);
+      expect(screen.queryByRole('dialog')).not.toBe(null);
+
+      // Now close for real. The refused guard close must not have suppressed this return.
+      await act(async () => screen.getByTestId('inside').focus());
+      fireEvent.keyDown(screen.getByTestId('inside'), { key: 'Escape' });
+
+      await waitFor(() => expect(screen.queryByRole('dialog')).toBe(null));
+      await waitFor(() => expect(trigger).toHaveFocus());
+    },
+  );
 });

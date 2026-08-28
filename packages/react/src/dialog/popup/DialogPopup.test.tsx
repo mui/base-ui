@@ -1056,4 +1056,67 @@ describe('<Dialog.Popup />', () => {
       });
     },
   );
+
+  // `finalFocus` forms that resolve to the DEFAULT target — a callback returning `true` or
+  // `null`, or an empty ref — must not be treated as an explicit destination. Only a genuinely
+  // named element may override focus the user has already moved elsewhere.
+  describe.skipIf(isJSDOM)('fallback finalFocus does not override outside focus', () => {
+    function Test({
+      open,
+      finalFocus,
+    }: {
+      open: boolean;
+      finalFocus?: Dialog.Popup.Props['finalFocus'];
+    }) {
+      return (
+        <div>
+          <button data-testid="outside">outside</button>
+          <Dialog.Root open={open} modal={false} disablePointerDismissal>
+            <Dialog.Trigger>Open</Dialog.Trigger>
+            <Dialog.Portal>
+              <Dialog.Popup finalFocus={finalFocus}>
+                <button data-testid="inside">Inside</button>
+              </Dialog.Popup>
+            </Dialog.Portal>
+          </Dialog.Root>
+        </div>
+      );
+    }
+
+    async function openMoveFocusOutThenClose(finalFocus?: Dialog.Popup.Props['finalFocus']) {
+      const { setProps } = await render(<Test open finalFocus={finalFocus} />);
+      const outside = screen.getByTestId('outside');
+
+      await waitFor(() => expect(screen.getByTestId('inside')).toBeVisible());
+      // `disablePointerDismissal` turns off close-on-focus-out, so focus can legitimately
+      // move outside while the dialog stays open.
+      await act(async () => outside.focus());
+      expect(outside).toHaveFocus();
+
+      await setProps({ open: false });
+      await waitFor(() => expect(screen.queryByTestId('inside')).toBe(null));
+      return outside;
+    }
+
+    it('leaves focus alone for finalFocus={true}', async () => {
+      const outside = await openMoveFocusOutThenClose(true);
+      expect(outside).toHaveFocus();
+    });
+
+    it('leaves focus alone for a callback returning true', async () => {
+      const outside = await openMoveFocusOutThenClose(() => true);
+      expect(outside).toHaveFocus();
+    });
+
+    it('leaves focus alone for a callback returning null', async () => {
+      const outside = await openMoveFocusOutThenClose(() => null);
+      expect(outside).toHaveFocus();
+    });
+
+    it('leaves focus alone for an empty ref', async () => {
+      const emptyRef = { current: null } as React.RefObject<HTMLElement | null>;
+      const outside = await openMoveFocusOutThenClose(emptyRef);
+      expect(outside).toHaveFocus();
+    });
+  });
 });

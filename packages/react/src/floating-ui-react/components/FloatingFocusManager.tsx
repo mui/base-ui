@@ -918,10 +918,12 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
       if (!details.open) {
         session.closeType = getEventType(details.nativeEvent, lastInteractionTypeRef.current);
 
-        // Re-derive guard ownership for every close request. A consumer can refuse a close by
-        // ignoring it instead of calling `cancel()`, which leaves this session live. Without the
-        // reset, the refused request's ownership would still be set when a later close is
-        // accepted, suppressing that close's return focus and stranding focus on `<body>`.
+        // Re-derive close-scoped policy for every close request. A consumer can refuse a close
+        // by ignoring it instead of calling `cancel()`, which leaves this session live. Without
+        // the reset, the refused request's policy would still be set when a later close is
+        // accepted, suppressing that close's return focus and stranding focus on `<body>`. Every
+        // path that sets either flag runs after this point in the same dispatch.
+        session.preventReturnFocus = false;
         session.guardOwnsDestination = false;
 
         // A close driven by one of this popup's own focus guards already owns the destination —
@@ -1066,7 +1068,6 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
           // `returnElement` if it is tabbable, otherwise its first tabbable child,
           // otherwise `returnElement` itself (which may not be tabbable at all).
           const tabbableReturnElement = getFirstTabbableElement(returnElement);
-          const hasExplicitReturnFocus = typeof returnFocusValueOrFn !== 'boolean';
 
           if (
             returnFocusValueOrFn &&
@@ -1077,7 +1078,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
             // since it likely entered a different element which should be
             // respected: https://github.com/floating-ui/floating-ui/issues/2607
             //
-            (!hasExplicitReturnFocus && tabbableReturnElement !== activeEl && activeEl !== doc.body
+            (!isExplicitElement && tabbableReturnElement !== activeEl && activeEl !== doc.body
               ? isFocusInsideFloatingTree
               : true)
           ) {
