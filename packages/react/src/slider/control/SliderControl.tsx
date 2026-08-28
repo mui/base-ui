@@ -17,7 +17,7 @@ import {
 import { REASONS } from '../../internals/reasons';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { useDirection } from '../../internals/direction-context/DirectionContext';
-import { useSliderRootContext } from '../root/SliderRootContext';
+import { useSliderRootContext, useSliderRootPropsContext } from '../root/SliderRootContext';
 import { sliderStateAttributesMapping } from '../root/stateAttributesMapping';
 import type { SliderRootState } from '../root/SliderRoot';
 import { getMidpoint } from '../utils/getMidpoint';
@@ -88,30 +88,22 @@ export const SliderControl = React.forwardRef(function SliderControl(
 ) {
   const { render: renderProp, className, style, ...elementProps } = componentProps;
 
+  const store = useSliderRootContext();
+  const { disabled, inset, renderBeforeHydration, state, thumbCollisionBehavior } =
+    useSliderRootPropsContext();
+  const { dragging, max, min, minStepsBetweenValues, orientation, step, values } = state;
   const {
-    disabled,
-    dragging,
-    inset,
     lastChangeReasonRef,
-    max,
-    min,
-    minStepsBetweenValues,
     onValueCommitted,
-    orientation,
     pressedThumbCenterOffsetRef,
     pressedThumbIndexRef,
     pressedValuesRef,
     registerFieldControlRef,
-    renderBeforeHydration,
     setActive,
     setDragging,
     setValue,
-    state,
-    step,
-    thumbCollisionBehavior,
     thumbRefs,
-    values,
-  } = useSliderRootContext();
+  } = store;
 
   const direction = useDirection();
   const range = values.length > 1;

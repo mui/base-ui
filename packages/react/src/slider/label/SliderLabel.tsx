@@ -6,7 +6,7 @@ import { focusElementWithVisible, useLabel } from '../../internals/labelable-pro
 import type { BaseUIComponentProps } from '../../internals/types';
 import { useRenderElement } from '../../internals/useRenderElement';
 import type { SliderRoot } from '../root/SliderRoot';
-import { useSliderRootContext } from '../root/SliderRootContext';
+import { useSliderRootContext, useSliderRootPropsContext } from '../root/SliderRootContext';
 import { sliderStateAttributesMapping } from '../root/stateAttributesMapping';
 
 /**
@@ -24,7 +24,9 @@ export const SliderLabel = React.forwardRef(function SliderLabel(
   const elementPropsWithoutId = elementProps as typeof elementProps & { id?: string | undefined };
   delete elementPropsWithoutId.id;
 
-  const { state, setLabelId, controlRef, rootLabelId } = useSliderRootContext();
+  const store = useSliderRootContext();
+  const { rootLabelId, state } = useSliderRootPropsContext();
+  const { setLabelId, controlRef } = store;
 
   function focusControl(event: React.MouseEvent, controlId: string | undefined) {
     if (controlId) {

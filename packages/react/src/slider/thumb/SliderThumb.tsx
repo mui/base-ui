@@ -36,7 +36,7 @@ import { getMidpoint } from '../utils/getMidpoint';
 import { getSliderValue } from '../utils/getSliderValue';
 import { getDecimalPrecision, roundValueToStep } from '../utils/roundValueToStep';
 import type { SliderRootState } from '../root/SliderRoot';
-import { useSliderRootContext } from '../root/SliderRootContext';
+import { useSliderRootContext, useSliderRootPropsContext } from '../root/SliderRootContext';
 import { sliderStateAttributesMapping } from '../root/stateAttributesMapping';
 import * as SliderThumbDataAttributes from './SliderThumbDataAttributes';
 
@@ -113,34 +113,39 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
 
   const id = useBaseUiId(idProp);
 
+  const store = useSliderRootContext();
+  const { lastUsedThumbIndex } = store.useState('interaction');
   const {
-    active: activeIndex,
-    lastUsedThumbIndex,
-    controlRef,
     disabled: contextDisabled,
     validation,
     format,
-    handleInputChange,
     inset,
     labelId,
     largeStep,
     locale,
+    form,
+    name,
+    renderBeforeHydration,
+    state,
+  } = useSliderRootPropsContext();
+  const {
+    activeThumbIndex: activeIndex,
     max,
     min,
     minStepsBetweenValues,
-    form,
-    name,
     orientation,
+    step,
+    values: sliderValues,
+  } = state;
+  const {
+    controlRef,
+    handleInputChange,
     pressedThumbCenterOffsetRef,
     pressedThumbIndexRef,
-    renderBeforeHydration,
     setActive,
     setIndicatorPosition,
-    state,
-    step,
     thumbRefs,
-    values: sliderValues,
-  } = useSliderRootContext();
+  } = store;
 
   const direction = useDirection();
 
@@ -222,9 +227,9 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
     setPositionPercent(nextInsetPosition);
 
     if (index === 0) {
-      setIndicatorPosition((prevPosition) => [nextInsetPosition, prevPosition[1]]);
+      setIndicatorPosition(0, nextInsetPosition);
     } else if (last) {
-      setIndicatorPosition((prevPosition) => [prevPosition[0], nextInsetPosition]);
+      setIndicatorPosition(1, nextInsetPosition);
     }
   });
 
