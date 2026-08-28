@@ -351,6 +351,12 @@ const FruitItem = React.memo(function FruitItem({ item }: { item: Fruit }) {
 <Combobox.List>{(item: Fruit) => <FruitItem key={item.id} item={item} />}</Combobox.List>;
 ```
 
+### Custom keyboard shortcuts
+
+`<Combobox.Root>` accepts an `actionsRef` whose `highlightItem()` action moves the highlight to the `'next'`, `'previous'`, `'first'` or `'last'` item, or clears it with `'none'`. Use it to bind shortcuts beyond the built-in arrow keys — see [the Autocomplete example](/react/components/autocomplete#custom-keyboard-shortcuts).
+
+Passing `actionsRef` also makes unmounting the popup your responsibility, and on a [virtualized](#virtualized) list you should scroll to the highlighted index whenever `onItemHighlighted` reports the `'imperative-action'` reason.
+
 ## API reference
 
 import { TypesCombobox } from './types';

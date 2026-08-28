@@ -224,6 +224,10 @@ import { DemoSelectGrouped } from './demos/grouped';
 
 <DemoSelectGrouped />
 
+### Custom keyboard shortcuts
+
+`<Select.Root>` accepts an `actionsRef` whose `highlightItem()` action moves the highlight to the `'next'`, `'previous'`, `'first'` or `'last'` item, or clears it with `'none'`. Use it to bind shortcuts beyond the built-in arrow keys. Select items receive real DOM focus, so the action moves focus along with the highlight. Select does not loop focus, so `'next'` on the last item and `'previous'` on the first one leave the highlight where it is. The action does nothing while the popup is closed.
+
 ## API reference
 
 import { TypesSelect } from './types';

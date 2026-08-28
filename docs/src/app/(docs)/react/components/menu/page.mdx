@@ -340,6 +340,10 @@ import { DemoMenuDetachedTriggersFull } from './demos/detached-triggers-full';
 
 <DemoMenuDetachedTriggersFull />
 
+### Custom keyboard shortcuts
+
+`<Menu.Root>` accepts an `actionsRef` whose `highlightItem()` action moves the highlight to the `'next'`, `'previous'`, `'first'` or `'last'` item, or clears it with `'none'`. Use it to bind shortcuts beyond the built-in arrow keys. Menu items receive real DOM focus, so the action moves focus along with the highlight. It wraps around at the ends unless `loopFocus` is disabled, and does nothing while the menu is closed.
+
 ## API reference
 
 import { TypesMenu } from './types';

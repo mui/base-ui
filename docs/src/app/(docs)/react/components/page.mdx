@@ -168,6 +168,7 @@ An input that suggests options as you type.
     - Limit results
     - Auto highlight
     - Command palette
+    - Custom keyboard shortcuts
     - Grid layout
     - Virtualized
       - Memoizing items
@@ -252,7 +253,7 @@ An input that suggests options as you type.
   - Autocomplete - useFilter
     - Parameters: options
   - Autocomplete - useFilteredItems
-- Types: Autocomplete.Arrow.Props, Autocomplete.Arrow.State, Autocomplete.Backdrop.Props, Autocomplete.Backdrop.State, Autocomplete.Clear.Props, Autocomplete.Clear.State, Autocomplete.Collection.Props, Autocomplete.Collection.State, Autocomplete.Empty.Props, Autocomplete.Empty.State, Autocomplete.Group.Props, Autocomplete.Group.State, Autocomplete.GroupLabel.Props, Autocomplete.GroupLabel.State, Autocomplete.Icon.Props, Autocomplete.Icon.State, Autocomplete.Input.Props, Autocomplete.Input.State, Autocomplete.InputGroup.Props, Autocomplete.InputGroup.State, Autocomplete.Item.Props, Autocomplete.Item.State, Autocomplete.List.Props, Autocomplete.List.State, Autocomplete.Popup.Props, Autocomplete.Popup.State, Autocomplete.Portal.Props, Autocomplete.Portal.State, Autocomplete.Positioner.Props, Autocomplete.Positioner.State, Autocomplete.Root.Actions, Autocomplete.Root.ChangeEventDetails, Autocomplete.Root.ChangeEventReason, Autocomplete.Root.HighlightEventDetails, Autocomplete.Root.HighlightEventReason, Autocomplete.Root.Props, Autocomplete.Root.State, Autocomplete.Row.Props, Autocomplete.Row.State, Autocomplete.Separator.Props, Autocomplete.Separator.State, Autocomplete.Status.Props, Autocomplete.Status.State, Autocomplete.Trigger.Props, Autocomplete.Trigger.State, Autocomplete.Value.Props, Autocomplete.Value.State
+- Types: Autocomplete.Arrow.Props, Autocomplete.Arrow.State, Autocomplete.Backdrop.Props, Autocomplete.Backdrop.State, Autocomplete.Clear.Props, Autocomplete.Clear.State, Autocomplete.Collection.Props, Autocomplete.Collection.State, Autocomplete.Empty.Props, Autocomplete.Empty.State, Autocomplete.Group.Props, Autocomplete.Group.State, Autocomplete.GroupLabel.Props, Autocomplete.GroupLabel.State, Autocomplete.Icon.Props, Autocomplete.Icon.State, Autocomplete.Input.Props, Autocomplete.Input.State, Autocomplete.InputGroup.Props, Autocomplete.InputGroup.State, Autocomplete.Item.Props, Autocomplete.Item.State, Autocomplete.List.Props, Autocomplete.List.State, Autocomplete.Popup.Props, Autocomplete.Popup.State, Autocomplete.Portal.Props, Autocomplete.Portal.State, Autocomplete.Positioner.Props, Autocomplete.Positioner.State, Autocomplete.Root.Actions, Autocomplete.Root.ChangeEventDetails, Autocomplete.Root.ChangeEventReason, Autocomplete.Root.HighlightEventDetails, Autocomplete.Root.HighlightEventReason, Autocomplete.Root.HighlightItemTarget, Autocomplete.Root.Props, Autocomplete.Root.State, Autocomplete.Row.Props, Autocomplete.Row.State, Autocomplete.Separator.Props, Autocomplete.Separator.State, Autocomplete.Status.Props, Autocomplete.Status.State, Autocomplete.Trigger.Props, Autocomplete.Trigger.State, Autocomplete.Value.Props, Autocomplete.Value.State
 
 </details>
 
@@ -435,6 +436,7 @@ An input combined with a list of predefined items to select.
     - Creatable
     - Virtualized
       - Memoizing items
+    - Custom keyboard shortcuts
   - API reference
     - Root
     - Label
@@ -536,7 +538,7 @@ An input combined with a list of predefined items to select.
     - Parameters: options
   - Combobox - useFilteredItems
   - ComboboxItemCollection
-- Types: Combobox.Arrow.Props, Combobox.Arrow.State, Combobox.Backdrop.Props, Combobox.Backdrop.State, Combobox.Chip.Props, Combobox.Chip.State, Combobox.ChipRemove.Props, Combobox.ChipRemove.State, Combobox.Chips.Props, Combobox.Chips.State, Combobox.Clear.Props, Combobox.Clear.State, Combobox.Collection.Props, Combobox.Collection.State, Combobox.Empty.Props, Combobox.Empty.State, Combobox.Group.Props, Combobox.Group.State, Combobox.GroupLabel.Props, Combobox.GroupLabel.State, Combobox.Icon.Props, Combobox.Icon.State, Combobox.Input.Props, Combobox.Input.State, Combobox.InputGroup.Props, Combobox.InputGroup.State, Combobox.Item.Props, Combobox.Item.State, Combobox.ItemIndicator.Props, Combobox.ItemIndicator.State, Combobox.Label.Props, Combobox.Label.State, Combobox.List.Props, Combobox.List.State, Combobox.Popup.Props, Combobox.Popup.State, Combobox.Portal.Props, Combobox.Portal.State, Combobox.Positioner.Props, Combobox.Positioner.State, Combobox.Root.Actions, Combobox.Root.ChangeEventDetails, Combobox.Root.ChangeEventReason, Combobox.Root.HighlightEventDetails, Combobox.Root.HighlightEventReason, Combobox.Root.Props, Combobox.Root.State, Combobox.Row.Props, Combobox.Row.State, Combobox.Separator.Props, Combobox.Separator.State, Combobox.Status.Props, Combobox.Status.State, Combobox.Trigger.Props, Combobox.Trigger.State, Combobox.Value.Props, Combobox.Value.State
+- Types: Combobox.Arrow.Props, Combobox.Arrow.State, Combobox.Backdrop.Props, Combobox.Backdrop.State, Combobox.Chip.Props, Combobox.Chip.State, Combobox.ChipRemove.Props, Combobox.ChipRemove.State, Combobox.Chips.Props, Combobox.Chips.State, Combobox.Clear.Props, Combobox.Clear.State, Combobox.Collection.Props, Combobox.Collection.State, Combobox.Empty.Props, Combobox.Empty.State, Combobox.Group.Props, Combobox.Group.State, Combobox.GroupLabel.Props, Combobox.GroupLabel.State, Combobox.Icon.Props, Combobox.Icon.State, Combobox.Input.Props, Combobox.Input.State, Combobox.InputGroup.Props, Combobox.InputGroup.State, Combobox.Item.Props, Combobox.Item.State, Combobox.ItemIndicator.Props, Combobox.ItemIndicator.State, Combobox.Label.Props, Combobox.Label.State, Combobox.List.Props, Combobox.List.State, Combobox.Popup.Props, Combobox.Popup.State, Combobox.Portal.Props, Combobox.Portal.State, Combobox.Positioner.Props, Combobox.Positioner.State, Combobox.Root.Actions, Combobox.Root.ChangeEventDetails, Combobox.Root.ChangeEventReason, Combobox.Root.HighlightEventDetails, Combobox.Root.HighlightEventReason, Combobox.Root.HighlightItemTarget, Combobox.Root.Props, Combobox.Root.State, Combobox.Row.Props, Combobox.Row.State, Combobox.Separator.Props, Combobox.Separator.State, Combobox.Status.Props, Combobox.Status.State, Combobox.Trigger.Props, Combobox.Trigger.State, Combobox.Value.Props, Combobox.Value.State
 
 </details>
 
@@ -629,7 +631,7 @@ A menu that appears at the pointer on right click or long press.
   - Context Menu - LinkItem
     - Props: className, closeOnClick, label, render, style
     - Data Attributes: data-highlighted
-- Types: ContextMenu.Arrow.Props, ContextMenu.Arrow.State, ContextMenu.Backdrop.Props, ContextMenu.Backdrop.State, ContextMenu.CheckboxItem.ChangeEventDetails, ContextMenu.CheckboxItem.ChangeEventReason, ContextMenu.CheckboxItem.Props, ContextMenu.CheckboxItem.State, ContextMenu.CheckboxItemIndicator.Props, ContextMenu.CheckboxItemIndicator.State, ContextMenu.Group.Props, ContextMenu.Group.State, ContextMenu.GroupLabel.Props, ContextMenu.GroupLabel.State, ContextMenu.Item.Props, ContextMenu.Item.State, ContextMenu.LinkItem.Props, ContextMenu.LinkItem.State, ContextMenu.Popup.Props, ContextMenu.Popup.State, ContextMenu.Portal.Props, ContextMenu.Portal.State, ContextMenu.Positioner.Props, ContextMenu.Positioner.State, ContextMenu.RadioGroup.ChangeEventDetails, ContextMenu.RadioGroup.ChangeEventReason, ContextMenu.RadioGroup.Props, ContextMenu.RadioGroup.State, ContextMenu.RadioItem.Props, ContextMenu.RadioItem.State, ContextMenu.RadioItemIndicator.Props, ContextMenu.RadioItemIndicator.State, ContextMenu.Root.Actions, ContextMenu.Root.ChangeEventDetails, ContextMenu.Root.ChangeEventReason, ContextMenu.Root.Props, ContextMenu.Root.State, ContextMenu.Separator.Props, ContextMenu.Separator.State, ContextMenu.SubmenuRoot.ChangeEventDetails, ContextMenu.SubmenuRoot.ChangeEventReason, ContextMenu.SubmenuRoot.Props, ContextMenu.SubmenuRoot.State, ContextMenu.SubmenuTrigger.Props, ContextMenu.SubmenuTrigger.State, ContextMenu.Trigger.Props, ContextMenu.Trigger.State
+- Types: ContextMenu.Arrow.Props, ContextMenu.Arrow.State, ContextMenu.Backdrop.Props, ContextMenu.Backdrop.State, ContextMenu.CheckboxItem.ChangeEventDetails, ContextMenu.CheckboxItem.ChangeEventReason, ContextMenu.CheckboxItem.Props, ContextMenu.CheckboxItem.State, ContextMenu.CheckboxItemIndicator.Props, ContextMenu.CheckboxItemIndicator.State, ContextMenu.Group.Props, ContextMenu.Group.State, ContextMenu.GroupLabel.Props, ContextMenu.GroupLabel.State, ContextMenu.Item.Props, ContextMenu.Item.State, ContextMenu.LinkItem.Props, ContextMenu.LinkItem.State, ContextMenu.Popup.Props, ContextMenu.Popup.State, ContextMenu.Portal.Props, ContextMenu.Portal.State, ContextMenu.Positioner.Props, ContextMenu.Positioner.State, ContextMenu.RadioGroup.ChangeEventDetails, ContextMenu.RadioGroup.ChangeEventReason, ContextMenu.RadioGroup.Props, ContextMenu.RadioGroup.State, ContextMenu.RadioItem.Props, ContextMenu.RadioItem.State, ContextMenu.RadioItemIndicator.Props, ContextMenu.RadioItemIndicator.State, ContextMenu.Root.Actions, ContextMenu.Root.ChangeEventDetails, ContextMenu.Root.ChangeEventReason, ContextMenu.Root.HighlightItemTarget, ContextMenu.Root.Props, ContextMenu.Root.State, ContextMenu.Separator.Props, ContextMenu.Separator.State, ContextMenu.SubmenuRoot.ChangeEventDetails, ContextMenu.SubmenuRoot.ChangeEventReason, ContextMenu.SubmenuRoot.Props, ContextMenu.SubmenuRoot.State, ContextMenu.SubmenuTrigger.Props, ContextMenu.SubmenuTrigger.State, ContextMenu.Trigger.Props, ContextMenu.Trigger.State
 
 </details>
 
@@ -940,6 +942,7 @@ A list of actions in a dropdown, enhanced with keyboard navigation.
     - Animating the Menu
       - Position and Size
       - Content
+    - Custom keyboard shortcuts
   - API reference
     - Root
     - Trigger
@@ -1021,7 +1024,7 @@ A list of actions in a dropdown, enhanced with keyboard navigation.
   - Menu - LinkItem
     - Props: className, closeOnClick, label, render, style
     - Data Attributes: data-highlighted
-- Types: Menu.Arrow.Props, Menu.Arrow.State, Menu.Backdrop.Props, Menu.Backdrop.State, Menu.CheckboxItem.ChangeEventDetails, Menu.CheckboxItem.ChangeEventReason, Menu.CheckboxItem.Props, Menu.CheckboxItem.State, Menu.CheckboxItemIndicator.Props, Menu.CheckboxItemIndicator.State, Menu.Group.Props, Menu.Group.State, Menu.GroupLabel.Props, Menu.GroupLabel.State, Menu.Item.Props, Menu.Item.State, Menu.LinkItem.Props, Menu.LinkItem.State, Menu.Popup.Props, Menu.Popup.State, Menu.Portal.Props, Menu.Portal.State, Menu.Positioner.Props, Menu.Positioner.State, Menu.RadioGroup.ChangeEventDetails, Menu.RadioGroup.ChangeEventReason, Menu.RadioGroup.Props, Menu.RadioGroup.State, Menu.RadioItem.Props, Menu.RadioItem.State, Menu.RadioItemIndicator.Props, Menu.RadioItemIndicator.State, Menu.Root.Actions, Menu.Root.ChangeEventDetails, Menu.Root.ChangeEventReason, Menu.Root.Orientation, Menu.Root.Props, Menu.Root.State, Menu.Separator.Props, Menu.Separator.State, Menu.SubmenuRoot.ChangeEventDetails, Menu.SubmenuRoot.ChangeEventReason, Menu.SubmenuRoot.Props, Menu.SubmenuRoot.State, Menu.SubmenuTrigger.Props, Menu.SubmenuTrigger.State, Menu.Trigger.Props, Menu.Trigger.State, Menu.Viewport.Props, Menu.Viewport.State
+- Types: Menu.Arrow.Props, Menu.Arrow.State, Menu.Backdrop.Props, Menu.Backdrop.State, Menu.CheckboxItem.ChangeEventDetails, Menu.CheckboxItem.ChangeEventReason, Menu.CheckboxItem.Props, Menu.CheckboxItem.State, Menu.CheckboxItemIndicator.Props, Menu.CheckboxItemIndicator.State, Menu.Group.Props, Menu.Group.State, Menu.GroupLabel.Props, Menu.GroupLabel.State, Menu.Item.Props, Menu.Item.State, Menu.LinkItem.Props, Menu.LinkItem.State, Menu.Popup.Props, Menu.Popup.State, Menu.Portal.Props, Menu.Portal.State, Menu.Positioner.Props, Menu.Positioner.State, Menu.RadioGroup.ChangeEventDetails, Menu.RadioGroup.ChangeEventReason, Menu.RadioGroup.Props, Menu.RadioGroup.State, Menu.RadioItem.Props, Menu.RadioItem.State, Menu.RadioItemIndicator.Props, Menu.RadioItemIndicator.State, Menu.Root.Actions, Menu.Root.ChangeEventDetails, Menu.Root.ChangeEventReason, Menu.Root.HighlightItemTarget, Menu.Root.Orientation, Menu.Root.Props, Menu.Root.State, Menu.Separator.Props, Menu.Separator.State, Menu.SubmenuRoot.ChangeEventDetails, Menu.SubmenuRoot.ChangeEventReason, Menu.SubmenuRoot.Props, Menu.SubmenuRoot.State, Menu.SubmenuTrigger.Props, Menu.SubmenuTrigger.State, Menu.Trigger.Props, Menu.Trigger.State, Menu.Viewport.Props, Menu.Viewport.State
 
 </details>
 
@@ -1521,6 +1524,7 @@ A common form component for choosing a predefined value in a dropdown menu.
     - Multiple selection
     - Object values
     - Grouped
+    - Custom keyboard shortcuts
   - API reference
     - Root
     - Label
@@ -1592,7 +1596,7 @@ A common form component for choosing a predefined value in a dropdown menu.
   - Select - ScrollDownArrow
     - Props: className, keepMounted, render, style
     - Data Attributes: data-direction, data-ending-style, data-side, data-starting-style, data-visible
-- Types: Select.Arrow.Props, Select.Arrow.State, Select.Backdrop.Props, Select.Backdrop.State, Select.Group.Props, Select.Group.State, Select.GroupLabel.Props, Select.GroupLabel.State, Select.Icon.Props, Select.Icon.State, Select.Item.Props, Select.Item.State, Select.ItemIndicator.Props, Select.ItemIndicator.State, Select.ItemText.Props, Select.ItemText.State, Select.Label.Props, Select.Label.State, Select.List.Props, Select.List.State, Select.Popup.Props, Select.Popup.State, Select.Portal.Props, Select.Portal.State, Select.Positioner.Props, Select.Positioner.State, Select.Root.Actions, Select.Root.ChangeEventDetails, Select.Root.ChangeEventReason, Select.Root.Props, Select.Root.State, Select.ScrollDownArrow.Props, Select.ScrollDownArrow.State, Select.ScrollUpArrow.Props, Select.ScrollUpArrow.State, Select.Separator.Props, Select.Separator.State, Select.Trigger.Props, Select.Trigger.State, Select.Value.Props, Select.Value.State
+- Types: Select.Arrow.Props, Select.Arrow.State, Select.Backdrop.Props, Select.Backdrop.State, Select.Group.Props, Select.Group.State, Select.GroupLabel.Props, Select.GroupLabel.State, Select.Icon.Props, Select.Icon.State, Select.Item.Props, Select.Item.State, Select.ItemIndicator.Props, Select.ItemIndicator.State, Select.ItemText.Props, Select.ItemText.State, Select.Label.Props, Select.Label.State, Select.List.Props, Select.List.State, Select.Popup.Props, Select.Popup.State, Select.Portal.Props, Select.Portal.State, Select.Positioner.Props, Select.Positioner.State, Select.Root.Actions, Select.Root.ChangeEventDetails, Select.Root.ChangeEventReason, Select.Root.HighlightItemTarget, Select.Root.Props, Select.Root.State, Select.ScrollDownArrow.Props, Select.ScrollDownArrow.State, Select.ScrollUpArrow.Props, Select.ScrollUpArrow.State, Select.Separator.Props, Select.Separator.State, Select.Trigger.Props, Select.Trigger.State, Select.Value.Props, Select.Value.State
 
 </details>
 
