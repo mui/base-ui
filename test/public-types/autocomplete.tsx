@@ -30,7 +30,7 @@ function useAutocompleteFilter(
 
 export const AutocompleteHarness = React.forwardRef<HTMLInputElement, SimpleAutocompleteProps>(
   function AutocompleteHarness({ items, ...props }, ref) {
-    const actionsRef = React.useRef<AutocompleteActions>({ unmount() {}, close() {} });
+    const actionsRef = React.useRef<AutocompleteActions>({ unmount() {}, close() {}, highlightItem() {} });
     const filter = useAutocompleteFilter();
 
     React.useMemo(() => filter.contains(items[0] ?? '', ''), [filter, items]);

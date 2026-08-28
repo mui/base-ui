@@ -84,7 +84,13 @@ export interface ContextMenuRootProps extends Omit<
   children?: React.ReactNode | undefined;
 }
 
-export type ContextMenuRootActions = MenuRoot.Actions;
+export type ContextMenuRootHighlightItemTarget = MenuRoot.HighlightItemTarget;
+
+export interface ContextMenuRootActions {
+  unmount: () => void;
+  close: () => void;
+  highlightItem: (target: ContextMenuRootHighlightItemTarget) => void;
+}
 export type ContextMenuRootChangeEventReason = MenuRoot.ChangeEventReason;
 export type ContextMenuRootChangeEventDetails =
   BaseUIChangeEventDetails<ContextMenuRoot.ChangeEventReason>;
@@ -93,6 +99,7 @@ export namespace ContextMenuRoot {
   export type State = ContextMenuRootState;
   export type Props = ContextMenuRootProps;
   export type Actions = ContextMenuRootActions;
+  export type HighlightItemTarget = ContextMenuRootHighlightItemTarget;
   export type ChangeEventReason = ContextMenuRootChangeEventReason;
   export type ChangeEventDetails = ContextMenuRootChangeEventDetails;
 }

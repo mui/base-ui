@@ -123,6 +123,11 @@ export type ComboboxRootProps<
    * Call `preventUnmountOnClose()` in `onOpenChange` first, otherwise the combobox completes closing on its own.
    * Whether it leaves the DOM is decided by `keepMounted` on the portal.
    * - `close`: Closes the combobox imperatively when called.
+   * - `highlightItem`: Moves the highlight to the `'next'`, `'previous'`, `'first'` or `'last'`
+   * item, or clears it with `'none'`. Useful for binding custom keyboard shortcuts.
+   * Does nothing while the popup is closed, and `'next'`/`'previous'` do nothing when `grid`
+   * is enabled. `'none'` does nothing under `autoHighlight="always"`, which by definition
+   * always keeps an item highlighted.
    */
   actionsRef?: React.RefObject<ComboboxRoot.Actions | null> | undefined;
   /**
@@ -141,6 +146,7 @@ export type ComboboxRootProps<
    * The `reason` can be:
    * - `'keyboard'`: the highlight changed due to keyboard navigation.
    * - `'pointer'`: the highlight changed due to pointer hovering.
+   * - `'imperative-action'`: the highlight changed via `actionsRef`'s `highlightItem`.
    * - `'none'`: the highlight changed programmatically.
    */
   onItemHighlighted?:
@@ -166,7 +172,12 @@ export type ComboboxRootProps<
 
 export interface ComboboxRootState extends AriaComboboxState {}
 
-export type ComboboxRootActions = AriaCombobox.Actions;
+export type ComboboxRootHighlightItemTarget = AriaCombobox.HighlightItemTarget;
+
+export interface ComboboxRootActions {
+  unmount: () => void;
+  highlightItem: (target: ComboboxRootHighlightItemTarget) => void;
+}
 
 export type ComboboxRootOpenChangeEventDetails = AriaCombobox.OpenChangeEventDetails;
 
@@ -184,6 +195,7 @@ export namespace ComboboxRoot {
   > = ComboboxRootProps<Value, Multiple, Item>;
   export type State = ComboboxRootState;
   export type Actions = ComboboxRootActions;
+  export type HighlightItemTarget = ComboboxRootHighlightItemTarget;
   export type ChangeEventReason = ComboboxRootChangeEventReason;
   export type ChangeEventDetails = ComboboxRootChangeEventDetails;
   export type OpenChangeEventDetails = ComboboxRootOpenChangeEventDetails;

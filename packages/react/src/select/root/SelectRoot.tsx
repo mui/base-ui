@@ -19,6 +19,7 @@ import {
   useListNavigation,
   useTypeahead,
 } from '../../floating-ui-react';
+import type { HighlightItemTarget } from '../../floating-ui-react/hooks/useListNavigation';
 import {
   SelectFloatingContext,
   SelectRootContext,
@@ -314,19 +315,6 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     },
   );
 
-  React.useImperativeHandle(
-    actionsRef,
-    () => ({
-      unmount: handleUnmount,
-      close: () => {
-        if (store.state.open) {
-          setOpen(false, createChangeEventDetails(REASONS.imperativeAction));
-        }
-      },
-    }),
-    [handleUnmount, setOpen, store],
-  );
-
   const setValue = useStableCallback(
     (nextValue: any, eventDetails: SelectRoot.ChangeEventDetails) => {
       onValueChange?.(nextValue, eventDetails);
@@ -384,6 +372,20 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     },
     focusItemOnHover: highlightItemOnHover,
   });
+
+  React.useImperativeHandle(
+    actionsRef,
+    () => ({
+      unmount: handleUnmount,
+      close: () => {
+        if (store.state.open) {
+          setOpen(false, createChangeEventDetails(REASONS.imperativeAction));
+        }
+      },
+      highlightItem: listNavigation.highlightItem,
+    }),
+    [handleUnmount, setOpen, store, listNavigation.highlightItem],
+  );
 
   const typeahead = useTypeahead(floatingContext, {
     // Typeahead on an open popup only moves the highlight, so it remains available while
@@ -683,6 +685,9 @@ export interface SelectRootProps<Value, Multiple extends boolean | undefined = f
    * Call `preventUnmountOnClose()` in `onOpenChange` first, otherwise the select completes closing on its own.
    * Whether it leaves the DOM is decided by `keepMounted` on the portal.
    * - `close`: Closes the select imperatively when called.
+   * - `highlightItem`: Moves the highlight to the `'next'`, `'previous'`, `'first'` or `'last'`
+   *   item, or clears it with `'none'`. Useful for binding custom keyboard shortcuts.
+   *   Does nothing while the popup is closed.
    */
   actionsRef?: React.RefObject<SelectRootActions | null> | undefined;
   /**
@@ -742,9 +747,12 @@ export interface SelectRootProps<Value, Multiple extends boolean | undefined = f
 
 export interface SelectRootState {}
 
+export type SelectRootHighlightItemTarget = HighlightItemTarget;
+
 export interface SelectRootActions {
   unmount: () => void;
   close: () => void;
+  highlightItem: (target: SelectRootHighlightItemTarget) => void;
 }
 
 export type SelectRootChangeEventReason =
@@ -773,6 +781,7 @@ export namespace SelectRoot {
   >;
   export type State = SelectRootState;
   export type Actions = SelectRootActions;
+  export type HighlightItemTarget = SelectRootHighlightItemTarget;
   export type ChangeEventReason = SelectRootChangeEventReason;
   export type ChangeEventDetails = SelectRootChangeEventDetails;
   export type OpenChangeEventDetails = SelectRootOpenChangeEventDetails;
