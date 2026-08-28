@@ -227,6 +227,36 @@ describe('<Autocomplete.Root />', () => {
     expect(input.value).toBe('');
   });
 
+  it('browses the list with the arrow keys but does not fill the input when readOnly', async () => {
+    const onValueChange = vi.fn();
+    const { user } = await render(
+      <Autocomplete.Root defaultValue="" readOnly onValueChange={onValueChange}>
+        <Autocomplete.Input data-testid="input" />
+        <Autocomplete.Portal>
+          <Autocomplete.Positioner>
+            <Autocomplete.Popup>
+              <Autocomplete.List>
+                <Autocomplete.Item value="alpha">alpha</Autocomplete.Item>
+                <Autocomplete.Item value="beta">beta</Autocomplete.Item>
+              </Autocomplete.List>
+            </Autocomplete.Popup>
+          </Autocomplete.Positioner>
+        </Autocomplete.Portal>
+      </Autocomplete.Root>,
+    );
+
+    const input = screen.getByTestId<HTMLInputElement>('input');
+    await user.click(input);
+    await user.keyboard('{ArrowDown}');
+
+    expect(await screen.findByRole('listbox')).toHaveAttribute('aria-readonly', 'true');
+
+    await user.click(await screen.findByRole('option', { name: 'beta' }));
+
+    expect(onValueChange).not.toHaveBeenCalled();
+    expect(input.value).toBe('');
+  });
+
   it('ignores hidden-input autofill when disabled', async () => {
     const onValueChange = vi.fn();
     await render(

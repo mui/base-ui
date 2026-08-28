@@ -195,19 +195,19 @@ describe('<Combobox.Chip />', () => {
       expect(screen.getByTestId('chip-banana')).not.toBe(null);
     });
 
-    it('should focus when readOnly', async () => {
+    it('moves focus to the input when a chip is pressed', async () => {
       const { user } = await render(
-        <Combobox.Root multiple readOnly>
+        <Combobox.Root multiple readOnly defaultValue={['apple']}>
           <Combobox.Chips>
             <Combobox.Chip data-testid="chip">apple</Combobox.Chip>
+            <Combobox.Input data-testid="input" />
           </Combobox.Chips>
         </Combobox.Root>,
       );
 
-      const chip = screen.getByTestId('chip');
-      await user.click(chip);
+      await user.click(screen.getByTestId('chip'));
 
-      expect(chip).toHaveFocus();
+      expect(screen.getByTestId('input')).toHaveFocus();
     });
   });
 

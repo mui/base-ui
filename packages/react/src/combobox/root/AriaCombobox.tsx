@@ -1297,8 +1297,12 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
     };
   }, [inputElement, expanded, ariaExpanded, ariaHasPopup, listElement?.id, autoComplete]);
 
+  // `readOnly` locks the value, not the interaction: the popup can be opened and browsed so the
+  // user can see the available options and which one is selected. Committing a value is blocked
+  // separately in `ComboboxItem`, in the parts that clear or remove values, and in the hidden
+  // input's autofill handler.
   const click = useClick(floatingRootContext, {
-    enabled: !readOnly && !disabled && openOnInputClick,
+    enabled: !disabled && openOnInputClick,
     event: 'mousedown-only',
     toggle: false,
     // Apply a small delay for touch to let mobile viewport/keyboard positioning settle.
@@ -1308,7 +1312,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
   });
 
   const dismiss = useDismiss(floatingRootContext, {
-    enabled: !readOnly && !disabled && !inline,
+    enabled: !disabled && !inline,
     outsidePressEvent: {
       mouse: 'sloppy',
       // The visual viewport (affected by the mobile software keyboard) can be
@@ -1330,7 +1334,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
   });
 
   const listNavigation = useListNavigation(floatingRootContext, {
-    enabled: !readOnly && !disabled,
+    enabled: !disabled,
     id,
     listRef,
     activeIndex,
