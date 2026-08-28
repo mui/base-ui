@@ -33,14 +33,16 @@ Add the `keepMounted` prop to render the image element right away and let it loa
 import Image from 'next/image';
 
 <Avatar.Root>
-  <Avatar.Image keepMounted render={<Image src="/avatar.png" width={32} height={32} alt="" />} />
   <Avatar.Fallback>LT</Avatar.Fallback>
+  <Avatar.Image keepMounted render={<Image src="/avatar.png" width={32} height={32} alt="" />} />
 </Avatar.Root>;
 ```
 
 ### Stacking
 
-With `keepMounted`, the image and the fallback are both present until the image loads. The image is hidden from assistive technology until then, so the fallback provides the accessible name on its own. Stack the two and render the image on top, so the fallback shows through until the image covers it.
+With `keepMounted`, the image and the fallback are both present until the image loads. The image is hidden from assistive technology until then, so the fallback provides the accessible name on its own.
+
+Stack the two in the same box, and place `<Avatar.Image>` after `<Avatar.Fallback>`. Both are positioned, so whichever comes later in the DOM paints on top. The fallback then shows through until the image covers it.
 
 A loading image paints nothing, so the fallback shows through on its own. An image that failed to load paints a broken-image icon on top of it. Hide the image in either state with the `data-loading` and `data-error` attributes:
 

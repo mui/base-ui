@@ -46,13 +46,19 @@ export const AvatarImage = React.forwardRef(function AvatarImage(
     onLoadingStatusChange: onLoadingStatusChangeProp,
     keepMounted = false,
     style,
+    // Split out so they can be applied after every other prop. React 17 and 18 set attributes in
+    // props order, and Safari and Firefox start fetching as soon as `src` lands, ignoring a
+    // `loading` or `srcSet` that arrives after it. React 19 orders these itself.
+    sizes,
+    srcSet,
+    src,
     ...elementProps
   } = componentProps;
 
   const { setImageLoadingStatus: setRootImageLoadingStatus } = useAvatarRootContext();
   const [imageLoadingStatus, setImageLoadingStatus] = useImageLoadingStatus(
-    elementProps.src,
-    elementProps,
+    src,
+    componentProps,
     !keepMounted,
   );
 
@@ -94,9 +100,9 @@ export const AvatarImage = React.forwardRef(function AvatarImage(
     }
   }, [
     keepMounted,
-    elementProps.src,
-    elementProps.srcSet,
-    elementProps.sizes,
+    src,
+    srcSet,
+    sizes,
     elementProps.crossOrigin,
     elementProps.referrerPolicy,
     render,
@@ -152,11 +158,14 @@ export const AvatarImage = React.forwardRef(function AvatarImage(
   };
 
   const shouldRender = keepMounted || mounted;
+  const sourceProps = { sizes, srcSet, src };
 
   const element = useRenderElement('img', componentProps, {
     state,
     ref: [forwardedRef, imageRef],
-    props: renderedStatusProps ? [renderedStatusProps, elementProps] : elementProps,
+    props: renderedStatusProps
+      ? [renderedStatusProps, elementProps, sourceProps]
+      : [elementProps, sourceProps],
     stateAttributesMapping,
     enabled: shouldRender,
   });

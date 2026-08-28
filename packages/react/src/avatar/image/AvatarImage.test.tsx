@@ -665,6 +665,36 @@ describe('<Avatar.Image />', () => {
       });
     });
 
+    it.skipIf(!isJSDOM)(
+      'applies the source props after the ones configuring the request',
+      async () => {
+        let keys: string[] = [];
+
+        await render(
+          <Avatar.Root>
+            <Avatar.Image
+              keepMounted
+              src="avatar.png"
+              loading="lazy"
+              sizes="48px"
+              srcSet="avatar.png 1x, avatar@2x.png 2x"
+              render={(props) => {
+                keys = Object.keys(props);
+                return <img alt="" {...props} />;
+              }}
+            />
+            <Avatar.Fallback>JD</Avatar.Fallback>
+          </Avatar.Root>,
+        );
+
+        // React 17 and 18 set attributes in props order, and Safari and Firefox start fetching as
+        // soon as `src` lands. Anything configuring that request has to be applied before it.
+        expect(keys.indexOf('src')).toBeGreaterThan(keys.indexOf('loading'));
+        expect(keys.indexOf('src')).toBeGreaterThan(keys.indexOf('sizes'));
+        expect(keys.indexOf('src')).toBeGreaterThan(keys.indexOf('srcSet'));
+      },
+    );
+
     it.skipIf(isJSDOM)(
       'keeps the status reported by an element that does not forward a ref',
       async () => {
