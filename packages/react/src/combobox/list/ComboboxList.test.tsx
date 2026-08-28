@@ -51,6 +51,29 @@ describe('<Combobox.List />', () => {
     expect(screen.getByRole('listbox')).toHaveAttribute('aria-readonly', 'true');
   });
 
+  it('does not set aria-readonly on the grid when the root is readOnly', async () => {
+    await render(
+      <Combobox.Root readOnly defaultOpen grid>
+        <Combobox.Input data-testid="input" />
+        <Combobox.Portal>
+          <Combobox.Positioner>
+            <Combobox.Popup>
+              <Combobox.List>
+                <Combobox.Row>
+                  <Combobox.Item value="a">a</Combobox.Item>
+                </Combobox.Row>
+              </Combobox.List>
+            </Combobox.Popup>
+          </Combobox.Positioner>
+        </Combobox.Portal>
+      </Combobox.Root>,
+    );
+
+    // `aria-readonly` on a grid describes cell editability, so the combobox carries the state.
+    expect(screen.getByRole('grid')).not.toHaveAttribute('aria-readonly');
+    expect(screen.getByTestId('input')).toHaveAttribute('aria-readonly', 'true');
+  });
+
   it('does not set aria-readonly on the listbox by default', async () => {
     await render(
       <Combobox.Root defaultOpen>

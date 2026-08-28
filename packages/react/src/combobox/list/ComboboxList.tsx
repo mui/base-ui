@@ -77,7 +77,9 @@ export const ComboboxList = React.forwardRef(function ComboboxList(
         id: floatingId,
         role: grid ? 'grid' : 'listbox',
         'aria-multiselectable': multiple ? 'true' : undefined,
-        'aria-readonly': readOnly || undefined,
+        // On a grid the attribute describes cell editability, not selection, so it's left to the
+        // combobox element in that mode.
+        'aria-readonly': !grid && readOnly ? true : undefined,
         onKeyDown(event) {
           if (store.state.disabled || store.state.readOnly) {
             return;

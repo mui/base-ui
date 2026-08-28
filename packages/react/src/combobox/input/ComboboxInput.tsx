@@ -345,6 +345,10 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
           store.context.keyboardActiveRef.current = true;
 
           if (disabled || readOnly) {
+            // Browsing can highlight an item, and Enter there must not submit the form.
+            if (readOnly && event.key === 'Enter' && open && store.state.activeIndex !== null) {
+              stopEvent(event);
+            }
             return;
           }
 

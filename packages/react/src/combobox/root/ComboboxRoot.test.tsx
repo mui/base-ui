@@ -4718,6 +4718,45 @@ describe('<Combobox.Root />', () => {
       expect(handleValueChange.mock.calls.length).toBe(0);
     });
 
+    it('should not submit the form with Enter on a highlighted item when readOnly', async () => {
+      const onSubmit = vi.fn();
+      const { user } = await render(
+        <form
+          onSubmit={(event) => {
+            event.preventDefault();
+            onSubmit();
+          }}
+        >
+          <Combobox.Root readOnly>
+            <Combobox.Input data-testid="input" />
+            <Combobox.Portal>
+              <Combobox.Positioner>
+                <Combobox.Popup>
+                  <Combobox.List>
+                    <Combobox.Item value="a">a</Combobox.Item>
+                    <Combobox.Item value="b">b</Combobox.Item>
+                  </Combobox.List>
+                </Combobox.Popup>
+              </Combobox.Positioner>
+            </Combobox.Portal>
+          </Combobox.Root>
+          <button type="submit">Submit</button>
+        </form>,
+      );
+
+      await user.click(screen.getByTestId('input'));
+      await screen.findByRole('listbox');
+
+      await user.keyboard('{ArrowDown}');
+      await waitFor(() => {
+        expect(screen.getByRole('option', { name: 'a' })).toHaveAttribute('data-highlighted');
+      });
+
+      await user.keyboard('{Enter}');
+
+      expect(onSubmit).not.toHaveBeenCalled();
+    });
+
     it('should report arrow-key highlights as keyboard-driven when readOnly', async () => {
       const onItemHighlighted = vi.fn();
       const { user } = await render(
