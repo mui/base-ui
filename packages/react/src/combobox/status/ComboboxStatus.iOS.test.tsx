@@ -2,7 +2,7 @@ import { expect, vi } from 'vitest';
 import { Combobox } from '@base-ui/react/combobox';
 import { screen } from '@mui/internal-test-utils';
 import { createRenderer } from '#test-utils';
-import { INITIAL_LIVE_REGION_TEXT_MUTATION_RESET_DELAY } from '../utils/useInitialLiveRegionTextMutation';
+import { INITIAL_LIVE_REGION_TEXT_MUTATION_RESET_DELAY } from '../../internals/useInitialLiveRegionTextMutation';
 
 vi.mock('@base-ui/utils/platform', async () => {
   const actual =

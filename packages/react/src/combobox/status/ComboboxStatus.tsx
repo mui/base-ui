@@ -2,7 +2,7 @@
 import * as React from 'react';
 import { BaseUIComponentProps } from '../../internals/types';
 import { useRenderElement } from '../../internals/useRenderElement';
-import { useInitialLiveRegionTextMutation } from '../utils/useInitialLiveRegionTextMutation';
+import { useInitialLiveRegionTextMutation } from '../../internals/useInitialLiveRegionTextMutation';
 
 /**
  * Displays a status message whose content changes are announced politely to screen readers.

@@ -22,13 +22,14 @@ function findLastTextNode(root: HTMLElement): Text | null {
   return lastTextNode;
 }
 
-export function useInitialLiveRegionTextMutation<T extends HTMLElement>() {
+export function useInitialLiveRegionTextMutation<T extends HTMLElement>(enabled = true) {
   const timeout = useTimeout();
   const rootRef = React.useRef<T | null>(null);
 
-  // Only the initial mounted announcement needs the marker; later text updates announce naturally.
+  // Only the first announcement after this is enabled needs the marker; later text updates
+  // announce naturally.
   React.useEffect(() => {
-    if (platform.os.ios) {
+    if (!enabled || platform.os.ios) {
       return undefined;
     }
 
@@ -59,7 +60,7 @@ export function useInitialLiveRegionTextMutation<T extends HTMLElement>() {
         textNode.nodeValue = originalValue;
       }
     };
-  }, [rootRef, timeout]);
+  }, [enabled, rootRef, timeout]);
 
   return rootRef;
 }

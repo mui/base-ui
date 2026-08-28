@@ -31,6 +31,7 @@ export type State = {
 
   activeIndex: number | null;
   selectedIndex: number | null;
+  itemCount: number | null;
 
   popupProps: HTMLProps;
   triggerProps: HTMLProps;
@@ -82,6 +83,7 @@ export const selectors = {
 
   activeIndex: (state: State) => state.activeIndex,
   selectedIndex: (state: State) => state.selectedIndex,
+  itemCount: (state: State) => state.itemCount,
   isActive: (state: State, index: number) => state.activeIndex === index,
 
   isSelected: (state: State, itemValue: any) => {
