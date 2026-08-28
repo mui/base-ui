@@ -54,10 +54,10 @@ export function AutocompleteRoot<ItemValue>(
   const [inlineInputValue, setInlineInputValue] = React.useState('');
 
   React.useEffect(() => {
-    if (isControlled) {
+    if (isControlled || !enableInline) {
       setInlineInputValue('');
     }
-  }, [value, isControlled]);
+  }, [value, isControlled, enableInline]);
 
   // Compose the input value shown to the user: inline value takes precedence when present.
   let resolvedInputValue: typeof value;

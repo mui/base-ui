@@ -1288,14 +1288,15 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
       reference['aria-expanded'] = ariaExpanded;
       reference['aria-haspopup'] = ariaHasPopup;
       reference['aria-controls'] = expanded ? listElement?.id : undefined;
-      reference['aria-autocomplete'] = autoComplete;
+      // `readOnly` accepts no input, so no completion of any kind is offered.
+      reference['aria-autocomplete'] = readOnly ? 'none' : autoComplete;
     }
 
     return {
       reference,
       floating: { role: 'presentation' },
     };
-  }, [inputElement, expanded, ariaExpanded, ariaHasPopup, listElement?.id, autoComplete]);
+  }, [inputElement, expanded, ariaExpanded, ariaHasPopup, listElement?.id, autoComplete, readOnly]);
 
   // `readOnly` locks the value, not the interaction: the popup opens and can be browsed.
   // Value changes stay blocked in `ComboboxItem`, `ComboboxInput`'s keydown, `ComboboxTrigger`'s

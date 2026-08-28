@@ -4572,6 +4572,16 @@ describe('<Combobox.Root />', () => {
       expect(input).toHaveAttribute('readonly');
     });
 
+    it('should expose aria-autocomplete="none" when readOnly', async () => {
+      await render(
+        <Combobox.Root readOnly>
+          <Combobox.Input data-testid="input" />
+        </Combobox.Root>,
+      );
+
+      expect(screen.getByTestId('input')).toHaveAttribute('aria-autocomplete', 'none');
+    });
+
     it('should open the popup from the input and the trigger when readOnly', async () => {
       const { user } = await render(
         <Combobox.Root readOnly>

@@ -289,6 +289,47 @@ describe('<Autocomplete.Root />', () => {
     expect(input).toHaveValue('');
   });
 
+  it('drops a pending inline completion when readOnly is turned on', async () => {
+    const { user, setProps } = await render(
+      <Autocomplete.Root defaultValue="" mode="both">
+        <Autocomplete.Input data-testid="input" />
+        <Autocomplete.Portal>
+          <Autocomplete.Positioner>
+            <Autocomplete.Popup>
+              <Autocomplete.List>
+                <Autocomplete.Item value="alpha">alpha</Autocomplete.Item>
+                <Autocomplete.Item value="beta">beta</Autocomplete.Item>
+              </Autocomplete.List>
+            </Autocomplete.Popup>
+          </Autocomplete.Positioner>
+        </Autocomplete.Portal>
+      </Autocomplete.Root>,
+    );
+
+    const input = screen.getByTestId<HTMLInputElement>('input');
+    await user.click(input);
+    await user.keyboard('a');
+    await user.keyboard('{ArrowDown}');
+    expect(input).toHaveValue('alpha');
+
+    await setProps({ readOnly: true });
+    expect(input).toHaveValue('a');
+
+    // The suppressed completion must not come back when editing is restored.
+    await setProps({ readOnly: false });
+    expect(input).toHaveValue('a');
+  });
+
+  it('exposes aria-autocomplete="none" when readOnly', async () => {
+    await render(
+      <Autocomplete.Root defaultValue="" readOnly mode="both">
+        <Autocomplete.Input data-testid="input" />
+      </Autocomplete.Root>,
+    );
+
+    expect(screen.getByTestId('input')).toHaveAttribute('aria-autocomplete', 'none');
+  });
+
   it('ignores hidden-input autofill when disabled', async () => {
     const onValueChange = vi.fn();
     await render(
