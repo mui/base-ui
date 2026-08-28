@@ -38,8 +38,9 @@ export interface ListVirtualizationHost {
  */
 export interface ListVirtualizationListState {
   /**
-   * Index of the active item, or `null` when none is active. The virtualizer keeps this row
-   * mounted even when it falls outside the rendered window.
+   * Index of the item the list currently points at, or `null` when it points at none. The
+   * virtualizer keeps that row mounted even when it falls outside the rendered window, so it can
+   * hold focus or be referenced by `aria-activedescendant`.
    */
   activeIndex: number | null;
   /**
@@ -47,15 +48,22 @@ export interface ListVirtualizationListState {
    */
   items: ReadonlyArray<unknown>;
   /**
-   * Whether the list temporarily needs every item mounted, such as while collecting rendered
-   * labels for browser autofill.
-   */
-  renderAllRows: boolean;
-  /**
-   * Whether the active item should be scrolled into view. Lists that highlight on hover pass
-   * `false` for pointer-driven changes, which would otherwise move the list under the cursor.
+   * Whether the active item should be scrolled into view. Lists that also point at items with the
+   * pointer pass `false` for those, since scrolling would move the list under the cursor.
    */
   scrollActiveIntoView: boolean;
+  /**
+   * Whether the list currently needs every item mounted, which suspends windowing for as long as
+   * it is `true`. A list that never needs this omits the field.
+   *
+   * The virtualizer measures its viewport while windowed, so a suspension invalidates that
+   * measurement: a scrollport constrained only by a maximum height grows to fit the whole
+   * collection, and the observer reports the expanded box. It re-measures when this returns to
+   * `false`, which means the list **must clear it while the virtualizer is still mounted**. A list
+   * that unmounts the virtualizer first — by releasing whatever kept the list rendered — loses the
+   * transition and leaves the engine sizing its window from a viewport that no longer exists.
+   */
+  windowingSuspended?: boolean | undefined;
 }
 
 export const ListVirtualizationHostContext = React.createContext<

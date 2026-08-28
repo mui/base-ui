@@ -50,7 +50,7 @@ export const ComboboxList = React.forwardRef(function ComboboxList(
   // highlight change regardless. Reading the virtualizer's state here adds no extra renders.
   const activeIndex = store.useState('activeIndex');
   const highlightType = store.useState('highlightType');
-  const virtualizationState = store.useState('virtualizationState');
+  const renderAllRows = store.useState('renderAllRows');
 
   const multiple = selectionMode === 'multiple';
   const empty = filteredItems.length === 0;
@@ -112,11 +112,13 @@ export const ComboboxList = React.forwardRef(function ComboboxList(
     () => ({
       activeIndex,
       items: flatFilteredItems,
-      renderAllRows: virtualizationState.renderAllRows,
       // Pointer highlights follow the cursor; scrolling to them would move the list under it.
       scrollActiveIntoView: highlightType !== 'pointer',
+      // Combobox mounts the whole collection so autofill can read rendered labels; the virtualizer
+      // only needs to know that windowing is off for the duration.
+      windowingSuspended: renderAllRows,
     }),
-    [activeIndex, flatFilteredItems, highlightType, virtualizationState],
+    [activeIndex, flatFilteredItems, highlightType, renderAllRows],
   );
 
   const state: ComboboxListState = {

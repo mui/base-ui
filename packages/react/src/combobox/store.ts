@@ -8,10 +8,6 @@ import { hasNullItemLabel } from '../internals/resolveValueLabel';
 import type { AriaCombobox } from './root/AriaCombobox';
 import type { ListVirtualizationRegistry } from '../internals/virtualization/ListVirtualizationRegistry';
 
-export type VirtualizationState = {
-  renderAllRows: boolean;
-};
-
 export type State = {
   id: string | undefined;
   labelId: string | undefined;
@@ -59,7 +55,11 @@ export type State = {
   required: boolean;
   grid: boolean;
   externallyVirtualized: boolean;
-  virtualizationState: VirtualizationState;
+  /**
+   * Whether every item is temporarily mounted so browser autofill can read their rendered labels.
+   * Published across the virtualization seam as `windowingSuspended`.
+   */
+  renderAllRows: boolean;
   openOnInputClick: boolean;
   itemToStringLabel?: ((item: any) => string) | undefined;
   isItemDisabled?: ((item: any, index: number) => boolean) | undefined;
@@ -130,18 +130,26 @@ export type ComboboxStoreContext = {
 };
 
 type VirtualizationStore = {
-  state: { virtualizationState: VirtualizationState };
-  set: (key: 'virtualizationState', value: VirtualizationState) => void;
+  state: { renderAllRows: boolean };
+  set: (key: 'renderAllRows', value: boolean) => void;
 };
 
+/**
+ * Mounts or releases the whole collection for a browser autofill label pass.
+ *
+ * A built-in `<Virtualizer>` reads this as its windowing being suspended, and re-measures its
+ * viewport when it is cleared. That makes the order of the release load-bearing: clear this
+ * **before** releasing `forceMounted`, so the virtualizer is still mounted to observe it.
+ *
+ * Repeating a request is not a new pass, so an unchanged value publishes nothing: a redundant
+ * notification would arm a viewport restore for a suspension that never happened.
+ */
 export function setVirtualizationRenderAllRows(store: VirtualizationStore, renderAllRows: boolean) {
-  const virtualizationState = store.state.virtualizationState;
-
-  if (virtualizationState.renderAllRows === renderAllRows) {
+  if (store.state.renderAllRows === renderAllRows) {
     return;
   }
 
-  store.set('virtualizationState', { renderAllRows });
+  store.set('renderAllRows', renderAllRows);
 }
 
 export const selectors = {
@@ -222,7 +230,7 @@ export const selectors = {
   required: (state: State) => state.required,
   grid: (state: State) => state.grid,
   externallyVirtualized: (state: State) => state.externallyVirtualized,
-  virtualizationState: (state: State) => state.virtualizationState,
+  renderAllRows: (state: State) => state.renderAllRows,
   itemToStringLabel: (state: State) => state.itemToStringLabel,
   isItemDisabled: (state: State) => state.isItemDisabled,
   isItemEqualToValue: (state: State) => state.isItemEqualToValue,

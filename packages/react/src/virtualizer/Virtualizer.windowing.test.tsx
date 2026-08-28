@@ -54,13 +54,25 @@ function TestVirtualizedList(
     scrollToRowIndex?: number | undefined;
     /** Receives the imperative handle the virtualizer registers with the list. */
     apiRef?: React.RefObject<VirtualizerHandle | null> | undefined;
+    /**
+     * Published verbatim, so a host that omits the field can be compared against one that
+     * publishes `false`.
+     */
+    windowingSuspended?: boolean | undefined;
     items: TestItem[];
     children: (item: TestItem, index: number) => React.ReactElement;
     getItemKey?: ((item: TestItem) => string | number) | undefined;
   } & Omit<Virtualizer.Props<TestItem>, 'children' | 'getItemKey'>,
 ) {
-  const { apiRef, getItemKey, items, pinnedRowIndex, scrollToRowIndex, ...virtualizerProps } =
-    props;
+  const {
+    apiRef,
+    getItemKey,
+    items,
+    pinnedRowIndex,
+    scrollToRowIndex,
+    windowingSuspended,
+    ...virtualizerProps
+  } = props;
 
   const registry = React.useRef(createListVirtualizationRegistry()).current;
 
@@ -77,11 +89,11 @@ function TestVirtualizedList(
     () => ({
       activeIndex: scrollToRowIndex ?? pinnedRowIndex ?? null,
       items,
-      renderAllRows: false,
       // A pinned row is kept mounted without being scrolled to; a scroll target is scrolled to.
       scrollActiveIntoView: scrollToRowIndex != null,
+      windowingSuspended,
     }),
-    [items, pinnedRowIndex, scrollToRowIndex],
+    [items, pinnedRowIndex, scrollToRowIndex, windowingSuspended],
   );
 
   React.useImperativeHandle<VirtualizerHandle | null, VirtualizerHandle | null>(
@@ -139,6 +151,42 @@ describe('<Virtualizer /> windowing', () => {
     const virtualizer = screen.getByTestId('virtualizer');
     expect(virtualizer).toHaveStyle({ overflow: 'auto' });
     expect(virtualizer.style.getPropertyValue('--total-size')).toBe('2000px');
+  });
+
+  it('treats an omitted windowingSuspended the same as a published false', async () => {
+    // A list that never mounts its whole collection — Select, or any list outside this package —
+    // leaves the field off entirely. Omitting it must not read as a suspension.
+    async function measureWindow(windowingSuspended: boolean | undefined) {
+      const { unmount } = await render(
+        <TestVirtualizedList
+          estimatedItemHeight={20}
+          overscanPx={20}
+          render={<div ref={setElementClientHeight(60)} data-testid="virtualizer" role="list" />}
+          items={createItems(100)}
+          windowingSuspended={windowingSuspended}
+        >
+          {renderItem}
+        </TestVirtualizedList>,
+      );
+
+      await waitFor(() => expect(screen.getAllByRole('listitem').length).toBeGreaterThan(0));
+
+      const virtualizer = screen.getByTestId('virtualizer');
+      const result = {
+        rowCount: screen.getAllByRole('listitem').length,
+        totalSize: virtualizer.style.getPropertyValue('--total-size'),
+      };
+
+      unmount();
+      return result;
+    }
+
+    const omitted = await measureWindow(undefined);
+    const published = await measureWindow(false);
+
+    expect(omitted).toEqual(published);
+    // Both window the collection rather than mounting all 100 rows.
+    expect(omitted.rowCount).toBeLessThan(100);
   });
 
   it('retains a pinned row outside the rendered window', async () => {

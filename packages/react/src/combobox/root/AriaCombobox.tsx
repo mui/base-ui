@@ -499,9 +499,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
         required,
         grid,
         externallyVirtualized: virtualized,
-        virtualizationState: {
-          renderAllRows: false,
-        },
+        renderAllRows: false,
         isItemDisabled,
         highlightType: 'none',
         openOnInputClick,
@@ -1669,8 +1667,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
             let restoreForceMounted = false;
 
             function mountRenderedLabels(renderAllRows: boolean) {
-              const shouldRenderAllRows =
-                renderAllRows && !store.state.virtualizationState.renderAllRows;
+              const shouldRenderAllRows = renderAllRows && !store.state.renderAllRows;
               // `forceMounted` also enables rendered-label registration for lists that are
               // already open, so it is needed independently of the popup's mounted state.
               const shouldForceMount = !store.state.forceMounted;

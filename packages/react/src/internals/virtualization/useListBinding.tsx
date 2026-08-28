@@ -203,7 +203,7 @@ export function useListBinding<Item>(
   const scrollActiveAlignment = (hasOwnCollection && activeItem?.align) || 'auto';
   // Only a list asks for every row at once. The virtualizer sees the end of that as its own mode
   // returning to windowed, which is the transition it restores its viewport on.
-  const renderAllRows = hasOwnCollection ? false : (listState?.renderAllRows ?? false);
+  const windowingSuspended = hasOwnCollection ? false : listState?.windowingSuspended === true;
 
   if (process.env.NODE_ENV !== 'production') {
     // The build-time environment never changes during a component's lifetime.
@@ -245,7 +245,7 @@ export function useListBinding<Item>(
   // Some list-level operations need every item mounted briefly (for example, collecting rendered
   // labels for browser autofill), which suspends windowing until they finish. The list root reads
   // this off the registry to know whether the virtualizer currently owns scrolling.
-  const enabled = enabledProp && !renderAllRows;
+  const enabled = enabledProp && !windowingSuspended;
 
   const apiRef = React.useRef<VirtualizerHandle | null>(null);
   const getItemMetrics = useStableCallback(
