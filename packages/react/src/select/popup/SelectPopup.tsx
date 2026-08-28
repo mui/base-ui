@@ -35,6 +35,7 @@ import { getDisabledMountTransitionStyles } from '../../internals/getDisabledMou
 import { getMaxScrollOffset, SCROLL_EDGE_TOLERANCE_PX } from '../../utils/scrollEdges';
 import { useCSPContext } from '../../internals/csp-context/CSPContext';
 import { useDirection } from '../../internals/direction-context/DirectionContext';
+import * as SelectPositionerCssVars from '../positioner/SelectPositionerCssVars';
 
 const stateAttributesMapping: StateAttributesMapping<SelectPopupState> = {
   ...popupStateMapping,
@@ -243,7 +244,7 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
     }
 
     initialPlacedRef.current = true;
-    popupElement.style.removeProperty('--transform-origin');
+    popupElement.style.removeProperty(SelectPositionerCssVars.transformOrigin);
 
     if (!alignItemWithTriggerActive) {
       // The wrapper supplies the scroller: the list owns scrolling once it has mounted, and
@@ -385,7 +386,7 @@ export const SelectPopup = React.forwardRef(function SelectPopup(
           100,
         );
 
-        popupElement.style.setProperty('--transform-origin', `50% ${clampedY}%`);
+        popupElement.style.setProperty(SelectPositionerCssVars.transformOrigin, `50% ${clampedY}%`);
       }
 
       if (initialHeight === viewportHeight || height >= maxPopupHeight) {

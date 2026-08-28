@@ -1,28 +1,35 @@
 import { expect } from 'vitest';
-import { transitionStatusMapping, TransitionStatusDataAttributes } from './stateAttributesMapping';
+import { transitionStatusMapping } from './stateAttributesMapping';
 import { fieldValidityMapping } from './field-constants/constants';
-import { FieldControlDataAttributes } from '../field/control/FieldControlDataAttributes';
 
-// These shared mappings inline their enum members as string literals so the
-// enums tree-shake out of every consumer bundle (they are kept for types/docs
-// only). Nothing else links the literals to the enums, so re-link them here:
-// renaming only one side fails CI.
-describe('internals state-attribute enum sync', () => {
-  it('names the transition data-attributes per TransitionStatusDataAttributes', () => {
-    expect(Object.keys(transitionStatusMapping.transitionStatus('starting')!)[0]).toBe(
-      TransitionStatusDataAttributes.startingStyle,
-    );
-    expect(Object.keys(transitionStatusMapping.transitionStatus('ending')!)[0]).toBe(
-      TransitionStatusDataAttributes.endingStyle,
-    );
+// Every animated component and every field-aware component emits these attributes, so pin the
+// names against literals: comparing against the constants the mappings already read would pass
+// through any rename.
+describe('shared state-attribute mappings', () => {
+  describe('transitionStatusMapping', () => {
+    it('emits the transition data attributes', () => {
+      expect(transitionStatusMapping.transitionStatus('starting')).toEqual({
+        'data-starting-style': '',
+      });
+      expect(transitionStatusMapping.transitionStatus('ending')).toEqual({
+        'data-ending-style': '',
+      });
+    });
+
+    it('emits nothing outside a transition', () => {
+      expect(transitionStatusMapping.transitionStatus('idle')).toBe(null);
+      expect(transitionStatusMapping.transitionStatus(undefined)).toBe(null);
+    });
   });
 
-  it('names the validity data-attributes per FieldControlDataAttributes', () => {
-    expect(Object.keys(fieldValidityMapping.valid(true)!)[0]).toBe(
-      FieldControlDataAttributes.valid,
-    );
-    expect(Object.keys(fieldValidityMapping.valid(false)!)[0]).toBe(
-      FieldControlDataAttributes.invalid,
-    );
+  describe('fieldValidityMapping', () => {
+    it('emits the validity data attributes', () => {
+      expect(fieldValidityMapping.valid(true)).toEqual({ 'data-valid': '' });
+      expect(fieldValidityMapping.valid(false)).toEqual({ 'data-invalid': '' });
+    });
+
+    it('emits nothing while validity is unknown', () => {
+      expect(fieldValidityMapping.valid(null)).toBe(null);
+    });
   });
 });
