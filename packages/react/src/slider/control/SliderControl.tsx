@@ -92,18 +92,14 @@ export const SliderControl = React.forwardRef(function SliderControl(
   const { disabled, inset, renderBeforeHydration, state, thumbCollisionBehavior } =
     useSliderRootPropsContext();
   const { dragging, max, min, minStepsBetweenValues, orientation, step, values } = state;
+  const { registerFieldControlRef, setActive, setDragging, setValue } = store;
   const {
     lastChangeReasonRef,
-    onValueCommitted,
     pressedThumbCenterOffsetRef,
     pressedThumbIndexRef,
     pressedValuesRef,
-    registerFieldControlRef,
-    setActive,
-    setDragging,
-    setValue,
     thumbRefs,
-  } = store;
+  } = store.context;
 
   const direction = useDirection();
   const range = values.length > 1;
@@ -351,7 +347,7 @@ export const SliderControl = React.forwardRef(function SliderControl(
 
     if (currentInteractionValueRef.current != null) {
       const commitReason = lastChangeReasonRef.current;
-      onValueCommitted(
+      store.context.onValueCommitted(
         currentInteractionValueRef.current,
         createGenericEventDetails(commitReason, nativeEvent),
       );

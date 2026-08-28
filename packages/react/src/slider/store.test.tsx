@@ -1,8 +1,9 @@
 import { expect, vi } from 'vitest';
 import * as React from 'react';
-import { act, screen } from '@mui/internal-test-utils';
+import { act, fireEvent, screen } from '@mui/internal-test-utils';
 import { createRenderer } from '#test-utils';
 import { Slider } from '@base-ui/react/slider';
+import { Field } from '@base-ui/react/field';
 import { useSliderRootContext, useSliderRootPropsContext } from './root/SliderRootContext';
 import type { SliderStore } from './store';
 import type { SliderRootState } from './root/SliderRoot';
@@ -83,6 +84,117 @@ describe('slider store', () => {
     expect(screen.getByRole('slider')).toHaveValue('40');
   });
 
+  it('clamps the value to updated bounds', async () => {
+    function Fixture({ max }: { max: number }) {
+      return (
+        <Slider.Root value={50} max={max}>
+          <Slider.Control>
+            <Slider.Thumb />
+          </Slider.Control>
+        </Slider.Root>
+      );
+    }
+
+    const { setProps } = await render(<Fixture max={100} />);
+    expect(screen.getByRole('slider')).toHaveAttribute('aria-valuenow', '50');
+
+    await setProps({ max: 30 });
+
+    expect(screen.getByRole('slider')).toHaveAttribute('aria-valuenow', '30');
+  });
+
+  it('keeps the values of the previous arguments cached', async () => {
+    const storeRef: { current: SliderStore | null } = { current: null };
+
+    await render(
+      <Slider.Root defaultValue={10}>
+        <StoreProbe storeRef={storeRef} />
+      </Slider.Root>,
+    );
+
+    const store = storeRef.current!;
+    const first = store.select('values', 10, 0, 100);
+    const second = store.select('values', 20, 0, 100);
+
+    expect(store.select('values', 10, 0, 100)).toBe(first);
+    expect(store.select('values', 20, 0, 100)).toBe(second);
+    expect(store.select('values', NaN, 0, 100)).toBe(store.select('values', NaN, 0, 100));
+  });
+
+  it('renders a NaN value without an update loop', async () => {
+    await expect(async () => {
+      await render(
+        <Slider.Root value={NaN}>
+          <Slider.Control>
+            <Slider.Thumb />
+          </Slider.Control>
+        </Slider.Root>,
+      );
+    }).toErrorDev(['Received NaN for the `value` attribute.']);
+
+    expect(screen.getByRole('slider')).toBeInTheDocument();
+  });
+
+  it('commits once per value change when controlled', async () => {
+    const validate = vi.fn(() => null);
+    const onValueChange = vi.fn();
+
+    function Fixture() {
+      const [value, setValue] = React.useState<number[]>([20, 50]);
+      return (
+        <Field.Root validate={validate} validationMode="onChange">
+          <Slider.Root
+            value={value}
+            onValueChange={(nextValue) => {
+              onValueChange(nextValue);
+              setValue(nextValue);
+            }}
+          >
+            <Slider.Control>
+              <Slider.Thumb />
+              <Slider.Thumb />
+            </Slider.Control>
+          </Slider.Root>
+        </Field.Root>
+      );
+    }
+
+    const { user } = await render(<Fixture />);
+    const [input] = screen.getAllByRole('slider');
+    act(() => input.focus());
+    validate.mockClear();
+
+    await user.keyboard('[ArrowRight]');
+
+    expect(onValueChange).toHaveBeenCalledTimes(1);
+    expect(validate).toHaveBeenCalledTimes(1);
+  });
+
+  it('reports rejected changes against the controlled value', async () => {
+    const storeRef: { current: SliderStore | null } = { current: null };
+    const onValueChange = vi.fn();
+
+    const { user } = await render(
+      <Slider.Root value={0} onValueChange={onValueChange}>
+        <StoreProbe storeRef={storeRef} />
+        <Slider.Control>
+          <Slider.Thumb />
+        </Slider.Control>
+      </Slider.Root>,
+    );
+
+    const input = screen.getByRole('slider');
+    act(() => input.focus());
+    await user.keyboard('[ArrowRight]');
+    await user.keyboard('[ArrowRight]');
+
+    expect(onValueChange).toHaveBeenCalledTimes(2);
+    expect(onValueChange).toHaveBeenNthCalledWith(1, 1, expect.any(Object));
+    expect(onValueChange).toHaveBeenNthCalledWith(2, 1, expect.any(Object));
+    expect(input).toHaveAttribute('aria-valuenow', '0');
+    expect(storeRef.current!.state.value).toBe(0);
+  });
+
   it('provides commands to descendant ref callbacks on the first commit', async () => {
     const storeRef: { current: SliderStore | null } = { current: null };
     const stateRef: { current: SliderRootState | null } = { current: null };
@@ -115,7 +227,7 @@ describe('slider store', () => {
     );
 
     expect(invoked).toBe(true);
-    expect(storeRef.current!.state.interaction.active).toBe(0);
+    expect(storeRef.current!.state.active).toBe(0);
     expect(stateRef.current!.activeThumbIndex).toBe(0);
   });
 
@@ -155,7 +267,7 @@ describe('slider store', () => {
 
   it('uses the current controlled value during descendant ref callbacks', async () => {
     let observeOnUpdate = false;
-    let observedValue: string | undefined;
+    const observedValues: string[] = [];
 
     function Fixture({ value }: { value: number }) {
       return (
@@ -164,7 +276,7 @@ describe('slider store', () => {
             <Slider.Thumb
               inputRef={(input) => {
                 if (input && observeOnUpdate) {
-                  observedValue = input.value;
+                  observedValues.push(input.value);
                 }
               }}
             />
@@ -178,7 +290,7 @@ describe('slider store', () => {
     observeOnUpdate = true;
     await setProps({ value: 40 });
 
-    expect(observedValue).toBe('40');
+    expect(observedValues[0]).toBe('40');
   });
 
   it('uses the latest value change callbacks', async () => {
@@ -219,6 +331,48 @@ describe('slider store', () => {
     expect(nextOnValueCommitted).toHaveBeenCalledWith(1, expect.any(Object));
   });
 
+  it('marks the field as touched on keyboard changes', async () => {
+    const { user } = await render(
+      <Field.Root>
+        <Slider.Root data-testid="root">
+          <Slider.Control>
+            <Slider.Thumb />
+          </Slider.Control>
+        </Slider.Root>
+      </Field.Root>,
+    );
+
+    const root = screen.getByTestId('root');
+    const input = screen.getByRole('slider');
+    act(() => input.focus());
+    expect(root).not.toHaveAttribute('data-touched');
+
+    await user.keyboard('[ArrowRight]');
+
+    expect(root).toHaveAttribute('data-touched', '');
+  });
+
+  it('uses the field name on the change event target', async () => {
+    const onValueChange = vi
+      .fn()
+      .mockImplementation((newValue, details) => (details as any).event.target);
+
+    await render(
+      <Field.Root name="field-slider">
+        <Slider.Root value={3} onValueChange={onValueChange}>
+          <Slider.Control>
+            <Slider.Thumb />
+          </Slider.Control>
+        </Slider.Root>
+      </Field.Root>,
+    );
+
+    fireEvent.change(screen.getByRole('slider'), { target: { value: 4 } });
+
+    expect(onValueChange).toHaveBeenCalledTimes(1);
+    expect(onValueChange.mock.results[0]?.value).toEqual({ value: 4, name: 'field-slider' });
+  });
+
   it('keeps the active thumb reset while disabled', async () => {
     const storeRef: { current: SliderStore | null } = { current: null };
     const stateRef: { current: SliderRootState | null } = { current: null };
@@ -234,19 +388,32 @@ describe('slider store', () => {
       storeRef.current!.setActive(0);
     });
 
-    expect(storeRef.current!.state.interaction.active).toBe(-1);
+    expect(storeRef.current!.state.active).toBe(-1);
     expect(stateRef.current!.activeThumbIndex).toBe(-1);
   });
 
-  it('resets the active thumb in one transaction when becoming disabled', async () => {
+  it('resets the active thumb before the disabled commit can be observed', async () => {
     const storeRef: { current: SliderStore | null } = { current: null };
     const stateRef: { current: SliderRootState | null } = { current: null };
+    const observed: Array<{ disabled: boolean; active: number }> = [];
+
+    // Passive effects run after every layout effect of the commit, which is the earliest
+    // anything outside the slider (or the browser paint) can observe the new `disabled` prop.
+    function EffectProbe() {
+      const store = useSliderRootContext();
+      const { disabled } = useSliderRootPropsContext();
+      React.useEffect(() => {
+        observed.push({ disabled, active: store.state.active });
+      });
+      return null;
+    }
 
     function Fixture({ disabled }: { disabled: boolean }) {
       return (
         <Slider.Root disabled={disabled}>
           <StoreProbe storeRef={storeRef} />
           <StateProbe stateRef={stateRef} />
+          <EffectProbe />
         </Slider.Root>
       );
     }
@@ -254,23 +421,13 @@ describe('slider store', () => {
     const { setProps } = await render(<Fixture disabled={false} />);
 
     act(() => storeRef.current!.setActive(0));
+    expect(stateRef.current!.activeThumbIndex).toBe(0);
+    observed.length = 0;
 
-    const snapshots: Array<{ active: number; disabled: boolean }> = [];
-    const unsubscribe = storeRef.current!.subscribe((storeState) => {
-      snapshots.push({
-        active: storeState.interaction.active,
-        disabled: storeState.disabled,
-      });
-    });
+    await setProps({ disabled: true });
 
-    try {
-      await setProps({ disabled: true });
-    } finally {
-      unsubscribe();
-    }
-
-    expect(snapshots.some((snapshot) => snapshot.disabled && snapshot.active !== -1)).toBe(false);
-    expect(storeRef.current!.state.interaction.active).toBe(-1);
+    expect(observed.some((entry) => entry.disabled && entry.active !== -1)).toBe(false);
+    expect(observed.at(-1)).toEqual({ disabled: true, active: -1 });
     expect(stateRef.current!.activeThumbIndex).toBe(-1);
   });
 
@@ -283,43 +440,56 @@ describe('slider store', () => {
       </Slider.Root>,
     );
 
-    const snapshots: number[] = [];
+    const snapshots: Array<{ active: number; lastUsedThumbIndex: number }> = [];
     const unsubscribe = storeRef.current!.subscribe((storeState) => {
-      snapshots.push(storeState.interaction.active);
+      snapshots.push({
+        active: storeState.active,
+        lastUsedThumbIndex: storeState.lastUsedThumbIndex,
+      });
     });
 
     try {
       act(() => storeRef.current!.setActive(0));
+      act(() => storeRef.current!.setActive(-1));
     } finally {
       unsubscribe();
     }
 
-    expect(snapshots).toEqual([0]);
+    expect(snapshots).toEqual([
+      { active: 0, lastUsedThumbIndex: 0 },
+      { active: -1, lastUsedThumbIndex: 0 },
+    ]);
   });
 
-  it('does not notify public-state subscribers for indicator measurements', async () => {
+  it('does not re-render the root for indicator measurements', async () => {
     const storeRef: { current: SliderStore | null } = { current: null };
-    const renderSpy = vi.fn();
-
-    const PublicStateProbe = React.memo(function PublicStateProbe() {
-      useSliderRootPropsContext();
-      renderSpy();
-      return null;
-    });
+    const rootRenders = vi.fn();
 
     await render(
-      <Slider.Root>
+      <Slider.Root
+        render={(props) => {
+          rootRenders();
+          return <div {...props} />;
+        }}
+      >
         <StoreProbe storeRef={storeRef} />
-        <PublicStateProbe />
       </Slider.Root>,
     );
 
-    const renderCount = renderSpy.mock.calls.length;
+    const store = storeRef.current!;
+    const renderCount = rootRenders.mock.calls.length;
+    const notifications = vi.fn();
+    const unsubscribe = store.subscribe(notifications);
 
-    act(() => {
-      storeRef.current!.set('indicatorPosition', [25, 75]);
-    });
+    try {
+      act(() => store.setIndicatorPosition(0, 25));
+      act(() => store.setIndicatorPosition(0, 25));
+    } finally {
+      unsubscribe();
+    }
 
-    expect(renderSpy).toHaveBeenCalledTimes(renderCount);
+    expect(notifications).toHaveBeenCalledTimes(1);
+    expect(store.state.indicatorPosition).toEqual([25, undefined]);
+    expect(rootRenders).toHaveBeenCalledTimes(renderCount);
   });
 });

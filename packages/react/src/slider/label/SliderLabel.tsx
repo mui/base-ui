@@ -26,7 +26,8 @@ export const SliderLabel = React.forwardRef(function SliderLabel(
 
   const store = useSliderRootContext();
   const { rootLabelId, state } = useSliderRootPropsContext();
-  const { setLabelId, controlRef } = store;
+  const { setLabelId } = store;
+  const { controlRef } = store.context;
 
   function focusControl(event: React.MouseEvent, controlId: string | undefined) {
     if (controlId) {

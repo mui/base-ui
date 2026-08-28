@@ -114,7 +114,8 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
   const id = useBaseUiId(idProp);
 
   const store = useSliderRootContext();
-  const { lastUsedThumbIndex } = store.useState('interaction');
+  // `lastUsedThumbIndex` is not part of the public `state`, so it is read from the store directly.
+  const lastUsedThumbIndex = store.useState('lastUsedThumbIndex');
   const {
     disabled: contextDisabled,
     validation,
@@ -137,15 +138,9 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
     step,
     values: sliderValues,
   } = state;
-  const {
-    controlRef,
-    handleInputChange,
-    pressedThumbCenterOffsetRef,
-    pressedThumbIndexRef,
-    setActive,
-    setIndicatorPosition,
-    thumbRefs,
-  } = store;
+  const { handleInputChange, setActive, setIndicatorPosition } = store;
+  const { controlRef, pressedThumbCenterOffsetRef, pressedThumbIndexRef, thumbRefs } =
+    store.context;
 
   const direction = useDirection();
 

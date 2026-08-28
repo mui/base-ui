@@ -28,7 +28,7 @@ import {
   type SliderRootPropsContextValue,
 } from './SliderRootContext';
 import { SliderStore } from '../store';
-import { REASONS } from '../../internals/reasons';
+import type { REASONS } from '../../internals/reasons';
 
 /**
  * Groups all parts of the slider.
@@ -102,11 +102,9 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
       minStepsBetweenValues,
       name,
       step,
-      interaction: {
-        active: -1,
-        dragging: false,
-        lastUsedThumbIndex: -1,
-      },
+      active: -1,
+      dragging: false,
+      lastUsedThumbIndex: -1,
       indicatorPosition: [undefined, undefined],
       registeredLabelId: undefined,
       thumbMap: new Map(),
@@ -117,8 +115,8 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
   const valueUnwrapped = store.useState('renderValue', valueProp);
   const range = Array.isArray(valueUnwrapped);
 
-  // The internal value is potentially unsorted, e.g. to support frozen arrays.
-  // https://github.com/mui/material-ui/pull/28472
+  // Derived from the render-time value and bounds so descendants (including ref callbacks) see
+  // the current props in this commit, before the store is synchronized in a layout effect.
   const values = store.useState('values', valueUnwrapped, min, max);
 
   const fieldValue = range ? values : values[0];
@@ -140,7 +138,8 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
     setDirty(isDirty);
   });
 
-  const { active, dragging } = store.useState('interaction');
+  const active = store.useState('active');
+  const dragging = store.useState('dragging');
   const registeredLabelId = store.useState('registeredLabelId');
   const ariaLabelledby =
     ariaLabelledByProp ?? resolveAriaLabelledBy(fieldLabelId, registeredLabelId);
@@ -257,7 +256,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
   return (
     <SliderRootContext.Provider value={store}>
       <SliderRootPropsContext.Provider value={rootPropsContextValue}>
-        <CompositeList elementsRef={store.thumbRefs} onMapChange={store.setThumbMap}>
+        <CompositeList elementsRef={store.context.thumbRefs} onMapChange={store.setThumbMap}>
           {element}
         </CompositeList>
       </SliderRootPropsContext.Provider>
