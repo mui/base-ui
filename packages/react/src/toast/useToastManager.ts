@@ -59,6 +59,14 @@ export interface ToastObject<Data extends object> {
    */
   priority?: 'low' | 'high' | undefined;
   /**
+   * The named stack the toast belongs to. Toasts with the same group stack
+   * together: stacking indices and offsets are computed per group, letting a
+   * single provider render toasts in multiple screen positions within one
+   * viewport. The value is exposed as the `data-group` attribute on
+   * `Toast.Root` for anchoring each stack with CSS.
+   */
+  group?: string | undefined;
+  /**
    * The transition status of the toast.
    */
   transitionStatus?: 'starting' | 'ending' | undefined;
