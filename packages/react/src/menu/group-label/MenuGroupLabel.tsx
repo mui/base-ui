@@ -34,6 +34,7 @@ export const MenuGroupLabel = React.forwardRef(function MenuGroupLabel(
     props: {
       id,
       role: 'presentation',
+      'aria-hidden': true,
       ...elementProps,
     },
   });
