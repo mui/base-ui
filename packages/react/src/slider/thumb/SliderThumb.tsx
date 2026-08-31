@@ -115,6 +115,7 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
 
   const {
     active: activeIndex,
+    commitKeyboardValue,
     lastUsedThumbIndex,
     controlRef,
     disabled: contextDisabled,
@@ -347,6 +348,10 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
 
         setActive(-1);
 
+        // Commit any value from an in-progress keyboard interaction whose `keyup`
+        // never reached this input.
+        commitKeyboardValue();
+
         // Keep field-level blur logic from running while focus moves to another thumb
         // of the same slider, so validation doesn't commit mid-interaction.
         if (thumbRefs.current.some((thumb) => contains(thumb, event.relatedTarget))) {
@@ -435,6 +440,13 @@ export const SliderThumb = React.forwardRef(function SliderThumb(
           handleInputChange(newValue, index, event);
           event.preventDefault();
         }
+      },
+      onKeyUp(event: React.KeyboardEvent) {
+        if (!ALL_KEYS.has(event.key)) {
+          return;
+        }
+
+        commitKeyboardValue(event.nativeEvent);
       },
       step,
       style: {

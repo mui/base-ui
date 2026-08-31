@@ -133,6 +133,8 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
   // The values when the current drag interaction started.
   const pressedValuesRef = React.useRef<readonly number[] | null>(null);
   const lastChangeReasonRef = React.useRef<SliderRoot.ChangeEventReason>(REASONS.none);
+  // The latest value applied through keyboard input that has not been committed yet.
+  const pendingKeyboardValueRef = React.useRef<number | number[] | null>(null);
 
   // We can't use the :active browser pseudo-classes.
   // - The active state isn't triggered when clicking on the rail.
@@ -230,7 +232,8 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
       const newValue = getSliderValue(valueInput, index, min, max, range, values);
 
       if (validateMinimumDistance(newValue, step, minStepsBetweenValues)) {
-        const reason = 'key' in event ? REASONS.keyboard : REASONS.inputChange;
+        const isKeyboard = 'key' in event;
+        const reason = isKeyboard ? REASONS.keyboard : REASONS.inputChange;
         const applied = setValue(
           newValue,
           createChangeEventDetails(reason, event.nativeEvent, undefined, {
@@ -240,11 +243,24 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
         setTouched(true);
 
         if (applied) {
-          onValueCommitted(newValue, createGenericEventDetails(reason, event.nativeEvent));
+          if (isKeyboard) {
+            pendingKeyboardValueRef.current = newValue;
+          } else {
+            onValueCommitted(newValue, createGenericEventDetails(reason, event.nativeEvent));
+          }
         }
       }
     },
   );
+
+  const commitKeyboardValue = useStableCallback((nativeEvent?: KeyboardEvent) => {
+    const pendingValue = pendingKeyboardValueRef.current;
+    if (pendingValue == null) {
+      return;
+    }
+    pendingKeyboardValueRef.current = null;
+    onValueCommitted(pendingValue, createGenericEventDetails(REASONS.keyboard, nativeEvent));
+  });
 
   /* istanbul ignore else -- `process.env.NODE_ENV` is a build-time constant under test */
   if (process.env.NODE_ENV !== 'production') {
@@ -301,6 +317,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
   const contextValue: SliderRootContext = React.useMemo(
     () => ({
       active,
+      commitKeyboardValue,
       controlRef,
       disabled,
       dragging,
@@ -342,6 +359,7 @@ export const SliderRoot = React.forwardRef(function SliderRoot<
     [
       active,
       ariaLabelledby,
+      commitKeyboardValue,
       defaultLabelId,
       disabled,
       dragging,

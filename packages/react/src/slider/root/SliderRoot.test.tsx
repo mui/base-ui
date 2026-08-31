@@ -962,6 +962,92 @@ describe('<Slider.Root />', () => {
       expect(slider2).toHaveAttribute('aria-valuenow', '50');
     });
 
+    it('commits on key release rather than on every keydown', async () => {
+      const handleValueChange = vi.fn();
+      const handleValueCommitted = vi.fn();
+
+      await render(
+        <Slider.Root
+          defaultValue={0}
+          onValueChange={handleValueChange}
+          onValueCommitted={handleValueCommitted}
+        >
+          <Slider.Control>
+            <Slider.Thumb />
+          </Slider.Control>
+        </Slider.Root>,
+      );
+
+      const slider = screen.getByRole('slider');
+      await act(async () => {
+        slider.focus();
+      });
+
+      fireEvent.keyDown(slider, { key: ARROW_RIGHT });
+      fireEvent.keyDown(slider, { key: ARROW_RIGHT });
+
+      expect(handleValueChange).toHaveBeenCalledTimes(2);
+      expect(handleValueCommitted).not.toHaveBeenCalled();
+      expect(slider).toHaveAttribute('aria-valuenow', '2');
+
+      fireEvent.keyUp(slider, { key: ARROW_RIGHT });
+
+      expect(handleValueCommitted).toHaveBeenCalledTimes(1);
+      expect(handleValueCommitted.mock.calls[0][0]).toBe(2);
+      expect(handleValueCommitted.mock.calls[0][1].reason).toBe(REASONS.keyboard);
+    });
+
+    it('commits the pending keyboard value on blur when the key release is missed', async () => {
+      const handleValueCommitted = vi.fn();
+
+      await render(
+        <Slider.Root defaultValue={0} onValueCommitted={handleValueCommitted}>
+          <Slider.Control>
+            <Slider.Thumb />
+          </Slider.Control>
+        </Slider.Root>,
+      );
+
+      const slider = screen.getByRole('slider');
+      await act(async () => {
+        slider.focus();
+      });
+
+      fireEvent.keyDown(slider, { key: ARROW_RIGHT });
+      expect(handleValueCommitted).not.toHaveBeenCalled();
+
+      await act(async () => {
+        slider.blur();
+      });
+
+      expect(handleValueCommitted).toHaveBeenCalledTimes(1);
+      expect(handleValueCommitted.mock.calls[0][0]).toBe(1);
+      expect(handleValueCommitted.mock.calls[0][1].reason).toBe(REASONS.keyboard);
+    });
+
+    it('does not commit on key release when the value did not change', async () => {
+      const handleValueCommitted = vi.fn();
+
+      await render(
+        <Slider.Root defaultValue={100} onValueCommitted={handleValueCommitted}>
+          <Slider.Control>
+            <Slider.Thumb />
+          </Slider.Control>
+        </Slider.Root>,
+      );
+
+      const slider = screen.getByRole('slider');
+      await act(async () => {
+        slider.focus();
+      });
+
+      fireEvent.keyDown(slider, { key: ARROW_RIGHT });
+      fireEvent.keyUp(slider, { key: ARROW_RIGHT });
+
+      expect(handleValueCommitted).not.toHaveBeenCalled();
+      expect(slider).toHaveAttribute('aria-valuenow', '100');
+    });
+
     it.skipIf(isJSDOM)('does not commit when thumb press leaves the value unchanged', async () => {
       const handleValueChange = vi.fn();
       const handleValueCommitted = vi.fn();

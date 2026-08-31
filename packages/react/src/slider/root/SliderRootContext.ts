@@ -15,6 +15,11 @@ export interface SliderRootContext {
    * The index of the most recently interacted thumb.
    */
   lastUsedThumbIndex: number;
+  /**
+   * Commits the value produced by the pending keyboard interaction, if any.
+   * Called when an arrow key is released or focus leaves the thumb.
+   */
+  commitKeyboardValue: (nativeEvent?: KeyboardEvent) => void;
   controlRef: React.RefObject<HTMLElement | null>;
   dragging: boolean;
   disabled: boolean;
