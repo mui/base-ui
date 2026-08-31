@@ -26,6 +26,23 @@ describe('createSelectorMemoized', () => {
     expect(selector({})).toBe(42);
   });
 
+  it('passes extra arguments to a single combiner alongside the state', () => {
+    type S = { value: number };
+    const combiner = vi.fn((s: S, a1: number) => s.value + a1);
+
+    const selector = createSelectorMemoized(combiner);
+    const state: S = { value: 10 };
+
+    // The single-function form wires [identity, argGetter, combiner], so the combiner
+    // must still receive the state first.
+    expect(selector(state, 5)).toBe(15);
+    expect(selector(state, 5)).toBe(15);
+    expect(combiner).toHaveBeenCalledTimes(1);
+
+    expect(selector(state, 6)).toBe(16);
+    expect(combiner).toHaveBeenCalledTimes(2);
+  });
+
   it('re-runs the combiner when input selector results change', () => {
     type S = { a: number; b: number };
     const combiner = vi.fn((a: number, b: number) => ({ sum: a + b }));
@@ -174,16 +191,19 @@ describe('createSelectorMemoizedWithOptions', () => {
     type S = { value: number };
     const combiner = vi.fn((value: number) => ({ value }));
 
-    const selector = createSelectorMemoizedWithOptions({ memoizeOptions: { maxSize: 2 } })(
-      (state: S) => state.value,
-      combiner,
-    );
+    const selector = createSelectorMemoizedWithOptions({
+      memoizeOptions: { maxSize: 2 },
+      devModeChecks: { inputStabilityCheck: 'never', identityFunctionCheck: 'never' },
+    })((state: S) => state.value, combiner);
 
-    // NaN-valued inputs only hit the memo with Object.is; replacing the default
-    // equality with `===` as a side effect of passing options would re-run the combiner.
     const state: S = { value: NaN };
     selector(state);
-    selector(state);
+    // A derived state carries the same `__cacheKey__`, so the reselect instance is reused
+    // and its equality decides whether the combiner re-runs. Passing the same reference
+    // instead would short-circuit in `argsMemoize` before the equality is consulted.
+    // NaN-valued inputs only hit the memo with `Object.is`; losing it to `===` as a side
+    // effect of passing options would re-run the combiner.
+    selector({ ...state });
 
     expect(combiner).toHaveBeenCalledTimes(1);
   });
