@@ -305,14 +305,12 @@ export function useFieldValidation(
         resultOrPromise !== null &&
         'then' in resultOrPromise
       ) {
-        // Retire a previous async result while the validator runs, but keep anything that must
-        // block submission synchronously: native failures here, the previous result in other modes.
-        if (validationMode === 'onSubmit') {
-          if (nextState.valid === false) {
-            publish(nextState, validationErrors);
-          } else {
-            publish({ ...nextState, valid: null }, EMPTY_ARRAY);
-          }
+        // Publish native failures in every mode and retire a previous async result in onSubmit
+        // mode: the form reads validity synchronously to block submission.
+        if (nextState.valid === false) {
+          publish(nextState, validationErrors);
+        } else if (validationMode === 'onSubmit') {
+          publish({ ...nextState, valid: null }, EMPTY_ARRAY);
         }
 
         // A rejected validator keeps the previously published state, so a transient

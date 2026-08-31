@@ -772,27 +772,34 @@ describe('<Field.Root />', () => {
         });
       });
 
-      it('keeps a native constraint failure published while the validator is in flight', async () => {
-        const onSubmit = vi.fn((event: React.FormEvent) => event.preventDefault());
-        const validate = vi.fn(() => new Promise<string | null>(() => {}));
+      (['onSubmit', 'onChange', 'onBlur'] as const).forEach((validationMode) => {
+        it(`keeps a native constraint failure published while the validator is in flight in ${validationMode} mode`, async () => {
+          const onSubmit = vi.fn((event: React.FormEvent) => event.preventDefault());
+          const validate = vi.fn(() => new Promise<string | null>(() => {}));
 
-        await render(
-          <Form onSubmit={onSubmit}>
-            <Field.Root data-testid="root" name="username" validate={validate}>
-              <Field.Control data-testid="control" required />
-              <Field.Error data-testid="error" />
-            </Field.Root>
-            <button type="submit">submit</button>
-          </Form>,
-        );
+          await render(
+            <Form onSubmit={onSubmit}>
+              <Field.Root
+                data-testid="root"
+                name="username"
+                validationMode={validationMode}
+                validate={validate}
+              >
+                <Field.Control data-testid="control" required />
+                <Field.Error data-testid="error" />
+              </Field.Root>
+              <button type="submit">submit</button>
+            </Form>,
+          );
 
-        fireEvent.click(screen.getByText('submit'));
+          fireEvent.click(screen.getByText('submit'));
 
-        expect(onSubmit).not.toHaveBeenCalled();
-        expect(screen.getByTestId('root')).toHaveAttribute('data-invalid', '');
-        expect(screen.getByTestId('control')).toHaveAttribute('aria-invalid', 'true');
+          expect(onSubmit).not.toHaveBeenCalled();
+          expect(screen.getByTestId('root')).toHaveAttribute('data-invalid', '');
+          expect(screen.getByTestId('control')).toHaveAttribute('aria-invalid', 'true');
 
-        await flushMicrotasks();
+          await flushMicrotasks();
+        });
       });
 
       it('retires a resolved async error to neutral while revalidating in onSubmit mode', async () => {
