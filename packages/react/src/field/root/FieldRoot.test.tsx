@@ -718,6 +718,59 @@ describe('<Field.Root />', () => {
       });
 
       (['onChange', 'onBlur'] as const).forEach((validationMode) => {
+        it(`retires a previously valid result to neutral while revalidating in ${validationMode} mode`, async () => {
+          const resolvers: Array<(value: string | null) => void> = [];
+          const validate = vi.fn(
+            () =>
+              new Promise<string | null>((resolve) => {
+                resolvers.push(resolve);
+              }),
+          );
+
+          await render(
+            <Field.Root data-testid="root" validationMode={validationMode} validate={validate}>
+              <Field.Control data-testid="control" />
+              <Field.Error data-testid="error" />
+            </Field.Root>,
+          );
+
+          const root = screen.getByTestId('root');
+          const control = screen.getByTestId('control');
+
+          fireEvent.change(control, { target: { value: 'good' } });
+          if (validationMode === 'onBlur') {
+            fireEvent.blur(control);
+          }
+
+          await act(async () => {
+            resolvers[0](null);
+            await flushMicrotasks();
+          });
+
+          expect(root).toHaveAttribute('data-valid', '');
+
+          if (validationMode === 'onBlur') {
+            fireEvent.focus(control);
+            fireEvent.blur(control);
+          } else {
+            fireEvent.change(control, { target: { value: 'taken' } });
+          }
+
+          // A valid result never blocks submission, so it retires to neutral mid-flight.
+          expect(root).not.toHaveAttribute('data-valid');
+          expect(root).not.toHaveAttribute('data-invalid');
+
+          await act(async () => {
+            resolvers[1]('Username is taken');
+            await flushMicrotasks();
+          });
+
+          expect(root).toHaveAttribute('data-invalid', '');
+          expect(screen.getByTestId('error')).toHaveTextContent('Username is taken');
+        });
+      });
+
+      (['onChange', 'onBlur'] as const).forEach((validationMode) => {
         it(`keeps a previously resolved error while revalidating in ${validationMode} mode`, async () => {
           const resolvers: Array<(value: string | null) => void> = [];
           const validate = vi.fn(
@@ -841,11 +894,12 @@ describe('<Field.Root />', () => {
         expect(screen.queryByTestId('error')).toBe(null);
 
         await act(async () => {
-          resolvers[1]('Username is taken');
+          resolvers[1](null);
           await flushMicrotasks();
         });
 
-        expect(root).toHaveAttribute('data-invalid', '');
+        expect(root).toHaveAttribute('data-valid', '');
+        expect(screen.queryByTestId('error')).toBe(null);
       });
     });
 
