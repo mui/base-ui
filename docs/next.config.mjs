@@ -162,6 +162,10 @@ const nextConfig = {
   experimental: {
     globalNotFound: true,
     turbopackFileSystemCacheForBuild: true,
+    // The TS7 side-by-side alias (@typescript/typescript6) ships no `tsc` bin,
+    // which the Next.js >= 16.3 CLI checker requires; docs-infra also needs the
+    // TS6 JS API. Use the JS API for type checking.
+    useTypeScriptCli: false,
   },
 };
 
