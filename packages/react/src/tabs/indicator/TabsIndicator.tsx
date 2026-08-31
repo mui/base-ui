@@ -7,7 +7,6 @@ import { script as prehydrationScript } from '#prehydration/tabs/indicator';
 import { PrehydrationScript } from '../../internals/PrehydrationScript';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { getCssDimensions } from '../../utils/getCssDimensions';
-import { getElementTransform } from '../../utils/getElementTransform';
 import type { BaseUIComponentProps } from '../../internals/types';
 import type { TabsRoot, TabsRootState } from '../root/TabsRoot';
 import { useTabsRootContext } from '../root/TabsRootContext';
@@ -91,22 +90,14 @@ export const TabsIndicator = React.forwardRef(function TabsIndicator(
         tabsListElement.scrollTop -
         tabsListElement.clientTop;
 
-      // The rect-based offset is sub-pixel-precise but is derived from projected viewport
-      // geometry: a rotation, skew, flip, perspective, or 3D transform on the tab or any
-      // ancestor warps it beyond what the scale division can undo. When it agrees with the
-      // layout offset (up to layout rounding), no distortion is in effect and the more
-      // precise value is safe to use. A tab list scaled to zero divides by zero just above,
-      // and the resulting `NaN`/`Infinity` fails this same check, leaving the layout offset
-      // in place — so a degenerate scale needs no guard of its own.
-      //
-      // The active tab's own translation moves the rect but not the layout offset, so
-      // strip it from the comparison. This lets the indicator follow tab-local animations
-      // (e.g. `transform: translateX(12px)` on the selected tab) — the indicator is a
-      // sibling of the tab and does not inherit its transform.
-      const tabTranslation = getActiveTabTranslation(activeTab);
+      // Matching offsets need no ancestor style reads. Otherwise keep the precise rect when
+      // only translations or shared positive scales are involved; layout offsets handle distortion.
       if (
-        Math.abs(rectLeft - tabTranslation.x - left) <= MAX_LAYOUT_ROUNDING_ERROR &&
-        Math.abs(rectTop - tabTranslation.y - top) <= MAX_LAYOUT_ROUNDING_ERROR
+        (Math.abs(rectLeft - left) <= MAX_LAYOUT_ROUNDING_ERROR &&
+          Math.abs(rectTop - top) <= MAX_LAYOUT_ROUNDING_ERROR) ||
+        (Number.isFinite(rectLeft) &&
+          Number.isFinite(rectTop) &&
+          !hasDistortingTransform(activeTab, tabsListElement))
       ) {
         left = rectLeft;
         top = rectTop;
@@ -210,9 +201,7 @@ function getLayoutOffset(element: HTMLElement, ancestor: HTMLElement) {
 
   // `offsetLeft`/`offsetTop` describe layout, and scrolling doesn't change layout: a scroll
   // container between the tab and the list moves the tab on screen while its layout slot stays
-  // put. Subtract that scroll so this offset remains comparable with the rect-based one below —
-  // otherwise the difference reads as transform distortion, the rect offset is rejected, and the
-  // indicator is left behind by the full scroll amount. The list's own scroll is deliberately
+  // put. Subtract that scroll from the layout fallback. The list's own scroll is deliberately
   // excluded: the indicator sits inside it and scrolls along with the tab.
   //
   // `getParentNode` crosses shadow boundaries (and slots), so a tab inside a shadow root still
@@ -248,43 +237,45 @@ function getCumulativeOffset(element: HTMLElement) {
   return { left, top };
 }
 
-// Returns the active tab's own 2D translation, in CSS pixels: the translation component of
-// the computed `transform` matrix plus the `translate` longhand. CSS composes the two as
-// `translate → rotate → scale → transform`, so adding them is only exact when no rotation or
-// scale is in play. That is enough here: with either of those present the caller's agreement
-// check rejects the rect-based offset regardless of the translation, and the tab's layout
-// slot is used instead.
-function getActiveTabTranslation(element: HTMLElement) {
-  const computedStyle = ownerWindow(element).getComputedStyle(element);
-  const { x, y } = getElementTransform(element, computedStyle);
-  let translateX = x;
-  let translateY = y;
-
-  // The `translate` longhand is a separate property and is not reflected in the
-  // computed `transform` matrix that `getElementTransform` reads. `getComputedStyle`
-  // resolves absolute and font-relative lengths to pixels but keeps percentages, which
-  // resolve against the tab's border box.
-  const { translate } = computedStyle;
-  if (translate && translate !== 'none') {
-    const parts = translate.split(' ');
-    translateX += resolveTranslateLength(parts[0], element.offsetWidth);
-    translateY += resolveTranslateLength(parts[1], element.offsetHeight);
+function hasDistortingTransform(element: HTMLElement, list: HTMLElement) {
+  let node: Node = element;
+  let allowScale = false;
+  while (isHTMLElement(node)) {
+    // The rect calculation accounts for scale shared with the list, but not tab-local scale.
+    allowScale ||= node === list;
+    const scaleIsShared = allowScale;
+    const win = ownerWindow(node);
+    const css = win.getComputedStyle(node);
+    if (css.transform && css.transform !== 'none') {
+      if (!win.DOMMatrixReadOnly) {
+        return true;
+      }
+      const matrix = new win.DOMMatrixReadOnly(css.transform);
+      if (
+        matrix.a <= 0 ||
+        matrix.d <= 0 ||
+        (!allowScale && (matrix.a !== 1 || matrix.d !== 1)) ||
+        // In the 4×4 matrix, ignore the diagonal scale and final translation column.
+        matrix.toFloat64Array().some((value, i) => i < 12 && i % 5 !== 0 && value !== 0)
+      ) {
+        return true;
+      }
+    }
+    if (
+      parseFloat(css.rotate?.split(' ').pop() || '') % 360 ||
+      (css.scale &&
+        css.scale !== 'none' &&
+        css.scale
+          .split(' ')
+          .some((value) => Number(value) <= 0 || (!scaleIsShared && Number(value) !== 1))) ||
+      (css.perspective && css.perspective !== 'none')
+    ) {
+      return true;
+    }
+    if (isLastTraversableNode(node)) {
+      break;
+    }
+    node = getParentNode(node);
   }
-
-  return { x: translateX, y: translateY };
-}
-
-// Resolves a single `translate` longhand component to pixels. Percentages resolve against
-// the given border-box size; anything that isn't a plain number or percentage (e.g.
-// `calc(...)`) is treated as no translation, so the indicator falls back to the tab's
-// layout slot rather than guessing.
-function resolveTranslateLength(value: string | undefined, referenceSize: number): number {
-  if (!value) {
-    return 0;
-  }
-  const numeric = parseFloat(value);
-  if (!Number.isFinite(numeric)) {
-    return 0;
-  }
-  return value.endsWith('%') ? (numeric / 100) * referenceSize : numeric;
+  return false;
 }
