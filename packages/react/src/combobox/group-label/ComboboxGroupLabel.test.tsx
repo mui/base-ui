@@ -39,6 +39,42 @@ describe('<Combobox.GroupLabel />', () => {
       expect(group).toHaveAttribute('aria-labelledby', label.id);
     });
 
+    it('is hidden from the accessibility tree by default', async () => {
+      await render(
+        <Combobox.Root open>
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.Group>
+                  <Combobox.GroupLabel>Label</Combobox.GroupLabel>
+                </Combobox.Group>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      expect(screen.getByText('Label')).toHaveAttribute('aria-hidden', 'true');
+    });
+
+    it('allows overriding aria-hidden', async () => {
+      await render(
+        <Combobox.Root open>
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.Group>
+                  <Combobox.GroupLabel aria-hidden={undefined}>Label</Combobox.GroupLabel>
+                </Combobox.Group>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      expect(screen.getByText('Label')).not.toHaveAttribute('aria-hidden');
+    });
+
     it('uses provided id in aria-labelledby', async () => {
       await render(
         <Combobox.Root open>

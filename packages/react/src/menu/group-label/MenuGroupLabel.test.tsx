@@ -41,25 +41,6 @@ describe('<Menu.GroupLabel />', () => {
   });
 
   describe('a11y attributes', () => {
-    it('should have the role `presentation`', async () => {
-      await render(
-        <Menu.Root open>
-          <Menu.Portal>
-            <Menu.Positioner>
-              <Menu.Popup>
-                <Menu.Group>
-                  <Menu.GroupLabel>Test group</Menu.GroupLabel>
-                </Menu.Group>
-              </Menu.Popup>
-            </Menu.Positioner>
-          </Menu.Portal>
-        </Menu.Root>,
-      );
-
-      const groupLabel = screen.getByText('Test group');
-      expect(groupLabel).toHaveAttribute('role', 'presentation');
-    });
-
     it('is hidden from the accessibility tree by default', async () => {
       await render(
         <Menu.Root open>
