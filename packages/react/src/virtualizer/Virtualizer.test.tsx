@@ -2595,6 +2595,36 @@ describe('<Virtualizer />', () => {
     }
   });
 
+  it('names Autocomplete parts in diagnostics raised inside an Autocomplete', async () => {
+    // `Autocomplete.List` and `Autocomplete.Item` are the Combobox components under another name,
+    // so a diagnostic that hard-coded one namespace would point an Autocomplete user at parts
+    // that are not in their tree.
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+
+    try {
+      await render(
+        <Autocomplete.Root defaultOpen items={['one', 'two']} grid>
+          <Autocomplete.List>
+            <Virtualizer<string> estimatedItemHeight={20}>
+              {(item) => (
+                <React.Fragment>
+                  <Autocomplete.Item value={item}>{item}</Autocomplete.Item>
+                  <Autocomplete.Item value={item}>{item}</Autocomplete.Item>
+                </React.Fragment>
+              )}
+            </Virtualizer>
+          </Autocomplete.List>
+        </Autocomplete.Root>,
+      );
+
+      const messages = warnSpy.mock.calls.map(([message]) => String(message)).join('\n');
+      expect(messages).toContain('must render exactly one <Autocomplete.Item>');
+      expect(messages).not.toContain('<Combobox.');
+    } finally {
+      warnSpy.mockRestore();
+    }
+  });
+
   it('warns about unsupported modes and invalid composition', async () => {
     const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
 

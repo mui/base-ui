@@ -90,6 +90,13 @@ type InternalAriaComboboxProps<Value, Mode extends SelectionMode, Item = Value> 
   Mode,
   Item
 > & {
+  /**
+   * Part namespace of the public component this root backs, such as `Combobox` or `Autocomplete`.
+   * Diagnostics name their parts through it, so a reader is pointed at the parts they actually
+   * have in their tree. Declared here rather than on `AriaComboboxProps` so it stays off the
+   * public surface of every root built on this one.
+   */
+  componentName: string;
   filterQuery?: string | undefined;
 };
 
@@ -110,6 +117,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
   props: InternalAriaComboboxProps<Value, Mode, Item>,
 ): React.JSX.Element {
   const {
+    componentName,
     id: idProp,
     onOpenChangeComplete: onOpenChangeCompleteProp,
     defaultSelectedValue = null,
@@ -543,6 +551,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
         handleSelection: NOOP,
         forceMount: NOOP,
         requestSubmit: NOOP,
+        componentName,
         virtualizationRegistry,
         listRef,
         labelsRef,

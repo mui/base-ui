@@ -75,6 +75,11 @@ export type State = {
  * `selectors`, so writing to a ref never notifies subscribers.
  */
 export type ComboboxStoreContext = {
+  /**
+   * Part namespace of the root this store belongs to, so diagnostics name the parts the reader
+   * actually has in their tree. `AriaCombobox` backs more than one public component.
+   */
+  readonly componentName: string;
   /** Coordinates the built-in virtualizer with the items rendered outside it. */
   readonly virtualizationRegistry: ListVirtualizationRegistry;
   /** Item elements in list order, owned by `Combobox.List`. */

@@ -23,6 +23,7 @@ export function ComboboxRoot<Value, Multiple extends boolean | undefined = false
   return (
     <AriaCombobox
       {...(other as any)}
+      componentName="Combobox"
       selectionMode={multiple ? 'multiple' : 'single'}
       selectedValue={value}
       defaultSelectedValue={defaultValue}

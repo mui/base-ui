@@ -63,14 +63,6 @@ function ComboboxItemInner(props: ComboboxItemInnerProps) {
   } = componentProps;
 
   const textRef = React.useRef<HTMLElement | null>(null);
-  if (process.env.NODE_ENV !== 'production') {
-    if (virtualItem && indexProp != null && indexProp !== virtualItem.index) {
-      warn(
-        '<Combobox.Item> received an `index` prop that conflicts with the index provided by ' +
-          '<Virtualizer>. Remove the `index` prop from virtualized items.',
-      );
-    }
-  }
 
   const explicitIndex = virtualItem?.index ?? indexProp;
   const listItem = useCompositeListItem({
@@ -82,6 +74,16 @@ function ComboboxItemInner(props: ComboboxItemInnerProps) {
   const store = useComboboxRootContext();
   const isRow = useComboboxRowContext();
   const hasItems = useComboboxHasItemsContext();
+  const { componentName } = store.context;
+
+  if (process.env.NODE_ENV !== 'production') {
+    if (virtualItem && indexProp != null && indexProp !== virtualItem.index) {
+      warn(
+        `<${componentName}.Item> received an \`index\` prop that conflicts with the index ` +
+          'provided by <Virtualizer>. Remove the `index` prop from virtualized items.',
+      );
+    }
+  }
 
   const selectionMode = store.useState('selectionMode');
   const rootDisabled = store.useState('disabled');
@@ -103,7 +105,7 @@ function ComboboxItemInner(props: ComboboxItemInnerProps) {
   const itemRef = React.useRef<HTMLDivElement | null>(null);
 
   useVirtualItemDiagnostics({
-    componentName: 'Combobox',
+    componentName,
     disabledProp,
     hasIsItemDisabled: isItemDisabled != null,
     virtualItem,
@@ -292,7 +294,7 @@ export const ComboboxItem = React.memo(
     const insideList = useListVirtualizationHost() != null;
 
     useNonVirtualizedItemRegistration({
-      componentName: 'Combobox',
+      componentName: store.context.componentName,
       insideList,
       registry: store.context.virtualizationRegistry,
       virtualized: virtualItem != null,

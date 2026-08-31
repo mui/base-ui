@@ -51,6 +51,7 @@ export const ComboboxList = React.forwardRef(function ComboboxList(
   const activeIndex = store.useState('activeIndex');
   const highlightType = store.useState('highlightType');
   const renderAllRows = store.useState('renderAllRows');
+  const { componentName } = store.context;
 
   const multiple = selectionMode === 'multiple';
   const empty = filteredItems.length === 0;
@@ -77,7 +78,7 @@ export const ComboboxList = React.forwardRef(function ComboboxList(
   // Reads the flags at call time, so it stays stable while reporting the current configuration.
   const warnUnsupportedConfiguration = useStableCallback(() => {
     if (!hasItems) {
-      warn('<Virtualizer> requires the `items` prop on <Combobox.Root>.');
+      warn(`<Virtualizer> requires the \`items\` prop on <${componentName}.Root>.`);
     }
     if (isGrouped) {
       warn(
@@ -87,8 +88,8 @@ export const ComboboxList = React.forwardRef(function ComboboxList(
     }
     if (externallyVirtualized) {
       warn(
-        '<Combobox.Root> must not use the `virtualized` prop together with <Virtualizer>. ' +
-          'The prop is only for external virtualization.',
+        `<${componentName}.Root> must not use the \`virtualized\` prop together with ` +
+          '<Virtualizer>. The prop is only for external virtualization.',
       );
     }
     if (grid) {
@@ -99,13 +100,13 @@ export const ComboboxList = React.forwardRef(function ComboboxList(
   // Kept free of reactive state: <Combobox.Item> reads this to detect that it is inside a list.
   const virtualizationHost = React.useMemo<ListVirtualizationHost>(
     () => ({
-      componentName: 'Combobox',
+      componentName,
       registry: store.context.virtualizationRegistry,
       virtualItemContext: ComboboxVirtualItemContext,
       warnUnsupportedConfiguration:
         process.env.NODE_ENV === 'production' ? undefined : warnUnsupportedConfiguration,
     }),
-    [store, warnUnsupportedConfiguration],
+    [componentName, store, warnUnsupportedConfiguration],
   );
 
   const virtualizationListState = React.useMemo<ListVirtualizationListState>(
