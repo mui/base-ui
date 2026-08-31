@@ -7,7 +7,7 @@ import { type Orientation } from '../../internals/types';
 import { useToolbarRootContext } from './ToolbarRootContext';
 
 describe('<Toolbar.Root />', () => {
-  const { render } = createRenderer();
+  const { render, renderToString } = createRenderer();
 
   describeConformance(<Toolbar.Root />, () => ({
     refInstanceof: window.HTMLDivElement,
@@ -314,6 +314,20 @@ describe('<Toolbar.Root />', () => {
       await user.keyboard('[ArrowRight]');
       expect(input).not.toHaveFocus();
       expect(button2).toHaveFocus();
+    });
+  });
+
+  describe('server-side rendering', () => {
+    it('renders a roving tab stop on the first item', () => {
+      renderToString(
+        <Toolbar.Root>
+          <Toolbar.Button data-testid="button-1" />
+          <Toolbar.Button data-testid="button-2" />
+        </Toolbar.Root>,
+      );
+
+      expect(screen.getByTestId('button-1')).toHaveAttribute('tabindex', '0');
+      expect(screen.getByTestId('button-2')).toHaveAttribute('tabindex', '-1');
     });
   });
 });

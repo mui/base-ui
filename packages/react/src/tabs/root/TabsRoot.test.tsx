@@ -8,7 +8,7 @@ import { Tabs } from '@base-ui/react/tabs';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 
 describe('<Tabs.Root />', () => {
-  const { render } = createRenderer();
+  const { render, renderToString } = createRenderer();
 
   beforeEach(function beforeHook({ skip }) {
     const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
@@ -2593,6 +2593,22 @@ describe('<Tabs.Root />', () => {
       // Selection remains the externally-set tab since activateOnFocus=false
       expect(thirdTab).toHaveAttribute('aria-selected', 'true');
       expect(secondTab).toHaveAttribute('aria-selected', 'false');
+    });
+  });
+
+  describe('server-side rendering', () => {
+    it('renders a roving tab stop on the first tab', () => {
+      renderToString(
+        <Tabs.Root defaultValue="one">
+          <Tabs.List>
+            <Tabs.Tab value="one" data-testid="tab-1" />
+            <Tabs.Tab value="two" data-testid="tab-2" />
+          </Tabs.List>
+        </Tabs.Root>,
+      );
+
+      expect(screen.getByTestId('tab-1')).toHaveAttribute('tabindex', '0');
+      expect(screen.getByTestId('tab-2')).toHaveAttribute('tabindex', '-1');
     });
   });
 });

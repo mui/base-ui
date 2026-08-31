@@ -46,7 +46,6 @@ function ComboboxItemInner(props: ComboboxItemInnerProps) {
 
   const textRef = React.useRef<HTMLElement | null>(null);
   const listItem = useCompositeListItem({
-    guess: true,
     index: indexProp,
     textRef,
   });

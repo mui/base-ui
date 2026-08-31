@@ -51,7 +51,7 @@ export const MenuSubmenuTrigger = React.forwardRef(function MenuSubmenuTrigger(
     throw new Error('Base UI: <Menu.SubmenuTrigger> must be placed in <Menu.SubmenuRoot>.');
   }
 
-  const listItem = useCompositeListItem({ guess: true, label });
+  const listItem = useCompositeListItem({ label });
   const menuPositionerContext = useMenuPositionerContext();
 
   const { store } = useMenuRootContext();

@@ -13,6 +13,12 @@ export interface CompositeListContextValue<Metadata> {
   unregister: (node: Element) => void;
   subscribeMapChange: (fn: (map: Map<Element, Metadata>) => void) => () => void;
   nextIndexRef: React.RefObject<number>;
+  /**
+   * Present only on the default value. An item without a `CompositeList` above must not
+   * guess an index from `nextIndexRef`: the default ref is a module-level singleton, so
+   * consuming from it would leak state across unrelated orphan items.
+   */
+  orphan?: boolean | undefined;
 }
 
 export const CompositeListContext = React.createContext<CompositeListContextValue<any>>({
@@ -20,6 +26,7 @@ export const CompositeListContext = React.createContext<CompositeListContextValu
   unregister: () => {},
   subscribeMapChange: () => () => {},
   nextIndexRef: { current: 0 },
+  orphan: true,
 });
 
 export function useCompositeListContext() {

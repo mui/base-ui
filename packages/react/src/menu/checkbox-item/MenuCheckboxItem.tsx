@@ -40,7 +40,7 @@ export const MenuCheckboxItem = React.forwardRef(function MenuCheckboxItem(
     ...elementProps
   } = componentProps;
 
-  const listItem = useCompositeListItem({ guess: true, label });
+  const listItem = useCompositeListItem({ label });
   const menuPositionerContext = useMenuPositionerContext(true);
   const id = useBaseUiId(idProp);
 

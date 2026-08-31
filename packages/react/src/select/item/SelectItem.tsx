@@ -41,7 +41,6 @@ export const SelectItem = React.memo(
 
     const textRef = React.useRef<HTMLElement | null>(null);
     const listItem = useCompositeListItem({
-      guess: true,
       label,
       textRef,
     });

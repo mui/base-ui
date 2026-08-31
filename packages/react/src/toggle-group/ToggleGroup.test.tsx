@@ -8,7 +8,7 @@ import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 import { type Orientation } from '../internals/types';
 
 describe('<ToggleGroup />', () => {
-  const { render } = createRenderer();
+  const { render, renderToString } = createRenderer();
 
   describeConformance(<ToggleGroup />, () => ({
     refInstanceof: window.HTMLDivElement,
@@ -600,6 +600,20 @@ describe('<ToggleGroup />', () => {
         expect(onValueChange.mock.calls.length).toBe(2);
         expect(onValueChange.mock.calls[1][0]).toEqual(['two']);
       });
+    });
+  });
+
+  describe('server-side rendering', () => {
+    it('renders a roving tab stop on the first toggle', () => {
+      renderToString(
+        <ToggleGroup>
+          <Toggle value="one" data-testid="toggle-1" />
+          <Toggle value="two" data-testid="toggle-2" />
+        </ToggleGroup>,
+      );
+
+      expect(screen.getByTestId('toggle-1')).toHaveAttribute('tabindex', '0');
+      expect(screen.getByTestId('toggle-2')).toHaveAttribute('tabindex', '-1');
     });
   });
 });

@@ -19,7 +19,7 @@ describe('<Menubar />', () => {
     globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
   });
 
-  const { render } = createRenderer();
+  const { render, renderToString } = createRenderer();
 
   describeConformance(<Menubar />, () => ({
     render: (node) => {
@@ -1191,6 +1191,24 @@ describe('<Menubar />', () => {
 
       await user.click(item);
       expect(handleClick).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('server-side rendering', () => {
+    it('renders a roving tab stop on the first trigger', () => {
+      renderToString(
+        <Menubar>
+          <Menu.Root>
+            <Menu.Trigger data-testid="trigger-1">File</Menu.Trigger>
+          </Menu.Root>
+          <Menu.Root>
+            <Menu.Trigger data-testid="trigger-2">Edit</Menu.Trigger>
+          </Menu.Root>
+        </Menubar>,
+      );
+
+      expect(screen.getByTestId('trigger-1')).toHaveAttribute('tabindex', '0');
+      expect(screen.getByTestId('trigger-2')).toHaveAttribute('tabindex', '-1');
     });
   });
 });

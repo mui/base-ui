@@ -4,12 +4,6 @@ import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useCompositeListContext } from './CompositeListContext';
 
 export interface UseCompositeListItemParameters<Metadata> {
-  /**
-   * Whether to guess the initial index from render order, avoiding a re-render after mount for
-   * flat lists.
-   * @default false
-   */
-  guess?: boolean | undefined;
   index?: number | undefined;
   label?: string | null | undefined;
   /**
@@ -32,16 +26,17 @@ interface UseCompositeListItemReturnValue {
 export function useCompositeListItem<Metadata>(
   params: UseCompositeListItemParameters<Metadata> = {},
 ): UseCompositeListItemReturnValue {
-  const { guess, label, metadata, textRef, index: externalIndex } = params;
+  const { label, metadata, textRef, index: externalIndex } = params;
 
-  const { register, unregister, subscribeMapChange, nextIndexRef } = useCompositeListContext();
+  const { register, unregister, subscribeMapChange, nextIndexRef, orphan } =
+    useCompositeListContext();
 
   // Guess the index from the render order. This avoids a re-render after mount for
   // flat lists rendered in DOM order; when the guess is wrong (grouped or out-of-order
   // rendering), the commit flush corrects it before paint.
   const indexRef = React.useRef(-1);
   const [internalIndex, setInternalIndex] = React.useState<number>(
-    externalIndex == null && guess
+    externalIndex == null && !orphan
       ? () => {
           if (indexRef.current === -1) {
             const newIndex = nextIndexRef.current;

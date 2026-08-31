@@ -37,7 +37,7 @@ export const MenuRadioItem = React.forwardRef(function MenuRadioItem(
     ...elementProps
   } = componentProps;
 
-  const listItem = useCompositeListItem({ guess: true, label });
+  const listItem = useCompositeListItem({ label });
   const menuPositionerContext = useMenuPositionerContext(true);
   const id = useBaseUiId(idProp);
 

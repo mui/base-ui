@@ -44,7 +44,7 @@ describe('<CompositeList />', () => {
 
     it('keeps refs populated for items whose guessed index is already correct', async () => {
       function GuessedItem(props: { label: string }) {
-        const { ref } = useCompositeListItem({ guess: true, label: props.label });
+        const { ref } = useCompositeListItem({ label: props.label });
         return (
           <div ref={ref} data-testid={props.label}>
             {props.label}
@@ -170,7 +170,7 @@ describe('<CompositeList />', () => {
       };
 
       function GuessedItem(props: { label: string; index?: number }) {
-        const { ref, index } = useCompositeListItem({ guess: true, index: props.index });
+        const { ref, index } = useCompositeListItem({ index: props.index });
         const initialIndex = React.useRef(index).current;
         return <div ref={ref} data-testid={props.label} data-initial-index={initialIndex} />;
       }
@@ -387,7 +387,7 @@ describe('<CompositeList />', () => {
       const initialIndexes: Record<string, number> = {};
 
       function GuessedItem(props: { label: string }) {
-        const { ref, index } = useCompositeListItem({ guess: true });
+        const { ref, index } = useCompositeListItem();
         renderCounts[props.label] += 1;
         if (!(props.label in initialIndexes)) {
           initialIndexes[props.label] = index;
@@ -426,7 +426,7 @@ describe('<CompositeList />', () => {
       };
 
       function TrackedItem(props: { index?: number }) {
-        const { ref, index } = useCompositeListItem({ guess: true, index: props.index });
+        const { ref, index } = useCompositeListItem({ index: props.index });
         const trackingRef = React.useCallback(
           (node: HTMLElement | null) => {
             refCalls.push(node);
@@ -1027,7 +1027,7 @@ describe('<CompositeList />', () => {
       }> = [];
 
       function Item(props: { attempt?: number; label: string }) {
-        const { ref, index } = useCompositeListItem({ guess: true, label: props.label });
+        const { ref, index } = useCompositeListItem({ label: props.label });
         if (props.attempt != null && props.attempt >= 0) {
           suspenders[props.attempt].read();
         }
@@ -1126,8 +1126,8 @@ describe('<CompositeList />', () => {
       }
 
       const { hydrate } = renderToString(<App />);
-      expect(screen.getByTestId('a')).toHaveAttribute('data-index', '-1');
-      expect(screen.getByTestId('b')).toHaveAttribute('data-index', '-1');
+      expect(screen.getByTestId('a')).toHaveAttribute('data-index', '0');
+      expect(screen.getByTestId('b')).toHaveAttribute('data-index', '1');
 
       hydrate();
 

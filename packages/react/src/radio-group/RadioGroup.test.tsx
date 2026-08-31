@@ -12,7 +12,7 @@ import { act, screen, fireEvent } from '@mui/internal-test-utils';
 import { describeConformance } from '../../test/describeConformance';
 
 describe('<RadioGroup />', () => {
-  const { render } = createRenderer();
+  const { render, renderToString } = createRenderer();
 
   describeConformance(<RadioGroup />, () => ({
     refInstanceof: window.HTMLDivElement,
@@ -863,6 +863,39 @@ describe('<RadioGroup />', () => {
 
     expect(radioA).not.toHaveAttribute('tabindex', '0');
     expect(radioB).toHaveAttribute('tabindex', '0');
+  });
+
+  describe('server-side rendering', () => {
+    it('renders a roving tab stop on the first radio', () => {
+      renderToString(
+        <RadioGroup>
+          <Radio.Root value="a" data-testid="radio-a" />
+          <Radio.Root value="b" data-testid="radio-b" />
+        </RadioGroup>,
+      );
+
+      expect(screen.getByTestId('radio-a')).toHaveAttribute('tabindex', '0');
+      expect(screen.getByTestId('radio-b')).toHaveAttribute('tabindex', '-1');
+    });
+
+    it('moves the tab stop to the checked radio on hydration', () => {
+      const { hydrate } = renderToString(
+        <RadioGroup defaultValue="b">
+          <Radio.Root value="a" data-testid="radio-a" />
+          <Radio.Root value="b" data-testid="radio-b" />
+        </RadioGroup>,
+      );
+
+      // The server cannot know the checked index (it is resolved from the
+      // registered items after mount), so the tab stop starts on the first radio.
+      expect(screen.getByTestId('radio-a')).toHaveAttribute('tabindex', '0');
+      expect(screen.getByTestId('radio-b')).toHaveAttribute('tabindex', '-1');
+
+      hydrate();
+
+      expect(screen.getByTestId('radio-a')).toHaveAttribute('tabindex', '-1');
+      expect(screen.getByTestId('radio-b')).toHaveAttribute('tabindex', '0');
+    });
   });
 
   describe('with native <label>', () => {
