@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { EMPTY_OBJECT } from '@base-ui/utils/empty';
+import { EMPTY_ARRAY, EMPTY_OBJECT } from '@base-ui/utils/empty';
 import { useTimeout } from '@base-ui/utils/useTimeout';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
@@ -150,7 +150,7 @@ export function useFieldValidation(
     }
 
     function makeValidityData(
-      validityState: Record<keyof ValidityState, boolean>,
+      validityState: FieldValidityData['state'],
       errorMessages: string[],
     ): FieldValidityData {
       // `valueMissing` may be suppressed while the native message remains non-empty.
@@ -182,7 +182,7 @@ export function useFieldValidation(
     }
 
     function publish(
-      validityState: Record<keyof ValidityState, boolean>,
+      validityState: FieldValidityData['state'],
       errorMessages: string[],
       externalInvalid?: boolean,
     ) {
@@ -305,9 +305,11 @@ export function useFieldValidation(
         resultOrPromise !== null &&
         'then' in resultOrPromise
       ) {
-        // Retire a previous async result before an onSubmit validation begins.
+        // Validity is unknown while the validator runs, so retire a previous async result before an
+        // onSubmit validation begins. Other modes keep it: the form reads the last resolved result
+        // synchronously to block submission.
         if (validationMode === 'onSubmit') {
-          publish(nextState, validationErrors);
+          publish({ ...nextState, valid: null }, EMPTY_ARRAY);
         }
 
         // A rejected validator keeps the previously published state, so a transient
