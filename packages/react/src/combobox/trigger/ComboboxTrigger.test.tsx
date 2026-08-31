@@ -205,8 +205,8 @@ describe('<Combobox.Trigger />', () => {
     function SparseRegistry() {
       const store = useComboboxRootContext();
       useIsoLayoutEffect(() => {
-        store.state.labelsRef.current[0] = 'apple';
-        delete store.state.valuesRef.current[0];
+        store.context.labelsRef.current[0] = 'apple';
+        delete store.context.valuesRef.current[0];
       }, [store]);
       return null;
     }
@@ -240,7 +240,7 @@ describe('<Combobox.Trigger />', () => {
       expect(trigger).not.toHaveAttribute('data-readonly');
     });
 
-    it('should not open popup when readOnly', async () => {
+    it('opens the popup when readOnly', async () => {
       const { user } = await render(
         <Combobox.Root readOnly>
           <Combobox.Trigger data-testid="trigger">Open</Combobox.Trigger>
@@ -260,10 +260,15 @@ describe('<Combobox.Trigger />', () => {
       const trigger = screen.getByTestId('trigger');
       await user.click(trigger);
 
-      expect(screen.queryByRole('listbox')).toBe(null);
+      expect(await screen.findByRole('listbox')).toHaveAttribute('aria-readonly', 'true');
     });
 
-    it.each(['ArrowDown', 'ArrowUp'])('does not open on %s when readOnly', async (key) => {
+    it.each([
+      { name: 'ArrowDown', key: '{ArrowDown}' },
+      { name: 'ArrowUp', key: '{ArrowUp}' },
+      { name: 'Enter', key: '{Enter}' },
+      { name: 'Space', key: '[Space]' },
+    ])('opens on $name when readOnly', async ({ key }) => {
       const onOpenChange = vi.fn();
       const { user } = await render(
         <Combobox.Root readOnly onOpenChange={onOpenChange}>
@@ -283,10 +288,38 @@ describe('<Combobox.Trigger />', () => {
 
       const trigger = screen.getByTestId('trigger');
       trigger.focus();
-      await user.keyboard(`{${key}}`);
+      await user.keyboard(key);
 
-      expect(onOpenChange).not.toHaveBeenCalled();
-      expect(screen.queryByRole('listbox')).toBe(null);
+      expect(onOpenChange).toHaveBeenCalledTimes(1);
+      expect(await screen.findByRole('listbox')).not.toBe(null);
+    });
+
+    it('does not commit a value with typeahead on a closed trigger', async () => {
+      const onValueChange = vi.fn();
+      const { user } = await render(
+        <Combobox.Root readOnly onValueChange={onValueChange}>
+          <Combobox.Trigger data-testid="trigger">
+            <Combobox.Value />
+          </Combobox.Trigger>
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  <Combobox.Item value="apple">apple</Combobox.Item>
+                  <Combobox.Item value="banana">banana</Combobox.Item>
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      const trigger = screen.getByTestId('trigger');
+      trigger.focus();
+      await user.keyboard('b');
+
+      expect(onValueChange).not.toHaveBeenCalled();
+      expect(trigger).toHaveAttribute('data-placeholder');
     });
 
     it('should not toggle when readOnly=false (control)', async () => {
@@ -797,6 +830,34 @@ describe('<Combobox.Trigger />', () => {
 
       const trigger = screen.getByTestId('trigger');
       expect(trigger).not.toHaveAttribute('aria-required');
+    });
+
+    it('sets aria-readonly attribute when readOnly (input inside popup)', async () => {
+      await render(
+        <Combobox.Root readOnly>
+          <Combobox.Trigger data-testid="trigger" />
+        </Combobox.Root>,
+      );
+
+      const trigger = screen.getByTestId('trigger');
+      expect(trigger).toHaveAttribute('role', 'combobox');
+      expect(trigger).toHaveAttribute('aria-readonly', 'true');
+    });
+
+    it('does not set aria-readonly attribute when the input is outside the popup', async () => {
+      await render(
+        <Combobox.Root readOnly>
+          <Combobox.Input data-testid="input" />
+          <Combobox.Trigger data-testid="trigger" />
+        </Combobox.Root>,
+      );
+
+      // Without the `combobox` role the trigger is a plain button, so `aria-readonly` wouldn't
+      // apply to it. The input carries the state instead.
+      const trigger = screen.getByTestId('trigger');
+      expect(trigger).not.toHaveAttribute('role');
+      expect(trigger).not.toHaveAttribute('aria-readonly');
+      expect(screen.getByTestId('input')).toHaveAttribute('aria-readonly', 'true');
     });
 
     it('sets all aria attributes on the input when closed', async () => {

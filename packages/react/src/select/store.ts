@@ -5,6 +5,7 @@ import type { HTMLProps } from '../internals/types';
 import type { Side } from '../internals/useAnchorPositioning';
 import { compareItemEquality } from '../internals/itemEquality';
 import { type Group, hasNullItemLabel, stringifyAsValue } from '../internals/resolveValueLabel';
+import type { SelectRoot } from './root/SelectRoot';
 
 export type State = {
   id: string | undefined;
@@ -45,7 +46,36 @@ export type State = {
   hasScrollArrows: boolean;
 };
 
-export type SelectStore = ReactStore<State>;
+/**
+ * Non-reactive values shared with the select parts. Nothing here is observable through
+ * `selectors`, so writing to a ref never notifies subscribers.
+ */
+export type SelectStoreContext = {
+  readonly listRef: React.RefObject<Array<HTMLElement | null>>;
+  readonly popupRef: React.RefObject<HTMLDivElement | null>;
+  readonly scrollHandlerRef: React.RefObject<((element: HTMLDivElement) => void) | null>;
+  readonly scrollArrowsMountedCountRef: React.RefObject<number>;
+  readonly valueRef: React.RefObject<HTMLSpanElement | null>;
+  readonly valuesRef: React.RefObject<Array<any>>;
+  readonly labelsRef: React.RefObject<Array<string | null>>;
+  readonly typingRef: React.RefObject<boolean>;
+  readonly selectionRef: React.RefObject<{
+    allowUnselectedMouseUp: boolean;
+    allowSelectedMouseUp: boolean;
+    dragY: number;
+  }>;
+  readonly firstItemTextRef: React.RefObject<HTMLElement | null>;
+  readonly selectedItemTextRef: React.RefObject<HTMLElement | null>;
+  readonly alignItemWithTriggerActiveRef: React.RefObject<boolean>;
+  readonly initialValueRef: React.RefObject<any>;
+
+  // Commands. Seeded with `NOOP` when the store is constructed and assigned during the root's
+  // first render, so they are not `readonly`.
+  setValue: (nextValue: any, eventDetails: SelectRoot.ChangeEventDetails) => void;
+  setOpen: (open: boolean, eventDetails: SelectRoot.ChangeEventDetails) => void;
+  handleScrollArrowVisibility: (scroller: HTMLElement) => void;
+  onOpenChangeComplete: (open: boolean) => void;
+};
 
 export const selectors = {
   id: (state: State) => state.id,
@@ -116,3 +146,5 @@ export const selectors = {
 
   hasScrollArrows: (state: State) => state.hasScrollArrows,
 };
+
+export type SelectStore = ReactStore<State, SelectStoreContext, typeof selectors>;

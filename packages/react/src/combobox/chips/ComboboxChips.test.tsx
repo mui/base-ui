@@ -218,7 +218,7 @@ describe('<Combobox.Chips />', () => {
     expect(screen.queryByRole('listbox')).toBe(null);
   });
 
-  it('does not focus or open when readOnly', async () => {
+  it('focuses the input and opens when readOnly', async () => {
     await render(
       <Combobox.Root items={['apple', 'banana']} multiple readOnly defaultValue={['apple']}>
         <Combobox.Chips data-testid="chips">
@@ -240,8 +240,8 @@ describe('<Combobox.Chips />', () => {
 
     fireEvent.mouseDown(screen.getByTestId('chips'));
 
-    expect(screen.getByTestId('input')).not.toHaveFocus();
-    expect(screen.queryByRole('listbox')).toBe(null);
+    expect(screen.getByTestId('input')).toHaveFocus();
+    expect(screen.queryByRole('listbox')).not.toBe(null);
   });
 
   it('opens and focuses an input rendered inside the popup when the chips area is pressed', async () => {

@@ -74,9 +74,10 @@ function TestMultiThumbSlider(props: SliderRoot.Props) {
 
 describe('<Slider.Root />', () => {
   beforeAll(function beforeHook() {
-    // PointerEvent not fully implemented in jsdom, causing
-    // fireEvent.pointer* to ignore options
-    // https://github.com/jsdom/jsdom/issues/2527
+    // jsdom implements PointerEvent now (jsdom#2527 is fixed), but not the pointer capture methods
+    // on Element, so the slider throws on `setPointerCapture`/`hasPointerCapture` without this.
+    // Note this also applies in real browsers, where it costs `pointerId` and `pointerType` on
+    // every event. Replace with stubs for the three capture methods to drop it.
     (window as any).PointerEvent = window.MouseEvent;
   });
 

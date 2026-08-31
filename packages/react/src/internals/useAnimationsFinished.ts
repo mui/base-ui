@@ -4,17 +4,47 @@ import * as ReactDOM from 'react-dom';
 import { useAnimationFrame } from '@base-ui/utils/useAnimationFrame';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { resolveRef } from '../utils/resolveRef';
+import * as TransitionStatusDataAttributes from './TransitionStatusDataAttributes';
+
+let pendingCallbacks: Array<() => void> | null = null;
+
+/**
+ * Runs the callback in a synchronous flush before the browser paints, so that the
+ * browser doesn't paint an intermediate frame: https://github.com/mui/base-ui/issues/979
+ * Callbacks that become ready within the same microtask checkpoint (e.g. multiple elements
+ * whose animations finish together) are batched into a single commit:
+ * https://github.com/mui/base-ui/issues/5481
+ */
+function flushBeforePaint(fn: () => void) {
+  if (!pendingCallbacks) {
+    const callbacks: Array<() => void> = [];
+    pendingCallbacks = callbacks;
+    queueMicrotask(() => {
+      pendingCallbacks = null;
+      ReactDOM.flushSync(() => {
+        for (const callback of callbacks) {
+          callback();
+        }
+      });
+    });
+  }
+  pendingCallbacks.push(fn);
+}
 
 /**
  * Executes a function once all animations have finished on the provided element.
  * If an animation is canceled, waits for any replacement animations before executing.
  * @param elementOrRef - The element to watch for animations.
  * @param waitForStartingStyleRemoved - Whether to wait for [data-starting-style] to be removed before checking for animations.
+ * @param batch - Whether completions ready in the same microtask may be coalesced into a single
+ * commit. A batched callback runs before earlier callbacks' React updates have committed, so only
+ * opt in when the callback doesn't read state that another completion can change.
  * @returns A function that takes a callback to execute once all animations have finished, and an optional AbortSignal to abort the callback
  */
 export function useAnimationsFinished(
   elementOrRef: React.RefObject<HTMLElement | null> | HTMLElement | null,
   waitForStartingStyleRemoved = false,
+  batch = false,
 ) {
   const frame = useAnimationFrame();
 
@@ -41,9 +71,21 @@ export function useAnimationsFinished(
       const resolvedElement = element;
 
       const done = () => {
-        // Synchronously flush the unmounting of the component so that the browser doesn't
-        // paint: https://github.com/mui/base-ui/issues/979
-        ReactDOM.flushSync(fnToExecute);
+        if (!batch) {
+          // Synchronously flush the unmounting of the component so that the browser doesn't
+          // paint: https://github.com/mui/base-ui/issues/979
+          // Each callback gets its own commit so that later completions observe the React
+          // updates caused by earlier ones.
+          ReactDOM.flushSync(fnToExecute);
+          return;
+        }
+
+        flushBeforePaint(() => {
+          // Re-check at flush time: the signal may abort between queueing and the flush.
+          if (!signal?.aborted) {
+            fnToExecute();
+          }
+        });
       };
 
       if (
@@ -85,7 +127,7 @@ export function useAnimationsFinished(
       }
 
       if (waitForStartingStyleRemoved) {
-        const startingStyleAttribute = 'data-starting-style';
+        const startingStyleAttribute = TransitionStatusDataAttributes.startingStyle;
 
         // If `[data-starting-style]` isn't present, fall back to waiting one more frame
         // to give "open" animations a chance to be registered.

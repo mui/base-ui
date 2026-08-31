@@ -1,7 +1,7 @@
 import { expect, vi } from 'vitest';
 import * as React from 'react';
 import { Avatar } from '@base-ui/react/avatar';
-import { act, screen, waitFor } from '@mui/internal-test-utils';
+import { act, fireEvent, screen, waitFor } from '@mui/internal-test-utils';
 import { describeConformance, createRenderer, isJSDOM } from '#test-utils';
 
 type MockImage = {
@@ -15,6 +15,10 @@ type MockImage = {
   src: string;
   srcset: string;
 };
+
+// 1x1 transparent PNG
+const TRANSPARENT_IMAGE_DATA_URI =
+  'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==';
 
 /**
  * When `completeOnSet` is true, simulates cached-image behavior: setting a
@@ -213,6 +217,627 @@ describe('<Avatar.Image />', () => {
     });
   });
 
+  describe('prop: keepMounted', () => {
+    it.skipIf(!isJSDOM)('mounts the image while loading without preloading it', async () => {
+      const imageMock = installImageMock();
+
+      await render(
+        <Avatar.Root>
+          <Avatar.Image data-testid="image" keepMounted src="avatar.png" />
+          <Avatar.Fallback>JD</Avatar.Fallback>
+        </Avatar.Root>,
+      );
+
+      expect(screen.getByTestId('image')).toHaveAttribute('src', 'avatar.png');
+      expect(screen.getByText('JD')).not.toBe(null);
+      expect(imageMock.images.length).toBe(0);
+    });
+
+    it.skipIf(!isJSDOM)('derives the status from the rendered element load event', async () => {
+      const onLoadingStatusChange = vi.fn();
+
+      await render(
+        <Avatar.Root>
+          <Avatar.Image
+            data-testid="image"
+            keepMounted
+            src="avatar.png"
+            onLoadingStatusChange={onLoadingStatusChange}
+          />
+          <Avatar.Fallback>JD</Avatar.Fallback>
+        </Avatar.Root>,
+      );
+
+      fireEvent.load(screen.getByTestId('image'));
+
+      await waitFor(() => {
+        expect(screen.queryByText('JD')).toBe(null);
+      });
+      expect(onLoadingStatusChange.mock.calls.map(([status]) => status)).toEqual([
+        'loading',
+        'loaded',
+      ]);
+    });
+
+    it.skipIf(!isJSDOM)('keeps the image mounted when it fails to load', async () => {
+      const onLoadingStatusChange = vi.fn();
+
+      await render(
+        <Avatar.Root>
+          <Avatar.Image
+            data-testid="image"
+            keepMounted
+            src="avatar.png"
+            onLoadingStatusChange={onLoadingStatusChange}
+          />
+          <Avatar.Fallback>JD</Avatar.Fallback>
+        </Avatar.Root>,
+      );
+
+      fireEvent.error(screen.getByTestId('image'));
+
+      await waitFor(() => {
+        expect(onLoadingStatusChange).toHaveBeenCalledWith('error');
+      });
+      expect(onLoadingStatusChange.mock.calls.map(([status]) => status)).toEqual([
+        'loading',
+        'error',
+      ]);
+      expect(screen.getByTestId('image')).not.toBe(null);
+      expect(screen.getByText('JD')).not.toBe(null);
+    });
+
+    it.skipIf(!isJSDOM)('calls the user onError handler', async () => {
+      const onError = vi.fn();
+
+      await render(
+        <Avatar.Root>
+          <Avatar.Image data-testid="image" keepMounted src="avatar.png" onError={onError} />
+          <Avatar.Fallback>JD</Avatar.Fallback>
+        </Avatar.Root>,
+      );
+
+      fireEvent.error(screen.getByTestId('image'));
+
+      await waitFor(() => {
+        expect(onError).toHaveBeenCalledTimes(1);
+      });
+      expect(screen.getByText('JD')).not.toBe(null);
+    });
+
+    it.skipIf(!isJSDOM)('calls the user onLoad handler', async () => {
+      const onLoad = vi.fn();
+
+      await render(
+        <Avatar.Root>
+          <Avatar.Image data-testid="image" keepMounted src="avatar.png" onLoad={onLoad} />
+          <Avatar.Fallback>JD</Avatar.Fallback>
+        </Avatar.Root>,
+      );
+
+      fireEvent.load(screen.getByTestId('image'));
+
+      await waitFor(() => {
+        expect(onLoad).toHaveBeenCalledTimes(1);
+      });
+      await waitFor(() => {
+        expect(screen.queryByText('JD')).toBe(null);
+      });
+    });
+
+    it.skipIf(!isJSDOM)('lets a user handler prevent the status update', async () => {
+      const onLoadingStatusChange = vi.fn();
+
+      await render(
+        <Avatar.Root>
+          <Avatar.Image
+            data-testid="image"
+            keepMounted
+            onLoad={(event) => event.preventBaseUIHandler()}
+            onLoadingStatusChange={onLoadingStatusChange}
+            src="avatar.png"
+          />
+          <Avatar.Fallback>JD</Avatar.Fallback>
+        </Avatar.Root>,
+      );
+
+      fireEvent.load(screen.getByTestId('image'));
+
+      expect(screen.getByTestId('image')).toHaveAttribute('data-loading');
+      expect(screen.getByText('JD')).not.toBe(null);
+      expect(onLoadingStatusChange.mock.calls.map(([status]) => status)).toEqual(['loading']);
+    });
+
+    it.skipIf(!isJSDOM)('resets the status when a rendered image changes source', async () => {
+      const onLoadingStatusChange = vi.fn();
+
+      function Test({ src }: { src: string }) {
+        return (
+          <Avatar.Root>
+            <Avatar.Image
+              keepMounted
+              onLoadingStatusChange={onLoadingStatusChange}
+              render={<img alt="" data-testid="image" src={src} />}
+            />
+            <Avatar.Fallback>JD</Avatar.Fallback>
+          </Avatar.Root>
+        );
+      }
+
+      const { rerender } = await render(<Test src="avatar-1.png" />);
+
+      fireEvent.load(screen.getByTestId('image'));
+
+      await waitFor(() => {
+        expect(screen.queryByText('JD')).toBe(null);
+      });
+      onLoadingStatusChange.mockClear();
+
+      await rerender(<Test src="avatar-2.png" />);
+
+      await waitFor(() => {
+        expect(onLoadingStatusChange).toHaveBeenCalledWith('loading');
+      });
+      expect(screen.getByText('JD')).not.toBe(null);
+
+      // The reset status must be able to resolve again from the new load.
+      fireEvent.load(screen.getByTestId('image'));
+
+      await waitFor(() => {
+        expect(screen.queryByText('JD')).toBe(null);
+      });
+      expect(onLoadingStatusChange.mock.calls.map(([status]) => status)).toEqual([
+        'loading',
+        'loaded',
+      ]);
+    });
+
+    it.skipIf(!isJSDOM)('resets the status when the src prop changes', async () => {
+      const onLoadingStatusChange = vi.fn();
+
+      function Test({ src }: { src: string }) {
+        return (
+          <Avatar.Root>
+            <Avatar.Image
+              data-testid="image"
+              keepMounted
+              src={src}
+              onLoadingStatusChange={onLoadingStatusChange}
+            />
+            <Avatar.Fallback>JD</Avatar.Fallback>
+          </Avatar.Root>
+        );
+      }
+
+      const { rerender } = await render(<Test src="avatar-1.png" />);
+
+      fireEvent.load(screen.getByTestId('image'));
+
+      await waitFor(() => {
+        expect(screen.queryByText('JD')).toBe(null);
+      });
+      onLoadingStatusChange.mockClear();
+
+      await rerender(<Test src="avatar-2.png" />);
+
+      await waitFor(() => {
+        expect(onLoadingStatusChange).toHaveBeenCalledWith('loading');
+      });
+      expect(screen.getByText('JD')).not.toBe(null);
+    });
+
+    it.skipIf(isJSDOM)(
+      'renders the image in the server HTML and resolves cached images on hydration',
+      async () => {
+        // Restore real Image so this test exercises actual browser caching
+        restoreImage();
+        restoreImage = () => {};
+
+        // Pre-load so the browser cache has the decoded image
+        await new Promise<void>((resolve, reject) => {
+          const img = new window.Image();
+          img.onload = () => resolve();
+          img.onerror = () => reject(new Error('Failed to preload test image'));
+          img.src = TRANSPARENT_IMAGE_DATA_URI;
+        });
+
+        const { hydrate } = renderToString(
+          <Avatar.Root>
+            <Avatar.Image
+              data-testid="image"
+              keepMounted
+              src={TRANSPARENT_IMAGE_DATA_URI}
+              alt="Jane Doe"
+            />
+            <Avatar.Fallback>JD</Avatar.Fallback>
+          </Avatar.Root>,
+        );
+
+        // Unlike the default mode, the image is part of the server HTML, so the
+        // browser loads it before hydration. Until hydration resolves the status,
+        // the fallback owns the accessible name and the image is aria-hidden.
+        expect(screen.getByTestId('image')).toHaveAttribute('src', TRANSPARENT_IMAGE_DATA_URI);
+        expect(screen.getByTestId('image')).toHaveAttribute('aria-hidden', 'true');
+        expect(screen.queryByRole('img')).toBe(null);
+        expect(screen.getByText('JD')).toBeVisible();
+        await waitFor(() => {
+          expect((screen.getByTestId('image') as HTMLImageElement).complete).toBe(true);
+        });
+
+        hydrate();
+
+        // The hydration layout effect sees `image.complete` and resolves the
+        // status before paint, so the fallback is removed without a flash.
+        expect(screen.getByRole('img', { name: 'Jane Doe' })).toHaveAttribute(
+          'src',
+          TRANSPARENT_IMAGE_DATA_URI,
+        );
+        expect(screen.getByTestId('image')).not.toHaveAttribute('aria-hidden');
+        expect(screen.queryByText('JD')).toBe(null);
+      },
+    );
+
+    it.skipIf(isJSDOM)('loads the image without a detached preload', async () => {
+      // Fail the test if the detached preload is used
+      restoreImage();
+      const OriginalImage = window.Image;
+      const constructed: unknown[] = [];
+      class TrackedImage extends OriginalImage {
+        constructor(...args: []) {
+          super(...args);
+          constructed.push(this);
+        }
+      }
+      window.Image = TrackedImage as typeof window.Image;
+      restoreImage = () => {
+        window.Image = OriginalImage;
+      };
+
+      await render(
+        <Avatar.Root>
+          <Avatar.Image
+            data-testid="image"
+            keepMounted
+            src={TRANSPARENT_IMAGE_DATA_URI}
+            alt="Jane Doe"
+          />
+          <Avatar.Fallback>JD</Avatar.Fallback>
+        </Avatar.Root>,
+      );
+
+      await waitFor(() => {
+        expect(screen.queryByText('JD')).toBe(null);
+      });
+      expect(screen.getByTestId('image')).toHaveAttribute('src', TRANSPARENT_IMAGE_DATA_URI);
+      expect(constructed.length).toBe(0);
+    });
+
+    it.skipIf(isJSDOM)('reports an error when there is no source', async () => {
+      restoreImage();
+      restoreImage = () => {};
+      const onLoadingStatusChange = vi.fn();
+
+      await render(
+        <Avatar.Root>
+          <Avatar.Image
+            data-testid="image"
+            keepMounted
+            onLoadingStatusChange={onLoadingStatusChange}
+          />
+          <Avatar.Fallback>JD</Avatar.Fallback>
+        </Avatar.Root>,
+      );
+
+      // A source-less image is `complete` with `naturalWidth === 0`, which the
+      // layout effect resolves to `error` without waiting for an event.
+      expect(onLoadingStatusChange.mock.calls.map(([status]) => status)).toEqual(['error']);
+      expect(screen.getByText('JD')).not.toBe(null);
+    });
+
+    it.skipIf(isJSDOM)('preserves loaded status when the render element changes', async () => {
+      restoreImage();
+      restoreImage = () => {};
+      const onLoadingStatusChange = vi.fn();
+
+      function Test({ className }: { className: string }) {
+        return (
+          <Avatar.Root>
+            <Avatar.Image
+              keepMounted
+              onLoadingStatusChange={onLoadingStatusChange}
+              render={
+                <img
+                  alt=""
+                  className={className}
+                  data-testid="image"
+                  src={TRANSPARENT_IMAGE_DATA_URI}
+                />
+              }
+            />
+            <Avatar.Fallback>JD</Avatar.Fallback>
+          </Avatar.Root>
+        );
+      }
+
+      const { rerender } = await render(<Test className="initial" />);
+
+      await waitFor(() => {
+        expect(screen.queryByText('JD')).toBe(null);
+      });
+      onLoadingStatusChange.mockClear();
+
+      await rerender(<Test className="updated" />);
+
+      expect(screen.getByTestId('image')).toHaveClass('updated');
+      expect(onLoadingStatusChange).not.toHaveBeenCalled();
+    });
+
+    it.skipIf(!isJSDOM)('hides the image from assistive technology until it loads', async () => {
+      await render(
+        <Avatar.Root>
+          <Avatar.Image alt="Jane Doe" data-testid="image" keepMounted src="avatar.png" />
+          <Avatar.Fallback>JD</Avatar.Fallback>
+        </Avatar.Root>,
+      );
+
+      // Only the fallback names the avatar while both are in the DOM.
+      expect(screen.getByTestId('image')).toHaveAttribute('aria-hidden', 'true');
+      expect(screen.queryByRole('img')).toBe(null);
+
+      fireEvent.load(screen.getByTestId('image'));
+
+      await waitFor(() => {
+        expect(screen.getByTestId('image')).not.toHaveAttribute('aria-hidden');
+      });
+      expect(screen.getByRole('img', { name: 'Jane Doe' })).not.toBe(null);
+    });
+
+    it.skipIf(!isJSDOM)(
+      'keeps the image hidden from assistive technology after an error',
+      async () => {
+        await render(
+          <Avatar.Root>
+            <Avatar.Image alt="Jane Doe" data-testid="image" keepMounted src="avatar.png" />
+            <Avatar.Fallback>JD</Avatar.Fallback>
+          </Avatar.Root>,
+        );
+
+        fireEvent.error(screen.getByTestId('image'));
+
+        await waitFor(() => {
+          expect(screen.getByTestId('image')).toHaveAttribute('data-error');
+        });
+        expect(screen.getByTestId('image')).toHaveAttribute('aria-hidden', 'true');
+        expect(screen.getByText('JD')).not.toBe(null);
+      },
+    );
+
+    it.skipIf(!isJSDOM)(
+      'hides the image from assistive technology again when the source changes',
+      async () => {
+        function Test({ src }: { src: string }) {
+          return (
+            <Avatar.Root>
+              <Avatar.Image alt="Jane Doe" data-testid="image" keepMounted src={src} />
+              <Avatar.Fallback>JD</Avatar.Fallback>
+            </Avatar.Root>
+          );
+        }
+
+        const { rerender } = await render(<Test src="avatar-1.png" />);
+
+        fireEvent.load(screen.getByTestId('image'));
+
+        await waitFor(() => {
+          expect(screen.getByTestId('image')).not.toHaveAttribute('aria-hidden');
+        });
+
+        await rerender(<Test src="avatar-2.png" />);
+
+        await waitFor(() => {
+          expect(screen.getByTestId('image')).toHaveAttribute('aria-hidden', 'true');
+        });
+      },
+    );
+
+    it.skipIf(!isJSDOM)('preserves an explicitly provided aria-hidden value', async () => {
+      await render(
+        <Avatar.Root>
+          <Avatar.Image
+            alt="Jane Doe"
+            aria-hidden={false}
+            data-testid="image"
+            keepMounted
+            src="avatar.png"
+          />
+          <Avatar.Fallback>JD</Avatar.Fallback>
+        </Avatar.Root>,
+      );
+
+      expect(screen.getByTestId('image')).toHaveAttribute('aria-hidden', 'false');
+
+      fireEvent.load(screen.getByTestId('image'));
+
+      await waitFor(() => {
+        expect(screen.queryByText('JD')).toBe(null);
+      });
+      expect(screen.getByTestId('image')).toHaveAttribute('aria-hidden', 'false');
+    });
+
+    it.skipIf(!isJSDOM)('marks the not-loaded states with data attributes', async () => {
+      await render(
+        <Avatar.Root>
+          <Avatar.Image data-testid="image" keepMounted src="avatar.png" />
+          <Avatar.Fallback>JD</Avatar.Fallback>
+        </Avatar.Root>,
+      );
+
+      expect(screen.getByTestId('image')).toHaveAttribute('data-loading');
+
+      fireEvent.load(screen.getByTestId('image'));
+
+      await waitFor(() => {
+        expect(screen.getByTestId('image')).not.toHaveAttribute('data-loading');
+      });
+      expect(screen.getByTestId('image')).not.toHaveAttribute('data-error');
+
+      fireEvent.error(screen.getByTestId('image'));
+
+      await waitFor(() => {
+        expect(screen.getByTestId('image')).toHaveAttribute('data-error');
+      });
+    });
+
+    it.skipIf(!isJSDOM)('does not override source props in a render callback', async () => {
+      await render(
+        <Avatar.Root>
+          <Avatar.Image
+            keepMounted
+            render={(props) => (
+              <img
+                alt=""
+                data-testid="image"
+                sizes="48px"
+                src="avatar.png"
+                srcSet="avatar.png 1x"
+                {...props}
+              />
+            )}
+          />
+          <Avatar.Fallback>JD</Avatar.Fallback>
+        </Avatar.Root>,
+      );
+
+      const image = screen.getByTestId('image');
+      expect(image).toHaveAttribute('sizes', '48px');
+      expect(image).toHaveAttribute('src', 'avatar.png');
+      expect(image).toHaveAttribute('srcset', 'avatar.png 1x');
+    });
+
+    it.skipIf(!isJSDOM)(
+      'applies the source props after the ones configuring the request',
+      async () => {
+        let keys: string[] = [];
+
+        await render(
+          <Avatar.Root>
+            <Avatar.Image
+              keepMounted
+              src="avatar.png"
+              loading="lazy"
+              sizes="48px"
+              srcSet="avatar.png 1x, avatar@2x.png 2x"
+              render={(props) => {
+                keys = Object.keys(props);
+                return <img alt="" {...props} />;
+              }}
+            />
+            <Avatar.Fallback>JD</Avatar.Fallback>
+          </Avatar.Root>,
+        );
+
+        // React 17 and 18 set attributes in props order, and Safari and Firefox start fetching as
+        // soon as `src` lands. Anything configuring that request has to be applied before it.
+        expect(keys.indexOf('src')).toBeGreaterThan(keys.indexOf('loading'));
+        expect(keys.indexOf('src')).toBeGreaterThan(keys.indexOf('sizes'));
+        expect(keys.indexOf('src')).toBeGreaterThan(keys.indexOf('srcSet'));
+      },
+    );
+
+    it.skipIf(isJSDOM)(
+      'keeps the status reported by an element that does not forward a ref',
+      async () => {
+        restoreImage();
+        restoreImage = () => {};
+        const onLoadingStatusChange = vi.fn();
+
+        const DetachedRefImage = React.forwardRef(function DetachedRefImage(
+          props: React.ComponentProps<'img'>,
+          // The ref is deliberately dropped: some image wrappers keep it for themselves.
+          _ref: React.ForwardedRef<HTMLImageElement>,
+        ) {
+          return <img alt="" {...props} />;
+        });
+
+        function Test({ className }: { className: string }) {
+          return (
+            <Avatar.Root>
+              <Avatar.Image
+                keepMounted
+                onLoadingStatusChange={onLoadingStatusChange}
+                render={
+                  <DetachedRefImage
+                    className={className}
+                    data-testid="image"
+                    src={TRANSPARENT_IMAGE_DATA_URI}
+                  />
+                }
+              />
+              <Avatar.Fallback>JD</Avatar.Fallback>
+            </Avatar.Root>
+          );
+        }
+
+        const { rerender } = await render(<Test className="initial" />);
+
+        await waitFor(() => {
+          expect(screen.queryByText('JD')).toBe(null);
+        });
+
+        // Without an element to read, the effect must not overwrite the status the `load` event
+        // already reported, or the fallback reappears over a loaded image.
+        await rerender(<Test className="updated" />);
+
+        expect(screen.queryByText('JD')).toBe(null);
+        // No element to read means no `loading` is reported, but nothing overwrites `loaded`.
+        expect(onLoadingStatusChange.mock.calls.map(([status]) => status)).toEqual(['loaded']);
+      },
+    );
+
+    it.skipIf(isJSDOM)('resets the status when the source changes to an unloaded one', async () => {
+      restoreImage();
+      restoreImage = () => {};
+      const onLoadingStatusChange = vi.fn();
+
+      function Test({ src }: { src: string }) {
+        return (
+          <Avatar.Root>
+            <Avatar.Image
+              data-testid="image"
+              keepMounted
+              src={src}
+              onLoadingStatusChange={onLoadingStatusChange}
+            />
+            <Avatar.Fallback>JD</Avatar.Fallback>
+          </Avatar.Root>
+        );
+      }
+
+      const { rerender } = await render(<Test src={TRANSPARENT_IMAGE_DATA_URI} />);
+
+      await waitFor(() => {
+        expect(screen.queryByText('JD')).toBe(null);
+      });
+
+      // The browser reports `complete === false` synchronously after the source changes, which
+      // is what the reset relies on.
+      await rerender(<Test src="/missing-avatar.png" />);
+
+      expect(screen.getByTestId('image')).toHaveAttribute('data-loading');
+
+      await waitFor(() => {
+        expect(screen.getByTestId('image')).toHaveAttribute('data-error');
+      });
+      // The cached first source resolves in the initial layout effect, so it never reports
+      // `loading`; the swap to an unloaded source does.
+      expect(onLoadingStatusChange.mock.calls.map(([status]) => status)).toEqual([
+        'loaded',
+        'loading',
+        'error',
+      ]);
+    });
+  });
+
   describe.skipIf(isJSDOM)('animations', () => {
     afterEach(() => {
       globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
@@ -222,8 +847,16 @@ describe('<Avatar.Image />', () => {
       globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
 
       let transitionFinished = false;
+      const getAnimations = vi.fn((): Animation[] => []);
+
       function notifyTransitionFinished() {
         transitionFinished = true;
+      }
+
+      function handleImageRef(element: HTMLImageElement | null) {
+        if (element) {
+          element.getAnimations = getAnimations;
+        }
       }
 
       const style = `
@@ -254,6 +887,7 @@ describe('<Avatar.Image />', () => {
                 className="animation-test-image"
                 data-testid="image"
                 onTransitionEnd={notifyTransitionFinished}
+                ref={handleImageRef}
                 src={showImage ? 'avatar.png' : undefined}
               />
             </Avatar.Root>
@@ -271,6 +905,7 @@ describe('<Avatar.Image />', () => {
       });
 
       expect(screen.getByTestId('image')).not.toBe(null);
+      expect(getAnimations).not.toHaveBeenCalled();
     });
 
     it('applies data-ending-style before unmount', async () => {
@@ -325,6 +960,135 @@ describe('<Avatar.Image />', () => {
       await waitFor(() => {
         expect(screen.queryByTestId('image')).toBe(null);
       });
+    });
+
+    it('does not apply the not-loaded state attributes without keepMounted', async () => {
+      globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+
+      const style = `
+        @keyframes test-anim {
+          to {
+            opacity: 0;
+          }
+        }
+
+        .animation-test-image[data-ending-style] {
+          animation: test-anim 200ms;
+        }
+      `;
+
+      function Test() {
+        const [showImage, setShowImage] = React.useState(true);
+
+        function handleHideImage() {
+          setShowImage(false);
+        }
+
+        return (
+          <div>
+            {/* eslint-disable-next-line react/no-danger */}
+            <style dangerouslySetInnerHTML={{ __html: style }} />
+            <button onClick={handleHideImage}>Hide image</button>
+            <Avatar.Root>
+              <Avatar.Image
+                className="animation-test-image"
+                data-testid="image"
+                src={showImage ? 'avatar.png' : undefined}
+              />
+            </Avatar.Root>
+          </div>
+        );
+      }
+
+      const { user } = await render(<Test />);
+
+      await user.click(screen.getByText('Hide image'));
+
+      await waitFor(() => {
+        expect(screen.getByTestId('image')).toHaveAttribute('data-ending-style');
+      });
+
+      // The status attributes belong to `keepMounted`. In the default mode the element only
+      // exists once the image loaded, so it must not pick them up while it animates out.
+      expect(screen.getByTestId('image')).not.toHaveAttribute('data-error');
+      expect(screen.getByTestId('image')).not.toHaveAttribute('data-loading');
+    });
+
+    it('does not apply data-ending-style with keepMounted', async () => {
+      globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+      restoreImage();
+      restoreImage = () => {};
+
+      const style = `
+        @keyframes test-anim {
+          to {
+            opacity: 0;
+          }
+        }
+
+        .animation-test-image[data-ending-style] {
+          animation: test-anim 1ms;
+        }
+      `;
+
+      function Test({ src }: { src: string }) {
+        return (
+          <div>
+            {/* eslint-disable-next-line react/no-danger */}
+            <style dangerouslySetInnerHTML={{ __html: style }} />
+            <Avatar.Root>
+              <Avatar.Image
+                className="animation-test-image"
+                data-testid="image"
+                keepMounted
+                src={src}
+              />
+            </Avatar.Root>
+          </div>
+        );
+      }
+
+      const { rerender } = await render(<Test src={TRANSPARENT_IMAGE_DATA_URI} />);
+
+      await waitFor(() => {
+        expect(screen.getByTestId('image')).not.toHaveAttribute('data-loading');
+      });
+
+      // The element never unmounts, so an exit animation would run and then reverse itself.
+      // `data-loading` carries the state instead.
+      await rerender(<Test src="/missing-avatar.png" />);
+
+      expect(screen.getByTestId('image')).not.toHaveAttribute('data-ending-style');
+      expect(screen.getByTestId('image')).toHaveAttribute('data-loading');
+    });
+
+    it('does not replay the enter animation for a cached image on hydration', async () => {
+      globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+      restoreImage();
+      restoreImage = () => {};
+
+      await new Promise<void>((resolve, reject) => {
+        const img = new window.Image();
+        img.onload = () => resolve();
+        img.onerror = () => reject(new Error('Failed to preload test image'));
+        img.src = TRANSPARENT_IMAGE_DATA_URI;
+      });
+
+      const { hydrate } = renderToString(
+        <Avatar.Root>
+          <Avatar.Image data-testid="image" keepMounted src={TRANSPARENT_IMAGE_DATA_URI} alt="" />
+          <Avatar.Fallback>JD</Avatar.Fallback>
+        </Avatar.Root>,
+      );
+
+      await waitFor(() => {
+        expect((screen.getByTestId('image') as HTMLImageElement).complete).toBe(true);
+      });
+
+      hydrate();
+
+      // The browser painted the image before hydration, so animating it in would flash.
+      expect(screen.getByTestId('image')).not.toHaveAttribute('data-starting-style');
     });
   });
 

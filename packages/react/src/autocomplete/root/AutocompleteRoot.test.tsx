@@ -227,6 +227,109 @@ describe('<Autocomplete.Root />', () => {
     expect(input.value).toBe('');
   });
 
+  it('opens the list with the arrow keys but does not commit on item press when readOnly', async () => {
+    const onValueChange = vi.fn();
+    const { user } = await render(
+      <Autocomplete.Root defaultValue="" readOnly onValueChange={onValueChange}>
+        <Autocomplete.Input data-testid="input" />
+        <Autocomplete.Portal>
+          <Autocomplete.Positioner>
+            <Autocomplete.Popup>
+              <Autocomplete.List>
+                <Autocomplete.Item value="alpha">alpha</Autocomplete.Item>
+                <Autocomplete.Item value="beta">beta</Autocomplete.Item>
+              </Autocomplete.List>
+            </Autocomplete.Popup>
+          </Autocomplete.Positioner>
+        </Autocomplete.Portal>
+      </Autocomplete.Root>,
+    );
+
+    const input = screen.getByTestId<HTMLInputElement>('input');
+    await user.click(input);
+    await user.keyboard('{ArrowDown}');
+
+    expect(await screen.findByRole('listbox')).toHaveAttribute('aria-readonly', 'true');
+
+    await user.click(await screen.findByRole('option', { name: 'beta' }));
+
+    expect(onValueChange).not.toHaveBeenCalled();
+    expect(input.value).toBe('');
+  });
+
+  it('does not fill the input with the highlighted item when readOnly', async () => {
+    const { user } = await render(
+      <Autocomplete.Root defaultValue="" readOnly mode="both">
+        <Autocomplete.Input data-testid="input" />
+        <Autocomplete.Portal>
+          <Autocomplete.Positioner>
+            <Autocomplete.Popup>
+              <Autocomplete.List>
+                <Autocomplete.Item value="alpha">alpha</Autocomplete.Item>
+                <Autocomplete.Item value="beta">beta</Autocomplete.Item>
+              </Autocomplete.List>
+            </Autocomplete.Popup>
+          </Autocomplete.Positioner>
+        </Autocomplete.Portal>
+      </Autocomplete.Root>,
+    );
+
+    const input = screen.getByTestId<HTMLInputElement>('input');
+    // Focused without a pointer event so the highlight is reported as keyboard-driven.
+    await act(async () => {
+      input.focus();
+    });
+
+    await user.keyboard('{ArrowDown}');
+    await user.keyboard('{ArrowDown}');
+
+    await waitFor(() => {
+      expect(screen.getByRole('option', { name: 'alpha' })).toHaveAttribute('data-highlighted');
+    });
+    expect(input).toHaveValue('');
+  });
+
+  it('drops a pending inline completion when readOnly is turned on', async () => {
+    const { user, setProps } = await render(
+      <Autocomplete.Root defaultValue="" mode="both">
+        <Autocomplete.Input data-testid="input" />
+        <Autocomplete.Portal>
+          <Autocomplete.Positioner>
+            <Autocomplete.Popup>
+              <Autocomplete.List>
+                <Autocomplete.Item value="alpha">alpha</Autocomplete.Item>
+                <Autocomplete.Item value="beta">beta</Autocomplete.Item>
+              </Autocomplete.List>
+            </Autocomplete.Popup>
+          </Autocomplete.Positioner>
+        </Autocomplete.Portal>
+      </Autocomplete.Root>,
+    );
+
+    const input = screen.getByTestId<HTMLInputElement>('input');
+    await user.click(input);
+    await user.keyboard('a');
+    await user.keyboard('{ArrowDown}');
+    expect(input).toHaveValue('alpha');
+
+    await setProps({ readOnly: true });
+    expect(input).toHaveValue('a');
+
+    // The suppressed completion must not come back when editing is restored.
+    await setProps({ readOnly: false });
+    expect(input).toHaveValue('a');
+  });
+
+  it('exposes aria-autocomplete="none" when readOnly', async () => {
+    await render(
+      <Autocomplete.Root defaultValue="" readOnly mode="both">
+        <Autocomplete.Input data-testid="input" />
+      </Autocomplete.Root>,
+    );
+
+    expect(screen.getByTestId('input')).toHaveAttribute('aria-autocomplete', 'none');
+  });
+
   it('ignores hidden-input autofill when disabled', async () => {
     const onValueChange = vi.fn();
     await render(
