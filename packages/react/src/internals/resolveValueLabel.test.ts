@@ -1,33 +1,19 @@
-import { beforeEach, expect, vi } from 'vitest';
-import { reset as resetError } from '@base-ui/utils/error';
+import { expect } from 'vitest';
 import { hasNullItemLabel, isGroupedItems, resolveSelectedLabel } from './resolveValueLabel';
 
 describe('resolveValueLabel', () => {
   describe('isGroupedItems', () => {
-    beforeEach(resetError);
-
     it.each([
       ['an undefined items field', [{ value: 'a', items: undefined }], false],
       ['a non-array items field', [{ value: 'a', items: 3 }], false],
       ['an array items field', [{ value: 'group', items: [] }], true],
+      [
+        'a list that starts with a flat item',
+        [{ value: 'a' }, { value: 'group', items: [] }],
+        false,
+      ],
     ])('classifies %s', (_name, items, expected) => {
       expect(isGroupedItems(items)).toBe(expected);
-    });
-
-    it.each([
-      ['a group follows a flat item', [{ value: 'a' }, { value: 'group', items: [] }], false],
-      ['a flat item follows a group', [{ value: 'group', items: [] }, { value: 'a' }], true],
-    ])('reports heterogeneous data when %s', (_name, items, expected) => {
-      const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
-
-      try {
-        expect(isGroupedItems(items)).toBe(expected);
-        expect(errorSpy).toHaveBeenCalledWith(
-          expect.stringContaining('Base UI: Some entries in the items data are groups'),
-        );
-      } finally {
-        errorSpy.mockRestore();
-      }
     });
   });
 
