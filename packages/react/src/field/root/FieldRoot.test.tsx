@@ -780,11 +780,21 @@ describe('<Field.Root />', () => {
               }),
           );
 
+          const onSubmit = vi.fn((event: React.FormEvent) => event.preventDefault());
+
           await render(
-            <Field.Root data-testid="root" validationMode={validationMode} validate={validate}>
-              <Field.Control data-testid="control" />
-              <Field.Error data-testid="error" />
-            </Field.Root>,
+            <Form onSubmit={onSubmit}>
+              <Field.Root
+                data-testid="root"
+                name="username"
+                validationMode={validationMode}
+                validate={validate}
+              >
+                <Field.Control data-testid="control" />
+                <Field.Error data-testid="error" />
+              </Field.Root>
+              <button type="submit">submit</button>
+            </Form>,
           );
 
           const root = screen.getByTestId('root');
@@ -815,14 +825,75 @@ describe('<Field.Root />', () => {
           expect(root).toHaveAttribute('data-invalid', '');
           expect(screen.getByTestId('error')).toHaveTextContent('Username is taken');
 
+          fireEvent.click(screen.getByText('submit'));
+
+          expect(onSubmit).not.toHaveBeenCalled();
+
           await act(async () => {
-            resolvers[1](null);
+            resolvers[resolvers.length - 1](null);
             await flushMicrotasks();
           });
 
           expect(root).not.toHaveAttribute('data-invalid');
           expect(screen.queryByTestId('error')).toBe(null);
         });
+      });
+
+      it('retires a stale native error to neutral once the constraint passes again', async () => {
+        const onSubmit = vi.fn((event: React.FormEvent) => event.preventDefault());
+        const resolvers: Array<(value: string | null) => void> = [];
+        const validate = vi.fn(
+          () =>
+            new Promise<string | null>((resolve) => {
+              resolvers.push(resolve);
+            }),
+        );
+
+        await render(
+          <Form onSubmit={onSubmit}>
+            <Field.Root
+              data-testid="root"
+              name="email"
+              validationMode="onChange"
+              validate={validate}
+            >
+              <Field.Control data-testid="control" type="email" />
+              <Field.Error data-testid="error" />
+            </Field.Root>
+            <button type="submit">submit</button>
+          </Form>,
+        );
+
+        const root = screen.getByTestId('root');
+        const control = screen.getByTestId('control');
+
+        fireEvent.change(control, { target: { value: 'nope' } });
+
+        await act(async () => {
+          resolvers[resolvers.length - 1](null);
+          await flushMicrotasks();
+        });
+
+        expect(root).toHaveAttribute('data-invalid', '');
+
+        fireEvent.change(control, { target: { value: 'name@example.com' } });
+
+        // `nextState` already carries the fresh native verdict, so the previous native error must
+        // not survive the pending window and keep blocking submission.
+        expect(root).not.toHaveAttribute('data-invalid');
+        expect(root).not.toHaveAttribute('data-valid');
+        expect(screen.queryByTestId('error')).toBe(null);
+
+        fireEvent.click(screen.getByText('submit'));
+
+        expect(onSubmit).toHaveBeenCalledTimes(1);
+
+        await act(async () => {
+          resolvers[resolvers.length - 1](null);
+          await flushMicrotasks();
+        });
+
+        expect(root).toHaveAttribute('data-valid', '');
       });
 
       (['onSubmit', 'onChange', 'onBlur'] as const).forEach((validationMode) => {
@@ -847,6 +918,9 @@ describe('<Field.Root />', () => {
 
           fireEvent.click(screen.getByText('submit'));
 
+          // In `onBlur` mode a native failure short-circuits the validator, so nothing is in
+          // flight and the failure is published by the regular end-of-commit path instead.
+          expect(validate).toHaveBeenCalledTimes(validationMode === 'onBlur' ? 0 : 1);
           expect(onSubmit).not.toHaveBeenCalled();
           expect(screen.getByTestId('root')).toHaveAttribute('data-invalid', '');
           expect(screen.getByTestId('control')).toHaveAttribute('aria-invalid', 'true');
@@ -856,6 +930,7 @@ describe('<Field.Root />', () => {
       });
 
       it('retires a resolved async error to neutral while revalidating in onSubmit mode', async () => {
+        const onSubmit = vi.fn((event: React.FormEvent) => event.preventDefault());
         const resolvers: Array<(value: string | null) => void> = [];
         const validate = vi.fn(
           () =>
@@ -865,7 +940,7 @@ describe('<Field.Root />', () => {
         );
 
         await render(
-          <Form onSubmit={(event) => event.preventDefault()}>
+          <Form onSubmit={onSubmit}>
             <Field.Root data-testid="root" name="username" validate={validate}>
               <Field.Control data-testid="control" />
               <Field.Error data-testid="error" />
@@ -888,6 +963,9 @@ describe('<Field.Root />', () => {
 
         fireEvent.click(screen.getByText('submit'));
 
+        // An async result can't block submission in `onSubmit` mode, so the neutral state lets
+        // the second submit through.
+        expect(onSubmit).toHaveBeenCalledTimes(2);
         expect(root).not.toHaveAttribute('data-valid');
         expect(root).not.toHaveAttribute('data-invalid');
         expect(control).not.toHaveAttribute('aria-invalid');

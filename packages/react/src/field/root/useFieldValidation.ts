@@ -306,10 +306,12 @@ export function useFieldValidation(
         'then' in resultOrPromise
       ) {
         // Validity is unknown while the validator runs, so go neutral, but keep what must block
-        // submission synchronously: native failures, and a previous error outside onSubmit mode.
+        // submission synchronously: native failures, and a previous custom error outside onSubmit
+        // mode. A previous native error is never kept, since `nextState` already carries the fresh
+        // native verdict.
         if (nextState.valid === false) {
           publish(nextState, validationErrors);
-        } else if (validationMode === 'onSubmit' || validityData.state.valid !== false) {
+        } else if (validationMode === 'onSubmit' || !validityData.state.customError) {
           publish({ ...nextState, valid: null }, EMPTY_ARRAY);
         }
 
