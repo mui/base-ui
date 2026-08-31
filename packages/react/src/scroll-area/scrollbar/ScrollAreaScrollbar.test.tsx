@@ -16,6 +16,26 @@ describe('<ScrollArea.Scrollbar />', () => {
     },
   }));
 
+  it('is hidden from the accessibility tree by default', async () => {
+    await render(
+      <ScrollArea.Root>
+        <ScrollArea.Scrollbar keepMounted data-testid="scrollbar" />
+      </ScrollArea.Root>,
+    );
+
+    expect(screen.getByTestId('scrollbar')).toHaveAttribute('aria-hidden', 'true');
+  });
+
+  it('allows overriding aria-hidden', async () => {
+    await render(
+      <ScrollArea.Root>
+        <ScrollArea.Scrollbar keepMounted data-testid="scrollbar" aria-hidden={undefined} />
+      </ScrollArea.Root>,
+    );
+
+    expect(screen.getByTestId('scrollbar')).not.toHaveAttribute('aria-hidden');
+  });
+
   it('sets the orientation data attribute', async () => {
     await render(
       <ScrollArea.Root>
