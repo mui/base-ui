@@ -1,1 +1,4 @@
-export { MenuLinkItemDataAttributes as FilterMenuLinkItemDataAttributes } from '../../menu/link-item/MenuLinkItemDataAttributes';
+/**
+ * Present when the link is highlighted.
+ */
+export const highlighted = 'data-highlighted';
