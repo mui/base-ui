@@ -331,18 +331,24 @@ export function useSwipeDismiss(options: UseSwipeDismissOptions): UseSwipeDismis
     target: EventTarget | null,
     root: HTMLElement,
   ): HTMLElement | null {
+    // The swiped element is positioned relative to the viewport, so the page scroller must not
+    // gate the gesture (a reset like `html, body { height: 100%; overflow: auto }` makes `body`
+    // a real scroll container). The drawer viewport's native touchmove handler already ignores it.
+    const find = (axis: ScrollAxis) => {
+      const scrollTarget = findScrollableTouchTarget(target, root, axis);
+      const doc = ownerDocument(scrollTarget);
+      return scrollTarget === doc.body || scrollTarget === doc.documentElement
+        ? null
+        : scrollTarget;
+    };
+
     if (hasHorizontal && !hasVertical) {
-      return findScrollableTouchTarget(target, root, 'horizontal');
+      return find('horizontal');
     }
-
     if (hasVertical && !hasHorizontal) {
-      return findScrollableTouchTarget(target, root, 'vertical');
+      return find('vertical');
     }
-
-    return (
-      findScrollableTouchTarget(target, root, 'vertical') ??
-      findScrollableTouchTarget(target, root, 'horizontal')
-    );
+    return find('vertical') ?? find('horizontal');
   }
 
   function startSwipeAtPosition(

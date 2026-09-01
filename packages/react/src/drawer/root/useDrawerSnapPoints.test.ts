@@ -1,4 +1,4 @@
-import { expect } from 'vitest';
+import { expect, describe, it } from 'vitest';
 import { closestSnapPointIndex, getSnapPointSwipeMovement } from './useDrawerSnapPoints';
 
 describe('getSnapPointSwipeMovement', () => {

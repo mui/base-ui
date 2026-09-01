@@ -1,4 +1,4 @@
-import { expect, vi } from 'vitest';
+import { expect, vi, describe, beforeEach, it } from 'vitest';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { Select } from '@base-ui/react/select';
@@ -548,7 +548,10 @@ describe('<Select.Root />', () => {
         </Select.Root>,
       );
 
-      expect(screen.getByRole('listbox', { hidden: false })).toBeVisible();
+      const listbox = screen.getByRole('listbox', { hidden: false });
+      expect(listbox).toBeVisible();
+      // `listbox` is implicitly vertical.
+      expect(listbox).not.toHaveAttribute('aria-orientation');
     });
 
     it('should select an item and close when clicked while opened by default', async () => {
@@ -1302,9 +1305,10 @@ describe('<Select.Root />', () => {
       const selectInput = screen.getByRole<HTMLInputElement>('textbox', { hidden: true });
       expect(selectInput).toHaveAttribute('name', 'select');
 
-      if (withField) {
-        expect(screen.getByTestId('error')).toHaveTextContent('test');
-      }
+      // Only the Field wrapper renders an error.
+      const expectedError = withField ? 'test' : undefined;
+
+      expect(screen.queryByTestId('error')?.textContent).toBe(expectedError);
 
       fireEvent.change(selectInput, { target: { value: 'b' } });
       await flushMicrotasks();
@@ -1312,9 +1316,7 @@ describe('<Select.Root />', () => {
       expect(onValueChange).not.toHaveBeenCalled();
       expect(selectInput.value).toBe('');
 
-      if (withField) {
-        expect(screen.getByTestId('error')).toHaveTextContent('test');
-      }
+      expect(screen.queryByTestId('error')?.textContent).toBe(expectedError);
     },
   );
 
@@ -2768,7 +2770,7 @@ describe('<Select.Root />', () => {
 
       await user.keyboard('[Tab]');
 
-      expect(expect(document.activeElement)).not.toBe(trigger);
+      expect(document.activeElement).not.toBe(trigger);
 
       await user.click(trigger);
       expect(handleOpenChange.mock.calls.length).toBe(0);
@@ -2805,7 +2807,7 @@ describe('<Select.Root />', () => {
 
       await user.keyboard('[Tab]');
 
-      expect(expect(document.activeElement)).not.toBe(trigger);
+      expect(document.activeElement).not.toBe(trigger);
 
       await user.click(trigger);
       expect(handleOpenChange.mock.calls.length).toBe(0);
@@ -5713,6 +5715,412 @@ describe('<Select.Root />', () => {
         expect(optionB).toHaveAttribute('data-highlighted');
       });
     });
+
+    it('highlights the first selected item in rendered order regardless of value order', async () => {
+      // `a` renders first but sits in the middle of the value array, so neither end of that
+      // array points at it and only the rendered order does.
+      const { user } = await render(
+        <Select.Root multiple defaultValue={['b', 'a', 'c']}>
+          <Select.Trigger data-testid="trigger">
+            <Select.Value />
+          </Select.Trigger>
+          <Select.Portal>
+            <Select.Positioner>
+              <Select.Popup>
+                <Select.Item value="a">a</Select.Item>
+                <Select.Item value="b">b</Select.Item>
+                <Select.Item value="c">c</Select.Item>
+              </Select.Popup>
+            </Select.Positioner>
+          </Select.Portal>
+        </Select.Root>,
+      );
+
+      await user.click(screen.getByTestId('trigger'));
+
+      const optionA = await screen.findByRole('option', { name: 'a' });
+      await waitFor(() => {
+        expect(optionA).toHaveAttribute('data-highlighted');
+      });
+      expect(screen.getByRole('option', { name: 'b' })).not.toHaveAttribute('data-highlighted');
+      expect(screen.getByRole('option', { name: 'c' })).not.toHaveAttribute('data-highlighted');
+    });
+
+    it('re-elects the anchor when the anchor item value changes in place', async () => {
+      function App(props: { replaceA?: boolean }) {
+        return (
+          <Select.Root multiple defaultValue={['a', 'c']}>
+            <Select.Trigger data-testid="trigger">
+              <Select.Value />
+            </Select.Trigger>
+            <Select.Portal>
+              <Select.Positioner>
+                <Select.Popup>
+                  <Select.Item value={props.replaceA ? 'x' : 'a'}>
+                    {props.replaceA ? 'x' : 'a'}
+                  </Select.Item>
+                  <Select.Item value="b">b</Select.Item>
+                  <Select.Item value="c">c</Select.Item>
+                </Select.Popup>
+              </Select.Positioner>
+            </Select.Portal>
+          </Select.Root>
+        );
+      }
+
+      const { user, setProps } = await render(<App />);
+
+      // The list only mounts on the first open, and stays mounted once closed. Opening
+      // first is what makes the swap below happen in place, on items that already
+      // registered their values and elected an anchor.
+      const trigger = screen.getByTestId('trigger');
+      await user.click(trigger);
+      await screen.findByRole('option', { name: 'a' });
+      await user.keyboard('{Escape}');
+      await waitFor(() => {
+        expect(screen.queryByRole('listbox')).toBe(null);
+      });
+
+      await setProps({ replaceA: true });
+
+      await user.click(trigger);
+
+      const optionC = await screen.findByRole('option', { name: 'c' });
+      await waitFor(() => {
+        expect(optionC).toHaveAttribute('data-highlighted');
+      });
+      expect(screen.getByRole('option', { name: 'x' })).not.toHaveAttribute('data-highlighted');
+    });
+
+    it('moves the anchor to the next selected item when the anchor item leaves the list', async () => {
+      function App(props: { trimmed?: boolean }) {
+        return (
+          <Select.Root multiple defaultValue={['a', 'b', 'c']}>
+            <Select.Trigger data-testid="trigger">
+              <Select.Value />
+            </Select.Trigger>
+            <Select.Portal>
+              <Select.Positioner>
+                <Select.Popup>
+                  {!props.trimmed && <Select.Item value="a">a</Select.Item>}
+                  <Select.Item value="b">b</Select.Item>
+                  <Select.Item value="c">c</Select.Item>
+                </Select.Popup>
+              </Select.Positioner>
+            </Select.Portal>
+          </Select.Root>
+        );
+      }
+
+      const { user, setProps } = await render(<App />);
+
+      // The items have to register under the full list before one of them can leave it.
+      await user.click(screen.getByTestId('trigger'));
+      await screen.findByRole('option', { name: 'a' });
+      await user.keyboard('{Escape}');
+      await waitFor(() => {
+        expect(screen.queryByRole('listbox')).toBe(null);
+      });
+
+      await setProps({ trimmed: true });
+
+      await user.click(screen.getByTestId('trigger'));
+
+      const optionB = await screen.findByRole('option', { name: 'b' });
+      await waitFor(() => {
+        expect(optionB).toHaveAttribute('data-highlighted');
+      });
+      expect(screen.getByRole('option', { name: 'c' })).not.toHaveAttribute('data-highlighted');
+    });
+
+    it('re-anchors backwards when a new isItemEqualToValue identity re-runs every item', async () => {
+      // An inline comparer gives every render a new identity, so all item effects re-run. The
+      // anchor moving to an earlier item must survive the old anchor's own effect.
+      interface Option {
+        id: number;
+      }
+      const options: Option[] = [{ id: 0 }, { id: 1 }, { id: 2 }, { id: 3 }];
+
+      function App(props: { value: Option[] }) {
+        return (
+          <Select.Root
+            multiple
+            value={props.value}
+            isItemEqualToValue={(a: Option, b: Option) => a.id === b.id}
+          >
+            <Select.Trigger data-testid="trigger">
+              <Select.Value>{() => 'value'}</Select.Value>
+            </Select.Trigger>
+            <Select.Portal>
+              <Select.Positioner>
+                <Select.Popup>
+                  {options.map((option) => (
+                    <Select.Item key={option.id} value={option}>
+                      <Select.ItemText>{`opt-${option.id}`}</Select.ItemText>
+                    </Select.Item>
+                  ))}
+                </Select.Popup>
+              </Select.Positioner>
+            </Select.Portal>
+          </Select.Root>
+        );
+      }
+
+      const { user, setProps } = await render(<App value={[{ id: 2 }, { id: 3 }]} />);
+
+      await user.click(screen.getByTestId('trigger'));
+      await waitFor(() => {
+        expect(screen.getByRole('option', { name: 'opt-2' })).toHaveAttribute('data-highlighted');
+      });
+      await user.keyboard('{Escape}');
+      await waitFor(() => {
+        expect(screen.queryByRole('listbox')).toBe(null);
+      });
+
+      await setProps({ value: [{ id: 0 }, { id: 1 }] });
+
+      await user.click(screen.getByTestId('trigger'));
+
+      await waitFor(() => {
+        expect(screen.getByRole('option', { name: 'opt-0' })).toHaveAttribute('data-highlighted');
+      });
+      expect(screen.getByRole('option', { name: 'opt-1' })).not.toHaveAttribute('data-highlighted');
+    });
+
+    it.skipIf(isJSDOM)(
+      'aligns the first selected item with the trigger when alignItemWithTrigger is active',
+      async () => {
+        // The list has to be long enough, and the popup unconstrained enough, for aligned
+        // positioning to stay active. Otherwise the popup falls back to a side and the
+        // measurement below would be meaningless, so `data-side` is asserted first.
+        const options = Array.from({ length: 40 }, (_, index) => `opt-${index}`);
+
+        const { user } = await render(
+          <div style={{ paddingTop: 120, paddingLeft: 32 }}>
+            <Select.Root multiple defaultValue={['opt-10', 'opt-30']}>
+              <Select.Trigger data-testid="trigger" style={{ width: 160, height: 36 }}>
+                <Select.Value />
+              </Select.Trigger>
+              <Select.Portal>
+                <Select.Positioner>
+                  <Select.Popup data-testid="popup" style={{ maxHeight: 'none', minHeight: 100 }}>
+                    {options.map((option) => (
+                      <Select.Item key={option} value={option}>
+                        <Select.ItemText>{option}</Select.ItemText>
+                      </Select.Item>
+                    ))}
+                  </Select.Popup>
+                </Select.Positioner>
+              </Select.Portal>
+            </Select.Root>
+          </div>,
+        );
+
+        const trigger = screen.getByTestId('trigger');
+        await user.click(trigger);
+
+        const anchorItem = await screen.findByRole('option', { name: 'opt-10' });
+        await waitFor(() => {
+          expect(anchorItem).toHaveAttribute('data-highlighted');
+        });
+        await waitFor(() => {
+          expect(screen.getByTestId('popup')).toHaveAttribute('data-side', 'none');
+        });
+
+        const verticalCenter = (element: Element) => {
+          const rect = element.getBoundingClientRect();
+          return rect.top + rect.height / 2;
+        };
+
+        await waitFor(() => {
+          expect(
+            Math.abs(verticalCenter(anchorItem) - verticalCenter(trigger)),
+          ).toBeLessThanOrEqual(1);
+        });
+      },
+    );
+
+    it('anchors to the first selected item when opened with the keyboard', async () => {
+      const { user } = await render(
+        <Select.Root multiple defaultValue={['b', 'c']}>
+          <Select.Trigger data-testid="trigger">
+            <Select.Value />
+          </Select.Trigger>
+          <Select.Portal>
+            <Select.Positioner>
+              <Select.Popup>
+                <Select.Item value="a">a</Select.Item>
+                <Select.Item value="b">b</Select.Item>
+                <Select.Item value="c">c</Select.Item>
+              </Select.Popup>
+            </Select.Positioner>
+          </Select.Portal>
+        </Select.Root>,
+      );
+
+      await user.keyboard('{Tab}');
+      expect(screen.getByTestId('trigger')).toHaveFocus();
+      await user.keyboard('{ArrowDown}');
+
+      const optionB = await screen.findByRole('option', { name: 'b' });
+      await waitFor(() => {
+        expect(optionB).toHaveAttribute('data-highlighted');
+      });
+      expect(screen.getByRole('option', { name: 'c' })).not.toHaveAttribute('data-highlighted');
+    });
+
+    it('continues arrow navigation from the anchor rather than the top of the list', async () => {
+      const { user } = await render(
+        <Select.Root multiple defaultValue={['b', 'c']}>
+          <Select.Trigger data-testid="trigger">
+            <Select.Value />
+          </Select.Trigger>
+          <Select.Portal>
+            <Select.Positioner>
+              <Select.Popup>
+                <Select.Item value="a">a</Select.Item>
+                <Select.Item value="b">b</Select.Item>
+                <Select.Item value="c">c</Select.Item>
+                <Select.Item value="d">d</Select.Item>
+              </Select.Popup>
+            </Select.Positioner>
+          </Select.Portal>
+        </Select.Root>,
+      );
+
+      await user.click(screen.getByTestId('trigger'));
+      const optionB = await screen.findByRole('option', { name: 'b' });
+      await waitFor(() => {
+        expect(optionB).toHaveAttribute('data-highlighted');
+      });
+      // Focus reaches the anchor asynchronously. Keys sent before it lands are lost.
+      await waitFor(() => {
+        expect(optionB).toHaveFocus();
+      });
+
+      // The next item after the anchor, not `a` at the top.
+      await user.keyboard('{ArrowDown}');
+      await waitFor(() => {
+        expect(screen.getByRole('option', { name: 'c' })).toHaveAttribute('data-highlighted');
+      });
+
+      await user.keyboard('{ArrowUp}');
+      await waitFor(() => {
+        expect(optionB).toHaveAttribute('data-highlighted');
+      });
+    });
+
+    it('keeps the highlight on an item deselected with the keyboard', async () => {
+      const { user } = await render(
+        <Select.Root multiple defaultValue={['b', 'c']}>
+          <Select.Trigger data-testid="trigger">
+            <Select.Value />
+          </Select.Trigger>
+          <Select.Portal>
+            <Select.Positioner>
+              <Select.Popup>
+                <Select.Item value="a">a</Select.Item>
+                <Select.Item value="b">b</Select.Item>
+                <Select.Item value="c">c</Select.Item>
+              </Select.Popup>
+            </Select.Positioner>
+          </Select.Portal>
+        </Select.Root>,
+      );
+
+      await user.click(screen.getByTestId('trigger'));
+      const optionB = await screen.findByRole('option', { name: 'b' });
+      await waitFor(() => {
+        expect(optionB).toHaveAttribute('data-highlighted');
+      });
+      // Focus reaches the anchor asynchronously. Keys sent before it lands are lost.
+      await waitFor(() => {
+        expect(optionB).toHaveFocus();
+      });
+
+      await user.keyboard('{Enter}');
+      await waitFor(() => {
+        expect(optionB).toHaveAttribute('aria-selected', 'false');
+      });
+      expect(optionB).toHaveAttribute('data-highlighted');
+    });
+
+    it('anchors to the first selected item in rendered order across groups', async () => {
+      // `spinach` renders first but is not the last value, so anchoring to the rendered order
+      // and anchoring to the end of the value array give different answers.
+      const { user } = await render(
+        <Select.Root multiple defaultValue={['spinach', 'plum']}>
+          <Select.Trigger data-testid="trigger">
+            <Select.Value />
+          </Select.Trigger>
+          <Select.Portal>
+            <Select.Positioner>
+              <Select.Popup>
+                <Select.Group>
+                  <Select.GroupLabel>Vegetables</Select.GroupLabel>
+                  <Select.Item value="artichoke">artichoke</Select.Item>
+                  <Select.Item value="spinach">spinach</Select.Item>
+                </Select.Group>
+                <Select.Group>
+                  <Select.GroupLabel>Fruits</Select.GroupLabel>
+                  <Select.Item value="apple">apple</Select.Item>
+                  <Select.Item value="plum">plum</Select.Item>
+                </Select.Group>
+              </Select.Popup>
+            </Select.Positioner>
+          </Select.Portal>
+        </Select.Root>,
+      );
+
+      await user.click(screen.getByTestId('trigger'));
+
+      const spinachItem = await screen.findByRole('option', { name: 'spinach' });
+      await waitFor(() => {
+        expect(spinachItem).toHaveAttribute('data-highlighted');
+      });
+      expect(screen.getByRole('option', { name: 'plum' })).not.toHaveAttribute('data-highlighted');
+    });
+
+    it.skipIf(isJSDOM)(
+      'scrolls the first selected item into view on open',
+      async ({ onTestFinished }) => {
+        const scrollIntoView = vi.spyOn(HTMLElement.prototype, 'scrollIntoView');
+        onTestFinished(() => scrollIntoView.mockRestore());
+        const options = Array.from({ length: 100 }, (_, index) => `item ${index}`);
+
+        const { user } = await render(
+          <Select.Root multiple defaultValue={['item 80', 'item 90']}>
+            <Select.Trigger data-testid="trigger">
+              <Select.Value />
+            </Select.Trigger>
+            <Select.Portal>
+              {/* Aligned positioning translates the popup instead of scrolling the list, so the
+                  scroll path only runs with it turned off. */}
+              <Select.Positioner alignItemWithTrigger={false}>
+                <Select.Popup style={{ maxHeight: 200, overflowY: 'auto' }}>
+                  {options.map((option) => (
+                    <Select.Item key={option} value={option}>
+                      <Select.ItemText>{option}</Select.ItemText>
+                    </Select.Item>
+                  ))}
+                </Select.Popup>
+              </Select.Positioner>
+            </Select.Portal>
+          </Select.Root>,
+        );
+
+        scrollIntoView.mockClear();
+        await user.click(screen.getByTestId('trigger'));
+
+        const selectedItem = await screen.findByRole('option', { name: 'item 80' });
+        await waitFor(() => {
+          expect(selectedItem).toHaveAttribute('data-highlighted');
+        });
+        await waitFor(() => {
+          expect(scrollIntoView.mock.contexts).toContain(selectedItem);
+        });
+      },
+    );
 
     it('should handle defaultValue as array in multiple mode', async () => {
       await render(

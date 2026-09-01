@@ -1,4 +1,4 @@
-import { expect, vi } from 'vitest';
+import { expect, vi, describe, it } from 'vitest';
 import type * as React from 'react';
 import { handleInputPress } from './handleInputPress';
 import type { ComboboxStore } from '../store';
@@ -17,12 +17,14 @@ describe('handleInputPress', () => {
     } as unknown as React.MouseEvent<HTMLElement>;
     const store = {
       state: {
-        inputRef: { current: { focus } },
         openOnInputClick: false,
+      },
+      context: {
+        inputRef: { current: { focus } },
       },
     } as unknown as ComboboxStore;
 
-    handleInputPress(event, store, false, false);
+    handleInputPress(event, store, false);
 
     expect(preventDefault).toHaveBeenCalledOnce();
     expect(focus).toHaveBeenCalledOnce();

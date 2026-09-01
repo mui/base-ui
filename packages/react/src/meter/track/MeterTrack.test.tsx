@@ -1,3 +1,4 @@
+import { describe } from 'vitest';
 import { Meter } from '@base-ui/react/meter';
 import { createRenderer, describeConformance } from '#test-utils';
 

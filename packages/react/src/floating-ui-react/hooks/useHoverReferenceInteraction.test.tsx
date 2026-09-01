@@ -1,4 +1,4 @@
-import { vi, expect } from 'vitest';
+import { vi, expect, it } from 'vitest';
 import { act, fireEvent, flushMicrotasks, render, screen } from '@mui/internal-test-utils';
 import * as React from 'react';
 import { isJSDOM } from '#test-utils';

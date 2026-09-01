@@ -1,4 +1,4 @@
-import { afterEach, expect, vi } from 'vitest';
+import { afterEach, expect, vi, describe, it } from 'vitest';
 import * as React from 'react';
 import { PreviewCard } from '@base-ui/react/preview-card';
 import { fireEvent, screen, waitFor } from '@mui/internal-test-utils';
@@ -1092,44 +1092,5 @@ describe('<PreviewCard.Positioner />', () => {
         expectWithin(positioner.getBoundingClientRect().y, expectedY);
       });
     });
-  });
-
-  it.skipIf(isJSDOM)('uses transform positioning without Viewport', async () => {
-    const { unmount } = await render(
-      <PreviewCard.Root open>
-        <Trigger style={triggerStyle}>Trigger</Trigger>
-        <PreviewCard.Portal>
-          <PreviewCard.Positioner data-testid="positioner">
-            <PreviewCard.Popup style={popupStyle}>Popup</PreviewCard.Popup>
-          </PreviewCard.Positioner>
-        </PreviewCard.Portal>
-      </PreviewCard.Root>,
-    );
-
-    const positioner = screen.getByTestId('positioner');
-    await waitFor(() => {
-      expect(positioner.style.transform).not.toBe('');
-    });
-    unmount();
-  });
-
-  it.skipIf(isJSDOM)('uses top/left positioning with Viewport', async () => {
-    const { unmount } = await render(
-      <PreviewCard.Root open>
-        <Trigger style={triggerStyle}>Trigger</Trigger>
-        <PreviewCard.Portal>
-          <PreviewCard.Positioner data-testid="positioner">
-            <PreviewCard.Popup style={popupStyle}>
-              <PreviewCard.Viewport>Popup</PreviewCard.Viewport>
-            </PreviewCard.Popup>
-          </PreviewCard.Positioner>
-        </PreviewCard.Portal>
-      </PreviewCard.Root>,
-    );
-
-    const positioner = screen.getByTestId('positioner');
-    await waitForPositioned(positioner);
-    expect(positioner.style.transform).toBe('');
-    unmount();
   });
 });

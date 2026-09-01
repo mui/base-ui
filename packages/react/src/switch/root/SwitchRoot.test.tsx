@@ -1,4 +1,4 @@
-import { expect, vi } from 'vitest';
+import { expect, vi, describe, it } from 'vitest';
 import * as React from 'react';
 import { act, fireEvent, screen, waitFor } from '@mui/internal-test-utils';
 import { Switch } from '@base-ui/react/switch';
@@ -975,6 +975,33 @@ describe('<Switch.Root />', () => {
         fireEvent.click(button);
 
         expect(button).not.toHaveAttribute('data-filled');
+      });
+
+      it('clears [data-filled] when a controlled switch remounts unchecked', async () => {
+        function App() {
+          const [unchecked, setUnchecked] = React.useState(false);
+          return (
+            <Field.Root data-testid="root">
+              <Switch.Root
+                key={String(unchecked)}
+                checked={!unchecked}
+                onCheckedChange={() => {}}
+              />
+              <button type="button" onClick={() => setUnchecked(true)}>
+                clear
+              </button>
+            </Field.Root>
+          );
+        }
+
+        await render(<App />);
+
+        const root = screen.getByTestId('root');
+        expect(root).toHaveAttribute('data-filled', '');
+
+        fireEvent.click(screen.getByText('clear'));
+
+        expect(root).not.toHaveAttribute('data-filled');
       });
 
       it('removes [data-filled] attribute when unchecked after being initially checked', async () => {
