@@ -14,7 +14,6 @@
 - Fix disabled anchor tracking on scroll ([#5478](https://github.com/mui/base-ui/pull/5478))
 - Fix transform origin for start/end alignment ([#5015](https://github.com/mui/base-ui/pull/5015))
 - Remove duplicate options key from arrow middleware ([#5606](https://github.com/mui/base-ui/pull/5606))
-- Stabilize indicator animation test ([#5467](https://github.com/mui/base-ui/pull/5467))
 - Register passive touch listeners ([#5572](https://github.com/mui/base-ui/pull/5572))
 - Correctly infer value type in `useControlled` ([#5203](https://github.com/mui/base-ui/pull/5203))
 - Enforce store state key/value types ([#5423](https://github.com/mui/base-ui/pull/5423))
@@ -27,7 +26,7 @@
 ## Autocomplete
 
 - Render groups with the rowgroup role in grid mode ([#5564](https://github.com/mui/base-ui/pull/5564))
-- Allow opening and browsing the popup while read-only ([#5541](https://github.com/mui/base-ui/pull/5541))
+- Allow opening and browsing the popup while `readOnly` ([#5541](https://github.com/mui/base-ui/pull/5541))
 
 ## Avatar
 
@@ -35,7 +34,12 @@
 
 ## Checkbox
 
+- Fix stale and duplicated control IDs ([#5457](https://github.com/mui/base-ui/pull/5457))
 - Fix controlled blur validation and stale filled state ([#5563](https://github.com/mui/base-ui/pull/5563))
+
+## Checkbox Group
+
+- Fix stale and duplicated control IDs ([#5457](https://github.com/mui/base-ui/pull/5457))
 
 ## Combobox
 
@@ -43,8 +47,9 @@
 - Add `createItems` collection API ([#5326](https://github.com/mui/base-ui/pull/5326))
 - Fix cancellation when preserving the filter after selection ([#5362](https://github.com/mui/base-ui/pull/5362))
 - Render groups with the rowgroup role in grid mode ([#5564](https://github.com/mui/base-ui/pull/5564))
-- Allow opening and browsing the popup while read-only ([#5541](https://github.com/mui/base-ui/pull/5541))
+- Allow opening and browsing the popup while `readOnly` ([#5541](https://github.com/mui/base-ui/pull/5541))
 - Move `aria-orientation` to the role owners ([#5551](https://github.com/mui/base-ui/pull/5551))
+- Fix record item label lookup reading from `Object.prototype` ([#5518](https://github.com/mui/base-ui/pull/5518))
 - Anchor multiple selection to the first selected item ([#5573](https://github.com/mui/base-ui/pull/5573))
 - Hide group labels and scrollbars from the accessibility tree ([#5598](https://github.com/mui/base-ui/pull/5598))
 
@@ -62,7 +67,7 @@
 
 - Fix custom validity ownership and validation lifecycle ([#5449](https://github.com/mui/base-ui/pull/5449))
 - Sync controlled value changes with field state ([#5460](https://github.com/mui/base-ui/pull/5460))
-- Remove duplicate React import ([#5486](https://github.com/mui/base-ui/pull/5486))
+- Fix stale and duplicated control IDs ([#5457](https://github.com/mui/base-ui/pull/5457))
 - Validate once on Enter inside a Form ([#5459](https://github.com/mui/base-ui/pull/5459))
 - Publish neutral validity while async validation is in flight ([#5600](https://github.com/mui/base-ui/pull/5600))
 - Fix controlled blur validation and stale filled state ([#5563](https://github.com/mui/base-ui/pull/5563))
@@ -74,6 +79,7 @@
 ## Menu
 
 - Play the enter transition for an initially open submenu ([#4383](https://github.com/mui/base-ui/pull/4383))
+- Move `aria-orientation` to the role owners ([#5551](https://github.com/mui/base-ui/pull/5551))
 - Hide group labels and scrollbars from the accessibility tree ([#5598](https://github.com/mui/base-ui/pull/5598))
 
 ## Menubar
@@ -104,6 +110,7 @@
 
 ## Select
 
+- Move `aria-orientation` to the role owners ([#5551](https://github.com/mui/base-ui/pull/5551))
 - Anchor multiple selection to the first selected item ([#5573](https://github.com/mui/base-ui/pull/5573))
 - Hide group labels and scrollbars from the accessibility tree ([#5598](https://github.com/mui/base-ui/pull/5598))
 - Fix the root ID being ignored inside a Field ([#5461](https://github.com/mui/base-ui/pull/5461))

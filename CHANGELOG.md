@@ -17,7 +17,6 @@ _Sep 1, 2026_
 - Fix disabled anchor tracking on scroll (#5478) by @atomiks
 - Fix transform origin for start/end alignment (#5015) by @atomiks
 - Remove duplicate options key from arrow middleware (#5606) by @atomiks
-- Stabilize indicator animation test (#5467) by @atomiks
 - Register passive touch listeners (#5572) by @wanxiankai
 - Correctly infer value type in `useControlled` (#5203) by @jjenzz
 - Enforce store state key/value types (#5423) by @jjenzz
@@ -30,7 +29,7 @@ _Sep 1, 2026_
 ### Autocomplete
 
 - Render groups with the rowgroup role in grid mode (#5564) by @atomiks
-- Allow opening and browsing the popup while read-only (#5541) by @vikuscz
+- Allow opening and browsing the popup while `readOnly` (#5541) by @vikuscz
 
 ### Avatar
 
@@ -38,7 +37,12 @@ _Sep 1, 2026_
 
 ### Checkbox
 
+- Fix stale and duplicated control IDs (#5457) by @atomiks
 - Fix controlled blur validation and stale filled state (#5563) by @atomiks
+
+### Checkbox Group
+
+- Fix stale and duplicated control IDs (#5457) by @atomiks
 
 ### Combobox
 
@@ -46,8 +50,9 @@ _Sep 1, 2026_
 - Add `createItems` collection API (#5326) by @atomiks
 - Fix cancellation when preserving the filter after selection (#5362) by @atomiks
 - Render groups with the rowgroup role in grid mode (#5564) by @atomiks
-- Allow opening and browsing the popup while read-only (#5541) by @vikuscz
+- Allow opening and browsing the popup while `readOnly` (#5541) by @vikuscz
 - Move `aria-orientation` to the role owners (#5551) by @gonzoblasco
+- Fix record item label lookup reading from `Object.prototype` (#5518) by @XionWCFM
 - Anchor multiple selection to the first selected item (#5573) by @atomiks
 - Hide group labels and scrollbars from the accessibility tree (#5598) by @azeng4499
 
@@ -65,7 +70,7 @@ _Sep 1, 2026_
 
 - Fix custom validity ownership and validation lifecycle (#5449) by @atomiks
 - Sync controlled value changes with field state (#5460) by @atomiks
-- Remove duplicate React import (#5486) by @atomiks
+- Fix stale and duplicated control IDs (#5457) by @atomiks
 - Validate once on Enter inside a Form (#5459) by @atomiks
 - Publish neutral validity while async validation is in flight (#5600) by @atomiks
 - Fix controlled blur validation and stale filled state (#5563) by @atomiks
@@ -77,6 +82,7 @@ _Sep 1, 2026_
 ### Menu
 
 - Play the enter transition for an initially open submenu (#4383) by @michaldudak
+- Move `aria-orientation` to the role owners (#5551) by @gonzoblasco
 - Hide group labels and scrollbars from the accessibility tree (#5598) by @azeng4499
 
 ### Menubar
@@ -107,6 +113,7 @@ _Sep 1, 2026_
 
 ### Select
 
+- Move `aria-orientation` to the role owners (#5551) by @gonzoblasco
 - Anchor multiple selection to the first selected item (#5573) by @atomiks
 - Hide group labels and scrollbars from the accessibility tree (#5598) by @azeng4499
 - Fix the root ID being ignored inside a Field (#5461) by @atomiks
