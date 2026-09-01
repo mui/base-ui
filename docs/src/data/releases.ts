@@ -11,7 +11,7 @@ export const releases: Release[] = [
     latest: true,
     version: 'v1.8.0',
     versionSlug: 'v1-8-0',
-    date: '2026-09-01',
+    date: '2026-09-02',
     highlights: [
       'New `createItems` collection API for `Combobox`.',
       'Browse `Autocomplete`, `Combobox`, and `Select` popups while read-only.',

@@ -4,7 +4,7 @@
 
 <!-- generated comparing v1.7.0...master -->
 
-_Sep 1, 2026_
+_Sep 2, 2026_
 
 ### General changes
 
