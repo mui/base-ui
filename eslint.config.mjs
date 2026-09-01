@@ -156,9 +156,7 @@ export default defineConfig(
       // matching the pattern of the test runner
       `**/*${EXTENSION_TEST_FILE}`,
     ],
-    // `useVitest` enables the vitest rules ahead of the code-infra bump that
-    // enables them unconditionally (and drops both options).
-    extends: createTestConfig({ useMocha: false, useVitest: true }),
+    extends: createTestConfig(),
     rules: {
       'mui/add-undef-to-optional': 'off',
       // These helpers assert internally (shared between multiple tests).
@@ -194,6 +192,14 @@ export default defineConfig(
             'touch events have no equivalent helper yet.',
         },
       ],
+    },
+  },
+  {
+    files: [`test/e2e/**/*${EXTENSION_TEST_FILE}`],
+    rules: {
+      // The e2e suite asserts with Playwright's `expect` (initPlaywrightMatchers),
+      // which the scope-naive vitest globals rule mistakes for the vitest global.
+      'vitest/prefer-importing-vitest-globals': 'off',
     },
   },
   baseSpecRules,
