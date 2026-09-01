@@ -2556,8 +2556,10 @@ describe('<Combobox.Root />', () => {
       });
 
       it('anchors the highlight to the first selected item in rendered order regardless of value order', async () => {
+        // `cherry` is last in rendered order but first in the value array, so anchoring to the
+        // rendered order and anchoring to either end of the value array give different answers.
         const { user } = await render(
-          <MultiplePopupCombobox defaultValue={['cherry', 'banana']} />,
+          <MultiplePopupCombobox defaultValue={['banana', 'cherry']} />,
         );
 
         await user.click(screen.getByTestId('trigger'));
@@ -2570,11 +2572,14 @@ describe('<Combobox.Root />', () => {
         await waitFor(() => {
           expect(input).toHaveAttribute('aria-activedescendant', bananaItem.id);
         });
+        expect(screen.getByRole('option', { name: 'cherry' })).not.toHaveAttribute(
+          'data-highlighted',
+        );
       });
 
       it('anchors the highlight to the first selected item with individually rendered items', async () => {
         const { user } = await render(
-          <Combobox.Root multiple defaultValue={['cherry', 'banana']}>
+          <Combobox.Root multiple defaultValue={['banana', 'cherry']}>
             <Combobox.Input data-testid="input" />
             <Combobox.Portal>
               <Combobox.Positioner>
@@ -2602,6 +2607,191 @@ describe('<Combobox.Root />', () => {
         await waitFor(() => {
           expect(input).toHaveAttribute('aria-activedescendant', bananaItem.id);
         });
+        expect(screen.getByRole('option', { name: 'cherry' })).not.toHaveAttribute(
+          'data-highlighted',
+        );
+      });
+
+      it('anchors to the first selected item in rendered order across groups', async () => {
+        // `spinach` renders first but is not the last value, so anchoring to the rendered order
+        // and anchoring to the end of the value array give different answers.
+        const { user } = await render(
+          <Combobox.Root multiple defaultValue={['spinach', 'plum']}>
+            <Combobox.Input data-testid="input" />
+            <Combobox.Portal>
+              <Combobox.Positioner>
+                <Combobox.Popup>
+                  <Combobox.List>
+                    <Combobox.Group>
+                      <Combobox.GroupLabel>Vegetables</Combobox.GroupLabel>
+                      <Combobox.Item value="artichoke">artichoke</Combobox.Item>
+                      <Combobox.Item value="spinach">spinach</Combobox.Item>
+                    </Combobox.Group>
+                    <Combobox.Group>
+                      <Combobox.GroupLabel>Fruits</Combobox.GroupLabel>
+                      <Combobox.Item value="apple">apple</Combobox.Item>
+                      <Combobox.Item value="plum">plum</Combobox.Item>
+                    </Combobox.Group>
+                  </Combobox.List>
+                </Combobox.Popup>
+              </Combobox.Positioner>
+            </Combobox.Portal>
+          </Combobox.Root>,
+        );
+
+        const input = screen.getByTestId('input');
+        await user.click(input);
+
+        const spinachItem = await screen.findByRole('option', { name: 'spinach' });
+        await waitFor(() => {
+          expect(spinachItem).toHaveAttribute('data-highlighted');
+        });
+        await waitFor(() => {
+          expect(input).toHaveAttribute('aria-activedescendant', spinachItem.id);
+        });
+        expect(screen.getByRole('option', { name: 'plum' })).not.toHaveAttribute(
+          'data-highlighted',
+        );
+      });
+
+      it('keeps the highlight on an item a controlled value refused to select', async () => {
+        // A controlled consumer may decline the change without calling `cancel()`. The query
+        // still clears, and the highlight stays on the item that was pressed, matching what
+        // happens when the same item is pressed without a query active.
+        function App() {
+          const [value] = React.useState(['apple']);
+          return (
+            <Combobox.Root
+              items={['apple', 'banana', 'cherry']}
+              multiple
+              value={value}
+              onValueChange={() => {}}
+            >
+              <Combobox.Trigger data-testid="trigger">
+                <Combobox.Value />
+              </Combobox.Trigger>
+              <Combobox.Portal>
+                <Combobox.Positioner>
+                  <Combobox.Popup>
+                    <Combobox.Input data-testid="input" />
+                    <Combobox.List>
+                      {(item: string) => (
+                        <Combobox.Item key={item} value={item}>
+                          {item}
+                        </Combobox.Item>
+                      )}
+                    </Combobox.List>
+                  </Combobox.Popup>
+                </Combobox.Positioner>
+              </Combobox.Portal>
+            </Combobox.Root>
+          );
+        }
+
+        const { user } = await render(<App />);
+
+        await user.click(screen.getByTestId('trigger'));
+        const input = await screen.findByTestId('input');
+
+        await user.type(input, 'banana');
+        await waitFor(() => {
+          expect(screen.queryByRole('option', { name: 'apple' })).toBe(null);
+        });
+
+        await user.click(screen.getByRole('option', { name: 'banana' }));
+        await waitFor(() => {
+          expect(input).toHaveValue('');
+        });
+
+        const bananaItem = await screen.findByRole('option', { name: 'banana' });
+        await waitFor(() => {
+          expect(bananaItem).toHaveAttribute('data-highlighted');
+        });
+        expect(bananaItem).toHaveAttribute('aria-selected', 'false');
+        expect(screen.getByRole('option', { name: 'apple' })).not.toHaveAttribute(
+          'data-highlighted',
+        );
+      });
+
+      it('anchors to the first selected item when opened with the keyboard', async () => {
+        const { user } = await render(
+          <MultiplePopupCombobox defaultValue={['banana', 'cherry']} />,
+        );
+
+        const trigger = screen.getByTestId('trigger');
+        await user.keyboard('{Tab}');
+        expect(trigger).toHaveFocus();
+        await user.keyboard('{ArrowDown}');
+
+        const bananaItem = await screen.findByRole('option', { name: 'banana' });
+        await waitFor(() => {
+          expect(bananaItem).toHaveAttribute('data-highlighted');
+        });
+        expect(screen.getByRole('option', { name: 'cherry' })).not.toHaveAttribute(
+          'data-highlighted',
+        );
+      });
+
+      it('continues arrow navigation from the anchor rather than the top of the list', async () => {
+        const { user } = await render(
+          <MultiplePopupCombobox defaultValue={['banana', 'cherry']} />,
+        );
+
+        await user.click(screen.getByTestId('trigger'));
+        const input = await screen.findByTestId('input');
+        // Focus reaches the input asynchronously. Keys sent before it lands are lost.
+        await waitFor(() => {
+          expect(input).toHaveFocus();
+        });
+        const bananaItem = await screen.findByRole('option', { name: 'banana' });
+        await waitFor(() => {
+          expect(bananaItem).toHaveAttribute('data-highlighted');
+        });
+
+        // The next item after the anchor, not `apple` at the top.
+        await user.keyboard('{ArrowDown}');
+        await waitFor(() => {
+          expect(screen.getByRole('option', { name: 'cherry' })).toHaveAttribute(
+            'data-highlighted',
+          );
+        });
+
+        await user.keyboard('{ArrowUp}');
+        await waitFor(() => {
+          expect(bananaItem).toHaveAttribute('data-highlighted');
+        });
+      });
+
+      it('keeps the toggled item highlighted when selecting with the keyboard while filtering', async () => {
+        const { user } = await render(<MultiplePopupCombobox />);
+
+        await user.click(screen.getByTestId('trigger'));
+        const input = await screen.findByTestId('input');
+
+        await user.type(input, 'cherry');
+        await waitFor(() => {
+          expect(screen.queryByRole('option', { name: 'apple' })).toBe(null);
+        });
+
+        await user.keyboard('{ArrowDown}');
+        await waitFor(() => {
+          expect(screen.getByRole('option', { name: 'cherry' })).toHaveAttribute(
+            'data-highlighted',
+          );
+        });
+
+        await user.keyboard('{Enter}');
+        await waitFor(() => {
+          expect(input).toHaveValue('');
+        });
+
+        const cherryItem = await screen.findByRole('option', { name: 'cherry' });
+        await waitFor(() => {
+          expect(cherryItem).toHaveAttribute('data-highlighted');
+        });
+        expect(screen.getByRole('option', { name: 'apple' })).not.toHaveAttribute(
+          'data-highlighted',
+        );
       });
 
       it('moves the anchor when the anchor item value changes', async () => {
