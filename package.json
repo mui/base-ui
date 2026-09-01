@@ -94,7 +94,7 @@
     "globby": "16.2.3",
     "jsdom": "27.4.0",
     "lerna": "9.0.7",
-    "pkg-pr-new": "0.0.87",
+    "pkg-pr-new": "0.0.88",
     "postcss-value-parser": "4.2.0",
     "prettier": "3.9.6",
     "pretty-quick": "4.2.2",
