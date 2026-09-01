@@ -1,6 +1,6 @@
 'use client';
 import * as React from 'react';
-import { EMPTY_ARRAY, EMPTY_OBJECT } from '@base-ui/utils/empty';
+import { EMPTY_OBJECT } from '@base-ui/utils/empty';
 import { useTimeout } from '@base-ui/utils/useTimeout';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
@@ -280,7 +280,7 @@ export function useFieldValidation(
     // Do not read Base UI's previous message back as a native constraint.
     clearCustomValidity();
 
-    let nextState = refreshState();
+    let nextState: FieldValidityData['state'] = refreshState();
     let validationErrors = getNativeErrors(element);
 
     const isValidatingOnChange = shouldValidateOnChange();
@@ -312,7 +312,8 @@ export function useFieldValidation(
         if (nextState.valid === false) {
           publish(nextState, validationErrors);
         } else if (validationMode === 'onSubmit' || !validityData.state.customError) {
-          publish({ ...nextState, valid: null }, EMPTY_ARRAY);
+          nextState.valid = null;
+          publish(nextState, validationErrors);
         }
 
         // A rejected validator keeps the previously published state, so a transient
