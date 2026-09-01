@@ -57,7 +57,7 @@ overrides:
   ws: '^8.21.3'
 engineStrict: true
 updateNotifier: false
-blockExoticSubdeps: false
+blockExoticSubdeps: true
 minimumReleaseAge: 4320
 minimumReleaseAgeExclude:
   - '@base-ui/*'

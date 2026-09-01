@@ -73,7 +73,7 @@
     "@guidepup/playwright": "0.19.1",
     "@guidepup/setup": "0.24.6",
     "@microsoft/api-extractor": "7.58.12",
-    "@mui/internal-code-infra": "https://pkg.pr.new/mui/mui-public/@mui/internal-code-infra@ce3c6d5",
+    "@mui/internal-code-infra": "0.0.4-canary.111",
     "@mui/internal-netlify-cache": "0.0.3-canary.5",
     "@mui/internal-test-utils": "2.0.18-canary.25",
     "@next/eslint-plugin-next": "16.3.1",

@@ -48,8 +48,8 @@ importers:
         specifier: 7.58.12
         version: 7.58.12(@types/node@22.20.1)
       '@mui/internal-code-infra':
-        specifier: https://pkg.pr.new/mui/mui-public/@mui/internal-code-infra@ce3c6d5
-        version: https://pkg.pr.new/mui/mui-public/@mui/internal-code-infra@ce3c6d5(7dd1037e89232ab25fb560aa3d6e351b)
+        specifier: 0.0.4-canary.111
+        version: 0.0.4-canary.111(7dd1037e89232ab25fb560aa3d6e351b)
       '@mui/internal-netlify-cache':
         specifier: 0.0.3-canary.5
         version: 0.0.3-canary.5
@@ -180,8 +180,8 @@ importers:
         specifier: ^3.1.1
         version: 3.1.1(@types/react@19.2.18)(react@19.2.8)
       '@mui/internal-docs-infra':
-        specifier: 0.12.1-canary.35
-        version: 0.12.1-canary.35(@types/react@19.2.18)(@typescript/typescript6@6.0.2)(next@16.3.1(@babel/core@7.29.7(supports-color@10.2.2))(@playwright/test@1.62.1)(@types/node@22.20.1)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.8(react@19.2.8))(react@19.2.8))(prettier@3.9.6)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)(supports-color@10.2.2)
+        specifier: 0.12.1-canary.38
+        version: 0.12.1-canary.38(@types/react@19.2.18)(next@16.3.1(@babel/core@7.29.7(supports-color@10.2.2))(@playwright/test@1.62.1)(@types/node@22.20.1)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.8(react@19.2.8))(react@19.2.8))(prettier@3.9.6)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)(supports-color@10.2.2)
       '@next/mdx':
         specifier: ^16.3.1
         version: 16.3.1(@mdx-js/loader@3.1.1(supports-color@10.2.2)(webpack@5.109.2(esbuild@0.28.2)(lightningcss@1.33.0)(postcss@8.5.26)(uglify-js@3.19.3)))(@mdx-js/react@3.1.1(@types/react@19.2.18)(react@19.2.8))
@@ -2109,23 +2109,20 @@ packages:
   '@microsoft/tsdoc@0.16.0':
     resolution: {integrity: sha512-xgAyonlVVS+q7Vc7qLW0UrJU7rSFcETRWsqdXZtjzRU8dF+6CkozTK4V4y1LwOX7j8r/vHphjDeMeGI4tNGeGA==}
 
-  '@mui/internal-babel-plugin-display-name@https://pkg.pr.new/mui/mui-public/@mui/internal-babel-plugin-display-name@ce3c6d5f0274c3e7ebb307de132e174481c4d1c3':
-    resolution: {integrity: sha512-ihX9T9xBzJD8aRuNWzqNo+YdK0zJfX+6YlBXnQTYvm7RhnF3xuSswRmxsCINA3HraikxtAIst6CQt/KONX0SJA==, tarball: https://pkg.pr.new/mui/mui-public/@mui/internal-babel-plugin-display-name@ce3c6d5f0274c3e7ebb307de132e174481c4d1c3}
-    version: 1.0.2
+  '@mui/internal-babel-plugin-display-name@1.0.4-canary.24':
+    resolution: {integrity: sha512-4gkjn0aWUfgdVbz81cDCWHombpslvwFqGrh+wB9IdPN+lDvJsbmUOg3bmVmtZvOFtRWT4cL0M+18b7Xh9PcGaQ==}
     peerDependencies:
       '@babel/core': ^7.0.0 || ^8.0.0
       '@babel/preset-react': ^7.0.0 || ^8.0.0
 
-  '@mui/internal-babel-plugin-minify-errors@https://pkg.pr.new/mui/mui-public/@mui/internal-babel-plugin-minify-errors@ce3c6d5f0274c3e7ebb307de132e174481c4d1c3':
-    resolution: {integrity: sha512-pDmPJ5IHGmp6GJHcrHksDVjuTIj5jlN3xVh9cq6ZUsdta2u+zvITf9cXYe9ndLLOhg1+vImE/Ah5bDufpNbuiw==, tarball: https://pkg.pr.new/mui/mui-public/@mui/internal-babel-plugin-minify-errors@ce3c6d5f0274c3e7ebb307de132e174481c4d1c3}
-    version: 2.0.6
+  '@mui/internal-babel-plugin-minify-errors@2.0.8-canary.31':
+    resolution: {integrity: sha512-0NAUH/BCKKZk8CNagfk7Dg8knNNZw7wDff6eoYk/Ek9ohDP7pu2VHYn30T1yI+PGfumPa/t6AlQcfkJ7bQbGDg==}
     engines: {node: '>=14.0.0'}
     peerDependencies:
       '@babel/core': ^7.0.0 || ^8.0.0
 
-  '@mui/internal-babel-plugin-resolve-imports@https://pkg.pr.new/mui/mui-public/@mui/internal-babel-plugin-resolve-imports@ce3c6d5f0274c3e7ebb307de132e174481c4d1c3':
-    resolution: {integrity: sha512-ApVslN9YJ0F3sNpWOIOfI4/5IWFIhAo3NMJ+I/QrbkAfNusOUePBT7KTzqA/MhJ3rE6Bro1K4UnJXQmjaw5Pjw==, tarball: https://pkg.pr.new/mui/mui-public/@mui/internal-babel-plugin-resolve-imports@ce3c6d5f0274c3e7ebb307de132e174481c4d1c3}
-    version: 2.0.5
+  '@mui/internal-babel-plugin-resolve-imports@2.0.7-canary.43':
+    resolution: {integrity: sha512-/Heg6VvSUPnXHY25HumlREt1qeWfyE5ifeGTpPFYIcybAPM1zhaoPVJuLh4QccT8WlRoYclKCkBABa6JhQbaYg==}
     peerDependencies:
       '@babel/core': ^7.0.0 || ^8.0.0
 
@@ -2141,9 +2138,8 @@ packages:
     resolution: {integrity: sha512-lmR9P2ITjA1kWgQNafGviA/3k4KLHv+gqvYyZjChzkEIv0dNKpf7pyF1KRzdGfGQwHFIBTIbS07pGXUtgsMm7g==}
     hasBin: true
 
-  '@mui/internal-code-infra@https://pkg.pr.new/mui/mui-public/@mui/internal-code-infra@ce3c6d5':
-    resolution: {integrity: sha512-4EtzuwHo6HUMSz2CgGmo2mX3FGs/vo/jg8PyeAFIrGUhL8dvUehw5qo/puZkk0uBTC++UqgUNH9fqksmGiuGUQ==, tarball: https://pkg.pr.new/mui/mui-public/@mui/internal-code-infra@ce3c6d5}
-    version: 0.0.3
+  '@mui/internal-code-infra@0.0.4-canary.111':
+    resolution: {integrity: sha512-AzSandBZ/8uh7w3It1AaMdWg0ALKwh0zihyNMeri9lX4A+Y8hYxID0AmXkC3nOX8MHkro7NOJgyyLIEzF3xBoA==}
     hasBin: true
     peerDependencies:
       '@next/eslint-plugin-next': '*'
@@ -2154,8 +2150,8 @@ packages:
       typescript:
         optional: true
 
-  '@mui/internal-docs-infra@0.12.1-canary.35':
-    resolution: {integrity: sha512-Dd/t2DUddScmEK5r4NS+d5WotlsoZTlD1gpZjz2XtZ4pnCDCF8BgnRjgjRfaanxSyJ0xOc3PXJ8CHQF5Hy3zAA==}
+  '@mui/internal-docs-infra@0.12.1-canary.38':
+    resolution: {integrity: sha512-NF5tlNjcW7BSjuJ/8Dp6DpNHIdzDeB/PlLHMixcseKYuCrXIq5YIUfhaZmMBdQNRPfW76ZNQ4Z5AQVc5yx/DPA==}
     engines: {node: '>=22.18.0'}
     hasBin: true
     peerDependencies:
@@ -2164,7 +2160,6 @@ packages:
       prettier: ^3.0.0
       react: ^17.0.0 || ^18.0.0 || ^19.0.0
       react-dom: ^17.0.0 || ^18.0.0 || ^19.0.0
-      typescript: ^6.0.2
     peerDependenciesMeta:
       '@types/react':
         optional: true
@@ -11572,7 +11567,7 @@ snapshots:
 
   '@microsoft/tsdoc@0.16.0': {}
 
-  '@mui/internal-babel-plugin-display-name@https://pkg.pr.new/mui/mui-public/@mui/internal-babel-plugin-display-name@ce3c6d5f0274c3e7ebb307de132e174481c4d1c3(@babel/core@7.29.7(supports-color@7.2.0))(@babel/preset-react@7.29.7(@babel/core@7.29.7(supports-color@7.2.0))(supports-color@7.2.0))(supports-color@7.2.0)':
+  '@mui/internal-babel-plugin-display-name@1.0.4-canary.24(@babel/core@7.29.7(supports-color@7.2.0))(@babel/preset-react@7.29.7(@babel/core@7.29.7(supports-color@7.2.0))(supports-color@7.2.0))(supports-color@7.2.0)':
     dependencies:
       '@babel/core': 7.29.7(supports-color@7.2.0)
       '@babel/helper-module-imports': 7.29.7(supports-color@7.2.0)
@@ -11581,7 +11576,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@mui/internal-babel-plugin-minify-errors@https://pkg.pr.new/mui/mui-public/@mui/internal-babel-plugin-minify-errors@ce3c6d5f0274c3e7ebb307de132e174481c4d1c3(@babel/core@7.29.7(supports-color@7.2.0))(supports-color@7.2.0)':
+  '@mui/internal-babel-plugin-minify-errors@2.0.8-canary.31(@babel/core@7.29.7(supports-color@7.2.0))(supports-color@7.2.0)':
     dependencies:
       '@babel/core': 7.29.7(supports-color@7.2.0)
       '@babel/helper-module-imports': 7.29.7(supports-color@7.2.0)
@@ -11589,7 +11584,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@mui/internal-babel-plugin-resolve-imports@https://pkg.pr.new/mui/mui-public/@mui/internal-babel-plugin-resolve-imports@ce3c6d5f0274c3e7ebb307de132e174481c4d1c3(@babel/core@7.29.7(supports-color@7.2.0))':
+  '@mui/internal-babel-plugin-resolve-imports@2.0.7-canary.43(@babel/core@7.29.7(supports-color@7.2.0))':
     dependencies:
       '@babel/core': 7.29.7(supports-color@7.2.0)
       resolve: 1.22.12
@@ -11639,7 +11634,7 @@ snapshots:
       - tsx
       - yaml
 
-  '@mui/internal-code-infra@https://pkg.pr.new/mui/mui-public/@mui/internal-code-infra@ce3c6d5(7dd1037e89232ab25fb560aa3d6e351b)':
+  '@mui/internal-code-infra@0.0.4-canary.111(7dd1037e89232ab25fb560aa3d6e351b)':
     dependencies:
       '@argos-ci/core': 6.8.1(@types/node@22.20.1)(supports-color@7.2.0)
       '@babel/cli': 7.29.7(@babel/core@7.29.7(supports-color@7.2.0))
@@ -11655,9 +11650,9 @@ snapshots:
       '@eslint/json': 2.0.1
       '@inquirer/confirm': 6.3.0(@types/node@22.20.1)
       '@inquirer/select': 5.2.3(@types/node@22.20.1)
-      '@mui/internal-babel-plugin-display-name': https://pkg.pr.new/mui/mui-public/@mui/internal-babel-plugin-display-name@ce3c6d5f0274c3e7ebb307de132e174481c4d1c3(@babel/core@7.29.7(supports-color@7.2.0))(@babel/preset-react@7.29.7(@babel/core@7.29.7(supports-color@7.2.0))(supports-color@7.2.0))(supports-color@7.2.0)
-      '@mui/internal-babel-plugin-minify-errors': https://pkg.pr.new/mui/mui-public/@mui/internal-babel-plugin-minify-errors@ce3c6d5f0274c3e7ebb307de132e174481c4d1c3(@babel/core@7.29.7(supports-color@7.2.0))(supports-color@7.2.0)
-      '@mui/internal-babel-plugin-resolve-imports': https://pkg.pr.new/mui/mui-public/@mui/internal-babel-plugin-resolve-imports@ce3c6d5f0274c3e7ebb307de132e174481c4d1c3(@babel/core@7.29.7(supports-color@7.2.0))
+      '@mui/internal-babel-plugin-display-name': 1.0.4-canary.24(@babel/core@7.29.7(supports-color@7.2.0))(@babel/preset-react@7.29.7(@babel/core@7.29.7(supports-color@7.2.0))(supports-color@7.2.0))(supports-color@7.2.0)
+      '@mui/internal-babel-plugin-minify-errors': 2.0.8-canary.31(@babel/core@7.29.7(supports-color@7.2.0))(supports-color@7.2.0)
+      '@mui/internal-babel-plugin-resolve-imports': 2.0.7-canary.43(@babel/core@7.29.7(supports-color@7.2.0))
       '@napi-rs/keyring': 1.3.0
       '@next/eslint-plugin-next': 16.3.1(eslint@10.8.1(jiti@2.7.0)(supports-color@7.2.0))
       '@octokit/auth-action': 6.0.2
@@ -11750,7 +11745,7 @@ snapshots:
       - supports-color
       - vitest
 
-  '@mui/internal-docs-infra@0.12.1-canary.35(@types/react@19.2.18)(@typescript/typescript6@6.0.2)(next@16.3.1(@babel/core@7.29.7(supports-color@10.2.2))(@playwright/test@1.62.1)(@types/node@22.20.1)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.8(react@19.2.8))(react@19.2.8))(prettier@3.9.6)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)(supports-color@10.2.2)':
+  '@mui/internal-docs-infra@0.12.1-canary.38(@types/react@19.2.18)(next@16.3.1(@babel/core@7.29.7(supports-color@10.2.2))(@playwright/test@1.62.1)(@types/node@22.20.1)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.8(react@19.2.8))(react@19.2.8))(prettier@3.9.6)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)(supports-color@10.2.2)':
     dependencies:
       '@babel/runtime': 7.29.7
       '@csstools/postcss-light-dark-function': 3.0.3(postcss@8.5.26)
