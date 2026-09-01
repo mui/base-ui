@@ -3,7 +3,7 @@ import * as React from 'react';
 import { useDialogRootContext } from '../../dialog/root/DialogRootContext';
 import type { BaseUIComponentProps } from '../../internals/types';
 import { useRenderElement } from '../../internals/useRenderElement';
-import { DRAWER_CONTENT_ATTRIBUTE } from './DrawerContentDataAttributes';
+import { DRAWER_CONTENT_ATTRIBUTE } from './drawerContentAttribute';
 
 /**
  * A container for the drawer contents.

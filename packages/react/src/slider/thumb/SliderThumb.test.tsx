@@ -29,6 +29,18 @@ describe('<Slider.Thumb />', () => {
     refInstanceof: window.HTMLDivElement,
   }));
 
+  it('sets the thumb index data attribute', async () => {
+    await render(
+      <Slider.Root defaultValue={50}>
+        <Slider.Control>
+          <Slider.Thumb data-testid="thumb" />
+        </Slider.Control>
+      </Slider.Root>,
+    );
+
+    expect(screen.getByTestId('thumb')).toHaveAttribute('data-index', '0');
+  });
+
   it('settles when the rendered component recreates its merged ref', async () => {
     await render(
       <Slider.Root defaultValue={50}>
