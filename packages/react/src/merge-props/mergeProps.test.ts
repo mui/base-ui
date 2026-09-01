@@ -1,4 +1,4 @@
-import { expect, vi } from 'vitest';
+import { expect, vi, describe, it } from 'vitest';
 import { mergeProps, mergePropsN } from '@base-ui/react/merge-props';
 import type { BaseUIEvent } from '../internals/types';
 

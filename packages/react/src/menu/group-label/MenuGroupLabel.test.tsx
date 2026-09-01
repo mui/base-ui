@@ -1,4 +1,4 @@
-import { afterEach, expect, vi } from 'vitest';
+import { afterEach, expect, vi, describe, it } from 'vitest';
 import * as React from 'react';
 import { act, screen } from '@mui/internal-test-utils';
 import { Menu } from '@base-ui/react/menu';

@@ -1,4 +1,4 @@
-import { expect, expect as expectVitest, vi } from 'vitest';
+import { expect, vi, describe, beforeAll, it } from 'vitest';
 import * as React from 'react';
 import { act, flushMicrotasks, fireEvent, screen, waitFor } from '@mui/internal-test-utils';
 import { DirectionProvider, type TextDirection } from '@base-ui/react/direction-provider';
@@ -89,6 +89,8 @@ describe('<Slider.Root />', () => {
   }));
 
   it('warns when max is not greater than min', async () => {
+    // `toWarnDev` requires a callback, so the wrapper is not unneeded.
+    // eslint-disable-next-line vitest/no-unneeded-async-expect-function
     await expect(async () => {
       await render(<TestSlider defaultValue={10} min={10} max={10} />);
     }).toWarnDev('Base UI: Slider `max` must be greater than `min`.');
@@ -136,11 +138,13 @@ describe('<Slider.Root />', () => {
         document.body,
         createTouches([{ identifier: 1, clientX: 20, clientY: 0 }]),
       );
+
+      expect(screen.getAllByRole('slider')).toHaveLength(2);
     },
   );
 
   describe('ARIA attributes', () => {
-    it('it has the correct aria attributes', async () => {
+    it('has the correct aria attributes', async () => {
       await render(
         <Slider.Root defaultValue={30} aria-labelledby="labelId" data-testid="root">
           <Slider.Value />
@@ -2102,7 +2106,7 @@ describe('<Slider.Root />', () => {
             slider.focus();
           });
 
-          expectVitest(() => {
+          expect(() => {
             fireEvent.change(slider, {
               target: {
                 value: 4,
@@ -2110,7 +2114,7 @@ describe('<Slider.Root />', () => {
             });
           }).not.toThrow();
 
-          expectVitest(handleValueChange).toHaveBeenCalledTimes(1);
+          expect(handleValueChange).toHaveBeenCalledTimes(1);
         } finally {
           if (hadGlobalEvent && previousDescriptor) {
             Object.defineProperty(globalThis, 'event', previousDescriptor);
@@ -2136,7 +2140,7 @@ describe('<Slider.Root />', () => {
         });
 
         const slider = shadowRoot.querySelector('input[type="range"]');
-        expectVitest(slider).toBeTruthy();
+        expect(slider).toBeTruthy();
 
         if (!slider) {
           return;
@@ -2150,7 +2154,7 @@ describe('<Slider.Root />', () => {
           slider.dispatchEvent(new KeyboardEvent('keydown', { key: ARROW_RIGHT, bubbles: true }));
         });
 
-        expectVitest(handleValueChange).toHaveBeenCalledTimes(1);
+        expect(handleValueChange).toHaveBeenCalledTimes(1);
       } finally {
         await act(async () => {
           host.remove();
@@ -2215,7 +2219,7 @@ describe('<Slider.Root />', () => {
         incrementKeys: string[],
       ];
 
-      describe(String(direction), () => {
+      describe(direction, () => {
         describe(`orientation: ${orientation}`, () => {
           decrementKeys.forEach((key) => {
             it(`key: ${key} decrements the value`, async () => {

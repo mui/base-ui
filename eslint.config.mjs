@@ -156,9 +156,28 @@ export default defineConfig(
       // matching the pattern of the test runner
       `**/*${EXTENSION_TEST_FILE}`,
     ],
-    extends: createTestConfig({ useMocha: false }),
+    // `useVitest` enables the vitest rules ahead of the code-infra bump that
+    // enables them unconditionally (and drops both options).
+    extends: createTestConfig({ useMocha: false, useVitest: true }),
     rules: {
       'mui/add-undef-to-optional': 'off',
+      // These helpers assert internally (shared between multiple tests).
+      'vitest/expect-expect': [
+        'error',
+        {
+          assertFunctionNames: [
+            'expect',
+            'expect*',
+            'assert*',
+            'openAndCloseDialog',
+            'openAndClosePopover',
+            'takeScreenshot',
+            'waitForBubbleToOverlapActiveTab',
+          ],
+        },
+      ],
+      // Parameterized suites pass loop variables as titles.
+      'vitest/valid-title': ['error', { allowArguments: true }],
       'no-restricted-syntax': [
         'error',
         ...baseRestrictedSyntax,

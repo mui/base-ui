@@ -1,4 +1,4 @@
-import { expect } from 'vitest';
+import { expect, describe, it } from 'vitest';
 import { getTarget } from './shadowDom';
 
 describe('getTarget', () => {

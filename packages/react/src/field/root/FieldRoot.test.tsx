@@ -1,4 +1,4 @@
-import { vi, expect } from 'vitest';
+import { vi, expect, describe, it } from 'vitest';
 import * as React from 'react';
 import { Form } from '@base-ui/react/form';
 import { NumberField } from '@base-ui/react/number-field';
