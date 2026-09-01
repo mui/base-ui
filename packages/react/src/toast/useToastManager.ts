@@ -123,7 +123,8 @@ export interface ToastManagerAddOptions<Data extends object> extends Omit<
 > {
   /**
    * The unique identifier for the toast. Adding a toast with an existing ID
-   * updates it in place and refreshes its auto-dismiss timer.
+   * updates it in place and refreshes its auto-dismiss timer. `data` given
+   * here replaces the existing data instead of being merged into it.
    */
   id?: string | undefined;
 }
@@ -136,6 +137,10 @@ export interface ToastManagerUpdateOptions<Data extends object> extends Partial<
 > {
   /**
    * Custom data for the toast.
+   * Shallow merged into the existing data only when the stored value and the
+   * given value are both plain objects. In every other case—arrays, `Map`,
+   * `Set`, `Date`, class instances, and a toast that has no data yet—the given
+   * value replaces the existing data. Passing `undefined` clears it.
    */
   data?: Partial<Data> | undefined;
 }

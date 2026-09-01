@@ -598,7 +598,8 @@ type ToastManager<Data extends {} = any> = {
 type ToastManagerAddOptions<Data extends {}> = {
   /**
    * The unique identifier for the toast. Adding a toast with an existing ID
-   * updates it in place and refreshes its auto-dismiss timer.
+   * updates it in place and refreshes its auto-dismiss timer. `data` given
+   * here replaces the existing data instead of being merged into it.
    */
   id?: string;
   /** The title of the toast. */
@@ -822,7 +823,13 @@ type ToastManagerPromiseOptions<Value, Data extends {}> = {
 
 ```typescript
 type ToastManagerUpdateOptions<Data extends {}> = {
-  /** Custom data for the toast. */
+  /**
+   * Custom data for the toast.
+   * Shallow merged into the existing data only when the stored value and the
+   * given value are both plain objects. In every other case—arrays, `Map`,
+   * `Set`, `Date`, class instances, and a toast that has no data yet—the given
+   * value replaces the existing data. Passing `undefined` clears it.
+   */
   data?: Partial<Data>;
   /** The title of the toast. */
   title?: React.ReactNode;

@@ -45,6 +45,25 @@ type ToastMetadata = {
 
 type InitialState = Omit<State, 'toastMetadata'>;
 
+// Whether `value` is a record that can be copied key by key without losing anything, which
+// is true when its prototype is one hop from `null`. That accepts object literals from any
+// realm, so a record built inside an iframe still merges, and rejects the values a copy
+// would silently reshape: arrays, `Map`, `Set`, `Date`, class instances, and
+// `Object.create(null)` dictionaries, whose null prototype is the point of them.
+function isPlainObject(value: unknown): value is object {
+  if (value === null || typeof value !== 'object') {
+    return false;
+  }
+  const proto = Object.getPrototypeOf(value);
+  return proto !== null && Object.getPrototypeOf(proto) === null;
+}
+
+// Copies `updates` over `prev` while keeping `prev`'s prototype, which an object literal
+// would replace with this realm's `Object.prototype`.
+function mergeData<Data extends object>(prev: Data, updates: Partial<Data>): Data {
+  return Object.assign(Object.create(Object.getPrototypeOf(prev)), prev, updates);
+}
+
 function createToastMetadata(toasts: StoredToast[]) {
   const metadata = new Map<string, ToastMetadata>();
   let visibleIndex = 0;
@@ -176,6 +195,8 @@ export class ToastStore extends ReactStore<State, {}, typeof selectors> {
           this.removeToast(toast.id, true);
         } else {
           const { id: ignoredId, transitionStatus: ignoredTransitionStatus, ...updates } = toast;
+          // `ToastManagerAddOptions.data` is a complete `Data`, not a patch, so re-adding
+          // a toast under an existing id replaces its data rather than merging into it.
           this.updateToastInternal(toast.id, updates, true, true);
           return toast.id;
         }
@@ -204,8 +225,21 @@ export class ToastStore extends ReactStore<State, {}, typeof selectors> {
     return id;
   };
 
+  // The only entry point whose `data` is a patch rather than a complete value, so the only
+  // one that merges. `updateToastInternal` always replaces, which keeps a future internal
+  // caller from silently patching a value it meant to overwrite.
   updateToast = <Data extends object>(id: string, updates: ToastManagerUpdateOptions<Data>) => {
-    this.updateToastInternal(id, updates, false, true);
+    const prevData = selectors.toast(this.state, id)?.data;
+    // Only a plain object can be patched by a plain object. `Data` is unconstrained, so
+    // `data` may hold an array, a `Map`, or a class instance, and copying those key by key
+    // would strip their prototype and silently produce a plain object. Every other
+    // combination is passed through untouched and replaces `data` wholesale.
+    const merged =
+      isPlainObject(updates.data) && isPlainObject(prevData)
+        ? { ...updates, data: mergeData(prevData, updates.data) }
+        : updates;
+
+    this.updateToastInternal(id, merged, false, true);
   };
 
   updateToastInternal = <Data extends object>(
@@ -230,9 +264,6 @@ export class ToastStore extends ReactStore<State, {}, typeof selectors> {
     const nextToast: StoredToast<Data> = {
       ...prevToast,
       ...updates,
-      ...(updates.data && {
-        data: { ...prevToast.data, ...updates.data },
-      }),
       ...(markUpdated && {
         updateKey: prevToast.updateKey + 1,
       }),

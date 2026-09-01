@@ -108,6 +108,128 @@ describe('ToastStore', () => {
     expect(selectors.toast(store.state, 'a')?.data).toBe(undefined);
   });
 
+  it('replaces nested values in custom data rather than merging into them', () => {
+    const store = createStore([{ id: 'a', data: { nested: { keep: 1, drop: 2 } } }]);
+
+    store.updateToast('a', { data: { nested: { keep: 9 } } });
+    expect(selectors.toast(store.state, 'a')?.data).toEqual({ nested: { keep: 9 } });
+  });
+
+  it('replaces array custom data instead of merging it index-wise', () => {
+    const store = createStore([{ id: 'a', data: ['x', 'y'] }]);
+
+    // Spreading an array merges it index-wise, which turns it into a plain object
+    // and leaves the stale trailing entry behind.
+    const nextData = ['z'];
+    store.updateToast('a', { data: nextData });
+    expect(selectors.toast(store.state, 'a')?.data).toBe(nextData);
+  });
+
+  it('replaces class instance custom data so its prototype survives', () => {
+    class Model {
+      name: string;
+
+      constructor(name: string) {
+        this.name = name;
+      }
+
+      greet() {
+        return `hi ${this.name}`;
+      }
+    }
+
+    const store = createStore([{ id: 'a', data: new Model('a') }]);
+
+    // Spreading a class instance drops its prototype along with its methods.
+    store.updateToast('a', { data: new Model('b') });
+    const data = selectors.toast(store.state, 'a')?.data;
+    expect(data).toBeInstanceOf(Model);
+    expect(data.greet()).toBe('hi b');
+  });
+
+  it('replaces Map custom data instead of flattening it to an empty object', () => {
+    const store = createStore([{ id: 'a', data: new Map([['k', 1]]) }]);
+
+    // A `Map` keeps its entries off its own enumerable properties, so spreading one
+    // yields an empty object and loses every entry.
+    const nextData = new Map([['j', 2]]);
+    store.updateToast('a', { data: nextData });
+    expect(selectors.toast(store.state, 'a')?.data).toBe(nextData);
+  });
+
+  it('merges plain object custom data that does not use this realm’s Object.prototype', () => {
+    // A record built in another realm — an iframe, say — has a prototype one hop from
+    // `null` that is not this realm's `Object.prototype`. It is still a plain record, so it
+    // merges, and the merge must not swap its prototype for the local one.
+    const foreignObjectPrototype = Object.create(null);
+    const store = createStore([
+      {
+        id: 'a',
+        data: Object.assign(Object.create(foreignObjectPrototype), { name: 'Draft', count: 1 }),
+      },
+    ]);
+
+    store.updateToast('a', { data: { count: 2 } });
+    const data = selectors.toast(store.state, 'a')?.data;
+    expect({ ...data }).toEqual({ name: 'Draft', count: 2 });
+    expect(Object.getPrototypeOf(data)).toBe(foreignObjectPrototype);
+  });
+
+  it('replaces null prototype custom data so the null prototype survives', () => {
+    const store = createStore([
+      { id: 'a', data: Object.assign(Object.create(null), { name: 'Draft' }) },
+    ]);
+
+    // Merging would spread the dictionary into an object literal and hand back
+    // `Object.prototype`, which is exactly what a null prototype guards against.
+    const nextData = Object.assign(Object.create(null), { name: 'Saved' });
+    store.updateToast('a', { data: nextData });
+    const data = selectors.toast(store.state, 'a')?.data;
+    expect(data).toBe(nextData);
+    expect(Object.getPrototypeOf(data)).toBe(null);
+  });
+
+  it('replaces custom data when only one side is a plain object', () => {
+    const store = createStore([
+      { id: 'record', data: { name: 'Draft' } },
+      { id: 'array', data: ['x'] },
+    ]);
+
+    const nextArray = ['z'];
+    store.updateToast('record', { data: nextArray });
+    expect(selectors.toast(store.state, 'record')?.data).toBe(nextArray);
+
+    const nextRecord = { name: 'Saved' };
+    store.updateToast('array', { data: nextRecord });
+    expect(selectors.toast(store.state, 'array')?.data).toBe(nextRecord);
+  });
+
+  it('stores the given custom data as-is when the toast has none yet', () => {
+    const store = createStore([{ id: 'a' }]);
+
+    const nextData = { name: 'Draft' };
+    store.updateToast('a', { data: nextData });
+    expect(selectors.toast(store.state, 'a')?.data).toBe(nextData);
+  });
+
+  it('replaces custom data when re-adding a toast under an existing id', () => {
+    const store = createStore([]);
+
+    // `add` takes a complete `Data`, not a patch, so keys the caller leaves out must
+    // not survive from the previous value.
+    store.addToast({ id: 'a', data: { status: 'error', errorCode: 42 } });
+    store.addToast({ id: 'a', data: { status: 'ok' } });
+    expect(selectors.toast(store.state, 'a')?.data).toEqual({ status: 'ok' });
+
+    const nextData = new Map([['j', 2]]);
+    store.addToast({ id: 'a', data: nextData });
+    expect(selectors.toast(store.state, 'a')?.data).toBe(nextData);
+
+    // Only the data actually given is replaced; omitting it leaves the stored value alone.
+    store.addToast({ id: 'a', title: 'Still uploading' });
+    expect(selectors.toast(store.state, 'a')?.data).toBe(nextData);
+  });
+
   it('does not invoke onRemove for a toast that is no longer in the store', () => {
     const onRemove = vi.fn();
     const store = createStore([{ id: 'a', onRemove }]);
