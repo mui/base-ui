@@ -2007,6 +2007,51 @@ describe('<NumberField />', () => {
       expect(input).toHaveAttribute('data-focused', '');
     });
 
+    describe('[data-focused] without a blur event', () => {
+      function NumberFields(props: { firstMounted?: boolean; firstDisabled?: boolean }) {
+        const { firstMounted = true, firstDisabled = false } = props;
+        return (
+          <Field.Root data-testid="root">
+            {firstMounted && (
+              <NumberFieldBase.Root disabled={firstDisabled}>
+                <NumberFieldBase.Input data-testid="first" />
+              </NumberFieldBase.Root>
+            )}
+          </Field.Root>
+        );
+      }
+
+      it('is removed when the focused input becomes disabled', async () => {
+        const { setProps } = await render(<NumberFields />);
+
+        const input = screen.getByTestId('first');
+        act(() => {
+          input.focus();
+        });
+
+        expect(screen.getByTestId('root')).toHaveAttribute('data-focused', '');
+
+        await setProps({ firstDisabled: true });
+
+        expect(screen.getByTestId('root')).not.toHaveAttribute('data-focused');
+        expect(input).not.toHaveAttribute('data-focused');
+      });
+
+      it('is removed when the focused input unmounts', async () => {
+        const { setProps } = await render(<NumberFields />);
+
+        act(() => {
+          screen.getByTestId('first').focus();
+        });
+
+        expect(screen.getByTestId('root')).toHaveAttribute('data-focused', '');
+
+        await setProps({ firstMounted: false });
+
+        expect(screen.getByTestId('root')).not.toHaveAttribute('data-focused');
+      });
+    });
+
     it('prop: validate', async () => {
       await render(
         <Field.Root validationMode="onBlur" validate={() => 'error'}>

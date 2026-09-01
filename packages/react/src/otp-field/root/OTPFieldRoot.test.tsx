@@ -1483,6 +1483,119 @@ describe('<OTPField.Root />', () => {
     });
   });
 
+  describe('[data-focused] without a blur event', () => {
+    function Fields(props: { firstMounted?: boolean; firstDisabled?: boolean }) {
+      const { firstMounted = true, firstDisabled = false } = props;
+      return (
+        <Field.Root data-testid="field">
+          {firstMounted && <OTPField data-testid="first" disabled={firstDisabled} />}
+        </Field.Root>
+      );
+    }
+
+    it('is removed when the focused field becomes disabled', async () => {
+      const { setProps } = await render(<Fields />);
+
+      await act(async () => {
+        screen.getAllByRole<HTMLInputElement>('textbox')[0].focus();
+      });
+
+      expect(screen.getByTestId('field')).toHaveAttribute('data-focused', '');
+      expect(screen.getByTestId('first')).toHaveAttribute('data-focused', '');
+
+      await setProps({ firstDisabled: true });
+
+      expect(screen.getByTestId('field')).not.toHaveAttribute('data-focused');
+      expect(screen.getByTestId('first')).not.toHaveAttribute('data-focused');
+    });
+
+    it('is removed when the focused field unmounts', async () => {
+      const { setProps } = await render(<Fields />);
+
+      await act(async () => {
+        screen.getAllByRole<HTMLInputElement>('textbox')[0].focus();
+      });
+
+      expect(screen.getByTestId('field')).toHaveAttribute('data-focused', '');
+
+      await setProps({ firstMounted: false });
+
+      expect(screen.getByTestId('field')).not.toHaveAttribute('data-focused');
+    });
+
+    it('is kept when a previously focused slot unmounts after focus moves to a sibling', async () => {
+      function TestCase(props: { firstMounted?: boolean }) {
+        const { firstMounted = true } = props;
+        return (
+          <Field.Root data-testid="field">
+            <OTPFieldBase.Root length={firstMounted ? 3 : 2} defaultValue="1" data-testid="otp">
+              {firstMounted && <OTPFieldBase.Input key="first" />}
+              <OTPFieldBase.Input key="second" />
+              <OTPFieldBase.Input key="third" />
+            </OTPFieldBase.Root>
+          </Field.Root>
+        );
+      }
+
+      const { setProps } = await render(<TestCase />);
+      const [first, second] = screen.getAllByRole<HTMLInputElement>('textbox');
+
+      await act(async () => {
+        first.focus();
+      });
+      await act(async () => {
+        second.focus();
+      });
+
+      expect(second).toHaveFocus();
+      expect(screen.getByTestId('field')).toHaveAttribute('data-focused', '');
+      expect(screen.getByTestId('otp')).toHaveAttribute('data-focused', '');
+
+      await setProps({ firstMounted: false });
+
+      expect(second).toHaveFocus();
+      expect(screen.getByTestId('field')).toHaveAttribute('data-focused', '');
+      expect(screen.getByTestId('otp')).toHaveAttribute('data-focused', '');
+    });
+
+    it('is removed when the focused slot unmounts but its field remains', async () => {
+      // Unmounting one slot leaves `length` out of sync with the rendered inputs, which is
+      // irrelevant to what this test asserts. `warn` dedupes on the message, so `length={3}`
+      // keeps this silenced warning from consuming the messages other tests assert.
+      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+
+      function TestCase(props: { firstMounted?: boolean }) {
+        const { firstMounted = true } = props;
+        return (
+          <Field.Root data-testid="field">
+            <OTPFieldBase.Root length={3} data-testid="otp">
+              {firstMounted && <OTPFieldBase.Input />}
+              <OTPFieldBase.Input />
+              <OTPFieldBase.Input />
+            </OTPFieldBase.Root>
+          </Field.Root>
+        );
+      }
+
+      try {
+        const { setProps } = await render(<TestCase />);
+
+        await act(async () => {
+          screen.getAllByRole<HTMLInputElement>('textbox')[0].focus();
+        });
+        expect(screen.getByTestId('field')).toHaveAttribute('data-focused', '');
+        expect(screen.getByTestId('otp')).toHaveAttribute('data-focused', '');
+
+        await setProps({ firstMounted: false });
+
+        expect(screen.getByTestId('field')).not.toHaveAttribute('data-focused');
+        expect(screen.getByTestId('otp')).not.toHaveAttribute('data-focused');
+      } finally {
+        warnSpy.mockRestore();
+      }
+    });
+  });
+
   it('updates standalone filled and focused state on the root', async () => {
     await render(
       <OTPFieldBase.Root data-testid="root" length={OTP_LENGTH}>
