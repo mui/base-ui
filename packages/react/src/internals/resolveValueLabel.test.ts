@@ -1,4 +1,4 @@
-import { expect } from 'vitest';
+import { expect, describe, it } from 'vitest';
 import { hasNullItemLabel, isGroupedItems, resolveSelectedLabel } from './resolveValueLabel';
 
 describe('resolveValueLabel', () => {

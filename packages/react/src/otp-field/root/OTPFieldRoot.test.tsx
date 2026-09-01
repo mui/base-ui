@@ -1,4 +1,4 @@
-import { expect, vi } from 'vitest';
+import { expect, vi, describe, it } from 'vitest';
 import * as React from 'react';
 import { SafeReact } from '@base-ui/utils/safeReact';
 import { act, fireEvent, screen } from '@mui/internal-test-utils';
@@ -1186,17 +1186,15 @@ describe('<OTPField.Root />', () => {
 
         expect(hiddenInput).not.toBeNull();
 
-        if (withField) {
-          expect(screen.getByTestId('error')).toHaveTextContent('test');
-          const inputs = screen.getAllByRole('textbox');
-          inputs.forEach((input) => {
-            if (lockState === 'disabled') {
-              expect(input).not.toHaveAttribute('aria-invalid');
-            } else {
-              expect(input).toHaveAttribute('aria-invalid', 'true');
-            }
-          });
-        }
+        // Only the Field wrapper renders an error and marks the inputs invalid,
+        // unless the field is disabled.
+        const expectedError = withField ? 'test' : undefined;
+        const expectedAriaInvalid = withField && lockState !== 'disabled' ? 'true' : null;
+
+        expect(screen.queryByTestId('error')?.textContent).toBe(expectedError);
+        screen.getAllByRole('textbox').forEach((input) => {
+          expect(input.getAttribute('aria-invalid')).toBe(expectedAriaInvalid);
+        });
 
         fireEvent.change(hiddenInput!, { target: { value: '12a34b56' } });
 
@@ -1205,9 +1203,7 @@ describe('<OTPField.Root />', () => {
         expect(onValueInvalid).not.toHaveBeenCalled();
         expect(onValueComplete).not.toHaveBeenCalled();
 
-        if (withField) {
-          expect(screen.getByTestId('error')).toHaveTextContent('test');
-        }
+        expect(screen.queryByTestId('error')?.textContent).toBe(expectedError);
       },
     );
 

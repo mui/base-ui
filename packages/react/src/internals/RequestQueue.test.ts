@@ -1,4 +1,4 @@
-import { expect, vi } from 'vitest';
+import { expect, vi, describe, it } from 'vitest';
 import { RequestQueue } from './RequestQueue';
 
 function createDeferred() {

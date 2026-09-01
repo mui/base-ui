@@ -1,6 +1,6 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
-import { expect, vi } from 'vitest';
+import { expect, vi, describe, it } from 'vitest';
 import { ScrollArea } from '@base-ui/react/scroll-area';
 import { DirectionProvider } from '@base-ui/react/direction-provider';
 import { createRenderer, isJSDOM, describeConformance } from '#test-utils';

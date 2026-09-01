@@ -25,7 +25,7 @@
     "test:package": "publint --pack pnpm run ./build && attw --pack ./build --exclude-entrypoints package.json",
     "release": "pnpm build && pnpm publish",
     "test": "cross-env VITEST_ENV=jsdom vitest",
-    "typescript": "tsgo -b tsconfig.json"
+    "typescript": "tsc -b tsconfig.json"
   },
   "dependencies": {
     "@babel/runtime": "^7.29.7",
@@ -41,7 +41,7 @@
     "@types/use-sync-external-store": "1.5.0",
     "react": "19.2.8",
     "react-dom": "19.2.8",
-    "typescript": "6.0.3"
+    "typescript": "npm:@typescript/typescript6@6.0.2"
   },
   "peerDependencies": {
     "@types/react": "^17 || ^18 || ^19",
