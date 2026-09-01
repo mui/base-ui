@@ -1,4 +1,4 @@
-import { vi, expect } from 'vitest';
+import { vi, expect, describe, it } from 'vitest';
 /* eslint-disable testing-library/render-result-naming-convention */
 import * as React from 'react';
 import { createRenderer } from '#test-utils';

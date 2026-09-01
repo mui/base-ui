@@ -1,4 +1,4 @@
-import { expect, vi } from 'vitest';
+import { expect, vi, describe, it, beforeEach, afterEach } from 'vitest';
 import * as React from 'react';
 import { PreviewCard } from '@base-ui/react/preview-card';
 import { act, ignoreActWarnings, screen, waitFor } from '@mui/internal-test-utils';
@@ -431,14 +431,9 @@ describe('<PreviewCard.Viewport />', () => {
       });
 
       const direction = viewport.getAttribute('data-activation-direction');
+      const directionTokens = (direction ?? '').split(' ').filter(Boolean);
 
-      if (expectedDirection.length === 0) {
-        expect(direction?.trim()).toBe('');
-      } else {
-        expectedDirection.forEach((dir) => {
-          expect(direction).toContain(dir);
-        });
-      }
+      expect(directionTokens.sort()).toEqual([...expectedDirection].sort());
     });
   });
 });

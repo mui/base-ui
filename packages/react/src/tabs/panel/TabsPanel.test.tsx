@@ -1,4 +1,4 @@
-import { afterEach, expect, vi } from 'vitest';
+import { afterEach, expect, vi, describe, it } from 'vitest';
 import * as React from 'react';
 import { Tabs } from '@base-ui/react/tabs';
 import { act, reactMajor, screen, waitFor } from '@mui/internal-test-utils';
@@ -59,6 +59,19 @@ describe('<Tabs.Panel />', () => {
       expect(screen.queryByTestId('shadowed')).toBe(null);
       expect(tabB).toHaveAttribute('aria-controls', owner.id);
     });
+  });
+
+  it('sets the panel index data attribute', async () => {
+    await render(
+      <Tabs.Root defaultValue="one">
+        <Tabs.List>
+          <Tabs.Tab value="one" />
+        </Tabs.List>
+        <Tabs.Panel value="one" data-testid="panel" />
+      </Tabs.Root>,
+    );
+
+    expect(screen.getByTestId('panel')).toHaveAttribute('data-index', '0');
   });
 
   describe('Suspense integration', () => {

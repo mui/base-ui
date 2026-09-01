@@ -1,4 +1,4 @@
-import { expect, vi } from 'vitest';
+import { expect, vi, describe, it } from 'vitest';
 import { screen, waitFor } from '@mui/internal-test-utils';
 import { createRenderer } from '#test-utils';
 import { Autocomplete } from '@base-ui/react/autocomplete';

@@ -1144,7 +1144,7 @@ Matches items against a query using `Intl.Collator` for robust string matching.
 
 | Parameter | Type                    | Default | Description |
 | :-------- | :---------------------- | :------ | :---------- |
-| options?  | `ComboboxFilterOptions` | -       | -           |
+| options?  | `ComboboxFilterOptions` | `{}`    | -           |
 
 **Return Value:**
 

@@ -1,4 +1,4 @@
-import { expect, vi, type MockInstance } from 'vitest';
+import { expect, vi, type MockInstance, describe, it } from 'vitest';
 import * as React from 'react';
 import { act, createRenderer, screen } from '@mui/internal-test-utils';
 import { ReactStore } from './ReactStore';
