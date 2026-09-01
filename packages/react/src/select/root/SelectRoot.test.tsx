@@ -5718,10 +5718,10 @@ describe('<Select.Root />', () => {
     });
 
     it('highlights the first selected item in rendered order regardless of value order', async () => {
-      // `c` is last in rendered order but first in the value array, so anchoring to the rendered
-      // order and anchoring to either end of the value array give different answers.
+      // `a` renders first but sits in the middle of the value array, so neither end of that
+      // array points at it and only the rendered order does.
       const { user } = await render(
-        <Select.Root multiple defaultValue={['b', 'c']}>
+        <Select.Root multiple defaultValue={['b', 'a', 'c']}>
           <Select.Trigger data-testid="trigger">
             <Select.Value />
           </Select.Trigger>
@@ -5739,10 +5739,11 @@ describe('<Select.Root />', () => {
 
       await user.click(screen.getByTestId('trigger'));
 
-      const optionB = await screen.findByRole('option', { name: 'b' });
+      const optionA = await screen.findByRole('option', { name: 'a' });
       await waitFor(() => {
-        expect(optionB).toHaveAttribute('data-highlighted');
+        expect(optionA).toHaveAttribute('data-highlighted');
       });
+      expect(screen.getByRole('option', { name: 'b' })).not.toHaveAttribute('data-highlighted');
       expect(screen.getByRole('option', { name: 'c' })).not.toHaveAttribute('data-highlighted');
     });
 

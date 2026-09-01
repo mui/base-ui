@@ -2556,22 +2556,25 @@ describe('<Combobox.Root />', () => {
       });
 
       it('anchors the highlight to the first selected item in rendered order regardless of value order', async () => {
-        // `cherry` is last in rendered order but first in the value array, so anchoring to the
-        // rendered order and anchoring to either end of the value array give different answers.
+        // `apple` renders first but sits in the middle of the value array, so neither end of
+        // that array points at it and only the rendered order does.
         const { user } = await render(
-          <MultiplePopupCombobox defaultValue={['banana', 'cherry']} />,
+          <MultiplePopupCombobox defaultValue={['banana', 'apple', 'cherry']} />,
         );
 
         await user.click(screen.getByTestId('trigger'));
         const input = await screen.findByTestId('input');
-        const bananaItem = screen.getByRole('option', { name: 'banana' });
+        const appleItem = screen.getByRole('option', { name: 'apple' });
 
         await waitFor(() => {
-          expect(bananaItem).toHaveAttribute('data-highlighted');
+          expect(appleItem).toHaveAttribute('data-highlighted');
         });
         await waitFor(() => {
-          expect(input).toHaveAttribute('aria-activedescendant', bananaItem.id);
+          expect(input).toHaveAttribute('aria-activedescendant', appleItem.id);
         });
+        expect(screen.getByRole('option', { name: 'banana' })).not.toHaveAttribute(
+          'data-highlighted',
+        );
         expect(screen.getByRole('option', { name: 'cherry' })).not.toHaveAttribute(
           'data-highlighted',
         );
@@ -2579,7 +2582,7 @@ describe('<Combobox.Root />', () => {
 
       it('anchors the highlight to the first selected item with individually rendered items', async () => {
         const { user } = await render(
-          <Combobox.Root multiple defaultValue={['banana', 'cherry']}>
+          <Combobox.Root multiple defaultValue={['banana', 'apple', 'cherry']}>
             <Combobox.Input data-testid="input" />
             <Combobox.Portal>
               <Combobox.Positioner>
@@ -2599,14 +2602,17 @@ describe('<Combobox.Root />', () => {
 
         const input = screen.getByTestId('input');
         await user.click(input);
-        const bananaItem = await screen.findByRole('option', { name: 'banana' });
+        const appleItem = await screen.findByRole('option', { name: 'apple' });
 
         await waitFor(() => {
-          expect(bananaItem).toHaveAttribute('data-highlighted');
+          expect(appleItem).toHaveAttribute('data-highlighted');
         });
         await waitFor(() => {
-          expect(input).toHaveAttribute('aria-activedescendant', bananaItem.id);
+          expect(input).toHaveAttribute('aria-activedescendant', appleItem.id);
         });
+        expect(screen.getByRole('option', { name: 'banana' })).not.toHaveAttribute(
+          'data-highlighted',
+        );
         expect(screen.getByRole('option', { name: 'cherry' })).not.toHaveAttribute(
           'data-highlighted',
         );
