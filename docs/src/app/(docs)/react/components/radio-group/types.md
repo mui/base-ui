@@ -133,7 +133,7 @@ type RadioIndicatorState = {
 
 ### RadioGroup
 
-Provides a shared state to a series of radio buttons.
+Provides shared state to a series of radio buttons.
 Renders a `<div>` element.
 
 **RadioGroup Props:**

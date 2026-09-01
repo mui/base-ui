@@ -23,7 +23,7 @@ import { REASONS } from '../internals/reasons';
 const MODIFIER_KEYS = [SHIFT];
 
 /**
- * Provides a shared state to a series of radio buttons.
+ * Provides shared state to a series of radio buttons.
  * Renders a `<div>` element.
  *
  * Documentation: [Base UI Radio Group](https://base-ui.com/react/components/radio-group)
