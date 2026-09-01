@@ -41,7 +41,7 @@ describe('<Menu.GroupLabel />', () => {
   });
 
   describe('a11y attributes', () => {
-    it('should have the role `presentation`', async () => {
+    it('is hidden from the accessibility tree by default', async () => {
       await render(
         <Menu.Root open>
           <Menu.Portal>
@@ -57,7 +57,26 @@ describe('<Menu.GroupLabel />', () => {
       );
 
       const groupLabel = screen.getByText('Test group');
-      expect(groupLabel).toHaveAttribute('role', 'presentation');
+      expect(groupLabel).toHaveAttribute('aria-hidden', 'true');
+    });
+
+    it('allows overriding aria-hidden', async () => {
+      await render(
+        <Menu.Root open>
+          <Menu.Portal>
+            <Menu.Positioner>
+              <Menu.Popup>
+                <Menu.Group>
+                  <Menu.GroupLabel aria-hidden={undefined}>Test group</Menu.GroupLabel>
+                </Menu.Group>
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
+        </Menu.Root>,
+      );
+
+      const groupLabel = screen.getByText('Test group');
+      expect(groupLabel).not.toHaveAttribute('aria-hidden');
     });
 
     it("should reference the generated id in Group's `aria-labelledby`", async () => {
