@@ -1,6 +1,7 @@
 'use client';
 import * as React from 'react';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
+import { warn } from '@base-ui/utils/warn';
 import type { BaseUIComponentProps } from '../../internals/types';
 import { useRenderElement } from '../../internals/useRenderElement';
 import {
@@ -13,6 +14,13 @@ import { ComboboxCollection } from '../collection/ComboboxCollection';
 import { CompositeList } from '../../internals/composite/list/CompositeList';
 import { stopEvent } from '../../floating-ui-react/utils';
 import { clickHighlightedItem } from '../utils/parts';
+import {
+  ListVirtualizationHostContext,
+  ListVirtualizationListStateContext,
+  type ListVirtualizationHost,
+  type ListVirtualizationListState,
+} from '../../internals/virtualization/ListVirtualizationHostContext';
+import { ComboboxVirtualItemContext } from '../item/ComboboxVirtualItemContext';
 
 /**
  * A list container for the items.
@@ -29,14 +37,21 @@ export const ComboboxList = React.forwardRef(function ComboboxList(
   const store = useComboboxRootContext();
   const floatingRootContext = useComboboxFloatingContext();
   const hasPositionerContext = Boolean(useComboboxPositionerContext(true));
-  const { filteredItems, hasItems } = useComboboxDerivedItemsContext();
+  const { filteredItems, flatFilteredItems, hasItems, isGrouped } =
+    useComboboxDerivedItemsContext();
 
   const selectionMode = store.useState('selectionMode');
   const grid = store.useState('grid');
   const readOnly = store.useState('readOnly');
   const listProps = store.useState('listProps');
-  const virtualized = store.useState('virtualized');
+  const externallyVirtualized = store.useState('externallyVirtualized');
   const forceMounted = store.useState('forceMounted');
+  // `listProps` already carries `aria-activedescendant`, so this component re-renders on every
+  // highlight change regardless. Reading the virtualizer's state here adds no extra renders.
+  const activeIndex = store.useState('activeIndex');
+  const highlightType = store.useState('highlightType');
+  const renderAllRows = store.useState('renderAllRows');
+  const { componentName } = store.context;
 
   const multiple = selectionMode === 'multiple';
   const empty = filteredItems.length === 0;
@@ -59,6 +74,53 @@ export const ComboboxList = React.forwardRef(function ComboboxList(
     }
     return children;
   }, [children]);
+
+  // Reads the flags at call time, so it stays stable while reporting the current configuration.
+  const warnUnsupportedConfiguration = useStableCallback(() => {
+    if (!hasItems) {
+      warn(`<Virtualizer> requires the \`items\` prop on <${componentName}.Root>.`);
+    }
+    if (isGrouped) {
+      warn(
+        '<Virtualizer> does not currently support grouped collections. ' +
+          'Render a flat item collection instead.',
+      );
+    }
+    if (externallyVirtualized) {
+      warn(
+        `<${componentName}.Root> must not use the \`virtualized\` prop together with ` +
+          '<Virtualizer>. The prop is only for external virtualization.',
+      );
+    }
+    if (grid) {
+      warn('<Virtualizer> does not currently support grid mode. Use a flat listbox instead.');
+    }
+  });
+
+  // Kept free of reactive state: <Combobox.Item> reads this to detect that it is inside a list.
+  const virtualizationHost = React.useMemo<ListVirtualizationHost>(
+    () => ({
+      componentName,
+      registry: store.context.virtualizationRegistry,
+      virtualItemContext: ComboboxVirtualItemContext,
+      warnUnsupportedConfiguration:
+        process.env.NODE_ENV === 'production' ? undefined : warnUnsupportedConfiguration,
+    }),
+    [componentName, store, warnUnsupportedConfiguration],
+  );
+
+  const virtualizationListState = React.useMemo<ListVirtualizationListState>(
+    () => ({
+      activeIndex,
+      items: flatFilteredItems,
+      // Pointer highlights follow the cursor; scrolling to them would move the list under it.
+      scrollActiveIntoView: highlightType !== 'pointer',
+      // Combobox mounts the whole collection so autofill can read rendered labels; the virtualizer
+      // only needs to know that windowing is off for the duration.
+      windowingSuspended: renderAllRows,
+    }),
+    [activeIndex, flatFilteredItems, highlightType, renderAllRows],
+  );
 
   const state: ComboboxListState = {
     empty,
@@ -108,8 +170,16 @@ export const ComboboxList = React.forwardRef(function ComboboxList(
     ],
   });
 
-  if (virtualized) {
-    return element;
+  const contextualElement = (
+    <ListVirtualizationHostContext.Provider value={virtualizationHost}>
+      <ListVirtualizationListStateContext.Provider value={virtualizationListState}>
+        {element}
+      </ListVirtualizationListStateContext.Provider>
+    </ListVirtualizationHostContext.Provider>
+  );
+
+  if (externallyVirtualized) {
+    return contextualElement;
   }
 
   // With the `items` prop, typeahead labels are derived from the items so they survive the list
@@ -118,8 +188,12 @@ export const ComboboxList = React.forwardRef(function ComboboxList(
   const labelsRef = hasItems && !forceMounted ? undefined : store.context.labelsRef;
 
   return (
-    <CompositeList elementsRef={store.context.listRef} labelsRef={labelsRef}>
-      {element}
+    <CompositeList
+      elementsRef={store.context.listRef}
+      itemCount={hasItems ? flatFilteredItems.length : undefined}
+      labelsRef={labelsRef}
+    >
+      {contextualElement}
     </CompositeList>
   );
 });

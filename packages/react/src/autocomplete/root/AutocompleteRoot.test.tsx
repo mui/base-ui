@@ -167,6 +167,35 @@ describe('<Autocomplete.Root />', () => {
     });
   });
 
+  it('uses isItemDisabled to skip items during navigation', async () => {
+    const { user } = await render(
+      // `openOnInputClick` is off for Autocomplete, so open up front to keep the key sequence
+      // about navigation rather than about opening.
+      <Autocomplete.Root defaultOpen isItemDisabled={(item) => item === 'banana'}>
+        <Autocomplete.Input data-testid="input" />
+        <Autocomplete.Portal>
+          <Autocomplete.Positioner>
+            <Autocomplete.Popup>
+              <Autocomplete.List>
+                <Autocomplete.Item value="apple">apple</Autocomplete.Item>
+                <Autocomplete.Item value="banana">banana</Autocomplete.Item>
+                <Autocomplete.Item value="cherry">cherry</Autocomplete.Item>
+              </Autocomplete.List>
+            </Autocomplete.Popup>
+          </Autocomplete.Positioner>
+        </Autocomplete.Portal>
+      </Autocomplete.Root>,
+    );
+
+    const input = screen.getByTestId('input');
+    await user.click(input);
+    await user.keyboard('{ArrowDown}{ArrowDown}');
+
+    const cherry = screen.getByRole('option', { name: 'cherry' });
+    expect(input).toHaveAttribute('aria-activedescendant', cherry.id);
+    expect(screen.getByRole('option', { name: 'banana' })).toHaveAttribute('aria-disabled', 'true');
+  });
+
   it('should handle browser autofill', async () => {
     await render(
       <Field.Root name="auto">
