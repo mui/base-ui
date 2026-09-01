@@ -4,13 +4,14 @@ import { Button } from '@base-ui/react/button';
 
 export default function ExampleButton() {
   const [loading, setLoading] = React.useState(false);
+  const labelId = React.useId();
 
   return (
     <Button
       className="flex h-8 items-center justify-center gap-2 rounded-none border border-neutral-950 bg-white px-3 text-sm leading-none whitespace-nowrap font-normal text-neutral-950 select-none hover:not-data-disabled:bg-neutral-100 active:not-data-disabled:bg-neutral-200 focus-visible:outline-2 focus-visible:-outline-offset-1 focus-visible:outline-neutral-950 dark:focus-visible:outline-white data-disabled:border-neutral-500 data-disabled:text-neutral-500 disabled:border-neutral-500 disabled:text-neutral-500 dark:border-white dark:bg-neutral-950 dark:text-white dark:hover:not-data-disabled:bg-neutral-800 dark:active:not-data-disabled:bg-neutral-700 dark:data-disabled:border-neutral-400 dark:data-disabled:text-neutral-400"
       disabled={loading}
       focusableWhenDisabled
-      aria-labelledby="label"
+      aria-labelledby={labelId}
       onClick={() => {
         setLoading(true);
         setTimeout(() => {
@@ -18,7 +19,7 @@ export default function ExampleButton() {
         }, 4000);
       }}
     >
-      <span id="label">{loading ? 'Submitting' : 'Submit'}</span>
+      <span id={labelId}>{loading ? 'Submitting' : 'Submit'}</span>
     </Button>
   );
 }
