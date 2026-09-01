@@ -26,6 +26,7 @@ import {
   getFloatingFocusElement,
   getTarget,
   isTypeableCombobox,
+  isTypeableElement,
 } from '../utils/element';
 import { enqueueFocus } from '../utils/enqueueFocus';
 import { isVirtualClick, isVirtualPointerEvent, stopEvent } from '../utils/event';
@@ -572,18 +573,18 @@ export function useListNavigation(
     const minIndex = getMinListIndex(listRef, disabledIndices);
     const maxIndex = getMaxListIndex(listRef, disabledIndices);
 
-    if (!typeableComboboxReference) {
-      if (event.key === 'Home') {
-        stopEvent(event);
-        indexRef.current = minIndex;
-        onNavigate(event);
-      }
-
-      if (event.key === 'End') {
-        stopEvent(event);
-        indexRef.current = maxIndex;
-        onNavigate(event);
-      }
+    // Home/End belong to the caret whenever they land on a text field, so list navigation
+    // skips them for any typeable target — including an input, textarea, or contenteditable
+    // a consumer renders inside a menu or select popup. The motivating case is a combobox
+    // whose input lives in the popup, leaving a non-typeable trigger as the reference.
+    if (
+      (event.key === 'Home' || event.key === 'End') &&
+      !typeableComboboxReference &&
+      !isTypeableElement(getTarget(event.nativeEvent))
+    ) {
+      stopEvent(event);
+      indexRef.current = event.key === 'Home' ? minIndex : maxIndex;
+      onNavigate(event);
     }
 
     // Grid navigation is injected by grid-capable consumers so non-grid

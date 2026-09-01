@@ -263,6 +263,43 @@ describe('<Menu.Root />', () => {
         });
       });
 
+      it('still changes the highlighted item when Home and End are pressed with modifiers', async () => {
+        await render(<TestMenu />);
+
+        const trigger = screen.getByRole('button', { name: 'Toggle' });
+        await act(async () => {
+          trigger.focus();
+        });
+
+        await userEvent.keyboard('[Enter]');
+        const item1 = screen.getByTestId('item-1');
+        const item5 = screen.getByTestId('item-5');
+
+        await waitFor(() => {
+          expect(item1).toHaveFocus();
+        });
+
+        await userEvent.keyboard('{Shift>}{End}{/Shift}');
+        await waitFor(() => {
+          expect(item5).toHaveFocus();
+        });
+
+        await userEvent.keyboard('{Shift>}{Home}{/Shift}');
+        await waitFor(() => {
+          expect(item1).toHaveFocus();
+        });
+
+        await userEvent.keyboard('{Control>}{End}{/Control}');
+        await waitFor(() => {
+          expect(item5).toHaveFocus();
+        });
+
+        await userEvent.keyboard('{Control>}{Home}{/Control}');
+        await waitFor(() => {
+          expect(item1).toHaveFocus();
+        });
+      });
+
       it('includes disabled items during keyboard navigation', async () => {
         await render(<TestMenu />);
 

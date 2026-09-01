@@ -1,10 +1,36 @@
 import { expect, vi } from 'vitest';
+import type { CDPSession } from '@vitest/browser-playwright';
 import * as React from 'react';
 import { Combobox } from '@base-ui/react/combobox';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
-import { fireEvent, screen, waitFor } from '@mui/internal-test-utils';
+import { act, fireEvent, screen, waitFor } from '@mui/internal-test-utils';
 import { Field } from '@base-ui/react/field';
 import { REASONS } from '../../internals/reasons';
+
+function PopupCombobox() {
+  const items = ['apple', 'banana', 'cherry'];
+  return (
+    <Combobox.Root items={items}>
+      <Combobox.Trigger data-testid="trigger">
+        <Combobox.Value placeholder="Select a fruit" />
+      </Combobox.Trigger>
+      <Combobox.Portal>
+        <Combobox.Positioner>
+          <Combobox.Popup aria-label="Fruits">
+            <Combobox.Input data-testid="input" />
+            <Combobox.List>
+              {(item: string) => (
+                <Combobox.Item key={item} value={item}>
+                  {item}
+                </Combobox.Item>
+              )}
+            </Combobox.List>
+          </Combobox.Popup>
+        </Combobox.Positioner>
+      </Combobox.Portal>
+    </Combobox.Root>
+  );
+}
 
 describe('<Combobox.Input />', () => {
   const { render } = createRenderer();
@@ -535,6 +561,140 @@ describe('<Combobox.Input />', () => {
       await user.keyboard('{End}');
 
       expect(input.selectionStart).toBe(input.value.length);
+      expect(input.selectionEnd).toBe(input.value.length);
+    });
+
+    // `banana` sits between `apple` and `cherry`, so a jump in either direction fails.
+    it.each([
+      ['Shift', 'Home'],
+      ['Shift', 'End'],
+      ['Control', 'Home'],
+      ['Control', 'End'],
+    ])(
+      'does not move the highlight when %s+%s is pressed inside the popup',
+      async (modifier, key) => {
+        const { user } = await render(<PopupCombobox />);
+
+        await user.click(screen.getByTestId('trigger'));
+        const input = await screen.findByTestId('input');
+        await waitFor(() => expect(input).toHaveFocus());
+
+        await user.keyboard('{ArrowDown}{ArrowDown}');
+
+        const banana = screen.getByRole('option', { name: 'banana' });
+        await waitFor(() => expect(banana).toHaveAttribute('data-highlighted'));
+
+        await user.keyboard(`{${modifier}>}{${key}}{/${modifier}}`);
+
+        expect(banana).toHaveAttribute('data-highlighted');
+      },
+    );
+
+    // Unmodified Home/End belong to the caret: the input handles them itself and stops
+    // the event, so the list highlight must stay put.
+    it('moves the caret without moving the highlight when Home is pressed inside the popup', async () => {
+      const { user } = await render(<PopupCombobox />);
+
+      await user.click(screen.getByTestId('trigger'));
+      const input = (await screen.findByTestId('input')) as HTMLInputElement;
+      await waitFor(() => expect(input).toHaveFocus());
+
+      await user.type(input, 'an');
+      await user.keyboard('{ArrowDown}');
+
+      const banana = screen.getByRole('option', { name: 'banana' });
+      await waitFor(() => expect(banana).toHaveAttribute('data-highlighted'));
+
+      await user.keyboard('{Home}');
+
+      expect(input.selectionStart).toBe(0);
+      expect(input.selectionEnd).toBe(0);
+      expect(banana).toHaveAttribute('data-highlighted');
+    });
+
+    it('moves the caret without moving the highlight when End is pressed inside the popup', async () => {
+      const { user } = await render(<PopupCombobox />);
+
+      await user.click(screen.getByTestId('trigger'));
+      const input = (await screen.findByTestId('input')) as HTMLInputElement;
+      await waitFor(() => expect(input).toHaveFocus());
+
+      await user.type(input, 'an');
+      await user.keyboard('{ArrowDown}');
+
+      const banana = screen.getByRole('option', { name: 'banana' });
+      await waitFor(() => expect(banana).toHaveAttribute('data-highlighted'));
+
+      input.setSelectionRange(0, 0);
+
+      await user.keyboard('{End}');
+
+      expect(input.selectionStart).toBe(input.value.length);
+      expect(input.selectionEnd).toBe(input.value.length);
+      expect(banana).toHaveAttribute('data-highlighted');
+    });
+
+    // The native caret/selection behavior only survives if the key is neither
+    // `preventDefault()`-ed nor stopped before it leaves the component.
+    it.each(['Home', 'End'])('lets Shift+%s reach the browser inside the popup', async (key) => {
+      const { user } = await render(<PopupCombobox />);
+
+      await user.click(screen.getByTestId('trigger'));
+      const input = await screen.findByTestId('input');
+      await waitFor(() => expect(input).toHaveFocus());
+
+      const seen: boolean[] = [];
+      function handleKeyDown(event: KeyboardEvent) {
+        if (event.key === key) {
+          seen.push(event.defaultPrevented);
+        }
+      }
+
+      document.addEventListener('keydown', handleKeyDown);
+      try {
+        await user.keyboard(`{Shift>}{${key}}{/Shift}`);
+      } finally {
+        document.removeEventListener('keydown', handleKeyDown);
+      }
+
+      expect(seen).toEqual([false]);
+    });
+
+    // `user-event` emulates Home/End by collapsing the caret, so the selection outcome
+    // this fix exists for can only be asserted with real browser key events.
+    it.skipIf(isJSDOM).each([
+      ['Home', 36],
+      ['End', 35],
+    ])('extends the text selection with Shift+%s inside the popup', async (key, keyCode) => {
+      const { user } = await render(<PopupCombobox />);
+
+      await user.click(screen.getByTestId('trigger'));
+      const input = (await screen.findByTestId('input')) as HTMLInputElement;
+      await waitFor(() => expect(input).toHaveFocus());
+
+      await user.type(input, 'an');
+      await screen.findByRole('option', { name: 'banana' });
+
+      if (key === 'End') {
+        input.setSelectionRange(0, 0);
+      }
+
+      const { cdp } = await import('vitest/browser');
+      const session = cdp() as CDPSession;
+      const event = {
+        windowsVirtualKeyCode: keyCode,
+        nativeVirtualKeyCode: keyCode,
+        key,
+        code: key,
+        modifiers: 8,
+      };
+
+      await act(async () => {
+        await session.send('Input.dispatchKeyEvent', { ...event, type: 'rawKeyDown' });
+        await session.send('Input.dispatchKeyEvent', { ...event, type: 'keyUp' });
+      });
+
+      expect(input.selectionStart).toBe(0);
       expect(input.selectionEnd).toBe(input.value.length);
     });
 
