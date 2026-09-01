@@ -133,6 +133,11 @@ export const MenuPopup = React.forwardRef(function MenuPopup(
       nextFocusableElement={
         parent.type === undefined ? store.context.triggerFocusTargetRef : undefined
       }
+      getInsideElements={
+        parent.type === undefined
+          ? () => [store.context.triggerPreFocusGuardRef.current]
+          : undefined
+      }
       beforeContentFocusGuardRef={
         parent.type === undefined ? store.context.beforeContentFocusGuardRef : undefined
       }

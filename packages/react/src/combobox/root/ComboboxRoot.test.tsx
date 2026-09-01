@@ -474,7 +474,7 @@ describe('<Combobox.Root />', () => {
     );
 
     it.skipIf(isJSDOM)(
-      'preserves a typed query when input reopens single-select during the close animation',
+      'makes a single-select popup inert while it closes and reopens from the trigger',
       async ({ onTestFinished }) => {
         globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
 
@@ -527,11 +527,19 @@ describe('<Combobox.Root />', () => {
         const popup = screen.getByTestId('popup');
         await waitFor(() => expect(popup).toHaveAttribute('data-ending-style'));
 
+        // Once logically closed, the still-mounted subtree is inert: it is out of the tab order
+        // and cannot be typed into, even though it is visible for the exit animation.
+        expect(popup.closest('[inert]')).not.toBe(null);
         input.focus();
-        await user.type(input, 'b', { skipClick: true });
+        expect(input).not.toHaveFocus();
 
+        // Reopening goes through the trigger, and the popup is interactive again afterwards.
+        await user.click(screen.getByTestId('trigger'));
         await waitFor(() => expect(popup).not.toHaveAttribute('data-ending-style'));
-        expect(input).toHaveValue('apb');
+        expect(popup.closest('[inert]')).toBe(null);
+
+        await user.type(input, 'zz');
+        expect(input).toHaveValue('zz');
         expect(screen.getByRole('status')).toHaveTextContent('No matches');
         expect(screen.queryByRole('option')).toBe(null);
       },
@@ -7174,7 +7182,7 @@ describe('<Combobox.Root />', () => {
     );
 
     it.skipIf(isJSDOM)(
-      'keeps filtered popup content stable when input changes during the close animation',
+      'keeps filtered popup content stable while the popup closes',
       async ({ onTestFinished }) => {
         globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
 
@@ -7226,7 +7234,16 @@ describe('<Combobox.Root />', () => {
         const popup = screen.getByTestId('popup');
         await waitFor(() => expect(popup).toHaveAttribute('data-ending-style'));
 
-        await user.clear(input);
+        // The input is inside the closing popup, which is now inert, so a user can no longer
+        // change the filter while it animates out.
+        expect(popup.closest('[inert]')).not.toBe(null);
+        await act(async () => input.focus());
+        expect(input).not.toHaveFocus();
+
+        // `inert` blocks user interaction, not dispatched events, so the deferred filter can
+        // still be perturbed programmatically — the rendered list must stay as it was.
+        fireEvent.input(input, { target: { value: '' } });
+        await flushMicrotasks();
 
         expect(screen.getByText('apple')).not.toBe(null);
         expect(screen.getByText('apricot')).not.toBe(null);

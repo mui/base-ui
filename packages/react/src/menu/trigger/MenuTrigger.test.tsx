@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { expect, vi } from 'vitest';
 import userEvent from '@testing-library/user-event';
-import { act, fireEvent, flushMicrotasks, screen } from '@mui/internal-test-utils';
+import { act, fireEvent, flushMicrotasks, screen, waitFor } from '@mui/internal-test-utils';
 import { Menu } from '@base-ui/react/menu';
 import { Popover } from '@base-ui/react/popover';
 import { describeConformance, createRenderer, isJSDOM } from '#test-utils';
@@ -506,5 +506,53 @@ describe('<Menu.Trigger />', () => {
 
     const button = screen.getByTestId('menu-trigger');
     expect(button).toHaveAttribute('role', 'button');
+  });
+
+  describe.skipIf(isJSDOM)('sequential focus navigation out of an open trigger', () => {
+    // Hover-opening leaves focus on the trigger, which is what makes the pre-trigger guard
+    // reachable by a backwards Tab. The guard must resolve its own destination before the close
+    // unmounts it; otherwise focus is dropped on `<body>`.
+    function GuardApp() {
+      return (
+        <div>
+          <button data-testid="before">before</button>
+          <Menu.Root>
+            <Menu.Trigger openOnHover delay={0}>
+              Open
+            </Menu.Trigger>
+            <Menu.Portal>
+              <Menu.Positioner>
+                <Menu.Popup>
+                  <Menu.Item>Item</Menu.Item>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
+          </Menu.Root>
+          <button data-testid="after">after</button>
+        </div>
+      );
+    }
+
+    it('moves focus to the previous tabbable element instead of the body', async () => {
+      const { userEvent: browserUserEvent } = await import('vitest/browser');
+      await render(<GuardApp />);
+
+      const trigger = screen.getByRole('button', { name: 'Open' });
+      await act(async () => trigger.focus());
+      await user.hover(trigger);
+      await waitFor(() => expect(screen.queryByRole('menu')).not.toBe(null));
+
+      // Opening moves focus into the popup; returning it to the trigger is the state a controlled
+      // or hover-driven menu can sit in, and the only one from which the guard is reachable.
+      await act(async () => trigger.focus());
+      await waitFor(() => expect(trigger).toHaveFocus());
+
+      await act(async () => {
+        await browserUserEvent.tab({ shift: true });
+      });
+
+      await waitFor(() => expect(screen.getByTestId('before')).toHaveFocus());
+      expect(document.activeElement).not.toBe(document.body);
+    });
   });
 });

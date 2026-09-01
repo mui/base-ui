@@ -996,4 +996,127 @@ describe('<Dialog.Popup />', () => {
       expect(nestedDialog).not.toHaveAttribute('data-nested-dialog-open');
     });
   });
+
+  // Dialog has no Positioner, so `inert` goes on the Popup itself and the focus manager's own
+  // guards are rendered as its siblings — outside that inert subtree. Gating the guards on `open`
+  // is therefore the only thing keeping them out of the tab order while a Dialog animates out.
+  it.skipIf(isJSDOM)(
+    'renders no tabbable focus guards while closing',
+    async ({ onTestFinished }) => {
+      globalThis.BASE_UI_ANIMATIONS_DISABLED = false;
+      onTestFinished(() => {
+        globalThis.BASE_UI_ANIMATIONS_DISABLED = true;
+      });
+
+      const style = `
+      @keyframes dialog-close-test {
+        to {
+          opacity: 0;
+        }
+      }
+
+      .closing-test-dialog[data-ending-style] {
+        animation: dialog-close-test 5s linear;
+      }
+    `;
+
+      const { user } = await render(
+        <React.Fragment>
+          {/* eslint-disable-next-line react/no-danger */}
+          <style dangerouslySetInnerHTML={{ __html: style }} />
+          <Dialog.Root>
+            <Dialog.Trigger>Open</Dialog.Trigger>
+            <Dialog.Portal>
+              <Dialog.Popup data-testid="popup" className="closing-test-dialog">
+                <Dialog.Close>Close</Dialog.Close>
+              </Dialog.Popup>
+            </Dialog.Portal>
+          </Dialog.Root>
+        </React.Fragment>,
+      );
+
+      await user.click(screen.getByRole('button', { name: 'Open' }));
+      const popup = screen.getByTestId('popup');
+
+      const openGuards = document.querySelectorAll('[data-base-ui-focus-guard]');
+      expect(openGuards.length).toBeGreaterThan(0);
+
+      await user.click(screen.getByRole('button', { name: 'Close' }));
+      await waitFor(() => expect(popup).toHaveAttribute('data-ending-style'));
+
+      expect(popup).toHaveAttribute('inert');
+
+      const reachableGuards = (
+        Array.from(document.querySelectorAll('[data-base-ui-focus-guard]')) as HTMLElement[]
+      ).filter((guard) => guard.tabIndex >= 0 && guard.closest('[inert]') === null);
+      expect(reachableGuards).toHaveLength(0);
+
+      await act(async () => {
+        popup.getAnimations().forEach((animation) => animation.finish());
+      });
+    },
+  );
+
+  // `finalFocus` forms that resolve to the DEFAULT target — a callback returning `true` or
+  // `null`, or an empty ref — must not be treated as an explicit destination. Only a genuinely
+  // named element may override focus the user has already moved elsewhere.
+  describe.skipIf(isJSDOM)('fallback finalFocus does not override outside focus', () => {
+    function Test({
+      open,
+      finalFocus,
+    }: {
+      open: boolean;
+      finalFocus?: Dialog.Popup.Props['finalFocus'];
+    }) {
+      return (
+        <div>
+          <button data-testid="outside">outside</button>
+          <Dialog.Root open={open} modal={false} disablePointerDismissal>
+            <Dialog.Trigger>Open</Dialog.Trigger>
+            <Dialog.Portal>
+              <Dialog.Popup finalFocus={finalFocus}>
+                <button data-testid="inside">Inside</button>
+              </Dialog.Popup>
+            </Dialog.Portal>
+          </Dialog.Root>
+        </div>
+      );
+    }
+
+    async function openMoveFocusOutThenClose(finalFocus?: Dialog.Popup.Props['finalFocus']) {
+      const { setProps } = await render(<Test open finalFocus={finalFocus} />);
+      const outside = screen.getByTestId('outside');
+
+      await waitFor(() => expect(screen.getByTestId('inside')).toBeVisible());
+      // `disablePointerDismissal` turns off close-on-focus-out, so focus can legitimately
+      // move outside while the dialog stays open.
+      await act(async () => outside.focus());
+      expect(outside).toHaveFocus();
+
+      await setProps({ open: false });
+      await waitFor(() => expect(screen.queryByTestId('inside')).toBe(null));
+      return outside;
+    }
+
+    it('leaves focus alone for finalFocus={true}', async () => {
+      const outside = await openMoveFocusOutThenClose(true);
+      expect(outside).toHaveFocus();
+    });
+
+    it('leaves focus alone for a callback returning true', async () => {
+      const outside = await openMoveFocusOutThenClose(() => true);
+      expect(outside).toHaveFocus();
+    });
+
+    it('leaves focus alone for a callback returning null', async () => {
+      const outside = await openMoveFocusOutThenClose(() => null);
+      expect(outside).toHaveFocus();
+    });
+
+    it('leaves focus alone for an empty ref', async () => {
+      const emptyRef = { current: null } as React.RefObject<HTMLElement | null>;
+      const outside = await openMoveFocusOutThenClose(emptyRef);
+      expect(outside).toHaveFocus();
+    });
+  });
 });
