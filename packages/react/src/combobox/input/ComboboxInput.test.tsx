@@ -963,6 +963,74 @@ describe('<Combobox.Input />', () => {
       expect(input).toHaveValue('창세기');
     });
 
+    it('clears the composition preview when a multiselect item press clears the input', async () => {
+      const { user } = await render(
+        <Combobox.Root items={['창세기', '출애굽기']} multiple defaultOpen>
+          <Combobox.Trigger>open</Combobox.Trigger>
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.Input data-testid="input" />
+                <Combobox.List>
+                  {(item: string) => (
+                    <Combobox.Item key={item} value={item}>
+                      {item}
+                    </Combobox.Item>
+                  )}
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      const input = await screen.findByTestId('input');
+      fireEvent.compositionStart(input);
+      fireEvent.change(input, { target: { value: '창' } });
+      expect(input).toHaveValue('창');
+
+      // The press clears an input value that is already empty, so nothing but the preview changes.
+      await user.click(screen.getByRole('option', { name: '창세기' }));
+
+      expect(input).toHaveValue('');
+    });
+
+    it('does not re-report the written value as typed input when the composition then ends', async () => {
+      const onInputValueChange = vi.fn();
+      const { user } = await render(
+        <Combobox.Root items={['창세기', '출애굽기']} onInputValueChange={onInputValueChange}>
+          <Combobox.Input />
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  {(item: string) => (
+                    <Combobox.Item key={item} value={item}>
+                      {item}
+                    </Combobox.Item>
+                  )}
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      const input = screen.getByRole('combobox');
+      await user.click(input);
+      fireEvent.compositionStart(input);
+      fireEvent.change(input, { target: { value: '창' } });
+
+      await user.click(screen.getByRole('option', { name: '창세기' }));
+      onInputValueChange.mockClear();
+
+      // WebKit and Gecko end the composition as soon as the value is replaced.
+      fireEvent.compositionEnd(input);
+
+      expect(onInputValueChange).not.toHaveBeenCalled();
+      expect(input).toHaveValue('창세기');
+    });
+
     it.skipIf(isJSDOM || !platform.engine.blink)(
       'replaces a real IME composition when an item is selected with the mouse',
       async () => {
