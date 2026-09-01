@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import { platform } from '@base-ui/utils/platform';
 import { useControlled } from '@base-ui/utils/useControlled';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useOnFirstRender } from '@base-ui/utils/useOnFirstRender';
@@ -270,6 +271,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
    * `mouseup` on an item belongs to a drag-select gesture that started elsewhere.
    */
   const pointerDownItemRef = React.useRef<Element | null>(null);
+  const endComposingRef = React.useRef<(() => void) | null>(null);
 
   const disabled = fieldDisabled || disabledProp;
   const name = fieldName ?? nameProp;
@@ -532,6 +534,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
         valuesRef,
         pointerDownItemRef,
         selectionEventRef,
+        endComposingRef,
       },
       selectors,
     );
@@ -647,6 +650,16 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
 
       if (eventDetails.isCanceled) {
         return;
+      }
+
+      // An accepted write must be displayed even while the input renders an in-progress
+      // IME composition, e.g. when a pointer item press fills the input mid-composition.
+      // https://github.com/mui/base-ui/issues/5574
+      // iOS is excluded: replacing the value there leaves the native IME composing, and the
+      // field stops accepting input until it is blurred and refocused, so the stale preview
+      // is the lesser evil. https://bugs.webkit.org/show_bug.cgi?id=255857
+      if (!platform.os.ios) {
+        endComposingRef.current?.();
       }
 
       // A canceled selection clear must not suppress close-completion cleanup.

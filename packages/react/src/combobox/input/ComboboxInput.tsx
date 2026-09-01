@@ -99,6 +99,13 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
   const lastActiveIndexRef = React.useRef<number | null>(null);
   const shouldRestoreActiveIndexRef = React.useRef(false);
 
+  const endComposing = useStableCallback(() => {
+    isComposingRef.current = false;
+    setComposingValue(null);
+  });
+
+  React.useImperativeHandle(store.context.endComposingRef, () => endComposing);
+
   const inputOwnsFormValue = selectionMode === 'none' && !hasPositionerParent;
 
   const setInputElement = useStableCallback((element: HTMLInputElement | null) => {
@@ -249,11 +256,17 @@ export const ComboboxInput = React.forwardRef(function ComboboxInput(
           setComposingValue(event.currentTarget.value);
         },
         onCompositionEnd(event) {
-          isComposingRef.current = false;
-          const next = event.currentTarget.value;
-          setComposingValue(null);
+          const wasComposing = isComposingRef.current;
+          endComposing();
+          // An accepted external write (e.g. an item press) already ended the composition and
+          // owns the value. WebKit and Gecko then fire `compositionend` for that write, which
+          // must not re-report the written value as typed input. Android never tracks
+          // compositions, so its commit always writes.
+          if (!wasComposing && !platform.os.android) {
+            return;
+          }
           store.context.setInputValue(
-            next,
+            event.currentTarget.value,
             createChangeEventDetails(REASONS.inputChange, event.nativeEvent),
           );
         },
