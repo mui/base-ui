@@ -50,7 +50,7 @@ If a link needs to look like a button visually, style the `<a>` element directly
 
 ### Loading states
 
-For buttons that enter a loading state after activation, specify `focusableWhenDisabled` so focus remains on the button while it is disabled. Because some browser and screen reader combinations do not reliably announce changes to a focused button's descendant text, use [`aria-labelledby`](https://www.w3.org/TR/wai-aria-1.2/#aria-labelledby) to make the changing text the button's explicit accessible name.
+For buttons that enter a loading state after activation, specify `focusableWhenDisabled` so focus remains on the button while it is disabled. Because some browser and screen reader combinations do not reliably announce changes to a focused button's descendant text, use [`aria-labelledby`](https://www.w3.org/TR/accname-1.2/#computation-steps) to make the changing text the button's explicit accessible name.
 
 import { DemoButtonLoading } from './demos/loading';
 
