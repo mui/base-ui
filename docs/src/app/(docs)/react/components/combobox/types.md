@@ -1059,10 +1059,10 @@ by their data.
 
 **Parameters:**
 
-| Parameter | Type                                                                                                                                                                                                                                                                                                                                                               | Default | Description                                                                 |
-| :-------- | :----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | :------ | :-------------------------------------------------------------------------- |
-| data      | ``Item[] & unknown \| 'Base UI: items passed to createItems() cannot have an `items` array property because it marks a group. Rename the field or cast the data.' \| ({ items: Item[] })[] & unknown \| 'Base UI: items passed to createItems() cannot have an `items` array property because it marks a group. Rename the field or cast the data.' \| undefined`` | -       | The flat or grouped source items, or `undefined` while they are loading.    |
-| options   | `CreateComboboxItemsOptions<Item, ComboboxPrimitiveValue>`                                                                                                                                                                                                                                                                                                         | -       | Functions that derive each source item's selection value and display label. |
+| Parameter | Type                                                                    | Default | Description                                                                 |
+| :-------- | :---------------------------------------------------------------------- | :------ | :-------------------------------------------------------------------------- |
+| data      | `readonly Item[] \| readonly { items: readonly Item[] }[] \| undefined` | -       | The flat or grouped source items, or `undefined` while they are loading.    |
+| options   | `CreateComboboxItemsOptions<Item, ComboboxPrimitiveValue>`              | -       | Functions that derive each source item's selection value and display label. |
 
 **Return Value:**
 

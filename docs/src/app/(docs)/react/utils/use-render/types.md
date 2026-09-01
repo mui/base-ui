@@ -89,6 +89,7 @@ type useRenderParameters<
   /**
    * The default tag name to use for the rendered element when `render` is not provided.
    * @default 'div'
+   * @type keyof React.JSX.IntrinsicElements
    */
   defaultTagName?: unknown;
 };
@@ -174,6 +175,7 @@ type UseRenderParameters<
   /**
    * The default tag name to use for the rendered element when `render` is not provided.
    * @default 'div'
+   * @type keyof React.JSX.IntrinsicElements
    */
   defaultTagName?: unknown;
 };
