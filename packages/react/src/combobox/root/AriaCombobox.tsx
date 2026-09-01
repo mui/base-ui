@@ -1095,32 +1095,32 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
                 ? currentSelectedValue.length > 0
                 : store.state.selectionMode !== 'none' && currentSelectedValue != null;
 
-            if (hasSelection || clearedBySelection) {
+            if (hasSelection) {
               const registry =
                 hasItems || hasFilteredItemsProp ? flatFilteredValues : valuesRef.current;
-              let nextIndex: number | null = null;
-              if (hasSelection) {
-                // A selection-driven clear keeps the just-selected item highlighted;
-                // otherwise return to the open anchor. A selection that is no longer in
-                // the list drops the highlight rather than leaving it on whichever item
-                // now occupies that index.
-                // `findItemIndex` resolves to -1 when no value was toggled.
-                const toggledIndex = findItemIndex(
-                  registry,
-                  pendingHighlight.toggledValue,
-                  store.state.isItemEqualToValue,
-                );
-                nextIndex =
-                  toggledIndex !== -1
-                    ? toggledIndex
-                    : findSelectionIndex(
-                        registry,
-                        currentSelectedValue,
-                        store.state.isItemEqualToValue,
-                        isMultiple,
-                      );
-              }
-              store.set('activeIndex', nextIndex);
+              // A selection-driven clear keeps the just-selected item highlighted;
+              // otherwise return to the open anchor. A selection that is no longer in
+              // the list drops the highlight rather than leaving it on whichever item
+              // now occupies that index.
+              // `findItemIndex` resolves to -1 when no value was toggled.
+              const toggledIndex = findItemIndex(
+                registry,
+                pendingHighlight.toggledValue,
+                store.state.isItemEqualToValue,
+              );
+              store.set(
+                'activeIndex',
+                toggledIndex !== -1
+                  ? toggledIndex
+                  : findSelectionIndex(
+                      registry,
+                      currentSelectedValue,
+                      store.state.isItemEqualToValue,
+                      isMultiple,
+                    ),
+              );
+            } else if (clearedBySelection) {
+              store.set('activeIndex', null);
             } else if (autoHighlightMode === 'always') {
               store.set('activeIndex', 0);
             }

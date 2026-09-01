@@ -5768,10 +5768,20 @@ describe('<Select.Root />', () => {
 
       const { user, setProps } = await render(<App />);
 
-      // The list stays mounted while closed, so the swap happens in place.
+      // The list only mounts on the first open, and stays mounted once closed. Opening
+      // first is what makes the swap below happen in place, on items that already
+      // registered their values and elected an anchor.
+      const trigger = screen.getByTestId('trigger');
+      await user.click(trigger);
+      await screen.findByRole('option', { name: 'a' });
+      await user.keyboard('{Escape}');
+      await waitFor(() => {
+        expect(screen.queryByRole('listbox')).toBe(null);
+      });
+
       await setProps({ replaceA: true });
 
-      await user.click(screen.getByTestId('trigger'));
+      await user.click(trigger);
 
       const optionC = await screen.findByRole('option', { name: 'c' });
       await waitFor(() => {
