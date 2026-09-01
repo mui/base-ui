@@ -424,6 +424,129 @@ describe('Combobox.createItems', () => {
       expect(getValue.mock.calls.every(([item]) => item != null)).toBe(true);
     });
 
+    it('keeps nullish entries out of a custom filter', async () => {
+      // Holes in otherwise well-typed data, which is how they reach a collection in practice:
+      // `undefined` from a lookup that missed, `null` from an explicitly absent record.
+      const sourceItems = [undefined, users[0], null, users[1]] as unknown as User[];
+      // The natural way to write a custom filter: it trusts the item the way the accessors do.
+      const filter = vi.fn((user: User, query: string, itemToString?: (item: User) => string) =>
+        (itemToString?.(user) ?? '').toLowerCase().includes(query.toLowerCase()),
+      );
+
+      function App() {
+        const items = Combobox.createItems(sourceItems, {
+          getValue: getUserId,
+          getLabel: getUserName,
+        });
+        return (
+          <Combobox.Root items={items} filter={filter} defaultOpen>
+            <Combobox.Input data-testid="input" />
+            <Combobox.List>
+              {(user: User | null) =>
+                user && (
+                  <Combobox.Item key={user.id} value={user.id}>
+                    {user.name}
+                  </Combobox.Item>
+                )
+              }
+            </Combobox.List>
+          </Combobox.Root>
+        );
+      }
+
+      const { user } = await render(<App />);
+
+      await user.type(screen.getByTestId('input'), 'ali');
+
+      expect(screen.getAllByRole('option')).toHaveLength(1);
+      expect(screen.getByRole('option', { name: 'Alice' })).not.toBe(null);
+      // The filter saw every real item and nothing else.
+      expect(new Set(filter.mock.calls.map(([item]) => item.id))).toEqual(new Set([1, 2]));
+    });
+
+    it('keeps nullish entries when filtering is disabled', async () => {
+      // `filter={null}` means "do not filter", so it must not quietly drop entries either.
+      const sourceItems = [users[0], null, users[1]] as unknown as User[];
+
+      function App() {
+        const items = Combobox.createItems(sourceItems, {
+          getValue: getUserId,
+          getLabel: getUserName,
+        });
+        return (
+          <Combobox.Root items={items} filter={null} defaultOpen>
+            <Combobox.Input data-testid="input" />
+            <Combobox.List>
+              {(user: User | null) =>
+                user ? (
+                  <Combobox.Item key={user.id} value={user.id}>
+                    {user.name}
+                  </Combobox.Item>
+                ) : (
+                  <hr key="separator" data-testid="separator" />
+                )
+              }
+            </Combobox.List>
+          </Combobox.Root>
+        );
+      }
+
+      const { user } = await render(<App />);
+
+      expect(screen.getAllByTestId('separator')).toHaveLength(1);
+
+      // A typed query is ignored, so the rendered list must not change shape.
+      await user.type(screen.getByTestId('input'), 'ali');
+
+      expect(screen.getAllByRole('option')).toHaveLength(2);
+      expect(screen.getAllByTestId('separator')).toHaveLength(1);
+    });
+
+    it('highlights past a nullish entry without desyncing the reported value', async () => {
+      // A leading hole renders nothing, so it must not claim an index the items are counted by.
+      const sourceItems = [null, users[0], users[1]] as unknown as User[];
+      const onItemHighlighted = vi.fn();
+
+      function App() {
+        const items = Combobox.createItems(sourceItems, {
+          getValue: getUserId,
+          getLabel: getUserName,
+        });
+        return (
+          <Combobox.Root items={items} onItemHighlighted={onItemHighlighted}>
+            <Combobox.Input data-testid="input" />
+            <Combobox.List>
+              {(user: User | null) =>
+                user && (
+                  <Combobox.Item key={user.id} value={user.id}>
+                    {user.name}
+                  </Combobox.Item>
+                )
+              }
+            </Combobox.List>
+          </Combobox.Root>
+        );
+      }
+
+      const { user } = await render(<App />);
+      const input = screen.getByTestId('input');
+
+      await user.click(input);
+      await user.keyboard('{ArrowDown}');
+
+      expect(screen.getByRole('option', { name: 'Alice' }).id).toBe(
+        input.getAttribute('aria-activedescendant'),
+      );
+      expect(onItemHighlighted.mock.lastCall?.[0]).toBe(1);
+
+      await user.keyboard('{ArrowDown}');
+
+      expect(screen.getByRole('option', { name: 'Bob' }).id).toBe(
+        input.getAttribute('aria-activedescendant'),
+      );
+      expect(onItemHighlighted.mock.lastCall?.[0]).toBe(2);
+    });
+
     it('treats a non-array items field as item data rather than as a group', async () => {
       const onValueChange = vi.fn();
       // Only an actual `items` array marks a group; unrelated or optional fields stay item data.
@@ -1962,6 +2085,55 @@ describe('Combobox.createItems', () => {
       expect(screen.queryByRole('option', { name: 'Alice' })).toBe(null);
       expect(screen.getByRole('option', { name: 'Carol' })).not.toBe(null);
       expect(filter.mock.calls.every(([item]) => 'name' in item)).toBe(true);
+      expect(new Set(filter.mock.calls.map(([item]) => item.id))).toEqual(new Set([1, 2, 3]));
+    });
+
+    it('keeps nullish group entries out of a custom filter', async () => {
+      // A hole inside a group, which is how it reaches a grouped collection in practice.
+      const teamsWithHole = [
+        { value: 'Engineering', items: [undefined, users[0], users[1]] },
+        { value: 'Design', items: [users[2]] },
+      ] as unknown as Team[];
+      // The natural way to write a custom filter: it trusts the item the way the accessors do.
+      const filter = vi.fn((leafUser: User, query: string) =>
+        leafUser.name.toLowerCase().includes(query.toLowerCase()),
+      );
+
+      function App() {
+        const items = Combobox.createItems(teamsWithHole, {
+          getValue: getUserId,
+          getLabel: getUserName,
+        });
+        return (
+          <Combobox.Root items={items} filter={filter} defaultOpen>
+            <Combobox.Input data-testid="input" />
+            <Combobox.List>
+              {(group: Team) => (
+                <Combobox.Group key={group.value} items={group.items}>
+                  <Combobox.GroupLabel>{group.value}</Combobox.GroupLabel>
+                  <Combobox.Collection>
+                    {(leafUser: User | null) =>
+                      leafUser && (
+                        <Combobox.Item key={leafUser.id} value={leafUser.id}>
+                          {leafUser.name}
+                        </Combobox.Item>
+                      )
+                    }
+                  </Combobox.Collection>
+                </Combobox.Group>
+              )}
+            </Combobox.List>
+          </Combobox.Root>
+        );
+      }
+
+      const { user } = await render(<App />);
+
+      await user.type(screen.getByTestId('input'), 'ali');
+
+      expect(screen.getAllByRole('option')).toHaveLength(1);
+      expect(screen.getByRole('option', { name: 'Alice' })).not.toBe(null);
+      // The filter saw every real leaf item and nothing else.
       expect(new Set(filter.mock.calls.map(([item]) => item.id))).toEqual(new Set([1, 2, 3]));
     });
 

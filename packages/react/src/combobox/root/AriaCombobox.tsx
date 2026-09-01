@@ -187,7 +187,9 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
     if (!filteredItemsProp || !itemToValue) {
       return undefined;
     }
-    const flat = flattenLeafItems(filteredItemsProp);
+    // Dropped for the same reason as in `flatFilteredValues` below: a hole renders nothing, so
+    // it must not occupy an index in the rendered list's coordinate space.
+    const flat = flattenLeafItems(filteredItemsProp).filter((item) => item != null);
     const values = flat.map(itemToValue);
     let valueToItem: Map<any, any> | undefined;
 
@@ -302,7 +304,11 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
       return () => true;
     }
     if (filterProp !== undefined) {
-      return filterProp;
+      // Nullish leaf entries are holes rather than items, so they never reach a custom filter,
+      // matching both the built-in filter below and the collection's own accessors. Guarding
+      // here rather than at the call sites keeps `filter={null}` a true identity.
+      return (item: Item, query: string, itemToString?: (item: Item) => string) =>
+        item != null && filterProp(item, query, itemToString);
     }
     // `shouldBypassFiltering` already empties the query whenever a single selection's label
     // matches it exactly, so the filter never needs a selection-aware variant here.
@@ -446,7 +452,11 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
     }
     // Explicit type argument: inferring it from a union of both shapes resolves `Item` to
     // `Group<Item>`, which tsc rejects and tsgo does not.
-    const flat = flattenLeafItems<Item>(filteredItems);
+    // Holes render nothing, so they own no index in the rendered list's coordinate space.
+    // Keeping them here would shift every later value away from the composite index its item
+    // actually claims, which desynchronizes the highlight, `aria-activedescendant`, and the
+    // value reported to `onItemHighlighted`.
+    const flat = flattenLeafItems<Item>(filteredItems).filter((item) => item != null);
     return itemToValue ? flat.map((item) => itemToValue(item)) : (flat as any[]);
   }, [filteredItems, filteredItemsProp, externalWindow, itemToValue]);
 
@@ -1803,6 +1813,8 @@ interface ComboboxRootProps<ItemValue, Item = ItemValue> {
    * Filter function used to match items vs input query.
    * Receives the source item, which is the derived value's item when `items` is a `createItems()`
    * collection, and the item itself otherwise.
+   * Nullish entries in the data are holes rather than items: they are never passed to this
+   * function. Pass `null` instead to disable filtering, which keeps every entry as-is.
    */
   filter?:
     | null
