@@ -1,4 +1,4 @@
-import { expect, vi } from 'vitest';
+import { expect, vi, describe, beforeEach, afterEach, it } from 'vitest';
 import * as React from 'react';
 import { Avatar } from '@base-ui/react/avatar';
 import { act, fireEvent, screen, waitFor } from '@mui/internal-test-utils';

@@ -1,3 +1,4 @@
+import { describe } from 'vitest';
 import { NavigationMenu } from '@base-ui/react/navigation-menu';
 import { createRenderer, describeConformance } from '#test-utils';
 

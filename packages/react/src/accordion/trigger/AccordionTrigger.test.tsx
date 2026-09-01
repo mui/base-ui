@@ -1,4 +1,4 @@
-import { expect } from 'vitest';
+import { expect, describe, it } from 'vitest';
 import { Accordion } from '@base-ui/react/accordion';
 import { screen } from '@mui/internal-test-utils';
 import { describeConformance, createRenderer } from '#test-utils';
