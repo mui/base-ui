@@ -1,4 +1,4 @@
-import { expect } from 'vitest';
+import { expect, describe, it } from 'vitest';
 import { defaultItemEquality, findSelectionIndex, resolveSelectedIndex } from './itemEquality';
 
 describe('findSelectionIndex', () => {
