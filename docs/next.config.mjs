@@ -70,7 +70,6 @@ const rootPackage = loadPackageJson();
 
 /** @type {import('@mui/internal-docs-infra/pipeline/loadPrecomputedTypes').LoaderOptions} */
 const typesGenerationOptions = {
-  socketDir: '.next/docs-infra',
   updateParentIndex: {
     baseDir,
     onlyUpdateIndexes: true,
