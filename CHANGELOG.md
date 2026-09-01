@@ -1,5 +1,142 @@
 # Versions
 
+## v1.8.0
+
+<!-- generated comparing v1.7.0...master -->
+
+_Sep 1, 2026_
+
+### General changes
+
+- Fix label association when a control unregisters (#5456) by @atomiks
+- Reduce animation completion work (#5535) by @atomiks
+- Fix prop and ref merging for lazy render elements (#5562) by @atomiks
+- Fix roving focus when items are added or removed (#5447) by @atomiks
+- Fix hover and focus interaction issues (#5037) by @atomiks
+- Improve trigger mount performance (#5426) by @atomiks
+- Fix disabled anchor tracking on scroll (#5478) by @atomiks
+- Fix transform origin for start/end alignment (#5015) by @atomiks
+- Remove duplicate options key from arrow middleware (#5606) by @atomiks
+- Stabilize indicator animation test (#5467) by @atomiks
+- Register passive touch listeners (#5572) by @wanxiankai
+- Correctly infer value type in `useControlled` (#5203) by @jjenzz
+- Enforce store state key/value types (#5423) by @jjenzz
+- Make animation frame cancellation idempotent (#5533) by @gilsmt
+
+### Alert Dialog
+
+- Ignore outside clicks from presses that began before open (#5378) by @michaldudak
+
+### Autocomplete
+
+- Render groups with the rowgroup role in grid mode (#5564) by @atomiks
+- Allow opening and browsing the popup while read-only (#5541) by @vikuscz
+
+### Avatar
+
+- Add `keepMounted` prop to `<Avatar.Image>` (#5536) by @atomiks
+
+### Checkbox
+
+- Fix controlled blur validation and stale filled state (#5563) by @atomiks
+
+### Combobox
+
+- Fix applying `data-readonly` to `<Combobox.Trigger>` (#5418) by @sai6855
+- Add `createItems` collection API (#5326) by @atomiks
+- Fix cancellation when preserving the filter after selection (#5362) by @atomiks
+- Render groups with the rowgroup role in grid mode (#5564) by @atomiks
+- Allow opening and browsing the popup while read-only (#5541) by @vikuscz
+- Move `aria-orientation` to the role owners (#5551) by @gonzoblasco
+- Anchor multiple selection to the first selected item (#5573) by @atomiks
+- Hide group labels and scrollbars from the accessibility tree (#5598) by @azeng4499
+
+### Dialog
+
+- Ignore outside clicks from presses that began before open (#5378) by @michaldudak
+
+### Drawer
+
+- Ignore swipes without an attributed direction when using snap points (#5477) by @atomiks
+- Respect canceled snap point dismissal (#5571) by @radist2s
+- Ignore the page scroller when starting a swipe (#5567) by @flaviendelangle
+
+### Field
+
+- Fix custom validity ownership and validation lifecycle (#5449) by @atomiks
+- Sync controlled value changes with field state (#5460) by @atomiks
+- Remove duplicate React import (#5486) by @atomiks
+- Validate once on Enter inside a Form (#5459) by @atomiks
+- Publish neutral validity while async validation is in flight (#5600) by @atomiks
+- Fix controlled blur validation and stale filled state (#5563) by @atomiks
+
+### Form
+
+- Fix `clearErrors` dropping updates when multiple fields change at once (#5446) by @sai6855
+
+### Menu
+
+- Play the enter transition for an initially open submenu (#4383) by @michaldudak
+- Hide group labels and scrollbars from the accessibility tree (#5598) by @azeng4499
+
+### Menubar
+
+- Fix menubar accessibility tree to satisfy `aria-required-children` (#5058) by @michaldudak
+
+### Navigation Menu
+
+- Fix pointer-events lock when sweeping quickly across a trigger (#5454) by @edwardhorsey
+- Keep focus on trigger when opening (#5479) by @atomiks
+- Add disabled data attribute to `<NavigationMenu.Trigger>` (#5521) by @sai6855
+
+### Number Field
+
+- Stop incrementing when disabled during press-and-hold (#5435) by @alex-js-ltd
+- Prevent scrubbing on horizontal wheel events (#5463) by @sai6855
+- Keep native selection behavior when focusing the input (#5578) by @atomiks
+
+### Popover
+
+- Ignore outside clicks from presses that began before open (#5378) by @michaldudak
+- Fix detached trigger store migration (#5442) by @atomiks
+
+### Scroll Area
+
+- Hide group labels and scrollbars from the accessibility tree (#5598) by @azeng4499
+- Prevent scrollbars from stealing focus (#5430) by @marwenilo
+
+### Select
+
+- Anchor multiple selection to the first selected item (#5573) by @atomiks
+- Hide group labels and scrollbars from the accessibility tree (#5598) by @azeng4499
+- Fix the root ID being ignored inside a Field (#5461) by @atomiks
+- Remove redundant size check in `<Select.Positioner>` (#5469) by @sai6855
+- Allow opening and browsing the popup while `readOnly` (#5531) by @vikuscz
+- Fix record item label lookup reading from `Object.prototype` (#5518) by @XionWCFM
+
+### Slider
+
+- Prevent update loops from unstable refs (#5441) by @atomiks
+
+### Switch
+
+- Fix controlled blur validation and stale filled state (#5563) by @atomiks
+
+### Tabs
+
+- Prevent update loops from unstable refs (#5441) by @atomiks
+- Consider 3D transforms when positioning the indicator (#4852) by @michaldudak
+
+### Toast
+
+- Support partial data updates (#5464) by @chuganzy
+
+### Tooltip
+
+- Respect trigger delay with zero provider delay (#5444) by @atomiks
+
+All contributors of this release in alphabetical order: @alex-js-ltd, @atomiks, @azeng4499, @chuganzy, @edwardhorsey, @flaviendelangle, @gilsmt, @gonzoblasco, @jjenzz, @marwenilo, @michaldudak, @radist2s, @sai6855, @vikuscz, @wanxiankai, @XionWCFM
+
 ## v1.7.0
 
 _Aug 4, 2026_

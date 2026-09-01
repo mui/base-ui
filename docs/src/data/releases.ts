@@ -9,6 +9,17 @@ export interface Release {
 export const releases: Release[] = [
   {
     latest: true,
+    version: 'v1.8.0',
+    versionSlug: 'v1-8-0',
+    date: '2026-09-01',
+    highlights: [
+      'New `createItems` collection API for `Combobox`.',
+      'Browse `Autocomplete`, `Combobox`, and `Select` popups while read-only.',
+      'Add `keepMounted` to `<Avatar.Image>`.',
+      'Many accessibility, focus, validation, and interaction fixes.',
+    ],
+  },
+  {
     version: 'v1.7.0',
     versionSlug: 'v1-7-0',
     date: '2026-08-04',
