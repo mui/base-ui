@@ -125,9 +125,7 @@ export const SwitchRoot = React.forwardRef(function SwitchRoot(
     'aria-required': required || undefined,
     'aria-labelledby': ariaLabelledBy,
     onFocus() {
-      if (!disabled) {
-        setFocused(true);
-      }
+      setFocused(true);
     },
     onBlur() {
       const element = inputRef.current;

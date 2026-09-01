@@ -18,6 +18,12 @@ export function useSetFieldFocused(
   const { setFocused, focusOwnerRef } = useFieldRootContext();
 
   const setFieldFocused = useStableCallback((focused: boolean) => {
+    // A disabled target can still be focused (`aria-disabled` elements stay programmatically
+    // focusable), but must not publish the field's focused styling.
+    if (focused && disabled) {
+      return;
+    }
+
     if (!focused && focusOwnerRef.current !== setFieldFocused) {
       return;
     }

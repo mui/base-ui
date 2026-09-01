@@ -233,9 +233,6 @@ export const RadioGroup = React.forwardRef(function RadioGroup<Value>(
     'aria-disabled': disabled || undefined,
     'aria-readonly': readOnly || undefined,
     'aria-labelledby': ariaLabelledby,
-    onFocus() {
-      setFocused(true);
-    },
     onBlur(event) {
       if (!contains(event.currentTarget, event.relatedTarget)) {
         setFieldTouched(true);
@@ -249,7 +246,6 @@ export const RadioGroup = React.forwardRef(function RadioGroup<Value>(
     onKeyDownCapture(event) {
       if (event.key.startsWith('Arrow')) {
         setTouched(true);
-        setFocused(true);
       }
     },
   };

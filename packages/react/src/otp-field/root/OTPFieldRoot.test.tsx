@@ -1524,6 +1524,11 @@ describe('<OTPField.Root />', () => {
     });
 
     it('is kept when a previously focused slot unmounts after focus moves to a sibling', async () => {
+      // `inputCount` trails `length` by a render, so shrinking both at once warns about a
+      // mismatch that never reaches the DOM. Silencing it keeps the test from passing only on
+      // CI's retry, where `warn`'s dedupe swallows the message it failed on the first time.
+      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+
       function TestCase(props: { firstMounted?: boolean }) {
         const { firstMounted = true } = props;
         return (
@@ -1537,25 +1542,29 @@ describe('<OTPField.Root />', () => {
         );
       }
 
-      const { setProps } = await render(<TestCase />);
-      const [first, second] = screen.getAllByRole<HTMLInputElement>('textbox');
+      try {
+        const { setProps } = await render(<TestCase />);
+        const [first, second] = screen.getAllByRole<HTMLInputElement>('textbox');
 
-      await act(async () => {
-        first.focus();
-      });
-      await act(async () => {
-        second.focus();
-      });
+        await act(async () => {
+          first.focus();
+        });
+        await act(async () => {
+          second.focus();
+        });
 
-      expect(second).toHaveFocus();
-      expect(screen.getByTestId('field')).toHaveAttribute('data-focused', '');
-      expect(screen.getByTestId('otp')).toHaveAttribute('data-focused', '');
+        expect(second).toHaveFocus();
+        expect(screen.getByTestId('field')).toHaveAttribute('data-focused', '');
+        expect(screen.getByTestId('otp')).toHaveAttribute('data-focused', '');
 
-      await setProps({ firstMounted: false });
+        await setProps({ firstMounted: false });
 
-      expect(second).toHaveFocus();
-      expect(screen.getByTestId('field')).toHaveAttribute('data-focused', '');
-      expect(screen.getByTestId('otp')).toHaveAttribute('data-focused', '');
+        expect(second).toHaveFocus();
+        expect(screen.getByTestId('field')).toHaveAttribute('data-focused', '');
+        expect(screen.getByTestId('otp')).toHaveAttribute('data-focused', '');
+      } finally {
+        warnSpy.mockRestore();
+      }
     });
 
     it('is removed when the focused slot unmounts but its field remains', async () => {

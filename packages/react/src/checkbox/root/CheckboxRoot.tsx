@@ -304,9 +304,7 @@ export const CheckboxRoot = React.forwardRef(function CheckboxRoot(
         'aria-labelledby': ariaLabelledBy,
         [PARENT_CHECKBOX as string]: parent ? '' : undefined,
         onFocus() {
-          if (!disabled) {
-            setFocused(true);
-          }
+          setFocused(true);
         },
         onBlur() {
           const inputEl = inputRef.current;
