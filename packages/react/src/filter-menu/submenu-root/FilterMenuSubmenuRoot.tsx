@@ -75,6 +75,7 @@ export function FilterMenuSubmenuRoot(props: FilterMenuSubmenuRoot.Props): React
   });
   const [inputFocusVisible, setInputFocusVisible] = React.useState(false);
   const [hasInput, setHasInput] = React.useState(false);
+  const [inputAutoFocus, setInputAutoFocus] = React.useState(false);
 
   const parentReferenceRef = React.useRef<ParentReference | null>(null);
   const focusOwnerRef = React.useRef<HTMLElement | null>(null);
@@ -88,6 +89,13 @@ export function FilterMenuSubmenuRoot(props: FilterMenuSubmenuRoot.Props): React
       if (!details.isCanceled) {
         setInputValue(nextValue);
       }
+    },
+  );
+
+  const handleInputElementChange = useStableCallback(
+    (nextHasInput: boolean, nextAutoFocus: boolean) => {
+      setHasInput(nextHasInput);
+      setInputAutoFocus(nextAutoFocus);
     },
   );
 
@@ -169,6 +177,7 @@ export function FilterMenuSubmenuRoot(props: FilterMenuSubmenuRoot.Props): React
       webkitItemSelected={webkitItemSelected}
       virtualFocusRef={focusOwnerRef}
       virtualFocusInput={hasInput}
+      virtualFocusAutoFocus={inputAutoFocus}
       allowEscape={hasInput && !autoHighlight}
       resetOnPointerLeave={autoHighlight !== 'always'}
       renderVirtualFocusChildren={(_, inputProps) => (
@@ -194,7 +203,7 @@ export function FilterMenuSubmenuRoot(props: FilterMenuSubmenuRoot.Props): React
             locale={locale}
             inputProps={inputProps}
             onValueChange={handleInputValueChange}
-            onInputElementChange={setHasInput}
+            onInputElementChange={handleInputElementChange}
           >
             {children}
           </FilterMenuProvider>
