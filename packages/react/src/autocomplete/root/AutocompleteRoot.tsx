@@ -178,7 +178,7 @@ export interface AutocompleteRootProps<ItemValue> extends Omit<
   items?: readonly ItemValue[] | readonly Group<ItemValue>[] | undefined;
   /**
    * Filtered items to display in the list.
-   * When provided, the list will use these items instead of filtering the `items` prop internally.
+   * When provided, the list uses these items instead of filtering the `items` prop internally.
    * When `items` is also provided, this array must preserve its flat or grouped structure.
    * Nullish entries are not supported, as in `items`.
    * Use when you want to control filtering logic externally with the `useFilter()` hook.

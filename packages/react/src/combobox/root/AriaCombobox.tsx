@@ -1794,7 +1794,7 @@ interface ComboboxRootProps<ItemValue, Item = ItemValue> {
     readonly any[] | readonly Group<any>[] | ComboboxItemCollection<Item, ItemValue> | undefined;
   /**
    * Filtered items to display in the list.
-   * When provided, the list will use these items instead of filtering the `items` prop internally.
+   * When provided, the list uses these items instead of filtering the `items` prop internally.
    * When `items` is also provided, this array must preserve its flat or grouped structure.
    * With a `createItems()` collection, pass source items rather than derived values.
    * Nullish entries are not supported, as in `items`.
