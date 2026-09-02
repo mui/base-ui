@@ -166,7 +166,7 @@ This suits a submenu that is short enough not to need its own search field while
 
 Each `<FilterMenu.SubmenuRoot>` can have its own optional input, independently of the root menu. Add one when the submenu should be searchable.
 
-Hovering a submenu trigger opens the submenu without moving focus. Focus moves to the submenu's input once the pointer enters it, or when the trigger is clicked or opened with the keyboard. Add `autoFocus` to the submenu's `<FilterMenu.Input>` to focus it as soon as the submenu opens, so typing filters it right after hovering the trigger.
+Hovering a submenu trigger opens the submenu without moving focus. Focus follows the pointer: it moves to the submenu's input once the pointer enters the submenu, and back to the parent's input when the pointer returns to the parent menu. Clicking the trigger or opening the submenu with the keyboard also focuses its input. Add `autoFocus` to the submenu's `<FilterMenu.Input>` to focus it as soon as the submenu opens and keep it focused while the pointer moves through the parent menu, so typing filters the submenu right after hovering its trigger.
 
 ```jsx title="A filterable submenu"
 <FilterMenu.SubmenuRoot>
