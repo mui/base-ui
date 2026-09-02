@@ -54,6 +54,7 @@ _Sep 2, 2026_
 - Move `aria-orientation` to the role owners (#5551) by @gonzoblasco
 - Fix record item label lookup reading from `Object.prototype` (#5518) by @XionWCFM
 - Anchor multiple selection to the first selected item (#5573) by @atomiks
+- Make the multiple selection anchor lookup linear (#5613) by @michaldudak
 - Hide group labels and scrollbars from the accessibility tree (#5598) by @azeng4499
 
 ### Dialog
@@ -115,6 +116,7 @@ _Sep 2, 2026_
 
 - Move `aria-orientation` to the role owners (#5551) by @gonzoblasco
 - Anchor multiple selection to the first selected item (#5573) by @atomiks
+- Make the multiple selection anchor lookup linear (#5613) by @michaldudak
 - Hide group labels and scrollbars from the accessibility tree (#5598) by @azeng4499
 - Fix the root ID being ignored inside a Field (#5461) by @atomiks
 - Remove redundant size check in `<Select.Positioner>` (#5469) by @sai6855
@@ -137,6 +139,7 @@ _Sep 2, 2026_
 ### Toast
 
 - Support partial data updates (#5464) by @chuganzy
+- Replace custom data wholesale and accept a function to derive it (#5611) by @michaldudak
 
 ### Tooltip
 
