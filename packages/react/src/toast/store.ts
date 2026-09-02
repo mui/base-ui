@@ -13,10 +13,8 @@ import { activeElement, contains, getTarget } from '../floating-ui-react/utils';
 import { isFocusVisible } from './utils/focusVisible';
 
 type ToastInternalUpdateOptions<Data extends object> = Partial<
-  Omit<ToastObject<Data>, 'id' | 'updateKey' | 'data'>
-> & {
-  data?: Partial<Data> | undefined;
-};
+  Omit<ToastObject<Data>, 'id' | 'updateKey'>
+>;
 
 /**
  * A toast once it lives in the store. `addToast` is the only way in and it always
@@ -44,6 +42,13 @@ type ToastMetadata = {
 };
 
 type InitialState = Omit<State, 'toastMetadata'>;
+
+function resolveData<Data extends object>(
+  data: ToastManagerUpdateOptions<Data>['data'],
+  prevData: Data | undefined,
+): Data | undefined {
+  return typeof data === 'function' ? data(prevData) : data;
+}
 
 function createToastMetadata(toasts: StoredToast[]) {
   const metadata = new Map<string, ToastMetadata>();
@@ -205,7 +210,19 @@ export class ToastStore extends ReactStore<State, {}, typeof selectors> {
   };
 
   updateToast = <Data extends object>(id: string, updates: ToastManagerUpdateOptions<Data>) => {
-    this.updateToastInternal(id, updates, false, true);
+    let resolved = updates as ToastInternalUpdateOptions<Data>;
+    if (typeof updates.data === 'function') {
+      const prevToast = selectors.toast(this.state, id);
+      // Never run the updater for an update the store is going to ignore.
+      if (!prevToast || prevToast.transitionStatus === 'ending') {
+        return;
+      }
+      resolved = { ...updates, data: updates.data(prevToast.data) };
+    }
+
+    // `data` is a plain value now, and the updater may have called back into the
+    // store, so the internal update reads the current state again.
+    this.updateToastInternal(id, resolved, false, true);
   };
 
   updateToastInternal = <Data extends object>(
@@ -230,9 +247,6 @@ export class ToastStore extends ReactStore<State, {}, typeof selectors> {
     const nextToast: StoredToast<Data> = {
       ...prevToast,
       ...updates,
-      ...(updates.data && {
-        data: { ...prevToast.data, ...updates.data },
-      }),
       ...(markUpdated && {
         updateKey: prevToast.updateKey + 1,
       }),
@@ -314,6 +328,7 @@ export class ToastStore extends ReactStore<State, {}, typeof selectors> {
     const loadingOptions = resolvePromiseOptions(options.loading);
     const id = this.addToast({
       ...loadingOptions,
+      data: resolveData(loadingOptions.data, undefined),
       type: 'loading',
     });
 

@@ -34,6 +34,12 @@ typedManager.add({
   },
 });
 
+typedManager.add({
+  title: 'updater',
+  // @ts-expect-error - add takes a value, not an updater function
+  data: () => ({ id: 'typed', count: 1 }),
+});
+
 typedManager.update('typed', {
   data: {
     id: 'typed-update',
@@ -42,9 +48,22 @@ typedManager.update('typed', {
 });
 
 typedManager.update('typed', {
+  // @ts-expect-error - id is a missing property, `data` replaces the whole value
   data: {
     count: 2,
   },
+});
+
+typedManager.update('typed', {
+  data: (prevData) => {
+    expectType<ToastPayload | undefined, typeof prevData>(prevData);
+    return { id: 'typed-update', count: 2 };
+  },
+});
+
+typedManager.update('typed', {
+  // @ts-expect-error - count is a missing property, the updater returns the whole value
+  data: () => ({ id: 'typed-update' }),
 });
 
 typedManager.promise(Promise.resolve(2), {
@@ -77,6 +96,10 @@ legacyManager.update<ToastPayload>('legacy', {
   },
 });
 
+legacyManager.update<ToastPayload>('legacy', {
+  data: (prevData) => ({ id: 'legacy', count: (prevData?.count ?? 0) + 1 }),
+});
+
 legacyManager.promise<number, ToastPayload>(Promise.resolve(5), {
   loading: 'loading',
   success: (value) => ({
@@ -87,4 +110,34 @@ legacyManager.promise<number, ToastPayload>(Promise.resolve(5), {
     },
   }),
   error: 'error',
+});
+
+type CallableData = () => string;
+const callableManager = createToastManager<CallableData>();
+
+callableManager.add({ data: () => 'initial' });
+
+callableManager.update('callable', {
+  // @ts-expect-error - a function is always an updater, so a callable value must be wrapped
+  data: () => 'replacement',
+});
+
+callableManager.update('callable', {
+  data: () => () => 'replacement',
+});
+
+callableManager.update('callable', {
+  data: (prevData) => {
+    expectType<CallableData | undefined, typeof prevData>(prevData);
+    return prevData;
+  },
+});
+
+callableManager.promise(Promise.resolve(1), {
+  loading: {
+    // @ts-expect-error - a function is always an updater, so a callable value must be wrapped
+    data: () => 'loading',
+  },
+  success: { data: () => () => 'done' },
+  error: 'failed',
 });
