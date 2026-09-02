@@ -175,6 +175,55 @@ describe('ToastStore', () => {
     expect(Object.getPrototypeOf(data)).toBe(foreignObjectPrototype);
   });
 
+  it('keeps an own __proto__ key in custom data as an own key', () => {
+    const store = createStore([{ id: 'a', data: { name: 'Draft' } }]);
+
+    // `Object.assign` writes through the inherited `__proto__` setter, which would swap
+    // the merged object's prototype and drop the key instead of copying it.
+    const injected = JSON.parse('{"__proto__":{"injected":true}}');
+    store.updateToast('a', { data: injected });
+    const data = selectors.toast(store.state, 'a')?.data;
+    expect(Object.getPrototypeOf(data)).toBe(Object.prototype);
+    expect(Object.hasOwn(data, '__proto__')).toBe(true);
+    expect('injected' in data).toBe(false);
+
+    // The merged value is still a plain object, so a later patch still merges.
+    store.updateToast('a', { data: { count: 1 } });
+    expect(selectors.toast(store.state, 'a')?.data).toMatchObject({ name: 'Draft', count: 1 });
+  });
+
+  it('defines merged custom data as own properties instead of calling inherited setters', () => {
+    const setter = vi.fn();
+    const prototype = Object.create(null);
+    Object.defineProperty(prototype, 'count', { set: setter });
+    const store = createStore([
+      { id: 'a', data: Object.assign(Object.create(prototype), { name: 'Draft' }) },
+    ]);
+
+    store.updateToast('a', { data: { count: 2 } });
+    const data = selectors.toast(store.state, 'a')?.data;
+    expect(setter).not.toHaveBeenCalled();
+    expect(Object.hasOwn(data, 'count')).toBe(true);
+    expect({ ...data }).toEqual({ name: 'Draft', count: 2 });
+    expect(Object.getPrototypeOf(data)).toBe(prototype);
+  });
+
+  it('does not read custom data when updating a missing or ending toast', () => {
+    const store = createStore([{ id: 'a', data: { name: 'Draft' } }]);
+    store.closeToast('a');
+    expect(selectors.toast(store.state, 'a')?.transitionStatus).toBe('ending');
+
+    const data = {
+      get name(): string {
+        throw new Error('data was read');
+      },
+    };
+    expect(() => store.updateToast('a', { data })).not.toThrow();
+    expect(selectors.toast(store.state, 'a')?.data).toEqual({ name: 'Draft' });
+
+    expect(() => store.updateToast('missing', { data })).not.toThrow();
+  });
+
   it('replaces null prototype custom data so the null prototype survives', () => {
     const store = createStore([
       { id: 'a', data: Object.assign(Object.create(null), { name: 'Draft' }) },

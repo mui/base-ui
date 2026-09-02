@@ -59,9 +59,16 @@ function isPlainObject(value: unknown): value is object {
 }
 
 // Copies `updates` over `prev` while keeping `prev`'s prototype, which an object literal
-// would replace with this realm's `Object.prototype`.
+// would replace with this realm's `Object.prototype`. Spread defines own data properties,
+// unlike `Object.assign`, which writes through inherited setters, so an own `__proto__`
+// key (as `JSON.parse` produces) stays an own key instead of swapping the prototype.
 function mergeData<Data extends object>(prev: Data, updates: Partial<Data>): Data {
-  return Object.assign(Object.create(Object.getPrototypeOf(prev)), prev, updates);
+  const merged = { ...prev, ...updates };
+  const prevPrototype = Object.getPrototypeOf(prev);
+  if (prevPrototype !== Object.prototype) {
+    Object.setPrototypeOf(merged, prevPrototype);
+  }
+  return merged;
 }
 
 function createToastMetadata(toasts: StoredToast[]) {
@@ -229,7 +236,15 @@ export class ToastStore extends ReactStore<State, {}, typeof selectors> {
   // one that merges. `updateToastInternal` always replaces, which keeps a future internal
   // caller from silently patching a value it meant to overwrite.
   updateToast = <Data extends object>(id: string, updates: ToastManagerUpdateOptions<Data>) => {
-    const prevData = selectors.toast(this.state, id)?.data;
+    const prevToast = selectors.toast(this.state, id);
+    // `updateToastInternal` ignores these too, but bail out before touching `data` so an
+    // ignored update (a promise settling after its toast was dismissed, say) never reads
+    // the caller's getters or proxies.
+    if (!prevToast || prevToast.transitionStatus === 'ending') {
+      return;
+    }
+
+    const prevData = prevToast.data;
     // Only a plain object can be patched by a plain object. `Data` is unconstrained, so
     // `data` may hold an array, a `Map`, or a class instance, and copying those key by key
     // would strip their prototype and silently produce a plain object. Every other
