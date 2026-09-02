@@ -2409,6 +2409,35 @@ describe('<NumberField />', () => {
       expect(screen.getByRole('textbox')).toHaveFocus();
     });
 
+    it('places the caret at the end of the visible input when forwarding focus', async () => {
+      await render(<NumberField defaultValue={100} />);
+
+      const input = screen.getByRole<HTMLInputElement>('textbox');
+      input.setSelectionRange(0, 0);
+
+      await act(async () => getHiddenInput().focus());
+
+      expect(input).toHaveFocus();
+      expect(input.selectionStart).toBe(input.value.length);
+      expect(input.selectionEnd).toBe(input.value.length);
+    });
+
+    it('keeps a selection the consumer sets in onFocus when forwarding focus', async () => {
+      await render(
+        <NumberFieldBase.Root defaultValue={100}>
+          <NumberFieldBase.Input onFocus={(event) => event.currentTarget.select()} />
+        </NumberFieldBase.Root>,
+      );
+
+      const input = screen.getByRole<HTMLInputElement>('textbox');
+
+      await act(async () => getHiddenInput().focus());
+
+      expect(input).toHaveFocus();
+      expect(input.selectionStart).toBe(0);
+      expect(input.selectionEnd).toBe(input.value.length);
+    });
+
     it('clears the value when autofill empties the hidden input', async () => {
       const onValueChange = vi.fn();
       await render(<NumberField defaultValue={5} onValueChange={onValueChange} />);
