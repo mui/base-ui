@@ -272,21 +272,6 @@ describe('ToastStore', () => {
       expect(toast?.data).toEqual({ step: 'save', progress: 100 });
       expect(toast).not.toHaveProperty('dataPatch');
       expect(warnSpy).not.toHaveBeenCalled();
-
-      // A loading toast is brand new, so it has no data for a patch to merge into.
-      await store.promiseToast(Promise.resolve('done'), {
-        loading: {
-          title: 'Saving',
-          // @ts-expect-error - the `loading` type omits `dataPatch`; a JavaScript caller can still pass one
-          dataPatch: { progress: 0 },
-        },
-        success: 'Saved',
-        error: 'Failed',
-      });
-      const loadingToast = store.state.toasts[0];
-      expect(loadingToast?.data).toBe(undefined);
-      expect(loadingToast).not.toHaveProperty('dataPatch');
-      expect(warnSpy).toHaveBeenCalledTimes(1);
     } finally {
       warnSpy.mockRestore();
     }

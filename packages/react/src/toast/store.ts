@@ -50,43 +50,8 @@ type InitialState = Omit<State, 'toastMetadata'>;
 // dictionaries, whose null prototype is the point of them. A record from another realm is
 // rejected as well: recognizing it would cost more bytes than the case is worth.
 function isPlainObject(value: unknown): value is object {
-  return (
-    value !== null && typeof value === 'object' && Object.getPrototypeOf(value) === Object.prototype
-  );
-}
-
-// Folds `dataPatch` into `data`, patching the `data` given alongside it when there is one
-// and the toast's current data otherwise. Only a plain object can be patched by a plain
-// object: `Data` is unconstrained, so it may hold an array, a `Map`, or a class instance,
-// and copying those key by key would strip their prototype and silently produce a plain
-// object. Such a patch is dropped instead, with a warning in development.
-function resolveDataPatch<Data extends object>(
-  prevData: Data | undefined,
-  updates: ToastManagerUpdateOptions<Data>,
-): Omit<ToastManagerUpdateOptions<Data>, 'dataPatch'> {
-  const { dataPatch, ...rest } = updates;
-  if (dataPatch === undefined) {
-    return rest;
-  }
-
-  const base = Object.hasOwn(rest, 'data') ? rest.data : prevData;
-  if (isPlainObject(base) && isPlainObject(dataPatch)) {
-    // Spread defines own data properties, unlike `Object.assign`, which writes through
-    // inherited setters, so an own `__proto__` key (as `JSON.parse` produces) stays an own
-    // key instead of swapping the prototype.
-    return { ...rest, data: { ...base, ...dataPatch } };
-  }
-
-  // The guard lets production bundles drop the message and, with it, the whole logger.
-  if (process.env.NODE_ENV !== 'production') {
-    warn(
-      'The `dataPatch` option was ignored because it can only shallow merge a plain object into ' +
-        'custom data that is a plain object: the toast has no data, its data is not a plain ' +
-        'object (an array, a `Map`, a class instance, an object with a `null` prototype, etc.), ' +
-        'or the patch itself is not one. Pass `data` to replace the value instead.',
-    );
-  }
-  return rest;
+  // Primitives resolve to their own prototype, so only `null` and `undefined` need guarding.
+  return value != null && Object.getPrototypeOf(value) === Object.prototype;
 }
 
 function createToastMetadata(toasts: StoredToast[]) {
@@ -250,8 +215,8 @@ export class ToastStore extends ReactStore<State, {}, typeof selectors> {
     return id;
   };
 
-  // `data` always replaces, here and in `updateToastInternal`; only `resolveDataPatch`
-  // merges, which keeps a future internal caller from silently patching a value it meant
+  // `data` always replaces, here and in `updateToastInternal`; only `dataPatch` merges, and
+  // only here, which keeps a future internal caller from silently patching a value it meant
   // to overwrite.
   updateToast = <Data extends object>(id: string, updates: ToastManagerUpdateOptions<Data>) => {
     const prevToast = selectors.toast(this.state, id);
@@ -262,7 +227,31 @@ export class ToastStore extends ReactStore<State, {}, typeof selectors> {
       return;
     }
 
-    this.updateToastInternal(id, resolveDataPatch(prevToast.data, updates), false, true);
+    const { dataPatch, ...rest } = updates;
+    if (dataPatch !== undefined) {
+      // The patch goes over the `data` given alongside it when there is one and over the
+      // toast's current data otherwise. Only a plain object can be patched by a plain object:
+      // `Data` is unconstrained, so it may hold an array, a `Map`, or a class instance, and
+      // copying those key by key would strip their prototype and silently produce a plain
+      // object. Such a patch is dropped instead, with a warning in development.
+      const base: Data | undefined = 'data' in rest ? rest.data : prevToast.data;
+      if (isPlainObject(base) && isPlainObject(dataPatch)) {
+        // Spread defines own data properties, unlike `Object.assign`, which writes through
+        // inherited setters, so an own `__proto__` key (as `JSON.parse` produces) stays an
+        // own key instead of swapping the prototype.
+        rest.data = { ...base, ...dataPatch };
+      } else if (process.env.NODE_ENV !== 'production') {
+        // The guard lets production bundles drop the message and, with it, the whole logger.
+        warn(
+          'The `dataPatch` option was ignored because it can only shallow merge a plain object into ' +
+            'custom data that is a plain object: the toast has no data, its data is not a plain ' +
+            'object (an array, a `Map`, a class instance, an object with a `null` prototype, etc.), ' +
+            'or the patch itself is not one. Pass `data` to replace the value instead.',
+        );
+      }
+    }
+
+    this.updateToastInternal(id, rest, false, true);
   };
 
   updateToastInternal = <Data extends object>(
@@ -364,11 +353,8 @@ export class ToastStore extends ReactStore<State, {}, typeof selectors> {
     promiseValue: Promise<Value>,
     options: ToastManagerPromiseOptions<Value, Data>,
   ): Promise<Value> => {
-    // Create a loading toast (which does not auto-dismiss). The `loading` type omits
-    // `dataPatch` because the toast is new, but one passed from JavaScript is still resolved
-    // here so it never lands on the toast: it merges into `data` given alongside it or is
-    // dropped with a warning.
-    const loadingOptions = resolveDataPatch(undefined, resolvePromiseOptions(options.loading));
+    // Create a loading toast (which does not auto-dismiss).
+    const loadingOptions = resolvePromiseOptions(options.loading);
     const id = this.addToast({
       ...loadingOptions,
       type: 'loading',
