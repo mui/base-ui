@@ -17,7 +17,7 @@ export const startingStyle = CommonPopupDataAttributes.startingStyle;
  */
 export const endingStyle = CommonPopupDataAttributes.endingStyle;
 /**
- * Indicates which side the popup is positioned relative to the trigger.
+ * Indicates which side the popup is positioned relative to the anchor.
  * @type {'top' | 'bottom' | 'left' | 'right' | 'inline-end' | 'inline-start'}
  */
 export const side = CommonPopupDataAttributes.side;
