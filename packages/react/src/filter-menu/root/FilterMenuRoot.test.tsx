@@ -5069,6 +5069,147 @@ describe('<FilterMenu.Root />', () => {
 
       expect(auxiliary).toHaveFocus();
     });
+
+    it('keeps focus in an open submenu while the pointer crosses the parent popup', async () => {
+      const { user } = await render(
+        <FilterMenu.Root defaultOpen>
+          <FilterMenu.Trigger>Actions</FilterMenu.Trigger>
+          <FilterMenu.Portal>
+            <FilterMenu.Positioner>
+              <FilterMenu.Popup>
+                <FilterMenu.Input aria-label="Filter actions" />
+                <FilterMenu.List>
+                  <FilterMenu.Item>Rename</FilterMenu.Item>
+                  <FilterMenu.SubmenuRoot>
+                    {/* Crossing a sibling item only schedules the close. */}
+                    <FilterMenu.SubmenuTrigger delay={0} closeDelay={1000}>
+                      Move to folder
+                    </FilterMenu.SubmenuTrigger>
+                    <FilterMenu.Portal>
+                      <FilterMenu.Positioner>
+                        <FilterMenu.Popup>
+                          <FilterMenu.Input aria-label="Filter folders" />
+                          <FilterMenu.List>
+                            <FilterMenu.Item>Documents</FilterMenu.Item>
+                          </FilterMenu.List>
+                        </FilterMenu.Popup>
+                      </FilterMenu.Positioner>
+                    </FilterMenu.Portal>
+                  </FilterMenu.SubmenuRoot>
+                </FilterMenu.List>
+              </FilterMenu.Popup>
+            </FilterMenu.Positioner>
+          </FilterMenu.Portal>
+        </FilterMenu.Root>,
+      );
+
+      await user.hover(screen.getByRole('menuitem', { name: 'Move to folder' }));
+      const submenuInput = await screen.findByRole('searchbox', { name: 'Filter folders' });
+      await waitFor(() => {
+        expect(submenuInput).toHaveFocus();
+      });
+
+      fireEvent.mouseMove(screen.getByRole('menuitem', { name: 'Rename' }));
+
+      expect(submenuInput).toHaveFocus();
+    });
+
+    it('returns focus to the parent input once a pointer-opened submenu unmounts', async () => {
+      const { user } = await render(
+        <FilterMenu.Root defaultOpen>
+          <FilterMenu.Trigger>Actions</FilterMenu.Trigger>
+          <FilterMenu.Portal>
+            <FilterMenu.Positioner>
+              <FilterMenu.Popup>
+                <FilterMenu.Input aria-label="Filter actions" />
+                <FilterMenu.List>
+                  <FilterMenu.Item>Rename</FilterMenu.Item>
+                  <FilterMenu.SubmenuRoot>
+                    <FilterMenu.SubmenuTrigger delay={0} closeDelay={0}>
+                      Move to folder
+                    </FilterMenu.SubmenuTrigger>
+                    <FilterMenu.Portal>
+                      <FilterMenu.Positioner>
+                        <FilterMenu.Popup>
+                          <FilterMenu.Input aria-label="Filter folders" />
+                          <FilterMenu.List>
+                            <FilterMenu.Item>Documents</FilterMenu.Item>
+                          </FilterMenu.List>
+                        </FilterMenu.Popup>
+                      </FilterMenu.Positioner>
+                    </FilterMenu.Portal>
+                  </FilterMenu.SubmenuRoot>
+                </FilterMenu.List>
+              </FilterMenu.Popup>
+            </FilterMenu.Positioner>
+          </FilterMenu.Portal>
+        </FilterMenu.Root>,
+      );
+
+      await user.hover(screen.getByRole('menuitem', { name: 'Move to folder' }));
+      const submenuInput = await screen.findByRole('searchbox', { name: 'Filter folders' });
+      await waitFor(() => {
+        expect(submenuInput).toHaveFocus();
+      });
+
+      await user.hover(screen.getByRole('menuitem', { name: 'Rename' }));
+      await waitFor(() => {
+        expect(submenuInput).not.toBeInTheDocument();
+      });
+
+      await waitFor(() => {
+        expect(screen.getByRole('searchbox', { name: 'Filter actions' })).toHaveFocus();
+      });
+    });
+
+    it('returns focus to the parent input when the pointer leaves a submenu trigger', async () => {
+      const { user } = await render(
+        <FilterMenu.Root defaultOpen>
+          <FilterMenu.Trigger>Actions</FilterMenu.Trigger>
+          <FilterMenu.Portal>
+            <FilterMenu.Positioner>
+              <FilterMenu.Popup>
+                <FilterMenu.Input aria-label="Filter actions" />
+                <FilterMenu.List>
+                  <FilterMenu.Item>Rename</FilterMenu.Item>
+                  <FilterMenu.SubmenuRoot>
+                    <FilterMenu.SubmenuTrigger delay={0} closeDelay={0}>
+                      Move to folder
+                    </FilterMenu.SubmenuTrigger>
+                    <FilterMenu.Portal>
+                      <FilterMenu.Positioner>
+                        <FilterMenu.Popup>
+                          <FilterMenu.Input aria-label="Filter folders" />
+                          <FilterMenu.List>
+                            <FilterMenu.Item>Documents</FilterMenu.Item>
+                          </FilterMenu.List>
+                        </FilterMenu.Popup>
+                      </FilterMenu.Positioner>
+                    </FilterMenu.Portal>
+                  </FilterMenu.SubmenuRoot>
+                </FilterMenu.List>
+              </FilterMenu.Popup>
+            </FilterMenu.Positioner>
+          </FilterMenu.Portal>
+        </FilterMenu.Root>,
+      );
+
+      const submenuTrigger = screen.getByRole('menuitem', { name: 'Move to folder' });
+      await user.hover(submenuTrigger);
+      const submenuInput = await screen.findByRole('searchbox', { name: 'Filter folders' });
+      await waitFor(() => {
+        expect(submenuInput).toHaveFocus();
+      });
+
+      // The hover interaction closes with the trigger's `mouseleave`, which makes the focus
+      // manager skip its return focus.
+      fireEvent.mouseLeave(submenuTrigger);
+      await waitFor(() => {
+        expect(submenuInput).not.toBeInTheDocument();
+      });
+
+      expect(screen.getByRole('searchbox', { name: 'Filter actions' })).toHaveFocus();
+    });
   });
 
   describe('leaving the menu', () => {
