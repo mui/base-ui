@@ -5,8 +5,7 @@ export type ItemEqualityComparer<Item = any, Value = Item> = (
   selectedValue: Value,
 ) => boolean;
 
-// Reference identity matters: `findSelectionIndex` only takes its indexed fast path when the
-// comparer *is* this function. Wrapping or re-creating it makes that lookup quadratic.
+// Compared by identity in `findSelectionIndex`; don't wrap it.
 export const defaultItemEquality: ItemEqualityComparer = (itemValue, selectedValue) =>
   Object.is(itemValue, selectedValue);
 
@@ -67,39 +66,21 @@ export function findItemIndex<Item, Value>(
   });
 }
 
-/**
- * Builds a membership test over the selected values, reused across every item.
- *
- * The default comparer is `Object.is`, so the values index into a `Set` and probe in constant
- * time. A custom comparer may call values equal that do not hash alike, so it scans instead.
- */
-function createSelectionMembership<Item, Value>(
+// The default comparer is `Object.is`, so the values can be indexed instead of rescanned
+// for every item. A custom comparer may match values that don't hash alike.
+function createSelectionMatcher<Item, Value>(
   selectedValues: readonly Value[],
   comparer: ItemEqualityComparer<Item, Value>,
 ): (itemValue: Item) => boolean {
   if (comparer !== defaultItemEquality) {
     return (itemValue) => selectedValueIncludes(selectedValues, itemValue, comparer);
   }
-
-  const index = new Set<unknown>();
-  // `forEach` reads by index, like the scan in `selectedValueIncludes`, so an array carrying a
-  // custom `Symbol.iterator` resolves the same anchor either way; `new Set(selectedValues)`
-  // would iterate. `undefined` marks a hole rather than a selection, so it is skipped.
-  selectedValues.forEach((selectedValue) => {
-    if (selectedValue !== undefined) {
-      index.add(selectedValue);
-    }
-  });
-
-  return (itemValue) => {
-    if (!index.has(itemValue)) {
-      return false;
-    }
-    // `Set` membership treats `+0` and `-0` as equal; `Object.is` does not, and the
-    // `isSelected` selectors in `select/store.ts` and `combobox/store.ts` use `Object.is`.
-    // Without this check the anchor could land on an item that renders unselected.
-    return itemValue !== 0 || selectedValues.some((v) => Object.is(itemValue, v));
-  };
+  const index = new Set<unknown>(selectedValues);
+  index.delete(undefined);
+  // `Set` treats +0 and -0 as equal; `Object.is` does not.
+  return (itemValue) =>
+    index.has(itemValue) &&
+    (itemValue !== 0 || selectedValues.some((v) => Object.is(itemValue, v)));
 }
 
 export function findSelectionIndex<Item, Value>(
@@ -112,9 +93,9 @@ export function findSelectionIndex<Item, Value>(
   // single-select value.
   const index =
     multiple && Array.isArray(selectedValue)
-      ? // Anchor to the first selected item in rendered order, so the index does not depend on
-        // the order the values were added to the array.
-        itemValues.findIndex(createSelectionMembership<Item, Value>(selectedValue, comparer))
+      ? // Anchor to the first selected item in rendered order so the index does not depend
+        // on the order in which the values were added to the array.
+        itemValues.findIndex(createSelectionMatcher(selectedValue, comparer))
       : findItemIndex(itemValues, selectedValue as Value, comparer);
   return index === -1 ? null : index;
 }
