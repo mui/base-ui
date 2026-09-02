@@ -232,6 +232,23 @@ function FilterMenuSubmenuNavigation(props: FilterMenuSubmenuNavigationProps) {
 
   const handleGetReturnElement = useStableCallback(getReturnElement);
 
+  const handleReturnFocus = useStableCallback(() => {
+    // A sibling submenu trigger under the pointer is about to open a popup that takes focus,
+    // so returning focus to the parent input in the meantime would only flash its highlight.
+    // If that submenu never opens, the parent popup reclaims focus on the next pointer move.
+    const activeIndex = parentStore.select('activeIndex');
+    const highlighted =
+      activeIndex == null ? null : parentStore.context.itemDomElements.current[activeIndex];
+    if (
+      highlighted &&
+      highlighted.hasAttribute('aria-haspopup') &&
+      !store.context.triggerElements.hasElement(highlighted)
+    ) {
+      return false;
+    }
+    return handleGetReturnElement();
+  });
+
   // A hover close makes the focus manager skip its return focus, which would strand the
   // submenu input's focus on the body once the popup unmounts. This runs in the effect body
   // rather than a cleanup: React drops the focus event when it fires during the mutation phase,
@@ -243,7 +260,7 @@ function FilterMenuSubmenuNavigation(props: FilterMenuSubmenuNavigationProps) {
       return;
     }
 
-    const returnElement = handleGetReturnElement();
+    const returnElement = handleReturnFocus();
     if (!returnElement || !parentStore.select('open')) {
       return;
     }
@@ -252,7 +269,7 @@ function FilterMenuSubmenuNavigation(props: FilterMenuSubmenuNavigationProps) {
     if (activeEl === doc.body || contains(store.select('popupElement'), activeEl)) {
       returnElement.focus({ preventScroll: true });
     }
-  }, [mounted, store, parentStore, handleGetReturnElement]);
+  }, [mounted, store, parentStore, handleReturnFocus]);
 
   function close(event: React.KeyboardEvent) {
     if (!store.select('open')) {
@@ -367,11 +384,11 @@ function FilterMenuSubmenuNavigation(props: FilterMenuSubmenuNavigationProps) {
 
   const contextValue = React.useMemo(
     () => ({
-      getReturnElement: handleGetReturnElement,
+      getReturnElement: handleReturnFocus,
       onTriggerKeyDown: handleTriggerKeyDown,
       onPopupKeyDown: handlePopupKeyDown,
     }),
-    [handleGetReturnElement, handleTriggerKeyDown, handlePopupKeyDown],
+    [handleReturnFocus, handleTriggerKeyDown, handlePopupKeyDown],
   );
 
   return (
