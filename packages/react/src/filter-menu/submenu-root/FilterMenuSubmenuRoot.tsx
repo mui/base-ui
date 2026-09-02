@@ -228,26 +228,30 @@ function FilterMenuSubmenuNavigation(props: FilterMenuSubmenuNavigationProps) {
   const { store, orientation, virtualFocusRef } = useMenuRootContext();
   const direction = useDirection();
   const mounted = store.useState('mounted');
+  const wasMountedRef = React.useRef(false);
 
   const handleGetReturnElement = useStableCallback(getReturnElement);
 
   // A hover close makes the focus manager skip its return focus, which would strand the
-  // submenu input's focus on the body once the popup unmounts.
+  // submenu input's focus on the body once the popup unmounts. This runs in the effect body
+  // rather than a cleanup: React drops the focus event when it fires during the mutation phase,
+  // so the input would never learn it holds focus.
   useIsoLayoutEffect(() => {
-    if (!mounted) {
-      return undefined;
+    const wasMounted = wasMountedRef.current;
+    wasMountedRef.current = mounted;
+    if (mounted || !wasMounted) {
+      return;
     }
-    return () => {
-      const returnElement = handleGetReturnElement();
-      if (!returnElement || !parentStore.select('open')) {
-        return;
-      }
-      const doc = ownerDocument(returnElement);
-      const activeEl = activeElement(doc);
-      if (activeEl === doc.body || contains(store.select('popupElement'), activeEl)) {
-        returnElement.focus({ preventScroll: true });
-      }
-    };
+
+    const returnElement = handleGetReturnElement();
+    if (!returnElement || !parentStore.select('open')) {
+      return;
+    }
+    const doc = ownerDocument(returnElement);
+    const activeEl = activeElement(doc);
+    if (activeEl === doc.body || contains(store.select('popupElement'), activeEl)) {
+      returnElement.focus({ preventScroll: true });
+    }
   }, [mounted, store, parentStore, handleGetReturnElement]);
 
   function close(event: React.KeyboardEvent) {
