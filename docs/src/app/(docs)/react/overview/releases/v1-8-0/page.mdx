@@ -15,7 +15,8 @@
 - Fix transform origin for start/end alignment ([#5015](https://github.com/mui/base-ui/pull/5015))
 - Remove duplicate options key from arrow middleware ([#5606](https://github.com/mui/base-ui/pull/5606))
 - Register passive touch listeners ([#5572](https://github.com/mui/base-ui/pull/5572))
-- Correctly infer value type in `useControlled` ([#5203](https://github.com/mui/base-ui/pull/5203))
+- 🚨 **Breaking change:** Correctly infer optional values in `useControlled`<br />
+  The returned value and setter now include `undefined` when both the controlled and default values can be `undefined` ([#5203](https://github.com/mui/base-ui/pull/5203))
 - Enforce store state key/value types ([#5423](https://github.com/mui/base-ui/pull/5423))
 - Make animation frame cancellation idempotent ([#5533](https://github.com/mui/base-ui/pull/5533))
 
@@ -50,8 +51,7 @@
 - Allow opening and browsing the popup while `readOnly` ([#5541](https://github.com/mui/base-ui/pull/5541))
 - Move `aria-orientation` to the role owners ([#5551](https://github.com/mui/base-ui/pull/5551))
 - Fix record item label lookup reading from `Object.prototype` ([#5518](https://github.com/mui/base-ui/pull/5518))
-- Anchor multiple selection to the first selected item ([#5573](https://github.com/mui/base-ui/pull/5573))
-- Make the multiple selection anchor lookup linear ([#5613](https://github.com/mui/base-ui/pull/5613))
+- Anchor multiple selection to the first selected item with a linear lookup ([#5573](https://github.com/mui/base-ui/pull/5573), [#5613](https://github.com/mui/base-ui/pull/5613))
 - Hide group labels and scrollbars from the accessibility tree ([#5598](https://github.com/mui/base-ui/pull/5598))
 
 ## Dialog
@@ -112,8 +112,7 @@
 ## Select
 
 - Move `aria-orientation` to the role owners ([#5551](https://github.com/mui/base-ui/pull/5551))
-- Anchor multiple selection to the first selected item ([#5573](https://github.com/mui/base-ui/pull/5573))
-- Make the multiple selection anchor lookup linear ([#5613](https://github.com/mui/base-ui/pull/5613))
+- Anchor multiple selection to the first selected item with a linear lookup ([#5573](https://github.com/mui/base-ui/pull/5573), [#5613](https://github.com/mui/base-ui/pull/5613))
 - Hide group labels and scrollbars from the accessibility tree ([#5598](https://github.com/mui/base-ui/pull/5598))
 - Fix the root ID being ignored inside a Field ([#5461](https://github.com/mui/base-ui/pull/5461))
 - Remove redundant size check in `<Select.Positioner>` ([#5469](https://github.com/mui/base-ui/pull/5469))
@@ -135,8 +134,7 @@
 
 ## Toast
 
-- Support partial data updates ([#5464](https://github.com/mui/base-ui/pull/5464))
-- Replace custom data wholesale and accept a function to derive it ([#5611](https://github.com/mui/base-ui/pull/5611))
+- Allow updating custom toast data with a function ([#5464](https://github.com/mui/base-ui/pull/5464), [#5611](https://github.com/mui/base-ui/pull/5611))
 
 ## Tooltip
 

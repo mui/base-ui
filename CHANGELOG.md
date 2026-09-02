@@ -18,7 +18,8 @@ _Sep 2, 2026_
 - Fix transform origin for start/end alignment (#5015) by @atomiks
 - Remove duplicate options key from arrow middleware (#5606) by @atomiks
 - Register passive touch listeners (#5572) by @wanxiankai
-- Correctly infer value type in `useControlled` (#5203) by @jjenzz
+- 🚨 **Breaking change:** Correctly infer optional values in `useControlled`<br />
+  The returned value and setter now include `undefined` when both the controlled and default values can be `undefined` (#5203) by @jjenzz
 - Enforce store state key/value types (#5423) by @jjenzz
 - Make animation frame cancellation idempotent (#5533) by @gilsmt
 
@@ -53,8 +54,7 @@ _Sep 2, 2026_
 - Allow opening and browsing the popup while `readOnly` (#5541) by @vikuscz
 - Move `aria-orientation` to the role owners (#5551) by @gonzoblasco
 - Fix record item label lookup reading from `Object.prototype` (#5518) by @XionWCFM
-- Anchor multiple selection to the first selected item (#5573) by @atomiks
-- Make the multiple selection anchor lookup linear (#5613) by @michaldudak
+- Anchor multiple selection to the first selected item with a linear lookup (#5573, #5613) by @atomiks and @michaldudak
 - Hide group labels and scrollbars from the accessibility tree (#5598) by @azeng4499
 
 ### Dialog
@@ -115,8 +115,7 @@ _Sep 2, 2026_
 ### Select
 
 - Move `aria-orientation` to the role owners (#5551) by @gonzoblasco
-- Anchor multiple selection to the first selected item (#5573) by @atomiks
-- Make the multiple selection anchor lookup linear (#5613) by @michaldudak
+- Anchor multiple selection to the first selected item with a linear lookup (#5573, #5613) by @atomiks and @michaldudak
 - Hide group labels and scrollbars from the accessibility tree (#5598) by @azeng4499
 - Fix the root ID being ignored inside a Field (#5461) by @atomiks
 - Remove redundant size check in `<Select.Positioner>` (#5469) by @sai6855
@@ -138,8 +137,7 @@ _Sep 2, 2026_
 
 ### Toast
 
-- Support partial data updates (#5464) by @chuganzy
-- Replace custom data wholesale and accept a function to derive it (#5611) by @michaldudak
+- Allow updating custom toast data with a function (#5464, #5611) by @chuganzy and @michaldudak
 
 ### Tooltip
 
