@@ -115,3 +115,33 @@ legacyManager.promise<number, ToastPayload>(Promise.resolve(5), {
   }),
   error: 'error',
 });
+
+type CallableData = () => string;
+const callableManager = useToastManager<CallableData>();
+
+callableManager.add({ data: () => 'initial' });
+
+callableManager.update('callable', {
+  // @ts-expect-error - a function is always an updater, so a callable value must be wrapped
+  data: () => 'replacement',
+});
+
+callableManager.update('callable', {
+  data: () => () => 'replacement',
+});
+
+callableManager.update('callable', {
+  data: (prevData) => {
+    expectType<CallableData | undefined, typeof prevData>(prevData);
+    return prevData;
+  },
+});
+
+callableManager.promise(Promise.resolve(1), {
+  loading: {
+    // @ts-expect-error - a function is always an updater, so a callable value must be wrapped
+    data: () => 'loading',
+  },
+  success: { data: () => () => 'done' },
+  error: 'failed',
+});

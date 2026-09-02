@@ -210,7 +210,7 @@ export class ToastStore extends ReactStore<State, {}, typeof selectors> {
   };
 
   updateToast = <Data extends object>(id: string, updates: ToastManagerUpdateOptions<Data>) => {
-    let resolved = updates;
+    let resolved = updates as ToastInternalUpdateOptions<Data>;
     if (typeof updates.data === 'function') {
       const prevToast = selectors.toast(this.state, id);
       // Never run the updater for an update the store is going to ignore.
@@ -222,7 +222,7 @@ export class ToastStore extends ReactStore<State, {}, typeof selectors> {
 
     // `data` is a plain value now, and the updater may have called back into the
     // store, so the internal update reads the current state again.
-    this.updateToastInternal(id, resolved as ToastInternalUpdateOptions<Data>, false, true);
+    this.updateToastInternal(id, resolved, false, true);
   };
 
   updateToastInternal = <Data extends object>(
