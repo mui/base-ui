@@ -36,9 +36,36 @@ export const settingsMetadata: SettingsMetadata<Settings> = {
 
 const COUNT = 10000;
 
-const ITEMS: Country[] = Array.from({ length: COUNT }, (_, index) => ({
+/**
+ * Pronounceable, alphabetically sorted names sampled evenly across the alphabet, so typeahead has
+ * something to find: every letter is an initial, and each further letter narrows the destination.
+ */
+function createNames(count: number) {
+  const onsets = ['', 'b', 'br', 'c', 'ch', 'd', 'dr', 'f', 'fl', 'g', 'gr', 'h', 'j', 'k', 'kr'];
+  onsets.push('l', 'm', 'n', 'p', 'pr', 'qu', 'r', 's', 'st', 't', 'tr', 'v', 'w', 'x', 'y', 'z');
+  const vowels = ['a', 'e', 'i', 'o', 'u'];
+  const codas = ['l', 'n', 'r', 's', 't', 'm', 'k', 'v', 'th', 'nd'];
+  const pool = new Set<string>();
+  for (const firstOnset of onsets) {
+    for (const firstVowel of vowels) {
+      for (const coda of codas) {
+        for (const secondOnset of onsets.slice(1)) {
+          for (const secondVowel of vowels) {
+            const name = firstOnset + firstVowel + coda + secondOnset + secondVowel;
+            pool.add(name[0].toUpperCase() + name.slice(1));
+          }
+        }
+      }
+    }
+  }
+  const sorted = Array.from(pool).sort((a, b) => a.localeCompare(b));
+  const step = sorted.length / count;
+  return Array.from({ length: count }, (_, index) => sorted[Math.floor(index * step)]);
+}
+
+const ITEMS: Country[] = createNames(COUNT).map((name, index) => ({
   code: `c-${index}`,
-  name: `Country ${index}`,
+  name,
 }));
 
 /**
@@ -89,6 +116,9 @@ export default function SelectVirtualizerExperiment() {
                 >
                   <Select.ItemIndicator className={styles.ItemIndicator}>✓</Select.ItemIndicator>
                   <Select.ItemText className={styles.ItemText}>{item.name}</Select.ItemText>
+                  <span className={styles.ItemIndex} aria-hidden>
+                    {index}
+                  </span>
                 </Select.Item>
               )}
             </Virtualizer>
@@ -104,9 +134,9 @@ export default function SelectVirtualizerExperiment() {
       <header className={styles.Header}>
         <h1>Virtualized Select</h1>
         <p>
-          {COUNT.toLocaleString()} items. Try the keyboard (<code>End</code>, <code>PageDown</code>
-          ), typeahead for a country far down the list, the scroll arrows, and hovering while
-          scrolled.
+          {COUNT.toLocaleString()} items in alphabetical order. Try the keyboard (<code>End</code>,{' '}
+          <code>PageDown</code>), typeahead (type <code>ma</code> or <code>tro</code> to jump far
+          down the list), the scroll arrows, and hovering while scrolled.
         </p>
       </header>
 
