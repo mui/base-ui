@@ -1,5 +1,30 @@
 # Versions
 
+## 0.4.0
+
+_Sep 2, 2026_
+
+- **Breaking change:** Correctly infer optional values in `useControlled`. The returned value and setter now include `undefined` when both the controlled and default values can be `undefined` (#5203) by @jjenzz
+- **Breaking change:** Enforce matching store state key/value types. Broad `Partial<State>` arguments must be narrowed to an exact known subset before calling `Store.update` or `ReactStore.useSyncedValues` (#5423) by @jjenzz
+- Add `clamp`, `areArraysEqual`, `formatNumber`, `stringifyLocale`, and shadow DOM utilities (#5167) by @romgrk
+- Make animation frame cancellation idempotent (#5533) by @gilsmt
+- Add `createLogOnce`, `reactMajor`, an iOS media query, and a stale event target fallback (#5540) by @romgrk
+- Expand store selectors and add configurable memoization (#5489) by @romgrk
+
+## 0.3.2
+
+_Aug 4, 2026_
+
+- Add `useIdleCallback` (#5229) by @bernardobelchior
+- Fix `usePreviousValue` equality comparison (#5264) by @lyzno1
+- Fix `useScrollLock` handoff with external overlays (#4665) by @atomiks
+
+## 0.3.1
+
+_Jun 18, 2026_
+
+Same code as 0.3.0.
+
 ## 0.3.0
 
 _Jun 11, 2026_
