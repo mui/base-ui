@@ -15,6 +15,15 @@ function useStableStore<State extends object>(initial: State) {
 describe('ReactStore', () => {
   const { render } = createRenderer();
 
+  it('create() constructs a fully wired ReactStore instance', () => {
+    const store = ReactStore.create({ value: 1, label: 'a' });
+
+    expect(store).toBeInstanceOf(ReactStore);
+    expect(store.state.value).toBe(1);
+    // The static type degrades to `Store` on the generic class (see Store.create).
+    expect((store as ReactStore<TestState>).context).toEqual({});
+  });
+
   it('syncs internal state from controlled prop', () => {
     let store!: ReactStore<TestState>;
 
