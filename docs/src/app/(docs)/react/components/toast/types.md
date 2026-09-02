@@ -598,8 +598,7 @@ type ToastManager<Data extends {} = any> = {
 type ToastManagerAddOptions<Data extends {}> = {
   /**
    * The unique identifier for the toast. Adding a toast with an existing ID
-   * updates it in place and refreshes its auto-dismiss timer. `data` given
-   * here replaces the existing data instead of being merged into it.
+   * updates it in place and refreshes its auto-dismiss timer.
    */
   id?: string;
   /** The title of the toast. */
@@ -824,13 +823,13 @@ type ToastManagerPromiseOptions<Value, Data extends {}> = {
 ```typescript
 type ToastManagerUpdateOptions<Data extends {}> = {
   /**
-   * Custom data for the toast.
-   * Shallow merged into the existing data only when the stored value and the
-   * given value are both plain objects. In every other case—arrays, `Map`,
-   * `Set`, `Date`, class instances, and a toast that has no data yet—the given
-   * value replaces the existing data. Passing `undefined` clears it.
+   * A partial value shallow merged into the toast's custom data.
+   * Only a plain object can be patched, so when the toast has no data yet, or its
+   * data is an array, a `Map`, a `Set`, a `Date`, or a class instance, the patch
+   * is ignored. Use `data` to replace the value instead. When both are given,
+   * `data` is stored first and the patch is merged into it.
    */
-  data?: Partial<Data>;
+  dataPatch?: Partial<Data>;
   /** The title of the toast. */
   title?: React.ReactNode;
   /**
@@ -864,6 +863,8 @@ type ToastManagerUpdateOptions<Data extends {}> = {
   >;
   /** The props forwarded to the toast positioner element when rendering anchored toasts. */
   positionerProps?: ToastManagerPositionerProps;
+  /** Custom data for the toast. */
+  data?: Data;
 };
 ```
 

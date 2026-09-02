@@ -42,8 +42,22 @@ typedManager.update('typed', {
 });
 
 typedManager.update('typed', {
+  // @ts-expect-error - id is a missing property, `data` replaces the whole value
   data: {
     count: 2,
+  },
+});
+
+typedManager.update('typed', {
+  dataPatch: {
+    count: 2,
+  },
+});
+
+typedManager.update('typed', {
+  dataPatch: {
+    // @ts-expect-error - message is not a valid property
+    message: 'not a number',
   },
 });
 
@@ -73,6 +87,12 @@ expectType<string, typeof legacyAddId>(legacyAddId);
 legacyManager.update<ToastPayload>('legacy', {
   data: {
     id: 'legacy-update',
+    count: 4,
+  },
+});
+
+legacyManager.update<ToastPayload>('legacy', {
+  dataPatch: {
     count: 4,
   },
 });

@@ -2,6 +2,7 @@ import { ReactStore } from '@base-ui/utils/store';
 import { generateId } from '@base-ui/utils/generateId';
 import { ownerDocument } from '@base-ui/utils/owner';
 import { Timeout } from '@base-ui/utils/useTimeout';
+import { warn } from '@base-ui/utils/warn';
 import {
   ToastManagerAddOptions,
   ToastManagerPromiseOptions,
@@ -13,10 +14,8 @@ import { activeElement, contains, getTarget } from '../floating-ui-react/utils';
 import { isFocusVisible } from './utils/focusVisible';
 
 type ToastInternalUpdateOptions<Data extends object> = Partial<
-  Omit<ToastObject<Data>, 'id' | 'updateKey' | 'data'>
-> & {
-  data?: Partial<Data> | undefined;
-};
+  Omit<ToastObject<Data>, 'id' | 'updateKey'>
+>;
 
 /**
  * A toast once it lives in the store. `addToast` is the only way in and it always
@@ -47,7 +46,7 @@ type InitialState = Omit<State, 'toastMetadata'>;
 
 const nativeObjectSource = Function.prototype.toString.call(Object);
 
-// Whether `value` is a record that can be copied key by key without losing anything, which
+// Whether `value` is a record that can be patched key by key without losing anything, which
 // is true when its prototype is some realm's `Object.prototype`. That accepts object
 // literals built inside an iframe, and rejects the values a copy would silently reshape:
 // arrays, `Map`, `Set`, `Date`, class instances (even those whose prototype chain ends
@@ -74,17 +73,45 @@ function isPlainObject(value: unknown): value is object {
   );
 }
 
-// Copies `updates` over `prev` while keeping `prev`'s prototype, which an object literal
+// Copies `patch` over `prev` while keeping `prev`'s prototype, which an object literal
 // would replace with this realm's `Object.prototype`. Spread defines own data properties,
 // unlike `Object.assign`, which writes through inherited setters, so an own `__proto__`
 // key (as `JSON.parse` produces) stays an own key instead of swapping the prototype.
-function mergeData<Data extends object>(prev: Data, updates: Partial<Data>): Data {
-  const merged = { ...prev, ...updates };
+function mergeData<Data extends object>(prev: Data, patch: Partial<Data>): Data {
+  const merged = { ...prev, ...patch };
   const prevPrototype = Object.getPrototypeOf(prev);
   if (prevPrototype !== Object.prototype) {
     Object.setPrototypeOf(merged, prevPrototype);
   }
   return merged;
+}
+
+// Folds `dataPatch` into `data`, patching the `data` given alongside it when there is one
+// and the toast's current data otherwise. Only a plain object can be patched by a plain
+// object: `Data` is unconstrained, so it may hold an array, a `Map`, or a class instance,
+// and copying those key by key would strip their prototype and silently produce a plain
+// object. Such a patch is dropped instead, with a warning in development.
+function resolveDataPatch<Data extends object>(
+  prevData: Data | undefined,
+  updates: ToastManagerUpdateOptions<Data>,
+): Omit<ToastManagerUpdateOptions<Data>, 'dataPatch'> {
+  const { dataPatch, ...rest } = updates;
+  if (dataPatch === undefined) {
+    return rest;
+  }
+
+  const base = Object.hasOwn(rest, 'data') ? rest.data : prevData;
+  if (isPlainObject(base) && isPlainObject(dataPatch)) {
+    return { ...rest, data: mergeData(base, dataPatch) };
+  }
+
+  warn(
+    'The `dataPatch` option was ignored because it can only be shallow merged into custom data ' +
+      'that is a plain object, and the toast either has no data or its data is not a plain ' +
+      'object (an array, a `Map`, a class instance, etc.). ' +
+      'Pass `data` to replace the value instead.',
+  );
+  return rest;
 }
 
 function createToastMetadata(toasts: StoredToast[]) {
@@ -248,29 +275,19 @@ export class ToastStore extends ReactStore<State, {}, typeof selectors> {
     return id;
   };
 
-  // The only entry point whose `data` is a patch rather than a complete value, so the only
-  // one that merges. `updateToastInternal` always replaces, which keeps a future internal
+  // The only entry point that accepts `dataPatch`, so the only one that merges. `data`
+  // always replaces, here and in `updateToastInternal`, which keeps a future internal
   // caller from silently patching a value it meant to overwrite.
   updateToast = <Data extends object>(id: string, updates: ToastManagerUpdateOptions<Data>) => {
     const prevToast = selectors.toast(this.state, id);
-    // `updateToastInternal` ignores these too, but bail out before touching `data` so an
+    // `updateToastInternal` ignores these too, but bail out before touching the data so an
     // ignored update (a promise settling after its toast was dismissed, say) never reads
     // the caller's getters or proxies.
     if (!prevToast || prevToast.transitionStatus === 'ending') {
       return;
     }
 
-    const prevData = prevToast.data;
-    // Only a plain object can be patched by a plain object. `Data` is unconstrained, so
-    // `data` may hold an array, a `Map`, or a class instance, and copying those key by key
-    // would strip their prototype and silently produce a plain object. Every other
-    // combination is passed through untouched and replaces `data` wholesale.
-    const merged =
-      isPlainObject(updates.data) && isPlainObject(prevData)
-        ? { ...updates, data: mergeData(prevData, updates.data) }
-        : updates;
-
-    this.updateToastInternal(id, merged, false, true);
+    this.updateToastInternal(id, resolveDataPatch(prevToast.data, updates), false, true);
   };
 
   updateToastInternal = <Data extends object>(
@@ -372,8 +389,9 @@ export class ToastStore extends ReactStore<State, {}, typeof selectors> {
     promiseValue: Promise<Value>,
     options: ToastManagerPromiseOptions<Value, Data>,
   ): Promise<Value> => {
-    // Create a loading toast (which does not auto-dismiss).
-    const loadingOptions = resolvePromiseOptions(options.loading);
+    // Create a loading toast (which does not auto-dismiss). It is new, so it has no data
+    // for a `dataPatch` to merge into.
+    const loadingOptions = resolveDataPatch(undefined, resolvePromiseOptions(options.loading));
     const id = this.addToast({
       ...loadingOptions,
       type: 'loading',

@@ -252,6 +252,7 @@ import { DemoToastPromise } from './demos/promise';
 
 A toast with custom data can be created by passing any typed object interface to the `data` option.
 This enables you to pass any data (including functions) you need to the toast and access it in the toast's rendering logic.
+When updating a toast, `data` replaces the whole value, while `dataPatch` shallow merges a partial value into existing plain object data.
 
 import { DemoToastCustom } from './demos/custom';
 
