@@ -331,7 +331,10 @@ export function useAdaptiveEstimateRefresh<RowModel>(
     for (let rowIndex = firstRowIndex; rowIndex < lastRowIndex; rowIndex += 1) {
       const row = rows[rowIndex];
       const measuredHeight = row == null ? null : readMeasuredHeight(row.id);
-      if (row != null && measuredHeight != null) {
+      // A zero height is a row that is not laid out — a list inside a `display: none` ancestor —
+      // never a measurement of it. Treating it as unmeasured is what it is: its real measurement
+      // arrives once the list is shown again, and brings another pass with it.
+      if (row != null && measuredHeight != null && measuredHeight > 0) {
         const previousHeight = measurements.heights.get(row.id);
         if (previousHeight !== measuredHeight) {
           measurements.heights.set(row.id, measuredHeight);
