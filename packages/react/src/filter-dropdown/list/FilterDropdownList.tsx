@@ -1,12 +1,13 @@
 'use client';
 import * as React from 'react';
 import { ownerWindow } from '@base-ui/utils/owner';
-import type { BaseUIComponentProps, HTMLProps } from '../../internals/types';
+import type { BaseUIComponentProps, BaseUIEvent, HTMLProps } from '../../internals/types';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { useActiveItemId, useFilterDropdownRootContext } from '../root/FilterDropdownRootContext';
 import { useRenderedId } from '../../internals/resolveRenderedId';
 import { getTarget } from '../../floating-ui-react/utils';
 import { resolveMenuPopupLabel } from '../../menu/popup/resolveMenuPopupLabel';
+import { isPointerFocusInProgress } from '../utils/focusByPointer';
 
 /**
  * @internal
@@ -42,6 +43,14 @@ export const FilterDropdownList = React.forwardRef(function FilterDropdownList(
         // Keep focus on the virtual focus owner when the list background is pressed, while
         // allowing items and the scrollbar to receive their native pointer interactions.
         event.preventDefault();
+      }
+    },
+    onFocus(event: BaseUIEvent<React.FocusEvent<HTMLDivElement>>) {
+      // Focusing a list that owns virtual focus seeds the first item's highlight so the arrow
+      // keys have a starting point. Focus handed back by the pointer keeps the pointer's own
+      // highlight instead.
+      if (isPointerFocusInProgress()) {
+        event.preventBaseUIHandler();
       }
     },
     onPointerMove() {

@@ -5125,6 +5125,72 @@ describe('<FilterMenu.Root />', () => {
       expect(submenuInput).toHaveFocus();
     });
 
+    it('does not seed a highlight when the pointer hands focus back to an inputless parent list', async () => {
+      const { user } = await render(
+        <FilterMenu.Root>
+          <FilterMenu.Trigger>Actions</FilterMenu.Trigger>
+          <FilterMenu.Portal>
+            <FilterMenu.Positioner>
+              <FilterMenu.Popup data-testid="root-popup">
+                <FilterMenu.List data-testid="root-list">
+                  <FilterMenu.Item>Rename</FilterMenu.Item>
+                  <FilterMenu.SubmenuRoot>
+                    <FilterMenu.SubmenuTrigger delay={0} closeDelay={1000}>
+                      Move to
+                    </FilterMenu.SubmenuTrigger>
+                    <FilterMenu.Portal>
+                      <FilterMenu.Positioner>
+                        <FilterMenu.Popup>
+                          <FilterMenu.Input aria-label="Filter destinations" />
+                          <FilterMenu.List>
+                            <FilterMenu.Item>Documents</FilterMenu.Item>
+                          </FilterMenu.List>
+                        </FilterMenu.Popup>
+                      </FilterMenu.Positioner>
+                    </FilterMenu.Portal>
+                  </FilterMenu.SubmenuRoot>
+                  <FilterMenu.Item>Delete</FilterMenu.Item>
+                </FilterMenu.List>
+              </FilterMenu.Popup>
+            </FilterMenu.Positioner>
+          </FilterMenu.Portal>
+        </FilterMenu.Root>,
+      );
+
+      // A keyboard open puts real focus on the list, which lets the pointer hand it back later.
+      const trigger = screen.getByRole('button', { name: 'Actions' });
+      await act(async () => {
+        trigger.focus();
+      });
+      await user.keyboard('[Enter]');
+      const rootList = await screen.findByTestId('root-list');
+      await waitFor(() => {
+        expect(rootList).toHaveFocus();
+      });
+
+      await user.hover(screen.getByRole('menuitem', { name: 'Move to' }));
+      const submenuInput = await screen.findByRole('searchbox', { name: 'Filter destinations' });
+      fireEvent.mouseMove(submenuInput);
+      await waitFor(() => {
+        expect(submenuInput).toHaveFocus();
+      });
+      // Leaving the submenu clears the pointer highlight of its trigger.
+      fireEvent.pointerLeave(screen.getByRole('menuitem', { name: 'Move to' }));
+      await waitFor(() => {
+        expect(rootList).not.toHaveAttribute('aria-activedescendant');
+      });
+
+      // Back into the parent popup over its padding rather than an item.
+      fireEvent.mouseMove(screen.getByTestId('root-popup'));
+
+      expect(rootList).toHaveFocus();
+      await act(() => waitSingleFrame());
+      expect(rootList).not.toHaveAttribute('aria-activedescendant');
+      expect(screen.getByRole('menuitem', { name: 'Rename' })).not.toHaveAttribute(
+        'data-highlighted',
+      );
+    });
+
     it('returns focus to the parent input when the pointer moves back over the parent popup', async () => {
       const { user } = await render(
         <FilterMenu.Root defaultOpen>
