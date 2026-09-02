@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { expect, vi } from 'vitest';
+import { expect, vi, describe, beforeEach, it } from 'vitest';
 import { Select } from '@base-ui/react/select';
 import { Virtualizer } from '@base-ui/react/virtualizer';
 import { fireEvent, flushMicrotasks, screen, waitFor } from '@mui/internal-test-utils';

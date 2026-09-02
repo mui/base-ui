@@ -1,6 +1,6 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
-import { expect, vi } from 'vitest';
+import { expect, vi, describe, beforeEach, it } from 'vitest';
 import { act, fireEvent, screen, waitFor } from '@mui/internal-test-utils';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { createRenderer, isJSDOM, createDOMRect, setElementClientHeight } from '#test-utils';

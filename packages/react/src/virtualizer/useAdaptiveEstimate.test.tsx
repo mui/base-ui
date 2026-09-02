@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { expect } from 'vitest';
+import { expect, describe, it } from 'vitest';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { createRenderer } from '#test-utils';
 import type { VirtualizerItemRowModel, VirtualizerRow } from '../internals/virtualization/types';

@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { expect, vi } from 'vitest';
+import { expect, vi, describe, it } from 'vitest';
 import { DirectionProvider, type TextDirection } from '@base-ui/react/direction-provider';
 import { ScrollArea } from '@base-ui/react/scroll-area';
 import { screen, fireEvent, flushMicrotasks, waitFor } from '@mui/internal-test-utils';
@@ -15,6 +15,26 @@ describe('<ScrollArea.Scrollbar />', () => {
       return render(<ScrollArea.Root>{node}</ScrollArea.Root>);
     },
   }));
+
+  it('is hidden from the accessibility tree by default', async () => {
+    await render(
+      <ScrollArea.Root>
+        <ScrollArea.Scrollbar keepMounted data-testid="scrollbar" />
+      </ScrollArea.Root>,
+    );
+
+    expect(screen.getByTestId('scrollbar')).toHaveAttribute('aria-hidden', 'true');
+  });
+
+  it('allows overriding aria-hidden', async () => {
+    await render(
+      <ScrollArea.Root>
+        <ScrollArea.Scrollbar keepMounted data-testid="scrollbar" aria-hidden={undefined} />
+      </ScrollArea.Root>,
+    );
+
+    expect(screen.getByTestId('scrollbar')).not.toHaveAttribute('aria-hidden');
+  });
 
   it('sets the orientation data attribute', async () => {
     await render(

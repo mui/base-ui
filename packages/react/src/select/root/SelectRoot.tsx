@@ -42,6 +42,7 @@ import { type Group, stringifyAsLabel, stringifyAsValue } from '../../internals/
 import {
   defaultItemEquality,
   findItemIndex,
+  findSelectionIndex,
   isSelectedValueDirty,
 } from '../../internals/itemEquality';
 import { useValueChanged } from '../../internals/useValueChanged';
@@ -401,19 +402,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
 
   useIsoLayoutEffect(
     function syncSelectedIndex() {
-      let target: unknown = value;
-      let empty = false;
-
-      if (multiple) {
-        const currentValue = Array.isArray(value) ? value : [];
-        empty = currentValue.length === 0;
-        target = currentValue[currentValue.length - 1];
-      }
-
-      const index = empty
-        ? -1
-        : findItemIndex(valuesRef.current, target as Value, isItemEqualToValue);
-      const nextIndex = index === -1 ? null : index;
+      const nextIndex = findSelectionIndex(valuesRef.current, value, isItemEqualToValue, multiple);
 
       if (nextIndex === null) {
         selectedItemTextRef.current = null;

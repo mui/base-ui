@@ -1,4 +1,4 @@
-import { expect, vi } from 'vitest';
+import { expect, vi, describe, it } from 'vitest';
 import * as React from 'react';
 import { Select } from '@base-ui/react/select';
 import {
@@ -408,8 +408,7 @@ describe('<Select.Item />', () => {
     fireEvent.click(option);
     await flushMicrotasks();
 
-    expect(onValueChange).toHaveBeenCalledOnce();
-    expect(onValueChange).toHaveBeenCalledWith('two', expect.anything());
+    expect(onValueChange).toHaveBeenCalledExactlyOnceWith('two', expect.anything());
     await waitFor(() => {
       expect(screen.getByTestId('value').textContent).toBe('two');
     });

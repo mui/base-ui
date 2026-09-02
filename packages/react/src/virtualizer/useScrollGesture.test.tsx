@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { expect } from 'vitest';
+import { expect, describe, beforeEach, it } from 'vitest';
 import { fireEvent, screen, waitFor } from '@mui/internal-test-utils';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import type { Virtualizer as MuiVirtualizer } from '@mui/x-virtualizer';

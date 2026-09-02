@@ -1,4 +1,4 @@
-import { expect } from 'vitest';
+import { expect, describe, it, afterEach } from 'vitest';
 import * as React from 'react';
 import { fireEvent, screen, waitFor } from '@mui/internal-test-utils';
 import { Field } from '@base-ui/react/field';

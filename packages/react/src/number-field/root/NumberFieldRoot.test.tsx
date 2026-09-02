@@ -1,4 +1,4 @@
-import { expect, vi } from 'vitest';
+import { expect, vi, describe, it } from 'vitest';
 import * as React from 'react';
 import { act, screen, fireEvent } from '@mui/internal-test-utils';
 import { NumberField as NumberFieldBase } from '@base-ui/react/number-field';
@@ -1865,23 +1865,20 @@ describe('<NumberField />', () => {
 
         expect(hiddenInput).not.toBe(null);
 
-        if (withField) {
-          expect(screen.getByTestId('error')).toHaveTextContent('test');
-          if (lockState === 'disabled') {
-            expect(input).not.toHaveAttribute('aria-invalid');
-          } else {
-            expect(input).toHaveAttribute('aria-invalid', 'true');
-          }
-        }
+        // Only the Field wrapper renders an error and marks the input invalid,
+        // unless the field is disabled.
+        const expectedError = withField ? 'test' : undefined;
+        const expectedAriaInvalid = withField && lockState !== 'disabled' ? 'true' : null;
+
+        expect(screen.queryByTestId('error')?.textContent).toBe(expectedError);
+        expect(input.getAttribute('aria-invalid')).toBe(expectedAriaInvalid);
 
         fireEvent.change(hiddenInput, { target: { value: '42' } });
 
         expect(onValueChange).not.toHaveBeenCalled();
         expect(input).toHaveValue('1');
 
-        if (withField) {
-          expect(screen.getByTestId('error')).toHaveTextContent('test');
-        }
+        expect(screen.queryByTestId('error')?.textContent).toBe(expectedError);
       },
     );
   });

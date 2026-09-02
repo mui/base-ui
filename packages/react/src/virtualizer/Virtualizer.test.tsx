@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { expect, vi } from 'vitest';
+import { expect, vi, describe, beforeEach, it } from 'vitest';
 import { Autocomplete } from '@base-ui/react/autocomplete';
 import { Combobox } from '@base-ui/react/combobox';
 import { Virtualizer } from '@base-ui/react/virtualizer';
@@ -76,13 +76,11 @@ describe('<Virtualizer />', () => {
 
     const virtualizer = screen.getByTestId('virtualizer');
     expect(virtualizer).toHaveStyle({ overflow: 'auto' });
-    if (isJSDOM) {
-      expect(virtualizer.style.getPropertyValue('--total-size')).toBe('3200px');
-    } else {
-      await waitFor(() =>
-        expect(virtualizer.style.getPropertyValue('--total-size')).toBe('2000px'),
-      );
-    }
+    // jsdom lays out three rows against the mocked heights; a real browser fits five.
+    const expectedTotalSize = isJSDOM ? '3200px' : '2000px';
+    await waitFor(() =>
+      expect(virtualizer.style.getPropertyValue('--total-size')).toBe(expectedTotalSize),
+    );
   });
 
   it('exposes imperative scrolling by logical item index', async () => {

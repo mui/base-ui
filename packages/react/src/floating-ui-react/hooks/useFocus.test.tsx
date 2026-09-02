@@ -1,4 +1,4 @@
-import { expect, vi } from 'vitest';
+import { expect, vi, beforeEach, afterEach, it } from 'vitest';
 import { act, fireEvent, render, screen } from '@mui/internal-test-utils';
 import * as React from 'react';
 import { isJSDOM, useTestInteractions } from '#test-utils';

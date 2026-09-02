@@ -1,5 +1,5 @@
 import { Store } from '@base-ui/utils/store';
-import { expect, vi } from 'vitest';
+import { expect, vi, describe, it } from 'vitest';
 import { setVirtualizationRenderAllRows } from './store';
 
 describe('Combobox store', () => {

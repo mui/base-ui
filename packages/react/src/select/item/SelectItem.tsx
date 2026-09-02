@@ -15,7 +15,11 @@ import { SelectItemContext } from './SelectItemContext';
 import { useButton } from '../../internals/use-button';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
-import { compareItemEquality, removeItem } from '../../internals/itemEquality';
+import {
+  compareItemEquality,
+  removeItem,
+  resolveSelectedIndex,
+} from '../../internals/itemEquality';
 import { isVirtualClick } from '../../floating-ui-react/utils/event';
 import { useSelectVirtualItemContext } from './SelectVirtualItemContext';
 import { useListVirtualizationHost } from '../../internals/virtualization/ListVirtualizationHostContext';
@@ -144,24 +148,37 @@ export const SelectItem = React.memo(
 
       const selectedValue = store.state.value;
 
-      let selectedCandidate = selectedValue;
+      const currentIndex = store.state.selectedIndex;
+      let nextIndex = currentIndex;
+      let claims: boolean;
       if (multiple && Array.isArray(selectedValue)) {
-        // Compare against the last selected item, or `undefined` when nothing is selected — never
-        // the raw array, which a custom `isItemEqualToValue` isn't expected to receive.
-        selectedCandidate =
-          selectedValue.length > 0 ? selectedValue[selectedValue.length - 1] : undefined;
-      }
-
-      if (
-        selectedCandidate !== undefined &&
-        compareItemEquality(itemValue, selectedCandidate, isItemEqualToValue)
-      ) {
-        store.set('selectedIndex', index);
-        // Make sure SelectPopup can measure the selected item on first open.
-        // SelectItemText can still update this ref later when focus moves.
-        if (textRef.current) {
-          store.context.selectedItemTextRef.current = textRef.current;
+        // The claiming item also owns the text ref that aligns the popup.
+        nextIndex = resolveSelectedIndex(
+          index,
+          itemValue,
+          store.context.valuesRef.current,
+          selectedValue,
+          isItemEqualToValue,
+          currentIndex,
+        );
+        claims = nextIndex === index;
+        if (index === currentIndex && !claims) {
+          store.context.selectedItemTextRef.current = null;
         }
+      } else {
+        claims =
+          selectedValue !== undefined &&
+          compareItemEquality(itemValue, selectedValue, isItemEqualToValue);
+        if (claims) {
+          nextIndex = index;
+        }
+      }
+      store.set('selectedIndex', nextIndex);
+
+      // Make sure SelectPopup can measure the selected item on first open.
+      // SelectItemText can still update this ref later when focus moves.
+      if (claims && textRef.current) {
+        store.context.selectedItemTextRef.current = textRef.current;
       }
     }, [index, multiple, isItemEqualToValue, store, itemValue, virtualized]);
 
