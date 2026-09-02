@@ -380,11 +380,11 @@ toastManager.update(toastId, {
 });
 ```
 
-Custom `data` is replaced as a whole. To change part of it, pass a function that receives the current value and returns the next one:
+Custom `data` is replaced as a whole. To change part of it, pass a function that receives the current value, or `undefined` when the toast has no data yet, and returns the next one:
 
 ```jsx title="Partial data update"
 toastManager.update(toastId, {
-  data: (prevData) => ({ ...prevData, progress: 100 }),
+  data: (prevData) => prevData && { ...prevData, progress: 100 },
 });
 ```
 
