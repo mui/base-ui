@@ -381,6 +381,14 @@ toastManager.update(toastId, {
 });
 ```
 
+Custom `data` is replaced as a whole. To change part of it, pass `dataPatch` instead, which shallow merges into existing plain object data:
+
+```jsx title="Partial data update"
+toastManager.update(toastId, {
+  dataPatch: { progress: 100 },
+});
+```
+
 ### `close` method
 
 Closes the toast, removing it from the toast list after any animations complete.

@@ -44,46 +44,15 @@ type ToastMetadata = {
 
 type InitialState = Omit<State, 'toastMetadata'>;
 
-const nativeObjectSource = Function.prototype.toString.call(Object);
-
-// Whether `value` is a record that can be patched key by key without losing anything, which
-// is true when its prototype is some realm's `Object.prototype`. That accepts object
-// literals built inside an iframe, and rejects the values a copy would silently reshape:
-// arrays, `Map`, `Set`, `Date`, class instances (even those whose prototype chain ends
-// right after the class, so "one hop from `null`" is not enough), and `Object.create(null)`
-// dictionaries, whose null prototype is the point of them.
+// Whether `value` is a record that can be patched key by key without losing anything: an
+// object whose prototype is `Object.prototype`. That rejects the values a copy would
+// silently reshape (arrays, `Map`, `Set`, `Date`, class instances) and `Object.create(null)`
+// dictionaries, whose null prototype is the point of them. A record from another realm is
+// rejected as well: recognizing it would cost more bytes than the case is worth.
 function isPlainObject(value: unknown): value is object {
-  if (value === null || typeof value !== 'object') {
-    return false;
-  }
-  const proto = Object.getPrototypeOf(value);
-  if (proto === null) {
-    return false;
-  }
-  if (proto === Object.prototype) {
-    return true;
-  }
-  // Another realm's `Object.prototype` is recognized through its own `constructor`: that
-  // realm's native `Object`, whose prototype is `proto` itself.
-  const Ctor = Object.hasOwn(proto, 'constructor') ? proto.constructor : undefined;
   return (
-    typeof Ctor === 'function' &&
-    Ctor.prototype === proto &&
-    Function.prototype.toString.call(Ctor) === nativeObjectSource
+    value !== null && typeof value === 'object' && Object.getPrototypeOf(value) === Object.prototype
   );
-}
-
-// Copies `patch` over `prev` while keeping `prev`'s prototype, which an object literal
-// would replace with this realm's `Object.prototype`. Spread defines own data properties,
-// unlike `Object.assign`, which writes through inherited setters, so an own `__proto__`
-// key (as `JSON.parse` produces) stays an own key instead of swapping the prototype.
-function mergeData<Data extends object>(prev: Data, patch: Partial<Data>): Data {
-  const merged = { ...prev, ...patch };
-  const prevPrototype = Object.getPrototypeOf(prev);
-  if (prevPrototype !== Object.prototype) {
-    Object.setPrototypeOf(merged, prevPrototype);
-  }
-  return merged;
 }
 
 // Folds `dataPatch` into `data`, patching the `data` given alongside it when there is one
@@ -102,14 +71,17 @@ function resolveDataPatch<Data extends object>(
 
   const base = Object.hasOwn(rest, 'data') ? rest.data : prevData;
   if (isPlainObject(base) && isPlainObject(dataPatch)) {
-    return { ...rest, data: mergeData(base, dataPatch) };
+    // Spread defines own data properties, unlike `Object.assign`, which writes through
+    // inherited setters, so an own `__proto__` key (as `JSON.parse` produces) stays an own
+    // key instead of swapping the prototype.
+    return { ...rest, data: { ...base, ...dataPatch } };
   }
 
   warn(
-    'The `dataPatch` option was ignored because it can only be shallow merged into custom data ' +
-      'that is a plain object, and the toast either has no data or its data is not a plain ' +
-      'object (an array, a `Map`, a class instance, etc.). ' +
-      'Pass `data` to replace the value instead.',
+    'The `dataPatch` option was ignored because it can only shallow merge a plain object into ' +
+      'custom data that is a plain object: the toast has no data, its data is not a plain ' +
+      'object (an array, a `Map`, a class instance, an object with a `null` prototype, etc.), ' +
+      'or the patch itself is not one. Pass `data` to replace the value instead.',
   );
   return rest;
 }
@@ -275,9 +247,9 @@ export class ToastStore extends ReactStore<State, {}, typeof selectors> {
     return id;
   };
 
-  // The only entry point that accepts `dataPatch`, so the only one that merges. `data`
-  // always replaces, here and in `updateToastInternal`, which keeps a future internal
-  // caller from silently patching a value it meant to overwrite.
+  // `data` always replaces, here and in `updateToastInternal`; only `resolveDataPatch`
+  // merges, which keeps a future internal caller from silently patching a value it meant
+  // to overwrite.
   updateToast = <Data extends object>(id: string, updates: ToastManagerUpdateOptions<Data>) => {
     const prevToast = selectors.toast(this.state, id);
     // `updateToastInternal` ignores these too, but bail out before touching the data so an
@@ -389,8 +361,10 @@ export class ToastStore extends ReactStore<State, {}, typeof selectors> {
     promiseValue: Promise<Value>,
     options: ToastManagerPromiseOptions<Value, Data>,
   ): Promise<Value> => {
-    // Create a loading toast (which does not auto-dismiss). It is new, so it has no data
-    // for a `dataPatch` to merge into.
+    // Create a loading toast (which does not auto-dismiss). The `loading` type omits
+    // `dataPatch` because the toast is new, but one passed from JavaScript is still resolved
+    // here so it never lands on the toast: it merges into `data` given alongside it or is
+    // dropped with a warning.
     const loadingOptions = resolveDataPatch(undefined, resolvePromiseOptions(options.loading));
     const id = this.addToast({
       ...loadingOptions,

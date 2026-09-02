@@ -210,30 +210,6 @@ describe('ToastStore', () => {
     }
   });
 
-  it('merges a data patch into plain object custom data from another realm', () => {
-    // A record built in another realm — an iframe — has that realm's `Object.prototype`,
-    // which is not this realm's. It is still a plain record, so it merges, and the merge
-    // must not swap its prototype for the local one.
-    const iframe = document.createElement('iframe');
-    document.body.appendChild(iframe);
-    try {
-      const ForeignObject = (iframe.contentWindow as Window & typeof globalThis).Object;
-      const foreignObjectPrototype = ForeignObject.prototype;
-      expect(foreignObjectPrototype).not.toBe(Object.prototype);
-
-      const store = createStore([
-        { id: 'a', data: Object.assign(new ForeignObject(), { name: 'Draft', count: 1 }) },
-      ]);
-
-      store.updateToast('a', { dataPatch: { count: 2 } });
-      const data = selectors.toast(store.state, 'a')?.data;
-      expect({ ...data }).toEqual({ name: 'Draft', count: 2 });
-      expect(Object.getPrototypeOf(data)).toBe(foreignObjectPrototype);
-    } finally {
-      iframe.remove();
-    }
-  });
-
   it('keeps an own __proto__ key in a data patch as an own key', () => {
     const store = createStore([{ id: 'a', data: { name: 'Draft' } }]);
 
@@ -249,30 +225,6 @@ describe('ToastStore', () => {
     // The merged value is still a plain object, so a later patch still merges.
     store.updateToast('a', { dataPatch: { count: 1 } });
     expect(selectors.toast(store.state, 'a')?.data).toMatchObject({ name: 'Draft', count: 1 });
-  });
-
-  it('defines patched custom data as own properties instead of calling inherited setters', () => {
-    // The setter lives on another realm's `Object.prototype`, so it is inherited by a plain
-    // record from that realm without leaking into this realm's objects.
-    const iframe = document.createElement('iframe');
-    document.body.appendChild(iframe);
-    try {
-      const ForeignObject = (iframe.contentWindow as Window & typeof globalThis).Object;
-      const setter = vi.fn();
-      Object.defineProperty(ForeignObject.prototype, 'count', { set: setter, configurable: true });
-      const store = createStore([
-        { id: 'a', data: Object.assign(new ForeignObject(), { name: 'Draft' }) },
-      ]);
-
-      store.updateToast('a', { dataPatch: { count: 2 } });
-      const data = selectors.toast(store.state, 'a')?.data;
-      expect(setter).not.toHaveBeenCalled();
-      expect(Object.hasOwn(data, 'count')).toBe(true);
-      expect({ ...data }).toEqual({ name: 'Draft', count: 2 });
-      expect(Object.getPrototypeOf(data)).toBe(ForeignObject.prototype);
-    } finally {
-      iframe.remove();
-    }
   });
 
   it('does not read a data patch when updating a missing or ending toast', () => {
@@ -323,7 +275,11 @@ describe('ToastStore', () => {
 
       // A loading toast is brand new, so it has no data for a patch to merge into.
       await store.promiseToast(Promise.resolve('done'), {
-        loading: { title: 'Saving', dataPatch: { progress: 0 } },
+        loading: {
+          title: 'Saving',
+          // @ts-expect-error - the `loading` type omits `dataPatch`; a JavaScript caller can still pass one
+          dataPatch: { progress: 0 },
+        },
         success: 'Saved',
         error: 'Failed',
       });

@@ -73,6 +73,16 @@ typedManager.promise(Promise.resolve(2), {
   error: 'error',
 });
 
+typedManager.promise(Promise.resolve(2), {
+  loading: {
+    title: 'loading',
+    // @ts-expect-error - dataPatch cannot merge into a new loading toast
+    dataPatch: { count: 1 },
+  },
+  success: 'success',
+  error: 'error',
+});
+
 const legacyManager = createToastManager();
 
 const legacyAddId = legacyManager.add<ToastPayload>({

@@ -129,20 +129,33 @@ export interface ToastManagerAddOptions<Data extends object> extends Omit<
 }
 
 export interface ToastManagerUpdateOptions<Data extends object> extends Partial<
-  Omit<ToastObject<Data>, 'id' | 'ref' | 'height' | 'transitionStatus' | 'limited' | 'updateKey'>
+  Omit<
+    ToastObject<Data>,
+    'id' | 'ref' | 'height' | 'transitionStatus' | 'limited' | 'updateKey' | 'data'
+  >
 > {
   /**
+   * Custom data for the toast.
+   * Replaces the stored value. Use `dataPatch` to shallow merge into it instead.
+   */
+  data?: Data | undefined;
+  /**
    * A partial value shallow merged into the toast's custom data.
-   * Only a plain object can be patched, so when the toast has no data yet, or its
-   * data is an array, a `Map`, a `Set`, a `Date`, or a class instance, the patch
-   * is ignored. Use `data` to replace the value instead. When both are given,
-   * `data` is stored first and the patch is merged into it.
+   * Both the stored data and the patch must be plain objects, so the patch is ignored
+   * when the toast has no data yet, or when either value is an array, a `Map`, a `Set`,
+   * a `Date`, a class instance, or an object with a `null` prototype.
+   * Use `data` to replace the value instead. When both are given, `data` is stored
+   * first and the patch is merged into it.
    */
   dataPatch?: Partial<Data> | undefined;
 }
 
 export interface ToastManagerPromiseOptions<Value, Data extends object> {
-  loading: string | ToastManagerUpdateOptions<Data>;
+  /**
+   * Options for the toast while the promise is pending. It is a new toast, so
+   * `dataPatch` is not accepted; pass `data` instead.
+   */
+  loading: string | Omit<ToastManagerUpdateOptions<Data>, 'dataPatch'>;
   success:
     | string
     | ToastManagerUpdateOptions<Data>
