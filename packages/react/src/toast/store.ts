@@ -77,12 +77,15 @@ function resolveDataPatch<Data extends object>(
     return { ...rest, data: { ...base, ...dataPatch } };
   }
 
-  warn(
-    'The `dataPatch` option was ignored because it can only shallow merge a plain object into ' +
-      'custom data that is a plain object: the toast has no data, its data is not a plain ' +
-      'object (an array, a `Map`, a class instance, an object with a `null` prototype, etc.), ' +
-      'or the patch itself is not one. Pass `data` to replace the value instead.',
-  );
+  // The guard lets production bundles drop the message and, with it, the whole logger.
+  if (process.env.NODE_ENV !== 'production') {
+    warn(
+      'The `dataPatch` option was ignored because it can only shallow merge a plain object into ' +
+        'custom data that is a plain object: the toast has no data, its data is not a plain ' +
+        'object (an array, a `Map`, a class instance, an object with a `null` prototype, etc.), ' +
+        'or the patch itself is not one. Pass `data` to replace the value instead.',
+    );
+  }
   return rest;
 }
 
