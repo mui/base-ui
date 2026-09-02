@@ -38,14 +38,11 @@ describe('findSelectionIndex', () => {
   });
 
   it('reads the selected values once instead of rescanning them for every item', () => {
-    // Nothing rendered is selected, which is the shape that guarantees the full product:
-    // `findIndex` walks every item and every item scans the whole selection. An earlier
-    // match shortens the outer walk, so it pins the cost less reliably.
+    // Nothing is selected, so the search cannot stop early and has to visit every item.
     const itemValues = Array.from({ length: 200 }, (_, i) => `item-${i}`);
 
-    // Counting element reads rather than comparer calls keeps this honest: the fast path
-    // never routes through `Object.is`, so counting comparisons would be satisfied by 0 and
-    // would also pass for an implementation that rebuilds the index inside the item loop.
+    // Counting element reads rather than comparer calls: the fast path never calls the
+    // comparer, so a comparison count would pass at 0 no matter how often the values are read.
     let reads = 0;
     const selectedValues = new Proxy(
       Array.from({ length: 100 }, (_, i) => `filtered-out-${i}`),
@@ -70,8 +67,7 @@ describe('findSelectionIndex', () => {
     expect(findSelectionIndex([-0], [-0], defaultItemEquality, true)).toBe(0);
     expect(findSelectionIndex([1, 0], [2, 0], defaultItemEquality, true)).toBe(1);
 
-    // Multi-element on both sides, so the exact re-check runs against a real selection
-    // rather than resolving from a single value.
+    // More than one value on each side, so the zero is matched against a real selection.
     expect(findSelectionIndex([1, -0], [2, 0], defaultItemEquality, true)).toBe(null);
     expect(findSelectionIndex([1, -0], [2, -0], defaultItemEquality, true)).toBe(1);
   });

@@ -5,9 +5,8 @@ export type ItemEqualityComparer<Item = any, Value = Item> = (
   selectedValue: Value,
 ) => boolean;
 
-// Reference identity is load-bearing: `findSelectionIndex` only takes its indexed fast path
-// when the comparer *is* this function, so wrapping or re-creating it at the roots would
-// silently restore the O(items x selections) lookup.
+// Reference identity matters: `findSelectionIndex` only takes its indexed fast path when the
+// comparer *is* this function. Wrapping or re-creating it makes that lookup quadratic.
 export const defaultItemEquality: ItemEqualityComparer = (itemValue, selectedValue) =>
   Object.is(itemValue, selectedValue);
 
@@ -69,11 +68,10 @@ export function findItemIndex<Item, Value>(
 }
 
 /**
- * Builds a membership test over the selected values that can be reused across items.
+ * Builds a membership test over the selected values, reused across every item.
  *
- * The default comparer is `Object.is`, so the values can be indexed in a `Set` and
- * probed in constant time instead of being rescanned for every item. A custom comparer
- * may report values equal that do not hash alike, so it keeps the linear scan.
+ * The default comparer is `Object.is`, so the values index into a `Set` and probe in constant
+ * time. A custom comparer may call values equal that do not hash alike, so it scans instead.
  */
 function createSelectionMembership<Item, Value>(
   selectedValues: readonly Value[],
@@ -84,13 +82,9 @@ function createSelectionMembership<Item, Value>(
   }
 
   const index = new Set<unknown>();
-  // `forEach` walks the values the way the `some()` scan in `selectedValueIncludes` did: one
-  // length snapshot, holes skipped, no `Symbol.iterator`. Building the index from
-  // `new Set(selectedValues)` would iterate instead, letting an unusual array resolve a
-  // different anchor than it did before the values were indexed. That keeps this lookup
-  // exact by construction — not a promise about exotic arrays elsewhere, since the toggle
-  // path spreads the same array. An explicit `undefined` never matches either, the same way
-  // that scan rejects it.
+  // `forEach` reads by index, like the scan in `selectedValueIncludes`, so an array carrying a
+  // custom `Symbol.iterator` resolves the same anchor either way; `new Set(selectedValues)`
+  // would iterate. `undefined` marks a hole rather than a selection, so it is skipped.
   selectedValues.forEach((selectedValue) => {
     if (selectedValue !== undefined) {
       index.add(selectedValue);
@@ -101,10 +95,9 @@ function createSelectionMembership<Item, Value>(
     if (!index.has(itemValue)) {
       return false;
     }
-    // `Set` membership is SameValueZero, which unifies `+0` and `-0`. The exact re-check is
-    // what keeps this agreeing with the `isSelected` selectors in `select/store.ts` and
-    // `combobox/store.ts`, which compare through `Object.is`: without it the anchor could
-    // land on an item that renders unselected. Only a zero ever pays for it.
+    // `Set` membership treats `+0` and `-0` as equal; `Object.is` does not, and the
+    // `isSelected` selectors in `select/store.ts` and `combobox/store.ts` use `Object.is`.
+    // Without this check the anchor could land on an item that renders unselected.
     return itemValue !== 0 || selectedValues.some((v) => Object.is(itemValue, v));
   };
 }
@@ -119,9 +112,8 @@ export function findSelectionIndex<Item, Value>(
   // single-select value.
   const index =
     multiple && Array.isArray(selectedValue)
-      ? // Anchor to the first selected item in rendered order so the index does not depend
-        // on the order in which the values were added to the array.
-        // A hole (`undefined`) never matches: the membership test rejects it.
+      ? // Anchor to the first selected item in rendered order, so the index does not depend on
+        // the order the values were added to the array.
         itemValues.findIndex(createSelectionMembership<Item, Value>(selectedValue, comparer))
       : findItemIndex(itemValues, selectedValue as Value, comparer);
   return index === -1 ? null : index;
