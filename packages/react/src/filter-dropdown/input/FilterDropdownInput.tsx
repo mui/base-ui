@@ -10,6 +10,7 @@ import {
   useFilterDropdownRootContext,
   useFilterDropdownValueContext,
 } from '../root/FilterDropdownRootContext';
+import { focusByPointer } from '../utils/focusByPointer';
 
 const MOVE_CARET_KEYS = ['ArrowLeft', 'ArrowRight', 'Home', 'End'];
 
@@ -77,7 +78,7 @@ export const FilterDropdownInput = React.forwardRef(function FilterDropdownInput
           context.setKeyboardModality(false);
           // Take focus so typing filters immediately, unless the list is inline on the page.
           if (context.open && !context.inline) {
-            event.currentTarget.focus({ preventScroll: true });
+            focusByPointer(event.currentTarget);
           }
         },
         onPointerDown() {

@@ -5081,7 +5081,7 @@ describe('<FilterMenu.Root />', () => {
       expect(auxiliary).toHaveFocus();
     });
 
-    it('keeps focus in an open submenu while the pointer crosses the parent popup', async () => {
+    it('keeps focus in an open auto-focused submenu while the pointer crosses the parent popup', async () => {
       const { user } = await render(
         <FilterMenu.Root defaultOpen>
           <FilterMenu.Trigger>Actions</FilterMenu.Trigger>
@@ -5093,6 +5093,48 @@ describe('<FilterMenu.Root />', () => {
                   <FilterMenu.Item>Rename</FilterMenu.Item>
                   <FilterMenu.SubmenuRoot>
                     {/* Crossing a sibling item only schedules the close. */}
+                    <FilterMenu.SubmenuTrigger delay={0} closeDelay={1000}>
+                      Move to folder
+                    </FilterMenu.SubmenuTrigger>
+                    <FilterMenu.Portal>
+                      <FilterMenu.Positioner>
+                        <FilterMenu.Popup>
+                          <FilterMenu.Input aria-label="Filter folders" autoFocus />
+                          <FilterMenu.List>
+                            <FilterMenu.Item>Documents</FilterMenu.Item>
+                          </FilterMenu.List>
+                        </FilterMenu.Popup>
+                      </FilterMenu.Positioner>
+                    </FilterMenu.Portal>
+                  </FilterMenu.SubmenuRoot>
+                </FilterMenu.List>
+              </FilterMenu.Popup>
+            </FilterMenu.Positioner>
+          </FilterMenu.Portal>
+        </FilterMenu.Root>,
+      );
+
+      await user.hover(screen.getByRole('menuitem', { name: 'Move to folder' }));
+      const submenuInput = await screen.findByRole('searchbox', { name: 'Filter folders' });
+      await waitFor(() => {
+        expect(submenuInput).toHaveFocus();
+      });
+
+      fireEvent.mouseMove(screen.getByRole('menuitem', { name: 'Rename' }));
+
+      expect(submenuInput).toHaveFocus();
+    });
+
+    it('returns focus to the parent input when the pointer moves back over the parent popup', async () => {
+      const { user } = await render(
+        <FilterMenu.Root defaultOpen>
+          <FilterMenu.Trigger>Actions</FilterMenu.Trigger>
+          <FilterMenu.Portal>
+            <FilterMenu.Positioner>
+              <FilterMenu.Popup>
+                <FilterMenu.Input aria-label="Filter actions" />
+                <FilterMenu.List>
+                  <FilterMenu.SubmenuRoot>
                     <FilterMenu.SubmenuTrigger delay={0} closeDelay={1000}>
                       Move to folder
                     </FilterMenu.SubmenuTrigger>
@@ -5114,16 +5156,24 @@ describe('<FilterMenu.Root />', () => {
         </FilterMenu.Root>,
       );
 
-      await user.hover(screen.getByRole('menuitem', { name: 'Move to folder' }));
+      const rootInput = screen.getByRole('searchbox', { name: 'Filter actions' });
+      const submenuTrigger = screen.getByRole('menuitem', { name: 'Move to folder' });
+      await user.hover(submenuTrigger);
       const submenuInput = await screen.findByRole('searchbox', { name: 'Filter folders' });
       fireEvent.mouseMove(submenuInput);
       await waitFor(() => {
-        expect(submenuInput).toHaveFocus();
+        expect(submenuInput).toHaveAttribute('data-highlighted');
       });
 
-      fireEvent.mouseMove(screen.getByRole('menuitem', { name: 'Rename' }));
+      // Back over the still-open submenu's trigger.
+      fireEvent.mouseMove(submenuTrigger);
 
-      expect(submenuInput).toHaveFocus();
+      expect(rootInput).toHaveFocus();
+      await waitFor(() => {
+        expect(rootInput).toHaveAttribute('data-highlighted');
+      });
+      expect(submenuInput).not.toHaveAttribute('data-highlighted');
+      expect(submenuInput).toBeVisible();
     });
 
     it('returns focus to the parent input once a pointer-opened submenu unmounts', async () => {
@@ -5377,9 +5427,9 @@ describe('<FilterMenu.Root />', () => {
       expect(submenuInput).toHaveFocus();
     });
 
-    it('leaves the parent input alone while the pointer moves between submenu triggers', async () => {
-      const onRootInputFocus = vi.fn();
-      const { user } = await render(<SiblingSubmenus onRootInputFocus={onRootInputFocus} />);
+    it('moves focus back to the parent input while the pointer moves between submenu triggers', async () => {
+      const { user } = await render(<SiblingSubmenus onRootInputFocus={() => {}} />);
+      const rootInput = screen.getByRole('searchbox', { name: 'Filter actions' });
 
       await user.hover(screen.getByRole('menuitem', { name: 'Move to folder' }));
       const firstInput = await screen.findByRole('searchbox', { name: 'Filter Move to folder' });
@@ -5387,18 +5437,15 @@ describe('<FilterMenu.Root />', () => {
       await waitFor(() => {
         expect(firstInput).toHaveFocus();
       });
-      const rootFocusCount = onRootInputFocus.mock.calls.length;
 
       await user.hover(screen.getByRole('menuitem', { name: 'Share' }));
       await waitFor(() => {
-        expect(firstInput).not.toBeInTheDocument();
+        expect(rootInput).toHaveFocus();
       });
       const secondInput = await screen.findByRole('searchbox', { name: 'Filter Share' });
       // Let the second submenu's open settle without moving focus.
       await act(() => waitSingleFrame());
-
-      expect(onRootInputFocus).toHaveBeenCalledTimes(rootFocusCount);
-      expect(secondInput).not.toHaveFocus();
+      expect(rootInput).toHaveFocus();
 
       fireEvent.mouseMove(secondInput);
       expect(secondInput).toHaveFocus();
