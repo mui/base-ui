@@ -157,8 +157,10 @@ function FilterableSubmenu(props: FilterableSubmenuProps) {
 
 const popupClass =
   'min-w-[max(14rem,var(--anchor-width))] origin-[var(--transform-origin)] overflow-hidden border border-neutral-950 bg-white text-neutral-950 shadow-[0.25rem_0.25rem_0] shadow-black/12 transition-[scale,opacity] duration-100 ease-out outline-hidden data-ending-style:scale-[0.98] data-ending-style:opacity-0 data-starting-style:scale-[0.98] data-starting-style:opacity-0 dark:border-white dark:bg-neutral-950 dark:text-white dark:shadow-none';
+// Focus passes through the input for a few frames while moving between submenus, so the
+// highlight is delayed.
 const inputContainerClass =
-  'flex items-center border-b border-neutral-300 has-data-highlighted:border-neutral-950 has-data-highlighted:ring-1 has-data-highlighted:ring-neutral-950 has-data-highlighted:ring-inset dark:border-neutral-700 dark:has-data-highlighted:border-white dark:has-data-highlighted:ring-white';
+  'flex items-center border-b border-neutral-300 has-data-highlighted:border-neutral-950 has-data-highlighted:ring-1 has-data-highlighted:ring-neutral-950 has-data-highlighted:ring-inset has-data-highlighted:transition-[border-color,box-shadow] has-data-highlighted:duration-0 has-data-highlighted:delay-75 dark:border-neutral-700 dark:has-data-highlighted:border-white dark:has-data-highlighted:ring-white';
 const inputClass =
   'min-h-8 w-0 flex-1 bg-transparent px-2.5 text-sm leading-none outline-hidden placeholder:text-neutral-500 dark:placeholder:text-neutral-400';
 const clearClass = 'flex size-8 items-center justify-center bg-transparent';
