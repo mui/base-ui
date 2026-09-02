@@ -28,6 +28,66 @@ describe('findSelectionIndex', () => {
       ),
     ).toBe(1);
   });
+
+  it('anchors to the first selected item with a custom comparer', () => {
+    const comparer = (itemValue: string, selectedValue: string) =>
+      itemValue.toLowerCase() === selectedValue.toLowerCase();
+
+    expect(findSelectionIndex(items, ['C', 'B'], comparer, true)).toBe(1);
+    expect(findSelectionIndex(items, ['D'], comparer, true)).toBe(null);
+  });
+
+  it('reads the selected values once instead of rescanning them for every item', () => {
+    // Nothing rendered is selected, so a nested scan would visit every pair.
+    const itemValues = Array.from({ length: 200 }, (_, i) => `item-${i}`);
+
+    let reads = 0;
+    const selectedValues = new Proxy(
+      Array.from({ length: 100 }, (_, i) => `filtered-out-${i}`),
+      {
+        get(target, key, receiver) {
+          if (typeof key === 'string' && String(Number(key)) === key) {
+            reads += 1;
+          }
+          return Reflect.get(target, key, receiver);
+        },
+      },
+    );
+
+    expect(findSelectionIndex(itemValues, selectedValues, defaultItemEquality, true)).toBe(null);
+    expect(reads).toBeLessThanOrEqual(itemValues.length + selectedValues.length);
+  });
+
+  it('keeps `+0` and `-0` distinct, like `Object.is`', () => {
+    expect(findSelectionIndex([-0], [0], defaultItemEquality, true)).toBe(null);
+    expect(findSelectionIndex([0], [-0], defaultItemEquality, true)).toBe(null);
+    expect(findSelectionIndex([-0], [-0], defaultItemEquality, true)).toBe(0);
+    expect(findSelectionIndex([1, 0], [2, 0], defaultItemEquality, true)).toBe(1);
+    expect(findSelectionIndex([1, -0], [2, 0], defaultItemEquality, true)).toBe(null);
+    expect(findSelectionIndex([1, -0], [2, -0], defaultItemEquality, true)).toBe(1);
+  });
+
+  it('matches `NaN` and `null` against themselves', () => {
+    expect(findSelectionIndex([1, NaN], [NaN], defaultItemEquality, true)).toBe(1);
+    expect(findSelectionIndex(['a', null], [null], defaultItemEquality, true)).toBe(1);
+  });
+
+  it('never matches an `undefined` item or an `undefined` selected value', () => {
+    expect(findSelectionIndex([undefined, 'b'], [undefined, 'b'], defaultItemEquality, true)).toBe(
+      1,
+    );
+    expect(findSelectionIndex([undefined], [undefined], defaultItemEquality, true)).toBe(null);
+  });
+
+  it('never matches a hole left by an unmounted item', () => {
+    const sparseItems: string[] = [];
+    sparseItems[2] = 'c';
+    const sparseSelection: string[] = [];
+    sparseSelection[1] = 'c';
+
+    expect(findSelectionIndex(sparseItems, sparseSelection, defaultItemEquality, true)).toBe(2);
+    expect(findSelectionIndex(sparseItems, [], defaultItemEquality, true)).toBe(null);
+  });
 });
 
 describe('resolveSelectedIndex', () => {
