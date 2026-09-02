@@ -45,17 +45,33 @@ type ToastMetadata = {
 
 type InitialState = Omit<State, 'toastMetadata'>;
 
+const nativeObjectSource = Function.prototype.toString.call(Object);
+
 // Whether `value` is a record that can be copied key by key without losing anything, which
-// is true when its prototype is one hop from `null`. That accepts object literals from any
-// realm, so a record built inside an iframe still merges, and rejects the values a copy
-// would silently reshape: arrays, `Map`, `Set`, `Date`, class instances, and
-// `Object.create(null)` dictionaries, whose null prototype is the point of them.
+// is true when its prototype is some realm's `Object.prototype`. That accepts object
+// literals built inside an iframe, and rejects the values a copy would silently reshape:
+// arrays, `Map`, `Set`, `Date`, class instances (even those whose prototype chain ends
+// right after the class, so "one hop from `null`" is not enough), and `Object.create(null)`
+// dictionaries, whose null prototype is the point of them.
 function isPlainObject(value: unknown): value is object {
   if (value === null || typeof value !== 'object') {
     return false;
   }
   const proto = Object.getPrototypeOf(value);
-  return proto !== null && Object.getPrototypeOf(proto) === null;
+  if (proto === null) {
+    return false;
+  }
+  if (proto === Object.prototype) {
+    return true;
+  }
+  // Another realm's `Object.prototype` is recognized through its own `constructor`: that
+  // realm's native `Object`, whose prototype is `proto` itself.
+  const Ctor = Object.hasOwn(proto, 'constructor') ? proto.constructor : undefined;
+  return (
+    typeof Ctor === 'function' &&
+    Ctor.prototype === proto &&
+    Function.prototype.toString.call(Ctor) === nativeObjectSource
+  );
 }
 
 // Copies `updates` over `prev` while keeping `prev`'s prototype, which an object literal

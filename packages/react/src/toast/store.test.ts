@@ -158,21 +158,49 @@ describe('ToastStore', () => {
   });
 
   it('merges plain object custom data that does not use this realm’s Object.prototype', () => {
-    // A record built in another realm — an iframe, say — has a prototype one hop from
-    // `null` that is not this realm's `Object.prototype`. It is still a plain record, so it
-    // merges, and the merge must not swap its prototype for the local one.
-    const foreignObjectPrototype = Object.create(null);
-    const store = createStore([
-      {
-        id: 'a',
-        data: Object.assign(Object.create(foreignObjectPrototype), { name: 'Draft', count: 1 }),
-      },
-    ]);
+    // A record built in another realm — an iframe — has that realm's `Object.prototype`,
+    // which is not this realm's. It is still a plain record, so it merges, and the merge
+    // must not swap its prototype for the local one.
+    const iframe = document.createElement('iframe');
+    document.body.appendChild(iframe);
+    try {
+      const ForeignObject = (iframe.contentWindow as Window & typeof globalThis).Object;
+      const foreignObjectPrototype = ForeignObject.prototype;
+      expect(foreignObjectPrototype).not.toBe(Object.prototype);
 
-    store.updateToast('a', { data: { count: 2 } });
-    const data = selectors.toast(store.state, 'a')?.data;
-    expect({ ...data }).toEqual({ name: 'Draft', count: 2 });
-    expect(Object.getPrototypeOf(data)).toBe(foreignObjectPrototype);
+      const store = createStore([
+        { id: 'a', data: Object.assign(new ForeignObject(), { name: 'Draft', count: 1 }) },
+      ]);
+
+      store.updateToast('a', { data: { count: 2 } });
+      const data = selectors.toast(store.state, 'a')?.data;
+      expect({ ...data }).toEqual({ name: 'Draft', count: 2 });
+      expect(Object.getPrototypeOf(data)).toBe(foreignObjectPrototype);
+    } finally {
+      iframe.remove();
+    }
+  });
+
+  it('replaces class instance custom data whose prototype chain ends at the class', () => {
+    class Model {
+      name: string;
+
+      stale?: boolean;
+
+      constructor(name: string, stale?: boolean) {
+        this.name = name;
+        this.stale = stale;
+      }
+    }
+    // Its instances are now "one hop from `null`" like an object literal, but they are
+    // still class instances, so they must be replaced rather than merged.
+    Object.setPrototypeOf(Model.prototype, null);
+
+    const store = createStore([{ id: 'a', data: new Model('a', true) }]);
+
+    const nextData = new Model('b');
+    store.updateToast('a', { data: nextData });
+    expect(selectors.toast(store.state, 'a')?.data).toBe(nextData);
   });
 
   it('keeps an own __proto__ key in custom data as an own key', () => {
@@ -193,19 +221,27 @@ describe('ToastStore', () => {
   });
 
   it('defines merged custom data as own properties instead of calling inherited setters', () => {
-    const setter = vi.fn();
-    const prototype = Object.create(null);
-    Object.defineProperty(prototype, 'count', { set: setter });
-    const store = createStore([
-      { id: 'a', data: Object.assign(Object.create(prototype), { name: 'Draft' }) },
-    ]);
+    // The setter lives on another realm's `Object.prototype`, so it is inherited by a plain
+    // record from that realm without leaking into this realm's objects.
+    const iframe = document.createElement('iframe');
+    document.body.appendChild(iframe);
+    try {
+      const ForeignObject = (iframe.contentWindow as Window & typeof globalThis).Object;
+      const setter = vi.fn();
+      Object.defineProperty(ForeignObject.prototype, 'count', { set: setter, configurable: true });
+      const store = createStore([
+        { id: 'a', data: Object.assign(new ForeignObject(), { name: 'Draft' }) },
+      ]);
 
-    store.updateToast('a', { data: { count: 2 } });
-    const data = selectors.toast(store.state, 'a')?.data;
-    expect(setter).not.toHaveBeenCalled();
-    expect(Object.hasOwn(data, 'count')).toBe(true);
-    expect({ ...data }).toEqual({ name: 'Draft', count: 2 });
-    expect(Object.getPrototypeOf(data)).toBe(prototype);
+      store.updateToast('a', { data: { count: 2 } });
+      const data = selectors.toast(store.state, 'a')?.data;
+      expect(setter).not.toHaveBeenCalled();
+      expect(Object.hasOwn(data, 'count')).toBe(true);
+      expect({ ...data }).toEqual({ name: 'Draft', count: 2 });
+      expect(Object.getPrototypeOf(data)).toBe(ForeignObject.prototype);
+    } finally {
+      iframe.remove();
+    }
   });
 
   it('does not read custom data when updating a missing or ending toast', () => {
