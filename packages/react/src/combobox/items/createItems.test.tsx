@@ -615,6 +615,59 @@ describe('Combobox.createItems', () => {
       expect(screen.queryByText('No results')).toBe(null);
     });
 
+    it('keeps nullish entries in grouped data out of a custom filter and the group render callback', async () => {
+      interface Team {
+        label: string;
+        items: User[];
+      }
+      // A nullish group entry and nullish leaf entries, so the array is classified from a hole.
+      const teams = [
+        null,
+        { label: 'Team A', items: [null, users[0]] },
+        { label: 'Team B', items: [users[1], undefined] },
+      ] as unknown as Team[];
+      const filter = vi.fn((user: User, query: string, itemToString?: (item: User) => string) =>
+        (itemToString?.(user) ?? '').toLowerCase().includes(query.toLowerCase()),
+      );
+      const renderItem = vi.fn((user: User) => (
+        <Combobox.Item key={user.id} value={user.id}>
+          {user.name}
+        </Combobox.Item>
+      ));
+
+      function App() {
+        const items = Combobox.createItems(teams, {
+          getValue: getUserId,
+          getLabel: getUserName,
+        });
+        return (
+          <Combobox.Root items={items} filter={filter} defaultOpen>
+            <Combobox.Input data-testid="input" />
+            <Combobox.List>
+              {(team: Team) => (
+                <Combobox.Group key={team.label} items={team.items}>
+                  <Combobox.GroupLabel>{team.label}</Combobox.GroupLabel>
+                  <Combobox.Collection>{renderItem}</Combobox.Collection>
+                </Combobox.Group>
+              )}
+            </Combobox.List>
+          </Combobox.Root>
+        );
+      }
+
+      const { user } = await render(<App />);
+
+      expect(screen.getAllByRole('option')).toHaveLength(2);
+
+      await user.type(screen.getByTestId('input'), 'bo');
+
+      expect(screen.getAllByRole('option')).toHaveLength(1);
+      expect(screen.getByRole('option', { name: 'Bob' })).not.toBe(null);
+      // The filter and the render callback saw every real item and nothing else.
+      expect(new Set(filter.mock.calls.map(([item]) => item.id))).toEqual(new Set([1, 2]));
+      expect(renderItem.mock.calls.every(([item]) => item != null)).toBe(true);
+    });
+
     it('treats a non-array items field as item data rather than as a group', async () => {
       const onValueChange = vi.fn();
       // Only an actual `items` array marks a group; unrelated or optional fields stay item data.

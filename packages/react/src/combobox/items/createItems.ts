@@ -128,25 +128,18 @@ export function createComboboxItems<Item, Value extends ComboboxPrimitiveValue>(
     return valueToItem;
   }
 
-  // A pure projection with stable identity: the root feeds it to memos and effects, and the
-  // collection never stores items it does not own.
-  function value(item: Item): Value {
-    if (item == null) {
-      return item as unknown as Value;
-    }
-    return getValue(item);
-  }
-
   return {
     // Passed through rather than defaulted: data that has not loaded must stay the absence of
     // items rather than an empty list that filters everything away.
     data,
-    value,
+    // Pure projections with stable identity: the root feeds them to memos and effects, and the
+    // collection never stores items it does not own. They are unguarded because the root drops
+    // nullish holes before projecting, so they only ever receive real items.
+    value: getValue,
+    itemLabel: getLabel,
     hasValue(itemValue: Value, isEqual: ItemEqualityComparer<Value>) {
       return findCollectionItem(ensureDerived(), itemValue, isEqual) !== undefined;
     },
-    // Unguarded, unlike `value()`: callers only pass items found in the index or by the filter.
-    itemLabel: getLabel,
     label(
       itemValue: Value,
       isEqual: ItemEqualityComparer<Value>,

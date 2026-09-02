@@ -35,9 +35,15 @@ export function flattenLeafItems<Item>(
     : (items as readonly Item[]);
 }
 
+// `includes` reads a sparse slot as `undefined`, unlike `some`, so array holes count as nullish.
+function hasNullishEntry(list: readonly unknown[]): boolean {
+  return list.includes(null) || list.includes(undefined);
+}
+
 /**
- * Drops nullish leaf entries, which are holes in the data rather than items.
- * Returns the input itself when there is nothing to drop, so its identity is preserved.
+ * Drops nullish entries, which are holes in the data rather than items or groups, including the
+ * sparse slots of an array. Returns the input itself when there is nothing to drop, so its
+ * identity is preserved.
  */
 export function removeNullishItems<Items extends readonly unknown[] | undefined>(
   items: Items,
@@ -46,21 +52,24 @@ export function removeNullishItems<Items extends readonly unknown[] | undefined>
     return items;
   }
 
-  if (isGroupedItems(items)) {
-    const groups = items as readonly Group<unknown>[];
-    if (!groups.some((group) => group.items.some((item) => item == null))) {
-      return items;
-    }
-    return groups.map((group) =>
-      group.items.some((item) => item == null)
-        ? { ...group, items: group.items.filter((item) => item != null) }
-        : group,
-    ) as unknown as Items;
+  // Compacted before classifying: `isGroupedItems` reads the first entry, so a nullish group
+  // entry would otherwise misclassify the array or be dereferenced below.
+  const entries = hasNullishEntry(items) ? items.filter((item) => item != null) : items;
+
+  if (!isGroupedItems(entries)) {
+    return entries as Items;
   }
 
-  return (
-    items.some((item) => item == null) ? items.filter((item) => item != null) : items
-  ) as Items;
+  const groups = entries as readonly Group<unknown>[];
+  if (!groups.some((group) => hasNullishEntry(group.items))) {
+    return entries as Items;
+  }
+
+  return groups.map((group) =>
+    hasNullishEntry(group.items)
+      ? { ...group, items: group.items.filter((item) => item != null) }
+      : group,
+  ) as unknown as Items;
 }
 
 /**
