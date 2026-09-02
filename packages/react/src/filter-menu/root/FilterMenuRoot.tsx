@@ -52,6 +52,7 @@ export function FilterMenuRoot<Payload>(props: FilterMenuRoot.Props<Payload>): R
   });
   const [inputFocusVisible, setInputFocusVisible] = React.useState(false);
   const [hasInput, setHasInput] = React.useState(false);
+  const [inputAutoFocus, setInputAutoFocus] = React.useState(false);
 
   const focusOwnerRef = React.useRef<HTMLElement | null>(null);
   const webkitItemSelected = useFilterMenuWebkitItemSelected();
@@ -62,6 +63,13 @@ export function FilterMenuRoot<Payload>(props: FilterMenuRoot.Props<Payload>): R
       if (!details.isCanceled) {
         setInputValue(nextValue);
       }
+    },
+  );
+
+  const handleInputElementChange = useStableCallback(
+    (nextHasInput: boolean, nextAutoFocus: boolean) => {
+      setHasInput(nextHasInput);
+      setInputAutoFocus(nextAutoFocus);
     },
   );
 
@@ -97,6 +105,7 @@ export function FilterMenuRoot<Payload>(props: FilterMenuRoot.Props<Payload>): R
       webkitItemSelected={webkitItemSelected}
       virtualFocusRef={focusOwnerRef}
       virtualFocusInput={hasInput}
+      virtualFocusAutoFocus={inputAutoFocus}
       // Escaping past either end of the list returns the highlight to the input; in a grid the
       // main axis is horizontal, so the inline arrows escape, matching the Combobox grid.
       allowEscape={hasInput && !autoHighlight}
@@ -115,7 +124,7 @@ export function FilterMenuRoot<Payload>(props: FilterMenuRoot.Props<Payload>): R
           virtualized={virtualized}
           inputProps={inputProps}
           onValueChange={handleInputValueChange}
-          onInputElementChange={setHasInput}
+          onInputElementChange={handleInputElementChange}
           onItemHighlighted={onItemHighlighted}
         >
           {typeof children === 'function' ? children(payload) : children}

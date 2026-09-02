@@ -22,7 +22,7 @@ export interface FilterMenuProviderProps {
   virtualized?: number | undefined;
   inputProps: HTMLProps;
   onValueChange: (value: string, details: FilterMenuRoot.InputValueChangeEventDetails) => void;
-  onInputElementChange: (hasInput: boolean) => void;
+  onInputElementChange: (hasInput: boolean, autoFocus: boolean) => void;
   onItemHighlighted?:
     | ((index: number | null, eventDetails: FilterMenuRoot.HighlightEventDetails) => void)
     | undefined;

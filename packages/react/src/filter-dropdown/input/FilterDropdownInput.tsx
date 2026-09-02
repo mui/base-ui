@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import type { BaseUIComponentProps, BaseUIEvent } from '../../internals/types';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
@@ -19,12 +20,25 @@ export const FilterDropdownInput = React.forwardRef(function FilterDropdownInput
   componentProps: FilterDropdownInput.Props,
   forwardedRef: React.ForwardedRef<HTMLInputElement>,
 ) {
-  const { render, className, style, disabled, ...elementProps } = componentProps;
+  const { render, className, style, disabled, autoFocus = false, ...elementProps } = componentProps;
 
   const context = useFilterDropdownRootContext();
   const inputProps = context.store.useState('inputProps');
   const value = useFilterDropdownValueContext();
   const activeItemId = useActiveItemId(context);
+
+  // In a popup, `autoFocus` goes through the popup's initial focus so it applies on every open,
+  // including hover opens, and runs once the popup is positioned. React's native handling would
+  // focus the input at mount, before positioning, and scroll it into view.
+  const popupAutoFocus = autoFocus && !context.inline;
+  const { setInputAutoFocus } = context;
+  useIsoLayoutEffect(() => {
+    if (!popupAutoFocus) {
+      return undefined;
+    }
+    setInputAutoFocus(true);
+    return () => setInputAutoFocus(false);
+  }, [popupAutoFocus, setInputAutoFocus]);
 
   const state: FilterDropdownInputState = {
     highlighted: context.inputFocusVisible && (!context.keyboardModality || activeItemId == null),
@@ -38,6 +52,7 @@ export const FilterDropdownInput = React.forwardRef(function FilterDropdownInput
       {
         type: 'text',
         disabled: context.disabled || disabled,
+        autoFocus: popupAutoFocus ? undefined : autoFocus,
         'aria-activedescendant': activeItemId,
         role: 'searchbox',
         inputMode: 'search',

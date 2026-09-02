@@ -32,6 +32,8 @@ export interface FilterDropdownRootContext {
    */
   focusOwnerRef: React.RefObject<HTMLElement | null>;
   setInputElement: (element: HTMLInputElement | null) => void;
+  /** Whether the input asks to be focused whenever the popup opens, hover opens included. */
+  setInputAutoFocus: (autoFocus: boolean) => void;
   setListElement: (element: HTMLDivElement | null) => void;
   hasInput: boolean;
   /** Total item count when the host's items are windowed by an external virtualizer. */

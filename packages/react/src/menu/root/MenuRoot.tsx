@@ -86,6 +86,11 @@ interface MenuRootInternalProps<Payload> extends MenuRoot.Props<Payload> {
   virtualFocusInput?: boolean | undefined;
   /**
    * @ignore
+   * Whether the virtual focus owner takes focus even when the menu opens on hover.
+   */
+  virtualFocusAutoFocus?: boolean | undefined;
+  /**
+   * @ignore
    * Renders internal virtual-focus adapters with the current navigation props.
    */
   renderVirtualFocusChildren?:
@@ -128,6 +133,7 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
     allowEscape = true,
     resetOnPointerLeave = true,
     virtualFocusInput = false,
+    virtualFocusAutoFocus = false,
     renderVirtualFocusChildren,
     webkitItemSelected: webkitItemSelectedProp = false,
   } = props as MenuRootInternalProps<Payload>;
@@ -729,6 +735,7 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
       setFloatingId,
       virtualFocus,
       virtualFocusRef,
+      virtualFocusAutoFocus,
       parentVirtualFocus,
       parentFloatingId,
       webkitItemSelected,
@@ -743,6 +750,7 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
       floatingId,
       virtualFocus,
       virtualFocusRef,
+      virtualFocusAutoFocus,
       parentVirtualFocus,
       parentFloatingId,
       webkitItemSelected,

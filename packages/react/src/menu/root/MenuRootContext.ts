@@ -14,6 +14,8 @@ export interface MenuRootContext<Payload = unknown> {
   setFloatingId: React.Dispatch<React.SetStateAction<string | undefined>>;
   virtualFocus: boolean;
   virtualFocusRef: React.RefObject<HTMLElement | null> | undefined;
+  /** Whether the virtual focus owner takes focus even when the menu opens on hover. */
+  virtualFocusAutoFocus: boolean;
   parentVirtualFocus: boolean;
   /**
    * The parent menu's `floatingId`, read from its context rather than its store so a submenu

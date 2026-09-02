@@ -11,6 +11,8 @@ import {
   type MenuSubmenuTriggerProps,
 } from '../../menu/submenu-trigger/MenuSubmenuTrigger';
 import { useMenuRootContext } from '../../menu/root/MenuRootContext';
+import { mergeProps } from '../../merge-props';
+import { isTypeableElement } from '../../floating-ui-react/utils';
 import type { FilterMenuItemFilterProps } from '../utils/FilterMenuItemFilterProps';
 
 /**
@@ -28,7 +30,7 @@ export const FilterMenuSubmenuTrigger = React.forwardRef(function FilterMenuSubm
   // `virtualFocus` is set only by `FilterMenu.SubmenuRoot`, so it tells this trigger whether the
   // submenu it opens renders a `FilterMenu.Popup` (`role="dialog"`) or a plain `Menu.Popup`
   // (`role="menu"`). The documented plain-submenu recipe relies on the latter.
-  const { store, virtualFocus } = useMenuRootContext();
+  const { store, virtualFocus, virtualFocusRef } = useMenuRootContext();
   // Spread rather than passed as `aria-haspopup={undefined}`, which would clear the `'menu'`
   // the menu root already puts on every trigger.
   const ariaHasPopupProps = virtualFocus ? ({ 'aria-haspopup': 'dialog' } as const) : undefined;
@@ -48,6 +50,20 @@ export const FilterMenuSubmenuTrigger = React.forwardRef(function FilterMenuSubm
   });
   const mergedRef = useMergedRefs(forwardedRef, ref);
 
+  const triggerProps = mergeProps<typeof MenuSubmenuTrigger>(
+    {
+      onClick() {
+        // Hovering opens the submenu without moving focus into it. A click on the trigger of an
+        // open submenu is explicit intent to enter it, so hand its input focus.
+        const focusOwner = virtualFocusRef?.current;
+        if (store.select('open') && focusOwner && isTypeableElement(focusOwner)) {
+          focusOwner.focus({ preventScroll: true });
+        }
+      },
+    },
+    submenuProps,
+  );
+
   // Filtering the trigger out unmounts it, leaving its submenu open with no anchor.
   useIsoLayoutEffect(() => {
     if (visible || !open) {
@@ -61,7 +77,7 @@ export const FilterMenuSubmenuTrigger = React.forwardRef(function FilterMenuSubm
     return (
       <MenuSubmenuTrigger
         {...ariaHasPopupProps}
-        {...submenuProps}
+        {...triggerProps}
         label={label}
         ref={forwardedRef}
       />
@@ -69,7 +85,7 @@ export const FilterMenuSubmenuTrigger = React.forwardRef(function FilterMenuSubm
   }
 
   return visible || mounted ? (
-    <MenuSubmenuTrigger {...ariaHasPopupProps} {...submenuProps} label={label} ref={mergedRef} />
+    <MenuSubmenuTrigger {...ariaHasPopupProps} {...triggerProps} label={label} ref={mergedRef} />
   ) : null;
 });
 
