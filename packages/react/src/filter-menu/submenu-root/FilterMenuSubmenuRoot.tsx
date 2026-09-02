@@ -4,6 +4,7 @@ import { EMPTY_ARRAY } from '@base-ui/utils/empty';
 import { ownerDocument } from '@base-ui/utils/owner';
 import { useControlled } from '@base-ui/utils/useControlled';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { isHTMLElement } from '@floating-ui/utils/dom';
 import {
   type MenuSubmenuRoot,
@@ -24,7 +25,7 @@ import {
   isCrossOrientationOpenKey,
   isMainOrientationKey,
 } from '../../floating-ui-react/utils/listNavigation';
-import { activeElement, stopEvent } from '../../floating-ui-react/utils';
+import { activeElement, contains, stopEvent } from '../../floating-ui-react/utils';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
 import { findNonDisabledListIndex } from '../../floating-ui-react/utils/composite';
@@ -226,6 +227,28 @@ function FilterMenuSubmenuNavigation(props: FilterMenuSubmenuNavigationProps) {
 
   const { store, orientation, virtualFocusRef } = useMenuRootContext();
   const direction = useDirection();
+  const mounted = store.useState('mounted');
+
+  const handleGetReturnElement = useStableCallback(getReturnElement);
+
+  // A hover close makes the focus manager skip its return focus, which would strand the
+  // submenu input's focus on the body once the popup unmounts.
+  useIsoLayoutEffect(() => {
+    if (!mounted) {
+      return undefined;
+    }
+    return () => {
+      const returnElement = handleGetReturnElement();
+      if (!returnElement || !parentStore.select('open')) {
+        return;
+      }
+      const doc = ownerDocument(returnElement);
+      const activeEl = activeElement(doc);
+      if (activeEl === doc.body || contains(store.select('popupElement'), activeEl)) {
+        returnElement.focus({ preventScroll: true });
+      }
+    };
+  }, [mounted, store, parentStore, handleGetReturnElement]);
 
   function close(event: React.KeyboardEvent) {
     if (!store.select('open')) {
@@ -338,7 +361,6 @@ function FilterMenuSubmenuNavigation(props: FilterMenuSubmenuNavigationProps) {
     }
   });
 
-  const handleGetReturnElement = useStableCallback(getReturnElement);
   const contextValue = React.useMemo(
     () => ({
       getReturnElement: handleGetReturnElement,
