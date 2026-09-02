@@ -923,6 +923,7 @@ A searchable menu for finding and running actions in a dropdown.
     - Props: actionsRef, autoHighlight, children, defaultInputValue, defaultOpen, defaultTriggerId, disabled, filter, grid, handle, highlightItemOnHover, inline, inputValue, locale, loopFocus, modal, onInputValueChange, onItemHighlighted, onOpenChange, onOpenChangeComplete, open, triggerId, virtualized
   - Filter Menu - Trigger
     - Props: children, className, closeDelay, delay, disabled, handle, nativeButton, openOnHover, payload, render, style
+    - Data Attributes: data-disabled, data-popup-open, data-pressed
   - Filter Menu - Input
     - Props: className, render, style
     - Data Attributes: data-highlighted
@@ -942,11 +943,13 @@ A searchable menu for finding and running actions in a dropdown.
     - CSS Variables: --anchor-height, --anchor-width, --available-height, --available-width, --positioner-height, --positioner-width, --transform-origin
   - Filter Menu - Popup
     - Props: children, className, finalFocus, render, style
+    - Data Attributes: data-align, data-closed, data-ending-style, data-instant, data-open, data-side, data-starting-style
   - Filter Menu - Arrow
     - Props: className, render, style
     - Data Attributes: data-align, data-closed, data-open, data-side, data-uncentered
   - Filter Menu - Item
     - Props: className, closeOnClick, disabled, index, keywords, label, nativeButton, onClick, render, style
+    - Data Attributes: data-disabled, data-highlighted
   - Filter Menu - Viewport
     - Props: children, className, render, style
     - Data Attributes: data-activation-direction, data-current, data-instant, data-previous, data-transitioning
@@ -968,15 +971,18 @@ A searchable menu for finding and running actions in a dropdown.
     - Props: actionsRef, autoHighlight, children, closeParentOnEsc, defaultInputValue, defaultOpen, disabled, filter, highlightItemOnHover, inputValue, locale, loopFocus, onInputValueChange, onOpenChange, onOpenChangeComplete, open
   - Filter Menu - SubmenuTrigger
     - Props: className, closeDelay, delay, disabled, keywords, label, nativeButton, onClick, openOnHover, render, style
+    - Data Attributes: data-disabled, data-highlighted, data-popup-open
   - Filter Menu - RadioGroup
     - Props: children, className, defaultValue, disabled, onValueChange, render, style, value
   - Filter Menu - RadioItem
     - Props: className, closeOnClick, disabled, keywords, label, nativeButton, onClick, render, style, value
+    - Data Attributes: data-checked, data-disabled, data-highlighted, data-unchecked
   - Filter Menu - RadioItemIndicator
     - Props: className, keepMounted, render, style
     - Data Attributes: data-checked, data-disabled, data-ending-style, data-starting-style, data-unchecked
   - Filter Menu - CheckboxItem
     - Props: checked, className, closeOnClick, defaultChecked, disabled, keywords, label, nativeButton, onCheckedChange, onClick, render, style
+    - Data Attributes: data-checked, data-disabled, data-highlighted, data-unchecked
   - Filter Menu - CheckboxItemIndicator
     - Props: className, keepMounted, render, style
     - Data Attributes: data-checked, data-disabled, data-ending-style, data-starting-style, data-unchecked
@@ -984,6 +990,7 @@ A searchable menu for finding and running actions in a dropdown.
   - Filter Menu - Handle
   - Filter Menu - LinkItem
     - Props: className, closeOnClick, keywords, label, render, style
+    - Data Attributes: data-highlighted
   - Filter Menu - useFilter
     - Parameters: options
   - FilterMenuFilter
