@@ -57,6 +57,7 @@ import {
   Group,
   flattenLeafItems,
   isGroupedItems,
+  removeNullishItems,
 } from '../../internals/resolveValueLabel';
 import {
   compareItemEquality,
@@ -172,23 +173,37 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
     );
   }
 
-  const items = (collection ? collection.data : itemsProp) as
-    readonly Item[] | readonly Group<Item>[] | undefined;
+  // Nullish entries in the data are holes rather than items. Dropping them once here keeps
+  // filtering, rendering, counting, and the value registry in a single coordinate system, so an
+  // item's index in `filteredItems` is always the index its value occupies.
+  const items = React.useMemo(
+    () =>
+      removeNullishItems(
+        (collection ? collection.data : itemsProp) as
+          readonly Item[] | readonly Group<Item>[] | undefined,
+      ),
+    [collection, itemsProp],
+  );
   const itemToValue = collection?.value;
 
   // A projected collection's items live in the source domain, not the selection-value domain the
   // store matches against, so they are withheld from the store.
   const storeItems = itemToValue ? undefined : items;
 
+  // The externally filtered items with their holes dropped, like `items` above.
+  const externalItems = React.useMemo(
+    () => removeNullishItems(filteredItemsProp),
+    [filteredItemsProp],
+  );
+
   // The externally filtered items projected to their selection values, with a lookup back to the
   // source items. Declared before `itemToStringLabel`, which resolves labels from it on the
   // first render (initial input value).
   const externalWindow = React.useMemo(() => {
-    if (!filteredItemsProp || !itemToValue) {
+    if (!externalItems || !itemToValue) {
       return undefined;
     }
-    // Nullish entries are holes: they render nothing, so they own no index in the list.
-    const flat = flattenLeafItems(filteredItemsProp).filter((item) => item != null);
+    const flat = flattenLeafItems(externalItems);
     const values = flat.map(itemToValue);
     let valueToItem: Map<any, any> | undefined;
 
@@ -207,7 +222,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
         return findCollectionItem(valueToItem, itemValue, isEqual);
       },
     };
-  }, [filteredItemsProp, itemToValue]);
+  }, [externalItems, itemToValue]);
 
   // Labels selection values from current props only: collection data first, then the current
   // external window, then the prop. Nothing from a past window is remembered — keeping a value
@@ -303,9 +318,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
       return () => true;
     }
     if (filterProp !== undefined) {
-      // Holes never reach a custom filter, matching the built-in filter and the collection.
-      return (item: Item, query: string, itemToString?: (item: Item) => string) =>
-        item != null && filterProp(item, query, itemToString);
+      return filterProp;
     }
     // `shouldBypassFiltering` already empties the query whenever a single selection's label
     // matches it exactly, so the filter never needs a selection-aware variant here.
@@ -363,8 +376,8 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
   );
 
   const filteredItems: Item[] | Group<Item>[] = React.useMemo(() => {
-    if (filteredItemsProp && !shouldIgnoreExternalFiltering) {
-      return filteredItemsProp as Item[] | Group<Item>[];
+    if (externalItems && !shouldIgnoreExternalFiltering) {
+      return externalItems as Item[] | Group<Item>[];
     }
 
     if (!items) {
@@ -429,7 +442,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
 
     return limitedItems;
   }, [
-    filteredItemsProp,
+    externalItems,
     shouldIgnoreExternalFiltering,
     items,
     isGrouped,
@@ -444,21 +457,14 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
    * The filtered items flattened across groups and projected to their selection values.
    */
   const flatFilteredValues: any[] = React.useMemo(() => {
-    if (externalWindow && filteredItems === filteredItemsProp) {
+    if (externalWindow && filteredItems === externalItems) {
       return externalWindow.values;
     }
-    // Holes render nothing, so keeping them here would shift every later value away from the
-    // composite index its item claims, desynchronizing the highlight from the rendered item.
-    const values: any[] = [];
     // Explicit type argument: inferring it from a union of both shapes resolves `Item` to
     // `Group<Item>`, which tsc rejects and tsgo does not.
-    for (const item of flattenLeafItems<Item>(filteredItems)) {
-      if (item != null) {
-        values.push(itemToValue ? itemToValue(item) : item);
-      }
-    }
-    return values;
-  }, [filteredItems, filteredItemsProp, externalWindow, itemToValue]);
+    const flat = flattenLeafItems<Item>(filteredItems);
+    return itemToValue ? flat.map((item) => itemToValue(item)) : (flat as any[]);
+  }, [filteredItems, externalItems, externalWindow, itemToValue]);
 
   const store = useRefWithInit(() => {
     // An inline list open on the first render never gets a closed pass of the closed-state
@@ -1798,6 +1804,7 @@ interface ComboboxRootProps<ItemValue, Item = ItemValue> {
    * The items to be displayed in the list.
    * Can be a flat array of items, an array of groups with items, or a collection created by
    * the `createItems()` function, which derives each item's selection value and label.
+   * Nullish entries are holes rather than items: they are neither filtered, rendered, nor counted.
    */
   items?:
     readonly any[] | readonly Group<any>[] | ComboboxItemCollection<Item, ItemValue> | undefined;
@@ -1806,6 +1813,7 @@ interface ComboboxRootProps<ItemValue, Item = ItemValue> {
    * When provided, the list will use these items instead of filtering the `items` prop internally.
    * When `items` is also provided, this array must preserve its flat or grouped structure.
    * With a `createItems()` collection, pass source items rather than derived values.
+   * Nullish entries are holes rather than items and are dropped, as they are from `items`.
    * Use when you want to control filtering logic externally with the `useFilter()` hook.
    */
   filteredItems?: readonly Item[] | readonly Group<Item>[] | undefined;

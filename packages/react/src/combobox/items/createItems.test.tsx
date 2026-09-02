@@ -385,10 +385,15 @@ describe('Combobox.createItems', () => {
       await waitFor(() => expect(screen.queryByRole('listbox')).toBe(null));
     });
 
-    it('keeps nullish entries out of the accessors and out of filtered results', async () => {
+    it('keeps nullish entries out of the accessors, the render callback, and filtered results', async () => {
       // A hole in otherwise well-typed data, which is how it reaches a collection in practice.
       const sourceItems = [null, users[0]] as unknown as User[];
       const getValue = vi.fn((user: User) => user.id);
+      const renderItem = vi.fn((user: User) => (
+        <Combobox.Item key={user.id} value={user.id}>
+          {user.name}
+        </Combobox.Item>
+      ));
 
       function App() {
         const items = Combobox.createItems(sourceItems, {
@@ -398,15 +403,7 @@ describe('Combobox.createItems', () => {
         return (
           <Combobox.Root items={items} filteredItems={[users[0]]} defaultValue={1} defaultOpen>
             <Combobox.Input data-testid="input" />
-            <Combobox.List>
-              {(user: User | null) =>
-                user && (
-                  <Combobox.Item key={user.id} value={user.id}>
-                    {user.name}
-                  </Combobox.Item>
-                )
-              }
-            </Combobox.List>
+            <Combobox.List>{renderItem}</Combobox.List>
           </Combobox.Root>
         );
       }
@@ -415,13 +412,14 @@ describe('Combobox.createItems', () => {
 
       expect(screen.getByTestId('input')).toHaveValue('Alice');
 
-      // A hole reaches the render callback while there is no query, exactly as it does for a
-      // plain `items` array, but it is dropped as soon as filtering runs.
+      // The hole never reaches the render callback, with or without a query, exactly as it never
+      // reaches the accessors.
       await user.type(screen.getByTestId('input'), 'a');
 
       expect(screen.getAllByRole('option')).toHaveLength(1);
       expect(screen.getByRole('option', { name: 'Alice' })).not.toBe(null);
       expect(getValue.mock.calls.every(([item]) => item != null)).toBe(true);
+      expect(renderItem.mock.calls.every(([item]) => item != null)).toBe(true);
     });
 
     it('keeps nullish entries out of a custom filter', async () => {
@@ -504,6 +502,117 @@ describe('Combobox.createItems', () => {
         input.getAttribute('aria-activedescendant'),
       );
       expect(onItemHighlighted.mock.lastCall?.[0]).toBe(2);
+    });
+
+    it('keeps an explicit index from the render callback aligned past a nullish entry', async () => {
+      const sourceItems = [null, users[0], users[1]] as unknown as User[];
+      const onItemHighlighted = vi.fn();
+
+      function App() {
+        const items = Combobox.createItems(sourceItems, {
+          getValue: getUserId,
+          getLabel: getUserName,
+        });
+        return (
+          <Combobox.Root items={items} onItemHighlighted={onItemHighlighted}>
+            <Combobox.Input data-testid="input" />
+            <Combobox.List>
+              {(user: User, index: number) => (
+                <Combobox.Item key={user.id} value={user.id} index={index}>
+                  {user.name}
+                </Combobox.Item>
+              )}
+            </Combobox.List>
+          </Combobox.Root>
+        );
+      }
+
+      const { user } = await render(<App />);
+      const input = screen.getByTestId('input');
+
+      await user.click(input);
+      await user.keyboard('{ArrowDown}');
+
+      expect(screen.getByRole('option', { name: 'Alice' }).id).toBe(
+        input.getAttribute('aria-activedescendant'),
+      );
+      expect(onItemHighlighted.mock.lastCall?.[0]).toBe(1);
+
+      await user.keyboard('{ArrowDown}');
+
+      expect(screen.getByRole('option', { name: 'Bob' }).id).toBe(
+        input.getAttribute('aria-activedescendant'),
+      );
+      expect(onItemHighlighted.mock.lastCall?.[0]).toBe(2);
+    });
+
+    it('drops nullish entries from externally filtered items', async () => {
+      const sourceItems = [null, users[0], users[1]] as unknown as User[];
+      const onItemHighlighted = vi.fn();
+
+      function App() {
+        const items = Combobox.createItems(sourceItems, {
+          getValue: getUserId,
+          getLabel: getUserName,
+        });
+        return (
+          <Combobox.Root
+            items={items}
+            filteredItems={sourceItems}
+            onItemHighlighted={onItemHighlighted}
+          >
+            <Combobox.Input data-testid="input" />
+            <Combobox.List>
+              {(user: User, index: number) => (
+                <Combobox.Item key={user.id} value={user.id} index={index}>
+                  {user.name}
+                </Combobox.Item>
+              )}
+            </Combobox.List>
+          </Combobox.Root>
+        );
+      }
+
+      const { user } = await render(<App />);
+      const input = screen.getByTestId('input');
+
+      await user.click(input);
+      await user.keyboard('{ArrowDown}');
+
+      expect(screen.getAllByRole('option')).toHaveLength(2);
+      expect(screen.getByRole('option', { name: 'Alice' }).id).toBe(
+        input.getAttribute('aria-activedescendant'),
+      );
+      expect(onItemHighlighted.mock.lastCall?.[0]).toBe(1);
+    });
+
+    it('does not count nullish entries toward the limit or the empty state', async () => {
+      const sourceItems = [null, users[0], undefined] as unknown as User[];
+
+      function App() {
+        const items = Combobox.createItems(sourceItems, {
+          getValue: getUserId,
+          getLabel: getUserName,
+        });
+        return (
+          <Combobox.Root items={items} limit={1} defaultOpen>
+            <Combobox.Input data-testid="input" />
+            <Combobox.Empty>No results</Combobox.Empty>
+            <Combobox.List>
+              {(user: User) => (
+                <Combobox.Item key={user.id} value={user.id}>
+                  {user.name}
+                </Combobox.Item>
+              )}
+            </Combobox.List>
+          </Combobox.Root>
+        );
+      }
+
+      await render(<App />);
+
+      expect(screen.getByRole('option', { name: 'Alice' })).not.toBe(null);
+      expect(screen.queryByText('No results')).toBe(null);
     });
 
     it('treats a non-array items field as item data rather than as a group', async () => {

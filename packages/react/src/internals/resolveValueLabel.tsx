@@ -36,6 +36,34 @@ export function flattenLeafItems<Item>(
 }
 
 /**
+ * Drops nullish leaf entries, which are holes in the data rather than items.
+ * Returns the input itself when there is nothing to drop, so its identity is preserved.
+ */
+export function removeNullishItems<Items extends readonly unknown[] | undefined>(
+  items: Items,
+): Items {
+  if (!items) {
+    return items;
+  }
+
+  if (isGroupedItems(items)) {
+    const groups = items as readonly Group<unknown>[];
+    if (!groups.some((group) => group.items.some((item) => item == null))) {
+      return items;
+    }
+    return groups.map((group) =>
+      group.items.some((item) => item == null)
+        ? { ...group, items: group.items.filter((item) => item != null) }
+        : group,
+    ) as unknown as Items;
+  }
+
+  return (
+    items.some((item) => item == null) ? items.filter((item) => item != null) : items
+  ) as Items;
+}
+
+/**
  * Checks if the items array contains an item with a null value that has a non-null label.
  */
 export function hasNullItemLabel(items: ItemsInput): boolean {
