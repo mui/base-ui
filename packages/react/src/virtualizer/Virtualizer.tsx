@@ -478,6 +478,18 @@ export const Virtualizer = React.forwardRef(function Virtualizer<Value>(
     (entry: HeightEntry, row: RowEntry) => {
       const rowId = row.id as React.Key;
 
+      // A row measured at zero is not laid out — its list is inside a `display: none` ancestor,
+      // as a popup that closed while keeping its list mounted is — and the observer reports the
+      // collapse like any other resize. That is no row height: letting it into the geometry
+      // shrinks the content to nothing and, through a running average of zeros, keeps it there
+      // after the list is shown again. Hand the row back to its estimate until it is measured
+      // for real.
+      if (!entry.needsFirstMeasurement && entry.content <= 0) {
+        entry.needsFirstMeasurement = true;
+        entry.content = getEstimatedRowHeight(row);
+        return;
+      }
+
       if (!isScrollbarDrag()) {
         const releasedHeight = releaseRowHeight(rowId);
         if (releasedHeight != null) {
@@ -864,6 +876,16 @@ export const Virtualizer = React.forwardRef(function Virtualizer<Value>(
   // rows paint inside the sticky viewport rather than at `scrollTop`. Render for it so the first
   // paint after a scroll request already shows the destination.
   const renderScrollTop = pendingScroll.getViewportScrollTop() ?? settledRenderScrollTop;
+  // The engine learns the viewport from a ResizeObserver, a frame after the scrollport is laid
+  // out. A list that opens straight onto a distant row — a popup at its selected item — computes
+  // its first window before that arrives, and a window sized for no viewport at all stops short
+  // of the row it was asked to show: the row mounts only as the offscreen focus proxy, which is
+  // never measured, so the request that would correct it has nothing to measure. The scrollport
+  // already has its box by then, so size the window from it until the engine catches up.
+  const windowViewportHeight =
+    dimensions.viewportInnerSize.height > 0
+      ? dimensions.viewportInnerSize.height + scrollportPaddingTotal
+      : (scrollElementRef.current?.clientHeight ?? 0);
 
   const overscannedRenderContext = getOverscannedRenderContext(
     anticipateBottomPin
@@ -877,7 +899,7 @@ export const Virtualizer = React.forwardRef(function Virtualizer<Value>(
     // Row positions exclude the scrollport's padding, but rows are visible inside it, so the
     // window is computed for the whole scrollport in the engine's coordinates.
     renderScrollTop - scrollportPadding.start,
-    dimensions.viewportInnerSize.height + scrollportPaddingTotal,
+    windowViewportHeight,
   );
   overscannedRenderContextRef.current = overscannedRenderContext;
   renderScrollTopRef.current = renderScrollTop;
@@ -1017,7 +1039,11 @@ export const Virtualizer = React.forwardRef(function Virtualizer<Value>(
               // padding and pulling it back up by the same amount covers the whole scrollport,
               // so rows scroll through the padding as they do in a plain list.
               height: dimensions.viewportOuterSize.height + scrollportPaddingTotal,
-              overflow: 'hidden',
+              // `clip` rather than `hidden`: a hidden overflow is still a scroll container, and
+              // focusing a row without `preventScroll`, or scrolling one into view, scrolls it
+              // instead of the scrollport — shifting every row up inside a box that is meant to
+              // stay put. A clipped box cannot be scrolled by anything.
+              overflow: 'clip',
               position: 'sticky',
               top: -scrollportPadding.start,
               // The measured viewport width only arrives a frame after the scrollport is laid

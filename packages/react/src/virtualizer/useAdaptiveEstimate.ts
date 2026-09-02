@@ -293,7 +293,8 @@ export function useAdaptiveEstimateRefresh<RowModel>(
     for (let rowIndex = firstRowIndex; rowIndex < lastRowIndex; rowIndex += 1) {
       const row = rows[rowIndex];
       const entry = row == null ? undefined : heightCache.get(row.id);
-      if (row != null && entry != null && !entry.needsFirstMeasurement) {
+      // A zero height is a row that is not laid out, never a measurement of it.
+      if (row != null && entry != null && !entry.needsFirstMeasurement && entry.content > 0) {
         const previousHeight = measurements.heights.get(row.id);
         if (previousHeight !== entry.content) {
           measurements.heights.set(row.id, entry.content);
