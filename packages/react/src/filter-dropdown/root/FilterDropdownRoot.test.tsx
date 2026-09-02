@@ -1,6 +1,6 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
-import { expect } from 'vitest';
+import { expect, describe, beforeEach, it } from 'vitest';
 import { act, fireEvent, screen, waitFor } from '@mui/internal-test-utils';
 import { createRenderer, resetBrowserPointer } from '#test-utils';
 import { FilterMenu } from '@base-ui/react/filter-menu';
