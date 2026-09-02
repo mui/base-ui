@@ -2,12 +2,37 @@
 import * as React from 'react';
 import { Select } from '@base-ui/react/select';
 import { Virtualizer } from '@base-ui/react/virtualizer';
+import { SettingsMetadata, useExperimentSettings } from '../_components/SettingsPanel';
 import styles from './virtualizer.module.css';
 
 interface Country {
   code: string;
   name: string;
 }
+
+interface Settings {
+  variableHeight: boolean;
+  multiple: boolean;
+  readOnly: boolean;
+}
+
+export const settingsMetadata: SettingsMetadata<Settings> = {
+  variableHeight: {
+    type: 'boolean',
+    label: 'Variable heights',
+    default: false,
+  },
+  multiple: {
+    type: 'boolean',
+    label: 'Multiple',
+    default: false,
+  },
+  readOnly: {
+    type: 'boolean',
+    label: 'Read only',
+    default: false,
+  },
+};
 
 const COUNT = 10000;
 
@@ -28,10 +53,11 @@ function isItemDisabled(itemValue: Country | null) {
   return index > 0 && index % 25 === 0;
 }
 
+const getCountryLabel = (itemValue: Country) => itemValue.name;
+
 export default function SelectVirtualizerExperiment() {
-  const [variableHeight, setVariableHeight] = React.useState(false);
-  const [multiple, setMultiple] = React.useState(false);
-  const [readOnly, setReadOnly] = React.useState(false);
+  const { settings } = useExperimentSettings<Settings>();
+  const { variableHeight, multiple, readOnly } = settings;
   const [singleValue, setSingleValue] = React.useState<Country | null>(null);
   const [multipleValue, setMultipleValue] = React.useState<Country[]>([]);
 
@@ -84,33 +110,6 @@ export default function SelectVirtualizerExperiment() {
         </p>
       </header>
 
-      <div className={styles.Controls}>
-        <label className={styles.Toggle}>
-          <input
-            type="checkbox"
-            checked={variableHeight}
-            onChange={(event) => setVariableHeight(event.target.checked)}
-          />
-          Variable heights
-        </label>
-        <label className={styles.Toggle}>
-          <input
-            type="checkbox"
-            checked={multiple}
-            onChange={(event) => setMultiple(event.target.checked)}
-          />
-          Multiple
-        </label>
-        <label className={styles.Toggle}>
-          <input
-            type="checkbox"
-            checked={readOnly}
-            onChange={(event) => setReadOnly(event.target.checked)}
-          />
-          Read only
-        </label>
-      </div>
-
       {multiple ? (
         <Select.Root
           key="multiple"
@@ -119,7 +118,7 @@ export default function SelectVirtualizerExperiment() {
           value={multipleValue}
           onValueChange={setMultipleValue}
           isItemDisabled={isItemDisabled}
-          itemToStringLabel={(itemValue: Country) => itemValue.name}
+          itemToStringLabel={getCountryLabel}
           readOnly={readOnly}
         >
           {trigger}
@@ -132,7 +131,7 @@ export default function SelectVirtualizerExperiment() {
           value={singleValue}
           onValueChange={setSingleValue}
           isItemDisabled={isItemDisabled}
-          itemToStringLabel={(itemValue: Country) => itemValue.name}
+          itemToStringLabel={getCountryLabel}
           readOnly={readOnly}
         >
           {trigger}
