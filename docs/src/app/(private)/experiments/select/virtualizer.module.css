@@ -114,10 +114,8 @@
   height: 1rem;
   background-color: canvas;
   font-size: 0.625rem;
-
-  &[data-side='none'] {
-    z-index: 1;
-  }
+  /* The up arrow precedes the popup in the DOM: without this it paints beneath the rows. */
+  z-index: 1;
 
   &[data-direction='up'] {
     top: 0;
