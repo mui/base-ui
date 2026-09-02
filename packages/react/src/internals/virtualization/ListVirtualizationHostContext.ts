@@ -1,5 +1,7 @@
 'use client';
 import * as React from 'react';
+import { warn } from '@base-ui/utils/warn';
+import type { HTMLProps } from '../types';
 import type { ListVirtualizationRegistry } from './ListVirtualizationRegistry';
 import type { VirtualizerItemMetadata } from './types';
 
@@ -53,6 +55,15 @@ export interface ListVirtualizationListState {
    */
   scrollActiveIntoView: boolean;
   /**
+   * Props the list contributes to the virtualizer's scrollport.
+   *
+   * The virtualizer is the element that scrolls, so behavior a list would otherwise put on its own
+   * scrolling element belongs here instead: a scroll handler, or a class that styles the
+   * scrollbar. Merged ahead of the props passed to `<Virtualizer>` itself, so an application's own
+   * props still win.
+   */
+  scrollportProps?: HTMLProps | undefined;
+  /**
    * Whether the list currently needs every item mounted, which suspends windowing for as long as
    * it is `true`. A list that never needs this omits the field.
    *
@@ -66,8 +77,31 @@ export interface ListVirtualizationListState {
   windowingSuspended?: boolean | undefined;
 }
 
+/**
+ * The component that owns a list, published above the part that actually hosts a virtualizer.
+ *
+ * A virtualizer given its own `items` needs no host, so nothing would otherwise notice one placed
+ * in the wrong part of a list that supports virtualization — it would quietly window its own
+ * collection while the list around it went on managing a collection of its own. This names the
+ * part it should have been placed in, so that mistake can be reported.
+ */
+export interface ListVirtualizationOwner {
+  /**
+   * Part namespace of the owning component, such as `Select`.
+   */
+  componentName: string;
+  /**
+   * The part that must contain the virtualizer, such as `Select.List`.
+   */
+  listPartName: string;
+}
+
 export const ListVirtualizationHostContext = React.createContext<
   ListVirtualizationHost | undefined
+>(undefined);
+
+export const ListVirtualizationOwnerContext = React.createContext<
+  ListVirtualizationOwner | undefined
 >(undefined);
 
 export const ListVirtualizationListStateContext = React.createContext<
@@ -90,14 +124,33 @@ export function useListVirtualizationHost() {
 export function useListVirtualization(hasOwnCollection: boolean) {
   const host = React.useContext(ListVirtualizationHostContext);
   const listState = React.useContext(ListVirtualizationListStateContext);
+  const owner = React.useContext(ListVirtualizationOwnerContext);
 
   if (!hasOwnCollection && (!host || !listState)) {
     throw new Error(
       'Base UI: <Virtualizer> was rendered without an `items` prop and outside of a list ' +
         'that supports virtualization, so it has no collection to render. Pass `items`, or ' +
-        'place it inside <Combobox.List> to window that list. ' +
+        'place it inside the list part that supports it, such as <Combobox.List>, ' +
+        '<Autocomplete.List>, or <Select.List>. ' +
         'Documentation: https://base-ui.com/react/utils/virtualizer',
     );
+  }
+
+  if (process.env.NODE_ENV !== 'production') {
+    // The build-time environment never changes during a component's lifetime.
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    React.useEffect(() => {
+      // An own collection satisfies the check above, so a virtualizer placed outside the list part
+      // renders without complaint. Only the owner knows which part that should have been.
+      if (owner != null && host == null) {
+        warn(
+          `<Virtualizer> must be placed inside <${owner.listPartName}>. ` +
+            `Rendered elsewhere in <${owner.componentName}.Root>, it windows its own \`items\` ` +
+            'without connecting to the list, so keyboard navigation, selection, and ' +
+            'accessibility metadata are left unwired.',
+        );
+      }
+    }, [host, owner]);
   }
 
   return { host, listState };

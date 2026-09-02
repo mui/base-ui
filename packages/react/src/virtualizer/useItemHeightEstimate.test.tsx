@@ -79,6 +79,11 @@ describe('useItemHeightEstimate', () => {
     expect(estimate.defaultEstimatedItemHeight).toBe(1);
   });
 
+  // The estimates are derived during render against a ref-held cache, so the call counts below are
+  // taken relative to the mount: React 18's StrictMode double-invokes a mounting render with a
+  // fresh ref on the second pass and derives them twice, where React 19 reuses the first pass.
+  // Neither is a re-derivation in the sense these tests pin down, which is what happens on update.
+
   it('does not re-derive per-item estimates while the collection is unchanged', async () => {
     const items = createItems([10, 20, 30]);
     const estimateItemHeight = vi.fn((item: Item) => item.height);
@@ -86,12 +91,13 @@ describe('useItemHeightEstimate', () => {
       <Probe estimatedItemHeight={estimateItemHeight} items={items} />,
     );
 
-    expect(estimateItemHeight).toHaveBeenCalledTimes(3);
+    const callsAfterMount = estimateItemHeight.mock.calls.length;
+    expect(callsAfterMount).toBeGreaterThanOrEqual(3);
 
     // A new array holding the same items describes the same collection, so nothing is re-derived.
     await setProps({ items: [...items] });
 
-    expect(estimateItemHeight).toHaveBeenCalledTimes(3);
+    expect(estimateItemHeight).toHaveBeenCalledTimes(callsAfterMount);
   });
 
   it('keeps the resolved estimates when a replacement collection is just as tall', async () => {
@@ -101,12 +107,13 @@ describe('useItemHeightEstimate', () => {
     );
 
     const initialEstimate = estimate.getEstimatedItemHeight;
+    const callsAfterMount = estimateItemHeight.mock.calls.length;
 
     await setProps({ items: createItems([10, 20, 30]) });
 
     // The estimates were derived again for the new items, but they resolved to the same heights,
     // and a re-derived set of equal numbers is not a geometry change for the engine to rehydrate.
-    expect(estimateItemHeight).toHaveBeenCalledTimes(6);
+    expect(estimateItemHeight).toHaveBeenCalledTimes(callsAfterMount + 3);
     expect(estimate.getEstimatedItemHeight).toBe(initialEstimate);
 
     await setProps({ items: createItems([10, 20, 99]) });
@@ -122,11 +129,11 @@ describe('useItemHeightEstimate', () => {
       <Probe estimatedItemHeight={estimateItemHeight} items={items} />,
     );
 
-    expect(estimateItemHeight).toHaveBeenCalledTimes(3);
+    const callsAfterMount = estimateItemHeight.mock.calls.length;
 
     estimate.invalidate();
     await setProps({ items: [...items] });
 
-    expect(estimateItemHeight).toHaveBeenCalledTimes(6);
+    expect(estimateItemHeight).toHaveBeenCalledTimes(callsAfterMount + 3);
   });
 });

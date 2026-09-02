@@ -4,7 +4,12 @@ import { error } from '@base-ui/utils/error';
 import { serializeValue } from './serializeValue';
 
 type ItemRecord = Record<string, React.ReactNode>;
-type ItemsInput = ItemRecord | ReadonlyArray<LabeledItem> | ReadonlyArray<Group<any>> | undefined;
+type ItemsInput =
+  | ItemRecord
+  | ReadonlyArray<LabeledItem>
+  | ReadonlyArray<Group<any>>
+  | ReadonlyArray<unknown>
+  | undefined;
 
 interface LabeledItem {
   value: any;
@@ -76,6 +81,27 @@ export function hasNullItemLabel(items: ItemsInput): boolean {
   return false;
 }
 
+/**
+ * Whether an item carries both its own label and its own value — the `{ label, value }` shape the
+ * `items` prop accepts alongside plain values.
+ *
+ * Null-safe: `typeof null === 'object'`, and `'value' in null` throws.
+ */
+export function isLabeledItem(item: unknown): item is LabeledItem {
+  return item != null && typeof item === 'object' && 'value' in item && 'label' in item;
+}
+
+/**
+ * The value an item stands for, left exactly as it was given.
+ *
+ * `stringifyAsValue` applies the same shape test but serializes the result for form submission.
+ * Anything comparing against a selected value needs the value itself, or object and numeric values
+ * would only ever match their string forms.
+ */
+export function getItemValue(item: unknown): any {
+  return isLabeledItem(item) ? item.value : item;
+}
+
 export function stringifyAsLabel(item: any, itemToStringLabel?: (item: any) => string) {
   if (itemToStringLabel && item != null) {
     return itemToStringLabel(item) ?? '';
@@ -131,8 +157,10 @@ export function resolveSelectedLabel(
     const flatItems = flattenLeafItems<LabeledItem>(arrayItems);
 
     if (value == null || typeof value !== 'object') {
-      const match = flatItems.find((item) => item.value === value);
-      if (match && match.label != null) {
+      // `getItemValue` rather than `item.value`: the array may hold plain values, and it may hold
+      // `null`, which dereferencing would throw on.
+      const match = flatItems.find((item) => getItemValue(item) === value);
+      if (isLabeledItem(match) && match.label != null) {
         return match.label;
       }
       return fallback();
@@ -140,8 +168,8 @@ export function resolveSelectedLabel(
 
     // Object without explicit label: try matching by its `value` property
     if ('value' in value) {
-      const match = flatItems.find((item) => item && item.value === value.value);
-      if (match && match.label != null) {
+      const match = flatItems.find((item) => getItemValue(item) === value.value);
+      if (isLabeledItem(match) && match.label != null) {
         return match.label;
       }
     }

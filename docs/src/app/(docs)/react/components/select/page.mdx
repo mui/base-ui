@@ -224,6 +224,89 @@ import { DemoSelectGrouped } from './demos/grouped';
 
 <DemoSelectGrouped />
 
+## Virtualization
+
+Large collections can be windowed with [`<Virtualizer>`](/react/utils/virtualizer), which renders
+only the visible items. Pass the collection to `items` on the root, and make the virtualizer the
+only item-rendering child of `<Select.List>`:
+
+```tsx title="Virtualizing a select"
+const getCountryLabel = (item: Country) => item.name;
+
+function CountrySelect() {
+  return (
+    <Select.Root<Country> items={countries} itemToStringLabel={getCountryLabel}>
+      {/* ... */}
+      <Select.List>
+        <Virtualizer<Country> getItemKey={(item) => item.code}>
+          {(item) => (
+            <Select.Item value={item}>
+              <Select.ItemText>{item.name}</Select.ItemText>
+            </Select.Item>
+          )}
+        </Virtualizer>
+      </Select.List>
+    </Select.Root>
+  );
+}
+```
+
+`<Select.List>` is required — a virtualizer placed directly in `<Select.Popup>` is not connected to
+the list. `items` must be an array, either of values or of `{ label, value }` entries; grouped
+collections and the object form of `items` are not supported. Use `getItemKey` when item values are
+objects.
+
+The value type comes from `value`, `defaultValue`, or `onValueChange` — not from `items` — so an
+uncontrolled select over object items needs the type argument shown above, or an annotation on the
+callbacks that receive a value.
+
+The virtualizer is the scroll container, so constrain its height rather than the list's. Putting
+`overflow` on `<Select.List>` leaves two nested scrollers fighting each other:
+
+```css title="Constraining the scroll container"
+.Scroller {
+  height: min(20rem, var(--total-size));
+  max-height: calc(var(--available-height) - 1rem);
+}
+```
+
+Because most items are not rendered, anything that has to know about an item before it is mounted
+comes from the root rather than from the item:
+
+- **Typeahead** matches the labels derived from `items`. Pass `itemToStringLabel` when an item's
+  displayed text differs from what its value stringifies to.
+- **Disabled items** need `isItemDisabled` on `<Select.Root>`. The `disabled` prop on
+  `<Select.Item>` only marks a rendered item, so keyboard navigation cannot skip an unmounted one.
+
+The `label` prop on `<Select.Item>` is ignored while virtualized, for the same reason — it describes
+a rendered item, and typeahead is matching the whole collection.
+
+When `items` holds `{ label, value }` entries, the renderer must pass the entry's `value`, which is
+what selection and `isItemDisabled` receive:
+
+```jsx title="Rendering labeled entries"
+<Virtualizer>
+  {(item) => (
+    <Select.Item value={item.value}>
+      <Select.ItemText>{item.label}</Select.ItemText>
+    </Select.Item>
+  )}
+</Virtualizer>
+```
+
+Keep the `items` array referentially stable. An inline array literal, or an unmemoized `.map()`,
+gives every item a new identity on each render, discards the measurements the virtualizer has taken,
+and moves the list's highlight as if the collection had changed.
+
+`itemToStringLabel` must be stable too, as in the example above. The labels it produces are derived
+once per collection and cached for typeahead, so a new function identity on every render re-derives
+a label for every item — in the component whose purpose is to stop touching every item.
+
+[`alignItemWithTrigger`](#positioner) is turned off automatically for a virtualized list: the mode
+measures the selected item and the full list height, and a window has neither. Rendering
+`<Virtualizer enabled={false}>` turns it off too — the mode follows the virtualizer's presence, not
+whether it is currently windowing.
+
 ## API reference
 
 import { TypesSelect } from './types';
