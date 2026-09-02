@@ -138,7 +138,8 @@ export interface ToastManagerUpdateOptions<Data extends object> extends Partial<
    * Custom data for the toast.
    * Replaces the stored value. Pass a function to derive the next value from the
    * current one; it receives `undefined` when the toast has no data yet and may
-   * return `undefined` to clear the value.
+   * return `undefined` to clear the value. A function is always called as an
+   * updater, never stored as the value.
    */
   data?: Data | ((prevData: Data | undefined) => Data | undefined) | undefined;
 }

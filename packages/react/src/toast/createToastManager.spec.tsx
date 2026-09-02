@@ -34,6 +34,12 @@ typedManager.add({
   },
 });
 
+typedManager.add({
+  title: 'updater',
+  // @ts-expect-error - add takes a value, not an updater function
+  data: () => ({ id: 'typed', count: 1 }),
+});
+
 typedManager.update('typed', {
   data: {
     id: 'typed-update',
