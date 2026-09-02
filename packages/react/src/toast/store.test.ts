@@ -118,6 +118,13 @@ describe('ToastStore', () => {
     expect(toast?.updateKey).toBe(1);
   });
 
+  it('clears custom data when the data updater returns undefined', () => {
+    const store = createStore([{ id: 'a', data: { name: 'Draft' } }]);
+
+    store.updateToast('a', { data: () => undefined });
+    expect(selectors.toast(store.state, 'a')?.data).toBe(undefined);
+  });
+
   it('passes undefined to the data updater when the toast has no custom data', () => {
     const store = createStore([{ id: 'a' }]);
     const updater = vi.fn(() => ({ name: 'Draft' }));
