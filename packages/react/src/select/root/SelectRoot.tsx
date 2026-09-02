@@ -19,6 +19,7 @@ import {
   useListNavigation,
   useTypeahead,
 } from '../../floating-ui-react';
+import type { HighlightItemTarget } from '../../floating-ui-react/hooks/useListNavigation';
 import {
   SelectFloatingContext,
   SelectRootContext,
@@ -309,8 +310,6 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     },
   });
 
-  React.useImperativeHandle(actionsRef, () => ({ unmount: handleUnmount }), [handleUnmount]);
-
   const setValue = useStableCallback(
     (nextValue: any, eventDetails: SelectRoot.ChangeEventDetails) => {
       onValueChange?.(nextValue, eventDetails);
@@ -368,6 +367,12 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     },
     focusItemOnHover: highlightItemOnHover,
   });
+
+  React.useImperativeHandle(
+    actionsRef,
+    () => ({ unmount: handleUnmount, highlightItem: listNavigation.highlightItem }),
+    [handleUnmount, listNavigation.highlightItem],
+  );
 
   const typeahead = useTypeahead(floatingContext, {
     // Typeahead on an open popup only moves the highlight, so it remains available while
@@ -660,6 +665,11 @@ export interface SelectRootProps<Value, Multiple extends boolean | undefined = f
    * A ref to imperative actions.
    * - `unmount`: Manually unmounts the select.
    * Call this after any externally controlled closing animation finishes.
+   * - `highlightItem`: Moves the highlight to the `'next'`, `'previous'`, `'first'` or `'last'`
+   *   item, or clears it with `'none'`. Useful for binding custom keyboard shortcuts.
+   *   Does nothing while the popup is closed.
+   * Note that passing `actionsRef` at all disables the built-in unmount-on-close, so you
+   * must call `unmount` yourself once the popup has finished closing.
    */
   actionsRef?: React.RefObject<SelectRootActions | null> | undefined;
   /**
@@ -719,8 +729,11 @@ export interface SelectRootProps<Value, Multiple extends boolean | undefined = f
 
 export interface SelectRootState {}
 
+export type SelectRootHighlightItemTarget = HighlightItemTarget;
+
 export interface SelectRootActions {
   unmount: () => void;
+  highlightItem: (target: SelectRootHighlightItemTarget) => void;
 }
 
 export type SelectRootChangeEventReason =
@@ -743,6 +756,7 @@ export namespace SelectRoot {
   >;
   export type State = SelectRootState;
   export type Actions = SelectRootActions;
+  export type HighlightItemTarget = SelectRootHighlightItemTarget;
   export type ChangeEventReason = SelectRootChangeEventReason;
   export type ChangeEventDetails = SelectRootChangeEventDetails;
 }

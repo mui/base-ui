@@ -2683,4 +2683,234 @@ describe('<Autocomplete.Root />', () => {
       );
     });
   });
+
+  describe('actionsRef: highlightItem', () => {
+    // The scenario from mui/base-ui#5146: apps bind their own Ctrl+N/Ctrl+P on top of the
+    // built-in arrow keys. Ctrl+J/Ctrl+K are covered too, to show the action does not care
+    // which key drives it (the docs demo ships only N/P, since Ctrl+K is the site search).
+    const VIM_KEYS: Record<string, Autocomplete.Root.HighlightItemTarget> = {
+      n: 'next',
+      j: 'next',
+      p: 'previous',
+      k: 'previous',
+    };
+
+    function CommandPalette() {
+      const actionsRef = React.useRef<Autocomplete.Root.Actions>(null);
+      return (
+        <Autocomplete.Root items={['Apple', 'Banana', 'Cherry']} actionsRef={actionsRef} open>
+          <Autocomplete.Input
+            data-testid="input"
+            onKeyDown={(event) => {
+              if (!event.ctrlKey || event.altKey || event.metaKey) {
+                return;
+              }
+              const target = VIM_KEYS[event.key];
+              if (!target) {
+                return;
+              }
+              event.preventDefault();
+              actionsRef.current?.highlightItem(target);
+            }}
+          />
+          <Autocomplete.Portal>
+            <Autocomplete.Positioner>
+              <Autocomplete.Popup>
+                <Autocomplete.List>
+                  {(item: string) => (
+                    <Autocomplete.Item key={item} value={item}>
+                      {item}
+                    </Autocomplete.Item>
+                  )}
+                </Autocomplete.List>
+              </Autocomplete.Popup>
+            </Autocomplete.Positioner>
+          </Autocomplete.Portal>
+        </Autocomplete.Root>
+      );
+    }
+
+    function expectHighlighted(name: string) {
+      expect(screen.getByTestId('input')).toHaveAttribute(
+        'aria-activedescendant',
+        screen.getByRole('option', { name }).id,
+      );
+    }
+
+    // Regression guard for the coupling that makes `highlightItem` awkward to adopt:
+    // passing `actionsRef` at all disables the built-in unmount-on-close, so a consumer
+    // who only wanted the keyboard shortcut still has to release the popup themselves.
+    it('leaves the popup mounted until unmount() is called when actionsRef is attached', async () => {
+      const actionsRef = React.createRef<Autocomplete.Root.Actions>();
+      const onOpenChangeComplete = vi.fn();
+      const { user } = await render(
+        <Autocomplete.Root
+          items={['Apple', 'Banana']}
+          actionsRef={actionsRef}
+          onOpenChangeComplete={onOpenChangeComplete}
+        >
+          <Autocomplete.Input data-testid="input" />
+          <Autocomplete.Portal>
+            <Autocomplete.Positioner>
+              <Autocomplete.Popup>
+                <Autocomplete.List>
+                  {(item: string) => (
+                    <Autocomplete.Item key={item} value={item}>
+                      {item}
+                    </Autocomplete.Item>
+                  )}
+                </Autocomplete.List>
+              </Autocomplete.Popup>
+            </Autocomplete.Positioner>
+          </Autocomplete.Portal>
+        </Autocomplete.Root>,
+      );
+
+      await user.click(screen.getByTestId('input'));
+      await user.keyboard('a');
+      await screen.findByRole('listbox');
+
+      await user.keyboard('{Escape}');
+
+      // Still mounted, and the close-completion callback never fired.
+      await screen.findByRole('listbox');
+      expect(onOpenChangeComplete).not.toHaveBeenCalledWith(false);
+
+      act(() => actionsRef.current!.unmount());
+      await waitFor(() => expect(screen.queryByRole('listbox')).toBeNull());
+    });
+
+    // `inline` lists are navigable by design while the component's own `open` is false, so the
+    // imperative action must not be vetoed the way a genuinely closed popup's is.
+    function InlineList(props: { actionsRef: React.RefObject<Autocomplete.Root.Actions | null> }) {
+      return (
+        <Autocomplete.Root
+          inline
+          items={['Apple', 'Banana', 'Cherry']}
+          actionsRef={props.actionsRef}
+        >
+          <Autocomplete.Input data-testid="input" />
+          <Autocomplete.List>
+            {(item: string) => (
+              <Autocomplete.Item key={item} value={item}>
+                {item}
+              </Autocomplete.Item>
+            )}
+          </Autocomplete.List>
+        </Autocomplete.Root>
+      );
+    }
+
+    it('highlights items on an inline list', async () => {
+      const actionsRef = React.createRef<Autocomplete.Root.Actions>();
+      await render(<InlineList actionsRef={actionsRef} />);
+      const input = screen.getByTestId('input');
+
+      act(() => actionsRef.current!.highlightItem('next'));
+      await waitFor(() =>
+        expect(input).toHaveAttribute(
+          'aria-activedescendant',
+          screen.getByRole('option', { name: 'Apple' }).id,
+        ),
+      );
+    });
+
+    it('keeps the inline cursor in sync when the highlight is cleared', async () => {
+      const actionsRef = React.createRef<Autocomplete.Root.Actions>();
+      const { user } = await render(<InlineList actionsRef={actionsRef} />);
+      const input = screen.getByTestId('input');
+
+      await user.click(input);
+      await user.keyboard('{ArrowDown}{ArrowDown}');
+      await waitFor(() =>
+        expect(screen.getByRole('option', { name: 'Banana' })).toHaveAttribute('data-highlighted'),
+      );
+
+      act(() => actionsRef.current!.highlightItem('none'));
+
+      // The highlight must actually clear, not just the internal cursor.
+      await waitFor(() =>
+        expect(screen.getByRole('option', { name: 'Banana' })).not.toHaveAttribute(
+          'data-highlighted',
+        ),
+      );
+    });
+
+    it('treats none as a no-op under autoHighlight="always"', async () => {
+      // `'always'` guarantees an item is highlighted at all times. Clearing would be undone
+      // synchronously, so the action must not emit a highlight state the component never rests
+      // in - a consumer would otherwise see undefined and then the first item again.
+      const onItemHighlighted = vi.fn();
+      const actionsRef = React.createRef<Autocomplete.Root.Actions>();
+      await render(
+        <Autocomplete.Root
+          inline
+          autoHighlight="always"
+          items={['Apple', 'Banana', 'Cherry']}
+          actionsRef={actionsRef}
+          onItemHighlighted={onItemHighlighted}
+        >
+          <Autocomplete.Input data-testid="input" />
+          <Autocomplete.List>
+            {(item: string) => (
+              <Autocomplete.Item key={item} value={item}>
+                {item}
+              </Autocomplete.Item>
+            )}
+          </Autocomplete.List>
+        </Autocomplete.Root>,
+      );
+
+      const input = screen.getByTestId('input');
+      const appleId = screen.getByRole('option', { name: 'Apple' }).id;
+      await waitFor(() => expect(input).toHaveAttribute('aria-activedescendant', appleId));
+
+      onItemHighlighted.mockClear();
+      act(() => actionsRef.current!.highlightItem('none'));
+      await flushMicrotasks();
+
+      // No transient clear, and no re-seed event either.
+      expect(onItemHighlighted).not.toHaveBeenCalled();
+      expect(input).toHaveAttribute('aria-activedescendant', appleId);
+    });
+
+    it('navigates the list with Ctrl+N and Ctrl+P', async () => {
+      const { user } = await render(<CommandPalette />);
+
+      await user.click(screen.getByTestId('input'));
+
+      await user.keyboard('{Control>}n{/Control}');
+      await waitFor(() => expectHighlighted('Apple'));
+
+      await user.keyboard('{Control>}n{/Control}');
+      await waitFor(() => expectHighlighted('Banana'));
+
+      await user.keyboard('{Control>}p{/Control}');
+      await waitFor(() => expectHighlighted('Apple'));
+    });
+
+    it('supports binding any number of extra keys to the same targets', async () => {
+      const { user } = await render(<CommandPalette />);
+
+      await user.click(screen.getByTestId('input'));
+
+      await user.keyboard('{Control>}k{/Control}');
+      await waitFor(() => expectHighlighted('Cherry'));
+
+      await user.keyboard('{Control>}j{/Control}');
+      await waitFor(() => expectHighlighted('Apple'));
+    });
+
+    it('selects the highlighted item with Enter', async () => {
+      const { user } = await render(<CommandPalette />);
+
+      await user.click(screen.getByTestId('input'));
+
+      await user.keyboard('{Control>}n{/Control}');
+      await waitFor(() => expectHighlighted('Apple'));
+
+      await user.keyboard('{Enter}');
+      await waitFor(() => expect(screen.getByTestId('input')).toHaveValue('Apple'));
+    });
+  });
 });

@@ -123,8 +123,11 @@ export function AutocompleteRoot<ItemValue>(
 
 export interface AutocompleteRootState extends AriaComboboxState {}
 
+export type AutocompleteRootHighlightItemTarget = AriaCombobox.HighlightItemTarget;
+
 export interface AutocompleteRootActions {
   unmount: () => void;
+  highlightItem: (target: AutocompleteRootHighlightItemTarget) => void;
 }
 
 export type AutocompleteRootChangeEventReason = AriaCombobox.ChangeEventReason;
@@ -253,6 +256,13 @@ export interface AutocompleteRootProps<ItemValue> extends Omit<
    * A ref to imperative actions.
    * - `unmount`: Manually unmounts the autocomplete.
    * Call this after any externally controlled closing animation finishes.
+   * - `highlightItem`: Moves the highlight to the `'next'`, `'previous'`, `'first'` or `'last'`
+   * item, or clears it with `'none'`. Useful for binding custom keyboard shortcuts.
+   * Does nothing while the popup is closed, and `'next'`/`'previous'` do nothing when `grid`
+   * is enabled. `'none'` does nothing under `autoHighlight="always"`, which by definition
+   * always keeps an item highlighted.
+   * Note that passing `actionsRef` at all disables the built-in unmount-on-close, so you
+   * must call `unmount` yourself once the popup has finished closing.
    */
   actionsRef?: React.RefObject<AutocompleteRootActions | null> | undefined;
   /**
@@ -266,6 +276,7 @@ export interface AutocompleteRootProps<ItemValue> extends Omit<
    * The `reason` can be:
    * - `'keyboard'`: the highlight changed due to keyboard navigation.
    * - `'pointer'`: the highlight changed due to pointer hovering.
+   * - `'imperative-action'`: the highlight changed via `actionsRef`'s `highlightItem`.
    * - `'none'`: the highlight changed programmatically.
    */
   onItemHighlighted?:
@@ -285,6 +296,7 @@ export namespace AutocompleteRoot {
   export type Props<ItemValue> = AutocompleteRootProps<ItemValue>;
   export type State = AutocompleteRootState;
   export type Actions = AutocompleteRootActions;
+  export type HighlightItemTarget = AutocompleteRootHighlightItemTarget;
   export type ChangeEventReason = AutocompleteRootChangeEventReason;
   export type ChangeEventDetails = AutocompleteRootChangeEventDetails;
   export type HighlightEventReason = AutocompleteRootHighlightEventReason;

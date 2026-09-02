@@ -13207,4 +13207,216 @@ describe('<Combobox.Root />', () => {
       expect(input).toHaveFocus();
     });
   });
+
+  describe('actionsRef: highlightItem', () => {
+    const ITEMS = ['Apple', 'Banana', 'Cherry'];
+
+    function HighlightItemCombobox(props: {
+      actionsRef: React.RefObject<Combobox.Root.Actions | null>;
+      disabledItems?: readonly string[];
+      loopFocus?: boolean | undefined;
+      defaultOpen?: boolean | undefined;
+      onItemHighlighted?: Combobox.Root.Props<string>['onItemHighlighted'];
+    }) {
+      const { actionsRef, disabledItems = [], loopFocus, defaultOpen = true } = props;
+      return (
+        <Combobox.Root
+          items={ITEMS}
+          actionsRef={actionsRef}
+          loopFocus={loopFocus}
+          defaultOpen={defaultOpen}
+          onItemHighlighted={props.onItemHighlighted}
+        >
+          <Combobox.Input data-testid="input" />
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  {(item: string) => (
+                    <Combobox.Item key={item} value={item} disabled={disabledItems.includes(item)}>
+                      {item}
+                    </Combobox.Item>
+                  )}
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>
+      );
+    }
+
+    function expectHighlighted(name: string | null) {
+      const input = screen.getByTestId('input');
+      if (name === null) {
+        expect(input).not.toHaveAttribute('aria-activedescendant');
+        return;
+      }
+      expect(input).toHaveAttribute(
+        'aria-activedescendant',
+        screen.getByRole('option', { name }).id,
+      );
+    }
+
+    it('highlights the first and last items', async () => {
+      const actionsRef = React.createRef<Combobox.Root.Actions>();
+      await render(<HighlightItemCombobox actionsRef={actionsRef} />);
+
+      act(() => actionsRef.current!.highlightItem('first'));
+      await waitFor(() => expectHighlighted('Apple'));
+
+      act(() => actionsRef.current!.highlightItem('last'));
+      await waitFor(() => expectHighlighted('Cherry'));
+    });
+
+    it('moves relative to the current highlight', async () => {
+      const actionsRef = React.createRef<Combobox.Root.Actions>();
+      await render(<HighlightItemCombobox actionsRef={actionsRef} />);
+
+      act(() => actionsRef.current!.highlightItem('next'));
+      await waitFor(() => expectHighlighted('Apple'));
+
+      act(() => actionsRef.current!.highlightItem('next'));
+      await waitFor(() => expectHighlighted('Banana'));
+
+      act(() => actionsRef.current!.highlightItem('previous'));
+      await waitFor(() => expectHighlighted('Apple'));
+    });
+
+    it('enters the list from the end when nothing is highlighted and moving backwards', async () => {
+      const actionsRef = React.createRef<Combobox.Root.Actions>();
+      await render(<HighlightItemCombobox actionsRef={actionsRef} />);
+
+      act(() => actionsRef.current!.highlightItem('previous'));
+      await waitFor(() => expectHighlighted('Cherry'));
+    });
+
+    it('wraps to the last item instead of returning to the input', async () => {
+      const actionsRef = React.createRef<Combobox.Root.Actions>();
+      await render(<HighlightItemCombobox actionsRef={actionsRef} />);
+
+      act(() => actionsRef.current!.highlightItem('first'));
+      await waitFor(() => expectHighlighted('Apple'));
+
+      act(() => actionsRef.current!.highlightItem('previous'));
+      await waitFor(() => expectHighlighted('Cherry'));
+
+      act(() => actionsRef.current!.highlightItem('next'));
+      await waitFor(() => expectHighlighted('Apple'));
+    });
+
+    it('does not wrap when loopFocus is disabled', async () => {
+      const actionsRef = React.createRef<Combobox.Root.Actions>();
+      await render(<HighlightItemCombobox actionsRef={actionsRef} loopFocus={false} />);
+
+      act(() => actionsRef.current!.highlightItem('first'));
+      await waitFor(() => expectHighlighted('Apple'));
+
+      act(() => actionsRef.current!.highlightItem('previous'));
+      await waitFor(() => expectHighlighted('Apple'));
+
+      act(() => actionsRef.current!.highlightItem('last'));
+      await waitFor(() => expectHighlighted('Cherry'));
+
+      act(() => actionsRef.current!.highlightItem('next'));
+      await waitFor(() => expectHighlighted('Cherry'));
+    });
+
+    it('traverses aria-disabled items the same way the arrow keys do', async () => {
+      // Base UI renders disabled items with `aria-disabled` rather than natively disabling them,
+      // so they stay announceable, and arrow-key navigation deliberately lands on them. The
+      // imperative action mirrors that instead of inventing a second traversal order.
+      const actionsRef = React.createRef<Combobox.Root.Actions>();
+      await render(
+        <HighlightItemCombobox actionsRef={actionsRef} disabledItems={['Apple', 'Banana']} />,
+      );
+
+      act(() => actionsRef.current!.highlightItem('first'));
+      await waitFor(() => expectHighlighted('Apple'));
+
+      act(() => actionsRef.current!.highlightItem('next'));
+      await waitFor(() => expectHighlighted('Banana'));
+    });
+
+    it('clears the highlight with none', async () => {
+      const actionsRef = React.createRef<Combobox.Root.Actions>();
+      await render(<HighlightItemCombobox actionsRef={actionsRef} />);
+
+      act(() => actionsRef.current!.highlightItem('first'));
+      await waitFor(() => expectHighlighted('Apple'));
+
+      act(() => actionsRef.current!.highlightItem('none'));
+      await waitFor(() => expectHighlighted(null));
+    });
+
+    it('does nothing while the popup is closed', async () => {
+      const actionsRef = React.createRef<Combobox.Root.Actions>();
+      await render(<HighlightItemCombobox actionsRef={actionsRef} defaultOpen={false} />);
+
+      act(() => actionsRef.current!.highlightItem('first'));
+
+      await flushMicrotasks();
+      expect(screen.queryByRole('listbox')).toBeNull();
+      expectHighlighted(null);
+    });
+
+    it('reports the imperative-action reason to onItemHighlighted', async () => {
+      const actionsRef = React.createRef<Combobox.Root.Actions>();
+      const onItemHighlighted = vi.fn();
+      await render(
+        <HighlightItemCombobox actionsRef={actionsRef} onItemHighlighted={onItemHighlighted} />,
+      );
+
+      act(() => actionsRef.current!.highlightItem('first'));
+
+      await waitFor(() => {
+        expect(onItemHighlighted).toHaveBeenCalledWith(
+          'Apple',
+          expect.objectContaining({ reason: REASONS.imperativeAction }),
+        );
+      });
+    });
+
+    it('ignores next and previous in grid mode but still honors first', async () => {
+      const actionsRef = React.createRef<Combobox.Root.Actions>();
+      await render(
+        <Combobox.Root grid defaultOpen actionsRef={actionsRef}>
+          <Combobox.Input data-testid="input" />
+          <Combobox.Portal>
+            <Combobox.Positioner>
+              <Combobox.Popup>
+                <Combobox.List>
+                  <Combobox.Row>
+                    <Combobox.Item value="1">1</Combobox.Item>
+                    <Combobox.Item value="2">2</Combobox.Item>
+                  </Combobox.Row>
+                  <Combobox.Row>
+                    <Combobox.Item value="3">3</Combobox.Item>
+                    <Combobox.Item value="4">4</Combobox.Item>
+                  </Combobox.Row>
+                </Combobox.List>
+              </Combobox.Popup>
+            </Combobox.Positioner>
+          </Combobox.Portal>
+        </Combobox.Root>,
+      );
+
+      const input = screen.getByTestId('input');
+
+      act(() => actionsRef.current!.highlightItem('next'));
+      await flushMicrotasks();
+      expect(input).not.toHaveAttribute('aria-activedescendant');
+
+      act(() => actionsRef.current!.highlightItem('previous'));
+      await flushMicrotasks();
+      expect(input).not.toHaveAttribute('aria-activedescendant');
+
+      act(() => actionsRef.current!.highlightItem('first'));
+      await waitFor(() => {
+        expect(input).toHaveAttribute(
+          'aria-activedescendant',
+          screen.getByRole('gridcell', { name: '1' }).id,
+        );
+      });
+    });
+  });
 });

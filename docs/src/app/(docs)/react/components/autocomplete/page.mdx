@@ -147,6 +147,24 @@ import { DemoAutocompleteCommandPalette } from './demos/command-palette';
 
 <DemoAutocompleteCommandPalette />
 
+### Custom keyboard shortcuts
+
+Arrow keys navigate the list out of the box. To bind additional shortcuts, such as <kbd>Ctrl</kbd>+<kbd>N</kbd> and <kbd>Ctrl</kbd>+<kbd>P</kbd>, call `highlightItem()` on the `actionsRef` of `<Autocomplete.Root>` from the input's `onKeyDown` handler.
+
+`highlightItem()` accepts `'next'` and `'previous'` to move relative to the current highlight, `'first'` and `'last'` to jump to either end, and `'none'` to clear the highlight. `'next'` and `'previous'` wrap around at the ends unless `loopFocus` is disabled, and they never move the highlight back to the input.
+
+The action only applies while the popup is open, so open it first if a shortcut should also reveal the list. When `grid` is enabled, `'next'` and `'previous'` do nothing, because a grid has no single item that follows the current one — use the arrow keys or `'first'` and `'last'` instead.
+
+With `autoHighlight="always"`, `'none'` does nothing: that mode keeps an item highlighted at all times, so the prop takes precedence and no highlight change is reported.
+
+Passing `actionsRef` also makes unmounting the popup your responsibility: the built-in unmount-on-close is disabled whenever the prop is present, so call `unmount()` once the popup has finished closing.
+
+On a [virtualized](#virtualized) list, `highlightItem` can target an item that is not currently rendered — unlike the arrow keys, it can jump to either end in one step. Scroll to the highlighted index whenever `onItemHighlighted` reports the `'imperative-action'` reason, as the virtualized example does.
+
+import { DemoAutocompleteKeyboardShortcuts } from './demos/keyboard-shortcuts';
+
+<DemoAutocompleteKeyboardShortcuts />
+
 ### Grid layout
 
 Display items in a grid layout, wrapping each row in `<Autocomplete.Row>` components.

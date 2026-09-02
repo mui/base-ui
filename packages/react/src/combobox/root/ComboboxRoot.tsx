@@ -117,6 +117,13 @@ export type ComboboxRootProps<
    * A ref to imperative actions.
    * - `unmount`: Manually unmounts the combobox.
    * Call this after any externally controlled closing animation finishes.
+   * - `highlightItem`: Moves the highlight to the `'next'`, `'previous'`, `'first'` or `'last'`
+   * item, or clears it with `'none'`. Useful for binding custom keyboard shortcuts.
+   * Does nothing while the popup is closed, and `'next'`/`'previous'` do nothing when `grid`
+   * is enabled. `'none'` does nothing under `autoHighlight="always"`, which by definition
+   * always keeps an item highlighted.
+   * Note that passing `actionsRef` at all disables the built-in unmount-on-close, so you
+   * must call `unmount` yourself once the popup has finished closing.
    */
   actionsRef?: React.RefObject<ComboboxRoot.Actions | null> | undefined;
   /**
@@ -135,6 +142,7 @@ export type ComboboxRootProps<
    * The `reason` can be:
    * - `'keyboard'`: the highlight changed due to keyboard navigation.
    * - `'pointer'`: the highlight changed due to pointer hovering.
+   * - `'imperative-action'`: the highlight changed via `actionsRef`'s `highlightItem`.
    * - `'none'`: the highlight changed programmatically.
    */
   onItemHighlighted?:
@@ -160,7 +168,12 @@ export type ComboboxRootProps<
 
 export interface ComboboxRootState extends AriaComboboxState {}
 
-export type ComboboxRootActions = AriaCombobox.Actions;
+export type ComboboxRootHighlightItemTarget = AriaCombobox.HighlightItemTarget;
+
+export interface ComboboxRootActions {
+  unmount: () => void;
+  highlightItem: (target: ComboboxRootHighlightItemTarget) => void;
+}
 
 export type ComboboxRootChangeEventReason = AriaCombobox.ChangeEventReason;
 export type ComboboxRootChangeEventDetails = AriaCombobox.ChangeEventDetails;
@@ -176,6 +189,7 @@ export namespace ComboboxRoot {
   > = ComboboxRootProps<Value, Multiple, Item>;
   export type State = ComboboxRootState;
   export type Actions = ComboboxRootActions;
+  export type HighlightItemTarget = ComboboxRootHighlightItemTarget;
   export type ChangeEventReason = ComboboxRootChangeEventReason;
   export type ChangeEventDetails = ComboboxRootChangeEventDetails;
   export type HighlightEventReason = ComboboxRootHighlightEventReason;
