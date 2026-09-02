@@ -24,10 +24,13 @@ const getLabel = (item: Country) => item.name;
 // The styles the Select documentation recommends: the virtualizer is the scroll container, sized
 // by the virtual content and capped by the available height.
 const STYLES = `
-.Scroller { height: min(20rem, var(--total-size)); max-height: calc(var(--available-height) - 1rem); padding-block: 0.25rem; }
+.Scroller { height: min(20rem, var(--total-size)); max-height: calc(var(--available-height) - 1rem); padding-block: 0.25rem; scroll-padding-block: 24px; }
 .Item { box-sizing: border-box; height: 40px; }
 .Item[data-tall] { height: 64px; }
 .List { width: 300px; }
+.Arrow { height: 16px; width: 100%; }
+.Arrow[data-direction="up"] { top: 0; }
+.Arrow[data-direction="down"] { bottom: 0; }
 `;
 
 function getScroller() {
@@ -108,6 +111,7 @@ function CountrySelect(props: { variableHeight?: boolean; value?: Country | null
         </Select.Trigger>
         <Select.Portal>
           <Select.Positioner sideOffset={8}>
+            <Select.ScrollUpArrow className="Arrow" />
             <Select.Popup>
               <Select.List className="List">
                 <Virtualizer<Country>
@@ -127,6 +131,7 @@ function CountrySelect(props: { variableHeight?: boolean; value?: Country | null
                 </Virtualizer>
               </Select.List>
             </Select.Popup>
+            <Select.ScrollDownArrow className="Arrow" data-testid="down-arrow" />
           </Select.Positioner>
         </Select.Portal>
       </Select.Root>
@@ -190,6 +195,27 @@ describe.skipIf(isJSDOM)('<Virtualizer /> inside Select — real layout', () => 
     });
     expect(getStickyViewport().scrollTop).toBe(0);
     expect(getUncoveredHeight()).toBe(0);
+  });
+
+  it('keeps a row it scrolled to clear of the scroll arrow that `scroll-padding` reserves', async () => {
+    // The arrows overlay the scrollport's edges. As in a static list, the space they need is
+    // declared with `scroll-padding` — on the virtualizer, since that is the scroll container —
+    // and the engine's own scroll-into-view honors it.
+    const { user } = await render(<CountrySelect value={ITEMS[111]} />);
+
+    await user.click(screen.getByTestId('trigger'));
+
+    await waitFor(() => {
+      expect(getOption('Country 111')).not.toBe(undefined);
+    });
+    await waitFor(() => {
+      expect(isInsideScrollport(getOption('Country 111')!)).toBe(true);
+    });
+    const arrow = screen.getByTestId('down-arrow');
+    expect(arrow.getBoundingClientRect().height).toBe(16);
+    expect(getOption('Country 111')!.getBoundingClientRect().bottom).toBeLessThanOrEqual(
+      arrow.getBoundingClientRect().top + 0.5,
+    );
   });
 
   it('brings a selected row into view when its first pass ran before the viewport was measured', async () => {

@@ -261,12 +261,15 @@ uncontrolled select over object items needs the type argument shown above, or an
 callbacks that receive a value.
 
 The virtualizer is the scroll container, so constrain its height rather than the list's. Putting
-`overflow` on `<Select.List>` leaves two nested scrollers fighting each other:
+`overflow` on `<Select.List>` leaves two nested scrollers fighting each other. For the same reason,
+`scroll-padding` belongs on the virtualizer: it is what keeps a row scrolled into view clear of the
+scroll arrows, and on `<Select.List>` it no longer applies to anything.
 
 ```css title="Constraining the scroll container"
 .Scroller {
   height: min(20rem, var(--total-size));
   max-height: calc(var(--available-height) - 1rem);
+  scroll-padding-block: 1.5rem;
 }
 ```
 
