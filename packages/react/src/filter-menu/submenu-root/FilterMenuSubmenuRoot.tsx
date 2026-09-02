@@ -183,6 +183,7 @@ export function FilterMenuSubmenuRoot(props: FilterMenuSubmenuRoot.Props): React
       renderVirtualFocusChildren={(_, inputProps) => (
         <FilterMenuSubmenuNavigation
           parentStore={parentStore}
+          inputAutoFocus={inputAutoFocus}
           parentOrientation={parent.orientation}
           parentLoopFocus={parent.loopFocus}
           getReturnElement={() =>
@@ -218,6 +219,7 @@ interface FilterMenuSubmenuNavigationProps {
   parentStore: MenuStore<unknown>;
   parentOrientation: MenuRoot.Orientation;
   parentLoopFocus: boolean;
+  inputAutoFocus: boolean;
   onSubmenuEnter(trigger: HTMLElement): void;
   onSubmenuExit(): void;
   getReturnElement(): HTMLElement | null;
@@ -229,6 +231,7 @@ function FilterMenuSubmenuNavigation(props: FilterMenuSubmenuNavigationProps) {
     parentStore,
     parentOrientation,
     parentLoopFocus,
+    inputAutoFocus,
     onSubmenuEnter,
     onSubmenuExit,
     getReturnElement,
@@ -242,13 +245,15 @@ function FilterMenuSubmenuNavigation(props: FilterMenuSubmenuNavigationProps) {
   const handleGetReturnElement = useStableCallback(getReturnElement);
 
   const handleReturnFocus = useStableCallback(() => {
-    // A sibling submenu trigger under the pointer is about to open a popup that takes focus,
-    // so returning focus to the parent input in the meantime would only flash its highlight.
-    // If that submenu never opens, the parent popup reclaims focus on the next pointer move.
+    // With auto-focusing submenus, a sibling trigger under the pointer is about to open a popup
+    // that takes focus, so returning focus to the parent input in the meantime would only flash
+    // its highlight. If that submenu never opens, the parent popup reclaims focus on the next
+    // pointer move.
     const activeIndex = parentStore.select('activeIndex');
     const highlighted =
       activeIndex == null ? null : parentStore.context.itemDomElements.current[activeIndex];
     if (
+      inputAutoFocus &&
       highlighted &&
       highlighted.hasAttribute('aria-haspopup') &&
       !store.context.triggerElements.hasElement(highlighted)

@@ -14,6 +14,7 @@ import {
   isTypeableElement,
 } from '../../floating-ui-react/utils';
 import { useFilterDropdownRootContext } from '../root/FilterDropdownRootContext';
+import { focusByPointer, isPointerFocusInProgress } from '../utils/focusByPointer';
 import { resolveRenderedId } from '../../internals/resolveRenderedId';
 import { useDirection } from '../../internals/direction-context/DirectionContext';
 import { resolveMenuPopupLabel } from '../../menu/popup/resolveMenuPopupLabel';
@@ -47,8 +48,9 @@ export const FilterDropdownPopup = React.forwardRef(function FilterDropdownPopup
     }
   }, [context.open]);
 
-  // Focus that moved into a nested popup stays there until that popup unmounts, so crossing this
-  // popup on the way to a submenu doesn't bounce focus between the two inputs.
+  // Focus that entered a nested popup by keyboard, click, or `autoFocus` stays there until that
+  // popup unmounts, so crossing this popup on the way to the submenu doesn't bounce focus between
+  // the two inputs. Focus that merely followed the pointer in follows it back out.
   const nestedFocusRef = React.useRef<Element | null>(null);
 
   const state: FilterDropdownPopupState = { open: context.open };
@@ -79,7 +81,7 @@ export const FilterDropdownPopup = React.forwardRef(function FilterDropdownPopup
           }
 
           const activeEl = activeElement(ownerDocument(event.currentTarget));
-          // Only pull back focus that drifted outside the popup and its nested popups.
+          // Only pull back focus that drifted outside the popup, unless a nested input retains it.
           if (
             activeEl === focusOwner ||
             activeEl === nestedFocusRef.current ||
@@ -108,11 +110,15 @@ export const FilterDropdownPopup = React.forwardRef(function FilterDropdownPopup
             overSubmenuTrigger ||= node.hasAttribute('aria-haspopup');
             return false;
           });
-          // A submenu trigger under the pointer is opening, or has opened, a popup that can own
-          // focus, so leave focus alone until the pointer moves on.
-          if (!overSubmenuTrigger && nearestPopup === event.currentTarget) {
-            focusOwner.focus({ preventScroll: true });
+          if (nearestPopup !== event.currentTarget) {
+            return;
           }
+          // After a submenu that held focus unmounts, a sibling trigger under the pointer may be
+          // about to open a popup that takes focus, so leave focus alone until the pointer moves on.
+          if (overSubmenuTrigger && nestedFocusRef.current) {
+            return;
+          }
+          focusByPointer(focusOwner);
         },
         onFocus(event) {
           // `focusin` bubbles, so this also sees the owner itself being focused.
@@ -123,7 +129,13 @@ export const FilterDropdownPopup = React.forwardRef(function FilterDropdownPopup
 
           // Nested popups are portalled, so their focus events bubble through this React tree
           // while their elements sit outside this one in the DOM.
-          if (isHTMLElement(target) && !contains(event.currentTarget, target)) {
+          if (target === focusOwnerRef.current) {
+            nestedFocusRef.current = null;
+          } else if (
+            isHTMLElement(target) &&
+            !contains(event.currentTarget, target) &&
+            !isPointerFocusInProgress()
+          ) {
             nestedFocusRef.current = target;
           }
 
