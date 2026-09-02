@@ -5218,6 +5218,69 @@ describe('<FilterMenu.Root />', () => {
         expect(rootInput).toHaveAttribute('data-highlighted');
       });
     });
+
+    it('hands focus straight to the next submenu when the pointer moves between submenu triggers', async () => {
+      const onRootInputFocus = vi.fn();
+
+      function Submenu(props: { label: string; delay: number }) {
+        return (
+          <FilterMenu.SubmenuRoot>
+            {/* The close waits until the pointer has highlighted the next trigger. */}
+            <FilterMenu.SubmenuTrigger delay={props.delay} closeDelay={10}>
+              {props.label}
+            </FilterMenu.SubmenuTrigger>
+            <FilterMenu.Portal>
+              <FilterMenu.Positioner>
+                <FilterMenu.Popup>
+                  <FilterMenu.Input aria-label={`Filter ${props.label}`} />
+                  <FilterMenu.List>
+                    <FilterMenu.Item>Option</FilterMenu.Item>
+                  </FilterMenu.List>
+                </FilterMenu.Popup>
+              </FilterMenu.Positioner>
+            </FilterMenu.Portal>
+          </FilterMenu.SubmenuRoot>
+        );
+      }
+
+      const { user } = await render(
+        <FilterMenu.Root defaultOpen>
+          <FilterMenu.Trigger>Actions</FilterMenu.Trigger>
+          <FilterMenu.Portal>
+            <FilterMenu.Positioner>
+              <FilterMenu.Popup>
+                <FilterMenu.Input aria-label="Filter actions" onFocus={onRootInputFocus} />
+                <FilterMenu.List>
+                  <Submenu label="Move to folder" delay={0} />
+                  {/* Opens only after the first submenu has unmounted. */}
+                  <Submenu label="Share" delay={50} />
+                </FilterMenu.List>
+              </FilterMenu.Popup>
+            </FilterMenu.Positioner>
+          </FilterMenu.Portal>
+        </FilterMenu.Root>,
+      );
+
+      await user.hover(screen.getByRole('menuitem', { name: 'Move to folder' }));
+      const firstInput = await screen.findByRole('searchbox', { name: 'Filter Move to folder' });
+      await waitFor(() => {
+        expect(firstInput).toHaveFocus();
+      });
+      const rootFocusCount = onRootInputFocus.mock.calls.length;
+
+      await user.hover(screen.getByRole('menuitem', { name: 'Share' }));
+      await waitFor(() => {
+        expect(firstInput).not.toBeInTheDocument();
+      });
+      await waitFor(() => {
+        expect(screen.getByRole('searchbox', { name: 'Filter Share' })).toHaveFocus();
+      });
+
+      expect(onRootInputFocus).toHaveBeenCalledTimes(rootFocusCount);
+      expect(screen.getByRole('searchbox', { name: 'Filter actions' })).not.toHaveAttribute(
+        'data-highlighted',
+      );
+    });
   });
 
   describe('leaving the menu', () => {

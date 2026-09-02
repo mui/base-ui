@@ -6,7 +6,8 @@ export const MenuSubmenuRootContext = React.createContext<MenuSubmenuRootContext
 );
 
 export interface MenuSubmenuRootContext {
-  getReturnElement?: (() => HTMLElement | null) | undefined;
+  /** The element that receives focus when the submenu closes; `false` leaves focus where it is. */
+  getReturnElement?: (() => HTMLElement | null | false) | undefined;
   onTriggerKeyDown?: ((event: React.KeyboardEvent<HTMLElement>) => void) | undefined;
   onPopupKeyDown?: ((event: React.KeyboardEvent) => void) | undefined;
 }
