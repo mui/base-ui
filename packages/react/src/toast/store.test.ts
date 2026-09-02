@@ -1,5 +1,4 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { reset as resetWarnings } from '@base-ui/utils/warn';
 import { ToastStore, selectors } from './store';
 import type { ToastObject } from './useToastManager';
 
@@ -110,171 +109,59 @@ describe('ToastStore', () => {
     expect(selectors.toast(store.state, 'a')?.data).toBe(undefined);
   });
 
-  it('shallow merges a data patch into plain object custom data', () => {
-    const store = createStore([
-      { id: 'a', data: { name: 'Draft', count: 1, nested: { keep: 1 } } },
-    ]);
+  it('derives custom data from the current value when given a function', () => {
+    const store = createStore([{ id: 'a', data: { name: 'Draft', count: 1 } }]);
 
-    store.updateToast('a', { dataPatch: { count: 2, nested: { drop: 2 } } });
+    store.updateToast('a', { data: (prevData) => ({ ...prevData, count: 2 }) });
     const toast = selectors.toast(store.state, 'a');
-    // Nested values are replaced rather than merged into.
-    expect(toast?.data).toEqual({ name: 'Draft', count: 2, nested: { drop: 2 } });
-    expect(toast).not.toHaveProperty('dataPatch');
+    expect(toast?.data).toEqual({ name: 'Draft', count: 2 });
     expect(toast?.updateKey).toBe(1);
   });
 
-  it('merges a data patch into the data given in the same update', () => {
-    const store = createStore([{ id: 'a', data: { name: 'Draft', stale: true } }]);
+  it('passes undefined to the data updater when the toast has no custom data', () => {
+    const store = createStore([{ id: 'a' }]);
+    const updater = vi.fn(() => ({ name: 'Draft' }));
 
-    store.updateToast<{ name: string; count?: number }>('a', {
-      data: { name: 'Saved' },
-      dataPatch: { count: 1 },
-    });
-    expect(selectors.toast(store.state, 'a')?.data).toEqual({ name: 'Saved', count: 1 });
+    store.updateToast('a', { data: updater });
+    expect(updater).toHaveBeenCalledWith(undefined);
+    expect(selectors.toast(store.state, 'a')?.data).toEqual({ name: 'Draft' });
   });
 
-  it('ignores a data patch when the toast has no custom data', () => {
-    resetWarnings();
-    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
-    try {
-      const store = createStore([{ id: 'a' }]);
-
-      store.updateToast('a', { title: 'Saved', dataPatch: { name: 'Draft' } });
-      const toast = selectors.toast(store.state, 'a');
-      expect(toast?.title).toBe('Saved');
-      expect(toast?.data).toBe(undefined);
-      expect(toast).not.toHaveProperty('dataPatch');
-      expect(warnSpy).toHaveBeenCalledTimes(1);
-      expect(warnSpy.mock.calls[0]?.[0]).toContain('The `dataPatch` option was ignored');
-    } finally {
-      warnSpy.mockRestore();
-    }
-  });
-
-  it('ignores a data patch when the custom data is not a plain object', () => {
-    class Model {
-      name: string;
-
-      constructor(name: string) {
-        this.name = name;
-      }
-    }
-    class NullBasedModel {
-      name: string;
-
-      constructor(name: string) {
-        this.name = name;
-      }
-    }
-    // Its instances are now "one hop from `null`" like an object literal, but they are
-    // still class instances.
-    Object.setPrototypeOf(NullBasedModel.prototype, null);
-
-    // Patching any of these key by key would strip the prototype (arrays, `Map`, class
-    // instances) or swap a deliberately null prototype for `Object.prototype`.
-    const values = [
-      ['x', 'y'],
-      new Map([['k', 1]]),
-      new Model('a'),
-      new NullBasedModel('a'),
-      Object.assign(Object.create(null), { name: 'a' }),
-    ];
-    const store = createStore(values.map((data, index) => ({ id: `${index}`, data })));
-
-    resetWarnings();
-    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
-    try {
-      values.forEach((data, index) => {
-        store.updateToast(`${index}`, { dataPatch: { name: 'b' } });
-        expect(selectors.toast(store.state, `${index}`)?.data).toBe(data);
-      });
-      // The warning is logged once per message.
-      expect(warnSpy).toHaveBeenCalledTimes(1);
-    } finally {
-      warnSpy.mockRestore();
-    }
-  });
-
-  it('ignores a data patch that is not itself a plain object', () => {
-    resetWarnings();
-    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
-    try {
-      const data = { name: 'Draft' };
-      const store = createStore([{ id: 'a', data }]);
-
-      store.updateToast('a', { dataPatch: ['x'] as any });
-      expect(selectors.toast(store.state, 'a')?.data).toBe(data);
-      expect(warnSpy).toHaveBeenCalledTimes(1);
-    } finally {
-      warnSpy.mockRestore();
-    }
-  });
-
-  it('keeps an own __proto__ key in a data patch as an own key', () => {
-    const store = createStore([{ id: 'a', data: { name: 'Draft' } }]);
-
-    // `Object.assign` writes through the inherited `__proto__` setter, which would swap
-    // the merged object's prototype and drop the key instead of copying it.
-    const injected = JSON.parse('{"__proto__":{"injected":true}}');
-    store.updateToast('a', { dataPatch: injected });
-    const data = selectors.toast(store.state, 'a')?.data;
-    expect(Object.getPrototypeOf(data)).toBe(Object.prototype);
-    expect(Object.hasOwn(data, '__proto__')).toBe(true);
-    expect('injected' in data).toBe(false);
-
-    // The merged value is still a plain object, so a later patch still merges.
-    store.updateToast('a', { dataPatch: { count: 1 } });
-    expect(selectors.toast(store.state, 'a')?.data).toMatchObject({ name: 'Draft', count: 1 });
-  });
-
-  it('does not read a data patch when updating a missing or ending toast', () => {
+  it('does not call the data updater for a missing or ending toast', () => {
     const store = createStore([{ id: 'a', data: { name: 'Draft' } }]);
     store.closeToast('a');
     expect(selectors.toast(store.state, 'a')?.transitionStatus).toBe('ending');
 
-    const dataPatch = {
-      get name(): string {
-        throw new Error('data was read');
-      },
-    };
-    expect(() => store.updateToast('a', { dataPatch })).not.toThrow();
+    const updater = vi.fn();
+    store.updateToast('a', { data: updater });
+    store.updateToast('missing', { data: updater });
+    expect(updater).not.toHaveBeenCalled();
     expect(selectors.toast(store.state, 'a')?.data).toEqual({ name: 'Draft' });
-
-    expect(() => store.updateToast('missing', { dataPatch })).not.toThrow();
   });
 
   it('replaces custom data when re-adding a toast under an existing id', () => {
     const store = createStore([]);
 
-    // `add` takes a complete `Data`, so keys the caller leaves out must not survive from
-    // the previous value.
     store.addToast({ id: 'a', data: { status: 'error', errorCode: 42 } });
     store.addToast({ id: 'a', data: { status: 'ok' } });
     expect(selectors.toast(store.state, 'a')?.data).toEqual({ status: 'ok' });
 
-    // Only the data actually given is replaced; omitting it leaves the stored value alone.
     store.addToast({ id: 'a', title: 'Still uploading' });
     expect(selectors.toast(store.state, 'a')?.data).toEqual({ status: 'ok' });
   });
 
-  it('patches the loading data of a promise toast on settlement', async () => {
-    resetWarnings();
-    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
-    try {
-      const store = createStore([]);
+  it('resolves data updaters on a promise toast', async () => {
+    const store = createStore([]);
 
-      await store.promiseToast(Promise.resolve('done'), {
-        loading: { title: 'Saving', data: { step: 'save', progress: 0 } },
-        success: { title: 'Saved', dataPatch: { progress: 100 } },
-        error: 'Failed',
-      });
-      const toast = store.state.toasts[0];
-      expect(toast?.data).toEqual({ step: 'save', progress: 100 });
-      expect(toast).not.toHaveProperty('dataPatch');
-      expect(warnSpy).not.toHaveBeenCalled();
-    } finally {
-      warnSpy.mockRestore();
-    }
+    await store.promiseToast(Promise.resolve('done'), {
+      loading: {
+        title: 'Saving',
+        data: (prevData) => ({ ...prevData, step: 'save', progress: 0 }),
+      },
+      success: { title: 'Saved', data: (prevData) => ({ ...prevData, progress: 100 }) },
+      error: 'Failed',
+    });
+    expect(store.state.toasts[0]?.data).toEqual({ step: 'save', progress: 100 });
   });
 
   it('does not invoke onRemove for a toast that is no longer in the store', () => {

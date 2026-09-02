@@ -252,7 +252,6 @@ import { DemoToastPromise } from './demos/promise';
 
 A toast with custom data can be created by passing any typed object interface to the `data` option.
 This enables you to pass any data (including functions) you need to the toast and access it in the toast's rendering logic.
-When updating a toast, `data` replaces the whole value, while `dataPatch` shallow merges a partial value into existing plain object data.
 
 import { DemoToastCustom } from './demos/custom';
 
@@ -381,11 +380,11 @@ toastManager.update(toastId, {
 });
 ```
 
-Custom `data` is replaced as a whole. To change part of it, pass `dataPatch` instead, which shallow merges into existing plain object data:
+Custom `data` is replaced as a whole. To change part of it, pass a function that receives the current value and returns the next one:
 
 ```jsx title="Partial data update"
 toastManager.update(toastId, {
-  dataPatch: { progress: 100 },
+  data: (prevData) => ({ ...prevData, progress: 100 }),
 });
 ```
 

@@ -806,11 +806,7 @@ type ToastManagerPositionerProps = {
 
 ```typescript
 type ToastManagerPromiseOptions<Value, Data extends {}> = {
-  /**
-   * Options for the toast while the promise is pending. It is a new toast, so
-   * `dataPatch` is not accepted; pass `data` instead.
-   */
-  loading: string | Omit<ToastManagerUpdateOptions<Data>, 'dataPatch'>;
+  loading: string | ToastManagerUpdateOptions<Data>;
   success:
     | string
     | ToastManagerUpdateOptions<Data>
@@ -828,18 +824,9 @@ type ToastManagerPromiseOptions<Value, Data extends {}> = {
 type ToastManagerUpdateOptions<Data extends {}> = {
   /**
    * Custom data for the toast.
-   * Replaces the stored value. Use `dataPatch` to shallow merge into it instead.
+   * Replaces the stored value. Pass a function to derive the next value from the current one.
    */
-  data?: Data;
-  /**
-   * A partial value shallow merged into the toast's custom data.
-   * Both the stored data and the patch must be plain objects, so the patch is ignored
-   * when the toast has no data yet, or when either value is an array, a `Map`, a `Set`,
-   * a `Date`, a class instance, or an object with a `null` prototype.
-   * Use `data` to replace the value instead. When both are given, `data` is stored
-   * first and the patch is merged into it.
-   */
-  dataPatch?: Partial<Data>;
+  data?: Data | ((prevData?: Data) => Data);
   /** The title of the toast. */
   title?: React.ReactNode;
   /**

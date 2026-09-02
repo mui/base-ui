@@ -53,16 +53,15 @@ typedManager.update('typed', {
 });
 
 typedManager.update('typed', {
-  dataPatch: {
-    count: 2,
+  data: (prevData) => {
+    expectType<ToastPayload | undefined, typeof prevData>(prevData);
+    return { id: 'typed-update', count: 2 };
   },
 });
 
 typedManager.update('typed', {
-  dataPatch: {
-    // @ts-expect-error - message is not a valid property
-    message: 'not a number',
-  },
+  // @ts-expect-error - count is a missing property, the updater returns the whole value
+  data: () => ({ id: 'typed-update' }),
 });
 
 typedManager.promise(Promise.resolve(2), {
@@ -74,16 +73,6 @@ typedManager.promise(Promise.resolve(2), {
       count: value,
     },
   }),
-  error: 'error',
-});
-
-typedManager.promise(Promise.resolve(2), {
-  loading: {
-    title: 'loading',
-    // @ts-expect-error - dataPatch cannot merge into a new loading toast
-    dataPatch: { count: 1 },
-  },
-  success: 'success',
   error: 'error',
 });
 
@@ -106,9 +95,7 @@ legacyManager.update<ToastPayload>('legacy', {
 });
 
 legacyManager.update<ToastPayload>('legacy', {
-  dataPatch: {
-    count: 4,
-  },
+  data: (prevData) => ({ id: 'legacy', count: (prevData?.count ?? 0) + 1 }),
 });
 
 legacyManager.promise<number, ToastPayload>(Promise.resolve(5), {
