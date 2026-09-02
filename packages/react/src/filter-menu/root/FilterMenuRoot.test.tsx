@@ -5157,8 +5157,12 @@ describe('<FilterMenu.Root />', () => {
         expect(submenuInput).not.toBeInTheDocument();
       });
 
+      const rootInput = screen.getByRole('searchbox', { name: 'Filter actions' });
       await waitFor(() => {
-        expect(screen.getByRole('searchbox', { name: 'Filter actions' })).toHaveFocus();
+        expect(rootInput).toHaveFocus();
+      });
+      await waitFor(() => {
+        expect(rootInput).toHaveAttribute('data-highlighted');
       });
     });
 
@@ -5208,7 +5212,11 @@ describe('<FilterMenu.Root />', () => {
         expect(submenuInput).not.toBeInTheDocument();
       });
 
-      expect(screen.getByRole('searchbox', { name: 'Filter actions' })).toHaveFocus();
+      const rootInput = screen.getByRole('searchbox', { name: 'Filter actions' });
+      expect(rootInput).toHaveFocus();
+      await waitFor(() => {
+        expect(rootInput).toHaveAttribute('data-highlighted');
+      });
     });
   });
 
