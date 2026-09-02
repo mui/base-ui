@@ -47,6 +47,10 @@ export const FilterDropdownPopup = React.forwardRef(function FilterDropdownPopup
     }
   }, [context.open]);
 
+  // Focus that moved into a nested popup stays there until that popup unmounts, so crossing this
+  // popup on the way to a submenu doesn't bounce focus between the two inputs.
+  const nestedFocusRef = React.useRef<Element | null>(null);
+
   const state: FilterDropdownPopupState = { open: context.open };
 
   return useRenderElement('div', componentProps, {
@@ -75,8 +79,12 @@ export const FilterDropdownPopup = React.forwardRef(function FilterDropdownPopup
           }
 
           const activeEl = activeElement(ownerDocument(event.currentTarget));
-          // Only pull back focus that drifted outside the popup.
-          if (activeEl === focusOwner || contains(event.currentTarget, activeEl)) {
+          // Only pull back focus that drifted outside the popup and its nested popups.
+          if (
+            activeEl === focusOwner ||
+            activeEl === nestedFocusRef.current ||
+            contains(event.currentTarget, activeEl)
+          ) {
             return;
           }
 
@@ -110,6 +118,12 @@ export const FilterDropdownPopup = React.forwardRef(function FilterDropdownPopup
           const target = getTarget(event.nativeEvent);
           if (target === focusOwnerRef.current) {
             heldFocusOwnerRef.current = focusOwnerRef.current;
+          }
+
+          // Nested popups are portalled, so their focus events bubble through this React tree
+          // while their elements sit outside this one in the DOM.
+          if (isHTMLElement(target) && !contains(event.currentTarget, target)) {
+            nestedFocusRef.current = target;
           }
 
           if (context.open && target === event.currentTarget) {
