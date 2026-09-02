@@ -18,8 +18,6 @@ _Sep 2, 2026_
 - Fix transform origin for start/end alignment (#5015) by @atomiks
 - Remove duplicate options key from arrow middleware (#5606) by @atomiks
 - Register passive touch listeners (#5572) by @wanxiankai
-- Enforce store state key/value types (#5423) by @jjenzz
-- Make animation frame cancellation idempotent (#5533) by @gilsmt
 
 ### Alert Dialog
 
