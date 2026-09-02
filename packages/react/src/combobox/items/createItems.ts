@@ -145,9 +145,7 @@ export function createComboboxItems<Item, Value extends ComboboxPrimitiveValue>(
     hasValue(itemValue: Value, isEqual: ItemEqualityComparer<Value>) {
       return findCollectionItem(ensureDerived(), itemValue, isEqual) !== undefined;
     },
-    // Unguarded on purpose, unlike `value()` above: the root never labels a hole. Its only
-    // callers resolve an item that was already found in the collection, or stringify an item
-    // for filtering, and holes reach neither the collection's index nor the filter.
+    // Unguarded, unlike `value()`: callers only pass items found in the index or by the filter.
     itemLabel: getLabel,
     label(
       itemValue: Value,

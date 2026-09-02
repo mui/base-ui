@@ -187,8 +187,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
     if (!filteredItemsProp || !itemToValue) {
       return undefined;
     }
-    // Dropped for the same reason as in `flatFilteredValues` below: a hole renders nothing, so
-    // it must not occupy an index in the rendered list's coordinate space.
+    // Nullish entries are holes: they render nothing, so they own no index in the list.
     const flat = flattenLeafItems(filteredItemsProp).filter((item) => item != null);
     const values = flat.map(itemToValue);
     let valueToItem: Map<any, any> | undefined;
@@ -304,9 +303,7 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
       return () => true;
     }
     if (filterProp !== undefined) {
-      // Nullish leaf entries are holes rather than items, so they never reach a custom filter,
-      // matching both the built-in filter below and the collection's own accessors. Guarding
-      // here rather than at the call sites keeps `filter={null}` a true identity.
+      // Holes never reach a custom filter, matching the built-in filter and the collection.
       return (item: Item, query: string, itemToString?: (item: Item) => string) =>
         item != null && filterProp(item, query, itemToString);
     }
@@ -450,14 +447,17 @@ export function AriaCombobox<Value = any, Mode extends SelectionMode = 'none', I
     if (externalWindow && filteredItems === filteredItemsProp) {
       return externalWindow.values;
     }
+    // Holes render nothing, so keeping them here would shift every later value away from the
+    // composite index its item claims, desynchronizing the highlight from the rendered item.
+    const values: any[] = [];
     // Explicit type argument: inferring it from a union of both shapes resolves `Item` to
     // `Group<Item>`, which tsc rejects and tsgo does not.
-    // Holes render nothing, so they own no index in the rendered list's coordinate space.
-    // Keeping them here would shift every later value away from the composite index its item
-    // actually claims, which desynchronizes the highlight, `aria-activedescendant`, and the
-    // value reported to `onItemHighlighted`.
-    const flat = flattenLeafItems<Item>(filteredItems).filter((item) => item != null);
-    return itemToValue ? flat.map((item) => itemToValue(item)) : (flat as any[]);
+    for (const item of flattenLeafItems<Item>(filteredItems)) {
+      if (item != null) {
+        values.push(itemToValue ? itemToValue(item) : item);
+      }
+    }
+    return values;
   }, [filteredItems, filteredItemsProp, externalWindow, itemToValue]);
 
   const store = useRefWithInit(() => {
@@ -1813,8 +1813,7 @@ interface ComboboxRootProps<ItemValue, Item = ItemValue> {
    * Filter function used to match items vs input query.
    * Receives the source item, which is the derived value's item when `items` is a `createItems()`
    * collection, and the item itself otherwise.
-   * Nullish entries in the data are holes rather than items: they are never passed to this
-   * function. Pass `null` instead to disable filtering, which keeps every entry as-is.
+   * Nullish entries in the data are holes rather than items and are never passed to this function.
    */
   filter?:
     | null
