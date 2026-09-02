@@ -146,6 +146,27 @@ describe('<NumberField.ScrubArea />', () => {
 
       expect(root).not.toHaveAttribute('data-scrubbing');
     });
+
+    it('keeps a selection the consumer sets in onFocus when a mouse press focuses the input', async () => {
+      await render(
+        <NumberField.Root defaultValue={100}>
+          <NumberField.Input onFocus={(event) => event.currentTarget.select()} />
+          <NumberField.ScrubArea data-testid="scrub-area" />
+        </NumberField.Root>,
+      );
+
+      const input = screen.getByRole<HTMLInputElement>('textbox');
+
+      await act(async () => {
+        screen
+          .getByTestId('scrub-area')
+          .dispatchEvent(new PointerEvent('pointerdown', { bubbles: true, pointerType: 'mouse' }));
+      });
+
+      expect(input).toHaveFocus();
+      expect(input.selectionStart).toBe(0);
+      expect(input.selectionEnd).toBe(input.value.length);
+    });
   });
 
   // Only run the following tests in Chromium/Firefox.
