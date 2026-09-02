@@ -515,6 +515,7 @@ export const Virtualizer = React.forwardRef(function Virtualizer<Value>(
     items: collection,
     pinnedItemIndex,
     renderRow: renderRowProp,
+    scrollportProps,
     scrollToRowAlignment,
     scrollToItemIndex,
     windowingSuspended,
@@ -1405,10 +1406,19 @@ export const Virtualizer = React.forwardRef(function Virtualizer<Value>(
     },
   );
 
+  const getScrollElement = useStableCallback(() => scrollElementRef.current);
+
   React.useImperativeHandle(
     apiRefProp,
-    () => ({ getIndexAtOffset, getItemMetrics, remeasure, resetScroll, scrollToIndex }),
-    [getIndexAtOffset, getItemMetrics, remeasure, resetScroll, scrollToIndex],
+    () => ({
+      getIndexAtOffset,
+      getItemMetrics,
+      getScrollElement,
+      remeasure,
+      resetScroll,
+      scrollToIndex,
+    }),
+    [getIndexAtOffset, getItemMetrics, getScrollElement, remeasure, resetScroll, scrollToIndex],
   );
 
   const anchor = useScrollAnchor<VirtualizerRowModel<Value>>({
@@ -1825,7 +1835,10 @@ export const Virtualizer = React.forwardRef(function Virtualizer<Value>(
       isTable ? null : gesture.scrollElementRefCallback,
       isTable ? null : scrollportBoxRef,
     ],
-    props: [defaultProps, elementProps],
+    // The owning list's scrollport props sit between the engine's own and the application's, so a
+    // list can put its scroll handler and scrollbar styling on the element that actually scrolls
+    // while props passed to `<Virtualizer>` still win.
+    props: [defaultProps, scrollportProps, elementProps],
   });
 
   if (!isTable || !enabled) {

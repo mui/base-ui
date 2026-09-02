@@ -1,6 +1,7 @@
 'use client';
 import * as React from 'react';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
+import { warn } from '@base-ui/utils/warn';
 import { useSelectRootContext, useSelectRootPropsContext } from '../root/SelectRootContext';
 import { useCompositeListItem } from '../../internals/composite/list/useCompositeListItem';
 import type {
@@ -20,6 +21,12 @@ import {
   resolveSelectedIndex,
 } from '../../internals/itemEquality';
 import { isVirtualClick } from '../../floating-ui-react/utils/event';
+import { useSelectVirtualItemContext } from './SelectVirtualItemContext';
+import { useListVirtualizationHost } from '../../internals/virtualization/ListVirtualizationHostContext';
+import {
+  useNonVirtualizedItemRegistration,
+  useVirtualItemDiagnostics,
+} from '../../internals/virtualization/useListBinding';
 
 /**
  * An individual option in the select popup.
@@ -44,15 +51,31 @@ export const SelectItem = React.memo(
     } = componentProps;
 
     const textRef = React.useRef<HTMLElement | null>(null);
+    const virtualItem = useSelectVirtualItemContext();
+    const virtualized = virtualItem != null;
     const listItem = useCompositeListItem({
       guess: true,
+      // A windowed row knows its logical index; render order describes only the mounted window.
+      index: virtualItem?.index,
       label,
       textRef,
     });
 
     const store = useSelectRootContext();
+    const insideList = useListVirtualizationHost() != null;
+
+    useNonVirtualizedItemRegistration({
+      componentName: store.context.componentName,
+      insideList,
+      registry: store.context.virtualizationRegistry,
+      virtualized,
+    });
     const { itemProps, multiple, disabled: selectDisabled, readOnly } = useSelectRootPropsContext();
-    const disabled = selectDisabled || disabledProp;
+    const isItemDisabled = store.useState('isItemDisabled');
+    const disabled =
+      selectDisabled ||
+      disabledProp ||
+      (listItem.index >= 0 && isItemDisabled?.(itemValue, listItem.index) === true);
     const highlighted = store.useState('isActive', listItem.index);
     const open = store.useState('open');
     const selected = store.useState('isSelected', itemValue);
@@ -63,16 +86,66 @@ export const SelectItem = React.memo(
 
     const itemRef = React.useRef<HTMLDivElement | null>(null);
 
+    if (process.env.NODE_ENV !== 'production') {
+      // The root derives typeahead labels from `items` while virtualized, so `CompositeList` is
+      // given no `labelsRef` and this prop would be collected by nobody.
+      // eslint-disable-next-line react-hooks/rules-of-hooks
+      useIsoLayoutEffect(() => {
+        if (virtualized && label != null) {
+          warn(
+            `A virtualized <${store.context.componentName}.Item> received a \`label\` prop, which ` +
+              'is ignored: typeahead matches labels derived from the `items` prop on ' +
+              `<${store.context.componentName}.Root>. Pass \`itemToStringLabel\` there instead.`,
+          );
+        }
+      }, [label, store, virtualized]);
+    }
+
+    useVirtualItemDiagnostics({
+      componentName: store.context.componentName,
+      disabledProp,
+      hasIsItemDisabled: isItemDisabled != null,
+      virtualItem,
+    });
+
     useIsoLayoutEffect(() => {
+      // The root derives the whole collection's values from `items` while a virtualizer is
+      // registered. A row must not write there — and above all must not delete on unmount, which
+      // scrolling would do constantly, punching holes in a complete array.
+      if (virtualized) {
+        return undefined;
+      }
+
       const values = store.context.valuesRef.current;
       values[index] = itemValue;
 
       return () => {
         delete values[index];
       };
-    }, [index, itemValue, store]);
+    }, [index, itemValue, store, virtualized]);
 
     useIsoLayoutEffect(() => {
+      if (!virtualized || index < 0) {
+        return undefined;
+      }
+
+      // Republished directly as well as through the composite registration, so list navigation can
+      // focus a row that has just been mounted for it.
+      const list = store.context.listRef.current;
+      list[index] = itemRef.current;
+
+      return () => {
+        delete list[index];
+      };
+    }, [index, store, virtualized]);
+
+    useIsoLayoutEffect(() => {
+      // `selectedIndex` follows the whole collection when virtualized, and the root owns it: a
+      // window cannot see whether an unmounted row is the selected one.
+      if (virtualized) {
+        return;
+      }
+
       const selectedValue = store.state.value;
 
       const currentIndex = store.state.selectedIndex;
@@ -107,7 +180,7 @@ export const SelectItem = React.memo(
       if (claims && textRef.current) {
         store.context.selectedItemTextRef.current = textRef.current;
       }
-    }, [index, multiple, isItemEqualToValue, store, itemValue]);
+    }, [index, multiple, isItemEqualToValue, store, itemValue, virtualized]);
 
     const pointerTypeRef = React.useRef<'mouse' | 'touch' | 'pen'>('mouse');
     const allowMouseSelectionRef = React.useRef(false);
@@ -154,7 +227,7 @@ export const SelectItem = React.memo(
       'aria-selected': selected,
       tabIndex: open && highlighted ? 0 : -1,
       onKeyDown(event: BaseUIEvent<React.KeyboardEvent>) {
-        store.set('activeIndex', index);
+        store.context.setActiveIndex(index, 'keyboard');
 
         if (event.key === ' ' && store.context.typingRef.current) {
           // `useButton` skips Space activation for `role="option"` items when the keydown
@@ -234,7 +307,7 @@ export const SelectItem = React.memo(
     const element = useRenderElement('div', componentProps, {
       ref: [buttonRef, forwardedRef, listItem.ref, itemRef],
       state,
-      props: [itemProps, defaultProps, elementProps, getButtonProps],
+      props: [itemProps, virtualItem?.props, defaultProps, elementProps, getButtonProps],
     });
 
     const contextValue: SelectItemContext = React.useMemo(

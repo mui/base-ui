@@ -10,11 +10,8 @@ import { type TransitionStatus, useTransitionStatus } from '../../internals/useT
 import { useOpenChangeComplete } from '../../internals/useOpenChangeComplete';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { transitionStatusMapping } from '../../internals/stateAttributesMapping';
-import {
-  getMaxScrollOffset,
-  normalizeScrollOffset,
-  SCROLL_EDGE_TOLERANCE_PX,
-} from '../../utils/scrollEdges';
+import { getMaxScrollOffset, normalizeScrollOffset } from '../../utils/scrollEdges';
+import { getTargetScrollTop, getVirtualizedTargetScrollTop } from '../utils/scrollArrowStepping';
 
 /**
  * @internal
@@ -87,15 +84,19 @@ export const SelectScrollArrow = React.forwardRef(function SelectScrollArrow(
         return;
       }
 
-      store.set('activeIndex', null);
+      store.context.setActiveIndex(null, 'none');
 
       function scrollNextItem() {
-        const scroller = store.state.listElement ?? store.context.popupRef.current;
+        const virtualizer = store.context.virtualizationRegistry.virtualizer;
+        const scroller =
+          virtualizer?.getScrollElement() ??
+          store.state.listElement ??
+          store.context.popupRef.current;
         if (!scroller) {
           return;
         }
 
-        store.set('activeIndex', null);
+        store.context.setActiveIndex(null, 'none');
         store.context.handleScrollArrowVisibility(scroller);
 
         const maxScrollTop = getMaxScrollOffset(scroller.scrollHeight, scroller.clientHeight);
@@ -112,8 +113,27 @@ export const SelectScrollArrow = React.forwardRef(function SelectScrollArrow(
           return;
         }
 
-        if (items.length > 0) {
-          const scrollArrowHeight = scrollArrowRef.current?.offsetHeight || 0;
+        const scrollArrowHeight = scrollArrowRef.current?.offsetHeight || 0;
+
+        if (virtualizer != null) {
+          // A windowed row is positioned inside a transformed render zone, so its `offsetTop`
+          // describes its place in that zone rather than in the scrolled content. The logical
+          // metrics are the only geometry that covers the whole collection.
+          const target = getVirtualizedTargetScrollTop(
+            virtualizer,
+            store.context.valuesRef.current.length,
+            isUp,
+            scrollTop,
+            scroller.clientHeight,
+            scrollArrowHeight,
+            maxScrollTop,
+          );
+          // A row whose geometry is not available yet leaves the position alone; the next tick
+          // reads the handle again, by which time more rows have been measured.
+          if (target != null) {
+            scroller.scrollTop = target;
+          }
+        } else if (items.length > 0) {
           scroller.scrollTop = getTargetScrollTop(
             items,
             isUp,
@@ -183,52 +203,4 @@ export interface SelectScrollArrowProps extends BaseUIComponentProps<
 export namespace SelectScrollArrow {
   export type State = SelectScrollArrowState;
   export type Props = SelectScrollArrowProps;
-}
-
-function getTargetScrollTop(
-  items: Array<HTMLElement | null>,
-  isUp: boolean,
-  scrollTop: number,
-  clientHeight: number,
-  scrollArrowHeight: number,
-  maxScrollTop: number,
-) {
-  if (isUp) {
-    let firstVisibleIndex = 0;
-    const visibleTop = scrollTop + scrollArrowHeight - SCROLL_EDGE_TOLERANCE_PX;
-
-    for (let i = 0; i < items.length; i += 1) {
-      const item = items[i];
-      if (item && item.offsetTop >= visibleTop) {
-        firstVisibleIndex = i;
-        break;
-      }
-    }
-
-    const targetIndex = Math.max(0, firstVisibleIndex - 1);
-    const targetItem = items[targetIndex];
-    return targetIndex < firstVisibleIndex && targetItem
-      ? normalizeScrollOffset(targetItem.offsetTop - scrollArrowHeight, maxScrollTop)
-      : 0;
-  }
-
-  let lastVisibleIndex = items.length - 1;
-  const visibleBottom = scrollTop + clientHeight - scrollArrowHeight + SCROLL_EDGE_TOLERANCE_PX;
-
-  for (let i = 0; i < items.length; i += 1) {
-    const item = items[i];
-    if (item && item.offsetTop + item.offsetHeight > visibleBottom) {
-      lastVisibleIndex = Math.max(0, i - 1);
-      break;
-    }
-  }
-
-  const targetIndex = Math.min(items.length - 1, lastVisibleIndex + 1);
-  const targetItem = items[targetIndex];
-  return targetIndex > lastVisibleIndex && targetItem
-    ? normalizeScrollOffset(
-        targetItem.offsetTop + targetItem.offsetHeight - clientHeight + scrollArrowHeight,
-        maxScrollTop,
-      )
-    : maxScrollTop;
 }

@@ -23,7 +23,9 @@ import { Virtualizer } from '@base-ui/react/virtualizer';
 
 `<Virtualizer>` renders a window of the visible and overscanned items instead of the whole collection, and connects to the surrounding list so that keyboard navigation, scrolling, selection, and accessibility metadata keep working for items that are not mounted.
 
-It can be used inside `<Combobox.List>` and `<Autocomplete.List>`, or on its own by passing the collection to its `items` prop.
+It can be used inside `<Combobox.List>`, `<Autocomplete.List>`, and `<Select.List>`, or on its own by passing the collection to its `items` prop.
+
+`Select` moves real focus to the highlighted item rather than using `aria-activedescendant`, so the virtualizer keeps the active row mounted for it to hold. See [virtualized Select](/react/components/select#virtualization) for the details specific to that component.
 
 ## Rendering items
 

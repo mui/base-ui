@@ -16,6 +16,7 @@ import type {
   ListVirtualizationHost,
   ListVirtualizationListState,
 } from './ListVirtualizationHostContext';
+import type { HTMLProps } from '../types';
 import { isGroupedItems } from '../resolveValueLabel';
 import {
   isGroupHeaderRow,
@@ -226,6 +227,8 @@ export interface ListBinding<Item> {
   renderRow: (
     params: VirtualizerRenderRowParameters<VirtualizerRowModel<Item>>,
   ) => React.ReactElement;
+  /** Props the owning list contributes to the scrollport, if any. */
+  scrollportProps: HTMLProps | undefined;
   scrollToRowAlignment: VirtualizerScrollAlignment;
   /** The item to scroll into view. */
   scrollToItemIndex: number | undefined;
@@ -415,6 +418,7 @@ export function useListBinding<Item>(
   const getIndexAtOffset = useStableCallback(
     (offset: number) => apiRef.current?.getIndexAtOffset(offset) ?? null,
   );
+  const getScrollElement = useStableCallback(() => apiRef.current?.getScrollElement() ?? null);
   const remeasure = useStableCallback(() => apiRef.current?.remeasure());
   const resetScroll = useStableCallback(() => apiRef.current?.resetScroll());
   const scrollToIndex = useStableCallback(
@@ -422,8 +426,24 @@ export function useListBinding<Item>(
       apiRef.current?.scrollToIndex(index, options),
   );
   const virtualizerHandle = React.useMemo(
-    () => ({ enabled, getIndexAtOffset, getItemMetrics, remeasure, resetScroll, scrollToIndex }),
-    [enabled, getIndexAtOffset, getItemMetrics, remeasure, resetScroll, scrollToIndex],
+    () => ({
+      enabled,
+      getIndexAtOffset,
+      getItemMetrics,
+      getScrollElement,
+      remeasure,
+      resetScroll,
+      scrollToIndex,
+    }),
+    [
+      enabled,
+      getIndexAtOffset,
+      getItemMetrics,
+      getScrollElement,
+      remeasure,
+      resetScroll,
+      scrollToIndex,
+    ],
   );
 
   useIsoLayoutEffect(() => {
@@ -444,9 +464,11 @@ export function useListBinding<Item>(
     }
 
     registry.virtualizer = virtualizerHandle;
+    registry.onVirtualizerChange?.(virtualizerHandle);
     return () => {
       if (registry.virtualizer === virtualizerHandle) {
         registry.virtualizer = null;
+        registry.onVirtualizerChange?.(null);
       }
     };
   }, [host, virtualizerHandle]);
@@ -465,6 +487,7 @@ export function useListBinding<Item>(
     items,
     pinnedItemIndex: focusedItemIndex,
     renderRow,
+    scrollportProps: listState?.scrollportProps,
     scrollToRowAlignment: scrollActiveAlignment,
     scrollToItemIndex,
     windowingSuspended,
