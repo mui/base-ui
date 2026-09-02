@@ -13,9 +13,8 @@ import { activeElement, contains, getTarget } from '../floating-ui-react/utils';
 import { isFocusVisible } from './utils/focusVisible';
 
 type ToastInternalUpdateOptions<Data extends object> = Partial<
-  Omit<ToastObject<Data>, 'id' | 'updateKey' | 'data'>
-> &
-  Pick<ToastManagerUpdateOptions<Data>, 'data'>;
+  Omit<ToastObject<Data>, 'id' | 'updateKey'>
+>;
 
 /**
  * A toast once it lives in the store. `addToast` is the only way in and it always
@@ -211,7 +210,19 @@ export class ToastStore extends ReactStore<State, {}, typeof selectors> {
   };
 
   updateToast = <Data extends object>(id: string, updates: ToastManagerUpdateOptions<Data>) => {
-    this.updateToastInternal(id, updates, false, true);
+    let resolved = updates;
+    if (typeof updates.data === 'function') {
+      const prevToast = selectors.toast(this.state, id);
+      // Never run the updater for an update the store is going to ignore.
+      if (!prevToast || prevToast.transitionStatus === 'ending') {
+        return;
+      }
+      resolved = { ...updates, data: updates.data(prevToast.data) };
+    }
+
+    // `data` is a plain value now, and the updater may have called back into the
+    // store, so the internal update reads the current state again.
+    this.updateToastInternal(id, resolved as ToastInternalUpdateOptions<Data>, false, true);
   };
 
   updateToastInternal = <Data extends object>(
@@ -236,10 +247,6 @@ export class ToastStore extends ReactStore<State, {}, typeof selectors> {
     const nextToast: StoredToast<Data> = {
       ...prevToast,
       ...updates,
-      // An explicit `data: undefined` clears the value, while omitting the key keeps it.
-      data: Object.hasOwn(updates, 'data')
-        ? resolveData(updates.data, prevToast.data)
-        : prevToast.data,
       ...(markUpdated && {
         updateKey: prevToast.updateKey + 1,
       }),

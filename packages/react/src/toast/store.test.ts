@@ -146,6 +146,43 @@ describe('ToastStore', () => {
     expect(selectors.toast(store.state, 'a')?.data).toEqual({ name: 'Draft' });
   });
 
+  it('keeps a toast added from inside a data updater', () => {
+    const store = createStore([{ id: 'a', data: { count: 1 } }]);
+
+    store.updateToast('a', {
+      data: () => {
+        store.addToast({ id: 'b' });
+        return { count: 2 };
+      },
+    });
+    expect(store.state.toasts.map((toast) => toast.id)).toEqual(['b', 'a']);
+    expect(selectors.toast(store.state, 'a')?.data).toEqual({ count: 2 });
+    expectToastMetadataToMatchToasts(store);
+  });
+
+  it('keeps a toast closed from inside its data updater closed', () => {
+    const store = createStore([{ id: 'a', data: { count: 1 } }]);
+
+    store.updateToast('a', {
+      data: () => {
+        store.closeToast('a');
+        return { count: 2 };
+      },
+    });
+    expect(selectors.toast(store.state, 'a')?.transitionStatus).toBe('ending');
+    expect(selectors.toast(store.state, 'a')?.data).toEqual({ count: 1 });
+  });
+
+  it('stores a function as the value when re-adding a toast under an existing id', () => {
+    const store = createStore([]);
+    const value = () => 'first';
+    const nextValue = () => 'second';
+
+    store.addToast({ id: 'a', data: value });
+    store.addToast({ id: 'a', data: nextValue });
+    expect(selectors.toast(store.state, 'a')?.data).toBe(nextValue);
+  });
+
   it('replaces custom data when re-adding a toast under an existing id', () => {
     const store = createStore([]);
 
