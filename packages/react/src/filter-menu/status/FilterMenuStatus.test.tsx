@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { screen } from '@mui/internal-test-utils';
-import { expect } from 'vitest';
+import { expect, describe, it } from 'vitest';
 import { createRenderer } from '#test-utils';
 import { FilterMenu } from '@base-ui/react/filter-menu';
 

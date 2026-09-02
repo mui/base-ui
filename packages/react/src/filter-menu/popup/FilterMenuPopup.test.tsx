@@ -1,4 +1,4 @@
-import { expect } from 'vitest';
+import { expect, describe, beforeEach, it } from 'vitest';
 import * as React from 'react';
 import { act, screen } from '@mui/internal-test-utils';
 import { DirectionProvider } from '@base-ui/react/direction-provider';

@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { expect, vi } from 'vitest';
+import { expect, vi, describe, it } from 'vitest';
 import { createRenderer } from '#test-utils';
 import { resolveRenderedId, useRenderedId } from './resolveRenderedId';
 

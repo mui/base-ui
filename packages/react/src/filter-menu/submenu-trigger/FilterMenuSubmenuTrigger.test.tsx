@@ -1,4 +1,4 @@
-import { expect } from 'vitest';
+import { expect, describe, beforeEach, it } from 'vitest';
 import { act, screen, waitFor } from '@mui/internal-test-utils';
 import { createRenderer, resetBrowserPointer } from '#test-utils';
 import { FilterMenu } from '@base-ui/react/filter-menu';
