@@ -6,6 +6,7 @@ import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { useOnFirstRender } from '@base-ui/utils/useOnFirstRender';
 import { usePreviousValue } from '@base-ui/utils/usePreviousValue';
 import { isElementDisabled } from '@base-ui/utils/isElementDisabled';
+import { warn } from '@base-ui/utils/warn';
 import { useControlled } from '@base-ui/utils/useControlled';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
@@ -40,6 +41,7 @@ import { useFormContext } from '../../internals/form-context/FormContext';
 import { type Group, stringifyAsLabel, stringifyAsValue } from '../../internals/resolveValueLabel';
 import {
   defaultItemEquality,
+  findItemIndex,
   findSelectionIndex,
   isSelectedValueDirty,
 } from '../../internals/itemEquality';
@@ -49,6 +51,26 @@ import { getMaxScrollOffset, normalizeScrollOffset } from '../../utils/scrollEdg
 import { FOCUSABLE_POPUP_PROPS } from '../../utils/popups';
 import { mergeProps } from '../../merge-props';
 import { NOOP } from '../../internals/noop';
+import {
+  createListVirtualizationRegistry,
+  type RegisteredVirtualizer,
+} from '../../internals/virtualization/ListVirtualizationRegistry';
+import { SelectVirtualizationContext } from './SelectVirtualizationContext';
+import {
+  ListVirtualizationOwnerContext,
+  type ListVirtualizationOwner,
+} from '../../internals/virtualization/ListVirtualizationHostContext';
+import { getSelectCollection, getSelectItemLabel } from '../utils/getSelectCollection';
+import { getItemValue } from '../../internals/resolveValueLabel';
+
+/**
+ * Names the part a `<Virtualizer>` must be placed in. Published at the root, so one put anywhere
+ * else in the tree — where it needs no host if it carries its own `items` — is still reported.
+ */
+const VIRTUALIZATION_OWNER: ListVirtualizationOwner = {
+  componentName: 'Select',
+  listPartName: 'Select.List',
+};
 
 /**
  * Groups all parts of the select.
@@ -81,6 +103,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     multiple = false,
     itemToStringLabel,
     itemToStringValue,
+    isItemDisabled,
     isItemEqualToValue = defaultItemEquality,
     highlightItemOnHover = true,
     children,
@@ -135,6 +158,8 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
   });
   const alignItemWithTriggerActiveRef = React.useRef(false);
   const initialValueRef = React.useRef(value);
+  const keyboardActiveRef = React.useRef(false);
+  const virtualizationRegistry = useRefWithInit(createListVirtualizationRegistry).current;
 
   const { mounted, setMounted, transitionStatus } = useTransitionStatus(open);
   const { openMethod, triggerProps: interactionTypeProps } = useOpenInteractionType(open);
@@ -149,6 +174,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
           multiple,
           itemToStringLabel,
           itemToStringValue,
+          isItemDisabled,
           isItemEqualToValue,
           value,
           open,
@@ -158,6 +184,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
           forceMount: false,
           openMethod: null,
           activeIndex: null,
+          highlightType: 'none',
           selectedIndex: null,
           popupProps: EMPTY_OBJECT,
           triggerProps: EMPTY_OBJECT,
@@ -172,8 +199,12 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
         {
           setValue: NOOP,
           setOpen: NOOP,
+          setActiveIndex: NOOP,
           handleScrollArrowVisibility: NOOP,
           onOpenChangeComplete: NOOP,
+          componentName: 'Select',
+          virtualizationRegistry,
+          keyboardActiveRef,
           listRef,
           popupRef,
           scrollHandlerRef,
@@ -192,10 +223,65 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
       ),
   ).current;
 
+  /**
+   * The registered virtualizer, held in React state so parts that choose props from it re-render
+   * before paint. Effects read `virtualizationRegistry.virtualizer` instead — layout effects run
+   * child-first, so registration is already visible to them on the commit that performs it, while
+   * this value is still one render behind.
+   */
+  const [registeredVirtualizer, setRegisteredVirtualizer] =
+    React.useState<RegisteredVirtualizer | null>(null);
+  const handleVirtualizerChange = useStableCallback((virtualizer: RegisteredVirtualizer | null) => {
+    setRegisteredVirtualizer(virtualizer);
+  });
+  useOnFirstRender(() => {
+    virtualizationRegistry.onVirtualizerChange = handleVirtualizerChange;
+  });
+
+  /**
+   * The collection the built-in virtualizer windows. A flat array keeps its identity, so the
+   * engine's per-row geometry survives renders that did not change the items.
+   */
+  const collection = React.useMemo(() => getSelectCollection(items), [items]);
+
+  const projectedValuesCacheRef = React.useRef<{
+    collection: ReadonlyArray<unknown>;
+    values: any[];
+  } | null>(null);
+  const itemToStringLabelRef = useValueAsRef(itemToStringLabel);
+  const deriveItemLabel = useStableCallback((item: unknown) =>
+    getSelectItemLabel(item, itemToStringLabelRef.current),
+  );
+
   const activeIndex = store.useState('activeIndex');
   const selectedIndex = store.useState('selectedIndex');
   const triggerElement = store.useState('triggerElement');
   const positionerElement = store.useState('positionerElement');
+
+  /**
+   * The selected index as `useListNavigation` sees it, held still between collection changes.
+   *
+   * The hook re-runs its "bring the selected item into view" effect on every `selectedIndex` change
+   * while open (`useListNavigation.ts:387-406`, with `forceScrollIntoView`). A static list never
+   * changes it while open, so that only ever fired once; a virtualized one keeps it current for the
+   * whole collection, which would turn each selection change into a jump to whichever value happens
+   * to be last — the one the user just deselected, for instance.
+   *
+   * Committed state rather than a ref read during render, for two reasons. `Store.set` ignores an
+   * unchanged value, so a pin written to a ref would never reach the hooks on a boundary where the
+   * index happens to be numerically the same as before. And a ref advanced during render can be
+   * moved by a render React then discards.
+   *
+   * `null` means no pin: the raw `selectedIndex` is passed through, which is what a static list
+   * always gets. A pin carries the collection it was computed for, so "nothing is selected" is
+   * `{ index: null }` and is distinct from having no pin at all.
+   */
+  const [navigationPin, setNavigationPin] = React.useState<{
+    collection: ReadonlyArray<unknown>;
+    index: number | null;
+  } | null>(null);
+
+  const navigationSelectedIndex = navigationPin == null ? selectedIndex : navigationPin.index;
 
   const previousOpenMethod = usePreviousValue(openMethod);
   const renderedOpenMethod = openMethod ?? previousOpenMethod;
@@ -240,6 +326,81 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
   }, [hasSelectedValue, setFilled]);
 
   useIsoLayoutEffect(
+    function prefillVirtualizedMetadata() {
+      // Only a registered virtualizer hands collection ownership to the root. Read live rather
+      // than from `registeredVirtualizer`: this effect runs after the virtualizer's own, so on the
+      // commit that registers it the state has not been applied yet.
+      if (virtualizationRegistry.virtualizer == null) {
+        return undefined;
+      }
+
+      // A windowed list leaves most items unmounted, so they cannot register their own value or
+      // label. Deriving both from `items` keeps selection, typeahead, and autofill working across
+      // the whole collection, and keeps a row scrolling out of the window from deleting them.
+      // Values depend only on the collection, so they are reused when the effect re-runs because
+      // `itemToStringLabel` changed identity — which the documented inline form does on every
+      // render of the component that renders the root. Labels are the half that must re-derive.
+      let values = projectedValuesCacheRef.current;
+      if (values == null || values.collection !== collection.items) {
+        values = { collection: collection.items, values: collection.items.map(getItemValue) };
+        projectedValuesCacheRef.current = values;
+      }
+      const labels = collection.items.map(deriveItemLabel);
+
+      if (process.env.NODE_ENV !== 'production') {
+        const emptyLabelIndex = labels.findIndex(
+          (label, index) =>
+            label === '' &&
+            collection.items[index] != null &&
+            typeof collection.items[index] === 'object',
+        );
+        if (emptyLabelIndex !== -1 && itemToStringLabelRef.current == null) {
+          warn(
+            `The item at index ${emptyLabelIndex} has no label, so typeahead cannot match it. ` +
+              'Give items a `label` property, or pass `itemToStringLabel` to <Select.Root>.',
+          );
+        }
+      }
+
+      valuesRef.current = values.values;
+      labelsRef.current = labels;
+
+      return () => {
+        // Only reset the array this effect assigned. After a virtualized→static handover the static
+        // items re-write their entries from their own effects once their indices settle, so clearing
+        // the array this effect owns does not strand them; clearing an array a later owner has since
+        // installed would.
+        if (valuesRef.current === values.values) {
+          valuesRef.current = [];
+        }
+        if (labelsRef.current === labels) {
+          labelsRef.current = [];
+        }
+
+        // Once ownership really ends, static items write into the array this cache is holding —
+        // `SelectItem` assigns into whatever `valuesRef` points at. Reusing it on a later
+        // registration with the same `items` would serve a projection somebody else has edited.
+        // A re-run for a changed `itemToStringLabel` keeps the entry, which is what it exists for.
+        if (virtualizationRegistry.virtualizer == null) {
+          projectedValuesCacheRef.current = null;
+        }
+      };
+    },
+    // `itemToStringLabel` is a dependency because the labels it produced are cached in `labelsRef`:
+    // dropping it would leave typeahead matching the previous locale's strings indefinitely. The
+    // docs ask for a stable callback for that reason — an unstable one re-derives every label on
+    // each render of the component that renders the root.
+    [
+      collection,
+      deriveItemLabel,
+      itemToStringLabel,
+      itemToStringLabelRef,
+      registeredVirtualizer,
+      virtualizationRegistry,
+    ],
+  );
+
+  useIsoLayoutEffect(
     function syncSelectedIndex() {
       const nextIndex = findSelectionIndex(valuesRef.current, value, isItemEqualToValue, multiple);
 
@@ -247,13 +408,148 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
         selectedItemTextRef.current = null;
       }
 
-      if (open) {
+      // A static list defers this while open: mounted items own `selectedIndex`, and moving it
+      // under an open popup would drag list navigation's selected item with it. A virtualized list
+      // has no such owner — most items are unmounted — so the root keeps it current instead.
+      if (open && virtualizationRegistry.virtualizer == null) {
         return;
       }
 
       store.set('selectedIndex', nextIndex);
     },
-    [multiple, open, value, isItemEqualToValue, store],
+    [
+      multiple,
+      open,
+      value,
+      isItemEqualToValue,
+      store,
+      // The root owns `selectedIndex` while virtualized, so a replaced collection has to re-run
+      // this: no mounted item is left to correct it.
+      collection,
+      registeredVirtualizer,
+      virtualizationRegistry,
+    ],
+  );
+
+  // The collection the last owned prune ran against, or `null` until an owned session has seen a
+  // non-empty one. The first collection's exemption is keyed to identity rather than to a run
+  // counter: this effect also re-runs when the registered handle changes identity (the commit after
+  // a registration lands, and every `enabled` toggle) and when `value` or the comparer changes, and
+  // none of those replaces the collection. The static path prunes only from a map change, and the
+  // only map change a windowed list has is the collection itself being replaced — so a re-run
+  // against the collection this session was handed is exempt just as its first sighting was. The
+  // navigation pin above keys on the same `collection.items` identity for the same reason.
+  const lastPrunedCollectionRef = React.useRef<ReadonlyArray<unknown> | null>(null);
+
+  useIsoLayoutEffect(
+    function pruneVirtualizedSelection() {
+      // The static path prunes from `onMapChange`, which fires whenever the mounted set changes —
+      // for a windowed list that is every scroll commit, and each one costs a full-collection scan
+      // per selected value. Here it is keyed on the things that can actually invalidate a
+      // selection, and runs after the prefill, so `valuesRef` already describes the new collection.
+      if (virtualizationRegistry.virtualizer == null) {
+        lastPrunedCollectionRef.current = null;
+        return;
+      }
+
+      const values = valuesRef.current;
+
+      // An empty projection is a collection that has not arrived — async items, or a refetch under
+      // an open popup — not one the selection has left. Returning *before* the collection is
+      // recorded is what the static path does, and it matters: recording it here would let the next
+      // non-empty collection be matched against nothing and exempted from pruning too.
+      if (values.length === 0) {
+        return;
+      }
+
+      const previousCollection = lastPrunedCollectionRef.current;
+      lastPrunedCollectionRef.current = collection.items;
+
+      // The first collection an owned session sees is the one it was handed: a value outside it may
+      // belong to a page that has not loaded, or be a structurally equal object the default
+      // comparer cannot match. Pruning there destroys a valid selection, which is what a static
+      // list has always declined to do — and it declines again for anything short of the collection
+      // being replaced, so a re-run against the same collection (a registration landing, an
+      // `enabled` toggle, a `value` change) is exempt too.
+      if (previousCollection == null || previousCollection === collection.items) {
+        return;
+      }
+
+      const eventDetails = createChangeEventDetails(REASONS.none);
+      // The comparer is contracted to accept whatever the application put in `items`, which is what
+      // `valuesRef` holds; the generic parameter describes the selected value, not the collection.
+      const selectedValue: any = value;
+
+      if (!multiple && selectedValue !== null) {
+        if (findItemIndex(values, selectedValue, isItemEqualToValue) === -1) {
+          // `any` for the same reason the positioner's prune uses it: the ref holds whatever the
+          // application first passed, which the comparer is contracted to accept.
+          const initialSelectedValue: any = initialValueRef.current;
+          const hasInitial =
+            initialSelectedValue != null &&
+            findItemIndex(values, initialSelectedValue, isItemEqualToValue) !== -1;
+          const nextValue = hasInitial ? initialSelectedValue : null;
+          store.context.setValue(nextValue, eventDetails);
+
+          if (nextValue === null) {
+            store.set('selectedIndex', null);
+            selectedItemTextRef.current = null;
+          }
+        }
+        return;
+      }
+
+      if (multiple && Array.isArray(selectedValue)) {
+        const nextValue = selectedValue.filter(
+          (selectedItemValue) =>
+            findItemIndex(values, selectedItemValue, isItemEqualToValue) !== -1,
+        );
+        if (nextValue.length !== selectedValue.length) {
+          store.context.setValue(nextValue, eventDetails);
+
+          if (nextValue.length === 0) {
+            store.set('selectedIndex', null);
+            selectedItemTextRef.current = null;
+          }
+        }
+      }
+    },
+    [
+      collection,
+      value,
+      multiple,
+      isItemEqualToValue,
+      registeredVirtualizer,
+      store,
+      virtualizationRegistry,
+    ],
+  );
+
+  useIsoLayoutEffect(
+    function commitNavigationPin() {
+      // Declared after the prefill and the index sync, so `valuesRef` and the store already
+      // describe the current collection.
+      const owned = open && virtualizationRegistry.virtualizer != null;
+      // Read outside the updater: React may invoke it during render, and twice under StrictMode.
+      const nextIndex = store.state.selectedIndex;
+
+      setNavigationPin((previous) => {
+        if (!owned) {
+          // A static list, or a closed one, always passes the raw index through.
+          return previous == null ? previous : null;
+        }
+
+        // Only two things move the pin: ownership beginning, and the collection being replaced.
+        // A value change must not, or every selection would drag the list to whichever row the
+        // hook then decides to bring into view.
+        if (previous != null && previous.collection === collection.items) {
+          return previous;
+        }
+
+        return { collection: collection.items, index: nextIndex };
+      });
+    },
+    [collection, open, registeredVirtualizer, store, virtualizationRegistry],
   );
 
   useValueChanged(value, () => {
@@ -287,10 +583,21 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     },
   );
 
+  /**
+   * Moves the highlight together with the reason it moved. Every write to `activeIndex` goes
+   * through here so the two can never describe different interactions.
+   */
+  const setActiveIndex = useStableCallback(
+    (nextActiveIndex: number | null, highlightType: StoreState['highlightType']) => {
+      store.update({ activeIndex: nextActiveIndex, highlightType });
+    },
+  );
+
   const handleUnmount = useStableCallback(() => {
     setMounted(false);
     store.update({
       activeIndex: null,
+      highlightType: 'none',
       openMethod: null,
       scrollUpArrowVisible: false,
       scrollDownArrowVisible: false,
@@ -333,6 +640,29 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     store.set('scrollDownArrowVisible', shouldShowDown);
   });
 
+  /**
+   * Whether the item at a logical index is unavailable to keyboard navigation and typeahead.
+   *
+   * Reads the root predicate first, so an item that is not rendered can still be skipped, and
+   * falls back to the DOM state of a rendered one.
+   */
+  const isIndexDisabled = useStableCallback((index: number) => {
+    if (isItemDisabled?.(valuesRef.current[index], index) === true) {
+      return true;
+    }
+
+    const itemElement = listRef.current[index];
+    if (itemElement == null) {
+      // A windowed list leaves most rows unmounted, and a missing element there means "not
+      // rendered yet", not "disabled" — reading it as disabled would make every row outside the
+      // window unreachable. A static list keeps the original reading, where `isElementDisabled`
+      // treats a missing element as disabled.
+      return virtualizationRegistry.virtualizer == null;
+    }
+
+    return isElementDisabled(itemElement);
+  });
+
   const floatingContext = useFloatingRootContext({
     open,
     onOpenChange: setOpen,
@@ -356,15 +686,31 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     enabled: !disabled,
     listRef,
     activeIndex,
-    selectedIndex,
-    disabledIndices: EMPTY_ARRAY,
-    onNavigate(nextActiveIndex) {
+    selectedIndex: navigationSelectedIndex,
+    // Without the prop this stays `EMPTY_ARRAY`, which is what keeps attribute-disabled items
+    // being skipped on open by the hook's own DOM check (see mui/base-ui#2604).
+    disabledIndices: isItemDisabled ? isIndexDisabled : EMPTY_ARRAY,
+    // An enabled virtualizer owns the scroll position and scrolls highlighted rows itself. The DOM
+    // scroll here is deferred by a frame, so it can read a stale window layout — or the retained
+    // focus proxy, which sits outside the scrollport entirely — and drag the position away from
+    // where the virtualizer just placed it. A disabled virtualizer renders every row and scrolls
+    // none, so it must keep the DOM scroll that static lists rely on.
+    scrollItemIntoView: () => virtualizationRegistry.virtualizer?.enabled !== true,
+    onNavigate(nextActiveIndex, event) {
       // Retain the highlight while transitioning out.
       if (nextActiveIndex === null && !open) {
         return;
       }
 
-      store.set('activeIndex', nextActiveIndex);
+      // A highlight the pointer produced must not scroll the list: the cursor is already on the
+      // item, and scrolling would slide a different one under it. `event` is absent when the hook
+      // syncs the highlight from an effect, which is neither.
+      let highlightType: StoreState['highlightType'] = 'none';
+      if (event) {
+        highlightType = keyboardActiveRef.current ? 'keyboard' : 'pointer';
+      }
+
+      setActiveIndex(nextActiveIndex, highlightType);
     },
     focusItemOnHover: highlightItemOnHover,
   });
@@ -375,16 +721,17 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     enabled: !disabled && (open || (!readOnly && !multiple)),
     listRef: labelsRef,
     activeIndex,
-    selectedIndex,
+    selectedIndex: navigationSelectedIndex,
     // Skip disabled items while matching so typeahead advances to the next selectable item
-    // (a click can never select a disabled item and native `<select>` skips them too). Resolve
-    // the disabled state from the element via the attribute-only `isElementDisabled` so the
-    // hidden, force-mounted items used for closed-trigger typeahead aren't dropped by the
-    // `elementsRef`/visibility filter that `disabledIndices` deliberately sidesteps.
-    disabledIndices: (index) => isElementDisabled(listRef.current[index]),
+    // (a click can never select a disabled item and native `<select>` skips them too). The
+    // element half of the predicate resolves the disabled state from the attribute-only
+    // `isElementDisabled` so the hidden, force-mounted items used for closed-trigger typeahead
+    // aren't dropped by the `elementsRef`/visibility filter that `disabledIndices` deliberately
+    // sidesteps; the `isItemDisabled` half also covers items that are not rendered at all.
+    disabledIndices: isIndexDisabled,
     onMatch(index) {
       if (open) {
-        store.set('activeIndex', index);
+        setActiveIndex(index, 'keyboard');
       } else {
         setValue(valuesRef.current[index], createChangeEventDetails(REASONS.none));
       }
@@ -429,6 +776,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
 
   store.useContextCallback('setValue', setValue);
   store.useContextCallback('setOpen', setOpen);
+  store.useContextCallback('setActiveIndex', setActiveIndex);
   store.useContextCallback('handleScrollArrowVisibility', handleScrollArrowVisibility);
   store.useContextCallback('onOpenChangeComplete', onOpenChangeComplete);
 
@@ -454,6 +802,7 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     items,
     itemToStringLabel,
     itemToStringValue,
+    isItemDisabled,
     isItemEqualToValue,
     openMethod: renderedOpenMethod,
   });
@@ -498,7 +847,11 @@ export function SelectRoot<Value, Multiple extends boolean | undefined = false>(
     <SelectRootContext.Provider value={store}>
       <SelectRootPropsContext.Provider value={rootPropsContextValue}>
         <SelectFloatingContext.Provider value={floatingContext}>
-          {children}
+          <SelectVirtualizationContext.Provider value={registeredVirtualizer}>
+            <ListVirtualizationOwnerContext.Provider value={VIRTUALIZATION_OWNER}>
+              {children}
+            </ListVirtualizationOwnerContext.Provider>
+          </SelectVirtualizationContext.Provider>
         </SelectFloatingContext.Provider>
       </SelectRootPropsContext.Provider>
       <input
@@ -665,6 +1018,8 @@ export interface SelectRootProps<Value, Multiple extends boolean | undefined = f
   /**
    * Data structure of the items rendered in the select popup.
    * When specified, `<Select.Value>` renders the label of the selected item instead of the raw value.
+   * An array is also the collection a `<Virtualizer>` windows, in which case it must be flat —
+   * grouped items and the object form below cannot be virtualized.
    * @example
    * ```tsx
    * const items = {
@@ -680,10 +1035,12 @@ export interface SelectRootProps<Value, Multiple extends boolean | undefined = f
     | Record<string, React.ReactNode>
     | ReadonlyArray<{ label: React.ReactNode; value: any }>
     | ReadonlyArray<Group<any>>
+    | ReadonlyArray<unknown>
     | undefined;
   /**
    * When the item values are objects (`<Select.Item value={object}>`), this function converts the object value to a string representation for display in the trigger.
    * If the shape of the object is `{ value, label }`, the label will be used automatically without needing to specify this prop.
+   * Keep it referentially stable when the list is virtualized: its results are derived once per collection and cached for typeahead, so a new identity on every render re-derives a label for every item.
    */
   itemToStringLabel?: ((itemValue: Value) => string) | undefined;
   /**
@@ -691,6 +1048,15 @@ export interface SelectRootProps<Value, Multiple extends boolean | undefined = f
    * If the shape of the object is `{ value, label }`, the value will be used automatically without needing to specify this prop.
    */
   itemToStringValue?: ((itemValue: Value) => string) | undefined;
+  /**
+   * Determines whether an item is disabled from its value and its index in the list.
+   *
+   * Use this prop when the disabled state must be known before an item is rendered, such as when
+   * virtualizing the list. The `disabled` prop only marks a rendered item; this callback is what
+   * makes keyboard navigation and typeahead skip disabled items, and gives rendered items their
+   * disabled state.
+   */
+  isItemDisabled?: ((itemValue: Value, index: number) => boolean) | undefined;
   /**
    * Custom comparison logic used to determine if a select item value matches the current selected value. Useful when item values are objects without matching referentially.
    * Defaults to `Object.is` comparison.

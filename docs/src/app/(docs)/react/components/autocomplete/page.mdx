@@ -157,7 +157,28 @@ import { DemoAutocompleteGrid } from './demos/grid';
 
 ### Virtualized
 
-Efficiently handle large datasets using a virtualization library like `@tanstack/react-virtual`.
+For most large datasets, use the [`<Virtualizer>`](/react/utils/virtualizer) component. It is the recommended approach because it renders only the visible items while handling keyboard navigation, scrolling, and accessibility metadata for you.
+
+Pass a flat collection to the `items` prop on `<Autocomplete.Root>`, and use the virtualizer as the only item-rendering child of `<Autocomplete.List>`. Each item renderer must return exactly one `<Autocomplete.Item>`. Grouped collections and grid mode are not currently supported.
+
+```jsx title="Anatomy"
+import { Virtualizer } from '@base-ui/react/virtualizer';
+
+// prettier-ignore
+<Autocomplete.List>
+  <Virtualizer getItemKey={(item) => item.id}>
+    {(item) => <Autocomplete.Item value={item}>{item.name}</Autocomplete.Item>}
+  </Virtualizer>
+</Autocomplete.List>
+```
+
+The virtualizer is the scroll container, so constrain its height or maximum height. The `--total-size` CSS variable contains the estimated or measured height of the virtual content, and can be combined with `--available-height` from `<Autocomplete.Positioner>`. See the [Virtualizer](/react/utils/virtualizer) page for sizing, `estimatedItemHeight`, `overscanPx`, and the rest of its API, and the [Combobox](/react/components/combobox#virtualized) page for a worked example — the two components share the same list parts, so the setup is identical.
+
+When some items are disabled, pass `isItemDisabled` to `<Autocomplete.Root>`. Its index argument is the item's index in the filtered and limited collection. The `disabled` prop only marks a rendered `<Autocomplete.Item>` as disabled; `isItemDisabled` is the predicate keyboard navigation uses, including while an item is outside the rendered window.
+
+#### Third-party virtualizers
+
+You can instead integrate a third-party virtualization library when your application already uses one or needs behavior that the built-in virtualizer does not provide. Set the `virtualized` prop on `<Autocomplete.Root>` only for an external virtualizer, read the current filtered collection with `useFilteredItems()`, and pass each item its index in the filtered collection. The following example integrates [`@tanstack/react-virtual`](https://tanstack.com/virtual/latest):
 
 import { DemoAutocompleteVirtualized } from './demos/virtualized';
 

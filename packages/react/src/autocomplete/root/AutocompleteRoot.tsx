@@ -103,6 +103,7 @@ export function AutocompleteRoot<ItemValue>(
   return (
     <AriaCombobox
       {...other}
+      componentName="Autocomplete"
       itemToStringLabel={itemToStringValue}
       openOnInputClick={openOnInputClick}
       selectionMode="none"

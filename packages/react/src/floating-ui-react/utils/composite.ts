@@ -468,17 +468,23 @@ export function getGridCellIndices(
   return cellMap.flatMap((index, cellIndex) => (indices.includes(index) ? [cellIndex] : []));
 }
 
+/**
+ * Whether the consumer marked an index as disabled, regardless of the DOM state of the item.
+ * Items that are not mounted (such as the offscreen rows of a virtualized list) can only be
+ * classified through this predicate.
+ */
+export function isExplicitlyDisabledIndex(index: number, disabledIndices?: DisabledIndices) {
+  return typeof disabledIndices === 'function'
+    ? disabledIndices(index)
+    : (disabledIndices?.includes(index) ?? false);
+}
+
 export function isListIndexDisabled(
   list: ReadonlyArray<HTMLElement | null>,
   index: number,
   disabledIndices?: DisabledIndices,
 ) {
-  const isExplicitlyDisabled =
-    typeof disabledIndices === 'function'
-      ? disabledIndices(index)
-      : (disabledIndices?.includes(index) ?? false);
-
-  if (isExplicitlyDisabled) {
+  if (isExplicitlyDisabledIndex(index, disabledIndices)) {
     return true;
   }
 

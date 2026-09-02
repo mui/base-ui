@@ -1,0 +1,150 @@
+# Virtualizer
+
+<Subtitle>Renders only the visible items of a large list.</Subtitle>
+<Meta
+  name="description"
+  content="A virtualization provider for Base UI lists that renders only the visible items, while handling keyboard navigation, scrolling, and accessibility metadata."
+/>
+
+## Anatomy
+
+Import the component and place it inside the list of a component that supports virtualization:
+
+```jsx title="Anatomy"
+import { Virtualizer } from '@base-ui/react/virtualizer';
+
+// prettier-ignore
+<Combobox.List>
+  <Virtualizer>
+    {(item) => <Combobox.Item value={item}>{item}</Combobox.Item>}
+  </Virtualizer>
+</Combobox.List>
+```
+
+`<Virtualizer>` renders a window of the visible and overscanned items instead of the whole collection, and connects to the surrounding list so that keyboard navigation, scrolling, selection, and accessibility metadata keep working for items that are not mounted.
+
+It can be used inside `<Combobox.List>`, `<Autocomplete.List>`, and `<Select.List>`, or on its own by passing the collection to its `items` prop.
+
+`Select` moves real focus to the highlighted item rather than using `aria-activedescendant`, so the virtualizer keeps the active row mounted for it to hold. See [virtualized Select](/react/components/select#virtualization) for the details specific to that component.
+
+## Rendering items
+
+Pass a flat collection to the `items` prop on the list root, and use the virtualizer as the only item-rendering child of the list. Its `children` is a function that receives an item and its index in the filtered collection, and must return exactly one item component:
+
+```jsx title="Rendering items"
+<Combobox.Root items={items} itemToStringLabel={(item) => item.name}>
+  {/* ... */}
+  <Combobox.List>
+    <Virtualizer getItemKey={(item) => item.id}>
+      {(item) => <Combobox.Item value={item}>{item.name}</Combobox.Item>}
+    </Virtualizer>
+  </Combobox.List>
+</Combobox.Root>
+```
+
+Grouped collections and grid mode are not currently supported.
+
+Use `getItemKey` to provide stable identity when item values are objects or when TypeScript cannot infer the item type. For primitive values, you can instead declare the item type explicitly, such as `<Virtualizer<string>>`.
+
+## Styling
+
+The virtualizer is the scroll container, so constrain its height or maximum height. Without a height constraint, every item is rendered and virtualization provides no benefit.
+
+The `--total-size` CSS variable contains the estimated or measured height of the virtual content. It can be combined with `--available-height` from the positioner to keep the popup within the viewport:
+
+```css title="Constraining the scroll container"
+.Scroller {
+  height: min(22.5rem, var(--total-size));
+  max-height: calc(var(--available-height) - 0.5rem);
+  overflow: auto;
+}
+```
+
+CSS `scroll-padding-top` and `scroll-padding-bottom` on the scroll container are respected when keyboard navigation scrolls an item into view.
+
+## Sizing items
+
+`estimatedItemHeight` is the height used for items that have not been measured yet. It defaults to `32` pixels, and a static number is automatically refined with the running average of measured items. Pass a function receiving the item and its index to keep full control over per-item estimates.
+
+`overscanPx` controls the extra pixel buffer rendered before and after the visible range. It defaults to the larger of 150px and the first item's estimated height. Even an explicit value of `0` keeps a minimum render buffer of one estimated row.
+
+## Disabled items
+
+The `disabled` prop only marks a rendered item as disabled, so it is unavailable while the item is outside the rendered window. Pass `isItemDisabled` to the list root instead — it is the predicate keyboard navigation uses, including for items that are not mounted. Its index argument is the item's index in the filtered and limited collection.
+
+## Scrolling to an item
+
+`actionsRef` exposes `scrollToIndex`, which scrolls an item into view by its index in the filtered collection, including when the item is outside the rendered window:
+
+```tsx title="Scrolling to an item"
+const virtualizer = React.useRef<Virtualizer.Actions>(null);
+
+// prettier-ignore
+<Virtualizer actionsRef={virtualizer}>{/* ... */}</Virtualizer>;
+
+virtualizer.current?.scrollToIndex(500, { align: 'center' });
+```
+
+## Standalone lists
+
+Pass the collection to the virtualizer's own `items` prop to window a list that Base UI does not provide. Nothing else is required, so the virtualizer can be dropped into any scrolling list:
+
+```jsx title="Windowing a custom list"
+<Virtualizer items={items} getItemKey={(item) => item.id} role="listbox">
+  {(item, index, itemProps) => (
+    <div {...itemProps} role="option">
+      {item.name}
+    </div>
+  )}
+</Virtualizer>
+```
+
+The third argument of `children` carries the item's accessibility and collection metadata — `aria-posinset`, `aria-setsize`, and `data-index`. Spread it onto the element that represents the item, so assistive technology reports the whole collection rather than the mounted window. Items rendered by a list's own item component, such as `<Combobox.Item>`, receive it automatically.
+
+Set `activeIndex` to the item the list treats as active. The virtualizer keeps that item mounted even when it falls outside the rendered window, so it can hold focus or be referenced by `aria-activedescendant`, and scrolls it into view.
+
+Whether an activation should scroll depends on what caused it, not on which item ended up active: a keypress should bring the item into view, while a highlight following the pointer must leave the viewport alone — the cursor is already there, and moving the list would slide the next item under it. So the activation carries that decision, alongside the alignment it wants:
+
+```jsx title="Activating an item"
+// A keypress: scroll it into view.
+setActive({ index: nextIndex });
+
+// Jumping to the end of the collection reads better resting against that edge.
+setActive({ index: items.length - 1, align: 'end' });
+
+// A hover: highlight without moving the list.
+setActive({ index, scroll: false });
+```
+
+Passing a bare index is shorthand for `{ index }`, so `activeIndex={5}` activates and scrolls. Because the scroll travels with the index rather than in a prop of its own, the two cannot disagree, and re-rendering with an equal activation does not scroll again.
+
+Everything a list root normally coordinates stays with your list: filtering, keyboard navigation, selection, and clamping `activeIndex` to the current collection.
+
+## Third-party virtualizers
+
+A third-party virtualization library can be used instead when your application already uses one, or needs behavior that `<Virtualizer>` does not provide. Set the `virtualized` prop on the list root to opt out of the built-in item indexing, and coordinate filtering, item indexes, scrolling, and accessibility metadata yourself. See [virtualized Combobox](/react/components/combobox#virtualized) for a complete example.
+
+## API reference
+
+import { TypesVirtualizer, TypesVirtualizerAdditionalTypes } from './types';
+
+### Virtualizer
+
+<TypesVirtualizer />
+
+<TypesVirtualizerAdditionalTypes />
+
+export const metadata = {
+  keywords: [
+    'Base UI Virtualizer',
+    'React virtualization',
+    'React windowing',
+    'Virtualized combobox',
+    'Virtualized listbox',
+    'Large lists',
+    'Infinite lists',
+    'Row virtualization',
+    'Overscan',
+    'Estimated item height',
+  ],
+};

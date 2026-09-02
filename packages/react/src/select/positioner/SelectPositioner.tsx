@@ -4,6 +4,8 @@ import { inertValue } from '@base-ui/utils/inertValue';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useSelectFloatingContext, useSelectRootContext } from '../root/SelectRootContext';
+import { useSelectVirtualizer } from '../root/SelectVirtualizationContext';
+import { getSelectCollection } from '../utils/getSelectCollection';
 import { CompositeList } from '../../internals/composite/list/CompositeList';
 import type { BaseUIComponentProps } from '../../internals/types';
 import {
@@ -50,14 +52,17 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
     arrowPadding,
     sticky,
     disableAnchorTracking,
-    alignItemWithTrigger = true,
+    alignItemWithTrigger: alignItemWithTriggerProp,
     collisionAvoidance = DROPDOWN_COLLISION_AVOIDANCE,
     style,
     ...elementProps
   } = componentProps;
 
+  const alignItemWithTrigger = alignItemWithTriggerProp ?? true;
+
   const store = useSelectRootContext();
   const floatingRootContext = useSelectFloatingContext();
+  const registeredVirtualizer = useSelectVirtualizer();
 
   const open = store.useState('open');
   const mounted = store.useState('mounted');
@@ -68,14 +73,30 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
   const triggerElement = store.useState('triggerElement');
   const isItemEqualToValue = store.useState('isItemEqualToValue');
   const transitionStatus = store.useState('transitionStatus');
+  const items = store.useState('items');
+
+  const collectionLength = React.useMemo(() => getSelectCollection(items).items.length, [items]);
 
   const scrollUpArrowRef = React.useRef<HTMLDivElement | null>(null);
   const scrollDownArrowRef = React.useRef<HTMLDivElement | null>(null);
 
   const [controlledAlignItemWithTrigger, setControlledAlignItemWithTrigger] =
     React.useState(alignItemWithTrigger);
+
+  // A registered virtualizer suppresses this mode, whether or not it is currently windowing.
+  // Ownership follows registration throughout Select: the list stops being the scrolling element
+  // the moment a virtualizer mounts inside it, and the styles this mode needs go with it. Keying on
+  // `enabled` instead leaves a disabled virtualizer aligned while its scrollport is no longer
+  // constrained by anything, which renders an unscrollable list inside a short popup.
+  //
+  // Applied as an independent gate rather than written into the state above, which belongs to the
+  // collision fallback: persisting it would make the suppression permanent, so a list that stops
+  // being virtualized while the popup is open would never get aligned placement back.
   const alignItemWithTriggerActive =
-    mounted && controlledAlignItemWithTrigger && openMethod !== 'touch';
+    mounted &&
+    controlledAlignItemWithTrigger &&
+    openMethod !== 'touch' &&
+    registeredVirtualizer == null;
 
   if (!mounted && controlledAlignItemWithTrigger !== alignItemWithTrigger) {
     setControlledAlignItemWithTrigger(alignItemWithTrigger);
@@ -149,7 +170,16 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
 
       const eventDetails = createChangeEventDetails(REASONS.none);
 
-      if (prevSize !== 0 && !store.state.multiple && value !== null) {
+      // Read live, never from `registeredVirtualizer` state, which is deliberately one render
+      // behind. During a static-to-virtualized handover this callback runs after the static items'
+      // cleanups have deleted their `valuesRef` entries and before the root's prefill replaces
+      // them, so a state-backed guard would still be `false` here and the prune below would clear
+      // a perfectly valid selection. The registered path prunes from the root instead, where the
+      // collection metadata is already current — and only when the collection or value actually
+      // changed, rather than on every rendered-window commit.
+      const staticallyOwned = store.context.virtualizationRegistry.virtualizer == null;
+
+      if (staticallyOwned && prevSize !== 0 && !store.state.multiple && value !== null) {
         const selectedValueIndex = findItemIndex(
           store.context.valuesRef.current,
           value,
@@ -174,7 +204,7 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
         }
       }
 
-      if (prevSize !== 0 && store.state.multiple && Array.isArray(value)) {
+      if (staticallyOwned && prevSize !== 0 && store.state.multiple && Array.isArray(value)) {
         const nextValue = value.filter(
           (selectedItemValue) =>
             findItemIndex(
@@ -211,17 +241,28 @@ export const SelectPositioner = React.forwardRef(function SelectPositioner(
       ...positioning,
       side: renderedSide,
       alignItemWithTriggerActive,
+      alignItemWithTriggerExplicit: alignItemWithTriggerProp === true,
       setControlledAlignItemWithTrigger,
       scrollUpArrowRef,
       scrollDownArrowRef,
     }),
-    [positioning, renderedSide, alignItemWithTriggerActive, setControlledAlignItemWithTrigger],
+    [
+      positioning,
+      renderedSide,
+      alignItemWithTriggerActive,
+      alignItemWithTriggerProp,
+      setControlledAlignItemWithTrigger,
+    ],
   );
 
   return (
     <CompositeList
       elementsRef={store.context.listRef}
-      labelsRef={store.context.labelsRef}
+      // A windowed list registers only the mounted rows, so the element array is sized to the whole
+      // collection here and the label array is left alone: the root derives complete labels from
+      // `items`, and `syncRefs` would otherwise clear them on every registration change.
+      itemCount={registeredVirtualizer != null ? collectionLength : undefined}
+      labelsRef={registeredVirtualizer != null ? undefined : store.context.labelsRef}
       onMapChange={onMapChange}
     >
       <SelectPositionerContext.Provider value={contextValue}>
@@ -254,7 +295,7 @@ export interface SelectPositionerState {
 export interface SelectPositionerProps
   extends UseAnchorPositioningSharedParameters, BaseUIComponentProps<'div', SelectPositionerState> {
   /**
-   * Whether the positioner overlaps the trigger so the selected item's text is aligned with the trigger's value text. This only applies to mouse input and is automatically disabled if there is not enough space.
+   * Whether the positioner overlaps the trigger so the selected item's text is aligned with the trigger's value text. This only applies to mouse input and is automatically disabled if there is not enough space, or when the list is virtualized.
    * @default true
    */
   alignItemWithTrigger?: boolean | undefined;
