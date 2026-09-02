@@ -106,6 +106,14 @@
   white-space: nowrap;
 }
 
+/* The item's position in the collection, so a scroll destination can be read off the row. */
+.ItemIndex {
+  margin-left: auto;
+  color: var(--color-gray-500);
+  font-size: 0.75rem;
+  font-variant-numeric: tabular-nums;
+}
+
 .ScrollArrow {
   display: flex;
   align-items: center;
