@@ -1,6 +1,10 @@
 import { EMPTY_ARRAY } from '@base-ui/utils/empty';
 import { error } from '@base-ui/utils/error';
-import { flattenLeafItems, stringifyAsLabel } from '../../internals/resolveValueLabel';
+import {
+  flattenLeafItems,
+  removeNullishItems,
+  stringifyAsLabel,
+} from '../../internals/resolveValueLabel';
 import type { ItemEqualityComparer } from '../../internals/itemEquality';
 import { findCollectionItem, type ComboboxItemCollection } from './itemCollection';
 
@@ -101,14 +105,11 @@ export function createComboboxItems<Item, Value extends ComboboxPrimitiveValue>(
     if (valueToItem === null) {
       const derived = new Map<Value, Item>();
 
-      const leafItems = data ? flattenLeafItems<Item>(data) : EMPTY_ARRAY;
+      // Nullish entries are holes in the data, as they are for a plain `items` array. The root
+      // drops them from what it renders, and the index drops them from what it labels.
+      const leafItems = data ? flattenLeafItems<Item>(removeNullishItems(data)) : EMPTY_ARRAY;
 
       for (const item of leafItems) {
-        // Nullish entries are holes in the data, as they are for a plain `items` array.
-        if (item == null) {
-          continue;
-        }
-
         const derivedValue = getValue(item);
         // First occurrence wins, so a duplicated derived value resolves to one stable label.
         if (!derived.has(derivedValue)) {

@@ -668,6 +668,32 @@ describe('Combobox.createItems', () => {
       expect(renderItem.mock.calls.every(([item]) => item != null)).toBe(true);
     });
 
+    it.each([
+      ['leading', (team: unknown) => [null, team]],
+      ['trailing', (team: unknown) => [team, null]],
+    ])(
+      'resolves the selected label through grouped data with a %s nullish group entry',
+      async (_position, withHole) => {
+        // The collection indexes its own data, so a nullish group entry must be a hole there too.
+        const teams = withHole({ label: 'Team A', items: [users[0]] }) as unknown as {
+          label: string;
+          items: User[];
+        }[];
+        const items = Combobox.createItems(teams, {
+          getValue: getUserId,
+          getLabel: getUserName,
+        });
+
+        await render(
+          <Combobox.Root items={items} defaultValue={1}>
+            <Combobox.Input data-testid="input" />
+          </Combobox.Root>,
+        );
+
+        expect(screen.getByTestId('input')).toHaveValue('Alice');
+      },
+    );
+
     it('treats a non-array items field as item data rather than as a group', async () => {
       const onValueChange = vi.fn();
       // Only an actual `items` array marks a group; unrelated or optional fields stay item data.
