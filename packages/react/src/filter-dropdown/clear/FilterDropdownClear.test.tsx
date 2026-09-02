@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { expect, vi } from 'vitest';
+import { expect, vi, describe, beforeEach, it } from 'vitest';
 import { screen } from '@mui/internal-test-utils';
 import { createRenderer, describeConformance, resetBrowserPointer } from '#test-utils';
 import { FilterDropdown } from '..';

@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { screen, waitFor } from '@mui/internal-test-utils';
-import { vi, describe, it, expect } from 'vitest';
+import { vi, describe, it, expect, beforeEach } from 'vitest';
 import { createRenderer, resetBrowserPointer } from '#test-utils';
 import { FilterMenu } from '@base-ui/react/filter-menu';
 import { Menu } from '@base-ui/react/menu';

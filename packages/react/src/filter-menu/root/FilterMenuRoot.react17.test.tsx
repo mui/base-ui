@@ -1,4 +1,4 @@
-import { expect, vi } from 'vitest';
+import { expect, vi, describe, it } from 'vitest';
 import { FilterMenu } from '@base-ui/react/filter-menu';
 import { screen, waitFor } from '@mui/internal-test-utils';
 import userEvent from '@testing-library/user-event';
