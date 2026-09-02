@@ -35,8 +35,15 @@ export const MenuPopup = React.forwardRef(function MenuPopup(
   const { render, className, style, finalFocus, id: idProp, ...elementProps } = componentProps;
 
   const rootContext = useMenuRootContext();
-  const { store, defaultFloatingId, setFloatingId, virtualFocus, virtualFocusRef, orientation } =
-    rootContext;
+  const {
+    store,
+    defaultFloatingId,
+    setFloatingId,
+    virtualFocus,
+    virtualFocusRef,
+    virtualFocusAutoFocus,
+    orientation,
+  } = rootContext;
   const inheritedSubmenuRootContext = useMenuSubmenuRootContext();
   const { side, align } = useMenuPositionerContext();
   const insideToolbar = useToolbarRootContext(true) != null;
@@ -85,7 +92,11 @@ export const MenuPopup = React.forwardRef(function MenuPopup(
         return false;
       }
 
-      const openedByPointer = openedByHover || (openType !== '' && openType !== 'keyboard');
+      // Hover only shows the popup; focus follows the pointer in unless the input opts in.
+      if (openedByHover && !virtualFocusAutoFocus) {
+        return false;
+      }
+      const openedByPointer = openType !== '' && openType !== 'keyboard';
       return openedByPointer && !isTypeableElement(focusOwner) ? false : focusOwner;
     };
   }

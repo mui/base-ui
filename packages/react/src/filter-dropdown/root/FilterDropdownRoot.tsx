@@ -66,6 +66,7 @@ export function FilterDropdownRoot(props: FilterDropdownRoot.Props): React.JSX.E
   const ownFocusOwnerRef = React.useRef<HTMLElement | null>(null);
   const focusOwnerRef = externalFocusOwnerRef ?? ownFocusOwnerRef;
   const inputElementRef = React.useRef<HTMLInputElement | null>(null);
+  const inputAutoFocusRef = React.useRef(false);
   const listElementRef = React.useRef<HTMLDivElement | null>(null);
   const lastFilterQueryRef = React.useRef<string | null>(null);
   const defaultMatches = React.useMemo(() => getFilter({ locale }).contains, [locale]);
@@ -76,7 +77,15 @@ export function FilterDropdownRoot(props: FilterDropdownRoot.Props): React.JSX.E
     inputElementRef.current = element;
     focusOwnerRef.current = element ?? listElementRef.current;
     setHasInput(element !== null);
-    onInputElementChange?.(element !== null);
+    onInputElementChange?.(element !== null, inputAutoFocusRef.current);
+  });
+
+  const setInputAutoFocus = useStableCallback((autoFocus: boolean) => {
+    if (inputAutoFocusRef.current === autoFocus) {
+      return;
+    }
+    inputAutoFocusRef.current = autoFocus;
+    onInputElementChange?.(inputElementRef.current !== null, autoFocus);
   });
 
   const setListElement = useStableCallback((element: HTMLDivElement | null) => {
@@ -201,6 +210,7 @@ export function FilterDropdownRoot(props: FilterDropdownRoot.Props): React.JSX.E
       setListId,
       focusOwnerRef,
       setInputElement,
+      setInputAutoFocus,
       setListElement,
       hasInput,
       virtualized,
@@ -222,6 +232,7 @@ export function FilterDropdownRoot(props: FilterDropdownRoot.Props): React.JSX.E
       listId,
       focusOwnerRef,
       setInputElement,
+      setInputAutoFocus,
       setListElement,
       hasInput,
       virtualized,
@@ -332,7 +343,7 @@ export interface FilterDropdownRootProps {
   /**
    * Reports whether an input is currently registered.
    */
-  onInputElementChange?: ((hasInput: boolean) => void) | undefined;
+  onInputElementChange?: ((hasInput: boolean, autoFocus: boolean) => void) | undefined;
   /**
    * Whether the host's items are windowed by an external virtualizer, so a changed rendered set
    * does not invalidate the positional highlight. Pass the total item count so navigation can
