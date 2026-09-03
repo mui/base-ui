@@ -245,21 +245,23 @@ describe('<FilterDropdown.Root />', () => {
     it('clears a stale highlight when the item set changes', async () => {
       function ServerResults(props: { items: string[] }) {
         return (
-          <Menu.FilterRoot defaultOpen filter={null}>
-            <Menu.Trigger>Actions</Menu.Trigger>
-            <Menu.Portal>
-              <Menu.Positioner>
-                <Menu.Popup>
-                  <Menu.FilterInput aria-label="Filter actions" />
-                  <Menu.FilterList>
-                    {props.items.map((item) => (
-                      <Menu.Item key={item}>{item}</Menu.Item>
-                    ))}
-                  </Menu.FilterList>
-                </Menu.Popup>
-              </Menu.Positioner>
-            </Menu.Portal>
-          </Menu.FilterRoot>
+          <Menu.FilterProvider filter={null}>
+            <Menu.Root defaultOpen>
+              <Menu.Trigger>Actions</Menu.Trigger>
+              <Menu.Portal>
+                <Menu.Positioner>
+                  <Menu.Popup>
+                    <Menu.FilterInput aria-label="Filter actions" />
+                    <Menu.FilterList>
+                      {props.items.map((item) => (
+                        <Menu.Item key={item}>{item}</Menu.Item>
+                      ))}
+                    </Menu.FilterList>
+                  </Menu.Popup>
+                </Menu.Positioner>
+              </Menu.Portal>
+            </Menu.Root>
+          </Menu.FilterProvider>
         );
       }
 
@@ -293,21 +295,23 @@ describe('<FilterDropdown.Root />', () => {
     it('keeps autoHighlight seeding the first item', async () => {
       function ServerResults(props: { items: string[] }) {
         return (
-          <Menu.FilterRoot autoHighlight defaultOpen filter={null}>
-            <Menu.Trigger>Actions</Menu.Trigger>
-            <Menu.Portal>
-              <Menu.Positioner>
-                <Menu.Popup>
-                  <Menu.FilterInput aria-label="Filter actions" />
-                  <Menu.FilterList>
-                    {props.items.map((item) => (
-                      <Menu.Item key={item}>{item}</Menu.Item>
-                    ))}
-                  </Menu.FilterList>
-                </Menu.Popup>
-              </Menu.Positioner>
-            </Menu.Portal>
-          </Menu.FilterRoot>
+          <Menu.FilterProvider autoHighlight filter={null}>
+            <Menu.Root defaultOpen>
+              <Menu.Trigger>Actions</Menu.Trigger>
+              <Menu.Portal>
+                <Menu.Positioner>
+                  <Menu.Popup>
+                    <Menu.FilterInput aria-label="Filter actions" />
+                    <Menu.FilterList>
+                      {props.items.map((item) => (
+                        <Menu.Item key={item}>{item}</Menu.Item>
+                      ))}
+                    </Menu.FilterList>
+                  </Menu.Popup>
+                </Menu.Positioner>
+              </Menu.Portal>
+            </Menu.Root>
+          </Menu.FilterProvider>
         );
       }
 
@@ -346,21 +350,23 @@ describe('<FilterDropdown.Root />', () => {
   it('clears a stale highlight when items change with an empty query', async () => {
     function Results(props: { items: string[] }) {
       return (
-        <Menu.FilterRoot defaultOpen>
-          <Menu.Trigger>Actions</Menu.Trigger>
-          <Menu.Portal>
-            <Menu.Positioner>
-              <Menu.Popup>
-                <Menu.FilterInput aria-label="Filter actions" />
-                <Menu.FilterList>
-                  {props.items.map((item) => (
-                    <Menu.Item key={item}>{item}</Menu.Item>
-                  ))}
-                </Menu.FilterList>
-              </Menu.Popup>
-            </Menu.Positioner>
-          </Menu.Portal>
-        </Menu.FilterRoot>
+        <Menu.FilterProvider>
+          <Menu.Root defaultOpen>
+            <Menu.Trigger>Actions</Menu.Trigger>
+            <Menu.Portal>
+              <Menu.Positioner>
+                <Menu.Popup>
+                  <Menu.FilterInput aria-label="Filter actions" />
+                  <Menu.FilterList>
+                    {props.items.map((item) => (
+                      <Menu.Item key={item}>{item}</Menu.Item>
+                    ))}
+                  </Menu.FilterList>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
+          </Menu.Root>
+        </Menu.FilterProvider>
       );
     }
 

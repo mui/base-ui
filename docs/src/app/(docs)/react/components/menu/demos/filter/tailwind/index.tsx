@@ -4,107 +4,109 @@ import { Menu } from '@base-ui/react/menu';
 
 export default function ExampleMenuFilter() {
   return (
-    <Menu.FilterRoot>
-      <Menu.Trigger className="flex h-8 items-center justify-center gap-1.5 rounded-none border border-neutral-950 bg-white pr-2 pl-3 text-sm leading-none font-normal whitespace-nowrap text-neutral-950 select-none hover:not-data-disabled:bg-neutral-100 active:not-data-disabled:bg-neutral-200 data-pressed:bg-neutral-100 data-disabled:border-neutral-500 data-disabled:text-neutral-500 focus-visible:-outline-offset-1 focus-visible:outline-2 focus-visible:outline-neutral-950 disabled:border-neutral-500 disabled:text-neutral-500 dark:border-white dark:bg-neutral-950 dark:text-white dark:hover:not-data-disabled:bg-neutral-800 dark:active:not-data-disabled:bg-neutral-700 dark:data-pressed:bg-neutral-800 dark:data-disabled:border-neutral-400 dark:data-disabled:text-neutral-400 dark:focus-visible:outline-white">
-        Actions <CaretDownIcon />
-      </Menu.Trigger>
-      <Menu.Portal>
-        <Menu.Positioner className="outline-hidden" sideOffset={8} align="start">
-          <Menu.Popup className={popupClass}>
-            <div className={inputContainerClass}>
-              <Menu.FilterInput
-                className={inputClass}
-                aria-label="Filter actions"
-                placeholder="e.g. Save"
-              />
-              <Menu.FilterClear className={clearClass} aria-label="Clear filter">
-                <ClearIcon />
-              </Menu.FilterClear>
-            </div>
-            <Menu.FilterEmpty className={emptyClass}>No actions found.</Menu.FilterEmpty>
-            <Menu.FilterList className={listClass}>
-              <Menu.Group data-filter-section>
-                <Menu.GroupLabel className={groupLabelClass}>File</Menu.GroupLabel>
-                <Menu.Item className={itemClass}>New file</Menu.Item>
-                <Menu.Item className={itemClass}>Open file</Menu.Item>
-                <Menu.Item className={itemClass}>Save</Menu.Item>
-                <Menu.Item className={itemClass}>Save as</Menu.Item>
-                <Menu.Item className={itemClass}>Duplicate</Menu.Item>
-                <Menu.Item className={itemClass}>Rename</Menu.Item>
-              </Menu.Group>
-              <Menu.Group data-filter-section>
-                <Menu.GroupLabel className={groupLabelClass}>Organize</Menu.GroupLabel>
-                <FilterableSubmenu
-                  label="Move to folder"
-                  inputLabel="Filter folders"
-                  placeholder="e.g. Projects"
-                  emptyText="No folders found."
-                  options={folderOptions}
+    <Menu.FilterProvider>
+      <Menu.Root>
+        <Menu.Trigger className="flex h-8 items-center justify-center gap-1.5 rounded-none border border-neutral-950 bg-white pr-2 pl-3 text-sm leading-none font-normal whitespace-nowrap text-neutral-950 select-none hover:not-data-disabled:bg-neutral-100 active:not-data-disabled:bg-neutral-200 data-pressed:bg-neutral-100 data-disabled:border-neutral-500 data-disabled:text-neutral-500 focus-visible:-outline-offset-1 focus-visible:outline-2 focus-visible:outline-neutral-950 disabled:border-neutral-500 disabled:text-neutral-500 dark:border-white dark:bg-neutral-950 dark:text-white dark:hover:not-data-disabled:bg-neutral-800 dark:active:not-data-disabled:bg-neutral-700 dark:data-pressed:bg-neutral-800 dark:data-disabled:border-neutral-400 dark:data-disabled:text-neutral-400 dark:focus-visible:outline-white">
+          Actions <CaretDownIcon />
+        </Menu.Trigger>
+        <Menu.Portal>
+          <Menu.Positioner className="outline-hidden" sideOffset={8} align="start">
+            <Menu.Popup className={popupClass}>
+              <div className={inputContainerClass}>
+                <Menu.FilterInput
+                  className={inputClass}
+                  aria-label="Filter actions"
+                  placeholder="e.g. Save"
                 />
-                <FilterableSubmenu
-                  label="Share"
-                  inputLabel="Filter sharing options"
-                  placeholder="e.g. Email"
-                  emptyText="No sharing options found."
-                  options={sharingOptions}
-                />
-                <FilterableSubmenu
-                  label="Export"
-                  inputLabel="Filter export formats"
-                  placeholder="e.g. PDF"
-                  emptyText="No export formats found."
-                  options={exportOptions}
-                />
-                <Menu.Item className={itemClass}>Download a copy</Menu.Item>
-                <Menu.Item className={itemClass} keywords={['remove', 'trash']}>
-                  Delete
-                </Menu.Item>
-              </Menu.Group>
+                <Menu.FilterClear className={clearClass} aria-label="Clear filter">
+                  <ClearIcon />
+                </Menu.FilterClear>
+              </div>
+              <Menu.FilterEmpty className={emptyClass}>No actions found.</Menu.FilterEmpty>
+              <Menu.FilterList className={listClass}>
+                <Menu.Group data-filter-section>
+                  <Menu.GroupLabel className={groupLabelClass}>File</Menu.GroupLabel>
+                  <Menu.Item className={itemClass}>New file</Menu.Item>
+                  <Menu.Item className={itemClass}>Open file</Menu.Item>
+                  <Menu.Item className={itemClass}>Save</Menu.Item>
+                  <Menu.Item className={itemClass}>Save as</Menu.Item>
+                  <Menu.Item className={itemClass}>Duplicate</Menu.Item>
+                  <Menu.Item className={itemClass}>Rename</Menu.Item>
+                </Menu.Group>
+                <Menu.Group data-filter-section>
+                  <Menu.GroupLabel className={groupLabelClass}>Organize</Menu.GroupLabel>
+                  <FilterableSubmenu
+                    label="Move to folder"
+                    inputLabel="Filter folders"
+                    placeholder="e.g. Projects"
+                    emptyText="No folders found."
+                    options={folderOptions}
+                  />
+                  <FilterableSubmenu
+                    label="Share"
+                    inputLabel="Filter sharing options"
+                    placeholder="e.g. Email"
+                    emptyText="No sharing options found."
+                    options={sharingOptions}
+                  />
+                  <FilterableSubmenu
+                    label="Export"
+                    inputLabel="Filter export formats"
+                    placeholder="e.g. PDF"
+                    emptyText="No export formats found."
+                    options={exportOptions}
+                  />
+                  <Menu.Item className={itemClass}>Download a copy</Menu.Item>
+                  <Menu.Item className={itemClass} keywords={['remove', 'trash']}>
+                    Delete
+                  </Menu.Item>
+                </Menu.Group>
 
-              <Menu.RadioGroup data-filter-section defaultValue="date">
-                <Menu.Separator data-filter-separator className={separatorClass} />
-                <Menu.GroupLabel className={groupLabelClass}>Sort by</Menu.GroupLabel>
-                {[
-                  ['date', 'Date modified'],
-                  ['name', 'Name'],
-                  ['size', 'Size'],
-                ].map(([value, label]) => (
-                  <Menu.RadioItem key={value} className={choiceItemClass} value={value}>
-                    <Menu.RadioItemIndicator className="col-start-1">
+                <Menu.RadioGroup data-filter-section defaultValue="date">
+                  <Menu.Separator data-filter-separator className={separatorClass} />
+                  <Menu.GroupLabel className={groupLabelClass}>Sort by</Menu.GroupLabel>
+                  {[
+                    ['date', 'Date modified'],
+                    ['name', 'Name'],
+                    ['size', 'Size'],
+                  ].map(([value, label]) => (
+                    <Menu.RadioItem key={value} className={choiceItemClass} value={value}>
+                      <Menu.RadioItemIndicator className="col-start-1">
+                        <CheckIcon />
+                      </Menu.RadioItemIndicator>
+                      <span className="col-start-2 min-w-0">{label}</span>
+                    </Menu.RadioItem>
+                  ))}
+                </Menu.RadioGroup>
+
+                <Menu.Group data-filter-section>
+                  <Menu.Separator data-filter-separator className={separatorClass} />
+                  <Menu.GroupLabel className={groupLabelClass}>View</Menu.GroupLabel>
+                  <Menu.CheckboxItem className={choiceItemClass} defaultChecked>
+                    <Menu.CheckboxItemIndicator className="col-start-1">
                       <CheckIcon />
-                    </Menu.RadioItemIndicator>
-                    <span className="col-start-2 min-w-0">{label}</span>
-                  </Menu.RadioItem>
-                ))}
-              </Menu.RadioGroup>
-
-              <Menu.Group data-filter-section>
-                <Menu.Separator data-filter-separator className={separatorClass} />
-                <Menu.GroupLabel className={groupLabelClass}>View</Menu.GroupLabel>
-                <Menu.CheckboxItem className={choiceItemClass} defaultChecked>
-                  <Menu.CheckboxItemIndicator className="col-start-1">
-                    <CheckIcon />
-                  </Menu.CheckboxItemIndicator>
-                  <span className="col-start-2 min-w-0">Show details</span>
-                </Menu.CheckboxItem>
-                <Menu.CheckboxItem className={choiceItemClass}>
-                  <Menu.CheckboxItemIndicator className="col-start-1">
-                    <CheckIcon />
-                  </Menu.CheckboxItemIndicator>
-                  <span className="col-start-2 min-w-0">Show sidebar</span>
-                </Menu.CheckboxItem>
-                <Menu.CheckboxItem className={choiceItemClass}>
-                  <Menu.CheckboxItemIndicator className="col-start-1">
-                    <CheckIcon />
-                  </Menu.CheckboxItemIndicator>
-                  <span className="col-start-2 min-w-0">Keep available offline</span>
-                </Menu.CheckboxItem>
-              </Menu.Group>
-            </Menu.FilterList>
-          </Menu.Popup>
-        </Menu.Positioner>
-      </Menu.Portal>
-    </Menu.FilterRoot>
+                    </Menu.CheckboxItemIndicator>
+                    <span className="col-start-2 min-w-0">Show details</span>
+                  </Menu.CheckboxItem>
+                  <Menu.CheckboxItem className={choiceItemClass}>
+                    <Menu.CheckboxItemIndicator className="col-start-1">
+                      <CheckIcon />
+                    </Menu.CheckboxItemIndicator>
+                    <span className="col-start-2 min-w-0">Show sidebar</span>
+                  </Menu.CheckboxItem>
+                  <Menu.CheckboxItem className={choiceItemClass}>
+                    <Menu.CheckboxItemIndicator className="col-start-1">
+                      <CheckIcon />
+                    </Menu.CheckboxItemIndicator>
+                    <span className="col-start-2 min-w-0">Keep available offline</span>
+                  </Menu.CheckboxItem>
+                </Menu.Group>
+              </Menu.FilterList>
+            </Menu.Popup>
+          </Menu.Positioner>
+        </Menu.Portal>
+      </Menu.Root>
+    </Menu.FilterProvider>
   );
 }
 
@@ -118,40 +120,42 @@ interface FilterableSubmenuProps {
 
 function FilterableSubmenu(props: FilterableSubmenuProps) {
   return (
-    <Menu.FilterSubmenuRoot>
-      <Menu.SubmenuTrigger className={submenuTriggerClass}>
-        {props.label}
-        <CaretRightIcon />
-      </Menu.SubmenuTrigger>
-      <Menu.Portal>
-        <Menu.Positioner
-          className="outline-hidden"
-          sideOffset={getSubmenuOffset}
-          alignOffset={getSubmenuOffset}
-        >
-          <Menu.Popup className={popupClass}>
-            <div className={inputContainerClass}>
-              <Menu.FilterInput
-                className={inputClass}
-                aria-label={props.inputLabel}
-                placeholder={props.placeholder}
-              />
-              <Menu.FilterClear className={clearClass} aria-label="Clear filter">
-                <ClearIcon />
-              </Menu.FilterClear>
-            </div>
-            <Menu.FilterEmpty className={emptyClass}>{props.emptyText}</Menu.FilterEmpty>
-            <Menu.FilterList className={submenuListClass}>
-              {props.options.map((option) => (
-                <Menu.Item key={option} className={itemClass}>
-                  {option}
-                </Menu.Item>
-              ))}
-            </Menu.FilterList>
-          </Menu.Popup>
-        </Menu.Positioner>
-      </Menu.Portal>
-    </Menu.FilterSubmenuRoot>
+    <Menu.FilterProvider>
+      <Menu.SubmenuRoot>
+        <Menu.SubmenuTrigger className={submenuTriggerClass}>
+          {props.label}
+          <CaretRightIcon />
+        </Menu.SubmenuTrigger>
+        <Menu.Portal>
+          <Menu.Positioner
+            className="outline-hidden"
+            sideOffset={getSubmenuOffset}
+            alignOffset={getSubmenuOffset}
+          >
+            <Menu.Popup className={popupClass}>
+              <div className={inputContainerClass}>
+                <Menu.FilterInput
+                  className={inputClass}
+                  aria-label={props.inputLabel}
+                  placeholder={props.placeholder}
+                />
+                <Menu.FilterClear className={clearClass} aria-label="Clear filter">
+                  <ClearIcon />
+                </Menu.FilterClear>
+              </div>
+              <Menu.FilterEmpty className={emptyClass}>{props.emptyText}</Menu.FilterEmpty>
+              <Menu.FilterList className={submenuListClass}>
+                {props.options.map((option) => (
+                  <Menu.Item key={option} className={itemClass}>
+                    {option}
+                  </Menu.Item>
+                ))}
+              </Menu.FilterList>
+            </Menu.Popup>
+          </Menu.Positioner>
+        </Menu.Portal>
+      </Menu.SubmenuRoot>
+    </Menu.FilterProvider>
   );
 }
 

@@ -11,7 +11,7 @@ import { useInitialLiveRegionTextMutation } from '../../internals/useInitialLive
  * empty node among the popup's contents.
  * Renders a `<div>` element.
  *
- * Requires `Menu.FilterRoot` or `Menu.FilterSubmenuRoot`.
+ * Requires the menu to be wrapped in `Menu.FilterProvider`.
  * Documentation: [Base UI Menu](https://base-ui.com/react/components/menu)
  */
 export const MenuFilterStatus = React.forwardRef(function MenuFilterStatus(

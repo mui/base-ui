@@ -9,7 +9,7 @@ import {
  * A message shown when no items match the filter query and announced politely to screen readers.
  * Renders nothing while items match, so screen readers don't count an empty node
  * among the popup's contents.
- * Requires `Menu.FilterRoot` or `Menu.FilterSubmenuRoot`.
+ * Requires the menu to be wrapped in `Menu.FilterProvider`.
  * Renders a `<div>` element.
  *
  * Documentation: [Base UI Menu](https://base-ui.com/react/components/menu)

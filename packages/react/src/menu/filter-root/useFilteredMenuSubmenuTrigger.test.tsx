@@ -10,32 +10,36 @@ describe('<Menu.SubmenuTrigger />', () => {
 
   it('keeps real focus on the parent input until the submenu opens', async () => {
     const { user } = await render(
-      <Menu.FilterRoot open>
-        <Menu.Trigger>Actions</Menu.Trigger>
-        <Menu.Portal>
-          <Menu.Positioner>
-            <Menu.Popup>
-              <Menu.FilterInput aria-label="Filter actions" />
-              <Menu.FilterList>
-                <Menu.Item>Rename</Menu.Item>
-                <Menu.FilterSubmenuRoot>
-                  <Menu.SubmenuTrigger delay={0}>Move to folder</Menu.SubmenuTrigger>
-                  <Menu.Portal>
-                    <Menu.Positioner>
-                      <Menu.Popup>
-                        <Menu.FilterInput aria-label="Filter folders" />
-                        <Menu.FilterList>
-                          <Menu.Item>Documents</Menu.Item>
-                        </Menu.FilterList>
-                      </Menu.Popup>
-                    </Menu.Positioner>
-                  </Menu.Portal>
-                </Menu.FilterSubmenuRoot>
-              </Menu.FilterList>
-            </Menu.Popup>
-          </Menu.Positioner>
-        </Menu.Portal>
-      </Menu.FilterRoot>,
+      <Menu.FilterProvider>
+        <Menu.Root open>
+          <Menu.Trigger>Actions</Menu.Trigger>
+          <Menu.Portal>
+            <Menu.Positioner>
+              <Menu.Popup>
+                <Menu.FilterInput aria-label="Filter actions" />
+                <Menu.FilterList>
+                  <Menu.Item>Rename</Menu.Item>
+                  <Menu.FilterProvider>
+                    <Menu.SubmenuRoot>
+                      <Menu.SubmenuTrigger delay={0}>Move to folder</Menu.SubmenuTrigger>
+                      <Menu.Portal>
+                        <Menu.Positioner>
+                          <Menu.Popup>
+                            <Menu.FilterInput aria-label="Filter folders" />
+                            <Menu.FilterList>
+                              <Menu.Item>Documents</Menu.Item>
+                            </Menu.FilterList>
+                          </Menu.Popup>
+                        </Menu.Positioner>
+                      </Menu.Portal>
+                    </Menu.SubmenuRoot>
+                  </Menu.FilterProvider>
+                </Menu.FilterList>
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
+        </Menu.Root>
+      </Menu.FilterProvider>,
     );
 
     const input = screen.getByRole('searchbox', { name: 'Filter actions' });
@@ -63,28 +67,30 @@ describe('<Menu.SubmenuTrigger />', () => {
   describe('accessible semantics of a plain submenu', () => {
     it('reports a menu popup on a trigger whose submenu has no filter', async () => {
       await render(
-        <Menu.FilterRoot defaultOpen>
-          <Menu.Trigger>Actions</Menu.Trigger>
-          <Menu.Portal>
-            <Menu.Positioner>
-              <Menu.Popup>
-                <Menu.FilterInput aria-label="Filter actions" />
-                <Menu.FilterList>
-                  <Menu.SubmenuRoot>
-                    <Menu.SubmenuTrigger>Sort by</Menu.SubmenuTrigger>
-                    <Menu.Portal>
-                      <Menu.Positioner>
-                        <Menu.Popup>
-                          <Menu.Item>Name</Menu.Item>
-                        </Menu.Popup>
-                      </Menu.Positioner>
-                    </Menu.Portal>
-                  </Menu.SubmenuRoot>
-                </Menu.FilterList>
-              </Menu.Popup>
-            </Menu.Positioner>
-          </Menu.Portal>
-        </Menu.FilterRoot>,
+        <Menu.FilterProvider>
+          <Menu.Root defaultOpen>
+            <Menu.Trigger>Actions</Menu.Trigger>
+            <Menu.Portal>
+              <Menu.Positioner>
+                <Menu.Popup>
+                  <Menu.FilterInput aria-label="Filter actions" />
+                  <Menu.FilterList>
+                    <Menu.SubmenuRoot>
+                      <Menu.SubmenuTrigger>Sort by</Menu.SubmenuTrigger>
+                      <Menu.Portal>
+                        <Menu.Positioner>
+                          <Menu.Popup>
+                            <Menu.Item>Name</Menu.Item>
+                          </Menu.Popup>
+                        </Menu.Positioner>
+                      </Menu.Portal>
+                    </Menu.SubmenuRoot>
+                  </Menu.FilterList>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
+          </Menu.Root>
+        </Menu.FilterProvider>,
       );
 
       // The documented plain-submenu recipe opens a `role="menu"` popup, so the trigger must not
@@ -97,30 +103,34 @@ describe('<Menu.SubmenuTrigger />', () => {
 
     it('lets a consumer override aria-haspopup', async () => {
       await render(
-        <Menu.FilterRoot defaultOpen>
-          <Menu.Trigger>Actions</Menu.Trigger>
-          <Menu.Portal>
-            <Menu.Positioner>
-              <Menu.Popup>
-                <Menu.FilterInput aria-label="Filter actions" />
-                <Menu.FilterList>
-                  <Menu.FilterSubmenuRoot>
-                    <Menu.SubmenuTrigger aria-haspopup="menu">Move to</Menu.SubmenuTrigger>
-                    <Menu.Portal>
-                      <Menu.Positioner>
-                        <Menu.Popup>
-                          <Menu.FilterList>
-                            <Menu.Item>Projects</Menu.Item>
-                          </Menu.FilterList>
-                        </Menu.Popup>
-                      </Menu.Positioner>
-                    </Menu.Portal>
-                  </Menu.FilterSubmenuRoot>
-                </Menu.FilterList>
-              </Menu.Popup>
-            </Menu.Positioner>
-          </Menu.Portal>
-        </Menu.FilterRoot>,
+        <Menu.FilterProvider>
+          <Menu.Root defaultOpen>
+            <Menu.Trigger>Actions</Menu.Trigger>
+            <Menu.Portal>
+              <Menu.Positioner>
+                <Menu.Popup>
+                  <Menu.FilterInput aria-label="Filter actions" />
+                  <Menu.FilterList>
+                    <Menu.FilterProvider>
+                      <Menu.SubmenuRoot>
+                        <Menu.SubmenuTrigger aria-haspopup="menu">Move to</Menu.SubmenuTrigger>
+                        <Menu.Portal>
+                          <Menu.Positioner>
+                            <Menu.Popup>
+                              <Menu.FilterList>
+                                <Menu.Item>Projects</Menu.Item>
+                              </Menu.FilterList>
+                            </Menu.Popup>
+                          </Menu.Positioner>
+                        </Menu.Portal>
+                      </Menu.SubmenuRoot>
+                    </Menu.FilterProvider>
+                  </Menu.FilterList>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
+          </Menu.Root>
+        </Menu.FilterProvider>,
       );
 
       expect(screen.getByRole('menuitem', { name: 'Move to' })).toHaveAttribute(
@@ -131,18 +141,20 @@ describe('<Menu.SubmenuTrigger />', () => {
 
     it('lets a consumer override aria-haspopup on the root trigger', async () => {
       await render(
-        <Menu.FilterRoot>
-          <Menu.Trigger aria-haspopup="menu">Actions</Menu.Trigger>
-          <Menu.Portal>
-            <Menu.Positioner>
-              <Menu.Popup>
-                <Menu.FilterList>
-                  <Menu.Item>Rename</Menu.Item>
-                </Menu.FilterList>
-              </Menu.Popup>
-            </Menu.Positioner>
-          </Menu.Portal>
-        </Menu.FilterRoot>,
+        <Menu.FilterProvider>
+          <Menu.Root>
+            <Menu.Trigger aria-haspopup="menu">Actions</Menu.Trigger>
+            <Menu.Portal>
+              <Menu.Positioner>
+                <Menu.Popup>
+                  <Menu.FilterList>
+                    <Menu.Item>Rename</Menu.Item>
+                  </Menu.FilterList>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
+          </Menu.Root>
+        </Menu.FilterProvider>,
       );
 
       expect(screen.getByRole('button', { name: 'Actions' })).toHaveAttribute(

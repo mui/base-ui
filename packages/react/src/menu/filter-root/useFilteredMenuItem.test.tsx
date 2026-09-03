@@ -11,25 +11,27 @@ describe('filtered Menu items', () => {
   it('keeps focus on the input when items are pressed', async () => {
     const handleItemClick = vi.fn();
     const { user } = await render(
-      <Menu.FilterRoot open>
-        <Menu.Portal>
-          <Menu.Positioner>
-            <Menu.Popup>
-              <Menu.FilterInput aria-label="Filter actions" />
-              <Menu.FilterList>
-                <Menu.Item closeOnClick={false} onClick={handleItemClick}>
-                  Rename
-                </Menu.Item>
-                <Menu.LinkItem href="#details">Open details</Menu.LinkItem>
-                <Menu.CheckboxItem>Show details</Menu.CheckboxItem>
-                <Menu.RadioGroup>
-                  <Menu.RadioItem value="date">Sort by date</Menu.RadioItem>
-                </Menu.RadioGroup>
-              </Menu.FilterList>
-            </Menu.Popup>
-          </Menu.Positioner>
-        </Menu.Portal>
-      </Menu.FilterRoot>,
+      <Menu.FilterProvider>
+        <Menu.Root open>
+          <Menu.Portal>
+            <Menu.Positioner>
+              <Menu.Popup>
+                <Menu.FilterInput aria-label="Filter actions" />
+                <Menu.FilterList>
+                  <Menu.Item closeOnClick={false} onClick={handleItemClick}>
+                    Rename
+                  </Menu.Item>
+                  <Menu.LinkItem href="#details">Open details</Menu.LinkItem>
+                  <Menu.CheckboxItem>Show details</Menu.CheckboxItem>
+                  <Menu.RadioGroup>
+                    <Menu.RadioItem value="date">Sort by date</Menu.RadioItem>
+                  </Menu.RadioGroup>
+                </Menu.FilterList>
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
+        </Menu.Root>
+      </Menu.FilterProvider>,
     );
 
     const input = screen.getByRole('searchbox', { name: 'Filter actions' });
@@ -56,23 +58,25 @@ describe('filtered Menu items', () => {
   describe('item text resolution', () => {
     it('matches an item whose children are an array while it is filtered out', async () => {
       const { user } = await render(
-        <Menu.FilterRoot defaultOpen>
-          <Menu.Trigger>Actions</Menu.Trigger>
-          <Menu.Portal>
-            <Menu.Positioner>
-              <Menu.Popup>
-                <Menu.FilterInput aria-label="Filter actions" />
-                <Menu.FilterList>
-                  <Menu.Item>
-                    {'Re'}
-                    {'name'}
-                  </Menu.Item>
-                  <Menu.Item>Delete</Menu.Item>
-                </Menu.FilterList>
-              </Menu.Popup>
-            </Menu.Positioner>
-          </Menu.Portal>
-        </Menu.FilterRoot>,
+        <Menu.FilterProvider>
+          <Menu.Root defaultOpen>
+            <Menu.Trigger>Actions</Menu.Trigger>
+            <Menu.Portal>
+              <Menu.Positioner>
+                <Menu.Popup>
+                  <Menu.FilterInput aria-label="Filter actions" />
+                  <Menu.FilterList>
+                    <Menu.Item>
+                      {'Re'}
+                      {'name'}
+                    </Menu.Item>
+                    <Menu.Item>Delete</Menu.Item>
+                  </Menu.FilterList>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
+          </Menu.Root>
+        </Menu.FilterProvider>,
       );
 
       const input = screen.getByRole('searchbox', { name: 'Filter actions' });
@@ -101,23 +105,25 @@ describe('filtered Menu items', () => {
 
     function DisabledItemMenu() {
       return (
-        <Menu.FilterRoot defaultOpen>
-          <Menu.Trigger>Actions</Menu.Trigger>
-          <Menu.Portal>
-            <Menu.Positioner>
-              <Menu.Popup>
-                <Menu.FilterInput aria-label="Filter actions" />
-                <Menu.FilterList>
-                  <Menu.Item>Rename</Menu.Item>
-                  <Menu.Item disabled onClick={onDisabledClick}>
-                    Archive
-                  </Menu.Item>
-                  <Menu.Item>Delete</Menu.Item>
-                </Menu.FilterList>
-              </Menu.Popup>
-            </Menu.Positioner>
-          </Menu.Portal>
-        </Menu.FilterRoot>
+        <Menu.FilterProvider>
+          <Menu.Root defaultOpen>
+            <Menu.Trigger>Actions</Menu.Trigger>
+            <Menu.Portal>
+              <Menu.Positioner>
+                <Menu.Popup>
+                  <Menu.FilterInput aria-label="Filter actions" />
+                  <Menu.FilterList>
+                    <Menu.Item>Rename</Menu.Item>
+                    <Menu.Item disabled onClick={onDisabledClick}>
+                      Archive
+                    </Menu.Item>
+                    <Menu.Item>Delete</Menu.Item>
+                  </Menu.FilterList>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
+          </Menu.Root>
+        </Menu.FilterProvider>
       );
     }
 

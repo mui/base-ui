@@ -41,7 +41,7 @@ export const FilterDropdownPopup = React.forwardRef(function FilterDropdownPopup
     if (process.env.NODE_ENV !== 'production' && context.open && focusOwnerRef.current === null) {
       console.warn(
         'Base UI: a filterable menu opened without a <Menu.FilterInput>. Render the input ' +
-          'inside <Menu.Popup>, or use <Menu.Root> for a menu that does not filter.',
+          'inside <Menu.Popup>, or drop <Menu.FilterProvider> for a menu that does not filter.',
       );
     }
   }, [context.open, focusOwnerRef]);

@@ -1,6 +1,6 @@
 import type { MenuFilterFunction, MenuFilterRoot } from './MenuFilterRoot';
 
-/** Filtering props shared by `Menu.FilterRoot` and `Menu.FilterSubmenuRoot`. */
+/** The filtering props of `Menu.FilterProvider`, applied to the root directly inside it. */
 export interface MenuFilterRootFilterProps {
   /**
    * Replaces the default case-insensitive substring matching while the filter root controls which

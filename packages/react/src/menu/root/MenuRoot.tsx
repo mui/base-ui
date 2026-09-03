@@ -6,6 +6,7 @@ import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { EMPTY_ARRAY, EMPTY_OBJECT } from '@base-ui/utils/empty';
 import { fastComponent } from '@base-ui/utils/fastHooks';
+import { MenuFilterProviderContext } from '../filter-provider/MenuFilterProviderContext';
 import { useBaseUiId } from '../../internals/useBaseUiId';
 import {
   FloatingTree,
@@ -97,13 +98,7 @@ interface MenuRootInternalProps<Payload> extends MenuRoot.Props<Payload> {
   webkitItemSelected?: boolean | undefined;
 }
 
-/**
- * Groups all parts of the menu.
- * Doesn't render its own HTML element.
- *
- * Documentation: [Base UI Menu](https://base-ui.com/react/components/menu)
- */
-export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot.Props<Payload>) {
+const MenuRootImpl = fastComponent(function MenuRoot<Payload>(props: MenuRoot.Props<Payload>) {
   const {
     children,
     open: openProp,
@@ -764,9 +759,30 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
 });
 
 /** `MenuRoot` with the internal props visible, which the public signature hides. */
-export const MenuRootInternal = MenuRoot as <Payload>(
+export const MenuRootInternal = MenuRootImpl as <Payload>(
   props: MenuRootInternalProps<Payload>,
 ) => React.JSX.Element;
+
+/**
+ * Groups all parts of the menu.
+ * Doesn't render its own HTML element.
+ *
+ * Documentation: [Base UI Menu](https://base-ui.com/react/components/menu)
+ */
+export function MenuRoot<Payload>(props: MenuRoot.Props<Payload>): React.JSX.Element {
+  const filter = React.useContext(MenuFilterProviderContext);
+  if (filter === null) {
+    return <MenuRootInternal {...props} />;
+  }
+
+  const FilterRoot = filter.Root;
+  return (
+    // The root consumes its provider so a plain submenu inside doesn't inherit it.
+    <MenuFilterProviderContext.Provider value={null}>
+      <FilterRoot {...filter.options} {...props} />
+    </MenuFilterProviderContext.Provider>
+  );
+}
 
 function useMenuRootStore<Payload>(
   initialState: Partial<MenuStoreState<Payload>>,

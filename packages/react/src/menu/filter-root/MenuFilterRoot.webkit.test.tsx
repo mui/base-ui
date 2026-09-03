@@ -19,24 +19,26 @@ vi.mock('@base-ui/utils/platform', async () => {
 
 function Test() {
   return (
-    <Menu.FilterRoot defaultOpen>
-      <Menu.Trigger>Actions</Menu.Trigger>
-      <Menu.Portal>
-        <Menu.Positioner>
-          <Menu.Popup>
-            <Menu.FilterInput aria-label="Filter actions" />
-            <Menu.FilterList>
-              <Menu.Item>Apple</Menu.Item>
-              <Menu.Item>Banana</Menu.Item>
-            </Menu.FilterList>
-          </Menu.Popup>
-        </Menu.Positioner>
-      </Menu.Portal>
-    </Menu.FilterRoot>
+    <Menu.FilterProvider>
+      <Menu.Root defaultOpen>
+        <Menu.Trigger>Actions</Menu.Trigger>
+        <Menu.Portal>
+          <Menu.Positioner>
+            <Menu.Popup>
+              <Menu.FilterInput aria-label="Filter actions" />
+              <Menu.FilterList>
+                <Menu.Item>Apple</Menu.Item>
+                <Menu.Item>Banana</Menu.Item>
+              </Menu.FilterList>
+            </Menu.Popup>
+          </Menu.Positioner>
+        </Menu.Portal>
+      </Menu.Root>
+    </Menu.FilterProvider>
   );
 }
 
-describe('<Menu.FilterRoot /> (WebKit)', () => {
+describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider> (WebKit)', () => {
   beforeEach(resetBrowserPointer);
 
   const { render, renderToString } = createRenderer();
@@ -67,22 +69,24 @@ describe('<Menu.FilterRoot /> (WebKit)', () => {
 
   it('preserves checked state on checkbox and radio items in the WebKit compatibility path', async () => {
     const { user } = await render(
-      <Menu.FilterRoot defaultOpen>
-        <Menu.Trigger>Actions</Menu.Trigger>
-        <Menu.Portal>
-          <Menu.Positioner>
-            <Menu.Popup>
-              <Menu.FilterInput aria-label="Filter actions" />
-              <Menu.FilterList>
-                <Menu.CheckboxItem defaultChecked>Details</Menu.CheckboxItem>
-                <Menu.RadioGroup defaultValue="date">
-                  <Menu.RadioItem value="date">Date</Menu.RadioItem>
-                </Menu.RadioGroup>
-              </Menu.FilterList>
-            </Menu.Popup>
-          </Menu.Positioner>
-        </Menu.Portal>
-      </Menu.FilterRoot>,
+      <Menu.FilterProvider>
+        <Menu.Root defaultOpen>
+          <Menu.Trigger>Actions</Menu.Trigger>
+          <Menu.Portal>
+            <Menu.Positioner>
+              <Menu.Popup>
+                <Menu.FilterInput aria-label="Filter actions" />
+                <Menu.FilterList>
+                  <Menu.CheckboxItem defaultChecked>Details</Menu.CheckboxItem>
+                  <Menu.RadioGroup defaultValue="date">
+                    <Menu.RadioItem value="date">Date</Menu.RadioItem>
+                  </Menu.RadioGroup>
+                </Menu.FilterList>
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
+        </Menu.Root>
+      </Menu.FilterProvider>,
     );
 
     const checkbox = screen.getByRole('menuitemcheckbox', { name: 'Details' });
@@ -102,31 +106,35 @@ describe('<Menu.FilterRoot /> (WebKit)', () => {
 
   it('marks link items and submenu triggers selected for the WebKit compatibility path', async () => {
     const { user } = await render(
-      <Menu.FilterRoot defaultOpen>
-        <Menu.Trigger>Actions</Menu.Trigger>
-        <Menu.Portal>
-          <Menu.Positioner>
-            <Menu.Popup>
-              <Menu.FilterInput aria-label="Filter actions" />
-              <Menu.FilterList>
-                <Menu.LinkItem href="#docs">Documentation</Menu.LinkItem>
-                <Menu.FilterSubmenuRoot>
-                  <Menu.SubmenuTrigger>More actions</Menu.SubmenuTrigger>
-                  <Menu.Portal>
-                    <Menu.Positioner>
-                      <Menu.Popup>
-                        <Menu.FilterList>
-                          <Menu.Item>Share</Menu.Item>
-                        </Menu.FilterList>
-                      </Menu.Popup>
-                    </Menu.Positioner>
-                  </Menu.Portal>
-                </Menu.FilterSubmenuRoot>
-              </Menu.FilterList>
-            </Menu.Popup>
-          </Menu.Positioner>
-        </Menu.Portal>
-      </Menu.FilterRoot>,
+      <Menu.FilterProvider>
+        <Menu.Root defaultOpen>
+          <Menu.Trigger>Actions</Menu.Trigger>
+          <Menu.Portal>
+            <Menu.Positioner>
+              <Menu.Popup>
+                <Menu.FilterInput aria-label="Filter actions" />
+                <Menu.FilterList>
+                  <Menu.LinkItem href="#docs">Documentation</Menu.LinkItem>
+                  <Menu.FilterProvider>
+                    <Menu.SubmenuRoot>
+                      <Menu.SubmenuTrigger>More actions</Menu.SubmenuTrigger>
+                      <Menu.Portal>
+                        <Menu.Positioner>
+                          <Menu.Popup>
+                            <Menu.FilterList>
+                              <Menu.Item>Share</Menu.Item>
+                            </Menu.FilterList>
+                          </Menu.Popup>
+                        </Menu.Positioner>
+                      </Menu.Portal>
+                    </Menu.SubmenuRoot>
+                  </Menu.FilterProvider>
+                </Menu.FilterList>
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
+        </Menu.Root>
+      </Menu.FilterProvider>,
     );
 
     const input = screen.getByRole('searchbox', { name: 'Filter actions' });
@@ -149,31 +157,35 @@ describe('<Menu.FilterRoot /> (WebKit)', () => {
 
   it('marks items inside an opened submenu selected', async () => {
     const { user } = await render(
-      <Menu.FilterRoot defaultOpen>
-        <Menu.Trigger>Actions</Menu.Trigger>
-        <Menu.Portal>
-          <Menu.Positioner>
-            <Menu.Popup>
-              <Menu.FilterInput aria-label="Filter actions" />
-              <Menu.FilterList>
-                <Menu.FilterSubmenuRoot>
-                  <Menu.SubmenuTrigger>More actions</Menu.SubmenuTrigger>
-                  <Menu.Portal>
-                    <Menu.Positioner>
-                      <Menu.Popup>
-                        <Menu.FilterInput aria-label="Filter more actions" />
-                        <Menu.FilterList>
-                          <Menu.Item>Share</Menu.Item>
-                        </Menu.FilterList>
-                      </Menu.Popup>
-                    </Menu.Positioner>
-                  </Menu.Portal>
-                </Menu.FilterSubmenuRoot>
-              </Menu.FilterList>
-            </Menu.Popup>
-          </Menu.Positioner>
-        </Menu.Portal>
-      </Menu.FilterRoot>,
+      <Menu.FilterProvider>
+        <Menu.Root defaultOpen>
+          <Menu.Trigger>Actions</Menu.Trigger>
+          <Menu.Portal>
+            <Menu.Positioner>
+              <Menu.Popup>
+                <Menu.FilterInput aria-label="Filter actions" />
+                <Menu.FilterList>
+                  <Menu.FilterProvider>
+                    <Menu.SubmenuRoot>
+                      <Menu.SubmenuTrigger>More actions</Menu.SubmenuTrigger>
+                      <Menu.Portal>
+                        <Menu.Positioner>
+                          <Menu.Popup>
+                            <Menu.FilterInput aria-label="Filter more actions" />
+                            <Menu.FilterList>
+                              <Menu.Item>Share</Menu.Item>
+                            </Menu.FilterList>
+                          </Menu.Popup>
+                        </Menu.Positioner>
+                      </Menu.Portal>
+                    </Menu.SubmenuRoot>
+                  </Menu.FilterProvider>
+                </Menu.FilterList>
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
+        </Menu.Root>
+      </Menu.FilterProvider>,
     );
 
     await waitFor(() => {
@@ -214,13 +226,15 @@ describe('<Menu.FilterRoot /> (WebKit)', () => {
 
   it('withholds aria-selected until hydration completes so it matches server markup', async () => {
     const { hydrate } = renderToString(
-      <Menu.FilterRoot inline open autoHighlight="always">
-        <Menu.FilterInput aria-label="Filter fruit" />
-        <Menu.FilterList>
-          <Menu.Item>Apple</Menu.Item>
-          <Menu.Item>Banana</Menu.Item>
-        </Menu.FilterList>
-      </Menu.FilterRoot>,
+      <Menu.FilterProvider inline autoHighlight="always">
+        <Menu.Root open>
+          <Menu.FilterInput aria-label="Filter fruit" />
+          <Menu.FilterList>
+            <Menu.Item>Apple</Menu.Item>
+            <Menu.Item>Banana</Menu.Item>
+          </Menu.FilterList>
+        </Menu.Root>
+      </Menu.FilterProvider>,
     );
 
     // The server cannot sniff the engine, so it must not render the attribute.

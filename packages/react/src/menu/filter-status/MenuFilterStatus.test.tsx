@@ -9,19 +9,21 @@ describe('<Menu.FilterStatus />', () => {
 
   function App(props: { children?: React.ReactNode }) {
     return (
-      <Menu.FilterRoot open>
-        <Menu.Portal>
-          <Menu.Positioner>
-            <Menu.Popup>
-              <Menu.FilterInput aria-label="Filter fruit" />
-              <Menu.FilterStatus data-testid="status">{props.children}</Menu.FilterStatus>
-              <Menu.FilterList>
-                <Menu.Item>Apple</Menu.Item>
-              </Menu.FilterList>
-            </Menu.Popup>
-          </Menu.Positioner>
-        </Menu.Portal>
-      </Menu.FilterRoot>
+      <Menu.FilterProvider>
+        <Menu.Root open>
+          <Menu.Portal>
+            <Menu.Positioner>
+              <Menu.Popup>
+                <Menu.FilterInput aria-label="Filter fruit" />
+                <Menu.FilterStatus data-testid="status">{props.children}</Menu.FilterStatus>
+                <Menu.FilterList>
+                  <Menu.Item>Apple</Menu.Item>
+                </Menu.FilterList>
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
+        </Menu.Root>
+      </Menu.FilterProvider>
     );
   }
 

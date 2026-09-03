@@ -20,69 +20,73 @@ export default function ExampleMenuCommandPalette() {
         <Dialog.Backdrop className={styles.Backdrop} />
         <Dialog.Viewport className={styles.Viewport}>
           <Dialog.Popup className={styles.Popup} aria-label="Command palette">
-            <Menu.FilterRoot inline open autoHighlight="always">
-              <div className={styles.InputGroup}>
-                <MagnifyingGlassIcon className={styles.InputIcon} aria-hidden />
-                <Menu.FilterInput
-                  className={styles.Input}
-                  aria-label="Search commands"
-                  aria-describedby={shortcutsDescriptionId}
-                  placeholder="Search for apps and commands…"
-                />
-                <span id={shortcutsDescriptionId} hidden>
-                  Use the arrow keys to choose a command and Enter to activate it.
-                </span>
-              </div>
-              <Dialog.Close className={styles.VisuallyHidden} tabIndex={-1}>
-                Close command palette
-              </Dialog.Close>
-
-              <ScrollArea.Root className={styles.ListArea}>
-                <ScrollArea.Viewport className={styles.ListViewport}>
-                  <ScrollArea.Content className={styles.ListContent}>
-                    <Menu.FilterEmpty className={styles.Empty}>No results found.</Menu.FilterEmpty>
-
-                    <Menu.FilterList className={styles.List} aria-label="Commands">
-                      {groupedItems.map((group) => (
-                        <Menu.Group key={group.value} className={styles.Group}>
-                          <Menu.GroupLabel className={styles.GroupLabel}>
-                            {group.value}
-                          </Menu.GroupLabel>
-                          {group.items.map((item) => (
-                            <Menu.Item
-                              key={item.value}
-                              label={item.label}
-                              className={styles.Item}
-                              onClick={handleItemClick}
-                            >
-                              <span className={styles.ItemLabel}>{item.label}</span>
-                              <span className={styles.ItemType}>
-                                {group.value === 'Suggestions' ? 'Application' : 'Command'}
-                              </span>
-                            </Menu.Item>
-                          ))}
-                        </Menu.Group>
-                      ))}
-                    </Menu.FilterList>
-                  </ScrollArea.Content>
-                </ScrollArea.Viewport>
-                <ScrollArea.Scrollbar className={styles.Scrollbar}>
-                  <ScrollArea.Thumb className={styles.ScrollbarThumb} />
-                </ScrollArea.Scrollbar>
-              </ScrollArea.Root>
-
-              <div className={styles.Footer} aria-hidden>
-                <div className={styles.FooterLeft}>
-                  <span>Navigate</span>
-                  <kbd className={styles.Kbd}>↑</kbd>
-                  <kbd className={styles.Kbd}>↓</kbd>
+            <Menu.FilterProvider inline autoHighlight="always">
+              <Menu.Root open>
+                <div className={styles.InputGroup}>
+                  <MagnifyingGlassIcon className={styles.InputIcon} aria-hidden />
+                  <Menu.FilterInput
+                    className={styles.Input}
+                    aria-label="Search commands"
+                    aria-describedby={shortcutsDescriptionId}
+                    placeholder="Search for apps and commands…"
+                  />
+                  <span id={shortcutsDescriptionId} hidden>
+                    Use the arrow keys to choose a command and Enter to activate it.
+                  </span>
                 </div>
-                <div className={styles.FooterRight}>
-                  <span>Activate</span>
-                  <kbd className={styles.Kbd}>Enter</kbd>
+                <Dialog.Close className={styles.VisuallyHidden} tabIndex={-1}>
+                  Close command palette
+                </Dialog.Close>
+
+                <ScrollArea.Root className={styles.ListArea}>
+                  <ScrollArea.Viewport className={styles.ListViewport}>
+                    <ScrollArea.Content className={styles.ListContent}>
+                      <Menu.FilterEmpty className={styles.Empty}>
+                        No results found.
+                      </Menu.FilterEmpty>
+
+                      <Menu.FilterList className={styles.List} aria-label="Commands">
+                        {groupedItems.map((group) => (
+                          <Menu.Group key={group.value} className={styles.Group}>
+                            <Menu.GroupLabel className={styles.GroupLabel}>
+                              {group.value}
+                            </Menu.GroupLabel>
+                            {group.items.map((item) => (
+                              <Menu.Item
+                                key={item.value}
+                                label={item.label}
+                                className={styles.Item}
+                                onClick={handleItemClick}
+                              >
+                                <span className={styles.ItemLabel}>{item.label}</span>
+                                <span className={styles.ItemType}>
+                                  {group.value === 'Suggestions' ? 'Application' : 'Command'}
+                                </span>
+                              </Menu.Item>
+                            ))}
+                          </Menu.Group>
+                        ))}
+                      </Menu.FilterList>
+                    </ScrollArea.Content>
+                  </ScrollArea.Viewport>
+                  <ScrollArea.Scrollbar className={styles.Scrollbar}>
+                    <ScrollArea.Thumb className={styles.ScrollbarThumb} />
+                  </ScrollArea.Scrollbar>
+                </ScrollArea.Root>
+
+                <div className={styles.Footer} aria-hidden>
+                  <div className={styles.FooterLeft}>
+                    <span>Navigate</span>
+                    <kbd className={styles.Kbd}>↑</kbd>
+                    <kbd className={styles.Kbd}>↓</kbd>
+                  </div>
+                  <div className={styles.FooterRight}>
+                    <span>Activate</span>
+                    <kbd className={styles.Kbd}>Enter</kbd>
+                  </div>
                 </div>
-              </div>
-            </Menu.FilterRoot>
+              </Menu.Root>
+            </Menu.FilterProvider>
           </Dialog.Popup>
         </Dialog.Viewport>
       </Dialog.Portal>

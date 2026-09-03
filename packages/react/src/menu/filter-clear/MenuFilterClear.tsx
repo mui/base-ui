@@ -7,7 +7,7 @@ import {
 
 /**
  * A button that clears the filter query. Renders nothing while the query is empty.
- * Requires `Menu.FilterRoot` or `Menu.FilterSubmenuRoot`.
+ * Requires the menu to be wrapped in `Menu.FilterProvider`.
  * Renders a `<button>` element.
  *
  * Documentation: [Base UI Menu](https://base-ui.com/react/components/menu)

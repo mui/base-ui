@@ -34,10 +34,10 @@ import type { MenuStore } from '../store/MenuStore';
 type ParentReference = { reference: HTMLElement; trigger: HTMLElement };
 
 /**
- * Groups all parts of a filterable submenu. Takes the place of `Menu.SubmenuRoot`.
- * Doesn't render its own HTML element.
+ * The filterable implementation of `Menu.SubmenuRoot`, rendered in its place when the submenu
+ * root sits inside `Menu.FilterProvider`.
  *
- * Documentation: [Base UI Menu](https://base-ui.com/react/components/menu)
+ * @internal
  */
 export function MenuFilterSubmenuRoot(props: MenuFilterSubmenuRoot.Props): React.JSX.Element {
   const {

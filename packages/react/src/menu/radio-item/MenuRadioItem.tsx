@@ -156,7 +156,7 @@ export interface MenuRadioItemProps
    */
   label?: string | undefined;
   /**
-   * Additional terms the item matches on when filtering inside `Menu.FilterRoot`.
+   * Additional terms the item matches on when filtering inside `Menu.FilterProvider`.
    * A plain menu ignores it.
    */
   keywords?: readonly string[] | undefined;

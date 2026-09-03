@@ -60,33 +60,35 @@ export default function MenuFilteringScopeExperiment() {
 
 function RootFilterOnly(props: { autoHighlight: boolean }) {
   return (
-    <Menu.FilterRoot autoHighlight={props.autoHighlight}>
-      <Menu.Trigger className={classes.Trigger}>Open actions</Menu.Trigger>
-      <Menu.Portal>
-        <Menu.Positioner className={classes.Positioner} sideOffset={8}>
-          <Menu.Popup className={classes.Popup}>
-            <Menu.FilterInput className={classes.Input} aria-label="Filter root actions" />
-            <Menu.FilterList className={classes.List}>
-              <Menu.Item className={classes.Item}>Rename</Menu.Item>
-              <Menu.SubmenuRoot>
-                <Menu.SubmenuTrigger className={classes.Item}>
-                  Share <span aria-hidden>›</span>
-                </Menu.SubmenuTrigger>
-                <Menu.Portal>
-                  <Menu.Positioner className={classes.Positioner} sideOffset={4}>
-                    <Menu.Popup className={classes.Popup}>
-                      <Menu.Item className={classes.Item}>Email</Menu.Item>
-                      <Menu.Item className={classes.Item}>Copy link</Menu.Item>
-                    </Menu.Popup>
-                  </Menu.Positioner>
-                </Menu.Portal>
-              </Menu.SubmenuRoot>
-              <Menu.Item className={classes.Item}>Delete</Menu.Item>
-            </Menu.FilterList>
-          </Menu.Popup>
-        </Menu.Positioner>
-      </Menu.Portal>
-    </Menu.FilterRoot>
+    <Menu.FilterProvider autoHighlight={props.autoHighlight}>
+      <Menu.Root>
+        <Menu.Trigger className={classes.Trigger}>Open actions</Menu.Trigger>
+        <Menu.Portal>
+          <Menu.Positioner className={classes.Positioner} sideOffset={8}>
+            <Menu.Popup className={classes.Popup}>
+              <Menu.FilterInput className={classes.Input} aria-label="Filter root actions" />
+              <Menu.FilterList className={classes.List}>
+                <Menu.Item className={classes.Item}>Rename</Menu.Item>
+                <Menu.SubmenuRoot>
+                  <Menu.SubmenuTrigger className={classes.Item}>
+                    Share <span aria-hidden>›</span>
+                  </Menu.SubmenuTrigger>
+                  <Menu.Portal>
+                    <Menu.Positioner className={classes.Positioner} sideOffset={4}>
+                      <Menu.Popup className={classes.Popup}>
+                        <Menu.Item className={classes.Item}>Email</Menu.Item>
+                        <Menu.Item className={classes.Item}>Copy link</Menu.Item>
+                      </Menu.Popup>
+                    </Menu.Positioner>
+                  </Menu.Portal>
+                </Menu.SubmenuRoot>
+                <Menu.Item className={classes.Item}>Delete</Menu.Item>
+              </Menu.FilterList>
+            </Menu.Popup>
+          </Menu.Positioner>
+        </Menu.Portal>
+      </Menu.Root>
+    </Menu.FilterProvider>
   );
 }
 
@@ -98,27 +100,29 @@ function SubmenuFilterOnly(props: { autoHighlight: boolean; focusOnHover: boolea
         <Menu.Positioner className={classes.Positioner} sideOffset={8}>
           <Menu.Popup className={classes.Popup}>
             <Menu.Item className={classes.Item}>Rename</Menu.Item>
-            <Menu.FilterSubmenuRoot autoHighlight={props.autoHighlight}>
-              <Menu.SubmenuTrigger className={classes.Item}>
-                Move to <span aria-hidden>›</span>
-              </Menu.SubmenuTrigger>
-              <Menu.Portal>
-                <Menu.Positioner className={classes.Positioner} sideOffset={4}>
-                  <Menu.Popup className={classes.Popup}>
-                    <Menu.FilterInput
-                      className={classes.Input}
-                      aria-label="Filter destinations"
-                      autoFocus={props.focusOnHover}
-                    />
-                    <Menu.FilterList className={classes.List}>
-                      <Menu.Item className={classes.Item}>Documents</Menu.Item>
-                      <Menu.Item className={classes.Item}>Downloads</Menu.Item>
-                      <Menu.Item className={classes.Item}>Archive</Menu.Item>
-                    </Menu.FilterList>
-                  </Menu.Popup>
-                </Menu.Positioner>
-              </Menu.Portal>
-            </Menu.FilterSubmenuRoot>
+            <Menu.FilterProvider autoHighlight={props.autoHighlight}>
+              <Menu.SubmenuRoot>
+                <Menu.SubmenuTrigger className={classes.Item}>
+                  Move to <span aria-hidden>›</span>
+                </Menu.SubmenuTrigger>
+                <Menu.Portal>
+                  <Menu.Positioner className={classes.Positioner} sideOffset={4}>
+                    <Menu.Popup className={classes.Popup}>
+                      <Menu.FilterInput
+                        className={classes.Input}
+                        aria-label="Filter destinations"
+                        autoFocus={props.focusOnHover}
+                      />
+                      <Menu.FilterList className={classes.List}>
+                        <Menu.Item className={classes.Item}>Documents</Menu.Item>
+                        <Menu.Item className={classes.Item}>Downloads</Menu.Item>
+                        <Menu.Item className={classes.Item}>Archive</Menu.Item>
+                      </Menu.FilterList>
+                    </Menu.Popup>
+                  </Menu.Positioner>
+                </Menu.Portal>
+              </Menu.SubmenuRoot>
+            </Menu.FilterProvider>
             <Menu.Item className={classes.Item}>Delete</Menu.Item>
           </Menu.Popup>
         </Menu.Positioner>
@@ -134,58 +138,62 @@ function FilterableSubmenu(props: {
   focusOnHover: boolean;
 }) {
   return (
-    <Menu.FilterSubmenuRoot autoHighlight={props.autoHighlight}>
-      <Menu.SubmenuTrigger className={classes.Item}>
-        {props.label} <span aria-hidden>›</span>
-      </Menu.SubmenuTrigger>
-      <Menu.Portal>
-        <Menu.Positioner className={classes.Positioner} sideOffset={4}>
-          <Menu.Popup className={classes.Popup}>
-            <Menu.FilterInput
-              className={classes.Input}
-              aria-label={`Filter ${props.label.toLowerCase()}`}
-              autoFocus={props.focusOnHover}
-            />
-            <Menu.FilterList className={classes.List}>
-              {props.items.map((item) => (
-                <Menu.Item key={item} className={classes.Item}>
-                  {item}
-                </Menu.Item>
-              ))}
-            </Menu.FilterList>
-          </Menu.Popup>
-        </Menu.Positioner>
-      </Menu.Portal>
-    </Menu.FilterSubmenuRoot>
+    <Menu.FilterProvider autoHighlight={props.autoHighlight}>
+      <Menu.SubmenuRoot>
+        <Menu.SubmenuTrigger className={classes.Item}>
+          {props.label} <span aria-hidden>›</span>
+        </Menu.SubmenuTrigger>
+        <Menu.Portal>
+          <Menu.Positioner className={classes.Positioner} sideOffset={4}>
+            <Menu.Popup className={classes.Popup}>
+              <Menu.FilterInput
+                className={classes.Input}
+                aria-label={`Filter ${props.label.toLowerCase()}`}
+                autoFocus={props.focusOnHover}
+              />
+              <Menu.FilterList className={classes.List}>
+                {props.items.map((item) => (
+                  <Menu.Item key={item} className={classes.Item}>
+                    {item}
+                  </Menu.Item>
+                ))}
+              </Menu.FilterList>
+            </Menu.Popup>
+          </Menu.Positioner>
+        </Menu.Portal>
+      </Menu.SubmenuRoot>
+    </Menu.FilterProvider>
   );
 }
 
 function NestedFilters(props: { autoHighlight: boolean; focusOnHover: boolean }) {
   return (
-    <Menu.FilterRoot autoHighlight={props.autoHighlight}>
-      <Menu.Trigger className={classes.Trigger}>Open actions</Menu.Trigger>
-      <Menu.Portal>
-        <Menu.Positioner className={classes.Positioner} sideOffset={8}>
-          <Menu.Popup className={classes.Popup}>
-            <Menu.FilterInput className={classes.Input} aria-label="Filter actions" />
-            <Menu.FilterList className={classes.List}>
-              <Menu.Item className={classes.Item}>Rename</Menu.Item>
-              <Menu.Item className={classes.Item}>Duplicate</Menu.Item>
-              <FilterableSubmenu
-                label="Move to"
-                items={['Documents', 'Downloads', 'Archive']}
-                {...props}
-              />
-              <FilterableSubmenu
-                label="Share"
-                items={['Email', 'Messages', 'Copy link']}
-                {...props}
-              />
-              <Menu.Item className={classes.Item}>Delete</Menu.Item>
-            </Menu.FilterList>
-          </Menu.Popup>
-        </Menu.Positioner>
-      </Menu.Portal>
-    </Menu.FilterRoot>
+    <Menu.FilterProvider autoHighlight={props.autoHighlight}>
+      <Menu.Root>
+        <Menu.Trigger className={classes.Trigger}>Open actions</Menu.Trigger>
+        <Menu.Portal>
+          <Menu.Positioner className={classes.Positioner} sideOffset={8}>
+            <Menu.Popup className={classes.Popup}>
+              <Menu.FilterInput className={classes.Input} aria-label="Filter actions" />
+              <Menu.FilterList className={classes.List}>
+                <Menu.Item className={classes.Item}>Rename</Menu.Item>
+                <Menu.Item className={classes.Item}>Duplicate</Menu.Item>
+                <FilterableSubmenu
+                  label="Move to"
+                  items={['Documents', 'Downloads', 'Archive']}
+                  {...props}
+                />
+                <FilterableSubmenu
+                  label="Share"
+                  items={['Email', 'Messages', 'Copy link']}
+                  {...props}
+                />
+                <Menu.Item className={classes.Item}>Delete</Menu.Item>
+              </Menu.FilterList>
+            </Menu.Popup>
+          </Menu.Positioner>
+        </Menu.Portal>
+      </Menu.Root>
+    </Menu.FilterProvider>
   );
 }

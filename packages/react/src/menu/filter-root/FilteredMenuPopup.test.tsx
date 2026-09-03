@@ -33,19 +33,21 @@ describe('<Menu.Popup />', () => {
 
     it('allows a horizontal scrollbar press', async () => {
       await render(
-        <Menu.FilterRoot defaultOpen>
-          <Menu.Trigger>Actions</Menu.Trigger>
-          <Menu.Portal>
-            <Menu.Positioner>
-              <Menu.Popup>
-                <Menu.FilterInput aria-label="Filter actions" />
-                <Menu.FilterList>
-                  <Menu.Item>Rename</Menu.Item>
-                </Menu.FilterList>
-              </Menu.Popup>
-            </Menu.Positioner>
-          </Menu.Portal>
-        </Menu.FilterRoot>,
+        <Menu.FilterProvider>
+          <Menu.Root defaultOpen>
+            <Menu.Trigger>Actions</Menu.Trigger>
+            <Menu.Portal>
+              <Menu.Positioner>
+                <Menu.Popup>
+                  <Menu.FilterInput aria-label="Filter actions" />
+                  <Menu.FilterList>
+                    <Menu.Item>Rename</Menu.Item>
+                  </Menu.FilterList>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
+          </Menu.Root>
+        </Menu.FilterProvider>,
       );
 
       const list = screen.getByRole('menu');
@@ -64,19 +66,21 @@ describe('<Menu.Popup />', () => {
     it('allows an RTL vertical scrollbar press on the leading edge', async () => {
       await render(
         <DirectionProvider direction="rtl">
-          <Menu.FilterRoot defaultOpen>
-            <Menu.Trigger>Actions</Menu.Trigger>
-            <Menu.Portal>
-              <Menu.Positioner>
-                <Menu.Popup>
-                  <Menu.FilterInput aria-label="Filter actions" />
-                  <Menu.FilterList style={{ direction: 'rtl' }}>
-                    <Menu.Item>Rename</Menu.Item>
-                  </Menu.FilterList>
-                </Menu.Popup>
-              </Menu.Positioner>
-            </Menu.Portal>
-          </Menu.FilterRoot>
+          <Menu.FilterProvider>
+            <Menu.Root defaultOpen>
+              <Menu.Trigger>Actions</Menu.Trigger>
+              <Menu.Portal>
+                <Menu.Positioner>
+                  <Menu.Popup>
+                    <Menu.FilterInput aria-label="Filter actions" />
+                    <Menu.FilterList style={{ direction: 'rtl' }}>
+                      <Menu.Item>Rename</Menu.Item>
+                    </Menu.FilterList>
+                  </Menu.Popup>
+                </Menu.Positioner>
+              </Menu.Portal>
+            </Menu.Root>
+          </Menu.FilterProvider>
         </DirectionProvider>,
       );
 
