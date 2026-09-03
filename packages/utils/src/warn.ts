@@ -1,14 +1,5 @@
-let set: Set<string>;
-if (process.env.NODE_ENV !== 'production') {
-  set = new Set<string>();
-}
+import { createLogOnce } from './createLogOnce';
 
-export function warn(...messages: string[]) {
-  if (process.env.NODE_ENV !== 'production') {
-    const messageKey = messages.join(' ');
-    if (!set.has(messageKey)) {
-      set.add(messageKey);
-      console.warn(`Base UI: ${messageKey}`);
-    }
-  }
-}
+export const warn = createLogOnce('warn', 'Base UI');
+
+export { reset } from './createLogOnce';

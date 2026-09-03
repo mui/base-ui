@@ -1,4 +1,4 @@
-import { expect, vi } from 'vitest';
+import { expect, vi, describe, it } from 'vitest';
 import * as React from 'react';
 import { screen, fireEvent, act } from '@mui/internal-test-utils';
 import { NumberField } from '@base-ui/react/number-field';
@@ -729,6 +729,24 @@ describe('<NumberField.Increment />', () => {
     expect(onValueChange.mock.calls.map((call) => call[0])).toEqual([100, 100, 1]);
     expect(input).toHaveValue('100');
     expect(onValueCommitted).not.toHaveBeenCalled();
+  });
+
+  it('places the caret at the end of the input when a mouse press focuses it', async () => {
+    await render(
+      <NumberField.Root defaultValue={100}>
+        <NumberField.Increment />
+        <NumberField.Input />
+      </NumberField.Root>,
+    );
+
+    const button = screen.getByRole('button');
+    const input = screen.getByRole<HTMLInputElement>('textbox');
+
+    fireEvent.pointerDown(button, { pointerType: 'mouse', button: 0 });
+
+    expect(document.activeElement).toBe(input);
+    expect(input.selectionStart).toBe(input.value.length);
+    expect(input.selectionEnd).toBe(input.value.length);
   });
 
   it('treats pen pointer as touch-like', async () => {

@@ -41,7 +41,10 @@ Re-export of [Root](#root) props.
 
 ```typescript
 type AccordionRootState<TValue = any> = {
-  /** The current value. */
+  /**
+   * The current value.
+   * Treat it as read-only: it may be a shared frozen array when no value is set.
+   */
   value: TValue[];
   /** Whether the component should ignore user interaction. */
   disabled: boolean;
@@ -125,7 +128,10 @@ type AccordionTriggerState = {
   index: number;
   /** Whether the component is open. */
   open: boolean;
-  /** The current value. */
+  /**
+   * The current value.
+   * Treat it as read-only: it may be a shared frozen array when no value is set.
+   */
   value: any[];
   /** Whether the component should ignore user interaction. */
   disabled: boolean;
@@ -189,7 +195,10 @@ type AccordionItemState = {
   index: number;
   /** Whether the component is open. */
   open: boolean;
-  /** The current value. */
+  /**
+   * The current value.
+   * Treat it as read-only: it may be a shared frozen array when no value is set.
+   */
   value: any[];
   /** Whether the component should ignore user interaction. */
   disabled: boolean;
@@ -267,7 +276,10 @@ type AccordionHeaderState = {
   index: number;
   /** Whether the component is open. */
   open: boolean;
-  /** The current value. */
+  /**
+   * The current value.
+   * Treat it as read-only: it may be a shared frozen array when no value is set.
+   */
   value: any[];
   /** Whether the component should ignore user interaction. */
   disabled: boolean;
@@ -333,7 +345,10 @@ type AccordionPanelState = {
   index: number;
   /** Whether the component is open. */
   open: boolean;
-  /** The current value. */
+  /**
+   * The current value.
+   * Treat it as read-only: it may be a shared frozen array when no value is set.
+   */
   value: any[];
   /** Whether the component should ignore user interaction. */
   disabled: boolean;

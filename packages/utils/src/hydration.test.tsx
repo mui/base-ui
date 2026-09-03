@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { afterEach, expect, vi } from 'vitest';
+import { afterEach, expect, vi, describe, it } from 'vitest';
 import { createRenderer, screen } from '@mui/internal-test-utils';
 import { useIsHydrated, useIsHydrating } from './hydration';
 import { isJSDOM } from './testUtils';

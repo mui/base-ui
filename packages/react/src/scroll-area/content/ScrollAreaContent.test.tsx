@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { expect, vi } from 'vitest';
+import { expect, vi, describe, it } from 'vitest';
 import { ScrollArea } from '@base-ui/react/scroll-area';
 import { createRenderer, isJSDOM } from '#test-utils';
 import { screen, waitFor } from '@mui/internal-test-utils';

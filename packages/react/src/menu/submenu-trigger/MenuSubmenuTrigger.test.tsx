@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, vi, expect } from 'vitest';
+import { afterEach, beforeEach, vi, expect, describe, it } from 'vitest';
 import { act, fireEvent, waitFor, screen } from '@mui/internal-test-utils';
 import { createRenderer, describeConformance, isJSDOM } from '#test-utils';
 import { DirectionProvider } from '@base-ui/react/direction-provider';
@@ -151,11 +151,7 @@ describe('<Menu.SubmenuTrigger />', () => {
       });
 
       submenuItems.forEach((item) => {
-        if (item === submenuItem1) {
-          expect(item).toHaveAttribute('data-highlighted');
-        } else {
-          expect(item).not.toHaveAttribute('data-highlighted');
-        }
+        expect(item.hasAttribute('data-highlighted')).toBe(item === submenuItem1);
       });
 
       // Check that parent menu items are not active

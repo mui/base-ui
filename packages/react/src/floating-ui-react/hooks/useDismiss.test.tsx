@@ -1,4 +1,4 @@
-import { vi, expect } from 'vitest';
+import { vi, expect, beforeEach, describe, test } from 'vitest';
 
 import { act, fireEvent, flushMicrotasks, render, screen, waitFor } from '@mui/internal-test-utils';
 import userEvent from '@testing-library/user-event';
@@ -70,6 +70,27 @@ function App(
 
 describe.skipIf(!isJSDOM)('useDismiss', () => {
   describe('default options', () => {
+    test('registers outside press touch listeners as passive', async () => {
+      const addEventListenerSpy = vi.spyOn(document, 'addEventListener');
+
+      try {
+        render(<App />);
+
+        await Promise.all(
+          ['touchstart', 'touchmove', 'touchend'].map((eventName) =>
+            waitFor(() => {
+              expect(addEventListenerSpy).toHaveBeenCalledWith(eventName, expect.any(Function), {
+                capture: true,
+                passive: true,
+              });
+            }),
+          ),
+        );
+      } finally {
+        addEventListenerSpy.mockRestore();
+      }
+    });
+
     test('dismisses with escape key', async () => {
       render(<App />);
       fireEvent.keyDown(document.body, { key: 'Escape' });

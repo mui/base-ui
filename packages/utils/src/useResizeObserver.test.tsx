@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { afterEach, beforeEach, expect, vi } from 'vitest';
+import { afterEach, beforeEach, expect, vi, describe, it } from 'vitest';
 import { createRenderer, screen } from '@mui/internal-test-utils';
 import { useResizeObserver } from './useResizeObserver';
 
