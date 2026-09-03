@@ -1,4 +1,5 @@
 'use client';
+import * as React from 'react';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { createChangeEventDetails } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
@@ -6,6 +7,7 @@ import { useFilterDropdownItem } from '../../filter-dropdown/item/useFilterDropd
 import { useFilterContextForList } from '../../filter-dropdown/root/FilterDropdownRootContext';
 import type { MenuFilterItemParams, MenuFilterItemResult } from './MenuFilterContext';
 import { useMenuRootContext } from '../root/MenuRootContext';
+import type { BaseUIEvent } from '../../internals/types';
 
 /**
  * Registers a submenu trigger with the parent menu's filter and adapts it to a filterable
@@ -46,6 +48,16 @@ export function useFilteredMenuSubmenuTrigger(params: MenuFilterItemParams): Men
       // open submenu is explicit intent to enter it, so hand its input focus.
       const focusOwner = virtualFocusRef?.current;
       if (store.select('open') && focusOwner) {
+        focusOwner.focus({ preventScroll: true });
+      }
+    },
+    onFocus(event: BaseUIEvent<React.FocusEvent<HTMLElement>>) {
+      // A plain parent menu moves DOM focus to whichever item the pointer crosses. While this
+      // trigger's submenu is open and its input held focus, hand focus straight back so crossing
+      // the trigger doesn't interrupt typing.
+      const focusOwner = virtualFocusRef?.current;
+      if (focusOwner && store.select('open') && event.relatedTarget === focusOwner) {
+        event.preventBaseUIHandler();
         focusOwner.focus({ preventScroll: true });
       }
     },

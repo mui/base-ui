@@ -1,6 +1,6 @@
 import { expect, vi, describe, beforeEach, it } from 'vitest';
 import * as React from 'react';
-import { act, screen, waitFor } from '@mui/internal-test-utils';
+import { act, fireEvent, screen, waitFor } from '@mui/internal-test-utils';
 import { Menu } from '@base-ui/react/menu';
 import { createRenderer, isJSDOM, resetBrowserPointer } from '#test-utils';
 
@@ -260,6 +260,62 @@ describe('<Menu.FilterSubmenuRoot />', () => {
       await waitFor(() => {
         expect(screen.queryByTestId('submenu-list')).toBe(null);
       });
+    });
+
+    it('keeps focus in the submenu input when the pointer crosses the trigger again', async () => {
+      const { user } = await render(
+        <Menu.Root open>
+          <Menu.Trigger>Actions</Menu.Trigger>
+          <Menu.Portal>
+            <Menu.Positioner>
+              <Menu.Popup>
+                <Menu.Item>Rename</Menu.Item>
+                <Menu.FilterSubmenuRoot>
+                  <Menu.SubmenuTrigger delay={0} data-testid="submenu-trigger">
+                    Move to
+                  </Menu.SubmenuTrigger>
+                  <Menu.Portal>
+                    <Menu.Positioner>
+                      <Menu.Popup>
+                        <Menu.FilterInput aria-label="Filter folders" />
+                        <Menu.FilterList>
+                          <Menu.Item>Projects</Menu.Item>
+                          <Menu.Item>Archive</Menu.Item>
+                        </Menu.FilterList>
+                      </Menu.Popup>
+                    </Menu.Positioner>
+                  </Menu.Portal>
+                </Menu.FilterSubmenuRoot>
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
+        </Menu.Root>,
+      );
+
+      const trigger = screen.getByTestId('submenu-trigger');
+      await user.hover(trigger);
+      const input = await screen.findByRole('searchbox', { name: 'Filter folders' });
+
+      // The pointer enters the submenu and typing starts.
+      fireEvent.mouseMove(input);
+      await waitFor(() => {
+        expect(input).toHaveFocus();
+      });
+      await user.keyboard('ar');
+      expect(input).toHaveValue('ar');
+
+      // Crossing the trigger on the way back must not steal focus from the input. The parent
+      // focuses a hovered item asynchronously, so dispatch and settle inside one act scope.
+      await act(async () => {
+        trigger.dispatchEvent(new MouseEvent('mousemove', { bubbles: true }));
+        await new Promise<void>((resolve) => {
+          requestAnimationFrame(() => requestAnimationFrame(() => resolve()));
+        });
+      });
+      expect(input).toHaveFocus();
+      await user.keyboard('c');
+      expect(input).toHaveValue('arc');
+      expect(screen.getByRole('menuitem', { name: 'Archive' })).toBeVisible();
     });
 
     it('leaves a key that is neither an axis nor an activation key to the parent', async () => {
