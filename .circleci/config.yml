@@ -1,7 +1,7 @@
 version: 2.1
 
 orbs:
-  code-infra: https://raw.githubusercontent.com/mui/mui-public/076479f7fc8775ddbf12ac7d9801e9fbfee9129e/.circleci/orbs/code-infra.yml
+  code-infra: https://raw.githubusercontent.com/mui/mui-public/d635b57a4903c914b791b2a5f77291f69b63ce94/.circleci/orbs/code-infra.yml
 
 parameters:
   browserstack-force:
@@ -150,7 +150,12 @@ jobs:
     steps:
       - checkout
       - code-infra/install-deps
-      - code-infra/run-regressions
+      - run:
+          name: Run visual regression tests
+          command: xvfb-run pnpm test:regressions
+      - store_test_results:
+          path: test-results
+      - code-infra/argos-push
   test_e2e:
     <<: *default-job
     executor:
@@ -200,7 +205,7 @@ jobs:
     steps:
       - checkout
       - code-infra/install-deps
-      - code-infra/build-with-compiler
+      - code-infra/build-with-react-compiler
       - run:
           name: Run tests on JSDOM
           command: pnpm test:jsdom
@@ -218,7 +223,7 @@ jobs:
     steps:
       - checkout
       - code-infra/install-deps
-      - code-infra/build-with-compiler
+      - code-infra/build-with-react-compiler
       - run:
           name: Run tests on headless Chromium
           command: pnpm test:chromium
