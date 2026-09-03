@@ -63,16 +63,18 @@ describe('<Menu.Positioner />', () => {
 
   it('enables lazy flipping for a filter menu', async () => {
     await render(
-      <Menu.FilterRoot open>
-        <Menu.Trigger>Actions</Menu.Trigger>
-        <Menu.Portal>
-          <Menu.Positioner>
-            <Menu.Popup>
-              <Menu.FilterInput aria-label="Filter" />
-            </Menu.Popup>
-          </Menu.Positioner>
-        </Menu.Portal>
-      </Menu.FilterRoot>,
+      <Menu.FilterProvider>
+        <Menu.Root open>
+          <Menu.Trigger>Actions</Menu.Trigger>
+          <Menu.Portal>
+            <Menu.Positioner>
+              <Menu.Popup>
+                <Menu.FilterInput aria-label="Filter" />
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
+        </Menu.Root>
+      </Menu.FilterProvider>,
     );
 
     // `'placement'` and not `true`: the filter menu locks the alignment as well as the side, so a

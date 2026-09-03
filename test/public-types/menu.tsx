@@ -12,18 +12,18 @@ export interface SimpleMenuProps extends Omit<MenuRootProps, 'children'> {
 }
 
 export function InternalSubmenuPropsStayHidden() {
-  // @ts-expect-error virtual focus is internal to Menu.FilterRoot
+  // @ts-expect-error virtual focus is internal to the filterable menu
   return <Menu.SubmenuRoot virtualFocus />;
 }
 
 const filterHandle = Menu.createHandle<{ id: number }>({ filterable: true });
 
-export function TypedFilterRootTrigger() {
+export function TypedFilterableTrigger() {
   return (
     <React.Fragment>
-      <Menu.FilterRoot handle={filterHandle}>
-        {({ payload }) => <span>{payload?.id}</span>}
-      </Menu.FilterRoot>
+      <Menu.FilterProvider>
+        <Menu.Root handle={filterHandle}>{({ payload }) => <span>{payload?.id}</span>}</Menu.Root>
+      </Menu.FilterProvider>
       <Menu.Trigger handle={filterHandle} payload={{ id: 1 }}>
         Open
       </Menu.Trigger>
@@ -35,5 +35,5 @@ export function TypedFilterRootTrigger() {
   );
 }
 
-export type MenuFilterFunction = Menu.FilterRoot.Props['filter'];
+export type MenuFilterFunction = Menu.FilterProvider.Props['filter'];
 export type MenuFilterUtils = ReturnType<typeof Menu.useFilter>;

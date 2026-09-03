@@ -13,7 +13,7 @@ import { useMenuFilterReferenceKeyDown } from '../filter-root/useMenuFilterRefer
 
 /**
  * A search field that filters the menu items.
- * Requires `Menu.FilterRoot` or `Menu.FilterSubmenuRoot`.
+ * Requires the menu to be wrapped in `Menu.FilterProvider`.
  * Renders an `<input>` element.
  *
  * Documentation: [Base UI Menu](https://base-ui.com/react/components/menu)

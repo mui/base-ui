@@ -23,7 +23,7 @@ import type { BaseUIEvent } from '../../internals/types';
 /**
  * A container for the items of a filterable menu, rendered inside `Menu.Popup` next to
  * `Menu.FilterInput`.
- * Requires `Menu.FilterRoot` or `Menu.FilterSubmenuRoot`.
+ * Requires the menu to be wrapped in `Menu.FilterProvider`.
  * Renders a `<div>` element with a `menu` role.
  *
  * Documentation: [Base UI Menu](https://base-ui.com/react/components/menu)

@@ -29,7 +29,7 @@ vi.mock('@base-ui/utils/platform', async () => {
   };
 });
 
-describe('<Menu.FilterRoot />', () => {
+describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
   beforeEach(resetBrowserPointer);
 
   beforeEach(() => {
@@ -41,19 +41,21 @@ describe('<Menu.FilterRoot />', () => {
   describe('filtering', () => {
     it('marks the input focus-visible when the menu is opened with the keyboard', async () => {
       const { user } = await render(
-        <Menu.FilterRoot>
-          <Menu.Trigger>Actions</Menu.Trigger>
-          <Menu.Portal>
-            <Menu.Positioner>
-              <Menu.Popup>
-                <Menu.FilterInput aria-label="Filter actions" />
-                <Menu.FilterList>
-                  <Menu.Item>Rename</Menu.Item>
-                </Menu.FilterList>
-              </Menu.Popup>
-            </Menu.Positioner>
-          </Menu.Portal>
-        </Menu.FilterRoot>,
+        <Menu.FilterProvider>
+          <Menu.Root>
+            <Menu.Trigger>Actions</Menu.Trigger>
+            <Menu.Portal>
+              <Menu.Positioner>
+                <Menu.Popup>
+                  <Menu.FilterInput aria-label="Filter actions" />
+                  <Menu.FilterList>
+                    <Menu.Item>Rename</Menu.Item>
+                  </Menu.FilterList>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
+          </Menu.Root>
+        </Menu.FilterProvider>,
       );
 
       const trigger = screen.getByRole('button', { name: 'Actions' });
@@ -71,19 +73,21 @@ describe('<Menu.FilterRoot />', () => {
 
     it('marks the input focus-visible when the menu is opened with a pointer', async () => {
       const { user } = await render(
-        <Menu.FilterRoot>
-          <Menu.Trigger>Actions</Menu.Trigger>
-          <Menu.Portal>
-            <Menu.Positioner>
-              <Menu.Popup>
-                <Menu.FilterInput aria-label="Filter actions" />
-                <Menu.FilterList>
-                  <Menu.Item>Rename</Menu.Item>
-                </Menu.FilterList>
-              </Menu.Popup>
-            </Menu.Positioner>
-          </Menu.Portal>
-        </Menu.FilterRoot>,
+        <Menu.FilterProvider>
+          <Menu.Root>
+            <Menu.Trigger>Actions</Menu.Trigger>
+            <Menu.Portal>
+              <Menu.Positioner>
+                <Menu.Popup>
+                  <Menu.FilterInput aria-label="Filter actions" />
+                  <Menu.FilterList>
+                    <Menu.Item>Rename</Menu.Item>
+                  </Menu.FilterList>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
+          </Menu.Root>
+        </Menu.FilterProvider>,
       );
 
       await user.click(screen.getByRole('button', { name: 'Actions' }));
@@ -98,21 +102,23 @@ describe('<Menu.FilterRoot />', () => {
     describe('prop: autoHighlight', () => {
       it('automatically highlights the first match after the user types', async () => {
         const { user } = await render(
-          <Menu.FilterRoot defaultOpen autoHighlight>
-            <Menu.Trigger>Actions</Menu.Trigger>
-            <Menu.Portal>
-              <Menu.Positioner>
-                <Menu.Popup>
-                  <Menu.FilterInput aria-label="Filter actions" />
-                  <Menu.FilterList>
-                    <Menu.Item>Rename</Menu.Item>
-                    <Menu.Item>Duplicate</Menu.Item>
-                    <Menu.Item>Delete</Menu.Item>
-                  </Menu.FilterList>
-                </Menu.Popup>
-              </Menu.Positioner>
-            </Menu.Portal>
-          </Menu.FilterRoot>,
+          <Menu.FilterProvider autoHighlight>
+            <Menu.Root defaultOpen>
+              <Menu.Trigger>Actions</Menu.Trigger>
+              <Menu.Portal>
+                <Menu.Positioner>
+                  <Menu.Popup>
+                    <Menu.FilterInput aria-label="Filter actions" />
+                    <Menu.FilterList>
+                      <Menu.Item>Rename</Menu.Item>
+                      <Menu.Item>Duplicate</Menu.Item>
+                      <Menu.Item>Delete</Menu.Item>
+                    </Menu.FilterList>
+                  </Menu.Popup>
+                </Menu.Positioner>
+              </Menu.Portal>
+            </Menu.Root>
+          </Menu.FilterProvider>,
         );
 
         const input = screen.getByRole('searchbox', { name: 'Filter actions' });
@@ -138,24 +144,25 @@ describe('<Menu.FilterRoot />', () => {
       it('updates the active descendant when filtering replaces a custom-id item', async () => {
         function Test(props: { inputValue: string }) {
           return (
-            <Menu.FilterRoot
-              open
+            <Menu.FilterProvider
               autoHighlight="always"
               inputValue={props.inputValue}
               onInputValueChange={() => {}}
             >
-              <Menu.Portal>
-                <Menu.Positioner>
-                  <Menu.Popup>
-                    <Menu.FilterInput aria-label="Filter fruit" />
-                    <Menu.FilterList>
-                      <Menu.Item render={<div id="apple-item" />}>Apple</Menu.Item>
-                      <Menu.Item render={<div id="banana-item" />}>Banana</Menu.Item>
-                    </Menu.FilterList>
-                  </Menu.Popup>
-                </Menu.Positioner>
-              </Menu.Portal>
-            </Menu.FilterRoot>
+              <Menu.Root open>
+                <Menu.Portal>
+                  <Menu.Positioner>
+                    <Menu.Popup>
+                      <Menu.FilterInput aria-label="Filter fruit" />
+                      <Menu.FilterList>
+                        <Menu.Item render={<div id="apple-item" />}>Apple</Menu.Item>
+                        <Menu.Item render={<div id="banana-item" />}>Banana</Menu.Item>
+                      </Menu.FilterList>
+                    </Menu.Popup>
+                  </Menu.Positioner>
+                </Menu.Portal>
+              </Menu.Root>
+            </Menu.FilterProvider>
           );
         }
 
@@ -176,19 +183,21 @@ describe('<Menu.FilterRoot />', () => {
 
       it('always highlights the first item when autoHighlight is "always"', async () => {
         await render(
-          <Menu.FilterRoot open autoHighlight="always">
-            <Menu.Portal>
-              <Menu.Positioner>
-                <Menu.Popup>
-                  <Menu.FilterInput aria-label="Filter actions" />
-                  <Menu.FilterList>
-                    <Menu.Item>Rename</Menu.Item>
-                    <Menu.Item>Delete</Menu.Item>
-                  </Menu.FilterList>
-                </Menu.Popup>
-              </Menu.Positioner>
-            </Menu.Portal>
-          </Menu.FilterRoot>,
+          <Menu.FilterProvider autoHighlight="always">
+            <Menu.Root open>
+              <Menu.Portal>
+                <Menu.Positioner>
+                  <Menu.Popup>
+                    <Menu.FilterInput aria-label="Filter actions" />
+                    <Menu.FilterList>
+                      <Menu.Item>Rename</Menu.Item>
+                      <Menu.Item>Delete</Menu.Item>
+                    </Menu.FilterList>
+                  </Menu.Popup>
+                </Menu.Positioner>
+              </Menu.Portal>
+            </Menu.Root>
+          </Menu.FilterProvider>,
         );
 
         const input = screen.getByRole('searchbox', { name: 'Filter actions' });
@@ -204,19 +213,21 @@ describe('<Menu.FilterRoot />', () => {
         'keeps a highlight when typing does not change the trimmed query with autoHighlight=%s',
         async (autoHighlight) => {
           const { user } = await render(
-            <Menu.FilterRoot open autoHighlight={autoHighlight}>
-              <Menu.Portal>
-                <Menu.Positioner>
-                  <Menu.Popup>
-                    <Menu.FilterInput aria-label="Filter actions" />
-                    <Menu.FilterList>
-                      <Menu.Item>Google Calendar</Menu.Item>
-                      <Menu.Item>Google Chrome</Menu.Item>
-                    </Menu.FilterList>
-                  </Menu.Popup>
-                </Menu.Positioner>
-              </Menu.Portal>
-            </Menu.FilterRoot>,
+            <Menu.FilterProvider autoHighlight={autoHighlight}>
+              <Menu.Root open>
+                <Menu.Portal>
+                  <Menu.Positioner>
+                    <Menu.Popup>
+                      <Menu.FilterInput aria-label="Filter actions" />
+                      <Menu.FilterList>
+                        <Menu.Item>Google Calendar</Menu.Item>
+                        <Menu.Item>Google Chrome</Menu.Item>
+                      </Menu.FilterList>
+                    </Menu.Popup>
+                  </Menu.Positioner>
+                </Menu.Portal>
+              </Menu.Root>
+            </Menu.FilterProvider>,
           );
 
           const input = screen.getByRole('searchbox', { name: 'Filter actions' });
@@ -240,19 +251,21 @@ describe('<Menu.FilterRoot />', () => {
         'does not allow arrow navigation to escape when autoHighlight is %s',
         async (autoHighlight) => {
           const { user } = await render(
-            <Menu.FilterRoot open autoHighlight={autoHighlight}>
-              <Menu.Portal>
-                <Menu.Positioner>
-                  <Menu.Popup>
-                    <Menu.FilterInput aria-label="Filter actions" />
-                    <Menu.FilterList>
-                      <Menu.Item>Rename</Menu.Item>
-                      <Menu.Item>Delete</Menu.Item>
-                    </Menu.FilterList>
-                  </Menu.Popup>
-                </Menu.Positioner>
-              </Menu.Portal>
-            </Menu.FilterRoot>,
+            <Menu.FilterProvider autoHighlight={autoHighlight}>
+              <Menu.Root open>
+                <Menu.Portal>
+                  <Menu.Positioner>
+                    <Menu.Popup>
+                      <Menu.FilterInput aria-label="Filter actions" />
+                      <Menu.FilterList>
+                        <Menu.Item>Rename</Menu.Item>
+                        <Menu.Item>Delete</Menu.Item>
+                      </Menu.FilterList>
+                    </Menu.Popup>
+                  </Menu.Positioner>
+                </Menu.Portal>
+              </Menu.Root>
+            </Menu.FilterProvider>,
           );
 
           const input = screen.getByRole('searchbox', { name: 'Filter actions' });
@@ -295,32 +308,34 @@ describe('<Menu.FilterRoot />', () => {
               <Dialog.Trigger>Open palette</Dialog.Trigger>
               <Dialog.Portal>
                 <Dialog.Popup aria-label="Command palette">
-                  <Menu.FilterRoot open autoHighlight="always">
-                    <Menu.Portal>
-                      <Menu.Positioner>
-                        <Menu.Popup>
-                          <Menu.FilterInput aria-label="Search commands" />
-                          <Dialog.Close>Close palette</Dialog.Close>
-                          <ScrollArea.Root>
-                            <ScrollArea.Viewport>
-                              <ScrollArea.Content>
-                                <Menu.FilterList>
-                                  <Menu.Group>
-                                    <Menu.GroupLabel>Suggestions</Menu.GroupLabel>
-                                    <Menu.Item>Linear</Menu.Item>
-                                    <Menu.Item>Figma</Menu.Item>
-                                  </Menu.Group>
-                                </Menu.FilterList>
-                              </ScrollArea.Content>
-                            </ScrollArea.Viewport>
-                            <ScrollArea.Scrollbar>
-                              <ScrollArea.Thumb />
-                            </ScrollArea.Scrollbar>
-                          </ScrollArea.Root>
-                        </Menu.Popup>
-                      </Menu.Positioner>
-                    </Menu.Portal>
-                  </Menu.FilterRoot>
+                  <Menu.FilterProvider autoHighlight="always">
+                    <Menu.Root open>
+                      <Menu.Portal>
+                        <Menu.Positioner>
+                          <Menu.Popup>
+                            <Menu.FilterInput aria-label="Search commands" />
+                            <Dialog.Close>Close palette</Dialog.Close>
+                            <ScrollArea.Root>
+                              <ScrollArea.Viewport>
+                                <ScrollArea.Content>
+                                  <Menu.FilterList>
+                                    <Menu.Group>
+                                      <Menu.GroupLabel>Suggestions</Menu.GroupLabel>
+                                      <Menu.Item>Linear</Menu.Item>
+                                      <Menu.Item>Figma</Menu.Item>
+                                    </Menu.Group>
+                                  </Menu.FilterList>
+                                </ScrollArea.Content>
+                              </ScrollArea.Viewport>
+                              <ScrollArea.Scrollbar>
+                                <ScrollArea.Thumb />
+                              </ScrollArea.Scrollbar>
+                            </ScrollArea.Root>
+                          </Menu.Popup>
+                        </Menu.Positioner>
+                      </Menu.Portal>
+                    </Menu.Root>
+                  </Menu.FilterProvider>
                 </Dialog.Popup>
               </Dialog.Portal>
             </Dialog.Root>
@@ -341,19 +356,21 @@ describe('<Menu.FilterRoot />', () => {
 
       it('clears the automatic highlight when a typed query is cleared', async () => {
         const { user } = await render(
-          <Menu.FilterRoot open autoHighlight>
-            <Menu.Portal>
-              <Menu.Positioner>
-                <Menu.Popup>
-                  <Menu.FilterInput aria-label="Filter actions" />
-                  <Menu.FilterList>
-                    <Menu.Item>Rename</Menu.Item>
-                    <Menu.Item>Delete</Menu.Item>
-                  </Menu.FilterList>
-                </Menu.Popup>
-              </Menu.Positioner>
-            </Menu.Portal>
-          </Menu.FilterRoot>,
+          <Menu.FilterProvider autoHighlight>
+            <Menu.Root open>
+              <Menu.Portal>
+                <Menu.Positioner>
+                  <Menu.Popup>
+                    <Menu.FilterInput aria-label="Filter actions" />
+                    <Menu.FilterList>
+                      <Menu.Item>Rename</Menu.Item>
+                      <Menu.Item>Delete</Menu.Item>
+                    </Menu.FilterList>
+                  </Menu.Popup>
+                </Menu.Positioner>
+              </Menu.Portal>
+            </Menu.Root>
+          </Menu.FilterProvider>,
         );
 
         const input = screen.getByRole('searchbox', { name: 'Filter actions' });
@@ -374,19 +391,21 @@ describe('<Menu.FilterRoot />', () => {
 
       it('restores the first item when an always-highlighted query is cleared', async () => {
         const { user } = await render(
-          <Menu.FilterRoot open autoHighlight="always">
-            <Menu.Portal>
-              <Menu.Positioner>
-                <Menu.Popup>
-                  <Menu.FilterInput aria-label="Filter actions" />
-                  <Menu.FilterList>
-                    <Menu.Item>Rename</Menu.Item>
-                    <Menu.Item>Delete</Menu.Item>
-                  </Menu.FilterList>
-                </Menu.Popup>
-              </Menu.Positioner>
-            </Menu.Portal>
-          </Menu.FilterRoot>,
+          <Menu.FilterProvider autoHighlight="always">
+            <Menu.Root open>
+              <Menu.Portal>
+                <Menu.Positioner>
+                  <Menu.Popup>
+                    <Menu.FilterInput aria-label="Filter actions" />
+                    <Menu.FilterList>
+                      <Menu.Item>Rename</Menu.Item>
+                      <Menu.Item>Delete</Menu.Item>
+                    </Menu.FilterList>
+                  </Menu.Popup>
+                </Menu.Positioner>
+              </Menu.Portal>
+            </Menu.Root>
+          </Menu.FilterProvider>,
         );
 
         const input = screen.getByRole('searchbox', { name: 'Filter actions' });
@@ -407,19 +426,21 @@ describe('<Menu.FilterRoot />', () => {
 
       it('clears the highlight when no items match', async () => {
         const { user } = await render(
-          <Menu.FilterRoot open autoHighlight>
-            <Menu.Portal>
-              <Menu.Positioner>
-                <Menu.Popup>
-                  <Menu.FilterInput aria-label="Filter actions" />
-                  <Menu.FilterList>
-                    <Menu.Item>Rename</Menu.Item>
-                    <Menu.Item>Delete</Menu.Item>
-                  </Menu.FilterList>
-                </Menu.Popup>
-              </Menu.Positioner>
-            </Menu.Portal>
-          </Menu.FilterRoot>,
+          <Menu.FilterProvider autoHighlight>
+            <Menu.Root open>
+              <Menu.Portal>
+                <Menu.Positioner>
+                  <Menu.Popup>
+                    <Menu.FilterInput aria-label="Filter actions" />
+                    <Menu.FilterList>
+                      <Menu.Item>Rename</Menu.Item>
+                      <Menu.Item>Delete</Menu.Item>
+                    </Menu.FilterList>
+                  </Menu.Popup>
+                </Menu.Positioner>
+              </Menu.Portal>
+            </Menu.Root>
+          </Menu.FilterProvider>,
         );
 
         const input = screen.getByRole('searchbox', { name: 'Filter actions' });
@@ -434,19 +455,21 @@ describe('<Menu.FilterRoot />', () => {
       it('continues keyboard navigation from the automatic highlight and activates it', async () => {
         const onDelete = vi.fn();
         const { user } = await render(
-          <Menu.FilterRoot open autoHighlight>
-            <Menu.Portal>
-              <Menu.Positioner>
-                <Menu.Popup>
-                  <Menu.FilterInput aria-label="Filter actions" />
-                  <Menu.FilterList>
-                    <Menu.Item>Duplicate</Menu.Item>
-                    <Menu.Item onClick={onDelete}>Delete</Menu.Item>
-                  </Menu.FilterList>
-                </Menu.Popup>
-              </Menu.Positioner>
-            </Menu.Portal>
-          </Menu.FilterRoot>,
+          <Menu.FilterProvider autoHighlight>
+            <Menu.Root open>
+              <Menu.Portal>
+                <Menu.Positioner>
+                  <Menu.Popup>
+                    <Menu.FilterInput aria-label="Filter actions" />
+                    <Menu.FilterList>
+                      <Menu.Item>Duplicate</Menu.Item>
+                      <Menu.Item onClick={onDelete}>Delete</Menu.Item>
+                    </Menu.FilterList>
+                  </Menu.Popup>
+                </Menu.Positioner>
+              </Menu.Portal>
+            </Menu.Root>
+          </Menu.FilterProvider>,
         );
 
         const input = screen.getByRole('searchbox', { name: 'Filter actions' });
@@ -464,19 +487,21 @@ describe('<Menu.FilterRoot />', () => {
 
       it('preserves a pointer highlight when autoHighlight is "always"', async () => {
         const { user } = await render(
-          <Menu.FilterRoot open autoHighlight="always">
-            <Menu.Portal>
-              <Menu.Positioner>
-                <Menu.Popup>
-                  <Menu.FilterInput aria-label="Filter actions" />
-                  <Menu.FilterList>
-                    <Menu.Item>Rename</Menu.Item>
-                    <Menu.Item>Delete</Menu.Item>
-                  </Menu.FilterList>
-                </Menu.Popup>
-              </Menu.Positioner>
-            </Menu.Portal>
-          </Menu.FilterRoot>,
+          <Menu.FilterProvider autoHighlight="always">
+            <Menu.Root open>
+              <Menu.Portal>
+                <Menu.Positioner>
+                  <Menu.Popup>
+                    <Menu.FilterInput aria-label="Filter actions" />
+                    <Menu.FilterList>
+                      <Menu.Item>Rename</Menu.Item>
+                      <Menu.Item>Delete</Menu.Item>
+                    </Menu.FilterList>
+                  </Menu.Popup>
+                </Menu.Positioner>
+              </Menu.Portal>
+            </Menu.Root>
+          </Menu.FilterProvider>,
         );
 
         const deleteItem = screen.getByRole('menuitem', { name: 'Delete' });
@@ -496,19 +521,21 @@ describe('<Menu.FilterRoot />', () => {
           const [query, setQuery] = React.useState('');
 
           return (
-            <Menu.FilterRoot open autoHighlight inputValue={query} onInputValueChange={setQuery}>
-              <Menu.Portal>
-                <Menu.Positioner>
-                  <Menu.Popup>
-                    <Menu.FilterInput aria-label="Filter actions" />
-                    <Menu.FilterList>
-                      <Menu.Item>Rename</Menu.Item>
-                      <Menu.Item>Delete</Menu.Item>
-                    </Menu.FilterList>
-                  </Menu.Popup>
-                </Menu.Positioner>
-              </Menu.Portal>
-            </Menu.FilterRoot>
+            <Menu.FilterProvider autoHighlight inputValue={query} onInputValueChange={setQuery}>
+              <Menu.Root open>
+                <Menu.Portal>
+                  <Menu.Positioner>
+                    <Menu.Popup>
+                      <Menu.FilterInput aria-label="Filter actions" />
+                      <Menu.FilterList>
+                        <Menu.Item>Rename</Menu.Item>
+                        <Menu.Item>Delete</Menu.Item>
+                      </Menu.FilterList>
+                    </Menu.Popup>
+                  </Menu.Positioner>
+                </Menu.Portal>
+              </Menu.Root>
+            </Menu.FilterProvider>
           );
         }
 
@@ -529,20 +556,22 @@ describe('<Menu.FilterRoot />', () => {
             <Menu.Portal>
               <Menu.Positioner>
                 <Menu.Popup>
-                  <Menu.FilterSubmenuRoot defaultOpen autoHighlight="always">
-                    <Menu.SubmenuTrigger>Move to</Menu.SubmenuTrigger>
-                    <Menu.Portal>
-                      <Menu.Positioner>
-                        <Menu.Popup>
-                          <Menu.FilterInput aria-label="Filter destinations" />
-                          <Menu.FilterList>
-                            <Menu.Item>Documents</Menu.Item>
-                            <Menu.Item>Downloads</Menu.Item>
-                          </Menu.FilterList>
-                        </Menu.Popup>
-                      </Menu.Positioner>
-                    </Menu.Portal>
-                  </Menu.FilterSubmenuRoot>
+                  <Menu.FilterProvider autoHighlight="always">
+                    <Menu.SubmenuRoot defaultOpen>
+                      <Menu.SubmenuTrigger>Move to</Menu.SubmenuTrigger>
+                      <Menu.Portal>
+                        <Menu.Positioner>
+                          <Menu.Popup>
+                            <Menu.FilterInput aria-label="Filter destinations" />
+                            <Menu.FilterList>
+                              <Menu.Item>Documents</Menu.Item>
+                              <Menu.Item>Downloads</Menu.Item>
+                            </Menu.FilterList>
+                          </Menu.Popup>
+                        </Menu.Positioner>
+                      </Menu.Portal>
+                    </Menu.SubmenuRoot>
+                  </Menu.FilterProvider>
                 </Menu.Popup>
               </Menu.Positioner>
             </Menu.Portal>
@@ -587,19 +616,21 @@ describe('<Menu.FilterRoot />', () => {
                 animation: filter-menu-pointer-close-test 10s linear;
               }
             `}</style>
-            <Menu.FilterRoot>
-              <Menu.Trigger>Actions</Menu.Trigger>
-              <Menu.Portal>
-                <Menu.Positioner>
-                  <Menu.Popup data-testid="popup" className="filter-menu-pointer-close-test">
-                    <Menu.FilterInput aria-label="Filter actions" />
-                    <Menu.FilterList>
-                      <Menu.Item>Rename</Menu.Item>
-                    </Menu.FilterList>
-                  </Menu.Popup>
-                </Menu.Positioner>
-              </Menu.Portal>
-            </Menu.FilterRoot>
+            <Menu.FilterProvider>
+              <Menu.Root>
+                <Menu.Trigger>Actions</Menu.Trigger>
+                <Menu.Portal>
+                  <Menu.Positioner>
+                    <Menu.Popup data-testid="popup" className="filter-menu-pointer-close-test">
+                      <Menu.FilterInput aria-label="Filter actions" />
+                      <Menu.FilterList>
+                        <Menu.Item>Rename</Menu.Item>
+                      </Menu.FilterList>
+                    </Menu.Popup>
+                  </Menu.Positioner>
+                </Menu.Portal>
+              </Menu.Root>
+            </Menu.FilterProvider>
           </React.Fragment>,
         );
 
@@ -635,20 +666,22 @@ describe('<Menu.FilterRoot />', () => {
     it('moves focus past the menu when tabbing from the input', async () => {
       const { user } = await render(
         <div>
-          <Menu.FilterRoot defaultOpen>
-            <Menu.Trigger>Actions</Menu.Trigger>
-            <Menu.Portal>
-              <Menu.Positioner>
-                <Menu.Popup>
-                  <Menu.FilterInput aria-label="Filter actions" />
-                  <Menu.FilterList style={{ height: 1, overflow: 'auto' }}>
-                    <Menu.Item style={{ height: 10 }}>Rename</Menu.Item>
-                    <Menu.Item style={{ height: 10 }}>Duplicate</Menu.Item>
-                  </Menu.FilterList>
-                </Menu.Popup>
-              </Menu.Positioner>
-            </Menu.Portal>
-          </Menu.FilterRoot>
+          <Menu.FilterProvider>
+            <Menu.Root defaultOpen>
+              <Menu.Trigger>Actions</Menu.Trigger>
+              <Menu.Portal>
+                <Menu.Positioner>
+                  <Menu.Popup>
+                    <Menu.FilterInput aria-label="Filter actions" />
+                    <Menu.FilterList style={{ height: 1, overflow: 'auto' }}>
+                      <Menu.Item style={{ height: 10 }}>Rename</Menu.Item>
+                      <Menu.Item style={{ height: 10 }}>Duplicate</Menu.Item>
+                    </Menu.FilterList>
+                  </Menu.Popup>
+                </Menu.Positioner>
+              </Menu.Portal>
+            </Menu.Root>
+          </Menu.FilterProvider>
           <input data-testid="after" />
         </div>,
       );
@@ -676,20 +709,22 @@ describe('<Menu.FilterRoot />', () => {
 
     it('matches items on their keywords', async () => {
       const { user } = await render(
-        <Menu.FilterRoot open>
-          <Menu.Trigger>Actions</Menu.Trigger>
-          <Menu.Portal>
-            <Menu.Positioner>
-              <Menu.Popup>
-                <Menu.FilterInput aria-label="Filter actions" />
-                <Menu.FilterList>
-                  <Menu.Item keywords={['remove', 'trash']}>Delete</Menu.Item>
-                  <Menu.Item>Rename</Menu.Item>
-                </Menu.FilterList>
-              </Menu.Popup>
-            </Menu.Positioner>
-          </Menu.Portal>
-        </Menu.FilterRoot>,
+        <Menu.FilterProvider>
+          <Menu.Root open>
+            <Menu.Trigger>Actions</Menu.Trigger>
+            <Menu.Portal>
+              <Menu.Positioner>
+                <Menu.Popup>
+                  <Menu.FilterInput aria-label="Filter actions" />
+                  <Menu.FilterList>
+                    <Menu.Item keywords={['remove', 'trash']}>Delete</Menu.Item>
+                    <Menu.Item>Rename</Menu.Item>
+                  </Menu.FilterList>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
+          </Menu.Root>
+        </Menu.FilterProvider>,
       );
 
       const input = await screen.findByRole('searchbox', { name: 'Filter actions' });
@@ -704,19 +739,21 @@ describe('<Menu.FilterRoot />', () => {
 
     it('uses the configured locale for default matching', async () => {
       await render(
-        <Menu.FilterRoot open defaultInputValue="ı" locale="tr">
-          <Menu.Trigger>Actions</Menu.Trigger>
-          <Menu.Portal>
-            <Menu.Positioner>
-              <Menu.Popup>
-                <Menu.FilterInput aria-label="Filter actions" />
-                <Menu.FilterList>
-                  <Menu.Item>Istanbul</Menu.Item>
-                </Menu.FilterList>
-              </Menu.Popup>
-            </Menu.Positioner>
-          </Menu.Portal>
-        </Menu.FilterRoot>,
+        <Menu.FilterProvider defaultInputValue="ı" locale="tr">
+          <Menu.Root open>
+            <Menu.Trigger>Actions</Menu.Trigger>
+            <Menu.Portal>
+              <Menu.Positioner>
+                <Menu.Popup>
+                  <Menu.FilterInput aria-label="Filter actions" />
+                  <Menu.FilterList>
+                    <Menu.Item>Istanbul</Menu.Item>
+                  </Menu.FilterList>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
+          </Menu.Root>
+        </Menu.FilterProvider>,
       );
 
       await waitFor(() => {
@@ -726,19 +763,21 @@ describe('<Menu.FilterRoot />', () => {
 
     it('keeps Home and End as caret keys until an item is highlighted', async () => {
       const { user } = await render(
-        <Menu.FilterRoot open defaultInputValue="rename">
-          <Menu.Trigger>Actions</Menu.Trigger>
-          <Menu.Portal>
-            <Menu.Positioner>
-              <Menu.Popup>
-                <Menu.FilterInput aria-label="Filter actions" />
-                <Menu.FilterList>
-                  <Menu.Item>Rename</Menu.Item>
-                </Menu.FilterList>
-              </Menu.Popup>
-            </Menu.Positioner>
-          </Menu.Portal>
-        </Menu.FilterRoot>,
+        <Menu.FilterProvider defaultInputValue="rename">
+          <Menu.Root open>
+            <Menu.Trigger>Actions</Menu.Trigger>
+            <Menu.Portal>
+              <Menu.Positioner>
+                <Menu.Popup>
+                  <Menu.FilterInput aria-label="Filter actions" />
+                  <Menu.FilterList>
+                    <Menu.Item>Rename</Menu.Item>
+                  </Menu.FilterList>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
+          </Menu.Root>
+        </Menu.FilterProvider>,
       );
 
       const input = screen.getByRole<HTMLInputElement>('searchbox', {
@@ -758,20 +797,22 @@ describe('<Menu.FilterRoot />', () => {
 
     it('keeps Home and End as caret keys while the input is empty', async () => {
       const { user } = await render(
-        <Menu.FilterRoot open>
-          <Menu.Trigger>Actions</Menu.Trigger>
-          <Menu.Portal>
-            <Menu.Positioner>
-              <Menu.Popup>
-                <Menu.FilterInput aria-label="Filter actions" />
-                <Menu.FilterList>
-                  <Menu.Item>Rename</Menu.Item>
-                  <Menu.Item>Delete</Menu.Item>
-                </Menu.FilterList>
-              </Menu.Popup>
-            </Menu.Positioner>
-          </Menu.Portal>
-        </Menu.FilterRoot>,
+        <Menu.FilterProvider>
+          <Menu.Root open>
+            <Menu.Trigger>Actions</Menu.Trigger>
+            <Menu.Portal>
+              <Menu.Positioner>
+                <Menu.Popup>
+                  <Menu.FilterInput aria-label="Filter actions" />
+                  <Menu.FilterList>
+                    <Menu.Item>Rename</Menu.Item>
+                    <Menu.Item>Delete</Menu.Item>
+                  </Menu.FilterList>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
+          </Menu.Root>
+        </Menu.FilterProvider>,
       );
 
       const input = screen.getByRole('searchbox', { name: 'Filter actions' });
@@ -786,21 +827,23 @@ describe('<Menu.FilterRoot />', () => {
 
     it('uses Home and End for list navigation after an item is highlighted', async () => {
       const { user } = await render(
-        <Menu.FilterRoot open>
-          <Menu.Trigger>Actions</Menu.Trigger>
-          <Menu.Portal>
-            <Menu.Positioner>
-              <Menu.Popup>
-                <Menu.FilterInput aria-label="Filter actions" />
-                <Menu.FilterList>
-                  <Menu.Item>Rename</Menu.Item>
-                  <Menu.Item>Duplicate</Menu.Item>
-                  <Menu.Item>Delete</Menu.Item>
-                </Menu.FilterList>
-              </Menu.Popup>
-            </Menu.Positioner>
-          </Menu.Portal>
-        </Menu.FilterRoot>,
+        <Menu.FilterProvider>
+          <Menu.Root open>
+            <Menu.Trigger>Actions</Menu.Trigger>
+            <Menu.Portal>
+              <Menu.Positioner>
+                <Menu.Popup>
+                  <Menu.FilterInput aria-label="Filter actions" />
+                  <Menu.FilterList>
+                    <Menu.Item>Rename</Menu.Item>
+                    <Menu.Item>Duplicate</Menu.Item>
+                    <Menu.Item>Delete</Menu.Item>
+                  </Menu.FilterList>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
+          </Menu.Root>
+        </Menu.FilterProvider>,
       );
 
       const input = screen.getByRole('searchbox', { name: 'Filter actions' });
@@ -819,26 +862,28 @@ describe('<Menu.FilterRoot />', () => {
 
     it('hides a group, label included, when the query filters out all of its items', async () => {
       const { user } = await render(
-        <Menu.FilterRoot open>
-          <Menu.Trigger>Actions</Menu.Trigger>
-          <Menu.Portal>
-            <Menu.Positioner>
-              <Menu.Popup>
-                <Menu.FilterInput aria-label="Filter actions" />
-                <Menu.FilterList>
-                  <Menu.Group data-testid="file-group">
-                    <Menu.GroupLabel>File</Menu.GroupLabel>
-                    <Menu.Item>Save</Menu.Item>
-                  </Menu.Group>
-                  <Menu.Group data-testid="manage-group">
-                    <Menu.GroupLabel>Manage</Menu.GroupLabel>
-                    <Menu.Item>Rename</Menu.Item>
-                  </Menu.Group>
-                </Menu.FilterList>
-              </Menu.Popup>
-            </Menu.Positioner>
-          </Menu.Portal>
-        </Menu.FilterRoot>,
+        <Menu.FilterProvider>
+          <Menu.Root open>
+            <Menu.Trigger>Actions</Menu.Trigger>
+            <Menu.Portal>
+              <Menu.Positioner>
+                <Menu.Popup>
+                  <Menu.FilterInput aria-label="Filter actions" />
+                  <Menu.FilterList>
+                    <Menu.Group data-testid="file-group">
+                      <Menu.GroupLabel>File</Menu.GroupLabel>
+                      <Menu.Item>Save</Menu.Item>
+                    </Menu.Group>
+                    <Menu.Group data-testid="manage-group">
+                      <Menu.GroupLabel>Manage</Menu.GroupLabel>
+                      <Menu.Item>Rename</Menu.Item>
+                    </Menu.Group>
+                  </Menu.FilterList>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
+          </Menu.Root>
+        </Menu.FilterProvider>,
       );
 
       const input = await screen.findByRole('searchbox', { name: 'Filter actions' });
@@ -862,31 +907,35 @@ describe('<Menu.FilterRoot />', () => {
       const { user } = await render(
         <div>
           <input />
-          <Menu.FilterRoot defaultOpen>
-            <Menu.Trigger>Actions</Menu.Trigger>
-            <Menu.Portal>
-              <Menu.Positioner>
-                <Menu.Popup>
-                  <Menu.FilterInput aria-label="Filter actions" />
-                  <Menu.FilterList>
-                    <Menu.FilterSubmenuRoot>
-                      <Menu.SubmenuTrigger>Share</Menu.SubmenuTrigger>
-                      <Menu.Portal>
-                        <Menu.Positioner>
-                          <Menu.Popup>
-                            <Menu.FilterInput aria-label="Filter sharing options" />
-                            <Menu.FilterList>
-                              <Menu.Item>Email</Menu.Item>
-                            </Menu.FilterList>
-                          </Menu.Popup>
-                        </Menu.Positioner>
-                      </Menu.Portal>
-                    </Menu.FilterSubmenuRoot>
-                  </Menu.FilterList>
-                </Menu.Popup>
-              </Menu.Positioner>
-            </Menu.Portal>
-          </Menu.FilterRoot>
+          <Menu.FilterProvider>
+            <Menu.Root defaultOpen>
+              <Menu.Trigger>Actions</Menu.Trigger>
+              <Menu.Portal>
+                <Menu.Positioner>
+                  <Menu.Popup>
+                    <Menu.FilterInput aria-label="Filter actions" />
+                    <Menu.FilterList>
+                      <Menu.FilterProvider>
+                        <Menu.SubmenuRoot>
+                          <Menu.SubmenuTrigger>Share</Menu.SubmenuTrigger>
+                          <Menu.Portal>
+                            <Menu.Positioner>
+                              <Menu.Popup>
+                                <Menu.FilterInput aria-label="Filter sharing options" />
+                                <Menu.FilterList>
+                                  <Menu.Item>Email</Menu.Item>
+                                </Menu.FilterList>
+                              </Menu.Popup>
+                            </Menu.Positioner>
+                          </Menu.Portal>
+                        </Menu.SubmenuRoot>
+                      </Menu.FilterProvider>
+                    </Menu.FilterList>
+                  </Menu.Popup>
+                </Menu.Positioner>
+              </Menu.Portal>
+            </Menu.Root>
+          </Menu.FilterProvider>
           <input data-testid="after" />
         </div>,
       );
@@ -929,31 +978,35 @@ describe('<Menu.FilterRoot />', () => {
             .filter-popup[data-ending-style] { opacity: 0; }
           `}</style>
           <input />
-          <Menu.FilterRoot>
-            <Menu.Trigger>Actions</Menu.Trigger>
-            <Menu.Portal>
-              <Menu.Positioner>
-                <Menu.Popup className="filter-popup">
-                  <Menu.FilterInput aria-label="Filter actions" />
-                  <Menu.FilterList>
-                    <Menu.FilterSubmenuRoot>
-                      <Menu.SubmenuTrigger delay={0}>Share</Menu.SubmenuTrigger>
-                      <Menu.Portal>
-                        <Menu.Positioner>
-                          <Menu.Popup className="filter-popup">
-                            <Menu.FilterInput aria-label="Filter sharing options" />
-                            <Menu.FilterList>
-                              <Menu.Item>Email</Menu.Item>
-                            </Menu.FilterList>
-                          </Menu.Popup>
-                        </Menu.Positioner>
-                      </Menu.Portal>
-                    </Menu.FilterSubmenuRoot>
-                  </Menu.FilterList>
-                </Menu.Popup>
-              </Menu.Positioner>
-            </Menu.Portal>
-          </Menu.FilterRoot>
+          <Menu.FilterProvider>
+            <Menu.Root>
+              <Menu.Trigger>Actions</Menu.Trigger>
+              <Menu.Portal>
+                <Menu.Positioner>
+                  <Menu.Popup className="filter-popup">
+                    <Menu.FilterInput aria-label="Filter actions" />
+                    <Menu.FilterList>
+                      <Menu.FilterProvider>
+                        <Menu.SubmenuRoot>
+                          <Menu.SubmenuTrigger delay={0}>Share</Menu.SubmenuTrigger>
+                          <Menu.Portal>
+                            <Menu.Positioner>
+                              <Menu.Popup className="filter-popup">
+                                <Menu.FilterInput aria-label="Filter sharing options" />
+                                <Menu.FilterList>
+                                  <Menu.Item>Email</Menu.Item>
+                                </Menu.FilterList>
+                              </Menu.Popup>
+                            </Menu.Positioner>
+                          </Menu.Portal>
+                        </Menu.SubmenuRoot>
+                      </Menu.FilterProvider>
+                    </Menu.FilterList>
+                  </Menu.Popup>
+                </Menu.Positioner>
+              </Menu.Portal>
+            </Menu.Root>
+          </Menu.FilterProvider>
           <input data-testid="after" />
         </div>,
       );
@@ -980,33 +1033,37 @@ describe('<Menu.FilterRoot />', () => {
 
     it('focuses a click-opened filterable submenu input so typing filters the submenu', async () => {
       const { user } = await render(
-        <Menu.FilterRoot>
-          <Menu.Trigger>Actions</Menu.Trigger>
-          <Menu.Portal>
-            <Menu.Positioner>
-              <Menu.Popup>
-                <Menu.FilterInput aria-label="Filter actions" />
-                <Menu.FilterList>
-                  <Menu.FilterSubmenuRoot>
-                    <Menu.SubmenuTrigger openOnHover={false}>Share</Menu.SubmenuTrigger>
-                    <Menu.Portal>
-                      <Menu.Positioner>
-                        <Menu.Popup>
-                          <Menu.FilterInput aria-label="Filter sharing options" />
-                          <Menu.FilterList>
-                            <Menu.Item>Email</Menu.Item>
-                            <Menu.Item>Link</Menu.Item>
-                          </Menu.FilterList>
-                        </Menu.Popup>
-                      </Menu.Positioner>
-                    </Menu.Portal>
-                  </Menu.FilterSubmenuRoot>
-                  <Menu.Item>Delete</Menu.Item>
-                </Menu.FilterList>
-              </Menu.Popup>
-            </Menu.Positioner>
-          </Menu.Portal>
-        </Menu.FilterRoot>,
+        <Menu.FilterProvider>
+          <Menu.Root>
+            <Menu.Trigger>Actions</Menu.Trigger>
+            <Menu.Portal>
+              <Menu.Positioner>
+                <Menu.Popup>
+                  <Menu.FilterInput aria-label="Filter actions" />
+                  <Menu.FilterList>
+                    <Menu.FilterProvider>
+                      <Menu.SubmenuRoot>
+                        <Menu.SubmenuTrigger openOnHover={false}>Share</Menu.SubmenuTrigger>
+                        <Menu.Portal>
+                          <Menu.Positioner>
+                            <Menu.Popup>
+                              <Menu.FilterInput aria-label="Filter sharing options" />
+                              <Menu.FilterList>
+                                <Menu.Item>Email</Menu.Item>
+                                <Menu.Item>Link</Menu.Item>
+                              </Menu.FilterList>
+                            </Menu.Popup>
+                          </Menu.Positioner>
+                        </Menu.Portal>
+                      </Menu.SubmenuRoot>
+                    </Menu.FilterProvider>
+                    <Menu.Item>Delete</Menu.Item>
+                  </Menu.FilterList>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
+          </Menu.Root>
+        </Menu.FilterProvider>,
       );
 
       await user.click(screen.getByRole('button', { name: 'Actions' }));
@@ -1042,20 +1099,22 @@ describe('<Menu.FilterRoot />', () => {
             <Menu.Positioner>
               <Menu.Popup>
                 <Menu.Item>Rename</Menu.Item>
-                <Menu.FilterSubmenuRoot>
-                  <Menu.SubmenuTrigger delay={0}>Move to folder</Menu.SubmenuTrigger>
-                  <SubmenuPortal>
-                    <Menu.Positioner>
-                      <Menu.Popup>
-                        <Menu.FilterInput aria-label="Filter folders" />
-                        <Menu.FilterList>
-                          <Menu.Item>Documents</Menu.Item>
-                          <Menu.Item>Downloads</Menu.Item>
-                        </Menu.FilterList>
-                      </Menu.Popup>
-                    </Menu.Positioner>
-                  </SubmenuPortal>
-                </Menu.FilterSubmenuRoot>
+                <Menu.FilterProvider>
+                  <Menu.SubmenuRoot>
+                    <Menu.SubmenuTrigger delay={0}>Move to folder</Menu.SubmenuTrigger>
+                    <SubmenuPortal>
+                      <Menu.Positioner>
+                        <Menu.Popup>
+                          <Menu.FilterInput aria-label="Filter folders" />
+                          <Menu.FilterList>
+                            <Menu.Item>Documents</Menu.Item>
+                            <Menu.Item>Downloads</Menu.Item>
+                          </Menu.FilterList>
+                        </Menu.Popup>
+                      </Menu.Positioner>
+                    </SubmenuPortal>
+                  </Menu.SubmenuRoot>
+                </Menu.FilterProvider>
               </Menu.Popup>
             </Menu.Positioner>
           </Menu.Portal>
@@ -1065,9 +1124,11 @@ describe('<Menu.FilterRoot />', () => {
 
     function ParentNavigationMenu(props: { loopFocus: boolean; triggerLast?: boolean }) {
       const submenu = (
-        <Menu.FilterSubmenuRoot>
-          <Menu.SubmenuTrigger>Move to folder</Menu.SubmenuTrigger>
-        </Menu.FilterSubmenuRoot>
+        <Menu.FilterProvider>
+          <Menu.SubmenuRoot>
+            <Menu.SubmenuTrigger>Move to folder</Menu.SubmenuTrigger>
+          </Menu.SubmenuRoot>
+        </Menu.FilterProvider>
       );
 
       return (
@@ -1163,19 +1224,21 @@ describe('<Menu.FilterRoot />', () => {
             <button type="button" onClick={() => setOpen(false)}>
               Close
             </button>
-            <Menu.FilterRoot open={open} onInputValueChange={onInputValueChange}>
-              <Menu.Trigger>Fruit</Menu.Trigger>
-              <Menu.Portal>
-                <Menu.Positioner>
-                  <Menu.Popup>
-                    <Menu.FilterInput aria-label="Filter fruit" />
-                    <Menu.FilterList>
-                      <Menu.Item>Apple</Menu.Item>
-                    </Menu.FilterList>
-                  </Menu.Popup>
-                </Menu.Positioner>
-              </Menu.Portal>
-            </Menu.FilterRoot>
+            <Menu.FilterProvider onInputValueChange={onInputValueChange}>
+              <Menu.Root open={open}>
+                <Menu.Trigger>Fruit</Menu.Trigger>
+                <Menu.Portal>
+                  <Menu.Positioner>
+                    <Menu.Popup>
+                      <Menu.FilterInput aria-label="Filter fruit" />
+                      <Menu.FilterList>
+                        <Menu.Item>Apple</Menu.Item>
+                      </Menu.FilterList>
+                    </Menu.Popup>
+                  </Menu.Positioner>
+                </Menu.Portal>
+              </Menu.Root>
+            </Menu.FilterProvider>
           </React.Fragment>
         );
       }
@@ -1227,21 +1290,23 @@ describe('<Menu.FilterRoot />', () => {
                 <Menu.Portal>
                   <Menu.Positioner>
                     <Menu.Popup>
-                      <Menu.FilterSubmenuRoot open={open} onOpenChange={setOpen}>
-                        <Menu.SubmenuTrigger>Fruit</Menu.SubmenuTrigger>
-                        <Menu.Portal>
-                          <Menu.Positioner>
-                            <Menu.Popup data-testid="popup" className="filter-menu-close-test">
-                              <Menu.FilterInput aria-label="Filter fruit" />
-                              <Menu.FilterList>
-                                {items.map((item) => (
-                                  <Menu.Item key={item}>{item}</Menu.Item>
-                                ))}
-                              </Menu.FilterList>
-                            </Menu.Popup>
-                          </Menu.Positioner>
-                        </Menu.Portal>
-                      </Menu.FilterSubmenuRoot>
+                      <Menu.FilterProvider>
+                        <Menu.SubmenuRoot open={open} onOpenChange={setOpen}>
+                          <Menu.SubmenuTrigger>Fruit</Menu.SubmenuTrigger>
+                          <Menu.Portal>
+                            <Menu.Positioner>
+                              <Menu.Popup data-testid="popup" className="filter-menu-close-test">
+                                <Menu.FilterInput aria-label="Filter fruit" />
+                                <Menu.FilterList>
+                                  {items.map((item) => (
+                                    <Menu.Item key={item}>{item}</Menu.Item>
+                                  ))}
+                                </Menu.FilterList>
+                              </Menu.Popup>
+                            </Menu.Positioner>
+                          </Menu.Portal>
+                        </Menu.SubmenuRoot>
+                      </Menu.FilterProvider>
                     </Menu.Popup>
                   </Menu.Positioner>
                 </Menu.Portal>
@@ -1287,25 +1352,26 @@ describe('<Menu.FilterRoot />', () => {
 
     it('leaves the uncontrolled query and visible items unchanged when a change is canceled', async () => {
       const { user } = await render(
-        <Menu.FilterRoot
-          open
+        <Menu.FilterProvider
           defaultInputValue="app"
           onInputValueChange={(_, eventDetails) => eventDetails.cancel()}
         >
-          <Menu.Trigger>Fruit</Menu.Trigger>
-          <Menu.Portal>
-            <Menu.Positioner>
-              <Menu.Popup>
-                <Menu.FilterInput aria-label="Filter fruit" />
-                <Menu.FilterClear aria-label="Clear filter" />
-                <Menu.FilterList>
-                  <Menu.Item>Apple</Menu.Item>
-                  <Menu.Item>Banana</Menu.Item>
-                </Menu.FilterList>
-              </Menu.Popup>
-            </Menu.Positioner>
-          </Menu.Portal>
-        </Menu.FilterRoot>,
+          <Menu.Root open>
+            <Menu.Trigger>Fruit</Menu.Trigger>
+            <Menu.Portal>
+              <Menu.Positioner>
+                <Menu.Popup>
+                  <Menu.FilterInput aria-label="Filter fruit" />
+                  <Menu.FilterClear aria-label="Clear filter" />
+                  <Menu.FilterList>
+                    <Menu.Item>Apple</Menu.Item>
+                    <Menu.Item>Banana</Menu.Item>
+                  </Menu.FilterList>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
+          </Menu.Root>
+        </Menu.FilterProvider>,
       );
 
       const input = await screen.findByRole('searchbox', { name: 'Filter fruit' });
@@ -1352,20 +1418,22 @@ describe('<Menu.FilterRoot />', () => {
 
       function Test(props: { inputValue: string }) {
         return (
-          <Menu.FilterRoot open inputValue={props.inputValue} onInputValueChange={() => {}}>
-            <Menu.Trigger>Fruit</Menu.Trigger>
-            <Menu.Portal>
-              <Menu.Positioner>
-                <Menu.Popup>
-                  <Menu.FilterInput aria-label="Filter fruit" />
-                  <Menu.FilterList>
-                    <Menu.Item onClick={onAppleClick}>Apple</Menu.Item>
-                    <Menu.Item>Banana</Menu.Item>
-                  </Menu.FilterList>
-                </Menu.Popup>
-              </Menu.Positioner>
-            </Menu.Portal>
-          </Menu.FilterRoot>
+          <Menu.FilterProvider inputValue={props.inputValue} onInputValueChange={() => {}}>
+            <Menu.Root open>
+              <Menu.Trigger>Fruit</Menu.Trigger>
+              <Menu.Portal>
+                <Menu.Positioner>
+                  <Menu.Popup>
+                    <Menu.FilterInput aria-label="Filter fruit" />
+                    <Menu.FilterList>
+                      <Menu.Item onClick={onAppleClick}>Apple</Menu.Item>
+                      <Menu.Item>Banana</Menu.Item>
+                    </Menu.FilterList>
+                  </Menu.Popup>
+                </Menu.Positioner>
+              </Menu.Portal>
+            </Menu.Root>
+          </Menu.FilterProvider>
         );
       }
 
@@ -1397,19 +1465,21 @@ describe('<Menu.FilterRoot />', () => {
 
         return (
           <React.Fragment>
-            <Menu.FilterRoot handle={handle}>
-              <Menu.Portal>
-                <Menu.Positioner>
-                  <Menu.Popup>
-                    <Menu.FilterInput aria-label="Filter fruit" />
-                    <Menu.FilterList data-testid="list">
-                      <Menu.Item>Apple</Menu.Item>
-                    </Menu.FilterList>
-                    <Menu.FilterEmpty>No fruit found</Menu.FilterEmpty>
-                  </Menu.Popup>
-                </Menu.Positioner>
-              </Menu.Portal>
-            </Menu.FilterRoot>
+            <Menu.FilterProvider>
+              <Menu.Root handle={handle}>
+                <Menu.Portal>
+                  <Menu.Positioner>
+                    <Menu.Popup>
+                      <Menu.FilterInput aria-label="Filter fruit" />
+                      <Menu.FilterList data-testid="list">
+                        <Menu.Item>Apple</Menu.Item>
+                      </Menu.FilterList>
+                      <Menu.FilterEmpty>No fruit found</Menu.FilterEmpty>
+                    </Menu.Popup>
+                  </Menu.Positioner>
+                </Menu.Portal>
+              </Menu.Root>
+            </Menu.FilterProvider>
             <Menu.Trigger id="fruit-trigger" handle={handle}>
               Fruit
             </Menu.Trigger>
@@ -1442,19 +1512,21 @@ describe('<Menu.FilterRoot />', () => {
 
     it('uses the id from a custom trigger render element for popup labelling', async () => {
       const { user } = await render(
-        <Menu.FilterRoot>
-          <Menu.Trigger render={<button id="custom-trigger" />}>Fruit</Menu.Trigger>
-          <Menu.Portal>
-            <Menu.Positioner>
-              <Menu.Popup>
-                <Menu.FilterInput aria-label="Filter fruit" />
-                <Menu.FilterList>
-                  <Menu.Item>Apple</Menu.Item>
-                </Menu.FilterList>
-              </Menu.Popup>
-            </Menu.Positioner>
-          </Menu.Portal>
-        </Menu.FilterRoot>,
+        <Menu.FilterProvider>
+          <Menu.Root>
+            <Menu.Trigger render={<button id="custom-trigger" />}>Fruit</Menu.Trigger>
+            <Menu.Portal>
+              <Menu.Positioner>
+                <Menu.Popup>
+                  <Menu.FilterInput aria-label="Filter fruit" />
+                  <Menu.FilterList>
+                    <Menu.Item>Apple</Menu.Item>
+                  </Menu.FilterList>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
+          </Menu.Root>
+        </Menu.FilterProvider>,
       );
 
       await user.click(screen.getByRole('button', { name: 'Fruit' }));
@@ -1468,19 +1540,21 @@ describe('<Menu.FilterRoot />', () => {
 
     it('uses an explicit popup label instead of the trigger label', async () => {
       const { user } = await render(
-        <Menu.FilterRoot>
-          <Menu.Trigger>Fruit</Menu.Trigger>
-          <Menu.Portal>
-            <Menu.Positioner>
-              <Menu.Popup aria-label="Available commands">
-                <Menu.FilterInput aria-label="Filter fruit" />
-                <Menu.FilterList>
-                  <Menu.Item>Apple</Menu.Item>
-                </Menu.FilterList>
-              </Menu.Popup>
-            </Menu.Positioner>
-          </Menu.Portal>
-        </Menu.FilterRoot>,
+        <Menu.FilterProvider>
+          <Menu.Root>
+            <Menu.Trigger>Fruit</Menu.Trigger>
+            <Menu.Portal>
+              <Menu.Positioner>
+                <Menu.Popup aria-label="Available commands">
+                  <Menu.FilterInput aria-label="Filter fruit" />
+                  <Menu.FilterList>
+                    <Menu.Item>Apple</Menu.Item>
+                  </Menu.FilterList>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
+          </Menu.Root>
+        </Menu.FilterProvider>,
       );
 
       await user.click(screen.getByRole('button', { name: 'Fruit' }));
@@ -1491,19 +1565,21 @@ describe('<Menu.FilterRoot />', () => {
 
     it('uses an explicit label from the popup render element', async () => {
       const { user } = await render(
-        <Menu.FilterRoot>
-          <Menu.Trigger>Fruit</Menu.Trigger>
-          <Menu.Portal>
-            <Menu.Positioner>
-              <Menu.Popup render={<section aria-label="Available commands" />}>
-                <Menu.FilterInput aria-label="Filter fruit" />
-                <Menu.FilterList>
-                  <Menu.Item>Apple</Menu.Item>
-                </Menu.FilterList>
-              </Menu.Popup>
-            </Menu.Positioner>
-          </Menu.Portal>
-        </Menu.FilterRoot>,
+        <Menu.FilterProvider>
+          <Menu.Root>
+            <Menu.Trigger>Fruit</Menu.Trigger>
+            <Menu.Portal>
+              <Menu.Positioner>
+                <Menu.Popup render={<section aria-label="Available commands" />}>
+                  <Menu.FilterInput aria-label="Filter fruit" />
+                  <Menu.FilterList>
+                    <Menu.Item>Apple</Menu.Item>
+                  </Menu.FilterList>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
+          </Menu.Root>
+        </Menu.FilterProvider>,
       );
 
       await user.click(screen.getByRole('button', { name: 'Fruit' }));
@@ -1516,22 +1592,24 @@ describe('<Menu.FilterRoot />', () => {
       function Test() {
         const [customId, setCustomId] = React.useState(true);
         return (
-          <Menu.FilterRoot defaultOpen>
-            <Menu.Trigger>Fruit</Menu.Trigger>
-            <Menu.Portal>
-              <Menu.Positioner>
-                <Menu.Popup id={customId ? 'custom-popup' : undefined}>
-                  <Menu.FilterInput aria-label="Filter fruit" />
-                  <Menu.FilterList>
-                    <Menu.Item>Apple</Menu.Item>
-                  </Menu.FilterList>
-                  <button type="button" onClick={() => setCustomId(false)}>
-                    Remove id
-                  </button>
-                </Menu.Popup>
-              </Menu.Positioner>
-            </Menu.Portal>
-          </Menu.FilterRoot>
+          <Menu.FilterProvider>
+            <Menu.Root defaultOpen>
+              <Menu.Trigger>Fruit</Menu.Trigger>
+              <Menu.Portal>
+                <Menu.Positioner>
+                  <Menu.Popup id={customId ? 'custom-popup' : undefined}>
+                    <Menu.FilterInput aria-label="Filter fruit" />
+                    <Menu.FilterList>
+                      <Menu.Item>Apple</Menu.Item>
+                    </Menu.FilterList>
+                    <button type="button" onClick={() => setCustomId(false)}>
+                      Remove id
+                    </button>
+                  </Menu.Popup>
+                </Menu.Positioner>
+              </Menu.Portal>
+            </Menu.Root>
+          </Menu.FilterProvider>
         );
       }
 
@@ -1586,32 +1664,36 @@ describe('<Menu.FilterRoot />', () => {
 
     it('opens a virtually focused submenu with the keyboard', async () => {
       const { user } = await render(
-        <Menu.FilterRoot defaultOpen>
-          <Menu.Trigger>Actions</Menu.Trigger>
-          <Menu.Portal>
-            <Menu.Positioner>
-              <Menu.Popup>
-                <Menu.FilterInput aria-label="Filter actions" />
-                <Menu.FilterList>
-                  <Menu.FilterSubmenuRoot>
-                    <Menu.SubmenuTrigger>Move to folder</Menu.SubmenuTrigger>
-                    <Menu.Portal>
-                      <Menu.Positioner>
-                        <Menu.Popup>
-                          <Menu.FilterInput aria-label="Filter folders" />
-                          <Menu.FilterList>
-                            <Menu.Item>Documents</Menu.Item>
-                          </Menu.FilterList>
-                        </Menu.Popup>
-                      </Menu.Positioner>
-                    </Menu.Portal>
-                  </Menu.FilterSubmenuRoot>
-                  <Menu.Item>Delete</Menu.Item>
-                </Menu.FilterList>
-              </Menu.Popup>
-            </Menu.Positioner>
-          </Menu.Portal>
-        </Menu.FilterRoot>,
+        <Menu.FilterProvider>
+          <Menu.Root defaultOpen>
+            <Menu.Trigger>Actions</Menu.Trigger>
+            <Menu.Portal>
+              <Menu.Positioner>
+                <Menu.Popup>
+                  <Menu.FilterInput aria-label="Filter actions" />
+                  <Menu.FilterList>
+                    <Menu.FilterProvider>
+                      <Menu.SubmenuRoot>
+                        <Menu.SubmenuTrigger>Move to folder</Menu.SubmenuTrigger>
+                        <Menu.Portal>
+                          <Menu.Positioner>
+                            <Menu.Popup>
+                              <Menu.FilterInput aria-label="Filter folders" />
+                              <Menu.FilterList>
+                                <Menu.Item>Documents</Menu.Item>
+                              </Menu.FilterList>
+                            </Menu.Popup>
+                          </Menu.Positioner>
+                        </Menu.Portal>
+                      </Menu.SubmenuRoot>
+                    </Menu.FilterProvider>
+                    <Menu.Item>Delete</Menu.Item>
+                  </Menu.FilterList>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
+          </Menu.Root>
+        </Menu.FilterProvider>,
       );
 
       const parentInput = screen.getByRole('searchbox', { name: 'Filter actions' });
@@ -1649,31 +1731,35 @@ describe('<Menu.FilterRoot />', () => {
 
     it('keeps cross-axis keys as caret keys while the submenu query is not empty', async () => {
       const { user } = await render(
-        <Menu.FilterRoot defaultOpen>
-          <Menu.Trigger>Actions</Menu.Trigger>
-          <Menu.Portal>
-            <Menu.Positioner>
-              <Menu.Popup>
-                <Menu.FilterInput aria-label="Filter actions" />
-                <Menu.FilterList>
-                  <Menu.FilterSubmenuRoot>
-                    <Menu.SubmenuTrigger>Move to folder</Menu.SubmenuTrigger>
-                    <Menu.Portal>
-                      <Menu.Positioner>
-                        <Menu.Popup>
-                          <Menu.FilterInput aria-label="Filter folders" />
-                          <Menu.FilterList>
-                            <Menu.Item>Documents</Menu.Item>
-                          </Menu.FilterList>
-                        </Menu.Popup>
-                      </Menu.Positioner>
-                    </Menu.Portal>
-                  </Menu.FilterSubmenuRoot>
-                </Menu.FilterList>
-              </Menu.Popup>
-            </Menu.Positioner>
-          </Menu.Portal>
-        </Menu.FilterRoot>,
+        <Menu.FilterProvider>
+          <Menu.Root defaultOpen>
+            <Menu.Trigger>Actions</Menu.Trigger>
+            <Menu.Portal>
+              <Menu.Positioner>
+                <Menu.Popup>
+                  <Menu.FilterInput aria-label="Filter actions" />
+                  <Menu.FilterList>
+                    <Menu.FilterProvider>
+                      <Menu.SubmenuRoot>
+                        <Menu.SubmenuTrigger>Move to folder</Menu.SubmenuTrigger>
+                        <Menu.Portal>
+                          <Menu.Positioner>
+                            <Menu.Popup>
+                              <Menu.FilterInput aria-label="Filter folders" />
+                              <Menu.FilterList>
+                                <Menu.Item>Documents</Menu.Item>
+                              </Menu.FilterList>
+                            </Menu.Popup>
+                          </Menu.Positioner>
+                        </Menu.Portal>
+                      </Menu.SubmenuRoot>
+                    </Menu.FilterProvider>
+                  </Menu.FilterList>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
+          </Menu.Root>
+        </Menu.FilterProvider>,
       );
 
       const parentInput = screen.getByRole('searchbox', { name: 'Filter actions' });
@@ -1704,31 +1790,35 @@ describe('<Menu.FilterRoot />', () => {
     it('uses RTL cross-axis keys to enter and leave a filterable submenu', async () => {
       const { user } = await render(
         <DirectionProvider direction="rtl">
-          <Menu.FilterRoot defaultOpen>
-            <Menu.Trigger>Actions</Menu.Trigger>
-            <Menu.Portal>
-              <Menu.Positioner>
-                <Menu.Popup>
-                  <Menu.FilterInput aria-label="Filter actions" />
-                  <Menu.FilterList>
-                    <Menu.FilterSubmenuRoot>
-                      <Menu.SubmenuTrigger>Move to folder</Menu.SubmenuTrigger>
-                      <Menu.Portal>
-                        <Menu.Positioner>
-                          <Menu.Popup>
-                            <Menu.FilterInput aria-label="Filter folders" />
-                            <Menu.FilterList>
-                              <Menu.Item>Documents</Menu.Item>
-                            </Menu.FilterList>
-                          </Menu.Popup>
-                        </Menu.Positioner>
-                      </Menu.Portal>
-                    </Menu.FilterSubmenuRoot>
-                  </Menu.FilterList>
-                </Menu.Popup>
-              </Menu.Positioner>
-            </Menu.Portal>
-          </Menu.FilterRoot>
+          <Menu.FilterProvider>
+            <Menu.Root defaultOpen>
+              <Menu.Trigger>Actions</Menu.Trigger>
+              <Menu.Portal>
+                <Menu.Positioner>
+                  <Menu.Popup>
+                    <Menu.FilterInput aria-label="Filter actions" />
+                    <Menu.FilterList>
+                      <Menu.FilterProvider>
+                        <Menu.SubmenuRoot>
+                          <Menu.SubmenuTrigger>Move to folder</Menu.SubmenuTrigger>
+                          <Menu.Portal>
+                            <Menu.Positioner>
+                              <Menu.Popup>
+                                <Menu.FilterInput aria-label="Filter folders" />
+                                <Menu.FilterList>
+                                  <Menu.Item>Documents</Menu.Item>
+                                </Menu.FilterList>
+                              </Menu.Popup>
+                            </Menu.Positioner>
+                          </Menu.Portal>
+                        </Menu.SubmenuRoot>
+                      </Menu.FilterProvider>
+                    </Menu.FilterList>
+                  </Menu.Popup>
+                </Menu.Positioner>
+              </Menu.Portal>
+            </Menu.Root>
+          </Menu.FilterProvider>
         </DirectionProvider>,
       );
 
@@ -1759,32 +1849,36 @@ describe('<Menu.FilterRoot />', () => {
 
     it('returns virtual focus to the parent input on Escape and resumes filtering', async () => {
       const { user } = await render(
-        <Menu.FilterRoot defaultOpen>
-          <Menu.Trigger>Actions</Menu.Trigger>
-          <Menu.Portal>
-            <Menu.Positioner>
-              <Menu.Popup>
-                <Menu.FilterInput aria-label="Filter actions" />
-                <Menu.FilterList>
-                  <Menu.FilterSubmenuRoot>
-                    <Menu.SubmenuTrigger>Move to folder</Menu.SubmenuTrigger>
-                    <Menu.Portal>
-                      <Menu.Positioner>
-                        <Menu.Popup>
-                          <Menu.FilterInput aria-label="Filter folders" />
-                          <Menu.FilterList>
-                            <Menu.Item>Documents</Menu.Item>
-                          </Menu.FilterList>
-                        </Menu.Popup>
-                      </Menu.Positioner>
-                    </Menu.Portal>
-                  </Menu.FilterSubmenuRoot>
-                  <Menu.Item>Rename</Menu.Item>
-                </Menu.FilterList>
-              </Menu.Popup>
-            </Menu.Positioner>
-          </Menu.Portal>
-        </Menu.FilterRoot>,
+        <Menu.FilterProvider>
+          <Menu.Root defaultOpen>
+            <Menu.Trigger>Actions</Menu.Trigger>
+            <Menu.Portal>
+              <Menu.Positioner>
+                <Menu.Popup>
+                  <Menu.FilterInput aria-label="Filter actions" />
+                  <Menu.FilterList>
+                    <Menu.FilterProvider>
+                      <Menu.SubmenuRoot>
+                        <Menu.SubmenuTrigger>Move to folder</Menu.SubmenuTrigger>
+                        <Menu.Portal>
+                          <Menu.Positioner>
+                            <Menu.Popup>
+                              <Menu.FilterInput aria-label="Filter folders" />
+                              <Menu.FilterList>
+                                <Menu.Item>Documents</Menu.Item>
+                              </Menu.FilterList>
+                            </Menu.Popup>
+                          </Menu.Positioner>
+                        </Menu.Portal>
+                      </Menu.SubmenuRoot>
+                    </Menu.FilterProvider>
+                    <Menu.Item>Rename</Menu.Item>
+                  </Menu.FilterList>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
+          </Menu.Root>
+        </Menu.FilterProvider>,
       );
 
       const parentInput = screen.getByRole('searchbox', { name: 'Filter actions' });
@@ -1824,31 +1918,35 @@ describe('<Menu.FilterRoot />', () => {
 
         return (
           <React.Fragment>
-            <Menu.FilterRoot defaultOpen>
-              <Menu.Trigger>Actions</Menu.Trigger>
-              <Menu.Portal>
-                <Menu.Positioner>
-                  <Menu.Popup>
-                    <Menu.FilterInput aria-label="Filter actions" />
-                    <Menu.FilterList>
-                      <Menu.FilterSubmenuRoot open={submenuOpen} onOpenChange={setSubmenuOpen}>
-                        <Menu.SubmenuTrigger>Move to folder</Menu.SubmenuTrigger>
-                        <Menu.Portal>
-                          <Menu.Positioner>
-                            <Menu.Popup>
-                              <Menu.FilterInput aria-label="Filter folders" />
-                              <Menu.FilterList>
-                                <Menu.Item>Documents</Menu.Item>
-                              </Menu.FilterList>
-                            </Menu.Popup>
-                          </Menu.Positioner>
-                        </Menu.Portal>
-                      </Menu.FilterSubmenuRoot>
-                    </Menu.FilterList>
-                  </Menu.Popup>
-                </Menu.Positioner>
-              </Menu.Portal>
-            </Menu.FilterRoot>
+            <Menu.FilterProvider>
+              <Menu.Root defaultOpen>
+                <Menu.Trigger>Actions</Menu.Trigger>
+                <Menu.Portal>
+                  <Menu.Positioner>
+                    <Menu.Popup>
+                      <Menu.FilterInput aria-label="Filter actions" />
+                      <Menu.FilterList>
+                        <Menu.FilterProvider>
+                          <Menu.SubmenuRoot open={submenuOpen} onOpenChange={setSubmenuOpen}>
+                            <Menu.SubmenuTrigger>Move to folder</Menu.SubmenuTrigger>
+                            <Menu.Portal>
+                              <Menu.Positioner>
+                                <Menu.Popup>
+                                  <Menu.FilterInput aria-label="Filter folders" />
+                                  <Menu.FilterList>
+                                    <Menu.Item>Documents</Menu.Item>
+                                  </Menu.FilterList>
+                                </Menu.Popup>
+                              </Menu.Positioner>
+                            </Menu.Portal>
+                          </Menu.SubmenuRoot>
+                        </Menu.FilterProvider>
+                      </Menu.FilterList>
+                    </Menu.Popup>
+                  </Menu.Positioner>
+                </Menu.Portal>
+              </Menu.Root>
+            </Menu.FilterProvider>
             <button type="button">Outside</button>
           </React.Fragment>
         );
@@ -1876,40 +1974,44 @@ describe('<Menu.FilterRoot />', () => {
 
     it('opens a submenu from a filterable submenu input', async () => {
       const { user } = await render(
-        <Menu.FilterRoot defaultOpen>
-          <Menu.Trigger>Actions</Menu.Trigger>
-          <Menu.Portal>
-            <Menu.Positioner>
-              <Menu.Popup>
-                <Menu.FilterInput aria-label="Filter actions" />
-                <Menu.FilterList>
-                  <Menu.FilterSubmenuRoot>
-                    <Menu.SubmenuTrigger>Move to folder</Menu.SubmenuTrigger>
-                    <Menu.Portal>
-                      <Menu.Positioner>
-                        <Menu.Popup>
-                          <Menu.FilterInput aria-label="Filter folders" />
-                          <Menu.FilterList>
-                            <Menu.SubmenuRoot>
-                              <Menu.SubmenuTrigger>More folders</Menu.SubmenuTrigger>
-                              <Menu.Portal>
-                                <Menu.Positioner>
-                                  <Menu.Popup>
-                                    <Menu.Item>Archive</Menu.Item>
-                                  </Menu.Popup>
-                                </Menu.Positioner>
-                              </Menu.Portal>
-                            </Menu.SubmenuRoot>
-                          </Menu.FilterList>
-                        </Menu.Popup>
-                      </Menu.Positioner>
-                    </Menu.Portal>
-                  </Menu.FilterSubmenuRoot>
-                </Menu.FilterList>
-              </Menu.Popup>
-            </Menu.Positioner>
-          </Menu.Portal>
-        </Menu.FilterRoot>,
+        <Menu.FilterProvider>
+          <Menu.Root defaultOpen>
+            <Menu.Trigger>Actions</Menu.Trigger>
+            <Menu.Portal>
+              <Menu.Positioner>
+                <Menu.Popup>
+                  <Menu.FilterInput aria-label="Filter actions" />
+                  <Menu.FilterList>
+                    <Menu.FilterProvider>
+                      <Menu.SubmenuRoot>
+                        <Menu.SubmenuTrigger>Move to folder</Menu.SubmenuTrigger>
+                        <Menu.Portal>
+                          <Menu.Positioner>
+                            <Menu.Popup>
+                              <Menu.FilterInput aria-label="Filter folders" />
+                              <Menu.FilterList>
+                                <Menu.SubmenuRoot>
+                                  <Menu.SubmenuTrigger>More folders</Menu.SubmenuTrigger>
+                                  <Menu.Portal>
+                                    <Menu.Positioner>
+                                      <Menu.Popup>
+                                        <Menu.Item>Archive</Menu.Item>
+                                      </Menu.Popup>
+                                    </Menu.Positioner>
+                                  </Menu.Portal>
+                                </Menu.SubmenuRoot>
+                              </Menu.FilterList>
+                            </Menu.Popup>
+                          </Menu.Positioner>
+                        </Menu.Portal>
+                      </Menu.SubmenuRoot>
+                    </Menu.FilterProvider>
+                  </Menu.FilterList>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
+          </Menu.Root>
+        </Menu.FilterProvider>,
       );
 
       const parentInput = screen.getByRole('searchbox', { name: 'Filter actions' });
@@ -1959,32 +2061,36 @@ describe('<Menu.FilterRoot />', () => {
 
     it('opens a virtually focused submenu with Enter from the input', async () => {
       const { user } = await render(
-        <Menu.FilterRoot defaultOpen>
-          <Menu.Trigger>Actions</Menu.Trigger>
-          <Menu.Portal>
-            <Menu.Positioner>
-              <Menu.Popup>
-                <Menu.FilterInput aria-label="Filter actions" />
-                <Menu.FilterList>
-                  <Menu.FilterSubmenuRoot>
-                    <Menu.SubmenuTrigger>Share</Menu.SubmenuTrigger>
-                    <Menu.Portal>
-                      <Menu.Positioner>
-                        <Menu.Popup>
-                          <Menu.FilterInput aria-label="Filter sharing options" />
-                          <Menu.FilterList>
-                            <Menu.Item>Email</Menu.Item>
-                          </Menu.FilterList>
-                        </Menu.Popup>
-                      </Menu.Positioner>
-                    </Menu.Portal>
-                  </Menu.FilterSubmenuRoot>
-                  <Menu.Item>Delete</Menu.Item>
-                </Menu.FilterList>
-              </Menu.Popup>
-            </Menu.Positioner>
-          </Menu.Portal>
-        </Menu.FilterRoot>,
+        <Menu.FilterProvider>
+          <Menu.Root defaultOpen>
+            <Menu.Trigger>Actions</Menu.Trigger>
+            <Menu.Portal>
+              <Menu.Positioner>
+                <Menu.Popup>
+                  <Menu.FilterInput aria-label="Filter actions" />
+                  <Menu.FilterList>
+                    <Menu.FilterProvider>
+                      <Menu.SubmenuRoot>
+                        <Menu.SubmenuTrigger>Share</Menu.SubmenuTrigger>
+                        <Menu.Portal>
+                          <Menu.Positioner>
+                            <Menu.Popup>
+                              <Menu.FilterInput aria-label="Filter sharing options" />
+                              <Menu.FilterList>
+                                <Menu.Item>Email</Menu.Item>
+                              </Menu.FilterList>
+                            </Menu.Popup>
+                          </Menu.Positioner>
+                        </Menu.Portal>
+                      </Menu.SubmenuRoot>
+                    </Menu.FilterProvider>
+                    <Menu.Item>Delete</Menu.Item>
+                  </Menu.FilterList>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
+          </Menu.Root>
+        </Menu.FilterProvider>,
       );
 
       const parentInput = screen.getByRole('searchbox', { name: 'Filter actions' });
@@ -2020,45 +2126,51 @@ describe('<Menu.FilterRoot />', () => {
 
     it('does not reopen a stale submenu with a cross-axis key', async () => {
       const { user } = await render(
-        <Menu.FilterRoot defaultOpen>
-          <Menu.Trigger>Actions</Menu.Trigger>
-          <Menu.Portal>
-            <Menu.Positioner>
-              <Menu.Popup>
-                <Menu.FilterInput aria-label="Filter actions" />
-                <Menu.FilterList>
-                  <Menu.Item>Rename</Menu.Item>
-                  <Menu.FilterSubmenuRoot>
-                    <Menu.SubmenuTrigger>Share</Menu.SubmenuTrigger>
-                    <Menu.Portal>
-                      <Menu.Positioner>
-                        <Menu.Popup>
-                          <Menu.FilterInput aria-label="Filter sharing options" />
-                          <Menu.FilterList>
-                            <Menu.Item>Email</Menu.Item>
-                          </Menu.FilterList>
-                        </Menu.Popup>
-                      </Menu.Positioner>
-                    </Menu.Portal>
-                  </Menu.FilterSubmenuRoot>
-                  <Menu.FilterSubmenuRoot>
-                    <Menu.SubmenuTrigger>Export</Menu.SubmenuTrigger>
-                    <Menu.Portal>
-                      <Menu.Positioner>
-                        <Menu.Popup>
-                          <Menu.FilterInput aria-label="Filter export options" />
-                          <Menu.FilterList>
-                            <Menu.Item>PDF</Menu.Item>
-                          </Menu.FilterList>
-                        </Menu.Popup>
-                      </Menu.Positioner>
-                    </Menu.Portal>
-                  </Menu.FilterSubmenuRoot>
-                </Menu.FilterList>
-              </Menu.Popup>
-            </Menu.Positioner>
-          </Menu.Portal>
-        </Menu.FilterRoot>,
+        <Menu.FilterProvider>
+          <Menu.Root defaultOpen>
+            <Menu.Trigger>Actions</Menu.Trigger>
+            <Menu.Portal>
+              <Menu.Positioner>
+                <Menu.Popup>
+                  <Menu.FilterInput aria-label="Filter actions" />
+                  <Menu.FilterList>
+                    <Menu.Item>Rename</Menu.Item>
+                    <Menu.FilterProvider>
+                      <Menu.SubmenuRoot>
+                        <Menu.SubmenuTrigger>Share</Menu.SubmenuTrigger>
+                        <Menu.Portal>
+                          <Menu.Positioner>
+                            <Menu.Popup>
+                              <Menu.FilterInput aria-label="Filter sharing options" />
+                              <Menu.FilterList>
+                                <Menu.Item>Email</Menu.Item>
+                              </Menu.FilterList>
+                            </Menu.Popup>
+                          </Menu.Positioner>
+                        </Menu.Portal>
+                      </Menu.SubmenuRoot>
+                    </Menu.FilterProvider>
+                    <Menu.FilterProvider>
+                      <Menu.SubmenuRoot>
+                        <Menu.SubmenuTrigger>Export</Menu.SubmenuTrigger>
+                        <Menu.Portal>
+                          <Menu.Positioner>
+                            <Menu.Popup>
+                              <Menu.FilterInput aria-label="Filter export options" />
+                              <Menu.FilterList>
+                                <Menu.Item>PDF</Menu.Item>
+                              </Menu.FilterList>
+                            </Menu.Popup>
+                          </Menu.Positioner>
+                        </Menu.Portal>
+                      </Menu.SubmenuRoot>
+                    </Menu.FilterProvider>
+                  </Menu.FilterList>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
+          </Menu.Root>
+        </Menu.FilterProvider>,
       );
 
       const input = screen.getByRole('searchbox', { name: 'Filter actions' });
@@ -2095,31 +2207,35 @@ describe('<Menu.FilterRoot />', () => {
       'moves focus into the submenu input once the pointer enters it',
       async () => {
         const { user } = await render(
-          <Menu.FilterRoot defaultOpen>
-            <Menu.Trigger>Actions</Menu.Trigger>
-            <Menu.Portal>
-              <Menu.Positioner>
-                <Menu.Popup>
-                  <Menu.FilterInput aria-label="Filter actions" />
-                  <Menu.FilterList>
-                    <Menu.FilterSubmenuRoot>
-                      <Menu.SubmenuTrigger delay={0}>Move to folder</Menu.SubmenuTrigger>
-                      <Menu.Portal>
-                        <Menu.Positioner>
-                          <Menu.Popup>
-                            <Menu.FilterInput aria-label="Filter folders" />
-                            <Menu.FilterList>
-                              <Menu.Item>Documents</Menu.Item>
-                            </Menu.FilterList>
-                          </Menu.Popup>
-                        </Menu.Positioner>
-                      </Menu.Portal>
-                    </Menu.FilterSubmenuRoot>
-                  </Menu.FilterList>
-                </Menu.Popup>
-              </Menu.Positioner>
-            </Menu.Portal>
-          </Menu.FilterRoot>,
+          <Menu.FilterProvider>
+            <Menu.Root defaultOpen>
+              <Menu.Trigger>Actions</Menu.Trigger>
+              <Menu.Portal>
+                <Menu.Positioner>
+                  <Menu.Popup>
+                    <Menu.FilterInput aria-label="Filter actions" />
+                    <Menu.FilterList>
+                      <Menu.FilterProvider>
+                        <Menu.SubmenuRoot>
+                          <Menu.SubmenuTrigger delay={0}>Move to folder</Menu.SubmenuTrigger>
+                          <Menu.Portal>
+                            <Menu.Positioner>
+                              <Menu.Popup>
+                                <Menu.FilterInput aria-label="Filter folders" />
+                                <Menu.FilterList>
+                                  <Menu.Item>Documents</Menu.Item>
+                                </Menu.FilterList>
+                              </Menu.Popup>
+                            </Menu.Positioner>
+                          </Menu.Portal>
+                        </Menu.SubmenuRoot>
+                      </Menu.FilterProvider>
+                    </Menu.FilterList>
+                  </Menu.Popup>
+                </Menu.Positioner>
+              </Menu.Portal>
+            </Menu.Root>
+          </Menu.FilterProvider>,
         );
 
         const parentInput = screen.getByRole('searchbox', { name: 'Filter actions' });
@@ -2147,31 +2263,35 @@ describe('<Menu.FilterRoot />', () => {
 
     it('closes a hover-opened submenu from a virtually focused parent', async () => {
       const { user } = await render(
-        <Menu.FilterRoot defaultOpen>
-          <Menu.Trigger>Actions</Menu.Trigger>
-          <Menu.Portal>
-            <Menu.Positioner>
-              <Menu.Popup>
-                <Menu.FilterInput aria-label="Filter actions" />
-                <Menu.FilterList>
-                  <Menu.FilterSubmenuRoot>
-                    <Menu.SubmenuTrigger delay={0}>Move to folder</Menu.SubmenuTrigger>
-                    <Menu.Portal>
-                      <Menu.Positioner>
-                        <Menu.Popup>
-                          <Menu.FilterInput aria-label="Filter folders" />
-                          <Menu.FilterList>
-                            <Menu.Item>Documents</Menu.Item>
-                          </Menu.FilterList>
-                        </Menu.Popup>
-                      </Menu.Positioner>
-                    </Menu.Portal>
-                  </Menu.FilterSubmenuRoot>
-                </Menu.FilterList>
-              </Menu.Popup>
-            </Menu.Positioner>
-          </Menu.Portal>
-        </Menu.FilterRoot>,
+        <Menu.FilterProvider>
+          <Menu.Root defaultOpen>
+            <Menu.Trigger>Actions</Menu.Trigger>
+            <Menu.Portal>
+              <Menu.Positioner>
+                <Menu.Popup>
+                  <Menu.FilterInput aria-label="Filter actions" />
+                  <Menu.FilterList>
+                    <Menu.FilterProvider>
+                      <Menu.SubmenuRoot>
+                        <Menu.SubmenuTrigger delay={0}>Move to folder</Menu.SubmenuTrigger>
+                        <Menu.Portal>
+                          <Menu.Positioner>
+                            <Menu.Popup>
+                              <Menu.FilterInput aria-label="Filter folders" />
+                              <Menu.FilterList>
+                                <Menu.Item>Documents</Menu.Item>
+                              </Menu.FilterList>
+                            </Menu.Popup>
+                          </Menu.Positioner>
+                        </Menu.Portal>
+                      </Menu.SubmenuRoot>
+                    </Menu.FilterProvider>
+                  </Menu.FilterList>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
+          </Menu.Root>
+        </Menu.FilterProvider>,
       );
 
       const parentInput = screen.getByRole('searchbox', { name: 'Filter actions' });
@@ -2202,29 +2322,31 @@ describe('<Menu.FilterRoot />', () => {
 
     it('focuses the first item when entering a hover-opened submenu from a filterable menu', async () => {
       const { user } = await render(
-        <Menu.FilterRoot defaultOpen>
-          <Menu.Trigger>Actions</Menu.Trigger>
-          <Menu.Portal>
-            <Menu.Positioner>
-              <Menu.Popup>
-                <Menu.FilterInput aria-label="Filter actions" />
-                <Menu.FilterList>
-                  <Menu.SubmenuRoot>
-                    <Menu.SubmenuTrigger delay={0}>Move to folder</Menu.SubmenuTrigger>
-                    <Menu.Portal>
-                      <Menu.Positioner>
-                        <Menu.Popup>
-                          <Menu.Item>Documents</Menu.Item>
-                          <Menu.Item>Downloads</Menu.Item>
-                        </Menu.Popup>
-                      </Menu.Positioner>
-                    </Menu.Portal>
-                  </Menu.SubmenuRoot>
-                </Menu.FilterList>
-              </Menu.Popup>
-            </Menu.Positioner>
-          </Menu.Portal>
-        </Menu.FilterRoot>,
+        <Menu.FilterProvider>
+          <Menu.Root defaultOpen>
+            <Menu.Trigger>Actions</Menu.Trigger>
+            <Menu.Portal>
+              <Menu.Positioner>
+                <Menu.Popup>
+                  <Menu.FilterInput aria-label="Filter actions" />
+                  <Menu.FilterList>
+                    <Menu.SubmenuRoot>
+                      <Menu.SubmenuTrigger delay={0}>Move to folder</Menu.SubmenuTrigger>
+                      <Menu.Portal>
+                        <Menu.Positioner>
+                          <Menu.Popup>
+                            <Menu.Item>Documents</Menu.Item>
+                            <Menu.Item>Downloads</Menu.Item>
+                          </Menu.Popup>
+                        </Menu.Positioner>
+                      </Menu.Portal>
+                    </Menu.SubmenuRoot>
+                  </Menu.FilterList>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
+          </Menu.Root>
+        </Menu.FilterProvider>,
       );
 
       const parentInput = screen.getByRole('searchbox', { name: 'Filter actions' });
@@ -2252,23 +2374,25 @@ describe('<Menu.FilterRoot />', () => {
     it('filters items and selects the active item while focus remains on the input', async () => {
       const onClick = vi.fn();
       const { user } = await render(
-        <Menu.FilterRoot>
-          <Menu.Trigger>Fruit</Menu.Trigger>
-          <Menu.Portal>
-            <Menu.Positioner>
-              <Menu.Popup>
-                <Menu.FilterInput aria-label="Filter fruit" />
-                <Menu.FilterList data-testid="list">
-                  <Menu.Item>Apple</Menu.Item>
-                  <Menu.Item onClick={onClick} closeOnClick={false}>
-                    Banana
-                  </Menu.Item>
-                </Menu.FilterList>
-                <Menu.FilterEmpty>No fruit found</Menu.FilterEmpty>
-              </Menu.Popup>
-            </Menu.Positioner>
-          </Menu.Portal>
-        </Menu.FilterRoot>,
+        <Menu.FilterProvider>
+          <Menu.Root>
+            <Menu.Trigger>Fruit</Menu.Trigger>
+            <Menu.Portal>
+              <Menu.Positioner>
+                <Menu.Popup>
+                  <Menu.FilterInput aria-label="Filter fruit" />
+                  <Menu.FilterList data-testid="list">
+                    <Menu.Item>Apple</Menu.Item>
+                    <Menu.Item onClick={onClick} closeOnClick={false}>
+                      Banana
+                    </Menu.Item>
+                  </Menu.FilterList>
+                  <Menu.FilterEmpty>No fruit found</Menu.FilterEmpty>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
+          </Menu.Root>
+        </Menu.FilterProvider>,
       );
 
       const trigger = screen.getByRole('button', { name: 'Fruit' });
@@ -2325,19 +2449,21 @@ describe('<Menu.FilterRoot />', () => {
     it('does not activate the highlighted item when Enter commits an IME composition', async () => {
       const onClick = vi.fn();
       const { user } = await render(
-        <Menu.FilterRoot defaultOpen>
-          <Menu.Trigger>Actions</Menu.Trigger>
-          <Menu.Portal>
-            <Menu.Positioner>
-              <Menu.Popup>
-                <Menu.FilterInput aria-label="Filter actions" />
-                <Menu.FilterList>
-                  <Menu.Item onClick={onClick}>Rename</Menu.Item>
-                </Menu.FilterList>
-              </Menu.Popup>
-            </Menu.Positioner>
-          </Menu.Portal>
-        </Menu.FilterRoot>,
+        <Menu.FilterProvider>
+          <Menu.Root defaultOpen>
+            <Menu.Trigger>Actions</Menu.Trigger>
+            <Menu.Portal>
+              <Menu.Positioner>
+                <Menu.Popup>
+                  <Menu.FilterInput aria-label="Filter actions" />
+                  <Menu.FilterList>
+                    <Menu.Item onClick={onClick}>Rename</Menu.Item>
+                  </Menu.FilterList>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
+          </Menu.Root>
+        </Menu.FilterProvider>,
       );
 
       const input = screen.getByRole('searchbox', { name: 'Filter actions' });
@@ -2357,31 +2483,37 @@ describe('<Menu.FilterRoot />', () => {
 
     it('does not forward submenu navigation keys while composing text', async () => {
       const { user } = await render(
-        <Menu.FilterRoot defaultOpen>
-          <Menu.Trigger>Actions</Menu.Trigger>
-          <Menu.Portal>
-            <Menu.Positioner>
-              <Menu.Popup>
-                <Menu.FilterInput aria-label="Filter actions" />
-                <Menu.FilterList>
-                  <Menu.FilterSubmenuRoot>
-                    <Menu.SubmenuTrigger openOnHover={false}>Move to folder</Menu.SubmenuTrigger>
-                    <Menu.Portal>
-                      <Menu.Positioner>
-                        <Menu.Popup>
-                          <Menu.FilterInput aria-label="Filter folders" />
-                          <Menu.FilterList>
-                            <Menu.Item>Documents</Menu.Item>
-                          </Menu.FilterList>
-                        </Menu.Popup>
-                      </Menu.Positioner>
-                    </Menu.Portal>
-                  </Menu.FilterSubmenuRoot>
-                </Menu.FilterList>
-              </Menu.Popup>
-            </Menu.Positioner>
-          </Menu.Portal>
-        </Menu.FilterRoot>,
+        <Menu.FilterProvider>
+          <Menu.Root defaultOpen>
+            <Menu.Trigger>Actions</Menu.Trigger>
+            <Menu.Portal>
+              <Menu.Positioner>
+                <Menu.Popup>
+                  <Menu.FilterInput aria-label="Filter actions" />
+                  <Menu.FilterList>
+                    <Menu.FilterProvider>
+                      <Menu.SubmenuRoot>
+                        <Menu.SubmenuTrigger openOnHover={false}>
+                          Move to folder
+                        </Menu.SubmenuTrigger>
+                        <Menu.Portal>
+                          <Menu.Positioner>
+                            <Menu.Popup>
+                              <Menu.FilterInput aria-label="Filter folders" />
+                              <Menu.FilterList>
+                                <Menu.Item>Documents</Menu.Item>
+                              </Menu.FilterList>
+                            </Menu.Popup>
+                          </Menu.Positioner>
+                        </Menu.Portal>
+                      </Menu.SubmenuRoot>
+                    </Menu.FilterProvider>
+                  </Menu.FilterList>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
+          </Menu.Root>
+        </Menu.FilterProvider>,
       );
 
       const input = screen.getByRole('searchbox', { name: 'Filter actions' });
@@ -2402,20 +2534,22 @@ describe('<Menu.FilterRoot />', () => {
 
     it('disables filter controls when the root is disabled', async () => {
       await render(
-        <Menu.FilterRoot open disabled defaultInputValue="a">
-          <Menu.Trigger>Fruit</Menu.Trigger>
-          <Menu.Portal>
-            <Menu.Positioner>
-              <Menu.Popup>
-                <Menu.FilterInput aria-label="Filter fruit" />
-                <Menu.FilterClear aria-label="Clear filter" />
-                <Menu.FilterList>
-                  <Menu.Item>Apple</Menu.Item>
-                </Menu.FilterList>
-              </Menu.Popup>
-            </Menu.Positioner>
-          </Menu.Portal>
-        </Menu.FilterRoot>,
+        <Menu.FilterProvider defaultInputValue="a">
+          <Menu.Root open disabled>
+            <Menu.Trigger>Fruit</Menu.Trigger>
+            <Menu.Portal>
+              <Menu.Positioner>
+                <Menu.Popup>
+                  <Menu.FilterInput aria-label="Filter fruit" />
+                  <Menu.FilterClear aria-label="Clear filter" />
+                  <Menu.FilterList>
+                    <Menu.Item>Apple</Menu.Item>
+                  </Menu.FilterList>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
+          </Menu.Root>
+        </Menu.FilterProvider>,
       );
 
       expect(screen.getByRole('searchbox', { name: 'Filter fruit' })).toBeDisabled();
@@ -2434,20 +2568,22 @@ describe('<Menu.FilterRoot />', () => {
             <button type="button" onClick={() => setFilter(() => endsWith)}>
               Change filter
             </button>
-            <Menu.FilterRoot filter={filter} open defaultInputValue="a">
-              <Menu.Trigger>Fruit</Menu.Trigger>
-              <Menu.Portal>
-                <Menu.Positioner>
-                  <Menu.Popup>
-                    <Menu.FilterInput aria-label="Filter fruit" />
-                    <Menu.FilterList>
-                      <Menu.Item>Apple</Menu.Item>
-                      <Menu.Item>Banana</Menu.Item>
-                    </Menu.FilterList>
-                  </Menu.Popup>
-                </Menu.Positioner>
-              </Menu.Portal>
-            </Menu.FilterRoot>
+            <Menu.FilterProvider filter={filter} defaultInputValue="a">
+              <Menu.Root open>
+                <Menu.Trigger>Fruit</Menu.Trigger>
+                <Menu.Portal>
+                  <Menu.Positioner>
+                    <Menu.Popup>
+                      <Menu.FilterInput aria-label="Filter fruit" />
+                      <Menu.FilterList>
+                        <Menu.Item>Apple</Menu.Item>
+                        <Menu.Item>Banana</Menu.Item>
+                      </Menu.FilterList>
+                    </Menu.Popup>
+                  </Menu.Positioner>
+                </Menu.Portal>
+              </Menu.Root>
+            </Menu.FilterProvider>
           </React.Fragment>
         );
       }
@@ -2470,23 +2606,24 @@ describe('<Menu.FilterRoot />', () => {
 
     it('applies a custom filter to item keywords', async () => {
       await render(
-        <Menu.FilterRoot
-          open
+        <Menu.FilterProvider
           defaultInputValue="directory"
           filter={(itemText, query) => itemText.startsWith(query)}
         >
-          <Menu.Trigger>Actions</Menu.Trigger>
-          <Menu.Portal>
-            <Menu.Positioner>
-              <Menu.Popup>
-                <Menu.FilterInput aria-label="Filter actions" />
-                <Menu.FilterList>
-                  <Menu.Item keywords={['directory']}>Move to folder</Menu.Item>
-                </Menu.FilterList>
-              </Menu.Popup>
-            </Menu.Positioner>
-          </Menu.Portal>
-        </Menu.FilterRoot>,
+          <Menu.Root open>
+            <Menu.Trigger>Actions</Menu.Trigger>
+            <Menu.Portal>
+              <Menu.Positioner>
+                <Menu.Popup>
+                  <Menu.FilterInput aria-label="Filter actions" />
+                  <Menu.FilterList>
+                    <Menu.Item keywords={['directory']}>Move to folder</Menu.Item>
+                  </Menu.FilterList>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
+          </Menu.Root>
+        </Menu.FilterProvider>,
       );
 
       await waitFor(() => {
@@ -2496,29 +2633,33 @@ describe('<Menu.FilterRoot />', () => {
 
     it('filters a non-filterable submenu trigger from a filterable parent', async () => {
       const { user } = await render(
-        <Menu.FilterRoot defaultOpen>
-          <Menu.Trigger>Actions</Menu.Trigger>
-          <Menu.Portal>
-            <Menu.Positioner>
-              <Menu.Popup>
-                <Menu.FilterInput aria-label="Filter actions" />
-                <Menu.FilterList>
-                  <Menu.Item>Rename</Menu.Item>
-                  <Menu.FilterSubmenuRoot>
-                    <Menu.SubmenuTrigger>Move to folder</Menu.SubmenuTrigger>
-                    <Menu.Portal>
-                      <Menu.Positioner>
-                        <Menu.Popup>
-                          <Menu.Item>Documents</Menu.Item>
-                        </Menu.Popup>
-                      </Menu.Positioner>
-                    </Menu.Portal>
-                  </Menu.FilterSubmenuRoot>
-                </Menu.FilterList>
-              </Menu.Popup>
-            </Menu.Positioner>
-          </Menu.Portal>
-        </Menu.FilterRoot>,
+        <Menu.FilterProvider>
+          <Menu.Root defaultOpen>
+            <Menu.Trigger>Actions</Menu.Trigger>
+            <Menu.Portal>
+              <Menu.Positioner>
+                <Menu.Popup>
+                  <Menu.FilterInput aria-label="Filter actions" />
+                  <Menu.FilterList>
+                    <Menu.Item>Rename</Menu.Item>
+                    <Menu.FilterProvider>
+                      <Menu.SubmenuRoot>
+                        <Menu.SubmenuTrigger>Move to folder</Menu.SubmenuTrigger>
+                        <Menu.Portal>
+                          <Menu.Positioner>
+                            <Menu.Popup>
+                              <Menu.Item>Documents</Menu.Item>
+                            </Menu.Popup>
+                          </Menu.Positioner>
+                        </Menu.Portal>
+                      </Menu.SubmenuRoot>
+                    </Menu.FilterProvider>
+                  </Menu.FilterList>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
+          </Menu.Root>
+        </Menu.FilterProvider>,
       );
 
       const input = screen.getByRole('searchbox', { name: 'Filter actions' });
@@ -2531,29 +2672,33 @@ describe('<Menu.FilterRoot />', () => {
 
     it('keeps a submenu trigger visible when the query matches its label', async () => {
       const { user } = await render(
-        <Menu.FilterRoot defaultOpen>
-          <Menu.Trigger>Actions</Menu.Trigger>
-          <Menu.Portal>
-            <Menu.Positioner>
-              <Menu.Popup>
-                <Menu.FilterInput aria-label="Filter actions" />
-                <Menu.FilterList>
-                  <Menu.Item>Rename</Menu.Item>
-                  <Menu.FilterSubmenuRoot>
-                    <Menu.SubmenuTrigger>Move to folder</Menu.SubmenuTrigger>
-                    <Menu.Portal>
-                      <Menu.Positioner>
-                        <Menu.Popup>
-                          <Menu.Item>Documents</Menu.Item>
-                        </Menu.Popup>
-                      </Menu.Positioner>
-                    </Menu.Portal>
-                  </Menu.FilterSubmenuRoot>
-                </Menu.FilterList>
-              </Menu.Popup>
-            </Menu.Positioner>
-          </Menu.Portal>
-        </Menu.FilterRoot>,
+        <Menu.FilterProvider>
+          <Menu.Root defaultOpen>
+            <Menu.Trigger>Actions</Menu.Trigger>
+            <Menu.Portal>
+              <Menu.Positioner>
+                <Menu.Popup>
+                  <Menu.FilterInput aria-label="Filter actions" />
+                  <Menu.FilterList>
+                    <Menu.Item>Rename</Menu.Item>
+                    <Menu.FilterProvider>
+                      <Menu.SubmenuRoot>
+                        <Menu.SubmenuTrigger>Move to folder</Menu.SubmenuTrigger>
+                        <Menu.Portal>
+                          <Menu.Positioner>
+                            <Menu.Popup>
+                              <Menu.Item>Documents</Menu.Item>
+                            </Menu.Popup>
+                          </Menu.Positioner>
+                        </Menu.Portal>
+                      </Menu.SubmenuRoot>
+                    </Menu.FilterProvider>
+                  </Menu.FilterList>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
+          </Menu.Root>
+        </Menu.FilterProvider>,
       );
 
       const input = screen.getByRole('searchbox', { name: 'Filter actions' });
@@ -2565,31 +2710,35 @@ describe('<Menu.FilterRoot />', () => {
 
     it('keeps a submenu trigger visible when the query matches its keywords', async () => {
       const { user } = await render(
-        <Menu.FilterRoot defaultOpen>
-          <Menu.Trigger>Actions</Menu.Trigger>
-          <Menu.Portal>
-            <Menu.Positioner>
-              <Menu.Popup>
-                <Menu.FilterInput aria-label="Filter actions" />
-                <Menu.FilterList>
-                  <Menu.Item>Rename</Menu.Item>
-                  <Menu.FilterSubmenuRoot>
-                    <Menu.SubmenuTrigger keywords={['directory']}>
-                      Move to folder
-                    </Menu.SubmenuTrigger>
-                    <Menu.Portal>
-                      <Menu.Positioner>
-                        <Menu.Popup>
-                          <Menu.Item>Documents</Menu.Item>
-                        </Menu.Popup>
-                      </Menu.Positioner>
-                    </Menu.Portal>
-                  </Menu.FilterSubmenuRoot>
-                </Menu.FilterList>
-              </Menu.Popup>
-            </Menu.Positioner>
-          </Menu.Portal>
-        </Menu.FilterRoot>,
+        <Menu.FilterProvider>
+          <Menu.Root defaultOpen>
+            <Menu.Trigger>Actions</Menu.Trigger>
+            <Menu.Portal>
+              <Menu.Positioner>
+                <Menu.Popup>
+                  <Menu.FilterInput aria-label="Filter actions" />
+                  <Menu.FilterList>
+                    <Menu.Item>Rename</Menu.Item>
+                    <Menu.FilterProvider>
+                      <Menu.SubmenuRoot>
+                        <Menu.SubmenuTrigger keywords={['directory']}>
+                          Move to folder
+                        </Menu.SubmenuTrigger>
+                        <Menu.Portal>
+                          <Menu.Positioner>
+                            <Menu.Popup>
+                              <Menu.Item>Documents</Menu.Item>
+                            </Menu.Popup>
+                          </Menu.Positioner>
+                        </Menu.Portal>
+                      </Menu.SubmenuRoot>
+                    </Menu.FilterProvider>
+                  </Menu.FilterList>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
+          </Menu.Root>
+        </Menu.FilterProvider>,
       );
 
       const input = screen.getByRole('searchbox', { name: 'Filter actions' });
@@ -2601,29 +2750,31 @@ describe('<Menu.FilterRoot />', () => {
 
     it('filters a Menu.SubmenuTrigger used inside a plain submenu root', async () => {
       const { user } = await render(
-        <Menu.FilterRoot defaultOpen>
-          <Menu.Trigger>Actions</Menu.Trigger>
-          <Menu.Portal>
-            <Menu.Positioner>
-              <Menu.Popup>
-                <Menu.FilterInput aria-label="Filter actions" />
-                <Menu.FilterList>
-                  <Menu.Item>Rename</Menu.Item>
-                  <Menu.SubmenuRoot>
-                    <Menu.SubmenuTrigger>Move to folder</Menu.SubmenuTrigger>
-                    <Menu.Portal>
-                      <Menu.Positioner>
-                        <Menu.Popup>
-                          <Menu.Item>Documents</Menu.Item>
-                        </Menu.Popup>
-                      </Menu.Positioner>
-                    </Menu.Portal>
-                  </Menu.SubmenuRoot>
-                </Menu.FilterList>
-              </Menu.Popup>
-            </Menu.Positioner>
-          </Menu.Portal>
-        </Menu.FilterRoot>,
+        <Menu.FilterProvider>
+          <Menu.Root defaultOpen>
+            <Menu.Trigger>Actions</Menu.Trigger>
+            <Menu.Portal>
+              <Menu.Positioner>
+                <Menu.Popup>
+                  <Menu.FilterInput aria-label="Filter actions" />
+                  <Menu.FilterList>
+                    <Menu.Item>Rename</Menu.Item>
+                    <Menu.SubmenuRoot>
+                      <Menu.SubmenuTrigger>Move to folder</Menu.SubmenuTrigger>
+                      <Menu.Portal>
+                        <Menu.Positioner>
+                          <Menu.Popup>
+                            <Menu.Item>Documents</Menu.Item>
+                          </Menu.Popup>
+                        </Menu.Positioner>
+                      </Menu.Portal>
+                    </Menu.SubmenuRoot>
+                  </Menu.FilterList>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
+          </Menu.Root>
+        </Menu.FilterProvider>,
       );
 
       const input = screen.getByRole('searchbox', { name: 'Filter actions' });
@@ -2641,29 +2792,31 @@ describe('<Menu.FilterRoot />', () => {
 
     it('keeps plain menu items and submenu triggers out of the tab order in a filterable list', async () => {
       const { user } = await render(
-        <Menu.FilterRoot defaultOpen>
-          <Menu.Trigger>Actions</Menu.Trigger>
-          <Menu.Portal>
-            <Menu.Positioner>
-              <Menu.Popup>
-                <Menu.FilterInput aria-label="Filter actions" />
-                <Menu.FilterList>
-                  <Menu.Item>Plain item</Menu.Item>
-                  <Menu.SubmenuRoot>
-                    <Menu.SubmenuTrigger delay={0}>More folders</Menu.SubmenuTrigger>
-                    <Menu.Portal>
-                      <Menu.Positioner>
-                        <Menu.Popup>
-                          <Menu.Item>Archive</Menu.Item>
-                        </Menu.Popup>
-                      </Menu.Positioner>
-                    </Menu.Portal>
-                  </Menu.SubmenuRoot>
-                </Menu.FilterList>
-              </Menu.Popup>
-            </Menu.Positioner>
-          </Menu.Portal>
-        </Menu.FilterRoot>,
+        <Menu.FilterProvider>
+          <Menu.Root defaultOpen>
+            <Menu.Trigger>Actions</Menu.Trigger>
+            <Menu.Portal>
+              <Menu.Positioner>
+                <Menu.Popup>
+                  <Menu.FilterInput aria-label="Filter actions" />
+                  <Menu.FilterList>
+                    <Menu.Item>Plain item</Menu.Item>
+                    <Menu.SubmenuRoot>
+                      <Menu.SubmenuTrigger delay={0}>More folders</Menu.SubmenuTrigger>
+                      <Menu.Portal>
+                        <Menu.Positioner>
+                          <Menu.Popup>
+                            <Menu.Item>Archive</Menu.Item>
+                          </Menu.Popup>
+                        </Menu.Positioner>
+                      </Menu.Portal>
+                    </Menu.SubmenuRoot>
+                  </Menu.FilterList>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
+          </Menu.Root>
+        </Menu.FilterProvider>,
       );
 
       const input = screen.getByRole('searchbox', { name: 'Filter actions' });
@@ -2685,31 +2838,35 @@ describe('<Menu.FilterRoot />', () => {
 
     it('retains the parent highlight when a submenu opens from a pointer', async () => {
       const { user } = await render(
-        <Menu.FilterRoot defaultOpen>
-          <Menu.Trigger>Actions</Menu.Trigger>
-          <Menu.Portal>
-            <Menu.Positioner>
-              <Menu.Popup>
-                <Menu.FilterInput aria-label="Filter actions" />
-                <Menu.FilterList>
-                  <Menu.FilterSubmenuRoot>
-                    <Menu.SubmenuTrigger delay={0}>Move to folder</Menu.SubmenuTrigger>
-                    <Menu.Portal>
-                      <Menu.Positioner>
-                        <Menu.Popup>
-                          <Menu.FilterInput aria-label="Filter folders" />
-                          <Menu.FilterList>
-                            <Menu.Item>Documents</Menu.Item>
-                          </Menu.FilterList>
-                        </Menu.Popup>
-                      </Menu.Positioner>
-                    </Menu.Portal>
-                  </Menu.FilterSubmenuRoot>
-                </Menu.FilterList>
-              </Menu.Popup>
-            </Menu.Positioner>
-          </Menu.Portal>
-        </Menu.FilterRoot>,
+        <Menu.FilterProvider>
+          <Menu.Root defaultOpen>
+            <Menu.Trigger>Actions</Menu.Trigger>
+            <Menu.Portal>
+              <Menu.Positioner>
+                <Menu.Popup>
+                  <Menu.FilterInput aria-label="Filter actions" />
+                  <Menu.FilterList>
+                    <Menu.FilterProvider>
+                      <Menu.SubmenuRoot>
+                        <Menu.SubmenuTrigger delay={0}>Move to folder</Menu.SubmenuTrigger>
+                        <Menu.Portal>
+                          <Menu.Positioner>
+                            <Menu.Popup>
+                              <Menu.FilterInput aria-label="Filter folders" />
+                              <Menu.FilterList>
+                                <Menu.Item>Documents</Menu.Item>
+                              </Menu.FilterList>
+                            </Menu.Popup>
+                          </Menu.Positioner>
+                        </Menu.Portal>
+                      </Menu.SubmenuRoot>
+                    </Menu.FilterProvider>
+                  </Menu.FilterList>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
+          </Menu.Root>
+        </Menu.FilterProvider>,
       );
 
       const parentInput = screen.getByRole('searchbox', { name: 'Filter actions' });
@@ -2726,32 +2883,36 @@ describe('<Menu.FilterRoot />', () => {
 
     it('closes the submenu when the query filters out its trigger', async () => {
       const { user } = await render(
-        <Menu.FilterRoot defaultOpen>
-          <Menu.Trigger>Actions</Menu.Trigger>
-          <Menu.Portal>
-            <Menu.Positioner>
-              <Menu.Popup>
-                <Menu.FilterInput aria-label="Filter actions" />
-                <Menu.FilterList>
-                  <Menu.Item>Rename</Menu.Item>
-                  <Menu.FilterSubmenuRoot>
-                    <Menu.SubmenuTrigger delay={0}>Move to folder</Menu.SubmenuTrigger>
-                    <Menu.Portal>
-                      <Menu.Positioner>
-                        <Menu.Popup>
-                          <Menu.FilterInput aria-label="Filter folders" />
-                          <Menu.FilterList>
-                            <Menu.Item>Documents</Menu.Item>
-                          </Menu.FilterList>
-                        </Menu.Popup>
-                      </Menu.Positioner>
-                    </Menu.Portal>
-                  </Menu.FilterSubmenuRoot>
-                </Menu.FilterList>
-              </Menu.Popup>
-            </Menu.Positioner>
-          </Menu.Portal>
-        </Menu.FilterRoot>,
+        <Menu.FilterProvider>
+          <Menu.Root defaultOpen>
+            <Menu.Trigger>Actions</Menu.Trigger>
+            <Menu.Portal>
+              <Menu.Positioner>
+                <Menu.Popup>
+                  <Menu.FilterInput aria-label="Filter actions" />
+                  <Menu.FilterList>
+                    <Menu.Item>Rename</Menu.Item>
+                    <Menu.FilterProvider>
+                      <Menu.SubmenuRoot>
+                        <Menu.SubmenuTrigger delay={0}>Move to folder</Menu.SubmenuTrigger>
+                        <Menu.Portal>
+                          <Menu.Positioner>
+                            <Menu.Popup>
+                              <Menu.FilterInput aria-label="Filter folders" />
+                              <Menu.FilterList>
+                                <Menu.Item>Documents</Menu.Item>
+                              </Menu.FilterList>
+                            </Menu.Popup>
+                          </Menu.Positioner>
+                        </Menu.Portal>
+                      </Menu.SubmenuRoot>
+                    </Menu.FilterProvider>
+                  </Menu.FilterList>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
+          </Menu.Root>
+        </Menu.FilterProvider>,
       );
 
       const parentInput = screen.getByRole('searchbox', { name: 'Filter actions' });
@@ -2774,41 +2935,45 @@ describe('<Menu.FilterRoot />', () => {
 
     it('keeps an open submenu trigger mounted when its filter close is canceled', async () => {
       const { user } = await render(
-        <Menu.FilterRoot defaultOpen>
-          <Menu.Trigger>Actions</Menu.Trigger>
-          <Menu.Portal>
-            <Menu.Positioner>
-              <Menu.Popup>
-                <Menu.FilterInput aria-label="Filter actions" />
-                <Menu.FilterList>
-                  <Menu.Item>Rename</Menu.Item>
-                  <Menu.Group>
-                    <Menu.FilterSubmenuRoot
-                      open
-                      onOpenChange={(open, details) => {
-                        if (!open) {
-                          details.cancel();
-                        }
-                      }}
-                    >
-                      <Menu.SubmenuTrigger delay={0}>Move to folder</Menu.SubmenuTrigger>
-                      <Menu.Portal>
-                        <Menu.Positioner>
-                          <Menu.Popup>
-                            <Menu.FilterInput aria-label="Filter folders" />
-                            <Menu.FilterList>
-                              <Menu.Item>Documents</Menu.Item>
-                            </Menu.FilterList>
-                          </Menu.Popup>
-                        </Menu.Positioner>
-                      </Menu.Portal>
-                    </Menu.FilterSubmenuRoot>
-                  </Menu.Group>
-                </Menu.FilterList>
-              </Menu.Popup>
-            </Menu.Positioner>
-          </Menu.Portal>
-        </Menu.FilterRoot>,
+        <Menu.FilterProvider>
+          <Menu.Root defaultOpen>
+            <Menu.Trigger>Actions</Menu.Trigger>
+            <Menu.Portal>
+              <Menu.Positioner>
+                <Menu.Popup>
+                  <Menu.FilterInput aria-label="Filter actions" />
+                  <Menu.FilterList>
+                    <Menu.Item>Rename</Menu.Item>
+                    <Menu.Group>
+                      <Menu.FilterProvider>
+                        <Menu.SubmenuRoot
+                          open
+                          onOpenChange={(open, details) => {
+                            if (!open) {
+                              details.cancel();
+                            }
+                          }}
+                        >
+                          <Menu.SubmenuTrigger delay={0}>Move to folder</Menu.SubmenuTrigger>
+                          <Menu.Portal>
+                            <Menu.Positioner>
+                              <Menu.Popup>
+                                <Menu.FilterInput aria-label="Filter folders" />
+                                <Menu.FilterList>
+                                  <Menu.Item>Documents</Menu.Item>
+                                </Menu.FilterList>
+                              </Menu.Popup>
+                            </Menu.Positioner>
+                          </Menu.Portal>
+                        </Menu.SubmenuRoot>
+                      </Menu.FilterProvider>
+                    </Menu.Group>
+                  </Menu.FilterList>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
+          </Menu.Root>
+        </Menu.FilterProvider>,
       );
 
       const parentInput = screen.getByRole('searchbox', { name: 'Filter actions' });
@@ -2828,24 +2993,26 @@ describe('<Menu.FilterRoot />', () => {
 
     it('filters each menu item variant without changing its role', async () => {
       const { user } = await render(
-        <Menu.FilterRoot open defaultInputValue="banana">
-          <Menu.Trigger>Fruit</Menu.Trigger>
-          <Menu.Portal>
-            <Menu.Positioner>
-              <Menu.Popup>
-                <Menu.FilterInput aria-label="Filter fruit" />
-                <Menu.FilterList>
-                  <Menu.Item>Apple</Menu.Item>
-                  <Menu.CheckboxItem>Banana</Menu.CheckboxItem>
-                  <Menu.RadioGroup>
-                    <Menu.RadioItem value="cherry">Cherry</Menu.RadioItem>
-                  </Menu.RadioGroup>
-                  <Menu.LinkItem href="#date">Date</Menu.LinkItem>
-                </Menu.FilterList>
-              </Menu.Popup>
-            </Menu.Positioner>
-          </Menu.Portal>
-        </Menu.FilterRoot>,
+        <Menu.FilterProvider defaultInputValue="banana">
+          <Menu.Root open>
+            <Menu.Trigger>Fruit</Menu.Trigger>
+            <Menu.Portal>
+              <Menu.Positioner>
+                <Menu.Popup>
+                  <Menu.FilterInput aria-label="Filter fruit" />
+                  <Menu.FilterList>
+                    <Menu.Item>Apple</Menu.Item>
+                    <Menu.CheckboxItem>Banana</Menu.CheckboxItem>
+                    <Menu.RadioGroup>
+                      <Menu.RadioItem value="cherry">Cherry</Menu.RadioItem>
+                    </Menu.RadioGroup>
+                    <Menu.LinkItem href="#date">Date</Menu.LinkItem>
+                  </Menu.FilterList>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
+          </Menu.Root>
+        </Menu.FilterProvider>,
       );
 
       const input = screen.getByRole('searchbox', { name: 'Filter fruit' });
@@ -2878,19 +3045,21 @@ describe('<Menu.FilterRoot />', () => {
 
     it('preserves uncontrolled checkbox state while the item is filtered out', async () => {
       const { user } = await render(
-        <Menu.FilterRoot open>
-          <Menu.Portal>
-            <Menu.Positioner>
-              <Menu.Popup>
-                <Menu.FilterInput aria-label="Filter settings" />
-                <Menu.FilterList>
-                  <Menu.CheckboxItem defaultChecked>Show details</Menu.CheckboxItem>
-                  <Menu.Item>Rename</Menu.Item>
-                </Menu.FilterList>
-              </Menu.Popup>
-            </Menu.Positioner>
-          </Menu.Portal>
-        </Menu.FilterRoot>,
+        <Menu.FilterProvider>
+          <Menu.Root open>
+            <Menu.Portal>
+              <Menu.Positioner>
+                <Menu.Popup>
+                  <Menu.FilterInput aria-label="Filter settings" />
+                  <Menu.FilterList>
+                    <Menu.CheckboxItem defaultChecked>Show details</Menu.CheckboxItem>
+                    <Menu.Item>Rename</Menu.Item>
+                  </Menu.FilterList>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
+          </Menu.Root>
+        </Menu.FilterProvider>,
       );
 
       const input = screen.getByRole('searchbox', { name: 'Filter settings' });
@@ -2915,33 +3084,35 @@ describe('<Menu.FilterRoot />', () => {
       const secondRender = vi.fn();
 
       const { user } = await render(
-        <Menu.FilterRoot open>
-          <Menu.Portal>
-            <Menu.Positioner>
-              <Menu.Popup>
-                <Menu.FilterInput aria-label="Filter actions" />
-                <Menu.FilterList>
-                  <Menu.Item
-                    render={(props) => {
-                      firstRender();
-                      return <div {...props} />;
-                    }}
-                  >
-                    Rename
-                  </Menu.Item>
-                  <Menu.Item
-                    render={(props) => {
-                      secondRender();
-                      return <div {...props} />;
-                    }}
-                  >
-                    Delete
-                  </Menu.Item>
-                </Menu.FilterList>
-              </Menu.Popup>
-            </Menu.Positioner>
-          </Menu.Portal>
-        </Menu.FilterRoot>,
+        <Menu.FilterProvider>
+          <Menu.Root open>
+            <Menu.Portal>
+              <Menu.Positioner>
+                <Menu.Popup>
+                  <Menu.FilterInput aria-label="Filter actions" />
+                  <Menu.FilterList>
+                    <Menu.Item
+                      render={(props) => {
+                        firstRender();
+                        return <div {...props} />;
+                      }}
+                    >
+                      Rename
+                    </Menu.Item>
+                    <Menu.Item
+                      render={(props) => {
+                        secondRender();
+                        return <div {...props} />;
+                      }}
+                    >
+                      Delete
+                    </Menu.Item>
+                  </Menu.FilterList>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
+          </Menu.Root>
+        </Menu.FilterProvider>,
       );
 
       const input = screen.getByRole('searchbox', { name: 'Filter actions' });
@@ -2957,21 +3128,23 @@ describe('<Menu.FilterRoot />', () => {
 
     function KeyboardNavigationMenu() {
       return (
-        <Menu.FilterRoot>
-          <Menu.Trigger>Actions</Menu.Trigger>
-          <Menu.Portal>
-            <Menu.Positioner>
-              <Menu.Popup>
-                <Menu.FilterInput aria-label="Filter actions" />
-                <Menu.FilterList>
-                  <Menu.Item>Rename</Menu.Item>
-                  <Menu.Item>Duplicate</Menu.Item>
-                  <Menu.Item>Delete</Menu.Item>
-                </Menu.FilterList>
-              </Menu.Popup>
-            </Menu.Positioner>
-          </Menu.Portal>
-        </Menu.FilterRoot>
+        <Menu.FilterProvider>
+          <Menu.Root>
+            <Menu.Trigger>Actions</Menu.Trigger>
+            <Menu.Portal>
+              <Menu.Positioner>
+                <Menu.Popup>
+                  <Menu.FilterInput aria-label="Filter actions" />
+                  <Menu.FilterList>
+                    <Menu.Item>Rename</Menu.Item>
+                    <Menu.Item>Duplicate</Menu.Item>
+                    <Menu.Item>Delete</Menu.Item>
+                  </Menu.FilterList>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
+          </Menu.Root>
+        </Menu.FilterProvider>
       );
     }
 
@@ -3117,20 +3290,22 @@ describe('<Menu.FilterRoot />', () => {
   describe('typeahead', () => {
     it('does not move the highlight while typing into the input', async () => {
       const { user } = await render(
-        <Menu.FilterRoot defaultOpen>
-          <Menu.Trigger>Actions</Menu.Trigger>
-          <Menu.Portal>
-            <Menu.Positioner>
-              <Menu.Popup>
-                <Menu.FilterInput aria-label="Filter actions" />
-                <Menu.FilterList>
-                  <Menu.Item>Rename</Menu.Item>
-                  <Menu.Item>Duplicate</Menu.Item>
-                </Menu.FilterList>
-              </Menu.Popup>
-            </Menu.Positioner>
-          </Menu.Portal>
-        </Menu.FilterRoot>,
+        <Menu.FilterProvider>
+          <Menu.Root defaultOpen>
+            <Menu.Trigger>Actions</Menu.Trigger>
+            <Menu.Portal>
+              <Menu.Positioner>
+                <Menu.Popup>
+                  <Menu.FilterInput aria-label="Filter actions" />
+                  <Menu.FilterList>
+                    <Menu.Item>Rename</Menu.Item>
+                    <Menu.Item>Duplicate</Menu.Item>
+                  </Menu.FilterList>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
+          </Menu.Root>
+        </Menu.FilterProvider>,
       );
 
       const input = screen.getByRole('searchbox', { name: 'Filter actions' });
@@ -3155,26 +3330,27 @@ describe('<Menu.FilterRoot />', () => {
       const [query, setQuery] = React.useState('');
 
       return (
-        <Menu.FilterRoot
-          defaultOpen
+        <Menu.FilterProvider
           inputValue={query}
           onInputValueChange={(nextQuery) => setQuery(nextQuery)}
         >
-          <Menu.Trigger>Actions</Menu.Trigger>
-          <Menu.Portal>
-            <Menu.Positioner>
-              <Menu.Popup>
-                <Menu.FilterInput aria-label="Filter actions" />
-                <Menu.FilterList>
-                  <Menu.Item>
-                    <Label text="Rename" />
-                  </Menu.Item>
-                  <Menu.Item>Delete</Menu.Item>
-                </Menu.FilterList>
-              </Menu.Popup>
-            </Menu.Positioner>
-          </Menu.Portal>
-        </Menu.FilterRoot>
+          <Menu.Root defaultOpen>
+            <Menu.Trigger>Actions</Menu.Trigger>
+            <Menu.Portal>
+              <Menu.Positioner>
+                <Menu.Popup>
+                  <Menu.FilterInput aria-label="Filter actions" />
+                  <Menu.FilterList>
+                    <Menu.Item>
+                      <Label text="Rename" />
+                    </Menu.Item>
+                    <Menu.Item>Delete</Menu.Item>
+                  </Menu.FilterList>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
+          </Menu.Root>
+        </Menu.FilterProvider>
       );
     }
 
@@ -3196,19 +3372,21 @@ describe('<Menu.FilterRoot />', () => {
 
   it('preserves input focus on item and list presses without blocking the scrollbar', async () => {
     await render(
-      <Menu.FilterRoot defaultOpen>
-        <Menu.Trigger>Actions</Menu.Trigger>
-        <Menu.Portal>
-          <Menu.Positioner>
-            <Menu.Popup>
-              <Menu.FilterInput aria-label="Filter actions" />
-              <Menu.FilterList>
-                <Menu.Item>Rename</Menu.Item>
-              </Menu.FilterList>
-            </Menu.Popup>
-          </Menu.Positioner>
-        </Menu.Portal>
-      </Menu.FilterRoot>,
+      <Menu.FilterProvider>
+        <Menu.Root defaultOpen>
+          <Menu.Trigger>Actions</Menu.Trigger>
+          <Menu.Portal>
+            <Menu.Positioner>
+              <Menu.Popup>
+                <Menu.FilterInput aria-label="Filter actions" />
+                <Menu.FilterList>
+                  <Menu.Item>Rename</Menu.Item>
+                </Menu.FilterList>
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
+        </Menu.Root>
+      </Menu.FilterProvider>,
     );
 
     const list = screen.getByRole('menu');
@@ -3239,20 +3417,22 @@ describe('<Menu.FilterRoot />', () => {
   it('returns focus to the input with the RTL submenu close key', async () => {
     await render(
       <DirectionProvider direction="rtl">
-        <Menu.FilterRoot defaultOpen>
-          <Menu.Trigger>Actions</Menu.Trigger>
-          <Menu.Portal>
-            <Menu.Positioner>
-              <Menu.Popup>
-                <Menu.FilterInput aria-label="Filter actions" />
-                <button type="button">Auxiliary action</button>
-                <Menu.FilterList>
-                  <Menu.Item>Rename</Menu.Item>
-                </Menu.FilterList>
-              </Menu.Popup>
-            </Menu.Positioner>
-          </Menu.Portal>
-        </Menu.FilterRoot>
+        <Menu.FilterProvider>
+          <Menu.Root defaultOpen>
+            <Menu.Trigger>Actions</Menu.Trigger>
+            <Menu.Portal>
+              <Menu.Positioner>
+                <Menu.Popup>
+                  <Menu.FilterInput aria-label="Filter actions" />
+                  <button type="button">Auxiliary action</button>
+                  <Menu.FilterList>
+                    <Menu.Item>Rename</Menu.Item>
+                  </Menu.FilterList>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
+          </Menu.Root>
+        </Menu.FilterProvider>
       </DirectionProvider>,
     );
 
@@ -3270,21 +3450,23 @@ describe('<Menu.FilterRoot />', () => {
   it('releases the highlight when the query is cleared', async () => {
     const onClick = vi.fn();
     const { user } = await render(
-      <Menu.FilterRoot defaultOpen>
-        <Menu.Trigger>Actions</Menu.Trigger>
-        <Menu.Portal>
-          <Menu.Positioner>
-            <Menu.Popup>
-              <Menu.FilterInput aria-label="Filter actions" />
-              <Menu.FilterClear aria-label="Clear filter" />
-              <Menu.FilterList>
-                <Menu.Item onClick={onClick}>Apple</Menu.Item>
-                <Menu.Item>Banana</Menu.Item>
-              </Menu.FilterList>
-            </Menu.Popup>
-          </Menu.Positioner>
-        </Menu.Portal>
-      </Menu.FilterRoot>,
+      <Menu.FilterProvider>
+        <Menu.Root defaultOpen>
+          <Menu.Trigger>Actions</Menu.Trigger>
+          <Menu.Portal>
+            <Menu.Positioner>
+              <Menu.Popup>
+                <Menu.FilterInput aria-label="Filter actions" />
+                <Menu.FilterClear aria-label="Clear filter" />
+                <Menu.FilterList>
+                  <Menu.Item onClick={onClick}>Apple</Menu.Item>
+                  <Menu.Item>Banana</Menu.Item>
+                </Menu.FilterList>
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
+        </Menu.Root>
+      </Menu.FilterProvider>,
     );
 
     const input = screen.getByRole('searchbox', { name: 'Filter actions' });
@@ -3323,9 +3505,7 @@ describe('<Menu.FilterRoot />', () => {
       return (
         <React.Fragment>
           <button onClick={() => setOpen((value) => !value)}>toggle</button>
-          <Menu.FilterRoot
-            open={open}
-            onOpenChange={setOpen}
+          <Menu.FilterProvider
             inputValue={inputValue}
             onInputValueChange={(value, details) => {
               if (details.reason === 'popup-close') {
@@ -3335,19 +3515,21 @@ describe('<Menu.FilterRoot />', () => {
               setInputValue(value);
             }}
           >
-            <Menu.Trigger>Actions</Menu.Trigger>
-            <Menu.Portal>
-              <Menu.Positioner>
-                <Menu.Popup>
-                  <Menu.FilterInput aria-label="Filter actions" />
-                  <Menu.FilterList>
-                    <Menu.Item>Rename</Menu.Item>
-                    <Menu.Item>Delete</Menu.Item>
-                  </Menu.FilterList>
-                </Menu.Popup>
-              </Menu.Positioner>
-            </Menu.Portal>
-          </Menu.FilterRoot>
+            <Menu.Root open={open} onOpenChange={setOpen}>
+              <Menu.Trigger>Actions</Menu.Trigger>
+              <Menu.Portal>
+                <Menu.Positioner>
+                  <Menu.Popup>
+                    <Menu.FilterInput aria-label="Filter actions" />
+                    <Menu.FilterList>
+                      <Menu.Item>Rename</Menu.Item>
+                      <Menu.Item>Delete</Menu.Item>
+                    </Menu.FilterList>
+                  </Menu.Popup>
+                </Menu.Positioner>
+              </Menu.Portal>
+            </Menu.Root>
+          </Menu.FilterProvider>
         </React.Fragment>
       );
     }
@@ -3384,18 +3566,20 @@ describe('<Menu.FilterRoot />', () => {
 
   it('renders Empty when no items are registered at all', async () => {
     await render(
-      <Menu.FilterRoot defaultOpen>
-        <Menu.Trigger>Actions</Menu.Trigger>
-        <Menu.Portal>
-          <Menu.Positioner>
-            <Menu.Popup>
-              <Menu.FilterInput aria-label="Filter actions" />
-              <Menu.FilterEmpty>No actions found</Menu.FilterEmpty>
-              <Menu.FilterList />
-            </Menu.Popup>
-          </Menu.Positioner>
-        </Menu.Portal>
-      </Menu.FilterRoot>,
+      <Menu.FilterProvider>
+        <Menu.Root defaultOpen>
+          <Menu.Trigger>Actions</Menu.Trigger>
+          <Menu.Portal>
+            <Menu.Positioner>
+              <Menu.Popup>
+                <Menu.FilterInput aria-label="Filter actions" />
+                <Menu.FilterEmpty>No actions found</Menu.FilterEmpty>
+                <Menu.FilterList />
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
+        </Menu.Root>
+      </Menu.FilterProvider>,
     );
 
     await waitFor(() => {
@@ -3405,22 +3589,24 @@ describe('<Menu.FilterRoot />', () => {
 
   it('keeps a group with no registered items visible while filtering', async () => {
     const { user } = await render(
-      <Menu.FilterRoot defaultOpen>
-        <Menu.Trigger>Actions</Menu.Trigger>
-        <Menu.Portal>
-          <Menu.Positioner>
-            <Menu.Popup>
-              <Menu.FilterInput aria-label="Filter actions" />
-              <Menu.FilterList>
-                <Menu.Group>
-                  <Menu.GroupLabel>Empty section</Menu.GroupLabel>
-                </Menu.Group>
-                <Menu.Item>Rename</Menu.Item>
-              </Menu.FilterList>
-            </Menu.Popup>
-          </Menu.Positioner>
-        </Menu.Portal>
-      </Menu.FilterRoot>,
+      <Menu.FilterProvider>
+        <Menu.Root defaultOpen>
+          <Menu.Trigger>Actions</Menu.Trigger>
+          <Menu.Portal>
+            <Menu.Positioner>
+              <Menu.Popup>
+                <Menu.FilterInput aria-label="Filter actions" />
+                <Menu.FilterList>
+                  <Menu.Group>
+                    <Menu.GroupLabel>Empty section</Menu.GroupLabel>
+                  </Menu.Group>
+                  <Menu.Item>Rename</Menu.Item>
+                </Menu.FilterList>
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
+        </Menu.Root>
+      </Menu.FilterProvider>,
     );
 
     await user.type(screen.getByRole('searchbox', { name: 'Filter actions' }), 'ren');
@@ -3435,24 +3621,26 @@ describe('<Menu.FilterRoot />', () => {
     function App() {
       const [label, setLabel] = React.useState('Archive');
       return (
-        <Menu.FilterRoot defaultOpen>
-          <Menu.Trigger>Actions</Menu.Trigger>
-          <Menu.Portal>
-            <Menu.Positioner>
-              <Menu.Popup>
-                <Menu.FilterInput aria-label="Filter actions" />
-                {/* Inside the popup so pressing it does not dismiss the menu. */}
-                <button type="button" onClick={() => setLabel('Rename')}>
-                  rename
-                </button>
-                <Menu.FilterList>
-                  <Menu.Item>{label}</Menu.Item>
-                  <Menu.Item>Delete</Menu.Item>
-                </Menu.FilterList>
-              </Menu.Popup>
-            </Menu.Positioner>
-          </Menu.Portal>
-        </Menu.FilterRoot>
+        <Menu.FilterProvider>
+          <Menu.Root defaultOpen>
+            <Menu.Trigger>Actions</Menu.Trigger>
+            <Menu.Portal>
+              <Menu.Positioner>
+                <Menu.Popup>
+                  <Menu.FilterInput aria-label="Filter actions" />
+                  {/* Inside the popup so pressing it does not dismiss the menu. */}
+                  <button type="button" onClick={() => setLabel('Rename')}>
+                    rename
+                  </button>
+                  <Menu.FilterList>
+                    <Menu.Item>{label}</Menu.Item>
+                    <Menu.Item>Delete</Menu.Item>
+                  </Menu.FilterList>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
+          </Menu.Root>
+        </Menu.FilterProvider>
       );
     }
 
@@ -3473,21 +3661,23 @@ describe('<Menu.FilterRoot />', () => {
   it('preserves modifiers when the input activates a link item', async () => {
     const onClick = vi.fn((event: React.MouseEvent) => event.preventDefault());
     const { user } = await render(
-      <Menu.FilterRoot defaultOpen>
-        <Menu.Trigger>Actions</Menu.Trigger>
-        <Menu.Portal>
-          <Menu.Positioner>
-            <Menu.Popup>
-              <Menu.FilterInput aria-label="Filter actions" />
-              <Menu.FilterList>
-                <Menu.LinkItem href="#docs" onClick={onClick}>
-                  Docs
-                </Menu.LinkItem>
-              </Menu.FilterList>
-            </Menu.Popup>
-          </Menu.Positioner>
-        </Menu.Portal>
-      </Menu.FilterRoot>,
+      <Menu.FilterProvider>
+        <Menu.Root defaultOpen>
+          <Menu.Trigger>Actions</Menu.Trigger>
+          <Menu.Portal>
+            <Menu.Positioner>
+              <Menu.Popup>
+                <Menu.FilterInput aria-label="Filter actions" />
+                <Menu.FilterList>
+                  <Menu.LinkItem href="#docs" onClick={onClick}>
+                    Docs
+                  </Menu.LinkItem>
+                </Menu.FilterList>
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
+        </Menu.Root>
+      </Menu.FilterProvider>,
     );
 
     const input = screen.getByRole('searchbox', { name: 'Filter actions' });
@@ -3502,20 +3692,22 @@ describe('<Menu.FilterRoot />', () => {
 
   it('leaves modified editing keys to the input while an item is highlighted', async () => {
     const { user } = await render(
-      <Menu.FilterRoot defaultOpen>
-        <Menu.Trigger>Actions</Menu.Trigger>
-        <Menu.Portal>
-          <Menu.Positioner>
-            <Menu.Popup>
-              <Menu.FilterInput aria-label="Filter actions" />
-              <Menu.FilterList>
-                <Menu.Item>Rename</Menu.Item>
-                <Menu.Item>Duplicate</Menu.Item>
-              </Menu.FilterList>
-            </Menu.Popup>
-          </Menu.Positioner>
-        </Menu.Portal>
-      </Menu.FilterRoot>,
+      <Menu.FilterProvider>
+        <Menu.Root defaultOpen>
+          <Menu.Trigger>Actions</Menu.Trigger>
+          <Menu.Portal>
+            <Menu.Positioner>
+              <Menu.Popup>
+                <Menu.FilterInput aria-label="Filter actions" />
+                <Menu.FilterList>
+                  <Menu.Item>Rename</Menu.Item>
+                  <Menu.Item>Duplicate</Menu.Item>
+                </Menu.FilterList>
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
+        </Menu.Root>
+      </Menu.FilterProvider>,
     );
 
     const input = screen.getByRole('searchbox', { name: 'Filter actions' });
@@ -3543,28 +3735,30 @@ describe('<Menu.FilterRoot />', () => {
 
   it('does not open a highlighted submenu with a modified cross-axis key from the input', async () => {
     const { user } = await render(
-      <Menu.FilterRoot defaultOpen>
-        <Menu.Trigger>Actions</Menu.Trigger>
-        <Menu.Portal>
-          <Menu.Positioner>
-            <Menu.Popup>
-              <Menu.FilterInput aria-label="Filter actions" />
-              <Menu.FilterList>
-                <Menu.SubmenuRoot>
-                  <Menu.SubmenuTrigger delay={0}>Share</Menu.SubmenuTrigger>
-                  <Menu.Portal>
-                    <Menu.Positioner>
-                      <Menu.Popup data-testid="submenu-list">
-                        <Menu.Item>Email</Menu.Item>
-                      </Menu.Popup>
-                    </Menu.Positioner>
-                  </Menu.Portal>
-                </Menu.SubmenuRoot>
-              </Menu.FilterList>
-            </Menu.Popup>
-          </Menu.Positioner>
-        </Menu.Portal>
-      </Menu.FilterRoot>,
+      <Menu.FilterProvider>
+        <Menu.Root defaultOpen>
+          <Menu.Trigger>Actions</Menu.Trigger>
+          <Menu.Portal>
+            <Menu.Positioner>
+              <Menu.Popup>
+                <Menu.FilterInput aria-label="Filter actions" />
+                <Menu.FilterList>
+                  <Menu.SubmenuRoot>
+                    <Menu.SubmenuTrigger delay={0}>Share</Menu.SubmenuTrigger>
+                    <Menu.Portal>
+                      <Menu.Positioner>
+                        <Menu.Popup data-testid="submenu-list">
+                          <Menu.Item>Email</Menu.Item>
+                        </Menu.Popup>
+                      </Menu.Positioner>
+                    </Menu.Portal>
+                  </Menu.SubmenuRoot>
+                </Menu.FilterList>
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
+        </Menu.Root>
+      </Menu.FilterProvider>,
     );
 
     const input = screen.getByRole('searchbox', { name: 'Filter actions' });
@@ -3587,19 +3781,21 @@ describe('<Menu.FilterRoot />', () => {
   it('calls onOpenChangeComplete when the menu opens and closes', async () => {
     const onOpenChangeComplete = vi.fn();
     const { user } = await render(
-      <Menu.FilterRoot onOpenChangeComplete={onOpenChangeComplete}>
-        <Menu.Trigger>Actions</Menu.Trigger>
-        <Menu.Portal>
-          <Menu.Positioner>
-            <Menu.Popup>
-              <Menu.FilterInput aria-label="Filter actions" />
-              <Menu.FilterList>
-                <Menu.Item>Rename</Menu.Item>
-              </Menu.FilterList>
-            </Menu.Popup>
-          </Menu.Positioner>
-        </Menu.Portal>
-      </Menu.FilterRoot>,
+      <Menu.FilterProvider>
+        <Menu.Root onOpenChangeComplete={onOpenChangeComplete}>
+          <Menu.Trigger>Actions</Menu.Trigger>
+          <Menu.Portal>
+            <Menu.Positioner>
+              <Menu.Popup>
+                <Menu.FilterInput aria-label="Filter actions" />
+                <Menu.FilterList>
+                  <Menu.Item>Rename</Menu.Item>
+                </Menu.FilterList>
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
+        </Menu.Root>
+      </Menu.FilterProvider>,
     );
 
     await user.click(screen.getByRole('button', { name: 'Actions' }));
@@ -3615,19 +3811,21 @@ describe('<Menu.FilterRoot />', () => {
 
   it('does not seed a highlight when the trigger regains focus while open', async () => {
     const { user } = await render(
-      <Menu.FilterRoot>
-        <Menu.Trigger>Actions</Menu.Trigger>
-        <Menu.Portal>
-          <Menu.Positioner>
-            <Menu.Popup>
-              <Menu.FilterInput aria-label="Filter actions" />
-              <Menu.FilterList>
-                <Menu.Item>Rename</Menu.Item>
-              </Menu.FilterList>
-            </Menu.Popup>
-          </Menu.Positioner>
-        </Menu.Portal>
-      </Menu.FilterRoot>,
+      <Menu.FilterProvider>
+        <Menu.Root>
+          <Menu.Trigger>Actions</Menu.Trigger>
+          <Menu.Portal>
+            <Menu.Positioner>
+              <Menu.Popup>
+                <Menu.FilterInput aria-label="Filter actions" />
+                <Menu.FilterList>
+                  <Menu.Item>Rename</Menu.Item>
+                </Menu.FilterList>
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
+        </Menu.Root>
+      </Menu.FilterProvider>,
     );
 
     const trigger = screen.getByRole('button', { name: 'Actions' });
@@ -3651,20 +3849,22 @@ describe('<Menu.FilterRoot />', () => {
 
   it('prefers the label prop over rendered text for matching', async () => {
     const { user } = await render(
-      <Menu.FilterRoot defaultOpen>
-        <Menu.Trigger>Actions</Menu.Trigger>
-        <Menu.Portal>
-          <Menu.Positioner>
-            <Menu.Popup>
-              <Menu.FilterInput aria-label="Filter actions" />
-              <Menu.FilterList>
-                <Menu.Item label="Apple">Fruit one</Menu.Item>
-                <Menu.Item>Banana</Menu.Item>
-              </Menu.FilterList>
-            </Menu.Popup>
-          </Menu.Positioner>
-        </Menu.Portal>
-      </Menu.FilterRoot>,
+      <Menu.FilterProvider>
+        <Menu.Root defaultOpen>
+          <Menu.Trigger>Actions</Menu.Trigger>
+          <Menu.Portal>
+            <Menu.Positioner>
+              <Menu.Popup>
+                <Menu.FilterInput aria-label="Filter actions" />
+                <Menu.FilterList>
+                  <Menu.Item label="Apple">Fruit one</Menu.Item>
+                  <Menu.Item>Banana</Menu.Item>
+                </Menu.FilterList>
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
+        </Menu.Root>
+      </Menu.FilterProvider>,
     );
 
     const input = screen.getByRole('searchbox', { name: 'Filter actions' });
@@ -3683,20 +3883,22 @@ describe('<Menu.FilterRoot />', () => {
 
   it('removes Empty once the query matches again', async () => {
     const { user } = await render(
-      <Menu.FilterRoot defaultOpen>
-        <Menu.Trigger>Actions</Menu.Trigger>
-        <Menu.Portal>
-          <Menu.Positioner>
-            <Menu.Popup>
-              <Menu.FilterInput aria-label="Filter actions" />
-              <Menu.FilterEmpty>No actions found</Menu.FilterEmpty>
-              <Menu.FilterList>
-                <Menu.Item>Rename</Menu.Item>
-              </Menu.FilterList>
-            </Menu.Popup>
-          </Menu.Positioner>
-        </Menu.Portal>
-      </Menu.FilterRoot>,
+      <Menu.FilterProvider>
+        <Menu.Root defaultOpen>
+          <Menu.Trigger>Actions</Menu.Trigger>
+          <Menu.Portal>
+            <Menu.Positioner>
+              <Menu.Popup>
+                <Menu.FilterInput aria-label="Filter actions" />
+                <Menu.FilterEmpty>No actions found</Menu.FilterEmpty>
+                <Menu.FilterList>
+                  <Menu.Item>Rename</Menu.Item>
+                </Menu.FilterList>
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
+        </Menu.Root>
+      </Menu.FilterProvider>,
     );
 
     const input = screen.getByRole('searchbox', { name: 'Filter actions' });
@@ -3718,17 +3920,19 @@ describe('<Menu.FilterRoot />', () => {
   describe('server-side rendering', () => {
     it('shows the empty state after hydration when no items are rendered', async () => {
       const { hydrate } = renderToString(
-        <Menu.FilterRoot open>
-          <Menu.Portal>
-            <Menu.Positioner>
-              <Menu.Popup>
-                <Menu.FilterInput aria-label="Filter actions" />
-                <Menu.FilterEmpty data-testid="empty">No actions found</Menu.FilterEmpty>
-                <Menu.FilterList />
-              </Menu.Popup>
-            </Menu.Positioner>
-          </Menu.Portal>
-        </Menu.FilterRoot>,
+        <Menu.FilterProvider>
+          <Menu.Root open>
+            <Menu.Portal>
+              <Menu.Positioner>
+                <Menu.Popup>
+                  <Menu.FilterInput aria-label="Filter actions" />
+                  <Menu.FilterEmpty data-testid="empty">No actions found</Menu.FilterEmpty>
+                  <Menu.FilterList />
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
+          </Menu.Root>
+        </Menu.FilterProvider>,
       );
 
       expect(screen.queryByTestId('empty')).toBe(null);
@@ -3743,19 +3947,21 @@ describe('<Menu.FilterRoot />', () => {
 
   it('does not set aria-selected on highlighted items outside WebKit', async () => {
     const { user } = await render(
-      <Menu.FilterRoot defaultOpen>
-        <Menu.Trigger>Actions</Menu.Trigger>
-        <Menu.Portal>
-          <Menu.Positioner>
-            <Menu.Popup>
-              <Menu.FilterInput aria-label="Filter actions" />
-              <Menu.FilterList>
-                <Menu.Item>Rename</Menu.Item>
-              </Menu.FilterList>
-            </Menu.Popup>
-          </Menu.Positioner>
-        </Menu.Portal>
-      </Menu.FilterRoot>,
+      <Menu.FilterProvider>
+        <Menu.Root defaultOpen>
+          <Menu.Trigger>Actions</Menu.Trigger>
+          <Menu.Portal>
+            <Menu.Positioner>
+              <Menu.Popup>
+                <Menu.FilterInput aria-label="Filter actions" />
+                <Menu.FilterList>
+                  <Menu.Item>Rename</Menu.Item>
+                </Menu.FilterList>
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
+        </Menu.Root>
+      </Menu.FilterProvider>,
     );
 
     const input = screen.getByRole('searchbox', { name: 'Filter actions' });
@@ -3774,33 +3980,37 @@ describe('<Menu.FilterRoot />', () => {
   describe.skipIf(isJSDOM)('hover-opened submenu ownership', () => {
     function HoverMenu() {
       return (
-        <Menu.FilterRoot>
-          <Menu.Trigger>Actions</Menu.Trigger>
-          <Menu.Portal>
-            <Menu.Positioner sideOffset={8}>
-              <Menu.Popup>
-                <Menu.FilterInput aria-label="Filter actions" />
-                <Menu.FilterList>
-                  <Menu.Item>Rename</Menu.Item>
-                  <Menu.Item>Duplicate</Menu.Item>
-                  <Menu.FilterSubmenuRoot>
-                    <Menu.SubmenuTrigger delay={0}>Share</Menu.SubmenuTrigger>
-                    <Menu.Portal>
-                      <Menu.Positioner sideOffset={4}>
-                        <Menu.Popup>
-                          <Menu.FilterInput aria-label="Filter sharing options" />
-                          <Menu.FilterList>
-                            <Menu.Item>Email</Menu.Item>
-                          </Menu.FilterList>
-                        </Menu.Popup>
-                      </Menu.Positioner>
-                    </Menu.Portal>
-                  </Menu.FilterSubmenuRoot>
-                </Menu.FilterList>
-              </Menu.Popup>
-            </Menu.Positioner>
-          </Menu.Portal>
-        </Menu.FilterRoot>
+        <Menu.FilterProvider>
+          <Menu.Root>
+            <Menu.Trigger>Actions</Menu.Trigger>
+            <Menu.Portal>
+              <Menu.Positioner sideOffset={8}>
+                <Menu.Popup>
+                  <Menu.FilterInput aria-label="Filter actions" />
+                  <Menu.FilterList>
+                    <Menu.Item>Rename</Menu.Item>
+                    <Menu.Item>Duplicate</Menu.Item>
+                    <Menu.FilterProvider>
+                      <Menu.SubmenuRoot>
+                        <Menu.SubmenuTrigger delay={0}>Share</Menu.SubmenuTrigger>
+                        <Menu.Portal>
+                          <Menu.Positioner sideOffset={4}>
+                            <Menu.Popup>
+                              <Menu.FilterInput aria-label="Filter sharing options" />
+                              <Menu.FilterList>
+                                <Menu.Item>Email</Menu.Item>
+                              </Menu.FilterList>
+                            </Menu.Popup>
+                          </Menu.Positioner>
+                        </Menu.Portal>
+                      </Menu.SubmenuRoot>
+                    </Menu.FilterProvider>
+                  </Menu.FilterList>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
+          </Menu.Root>
+        </Menu.FilterProvider>
       );
     }
 
@@ -3868,23 +4078,25 @@ describe('<Menu.FilterRoot />', () => {
 
   describe('prop: filter', () => {
     function CustomFilterMenu(props: {
-      filter?: React.ComponentProps<typeof Menu.FilterRoot>['filter'];
+      filter?: Menu.FilterProvider.Props['filter'];
     }) {
       return (
-        <Menu.FilterRoot defaultOpen filter={props.filter}>
-          <Menu.Trigger>Actions</Menu.Trigger>
-          <Menu.Portal>
-            <Menu.Positioner>
-              <Menu.Popup>
-                <Menu.FilterInput aria-label="Filter actions" />
-                <Menu.FilterList>
-                  <Menu.Item keywords={['trash']}>Delete</Menu.Item>
-                  <Menu.Item>Rename</Menu.Item>
-                </Menu.FilterList>
-              </Menu.Popup>
-            </Menu.Positioner>
-          </Menu.Portal>
-        </Menu.FilterRoot>
+        <Menu.FilterProvider filter={props.filter}>
+          <Menu.Root defaultOpen>
+            <Menu.Trigger>Actions</Menu.Trigger>
+            <Menu.Portal>
+              <Menu.Positioner>
+                <Menu.Popup>
+                  <Menu.FilterInput aria-label="Filter actions" />
+                  <Menu.FilterList>
+                    <Menu.Item keywords={['trash']}>Delete</Menu.Item>
+                    <Menu.Item>Rename</Menu.Item>
+                  </Menu.FilterList>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
+          </Menu.Root>
+        </Menu.FilterProvider>
       );
     }
 
@@ -3918,19 +4130,21 @@ describe('<Menu.FilterRoot />', () => {
   describe('canceling changes', () => {
     it('stays closed when onOpenChange is canceled', async () => {
       const { user } = await render(
-        <Menu.FilterRoot onOpenChange={(_, eventDetails) => eventDetails.cancel()}>
-          <Menu.Trigger>Actions</Menu.Trigger>
-          <Menu.Portal>
-            <Menu.Positioner>
-              <Menu.Popup>
-                <Menu.FilterInput aria-label="Filter actions" />
-                <Menu.FilterList>
-                  <Menu.Item>Rename</Menu.Item>
-                </Menu.FilterList>
-              </Menu.Popup>
-            </Menu.Positioner>
-          </Menu.Portal>
-        </Menu.FilterRoot>,
+        <Menu.FilterProvider>
+          <Menu.Root onOpenChange={(_, eventDetails) => eventDetails.cancel()}>
+            <Menu.Trigger>Actions</Menu.Trigger>
+            <Menu.Portal>
+              <Menu.Positioner>
+                <Menu.Popup>
+                  <Menu.FilterInput aria-label="Filter actions" />
+                  <Menu.FilterList>
+                    <Menu.Item>Rename</Menu.Item>
+                  </Menu.FilterList>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
+          </Menu.Root>
+        </Menu.FilterProvider>,
       );
 
       await user.click(screen.getByRole('button', { name: 'Actions' }));
@@ -3940,24 +4154,26 @@ describe('<Menu.FilterRoot />', () => {
 
     it('leaves a checkbox item unchecked when onCheckedChange is canceled', async () => {
       const { user } = await render(
-        <Menu.FilterRoot defaultOpen>
-          <Menu.Trigger>Actions</Menu.Trigger>
-          <Menu.Portal>
-            <Menu.Positioner>
-              <Menu.Popup>
-                <Menu.FilterInput aria-label="Filter actions" />
-                <Menu.FilterList>
-                  <Menu.CheckboxItem
-                    closeOnClick={false}
-                    onCheckedChange={(_, eventDetails) => eventDetails.cancel()}
-                  >
-                    Show hidden
-                  </Menu.CheckboxItem>
-                </Menu.FilterList>
-              </Menu.Popup>
-            </Menu.Positioner>
-          </Menu.Portal>
-        </Menu.FilterRoot>,
+        <Menu.FilterProvider>
+          <Menu.Root defaultOpen>
+            <Menu.Trigger>Actions</Menu.Trigger>
+            <Menu.Portal>
+              <Menu.Positioner>
+                <Menu.Popup>
+                  <Menu.FilterInput aria-label="Filter actions" />
+                  <Menu.FilterList>
+                    <Menu.CheckboxItem
+                      closeOnClick={false}
+                      onCheckedChange={(_, eventDetails) => eventDetails.cancel()}
+                    >
+                      Show hidden
+                    </Menu.CheckboxItem>
+                  </Menu.FilterList>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
+          </Menu.Root>
+        </Menu.FilterProvider>,
       );
 
       const item = screen.getByRole('menuitemcheckbox', { name: 'Show hidden' });
@@ -3971,25 +4187,27 @@ describe('<Menu.FilterRoot />', () => {
         const [checked, setChecked] = React.useState(false);
 
         return (
-          <Menu.FilterRoot defaultOpen>
-            <Menu.Trigger>Actions</Menu.Trigger>
-            <Menu.Portal>
-              <Menu.Positioner>
-                <Menu.Popup>
-                  <Menu.FilterInput aria-label="Filter actions" />
-                  <Menu.FilterList>
-                    <Menu.CheckboxItem
-                      closeOnClick={false}
-                      checked={checked}
-                      onCheckedChange={setChecked}
-                    >
-                      Show hidden
-                    </Menu.CheckboxItem>
-                  </Menu.FilterList>
-                </Menu.Popup>
-              </Menu.Positioner>
-            </Menu.Portal>
-          </Menu.FilterRoot>
+          <Menu.FilterProvider>
+            <Menu.Root defaultOpen>
+              <Menu.Trigger>Actions</Menu.Trigger>
+              <Menu.Portal>
+                <Menu.Positioner>
+                  <Menu.Popup>
+                    <Menu.FilterInput aria-label="Filter actions" />
+                    <Menu.FilterList>
+                      <Menu.CheckboxItem
+                        closeOnClick={false}
+                        checked={checked}
+                        onCheckedChange={setChecked}
+                      >
+                        Show hidden
+                      </Menu.CheckboxItem>
+                    </Menu.FilterList>
+                  </Menu.Popup>
+                </Menu.Positioner>
+              </Menu.Portal>
+            </Menu.Root>
+          </Menu.FilterProvider>
         );
       }
 
@@ -4009,25 +4227,26 @@ describe('<Menu.FilterRoot />', () => {
   describe('input value change reasons', () => {
     async function renderReasonMenu(onInputValueChange: (value: string, reason: string) => void) {
       return render(
-        <Menu.FilterRoot
-          defaultOpen
+        <Menu.FilterProvider
           onInputValueChange={(value, eventDetails) =>
             onInputValueChange(value, eventDetails.reason)
           }
         >
-          <Menu.Trigger>Actions</Menu.Trigger>
-          <Menu.Portal>
-            <Menu.Positioner>
-              <Menu.Popup>
-                <Menu.FilterInput aria-label="Filter actions" />
-                <Menu.FilterClear aria-label="Clear filter" />
-                <Menu.FilterList>
-                  <Menu.Item>Rename</Menu.Item>
-                </Menu.FilterList>
-              </Menu.Popup>
-            </Menu.Positioner>
-          </Menu.Portal>
-        </Menu.FilterRoot>,
+          <Menu.Root defaultOpen>
+            <Menu.Trigger>Actions</Menu.Trigger>
+            <Menu.Portal>
+              <Menu.Positioner>
+                <Menu.Popup>
+                  <Menu.FilterInput aria-label="Filter actions" />
+                  <Menu.FilterClear aria-label="Clear filter" />
+                  <Menu.FilterList>
+                    <Menu.Item>Rename</Menu.Item>
+                  </Menu.FilterList>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
+          </Menu.Root>
+        </Menu.FilterProvider>,
       );
     }
 
@@ -4066,25 +4285,26 @@ describe('<Menu.FilterRoot />', () => {
 
       function ControlledOpen(props: { open: boolean }) {
         return (
-          <Menu.FilterRoot
-            open={props.open}
+          <Menu.FilterProvider
             defaultInputValue="ren"
             onInputValueChange={(value, eventDetails) =>
               onInputValueChange(value, eventDetails.reason)
             }
           >
-            <Menu.Trigger>Actions</Menu.Trigger>
-            <Menu.Portal>
-              <Menu.Positioner>
-                <Menu.Popup>
-                  <Menu.FilterInput aria-label="Filter actions" />
-                  <Menu.FilterList>
-                    <Menu.Item>Rename</Menu.Item>
-                  </Menu.FilterList>
-                </Menu.Popup>
-              </Menu.Positioner>
-            </Menu.Portal>
-          </Menu.FilterRoot>
+            <Menu.Root open={props.open}>
+              <Menu.Trigger>Actions</Menu.Trigger>
+              <Menu.Portal>
+                <Menu.Positioner>
+                  <Menu.Popup>
+                    <Menu.FilterInput aria-label="Filter actions" />
+                    <Menu.FilterList>
+                      <Menu.Item>Rename</Menu.Item>
+                    </Menu.FilterList>
+                  </Menu.Popup>
+                </Menu.Positioner>
+              </Menu.Portal>
+            </Menu.Root>
+          </Menu.FilterProvider>
         );
       }
 
@@ -4098,18 +4318,20 @@ describe('<Menu.FilterRoot />', () => {
   describe('accessible names', () => {
     it('does not point the popup or list at a trigger that never rendered', async () => {
       await render(
-        <Menu.FilterRoot defaultOpen>
-          <Menu.Portal>
-            <Menu.Positioner>
-              <Menu.Popup>
-                <Menu.FilterInput aria-label="Filter actions" />
-                <Menu.FilterList>
-                  <Menu.Item>Rename</Menu.Item>
-                </Menu.FilterList>
-              </Menu.Popup>
-            </Menu.Positioner>
-          </Menu.Portal>
-        </Menu.FilterRoot>,
+        <Menu.FilterProvider>
+          <Menu.Root defaultOpen>
+            <Menu.Portal>
+              <Menu.Positioner>
+                <Menu.Popup>
+                  <Menu.FilterInput aria-label="Filter actions" />
+                  <Menu.FilterList>
+                    <Menu.Item>Rename</Menu.Item>
+                  </Menu.FilterList>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
+          </Menu.Root>
+        </Menu.FilterProvider>,
       );
 
       expect(screen.getByRole('dialog')).not.toHaveAttribute('aria-labelledby');
@@ -4118,19 +4340,21 @@ describe('<Menu.FilterRoot />', () => {
 
     it('labels the list with the trigger when no label is given', async () => {
       await render(
-        <Menu.FilterRoot defaultOpen>
-          <Menu.Trigger>Actions</Menu.Trigger>
-          <Menu.Portal>
-            <Menu.Positioner>
-              <Menu.Popup>
-                <Menu.FilterInput aria-label="Filter actions" />
-                <Menu.FilterList>
-                  <Menu.Item>Rename</Menu.Item>
-                </Menu.FilterList>
-              </Menu.Popup>
-            </Menu.Positioner>
-          </Menu.Portal>
-        </Menu.FilterRoot>,
+        <Menu.FilterProvider>
+          <Menu.Root defaultOpen>
+            <Menu.Trigger>Actions</Menu.Trigger>
+            <Menu.Portal>
+              <Menu.Positioner>
+                <Menu.Popup>
+                  <Menu.FilterInput aria-label="Filter actions" />
+                  <Menu.FilterList>
+                    <Menu.Item>Rename</Menu.Item>
+                  </Menu.FilterList>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
+          </Menu.Root>
+        </Menu.FilterProvider>,
       );
 
       const trigger = screen.getByRole('button', { name: 'Actions' });
@@ -4139,19 +4363,21 @@ describe('<Menu.FilterRoot />', () => {
 
     it('keeps a list label supplied through a render element', async () => {
       await render(
-        <Menu.FilterRoot defaultOpen>
-          <Menu.Trigger>Actions</Menu.Trigger>
-          <Menu.Portal>
-            <Menu.Positioner>
-              <Menu.Popup>
-                <Menu.FilterInput aria-label="Filter actions" />
-                <Menu.FilterList render={<div aria-label="Commands" />}>
-                  <Menu.Item>Rename</Menu.Item>
-                </Menu.FilterList>
-              </Menu.Popup>
-            </Menu.Positioner>
-          </Menu.Portal>
-        </Menu.FilterRoot>,
+        <Menu.FilterProvider>
+          <Menu.Root defaultOpen>
+            <Menu.Trigger>Actions</Menu.Trigger>
+            <Menu.Portal>
+              <Menu.Positioner>
+                <Menu.Popup>
+                  <Menu.FilterInput aria-label="Filter actions" />
+                  <Menu.FilterList render={<div aria-label="Commands" />}>
+                    <Menu.Item>Rename</Menu.Item>
+                  </Menu.FilterList>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
+          </Menu.Root>
+        </Menu.FilterProvider>,
       );
 
       const list = screen.getByRole('menu');
@@ -4161,19 +4387,21 @@ describe('<Menu.FilterRoot />', () => {
 
     it('omits aria-controls when the list renders with an explicitly empty id', async () => {
       await render(
-        <Menu.FilterRoot defaultOpen>
-          <Menu.Trigger>Actions</Menu.Trigger>
-          <Menu.Portal>
-            <Menu.Positioner>
-              <Menu.Popup>
-                <Menu.FilterInput aria-label="Filter actions" />
-                <Menu.FilterList render={<div id="" />}>
-                  <Menu.Item>Rename</Menu.Item>
-                </Menu.FilterList>
-              </Menu.Popup>
-            </Menu.Positioner>
-          </Menu.Portal>
-        </Menu.FilterRoot>,
+        <Menu.FilterProvider>
+          <Menu.Root defaultOpen>
+            <Menu.Trigger>Actions</Menu.Trigger>
+            <Menu.Portal>
+              <Menu.Positioner>
+                <Menu.Popup>
+                  <Menu.FilterInput aria-label="Filter actions" />
+                  <Menu.FilterList render={<div id="" />}>
+                    <Menu.Item>Rename</Menu.Item>
+                  </Menu.FilterList>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
+          </Menu.Root>
+        </Menu.FilterProvider>,
       );
 
       const input = screen.getByRole('searchbox', { name: 'Filter actions' });
@@ -4185,19 +4413,21 @@ describe('<Menu.FilterRoot />', () => {
 
     it('omits the list label when the trigger renders with an explicitly empty id', async () => {
       await render(
-        <Menu.FilterRoot defaultOpen>
-          <Menu.Trigger render={<button id="" />}>Actions</Menu.Trigger>
-          <Menu.Portal>
-            <Menu.Positioner>
-              <Menu.Popup>
-                <Menu.FilterInput aria-label="Filter actions" />
-                <Menu.FilterList>
-                  <Menu.Item>Rename</Menu.Item>
-                </Menu.FilterList>
-              </Menu.Popup>
-            </Menu.Positioner>
-          </Menu.Portal>
-        </Menu.FilterRoot>,
+        <Menu.FilterProvider>
+          <Menu.Root defaultOpen>
+            <Menu.Trigger render={<button id="" />}>Actions</Menu.Trigger>
+            <Menu.Portal>
+              <Menu.Positioner>
+                <Menu.Popup>
+                  <Menu.FilterInput aria-label="Filter actions" />
+                  <Menu.FilterList>
+                    <Menu.Item>Rename</Menu.Item>
+                  </Menu.FilterList>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
+          </Menu.Root>
+        </Menu.FilterProvider>,
       );
 
       const list = screen.getByRole('menu');
@@ -4215,18 +4445,20 @@ describe('<Menu.FilterRoot />', () => {
 
         return (
           <React.Fragment>
-            <Menu.FilterRoot handle={handle}>
-              <Menu.Portal>
-                <Menu.Positioner>
-                  <Menu.Popup>
-                    <Menu.FilterInput aria-label="Filter actions" />
-                    <Menu.FilterList>
-                      <Menu.Item>Rename</Menu.Item>
-                    </Menu.FilterList>
-                  </Menu.Popup>
-                </Menu.Positioner>
-              </Menu.Portal>
-            </Menu.FilterRoot>
+            <Menu.FilterProvider>
+              <Menu.Root handle={handle}>
+                <Menu.Portal>
+                  <Menu.Positioner>
+                    <Menu.Popup>
+                      <Menu.FilterInput aria-label="Filter actions" />
+                      <Menu.FilterList>
+                        <Menu.Item>Rename</Menu.Item>
+                      </Menu.FilterList>
+                    </Menu.Popup>
+                  </Menu.Positioner>
+                </Menu.Portal>
+              </Menu.Root>
+            </Menu.FilterProvider>
             <Menu.Trigger handle={handle}>Actions</Menu.Trigger>
           </React.Fragment>
         );
@@ -4257,19 +4489,21 @@ describe('<Menu.FilterRoot />', () => {
       const onPopupKeyDown = vi.fn();
 
       const { user } = await render(
-        <Menu.FilterRoot>
-          <Menu.Trigger onClick={onTriggerClick}>Actions</Menu.Trigger>
-          <Menu.Portal>
-            <Menu.Positioner>
-              <Menu.Popup onKeyDown={onPopupKeyDown}>
-                <Menu.FilterInput aria-label="Filter actions" onKeyDown={onInputKeyDown} />
-                <Menu.FilterList>
-                  <Menu.Item>Rename</Menu.Item>
-                </Menu.FilterList>
-              </Menu.Popup>
-            </Menu.Positioner>
-          </Menu.Portal>
-        </Menu.FilterRoot>,
+        <Menu.FilterProvider>
+          <Menu.Root>
+            <Menu.Trigger onClick={onTriggerClick}>Actions</Menu.Trigger>
+            <Menu.Portal>
+              <Menu.Positioner>
+                <Menu.Popup onKeyDown={onPopupKeyDown}>
+                  <Menu.FilterInput aria-label="Filter actions" onKeyDown={onInputKeyDown} />
+                  <Menu.FilterList>
+                    <Menu.Item>Rename</Menu.Item>
+                  </Menu.FilterList>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
+          </Menu.Root>
+        </Menu.FilterProvider>,
       );
 
       await user.click(screen.getByRole('button', { name: 'Actions' }));
@@ -4297,20 +4531,22 @@ describe('<Menu.FilterRoot />', () => {
   describe('focus ownership inside the popup', () => {
     it('leaves focus on another control in the popup when the pointer moves', async () => {
       await render(
-        <Menu.FilterRoot defaultOpen>
-          <Menu.Trigger>Actions</Menu.Trigger>
-          <Menu.Portal>
-            <Menu.Positioner>
-              <Menu.Popup data-testid="popup">
-                <Menu.FilterInput aria-label="Filter actions" />
-                <button type="button">Auxiliary action</button>
-                <Menu.FilterList>
-                  <Menu.Item>Rename</Menu.Item>
-                </Menu.FilterList>
-              </Menu.Popup>
-            </Menu.Positioner>
-          </Menu.Portal>
-        </Menu.FilterRoot>,
+        <Menu.FilterProvider>
+          <Menu.Root defaultOpen>
+            <Menu.Trigger>Actions</Menu.Trigger>
+            <Menu.Portal>
+              <Menu.Positioner>
+                <Menu.Popup data-testid="popup">
+                  <Menu.FilterInput aria-label="Filter actions" />
+                  <button type="button">Auxiliary action</button>
+                  <Menu.FilterList>
+                    <Menu.Item>Rename</Menu.Item>
+                  </Menu.FilterList>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
+          </Menu.Root>
+        </Menu.FilterProvider>,
       );
 
       const auxiliary = screen.getByRole('button', { name: 'Auxiliary action' });
@@ -4325,35 +4561,39 @@ describe('<Menu.FilterRoot />', () => {
 
     it('keeps focus in an open auto-focused submenu while the pointer crosses the parent popup', async () => {
       const { user } = await render(
-        <Menu.FilterRoot defaultOpen>
-          <Menu.Trigger>Actions</Menu.Trigger>
-          <Menu.Portal>
-            <Menu.Positioner>
-              <Menu.Popup>
-                <Menu.FilterInput aria-label="Filter actions" />
-                <Menu.FilterList>
-                  <Menu.Item>Rename</Menu.Item>
-                  <Menu.FilterSubmenuRoot>
-                    {/* Crossing a sibling item only schedules the close. */}
-                    <Menu.SubmenuTrigger delay={0} closeDelay={1000}>
-                      Move to folder
-                    </Menu.SubmenuTrigger>
-                    <Menu.Portal>
-                      <Menu.Positioner>
-                        <Menu.Popup>
-                          <Menu.FilterInput aria-label="Filter folders" autoFocus />
-                          <Menu.FilterList>
-                            <Menu.Item>Documents</Menu.Item>
-                          </Menu.FilterList>
-                        </Menu.Popup>
-                      </Menu.Positioner>
-                    </Menu.Portal>
-                  </Menu.FilterSubmenuRoot>
-                </Menu.FilterList>
-              </Menu.Popup>
-            </Menu.Positioner>
-          </Menu.Portal>
-        </Menu.FilterRoot>,
+        <Menu.FilterProvider>
+          <Menu.Root defaultOpen>
+            <Menu.Trigger>Actions</Menu.Trigger>
+            <Menu.Portal>
+              <Menu.Positioner>
+                <Menu.Popup>
+                  <Menu.FilterInput aria-label="Filter actions" />
+                  <Menu.FilterList>
+                    <Menu.Item>Rename</Menu.Item>
+                    <Menu.FilterProvider>
+                      <Menu.SubmenuRoot>
+                        {/* Crossing a sibling item only schedules the close. */}
+                        <Menu.SubmenuTrigger delay={0} closeDelay={1000}>
+                          Move to folder
+                        </Menu.SubmenuTrigger>
+                        <Menu.Portal>
+                          <Menu.Positioner>
+                            <Menu.Popup>
+                              <Menu.FilterInput aria-label="Filter folders" autoFocus />
+                              <Menu.FilterList>
+                                <Menu.Item>Documents</Menu.Item>
+                              </Menu.FilterList>
+                            </Menu.Popup>
+                          </Menu.Positioner>
+                        </Menu.Portal>
+                      </Menu.SubmenuRoot>
+                    </Menu.FilterProvider>
+                  </Menu.FilterList>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
+          </Menu.Root>
+        </Menu.FilterProvider>,
       );
 
       await user.hover(screen.getByRole('menuitem', { name: 'Move to folder' }));
@@ -4369,33 +4609,37 @@ describe('<Menu.FilterRoot />', () => {
 
     it('returns focus to the parent input when the pointer moves back over the parent popup', async () => {
       const { user } = await render(
-        <Menu.FilterRoot defaultOpen>
-          <Menu.Trigger>Actions</Menu.Trigger>
-          <Menu.Portal>
-            <Menu.Positioner>
-              <Menu.Popup>
-                <Menu.FilterInput aria-label="Filter actions" />
-                <Menu.FilterList>
-                  <Menu.FilterSubmenuRoot>
-                    <Menu.SubmenuTrigger delay={0} closeDelay={1000}>
-                      Move to folder
-                    </Menu.SubmenuTrigger>
-                    <Menu.Portal>
-                      <Menu.Positioner>
-                        <Menu.Popup>
-                          <Menu.FilterInput aria-label="Filter folders" />
-                          <Menu.FilterList>
-                            <Menu.Item>Documents</Menu.Item>
-                          </Menu.FilterList>
-                        </Menu.Popup>
-                      </Menu.Positioner>
-                    </Menu.Portal>
-                  </Menu.FilterSubmenuRoot>
-                </Menu.FilterList>
-              </Menu.Popup>
-            </Menu.Positioner>
-          </Menu.Portal>
-        </Menu.FilterRoot>,
+        <Menu.FilterProvider>
+          <Menu.Root defaultOpen>
+            <Menu.Trigger>Actions</Menu.Trigger>
+            <Menu.Portal>
+              <Menu.Positioner>
+                <Menu.Popup>
+                  <Menu.FilterInput aria-label="Filter actions" />
+                  <Menu.FilterList>
+                    <Menu.FilterProvider>
+                      <Menu.SubmenuRoot>
+                        <Menu.SubmenuTrigger delay={0} closeDelay={1000}>
+                          Move to folder
+                        </Menu.SubmenuTrigger>
+                        <Menu.Portal>
+                          <Menu.Positioner>
+                            <Menu.Popup>
+                              <Menu.FilterInput aria-label="Filter folders" />
+                              <Menu.FilterList>
+                                <Menu.Item>Documents</Menu.Item>
+                              </Menu.FilterList>
+                            </Menu.Popup>
+                          </Menu.Positioner>
+                        </Menu.Portal>
+                      </Menu.SubmenuRoot>
+                    </Menu.FilterProvider>
+                  </Menu.FilterList>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
+          </Menu.Root>
+        </Menu.FilterProvider>,
       );
 
       const rootInput = screen.getByRole('searchbox', { name: 'Filter actions' });
@@ -4420,34 +4664,38 @@ describe('<Menu.FilterRoot />', () => {
 
     it('returns focus to the parent input once a pointer-opened submenu unmounts', async () => {
       const { user } = await render(
-        <Menu.FilterRoot defaultOpen>
-          <Menu.Trigger>Actions</Menu.Trigger>
-          <Menu.Portal>
-            <Menu.Positioner>
-              <Menu.Popup>
-                <Menu.FilterInput aria-label="Filter actions" />
-                <Menu.FilterList>
-                  <Menu.Item>Rename</Menu.Item>
-                  <Menu.FilterSubmenuRoot>
-                    <Menu.SubmenuTrigger delay={0} closeDelay={0}>
-                      Move to folder
-                    </Menu.SubmenuTrigger>
-                    <Menu.Portal>
-                      <Menu.Positioner>
-                        <Menu.Popup>
-                          <Menu.FilterInput aria-label="Filter folders" />
-                          <Menu.FilterList>
-                            <Menu.Item>Documents</Menu.Item>
-                          </Menu.FilterList>
-                        </Menu.Popup>
-                      </Menu.Positioner>
-                    </Menu.Portal>
-                  </Menu.FilterSubmenuRoot>
-                </Menu.FilterList>
-              </Menu.Popup>
-            </Menu.Positioner>
-          </Menu.Portal>
-        </Menu.FilterRoot>,
+        <Menu.FilterProvider>
+          <Menu.Root defaultOpen>
+            <Menu.Trigger>Actions</Menu.Trigger>
+            <Menu.Portal>
+              <Menu.Positioner>
+                <Menu.Popup>
+                  <Menu.FilterInput aria-label="Filter actions" />
+                  <Menu.FilterList>
+                    <Menu.Item>Rename</Menu.Item>
+                    <Menu.FilterProvider>
+                      <Menu.SubmenuRoot>
+                        <Menu.SubmenuTrigger delay={0} closeDelay={0}>
+                          Move to folder
+                        </Menu.SubmenuTrigger>
+                        <Menu.Portal>
+                          <Menu.Positioner>
+                            <Menu.Popup>
+                              <Menu.FilterInput aria-label="Filter folders" />
+                              <Menu.FilterList>
+                                <Menu.Item>Documents</Menu.Item>
+                              </Menu.FilterList>
+                            </Menu.Popup>
+                          </Menu.Positioner>
+                        </Menu.Portal>
+                      </Menu.SubmenuRoot>
+                    </Menu.FilterProvider>
+                  </Menu.FilterList>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
+          </Menu.Root>
+        </Menu.FilterProvider>,
       );
 
       await user.hover(screen.getByRole('menuitem', { name: 'Move to folder' }));
@@ -4473,35 +4721,39 @@ describe('<Menu.FilterRoot />', () => {
 
     it('returns focus to the parent input when the pointer leaves a submenu trigger', async () => {
       const { user } = await render(
-        <Menu.FilterRoot defaultOpen>
-          <Menu.Trigger>Actions</Menu.Trigger>
-          <Menu.Portal>
-            <Menu.Positioner>
-              <Menu.Popup>
-                <Menu.FilterInput aria-label="Filter actions" />
-                <Menu.FilterList>
-                  <Menu.Item>Rename</Menu.Item>
-                  <Menu.FilterSubmenuRoot>
-                    <Menu.SubmenuTrigger delay={0} closeDelay={0}>
-                      Move to folder
-                    </Menu.SubmenuTrigger>
-                    <Menu.Portal>
-                      <Menu.Positioner>
-                        <Menu.Popup>
-                          {/* Focus enters on hover, so the pointer never has to land on the popup. */}
-                          <Menu.FilterInput aria-label="Filter folders" autoFocus />
-                          <Menu.FilterList>
-                            <Menu.Item>Documents</Menu.Item>
-                          </Menu.FilterList>
-                        </Menu.Popup>
-                      </Menu.Positioner>
-                    </Menu.Portal>
-                  </Menu.FilterSubmenuRoot>
-                </Menu.FilterList>
-              </Menu.Popup>
-            </Menu.Positioner>
-          </Menu.Portal>
-        </Menu.FilterRoot>,
+        <Menu.FilterProvider>
+          <Menu.Root defaultOpen>
+            <Menu.Trigger>Actions</Menu.Trigger>
+            <Menu.Portal>
+              <Menu.Positioner>
+                <Menu.Popup>
+                  <Menu.FilterInput aria-label="Filter actions" />
+                  <Menu.FilterList>
+                    <Menu.Item>Rename</Menu.Item>
+                    <Menu.FilterProvider>
+                      <Menu.SubmenuRoot>
+                        <Menu.SubmenuTrigger delay={0} closeDelay={0}>
+                          Move to folder
+                        </Menu.SubmenuTrigger>
+                        <Menu.Portal>
+                          <Menu.Positioner>
+                            <Menu.Popup>
+                              {/* Focus enters on hover, so the pointer never has to land on the popup. */}
+                              <Menu.FilterInput aria-label="Filter folders" autoFocus />
+                              <Menu.FilterList>
+                                <Menu.Item>Documents</Menu.Item>
+                              </Menu.FilterList>
+                            </Menu.Popup>
+                          </Menu.Positioner>
+                        </Menu.Portal>
+                      </Menu.SubmenuRoot>
+                    </Menu.FilterProvider>
+                  </Menu.FilterList>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
+          </Menu.Root>
+        </Menu.FilterProvider>,
       );
 
       const submenuTrigger = screen.getByRole('menuitem', { name: 'Move to folder' });
@@ -4528,74 +4780,82 @@ describe('<Menu.FilterRoot />', () => {
     function SiblingSubmenus(props: { autoFocus?: boolean; onRootInputFocus: () => void }) {
       function Submenu(submenuProps: { label: string; delay: number }) {
         return (
-          <Menu.FilterSubmenuRoot>
-            {/* The close waits until the pointer has highlighted the next trigger. */}
-            <Menu.SubmenuTrigger delay={submenuProps.delay} closeDelay={10}>
-              {submenuProps.label}
-            </Menu.SubmenuTrigger>
-            <Menu.Portal>
-              <Menu.Positioner>
-                <Menu.Popup>
-                  <Menu.FilterInput
-                    aria-label={`Filter ${submenuProps.label}`}
-                    autoFocus={props.autoFocus}
-                  />
-                  <Menu.FilterList>
-                    <Menu.Item>Option</Menu.Item>
-                  </Menu.FilterList>
-                </Menu.Popup>
-              </Menu.Positioner>
-            </Menu.Portal>
-          </Menu.FilterSubmenuRoot>
+          <Menu.FilterProvider>
+            <Menu.SubmenuRoot>
+              {/* The close waits until the pointer has highlighted the next trigger. */}
+              <Menu.SubmenuTrigger delay={submenuProps.delay} closeDelay={10}>
+                {submenuProps.label}
+              </Menu.SubmenuTrigger>
+              <Menu.Portal>
+                <Menu.Positioner>
+                  <Menu.Popup>
+                    <Menu.FilterInput
+                      aria-label={`Filter ${submenuProps.label}`}
+                      autoFocus={props.autoFocus}
+                    />
+                    <Menu.FilterList>
+                      <Menu.Item>Option</Menu.Item>
+                    </Menu.FilterList>
+                  </Menu.Popup>
+                </Menu.Positioner>
+              </Menu.Portal>
+            </Menu.SubmenuRoot>
+          </Menu.FilterProvider>
         );
       }
 
       return (
-        <Menu.FilterRoot defaultOpen>
-          <Menu.Trigger>Actions</Menu.Trigger>
-          <Menu.Portal>
-            <Menu.Positioner>
-              <Menu.Popup>
-                <Menu.FilterInput aria-label="Filter actions" onFocus={props.onRootInputFocus} />
-                <Menu.FilterList>
-                  <Submenu label="Move to folder" delay={0} />
-                  {/* Opens only after the first submenu has unmounted. */}
-                  <Submenu label="Share" delay={50} />
-                </Menu.FilterList>
-              </Menu.Popup>
-            </Menu.Positioner>
-          </Menu.Portal>
-        </Menu.FilterRoot>
+        <Menu.FilterProvider>
+          <Menu.Root defaultOpen>
+            <Menu.Trigger>Actions</Menu.Trigger>
+            <Menu.Portal>
+              <Menu.Positioner>
+                <Menu.Popup>
+                  <Menu.FilterInput aria-label="Filter actions" onFocus={props.onRootInputFocus} />
+                  <Menu.FilterList>
+                    <Submenu label="Move to folder" delay={0} />
+                    {/* Opens only after the first submenu has unmounted. */}
+                    <Submenu label="Share" delay={50} />
+                  </Menu.FilterList>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
+          </Menu.Root>
+        </Menu.FilterProvider>
       );
     }
 
     it('opens a hovered submenu without moving focus until the pointer enters it', async () => {
       const { user } = await render(
-        <Menu.FilterRoot defaultOpen>
-          <Menu.Trigger>Actions</Menu.Trigger>
-          <Menu.Portal>
-            <Menu.Positioner>
-              <Menu.Popup>
-                <Menu.FilterInput aria-label="Filter actions" />
-                <Menu.FilterList>
-                  <Menu.FilterSubmenuRoot>
-                    <Menu.SubmenuTrigger delay={0}>Move to folder</Menu.SubmenuTrigger>
-                    <Menu.Portal>
-                      <Menu.Positioner>
-                        <Menu.Popup data-testid="submenu-popup">
-                          <Menu.FilterInput aria-label="Filter folders" />
-                          <Menu.FilterList>
-                            <Menu.Item>Documents</Menu.Item>
-                          </Menu.FilterList>
-                        </Menu.Popup>
-                      </Menu.Positioner>
-                    </Menu.Portal>
-                  </Menu.FilterSubmenuRoot>
-                </Menu.FilterList>
-              </Menu.Popup>
-            </Menu.Positioner>
-          </Menu.Portal>
-        </Menu.FilterRoot>,
+        <Menu.FilterProvider>
+          <Menu.Root defaultOpen>
+            <Menu.Trigger>Actions</Menu.Trigger>
+            <Menu.Portal>
+              <Menu.Positioner>
+                <Menu.Popup>
+                  <Menu.FilterInput aria-label="Filter actions" />
+                  <Menu.FilterList>
+                    <Menu.FilterProvider>
+                      <Menu.SubmenuRoot>
+                        <Menu.SubmenuTrigger delay={0}>Move to folder</Menu.SubmenuTrigger>
+                        <Menu.Portal>
+                          <Menu.Positioner>
+                            <Menu.Popup data-testid="submenu-popup">
+                              <Menu.FilterInput aria-label="Filter folders" />
+                              <Menu.FilterList>
+                                <Menu.Item>Documents</Menu.Item>
+                              </Menu.FilterList>
+                            </Menu.Popup>
+                          </Menu.Positioner>
+                        </Menu.Portal>
+                      </Menu.SubmenuRoot>
+                    </Menu.FilterProvider>
+                  </Menu.FilterList>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
+          </Menu.Root>
+        </Menu.FilterProvider>,
       );
 
       const rootInput = screen.getByRole('searchbox', { name: 'Filter actions' });
@@ -4619,34 +4879,38 @@ describe('<Menu.FilterRoot />', () => {
 
     it('focuses a submenu input with autoFocus as soon as its trigger is hovered', async () => {
       const { user } = await render(
-        <Menu.FilterRoot defaultOpen>
-          <Menu.Trigger>Actions</Menu.Trigger>
-          <Menu.Portal>
-            <Menu.Positioner>
-              <Menu.Popup>
-                <Menu.FilterInput aria-label="Filter actions" />
-                <Menu.FilterList>
-                  <Menu.Item>Rename</Menu.Item>
-                  <Menu.FilterSubmenuRoot>
-                    <Menu.SubmenuTrigger delay={0} closeDelay={1000}>
-                      Move to folder
-                    </Menu.SubmenuTrigger>
-                    <Menu.Portal>
-                      <Menu.Positioner>
-                        <Menu.Popup>
-                          <Menu.FilterInput aria-label="Filter folders" autoFocus />
-                          <Menu.FilterList>
-                            <Menu.Item>Documents</Menu.Item>
-                          </Menu.FilterList>
-                        </Menu.Popup>
-                      </Menu.Positioner>
-                    </Menu.Portal>
-                  </Menu.FilterSubmenuRoot>
-                </Menu.FilterList>
-              </Menu.Popup>
-            </Menu.Positioner>
-          </Menu.Portal>
-        </Menu.FilterRoot>,
+        <Menu.FilterProvider>
+          <Menu.Root defaultOpen>
+            <Menu.Trigger>Actions</Menu.Trigger>
+            <Menu.Portal>
+              <Menu.Positioner>
+                <Menu.Popup>
+                  <Menu.FilterInput aria-label="Filter actions" />
+                  <Menu.FilterList>
+                    <Menu.Item>Rename</Menu.Item>
+                    <Menu.FilterProvider>
+                      <Menu.SubmenuRoot>
+                        <Menu.SubmenuTrigger delay={0} closeDelay={1000}>
+                          Move to folder
+                        </Menu.SubmenuTrigger>
+                        <Menu.Portal>
+                          <Menu.Positioner>
+                            <Menu.Popup>
+                              <Menu.FilterInput aria-label="Filter folders" autoFocus />
+                              <Menu.FilterList>
+                                <Menu.Item>Documents</Menu.Item>
+                              </Menu.FilterList>
+                            </Menu.Popup>
+                          </Menu.Positioner>
+                        </Menu.Portal>
+                      </Menu.SubmenuRoot>
+                    </Menu.FilterProvider>
+                  </Menu.FilterList>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
+          </Menu.Root>
+        </Menu.FilterProvider>,
       );
 
       const rootInput = screen.getByRole('searchbox', { name: 'Filter actions' });
@@ -4724,19 +4988,21 @@ describe('<Menu.FilterRoot />', () => {
   describe('leaving the menu', () => {
     function QueryMenu() {
       return (
-        <Menu.FilterRoot defaultOpen>
-          <Menu.Trigger>Actions</Menu.Trigger>
-          <Menu.Portal>
-            <Menu.Positioner>
-              <Menu.Popup>
-                <Menu.FilterInput aria-label="Filter actions" />
-                <Menu.FilterList>
-                  <Menu.Item>Rename</Menu.Item>
-                </Menu.FilterList>
-              </Menu.Popup>
-            </Menu.Positioner>
-          </Menu.Portal>
-        </Menu.FilterRoot>
+        <Menu.FilterProvider>
+          <Menu.Root defaultOpen>
+            <Menu.Trigger>Actions</Menu.Trigger>
+            <Menu.Portal>
+              <Menu.Positioner>
+                <Menu.Popup>
+                  <Menu.FilterInput aria-label="Filter actions" />
+                  <Menu.FilterList>
+                    <Menu.Item>Rename</Menu.Item>
+                  </Menu.FilterList>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
+          </Menu.Root>
+        </Menu.FilterProvider>
       );
     }
 
@@ -4793,20 +5059,22 @@ describe('<Menu.FilterRoot />', () => {
   describe('prop: keepMounted', () => {
     it('resets the query and highlight across a close and reopen', async () => {
       const { user } = await render(
-        <Menu.FilterRoot>
-          <Menu.Trigger>Actions</Menu.Trigger>
-          <Menu.Portal keepMounted>
-            <Menu.Positioner>
-              <Menu.Popup>
-                <Menu.FilterInput aria-label="Filter actions" />
-                <Menu.FilterList>
-                  <Menu.Item>Rename</Menu.Item>
-                  <Menu.Item>Delete</Menu.Item>
-                </Menu.FilterList>
-              </Menu.Popup>
-            </Menu.Positioner>
-          </Menu.Portal>
-        </Menu.FilterRoot>,
+        <Menu.FilterProvider>
+          <Menu.Root>
+            <Menu.Trigger>Actions</Menu.Trigger>
+            <Menu.Portal keepMounted>
+              <Menu.Positioner>
+                <Menu.Popup>
+                  <Menu.FilterInput aria-label="Filter actions" />
+                  <Menu.FilterList>
+                    <Menu.Item>Rename</Menu.Item>
+                    <Menu.Item>Delete</Menu.Item>
+                  </Menu.FilterList>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
+          </Menu.Root>
+        </Menu.FilterProvider>,
       );
 
       const trigger = screen.getByRole('button', { name: 'Actions' });
@@ -4841,22 +5109,24 @@ describe('<Menu.FilterRoot />', () => {
   describe('with a Viewport', () => {
     it('keeps real focus on the input while the cursor moves through the list', async () => {
       const { user } = await render(
-        <Menu.FilterRoot defaultOpen>
-          <Menu.Trigger>Actions</Menu.Trigger>
-          <Menu.Portal>
-            <Menu.Positioner>
-              <Menu.Popup>
-                <Menu.FilterInput aria-label="Filter actions" />
-                <Menu.Viewport>
-                  <Menu.FilterList>
-                    <Menu.Item>Rename</Menu.Item>
-                    <Menu.Item>Delete</Menu.Item>
-                  </Menu.FilterList>
-                </Menu.Viewport>
-              </Menu.Popup>
-            </Menu.Positioner>
-          </Menu.Portal>
-        </Menu.FilterRoot>,
+        <Menu.FilterProvider>
+          <Menu.Root defaultOpen>
+            <Menu.Trigger>Actions</Menu.Trigger>
+            <Menu.Portal>
+              <Menu.Positioner>
+                <Menu.Popup>
+                  <Menu.FilterInput aria-label="Filter actions" />
+                  <Menu.Viewport>
+                    <Menu.FilterList>
+                      <Menu.Item>Rename</Menu.Item>
+                      <Menu.Item>Delete</Menu.Item>
+                    </Menu.FilterList>
+                  </Menu.Viewport>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
+          </Menu.Root>
+        </Menu.FilterProvider>,
       );
 
       const input = screen.getByRole('searchbox', { name: 'Filter actions' });
@@ -4877,19 +5147,21 @@ describe('<Menu.FilterRoot />', () => {
   describe('prop: autoHighlight', () => {
     it('clears a pointer highlight on pointer leave by default', async () => {
       const { user } = await render(
-        <Menu.FilterRoot defaultOpen>
-          <Menu.Trigger>Actions</Menu.Trigger>
-          <Menu.Portal>
-            <Menu.Positioner>
-              <Menu.Popup>
-                <Menu.FilterInput aria-label="Filter actions" />
-                <Menu.FilterList>
-                  <Menu.Item>Rename</Menu.Item>
-                </Menu.FilterList>
-              </Menu.Popup>
-            </Menu.Positioner>
-          </Menu.Portal>
-        </Menu.FilterRoot>,
+        <Menu.FilterProvider>
+          <Menu.Root defaultOpen>
+            <Menu.Trigger>Actions</Menu.Trigger>
+            <Menu.Portal>
+              <Menu.Positioner>
+                <Menu.Popup>
+                  <Menu.FilterInput aria-label="Filter actions" />
+                  <Menu.FilterList>
+                    <Menu.Item>Rename</Menu.Item>
+                  </Menu.FilterList>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
+          </Menu.Root>
+        </Menu.FilterProvider>,
       );
 
       const item = screen.getByRole('menuitem', { name: 'Rename' });
@@ -4910,13 +5182,15 @@ describe('<Menu.FilterRoot />', () => {
   describe('inline mode', () => {
     it('announces empty results without a trigger in an inline menu', async () => {
       const { user } = await render(
-        <Menu.FilterRoot inline open>
-          <Menu.FilterInput aria-label="Filter fruit" />
-          <Menu.FilterEmpty>No fruit found</Menu.FilterEmpty>
-          <Menu.FilterList>
-            <Menu.Item>Apple</Menu.Item>
-          </Menu.FilterList>
-        </Menu.FilterRoot>,
+        <Menu.FilterProvider inline>
+          <Menu.Root open>
+            <Menu.FilterInput aria-label="Filter fruit" />
+            <Menu.FilterEmpty>No fruit found</Menu.FilterEmpty>
+            <Menu.FilterList>
+              <Menu.Item>Apple</Menu.Item>
+            </Menu.FilterList>
+          </Menu.Root>
+        </Menu.FilterProvider>,
       );
 
       expect(screen.queryByRole('status')).toBe(null);
@@ -4932,12 +5206,14 @@ describe('<Menu.FilterRoot />', () => {
       const { user } = await render(
         <React.Fragment>
           <button type="button">Outside</button>
-          <Menu.FilterRoot inline open>
-            <Menu.FilterInput aria-label="Filter actions" />
-            <Menu.FilterList>
-              <Menu.Item>Rename</Menu.Item>
-            </Menu.FilterList>
-          </Menu.FilterRoot>
+          <Menu.FilterProvider inline>
+            <Menu.Root open>
+              <Menu.FilterInput aria-label="Filter actions" />
+              <Menu.FilterList>
+                <Menu.Item>Rename</Menu.Item>
+              </Menu.FilterList>
+            </Menu.Root>
+          </Menu.FilterProvider>
         </React.Fragment>,
       );
 
@@ -4953,13 +5229,15 @@ describe('<Menu.FilterRoot />', () => {
 
     it('clears the highlight after the pointer leaves an inline list following keyboard navigation', async () => {
       const { user } = await render(
-        <Menu.FilterRoot inline open>
-          <Menu.FilterInput aria-label="Filter actions" />
-          <Menu.FilterList>
-            <Menu.Item>Rename</Menu.Item>
-            <Menu.Item>Delete</Menu.Item>
-          </Menu.FilterList>
-        </Menu.FilterRoot>,
+        <Menu.FilterProvider inline>
+          <Menu.Root open>
+            <Menu.FilterInput aria-label="Filter actions" />
+            <Menu.FilterList>
+              <Menu.Item>Rename</Menu.Item>
+              <Menu.Item>Delete</Menu.Item>
+            </Menu.FilterList>
+          </Menu.Root>
+        </Menu.FilterProvider>,
       );
 
       const input = screen.getByRole('searchbox', { name: 'Filter actions' });
@@ -4990,13 +5268,15 @@ describe('<Menu.FilterRoot />', () => {
 
     it('does not render the empty state alongside items on the server', async () => {
       const { hydrate } = renderToString(
-        <Menu.FilterRoot inline open>
-          <Menu.FilterInput aria-label="Filter actions" />
-          <Menu.FilterEmpty data-testid="empty">No actions found</Menu.FilterEmpty>
-          <Menu.FilterList>
-            <Menu.Item>Rename</Menu.Item>
-          </Menu.FilterList>
-        </Menu.FilterRoot>,
+        <Menu.FilterProvider inline>
+          <Menu.Root open>
+            <Menu.FilterInput aria-label="Filter actions" />
+            <Menu.FilterEmpty data-testid="empty">No actions found</Menu.FilterEmpty>
+            <Menu.FilterList>
+              <Menu.Item>Rename</Menu.Item>
+            </Menu.FilterList>
+          </Menu.Root>
+        </Menu.FilterProvider>,
       );
 
       expect(screen.getByRole('menuitem', { name: 'Rename' })).not.toBe(null);
@@ -5013,12 +5293,14 @@ describe('<Menu.FilterRoot />', () => {
     describe('inline lists', () => {
       it('names the list without pointing at a trigger that never rendered', async () => {
         await render(
-          <Menu.FilterRoot inline open>
-            <Menu.FilterInput aria-label="Filter actions" />
-            <Menu.FilterList>
-              <Menu.Item>Rename</Menu.Item>
-            </Menu.FilterList>
-          </Menu.FilterRoot>,
+          <Menu.FilterProvider inline>
+            <Menu.Root open>
+              <Menu.FilterInput aria-label="Filter actions" />
+              <Menu.FilterList>
+                <Menu.Item>Rename</Menu.Item>
+              </Menu.FilterList>
+            </Menu.Root>
+          </Menu.FilterProvider>,
         );
 
         // No `Menu.Trigger` exists inline, so a generated trigger id would dangle.
@@ -5027,12 +5309,14 @@ describe('<Menu.FilterRoot />', () => {
 
       it('keeps a consumer label on an inline list', async () => {
         await render(
-          <Menu.FilterRoot inline open>
-            <Menu.FilterInput aria-label="Filter actions" />
-            <Menu.FilterList aria-label="Commands">
-              <Menu.Item>Rename</Menu.Item>
-            </Menu.FilterList>
-          </Menu.FilterRoot>,
+          <Menu.FilterProvider inline>
+            <Menu.Root open>
+              <Menu.FilterInput aria-label="Filter actions" />
+              <Menu.FilterList aria-label="Commands">
+                <Menu.Item>Rename</Menu.Item>
+              </Menu.FilterList>
+            </Menu.Root>
+          </Menu.FilterProvider>,
         );
 
         expect(screen.getByRole('menu', { name: 'Commands' })).not.toBe(null);

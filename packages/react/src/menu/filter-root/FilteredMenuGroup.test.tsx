@@ -9,24 +9,26 @@ describe('<Menu.Group />', () => {
 
   it('hides a radio group, label included, when the query filters out all of its items', async () => {
     const { user } = await render(
-      <Menu.FilterRoot defaultOpen>
-        <Menu.Trigger>Actions</Menu.Trigger>
-        <Menu.Portal>
-          <Menu.Positioner>
-            <Menu.Popup>
-              <Menu.FilterInput aria-label="Filter actions" />
-              <Menu.FilterList>
-                <Menu.Item>Rename</Menu.Item>
-                <Menu.RadioGroup data-testid="sort-group" defaultValue="date">
-                  <Menu.GroupLabel>Sort by</Menu.GroupLabel>
-                  <Menu.RadioItem value="date">Date modified</Menu.RadioItem>
-                  <Menu.RadioItem value="size">Size</Menu.RadioItem>
-                </Menu.RadioGroup>
-              </Menu.FilterList>
-            </Menu.Popup>
-          </Menu.Positioner>
-        </Menu.Portal>
-      </Menu.FilterRoot>,
+      <Menu.FilterProvider>
+        <Menu.Root defaultOpen>
+          <Menu.Trigger>Actions</Menu.Trigger>
+          <Menu.Portal>
+            <Menu.Positioner>
+              <Menu.Popup>
+                <Menu.FilterInput aria-label="Filter actions" />
+                <Menu.FilterList>
+                  <Menu.Item>Rename</Menu.Item>
+                  <Menu.RadioGroup data-testid="sort-group" defaultValue="date">
+                    <Menu.GroupLabel>Sort by</Menu.GroupLabel>
+                    <Menu.RadioItem value="date">Date modified</Menu.RadioItem>
+                    <Menu.RadioItem value="size">Size</Menu.RadioItem>
+                  </Menu.RadioGroup>
+                </Menu.FilterList>
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
+        </Menu.Root>
+      </Menu.FilterProvider>,
     );
 
     const group = screen.getByTestId('sort-group');
