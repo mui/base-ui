@@ -22,7 +22,7 @@ export function useRegisterFieldControl(
     const source = sourceRef.current;
 
     if (!enabled) {
-      registerFieldControl(source, undefined);
+      registerFieldControl(source, undefined, true);
       return;
     }
 
@@ -40,7 +40,7 @@ export function useRegisterFieldControl(
   useIsoLayoutEffect(() => {
     const source = sourceRef.current;
     return () => {
-      registerFieldControl(source, undefined, true);
+      registerFieldControl(source, undefined);
     };
   }, [registerFieldControl, sourceRef]);
 }

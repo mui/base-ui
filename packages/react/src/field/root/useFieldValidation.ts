@@ -297,6 +297,7 @@ export function useFieldValidation(
         return acc;
       }, {} as Form.Values);
 
+      const elementWasValidatable = element?.willValidate;
       const resultOrPromise = validate(value, formValues);
       let result: string | string[] | null | void;
 
@@ -339,8 +340,7 @@ export function useFieldValidation(
       if (validationErrors.length > 0) {
         nextState.valid = false;
         nextState.customError = true;
-        // Keep custom errors for barred controls in field state only.
-        if (element?.willValidate) {
+        if (element && (elementWasValidatable || element.willValidate)) {
           setCustomValidity(element, validationErrors.join('\n'));
         }
       } else {

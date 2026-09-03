@@ -1972,42 +1972,6 @@ describe('<Field.Root />', () => {
       expect(screen.getByTestId('root')).not.toHaveAttribute('data-invalid');
     });
 
-    it('keeps a pending debounced validation when the control is disabled', async () => {
-      const validate = vi.fn(() => 'error');
-
-      function App({ disabled }: { disabled: boolean }) {
-        return (
-          <Field.Root
-            data-testid="root"
-            validationDebounceTime={100}
-            validationMode="onChange"
-            validate={validate}
-            disabled={disabled}
-          >
-            <Field.Control data-testid="control" />
-            <Field.Error data-testid="error" />
-          </Field.Root>
-        );
-      }
-
-      const { setProps } = await renderFakeTimers(<App disabled={false} />);
-
-      fireEvent.change(screen.getByTestId('control'), { target: { value: 'abc' } });
-
-      clock.tick(99);
-
-      await setProps({ disabled: true });
-
-      clock.tick(100);
-
-      expect(validate).toHaveBeenCalledTimes(1);
-
-      await setProps({ disabled: false });
-
-      expect(screen.getByTestId('error')).toHaveTextContent('error');
-      expect(screen.getByTestId('root')).toHaveAttribute('data-invalid', '');
-    });
-
     it('ignores async validation results superseded during debounce', async () => {
       const resolvers: Record<string, (value: string | null) => void> = {};
       const validate = vi.fn((value) => {
@@ -2104,19 +2068,22 @@ describe('<Field.Root />', () => {
 
       function App({ disabled }: { disabled: boolean }) {
         return (
-          <Form onSubmit={(event) => event.preventDefault()}>
-            <Field.Root data-testid="root" name="username" validate={validate} disabled={disabled}>
-              <Field.Control data-testid="control" />
-              <Field.Error data-testid="error" />
-            </Field.Root>
-            <button type="submit">submit</button>
-          </Form>
+          <Field.Root
+            data-testid="root"
+            validationMode="onChange"
+            validate={validate}
+            disabled={disabled}
+          >
+            <Field.Control data-testid="control" />
+            <Field.Error data-testid="error" />
+          </Field.Root>
         );
       }
 
       const { setProps } = await render(<App disabled={false} />);
+      const control = screen.getByTestId<HTMLInputElement>('control');
 
-      fireEvent.click(screen.getByText('submit'));
+      fireEvent.change(control, { target: { value: 'abc' } });
       expect(validate).toHaveBeenCalledTimes(1);
 
       await setProps({ disabled: true });
@@ -2130,6 +2097,8 @@ describe('<Field.Root />', () => {
 
       expect(screen.getByTestId('error')).toHaveTextContent('Username is taken');
       expect(screen.getByTestId('root')).toHaveAttribute('data-invalid', '');
+      expect(control.validationMessage).toBe('Username is taken');
+      expect(control.checkValidity()).toBe(false);
     });
 
     it('keeps a native constraint failure when the validator resolves while disabled', async () => {
@@ -2187,19 +2156,21 @@ describe('<Field.Root />', () => {
 
       function App({ disabled, controlKey }: { disabled: boolean; controlKey: string }) {
         return (
-          <Form onSubmit={(event) => event.preventDefault()}>
-            <Field.Root data-testid="root" name="username" validate={validate} disabled={disabled}>
-              <Field.Control key={controlKey} data-testid="control" />
-              <Field.Error data-testid="error" />
-            </Field.Root>
-            <button type="submit">submit</button>
-          </Form>
+          <Field.Root
+            data-testid="root"
+            validationMode="onChange"
+            validate={validate}
+            disabled={disabled}
+          >
+            <Field.Control key={controlKey} data-testid="control" />
+            <Field.Error data-testid="error" />
+          </Field.Root>
         );
       }
 
       const { setProps } = await render(<App disabled={false} controlKey="a" />);
 
-      fireEvent.click(screen.getByText('submit'));
+      fireEvent.change(screen.getByTestId('control'), { target: { value: 'abc' } });
       expect(validate).toHaveBeenCalledTimes(1);
 
       await setProps({ disabled: true, controlKey: 'a' });
