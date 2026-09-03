@@ -13,38 +13,41 @@ export default function ExampleMultipleCombobox() {
           Programming languages
         </label>
         <Combobox.InputGroup className={styles.InputGroup}>
-          <Combobox.Chips className={styles.Chips}>
-            <Combobox.Value>
-              {(value: ProgrammingLanguage[]) => (
-                <React.Fragment>
-                  {value.map((language) => (
-                    <Combobox.Chip
-                      key={language.id}
-                      className={styles.Chip}
-                      aria-label={language.value}
-                      aria-description="Press Backspace or Delete to remove"
+          <Combobox.Value>
+            {(value: ProgrammingLanguage[]) => (
+              <Combobox.Chips
+                className={styles.Chips}
+                aria-label={value.length > 0 ? 'Selected languages' : undefined}
+              >
+                {value.map((language) => (
+                  <Combobox.Chip
+                    key={language.id}
+                    className={styles.Chip}
+                    aria-label={language.value}
+                    aria-description="Press Backspace or Delete to remove"
+                  >
+                    {language.value}
+                    <Combobox.ChipRemove
+                      className={styles.ChipRemove}
+                      aria-label={`Remove ${language.value}`}
                     >
-                      {language.value}
-                      <Combobox.ChipRemove
-                        className={styles.ChipRemove}
-                        aria-label={`Remove ${language.value}`}
-                      >
-                        <XIcon />
-                      </Combobox.ChipRemove>
-                    </Combobox.Chip>
-                  ))}
-                  <Combobox.Input
-                    id={id}
-                    placeholder={value.length > 0 ? '' : 'e.g. TypeScript'}
-                    aria-description={
-                      value.length > 0 ? 'Press Left Arrow to edit the selected items' : undefined
-                    }
-                    className={styles.Input}
-                  />
-                </React.Fragment>
-              )}
-            </Combobox.Value>
-          </Combobox.Chips>
+                      <XIcon />
+                    </Combobox.ChipRemove>
+                  </Combobox.Chip>
+                ))}
+                <Combobox.Input
+                  id={id}
+                  placeholder={value.length > 0 ? '' : 'e.g. TypeScript'}
+                  aria-description={
+                    value.length > 0
+                      ? `${value.length} selected. From the start of the input, press Left Arrow to focus the selected items`
+                      : undefined
+                  }
+                  className={styles.Input}
+                />
+              </Combobox.Chips>
+            )}
+          </Combobox.Value>
         </Combobox.InputGroup>
       </div>
 
