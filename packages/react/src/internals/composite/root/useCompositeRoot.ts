@@ -98,10 +98,8 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
   const highlightedElementRef = React.useRef<HTMLElement | null>(null);
 
   const highlightedIndex = externalHighlightedIndex ?? internalHighlightedIndex;
-  const highlightedElementIndexRef = React.useRef(highlightedIndex);
   const onHighlightedIndexChange = useStableCallback((index, shouldScrollIntoView = false) => {
     highlightedElementRef.current = elementsRef.current[index] ?? null;
-    highlightedElementIndexRef.current = index;
     (externalSetHighlightedIndex ?? internalSetHighlightedIndex)(index);
     if (shouldScrollIntoView) {
       const newActiveItem = elementsRef.current[index];
@@ -115,15 +113,12 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
     }
 
     if (hasSetDefaultIndexRef.current) {
-      const elements = elementsRef.current;
-
-      if (highlightedIndex !== highlightedElementIndexRef.current) {
-        // A controlled `highlightedIndex` changed in the same commit as the items, before the
-        // layout effect below could sync the cache, so the controlled index wins.
-        highlightedElementRef.current = elements[highlightedIndex] ?? null;
-        highlightedElementIndexRef.current = highlightedIndex;
+      // A controlled index is authoritative when the item map changes.
+      if (externalHighlightedIndex != null) {
         return;
       }
+
+      const elements = elementsRef.current;
 
       // Items added or removed around the highlighted one shift its index, so the tab stop would
       // otherwise move to a different item and navigation would resume from the wrong position.
@@ -173,15 +168,6 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
 
     scrollIntoViewIfNeeded(rootRef.current, activeItem, direction, orientation);
   });
-
-  useIsoLayoutEffect(() => {
-    // A controlled `highlightedIndex` can change without `onHighlightedIndexChange`, so the
-    // cached element would otherwise be stale on the next map change.
-    if (externalHighlightedIndex != null) {
-      highlightedElementRef.current = elementsRef.current[externalHighlightedIndex] ?? null;
-      highlightedElementIndexRef.current = externalHighlightedIndex;
-    }
-  }, [externalHighlightedIndex]);
 
   useIsoLayoutEffect(() => {
     // `disabledIndices` can resolve a render after the initial map population
