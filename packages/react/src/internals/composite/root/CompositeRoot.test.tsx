@@ -1223,6 +1223,7 @@ describe('Composite', () => {
       return (
         <React.Fragment>
           <button onClick={() => setHighlightedIndex(2)}>highlight</button>
+          <button onClick={() => setHighlightedIndex(-1)}>clear</button>
           <button onClick={() => setShowLastItem(false)}>remove</button>
           <CompositeRoot
             highlightedIndex={highlightedIndex}
@@ -1249,6 +1250,20 @@ describe('Composite', () => {
       expect(screen.queryByTestId('3')).toBeNull();
       expect(screen.getByTestId('2')).toHaveAttribute('tabindex', '0');
       expect(screen.getByTestId('1')).toHaveAttribute('tabindex', '-1');
+    });
+
+    it('keeps a cleared controlled highlight when the items change later', async () => {
+      await render(<App />);
+
+      act(() => screen.getByTestId('1').focus());
+      fireEvent.click(screen.getByRole('button', { name: 'clear' }));
+      expect(screen.getByTestId('1')).toHaveAttribute('tabindex', '-1');
+
+      fireEvent.click(screen.getByRole('button', { name: 'remove' }));
+
+      expect(screen.getByTestId('0')).toHaveAttribute('tabindex', '-1');
+      expect(screen.getByTestId('1')).toHaveAttribute('tabindex', '-1');
+      expect(screen.getByTestId('2')).toHaveAttribute('tabindex', '-1');
     });
   });
 

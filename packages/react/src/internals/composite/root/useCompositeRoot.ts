@@ -115,6 +115,11 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
     }
 
     if (hasSetDefaultIndexRef.current) {
+      if (highlightedIndex === -1) {
+        // A controlled parent cleared the highlight, so there is no item to keep or fall back to.
+        return;
+      }
+
       const elements = elementsRef.current;
 
       if (highlightedIndex !== highlightedElementIndexRef.current) {
