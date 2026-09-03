@@ -328,6 +328,60 @@ describe('<Menu.FilterRoot />', () => {
     });
   });
 
+  it('enters and leaves a plain submenu with the cross-axis keys from the input', async () => {
+    const { user } = await render(
+      <Menu.FilterRoot defaultOpen>
+        <Menu.Trigger>Actions</Menu.Trigger>
+        <Menu.Portal>
+          <Menu.Positioner>
+            <Menu.Popup>
+              <Menu.FilterInput aria-label="Filter actions" />
+              <Menu.FilterList>
+                <Menu.Item>Rename</Menu.Item>
+                <Menu.SubmenuRoot>
+                  <Menu.SubmenuTrigger>Share</Menu.SubmenuTrigger>
+                  <Menu.Portal>
+                    <Menu.Positioner>
+                      <Menu.Popup data-testid="submenu">
+                        <Menu.Item>Email</Menu.Item>
+                        <Menu.Item>Copy link</Menu.Item>
+                      </Menu.Popup>
+                    </Menu.Positioner>
+                  </Menu.Portal>
+                </Menu.SubmenuRoot>
+              </Menu.FilterList>
+            </Menu.Popup>
+          </Menu.Positioner>
+        </Menu.Portal>
+      </Menu.FilterRoot>,
+    );
+
+    const input = screen.getByRole('searchbox', { name: 'Filter actions' });
+    await waitFor(() => {
+      expect(input).toHaveFocus();
+    });
+    await user.keyboard('[ArrowDown][ArrowDown]');
+    const trigger = screen.getByRole('menuitem', { name: 'Share' });
+    expect(input).toHaveAttribute('aria-activedescendant', trigger.id);
+
+    // A plain submenu roves real focus, so entering it hands focus to its first item.
+    await user.keyboard('[ArrowRight]');
+    const email = await screen.findByRole('menuitem', { name: 'Email' });
+    await waitFor(() => {
+      expect(email).toHaveFocus();
+    });
+    await user.keyboard('[ArrowDown]');
+    expect(screen.getByRole('menuitem', { name: 'Copy link' })).toHaveFocus();
+
+    // Leaving returns focus to the input with the trigger still highlighted.
+    await user.keyboard('[ArrowLeft]');
+    await waitFor(() => {
+      expect(screen.queryByTestId('submenu')).toBe(null);
+    });
+    expect(input).toHaveFocus();
+    expect(input).toHaveAttribute('aria-activedescendant', trigger.id);
+  });
+
   describe('trigger key relay', () => {
     function HoverMenu() {
       return (
