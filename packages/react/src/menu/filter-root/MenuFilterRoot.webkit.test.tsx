@@ -39,7 +39,7 @@ function Test() {
 describe('<Menu.FilterRoot /> (WebKit)', () => {
   beforeEach(resetBrowserPointer);
 
-  const { render } = createRenderer();
+  const { render, renderToString } = createRenderer();
 
   it('marks the active descendant selected for the WebKit compatibility path', async () => {
     const { user } = await render(<Test />);
@@ -210,5 +210,33 @@ describe('<Menu.FilterRoot /> (WebKit)', () => {
     );
 
     expect(screen.getByRole('menuitem', { name: 'Apple' })).not.toHaveAttribute('aria-selected');
+  });
+
+  it('withholds aria-selected until hydration completes so it matches server markup', async () => {
+    const { hydrate } = renderToString(
+      <Menu.FilterRoot inline open autoHighlight="always">
+        <Menu.FilterInput aria-label="Filter fruit" />
+        <Menu.FilterList>
+          <Menu.Item>Apple</Menu.Item>
+          <Menu.Item>Banana</Menu.Item>
+        </Menu.FilterList>
+      </Menu.FilterRoot>,
+    );
+
+    // The server cannot sniff the engine, so it must not render the attribute.
+    expect(screen.getByRole('menuitem', { name: 'Apple' })).not.toHaveAttribute('aria-selected');
+
+    hydrate();
+
+    await waitFor(() => {
+      expect(screen.getByRole('menuitem', { name: 'Apple' })).toHaveAttribute(
+        'aria-selected',
+        'true',
+      );
+    });
+    expect(screen.getByRole('menuitem', { name: 'Banana' })).toHaveAttribute(
+      'aria-selected',
+      'false',
+    );
   });
 });

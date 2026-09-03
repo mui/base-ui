@@ -116,15 +116,9 @@ export default function ExampleAsyncMenuFilter() {
                 </Menu.Group>
               ))}
             </Menu.FilterList>
-            {status && (
-              <div
-                className="border-t border-neutral-300 px-3 py-2 text-xs leading-4 text-neutral-500 dark:border-neutral-700 dark:text-neutral-400"
-                role="status"
-                aria-live="polite"
-              >
-                {status}
-              </div>
-            )}
+            <Menu.FilterStatus className="border-t border-neutral-300 px-3 py-2 text-xs leading-4 text-neutral-500 dark:border-neutral-700 dark:text-neutral-400">
+              {status}
+            </Menu.FilterStatus>
           </Menu.Popup>
         </Menu.Positioner>
       </Menu.Portal>

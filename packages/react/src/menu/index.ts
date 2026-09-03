@@ -25,6 +25,7 @@ export type * from './filter-input/MenuFilterInput';
 export type * from './filter-list/MenuFilterList';
 export type * from './filter-clear/MenuFilterClear';
 export type * from './filter-empty/MenuFilterEmpty';
+export type * from './filter-status/MenuFilterStatus';
 export type { MenuHandleOptions } from './store/MenuHandle';
 export type {
   Filter as MenuFilter,
