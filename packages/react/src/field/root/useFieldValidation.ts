@@ -339,8 +339,8 @@ export function useFieldValidation(
       if (validationErrors.length > 0) {
         nextState.valid = false;
         nextState.customError = true;
-        // A barred control hides the message until it can validate again.
-        if (element) {
+        // Keep custom errors for barred controls in field state only.
+        if (element?.willValidate) {
           setCustomValidity(element, validationErrors.join('\n'));
         }
       } else {

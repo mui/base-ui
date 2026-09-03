@@ -2176,48 +2176,6 @@ describe('<Field.Root />', () => {
       expect(screen.getByTestId('error')).toHaveTextContent(control.validationMessage);
     });
 
-    it('installs a custom error that resolves while disabled', async () => {
-      let resolveValidate: ((value: string | null) => void) | undefined;
-      const validate = vi.fn(
-        () =>
-          new Promise<string | null>((resolve) => {
-            resolveValidate = resolve;
-          }),
-      );
-
-      function App({ disabled }: { disabled: boolean }) {
-        return (
-          <Field.Root
-            data-testid="root"
-            validationMode="onChange"
-            validate={validate}
-            disabled={disabled}
-          >
-            <Field.Control data-testid="control" />
-            <Field.Error data-testid="error" />
-          </Field.Root>
-        );
-      }
-
-      const { setProps } = await render(<App disabled={false} />);
-      const control = screen.getByTestId<HTMLInputElement>('control');
-
-      fireEvent.change(control, { target: { value: 'abc' } });
-
-      await setProps({ disabled: true });
-
-      await act(async () => {
-        resolveValidate?.('Username is taken');
-        await flushMicrotasks();
-      });
-
-      await setProps({ disabled: false });
-
-      expect(screen.getByTestId('error')).toHaveTextContent('Username is taken');
-      expect(control.validationMessage).toBe('Username is taken');
-      expect(control.checkValidity()).toBe(false);
-    });
-
     it('drops a pending validation when a disabled control is replaced', async () => {
       let resolveValidate: ((value: string | null) => void) | undefined;
       const validate = vi.fn(
