@@ -115,8 +115,10 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
     }
 
     if (hasSetDefaultIndexRef.current) {
-      if (highlightedIndex === -1) {
+      if (externalHighlightedIndex === -1) {
         // A controlled parent cleared the highlight, so there is no item to keep or fall back to.
+        highlightedElementRef.current = null;
+        highlightedElementIndexRef.current = -1;
         return;
       }
 

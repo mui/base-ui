@@ -147,6 +147,28 @@ describe('Composite', () => {
       expect(item1).toHaveFocus();
     });
 
+    it('restores the tab stop after an item is focused before it registers', async () => {
+      function App({ showLast = false }: { showLast?: boolean }) {
+        return (
+          <CompositeRoot>
+            <CompositeItem data-testid="1" render={<button type="button" autoFocus />} />
+            <CompositeItem data-testid="2" render={<button type="button" />} />
+            {showLast && <CompositeItem data-testid="3" render={<button type="button" />} />}
+          </CompositeRoot>
+        );
+      }
+
+      const { rerender } = await render(<App />);
+      expect(screen.getByTestId('1')).toHaveFocus();
+
+      rerender(<App showLast />);
+      act(() => screen.getByTestId('1').blur());
+
+      expect(screen.getByTestId('1')).toHaveAttribute('tabindex', '0');
+      expect(screen.getByTestId('2')).toHaveAttribute('tabindex', '-1');
+      expect(screen.getByTestId('3')).toHaveAttribute('tabindex', '-1');
+    });
+
     it('uses an active item explicit index as the initial highlighted index', async () => {
       const onHighlightedIndexChange = vi.fn();
 
@@ -1218,12 +1240,15 @@ describe('Composite', () => {
   describe('controlled highlightedIndex', () => {
     function App() {
       const [highlightedIndex, setHighlightedIndex] = React.useState(1);
+      const [showFirstItem, setShowFirstItem] = React.useState(true);
       const [showLastItem, setShowLastItem] = React.useState(true);
 
       return (
         <React.Fragment>
           <button onClick={() => setHighlightedIndex(2)}>highlight</button>
+          <button onClick={() => setHighlightedIndex(1)}>restore</button>
           <button onClick={() => setHighlightedIndex(-1)}>clear</button>
+          <button onClick={() => setShowFirstItem(false)}>remove first</button>
           <button onClick={() => setShowLastItem(false)}>remove</button>
           <button
             onClick={() => {
@@ -1237,7 +1262,7 @@ describe('Composite', () => {
             highlightedIndex={highlightedIndex}
             onHighlightedIndexChange={setHighlightedIndex}
           >
-            <CompositeItem data-testid="0" />
+            {showFirstItem && <CompositeItem data-testid="0" />}
             <CompositeItem data-testid="1" />
             <CompositeItem data-testid="2" />
             {showLastItem && <CompositeItem data-testid="3" />}
@@ -1285,6 +1310,21 @@ describe('Composite', () => {
       expect(screen.getByTestId('0')).toHaveAttribute('tabindex', '-1');
       expect(screen.getByTestId('1')).toHaveAttribute('tabindex', '-1');
       expect(screen.getByTestId('2')).toHaveAttribute('tabindex', '-1');
+    });
+
+    it('honors the same index set again after clearing while the items shifted', async () => {
+      await render(<App />);
+
+      act(() => screen.getByTestId('1').focus());
+      fireEvent.click(screen.getByRole('button', { name: 'clear' }));
+      fireEvent.click(screen.getByRole('button', { name: 'remove first' }));
+      fireEvent.click(screen.getByRole('button', { name: 'restore' }));
+      expect(screen.getByTestId('2')).toHaveAttribute('tabindex', '0');
+
+      fireEvent.click(screen.getByRole('button', { name: 'remove' }));
+
+      expect(screen.getByTestId('2')).toHaveAttribute('tabindex', '0');
+      expect(screen.getByTestId('1')).toHaveAttribute('tabindex', '-1');
     });
   });
 
