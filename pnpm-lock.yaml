@@ -111,8 +111,8 @@ importers:
         specifier: 9.0.7
         version: 9.0.7(@types/node@22.20.1)(supports-color@7.2.0)
       pkg-pr-new:
-        specifier: 0.0.87
-        version: 0.0.87
+        specifier: 0.0.88
+        version: 0.0.88
       postcss-value-parser:
         specifier: 4.2.0
         version: 4.2.0
@@ -8114,8 +8114,8 @@ packages:
     resolution: {integrity: sha512-HRDzbaKjC+AOWVXxAU/x54COGeIv9eb+6CkDSQoNTt4XyWoIJvuPsXizxu/Fr23EiekbtZwmh1IcIG/l/a10GQ==}
     engines: {node: '>=8'}
 
-  pkg-pr-new@0.0.87:
-    resolution: {integrity: sha512-nm+30Py1csXWfyMH1ueQyTR11IZGHS5oW8Qok/MxMwjPx9g1jX3wMRrJf8TgEvNo0a0M4i14T0zQsEPWdZfAhg==}
+  pkg-pr-new@0.0.88:
+    resolution: {integrity: sha512-Xc6PMJ2gher0WZP+rtjefFk26hIb7V1PTLL30bmy1Z2vsRmSvqiss7Ag1XUdyplTGYzIlFNJp4L3vMNmK44N6g==}
     hasBin: true
 
   playwright-core@1.62.1:
@@ -18772,7 +18772,7 @@ snapshots:
     dependencies:
       find-up: 4.1.0
 
-  pkg-pr-new@0.0.87: {}
+  pkg-pr-new@0.0.88: {}
 
   playwright-core@1.62.1: {}
 
