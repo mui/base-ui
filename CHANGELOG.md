@@ -4,7 +4,7 @@
 
 <!-- generated comparing v1.7.0...master -->
 
-_Sep 2, 2026_
+_Sep 3, 2026_
 
 ### General changes
 
@@ -27,6 +27,8 @@ _Sep 2, 2026_
 
 - Render groups with the rowgroup role in grid mode (#5564) by @atomiks
 - Allow opening and browsing the popup while `readOnly` (#5541) by @vikuscz
+- Move `aria-orientation` to the role owners (#5551) by @gonzoblasco
+- Hide group labels and scrollbars from the accessibility tree (#5598) by @azeng4499
 
 ### Avatar
 

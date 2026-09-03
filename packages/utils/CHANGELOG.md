@@ -2,7 +2,7 @@
 
 ## 0.4.0
 
-_Sep 2, 2026_
+_Sep 3, 2026_
 
 - **Breaking change:** Correctly infer optional values in `useControlled` while preserving the frozen `EMPTY_ARRAY` singleton. The returned value and setter now include `undefined` when both the controlled and default values can be `undefined` (#5203, #5620) by @jjenzz and @michaldudak
 - **Breaking change:** Enforce matching store state key/value types. Broad `Partial<State>` arguments must be narrowed to an exact known subset before calling `Store.update` or `ReactStore.useSyncedValues` (#5423) by @jjenzz
