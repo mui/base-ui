@@ -17,10 +17,7 @@ export default function StepsSlider() {
       <Slider.Control className="col-span-2 flex touch-none items-center py-3 select-none">
         <Slider.Track className="h-1 w-full bg-neutral-200 select-none dark:bg-neutral-800">
           <Slider.Indicator className="bg-neutral-950 select-none dark:bg-white" />
-          <Slider.Thumb
-            aria-label="Font weight"
-            className="size-4 border border-neutral-950 bg-white select-none has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-neutral-950 dark:has-[:focus-visible]:outline-white dark:border-white dark:bg-neutral-950"
-          />
+          <Slider.Thumb className="size-4 border border-neutral-950 bg-white select-none has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-neutral-950 dark:has-[:focus-visible]:outline-white dark:border-white dark:bg-neutral-950" />
         </Slider.Track>
       </Slider.Control>
     </Slider.Root>

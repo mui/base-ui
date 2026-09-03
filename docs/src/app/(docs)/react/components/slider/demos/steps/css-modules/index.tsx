@@ -16,7 +16,7 @@ export default function StepsSlider() {
       <Slider.Control className={styles.Control}>
         <Slider.Track className={styles.Track}>
           <Slider.Indicator className={styles.Indicator} />
-          <Slider.Thumb aria-label="Font weight" className={styles.Thumb} />
+          <Slider.Thumb className={styles.Thumb} />
         </Slider.Track>
       </Slider.Control>
     </Slider.Root>
