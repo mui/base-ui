@@ -15,6 +15,7 @@ export interface MenuFilterDropdownProps {
   filter: FilterDropdownFilter | null | undefined;
   autoHighlight: boolean | 'always';
   locale: Intl.LocalesArgument | undefined;
+  inline?: boolean | undefined;
   inputProps: HTMLProps;
   onValueChange: (value: string, details: MenuFilterRoot.InputValueChangeEventDetails) => void;
   onInputAutoFocusChange: (autoFocus: boolean) => void;
@@ -39,6 +40,7 @@ export function MenuFilterDropdown(props: MenuFilterDropdownProps) {
   return (
     <FilterDropdownRoot
       open={props.open}
+      inline={props.inline}
       disabled={disabled}
       inputFocusVisible={props.inputFocusVisible}
       value={props.value}
