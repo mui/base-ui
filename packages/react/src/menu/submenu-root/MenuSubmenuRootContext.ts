@@ -1,13 +1,15 @@
 'use client';
 import * as React from 'react';
-import { MenuStore } from '../store/MenuStore';
 
 export const MenuSubmenuRootContext = React.createContext<MenuSubmenuRootContext | undefined>(
   undefined,
 );
 
 export interface MenuSubmenuRootContext {
-  parentMenu: MenuStore<unknown>;
+  /** The element that receives focus when the submenu closes; `false` leaves focus where it is. */
+  getReturnElement?: (() => HTMLElement | null | false) | undefined;
+  onTriggerKeyDown?: ((event: React.KeyboardEvent<HTMLElement>) => void) | undefined;
+  onPopupKeyDown?: ((event: React.KeyboardEvent) => void) | undefined;
 }
 
 export function useMenuSubmenuRootContext(): MenuSubmenuRootContext | undefined {

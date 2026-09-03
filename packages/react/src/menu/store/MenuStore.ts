@@ -25,6 +25,12 @@ export type State<Payload> = PopupStoreState<Payload> & {
   parent: MenuParent;
   rootId: string | undefined;
   activeIndex: number | null;
+  /**
+   * Whether real focus stays inside the popup while the list is navigated with
+   * `aria-activedescendant`. Set by a filter root, and seeded on a handle created with
+   * `filterable: true` so detached triggers announce the right popup before the root attaches.
+   */
+  virtualFocus: boolean;
   hoverEnabled: boolean;
   instantType: 'dismiss' | 'click' | 'group' | 'trigger-change' | undefined;
   openChangeReason: MenuRoot.ChangeEventReason | null;
@@ -44,6 +50,8 @@ type Context = PopupStoreContext<MenuRoot.ChangeEventDetails> & {
   readonly itemDomElements: React.RefObject<(HTMLElement | null)[]>;
   readonly itemLabels: React.RefObject<(string | null)[]>;
   allowMouseUpTriggerRef: React.RefObject<boolean>;
+  /** The element that holds real focus while virtual list navigation is active. */
+  virtualFocusRef: React.RefObject<HTMLElement | null> | undefined;
   readonly triggerFocusTargetRef: React.RefObject<HTMLElement | null>;
   readonly beforeContentFocusGuardRef: React.RefObject<HTMLElement | null>;
 };
@@ -57,6 +65,7 @@ const selectors = {
   modal: (state: State<unknown>) =>
     (state.parent.type === undefined || state.parent.type === 'context-menu') &&
     (state.modal ?? true),
+  floatingId: (state: State<unknown>) => state.floatingId,
   openMethod: (state: State<unknown>) => state.openMethod,
 
   allowMouseEnter: (state: State<unknown>) => state.allowMouseEnter,
@@ -70,6 +79,7 @@ const selectors = {
     return state.parent.type !== undefined ? state.parent.context.rootId : state.rootId;
   },
   activeIndex: (state: State<unknown>) => state.activeIndex,
+  virtualFocus: (state: State<unknown>) => state.virtualFocus,
   isActive: (state: State<unknown>, itemIndex: number) => state.activeIndex === itemIndex,
   hoverEnabled: (state: State<unknown>) => state.hoverEnabled,
   instantType: (state: State<unknown>) => state.instantType,
@@ -176,10 +186,12 @@ export class MenuStore<Payload> extends ReactStore<Readonly<State<Payload>>, Con
  * reads/writes of `NullStore`), so a trigger can hand the store to focus-guard helpers that expect
  * `setOpen` without it ever taking effect while detached.
  */
-export function createNullMenuStore<Payload>(): MenuHandleStore<Payload> {
+export function createNullMenuStore<Payload>(
+  initialState?: Partial<State<Payload>>,
+): MenuHandleStore<Payload> {
   const triggerElements = new PopupTriggerMap();
   const store = new NullStore<Readonly<State<Payload>>, Context, Selectors>(
-    Object.freeze(createInitialState<Payload>(triggerElements)),
+    Object.freeze(createInitialState<Payload>(triggerElements, undefined, false, initialState)),
     Object.freeze(createInitialContext(triggerElements)),
     selectors,
   );
@@ -194,6 +206,7 @@ function createInitialContext(triggerElements: PopupTriggerMap): Context {
     itemDomElements: { current: [] },
     itemLabels: { current: [] },
     allowMouseUpTriggerRef: { current: false },
+    virtualFocusRef: undefined,
     triggerFocusTargetRef: React.createRef<HTMLElement>(),
     beforeContentFocusGuardRef: React.createRef<HTMLElement>(),
     onOpenChangeComplete: undefined,
@@ -219,13 +232,14 @@ function createInitialState<Payload>(
     },
     rootId: undefined,
     activeIndex: null,
+    virtualFocus: false,
     hoverEnabled: true,
     instantType: undefined,
     openChangeReason: null,
     floatingTreeRoot: new FloatingTreeStore(),
     floatingNodeId: undefined,
     floatingParentNodeId: null,
-    itemProps: EMPTY_OBJECT as HTMLProps,
+    itemProps: EMPTY_OBJECT,
     keyboardEventRelay: undefined,
     closeDelay: 0,
     adaptiveOrigin: undefined,

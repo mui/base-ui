@@ -1,20 +1,16 @@
 'use client';
 import * as React from 'react';
+import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
+import { useMenuFilterImpl, useUnfilteredItem } from '../filter-root/MenuFilterContext';
 import { REGULAR_ITEM, useMenuItem } from './useMenuItem';
 import { useMenuRootContext } from '../root/MenuRootContext';
 import { useRenderElement } from '../../internals/useRenderElement';
-import { useBaseUiId } from '../../internals/useBaseUiId';
 import type { BaseUIComponentProps, NonNativeButtonProps } from '../../internals/types';
 import { useCompositeListItem } from '../../internals/composite/list/useCompositeListItem';
 import { useMenuPositionerContext } from '../positioner/MenuPositionerContext';
+import { getMenuItemId } from '../utils/getMenuItemId';
 
-/**
- * An individual interactive item in the menu.
- * Renders a `<div>` element.
- *
- * Documentation: [Base UI Menu](https://base-ui.com/react/components/menu)
- */
-export const MenuItem = React.forwardRef(function MenuItem(
+const MenuItemPlain = React.forwardRef(function MenuItem(
   componentProps: MenuItem.Props,
   forwardedRef: React.ForwardedRef<HTMLElement>,
 ) {
@@ -32,9 +28,9 @@ export const MenuItem = React.forwardRef(function MenuItem(
 
   const listItem = useCompositeListItem({ guess: true, label });
   const menuPositionerContext = useMenuPositionerContext(true);
-  const id = useBaseUiId(idProp);
+  const { store, floatingId, virtualFocus, webkitItemSelected } = useMenuRootContext();
+  const id = getMenuItemId(idProp, floatingId, listItem.index);
 
-  const { store } = useMenuRootContext();
   const rootDisabled = store.useState('disabled');
   const disabled = disabledProp || rootDisabled;
   const highlighted = store.useState('isActive', listItem.index);
@@ -49,6 +45,8 @@ export const MenuItem = React.forwardRef(function MenuItem(
     nativeButton,
     nodeId: menuPositionerContext?.context.nodeId,
     itemMetadata: REGULAR_ITEM,
+    virtualFocus,
+    webkitItemSelected,
   });
 
   const state: MenuItemState = {
@@ -61,6 +59,26 @@ export const MenuItem = React.forwardRef(function MenuItem(
     props: [itemProps, elementProps, getItemProps],
     ref: [itemRef, forwardedRef, listItem.ref],
   });
+});
+
+/**
+ * An individual interactive item in the menu.
+ * Renders a `<div>` element.
+ *
+ * Documentation: [Base UI Menu](https://base-ui.com/react/components/menu)
+ */
+export const MenuItem = React.forwardRef(function MenuItem(
+  props: MenuItem.Props,
+  forwardedRef: React.ForwardedRef<HTMLElement>,
+) {
+  const { keywords, ...itemProps } = props;
+  const useItemFilter = useMenuFilterImpl()?.useItem ?? useUnfilteredItem;
+  const filter = useItemFilter({ label: props.label, keywords, children: props.children });
+  const ref = useMergedRefs(forwardedRef, filter.ref);
+  if (!filter.visible) {
+    return null;
+  }
+  return <MenuItemPlain {...filter.props} {...itemProps} ref={ref} />;
 });
 
 export interface MenuItemState {
@@ -89,6 +107,11 @@ export interface MenuItemProps
    * Overrides the text label to use when the item is matched during keyboard text navigation.
    */
   label?: string | undefined;
+  /**
+   * Additional terms the item matches on when filtering inside `Menu.FilterProvider`.
+   * A plain menu ignores it.
+   */
+  keywords?: readonly string[] | undefined;
   /**
    * @ignore
    */

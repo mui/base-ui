@@ -1,16 +1,11 @@
 'use client';
 import * as React from 'react';
+import { useMenuFilterImpl } from '../filter-root/MenuFilterContext';
 import { BaseUIComponentProps } from '../../internals/types';
 import { useRenderElement } from '../../internals/useRenderElement';
 import { MenuGroupContext } from './MenuGroupContext';
 
-/**
- * Groups related menu items with the corresponding label.
- * Renders a `<div>` element.
- *
- * Documentation: [Base UI Menu](https://base-ui.com/react/components/menu)
- */
-export const MenuGroup = React.forwardRef(function MenuGroup(
+export const MenuGroupPlain = React.forwardRef(function MenuGroup(
   componentProps: MenuGroup.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
@@ -28,6 +23,20 @@ export const MenuGroup = React.forwardRef(function MenuGroup(
   });
 
   return <MenuGroupContext.Provider value={setLabelId}>{element}</MenuGroupContext.Provider>;
+});
+
+/**
+ * Groups related menu items with the corresponding label.
+ * Renders a `<div>` element.
+ *
+ * Documentation: [Base UI Menu](https://base-ui.com/react/components/menu)
+ */
+export const MenuGroup = React.forwardRef(function MenuGroup(
+  props: MenuGroup.Props,
+  forwardedRef: React.ForwardedRef<HTMLDivElement>,
+) {
+  const Group = useMenuFilterImpl()?.Group ?? MenuGroupPlain;
+  return <Group {...props} ref={forwardedRef} />;
 });
 
 export interface MenuGroupProps extends BaseUIComponentProps<'div', MenuGroupState> {

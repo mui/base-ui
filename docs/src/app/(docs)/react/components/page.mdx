@@ -167,8 +167,6 @@ An input that suggests options as you type.
     - Fuzzy matching
     - Limit results
     - Auto highlight
-    - Command palette
-    - Grid layout
     - Virtualized
       - Memoizing items
   - API reference
@@ -602,7 +600,7 @@ A menu that appears at the pointer on right click or long press.
     - Props: className, render, style
     - Data Attributes: data-align, data-closed, data-open, data-side, data-uncentered
   - Context Menu - Item
-    - Props: className, closeOnClick, disabled, label, nativeButton, onClick, render, style
+    - Props: className, closeOnClick, disabled, keywords, label, nativeButton, onClick, render, style
     - Data Attributes: data-disabled, data-highlighted
   - Context Menu - Group
     - Props: children, className, render, style
@@ -613,24 +611,24 @@ A menu that appears at the pointer on right click or long press.
   - Context Menu - SubmenuRoot
     - Props: actionsRef, children, closeParentOnEsc, defaultOpen, disabled, highlightItemOnHover, loopFocus, onOpenChange, onOpenChangeComplete, open, orientation
   - Context Menu - SubmenuTrigger
-    - Props: className, closeDelay, delay, disabled, label, nativeButton, onClick, openOnHover, render, style
+    - Props: className, closeDelay, delay, disabled, keywords, label, nativeButton, onClick, openOnHover, render, style
     - Data Attributes: data-disabled, data-highlighted, data-popup-open
   - Context Menu - RadioGroup
     - Props: children, className, defaultValue, disabled, onValueChange, render, style, value
   - Context Menu - RadioItem
-    - Props: className, closeOnClick, disabled, label, nativeButton, onClick, render, style, value
+    - Props: className, closeOnClick, disabled, keywords, label, nativeButton, onClick, render, style, value
     - Data Attributes: data-checked, data-disabled, data-highlighted, data-unchecked
   - Context Menu - RadioItemIndicator
     - Props: className, keepMounted, render, style
     - Data Attributes: data-checked, data-disabled, data-ending-style, data-starting-style, data-unchecked
   - Context Menu - CheckboxItem
-    - Props: checked, className, closeOnClick, defaultChecked, disabled, label, nativeButton, onCheckedChange, onClick, render, style
+    - Props: checked, className, closeOnClick, defaultChecked, disabled, keywords, label, nativeButton, onCheckedChange, onClick, render, style
     - Data Attributes: data-checked, data-disabled, data-highlighted, data-unchecked
   - Context Menu - CheckboxItemIndicator
     - Props: className, keepMounted, render, style
     - Data Attributes: data-checked, data-disabled, data-ending-style, data-starting-style, data-unchecked
   - Context Menu - LinkItem
-    - Props: className, closeOnClick, label, render, style
+    - Props: className, closeOnClick, keywords, label, render, style
     - Data Attributes: data-highlighted
 - Types: ContextMenu.Arrow.Props, ContextMenu.Arrow.State, ContextMenu.Backdrop.Props, ContextMenu.Backdrop.State, ContextMenu.CheckboxItem.ChangeEventDetails, ContextMenu.CheckboxItem.ChangeEventReason, ContextMenu.CheckboxItem.Props, ContextMenu.CheckboxItem.State, ContextMenu.CheckboxItemIndicator.Props, ContextMenu.CheckboxItemIndicator.State, ContextMenu.Group.Props, ContextMenu.Group.State, ContextMenu.GroupLabel.Props, ContextMenu.GroupLabel.State, ContextMenu.Item.Props, ContextMenu.Item.State, ContextMenu.LinkItem.Props, ContextMenu.LinkItem.State, ContextMenu.Popup.Props, ContextMenu.Popup.State, ContextMenu.Portal.Props, ContextMenu.Portal.State, ContextMenu.Positioner.Props, ContextMenu.Positioner.State, ContextMenu.RadioGroup.ChangeEventDetails, ContextMenu.RadioGroup.ChangeEventReason, ContextMenu.RadioGroup.Props, ContextMenu.RadioGroup.State, ContextMenu.RadioItem.Props, ContextMenu.RadioItem.State, ContextMenu.RadioItemIndicator.Props, ContextMenu.RadioItemIndicator.State, ContextMenu.Root.Actions, ContextMenu.Root.ChangeEventDetails, ContextMenu.Root.ChangeEventReason, ContextMenu.Root.Props, ContextMenu.Root.State, ContextMenu.Separator.Props, ContextMenu.Separator.State, ContextMenu.SubmenuRoot.ChangeEventDetails, ContextMenu.SubmenuRoot.ChangeEventReason, ContextMenu.SubmenuRoot.Props, ContextMenu.SubmenuRoot.State, ContextMenu.SubmenuTrigger.Props, ContextMenu.SubmenuTrigger.State, ContextMenu.Trigger.Props, ContextMenu.Trigger.State
 
@@ -972,6 +970,8 @@ A list of actions in a dropdown, enhanced with keyboard navigation.
   - Menu - Trigger
     - Props: children, className, closeDelay, delay, disabled, handle, nativeButton, openOnHover, payload, render, style
     - Data Attributes: data-disabled, data-popup-open, data-pressed
+  - Menu - List
+    - Props: className, id, render, style
   - Menu - Portal
     - Props: className, container, keepMounted, render, style
   - Menu - Backdrop
@@ -988,7 +988,7 @@ A list of actions in a dropdown, enhanced with keyboard navigation.
     - Props: className, render, style
     - Data Attributes: data-align, data-closed, data-open, data-side, data-uncentered
   - Menu - Item
-    - Props: className, closeOnClick, disabled, label, nativeButton, onClick, render, style
+    - Props: className, closeOnClick, disabled, keywords, label, nativeButton, onClick, render, style
     - Data Attributes: data-disabled, data-highlighted
   - Menu - Viewport
     - Props: children, className, render, style
@@ -1003,28 +1003,46 @@ A list of actions in a dropdown, enhanced with keyboard navigation.
   - Menu - SubmenuRoot
     - Props: actionsRef, children, closeParentOnEsc, defaultOpen, disabled, highlightItemOnHover, loopFocus, onOpenChange, onOpenChangeComplete, open, orientation
   - Menu - SubmenuTrigger
-    - Props: className, closeDelay, delay, disabled, label, nativeButton, onClick, openOnHover, render, style
+    - Props: className, closeDelay, delay, disabled, keywords, label, nativeButton, onClick, openOnHover, render, style
     - Data Attributes: data-disabled, data-highlighted, data-popup-open
   - Menu - RadioGroup
     - Props: children, className, defaultValue, disabled, onValueChange, render, style, value
   - Menu - RadioItem
-    - Props: className, closeOnClick, disabled, label, nativeButton, onClick, render, style, value
+    - Props: className, closeOnClick, disabled, keywords, label, nativeButton, onClick, render, style, value
     - Data Attributes: data-checked, data-disabled, data-highlighted, data-unchecked
   - Menu - RadioItemIndicator
     - Props: className, keepMounted, render, style
     - Data Attributes: data-checked, data-disabled, data-ending-style, data-starting-style, data-unchecked
   - Menu - CheckboxItem
-    - Props: checked, className, closeOnClick, defaultChecked, disabled, label, nativeButton, onCheckedChange, onClick, render, style
+    - Props: checked, className, closeOnClick, defaultChecked, disabled, keywords, label, nativeButton, onCheckedChange, onClick, render, style
     - Data Attributes: data-checked, data-disabled, data-highlighted, data-unchecked
   - Menu - CheckboxItemIndicator
     - Props: className, keepMounted, render, style
     - Data Attributes: data-checked, data-disabled, data-ending-style, data-starting-style, data-unchecked
   - Menu - createHandle
-  - Menu - Handle
-  - Menu - LinkItem
-    - Props: className, closeOnClick, label, render, style
+    - Parameters: options
+  - Menu - FilterClear
+    - Props: className, disabled, nativeButton, render, style
+    - Data Attributes: data-disabled
+  - Menu - FilterEmpty
+    - Props: className, render, style
+  - Menu - FilterInput
+    - Props: className, render, style
     - Data Attributes: data-highlighted
-- Types: Menu.Arrow.Props, Menu.Arrow.State, Menu.Backdrop.Props, Menu.Backdrop.State, Menu.CheckboxItem.ChangeEventDetails, Menu.CheckboxItem.ChangeEventReason, Menu.CheckboxItem.Props, Menu.CheckboxItem.State, Menu.CheckboxItemIndicator.Props, Menu.CheckboxItemIndicator.State, Menu.Group.Props, Menu.Group.State, Menu.GroupLabel.Props, Menu.GroupLabel.State, Menu.Item.Props, Menu.Item.State, Menu.LinkItem.Props, Menu.LinkItem.State, Menu.Popup.Props, Menu.Popup.State, Menu.Portal.Props, Menu.Portal.State, Menu.Positioner.Props, Menu.Positioner.State, Menu.RadioGroup.ChangeEventDetails, Menu.RadioGroup.ChangeEventReason, Menu.RadioGroup.Props, Menu.RadioGroup.State, Menu.RadioItem.Props, Menu.RadioItem.State, Menu.RadioItemIndicator.Props, Menu.RadioItemIndicator.State, Menu.Root.Actions, Menu.Root.ChangeEventDetails, Menu.Root.ChangeEventReason, Menu.Root.Orientation, Menu.Root.Props, Menu.Root.State, Menu.Separator.Props, Menu.Separator.State, Menu.SubmenuRoot.ChangeEventDetails, Menu.SubmenuRoot.ChangeEventReason, Menu.SubmenuRoot.Props, Menu.SubmenuRoot.State, Menu.SubmenuTrigger.Props, Menu.SubmenuTrigger.State, Menu.Trigger.Props, Menu.Trigger.State, Menu.Viewport.Props, Menu.Viewport.State
+  - Menu - FilterProvider
+    - Props: autoHighlight, children, defaultInputValue, filter, inline, inputValue, locale, onInputValueChange
+  - Menu - FilterStatus
+    - Props: className, render, style
+  - Menu - Handle
+    - Parameters: options
+  - Menu - LinkItem
+    - Props: className, closeOnClick, keywords, label, render, style
+    - Data Attributes: data-highlighted
+  - Menu - useFilter
+    - Parameters: options
+  - MenuFilterFunction
+    - Parameters: text, query
+- Types: Menu.Arrow.Props, Menu.Arrow.State, Menu.Backdrop.Props, Menu.Backdrop.State, Menu.CheckboxItem.ChangeEventDetails, Menu.CheckboxItem.ChangeEventReason, Menu.CheckboxItem.Props, Menu.CheckboxItem.State, Menu.CheckboxItemIndicator.Props, Menu.CheckboxItemIndicator.State, Menu.FilterClear.Props, Menu.FilterClear.State, Menu.FilterEmpty.Props, Menu.FilterEmpty.State, Menu.FilterInput.Props, Menu.FilterInput.State, Menu.FilterProvider.Props, Menu.FilterStatus.Props, Menu.FilterStatus.State, Menu.Group.Props, Menu.Group.State, Menu.GroupLabel.Props, Menu.GroupLabel.State, Menu.Item.Props, Menu.Item.State, Menu.LinkItem.Props, Menu.LinkItem.State, Menu.List.Props, Menu.List.State, Menu.Popup.Props, Menu.Popup.State, Menu.Portal.Props, Menu.Portal.State, Menu.Positioner.Props, Menu.Positioner.State, Menu.RadioGroup.ChangeEventDetails, Menu.RadioGroup.ChangeEventReason, Menu.RadioGroup.Props, Menu.RadioGroup.State, Menu.RadioItem.Props, Menu.RadioItem.State, Menu.RadioItemIndicator.Props, Menu.RadioItemIndicator.State, Menu.Root.Actions, Menu.Root.ChangeEventDetails, Menu.Root.ChangeEventReason, Menu.Root.Orientation, Menu.Root.Props, Menu.Root.State, Menu.Separator.Props, Menu.Separator.State, Menu.SubmenuRoot.ChangeEventDetails, Menu.SubmenuRoot.ChangeEventReason, Menu.SubmenuRoot.Props, Menu.SubmenuRoot.State, Menu.SubmenuTrigger.Props, Menu.SubmenuTrigger.State, Menu.Trigger.Props, Menu.Trigger.State, Menu.Viewport.Props, Menu.Viewport.State
 
 </details>
 

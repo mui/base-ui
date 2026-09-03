@@ -146,6 +146,32 @@ type MenuTriggerState = {
 };
 ```
 
+### List
+
+A container for the items of a filterable menu, rendered inside `Menu.Popup` next to
+`Menu.FilterInput`.
+Requires the menu to be wrapped in `Menu.FilterProvider`.
+Renders a `<div>` element with a `menu` role.
+
+**List Props:**
+
+| Prop      | Type                                                                                    | Default | Description                                                                                                                                                                                   |
+| :-------- | :-------------------------------------------------------------------------------------- | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| id        | `string`                                                                                | -       | -                                                                                                                                                                                             |
+| className | `string \| ((state: Menu.List.State) => string \| undefined)`                           | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
+| style     | `React.CSSProperties \| ((state: Menu.List.State) => React.CSSProperties \| undefined)` | -       | Style applied to the element, or a function that&#xA;returns a style object based on the component's state.                                                                                   |
+| render    | `ReactElement \| ((props: HTMLProps, state: Menu.List.State) => ReactElement)`          | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
+
+### List.Props
+
+Re-export of [List](#list) props.
+
+### List.State
+
+```typescript
+type MenuListState = {};
+```
+
 ### Portal
 
 A portal element that moves the popup to a different part of the DOM.
@@ -415,6 +441,7 @@ Renders a `<div>` element.
 | label        | `string`                                                                                | -       | Overrides the text label to use when the item is matched during keyboard text navigation.                                                                                                     |
 | onClick      | `((event: BaseUIEvent<React.MouseEvent<HTMLDivElement, MouseEvent>>) => void)`          | -       | The click handler for the menu item.                                                                                                                                                          |
 | closeOnClick | `boolean`                                                                               | `true`  | Whether to close the menu when the item is clicked.                                                                                                                                           |
+| keywords     | `string[]`                                                                              | -       | Additional terms the item matches on when filtering inside `Menu.FilterProvider`.&#xA;A plain menu ignores it.                                                                                |
 | nativeButton | `boolean`                                                                               | `false` | Whether the component renders a native `<button>` element when replacing it&#xA;via the `render` prop.&#xA;Set to `true` if the rendered element is a native button.                          |
 | disabled     | `boolean`                                                                               | `false` | Whether the component should ignore user interaction.                                                                                                                                         |
 | className    | `string \| ((state: Menu.Item.State) => string \| undefined)`                           | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
@@ -660,6 +687,7 @@ Renders a `<div>` element.
 | :----------- | :------------------------------------------------------------------------------------------------ | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | label        | `string`                                                                                          | -       | Overrides the text label to use when the item is matched during keyboard text navigation.                                                                                                     |
 | onClick      | `((event: BaseUIEvent<React.MouseEvent<HTMLDivElement, MouseEvent>>) => void)`                    | -       | -                                                                                                                                                                                             |
+| keywords     | `string[]`                                                                                        | -       | Additional terms the item matches on when filtering inside `Menu.FilterProvider`.&#xA;A plain menu ignores it.                                                                                |
 | nativeButton | `boolean`                                                                                         | `false` | Whether the component renders a native `<button>` element when replacing it&#xA;via the `render` prop.&#xA;Set to `true` if the rendered element is a native button.                          |
 | disabled     | `boolean`                                                                                         | `false` | Whether the component should ignore user interaction.                                                                                                                                         |
 | openOnHover  | `boolean`                                                                                         | `true`  | Whether the menu should also open when the trigger is hovered.                                                                                                                                |
@@ -789,6 +817,7 @@ Renders a `<div>` element.
 | value\*      | `any`                                                                                        | -       | Value of the radio item.&#xA;This is the value that will be set in the Menu.RadioGroup when the item is selected.                                                                             |
 | onClick      | `((event: BaseUIEvent<React.MouseEvent<HTMLDivElement, MouseEvent>>) => void)`               | -       | The click handler for the menu item.                                                                                                                                                          |
 | closeOnClick | `boolean`                                                                                    | `false` | Whether to close the menu when the item is clicked.                                                                                                                                           |
+| keywords     | `string[]`                                                                                   | -       | Additional terms the item matches on when filtering inside `Menu.FilterProvider`.&#xA;A plain menu ignores it.                                                                                |
 | nativeButton | `boolean`                                                                                    | `false` | Whether the component renders a native `<button>` element when replacing it&#xA;via the `render` prop.&#xA;Set to `true` if the rendered element is a native button.                          |
 | disabled     | `boolean`                                                                                    | `false` | Whether the component should ignore user interaction.                                                                                                                                         |
 | className    | `string \| ((state: Menu.RadioItem.State) => string \| undefined)`                           | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
@@ -879,6 +908,7 @@ Renders a `<div>` element.
 | onCheckedChange | `((checked: boolean, eventDetails: Menu.CheckboxItem.ChangeEventDetails) => void)`              | -       | Event handler called when the checkbox item is ticked or unticked.                                                                                                                            |
 | onClick         | `((event: BaseUIEvent<React.MouseEvent<HTMLDivElement, MouseEvent>>) => void)`                  | -       | The click handler for the menu item.                                                                                                                                                          |
 | closeOnClick    | `boolean`                                                                                       | `false` | Whether to close the menu when the item is clicked.                                                                                                                                           |
+| keywords        | `string[]`                                                                                      | -       | Additional terms the item matches on when filtering inside `Menu.FilterProvider`.&#xA;A plain menu ignores it.                                                                                |
 | nativeButton    | `boolean`                                                                                       | `false` | Whether the component renders a native `<button>` element when replacing it&#xA;via the `render` prop.&#xA;Set to `true` if the rendered element is a native button.                          |
 | disabled        | `boolean`                                                                                       | `false` | Whether the component should ignore user interaction.                                                                                                                                         |
 | className       | `string \| ((state: Menu.CheckboxItem.State) => string \| undefined)`                           | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
@@ -1009,10 +1039,169 @@ type MenuCheckboxItemIndicatorState = {
 
 Creates a new handle to connect a Menu.Root with detached Menu.Trigger components.
 
+**Parameters:**
+
+| Parameter | Type                | Default | Description |
+| :-------- | :------------------ | :------ | :---------- |
+| options?  | `MenuHandleOptions` | -       | -           |
+
 **Return Value:**
 
 ```tsx
 type ReturnValue = Menu.Handle<Payload>;
+```
+
+### FilterClear
+
+A button that clears the filter query. Renders nothing while the query is empty.
+Requires the menu to be wrapped in `Menu.FilterProvider`.
+Renders a `<button>` element.
+
+**FilterClear Props:**
+
+| Prop         | Type                                                                                           | Default | Description                                                                                                                                                                                   |
+| :----------- | :--------------------------------------------------------------------------------------------- | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| nativeButton | `boolean`                                                                                      | `true`  | Whether the component renders a native `<button>` element when replacing it&#xA;via the `render` prop.&#xA;Set to `false` if the rendered element is not a button (for example, `<div>`).     |
+| disabled     | `boolean`                                                                                      | `false` | Whether the component should ignore user interaction.                                                                                                                                         |
+| className    | `string \| ((state: Menu.FilterClear.State) => string \| undefined)`                           | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
+| style        | `React.CSSProperties \| ((state: Menu.FilterClear.State) => React.CSSProperties \| undefined)` | -       | Style applied to the element, or a function that&#xA;returns a style object based on the component's state.                                                                                   |
+| render       | `ReactElement \| ((props: HTMLProps, state: Menu.FilterClear.State) => ReactElement)`          | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
+
+**FilterClear Data Attributes:**
+
+| Attribute     | Type | Description                          |
+| :------------ | :--- | :----------------------------------- |
+| data-disabled | -    | Present when the button is disabled. |
+
+### FilterClear.Props
+
+Re-export of [FilterClear](#filterclear) props.
+
+### FilterClear.State
+
+```typescript
+type MenuFilterClearState = {
+  /** Whether the component should ignore user interaction. */
+  disabled: boolean;
+};
+```
+
+### FilterEmpty
+
+A message shown when no items match the filter query and announced politely to screen readers.
+Renders nothing while items match, so screen readers don't count an empty node
+among the popup's contents.
+Requires the menu to be wrapped in `Menu.FilterProvider`.
+Renders a `<div>` element.
+
+**FilterEmpty Props:**
+
+| Prop      | Type                                                                                           | Default | Description                                                                                                                                                                                   |
+| :-------- | :--------------------------------------------------------------------------------------------- | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| className | `string \| ((state: Menu.FilterEmpty.State) => string \| undefined)`                           | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
+| style     | `React.CSSProperties \| ((state: Menu.FilterEmpty.State) => React.CSSProperties \| undefined)` | -       | Style applied to the element, or a function that&#xA;returns a style object based on the component's state.                                                                                   |
+| render    | `ReactElement \| ((props: HTMLProps, state: Menu.FilterEmpty.State) => ReactElement)`          | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
+
+### FilterEmpty.Props
+
+Re-export of [FilterEmpty](#filterempty) props.
+
+### FilterEmpty.State
+
+```typescript
+type MenuFilterEmptyState = {};
+```
+
+### FilterInput
+
+A search field that filters the menu items.
+Requires the menu to be wrapped in `Menu.FilterProvider`.
+Renders an `<input>` element.
+
+**FilterInput Props:**
+
+| Prop      | Type                                                                                           | Default | Description                                                                                                                                                                                   |
+| :-------- | :--------------------------------------------------------------------------------------------- | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| className | `string \| ((state: Menu.FilterInput.State) => string \| undefined)`                           | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
+| style     | `React.CSSProperties \| ((state: Menu.FilterInput.State) => React.CSSProperties \| undefined)` | -       | Style applied to the element, or a function that&#xA;returns a style object based on the component's state.                                                                                   |
+| render    | `ReactElement \| ((props: HTMLProps, state: Menu.FilterInput.State) => ReactElement)`          | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
+
+**FilterInput Data Attributes:**
+
+| Attribute        | Type | Description                                                                                                           |
+| :--------------- | :--- | :-------------------------------------------------------------------------------------------------------------------- |
+| data-highlighted | -    | Present while the input shows its focus ring.&#xA;Under keyboard modality it is cleared while an item is highlighted. |
+
+### FilterInput.Props
+
+Re-export of [FilterInput](#filterinput) props.
+
+### FilterInput.State
+
+```typescript
+type MenuFilterInputState = {
+  /**
+   * Whether the input shows its focus ring.
+   * Under keyboard modality it is cleared while an item is highlighted.
+   */
+  highlighted: boolean;
+};
+```
+
+### FilterProvider
+
+Makes the menu directly inside it filterable: the popup can render `Menu.FilterInput`,
+`Menu.List`, `Menu.FilterClear`, `Menu.FilterEmpty`, and `Menu.FilterStatus`, and the
+items filter against the query.
+Wrap it around `Menu.Root` or `Menu.SubmenuRoot`. A submenu doesn't inherit it; wrap the
+submenu's root in its own provider to filter it too. This is the only part that bundles the
+filter implementation.
+Doesn't render its own HTML element.
+
+**FilterProvider Props:**
+
+| Prop               | Type                                                                                   | Default | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
+| :----------------- | :------------------------------------------------------------------------------------- | :------ | :----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| defaultInputValue  | `string`                                                                               | -       | The uncontrolled filter query when the menu is initially rendered.&#xA;To render a controlled query, use the `inputValue` prop instead.                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
+| inputValue         | `string`                                                                               | -       | The filter query. Use when controlled.&#xA;When the popup closes, `onInputValueChange` is called with an empty query. The controlled&#xA;value changes only when the consumer updates this prop.                                                                                                                                                                                                                                                                                                                                                                                                       |
+| onInputValueChange | `((value: string, eventDetails: MenuFilterRoot.InputValueChangeEventDetails) => void)` | -       | Event handler called when the filter query changes.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
+| autoHighlight      | `boolean \| 'always'`                                                                  | `false` | Whether the first matching item is highlighted automatically. `true`: highlight after the user types and keep the highlight while the query changes.`'always'`: always highlight the first item.                                                                                                                                                                                                                                                                                                                                                                                                       |
+| filter             | `MenuFilterFunction \| null`                                                           | -       | Replaces the default case-insensitive substring matching while the filter root controls which&#xA;registered items remain visible.&#xA;Receives an item's label or rendered text and each of its keywords individually, together&#xA;with the trimmed query. The item matches when the function returns `true` for any of them.&#xA;Pass `null` when filtering mapped items yourself and deciding which items to render.                                                                                                                                                                               |
+| inline             | `boolean`                                                                              | `false` | Whether the list is rendered inline without using the menu's own popup. Specify `open` unconditionally on the root in conjunction with this prop so the list is&#xA;considered visible: `<Menu.FilterProvider inline><Menu.Root open>` In a `Dialog.Root` > `Menu.Root` composition, bind the menu's `open` and `onOpenChange` props&#xA;to the `Dialog`'s `open` and `onOpenChange` state instead so the component resets its&#xA;transient state (filter query and highlighted item) when the dialog closes. Without that, a&#xA;`Dialog.Portal` with `keepMounted` reopens with the previous query. |
+| locale             | `Intl.LocalesArgument`                                                                 | -       | Locale used when comparing an item against the query.&#xA;Defaults to the runtime's default locale.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
+| children           | `React.ReactNode`                                                                      | -       | -                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
+
+### FilterProvider.Props
+
+Re-export of [FilterProvider](#filterprovider) props.
+
+### FilterStatus
+
+A status message whose content changes are announced politely to screen readers.
+Useful for conveying the status of an asynchronously loaded list.
+Renders nothing while it has no children, so screen readers don't count an
+empty node among the popup's contents.
+Renders a `<div>` element.
+
+Requires the menu to be wrapped in `Menu.FilterProvider`.
+Documentation: [Base UI Menu](https://base-ui.com/react/components/menu)
+
+**FilterStatus Props:**
+
+| Prop      | Type                                                                                            | Default | Description                                                                                                                                                                                   |
+| :-------- | :---------------------------------------------------------------------------------------------- | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| className | `string \| ((state: Menu.FilterStatus.State) => string \| undefined)`                           | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
+| style     | `React.CSSProperties \| ((state: Menu.FilterStatus.State) => React.CSSProperties \| undefined)` | -       | Style applied to the element, or a function that&#xA;returns a style object based on the component's state.                                                                                   |
+| render    | `ReactElement \| ((props: HTMLProps, state: Menu.FilterStatus.State) => ReactElement)`          | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
+
+### FilterStatus.Props
+
+Re-export of [FilterStatus](#filterstatus) props.
+
+### FilterStatus.State
+
+```typescript
+type MenuFilterStatusState = {};
 ```
 
 ### Handle
@@ -1024,11 +1213,18 @@ triggers rendered outside of it.
 The imperative methods take effect only while a root using this handle is mounted; calls made
 before a root attaches (or after it unmounts) are ignored.
 
+**Constructor Parameters:**
+
+| Parameter | Type                | Default | Description |
+| :-------- | :------------------ | :------ | :---------- |
+| options?  | `MenuHandleOptions` | -       | -           |
+
 **Properties:**
 
-| Property | Type      | Modifiers | Description                                                                                  |
-| :------- | :-------- | :-------- | :------------------------------------------------------------------------------------------- |
-| isOpen   | `boolean` | readonly  | Whether the menu is currently open. Returns `false` while no root is attached to the handle. |
+| Property   | Type      | Modifiers | Description                                                                                  |
+| :--------- | :-------- | :-------- | :------------------------------------------------------------------------------------------- |
+| filterable | `boolean` | readonly  | Whether the handle connects detached triggers to a filterable `Menu.Root`.                   |
+| isOpen     | `boolean` | readonly  | Whether the menu is currently open. Returns `false` while no root is attached to the handle. |
 
 **Methods:**
 
@@ -1059,6 +1255,7 @@ Renders an `<a>` element.
 | :----------- | :----------------------------------------------------------------------------------------------------------------------------------------------------------------- | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | label        | `string`                                                                                                                                                           | -       | Overrides the text label to use when the item is matched during keyboard text navigation.                                                                                                     |
 | closeOnClick | `boolean`                                                                                                                                                          | `false` | Whether to close the menu when the item is clicked.                                                                                                                                           |
+| keywords     | `string[]`                                                                                                                                                         | -       | Additional terms the item matches on when filtering inside `Menu.FilterProvider`.&#xA;A plain menu ignores it.                                                                                |
 | className    | `string \| ((state: Menu.LinkItem.State) => string \| undefined)`                                                                                                  | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
 | style        | `React.CSSProperties \| ((state: Menu.LinkItem.State) => React.CSSProperties \| undefined)`                                                                        | -       | Style applied to the element, or a function that&#xA;returns a style object based on the component's state.                                                                                   |
 | render       | `ReactElement \| ((props: React.DetailedHTMLProps<React.AnchorHTMLAttributes<HTMLAnchorElement>, HTMLAnchorElement>, state: Menu.LinkItem.State) => ReactElement)` | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
@@ -1082,7 +1279,76 @@ type MenuLinkItemState = {
 };
 ```
 
+### MenuFilterFunction
+
+Determines whether an item matches the current filter query.
+
+**Parameters:**
+
+| Parameter | Type     | Default | Description |
+| :-------- | :------- | :------ | :---------- |
+| text      | `string` | -       | -           |
+| query     | `string` | -       | -           |
+
+**Return Value:**
+
+```tsx
+type ReturnValue = boolean;
+```
+
+### useFilter
+
+**Parameters:**
+
+| Parameter | Type                | Default | Description |
+| :-------- | :------------------ | :------ | :---------- |
+| options?  | `MenuFilterOptions` | `{}`    | -           |
+
+**Return Value:**
+
+```tsx
+type ReturnValue = MenuFilter;
+```
+
 ## Additional Types
+
+### MenuFilter
+
+```typescript
+type MenuFilter = {
+  /** Returns whether the item matches the query anywhere. */
+  contains: <Item>(item: Item, query: string, itemToString?: (item: Item) => string) => boolean;
+  /** Returns whether the item starts with the query. */
+  startsWith: <Item>(item: Item, query: string, itemToString?: (item: Item) => string) => boolean;
+  /** Returns whether the item ends with the query. */
+  endsWith: <Item>(item: Item, query: string, itemToString?: (item: Item) => string) => boolean;
+};
+```
+
+### MenuFilterOptions
+
+```typescript
+type MenuFilterOptions = {
+  /**
+   * The locale to use for string comparison.
+   * Defaults to the user's runtime locale.
+   */
+  locale?: Intl.LocalesArgument;
+};
+```
+
+### MenuHandleOptions
+
+```typescript
+type MenuHandleOptions = {
+  /**
+   * Whether the handle connects detached triggers to a filterable `Menu.Root`. Triggers then announce
+   * the filterable popup before the root attaches, so server and client markup agree.
+   * @default false
+   */
+  filterable?: boolean;
+};
+```
 
 ### MenuParent
 
@@ -1162,7 +1428,14 @@ type PayloadChildRenderFunction = (arg: { payload: unknown | undefined }) => Rea
 - `Menu.SubmenuTrigger`: `Menu.SubmenuTrigger`, `Menu.SubmenuTrigger.Props`, `Menu.SubmenuTrigger.State`
 - `Menu.Handle`
 - `Menu.createHandle`
-- `Default`: `MenuRootState`, `MenuRootProps`, `MenuRootActions`, `MenuRootChangeEventReason`, `MenuRootChangeEventDetails`, `MenuRootOrientation`, `MenuParent`, `MenuArrowState`, `MenuArrowProps`, `MenuBackdropState`, `MenuBackdropProps`, `MenuCheckboxItemState`, `MenuCheckboxItemProps`, `MenuCheckboxItemChangeEventReason`, `MenuCheckboxItemChangeEventDetails`, `MenuCheckboxItemIndicatorProps`, `MenuCheckboxItemIndicatorState`, `MenuGroupLabelProps`, `MenuGroupLabelState`, `MenuGroupProps`, `MenuGroupState`, `MenuItemState`, `MenuItemProps`, `MenuLinkItemState`, `MenuLinkItemProps`, `MenuPopupProps`, `MenuPopupState`, `MenuPortalState`, `MenuPortalProps`, `MenuPositionerState`, `MenuPositionerProps`, `MenuRadioGroupProps`, `MenuRadioGroupState`, `MenuRadioGroupChangeEventReason`, `MenuRadioGroupChangeEventDetails`, `MenuRadioItemState`, `MenuRadioItemProps`, `MenuRadioItemIndicatorProps`, `MenuRadioItemIndicatorState`, `MenuSubmenuRootProps`, `MenuSubmenuRootState`, `MenuSubmenuRootChangeEventReason`, `MenuSubmenuRootChangeEventDetails`, `MenuTriggerProps`, `MenuTriggerState`, `MenuSubmenuTriggerState`, `MenuSubmenuTriggerProps`, `MenuViewportState`, `MenuViewportProps`
+- `Menu.FilterProvider`: `Menu.FilterProvider`, `Menu.FilterProvider.Props`
+- `Menu.FilterInput`: `Menu.FilterInput`, `Menu.FilterInput.State`, `Menu.FilterInput.Props`
+- `Menu.List`: `Menu.List`, `Menu.List.Props`, `Menu.List.State`
+- `Menu.FilterClear`: `Menu.FilterClear`, `Menu.FilterClear.State`, `Menu.FilterClear.Props`
+- `Menu.FilterEmpty`: `Menu.FilterEmpty`, `Menu.FilterEmpty.State`, `Menu.FilterEmpty.Props`
+- `Menu.FilterStatus`: `Menu.FilterStatus`, `Menu.FilterStatus.State`, `Menu.FilterStatus.Props`
+- `Menu.useFilter`
+- `Default`: `MenuFilterFunction`, `MenuHandleOptions`, `MenuFilter`, `MenuFilterOptions`, `MenuRootState`, `MenuRootProps`, `MenuRootActions`, `MenuRootChangeEventReason`, `MenuRootChangeEventDetails`, `MenuRootOrientation`, `MenuParent`, `MenuArrowState`, `MenuArrowProps`, `MenuBackdropState`, `MenuBackdropProps`, `MenuCheckboxItemState`, `MenuCheckboxItemProps`, `MenuCheckboxItemChangeEventReason`, `MenuCheckboxItemChangeEventDetails`, `MenuCheckboxItemIndicatorProps`, `MenuCheckboxItemIndicatorState`, `MenuGroupLabelProps`, `MenuGroupLabelState`, `MenuGroupProps`, `MenuGroupState`, `MenuItemState`, `MenuItemProps`, `MenuLinkItemState`, `MenuLinkItemProps`, `MenuPopupProps`, `MenuPopupState`, `MenuPortalState`, `MenuPortalProps`, `MenuPositionerState`, `MenuPositionerProps`, `MenuRadioGroupProps`, `MenuRadioGroupState`, `MenuRadioGroupChangeEventReason`, `MenuRadioGroupChangeEventDetails`, `MenuRadioItemState`, `MenuRadioItemProps`, `MenuRadioItemIndicatorProps`, `MenuRadioItemIndicatorState`, `MenuSubmenuRootProps`, `MenuSubmenuRootState`, `MenuSubmenuRootChangeEventReason`, `MenuSubmenuRootChangeEventDetails`, `MenuTriggerProps`, `MenuTriggerState`, `MenuSubmenuTriggerState`, `MenuSubmenuTriggerProps`, `MenuViewportState`, `MenuViewportProps`, `MenuFilterProviderProps`, `MenuFilterInputState`, `MenuFilterInputProps`, `MenuListState`, `MenuListProps`, `MenuFilterClearState`, `MenuFilterClearProps`, `MenuFilterEmptyState`, `MenuFilterEmptyProps`, `MenuFilterStatusState`, `MenuFilterStatusProps`
 
 ## Canonical Types
 
@@ -1216,3 +1489,14 @@ Maps `Canonical`: `Alias` — Use Canonical when its namespace is already import
 - `Menu.Viewport.State`: `MenuViewportState`
 - `Menu.SubmenuTrigger.Props`: `MenuSubmenuTriggerProps`
 - `Menu.SubmenuTrigger.State`: `MenuSubmenuTriggerState`
+- `Menu.FilterProvider.Props`: `MenuFilterProviderProps`
+- `Menu.FilterInput.State`: `MenuFilterInputState`
+- `Menu.FilterInput.Props`: `MenuFilterInputProps`
+- `Menu.List.Props`: `MenuListProps`
+- `Menu.List.State`: `MenuListState`
+- `Menu.FilterClear.State`: `MenuFilterClearState`
+- `Menu.FilterClear.Props`: `MenuFilterClearProps`
+- `Menu.FilterEmpty.State`: `MenuFilterEmptyState`
+- `Menu.FilterEmpty.Props`: `MenuFilterEmptyProps`
+- `Menu.FilterStatus.State`: `MenuFilterStatusState`
+- `Menu.FilterStatus.Props`: `MenuFilterStatusProps`

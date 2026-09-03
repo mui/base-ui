@@ -194,6 +194,12 @@ export interface FloatingFocusManagerProps {
     | ((closeType: InteractionType) => boolean | HTMLElement | null | void)
     | undefined;
   /**
+   * Whether `returnFocus` is an explicit consumer target. Internal dynamic defaults use `false`
+   * so focus that has already moved outside the floating tree is respected.
+   * @internal
+   */
+  explicitReturnFocus?: boolean | undefined;
+  /**
    * Determines where focus should be restored if focus inside the floating element is lost
    * (such as due to the removal of the currently focused element from the DOM).
    *
@@ -255,6 +261,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
     disabled = false,
     initialFocus = true,
     returnFocus = true,
+    explicitReturnFocus,
     restoreFocus = false,
     modal = true,
     closeOnFocusOut = true,
@@ -284,6 +291,9 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
 
   const initialFocusRef = useValueAsRef(initialFocus);
   const returnFocusRef = useValueAsRef(returnFocus);
+  // Read through a ref so a mid-open change can't re-run the return-focus effect, whose cleanup
+  // would move focus while the floating element is still open.
+  const explicitReturnFocusRef = useValueAsRef(explicitReturnFocus);
   const openInteractionTypeRef = useValueAsRef(openInteractionType);
   const openRef = useValueAsRef(open);
 
@@ -865,7 +875,13 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
         // `returnElement` if it is tabbable, otherwise its first tabbable child,
         // otherwise `returnElement` itself (which may not be tabbable at all).
         const tabbableReturnElement = getFirstTabbableElement(returnElement);
-        const hasExplicitReturnFocus = typeof returnFocusValueOrFn !== 'boolean';
+        // Consumers opt out through `explicitReturnFocus`; everything else keeps the original
+        // rule, so a `finalFocus` value behaves the same as it does without this prop.
+        // Reading `.current` in the cleanup is deliberate: the latest prop value decides, and
+        // capturing it at effect setup would use a stale opt-out.
+        const hasExplicitReturnFocus =
+          // eslint-disable-next-line react-hooks/exhaustive-deps
+          explicitReturnFocusRef.current ?? typeof returnFocusValueOrFn !== 'boolean';
 
         if (
           returnFocusValueOrFn &&
@@ -893,6 +909,7 @@ export function FloatingFocusManager(props: FloatingFocusManagerProps): React.JS
     floating,
     floatingFocusElement,
     returnFocusRef,
+    explicitReturnFocusRef,
     openInteractionTypeRef,
     events,
     tree,

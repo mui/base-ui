@@ -6625,4 +6625,46 @@ describe('<Select.Root />', () => {
       });
     });
   });
+
+  describe('trigger render cost', () => {
+    it('does not re-render the trigger while navigating the list', async () => {
+      let triggerRenders = 0;
+
+      const { user } = await render(
+        <Select.Root>
+          <Select.Trigger
+            render={(props) => {
+              triggerRenders += 1;
+              return <button type="button" {...props} />;
+            }}
+          >
+            <Select.Value />
+          </Select.Trigger>
+          <Select.Portal>
+            <Select.Positioner>
+              <Select.Popup>
+                {Array.from({ length: 10 }, (_, index) => (
+                  <Select.Item key={index} value={String(index)}>{`Item ${index}`}</Select.Item>
+                ))}
+              </Select.Popup>
+            </Select.Positioner>
+          </Select.Portal>
+        </Select.Root>,
+      );
+
+      await user.click(screen.getByRole('combobox'));
+      await waitFor(() => {
+        expect(screen.queryByRole('listbox')).not.toBe(null);
+      });
+      await flushMicrotasks();
+
+      triggerRenders = 0;
+      await user.keyboard('[ArrowDown][ArrowDown][ArrowDown]');
+      await flushMicrotasks();
+
+      // See the matching assertion in MenuRoot.test.tsx: the shared list-navigation hook must not
+      // rebuild trigger props when the highlight moves.
+      expect(triggerRenders).toBe(0);
+    });
+  });
 });

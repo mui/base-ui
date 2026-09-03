@@ -9,6 +9,7 @@ import {
   wait,
 } from '#test-utils';
 import { Menubar } from '@base-ui/react/menubar';
+import { DirectionProvider } from '@base-ui/react/direction-provider';
 import { Menu } from '@base-ui/react/menu';
 import { useRefWithInit } from '@base-ui/utils/useRefWithInit';
 import { useMenubarContext } from './MenubarContext';
@@ -1082,6 +1083,81 @@ describe('<Menubar />', () => {
       it('sets aria-orientation on the root element', async () => {
         await render(<Menubar orientation="vertical" />);
         expect(screen.getByRole('menubar')).toHaveAttribute('aria-orientation', 'vertical');
+      });
+
+      it('moves between triggers with the main-axis arrow keys when vertical', async () => {
+        const { user } = await render(
+          <Menubar orientation="vertical">
+            <Menu.Root>
+              <Menu.Trigger data-testid="first-trigger">File</Menu.Trigger>
+              <Menu.Portal>
+                <Menu.Positioner>
+                  <Menu.Popup>
+                    <Menu.Item>New</Menu.Item>
+                  </Menu.Popup>
+                </Menu.Positioner>
+              </Menu.Portal>
+            </Menu.Root>
+            <Menu.Root>
+              <Menu.Trigger data-testid="second-trigger">Edit</Menu.Trigger>
+              <Menu.Portal>
+                <Menu.Positioner>
+                  <Menu.Popup>
+                    <Menu.Item>Undo</Menu.Item>
+                  </Menu.Popup>
+                </Menu.Positioner>
+              </Menu.Portal>
+            </Menu.Root>
+          </Menubar>,
+        );
+
+        const firstTrigger = screen.getByTestId('first-trigger');
+        await act(async () => {
+          firstTrigger.focus();
+        });
+
+        await user.keyboard('[ArrowDown]');
+
+        expect(screen.getByTestId('second-trigger')).toHaveFocus();
+        expect(screen.queryByRole('menu')).toBe(null);
+      });
+
+      (
+        [
+          ['ltr', 'ArrowRight', 'ArrowLeft'],
+          ['rtl', 'ArrowLeft', 'ArrowRight'],
+        ] as const
+      ).forEach(([direction, openKey, oppositeKey]) => {
+        it(`opens a menu of a vertical ${direction.toUpperCase()} menubar with ${openKey}`, async () => {
+          const { user } = await render(
+            <DirectionProvider direction={direction}>
+              <Menubar orientation="vertical">
+                <Menu.Root>
+                  <Menu.Trigger data-testid="first-trigger">File</Menu.Trigger>
+                  <Menu.Portal>
+                    <Menu.Positioner>
+                      <Menu.Popup>
+                        <Menu.Item>New</Menu.Item>
+                      </Menu.Popup>
+                    </Menu.Positioner>
+                  </Menu.Portal>
+                </Menu.Root>
+              </Menubar>
+            </DirectionProvider>,
+          );
+
+          const firstTrigger = screen.getByTestId('first-trigger');
+          await act(async () => {
+            firstTrigger.focus();
+          });
+
+          await user.keyboard(`[${oppositeKey}]`);
+          expect(screen.queryByRole('menu')).toBe(null);
+
+          await user.keyboard(`[${openKey}]`);
+
+          await screen.findByRole('menu');
+        });
       });
 
       it('sets role="menuitem" on menu triggers', async () => {

@@ -19,3 +19,12 @@ export { MenuViewport as Viewport } from './viewport/MenuViewport';
 export { Separator } from '../separator/Separator';
 export { MenuSubmenuTrigger as SubmenuTrigger } from './submenu-trigger/MenuSubmenuTrigger';
 export { MenuHandle as Handle, createMenuHandle as createHandle } from './store/MenuHandle';
+
+// Filtering. The provider is the only part that bundles the filter implementation.
+export { MenuFilterProvider as FilterProvider } from './filter-provider/MenuFilterProvider';
+export { MenuFilterInput as FilterInput } from './filter-input/MenuFilterInput';
+export { MenuList as List } from './list/MenuList';
+export { MenuFilterClear as FilterClear } from './filter-clear/MenuFilterClear';
+export { MenuFilterEmpty as FilterEmpty } from './filter-empty/MenuFilterEmpty';
+export { MenuFilterStatus as FilterStatus } from './filter-status/MenuFilterStatus';
+export { getFilter as useFilter } from '../internals/filter';
