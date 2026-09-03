@@ -55,7 +55,7 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
     ...elementProps
   } = componentProps;
 
-  const { store, virtualFocus } = useMenuRootContext();
+  const { store, virtualFocus, syncHighlightedItem } = useMenuRootContext();
 
   const keepMounted = useMenuPortalContext();
   const contextMenuContext = useContextMenuRootContext(true);
@@ -315,6 +315,7 @@ export const MenuPositioner = React.forwardRef(function MenuPositioner(
         <CompositeList
           elementsRef={store.context.itemDomElements}
           labelsRef={store.context.itemLabels}
+          onMapChange={syncHighlightedItem}
         >
           {element}
         </CompositeList>

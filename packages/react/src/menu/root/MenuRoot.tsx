@@ -24,7 +24,9 @@ import { useDirection } from '../../internals/direction-context/DirectionContext
 import { useOpenInteractionType } from '../../utils/useOpenInteractionType';
 import {
   createChangeEventDetails,
+  createGenericEventDetails,
   type BaseUIChangeEventDetails,
+  type BaseUIGenericEventDetails,
 } from '../../internals/createBaseUIEventDetails';
 import { REASONS } from '../../internals/reasons';
 import {
@@ -104,6 +106,7 @@ const MenuRootImpl = fastComponent(function MenuRoot<Payload>(props: MenuRoot.Pr
     open: openProp,
     onOpenChange,
     onOpenChangeComplete,
+    onItemHighlighted: onItemHighlightedProp,
     defaultOpen = false,
     disabled: disabledProp = false,
     modal: modalProp,
@@ -570,8 +573,8 @@ const MenuRootImpl = fastComponent(function MenuRoot<Payload>(props: MenuRoot.Pr
     triggerOrientation: virtualFocus ? 'vertical' : orientation,
     rtl: direction === 'rtl',
     disabledIndices: EMPTY_ARRAY,
-    onNavigate(nextActiveIndex) {
-      store.set('activeIndex', nextActiveIndex);
+    onNavigate(nextActiveIndex, event) {
+      store.setActiveIndex(nextActiveIndex, getHighlightReason(event));
     },
     // A virtual-focus submenu's keyboard opening is orchestrated by its navigation wrapper based
     // on both menus' orientations; the generic arrow-key opening would also react to the parent's
@@ -599,11 +602,48 @@ const MenuRootImpl = fastComponent(function MenuRoot<Payload>(props: MenuRoot.Pr
     resetMs: TYPEAHEAD_RESET_MS,
     onMatch: (index) => {
       if (open && index !== activeIndex) {
-        store.set('activeIndex', index);
+        store.setActiveIndex(index, REASONS.keyboard);
       }
     },
     onTyping,
   });
+
+  const onItemHighlighted = useStableCallback(onItemHighlightedProp);
+  const lastHighlightRef = React.useRef<{ index: number; element: HTMLElement | undefined }>({
+    index: -1,
+    element: undefined,
+  });
+  // Runs when `activeIndex` commits and again when the item registry settles, since an index
+  // can come to point at a different element while its value stays the same.
+  const syncHighlightedItem = useStableCallback(() => {
+    const index = store.state.activeIndex;
+    const element = index === null ? undefined : store.context.itemDomElements.current[index];
+    // An item removed in this commit stays registered until the list flushes, which calls back
+    // here with the settled registry.
+    if (element != null && !element.isConnected) {
+      return;
+    }
+    const nextIndex = element == null ? -1 : (index as number);
+    const last = lastHighlightRef.current;
+    if (last.index === nextIndex && last.element === element) {
+      return;
+    }
+    lastHighlightRef.current = { index: nextIndex, element: element ?? undefined };
+    // The tag left by the write that produced this committed value.
+    const reason = store.context.highlightReason;
+    store.context.highlightReason = REASONS.none;
+    onItemHighlighted(
+      element ?? undefined,
+      createGenericEventDetails(reason, undefined, {
+        index: nextIndex,
+        label:
+          element == null ? undefined : (store.context.itemLabels.current[nextIndex] ?? undefined),
+      }),
+    );
+  });
+  useIsoLayoutEffect(() => {
+    syncHighlightedItem();
+  }, [activeIndex, syncHighlightedItem]);
 
   // Under virtual focus an element inside the popup holds real focus, so it takes the
   // navigation's reference props (`aria-activedescendant` and the key handling) and the trigger
@@ -720,6 +760,7 @@ const MenuRootImpl = fastComponent(function MenuRoot<Payload>(props: MenuRoot.Pr
       parentVirtualFocus,
       parentFloatingId,
       webkitItemSelected,
+      syncHighlightedItem,
     }),
     [
       store,
@@ -735,6 +776,7 @@ const MenuRootImpl = fastComponent(function MenuRoot<Payload>(props: MenuRoot.Pr
       parentVirtualFocus,
       parentFloatingId,
       webkitItemSelected,
+      syncHighlightedItem,
     ],
   );
 
@@ -759,6 +801,21 @@ const MenuRootImpl = fastComponent(function MenuRoot<Payload>(props: MenuRoot.Pr
 });
 
 /** `MenuRoot` with the internal props visible, which the public signature hides. */
+function getHighlightReason(
+  event: React.SyntheticEvent | undefined,
+): MenuRoot.HighlightEventReason {
+  if (event == null) {
+    return REASONS.none;
+  }
+  if (event.type.startsWith('key')) {
+    return REASONS.keyboard;
+  }
+  if (event.type.startsWith('mouse') || event.type.startsWith('pointer')) {
+    return REASONS.pointer;
+  }
+  return REASONS.none;
+}
+
 export const MenuRootInternal = MenuRootImpl as <Payload>(
   props: MenuRootInternalProps<Payload>,
 ) => React.JSX.Element;
@@ -843,6 +900,20 @@ export interface MenuRootProps<Payload = unknown> {
    */
   onOpenChangeComplete?: ((open: boolean) => void) | undefined;
   /**
+   * Callback fired when an item is highlighted or unhighlighted.
+   * Receives the highlighted item element (or `undefined` if no item is highlighted) and event details with a `reason` property describing why the highlight changed, the item's `index`, and its `label`.
+   * The `reason` can be:
+   * - `'keyboard'`: the highlight changed due to keyboard navigation.
+   * - `'pointer'`: the highlight changed due to pointer hovering.
+   * - `'none'`: the highlight changed programmatically.
+   */
+  onItemHighlighted?:
+    | ((
+        highlightedItem: HTMLElement | undefined,
+        eventDetails: MenuRoot.HighlightEventDetails,
+      ) => void)
+    | undefined;
+  /**
    * Whether the menu is currently open.
    */
   open?: boolean | undefined;
@@ -917,6 +988,23 @@ export type MenuRootChangeEventDetails = BaseUIChangeEventDetails<MenuRoot.Chang
   preventUnmountOnClose(): void;
 };
 
+export type MenuRootHighlightEventReason =
+  typeof REASONS.keyboard | typeof REASONS.pointer | typeof REASONS.none;
+
+export type MenuRootHighlightEventDetails = BaseUIGenericEventDetails<
+  MenuRoot.HighlightEventReason,
+  {
+    /**
+     * The index of the highlighted item, or `-1` when no item is highlighted.
+     */
+    index: number;
+    /**
+     * The highlighted item's `label` prop, or its text content when the prop is not set.
+     */
+    label: string | undefined;
+  }
+>;
+
 export type MenuRootOrientation = 'horizontal' | 'vertical';
 
 export type MenuParent =
@@ -947,5 +1035,7 @@ export namespace MenuRoot {
   export type Actions = MenuRootActions;
   export type ChangeEventReason = MenuRootChangeEventReason;
   export type ChangeEventDetails = MenuRootChangeEventDetails;
+  export type HighlightEventReason = MenuRootHighlightEventReason;
+  export type HighlightEventDetails = MenuRootHighlightEventDetails;
   export type Orientation = MenuRootOrientation;
 }

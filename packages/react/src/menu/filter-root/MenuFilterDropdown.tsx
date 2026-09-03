@@ -4,6 +4,7 @@ import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { FilterDropdownRoot } from '../../filter-dropdown/root/FilterDropdownRoot';
 import type { FilterDropdownFilter } from '../../filter-dropdown/root/FilterDropdownRootContext';
 import { useMenuRootContext } from '../root/MenuRootContext';
+import { REASONS } from '../../internals/reasons';
 import type { HTMLProps } from '../../internals/types';
 import type { MenuFilterRoot } from './MenuFilterRoot';
 
@@ -34,7 +35,7 @@ export function MenuFilterDropdown(props: MenuFilterDropdownProps) {
   const disabled = store.useState('disabled');
 
   const setActiveIndex = useStableCallback((index: number | null) => {
-    store.set('activeIndex', index);
+    store.setActiveIndex(index, REASONS.none);
   });
 
   return (

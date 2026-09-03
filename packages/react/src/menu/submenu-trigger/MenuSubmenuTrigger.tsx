@@ -126,7 +126,7 @@ const MenuSubmenuTriggerPlain = React.forwardRef(function MenuSubmenuTrigger(
       type: 'submenu-trigger' as const,
       setActive() {
         if (parentMenuStore.select('highlightItemOnHover')) {
-          parentMenuStore.set('activeIndex', listItem.index);
+          parentMenuStore.setActiveIndex(listItem.index, REASONS.pointer);
         }
       },
     }),
@@ -215,7 +215,7 @@ const MenuSubmenuTriggerPlain = React.forwardRef(function MenuSubmenuTrigger(
         tabIndex: parentVirtualFocus || !(open || highlighted) ? -1 : 0,
         onBlur() {
           if (highlighted) {
-            parentMenuStore.set('activeIndex', null);
+            parentMenuStore.setActiveIndex(null, REASONS.none);
           }
         },
       },

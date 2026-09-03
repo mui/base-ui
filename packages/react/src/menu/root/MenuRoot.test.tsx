@@ -3198,6 +3198,118 @@ describe('<Menu.Root />', () => {
     });
   });
 
+  describe('prop: onItemHighlighted', () => {
+    function HighlightMenu(props: {
+      onItemHighlighted: Menu.Root.Props['onItemHighlighted'];
+      open?: boolean;
+    }) {
+      return (
+        <Menu.Root open={props.open ?? true} onItemHighlighted={props.onItemHighlighted}>
+          <Menu.Portal>
+            <Menu.Positioner>
+              <Menu.Popup>
+                <Menu.Item data-testid="item-1">Item 1</Menu.Item>
+                <Menu.Item data-testid="item-2" label="Second">
+                  Item 2
+                </Menu.Item>
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
+        </Menu.Root>
+      );
+    }
+
+    it('reports keyboard highlights with the item element, index, and label', async () => {
+      const onItemHighlighted = vi.fn();
+      const { user } = await render(<HighlightMenu onItemHighlighted={onItemHighlighted} />);
+
+      const item1 = screen.getByTestId('item-1');
+      const item2 = screen.getByTestId('item-2');
+
+      await act(async () => {
+        item1.focus();
+      });
+      onItemHighlighted.mockClear();
+
+      await user.keyboard('[ArrowDown]');
+
+      await waitFor(() => {
+        expect(item2).toHaveFocus();
+      });
+      expect(onItemHighlighted).toHaveBeenCalledTimes(1);
+      expect(onItemHighlighted).toHaveBeenCalledWith(
+        item2,
+        expect.objectContaining({ reason: 'keyboard', index: 1, label: 'Second' }),
+      );
+    });
+
+    it('reports pointer highlights and falls back to the item text as the label', async () => {
+      const onItemHighlighted = vi.fn();
+      await render(<HighlightMenu onItemHighlighted={onItemHighlighted} />);
+
+      const item1 = screen.getByTestId('item-1');
+      fireEvent.mouseMove(item1);
+
+      await waitFor(() => {
+        expect(onItemHighlighted).toHaveBeenCalledTimes(1);
+      });
+      expect(onItemHighlighted).toHaveBeenCalledWith(
+        item1,
+        expect.objectContaining({ reason: 'pointer', index: 0, label: 'Item 1' }),
+      );
+    });
+
+    it('does not fire again while the same item stays highlighted', async () => {
+      const onItemHighlighted = vi.fn();
+      await render(<HighlightMenu onItemHighlighted={onItemHighlighted} />);
+
+      const item1 = screen.getByTestId('item-1');
+      fireEvent.mouseMove(item1);
+      await waitFor(() => {
+        expect(onItemHighlighted).toHaveBeenCalledTimes(1);
+      });
+
+      fireEvent.mouseMove(item1);
+      await flushMicrotasks();
+
+      expect(onItemHighlighted).toHaveBeenCalledTimes(1);
+    });
+
+    it('reports an undefined item when the menu closes', async () => {
+      const onItemHighlighted = vi.fn();
+
+      function Controlled() {
+        const [open, setOpen] = React.useState(true);
+        return (
+          <React.Fragment>
+            <button type="button" onClick={() => setOpen(false)}>
+              Close
+            </button>
+            <HighlightMenu open={open} onItemHighlighted={onItemHighlighted} />
+          </React.Fragment>
+        );
+      }
+
+      const { user } = await render(<Controlled />);
+
+      const item1 = screen.getByTestId('item-1');
+      fireEvent.mouseMove(item1);
+      await waitFor(() => {
+        expect(onItemHighlighted).toHaveBeenCalledTimes(1);
+      });
+
+      await user.click(screen.getByRole('button', { name: 'Close' }));
+
+      await waitFor(() => {
+        expect(onItemHighlighted).toHaveBeenCalledTimes(2);
+      });
+      expect(onItemHighlighted).toHaveBeenLastCalledWith(
+        undefined,
+        expect.objectContaining({ reason: 'none', index: -1, label: undefined }),
+      );
+    });
+  });
+
   describe('prop: highlightItemOnHover', () => {
     it('highlights an item on mouse move by default', async () => {
       await render(

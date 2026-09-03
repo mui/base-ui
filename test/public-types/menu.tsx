@@ -6,6 +6,23 @@ export type MenuRootActions = Menu.Root.Actions;
 export type MenuRootChangeEventReason = Menu.Root.ChangeEventReason;
 export type MenuRootChangeEventDetails = Menu.Root.ChangeEventDetails;
 export type MenuRootOrientation = Menu.Root.Orientation;
+export type MenuRootHighlightEventReason = Menu.Root.HighlightEventReason;
+export type MenuRootHighlightEventDetails = Menu.Root.HighlightEventDetails;
+
+export function HighlightedItemLabel() {
+  const [label, setLabel] = React.useState<string | undefined>();
+  return (
+    <Menu.Root
+      onItemHighlighted={(item, details) => {
+        setLabel(item ? details.label : undefined);
+        // @ts-expect-error the reason set is closed
+        return details.reason === 'focus';
+      }}
+    >
+      {label}
+    </Menu.Root>
+  );
+}
 
 export interface SimpleMenuProps extends Omit<MenuRootProps, 'children'> {
   label?: string;

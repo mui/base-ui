@@ -49,6 +49,8 @@ type Context = PopupStoreContext<MenuRoot.ChangeEventDetails> & {
   readonly typingRef: React.RefObject<boolean>;
   readonly itemDomElements: React.RefObject<(HTMLElement | null)[]>;
   readonly itemLabels: React.RefObject<(string | null)[]>;
+  /** Why the next `activeIndex` write happens, consumed by `onItemHighlighted` on commit. */
+  highlightReason: MenuRoot.HighlightEventReason;
   allowMouseUpTriggerRef: React.RefObject<boolean>;
   /** The element that holds real focus while virtual list navigation is active. */
   virtualFocusRef: React.RefObject<HTMLElement | null> | undefined;
@@ -176,6 +178,11 @@ export class MenuStore<Payload> extends ReactStore<Readonly<State<Payload>>, Con
     this.state.floatingRootContext.context.events.emit('setOpen', { open, eventDetails });
   }
 
+  setActiveIndex(activeIndex: number | null, reason: MenuRoot.HighlightEventReason) {
+    this.context.highlightReason = reason;
+    this.set('activeIndex', activeIndex);
+  }
+
   private unsubscribeParentListener: (() => void) | null = null;
 }
 
@@ -205,6 +212,7 @@ function createInitialContext(triggerElements: PopupTriggerMap): Context {
     typingRef: { current: false },
     itemDomElements: { current: [] },
     itemLabels: { current: [] },
+    highlightReason: 'none',
     allowMouseUpTriggerRef: { current: false },
     virtualFocusRef: undefined,
     triggerFocusTargetRef: React.createRef<HTMLElement>(),
