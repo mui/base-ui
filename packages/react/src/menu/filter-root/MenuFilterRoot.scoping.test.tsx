@@ -590,4 +590,80 @@ describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider>', () => {
       }
     });
   });
+
+  describe('prop: onItemHighlighted', () => {
+    function HighlightMenu(props: {
+      onItemHighlighted: Menu.Root.Props['onItemHighlighted'];
+      autoHighlight?: boolean;
+    }) {
+      return (
+        <Menu.FilterProvider autoHighlight={props.autoHighlight}>
+          <Menu.Root open onItemHighlighted={props.onItemHighlighted}>
+            <Menu.Portal>
+              <Menu.Positioner>
+                <Menu.Popup>
+                  <Menu.FilterInput aria-label="Filter actions" />
+                  <Menu.List>
+                    <Menu.Item>Rename</Menu.Item>
+                    <Menu.Item label="Remove">Delete</Menu.Item>
+                    <Menu.Item>Duplicate</Menu.Item>
+                  </Menu.List>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
+          </Menu.Root>
+        </Menu.FilterProvider>
+      );
+    }
+
+    it('reports keyboard highlights while the input keeps focus', async () => {
+      const onItemHighlighted = vi.fn();
+      const { user } = await render(<HighlightMenu onItemHighlighted={onItemHighlighted} />);
+      const input = screen.getByRole('searchbox', { name: 'Filter actions' });
+
+      await act(async () => {
+        input.focus();
+      });
+      await user.keyboard('[ArrowDown][ArrowDown]');
+
+      const remove = screen.getByRole('menuitem', { name: 'Delete' });
+      expect(input).toHaveFocus();
+      expect(onItemHighlighted).toHaveBeenCalledTimes(2);
+      expect(onItemHighlighted).toHaveBeenLastCalledWith(
+        remove,
+        expect.objectContaining({ reason: 'keyboard', index: 1, label: 'Remove' }),
+      );
+    });
+
+    it('reports the auto-highlighted item as a programmatic change', async () => {
+      const onItemHighlighted = vi.fn();
+      const { user } = await render(
+        <HighlightMenu autoHighlight onItemHighlighted={onItemHighlighted} />,
+      );
+      const input = screen.getByRole('searchbox', { name: 'Filter actions' });
+
+      await act(async () => {
+        input.focus();
+      });
+      await user.type(input, 'dup');
+
+      await waitFor(() => {
+        expect(onItemHighlighted).toHaveBeenCalledTimes(1);
+      });
+      expect(onItemHighlighted).toHaveBeenCalledWith(
+        screen.getByRole('menuitem', { name: 'Duplicate' }),
+        expect.objectContaining({ reason: 'none', index: 0, label: 'Duplicate' }),
+      );
+
+      await user.type(input, 'zzz');
+
+      await waitFor(() => {
+        expect(onItemHighlighted).toHaveBeenCalledTimes(2);
+      });
+      expect(onItemHighlighted).toHaveBeenLastCalledWith(
+        undefined,
+        expect.objectContaining({ reason: 'none', index: -1, label: undefined }),
+      );
+    });
+  });
 });

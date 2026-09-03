@@ -104,14 +104,14 @@ export function MenuFilterSubmenuRoot(props: MenuFilterSubmenuRoot.Props): React
 
     if (isHTMLElement(focusedElement)) {
       parentReferenceRef.current = { reference: focusedElement, trigger };
-      parentStore.set('activeIndex', null);
+      parentStore.setActiveIndex(null, REASONS.keyboard);
     }
   }
 
   function highlightTrigger(trigger: HTMLElement) {
     const triggerIndex = parentStore.context.itemDomElements.current.indexOf(trigger);
     if (triggerIndex > -1) {
-      parentStore.set('activeIndex', triggerIndex);
+      parentStore.setActiveIndex(triggerIndex, REASONS.keyboard);
     }
   }
 
@@ -335,7 +335,7 @@ function MenuFilterSubmenuNavigation(props: MenuFilterSubmenuNavigationProps) {
 
       const item = items[nextIndex];
       if (item) {
-        parentStore.set('activeIndex', nextIndex);
+        parentStore.setActiveIndex(nextIndex, REASONS.keyboard);
         item.focus({ preventScroll: true });
         item.scrollIntoView?.({ block: 'nearest', inline: 'nearest' });
       }
@@ -365,7 +365,7 @@ function MenuFilterSubmenuNavigation(props: MenuFilterSubmenuNavigationProps) {
       // Re-entering an already-open submenu hands the cursor to its own focus owner. The submenu
       // is always virtually focused, so there is no roving-focus branch here.
       onSubmenuEnter(event.currentTarget);
-      store.set('activeIndex', null);
+      store.setActiveIndex(null, REASONS.keyboard);
       virtualFocusRef?.current?.focus({ preventScroll: true });
       return;
     }

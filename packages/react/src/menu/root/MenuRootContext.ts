@@ -27,6 +27,8 @@ export interface MenuRootContext<Payload = unknown> {
    * `aria-activedescendant` into a menu. Resolved once per root, not per item.
    */
   webkitItemSelected: boolean;
+  /** Re-emits `onItemHighlighted` after the item registry settles. */
+  syncHighlightedItem: () => void;
 }
 
 export const MenuRootContext = React.createContext<MenuRootContext | undefined>(undefined);
