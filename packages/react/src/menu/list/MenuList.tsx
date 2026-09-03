@@ -28,8 +28,8 @@ import type { BaseUIEvent } from '../../internals/types';
  *
  * Documentation: [Base UI Menu](https://base-ui.com/react/components/menu)
  */
-export const MenuFilterList = React.forwardRef(function MenuFilterList(
-  componentProps: MenuFilterList.Props,
+export const MenuList = React.forwardRef(function MenuList(
+  componentProps: MenuList.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
   const { store: menuStore } = useMenuRootContext();
@@ -144,11 +144,11 @@ export const MenuFilterList = React.forwardRef(function MenuFilterList(
   );
 });
 
-export interface MenuFilterListState extends FilterDropdownListState {}
+export interface MenuListState extends FilterDropdownListState {}
 
-export interface MenuFilterListProps extends FilterDropdownListProps {}
+export interface MenuListProps extends FilterDropdownListProps {}
 
-export namespace MenuFilterList {
-  export type Props = MenuFilterListProps;
-  export type State = MenuFilterListState;
+export namespace MenuList {
+  export type Props = MenuListProps;
+  export type State = MenuListState;
 }

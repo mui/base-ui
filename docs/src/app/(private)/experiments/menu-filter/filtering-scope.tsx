@@ -67,7 +67,7 @@ function RootFilterOnly(props: { autoHighlight: boolean }) {
           <Menu.Positioner className={classes.Positioner} sideOffset={8}>
             <Menu.Popup className={classes.Popup}>
               <Menu.FilterInput className={classes.Input} aria-label="Filter root actions" />
-              <Menu.FilterList className={classes.List}>
+              <Menu.List className={classes.List}>
                 <Menu.Item className={classes.Item}>Rename</Menu.Item>
                 <Menu.SubmenuRoot>
                   <Menu.SubmenuTrigger className={classes.Item}>
@@ -83,7 +83,7 @@ function RootFilterOnly(props: { autoHighlight: boolean }) {
                   </Menu.Portal>
                 </Menu.SubmenuRoot>
                 <Menu.Item className={classes.Item}>Delete</Menu.Item>
-              </Menu.FilterList>
+              </Menu.List>
             </Menu.Popup>
           </Menu.Positioner>
         </Menu.Portal>
@@ -113,11 +113,11 @@ function SubmenuFilterOnly(props: { autoHighlight: boolean; focusOnHover: boolea
                         aria-label="Filter destinations"
                         autoFocus={props.focusOnHover}
                       />
-                      <Menu.FilterList className={classes.List}>
+                      <Menu.List className={classes.List}>
                         <Menu.Item className={classes.Item}>Documents</Menu.Item>
                         <Menu.Item className={classes.Item}>Downloads</Menu.Item>
                         <Menu.Item className={classes.Item}>Archive</Menu.Item>
-                      </Menu.FilterList>
+                      </Menu.List>
                     </Menu.Popup>
                   </Menu.Positioner>
                 </Menu.Portal>
@@ -151,13 +151,13 @@ function FilterableSubmenu(props: {
                 aria-label={`Filter ${props.label.toLowerCase()}`}
                 autoFocus={props.focusOnHover}
               />
-              <Menu.FilterList className={classes.List}>
+              <Menu.List className={classes.List}>
                 {props.items.map((item) => (
                   <Menu.Item key={item} className={classes.Item}>
                     {item}
                   </Menu.Item>
                 ))}
-              </Menu.FilterList>
+              </Menu.List>
             </Menu.Popup>
           </Menu.Positioner>
         </Menu.Portal>
@@ -175,7 +175,7 @@ function NestedFilters(props: { autoHighlight: boolean; focusOnHover: boolean })
           <Menu.Positioner className={classes.Positioner} sideOffset={8}>
             <Menu.Popup className={classes.Popup}>
               <Menu.FilterInput className={classes.Input} aria-label="Filter actions" />
-              <Menu.FilterList className={classes.List}>
+              <Menu.List className={classes.List}>
                 <Menu.Item className={classes.Item}>Rename</Menu.Item>
                 <Menu.Item className={classes.Item}>Duplicate</Menu.Item>
                 <FilterableSubmenu
@@ -189,7 +189,7 @@ function NestedFilters(props: { autoHighlight: boolean; focusOnHover: boolean })
                   {...props}
                 />
                 <Menu.Item className={classes.Item}>Delete</Menu.Item>
-              </Menu.FilterList>
+              </Menu.List>
             </Menu.Popup>
           </Menu.Positioner>
         </Menu.Portal>

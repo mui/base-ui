@@ -40,9 +40,9 @@ describe('<Menu.Popup />', () => {
               <Menu.Positioner>
                 <Menu.Popup>
                   <Menu.FilterInput aria-label="Filter actions" />
-                  <Menu.FilterList>
+                  <Menu.List>
                     <Menu.Item>Rename</Menu.Item>
-                  </Menu.FilterList>
+                  </Menu.List>
                 </Menu.Popup>
               </Menu.Positioner>
             </Menu.Portal>
@@ -73,9 +73,9 @@ describe('<Menu.Popup />', () => {
                 <Menu.Positioner>
                   <Menu.Popup>
                     <Menu.FilterInput aria-label="Filter actions" />
-                    <Menu.FilterList style={{ direction: 'rtl' }}>
+                    <Menu.List style={{ direction: 'rtl' }}>
                       <Menu.Item>Rename</Menu.Item>
-                    </Menu.FilterList>
+                    </Menu.List>
                   </Menu.Popup>
                 </Menu.Positioner>
               </Menu.Portal>

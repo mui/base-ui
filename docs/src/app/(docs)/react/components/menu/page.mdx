@@ -343,8 +343,8 @@ import { DemoMenuDetachedTriggersFull } from './demos/detached-triggers-full';
 ### Filtering
 
 Wrap `<Menu.Root>` in `<Menu.FilterProvider>` to add a search field that filters the items.
-The filter parts are `<Menu.FilterInput>`, `<Menu.FilterList>`, `<Menu.FilterClear>`, `<Menu.FilterEmpty>`, and `<Menu.FilterStatus>`; every other part stays the same.
-A filterable popup is a dialog that contains the input and a `menu` list, so the items go inside `<Menu.FilterList>`.
+The filter parts are `<Menu.FilterInput>`, `<Menu.List>`, `<Menu.FilterClear>`, `<Menu.FilterEmpty>`, and `<Menu.FilterStatus>`; every other part stays the same.
+A filterable popup is a dialog that contains the input and a `menu` list, so the items go inside `<Menu.List>`.
 Give the input an accessible name with `aria-label`, `aria-labelledby`, or a visible native `<label>`.
 Only `<Menu.FilterProvider>` imports the filtering code, so menus that don't filter don't bundle it.
 
@@ -357,12 +357,12 @@ import { DemoMenuFilter } from './demos/filter';
 Items match their rendered text by default. Use `label` to provide explicit searchable text and `keywords` for alternate terms.
 
 ```jsx title="Labels and keywords"
-<Menu.FilterList>
+<Menu.List>
   <Menu.Item keywords={['edit name']}>Rename</Menu.Item>
   <Menu.Item label="Move to folder" keywords={['organize']}>
     Move
   </Menu.Item>
-</Menu.FilterList>
+</Menu.List>
 ```
 
 Groups with no matching items are hidden, including their labels. `<Menu.FilterEmpty>` is shown when no items match and renders nothing otherwise.
@@ -420,10 +420,10 @@ Add `autoFocus` to the submenu's `<Menu.FilterInput>` to focus it as soon as the
       <Menu.Positioner>
         <Menu.Popup>
           <Menu.FilterInput aria-label="Filter more actions" />
-          <Menu.FilterList>
+          <Menu.List>
             <Menu.Item>Share</Menu.Item>
             <Menu.Item>Move</Menu.Item>
-          </Menu.FilterList>
+          </Menu.List>
         </Menu.Popup>
       </Menu.Positioner>
     </Menu.Portal>
@@ -507,9 +507,9 @@ The `Viewport` is optional — reach for it only when a single popup is opened b
 
 <TypesMenu.FilterInput />
 
-### FilterList
+### List
 
-<TypesMenu.FilterList />
+<TypesMenu.List />
 
 ### FilterClear
 

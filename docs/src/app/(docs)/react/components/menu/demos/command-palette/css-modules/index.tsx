@@ -45,7 +45,7 @@ export default function ExampleMenuCommandPalette() {
                         No results found.
                       </Menu.FilterEmpty>
 
-                      <Menu.FilterList className={styles.List} aria-label="Commands">
+                      <Menu.List className={styles.List} aria-label="Commands">
                         {groupedItems.map((group) => (
                           <Menu.Group key={group.value} className={styles.Group}>
                             <Menu.GroupLabel className={styles.GroupLabel}>
@@ -66,7 +66,7 @@ export default function ExampleMenuCommandPalette() {
                             ))}
                           </Menu.Group>
                         ))}
-                      </Menu.FilterList>
+                      </Menu.List>
                     </ScrollArea.Content>
                   </ScrollArea.Viewport>
                   <ScrollArea.Scrollbar className={styles.Scrollbar}>

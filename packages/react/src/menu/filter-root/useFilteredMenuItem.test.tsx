@@ -17,7 +17,7 @@ describe('filtered Menu items', () => {
             <Menu.Positioner>
               <Menu.Popup>
                 <Menu.FilterInput aria-label="Filter actions" />
-                <Menu.FilterList>
+                <Menu.List>
                   <Menu.Item closeOnClick={false} onClick={handleItemClick}>
                     Rename
                   </Menu.Item>
@@ -26,7 +26,7 @@ describe('filtered Menu items', () => {
                   <Menu.RadioGroup>
                     <Menu.RadioItem value="date">Sort by date</Menu.RadioItem>
                   </Menu.RadioGroup>
-                </Menu.FilterList>
+                </Menu.List>
               </Menu.Popup>
             </Menu.Positioner>
           </Menu.Portal>
@@ -65,13 +65,13 @@ describe('filtered Menu items', () => {
               <Menu.Positioner>
                 <Menu.Popup>
                   <Menu.FilterInput aria-label="Filter actions" />
-                  <Menu.FilterList>
+                  <Menu.List>
                     <Menu.Item>
                       {'Re'}
                       {'name'}
                     </Menu.Item>
                     <Menu.Item>Delete</Menu.Item>
-                  </Menu.FilterList>
+                  </Menu.List>
                 </Menu.Popup>
               </Menu.Positioner>
             </Menu.Portal>
@@ -112,13 +112,13 @@ describe('filtered Menu items', () => {
               <Menu.Positioner>
                 <Menu.Popup>
                   <Menu.FilterInput aria-label="Filter actions" />
-                  <Menu.FilterList>
+                  <Menu.List>
                     <Menu.Item>Rename</Menu.Item>
                     <Menu.Item disabled onClick={onDisabledClick}>
                       Archive
                     </Menu.Item>
                     <Menu.Item>Delete</Menu.Item>
-                  </Menu.FilterList>
+                  </Menu.List>
                 </Menu.Popup>
               </Menu.Positioner>
             </Menu.Portal>
