@@ -1304,8 +1304,76 @@ describe('Composite', () => {
     });
   });
 
+  describe('focus from a child layout effect (controlled)', () => {
+    function Item({ id, focusMe }: { id: string; focusMe?: boolean }) {
+      const ref = React.useRef<HTMLButtonElement>(null);
+      useIsoLayoutEffect(() => {
+        if (focusMe) {
+          ref.current?.focus();
+        }
+      }, [focusMe]);
+      return <CompositeItem refs={[ref]} data-testid={id} render={<button type="button" />} />;
+    }
+
+    it('restores the tab stop after a new item focuses itself before it registers', async () => {
+      function App() {
+        const [highlightedIndex, setHighlightedIndex] = React.useState(0);
+        const [count, setCount] = React.useState(2);
+        return (
+          <React.Fragment>
+            <button onClick={() => setCount((value) => value + 1)}>add</button>
+            <CompositeRoot
+              highlightedIndex={highlightedIndex}
+              onHighlightedIndexChange={setHighlightedIndex}
+            >
+              <Item id="1" />
+              <Item id="2" />
+              {count >= 3 && <Item id="3" focusMe />}
+              {count >= 4 && <Item id="4" />}
+            </CompositeRoot>
+          </React.Fragment>
+        );
+      }
+
+      await render(<App />);
+      fireEvent.click(screen.getByRole('button', { name: 'add' }));
+      expect(screen.getByTestId('3')).toHaveFocus();
+
+      act(() => screen.getByTestId('3').blur());
+      fireEvent.click(screen.getByRole('button', { name: 'add' }));
+
+      expect(screen.getByTestId('1')).toHaveAttribute('tabindex', '0');
+    });
+
+    it('keeps the tab stop on the item focused while cleared and the focused item is removed', async () => {
+      function App() {
+        const [highlightedIndex, setHighlightedIndex] = React.useState(-1);
+        const [showFirst, setShowFirst] = React.useState(true);
+        return (
+          <React.Fragment>
+            <button onClick={() => setShowFirst(false)}>remove</button>
+            <CompositeRoot
+              highlightedIndex={highlightedIndex}
+              onHighlightedIndexChange={setHighlightedIndex}
+            >
+              {showFirst && <Item id="1" />}
+              <Item id="2" />
+              <Item id="3" focusMe={!showFirst} />
+            </CompositeRoot>
+          </React.Fragment>
+        );
+      }
+
+      await render(<App />);
+      fireEvent.click(screen.getByRole('button', { name: 'remove' }));
+
+      expect(screen.getByTestId('3')).toHaveFocus();
+      expect(screen.getByTestId('3')).toHaveAttribute('tabindex', '0');
+    });
+  });
+
   describe('controlled highlightedIndex', () => {
-    function App() {
+    function App({ lastDisabled = false }: { lastDisabled?: boolean }) {
       const [highlightedIndex, setHighlightedIndex] = React.useState(1);
       const [showFirstItem, setShowFirstItem] = React.useState(true);
       const [showLastItem, setShowLastItem] = React.useState(true);
@@ -1313,6 +1381,7 @@ describe('Composite', () => {
       return (
         <React.Fragment>
           <button onClick={() => setHighlightedIndex(2)}>highlight</button>
+          <button onClick={() => setHighlightedIndex(3)}>highlight last</button>
           <button onClick={() => setHighlightedIndex(1)}>restore</button>
           <button onClick={() => setHighlightedIndex(-1)}>clear</button>
           <button onClick={() => setShowFirstItem(false)}>remove first</button>
@@ -1332,7 +1401,12 @@ describe('Composite', () => {
             {showFirstItem && <CompositeItem data-testid="0" />}
             <CompositeItem data-testid="1" />
             <CompositeItem data-testid="2" />
-            {showLastItem && <CompositeItem data-testid="3" />}
+            {showLastItem && (
+              <CompositeItem
+                data-testid="3"
+                render={<button type="button" disabled={lastDisabled} />}
+              />
+            )}
           </CompositeRoot>
         </React.Fragment>
       );
@@ -1377,6 +1451,35 @@ describe('Composite', () => {
       expect(screen.getByTestId('0')).toHaveAttribute('tabindex', '-1');
       expect(screen.getByTestId('1')).toHaveAttribute('tabindex', '-1');
       expect(screen.getByTestId('2')).toHaveAttribute('tabindex', '-1');
+    });
+
+    it('follows a directly controlled item when an earlier item is removed later', async () => {
+      const { rerender } = await render(<App />);
+
+      act(() => screen.getByTestId('1').focus());
+      fireEvent.click(screen.getByRole('button', { name: 'highlight' }));
+      expect(screen.getByTestId('2')).toHaveAttribute('tabindex', '0');
+
+      fireEvent.click(screen.getByRole('button', { name: 'remove first' }));
+
+      expect(screen.getByTestId('2')).toHaveAttribute('tabindex', '0');
+      expect(screen.getByTestId('3')).toHaveAttribute('tabindex', '-1');
+
+      rerender(<App lastDisabled />);
+      expect(screen.getByTestId('2')).toHaveAttribute('tabindex', '0');
+    });
+
+    it('moves the tab stop back into range when a directly controlled item is removed later', async () => {
+      await render(<App />);
+
+      act(() => screen.getByTestId('1').focus());
+      fireEvent.click(screen.getByRole('button', { name: 'highlight last' }));
+      expect(screen.getByTestId('3')).toHaveAttribute('tabindex', '0');
+
+      fireEvent.click(screen.getByRole('button', { name: 'remove' }));
+
+      expect(screen.getByTestId('0')).toHaveAttribute('tabindex', '0');
+      expect(screen.getByTestId('1')).toHaveAttribute('tabindex', '-1');
     });
 
     it('honors the same index set again after clearing while the items shifted', async () => {

@@ -94,16 +94,16 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
   const mergedRef = useMergedRefs(rootRef, externalRef);
 
   const elementsRef = React.useRef<Array<HTMLElement | null>>([]);
+  const previousElementsRef = React.useRef<Array<HTMLElement | null>>([]);
   const hasSetDefaultIndexRef = React.useRef(false);
-  const highlightedElementRef = React.useRef<HTMLElement | null>(null);
 
   const highlightedIndex = externalHighlightedIndex ?? internalHighlightedIndex;
-  const highlightedElementIndexRef = React.useRef(highlightedIndex);
+  // The index the items were last reconciled against. `onHighlightedIndexChange` can run between
+  // a render and the list flush of the same commit, so it also records the index it just set.
+  const settledIndexRef = React.useRef(highlightedIndex);
   const hasPendingIndexChangeRef = React.useRef(false);
   const onHighlightedIndexChange = useStableCallback((index, shouldScrollIntoView = false) => {
-    highlightedElementRef.current = elementsRef.current[index] ?? null;
-    highlightedElementIndexRef.current = index;
-    // A change that will re-render only settles after the list may already have flushed.
+    settledIndexRef.current = index;
     hasPendingIndexChangeRef.current = index !== highlightedIndex;
     (externalSetHighlightedIndex ?? internalSetHighlightedIndex)(index);
     if (shouldScrollIntoView) {
@@ -117,46 +117,40 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
       return;
     }
 
+    const elements = elementsRef.current;
+    const previousElements = previousElementsRef.current;
+    previousElementsRef.current = elements.slice();
+
     if (hasSetDefaultIndexRef.current) {
-      if (externalHighlightedIndex === -1) {
+      const isPending = hasPendingIndexChangeRef.current;
+      const index = isPending ? settledIndexRef.current : highlightedIndex;
+
+      if (!isPending && externalHighlightedIndex === -1) {
         // A controlled parent cleared the highlight, so there is no item to keep or fall back to.
-        highlightedElementRef.current = null;
-        highlightedElementIndexRef.current = -1;
         return;
       }
 
-      const elements = elementsRef.current;
-
-      if (
-        !hasPendingIndexChangeRef.current &&
-        highlightedIndex !== highlightedElementIndexRef.current
-      ) {
-        // Direct controlled changes replace the cache; missing targets fall through to the
-        // reconciliation below. A pending `onHighlightedIndexChange` call from this commit has
-        // already refreshed the cache and outranks the rendered index.
-        const element = elements[highlightedIndex];
-        if (element) {
-          highlightedElementRef.current = element;
-          highlightedElementIndexRef.current = highlightedIndex;
-          return;
+      if (!isPending && index !== settledIndexRef.current) {
+        // A controlled index changed together with the items and refers to the new items.
+        if (!elements[index] || isListIndexDisabled(elements, index, disabledIndices)) {
+          onHighlightedIndexChange(getFallbackIndex(elements, disabledIndices));
         }
+        return;
       }
 
       // Items added or removed around the highlighted one shift its index, so the tab stop would
       // otherwise move to a different item and navigation would resume from the wrong position.
-      const nextIndex = elements.indexOf(highlightedElementRef.current);
+      const previousElement = previousElements[index];
+      const nextIndex = previousElement ? elements.indexOf(previousElement) : -1;
 
       if (nextIndex === -1) {
         // A replacement at the same index can keep the tab stop. Otherwise move it to an
         // eligible item so a missing, hidden, or disabled replacement does not take the
         // composite out of the tab order.
-        const replacement = elements[highlightedIndex];
-        if (!replacement || isListIndexDisabled(elements, highlightedIndex, disabledIndices)) {
+        if (!elements[index] || isListIndexDisabled(elements, index, disabledIndices)) {
           onHighlightedIndexChange(getFallbackIndex(elements, disabledIndices));
-        } else {
-          highlightedElementRef.current = replacement;
         }
-      } else if (nextIndex !== highlightedIndex) {
+      } else if (nextIndex !== index) {
         onHighlightedIndexChange(nextIndex);
       }
       return;
@@ -193,6 +187,7 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
 
   useIsoLayoutEffect(() => {
     // Runs after the list flushed this commit's map changes.
+    settledIndexRef.current = highlightedIndex;
     hasPendingIndexChangeRef.current = false;
   });
 
