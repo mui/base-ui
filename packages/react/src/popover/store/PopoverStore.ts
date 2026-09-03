@@ -17,7 +17,8 @@ import {
   createPopupStoreContext,
   popupStoreSelectors,
 } from '../../utils/popups/store';
-import { type InlineRectCoords, updateInlineRectCoords } from '../../utils/popups/inlineRect';
+import type { InlineRectCoords } from '../../utils/popups/inlineRect';
+import { updateInlineRectCoords } from '../../utils/popups/inlineRect';
 import { PATIENT_CLICK_THRESHOLD } from '../../internals/constants';
 import type { AdaptiveOriginMiddleware } from '../../utils/adaptiveOriginConstants';
 

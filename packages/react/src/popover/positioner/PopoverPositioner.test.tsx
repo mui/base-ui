@@ -709,6 +709,7 @@ describe('<Popover.Positioner />', () => {
       expect(getTransformOrigin()).toBe(
         `${popupWidth / 2}px ${anchorRect.y + anchorHeight / 2 - positionerRect.y}px`,
       );
+    });
   });
 
   describe.skipIf(isJSDOM)('multiline inline trigger', () => {

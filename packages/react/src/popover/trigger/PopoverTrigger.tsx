@@ -19,7 +19,6 @@ import { OPEN_DELAY } from '../utils/constants';
 import type { PopoverHandle } from '../store/PopoverHandle';
 import { useBaseUiId } from '../../internals/useBaseUiId';
 import { FocusGuard } from '../../utils/FocusGuard';
-import { REASONS } from '../../internals/reasons';
 import { getInlineRectTriggerProps } from '../../utils/popups/inlineRect';
 import { usePopupHandleStore } from '../../utils/popups/usePopupHandleStore';
 import { useTriggerDataForwarding } from '../../utils/popups/popupStoreUtils';

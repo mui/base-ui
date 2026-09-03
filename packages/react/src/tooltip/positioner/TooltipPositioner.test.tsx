@@ -2,7 +2,12 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import * as React from 'react';
 import { Tooltip } from '@base-ui/react/tooltip';
 import { screen, waitFor } from '@mui/internal-test-utils';
-import { createRenderer, describeConformance, isJSDOM, positionerConformanceTests } from '#test-utils';
+import {
+  createRenderer,
+  describeConformance,
+  isJSDOM,
+  positionerConformanceTests,
+} from '#test-utils';
 
 const Trigger = React.forwardRef(function Trigger(
   props: Tooltip.Trigger.Props,
