@@ -1,5 +1,7 @@
 'use client';
 import * as React from 'react';
+import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
+import { useMenuFilterImpl, useUnfilteredItem } from '../filter-root/MenuFilterContext';
 import { REGULAR_ITEM, useMenuItem } from './useMenuItem';
 import { useMenuRootContext } from '../root/MenuRootContext';
 import { useRenderElement } from '../../internals/useRenderElement';
@@ -8,13 +10,7 @@ import { useCompositeListItem } from '../../internals/composite/list/useComposit
 import { useMenuPositionerContext } from '../positioner/MenuPositionerContext';
 import { getMenuItemId } from '../utils/getMenuItemId';
 
-/**
- * An individual interactive item in the menu.
- * Renders a `<div>` element.
- *
- * Documentation: [Base UI Menu](https://base-ui.com/react/components/menu)
- */
-export const MenuItem = React.forwardRef(function MenuItem(
+const MenuItemPlain = React.forwardRef(function MenuItem(
   componentProps: MenuItem.Props,
   forwardedRef: React.ForwardedRef<HTMLElement>,
 ) {
@@ -23,7 +19,6 @@ export const MenuItem = React.forwardRef(function MenuItem(
     className,
     id: idProp,
     label,
-    index: indexProp,
     nativeButton = false,
     disabled: disabledProp = false,
     closeOnClick = true,
@@ -31,7 +26,7 @@ export const MenuItem = React.forwardRef(function MenuItem(
     ...elementProps
   } = componentProps;
 
-  const listItem = useCompositeListItem({ guess: true, label, index: indexProp });
+  const listItem = useCompositeListItem({ guess: true, label });
   const menuPositionerContext = useMenuPositionerContext(true);
   const { store, floatingId, virtualFocus, webkitItemSelected } = useMenuRootContext();
   const id = getMenuItemId(idProp, floatingId, listItem.index);
@@ -66,6 +61,26 @@ export const MenuItem = React.forwardRef(function MenuItem(
   });
 });
 
+/**
+ * An individual interactive item in the menu.
+ * Renders a `<div>` element.
+ *
+ * Documentation: [Base UI Menu](https://base-ui.com/react/components/menu)
+ */
+export const MenuItem = React.forwardRef(function MenuItem(
+  props: MenuItem.Props,
+  forwardedRef: React.ForwardedRef<HTMLElement>,
+) {
+  const { keywords, ...itemProps } = props;
+  const useItemFilter = useMenuFilterImpl()?.useItem ?? useUnfilteredItem;
+  const filter = useItemFilter({ label: props.label, keywords, children: props.children });
+  const ref = useMergedRefs(forwardedRef, filter.ref);
+  if (!filter.visible) {
+    return null;
+  }
+  return <MenuItemPlain {...filter.props} {...itemProps} ref={ref} />;
+});
+
 export interface MenuItemState {
   /**
    * Whether the item should ignore user interaction.
@@ -93,10 +108,10 @@ export interface MenuItemProps
    */
   label?: string | undefined;
   /**
-   * The index of the item in the list. Improves performance when specified by avoiding the need to calculate the index automatically from the DOM.
-   * Required when the list is windowed by an external virtualizer, so partial rendering keeps every item's real position.
+   * Additional terms the item matches on when filtering inside `Menu.FilterRoot`.
+   * A plain menu ignores it.
    */
-  index?: number | undefined;
+  keywords?: readonly string[] | undefined;
   /**
    * @ignore
    */

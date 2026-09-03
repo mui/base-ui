@@ -2,6 +2,8 @@
 import * as React from 'react';
 import { useControlled } from '@base-ui/utils/useControlled';
 import { NOOP } from '@base-ui/utils/empty';
+import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
+import { useMenuFilterImpl, useUnfilteredItem } from '../filter-root/MenuFilterContext';
 import { MenuCheckboxItemContext } from './MenuCheckboxItemContext';
 import { REGULAR_ITEM, useMenuItem } from '../item/useMenuItem';
 import { useCompositeListItem } from '../../internals/composite/list/useCompositeListItem';
@@ -15,13 +17,7 @@ import { REASONS } from '../../internals/reasons';
 import type { MenuRoot } from '../root/MenuRoot';
 import { getMenuItemId } from '../utils/getMenuItemId';
 
-/**
- * A menu item that toggles a setting on or off.
- * Renders a `<div>` element.
- *
- * Documentation: [Base UI Menu](https://base-ui.com/react/components/menu)
- */
-export const MenuCheckboxItem = React.forwardRef(function MenuCheckboxItem(
+const MenuCheckboxItemPlain = React.forwardRef(function MenuCheckboxItem(
   componentProps: MenuCheckboxItem.Props,
   forwardedRef: React.ForwardedRef<HTMLElement>,
 ) {
@@ -33,8 +29,7 @@ export const MenuCheckboxItem = React.forwardRef(function MenuCheckboxItem(
     nativeButton = false,
     disabled: disabledProp = false,
     closeOnClick = false,
-    checked: checkedProp,
-    defaultChecked,
+    checked = false,
     onCheckedChange,
     style,
     ...elementProps
@@ -49,13 +44,6 @@ export const MenuCheckboxItem = React.forwardRef(function MenuCheckboxItem(
   const disabled = disabledProp || rootDisabled;
   const highlighted = store.useState('isActive', listItem.index);
   const itemProps = store.useState('itemProps');
-
-  const [checked, setChecked] = useControlled({
-    controlled: checkedProp,
-    default: defaultChecked ?? false,
-    name: 'MenuCheckboxItem',
-    state: 'checked',
-  });
 
   const { getItemProps, itemRef } = useMenuItem({
     closeOnClick,
@@ -85,12 +73,6 @@ export const MenuCheckboxItem = React.forwardRef(function MenuCheckboxItem(
     });
 
     onCheckedChange?.(!checked, details);
-
-    if (details.isCanceled) {
-      return;
-    }
-
-    setChecked((currentlyChecked) => !currentlyChecked);
   }
 
   const element = useRenderElement('div', componentProps, {
@@ -111,6 +93,54 @@ export const MenuCheckboxItem = React.forwardRef(function MenuCheckboxItem(
 
   return (
     <MenuCheckboxItemContext.Provider value={state}>{element}</MenuCheckboxItemContext.Provider>
+  );
+});
+
+/**
+ * A menu item that toggles a setting on or off.
+ * Renders a `<div>` element.
+ *
+ * Documentation: [Base UI Menu](https://base-ui.com/react/components/menu)
+ */
+export const MenuCheckboxItem = React.forwardRef(function MenuCheckboxItem(
+  props: MenuCheckboxItem.Props,
+  forwardedRef: React.ForwardedRef<HTMLElement>,
+) {
+  const { keywords, checked: checkedProp, defaultChecked, onCheckedChange, ...itemProps } = props;
+
+  // Owned above the element so an uncontrolled item keeps its state while a filter hides it.
+  const [checked, setChecked] = useControlled({
+    controlled: checkedProp,
+    default: defaultChecked ?? false,
+    name: 'MenuCheckboxItem',
+    state: 'checked',
+  });
+
+  const useItemFilter = useMenuFilterImpl()?.useItem ?? useUnfilteredItem;
+  const filter = useItemFilter({ label: props.label, keywords, children: props.children });
+  const ref = useMergedRefs(forwardedRef, filter.ref);
+
+  function handleCheckedChange(
+    nextChecked: boolean,
+    eventDetails: MenuCheckboxItem.ChangeEventDetails,
+  ) {
+    onCheckedChange?.(nextChecked, eventDetails);
+    if (!eventDetails.isCanceled) {
+      setChecked(nextChecked);
+    }
+  }
+
+  if (!filter.visible) {
+    return null;
+  }
+  return (
+    <MenuCheckboxItemPlain
+      {...filter.props}
+      {...itemProps}
+      checked={checked}
+      onCheckedChange={handleCheckedChange}
+      ref={ref}
+    />
   );
 });
 
@@ -162,6 +192,11 @@ export interface MenuCheckboxItemProps
    * Overrides the text label to use when the item is matched during keyboard text navigation.
    */
   label?: string | undefined;
+  /**
+   * Additional terms the item matches on when filtering inside `Menu.FilterRoot`.
+   * A plain menu ignores it.
+   */
+  keywords?: readonly string[] | undefined;
   /**
    * @ignore
    */

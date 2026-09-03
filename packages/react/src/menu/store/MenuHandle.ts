@@ -13,8 +13,13 @@ export class MenuHandle<Payload> extends BasePopupHandle<
   MenuHandleStore<Payload>,
   MenuStore<Payload>
 > {
-  constructor() {
-    super(createNullMenuStore<Payload>(), 'Menu');
+  /** Whether the handle connects detached triggers to a `Menu.FilterRoot`. */
+  readonly filterable: boolean;
+
+  constructor(options?: MenuHandleOptions) {
+    const filterable = options?.filterable ?? false;
+    super(createNullMenuStore<Payload>({ virtualFocus: filterable }), 'Menu');
+    this.filterable = filterable;
   }
 
   /**
@@ -46,9 +51,18 @@ export class MenuHandle<Payload> extends BasePopupHandle<
   }
 }
 
+export interface MenuHandleOptions {
+  /**
+   * Whether the handle connects detached triggers to a `Menu.FilterRoot`. Triggers then announce
+   * the filterable popup before the root attaches, so server and client markup agree.
+   * @default false
+   */
+  filterable?: boolean | undefined;
+}
+
 /**
  * Creates a new handle to connect a Menu.Root with detached Menu.Trigger components.
  */
-export function createMenuHandle<Payload>(): MenuHandle<Payload> {
-  return new MenuHandle<Payload>();
+export function createMenuHandle<Payload>(options?: MenuHandleOptions): MenuHandle<Payload> {
+  return new MenuHandle<Payload>(options);
 }

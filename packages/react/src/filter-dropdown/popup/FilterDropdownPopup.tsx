@@ -2,7 +2,6 @@
 import * as React from 'react';
 import { isHTMLElement } from '@floating-ui/utils/dom';
 import { ownerDocument } from '@base-ui/utils/owner';
-import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import type { BaseUIComponentProps } from '../../internals/types';
 import { useRenderElement } from '../../internals/useRenderElement';
 import type { StateAttributesMapping } from '../../internals/getStateAttributesProps';
@@ -38,15 +37,14 @@ export const FilterDropdownPopup = React.forwardRef(function FilterDropdownPopup
   const id = resolveRenderedId(componentProps, context.defaultPopupId);
   const { ariaLabelledBy } = resolveMenuPopupLabel(componentProps, null, context.triggerId ?? null);
 
-  // The pointer may only restore focus to an owner that held it during this open session, or
-  // hovering an inputless list would seed a highlight. Stores the element rather than a flag so
-  // an owner swap doesn't inherit the claim, and clears on close for kept-mounted popups.
-  const heldFocusOwnerRef = React.useRef<HTMLElement | null>(null);
-  useIsoLayoutEffect(() => {
-    if (!context.open) {
-      heldFocusOwnerRef.current = null;
+  React.useEffect(() => {
+    if (process.env.NODE_ENV !== 'production' && context.open && focusOwnerRef.current === null) {
+      console.warn(
+        'Base UI: a filterable menu opened without a <Menu.FilterInput>. Render the input ' +
+          'inside <Menu.Popup>, or use <Menu.Root> for a menu that does not filter.',
+      );
     }
-  }, [context.open]);
+  }, [context.open, focusOwnerRef]);
 
   // Focus that entered a nested popup by keyboard, click, or `autoFocus` stays there until that
   // popup unmounts, so crossing this popup on the way to the submenu doesn't bounce focus between
@@ -90,12 +88,6 @@ export const FilterDropdownPopup = React.forwardRef(function FilterDropdownPopup
             return;
           }
 
-          // An input takes focus on pointer enter so typing filters immediately. A list may only
-          // restore focus it already held, since focusing it seeds the highlight.
-          if (!isTypeableElement(focusOwner) && heldFocusOwnerRef.current !== focusOwner) {
-            return;
-          }
-
           // Nested popups are portalled, so their events still bubble through this React tree.
           // The composed path only contains this popup when the pointer is really over it, and a
           // closing popup must not re-capture focus during its exit transition.
@@ -123,9 +115,6 @@ export const FilterDropdownPopup = React.forwardRef(function FilterDropdownPopup
         onFocus(event) {
           // `focusin` bubbles, so this also sees the owner itself being focused.
           const target = getTarget(event.nativeEvent);
-          if (target === focusOwnerRef.current) {
-            heldFocusOwnerRef.current = focusOwnerRef.current;
-          }
 
           // Nested popups are portalled, so their focus events bubble through this React tree
           // while their elements sit outside this one in the DOM.

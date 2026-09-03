@@ -1,13 +1,12 @@
 'use client';
 import * as React from 'react';
 import { ownerWindow } from '@base-ui/utils/owner';
-import type { BaseUIComponentProps, BaseUIEvent, HTMLProps } from '../../internals/types';
+import type { BaseUIComponentProps, HTMLProps } from '../../internals/types';
 import { useRenderElement } from '../../internals/useRenderElement';
-import { useActiveItemId, useFilterDropdownRootContext } from '../root/FilterDropdownRootContext';
+import { useFilterDropdownRootContext } from '../root/FilterDropdownRootContext';
 import { useRenderedId } from '../../internals/resolveRenderedId';
 import { getTarget } from '../../floating-ui-react/utils';
 import { resolveMenuPopupLabel } from '../../menu/popup/resolveMenuPopupLabel';
-import { isPointerFocusInProgress } from '../utils/focusByPointer';
 
 /**
  * @internal
@@ -19,9 +18,7 @@ export const FilterDropdownList = React.forwardRef(function FilterDropdownList(
   const { render, className, style, id: idProp, ...elementProps } = componentProps;
 
   const context = useFilterDropdownRootContext();
-  const inputProps = context.store.useState('inputProps');
   const { setListId } = context;
-  const activeItemId = useActiveItemId(context);
 
   const [id, registerIdRef] = useRenderedId(componentProps, context.defaultListId, setListId);
   // Also inspects a label supplied through a `render` element, which never appears in
@@ -34,7 +31,6 @@ export const FilterDropdownList = React.forwardRef(function FilterDropdownList(
     tabIndex: -1,
     id,
     'aria-labelledby': ariaLabelledBy,
-    'aria-activedescendant': context.hasInput ? undefined : activeItemId,
     onMouseDown(event) {
       if (
         getTarget(event.nativeEvent) === event.currentTarget &&
@@ -45,35 +41,17 @@ export const FilterDropdownList = React.forwardRef(function FilterDropdownList(
         event.preventDefault();
       }
     },
-    onFocus(event: BaseUIEvent<React.FocusEvent<HTMLDivElement>>) {
-      // Focusing a list that owns virtual focus seeds the first item's highlight so the arrow
-      // keys have a starting point. Focus handed back by the pointer keeps the pointer's own
-      // highlight instead.
-      if (isPointerFocusInProgress()) {
-        event.preventBaseUIHandler();
-      }
-    },
     onPointerMove() {
       context.setKeyboardModality(false);
     },
     onPointerDown() {
       context.setKeyboardModality(false);
     },
-    onKeyDown(event) {
-      const isMainNavigationKey = event.key === 'ArrowUp' || event.key === 'ArrowDown';
-      const isTypeaheadKey =
-        event.key.length === 1 && !event.ctrlKey && !event.metaKey && !event.altKey;
-      if (!context.hasInput && (isMainNavigationKey || isTypeaheadKey)) {
-        // The list consumed the reference navigation and typeahead handlers. Do not let the same
-        // event reach the popup's floating handler and be handled a second time.
-        event.stopPropagation();
-      }
-    },
   };
 
   return useRenderElement('div', componentProps, {
-    ref: [forwardedRef, context.setListElement, registerIdRef],
-    props: [context.hasInput ? undefined : inputProps, defaultProps, elementProps],
+    ref: [forwardedRef, registerIdRef],
+    props: [defaultProps, elementProps],
   });
 });
 
