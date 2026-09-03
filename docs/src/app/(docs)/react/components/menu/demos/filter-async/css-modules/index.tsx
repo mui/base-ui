@@ -100,11 +100,7 @@ export default function ExampleAsyncMenuFilter() {
                 </Menu.Group>
               ))}
             </Menu.FilterList>
-            {status && (
-              <div className={styles.Status} role="status" aria-live="polite">
-                {status}
-              </div>
-            )}
+            <Menu.FilterStatus className={styles.Status}>{status}</Menu.FilterStatus>
           </Menu.Popup>
         </Menu.Positioner>
       </Menu.Portal>

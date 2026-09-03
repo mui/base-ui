@@ -34,6 +34,7 @@ export function MenuFilterRoot<Payload>(props: MenuFilterRoot.Props<Payload>): R
     filter,
     autoHighlight = false,
     locale,
+    inline = false,
     handle,
     ...menuProps
   } = props;
@@ -102,6 +103,7 @@ export function MenuFilterRoot<Payload>(props: MenuFilterRoot.Props<Payload>): R
       open={open}
       onOpenChange={handleOpenChange}
       onOpenChangeComplete={closeQuery.handleOpenChangeComplete}
+      inline={inline}
       virtualFocus
       webkitItemSelected={webkitItemSelected}
       virtualFocusRef={focusOwnerRef}
@@ -119,6 +121,7 @@ export function MenuFilterRoot<Payload>(props: MenuFilterRoot.Props<Payload>): R
             filter={filter}
             autoHighlight={autoHighlight}
             locale={locale}
+            inline={inline}
             inputProps={inputProps}
             onValueChange={handleInputValueChange}
             onInputAutoFocusChange={setInputAutoFocus}
@@ -152,6 +155,19 @@ export type MenuFilterRootProps<Payload = unknown> = Omit<
      * A handle that associates the menu with detached triggers.
      */
     handle?: MenuHandle<Payload> | undefined;
+    /**
+     * Whether the list is rendered inline without using the component's own popup.
+     *
+     * Specify `open` unconditionally in conjunction with this prop so the list is considered
+     * visible: `<Menu.FilterRoot inline open>`
+     *
+     * In a `Dialog.Root` > `Menu.FilterRoot` composition, bind the menu's `open` and
+     * `onOpenChange` props to the `Dialog`'s `open` and `onOpenChange` state instead so the
+     * component resets its transient state (filter query and highlighted item) when the dialog
+     * closes. Without that, a `Dialog.Portal` with `keepMounted` reopens with the previous query.
+     * @default false
+     */
+    inline?: boolean | undefined;
     /**
      * Event handler called when the menu is opened or closed.
      */

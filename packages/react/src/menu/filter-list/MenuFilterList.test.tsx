@@ -152,4 +152,59 @@ describe('<Menu.FilterList />', () => {
       expect(input).toHaveFocus();
     });
   });
+
+  it('supports navigation when rendered inline without popup parts', async () => {
+    const { user } = await render(
+      <Menu.FilterRoot inline open>
+        <Menu.FilterInput aria-label="Filter fruit" />
+        <Menu.FilterList data-testid="list">
+          <Menu.Item>Apple</Menu.Item>
+          <Menu.Item>Banana</Menu.Item>
+        </Menu.FilterList>
+      </Menu.FilterRoot>,
+    );
+
+    const input = screen.getByRole('searchbox', { name: 'Filter fruit' });
+    const list = screen.getByTestId('list');
+    const apple = screen.getByRole('menuitem', { name: 'Apple' });
+    const banana = screen.getByRole('menuitem', { name: 'Banana' });
+
+    await user.click(input);
+    await user.keyboard('[ArrowDown]');
+
+    await waitFor(() => {
+      expect(input).toHaveAttribute('aria-activedescendant', apple.id);
+    });
+    expect(input).toHaveAttribute('aria-controls', list.id);
+    expect(apple).toHaveAttribute('data-highlighted', '');
+
+    await user.hover(banana);
+
+    await waitFor(() => {
+      expect(banana).toHaveAttribute('data-highlighted', '');
+    });
+  });
+
+  it('ignores Escape and outside clicks when rendered inline', async () => {
+    const onOpenChange = vi.fn();
+    const { user } = await render(
+      <div>
+        <button type="button">Outside</button>
+        <Menu.FilterRoot inline open onOpenChange={onOpenChange}>
+          <Menu.FilterInput aria-label="Filter fruit" />
+          <Menu.FilterList>
+            <Menu.Item>Apple</Menu.Item>
+          </Menu.FilterList>
+        </Menu.FilterRoot>
+      </div>,
+    );
+
+    const input = screen.getByRole('searchbox', { name: 'Filter fruit' });
+    await user.click(input);
+    await user.keyboard('[Escape]');
+    await user.click(screen.getByRole('button', { name: 'Outside' }));
+
+    expect(onOpenChange).not.toHaveBeenCalled();
+    expect(screen.getByRole('menuitem', { name: 'Apple' })).toBeVisible();
+  });
 });
