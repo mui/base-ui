@@ -7,6 +7,9 @@ import { EMPTY_OBJECT } from '@base-ui/utils/empty';
 import { platform } from '@base-ui/utils/platform';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
+import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
+import { useMenuFilterImpl, useUnfilteredItem } from '../filter-root/MenuFilterContext';
+import { mergeProps } from '../../merge-props';
 import { safePolygon, useClick, useHoverReferenceInteraction } from '../../floating-ui-react';
 import { BaseUIComponentProps, NonNativeButtonProps } from '../../internals/types';
 import { useMenuRootContext } from '../root/MenuRootContext';
@@ -22,13 +25,7 @@ import { getMenuItemId } from '../utils/getMenuItemId';
 
 const VOICE_OVER_EXPANDED_PROPS = { 'aria-expanded': undefined };
 
-/**
- * A menu item that opens a submenu.
- * Renders a `<div>` element.
- *
- * Documentation: [Base UI Menu](https://base-ui.com/react/components/menu)
- */
-export const MenuSubmenuTrigger = React.forwardRef(function MenuSubmenuTrigger(
+const MenuSubmenuTriggerPlain = React.forwardRef(function MenuSubmenuTrigger(
   componentProps: MenuSubmenuTrigger.Props,
   forwardedRef: React.ForwardedRef<HTMLElement>,
 ) {
@@ -201,7 +198,7 @@ export const MenuSubmenuTrigger = React.forwardRef(function MenuSubmenuTrigger(
       localInteractionProps,
       hoverProps,
       rootTriggerProps,
-      // FilterMenu.SubmenuRoot overrides the generic trigger handler because entry and exit
+      // MenuFilterSubmenuRoot overrides the generic trigger handler because entry and exit
       // depend on both the parent and child menu orientations.
       submenuKeyDownProps,
       itemProps,
@@ -232,6 +229,28 @@ export const MenuSubmenuTrigger = React.forwardRef(function MenuSubmenuTrigger(
   return element;
 });
 
+/**
+ * A menu item that opens a submenu.
+ * Renders a `<div>` element.
+ *
+ * Documentation: [Base UI Menu](https://base-ui.com/react/components/menu)
+ */
+export const MenuSubmenuTrigger = React.forwardRef(function MenuSubmenuTrigger(
+  props: MenuSubmenuTrigger.Props,
+  forwardedRef: React.ForwardedRef<HTMLElement>,
+) {
+  const { keywords, ...triggerProps } = props;
+  const useTriggerFilter =
+    useMenuFilterImpl('submenu-trigger')?.useSubmenuTrigger ?? useUnfilteredItem;
+  const filter = useTriggerFilter({ label: props.label, keywords, children: props.children });
+  const ref = useMergedRefs(forwardedRef, filter.ref);
+  if (!filter.visible) {
+    return null;
+  }
+  const mergedProps = filter.props ? mergeProps(filter.props, triggerProps) : triggerProps;
+  return <MenuSubmenuTriggerPlain {...mergedProps} ref={ref} />;
+});
+
 export interface MenuSubmenuTriggerState {
   /**
    * Whether the component should ignore user interaction.
@@ -254,6 +273,11 @@ export interface MenuSubmenuTriggerProps
    * Overrides the text label to use when the item is matched during keyboard text navigation.
    */
   label?: string | undefined;
+  /**
+   * Additional terms the item matches on when filtering inside `Menu.FilterRoot`.
+   * A plain menu ignores it.
+   */
+  keywords?: readonly string[] | undefined;
   /**
    * @ignore
    */

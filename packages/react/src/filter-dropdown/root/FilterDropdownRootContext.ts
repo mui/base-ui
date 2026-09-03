@@ -13,7 +13,6 @@ export type FilterDropdownFilter = (text: string, query: string) => boolean;
 
 export interface FilterDropdownRootContext {
   open: boolean;
-  inline: boolean;
   disabled: boolean;
   inputFocusVisible: boolean;
   setInputFocusVisible: (visible: boolean) => void;
@@ -26,18 +25,11 @@ export interface FilterDropdownRootContext {
   defaultListId: string | undefined;
   listId: string | undefined;
   setListId: React.Dispatch<React.SetStateAction<string | undefined>>;
-  /**
-   * The input when present, or the list when the input is omitted. This element owns real focus
-   * while the host uses virtual list navigation.
-   */
+  /** The input, which owns real focus while the host uses virtual list navigation. */
   focusOwnerRef: React.RefObject<HTMLElement | null>;
   setInputElement: (element: HTMLInputElement | null) => void;
   /** Whether the input asks to be focused whenever the popup opens, hover opens included. */
   setInputAutoFocus: (autoFocus: boolean) => void;
-  setListElement: (element: HTMLDivElement | null) => void;
-  hasInput: boolean;
-  /** Total item count when the host's items are windowed by an external virtualizer. */
-  virtualized: number | undefined;
   setActiveIndex: (index: number | null) => void;
   onItemsChange: (hasItems: boolean) => void;
   onValueChange: (value: string, eventDetails: FilterDropdownRoot.ChangeEventDetails) => void;
@@ -46,7 +38,6 @@ export interface FilterDropdownRootContext {
 export interface FilterDropdownItemContext {
   /** The enclosing dropdown when this root is nested. */
   parent: FilterDropdownItemContext | null;
-  grid: boolean;
   store: FilterDropdownStore;
   registerItem: (id: symbol, registration: FilterDropdownItemRegistration) => () => void;
   listRef: React.RefObject<Array<HTMLElement | null>>;
@@ -54,8 +45,8 @@ export interface FilterDropdownItemContext {
 
 function throwMissingFilterRoot(): never {
   throw new Error(
-    'Base UI: Filter parts must be placed within a filter root. Wrap them in <FilterMenu.Root> ' +
-      'or <FilterMenu.SubmenuRoot>; a plain <Menu.Root> cannot filter.',
+    'Base UI: Filter parts must be placed within a filterable menu. Use <Menu.FilterRoot> or ' +
+      '<Menu.FilterSubmenuRoot> in place of the plain root; a plain menu cannot filter.',
   );
 }
 

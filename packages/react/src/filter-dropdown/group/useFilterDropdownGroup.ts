@@ -34,8 +34,6 @@ export interface UseFilterDropdownGroupReturnValue {
    * Provider value that collects the group's items.
    */
   context: FilterDropdownGroupContext;
-  /** Whether the owning dropdown presents items in a grid. */
-  grid: boolean;
 }
 
 /**
@@ -44,13 +42,13 @@ export interface UseFilterDropdownGroupReturnValue {
  * @internal
  */
 export function useFilterDropdownGroup(): UseFilterDropdownGroupReturnValue {
-  const { grid, store } = useFilterDropdownItemContext();
+  const { store } = useFilterDropdownItemContext();
   const parentContext = useFilterDropdownGroupContext();
   const [items, registerItem] = useItemRegistry<symbol, boolean>();
   const hidden = useStore(store, isGroupHidden, items);
 
   // A nested container collects its own items, so the enclosing one only ever sees this
-  // registration. Report visibility upward or a group of grid rows would look empty.
+  // registration. Report visibility upward or a group of groups would look empty.
   const groupId = useRefWithInit(() => Symbol('filter-dropdown-group')).current;
   const registerInParent = parentContext?.registerItem;
   useIsoLayoutEffect(
@@ -63,5 +61,5 @@ export function useFilterDropdownGroup(): UseFilterDropdownGroupReturnValue {
     [registerItem],
   );
 
-  return { hidden, context, grid };
+  return { hidden, context };
 }
