@@ -86,11 +86,23 @@ describe('hydration', () => {
       expect(screen.getByTestId('hydrated')).toHaveTextContent('yes');
     });
 
-    it('degrades to never hydrating', async () => {
+    // `useState` cannot tell hydration from a client-only mount on React 17, so
+    // the inverse reports hydrating until the mount effect runs. React 18+
+    // distinguishes the two through the server snapshot.
+    it('reports hydrating while rendering on the server', async () => {
       const legacy = await loadLegacy();
       const Probe = createProbe(legacy.useIsHydrating, 'hydrating');
 
       renderToString(<Probe />);
+
+      expect(screen.getByTestId('hydrating')).toHaveTextContent('yes');
+    });
+
+    it('stops reporting hydrating once mounted on the client', async () => {
+      const legacy = await loadLegacy();
+      const Probe = createProbe(legacy.useIsHydrating, 'hydrating');
+
+      render(<Probe />);
 
       expect(screen.getByTestId('hydrating')).toHaveTextContent('no');
     });

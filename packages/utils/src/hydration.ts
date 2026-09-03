@@ -9,6 +9,9 @@ const getTrue = () => true;
 const getFalse = () => false;
 
 function useIsHydratedModern() {
+  // The server snapshot is what React renders with while hydrating, so this
+  // distinguishes a hydration pass from a client-only mount, which reads the
+  // client snapshot straight away.
   return useSyncExternalStore(emptySubscribe, getTrue, getFalse);
 }
 
@@ -16,7 +19,10 @@ function useIsHydratedModern() {
  * React 17 path. The shim only forwards to React's own implementation when
  * there is one; its fallback takes `(subscribe, getSnapshot)` and drops
  * `getServerSnapshot`, so a shim-based hook would report `true` on the server —
- * the opposite of what this one exists for.
+ * the opposite of what this exists for.
+ *
+ * `useState` cannot tell hydration from a client-only mount, so both report
+ * "not hydrated" for one render before settling.
  */
 function useIsHydratedLegacy() {
   const [hydrated, setHydrated] = React.useState(false);
@@ -28,26 +34,13 @@ function useIsHydratedLegacy() {
   return hydrated;
 }
 
-function useIsHydratingModern() {
-  return useSyncExternalStore(emptySubscribe, getFalse, getTrue);
-}
-
-/**
- * React 17 path. For the same reason as above the server snapshot is
- * unreachable, so this degrades to "never hydrating" — inert, and what this
- * hook already did on React 17 before the two were brought together.
- */
-function useIsHydratingLegacy() {
-  return false;
-}
-
-/** Returns true after hydration is done on the client. */
+/** Returns `true` once React has taken over on the client. */
 export const useIsHydrated = isReactVersionAtLeast(18) ? useIsHydratedModern : useIsHydratedLegacy;
 
 /**
  * Returns `true` while React is hydrating server-rendered markup and `false`
- * for fresh client-only mounts.
+ * for fresh client-only mounts — the exact inverse of {@link useIsHydrated}.
  */
-export const useIsHydrating = isReactVersionAtLeast(18)
-  ? useIsHydratingModern
-  : useIsHydratingLegacy;
+export function useIsHydrating() {
+  return !useIsHydrated();
+}
