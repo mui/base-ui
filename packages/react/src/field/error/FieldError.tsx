@@ -148,6 +148,7 @@ export interface FieldErrorProps extends BaseUIComponentProps<'div', FieldErrorS
    * [ValidityState](https://developer.mozilla.org/en-US/docs/Web/API/ValidityState).
    * Specifying `true` will always show the error message, and lets external libraries
    * control the visibility.
+   * @type {boolean | 'valid' | 'badInput' | 'customError' | 'patternMismatch' | 'rangeOverflow' | 'rangeUnderflow' | 'stepMismatch' | 'tooLong' | 'tooShort' | 'typeMismatch' | 'valueMissing'}
    */
   match?: boolean | keyof ValidityState | undefined;
 }

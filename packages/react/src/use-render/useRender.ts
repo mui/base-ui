@@ -79,6 +79,7 @@ export interface UseRenderParameters<
   /**
    * The default tag name to use for the rendered element when `render` is not provided.
    * @default 'div'
+   * @type {keyof React.JSX.IntrinsicElements}
    */
   defaultTagName?: keyof React.JSX.IntrinsicElements | undefined;
 }
