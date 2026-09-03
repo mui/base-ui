@@ -27,13 +27,8 @@ async function main() {
         },
       },
       {
-        // The Steps demo labels the slider with `<Slider.Label>`, which associates
-        // with the input via `aria-labelledby` only after hydration, so the static
-        // export contains an unlabeled `<input>`. This is a library-level SSR
-        // artifact, not something the docs can fix, so turn the rule off for this
-        // page rather than distort the canonical demo.
-        // TODO: Fix Slider to render the label association during SSR, then remove
-        // this override.
+        // `<Slider.Label>` associates with the input via `aria-labelledby` only
+        // after hydration, so the static export contains an unlabeled `<input>`.
         path: '/react/components/slider',
         config: {
           rules: {
