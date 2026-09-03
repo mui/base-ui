@@ -131,11 +131,15 @@ export function useFieldControlRegistration(params: UseFieldControlRegistrationP
   }, [formRef]);
 
   const register = useStableCallback(
-    (source: symbol, registration: FieldControlRegistration | undefined) => {
+    (source: symbol, registration: FieldControlRegistration | undefined, unmounted = false) => {
       if (!registration) {
         if (activeFieldControlSourceRef.current === source) {
-          activeFieldControlSourceRef.current = null;
-          change(undefined, true);
+          // A disabled control keeps ownership: its pending validation publishes once re-enabled,
+          // and a later unmount or replacement can still identify and drop that work.
+          if (unmounted) {
+            activeFieldControlSourceRef.current = null;
+            change(undefined, true);
+          }
           deleteRegistration();
           registrationRef.current = null;
           setRegisteredFieldName(undefined);

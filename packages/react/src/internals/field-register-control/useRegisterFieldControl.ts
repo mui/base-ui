@@ -40,7 +40,7 @@ export function useRegisterFieldControl(
   useIsoLayoutEffect(() => {
     const source = sourceRef.current;
     return () => {
-      registerFieldControl(source, undefined);
+      registerFieldControl(source, undefined, true);
     };
   }, [registerFieldControl, sourceRef]);
 }

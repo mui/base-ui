@@ -25,6 +25,7 @@ export interface FieldRootContext {
   registerFieldControl: (
     source: symbol,
     registration: FieldControlRegistration | undefined,
+    unmounted?: boolean,
   ) => void;
   validation: UseFieldValidationReturnValue;
 }

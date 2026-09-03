@@ -2057,6 +2057,84 @@ describe('<Field.Root />', () => {
       expect(screen.getByTestId('root')).not.toHaveAttribute('data-invalid');
     });
 
+    it('keeps a pending validation when the control is disabled', async () => {
+      let resolveValidate: ((value: string | null) => void) | undefined;
+      const validate = vi.fn(
+        () =>
+          new Promise<string | null>((resolve) => {
+            resolveValidate = resolve;
+          }),
+      );
+
+      function App({ disabled }: { disabled: boolean }) {
+        return (
+          <Form onSubmit={(event) => event.preventDefault()}>
+            <Field.Root data-testid="root" name="username" validate={validate} disabled={disabled}>
+              <Field.Control data-testid="control" />
+              <Field.Error data-testid="error" />
+            </Field.Root>
+            <button type="submit">submit</button>
+          </Form>
+        );
+      }
+
+      const { setProps } = await render(<App disabled={false} />);
+
+      fireEvent.click(screen.getByText('submit'));
+      expect(validate).toHaveBeenCalledTimes(1);
+
+      await setProps({ disabled: true });
+
+      await act(async () => {
+        resolveValidate?.('Username is taken');
+        await flushMicrotasks();
+      });
+
+      await setProps({ disabled: false });
+
+      expect(screen.getByTestId('error')).toHaveTextContent('Username is taken');
+      expect(screen.getByTestId('root')).toHaveAttribute('data-invalid', '');
+    });
+
+    it('drops a pending validation when a disabled control is replaced', async () => {
+      let resolveValidate: ((value: string | null) => void) | undefined;
+      const validate = vi.fn(
+        () =>
+          new Promise<string | null>((resolve) => {
+            resolveValidate = resolve;
+          }),
+      );
+
+      function App({ disabled, controlKey }: { disabled: boolean; controlKey: string }) {
+        return (
+          <Form onSubmit={(event) => event.preventDefault()}>
+            <Field.Root data-testid="root" name="username" validate={validate} disabled={disabled}>
+              <Field.Control key={controlKey} data-testid="control" />
+              <Field.Error data-testid="error" />
+            </Field.Root>
+            <button type="submit">submit</button>
+          </Form>
+        );
+      }
+
+      const { setProps } = await render(<App disabled={false} controlKey="a" />);
+
+      fireEvent.click(screen.getByText('submit'));
+      expect(validate).toHaveBeenCalledTimes(1);
+
+      await setProps({ disabled: true, controlKey: 'a' });
+      await setProps({ disabled: true, controlKey: 'b' });
+      await setProps({ disabled: false, controlKey: 'b' });
+
+      await act(async () => {
+        resolveValidate?.('Username is taken');
+        await flushMicrotasks();
+      });
+
+      expect(screen.queryByTestId('error')).toBe(null);
+      expect(screen.getByTestId('root')).not.toHaveAttribute('data-invalid');
+    });
+
     it('keeps the published error when async validation rejects', async () => {
       const onSubmit = vi.fn((event: React.FormEvent) => event.preventDefault());
       let commit: ((value: unknown) => Promise<void>) | undefined;
