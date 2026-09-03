@@ -19,3 +19,12 @@ export { MenuViewport as Viewport } from './viewport/MenuViewport';
 export { Separator } from '../separator/Separator';
 export { MenuSubmenuTrigger as SubmenuTrigger } from './submenu-trigger/MenuSubmenuTrigger';
 export { MenuHandle as Handle, createMenuHandle as createHandle } from './store/MenuHandle';
+
+// Filtering. The two filter roots are the only parts that bundle the filter implementation.
+export { MenuFilterRoot as FilterRoot } from './filter-root/MenuFilterRoot';
+export { MenuFilterSubmenuRoot as FilterSubmenuRoot } from './filter-submenu-root/MenuFilterSubmenuRoot';
+export { MenuFilterInput as FilterInput } from './filter-input/MenuFilterInput';
+export { MenuFilterList as FilterList } from './filter-list/MenuFilterList';
+export { MenuFilterClear as FilterClear } from './filter-clear/MenuFilterClear';
+export { MenuFilterEmpty as FilterEmpty } from './filter-empty/MenuFilterEmpty';
+export { getFilter as useFilter } from '../internals/filter';

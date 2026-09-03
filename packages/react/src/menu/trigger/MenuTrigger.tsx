@@ -1,7 +1,7 @@
 'use client';
 import * as React from 'react';
 import { useTimeout } from '@base-ui/utils/useTimeout';
-import { ownerDocument } from '@base-ui/utils/owner';
+import { ownerDocument, ownerWindow } from '@base-ui/utils/owner';
 import { fastComponentRef } from '@base-ui/utils/fastHooks';
 import { useStableCallback } from '@base-ui/utils/useStableCallback';
 import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
@@ -20,7 +20,7 @@ import { contains } from '../../floating-ui-react/utils';
 import { useMenuRootContext } from '../root/MenuRootContext';
 import { pressableTriggerOpenStateMapping } from '../../utils/popupStateMapping';
 import { useRenderElement } from '../../internals/useRenderElement';
-import { BaseUIComponentProps, NativeButtonProps } from '../../internals/types';
+import type { BaseUIComponentProps, BaseUIEvent, NativeButtonProps } from '../../internals/types';
 import { useButton } from '../../internals/use-button/useButton';
 import { isMouseWithinBounds } from '../../utils/getPseudoElementBounds';
 import { CompositeItem } from '../../internals/composite/item/CompositeItem';
@@ -208,6 +208,43 @@ export const MenuTrigger = fastComponentRef(function MenuTrigger(
   );
 
   const rootTriggerProps = store.useState('triggerProps', isMountedByThisTrigger);
+  const virtualFocus = store.useState('virtualFocus');
+
+  // A filterable menu keeps real focus on the element inside its popup, so the trigger announces
+  // a dialog and relays list navigation typed on it to that element.
+  const filterTriggerProps = virtualFocus
+    ? {
+        'aria-haspopup': 'dialog' as const,
+        onKeyDown(event: BaseUIEvent<React.KeyboardEvent<HTMLElement>>) {
+          const focusOwner = store.context.virtualFocusRef?.current;
+          if (!store.select('open') || !focusOwner) {
+            return;
+          }
+
+          const isVerticalArrow = event.key === 'ArrowUp' || event.key === 'ArrowDown';
+          const isTypeaheadKey =
+            event.key.length === 1 &&
+            event.key !== ' ' &&
+            !event.ctrlKey &&
+            !event.metaKey &&
+            !event.altKey;
+
+          if (isVerticalArrow) {
+            const KeyboardEventConstructor = ownerWindow(focusOwner).KeyboardEvent;
+            focusOwner.dispatchEvent(new KeyboardEventConstructor(event.type, event.nativeEvent));
+            // Let the forwarded navigation commit before focus would seed the first item.
+            queueMicrotask(() => focusOwner.focus({ preventScroll: true }));
+            event.preventDefault();
+            event.preventBaseUIHandler();
+          } else if (event.key === 'ArrowLeft' || event.key === 'ArrowRight') {
+            // Cross-axis keys drive submenu open/close, which the trigger must not relay.
+            event.preventBaseUIHandler();
+          } else if (isTypeaheadKey) {
+            focusOwner.focus({ preventScroll: true });
+          }
+        },
+      }
+    : EMPTY_OBJECT;
 
   const { preFocusGuardRef, handlePreFocusGuardFocus, handleFocusTargetFocus } =
     useTriggerFocusGuards(store, triggerElementRef);
@@ -240,6 +277,7 @@ export const MenuTrigger = fastComponentRef(function MenuTrigger(
         doc.addEventListener('mouseup', handleDocumentMouseUp, { once: true });
       },
     },
+    filterTriggerProps,
     isInMenubar ? { role: 'menuitem' } : {},
     mixedToggleHandlers,
     elementProps,

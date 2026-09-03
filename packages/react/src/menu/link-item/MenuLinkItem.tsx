@@ -1,5 +1,7 @@
 'use client';
 import * as React from 'react';
+import { useMergedRefs } from '@base-ui/utils/useMergedRefs';
+import { useMenuFilterImpl, useUnfilteredItem } from '../filter-root/MenuFilterContext';
 import { useMenuRootContext } from '../root/MenuRootContext';
 import { useRenderElement } from '../../internals/useRenderElement';
 import type { BaseUIComponentProps, HTMLProps } from '../../internals/types';
@@ -11,13 +13,7 @@ import { useButton } from '../../internals/use-button';
 import { mergeProps } from '../../merge-props';
 import { getMenuItemId } from '../utils/getMenuItemId';
 
-/**
- * A link in the menu that can be used to navigate to a different page or section.
- * Renders an `<a>` element.
- *
- * Documentation: [Base UI Menu](https://base-ui.com/react/components/menu)
- */
-export const MenuLinkItem = React.forwardRef(function MenuLinkItem(
+const MenuLinkItemPlain = React.forwardRef(function MenuLinkItem(
   componentProps: MenuLinkItem.Props,
   forwardedRef: React.ForwardedRef<Element>,
 ) {
@@ -74,6 +70,26 @@ export const MenuLinkItem = React.forwardRef(function MenuLinkItem(
   });
 });
 
+/**
+ * A link in the menu that can be used to navigate to a different page or section.
+ * Renders an `<a>` element.
+ *
+ * Documentation: [Base UI Menu](https://base-ui.com/react/components/menu)
+ */
+export const MenuLinkItem = React.forwardRef(function MenuLinkItem(
+  props: MenuLinkItem.Props,
+  forwardedRef: React.ForwardedRef<HTMLElement>,
+) {
+  const { keywords, ...linkItemProps } = props;
+  const useLinkItemFilter = useMenuFilterImpl()?.useItem ?? useUnfilteredItem;
+  const filter = useLinkItemFilter({ label: props.label, keywords, children: props.children });
+  const ref = useMergedRefs(forwardedRef, filter.ref);
+  if (!filter.visible) {
+    return null;
+  }
+  return <MenuLinkItemPlain {...filter.props} {...linkItemProps} ref={ref} />;
+});
+
 export interface MenuLinkItemState {
   /**
    * Whether the item is highlighted.
@@ -90,6 +106,11 @@ export interface MenuLinkItemProps extends BaseUIComponentProps<
    * Overrides the text label to use when the item is matched during keyboard text navigation.
    */
   label?: string | undefined;
+  /**
+   * Additional terms the item matches on when filtering inside `Menu.FilterRoot`.
+   * A plain menu ignores it.
+   */
+  keywords?: readonly string[] | undefined;
   /**
    * @ignore
    */

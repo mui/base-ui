@@ -56,7 +56,11 @@ export function useTransitionStatus(
   }, [open, mounted, transitionStatus, deferEndingState]);
 
   useIsoLayoutEffect(() => {
-    if (!open || enableIdleState) {
+    // An element that mounted already open, or reopened after its exit settled, has nothing to
+    // clear. Skipping the frame matters in tests: a frame that only re-sets the current status
+    // can still schedule a render when the fiber has other pending work, and it fires outside
+    // `act()` when it lands after the render that requested it.
+    if (!open || enableIdleState || transitionStatus === undefined) {
       return undefined;
     }
 
@@ -69,7 +73,7 @@ export function useTransitionStatus(
     return () => {
       AnimationFrame.cancel(frame);
     };
-  }, [enableIdleState, open]);
+  }, [enableIdleState, open, transitionStatus]);
 
   useIsoLayoutEffect(() => {
     if (!open || !enableIdleState) {

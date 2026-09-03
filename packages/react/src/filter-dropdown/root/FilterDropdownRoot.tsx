@@ -28,8 +28,6 @@ export function FilterDropdownRoot(props: FilterDropdownRoot.Props): React.JSX.E
   const {
     children,
     open,
-    inline = false,
-    grid = false,
     disabled = false,
     inputFocusVisible = false,
     locale,
@@ -44,15 +42,13 @@ export function FilterDropdownRoot(props: FilterDropdownRoot.Props): React.JSX.E
     setActiveIndex = NOOP,
     inputProps = EMPTY_OBJECT,
     inputRef: externalFocusOwnerRef,
-    onInputElementChange,
-    virtualized,
+    onInputAutoFocusChange,
   } = props;
 
   const parentItemContext = React.useContext(FilterDropdownItemContext);
   const [registeredListId, setListId] = React.useState<string | undefined>(undefined);
   const [focusVisible, setFocusVisible] = React.useState(inputFocusVisible);
   const [keyboardModality, setKeyboardModality] = React.useState(inputFocusVisible);
-  const [hasInput, setHasInput] = React.useState(false);
   const [registeredItems, registerItem] = useItemRegistry<symbol, FilterDropdownItemRegistration>();
   const defaultId = useBaseUiId();
   const store = useRefWithInit(
@@ -65,19 +61,14 @@ export function FilterDropdownRoot(props: FilterDropdownRoot.Props): React.JSX.E
 
   const ownFocusOwnerRef = React.useRef<HTMLElement | null>(null);
   const focusOwnerRef = externalFocusOwnerRef ?? ownFocusOwnerRef;
-  const inputElementRef = React.useRef<HTMLInputElement | null>(null);
   const inputAutoFocusRef = React.useRef(false);
-  const listElementRef = React.useRef<HTMLDivElement | null>(null);
   const lastFilterQueryRef = React.useRef<string | null>(null);
   const defaultMatches = React.useMemo(() => getFilter({ locale }).contains, [locale]);
 
   const handleValueChange = useStableCallback(onValueChange ?? NOOP);
 
   const setInputElement = useStableCallback((element: HTMLInputElement | null) => {
-    inputElementRef.current = element;
-    focusOwnerRef.current = element ?? listElementRef.current;
-    setHasInput(element !== null);
-    onInputElementChange?.(element !== null, inputAutoFocusRef.current);
+    focusOwnerRef.current = element;
   });
 
   const setInputAutoFocus = useStableCallback((autoFocus: boolean) => {
@@ -85,14 +76,7 @@ export function FilterDropdownRoot(props: FilterDropdownRoot.Props): React.JSX.E
       return;
     }
     inputAutoFocusRef.current = autoFocus;
-    onInputElementChange?.(inputElementRef.current !== null, autoFocus);
-  });
-
-  const setListElement = useStableCallback((element: HTMLDivElement | null) => {
-    listElementRef.current = element;
-    if (inputElementRef.current === null) {
-      focusOwnerRef.current = element;
-    }
+    onInputAutoFocusChange?.(autoFocus);
   });
 
   const onItemsChange = useStableCallback((hasItems: boolean) => {
@@ -195,7 +179,6 @@ export function FilterDropdownRoot(props: FilterDropdownRoot.Props): React.JSX.E
   const contextValue: FilterDropdownRootContext = React.useMemo(
     () => ({
       open,
-      inline,
       disabled,
       inputFocusVisible: focusVisible,
       setInputFocusVisible: setFocusVisible,
@@ -211,16 +194,12 @@ export function FilterDropdownRoot(props: FilterDropdownRoot.Props): React.JSX.E
       focusOwnerRef,
       setInputElement,
       setInputAutoFocus,
-      setListElement,
-      hasInput,
-      virtualized,
       setActiveIndex,
       onItemsChange,
       onValueChange: handleValueChange,
     }),
     [
       open,
-      inline,
       disabled,
       focusVisible,
       keyboardModality,
@@ -233,9 +212,6 @@ export function FilterDropdownRoot(props: FilterDropdownRoot.Props): React.JSX.E
       focusOwnerRef,
       setInputElement,
       setInputAutoFocus,
-      setListElement,
-      hasInput,
-      virtualized,
       setActiveIndex,
       onItemsChange,
       handleValueChange,
@@ -245,12 +221,11 @@ export function FilterDropdownRoot(props: FilterDropdownRoot.Props): React.JSX.E
   const itemContextValue: FilterDropdownItemContext = React.useMemo(
     () => ({
       parent: parentItemContext,
-      grid,
       store,
       registerItem,
       listRef,
     }),
-    [parentItemContext, grid, store, registerItem, listRef],
+    [parentItemContext, store, registerItem, listRef],
   );
 
   return (
@@ -284,10 +259,6 @@ export interface FilterDropdownRootProps {
    * Whether the popup is currently open.
    */
   open: boolean;
-  /** Whether the list is rendered inline without popup parts. */
-  inline?: boolean | undefined;
-  /** Whether the host presents items in a grid. */
-  grid?: boolean | undefined;
   /** Whether the filter controls should be disabled. */
   disabled?: boolean | undefined;
   /** Whether the input should render its focus ring. */
@@ -341,15 +312,9 @@ export interface FilterDropdownRootProps {
    */
   inputRef?: React.RefObject<HTMLElement | null> | undefined;
   /**
-   * Reports whether an input is currently registered.
+   * Reports whether the input asks to be focused whenever the popup opens.
    */
-  onInputElementChange?: ((hasInput: boolean, autoFocus: boolean) => void) | undefined;
-  /**
-   * Whether the host's items are windowed by an external virtualizer, so a changed rendered set
-   * does not invalidate the positional highlight. Pass the total item count so navigation can
-   * target the list's real ends rather than the mounted window's.
-   */
-  virtualized?: number | undefined;
+  onInputAutoFocusChange?: ((autoFocus: boolean) => void) | undefined;
 }
 
 export namespace FilterDropdownRoot {

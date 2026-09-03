@@ -47,7 +47,6 @@ export class FilterDropdownStore extends ReactStore<Readonly<State>, object, typ
  * inside a plain parent menu. Nothing registers and every item stays visible.
  */
 export const DETACHED_OWNER = {
-  grid: false,
   registerItem: () => () => {},
   store: new FilterDropdownStore(),
 };

@@ -49,11 +49,6 @@ import {
 interface MenuRootInternalProps<Payload> extends MenuRoot.Props<Payload> {
   /**
    * @ignore
-   * Uses the popup element as the Floating UI surface without requiring a positioner.
-   */
-  inline?: boolean | undefined;
-  /**
-   * @ignore
    * Marks this root as a submenu of the enclosing menu.
    */
   isSubmenu?: boolean | undefined;
@@ -78,12 +73,6 @@ interface MenuRootInternalProps<Payload> extends MenuRoot.Props<Payload> {
    * Whether pointer leave should clear the active item.
    */
   resetOnPointerLeave?: boolean | undefined;
-  /**
-   * @ignore
-   * Whether an input owns typing while virtual focus is active, which disables typeahead so it
-   * doesn't race the filter query.
-   */
-  virtualFocusInput?: boolean | undefined;
   /**
    * @ignore
    * Whether the virtual focus owner takes focus even when the menu opens on hover.
@@ -127,12 +116,10 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
     defaultTriggerId: defaultTriggerIdProp = null,
     highlightItemOnHover = true,
     isSubmenu = false,
-    inline = false,
     virtualFocus = false,
     virtualFocusRef,
     allowEscape = true,
     resetOnPointerLeave = true,
-    virtualFocusInput = false,
     virtualFocusAutoFocus = false,
     renderVirtualFocusChildren,
     webkitItemSelected: webkitItemSelectedProp = false,
@@ -217,6 +204,7 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
       modal: parentFromContext.type === undefined ? modalProp : undefined,
       rootId,
       instantType: seededInstantType,
+      virtualFocus,
     },
     floatingId,
     floatingParentNodeIdFromContext != null,
@@ -266,6 +254,7 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
     modal: parent.type === undefined ? modalProp : undefined,
     openMethod,
     rootId,
+    virtualFocus,
   });
 
   useIsoLayoutEffect(() => {
@@ -494,7 +483,6 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
 
   const floatingRootContext = useSyncedFloatingRootContext({
     popupStore: store,
-    treatPopupAsFloatingElement: inline,
     floatingRootContext: store.state.floatingRootContext,
     floatingId,
     nested: floatingParentNodeIdFromContext != null,
@@ -546,7 +534,7 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
   React.useImperativeHandle(ctx?.actionsRef, () => ({ setOpen }), [setOpen]);
 
   const dismiss = useDismiss(floatingRootContext, {
-    enabled: !disabled && !inline,
+    enabled: !disabled,
     bubbles: { escapeKey: closeParentOnEsc && parent.type === 'menu' },
     outsidePress() {
       if (parent.type !== 'context-menu' || openEventRef.current?.type === 'contextmenu') {
@@ -580,12 +568,7 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
     triggerOrientation: virtualFocus ? 'vertical' : orientation,
     rtl: direction === 'rtl',
     disabledIndices: EMPTY_ARRAY,
-    onNavigate(nextActiveIndex, event) {
-      if (event == null) {
-        store.context.highlightReason = 'none';
-      } else {
-        store.context.highlightReason = event.type.startsWith('key') ? 'keyboard' : 'pointer';
-      }
+    onNavigate(nextActiveIndex) {
       store.set('activeIndex', nextActiveIndex);
     },
     // A virtual-focus submenu's keyboard opening is orchestrated by its navigation wrapper based
@@ -606,15 +589,14 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
   );
 
   const typeahead = useTypeahead(floatingRootContext, {
-    // Typing goes to the input when one is rendered, so typeahead would race the query.
-    enabled: !disabled && !(virtualFocus && virtualFocusInput),
+    // Under virtual focus the input owns typing, so typeahead would race the filter query.
+    enabled: !disabled && !virtualFocus,
     listRef: store.context.itemLabels,
     elementsRef: store.context.itemDomElements,
     activeIndex,
     resetMs: TYPEAHEAD_RESET_MS,
     onMatch: (index) => {
       if (open && index !== activeIndex) {
-        store.context.highlightReason = 'keyboard';
         store.set('activeIndex', index);
       }
     },
@@ -636,12 +618,9 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
     const { onFocus, ...rest } = listNavigation.trigger;
     return rest;
   }, [virtualFocus, listNavigation.reference, listNavigation.trigger]);
-  // Typeahead is included for the inputless case, where the list holds real focus. It is
-  // disabled (empty) when an input owns typing.
-  const inputProps = React.useMemo(
-    () => (virtualFocus ? mergeProps(typeahead.reference, listNavigation.reference) : EMPTY_OBJECT),
-    [virtualFocus, typeahead.reference, listNavigation.reference],
-  );
+  const inputProps: HTMLProps = virtualFocus
+    ? (listNavigation.reference ?? EMPTY_OBJECT)
+    : EMPTY_OBJECT;
 
   const activeTriggerProps = React.useMemo(() => {
     const mergedProps = mergeProps(
@@ -776,6 +755,11 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
 
   return content;
 });
+
+/** `MenuRoot` with the internal props visible, which the public signature hides. */
+export const MenuRootInternal = MenuRoot as <Payload>(
+  props: MenuRootInternalProps<Payload>,
+) => React.JSX.Element;
 
 function useMenuRootStore<Payload>(
   initialState: Partial<MenuStoreState<Payload>>,
@@ -942,8 +926,3 @@ export namespace MenuRoot {
   export type ChangeEventDetails = MenuRootChangeEventDetails;
   export type Orientation = MenuRootOrientation;
 }
-
-/** `MenuRoot` with the internal props visible, which the public signature hides. */
-export const MenuRootInternal = MenuRoot as <Payload>(
-  props: MenuRootInternalProps<Payload>,
-) => React.JSX.Element;

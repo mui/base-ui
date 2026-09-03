@@ -1,6 +1,7 @@
 'use client';
 import * as React from 'react';
 import type { InteractionType } from '@base-ui/utils/useEnhancedClickHandler';
+import { useMenuFilterImpl } from '../filter-root/MenuFilterContext';
 import { FloatingFocusManager, useHoverFloatingInteraction } from '../../floating-ui-react';
 import type { FloatingFocusManagerProps } from '../../floating-ui-react/components/FloatingFocusManager';
 import { useMenuRootContext } from '../root/MenuRootContext';
@@ -20,15 +21,8 @@ import { getDisabledMountTransitionStyles } from '../../internals/getDisabledMou
 import { useMenuSubmenuRootContext } from '../submenu-root/MenuSubmenuRootContext';
 import { useRenderedId } from '../../internals/resolveRenderedId';
 import { resolveMenuPopupLabel } from './resolveMenuPopupLabel';
-import { isTypeableElement } from '../../floating-ui-react/utils/element';
 
-/**
- * A container for the menu items.
- * Renders a `<div>` element.
- *
- * Documentation: [Base UI Menu](https://base-ui.com/react/components/menu)
- */
-export const MenuPopup = React.forwardRef(function MenuPopup(
+export const MenuPopupPlain = React.forwardRef(function MenuPopup(
   componentProps: MenuPopup.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
@@ -86,7 +80,7 @@ export const MenuPopup = React.forwardRef(function MenuPopup(
   // Under virtual focus a child element holds real focus; the popup is never the focus target.
   let initialFocus: FloatingFocusManagerProps['initialFocus'] = parent.type !== 'menu';
   if (shouldFocusPopup && virtualFocus) {
-    initialFocus = (openType) => {
+    initialFocus = () => {
       const focusOwner = virtualFocusRef?.current;
       if (!focusOwner) {
         return false;
@@ -96,8 +90,7 @@ export const MenuPopup = React.forwardRef(function MenuPopup(
       if (openedByHover && !virtualFocusAutoFocus) {
         return false;
       }
-      const openedByPointer = openType !== '' && openType !== 'keyboard';
-      return openedByPointer && !isTypeableElement(focusOwner) ? false : focusOwner;
+      return focusOwner;
     };
   }
 
@@ -199,6 +192,20 @@ export const MenuPopup = React.forwardRef(function MenuPopup(
       {element}
     </FloatingFocusManager>
   );
+});
+
+/**
+ * A container for the menu items.
+ * Renders a `<div>` element.
+ *
+ * Documentation: [Base UI Menu](https://base-ui.com/react/components/menu)
+ */
+export const MenuPopup = React.forwardRef(function MenuPopup(
+  props: MenuPopup.Props,
+  forwardedRef: React.ForwardedRef<HTMLDivElement>,
+) {
+  const Popup = useMenuFilterImpl()?.Popup ?? MenuPopupPlain;
+  return <Popup {...props} ref={forwardedRef} />;
 });
 
 export interface MenuPopupProps extends BaseUIComponentProps<'div', MenuPopupState> {

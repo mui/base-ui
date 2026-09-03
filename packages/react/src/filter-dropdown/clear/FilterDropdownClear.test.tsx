@@ -15,7 +15,10 @@ describe('<FilterDropdown.Clear />', () => {
     render(node) {
       return render(
         <ControlledFilterDropdownRoot initialValue="can">
-          <FilterDropdown.Popup id={undefined}>{node}</FilterDropdown.Popup>
+          <FilterDropdown.Popup id={undefined}>
+            <FilterDropdown.Input aria-label="Filter" />
+            {node}
+          </FilterDropdown.Popup>
         </ControlledFilterDropdownRoot>,
       );
     },
@@ -25,6 +28,7 @@ describe('<FilterDropdown.Clear />', () => {
     await render(
       <ControlledFilterDropdownRoot>
         <FilterDropdown.Popup id={undefined}>
+          <FilterDropdown.Input aria-label="Filter" />
           <FilterDropdown.Clear data-testid="clear" />
         </FilterDropdown.Popup>
       </ControlledFilterDropdownRoot>,

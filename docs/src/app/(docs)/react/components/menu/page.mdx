@@ -340,6 +340,95 @@ import { DemoMenuDetachedTriggersFull } from './demos/detached-triggers-full';
 
 <DemoMenuDetachedTriggersFull />
 
+### Filtering
+
+Replace `<Menu.Root>` with `<Menu.FilterRoot>` to add a search field that filters the items.
+The filter parts are `<Menu.FilterInput>`, `<Menu.FilterList>`, `<Menu.FilterClear>`, and `<Menu.FilterEmpty>`; every other part stays the same.
+A filterable popup is a dialog that contains the input and a `menu` list, so the items go inside `<Menu.FilterList>`.
+Give the input an accessible name with `aria-label`, `aria-labelledby`, or a visible native `<label>`.
+Only `<Menu.FilterRoot>` imports the filtering code, so menus that don't filter don't bundle it.
+
+import { DemoMenuFilter } from './demos/filter';
+
+<DemoMenuFilter />
+
+#### Filtering items
+
+Items match their rendered text by default. Use `label` to provide explicit searchable text and `keywords` for alternate terms.
+
+```jsx title="Labels and keywords"
+<Menu.FilterList>
+  <Menu.Item keywords={['edit name']}>Rename</Menu.Item>
+  <Menu.Item label="Move to folder" keywords={['organize']}>
+    Move
+  </Menu.Item>
+</Menu.FilterList>
+```
+
+Groups with no matching items are hidden, including their labels. `<Menu.FilterEmpty>` is shown when no items match and renders nothing otherwise.
+
+#### Custom matching
+
+Use `filter` to replace the default case-insensitive substring matching.
+It receives the item's text and each keyword individually, together with the trimmed query, and the item matches when it returns `true` for any of them:
+
+```jsx title="Custom filter"
+<Menu.FilterRoot filter={(text, query) => text.startsWith(query)}>
+  {/* menu parts */}
+</Menu.FilterRoot>
+```
+
+Pass `filter={null}` when you filter the items yourself and render only the results, such as when a server returns them.
+`Menu.useFilter` returns the same collator-based matching for that purpose.
+
+#### Async search
+
+Pass `filter={null}` and fetch matches yourself to search a source too large to render, such as a server-side index.
+Open with a short list of suggestions, return only the top matches for each query, and keep the previous results rendered while a request is pending.
+
+import { DemoMenuFilterAsync } from './demos/filter-async';
+
+<DemoMenuFilterAsync />
+
+#### Filterable submenus
+
+Use `<Menu.FilterSubmenuRoot>` in place of `<Menu.SubmenuRoot>` to give a submenu its own search field, independently of whether the parent filters.
+A plain `<Menu.SubmenuRoot>` inside a filterable menu keeps its ordinary menu semantics; its trigger still filters with the parent's query.
+
+Hovering a submenu trigger opens the submenu without moving focus.
+Focus follows the pointer: it moves to the submenu's input once the pointer enters the submenu, and back to the parent's input when the pointer returns.
+Clicking the trigger or opening the submenu with the keyboard also focuses its input.
+Add `autoFocus` to the submenu's `<Menu.FilterInput>` to focus it as soon as the submenu opens.
+
+```jsx title="A filterable submenu"
+<Menu.FilterSubmenuRoot>
+  <Menu.SubmenuTrigger>More actions</Menu.SubmenuTrigger>
+  <Menu.Portal>
+    <Menu.Positioner>
+      <Menu.Popup>
+        <Menu.FilterInput aria-label="Filter more actions" />
+        <Menu.FilterList>
+          <Menu.Item>Share</Menu.Item>
+          <Menu.Item>Move</Menu.Item>
+        </Menu.FilterList>
+      </Menu.Popup>
+    </Menu.Positioner>
+  </Menu.Portal>
+</Menu.FilterSubmenuRoot>
+```
+
+#### Detached triggers for a filterable menu
+
+A trigger rendered outside the root announces the popup it opens before the root attaches.
+Create the handle with `filterable: true` so a detached `<Menu.Trigger>` announces the filterable popup on the server and the client alike:
+
+```jsx title="A filterable handle"
+const handle = Menu.createHandle({ filterable: true });
+
+<Menu.Trigger handle={handle}>Actions</Menu.Trigger>
+<Menu.FilterRoot handle={handle}>{/* menu parts */}</Menu.FilterRoot>
+```
+
 ## API reference
 
 import { TypesMenu } from './types';
@@ -394,6 +483,30 @@ The `Viewport` is optional — reach for it only when a single popup is opened b
 
 <TypesMenu.SubmenuTrigger />
 
+### FilterRoot
+
+<TypesMenu.FilterRoot />
+
+### FilterSubmenuRoot
+
+<TypesMenu.FilterSubmenuRoot />
+
+### FilterInput
+
+<TypesMenu.FilterInput />
+
+### FilterList
+
+<TypesMenu.FilterList />
+
+### FilterClear
+
+<TypesMenu.FilterClear />
+
+### FilterEmpty
+
+<TypesMenu.FilterEmpty />
+
 ### Group
 
 <TypesMenu.Group />
@@ -425,6 +538,13 @@ The `Viewport` is optional — reach for it only when a single popup is opened b
 ### Separator
 
 <TypesMenu.Separator />
+
+## useFilter
+
+Matches items against a query using `Intl.Collator` for robust string matching.
+Use it when filtering items yourself with `filter={null}` on `<Menu.FilterRoot>`.
+
+<TypesMenu.useFilter hideDescription />
 
 ## createHandle
 
