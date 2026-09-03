@@ -13,6 +13,7 @@ import { DemoAutocompleteHero } from './demos/hero';
 ## Usage guidelines
 
 - **Avoid when selection state is needed**: Use [Combobox](/react/components/combobox) instead of Autocomplete if the selection should be remembered and the input value cannot be custom. Unlike Combobox, Autocomplete's input can contain free-form text, as its suggestions only _optionally_ autocomplete the text.
+- **Can be used for filterable command pickers**: The input can be used as a filter for command items that perform an action when clicked when rendered inside the popup.
 - **Form controls must have an accessible name**: It can be created using a `<label>` element or the `Field` component. See the [forms guide](/react/handbook/forms).
 
 ## Anatomy
@@ -137,6 +138,22 @@ The prop can be combined with the `keepHighlight` and `highlightItemOnHover` pro
 import { DemoAutocompleteAutoHighlight } from './demos/auto-highlight';
 
 <DemoAutocompleteAutoHighlight />
+
+### Command palette
+
+Use the autocomplete input to filter a list of command items that perform an action when clicked.
+
+import { DemoAutocompleteCommandPalette } from './demos/command-palette';
+
+<DemoAutocompleteCommandPalette />
+
+### Grid layout
+
+Display items in a grid layout, wrapping each row in `<Autocomplete.Row>` components.
+
+import { DemoAutocompleteGrid } from './demos/grid';
+
+<DemoAutocompleteGrid />
 
 ### Virtualized
 
