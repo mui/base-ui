@@ -323,23 +323,28 @@ export function useFieldValidation(
         if (validationCommitId !== validationCommitIdRef.current) {
           return;
         }
-        nextState = refreshState();
+        // A control barred mid-flight (for example disabled) exposes no native state, so keep
+        // the verdict and native errors captured while it could still validate.
+        if (resolveRepresentativeInput()?.willValidate) {
+          nextState = refreshState();
+        }
       } else {
         result = resultOrPromise;
       }
 
+      const nativeErrors = validationErrors;
       // Empty results and empty array entries are valid.
       validationErrors = result ? ([] as string[]).concat(result).filter(Boolean) : [];
 
       if (validationErrors.length > 0) {
         nextState.valid = false;
         nextState.customError = true;
-        // Keep custom errors for barred controls in field state only.
-        if (element?.willValidate) {
+        // A barred control hides the message until it can validate again.
+        if (element) {
           setCustomValidity(element, validationErrors.join('\n'));
         }
       } else {
-        validationErrors = getNativeErrors(element);
+        validationErrors = element?.willValidate ? getNativeErrors(element) : nativeErrors;
       }
     }
 
