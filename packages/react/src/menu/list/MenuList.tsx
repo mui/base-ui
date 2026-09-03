@@ -32,7 +32,7 @@ export const MenuList = React.forwardRef(function MenuList(
   componentProps: MenuList.Props,
   forwardedRef: React.ForwardedRef<HTMLDivElement>,
 ) {
-  const { store: menuStore } = useMenuRootContext();
+  const { store: menuStore, syncHighlightedItem } = useMenuRootContext();
   const { inline, onItemsChange, focusOwnerRef } = useFilterDropdownRootContext();
   const { store: filterStore } = useFilterDropdownItemContext();
   const { subscribeMapChange } = useCompositeListContext();
@@ -67,6 +67,7 @@ export const MenuList = React.forwardRef(function MenuList(
   const hasPublishedItemsRef = React.useRef(false);
 
   const handleItemMapChange = useStableCallback((map: Map<Element, { index: number }>) => {
+    syncHighlightedItem();
     const items = Array.from(map.keys());
     const previousItems = previousItemsRef.current;
     const itemsChanged =
