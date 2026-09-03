@@ -1,4 +1,4 @@
-import { expect } from 'vitest';
+import { expect, describe, it } from 'vitest';
 import { isJSDOM } from '#test-utils';
 import { getNumberLocaleDetails, isNumeralChar, parseNumber } from './parse';
 

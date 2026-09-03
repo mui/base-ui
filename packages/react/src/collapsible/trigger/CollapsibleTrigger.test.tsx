@@ -1,4 +1,4 @@
-import { expect, vi } from 'vitest';
+import { expect, vi, describe, it } from 'vitest';
 import { createRenderer, screen } from '@mui/internal-test-utils';
 import { Collapsible } from '@base-ui/react/collapsible';
 import { describeConformance } from '../../../test/describeConformance';

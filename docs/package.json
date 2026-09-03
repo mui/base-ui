@@ -11,7 +11,7 @@
     "docs-infra": "docs-infra",
     "validate": "pnpm internal-validate --command \"pnpm validate\"",
     "internal-validate": "docs-infra validate",
-    "typescript": "tsgo -b tsconfig.json",
+    "typescript": "tsc -b tsconfig.json",
     "link-check": "tsx ./scripts/reportBrokenLinks.mts",
     "generate-llms": "node --experimental-strip-types ./scripts/generateLlmTxt/index.mjs"
   },
@@ -20,7 +20,7 @@
     "@base-ui/utils": "workspace:*",
     "@mdx-js/loader": "^3.1.1",
     "@mdx-js/react": "^3.1.1",
-    "@mui/internal-docs-infra": "0.12.1-canary.26",
+    "@mui/internal-docs-infra": "0.12.1-canary.38",
     "@next/mdx": "^16.3.1",
     "@react-spring/web": "^10.1.2",
     "@stefanprobst/rehype-extract-toc": "^3.0.0",
@@ -73,6 +73,7 @@
     "rimraf": "6.1.3",
     "serve": "14.2.6",
     "tailwindcss": "4.2.4",
+    "typescript": "npm:@typescript/typescript6@6.0.2",
     "unified": "11.0.5",
     "unist-util-visit": "5.1.0",
     "zod": "4.4.3"

@@ -1,4 +1,4 @@
-import { expect, vi } from 'vitest';
+import { expect, vi, describe, beforeEach, afterEach, it } from 'vitest';
 import { isJSDOM } from '#test-utils';
 import { getViewportRect } from './getViewportRect';
 

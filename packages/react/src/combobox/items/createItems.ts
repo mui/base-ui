@@ -57,9 +57,6 @@ export interface CreateComboboxItemsOptions<
    *
    * `null` and `undefined` are reserved for no selection, and each item must derive a unique
    * value. Prefer stable IDs from your application data.
-   *
-   * Nullish entries in the data are holes rather than items: they are never passed to this
-   * accessor.
    */
   getValue: (item: Item) => Value;
   /**
@@ -78,6 +75,9 @@ export interface CreateComboboxItemsOptions<
  *
  * Items cannot have an `items` array property because they would be interpreted as groups.
  * Rename that field or cast the data when the runtime values are known not to contain arrays.
+ *
+ * The data must not contain nullish entries: remove them before creating the collection, as for
+ * the root's `items` prop.
  *
  * Create static collections at module scope. Wrap dynamic collections in `React.useMemo()` keyed
  * by their data.
@@ -104,7 +104,7 @@ export function createComboboxItems<Item, Value extends ComboboxPrimitiveValue>(
       const leafItems = data ? flattenLeafItems<Item>(data) : EMPTY_ARRAY;
 
       for (const item of leafItems) {
-        // Nullish entries are holes in the data, as they are for a plain `items` array.
+        // Skipped defensively: the data is documented as free of nullish entries.
         if (item == null) {
           continue;
         }

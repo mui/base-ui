@@ -95,17 +95,117 @@ describe('ToastStore', () => {
     expect(selectors.toast(store.state, 'a')?.transitionStatus).toBe(undefined);
   });
 
-  it('shallow merges custom data when updating a toast', () => {
+  it('replaces custom data wholesale when updating a toast', () => {
     const store = createStore([{ id: 'a', data: { name: 'Draft', count: 1 } }]);
 
-    store.updateToast('a', { data: { count: 2 } });
-    expect(selectors.toast(store.state, 'a')?.data).toEqual({ name: 'Draft', count: 2 });
+    const nextData = { count: 2 };
+    store.updateToast('a', { data: nextData });
+    expect(selectors.toast(store.state, 'a')?.data).toBe(nextData);
 
     store.updateToast('a', { title: 'Saved' });
-    expect(selectors.toast(store.state, 'a')?.data).toEqual({ name: 'Draft', count: 2 });
+    expect(selectors.toast(store.state, 'a')?.data).toBe(nextData);
 
     store.updateToast('a', { data: undefined });
     expect(selectors.toast(store.state, 'a')?.data).toBe(undefined);
+  });
+
+  it('derives custom data from the current value when given a function', () => {
+    const store = createStore([{ id: 'a', data: { name: 'Draft', count: 1 } }]);
+
+    store.updateToast('a', { data: (prevData) => ({ ...prevData, count: 2 }) });
+    const toast = selectors.toast(store.state, 'a');
+    expect(toast?.data).toEqual({ name: 'Draft', count: 2 });
+    expect(toast?.updateKey).toBe(1);
+  });
+
+  it('clears custom data when the data updater returns undefined', () => {
+    const store = createStore([{ id: 'a', data: { name: 'Draft' } }]);
+
+    store.updateToast('a', { data: () => undefined });
+    expect(selectors.toast(store.state, 'a')?.data).toBe(undefined);
+  });
+
+  it('passes undefined to the data updater when the toast has no custom data', () => {
+    const store = createStore([{ id: 'a' }]);
+    const updater = vi.fn(() => ({ name: 'Draft' }));
+
+    store.updateToast('a', { data: updater });
+    expect(updater).toHaveBeenCalledWith(undefined);
+    expect(selectors.toast(store.state, 'a')?.data).toEqual({ name: 'Draft' });
+  });
+
+  it('does not call the data updater for a missing or ending toast', () => {
+    const store = createStore([{ id: 'a', data: { name: 'Draft' } }]);
+    store.closeToast('a');
+    expect(selectors.toast(store.state, 'a')?.transitionStatus).toBe('ending');
+
+    const updater = vi.fn();
+    store.updateToast('a', { data: updater });
+    store.updateToast('missing', { data: updater });
+    expect(updater).not.toHaveBeenCalled();
+    expect(selectors.toast(store.state, 'a')?.data).toEqual({ name: 'Draft' });
+  });
+
+  it('keeps a toast added from inside a data updater', () => {
+    const store = createStore([{ id: 'a', data: { count: 1 } }]);
+
+    store.updateToast('a', {
+      data: () => {
+        store.addToast({ id: 'b' });
+        return { count: 2 };
+      },
+    });
+    expect(store.state.toasts.map((toast) => toast.id)).toEqual(['b', 'a']);
+    expect(selectors.toast(store.state, 'a')?.data).toEqual({ count: 2 });
+    expectToastMetadataToMatchToasts(store);
+  });
+
+  it('keeps a toast closed from inside its data updater closed', () => {
+    const store = createStore([{ id: 'a', data: { count: 1 } }]);
+
+    store.updateToast('a', {
+      data: () => {
+        store.closeToast('a');
+        return { count: 2 };
+      },
+    });
+    expect(selectors.toast(store.state, 'a')?.transitionStatus).toBe('ending');
+    expect(selectors.toast(store.state, 'a')?.data).toEqual({ count: 1 });
+  });
+
+  it('stores a function as the value when re-adding a toast under an existing id', () => {
+    const store = createStore([]);
+    const value = () => 'first';
+    const nextValue = () => 'second';
+
+    store.addToast({ id: 'a', data: value });
+    store.addToast({ id: 'a', data: nextValue });
+    expect(selectors.toast(store.state, 'a')?.data).toBe(nextValue);
+  });
+
+  it('replaces custom data when re-adding a toast under an existing id', () => {
+    const store = createStore([]);
+
+    store.addToast({ id: 'a', data: { status: 'error', errorCode: 42 } });
+    store.addToast({ id: 'a', data: { status: 'ok' } });
+    expect(selectors.toast(store.state, 'a')?.data).toEqual({ status: 'ok' });
+
+    store.addToast({ id: 'a', title: 'Still uploading' });
+    expect(selectors.toast(store.state, 'a')?.data).toEqual({ status: 'ok' });
+  });
+
+  it('resolves data updaters on a promise toast', async () => {
+    const store = createStore([]);
+
+    await store.promiseToast(Promise.resolve('done'), {
+      loading: {
+        title: 'Saving',
+        data: (prevData) => ({ ...prevData, step: 'save', progress: 0 }),
+      },
+      success: { title: 'Saved', data: (prevData) => ({ ...prevData, progress: 100 }) },
+      error: 'Failed',
+    });
+    expect(store.state.toasts[0]?.data).toEqual({ step: 'save', progress: 100 });
   });
 
   it('does not invoke onRemove for a toast that is no longer in the store', () => {
