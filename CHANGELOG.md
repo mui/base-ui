@@ -96,7 +96,7 @@ _Sep 2, 2026_
 
 - Stop incrementing when disabled during press-and-hold (#5435) by @alex-js-ltd
 - Prevent scrubbing on horizontal wheel events (#5463) by @sai6855
-- Keep native selection behavior when focusing the input (#5578) by @atomiks
+- Preserve native and consumer-controlled selection when focusing the input (#5578, #5619) by @atomiks
 
 ### Popover
 

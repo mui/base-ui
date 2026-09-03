@@ -4,7 +4,7 @@
 
 _Sep 2, 2026_
 
-- **Breaking change:** Correctly infer optional values in `useControlled`. The returned value and setter now include `undefined` when both the controlled and default values can be `undefined` (#5203) by @jjenzz
+- **Breaking change:** Correctly infer optional values in `useControlled` while preserving the frozen `EMPTY_ARRAY` singleton. The returned value and setter now include `undefined` when both the controlled and default values can be `undefined` (#5203, #5620) by @jjenzz and @michaldudak
 - **Breaking change:** Enforce matching store state key/value types. Broad `Partial<State>` arguments must be narrowed to an exact known subset before calling `Store.update` or `ReactStore.useSyncedValues` (#5423) by @jjenzz
 - Add `clamp`, `areArraysEqual`, `formatNumber`, `stringifyLocale`, and shadow DOM utilities (#5167) by @romgrk
 - Make animation frame cancellation idempotent (#5533) by @gilsmt
