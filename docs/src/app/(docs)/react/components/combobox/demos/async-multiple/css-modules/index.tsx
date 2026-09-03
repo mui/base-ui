@@ -143,7 +143,12 @@ export default function ExampleAsyncMultipleCombobox() {
               {(value: DirectoryUser[]) => (
                 <React.Fragment>
                   {value.map((user) => (
-                    <Combobox.Chip key={user.id} className={styles.Chip} aria-label={user.name}>
+                    <Combobox.Chip
+                      key={user.id}
+                      className={styles.Chip}
+                      aria-label={user.name}
+                      aria-description="Press Backspace or Delete to remove"
+                    >
                       {user.name}
                       <Combobox.ChipRemove
                         className={styles.ChipRemove}
@@ -156,6 +161,9 @@ export default function ExampleAsyncMultipleCombobox() {
                   <Combobox.Input
                     id={id}
                     placeholder={value.length > 0 ? '' : 'e.g. Michael'}
+                    aria-description={
+                      value.length > 0 ? 'Press Left Arrow to edit the selected items' : undefined
+                    }
                     className={styles.Input}
                   />
                 </React.Fragment>

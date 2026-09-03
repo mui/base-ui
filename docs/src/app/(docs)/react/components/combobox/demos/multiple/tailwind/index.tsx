@@ -24,6 +24,7 @@ export default function ExampleMultipleCombobox() {
                       key={language.id}
                       className="group flex min-h-[calc(1.5rem-2px)] cursor-default items-center gap-1 overflow-hidden bg-neutral-100 py-0 pr-[0.2rem] pl-[0.4rem] text-sm leading-none text-neutral-950 outline-none focus-within:bg-neutral-950 focus-within:text-white [@media(hover:hover)]:data-highlighted:bg-neutral-950 [@media(hover:hover)]:data-highlighted:text-white dark:bg-neutral-800 dark:text-white dark:focus-within:bg-white dark:focus-within:text-neutral-950 dark:[@media(hover:hover)]:data-highlighted:bg-white dark:[@media(hover:hover)]:data-highlighted:text-neutral-950"
                       aria-label={language.value}
+                      aria-description="Press Backspace or Delete to remove"
                     >
                       {language.value}
                       <Combobox.ChipRemove
@@ -37,6 +38,9 @@ export default function ExampleMultipleCombobox() {
                   <Combobox.Input
                     id={id}
                     placeholder={value.length > 0 ? '' : 'e.g. TypeScript'}
+                    aria-description={
+                      value.length > 0 ? 'Press Left Arrow to edit the selected items' : undefined
+                    }
                     className="h-[calc(1.5rem-2px)] min-w-12 flex-1 border-0 bg-white p-0 text-sm any-pointer-coarse:text-base dark:bg-neutral-950 font-normal text-neutral-950 outline-none placeholder:text-neutral-500 dark:placeholder:text-neutral-400 dark:text-white"
                   />
                 </React.Fragment>

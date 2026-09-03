@@ -183,6 +183,9 @@ import { DemoComboboxMultiple } from './demos/multiple';
 
 <DemoComboboxMultiple />
 
+In order for screen readers to announce the chips and how to remove them, add `aria-description` to `<Combobox.Chip>` and `<Combobox.Input>`, alongside the `aria-label` on `<Combobox.ChipRemove>`.
+Base UI does not ship these strings. Translate them together with the rest of your interface.
+
 Visible chips can be limited by slicing the selected values rendered in `<Combobox.Value>`:
 
 ```tsx title="Limiting visible chips"

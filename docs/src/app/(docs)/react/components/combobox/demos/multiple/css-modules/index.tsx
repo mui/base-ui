@@ -22,6 +22,7 @@ export default function ExampleMultipleCombobox() {
                       key={language.id}
                       className={styles.Chip}
                       aria-label={language.value}
+                      aria-description="Press Backspace or Delete to remove"
                     >
                       {language.value}
                       <Combobox.ChipRemove
@@ -35,6 +36,9 @@ export default function ExampleMultipleCombobox() {
                   <Combobox.Input
                     id={id}
                     placeholder={value.length > 0 ? '' : 'e.g. TypeScript'}
+                    aria-description={
+                      value.length > 0 ? 'Press Left Arrow to edit the selected items' : undefined
+                    }
                     className={styles.Input}
                   />
                 </React.Fragment>
