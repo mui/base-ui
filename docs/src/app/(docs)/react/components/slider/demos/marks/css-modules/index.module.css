@@ -81,7 +81,7 @@
 .MarkLabel {
   position: absolute;
   top: 0;
-  font-size: 0.6875rem;
+  font-size: 0.75rem;
   line-height: 1rem;
   color: oklch(43.9% 0 0deg);
   white-space: nowrap;

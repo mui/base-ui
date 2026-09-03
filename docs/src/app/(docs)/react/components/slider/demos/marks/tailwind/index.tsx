@@ -28,7 +28,7 @@ export default function MarksSlider() {
         {MARKS.map((mark) => (
           <span
             key={mark}
-            className="absolute -translate-x-1/2 text-[0.6875rem] whitespace-nowrap text-neutral-600 dark:text-neutral-400"
+            className="absolute -translate-x-1/2 text-xs whitespace-nowrap text-neutral-600 dark:text-neutral-400"
             style={{ left: `${valueToPercent(mark)}%` }}
           >
             {mark}
