@@ -16,6 +16,20 @@ import { findRootOwnerId } from '../../menu/utils/findRootOwnerId';
 const LONG_PRESS_DELAY = 500;
 
 /**
+ * Whether a `contextmenu` event was raised by the keyboard (Shift+F10 / the Menu key)
+ * rather than a pointer. Chromium dispatches `contextmenu` as a `PointerEvent`, so an
+ * empty `pointerType` is a reliable keyboard signal; Firefox and Safari dispatch a plain
+ * `MouseEvent`, where a keyboard activation reports the primary button and no coordinates.
+ */
+function isKeyboardContextMenu(event: MouseEvent): boolean {
+  const { pointerType } = event as PointerEvent;
+  if (pointerType != null) {
+    return pointerType === '';
+  }
+  return event.button === 0 && event.clientX === 0 && event.clientY === 0;
+}
+
+/**
  * An area that opens the menu on right click or long press.
  * Renders a `<div>` element.
  *
@@ -49,7 +63,12 @@ export const ContextMenuTrigger = React.forwardRef(function ContextMenuTrigger(
   const allowMouseUpRef = React.useRef(false);
   const mouseUpAbortControllerRef = React.useRef<AbortController | null>(null);
 
-  function handleLongPress(x: number, y: number, event: MouseEvent | TouchEvent) {
+  function handleLongPress(
+    x: number,
+    y: number,
+    event: MouseEvent | TouchEvent,
+    keyboardActivation = false,
+  ) {
     const isTouchEvent = event.type.startsWith('touch');
 
     initialCursorPointRef.current = { x, y };
@@ -66,7 +85,14 @@ export const ContextMenuTrigger = React.forwardRef(function ContextMenuTrigger(
     });
 
     allowMouseUpRef.current = false;
-    actionsRef.current?.setOpen(true, createChangeEventDetails(REASONS.triggerPress, event));
+    actionsRef.current?.setOpen(
+      true,
+      createChangeEventDetails(REASONS.triggerPress, event, undefined, {
+        // A pointer or touch gesture opened the menu, so its enter transition should play;
+        // only a keyboard `contextmenu` (Shift+F10 / the Menu key) opens instantly.
+        instantType: !isTouchEvent && keyboardActivation ? 'click' : undefined,
+      }),
+    );
 
     allowMouseUpTimeout.start(LONG_PRESS_DELAY, () => {
       allowMouseUpRef.current = true;
@@ -79,7 +105,11 @@ export const ContextMenuTrigger = React.forwardRef(function ContextMenuTrigger(
     }
     allowMouseUpTriggerRef.current = true;
     stopEvent(event);
-    handleLongPress(event.clientX, event.clientY, event.nativeEvent);
+    // A long-press on Android also surfaces here as a native `contextmenu`; a pending touch
+    // gesture recorded by `handleTouchStart` marks this open as pointer-driven, not keyboard.
+    const keyboardActivation =
+      touchPositionRef.current == null && isKeyboardContextMenu(event.nativeEvent);
+    handleLongPress(event.clientX, event.clientY, event.nativeEvent, keyboardActivation);
     const doc = ownerDocument(triggerRef.current);
 
     // Abort a listener from a previous trigger that never saw its mouseup, and scope this

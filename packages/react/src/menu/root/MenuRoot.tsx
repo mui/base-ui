@@ -369,8 +369,16 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
 
       // Keyboard and assistive-technology activations produce `detail === 0` clicks;
       // mouse-gesture clicks (including the synthesized drag-release click from
-      // `useMenuItemCommonProps`) carry `detail >= 1`.
+      // `useMenuItemCommonProps`) carry `detail >= 1`. A trigger that already knows how the
+      // activation happened (Context Menu tells a pointer/touch open apart from a keyboard
+      // one, which `detail` cannot do for its `contextmenu`/`touch` events) passes an
+      // explicit `instantType` on the event details, which wins over this heuristic.
+      const hasExplicitInstantType = 'instantType' in eventDetails;
+      const explicitInstantType = hasExplicitInstantType
+        ? (eventDetails as { instantType: MenuStoreState<Payload>['instantType'] }).instantType
+        : undefined;
       const isKeyboardClick =
+        !hasExplicitInstantType &&
         (reason === REASONS.triggerPress || reason === REASONS.itemPress) &&
         (nativeEvent as MouseEvent).detail === 0;
       const isDismissClose = !nextOpen && (reason === REASONS.escapeKey || reason == null);
@@ -389,7 +397,11 @@ export const MenuRoot = fastComponent(function MenuRoot<Payload>(props: MenuRoot
 
       popupOpenState.openChangeReason = reason;
 
-      if (
+      if (hasExplicitInstantType) {
+        // The trigger classified the activation gesture itself (Context Menu animates a
+        // pointer/touch open and keeps a keyboard open instant).
+        popupOpenState.instantType = explicitInstantType;
+      } else if (
         parent.type === 'menubar' &&
         (reason === REASONS.triggerFocus ||
           reason === REASONS.focusOut ||
