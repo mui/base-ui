@@ -1222,14 +1222,8 @@ describe('Composite', () => {
 
       return (
         <React.Fragment>
-          <button
-            onClick={() => {
-              setHighlightedIndex(2);
-              setShowLastItem(false);
-            }}
-          >
-            update
-          </button>
+          <button onClick={() => setHighlightedIndex(2)}>highlight</button>
+          <button onClick={() => setShowLastItem(false)}>remove</button>
           <CompositeRoot
             highlightedIndex={highlightedIndex}
             onHighlightedIndexChange={setHighlightedIndex}
@@ -1243,13 +1237,14 @@ describe('Composite', () => {
       );
     }
 
-    it('keeps the controlled tab stop when the items change', async () => {
+    it('keeps a directly controlled tab stop when the items change later', async () => {
       await render(<App />);
 
       act(() => screen.getByTestId('1').focus());
       expect(screen.getByTestId('1')).toHaveAttribute('tabindex', '0');
 
-      fireEvent.click(screen.getByRole('button', { name: 'update' }));
+      fireEvent.click(screen.getByRole('button', { name: 'highlight' }));
+      fireEvent.click(screen.getByRole('button', { name: 'remove' }));
 
       expect(screen.queryByTestId('3')).toBeNull();
       expect(screen.getByTestId('2')).toHaveAttribute('tabindex', '0');

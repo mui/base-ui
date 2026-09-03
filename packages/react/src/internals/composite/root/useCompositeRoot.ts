@@ -98,8 +98,10 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
   const highlightedElementRef = React.useRef<HTMLElement | null>(null);
 
   const highlightedIndex = externalHighlightedIndex ?? internalHighlightedIndex;
+  const highlightedElementIndexRef = React.useRef(highlightedIndex);
   const onHighlightedIndexChange = useStableCallback((index, shouldScrollIntoView = false) => {
     highlightedElementRef.current = elementsRef.current[index] ?? null;
+    highlightedElementIndexRef.current = index;
     (externalSetHighlightedIndex ?? internalSetHighlightedIndex)(index);
     if (shouldScrollIntoView) {
       const newActiveItem = elementsRef.current[index];
@@ -113,12 +115,17 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
     }
 
     if (hasSetDefaultIndexRef.current) {
-      // A controlled index is authoritative when the item map changes.
-      if (externalHighlightedIndex != null) {
-        return;
-      }
-
       const elements = elementsRef.current;
+
+      if (highlightedIndex !== highlightedElementIndexRef.current) {
+        // Direct controlled changes replace the cache; missing targets use the normal fallback.
+        const element = elements[highlightedIndex];
+        if (element) {
+          highlightedElementRef.current = element;
+          highlightedElementIndexRef.current = highlightedIndex;
+          return;
+        }
+      }
 
       // Items added or removed around the highlighted one shift its index, so the tab stop would
       // otherwise move to a different item and navigation would resume from the wrong position.
