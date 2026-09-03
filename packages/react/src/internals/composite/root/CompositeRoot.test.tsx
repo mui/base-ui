@@ -1225,6 +1225,14 @@ describe('Composite', () => {
           <button onClick={() => setHighlightedIndex(2)}>highlight</button>
           <button onClick={() => setHighlightedIndex(-1)}>clear</button>
           <button onClick={() => setShowLastItem(false)}>remove</button>
+          <button
+            onClick={() => {
+              setHighlightedIndex(2);
+              setShowLastItem(false);
+            }}
+          >
+            highlight and remove
+          </button>
           <CompositeRoot
             highlightedIndex={highlightedIndex}
             onHighlightedIndexChange={setHighlightedIndex}
@@ -1246,6 +1254,19 @@ describe('Composite', () => {
 
       fireEvent.click(screen.getByRole('button', { name: 'highlight' }));
       fireEvent.click(screen.getByRole('button', { name: 'remove' }));
+
+      expect(screen.queryByTestId('3')).toBeNull();
+      expect(screen.getByTestId('2')).toHaveAttribute('tabindex', '0');
+      expect(screen.getByTestId('1')).toHaveAttribute('tabindex', '-1');
+    });
+
+    it('keeps a directly controlled tab stop when the items change in the same commit', async () => {
+      await render(<App />);
+
+      act(() => screen.getByTestId('1').focus());
+      expect(screen.getByTestId('1')).toHaveAttribute('tabindex', '0');
+
+      fireEvent.click(screen.getByRole('button', { name: 'highlight and remove' }));
 
       expect(screen.queryByTestId('3')).toBeNull();
       expect(screen.getByTestId('2')).toHaveAttribute('tabindex', '0');

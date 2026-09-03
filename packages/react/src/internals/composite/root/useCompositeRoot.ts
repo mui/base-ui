@@ -123,7 +123,8 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
       const elements = elementsRef.current;
 
       if (highlightedIndex !== highlightedElementIndexRef.current) {
-        // Direct controlled changes replace the cache; missing targets use the normal fallback.
+        // Direct controlled changes replace the cache; missing targets fall through to the
+        // reconciliation below.
         const element = elements[highlightedIndex];
         if (element) {
           highlightedElementRef.current = element;
