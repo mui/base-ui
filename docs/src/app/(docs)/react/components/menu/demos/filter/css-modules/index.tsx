@@ -24,7 +24,7 @@ export default function ExampleMenuFilter() {
                 </Menu.FilterClear>
               </div>
               <Menu.FilterEmpty className={styles.Empty}>No actions found.</Menu.FilterEmpty>
-              <Menu.FilterList className={styles.List}>
+              <Menu.List className={styles.List}>
                 <Menu.Group className={styles.Section}>
                   <Menu.GroupLabel className={styles.GroupLabel}>File</Menu.GroupLabel>
                   <Menu.Item className={styles.Item}>New file</Menu.Item>
@@ -102,7 +102,7 @@ export default function ExampleMenuFilter() {
                     <span className={styles.ChoiceText}>Keep available offline</span>
                   </Menu.CheckboxItem>
                 </Menu.Group>
-              </Menu.FilterList>
+              </Menu.List>
             </Menu.Popup>
           </Menu.Positioner>
         </Menu.Portal>
@@ -145,13 +145,13 @@ function FilterableSubmenu(props: FilterableSubmenuProps) {
                 </Menu.FilterClear>
               </div>
               <Menu.FilterEmpty className={styles.Empty}>{props.emptyText}</Menu.FilterEmpty>
-              <Menu.FilterList className={`${styles.List} ${styles.SubmenuList}`}>
+              <Menu.List className={`${styles.List} ${styles.SubmenuList}`}>
                 {props.options.map((option) => (
                   <Menu.Item key={option} className={styles.Item}>
                     {option}
                   </Menu.Item>
                 ))}
-              </Menu.FilterList>
+              </Menu.List>
             </Menu.Popup>
           </Menu.Positioner>
         </Menu.Portal>

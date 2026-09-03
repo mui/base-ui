@@ -16,9 +16,9 @@ describe('<Menu.FilterStatus />', () => {
               <Menu.Popup>
                 <Menu.FilterInput aria-label="Filter fruit" />
                 <Menu.FilterStatus data-testid="status">{props.children}</Menu.FilterStatus>
-                <Menu.FilterList>
+                <Menu.List>
                   <Menu.Item>Apple</Menu.Item>
-                </Menu.FilterList>
+                </Menu.List>
               </Menu.Popup>
             </Menu.Positioner>
           </Menu.Portal>

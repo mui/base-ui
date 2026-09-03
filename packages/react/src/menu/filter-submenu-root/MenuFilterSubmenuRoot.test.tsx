@@ -40,10 +40,10 @@ describe('<Menu.FilterProvider><Menu.SubmenuRoot/></Menu.FilterProvider>', () =>
                     <Menu.Positioner>
                       <Menu.Popup>
                         <Menu.FilterInput aria-label="Filter folders" />
-                        <Menu.FilterList data-testid="submenu-list">
+                        <Menu.List data-testid="submenu-list">
                           <Menu.Item>Projects</Menu.Item>
                           <Menu.Item>Archive</Menu.Item>
-                        </Menu.FilterList>
+                        </Menu.List>
                       </Menu.Popup>
                     </Menu.Positioner>
                   </Menu.Portal>
@@ -72,7 +72,7 @@ describe('<Menu.FilterProvider><Menu.SubmenuRoot/></Menu.FilterProvider>', () =>
                 <Menu.Positioner>
                   <Menu.Popup>
                     <Menu.FilterInput aria-label="Filter actions" />
-                    <Menu.FilterList>
+                    <Menu.List>
                       <Menu.FilterProvider
                         inputValue={inputValue}
                         onInputValueChange={(nextValue, eventDetails) => {
@@ -86,16 +86,16 @@ describe('<Menu.FilterProvider><Menu.SubmenuRoot/></Menu.FilterProvider>', () =>
                             <Menu.Positioner>
                               <Menu.Popup>
                                 <Menu.FilterInput aria-label="Filter folders" />
-                                <Menu.FilterList>
+                                <Menu.List>
                                   <Menu.Item>Projects</Menu.Item>
                                   <Menu.Item>Archive</Menu.Item>
-                                </Menu.FilterList>
+                                </Menu.List>
                               </Menu.Popup>
                             </Menu.Positioner>
                           </Menu.Portal>
                         </Menu.SubmenuRoot>
                       </Menu.FilterProvider>
-                    </Menu.FilterList>
+                    </Menu.List>
                   </Menu.Popup>
                 </Menu.Positioner>
               </Menu.Portal>
@@ -128,7 +128,7 @@ describe('<Menu.FilterProvider><Menu.SubmenuRoot/></Menu.FilterProvider>', () =>
                 <Menu.Positioner>
                   <Menu.Popup>
                     <Menu.FilterInput aria-label="Filter actions" />
-                    <Menu.FilterList>
+                    <Menu.List>
                       <Menu.FilterProvider
                         defaultInputValue="pro"
                         onInputValueChange={(_, eventDetails) => eventDetails.cancel()}
@@ -139,15 +139,15 @@ describe('<Menu.FilterProvider><Menu.SubmenuRoot/></Menu.FilterProvider>', () =>
                             <Menu.Positioner>
                               <Menu.Popup>
                                 <Menu.FilterInput aria-label="Filter folders" />
-                                <Menu.FilterList>
+                                <Menu.List>
                                   <Menu.Item>Projects</Menu.Item>
-                                </Menu.FilterList>
+                                </Menu.List>
                               </Menu.Popup>
                             </Menu.Positioner>
                           </Menu.Portal>
                         </Menu.SubmenuRoot>
                       </Menu.FilterProvider>
-                    </Menu.FilterList>
+                    </Menu.List>
                   </Menu.Popup>
                 </Menu.Positioner>
               </Menu.Portal>
@@ -287,10 +287,10 @@ describe('<Menu.FilterProvider><Menu.SubmenuRoot/></Menu.FilterProvider>', () =>
                       <Menu.Positioner>
                         <Menu.Popup>
                           <Menu.FilterInput aria-label="Filter folders" />
-                          <Menu.FilterList>
+                          <Menu.List>
                             <Menu.Item>Projects</Menu.Item>
                             <Menu.Item>Archive</Menu.Item>
-                          </Menu.FilterList>
+                          </Menu.List>
                         </Menu.Popup>
                       </Menu.Positioner>
                     </Menu.Portal>

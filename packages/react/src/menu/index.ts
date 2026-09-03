@@ -22,7 +22,7 @@ export type * from './viewport/MenuViewport';
 export type * from './filter-provider/MenuFilterProvider';
 export type { MenuFilterFunction } from './filter-root/MenuFilterRoot';
 export type * from './filter-input/MenuFilterInput';
-export type * from './filter-list/MenuFilterList';
+export type * from './list/MenuList';
 export type * from './filter-clear/MenuFilterClear';
 export type * from './filter-empty/MenuFilterEmpty';
 export type * from './filter-status/MenuFilterStatus';

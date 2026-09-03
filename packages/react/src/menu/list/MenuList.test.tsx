@@ -4,7 +4,7 @@ import { expect, vi, describe, beforeEach, it } from 'vitest';
 import { createRenderer, resetBrowserPointer } from '#test-utils';
 import { Menu } from '@base-ui/react/menu';
 
-describe('<Menu.FilterList />', () => {
+describe('<Menu.List />', () => {
   beforeEach(resetBrowserPointer);
 
   const { render } = createRenderer();
@@ -18,10 +18,10 @@ describe('<Menu.FilterList />', () => {
             <Menu.Positioner>
               <Menu.Popup>
                 <Menu.FilterInput aria-label="Filter fruit" />
-                <Menu.FilterList data-testid="list">
+                <Menu.List data-testid="list">
                   <Menu.Item>Apple</Menu.Item>
                   <Menu.Item>Banana</Menu.Item>
-                </Menu.FilterList>
+                </Menu.List>
               </Menu.Popup>
             </Menu.Positioner>
           </Menu.Portal>
@@ -58,10 +58,10 @@ describe('<Menu.FilterList />', () => {
               <Menu.Positioner>
                 <Menu.Popup>
                   <Menu.FilterInput aria-label="Filter fruit" />
-                  <Menu.FilterList data-testid="list">
+                  <Menu.List data-testid="list">
                     <Menu.Item onClick={props.onPress}>Apple</Menu.Item>
                     <Menu.Item>Banana</Menu.Item>
-                  </Menu.FilterList>
+                  </Menu.List>
                 </Menu.Popup>
               </Menu.Positioner>
             </Menu.Portal>
@@ -162,10 +162,10 @@ describe('<Menu.FilterList />', () => {
       <Menu.FilterProvider inline>
         <Menu.Root open>
           <Menu.FilterInput aria-label="Filter fruit" />
-          <Menu.FilterList data-testid="list">
+          <Menu.List data-testid="list">
             <Menu.Item>Apple</Menu.Item>
             <Menu.Item>Banana</Menu.Item>
-          </Menu.FilterList>
+          </Menu.List>
         </Menu.Root>
       </Menu.FilterProvider>,
     );
@@ -199,9 +199,9 @@ describe('<Menu.FilterList />', () => {
         <Menu.FilterProvider inline>
           <Menu.Root open onOpenChange={onOpenChange}>
             <Menu.FilterInput aria-label="Filter fruit" />
-            <Menu.FilterList>
+            <Menu.List>
               <Menu.Item>Apple</Menu.Item>
-            </Menu.FilterList>
+            </Menu.List>
           </Menu.Root>
         </Menu.FilterProvider>
       </div>,

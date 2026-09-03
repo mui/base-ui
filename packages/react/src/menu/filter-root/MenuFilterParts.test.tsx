@@ -28,7 +28,7 @@ describe('Menu filter parts conformance', () => {
   }
 
   function renderInList(node: React.ReactNode) {
-    return renderInPopup(<Menu.FilterList>{node}</Menu.FilterList>);
+    return renderInPopup(<Menu.List>{node}</Menu.List>);
   }
 
   describeConformance(<Menu.Trigger />, () => ({
@@ -63,7 +63,7 @@ describe('Menu filter parts conformance', () => {
     render: (node) => renderInPopup(node),
   }));
 
-  describeConformance(<Menu.FilterList />, () => ({
+  describeConformance(<Menu.List />, () => ({
     refInstanceof: window.HTMLDivElement,
     render: (node) => renderInPopup(node),
   }));

@@ -146,6 +146,32 @@ type MenuTriggerState = {
 };
 ```
 
+### List
+
+A container for the items of a filterable menu, rendered inside `Menu.Popup` next to
+`Menu.FilterInput`.
+Requires the menu to be wrapped in `Menu.FilterProvider`.
+Renders a `<div>` element with a `menu` role.
+
+**List Props:**
+
+| Prop      | Type                                                                                    | Default | Description                                                                                                                                                                                   |
+| :-------- | :-------------------------------------------------------------------------------------- | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| id        | `string`                                                                                | -       | -                                                                                                                                                                                             |
+| className | `string \| ((state: Menu.List.State) => string \| undefined)`                           | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
+| style     | `React.CSSProperties \| ((state: Menu.List.State) => React.CSSProperties \| undefined)` | -       | Style applied to the element, or a function that&#xA;returns a style object based on the component's state.                                                                                   |
+| render    | `ReactElement \| ((props: HTMLProps, state: Menu.List.State) => ReactElement)`          | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
+
+### List.Props
+
+Re-export of [List](#list) props.
+
+### List.State
+
+```typescript
+type MenuListState = {};
+```
+
 ### Portal
 
 A portal element that moves the popup to a different part of the DOM.
@@ -1122,36 +1148,10 @@ type MenuFilterInputState = {
 };
 ```
 
-### FilterList
-
-A container for the items of a filterable menu, rendered inside `Menu.Popup` next to
-`Menu.FilterInput`.
-Requires the menu to be wrapped in `Menu.FilterProvider`.
-Renders a `<div>` element with a `menu` role.
-
-**FilterList Props:**
-
-| Prop      | Type                                                                                          | Default | Description                                                                                                                                                                                   |
-| :-------- | :-------------------------------------------------------------------------------------------- | :------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| id        | `string`                                                                                      | -       | -                                                                                                                                                                                             |
-| className | `string \| ((state: Menu.FilterList.State) => string \| undefined)`                           | -       | CSS class applied to the element, or a function that&#xA;returns a class based on the component's state.                                                                                      |
-| style     | `React.CSSProperties \| ((state: Menu.FilterList.State) => React.CSSProperties \| undefined)` | -       | Style applied to the element, or a function that&#xA;returns a style object based on the component's state.                                                                                   |
-| render    | `ReactElement \| ((props: HTMLProps, state: Menu.FilterList.State) => ReactElement)`          | -       | Allows you to replace the component's HTML element&#xA;with a different tag, or compose it with another component. Accepts a `ReactElement` or a function that returns the element to render. |
-
-### FilterList.Props
-
-Re-export of [FilterList](#filterlist) props.
-
-### FilterList.State
-
-```typescript
-type MenuFilterListState = {};
-```
-
 ### FilterProvider
 
 Makes the menu directly inside it filterable: the popup can render `Menu.FilterInput`,
-`Menu.FilterList`, `Menu.FilterClear`, `Menu.FilterEmpty`, and `Menu.FilterStatus`, and the
+`Menu.List`, `Menu.FilterClear`, `Menu.FilterEmpty`, and `Menu.FilterStatus`, and the
 items filter against the query.
 Wrap it around `Menu.Root` or `Menu.SubmenuRoot`. A submenu doesn't inherit it; wrap the
 submenu's root in its own provider to filter it too. This is the only part that bundles the
@@ -1430,12 +1430,12 @@ type PayloadChildRenderFunction = (arg: { payload: unknown | undefined }) => Rea
 - `Menu.createHandle`
 - `Menu.FilterProvider`: `Menu.FilterProvider`, `Menu.FilterProvider.Props`
 - `Menu.FilterInput`: `Menu.FilterInput`, `Menu.FilterInput.State`, `Menu.FilterInput.Props`
-- `Menu.FilterList`: `Menu.FilterList`, `Menu.FilterList.Props`, `Menu.FilterList.State`
+- `Menu.List`: `Menu.List`, `Menu.List.Props`, `Menu.List.State`
 - `Menu.FilterClear`: `Menu.FilterClear`, `Menu.FilterClear.State`, `Menu.FilterClear.Props`
 - `Menu.FilterEmpty`: `Menu.FilterEmpty`, `Menu.FilterEmpty.State`, `Menu.FilterEmpty.Props`
 - `Menu.FilterStatus`: `Menu.FilterStatus`, `Menu.FilterStatus.State`, `Menu.FilterStatus.Props`
 - `Menu.useFilter`
-- `Default`: `MenuFilterFunction`, `MenuHandleOptions`, `MenuFilter`, `MenuFilterOptions`, `MenuRootState`, `MenuRootProps`, `MenuRootActions`, `MenuRootChangeEventReason`, `MenuRootChangeEventDetails`, `MenuRootOrientation`, `MenuParent`, `MenuArrowState`, `MenuArrowProps`, `MenuBackdropState`, `MenuBackdropProps`, `MenuCheckboxItemState`, `MenuCheckboxItemProps`, `MenuCheckboxItemChangeEventReason`, `MenuCheckboxItemChangeEventDetails`, `MenuCheckboxItemIndicatorProps`, `MenuCheckboxItemIndicatorState`, `MenuGroupLabelProps`, `MenuGroupLabelState`, `MenuGroupProps`, `MenuGroupState`, `MenuItemState`, `MenuItemProps`, `MenuLinkItemState`, `MenuLinkItemProps`, `MenuPopupProps`, `MenuPopupState`, `MenuPortalState`, `MenuPortalProps`, `MenuPositionerState`, `MenuPositionerProps`, `MenuRadioGroupProps`, `MenuRadioGroupState`, `MenuRadioGroupChangeEventReason`, `MenuRadioGroupChangeEventDetails`, `MenuRadioItemState`, `MenuRadioItemProps`, `MenuRadioItemIndicatorProps`, `MenuRadioItemIndicatorState`, `MenuSubmenuRootProps`, `MenuSubmenuRootState`, `MenuSubmenuRootChangeEventReason`, `MenuSubmenuRootChangeEventDetails`, `MenuTriggerProps`, `MenuTriggerState`, `MenuSubmenuTriggerState`, `MenuSubmenuTriggerProps`, `MenuViewportState`, `MenuViewportProps`, `MenuFilterProviderProps`, `MenuFilterInputState`, `MenuFilterInputProps`, `MenuFilterListState`, `MenuFilterListProps`, `MenuFilterClearState`, `MenuFilterClearProps`, `MenuFilterEmptyState`, `MenuFilterEmptyProps`, `MenuFilterStatusState`, `MenuFilterStatusProps`
+- `Default`: `MenuFilterFunction`, `MenuHandleOptions`, `MenuFilter`, `MenuFilterOptions`, `MenuRootState`, `MenuRootProps`, `MenuRootActions`, `MenuRootChangeEventReason`, `MenuRootChangeEventDetails`, `MenuRootOrientation`, `MenuParent`, `MenuArrowState`, `MenuArrowProps`, `MenuBackdropState`, `MenuBackdropProps`, `MenuCheckboxItemState`, `MenuCheckboxItemProps`, `MenuCheckboxItemChangeEventReason`, `MenuCheckboxItemChangeEventDetails`, `MenuCheckboxItemIndicatorProps`, `MenuCheckboxItemIndicatorState`, `MenuGroupLabelProps`, `MenuGroupLabelState`, `MenuGroupProps`, `MenuGroupState`, `MenuItemState`, `MenuItemProps`, `MenuLinkItemState`, `MenuLinkItemProps`, `MenuPopupProps`, `MenuPopupState`, `MenuPortalState`, `MenuPortalProps`, `MenuPositionerState`, `MenuPositionerProps`, `MenuRadioGroupProps`, `MenuRadioGroupState`, `MenuRadioGroupChangeEventReason`, `MenuRadioGroupChangeEventDetails`, `MenuRadioItemState`, `MenuRadioItemProps`, `MenuRadioItemIndicatorProps`, `MenuRadioItemIndicatorState`, `MenuSubmenuRootProps`, `MenuSubmenuRootState`, `MenuSubmenuRootChangeEventReason`, `MenuSubmenuRootChangeEventDetails`, `MenuTriggerProps`, `MenuTriggerState`, `MenuSubmenuTriggerState`, `MenuSubmenuTriggerProps`, `MenuViewportState`, `MenuViewportProps`, `MenuFilterProviderProps`, `MenuFilterInputState`, `MenuFilterInputProps`, `MenuListState`, `MenuListProps`, `MenuFilterClearState`, `MenuFilterClearProps`, `MenuFilterEmptyState`, `MenuFilterEmptyProps`, `MenuFilterStatusState`, `MenuFilterStatusProps`
 
 ## Canonical Types
 
@@ -1492,8 +1492,8 @@ Maps `Canonical`: `Alias` — Use Canonical when its namespace is already import
 - `Menu.FilterProvider.Props`: `MenuFilterProviderProps`
 - `Menu.FilterInput.State`: `MenuFilterInputState`
 - `Menu.FilterInput.Props`: `MenuFilterInputProps`
-- `Menu.FilterList.Props`: `MenuFilterListProps`
-- `Menu.FilterList.State`: `MenuFilterListState`
+- `Menu.List.Props`: `MenuListProps`
+- `Menu.List.State`: `MenuListState`
 - `Menu.FilterClear.State`: `MenuFilterClearState`
 - `Menu.FilterClear.Props`: `MenuFilterClearProps`
 - `Menu.FilterEmpty.State`: `MenuFilterEmptyState`

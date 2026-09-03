@@ -90,7 +90,7 @@ export default function ExampleAsyncMenuFilter() {
               {!isPending && !error && (
                 <Menu.FilterEmpty className={styles.Empty}>No results found.</Menu.FilterEmpty>
               )}
-              <Menu.FilterList className={styles.List}>
+              <Menu.List className={styles.List}>
                 {searchResults.groups.map((group) => (
                   <Menu.Group key={group.label}>
                     <Menu.GroupLabel className={styles.GroupLabel}>{group.label}</Menu.GroupLabel>
@@ -101,7 +101,7 @@ export default function ExampleAsyncMenuFilter() {
                     ))}
                   </Menu.Group>
                 ))}
-              </Menu.FilterList>
+              </Menu.List>
               <Menu.FilterStatus className={styles.Status}>{status}</Menu.FilterStatus>
             </Menu.Popup>
           </Menu.Positioner>
