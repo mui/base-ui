@@ -283,6 +283,56 @@ describe('<ContextMenu.Root />', () => {
     });
   });
 
+  describe('data-instant', () => {
+    it('does not mark the popup as instant when opened with a mouse right-click', async () => {
+      await render(
+        <ContextMenu.Root>
+          <ContextMenu.Trigger data-testid="context-trigger">Surface</ContextMenu.Trigger>
+          <ContextMenu.Portal>
+            <ContextMenu.Positioner>
+              <ContextMenu.Popup data-testid="context-popup">
+                <ContextMenu.Item>Action</ContextMenu.Item>
+              </ContextMenu.Popup>
+            </ContextMenu.Positioner>
+          </ContextMenu.Portal>
+        </ContextMenu.Root>,
+      );
+
+      // A mouse `contextmenu` event reports `detail === 0` like a keyboard click, but it
+      // carries `button === 2` — the popup must not be classified as an instant open.
+      fireEvent.contextMenu(screen.getByTestId('context-trigger'), {
+        clientX: 10,
+        clientY: 10,
+        button: 2,
+      });
+
+      const popup = await screen.findByTestId('context-popup');
+      expect(popup).not.toHaveAttribute('data-instant');
+    });
+
+    it('marks the popup as instant when opened from the keyboard', async () => {
+      await render(
+        <ContextMenu.Root>
+          <ContextMenu.Trigger data-testid="context-trigger">Surface</ContextMenu.Trigger>
+          <ContextMenu.Portal>
+            <ContextMenu.Positioner>
+              <ContextMenu.Popup data-testid="context-popup">
+                <ContextMenu.Item>Action</ContextMenu.Item>
+              </ContextMenu.Popup>
+            </ContextMenu.Positioner>
+          </ContextMenu.Portal>
+        </ContextMenu.Root>,
+      );
+
+      // Shift+F10 / the Menu key raise a `contextmenu` event with no pointer origin
+      // (`button === 0`, zeroed coordinates) — this is a genuine keyboard activation.
+      fireEvent.contextMenu(screen.getByTestId('context-trigger'), { button: 0 });
+
+      const popup = await screen.findByTestId('context-popup');
+      expect(popup).toHaveAttribute('data-instant', 'click');
+    });
+  });
+
   describe.skipIf(isJSDOM)('prop: collisionAvoidance', () => {
     const popupHeight = 100;
     const popupWidth = 150;
