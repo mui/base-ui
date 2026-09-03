@@ -99,9 +99,12 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
 
   const highlightedIndex = externalHighlightedIndex ?? internalHighlightedIndex;
   const highlightedElementIndexRef = React.useRef(highlightedIndex);
+  const hasPendingIndexChangeRef = React.useRef(false);
   const onHighlightedIndexChange = useStableCallback((index, shouldScrollIntoView = false) => {
     highlightedElementRef.current = elementsRef.current[index] ?? null;
     highlightedElementIndexRef.current = index;
+    // A change that will re-render only settles after the list may already have flushed.
+    hasPendingIndexChangeRef.current = index !== highlightedIndex;
     (externalSetHighlightedIndex ?? internalSetHighlightedIndex)(index);
     if (shouldScrollIntoView) {
       const newActiveItem = elementsRef.current[index];
@@ -124,9 +127,13 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
 
       const elements = elementsRef.current;
 
-      if (highlightedIndex !== highlightedElementIndexRef.current) {
+      if (
+        !hasPendingIndexChangeRef.current &&
+        highlightedIndex !== highlightedElementIndexRef.current
+      ) {
         // Direct controlled changes replace the cache; missing targets fall through to the
-        // reconciliation below.
+        // reconciliation below. A pending `onHighlightedIndexChange` call from this commit has
+        // already refreshed the cache and outranks the rendered index.
         const element = elements[highlightedIndex];
         if (element) {
           highlightedElementRef.current = element;
@@ -182,6 +189,11 @@ export function useCompositeRoot(params: UseCompositeRootParameters) {
     }
 
     scrollIntoViewIfNeeded(rootRef.current, activeItem, direction, orientation);
+  });
+
+  useIsoLayoutEffect(() => {
+    // Runs after the list flushed this commit's map changes.
+    hasPendingIndexChangeRef.current = false;
   });
 
   useIsoLayoutEffect(() => {

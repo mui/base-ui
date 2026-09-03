@@ -9,6 +9,7 @@ import {
   waitFor,
 } from '@mui/internal-test-utils';
 import { isJSDOM } from '#test-utils';
+import { useIsoLayoutEffect } from '@base-ui/utils/useIsoLayoutEffect';
 import { DirectionProvider } from '../../../direction-provider';
 import { CompositeItem } from '../item/CompositeItem';
 import { type CompositeMetadata } from '../list/CompositeList';
@@ -1233,6 +1234,72 @@ describe('Composite', () => {
       await setProps({ showLast: false });
 
       expect(screen.getByTestId('1')).toHaveAttribute('tabindex', '0');
+      expect(screen.getByTestId('2')).toHaveAttribute('tabindex', '-1');
+    });
+  });
+
+  describe('focus from a child layout effect', () => {
+    function Item({ id, focusMe }: { id: string; focusMe?: boolean }) {
+      const ref = React.useRef<HTMLDivElement>(null);
+      useIsoLayoutEffect(() => {
+        if (focusMe) {
+          ref.current?.focus();
+        }
+      }, [focusMe]);
+      return <CompositeItem refs={[ref]} data-testid={id} />;
+    }
+
+    it('keeps the tab stop on the item focused while the focused item is removed', async () => {
+      function App() {
+        const [showFirst, setShowFirst] = React.useState(true);
+        return (
+          <React.Fragment>
+            <button onClick={() => setShowFirst(false)}>remove</button>
+            <CompositeRoot>
+              {showFirst && <Item id="1" />}
+              <Item id="2" />
+              <Item id="3" focusMe={!showFirst} />
+            </CompositeRoot>
+          </React.Fragment>
+        );
+      }
+
+      await render(<App />);
+      act(() => screen.getByTestId('1').focus());
+
+      fireEvent.click(screen.getByRole('button', { name: 'remove' }));
+
+      expect(screen.getByTestId('3')).toHaveFocus();
+      expect(screen.getByTestId('3')).toHaveAttribute('tabindex', '0');
+      expect(screen.getByTestId('2')).toHaveAttribute('tabindex', '-1');
+    });
+
+    it('keeps the tab stop on the item focused while the focused item is removed (controlled)', async () => {
+      function App() {
+        const [showFirst, setShowFirst] = React.useState(true);
+        const [highlightedIndex, setHighlightedIndex] = React.useState(0);
+        return (
+          <React.Fragment>
+            <button onClick={() => setShowFirst(false)}>remove</button>
+            <CompositeRoot
+              highlightedIndex={highlightedIndex}
+              onHighlightedIndexChange={setHighlightedIndex}
+            >
+              {showFirst && <Item id="1" />}
+              <Item id="2" />
+              <Item id="3" focusMe={!showFirst} />
+            </CompositeRoot>
+          </React.Fragment>
+        );
+      }
+
+      await render(<App />);
+      act(() => screen.getByTestId('1').focus());
+
+      fireEvent.click(screen.getByRole('button', { name: 'remove' }));
+
+      expect(screen.getByTestId('3')).toHaveFocus();
+      expect(screen.getByTestId('3')).toHaveAttribute('tabindex', '0');
       expect(screen.getByTestId('2')).toHaveAttribute('tabindex', '-1');
     });
   });
