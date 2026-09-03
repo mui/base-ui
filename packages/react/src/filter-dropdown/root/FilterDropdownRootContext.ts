@@ -46,8 +46,8 @@ export interface FilterDropdownItemContext {
 
 function throwMissingFilterRoot(): never {
   throw new Error(
-    'Base UI: Filter parts must be placed within a filterable menu. Use <Menu.FilterRoot> or ' +
-      '<Menu.FilterSubmenuRoot> in place of the plain root; a plain menu cannot filter.',
+    'Base UI: Filter parts must be placed within a filterable menu. Wrap <Menu.Root> or ' +
+      '<Menu.SubmenuRoot> in <Menu.FilterProvider>; a plain menu cannot filter.',
   );
 }
 

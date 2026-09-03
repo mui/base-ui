@@ -17,14 +17,14 @@ vi.mock('@base-ui/utils/platform', async () => {
   };
 });
 
-describe('<Menu.FilterSubmenuRoot />', () => {
+describe('<Menu.FilterProvider><Menu.SubmenuRoot/></Menu.FilterProvider>', () => {
   beforeEach(resetBrowserPointer);
 
   const { render } = createRenderer();
 
   /** A filterable submenu whose parent is a plain, roving-focus `Menu.Root`. */
   function PlainParentMenu(props: {
-    submenuProps?: Partial<React.ComponentProps<typeof Menu.FilterSubmenuRoot>>;
+    submenuProps?: Partial<Menu.FilterProvider.Props & Menu.SubmenuRoot.Props>;
   }) {
     return (
       <Menu.Root open>
@@ -33,20 +33,22 @@ describe('<Menu.FilterSubmenuRoot />', () => {
           <Menu.Positioner>
             <Menu.Popup>
               <Menu.Item>Rename</Menu.Item>
-              <Menu.FilterSubmenuRoot {...props.submenuProps}>
-                <Menu.SubmenuTrigger data-testid="submenu-trigger">Move to</Menu.SubmenuTrigger>
-                <Menu.Portal>
-                  <Menu.Positioner>
-                    <Menu.Popup>
-                      <Menu.FilterInput aria-label="Filter folders" />
-                      <Menu.FilterList data-testid="submenu-list">
-                        <Menu.Item>Projects</Menu.Item>
-                        <Menu.Item>Archive</Menu.Item>
-                      </Menu.FilterList>
-                    </Menu.Popup>
-                  </Menu.Positioner>
-                </Menu.Portal>
-              </Menu.FilterSubmenuRoot>
+              <Menu.FilterProvider>
+                <Menu.SubmenuRoot {...props.submenuProps}>
+                  <Menu.SubmenuTrigger data-testid="submenu-trigger">Move to</Menu.SubmenuTrigger>
+                  <Menu.Portal>
+                    <Menu.Positioner>
+                      <Menu.Popup>
+                        <Menu.FilterInput aria-label="Filter folders" />
+                        <Menu.FilterList data-testid="submenu-list">
+                          <Menu.Item>Projects</Menu.Item>
+                          <Menu.Item>Archive</Menu.Item>
+                        </Menu.FilterList>
+                      </Menu.Popup>
+                    </Menu.Positioner>
+                  </Menu.Portal>
+                </Menu.SubmenuRoot>
+              </Menu.FilterProvider>
               <Menu.Item>Delete</Menu.Item>
             </Menu.Popup>
           </Menu.Positioner>
@@ -63,39 +65,42 @@ describe('<Menu.FilterSubmenuRoot />', () => {
         const [inputValue, setInputValue] = React.useState('pro');
 
         return (
-          <Menu.FilterRoot defaultOpen>
-            <Menu.Trigger>Actions</Menu.Trigger>
-            <Menu.Portal>
-              <Menu.Positioner>
-                <Menu.Popup>
-                  <Menu.FilterInput aria-label="Filter actions" />
-                  <Menu.FilterList>
-                    <Menu.FilterSubmenuRoot
-                      defaultOpen
-                      inputValue={inputValue}
-                      onInputValueChange={(nextValue, eventDetails) => {
-                        onInputValueChange(nextValue, eventDetails.reason);
-                        setInputValue(nextValue);
-                      }}
-                    >
-                      <Menu.SubmenuTrigger>Move to</Menu.SubmenuTrigger>
-                      <Menu.Portal>
-                        <Menu.Positioner>
-                          <Menu.Popup>
-                            <Menu.FilterInput aria-label="Filter folders" />
-                            <Menu.FilterList>
-                              <Menu.Item>Projects</Menu.Item>
-                              <Menu.Item>Archive</Menu.Item>
-                            </Menu.FilterList>
-                          </Menu.Popup>
-                        </Menu.Positioner>
-                      </Menu.Portal>
-                    </Menu.FilterSubmenuRoot>
-                  </Menu.FilterList>
-                </Menu.Popup>
-              </Menu.Positioner>
-            </Menu.Portal>
-          </Menu.FilterRoot>
+          <Menu.FilterProvider>
+            <Menu.Root defaultOpen>
+              <Menu.Trigger>Actions</Menu.Trigger>
+              <Menu.Portal>
+                <Menu.Positioner>
+                  <Menu.Popup>
+                    <Menu.FilterInput aria-label="Filter actions" />
+                    <Menu.FilterList>
+                      <Menu.FilterProvider
+                        inputValue={inputValue}
+                        onInputValueChange={(nextValue, eventDetails) => {
+                          onInputValueChange(nextValue, eventDetails.reason);
+                          setInputValue(nextValue);
+                        }}
+                      >
+                        <Menu.SubmenuRoot defaultOpen>
+                          <Menu.SubmenuTrigger>Move to</Menu.SubmenuTrigger>
+                          <Menu.Portal>
+                            <Menu.Positioner>
+                              <Menu.Popup>
+                                <Menu.FilterInput aria-label="Filter folders" />
+                                <Menu.FilterList>
+                                  <Menu.Item>Projects</Menu.Item>
+                                  <Menu.Item>Archive</Menu.Item>
+                                </Menu.FilterList>
+                              </Menu.Popup>
+                            </Menu.Positioner>
+                          </Menu.Portal>
+                        </Menu.SubmenuRoot>
+                      </Menu.FilterProvider>
+                    </Menu.FilterList>
+                  </Menu.Popup>
+                </Menu.Positioner>
+              </Menu.Portal>
+            </Menu.Root>
+          </Menu.FilterProvider>
         );
       }
 
@@ -116,35 +121,38 @@ describe('<Menu.FilterSubmenuRoot />', () => {
     it('keeps the uncontrolled query when the change is canceled', async () => {
       function CancelingSubmenu() {
         return (
-          <Menu.FilterRoot defaultOpen>
-            <Menu.Trigger>Actions</Menu.Trigger>
-            <Menu.Portal>
-              <Menu.Positioner>
-                <Menu.Popup>
-                  <Menu.FilterInput aria-label="Filter actions" />
-                  <Menu.FilterList>
-                    <Menu.FilterSubmenuRoot
-                      defaultOpen
-                      defaultInputValue="pro"
-                      onInputValueChange={(_, eventDetails) => eventDetails.cancel()}
-                    >
-                      <Menu.SubmenuTrigger>Move to</Menu.SubmenuTrigger>
-                      <Menu.Portal>
-                        <Menu.Positioner>
-                          <Menu.Popup>
-                            <Menu.FilterInput aria-label="Filter folders" />
-                            <Menu.FilterList>
-                              <Menu.Item>Projects</Menu.Item>
-                            </Menu.FilterList>
-                          </Menu.Popup>
-                        </Menu.Positioner>
-                      </Menu.Portal>
-                    </Menu.FilterSubmenuRoot>
-                  </Menu.FilterList>
-                </Menu.Popup>
-              </Menu.Positioner>
-            </Menu.Portal>
-          </Menu.FilterRoot>
+          <Menu.FilterProvider>
+            <Menu.Root defaultOpen>
+              <Menu.Trigger>Actions</Menu.Trigger>
+              <Menu.Portal>
+                <Menu.Positioner>
+                  <Menu.Popup>
+                    <Menu.FilterInput aria-label="Filter actions" />
+                    <Menu.FilterList>
+                      <Menu.FilterProvider
+                        defaultInputValue="pro"
+                        onInputValueChange={(_, eventDetails) => eventDetails.cancel()}
+                      >
+                        <Menu.SubmenuRoot defaultOpen>
+                          <Menu.SubmenuTrigger>Move to</Menu.SubmenuTrigger>
+                          <Menu.Portal>
+                            <Menu.Positioner>
+                              <Menu.Popup>
+                                <Menu.FilterInput aria-label="Filter folders" />
+                                <Menu.FilterList>
+                                  <Menu.Item>Projects</Menu.Item>
+                                </Menu.FilterList>
+                              </Menu.Popup>
+                            </Menu.Positioner>
+                          </Menu.Portal>
+                        </Menu.SubmenuRoot>
+                      </Menu.FilterProvider>
+                    </Menu.FilterList>
+                  </Menu.Popup>
+                </Menu.Positioner>
+              </Menu.Portal>
+            </Menu.Root>
+          </Menu.FilterProvider>
         );
       }
 
@@ -270,22 +278,24 @@ describe('<Menu.FilterSubmenuRoot />', () => {
             <Menu.Positioner>
               <Menu.Popup>
                 <Menu.Item>Rename</Menu.Item>
-                <Menu.FilterSubmenuRoot>
-                  <Menu.SubmenuTrigger delay={0} data-testid="submenu-trigger">
-                    Move to
-                  </Menu.SubmenuTrigger>
-                  <Menu.Portal>
-                    <Menu.Positioner>
-                      <Menu.Popup>
-                        <Menu.FilterInput aria-label="Filter folders" />
-                        <Menu.FilterList>
-                          <Menu.Item>Projects</Menu.Item>
-                          <Menu.Item>Archive</Menu.Item>
-                        </Menu.FilterList>
-                      </Menu.Popup>
-                    </Menu.Positioner>
-                  </Menu.Portal>
-                </Menu.FilterSubmenuRoot>
+                <Menu.FilterProvider>
+                  <Menu.SubmenuRoot>
+                    <Menu.SubmenuTrigger delay={0} data-testid="submenu-trigger">
+                      Move to
+                    </Menu.SubmenuTrigger>
+                    <Menu.Portal>
+                      <Menu.Positioner>
+                        <Menu.Popup>
+                          <Menu.FilterInput aria-label="Filter folders" />
+                          <Menu.FilterList>
+                            <Menu.Item>Projects</Menu.Item>
+                            <Menu.Item>Archive</Menu.Item>
+                          </Menu.FilterList>
+                        </Menu.Popup>
+                      </Menu.Positioner>
+                    </Menu.Portal>
+                  </Menu.SubmenuRoot>
+                </Menu.FilterProvider>
               </Menu.Popup>
             </Menu.Positioner>
           </Menu.Portal>

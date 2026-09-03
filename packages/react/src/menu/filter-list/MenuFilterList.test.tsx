@@ -11,20 +11,22 @@ describe('<Menu.FilterList />', () => {
 
   it('keeps virtual focus on the input without making the list tabbable', async () => {
     const { user } = await render(
-      <Menu.FilterRoot open>
-        <Menu.Trigger>Fruit</Menu.Trigger>
-        <Menu.Portal>
-          <Menu.Positioner>
-            <Menu.Popup>
-              <Menu.FilterInput aria-label="Filter fruit" />
-              <Menu.FilterList data-testid="list">
-                <Menu.Item>Apple</Menu.Item>
-                <Menu.Item>Banana</Menu.Item>
-              </Menu.FilterList>
-            </Menu.Popup>
-          </Menu.Positioner>
-        </Menu.Portal>
-      </Menu.FilterRoot>,
+      <Menu.FilterProvider>
+        <Menu.Root open>
+          <Menu.Trigger>Fruit</Menu.Trigger>
+          <Menu.Portal>
+            <Menu.Positioner>
+              <Menu.Popup>
+                <Menu.FilterInput aria-label="Filter fruit" />
+                <Menu.FilterList data-testid="list">
+                  <Menu.Item>Apple</Menu.Item>
+                  <Menu.Item>Banana</Menu.Item>
+                </Menu.FilterList>
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
+        </Menu.Root>
+      </Menu.FilterProvider>,
     );
 
     const input = screen.getByRole('searchbox', { name: 'Filter fruit' });
@@ -49,20 +51,22 @@ describe('<Menu.FilterList />', () => {
   describe('keys on a focused list', () => {
     function App(props: { onPress?: (() => void) | undefined }) {
       return (
-        <Menu.FilterRoot defaultOpen>
-          <Menu.Trigger>Fruit</Menu.Trigger>
-          <Menu.Portal>
-            <Menu.Positioner>
-              <Menu.Popup>
-                <Menu.FilterInput aria-label="Filter fruit" />
-                <Menu.FilterList data-testid="list">
-                  <Menu.Item onClick={props.onPress}>Apple</Menu.Item>
-                  <Menu.Item>Banana</Menu.Item>
-                </Menu.FilterList>
-              </Menu.Popup>
-            </Menu.Positioner>
-          </Menu.Portal>
-        </Menu.FilterRoot>
+        <Menu.FilterProvider>
+          <Menu.Root defaultOpen>
+            <Menu.Trigger>Fruit</Menu.Trigger>
+            <Menu.Portal>
+              <Menu.Positioner>
+                <Menu.Popup>
+                  <Menu.FilterInput aria-label="Filter fruit" />
+                  <Menu.FilterList data-testid="list">
+                    <Menu.Item onClick={props.onPress}>Apple</Menu.Item>
+                    <Menu.Item>Banana</Menu.Item>
+                  </Menu.FilterList>
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
+          </Menu.Root>
+        </Menu.FilterProvider>
       );
     }
 
@@ -155,13 +159,15 @@ describe('<Menu.FilterList />', () => {
 
   it('supports navigation when rendered inline without popup parts', async () => {
     const { user } = await render(
-      <Menu.FilterRoot inline open>
-        <Menu.FilterInput aria-label="Filter fruit" />
-        <Menu.FilterList data-testid="list">
-          <Menu.Item>Apple</Menu.Item>
-          <Menu.Item>Banana</Menu.Item>
-        </Menu.FilterList>
-      </Menu.FilterRoot>,
+      <Menu.FilterProvider inline>
+        <Menu.Root open>
+          <Menu.FilterInput aria-label="Filter fruit" />
+          <Menu.FilterList data-testid="list">
+            <Menu.Item>Apple</Menu.Item>
+            <Menu.Item>Banana</Menu.Item>
+          </Menu.FilterList>
+        </Menu.Root>
+      </Menu.FilterProvider>,
     );
 
     const input = screen.getByRole('searchbox', { name: 'Filter fruit' });
@@ -190,12 +196,14 @@ describe('<Menu.FilterList />', () => {
     const { user } = await render(
       <div>
         <button type="button">Outside</button>
-        <Menu.FilterRoot inline open onOpenChange={onOpenChange}>
-          <Menu.FilterInput aria-label="Filter fruit" />
-          <Menu.FilterList>
-            <Menu.Item>Apple</Menu.Item>
-          </Menu.FilterList>
-        </Menu.FilterRoot>
+        <Menu.FilterProvider inline>
+          <Menu.Root open onOpenChange={onOpenChange}>
+            <Menu.FilterInput aria-label="Filter fruit" />
+            <Menu.FilterList>
+              <Menu.Item>Apple</Menu.Item>
+            </Menu.FilterList>
+          </Menu.Root>
+        </Menu.FilterProvider>
       </div>,
     );
 

@@ -16,24 +16,26 @@ vi.mock('@base-ui/utils/safeReact', async (importOriginal) => {
   };
 });
 
-describe('<Menu.FilterRoot /> with the React 17 id fallback', () => {
+describe('<Menu.FilterProvider><Menu.Root/></Menu.FilterProvider> with the React 17 id fallback', () => {
   const { renderToString } = createRenderer();
 
   it('omits partial ids during SSR and wires relationships after hydration', async () => {
     const { hydrate } = renderToString(
-      <Menu.FilterRoot defaultOpen>
-        <Menu.Trigger>Actions</Menu.Trigger>
-        <Menu.Portal keepMounted>
-          <Menu.Positioner>
-            <Menu.Popup>
-              <Menu.FilterInput aria-label="Filter actions" />
-              <Menu.FilterList>
-                <Menu.Item>Rename</Menu.Item>
-              </Menu.FilterList>
-            </Menu.Popup>
-          </Menu.Positioner>
-        </Menu.Portal>
-      </Menu.FilterRoot>,
+      <Menu.FilterProvider>
+        <Menu.Root defaultOpen>
+          <Menu.Trigger>Actions</Menu.Trigger>
+          <Menu.Portal keepMounted>
+            <Menu.Positioner>
+              <Menu.Popup>
+                <Menu.FilterInput aria-label="Filter actions" />
+                <Menu.FilterList>
+                  <Menu.Item>Rename</Menu.Item>
+                </Menu.FilterList>
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
+        </Menu.Root>
+      </Menu.FilterProvider>,
     );
 
     expect(document.querySelector('[id*="undefined"]')).toBe(null);
@@ -56,31 +58,35 @@ describe('<Menu.FilterRoot /> with the React 17 id fallback', () => {
 
   it('registers a submenu trigger after fallback ids resolve', async () => {
     const { hydrate } = renderToString(
-      <Menu.FilterRoot defaultOpen>
-        <Menu.Trigger>Actions</Menu.Trigger>
-        <Menu.Portal keepMounted>
-          <Menu.Positioner>
-            <Menu.Popup>
-              <Menu.FilterInput aria-label="Filter actions" />
-              <Menu.FilterList>
-                <Menu.FilterSubmenuRoot>
-                  <Menu.SubmenuTrigger>More actions</Menu.SubmenuTrigger>
-                  <Menu.Portal keepMounted>
-                    <Menu.Positioner>
-                      <Menu.Popup>
-                        <Menu.FilterInput aria-label="Filter more actions" />
-                        <Menu.FilterList>
-                          <Menu.Item>Share</Menu.Item>
-                        </Menu.FilterList>
-                      </Menu.Popup>
-                    </Menu.Positioner>
-                  </Menu.Portal>
-                </Menu.FilterSubmenuRoot>
-              </Menu.FilterList>
-            </Menu.Popup>
-          </Menu.Positioner>
-        </Menu.Portal>
-      </Menu.FilterRoot>,
+      <Menu.FilterProvider>
+        <Menu.Root defaultOpen>
+          <Menu.Trigger>Actions</Menu.Trigger>
+          <Menu.Portal keepMounted>
+            <Menu.Positioner>
+              <Menu.Popup>
+                <Menu.FilterInput aria-label="Filter actions" />
+                <Menu.FilterList>
+                  <Menu.FilterProvider>
+                    <Menu.SubmenuRoot>
+                      <Menu.SubmenuTrigger>More actions</Menu.SubmenuTrigger>
+                      <Menu.Portal keepMounted>
+                        <Menu.Positioner>
+                          <Menu.Popup>
+                            <Menu.FilterInput aria-label="Filter more actions" />
+                            <Menu.FilterList>
+                              <Menu.Item>Share</Menu.Item>
+                            </Menu.FilterList>
+                          </Menu.Popup>
+                        </Menu.Positioner>
+                      </Menu.Portal>
+                    </Menu.SubmenuRoot>
+                  </Menu.FilterProvider>
+                </Menu.FilterList>
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
+        </Menu.Root>
+      </Menu.FilterProvider>,
     );
 
     hydrate();

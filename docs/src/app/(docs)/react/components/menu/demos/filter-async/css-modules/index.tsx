@@ -42,7 +42,7 @@ export default function ExampleAsyncMenuFilter() {
   }
 
   return (
-    <Menu.FilterRoot
+    <Menu.FilterProvider
       filter={null}
       inputValue={searchValue}
       onInputValueChange={(value, details) => {
@@ -62,49 +62,52 @@ export default function ExampleAsyncMenuFilter() {
 
         runSearch(value);
       }}
-      onOpenChangeComplete={(open) => {
-        if (!open) {
-          abortControllerRef.current?.abort();
-          setSearchValue('');
-          setSearchResults(SUGGESTIONS);
-          setError(null);
-        }
-      }}
     >
-      <Menu.Trigger className={styles.Trigger}>Search…</Menu.Trigger>
-      <Menu.Portal>
-        <Menu.Positioner className={styles.Positioner} sideOffset={8} align="start">
-          <Menu.Popup className={styles.Popup} aria-busy={isPending || undefined}>
-            <div className={styles.InputContainer}>
-              <Menu.FilterInput
-                className={styles.Input}
-                aria-label="Search apps, documents, and settings"
-                placeholder="e.g. Sales Report Q3"
-              />
-              <span className={styles.SpinnerSlot}>
-                {isPending && <span className={styles.Spinner} aria-hidden />}
-              </span>
-            </div>
-            {!isPending && !error && (
-              <Menu.FilterEmpty className={styles.Empty}>No results found.</Menu.FilterEmpty>
-            )}
-            <Menu.FilterList className={styles.List}>
-              {searchResults.groups.map((group) => (
-                <Menu.Group key={group.label}>
-                  <Menu.GroupLabel className={styles.GroupLabel}>{group.label}</Menu.GroupLabel>
-                  {group.items.map((item) => (
-                    <Menu.Item key={item} className={styles.Item}>
-                      {item}
-                    </Menu.Item>
-                  ))}
-                </Menu.Group>
-              ))}
-            </Menu.FilterList>
-            <Menu.FilterStatus className={styles.Status}>{status}</Menu.FilterStatus>
-          </Menu.Popup>
-        </Menu.Positioner>
-      </Menu.Portal>
-    </Menu.FilterRoot>
+      <Menu.Root
+        onOpenChangeComplete={(open) => {
+          if (!open) {
+            abortControllerRef.current?.abort();
+            setSearchValue('');
+            setSearchResults(SUGGESTIONS);
+            setError(null);
+          }
+        }}
+      >
+        <Menu.Trigger className={styles.Trigger}>Search…</Menu.Trigger>
+        <Menu.Portal>
+          <Menu.Positioner className={styles.Positioner} sideOffset={8} align="start">
+            <Menu.Popup className={styles.Popup} aria-busy={isPending || undefined}>
+              <div className={styles.InputContainer}>
+                <Menu.FilterInput
+                  className={styles.Input}
+                  aria-label="Search apps, documents, and settings"
+                  placeholder="e.g. Sales Report Q3"
+                />
+                <span className={styles.SpinnerSlot}>
+                  {isPending && <span className={styles.Spinner} aria-hidden />}
+                </span>
+              </div>
+              {!isPending && !error && (
+                <Menu.FilterEmpty className={styles.Empty}>No results found.</Menu.FilterEmpty>
+              )}
+              <Menu.FilterList className={styles.List}>
+                {searchResults.groups.map((group) => (
+                  <Menu.Group key={group.label}>
+                    <Menu.GroupLabel className={styles.GroupLabel}>{group.label}</Menu.GroupLabel>
+                    {group.items.map((item) => (
+                      <Menu.Item key={item} className={styles.Item}>
+                        {item}
+                      </Menu.Item>
+                    ))}
+                  </Menu.Group>
+                ))}
+              </Menu.FilterList>
+              <Menu.FilterStatus className={styles.Status}>{status}</Menu.FilterStatus>
+            </Menu.Popup>
+          </Menu.Positioner>
+        </Menu.Portal>
+      </Menu.Root>
+    </Menu.FilterProvider>
   );
 }
 

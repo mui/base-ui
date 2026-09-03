@@ -14,12 +14,10 @@ import { isKeyboardOpen } from './isKeyboardOpen';
 import { useMenuFilterWebkitItemSelected } from './useMenuFilterWebkitItemSelected';
 
 /**
- * Groups all parts of a filterable menu. Takes the place of `Menu.Root`: the popup can render
- * `Menu.FilterInput`, `Menu.FilterList`, `Menu.FilterClear`, and `Menu.FilterEmpty`, and the
- * items filter against the query. This is the only part that bundles the filter implementation.
- * Doesn't render its own HTML element.
+ * The filterable implementation of `Menu.Root`, rendered in its place when the root sits inside
+ * `Menu.FilterProvider`. Reached through the provider only, so a plain menu never bundles it.
  *
- * Documentation: [Base UI Menu](https://base-ui.com/react/components/menu)
+ * @internal
  */
 export function MenuFilterRoot<Payload>(props: MenuFilterRoot.Props<Payload>): React.JSX.Element {
   const {
@@ -42,7 +40,7 @@ export function MenuFilterRoot<Payload>(props: MenuFilterRoot.Props<Payload>): R
   React.useEffect(() => {
     if (process.env.NODE_ENV !== 'production' && handle && !handle.filterable) {
       console.warn(
-        'Base UI: <Menu.FilterRoot> received a handle created without `filterable: true`. ' +
+        'Base UI: a filterable <Menu.Root> received a handle created without `filterable: true`. ' +
           'Detached triggers announce a plain menu until the root attaches, which can ' +
           'mismatch on hydration. Create it with `Menu.createHandle({ filterable: true })`.',
       );
@@ -156,16 +154,7 @@ export type MenuFilterRootProps<Payload = unknown> = Omit<
      */
     handle?: MenuHandle<Payload> | undefined;
     /**
-     * Whether the list is rendered inline without using the component's own popup.
-     *
-     * Specify `open` unconditionally in conjunction with this prop so the list is considered
-     * visible: `<Menu.FilterRoot inline open>`
-     *
-     * In a `Dialog.Root` > `Menu.FilterRoot` composition, bind the menu's `open` and
-     * `onOpenChange` props to the `Dialog`'s `open` and `onOpenChange` state instead so the
-     * component resets its transient state (filter query and highlighted item) when the dialog
-     * closes. Without that, a `Dialog.Portal` with `keepMounted` reopens with the previous query.
-     * @default false
+     * @ignore
      */
     inline?: boolean | undefined;
     /**

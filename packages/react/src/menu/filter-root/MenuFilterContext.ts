@@ -22,9 +22,8 @@ export interface MenuFilterItemResult {
 }
 
 /**
- * The filter implementation that `Menu.FilterRoot` and `Menu.FilterSubmenuRoot` hand to the
- * parts below them. Those two roots are the only modules that import it, so a plain menu never
- * bundles it. Parts whose whole structure differs are swapped as components; parts that only
+ * The filter implementation that a filterable root hands to the parts below it. Only the roots
+ * `Menu.FilterProvider` renders import it, so a plain menu never bundles it. Parts whose whole structure differs are swapped as components; parts that only
  * register with the filter call an injected hook, so a menu that never renders them doesn't
  * bundle a second implementation.
  */

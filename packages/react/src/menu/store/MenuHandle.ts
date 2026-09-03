@@ -13,7 +13,7 @@ export class MenuHandle<Payload> extends BasePopupHandle<
   MenuHandleStore<Payload>,
   MenuStore<Payload>
 > {
-  /** Whether the handle connects detached triggers to a `Menu.FilterRoot`. */
+  /** Whether the handle connects detached triggers to a filterable `Menu.Root`. */
   readonly filterable: boolean;
 
   constructor(options?: MenuHandleOptions) {
@@ -53,7 +53,7 @@ export class MenuHandle<Payload> extends BasePopupHandle<
 
 export interface MenuHandleOptions {
   /**
-   * Whether the handle connects detached triggers to a `Menu.FilterRoot`. Triggers then announce
+   * Whether the handle connects detached triggers to a filterable `Menu.Root`. Triggers then announce
    * the filterable popup before the root attaches, so server and client markup agree.
    * @default false
    */

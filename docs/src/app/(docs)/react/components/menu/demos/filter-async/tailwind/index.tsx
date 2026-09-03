@@ -41,7 +41,7 @@ export default function ExampleAsyncMenuFilter() {
   }
 
   return (
-    <Menu.FilterRoot
+    <Menu.FilterProvider
       filter={null}
       inputValue={searchValue}
       onInputValueChange={(value, details) => {
@@ -61,68 +61,71 @@ export default function ExampleAsyncMenuFilter() {
 
         runSearch(value);
       }}
-      onOpenChangeComplete={(open) => {
-        if (!open) {
-          abortControllerRef.current?.abort();
-          setSearchValue('');
-          setSearchResults(SUGGESTIONS);
-          setError(null);
-        }
-      }}
     >
-      <Menu.Trigger className="flex h-8 items-center justify-center gap-1.5 rounded-none border border-neutral-950 bg-white px-3 text-sm leading-none font-normal whitespace-nowrap text-neutral-950 select-none hover:not-data-disabled:bg-neutral-100 active:not-data-disabled:bg-neutral-200 data-pressed:bg-neutral-100 focus-visible:-outline-offset-1 focus-visible:outline-2 focus-visible:outline-neutral-950 dark:border-white dark:bg-neutral-950 dark:text-white dark:hover:not-data-disabled:bg-neutral-800 dark:active:not-data-disabled:bg-neutral-700 dark:data-pressed:bg-neutral-800 dark:focus-visible:outline-white">
-        Search…
-      </Menu.Trigger>
-      <Menu.Portal>
-        <Menu.Positioner className="outline-0" sideOffset={8} align="start">
-          <Menu.Popup
-            className="min-w-[max(16rem,var(--anchor-width))] origin-[var(--transform-origin)] overflow-hidden border border-neutral-950 bg-white text-neutral-950 shadow-[0.25rem_0.25rem_0] shadow-black/12 transition-[scale,opacity] duration-100 ease-out outline-hidden data-ending-style:scale-[0.98] data-ending-style:opacity-0 data-starting-style:scale-[0.98] data-starting-style:opacity-0 dark:border-white dark:bg-neutral-950 dark:text-white dark:shadow-none"
-            aria-busy={isPending || undefined}
-          >
-            <div className="flex items-center border-b border-neutral-300 has-data-highlighted:border-neutral-950 has-data-highlighted:ring-1 has-data-highlighted:ring-neutral-950 has-data-highlighted:ring-inset dark:border-neutral-700 dark:has-data-highlighted:border-white dark:has-data-highlighted:ring-white">
-              <Menu.FilterInput
-                className="min-h-8 w-0 flex-1 bg-transparent px-2.5 text-sm leading-none outline-hidden placeholder:text-neutral-500 dark:placeholder:text-neutral-400"
-                aria-label="Search apps, documents, and settings"
-                placeholder="e.g. Sales Report Q3"
-              />
-              <span className="flex size-8 items-center justify-center text-neutral-500 dark:text-neutral-400">
-                {isPending && (
-                  <span
-                    className="inline-block size-3 animate-spin rounded-full border border-current border-r-transparent rtl:border-r-current rtl:border-l-transparent"
-                    aria-hidden
-                  />
-                )}
-              </span>
-            </div>
-            {!isPending && !error && (
-              <Menu.FilterEmpty className="p-3 text-sm text-neutral-500 dark:text-neutral-400">
-                No results found.
-              </Menu.FilterEmpty>
-            )}
-            <Menu.FilterList className="max-h-[min(22rem,var(--available-height))] overflow-y-auto py-1 outline-hidden scroll-py-1 empty:py-0">
-              {searchResults.groups.map((group) => (
-                <Menu.Group key={group.label}>
-                  <Menu.GroupLabel className="pt-1.5 pr-8 pb-1 pl-4 text-xs leading-4 font-medium text-neutral-500 select-none dark:text-neutral-400">
-                    {group.label}
-                  </Menu.GroupLabel>
-                  {group.items.map((item) => (
-                    <Menu.Item
-                      key={item}
-                      className="flex cursor-default py-2 pr-8 pl-4 text-sm leading-4 outline-hidden select-none data-highlighted:relative data-highlighted:z-0 data-highlighted:text-white data-highlighted:before:absolute data-highlighted:before:inset-x-1 data-highlighted:before:inset-y-0 data-highlighted:before:z-[-1] data-highlighted:before:bg-neutral-950 data-highlighted:before:content-[''] dark:data-highlighted:text-neutral-950 dark:data-highlighted:before:bg-white"
-                    >
-                      {item}
-                    </Menu.Item>
-                  ))}
-                </Menu.Group>
-              ))}
-            </Menu.FilterList>
-            <Menu.FilterStatus className="border-t border-neutral-300 px-3 py-2 text-xs leading-4 text-neutral-500 dark:border-neutral-700 dark:text-neutral-400">
-              {status}
-            </Menu.FilterStatus>
-          </Menu.Popup>
-        </Menu.Positioner>
-      </Menu.Portal>
-    </Menu.FilterRoot>
+      <Menu.Root
+        onOpenChangeComplete={(open) => {
+          if (!open) {
+            abortControllerRef.current?.abort();
+            setSearchValue('');
+            setSearchResults(SUGGESTIONS);
+            setError(null);
+          }
+        }}
+      >
+        <Menu.Trigger className="flex h-8 items-center justify-center gap-1.5 rounded-none border border-neutral-950 bg-white px-3 text-sm leading-none font-normal whitespace-nowrap text-neutral-950 select-none hover:not-data-disabled:bg-neutral-100 active:not-data-disabled:bg-neutral-200 data-pressed:bg-neutral-100 focus-visible:-outline-offset-1 focus-visible:outline-2 focus-visible:outline-neutral-950 dark:border-white dark:bg-neutral-950 dark:text-white dark:hover:not-data-disabled:bg-neutral-800 dark:active:not-data-disabled:bg-neutral-700 dark:data-pressed:bg-neutral-800 dark:focus-visible:outline-white">
+          Search…
+        </Menu.Trigger>
+        <Menu.Portal>
+          <Menu.Positioner className="outline-0" sideOffset={8} align="start">
+            <Menu.Popup
+              className="min-w-[max(16rem,var(--anchor-width))] origin-[var(--transform-origin)] overflow-hidden border border-neutral-950 bg-white text-neutral-950 shadow-[0.25rem_0.25rem_0] shadow-black/12 transition-[scale,opacity] duration-100 ease-out outline-hidden data-ending-style:scale-[0.98] data-ending-style:opacity-0 data-starting-style:scale-[0.98] data-starting-style:opacity-0 dark:border-white dark:bg-neutral-950 dark:text-white dark:shadow-none"
+              aria-busy={isPending || undefined}
+            >
+              <div className="flex items-center border-b border-neutral-300 has-data-highlighted:border-neutral-950 has-data-highlighted:ring-1 has-data-highlighted:ring-neutral-950 has-data-highlighted:ring-inset dark:border-neutral-700 dark:has-data-highlighted:border-white dark:has-data-highlighted:ring-white">
+                <Menu.FilterInput
+                  className="min-h-8 w-0 flex-1 bg-transparent px-2.5 text-sm leading-none outline-hidden placeholder:text-neutral-500 dark:placeholder:text-neutral-400"
+                  aria-label="Search apps, documents, and settings"
+                  placeholder="e.g. Sales Report Q3"
+                />
+                <span className="flex size-8 items-center justify-center text-neutral-500 dark:text-neutral-400">
+                  {isPending && (
+                    <span
+                      className="inline-block size-3 animate-spin rounded-full border border-current border-r-transparent rtl:border-r-current rtl:border-l-transparent"
+                      aria-hidden
+                    />
+                  )}
+                </span>
+              </div>
+              {!isPending && !error && (
+                <Menu.FilterEmpty className="p-3 text-sm text-neutral-500 dark:text-neutral-400">
+                  No results found.
+                </Menu.FilterEmpty>
+              )}
+              <Menu.FilterList className="max-h-[min(22rem,var(--available-height))] overflow-y-auto py-1 outline-hidden scroll-py-1 empty:py-0">
+                {searchResults.groups.map((group) => (
+                  <Menu.Group key={group.label}>
+                    <Menu.GroupLabel className="pt-1.5 pr-8 pb-1 pl-4 text-xs leading-4 font-medium text-neutral-500 select-none dark:text-neutral-400">
+                      {group.label}
+                    </Menu.GroupLabel>
+                    {group.items.map((item) => (
+                      <Menu.Item
+                        key={item}
+                        className="flex cursor-default py-2 pr-8 pl-4 text-sm leading-4 outline-hidden select-none data-highlighted:relative data-highlighted:z-0 data-highlighted:text-white data-highlighted:before:absolute data-highlighted:before:inset-x-1 data-highlighted:before:inset-y-0 data-highlighted:before:z-[-1] data-highlighted:before:bg-neutral-950 data-highlighted:before:content-[''] dark:data-highlighted:text-neutral-950 dark:data-highlighted:before:bg-white"
+                      >
+                        {item}
+                      </Menu.Item>
+                    ))}
+                  </Menu.Group>
+                ))}
+              </Menu.FilterList>
+              <Menu.FilterStatus className="border-t border-neutral-300 px-3 py-2 text-xs leading-4 text-neutral-500 dark:border-neutral-700 dark:text-neutral-400">
+                {status}
+              </Menu.FilterStatus>
+            </Menu.Popup>
+          </Menu.Positioner>
+        </Menu.Portal>
+      </Menu.Root>
+    </Menu.FilterProvider>
   );
 }
 

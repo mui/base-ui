@@ -8,20 +8,22 @@ describe('Menu filter parts conformance', () => {
 
   function renderInPopup(
     node: React.ReactNode,
-    rootProps?: Partial<Menu.FilterRoot.Props>,
+    filterProps?: Partial<Menu.FilterProvider.Props>,
     withInput = true,
   ) {
     return render(
-      <Menu.FilterRoot open {...rootProps}>
-        <Menu.Portal>
-          <Menu.Positioner>
-            <Menu.Popup>
-              {withInput && <Menu.FilterInput aria-label="Filter" />}
-              {node}
-            </Menu.Popup>
-          </Menu.Positioner>
-        </Menu.Portal>
-      </Menu.FilterRoot>,
+      <Menu.FilterProvider {...filterProps}>
+        <Menu.Root open>
+          <Menu.Portal>
+            <Menu.Positioner>
+              <Menu.Popup>
+                {withInput && <Menu.FilterInput aria-label="Filter" />}
+                {node}
+              </Menu.Popup>
+            </Menu.Positioner>
+          </Menu.Portal>
+        </Menu.Root>
+      </Menu.FilterProvider>,
     );
   }
 
@@ -32,7 +34,12 @@ describe('Menu filter parts conformance', () => {
   describeConformance(<Menu.Trigger />, () => ({
     refInstanceof: window.HTMLButtonElement,
     button: true,
-    render: (node) => render(<Menu.FilterRoot>{node}</Menu.FilterRoot>),
+    render: (node) =>
+      render(
+        <Menu.FilterProvider>
+          <Menu.Root>{node}</Menu.Root>
+        </Menu.FilterProvider>,
+      ),
   }));
 
   describeConformance(<Menu.FilterInput />, () => ({
@@ -69,11 +76,13 @@ describe('Menu filter parts conformance', () => {
       refInstanceof: window.HTMLDivElement,
       render: (node) =>
         render(
-          <Menu.FilterRoot open>
-            <Menu.Portal>
-              <Menu.Positioner>{node}</Menu.Positioner>
-            </Menu.Portal>
-          </Menu.FilterRoot>,
+          <Menu.FilterProvider>
+            <Menu.Root open>
+              <Menu.Portal>
+                <Menu.Positioner>{node}</Menu.Positioner>
+              </Menu.Portal>
+            </Menu.Root>
+          </Menu.FilterProvider>,
         ),
     }),
   );
@@ -123,16 +132,18 @@ describe('Menu filter parts conformance', () => {
     refInstanceof: window.HTMLDivElement,
     render: (node) =>
       render(
-        <Menu.FilterRoot open>
-          <Menu.Portal>
-            {node}
-            <Menu.Positioner>
-              <Menu.Popup>
-                <Menu.FilterInput aria-label="Filter" />
-              </Menu.Popup>
-            </Menu.Positioner>
-          </Menu.Portal>
-        </Menu.FilterRoot>,
+        <Menu.FilterProvider>
+          <Menu.Root open>
+            <Menu.Portal>
+              {node}
+              <Menu.Positioner>
+                <Menu.Popup>
+                  <Menu.FilterInput aria-label="Filter" />
+                </Menu.Popup>
+              </Menu.Positioner>
+            </Menu.Portal>
+          </Menu.Root>
+        </Menu.FilterProvider>,
       ),
   }));
 
@@ -144,7 +155,12 @@ describe('Menu filter parts conformance', () => {
   describeConformance(<Menu.SubmenuTrigger />, () => ({
     refInstanceof: window.HTMLDivElement,
     button: true,
-    render: (node) => renderInList(<Menu.FilterSubmenuRoot>{node}</Menu.FilterSubmenuRoot>),
+    render: (node) =>
+      renderInList(
+        <Menu.FilterProvider>
+          <Menu.SubmenuRoot>{node}</Menu.SubmenuRoot>
+        </Menu.FilterProvider>,
+      ),
   }));
 
   it('throws when Trigger is rendered without a root or handle', async () => {
