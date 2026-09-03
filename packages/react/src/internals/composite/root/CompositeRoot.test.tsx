@@ -1215,6 +1215,133 @@ describe('Composite', () => {
     });
   });
 
+  describe('controlled highlightedIndex', () => {
+    function App({
+      showItem0 = true,
+      showItem4 = true,
+      showExtraItem = false,
+    }: {
+      showItem0?: boolean;
+      showItem4?: boolean;
+      showExtraItem?: boolean;
+    }) {
+      const [highlightedIndex, setHighlightedIndex] = React.useState(1);
+      const [item4Removed, setItem4Removed] = React.useState(false);
+      return (
+        <React.Fragment>
+          <button onClick={() => setHighlightedIndex(2)}>highlight 2</button>
+          <button onClick={() => setHighlightedIndex(4)}>highlight 4</button>
+          <button
+            onClick={() => {
+              setHighlightedIndex(2);
+              setItem4Removed(true);
+            }}
+          >
+            highlight 2 and remove 4
+          </button>
+          <CompositeRoot
+            highlightedIndex={highlightedIndex}
+            onHighlightedIndexChange={setHighlightedIndex}
+          >
+            {showItem0 && <CompositeItem data-testid="0" />}
+            <CompositeItem data-testid="1" />
+            <CompositeItem data-testid="2" />
+            <CompositeItem data-testid="3" />
+            {showItem4 && !item4Removed && <CompositeItem data-testid="4" />}
+            {showExtraItem && <CompositeItem data-testid="extra" />}
+          </CompositeRoot>
+        </React.Fragment>
+      );
+    }
+
+    it('keeps the controlled tab stop when an unrelated item is removed', async () => {
+      const { rerender } = await render(<App />);
+
+      act(() => screen.getByTestId('1').focus());
+      expect(screen.getByTestId('1')).toHaveAttribute('tabindex', '0');
+
+      fireEvent.click(screen.getByRole('button', { name: 'highlight 2' }));
+      expect(screen.getByTestId('2')).toHaveAttribute('tabindex', '0');
+
+      rerender(<App showItem4={false} />);
+
+      expect(screen.getByTestId('2')).toHaveAttribute('tabindex', '0');
+      expect(screen.getByTestId('1')).toHaveAttribute('tabindex', '-1');
+    });
+
+    it('keeps the controlled tab stop when an unrelated item is inserted', async () => {
+      const { rerender } = await render(<App />);
+
+      act(() => screen.getByTestId('1').focus());
+      expect(screen.getByTestId('1')).toHaveAttribute('tabindex', '0');
+
+      fireEvent.click(screen.getByRole('button', { name: 'highlight 2' }));
+      expect(screen.getByTestId('2')).toHaveAttribute('tabindex', '0');
+
+      rerender(<App showExtraItem />);
+
+      expect(screen.getByTestId('2')).toHaveAttribute('tabindex', '0');
+      expect(screen.getByTestId('1')).toHaveAttribute('tabindex', '-1');
+    });
+
+    it('keeps the controlled tab stop when the index and the items change in the same commit', async () => {
+      await render(<App />);
+
+      act(() => screen.getByTestId('1').focus());
+      expect(screen.getByTestId('1')).toHaveAttribute('tabindex', '0');
+
+      fireEvent.click(screen.getByRole('button', { name: 'highlight 2 and remove 4' }));
+
+      expect(screen.queryByTestId('4')).toBeNull();
+      expect(screen.getByTestId('2')).toHaveAttribute('tabindex', '0');
+      expect(screen.getByTestId('1')).toHaveAttribute('tabindex', '-1');
+    });
+
+    it('moves the tab stop back into range when the controlled item is removed later', async () => {
+      const { rerender } = await render(<App />);
+
+      act(() => screen.getByTestId('1').focus());
+      fireEvent.click(screen.getByRole('button', { name: 'highlight 4' }));
+      expect(screen.getByTestId('4')).toHaveAttribute('tabindex', '0');
+
+      rerender(<App showItem4={false} />);
+
+      expect(screen.getByTestId('0')).toHaveAttribute('tabindex', '0');
+      expect(screen.getByTestId('1')).toHaveAttribute('tabindex', '-1');
+    });
+
+    it('keeps the tab stop on the controlled item when an earlier item is removed later', async () => {
+      const { rerender } = await render(<App />);
+
+      act(() => screen.getByTestId('1').focus());
+      fireEvent.click(screen.getByRole('button', { name: 'highlight 2' }));
+      expect(screen.getByTestId('2')).toHaveAttribute('tabindex', '0');
+
+      rerender(<App showItem0={false} />);
+
+      expect(screen.getByTestId('2')).toHaveAttribute('tabindex', '0');
+      expect(screen.getByTestId('3')).toHaveAttribute('tabindex', '-1');
+    });
+
+    it('follows the refreshed item when an earlier item is removed afterwards', async () => {
+      const { rerender } = await render(<App />);
+
+      act(() => screen.getByTestId('1').focus());
+      fireEvent.click(screen.getByRole('button', { name: 'highlight 2' }));
+
+      // refreshes the cached element to item 2
+      rerender(<App showItem4={false} />);
+      expect(screen.getByTestId('2')).toHaveAttribute('tabindex', '0');
+
+      // item 2 shifts to index 1 and must keep the tab stop
+      rerender(<App showItem4={false} showItem0={false} />);
+
+      expect(screen.getByTestId('2')).toHaveAttribute('tabindex', '0');
+      expect(screen.getByTestId('1')).toHaveAttribute('tabindex', '-1');
+      expect(screen.getByTestId('3')).toHaveAttribute('tabindex', '-1');
+    });
+  });
+
   describe('prop: modifierKeys', () => {
     it('prevents arrow key navigation when any modifier key is pressed by default', async () => {
       render(
